@@ -8169,10 +8169,10 @@
 			
 			if (urlParams['dev'] == '1')
 			{
-				mxMermaidToDrawio.addListener(mxUtils.bind(this, function(modelXml)
+				/*mxMermaidToDrawio.addListener(mxUtils.bind(this, function(modelXml)
 				{
 					this.importXml(modelXml, null, null, null, null, null, true);
-				}));
+				}));*/
 				
 				mxscript('js/mermaid/mermaid.min.js', delayed,
 					null, null, null, onerror);
@@ -16118,13 +16118,7 @@
 								{
 									this.fireEvent(new mxEventObject('editInlineStart', 'data', [data]));
 									graph.container.focus();
-
-									// Makes sure exit button is inside viewport
-									if (this.sketchFooterMenuElt != null)
-									{
-										this.sketchFooterMenuElt.scrollIntoView();
-									}
-
+									
 									// Moves format window to top of graph
 									if (this.formatWindow != null &&
 										this.formatWindow.window != null &&

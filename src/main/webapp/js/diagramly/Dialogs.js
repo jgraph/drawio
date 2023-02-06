@@ -3287,6 +3287,16 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					typeSelect.selectedIndex])) + ')') : '');
 			var title = description.value + type;
 
+			if (typeof mxMermaidToDrawio !== 'undefined')
+			{
+				mxMermaidToDrawio.addListener(mxUtils.bind(this, function(modelXml)
+				{
+					templateXml = '<mxfile><diagram id="d" name="n">' +
+							Graph.compress(modelXml) + '</diagram></mxfile>';
+					lastAiXml = templateXml;
+				}));
+			}
+
 			editorUi.generateOpenAiMermaidDiagram(openAiKey.value, prompt,
 				function(mermaidData, imageData, w, h)
 				{
@@ -3307,8 +3317,12 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					// Updates template XML for insert button
 					var previewXml = '<mxfile><diagram id="d" name="n">' +
 						Graph.compress(xml) + '</diagram></mxfile>';
-					templateXml = xml;
-					lastAiXml = xml;
+					
+					if (typeof mxMermaidToDrawio === 'undefined')
+					{
+						templateXml = xml;
+						lastAiXml = xml;
+					}
 
 					var magnify = magnifyImage.cloneNode(true);
 					preview.appendChild(magnify);
@@ -13056,12 +13070,13 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		editingGraph.centerZoom = true;
 		editingGraph.maxFitScale = 2;
 
-		function createCPoint(x, y)
+		function createCPoint(x, y, constObj)
 		{
 			var cPointStyle = 'shape=mxgraph.basic.x;fillColor=#29b6f2;strokeColor=#29b6f2;points=[];rotatable=0;resizable=0;connectable=0;editable=0;';
 			var cPoint = new mxCell('', new mxGeometry(x, y, CP_SIZE, CP_SIZE), cPointStyle);
 			cPoint.vertex = true;
 			cPoint.cp = true;
+			cPoint.constObj = constObj;
 
 			return editingGraph.addCell(cPoint);
 		};
@@ -13140,7 +13155,7 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		for (var i = 0; constraints != null && i < constraints.length; i++)
 		{
 			var cp = editingGraph.getConnectionPoint(state, constraints[i]);
-			createCPoint(cp.x - CP_HLF_SIZE, cp.y - CP_HLF_SIZE);
+			createCPoint(cp.x - CP_HLF_SIZE, cp.y - CP_HLF_SIZE, constraints[i]);
 		}
 
 		editingGraph.fit(8);
@@ -13316,14 +13331,14 @@ var ConnectionPointsDialog = function(editorUi, cell)
 
 			var dx = parseInt(dxInput.value) || 0;
 			var dy = parseInt(dyInput.value) || 0;
-
-			var cp = editingGraph.getConnectionPoint(state, 
-						new mxConnectionConstraint(new mxPoint(x/100, y/100), false, null, dx, dy));
+			var constObj = new mxConnectionConstraint(new mxPoint(x/100, y/100), false, null, dx, dy);
+			var cp = editingGraph.getConnectionPoint(state, constObj);
 
 			var cell = editingGraph.getSelectionCell();
 
 			if (cell != null)
 			{
+				cell.constObj = constObj;
 				var geo = cell.geometry.clone();
 				var scale = editingGraph.view.scale;
 				var tr = editingGraph.view.translate;
@@ -13335,6 +13350,11 @@ var ConnectionPointsDialog = function(editorUi, cell)
 
 		function getConstraintFromCPoint(cp)
 		{
+			if (cp.constObj)
+			{
+				return {x: cp.constObj.point.x, y: cp.constObj.point.y, dx: cp.constObj.dx, dy: cp.constObj.dy};
+			}
+
 			var dx = 0, dy = 0, mGeo = mainCell.geometry;
 			var x = mxUtils.format((cp.geometry.x + CP_HLF_SIZE - mGeo.x) / mGeo.width);
 			var y = mxUtils.format((cp.geometry.y + CP_HLF_SIZE - mGeo.y) / mGeo.height);
@@ -13364,11 +13384,18 @@ var ConnectionPointsDialog = function(editorUi, cell)
 			return {x: x, y: y, dx: parseInt(dx), dy: parseInt(dy)};
 		};
 
-		function fillCPointProp()
+		function fillCPointProp(evt)
 		{
 			if (editingGraph.getSelectionCount() == 1)
 			{
 				var cell = editingGraph.getSelectionCell();
+
+				// On move events, exact constraint is lost
+				if (evt)
+				{
+					cell.constObj = null;
+				}
+				
 				var constraint = getConstraintFromCPoint(cell);
 				xInput.value = constraint.x * 100;
 				yInput.value = constraint.y * 100;

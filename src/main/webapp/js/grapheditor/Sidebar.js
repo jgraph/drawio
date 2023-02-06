@@ -1648,6 +1648,10 @@ Sidebar.prototype.addUmlPalette = function(expand)
 	divider.vertex = true;
 
 	var sequenceEdgeStyle = 'newEdgeStyle={"edgeStyle":"elbowEdgeStyle","elbow":"vertical","curved":0,"rounded":0};';
+	var lifelineStyle = 'shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;' +
+		'collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;' + sequenceEdgeStyle;
+	var activationStyle = 'html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;' +
+		'targetShapes=umlLifeline;portConstraint=eastwest;' + sequenceEdgeStyle;
 	
 	// Default tags
 	var dt = 'uml static class ';
@@ -1853,7 +1857,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		}),
 		this.addEntry('uml activity condition', function()
 		{
-	    	var cell = new mxCell('Condition', new mxGeometry(0, 0, 80, 40), 'rhombus;whiteSpace=wrap;html=1;fillColor=#ffffc0;strokeColor=#ff0000;');
+	    	var cell = new mxCell('Condition', new mxGeometry(0, 0, 80, 40), 'rhombus;whiteSpace=wrap;html=1;fontColor=#000000;fillColor=#ffffc0;strokeColor=#ff0000;');
 	    	cell.vertex = true;
 	    	
 			var edge1 = new mxCell('no', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;html=1;align=left;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#ff0000;');
@@ -1889,25 +1893,17 @@ Sidebar.prototype.addUmlPalette = function(expand)
 			return sb.createVertexTemplateFromCells([cell, edge], 200, 80, 'Fork/Join');
 		}),
 		this.createVertexTemplateEntry('ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;', 30, 30, '', 'End', null, null, 'uml activity state end'),
-		this.createVertexTemplateEntry('shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;' +
-			'collapsible=0;recursiveResize=0;outlineConnect=0;' + sequenceEdgeStyle, 100, 300, ':Object', 'Lifeline', null, null, 'uml sequence participant lifeline'),
-		this.createVertexTemplateEntry('shape=umlLifeline;participant=umlActor;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;' +
-			'container=1;collapsible=0;recursiveResize=0;verticalAlign=top;spacingTop=36;outlineConnect=0;' + sequenceEdgeStyle,
-			20, 300, '', 'Actor Lifeline', null, null, 'uml sequence participant lifeline actor'),
-		this.createVertexTemplateEntry('shape=umlLifeline;participant=umlBoundary;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;' +
-			'container=1;collapsible=0;recursiveResize=0;verticalAlign=top;spacingTop=36;outlineConnect=0;' + sequenceEdgeStyle,
-			50, 300, '', 'Boundary Lifeline', null, null, 'uml sequence participant lifeline boundary'),
-		this.createVertexTemplateEntry('shape=umlLifeline;participant=umlEntity;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;' +
-			'container=1;collapsible=0;recursiveResize=0;verticalAlign=top;spacingTop=36;outlineConnect=0;' + sequenceEdgeStyle,
-			40, 300, '', 'Entity Lifeline', null, null, 'uml sequence participant lifeline entity'),
-		this.createVertexTemplateEntry('shape=umlLifeline;participant=umlControl;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;' +
-			'container=1;collapsible=0;recursiveResize=0;verticalAlign=top;spacingTop=36;outlineConnect=0;' + sequenceEdgeStyle,
-			40, 300, '', 'Control Lifeline', null, null, 'uml sequence participant lifeline control'),
-		this.createVertexTemplateEntry('shape=umlFrame;whiteSpace=wrap;html=1;fillColor=none;pointerEvents=0;', 300, 200, 'frame', 'Frame', null, null, 'uml sequence frame'),
-		this.createVertexTemplateEntry('shape=umlDestroy;whiteSpace=wrap;html=1;strokeWidth=3;', 30, 30, '', 'Destruction', null, null, 'uml sequence destruction destroy'),
-		this.addEntry('uml sequence invoke invocation call activation', function()
+		this.createVertexTemplateEntry(lifelineStyle, 100, 300, ':Object', 'Lifeline', null, null, 'uml sequence participant lifeline'),
+		this.createVertexTemplateEntry(lifelineStyle + 'participant=umlActor;', 20, 300, '', 'Actor Lifeline', null, null, 'uml sequence participant lifeline actor'),
+		this.createVertexTemplateEntry(lifelineStyle + 'participant=umlBoundary;', 50, 300, '', 'Boundary Lifeline', null, null, 'uml sequence participant lifeline boundary'),
+		this.createVertexTemplateEntry(lifelineStyle + 'participant=umlEntity;', 40, 300, '', 'Entity Lifeline', null, null, 'uml sequence participant lifeline entity'),
+		this.createVertexTemplateEntry(lifelineStyle + 'participant=umlControl;', 40, 300, '', 'Control Lifeline', null, null, 'uml sequence participant lifeline control'),
+		this.createVertexTemplateEntry('shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;', 300, 200, 'frame', 'Frame', null, null, 'uml sequence frame'),
+		this.createVertexTemplateEntry('shape=umlDestroy;whiteSpace=wrap;html=1;strokeWidth=3;targetShapes=umlLifeline;',
+			30, 30, '', 'Destruction', null, null, 'uml sequence destruction destroy'),
+		this.addEntry('uml sequence invoke invocation call activation bar', function()
 		{
-	    	var cell = new mxCell('', new mxGeometry(0, 0, 10, 80), 'html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;' + sequenceEdgeStyle);
+	    	var cell = new mxCell('', new mxGeometry(0, 0, 10, 80), activationStyle);
 	    	cell.vertex = true;
 	    	
 			var edge = new mxCell('dispatch', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;startArrow=oval;endArrow=block;' +
@@ -1920,9 +1916,9 @@ Sidebar.prototype.addUmlPalette = function(expand)
 	
 			return sb.createVertexTemplateFromCells([cell, edge], 10, 80, 'Found Message');
 		}),
-		this.addEntry('uml sequence invoke call delegation synchronous invocation activation', function()
+		this.addEntry('uml sequence invoke call delegation synchronous invocation activation bar', function()
 		{
-	    	var cell = new mxCell('', new mxGeometry(0, 0, 10, 80), 'html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;' + sequenceEdgeStyle);
+	    	var cell = new mxCell('', new mxGeometry(0, 0, 10, 80), activationStyle);
 	    	cell.vertex = true;
 	    	
 			var edge1 = new mxCell('dispatch', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=block;' +
@@ -1943,13 +1939,13 @@ Sidebar.prototype.addUmlPalette = function(expand)
 			
 			return sb.createVertexTemplateFromCells([cell, edge1, edge2], 10, 80, 'Synchronous Invocation');
 		}),
-		this.addEntry('uml sequence self call recursion delegation activation', function()
+		this.addEntry('uml sequence self call recursion delegation activation bar', function()
 		{
-	    	var cell = new mxCell('', new mxGeometry(-5, 20, 10, 40), 'html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;' + sequenceEdgeStyle);
+	    	var cell = new mxCell('', new mxGeometry(-5, 20, 10, 40), activationStyle);
 	    	cell.vertex = true;
 	
 			var edge = new mxCell('self call', new mxGeometry(0, 0, 0, 0), 'html=1;align=left;spacingLeft=2;endArrow=block;' +
-				'rounded=0;edgeStyle=elbowEdgeStyle;elbow=horizontal;curved=0;rounded=0;');
+				'rounded=0;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;');
 			edge.geometry.setTerminalPoint(new mxPoint(0, 0), true);
 			edge.geometry.points = [new mxPoint(30, 30)];
 			edge.geometry.relative = true;
@@ -1959,13 +1955,31 @@ Sidebar.prototype.addUmlPalette = function(expand)
 	
 			return sb.createVertexTemplateFromCells([cell, edge], 10, 60, 'Self Call');
 		}),
-		this.addEntry('uml sequence invoke call delegation callback activation', function()
+		this.addEntry('uml sequence invoke call delegation callback activation bar', function()
 		{
-			return sb.createVertexTemplateFromData('xZRNboMwEIVP4z3BTdJtgDarSpFyAgdGYNV46GBI0tPXYENCfqqoldoFEn7zZmzeZ8F4XB7WJKriDTNQjL8wHhOicW/lIQalWBjIjPGEhWFgHxa+3qnO+mpQCQJtHmkIXUMrVANOcUJtjsoLhSntsZIZ41GFUpu6k+cRmyedAiRLMEBWRDIF5qiF2pzUCBujpIYYtYa0O1NgRQ37lyyH7bDLMmLh4qPpvjqCsTBKjK/O6mqHZ90nUxhfmO4MaIGMTIW605o21EI26Q0mBsJGZ1eOZdIP6tO0G8DhLpFe8jjWgDYoOlrLXmam8A4HLShA5oXvWnhN1G6dj50nvPbFE75Nm1/RtjGonUjfv6M+5LVSMtdW26ExWHYh62xFZHO2mkI75BweTy5ADVB4MgIYw3a3YgjWrdyRuoGTJI2gHMzk9j4QLoESRrbTUbei9K2b7qZbi6e4vAi/xoZS8KaL/MddH0LydIWEwDSkfwsEK7ClKBN10Sc6c+Wt/OzmPf8JKpfSP6E6uuV8Ph3grs8PyNnl6bfs7Od/7S8=',
-				10, 60, 'Callback');
+			var cell = new mxCell('', new mxGeometry(0, 0, 10, 80), activationStyle);
+			cell.vertex = true;
+
+			var edge1 = new mxCell('callback', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=block;' +
+				'edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;');
+			edge1.geometry.setTerminalPoint(new mxPoint(80, 0), true);
+			edge1.geometry.relative = true;
+			edge1.edge = true;
+
+			cell.insertEdge(edge1, false);
+
+			var edge2 = new mxCell('return', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=open;dashed=1;' +
+				'endSize=8;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;');
+			edge2.geometry.setTerminalPoint(new mxPoint(80, 75), false);
+			edge2.geometry.relative = true;
+			edge2.edge = true;
+
+			cell.insertEdge(edge2, true);
+
+			return sb.createVertexTemplateFromCells([cell, edge1, edge2], 10, 80, 'Callback');
+
 		}),
-		this.createVertexTemplateEntry('html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;' + sequenceEdgeStyle, 10, 80, '', 'Activation', null, null, 'uml sequence activation'),
-		
+		this.createVertexTemplateEntry(activationStyle, 10, 80, '', 'Activation Bar', null, null, 'uml sequence activation bar'),
 	 	this.createEdgeTemplateEntry('html=1;verticalAlign=bottom;startArrow=oval;startFill=1;endArrow=block;startSize=8;' +
 		 	'edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;', 60, 0, 'dispatch', 'Found Message 1', null, 'uml sequence message call invoke dispatch'),
 	 	this.createEdgeTemplateEntry('html=1;verticalAlign=bottom;startArrow=circle;startFill=1;endArrow=open;startSize=6;endSize=8;' +
@@ -3504,32 +3518,11 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 			!(currentStyleTarget != null && activeArrow == styleTarget)) ?
 			mxDragSource.prototype.getDropTarget.apply(this, arguments) : null;
 		var model = graph.getModel();
-		
-		if (target != null)
+
+		if (target != null && (activeArrow != null ||
+			!graph.isSplitTarget(target, cells, evt)))
 		{
-			if (activeArrow != null || !graph.isSplitTarget(target, cells, evt))
-			{
-				// Selects parent group as drop target
-				while (target != null && !graph.isValidDropTarget(target, cells, evt) &&
-					model.isVertex(model.getParent(target)))
-				{
-					target = model.getParent(target);
-				}
-				
-				if (target != null && (graph.view.currentRoot == target ||
-					(!graph.isValidRoot(target) && 
-					graph.getModel().getChildCount(target) == 0) ||
-					graph.isCellLocked(target) || model.isEdge(target) ||
-					!graph.isValidDropTarget(target, cells, evt)))
-				{
-					target = null;
-				}
-			}
-		}
-		
-		if (graph.isCellLocked(target))
-		{
-			target = null;
+			target = graph.getDropTarget(cells, evt, target, true);
 		}
 		
 		return target;

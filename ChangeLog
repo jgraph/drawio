@@ -1,3 +1,12 @@
+06-FEB-2023: 20.8.17
+
+- Fixes connection points dialog, adds help button
+- Fixed connection points losing dx, dy on edit (DS-943)
+- Improves UX for UML sequence diagrams [DID-7338]
+- Fixes initial embedded inline editor position
+- Fixes default fill color on UML frame label
+- Fixes inconsistent font color for condition shape
+
 02-FEB-2023: 20.8.16
 
 - Fixes overriden CSS for buttons and button states [drawio-3326]

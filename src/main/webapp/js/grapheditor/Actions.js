@@ -564,6 +564,7 @@ Actions.prototype.init = function()
 				graph.setCellStyles(mxConstants.STYLE_ROTATABLE, value, cells);
 				graph.setCellStyles(mxConstants.STYLE_DELETABLE, value, cells);
 				graph.setCellStyles(mxConstants.STYLE_EDITABLE, value, cells);
+				graph.setCellStyles('locked', (value == 1) ? 0 : 1, cells);
 				graph.setCellStyles('connectable', value, cells);
 			}
 			finally

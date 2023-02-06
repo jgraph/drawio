@@ -359,7 +359,8 @@ Format.prototype.immediateRefresh = function()
 		label.style.backgroundColor = Format.inactiveTabBackgroundColor;
 		label.style.borderLeftWidth = '1px';
 		label.style.cursor = 'pointer';
-		label.style.width = (containsLabel || ss.cells.length == 0) ? '50%' : '33.3%';
+		label.style.width = ss.cells.length == 0 ? '100%' :
+			(containsLabel ? '50%' : '33.3%');
 		var label2 = label.cloneNode(false);
 		var label3 = label2.cloneNode(false);
 
@@ -372,7 +373,7 @@ Format.prototype.immediateRefresh = function()
 		{
 			label2.style.borderLeftWidth = '0px';
 		}
-		else
+		else if (ss.cells.length > 0)
 		{
 			label.style.borderLeftWidth = '0px';
 			mxUtils.write(label, mxResources.get('style'));

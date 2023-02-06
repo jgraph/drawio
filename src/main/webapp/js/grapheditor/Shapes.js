@@ -2404,12 +2404,25 @@
 	};
 
 	mxUtils.extend(UmlFrame, mxShape);
-
+	
 	UmlFrame.prototype.width = 60;
 
 	UmlFrame.prototype.height = 30;
 
 	UmlFrame.prototype.corner = 10;
+
+	UmlFrame.prototype.configurePointerEvents = function(c)
+	{
+		var bg = mxUtils.getValue(this.style, mxConstants.STYLE_SWIMLANE_FILLCOLOR, mxConstants.NONE);
+
+		if (this.style != null && (bg == null ||
+			bg == mxConstants.NONE || this.opacity == 0 ||
+			this.fillOpacity == 0) && mxUtils.getValue(this.style,
+			mxConstants.STYLE_POINTER_EVENTS, '1') == '0')
+		{
+			c.pointerEvents = false;
+		}
+	};
 
 	UmlFrame.prototype.getLabelMargins = function(rect)
 	{
@@ -2442,6 +2455,9 @@
 			c.setFillColor(this.fill);
 		}
 
+		// Label part handles events
+		c.pointerEvents = true;
+
 		c.begin();
 		c.moveTo(x, y);
 		c.lineTo(x + w0, y);
@@ -2450,6 +2466,8 @@
 		c.lineTo(x, y + h0);
 		c.close();
 		c.fillAndStroke();
+
+		this.configurePointerEvents(c);
 		
 		c.begin();
 		c.moveTo(x + w0, y);

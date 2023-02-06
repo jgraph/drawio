@@ -1045,10 +1045,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		var click = this.click;
 		this.click = function(me)
 		{
-			var locked = me.state == null && me.sourceState != null &&
-				this.isCellLocked(me.sourceState.cell);
-			
-			if ((!this.isEnabled() || locked) && !me.isConsumed())
+			if (!this.isEnabled() && !me.isConsumed())
 			{
 				var cell = (locked) ? me.sourceState.cell : me.getCell();
 				
@@ -1148,11 +1145,9 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		this.selectRegion = function(rect, evt)
 		{
 			var isect = (mxEvent.isAltDown(evt)) ? rect : null;
-
-			var cells = this.getCells(rect.x, rect.y, rect.width, rect.height, null, null, isect, function(state)
-			{
-				return mxUtils.getValue(state.style, 'locked', '0') == '1';
-			}, true);
+			var cells = this.getCells(rect.x, rect.y,
+				rect.width, rect.height, null, null,
+				isect, null, true);
 
 			if (this.isToggleEvent(evt))
 			{
@@ -1283,22 +1278,6 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		{
 			this.initTouch();
 		}
-		
-		/**
-		 * Adds locking
-		 */
-		var graphUpdateMouseEvent = this.updateMouseEvent;
-		this.updateMouseEvent = function(me)
-		{
-			me = graphUpdateMouseEvent.apply(this, arguments);
-			
-			if (me.state != null && this.isCellLocked(me.getCell()))
-			{
-				me.state = null;
-			}
-			
-			return me;
-		};
 	}
 	
 	//Create a unique offset object for each graph instance.
@@ -1388,6 +1367,11 @@ Graph.pasteStyles = ['rounded', 'shadow', 'dashed', 'dashPattern', 'fontFamily',
 					'endSize', 'targetPerimeterSpacing', 'startFill', 'startArrow', 'startSize', 'sourcePerimeterSpacing',
 					'arcSize', 'comic', 'sketch', 'fillWeight', 'hachureGap', 'hachureAngle', 'jiggle', 'disableMultiStroke',
 					'disableMultiStrokeFill', 'fillStyle', 'curveFitting', 'simplification', 'comicStyle'];
+
+/**
+ * 	
+ */
+Graph.updateShapeStyles = Graph.pasteStyles.concat([mxConstants.STYLE_SHAPE, mxConstants.STYLE_PERIMETER]);
 
 /**
  * Whitelist for known layout names.
@@ -2613,6 +2597,8 @@ Graph.prototype.init = function(container)
 				if (this.model.isVertex(cells[i]) || this.model.isEdge(cells[i]))
 				{
 					var cellStyle = this.getCellStyle(cells[i], false);
+					var perimeter = cellStyle[mxConstants.STYLE_PERIMETER];
+					var restorePerimeter = false;
 
 					for (var key in style)
 					{
@@ -2620,8 +2606,22 @@ Graph.prototype.init = function(container)
 
 						if (cellStyle[key] != value)
 						{
+							// Handles paste of shape to UML lifeline
+							if (key == mxConstants.STYLE_SHAPE &&
+								cellStyle[key] == 'umlLifeline' &&
+								value != 'umlLifeline')
+							{
+								restorePerimeter = true;
+								key = 'participant';
+							}
+
 							this.setCellStyles(key, value, [cells[i]]);
 						}
+					}
+
+					if (restorePerimeter)
+					{
+						this.setCellStyles(mxConstants.STYLE_PERIMETER, perimeter, [cells[i]]);
 					}
 				}
 			}
@@ -4336,64 +4336,41 @@ Graph.prototype.snapCellsToGrid = function(cells, gridSize)
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Graph.prototype.updateShapes = function(source, targets)
+Graph.prototype.removeChildCells = function(cell)
 {
-	var sourceCellStyle = this.getCellStyle(source);
-	var result = [];
-	
 	this.model.beginUpdate();
 	try
 	{
-		var cellStyle = this.getModel().getStyle(source);
-
-		// Lists the styles to carry over from the existing shape
-		var styles = ['shadow', 'dashed', 'dashPattern', 'fontFamily', 'fontSize', 'fontColor', 'align', 'startFill',
-		              'startSize', 'endFill', 'endSize', 'strokeColor', 'strokeWidth', 'fillColor', 'gradientColor',
-		              'html', 'part', 'noEdgeStyle', 'edgeStyle', 'elbow', 'childLayout', 'recursiveResize',
-		              'container', 'collapsible', 'connectable', 'comic', 'sketch', 'fillWeight', 'hachureGap',
-		              'hachureAngle', 'jiggle', 'disableMultiStroke', 'disableMultiStrokeFill',
-		              'fillStyle', 'curveFitting', 'simplification', 'sketchStyle'];
+		var childCount = this.model.getChildCount(cell);
 		
+		for (var j = childCount; j >= 0; j--)
+		{
+			this.model.remove(this.model.getChildAt(cell, j));
+		}
+	}
+	finally
+	{
+		this.model.endUpdate();
+	}
+};
+
+/**
+ * Creates a drop handler for inserting the given cells.
+ */
+Graph.prototype.updateShapes = function(source, targets)
+{
+	this.model.beginUpdate();
+	try
+	{
+		this.pasteStyle(this.copyStyle(source), targets, Graph.updateShapeStyles);
+
+		// Removes child cells of composite cells
 		for (var i = 0; i < targets.length; i++)
 		{
-			var targetCell = targets[i];
-			
-			if ((this.getModel().isVertex(targetCell) == this.getModel().isVertex(source)) ||
-				(this.getModel().isEdge(targetCell) == this.getModel().isEdge(source)))
+			if (mxUtils.getValue(this.getCellStyle(targets[i],
+				false), 'composite', '0') == '1')
 			{
-				var style = this.getCellStyle(targets[i], false);
-				this.getModel().setStyle(targetCell, cellStyle);
-				
-				// Removes all children of composite cells
-				if (mxUtils.getValue(style, 'composite', '0') == '1')
-				{
-					var childCount = this.model.getChildCount(targetCell);
-					
-					for (var j = childCount; j >= 0; j--)
-					{
-						this.model.remove(this.model.getChildAt(targetCell, j));
-					}
-				}
-
-				// Replaces the participant style in the lifeline shape with the target shape
-				if (style[mxConstants.STYLE_SHAPE] == 'umlLifeline' &&
-					sourceCellStyle[mxConstants.STYLE_SHAPE] != 'umlLifeline')
-				{
-					this.setCellStyles(mxConstants.STYLE_SHAPE, 'umlLifeline', [targetCell]);
-					this.setCellStyles('participant', sourceCellStyle[mxConstants.STYLE_SHAPE], [targetCell]);
-				}
-				
-				for (var j = 0; j < styles.length; j++)
-				{
-					var value = style[styles[j]];
-					
-					if (value != null)
-					{
-						this.setCellStyles(styles[j], value, [targetCell]);
-					}
-				}
-				
-				result.push(targetCell);
+				this.removeChildCells(targets[i]);
 			}
 		}
 	}
@@ -4401,8 +4378,6 @@ Graph.prototype.updateShapes = function(source, targets)
 	{
 		this.model.endUpdate();
 	}
-	
-	return result;
 };
 
 /**
@@ -9068,14 +9043,14 @@ if (typeof mxVertexHandler !== 'undefined')
 				tables = tables && this.isTable(cells[i]);
 				rows = rows && this.isTableRow(cells[i]);
 			}
-			
-			return ((cells.length == 1 && evt != null && mxEvent.isShiftDown(evt) &&
-				!mxEvent.isControlDown(evt) && !mxEvent.isAltDown(evt)) ||
+
+			return !this.isCellLocked(cell) && ((cells.length == 1 && evt != null &&
+				mxEvent.isShiftDown(evt) && !mxEvent.isControlDown(evt) &&
+				!mxEvent.isAltDown(evt)) || this.isTargetShape(cell, cells, evt) ||
 				((mxUtils.getValue(style, 'part', '0') != '1' || this.isContainer(cell)) &&
-				mxUtils.getValue(style, 'dropTarget', '1') != '0' &&
-				(mxGraph.prototype.isValidDropTarget.apply(this, arguments) ||
-				this.isContainer(cell)) && !this.isTableRow(cell) &&
-				(!this.isTable(cell) || rows || tables))) && !this.isCellLocked(cell);
+				mxUtils.getValue(style, 'dropTarget', '1') != '0' && (mxGraph.prototype.
+				isValidDropTarget.apply(this, arguments) || this.isContainer(cell)) &&
+				!this.isTableRow(cell) && (!this.isTable(cell) || rows || tables)));
 		};
 	
 		/**
@@ -9611,6 +9586,30 @@ if (typeof mxVertexHandler !== 'undefined')
 			
 			this.model.setValue(cell, value);
 		};
+
+		/**
+		 * 
+		 */
+		Graph.prototype.isTargetShape = function(target, cells, evt)
+		{
+			var shape = mxUtils.getValue(
+				this.getCurrentCellStyle(target),
+				mxConstants.STYLE_SHAPE, '');
+
+			for (var i = 0; i < cells.length; i++)
+			{
+				var shapes = mxUtils.getValue(
+					this.getCurrentCellStyle(cells[i]),
+					'targetShapes', '').split(',');
+				
+				if (mxUtils.indexOf(shapes, shape) >= 0)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		};
 		
 		/**
 		 * Overridden to stop moving edge labels between cells.
@@ -9618,8 +9617,6 @@ if (typeof mxVertexHandler !== 'undefined')
 		var graphGetDropTarget = Graph.prototype.getDropTarget;
 		Graph.prototype.getDropTarget = function(cells, evt, cell, clone)
 		{
-			var model = this.getModel();
-			
 			// Disables drop into group if alt is pressed
 			if (mxEvent.isAltDown(evt))
 			{
