@@ -1,3 +1,11 @@
+07-FEB-2023: 20.8.18
+
+- Fixes locked is not defined in read-only diagrams [DS-944]
+- Fixes offset of terminal point after drag and drop
+- Fixes special cases for drag and drop from sidebar
+- Fixes parents for adding edges in cell hierarchies
+- Fixes point offsets for duplicated edges in groups
+
 06-FEB-2023: 20.8.17
 
 - Fixes connection points dialog, adds help button

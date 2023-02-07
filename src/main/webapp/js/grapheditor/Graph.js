@@ -1047,7 +1047,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		{
 			if (!this.isEnabled() && !me.isConsumed())
 			{
-				var cell = (locked) ? me.sourceState.cell : me.getCell();
+				var cell = me.getCell();
 				
 				if (cell != null)
 				{
@@ -1064,11 +1064,6 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 							this.openLink(link);
 						}
 					}
-				}
-				
-				if (this.isEnabled() && locked)
-				{
-					this.clearSelection();
 				}
 			}
 			else
@@ -2786,7 +2781,35 @@ Graph.prototype.init = function(container)
 
 		return newCells;
 	};
-	
+
+	/**
+	 * Returns the given terminal that is not relative, an edge or a part.
+	 */
+	Graph.prototype.getReferenceTerminal = function(terminal)
+	{
+		if (terminal != null)
+		{
+			var geo = this.getCellGeometry(terminal);
+
+			if (geo != null && geo.relative)
+			{
+				terminal = this.model.getParent(terminal);
+			}
+		}
+
+		if (terminal != null && this.model.isEdge(terminal))
+		{
+			terminal = this.model.getParent(terminal);
+		}
+
+		if (terminal != null)
+		{
+			terminal = this.getCompositeParent(terminal);
+		}
+
+		return terminal;
+	};
+
 	/**
 	 * Returns the first parent that is not a part.
 	 */
@@ -8610,9 +8633,7 @@ if (typeof mxVertexHandler !== 'undefined')
 				var sourceState = this.view.getState(cells[0]);
 
 				if (targetState != null && sourceState != null &&
-					((evt != null && mxEvent.isShiftDown(evt)) ||
-					(targetState.style['shape'] == 'umlLifeline' &&
-					sourceState.style['shape'] == 'umlLifeline')))
+					(evt != null && mxEvent.isShiftDown(evt)))
 				{
 					var g1 = this.getCellGeometry(target);
 					var g2 = this.getCellGeometry(cells[0]);
@@ -10122,7 +10143,6 @@ if (typeof mxVertexHandler !== 'undefined')
 			model.beginUpdate();
 			try
 			{
-
 				var cloneMap = new Object();
 				var lookup = this.createCellLookup(cells);
 				var clones = this.cloneCells(cells, false, cloneMap, true);

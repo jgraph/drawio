@@ -2444,16 +2444,17 @@ Sidebar.prototype.createDragPreview = function(width, height)
 /**
  * Creates a drag source for the given element.
  */
-Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCellIndex, evt)
+Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCellIndex, evt, firstVertex, freeSourceEdge)
 {
-	var geo = this.getDropAndConnectGeometry(source, targets[dropCellIndex], direction, targets);
+	var graph = this.editorUi.editor.graph;
+	var index = (graph.model.isEdge(source) || firstVertex != null) ? firstVertex : freeSourceEdge;
+	var geo = this.getDropAndConnectGeometry(source, targets[index], direction, targets);
 	
 	// Targets without the new edge for selection
 	var tmp = [];
 	
 	if (geo != null)
 	{
-		var graph = this.editorUi.editor.graph;
 		var editingCell = null;
 
 		graph.model.beginUpdate();
@@ -2489,14 +2490,6 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 				var offset = tmp.origin;
 				dx = offset.x;
 				dy = offset.y;
-
-				var pt = geo.getTerminalPoint(false);
-				
-				if (pt != null)
-				{
-					pt.x += offset.x;
-					pt.y += offset.y;
-				}
 			}
 			
 			var useParent = !graph.isTableRow(source) && !graph.isTableCell(source) &&
@@ -2546,15 +2539,23 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 			targets = graph.importCells(targets, (geo.x - (useParent ? dx : 0)),
 				(geo.y - (useParent ? dy : 0)), (useParent) ? targetParent : null);
 			tmp = targets;
-			
+
 			if (graph.model.isEdge(source))
 			{
 				// Adds new terminal to edge
 				// LATER: Push new terminal out radially from edge start point
 				graph.model.setTerminal(source, targets[dropCellIndex],
 					direction == mxConstants.DIRECTION_NORTH);
+				
+				// Replaces the source edge style with the dangling edge and
+				// removes the dangling edge from the graph
+				if (freeSourceEdge != null && firstVertex != null)
+				{
+					graph.model.remove(targets[freeSourceEdge]);
+					graph.updateShapes(targets[freeSourceEdge], [source]);
+				}
 			}
-			else if (graph.model.isEdge(targets[dropCellIndex]))
+			else if (graph.model.isEdge(targets[dropCellIndex]) && firstVertex == null)
 			{
 				// Adds new outgoing connection to vertex and clears points
 				graph.model.setTerminal(targets[dropCellIndex], source, true);
@@ -2597,9 +2598,9 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 					graph.cellsMoved(targets, offset.x, offset.y, null, null, true);
 				}
 			}
-			else
+			else if (firstVertex != null)
 			{
-				geo2 = graph.getCellGeometry(targets[dropCellIndex]);
+				geo2 = graph.getCellGeometry(targets[firstVertex]);
 				dx = geo.x - Math.round(geo2.x);
 				dy = geo.y - Math.round(geo2.y);
 				geo.x = Math.round(geo2.x);
@@ -2608,8 +2609,16 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 				graph.cellsMoved(targets, dx, dy, null, null, true);
 				tmp = targets.slice();
 				editingCell = (tmp.length == 1) ? tmp[0] : null;
-				targets.push(graph.insertEdge(null, null, '', source, targets[dropCellIndex],
-					graph.createCurrentEdgeStyle()));
+
+				if (freeSourceEdge != null)
+				{
+					graph.model.setTerminal(targets[freeSourceEdge], source, true);
+				}
+				else
+				{
+					targets.push(graph.insertEdge(null, null, '', source, targets[dropCellIndex],
+						graph.createCurrentEdgeStyle()));
+				}
 			}
 			
 			if (evt == null || !mxEvent.isShiftDown(evt))
@@ -2634,6 +2643,13 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 				graph.startEditing(editingCell);
 			}, 0);
 		}
+	}
+
+	// Removes connected edge from selection
+	// cells to avoid disconnecting on move
+	if (freeSourceEdge != null && tmp.length > 1)
+	{
+		tmp.splice(freeSourceEdge, 1);
 	}
 	
 	return tmp;
@@ -2888,13 +2904,13 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		if (cells != null && currentStyleTarget != null && activeArrow == styleTarget)
 		{
 			var tmp = graph.isCellSelected(currentStyleTarget.cell) ? graph.getSelectionCells() : [currentStyleTarget.cell];
-			var updatedCells = graph.updateShapes((graph.model.isEdge(currentStyleTarget.cell)) ? cells[0] : cells[firstVertex], tmp);
-			graph.setSelectionCells(updatedCells);
+			graph.updateShapes((graph.model.isEdge(currentStyleTarget.cell)) ? cells[0] : cells[firstVertex], tmp);
+			graph.setSelectionCells(tmp);
 		}
 		else if (cells != null && activeArrow != null && currentTargetState != null && activeArrow != styleTarget)
 		{
 			var index = (graph.model.isEdge(currentTargetState.cell) || freeSourceEdge == null) ? firstVertex : freeSourceEdge;
-			graph.setSelectionCells(this.dropAndConnect(currentTargetState.cell, cells, direction, index, evt));
+			graph.setSelectionCells(this.dropAndConnect(currentTargetState.cell, cells, direction, index, evt, firstVertex, freeSourceEdge));
 		}
 		else
 		{
@@ -3084,7 +3100,7 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 					dragSource.currentHighlight.hide();
 				}
 				
-				var index = (graph.model.isEdge(currentTargetState.cell) || freeSourceEdge == null) ? firstVertex : freeSourceEdge;
+				var index = (graph.model.isEdge(currentTargetState.cell) || firstVertex != null) ? firstVertex : freeSourceEdge;
 				var geo = sidebar.getDropAndConnectGeometry(currentTargetState.cell, cells[index], direction, cells);
 				var geo2 = (!graph.model.isEdge(currentTargetState.cell)) ? graph.getCellGeometry(currentTargetState.cell) : null;
 				var geo3 = graph.getCellGeometry(cells[index]);
