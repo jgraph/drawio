@@ -1171,6 +1171,14 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			return graphHandlerShouldRemoveCellsFromParent.apply(this, arguments);
 		};
 
+		// Cells in locked layers are not selectable
+		var graphIsCellSelectable = this.isCellSelectable;
+		this.isCellSelectable = function(cell)
+		{
+			return graphIsCellSelectable.apply(this, arguments) &&
+				!this.isCellLocked(this.getLayerForCell(cell));
+		};
+
 		// Returns true if the given cell is locked
 		this.isCellLocked = function(cell)
 		{
@@ -4041,18 +4049,26 @@ Graph.prototype.formatDate = function(date, mask, utc)
 /**
  * 
  */
+Graph.prototype.getLayerForCell = function(cell)
+{
+	while (cell != null && !this.model.isLayer(cell))
+	{
+		cell = this.model.getParent(cell);
+	}
+
+	return cell;
+};
+
+/**
+ * 
+ */
 Graph.prototype.getLayerForCells = function(cells)
 {
 	var result = null;
 	
 	if (cells.length > 0)
 	{
-		result = cells[0];
-		
-		while (!this.model.isLayer(result))
-		{
-			result = this.model.getParent(result);
-		}
+		result = this.getLayerForCell(cells[0]);
 		
 		for (var i = 1; i < cells.length; i++)
 		{

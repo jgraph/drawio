@@ -1,3 +1,7 @@
+09-FEB-2023: 20.8.19
+
+- Disables object selection in locked layers [drawio-3343] 
+
 07-FEB-2023: 20.8.18
 
 - Fixes locked is not defined in read-only diagrams [DS-944]
