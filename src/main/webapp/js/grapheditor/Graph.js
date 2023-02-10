@@ -1041,13 +1041,18 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			return mxEvent.isMouseEvent(me.getEvent());
 		};
 	
-		// Handles links if graph is read-only or cell is locked
+		// Handles links in read-only graphs
+		// and cells in locked layers
 		var click = this.click;
 		this.click = function(me)
 		{
-			if (!this.isEnabled() && !me.isConsumed())
+			var locked = me.state == null && me.sourceState != null &&
+				this.isCellLocked(this.getLayerForCell(
+					me.sourceState.cell));
+			
+			if ((!this.isEnabled() || locked) && !me.isConsumed())
 			{
-				var cell = me.getCell();
+				var cell = (locked) ? me.sourceState.cell : me.getCell();
 				
 				if (cell != null)
 				{
@@ -1169,6 +1174,20 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			}
 			
 			return graphHandlerShouldRemoveCellsFromParent.apply(this, arguments);
+		};
+
+		// Enables rubberband selection on cells in locked layers
+		var graphUpdateMouseEvent = this.updateMouseEvent;
+		this.updateMouseEvent = function(me)
+		{
+			me = graphUpdateMouseEvent.apply(this, arguments);
+
+			if (me.state != null && this.isCellLocked(this.getLayerForCell(me.getCell())))
+			{
+				me.state = null;
+			}
+
+			return me;
 		};
 
 		// Cells in locked layers are not selectable
@@ -14285,7 +14304,8 @@ if (typeof mxVertexHandler !== 'undefined')
 					{
 						this.linkHint.appendChild(this.graph.createLinkForHint(link));
 						
-						if (this.graph.isEnabled() && typeof this.graph.editLink === 'function')
+						if (this.graph.isEnabled() && typeof this.graph.editLink === 'function' &&
+							!this.graph.isCellLocked(this.state.cell))
 						{
 							var changeLink = document.createElement('img');
 							changeLink.className = 'geAdaptiveAsset';
