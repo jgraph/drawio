@@ -329,9 +329,9 @@
 		{
 			for (var i = 0; i < this.customEntries.length; i++)
 			{
-				var section = this.customEntries[i];
+				var section = this.customEntries[i] || {};
 				
-				for (var j = 0; j < section.entries.length; j++)
+				for (var j = 0; section.entries != null && j < section.entries.length; j++)
 				{
 					var entry = section.entries[j];
 					
@@ -374,9 +374,9 @@
 			{
 				for (var i = 0; i < this.customEntries.length; i++)
 				{
-					var section = this.customEntries[i];
+					var section = this.customEntries[i] || {};
 					
-					for (var j = 0; j < section.entries.length; j++)
+					for (var j = 0; section.entries != null && j < section.entries.length; j++)
 					{
 						var entry = section.entries[j];
 						
@@ -471,9 +471,9 @@
 		{
 			for (var i = 0; i < this.customEntries.length; i++)
 			{
-				var section = this.customEntries[i];
+				var section = this.customEntries[i] || {};
 				
-				for (var j = 0; j < section.entries.length; j++)
+				for (var j = 0; section.entries != null && j < section.entries.length; j++)
 				{
 					var entry = section.entries[j];
 					
@@ -928,9 +928,9 @@
 			
 			for (var i = 0; i < this.customEntries.length; i++)
 			{
-				var section = this.customEntries[i];
+				var section = this.customEntries[i] || {};
 				
-				for (var j = 0; j < section.entries.length; j++)
+				for (var j = 0; section.entries != null && j < section.entries.length; j++)
 				{
 					var entry = section.entries[j];
 					

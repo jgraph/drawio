@@ -3244,7 +3244,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		previewText.style.textAlign = 'center';
 		previewText.style.top = '50%';
 
-		mxUtils.write(previewText, mxResources.get('preview'));
+		mxUtils.write(previewText, mxResources.get('blankDiagram'));
 		preview.appendChild(previewText);
 
 		// Adds diagram type options
@@ -3351,7 +3351,35 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			);
 		});
 
+		button.setAttribute('disabled', 'disabled');
 		button.className = 'geBtn gePrimaryBtn';
+
+		mxEvent.addListener(description, 'change', function(e)
+		{
+			if (description.value != '')
+			{
+				button.removeAttribute('disabled');
+			}
+			else
+			{
+				button.setAttribute('disabled', 'disabled');
+			}
+		});
+
+		mxEvent.addListener(description, 'keydown', function(e)
+		{
+			window.setTimeout(function()
+			{
+				if (description.value != '')
+				{
+					button.removeAttribute('disabled');
+				}
+				else
+				{
+					button.setAttribute('disabled', 'disabled');
+				}
+			}, 0);
+		});
 
 		mxEvent.addListener(description, 'keydown', function(e)
 		{

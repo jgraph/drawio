@@ -1648,7 +1648,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 	divider.vertex = true;
 
 	var sequenceEdgeStyle = 'newEdgeStyle={"edgeStyle":"elbowEdgeStyle","elbow":"vertical","curved":0,"rounded":0};';
-	var lifelineStyle = 'shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;dropTarget=0;' +
+	var lifelineStyle = 'shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;' +
 		'collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;' + sequenceEdgeStyle;
 	var activationStyle = 'html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;' +
 		'targetShapes=umlLifeline;portConstraint=eastwest;' + sequenceEdgeStyle;

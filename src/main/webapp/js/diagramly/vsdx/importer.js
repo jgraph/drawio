@@ -9295,7 +9295,11 @@ var com;
                                                 }
                                             }
                                         }
-                                        if (!(value.length === 0)) {
+                                        if (format == 'esc(0)')
+                                        {
+                                            this.fields[ix] = value;
+                                        }
+                                        else if (!(value.length === 0)) {
                                             try {
                                             	//Date can be in string date format or a number
                                             	var date = isNaN(value)? new Date(value) : new Date(Shape.VSDX_START_TIME + Math.floor((parseFloat(value) * 24 * 60 * 60 * 1000)));

@@ -113,7 +113,7 @@
 	 */
 	EditorUi.mermaidDiagramTypes = ['flowchart', 'classDiagram', 'sequenceDiagram',
 		'stateDiagram', 'mindmap', 'graph', 'erDiagram', 'requirementDiagram',
-		'journey', 'gantt', 'pie', 'gitGraph', 'C4Context'];
+		'journey', 'gantt', 'pie', 'gitGraph'];
 
 	/**
 	 * Default Mermaid config without using foreign objects in flowcharts.
@@ -7942,88 +7942,110 @@
 	 */
 	EditorUi.prototype.generateOpenAiMermaidDiagram = function(key, prompt, success, error)
 	{
-		if (this.spinner.spin(document.body, mxResources.get('loading')))
+		var maxRetries = 3;
+		var retryCount = 0;
+
+		var fn = mxUtils.bind(this, function()
 		{
-			this.createTimeout(15000, mxUtils.bind(this, function(timeout)
+			if (this.spinner.spin(document.body, mxResources.get('loading')))
 			{
-				EditorUi.logEvent({category: 'OPENAI-DIAGRAM',
-					action: 'generateOpenAiMermaidDiagram',
-					label: prompt});
-				var url = 'https://api.openai.com/v1/engines/text-davinci-003/completions';
-
-				var params = {
-					prompt: prompt,
-					temperature: 0.9,
-					max_tokens: 4000
-				};
-
-				var req = new mxXmlRequest(url, JSON.stringify(params), 'POST');
-				
-				req.setRequestHeaders = mxUtils.bind(this, function(request, params)
+				this.createTimeout(40000, mxUtils.bind(this, function(timeout)
 				{
-					request.setRequestHeader('Authorization', 'Bearer ' + key);
-					request.setRequestHeader('Content-Type', 'application/json');
-				});
+					EditorUi.logEvent({category: 'OPENAI-DIAGRAM',
+						action: 'generateOpenAiMermaidDiagram',
+						label: prompt});
+					var url = 'https://api.openai.com/v1/engines/text-davinci-003/completions';
 
-				var handleError = mxUtils.bind(this, function(e)
-				{
-					if (timeout.clear())
+					var params = {
+						prompt: prompt,
+						temperature: 0.9,
+						max_tokens: 4000
+					};
+
+					var req = new mxXmlRequest(url, JSON.stringify(params), 'POST');
+					
+					req.setRequestHeaders = mxUtils.bind(this, function(request, params)
 					{
-						this.spinner.stop();
-						error(e);
-					}
-				});
+						request.setRequestHeader('Authorization', 'Bearer ' + key);
+						request.setRequestHeader('Content-Type', 'application/json');
+					});
 
-				req.send(mxUtils.bind(this, function(req)
-				{
-					if (timeout.isAlive())
+					var handleError = mxUtils.bind(this, function(e)
 					{
-						if (req.getStatus() >= 200 && req.getStatus() <= 299)
+						if (timeout.clear())
 						{
-							this.tryAndHandle(mxUtils.bind(this, function()
+							this.spinner.stop();
+							error(e);
+						}
+					});
+
+					req.send(mxUtils.bind(this, function(req)
+					{
+						if (timeout.isAlive())
+						{
+							if (req.getStatus() >= 200 && req.getStatus() <= 299)
 							{
-								var response = JSON.parse(req.getText());
-								var text = mxUtils.trim(response.choices[0].text);
-								var result = this.extractMermaidDeclaration(text);
-								
-								this.generateMermaidImage(result, null, mxUtils.bind(this, function(data, w, h)
+								this.tryAndHandle(mxUtils.bind(this, function()
 								{
-									this.tryAndHandle(mxUtils.bind(this, function()
+									var response = JSON.parse(req.getText());
+									var text = mxUtils.trim(response.choices[0].text);
+									var result = this.extractMermaidDeclaration(text);
+									
+									this.generateMermaidImage(result, null, mxUtils.bind(this, function(data, w, h)
 									{
-										if (timeout.clear())
+										this.tryAndHandle(mxUtils.bind(this, function()
 										{
-											EditorUi.debug('EditorUi.generateOpenAiMermaidDiagram',
-												'\nrequest:', params, '\nresponse:', response,
-												'\nprompt:', prompt, '\noutput:', text,
-												'\nresult:', result);
-											
-											this.spinner.stop();
-											success(result, data, w, h);
+											if (timeout.clear())
+											{
+												EditorUi.debug('EditorUi.generateOpenAiMermaidDiagram',
+													'\nrequest:', params, '\nresponse:', response,
+													'\nprompt:', prompt, '\noutput:', text,
+													'\nresult:', result);
+												
+												this.spinner.stop();
+												success(result, data, w, h);
+											}
+										}), handleError);
+									}), handleError, mxUtils.bind(this, function(e)
+									{
+										if (retryCount++ < maxRetries)
+										{
+											if (timeout.clear())
+											{
+												this.spinner.stop();
+												fn();
+											}
 										}
-									}), handleError);
+										else
+										{
+											handleError(e);
+										}
+									}));
 								}), handleError);
-							}), handleError);
-						}
-						else
-						{
-							var e = null;
-
-							try
-							{
-								e = JSON.parse(req.getText());
-								e = e.error;
 							}
-							catch (e)
+							else
 							{
-								// ignore
-							}
+								var e = null;
 
-							handleError(e);
+								try
+								{
+									e = JSON.parse(req.getText());
+									e = e.error;
+								}
+								catch (e)
+								{
+									// ignore
+								}
+
+								handleError(e);
+							}
 						}
-					}
-				}), handleError);
-			}), error);
-		}
+					}), handleError);
+				}), error);
+			}
+		});
+
+		fn();
 	};
 
 	/**
@@ -8076,7 +8098,7 @@
 	/**
 	 * Generates a Mermaid image.
 	 */
-	EditorUi.prototype.generateMermaidImage = function(data, config, success, error)
+	EditorUi.prototype.generateMermaidImage = function(data, config, success, error, parseErrorHandler)
 	{
 		var onerror = mxUtils.bind(this, function(e)
 		{
@@ -8109,7 +8131,7 @@
 				
 				mermaid.mermaidAPI.initialize(config);
 	    		
-				mermaid.mermaidAPI.render('geMermaidOutput-' + new Date().getTime(), data,  mxUtils.bind(this, function(svg)
+				mermaid.mermaidAPI.renderAsync('geMermaidOutput-' + new Date().getTime(), data,  mxUtils.bind(this, function(svg)
 				{
 					try
 					{
@@ -8123,7 +8145,7 @@
 						var doc = mxUtils.parseXml(svg);
 						var svgs = doc.getElementsByTagName('svg');
 
-						if (svgs.length > 0)
+						if (svgs.length > 0 && svgs[0].getAttribute('aria-roledescription') != 'error')
 						{
 							var w = parseFloat(svgs[0].getAttribute('width'));
 							var h = parseFloat(svgs[0].getAttribute('height'));
@@ -8148,7 +8170,14 @@
 						}
 						else
 						{
-							error({message: mxResources.get('invalidInput')});
+							if (parseErrorHandler != null)
+							{
+								parseErrorHandler();
+							}
+							else
+							{
+								error({message: mxResources.get('invalidInput')});
+							}
 						}
 					}
 					catch (e)
@@ -8169,13 +8198,23 @@
 			
 			if (urlParams['dev'] == '1')
 			{
-				/*mxMermaidToDrawio.addListener(mxUtils.bind(this, function(modelXml)
-				{
-					this.importXml(modelXml, null, null, null, null, null, true);
-				}));*/
+				if (urlParams['mermaidToDrawioTest'] == '1')
+        		{
+					mxMermaidToDrawio.addListener(mxUtils.bind(this, function(modelXml)
+					{
+						this.importXml(modelXml, null, null, null, null, null, true);
+					}));
+				}
 				
-				mxscript('js/mermaid/mermaid.min.js', delayed,
-					null, null, null, onerror);
+				mxscript('js/mermaid/mermaid.min.js', function()
+				{
+					// Load mindmap plugin in dev only so far
+					mxscript('js/mermaid/mermaid-mindmap.min.js', async function()
+					{
+						await mermaid.registerExternalDiagrams([window['mermaid-mindmap']]);
+						delayed();
+					}, null, null, null, onerror);
+				}, null, null, null, onerror);
 			}
 			else
 			{
@@ -14737,7 +14776,7 @@
 		
 		return cells;
 	};
-		
+	
 	/**
 	 * Opens the given files in the editor.
 	 */
@@ -14745,13 +14784,15 @@
 	{
 		if (name != null && name.length > 0)
 		{
-			if (!this.useCanvasForExport && /(\.png)$/i.test(name))
+			if ((!this.useCanvasForExport && /(\.png)$/i.test(name)) ||
+				/(\.pdf)$/i.test(name))
 			{
-				name = name.substring(0, name.length - 4) + '.drawio';
-			}
-			else if (/(\.pdf)$/i.test(name))
-			{
-				name = name.substring(0, name.length - 4) + '.drawio';
+				name = name.substring(0, name.length - 4);
+				
+				if (!/(\.drawio)$/i.test(name))
+				{
+					name = name + '.drawio';
+				}
 			}
 			
 			var handleResult = mxUtils.bind(this, function(xml)

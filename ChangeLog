@@ -1,3 +1,18 @@
+22-FEB-2023: 20.8.23
+
+- Fixes file extension for .drawio.pdf files [drawio-3368]
+- [conf cloud] Workaround for invalid JSON response from getContentProperty API [DID-7519]
+
+20-FEB-2023: 20.8.22
+
+- Internal release to update hidden flag template functionality [DS-942]
+
+20-FEB-2023: 20.8.21
+
+- [vsdx] Adds special case of text field esc(0) format [DID-7420]
+- Avoids NPE with bad libraries configurations [DID-7439]
+- [conf cloud] Improved Gliffy mass import logs (page links start end time) [DID-7470]
+
 10-FEB-2023: 20.8.20
 
 - Fixes rubberband, links for cells in locked layers [drawio-3343]
