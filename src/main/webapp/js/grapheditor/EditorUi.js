@@ -1995,9 +1995,11 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 					geo.width, geo.height, '', true, false, null, false,
 					mxUtils.bind(this, function(evt)
 				{
-					if (mxEvent.isShiftDown(evt) && !graph.isSelectionEmpty())
+					if (mxEvent.isShiftDown(evt) && (source != null ||
+						!graph.isSelectionEmpty()))
 					{
-						var temp = graph.getEditableCells(graph.getSelectionCells());
+						var temp = graph.getEditableCells((source != null) ?
+							[source] : graph.getSelectionCells());
 						graph.updateShapes(cell, temp);
 					}
 					else
@@ -2059,7 +2061,7 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 					}
 
 					mxEvent.consume(evt);
-				}), 25, 25));
+				}), 25, 25, null, null, source));
 			}
 		});
 		
@@ -2093,14 +2095,16 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
  */
 EditorUi.prototype.getCellsForShapePicker = function(cell, hovering, showEdges)
 {
+	var graph = this.editor.graph;
+
 	var createVertex = mxUtils.bind(this, function(style, w, h, value)
 	{
-		return this.editor.graph.createVertex(null, null, value || '', 0, 0, w || 120, h || 60, style, false);
+		return graph.createVertex(null, null, value || '', 0, 0, w || 120, h || 60, style, false);
 	});
 
 	var createEdge = mxUtils.bind(this, function(style, y, value)
 	{
-		var cell = new mxCell(value || '', new mxGeometry(0, 0, this.editor.graph.defaultEdgeLength + 20, 0), style);
+		var cell = new mxCell(value || '', new mxGeometry(0, 0, graph.defaultEdgeLength + 20, 0), style);
 		cell.geometry.setTerminalPoint(new mxPoint(0, 0), true);
 		cell.geometry.setTerminalPoint(new mxPoint(cell.geometry.width, (y != null) ? y : 0), false);
 		cell.geometry.points = (y != null) ? [new mxPoint(cell.geometry.width / 2, y)] : [];
@@ -2110,9 +2114,24 @@ EditorUi.prototype.getCellsForShapePicker = function(cell, hovering, showEdges)
 		return cell;
 	});
 
-	var cells = [(cell != null) ? this.editor.graph.cloneCell(cell) :
-		createVertex('text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;', 40, 20, 'Text'),
-		createVertex('whiteSpace=wrap;html=1;'),
+	// Creates a clone of the source cell and moves it to the origin
+	if (cell != null)
+	{
+		cell = graph.cloneCell(cell);
+
+		if (graph.model.isVertex(cell) && cell.geometry != null)
+		{
+			cell.geometry.x = 0;
+			cell.geometry.y = 0;
+		}
+	}
+	else
+	{
+		cell = createVertex('text;html=1;align=center;verticalAlign=middle;resizable=0;' +
+			'points=[];autosize=1;strokeColor=none;fillColor=none;', 40, 20, 'Text');
+	}
+
+	var cells = [cell, createVertex('whiteSpace=wrap;html=1;'),
 		createVertex('ellipse;whiteSpace=wrap;html=1;', 80, 80),
 		createVertex('rhombus;whiteSpace=wrap;html=1;', 80, 80),
 		createVertex('rounded=1;whiteSpace=wrap;html=1;'),

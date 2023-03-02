@@ -4485,6 +4485,27 @@ Graph.prototype.isCloneConnectSource = function(source)
 };
 
 /**
+ * Inserts the given edge before the given cell.
+ */
+Graph.prototype.insertEdgeBeforeCell = function(edge, cell)
+{
+	var index = null;
+	var tmp = cell;
+	
+	while (tmp.parent != null && tmp.geometry != null &&
+		tmp.geometry.relative && tmp.parent != edge.parent)
+	{
+		tmp = this.model.getParent(tmp);
+	}
+
+	if (tmp != null && tmp.parent != null && tmp.parent == edge.parent)
+	{
+		var index = tmp.parent.getIndex(tmp);
+		this.model.add(tmp.parent, edge, index);
+	}
+};
+
+/**
  * Adds a connection to the given vertex or clones the vertex in special layout
  * containers without creating a connection.
  */
@@ -4678,22 +4699,14 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 					(target == null && cloneSource)) ? null : this.insertEdge(this.model.getParent(source),
 						null, '', source, realTarget, this.createCurrentEdgeStyle());
 		
-				// Inserts edge before source
-				if (edge != null && this.connectionHandler.insertBeforeSource)
+				if (edge != null)
 				{
-					var index = null;
-					var tmp = source;
+					result.push(edge);
+					this.applyNewEdgeStyle(source, [edge], direction);
 					
-					while (tmp.parent != null && tmp.geometry != null &&
-						tmp.geometry.relative && tmp.parent != edge.parent)
+					if (this.connectionHandler.insertBeforeSource)
 					{
-						tmp = this.model.getParent(tmp);
-					}
-				
-					if (tmp != null && tmp.parent != null && tmp.parent == edge.parent)
-					{
-						var index = tmp.parent.getIndex(tmp);
-						this.model.add(tmp.parent, edge, index);
+						this.insertEdgeBeforeCell(edge, source);
 					}
 				}
 				
@@ -4703,12 +4716,6 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 				{
 					var index = source.parent.getIndex(source);
 					this.model.add(source.parent, realTarget, index);
-				}
-				
-				if (edge != null)
-				{
-					result.push(edge);
-					this.applyNewEdgeStyle(source, [edge], direction);
 				}
 				
 				if (target == null && realTarget != null)

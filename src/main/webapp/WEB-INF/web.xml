@@ -137,4 +137,8 @@
     <extension>manifest</extension>
     <mime-type>text/cache-manifest</mime-type>
   </mime-mapping>
+  <mime-mapping>
+    <extension>mjs</extension>
+    <mime-type>text/javascript</mime-type>
+  </mime-mapping>
 </web-app>

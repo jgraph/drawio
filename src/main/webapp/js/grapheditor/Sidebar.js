@@ -2222,7 +2222,8 @@ Sidebar.prototype.createSection = function(title)
  * Creates and returns a new palette item for the given image.
  */
 Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, width, height,
-	allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight, icon, startEditing)
+	allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight, icon, startEditing,
+	sourceCell)
 {
 	showTooltip = (showTooltip != null) ? showTooltip : true;
 	thumbWidth = (thumbWidth != null) ? thumbWidth : this.thumbWidth;
@@ -2268,7 +2269,8 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	if (cells.length > 1 || cells[0].vertex)
 	{
 		var ds = this.createDragSource(elt, this.createDropHandler(cells, true, allowCellsInserted,
-			bounds, startEditing), this.createDragPreview(width, height), cells, bounds, startEditing);
+			bounds, startEditing, sourceCell), this.createDragPreview(width, height),
+			cells, bounds, startEditing);
 		this.addClickHandler(elt, ds, cells, clickFn, startEditing);
 	
 		// Uses guides for vertices only if enabled in graph
@@ -2280,7 +2282,8 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	else if (cells[0] != null && cells[0].edge)
 	{
 		var ds = this.createDragSource(elt, this.createDropHandler(cells, false, allowCellsInserted,
-			bounds, startEditing), this.createDragPreview(width, height), cells, bounds, startEditing);
+			bounds, startEditing, sourceCell), this.createDragPreview(width, height),
+			cells, bounds, startEditing);
 		this.addClickHandler(elt, ds, cells, clickFn);
 	}
 	
@@ -2302,7 +2305,7 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInserted, bounds, startEditing)
+Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInserted, bounds, startEditing, sourceCell)
 {
 	allowCellsInserted = (allowCellsInserted != null) ? allowCellsInserted : true;
 	
@@ -2361,6 +2364,20 @@ Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInse
 						else if (cells.length > 0)
 						{
 							select = graph.importCells(cells, x, y, target);
+							
+							if (graph.model.isVertex(sourceCell) && select.length == 1 &&
+								graph.model.isVertex(select[0]))
+							{
+								var edge = graph.insertEdge(graph.model.getParent(sourceCell),
+									null, '', sourceCell, select[0], graph.createCurrentEdgeStyle());
+								graph.applyNewEdgeStyle(sourceCell, [edge]);
+								select.push(edge);
+
+								if (graph.connectionHandler.insertBeforeSource)
+								{
+									graph.insertEdgeBeforeCell(edge, sourceCell);
+								}
+							}
 						}
 						
 						// Executes parent layout hooks for position/order
@@ -3626,19 +3643,34 @@ Sidebar.prototype.itemClicked = function(cells, ds, evt, elt)
 Sidebar.prototype.addClickHandler = function(elt, ds, cells, clickFn)
 {
 	var graph = this.editorUi.editor.graph;
+	var oldGetGraphForEvent = ds.getGraphForEvent;
 	var oldMouseDown = ds.mouseDown;
 	var oldMouseMove = ds.mouseMove;
 	var oldMouseUp = ds.mouseUp;
 	var tol = graph.tolerance;
+	var active = false;
 	var first = null;
 	var sb = this;
 	var op = null;
+
+	ds.getGraphForEvent = function(evt)
+	{
+		if (active)
+		{
+			return oldGetGraphForEvent.apply(this, arguments);
+		}
+		else
+		{
+			return null;
+		}
+	};
 
 	ds.mouseDown =function(evt)
 	{
 		oldMouseDown.apply(this, arguments);
 		first = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
 		op = elt.style.opacity;
+		active = false;
 
 		if (op == '')
 		{
@@ -3654,9 +3686,11 @@ Sidebar.prototype.addClickHandler = function(elt, ds, cells, clickFn)
 	
 	ds.mouseMove = function(evt)
 	{
-		if (this.dragElement != null && this.dragElement.style.display == 'none' &&
-			first != null && (Math.abs(first.x - mxEvent.getClientX(evt)) > tol ||
-			Math.abs(first.y - mxEvent.getClientY(evt)) > tol))
+		active = first != null && (Math.abs(first.x - mxEvent.getClientX(evt)) > tol ||
+			Math.abs(first.y - mxEvent.getClientY(evt)) > tol);
+
+		if (active && this.dragElement != null &&
+			this.dragElement.style.display == 'none')
 		{
 			this.dragElement.style.display = '';
 			mxUtils.setOpacity(elt, op * 100);
@@ -3751,12 +3785,13 @@ Sidebar.prototype.createVertexTemplateFromData = function(data, width, height, t
  * Creates a drop handler for inserting the given cells.
  */
 Sidebar.prototype.createVertexTemplateFromCells = function(cells, width, height, title, showLabel,
-	showTitle, allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight, icon, startEditing)
+	showTitle, allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight, icon, startEditing,
+	sourceCell)
 {
 	// Use this line to convert calls to this function with lots of boilerplate code for creating cells
 	//console.trace('xml', Graph.compress(mxUtils.getXml(this.graph.encodeCells(cells))), cells);
 	return this.createItem(cells, title, showLabel, showTitle, width, height, allowCellsInserted,
-		showTooltip, clickFn, thumbWidth, thumbHeight, icon, startEditing);
+		showTooltip, clickFn, thumbWidth, thumbHeight, icon, startEditing, sourceCell);
 };
 
 /**

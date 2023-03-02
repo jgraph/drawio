@@ -1,3 +1,17 @@
+01-MAR-2023: 20.8.24
+
+- Fixes tolerance and logic for shape picker [drawio-3256]
+- Updates sequence diagram styles in UML 2.5 library
+- Fixes possible clipping of help icon in save dialog
+- Using Mermaid v10 ESM in dev mode [DS-945]
+- Fixed jscompiler error due to dynamic module import.
+- Disables all diagram exports via configuration [drawio-3374]
+- Improves error messages in git clients [drawio-3185]
+- Fixes tooltip for elbow edge styles [drawio-3343]
+- Fixes NPE when "more shapes" is clicked and configured libraries are incorrect
+- [conf cloud] Sorts custom libraries alphabetically [DID-7590, drawio-1287]
+- Fixes possible NPE in ArrangePanel
+
 22-FEB-2023: 20.8.23
 
 - Fixes file extension for .drawio.pdf files [drawio-3368]

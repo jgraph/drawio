@@ -748,7 +748,7 @@ GitLabClient.prototype.saveFile = function(file, success, error, overwrite, mess
  */
 GitLabClient.prototype.pickFolder = function(fn)
 {
-	this.showGitLabDialog(false, fn);
+	this.showGitLabDialog(false, fn, true);
 };
 
 /**
@@ -767,7 +767,7 @@ GitLabClient.prototype.pickFile = function(fn)
 /**
  * LATER: Refactor to use common code with GitHubClient
  */
-GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
+GitLabClient.prototype.showGitLabDialog = function(showFiles, fn, hideNoFilesError)
 {
 	var org = null;
 	var repo = null;
@@ -972,7 +972,11 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 
 				if (files == null || files.length == 0)
 				{
-					mxUtils.write(div, mxResources.get('noFiles'));
+					if (!hideNoFilesError)
+					{
+						mxUtils.br(div);
+						mxUtils.write(div, mxResources.get('noFiles'));
+					}
 				}
 				else
 				{
@@ -1104,7 +1108,8 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 				
 				if (branches == null || branches.length == 0)
 				{
-					mxUtils.write(div, mxResources.get('noFiles'));
+					mxUtils.br(div);
+					mxUtils.write(div, mxResources.get('repositoryNotFound'));
 				}
 				else if (branches.length == 1 && auto)
 				{
@@ -1258,7 +1263,8 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 					if ((repos == null || repos.length == 0) && (groups == null || groups.length == 0))
 					{
 						spinnerRequestFinished();
-						mxUtils.write(div, mxResources.get('noFiles'));
+						mxUtils.br(div);
+						mxUtils.write(div, mxResources.get('repositoryNotFound'));
 					}
 					else
 					{

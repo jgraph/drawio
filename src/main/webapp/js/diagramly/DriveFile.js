@@ -35,8 +35,8 @@ DriveFile.prototype.getSize = function()
  */
 DriveFile.prototype.isRestricted = function()
 {
-	return this.desc.userPermission != null && this.desc.labels != null &&
-		this.desc.userPermission.role == 'reader' && this.desc.labels.restricted;
+	return DrawioFile.RESTRICT_EXPORT || (this.desc.userPermission != null && this.desc.labels != null &&
+		this.desc.userPermission.role == 'reader' && this.desc.labels.restricted);
 };
 
 /**

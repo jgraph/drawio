@@ -49,6 +49,11 @@ DrawioFile.SYNC = urlParams['sync'] || 'auto';
  */
 DrawioFile.LAST_WRITE_WINS = true;
 
+/**
+ * Specifies if export is restricted.
+ */
+DrawioFile.RESTRICT_EXPORT = false;
+
 // Extends mxEventSource
 mxUtils.extend(DrawioFile, mxEventSource);
 
@@ -1122,7 +1127,7 @@ DrawioFile.prototype.getPublicUrl = function(fn)
  */
 DrawioFile.prototype.isRestricted = function()
 {
-	return false;
+	return DrawioFile.RESTRICT_EXPORT;
 };
 
 /**

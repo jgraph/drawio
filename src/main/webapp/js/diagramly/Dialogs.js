@@ -3181,7 +3181,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	var templateInfoObj = null;
 	var lastAiXml = null;
 
-	function createAiContent()
+	function createSmartTemplateContent()
 	{
 		var content = document.createElement('div');
 		content.style.position = 'absolute';
@@ -3191,37 +3191,12 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		content.style.bottom = '4px';
 		content.style.top = '4px';
 
-		mxUtils.write(content, 'OpenAI API Key:');
-		mxUtils.br(content);
-
-		var openAiKey = document.createElement('input');
-		openAiKey.setAttribute('type', 'text');
-		openAiKey.setAttribute('placeholder', 'Paste secret key here');
-		openAiKey.style.width = '100%';
-		openAiKey.style.marginTop = '4px';
-		openAiKey.style.marginBottom = '10px';
-		openAiKey.style.boxSizing = 'border-box';
-		content.appendChild(openAiKey);
-
-		if (isLocalStorage)
-		{
-			var storedKey = localStorage.getItem('.openAiKey');
-			openAiKey.value = storedKey || '';
-
-			mxEvent.addListener(openAiKey, 'change', function()
-			{
-				localStorage.setItem('.openAiKey', openAiKey.value);
-			});
-		}
-
-		mxUtils.br(content);
-
-		mxUtils.write(content, mxResources.get('diagramContent') + ':');
+		mxUtils.write(content, mxResources.get('describeYourDiagram') + ':');
 		mxUtils.br(content);
 
 		var description = document.createElement('input');
 		description.setAttribute('type', 'text');
-		description.setAttribute('placeholder', mxResources.get('description'));
+		description.setAttribute('placeholder', mxResources.get('processForHiringNewEmployee'));
 		description.style.width = '100%';
 		description.style.marginTop = '4px';
 		description.style.marginBottom = '4px';
@@ -3231,10 +3206,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		mxUtils.br(content);
 
 		var preview = document.createElement('div');
-		preview.style.top = '132px'
+		preview.style.top = '85px'
 		preview.style.left = '2px';
 		preview.style.right = '2px';
-		preview.style.bottom = '2px';
+		preview.style.bottom = '21px';
 		preview.style.position = 'absolute';
 		preview.style.border = '1px solid #424242';
 
@@ -3254,7 +3229,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		typeSelect.style.marginLeft = '10px';
 
 		var option = document.createElement('option');
-		mxUtils.write(option, mxResources.get('type'));
+		mxUtils.write(option, mxResources.get('diagramType'));
 		option.setAttribute('value', '');
 		typeSelect.appendChild(option);
 
@@ -3277,6 +3252,21 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			typeSelect.appendChild(option);
 		}
 
+		mxEvent.addListener(typeSelect, 'change', function()
+		{
+			if (typeSelect.value == 'gantt' || typeSelect.value == 'pie')
+			{
+				formatDrawio.setAttribute('disabled', 'disabled');
+				formatMermaid.checked = true;
+			}
+			else
+			{
+				formatDrawio.removeAttribute('disabled');
+			}
+		});
+
+		var drawioXml, mermaidXml;
+
 		var button = mxUtils.button(mxResources.get('generate'), function()
 		{
 			var prompt = 'create mermaid ' + ((typeSelect.value != '') ?
@@ -3291,13 +3281,18 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			{
 				mxMermaidToDrawio.addListener(mxUtils.bind(this, function(modelXml)
 				{
-					templateXml = '<mxfile><diagram id="d" name="n">' +
-							Graph.compress(modelXml) + '</diagram></mxfile>';
-					lastAiXml = templateXml;
+					drawioXml = '<mxfile><diagram id="d" name="n">' +
+								Graph.compress(modelXml) + '</diagram></mxfile>';
+
+					if (formatDrawio.checked)
+					{
+						templateXml = drawioXml;
+						lastAiXml = templateXml;
+					}
 				}));
 			}
 
-			editorUi.generateOpenAiMermaidDiagram(openAiKey.value, prompt,
+			editorUi.generateOpenAiMermaidDiagram(prompt,
 				function(mermaidData, imageData, w, h)
 				{
 					preview.innerHTML = '';
@@ -3318,7 +3313,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					var previewXml = '<mxfile><diagram id="d" name="n">' +
 						Graph.compress(xml) + '</diagram></mxfile>';
 					
-					if (typeof mxMermaidToDrawio === 'undefined')
+					mermaidXml = xml;
+
+					if (formatMermaid.checked || typeof mxMermaidToDrawio === 'undefined')
 					{
 						templateXml = xml;
 						lastAiXml = xml;
@@ -3354,19 +3351,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		button.setAttribute('disabled', 'disabled');
 		button.className = 'geBtn gePrimaryBtn';
 
-		mxEvent.addListener(description, 'change', function(e)
-		{
-			if (description.value != '')
-			{
-				button.removeAttribute('disabled');
-			}
-			else
-			{
-				button.setAttribute('disabled', 'disabled');
-			}
-		});
-
-		mxEvent.addListener(description, 'keydown', function(e)
+		var updateState = function()
 		{
 			window.setTimeout(function()
 			{
@@ -3379,7 +3364,12 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					button.setAttribute('disabled', 'disabled');
 				}
 			}, 0);
-		});
+		};
+
+		mxEvent.addListener(description, 'change', updateState);
+		mxEvent.addListener(description, 'keydown', updateState);
+		mxEvent.addListener(description, 'cut', updateState);
+		mxEvent.addListener(description, 'paste', updateState);
 
 		mxEvent.addListener(description, 'keydown', function(e)
 		{
@@ -3396,30 +3386,71 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		buttons.style.whiteSpace = 'nowrap';
 		buttons.style.overflowX = 'auto';
 		buttons.style.overflowY = 'hidden';
-
-		var keyButton = mxUtils.button('Get Key', function()
-		{
-			editorUi.openLink('https://beta.openai.com/account/api-keys');
-		});
-
-		keyButton.className = 'geBtn';
-		keyButton.style.marginLeft = '10px';
-
-		var helpButton = mxUtils.button(mxResources.get('help'), function()
-		{
-			editorUi.openLink('https://github.com/jgraph/drawio/discussions/3313');
-		});
-
-		helpButton.className = 'geBtn';
-		helpButton.style.marginLeft = '10px';
-
 		buttons.appendChild(button);
 		buttons.appendChild(typeSelect);
-		buttons.appendChild(keyButton);
-		buttons.appendChild(helpButton);
+
+		var formatContainer = document.createElement('div');
+		formatContainer.style.position = 'absolute';
+		formatContainer.style.height = '17px';
+		formatContainer.style.left = '2px';
+		formatContainer.style.right = '2px';
+		formatContainer.style.bottom = '2px';
+		formatContainer.style.whiteSpace = 'nowrap';
+		formatContainer.style.overflowX = 'auto';
+		formatContainer.style.overflowY = 'hidden';
+
+		var formatLbl = document.createElement('label');
+		mxUtils.write(formatLbl, mxResources.get('format') + ':');
+		formatContainer.appendChild(formatLbl);
+
+		var formatDrawio = document.createElement('input');
+		formatDrawio.setAttribute('type', 'radio');
+		formatDrawio.setAttribute('name', 'format');
+		formatDrawio.setAttribute('checked', 'checked');
+		formatDrawio.setAttribute('id', 'aiTempFrmtDrawio');
+		formatDrawio.style.marginLeft = '6px';
+		formatDrawio.style.marginRight = '4px';
+		formatContainer.appendChild(formatDrawio);
+
+		var formatDrawioLbl = document.createElement('label');
+		mxUtils.write(formatDrawioLbl, mxResources.get('draw.io'));
+		formatDrawioLbl.setAttribute('for', 'aiTempFrmtDrawio');
+		formatContainer.appendChild(formatDrawioLbl);
+
+		var formatMermaid = document.createElement('input');
+		formatMermaid.setAttribute('type', 'radio');
+		formatMermaid.setAttribute('name', 'format');
+		formatMermaid.setAttribute('id', 'aiTempFrmtMermaid');
+		formatMermaid.style.marginLeft = '6px';
+		formatMermaid.style.marginRight = '4px';
+		formatContainer.appendChild(formatMermaid);
+		
+		var formatMermaidLbl = document.createElement('label');
+		mxUtils.write(formatMermaidLbl, mxResources.get('mermaid'));
+		formatMermaidLbl.setAttribute('for', 'aiTempFrmtMermaid');
+		formatContainer.appendChild(formatMermaidLbl);
+
+		mxEvent.addListener(formatDrawio, 'change', function()
+		{
+			if (formatDrawio.checked && drawioXml)
+			{
+				templateXml = drawioXml;
+				lastAiXml = drawioXml;
+			}
+		});
+
+		mxEvent.addListener(formatMermaid, 'change', function()
+		{
+			if (formatMermaid.checked && mermaidXml)
+			{
+				templateXml = mermaidXml;
+				lastAiXml = mermaidXml;
+			}
+		});
 
 		content.appendChild(buttons);
 		content.appendChild(preview);
+		content.appendChild(formatContainer);
 
 		return content;
 	};
@@ -3872,7 +3903,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 	if (urlParams['test'] == '1' && editorUi.getServiceName() == 'draw.io')
 	{
-		categories['aiTemplate'] = {content: createAiContent()};
+		categories['smartTemplate'] = {content: createSmartTemplateContent()};
 	}
 	
 	function resetTemplates()
@@ -4521,12 +4552,18 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	h3.style.marginTop = '0px';
 	h3.style.marginBottom = '24px';
 	div.appendChild(h3);
-	
-	mxUtils.write(div, mxResources.get('filename') + ':');
+
+	var span = document.createElement('span');
+	mxUtils.write(span, mxResources.get('filename') + ':');
+	span.style.maxWidth = '106px';
+	span.style.overflow = 'hidden';
+	span.style.textOverflow = 'ellipsis';
+	span.style.display = 'inline-block';
+	div.appendChild(span);
 
 	var nameInput = document.createElement('input');
 	nameInput.setAttribute('value', title);
-	nameInput.style.width = '200px';
+	nameInput.style.width = '180px';
 	nameInput.style.marginLeft = '10px';
 	nameInput.style.marginBottom = '20px';
 	nameInput.style.maxWidth = '70%';
@@ -8212,10 +8249,10 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 	{
 		for (var i = 0; i < editorUi.sidebar.customEntries.length; i++)
 		{
-			var section = editorUi.sidebar.customEntries[i];
+			var section = editorUi.sidebar.customEntries[i] || {};
 			var tmp = {title: editorUi.getResource(section.title), entries: []};
 			
-			for (var j = 0; j < section.entries.length; j++)
+			for (var j = 0; section.entries != null && j < section.entries.length; j++)
 			{
 				var entry = section.entries[j];
 				tmp.entries.push({id: entry.id, title:
@@ -8224,7 +8261,10 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 					image: entry.preview});
 			}
 			
-			newEntries.push(tmp);
+			if (tmp.entries.length > 0)
+			{
+				newEntries.push(tmp);
+			}
 		}
 	}
 	

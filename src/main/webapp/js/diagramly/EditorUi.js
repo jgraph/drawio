@@ -7940,7 +7940,7 @@
 	/**
 	 * Generates a Mermaid image.
 	 */
-	EditorUi.prototype.generateOpenAiMermaidDiagram = function(key, prompt, success, error)
+	EditorUi.prototype.generateOpenAiMermaidDiagram = function(prompt, success, error)
 	{
 		var maxRetries = 3;
 		var retryCount = 0;
@@ -7954,7 +7954,7 @@
 					EditorUi.logEvent({category: 'OPENAI-DIAGRAM',
 						action: 'generateOpenAiMermaidDiagram',
 						label: prompt});
-					var url = 'https://api.openai.com/v1/engines/text-davinci-003/completions';
+					var url = 'https://www.draw.io/generate';
 
 					var params = {
 						prompt: prompt,
@@ -7964,12 +7964,6 @@
 
 					var req = new mxXmlRequest(url, JSON.stringify(params), 'POST');
 					
-					req.setRequestHeaders = mxUtils.bind(this, function(request, params)
-					{
-						request.setRequestHeader('Authorization', 'Bearer ' + key);
-						request.setRequestHeader('Content-Type', 'application/json');
-					});
-
 					var handleError = mxUtils.bind(this, function(e)
 					{
 						if (timeout.clear())
@@ -8129,9 +8123,7 @@
 					config.theme = 'dark';
 				}
 				
-				mermaid.mermaidAPI.initialize(config);
-	    		
-				mermaid.mermaidAPI.renderAsync('geMermaidOutput-' + new Date().getTime(), data,  mxUtils.bind(this, function(svg)
+				var renderCallback = mxUtils.bind(this, function(svg)
 				{
 					try
 					{
@@ -8184,7 +8176,21 @@
 					{
 						error(e);
 					}
-				}));
+				});
+
+				mermaid.mermaidAPI.initialize(config);
+
+				if (urlParams['dev'] == '1')
+				{
+					mermaid.mermaidAPI.render('geMermaidOutput-' + new Date().getTime(), data).then(function(result)
+					{
+						renderCallback(result.svg);
+					});
+				}
+				else
+				{
+					mermaid.mermaidAPI.renderAsync('geMermaidOutput-' + new Date().getTime(), data, renderCallback);
+				}
 			}
 			catch (e)
 			{
@@ -8206,15 +8212,24 @@
 					}));
 				}
 				
-				mxscript('js/mermaid/mermaid.min.js', function()
-				{
-					// Load mindmap plugin in dev only so far
-					mxscript('js/mermaid/mermaid-mindmap.min.js', async function()
+				// TODO Find a better way to dynamic load mermaid module that jscompiler supports
+				mxscript('js/mermaid/loadMermaidESM.js', 
+					function()
 					{
-						await mermaid.registerExternalDiagrams([window['mermaid-mindmap']]);
-						delayed();
+						function mermaidLoaded()
+						{
+							if (typeof mermaid !== 'undefined')
+							{
+								delayed();
+							}
+							else
+							{
+								window.setTimeout(mermaidLoaded, 100);
+							}
+						}
+						
+						mermaidLoaded();
 					}, null, null, null, onerror);
-				}, null, null, null, onerror);
 			}
 			else
 			{
@@ -17627,7 +17642,7 @@
 		this.menus.get('viewPanels').setEnabled(active);
 		this.menus.get('viewZoom').setEnabled(active);
 		
-		var restricted = (urlParams['embed'] != '1' ||
+		var restricted = (urlParams['embed'] != '1' || urlParams['embedRT'] == '1' ||
 			!this.editor.graph.isEnabled()) &&
 			(file == null || file.isRestricted());
 		this.actions.get('makeCopy').setEnabled(!restricted);

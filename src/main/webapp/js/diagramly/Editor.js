@@ -1756,11 +1756,11 @@
 	 * 
 	 * Hook for mermaid to draw.io converter.
 	 */
-	Editor.mermaidToDrawio = function(graph, diagramtype)
+	Editor.mermaidToDrawio = function(graph, diagramtype, exta)
 	{
 		if (typeof mxMermaidToDrawio === 'function')
 		{
-			return mxMermaidToDrawio(graph, diagramtype);
+			return mxMermaidToDrawio(graph, diagramtype, exta);
 		}
 	};
     
@@ -2113,6 +2113,11 @@
 			if (config.showRemoteCursors != null)
 			{
 				EditorUi.prototype.showRemoteCursors = config.showRemoteCursors;
+			}
+
+			if (config.restrictExport != null)
+			{
+				DrawioFile.RESTRICT_EXPORT = config.restrictExport;
 			}
 		}
 	};
