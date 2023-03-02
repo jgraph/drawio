@@ -1222,7 +1222,7 @@ EditorUi.prototype.hsplitClickEnabled = false;
 /**
  * Whether the default styles should be updated when styles are changed. Default is true.
  */
-EditorUi.prototype.updateDefaultStyle = true;
+EditorUi.prototype.updateDefaultStyle = false;
 
 /**
  * Installs the listeners to update the action states.

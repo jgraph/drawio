@@ -2977,12 +2977,22 @@
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
 			
-			item = menu.addItem(mxResources.get('default'), null, function()
+			item = menu.addItem(mxResources.get('classic'), null, function()
 			{
-				editorUi.setCurrentTheme('kennedy');
+				editorUi.setCurrentTheme((!Editor.isDarkMode()) ? 'kennedy' : 'dark');
 			}, parent);
 
-			if (theme == 'kennedy' || theme == 'dark' || theme == 'simple')
+			if (theme == 'kennedy' || theme == 'dark')
+			{
+				menu.addCheckmark(item, Editor.checkmarkImage);
+			}
+
+			item = menu.addItem(mxResources.get('simple'), null, function()
+			{
+				editorUi.setCurrentTheme('simple');
+			}, parent);
+
+			if (theme == 'simple')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}

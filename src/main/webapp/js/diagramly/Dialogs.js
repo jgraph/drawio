@@ -2124,14 +2124,40 @@ var ParseDialog = function(editorUi, title, defaultType)
 				}
 			}
 		}
-		else if (type == 'mermaid')
+		else if (type == 'mermaid' || type == 'mermaid2drawio')
 		{
 			if (editorUi.spinner.spin(document.body, mxResources.get('inserting')))
 			{
+				var k = 0;
+
+				while (lines[k].trim().length == 0) k++;
+
+				var diagramType = lines[k].trim().toLowerCase();
+				var sp = diagramType.indexOf(' ');
+				diagramType = diagramType.substring(0, sp > 0 ? sp : diagramType.length);
+				var inDrawioFormat = type == 'mermaid2drawio' && diagramType != 'gantt' && diagramType != 'pie';
+
 				var graph = editorUi.editor.graph;
 				
+				if (inDrawioFormat)
+				{
+					mxMermaidToDrawio.addListener(mxUtils.bind(this, function(modelXml)
+					{
+						editorUi.spinner.stop();
+						var xml = '<mxfile><diagram id="d" name="n">' +
+									Graph.compress(modelXml) + '</diagram></mxfile>';
+						graph.setSelectionCells(editorUi.importXml(xml,
+							Math.max(insertPoint.x, 20),
+							Math.max(insertPoint.y, 20),
+							true, null, null, true));
+						graph.scrollCellToVisible(graph.getSelectionCell());
+					}));
+				}
+
 				editorUi.generateMermaidImage(text, null, function(data, w, h)
 				{
+					if (inDrawioFormat) return;
+
 					insertPoint = (mxEvent.isAltDown(evt)) ? insertPoint : graph.getCenterInsertPoint(new mxRectangle(0, 0, w, h));
 					editorUi.spinner.stop();
 					var cell = null;
@@ -2499,7 +2525,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 	
 	var typeSelect = document.createElement('select');
 	
-	if (defaultType == 'formatSql' || defaultType == 'mermaid')
+	if (defaultType == 'formatSql' || (defaultType == 'mermaid' && urlParams['dev'] != '1'))
 	{
 		typeSelect.style.display = 'none';
 	}
@@ -2508,7 +2534,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 	listOption.setAttribute('value', 'list');
 	mxUtils.write(listOption, mxResources.get('list'));
 	
-	if (defaultType != 'plantUml')
+	if (defaultType != 'plantUml' && defaultType != 'mermaid')
 	{
 		typeSelect.appendChild(listOption);
 	}
@@ -2530,12 +2556,17 @@ var ParseDialog = function(editorUi, title, defaultType)
 	
 	var mermaidOption = document.createElement('option');
 	mermaidOption.setAttribute('value', 'mermaid');
-	mxUtils.write(mermaidOption, mxResources.get('formatSql'));
+	mxUtils.write(mermaidOption, mxResources.get('mermaid'));
 	
+	var mermaid2drawioOption = document.createElement('option');
+	mermaid2drawioOption.setAttribute('value', 'mermaid2drawio');
+	mxUtils.write(mermaid2drawioOption, mxResources.get('drawio'));
+
 	if (defaultType == 'mermaid')
 	{
 		typeSelect.appendChild(mermaidOption);
 		mermaidOption.setAttribute('selected', 'selected');
+		typeSelect.appendChild(mermaid2drawioOption);
 	}
 	
 	var diagramOption = document.createElement('option');
@@ -2554,7 +2585,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 	verticalFlowOption.setAttribute('value', 'verticalFlow');
 	mxUtils.write(verticalFlowOption, mxResources.get('verticalFlow'));
 	
-	if (defaultType != 'plantUml')
+	if (defaultType != 'plantUml' && defaultType != 'mermaid')
 	{
 		typeSelect.appendChild(diagramOption);
 		typeSelect.appendChild(circleOption);
@@ -2595,7 +2626,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 			return 'Person\n-name: String\n-birthDate: Date\n--\n+getName(): String\n+setName(String): void\n+isBirthday(): boolean\n\n' +
 				'Address\n-street: String\n-city: String\n-state: String';
 		}
-		else if (typeSelect.value == 'mermaid')
+		else if (typeSelect.value == 'mermaid' || typeSelect.value == 'mermaid2drawio')
 		{
 			return 'graph TD;\n  A-->B;\n  A-->C;\n  B-->D;\n  C-->D;';
 		}
@@ -3186,10 +3217,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		var content = document.createElement('div');
 		content.style.position = 'absolute';
 		content.style.overflow = 'hidden';
-		content.style.left = '4px';
-		content.style.right = '4px';
-		content.style.bottom = '4px';
-		content.style.top = '4px';
+		content.style.left = '8px';
+		content.style.right = '8px';
+		content.style.bottom = '8px';
+		content.style.top = '8px';
 
 		mxUtils.write(content, mxResources.get('describeYourDiagram') + ':');
 		mxUtils.br(content);
@@ -3198,7 +3229,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		description.setAttribute('type', 'text');
 		description.setAttribute('placeholder', mxResources.get('processForHiringNewEmployee'));
 		description.style.width = '100%';
-		description.style.marginTop = '4px';
+		description.style.marginTop = '6px';
 		description.style.marginBottom = '4px';
 		description.style.boxSizing = 'border-box';
 		content.appendChild(description);
@@ -3206,10 +3237,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		mxUtils.br(content);
 
 		var preview = document.createElement('div');
-		preview.style.top = '85px'
+		preview.style.top = '86px'
 		preview.style.left = '2px';
 		preview.style.right = '2px';
-		preview.style.bottom = '21px';
+		preview.style.bottom = '2px';
 		preview.style.position = 'absolute';
 		preview.style.border = '1px solid #424242';
 
@@ -3226,7 +3257,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		var typeSelect = document.createElement('select');
 		typeSelect.className = 'geBtn';
 		typeSelect.style.maxWidth = '160px';
-		typeSelect.style.marginLeft = '10px';
+		typeSelect.style.marginLeft = '0px';
 
 		var option = document.createElement('option');
 		mxUtils.write(option, mxResources.get('diagramType'));
@@ -3252,23 +3283,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			typeSelect.appendChild(option);
 		}
 
-		mxEvent.addListener(typeSelect, 'change', function()
-		{
-			if (typeSelect.value == 'gantt' || typeSelect.value == 'pie')
-			{
-				formatDrawio.setAttribute('disabled', 'disabled');
-				formatMermaid.checked = true;
-			}
-			else
-			{
-				formatDrawio.removeAttribute('disabled');
-			}
-		});
-
-		var drawioXml, mermaidXml;
-
 		var button = mxUtils.button(mxResources.get('generate'), function()
 		{
+			var useMermaidFormat = typeSelect.value == 'gantt' || typeSelect.value == 'pie';
 			var prompt = 'create mermaid ' + ((typeSelect.value != '') ?
 				(typeSelect.value + ' ') : '') + 'declaration for ' +
 				description.value;
@@ -3281,12 +3298,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			{
 				mxMermaidToDrawio.addListener(mxUtils.bind(this, function(modelXml)
 				{
-					drawioXml = '<mxfile><diagram id="d" name="n">' +
-								Graph.compress(modelXml) + '</diagram></mxfile>';
-
-					if (formatDrawio.checked)
+					if (!useMermaidFormat)
 					{
-						templateXml = drawioXml;
+						templateXml = '<mxfile><diagram id="d" name="n">' +
+									Graph.compress(modelXml) + '</diagram></mxfile>';
 						lastAiXml = templateXml;
 					}
 				}));
@@ -3313,9 +3328,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					var previewXml = '<mxfile><diagram id="d" name="n">' +
 						Graph.compress(xml) + '</diagram></mxfile>';
 					
-					mermaidXml = xml;
-
-					if (formatMermaid.checked || typeof mxMermaidToDrawio === 'undefined')
+					if (useMermaidFormat || typeof mxMermaidToDrawio === 'undefined')
 					{
 						templateXml = xml;
 						lastAiXml = xml;
@@ -3386,71 +3399,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		buttons.style.whiteSpace = 'nowrap';
 		buttons.style.overflowX = 'auto';
 		buttons.style.overflowY = 'hidden';
-		buttons.appendChild(button);
 		buttons.appendChild(typeSelect);
-
-		var formatContainer = document.createElement('div');
-		formatContainer.style.position = 'absolute';
-		formatContainer.style.height = '17px';
-		formatContainer.style.left = '2px';
-		formatContainer.style.right = '2px';
-		formatContainer.style.bottom = '2px';
-		formatContainer.style.whiteSpace = 'nowrap';
-		formatContainer.style.overflowX = 'auto';
-		formatContainer.style.overflowY = 'hidden';
-
-		var formatLbl = document.createElement('label');
-		mxUtils.write(formatLbl, mxResources.get('format') + ':');
-		formatContainer.appendChild(formatLbl);
-
-		var formatDrawio = document.createElement('input');
-		formatDrawio.setAttribute('type', 'radio');
-		formatDrawio.setAttribute('name', 'format');
-		formatDrawio.setAttribute('checked', 'checked');
-		formatDrawio.setAttribute('id', 'aiTempFrmtDrawio');
-		formatDrawio.style.marginLeft = '6px';
-		formatDrawio.style.marginRight = '4px';
-		formatContainer.appendChild(formatDrawio);
-
-		var formatDrawioLbl = document.createElement('label');
-		mxUtils.write(formatDrawioLbl, mxResources.get('draw.io'));
-		formatDrawioLbl.setAttribute('for', 'aiTempFrmtDrawio');
-		formatContainer.appendChild(formatDrawioLbl);
-
-		var formatMermaid = document.createElement('input');
-		formatMermaid.setAttribute('type', 'radio');
-		formatMermaid.setAttribute('name', 'format');
-		formatMermaid.setAttribute('id', 'aiTempFrmtMermaid');
-		formatMermaid.style.marginLeft = '6px';
-		formatMermaid.style.marginRight = '4px';
-		formatContainer.appendChild(formatMermaid);
-		
-		var formatMermaidLbl = document.createElement('label');
-		mxUtils.write(formatMermaidLbl, mxResources.get('mermaid'));
-		formatMermaidLbl.setAttribute('for', 'aiTempFrmtMermaid');
-		formatContainer.appendChild(formatMermaidLbl);
-
-		mxEvent.addListener(formatDrawio, 'change', function()
-		{
-			if (formatDrawio.checked && drawioXml)
-			{
-				templateXml = drawioXml;
-				lastAiXml = drawioXml;
-			}
-		});
-
-		mxEvent.addListener(formatMermaid, 'change', function()
-		{
-			if (formatMermaid.checked && mermaidXml)
-			{
-				templateXml = mermaidXml;
-				lastAiXml = mermaidXml;
-			}
-		});
-
+		buttons.appendChild(button);
 		content.appendChild(buttons);
 		content.appendChild(preview);
-		content.appendChild(formatContainer);
 
 		return content;
 	};

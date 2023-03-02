@@ -1,3 +1,11 @@
+02-MAR-2023: 21.0.1
+
+- Changes behaviour of default styling [drawio-3312]
+
+02-MAR-2023: 21.0.0
+
+- Build rejected, failed testing on stage
+
 01-MAR-2023: 20.8.24
 
 - Fixes tolerance and logic for shape picker [drawio-3256]
