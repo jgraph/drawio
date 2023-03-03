@@ -101,22 +101,22 @@
 			this.createVertexTemplateEntry(s2 + 'iTextInput;strokeColor=#444444;buttonText=;fontSize=8;whiteSpace=wrap;align=left;', 
 					sizeX * 0.2175, sizeY * 0.0375, 'Default text', 'Text input', null, null, null),
 			this.addDataEntry(null, 165, 50, 'Radio Buttons',
-				'7VbbbsIwDP2avqI2AcTrgI2XTZu2/UAgpo2WNlWSMdjXz0kMu0AlNLa9jEiV6nNsyz6nkZrxSb2eWdFWN0aCzvhlxifWGJ/e6vUEtM5YrmTGpxljOT4Zu+pgi8jmrbDQ+GMKWCpYCf0MCUmA8xtNQOVrHGtaZHzsKiHNCwY5BlK4CiQFyLQhv16XYZeeMq5nLSxwiLF9UK+B4yHPW/MEE6ONjd35MB5klkrrD/gyHsSxn1S4zZZrTAOhKSyerVMruAeX2ue0ClgP6045IkRazMDU4O0GU16U9BVlDAeprAJVVlQ2oO7Cpbjclb6Liy+k72Gt+Z7Wt61XpkGs2FN9Kyi2UK1LG+OiYq6BJP8imIwHcaFV2SCmYRnUd61YqKa8jtGUhULTeLJkROEhQ7SYg74zTsUZ+dQmNcZBYLUQ+voLXyspw3C7hAsaZEfQKI+mpa/hKMfYYceogPXIrQ2JvI0/OHrIz9Pt7HfbuX+JznZ+z85i+EduDrrd5Ke72Y/n37vJRn92O4fdfvbPt/OH/OwXv+Mmhu+/QJH79If0Bg=='),
+				'7ZbdTsIwFMefZrdka4F4K6DcaDTqCxR62Bq7dWmrgE/vaXv4UFhCgnJFkyU7nznn/1uTZXxcr6ZWtNWjkaAzfpfxsTXGp7d6NQatM5YrmfFJxliOT8buO6JFjOatsND4UwpYKvgU+gOSJzmcX2tyVL7GsSZFxkeuEtIs0cjRkMJVIMnASBvy61UZdukp43rWwhyHGNlX9RViPOR5a95hbLSxsTsfxoORhdJ6z7+IB/3YTyrcZhNrTAOhKcw/rFOf8AIutc9pFbAeVp1yRBdpMQVTg7drTFkq6SvKGA5SWQWqrKhsQN2FS3a5Ld2Jiy+k73Gt+YHWT61XpkFfcaD6RlBsoVqXNsZFxUwDSf5LMBkP+oVWZYM+DYugvmvFXDXlQ7QmLBSaxhOSGzKPAdFiBvrZOBVn5BOb1BgFgdVc6Idf8VpJGYbbJtzSINsAjfJmWvoa9j6tk+Cx4/CogPUI3Jr03th7cI+hPZ9sv5vs4X26kj2bbDG8ENhBN1h+Pth+PFewO7Ds5mJ3dtiNtn+9s3+Ptl/8D1g0d79LMfbjb+ob'),
 			this.addDataEntry(null, 165, 50, 'Checkboxes',
 				'7ZZbT8IwFMc/zV7J1gLBRxnKCyZG/AJlPWyN3bq0RYef3tOLeGEQEoUXbbKk55rT/29NmtC87uaatdWd4iATepPQXCtlw67ucpAyIangCZ0lhKT4JeT2QDTz0bRlGhp7SgEJBc9MbiB4gsPYrYyOytY41ixL6NRUjKsXNFI0ODMV8GhgpHX5dVe6swyEMgOtocAhpnopXl2Mujyr1RPkSirtu9OxXxhZCyk/+dd+oR/7cYGneY81qgHXFIqNNuIZHsCE9m6MeBrQFrqDinhXlGMOqgart5jyIritYsZ4FMoqEGUVy0ZByZSZYJe70g99cRMl7peb7sm9BGtFU6IzO5/y6b6+3C/0MynKBn0S1q7EtKzAeRbemhFXqBob+0yi2cdPshXIe2WEFcr100G5qYMhCiYX3+K14NwddJdwHQfZBeIoj6qNP89JdEk/3VhABpHsNgJ5tz/R72P/c/TDI+jPeOn+0R9Cn40vRH50hDz9PfJFBcXTSnX7wK/8+vPAyeRil318BPnw/7Jfnv0wOw95ND8eaz725S33Bg=='),
 			   	
-			this.createVertexTemplateEntry(s2 + 'iComboBox;spacingTop=2;spacingLeft=2;align=left;strokeColor=#444444;fontColor=#666666;buttonText=;fontSize=8;fillColor=#dddddd;fillColor2=#3D5565;sketch=0;', 
+			this.createVertexTemplateEntry(s2 + 'iComboBox;spacingTop=2;spacingLeft=2;align=left;strokeColor=#444444;fontColor=#666666;buttonText=;fontSize=8;fillColor=#dddddd;fillColor2=#3D5565;sketch=0;whiteSpace=wrap;', 
 					sizeX * 0.29, sizeY * 0.0375, 'Option 1', 'Combobox', null, null, null),
 			this.createVertexTemplateEntry(s2 + 'iOnOffButton;mainText=;strokeColor=#444444;fontSize=9;fontColor=#ffffff;spacingRight=14;buttonState=on;sketch=0;', sizeX * 0.2175, sizeY * 0.0375, 
 					'ON', 'On-off button', null, null, null),
-			this.createVertexTemplateEntry(s2 + 'iTextInput;strokeColor=#444444;align=left;buttonText=;fontSize=8', sizeX * 0.2175, sizeY * 0.0375, 
+			this.createVertexTemplateEntry(s2 + 'iTextInput;strokeColor=#444444;align=left;buttonText=;fontSize=8;whiteSpace=wrap;', sizeX * 0.2175, sizeY * 0.0375, 
 					'********', 'Password field', null, null, null),
 			this.addDataEntry(null, 150, 100, 'Alert Box',
-				'5ZZLb6MwEMc/DcdGBoduc8yjyWmlVXPYs2UGbNVgZDuv/fQ7A24TBFl1d3srUpDnPy/b+WlEwtf1eedEq77bAkzCnxO+dtaGflWf12BMkjFdJHyTZBnDX5Jt73jTzsta4aAJH0nI+oSjMAfolaUBF1AqwEun26Btg1aAM4qPScZTlvDVlJN5kLYpcGF0A31dHy4m1lWhxtNtUsz2ShT2hEZXSngFRTTQ01J8fa7oSmba+lkpGnl5eQGJB1q5vf5FAU8UHJx9hbU11nUteNE96Cm1MTf6fPEtXVAGFi003syNL13w9JF8thVShwvVpp2UdhBWdk/U4x4WaJ6UDrDHVBJOuGfUhNFVg6bETuBoo68QpIpHVEKqg4MdhW7mKLRWU9zzEcN9DKIuW1FrQ/tZOkldJHozthGHSvVlu63Yg+t6qxBa9Od8iS/8u+lFAX5WWVsZEK32M2nrziF9F7ot+xa4HDTJs9VNm0gIUgHnu5R1UkRsB7aG4LAuO+kiqBiR9yQyBRpLR5FFUfheqN5zr9DiInI7zTAfMbynIko3FbUTbQsNEvZpQCKPyrohCyn/AzNTkDjwmPkz3k/6NSjJ/o2SLO81B0YEfYRB/f8hZz4iZ3UIgWbaZ7Hi3HBu8fEIuUfNaLxdZ9DHx5vMJUA6Hm9TSH5dAGMCm0XQLoMCN3g+TdHJ/pLO2P8HXei1+cOcDZo/vFH/VsKWpYcwwvv9GFPEo3n9lujDbz81fgM='),
+				'zVVRb5swEP41PDYyOOmaxyVps5dJU/OwZ8s+sFWDke0ksF+/MzgNCDJ1W6UWCQl/992d7e87kdBt2ewtq+V3I0An9DGhW2uM77/KZgtaJxlRIqG7JMsIvkn2dCOadlFSMwuVf0tC1iecmD5Cj3zVYD1CAhy3qvbKVLjy0CB4n2Q0JQndzAWJA24qgR9aVdDXdb7Vsa70JZ5ul2K2k0yYMy66UsxJEHGBkTrwy6YIV7JQxi1yVvH2+Rk4HmhjD+pXIDwEsrfmBbZGG9u1oKJ7MJIrrQf4cv0lXYcMLCoU3swglq5peh9ipmZc+TbUDjvJzYiWd0/EB3s4S+XhgKkBOOOeEWNaFRUuOXYCGzb6Ap7LeETJuDxa2AfqbolAbVTgPZ6Q7iIpdHlipdJhP99An8ArzjAQ5UKJoLkpeQdFvfdgSvC2RcpZCS8jY9XbgkhQhbykkQgy1wPFa+7VQfgRTTRvKDox1CEUkaoqQjtW11Ch3O/mDjSHDCINhUmzPwg4p5gFh5k/4/2kHyBZ9m+SZases6CZVycY1f8fGZcTGTdH78O0v5dw1o4nmk6H65aEk8G/TufbB5+vOEA6Hfw5f3wSN8QEsoiqt6MCA688zFmF/KVVYv8f4XTX5ndLMmp+d7HgpYTJcwd+4rXXY8zZD5fXX15PH/4RfwM='),
 			this.addDataEntry(null, 150, 100, 'Dialog Box',
-				'7ZZNj5swEIZ/DcdFYIdsc9yQTQ5V1Wpz6NkyA7bWYGo7X/31HYOzCSJZpe2emiIlsmfe+bB5NCKieb1fGdaKL7oAFdHniOZGa9ev6n0OSkUkkUVEFxEhCf4isrziTTtv0jIDjbslgPQBW6Y20FsWkildoe3HBqyTusGlg72LyDQiNE0iOh95EgtcNwUulGygT2ndQYWUwtV4sEWKoVawQu9w4/MUzAoowgY9rdfX+8rfRiy1jUvW8MPLC3A8y9ys5U8v+OTFzuhXyLXSpitBi+5BTymVOrNPZo/pzEdg0kLipZz50hlNp96nW8alO/jcvpNSD2Rl9wR76GGG252QDtYY6g077BltTMmqwS3HSmB8o6/guAhHFIyLjYGVly4maGi19LrnLcptEPkqS1ZL5ft5MtxX4eglyYJtKtGn7VrRG9PVFs616M/oE/7hm/Z/XmDjSutKAWuljbmuOwe3nXRZ9iVwOSiSkflZmQAHGHzNVwHrTIGuFeganMG8yU4WTgRF1kOYCJCYOhiTYGS2N1RvsSdecRGQvYwvHeG79kmEbDzBSFQLDRL2YUAij0KbIQspfYeZS5AYsBj5PdxPeh+UkD+jhGS9zYBiTm5hkP9vyJmMyMnx5eIA/jBWjBnOLToeIdeoGY230wy6fbzxjAOk4/F2Ccn7BTAEJPGRtMMgwxmf0+wCnslv4hka+OZv9FT9gZJ4WP7h2M4xiS5LC25E+NtJboI+G0H/9fN/4O8U+Md/D3jcnj6de/n5l/Uv'),
+				'7VZdb5swFP01fmwEdkiX15I2k6ZpU/OwZwsu2KrBzHY+2K/fNTgNiKTKtkqrqiIh2ed+2udcBGFpdVgb3oivOgdF2D1hqdHa9avqkIJShEYyJ2xFKI3wJfThgjXurFHDDdTumgDaB+y42kKPrCRXukTs5xask7rGpYODI3RBKIsjwu4mlshCpuscF0rW0Ke0rlUhpXAVHmwVY6gVPNd73Pg8ObcC8rBBS+P9q0Ppb2MmtZ0VvM7ax0fI8Cx3ZiN/eYdP3tkZ/QSpVtp0JVjePWgppFIDfL68jZc+ApPmEi9lYIuXLF54m254Jl3rc/tOCj1yK7on4IMe9kI62GCoB/bYM2JcybLGbYaVwPhGn8BlIhxR8ExsDay962qOQKOl97vfobsNTr7KA6+k8v18BrUDJzOOhsAUGLzzi2x3UKB6DboCZ1p02cvcieCR9IqIBMhSHMOiAHLbA+Vz7Ek8uAj6Oa8lNtHSxicRsvZyQnobqJHuV1MHikN4kobExPQFAs8xZsBi5I9wP/F/oIz+HWU06TEDiju5g1H+f6FxPqExxZvGT9OrEWfMeKLZdLguUTgZ/NN0Xj/4WZIBxNPBP6ePN6KGEBDNjrS3owwDsSySM1qJ/lAroYHv/nin6jeMzsblb47tHJPoorDgJnJ7PslVCkwmCvz25UN9b0F9t+9Pfbg9/W717sO/sd8='),
 
-			this.createVertexTemplateEntry(s2 + 'iLockButton;fontColor=#cccccc;fontSize=13;mainText=;spacingLeft=50;spacingRight=10;align=center;sketch=0;', sizeX * 0.87, sizeY * 0.125, 'slide to unlock', 'Lock button', null, null, null),
+			this.createVertexTemplateEntry(s2 + 'iLockButton;fontColor=#cccccc;fontSize=13;mainText=;spacingLeft=50;spacingRight=10;align=center;sketch=0;whiteSpace=wrap;', sizeX * 0.87, sizeY * 0.125, 'slide to unlock', 'Lock button', null, null, null),
 			this.createVertexTemplateEntry(s + 'iArrowIcon;fillColor=#8BbEff;fillColor2=#135Ec8;strokeColor=#ffffff;sketch=0;', sizeX * 0.075, sizeY * 0.0375, '', 'Arrow', null, null, null),
 			this.createVertexTemplateEntry(s + 'iDeleteIcon;fillColor=#e8878E;fillColor2=#BD1421;strokeColor=#ffffff;sketch=0;', sizeX * 0.075, sizeY * 0.0375, '', 'Delete', null, null, null),
 			this.createVertexTemplateEntry(s + 'iAddIcon;fillColor=#7AdF78;fillColor2=#1A9917;strokeColor=#ffffff;sketch=0;', sizeX * 0.075, sizeY * 0.0375, '', 'Add', null, null, null),
@@ -144,7 +144,7 @@
 
 			this.addEntry(null, function()
 			{
-			   	var bg = new mxCell('Page title', new mxGeometry(0, 0, 175, 30), s4 + 'iURLBar;verticalAlign=top;fontSize=8;spacingTop=-5;align=center;sketch=0;');
+			   	var bg = new mxCell('Page title', new mxGeometry(0, 0, 175, 30), s4 + 'iURLBar;verticalAlign=top;fontSize=8;spacingTop=-5;align=center;sketch=0;whiteSpace=wrap;');
 			   	bg.vertex = true;
 			   	var text1 = new mxCell('https://www.draw.io/', new mxGeometry(5, 12, 115, 13), s4 + 'anchor;fontSize=8;spacingLeft=3;align=left;spacingTop=2;');
 			   	text1.vertex = true;
@@ -159,14 +159,14 @@
 			this.createVertexTemplateEntry(s + 'iSlider;barPos=20;', sizeX * 0.75, sizeY * 0.025, '', 'Slider', null, null, null),
 		 	this.createVertexTemplateEntry(s + 'iProgressBar;barPos=40;', sizeX * 0.75, sizeY * 0.025, '', 'Progress bar', null, null, null),
 			this.createVertexTemplateEntry(s + 'iCloudProgressBar;barPos=20;', sizeX * 0.75, sizeY * 0.025, '', 'Cloud progress bar', null, null, null),
-			this.createVertexTemplateEntry(s2 + 'iDownloadBar;verticalAlign=top;spacingTop=-4;fontSize=8;fontColor=#ffffff;buttonText=' + ';barPos=30;align=center;sketch=0;', sizeX * 0.87, sizeY * 0.075, 'Downloading 2 of 6', 'Download bar', null, null, null),
+			this.createVertexTemplateEntry(s2 + 'iDownloadBar;verticalAlign=top;spacingTop=-4;fontSize=8;fontColor=#ffffff;buttonText=' + ';barPos=30;align=center;sketch=0;whiteSpace=wrap;', sizeX * 0.87, sizeY * 0.075, 'Downloading 2 of 6', 'Download bar', null, null, null),
 			this.createVertexTemplateEntry(s2 + 'iScreenNameBar;fillColor2=#000000;fillColor3=#ffffff;buttonText=;fontColor=#ffffff;fontSize=10;whiteSpace=wrap;align=center;sketch=0;', sizeX * 0.87, sizeY * 0.0625, 'Screen Name', 'Screen name bar', null, null, null),
 			this.createVertexTemplateEntry(s + 'iIconGrid;gridSize=3,3;', sizeX * 0.75, sizeY * 0.375, '', 'Icon grid', null, null, null),
-			this.createVertexTemplateEntry(s2 + 'iCopy;fillColor=#000000;buttonText=;fontColor=#ffffff;spacingBottom=6;fontSize=9;fillColor2=#000000;fillColor3=#ffffff;align=center;sketch=0;', sizeX * 0.2, sizeY * 0.06875, 'Copy', 'Copy', null, null, null),
+			this.createVertexTemplateEntry(s2 + 'iCopy;fillColor=#000000;buttonText=;fontColor=#ffffff;spacingBottom=6;fontSize=9;fillColor2=#000000;fillColor3=#ffffff;align=center;sketch=0;whiteSpace=wrap;', sizeX * 0.2, sizeY * 0.06875, 'Copy', 'Copy', null, null, null),
 			
 			this.addEntry(null, function()
 			{
-			   	var bg = new mxCell('Copy', new mxGeometry(sizeX * 0.05, 0, sizeX * 0.2, sizeY * 0.06875), s4 + 'iCopy;fillColor=#000000;buttonText=;fontColor=#ffffff;spacingBottom=6;fontSize=9;fillColor2=#000000;fillColor3=#ffffff;align=center;sketch=0;');
+			   	var bg = new mxCell('Copy', new mxGeometry(sizeX * 0.05, 0, sizeX * 0.2, sizeY * 0.06875), s4 + 'iCopy;fillColor=#000000;buttonText=;fontColor=#ffffff;spacingBottom=6;fontSize=9;fillColor2=#000000;fillColor3=#ffffff;align=center;sketch=0;whiteSpace=wrap;');
 			   	bg.vertex = true;
 			   	var area1 = new mxCell('', new mxGeometry(0, sizeY * 0.06875, sizeX * 0.3, sizeY * 0.13125), s4 + 'rect;fillColor=#2266ff;strokeColor=none;opacity=30;sketch=0;');
 			   	area1.vertex = true;

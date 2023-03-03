@@ -1211,7 +1211,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn, hideNoFilesErr
 					}), '4px'));
 				}
 
-				var branches = [];//JSON.parse(req.getText());
+				var branches = JSON.parse(req.getText());
 				
 				if (branches == null || branches.length == 0)
 				{

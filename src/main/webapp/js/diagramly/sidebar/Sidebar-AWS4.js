@@ -218,9 +218,9 @@
 					 s * 130, s * 130, 'AWS Cloud', null, null, null, this.getTagsForStencil(gn, 'cloud', dt).join(' ')),
 			 this.createVertexTemplateEntry(n4 + 'group;grIcon=' + gn + '.group_region;strokeColor=#147EBA;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=1;',
 					 s * 130, s * 130, 'Region', null, null, null, this.getTagsForStencil(gn, 'region', dt).join(' ')),
-			 this.createVertexTemplateEntry('fillColor=none;strokeColor=#147EBA;dashed=1;verticalAlign=top;fontStyle=0;fontColor=#147EBA;',
+			 this.createVertexTemplateEntry('fillColor=none;strokeColor=#147EBA;dashed=1;verticalAlign=top;fontStyle=0;fontColor=#147EBA;whiteSpace=wrap;html=1;',
 					 s * 130, s * 130, 'Availability Zone', null, null, null, this.getTagsForStencil(gn, 'availability zone', dt).join(' ')),
-			 this.createVertexTemplateEntry('fillColor=none;strokeColor=#DD3522;verticalAlign=top;fontStyle=0;fontColor=#DD3522;',
+			 this.createVertexTemplateEntry('fillColor=none;strokeColor=#DD3522;verticalAlign=top;fontStyle=0;fontColor=#DD3522;whiteSpace=wrap;html=1;',
 					 s * 130, s * 130, 'Security group', null, null, null, this.getTagsForStencil(gn, 'security', dt).join(' ')),
 			 this.createVertexTemplateEntry(n4 + 'groupCenter;grIcon=' + gn + '.group_auto_scaling_group;grStroke=1;strokeColor=#D86613;fillColor=none;verticalAlign=top;align=center;fontColor=#D86613;dashed=1;spacingTop=25;',
 					 s * 130, s * 130, 'Auto Scaling group', null, null, null, this.getTagsForStencil(gn, 'auto scaling', dt).join(' ')),
@@ -248,9 +248,9 @@
 					 s * 130, s * 130, 'AWS Iot\nGreengrass\nDeployment', null, null, null, this.getTagsForStencil(gn, 'iot internet of things greengrass deployment', dt).join(' ')),
 			 this.createVertexTemplateEntry(n4 + 'group;grIcon=' + gn + '.group_iot_greengrass;strokeColor=#3F8624;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#3F8624;dashed=0;',
 					 s * 130, s * 130, 'AWS Iot\nGreengrass', null, null, null, this.getTagsForStencil(gn, 'iot internet of things greengrass', dt).join(' ')),
-			 this.createVertexTemplateEntry('fillColor=none;strokeColor=#5A6C86;dashed=1;verticalAlign=top;fontStyle=0;fontColor=#5A6C86;',
+			 this.createVertexTemplateEntry('fillColor=none;strokeColor=#5A6C86;dashed=1;verticalAlign=top;fontStyle=0;fontColor=#5A6C86;whiteSpace=wrap;html=1;',
 					 s * 130, s * 130, 'Generic group', null, null, null, this.getTagsForStencil(gn, 'generic', dt).join(' ')),
-			 this.createVertexTemplateEntry('fillColor=#EFF0F3;strokeColor=none;dashed=0;verticalAlign=top;fontStyle=0;fontColor=#232F3D;',
+			 this.createVertexTemplateEntry('fillColor=#EFF0F3;strokeColor=none;dashed=0;verticalAlign=top;fontStyle=0;fontColor=#232F3D;whiteSpace=wrap;html=1;',
 					 s * 130, s * 130, 'Generic group', null, null, null, this.getTagsForStencil(gn, 'generic', dt).join(' '))
 		]);
 	};

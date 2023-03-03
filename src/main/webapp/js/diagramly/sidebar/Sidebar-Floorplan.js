@@ -29,10 +29,10 @@
 					w, h, '', 'Wall (U)', null, null, this.getTagsForStencil(gn, 'wallU', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'room;fillColor=strokeColor;', 
 					w, h, '', 'Room', null, null, this.getTagsForStencil(gn, 'room', dt).join(' ')),
-		 	this.createVertexTemplateEntry('shape=dimension;whiteSpace=wrap;html=1;align=center;points=[];verticalAlign=bottom;spacingBottom=-5;labelBackgroundColor=#ffffff', 100, 40, 'Label', 'Horizontal Dimension', null, null, 'horizontal dimension measure distance unit'),
-		 	this.createVertexTemplateEntry('shape=dimension;direction=west;whiteSpace=wrap;html=1;align=center;points=[];verticalAlign=top;spacingTop=-8;labelBackgroundColor=#ffffff', 100, 40, 'Label', 'Vertical Dimension', null, null, 'vertical dimension measure distance unit'),
-		 	this.createVertexTemplateEntry('shape=dimension;direction=north;whiteSpace=wrap;html=1;align=right;points=[];verticalAlign=middle;labelBackgroundColor=#ffffff', 40, 100, 'Label', 'Vertical Dimension', null, null, 'vertical dimension measure distance unit'),
-		 	this.createVertexTemplateEntry('shape=dimension;direction=south;whiteSpace=wrap;html=1;align=left;points=[];verticalAlign=middle;labelBackgroundColor=#ffffff', 40, 100, 'Label', 'Horizontal Dimension', null, null, 'horizontal dimension measure distance unit'),
+		 	this.createVertexTemplateEntry('shape=dimension;whiteSpace=wrap;html=1;align=center;points=[];verticalAlign=bottom;spacingBottom=3;labelBackgroundColor=none;', 100, 40, 'Label', 'Horizontal Dimension', null, null, 'horizontal dimension measure distance unit'),
+		 	this.createVertexTemplateEntry('shape=dimension;direction=west;whiteSpace=wrap;html=1;align=center;points=[];verticalAlign=top;spacingTop=-15;labelBackgroundColor=none;', 100, 40, 'Label', 'Horizontal Dimension', null, null, 'horizontal dimension measure distance unit'),
+		 	this.createVertexTemplateEntry('shape=dimension;direction=north;whiteSpace=wrap;html=1;align=center;points=[];verticalAlign=bottom;labelBackgroundColor=none;horizontal=0;spacingBottom=3;', 40, 100, 'Label', 'Vertical Dimension', null, null, 'vertical dimension measure distance unit'),
+		 	this.createVertexTemplateEntry('shape=dimension;direction=south;whiteSpace=wrap;html=1;align=center;points=[];verticalAlign=top;labelBackgroundColor=none;horizontal=0;spacingTop=-15;', 40, 100, 'Label', 'Vertical Dimension', null, null, 'vertical dimension measure distance unit'),
 		 	this.createVertexTemplateEntry(s + 'window;', 
 					w, 10, '', 'Window', null, null, this.getTagsForStencil(gn, 'window', dt).join(' ')),
 		 	this.createVertexTemplateEntry(s + 'windowGlider;dx=0.25;', 
@@ -148,7 +148,7 @@
 					
 			this.addEntry(dt + 'kitchen table small', function()
 			{
-			   	var table = new mxCell('', new mxGeometry(0, 20, 80, 80), 'shape=rect;shadow=0;');
+			   	var table = new mxCell('', new mxGeometry(0, 20, 80, 80), 'shape=rect;shadow=0;html=1;');
 			   	table.vertex = true;
 			   	var chair1 = new mxCell('', new mxGeometry(20, 0, 40, 52), s + 'chair;shadow=0;');
 			   	chair1.vertex = true;
@@ -159,7 +159,7 @@
 			}),
 			this.addEntry(dt + 'kitchen table', function()
 			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 100, 100), 'shape=rect;shadow=0;');
+			   	var table = new mxCell('', new mxGeometry(20, 20, 100, 100), 'shape=rect;shadow=0;html=1;');
 			   	table.vertex = true;
 			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 52), s + 'chair;shadow=0;');
 			   	chair1.vertex = true;
@@ -173,9 +173,9 @@
 	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, table], 140, 140, 'Kitchen table');
 			}),
 			
-			this.addEntry(dt + 'kitchen table', function()
+			this.addEntry(dt + 'kitchen table round', function()
 			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 100, 100), 'shape=ellipse;shadow=0;');
+			   	var table = new mxCell('', new mxGeometry(20, 20, 100, 100), 'shape=ellipse;shadow=0;html=1;');
 			   	table.vertex = true;
 			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 52), s + 'chair;shadow=0;');
 			   	chair1.vertex = true;
@@ -191,7 +191,7 @@
 			
 			this.addEntry(dt + 'kitchen table large', function()
 			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 160, 100), 'shape=rect;shadow=0;');
+			   	var table = new mxCell('', new mxGeometry(20, 20, 160, 100), 'shape=rect;shadow=0;html=1;');
 			   	table.vertex = true;
 			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 52), s + 'chair;shadow=0;');
 			   	chair1.vertex = true;
@@ -209,9 +209,9 @@
 	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, chair5, chair6, table], 200, 140, 'Large kitchen table');
 			}),
 			
-			this.addEntry(dt + 'kitchen table large', function()
+			this.addEntry(dt + 'kitchen table large oval', function()
 			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 160, 100), 'shape=ellipse;shadow=0;');
+			   	var table = new mxCell('', new mxGeometry(20, 20, 160, 100), 'shape=ellipse;shadow=0;html=1;');
 			   	table.vertex = true;
 			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 52), s + 'chair;shadow=0;');
 			   	chair1.vertex = true;
@@ -226,12 +226,12 @@
 			   	var chair6 = new mxCell('', new mxGeometry(110, 88, 40, 52), s + 'chair;shadow=0;direction=west;');
 			   	chair6.vertex = true;
 
-	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, chair5, chair6, table], 200, 140, 'Large kitchen table');
+	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, chair5, chair6, table], 200, 140, 'Large oval kitchen table');
 			}),
 			
 			this.addEntry(dt + 'office table', function()
 			{
-			   	var table = new mxCell('', new mxGeometry(0, 20, 80, 50), 'shape=rect;shadow=0;');
+			   	var table = new mxCell('', new mxGeometry(0, 20, 80, 50), 'shape=rect;shadow=0;html=1;');
 			   	table.vertex = true;
 			   	var chair1 = new mxCell('', new mxGeometry(20, 0, 40, 43), s + 'office_chair;shadow=0;');
 			   	chair1.vertex = true;
@@ -243,7 +243,7 @@
 					
 			this.addEntry(dt + 'office table', function()
 			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 100, 100), 'shape=rect;shadow=0;');
+			   	var table = new mxCell('', new mxGeometry(20, 20, 100, 100), 'shape=rect;shadow=0;html=1;');
 			   	table.vertex = true;
 			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 43), s + 'office_chair;shadow=0;');
 			   	chair1.vertex = true;
@@ -259,7 +259,7 @@
 			
 			this.addEntry(dt + 'office table large', function()
 			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 160, 100), 'shape=rect;shadow=0;');
+			   	var table = new mxCell('', new mxGeometry(20, 20, 160, 100), 'shape=rect;shadow=0;html=1;');
 			   	table.vertex = true;
 			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 43), s + 'office_chair;shadow=0;');
 			   	chair1.vertex = true;
@@ -277,9 +277,9 @@
 	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, chair5, chair6, table], 200, 140, 'Large office table');
 			}),
 					
-			this.addEntry(dt + 'office table large', function()
+			this.addEntry(dt + 'office table large oval', function()
 			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 160, 100), 'shape=ellipse;shadow=0;');
+			   	var table = new mxCell('', new mxGeometry(20, 20, 160, 100), 'shape=ellipse;shadow=0;html=1;');
 			   	table.vertex = true;
 			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 43), s + 'office_chair;shadow=0;');
 			   	chair1.vertex = true;
@@ -294,12 +294,12 @@
 			   	var chair6 = new mxCell('', new mxGeometry(110, 97, 40, 43), s + 'office_chair;shadow=0;direction=west;');
 			   	chair6.vertex = true;
 
-	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, chair5, chair6, table], 200, 140, 'Large office table');
+	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, chair5, chair6, table], 200, 140, 'Large oval office table');
 			}),
 
-			this.addEntry(dt + 'office table large', function()
+			this.addEntry(dt + 'office table large oval', function()
 			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 280, 100), 'shape=ellipse;shadow=0;');
+			   	var table = new mxCell('', new mxGeometry(20, 20, 280, 100), 'shape=ellipse;shadow=0;html=1;');
 			   	table.vertex = true;
 			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 43), s + 'office_chair;shadow=0;');
 			   	chair1.vertex = true;
@@ -322,12 +322,12 @@
 			   	var chair10 = new mxCell('', new mxGeometry(230, 97, 40, 43), s + 'office_chair;shadow=0;direction=west;');
 			   	chair10.vertex = true;
 
-	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, chair5, chair6, chair7, chair8, chair9, chair10, table], 320, 140, 'Large office table');
+	   			return sb.createVertexTemplateFromCells([chair1, chair2, chair3, chair4, chair5, chair6, chair7, chair8, chair9, chair10, table], 320, 140, 'Large oval office table');
 			}),
 
 			this.addEntry(dt + 'office table conference large huge', function()
 			{
-			   	var table = new mxCell('', new mxGeometry(20, 20, 520, 100), 'shape=ellipse;shadow=0;');
+			   	var table = new mxCell('', new mxGeometry(20, 20, 520, 100), 'shape=ellipse;shadow=0;html=1;');
 			   	table.vertex = true;
 			   	var chair1 = new mxCell('', new mxGeometry(50, 0, 40, 43), s + 'office_chair;shadow=0;');
 			   	chair1.vertex = true;

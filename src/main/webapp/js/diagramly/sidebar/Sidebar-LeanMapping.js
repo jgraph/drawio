@@ -18,7 +18,7 @@
 		[
 			this.createVertexTemplateEntry(s2 + 'boat_shipment;align=center;', w, h, '', 'Boat Shipment', null, null, this.getTagsForStencil(gn, 'boat_shipment', dt).join(' ')),
 			this.addDataEntry(dt + 'data box', 60, 100, 'Data Box',
-				'1ZVfT8MgFMU/Da9LB7Pude10LxofNPFxuRZWiLQQirP10wstczbd4p9osz00uT2XA/f8HgCRtKhXBjS/VZRJRK4QSY1StquKOmVSIhwJisgSYRy5D+HrI91p2400GFba7xhwZ9iCfGGd0gmVbWQQKmvUM3sU1HInYEQSbgs36HLqyoqD9uuKOvcZJpJBuS5Aa1HmEwoW1k+q7lvCicxYVh+dupXCyCumCmZN45a8hilcN+6CRZyJnO9cURCh6oT8w7pn4IqA4TASMkDiLQ87Op/RuATu5GSjSnsv3rw490w0ZC7+DdvYAMyHFRnIhRR56WkJSv0eP8aCf4UF/wGV2UEqd6dMpemnHwHSxQBSAjbjZwBpNh6keABpsQUhzwBSPB6ky6/v5RODM/83OO53/yC2vd57+Q4='),
+				'1ZXNbsIwEISfxlcUHJpy5afl0qoHKvWItmSJrTpxlGxJ0qfvmpgCAgSqWqQcIm1mPfbOd7BFOEnrWQG5erYxGhE+iHBSWEttldYTNEbIQMcinAopA/6EfDzT7W+6QQ4FZnSNQbaGNZhPbJVWKKkxXiipsB/4pmNSLEgRjhWlPOi0z2WpIHfr0jpxGXoGIVukkOc6S3oxECzebX1o8SdiQVifnXoj+ZFnaFOkouEllZ+Cu1EbLFCoE7V1BV6EshWSH+uOARcew2kk4RESZ3nd0tlHwwn45PHKZjTXX04cOiY5LDn+E67IA3Nh9RLMyOgkc7R0HLs99rFUShPO2eq2qRjmtajkr1DJPyA1OEnqpWukmkMiNwB3dwRuDLRUHQU3uB246AjcaA3adBRcdDtw95fv+Q4AG/4bMP7dPbqb3sGb/A0='),
 		   	
 			this.createVertexTemplateEntry(s + 'outside_sources;whiteSpace=wrap;align=center;', w, h * 0.7, 
 					'<table cellpadding="5" cellspacing="0" style="font-size:1em;width:100%;height:100%;">' +
@@ -30,14 +30,14 @@
 			{
 				var bg = new mxCell('\nDescription', new mxGeometry(0, 0, 100, 70), s + 'manufacturing_process;fontSize=12;verticalAlign=middle;html=1;align=center;whiteSpace=wrap;');
 			   	bg.vertex = true;
-			   	var text1 = new mxCell('Process', new mxGeometry(0, 0, 100, 13), 'text;fontSize=12;spacingLeft=2;verticalAlign=top;html=1;align=center;spacingTop=-5;resizeWidth=1;');
+			   	var text1 = new mxCell('Process', new mxGeometry(0, 0, 100, 13), 'text;fontSize=12;spacingLeft=2;verticalAlign=top;html=1;align=center;spacingTop=-5;resizeWidth=1;whiteSpace=wrap;');
 			   	text1.vertex = true;
 			   	bg.insert(text1);
 
 	   			return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Dedicated Process');
 			}),
 		   	
-			this.createVertexTemplateEntry(s + 'manufacturing_process_shared;spacingTop=-5;align=center;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;', w, h * 0.7, 
+			this.createVertexTemplateEntry(s + 'manufacturing_process_shared;spacingTop=-5;align=center;whiteSpace=wrap;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;', w, h * 0.7, 
 					'Process',
 					'Shared Process', null, null, this.getTagsForStencil(gn, 'manufacturing_process_shared', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'work_cell;pointerEvents=1;', w * 0.7, h * 0.6, '', 'Workcell', null, null, this.getTagsForStencil(gn, 'work_cell', dt).join(' ')),

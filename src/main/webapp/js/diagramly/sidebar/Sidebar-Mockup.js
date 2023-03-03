@@ -60,22 +60,22 @@
 			{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 500, 50), s2 + 'rrect;rSize=10;fillColor=#ffffff;strokeColor=#666666;');
 			   	bg.vertex = true;
-			   	var button2 = new mxCell('Button 2', new mxGeometry(0, 0, 125, 50), inh + s2 + 'rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeHeight=1;');
+			   	var button2 = new mxCell('Button 2', new mxGeometry(0, 0, 125, 50), inh + s2 + 'rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeHeight=1;whiteSpace=wrap;');
 			   	button2.geometry.relative = true;
 			   	button2.geometry.offset = new mxPoint(125, 0);
 			   	button2.vertex = true;
 			   	bg.insert(button2);
-			   	var button3 = new mxCell('Button 3', new mxGeometry(0, 0, 125, 50), inh + s2 + 'rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeHeight=1;');
+			   	var button3 = new mxCell('Button 3', new mxGeometry(0, 0, 125, 50), inh + s2 + 'rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeHeight=1;whiteSpace=wrap;');
 			   	button3.geometry.relative = true;
 			   	button3.geometry.offset = new mxPoint(250, 0);
 			   	button3.vertex = true;
 			   	bg.insert(button3);
-			   	var button4 = new mxCell('Button 4', new mxGeometry(1, 0, 125, 50), inh + s2 + 'rightButton;rSize=10;fontSize=17;fontColor=#666666;fontStyle=1;resizeHeight=1;');
+			   	var button4 = new mxCell('Button 4', new mxGeometry(1, 0, 125, 50), inh + s2 + 'rightButton;rSize=10;fontSize=17;fontColor=#666666;fontStyle=1;resizeHeight=1;whiteSpace=wrap;');
 			   	button4.geometry.relative = true;
 			   	button4.geometry.offset = new mxPoint(-125, 0);
 			   	button4.vertex = true;
 			   	bg.insert(button4);
-			   	var button1 = new mxCell('Button 1', new mxGeometry(0, 0, 125, 50), s2 + 'leftButton;rSize=10;fontSize=17;fontColor=#ffffff;fontStyle=1;fillColor=#008cff;strokeColor=#008cff;resizeHeight=1;');
+			   	var button1 = new mxCell('Button 1', new mxGeometry(0, 0, 125, 50), s2 + 'leftButton;rSize=10;fontSize=17;fontColor=#ffffff;fontStyle=1;fillColor=#008cff;strokeColor=#008cff;resizeHeight=1;whiteSpace=wrap;');
 			   	button1.geometry.relative = true;
 			   	button1.vertex = true;
 			   	bg.insert(button1);
@@ -87,22 +87,22 @@
 			{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 120, 200), s2 + 'rrect;rSize=10;strokeColor=#666666;');
 			   	bg.vertex = true;
-			   	var button2 = new mxCell('Button 2', new mxGeometry(0, 0, 120, 50), inh + s2 + 'rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;');
+			   	var button2 = new mxCell('Button 2', new mxGeometry(0, 0, 120, 50), inh + s2 + 'rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;whiteSpace=wrap;');
 			   	button2.geometry.relative = true;
 			   	button2.geometry.offset = new mxPoint(0, 50);
 			   	button2.vertex = true;
 			   	bg.insert(button2);
-			   	var button3 = new mxCell('Button 3', new mxGeometry(0, 0, 120, 50), inh + s2 + 'rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;');
+			   	var button3 = new mxCell('Button 3', new mxGeometry(0, 0, 120, 50), inh + s2 + 'rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;whiteSpace=wrap;');
 			   	button3.geometry.relative = true;
 			   	button3.geometry.offset = new mxPoint(0, 100);
 			   	button3.vertex = true;
 			   	bg.insert(button3);
-			   	var button4 = new mxCell('Button 4', new mxGeometry(0, 1, 120, 50), inh + s2 + 'bottomButton;rSize=10;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;');
+			   	var button4 = new mxCell('Button 4', new mxGeometry(0, 1, 120, 50), inh + s2 + 'bottomButton;rSize=10;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;whiteSpace=wrap;');
 			   	button4.geometry.relative = true;
 			   	button4.geometry.offset = new mxPoint(0, -50);
 			   	button4.vertex = true;
 			   	bg.insert(button4);
-			   	var button1 = new mxCell('Button 1', new mxGeometry(0, 0, 120, 50), s2 + 'topButton;rSize=10;fontSize=17;fontColor=#ffffff;fontStyle=1;fillColor=#008cff;strokeColor=#008cff;resizeWidth=1;');
+			   	var button1 = new mxCell('Button 1', new mxGeometry(0, 0, 120, 50), s2 + 'topButton;rSize=10;fontSize=17;fontColor=#ffffff;fontStyle=1;fillColor=#008cff;strokeColor=#008cff;resizeWidth=1;whiteSpace=wrap;');
 			   	button1.geometry.relative = true;
 			   	button1.vertex = true;
 			   	bg.insert(button1);
@@ -110,7 +110,7 @@
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Vertical Button Bar');
 			}),				
 				
-			this.createVertexTemplateEntry(s2 + 'buttons.onOffButton;gradientColor=none;' + skcl9 + 'buttonState=on;fillColor2=#008cff;fontColor=#ffffff;fontSize=17;mainText=;spacingRight=40;fontStyle=1;',
+			this.createVertexTemplateEntry(s2 + 'buttons.onOffButton;gradientColor=none;' + skcl9 + 'buttonState=on;fillColor2=#008cff;fontColor=#ffffff;fontSize=17;mainText=;spacingRight=40;fontStyle=1;whiteSpace=wrap;',
 					150, 50, 'ON', 'On-off button', null, null, this.getTagsForStencil(gn, 'onOffButton', dt + 'on off').join(' '))
 		];
 			
@@ -148,21 +148,21 @@
 			{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 100, 220), s2 + 'containers.rrect;rSize=0;strokeColor=#666666;');
 			   	bg.vertex = true;
-			   	var button1 = new mxCell('Group 1', new mxGeometry(0, 0, 100, 26), inh + s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;');
+			   	var button1 = new mxCell('Group 1', new mxGeometry(0, 0, 100, 26), inh + s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;whiteSpace=wrap;');
 			   	button1.geometry.relative = true;
 			   	button1.vertex = true;
 			   	bg.insert(button1);
-			   	var button2 = new mxCell('Group 2', new mxGeometry(0, 0, 100, 26), inh + s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;');
+			   	var button2 = new mxCell('Group 2', new mxGeometry(0, 0, 100, 26), inh + s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;whiteSpace=wrap;');
 			   	button2.geometry.relative = true;
 			   	button2.geometry.offset = new mxPoint(0, 26);
 			   	button2.vertex = true;
 			   	bg.insert(button2);
-			   	var button3 = new mxCell('Group 3', new mxGeometry(0, 0, 100, 26), s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#ffffff;fontStyle=1;fillColor=#008cff;strokeColor=#008cff;resizeWidth=1;');
+			   	var button3 = new mxCell('Group 3', new mxGeometry(0, 0, 100, 26), s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#ffffff;fontStyle=1;fillColor=#008cff;strokeColor=#008cff;resizeWidth=1;whiteSpace=wrap;');
 			   	button3.geometry.relative = true;
 			   	button3.geometry.offset = new mxPoint(0, 52);
 			   	button3.vertex = true;
 			   	bg.insert(button3);
-			   	var button4 = new mxCell('Group 4', new mxGeometry(0, 1, 100, 26), inh + s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;');
+			   	var button4 = new mxCell('Group 4', new mxGeometry(0, 1, 100, 26), inh + s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#666666;fontStyle=1;resizeWidth=1;whiteSpace=wrap;');
 			   	button4.geometry.relative = true;
 			   	button4.geometry.offset = new mxPoint(0, -26);
 			   	button4.vertex = true;
@@ -175,7 +175,7 @@
 			{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 550, 380), s2 + 'containers.browserWindow;rSize=0;strokeColor=#666666;strokeColor2=#008cff;strokeColor3=#c4c4c4;mainText=,;recursiveResize=0;');
 			   	bg.vertex = true;
-			   	var button1 = new mxCell('Page 1', new mxGeometry(60, 12, 110, 26), s2 + 'containers.anchor;fontSize=17;fontColor=#666666;align=left;');
+			   	var button1 = new mxCell('Page 1', new mxGeometry(60, 12, 110, 26), s2 + 'containers.anchor;fontSize=17;fontColor=#666666;align=left;whiteSpace=wrap;');
 			   	button1.vertex = true;
 			   	bg.insert(button1);
 			   	var button2 = new mxCell('https://www.draw.io', new mxGeometry(130, 60, 250, 26), s2 + 'containers.anchor;rSize=0;fontSize=17;fontColor=#666666;align=left;');
@@ -192,21 +192,21 @@
 					
 			this.addEntry(dt + 'group', function()
 			{
-				var area1 = new mxCell('', new mxGeometry(0, 0, 150, 200), 'shape=mxgraph.mockup.containers.marginRect;rectMarginTop=10;strokeColor=#666666;strokeWidth=1;dashed=0;rounded=1;arcSize=5;recursiveResize=0;');
+				var area1 = new mxCell('', new mxGeometry(0, 0, 150, 200), 'shape=mxgraph.mockup.containers.marginRect;rectMarginTop=10;strokeColor=#666666;strokeWidth=1;dashed=0;rounded=1;arcSize=5;recursiveResize=0;html=1;whiteSpace=wrap;');
 				area1.vertex = true;
-				var button1 = new mxCell('Group', new mxGeometry(5, 0, 90, 30), 'shape=rect;strokeColor=none;fillColor=#008cff;strokeWidth=1;dashed=0;rounded=1;arcSize=20;fontColor=#ffffff;fontSize=17;spacing=2;spacingTop=-2;align=left;autosize=1;spacingLeft=4;resizeWidth=0;resizeHeight=0;perimeter=none;');
+				var button1 = new mxCell('Group', new mxGeometry(5, 0, 90, 30), 'shape=rect;strokeColor=none;fillColor=#008cff;strokeWidth=1;dashed=0;rounded=1;arcSize=20;fontColor=#ffffff;fontSize=17;spacing=2;spacingTop=-2;align=left;autosize=1;spacingLeft=4;resizeWidth=0;resizeHeight=0;perimeter=none;html=1;whiteSpace=wrap;');
 				button1.vertex = true;
 				area1.insert(button1);
 				
 				return sb.createVertexTemplateFromCells([area1], 150, 200, 'Group');
 			}),
 			
-			this.createVertexTemplateEntry(s2 + 'containers.window;align=left;verticalAlign=top;spacingLeft=8;strokeColor2=#008cff;strokeColor3=#c4c4c4;fontColor=#666666;mainText=;fontSize=17;labelBackgroundColor=none;',
+			this.createVertexTemplateEntry(s2 + 'containers.window;align=left;verticalAlign=top;spacingLeft=8;strokeColor2=#008cff;strokeColor3=#c4c4c4;fontColor=#666666;mainText=;fontSize=17;labelBackgroundColor=none;whiteSpace=wrap;',
 										550, 380, 'Window Title', 'Window', null, null, this.getTagsForStencil(gn, 'window', dt).join(' ')),
 										
 			this.addEntry(dt + 'horizontal tab bar', function()
 			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 400, 200), s2 + 'containers.marginRect2;rectMarginTop=32;strokeColor=#666666;gradientColor=none;');
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 400, 200), s2 + 'containers.marginRect2;rectMarginTop=32;strokeColor=#666666;gradientColor=none;whiteSpace=wrap;');
 			   	bg.vertex = true;
 			   	var button1 = new mxCell('Tab 1', new mxGeometry(0, 0, 60, 25), inh + s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#666666;gradientColor=none;');
 			   	button1.geometry.relative = true;
@@ -234,7 +234,7 @@
 										
 			this.addEntry(dt + 'vertical tab bar', function()
 			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 400, 200), s2 + 'containers.marginRect2;rectMarginLeft=67;strokeColor=#666666;gradientColor=none;');
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 400, 200), s2 + 'containers.marginRect2;rectMarginLeft=67;strokeColor=#666666;gradientColor=none;whiteSpace=wrap;');
 			   	bg.vertex = true;
 			   	var button1 = new mxCell('Tab 1', new mxGeometry(0, 0, 60, 25), inh + s2 + 'containers.rrect;rSize=0;fontSize=17;fontColor=#666666;');
 			   	button1.geometry.relative = true;
@@ -261,9 +261,9 @@
 			}),				
 				
 			this.addDataEntry(dt + 'dialog box', 250, 140, 'Dialog Box',
-				'7ZZNj5swEIZ/jY+LwA7Z7bFL2j20VStlpZ5dGMBag5FxEtJf3wE7CeGjok0rraoSRbLHnvF4ntcGwqKiedK8yj+pBCRh7wiLtFLGtoomAikJ9UVC2IZQ6uOf0Pczo0E36ldcQ2mWOFDrsOdyB9ayVQWgJYGU76QhdE0oC3zCHhPBpcp6BgON8ax/bY7S+ddGqxf4KhKToyHAeXXOE3XATheF1zkkrsOlyEpsx5gtaDTkppAXr6oNWTRZWx2vUPHLrvJiVRouStC1pzXEuMlHvRXfwUW0q0dKKt2lw9bdgyMpOs7ZXYDgHvt70EbEXL51uRlVofWQCwPbisftvAMm1HoKKXsR0+5pc8BposyeW8cNo2hxRcbI0MyC6kyO0hMgBaOPOOXgKtnCCi1MPweR5Se3lTPy2hqys++FOzYc+mkZsJEMNo62/ywMon1dlIfM5tjOq+GUk4TUXJB97HqbhwHcUpXQZgA1rtnf8yKu9Pe4MmfTILkRe7iKfwvr1Yj1mK6jgo6iqmGqkr7/EHdq76rCv8kzm3HherwXVYxNV+za4eiuNy+0/X49J8pJf7Wcbv0vSmBa58XvaHi1/F0wOH0qTWswIx7nbSxCFI4QRbyM8e3weo/hz67YkXjiVftbcK06Ad1yzpqTTgbkgpFs3kzJJvwzslkNZMPYX5DNeiSbzx/+S+YGydz/a5LB7uXb0k7vf3r+AA=='),
+				'7ZZNj5swEIZ/jY+LwA7Z7bFL2j20VStlpZ5dGMBag5FxEtJf3wE7CeGjok0rraoSRbLHnvF4ntcGwqKiedK8yj+pBCRh7wiLtFLGtoomAikJ9UVC2IZQ6uOf0Pczo0E36ldcQ2mWOFDrsOdyB9ayVQWgJYGU76QhdE0oC3zCHhPBpcp6BgON8ax/bY7S+ddGqxf4KhKToyHAeXXOE3XATheF1zkkrsOlyEpsx5gtaDTkppAXr6oNWTRZWx2vUPHLrvJiVRouStC1pzXEuMlHvRXfwUW0q0dKKt2lw9bdgyMpOs7ZXYDgHvt70EbEXL51uRlVofWQCwPbisftvAMm1HoKKXsR0+5pc8BposyeW8cNo2hxRcbI0MyC6kyO0hMgBaOPOOXgKtnCCi1MPweR5Se3lTPy2hqys++FOzYc+mkZsJEMNo62/ywMon1dlIfM5tjOq+GUk4TUXJB97HqbhwHcUpXQZgA1rtnf85QqFrGmv8eaOZsGyY3Yw1X8W/ivRvzHxB0pdBRVDVPV9f2HuDsBXaX4N3nmNS5mTwOLKsamK3btcHRXnhfafr+eE+Wkv1pOt/4XJTCt8+J3NLxa/i4YnEiVpjWYEY/zNhYhCkeIIl7G+MZ4vUfzZ9fuSDzxqv0tuGqdgG45Z81JJwNywUg2b6ZkE/4Z2awGsmHsL8hmPZLN5w//JXODZO7/Nclg9/K9aaf3P0d/AA=='),
 			this.addDataEntry(dt + 'dialog box', 250, 160, 'Dialog Box',
-				'zZZRb5swEMc/jR+LwC5pX9dk68NWtVIq7dmDA6wajGwnIf30O8AECFClyx5KFMn3x3c+3+9sQdg6rx41L7MnFYMk7Dtha62UbUd5tQYpCfVFTNiGUOrjn9AfC2+D5q1fcg2FvcSBtg57LnfQKluVAyoxJHwnLaErQlngE/aQgzE8hYFiobJeG8DYo3QBjNXqDX6L2GYoBDjPZDxWBzRqp5ibDGJncCnSAscRpgsahczmsvcq65B5ldbl8XIVve1KL1KF5aIAbTytIcJdPuiteAcXsV19raTSTTps1Tz4JkHHJd0FCO7Q3oO2IuLym8vNqhLVQyYsbEse1fMOmFDtKaQcREyap84Bp4kifa0dN4yi4qqMkaFaJNVIDtMjIAarjzjl4CpZ0wpbmn4GIs06t5UTuWmF9OTbg8eBYz/fB2zSB08dbv9VWGT7tTCfQ1uCu9wOXU4SEtsz+9VYm/sP6GowuPBw4xfRpf9GlzlNg+RW7GEU/xritxPiU8QODTqK0sBcOX3/Puqrwv/IE6BB9QpVwBj6RRVj8xUbOxzdLeeFrT2s50w56WfL6dZ/UQLTOi1+Q8PR8jfB2RlUSWLATnictnERonCC6PnnFz6HH12yk8aJbuvfTON85qK95uBVZ41zHAUYtFEw20fh/+mj7u7u+oix6/sIzf4Dop0+/L74Cw==')
+				'zVbBbqMwEP0aH4vALmmv22S3h92qlVJpz14YwKrByHYS0q/fAUyAAFW62UOJInkenvH4vWcLwtZ59ah5mT2pGCRh3wlba6VsO8qrNUhJqC9iwjaEUh//hP5YeBs0b/2SayjsJQm0TdhzuYMW2aocEIkh4TtpCV0RygKfsIccjOEpDBALlfXaAsYepStgrFZv8FvENkMgwHkm47E6YFAnxdxkELuAS5EWOI6wXdAIZDaXfVZZl8yrtKbHy1X0tiu9SBWWiwK08bSGCHf5oLfiHVzFdvW1kko37bBV8+CbBBOXcFcguMN4D9qKiMtvrjerSkQPmbCwLXlUzztgQ3WmkHJQMWmeugecJor0tU7cMIqIYxkrQ7WoVAM5mR4BZbD6iFMOjslarbBV089ApFmXtnIgNy2QnnJ74XHgtJ/3AZv44KmT238VFrX9WjKfi7Yk7rIdup4kJLbX7FcTbe4/UFeDwYWHG5/zxkWK039TnDlMg+RW7GFU/xoX3E5cMJXdyYWJojQwR7Hv30c9U/yPPIk2YLRQBYyNcBFjbJ6xccLR3Xxe2MZDPmfopJ+l063/ogS2dVr8hoaj5W+Cs3OpksSAnehx2sZFEoUTiZ5/fuGz+dHFOzFOdFv/Zozzmcv3moNXnRnnOCowsFEw66Pw//iou887HzF2vY8w7D8q2unDb46/')
 		];
 	
 		this.addPalette('mockupContainers', 'Mockup Containers', false, mxUtils.bind(this, function(content)
@@ -320,22 +320,22 @@
 			{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 498, 30), s2 + 'forms.rrect;rSize=0;strokeColor=#999999;');
 			   	bg.vertex = true;
-			   	var button1 = new mxCell('File', new mxGeometry(0, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;');
+			   	var button1 = new mxCell('File', new mxGeometry(0, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;whiteSpace=wrap;');
 			   	button1.vertex = true;
 			   	bg.insert(button1);
-			   	var button2 = new mxCell('Edit', new mxGeometry(83, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;');
+			   	var button2 = new mxCell('Edit', new mxGeometry(83, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;whiteSpace=wrap;');
 			   	button2.vertex = true;
 			   	bg.insert(button2);
-			   	var button3 = new mxCell('Options', new mxGeometry(166, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;');
+			   	var button3 = new mxCell('Options', new mxGeometry(166, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;whiteSpace=wrap;');
 			   	button3.vertex = true;
 			   	bg.insert(button3);
-			   	var button4 = new mxCell('Tools', new mxGeometry(249, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;');
+			   	var button4 = new mxCell('Tools', new mxGeometry(249, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;whiteSpace=wrap;');
 			   	button4.vertex = true;
 			   	bg.insert(button4);
-			   	var button5 = new mxCell('Window', new mxGeometry(332, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;');
+			   	var button5 = new mxCell('Window', new mxGeometry(332, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;whiteSpace=wrap;');
 			   	button5.vertex = true;
 			   	bg.insert(button5);
-			   	var button6 = new mxCell('Help', new mxGeometry(415, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;');
+			   	var button6 = new mxCell('Help', new mxGeometry(415, 0, 83, 30), inh + s2 + 'forms.rrect;rSize=0;fontSize=17;fontColor=#666666;whiteSpace=wrap;');
 			   	button6.vertex = true;
 			   	bg.insert(button6);
 				
@@ -347,7 +347,7 @@
 			this.createVertexTemplateEntry(s + 'forms.horSlider;' + skcl9 + 'sliderStyle=basic;sliderPos=20;handleStyle=circle;fillColor2=#ddeeff;direction=north;',
 										30, 150, '', 'Vertical Slider', null, null, this.getTagsForStencil(gn, 'horSlider', dt + 'vertical').join(' ')),
 			this.addDataEntry(dt + 'list box', 150, 200, 'List Box',
-				'7ZZdS8MwFIZ/TW9HlmzO3W7qEBQEBa9De9oG06YkUTd/vadJ3FprZX7MOVigkPMmJx/vEw6N2LxYLjSv8muVgIzYecTmWinre8VyDlJGlIgkYmcRpQS/iF70jA7dKKm4htJuk0B9whOXj+AVLxi7kkEwVqsHuBeJzVEYRmxmcp6oZwwIBgk3OSQh4FJkJfZj3B40Crkt5Carqpcslll93UGh4ofHapAqXZiB1hDjgWf6VrxAWMxvPFdSaXcSNnUNR1IhZUNPXUM9XAa0hWWvIU4KbixAFWD1Cqc8hwvWM8beNJKDyPKQRkkQufFCts7d+IudYPHHdrOO3XfCotGH4LkqbUMn5DR2ntd6WGA4+YSNBoOzmlfaihb9Hi0WNA2SW/EErfV/QnDUIXhpoUBluB+IvIzz2usuhzavE9caO0lIa/im4rEosysXnY3/HBT9KqiwxY0SuDMlqzbvtwyVpgZsB+z6YFuxHvex3lORPLL2WHbB+qSPNfs/xfnXsL+r0UkC4Gp0u/qXqoRDfSOTXbyRSd8bGR3rwR5ZT3+BNYabn24/vflP/go='),
+				'7VddS8MwFP01fXRkiXPu1U2HoCBM8Dm0t01Y2pQk7sNf720SXOesDNlwygKF3JPc3OScQ0ITNi5XU8Nr8agzUAm7TdjYaO1Cr1yNQamEEpklbJJQSvBL6F3HaN+PkpobqNw+CTQkLLh6hYAEwLq1ioB1Rs/hRWZOINBP2I0VPNNLDAgGGbcCshhwJYsK+ymWB4OAcKXaZNXNkuWqaI7bK3U6f617uTal7RkDKW74xszkG8TFQuGxVtr4nbCRbziSS6VaeO4b4vEwYBysOgnxUGRjCroEZ9Y4ZRkP2MwYBNKIAFmImEZJBLkNQPGRu+EXO5Hir+lmO3Q/S4dE/wXOdeVaOCHXqee8weMC/eE32hiwOKt9pKWQDmY1T5vcJe5vXwXpzxRkETOguJML2Fr/K1VjiSctsTIl6zDj4lOGznMLbscFHxvbyxiXO8a4d1Ai0v8db/AqFY2Eu/Ju2+DKt1YlBXnjKYuyyqp48NFkcBL608Poz8gR9B906f9L9/FZ/079B8fQ/6pLf3Y6b8PBrPDpicgyAP9EbD8+la7gP/lmeAzfDLt8c3m+N05M/9EB9Mdw828Qprd/Hd4B'),
 	
 			this.createVertexTemplateEntry(s2 + 'forms.pwField;' + skcl9 + 'mainText=;align=left;fontColor=#666666;fontSize=17;spacingLeft=3;', 150, 30, '********', 'Password Field', null, null, this.getTagsForStencil(gn, 'pwField', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'forms.splitter;' + skcl9, 350, 10, '', 'Horizontal Splitter', null, null, this.getTagsForStencil(gn, 'splitter', dt).join(' ')),
@@ -368,7 +368,7 @@
 			this.createVertexTemplateEntry(s + 'menus_and_buttons.font_style_selector_1;', 136, 31, '', 'Formatting Toolbar 1', null, null, this.getTagsForStencil('mxgraph.mockup.menus_and_buttons', 'font_style_selector_1', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'menus_and_buttons.font_style_selector_2;', 235, 31, '', 'Formatting Toolbar 2', null, null, this.getTagsForStencil('mxgraph.mockup.menus_and_buttons', 'font_style_selector_2', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'menus_and_buttons.font_style_selector_3;', 176, 38, '', 'Formatting Toolbar 3', null, null, this.getTagsForStencil('mxgraph.mockup.menus_and_buttons', 'font_style_selector_3', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'forms.searchBox;' + skcl9 + 'mainText=;strokeColor2=#008cff;fontColor=#666666;fontSize=17;align=left;spacingLeft=3;',
+			this.createVertexTemplateEntry(s2 + 'forms.searchBox;' + skcl9 + 'mainText=;strokeColor2=#008cff;fontColor=#666666;fontSize=17;align=left;spacingLeft=3;whiteSpace=wrap;',
 										150, 30, 'Search', 'Search Box', null, null, this.getTagsForStencil(gn, 'searchBox', dt).join(' ')),
 			this.addDataEntry(dt + 'sign in', 200, 300, 'Sign In',
 				'7Vhtb9owEP41+TIJ5DgkLR8HG6jShpBQtc8uubysTowct8B+/RzHQILDFmm4TScsRYrPOft8z3N3sR1vmu3mnGyS7ywE6nhfHW/KGRPVW7abAqUORmnoeF8cjJF8HDy7MOqqUbQhHHLRRQFXCq+EvkAlqQSF2FMtKARnz/AjDUUiBa7jTYqEhGwrO0h2QlIkEOoOoWmcy/e1XB64FCQioyetTTlltovL7Q4ztn5+2QwjxrNiyDmspcETvkp/gZ6sWnjKKOPKEm+smhyJUkpr8kg1KdebAS5gd9EhSqS9MQeWgeB7+clWb7B0CqqchhJI40SreQchKSpBfNQ9+Ve+aBe3u9sz3L0qHYbRQ/4+fif5OindOIlYLrTvXaz7NRcHqtVWohApvKCQSg0jN2Sd5vE3Na6M64QK/isqbhsqmt6IAyUifYXG/G1I6SWWLJUrY3QwSE+zb3YPE7AoKkAYQB/t7IT9qEOoaahomkNbAIQhgCJ6kxu4CbiJybUQuG9BwLWCgGcDAd9A4LGQ0YLRgmRS8PkWgv0JwZENAgQGAX6yJA8ZfIii140OTfB9q/nAb6ODb4MOgQ063Bl0WJKi2DIe3pJBr5LB2LeA/r2B/ifdbtmg59nAdW0QYmwQYvUwX5Q/54t+MMI3GJEz9aN4RobjeejsnBQET0+VvJZcgkNfb+5fGbFvKNT40fbz6F0nXeAmPQZHKl6VHwcS1ggyYzxmpSGnwjHrd+Eo04fiwB8TBTojxejqieMiTdrTiJWyMnCtHPRc1+CJyYkenvQuQ/J2577B2Aoi5jXXArZSUJ3/+hyv3Qo7+j/j884KGVou4ao6/7i81fkPVeevUeZl93TdXn1ev43/DQ=='),
@@ -601,7 +601,7 @@
 		
 		this.addPaletteFunctions('mockupMarkup', 'Mockup Markup', false,
 		[
-			this.createVertexTemplateEntry(s + 'markup.curlyBrace;' + skcl9, 
+			this.createVertexTemplateEntry(s + 'markup.curlyBrace;whiteSpace=wrap;' + skcl9, 
 					100, 20, '', 'Horizontal Curly Brace', null, null, this.getTagsForStencil(gn, 'curlyBrace', dt + 'horizontal curly brace').join(' ')),
 			this.createVertexTemplateEntry(mxConstants.STYLE_LABEL_POSITION + '=right;' + mxConstants.STYLE_ALIGN + '=left;strokeWidth=1;' + mxConstants.STYLE_SHAPE + '=mxgraph.mockup.markup.curlyBrace;html=1;shadow=0;dashed=0;' + skcl9 + mxConstants.STYLE_DIRECTION + '=' + mxConstants.DIRECTION_NORTH + ';', 
 					20, 100, '', 'Vertical Curly Brace', null, null, this.getTagsForStencil(gn, 'curlyBrace', dt + 'vertical curly brace').join(' ')),
@@ -609,9 +609,9 @@
 					100, 20, '', 'Horizontal Line', null, null, this.getTagsForStencil(gn, 'line', dt + 'horizontal line').join(' ')),
 			this.createVertexTemplateEntry(s + 'markup.line;' + skcl9 + mxConstants.STYLE_DIRECTION + '=' + mxConstants.DIRECTION_NORTH + ';', 
 					20, 100, '', 'Vertical Line', null, null, this.getTagsForStencil(gn, 'line', dt + 'vertical line').join(' ')),
-			this.createVertexTemplateEntry(mxConstants.STYLE_SHAPE + '=mxgraph.mockup.markup.scratchOut;shadow=0;dashed=0;html=1;' + skcl9 + 'strokeWidth=4;',
+			this.createVertexTemplateEntry(mxConstants.STYLE_SHAPE + '=mxgraph.mockup.markup.scratchOut;shadow=0;dashed=0;html=1;whiteSpace=wrap;' + skcl9 + 'strokeWidth=4;',
 					200, 100, '', 'Scratch Out', null, null, this.getTagsForStencil(gn, 'scratchOut', dt + 'scratch out').join(' ')),
-			this.createVertexTemplateEntry(mxConstants.STYLE_SHAPE + '=mxgraph.mockup.markup.redX;fillColor=#ff0000;html=1;shadow=0;' + skclN, 
+			this.createVertexTemplateEntry(mxConstants.STYLE_SHAPE + '=mxgraph.mockup.markup.redX;fillColor=#ff0000;html=1;shadow=0;whiteSpace=wrap;' + skclN, 
 					200, 100, '', 'Red X', null, null, this.getTagsForStencil(gn, 'redX', dt + 'red').join(' '))
 		]);
 	};
@@ -674,25 +674,25 @@
 			{
 				var bg = new mxCell('', new mxGeometry(0, 0, 400, 75), s2 + 'misc.rrect;rSize=0;strokeColor=#666666;');
 			   	bg.vertex = true;
-			   	var cell1 = new mxCell('REVISION HISTORY', new mxGeometry(0, 0, 400, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;');
+			   	var cell1 = new mxCell('REVISION HISTORY', new mxGeometry(0, 0, 400, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;whiteSpace=wrap;');
 			   	cell1.vertex = true;
 			   	bg.insert(cell1);
-			   	var cell2 = new mxCell('REV', new mxGeometry(0, 25, 50, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;');
+			   	var cell2 = new mxCell('REV', new mxGeometry(0, 25, 50, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;whiteSpace=wrap;');
 			   	cell2.vertex = true;
 			   	bg.insert(cell2);
-			   	var cell3 = new mxCell('DATE', new mxGeometry(50, 25, 150, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;');
+			   	var cell3 = new mxCell('DATE', new mxGeometry(50, 25, 150, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;whiteSpace=wrap;');
 			   	cell3.vertex = true;
 			   	bg.insert(cell3);
-			   	var cell4 = new mxCell('DESCRIPTION', new mxGeometry(200, 25, 200, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;');
+			   	var cell4 = new mxCell('DESCRIPTION', new mxGeometry(200, 25, 200, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;whiteSpace=wrap;');
 			   	cell4.vertex = true;
 			   	bg.insert(cell4);
-			   	var cell6 = new mxCell('A', new mxGeometry(0, 50, 50, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;');
+			   	var cell6 = new mxCell('A', new mxGeometry(0, 50, 50, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;whiteSpace=wrap;');
 			   	cell6.vertex = true;
 			   	bg.insert(cell6);
-			   	var cell7 = new mxCell('10/23/2014', new mxGeometry(50, 50, 150, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;');
+			   	var cell7 = new mxCell('10/23/2014', new mxGeometry(50, 50, 150, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;whiteSpace=wrap;');
 			   	cell7.vertex = true;
 			   	bg.insert(cell7);
-			   	var cell8 = new mxCell('Design modified', new mxGeometry(200, 50, 200, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;');
+			   	var cell8 = new mxCell('Design modified', new mxGeometry(200, 50, 200, 25), inh + s2 + 'misc.rrect;rSize=0;fontSize=17;fontColor=#999999;whiteSpace=wrap;');
 			   	cell8.vertex = true;
 			   	bg.insert(cell8);
 				
@@ -700,7 +700,7 @@
 			}),				
 				
 			this.addDataEntry(dt + 'status bar', 500, 30, 'Status Bar',
-				'7VfRTsIwFP2aPUq6liF7FZUXfcLE57pdtsZuXdoi4Nd713UCDnRETNC4hKT33N2195zTdQRsUqymmlf5vUpBBuwmYBOtlG1GxWoCUgaUiDRg1wGlBH8BvT2QDV2WVFxDafsU0KbghcsFNEgDGLuWHjBWq2d4FKnNEQgDdmVynqolBgSDlJscUh9wKbISxwlODxqB3BZyU1XVjyxWWd3uoFDJ86IaFMIkA60hwfVe6Zl4Bf+sZt6Jkkq7hbDYXZiZCym38Lm7EPe9gLawOsiHgzwZU1AFWL3GW5a+P8xGpOGM5CCy3Jcxj3HTxNl76YZdHHiC95PNOmTPLLcLgxiu2J4F81GH+VKVUJOuSuvvCSMf9xAnTQGcOO0CJczr+UzFE1Fmdy5ys/ZSj+5XzxdETcF6J9pSNoyjrrL0BMoOO8o+OEHJeWynXy0qJV/Kum/DnkLW6JCs7F/W78rKQvKVrOEP7dbReRx6vEzymvpTsDmMdzdJS913aLrsQZNvDwtFZeCDpbwbOwc5IePE+UyDEa/8SbZH/hZxvTgZfcrJBd112EXruC2P0R96c4z/oMVGp7dY3N9iUhxppl4tj49yUPcdtc8/4fH+wXDzze9yO38J3gA='),
+				'7VddT8IwFP01e4R0rUN4FZUXfcLE57pd1sZuXdoi4K/3risCDnRESIhxyZLe093d23NO9xGxcbGcGF6JR52BithdxMZGa9eMiuUYlIookVnEbiNKCZ4RvT8wG/tZUnEDpeuSQJuEN67m0CANYN1KBcA6o1/hWWZOIBBH7MYKnukFBgSDjFsBWQi4knmJ4xTLg0FAuEJtsqr6lsUyr5fbL3T6Oq/6hbRp3xhIsd8bM5XvEO7V1B1rpY1vhI38gTMzqdQWPvMH4mEtYBwsD/LhoUDGBHQBzqzwkkVYH84mpOGMCJC5CGksYNw2cf6ZumEXB4Hg/WSzFtlTx93cIoYdu4tgPmkxX+oSatJ16cI1cRLiDuJkGYAXZ92gglldz1Y8lWX+4CNfdSGkgynCdYkFNtpVUbpf0ZCQNAmrnWhL7XiUtNWmJ1D7qqX2kxeZXMYW+3NCU/Kj1Ps29imkTg5Jzf6lPofULCY/SR2faVcPLuOFyctU1HKcgs2r0e7GWVP3G5quO9AUloeJsrLwxWbBoa2PAEKGqfeeASvf+Ytafy5sEdeJk8G3nPTorsN6a8dteYye6Wky/IMWG5zeYqPuFlPySDN1WvLwKAe1n1H7/BMf7x8MN/8Lfm7nd+ID'),
 
 			this.createVertexTemplateEntry(s3 + 'misc.pin;fillColor2=#00dd00;fillColor3=#004400;strokeColor=#006600;',
 										10, 25, '', 'Pin', null, null, this.getTagsForStencil(gn, 'pin', dt).join(' ')),
@@ -802,16 +802,16 @@
 			{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 500, 25), s2 + 'text.rrect;rSize=0;strokeColor=#666666;');
 			   	bg.vertex = true;
-			   	var button2 = new mxCell('Button 2', new mxGeometry(125, 0, 125, 25), inh + s2 + 'text.rrect;rSize=0;fontSize=17;fontColor=#0000ff;');
+			   	var button2 = new mxCell('Button 2', new mxGeometry(125, 0, 125, 25), inh + s2 + 'text.rrect;rSize=0;fontSize=17;fontColor=#0000ff;whiteSpace=wrap;');
 			   	button2.vertex = true;
 			   	bg.insert(button2);
-			   	var button3 = new mxCell('Button 3', new mxGeometry(250, 0, 125, 25), inh + s2 + 'text.rrect;rSize=0;fontSize=17;fontColor=#0000ff;');
+			   	var button3 = new mxCell('Button 3', new mxGeometry(250, 0, 125, 25), inh + s2 + 'text.rrect;rSize=0;fontSize=17;fontColor=#0000ff;whiteSpace=wrap;');
 			   	button3.vertex = true;
 			   	bg.insert(button3);
-			   	var button4 = new mxCell('Button 4', new mxGeometry(375, 0, 125, 25), inh + s2 + 'text.rrect;rSize=0;fontSize=17;fontColor=#0000ff;');
+			   	var button4 = new mxCell('Button 4', new mxGeometry(375, 0, 125, 25), inh + s2 + 'text.rrect;rSize=0;fontSize=17;fontColor=#0000ff;whiteSpace=wrap;');
 			   	button4.vertex = true;
 			   	bg.insert(button4);
-			   	var button1 = new mxCell('Button 1', new mxGeometry(0, 0, 125, 25), s2 + 'text.rrect;rSize=0;fontSize=17;fontColor=#ffffff;fillColor=#008cff;strokeColor=#008cff;');
+			   	var button1 = new mxCell('Button 1', new mxGeometry(0, 0, 125, 25), s2 + 'text.rrect;rSize=0;fontSize=17;fontColor=#ffffff;fillColor=#008cff;strokeColor=#008cff;whiteSpace=wrap;');
 			   	button1.vertex = true;
 			   	bg.insert(button1);
 				
@@ -830,7 +830,7 @@
 					200, 200, 'Note Line 1\nNote Line 2\nNote Line 3', 'Sticky Note', null, null, this.getTagsForStencil(gn, 'stickyNote', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'text.bulletedList;textColor=#666666;mainText=,,,,;textSize=17;bulletStyle=none;' + skclN + mxConstants.STYLE_FILLCOLOR + '=none;align=left;verticalAlign=top;fontSize=17;fontColor=#666666;',
 					150, 135, '-Line 1\n-Line 2\n-Line 3\n-Line 4', 'Bulleted List', null, null, this.getTagsForStencil(gn, 'bulletedList', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'text.textBox;fontColor=#666666;align=left;fontSize=17;spacingLeft=4;spacingTop=-3;' + skcl6 + 'mainText=',
+			this.createVertexTemplateEntry(s2 + 'text.textBox;fontColor=#666666;align=left;fontSize=17;spacingLeft=4;spacingTop=-3;whiteSpace=wrap;' + skcl6 + 'mainText=',
 					150, 30, 'Line 1', 'Text Box', null, null, this.getTagsForStencil(gn, 'textBox', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'text.captcha;fontColor=#666666;fontSize=25;' + skcl6 + 'mainText=',
 					150, 50, 'fG2yQ23', 'Captcha', null, null, this.getTagsForStencil(gn, 'captcha', dt).join(' ')),

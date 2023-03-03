@@ -4,7 +4,7 @@
 	Sidebar.prototype.addAtlassianPalette = function()
 	{
 		var s = 'html=1;shadow=0;dashed=0;shape=mxgraph.atlassian.';
-		var s2 = 'html=1;shadow=0;dashed=0;fillColor=none;strokeColor=none;shape=mxgraph.bootstrap.rect;';
+		var s2 = 'html=1;image;image=img/lib/atlassian/';
 		var s3 = mxConstants.STYLE_STROKEWIDTH + '=1;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
 		var gn = 'mxgraph.atlassian';
 		var dt = 'atlassian ';
@@ -24,39 +24,39 @@
 		   		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Issue');
 			}),
 					 
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Atlassian_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Atlassian_Logo.svg;',
 					 66, 66, '', 'Atlassian', null, null, this.getTagsForStencil(gn, 'atlassian logo', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Bamboo_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Bamboo_Logo.svg;',
 					 64, 74, '', 'Bamboo', null, null, this.getTagsForStencil(gn, 'bamboo logo', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Bitbucket_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Bitbucket_Logo.svg;',
 					 57, 50, '', 'Bitbucket', null, null, this.getTagsForStencil(gn, 'bitbucket logo atlassian', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Clover_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Clover_Logo.svg;',
 					 71, 71, '', 'Clover', null, null, this.getTagsForStencil(gn, 'clover logo', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Confluence_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Confluence_Logo.svg;',
 					 63, 57, '', 'Confluence', null, null, this.getTagsForStencil(gn, 'confluence logo', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Crowd_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Crowd_Logo.svg;',
 					 66, 65, '', 'Crowd', null, null, this.getTagsForStencil(gn, 'crowd logo', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Crucible_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Crucible_Logo.svg;',
 					 61, 61, '', 'Crucible', null, null, this.getTagsForStencil(gn, 'crucible logo', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Fisheye_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Fisheye_Logo.svg;',
 					 71, 59, '', 'Fisheye', null, null, this.getTagsForStencil(gn, 'fisheye logo', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Hipchat_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Hipchat_Logo.svg;',
 					 66, 62, '', 'Hipchat', null, null, this.getTagsForStencil(gn, 'hipchat logo atlassian', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Jira_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Jira_Logo.svg;',
 					 72, 72, '', 'Jira', null, null, this.getTagsForStencil(gn, 'jira logo', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Jira_Core_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Jira_Core_Logo.svg;',
 					 55, 66, '', 'Jira Core', null, null, this.getTagsForStencil(gn, 'jira core logo atlassian', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Jira_Service_Desk_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Jira_Service_Desk_Logo.svg;',
 					 59, 76, '', 'Jira Service Desk', null, null, this.getTagsForStencil(gn, 'jira service desk logo atlassian', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Jira_Software_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Jira_Software_Logo.svg;',
 					 74, 76, '', 'Jira Software', null, null, this.getTagsForStencil(gn, 'jira software logo atlassian', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Sourcetree_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Sourcetree_Logo.svg;',
 					 57, 71, '', 'Sourcetree', null, null, this.getTagsForStencil(gn, 'sourcetree logo', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Statuspage_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Statuspage_Logo.svg;',
 					 75, 52, '', 'Statuspage', null, null, this.getTagsForStencil(gn, 'statuspage logo', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Stride_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Stride_Logo.svg;',
 					 69, 57, '', 'Stride', null, null, this.getTagsForStencil(gn, 'stride logo atlassian', dt).join(' ')),
-			 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Trello_Logo.svg;',
+			 this.createVertexTemplateEntry(s2 + 'Trello_Logo.svg;',
 					 70, 70, '', 'Trello', null, null, this.getTagsForStencil(gn, 'trello logo', dt).join(' ')),
 			this.createVertexTemplateEntry('shape=ellipse;fillColor=#6554C0;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=46;fontStyle=1;html=1;sketch=0;', 
 					96, 96, 'MM', 'Avatar (Large)', null, null, this.getTagsForStencil(gn, 'avatar', dt + 'avatar').join(' ')),
@@ -141,7 +141,7 @@
 					360, 25, 'Atlassian / Atlassian Connect / atlassian-connect-js-extra', 'Breadcrumb', null, null, this.getTagsForStencil(gn, '', dt + 'breadcrumb').join(' ')),
 			this.addEntry(dt + 'button primary', function()
 	   		{
-			   	var bg = new mxCell('Pay now', new mxGeometry(25, 0, 86, 33), 'rounded=1;fillColor=#0057D8;align=center;strokeColor=none;html=1;fontColor=#ffffff;fontSize=12;sketch=0;');
+			   	var bg = new mxCell('Pay now', new mxGeometry(25, 0, 86, 33), 'rounded=1;fillColor=#0057D8;align=center;strokeColor=none;html=1;whiteSpace=wrap;fontColor=#ffffff;fontSize=12;sketch=0;');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(0, 9, 14, 14), s + 'checkbox;fillColor=#008465;strokeColor=none;html=1;sketch=0;');
 			   	icon1.vertex = true;
@@ -149,7 +149,7 @@
 			}),
 			this.addEntry(dt + 'button standard', function()
 	   		{
-			   	var bg = new mxCell('Create Group', new mxGeometry(25, 0, 115, 33), 'rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12;sketch=0;');
+			   	var bg = new mxCell('Create Group', new mxGeometry(25, 0, 115, 33), 'rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;whiteSpace=wrap;fontColor=#596780;fontSize=12;sketch=0;');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(0, 9, 14, 14), s + 'checkbox;fillColor=#008465;strokeColor=none;html=1;sketch=0;');
 			   	icon1.vertex = true;
@@ -165,7 +165,7 @@
 			}),
 			this.addEntry(dt + 'button primary', function()
 	   		{
-			   	var bg = new mxCell('Submit', new mxGeometry(25, 0, 80, 33), 'rounded=1;fillColor=#0057D8;align=center;strokeColor=none;html=1;fontColor=#ffffff;fontSize=12;sketch=0;');
+			   	var bg = new mxCell('Submit', new mxGeometry(25, 0, 80, 33), 'rounded=1;fillColor=#0057D8;align=center;strokeColor=none;html=1;whiteSpace=wrap;fontColor=#ffffff;fontSize=12;sketch=0;');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(0, 9, 14, 14), s + 'close;fillColor=#BA3200;strokeColor=none;html=1;sketch=0;');
 			   	icon1.vertex = true;
@@ -173,7 +173,7 @@
 			}),
 			this.addEntry(dt + 'button standard', function()
 	   		{
-			   	var bg = new mxCell('Done', new mxGeometry(25, 0, 55, 33), 'rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12;sketch=0;');
+			   	var bg = new mxCell('Done', new mxGeometry(25, 0, 55, 33), 'rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;whiteSpace=wrap;fontColor=#596780;fontSize=12;sketch=0;');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(0, 9, 14, 14), s + 'close;fillColor=#BA3200;strokeColor=none;html=1;sketch=0;');
 			   	icon1.vertex = true;
@@ -187,15 +187,15 @@
 			   	icon1.vertex = true;
 		   		return sb.createVertexTemplateFromCells([bg, icon1], 100, 33, 'Button (Link)');
 			}),
-			this.createVertexTemplateEntry('rounded=1;fillColor=#0057D8;strokeColor=none;html=1;fontColor=#ffffff;align=center;verticalAlign=middle;fontStyle=0;fontSize=12;sketch=0;', 
+			this.createVertexTemplateEntry('rounded=1;fillColor=#0057D8;strokeColor=none;html=1;whiteSpace=wrap;fontColor=#ffffff;align=center;verticalAlign=middle;fontStyle=0;fontSize=12;sketch=0;', 
 					86, 33, 'Primary', 'Button (Primary)', null, null, this.getTagsForStencil(gn, '', dt + 'button primary').join(' ')),
-			this.createVertexTemplateEntry('rounded=1;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;align=center;verticalAlign=middle;fontStyle=0;fontSize=12;sketch=0;', 
+			this.createVertexTemplateEntry('rounded=1;fillColor=#F1F2F4;strokeColor=none;html=1;whiteSpace=wrap;fontColor=#596780;align=center;verticalAlign=middle;fontStyle=0;fontSize=12;sketch=0;', 
 					86, 33, 'Standard', 'Button (Standard)', null, null, this.getTagsForStencil(gn, '', dt + 'button standard').join(' ')),
 			this.createVertexTemplateEntry('fillColor=none;strokeColor=none;html=1;fontColor=#0057D8;align=center;verticalAlign=middle;fontStyle=0;fontSize=12', 
 					86, 33, 'Link button', 'Button (Link)', null, null, this.getTagsForStencil(gn, '', dt + 'button link').join(' ')),
 			this.addEntry(dt + 'dropdown button', function()
 	   		{
-			   	var bg = new mxCell('Dropdown button', new mxGeometry(0, 0, 140, 33), 'rounded=1;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;align=left;fontSize=12;spacingLeft=10;sketch=0;');
+			   	var bg = new mxCell('Dropdown button', new mxGeometry(0, 0, 140, 33), 'rounded=1;fillColor=#F1F2F4;strokeColor=none;html=1;whiteSpace=wrap;fontColor=#596780;align=left;fontSize=12;spacingLeft=10;sketch=0;');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(1, 0.5, 12, 6), 'shape=triangle;direction=south;fillColor=#596780;strokeColor=none;html=1;sketch=0;');
 			   	icon1.geometry.relative = true;
@@ -206,7 +206,7 @@
 			}),
 			this.addEntry(dt + 'button label only', function()
 	   		{
-			   	var bg = new mxCell('Label only', new mxGeometry(0, 0, 80, 33), 'rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12');
+			   	var bg = new mxCell('Label only', new mxGeometry(0, 0, 80, 33), 'rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;whiteSpace=wrap;fontColor=#596780;fontSize=12');
 			   	bg.vertex = true;
 		   		return sb.createVertexTemplateFromCells([bg], 80, 33, 'Button (label only)');
 			}),
@@ -215,7 +215,7 @@
 			   	var bg = new mxCell('Icon and label', new mxGeometry(0, 0, 120, 33), 'rounded=1;align=left;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12;spacingLeft=26;');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', 
-			   			new mxGeometry(0, 0.5, 12, 12), 'shape=mxgraph.mscae.intune.subscription_portal;fillColor=#596780;strokeColor=none;fontColor=#ffffff;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;html=1;spacingLeft=5');
+			   			new mxGeometry(0, 0.5, 12, 12), 'shape=mxgraph.mscae.intune.subscription_portal;fillColor=#596780;strokeColor=none;fontColor=#ffffff;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;html=1;whiteSpace=wrap;spacingLeft=5');
 			   	icon1.geometry.relative = true;
 			   	icon1.geometry.offset = new mxPoint(10, -6);
 			   	icon1.vertex = true;
@@ -248,18 +248,18 @@
 			}),
 			this.addEntry(dt + 'button disabled', function()
 	   		{
-			   	var bg = new mxCell('Disabled button', new mxGeometry(0, 0, 110, 33), 'rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#A5ADBA;fontSize=12');
+			   	var bg = new mxCell('Disabled button', new mxGeometry(0, 0, 110, 33), 'rounded=1;align=center;fillColor=#F1F2F4;strokeColor=none;html=1;whiteSpace=wrap;fontColor=#A5ADBA;fontSize=12');
 			   	bg.vertex = true;
 		   		return sb.createVertexTemplateFromCells([bg], 110, 33, 'Button (disabled)');
 			}),
 			this.addDataEntry(dt + 'split button', 80, 33, 'Button (split)',
-				'1ZVNb6MwEIZ/DcdGxi7d7rFJSi670ko97NmCAVs1NrJNNtlfv2NsEvKlRqr20EhB9jtfMPNgMrbqdhvLe/HT1KAy9pqxlTXGx1W3W4FSGSWyztg6o5TgP6PlDWs+WknPLWh/TwCNAVuuBojKW6+kj6rze5VUawZdQwjKM7ZspFIro4wdjazMS1o+ou68Ne8wWbTRGL0UvlNTnNF+Fld8f/r2TFDnSrYaNQWNT25v8m8ondOQtueV1O2P0brOQ4R7B1+JlFbwSgwWNrxHIdxHb6T2YF+32AWHGklJS95JtUfhxVZCeqjQSsmaD61A96myGWwVagvve7QX7AUv2MFwCQ5u0RrTKuC9dIvKdKOhcqNr2cQSuDwpUtDlrExqOlgPu5uDG6U0tQ2YDrzFvOSPrL2IHs9xtkSAxMxRYyxq3MV9e4g8UoCLBMJ1KNgFFBc8OMH7sPRWct0GdVlLi88qTRikM0O4yXNQDgP/CJTDeMlXHO+MX0ruHTe9Pu7TgH16pxdF3M9gyOklDE9RsqC4l1s4SXUNkFT+V+jvsfZDOkOm6g9niJmmceAvADs8xF3MPd7PnJL6Fm+nXCFxzfg7g2t0+p1aR7/8afL/cPsAr+ms+SxfrPg8ULg9fjWj+/yj+g8='),
+				'1ZVNb6MwEIZ/DcdGYJdu91iSkksrrZTDni0yYKvGRrbJx/76HWOTkC81UtVDIwWZd2b82p4HSOi83S0N6/i7XoNM6GtC50ZrF0btbg5SJiQV64QuEkJS/CekvBHNhmjaMQPK3VNAQsGGyR6CsuqkcEG1bi+janSv1uCLsoQWtZByrqU2Q5CWWUnKR9StM/oDxojSCqsL7lo51mnlJnX576dfzynqTIpGoSahdjFtJf5564z4aTtWCdW8DdFF5ivsB7iKx2k5q3hvYMk6FPw6Oi2UA/O6wVOwqKVx0pK1Qu5ReDEVFw4qjJJ0wfqGY/rorHtTeW/uXIfxnL7gBU/QX3yCnTVaNxJYJ+ys0u0QqOyQWtbBAocnJjkpJjZbr69wV95ma/y6i9gIMA52N5s5SLGTS9AtOINe6VasHQ8Zz6HfKQeBbkGjNGjMhvvmUHkkAwcRjuug0AtQLhixnHV+6IxgqvFqsRYG9y+0b67VvV/kOTwHCD6D59Dy9Ce2fMI0Se9tN7ne7tOCfXzOZ3m4n8CQkUsYnoJkQDInNnAy1TVAov0ff75H74f4XhndH84Q03VtwV0AdtjEXcw93s+cFOoWb6dcIXH18DuDa0j6G4+O/Pg3zPfh9gle47vmq3zR/OtA4e3xSxrSpx/a/w=='),
 			this.addDataEntry(dt + 'button grouped', 320, 33, 'Button (grouped)',
-				'7ZZNb4JAEIZ/zR5rYFetvUqLvTRp0kPPGxlg48KSZVHsr+8AC37S0kQ9mJqY7MwwHzzviBDmJeVC8yx+UwFIwl4I87RSpjklpQdSEuqIgLBnQqmDX0L9nqhbR52Ma0jNkATaJKy5LKDxNI7cbKV15EarFXyKwMTocAmb5zEP1AYNB42A5zEE1uBSRCmel9geNDpik8hdVlaVTMqout1RoparIhtpDUscda4/xFcVdqs6oZDSU1LpegTmuz71x1WNepa9SFh/ukg7ZXtboA2UvWhql+WyAJWA0Vu8ZGOLYJRZfE4MIoptGmONj+eNHXWpO9B4sKzPc2cn3OeFMSpF36kCWhVp0DEOVWpaVtTae0QmT9PHWXedLXLMNFUp/Akn6gM5Nn1tOVSKDoJMf4U8+4GxBsmNWMNB+XPgbYd3JbAxdcrD0m2GCsMczIlQ3VyDtBv3a8f+tbuYdu70GuJN+sUb3/zRVzGz7Y8fgHexKIcJt1mbh6v85qf9a+Peem0khHe9NZfek57/ZDR371nNSuy/hn0D'),
+				'7VZdT4MwFP01PGqg3eZ83ZT5YmKyB58buECzQkkpg/nrvUBhYxs6oyMmSkLSey73o+fclFp0GZcrxdLoWfogLPpo0aWSUjeruFyCEBaxuW/RB4sQG1+LuANep/baKVOQ6EsCSBOwZSKHBmmATO+EATKt5AZeua8jBByLLrKI+bJAw0bDZ1kEvjGY4GGCaw/Lg0Ig0rHYR6VVyrgMq+3extLb5OmtUuBhqwu15m+V26nyBFyIpRRS1S1Q13GJO6ly1L0ceIL66Txtl+22QGkoB6mpIcPLCmQMWu3wk8IkQS819NkR8DAyYZQ2GMsaO+xC90TjwnB9nnd6wvsi11omiJ0qoGSe+B3HgUx0yxUx9gEj0/vZ3bz7ziQ55jSRCXyJTtQHMiz61PJQKVpEXMM6ZV5VokBR+4JfpAH5VIP5BxIoEEzzLfTSn9PFVHiRHAsTu+ynbiNkEGSgT3Ts+rpI2smwtPRf2rGkdWbX0HY6rO1k9IOz4syUPz4+f/UcfWd4+gHjjNLNVY6J2fAoOWOPkoDgz03ST8/OwJ8fzf1trhmTw8veOw=='),
 			
 			this.addEntry(dt + 'button compact', function()
 	   		{
-			   	var bg = new mxCell('Compact', new mxGeometry(0, 0, 86, 33), 'rounded=1;fillColor=#F1F2F4;align=center;strokeColor=none;html=1;fontColor=#596780;fontSize=12;sketch=0;');
+			   	var bg = new mxCell('Compact', new mxGeometry(0, 0, 86, 33), 'rounded=1;fillColor=#F1F2F4;align=center;strokeColor=none;html=1;whiteSpace=wrap;fontColor=#596780;fontSize=12;sketch=0;');
 			   	bg.vertex = true;
 			   	var icon1 = new mxCell('', new mxGeometry(107, 13, 6, 6), 'shape=ellipse;fillColor=#596780;strokeColor=none;html=1;sketch=0;');
 			   	icon1.vertex = true;
@@ -270,9 +270,9 @@
 		   		return sb.createVertexTemplateFromCells([bg, icon1, icon2, icon3], 133, 33, 'Button (compact)');
 			}),
 			this.addDataEntry(dt + 'button grouped group', 556, 33, 'Button (grouped)',
-				'3Zhdb5swFIZ/DZeNDA4kuRxp003qpEq76LUVDFgxGNlOm+zXz8YmhTofVIM0W6RI+MCxj5/3+NjgwWWxe+Soyn+yBFMPPnhwyRmT5qrYLTGlXgBI4sF7LwiA+nvB6sRdv74LKsRxKfs4BMbhFdEtNpaHhEhjFHJPrZGzbZlg7eN7ME4JpUtGGa9vQgCicKUGiBElWalsazU4VjdjITnb4ObRkpWquziXBW06YqVsdZTWP2v/RX7rwf0mQswl3p2cZW2yU3zErMCS79UjbySRuXkiNCBAjkmWWy8IjQ0J084Onu/I1IWldpwgdAguWVHowD4FceWvgtV0AIjhIprNwZAQrUMYGo8W0/lITKcO029CaCz/GVJ/Chyms5GYhg5Th6bB8mJj0SBEjhL2php69gkSec0aHGPawqe8Kt1lsct0YZsUbL3ZVhPO8VpNKOYNQnBGs65E7eLQjXIIGQLfTe1gOpIOkaPDD5XX4JmzjGMhvloUN80vLAcb6Uct7aLqL6MKAQs16PeGtw66l7jhxdq/OKMlxxRJ8oo73R8T2I7wzIiu7U3uRKDrwdJUYOkkxCGuXjkyc3LkhfFNSpXqQ6QHxanslxwaV7yVkpXOur2ZHBEVWpMye6onZYL7m7TpOlwnie4WY2TRvEfFt7pLTlCZaWucEF0RiFb8XrCtnv3HIn0Q9/w+2keEWR8R9qYFJm6ZbrbhtijRMJrYk3Mz+h0cQaKFI9ET0pX7ypuALgi3vswH2gqiIVZx373eB5eX4D9+hA2Be4QNo3GOTr5/GWeT4cqTVAKPWryMvKerV9gpID50QB3hFA2AyX2pv2VMwVdhct/cbxkTvA4m1Xz/+mR2tPbHqT8='),
+				'5Zhdj6IwFIZ/DZdj2iKol4szzm4ym0wyF3NNpEBjoaSto+6v35YWR6Z+MFlQkzUxsQdOP5737Sni+fNi+8zjKv/NEkw9/8nz55wxaX4V2zmm1EOAJJ7/6CEE1NdDixNXYX0VVDHHpeySgEzCR0zX2ESeEiJNUMgdtUHO1mWCdQ70/CgllM4ZZby+6AMQBgs1QBRTkpUqtlSDY3UxEpKzFW5uLVmpuotyWdCmI1bKg47S+mPjb+SPHhwi1d7kROK3Kl7qyEbBUjE7ccwl3p5cfB2yK3/GrMCS79QtG5LI3NwRGD4gxyTLbZbvm1gsTDvbZ36SVD8szONgfQfsnBWFnti32C7gAi3GPbANZuFkCq7A1iYEgck4QD0dCPXYQf1DCE3r/yANx8BBPRkIdeCgdiAbWu92LpqPyOOEbVRDQ0likdcSgGOoD6iqrEp3WWwzXR1HBVuu1tWIc7xUC4p4QxackbKt3GGFac8S9SADgq7j0XggHUJHh1/K7uCVs4xjIW4tyjH3n90ldqZftbR7rbuMagpYqEF/Nrzhv+y74OLpMTujL8c0luQDt7o/Jrod4ZURfTo0fgpBO4OlqcDSMcl+Xp18M3F88874KqXKCX1YhuJUdjOMxhWtpWSls5fvxjdCWYaU2Uu9KDO5vq3UTriOsR5mQzhr2uFksF6QnMRlpqNRQnTlINoFj4Kt9eq/FvO94OeP4S4iTLqIsDMtMHLLOUSuKGE/mtjH9Gb0B38AiWaORC+xrvBXPix0kbj3rT/gkRH2sbO7PidAcHlb3vSpuIc/GsB9/A3CYR67ILyMs3G9yiSVwIMWNCPv6YoWtIoK9B1QRziFPWBy3yrcMyZ0K0zuO4J7xuRfB5Nqfr7+Mqfc4duxvw=='),
 			this.addDataEntry(dt + 'button grouped group responsive', 551, 104, 'Button (grouped, responsive)',
-				'7Vnfj6IwEP5reLwNbYXFx9PTvZdLLrmHeyYySrOFmrbu6v3110JB2S4urj9wjSaYzpRph+9rZ4bikXG2fhLxMv3FE2AemXhkLDhXZStbj4ExD/s08cgPD2NfXx6etvSiotdfxgJy1cUAlwYvMVtBqSkVUm2YVUgl+DP8pYlKtQJ5ZCTTOOGvWvC1kMQyhcQKMaOLXLdnenoQWpGqjG2tlmbIbL0wj/uQ8dnzavkgBMy0qyPxh/4z3ciMM6eMjTnjonCBTNEUTwdmjMKXnZ558at7Ki+rxwKhYN0KTaGyuDwBz0CJjb7l1Q5i4CElfH4KdJFaM0JKXSxLeVGbboHWDYv1+7gTB/fvUhrsLow+g7karZTiuUMBz1UlYyvvAB8Mw8eovs/6+5a6nOdwEGvaB5B60p8V3Mb1TlziD7kM91ApgMWKvkBj+GP4HbTy6yuu/zJwmBZ8lSc1lzcH//AU8NsZfnOqJ8b+uslsZcHncwnKoav2qxODgcPgmGeZeeBLB0iD1y3v0abBzpKJzrdkvkXnWDPhPZu2sYsD3+EXofA82fXxnl1Pu3PD68quUf/77GaCcgu1rUE52LNnjw3K1dgnDcrDDovFkqwN6VKCGzJr0pqMWJrq5dIF72g/3rbs2FiROPi/A3/YDnTXHYX8r4QS7gsl9JVQIn2hdD9UaOckCi9XBqH7KcOJkyW6smMG5J4z3FglpO8b4ACHk54Zvp16CLknG4cnsTfIH5PEyjV8fRVRl5f564Gpt5LIfde+Zph6q4ncV9ZJQs1ep1JqjZmDFEFzp9nXgWOH4ulTMfmDfFBbNvPB8UXXYBA2WCeRW4P5wTu8H068Frcf78rgvPtt7z8='),
+				'7Vnfj6IwEP5reLwNbYXFx9PTvZdLLtmHeyZSpdlCSVtXvb/+WiiIVlxcf4B7mmiYKdMO3zedGaqDxsn6hYdZ/ItFmDpo4qAxZ0wWV8l6jCl1oEsiB/1wIHTV14HThlGQj7pZyHEq2xjAwuA9pEtcaAqFkBtqFEJy9ob/kEjGSgEcNBJxGLGVElwlRKGIcWSEkJJFqq5nannMlSKWCd1aZXrKZL3Qj/uUsNnbMnviHM+UqyP+Sv7qYaDnmRNKx4wynruApmAKpwM9R+5LbWSef6qR0svysTCXeN0ITa4yuLxglmDJN+qWlZlEw4MK+NwYk0VszBAqdKEo5EVlugVaXRisD+OOLNy/C6GxuzH6FM/laCklSy0KWCpLGRq5Brw39J+D6j7j7z51KUvxSawpH7BQi/4s4daur2Ii8WsWzvQSK+W90rXiF37Ir3+EXo5pKMk73pn+HM4HjZy7kqmfBFvsc7ZMo4rfflNSC7YLsTO8BDtmhd+MqIWhu94lvrRg87nA0mKz8qsVwZ5F8JgliX7gW+dUjdf/tq13DWphFFwvjL4F14gj/1GUm9iFnmvxC4B/nSL9/CjS19/Nfr+KdND93ruH5H0OtY2J2juyj89N1OXcF03UwxbBYkhWhiQT2E6jFWm7jBiaqnBpg3dwHG/TnmyMiCz8D8DvNwPddkcB955Qgl2hBO4JJdQVSo/zimZOAv92rRF4HGDcoDcCPTvBAPYRxhfrjtR9A+hBf3KjFqmJ4a/TIwH7VOT0wraH/DmFrYjh/nVJbV76+wNTZ22S/U7eZ5g665Ps19hJRPReJ0IojV4D5UmzdtnVYWWLhupTOfmDelBZ7teDz5fro7EwGPg7wYACu11zvQPhcHo8KHH7F2KRs+v/MP4D'),
 			
 			this.createVertexTemplateEntry('rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0', 
 					12, 12, 'Text', 'Checkbox (off)', null, null, this.getTagsForStencil(gn, '', dt + 'checkbox on').join(' ')),

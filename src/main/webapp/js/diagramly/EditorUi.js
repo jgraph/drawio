@@ -16597,7 +16597,7 @@
 						this.handleError(e);
 					}
 				}
-			}), null, null, null, null, function(buttons, input)
+			}), null, null, null, null, mxUtils.bind(this, function(buttons, input)
 			{
 				var copyBtn = mxUtils.button(mxResources.get('copy'), mxUtils.bind(this, function()
 				{
@@ -16630,7 +16630,7 @@
 				copyBtn.setAttribute('title', 'copy');
 				copyBtn.className = 'geBtn';
 				buttons.appendChild(copyBtn);
-			}, true, null, null, 'https://www.diagrams.net/doc/faq/apply-layouts');
+			}), true, null, null, 'https://www.diagrams.net/doc/faq/apply-layouts');
 
 			this.showDialog(dlg.container, 620, 460, true, true);
 			dlg.init();
@@ -18516,11 +18516,7 @@
 			}
 			else if (error != null)
 			{
-				error(e);
-			}
-			else if (window.console != null)
-			{
-				console.error(e);
+				error(new Error('IndexedDB not supported'));
 			}
 		}
 		else

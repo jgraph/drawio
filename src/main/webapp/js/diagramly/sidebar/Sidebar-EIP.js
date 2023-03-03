@@ -32,13 +32,13 @@
 		var fns = [
 			this.createEdgeTemplateEntry('edgeStyle=none;html=1;strokeColor=#808080;endArrow=block;endSize=10;dashed=0;verticalAlign=bottom;strokeWidth=2;', 
 					160, 0, '', 'Pipe', null, this.getTagsForStencil(gn, '', dt + 'pipe').join(' ')),
-		    this.createVertexTemplateEntry(s + 'rect;fillColor=#c0f5a9;verticalLabelPosition=bottom;verticalAlign=top;', 
+		    this.createVertexTemplateEntry(s + 'rect;fillColor=#c0f5a9;verticalLabelPosition=bottom;verticalAlign=top;html=1;', 
 		    		150, 90, '', 'Filter', null, null, this.getTagsForStencil(gn, '', dt + 'filter').join(' ')),
 			this.addEntry(dt + 'command message', function()
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;fillColor=#808080;strokeColor=none;');
 				bg1.vertex = true;
-				var bg2 = new mxCell('C', new mxGeometry(16, 18, 12, 12), s + 'rect;fillColor=#FF8080;fontStyle=1;');
+				var bg2 = new mxCell('C', new mxGeometry(16, 18, 12, 12), s + 'rect;fillColor=#FF8080;fontStyle=1;whiteSpace=wrap;html=1;');
 				bg2.vertex = true;
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.5;endArrow=none;dashed=0;html=1;strokeColor=#808080;strokeWidth=2;');
 		    	edge1.geometry.relative = true;
@@ -49,13 +49,13 @@
 			   	return sb.createVertexTemplateFromCells([edge1, bg1, bg2], 28, 30, 'Command Message');
 			}),
 			this.addDataEntry(dt + 'correlation identifier', 78, 30, 'Correlation Identifier',
-				'5ZZLT8JAEIB/Ta+mDwv1KAicTEw8qMeVDu2GpUO2ixZ/vbPdAVorilExkTZN5rEznf1mtqkXDRfVRItlfo0pKC8aedFQIxonLaohKOWFvky96MoLQ58eLxzv8Qa1118KDYU5JCB0AU9CrcBZnKE0a8UGSDO4ZRW1yTHDQqjRzjrQuCpSsBl90qCS5r4hP1j5LLZakV5qjc9kKLCwkako821gbha0/6uAxNJonMMQFeq6iCjx7b313MnU5OQJyeIKtlW2GJS40lM29ZzJCJ0BY4m7pOpAxjQBXIDRa1qiQQkjn9rZRenUbLtuB5kE5vw+8+gkmCdd5v2/Y35+APMdqUeF03mbDnnHUrVZNYl06I3HF4RwD6ifRMChNygpY+hXvGEe8HXrBGziXaM4pPl5eJMl6H+UxfW2k6XuxXYnB7Un/rw9XeStQRZKZgXJU+IK1ILBDAtzK19sdGL7k4ullem9clnaczCjdu6f9o2HDw3XB9pA9dVOPnPNdgXvKweZ5aZt+8549zr8Ln8LoIap6dLjaX/nHPj1tcnH5QSsN9bN6uubqDcBvdbYBnwMj9CI/n8eZA6I/aPhTDo4B6c8171jzTWpu39Q9z1v/qK+Ag=='),
+				'7ZZNj9MwEIZ/Ta4oH/SD47a73RMSUg/A0TTT2Fo3EznuNuXXM46naYwpFC0UCUhVaWbsmTjPO3aSFMtd92hEI99iCTopHpJiaRCtt3bdErRO8lSVSXGf5HlK/yRfXRjN+tG0EQZqe01C7hOehd6Dj/hAa4+aA1BWsGYXjZVYYS30wzm6MLivS3AVU/KgU/bDyP7o7FcT59XlnTF4oECNtcssRSuHRGl39Pz3GZmtNfgES9Ro+kUU89T9hpH3qrSSRnKK+AW7VQYMWtybDYemPmSFqYCxTGJSfSJjegTcgTVHmmJAC6uew+qi9W41zDtDJoM5f5t58U8wn8fMZ3+O+esrmJ9JfdK4eQrp0OhK6ZDVmEhEb7V6QwgjpS6Q+5VMOPUdKqqYpx0T4I4/BlvilO+V45TxefFVlWz2vSpe7KhKL87wJFfpNfmxXrEGQWcLraqa7A1xBdJkscXartVnl+1kaaVonE33VU3rNsaW9L3c/qcR3kW8PjAWup9V8sBrdjP4uSSoStow9pJ+n0b87n4XQAMbG9Mb2j/aGGl/nerxcjL2R/O2/UXxg1QW1o3oT5YDvSrDnfkSJU4J06CrMz67bqDT7G/uc06YpDfDOY9wLv63/UVhprdqe3LPn7T+bTD+4v0C'),
 				
 			this.addEntry(dt + 'document message', function()
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;fillColor=#808080;strokeColor=none;');
 				bg1.vertex = true;
-				var bg2 = new mxCell('D', new mxGeometry(16, 18, 12, 12), s + 'rect;fillColor=#C7A0FF;fontStyle=1;');
+				var bg2 = new mxCell('D', new mxGeometry(16, 18, 12, 12), s + 'rect;fillColor=#C7A0FF;fontStyle=1;whiteSpace=wrap;html=1;');
 				bg2.vertex = true;
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.5;endArrow=none;dashed=0;html=1;strokeColor=#808080;strokeWidth=2;');
 		    	edge1.geometry.relative = true;
@@ -69,7 +69,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;fillColor=#808080;strokeColor=none;');
 				bg1.vertex = true;
-				var bg2 = new mxCell('E', new mxGeometry(16, 18, 12, 12), s + 'rect;fillColor=#83BEFF;fontStyle=1;');
+				var bg2 = new mxCell('E', new mxGeometry(16, 18, 12, 12), s + 'rect;fillColor=#83BEFF;fontStyle=1;whiteSpace=wrap;html=1;');
 				bg2.vertex = true;
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.5;endArrow=none;dashed=0;html=1;strokeColor=#808080;strokeWidth=2;');
 		    	edge1.geometry.relative = true;
@@ -82,7 +82,7 @@
 		    this.createVertexTemplateEntry(s3 + 'messExp;html=1;verticalLabelPosition=bottom;verticalAlign=top', 
 		    		48, 48, '', 'Message Expiration', null, null, this.getTagsForStencil(gn, '', dt + 'message expiration').join(' ')),
 			this.addDataEntry(dt + 'message sequence', 60, 24, 'Message Sequence',
-				'5VVdb4MgFP01vKtY4+vKZp+WLNnDnpneKSmKQWp1v34gtKWhXfawNPswMbn33A+45xBAmLTTRtK+eRQVcIQfECZSCGWtdiLAOUoiViF8j5Ik0j9KiivReIlGPZXQqa8UJLZgpHwHFrHAoGbugHInRzDpMcJr6Ko7KcVeu69clFsNNarlLjooKbZABBdyqcUxIUUUHSMvrFKNjiS20zN7N2tg7dlVoarhbJBB7GTpoJWFFJU1uNnScNyl0M26AdGCkrNOkcCpYuN5dzpYtz7muVI9Ip29hF6wTg1e5ycD6ITJ9ct9krVhGxw8bycnaBHisij494iShaKsfogoafKtoqSBKHGgSkhoRYdm0cnwTTmrO22XmhjQYqzfRKcc37nRo6G9sSWUykQZ555seVQUGbkkaLR8h35uO/FRwBGkgglduyCuiDO7qDt7ezeUBzXA6kadY5fU8yT4lOFVwHB47v8Sw67gcLJuT3gWEI7/A+FpfiPCtXt6ye2V4z/0Hw=='),
+				'7ZbPb4MgFMf/Gu4KtvG6urWnJUt62Jnpm5KiGMSq++sHQlsM7bLDsmzZmjThfd8Pee+DRESyetxJ2laPogCOyAMimRRC2VU9ZsA5whErELlHGEf6j/D2hjeevVFLJTTqMwnYJhwp78EqVujUxJ2Q9/IIJjxGZANNcSelGLT5wkV+0FKlau68nZLiAJngQs65JM6ybRSdPc+sUJX2YFtpz97MM4i2pOibYn6KibZ7gKKERVud6GXupJWVFJUluE6TsPk50XW+A1GDkpMOkcCpYsdlddpZszzHuVTdMJ28gFawRnVe5Scj6IDR1Uv9keuFLXCyvJ1cpBnLdUTktyJah4hWPwRRgr8UURIgigNG4XgL2lXneVLOykavcz0Y0Gg2r6JRbvqpoVPR1qwl5Mp4GecexDTabtfZNbzR/DvVc9sxB2GomIJ9S2dag76AlufEdQRSwYhu3S032E3O6w7q4Hr2pApYWamldg2uR+hDAKsAQPiS/CEALuF0Lr+fxzrgQf554CT9Jh7avHxC2PvM/8J4Bw=='),
 		    this.createVertexTemplateEntry(s3 + 'retAddr;html=1;verticalLabelPosition=bottom;fillColor=#FFE040;verticalAlign=top;', 
 		    		78, 48, '', 'Return Address', null, null, this.getTagsForStencil(gn, 'retAddr', dt + 'return address').join(' '))
 		];
@@ -99,7 +99,7 @@
 	Sidebar.prototype.addEipMessageRoutingPalette = function(expand)
 	{
 		var s = "strokeWidth=2;dashed=0;align=center;fontSize=8;shape=rect;fillColor=#fffbc0;";
-		var s2 = "strokeWidth=2;outlineConnect=0;dashed=0;align=center;fontSize=8;fillColor=#c0f5a9;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.eip.";
+		var s2 = "html=1;strokeWidth=2;outlineConnect=0;dashed=0;align=center;fontSize=8;fillColor=#c0f5a9;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.eip.";
 		var s3 = "edgeStyle=none;endArrow=none;dashed=0;html=1;strokeWidth=2;";
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern message routing ';
@@ -141,7 +141,7 @@
 
 	Sidebar.prototype.addEipMessageTransformationPalette = function(expand)
 	{
-		var s = "strokeWidth=2;outlineConnect=0;dashed=0;align=center;fontSize=8;fillColor=#c0f5a9;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.eip.";
+		var s = "html=1;strokeWidth=2;outlineConnect=0;dashed=0;align=center;fontSize=8;fillColor=#c0f5a9;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.eip.";
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern message transformation ';
 
@@ -232,8 +232,8 @@
 	Sidebar.prototype.addEipMessagingSystemsPalette = function(expand)
 	{
 		var s = "strokeWidth=2;dashed=0;align=center;fontSize=8;shape=";
-		var s2 = "strokeWidth=2;outlineConnect=0;dashed=0;align=center;fontSize=8;shape=mxgraph.eip.";
-		var s3 = "strokeWidth=1;dashed=0;align=center;fontSize=8;shape=";
+		var s2 = "html=1;strokeWidth=2;outlineConnect=0;dashed=0;align=center;fontSize=8;shape=mxgraph.eip.";
+		var s3 = "html=1;strokeWidth=1;dashed=0;align=center;fontSize=8;shape=";
 		var s4 = "strokeWidth=1;outlineConnect=0;dashed=0;align=center;fontSize=8;shape=mxgraph.eip.";
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern messaging system ';
@@ -248,7 +248,7 @@
 		    
 			this.addEntry(dt + 'message endpoint', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 150, 90), s + 'rect;verticalLabelPosition=bottom;verticalAlign=top;fillColor=#c0f5a9;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 150, 90), s + 'rect;verticalLabelPosition=bottom;verticalAlign=top;fillColor=#c0f5a9;html=1;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('', new mxGeometry(85, 25, 40, 40), s3 + 'rect;');
 				bg2.vertex = true;
@@ -259,7 +259,7 @@
 			    
 			this.addEntry(dt + 'message endpoint', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 150, 90), s + 'rect;verticalLabelPosition=bottom;verticalAlign=top;fillColor=#c0f5a9;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 150, 90), s + 'rect;verticalLabelPosition=bottom;verticalAlign=top;fillColor=#c0f5a9;html=1;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('', new mxGeometry(25, 25, 40, 40), s3 + 'rect');
 				bg2.vertex = true;
@@ -268,15 +268,15 @@
 			   	return sb.createVertexTemplateFromCells([bg1], bg1.geometry.width, bg1.geometry.height, 'Message Endpoint');
 			}),
 			this.addDataEntry(dt + 'message endpoint', 400, 90, 'Message Endpoint',
-				'zVXLbsIwEPwa300eFRwhbbm0UiUOPZtkSSycbOQsr3597cRAIkILKhUkiuSd9fgxs46ZH+XbqRZl9o4JKOa/MD/SiNS08m0ESjGPy4T5z8zzuPmY93omO6izvBQaCrqE4DWEtVAraJAGqGinHFCRxiV8yoQyA3jMnySiysAOwE0glEwL047NjKANsMCCZvLLsocmrDJR2raGmGxWKhWhQl0P7sd8EYqR7VbP0srw+jGZNWiSsVBvYg7qAytJEu2EcyTCvNVh7FZCWBrUbczkYHtWnBpyykwBcyC9M102brO2R9gIyDOQaeZoI4eJqonTA/UotWk4tfuV969VfnBb5Rf1czflvX7lHcELG8auG7Z8CXpsCW5gS/D4B+IvlX3Ql58o+m+VHj5+pV8kafCjpMO7lezT7/pCksLMhaDmuHk5ApPTeta4KpKD+lAkY61xY0++wnhZU4SmPVhgAXvMmTJwvHbYcTSjXDmnT1wZcvv2LqzZmN1Nx6UKVzqGzn/VLCYF6hTgBcdDgxIk193Rr/DGhMe7u851rvZv'),
+				'zVZNb4JAEP013NcFGj0qWi9t0sRDzyuMsHFhyDJ+9dd3F1aFiK0mNhVCMvNmZj/emwU8P8r3cy3K7B0TUJ4/8/xII1Jj5fsIlPI4k4nnTz3OmXk8/nolOqijrBQaCrqlgDcFW6E20CANUNFBOaAijWv4lAllBuCeP0lElYEdgBlHKJkWxo7NjKANsMKCFvLLVg+NW2WitLaGmGxUKhWhQl0P7sdsFYqRTatnaUVYfZnIFjTJWKg3sQT1gZUkiXbCJRJh3koYu5UQlgbNKDdsTgfGdHs0abC/ylMNOZLmgDmQPpiUndu3zQgbLlkGMs1c2chhomr89FR6Zt0Yjvh+Efx7RRg8VoRVfT2DCLxfBFfAw6bi0HVbEgU9CgUPUCh4/mPyoH4/Uc0uyP2z/g+fv//vZTf4kd3hvzXyy+9UQ5LCwrmglribnYHJZZdr3BTJSQgokrHWuLOvBoXxui4Rmo5ggQUcMafPwNW13Y64Le4vBBoye/curNmY3U1HpQo3OobOi9csJgXq9OINJ0WDEiS33dHv0Ma45+98Hev8BnwD'),
 			this.addDataEntry(dt + 'message', 28, 48, 'Message',
-				'5ZVRb4IwEMc/Da8LghJ9nCg+7cmHbY+NHLRZ6ZGjKu7Tr6VVR5RsiZlbMgjJ3f965d8fJQ3itGpXxGr+hDnIIF4GcUqI2kVVm4KUQRSKPIgXQRSF5gmibKA66qphzQiU/k5D5Bp2TG7BKU5o9EF6AfIS1j5F0hxLVEwuz+qccKtysDOGJoNW6JdP8auNHyY2U/kjEe6NoFDZzpw1/NTIdWXWvxiZsNGEb5CiROpMxNPQ3qfKs8g1N5XIKM6wddlj0OCWNl6aOEkzKsFjGV+S6ho9phVgBZoOZgiBZFrs+rOzxqXladwZsgk85+vM43/BPPlTzMdfM79cZY8Uk6JUJt4Y72AIzQtUei3ebffUQuKstrF5r6gbC7oQUg7jPFb8V/H+gDS0g//yAK2992xH+HVxECXXfe0WfpO78SPY6GvwsixJr+3SsLuO83k7oxuJHhv8Jj74dOrSO/BOfpl3Ucxm4eVmvS/vOPkp3iY9n7FdrXcEfwA='),
+				'5ZVNb8IwDIZ/Ta9TaEcFx1E+Tjtx2HaMqNtES5MqNbTs1y9pwkdFu01iY5MGQrJfx8F57DZBlBTNStOSPaoURBAtgijRSqGziiYBIYKQ8DSI5kEYEvMLwuVAdNRGSUk1SPxKQugSdlRswSlOqHAvvABpDmvvKo1M5UpSsTipM622MgW7IzEeNByfz+wXa9+NrSfTB61VbQSppM1MacWOiQwLc/75yJgVavUKiRJKt0VEE2K/x8gTT5GZSGgUV7CtssOgUlu98dLYSUh1Dh7L/SWpNtFjWoEqAPXeLNEgKPJdd3daOTc/rjtBNobn3M88+hfM4z/F/P5z5pen7JCigufS2BtTOxhCs0xJXPM3mz2xkBgtrW3+l5eVBZ1xIYZxHiK+K74+0AjN4LM8QKv2NdsV/lwMeM6wq13Db3wzfho22AdvuYyTvikl7eewny9n1B3tmnGEdUnb2azNy/ZK4IcEP+N7706ce4N2xL/cjiybTsnlLH/Ujr4enLXo+9sRxT/VDuOebug21rnA3wE='),
 	
 			this.addEntry(dt + 'message', function()
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;fillColor=#808080;strokeColor=none;');
 				bg1.vertex = true;
-				var bg2 = new mxCell('', new mxGeometry(16, 18, 12, 12), s + 'rect;fillColor=#80FF6C;fontStyle=1;');
+				var bg2 = new mxCell('', new mxGeometry(16, 18, 12, 12), s + 'rect;fillColor=#80FF6C;fontStyle=1;whiteSpace=wrap;html=1;');
 				bg2.vertex = true;
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.5;endArrow=none;dashed=0;html=1;strokeColor=#808080;strokeWidth=2;');
 		    	edge1.geometry.relative = true;
@@ -288,13 +288,13 @@
 			}),
 	
 			this.addDataEntry(dt + 'message', 28, 48, 'Message',
-				'vZRNb4MwDIZ/DdeJj25qjyvtetqph23HqBgSLcTIuC3dr19C0naIoU3qNBCS/TqvcR5Qoiyvuw2JRj5jATrK1lGWEyL7qO5y0DpKY1VE2SpK09g+Ufo0UU36atwIAsO/MaTecBB6D17xQssnHQQoKtiGFIklVmiEXl/VJeHeFOA6xjaDTvHrl/jNxXf3LjPFIxEerWDQOGchWnkxSq7t/leJDVsmfIccNVI/RDaP3X2pvKiCpa2kVvEDuykHDFrc0y5IMy+xoAoClmxMqjcGTBvAGphOdgmBFqwOw+6i9Wl1WXeFbIPA+Xvm2c/Mx7sckBJaVcbGOzs7WELLEg1v1Ydzzx0kKRoX2/eqpnWgS6X1NM5zJXyVMB8QQzf5X03QOoaZ3YqwLwmqkjzUbuE3+zd+BDsewyvLxSIew7OVuL/O/cI4yY1Ez4YH7ziFdO7Tv+dt0+v509cGx9Mn'),
+				'vZTBboMwDIafhutEoZva40q7nnbqYdsxKoZECzEKbqF7+jkkbYcY2qROAyHZv/MH5yMkSrOq21pRy2fMQUfpJkozi0g+qroMtI6SWOVRuo6SJOYnSp4mqrO+GtfCgqHfGBJvOAp9AK94oaGTDgLkJexCipYklmiE3lzVlcWDycHNGHMGnaLXL/Gbi+/uXWbyR2uxZcGgcc5cNPJilFTx+tczDhuy+A4ZarR9E+kidvel8qJyklxJWPENuy4HDBo82H2Q5l4iYUsIWNIxqd4YMG0BKyB74iEWtCB1HM4uGp+Wl3FXyBwEzt8zT39mPl7lgJTQqjQc77l3YEKrAg3t1IdzLxwkKWoX83tV3TjQhdJ6Gue5Er5K6A8sQTe5ryZotaFnNyKsS4IqJQ21W/jN/42fhT2N4RXFchmP4XEl7q/zfKGd2XBrt1IR7GrR782Wf/wbgZ8ND95xCunCp3//OTi9Hk99bXB6fQI='),
 	
 			this.addEntry(dt + 'message', function()
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;fillColor=#808080;strokeColor=none;');
 				bg1.vertex = true;
-				var bg2 = new mxCell('', new mxGeometry(16, 18, 12, 12), s2 + 'message_1;fillColor=#ff5500;fontStyle=1;');
+				var bg2 = new mxCell('', new mxGeometry(16, 18, 12, 12), s2 + 'message_1;fillColor=#ff5500;fontStyle=1;whiteSpace=wrap;html=1;');
 				bg2.vertex = true;
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.5;endArrow=none;dashed=0;html=1;strokeColor=#808080;strokeWidth=2;');
 		    	edge1.geometry.relative = true;
@@ -309,7 +309,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;fillColor=#808080;strokeColor=none;');
 				bg1.vertex = true;
-				var bg2 = new mxCell('', new mxGeometry(16, 18, 12, 12), s2 + 'message_2;fillColor=#00cc00;fontStyle=1;');
+				var bg2 = new mxCell('', new mxGeometry(16, 18, 12, 12), s2 + 'message_2;fillColor=#00cc00;fontStyle=1;whiteSpace=wrap;html=1;');
 				bg2.vertex = true;
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.5;endArrow=none;dashed=0;html=1;strokeColor=#808080;strokeWidth=2;');
 		    	edge1.geometry.relative = true;
@@ -335,7 +335,7 @@
 
 	Sidebar.prototype.addEipSystemManagementPalette = function(expand)
 	{
-		var s2 = "strokeWidth=2;outlineConnect=0;dashed=0;align=center;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.eip.";
+		var s2 = "html=1;strokeWidth=2;outlineConnect=0;dashed=0;align=center;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.eip.";
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern system management ';
 		

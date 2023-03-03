@@ -7,7 +7,7 @@
 		var sb = this;
 
 		// Reusable cells
-		var row = new mxCell('Item', new mxGeometry(0, 0, 40, 30), 'text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;');
+		var row = new mxCell('Item', new mxGeometry(0, 0, 40, 30), 'text;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;whiteSpace=wrap;html=1;');
 		row.vertex = true;
 
 		// Predefined dimensions
@@ -27,7 +27,7 @@
 			
 			if (m != null)
 			{
-		    	var cell1 = new mxCell(m, new mxGeometry(-1, 0, 0, 0), 'resizable=0;html=1;align=left;verticalAlign=bottom;');
+		    	var cell1 = new mxCell(m, new mxGeometry(-1, 0, 0, 0), 'resizable=0;html=1;whiteSpace=wrap;align=left;verticalAlign=bottom;');
 		    	cell1.geometry.relative = true;
 		    	cell1.setConnectable(false);
 		    	cell1.vertex = true;
@@ -36,7 +36,7 @@
 			
 			if (n != null)
 			{
-		    	var cell2 = new mxCell(n, new mxGeometry(1, 0, 0, 0), 'resizable=0;html=1;align=right;verticalAlign=bottom;');
+		    	var cell2 = new mxCell(n, new mxGeometry(1, 0, 0, 0), 'resizable=0;html=1;whiteSpace=wrap;align=right;verticalAlign=bottom;');
 		    	cell2.geometry.relative = true;
 		    	cell2.setConnectable(false);
 		    	cell2.vertex = true;
@@ -49,11 +49,11 @@
 		this.setCurrentSearchEntryLibrary('er');
 		
 		var fns = [
-	   		this.addDataEntry(dt, 180, 160, 'Table 1', '7Zhhb5swEIZ/DV8nwCNrvkK2blomTW33A9z4ApYcmxlnSfrrd8am2UJYUy1AW0Uiku98vuDnxa8EAclW22tNy+KbYiAC8jEgmVbKuNFqm4EQQRxyFpBZEMch/oL4U8dsVM+GJdUgzSkLYrfgFxVrcJk7ei/AZSuzEz5bFbS0Q1PPkrQyVJtb/mBzJMTEQklDuQSNiaiOhaBlxetylym4YHO6U2vTNGqidMm3wG7UpvK1Wm3m2MyGtvkSm9/6m7HTVPBc4niBu7T/mGqo8F7mtDK+wm8LtIFtJ5o65blcg1qB0Tss2XBmCl9x5fCFBfC8aJYlPkkrl8gf1+5J48DDPg6etMD/mznCwW0VSvMHS1p4Mn/qUMcbvhJUwmeg7CCVKrZreHIhMiWUFUsqCS29bBHTqryjOgfjE6Xi0tRbTlK8EEIWvkuCBO81wzjax3jZcm0yJSuj8bmwPQDl2YCVKDWq9E0FLJv+2iO243tljFo9R8z4uJg7j9tL9pS25AzSvm9J+/1rp7i4BcOpuIGFoTIXTgopbbiX4oheRwk+UjvEeXiAFMJcCvtIzQrOGMhTKZMnjwzpiWrSovpD8p9r+DIbmW1jRq42rUq64DKfu5WTA/hJD/C33Y940pMYk4t7neRe4XncazKge304Xdphzhcw3vT7L+uajGZdVy2k9jzEYfTSnevcrEdwqunFqYZ0qumAThWFb9WqpqNZVRR1eNXYaPvzqg7YI3hV1H4bv5hVj2YVxUO61TPe+F+XW0UdlIewq/a7trMr8mbtqot2/36F4f7DZD3313fL3w=='),
-	   		this.addDataEntry(dt, 180, 160, 'Table 2', '7ZjbbqMwEIafhtsVh5JtbqHbVmpWWrV9ATeegCVjI+Nukj79jrFpDoSW1RbYVpGI5BmPJ/j74U/Ai9Jic6NImf+UFLgX/fCiVEmp7ajYpMC5F/qMetGVF4Y+frzwumM2qGf9kigQus+C0C74Tfgz2MwjeeJgs5XecpetclKaoa5no6TSROkH9mJykY+JpRSaMAEKE0Edc07KitXlNpMzThdkK59106iJkhXbAL2X68rVKrleYDMTmuYrbP7gTsZME84ygeMl7tJ8Y6KgwnNZkEq7CrctUBo2nWjqlONyA7IArbZYsmZU567i0uLzc2BZ3iyLXZJUNpG9rt2RxoGDfRp81AL/NnOEg9vKpWIvhjR3ZPZ1qOM1KzgRcAuEHqUSSbcNT8Z5Krk0YgkpoKWXKaJKlo9EZaBdopRM6HrLcYIHQkj9b7EX47mmGAe7GA9TrnQqRaUVXhemB6A8azASJVqWrimHVdNfOcRm/CS1loULeokZnhZz63A7yd7TNvoAaS9a0v66QzbXd0GnxLgRzQi/h6UmIuNWECFMuBPkhGonOR6w24d6fBtJRLri5sK6yhmlIPqyjt69cWYDsY1bbM2NEfpTo20cydYmVUmWTGQLu3J2xD4egP3mkPv+dR4OpMXsbGG9LKz379HbFnZK2qEs7HuXhXVL/MksbDaZhV12WNjUaMezsA72E1jY/GxhY/4Lm49oYYHfX9txbjCgrOn3T9Y1n8y6gqDDu6L/3bs+GvYEXhW0n9XPZjWgWb0KOYpb/cX7gM/lVkEH5THsqv0kbu3q4svaVRft4f0Kw91ry3ru4K3mHw=='),
-	   		this.addDataEntry(dt, 180, 30, 'Table Row 1', 'xZXBbqMwEIafhuuKQKn2DN22h/TS7gtM4wlYNR5kTwvp0+8Ym02TTbWp1KoSSJ7f42H8/QaysumnGwdDd0cKTVb+ysrGEXEc9VODxmRFrlVWXmVFkcudFdfvzK7m2XwAh5bPWVDEBS9gnjEqUfC8M0nwHQxhyPAYpNozOH7Qr0HLJd6QZdAWncSrOTYGBq/n7Kh02qg17OiZlzpLVG/1hOqeRp9yHY1rKeZT8a0Uf0i9hBiMbq2MN7K/8MTaoZdW1uA5FfDs6AkbMhQasmRxfooxR9Jhm6F2QoGOcXoX5ywlljdIPbLbScqoFXcp42dEnneo2y4tK5MGPsbt36V7c2SQ/DntVflBr4Sq7Kojp1+DRSZt89g/P+regMVbBHUk1aR2ixHnEFSOht/gWuQkDKQtz1uuarkEQpP/qLJKem0kXu1juUK644asWCgHKtRA8XXE4G3NNKSiBrdLfZcIh/EjMVP/ES+L7/Py4nwvpWPWYO5xw2BbE8lbG8I9+RP2nAR2AOktPVR6qRfeIhJ0WxMO0FWnlUJ7LtPyv0zLL0Ja/YM0vADfS3X5XMXc2g+w0bZdx5WXX8B5OuT59ihXn8Ndwv3vaZ47+Hv9AQ=='),
-	   		this.addDataEntry(dt + ' fk pk foreign key primary', 180, 30, 'Table Row 2', 'xZVhb9MwEIZ/Tb6iNCGIz0nZQJQvG/wAr74mFhdfsK8k3a/nHLt07VrRScCkRPK9Pl/Oz+skWdn0061TQ/eFNGBWfsjKxhFxHPVTA4hZkRudlcusKHK5s+Lmwuxins0H5cDyNQuKuOCnwi1EJQqed5gE36khDFk9BKn2rBzfm8eg5RKvybIyFpzEizlGVIM3c3ZUOoN6pXa05X2dfVRvzAT6jkafch2NKynmU/GNFL9PvYRYoWmtjNeyv/DE2oGXVlbKcyrg2dF3aAgpNGTJwvwUxBPpuM1QO6EAxzBdxDlLieUtUA/sdpIyGs1dyngfkecdmLZLy8qkKR/j9vfSgzkySP6c96p8oVdCVXbVkTOPwSJM2zz1z4+mR2XhIyh9ItWkd3sjriGoHQ1flWuBkzCQsTxvuarlEghN/qbKKum1kXhxiOUK6Y4bsmKhHKhQA8TXEYK3NdOQiiJs9vVdIhzGD8RM/Uu8LF7Py7fPvLz5fNFN6ZmNwjtYs7ItRvbWhvDA/oxBZ5EdYXrK7/RVI6G3wXCGlp3RGuy1WMs/Yi3/EdXqGdVv1vzYwqflK7Pdf7Zibu0HtTa2XcWV7/4D/OkY8tMjXv0dMyQ8/LbmuaO/2i8='),
-	   		this.addDataEntry(dt + ' fk pk foreign key primary', 180, 30, 'Table Row 3', 'xZVhb5swEIZ/DV8nAmPqZ0jXVsukql1/gBtfwKrxMfsySH/9ztg0DU20TGpVCSTf6/Nxfl4DSV61w5UVXfMTJegkv0zyyiJSGLVDBVonWapkki+TLEv5TrLvJ2YX42zaCQuGzlmQhQV/hN5CUILgaKej4BrR+SGJRy+VjoSle/XstZTjNRoSyoDleDHGWovOqTE7KI3SciV2uKWpzhSVGzWAvMPexVyL/YqLuVh8w8XvYy8+FlrVhsdr3p9/YmnBcSsr4SgWcGTxCSrU6BsyaGB8itYz6bBNXzuiAEswnMQ5SpHlFWALZHec0itJTcy4CMjTBlTdxGV51IQLcf2ydG8OD6I/x73K/9Mrpsq7atCqZ2+Rjtuc++d61Wph4BqEnEklyt1kxDkEpcXul7A1UBQ6VIbGLRclXwyhSr8UScG9Vhwv9jFfPt1ShYYt5APlawD72oP3tiTsYlENm6m+jYT9+BGJsI2n4Cwvs8/z8usbL29/nHSTeyYl9B2sSZhaB/bG+HDP/ohBR5G9YJrze/2qeYTI9Dban6Flo6QEcy7W/J9Y8w+iWryh+mDU7y3cLD+Z7fTZCrml68RamXoVVn6bwS8+AP5wCPn1ES/exwwO97+tce7gr/YX'),
+	   		this.addDataEntry(dt, 180, 160, 'Table 1', '7ZnfbpswFMafhtuJPyNrbqFbNy2TpqZ7ADc+AUvGZsYZSZ9+x9gkVQhtMqVkopGIZB8fn9jfz/4uwIvSYn2nSJn/kBS4F332olRJqW2rWKfAuRf6jHrRrReGPv688EvPaNCM+iVRIPQxE0I74Q/hK7CRB/LIwUYrveEuWuWkNE3djEZJpYnSc/ZkYpGPgYUUmjABCgNB0+eclBVr0m0kZ5zOyEaudFuo7SVLtgZ6L+vK5SpZz7CY6ZriSyw+d4sxw4SzTGB7gbs0/5goqHAtM1Jpl5Hrgrum2yEoDetelZqQk+gOZAFabTClZlTnLuPGKunnwLK8nRa7IKlsINvO3YmODaf7YQZRh8HL8qNOZodSsScjOnciPUfS9GtWcCLgKxC6F0ok3bTSMs5TyaXhJqSADjqTRJUsH4jKQLtAKZnQzZbjBB8UIfU/xF6Ma02xH+z6+Jh0pVMpKq3wiJgagKRqMLQSLUtXlMOyra+cxKb9KLWWxSkww8MwN05uh+w1ttEZ0H7soP35vRcubkEzwu9hoYnIuEUhhOnuUBzgdVDBrWr7cu7fJYliLrk5Urc5oxTwXiV1zjTMS7IwSTWa0z/cqOjVGxWdKLorttPn5GqEo10IovECrAStOiS36zwKbtyB+0uw3yv4dnthxK092tykQpBMZDM7c7J3BuLhz8C6/yLGZz0TR5U776GYXM38KDP3z2PmkwHN/NPxaIe550BZW+8tnXwyeie/6ZA11zL0g//dyAdGPmbjnl6Ne0jjng5o3IH/Tp17OnrnDoIe67404YtZdw/zMVt30H2LdfXuN/TuIBzSvE94PTYq8w56IIzJvbvvx6x7R+/Vvfugj8i+sbv7vmHTn3/++As='),
+	   		this.addDataEntry(dt, 180, 160, 'Table 2', '7Zlvb9owEMY/Td5O+VNYeZt07aQyaSr9Ai4+EkuOHTlmgX76nWOnUELWINFQZUgg+S7nI35+9gMKXpTkmwdFiuyXpMC96IcXJUpKbUf5JgHOvdBn1IvuvDD08e2F9x1Xg/qqXxAFQveZENoJfwhfg808kxcONlvqLXfZMiOFGer6ahSXmii9YK8mF/mYWEqhCROgMBHUMeekKFldbjMZ43ROtnKtm0ZNFK/YBuiTrEpXq2Q1x2YmNM1X2HzhbsZcJpylAsdLXKX5xFhBifcyJ6V2FZnOuRtWGdOwKMjSzK5Qacy5VYPSsOlUrk452R5A5qDVFksqRnXmKm6tun4GLM2aaROXJKVNpG9zdyBw4Fgc5xK1uPwbCWpnVi0VezUguBNuH1MdVyznRMBPIPQgFUu6beRmnCeSS8NSSAEtnKaIKlk8E5WCdolCMqHrJU9ifKEIif9t4k3wXhOMg12ML1OudCJFqRVuG9MDkF4FhmCsZeGaclg1/ZWT2IxfpNYyd8Ee615cw+Nct055R+8jzNEZKN+0KP9+RJnuH4NO2rgQzQh/gqUmIuWWjRAm3LE5AvCopO9k3Nf38MBJlHTFzR67yxilIM50xKIPj9j0ROlds50+J3cjHD1FEI0nYi1o2eL5dp+9EE9aiM1RDf1LE24s1NbGJcJjIp3bmdODLTAZfgts3gPbP43hWbdEr3bn3RPTq7n3MveDL/IzmPux7fRZ5v69y9y7aY/L3KejN/fbDnO/NOEvY+4dW2DM5j67mvuFfrnPBjT3wO+PeZgzD5Q1/T7T1GejN/Ug6HD16Ku7+sDMx+ziQfvB2NXGh7HxN9qD+PgJD9pG5eNBB4QxGXn78Zo18pv/1ci7oI/IyTHc/Xtiy/f/XPkL'),
+	   		this.addDataEntry(dt, 180, 30, 'Table Row 1', 'xVVdj5swEPw1vFYEmuqe4drrQ/py6R/Yizdg1XiRvTmS+/VdY3P5uJxK1FYngeQZ1sN6BpusrLv9g4O+/UEKTVZ+zcraEXEcdfsajcmKXKusvM+KIpc7K76983QxPs17cGh5zoQiTngGs8PIRMLzwSTCt9CHIcNToCrP4HitXwKXC96QZdAWneDFiI2B3uuxOjKtNmoFB9rxpDOhaqv3qB5p8KnW0bASMZ/EtyK+Tr0EDEY3VsYbWV94Y+XQSysr8JwEPDv6hTUZCg1Zsji+xZgL6rzNoD20mnHdwyYQg0QiXMudScLJKXSM+3fdHqlk9QNSh+wOUjJoxW2quIuJ5C3qpk3TysSBj7h5nXrMTgYpvutRljdGKaaHBZLTLyFBk1y4jNcPujNg8TuCuqAqUocppzkGK0f9T3ANciJ60pbHJS8rucSEOv+0zJbSay14ccRyhXLHNVlJWL63oIES+4Ah+oqpT6IGt5O+Sw6H8RMxU5fArCyLj8vy8/wspWPWYB5xw2AbE523NsCj81fiuWrYmUmn7qHSk17YCyTWbU34gO5brRTauZ6Wf/S0vNHSJHZc/81qYOQoscDyPe+s8m9yeu1zVnTLN9GFjfax6U2nZqytvJxx2jarOPPLf8hzf+706ZZZ/tN8Z8n9VcACj7/jWH76t/4N'),
+	   		this.addDataEntry(dt + ' fk pk foreign key primary', 180, 30, 'Table Row 2', 'xVXbjpswEP0aXisCpeozpHtR05dN+wHeeAJWjYfak0L26zvGzuauErVSJJA8h/FhfM7YTvKqHR6t6JpvKEEn+ZckrywihVE7VKB1kqVKJvk8ybKU3yR7uPJ1Nn5NO2HB0JQJWZjwW+gNBCQAjrY6Aq4RnR+SePVQ6UhYWqo3j6Ucr9CQUAYsx7Mx1lp0To3ZAWmUlguxxQ3teHZRuVYDyBfsXcy12C+YzEXyNZMvYy0+FlrVhscrXp//Y2nBcSkL4SgSOLL4EyrU6AsyaGD8i9Yn0HGZnjtKAZZguCrnCEUtHwFbILvllF5JamLG5yB52oCqmzgtj5hwIa7fp+7N4UH057JX+Y1esaq8qgatevMW6bjMU/9cr1otDDyBkCdQiXK7M2KKgtJi913YGigCHSpD45KLkh8WoUo/FEnBtVYcz/YxPz7dUoWGLeSG8hzAvvbgvS0Ju0iqYb3jt1FhP35FImxv8TK7n5cfz7x8+HrVTa6ZlNAvsCJhah20N8aHe+0vGHRRsiOZDvU73WrI6q2176F5o6QE3nZl3yiCZSdWPqnnU8s3GLU67r1Jqud/VT2/UfRIttfnZjah+TQxgrjjN0a6Myff65xkbnFm7g+jfm3geX5ni3enZ8gtHRupTL0IMz/dvweGY3cON2LxX3tiEt0/NQWH+1s8pB9e8n8A'),
+	   		this.addDataEntry(dt + ' fk pk foreign key primary', 180, 30, 'Table Row 3', 'xVXbjpswEP0aXisCpeozpN2tmkrVpv0AbzwBa42H2pNC9us7xs5lc9EStepKIHkO48P4nLGd5FU73FnRNd9Qgk7yT0leWUQKo3aoQOskS5VM8nmSZSm/Sfb5ytfZ+DXthAVDUyZkYcJvoTcQkAA42uoIuEZ0fkji0UOlI2FpqZ49lnK8QkNCGbAcz8ZYa9E5NWYHpFFaLsQWN7Tj2UXlWg0gH7B3Mddiv2AyF8nXTL6MtfhYaFUbHq94ff6PpQXHpSyEo0jgyOITVKjRF2TQwPgXrU+gl2V67igFWILhqpwjFLW8A2yB7JZTeiWpiRkfg+RpA6pu4rQ8YsKFuN5PPZjDg+jPZa/yG71iVXlVDVr17C3ScZmn/rletVoYuAchT6AS5XZnxBQFpcXuh7A1UAQ6VIbGJRclPyxClb4rkoJrrTieHWJ+fLqlCg1byA3lOYB97cF7WxJ2kVTDesdvo8J+/IhE2MYumORl9nZevj/z8vvXq25yzaSEfoAVCVProL0xPjxof8Ggi5LtZTrV73ireQmR1Vtr30PzRkkJvO3KvlEEy06sfFLPp5ZvMGr1Larnr6qe3yh6JDvoczOb0HyaGEHc8Rsj3ZmT+zonmVucmfvTqF8b+DJ/Y4t3p2fILR0bqUy9CDM/nPRA8f97YHjpzvFGLP5pT0yi+6um4PBwi4f040v+Dw=='),
 	   		this.addEntry(dt + ' list', function()
 			{
 				var cell = new mxCell('List', new mxGeometry(0, 0, 160, 110),
@@ -92,11 +92,11 @@
 	   		this.addEntry(dt + 'table', function()
 			{
 	   			var cell = new mxCell('Entity', new mxGeometry(0, 0, 160, 120),
-	   		    	'swimlane;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;');
+	   		    	'swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;');
 	   			cell.vertex = true;
 	   			
 	   			var cell1 = new mxCell('+Attribute1\n+Attribute2\n+Attribute3', new mxGeometry(0, 30, 160, 90),
-	   				'align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;');
+	   				'align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;');
 	   			cell1.vertex = true;
 
 				cell.insert(cell1);
@@ -123,6 +123,7 @@
 			this.createVertexTemplateEntry('shape=rhombus;double=1;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;',
 				120, 60, 'Relationship', 'Identifying Relationship', null, null, dt + 'chen'),
 			this.createVertexTemplateEntry('ellipse;shape=cloud;whiteSpace=wrap;html=1;align=center;', 100, 60, 'Cloud', 'Cloud', null, null, dt + 'cloud'),
+			
 	   	 	this.addEntry(dt + 'hierarchy', function()
 	   		{
 			   	var cell = new mxCell('', new mxGeometry(0, 0, 100, 100), 'rounded=1;absoluteArcSize=1;html=1;arcSize=10;');
@@ -138,7 +139,9 @@
 				
 				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Hierarchy'); 
 	   		}),
+			
 			this.createVertexTemplateEntry('shape=note;size=20;whiteSpace=wrap;html=1;', w, h, 'Note', 'Note', null, null, dt + 'note'),
+			
 			this.addEntry(dt + 'relation chen', function()
 			{
 				return sb.createEdgeTemplateFromCells(

@@ -154,7 +154,7 @@
 			 this.createVertexTemplateEntry(s + 'identity_access_manager.svg;',
 					 d, d, '', 'Identity & Access Manager', false, null, this.getTagsForStencil(gn, 'identity access manager', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'key_management.svg;',
-					 d * 0.38, d * 0.38, '', 'Key Management', false, null, this.getTagsForStencil(gn, 'key management', dt).join(' ')),
+					 d, d, '', 'Key Management', false, null, this.getTagsForStencil(gn, 'key management', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'ledger.svg;',
 					 d, d, '', 'Ledger', false, null, this.getTagsForStencil(gn, 'ledger', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'membership.svg;',
@@ -395,7 +395,7 @@
 			 this.createVertexTemplateEntry(s + 'retrieve_rank.svg;',
 					 d, d, '', 'Retrieve Rank', false, null, this.getTagsForStencil(gn, 'retrieve rank', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'scalable.svg;',
-					 d * 0.25, d * 0.25, '', 'Scalable', false, null, this.getTagsForStencil(gn, 'scalable', dt).join(' ')),
+					 d, d, '', 'Scalable', false, null, this.getTagsForStencil(gn, 'scalable', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'text_to_speech.svg;',
 					 d, d, '', 'Text to Speech', false, null, this.getTagsForStencil(gn, 'text to speech', dt).join(' '))
 		];

@@ -1,3 +1,8 @@
+03-MAR-2023: 21.0.2
+
+- Fixes BPMN event attachment [draw-3342]
+- Removes testing code for no branches [drawio-3396]
+
 02-MAR-2023: 21.0.1
 
 - Changes behaviour of default styling [drawio-3312]

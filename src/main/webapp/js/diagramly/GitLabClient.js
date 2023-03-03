@@ -954,7 +954,7 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn, hideNoFilesErr
 					
 					div.appendChild(createLink('../ [Up]', mxUtils.bind(this, function()
 					{
-						if (path == '')
+						if (path == '' || path == null)
 						{
 							path = null;
 							selectRepo();

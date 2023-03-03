@@ -42,44 +42,44 @@
 		 	this.addEntry(dt + 'classifier', function()
 			{
 		 		var cell1 = new mxCell('&lt;&lt;keyword&gt;&gt;<br><b>Classifier1</b><br>{abstract}', new mxGeometry(0, 0, 140, 183),
-		 			'swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=55;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;');
+		 			'swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=55;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;whiteSpace=wrap;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('attributes', 
-		 				new mxGeometry(0, 0, 140, 20), 'text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+		 				new mxGeometry(0, 0, 140, 20), 'text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		var field2 = new mxCell('attribute1', 
-		 				new mxGeometry(0, 0, 140, 20), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+		 				new mxGeometry(0, 0, 140, 20), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;');
 		 		field2.vertex = true;
 		 		cell1.insert(field2);
 		 		var field3 = new mxCell('inherited attribute2', 
-		 				new mxGeometry(0, 0, 140, 20), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#808080;');
+		 				new mxGeometry(0, 0, 140, 20), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontColor=#808080;whiteSpace=wrap;');
 		 		field3.vertex = true;
 		 		cell1.insert(field3);
 		 		var field4 = new mxCell('...', 
-		 				new mxGeometry(0, 0, 140, 20), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+		 				new mxGeometry(0, 0, 140, 20), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;');
 		 		field4.vertex = true;
 		 		cell1.insert(field4);
 				cell1.insert(divider.clone());
 		 		var field5 = new mxCell('operations', 
-		 				new mxGeometry(0, 0, 140, 20), 'text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+		 				new mxGeometry(0, 0, 140, 20), 'text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;');
 		 		field5.vertex = true;
 		 		cell1.insert(field5);
 		 		var field6 = new mxCell('operation1', 
-		 				new mxGeometry(0, 0, 140, 20), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+		 				new mxGeometry(0, 0, 140, 20), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;');
 		 		field6.vertex = true;
 		 		cell1.insert(field6);
 
 				return sb.createVertexTemplateFromCells([cell1], cell1.geometry.width, cell1.geometry.height, 'Classifier'); 
 			}),
-			this.createVertexTemplateEntry('shape=process2;fixedSize=1;size=5;fontStyle=1;', 140, 40, 'Classifier1', 'Classifier', null, null, 'classifier'),
+			this.createVertexTemplateEntry('shape=process2;fixedSize=1;size=5;fontStyle=1;html=1;whiteSpace=wrap;', 140, 40, 'Classifier1', 'Classifier', null, null, 'classifier'),
 		 	this.addEntry(dt + 'classifier', function()
 			{
 		 		var cell1 = new mxCell('Classifier1', new mxGeometry(0, 0, 140, 183),
-		 			'swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;');
+		 			'swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;whiteSpace=wrap;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('internal structure', 
-		 				new mxGeometry(0, 0, 140, 30), 'html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;rotatable=0;points=[[0,0.5],[1,0.5]];resizeWidth=1;');
+		 				new mxGeometry(0, 0, 140, 30), 'html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;rotatable=0;points=[[0,0.5],[1,0.5]];resizeWidth=1;whiteSpace=wrap;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		var cell2 = new mxCell('', new mxGeometry(0, 0, 140, 140),
@@ -87,13 +87,13 @@
 				cell2.vertex = true;
 		 		cell1.insert(cell2);
 		 		var field2 = new mxCell('property1', 
-		 				new mxGeometry(0, 0, 100, 30), 'html=1;align=center;verticalAlign=middle;rotatable=0;');
+		 				new mxGeometry(0, 0, 100, 30), 'html=1;align=center;verticalAlign=middle;rotatable=0;whiteSpace=wrap;');
 		 		field2.geometry.relative = true;
 		 		field2.geometry.offset = new mxPoint(20, 20);
 		 		field2.vertex = true;
 		 		cell2.insert(field2);
 		 		var field3 = new mxCell('property2', 
-		 				new mxGeometry(0, 0, 100, 30), 'html=1;align=center;verticalAlign=middle;rotatable=0;');
+		 				new mxGeometry(0, 0, 100, 30), 'html=1;align=center;verticalAlign=middle;rotatable=0;whiteSpace=wrap;');
 		 		field3.geometry.relative = true;
 		 		field3.geometry.offset = new mxPoint(20, 90);
 		 		field3.vertex = true;
@@ -107,27 +107,27 @@
 
 				return sb.createVertexTemplateFromCells([cell1], cell1.geometry.width, cell1.geometry.height, 'Classifier'); 
 			}),
-			this.createVertexTemplateEntry('fontStyle=1;', 140, 30, 'Association1', 'Association', null, null, 'association'),
+			this.createVertexTemplateEntry('fontStyle=1;whiteSpace=wrap;html=1;', 140, 30, 'Association1', 'Association', null, null, 'association'),
 		 	this.addEntry(dt + 'classifier', function()
 			{
 		 		var cell1 = new mxCell('Instance1', new mxGeometry(0, 0, 140, 138),
-		 			'swimlane;fontStyle=4;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;');
+		 			'swimlane;fontStyle=4;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;whiteSpace=wrap;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('slot1', 
-		 				new mxGeometry(0, 0, 140, 30), 'html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;rotatable=0;points=[[0,0.5],[1,0.5]];resizeWidth=1;');
+		 				new mxGeometry(0, 0, 140, 30), 'html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;rotatable=0;points=[[0,0.5],[1,0.5]];resizeWidth=1;whiteSpace=wrap;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 				cell1.insert(divider.clone());
 		 		var field2 = new mxCell('internal structure', 
-		 				new mxGeometry(0, 0, 140, 20), 'html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;rotatable=0;points=[[0,0.5],[1,0.5]];resizeWidth=1;');
+		 				new mxGeometry(0, 0, 140, 20), 'html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;rotatable=0;points=[[0,0.5],[1,0.5]];resizeWidth=1;whiteSpace=wrap;');
 		 		field2.vertex = true;
 		 		cell1.insert(field2);
 		 		var cell2 = new mxCell('', new mxGeometry(0, 0, 140, 50),
-		 			'swimlane;fontStyle=1;align=center;verticalAlign=top;horizontal=1;startSize=0;collapsible=0;marginBottom=0;html=1;strokeColor=none;fillColor=none;');
+		 			'swimlane;fontStyle=1;align=center;verticalAlign=top;horizontal=1;startSize=0;collapsible=0;marginBottom=0;html=1;strokeColor=none;fillColor=none;whiteSpace=wrap;');
 				cell2.vertex = true;
 		 		cell1.insert(cell2);
 		 		var field3 = new mxCell('instance2', 
-		 				new mxGeometry(0, 0, 80, 30), 'html=1;align=center;verticalAlign=middle;rotatable=0;');
+		 				new mxGeometry(0, 0, 80, 30), 'html=1;align=center;verticalAlign=middle;rotatable=0;whiteSpace=wrap;');
 		 		field3.geometry.relative = true;
 		 		field3.geometry.offset = new mxPoint(30, 10);
 		 		field3.vertex = true;
@@ -135,14 +135,14 @@
 		 		
 				return sb.createVertexTemplateFromCells([cell1], cell1.geometry.width, cell1.geometry.height, 'Classifier'); 
 			}),
-			this.createVertexTemplateEntry('fontStyle=0;', 120, 40, 'Instance1 value', 'Instance', null, null, 'instance'),
+			this.createVertexTemplateEntry('fontStyle=0;html=1;whiteSpace=wrap;', 120, 40, 'Instance1 value', 'Instance', null, null, 'instance'),
 		 	this.addEntry(dt + 'classifier', function()
 			{
 		 		var cell1 = new mxCell('&lt;&lt;enumeration&gt;&gt;<br><b>Enum1</b>', new mxGeometry(0, 0, 140, 70),
-		 			'swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;');
+		 			'swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;whiteSpace=wrap;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('literal1', 
-		 				new mxGeometry(0, 0, 140, 30), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+		 				new mxGeometry(0, 0, 140, 30), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 
@@ -175,10 +175,10 @@
 		 	this.addEntry(dt + 'property', function()
 			{
 		 		var cell1 = new mxCell('0..1', new mxGeometry(0, 0, 120, 50),
-		 			'align=right;verticalAlign=top;spacingRight=2;');
+		 			'align=right;verticalAlign=top;spacingRight=2;whiteSpace=wrap;html=1;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('Property1', 
-		 				new mxGeometry(0, 1, 120, 30), 'text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;resizeWidth=1;');
+		 				new mxGeometry(0, 1, 120, 30), 'text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;resizeWidth=1;whiteSpace=wrap;');
 		 		field1.geometry.relative = true;
 		 		field1.geometry.offset = new mxPoint(0, -30);
 		 		field1.vertex = true;
@@ -187,7 +187,7 @@
 
 				return sb.createVertexTemplateFromCells([cell1], cell1.geometry.width, cell1.geometry.height, 'Property'); 
 			}),
-			this.createVertexTemplateEntry('fontStyle=0;dashed=1;', 140, 30, 'Property1', 'Property', null, null, 'property'),
+			this.createVertexTemplateEntry('fontStyle=0;dashed=1;html=1;whiteSpace=wrap;', 140, 30, 'Property1', 'Property', null, null, 'property'),
 			this.createVertexTemplateEntry('fontStyle=0;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=2;', 30, 30, 'port1', 'Port', null, null, 'port'),
 			this.addEntry(dt + 'port provided interface lollipop notation', function()
 			{
@@ -218,9 +218,9 @@
 			}),
 			this.addEntry(dt + 'component', function()
 			{
-			    var cell1 = new mxCell('', new mxGeometry(0, 0, 140, 200), 'fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;marginBottom=0;');
+			    var cell1 = new mxCell('', new mxGeometry(0, 0, 140, 161), 'fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;marginBottom=0;');
 			    cell1.vertex = true;
-			    var cell2 = new mxCell('Component', new mxGeometry(0, 0, 140, 40), 'html=1;align=left;spacingLeft=4;verticalAlign=top;strokeColor=none;fillColor=none;');
+			    var cell2 = new mxCell('Component', new mxGeometry(0, 0, 140, 40), 'html=1;align=left;spacingLeft=4;verticalAlign=top;strokeColor=none;fillColor=none;whiteSpace=wrap;');
 			    cell2.vertex = true;
 			    cell1.insert(cell2);
 				var symbol = new mxCell('', new mxGeometry(1, 0, 16, 20), 'shape=module;jettyWidth=10;jettyHeight=4;');
@@ -229,17 +229,17 @@
 				symbol.geometry.offset = new mxPoint(-25, 9);
 				cell2.insert(symbol);
 				cell1.insert(divider.clone());
-			    var cell3 = new mxCell('provided interfaces', new mxGeometry(0, 0, 140, 25), 'html=1;align=center;spacingLeft=4;verticalAlign=top;strokeColor=none;fillColor=none;');
+			    var cell3 = new mxCell('provided interfaces', new mxGeometry(0, 0, 140, 25), 'html=1;align=center;spacingLeft=4;verticalAlign=top;strokeColor=none;fillColor=none;whiteSpace=wrap;');
 			    cell3.vertex = true;
 			    cell1.insert(cell3);
-			    var cell4 = new mxCell('Interface1', new mxGeometry(0, 0, 140, 25), 'html=1;align=left;spacingLeft=4;verticalAlign=top;strokeColor=none;fillColor=none;');
+			    var cell4 = new mxCell('Interface1', new mxGeometry(0, 0, 140, 25), 'html=1;align=left;spacingLeft=4;verticalAlign=top;strokeColor=none;fillColor=none;whiteSpace=wrap;');
 			    cell4.vertex = true;
 			    cell1.insert(cell4);
 				cell1.insert(divider.clone());
-			    var cell5 = new mxCell('required interfaces', new mxGeometry(0, 0, 140, 25), 'html=1;align=center;spacingLeft=4;verticalAlign=top;strokeColor=none;fillColor=none;');
+			    var cell5 = new mxCell('required interfaces', new mxGeometry(0, 0, 140, 25), 'html=1;align=center;spacingLeft=4;verticalAlign=top;strokeColor=none;fillColor=none;whiteSpace=wrap;');
 			    cell5.vertex = true;
 			    cell1.insert(cell5);
-			    var cell6 = new mxCell('Interface2', new mxGeometry(0, 0, 140, 30), 'html=1;align=left;spacingLeft=4;verticalAlign=top;strokeColor=none;fillColor=none;');
+			    var cell6 = new mxCell('Interface2', new mxGeometry(0, 0, 140, 30), 'html=1;align=left;spacingLeft=4;verticalAlign=top;strokeColor=none;fillColor=none;whiteSpace=wrap;');
 			    cell6.vertex = true;
 			    cell1.insert(cell6);
 
@@ -251,20 +251,20 @@
 		 			'shape=ellipse;container=1;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;html=1;dashed=1;collapsible=0;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('Collaboration1', 
-		 				new mxGeometry(0, 0, 270, 30), 'html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;rotatable=0;points=[[0,0.5],[1,0.5]];resizeWidth=1;');
+		 				new mxGeometry(0, 0, 270, 30), 'html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;rotatable=0;points=[[0,0.5],[1,0.5]];resizeWidth=1;whiteSpace=wrap;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		var divider1 = new mxCell('', new mxGeometry(39, 30, 192, 8), 'line;strokeWidth=1;fillColor=none;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;dashed=1;resizeWidth=1;');
 		 		divider1.vertex = true;
 		 		cell1.insert(divider1);
 		 		var field2 = new mxCell('Classifier1', 
-		 				new mxGeometry(0, 0, 100, 30), 'html=1;align=center;verticalAlign=middle;rotatable=0;');
+		 				new mxGeometry(0, 0, 100, 30), 'html=1;align=center;verticalAlign=middle;rotatable=0;whiteSpace=wrap;');
 		 		field2.geometry.relative = true;
 		 		field2.geometry.offset = new mxPoint(85, 50);
 		 		field2.vertex = true;
 		 		cell1.insert(field2);
 		 		var field3 = new mxCell('Collaboration use 1', 
-		 				new mxGeometry(0, 0, 140, 30), 'shape=ellipse;html=1;align=center;verticalAlign=middle;rotatable=0;dashed=1;');
+		 				new mxGeometry(0, 0, 140, 30), 'shape=ellipse;html=1;align=center;verticalAlign=middle;rotatable=0;dashed=1;whiteSpace=wrap;');
 		 		field3.geometry.relative = true;
 		 		field3.geometry.offset = new mxPoint(65, 110);
 		 		field3.vertex = true;
@@ -276,7 +276,7 @@
 		    	field3.insertEdge(assoc1, false);
 		    	cell1.insert(assoc1);
 		 		var field4 = new mxCell('Classifier2', 
-		 				new mxGeometry(0, 0, 100, 30), 'html=1;align=center;verticalAlign=middle;rotatable=0;');
+		 				new mxGeometry(0, 0, 100, 30), 'html=1;align=center;verticalAlign=middle;rotatable=0;whiteSpace=wrap;');
 		 		field4.geometry.relative = true;
 		 		field4.geometry.offset = new mxPoint(85, 170);
 		 		field4.vertex = true;
@@ -290,15 +290,15 @@
 
 				return sb.createVertexTemplateFromCells([cell1], cell1.geometry.width, cell1.geometry.height, 'Classifier'); 
 			}),
-			this.createVertexTemplateEntry('shape=folder;fontStyle=1;tabWidth=80;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;', 150, 80,
+			this.createVertexTemplateEntry('shape=folder;fontStyle=1;tabWidth=80;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;whiteSpace=wrap;', 150, 80,
 				   	'Package1', 'Package', null, null, dt + 'package'),
 		 	this.addEntry(dt + 'package', function()
 			{
 		 		var cell1 = new mxCell('Package1', new mxGeometry(0, 0, 150, 100),
-		 			'shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;container=1;collapsible=0;recursiveResize=0;');
+		 			'shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;container=1;collapsible=0;recursiveResize=0;whiteSpace=wrap;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('Packaged element1', 
-		 				new mxGeometry(0, 0, 110, 30), 'html=1;');
+		 				new mxGeometry(0, 0, 110, 30), 'html=1;whiteSpace=wrap;');
 		 		field1.geometry.relative = true;
 		 		field1.geometry.offset = new mxPoint(20, 50);
 		 		field1.vertex = true;
@@ -309,10 +309,10 @@
 		 	this.addEntry(dt + 'package', function()
 			{
 		 		var cell1 = new mxCell('Package', new mxGeometry(0, 0, 150, 100),
-		 			'shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;container=1;collapsible=0;');
+		 			'shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;container=1;collapsible=0;whiteSpace=wrap;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('Text', 
-		 				new mxGeometry(0, 0, 150, 70), 'html=1;strokeColor=none;resizeWidth=1;resizeHeight=1;fillColor=none;part=1;connectable=0;allowArrows=0;deletable=0;');
+		 				new mxGeometry(0, 0, 150, 70), 'html=1;strokeColor=none;resizeWidth=1;resizeHeight=1;fillColor=none;part=1;connectable=0;allowArrows=0;deletable=0;whiteSpace=wrap;');
 		 		field1.geometry.relative = true;
 		 		field1.geometry.offset = new mxPoint(0, 30);
 		 		field1.vertex = true;
@@ -323,7 +323,7 @@
 		 	this.addEntry(dt + 'model', function()
 			{
 		 		var cell1 = new mxCell('Model1', new mxGeometry(0, 0, 150, 80),
-		 			'shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;folderSymbol=triangle;');
+		 			'shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;folderSymbol=triangle;whiteSpace=wrap;');
 				cell1.vertex = true;
 
 				return sb.createVertexTemplateFromCells([cell1], cell1.geometry.width, cell1.geometry.height, 'Model'); 
@@ -334,15 +334,15 @@
 		 			'shape=note2;size=25;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;container=1;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('&lt;&lt;stereotype1&gt;&gt;', 
-		 				new mxGeometry(0, 0, 160, 25), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+		 				new mxGeometry(0, 0, 160, 25), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		var field2 = new mxCell('stereotype property 1', 
-		 				new mxGeometry(0, 0, 160, 25), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+		 				new mxGeometry(0, 0, 160, 25), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;');
 		 		field2.vertex = true;
 		 		cell1.insert(field2);
 		 		var field3 = new mxCell('stereotype property 2', 
-		 				new mxGeometry(0, 0, 160, 25), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+		 				new mxGeometry(0, 0, 160, 25), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;');
 		 		field3.vertex = true;
 		 		cell1.insert(field3);
 
@@ -351,14 +351,14 @@
 		 	this.addEntry(dt + 'class', function()
 			{
 		 		var cell1 = new mxCell('Class1', new mxGeometry(0, 0, 140, 79),
-		 			'swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=29;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;');
+		 			'swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=29;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;whiteSpace=wrap;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('&lt;&lt;stereotype1&gt;&gt;', 
-		 				new mxGeometry(0, 0, 140, 25), 'text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+		 				new mxGeometry(0, 0, 140, 25), 'text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		var field2 = new mxCell('stereotype property 1', 
-		 				new mxGeometry(0, 0, 140, 25), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+		 				new mxGeometry(0, 0, 140, 25), 'text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;');
 		 		field2.vertex = true;
 		 		cell1.insert(field2);
 
@@ -366,7 +366,7 @@
 			}),
 			this.createVertexTemplateEntry('text;html=1;align=center;', 200, 25,
 				   	'&lt;&lt;stereotype1, stereotype2...&gt;&gt;', 'Stereotype Label', null, null, dt + 'stereotype label'),
-			this.createVertexTemplateEntry('ellipse;', 50, 25,
+			this.createVertexTemplateEntry('ellipse;html=1;whiteSpace=wrap;', 50, 25,
 				   	'icon', 'Icon', null, null, dt + 'icon'),
 		 	this.addEntry(dt + 'region', function()
 			{
@@ -387,46 +387,46 @@
 		 	this.addEntry(dt + 'state', function()
 			{
 		 		var cell1 = new mxCell('State1<br>[invariant1]<br>&lt;&lt;extended/final&gt;&gt;', new mxGeometry(0, 0, 140, 176),
-		 			'swimlane;fontStyle=4;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=60;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;rounded=1;absoluteArcSize=1;arcSize=50;');
+		 			'swimlane;fontStyle=4;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=60;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;rounded=1;absoluteArcSize=1;arcSize=50;whiteSpace=wrap;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('', 
 		 				new mxGeometry(0, 0, 140, 50), 'fillColor=none;strokeColor=none;container=1;collapsible=0;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		var field2 = new mxCell('State2', 
-		 				new mxGeometry(30, 10, 80, 30), 'html=1;align=center;verticalAlign=middle;rounded=1;absoluteArcSize=1;arcSize=10;');
+		 				new mxGeometry(30, 10, 80, 30), 'html=1;align=center;verticalAlign=middle;rounded=1;absoluteArcSize=1;arcSize=10;whiteSpace=wrap;');
 		 		field2.vertex = true;
 		 		field1.insert(field2);
 				cell1.insert(divider.clone());
 		 		var field3 = new mxCell('behavior1', 
-		 				new mxGeometry(0, 0, 140, 25), 'fillColor=none;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=5;');
+		 				new mxGeometry(0, 0, 140, 25), 'fillColor=none;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=5;whiteSpace=wrap;html=1;');
 		 		field3.vertex = true;
 		 		cell1.insert(field3);
 				cell1.insert(divider.clone());
 		 		var field4 = new mxCell('transition1', 
-		 				new mxGeometry(0, 0, 140, 25), 'fillColor=none;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=5;');
+		 				new mxGeometry(0, 0, 140, 25), 'fillColor=none;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=5;whiteSpace=wrap;html=1;');
 		 		field4.vertex = true;
 		 		cell1.insert(field4);
 		 		
 				return sb.createVertexTemplateFromCells([cell1], cell1.geometry.width, cell1.geometry.height, 'State'); 
 			}),
-			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=1;', 140, 40,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=1;whiteSpace=wrap;', 140, 40,
 				   	'State1', 'State', null, null, dt + 'state'),
-			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;', 140, 40,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;whiteSpace=wrap;', 140, 40,
 				   	'State', 'State', null, null, dt + 'state'),
-			this.createVertexTemplateEntry('shape=folder;align=center;verticalAlign=middle;fontStyle=0;tabWidth=100;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;rounded=1;absoluteArcSize=1;arcSize=10;', 140, 90,
+			this.createVertexTemplateEntry('shape=folder;align=center;verticalAlign=middle;fontStyle=0;tabWidth=100;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;rounded=1;absoluteArcSize=1;arcSize=10;whiteSpace=wrap;', 140, 90,
 				   	'State1', 'State', null, null, dt + 'state'),
-			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;', 140, 40,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;whiteSpace=wrap;', 140, 40,
 				   	'State1, State2, ...', 'State', null, null, dt + 'state'),
-			this.createVertexTemplateEntry('shape=umlState;rounded=1;verticalAlign=top;spacingTop=5;umlStateSymbol=collapseState;absoluteArcSize=1;arcSize=10;', 140, 60,
+			this.createVertexTemplateEntry('shape=umlState;rounded=1;verticalAlign=top;spacingTop=5;umlStateSymbol=collapseState;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;', 140, 60,
 				   	'State1', 'State', null, null, dt + 'state'),
 		 	this.addEntry(dt + 'state entry point', function()
 			{
 		 		var cell1 = new mxCell('State1', new mxGeometry(0, 0, 140, 50),
-		 			'shape=umlState;rounded=1;verticalAlign=middle;align=center;absoluteArcSize=1;arcSize=10;umlStateConnection=connPointRefEntry;boundedLbl=1;');
+		 			'shape=umlState;rounded=1;verticalAlign=middle;align=center;absoluteArcSize=1;arcSize=10;umlStateConnection=connPointRefEntry;boundedLbl=1;whiteSpace=wrap;html=1;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('Entry1', 
-		 				new mxGeometry(-40, 40, 50, 20), 'text;verticalAlign=middle;align=center;');
+		 				new mxGeometry(-40, 40, 50, 20), 'text;verticalAlign=middle;align=center;whiteSpace=wrap;html=1;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 				return sb.createVertexTemplateFromCells([cell1], 140, 60, 'State with entry point'); 
@@ -434,70 +434,69 @@
 		 	this.addEntry(dt + 'state exit point', function()
 			{
 		 		var cell1 = new mxCell('State1', new mxGeometry(0, 0, 140, 50),
-		 			'shape=umlState;rounded=1;verticalAlign=middle;spacingTop=0;absoluteArcSize=1;arcSize=10;umlStateConnection=connPointRefExit;boundedLbl=1;');
+		 			'shape=umlState;rounded=1;verticalAlign=middle;spacingTop=0;absoluteArcSize=1;arcSize=10;umlStateConnection=connPointRefExit;boundedLbl=1;whiteSpace=wrap;html=1;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('Exit1', 
-		 				new mxGeometry(-40, 40, 50, 20), 'text;verticalAlign=middle;align=center;');
+		 				new mxGeometry(-40, 40, 50, 20), 'text;verticalAlign=middle;align=center;whiteSpace=wrap;html=1;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		
 				return sb.createVertexTemplateFromCells([cell1], 140, 60, 'State with exit point'); 
 			}),
-			this.createVertexTemplateEntry('ellipse;fillColor=strokeColor;', 30, 30,
+			this.createVertexTemplateEntry('ellipse;fillColor=strokeColor;html=1;', 30, 30,
 				   	'', 'Initial preudostate / node', null, null, dt + 'initial pseudostate'),
 			this.createVertexTemplateEntry('ellipse;html=1;shape=endState;fillColor=strokeColor;', 30, 30,
 				   	'', 'Final state / node', null, null, dt + 'final state'),
-			this.createVertexTemplateEntry('ellipse;', 30, 30,
+			this.createVertexTemplateEntry('ellipse;html=1;', 30, 30,
 				   	'H', 'Shallow History', null, null, dt + 'shallow history pseudostate'),
-			this.createVertexTemplateEntry('ellipse;', 30, 30,
+			this.createVertexTemplateEntry('ellipse;html=1;', 30, 30,
 				   	'H*', 'Deep History', null, null, dt + 'deep history pseudostate'),
 			this.createVertexTemplateEntry('ellipse;', 30, 30,
 				   	'', 'Entry Point', null, null, dt + 'entry point pseudostate'),
-			this.createVertexTemplateEntry('shape=sumEllipse;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;backgroundOutline=1;', 30, 30,
+			this.createVertexTemplateEntry('shape=sumEllipse;perimeter=ellipsePerimeter;html=1;backgroundOutline=1;', 30, 30,
 				   	'', 'Exit Point / Flow Final Node', null, null, dt + 'exit point pseudostate'),
-			this.createVertexTemplateEntry('ellipse;fillColor=strokeColor;', 20, 20,
+			this.createVertexTemplateEntry('ellipse;fillColor=strokeColor;html=1;', 20, 20,
 				   	'', 'Junction', null, null, dt + 'junction pseudostate'),
 			this.createVertexTemplateEntry('rhombus;', 30, 30,
 				   	'', 'Choice / Merge Node / Decision Node', null, null, dt + 'choice pseudostate merge decision node'),
-			this.createVertexTemplateEntry('shape=umlDestroy;', 30, 30,
+			this.createVertexTemplateEntry('shape=umlDestroy;html=1;', 30, 30,
 				   	'', 'Terminate', null, null, dt + 'terminate pseudostate'),
 			this.createVertexTemplateEntry('html=1;points=[];perimeter=orthogonalPerimeter;fillColor=strokeColor;', 5, 80,
 				   	'', 'Join/Fork Node', null, null, dt + 'join fork pseudostate'),
-			this.createVertexTemplateEntry('text;align=center;verticalAlign=middle;dashed=0;', 140, 40,
+			this.createVertexTemplateEntry('text;align=center;verticalAlign=middle;dashed=0;whiteSpace=wrap;', 140, 40,
 				   	'OpaqueAction1 spec.', 'Opaque Action', null, null, dt + 'opaque action'),
-			this.createVertexTemplateEntry('html=1;shape=mxgraph.infographic.ribbonSimple;notch1=20;notch2=0;align=center;verticalAlign=middle;fontSize=14;fontStyle=0;flipH=1;fillColor=#FFFFFF;', 160, 40,
+			this.createVertexTemplateEntry('html=1;shape=mxgraph.infographic.ribbonSimple;notch1=20;notch2=0;align=center;verticalAlign=middle;fontSize=14;fontStyle=0;flipH=1;fillColor=#FFFFFF;whiteSpace=wrap;', 160, 40,
 				   	'Trigger1 spec.', 'Trigger', null, null, dt + 'trigger'),
-			this.createVertexTemplateEntry('html=1;shape=mxgraph.infographic.ribbonSimple;notch1=0;notch2=20;align=center;verticalAlign=middle;fontSize=14;fontStyle=0;fillColor=#FFFFFF;', 160, 40,
+			this.createVertexTemplateEntry('html=1;shape=mxgraph.infographic.ribbonSimple;notch1=0;notch2=20;align=center;verticalAlign=middle;fontSize=14;fontStyle=0;fillColor=#FFFFFF;whiteSpace=wrap;', 160, 40,
 				   	'SendSignalAction1', 'Send Signal Action', null, null, dt + 'send signal action'),
-			this.createVertexTemplateEntry('html=1;align=right;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=50;dashed=0;spacingTop=10;spacingRight=30;', 300, 160,
+			this.createVertexTemplateEntry('html=1;align=right;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=50;dashed=0;spacingTop=10;spacingRight=30;whiteSpace=wrap;', 300, 160,
 				   	'&lt;&lt;singleExecution&gt;&gt;', 'Single Execution', null, null, dt + 'single execution'),
 		 	this.addEntry(dt + 'parameter', function()
 			{
-		 		var cell1 = new mxCell('', new mxGeometry(0, 10, 30, 30),
-		 			'');
+		 		var cell1 = new mxCell('', new mxGeometry(0, 10, 30, 30), 'html=1;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('Parameter1 spec.', 
-		 				new mxGeometry(40, 0, 100, 20), 'text;verticalAlign=middle;align=center;');
+		 				new mxGeometry(40, 0, 100, 20), 'text;verticalAlign=middle;align=center;html=1;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		var field2 = new mxCell('', 
-		 				new mxGeometry(50, 25, 30, 15), 'triangle;whiteSpace=wrap;html=1;direction=north;');
+		 				new mxGeometry(50, 25, 30, 15), 'triangle;html=1;direction=north;');
 		 		field2.vertex = true;
 		 		cell1.insert(field2);
 		 		
 				return sb.createVertexTemplateFromCells([cell1, field1, field2], 140, 40, 'Parameter'); 
 			}),
-			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;', 140, 40,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;whiteSpace=wrap;', 140, 40,
 				   	'Action1', 'Action', null, null, dt + 'action'),
-			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;', 140, 70,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;whiteSpace=wrap;', 140, 70,
 				   	'&lt;&lt;external&gt;&gt;<br>Action1<br>(partition1)', 'Activity Partition', null, null, dt + 'activity partition'),
 		 	this.addEntry(dt + 'object node', function()
 			{
 		 		var cell1 = new mxCell('ObjectNode1<br><br>[State1, State2...]', new mxGeometry(0, 0, 140, 60),
-		 			'html=1;align=center;verticalAlign=middle;rounded=0;absoluteArcSize=1;arcSize=10;dashed=0;');
+		 			'html=1;align=center;verticalAlign=middle;rounded=0;absoluteArcSize=1;arcSize=10;dashed=0;whiteSpace=wrap;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('{annotation1}', 
-		 				new mxGeometry(0, 60, 140, 30), 'text;verticalAlign=middle;align=center;');
+		 				new mxGeometry(0, 60, 140, 30), 'text;verticalAlign=middle;align=center;html=1;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		
@@ -506,22 +505,22 @@
 		 	this.addEntry(dt + 'activity parameter node', function()
 			{
 		 		var cell1 = new mxCell('Parameter1 spec.', new mxGeometry(0, 0, 140, 60),
-		 			'html=1;align=center;verticalAlign=middle;rounded=0;absoluteArcSize=1;arcSize=10;dashed=0;');
+		 			'html=1;align=center;verticalAlign=middle;rounded=0;absoluteArcSize=1;arcSize=10;dashed=0;whiteSpace=wrap;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('{stream}', 
-		 				new mxGeometry(0, 60, 140, 30), 'text;verticalAlign=middle;align=center;');
+		 				new mxGeometry(0, 60, 140, 30), 'text;verticalAlign=middle;align=center;html=1;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		
 				return sb.createVertexTemplateFromCells([cell1, field1], 140, 90, 'Activity Parameter Node'); 
 			}),
-			this.createVertexTemplateEntry('html=1;shape=mxgraph.infographic.ribbonSimple;notch1=20;notch2=20;align=center;verticalAlign=middle;fontSize=14;fontStyle=0;fillColor=#FFFFFF;', 160, 40,
+			this.createVertexTemplateEntry('html=1;shape=mxgraph.infographic.ribbonSimple;notch1=20;notch2=20;align=center;verticalAlign=middle;fontSize=14;fontStyle=0;fillColor=#FFFFFF;whiteSpace=wrap;', 160, 40,
 				   	'ObjectNode1', 'Object Node', null, null, dt + 'object node'),
 			this.addEntry('behavior selection transformation decision input', function()
 			{
 		    	var cell = new mxCell('Behavior1 spec.', new mxGeometry(0, 0, 160, 60), 'shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=left;spacingLeft=5;');
 		    	cell.vertex = true;
-		    	var label = new mxCell('<<keyword>>', new mxGeometry(0, 0, cell.geometry.width, 25), 'resizeWidth=1;part=1;strokeColor=none;fillColor=none;align=left;spacingLeft=5;');
+		    	var label = new mxCell('&lt;&lt;keyword&gt;&gt;', new mxGeometry(0, 0, cell.geometry.width, 25), 'resizeWidth=1;part=1;strokeColor=none;fillColor=none;align=left;spacingLeft=5;html=1;whiteSpace=wrap;');
 		    	label.geometry.relative = true;
 		    	label.vertex = true;
 		    	cell.insert(label);
@@ -531,15 +530,15 @@
 			this.createVertexTemplateEntry('html=1;points=[];perimeter=orthogonalPerimeter;fillColor=strokeColor;align=left;verticalAlign=top;spacingLeft=10;', 5, 80,
 				   	'{joinSpec = join spec}', 'Join Node', null, null, dt + 'join node'),
 		    this.addDataEntry('activity partition', 180, 200, 'Activity Partition', '7ZjRbtowFIafJrdTnMBobwltbzZpWvcCLjkQa45P5Jw20KefnRjCBikBnKlURUGyj30c5/vt/JggTvLVg+ZF9h1TkEF8F8SJRqSmlK8SkDKIQpEG8SyIotB8g+i+o5XVrWHBNSjqkxA1CS9cPkMTSUUOqhSo3FglraVrKjNe2CLxJxuaZpSbCc+YKVaZIHgs+Ny2V+ZxTKwkrulRvNqQmUY8naMiLhRolzRHKXlRinq0Wd0jEzL9xtf4TJv7bGrThZAyQYk2W6GyEygrkUuu4H6nKYjiRf2pZ6DxN/yT5J4YNMGqk1odcsgeAHMgvTZdKpFS5nrcNGTDDMQyc2lR6IK8bALLbW4rgik4HQ5rEu9p0qmEmTIJLn/CnLha9hFln3mqsfjF9RLIBQoUikDfvRgapYsdgE9YuEYJi03uExJh7iragdkOWkMZT81lMCXhl3EwNk+TmDpr6+ay3TUlqIyAZsHYMYCXVEFJF6kaHVZ1vRGvyTgu8uUaj4bVWCnbu9W4Uz7Wysd25WM78tkyGrILiZWpZiJNQV2kQ3x0d0UDcR/vcf9h8dKb77t3q8AlsFedi36oNf+1m/0Vrn4P7Fn4/+BPrslU+uri0VQ8+Meop39MPMh5072X4uvbSxlq8Wp/HEp3l15qTM5yER/0bz+Ae1+C+DTv8EGchZ/IT7EML8zZp2cM7RmM9TSNWx+C7p/2t64xur7tdJ5rsONH+0O24YX/wCf79/MS64J8mnF4Yf4RTto+mPd1jjOgm2r7j2Xd9tcfmn8A'),		    
-			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=20;dashed=1;', 200, 100,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=20;dashed=1;whiteSpace=wrap;', 200, 100,
 				   	'', 'Interruptible Activity Region', null, null, dt + 'interruptible activity region'),
-			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;rounded=1;absoluteArcSize=1;arcSize=10;dashed=1;', 140, 40,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;rounded=1;absoluteArcSize=1;arcSize=10;dashed=1;whiteSpace=wrap;', 140, 40,
 				   	'State1', 'State', null, null, dt + 'state'),
 			this.addEntry('constraint precondition postcondition selection transformation decision input', function()
 			{
-		    	var cell = new mxCell('Constraint1 spec.', new mxGeometry(0, 0, 160, 60), 'shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=left;spacingLeft=5;');
+		    	var cell = new mxCell('Constraint1 spec.', new mxGeometry(0, 0, 160, 60), 'shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=left;spacingLeft=5;whiteSpace=wrap;');
 		    	cell.vertex = true;
-		    	var label = new mxCell('<<keyword>>', new mxGeometry(0, 0, cell.geometry.width, 25), 'resizeWidth=1;part=1;strokeColor=none;fillColor=none;align=left;spacingLeft=5;');
+		    	var label = new mxCell('&lt;&lt;keyword&gt;&gt;', new mxGeometry(0, 0, cell.geometry.width, 25), 'resizeWidth=1;part=1;html=1;strokeColor=none;fillColor=none;align=left;spacingLeft=5;whiteSpace=wrap;');
 		    	label.geometry.relative = true;
 		    	label.vertex = true;
 		    	cell.insert(label);
@@ -571,18 +570,18 @@
 			this.createVertexTemplateEntry('shape=mxgraph.uml25.inputPin;html=1;points=[[0,0.5],[1,0.5]];strokeColor=#ffffff;fillColor=#000000;', 30, 30, '', 'Input Pin', null, null, 'input pin'),
 			this.createVertexTemplateEntry('shape=mxgraph.uml25.inputPin;html=1;points=[[0,0.5],[1,0.5]];flipH=1;', 30, 30, '', 'Output Pin', null, null, 'output pin'),
 			this.createVertexTemplateEntry('shape=mxgraph.uml25.inputPin;html=1;points=[[0,0.5],[1,0.5]];strokeColor=#ffffff;fillColor=#000000;flipH=1;', 30, 30, '', 'Output Pin', null, null, 'output pin'),
-			this.createVertexTemplateEntry('shape=mxgraph.uml25.behaviorAction;html=1;rounded=1;absoluteArcSize=1;arcSize=10;align=left;spacingLeft=5;', 190, 60, 'CallBehaviorAction1', 'Behavior Action', null, null, 'behavior action'),
-			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;', 140, 40,
+			this.createVertexTemplateEntry('shape=mxgraph.uml25.behaviorAction;html=1;rounded=1;absoluteArcSize=1;arcSize=10;align=left;spacingLeft=5;whiteSpace=wrap;', 190, 60, 'CallBehaviorAction1', 'Behavior Action', null, null, 'behavior action'),
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;whiteSpace=wrap;', 140, 40,
 				   	'Action1<br>(Operation1)', 'Call Operation Action', null, null, dt + 'call operation action'),
-			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;', 140, 40,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;rounded=1;absoluteArcSize=1;arcSize=10;dashed=0;whiteSpace=wrap;', 140, 40,
 				   	'ValueSpecAction1 spec.', 'Value Specification Action', null, null, dt + 'value specification action'),
 		 	this.addEntry(dt + 'action with output', function()
 			{
 		 		var cell1 = new mxCell('Action1', new mxGeometry(0, 20, 110, 40),
-		 			'shape=mxgraph.uml25.action;html=1;align=center;verticalAlign=middle;absoluteArcSize=1;arcSize=10;dashed=0;spacingRight=10;');
+		 			'shape=mxgraph.uml25.action;html=1;align=center;verticalAlign=middle;absoluteArcSize=1;arcSize=10;dashed=0;spacingRight=10;whiteSpace=wrap;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('variable1', 
-		 				new mxGeometry(110, 0, 60, 30), 'text;verticalAlign=middle;align=left;');
+		 				new mxGeometry(110, 0, 60, 30), 'text;verticalAlign=middle;align=left;html=1;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		
@@ -590,59 +589,59 @@
 			}),
 		 	this.addEntry(dt + 'action with input', function()
 			{
-		 		var cell1 = new mxCell('Action1', new mxGeometry(60, 0, 110, 40),
-		 			'shape=mxgraph.uml25.action;html=1;align=center;verticalAlign=middle;absoluteArcSize=1;arcSize=10;dashed=0;spacingLeft=10;flipH=1;');
+		 		var cell1 = new mxCell('Action1', new mxGeometry(0, 0, 110, 40),
+		 			'shape=mxgraph.uml25.action;html=1;align=center;verticalAlign=middle;absoluteArcSize=1;arcSize=10;dashed=0;spacingLeft=10;flipH=1;whiteSpace=wrap;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('variable1', 
-		 				new mxGeometry(0, 0, 60, 40), 'text;verticalAlign=middle;align=right;');
+		 				new mxGeometry(-60, 0, 60, 40), 'text;verticalAlign=middle;align=right;html=1;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		
-				return sb.createVertexTemplateFromCells([cell1, field1], 170, 40, 'Action with input'); 
+				return sb.createVertexTemplateFromCells([cell1], 110, 40, 'Action with input'); 
 			}),
 		 	this.addEntry(dt + 'read self object action', function()
 			{
-		 		var cell1 = new mxCell('Action1', new mxGeometry(60, 0, 110, 40),
-		 			'shape=mxgraph.uml25.action;html=1;align=center;verticalAlign=middle;absoluteArcSize=1;arcSize=10;dashed=0;spacingLeft=10;flipH=1;');
+		 		var cell1 = new mxCell('Action1', new mxGeometry(0, 0, 110, 40),
+		 			'shape=mxgraph.uml25.action;html=1;align=center;verticalAlign=middle;absoluteArcSize=1;arcSize=10;dashed=0;spacingLeft=10;flipH=1;whiteSpace=wrap;');
 				cell1.vertex = true;
 				
 		 		var field1 = new mxCell('self', 
-		 				new mxGeometry(0, 0, 60, 40), 'text;verticalAlign=middle;align=right;');
+		 				new mxGeometry(-60, 0, 60, 40), 'text;verticalAlign=middle;align=right;html=1;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		
-				return sb.createVertexTemplateFromCells([cell1, field1], 170, 40, 'Read self object action'); 
+				return sb.createVertexTemplateFromCells([cell1], 110, 40, 'Read self object action'); 
 			}),
 		 	this.addEntry(dt + 'value specification action', function()
 			{
-		 		var cell1 = new mxCell('Action1', new mxGeometry(60, 0, 110, 40),
-		 			'shape=mxgraph.uml25.action;html=1;align=center;verticalAlign=middle;absoluteArcSize=1;arcSize=10;dashed=0;spacingLeft=10;flipH=1;');
+		 		var cell1 = new mxCell('Action1', new mxGeometry(0, 0, 110, 40),
+		 			'shape=mxgraph.uml25.action;html=1;align=center;verticalAlign=middle;absoluteArcSize=1;arcSize=10;dashed=0;spacingLeft=10;flipH=1;whiteSpace=wrap;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('value1', 
-		 				new mxGeometry(0, 0, 60, 40), 'text;verticalAlign=middle;align=right;');
+		 				new mxGeometry(-60, 0, 60, 40), 'text;verticalAlign=middle;align=right;html=1;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		
-				return sb.createVertexTemplateFromCells([cell1, field1], 170, 40, 'Value specification action'); 
+				return sb.createVertexTemplateFromCells([cell1], 110, 40, 'Value specification action'); 
 			}),
-			this.createVertexTemplateEntry('html=1;shape=mxgraph.infographic.ribbonSimple;notch1=0;notch2=20;align=center;verticalAlign=middle;fontSize=14;fontStyle=0;fillColor=#FFFFFF;', 160, 40,
+			this.createVertexTemplateEntry('html=1;shape=mxgraph.infographic.ribbonSimple;notch1=0;notch2=20;align=center;verticalAlign=middle;fontSize=14;fontStyle=0;fillColor=#FFFFFF;whiteSpace=wrap;', 160, 40,
 				   	'SendObjectAction1', 'Send Object Action', null, null, dt + 'send object action'),
-			this.createVertexTemplateEntry('html=1;shape=mxgraph.infographic.ribbonSimple;notch1=20;notch2=0;align=center;verticalAlign=middle;fontSize=14;fontStyle=0;fillColor=#FFFFFF;flipH=0;spacingRight=0;spacingLeft=14;', 170, 40,
+			this.createVertexTemplateEntry('html=1;shape=mxgraph.infographic.ribbonSimple;notch1=20;notch2=0;align=center;verticalAlign=middle;fontSize=14;fontStyle=0;fillColor=#FFFFFF;flipH=0;spacingRight=0;spacingLeft=14;whiteSpace=wrap;', 170, 40,
 				   	'AcceptEventAction1', 'Accept Event Action', null, null, dt + 'acceppt event action'),
-			this.createVertexTemplateEntry('shape=collate;whiteSpace=wrap;html=1;', 40, 40,
+			this.createVertexTemplateEntry('shape=collate;html=1;', 40, 40,
 				   	'', 'Time Event Trigger', null, null, dt + 'time event trigger'),
-			this.createVertexTemplateEntry('shape=mxgraph.uml25.actionParams;html=1;align=center;verticalAlign=top;absoluteArcSize=1;arcSize=10;dashed=0;spacingLeft=10;spacingTop=5;', 150, 50,
+			this.createVertexTemplateEntry('shape=mxgraph.uml25.actionParams;html=1;align=center;verticalAlign=top;absoluteArcSize=1;arcSize=10;dashed=0;spacingLeft=10;spacingTop=5;whiteSpace=wrap;', 150, 50,
 				   	'Action1', 'Action with Parameters', null, null, dt + 'action with parameters'),
-			this.createVertexTemplateEntry('dashed=1;rounded=1;absoluteArcSize=1;arcSize=20;html=1;verticalAlign=top;align=left;spacingTop=5;spacingLeft=10;', 200, 100,
+			this.createVertexTemplateEntry('dashed=1;rounded=1;absoluteArcSize=1;arcSize=20;html=1;verticalAlign=top;align=left;spacingTop=5;spacingLeft=10;whiteSpace=wrap;', 200, 100,
 				   	'&lt;&lt;structured&gt;&gt;', 'Structured Activity Node', null, null, dt + 'structured activity node'),
-			this.addDataEntry(dt + 'expansion', 300, 300, 'Expansion', '7ZtRr5owFMc/DY93oa0693j1bncPW7JkS/bcXSqQVTFQvbJPv2ILDi8Glnha2pBo4jmlpf218e8/RwKy3p6ec7pPvmYR4wH5GJB1nmVCfdqe1ozzAIdpFJCnAONQvgP86UYrOreGe5qznRjSAasOR8oPTGUCvKDbfUBWXA6wake/Wfma5VGTjFuX6KgarxAl1+MlYitX9YRkW0SLhEU6yLPDLmoi+qvI+EGwx/zle/qH1dkmkssgqyPLRfpC+SNP451Miqy6LdURZ5tqAsWevqS7+EfVprrpzJdzu0rpVcvx2OkmuXNKY3tm2ZaJvJSXvKaRSNQVJFR0w4SlcSKukrRQibjpe9kI+UHvRfe+kI59uQIbS4LV+nNWSEY/9azCJvO5ntPgBePeBS871qtPWJgzTkV6ZK3huxjoO3zLUnljHJ5qbKpHqcIHdEUx22wKJt4wbOY5COusH+sgnPtq7ueJzVfyJae6DoO57L6uonfzVozqSL4G7gTp3QkMsBN3RT2fUPcfegxxyBcT+X7yMwjy7yfy/eQXEOSXI9LLdgcz6vmAkAn9/ODIAV+6r5/1/k2sjQsoQhN6SwqKugzphN6EhKIxec7SgoYacaAI0IKiqwOOWgcc/d8BRx54UARoQn2ADSqigDbUI/YwKgpoRD1iDyOj47WiNkTVkDFFgM70vifeA2taT2aCbV5WMaA39Yg9iKzWqCf25mV1rBXRLo7Le0lnWzkJCFdXSqI+1ESdKYpagl1CCqcrZVG77GGE05XCqF32MMI5Jj9604EalNGLI70vZ1dqoz4UR+ufQhNs80JKXKmO2mUPIqQE0IF6xB5ESMmYHOjN/xi57keJK36UeOBHiSt+1BJsUBl1xY/aZQ8jo674UbvsYWR0TH50YH3UfXdKXHGnxAN3Wn9nTbDNy+rMFXdqlz2IrM5ccad22d9DVmV4eUhYXf7vM8R/AQ=='),
+			this.addDataEntry(dt + 'expansion', 300, 300, 'Expansion', '7Vtdb5swFP01PHbCdsjSxybduodNmtRJe/aCA2gmROB8sF8/EwMpKVHIlouxhZRIudfYXJ9jenp0E4cs4sNLSjfht8Rn3CGfHLJIk0SoT/FhwTh3sBv5Dnl2MHbl28GfL4yi46i7oSlbiy4TsJqwo3zLVMbBUxpvHDLncoF5M/rN8n2S+nUyaFxSRsV6mch5uV4oYrmrZyTHfJqFzC+DNNmu/Tqiv7KEbwV7Spev0R9WZetIboPMdywV0ZLyJx4Fa5kUSXFbWkacrYoCsg1dRuvgRzGmppWZr8dxldqHkWCvMl+svZfo15UX92CHi2geUyWULyyJmUhzeck+8kWoriCuQtwNWRSE4ixJM5UI6rkncuSHkp92rkgLV2dgBxLVYi8pyyRuP8uq3DrzparJ7bphfHXDs5b9lqfOTRmnItqxxvJtGJR3+J5E8sbYPVSwqRm5Ch/QGYrJapUx8Q7Dus5OsE6uw9oJzk1R+7Ewby5fstSF63hy+qKIPniNGFWRfJH5m2ekEynkKikYgJS7ou6NqN/0KGCIoz8dSbiJhAkECR9HEm4iYQpBwmxA2tqc0I/SPiDUh9Y+mnfWZ+ZrbUXlCLtOsUVoZEG/2qI2xzuy0LPcoiF52VyD3vbibBGgtUVnZx01zjr657OOLPC2CNDcWoY7qOAC2ls7aYBRXECDaycNMJJ7b4t7K6ad3K4OLe7J+yJA8wv2HFjgfqtiRty1qjEGtL920gCixhXqIw1a1Xiozdw2HGf3ktmmyhIQXA3s5trQzjWxn6sJ9xxSZA3s6OqlAUZkDezp6qUBRmSH1NW96Gx7lNyT070vzga2dW3o61b/QY24axVdYmBjVy8NIKJLAJ2tnTSAiC4ZkrO9+FUq030uMdDnEgt8LjHQ52rCHVRyDfS5emmAkVwDfa5eGmAkd0g+t2M/13zXSwx0vcQC11v9JRtx1yrBEwNdr14aQCR4YqDr1UuD9/j/NMjw9Bttdfnbn3D/BQ=='),
 		 	this.addEntry(dt + 'execution region', function()
 			{
 		 		var cell1 = new mxCell('Action', new mxGeometry(0, 0, 160, 50),
-		 			'html=1;dashed=0;rounded=1;absoluteArcSize=1;arcSize=20;verticalAlign=middle;align=center;');
+		 			'html=1;dashed=0;rounded=1;absoluteArcSize=1;arcSize=20;verticalAlign=middle;align=center;whiteSpace=wrap;');
 				cell1.vertex = true;
 		 		var label1 = new mxCell('*', 
-		 				new mxGeometry(1, 0.5, 20, 20), 'text;resizeWidth=0;resizeHeight=0;points=[];part=1;verticalAlign=middle;align=center;');
+		 				new mxGeometry(1, 0.5, 20, 20), 'text;resizeWidth=0;resizeHeight=0;points=[];part=1;verticalAlign=middle;align=center;html=1;');
 		 		label1.vertex = true;
 		 		label1.geometry.relative = true;
 		 		label1.geometry.offset = new mxPoint(-20, -10);
@@ -650,13 +649,13 @@
 		 		
 				return sb.createVertexTemplateFromCells([cell1], 160, 50, 'Execution region'); 
 			}),
-			this.addDataEntry(dt + 'execution node action', 210, 60, 'Execution node with action', '7ZhNb4MwDIZ/TY6bklC67tjSrbtMmrTDzhm4ECk0KKRdu18/UwJdvwSTyr6EBBJ24uT1E0sWIV6QrmdGZMmjjkAR7454gdHall/pOgClCKcyIt6UcE7xJfz+zCjbjtJMGFjYNgG8DFgJtYTSMw6t1Au3UG43yvkTm6K6KSPeJBJ5AsUCFA2jl4toaxVD4jXXamlhbMJn+Q6Vt7Z4EbICY2Uo1FjJeIHOVEZRsc1EOEeI6sGgw6nD+bA+m+HW5dKbgU7Bmg1OeZORTVyWrKRAE5Bx4sKGzify0o7r0B0v/HDITuPzjvAdcYsRUFZwghwRvDhRtPY8VJJo23x5Y76jE+m6QqAGlLByBXvLn2LgdnjSEjfm1Onx3DKb0rxiBxT1fJ6DPWJY62yFddCMtRXOrNC+FeZP8EGpASU+hgeFde3v2ayy8Gl5El5z5XVwEhdF7feom4ued1Hkw558M/lBF+RvevLN5A/b40XIj35Rv9zsBfyj7nnbXXmzg/Jme+XNvlbeo7/fPavz61l/e/tkrEf/Q/2THf819ug7aaBo7u4Cyumfrwo+AA=='),
+			this.addDataEntry(dt + 'execution node action', 210, 60, 'Execution node with action', '7VjbboMwDP2aPG5KQtt1jy3dupdJk/qw5ww8iBSaKqS3ff0cSC/0olZr0boJCSR8gh37nFgWkCDMFkMjJumrjkGR4IkEodHalk/ZIgSlCKcyJsGAcE7xJvz5yCorVulEGBjbcxx46TATagol0ous1GMfKLdL5fHUZpjdgJGgH4s8BReAomH0dBwXllsSH7lWUws9E43kF6zQtcWdywyMlZFQPSWTMYKZjGO3TV94IMLswSAwT6WF0UREzneOLCHmM8YYsDhadQH5koegM7Bmia/MZWxTXzkrmaEpyCT1bh2Piby0k7XrhkN88DQepjTYo3SPywRJc6UYyJGWd58UXSMvq5QctEX8WaXzk6V3D1Tuzwk1oISVM6iEP0SH3+FNS9yYU59P4MMsS/OO7RCqPz9zsHt0rvM8i+HWaYbPYnbici8Sa/fxwlRDStroHjrrvl2x2crCqyLKj89ocPqM1iDUVZVoN0pc3DK8jhbpNMJcLEyrDmEeGmEuFmZ3Sl9FmO5tju1lxeEfDfHH+hqB7TQCqzQCu2ojdP/+EF/J20hxa1OcsUaZ2xzjbP/DuVHmN+Y4mpu/JeXr2z9TvgE='),
 		 	this.addEntry(dt + 'interaction', function()
 			{
 		 		var cell1 = new mxCell('Interaction heading', new mxGeometry(0, 0, 290, 160), frameStyle + 'width=170;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('Property1', 
-		 				new mxGeometry(0, 0, 100, 20), 'text');
+		 				new mxGeometry(0, 0, 100, 20), 'text;html=1;');
 		 		field1.geometry.relative = true;
 		 		field1.geometry.offset = new mxPoint(20, 40);
 		 		field1.vertex = true;
@@ -681,13 +680,13 @@
 		 		var cell1 = new mxCell('Interaction heading', new mxGeometry(0, 0, 290, 250), frameStyle + 'width=170;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('[constraint1]', 
-		 				new mxGeometry(0, 0, 100, 20), 'text');
+		 				new mxGeometry(0, 0, 100, 20), 'text;html=1;');
 		 		field1.geometry.relative = true;
 		 		field1.geometry.offset = new mxPoint(20, 40);
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		var field2 = new mxCell('[constraint2]', 
-		 				new mxGeometry(0, 125, 290, 10), 'line;strokeWidth=1;dashed=1;labelPosition=center;verticalLabelPosition=bottom;align=left;verticalAlign=top;spacingLeft=20;spacingTop=15;');
+		 				new mxGeometry(0, 125, 290, 10), 'line;strokeWidth=1;dashed=1;labelPosition=center;verticalLabelPosition=bottom;align=left;verticalAlign=top;spacingLeft=20;spacingTop=15;html=1;whiteSpace=wrap;');
 		 		field2.geometry.relative = false;
 		 		field2.vertex = true;
 		 		cell1.insert(field2);
@@ -696,7 +695,7 @@
 			}),
 		 	this.addEntry(dt + 'lifeline continuation', function()
 			{
-		 		var cell1 = new mxCell('Continuation1', new mxGeometry(30, 60, 160, 30), 'rounded=1;dashed=0;');
+		 		var cell1 = new mxCell('Continuation1', new mxGeometry(30, 60, 160, 30), 'rounded=1;dashed=0;whiteSpace=wrap;html=1;');
 				cell1.vertex = true;
 		 		var cell2 = new mxCell('Lifeline1', new mxGeometry(0, 0, 100, 200), lifelineStyle);
 				cell2.vertex = true;
@@ -710,11 +709,11 @@
 		 		var cell1 = new mxCell('Lifeline1', new mxGeometry(0, 0, 100, 200), lifelineStyle);
 				cell1.vertex = true;
 				var cell2 = new mxCell('State1 inv.', new mxGeometry(10, 50, 80, 30),
-		 			'rounded=1;dashed=0;point=[];connectable=0;targetShapes=umlLifeline;');
+		 			'rounded=1;dashed=0;point=[];connectable=0;targetShapes=umlLifeline;html=1;');
 				cell2.vertex = true;
 				cell1.insert(cell2);
 		 		var cell3 = new mxCell('{State2 inv.}', new mxGeometry(0, 140, 100, 30),
-		 			'text;align=center;point=[];connectable=0;targetShapes=umlLifeline;');
+		 			'text;align=center;point=[];connectable=0;targetShapes=umlLifeline;html=1;');
 				cell3.vertex = true;
 				cell1.insert(cell3);
 
@@ -725,7 +724,7 @@
 		 		var cell1 = new mxCell('Ref', new mxGeometry(0, 0, 260, 120), frameStyle + 'width=50;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('Interaction1', 
-		 				new mxGeometry(0, 0, 100, 20), 'text;align=center;');
+		 				new mxGeometry(0, 0, 100, 20), 'text;align=center;html=1;');
 		 		field1.geometry.relative = true;
 		 		field1.geometry.offset = new mxPoint(60, 50);
 		 		field1.vertex = true;
@@ -751,7 +750,7 @@
 		 	this.addEntry(dt + 'use case', function()
 			{
 		 		var cell1 = new mxCell('Class1', new mxGeometry(0, 0, 180, 140),
-		 			'swimlane;fontStyle=1;align=center;horizontal=1;startSize=30;collapsible=0;html=1;');
+		 			'swimlane;fontStyle=1;align=center;horizontal=1;startSize=30;collapsible=0;html=1;whiteSpace=wrap;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('Heading1', 
 		 				new mxGeometry(0, 0, 140, 70), frameStyle + 'width=80;');
@@ -760,7 +759,7 @@
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		var field2 = new mxCell('Interaction1', 
-		 				new mxGeometry(0, 0, 100, 20), 'text;align=left;');
+		 				new mxGeometry(0, 0, 100, 20), 'text;align=left;html=1;');
 		 		field2.geometry.relative = true;
 		 		field2.geometry.offset = new mxPoint(10, 40);
 		 		field2.vertex = true;
@@ -810,18 +809,18 @@
 		 			'shape=ellipse;container=1;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;html=1;dashed=0;collapsible=0;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('UseCase1', 
-		 				new mxGeometry(0, 0, 180, 30), 'html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rotatable=0;');
+		 				new mxGeometry(0, 0, 180, 30), 'html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rotatable=0;whiteSpace=wrap;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		var divider1 = new mxCell('', new mxGeometry(9, 30, 162, 10), 'line;strokeWidth=1;fillColor=none;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;dashed=0;resizeWidth=1;');
 		 		divider1.vertex = true;
 		 		cell1.insert(divider1);
 		 		var field2 = new mxCell('extension points', 
-		 				new mxGeometry(0, 40, 180, 30), 'text;html=1;align=center;verticalAlign=middle;rotatable=0;fillColor=none;strokeColor=none;');
+		 				new mxGeometry(0, 40, 180, 30), 'text;html=1;align=center;verticalAlign=middle;rotatable=0;fillColor=none;strokeColor=none;whiteSpace=wrap;');
 		 		field2.vertex = true;
 		 		cell1.insert(field2);
 		 		var field3 = new mxCell('Extension point 1', 
-		 				new mxGeometry(0, 70, 180, 30), 'text;html=1;align=left;verticalAlign=middle;rotatable=0;spacingLeft=25;fillColor=none;strokeColor=none;');
+		 				new mxGeometry(0, 70, 180, 30), 'text;html=1;align=left;verticalAlign=middle;rotatable=0;spacingLeft=25;fillColor=none;strokeColor=none;whiteSpace=wrap;');
 		 		field3.vertex = true;
 		 		cell1.insert(field3);
 
@@ -831,7 +830,7 @@
 			{
 			    var cell1 = new mxCell('', new mxGeometry(0, 0, 160, 88), 'fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;marginBottom=0;');
 			    cell1.vertex = true;
-			    var cell2 = new mxCell('UseCase1', new mxGeometry(0, 0, 160, 30), 'html=1;align=left;spacingLeft=4;verticalAlign=middle;strokeColor=none;fillColor=none;fontStyle=1');
+			    var cell2 = new mxCell('UseCase1', new mxGeometry(0, 0, 160, 30), 'html=1;align=left;spacingLeft=4;verticalAlign=middle;strokeColor=none;fillColor=none;fontStyle=1;whiteSpace=wrap;');
 			    cell2.vertex = true;
 			    cell1.insert(cell2);
 				var symbol = new mxCell('', new mxGeometry(1, 0, 20, 16), 'shape=ellipse;');
@@ -840,17 +839,17 @@
 				symbol.geometry.offset = new mxPoint(-25, 7);
 				cell2.insert(symbol);
 				cell1.insert(divider.clone());
-			    var cell3 = new mxCell('extension points', new mxGeometry(0, 0, 160, 25), 'html=1;align=center;spacingLeft=4;verticalAlign=top;strokeColor=none;fillColor=none;');
+			    var cell3 = new mxCell('extension points', new mxGeometry(0, 0, 160, 25), 'html=1;align=center;spacingLeft=4;verticalAlign=top;strokeColor=none;fillColor=none;whiteSpace=wrap;');
 			    cell3.vertex = true;
 			    cell1.insert(cell3);
-			    var cell4 = new mxCell('Extension point 1', new mxGeometry(0, 0, 160, 25), 'html=1;align=left;spacingLeft=4;verticalAlign=top;strokeColor=none;fillColor=none;');
+			    var cell4 = new mxCell('Extension point 1', new mxGeometry(0, 0, 160, 25), 'html=1;align=left;spacingLeft=4;verticalAlign=top;strokeColor=none;fillColor=none;whiteSpace=wrap;');
 			    cell4.vertex = true;
 			    cell1.insert(cell4);
 
 			    return sb.createVertexTemplateFromCells([cell1], cell1.geometry.width, cell1.geometry.height, 'Extension Point Classifier');
 			}),
 			this.createVertexTemplateEntry('shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;', 30, 60, 'Actor', 'Actor', false, null, 'uml actor'),
-			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;dashed=0;', 160, 70,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;dashed=0;whiteSpace=wrap;', 160, 70,
 				   	'&lt;&lt;actor&gt;&gt;<br><br><b>Actor1</b>', 
 				   	'Actor', null, null, dt + 'actor'),
 
@@ -858,7 +857,7 @@
 			{
 		    	var cell = new mxCell('Extension point 1', new mxGeometry(0, 0, 140, 60), 'shape=note2;boundedLbl=1;whiteSpace=wrap;html=1;size=25;verticalAlign=top;align=left;spacingLeft=5;');
 		    	cell.vertex = true;
-		    	var label = new mxCell('Extend condition 1', new mxGeometry(0, 0, cell.geometry.width, 25), 'resizeWidth=1;part=1;strokeColor=none;fillColor=none;align=left;spacingLeft=5;');
+		    	var label = new mxCell('Extend condition 1', new mxGeometry(0, 0, cell.geometry.width, 25), 'resizeWidth=1;part=1;strokeColor=none;fillColor=none;align=left;spacingLeft=5;whiteSpace=wrap;html=1;');
 		    	label.geometry.relative = true;
 		    	label.vertex = true;
 		    	cell.insert(label);
@@ -867,9 +866,9 @@
 			}),
 			this.addEntry('deployment target diagram', function()
 			{
-		    	var cell1 = new mxCell('DeploymentTarget1', new mxGeometry(0, 0, 130, 140), 'verticalAlign=top;align=left;shape=cube;size=10;direction=south;fontStyle=0;html=1;boundedLbl=1;spacingLeft=5;');
+		    	var cell1 = new mxCell('DeploymentTarget1', new mxGeometry(0, 0, 130, 140), 'verticalAlign=top;align=left;shape=cube;size=10;direction=south;fontStyle=0;html=1;boundedLbl=1;spacingLeft=5;whiteSpace=wrap;');
 		    	cell1.vertex = true;
-		    	var cell2 = new mxCell('Node1', new mxGeometry(0, 0, 100, 80), 'verticalAlign=top;align=center;shape=cube;size=10;direction=south;html=1;boundedLbl=1;spacingLeft=5;');
+		    	var cell2 = new mxCell('Node1', new mxGeometry(0, 0, 100, 80), 'verticalAlign=top;align=center;shape=cube;size=10;direction=south;html=1;boundedLbl=1;spacingLeft=5;whiteSpace=wrap;');
 		    	cell2.geometry.relative = true;
 		    	cell2.geometry.offset = new mxPoint(10, 50);
 		    	cell2.vertex = true;
@@ -877,15 +876,15 @@
 		
 				return sb.createVertexTemplateFromCells([cell1], cell1.geometry.width, cell1.geometry.height, 'Deployment');
 			}),
-			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;dashed=0;', 180, 60,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;dashed=0;whiteSpace=wrap;', 180, 60,
 				   	'&lt;&lt;deployment spec&gt;&gt;<br><br><b>Deployment1</b>', 
 				   	'Deployment Specification', null, null, dt + 'deployment specification'),
-			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;dashed=0;', 180, 60,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;dashed=0;whiteSpace=wrap;', 180, 60,
 				   	'&lt;&lt;artifact&gt;&gt;<br><br><b>Artifact1</b>', 
 				   	'Artifact', null, null, dt + 'artifact'),
 			this.addEntry('information item', function()
 			{
-		    	var cell1 = new mxCell('InformationItem1', new mxGeometry(0, 0, 200, 50), 'align=left;spacingLeft=10;html=1;dashed=0;');
+		    	var cell1 = new mxCell('InformationItem1', new mxGeometry(0, 0, 200, 50), 'align=left;spacingLeft=10;html=1;dashed=0;whiteSpace=wrap;');
 		    	cell1.vertex = true;
 		    	var cell2 = new mxCell('', new mxGeometry(1, 0.5, 30, 20), 'shape=triangle;fillColor=strokeColor;');
 		    	cell2.geometry.relative = true;
@@ -1045,7 +1044,7 @@
 				
 				return sb.createEdgeTemplateFromCells([edge], 200, 0, 'Redefine');
 			}),
-			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;dashed=0;', 60, 30,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;dashed=0;whiteSpace=wrap;', 60, 30,
 				   	'qualifier1', 
 				   	'Qualifier', null, null, dt + 'qualifier'),
 			this.addEntry('connector', function()
@@ -1099,9 +1098,9 @@
 			}),
 			this.addEntry('collaboration', function()
 			{
-		    	var cell1 = new mxCell('Collaboration1', new mxGeometry(0, 0, 100, 30), 'ellipse;html=1;dashed=1;dashPattern=10 10;');
+		    	var cell1 = new mxCell('Collaboration1', new mxGeometry(0, 0, 100, 30), 'ellipse;html=1;dashed=1;dashPattern=10 10;whiteSpace=wrap;');
 		    	cell1.vertex = true;
-		    	var cell2 = new mxCell('Classifier1', new mxGeometry(10, 70, 80, 30), 'html=1;');
+		    	var cell2 = new mxCell('Classifier1', new mxGeometry(10, 70, 80, 30), 'html=1;whiteSpace=wrap;');
 		    	cell2.vertex = true;
 				var edge1 = new mxCell('ConnectableElement', new mxGeometry(0, 0, 0, 0), 'html=1;rounded=0;labelBackgroundColor=none;align=left;spacingLeft=5;endArrow=none;endFill=0;');
 				edge1.geometry.relative = true;
@@ -1160,9 +1159,9 @@
 		 	this.createEdgeTemplateEntry('html=1;verticalAlign=top;labelBackgroundColor=none;endArrow=open;endFill=0;', 160, 0, '&lt;&lt;multicast/multireceive&gt;&gt;', 'Control Flow', null, 'control flow'),
 			this.addEntry('action', function()
 			{
-		    	var cell1 = new mxCell('Action1', new mxGeometry(0, 5, 100, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=10;');
+		    	var cell1 = new mxCell('Action1', new mxGeometry(0, 5, 100, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=10;whiteSpace=wrap;');
 		    	cell1.vertex = true;
-		    	var cell2 = new mxCell('Action2', new mxGeometry(180, 5, 100, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=10;');
+		    	var cell2 = new mxCell('Action2', new mxGeometry(180, 5, 100, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=10;whiteSpace=wrap;');
 		    	cell2.vertex = true;
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'html=1;rounded=0;labelBackgroundColor=none;align=left;spacingLeft=5;endArrow=open;endFill=0;');
 				edge1.geometry.relative = true;
@@ -1176,7 +1175,7 @@
 			}),
 			this.addEntry('object node', function()
 			{
-		    	var cell1 = new mxCell('ObjectNode1', new mxGeometry(40, 0, 80, 30), 'html=1;');
+		    	var cell1 = new mxCell('ObjectNode1', new mxGeometry(40, 0, 80, 30), 'html=1;whiteSpace=wrap;');
 		    	cell1.vertex = true;
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'endArrow=block;html=1;rounded=0;align=center;verticalAlign=top;endFill=1;labelBackgroundColor=none;endSize=6;');
 				edge1.geometry.setTerminalPoint(new mxPoint(0, 15), true);
@@ -1260,7 +1259,7 @@
 		 			'rounded=0;dashed=0;container=0;collapsible=0;recursiveResize=0;');
 				cell1.vertex = true;
 		 		var cell2 = new mxCell('LifeLine1', new mxGeometry(30, 10, 100, 30),
-		 			'rounded=0;dashed=0;');
+		 			'rounded=0;dashed=0;whiteSpace=wrap;html=1;');
 				cell2.vertex = true;
 				cell1.insert(cell2);
 		 		var cell3 = new mxCell('', new mxGeometry(75, 60, 10, 60),
@@ -1290,7 +1289,7 @@
 			}),
 			this.addEntry('message', function()
 			{
-		    	var cell1 = new mxCell('Message1', new mxGeometry(40, 0, 80, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=10;');
+		    	var cell1 = new mxCell('Message1', new mxGeometry(40, 0, 80, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=10;whiteSpace=wrap;');
 		    	cell1.vertex = true;
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'endArrow=open;html=1;rounded=0;align=center;verticalAlign=top;endFill=0;labelBackgroundColor=none;endSize=6;');
 				edge1.geometry.setTerminalPoint(new mxPoint(0, 15), true);
@@ -1302,7 +1301,7 @@
 			}),
 			this.addEntry('message', function()
 			{
-		    	var cell1 = new mxCell('Message1', new mxGeometry(0, 0, 80, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=10;');
+		    	var cell1 = new mxCell('Message1', new mxGeometry(0, 0, 80, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=10;whiteSpace=wrap;');
 		    	cell1.vertex = true;
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'endArrow=open;html=1;rounded=0;align=center;verticalAlign=top;endFill=0;labelBackgroundColor=none;endSize=6;');
 				edge1.geometry.setTerminalPoint(new mxPoint(120, 15), false);
