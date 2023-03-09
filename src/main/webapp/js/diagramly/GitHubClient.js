@@ -40,7 +40,7 @@ GitHubClient.prototype.redirectUri = window.location.protocol + '//' + window.lo
 /**
  * Maximum file size of the GitHub REST API.
  */
-GitHubClient.prototype.maxFileSize = 1000000 /*1MB*/;
+GitHubClient.prototype.maxFileSize = 50000000 /*50MB*/;
 
 /**
  * Name for the auth token header.
