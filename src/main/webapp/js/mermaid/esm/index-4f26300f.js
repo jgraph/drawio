@@ -29,7 +29,7 @@ const edgeInCluster = (edge, clusterId) => {
     return false;
   }
   if (!descendants[clusterId]) {
-    log.debug("Tilt, ", clusterId, ",not in decendants");
+    log.debug("Tilt, ", clusterId, ",not in descendants");
     return false;
   }
   return descendants[clusterId].includes(edge.v) || isDescendant(edge.v, clusterId) || isDescendant(edge.w, clusterId) || descendants[clusterId].includes(edge.w);
@@ -174,7 +174,7 @@ const adjustClustersAndEdges = (graph, depth) => {
           const d2 = isDescendant(edge.w, id);
           if (d1 ^ d2) {
             log.warn("Edge: ", edge, " leaves cluster ", id);
-            log.warn("Decendants of XXX ", id, ": ", descendants[id]);
+            log.warn("Descendants of XXX ", id, ": ", descendants[id]);
             clusterDb[id].externalConnections = true;
           }
         }

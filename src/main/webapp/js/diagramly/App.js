@@ -1326,7 +1326,7 @@ App.prototype.compactMode = false;
 App.prototype.fullscreenMode = false;
 	
 /**
- * Overriden UI settings depending on mode.
+ * Overridden UI settings depending on mode.
  */
 if (urlParams['embed'] != '1')
 {

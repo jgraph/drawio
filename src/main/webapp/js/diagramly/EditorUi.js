@@ -14428,7 +14428,7 @@
 					mxEvent.consume(evt);
 				}
 			}
-			//Miro is using unkown encoding instead of BASE64 as before
+			//Miro is using unknown encoding instead of BASE64 as before
 			/*else if (spans != null && spans.length > 0 && spans[0].hasAttribute('data-meta')
 				&& spans[0].getAttribute('data-meta').substring(0, 14) == '<--(miro-data)')
 			{
@@ -18243,7 +18243,7 @@
 					//error
 					functionArgs.push(function(err) 
 					{
-						sendResponse(null, err || 'Unkown Error');
+						sendResponse(null, err || 'Unknown Error');
 					});
 					
 					this[funtionName].apply(this, functionArgs);

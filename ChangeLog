@@ -67,7 +67,7 @@
 
 02-FEB-2023: 20.8.16
 
-- Fixes overriden CSS for buttons and button states [drawio-3326]
+- Fixes overridden CSS for buttons and button states [drawio-3326]
 - Uses manifest version 3 in Notion Chrome extension
 - Fixes possible NPE in async resize handler
 - Clear default style action disables sketch mode [drawio-3331]
@@ -139,7 +139,7 @@
 
 - Fixes initial page ID and name when creating files [DS-941]
 - [vsdx] Fixed edge/vertex detection [DID-7208]
-- Fixes log of ignored anoymous and extension errors
+- Fixes log of ignored anonymous and extension errors
 
 18-JAN-2023: 20.8.6
 
@@ -1031,7 +1031,7 @@
 14-JAN-2022: 16.2.7
 
 - Adds enumerateValue property
-- Adds peristent scratchpad and search in sketch
+- Adds persistent scratchpad and search in sketch
 - Updated for modified inline CSS
 - Fixes realtime zoom on iPad with sketch https://github.com/jgraph/drawio/issues/2545
 
@@ -1771,7 +1771,7 @@ is no breaking change in the editor codebase, but the docker images follow the s
 - Fixes inconsistent cut and delete actions https://github.com/jgraph/drawio/issues/1978
 - Uses shift+click to paste data with label
 - Adds edit submenu in min and sketch themes
-- Adds popup for additonal color models https://github.com/jgraph/drawio/issues/2150
+- Adds popup for additional color models https://github.com/jgraph/drawio/issues/2150
 - Handles page links in background image dialog
 
 03-AUG-2021: 14.9.4
@@ -3534,7 +3534,7 @@ is no breaking change in the editor codebase, but the docker images follow the s
 
 - Fixes window.app undefined check
 - Adds desktop command line vsdx export
-- Fixes Confluence Cloud custom content direct edit macro replacment
+- Fixes Confluence Cloud custom content direct edit macro replacement
 
 30-JUL-2019: 11.0.8
 
@@ -6756,7 +6756,7 @@ is no breaking change in the editor codebase, but the docker images follow the s
 29-APR-2016: 5.4.3.8
 
 - Removes gridcolor attribute in file, URL parameter
-- Adds peristent grid color option in Extras menu
+- Adds persistent grid color option in Extras menu
 - Fixes resize of background page in outline dialog
 - Disables context menu on touch devices on folding icon
 - Fixes hover icons for overlapping cell in all directions
@@ -7994,7 +7994,7 @@ is no breaking change in the editor codebase, but the docker images follow the s
 - Adds mxReader.js to atlas.min.js
 - Adds dropbox client to app.min.js
 - Adds error message for busy state
-- Fixes cursor in viewer for Connnect
+- Fixes cursor in viewer for Connect
 - Handles modifications while saving
 - Uses common mxProperties in Connect
 - Fixes modified check for local files
@@ -9034,7 +9034,7 @@ is no breaking change in the editor codebase, but the docker images follow the s
 
 01-MAR-2015: 4.2.1.5
 
-- Disabes OneDrive in demo and stealth mode
+- Disables OneDrive in demo and stealth mode
 - Changes html files to redirect to edit URL
 
 28-FEB-2015: 4.2.1.2

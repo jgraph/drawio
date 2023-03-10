@@ -2066,7 +2066,7 @@ Graph.prototype.linkTarget = (urlParams['target'] == 'frame') ? '_self' : '_blan
 Graph.prototype.linkRelation = 'nofollow noopener noreferrer';
 
 /**
- * Scrollbars setting is overriden in the editor, but not in the viewer.
+ * Scrollbars setting is overridden in the editor, but not in the viewer.
  */
 Graph.prototype.defaultScrollbars = true;
 
@@ -2082,7 +2082,7 @@ Graph.prototype.defaultGridEnabled = urlParams['grid'] != '0';
 
 /**
  * Specifies if the app should run in chromeless mode. Default is false.
- * This default is only used if the contructor argument is null.
+ * This default is only used if the constructor argument is null.
  */
 Graph.prototype.lightbox = false;
 

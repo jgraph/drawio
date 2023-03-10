@@ -253,7 +253,7 @@
 <fillstroke/>
 </foreground>
 </shape>
-<shape name="AWS Elastic BeanStalk Applicaton" h="53.89" w="31.1" aspect="variable" strokewidth="inherit">
+<shape name="AWS Elastic BeanStalk Application" h="53.89" w="31.1" aspect="variable" strokewidth="inherit">
 <connections>
 <constraint x="0.5" y="0.07" perimeter="0" name="N"/>
 <constraint x="0.13" y="1" perimeter="0" name="S"/>

@@ -247,7 +247,7 @@
 			this.createVertexTemplateEntry(s + 'rect;prIcon=dual_mode_access_point;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'Dual Mode Access Point', null, null, this.getTagsForStencil(gn, 'dual mode access point', dt).join(' ')),
 			this.createVertexTemplateEntry('points=[[0.03,0.36,0],[0.18,0,0],[0.5,0.34,0],[0.82,0,0],[0.97,0.36,0],[1,0.67,0],[0.975,0.975,0],[0.5,1,0],[0.025,0.975,0],[0,0.67,0]];' + s3 + 'wireless_access_point;fillColor=#005073;strokeColor=none;', 
-					w, h, '', 'Wireless Acess Point', null, null, this.getTagsForStencil(gn, 'access point', dt).join(' ')),
+					w, h, '', 'Wireless Access Point', null, null, this.getTagsForStencil(gn, 'access point', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=wireless_location_appliance;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'Wireless Location Appliance', null, null, this.getTagsForStencil(gn, 'location appliance', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=wireless_lan_controller;fillColor=#FAFAFA;strokeColor=#005073;', 

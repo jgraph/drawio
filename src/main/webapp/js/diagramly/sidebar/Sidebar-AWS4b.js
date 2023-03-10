@@ -889,7 +889,7 @@
 
 	Sidebar.prototype.addAWS4bNetworkContentDeliveryPalette = function(w, h, w2, n, n2, gn, sb)
 	{
-		var dt = 'aws amazon web service netowrk content delivery ';
+		var dt = 'aws amazon web service network content delivery ';
 		
 		this.addPaletteFunctions('aws4bNetwork Content Delivery', 'AWS18 / Network & Content Delivery', false,
 		[

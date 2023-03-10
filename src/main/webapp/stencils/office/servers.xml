@@ -1678,7 +1678,7 @@
         <fillstroke/>
     </foreground>
 </shape>
-<shape aspect="variable" h="59.17" name="Excahnge Client Access Server Role" strokewidth="inherit" w="51.75">
+<shape aspect="variable" h="59.17" name="Exchange Client Access Server Role" strokewidth="inherit" w="51.75">
     <connections/>
     <foreground>
         <path>

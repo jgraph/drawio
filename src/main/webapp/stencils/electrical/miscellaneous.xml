@@ -419,7 +419,7 @@
         <stroke/>
     </foreground>
 </shape>
-<shape aspect="variable" h="30" name="Flourescent Lamp" strokewidth="inherit" w="80">
+<shape aspect="variable" h="30" name="Fluorescent Lamp" strokewidth="inherit" w="80">
     <connections>
         <constraint name="W" perimeter="0" x="0" y="0.5"/>
         <constraint name="E" perimeter="0" x="1" y="0.5"/>
