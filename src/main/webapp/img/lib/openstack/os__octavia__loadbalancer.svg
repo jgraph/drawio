@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.0.0, SVG Export Plug-In  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+	<!ENTITY ns_flows "http://ns.adobe.com/Flows/1.0/">
+]>
+<svg version="1.1"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+	 x="0px" y="0px" width="92px" height="92px" viewBox="-3.1 -2.67 92 92" enable-background="new -3.1 -2.67 92 92"
+	 xml:space="preserve">
+<defs>
+</defs>
+<g id="XMLID_3_">
+	<g>
+		<path fill="#FFFFFF" d="M43.33,1.5c23.11,0,41.839,18.73,41.839,41.83c0,23.1-18.729,41.83-41.839,41.83
+			c-23.1,0-41.83-18.73-41.83-41.83C1.5,20.23,20.23,1.5,43.33,1.5z"/>
+	</g>
+	<g>
+		<path fill="none" stroke="#808080" stroke-width="3" stroke-miterlimit="10" d="M85.169,43.33c0,23.1-18.729,41.83-41.839,41.83
+			c-23.1,0-41.83-18.73-41.83-41.83C1.5,20.23,20.23,1.5,43.33,1.5C66.44,1.5,85.169,20.23,85.169,43.33z"/>
+	</g>
+</g>
+<g id="XMLID_2_">
+	<g>
+		<path fill="#808080" d="M68.8,41.85v12.52H18.83V41.92c0-0.02,0.01-0.04,0.02-0.07H68.79C68.79,41.88,68.8,41.83,68.8,41.85z
+			 M55.31,48.36c0-1.11-0.9-2-2-2c-1.11,0-2,0.89-2,2c0,1.109,0.89,2,2,2C54.41,50.36,55.31,49.47,55.31,48.36z M46.31,48.36
+			c0-1.11-0.891-2-1.99-2c-1.11,0-2,0.89-2,2c0,1.109,0.89,2,2,2C45.419,50.36,46.31,49.47,46.31,48.36z M37.32,48.36
+			c0-1.11-0.89-2-2-2c-1.1,0-2,0.89-2,2c0,1.109,0.9,2,2,2C36.43,50.36,37.32,49.47,37.32,48.36z"/>
+		<polygon fill="#636464" points="61.82,32.33 68.79,41.85 18.85,41.85 25.81,32.33 		"/>
+		<path fill="#FFFFFF" d="M53.31,46.36c1.1,0,2,0.89,2,2c0,1.109-0.9,2-2,2c-1.11,0-2-0.891-2-2C51.31,47.25,52.2,46.36,53.31,46.36
+			z"/>
+		<path fill="#FFFFFF" d="M44.32,46.36c1.1,0,1.99,0.89,1.99,2c0,1.109-0.891,2-1.99,2c-1.11,0-2-0.891-2-2
+			C42.32,47.25,43.21,46.36,44.32,46.36z"/>
+		<path fill="#FFFFFF" d="M35.32,46.36c1.11,0,2,0.89,2,2c0,1.109-0.89,2-2,2c-1.1,0-2-0.891-2-2
+			C33.32,47.25,34.22,46.36,35.32,46.36z"/>
+	</g>
+	<g>
+		<polyline fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="
+			68.79,41.85 61.82,32.33 25.81,32.33 18.85,41.85 		"/>
+		<path fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M18.85,41.85
+			c-0.01,0.03-0.02,0.05-0.02,0.07v12.45H68.8V41.85c0-0.02-0.011,0.03-0.011,0H18.85z"/>
+	</g>
+</g>
+</svg>

@@ -143,6 +143,7 @@
            	                           {id: 'pid', prefix: 'pid', libs: Sidebar.prototype.pids},
            	                           {id: 'cisco', prefix: 'cisco', libs: Sidebar.prototype.cisco},
            	                           {id: 'cisco_safe', prefix: 'cisco_safe', libs: Sidebar.prototype.cisco_safe},
+									   {id: 'openstack'},
            	                           {id: 'office', prefix: 'office', libs: Sidebar.prototype.office},
            	                           {id: 'veeam', prefix: 'veeam', libs: Sidebar.prototype.veeam},
            	                           {id: 'veeam2', prefix: 'veeam2', libs: Sidebar.prototype.veeam2},
@@ -1244,6 +1245,7 @@
 		this.addIBMPalette();
 		this.addNetworkPalette();
 		this.addOfficePalette();
+		this.addOpenStackPalette();
 		this.addRackPalette(rack, dir);
 		this.addVeeamPalette();
 		this.addVeeam2Palette();
