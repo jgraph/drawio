@@ -5213,14 +5213,17 @@ EditorUi.prototype.hideDialog = function(cancel, isEsc, matchContainer)
 		{
 			window.setTimeout(mxUtils.bind(this, function()
 			{
-				if (this.editor.graph.isEditing() && this.editor.graph.cellEditor.textarea != null)
+				if (this.editor != null)
 				{
-					this.editor.graph.cellEditor.textarea.focus();
-				}
-				else
-				{
-					mxUtils.clearSelection();
-					this.editor.graph.container.focus();
+					if (this.editor.graph.isEditing() && this.editor.graph.cellEditor.textarea != null)
+					{
+						this.editor.graph.cellEditor.textarea.focus();
+					}
+					else
+					{
+						mxUtils.clearSelection();
+						this.editor.graph.container.focus();
+					}
 				}
 			}), 0);
 		}

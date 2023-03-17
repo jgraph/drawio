@@ -5,7 +5,7 @@
 		var sc = 2;
 		var dt = 'cumulus';
 		var sb = this;
-		var s = 'aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;fontSize=12;verticalAlign=top;fontColor=#364149;shadow=0;dashed=0;image;image=img/lib/cumulus/';
+		var s = 'image;aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;fontSize=12;verticalAlign=top;fontColor=#364149;shadow=0;dashed=0;image=img/lib/cumulus/';
 		this.setCurrentSearchEntryLibrary('cumulus');
 
 		// Adds Cumulus shapes
@@ -67,7 +67,7 @@
 					 sc * 48, sc * 10, '', 'NetQ Server', false, null, this.getTagsForStencil(gn, 'netq server', dt).join(' ')),
 
 			 this.createVertexTemplateEntry(
-					 'aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;image;image=img/lib/cumulus/internet.svg;labelPosition=center;verticalLabelPosition=middle;verticalAlign=middle;fontSize=14;fontColor=#36424A;whiteSpace=wrap;',
+					 'image;aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;image=img/lib/cumulus/internet.svg;labelPosition=center;verticalLabelPosition=middle;verticalAlign=middle;fontSize=14;fontColor=#36424A;whiteSpace=wrap;',
 					 sc * 137, sc * 49, 'Internet', 'Internet', true, null, this.getTagsForStencil(gn, 'internet', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'container.svg;',
 					 sc * 45, sc * 40, '', 'Container', true, null, this.getTagsForStencil(gn, 'container', dt).join(' ')),

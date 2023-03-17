@@ -3344,6 +3344,7 @@ App.prototype.start = function()
 								this.getServiceName() == 'draw.io' && (id == null || id.length == 0) &&
 								!this.editor.isChromelessView())
 							{
+								
 								this.checkDrafts();
 							}
 							else if (id != null && id.length > 0)
@@ -3695,6 +3696,11 @@ App.prototype.checkDrafts = function()
 						}
 					}));
 					dlg.init();
+				}
+				else if (urlParams['smart-template'] != null)
+				{
+					this.createFile(this.defaultFilename, this.getFileData(), null, null, null, null, null, true);
+					this.actions.get('insertTemplate').funct();
 				}
 				else if (urlParams['splash'] != '0')
 				{
@@ -6074,21 +6080,28 @@ App.prototype.fetchAndShowNotification = function(target, subtarget)
 		{
 			if (req.getStatus() >= 200 && req.getStatus() <= 299)
 			{
-			    var notifs = JSON.parse(req.getText());
-				
-				//Process and sort
-				notifs.sort(function(a, b)
+				try
 				{
-					return b.timestamp - a.timestamp;
-				});
+					var notifs = JSON.parse(req.getText());
+					
+					//Process and sort
+					notifs.sort(function(a, b)
+					{
+						return b.timestamp - a.timestamp;
+					});
 
-				if (isLocalStorage)
-				{
-					localStorage.setItem(cachedNotifKey, JSON.stringify({ts: Date.now(), notifs: notifs}));
+					if (isLocalStorage)
+					{
+						localStorage.setItem(cachedNotifKey, JSON.stringify({ts: Date.now(), notifs: notifs}));
+					}
+					
+					this.fetchingNotif = false;	
+					processNotif(notifs);
 				}
-				
-				this.fetchingNotif = false;	
-				processNotif(notifs);
+				catch(e)
+				{
+					// ignore
+				}
 			}
 		}));
 	}

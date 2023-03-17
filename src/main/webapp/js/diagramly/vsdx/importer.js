@@ -9477,13 +9477,13 @@ var com;
                     Shape.prototype.getTextParagraphFormated = function (para) {
                         var ret = "";
                         var styleMap = ({});
-                        /* put */ (styleMap["align"] = this.getHorizontalAlign(this.pp, true));
+                        /* put */ (styleMap["text-align"] = this.getHorizontalAlign(this.pp, true));
                         /* put */ (styleMap["margin-left"] = this.getIndentLeft(this.pp));
                         /* put */ (styleMap["margin-right"] = this.getIndentRight(this.pp));
                         /* put */ (styleMap["margin-top"] = this.getSpBefore(this.pp) + "px");
                         /* put */ (styleMap["margin-bottom"] = this.getSpAfter(this.pp) + "px");
                         /* put */ (styleMap["text-indent"] = this.getIndentFirst(this.pp));
-                        /* put */ (styleMap["valign"] = this.getAlignVertical());
+                        /* put */ (styleMap["vertical-align"] = this.getAlignVertical());
                         /* put */ (styleMap["direction"] = this.getTextDirection(this.pp));
                         ret += this.insertAttributes(para, styleMap);
                         return ret;

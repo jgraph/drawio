@@ -287,7 +287,8 @@ Sidebar.prototype.tooltipMouseDown = null;
 Sidebar.prototype.refresh = function()
 {
 	var graph = this.editorUi.editor.graph;
-	this.graph.stylesheet.styles = mxUtils.clone(graph.stylesheet.styles);
+	this.graph.stylesheet.styles = mxUtils.clone(
+		graph.getDefaultStylesheet().styles);
 	this.wrapper.innerText = '';
 	this.palettes = new Object();
 	this.init();

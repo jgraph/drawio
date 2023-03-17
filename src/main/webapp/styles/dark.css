@@ -8,6 +8,9 @@
 .geEditor * {
 	border-color:#000;
 }
+html body .geBackground {
+	background:var(--dark-color);
+}
 html body .geStatus > *, html body .geUser {
 	color:var(--text-color);
 }
@@ -120,8 +123,12 @@ html body.geEditor .geBaseButton, html body.geEditor .geSidebarTooltip, html bod
 html body.geEditor .geSidebarContainer .geDropTarget, html body.geEditor .geToolbarContainer {
 	background:var(--panel-color);
 	border-color:var(--dark-color);
-	box-shadow:none;
 	color:#aaaaaa;
+}
+html body.geEditor .geSidebar, html body.geEditor .geSidebarContainer .geTitle, html body.geEditor input, html body.geEditor textarea,
+html body.geEditor .geBaseButton, html body.geEditor .geSidebarTooltip, html body.geEditor .geBaseButton, html body.geEditor select,
+html body.geEditor .geSidebarContainer .geDropTarget {
+	box-shadow:none;
 }
 html body.geEditor button, html body.geEditor input,
 html body.geEditor textarea, html body.geEditor select,

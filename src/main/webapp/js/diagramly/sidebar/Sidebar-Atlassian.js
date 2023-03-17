@@ -4,7 +4,7 @@
 	Sidebar.prototype.addAtlassianPalette = function()
 	{
 		var s = 'html=1;shadow=0;dashed=0;shape=mxgraph.atlassian.';
-		var s2 = 'html=1;image;image=img/lib/atlassian/';
+		var s2 = 'image;html=1;image=img/lib/atlassian/';
 		var s3 = mxConstants.STYLE_STROKEWIDTH + '=1;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
 		var gn = 'mxgraph.atlassian';
 		var dt = 'atlassian ';

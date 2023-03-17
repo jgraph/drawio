@@ -6,7 +6,7 @@
 		var gn = 'mxgraph.mscae';
 		var r = 100;
 		var sb = this;
-		var s = 'sketch=0;aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/mscae/';
+		var s = 'image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/';
 		
 		this.setCurrentSearchEntryLibrary('mscae', 'mscaeCompanies');
 		this.addMSCAECompaniesPalette(gn, r, sb, s);
@@ -787,11 +787,11 @@
 		];
 			
 		this.addPalette('mscaeContainer Service', 'CAE / Container Service', false, mxUtils.bind(this, function(content)
-				{
-					for (var i = 0; i < fns.length; i++)
-					{
-						content.appendChild(fns[i](content));
-					}
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
 		}));
 	};
 	
@@ -809,7 +809,7 @@
 					r * 0.5, r * 0.5, '', 'CosmosDB', null, null, this.getTagsForStencil(gn, 'cosmosdb db database', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Database_General.svg;',
 					r * 0.38, r * 0.5, '', 'Database (generic)', null, null, this.getTagsForStencil(gn, 'database generic', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'aspect=fixed;html=1;perimeter=none;align=center;shadow=0;dashed=0;image;fontSize=12;image=img/lib/mscae/Azure_Database_for_MariaDB_servers.svg;',
+			this.createVertexTemplateEntry(s + 'aspect=fixed;html=1;perimeter=none;align=center;shadow=0;dashed=0;fontSize=12;image=img/lib/mscae/Azure_Database_for_MariaDB_servers.svg;',
 					r * 0.38, r * 0.5, '', 'Azure Database for MariaDB servers', null, null, this.getTagsForStencil(gn, 'azure database for mariadb servers', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Database_for_MySQL_servers.svg;',
 					r * 0.38, r * 0.5, '', 'Azure Database for MySQL servers', null, null, this.getTagsForStencil(gn, 'azure database db for mysql servers', dt).join(' ')),

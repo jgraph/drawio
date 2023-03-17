@@ -442,7 +442,13 @@
         			{val: 'centerPerimeter', dispName: 'Center'}]
         },
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
-        {name: 'container', dispName: 'Container', type: 'bool', defVal: false, isVisible: function(state, format)
+        {name: 'container', dispName: 'Container', type: 'bool', getDefaultValue: function(state, format)
+        {
+        	var cell = (state.vertices.length == 1 && state.edges.length == 0) ? state.vertices[0] : null;
+        	var graph = format.editorUi.editor.graph;
+
+			return cell != null && graph.isSwimlane(cell);
+		}, isVisible: function(state, format)
         {
     		return state.vertices.length == 1 && state.edges.length == 0;
         }},

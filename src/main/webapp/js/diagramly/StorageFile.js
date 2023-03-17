@@ -255,7 +255,17 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
 					{
 						if (this.ui.database == null) //fallback to localstorage
 						{
-							this.ui.setLocalData(this.title, data, saveDone);
+							try
+							{
+								this.ui.setLocalData(this.title, data, saveDone);
+							}
+							catch (e)
+							{
+								if (error != null)
+								{
+									error(e);
+								}
+							}
 						}
 						else if (error != null)
 						{

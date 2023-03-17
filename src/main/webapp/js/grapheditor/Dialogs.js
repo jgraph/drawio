@@ -2080,8 +2080,8 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	var graph = editorUi.editor.graph;
 	
 	var div = document.createElement('div');
+	div.className = 'geBackground';
 	div.style.userSelect = 'none';
-	div.style.background = (!Editor.isDarkMode()) ? '#fff' : Dialog.backdropColor;
 	div.style.border = '1px solid whiteSmoke';
 	div.style.height = '100%';
 	div.style.marginBottom = '10px';
@@ -2090,7 +2090,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	var tbarHeight = (!EditorUi.compactUi) ? '30px' : '26px';
 	
 	var listDiv = document.createElement('div')
-	listDiv.style.backgroundColor = (!Editor.isDarkMode()) ? '#fff' : Dialog.backdropColor;
+	listDiv.className = 'geBackground';
 	listDiv.style.position = 'absolute';
 	listDiv.style.overflow = 'auto';
 	listDiv.style.left = '0px';
@@ -2388,7 +2388,8 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			ldiv.style.padding = '4px';
 			ldiv.style.height = '22px';
 			ldiv.style.display = 'block';
-			ldiv.style.backgroundColor = (!Editor.isDarkMode()) ? 'whiteSmoke' : Dialog.backdropColor;
+			ldiv.style.backgroundColor = (Editor.isDarkMode()) ?
+				Editor.darkColor : 'whiteSmoke';
 			ldiv.style.borderWidth = '0px 0px 1px 0px';
 			ldiv.style.borderColor = '#c3c3c3';
 			ldiv.style.borderStyle = 'solid';

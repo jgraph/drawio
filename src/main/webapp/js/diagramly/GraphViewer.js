@@ -1889,7 +1889,6 @@ GraphViewer.prototype.showLightbox = function(editable, closable, target)
  */
 GraphViewer.prototype.showLocalLightbox = function()
 {
-	var origin = mxUtils.getDocumentScrollOrigin(document);
 	var backdrop = document.createElement('div');
 
 	backdrop.style.cssText = 'position:fixed;top:0;left:0;bottom:0;right:0;';
@@ -2039,40 +2038,61 @@ GraphViewer.prototype.showLocalLightbox = function()
 
 	window.setTimeout(mxUtils.bind(this, function()
 	{
-		// Disables focus border in Chrome
-		lightbox.style.outline = 'none';
-		lightbox.style.zIndex = this.lightboxZIndex;
-		closeImg.style.zIndex = this.lightboxZIndex;
-
-		document.body.appendChild(lightbox);
-		document.body.appendChild(closeImg);
-		
-		ui.setFileData(this.xml);
-
-		mxUtils.setPrefixedStyle(lightbox.style, 'transform', 'rotateY(0deg)');
-		ui.chromelessToolbar.style.bottom = 60 + 'px';
-		ui.chromelessToolbar.style.zIndex = this.lightboxZIndex;
-		
-		// Workaround for clipping in IE11-
-		document.body.appendChild(ui.chromelessToolbar);
-	
-		ui.getEditBlankXml = mxUtils.bind(this, function()
+		try
 		{
-			return this.xml;
-		});
-	
-		ui.lightboxFit();
-		ui.chromelessResize();
-		this.showLayers(graph, this.graph);
+			// Click on backdrop closes lightbox
+			mxEvent.addListener(backdrop, 'click', function()
+			{
+				ui.destroy();
+			});
+
+			// Disables focus border in Chrome
+			lightbox.style.outline = 'none';
+			lightbox.style.zIndex = this.lightboxZIndex;
+			closeImg.style.zIndex = this.lightboxZIndex;
+
+			document.body.appendChild(lightbox);
+			document.body.appendChild(closeImg);
+			
+			ui.setFileData(this.xml);
+			
+			mxUtils.setPrefixedStyle(lightbox.style, 'transform', 'rotateY(0deg)');
+			ui.chromelessToolbar.style.bottom = 60 + 'px';
+			ui.chromelessToolbar.style.zIndex = this.lightboxZIndex;
+			
+			// Workaround for clipping in IE11-
+			document.body.appendChild(ui.chromelessToolbar);
 		
-		// Click on backdrop closes lightbox
-		mxEvent.addListener(backdrop, 'click', function()
+			ui.getEditBlankXml = mxUtils.bind(this, function()
+			{
+				return this.xml;
+			});
+		
+			ui.lightboxFit();
+			ui.chromelessResize();
+			this.showLayers(graph, this.graph);
+		}
+		catch (e)
 		{
-			ui.destroy();
-		});
+			ui.handleError(e, null, function()
+			{
+				ui.destroy();
+			});
+		}
 	}), 0);
 
 	return ui;
+};
+
+/**
+ * Removes the dialog from the DOM.
+ */
+Dialog.prototype.getDocumentSize = function()
+{
+	var vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
+	var vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+
+	return new mxRectangle(0, 0, vw, vh);
 };
 
 GraphViewer.prototype.updateTitle = function(title)

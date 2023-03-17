@@ -603,7 +603,17 @@ var SplashDialog = function(editorUi)
 			addLogout(function()
 			{
 				editorUi.gitLab.logout();
-				editorUi.openLink(DRAWIO_GITLAB_URL + '/users/sign_out');
+
+				// Must use POST request to sign out of GitLab
+				// see https://gitlab.com/gitlab-org/gitlab/-/issues/202291
+				var form = document.createElement('form');
+				form.setAttribute('method', 'post');
+				form.setAttribute('action', DRAWIO_GITLAB_URL + '/users/sign_out');
+				form.setAttribute('target', '_blank');
+
+				document.body.appendChild(form);
+				form.submit();
+				form.parentNode.removeChild(form);
 			});
 		}
 		else if (editorUi.mode == App.MODE_TRELLO && editorUi.trello != null)
@@ -2144,9 +2154,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 					mxMermaidToDrawio.addListener(mxUtils.bind(this, function(modelXml)
 					{
 						editorUi.spinner.stop();
-						var xml = '<mxfile><diagram id="d" name="n">' +
-									Graph.compress(modelXml) + '</diagram></mxfile>';
-						graph.setSelectionCells(editorUi.importXml(xml,
+						graph.setSelectionCells(editorUi.importXml(modelXml,
 							Math.max(insertPoint.x, 20),
 							Math.max(insertPoint.y, 20),
 							true, null, null, true));
@@ -2524,8 +2532,9 @@ var ParseDialog = function(editorUi, title, defaultType)
 	textarea.style.marginBottom = '16px';
 	
 	var typeSelect = document.createElement('select');
+	typeSelect.className = 'geBtn';
 	
-	if (defaultType == 'formatSql' || (defaultType == 'mermaid' && urlParams['dev'] != '1'))
+	if (defaultType == 'formatSql' || (defaultType == 'mermaid' && editorUi.getServiceName() != 'draw.io'))
 	{
 		typeSelect.style.display = 'none';
 	}
@@ -2554,19 +2563,19 @@ var ParseDialog = function(editorUi, title, defaultType)
 		tableOption.setAttribute('selected', 'selected');
 	}
 	
-	var mermaidOption = document.createElement('option');
-	mermaidOption.setAttribute('value', 'mermaid');
-	mxUtils.write(mermaidOption, mxResources.get('mermaid'));
-	
 	var mermaid2drawioOption = document.createElement('option');
 	mermaid2drawioOption.setAttribute('value', 'mermaid2drawio');
-	mxUtils.write(mermaid2drawioOption, mxResources.get('drawio'));
+	mxUtils.write(mermaid2drawioOption, mxResources.get('diagram'));
 
+	var mermaidOption = document.createElement('option');
+	mermaidOption.setAttribute('value', 'mermaid');
+	mxUtils.write(mermaidOption, mxResources.get('image'));
+	
 	if (defaultType == 'mermaid')
 	{
-		typeSelect.appendChild(mermaidOption);
-		mermaidOption.setAttribute('selected', 'selected');
 		typeSelect.appendChild(mermaid2drawioOption);
+		mermaid2drawioOption.setAttribute('selected', 'selected');
+		typeSelect.appendChild(mermaidOption);
 	}
 	
 	var diagramOption = document.createElement('option');
@@ -3234,6 +3243,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		description.style.boxSizing = 'border-box';
 		content.appendChild(description);
 
+		content.init = function()
+		{
+			description.focus();
+		};
+
 		mxUtils.br(content);
 
 		var preview = document.createElement('div');
@@ -3300,8 +3314,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				{
 					if (!useMermaidFormat)
 					{
-						templateXml = '<mxfile><diagram id="d" name="n">' +
-									Graph.compress(modelXml) + '</diagram></mxfile>';
+						templateXml = modelXml;
 						lastAiXml = templateXml;
 					}
 				}));
@@ -3325,8 +3338,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 						imageData, w, h);
 
 					// Updates template XML for insert button
-					var previewXml = '<mxfile><diagram id="d" name="n">' +
-						Graph.compress(xml) + '</diagram></mxfile>';
+					var previewXml = '<mxfile><diagram>' + Graph.compress(xml) + '</diagram></mxfile>';
 					
 					if (useMermaidFormat || typeof mxMermaidToDrawio === 'undefined')
 					{
@@ -3378,6 +3390,14 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				}
 			}, 0);
 		};
+
+		var temp = urlParams['smart-template'];
+
+		if (temp != null && temp != '1')
+		{
+			description.value = decodeURIComponent(temp);
+			updateState();
+		}
 
 		mxEvent.addListener(description, 'change', updateState);
 		mxEvent.addListener(description, 'keydown', updateState);
@@ -3624,9 +3644,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				{
 					//Create a diagram with the image to use the same code
 					//Note: Without compression it doesn't work for some reason. Find out why later
-					var xml = '<mxfile><diagram id="d" name="n">' + Graph.compress('<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/>' +
-						'<mxCell id="2" value="" style="shape=image;image=' + extImg.src + ';imageAspect=1;" parent="1" vertex="1"><mxGeometry width="' + 
-						extImg.naturalWidth + '" height="' + extImg.naturalHeight + '" as="geometry" /></mxCell></root></mxGraphModel>') + '</diagram></mxfile>';
+					var xml = '<mxfile><diagram>' + Graph.compress('<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/>' +
+						'<mxCell id="2" value="" style="shape=image;image=' + extImg.src + ';imageAspect=1;" parent="1" vertex="1">' +
+						'<mxGeometry width="' + extImg.naturalWidth + '" height="' + extImg.naturalHeight + '" as="geometry" />' +
+						'</mxCell></root></mxGraphModel>') + '</diagram></mxfile>';
 					showTooltip(xml, mxEvent.getClientX(evt), mxEvent.getClientY(evt), title, url);
 					return;
 				}
@@ -3853,7 +3874,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	categories['basic'] = [{title: 'blankDiagram', select: true}];
 	var templates = categories['basic'];
 
-	if (urlParams['test'] == '1' && editorUi.getServiceName() == 'draw.io')
+	if (editorUi.getServiceName() == 'draw.io')
 	{
 		categories['smartTemplate'] = {content: createSmartTemplateContent()};
 	}
@@ -4102,6 +4123,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 						div.appendChild(categories[cat].content);
 						templateXml = lastAiXml;
 						templates = null;
+
+						if (categories[cat].content.init != null)
+						{
+							categories[cat].content.init();
+						}
 					}
 					else
 					{
@@ -4111,6 +4137,12 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					}
 				}
 			});
+			
+			// Selects smart template section
+			if (urlParams['smart-template'] != null && cat == 'smartTemplate')
+			{
+				entry.click();
+			}
 		};
 			
 		for (var cat in categories)

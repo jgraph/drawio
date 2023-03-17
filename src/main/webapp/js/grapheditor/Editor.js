@@ -897,7 +897,7 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	var padding = transparent? 0 : 64; //No padding needed for transparent dialogs
 	
 	var ds = (!Editor.inlineFullscreen && editorUi.embedViewport != null) ?
-		mxUtils.clone(editorUi.embedViewport) : mxUtils.getDocumentSize();
+		mxUtils.clone(editorUi.embedViewport) : this.getDocumentSize();
 	
 	// Workaround for print dialog offset in viewer lightbox
 	if (editorUi.embedViewport == null && window.innerHeight != null)
@@ -923,9 +923,8 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 
 	if (this.bg == null)
 	{
-		this.bg = editorUi.createDiv('background');
+		this.bg = editorUi.createDiv('geBackground');
 		this.bg.style.position = 'absolute';
-		this.bg.style.background = Dialog.backdropColor;
 		this.bg.style.height = dh + 'px';
 		this.bg.style.right = '0px';
 		this.bg.style.zIndex = this.zIndex - 2;
@@ -941,7 +940,7 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 
 	if (!Editor.inlineFullscreen && editorUi.embedViewport != null)
 	{
-		this.bg.style.height = mxUtils.getDocumentSize().height + 'px';
+		this.bg.style.height = this.getDocumentSize().height + 'px';
 		top += editorUi.embedViewport.y;
 		left += editorUi.embedViewport.x;
 	}
@@ -1024,13 +1023,13 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 			}
 		}
 		
-		var ds = mxUtils.getDocumentSize();
+		var ds = this.getDocumentSize();
 		dh = ds.height;
 		this.bg.style.height = dh + 'px';
 		
 		if (!Editor.inlineFullscreen && editorUi.embedViewport != null)
 		{
-			this.bg.style.height = mxUtils.getDocumentSize().height + 'px';
+			this.bg.style.height = this.getDocumentSize().height + 'px';
 		}
 
 		left = Math.max(1, Math.round((ds.width - w - padding) / 2));
@@ -1071,11 +1070,6 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 /**
  * 
  */
-Dialog.backdropColor = 'white';
-
-/**
- * 
- */
 Dialog.prototype.zIndex = mxPopupMenu.prototype.zIndex - 2;
 
 /**
@@ -1097,6 +1091,14 @@ Dialog.prototype.clearImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/clear.gif' : '
  * Removes the dialog from the DOM.
  */
 Dialog.prototype.bgOpacity = 80;
+
+/**
+ * Removes the dialog from the DOM.
+ */
+Dialog.prototype.getDocumentSize = function()
+{
+	return mxUtils.getDocumentSize();
+};
 
 /**
  * Removes the dialog from the DOM.

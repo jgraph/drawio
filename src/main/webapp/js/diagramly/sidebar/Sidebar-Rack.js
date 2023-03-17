@@ -55,8 +55,8 @@
 		
 		this.addPaletteFunctions('rackGeneral', 'Rack / General', false,
 		[
-			this.createVertexTemplateEntry(s + 'shape=mxgraph.rackGeneral.rackCabinet2;fillColor2=#f4f4f4;container=1;collapsible=0;childLayout=rack;allowGaps=1;marginLeft=9;marginRight=9;marginTop=21;marginBottom=22;textColor=#666666;numDisp=off;', 180, 219, '', 'Rack Cabinet', null, null, dt + 'cabinet'),
-			this.createVertexTemplateEntry(s + 'shape=mxgraph.rackGeneral.rackCabinet2;fillColor2=#f4f4f4;container=1;collapsible=0;childLayout=rack;allowGaps=1;marginLeft=33;marginRight=9;marginTop=21;marginBottom=22;textColor=#666666;numDisp=ascend;', 204, 219, '', 'Numbered Rack Cabinet', null, null, dt + 'cabinet numbered'),
+			this.createVertexTemplateEntry(s + 'shape=mxgraph.rackGeneral.rackCabinet3;fillColor2=#f4f4f4;container=1;collapsible=0;childLayout=rack;allowGaps=1;marginLeft=9;marginRight=9;marginTop=21;marginBottom=22;textColor=#666666;numDisp=off;', 180, 219, '', 'Rack Cabinet', null, null, dt + 'cabinet'),
+			this.createVertexTemplateEntry(s + 'shape=mxgraph.rackGeneral.rackCabinet3;fillColor2=#f4f4f4;container=1;collapsible=0;childLayout=rack;allowGaps=1;marginLeft=33;marginRight=9;marginTop=21;marginBottom=22;textColor=#666666;numDisp=ascend;', 204, 219, '', 'Numbered Rack Cabinet', null, null, dt + 'cabinet numbered'),
 			this.createVertexTemplateEntry(sr + 'text;', 160, 15, '', 'Spacing', null, null, dt + 'spacing'),
 			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rackGeneral.plate;fillColor=#e8e8e8;', 160, 15, '', 'Cover Plate', null, null, dt + 'cover plate'),
 			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.general.1u_rack_server;', 160, 15, '', 'Server', null, null, dt + 'server'),

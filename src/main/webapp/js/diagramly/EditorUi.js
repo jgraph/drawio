@@ -7954,15 +7954,9 @@
 					EditorUi.logEvent({category: 'OPENAI-DIAGRAM',
 						action: 'generateOpenAiMermaidDiagram',
 						label: prompt});
-					var url = 'https://www.draw.io/generate';
+					var url = 'https://www.draw.io/generate/v1';
 
-					var params = {
-						prompt: prompt,
-						temperature: 0.9,
-						max_tokens: 4000
-					};
-
-					var req = new mxXmlRequest(url, JSON.stringify(params), 'POST');
+					var req = new mxXmlRequest(url, prompt, 'POST');
 					
 					var handleError = mxUtils.bind(this, function(e)
 					{
@@ -7981,9 +7975,8 @@
 							{
 								this.tryAndHandle(mxUtils.bind(this, function()
 								{
-									var response = JSON.parse(req.getText());
-									var text = mxUtils.trim(response.choices[0].text);
-									var result = this.extractMermaidDeclaration(text);
+									var response = mxUtils.trim(req.getText());
+									var result = this.extractMermaidDeclaration(response);
 									
 									this.generateMermaidImage(result, null, mxUtils.bind(this, function(data, w, h)
 									{
@@ -7992,8 +7985,7 @@
 											if (timeout.clear())
 											{
 												EditorUi.debug('EditorUi.generateOpenAiMermaidDiagram',
-													'\nrequest:', params, '\nresponse:', response,
-													'\nprompt:', prompt, '\noutput:', text,
+													'\nprompt:', prompt, '\nresponse:', response,
 													'\nresult:', result);
 												
 												this.spinner.stop();
@@ -8019,7 +8011,7 @@
 							}
 							else
 							{
-								var e = null;
+								var e = {message: mxResources.get('error') + ' ' + req.getStatus()};
 
 								try
 								{
@@ -8180,17 +8172,20 @@
 
 				mermaid.mermaidAPI.initialize(config);
 
-				if (urlParams['dev'] == '1')
+				mermaid.mermaidAPI.render('geMermaidOutput-' + new Date().getTime(), data).then(function(result)
 				{
-					mermaid.mermaidAPI.render('geMermaidOutput-' + new Date().getTime(), data).then(function(result)
+					renderCallback(result.svg);
+				}).catch(function(e)
+				{
+					if (parseErrorHandler != null)
 					{
-						renderCallback(result.svg);
-					});
-				}
-				else
-				{
-					mermaid.mermaidAPI.renderAsync('geMermaidOutput-' + new Date().getTime(), data, renderCallback);
-				}
+						parseErrorHandler(e);
+					}
+					else
+					{
+						error(e);
+					}
+				});
 			}
 			catch (e)
 			{
@@ -8212,24 +8207,8 @@
 					}));
 				}
 				
-				// TODO Find a better way to dynamic load mermaid module that jscompiler supports
-				mxscript('js/mermaid/loadMermaidESM.js', 
-					function()
-					{
-						function mermaidLoaded()
-						{
-							if (typeof mermaid !== 'undefined')
-							{
-								delayed();
-							}
-							else
-							{
-								window.setTimeout(mermaidLoaded, 100);
-							}
-						}
-						
-						mermaidLoaded();
-					}, null, null, null, onerror);
+				mxscript('js/mermaid/mermaid.min.js', delayed,
+					null, null, null, onerror);
 			}
 			else
 			{
@@ -12471,7 +12450,8 @@
 				
 								addElt(this.sidebar.createEdgeTemplateFromCells([cell],
 									cell.geometry.width, 40, mxResources.get('arrow'),
-									true, null, true, false, tw, th), mxResources.get('arrow')).
+									true, null, true, false, null, tw, th),
+									mxResources.get('arrow')).
 									style.margin = em;
 								
 								addElt(freehandElt, mxResources.get('freehand') + ' (X)', null, 'X');
@@ -13563,7 +13543,6 @@
 				Graph.prototype.defaultThemeName = graph.defaultThemeName;
 				StyleFormatPanel.prototype.defaultStrokeColor = Editor.isDarkMode() ? '#cccccc' : 'black';
 				Format.inactiveTabBackgroundColor = Editor.isDarkMode() ? '#000000' : '#e4e4e4';
-				Dialog.backdropColor = Editor.isDarkMode() ? Editor.darkColor : 'white';
 				mxConstants.DROP_TARGET_COLOR = Editor.isDarkMode() ? '#00ff00' : '#0000FF';
 				Editor.helpImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
 					Editor.darkHelpImage : Editor.lightHelpImage;
@@ -18989,13 +18968,15 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		
 	var div = document.createElement('div');
 	div.className = 'geCommentsWin';
-	div.style.background = (!Editor.isDarkMode()) ? 'whiteSmoke' : Dialog.backdropColor;
+	div.style.background = (Editor.isDarkMode()) ?
+		Editor.darkColor : 'whiteSmoke';
 
 	var tbarHeight = (!EditorUi.compactUi) ? '30px' : '26px';
 	
 	var listDiv = document.createElement('div');
 	listDiv.className = 'geCommentsList';
-	listDiv.style.backgroundColor = (!Editor.isDarkMode()) ? 'whiteSmoke' : Dialog.backdropColor;
+	listDiv.style.backgroundColor = (Editor.isDarkMode()) ?
+		Editor.darkColor : 'whiteSmoke';
 	listDiv.style.bottom = (parseInt(tbarHeight) + 7) + 'px';
 	div.appendChild(listDiv);
 	

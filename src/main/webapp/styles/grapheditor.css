@@ -26,6 +26,9 @@ div td.mxWindowTitle {
 	border:none;
 	margin:0px;
 }
+.geBackground {
+	background:white;
+}
 .geEditor input[type=text]::-ms-clear {
 	display: none;
 }

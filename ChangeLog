@@ -1,3 +1,31 @@
+17-MAR-2023: 21.0.7
+
+- Fixes order of image class in styles [drawio-3432]
+- Fixes update of global edge style [drawio-3429]
+- Connector split clones marker and spacing [DS-946]
+- VSDX import: Fixed some cases of incorrect text alignment [DID-7420]
+
+09-MAR-2023: 21.0.6
+
+- Fixes preview for smart template
+
+09-MAR-2023: 21.0.5 Build Rejected on test
+
+- Fixes e not a function error for arrow [DID-7677]
+- Fixes 404 for sign out from GitLab [drawio-3416]
+
+08-MAR-2023: 21.0.4
+
+- Enables smart templates in production [DS-942]
+
+08-MAR-2023: 21.0.3 Build Rejected on test
+
+- Updates to Mermaid v10 [DS-945]
+- Adds rack shape with vertical size determining number of units.
+- Fixes HTML entities in format change [drawio-3403]
+- [conf cloud] Shows message when conf diagram is edited from Jira Service Desk [DID-7647]
+- Fixes default for container property [drawio-3406]
+
 03-MAR-2023: 21.0.2
 
 - Fixes BPMN event attachment [draw-3342]
@@ -7,7 +35,7 @@
 
 - Changes behaviour of default styling [drawio-3312]
 
-02-MAR-2023: 21.0.0
+02-MAR-2023: 21.0.0 Build Rejected on test
 
 - Build rejected, failed testing on stage
 

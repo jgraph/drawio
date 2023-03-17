@@ -8568,14 +8568,6 @@ if (typeof mxVertexHandler !== 'undefined')
 					}
 				}
 				
-				// Removes end arrow and target perimetr Spacing on first segment, start arrow on second segment
-				this.setCellStyles(mxConstants.STYLE_TARGET_PERIMETER_SPACING, null, [newEdge]);
-				this.setCellStyles(mxConstants.STYLE_ENDARROW, mxConstants.NONE, [newEdge]);
-				
-				// Removes start arrow and source perimeter spacing on second segment
-				this.setCellStyles(mxConstants.STYLE_SOURCE_PERIMETER_SPACING, null, [edge]);
-				this.setCellStyles(mxConstants.STYLE_STARTARROW, mxConstants.NONE, [edge]);
-				
 				// Removes entryX/Y and exitX/Y if snapToPoint is used
 				var target = this.model.getTerminal(newEdge, false);
 				
@@ -9423,7 +9415,9 @@ if (typeof mxVertexHandler !== 'undefined')
 			for (var i = 0; i < cells.length; i++)
 			{
 				// Changes font tags inside HTML labels
-				if (this.isHtmlLabel(cells[i]))
+				var style = this.getCurrentCellStyle(cells[i]);
+
+				if (style != null && style['html'] == '1')
 				{
 					var label = this.convertValueToString(cells[i]);
 					

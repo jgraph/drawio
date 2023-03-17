@@ -6,7 +6,7 @@
 		var gn = 'mxgraph.azure2';
 		var r = 400;
 		var sb = this;
-		var s = 'aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/';
+		var s = 'image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/';
 		
 		this.setCurrentSearchEntryLibrary('azure2', 'azure2AI Machine Learning');
 		this.addAzure2AIMachineLearningPalette(gn, r, sb, s + 'ai_machine_learning/');

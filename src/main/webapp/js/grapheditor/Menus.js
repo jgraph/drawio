@@ -1162,8 +1162,9 @@ Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, pa
 			}
 			
 			this.editorUi.fireEvent(new mxEventObject(
-				'styleChanged', 'keys', keys,
-				'values', values, 'cells', edges));
+				'styleChanged', 'cells', edges,
+				'keys', keys, 'values', values,
+				'force', cells.length == 0));
 		}
 		finally
 		{
