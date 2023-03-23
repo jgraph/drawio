@@ -1371,8 +1371,6 @@ mxStencilRegistry.allowEval = false;
 		return false;
 	};
 	
-	// Restores default implementation of open with autosave
-	LocalFile.prototype.open = DrawioFile.prototype.open;
 	var autoSaveEnabled = false;
 
 	LocalFile.prototype.save = function(revision, success, error, unloading, overwrite)

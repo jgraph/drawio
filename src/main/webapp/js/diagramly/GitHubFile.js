@@ -167,17 +167,6 @@ GitHubFile.prototype.getLatestVersion = function(success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-GitHubFile.prototype.isCompressedStorage = function()
-{
-	return false;
-};
-
-/**
  * Hook for subclassers to update the descriptor from given file
  */
 GitHubFile.prototype.getDescriptor = function()

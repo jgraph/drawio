@@ -1085,6 +1085,7 @@
 		graph = (graph != null) ? graph : this.editor.graph;
 		forceXml = (forceXml != null) ? forceXml : false;
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
+		uncompressed = (uncompressed != null) ? uncompressed : !Editor.defaultCompressed;
 		
 		var editLink = null;
 		var redirect = null;
@@ -1169,7 +1170,8 @@
 				
 				// Adds new metadata
 				fileNode.setAttribute('modified', new Date().toISOString());
-				fileNode.setAttribute('agent', navigator.appVersion);
+				fileNode.setAttribute('agent', (navigator.userAgent != null) ?
+					navigator.userAgent : navigator.appVersion);
 				fileNode.setAttribute('version', EditorUi.VERSION);
 				fileNode.setAttribute('etag', Editor.guid());
 				
@@ -1216,6 +1218,7 @@
 				xml = this.getEmbeddedSvg(xml, graph, url, null, embeddedCallback, ignoreSelection, redirect);
 			}
 			
+			
 			return xml;
 		}
 	};
@@ -1230,7 +1233,7 @@
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		currentPage = (currentPage != null) ? currentPage : false;
-		uncompressed = (uncompressed != null) ? uncompressed : !Editor.compressXml;
+		uncompressed = (uncompressed != null) ? uncompressed : !Editor.defaultCompressed;
 		
 		// Generats graph model XML node for single page export
 		var node = this.editor.getGraphXml(ignoreSelection, resolveReferences);
@@ -1613,13 +1616,13 @@
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		currentPage = (currentPage != null) ? currentPage : false;
+		uncompressed = (uncompressed != null) ? uncompressed : !Editor.defaultCompressed;
 		var graph = this.editor.graph;
 		
 		// Forces compression of embedded XML
 		if (forceSvg || (!forceXml && file != null && /(\.svg)$/i.test(file.getTitle())))
 		{
 			var darkTheme = graph.themes != null && graph.defaultThemeName == 'darkTheme';
-			uncompressed = false;
 
 			// Exports SVG for first page while other page is visible by creating a graph
 			// LATER: Add caching for the graph or SVG while not on first page
@@ -2113,8 +2116,8 @@
 	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection,
 		base64, transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h)
 	{
-		var params = this.downloadRequestBuilder(filename, format, ignoreSelection,
-							base64, transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h);
+		var params = this.downloadRequestBuilder(filename, format, ignoreSelection, base64,
+			transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h);
 
 		var paramsStr = '';
 
@@ -2148,7 +2151,7 @@
 		// the from/to URL parameters to specify the page to be exported.
 		var data = this.getFileData(true, null, null, null, ignoreSelection,
 			currentPage == false ? false : format != 'xmlpng', null, null,
-			null, false, format == 'pdf');
+			null, !Editor.defaultCompressed, format == 'pdf');
 		var from = null, to = null, allPages = null;
 
 		if (bounds.width * bounds.height > MAX_AREA || data.length > MAX_REQUEST_SIZE)
@@ -3118,12 +3121,24 @@
 	 */
 	EditorUi.prototype.createLibraryDataFromImages = function(images)
 	{
+		// Uncompresses existing entries for saving
+		if (!Editor.defaultCompressed)
+		{
+			for (var i = 0; i < images.length; i++)
+			{
+				if (images[i].xml != null && images[i].xml.charAt(0) != '<')
+				{
+					images[i].xml = mxUtils.trim(Graph.decompress(images[i].xml));
+				}
+			}
+		}
+
 		var doc = mxUtils.createXmlDocument();
 		var library = doc.createElement('mxlibrary');
-		mxUtils.setTextContent(library, JSON.stringify(images));
+		mxUtils.setTextContent(library, JSON.stringify(images, null, 2));
 		doc.appendChild(library);
 		
-		return mxUtils.getXml(doc);
+		return mxUtils.getXml(doc, '\n');
 	};
 	
 	/**
@@ -3457,7 +3472,13 @@
 
 				contentDiv.appendChild(this.sidebar.createVertexTemplateFromCells(
 					cells, bounds.width, bounds.height, title || '', true, null, false));
-				var xml = Graph.compress(mxUtils.getXml(this.editor.graph.encodeCells(cells)));
+				var xml = mxUtils.getXml(this.editor.graph.encodeCells(cells));
+
+				if (Editor.defaultCompressed)
+				{
+					xml = Graph.compress(xml);
+				}
+
 				var entry = {xml: xml, w: bounds.width, h: bounds.height};
 				
 				if (title != null)
@@ -4032,7 +4053,7 @@
 	
 		if (e != null || title != null)
 		{
-			var msg = mxUtils.htmlEntities(mxResources.get('unknownError'));
+			var msg = mxUtils.htmlEntities(mxResources.get('unknownError'), false);
 			var btn = mxResources.get('ok');
 			var retry = null;
 			title = (title != null) ? title : mxResources.get('error');
@@ -4055,11 +4076,11 @@
 					{
 						if (e.message != null)
 						{
-							msg = mxUtils.htmlEntities(e.message);
+							msg = mxUtils.htmlEntities(e.message, false);
 						}
 						else
 						{
-							msg = mxUtils.htmlEntities(mxResources.get('accessDenied'));
+							msg = mxUtils.htmlEntities(mxResources.get('accessDenied'), false);
 						}
 					}
 					else
@@ -4067,7 +4088,7 @@
 						msg = (notFoundMessage != null) ? notFoundMessage :
 							mxUtils.htmlEntities(mxResources.get('fileNotFoundOrDenied') +
 							((this.drive != null && this.drive.user != null) ? ' (' + this.drive.user.displayName +
-							', ' + this.drive.user.email+ ')' : ''));
+							', ' + this.drive.user.email+ ')' : ''), false);
 					}
 					
 					var id = (notFoundMessage != null) ? null : ((fileHash != null) ? fileHash : window.location.hash);
@@ -4180,30 +4201,30 @@
 				{
 					if (e.message == '' && e.name != null)
 					{
-						msg = mxUtils.htmlEntities(e.name);
+						msg = mxUtils.htmlEntities(e.name, false);
 					}
 					else
 					{
-						msg = mxUtils.htmlEntities(e.message);
+						msg = mxUtils.htmlEntities(e.message, false);
 					}
 				}
 				else if (e.response != null && e.response.error != null)
 				{
-					msg = mxUtils.htmlEntities(e.response.error);
+					msg = mxUtils.htmlEntities(e.response.error, false);
 				}
 				else if (typeof window.App !== 'undefined')
 				{
 					if (e.code == App.ERROR_TIMEOUT)
 					{
-						msg = mxUtils.htmlEntities(mxResources.get('timeout'));
+						msg = mxUtils.htmlEntities(mxResources.get('timeout'), false);
 					}
 					else if (e.code == App.ERROR_BUSY)
 					{
-						msg = mxUtils.htmlEntities(mxResources.get('busy'));
+						msg = mxUtils.htmlEntities(mxResources.get('busy'), false);
 					}
 					else if (typeof e === 'string' && e.length > 0)
 					{
-						msg = mxUtils.htmlEntities(e);
+						msg = mxUtils.htmlEntities(e, false);
 					}
 				}
 			}
@@ -4224,7 +4245,7 @@
 			{
 				btn3 = mxResources.get('contactOwner');
 				
-				msg += mxUtils.htmlEntities(' (' + btn3 + ': ' + e.ownerEmail + ')');
+				msg += mxUtils.htmlEntities(' (' + btn3 + ': ' + e.ownerEmail + ')', false);
 				
 				fn3 = mxUtils.bind(this, function()
 				{
@@ -15715,6 +15736,7 @@
 						{
 							this.embedViewport = data.viewport;
 							this.editor.graph.refresh();
+							this.fireEvent(new mxEventObject('embedViewportChanged'));
 						}
 
 						return;

@@ -314,7 +314,7 @@ App.startTime = new Date();
  * https://www.diagrams.net/doc/faq/supported-url-parameters
  */
 App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': 'plugins/explore.js',
-	'ex': 'plugins/explore.js', 'p1': 'plugins/p1.js',
+	'ex': 'plugins/explore.js',
 	'ac': 'plugins/connect.js', 'acj': 'plugins/connectJira.js',
 	'ac148': 'plugins/cConf-1-4-8.js', 'ac148cmnt': 'plugins/cConf-comments.js', 
 	'nxtcld': 'plugins/nextcloud.js',
@@ -4799,6 +4799,48 @@ App.prototype.getPeerForMode = function(mode)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
+App.prototype.uncompressPages = function(data)
+{
+	if (data != null)
+	{
+		try
+		{
+			var doc = mxUtils.parseXml(data);
+
+			if (doc.documentElement.nodeName == 'mxfile')
+			{
+				var diagrams = doc.documentElement.getElementsByTagName('diagram');
+
+				for (var i = 0; i < diagrams.length; i++)
+				{
+					var node = Editor.parseDiagramNode(diagrams[i], true);
+
+					// Replaces text content with XML
+					if (node != null)
+					{
+						mxUtils.setTextContent(diagrams[i], '');
+						diagrams[i].appendChild(node);
+					}
+				}
+
+				data = mxUtils.getPrettyXml(doc.documentElement);
+			}
+		}
+		catch (e)
+		{
+			// fallback to input data in case of error
+		}
+	}
+
+	return data;
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 App.prototype.createFile = function(title, data, libs, mode, done, replace, folderId, tempFile, clibs, success)
 {
 	mode = (tempFile) ? null : ((mode != null) ? mode : this.mode);
@@ -4806,7 +4848,13 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 	if (title != null && this.spinner.spin(document.body, mxResources.get('inserting')))
 	{
 		data = (data != null) ? data : this.emptyDiagramXml;
-		
+
+		// Decompresses existing content
+		if (data != null && !Editor.defaultCompressed)
+		{
+			data = this.uncompressPages(data);
+		}
+
 		var complete = mxUtils.bind(this, function()
 		{
 			this.spinner.stop();
@@ -5066,7 +5114,7 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs, success)
 				fn2();
 			}
 		});
-		
+
 		// Updates data in memory for local files
 		if (file.constructor == LocalFile)
 		{

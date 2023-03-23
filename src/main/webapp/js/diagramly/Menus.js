@@ -396,7 +396,7 @@
 			
 			var selection = editorUi.addCheckbox(div, mxResources.get('selectionOnly'),
 				false, graph.isSelectionEmpty());
-			var compressed = editorUi.addCheckbox(div, mxResources.get('compressed'), true);
+			var compressed = editorUi.addCheckbox(div, mxResources.get('compressed'), Editor.defaultCompressed);
 			var pages = editorUi.addCheckbox(div, mxResources.get('allPages'), !noPages, noPages);
 			pages.style.marginBottom = '16px';
 			

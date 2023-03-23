@@ -1556,17 +1556,45 @@ var EditDataDialog = function(ui, cell)
 			{
 				if (value != null && value.length > 0 && value != id)
 				{
-					if (graph.getModel().getCell(value) == null)
+					if (graph.model.isRoot(cell))
 					{
-						graph.getModel().cellRemoved(cell);
-						cell.setId(value);
-						id = value;
-						idInput.innerHTML = mxUtils.htmlEntities(value);
-						graph.getModel().cellAdded(cell);
+						var page = ui.getPageById(id);
+
+						if (page != null)
+						{
+							if (ui.getPageById(value) == null)
+							{
+								var index = ui.getPageIndex(page);
+
+								if (index >= 0)
+								{
+									ui.removePage(page);
+									page.node.setAttribute('id', value);
+									id = value;
+									idInput.innerHTML = mxUtils.htmlEntities(value);
+									ui.insertPage(page, index);
+								}
+							}
+							else
+							{
+								ui.handleError({message: mxResources.get('alreadyExst', [mxResources.get('page')])});
+							}
+						}
 					}
 					else
 					{
-						ui.handleError({message: mxResources.get('alreadyExst', [value])});
+						if (graph.getModel().getCell(value) == null)
+						{
+							graph.getModel().cellRemoved(cell);
+							cell.setId(value);
+							id = value;
+							idInput.innerHTML = mxUtils.htmlEntities(value);
+							graph.getModel().cellAdded(cell);
+						}
+						else
+						{
+							ui.handleError({message: mxResources.get('alreadyExst', [value])});
+						}
 					}
 				}
 			}), mxResources.get('id'), null, null, null, null, null, null, 200);

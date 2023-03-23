@@ -321,13 +321,3 @@ LocalFile.prototype.rename = function(title, success, error)
 		success();
 	}
 };
-
-/**
- * Returns the location as a new object.
- * @type mx.Point
- */
-LocalFile.prototype.open = function()
-{
-	this.ui.setFileData(this.getData());
-	this.installListeners();
-};

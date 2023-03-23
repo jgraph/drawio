@@ -1,4 +1,4 @@
-# To make pako.min.js work with IE11
+# Updating (with IE 11 compatibility)
 
-1. Get release from https://github.com/nodeca/pako/releases
-2. Copy dist/pako.es5.min.js to pako.min.js
+Copy https://github.com/nodeca/pako/blob/master/dist/pako.es5.min.js to
+src/main/webapp/js/deflate/pako.min.js in this repository

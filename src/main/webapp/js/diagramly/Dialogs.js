@@ -3225,7 +3225,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	{
 		var content = document.createElement('div');
 		content.style.position = 'absolute';
-		content.style.overflow = 'hidden';
+		content.style.overflow = 'visible';
 		content.style.left = '8px';
 		content.style.right = '8px';
 		content.style.bottom = '8px';
@@ -12947,7 +12947,7 @@ var FilePropertiesDialog = function(editorUi)
 	else if (!/(\.html)$/i.test(filename) &&
 		!/(\.svg)$/i.test(filename))
 	{
-		var initialCompressed = (file != null) ? file.isCompressed() : Editor.compressXml;
+		var initialCompressed = (file != null) ? file.isCompressed() : Editor.defaultCompressed;
 
 		row = document.createElement('tr');
 		td = document.createElement('td');

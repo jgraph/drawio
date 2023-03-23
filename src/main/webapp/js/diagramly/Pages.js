@@ -1291,11 +1291,25 @@ EditorUi.prototype.initDiagramNode = function(page)
  */
 EditorUi.prototype.clonePages = function(pages)
 {
+	var errors = [];
 	var result = [];
 	
 	for (var i = 0; i < pages.length; i++)
 	{
-		result.push(this.clonePage(pages[i]));
+		try
+		{
+			result.push(this.clonePage(pages[i]));
+		}
+		catch (e)
+		{
+			errors.push(mxResources.get('pageWithNumber', [i + 1]) +
+				' (' + pages[i].getName() + '): ' + e.message);
+		}
+	}
+
+	if (errors.length > 0)
+	{
+		throw new Error(errors.join('\n'));
 	}
 	
 	return result;

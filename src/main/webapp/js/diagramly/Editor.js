@@ -219,6 +219,11 @@
 	Editor.compressXml = true;
 
 	/**
+	 * Specifies if XML files should be compressed by default. Default is false.
+	 */
+	Editor.defaultCompressed = false;
+
+	/**
 	 * Specifies if XML files should be compressed. Default is true.
 	 */
 	Editor.oneDriveInlinePicker = (window.urlParams != null && window.urlParams['inlinePicker'] == '0') ? false : true;
