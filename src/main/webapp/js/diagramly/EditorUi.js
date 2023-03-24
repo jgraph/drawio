@@ -10389,8 +10389,6 @@
 		{
 			// Defines additional hotkeys
 			this.keyHandler.bindAction(70, true, 'findReplace'); // Ctrl+F
-			this.keyHandler.bindAction(67, true, 'copyStyle', true); // Ctrl+Shift+C
-			this.keyHandler.bindAction(86, true, 'pasteStyle', true); // Ctrl+Shift+V
 			this.keyHandler.bindAction(77, true, 'editGeometry', true); // Ctrl+Shift+M
 			this.keyHandler.bindAction(75, true, 'tags'); // Ctrl+K
 			this.keyHandler.bindAction(65, false, 'insertText'); // A
@@ -10402,6 +10400,8 @@
 			this.keyHandler.bindAction(67, false, 'insertEdge'); // C
 			this.keyHandler.bindAction(88, false, 'insertFreehand'); // X
 			this.keyHandler.bindAction(75, true, 'toggleShapes', true); // Ctrl+Shift+K
+			this.altShiftActions[81] = 'copyStyle'; // Alt+Shift+Q
+			this.altShiftActions[87] = 'pasteStyle'; // Alt+Shift+W
 			this.altShiftActions[83] = 'synchronize'; // Alt+Shift+S
 			
 			if (urlParams['embedInline'] == '1')
@@ -15332,56 +15332,66 @@
 	 */
 	EditorUi.prototype.sendEmbeddedSvgExport = function(noExit)
 	{
-		var graph = this.editor.graph;
-
-		if (graph.isEditing())
+		try
 		{
-			graph.stopEditing(!graph.isInvokesStopCellEditing());
+			var graph = this.editor.graph;
+
+			if (graph.isEditing())
+			{
+				graph.stopEditing(!graph.isInvokesStopCellEditing());
+			}
+
+			var parent = window.opener || window.parent;
+			
+			if (!this.editor.modified)
+			{
+				if (!noExit)
+				{
+					parent.postMessage(JSON.stringify({event: 'exit',
+						point: this.embedExitPoint}), '*');
+				}
+			}
+			else
+			{
+				var bg = graph.background;
+			
+				if (bg == null || bg == mxConstants.NONE)
+				{
+					bg = this.embedExportBackground;
+				}
+
+				this.getEmbeddedSvg(this.getFileData(true, null, null, null, null,
+					null, null, null, null, false), graph, null, true,
+					mxUtils.bind(this, function(svg)
+				{
+					parent.postMessage(JSON.stringify({
+						event: 'export', point: this.embedExitPoint,
+						exit: (noExit != null) ? !noExit : true,
+						data: Editor.createSvgDataUri(svg)
+					}), '*');
+				}), null, null, true, bg, 1, this.embedExportBorder);
+			}
+
+			if (!noExit)
+			{
+				this.diagramContainer.removeAttribute('data-bounds');
+				Editor.inlineFullscreen = false;
+				graph.model.clear();
+				this.editor.undoManager.clear();
+				this.setBackgroundImage(null);
+				this.editor.modified = false;
+
+				if (urlParams['embed'] != '1')
+				{
+					this.fireEvent(new mxEventObject('editInlineStop'));
+				}
+			}
 		}
-
-		var parent = window.opener || window.parent;
-
-		if (!this.editor.modified)
+		catch (e)
 		{
 			if (!noExit)
 			{
-				parent.postMessage(JSON.stringify({event: 'exit',
-					point: this.embedExitPoint}), '*');
-			}
-		}
-		else
-		{
-			var bg = graph.background;
-		
-			if (bg == null || bg == mxConstants.NONE)
-			{
-				bg = this.embedExportBackground;
-			}
-
-			this.getEmbeddedSvg(this.getFileData(true, null, null, null, null,
-				null, null, null, null, false), graph, null, true,
-				mxUtils.bind(this, function(svg)
-			{
-				parent.postMessage(JSON.stringify({
-					event: 'export', point: this.embedExitPoint,
-					exit: (noExit != null) ? !noExit : true,
-					data: Editor.createSvgDataUri(svg)
-				}), '*');
-			}), null, null, true, bg, 1, this.embedExportBorder);
-		}
-
-		if (!noExit)
-		{
-			this.diagramContainer.removeAttribute('data-bounds');
-			Editor.inlineFullscreen = false;
-			graph.model.clear();
-			this.editor.undoManager.clear();
-			this.setBackgroundImage(null);
-			this.editor.modified = false;
-
-			if (urlParams['embed'] != '1')
-			{
-				this.fireEvent(new mxEventObject('editInlineStop'));
+				this.handleError(e);
 			}
 		}
 	};

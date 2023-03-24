@@ -12,6 +12,7 @@ EditorUi = function(editor, container, lightbox)
 	this.editor = editor || new Editor();
 	this.container = container || document.body;
 	
+	var ui = this;
 	var graph = this.editor.graph;
 	graph.lightbox = lightbox;
 
@@ -504,23 +505,24 @@ EditorUi = function(editor, container, lightbox)
 				this.diagramContainer.removeAttribute('title');
 			}
 		}));
-	
-	   	// Escape key hides dialogs, adds space+drag panning
-		var spaceKeyPressed = false;
 		
 		// Overrides hovericons to disable while space key is pressed
 		var hoverIconsIsResetEvent = this.hoverIcons.isResetEvent;
 		
 		this.hoverIcons.isResetEvent = function(evt, allowShift)
 		{
-			return spaceKeyPressed || hoverIconsIsResetEvent.apply(this, arguments);
+			return ui.isSpaceDown() || hoverIconsIsResetEvent.apply(this, arguments);
 		};
 		
 		this.keydownHandler = mxUtils.bind(this, function(evt)
 		{
-			if (evt.which == 32 /* Space */ && !graph.isEditing())
+			if (evt.which == 16 /* Shift */)
 			{
-				spaceKeyPressed = true;
+				this.shiftDown = true;
+			}
+			else if (evt.which == 32 /* Space */ && !graph.isEditing())
+			{
+				this.spaceDown = true;
 				this.hoverIcons.reset();
 				graph.container.style.cursor = 'move';
 				
@@ -541,7 +543,8 @@ EditorUi = function(editor, container, lightbox)
 		this.keyupHandler = mxUtils.bind(this, function(evt)
 		{
 			graph.container.style.cursor = '';
-			spaceKeyPressed = false;
+			this.spaceDown = false;
+			this.shiftDown = false;
 		});
 	
 		mxEvent.addListener(document, 'keyup', this.keyupHandler);
@@ -552,7 +555,7 @@ EditorUi = function(editor, container, lightbox)
 		{
 			// Ctrl+left button is reported as right button in FF on Mac
 			return panningHandlerIsForcePanningEvent.apply(this, arguments) ||
-				spaceKeyPressed || (mxEvent.isMouseEvent(me.getEvent()) &&
+				ui.isSpaceDown() || (mxEvent.isMouseEvent(me.getEvent()) &&
 				(this.usePopupTrigger || !mxEvent.isPopupTrigger(me.getEvent())) &&
 				((!mxEvent.isControlDown(me.getEvent()) &&
 				mxEvent.isRightMouseButton(me.getEvent())) ||
@@ -575,7 +578,7 @@ EditorUi = function(editor, container, lightbox)
 		
 		graph.isZoomWheelEvent = function()
 		{
-			return spaceKeyPressed || graphIsZoomWheelEvent.apply(this, arguments);
+			return ui.isSpaceDown() || graphIsZoomWheelEvent.apply(this, arguments);
 		};
 		
 		// Switches toolbar for text editing
@@ -630,8 +633,6 @@ EditorUi = function(editor, container, lightbox)
 				nodes = newNodes;
 			}
 		});
-	
-		var ui = this;
 		
 		// Overrides cell editor to update toolbar
 		var cellEditorStartEditing = graph.cellEditor.startEditing;
@@ -1223,6 +1224,16 @@ EditorUi.prototype.hsplitClickEnabled = false;
  * Whether the default styles should be updated when styles are changed. Default is true.
  */
 EditorUi.prototype.updateDefaultStyle = false;
+
+/**
+ * Whether the default styles should be updated when styles are changed. Default is true.
+ */
+EditorUi.prototype.spaceDown = false;
+
+/**
+ * Whether the default styles should be updated when styles are changed. Default is true.
+ */
+EditorUi.prototype.shiftDown = false;
 
 /**
  * Installs the listeners to update the action states.
@@ -2187,6 +2198,22 @@ EditorUi.prototype.hideShapePicker = function(cancel)
 		
 		this.shapePickerCallback = null;
 	}
+};
+
+/**
+ * Whether the default styles should be updated when styles are changed. Default is true.
+ */
+EditorUi.prototype.isSpaceDown = function()
+{
+	return this.spaceDown;
+};
+
+/**
+ * Whether the default styles should be updated when styles are changed. Default is true.
+ */
+EditorUi.prototype.isShiftDown = function()
+{
+	return this.shiftDown;
 };
 
 /**
@@ -6126,7 +6153,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	{
 		if (graph.isEnabled())
 		{
-			// TODO: Add alt modified state in core API, here are some specific cases
+			// TODO: Add alt modifier state in core API, here are some specific cases
 			if (mxEvent.isShiftDown(evt) && mxEvent.isAltDown(evt))
 			{
 				var action = editorUi.actions.get(editorUi.altShiftActions[evt.keyCode]);
@@ -6253,10 +6280,10 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	keyHandler.bindAction(107, true, 'zoomIn'); // Ctrl+Plus
 	keyHandler.bindAction(109, true, 'zoomOut'); // Ctrl+Minus
 	keyHandler.bindAction(80, true, 'print'); // Ctrl+P
-	keyHandler.bindAction(79, true, 'outline', true); // Ctrl+Shift+O
-
+	
 	if (!this.editor.chromeless || this.editor.editable)
 	{
+		keyHandler.bindAction(79, true, 'outline', true); // Ctrl+Shift+O
 		keyHandler.bindControlKey(36, function() { if (graph.isEnabled()) { graph.foldCells(true); }}); // Ctrl+Home
 		keyHandler.bindControlKey(35, function() { if (graph.isEnabled()) { graph.foldCells(false); }}); // Ctrl+End
 		keyHandler.bindControlKey(13, function() { ui.ctrlEnter(); }); // Ctrl+Enter

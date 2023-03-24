@@ -1203,7 +1203,13 @@ var ErrorDialog = function(editorUi, title, message, buttonText, fn, retry, butt
 	var p2 = document.createElement('div');
 	p2.style.lineHeight = '1.2em';
 	p2.style.padding = '6px';
-	p2.innerHTML = message.replace(/\n/g, '<br/>');
+	
+	if (typeof message === 'string')
+	{
+		message = message.replace(/\n/g, '<br/>');
+	}
+
+	p2.innerHTML = message;
 	div.appendChild(p2);
 	
 	var btns = document.createElement('div');

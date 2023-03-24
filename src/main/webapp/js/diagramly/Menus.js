@@ -637,7 +637,7 @@
 				editorUi.showDialog(dlg.container, 300, dlgH, true, true);
 			}
 		}));
-		
+
 		editorUi.actions.addAction('open...', function()
 		{
 			editorUi.pickFile();
@@ -808,7 +808,7 @@
 			{
 				currentStyle = graph.copyStyle(graph.getSelectionCell())
 			}
-		}, null, null, Editor.ctrlKey + '+Shift+C');
+		}, null, null, 'Alt+Shift+Q');
 
 		editorUi.actions.addAction('pasteStyle', function()
 		{
@@ -816,7 +816,7 @@
 			{
 				graph.pasteStyle(currentStyle, graph.getSelectionCells())
 			}
-		}, null, null, Editor.ctrlKey + '+Shift+V');
+		}, null, null, 'Alt+Shift+W');
 		
 		editorUi.actions.put('exportSvg', new Action(mxResources.get('formatSvg') + '...', function()
 		{

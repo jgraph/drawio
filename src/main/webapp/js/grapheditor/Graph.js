@@ -14303,7 +14303,12 @@ if (typeof mxVertexHandler !== 'undefined')
 					
 					if (link != null)
 					{
-						this.linkHint.appendChild(this.graph.createLinkForHint(link));
+						var wrapper = document.createElement('div');
+						wrapper.style.display = 'flex';
+						wrapper.style.alignItems = 'center';
+						wrapper.appendChild(this.graph.createLinkForHint(link));
+
+						this.linkHint.appendChild(wrapper);
 						
 						if (this.graph.isEnabled() && typeof this.graph.editLink === 'function' &&
 							!this.graph.isCellLocked(this.state.cell))
@@ -14312,12 +14317,12 @@ if (typeof mxVertexHandler !== 'undefined')
 							changeLink.className = 'geAdaptiveAsset';
 							changeLink.setAttribute('src', Editor.editImage);
 							changeLink.setAttribute('title', mxResources.get('editLink'));
-							changeLink.setAttribute('width', '11');
-							changeLink.setAttribute('height', '11');
-							changeLink.style.marginLeft = '10px';
+							changeLink.setAttribute('width', '14');
+							changeLink.setAttribute('height', '14');
+							changeLink.style.marginLeft = '6px';
 							changeLink.style.marginBottom = '-1px';
 							changeLink.style.cursor = 'pointer';
-							this.linkHint.appendChild(changeLink);
+							wrapper.appendChild(changeLink);
 							
 							mxEvent.addListener(changeLink, 'click', mxUtils.bind(this, function(evt)
 							{
@@ -14333,7 +14338,7 @@ if (typeof mxVertexHandler !== 'undefined')
 								[mxResources.get('link')]));
 							trashLink.style.marginLeft = '4px';
 
-							this.linkHint.appendChild(trashLink);
+							wrapper.appendChild(trashLink);
 
 							mxEvent.addListener(trashLink, 'click', mxUtils.bind(this, function(evt)
 							{
