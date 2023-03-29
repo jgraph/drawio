@@ -10379,6 +10379,7 @@ var com;
                             if (txtChildren != null) {
                                 /* put */ (this.styleMap[mxConstants.STYLE_VERTICAL_ALIGN] = this.getAlignVertical());
                                 /* put */ (this.styleMap[mxConstants.STYLE_ALIGN] = this.getHorizontalAlign("0", false));
+                                this.styleMap['overflow'] = 'width';
                                 return this.getHtmlTextContent(txtChildren);
                             }
                         }

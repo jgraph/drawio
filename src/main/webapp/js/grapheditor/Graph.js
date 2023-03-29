@@ -12843,6 +12843,17 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 
 		/**
+		 * Forces preview for title size in tables, table rows, table cells and swimlanes.
+		 */
+		var vertexHandlerIsGhostPreview = mxVertexHandler.prototype.isGhostPreview;
+		mxVertexHandler.prototype.isGhostPreview = function()
+		{
+			return vertexHandlerIsGhostPreview.apply(this, arguments) && !this.graph.isTable(this.state.cell) &&
+				!this.graph.isTableRow(this.state.cell) && !this.graph.isTableCell(this.state.cell) &&
+				!this.graph.isSwimlane(this.state.cell);
+		};
+
+		/**
 		 * Creates the shape used to draw the selection border.
 		 */
 		var vertexHandlerCreateParentHighlightShape = mxVertexHandler.prototype.createParentHighlightShape;

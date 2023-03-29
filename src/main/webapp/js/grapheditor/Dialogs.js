@@ -1648,7 +1648,8 @@ var EditDataDialog = function(ui, cell)
 		var name = nameInput.value;
 
 		// Avoid ':' in attribute names which seems to be valid in Chrome
-		if (name.length > 0 && name != 'label' && name != 'placeholders' && name.indexOf(':') < 0)
+		if (name.length > 0 && name != 'label' && name != 'id' &&
+			name != 'placeholders' && name.indexOf(':') < 0)
 		{
 			try
 			{

@@ -1,3 +1,11 @@
+29-MAR-2023: 21.1.2
+
+- Fixes handling of ctrl+shift+v on Mac [drawio-291]
+- Fixes properties cannot be named id [drawio-3460]
+- [vsdx]] Adds overflow=width to improve support label alignment [DID-7420]
+- Fixes change of title size in tables [drawio-3468]
+- Adds live preview for change of swimlane title size
+
 23-MAR-2023: 21.1.1
 
 - Fixes possible f.replace is not a function
