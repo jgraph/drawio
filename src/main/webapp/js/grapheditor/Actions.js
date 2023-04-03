@@ -939,21 +939,7 @@ Actions.prototype.init = function()
 					
 					if (html == '1' && value == null)
 			    	{
-			    		var label = graph.convertValueToString(state.cell);
-			    		
-			    		if (mxUtils.getValue(state.style, 'nl2Br', '1') != '0')
-						{
-							// Removes newlines from HTML and converts breaks to newlines
-							// to match the HTML output in plain text
-							label = label.replace(/\n/g, '').replace(/<br\s*.?>/g, '\n');
-						}
-			    		
-			    		// Removes HTML tags
-		    			var temp = document.createElement('div');
-		    			temp.innerHTML = Graph.sanitizeHtml(label);
-		    			label = mxUtils.extractTextWithWhitespace(temp.childNodes);
-		    			
-						graph.cellLabelChanged(state.cell, label);
+						graph.removeTextStyleForCell(state.cell);
 						graph.setCellStyles('html', value, [cells[i]]);
 			    	}
 					else if (html == '0' && value == '1')
@@ -1374,6 +1360,26 @@ Actions.prototype.init = function()
 	this.addAction('borderColor...', function() { ui.menus.pickColor(mxConstants.STYLE_LABEL_BORDERCOLOR); });
 	
 	// Format actions
+	this.addAction('removeFormat', function()
+	{
+		if (graph.isEnabled() && !graph.isSelectionEmpty() && !graph.isEditing())
+		{
+			graph.getModel().beginUpdate();
+			try
+			{
+				var cells = graph.getSelectionCells();
+
+				for (var i = 0; i < cells.length; i++)
+				{
+					graph.removeTextStyleForCell(cells[i], true);
+				}
+			}
+			finally
+			{
+				graph.getModel().endUpdate();
+			}
+		}
+	});
 	this.addAction('vertical', function() { ui.menus.toggleStyle(mxConstants.STYLE_HORIZONTAL, true); });
 	this.addAction('shadow', function() { ui.menus.toggleStyle(mxConstants.STYLE_SHADOW); });
 	this.addAction('solid', function()

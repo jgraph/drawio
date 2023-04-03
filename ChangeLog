@@ -1,3 +1,16 @@
+04-APR-2023: 21.1.4
+
+- Remerge and release of dev branch
+
+03-APR-2023: 21.1.3
+
+- Adds zoom and border properties for XML+SVG files
+- Adds Clear Formatting button in Text style panel
+- Removes fontSource cell styles in clear formatting
+- Fixes possible resolving of defaults in stylesheet
+- Conf Cloud: Support proper versioning for embed -> upload [DID-7828]
+- Enables compression with compressXml [drawio-3484]
+
 29-MAR-2023: 21.1.2
 
 - Fixes handling of ctrl+shift+v on Mac [drawio-291]

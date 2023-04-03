@@ -6450,6 +6450,52 @@ HoverIcons.prototype.setCurrentState = function(state)
 /**
  * Returns true if the given cell is a table.
  */
+Graph.prototype.removeTextStyleForCell = function(cell, removeCellStyles)
+{
+	var style = this.getCurrentCellStyle(cell);
+	var result = false;
+
+	this.getModel().beginUpdate();
+	try
+	{
+		if (mxUtils.getValue(style, 'html', '0') == '1')
+		{
+			var label = this.convertValueToString(cell);
+							
+			if (mxUtils.getValue(style, 'nl2Br', '1') != '0')
+			{
+				// Removes newlines from HTML and converts breaks to newlines
+				// to match the HTML output in plain text
+				label = label.replace(/\n/g, '').replace(/<br\s*.?>/g, '\n');
+			}
+			
+			label = Editor.convertHtmlToText(label);
+			this.cellLabelChanged(cell, label);
+			result = true;
+		}
+
+		if (removeCellStyles)
+		{
+			this.setCellStyles('fontSource', null, [cell]);
+			this.setCellStyles(mxConstants.STYLE_FONTFAMILY, null, [cell]);
+			this.setCellStyles(mxConstants.STYLE_FONTSIZE, null, [cell]);
+			this.setCellStyles(mxConstants.STYLE_FONTSTYLE, null, [cell]);
+			this.setCellStyles(mxConstants.STYLE_FONTCOLOR, null, [cell]);
+			this.setCellStyles(mxConstants.STYLE_LABEL_BORDERCOLOR, null, [cell]);
+			this.setCellStyles(mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, null, [cell]);
+		}
+	}
+	finally
+	{
+		this.getModel().endUpdate();
+	}
+
+	return result;
+};
+
+/**
+ * Returns true if the given cell is a table.
+ */
 Graph.prototype.createParent = function(parent, child, childCount, dx, dy)
 {
 	parent = this.cloneCell(parent);

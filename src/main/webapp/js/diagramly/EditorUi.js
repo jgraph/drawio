@@ -1214,8 +1214,11 @@
 				{
 					url = null;
 				}
+
+				var props = this.getSvgFileProperties(fileNode);
 				
-				xml = this.getEmbeddedSvg(xml, graph, url, null, embeddedCallback, ignoreSelection, redirect);
+				xml = this.getEmbeddedSvg(xml, graph, url, null, embeddedCallback, ignoreSelection, redirect,
+					null, null, props.scale, props.border);
 			}
 			
 			
@@ -6880,6 +6883,14 @@
 		
 		return node;
 	};
+
+	/**
+	 * 
+	 */
+	EditorUi.prototype.getSvgFileProperties = function(node)
+	{
+		return this.getPngFileProperties(node);
+	};
 	
 	/**
 	 * 
@@ -8054,6 +8065,47 @@
 
 		fn();
 	};
+	
+	/**
+	 * Generates a Mermaid image.
+	 */
+	EditorUi.prototype.extractMermaidMindmap = function(lines)
+	{
+		if (lines[1].indexOf('orientation') > 0)
+		{
+			lines.splice(1, 1);
+		}
+
+		while (lines.length > 1 && lines[1] == '')
+		{
+			lines.splice(1, 1);
+		}
+
+		var newLines = [];
+
+		// Removes dashes in entries
+		for (var i = 2; i < lines.length; i++)
+		{
+			var temp = mxUtils.trim(lines[i]);
+
+			if (temp != '[' && temp != ']' &&
+				temp.substring(0, 2) != '%%' &&
+				temp.substring(0, 2) != '##')
+			{
+				temp = lines[i].replace(/[-|>]/g, ' ')
+				
+				if (mxUtils.trim(temp) != '' &&
+					temp.charAt(0) == ' ')
+				{
+					newLines.push(temp);
+				}
+			}
+		}
+
+		// Removes indentiation for root element
+		return 'mindmap\nroot((' + mxUtils.trim(lines[1]) +
+			'))\n' + newLines.join('\n');
+	};
 
 	/**
 	 * Generates a Mermaid image.
@@ -8089,6 +8141,18 @@
 		// Validates diagram type on first line
 		var type = lines[0].split(' ')[0].replace(/:$/, '');
 
+		try
+		{
+			if (type == 'mindmap' && lines.length > 2)
+			{
+				text = this.extractMermaidMindmap(lines);
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+
 		if (type.charAt(0) != '@' && mxUtils.indexOf(
 			EditorUi.mermaidDiagramTypes, type) < 0)
 		{
@@ -8101,7 +8165,7 @@
 
 		return text;
 	};
-
+	
 	/**
 	 * Generates a Mermaid image.
 	 */

@@ -348,7 +348,7 @@
 		editorUi.actions.addAction('properties...', function()
 		{
 			var dlg = new FilePropertiesDialog(editorUi);
-			editorUi.showDialog(dlg.container, 320, 120, true, true);
+			editorUi.showDialog(dlg.container, 320, 140, true, true);
 			dlg.init();
 		}).isEnabled = isGraphEnabled;
 	
@@ -4644,8 +4644,7 @@
 					var filename = (file.getTitle() != null) ?
 						file.getTitle() : editorUi.defaultFilename;
 					
-					if (!/(\.html)$/i.test(filename) &&
-						!/(\.svg)$/i.test(filename))
+					if (!/(\.html)$/i.test(filename))
 					{
 						this.addMenuItems(menu, ['-', 'properties']);
 					}
@@ -4881,8 +4880,7 @@
 						file.getTitle() : editorUi.defaultFilename;
 					
 					if ((file.constructor == DriveFile && file.sync != null &&
-						file.sync.isConnected()) || (!/(\.html)$/i.test(filename) &&
-						!/(\.svg)$/i.test(filename)))
+						file.sync.isConnected()) || !/(\.html)$/i.test(filename))
 					{
 						this.addMenuItems(menu, ['properties'], parent);
 					}
@@ -5008,8 +5006,7 @@
 						file.getTitle() : editorUi.defaultFilename;
 					
 					if ((file.constructor == DriveFile && file.sync != null &&
-						file.sync.isConnected()) || (!/(\.html)$/i.test(filename) &&
-						!/(\.svg)$/i.test(filename)))
+						file.sync.isConnected()) || !/(\.html)$/i.test(filename))
 					{
 						this.addMenuItems(menu, ['-', 'properties']);
 					}

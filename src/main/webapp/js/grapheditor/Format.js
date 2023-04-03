@@ -2837,7 +2837,34 @@ TextFormatPanel.prototype.init = function()
 {
 	this.container.style.borderBottom = 'none';
 	this.addFont(this.container);
+
+
+
+	// Allows to lock/unload button to be added
+	this.container.appendChild(this.addFontOps(this.createPanel()));
+	
 };
+
+
+/**
+ * 
+ */
+TextFormatPanel.prototype.addFontOps = function(div)
+{
+	var ui = this.editorUi;
+	div.style.paddingTop = '8px';
+	div.style.paddingBottom = '6px';
+
+	var count = this.addActions(div, ['removeFormat']);
+
+	if (count == 0)
+	{
+		div.style.display = 'none';
+	}
+	
+	return div;
+};
+
 
 /**
  * Adds the label menu items to the given menu and parent.

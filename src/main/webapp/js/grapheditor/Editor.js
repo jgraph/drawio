@@ -270,6 +270,17 @@ Editor.isPngData = function(data)
 };
 
 /**
+ * Converts HTML to plain text.
+ */
+Editor.convertHtmlToText = function(label)
+{
+	var temp = document.createElement('div');
+	temp.innerHTML = Graph.sanitizeHtml(label);
+
+	return mxUtils.extractTextWithWhitespace(temp.childNodes);
+};
+
+/**
  * Extracts the XML from the compressed or non-compressed text chunk.
  */
 Editor.extractGraphModelFromPng = function(data)

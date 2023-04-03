@@ -1854,6 +1854,7 @@
 
 			if (config.compressXml != null)
 			{
+				Editor.defaultCompressed = config.compressXml;
 				Editor.compressXml = config.compressXml;
 			}
 			

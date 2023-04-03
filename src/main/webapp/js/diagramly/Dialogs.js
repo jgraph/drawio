@@ -3873,8 +3873,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	// Adds local basic templates
 	categories['basic'] = [{title: 'blankDiagram', select: true}];
 	var templates = categories['basic'];
-
-	if (editorUi.getServiceName() == 'draw.io')
+	
+	if (editorUi.isExternalDataComms() && editorUi.getServiceName() == 'draw.io')
 	{
 		categories['smartTemplate'] = {content: createSmartTemplateContent()};
 	}
@@ -12853,9 +12853,10 @@ var FilePropertiesDialog = function(editorUi)
 	var filename = (file != null && file.getTitle() != null) ?
 		file.getTitle() : editorUi.defaultFilename;
 	var isPng = /(\.png)$/i.test(filename);
+	var isSvg = /(\.svg)$/i.test(filename);
 	var apply = function() { };
 
-	if (isPng)
+	if (isPng || isSvg)
 	{
 		var scale = 1;
 		var border = 0;
@@ -12886,7 +12887,7 @@ var FilePropertiesDialog = function(editorUi)
 		var zoomInput = document.createElement('input');
 		zoomInput.setAttribute('value', (scale * 100) + '%');
 		zoomInput.style.marginLeft = '4px';
-		zoomInput.style.width ='180px';
+		zoomInput.style.width = '120px';
 		
 		td = document.createElement('td');
 		td.style.whiteSpace = 'nowrap';
@@ -12906,7 +12907,7 @@ var FilePropertiesDialog = function(editorUi)
 		var borderInput = document.createElement('input');
 		borderInput.setAttribute('value', border);
 		borderInput.style.marginLeft = '4px';
-		borderInput.style.width ='180px';
+		borderInput.style.width = '120px';
 		
 		td = document.createElement('td');
 		td.style.whiteSpace = 'nowrap';
@@ -12994,6 +12995,8 @@ var FilePropertiesDialog = function(editorUi)
 			editorUi.hideDialog();
 		};
 	}
+
+	console.log('here', file.isRealtimeOptional(), file);
 
 	if (file != null && file.isRealtimeOptional())
 	{
