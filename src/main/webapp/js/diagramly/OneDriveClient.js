@@ -994,7 +994,9 @@ OneDriveClient.prototype.writeLargeFile = function(url, data, success, error, et
 		
 		if (data != null)
 		{
-			var uploadPart = mxUtils.bind(this, function(uploadUrl, index, retryCount)
+			var dataByteLength = (new TextEncoder().encode(data)).length;
+
+			var uploadPart = mxUtils.bind(this, function(uploadUrl, index, byteIndex, retryCount)
 			{
 				try
 				{
@@ -1009,12 +1011,13 @@ OneDriveClient.prototype.writeLargeFile = function(url, data, success, error, et
 					}), this.ui.timeout);
 	
 					var part = data.substr(index, chunkSize);
+					var partByteLength = (new TextEncoder().encode(part)).length;
 					var req = new mxXmlRequest(uploadUrl, part, 'PUT');
-						
+
 					req.setRequestHeaders = mxUtils.bind(this, function(request, params)
 					{
-						request.setRequestHeader('Content-Length', part.length);
-						request.setRequestHeader('Content-Range', 'bytes ' + index + '-' + (index + part.length - 1) + '/' + data.length);
+						request.setRequestHeader('Content-Range', 'bytes ' + byteIndex + '-' + 
+							(byteIndex + partByteLength - 1) + '/' + dataByteLength);
 					});
 
 					req.send(mxUtils.bind(this, function(req)
@@ -1034,13 +1037,13 @@ OneDriveClient.prototype.writeLargeFile = function(url, data, success, error, et
 								}
 								else
 								{
-									uploadPart(uploadUrl, nextByte, retryCount);
+									uploadPart(uploadUrl, nextByte, byteIndex + partByteLength, retryCount);
 								}
 							}
 							else if (status >= 500 && status <= 599 && retryCount < 2) //Retry on server errors
 							{
 								retryCount++;
-								uploadPart(uploadUrl, index, retryCount);
+								uploadPart(uploadUrl, index, byteIndex, retryCount);
 							}
 							else
 							{
@@ -1105,7 +1108,7 @@ OneDriveClient.prototype.writeLargeFile = function(url, data, success, error, et
 					    	if (req.getStatus() >= 200 && req.getStatus() <= 299)
 							{
 								var resp = JSON.parse(req.getText());
-					    		uploadPart(resp.uploadUrl, 0);
+					    		uploadPart(resp.uploadUrl, 0, 0);
 							}
 							else if (!failOnAuth && req.getStatus() === 401)
 							{

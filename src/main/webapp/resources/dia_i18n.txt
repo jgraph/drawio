@@ -1251,4 +1251,4 @@ errCreateConfigFile=errCreateConfigFile
 errSetPageRestr=errSetPageRestr
 notAdmin4Team=notAdmin4Team
 configUpdated=configUpdated
-outOfDateRevisionAlert =outOfDateRevisionAlert 
+outOfDateRevisionAlert=outOfDateRevisionAlert

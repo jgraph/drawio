@@ -165,13 +165,16 @@ function main()
 											var of = window.parent.openFile;
 											window.parent.openBrowserFile(k, function(data)
 											{
-												window.parent.openWindow(window.parent.baseUrl + '#L' + encodeURIComponent(k), function()
+												if (window.parent != null)
 												{
-													of.cancel(false);
-												}, function()
-												{
-													of.setData(data, k);
-												});									
+													window.parent.openWindow(window.parent.baseUrl + '#L' + encodeURIComponent(k), function()
+													{
+														of.cancel(false);
+													}, function()
+													{
+														of.setData(data, k);
+													});
+												}							
 											}, function()
 											{
 												//TODO add error

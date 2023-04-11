@@ -2009,7 +2009,31 @@ Graph.createRemoveIcon = function(title, onclick)
  */
 Graph.isPageLink = function(text)
 {
-	 return text != null && text.substring(0, 13) == 'data:page/id,';
+	return text != null && text.substring(0, 13) == 'data:page/id,';
+};
+
+/**
+ * Returns true if the given string is a page link.
+ */
+Graph.rewritePageLinks = function(doc)
+{
+	var links = doc.getElementsByTagName('a');
+
+	function rewriteLink(link, attrib)
+	{
+		var href = link.getAttribute(attrib);
+
+		if (href != null && Graph.isPageLink(href))
+		{
+			link.setAttribute(attrib, '#' + href.substring(href.indexOf(':') + 1));
+		}
+	};
+
+	for (var i = 0; i < links.length; i++)
+	{
+		rewriteLink(links[i], 'href');
+		rewriteLink(links[i], 'xlink:href');
+	}
 };
 
 /**

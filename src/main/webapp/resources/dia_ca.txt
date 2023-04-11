@@ -1251,4 +1251,4 @@ errCreateConfigFile=S'ha produït un error en crear el fitxer "configuration.jso
 errSetPageRestr=S'ha produït un error en establir les restriccions de la pàgina
 notAdmin4Team=No ets administrador d'aquest equip
 configUpdated=Configuració actualitzada, reinicieu l'editor si voleu treballar amb la darrera configuració.
-outOfDateRevisionAlert =Esteu editant una revisió històrica del diagrama, comproveu la revisió i obriu-la per substituir la darrera versió. O tanca i sobreescriu/fusiona més tard.
+outOfDateRevisionAlert=Esteu editant una revisió històrica del diagrama, comproveu la revisió i obriu-la per substituir la darrera versió. O tanca i sobreescriu/fusiona més tard.

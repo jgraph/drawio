@@ -1251,4 +1251,4 @@ errCreateConfigFile=Errore durante la creazione del file "configuration.json", v
 errSetPageRestr=Errore durante l'impostazione delle restrizioni di pagina
 notAdmin4Team=Non sei un amministratore per questa squadra
 configUpdated=Configurazione aggiornata, riavvia l'editor se desideri lavorare con l'ultima configurazione.
-outOfDateRevisionAlert =You are editing a historical revision of the diagram, please review the revision and open it to replace the latest version. Or close and overwrite/merge later.
+outOfDateRevisionAlert=You are editing a historical revision of the diagram, please review the revision and open it to replace the latest version. Or close and overwrite/merge later.

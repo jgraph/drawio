@@ -635,6 +635,14 @@ App.main = function(callback, createUi)
 {
 	try
 	{
+		// This function is called only once, so we can set the flag here
+		// Safari calls window.load event when the location hash is set (e.g, on descriptor change) resulting in calling main twice
+		if (App.isMainCalled) 
+		{
+			return;
+		}
+		
+		App.isMainCalled = true;
 		// Handles uncaught errors before the app is loaded
 		window.onerror = function(message, url, linenumber, colno, err)
 		{

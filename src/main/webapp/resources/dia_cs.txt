@@ -1251,4 +1251,4 @@ errCreateConfigFile=Chyba při vytváření souboru "configuration.json", zkontr
 errSetPageRestr=Chyba při nastavovaní restrikcí stránky
 notAdmin4Team=Nejste administrátor pro tento tým
 configUpdated=Konfigurace aktualizována, restartujte editor, pokud chcete pracovat s poslední konfigurací.
-outOfDateRevisionAlert =You are editing a historical revision of the diagram, please review the revision and open it to replace the latest version. Or close and overwrite/merge later.
+outOfDateRevisionAlert=You are editing a historical revision of the diagram, please review the revision and open it to replace the latest version. Or close and overwrite/merge later.

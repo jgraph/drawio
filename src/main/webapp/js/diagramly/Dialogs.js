@@ -2145,7 +2145,8 @@ var ParseDialog = function(editorUi, title, defaultType)
 				var diagramType = lines[k].trim().toLowerCase();
 				var sp = diagramType.indexOf(' ');
 				diagramType = diagramType.substring(0, sp > 0 ? sp : diagramType.length);
-				var inDrawioFormat = type == 'mermaid2drawio' && diagramType != 'gantt' && diagramType != 'pie';
+				var inDrawioFormat = typeof mxMermaidToDrawio !== 'undefined' && 
+							type == 'mermaid2drawio' && diagramType != 'gantt' && diagramType != 'pie';
 
 				var graph = editorUi.editor.graph;
 				
@@ -2534,7 +2535,8 @@ var ParseDialog = function(editorUi, title, defaultType)
 	var typeSelect = document.createElement('select');
 	typeSelect.className = 'geBtn';
 	
-	if (defaultType == 'formatSql' || (defaultType == 'mermaid' && editorUi.getServiceName() != 'draw.io'))
+	if (defaultType == 'formatSql' || (defaultType == 'mermaid' && 
+			editorUi.getServiceName() != 'draw.io' && editorUi.getServiceName() != 'atlassian'))
 	{
 		typeSelect.style.display = 'none';
 	}

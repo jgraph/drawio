@@ -1435,10 +1435,17 @@ Menus.prototype.addMenuItem = function(menu, key, parent, trigger, sprite, label
 
 	if (action != null && (menu.showDisabled || action.isEnabled()) && action.visible)
 	{
-		var item = menu.addItem(label || action.label, null, function(evt)
+		var item = menu.addItem(label || action.label, null, mxUtils.bind(this, function(evt)
 		{
-			action.funct(trigger, evt);
-		}, parent, sprite, action.isEnabled());
+			try
+			{
+				action.funct(trigger, evt);
+			}
+			catch (e)
+			{
+				this.editorUi.handleError(e);
+			}
+		}), parent, sprite, action.isEnabled());
 		
 		// Adds checkmark image
 		if (action.toggleAction && action.isSelected())

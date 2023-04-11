@@ -1253,8 +1253,6 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 					}
 				}), mxUtils.bind(this, function()
 				{
-					logError(true);
-
 					if (error != null)
 					{
 						error();

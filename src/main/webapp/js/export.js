@@ -192,6 +192,14 @@ function render(data)
 	}
 
 	/**
+	 * Disables custom links but allows page links.
+	 */
+	function isLinkIgnored(graph, link)
+	{
+		return link == null || (graph.isCustomLink(link) && !Graph.isPageLink(link));
+	};
+
+	/**
 	 * Disables custom links on shapes.
 	 */
 	var graphGetLinkForCell = graph.getLinkForCell;
@@ -199,8 +207,8 @@ function render(data)
 	graph.getLinkForCell = function(cell)
 	{
 		var link = graphGetLinkForCell.apply(this, arguments);
-		
-		if (link != null && this.isCustomLink(link))
+
+		if (isLinkIgnored(this, link))
 		{
 			link = null;
 		}
@@ -225,7 +233,7 @@ function render(data)
 			{
 				var href = links[i].getAttribute('href');
 				
-				if (href != null && graph.isCustomLink(href))
+				if (isLinkIgnored(graph, href))
 				{
 					links[i].setAttribute('href', '#');
 				}
@@ -251,6 +259,9 @@ function render(data)
 			//Ensure that all fonts has been loaded, this promise is never rejected
 			document.fonts.ready.then(function() 
 			{
+				// Rewrite page links
+				Graph.rewritePageLinks(document);
+				
 				var doneDiv = document.createElement("div");
 				var pageCount = diagrams != null? diagrams.length : 1;
 				doneDiv.id = 'LoadingComplete';
@@ -472,7 +483,7 @@ function render(data)
 		return origAddFont.call(this, name, url, decrementWaitCounter);	
 	};
 		
-	function renderPage()
+	function renderPage(currentPageId)
 	{
 		// Enables math typesetting
 		math |= xmlDoc.documentElement.getAttribute('math') == '1';
@@ -803,6 +814,8 @@ function render(data)
 				x0 -= layout.x * pf.width;
 				y0 -= layout.y * pf.height;
 			}
+
+			var anchorId = (currentPageId != null) ? 'page/id,' + currentPageId : null;
 			
 			if (preview == null)
 			{
@@ -811,14 +824,14 @@ function render(data)
 				preview.autoOrigin = autoOrigin;
 				preview.backgroundColor = bg;
 				// Renders print output into this document and removes the graph container
-				preview.open(null, window);
+				preview.open(null, window, null, null, anchorId);
 				graph.container.parentNode.removeChild(graph.container);
 			}
 			else
 			{
 				preview.backgroundColor = bg;
 				preview.autoOrigin = autoOrigin; 
-				preview.appendGraph(graph, scale, x0, y0);
+				preview.appendGraph(graph, scale, x0, y0, null, null, anchorId);
 			}
 
 			// Adds shadow
@@ -932,7 +945,7 @@ function render(data)
 			{
 				if (pageId == null)
 				{
-					pageId = diagrams[i].getAttribute('id')
+					pageId = diagrams[i].getAttribute('id');
 				}
 				
 				xmlDoc = Editor.parseDiagramNode(diagrams[i]);
@@ -944,7 +957,7 @@ function render(data)
 
 				graph.getModel().clear();
 				from = i;
-				renderPage();
+				renderPage(diagrams[i].getAttribute('id'));
 			}
 		}
 	}
@@ -955,9 +968,9 @@ function render(data)
 	
 	if (fallbackFont)
 	{
-		//Add a fallbackFont font to all labels in case the selected font doesn't support the character
-		//Some systems doesn't have a good fallback fomt that supports all languages
-		//Use this with a custom font-face in export-fonts.css file
+		// Add a fallbackFont font to all labels in case the selected font doesn't support the character
+		// Some systems doesn't have a good fallback fomt that supports all languages
+		// Use this with a custom font-face in export-fonts.css file
 		document.querySelectorAll('foreignObject div').forEach(d => d.style.fontFamily = (d.style.fontFamily || '') + ', ' + fallbackFont);
 	}
 	

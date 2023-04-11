@@ -1,3 +1,20 @@
+11-APR-2023: 21.1.6
+
+- [conf cloud] Fixes large instances page IDs export and import and using new API [DID-7895]
+- Fixes safari bug with embed mode (calling App.main twice) [drawio-nextcloud-37]
+- Adds support for links to pages in print preview [drawio-722]
+- Blocks direct links to plantUML images generator and from other domains [CSP-1717]
+- Fixes OneDrive saving large files with non-Ascii characters [drawio-3481]
+- Prevents mermaid insertion errors when mxMermaidToDrawio is not available [drawio-3488]
+
+06-APR-2023: 21.1.5
+
+- Fixes asynchronous MathJax rendering [drawio-2876]
+- Added mermaid insertion as draw.io diagram to Atlassian [drawio-3488]
+- [conf cloud] Adds support for importing Gliffy macros with no diagram name (only attachment ID) [DID-7470]
+- [conf cloud] Fixed space filter search when key has "-" [DID-7470]
+- [conf cloud] Added support for Historical revisions of imported pages [DID-7233]
+
 04-APR-2023: 21.1.4
 
 - Remerge and release of dev branch
