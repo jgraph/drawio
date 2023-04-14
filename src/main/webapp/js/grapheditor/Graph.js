@@ -7434,11 +7434,7 @@ TableLayout.prototype.execute = function(parent)
 								if (pt != null && (Math.abs(pt.x - p0.x) > thresh ||
 									Math.abs(pt.y - p0.y) > thresh) &&
 									(Math.abs(pt.x - p1.x) > thresh ||
-									Math.abs(pt.y - p1.y) > thresh) &&
-									(Math.abs(pt.x - p2.x) > thresh ||
-									Math.abs(pt.y - p2.y) > thresh) &&
-									(Math.abs(pt.x - p3.x) > thresh ||
-									Math.abs(pt.y - p3.y) > thresh))
+									Math.abs(pt.y - p1.y) > thresh))
 								{
 									var dx = pt.x - p0.x;
 									var dy = pt.y - p0.y;

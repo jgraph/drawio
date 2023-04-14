@@ -3299,6 +3299,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			typeSelect.appendChild(option);
 		}
 
+		var type = urlParams['smart-template-type'];
+
+		if (type != null)
+		{
+			typeSelect.value = type;
+		}
+
 		var button = mxUtils.button(mxResources.get('generate'), function()
 		{
 			var useMermaidFormat = typeSelect.value == 'gantt' || typeSelect.value == 'pie';
@@ -3399,6 +3406,14 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		{
 			description.value = decodeURIComponent(temp);
 			updateState();
+
+			if (urlParams['smart-template-generate'] == '1')
+			{
+				window.setTimeout(function()
+				{
+					button.click();
+				}, 0);
+			}
 		}
 
 		mxEvent.addListener(description, 'change', updateState);
@@ -7344,7 +7359,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 	
 	function updateReplBtns()
 	{
-		if (lastSearchSuccessful && replaceInput.value)
+		if (lastSearchSuccessful)
 		{
 			replaceFindBtn.removeAttribute('disabled');
 			replaceBtn.removeAttribute('disabled');
@@ -7355,7 +7370,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			replaceBtn.setAttribute('disabled', 'disabled');
 		}
 		
-		if (replaceInput.value && searchInput.value)
+		if (searchInput.value)
 		{
 			replaceAllBtn.removeAttribute('disabled');
 		}
@@ -7702,7 +7717,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		{
 			try
 			{
-				if (lblMatch != null && lastFound != null && replaceInput.value)
+				if (lblMatch != null && lastFound != null)
 				{
 					var cell = lastFound.cell, lbl = graph.getLabel(cell);
 					
@@ -7739,11 +7754,12 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		{
 			try
 			{
-				if (lblMatch != null && lastFound != null && replaceInput.value)
+				if (lblMatch != null && lastFound != null)
 				{
 					var cell = lastFound.cell, lbl = graph.getLabel(cell);
 					
-					graph.model.setValue(cell, replaceInLabel(lbl, lblMatch, replaceInput.value, lblMatchPos - lblMatch.length, graph.getCurrentCellStyle(cell)));
+					graph.model.setValue(cell, replaceInLabel(lbl, lblMatch, replaceInput.value,
+						lblMatchPos - lblMatch.length, graph.getCurrentCellStyle(cell)));
 					replaceFindBtn.setAttribute('disabled', 'disabled');
 					replaceBtn.setAttribute('disabled', 'disabled');
 				}
@@ -7770,59 +7786,56 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		{
 			replAllNotif.innerText = '';
 			
-			if (replaceInput.value)
+			lastSearch = null; // Reset last search to check all matches
+			var currentPage = ui.currentPage;
+			var cells = ui.editor.graph.getSelectionCells();
+			ui.editor.graph.rendering = false;
+			
+			graph.getModel().beginUpdate();
+			try
 			{
-				lastSearch = null; // Reset last search to check all matches
-				var currentPage = ui.currentPage;
-				var cells = ui.editor.graph.getSelectionCells();
-				ui.editor.graph.rendering = false;
+				var safeguard = 0;
+				var seen = {};
 				
-				graph.getModel().beginUpdate();
-				try
+				while (search(false, true, true) && safeguard < 100)
 				{
-					var safeguard = 0;
-					var seen = {};
+					var cell = lastFound.cell, lbl = graph.getLabel(cell);
+					var oldSeen = seen[cell.id];
 					
-					while (search(false, true, true) && safeguard < 100)
+					if (oldSeen && oldSeen.replAllMrk == marker && oldSeen.replAllPos >= lblMatchPos)
 					{
-						var cell = lastFound.cell, lbl = graph.getLabel(cell);
-						var oldSeen = seen[cell.id];
-						
-						if (oldSeen && oldSeen.replAllMrk == marker && oldSeen.replAllPos >= lblMatchPos)
-						{
-							break;
-						}
-						
-						seen[cell.id] = {replAllMrk: marker, replAllPos: lblMatchPos};
-						
-						if (graph.isCellEditable(cell))
-						{
-							graph.model.setValue(cell, replaceInLabel(lbl, lblMatch, replaceInput.value,
-								lblMatchPos - lblMatch.length, graph.getCurrentCellStyle(cell)));
-							safeguard++;
-						}
+						break;
 					}
 					
-					if (currentPage != ui.currentPage)
-					{
-						ui.editor.graph.model.execute(new SelectPage(ui, currentPage));
-					}
+					seen[cell.id] = {replAllMrk: marker, replAllPos: lblMatchPos};
 					
-					mxUtils.write(replAllNotif, mxResources.get('matchesRepl', [safeguard]));
-				}
-				catch (e)
-				{
-					ui.handleError(e);
-				}
-				finally
-				{
-					graph.getModel().endUpdate();
-					ui.editor.graph.setSelectionCells(cells);
-					ui.editor.graph.rendering = true;
+					if (graph.isCellEditable(cell))
+					{
+						graph.model.setValue(cell, replaceInLabel(lbl, lblMatch, replaceInput.value,
+							lblMatchPos - lblMatch.length, graph.getCurrentCellStyle(cell)));
+						safeguard++;
+					}
 				}
 				
-				marker++;
+				if (currentPage != ui.currentPage)
+				{
+					ui.editor.graph.model.execute(new SelectPage(ui, currentPage));
+				}
+				
+				mxUtils.write(replAllNotif, mxResources.get('matchesRepl', [safeguard]));
 			}
+			catch (e)
+			{
+				ui.handleError(e);
+			}
+			finally
+			{
+				graph.getModel().endUpdate();
+				ui.editor.graph.setSelectionCells(cells);
+				ui.editor.graph.rendering = true;
+			}
+			
+			marker++;
 		});
 		
 		replaceAllBtn.setAttribute('title', mxResources.get('replaceAll'));
@@ -12997,9 +13010,7 @@ var FilePropertiesDialog = function(editorUi)
 			editorUi.hideDialog();
 		};
 	}
-
-	console.log('here', file.isRealtimeOptional(), file);
-
+	
 	if (file != null && file.isRealtimeOptional())
 	{
 		row = document.createElement('tr');

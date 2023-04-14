@@ -7635,7 +7635,14 @@
 
 												reader.onload = function() 
 												{
-													handleError({message: JSON.parse(reader.result).Message});
+													try
+													{	
+														handleError({message: JSON.parse(reader.result).Message});
+													}
+													catch (e)
+													{
+														handleError(e);
+													}
 												}
 
 												reader.readAsText(xhr.response);
@@ -19923,3 +19930,24 @@ var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelL
 	
 	this.container = div;
 };
+
+/**
+ * Headless Editor UI class for offscreen editor instances.
+ */
+var HeadlessEditorUi = function()
+{
+	EditorUi.call(this, new Editor(true), document.createElement('div'), true);
+};
+
+/**
+ * Extends EditorUi.
+ */
+mxUtils.extend(HeadlessEditorUi, EditorUi);
+
+/**
+ * Avoid creating UI and event listeners.
+ */
+HeadlessEditorUi.prototype.createUi = function() {};
+HeadlessEditorUi.prototype.addTrees = function() {};
+HeadlessEditorUi.prototype.onBeforeUnload = function() {};
+HeadlessEditorUi.prototype.updateActionStates = function() {};

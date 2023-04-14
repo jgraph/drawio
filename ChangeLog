@@ -1,3 +1,20 @@
+14-APR-2023: 21.1.8
+
+- Adds headless editor UI class that sets chromeless
+- Fixes line jumps crossing waypoints [drawio-2664]
+- Fixes possible NPE for VSDX import [drawio-3507]
+- Fixes remove group with drag and drop [drawio-3510]
+- Fixes moving vertical label position [drawio-3512]
+- Updates AWS icons [drawio-3336]
+
+12-APR-2023: 21.1.7
+
+- [vsdx] Fixes text overflow of zero width/height labels [DID-7950]
+- Uses Alt+Shift+R for clear waypoints [drawio-3501]
+- Allow blank replace string in dialog [drawio-3502]
+- Handles dark theme change in trees plugin [drawio-3496]
+- Adds smart-template-type, -generate URL parameters
+
 11-APR-2023: 21.1.6
 
 - [conf cloud] Fixes large instances page IDs export and import and using new API [DID-7895]

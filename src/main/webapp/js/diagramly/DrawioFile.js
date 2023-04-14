@@ -216,10 +216,32 @@ DrawioFile.prototype.synchronizeFile = function(success, error)
 	{
 		if (this.sync != null)
 		{
-			this.sync.fileChanged(mxUtils.bind(this, function(patched)
+			var acceptResponse = true;
+
+			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 			{
-				this.sync.cleanup(success, error, patched);
-			}), error);
+				acceptResponse = false;
+				
+				if (error != null)
+				{
+					error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout'), retry: mxUtils.bind(this, function()
+					{
+						this.synchronizeFile(success, error);
+					})});
+				}
+			}), this.ui.timeout);
+
+			if (acceptResponse)
+			{
+				this.sync.fileChanged(mxUtils.bind(this, function(patched)
+				{
+					window.clearTimeout(timeoutThread);
+					this.sync.cleanup(success, error, patched);
+				}), error, function()
+				{
+					return !acceptResponse;
+				});
+			}
 		}
 		else
 		{

@@ -663,6 +663,8 @@ var com;
                 	var layers = page.getLayers();
                     var shapes = page.getShapes();
                     var hiddenTags = [];
+
+                    console.log('layers', layers);
 					
                     for (var k = 0; k < layers.length; k++)
                     {
@@ -3652,6 +3654,12 @@ var com;
                             			 {
                             				 layerObj[layerAtts[i136].getAttribute("N")] = layerAtts[i136].getAttribute("V");
                             			 }
+
+                                         if (layerObj.Name == null)
+                                         {
+                                            layerObj.Name = 'Layer ' + i135;
+                                         }
+                                         
                             			 this.layers[parseInt(layers[i135].getAttribute("IX"))] = layerObj;
                         			 }
                         		}
@@ -10361,7 +10369,7 @@ var com;
                      * If the shape has no text, it is obtained from the master shape.
                      * @return {string} Text label of the shape.
                      */
-                    VsdxShape.prototype.getTextLabel = function () {
+                    VsdxShape.prototype.getTextLabel = function (noOverflow) {
                         var hideText = this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.HIDE_TEXT), "0");
                         if ((function (o1, o2) { if (o1 && o1.equals) {
                             return o1.equals(o2);
@@ -10379,7 +10387,10 @@ var com;
                             if (txtChildren != null) {
                                 /* put */ (this.styleMap[mxConstants.STYLE_VERTICAL_ALIGN] = this.getAlignVertical());
                                 /* put */ (this.styleMap[mxConstants.STYLE_ALIGN] = this.getHorizontalAlign("0", false));
-                                this.styleMap['overflow'] = 'width';
+                                if (!noOverflow)
+                                {
+                                    this.styleMap['overflow'] = 'width';
+                                }
                                 return this.getHtmlTextContent(txtChildren);
                             }
                         }
@@ -12234,7 +12245,7 @@ var com;
                         var txtPinXV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_PIN_X), txtLocPinXV);
                         var txtPinYV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_PIN_Y), txtLocPinYV);
                         var txtAngleV = this.getValueAsDouble(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_ANGLE), 0);
-                        var textLabel = this.getTextLabel();
+                        var textLabel = this.getTextLabel(txtWV < 1 || txtHV < 1);
                         if (textLabel != null && !(textLabel.length === 0)) {
                         	var styleMap = mxUtils.clone(this.getStyleMap()) || {};
                             /* put */ (styleMap[mxConstants.STYLE_FILLCOLOR] = mxConstants.NONE);

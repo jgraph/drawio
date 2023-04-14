@@ -45,12 +45,7 @@ function render(data)
 			}
 		};
 
-		//Adjust some functions such that it can be instanciated without UI
-		EditorUi.prototype.createUi = function(){};
-		EditorUi.prototype.addTrees = function(){};
-		EditorUi.prototype.updateActionStates = function(){};
-		EditorUi.prototype.onBeforeUnload = function(){}; //Prevent unload message
-		var editorUi = new EditorUi();
+		var editorUi = new HeadlessEditorUi();
 		
 		editorUi.importCsv(data.csv, function()
 		{
@@ -155,10 +150,7 @@ function render(data)
 	function getFileXml(uncompressed)
 	{
 		var xml = mxUtils.getXml(origXmlDoc);
-		EditorUi.prototype.createUi = function(){};
-		EditorUi.prototype.addTrees = function(){};
-		EditorUi.prototype.updateActionStates = function(){};
-		var editorUi = new EditorUi();
+		var editorUi = new HeadlessEditorUi();
 		var tmpFile = new LocalFile(editorUi, xml);
 		editorUi.setCurrentFile(tmpFile);
 		editorUi.setFileData(xml);

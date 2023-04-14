@@ -2128,18 +2128,33 @@ EditorUi.prototype.getCellsForShapePicker = function(cell, hovering, showEdges)
 	// Creates a clone of the source cell and moves it to the origin
 	if (cell != null)
 	{
-		cell = graph.cloneCell(cell);
-
-		if (graph.model.isVertex(cell) && cell.geometry != null)
+		try
 		{
-			cell.geometry.x = 0;
-			cell.geometry.y = 0;
+			cell = graph.cloneCell(cell);
+			
+			if (graph.model.isVertex(cell) && cell.geometry != null)
+			{
+				cell.geometry.x = 0;
+				cell.geometry.y = 0;
+			}
+		}
+		catch (e)
+		{
+			cell = null;
 		}
 	}
-	else
+	
+	if (cell == null)
 	{
 		cell = createVertex('text;html=1;align=center;verticalAlign=middle;resizable=0;' +
 			'points=[];autosize=1;strokeColor=none;fillColor=none;', 40, 20, 'Text');
+		
+		if (graph.model.isVertex(cell) && graph.isAutoSizeCell(cell))
+		{
+			// Uses offscreen graph to bypass undo history
+			var tempGraph = Graph.createOffscreenGraph(graph.getStylesheet());
+			tempGraph.updateCellSize(cell);
+		}
 	}
 
 	var cells = [cell, createVertex('whiteSpace=wrap;html=1;'),
@@ -5952,8 +5967,9 @@ EditorUi.prototype.createOutline = function(wnd)
 };
 
 // Alt+Shift+Keycode mapping to action
-EditorUi.prototype.altShiftActions = {87: 'clearWaypoints', // Alt+Shift+W
+EditorUi.prototype.altShiftActions = {
   65: 'connectionArrows', // Alt+Shift+A
+  82: 'clearWaypoints', // Alt+Shift+R
   76: 'editLink', // Alt+Shift+L
   79: 'connectionPoints', // Alt+Shift+O
   81: 'editConnectionPoints', // Alt+Shift+Q

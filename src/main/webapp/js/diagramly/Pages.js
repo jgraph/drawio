@@ -1112,7 +1112,8 @@ EditorUi.prototype.createPageId = function()
  */
 EditorUi.prototype.createPage = function(name, id)
 {
-	var page = new DiagramPage(this.fileNode.ownerDocument.createElement('diagram'), id);
+	var doc = (this.fileNode != null) ? this.fileNode.ownerDocument : document;
+	var page = new DiagramPage(doc.createElement('diagram'), id);
 	page.setName((name != null) ? name : this.createPageName());
 	this.initDiagramNode(page);
 	

@@ -1245,191 +1245,205 @@ Draw.loadPlugin(function(ui)
 
 	// Adds sidebar entries
 	var sb = ui.sidebar;
-	
-    sb.addPalette('trees', 'Trees', false, function(content)
-    {
-        (function()
-        {
-	    	var cell = new mxCell('Central Idea', new mxGeometry(0, 20, 100, 40),
-		    	'ellipse;whiteSpace=wrap;html=1;align=center;' +
-		    	'collapsible=0;container=1;recursiveResize=0;');
-		    graph.setAttributeForCell(cell, 'treeRoot', '1');
-	    	cell.vertex = true;
-	    	
-	    	var cell2 = new mxCell('Branch', new mxGeometry(160, 0, 80, 20),
-	    		'whiteSpace=wrap;html=1;shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];' +
-	    		'strokeColor=#000000;fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;' +
-	    		'snapToPoint=1;collapsible=0;container=1;recursiveResize=0;autosize=1;');
-	    	cell2.vertex = true;
 
-	    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;' +
-				'startArrow=none;endArrow=none;segment=10;curved=1;');
-			edge.geometry.relative = true;
-			edge.edge = true;
+	function addPalette()
+	{
+		sb.addPalette('trees', 'Trees', false, function(content)
+		{
+			(function()
+			{
+				var cell = new mxCell('Central Idea', new mxGeometry(0, 20, 100, 40),
+					'ellipse;whiteSpace=wrap;html=1;align=center;' +
+					'collapsible=0;container=1;recursiveResize=0;');
+				graph.setAttributeForCell(cell, 'treeRoot', '1');
+				cell.vertex = true;
+				
+				var cell2 = new mxCell('Branch', new mxGeometry(160, 0, 80, 20),
+					'whiteSpace=wrap;html=1;shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];' +
+					'strokeColor=#000000;fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;' +
+					'snapToPoint=1;collapsible=0;container=1;recursiveResize=0;autosize=1;');
+				cell2.vertex = true;
 
-			cell.insertEdge(edge, true);
-			cell2.insertEdge(edge, false);
+				var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;' +
+					'startArrow=none;endArrow=none;segment=10;curved=1;');
+				edge.geometry.relative = true;
+				edge.edge = true;
+
+				cell.insertEdge(edge, true);
+				cell2.insertEdge(edge, false);
+				
+				var cell3 = new mxCell('Sub Topic', new mxGeometry(160, 40, 72, 26),
+					'whiteSpace=wrap;html=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;' +
+					'collapsible=0;container=1;recursiveResize=0;strokeWidth=1;autosize=1;spacing=4;');
+				cell3.vertex = true;
+
+				var edge2 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;' +
+					'startArrow=none;endArrow=none;segment=10;curved=1;');
+				edge2.geometry.setTerminalPoint(new mxPoint(-40, 40), true);
+				edge2.geometry.relative = true;
+				edge2.edge = true;
+
+				cell.insertEdge(edge2, true);
+				cell3.insertEdge(edge2, false);
+
+				content.appendChild(sb.createVertexTemplateFromCells([edge, edge2, cell, cell2, cell3], 240, 66, 'Mindmap'));
+			})();
+
+			(function()
+			{
+				var cell = new mxCell('Central Idea', new mxGeometry(0, 0, 100, 40),
+					'ellipse;whiteSpace=wrap;html=1;align=center;' +
+					'collapsible=0;container=1;recursiveResize=0;');
+				graph.setAttributeForCell(cell, 'treeRoot', '1');
+				cell.vertex = true;
+				
+				content.appendChild(sb.createVertexTemplateFromCells([cell], 100, 40, 'Central Idea'));
+			})();
+
+			(function()
+			{
+				var cell = new mxCell('Branch', new mxGeometry(0, 0, 80, 20),
+					'whiteSpace=wrap;html=1;shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];' +
+					'strokeColor=#000000;fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;' +
+					'snapToPoint=1;collapsible=0;container=1;recursiveResize=0;autosize=1;');
+				cell.vertex = true;
+
+				var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;' +
+					'startArrow=none;endArrow=none;segment=10;curved=1;');
+				edge.geometry.setTerminalPoint(new mxPoint(-40, 40), true);
+				edge.geometry.relative = true;
+				edge.edge = true;
+
+				cell.insertEdge(edge, false);
+		
+				content.appendChild(sb.createVertexTemplateFromCells([edge, cell], 80, 20, 'Branch'));
+			})();
 			
-	    	var cell3 = new mxCell('Sub Topic', new mxGeometry(160, 40, 72, 26),
-	    		'whiteSpace=wrap;html=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;' +
-	    		'collapsible=0;container=1;recursiveResize=0;strokeWidth=1;autosize=1;spacing=4;');
-	    	cell3.vertex = true;
+			(function()
+			{
+				var cell = new mxCell('Sub Topic', new mxGeometry(0, 0, 72, 26),
+					'whiteSpace=wrap;html=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;' +
+					'collapsible=0;container=1;recursiveResize=0;strokeWidth=1;autosize=1;spacing=4;');
+				cell.vertex = true;
 
-	    	var edge2 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;' +
-				'startArrow=none;endArrow=none;segment=10;curved=1;');
-			edge2.geometry.setTerminalPoint(new mxPoint(-40, 40), true);
-			edge2.geometry.relative = true;
-			edge2.edge = true;
+				var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;' +
+					'startArrow=none;endArrow=none;segment=10;curved=1;');
+				edge.geometry.setTerminalPoint(new mxPoint(-40, 40), true);
+				edge.geometry.relative = true;
+				edge.edge = true;
 
-			cell.insertEdge(edge2, true);
-			cell3.insertEdge(edge2, false);
+				cell.insertEdge(edge, false);
 
-		    content.appendChild(sb.createVertexTemplateFromCells([edge, edge2, cell, cell2, cell3], 240, 66, 'Mindmap'));
-        })();
+				content.appendChild(sb.createVertexTemplateFromCells([edge, cell], 72, 26, 'Sub Topic'));
+			})();
 
-        (function()
-        {
-	    	var cell = new mxCell('Central Idea', new mxGeometry(0, 0, 100, 40),
-		    	'ellipse;whiteSpace=wrap;html=1;align=center;' +
-		    	'collapsible=0;container=1;recursiveResize=0;');
-		    graph.setAttributeForCell(cell, 'treeRoot', '1');
-	    	cell.vertex = true;
-		    
-		    content.appendChild(sb.createVertexTemplateFromCells([cell], 100, 40, 'Central Idea'));
-        })();
+			(function()
+			{
+				var cell = new mxCell('Organization', new mxGeometry(60, 0, 120, 60),
+					'whiteSpace=wrap;html=1;align=center;' +
+					'collapsible=0;container=1;recursiveResize=0;');
+				graph.setAttributeForCell(cell, 'treeRoot', '1');
+				cell.vertex = true;
+				
+				var cell2 = new mxCell('Division', new mxGeometry(0, 100, 100, 60),
+					'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;' +
+					'collapsible=0;container=1;recursiveResize=0;');
+				cell2.vertex = true;
 
-        (function()
-        {
-	    	var cell = new mxCell('Branch', new mxGeometry(0, 0, 80, 20),
-	    		'whiteSpace=wrap;html=1;shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];' +
-	    		'strokeColor=#000000;fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;' +
-	    		'snapToPoint=1;collapsible=0;container=1;recursiveResize=0;autosize=1;');
-	    	cell.vertex = true;
+				var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=elbowEdgeStyle;elbow=vertical;' +
+					'startArrow=none;endArrow=none;rounded=0;');
+				edge.geometry.relative = true;
+				edge.edge = true;
 
-	    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;' +
-				'startArrow=none;endArrow=none;segment=10;curved=1;');
-			edge.geometry.setTerminalPoint(new mxPoint(-40, 40), true);
-			edge.geometry.relative = true;
-			edge.edge = true;
+				cell.insertEdge(edge, true);
+				cell2.insertEdge(edge, false);
+				
+				var cell3 = new mxCell('Division', new mxGeometry(140, 100, 100, 60),
+					'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;' +
+					'collapsible=0;container=1;recursiveResize=0;');
+				cell3.vertex = true;
 
-			cell.insertEdge(edge, false);
-	
-			content.appendChild(sb.createVertexTemplateFromCells([edge, cell], 80, 20, 'Branch'));
-        })();
-        
-        (function()
-        {
-	    	var cell = new mxCell('Sub Topic', new mxGeometry(0, 0, 72, 26),
-	    		'whiteSpace=wrap;html=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;' +
-	    		'collapsible=0;container=1;recursiveResize=0;strokeWidth=1;autosize=1;spacing=4;');
-	    	cell.vertex = true;
+				var edge2 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=elbowEdgeStyle;elbow=vertical;' +
+					'startArrow=none;endArrow=none;rounded=0;');
+				edge2.geometry.relative = true;
+				edge2.edge = true;
 
-	    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;' +
-				'startArrow=none;endArrow=none;segment=10;curved=1;');
-			edge.geometry.setTerminalPoint(new mxPoint(-40, 40), true);
-			edge.geometry.relative = true;
-			edge.edge = true;
-
-			cell.insertEdge(edge, false);
-
-			content.appendChild(sb.createVertexTemplateFromCells([edge, cell], 72, 26, 'Sub Topic'));
-        })();
-
-        (function()
-        {
-	    	var cell = new mxCell('Organization', new mxGeometry(60, 0, 120, 60),
-	    		'whiteSpace=wrap;html=1;align=center;' +
-	        	'collapsible=0;container=1;recursiveResize=0;');
-		    graph.setAttributeForCell(cell, 'treeRoot', '1');
-	    	cell.vertex = true;
-	    	
-	    	var cell2 = new mxCell('Division', new mxGeometry(0, 100, 100, 60),
-	    		'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;' +
-	    		'collapsible=0;container=1;recursiveResize=0;');
-	    	cell2.vertex = true;
-
-	    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=elbowEdgeStyle;elbow=vertical;' +
-				'startArrow=none;endArrow=none;rounded=0;');
-			edge.geometry.relative = true;
-			edge.edge = true;
-
-			cell.insertEdge(edge, true);
-			cell2.insertEdge(edge, false);
-	    	
-	    	var cell3 = new mxCell('Division', new mxGeometry(140, 100, 100, 60),
-	    		'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;' +
-	    		'collapsible=0;container=1;recursiveResize=0;');
-	    	cell3.vertex = true;
-
-	    	var edge2 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=elbowEdgeStyle;elbow=vertical;' +
-				'startArrow=none;endArrow=none;rounded=0;');
-			edge2.geometry.relative = true;
-			edge2.edge = true;
-
-			cell.insertEdge(edge2, true);
-			cell3.insertEdge(edge2, false);
-		    
-		    content.appendChild(sb.createVertexTemplateFromCells([edge, edge2, cell, cell2, cell3], 240, 160, 'Orgchart'));
-        })();
-    	
-        (function()
-        {
-	    	var cell = new mxCell('Tree Root', new mxGeometry(0, 0, 120, 60),
-	    		'whiteSpace=wrap;html=1;align=center;' +
-	        	'collapsible=0;container=1;recursiveResize=0;');
-		    graph.setAttributeForCell(cell, 'treeRoot', '1');
-	    	cell.vertex = true;
-		    
-		    content.appendChild(sb.createVertexTemplateFromCells([cell], 120, 60, 'Tree Root'));
-        })();
-    	
-        (function()
-        {
-	    	var cell = new mxCell('Sub Tree', new mxGeometry(0, 0, 100, 60),
-	    		'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;' +
-	    		'collapsible=0;container=1;recursiveResize=0;');
-	    	cell.vertex = true;
-
-	    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=elbowEdgeStyle;elbow=vertical;' +
-				'startArrow=none;endArrow=none;rounded=0;');
-			edge.geometry.setTerminalPoint(new mxPoint(0, -40), true);
-			edge.geometry.relative = true;
-			edge.edge = true;
-
-			cell.insertEdge(edge, false);
-
-			content.appendChild(sb.createVertexTemplateFromCells([edge, cell], 100, 60, 'Sub Tree'));
-        })();
-    	
-        (function()
-        {
-	    	var cell = new mxCell('Sub Section', new mxGeometry(0, 0, 100, 60),
-	    		'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;' +
-	    		'collapsible=0;container=1;recursiveResize=0;');
-	    	cell.vertex = true;
-
-	    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;' +
-				'startArrow=none;endArrow=none;rounded=0;targetPortConstraint=eastwest;sourcePortConstraint=northsouth;');
-			edge.geometry.setTerminalPoint(new mxPoint(110, -40), true);
-			edge.geometry.relative = true;
-			edge.edge = true;
-
-			cell.insertEdge(edge, false);
-
-	    	var cell2 = new mxCell('Sub Section', new mxGeometry(120, 0, 100, 60),
-	    		'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;' +
-	    		'collapsible=0;container=1;recursiveResize=0;');
-	    	cell2.vertex = true;
-
-	    	var edge2 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;' +
-				'startArrow=none;endArrow=none;rounded=0;targetPortConstraint=eastwest;sourcePortConstraint=northsouth;');
-			edge2.geometry.setTerminalPoint(new mxPoint(110, -40), true);
-			edge2.geometry.relative = true;
-			edge2.edge = true;
-
-			cell2.insertEdge(edge2, false);
+				cell.insertEdge(edge2, true);
+				cell3.insertEdge(edge2, false);
+				
+				content.appendChild(sb.createVertexTemplateFromCells([edge, edge2, cell, cell2, cell3], 240, 160, 'Orgchart'));
+			})();
 			
-			content.appendChild(sb.createVertexTemplateFromCells([edge, edge2, cell, cell2], 220, 60, 'Sub Sections'));
-        })();
-    });
+			(function()
+			{
+				var cell = new mxCell('Tree Root', new mxGeometry(0, 0, 120, 60),
+					'whiteSpace=wrap;html=1;align=center;' +
+					'collapsible=0;container=1;recursiveResize=0;');
+				graph.setAttributeForCell(cell, 'treeRoot', '1');
+				cell.vertex = true;
+				
+				content.appendChild(sb.createVertexTemplateFromCells([cell], 120, 60, 'Tree Root'));
+			})();
+			
+			(function()
+			{
+				var cell = new mxCell('Sub Tree', new mxGeometry(0, 0, 100, 60),
+					'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;' +
+					'collapsible=0;container=1;recursiveResize=0;');
+				cell.vertex = true;
+
+				var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=elbowEdgeStyle;elbow=vertical;' +
+					'startArrow=none;endArrow=none;rounded=0;');
+				edge.geometry.setTerminalPoint(new mxPoint(0, -40), true);
+				edge.geometry.relative = true;
+				edge.edge = true;
+
+				cell.insertEdge(edge, false);
+
+				content.appendChild(sb.createVertexTemplateFromCells([edge, cell], 100, 60, 'Sub Tree'));
+			})();
+			
+			(function()
+			{
+				var cell = new mxCell('Sub Section', new mxGeometry(0, 0, 100, 60),
+					'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;' +
+					'collapsible=0;container=1;recursiveResize=0;');
+				cell.vertex = true;
+
+				var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;' +
+					'startArrow=none;endArrow=none;rounded=0;targetPortConstraint=eastwest;sourcePortConstraint=northsouth;');
+				edge.geometry.setTerminalPoint(new mxPoint(110, -40), true);
+				edge.geometry.relative = true;
+				edge.edge = true;
+
+				cell.insertEdge(edge, false);
+
+				var cell2 = new mxCell('Sub Section', new mxGeometry(120, 0, 100, 60),
+					'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;' +
+					'collapsible=0;container=1;recursiveResize=0;');
+				cell2.vertex = true;
+
+				var edge2 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;' +
+					'startArrow=none;endArrow=none;rounded=0;targetPortConstraint=eastwest;sourcePortConstraint=northsouth;');
+				edge2.geometry.setTerminalPoint(new mxPoint(110, -40), true);
+				edge2.geometry.relative = true;
+				edge2.edge = true;
+
+				cell2.insertEdge(edge2, false);
+				
+				content.appendChild(sb.createVertexTemplateFromCells([edge, edge2, cell, cell2], 220, 60, 'Sub Sections'));
+			})();
+		});
+	}
+
+	addPalette();
+
+	// Handles reload of sidebar after dark mode change
+	var init = sb.init;
+
+	sb.init = function()
+	{
+		init.apply(this, arguments);
+		addPalette();
+	};
 });
