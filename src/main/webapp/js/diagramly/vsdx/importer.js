@@ -11666,7 +11666,8 @@ var com;
                                     var width = parseFloat(this.getValue(this.getCellElement$java_lang_String('Width'), "0"));
                                     var height = parseFloat(this.getValue(this.getCellElement$java_lang_String('Height'), "0"));
                                     
-                                    if (imgOffsetX != 0 || imgOffsetY != 0)
+                                    if (imgOffsetX != 0 || imgOffsetY != 0 ||
+                                        imgWidth != width || imgHeight != height)
                                 	{
                                     	this.toBeCroppedImg = {
                                 			imgOffsetX: imgOffsetX, 

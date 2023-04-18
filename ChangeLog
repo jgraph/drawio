@@ -1,3 +1,12 @@
+18-APR-2023: 21.1.9
+
+- Edit connection points in popup menu [drawio-2984]
+- [vsdx] Fixes image cropping [drawio-3518]
+- Updates DOMPurify from 2.4.3 to 3.0.2
+- Fixes image export if inside group [drawio-3516]
+- Increases maximum image size to 1200 pixels and 2 MB
+- Removes Theme submenu from MS Teams app and Confluence DC [drawio-3517]
+
 14-APR-2023: 21.1.8
 
 - Adds headless editor UI class that sets chromeless

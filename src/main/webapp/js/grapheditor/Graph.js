@@ -10806,8 +10806,10 @@ if (typeof mxVertexHandler !== 'undefined')
 						this.doDrawShape(state.secondLabel, canvas);
 					}
 				};
-	
-				imgExport.drawState(this.getView().getState(this.model.root), svgCanvas);
+				
+				var viewRoot = (this.view.currentRoot != null) ?
+					this.view.currentRoot : this.model.root;
+				imgExport.drawState(this.getView().getState(viewRoot), svgCanvas);
 				this.updateSvgLinks(root, linkTarget, true);
 				this.addForeignObjectWarning(svgCanvas, root);
 				

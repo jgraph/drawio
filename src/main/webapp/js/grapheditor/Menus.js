@@ -1559,6 +1559,28 @@ Menus.prototype.addPopupMenuHistoryItems = function(menu, cell, evt)
 /**
  * Creates the keyboard event handler for the current graph and history.
  */
+Menus.prototype.addPopupDeleteItem = function(menu, cell, evt)
+{
+	var item = this.addMenuItem(menu, 'delete');
+
+	if (item != null && item.firstChild != null &&
+		item.firstChild.nextSibling != null)
+	{
+		item.firstChild.nextSibling.style.color = 'red';
+		var graph = this.editorUi.editor.graph;
+
+		if (graph.getSelectionCount() > 1)
+		{
+			item.firstChild.nextSibling.innerHTML =
+				mxUtils.htmlEntities(mxResources.get('delete') +
+				' (' + graph.getSelectionCount() + ')');
+		}
+	}
+};
+
+/**
+ * Creates the keyboard event handler for the current graph and history.
+ */
 Menus.prototype.addPopupMenuEditItems = function(menu, cell, evt)
 {
 	if (this.editorUi.editor.graph.isSelectionEmpty())
@@ -1734,8 +1756,7 @@ Menus.prototype.addPopupMenuCellEditItems = function(menu, cell, evt, parent)
 		this.addMenuItem(menu, 'crop', parent, evt);
 	}
 
-	if ((graph.getModel().isVertex(cell) && graph.getModel().getChildCount(cell) == 0)
-			|| graph.isContainer(cell)) //Allow vertex only excluding group (but allowing container [e.g, swimlanes])
+	if (graph.getModel().isVertex(cell) && graph.isCellConnectable(cell))
 	{
 		this.addMenuItem(menu, 'editConnectionPoints', parent, evt);
 	}

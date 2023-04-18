@@ -335,9 +335,9 @@
 	EditorUi.prototype.maxBackgroundSize = 1600;
 
 	/**
-	 * Defines the maximum size for images.
+	 * Defines the maximum size for images in px. Default is 1200.
 	 */
-	EditorUi.prototype.maxImageSize = 520;
+	EditorUi.prototype.maxImageSize = 1200;
 	
 	/**
 	 * Defines the maximum width for pasted text.
@@ -351,9 +351,9 @@
 	EditorUi.prototype.resampleThreshold = 100000;
 
 	/**
-	 * Maximum allowed size for images is 1 MB.
+	 * Defines the maximum size for images in bytes. Default is 2 MB.
 	 */
-	EditorUi.prototype.maxImageBytes = 1000000;
+	EditorUi.prototype.maxImageBytes = 2000000;
 
 	/**
 	 * Maximum size for background images is 2.5 MB.
@@ -10253,7 +10253,7 @@
 				{
 					if (this.isShowCellEditItems())
 					{
-						this.addMenuItems(menu, ['delete', '-'], null, evt);
+						this.addPopupDeleteItem(menu, cell, evt);
 					}
 					else
 					{
@@ -10265,20 +10265,7 @@
 
 					if (!this.isShowCellEditItems())
 					{
-						var item = this.addMenuItem(menu, 'delete');
-
-						if (item != null && item.firstChild != null &&
-							item.firstChild.nextSibling != null)
-						{
-							item.firstChild.nextSibling.style.color = 'red';
-
-							if (graph.getSelectionCount() > 1)
-							{
-								item.firstChild.nextSibling.innerHTML =
-									mxUtils.htmlEntities(mxResources.get('delete') +
-									' (' + graph.getSelectionCount() + ')');
-							}
-						}
+						this.addPopupDeleteItem(menu, cell, evt);
 					}
 
 					this.addMenuItems(menu, ['lockUnlock', '-'], null, evt);
@@ -12662,7 +12649,8 @@
 					status = mxResources.get('error') + ': ' +
 						mxResources.get('checksum');
 				}
-				else if (file.sync != null && !file.sync.enabled)
+				else if (file.sync != null && (!file.sync.enabled ||
+					!file.sync.isRealtimeActive()))
 				{
 					status = mxResources.get('realtimeCollaboration') +
 						': ' + mxResources.get('disabled');
