@@ -1,3 +1,13 @@
+19-APR-2023: 21.2.1
+
+- Skips sanitizeHtml for unchanged labels [drawio-3530]
+- Uses cssText property to set CSS in foreignObjects
+- Adds submenu to enable and change diagram language
+
+19-APR-2023: 21.2.0
+
+- Defers bounding box update until after DOM changes [DID-7902]
+
 18-APR-2023: 21.1.9
 
 - Edit connection points in popup menu [drawio-2984]

@@ -764,7 +764,12 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			}
 			else
 			{
-				result = Graph.sanitizeHtml(result);
+				// Skips sanitizeHtml for unchanged labels
+				if (state.lastLabelValue != result)
+				{
+					state.lastLabelValue = result;
+					result = Graph.sanitizeHtml(result);
+				}
 			}
 		}
 		
@@ -8078,7 +8083,8 @@ if (typeof mxVertexHandler !== 'undefined')
 		mxConstants.DEFAULT_VALID_COLOR = '#00a8ff';
 		mxConstants.LABEL_HANDLE_FILLCOLOR = '#cee7ff';
 		mxConstants.GUIDE_COLOR = '#0088cf';
-		mxConstants.HIGHLIGHT_OPACITY = 30;
+		mxConstants.HIGHLIGHT_STROKEWIDTH = 5;
+		mxConstants.HIGHLIGHT_OPACITY = 50;
 	    mxConstants.HIGHLIGHT_SIZE = 5;
 
 		// Sets window decoration icons
@@ -13638,7 +13644,8 @@ if (typeof mxVertexHandler !== 'undefined')
 			
 			if (this.isSource || this.isTarget)
 			{
-				if (this.constraintHandler.currentConstraint != null &&
+				if (this.constraintHandler != null &&
+					this.constraintHandler.currentConstraint != null &&
 					this.constraintHandler.currentFocus != null)
 				{
 					var pt = this.constraintHandler.currentConstraint.point;
@@ -14454,18 +14461,28 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 
 		mxEdgeHandler.prototype.updateLinkHint = mxVertexHandler.prototype.updateLinkHint;
+
+		// Extends constraint handler
+		var edgeHandlerCreateConstraintHandler = mxEdgeHandler.prototype.createConstraintHandler;
+
+		mxEdgeHandler.prototype.createConstraintHandler = function()
+		{
+			var handler = edgeHandlerCreateConstraintHandler.apply(this, arguments);
+
+			// Disables connection points
+			handler.isEnabled = mxUtils.bind(this, function()
+			{
+				return this.state.view.graph.connectionHandler.isEnabled();
+			});
+			
+			return handler;
+		};
 		
 		// Creates special handles
 		var edgeHandlerInit = mxEdgeHandler.prototype.init;
 		mxEdgeHandler.prototype.init = function()
 		{
 			edgeHandlerInit.apply(this, arguments);
-			
-			// Disables connection points
-			this.constraintHandler.isEnabled = mxUtils.bind(this, function()
-			{
-				return this.state.view.graph.connectionHandler.isEnabled();
-			});
 			
 			var update = mxUtils.bind(this, function()
 			{

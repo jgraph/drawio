@@ -1637,19 +1637,43 @@
 			}
 		})));
 
-		// Experimental
+		// LATER: Remove when translations are updated
 		mxResources.parse('diagramLanguage=Diagram Language');
-		editorUi.actions.addAction('diagramLanguage...', function()
+		mxResources.parse('languageCode=Language Code');
+
+		editorUi.actions.addAction('languageCode...', function()
 		{
-			var lang = prompt('Language Code', Graph.diagramLanguage || '');
-			
-			if (lang != null)
+			var lang = Graph.diagramLanguage || '';
+					
+			var dlg = new FilenameDialog(editorUi, lang, mxResources.get('ok'), mxUtils.bind(this, function(newLang)
 			{
-				Graph.diagramLanguage = (lang.length > 0) ? lang : null;
-				graph.refresh();
-			}
+				if (newLang != null)
+				{
+					Graph.diagramLanguage = (newLang.length > 0) ? newLang : null;
+					Graph.translateDiagram = true;
+					graph.refresh();
+				}
+			}), mxResources.get('languageCode'), null, null, 'https://www.diagrams.net/blog/translate-diagrams');
+			editorUi.showDialog(dlg.container, 340, 96, true, true);
+			dlg.init();
 		});
 		
+		this.put('diagramLanguage', new Menu(mxUtils.bind(this, function(menu, parent)
+		{
+			this.addMenuItems(menu, ['languageCode', '-'], parent);
+
+			var item = menu.addItem(mxResources.get('disabled'), null, function()
+			{
+				Graph.translateDiagram = false;
+				graph.refresh();
+			}, parent);
+
+			if (!Graph.translateDiagram)
+			{
+				menu.addCheckmark(item, Editor.checkmarkImage);
+			}
+		})));
+
 		// Only visible in test mode
 		if (urlParams['test'] == '1')
 		{
@@ -4337,12 +4361,8 @@
 				{
 					editorUi.menus.addMenuItems(menu, ['-', 'spellCheck', 'autoBkp', 'drafts', '-'], parent);
 				}
-	
-				if (Graph.translateDiagram)
-				{
-					editorUi.menus.addMenuItems(menu, ['diagramLanguage'], parent);
-				}
 
+				this.addSubmenu('diagramLanguage', menu, parent);
 				menu.addSeparator(parent);
 				
 				if (editorUi.mode != App.MODE_ATLAS) 
@@ -4412,12 +4432,7 @@
 				}
 
 				this.addMenuItems(menu, ['-', 'editDiagram'], parent);
-		
-				if (Graph.translateDiagram)
-				{
-					this.addMenuItems(menu, ['diagramLanguage']);
-				}
-				
+				this.addSubmenu('diagramLanguage', menu, parent);
 				menu.addSeparator(parent);
 
 				if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
