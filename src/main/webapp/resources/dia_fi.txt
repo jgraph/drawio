@@ -428,7 +428,7 @@ insertText=Lisää tekstiä
 inserting=Lisätään
 installApp=Asenna sovellus
 invalidFilename=Kaavioiden nimet eivät saa sisältää seuraavia merkkejä: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Lisenssi on virheellinen, ole hyvä ja katso tämä <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">sivu</a>.
+invalidLicenseSeeThisPage=Lisenssi on virheellinen, ole hyvä ja katso tämä <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">sivu</a>.
 invalidInput=Virheellinen syöte
 invalidName=Virheellinen nimi
 invalidOrMissingFile=Virheellinen tai puuttuva tiedosto

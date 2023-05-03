@@ -138,17 +138,14 @@ function SelectPage(ui, page, viewState)
 	this.ui = ui;
 	this.page = page;
 	this.previousPage = page;
-	this.neverShown = true;
 	
 	if (page != null)
 	{
-		this.neverShown = page.viewState == null;
 		this.ui.updatePageRoot(page);
 		
 		if (viewState != null)
 		{
 			page.viewState = viewState;
-			this.neverShown = false;
 		}
 	}
 };
@@ -195,19 +192,6 @@ SelectPage.prototype.execute = function()
 		// Handles grid state in chromeless mode which is stored in Editor instance
 		graph.gridEnabled = graph.gridEnabled && (!this.ui.editor.isChromelessView() ||
 			urlParams['grid'] == '1');
-
-		// Updates the display
-		editor.updateGraphComponents();
-		graph.view.validate();
-		graph.blockMathRender = true;
-		graph.sizeDidChange();
-		graph.blockMathRender = false;
-		
-		if (this.neverShown)
-		{
-			this.neverShown = false;
-			graph.selectUnlockedLayer();
-		}
 		
 		// Fires events
 		editor.graph.fireEvent(new mxEventObject(mxEvent.ROOT));
@@ -472,58 +456,7 @@ EditorUi.prototype.initPages = function()
 			
 			graphViewValidateBackground.apply(graph.view, arguments);
 		});
-	
-		var lastPage = null;
-		
-		var updateTabs = mxUtils.bind(this, function()
-		{
-			this.updateTabContainer();
-			
-			// Updates scrollbar positions and backgrounds after validation	
-			var p = this.currentPage;
-			
-			if (p != null && p != lastPage)
-			{
-				if (p.viewState == null || p.viewState.scrollLeft == null)
-				{
-					this.resetScrollbars();
-	
-					if (graph.isLightboxView())
-					{
-						this.lightboxFit();
-					}
-					
-					if (this.chromelessResize != null)
-					{
-						graph.container.scrollLeft = 0;
-						graph.container.scrollTop = 0;
-						this.chromelessResize();
-					}
-				}
-				else
-				{
-					graph.container.scrollLeft = graph.view.translate.x * graph.view.scale + p.viewState.scrollLeft;
-					graph.container.scrollTop = graph.view.translate.y * graph.view.scale + p.viewState.scrollTop;
-				}
-				
-				lastPage = p;
-			}
-			
-			// Updates layers window
-			if (this.actions.layersWindow != null)
-			{
-				this.actions.layersWindow.refreshLayers();
-			}
-			
-			if (typeof Editor.MathJaxClear !== 'undefined' &&
-				(!this.editor.graph.mathEnabled ||
-				this.editor == null))
-			{
-				// Clears our own queue for async loading
-				Editor.MathJaxClear();
-			}
-		});
-		
+
 		// Adds a graph model listener to update the view
 		this.editor.graph.model.addListener(mxEvent.CHANGE, mxUtils.bind(this, function(sender, evt)
 		{
@@ -532,12 +465,11 @@ EditorUi.prototype.initPages = function()
 			
 			for (var i = 0; i < changes.length; i++)
 			{
-				if (changes[i] instanceof SelectPage ||
-					changes[i] instanceof RenamePage ||
+				if (changes[i] instanceof RenamePage ||
 					changes[i] instanceof MovePage ||
 					changes[i] instanceof mxRootChange)
 				{
-					updateTabs();
+					this.updateTabContainer();
 					break;	
 				}
 			}
@@ -557,8 +489,9 @@ EditorUi.prototype.initPages = function()
 
 		this.editor.addListener('pageSelected', mxUtils.bind(this, function(sender, evt)
 		{
-			updateTabs();
 			this.scrollToPage();
+			this.updateHashObject();
+			this.updateTabContainer();
 			this.updateDocumentTitle();
 
 			if (this.toolbar != null)
@@ -570,6 +503,7 @@ EditorUi.prototype.initPages = function()
 		this.editor.addListener('pageMoved', mxUtils.bind(this, function(sender, evt)
 		{
 			this.scrollToPage();
+			this.updateHashObject();
 		}));
 
 		mxEvent.addListener(window, 'resize', mxUtils.bind(this, function()
@@ -887,6 +821,25 @@ Graph.prototype.setViewState = function(state, removeOldExtFonts)
 	this.fireEvent(new mxEventObject('viewStateChanged', 'state', state));
 };
 
+/**
+ * Sets the scrollbar positions from the given view state.
+ */
+Graph.prototype.setScrollbarPositions = function(state, dx, dy)
+{
+	if (state != null &&
+		state.scrollLeft != null &&
+		state.scrollTop != null)
+	{
+		this.container.scrollLeft = dx *
+			this.view.scale + state.scrollLeft;
+		this.container.scrollTop = dy *
+			this.view.scale + state.scrollTop;
+	}
+};
+
+/**
+ * Executes selection of a new page.
+ */
 Graph.prototype.addExtFont = function(fontName, fontUrl, dontRemember)
 {
 	// KNOWN: Font not added when pasting cells with custom fonts
@@ -1014,30 +967,53 @@ EditorUi.prototype.selectPage = function(page, quiet, viewState)
 	{
 		if (page != this.currentPage)
 		{
-			if (this.editor.graph.isEditing())
+			var graph = this.editor.graph;
+
+			if (graph.isEditing())
 			{
-				this.editor.graph.stopEditing(false);
+				graph.stopEditing(false);
 			}
 			
 			quiet = (quiet != null) ? quiet : false;
-			this.editor.graph.isMouseDown = false;
-			this.editor.graph.reset();
+			graph.isMouseDown = false;
+			graph.reset();
 			
-			var edit = this.editor.graph.model.createUndoableEdit();
+			var edit = graph.model.createUndoableEdit();
 			
 			// Special flag to bypass autosave for this edit
 			edit.ignoreEdit = true;
-		
+
 			var change = new SelectPage(this, page, viewState);
 			change.execute();
 			edit.add(change);
 			edit.notify();
 			
-			this.editor.graph.tooltipHandler.hide();
-			
+			graph.tooltipHandler.hide();
+
+			// Selects unlocked layer if page was never shown
+			if (page.viewState != null &&
+				page.viewState.scrollTop == null)
+			{
+				graph.selectUnlockedLayer();
+				this.resetScrollbars();
+
+				if (graph.isLightboxView())
+				{
+					this.lightboxFit();
+				}
+
+				if (this.chromelessResize != null)
+				{
+					graph.container.scrollleft = 0;
+					graph.container.scrollTop = 0;
+					this.chromelessResize();
+				}
+			}
+
 			if (!quiet)
 			{
-				this.editor.graph.model.fireEvent(new mxEventObject(mxEvent.UNDO, 'edit', edit));
+				graph.model.fireEvent(new mxEventObject(
+					mxEvent.UNDO, 'edit', edit));
 			}
 		}
 	}
@@ -1256,10 +1232,10 @@ EditorUi.prototype.duplicatePage = function(page, name)
 			
 			// Resets zoom and scrollbar positions
 			newPage.viewState.scale = 1;
-			newPage.viewState.scrollLeft = null;
-			newPage.viewState.scrollTop = null;
-			newPage.viewState.currentRoot = null;
-			newPage.viewState.defaultParent = null;
+			delete newPage.viewState.scrollLeft;
+			delete newPage.viewState.scrollTop;
+			delete newPage.viewState.currentRoot
+			delete newPage.viewState.defaultParent;
 			newPage.setName(name);
 			
 			// Inserts new page after duplicated page
@@ -1968,8 +1944,8 @@ EditorUi.prototype.showPageLinkDialog = function(page)
 //Registers codec for ChangePage
 (function()
 {
-	var codec = new mxObjectCodec(new ChangePage(), ['ui', 'relatedPage',
-		'index', 'neverShown', 'page', 'previousPage']);
+	var codec = new mxObjectCodec(new ChangePage(), ['ui',
+		'relatedPage', 'index', 'page', 'previousPage']);
 	
 	codec.afterEncode = function(enc, obj, node)
 	{

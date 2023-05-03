@@ -428,7 +428,7 @@ insertText=插入文字
 inserting=正在插入
 installApp=安裝 App
 invalidFilename=圖表名稱不得包含以下字元：\ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=您的授權無效，請參閱此<a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">頁面</a>。
+invalidLicenseSeeThisPage=您的授權無效，請參閱此<a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">頁面</a>。
 invalidInput=無效輸入
 invalidName=無效名稱
 invalidOrMissingFile=無效或遺失的檔案

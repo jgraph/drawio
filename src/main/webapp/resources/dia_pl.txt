@@ -428,7 +428,7 @@ insertText=Wstaw tekst
 inserting=Wstawianie
 installApp=Zainstaluj aplikację
 invalidFilename=Nazwy diagramów nie mogą zawierać następujących znaków: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Twoja licencja jest nieważna, sprawdź <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">stronę</a>.
+invalidLicenseSeeThisPage=Twoja licencja jest nieważna, sprawdź <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">stronę</a>.
 invalidInput=Nieprawidłowe wejście
 invalidName=Nieprawidłowa nazwa
 invalidOrMissingFile=Nieprawidłowy lub brakujący plik

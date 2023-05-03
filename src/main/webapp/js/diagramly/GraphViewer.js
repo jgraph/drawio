@@ -7,7 +7,7 @@ window.uiTheme = '';
 
 /**
  * No CSS and resources available in embed mode. Parameters and docs:
- * https://www.diagrams.net/doc/faq/embed-html-options
+ * https://www.drawio.com/doc/faq/embed-html-options
  */
 GraphViewer = function(container, xmlNode, graphConfig)
 {
@@ -886,7 +886,6 @@ GraphViewer.prototype.addSizeHandler = function()
 		}
 	});
 
-	// Fallback for older browsers
 	if (GraphViewer.useResizeSensor)
 	{
 		if (document.documentMode <= 9)
@@ -934,7 +933,6 @@ GraphViewer.prototype.addSizeHandler = function()
 				}
 			});
 			
-			// Fallback for older browsers
 			if (GraphViewer.useResizeSensor)
 			{
 				if (document.documentMode <= 9)
@@ -2380,6 +2378,12 @@ GraphViewer.getUrl = function(url, onload, onerror)
 GraphViewer.resizeSensorEnabled = true;
 
 /**
+ * Specifies if ResizeObserver should be used instead of ResizeSensor.
+ * Default is true.
+ */
+GraphViewer.useResizeObserver = true;
+
+/**
  * Redirects editing to absolue URLs.
  */
 GraphViewer.useResizeSensor = true;
@@ -2418,6 +2422,34 @@ GraphViewer.useResizeSensor = true;
     			fn();
     		}
     	};
+
+		// Uses ResizeObserver, if available
+		if (GraphViewer.useResizeObserver && typeof ResizeObserver !== 'undefined')
+		{
+			var callbackThread = null;
+			var active = false;
+
+			new ResizeObserver(function()
+			{
+				if (!active)
+				{
+					if (callbackThread != null)
+					{
+						window.clearTimeout(callbackThread);
+					}
+
+					callbackThread = window.setTimeout(function()
+					{
+						active = true;
+						callback();
+						callbackThread = null;
+						active = false;
+					}, 200);
+				}
+			}).observe(element)
+
+			return
+		}
     	
         /**
          *

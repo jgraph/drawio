@@ -428,7 +428,7 @@ insertText=Magsingit ng teksto
 inserting=Nagsisingit
 installApp=Install App
 invalidFilename=Ang pangalan ng mga Dayagram ay hindi maaaring magtaglay ng sumusunod na mga simbolo: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Ang iyong lisensya ay di wasto. Pki-tingnan ito <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">page</a>.
+invalidLicenseSeeThisPage=Ang iyong lisensya ay di wasto. Pki-tingnan ito <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">page</a>.
 invalidInput=Invalid input
 invalidName=Di wastong pangalan
 invalidOrMissingFile=Di wasto o nawawalang File

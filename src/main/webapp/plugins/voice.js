@@ -7,7 +7,7 @@
  * 
  * Documentation:
  * 
- * https://www.diagrams.net/doc/faq/voice-plugin
+ * https://www.drawio.com/doc/faq/voice-plugin
  * 
  * TODO: Use grammer https://msdn.microsoft.com/en-us/library/ee800145.aspx
  */
@@ -260,7 +260,7 @@ Draw.loadPlugin(function(ui) {
 	
     ui.actions.addAction('speechHelp', function()
     {
-    	window.open('https://www.diagrams.net/doc/faq/voice-plugin');
+    	window.open('https://www.drawio.com/doc/faq/voice-plugin');
     });
 
     // Hijacks the settings for storing current voice
@@ -846,7 +846,7 @@ Draw.loadPlugin(function(ui) {
 			}
 			else if (tokens[0] == 'help')
 			{
-				var wnd = ui.openLink('https://www.diagrams.net/doc/faq/voice-plugin');
+				var wnd = ui.openLink('https://www.drawio.com/doc/faq/voice-plugin');
 				
 				if (wnd == null)
 				{

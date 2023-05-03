@@ -5785,7 +5785,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	
 	var helpBtn = mxUtils.button(mxResources.get('help'), function()
 	{
-		editorUi.openLink('https://www.diagrams.net/doc/faq/custom-links');
+		editorUi.openLink('https://www.drawio.com/doc/faq/custom-links');
 	});
 
 	helpBtn.style.verticalAlign = 'middle';
@@ -7310,7 +7310,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 	mxUtils.write(regexLabel, mxResources.get('regularExpression'));
 	div.appendChild(regexLabel);
 	
-    var help = ui.menus.createHelpLink('https://www.diagrams.net/doc/faq/find-shapes');
+    var help = ui.menus.createHelpLink('https://www.drawio.com/doc/faq/find-shapes');
     help.style.position = 'relative';
     help.style.marginLeft = '6px';
     help.style.top = '-1px';
@@ -8911,7 +8911,7 @@ var PluginsDialog = function(editorUi, addFn, delFn, closeOnly)
 
 	var helpBtn = mxUtils.button(mxResources.get('help'), function()
 	{
-		editorUi.openLink('https://www.diagrams.net/doc/faq/plugins');
+		editorUi.openLink('https://www.drawio.com/doc/faq/plugins');
 	});
 
 	helpBtn.className = 'geBtn';
@@ -10518,7 +10518,7 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
-			editorUi.openLink('https://www.diagrams.net/doc/faq/shape-complex-create-edit');
+			editorUi.openLink('https://www.drawio.com/doc/faq/shape-complex-create-edit');
 		});
 		
 		helpBtn.className = 'geBtn';
@@ -12511,7 +12511,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
-			editorUi.openLink('https://www.diagrams.net/blog/external-fonts');
+			editorUi.openLink('https://www.drawio.com/blog/external-fonts');
 		});
 		
 		helpBtn.className = 'geBtn';	
@@ -13563,7 +13563,7 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		{
 			var helpBtn = mxUtils.button(mxResources.get('help'), function()
 			{
-				editorUi.openLink('https://www.diagrams.net/doc/faq/shape-connection-points-customise');
+				editorUi.openLink('https://www.drawio.com/doc/faq/shape-connection-points-customise');
 			});
 			
 			helpBtn.className = 'geBtn';

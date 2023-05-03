@@ -428,7 +428,7 @@ insertText=Inserisci testo
 inserting=Inserimento in corso
 installApp=Installa applicazione
 invalidFilename=Il nome del diagramma non può contenere i seguenti caratteri:  \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=La tua licenza non è valida. Leggi questa <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">pagina</a>.
+invalidLicenseSeeThisPage=La tua licenza non è valida. Leggi questa <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">pagina</a>.
 invalidInput=Inserimento non valido
 invalidName=Nome non valido
 invalidOrMissingFile=File mancante o non valido

@@ -428,7 +428,7 @@ insertText=‫הוספת טקסט‬
 inserting=‫מוסיף‬
 installApp=Install App
 invalidFilename=‫שם הדיאגרמה אינו יכול לכלול את התווים הבאים:  \ / | : ; { } < > & + ? = "‬
-invalidLicenseSeeThisPage=‫הרשיון שלך אינו תקף. בדוק ב <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">page</a>‬
+invalidLicenseSeeThisPage=‫הרשיון שלך אינו תקף. בדוק ב <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">page</a>‬
 invalidInput=Invalid input
 invalidName=‫שם לא תקין‬
 invalidOrMissingFile=‫קובץ חסר או לא תקין‬

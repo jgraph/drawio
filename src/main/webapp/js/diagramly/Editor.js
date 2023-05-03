@@ -178,6 +178,13 @@
 	 * at runtime in the kennedy theme.
 	 */
 	Editor.enableSimpleTheme = true;
+			
+	/**
+	 * Specifies if the URL should be rewritten to contain the selected page.
+	 * Default is true for online app without embed.
+	 */
+	Editor.enableHashObjects = !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+		urlParams['embed'] != '1' && window.top == window.self;
 	
 	/**
 	 * Sets the default value for including a copy of the diagram.
@@ -1777,7 +1784,7 @@
     
 	/**
 	 * Global configuration of the Editor
-	 * see https://www.diagrams.net/doc/faq/configure-diagram-editor
+	 * see https://www.drawio.com/doc/faq/configure-diagram-editor
 	 * 
 	 * For defaultVertexStyle, defaultEdgeStyle and defaultLibraries, this must be called before
 	 * mxSettings.load via global config variable window.mxLoadSettings = false.
@@ -2613,12 +2620,6 @@
 					Editor.mathJaxQueue.push(container);
 				}
 			};
-
-			// Adds global clear queue method
-			Editor.MathJaxClear = function()
-			{
-				Editor.mathJaxQueue = [];
-			};
 			
 			// Adds global MathJax render callback
 			Editor.onMathJaxDone = function()
@@ -2635,8 +2636,8 @@
 
 				var renderMath = mxUtils.bind(this, function(sender, evt)
 				{
-					if (this.graph.container != null && this.graph.mathEnabled &&
-						!this.graph.blockMathRender)
+					if (this.graph.container != null &&
+						this.graph.mathEnabled)
 					{
 						Editor.MathJaxRender(this.graph.container);
 					}
@@ -3899,7 +3900,7 @@
 	 */
 	if (window.ColorDialog)
 	{
-		FilenameDialog.filenameHelpLink = 'https://www.diagrams.net/doc/faq/save-file-formats'; 
+		FilenameDialog.filenameHelpLink = 'https://www.drawio.com/doc/faq/save-file-formats'; 
 		
 		var colorDialogAddRecentColor = ColorDialog.addRecentColor;
 		
@@ -4261,7 +4262,7 @@
 					
 					div.appendChild(option);
 					
-					var help = ui.menus.createHelpLink('https://www.diagrams.net/doc/faq/math-typesetting');
+					var help = ui.menus.createHelpLink('https://www.drawio.com/doc/faq/math-typesetting');
 					help.style.position = 'relative';
 					help.style.marginLeft = '6px';
 					option.appendChild(help);
@@ -8690,7 +8691,7 @@
 		{
 			var helpBtn = mxUtils.button(mxResources.get('help'), function()
 			{
-				graph.openLink('https://www.diagrams.net/doc/faq/print-diagram');
+				graph.openLink('https://www.drawio.com/doc/faq/print-diagram');
 			});
 			
 			helpBtn.className = 'geBtn';

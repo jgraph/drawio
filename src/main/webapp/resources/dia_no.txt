@@ -428,7 +428,7 @@ insertText=Legg til tekst
 inserting=Legger til
 installApp=Install App
 invalidFilename=Diagrammet kan ikke inneholde de følgende tegnene: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Du har en ugyldig lisens, vennligst se her <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">page</a>
+invalidLicenseSeeThisPage=Du har en ugyldig lisens, vennligst se her <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">page</a>
 invalidInput=Invalid input
 invalidName=Ugyldig navn
 invalidOrMissingFile=Ugyldig eller manglende fil

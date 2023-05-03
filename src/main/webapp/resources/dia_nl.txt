@@ -79,7 +79,7 @@ bottomAlign=Onder uitlijnen
 bottomLeft=Linksonder
 bottomRight=Rechtsonder
 bpmn=BPMN
-bringForward=Omlaag verplaatsen
+bringForward=Omhoog verplaatsen
 browser=Browser
 bulletedList=Lijst met opsommingstekens
 business=Zakelijk
@@ -428,7 +428,7 @@ insertText=Tekst invoegen
 inserting=Invoegen
 installApp=App installeren
 invalidFilename=Een Diagramnaam mag niet de volgende tekens bevatten: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Uw licentie is ongeldig, bekijk deze <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">pagina</a>.
+invalidLicenseSeeThisPage=Uw licentie is ongeldig, bekijk deze <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">pagina</a>.
 invalidInput=Ingeldige invoer
 invalidName=Ongeldige naam
 invalidOrMissingFile=Ongeldig of ontbrekend bestand

@@ -110,7 +110,7 @@ configLinkConfirm=Feu clic a "D'acord" per configurar i reiniciar el draw.io.
 container=Contenidor
 csv=CSV
 dark=Fosc
-diagramLanguage=Diagram Language
+diagramLanguage=Idioma del diagrama
 diagramType=Tipus de diagrama
 diagramXmlDesc=Fitxer XML
 diagramHtmlDesc=Fitxer HTML
@@ -428,7 +428,7 @@ insertText=Insereix text
 inserting=S'està inserint
 installApp=Instal·la l'aplicació
 invalidFilename=Els noms dels diagrames no poden contenir els següents caràcters: \ / | : ; { < & + ? = "
-invalidLicenseSeeThisPage=La llicència no és vàlida, consulteu aquesta <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">pàgina</a>.
+invalidLicenseSeeThisPage=La llicència no és vàlida, consulteu aquesta <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">pàgina</a>.
 invalidInput=L'entrada no és vàlida
 invalidName=El nom no és vàlid
 invalidOrMissingFile=Fitxer  no vàlid o desconegut
@@ -462,7 +462,7 @@ months=mesos
 years=anys
 restartForChangeRequired=Cal refrescar la pàgina perquè els canvis tinguin efecte.
 laneColor=Color de la fila
-languageCode=Language Code
+languageCode=Codi d'idioma
 lastModified=Modificat per darrera vegada
 layout=Disseny
 left=Esquerra

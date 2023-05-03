@@ -428,7 +428,7 @@ insertText=Εισαγωγή Κειμένου
 inserting=Εισαγωγή
 installApp=Εγκατάσταση App
 invalidFilename=Το όνομα του διαγράμματος δεν πρέπει να περιέχει τους παρακάτω χρακτήρες: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Η άδεια χρήσης σας δεν είναι έγκυρη, παρακαλώ δείτε αυτό  <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">page</a>.
+invalidLicenseSeeThisPage=Η άδεια χρήσης σας δεν είναι έγκυρη, παρακαλώ δείτε αυτό  <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">page</a>.
 invalidInput=Μη έγκυρη εισαγωγή
 invalidName=Μη έγκυρο όνομα
 invalidOrMissingFile=Μη έγκυρο ή ανύπαρκτο αρχείο

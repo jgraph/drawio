@@ -12,6 +12,8 @@ The JGraph provided icons and diagram templates are licensed under the [CC BY 4.
 
 Additional minified JavaScript files and Java libraries are used in this project. All of the licenses are deemed compatible with the Apache 2.0, nothing is GPL or AGPL, due dilgence is performed on all third-party code.
 
+We make no copyright claim on the content you create with this software, regardless of the copyright of individual icons used in such content.
+
 Scope of the Project
 --------------------
 
@@ -26,7 +28,7 @@ If you are using a draw.io project/product and have issues or questions about th
 
 Running
 -------
-One way to run diagrams.net is to fork this project, [publish the master branch to GitHub pages](https://help.github.com/categories/github-pages-basics/) and the [pages sites](https://jgraph.github.io/drawio/src/main/webapp/index.html) will have the full editor functionality (sans the integrations).
+One way to run draw.io is to fork this project, [publish the master branch to GitHub pages](https://help.github.com/categories/github-pages-basics/) and the [pages sites](https://jgraph.github.io/drawio/src/main/webapp/index.html) will have the full editor functionality (sans the integrations).
 
 Another way is to use [the recommended Docker project](https://github.com/jgraph/docker-drawio) or to download [draw.io Desktop](https://get.diagrams.net).
 
@@ -34,13 +36,12 @@ The full packaged .war of the client and servlets is built when the project is t
 
 Supported Browsers
 ------------------
-diagrams.net supports Chrome 70+, Firefox 70+, Safari 11+, Opera 50+, Native Android browser 7x+, the default browser in the current and previous major iOS versions (e.g. 11.2.x and 10.3.x) and Edge 79+.
+draw.io supports Chrome 70+, Firefox 70+, Safari 11+, Opera 50+, Native Android browser 7x+, the default browser in the current and previous major iOS versions (e.g. 11.2.x and 10.3.x) and Edge 79+.
 
 Open-source, not open-contribution
 ----------------------------------
 
-[Similar to SQLite](https://www.sqlite.org/copyright.html), diagrams.net is open
-source but closed to contributions.
+[Similar to SQLite](https://www.sqlite.org/copyright.html), draw.io is closed to contributions.
 
 The level of complexity of this project means that even simple changes 
 can break a _lot_ of other moving parts. The amount of testing required 

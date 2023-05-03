@@ -750,8 +750,8 @@ Sidebar.prototype.addEntry = function(tags, fn)
 			}
 			
 			// Adds additional entry with removed trailing numbers
-			var normalized = tmp[i].replace(/\.*\d*$/, '');
-			
+			var normalized = Editor.soundex(tmp[i].replace(/\.*\d*$/, ''));
+
 			if (normalized != tmp[i])
 			{
 				if (hash[normalized] == null)
@@ -807,7 +807,7 @@ Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, er
 		{
 			if (tmp[i].length > 0)
 			{
-				var entry = this.taglist[tmp[i]];
+				var entry = this.taglist[Editor.soundex(tmp[i])];
 				var tmpDict = new mxDictionary();
 				
 				if (entry != null)

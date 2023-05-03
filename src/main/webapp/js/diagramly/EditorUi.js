@@ -101,7 +101,7 @@
 	/**
 	 * Link for scratchpad help.
 	 */
-	EditorUi.scratchpadHelpLink = 'https://www.diagrams.net/doc/faq/scratchpad';
+	EditorUi.scratchpadHelpLink = 'https://www.drawio.com/doc/faq/scratchpad';
 
 	/**
 	 * Specifies if the edit option should be shown in the HTML export dialog.
@@ -1854,6 +1854,7 @@
 
 				if (nodes.length > 0)
 				{
+					var hashObj = this.getHashObject();
 					var selectedPage = null;
 					this.fileNode = node;
 					this.pages = [];
@@ -1878,7 +1879,9 @@
 						
 						this.pages.push(page);
 						
-						if (urlParams['page-id'] != null && page.getId() == urlParams['page-id'])
+						if ((hashObj.pageId == null && urlParams['page-id'] != null &&
+								page.getId() == urlParams['page-id']) ||
+							(hashObj.pageId != null && page.getId() == hashObj.pageId))
 						{
 							selectedPage = page;
 						}
@@ -1906,6 +1909,9 @@
 			if (this.currentPage != null)
 			{
 				this.currentPage.root = this.editor.graph.model.root;
+				
+				// Scrolls to current page
+				this.scrollToPage();				
 			}
 			
 			if (urlParams['layer-ids'] != null)
@@ -2253,6 +2259,127 @@
 	EditorUi.prototype.setMode = function(mode, remember)
 	{
 		this.mode = mode;
+	};
+
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
+	EditorUi.prototype.getDiagramId = function()
+	{
+		var id = window.location.hash;
+		
+		// Strips the hash sign
+		if (id != null && id.length > 0)
+		{
+			id = id.substring(1);
+		}
+
+		// Removes additional parameters after trailing hash
+		if (id != null && id.length > 1)
+		{
+			var idx = id.indexOf('#');
+			
+			if (idx >= 0)
+			{
+				id = id.substring(0, idx);
+			}
+		}
+		
+		return id;
+	};
+
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
+	EditorUi.prototype.getHashObject = function()
+	{
+		var id = window.location.hash;
+		var result = {};
+
+		if (id != null && id.length > 0)
+		{
+			var last = id.lastIndexOf('#');
+
+			if (last > 0)
+			{
+				var temp = decodeURIComponent(id.substring(last + 1));
+
+				try
+				{
+					result = JSON.parse(temp);
+				}
+				catch (e)
+				{
+					// ignore
+				}
+			}
+		}
+
+		return result;
+	};
+
+	/**
+	 * Updates the hash object with the current page id.
+	 */
+	EditorUi.prototype.updateHashObject = function()
+	{
+		if (this.currentFile != null && this.currentFile.getHash() != '' &&
+			this.currentPage != null && this.getSelectedPageIndex() > 0)
+		{
+			var obj = this.getHashObject();
+			obj.pageId = this.currentPage.getId();
+			this.setHashObject(obj);
+		}
+		else
+		{
+			this.setHashObject(null);
+		}
+	};
+	
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
+	EditorUi.prototype.setHashObject = function(obj)
+	{
+		if (Editor.enableHashObjects)
+		{
+			var id = window.location.hash;
+
+			if (id == null || id == '')
+			{
+				id = '#';
+			}
+
+			var last = id.lastIndexOf('#');
+
+			if (last > 0)
+			{
+				id = id.substring(0, last);
+			}
+			
+			try
+			{
+				if (obj != null && !mxUtils.isEmptyObject(obj))
+				{
+					id = id + '#' + encodeURIComponent(JSON.stringify(obj));
+				}
+			}
+			catch (e)
+			{
+				// ignore
+			}
+
+			window.location.hash = id;
+		}
 	};
 
 	/**
@@ -5976,7 +6103,7 @@
 		if (file != null && file.constructor == window.DriveFile && !hideShare)
 		{
 			dy = 80;
-			helpLink = (helpLink != null) ? helpLink : 'https://www.diagrams.net/doc/faq/google-drive-publicly-publish-diagram';
+			helpLink = (helpLink != null) ? helpLink : 'https://www.drawio.com/doc/faq/google-drive-publicly-publish-diagram';
 			var hintSection = document.createElement('div');
 			hintSection.style.cssText = 'border-bottom:1px solid lightGray;padding-bottom:14px;padding-top:6px;margin-bottom:14px;text-align:center;';
 			
@@ -6021,7 +6148,7 @@
 		}
 		else
 		{
-			helpLink = (helpLink != null) ? helpLink : 'https://www.diagrams.net/doc/faq/publish-diagram-as-link';
+			helpLink = (helpLink != null) ? helpLink : 'https://www.drawio.com/doc/faq/publish-diagram-as-link';
 		}
 		
 		var widthInput = null;
@@ -10141,7 +10268,7 @@
 		// Sets help link for placeholders
 		if (!this.isOffline() && typeof window.EditDataDialog !== 'undefined')
 		{
-			EditDataDialog.placeholderHelpLink = 'https://www.diagrams.net/doc/faq/predefined-placeholders';
+			EditDataDialog.placeholderHelpLink = 'https://www.drawio.com/doc/faq/predefined-placeholders';
 		}
 		
 		if (/viewer\.diagrams\.net$/.test(window.location.hostname) ||
@@ -10393,6 +10520,23 @@
 			
 			return graphGetGlobalVariable.apply(this, arguments);
 		};
+
+		// Forces update of filename placeholder
+		var lastFilename = null;
+
+		this.addListener('fileDescriptorChanged', function()
+		{
+			var file = this.getCurrentFile();
+
+			if (file != null && lastFilename != file.getTitle())
+			{
+				var filename = (file.getTitle() != null) ?
+					file.getTitle() : this.defaultFilename;
+				lastFilename = filename;
+				graph.invalidateDescendantsWithPlaceholders(graph.model.getRoot());
+				graph.view.validate();
+			}
+		});
 
 		var graphLabelLinkClicked = graph.labelLinkClicked;
 		
@@ -12107,6 +12251,7 @@
 						pagesVisibleChanged();
 						updatePageName();
 					}));
+					
 					this.addListener('fileDescriptorChanged', pagesVisibleChanged);
 					this.addListener('pagesVisibleChanged', pagesVisibleChanged);
 					this.editor.addListener('pagesPatched', pagesVisibleChanged);
@@ -12596,8 +12741,31 @@
 						collapsed = true;
 					}
 				}));
+
+
+				var lastWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+				var currentThread = null;
 				
-				mxEvent.addListener(window, 'resize', initPicker);
+				mxEvent.addListener(window, 'resize', function()
+				{
+					var currentWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
+					if (currentWidth != lastWidth)
+					{
+						lastWidth = currentWidth;
+
+						if (currentThread != null)
+						{
+							window.clearTimeout(currentThread);
+						}
+
+						currentThread = window.setTimeout(function()
+						{
+							currentThread = null;
+							initPicker();
+						}, 200);
+					}
+				});
 				this.editor.addListener('fileLoaded', initPicker);
 				this.addListener('darkModeChanged', initPicker);
 				this.addListener('sketchModeChanged', initPicker);
@@ -16700,7 +16868,7 @@
 				copyBtn.setAttribute('title', 'copy');
 				copyBtn.className = 'geBtn';
 				buttons.appendChild(copyBtn);
-			}), true, null, null, 'https://www.diagrams.net/doc/faq/apply-layouts');
+			}), true, null, null, 'https://www.drawio.com/doc/faq/apply-layouts');
 
 			this.showDialog(dlg.container, 620, 460, true, true);
 			dlg.init();
@@ -18153,7 +18321,7 @@
 			}
 			
 			if (pendingLibs == 0) this.spinner.stop();
-		}), null, null, 'https://www.diagrams.net/doc/faq/custom-libraries-confluence-cloud');
+		}), null, null, 'https://www.drawio.com/doc/faq/custom-libraries-confluence-cloud');
 		this.showDialog(dlg.container, 340, 390, true, true, null, null, null, null, true);
 	};
 	

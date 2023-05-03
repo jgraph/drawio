@@ -428,7 +428,7 @@ insertText=Metin ekle
 inserting=Ekleniyor
 installApp=Proramı Yükle
 invalidFilename=Diyagram adları şu karakterleri içermelidir : \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Lisansınız geçersiz, lütfen <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">page</a> a bakınız
+invalidLicenseSeeThisPage=Lisansınız geçersiz, lütfen <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">page</a> a bakınız
 invalidInput=Geçersiz giriş
 invalidName=Geçersiz isim
 invalidOrMissingFile=Geçersiz veya olmayan dosya

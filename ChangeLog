@@ -1,3 +1,41 @@
+03-MAY-2023: 21.2.7
+
+- Fixes possible NPE in validate
+
+02-MAY-2023: 21.2.6
+
+- Fixes setting x0 and y0 in graph.sizeDidChange [DS-949]
+
+02-MAY-2023: 21.2.5
+
+- Re-release of 21.2.4 for caching issues
+
+02-MAY-2023: 21.2.4
+
+- Adds wrapper container for view node hierarchy
+- Removes view validation for document title changes
+- Adds less strict search matching [drawio-655]
+- Improves performance for page selection
+- Adds threshhold for reset view check
+- [conf cloud] Adds space filter to pagesIds import [DID-8048]
+
+26-APR-2023: 21.2.3
+
+- Uses move cursor CSS style for table row handle
+- Adds current selected page ID to URL [drawio-3128]
+- Adds lazy ResizeObserver and blocks possible loops [DFCC-61]
+- Fixes fitWindow in page view, refactors common code
+- Fixes syntax for check of property with value of 0
+- [conf cloud] Fix uncompressed custom libraries preview [DID-8096]
+
+25-APR-2023: 21.2.2
+
+- Improves performance for window resize event handlers
+- Fixes handles for zoom and large selection changes
+- Improves performance for GraphViewer [drawio-2766]
+- Ignores invalid numbers in bounding box [DID-8051]
+- Fixes possible divide by zero in router [DID-8051]
+
 19-APR-2023: 21.2.1
 
 - Skips sanitizeHtml for unchanged labels [drawio-3530]

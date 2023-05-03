@@ -1010,10 +1010,20 @@ EditorUi = function(editor, container, lightbox)
 	
 		// Updates the editor UI after the window has been resized or the orientation changes
 		// Timeout is workaround for old IE versions which have a delay for DOM client sizes.
-		// Should not use delay > 0 to avoid handle multiple repaints during window resize
+		var resizeThread = null;
+
 		this.resizeHandler = mxUtils.bind(this, function()
 	   	{
-			this.windowResized();
+			if (resizeThread != null)
+			{
+				window.clearTimeout(resizeThread);
+			}
+
+			resizeThread = window.setTimeout(mxUtils.bind(this, function()
+			{
+				resizeThread = null;
+				this.windowResized();
+			}), 100);
 	   	});
 		
 	   	mxEvent.addListener(window, 'resize', this.resizeHandler);
@@ -2653,7 +2663,7 @@ EditorUi.prototype.lazyZoomDelay = 20;
 /**
  * Delay before update of DOM when using preview.
  */
-EditorUi.prototype.wheelZoomDelay = 400;
+EditorUi.prototype.wheelZoomDelay = 500;
 
 /**
  * Delay before update of DOM when using preview.
@@ -3308,20 +3318,49 @@ EditorUi.prototype.initCanvas = function()
 		/**
 		 * Guesses autoTranslate to avoid another repaint (see below).
 		 * Works if only the scale of the graph changes or if pages
-		 * are visible and the visible pages do not change.
+		 * are visible and the visible pages do not change. Uses
+		 * geometries to guess the bounding box of the graph.
 		 */
 		var graphViewValidate = graph.view.validate;
+		var zero = new mxPoint();
+		var lastPage = null;
+
 		graph.view.validate = function()
 		{
-			if (this.graph.container != null && mxUtils.hasScrollbars(this.graph.container))
+			if (graph.container != null &&
+				mxUtils.hasScrollbars(graph.container))
 			{
-				var pad = this.graph.getPagePadding();
-				var size = this.graph.getPageSize();
+				// Sets initial state after page changes
+				if (ui.currentPage != null &&
+					lastPage != ui.currentPage)
+				{
+					lastPage = ui.currentPage;
+
+					// Sets initial translate based on geometries
+					// to avoid revalidation in sizeDidChange
+					var pageLayout = graph.getPageLayout(
+						graph.getBoundingBoxFromGeometry(
+						graph.model.getCells(), true), zero, 1);
+					var tr = graph.getDefaultTranslate(pageLayout);
+					this.x0 = pageLayout.x;
+					this.y0 = pageLayout.y;
+					
+					// Restores scrollbar positions
+					graph.setScrollbarPositions(
+						ui.currentPage.viewState,
+						tr.x, tr.y);
+					
+					if (tr.x != this.translate.x ||
+						tr.y != this.translate.y)
+					{
+						this.setTranslate(tr.x, tr.y);
+
+						return;
+					}
+				}
 				
-				// Updating scrollbars here causes flickering in quirks and is not needed
-				// if zoom method is always used to set the current scale on the graph.
-				var tx = this.translate.x;
-				var ty = this.translate.y;
+				var pad = graph.getPagePadding();
+				var size = graph.getPageSize();
 				this.translate.x = pad.x - (this.x0 || 0) * size.width;
 				this.translate.y = pad.y - (this.y0 || 0) * size.height;
 			}
@@ -3332,60 +3371,44 @@ EditorUi.prototype.initCanvas = function()
 		if (!graph.isViewer())
 		{
 			var graphSizeDidChange = graph.sizeDidChange;
-			
+
 			graph.sizeDidChange = function()
 			{
-				if (this.container != null && mxUtils.hasScrollbars(this.container))
+				if (this.container != null &&
+					mxUtils.hasScrollbars(this.container))
 				{
-					var pages = this.getPageLayout();
-					var pad = this.getPagePadding();
-					var size = this.getPageSize();
-					
-					// Updates the minimum graph size
-					var minw = Math.ceil(2 * pad.x + pages.width * size.width);
-					var minh = Math.ceil(2 * pad.y + pages.height * size.height);
-					
-					var min = graph.minimumGraphSize;
-					
-					// LATER: Fix flicker of scrollbar size in IE quirks mode
-					// after delayed call in window.resize event handler
-					if (min == null || min.width != minw || min.height != minh)
+					this.updateMinimumSize();
+
+					if (!this.autoTranslate)
 					{
-						graph.minimumGraphSize = new mxRectangle(0, 0, minw, minh);
+						var pageLayout = this.getPageLayout();
+						var tr = this.getDefaultTranslate(pageLayout);
+						var tx = this.view.translate.x;
+						var ty = this.view.translate.y;
+						
+						if (tr.x != tx || tr.y != ty)
+						{
+							this.view.x0 = pageLayout.x;
+							this.view.y0 = pageLayout.y;
+							this.autoTranslate = true;
+
+							// Requires full revalidation
+							this.view.setTranslate(tr.x, tr.y);
+							this.container.scrollLeft += Math.round((tr.x - tx) * this.view.scale);
+							this.container.scrollTop += Math.round((tr.y - ty) * this.view.scale);
+							this.autoTranslate = false;
+							
+							return;
+						}
 					}
 					
-					// Updates auto-translate to include padding and graph size
-					var dx = pad.x - pages.x * size.width;
-					var dy = pad.y - pages.y * size.height;
-					
-					if (!this.autoTranslate && (this.view.translate.x != dx || this.view.translate.y != dy))
-					{
-						this.autoTranslate = true;
-						this.view.x0 = pages.x;
-						this.view.y0 = pages.y;
-	
-						// NOTE: THIS INVOKES THIS METHOD AGAIN. UNFORTUNATELY THERE IS NO WAY AROUND THIS SINCE THE
-						// BOUNDS ARE KNOWN AFTER THE VALIDATION AND SETTING THE TRANSLATE TRIGGERS A REVALIDATION.
-						// SHOULD MOVE TRANSLATE/SCALE TO VIEW.
-						var tx = graph.view.translate.x;
-						var ty = graph.view.translate.y;
-						graph.view.setTranslate(dx, dy);
-						
-						// LATER: Fix rounding errors for small zoom
-						graph.container.scrollLeft += Math.round((dx - tx) * graph.view.scale);
-						graph.container.scrollTop += Math.round((dy - ty) * graph.view.scale);
-						
-						this.autoTranslate = false;
-						
-						return;
-					}
-	
 					graphSizeDidChange.apply(this, arguments);
 				}
 				else
 				{
 					// Fires event but does not invoke superclass
-					this.fireEvent(new mxEventObject(mxEvent.SIZE, 'bounds', this.getGraphBounds()));
+					this.fireEvent(new mxEventObject(mxEvent.SIZE,
+						'bounds', this.getGraphBounds()));
 				}
 			};
 		}

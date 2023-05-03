@@ -428,7 +428,7 @@ insertText=Sisipkan Teks
 inserting=Menyisipkan
 installApp=Install App
 invalidFilename=Nama diagram tidak boleh mengandung karakter berikut: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Lisensi Anda tidak valid, harap baca tautan ini <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">page</a>.
+invalidLicenseSeeThisPage=Lisensi Anda tidak valid, harap baca tautan ini <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">page</a>.
 invalidInput=Invalid input
 invalidName=Nama tidak valid
 invalidOrMissingFile=Berkas tidak valid atau hilang

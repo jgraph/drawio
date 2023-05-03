@@ -428,7 +428,7 @@ insertText=Szöveget beszúr
 inserting=Beszúrás
 installApp=Applikáció telepítése
 invalidFilename=A diagram nem tartalmazhatja a következő betűket: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Az engedélye érvénytelen, kérjük tekintse meg ezt <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">page</a>.
+invalidLicenseSeeThisPage=Az engedélye érvénytelen, kérjük tekintse meg ezt <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">page</a>.
 invalidInput=Érvénytelen bemenet
 invalidName=Érvénytelen név
 invalidOrMissingFile=Érvénytelen vagy hiányzó fájl

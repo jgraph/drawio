@@ -91,7 +91,7 @@
 	Sidebar.prototype.electrical = ['LogicGates', 'Resistors', 'Capacitors', 'Inductors', 'SwitchesRelays', 'Diodes', 'Sources', 'Transistors', 'Misc', 'Audio', 'PlcLadder', 'Abstract', 'Optical', 'VacuumTubes', 'Waveforms', 'Instruments', 'RotMech', 'Transmission'];
 
 	/**
-	 * Description of custom libraries, see https://www.diagrams.net/doc/faq/configure-diagram-editor
+	 * Description of custom libraries, see https://www.drawio.com/doc/faq/configure-diagram-editor
 	 */
 	Sidebar.prototype.customEntries = null;
 	
@@ -99,7 +99,7 @@
 	 * Array of strings for the built-in libraries to be enabled in the more shapes dialog. Null means all,
 	 * empty array means none, possible keys are listed for the libs parameter at
 	 * 
-	 * https://www.diagrams.net/doc/faq/supported-url-parameters
+	 * https://www.drawio.com/doc/faq/supported-url-parameters
 	 */
 	Sidebar.prototype.enabledLibraries = null;
 	

@@ -795,7 +795,7 @@ app.on('ready', e =>
 	      submenu: [
 	        {
 	          label: 'About ' + app.name,
-	          click() { shell.openExternal('https://www.diagrams.net'); }
+	          click() { shell.openExternal('https://www.drawio.com'); }
 	        },
 	        {
 	          label: 'Support',

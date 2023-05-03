@@ -428,7 +428,7 @@ insertText=Chèn văn bản
 inserting=Đang chèn
 installApp=Install App
 invalidFilename=Tên biểu đồ không được chứa những kí tự sau: \ / | : ' { } < > & + ? = "
-invalidLicenseSeeThisPage=Giấy phép của bạn không hợp lệ, vui lòng xem tại <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">trang này</a>.
+invalidLicenseSeeThisPage=Giấy phép của bạn không hợp lệ, vui lòng xem tại <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">trang này</a>.
 invalidInput=Invalid input
 invalidName=Tên không hợp lệ
 invalidOrMissingFile=Tập tin bị thiếu hoặc không hợp lệ

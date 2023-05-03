@@ -1935,7 +1935,7 @@ DrawioFile.prototype.setConflictStatus = function(message, fn)
 {
 	this.ui.editor.setStatus('<div title="'+ message + '" ' + ((fn != null) ?
 		'data-action="statusFunction"' : '') + ' class="geStatusAlert">' + message +
-		'<img data-link="https://www.diagrams.net/doc/faq/synchronize" src="' +
+		'<img data-link="https://www.drawio.com/doc/faq/synchronize" src="' +
 		Editor.helpImage + '" style="cursor:help;"/></div>', fn);
 };
 

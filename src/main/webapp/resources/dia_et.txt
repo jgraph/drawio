@@ -428,7 +428,7 @@ insertText=Sisesta tekst
 inserting=Sisestamine
 installApp=Paigalda Äpp
 invalidFilename=Diagrammi nimed ei tohi sisaldada järgnevaid tähemärke:  \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Sinu litsents on kehtetu, palun vaata seda <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">lehte</a>.
+invalidLicenseSeeThisPage=Sinu litsents on kehtetu, palun vaata seda <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">lehte</a>.
 invalidInput=Viga sisestamisel
 invalidName=Viga nimes
 invalidOrMissingFile=Kehtetu või puuduv fail

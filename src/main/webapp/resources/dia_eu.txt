@@ -428,7 +428,7 @@ insertText=Txertatu testua
 inserting=Txertatzen
 installApp=Instalatu aplikazioa
 invalidFilename=Diagramen izena ezin ditu karaktere horiek izan: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Zure lizentzia ez da baliozkoa, ikusi <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">orri hau</a>.
+invalidLicenseSeeThisPage=Zure lizentzia ez da baliozkoa, ikusi <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">orri hau</a>.
 invalidInput=Sarrera ez da baliozkoa
 invalidName=Izena ez da baliozkoa
 invalidOrMissingFile=Fitxategia ez da baliozkoa ala ez da aurkitzen

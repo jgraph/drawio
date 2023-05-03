@@ -428,7 +428,7 @@ insertText=텍스트 삽입
 inserting=삽입중
 installApp=앱 설치
 invalidFilename=다이어그램 이름에 다음 문자들은 사용될 수 없습니다 : \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=라이선스가 유효하지 않습니다. <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">페이지</a>를 확인해 주시기 바랍니다.
+invalidLicenseSeeThisPage=라이선스가 유효하지 않습니다. <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">페이지</a>를 확인해 주시기 바랍니다.
 invalidInput=유효하지 않은 입력입니다.
 invalidName=유효하지 않은 이름입니다.
 invalidOrMissingFile=유효하지 않은 파일이거나 파일이 없습니다.
