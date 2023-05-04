@@ -1885,7 +1885,7 @@ GraphViewer.prototype.showLightbox = function(editable, closable, target)
 /**
  * Adds the given array of stencils to avoid dynamic loading of shapes.
  */
-GraphViewer.prototype.showLocalLightbox = function()
+GraphViewer.prototype.showLocalLightbox = function(container)
 {
 	var backdrop = document.createElement('div');
 
@@ -1919,6 +1919,17 @@ GraphViewer.prototype.showLocalLightbox = function()
 	if (this.tagsEnabled)
 	{
 		urlParams['tags'] = '{}';
+	}
+
+	if (container != null)
+	{
+		try
+		{
+			var toolbarConfig = JSON.parse(decodeURIComponent(urlParams['toolbar-config'] || '{}'));
+			toolbarConfig.noCloseBtn = true;
+			urlParams['toolbar-config'] = encodeURIComponent(JSON.stringify(toolbarConfig));
+		}
+		catch (e) {}
 	}
 
 	// PostMessage not working and Permission denied for opened access in IE9-
@@ -1961,20 +1972,23 @@ GraphViewer.prototype.showLocalLightbox = function()
 	
 	ui.destroy = function()
 	{
-		mxEvent.removeListener(document.documentElement, 'keydown', keydownHandler);
-		document.body.removeChild(backdrop);
-		document.body.removeChild(closeImg);
-		document.body.style.overflow = overflow;
-		GraphViewer.resizeSensorEnabled = true;
-		
-		destroy.apply(this, arguments);
+		if (container == null)
+		{
+			mxEvent.removeListener(document.documentElement, 'keydown', keydownHandler);
+			document.body.removeChild(backdrop);
+			document.body.removeChild(closeImg);
+			document.body.style.overflow = overflow;
+			GraphViewer.resizeSensorEnabled = true;
+			
+			destroy.apply(this, arguments);
+		}
 	};
 	
 	var graph = ui.editor.graph;
 	var lightbox = graph.container;
 	lightbox.style.overflow = 'hidden';
 	
-	if (this.lightboxChrome)
+	if (this.lightboxChrome && container == null)
 	{
 		lightbox.style.border = '1px solid #c0c0c0';
 		lightbox.style.margin = '40px';
@@ -2049,8 +2063,16 @@ GraphViewer.prototype.showLocalLightbox = function()
 			lightbox.style.zIndex = this.lightboxZIndex;
 			closeImg.style.zIndex = this.lightboxZIndex;
 
-			document.body.appendChild(lightbox);
-			document.body.appendChild(closeImg);
+			if (container != null)
+			{
+				container.innerHTML = '';
+				container.appendChild(lightbox);
+			}
+			else
+			{
+				document.body.appendChild(lightbox);
+				document.body.appendChild(closeImg);
+			}
 			
 			ui.setFileData(this.xml);
 			
@@ -2059,7 +2081,7 @@ GraphViewer.prototype.showLocalLightbox = function()
 			ui.chromelessToolbar.style.zIndex = this.lightboxZIndex;
 			
 			// Workaround for clipping in IE11-
-			document.body.appendChild(ui.chromelessToolbar);
+			(container || document.body).appendChild(ui.chromelessToolbar);
 		
 			ui.getEditBlankXml = mxUtils.bind(this, function()
 			{

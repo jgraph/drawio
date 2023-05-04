@@ -10523,20 +10523,24 @@
 
 		// Forces update of filename placeholder
 		var lastFilename = null;
+		var lastFile = null;
 
-		this.addListener('fileDescriptorChanged', function()
+		this.addListener('fileDescriptorChanged', mxUtils.bind(this, function()
 		{
 			var file = this.getCurrentFile();
-
-			if (file != null && lastFilename != file.getTitle())
+			var filename = (file != null && file.getTitle() != null) ?
+				file.getTitle() : this.defaultFilename;
+			
+			if (lastFilename != filename && file == lastFile)
 			{
-				var filename = (file.getTitle() != null) ?
-					file.getTitle() : this.defaultFilename;
-				lastFilename = filename;
-				graph.invalidateDescendantsWithPlaceholders(graph.model.getRoot());
+				graph.invalidateDescendantsWithPlaceholders(
+					graph.model.getRoot());
 				graph.view.validate();
 			}
-		});
+
+			lastFilename = filename;
+			lastFile = file;
+		}));
 
 		var graphLabelLinkClicked = graph.labelLinkClicked;
 		

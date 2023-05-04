@@ -3185,8 +3185,8 @@ EditorUi.prototype.initCanvas = function()
 				}), Editor.fullscreenImage, mxResources.get('openInNewWindow', null, 'Open in New Window'));
 			}
 			
-			if ((toolbarConfig.closeBtn && window.self === window.top) ||
-				(graph.lightbox && (urlParams['close'] == '1' || this.container != document.body)))
+			if (!toolbarConfig.noCloseBtn && ((toolbarConfig.closeBtn && window.self === window.top) ||
+				(graph.lightbox && (urlParams['close'] == '1' || this.container != document.body))))
 			{
 				addButton(mxUtils.bind(this, function(evt)
 				{

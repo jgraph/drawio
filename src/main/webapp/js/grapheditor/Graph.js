@@ -768,8 +768,10 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 				if (state.lastLabelValue != result)
 				{
 					state.lastLabelValue = result;
-					result = Graph.sanitizeHtml(result);
+					state.lastSanitizedLabelValue = Graph.sanitizeHtml(result);
 				}
+
+				result = state.lastSanitizedLabelValue;
 			}
 		}
 		
