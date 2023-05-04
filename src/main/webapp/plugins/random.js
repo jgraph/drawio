@@ -489,7 +489,8 @@ Draw.loadPlugin(function(ui)
 		}
 	});
 	
-	var menu = ui.menus.get('extras');
+	var menu = ui.menus.get((urlParams['test'] == '1') ?
+		'testDevelop' : 'extras');
 	var oldFunct = menu.funct;
 	
 	menu.funct = function(menu, parent)

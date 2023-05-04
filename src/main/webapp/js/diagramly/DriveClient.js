@@ -1432,6 +1432,10 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 				{
 					file.saveLevel = 3;
 
+					var savedData = file.getData();
+					var checksum = null;
+					var pages = null;
+					
 					if (file.constructor == DriveFile)
 					{
 						if (properties == null)
@@ -1452,7 +1456,16 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 						}
 						
 						// Pass to access cache for each etag
-						properties.push({'key': 'secret', 'value': (secret != null) ? secret : Editor.guid(32)});
+						secret = (secret != null) ? secret : Editor.guid(32);
+						properties.push({'key': 'secret', 'value': secret});
+
+						pages = this.ui.getPagesForXml(savedData)
+						checksum = this.ui.getHashValueForPages(pages);
+
+						// Writes checksum with secret to file properties
+						// The secret is required to check if the checksum is updated
+						// with the last write as old clients keep existing entries
+						properties.push({'key': 'checksum', 'value': secret + ':' + checksum});
 					}
 					
 					// Specifies that no thumbnail should be uploaded in which case the existing thumbnail is used
@@ -1477,8 +1490,6 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 							};
 						}
 					}
-		
-					var savedData = file.getData();
 					
 					// Updates saveDelay on drive file
 					var wrapper = mxUtils.bind(this, function(resp)
@@ -1487,7 +1498,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 						{
 							file.saveDelay = new Date().getTime() - t0;
 							file.saveLevel = null;
-							success(resp, savedData);
+							success(resp, savedData, pages, checksum);
 	
 							if (prevDesc != null)
 							{

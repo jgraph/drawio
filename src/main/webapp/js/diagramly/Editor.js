@@ -221,6 +221,17 @@
 	Editor.enableRealtime = true;
 
 	/**
+	 * Enables cache for patches and Pusher for messages. Default is true.
+	 */
+	Editor.enableRealtimeCache = true;
+	
+	/**
+	 * Enables P2P instead of Pusher for messages. (Ignored if enableRealtimeCache is false.)
+	 * Default is false.
+	 */
+	Editor.p2pSyncNotify = false;
+	
+	/**
 	 * Specifies if XML files should be compressed. Default is true.
 	 */
 	Editor.compressXml = true;

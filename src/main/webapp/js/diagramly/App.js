@@ -1824,33 +1824,24 @@ App.prototype.init = function()
 		
 		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && DrawioFile.SYNC == 'auto' &&
 			urlParams['local'] != '1' && urlParams['stealth'] != '1' && !this.isOffline() &&
-			(!this.editor.chromeless || this.editor.editable))
+			Editor.enableRealtimeCache && (!this.editor.chromeless || this.editor.editable))
 		{
 			// Checks if the cache is alive
 			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 			{
-				// Switches to manual sync if cache cannot be reached
-				DrawioFile.SYNC = 'manual';
-				
-				var file = this.getCurrentFile();
-				
-				if (file != null && file.sync != null)
-				{
-					file.sync.destroy();
-					file.sync = null;
-					
-					var status = mxUtils.htmlEntities(mxResources.get('timeout'));
-					this.editor.setStatus('<div title="'+ status +
-						'" class="geStatusAlert">' + status + '</div>');
-				}
-				
-				EditorUi.logEvent({category: 'TIMEOUT-CACHE-CHECK', action: 'timeout', label: 408});
+				// Switches to sync via sockets if cache is not reachable
+				Editor.enableRealtimeCache = false;
 			}), Editor.cacheTimeout);
 			
 			mxUtils.get(EditorUi.cacheUrl + '?alive', mxUtils.bind(this, function(req)
 			{
+				Editor.enableRealtimeCache = req.getStatus() >= 200 && req.getStatus() <= 299;
 				window.clearTimeout(timeoutThread);
-			}));
+			}), function()
+			{
+				Editor.enableRealtimeCache = false;
+				window.clearTimeout(timeoutThread);
+			});
 		}
 	}
 	else if (this.menubar != null)

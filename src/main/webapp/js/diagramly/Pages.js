@@ -523,7 +523,7 @@ EditorUi.prototype.scrollToPage = function()
 	if (this.tabScroller != null && this.tabScroller.children.length > index &&
 		this.tabScroller.children[index] != null)
 	{
-		this.tabScroller.children[index].scrollIntoView();
+		this.tabScroller.children[index].scrollIntoView({block: "nearest", inline: "nearest"});
 		this.tabScroller.children[index].className = 'geTab gePageTab geActivePage';
 		lastSelectedElt = this.tabScroller.children[index];
 	}
@@ -1063,6 +1063,7 @@ EditorUi.prototype.insertPage = function(page, index)
 		// Uses model to fire event and trigger autosave
 		var change = new ChangePage(this, page, page, index);
 		this.editor.graph.model.execute(change);
+		this.scrollToPage();
 	}
 	
 	return page;

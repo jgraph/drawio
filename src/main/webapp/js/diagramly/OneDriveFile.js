@@ -214,14 +214,6 @@ OneDriveFile.prototype.isOptimisticSync = function()
 };
 
 /**
- * Enabling fast syncin OneDrive production.
- */
-OneDriveFile.prototype.isSyncEnabled = function()
-{
-	return true;
-};
-
-/**
  * Hook for subclassers.
  */
 OneDriveFile.prototype.isSyncSupported = function()

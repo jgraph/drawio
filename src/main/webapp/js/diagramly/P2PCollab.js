@@ -123,6 +123,13 @@ function P2PCollab(ui, sync, channelId)
 				sync.objectToString(msg))});
 	};
 
+	this.sendNotification = function(msg)
+	{
+		this.sendMessage('notify', (encrypted) ?
+			{msg: msg} : {data: encodeURIComponent(
+				sync.objectToString(msg))});
+	};
+
 	this.getState = function()
 	{
 		return socket != null ? socket.readyState : 3 /* CLOSED */;
@@ -471,6 +478,18 @@ function P2PCollab(ui, sync, channelId)
 						}
 					}
 				break;
+				case 'notify':
+					if (msgData.data != null)
+					{
+						msg = sync.stringToObject(decodeURIComponent(msgData.data));
+					}
+					else
+					{
+						msg = msgData.msg;
+					}
+
+					sync.handleMessageData(msg.d);
+				break;
 			}
 
 			sync.file.fireEvent(new mxEventObject('realtimeMessage', 'message', msg));
@@ -653,6 +672,15 @@ function P2PCollab(ui, sync, channelId)
 				joinInProgress = false;
 				sync.file.fireEvent(new mxEventObject('realtimeStateChanged'));
 				EditorUi.debug('P2PCollab: open socket', socket.joinId);
+
+				// Send join message
+				if (!Editor.enableRealtimeCache)
+				{
+					window.setTimeout(function()
+					{
+						sync.sendJoinMessage();
+					}, 0);
+				}
 
 				if (check)
 				{

@@ -215,7 +215,7 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 							this.sync.fileSaving();
 						}
 	
-						this.ui.drive.saveFile(this, realRevision, mxUtils.bind(this, function(resp, savedData)
+						this.ui.drive.saveFile(this, realRevision, mxUtils.bind(this, function(resp, savedData, pages, checksum)
 						{
 							try
 							{
@@ -241,7 +241,7 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 									
 									// Shows possible errors but keeps the modified flag as the
 									// file was saved but the cache entry could not be written
-									if (token != null)
+									if (token != null || !Editor.enableRealtimeCache)
 									{
 										this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
 										{
@@ -251,10 +251,11 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 											{
 												success(resp);
 											}
-										}), error, token);
+										}), error, token, pages, checksum);
 									}
 									else if (success != null)
 									{
+										// TODO: Fix possible saving state never being reset
 										success(resp);
 									}
 								}
@@ -735,7 +736,41 @@ DriveFile.prototype.setDescriptor = function(desc)
 };
 
 /**
- * Returns the etag from the given descriptor.
+ * Returns the checksum from the given descriptor.
+ */
+DriveFile.prototype.getDescriptorChecksum = function(desc)
+{
+	var value = this.ui.drive.getCustomProperty(desc, 'checksum');
+	var secret = this.getDescriptorSecret(desc);
+	var result = null;
+
+	if (value != null && secret != null)
+	{
+		tokens = value.split(':');
+
+		// Checks if checksum matches current secret
+		if (tokens.length == 2 && tokens[0] == secret)
+		{
+			result = tokens[1];
+		}
+
+
+
+		else
+		{
+
+
+			console.log('checksum ignored', value)
+
+		}
+
+	}
+
+	return result;
+};
+
+/**
+ * Returns the secret from the given descriptor.
  */
 DriveFile.prototype.getDescriptorSecret = function(desc)
 {

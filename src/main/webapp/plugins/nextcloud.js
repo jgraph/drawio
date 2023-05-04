@@ -389,19 +389,15 @@ Draw.loadPlugin(function(ui)
     {
         return true;
     };
-
-    /**
-     * Enabling fast syncin
-     */
-    EmbedFile.prototype.isSyncEnabled = function()
-    {
-        return true;
-    };
-
-    OneDriveFile.prototype.getSize = function()
+    EmbedFile.prototype.getSize = function()
     {
         return this.desc.size;
     };
+
+    EmbedFile.prototype.isEditable = function()
+	{
+		return this.desc != null && this.desc.writeable;
+	};
 
     /**
      * 
@@ -425,7 +421,7 @@ Draw.loadPlugin(function(ui)
         return 'C-' + DrawioFile.prototype.getChannelId.apply(this, arguments);
     };
 
-    OneDriveFile.prototype.getHash = function()
+    EmbedFile.prototype.getHash = function()
     {
         return 'C' + encodeURIComponent(this.getId());
     };
