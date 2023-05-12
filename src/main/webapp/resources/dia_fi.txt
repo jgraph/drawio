@@ -164,6 +164,7 @@ copyOfDrawing=Kopio piirustuksesta
 copySize=Kopioi koko
 copyStyle=Kopioi tyyli
 create=Luo
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Luo uusi kaaviokuva
 createRevision=Luo tarkistus
 createShape=Luo muoto

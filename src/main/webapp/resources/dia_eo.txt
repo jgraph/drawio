@@ -164,6 +164,7 @@ copyOfDrawing=Copy of Drawing
 copySize=Copy Size
 copyStyle=Copy Style
 create=Krei
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Krei novan diagramon
 createRevision=Create Revision
 createShape=Create Shape

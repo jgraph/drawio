@@ -164,6 +164,7 @@ copyOfDrawing=‫העתק של סקיצה‬
 copySize=Copy Size
 copyStyle=‫העתק סגנון‬
 create=‫צור‬
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=‫צור דיאגרמה חדשה‬
 createRevision=‫צור תיקון‬
 createShape=‫צור צורה‬

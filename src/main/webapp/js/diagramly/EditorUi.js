@@ -1702,7 +1702,8 @@
 		// LATER: Merge common code with EmbedDialog
 		if (graph != null)
 		{
-			var bounds = (ignoreSelection) ? graph.getGraphBounds() : graph.getBoundingBox(graph.getSelectionCells());
+			var bounds = (ignoreSelection) ? graph.getGraphBounds() :
+				graph.getBoundingBox(graph.getSelectionCells());
 			var scale = graph.view.scale;
 			var x0 = Math.floor(bounds.x / scale - graph.view.translate.x);
 			var y0 = Math.floor(bounds.y / scale - graph.view.translate.y);
@@ -3391,13 +3392,38 @@
 		{
 			return;
 		}
-		
+
 		if (file.constructor != LocalLibrary)
 		{
 			mxSettings.addCustomLibrary(file.getHash());
 		}
-	
-		if (file.title == '.scratchpad')
+		
+		var library = null;
+
+		if (file.constructor != StorageLibrary || file.title != '.scratchpad')
+		{
+			if (this.openLibraries == null)
+			{
+				this.openLibraries = [];
+			}
+
+			// Removes existing entry for this file ID
+			for (var i = 0; i < this.openLibraries.length; i++)
+			{
+				if (this.openLibraries[i].file.getHash() == file.getHash())
+				{
+					mxUtils.remove(this.openLibraries[i], this.openLibraries);
+					break;
+				}
+			}
+
+			// Adds new entry to the array of open libraries
+			library = {file: file, images: images,
+				title: optionalTitle,
+				expand: expand};
+			this.openLibraries.push(library);
+		}
+		else
 		{
 			this.scratchpad = file;
 		}
@@ -3453,6 +3479,11 @@
 		{
 			addImages(images, content);
 	    }));
+
+		if (library != null)
+		{
+			library.div = contentDiv;
+		}
 	
 		this.repositionLibrary(nextSibling);
 		
@@ -3500,6 +3531,11 @@
 				{
 					var fn = mxUtils.bind(this, function()
 					{
+						if (library != null)
+						{
+							mxUtils.remove(library, this.openLibraries);
+						}
+
 						this.closeLibrary(file);
 					});
 					
@@ -3888,14 +3924,7 @@
 			buttons.insertBefore(btn, buttons.firstChild);
 			
 			mxEvent.addListener(btn, 'click', editLibrary);
-			mxEvent.addListener(contentDiv, 'dblclick', function(evt)
-			{
-				if (mxEvent.getSource(evt) == contentDiv)
-				{
-					editLibrary(evt);
-				}
-			});
-			
+
 			var btn2 = btn.cloneNode(false);
 			btn2.setAttribute('src', Editor.plusImage);
 			btn2.setAttribute('title', mxResources.get('add'));
@@ -11598,6 +11627,7 @@
 					
 					if (evt.clipboardData != null)
 					{
+						Graph.removePasteFormatting(textInput.firstChild);
 						this.pasteCells(evt, textInput, true, true);
 					}
 
@@ -11613,7 +11643,7 @@
 								// Workaround for Safari 16 scroll after paste
 								graph.container.scrollLeft = x0;
 								graph.container.scrollTop = y0;
-
+								Graph.removePasteFormatting(textInput.firstChild);
 								this.pasteCells(evt, textInput, false, true);
 							}
 							catch (e)
@@ -11864,7 +11894,8 @@
 
 				if (this.footerContainer != null)
 				{
-					if (this.footerContainer.parentNode != this.formatContainer.parentNode)
+					if (this.footerContainer.parentNode !=
+						this.formatContainer.parentNode)
 					{
 						this.footerContainer.parentNode.insertBefore(
 							this.formatContainer, this.footerContainer);
@@ -11874,7 +11905,8 @@
 				// Shapes window
 				if (this.sidebarContainer != null)
 				{
-					if (this.formatContainer.parentNode != this.sidebarContainer.parentNode)
+					if (this.formatContainer.parentNode !=
+						this.sidebarContainer.parentNode)
 					{
 						this.formatContainer.parentNode.insertBefore(
 							this.sidebarContainer, this.formatContainer);
@@ -15761,7 +15793,11 @@
 							{
 								parent.postMessage(JSON.stringify({event: 'prompt-cancel', message: data}), '*');
 							}
-						}, (data.titleKey != null) ? mxResources.get(data.titleKey) : data.title);
+						}, (data.titleKey != null) ? mxResources.get(data.titleKey) : data.title, 
+						null, null, null, null, function()
+						{
+							parent.postMessage(JSON.stringify({event: 'prompt-cancel', message: data}), '*');
+						});
 						this.showDialog(dlg.container, 300, 80, true, false);
 						dlg.init();
 						
@@ -17991,19 +18027,41 @@
 	var editorUiCreateSidebar = EditorUi.prototype.createSidebar;
 	EditorUi.prototype.createSidebar = function(container)
 	{
-		var result = editorUiCreateSidebar.apply(this, arguments);
+		var sidebar = editorUiCreateSidebar.apply(this, arguments);
 
 		this.addListener('darkModeChanged', mxUtils.bind(this, function()
 		{
-			result.refresh();
+			sidebar.refresh();
+			this.restoreOpenLibraries();
 		}));
 
 		this.addListener('sketchModeChanged', mxUtils.bind(this, function()
 		{
-			result.refresh();
+			sidebar.refresh();
+			this.restoreOpenLibraries();
 		}));
 		
-		return result;
+		return sidebar;
+	};
+
+	/**
+	 * Extends sidebar construction to add listeners for theme changes.
+	 */
+	EditorUi.prototype.restoreOpenLibraries = function()
+	{
+		var temp = this.openLibraries;
+		this.openLibraries = null;
+
+		if (temp != null)
+		{
+			for (var i = 0; i < temp.length; i++)
+			{
+				this.libraryLoaded(temp[i].file, temp[i].images,
+					temp[i].title, (temp[i].div != null) ?
+						temp[i].div.style.display != 'none' :
+						temp[i].expand);
+			}
+		}
 	};
 
 	/**

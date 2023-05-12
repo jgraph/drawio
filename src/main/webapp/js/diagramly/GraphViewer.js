@@ -2040,10 +2040,10 @@ GraphViewer.prototype.showLocalLightbox = function(container)
 	document.body.style.overflow = 'hidden';
 
 	// Workaround for possible rendering issues
-	if (!mxClient.IS_SF && !mxClient.IS_EDGE)
+	if (container == null && !mxClient.IS_SF && !mxClient.IS_EDGE)
 	{
 		mxUtils.setPrefixedStyle(lightbox.style, 'transform', 'rotateY(90deg)');
-		mxUtils.setPrefixedStyle(lightbox.style, 'transition', 'all .25s ease-in-out');
+		mxUtils.setPrefixedStyle(lightbox.style, 'transition', 'all .2s ease-in-out');
 	}
 	
 	this.addClickHandler(graph, ui);

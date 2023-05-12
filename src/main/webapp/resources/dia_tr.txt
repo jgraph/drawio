@@ -164,6 +164,7 @@ copyOfDrawing=Resmin Kopyası
 copySize=Copy Size
 copyStyle=Stili kopyala
 create=Oluştur
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Yeni diyagram oluştur
 createRevision=Düzeltme oluştur
 createShape=Şekil oluştur

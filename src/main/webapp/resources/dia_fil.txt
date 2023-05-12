@@ -164,6 +164,7 @@ copyOfDrawing=Kopya ng Guhit
 copySize=Copy Size
 copyStyle=Istilo ng kopya
 create=Gumawa
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Gumawa ng Bagong Dayagram
 createRevision=Gumawa ng Rebisyon
 createShape=Gumawa ng Hugis

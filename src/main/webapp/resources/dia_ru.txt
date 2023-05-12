@@ -164,6 +164,7 @@ copyOfDrawing=Копия документа
 copySize=Копировать размер
 copyStyle=Копировать стиль
 create=Создать
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Создать новую диаграмму
 createRevision=Создать ревизию
 createShape=Создать фигуру

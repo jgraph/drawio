@@ -164,6 +164,7 @@ copyOfDrawing=Kopija crteža
 copySize=Copy Size
 copyStyle=Kopiraj stil
 create=Kreiraj
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Kreiraj novi dijagram
 createRevision=Kreiraj reviziju
 createShape=Kreiraj oblik

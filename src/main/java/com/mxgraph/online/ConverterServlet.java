@@ -63,7 +63,7 @@ public class ConverterServlet  extends HttpServlet
 		}
 	}
 	
-	//Little Indian
+	//Little-endian
 	private int fromByteArray(byte[] bytes, int start) 
 	{
 		return ((bytes[start + 3] & 0xFF) << 24) | 

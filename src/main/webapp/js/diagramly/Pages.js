@@ -523,8 +523,10 @@ EditorUi.prototype.scrollToPage = function()
 	if (this.tabScroller != null && this.tabScroller.children.length > index &&
 		this.tabScroller.children[index] != null)
 	{
-		this.tabScroller.children[index].scrollIntoView({block: "nearest", inline: "nearest"});
-		this.tabScroller.children[index].className = 'geTab gePageTab geActivePage';
+		this.tabScroller.children[index].scrollIntoView(
+			{block: 'nearest', inline: 'nearest'});
+		this.tabScroller.children[index].className =
+			'geTab gePageTab geActivePage';
 		lastSelectedElt = this.tabScroller.children[index];
 	}
 };
@@ -992,7 +994,8 @@ EditorUi.prototype.selectPage = function(page, quiet, viewState)
 
 			// Selects unlocked layer if page was never shown
 			if (page.viewState != null &&
-				page.viewState.scrollTop == null)
+				(page.viewState.scrollTop == null ||
+				page.viewState.scrollLeft == null))
 			{
 				graph.selectUnlockedLayer();
 				this.resetScrollbars();
@@ -1063,7 +1066,12 @@ EditorUi.prototype.insertPage = function(page, index)
 		// Uses model to fire event and trigger autosave
 		var change = new ChangePage(this, page, page, index);
 		this.editor.graph.model.execute(change);
-		this.scrollToPage();
+
+		window.setTimeout(mxUtils.bind(this, function()
+		{
+			this.resetScrollbars();
+			this.scrollToPage();
+		}), 0);
 	}
 	
 	return page;

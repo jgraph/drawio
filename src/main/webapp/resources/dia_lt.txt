@@ -164,6 +164,7 @@ copyOfDrawing=Dokumento kopija
 copySize=Kopijuoti dydį
 copyStyle=Kopijuoti stilių
 create=Sukurti
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Sukurkite naują schemą
 createRevision=Sukurti versiją
 createShape=Sukurti figūrą

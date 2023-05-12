@@ -164,6 +164,7 @@ copyOfDrawing=圖紙副本
 copySize=複製大小
 copyStyle=複製樣式
 create=新增
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=新增圖表
 createRevision=新增修訂版本
 createShape=新增圖形

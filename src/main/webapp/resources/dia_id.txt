@@ -164,6 +164,7 @@ copyOfDrawing=Salinan Gambar
 copySize=Copy Size
 copyStyle=Salin Gaya
 create=Buat
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Buat Diagram Baru
 createRevision=Buat Revisi
 createShape=Buat Bentuk

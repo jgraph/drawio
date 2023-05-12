@@ -164,6 +164,7 @@ copyOfDrawing=Copia desenului
 copySize=Copy Size
 copyStyle=Stil copiere
 create=Creare
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Creare diagramă nouă
 createRevision=Creare revizie
 createShape=Creare formă

@@ -164,6 +164,7 @@ copyOfDrawing=Kopiatu diseinua
 copySize=Kopiatu tamaina
 copyStyle=Kopiatu estiloa
 create=Sortu
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Sortu diagrama berria
 createRevision=Sortu berrikuspena
 createShape=Sortu forma

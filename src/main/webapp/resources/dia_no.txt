@@ -164,6 +164,7 @@ copyOfDrawing=Kopi av tegning
 copySize=Copy Size
 copyStyle=Kopieringsstil
 create=Opprett
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Opprett nytt diagram
 createRevision=Opprett revidering
 createShape=Opprett figur

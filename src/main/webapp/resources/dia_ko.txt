@@ -164,6 +164,7 @@ copyOfDrawing=그림 복사본
 copySize=크기 복사
 copyStyle=스타일 복사
 create=만들기
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=새로운 다이어그램 만들기
 createRevision=수정본 만들기
 createShape=도형 만들기

@@ -164,6 +164,7 @@ copyOfDrawing=Kopie výkresu
 copySize=Zkopírovat velikost
 copyStyle=Zkopírovat styl
 create=Vytvořit
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Vytvořit nový diagram
 createRevision=Vytvořit revizi
 createShape=Vytvořit tvar

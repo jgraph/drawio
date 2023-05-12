@@ -164,6 +164,7 @@ copyOfDrawing=図のコピー
 copySize=サイズをコピー
 copyStyle=スタイルをコピー
 create=作成する
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=新規ファイルを作成する
 createRevision=改訂を作成する
 createShape=図形XMLを作成する

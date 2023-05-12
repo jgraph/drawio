@@ -753,17 +753,6 @@ DriveFile.prototype.getDescriptorChecksum = function(desc)
 		{
 			result = tokens[1];
 		}
-
-
-
-		else
-		{
-
-
-			console.log('checksum ignored', value)
-
-		}
-
 	}
 
 	return result;

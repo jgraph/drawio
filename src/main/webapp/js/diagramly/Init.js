@@ -299,15 +299,19 @@ window.uiTheme = window.uiTheme || (function()
 	try
 	{
 		if (ui == null && urlParams['embed'] != '1' &&
-			(window.location.hostname === 'test.draw.io' ||
+			(urlParams['dev'] == 1 || urlParams['test'] == 1 ||
+			window.location.hostname === 'test.draw.io' ||
 			window.location.hostname === 'www.draw.io' ||
 			window.location.hostname === 'stage.diagrams.net' ||
 			window.location.hostname === 'app.diagrams.net' ||
 			window.location.hostname === 'jgraph.github.io'))
 		{
 			var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-			
-			if (iw <= 800)
+			var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+			if (iw <= 800 ||  /android/i.test(userAgent) || (/iPad|iPhone|iPod/.test(userAgent) &&
+				!window.MSStream) || (navigator.userAgent.match(/Mac/) &&
+				navigator.maxTouchPoints && navigator.maxTouchPoints > 2))
 			{
 				ui = 'simple';
 			}

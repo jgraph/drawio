@@ -80,7 +80,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 		if (urlParams['print-csp'] == '1')
 		{
 			console.log('Content-Security-Policy');
-			var app_diagrams_net = csp.replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com').
+			var app_diagrams_net = csp.replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com https://cdn.jsdelivr.net/npm/monday-sdk-js/dist/main.js').
 				replace(/%connect-src%/g, 'https://*.dropboxapi.com https://api.trello.com').
 				replace(/%frame-src%/g, '').
 					replace(/%style-src%/g, '').

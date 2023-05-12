@@ -289,9 +289,48 @@ Sidebar.prototype.refresh = function()
 	var graph = this.editorUi.editor.graph;
 	this.graph.stylesheet.styles = mxUtils.clone(
 		graph.getDefaultStylesheet().styles);
+	var scrollTop = this.wrapper.scrollTop;
 	this.wrapper.innerText = '';
+	var temp = this.palettes;
 	this.palettes = new Object();
-	this.init();
+
+	// Overrides addPalette to restore expanded state
+	var addPalette = this.addPalette;
+
+	this.addPalette = function(id, title, expanded, onInit)
+	{
+		expanded = this.wasPaletteExpanded(temp, id, expanded);
+
+		return addPalette.apply(this, arguments);
+	};
+
+	this.init(temp);
+
+	// Restores previous implementation
+	this.addPalette = addPalette;
+
+	// Restores scrollbar position
+	window.setTimeout(mxUtils.bind(this, function()
+	{	
+		this.wrapper.scrollTop = scrollTop;
+	}), 0);
+};
+
+/**
+ * Overrides the sidebar init.
+ */
+Sidebar.prototype.wasPaletteExpanded = function(paletteStates, id, defaultExpanded)
+{
+	var elts = (paletteStates != null && id != null) ? paletteStates[id] : null;
+	var result = defaultExpanded
+
+	if (elts != null && elts.length == 2 &&
+		elts[1].firstChild != null)
+	{
+		result = elts[1].firstChild.style.display != 'none';
+	}
+
+	return result;
 };
 
 /**
@@ -502,7 +541,9 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		}
 		else
 		{
-			this.graph2.view.setScale(Math.round(Math.min(this.maxTooltipWidth / bounds.width, this.maxTooltipHeight / bounds.height) * 100) / 100);
+			this.graph2.view.setScale(Math.round(Math.min(
+				this.maxTooltipWidth / bounds.width,
+				this.maxTooltipHeight / bounds.height) * 100) / 100);
 			bounds = this.graph2.getGraphBounds();
 		}
 	}
@@ -2132,7 +2173,8 @@ Sidebar.prototype.createThumb = function(cells, width, height, parent, title, sh
 	{
 		var s = Math.floor(Math.min((width - 2 * this.thumbBorder) / bounds.width,
 			(height - 2 * this.thumbBorder) / bounds.height) * 100) / 100;
-		this.graph.view.scaleAndTranslate(s, Math.floor((width - bounds.width * s) / 2 / s - bounds.x),
+		this.graph.view.scaleAndTranslate(s,
+			Math.floor((width - bounds.width * s) / 2 / s - bounds.x),
 			Math.floor((height - bounds.height * s) / 2 / s - bounds.y));
 	}
 
@@ -3908,50 +3950,69 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 
 	mxEvent.addListener(title, 'click', mxUtils.bind(this, function(evt)
 	{
-		if (content.style.display == 'none')
+		if (mxEvent.getSource(evt) == title)
 		{
-			if (!initialized)
+			if (content.style.display == 'none')
 			{
-				initialized = true;
-				
-				if (funct != null)
+				if (!initialized)
 				{
-					// Wait cursor does not show up on Mac
-					title.style.cursor = 'wait';
-					var prev = title.innerHTML;
-					title.innerHTML = mxResources.get('loading') + '...';
+					initialized = true;
 					
-					window.setTimeout(mxUtils.bind(this, function()
+					if (funct != null)
+					{
+						// Wait cursor does not show up on Mac
+						title.style.cursor = 'wait';
+
+						// Captures child nodes
+						var children = [];
+
+						for (var i = 0; i < title.children.length; i++)
+						{
+							children.push(title.children[i]);
+							title.removeChild(title.children[i]);
+						}			
+
+						var prev = title.innerHTML;
+						title.innerHTML = mxResources.get('loading') + '...';
+						
+						window.setTimeout(mxUtils.bind(this, function()
+						{
+							this.setContentVisible(content, true);
+							title.style.cursor = '';
+							title.innerHTML = prev;
+
+							// Restores child nodes
+							for (var i = 0; i < children.length; i++)
+							{
+								title.appendChild(children[i]);
+							}
+
+							var fo = mxClient.NO_FO;
+							mxClient.NO_FO = Editor.prototype.originalNoForeignObject;
+							funct(content, title);
+							mxClient.NO_FO = fo;
+						}), (mxClient.IS_FF) ? 20 : 0);
+					}
+					else
 					{
 						this.setContentVisible(content, true);
-						title.style.cursor = '';
-						title.innerHTML = prev;
-
-						var fo = mxClient.NO_FO;
-						mxClient.NO_FO = Editor.prototype.originalNoForeignObject;
-						funct(content, title);
-						mxClient.NO_FO = fo;
-					}), (mxClient.IS_FF) ? 20 : 0);
+					}
 				}
 				else
 				{
 					this.setContentVisible(content, true);
 				}
+				
+				title.style.backgroundImage = 'url(\'' + this.expandedImage + '\')';
 			}
 			else
 			{
-				this.setContentVisible(content, true);
+				title.style.backgroundImage = 'url(\'' + this.collapsedImage + '\')';
+				this.setContentVisible(content, false);
 			}
 			
-			title.style.backgroundImage = 'url(\'' + this.expandedImage + '\')';
+			mxEvent.consume(evt);
 		}
-		else
-		{
-			title.style.backgroundImage = 'url(\'' + this.collapsedImage + '\')';
-			this.setContentVisible(content, false);
-		}
-		
-		mxEvent.consume(evt);
 	}));
 	
 	// Prevents focus

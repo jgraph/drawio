@@ -164,6 +164,7 @@ copyOfDrawing=Salinan Lukisan
 copySize=Copy Size
 copyStyle=Salin Gaya
 create=Cipta
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Cipta Gambarajah Baru
 createRevision=Cipta Semakan
 createShape=Cipta Bentuk

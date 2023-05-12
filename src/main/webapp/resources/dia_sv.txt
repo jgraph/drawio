@@ -164,6 +164,7 @@ copyOfDrawing=Kopia av ritning
 copySize=Kopiera storlek
 copyStyle=Kopiera stil
 create=Skapa
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Skapa nytt diagram
 createRevision=Skapa revision
 createShape=Skapa form

@@ -2721,7 +2721,9 @@ EditorUi.prototype.initCanvas = function()
                 cx = (cx != null) ? cx : 0;
                 cy = (cy != null) ? cy : 0;
                 
-                var bds = (graph.pageVisible) ? graph.view.getBackgroundPageBounds() : graph.getGraphBounds();
+                var bds = (graph.pageVisible) ?
+					graph.view.getBackgroundPageBounds() :
+					graph.getGraphBounds();
                 var scroll = mxUtils.hasScrollbars(graph.container);
                 var tr = graph.view.translate;
                 var s = graph.view.scale;
@@ -4196,14 +4198,17 @@ EditorUi.prototype.resetScrollbars = function()
 				{
 					var width = Math.max(bounds.width, graph.scrollTileSize.width * graph.view.scale);
 					var height = Math.max(bounds.height, graph.scrollTileSize.height * graph.view.scale);
-					c.scrollTop = Math.floor(Math.max(0, bounds.y - Math.max(20, (c.clientHeight - height) / 4)));
+
 					c.scrollLeft = Math.floor(Math.max(0, bounds.x - Math.max(0, (c.clientWidth - width) / 2)));
+					c.scrollTop = Math.floor(Math.max(0, bounds.y - Math.max(20, (c.clientHeight - height) / 4)));
 				}
 			}
 		}
 		else
 		{
-			var b = mxRectangle.fromRectangle((graph.pageVisible) ? graph.view.getBackgroundPageBounds() : graph.getGraphBounds())
+			var b = mxRectangle.fromRectangle((graph.pageVisible) ?
+				graph.view.getBackgroundPageBounds() :
+				graph.getGraphBounds())
 			var tr = graph.view.translate;
 			var s = graph.view.scale;
             b.x = b.x / s - tr.x;

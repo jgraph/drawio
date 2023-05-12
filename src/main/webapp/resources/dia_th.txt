@@ -164,6 +164,7 @@ copyOfDrawing=ฉบับคัดลอกของการวาด
 copySize=Copy Size
 copyStyle=คัดลอกรูปแบบ
 create=สร้าง
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=สร้างแผนภาพใหม่
 createRevision=สร้างการปรับปรุงใหม่
 createShape=สร้างรูปร่าง

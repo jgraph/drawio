@@ -164,6 +164,7 @@ copyOfDrawing=Αντιγραφή του Σχεδιαγράμματος
 copySize=Αντιγραφή Μεγέθους
 copyStyle=Αντιγραφή Εμφάνισης
 create=Δημιουργία
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Δημιουργία νέου διαγράμματος
 createRevision=Δημιουργία Αναθεώρησης
 createShape=Δημιουργία Σχήματος

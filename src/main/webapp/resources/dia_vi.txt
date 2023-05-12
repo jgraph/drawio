@@ -164,6 +164,7 @@ copyOfDrawing=Bản sao của bản vẽ
 copySize=Copy Size
 copyStyle=Sao chép phong cách
 create=Tạo
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Tạo biểu đồ mới
 createRevision=Tạo sửa đổi
 createShape=Tạo hình

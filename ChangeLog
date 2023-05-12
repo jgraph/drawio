@@ -1,3 +1,17 @@
+12-MAY-2023: 21.3.0
+
+- Updates DOMPurify from 3.0.2 to 3.0.3
+- Fixes in-place change of graph bounds in fitWindow
+- Restores sidebar on dark mode change [drawio-3577]
+- Fixes page scroll while editing text [drawio-3523]
+- [conf cloud] Fixed embed diagram macro when context lack the contentType [DID-8214]
+- Preserves tabs in pasted text from text editors
+- Uses simple theme on iPadOS, iOS and Android
+- [desktop]] Potential fix for spawn errors [drawio-desktop-1122]
+- Resets scrollbar state after inserting new pages
+- Fixes reset of scrollbars after deleting last page
+- 
+
 04-MAY-2023: 21.2.9
 
 - Fixes scrolling of iframe parents [drawio-3563]

@@ -164,6 +164,7 @@ copyOfDrawing=Rajz másolás
 copySize=Méret másolása
 copyStyle=Stílus másolás
 create=Alkot
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Új diagram alkotás
 createRevision=Új revízió
 createShape=Új alakzat

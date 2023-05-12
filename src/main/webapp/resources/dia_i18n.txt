@@ -164,6 +164,7 @@ copyOfDrawing=copyOfDrawing
 copySize=copySize
 copyStyle=copyStyle
 create=create
+createBlankDiagram=createBlankDiagram
 createNewDiagram=createNewDiagram
 createRevision=createRevision
 createShape=createShape

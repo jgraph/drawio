@@ -164,6 +164,7 @@ copyOfDrawing=‫نسخة من الرسم‬
 copySize=Copy Size
 copyStyle=‫نسخ النمط‬
 create=‫إنشاء‬
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=‫إنشاء رسم جديد‬
 createRevision=‫إنشاء مراجعة‬
 createShape=‫إنشاء شكل‬

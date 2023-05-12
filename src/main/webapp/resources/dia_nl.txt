@@ -164,6 +164,7 @@ copyOfDrawing=Kopie van tekening
 copySize=Afmetingen kopiëren
 copyStyle=Stijl kopiëren
 create=Aanmaken
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Nieuw diagram aanmaken
 createRevision=Revisie aanmaken
 createShape=Vorm aanmaken

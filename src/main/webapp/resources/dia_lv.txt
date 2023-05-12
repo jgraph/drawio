@@ -164,6 +164,7 @@ copyOfDrawing=Zīmējuma kopija
 copySize=Kopijas izmērs
 copyStyle=Kopijas stils
 create=Izveidot
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Izveidot jaunu diagrammu
 createRevision=Izveidot izmaiņu versiju
 createShape=Izveidot formu

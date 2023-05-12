@@ -3888,7 +3888,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	var currentEntry = null, lastEntry = null;
 
 	// Adds local basic templates
-	categories['basic'] = [{title: 'blankDiagram', select: true}];
+	categories['basic'] = [{title: 'blankDiagram'}];
 	var templates = categories['basic'];
 	
 	if (editorUi.isExternalDataComms() && editorUi.getServiceName() == 'draw.io')
@@ -4127,10 +4127,14 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			{
 				if (currentEntry != entry)
 				{
-					currentEntry.style.backgroundColor = '';
+					if (currentEntry != null)
+					{
+						currentEntry.style.backgroundColor = '';
+					}
+					
 					currentEntry = entry;
 					currentEntry.style.backgroundColor = leftHighlight;
-					
+
 					div.scrollTop = 0;
 					div.innerText = '';
 					i0 = 0;
@@ -4164,6 +4168,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			
 		for (var cat in categories)
 		{
+			var templateList = null;
+			var clickElem = null;
+
 			if (categories[cat].content != null)
 			{
 				var entry = document.createElement(subCats? 'ul' : 'div');
@@ -4174,14 +4181,14 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				mxUtils.write(entry, title);
 
 				list.appendChild(entry);
-				addEntryHandler(cat, entry);
+				clickElem = entry;
 			}
 			else
 			{
 				var subCats = subCategories[cat];
 				var entry = document.createElement(subCats? 'ul' : 'div');
 				var clickElem = entry;
-				var templateList = categories[cat];
+				templateList = categories[cat];
 				var entryTitle = getEntryTitle(cat, templateList);
 				
 				if (subCats != null)
@@ -4245,15 +4252,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				}
 
 				list.appendChild(entry);
-				
-				if (currentEntry == null && templateList.length > 0)
-				{
-					currentEntry = entry;
-					currentEntry.style.backgroundColor = leftHighlight;
-					templates = templateList;
-				}
-				
-				addEntryHandler(cat, clickElem);
+			}
+
+			addEntryHandler(cat, clickElem);
+
+			if (currentEntry == null)
+			{
+				clickElem.click();
 			}
 		}
 		

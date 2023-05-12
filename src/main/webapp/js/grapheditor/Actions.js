@@ -1039,7 +1039,8 @@ Actions.prototype.init = function()
 		}
 		else
 		{
-			var bounds = (graph.isSelectionEmpty()) ? graph.getGraphBounds() :
+			var bounds = (graph.isSelectionEmpty()) ?
+				mxRectangle.fromRectangle(graph.getGraphBounds()) :
 				graph.getBoundingBox(graph.getSelectionCells())
 			var t = graph.view.translate;
 			var s = graph.view.scale;
@@ -1051,7 +1052,6 @@ Actions.prototype.init = function()
 
 			if (graph.backgroundImage != null)
 			{
-				bounds = mxRectangle.fromRectangle(bounds);
 				bounds.add(new mxRectangle(0, 0,
 					graph.backgroundImage.width,
 					graph.backgroundImage.height));

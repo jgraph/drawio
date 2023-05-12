@@ -164,6 +164,7 @@ copyOfDrawing=‫کپی نقاشی‬
 copySize=Copy Size
 copyStyle=‫کپی کردن سبک‬
 create=‫ایجاد نمودن‬
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=‫ایجاد دیاگرام جدید‬
 createRevision=‫ایجاد ویرایش‬
 createShape=‫ایجاد شکل‬

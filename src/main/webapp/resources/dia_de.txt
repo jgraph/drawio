@@ -164,6 +164,7 @@ copyOfDrawing=Kopie der Zeichnung
 copySize=Grösse kopieren
 copyStyle=Style kopieren
 create=Erstellen
+createBlankDiagram=Leeres Diagramm erstellen
 createNewDiagram=Neues Diagramm erstellen
 createRevision=Überarbeitung erstellen
 createShape=Shape erstellen

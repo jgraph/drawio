@@ -164,6 +164,7 @@ copyOfDrawing=绘图副本
 copySize=复制大小
 copyStyle=复制样式
 create=创建
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=创建新绘图
 createRevision=创建修订版本
 createShape=创建图形

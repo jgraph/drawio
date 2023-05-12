@@ -580,7 +580,7 @@ Draw.loadPlugin(function(ui) {
             var graph = ui.editor.graph;
             var view = graph.view;
             var bds = graph.getGraphBounds();
-
+            
             // Computes unscaled, untranslated graph bounds
             var x = Math.ceil(Math.max(0, bds.x / view.scale - view.translate.x) + 4 * graph.gridSize);
             var y = Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize);

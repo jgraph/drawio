@@ -164,6 +164,7 @@ copyOfDrawing=Joonise koopia
 copySize=Kopeeri suurus
 copyStyle=Kopeeri stiil
 create=Lisa
+createBlankDiagram=Create Blank Diagram
 createNewDiagram=Lisa uus diagramm
 createRevision=Lisa versioon
 createShape=Lisa kuju

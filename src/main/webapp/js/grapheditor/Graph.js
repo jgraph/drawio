@@ -1762,14 +1762,16 @@ Graph.setOpacityForNodes = function(nodes, opacity)
 /**
  * Removes formatting from pasted HTML.
  */
-Graph.removePasteFormatting = function(elt)
+Graph.removePasteFormatting = function(elt, ignoreTabs)
 {
 	while (elt != null)
 	{
 		if (elt.firstChild != null)
 		{
-			Graph.removePasteFormatting(elt.firstChild);
+			Graph.removePasteFormatting(elt.firstChild, true);
 		}
+
+		var next = elt.nextSibling;
 		
 		if (elt.nodeType == mxConstants.NODETYPE_ELEMENT && elt.style != null)
 		{
@@ -1779,10 +1781,70 @@ Graph.removePasteFormatting = function(elt)
 			{
 				elt.style.color = '';
 			}
+
+			// Replaces tabs from macOS TextEdit
+			if (elt.nodeName == 'SPAN' && elt.className == 'Apple-tab-span')
+			{
+				var temp = Graph.createTabNode(4);
+				elt.parentNode.replaceChild(temp, elt);
+				elt = temp;
+			}
+
+			// Replaces paragraphs from macOS TextEdit
+			if (elt.nodeName == 'P' && elt.className == 'p1')
+			{
+				while (elt.firstChild != null)
+				{
+					elt.parentNode.insertBefore(elt.firstChild, elt);
+				}
+				
+				if (next != null && next.nodeName == 'P' &&
+					next.className == 'p1')
+				{
+					elt.parentNode.insertBefore(elt.ownerDocument.
+						createElement('br'), elt);
+				}
+
+				elt.parentNode.removeChild(elt);
+			}
+
+			// Replaces tabs
+			if (!ignoreTabs && elt.innerHTML != null)
+			{
+				var tabNode = Graph.createTabNode(4);
+				elt.innerHTML = elt.innerHTML.replace(/\t/g,
+					tabNode.outerHTML);
+			}
 		}
-		
-		elt = elt.nextSibling;
+
+		elt = next;
 	}
+};
+
+/**
+ * Removes formatting from pasted HTML.
+ */
+Graph.createTabNode = function(spaces)
+{
+	var str = '\t';
+			
+	if (spaces != null)
+	{
+		str = '';
+		
+		while (spaces > 0)
+		{
+			str += '\xa0';
+			spaces--;
+		}
+	}
+
+	// LATER: Fix normalized tab after editing plain text labels
+	var tabNode = document.createElement('span');
+	tabNode.style.whiteSpace = 'pre';
+	tabNode.appendChild(document.createTextNode(str));
+
+	return tabNode;
 };
 
 /**
@@ -12155,23 +12217,7 @@ if (typeof mxVertexHandler !== 'undefined')
 	        var doc = editor.ownerDocument.defaultView;
 	        var sel = doc.getSelection();
 	        var range = sel.getRangeAt(0);
-			var str = '\t';
-			
-			if (spaces != null)
-			{
-				str = '';
-				
-				while (spaces > 0)
-				{
-					str += '\xa0';
-					spaces--;
-				}
-			}
-
-			// LATER: Fix normalized tab after editing plain text labels
-			var tabNode = document.createElement('span');
-			tabNode.style.whiteSpace = 'pre';
-			tabNode.appendChild(document.createTextNode(str));
+			var tabNode = Graph.createTabNode(spaces);
 			range.insertNode(tabNode);
 	        range.setStartAfter(tabNode);
 	        range.setEndAfter(tabNode); 
@@ -12490,7 +12536,7 @@ if (typeof mxVertexHandler !== 'undefined')
 							}
 							else
 							{
-								Graph.removePasteFormatting(this.textarea);
+								Graph.removePasteFormatting(this.textarea.firstChild);
 							}
 						}
 					}), 0);
@@ -12526,12 +12572,14 @@ if (typeof mxVertexHandler !== 'undefined')
 						content = mxUtils.replaceTrailingNewlines(content, '<div><br></div>');
 					}
 					
-				    content = Graph.sanitizeHtml((nl2Br) ? content.replace(/\n/g, '').replace(/&lt;br\s*.?&gt;/g, '<br>') : content, true);
+				    content = Graph.sanitizeHtml((nl2Br) ? content.replace(/\n/g, '').
+						replace(/&lt;br\s*.?&gt;/g, '<br>') : content, true);
 					this.textarea.className = 'mxCellEditor mxPlainTextEditor';
 					
 					var size = mxConstants.DEFAULT_FONTSIZE;
 					
-					this.textarea.style.lineHeight = (mxConstants.ABSOLUTE_LINE_HEIGHT) ? Math.round(size * mxConstants.LINE_HEIGHT) + 'px' : mxConstants.LINE_HEIGHT;
+					this.textarea.style.lineHeight = (mxConstants.ABSOLUTE_LINE_HEIGHT) ?
+						Math.round(size * mxConstants.LINE_HEIGHT) + 'px' : mxConstants.LINE_HEIGHT;
 					this.textarea.style.fontSize = Math.round(size) + 'px';
 					this.textarea.style.textDecoration = '';
 					this.textarea.style.fontWeight = 'normal';
