@@ -3340,31 +3340,42 @@ EditorUi.prototype.initCanvas = function()
 
 					// Sets initial translate based on geometries
 					// to avoid revalidation in sizeDidChange
-					var pageLayout = graph.getPageLayout(
-						graph.getBoundingBoxFromGeometry(
-						graph.model.getCells(), true), zero, 1);
+					var bbox = graph.getBoundingBoxFromGeometry(
+						graph.model.getCells(), true);
+					
+					// Handles blank diagrams
+					if (bbox == null)
+					{
+						bbox = new mxRectangle(
+							graph.view.translate.x * graph.view.scale,
+							graph.view.translate.y * graph.view.scale);
+					}
+
+					var pageLayout = graph.getPageLayout(bbox, zero, 1);
 					var tr = graph.getDefaultTranslate(pageLayout);
 					this.x0 = pageLayout.x;
 					this.y0 = pageLayout.y;
 					
-					// Restores scrollbar positions
-					graph.setScrollbarPositions(
-						ui.currentPage.viewState,
-						tr.x, tr.y);
-					
 					if (tr.x != this.translate.x ||
 						tr.y != this.translate.y)
 					{
-						this.setTranslate(tr.x, tr.y);
-
-						return;
+						this.invalidate();
+						this.translate.x = tr.x;
+						this.translate.y = tr.y;
 					}
 				}
 				
 				var pad = graph.getPagePadding();
 				var size = graph.getPageSize();
-				this.translate.x = pad.x - (this.x0 || 0) * size.width;
-				this.translate.y = pad.y - (this.y0 || 0) * size.height;
+				var tx = pad.x - (this.x0 || 0) * size.width;
+				var ty = pad.y - (this.y0 || 0) * size.height;
+
+				if (this.translate.x != tx || this.translate.y != ty)
+				{
+					this.invalidate();	
+					this.translate.x = tx
+					this.translate.y = ty
+				}
 			}
 			
 			graphViewValidate.apply(this, arguments);
@@ -6022,6 +6033,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	{
 		// Handles undo/redo/ctrl+./,/u via action and allows ctrl+b/i
 		// only if editing value is HTML (except for FF and Safari)
+		// 66, 73 are keycodes for editing actions like bold, italic
 		return !(mxEvent.isShiftDown(evt) && evt.keyCode == 9) &&
 			((!this.isControlDown(evt) || mxEvent.isShiftDown(evt) ||
 			(evt.keyCode != 90 && evt.keyCode != 89 && evt.keyCode != 188 &&
@@ -6370,6 +6382,8 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		keyHandler.bindAction(80, true, 'format', true); // Ctrl+Shift+P
 		keyHandler.bindAction(85, true, 'underline'); // Ctrl+U
 		keyHandler.bindAction(85, true, 'ungroup', true); // Ctrl+Shift+U
+		keyHandler.bindAction(219, true, 'decreaseFontSize', true); // Ctrl+{
+		keyHandler.bindAction(221, true, 'increaseFontSize', true); // Ctrl+}
 		keyHandler.bindAction(190, true, 'superscript'); // Ctrl+.
 		keyHandler.bindAction(188, true, 'subscript'); // Ctrl+,
 		keyHandler.bindAction(13, false, 'keyPressEnter'); // Enter

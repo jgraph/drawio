@@ -3095,11 +3095,12 @@
 						}
 						else if (req.getStatus() == 404)
 						{
-							error({code: req.getStatus()}, req);
+							error({message: mxResources.get('fileNotFound'),
+								code: req.getStatus()}, req);
 						}
 						else
 						{
-							error({message: mxResources.get('error') + ' ' + req.getStatus()}, req);
+							error({message: this.getErrorMessage(req)}, req);
 						}
 			    	}
 				}), function(req)
@@ -3126,6 +3127,32 @@
 				error(e);
 			}
 		}
+	};
+
+	/**
+	 * Adds the listener for automatically saving the diagram for local changes.
+	 */
+	Editor.prototype.getErrorMessage = function(req)
+	{
+		var msg = mxResources.get('error') + ' ' + req.getStatus();
+
+		try
+		{
+			var data = req.getText();
+			var obj = JSON.parse(data);
+
+			if (obj != null && obj.error != null &&
+				obj.error.message != null)
+			{
+				msg = obj.error.message + ' (' + msg + ')';
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+
+		return msg;
 	};
 
 	/**
@@ -8645,7 +8672,7 @@
 				pv = printGraph(graph);
 			}
 			
-			if (pv == null)
+			if (pv == null || pv.wnd == null)
 			{
 				editorUi.handleError({message: mxResources.get('errorUpdatingPreview')});
 			}

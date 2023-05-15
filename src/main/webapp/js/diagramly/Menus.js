@@ -348,7 +348,7 @@
 		editorUi.actions.addAction('properties...', function()
 		{
 			var dlg = new FilePropertiesDialog(editorUi);
-			editorUi.showDialog(dlg.container, 320, 140, true, true);
+			editorUi.showDialog(dlg.container, 320, 150, true, true);
 			dlg.init();
 		}).isEnabled = isGraphEnabled;
 	
@@ -1678,7 +1678,8 @@
 			mxResources.parse('createSidebarEntry=Create Sidebar Entry');
 			mxResources.parse('testCheckFile=Check File');
 			mxResources.parse('testDiff=Diff/Sync');
-			mxResources.parse('testInspectPages=Check Pages');
+			mxResources.parse('testChecksum=Checksum');
+			mxResources.parse('testCheckPages=Check Pages');
 			mxResources.parse('testFixPages=Fix Pages');
 			mxResources.parse('testInspect=Inspect');
 			mxResources.parse('testShowConsole=Show Console');
@@ -1981,7 +1982,52 @@
 				}
 			}));
 
-			editorUi.actions.addAction('testInspectPages', mxUtils.bind(this, function()
+			editorUi.actions.addAction('testChecksum', mxUtils.bind(this, function()
+			{
+				var file = editorUi.getCurrentFile();
+
+				if (editorUi.pages != null && file != null)
+				{
+					if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+					{
+						file.getLatestVersion(function(latestFile)
+						{
+							editorUi.spinner.stop();
+
+							var localChecksum = editorUi.getHashValueForPages(editorUi.pages);
+							var localRev = file.getCurrentRevisionId();
+							var remoteChecksum = editorUi.getHashValueForPages(
+								latestFile.getShadowPages());
+							var descChecksum = latestFile.getDescriptorChecksum(
+								latestFile.getDescriptor());
+							var remoteRev = latestFile.getCurrentRevisionId();
+							
+							console.log('Local File', [file],
+								'modified', file.isModified(),
+								'checksum', localChecksum);
+							
+							console.log('Remote File', [latestFile],
+								'rev', remoteRev == localRev,
+								'desc', descChecksum == remoteChecksum,
+								'checksum', remoteChecksum);
+							
+							editorUi.alert('Checksums ' +
+								(remoteChecksum == localChecksum ?
+								'match' : 'no not match'));
+						}, function(err)
+						{
+							console.log('Error getLatestVersion', err);
+							editorUi.handleError(err);
+						});
+					}
+				}
+				else
+				{
+					console.log('Checksum: no file or pages');
+				}
+			}));
+
+			editorUi.actions.addAction('testCheckPages', mxUtils.bind(this, function()
 			{
 				var file = editorUi.getCurrentFile();
 				console.log('editorUi', editorUi, 'file', file);
@@ -2195,6 +2241,11 @@
 			// Adds logging for performance
 			var prevRevalidate = null;
 			var prevSelectPage = null;
+			var prevDiffPages = null;
+			var prevPatchPages = null;
+			var prevClonePages = null;
+			var prevGetHashValueForPages = null;
+			var prevResolveCrossReferences = null;
 
 			editorUi.actions.addAction('testPerformance', mxUtils.bind(this, function()
 			{
@@ -2210,9 +2261,12 @@
 					graph.view.revalidate = function()
 					{
 						var t0 = Date.now();
-						prevRevalidate.apply(this, arguments);
+						var result = prevRevalidate.apply(this, arguments);
 						EditorUi.debug('[Performance] mxGraphView.revalidate',
-							[this], 'time', [(Date.now() - t0) + ' ms']);
+							[this], 'time', (Date.now() - t0) + ' ms',
+							'args', arguments);
+						
+						return result;
 					};
 				}
 
@@ -2228,9 +2282,117 @@
 					editorUi.selectPage = function()
 					{
 						var t0 = Date.now();
-						prevSelectPage.apply(this, arguments);
+						var result = prevSelectPage.apply(this, arguments);
 						EditorUi.debug('[Performance] EditorUi.selectPage',
-							[this], 'time', [(Date.now() - t0) + ' ms']);
+							[this], 'time', (Date.now() - t0) + ' ms',
+							'args', arguments);
+						
+						return result;
+					};
+				}
+
+				if (prevDiffPages != null)
+				{
+					editorUi.diffPages = prevDiffPages;
+					prevDiffPages = null;
+				}
+				else
+				{
+					prevDiffPages = editorUi.diffPages;
+
+					editorUi.diffPages = function()
+					{
+						var t0 = Date.now();
+						var result = prevDiffPages.apply(this, arguments);
+						EditorUi.debug('[Performance] EditorUi.diffPages',
+							[this], 'time', (Date.now() - t0) + ' ms',
+							'args', arguments);
+						
+						return result;
+					};
+				}
+
+				if (prevPatchPages != null)
+				{
+					editorUi.patchPages = prevPatchPages;
+					prevPatchPages = null;
+				}
+				else
+				{
+					prevPatchPages = editorUi.patchPages;
+
+					editorUi.patchPages = function()
+					{
+						var t0 = Date.now();
+						var result = prevPatchPages.apply(this, arguments);
+						EditorUi.debug('[Performance] EditorUi.patchPages',
+							[this], 'time', (Date.now() - t0) + ' ms',
+							'args', arguments);
+						
+						return result;
+					};
+				};
+
+				if (prevClonePages != null)
+				{
+					editorUi.clonePages = prevClonePages;
+					prevClonePages = null;
+				}
+				else
+				{
+					prevClonePages = editorUi.clonePages;
+
+					editorUi.clonePages = function()
+					{
+						var t0 = Date.now();
+						var result = prevClonePages.apply(this, arguments);
+						EditorUi.debug('[Performance] EditorUi.clonePages',
+							[this], 'time', (Date.now() - t0) + ' ms',
+							'args', arguments);
+						
+						return result;
+					};
+				};
+
+				if (prevGetHashValueForPages != null)
+				{
+					editorUi.getHashValueForPages = prevGetHashValueForPages;
+					prevGetHashValueForPages = null;
+				}
+				else
+				{
+					prevGetHashValueForPages = editorUi.getHashValueForPages;
+
+					editorUi.getHashValueForPages = function()
+					{
+						var t0 = Date.now();
+						var result = prevGetHashValueForPages.apply(this, arguments);
+						EditorUi.debug('[Performance] EditorUi.getHashValueForPages',
+							[this], 'time', (Date.now() - t0) + ' ms',
+							'args', arguments);
+						
+						return result;
+					};
+				}
+
+				if (prevResolveCrossReferences != null)
+				{
+					editorUi.resolveCrossReferences = prevResolveCrossReferences;
+					prevResolveCrossReferences = null;
+				}
+				else
+				{
+					prevResolveCrossReferences = editorUi.resolveCrossReferences;
+
+					editorUi.resolveCrossReferences = function()
+					{
+						var t0 = Date.now();
+						var result = prevResolveCrossReferences.apply(this, arguments);
+						EditorUi.debug('[Performance] EditorUi.resolveCrossReferences',
+							[this], 'time', (Date.now() - t0) + ' ms',
+							'args', arguments);
+
+						return result;
 					};
 				}
 
@@ -2240,8 +2402,9 @@
 			this.put('testDevelop', new Menu(mxUtils.bind(this, function(menu, parent)
 			{
 				this.addMenuItems(menu, ['createSidebarEntry', 'showBoundingBox', '-',
-					'testInspectPages', 'testFixPages', '-', 'testCheckFile', 'testDiff', '-',
-					'testInspect', 'testOptimize', '-', 'testXmlImageExport', '-'], parent);
+					'testCheckPages', 'testChecksum', 'testFixPages', '-',
+					'testCheckFile', 'testDiff', '-', 'testInspect', 'testOptimize', '-',
+					'testXmlImageExport', '-'], parent);
 
 				var item = menu.addItem(mxResources.get('testPerformance'), null, function()
 				{

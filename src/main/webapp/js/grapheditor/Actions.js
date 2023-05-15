@@ -1624,6 +1624,26 @@ Actions.prototype.init = function()
 			document.execCommand('superscript', false, null);
 		}
 	}), null, null, Editor.ctrlKey + '+.');
+	action = this.addAction('decreaseFontSize', mxUtils.bind(this, function()
+	{
+		if (!graph.isSelectionEmpty())
+		{
+			var style = graph.getCurrentCellStyle(graph.getSelectionCell());
+			var size = mxUtils.getValue(style, mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE);
+			graph.setCellStyles(mxConstants.STYLE_FONTSIZE, Math.max(1, size - 1),
+				graph.getSelectionCells());
+		}
+	}), null, null, Editor.ctrlKey + '+{');
+	action = this.addAction('increaseFontSize', mxUtils.bind(this, function()
+	{
+		if (!graph.isSelectionEmpty())
+		{
+			var style = graph.getCurrentCellStyle(graph.getSelectionCell());
+			var size = mxUtils.getValue(style, mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE);
+			graph.setCellStyles(mxConstants.STYLE_FONTSIZE, Math.min(100, size + 1),
+				graph.getSelectionCells());
+		}
+	}), null, null, Editor.ctrlKey + '+}');
 
 	function applyClipPath(cell, clipPath, width, height, graph)
 	{

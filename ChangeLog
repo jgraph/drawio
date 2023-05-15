@@ -1,3 +1,15 @@
+15-MAY-2023: 21.3.1
+
+- Removes animation for lightbox in all viewers
+- Shows error for possible NPE in print preview
+- Fixes restoring scrollbars after page selection
+- Fixes view after undo, restore and for blank pages
+- Escapes HTML in embed dialog preview title and body
+- Handles possible missing child in row [drawio-3592]
+- Fixes removed text between < and > with pasteHere
+- Fixes blank PDF export [drawio-3596]
+- Adds shortcut for in-/decrease font [drawio-3585]
+
 12-MAY-2023: 21.3.0
 
 - Updates DOMPurify from 3.0.2 to 3.0.3
@@ -10,7 +22,6 @@
 - [desktop]] Potential fix for spawn errors [drawio-desktop-1122]
 - Resets scrollbar state after inserting new pages
 - Fixes reset of scrollbars after deleting last page
-- 
 
 04-MAY-2023: 21.2.9
 

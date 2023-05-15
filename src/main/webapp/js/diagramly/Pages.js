@@ -361,6 +361,50 @@ EditorUi.prototype.createImageForPageLink = function(src, sourcePage, sourceGrap
 /**
  * Returns true if the given string contains an mxfile.
  */
+EditorUi.prototype.pageSelected = function()
+{
+	var graph = this.editor.graph;
+	var page = this.currentPage;
+
+	if (page != null)
+	{
+		graph.tooltipHandler.hide();
+
+		if (page.viewState == null ||
+			page.viewState.scrollTop == null ||
+			page.viewState.scrollLeft == null)
+		{
+			// Selects unlocked layer if page was never shown
+			graph.selectUnlockedLayer();
+			this.resetScrollbars();
+
+			if (graph.isLightboxView())
+			{
+				this.lightboxFit();
+			}
+
+			if (this.chromelessResize != null)
+			{
+				graph.container.scrollleft = 0;
+				graph.container.scrollTop = 0;
+				this.chromelessResize();
+			}
+		}
+		else
+		{
+			// Restores scrollbar positions
+			graph.setScrollbarPositions(page.viewState,
+				graph.view.translate.x, graph.view.translate.y);
+		}
+		
+		this.updateTabContainer();
+		this.scrollToPage();
+	}
+};
+
+/**
+ * Returns true if the given string contains an mxfile.
+ */
 EditorUi.prototype.getImageForPage = function(page, sourcePage, sourceGraph)
 {
 	sourceGraph = (sourceGraph != null) ? sourceGraph : this.editor.graph;
@@ -475,6 +519,25 @@ EditorUi.prototype.initPages = function()
 			}
 		}));
 		
+		// Invokes pageSelected to reset/restore view state
+		var graphSizeDidChange = graph.sizeDidChange;
+		var lastPage = null;
+		var ui = this;
+
+		graph.sizeDidChange = function()
+		{
+			var result = graphSizeDidChange.apply(this, arguments);
+
+			if (ui.currentPage != null &&
+				lastPage != ui.currentPage)
+			{
+				lastPage = ui.currentPage;
+				ui.pageSelected();
+			}
+
+			return result;
+		};
+
 		var pagesChanged = mxUtils.bind(this, function()
 		{
 			this.updateDocumentTitle();
@@ -990,29 +1053,6 @@ EditorUi.prototype.selectPage = function(page, quiet, viewState)
 			edit.add(change);
 			edit.notify();
 			
-			graph.tooltipHandler.hide();
-
-			// Selects unlocked layer if page was never shown
-			if (page.viewState != null &&
-				(page.viewState.scrollTop == null ||
-				page.viewState.scrollLeft == null))
-			{
-				graph.selectUnlockedLayer();
-				this.resetScrollbars();
-
-				if (graph.isLightboxView())
-				{
-					this.lightboxFit();
-				}
-
-				if (this.chromelessResize != null)
-				{
-					graph.container.scrollleft = 0;
-					graph.container.scrollTop = 0;
-					this.chromelessResize();
-				}
-			}
-
 			if (!quiet)
 			{
 				graph.model.fireEvent(new mxEventObject(
@@ -1066,12 +1106,6 @@ EditorUi.prototype.insertPage = function(page, index)
 		// Uses model to fire event and trigger autosave
 		var change = new ChangePage(this, page, page, index);
 		this.editor.graph.model.execute(change);
-
-		window.setTimeout(mxUtils.bind(this, function()
-		{
-			this.resetScrollbars();
-			this.scrollToPage();
-		}), 0);
 	}
 	
 	return page;
@@ -1680,6 +1714,9 @@ EditorUi.prototype.createTabForPage = function(page, pageNumber)
 		' (' + id + ')' : '') + ' [' + pageNumber + ']');
 	
 	var label = document.createElement('span');
+	label.style.maxWidth = '160px';
+	label.style.textOverflow = 'ellipsis';
+	label.style.overflow = 'hidden';
 	mxUtils.write(label, name);
 	tab.appendChild(label);
 

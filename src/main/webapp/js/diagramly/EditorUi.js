@@ -8833,12 +8833,12 @@
 								graph.snap(dx), graph.snap(dy), 1, 1, 'text;whiteSpace=wrap;' + ((html) ? 'html=1;' : ''));
 				    		graph.fireEvent(new mxEventObject('textInserted', 'cells', [cell]));
 						
-				    		// Single tag is converted
-				    		if (text.charAt(0) == '<' && text.indexOf('>') == text.length - 1)
+							// Converts HTML entities and single tags
+				    		if (html || (text.charAt(0) == '<' && text.indexOf('>') == text.length - 1))
 				    		{
 				    			text = mxUtils.htmlEntities(text);
 				    		}
-
+							
 				    		//TODO Refuse unsupported file types early as at this stage a lot of processing has beed done and time is wasted. 
 				    		//		For example, 5 MB PDF files is processed and then only 0.5 MB of meaningless text is added!
 				    		//Limit labels to maxTextBytes
@@ -14590,7 +14590,7 @@
 					graph.pasteCounter--;
 				}
 			}
-			
+
 			cells = this.insertTextAt(xml, pt.x + dx, pt.y + dx, true);
 			graph.setSelectionCells(cells);
 		}

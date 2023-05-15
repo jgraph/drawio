@@ -778,9 +778,10 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 					
 					if (doc != null)
 					{
-						doc.writeln('<html><head><title>' + encodeURIComponent(mxResources.get('preview')) +
-							'</title><meta charset="utf-8"></head>' +
-							'<body>' + result + '</body></html>');
+						doc.writeln('<html><head><title>' +
+							mxUtils.htmlEntities(mxResources.get('preview')) +
+							'</title><meta charset="utf-8"></head><body>' +
+							mxUtils.htmlEntities(result) + '</body></html>');
 						doc.close();
 					}
 					else
@@ -6531,6 +6532,14 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 
 	newBtn.className = 'geBtn';
 	newBtn.setAttribute('disabled', 'disabled');
+
+	var createBtn = mxUtils.button(mxResources.get('createRevision'), function()
+	{
+		editorUi.actions.get('save').funct(false);
+	});
+
+	createBtn.className = 'geBtn';
+	createBtn.setAttribute('disabled', 'disabled');
 	
 	if (restoreFn != null)
 	{
@@ -6752,6 +6761,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 								}
 
 								newBtn.removeAttribute('disabled');
+								createBtn.removeAttribute('disabled');
 							}
 							
 							mxUtils.setOpacity(zoomInBtn, 60);
@@ -6913,6 +6923,12 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	}
 
 	buttons.appendChild(newBtn);
+
+	if (file != null && file.constructor == DriveFile)
+	{
+		buttons.appendChild(createBtn);
+	}
+
 	buttons.appendChild(restoreBtn);
 
 	if (!editorUi.editor.cancelFirst)
@@ -13071,6 +13087,24 @@ var FilePropertiesDialog = function(editorUi)
 		td.style.whiteSpace = 'nowrap';
 		td.appendChild(collabInput);
 		td.appendChild(editorUi.menus.createHelpLink('https://github.com/jgraph/drawio/discussions/2672'));
+		row.appendChild(td);
+		tbody.appendChild(row);
+	}
+
+	if (file != null && editorUi.getServiceName() == 'draw.io' &&
+		file.getSize() > 0 && urlParams['embed'] != '1')
+	{
+		row = document.createElement('tr');
+		td = document.createElement('td');
+		td.style.whiteSpace = 'nowrap';
+		td.style.fontSize = '10pt';
+		td.style.width = '120px';
+		mxUtils.write(td, mxResources.get('size') + ':');
+		row.appendChild(td);
+
+		td = document.createElement('td');
+		td.style.whiteSpace = 'nowrap';
+		mxUtils.write(td, editorUi.formatFileSize(file.getSize()));
 		row.appendChild(td);
 		tbody.appendChild(row);
 	}

@@ -6370,51 +6370,65 @@ App.prototype.save = function(name, done)
 	
 	if (file != null && this.spinner.spin(document.body, mxResources.get('saving')))
 	{
-		this.editor.setStatus('');
-		
-		if (this.editor.graph.isEditing())
+		var onerror = mxUtils.bind(this, function(e)
 		{
-			this.editor.graph.stopEditing();
-		}
-		
-		var success = mxUtils.bind(this, function()
-		{
-			file.handleFileSuccess(true);
-
-			if (done != null)
-			{
-				done();
-			}
+			this.handleError(e);
 		});
-		
-		var error = mxUtils.bind(this, function(err)
+
+		this.createTimeout(3 * this.timeout, mxUtils.bind(this, function(timeout)
 		{
-			if (file.isModified())
+			this.editor.setStatus('');
+			
+			if (this.editor.graph.isEditing())
 			{
-				Editor.addRetryToError(err, mxUtils.bind(this, function()
-				{
-					this.save(name, done);
-				}));
+				this.editor.graph.stopEditing();
 			}
 			
-			file.handleFileError(err, err == null || err.name != 'AbortError');
-		});
-		
-		try
-		{
-			if (name == file.getTitle())
+			var success = mxUtils.bind(this, function()
 			{
-				file.save(true, success, error);
-			}
-			else
+				if (timeout.clear())
+				{
+					file.handleFileSuccess(true);
+
+					if (done != null)
+					{
+						done();
+					}
+				}
+			});
+			
+			var error = mxUtils.bind(this, function(err)
 			{
-				file.saveAs(name, success, error)
+				if (timeout.clear())
+				{
+					if (file.isModified())
+					{
+						Editor.addRetryToError(err, mxUtils.bind(this, function()
+						{
+							this.save(name, done);
+						}));
+					}
+					
+					file.handleFileError(err, err == null || err.name != 'AbortError');
+				}
+			});
+			
+			try
+			{
+				if (name == file.getTitle())
+				{
+					file.save(true, success, error);
+				}
+				else
+				{
+					file.saveAs(name, success, error)
+				}
 			}
-		}
-		catch (err)
-		{
-			error(err);
-		}
+			catch (err)
+			{
+				error(err);
+			}
+		}), onerror);
 	}
 };
 

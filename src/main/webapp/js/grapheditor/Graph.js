@@ -4908,7 +4908,7 @@ Graph.prototype.getIndexableText = function(cells)
 				label = mxUtils.extractTextWithWhitespace([tmp]);
 			}
 			else
-			{					
+			{
 				label = this.getLabel(cell);
 			}
 
@@ -5546,10 +5546,10 @@ Graph.prototype.fitWindow = function(bounds, border)
 	if (mxUtils.hasScrollbars(this.container))
 	{
 		var t = this.view.translate;
-		this.container.scrollTop = (bounds.y + t.y) * this.view.scale -
-			Math.max((ch - bounds.height * this.view.scale) / 2 + border / 2, 0);
 		this.container.scrollLeft = (bounds.x + t.x) * this.view.scale -
 			Math.max((cw - bounds.width * this.view.scale) / 2 + border / 2, 0);
+		this.container.scrollTop = (bounds.y + t.y) * this.view.scale -
+			Math.max((ch - bounds.height * this.view.scale) / 2 + border / 2, 0);
 	}
 };
 
@@ -11525,6 +11525,13 @@ if (typeof mxVertexHandler !== 'undefined')
 				{
 					var child = model.getChildCells(rows[i], true)[index];
 					var clone = model.cloneCell(child, false);
+
+					// Handles possible missing child in row
+					if (clone == null)
+					{
+						clone = this.createVertex();
+					}
+
 					var geo = this.getCellGeometry(clone);
 
 					// Removes value, col/rowspan and alternate bounds

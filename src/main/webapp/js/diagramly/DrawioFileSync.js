@@ -960,34 +960,29 @@ DrawioFileSync.prototype.receiveRemoteChanges = function(data)
 };
 
 /**
- * Schedules a cleanup.
+ * Schedules a new cleanup if not lazy or one is pending
  */
 DrawioFileSync.prototype.scheduleCleanup = function(lazy)
 {
-	EditorUi.debug('DrawioFileSync.scheduleCleanup', [this],
-		'lazy', lazy, 'thread', this.cleanupThread);
+	var delay = (lazy == false) ? 0 : this.cleanupDelay;
+	var prev = this.cleanupThread;
 	
-	if (lazy)
-	{
-		if (this.cleanupThread != null)
-		{
-			this.scheduleCleanup();
-		}
-	}
-	else
+	if (lazy != true || this.cleanupThread != null)
 	{
 		window.clearTimeout(this.cleanupThread);
 
 		this.cleanupThread = window.setTimeout(mxUtils.bind(this, function()
 		{
-			this.cleanupThread = null;
-
 			this.cleanup(null, mxUtils.bind(this, function(err)
 			{
 				this.file.handleFileError(err);
 			}));
-		}), (lazy == false) ? 0 : this.cleanupDelay);
+		}), delay);
 	}
+
+	EditorUi.debug('DrawioFileSync.scheduleCleanup', [this],
+		'lazy', lazy, 'delay', delay, 'prev', prev,
+		'thread', this.cleanupThread);
 };
 
 /**
@@ -996,7 +991,9 @@ DrawioFileSync.prototype.scheduleCleanup = function(lazy)
  */
 DrawioFileSync.prototype.cleanup = function(success, error, checkFile)
 {
+	var thread = this.cleanupThread;
 	window.clearTimeout(this.cleanupThread);
+	this.cleanupThread = null;
 
 	if (this.isValidState() && !this.file.inConflictState &&
 		this.file.isRealtime() && !this.file.isModified())
@@ -1009,7 +1006,7 @@ DrawioFileSync.prototype.cleanup = function(success, error, checkFile)
 		if (urlParams['test'] == '1')
 		{
 			EditorUi.debug('DrawioFileSync.cleanup',
-				[this], 'patches', patches,
+				[this], 'thread', thread, 'patches', patches,
 				'checkFile', checkFile, 'checksum',
 				this.ui.getHashValueForPages(this.ui.pages));
 		}
@@ -1021,6 +1018,12 @@ DrawioFileSync.prototype.cleanup = function(success, error, checkFile)
 		
 		if (!checkFile)
 		{
+			if (!document.hidden && urlParams['test'] == '1' &&
+				urlParams['checksum'] == '1')
+			{
+				this.testChecksum();
+			}
+
 			if (success != null)
 			{
 				success();
@@ -1035,7 +1038,7 @@ DrawioFileSync.prototype.cleanup = function(success, error, checkFile)
 					if (this.isValidState() && !this.file.inConflictState &&
 						this.file.isRealtime())
 					{
-						var pages = this.ui.getPagesForXml(newFile.data);
+						var pages = newFile.getShadowPages();
 						patches = [this.ui.diffPages(this.ui.pages, pages),
 							this.ui.diffPages(pages, this.file.ownPages)];
 						
@@ -1072,6 +1075,59 @@ DrawioFileSync.prototype.cleanup = function(success, error, checkFile)
 			[this], 'checkFile', checkFile,
 			'modified', this.file.isModified());
 	}
+};
+
+/**
+ * Extracts local changes by diffing remote pages and patched remote pages.
+ */
+DrawioFileSync.prototype.testChecksum = function()
+{
+	var localChecksum = this.ui.getHashValueForPages(this.ui.pages);
+	var localRev = this.file.getCurrentRevisionId();
+
+	this.file.getLatestVersion(mxUtils.bind(this, function(latestFile)
+	{
+		if (!document.hidden)
+		{
+			var remoteChecksum = this.ui.getHashValueForPages(
+				latestFile.getShadowPages());
+			var descChecksum = latestFile.getDescriptorChecksum(
+				latestFile.getDescriptor());
+			var remoteRev = latestFile.getCurrentRevisionId();
+			
+			EditorUi.debug('DrawioFileSync.testChecksum',
+				'local', [this.file], 'modified', this.file.isModified(),
+				'inConflictState', this.file.inConflictState,
+				'autosaveThread', this.file.autosaveThread,
+				'savingFile', this.file.savingFile,
+				'localFileWasChanged', this.localFileWasChanged,
+				'remoteFileChanged', this.remoteFileChanged,
+				'cleanup', this.cleanupThread,
+				'checksum', localChecksum);
+			
+			EditorUi.debug('DrawioFileSync.testChecksum',
+				'remote', [latestFile],
+				'rev', remoteRev == localRev,
+				'desc', descChecksum == remoteChecksum,
+				'checksum', remoteChecksum);
+
+			if (remoteChecksum != localChecksum)
+			{
+				EditorUi.debug('DrawioFileSync.testChecksum',
+					[this], 'checksums do not match');
+				this.ui.alert('Checksums do not match');
+			}
+			else
+			{
+				EditorUi.debug('DrawioFileSync.testChecksum',
+					[this], 'checksums match');
+			}
+		}
+	}), mxUtils.bind(this, function(err)
+	{
+		EditorUi.debug('DrawioFileSync.testChecksum',
+			[this], 'checksum test error', err);
+	}));
 };
 
 /**
@@ -1194,9 +1250,18 @@ DrawioFileSync.prototype.sendLocalChanges = function()
 				this.file.ownPages, patch, true);
 			this.snapshot = snapshot;
 			
+			// Creates patch for cross references
+			var resolve = this.ui.resolveCrossReferences(
+				patch, this.ui.diffPages(this.file.ownPages,
+					this.ui.pages));
+			
+			// Patches own pages to resolve cross references
+			this.file.ownPages = this.ui.patchPages(
+				this.file.ownPages, resolve, true);
+			
 			if (this.isRealtimeActive())
 			{
-				this.doSendLocalChanges([patch]);
+				this.doSendLocalChanges([resolve, patch]);
 			}
 		}
 
@@ -1458,13 +1523,23 @@ DrawioFileSync.prototype.fastForward = function(desc)
 	this.file.setShadowPages(this.ui.clonePages(this.ui.pages));
 	this.file.theirPages = this.ui.clonePages(this.ui.pages);
 	this.file.ownPages = this.ui.clonePages(this.ui.pages);
+
+	var thread = this.cleanupThread;
 	window.clearTimeout(this.cleanupThread);
+	this.cleanupThread = null;
 
 	if (urlParams['test'] == '1')
 	{
 		EditorUi.debug('DrawioFileSync.fastForward',
-			[this], 'desc', [desc], 'checksum',
+			[this], 'desc', [desc], 'cleanup', thread, 'checksum',
 			this.ui.getHashValueForPages(this.ui.pages));
+	}
+	
+	if (!document.hidden && urlParams['test'] == '1' &&
+		urlParams['checksum'] == '1' &&
+		this.cleanupThread == null)
+	{
+		this.testChecksum();
 	}
 };
 
@@ -1528,8 +1603,15 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort, immedia
 			if (urlParams['test'] == '1')
 			{
 				EditorUi.debug('DrawioFileSync.catchup', [this],
-					'file is up to date', 'checksum',
-					this.ui.getHashValueForPages(this.ui.pages));
+					'up to date', 'cleanup', this.cleanupThread,
+					'checksum', this.ui.getHashValueForPages(this.ui.pages));
+			}
+
+			if (!document.hidden && urlParams['test'] == '1' &&
+				urlParams['checksum'] == '1' &&
+				this.cleanupThread == null)
+			{
+				this.testChecksum();
 			}
 			
 			if (success != null)
@@ -1672,7 +1754,8 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort, immedia
 												}
 
 												EditorUi.debug('DrawioFileSync.doCatchup', [this], 
-													'response', [result], 'failed', failed,
+													'response', [result], 'status',
+													(failed ? 'failed' : 'ok'),
 													'temp', temp, 'checksum', checksum);
 											}
 											catch (e)
