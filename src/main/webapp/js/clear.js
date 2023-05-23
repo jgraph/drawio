@@ -39,6 +39,21 @@ try
 			document.body.appendChild(link);
 		}
 	});
+
+	// Clears corresponding domain of current domain
+	var iframe = document.createElement('iframe');
+	iframe.style.display = 'none';
+
+	if (window.location.hostname == 'ac.draw.io')
+	{
+		iframe.src = 'https://clear.diagrams.net';
+	}
+	else
+	{
+		iframe.src = 'https://clear.draw.io';
+	}
+
+	document.body.appendChild(iframe);
 }
 catch (e)
 {

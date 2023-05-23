@@ -1,3 +1,22 @@
+23-MAY-2023: 21.3.3
+
+- Allows http and localhost in services (OAuth) [drawio-3079]
+- Fixes nth-check dependencies vulnerability by removing react-scripts and using vite [drawio-dev-dependabot-144]
+- [desktop] Fixed page-index and page-rage CLI export arguments [drawio-3597]
+- [desktop] Fixed svg export scale [drawio-desktop-1165]
+- Fixes Trello power-up repeated auth [DND-1015]
+- Fixes possible NPE in VSDX export [drawio-3608]
+- Fixes automatic dark mode in viewer [drawio-3614]
+- Fixes patch and in-place change of local view state
+- Improves AI prompt for smart template generation
+- Fixes timeout and adds callback in synchronizeFile
+- Adds plain text tooltips to SVG export [drawio-3610]
+- Uses noopener,noreferrer to open links in viewer
+
+15-MAY-2023: 21.3.2
+
+- Fixes NPE added in 21.3.1
+
 15-MAY-2023: 21.3.1
 
 - Removes animation for lightbox in all viewers

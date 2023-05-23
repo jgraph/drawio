@@ -2288,7 +2288,8 @@ var LayersWindow = function(editorUi, x, y, w, h)
 		if (graph.isEnabled() && layer != null)
 		{
 			var label = graph.convertValueToString(layer);
-			var dlg = new FilenameDialog(editorUi, label || mxResources.get('background'), mxResources.get('rename'), mxUtils.bind(this, function(newValue)
+			var dlg = new FilenameDialog(editorUi, label || mxResources.get('background'),
+				mxResources.get('rename'), mxUtils.bind(this, function(newValue)
 			{
 				if (newValue != null)
 				{

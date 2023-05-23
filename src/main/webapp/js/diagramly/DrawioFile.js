@@ -214,38 +214,64 @@ DrawioFile.prototype.synchronizeFile = function(success, error)
 	}
 	else
 	{
-		if (this.sync != null)
+		var acceptResponse = true;
+
+		var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 		{
-			var acceptResponse = true;
-
-			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+			acceptResponse = false;
+			
+			if (error != null)
 			{
-				acceptResponse = false;
-				
-				if (error != null)
+				error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout'), retry: mxUtils.bind(this, function()
 				{
-					error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout'), retry: mxUtils.bind(this, function()
-					{
-						this.synchronizeFile(success, error);
-					})});
-				}
-			}), this.ui.timeout);
+					this.synchronizeFile(success, error);
+				})});
+			}
+		}), this.ui.timeout);
 
+		var errorWrapper = mxUtils.bind(this, function(e)
+		{
 			if (acceptResponse)
 			{
-				this.sync.fileChanged(mxUtils.bind(this, function(patched)
+				window.clearTimeout(timeoutThread);
+			
+				if (error != null)
+				{
+					error(e);
+				}
+			}
+		});
+
+		var abort = mxUtils.bind(this, function()
+		{
+			return !acceptResponse;
+		});
+
+		if (this.sync != null)
+		{
+			this.sync.fileChanged(mxUtils.bind(this, function(patched)
+			{
+				if (acceptResponse)
 				{
 					window.clearTimeout(timeoutThread);
 					this.sync.cleanup(success, error, patched);
-				}), error, function()
-				{
-					return !acceptResponse;
-				});
-			}
+				}
+			}), errorWrapper, abort);
 		}
 		else
 		{
-			this.updateFile(success, error);
+			this.updateFile(mxUtils.bind(this, function()
+			{
+				if (acceptResponse)
+				{
+					window.clearTimeout(timeoutThread);
+				
+					if (success != null)
+					{
+						success();
+					}
+				}
+			}), errorWrapper, abort);
 		}
 	}
 };
@@ -454,6 +480,11 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow, imme
 			{
 				EditorUi.debug('File.mergeFile', [this],
 					'file', [file], 'ignored', ignored);
+			
+				if (success != null)
+				{
+					success();
+				}
 			}
 		}
 		else
@@ -898,8 +929,47 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges)
 		graph.model.beginUpdate();
 		try
 		{
-			this.ui.pages = this.ui.applyPatches(this.ui.pages,
-				patches, true, resolver, this.isModified())
+			if (undoable)
+			{
+				var oldPages = this.ui.pages.slice();
+				var currentPage = this.ui.currentPage;
+				var pages = this.ui.applyPatches(this.ui.pages,
+					patches, true, resolver, this.isModified());
+				
+				for (var i = 0; i < pages.length; i++)
+				{
+					var index = mxUtils.indexOf(this.ui.pages, pages[i]);
+
+					if (index < 0)
+					{
+						this.ui.insertPage(pages[i], Math.min(
+							i, this.ui.pages.length));
+					}
+					else
+					{
+						this.ui.movePage(index, i);
+					}
+				}
+
+				for (var i = 0; i < oldPages.length; i++)
+				{
+					if (mxUtils.indexOf(pages, oldPages[i]) < 0)
+					{
+						this.ui.removePage(oldPages[i]);
+					}
+				}
+
+				// Reselects the current page
+				if (mxUtils.indexOf(this.ui.pages, currentPage) >= 0)
+				{
+					this.ui.selectPage(currentPage, true);
+				}
+			}
+			else
+			{
+				this.ui.pages = this.ui.applyPatches(this.ui.pages,
+					patches, true, resolver, this.isModified());
+			}
 			
 			// Always needs at least one page
 			if (this.ui.pages.length == 0)

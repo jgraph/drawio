@@ -72,7 +72,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 			'</div>' +
 			previewHtml +
 			(backFn? '<div id="odBackBtn" class="odLinkBtn">&lt; ' + mxUtils.htmlEntities(mxResources.get('back')) + '</div>' : '') +
-			(withSubmitBtn? '<button id="odSubmitBtn" class="odSubmitBtn">' + mxUtils.htmlEntities(mxResources.get(foldersOnly? 'save' : 'open')) + '</button>' : '');
+			(withSubmitBtn? '<button id="odSubmitBtn" class="odSubmitBtn">' + mxUtils.htmlEntities(mxResources.get(foldersOnly? 'select' : 'open')) + '</button>' : '');
 	
 	var isDarkMode = window.Editor != null && Editor.isDarkMode != null && Editor.isDarkMode();
 	
@@ -474,7 +474,8 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		{
 			var curr = document.createElement('span');
 			curr.innerHTML = mxUtils.htmlEntities((breadcrumb.length == 1) ?
-					mxResources.get('officeSelDiag') : (breadcrumb[breadcrumb.length - 1].name || mxResources.get('home')));
+					mxResources.get(foldersOnly ? 'selectFolder' : 'officeSelDiag') :
+						(breadcrumb[breadcrumb.length - 1].name || mxResources.get('home')));
 			bcDiv.appendChild(curr);
 		}
 	};

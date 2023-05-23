@@ -400,11 +400,14 @@ app.on('ready', e =>
 	    	if (options.pageIndex != null && options.pageIndex >= 0)
 			{
 	    		from = options.pageIndex;
+				to = options.pageIndex;
+				options.allPages = false;
 			}
 	    	else if (options.pageRange && options.pageRange.length == 2)
 			{
 	    		from = options.pageRange[0] >= 0 ? options.pageRange[0] : null;
 	    		to = options.pageRange[1] >= 0 ? options.pageRange[1] : null;
+				options.allPages = false;
 			}
 
 			var expArgs = {

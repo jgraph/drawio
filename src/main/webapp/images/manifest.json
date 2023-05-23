@@ -1,7 +1,7 @@
 {
-    "name": "diagrams.net",
-    "short_name": "Diagrams",
-    "description": "diagrams.net is a completely free diagram editor",
+    "name": "draw.io",
+    "short_name": "draw.io",
+    "description": "draw.io is a completely free diagram editor",
     "icons": [
         {
             "src": "/images/android-chrome-196x196.png",

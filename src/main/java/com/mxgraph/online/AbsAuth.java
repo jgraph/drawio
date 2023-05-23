@@ -42,6 +42,7 @@ abstract public class AbsAuth extends HttpServlet implements AuthComm
 	protected static final int STATE_COOKIE_AGE = 600; //10 min
 	protected static final int TOKEN_COOKIE_AGE = 31536000; //One year
 	public static boolean IS_GAE = (System.getProperty("com.google.appengine.runtime.version") == null) ? false : true;
+	public static boolean USE_HTTP = "1".equals(System.getenv("DRAWIO_USE_HTTP")); // Not secure, use at your own risk
 	
 	public static final SecureRandom random = new SecureRandom();
 	protected static Cache tokenCache;
@@ -95,7 +96,7 @@ abstract public class AbsAuth extends HttpServlet implements AuthComm
 		
 		public String getRedirectUrl(String domain)
 		{
-			return "https://" + domain + REDIRECT_PATH;
+			return (USE_HTTP? "http://" : "https://") + domain + REDIRECT_PATH;
 		}
 	}
 	

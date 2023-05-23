@@ -1363,7 +1363,8 @@ EditorUi.prototype.renamePage = function(page)
 
 	if (graph.isEnabled())
 	{
-		var dlg = new FilenameDialog(this, page.getName(), mxResources.get('rename'), mxUtils.bind(this, function(name)
+		var dlg = new FilenameDialog(this, page.getName(), mxResources.get('rename'),
+			mxUtils.bind(this, function(name)
 		{
 			if (name != null && name.length > 0)
 			{

@@ -280,7 +280,7 @@ function render(data)
 								bg = null;
 							}
 							
-							var svgRoot = graph.getSvg(bg, 1, 0, false, null, true, null, null, null);
+							var svgRoot = graph.getSvg(bg, expScale, 0, false, null, true, null, null, null);
 							
 							if (graph.shadowVisible)
 							{

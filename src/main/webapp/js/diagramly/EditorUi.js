@@ -1766,7 +1766,7 @@
 		return ((redirect == null) ? '<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=5,IE=9" ><![endif]-->\n' : '') +
 			'<!DOCTYPE html>\n<html' + ((redirect != null) ? ' xmlns="http://www.w3.org/1999/xhtml">' : '>') +
 			'\n<head>\n' + ((redirect == null) ? ((title != null) ? '<title>' + mxUtils.htmlEntities(title) +
-				'</title>\n' : '') : '<title>diagrams.net</title>\n') +
+				'</title>\n' : '') : '<title>draw.io</title>\n') +
 			((redirect != null) ? '<meta http-equiv="refresh" content="0;URL=\'' + redirect + '\'"/>\n' : '') +
 			'</head>\n<body' +
 			(((redirect == null && bg != null && bg != mxConstants.NONE) ? ' style="background-color:' + bg + ';">' : '>')) +
@@ -1805,7 +1805,7 @@
 		return ((redirect == null) ? '<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=5,IE=9" ><![endif]-->\n' : '') +
 			'<!DOCTYPE html>\n<html' + ((redirect != null) ? ' xmlns="http://www.w3.org/1999/xhtml">' : '>') +
 			'\n<head>\n' + ((redirect == null) ? ((title != null) ? '<title>' + mxUtils.htmlEntities(title) +
-				'</title>\n' : '') : '<title>diagrams.net</title>\n') +
+				'</title>\n' : '') : '<title>draw.io</title>\n') +
 			((redirect != null) ? '<meta http-equiv="refresh" content="0;URL=\'' + redirect + '\'"/>\n' : '') +
 			'<meta charset="utf-8"/>\n</head>\n<body>' +
 			'\n<div class="mxgraph" style="' + style + '" data-mxgraph="' + mxUtils.htmlEntities(JSON.stringify(data)) + '"></div>\n' +
@@ -5415,7 +5415,23 @@
 	{
 		// do nothing
 	};
+
+	/**
+	 * Hook for subclassers.
+	 */
+	EditorUi.prototype.getServiceForName = function(name)
+	{
+		return null;
+	};
 	
+	/**
+	 * Hook for subclassers.
+	 */
+	EditorUi.prototype.getTitleForService = function(name)
+	{
+		return mxResources.get(name);
+	};
+
 	/**
 	 * Hook for subclassers.
 	 */
@@ -11153,7 +11169,7 @@
 			{
 				var darkMode = false;
 
-				if (window.matchMedia && Editor.isAutoDarkMode())
+				if (window.matchMedia && this.isAutoDarkMode())
 				{
 					darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 				}
@@ -11178,7 +11194,7 @@
 					window.matchMedia('(prefers-color-scheme: dark)')
 						.addEventListener('change', mxUtils.bind(this, function (e)
 						{
-							if (Editor.isAutoDarkMode())
+							if (this.isAutoDarkMode())
 							{
 								this.setDarkMode(e.matches);
 							}
@@ -12332,7 +12348,7 @@
 
 				if (value == 'simple')
 				{
-					var pagesElt = this.createMenu('pages', Editor.thinNoteAddImage);
+					var pagesElt = this.createMenu('pages', Editor.thinNoteImage);
 					pagesElt.style.backgroundSize = '24px';
 					pagesElt.style.display = 'inline-block';
 					pagesElt.style.width = '24px';
@@ -13728,6 +13744,18 @@
 		var after = this.getDiagramContainerOffset();
 		this.diagramContainer.scrollLeft += after.x - before.x;
 		this.diagramContainer.scrollTop += after.x - before.x;
+	};
+	
+	/**
+	 * Returns the current state of the dark mode.
+	 */
+	EditorUi.prototype.isAutoDarkMode = function(ignoreUrl)
+	{
+		return (!ignoreUrl && urlParams['dark'] == 'auto') ||
+			(Editor.isSettingsEnabled() && (mxSettings.settings.darkMode == 'auto' ||
+			(this.getServiceName() == 'draw.io' && urlParams['embed'] != '1' &&
+			(!this.editor.chromeless || this.editor.editable) &&
+			mxSettings.settings.darkMode == null)));
 	};
 	
 	/**

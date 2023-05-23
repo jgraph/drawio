@@ -112,7 +112,13 @@ html body.geEditor .geColorBtn {
 html body .geBtn:hover:not([disabled]) {
 	color: #c0c0c0;
 }
-html body.geEditor button:hover:not([disabled]),
+html body.geEditor button.geAdaptiveAsset:hover:not([disabled]) {
+	background:#fff;
+}
+html body.geEditor button.geAdaptiveAsset:not([disabled]) {
+	border-color:#a2a2a2;
+}
+html body.geEditor button:hover:not([disabled]):not(.geAdaptiveAsset),
 html body.geEditor select:hover:not([disabled]),
 html body.geEditor .geColorBtn:hover:not([disabled]) {
 	background:var(--dark-color);

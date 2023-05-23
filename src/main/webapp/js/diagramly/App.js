@@ -1108,11 +1108,6 @@ App.main = function(callback, createUi)
 			{
 				if (mxSettings.settings != null)
 				{
-					document.body.style.backgroundColor = (Editor.currentTheme != 'atlas' &&
-						uiTheme != 'kennedy' && !Editor.isAutoDarkMode() &&
-						(Editor.isDarkMode() || mxSettings.settings.darkMode)) ?
-						Editor.darkColor : '#ffffff';
-					
 					if (mxSettings.settings.autosaveDelay != null)
 					{
 						var val = parseInt(mxSettings.settings.autosaveDelay);
@@ -2316,11 +2311,12 @@ App.prototype.updateActionStates = function()
 /**
  * Adds the specified entry to the recent file list in local storage
  */
-App.prototype.addRecent = function(entry)
+App.prototype.addRecent = function(entry, type)
 {
 	if (isLocalStorage && localStorage != null)
 	{
-		var recent = this.getRecent();
+		type = (type != null) ? type : '';	
+		var recent = this.getRecent(type);
 		
 		if (recent == null)
 		{
@@ -2330,7 +2326,8 @@ App.prototype.addRecent = function(entry)
 		{
 			for (var i = 0; i < recent.length; i++)
 			{
-				if (recent[i].id == entry.id)
+				if (recent[i].mode == entry.mode &&
+					recent[i].id == entry.id)
 				{
 					recent.splice(i, 1);
 				}
@@ -2341,7 +2338,7 @@ App.prototype.addRecent = function(entry)
 		{
 			recent.unshift(entry);
 			recent = recent.slice(0, 10);
-			localStorage.setItem('.recent', JSON.stringify(recent));
+			localStorage.setItem('.recent' + type, JSON.stringify(recent));
 		}
 	}
 };
@@ -2349,13 +2346,15 @@ App.prototype.addRecent = function(entry)
 /**
  * Returns the recent file list from local storage
  */
-App.prototype.getRecent = function()
+App.prototype.getRecent = function(type)
 {
 	if (isLocalStorage && localStorage != null)
 	{
+		type = (type != null) ? type : '';
+
 		try
 		{
-			var recent = localStorage.getItem('.recent');
+			var recent = localStorage.getItem('.recent' + type);
 			
 			if (recent != null)
 			{
@@ -2374,13 +2373,15 @@ App.prototype.getRecent = function()
 /**
  * Clears the recent file list in local storage
  */
-App.prototype.resetRecent = function(entry)
+App.prototype.resetRecent = function(type)
 {
 	if (isLocalStorage && localStorage != null)
 	{
+		type = (type != null) ? type : '';
+
 		try
 		{
-			localStorage.removeItem('.recent');
+			localStorage.removeItem('.recent' + type);
 		}
 		catch (e)
 		{
@@ -3192,17 +3193,19 @@ App.prototype.start = function()
 			{
 				// ignore
 			}
+
+			// Handles changes of the file ID in the hash
+			var lastId = this.getDiagramId();
 			
 			mxEvent.addListener(window, 'hashchange', mxUtils.bind(this, function(evt)
 			{
 				try
 				{
-					this.hideDialog();
 					var id = this.getDiagramId();
-					var file = this.getCurrentFile();
 
-					if (file == null || file.getHash() != id)
+					if (id != lastId)
 					{
+						lastId = id;
 						this.loadFile(id, true);
 					}
 				}
@@ -3323,6 +3326,11 @@ App.prototype.start = function()
 						var prev = Editor.useLocalStorage;
 						this.createFile(this.defaultFilename, null, null, null, null, null, null, true);
 						Editor.useLocalStorage = prev;
+					}
+					else if (urlParams['smart-template'] != null)
+					{
+						this.createFile(this.defaultFilename, null, null, null, null, null, null, true);
+						this.actions.get('insertTemplate').funct();
 					}
 					else
 					{
@@ -3705,11 +3713,6 @@ App.prototype.checkDrafts = function()
 						}
 					}));
 					dlg.init();
-				}
-				else if (urlParams['smart-template'] != null)
-				{
-					this.createFile(this.defaultFilename, this.getFileData(), null, null, null, null, null, true);
-					this.actions.get('insertTemplate').funct();
 				}
 				else if (urlParams['splash'] != '0')
 				{
@@ -4547,18 +4550,8 @@ App.prototype.saveFile = function(forceDialog, success)
 		else
 		{
 			var filename = (file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
-			var allowTab = !mxClient.IS_IOS || !navigator.standalone;
-			var prev = this.mode;
-			var serviceCount = this.getServiceCount(true);
-			
-			if (isLocalStorage)
-			{
-				serviceCount++;
-			}
-			
-			var rowLimit = (serviceCount <= 4) ? 2 : (serviceCount > 6 ? 4 : 3);
-			
-			var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(name, mode, input)
+
+			var saveFunction = mxUtils.bind(this, function(name, mode, input, folderId)
 			{
 				if (name != null && name.length > 0)
 				{
@@ -4633,7 +4626,7 @@ App.prototype.saveFile = function(forceDialog, success)
 						}
 						else if (prev != mode)
 						{
-							this.pickFolder(mode, mxUtils.bind(this, function(folderId)
+							var createFile = mxUtils.bind(this, function(folderId)
 							{
 								var graph = this.editor.graph;
 								var selection = graph.getSelectionCells();
@@ -4648,7 +4641,16 @@ App.prototype.saveFile = function(forceDialog, success)
 									{
 										this.restoreViewState(page, viewState, selection);
 									}));
-							}));
+							});
+
+							if (folderId != null)
+							{
+								createFile(folderId);
+							}
+							else
+							{
+								this.pickFolder(mode, createFile);
+							}
 						}
 						else if (mode != null)
 						{
@@ -4656,13 +4658,46 @@ App.prototype.saveFile = function(forceDialog, success)
 						}
 					}
 				}
-			}), mxUtils.bind(this, function()
+			});
+
+			if (urlParams['save-dialog'] == '1')
 			{
-				this.hideDialog();
-			}), mxResources.get('saveAs'), mxResources.get('download'), null, null, allowTab,
-				null, true, rowLimit, null, null, null, this.editor.fileExtensions, false);
-			this.showDialog(dlg.container, 420, (serviceCount > rowLimit) ? 390 : 280, true, true);
-			dlg.init();
+				var dlg = new SaveDialog(this, filename, mxUtils.bind(this, function(input, mode, folderId)
+				{
+					var name = input.value;
+					saveFunction(name, mode, input, folderId);
+				}));
+
+				this.showDialog(dlg.container, 420, 136, true, false, mxUtils.bind(this, function(cancel)
+				{
+					if (cancel && this.getCurrentFile() == null)
+					{
+						this.showSplash();
+					}
+				}));
+				dlg.init();
+			}
+			else
+			{
+				var allowTab = !mxClient.IS_IOS || !navigator.standalone;
+				var prev = this.mode;
+				var serviceCount = this.getServiceCount(true);
+				
+				if (isLocalStorage)
+				{
+					serviceCount++;
+				}
+				
+				var rowLimit = (serviceCount <= 4) ? 2 : (serviceCount > 6 ? 4 : 3);
+				
+				var dlg = new CreateDialog(this, filename, saveFunction, mxUtils.bind(this, function()
+				{
+					this.hideDialog();
+				}), mxResources.get('saveAs'), mxResources.get('download'), null, null, allowTab,
+					null, true, rowLimit, null, null, null, this.editor.fileExtensions, false);
+				this.showDialog(dlg.container, 420, (serviceCount > rowLimit) ? 390 : 280, true, true);
+				dlg.init();
+			}
 		}
 	}
 };
@@ -5092,11 +5127,6 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs, success)
 				}
 			});
 
-			if (done != null)
-			{
-				done();
-			}
-			
 			// Opens the file in a new window
 			if (replace != null && !replace)
 			{
@@ -5120,6 +5150,11 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs, success)
 			}
 			else
 			{
+				if (done != null)
+				{
+					done();
+				}
+					
 				fn2();
 			}
 		});
@@ -6433,11 +6468,69 @@ App.prototype.save = function(name, done)
 };
 
 /**
+ * Hook for subclassers.
+ */
+App.prototype.getExtensionForService = function(name)
+{
+	var service = this.getServiceForName(name);
+
+	return service != null ? service.extension : '.drawio';
+};
+
+/**
+ * Hook for subclassers.
+ */
+App.prototype.getServiceForName = function(name)
+{
+	if (name == App.MODE_GOOGLE)
+	{
+		return this.drive;
+	}
+	else if (name == App.MODE_ONEDRIVE)
+	{
+		return this.oneDrive;
+	}
+	else if (name == App.MODE_GITHUB)
+	{
+		return this.gitHub;
+	}
+	else if (name == App.MODE_GITLAB)
+	{
+		return this.gitLab;
+	}
+	else if (name == App.MODE_TRELLO)
+	{
+		return this.trello;
+	}
+
+	return null;
+};
+
+/**
+ * Hook for subclassers.
+ */
+App.prototype.getTitleForService = function(name)
+{
+	if (name == App.MODE_GOOGLE)
+	{
+		return mxResources.get('googleDrive');
+	}
+	else if (name == App.MODE_ONEDRIVE)
+	{
+		return mxResources.get('oneDrive');
+	}
+	else
+	{
+		return EditorUi.prototype.getTitleForService.apply(this, arguments);
+	}
+};
+
+/**
  * Invokes callback with null if mode does not support folder or not null
  * if a valid folder was chosen for a mode that supports it. No callback
  * is made if no folder was chosen for a mode that supports it.
  */
-App.prototype.pickFolder = function(mode, fn, enabled, direct, force)
+App.prototype.pickFolder = function(mode, fn, enabled, direct, force, returnPickerValue)
 {
 	enabled = (enabled != null) ? enabled : true;
 	var resume = this.spinner.pause();
@@ -6458,7 +6551,7 @@ App.prototype.pickFolder = function(mode, fn, enabled, direct, force)
 					folderId = evt.docs[0].id;
 				}
 				
-				fn(folderId);
+				fn((returnPickerValue) ? evt : folderId);
 			}
 		}), force);
 	}
@@ -6472,7 +6565,7 @@ App.prototype.pickFolder = function(mode, fn, enabled, direct, force)
 			if (files != null && files.value != null && files.value.length > 0)
 			{
 				folderId = OneDriveFile.prototype.getIdOf(files.value[0]);
-        		fn(folderId);
+        		fn((returnPickerValue) ? files : folderId);
 			}
 		}), direct);
 	}

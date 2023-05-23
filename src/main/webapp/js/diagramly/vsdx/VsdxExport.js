@@ -569,33 +569,32 @@ function VsdxExport(editorUi)
 			}
 			else if (cell.vertex)
 			{
-	
 				var shape = createShape(vsdxId, geo, layerIndex, xmlDoc, parentHeight, isChild);
-				
 				var state = graph.view.getState(cell, true);
 
-				applyMxCellStyle(state, shape, xmlDoc);
-				
-				vsdxCanvas.newShape(shape, state, xmlDoc);
-
-				//Draw text first to have its shape cell elements before visio geo.
-				if (state.text != null && state.text.checkBounds())
+				if (state != null)
 				{
-					vsdxCanvas.save();
-					state.text.paint(vsdxCanvas);
-					vsdxCanvas.restore();
-				}
-				if (state.shape != null && state.shape.checkBounds())
-				{
-					vsdxCanvas.save();
-					state.shape.paint(vsdxCanvas);
-					vsdxCanvas.restore();
-				}
+					applyMxCellStyle(state, shape, xmlDoc);
+					vsdxCanvas.newShape(shape, state, xmlDoc);
 
-				shape.appendChild(vsdxCanvas.getShapeGeo());
-
-				vsdxCanvas.endShape();
-				shape.setAttribute("Type", vsdxCanvas.getShapeType());
+					//Draw text first to have its shape cell elements before visio geo.
+					if (state.text != null && state.text.checkBounds())
+					{
+						vsdxCanvas.save();
+						state.text.paint(vsdxCanvas);
+						vsdxCanvas.restore();
+					}
+					if (state.shape != null && state.shape.checkBounds())
+					{
+						vsdxCanvas.save();
+						state.shape.paint(vsdxCanvas);
+						vsdxCanvas.restore();
+					}
+					
+					shape.appendChild(vsdxCanvas.getShapeGeo());
+					vsdxCanvas.endShape();
+					shape.setAttribute("Type", vsdxCanvas.getShapeType());
+				}
 
 				return shape;
 			}

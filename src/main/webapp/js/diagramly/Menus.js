@@ -308,7 +308,10 @@
         }));
 
 		lightModeAction.setToggleAction(true);
-		lightModeAction.setSelectedCallback(function() { return !Editor.isAutoDarkMode(true) && !Editor.isDarkMode(); });
+		lightModeAction.setSelectedCallback(function()
+		{
+			return !editorUi.isAutoDarkMode(true) && !Editor.isDarkMode();
+		});
 		
         var darkModeAction = editorUi.actions.put('darkMode', new Action(mxResources.get('dark'), function(e)
         {
@@ -316,7 +319,10 @@
         }));
 
 		darkModeAction.setToggleAction(true);
-		darkModeAction.setSelectedCallback(function() { return !Editor.isAutoDarkMode(true) && Editor.isDarkMode(); });
+		darkModeAction.setSelectedCallback(function()
+		{
+			return !editorUi.isAutoDarkMode(true) && Editor.isDarkMode();
+		});
 		
         var autoModeAction = editorUi.actions.put('autoMode', new Action(mxResources.get('automatic'), function(e)
         {
@@ -324,7 +330,10 @@
         }));
 
 		autoModeAction.setToggleAction(true);
-		autoModeAction.setSelectedCallback(function() { return Editor.isAutoDarkMode(true); });
+		autoModeAction.setSelectedCallback(function()
+		{
+			return editorUi.isAutoDarkMode(true);
+		});
 		
         var toggleSimpleModeAction = editorUi.actions.put('toggleSimpleMode', new Action(mxResources.get('classic'), function(e)
         {

@@ -20,7 +20,7 @@ EditorUi.DIFF_UPDATE = 'u';
 /**
  * Shared codec.
  */
-EditorUi.transientViewStateProperties =['defaultParent', 'currentRoot', 'scrollLeft',
+EditorUi.transientViewStateProperties = ['defaultParent', 'currentRoot', 'scrollLeft',
 	'scrollTop', 'scale', 'translate', 'lastPasteXml', 'pasteCounter'];
 
 /**
@@ -953,6 +953,11 @@ EditorUi.prototype.diffViewState = function(oldPage, newPage)
 	var source = oldPage.viewState;
 	var target = newPage.viewState;
 	var result = {};
+
+	if (oldPage == this.currentPage)
+	{
+		source = this.editor.graph.getViewState();
+	}
 	
 	if (newPage == this.currentPage)
 	{
@@ -996,7 +1001,7 @@ EditorUi.prototype.getViewStateProperty = function(viewState, key)
 	if (key == 'backgroundImage' && result != null &&
 		result.originalSrc != null)
 	{
-		delete result.src;
+		result = {originalSrc: result.originalSrc};
 	}
 	else if (key == 'extFonts' && result == null)
 	{
@@ -1319,7 +1324,7 @@ EditorUi.prototype.adoptTheirCells = function(ownDiff, theirDiff, resolve)
 
 		if (ownPageUpdate.cells != null)
 		{
-			this.adoptTheirCellsFromPage(ownDiff, theirDiff, id, resolve);
+			this.adoptTheirCellsFromPage(ownPageUpdate, theirDiff, id, resolve);
 		}
 	}
 };
@@ -1327,12 +1332,13 @@ EditorUi.prototype.adoptTheirCells = function(ownDiff, theirDiff, resolve)
 /**
  * Computes and sends the local changes if the file was changed.
  */
-EditorUi.prototype.adoptTheirCellsFromPage = function(ownDiff, theirDiff, pageId, resolve)
+EditorUi.prototype.adoptTheirCellsFromPage = function(ownPageUpdate, theirDiff, pageId, resolve)
 {
-	var ownPageUpdate = ownDiff[EditorUi.DIFF_UPDATE][pageId];
-	var theirPageUpdate = theirDiff[EditorUi.DIFF_UPDATE][pageId];
+	var theirPageUpdate = theirDiff[EditorUi.DIFF_UPDATE] != null ?
+		theirDiff[EditorUi.DIFF_UPDATE][pageId] : null;
 
-	if (theirPageUpdate.cells != null && theirPageUpdate.cells[EditorUi.DIFF_INSERT] != null)
+	if (theirPageUpdate != null && theirPageUpdate.cells != null &&
+		theirPageUpdate.cells[EditorUi.DIFF_INSERT] != null)
 	{
 		var theirUpdatedCells = theirPageUpdate.cells[EditorUi.DIFF_UPDATE];
 		var theirInsertedCells = {};
@@ -1351,11 +1357,11 @@ EditorUi.prototype.adoptTheirCellsFromPage = function(ownDiff, theirDiff, pageId
 		// Blocks duplicate inserts, deleted below for result
 		pageDiff.inserted = {};
 
-		this.resolveOwnInsertedCells((ownPageUpdate.cells != null) ?
-			ownPageUpdate.cells[EditorUi.DIFF_INSERT] : null,
+		this.resolveOwnInsertedCells(
+			ownPageUpdate.cells[EditorUi.DIFF_INSERT],
 			theirInsertedCells, pageDiff);
-		this.resolveOwnUpdatedCells((ownPageUpdate.cells != null) ?
-			ownPageUpdate.cells[EditorUi.DIFF_UPDATE] : null,
+		this.resolveOwnUpdatedCells(
+			ownPageUpdate.cells[EditorUi.DIFF_UPDATE],
 			theirInsertedCells, theirUpdatedCells,
 			pageDiff);
 		
@@ -1416,11 +1422,11 @@ EditorUi.prototype.resolveOwnUpdatedCells = function(ownUpdatedCells, theirInser
 				pageDiff.cells[EditorUi.DIFF_UPDATE][id] =
 					ownUpdatedCells[id];
 			}
-			else
+			else if (theirUpdatedCells != null)
 			{
-				// Adds their referenced terminals to own cells
-				var theirCell = (theirUpdatedCells != null) ?
-					theirUpdatedCells[id] : null;
+				// Adds their referenced terminals
+				// and parents to own cells
+				var theirCell = theirUpdatedCells[id];
 				
 				if (theirCell != null)
 				{

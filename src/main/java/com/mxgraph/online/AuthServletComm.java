@@ -38,13 +38,13 @@ public interface AuthServletComm extends AuthComm
 	default void addCookie(String name, String val, int age, String cookiePath, Object response_p)
 	{
 		HttpServletResponse response = (HttpServletResponse) response_p;
-		response.addHeader("Set-Cookie", name + "=" + val + "; Max-Age=" + age + ";path=" + cookiePath + "; Secure; HttpOnly; SameSite=none");
+		response.addHeader("Set-Cookie", name + "=" + val + "; Max-Age=" + age + ";path=" + cookiePath + (AbsAuth.USE_HTTP ? "" : "; Secure; SameSite=none") + "; HttpOnly");
 	}
 	
 	default void deleteCookie(String name, String cookiePath, Object response_p)
 	{
 		HttpServletResponse response = (HttpServletResponse) response_p;
-		response.addHeader("Set-Cookie", name + "= ;path=" + cookiePath + "; expires=Thu, 01 Jan 1970 00:00:00 UTC; Secure; HttpOnly; SameSite=none");
+		response.addHeader("Set-Cookie", name + "= ;path=" + cookiePath + "; expires=Thu, 01 Jan 1970 00:00:00 UTC" + (AbsAuth.USE_HTTP ? "" : "; Secure; SameSite=none") + "; HttpOnly");
 	}
 	
 	default String getParameter(String name, Object request)

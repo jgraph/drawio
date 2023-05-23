@@ -4413,7 +4413,7 @@ ChangePageSetup.prototype.execute = function()
 		var tmp = graph.backgroundImage;
 		var img = this.previousImage;
 
-		if (img != null && img.src != null && img.src.substring(0, 13) == 'data:page/id,')
+		if (img != null && Graph.isPageLink(img.src))
 		{
 			img = this.ui.createImageForPageLink(img.src, this.ui.currentPage);
 		}

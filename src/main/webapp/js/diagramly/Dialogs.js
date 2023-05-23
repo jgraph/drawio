@@ -2891,16 +2891,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	{
 		if (showName)
 		{
-			nameInput.focus();
-			
-			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
-			{
-				nameInput.select();
-			}
-			else
-			{
-				document.execCommand('selectAll', false, null);
-			}
+			Editor.selectFilename(nameInput);
 		}
 		
 		if (div.parentNode != null && div.parentNode.parentNode != null)
@@ -3287,6 +3278,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			var type = EditorUi.mermaidDiagramTypes[i];
 			var key = type;
 
+			if (type == urlParams['smart-template-type'])
+			{
+				option.setAttribute('selected', 'selected');
+			}
+
 			// Maps types to translations
 			if (key == 'erDiagram')
 			{
@@ -3300,24 +3296,19 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			typeSelect.appendChild(option);
 		}
 
-		var type = urlParams['smart-template-type'];
-
-		if (type != null)
-		{
-			typeSelect.value = type;
-		}
-
 		var button = mxUtils.button(mxResources.get('generate'), function()
 		{
-			var useMermaidFormat = typeSelect.value == 'gantt' || typeSelect.value == 'pie';
-			var prompt = 'create mermaid ' + ((typeSelect.value != '') ?
-				(typeSelect.value + ' ') : '') + 'declaration for ' +
-				description.value;
+			var desc = description.value;
+			var type = typeSelect.value.replace(/([A-Z])/g, " $1").toLowerCase();
+			var prompt = 'Write the declaration code for a ' + (type != '' ? type : 'graph') +
+				' that shows "' + (desc != '' ? desc : 'something random') + '" using correct' +
+				' MermaidJS syntax and do not provide additional text in your response.';
 			var type = ((typeSelect.value != '') ? (' (' + mxUtils.trim(
 				mxUtils.getTextContent(typeSelect.options[
 					typeSelect.selectedIndex])) + ')') : '');
+			var useMermaidFormat = typeSelect.value == 'gantt' || typeSelect.value == 'pie';
 			var title = description.value + type;
-
+			
 			if (typeof mxMermaidToDrawio !== 'undefined')
 			{
 				mxMermaidToDrawio.addListener(mxUtils.bind(this, function(modelXml)
@@ -4486,6 +4477,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			editorUi.showDialog(dlg.container, 300, 80, true, true);
 			dlg.init();
 		});
+		
 		fromTmpBtn.className = 'geBtn';
 		btns.appendChild(fromTmpBtn);
 	}
@@ -4531,6 +4523,346 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 };
 
 NewDialog.tagsList = {};
+
+/**
+ * 
+ */
+var SaveDialog = function(editorUi, title, saveFn, allowBrowser, allowTab)
+{
+	allowBrowser = (allowBrowser != null) ? allowBrowser : true;
+	allowTab = (allowTab != null) ? allowTab : true;
+
+	var div = document.createElement('div');
+	div.style.whiteSpace = 'nowrap';
+
+	var table = document.createElement('div');
+	table.style.display = 'grid';
+	table.style.gap = '5px 8px';
+	table.style.gridAutoRows = 'auto auto 44px';
+	table.style.gridAutoColumns = '0fr minmax(0,1fr)';
+	table.style.width = '100%';
+	
+	var left = document.createElement('div');
+	left.style.display = 'flex';
+	left.style.padding = '1px';
+	left.style.alignItems = 'center';
+	left.style.justifyContent = 'flex-end';
+	left.style.gridColumn = '1';
+	left.style.whiteSpace = 'nowrap';
+
+	var right = document.createElement('div');
+	right.style.display = 'grid';
+	right.style.padding = '1px';
+	right.style.alignItems = 'center';
+	right.style.gridColumn = '2';
+	right.style.gridAutoColumns = 'minmax(0,1fr) auto';
+	right.style.gap = '6px';
+	
+	mxUtils.write(left, mxResources.get('saveAs') + ':');
+
+	var saveAsInput = document.createElement('input');
+	saveAsInput.setAttribute('type', 'text');
+	saveAsInput.setAttribute('value', title);
+	saveAsInput.style.boxSizing = 'border-box';
+	saveAsInput.style.width = '100%';
+	right.appendChild(saveAsInput);
+
+	table.appendChild(left);
+	table.appendChild(right);
+
+	if (editorUi.editor.diagramFileTypes != null)
+	{
+		left = left.cloneNode(false);
+		right = right.cloneNode(false);
+
+		mxUtils.write(left, mxResources.get('type') + ':');
+		
+		var typeSelect = FilenameDialog.createFileTypes(editorUi, saveAsInput,
+			editorUi.editor.diagramFileTypes);
+		typeSelect.style.boxSizing = 'border-box';
+		typeSelect.style.width = '100%';
+		right.appendChild(typeSelect);
+
+		table.appendChild(left);
+		table.appendChild(right);
+	}
+	
+	left = left.cloneNode(false);
+	right = right.cloneNode(false);
+
+	mxUtils.write(left, mxResources.get('where') + ':');
+
+	var storageSelect = document.createElement('select');
+	storageSelect.style.textOverflow = 'ellipsis';
+	storageSelect.style.gridColumn = '1';
+
+	var resetOption = document.createElement('option');
+	mxUtils.write(resetOption, mxResources.get('reset'));
+	resetOption.setAttribute('value', 'reset');
+
+	var dash = '&nbsp;&nbsp;&#8211&nbsp;&nbsp;';
+	
+	function addStorageEntry(mode, path, id, selected, title, pickFolderEntry)
+	{
+		title = (title != null) ? title : editorUi.getTitleForService(mode);
+		var option = null;
+
+		if (mxUtils.indexOf(localServices, mode) >= 0 ||
+			editorUi.getServiceForName(mode) != null)
+		{
+			option = document.createElement('option');
+
+			if (pickFolderEntry)
+			{
+				option.innerHTML = mxUtils.htmlEntities(title) + dash +
+					mxUtils.htmlEntities(mxResources.get('pickFolder')) + '...';
+				option.setAttribute('value', 'pickFolder-' + mode);
+				option.setAttribute('title', title + ' - ' +
+					mxResources.get('pickFolder') + '...');
+			}
+			else
+			{
+				var entryId = mode + ((id != null) ? ('-' + id) : '');
+				var entry = entries[entryId];
+
+				if (entry != null && entry.option != null)
+				{
+					entry.option.parentNode.removeChild(entry.option);
+				}
+
+				var shortPath = null;
+
+				if (path != null)
+				{
+					if (path.charAt(path.length - 1) == '/')
+					{
+						path = path.substring(0, path.length - 1);
+					}
+
+					if (path.charAt(0) == '/')
+					{
+						path = path.substring(1);
+					}
+
+					shortPath = path;
+
+					var idx = shortPath.lastIndexOf('/');
+
+					if (idx >= 0)
+					{
+						shortPath = shortPath.substring(idx + 1);
+					}
+					
+					if (shortPath.length > 25)
+					{
+						shortPath = shortPath.substring(0, 25) + '...';
+					}
+				}
+
+				option.innerHTML = ((shortPath != null) ? mxUtils.htmlEntities(shortPath) +
+					dash : '') + mxUtils.htmlEntities(title);
+				option.setAttribute('title', title + ((path != null) ? ' (' + path + ')' : '') +
+					((id != null) ? ' [' + id + ']' : ''));
+				option.setAttribute('value', entryId);
+				entries[entryId] = {option: option, mode: mode, path: path, id: id};
+
+				if (selected == null && id == null)
+				{
+					selected = editorUi.mode == mode;
+				}
+
+				if (selected)
+				{
+					option.setAttribute('selected', 'selected');
+				}
+			}
+
+			storageSelect.appendChild(option);
+		}
+
+		return option;
+	};
+
+	function pickFolder(mode)
+	{
+		editorUi.pickFolder(mode, function(result)
+		{
+			var entry = null;
+
+			if (mode == App.MODE_GOOGLE && result.docs != null && result.docs.length > 0)
+			{
+				entry = {mode: mode, path: result.docs[0].name, id: result.docs[0].id};
+			}
+			else if (mode == App.MODE_ONEDRIVE && result.value != null && result.value.length > 0)
+			{
+				entry = {mode: mode, path: result.value[0].name, id: result.value[0].id};
+			}
+
+			if (entry != null)
+			{
+				resetOption.style.display = '';
+				editorUi.addRecent(entry, 'Folders');
+				var option = addStorageEntry(entry.mode, entry.path, entry.id, true);
+
+				if (option.parentNode.firstChild != option)
+				{
+					option.parentNode.insertBefore(option,
+						option.parentNode.firstChild);
+				}
+			}
+		}, true, true, true, true);
+	};
+
+	var localServices = ['browser', 'device', 'download', '_blank'];
+	var entries = {};
+	
+	function checkExtension()
+	{
+		if (editorUi.editor.diagramFileTypes != null &&
+			editorUi.editor.diagramFileTypes[typeSelect.value].extension == 'drawio')
+		{
+			var ext = editorUi.getExtensionForService(entries[storageSelect.value].mode);
+			var name = saveAsInput.value;
+
+			if (ext != null && title.indexOf('.') < 0 &&
+				name.indexOf('.') < 0)
+			{
+				saveAsInput.value = name + ext;
+			}
+		}
+	};
+
+	function addStorageEntries()
+	{
+		var recent = editorUi.getRecent('Folders');
+
+		if (recent != null && recent.length > 0)
+		{
+			for (var i = 0; i < recent.length; i++)
+			{
+				addStorageEntry(recent[i].mode, recent[i].path, recent[i].id);
+			}
+
+			resetOption.style.display = '';
+		}
+		else
+		{
+			resetOption.style.display = 'none';
+		}
+
+		addStorageEntry(App.MODE_GOOGLE, mxResources.get('myDrive'));
+		addStorageEntry(App.MODE_GOOGLE, null, null, null, null, true);
+		addStorageEntry(App.MODE_ONEDRIVE, mxResources.get('myFiles'));
+		addStorageEntry(App.MODE_ONEDRIVE, null, null, null, null, true);
+		
+		if (editorUi.dropbox != null)
+		{
+			addStorageEntry(App.MODE_DROPBOX, 'Apps' + editorUi.dropbox.appPath);
+		}
+
+		addStorageEntry(App.MODE_GITHUB);
+		addStorageEntry(App.MODE_GITLAB);
+		addStorageEntry(App.MODE_TRELLO);
+
+		if (!Editor.useLocalStorage || urlParams['storage'] == 'device' ||
+			(editorUi.getCurrentFile() != null && urlParams['noDevice'] != '1'))
+		{
+			addStorageEntry('download');
+
+			if (EditorUi.nativeFileSupport)
+			{
+				addStorageEntry(App.MODE_DEVICE, null, null, editorUi.mode == App.MODE_DEVICE || !allowBrowser);
+			}
+		}
+		
+		if (allowBrowser && isLocalStorage && urlParams['browser'] != '0')
+		{
+			addStorageEntry(App.MODE_BROWSER);
+		}
+		
+		if (allowTab && Editor.popupsAllowed)
+		{
+			addStorageEntry('_blank', null, null, null, mxResources.get('openInNewWindow'));
+		}
+	};
+
+	function storageChanged()
+	{
+		if (storageSelect.value == 'reset')
+		{
+			editorUi.resetRecent('Folders');
+			storageSelect.innerHTML = '';
+			entries = {};
+			addStorageEntries();
+		}
+		else if (storageSelect.value.substring(0, 11) == 'pickFolder-')
+		{
+			var mode = storageSelect.value.substring(11);
+			storageSelect.value = mode;
+			pickFolder(mode);
+		}
+		else
+		{
+			checkExtension();
+		}
+	};
+	
+	addStorageEntries();
+	mxEvent.addListener(storageSelect, 'change', storageChanged);
+	storageChanged();
+
+	storageSelect.appendChild(resetOption);
+
+	right.appendChild(storageSelect);
+
+	table.appendChild(left);
+	table.appendChild(right);
+	div.appendChild(table);
+
+	var btns = document.createElement('div');
+	btns.style.textAlign = 'right';
+	btns.style.marginTop = '8px';
+
+	if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
+	{
+		btns.appendChild(mxUtils.button(mxResources.get('help'), function()
+		{
+			editorUi.openLink('https://www.diagrams.net/doc/faq/save-file-formats');
+		}, null, 'geBtn'));
+	}
+
+	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+	{
+		editorUi.hideDialog();
+	}, null, 'geBtn');
+
+	if (editorUi.editor.cancelFirst)
+	{
+		btns.appendChild(cancelBtn);
+	}
+
+	// Save
+	btns.appendChild(mxUtils.button(mxResources.get('save'), function()
+	{
+		var entry = entries[storageSelect.value];
+		saveFn(saveAsInput, entry.mode, entry.id);
+	}, null, 'geBtn gePrimaryBtn'));
+
+	if (!editorUi.editor.cancelFirst)
+	{
+		btns.appendChild(cancelBtn);
+	}
+
+	div.appendChild(btns);
+
+	this.init = function()
+	{
+		Editor.selectFilename(saveAsInput);
+	};
+
+	this.container = div;
+};
+
 /**
  * Constructs a dialog for creating new files from a template URL.
  * Also used for dialog choosing where to save or export resources
@@ -4577,16 +4909,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	
 	this.init = function()
 	{
-		nameInput.focus();
-		
-		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
-		{
-			nameInput.select();
-		}
-		else
-		{
-			document.execCommand('selectAll', false, null);
-		}
+		Editor.selectFilename(nameInput);
 	};
 
 	div.appendChild(nameInput);
