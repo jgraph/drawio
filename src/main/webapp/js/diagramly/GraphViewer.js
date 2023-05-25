@@ -25,7 +25,7 @@ GraphViewer.prototype.editBlankUrl = 'https://app.diagrams.net/';
 /**
  * Base URL for relative images.
  */
-GraphViewer.prototype.imageBaseUrl = 'https://viewer.diagrams.net/';
+GraphViewer.prototype.imageBaseUrl = window.DRAWIO_BASE_URL + '/';
 
 /**
  * Redirects editing to absolue URLs.

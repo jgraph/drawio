@@ -2147,7 +2147,8 @@ var ParseDialog = function(editorUi, title, defaultType)
 				var sp = diagramType.indexOf(' ');
 				diagramType = diagramType.substring(0, sp > 0 ? sp : diagramType.length);
 				var inDrawioFormat = typeof mxMermaidToDrawio !== 'undefined' && 
-							type == 'mermaid2drawio' && diagramType != 'gantt' && diagramType != 'pie';
+							type == 'mermaid2drawio' && diagramType != 'gantt' &&
+							diagramType != 'pie' && diagramType != 'timeline';
 
 				var graph = editorUi.editor.graph;
 				
@@ -2179,8 +2180,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 								w, h, 'shape=image;noLabel=1;verticalAlign=top;imageAspect=1;' +
 								'image=' + data + ';')
 						graph.setAttributeForCell(cell, 'mermaidData',
-							JSON.stringify({data: text, config:
-							EditorUi.defaultMermaidConfig}, null, 2));
+							JSON.stringify({data: text}, null, 2));
 					}
 					finally
 					{
@@ -13207,6 +13207,7 @@ var FilePropertiesDialog = function(editorUi)
 	var tbody = document.createElement('tbody');
 	table.style.width = '100%';
 	table.style.marginTop = '8px';
+	table.style.tableLayout = 'fixed';
 	
 	var file = editorUi.getCurrentFile();
 	var filename = (file != null && file.getTitle() != null) ?
@@ -13246,7 +13247,7 @@ var FilePropertiesDialog = function(editorUi)
 		var zoomInput = document.createElement('input');
 		zoomInput.setAttribute('value', (scale * 100) + '%');
 		zoomInput.style.marginLeft = '4px';
-		zoomInput.style.width = '120px';
+		zoomInput.style.width = '100%';
 		
 		td = document.createElement('td');
 		td.style.whiteSpace = 'nowrap';
@@ -13266,7 +13267,7 @@ var FilePropertiesDialog = function(editorUi)
 		var borderInput = document.createElement('input');
 		borderInput.setAttribute('value', border);
 		borderInput.style.marginLeft = '4px';
-		borderInput.style.width = '120px';
+		borderInput.style.width = '100%';
 		
 		td = document.createElement('td');
 		td.style.whiteSpace = 'nowrap';
@@ -13425,9 +13426,42 @@ var FilePropertiesDialog = function(editorUi)
 		mxUtils.write(td, mxResources.get('size') + ':');
 		row.appendChild(td);
 
+		var temp = editorUi.formatFileSize(file.getSize());
+
+		var sizeInput = document.createElement('input');
+		sizeInput.setAttribute('title', temp);
+		sizeInput.setAttribute('value', temp);
+		sizeInput.setAttribute('disabled', 'disabled');
+		sizeInput.style.marginLeft = '4px';
+		sizeInput.style.width = '100%';
+
 		td = document.createElement('td');
 		td.style.whiteSpace = 'nowrap';
-		mxUtils.write(td, editorUi.formatFileSize(file.getSize()));
+		td.appendChild(sizeInput);
+		row.appendChild(td);
+		tbody.appendChild(row);
+	}
+
+	if (file != null && file.fileObject != null &&
+		file.fileObject.path != null)
+	{
+		row = document.createElement('tr');
+		td = document.createElement('td');
+		td.style.whiteSpace = 'nowrap';
+		td.style.fontSize = '10pt';
+		td.style.width = '120px';
+		mxUtils.write(td, mxResources.get('pathFilename') + ':');
+		row.appendChild(td);
+
+		var pathInput = document.createElement('input');
+		pathInput.setAttribute('title', file.fileObject.path);
+		pathInput.setAttribute('value', file.fileObject.path);
+		pathInput.setAttribute('disabled', 'disabled');
+		pathInput.style.marginLeft = '4px';
+		pathInput.style.width = '100%';
+
+		td = document.createElement('td');
+		td.appendChild(pathInput);
 		row.appendChild(td);
 		tbody.appendChild(row);
 	}

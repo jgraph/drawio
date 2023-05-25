@@ -1,3 +1,14 @@
+24-MAY-2023: 21.3.4
+
+- Adds support for MermaidJS timelines [drawio-3613]
+- Keeps MermaidJS styling after update [drawio-3417]
+- [conf cloud] Count errors of each kind in pageID import, Gliffy/Lucid import, and re-indexing and display summary at bottom of file. Add FAQ text for common fixes.
+- Forces direct load in browser to download PlantUML diagrams
+- [conf cloud] Added page IDs logging - partial [DID-8048]
+- Improves replace shapes [drawio-3505]
+- Removes hard-coded image base path [drawio-3171]
+- Adds titles to shape tags, normalizes search terms [drawio-3618]
+
 23-MAY-2023: 21.3.3
 
 - Allows http and localhost in services (OAuth) [drawio-3079]

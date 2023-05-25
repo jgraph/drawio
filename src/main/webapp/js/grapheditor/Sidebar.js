@@ -703,6 +703,16 @@ Sidebar.prototype.hideTooltip = function()
  */
 Sidebar.prototype.addDataEntry = function(tags, width, height, title, data)
 {
+	if (tags == null)
+	{
+		tags = '';
+	}
+
+	if (title != null)
+	{
+		tags += ' ' + title;
+	}
+
 	return this.addEntry(tags, mxUtils.bind(this, function()
 	{
 	   	return this.createVertexTemplateFromData(data, width, height, title);
@@ -846,9 +856,11 @@ Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, er
 		
 		for (var i = 0; i < tmp.length; i++)
 		{
-			if (tmp[i].length > 0)
+			var normalized = Editor.soundex(tmp[i].replace(/\.*\d*$/, ''));
+
+			if (normalized.length > 0)
 			{
-				var entry = this.taglist[Editor.soundex(tmp[i])];
+				var entry = this.taglist[normalized];
 				var tmpDict = new mxDictionary();
 				
 				if (entry != null)
@@ -3592,7 +3604,6 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		var target = ((!mxEvent.isAltDown(evt) || mxEvent.isShiftDown(evt)) &&
 			!(currentStyleTarget != null && activeArrow == styleTarget)) ?
 			mxDragSource.prototype.getDropTarget.apply(this, arguments) : null;
-		var model = graph.getModel();
 
 		if (target != null && (activeArrow != null ||
 			!graph.isSplitTarget(target, cells, evt)))

@@ -1398,11 +1398,6 @@ Graph.pasteStyles = ['rounded', 'shadow', 'dashed', 'dashPattern', 'fontFamily',
 					'disableMultiStrokeFill', 'fillStyle', 'curveFitting', 'simplification', 'comicStyle'];
 
 /**
- * 	
- */
-Graph.updateShapeStyles = Graph.pasteStyles.concat([mxConstants.STYLE_SHAPE, mxConstants.STYLE_PERIMETER]);
-
-/**
  * Whitelist for known layout names.
  */
 Graph.layoutNames = ['mxHierarchicalLayout', 'mxCircleLayout', 'mxCompactTreeLayout',
@@ -4547,11 +4542,17 @@ Graph.prototype.updateShapes = function(source, targets)
 	this.model.beginUpdate();
 	try
 	{
-		this.pasteStyle(this.copyStyle(source), targets, Graph.updateShapeStyles);
-
-		// Removes child cells of composite cells
+		// Replaces target styles and removes composite childs
 		for (var i = 0; i < targets.length; i++)
 		{
+			if ((this.model.isVertex(source) && this.model.isVertex(targets[i])) ||
+				this.model.isEdge(source) && this.model.isEdge(targets[i]))
+			{
+				var style = this.copyStyle(targets[i]);
+				this.model.setStyle(targets[i], this.model.getStyle(source));
+				this.pasteStyle(style, [targets[i]]);
+			}
+			
 			if (mxUtils.getValue(this.getCellStyle(targets[i],
 				false), 'composite', '0') == '1')
 			{

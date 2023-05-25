@@ -81,28 +81,32 @@ App = function(editor, container, lightbox)
 	{
 		if (urlParams['openInSameWin'] == '1' || navigator.standalone)
 		{
-			fallback();
-			return;
+			if (fallback != null)
+			{
+				fallback();
+			}
 		}
-		
-		var wnd = null;
-		
-		try
+		else
 		{
-			wnd = window.open(url);
-		}
-		catch (e)
-		{
-			// ignore
-		}
-		
-		if (wnd == null || wnd === undefined)
-		{
-			this.showDialog(new PopupDialog(this, url, pre, fallback).container, 320, 140, true, true);
-		}
-		else if (pre != null)
-		{
-			pre();
+			var wnd = null;
+			
+			try
+			{
+				wnd = window.open(url);
+			}
+			catch (e)
+			{
+				// ignore
+			}
+			
+			if (wnd == null || wnd === undefined)
+			{
+				this.showDialog(new PopupDialog(this, url, pre, fallback).container, 320, 140, true, true);
+			}
+			else if (pre != null)
+			{
+				pre();
+			}
 		}
 	});
 
