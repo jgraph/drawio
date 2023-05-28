@@ -609,6 +609,7 @@ posterPrint=Imprimir cartaz
 preferences=Preferências
 preview=Pré-visualizar
 previousPage=Página anterior
+presentationMode=Presentation Mode
 print=Imprimir
 printAllPages=Imprimir todas as páginas
 procEng=Engenharia de Processos

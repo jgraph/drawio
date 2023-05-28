@@ -609,6 +609,7 @@ posterPrint=Cetak Poster
 preferences=Preferensi
 preview=Pratinjau
 previousPage=Halaman Sebelumnya
+presentationMode=Presentation Mode
 print=Cetak
 printAllPages=Cetak Semua Halaman
 procEng=Rekayasa Proses

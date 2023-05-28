@@ -609,6 +609,7 @@ posterPrint=In Poster
 preferences=Tùy chọn
 preview=Xem trước
 previousPage=Trang trước
+presentationMode=Presentation Mode
 print=In
 printAllPages=In tất cả các trang
 procEng=Quy trình kĩ thuật

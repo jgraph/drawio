@@ -6039,7 +6039,12 @@ EditorUi.prototype.createKeyHandler = function(editor)
 			(evt.keyCode != 90 && evt.keyCode != 89 && evt.keyCode != 188 &&
 			evt.keyCode != 190 && evt.keyCode != 85)) && ((evt.keyCode != 66 && evt.keyCode != 73) ||
 			!this.isControlDown(evt) || (this.graph.cellEditor.isContentEditing() &&
-			!mxClient.IS_FF && !mxClient.IS_SF)) && isEventIgnored.apply(this, arguments));
+			!mxClient.IS_FF && !mxClient.IS_SF)) &&
+			((evt.keyCode != 109 && evt.keyCode != 107) ||
+			(!this.isControlDown(evt) && !mxEvent.isShiftDown(evt)) ||
+			(!this.graph.cellEditor.isContentEditing() &&
+			!mxClient.IS_FF && !mxClient.IS_SF)) &&
+			isEventIgnored.apply(this, arguments));
 	};
 	
 	// Ignores graph enabled state but not chromeless state
@@ -6382,6 +6387,8 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		keyHandler.bindAction(80, true, 'format', true); // Ctrl+Shift+P
 		keyHandler.bindAction(85, true, 'underline'); // Ctrl+U
 		keyHandler.bindAction(85, true, 'ungroup', true); // Ctrl+Shift+U
+		keyHandler.bindAction(109, true, 'decreaseFontSize', true); // Ctrl+Shift+Minus
+		keyHandler.bindAction(107, true, 'increaseFontSize', true); // Ctrl+Shift+Plus
 		keyHandler.bindAction(219, true, 'decreaseFontSize', true); // Ctrl+{
 		keyHandler.bindAction(221, true, 'increaseFontSize', true); // Ctrl+}
 		keyHandler.bindAction(190, true, 'superscript'); // Ctrl+.

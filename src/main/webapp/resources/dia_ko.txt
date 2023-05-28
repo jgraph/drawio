@@ -609,6 +609,7 @@ posterPrint=포스터 인쇄
 preferences=환경설정
 preview=미리보기
 previousPage=이전 페이지
+presentationMode=Presentation Mode
 print=인쇄
 printAllPages=모든 페이지 인쇄
 procEng=Process Enginerring

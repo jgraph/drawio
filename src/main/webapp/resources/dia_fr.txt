@@ -609,6 +609,7 @@ posterPrint=Données de l’impression
 preferences=Préférences
 preview=Aperçu
 previousPage=Page précédente
+presentationMode=Presentation Mode
 print=Imprimer
 printAllPages=Imprimer toutes les pages
 procEng=Ing. Proc.

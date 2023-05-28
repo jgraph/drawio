@@ -609,6 +609,7 @@ posterPrint=ポスター印刷
 preferences=環境設定
 preview=印刷プレビュー
 previousPage=前のページ
+presentationMode=Presentation Mode
 print=印刷
 printAllPages=すべてのページ
 procEng=Proc. Eng.

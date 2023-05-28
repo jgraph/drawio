@@ -609,6 +609,7 @@ posterPrint=Postritrükk
 preferences=Eelistused
 preview=Eelvaade
 previousPage=Eelmine leht
+presentationMode=Presentation Mode
 print=Prindi
 printAllPages=Prindi kõik lehed
 procEng=Proc. Eng.

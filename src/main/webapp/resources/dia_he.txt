@@ -609,6 +609,7 @@ posterPrint=‫הדפסת מודעה‬
 preferences=‫העדפות‬
 preview=‫תצוגה מקדימה‬
 previousPage=‫העמוד הקודם‬
+presentationMode=Presentation Mode
 print=‫הדפס‬
 printAllPages=‫הדפס את כל הדפים‬
 procEng=‫הנדסת תהליך‬

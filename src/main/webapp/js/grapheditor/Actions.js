@@ -1633,7 +1633,7 @@ Actions.prototype.init = function()
 			graph.setCellStyles(mxConstants.STYLE_FONTSIZE, Math.max(1, size - 1),
 				graph.getSelectionCells());
 		}
-	}), null, null, Editor.ctrlKey + '+{');
+	}), null, null, Editor.ctrlKey + '+Shift + (Numpad)');
 	action = this.addAction('increaseFontSize', mxUtils.bind(this, function()
 	{
 		if (!graph.isSelectionEmpty())
@@ -1643,7 +1643,7 @@ Actions.prototype.init = function()
 			graph.setCellStyles(mxConstants.STYLE_FONTSIZE, Math.min(100, size + 1),
 				graph.getSelectionCells());
 		}
-	}), null, null, Editor.ctrlKey + '+}');
+	}), null, null, Editor.ctrlKey + '+Shift - (Numpad)');
 
 	function applyClipPath(cell, clipPath, width, height, graph)
 	{

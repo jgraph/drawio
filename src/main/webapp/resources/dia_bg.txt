@@ -609,6 +609,7 @@ posterPrint=Отпечатване на плакат
 preferences=Предпочитания
 preview=Предварителен преглед
 previousPage=Предишна страница
+presentationMode=Presentation Mode
 print=Принтиране
 printAllPages=Принтиране на всички страници
 procEng=Процесно инженерство

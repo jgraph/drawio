@@ -609,6 +609,7 @@ posterPrint=‫چاپ پوستر‬
 preferences=‫ترجیحات‬
 preview=‫پیش نما‬
 previousPage=‫صفحه قبل‬
+presentationMode=Presentation Mode
 print=‫چاپ‬
 printAllPages=‫چاپ تمامی صفحه ها‬
 procEng=Proc. Eng.

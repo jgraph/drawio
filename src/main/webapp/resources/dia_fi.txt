@@ -609,6 +609,7 @@ posterPrint=Julistetulostus
 preferences=Asetukset
 preview=Esikatsele
 previousPage=Edellinen sivu
+presentationMode=Presentation Mode
 print=Tulosta
 printAllPages=Tulosta kaikki sivut
 procEng=Prosessitekniikka

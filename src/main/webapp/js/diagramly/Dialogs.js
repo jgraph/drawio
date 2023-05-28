@@ -13239,7 +13239,6 @@ var FilePropertiesDialog = function(editorUi)
 		td = document.createElement('td');
 		td.style.whiteSpace = 'nowrap';
 		td.style.fontSize = '10pt';
-		td.style.width = '120px';
 		mxUtils.write(td, mxResources.get('zoom') + ':');
 		
 		row.appendChild(td);
@@ -13259,7 +13258,6 @@ var FilePropertiesDialog = function(editorUi)
 		td = document.createElement('td');
 		td.style.whiteSpace = 'nowrap';
 		td.style.fontSize = '10pt';
-		td.style.width = '120px';
 		mxUtils.write(td, mxResources.get('borderWidth') + ':');
 		
 		row.appendChild(td);
@@ -13314,7 +13312,6 @@ var FilePropertiesDialog = function(editorUi)
 		td = document.createElement('td');
 		td.style.whiteSpace = 'nowrap';
 		td.style.fontSize = '10pt';
-		td.style.width = '120px';
 		mxUtils.write(td, mxResources.get('compressed') + ':');
 		
 		row.appendChild(td);
@@ -13362,7 +13359,6 @@ var FilePropertiesDialog = function(editorUi)
 		td = document.createElement('td');
 		td.style.whiteSpace = 'nowrap';
 		td.style.fontSize = '10pt';
-		td.style.width = '120px';
 		mxUtils.write(td, mxResources.get('realtimeCollaboration') + ':');
 		row.appendChild(td);
 	
@@ -13422,7 +13418,6 @@ var FilePropertiesDialog = function(editorUi)
 		td = document.createElement('td');
 		td.style.whiteSpace = 'nowrap';
 		td.style.fontSize = '10pt';
-		td.style.width = '120px';
 		mxUtils.write(td, mxResources.get('size') + ':');
 		row.appendChild(td);
 
@@ -13449,7 +13444,6 @@ var FilePropertiesDialog = function(editorUi)
 		td = document.createElement('td');
 		td.style.whiteSpace = 'nowrap';
 		td.style.fontSize = '10pt';
-		td.style.width = '120px';
 		mxUtils.write(td, mxResources.get('pathFilename') + ':');
 		row.appendChild(td);
 

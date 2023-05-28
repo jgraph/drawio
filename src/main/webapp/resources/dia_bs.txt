@@ -609,6 +609,7 @@ posterPrint=Štampa postera
 preferences=Podešavanja
 preview=Pregled
 previousPage=Prethodna stranica
+presentationMode=Presentation Mode
 print=Printanje
 printAllPages=Printaj sve stranice
 procEng=Proc. Inž.

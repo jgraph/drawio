@@ -609,6 +609,7 @@ posterPrint=Imprimare poster
 preferences=Preferințe
 preview=Previzualizare
 previousPage=Pagina anterioara
+presentationMode=Presentation Mode
 print=Imprimare
 printAllPages=Imprimează toate paginile
 procEng=Inginerie de procesare

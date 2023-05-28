@@ -609,6 +609,7 @@ posterPrint=Impresión de póster
 preferences=Preferencias
 preview=Vista previa
 previousPage=Página previa
+presentationMode=Presentation Mode
 print=Imprimir
 printAllPages=Imprimir todas las páginas
 procEng=Ingeniería de Procesos

@@ -609,6 +609,7 @@ posterPrint=Poster afdrukken
 preferences=Voorkeuren
 preview=Voorbeeldweergave
 previousPage=Vorige pagina
+presentationMode=Presentation Mode
 print=Afdrukken
 printAllPages=Alle pagina's afdrukken
 procEng=Procestechnologie

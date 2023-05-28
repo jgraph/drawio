@@ -609,6 +609,7 @@ posterPrint=Kartelaren inprimaketa
 preferences=Hobespenak
 preview=Aurrebista
 previousPage=Aurreko orria
+presentationMode=Presentation Mode
 print=Inprimatu
 printAllPages=Orri guztiak inprimatu
 procEng=Prozesuen ingeniaritza

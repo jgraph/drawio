@@ -609,6 +609,7 @@ posterPrint=‫طباعة الملصق‬
 preferences=‫خيارات‬
 preview=‫معاينة‬
 previousPage=Previous Page
+presentationMode=Presentation Mode
 print=‫طباعة‬
 printAllPages=Print All Pages
 procEng=Proc. Eng.

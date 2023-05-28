@@ -609,6 +609,7 @@ posterPrint=Plakātu druka
 preferences=Preferences
 preview=Priekšskatījums
 previousPage=Iepriekšējā lapa
+presentationMode=Presentation Mode
 print=Drukāt
 printAllPages=Drukāt visas lapas
 procEng=Inženierijas procesi

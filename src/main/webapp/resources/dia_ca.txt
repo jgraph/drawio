@@ -609,6 +609,7 @@ posterPrint=Imprimeix cartell
 preferences=Preferències
 preview=Vista prèvia
 previousPage=Pàgina anterior
+presentationMode=Presentation Mode
 print=Imprimeix
 printAllPages=Imprimeix totes les pàgines
 procEng=Enginyeria de processos

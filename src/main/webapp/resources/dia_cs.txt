@@ -609,6 +609,7 @@ posterPrint=Tisk plakátu
 preferences=Předvolby
 preview=Náhled
 previousPage=Předchozí stránka
+presentationMode=Presentation Mode
 print=Tisk
 printAllPages=Tisknout všechny stránky
 procEng=Proces. inženýrství

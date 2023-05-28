@@ -609,6 +609,7 @@ posterPrint=Poszter nyomtatás
 preferences=Beállítások
 preview=Előnézet
 previousPage=Előző oldal
+presentationMode=Presentation Mode
 print=Nyomtat
 printAllPages=Összes oldalt nyomtat
 procEng=Folyamatmérnöki

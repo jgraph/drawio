@@ -609,6 +609,7 @@ posterPrint=Plakatutskrift
 preferences=Innstillinger
 preview=Forhåndsvisning
 previousPage=Forrige side
+presentationMode=Presentation Mode
 print=Skriv ut
 printAllPages=Skriv ut alle sider
 procEng=Prosessteknologi

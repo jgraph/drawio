@@ -609,6 +609,7 @@ posterPrint=posterPrint
 preferences=preferences
 preview=preview
 previousPage=previousPage
+presentationMode=presentationMode
 print=print
 printAllPages=printAllPages
 procEng=procEng

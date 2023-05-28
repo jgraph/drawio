@@ -609,6 +609,7 @@ posterPrint=Wydruk plakatu
 preferences=Preferencje
 preview=Podgląd
 previousPage=Poprzednia strona
+presentationMode=Presentation Mode
 print=Drukuj
 printAllPages=Wydrukuj wszystkie strony
 procEng=Technologia

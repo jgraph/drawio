@@ -609,6 +609,7 @@ posterPrint=Постерне друкування
 preferences=Уподобання
 preview=Попередній перегляд
 previousPage=Попередня сторінка
+presentationMode=Presentation Mode
 print=Роздрукувати
 printAllPages=Роздрукувати усі сторінки
 procEng=Процес-інжиніринг

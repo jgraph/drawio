@@ -609,6 +609,7 @@ posterPrint=海報列印
 preferences=偏好
 preview=預覽
 previousPage=上一頁
+presentationMode=Presentation Mode
 print=列印
 printAllPages=列印所有頁
 procEng=工藝過程
