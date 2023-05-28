@@ -1,3 +1,7 @@
+27-MAY-2023: 21.3.5
+
+- Fixes tabs converted to spaces in labels [drawio-3540]
+
 24-MAY-2023: 21.3.4
 
 - Adds support for MermaidJS timelines [drawio-3613]
