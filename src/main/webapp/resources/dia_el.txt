@@ -781,6 +781,7 @@ turn=Στροφή
 type=Τύπος
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Υπογράμμιση
 undo=Αναίρεση
 ungroup=Απο-ομαδοποίηση

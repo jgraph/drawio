@@ -781,6 +781,7 @@ turn=Döndür
 type=Yaz
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Altını çiz
 undo=Geri al
 ungroup=Grubu çöz

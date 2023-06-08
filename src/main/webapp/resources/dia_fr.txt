@@ -781,6 +781,7 @@ turn=Pivoter à 90°
 type=Type
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Souligner
 undo=Annuler
 ungroup=Dissocier

@@ -781,6 +781,7 @@ turn=‫تدوير‬
 type=Type
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=‫تسطير‬
 undo=‫تراجع‬
 ungroup=‫تفكيك المجموعة‬

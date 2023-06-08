@@ -781,6 +781,7 @@ turn=Gira 90°
 type=Escriu
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Subratlla
 undo=Desfés
 ungroup=Desagrupa

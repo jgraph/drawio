@@ -781,6 +781,7 @@ turn=Fordít
 type=Típus
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Aláhúz
 undo=Visszavon
 ungroup=Szétválaszt

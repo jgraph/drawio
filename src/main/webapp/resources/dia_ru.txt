@@ -781,6 +781,7 @@ turn=Повернуть на 90 градусов
 type=Тип
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Подчеркнутый
 undo=Отменить
 ungroup=Разгруппировать

@@ -781,6 +781,7 @@ turn=หมุน 90 องศา
 type=ประเภท
 twitter=ทวิตเตอร์
 uml=UML
+unassigned=Unassigned
 underline=ขีดเส้นใต้
 undo=ยกเลิกการทำ
 ungroup=ยกเลิกการจัดกลุ่ม

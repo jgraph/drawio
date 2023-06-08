@@ -5993,7 +5993,7 @@
 	/**
 	 * Creates the tags dialog.
 	 */
-	Graph.prototype.createTagsDialog = function(isEnabled, invert, addFn)
+	Graph.prototype.createTagsDialog = function(isEnabled, invert, addFn, helpButton)
 	{
 		var graph = this;
 		var allTags = graph.hiddenTags.slice();
@@ -6351,11 +6351,13 @@
 		graph.addListener(mxEvent.REFRESH, refreshUi);
 	
 		var footer = document.createElement('div');
+		footer.style.display = 'flex';
+		footer.style.alignItems = 'center';
 		footer.style.boxSizing = 'border-box';
 		footer.style.whiteSpace = 'nowrap';
 		footer.style.position = 'absolute';
 		footer.style.overflow = 'hidden';
-		footer.style.bottom = '0px';
+		footer.style.bottom = '6px';
 		footer.style.height = '42px';
 		footer.style.right = '10px';
 		footer.style.left = '10px';
@@ -6365,6 +6367,11 @@
 			footer.appendChild(resetBtn);
 			footer.appendChild(addBtn);
 			div.appendChild(footer);
+		}
+
+		if (helpButton != null)
+		{
+			footer.appendChild(helpButton);
 		}
 
 		return {div: div, refresh: refreshUi};
@@ -7010,8 +7017,23 @@
 
 					if (action.tags != null)
 					{
-						var hidden = [];
+						if (action.tags.toggle != null)
+						{
+							var tags = action.tags.toggle;
+
+							if (tags.length == 0)
+							{
+								tags = this.getAllTags();
+							}
+
+							for (var i = 0; i < tags.length; i++)
+							{
+								this.toggleHiddenTag(tags[i]);
+							}
+						}
 						
+						var hidden = null;
+
 						if (action.tags.hidden != null)
 						{
 							hidden = hidden.concat(action.tags.hidden);
@@ -7019,6 +7041,11 @@
 
 						if (action.tags.visible != null)
 						{
+							if (hidden == null)
+							{
+								hidden = [];
+							}
+
 							var all = this.getAllTags();
 
 							for (var i = 0; i < all.length; i++)
@@ -7031,7 +7058,11 @@
 							}
 						}
 
-						this.setHiddenTags(hidden);
+						if (hidden != null)
+						{
+							this.setHiddenTags(hidden);
+						}
+
 						this.refresh();
 					}
 
@@ -7400,6 +7431,7 @@
 		
 		return result;
 	};
+
 	/**
 	 * Returns all tags in the diagram.
 	 */

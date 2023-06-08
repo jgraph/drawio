@@ -781,6 +781,7 @@ turn=90도 회전
 type=유형
 twitter=트위터
 uml=UML
+unassigned=Unassigned
 underline=밑줄
 undo=실행 취소
 ungroup=그룹 해제

@@ -781,6 +781,7 @@ turn=‫סובב ב 90°‬
 type=‫סוג‬
 twitter=‫טוויטר‬
 uml=UML
+unassigned=Unassigned
 underline=‫קו תחתון‬
 undo=‫בטל‬
 ungroup=‫פרק קבוצה‬

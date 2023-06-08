@@ -781,6 +781,7 @@ turn=Pootočit tvar pouze o 90°
 type=Text
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Podtržené
 undo=Zpět
 ungroup=Rozdělit skupinu

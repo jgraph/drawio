@@ -781,6 +781,7 @@ turn=Pagriezt formu tikai par 90°
 type=Tips
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Pasvītrots
 undo=Atsaukt
 ungroup=Atgrupēt

@@ -334,8 +334,8 @@
 		{
 			return editorUi.isAutoDarkMode(true);
 		});
-		
-        var toggleSimpleModeAction = editorUi.actions.put('toggleSimpleMode', new Action(mxResources.get('classic'), function(e)
+
+        var toggleSimpleModeAction = editorUi.actions.put('toggleSimpleMode', new Action(mxResources.get('simple'), function(e)
         {
 			editorUi.setCurrentTheme((Editor.currentTheme == 'simple') ?
 				((!Editor.isDarkMode()) ? 'kennedy' : 'dark') : 'simple');
@@ -344,7 +344,7 @@
 		toggleSimpleModeAction.setToggleAction(true);
 		toggleSimpleModeAction.visible = Editor.currentTheme != 'min' && Editor.currentTheme != 'sketch' &&
 			Editor.currentTheme != 'atlas';
-		toggleSimpleModeAction.setSelectedCallback(function() { return Editor.currentTheme != 'simple'; });
+		toggleSimpleModeAction.setSelectedCallback(function() { return Editor.currentTheme == 'simple'; });
 
         var toggleSketchModeAction = editorUi.actions.put('toggleSketchMode', new Action(mxResources.get('sketch'), function(e)
         {
@@ -3226,8 +3226,20 @@
 				}
 			}
 
-			this.addMenuItems(menu, ['-', 'lightMode', 'darkMode', 'autoMode'], parent);
+			this.addMenuItems(menu, ['-', 'lightMode', 'darkMode'], parent);
 
+			if (editorUi.isAutoDarkMode(true))
+			{
+				var item = editorUi.menus.addMenuItem(menu, 'autoMode', parent);
+
+				if (item != null)
+				{
+					item.setAttribute('title', mxResources.get('automatic') +
+						' (' + mxResources.get(Editor.isDarkMode() ?
+							'dark' : 'light') + ')');
+				}
+			}
+			
 			if (urlParams['embed'] != '1')
 			{
 				this.addMenuItems(menu, ['-', 'toggleSimpleMode'], parent);

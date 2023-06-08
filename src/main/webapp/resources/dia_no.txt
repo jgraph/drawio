@@ -781,6 +781,7 @@ turn=Vend 90°
 type=Type
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Understrek
 undo=Angre
 ungroup=Del opp gruppe

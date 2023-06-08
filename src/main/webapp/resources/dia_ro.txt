@@ -781,6 +781,7 @@ turn=Rotează cu 90 de grade.
 type=Tip.
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Subliniază
 undo=Anulare acţiune anterioara
 ungroup=Degrupare

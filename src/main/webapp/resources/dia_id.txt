@@ -781,6 +781,7 @@ turn=Putar 90°
 type=Tipe
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Garis Bawah
 undo=Batalkan
 ungroup=Lepas Gabungan

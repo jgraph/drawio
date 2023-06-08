@@ -781,6 +781,7 @@ turn=Putar 90°
 type=Jenis
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Garis Bawah
 undo=Buat Asal
 ungroup=Asingkan Kumpulan

@@ -781,6 +781,7 @@ turn=Girar 90°
 type=Tipo
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Sublinhado
 undo=Desfazer
 ungroup=Desagrupar

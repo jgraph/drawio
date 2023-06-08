@@ -781,6 +781,7 @@ turn=Biratu 90º
 type=Mota
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Azpimarra
 undo=Desegin
 ungroup=Banandu

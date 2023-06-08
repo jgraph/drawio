@@ -781,6 +781,7 @@ turn=Повернути фігуру на 90°
 type=Друкування
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Підкреслити
 undo=Відмінити
 ungroup=Розгрупувати

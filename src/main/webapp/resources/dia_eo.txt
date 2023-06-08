@@ -781,6 +781,7 @@ turn=Rotate shape only by 90°
 type=Type
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Underline
 undo=Undo
 ungroup=Ungroup

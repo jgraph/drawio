@@ -781,6 +781,7 @@ turn=90°回転
 type=タイプ
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=下線
 undo=元に戻す
 ungroup=グループ解除

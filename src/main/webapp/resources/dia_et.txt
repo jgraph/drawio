@@ -781,6 +781,7 @@ turn=Pööra 90º
 type=Tüüp
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Alljoonda
 undo=Võta tagasi
 ungroup=Eemalda rühmitus

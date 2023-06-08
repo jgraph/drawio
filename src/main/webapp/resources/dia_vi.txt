@@ -781,6 +781,7 @@ turn=Xoay 90°
 type=Loại
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Gạch dưới
 undo=Hoàn tác
 ungroup=Bỏ nhóm

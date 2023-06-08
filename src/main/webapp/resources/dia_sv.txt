@@ -781,6 +781,7 @@ turn=Rotera 90°
 type=Typ
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Understruken
 undo=Ångra
 ungroup=Dela upp

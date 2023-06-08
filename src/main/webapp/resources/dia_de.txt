@@ -781,6 +781,7 @@ turn=Nur Form um 90° drehen
 type=Typ
 twitter=Twitter
 uml=UML
+unassigned=Nicht zugewiesen
 underline=Unterstrichen
 undo=Rückgängig
 ungroup=Gruppierung aufheben

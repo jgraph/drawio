@@ -781,6 +781,7 @@ turn=Drej
 type=Type
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Understreget
 undo=Fortryd
 ungroup=Opdel

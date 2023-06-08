@@ -781,6 +781,7 @@ turn=Okreni
 type=Type
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Podvučen
 undo=Opozovi
 ungroup=Podeli

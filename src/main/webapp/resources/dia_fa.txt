@@ -781,6 +781,7 @@ turn=‫چرخش 90 درجه‬
 type=‫نوع‬
 twitter=‫توئیتر‬
 uml=UML
+unassigned=Unassigned
 underline=‫زیرخط‬
 undo=‫عدم انجام‬
 ungroup=‫از حالت گروهی خارج کردن‬

@@ -4827,7 +4827,7 @@ var SaveDialog = function(editorUi, title, saveFn, allowBrowser, allowTab)
 	{
 		btns.appendChild(mxUtils.button(mxResources.get('help'), function()
 		{
-			editorUi.openLink('https://www.diagrams.net/doc/faq/save-file-formats');
+			editorUi.openLink('https://www.drawio.com/doc/faq/save-file-formats');
 		}, null, 'geBtn'));
 	}
 
@@ -8419,6 +8419,13 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 var TagsWindow = function(editorUi, x, y, w, h)
 {
 	var graph = editorUi.editor.graph;
+	var helpButton = null;
+
+	if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
+	{
+		helpButton = editorUi.menus.createHelpLink('https://www.drawio.com/blog/tags-in-diagrams');
+		helpButton.style.marginLeft = '8px';
+	}
 
 	var tagsComponent = editorUi.editor.graph.createTagsDialog(mxUtils.bind(this, function()
 	{
@@ -8464,7 +8471,7 @@ var TagsWindow = function(editorUi, x, y, w, h)
 			editorUi.showDialog(dlg.container, 300, 80, true, true);
 			dlg.init();
 		}
-	});
+	}, helpButton);
 
 	var div = tagsComponent.div;
 	this.window = new mxWindow(mxResources.get('tags'), div, x, y, w, h, true, true);

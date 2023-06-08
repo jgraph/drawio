@@ -781,6 +781,7 @@ turn=Kierrä muotoa vain 90°
 type=Tyyppi
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Alleviivaa
 undo=Kumoa
 ungroup=Pura ryhmittely

@@ -1,3 +1,12 @@
+01-JUN-2023: 21.3.7
+
+- [conf cloud] Keeping trailing spaces in attachment name [DID-8309]
+- [conf cloud] Fixed space filter in new page IDs import [DID-8048]
+
+30-MAY-2023: 21.3.6
+
+- [conf cloud] Improved Import Page IDs performance [DID-8048]
+
 27-MAY-2023: 21.3.5
 
 - Fixes tabs converted to spaces in labels [drawio-3540]

@@ -781,6 +781,7 @@ turn=Rotiraj 90°
 type=Piši
 twitter=Twitter
 uml=UML
+unassigned=Unassigned
 underline=Podvučen
 undo=Opozovi
 ungroup=Podijeli
