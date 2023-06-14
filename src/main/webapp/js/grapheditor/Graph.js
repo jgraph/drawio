@@ -1935,7 +1935,6 @@ Graph.clipSvgDataUri = function(dataUri, ignorePreserveAspect)
 			{
 				// Strips leading XML declaration and doctypes
 				div.innerHTML = Graph.sanitizeHtml(data.substring(idx));
-				//div.innerHTML = data.substring(idx);
 				
 				// Gets the size and removes from DOM
 				var svgs = div.getElementsByTagName('svg');
@@ -14525,7 +14524,7 @@ if (typeof mxVertexHandler !== 'undefined')
 				if (this.specialHandle != null)
 				{
 					this.specialHandle.node.style.display = (this.graph.isEnabled() &&
-						this.graph.getSelectionCount() < this.graph.graphHandler.maxCells) ?
+						this.graph.getSelectionCount() <= this.graph.graphHandler.maxCells) ?
 						'' : 'none';
 				}
 				
@@ -14580,6 +14579,24 @@ if (typeof mxVertexHandler !== 'undefined')
 				}
 				else if (link != null || (links != null && links.length > 0))
 				{
+					var img = document.createElement('img');
+					img.className = 'geAdaptiveAsset';
+					img.setAttribute('src', Editor.editImage);
+					img.setAttribute('title', mxResources.get('editLink'));
+					img.setAttribute('width', '14');
+					img.setAttribute('height', '14');
+					img.style.paddingLeft = '8px';
+					img.style.marginLeft = 'auto';
+					img.style.marginBottom = '-1px';
+					img.style.cursor = 'pointer';
+
+					var trash = img.cloneNode(true);
+					trash.setAttribute('src', Editor.trashImage);
+					trash.setAttribute('title', mxResources.get('removeIt',
+						[mxResources.get('link')]));
+					trash.style.paddingLeft = '4px';
+					trash.style.marginLeft = '0';
+
 					if (this.linkHint == null)
 					{
 						this.linkHint = createHint();
@@ -14609,15 +14626,7 @@ if (typeof mxVertexHandler !== 'undefined')
 						if (this.graph.isEnabled() && typeof this.graph.editLink === 'function' &&
 							!this.graph.isCellLocked(this.state.cell))
 						{
-							var changeLink = document.createElement('img');
-							changeLink.className = 'geAdaptiveAsset';
-							changeLink.setAttribute('src', Editor.editImage);
-							changeLink.setAttribute('title', mxResources.get('editLink'));
-							changeLink.setAttribute('width', '14');
-							changeLink.setAttribute('height', '14');
-							changeLink.style.marginLeft = '6px';
-							changeLink.style.marginBottom = '-1px';
-							changeLink.style.cursor = 'pointer';
+							var changeLink = img.cloneNode(true);
 							wrapper.appendChild(changeLink);
 							
 							mxEvent.addListener(changeLink, 'click', mxUtils.bind(this, function(evt)
@@ -14627,13 +14636,7 @@ if (typeof mxVertexHandler !== 'undefined')
 								mxEvent.consume(evt);
 							}));
 
-							var trashLink = changeLink.cloneNode(true);
-
-							trashLink.setAttribute('src', Editor.trashImage);
-							trashLink.setAttribute('title', mxResources.get('removeIt',
-								[mxResources.get('link')]));
-							trashLink.style.marginLeft = '4px';
-
+							var trashLink = trash.cloneNode(true);
 							wrapper.appendChild(trashLink);
 
 							mxEvent.addListener(trashLink, 'click', mxUtils.bind(this, function(evt)
@@ -14648,13 +14651,63 @@ if (typeof mxVertexHandler !== 'undefined')
 					{
 						for (var i = 0; i < links.length; i++)
 						{
-							var div = document.createElement('div');
-							div.style.marginTop = (link != null || i > 0) ? '6px' : '0px';
-							div.appendChild(this.graph.createLinkForHint(
-								links[i].getAttribute('href'),
-								mxUtils.getTextContent(links[i])));
-							
-							this.linkHint.appendChild(div);
+							(mxUtils.bind(this, function(currentLink, index)
+							{
+								var div = document.createElement('div');
+								div.style.display = 'flex';
+								div.style.alignItems = 'center';
+								div.style.marginTop = (link != null || index > 0) ? '6px' : '0px';
+								div.appendChild(this.graph.createLinkForHint(
+									currentLink.getAttribute('href'),
+									mxUtils.getTextContent(currentLink)));
+								
+								var changeLink = img.cloneNode(true);
+								div.appendChild(changeLink);
+								
+								var updateLink = mxUtils.bind(this, function(value)
+								{
+									var tmp = document.createElement('div');
+									tmp.innerHTML = Graph.sanitizeHtml(this.graph.getLabel(this.state.cell));
+									var anchor = tmp.getElementsByTagName('a')[index];
+
+									if (value == null || value == '')
+									{
+										var child = anchor.cloneNode(true).firstChild;
+
+										while (child != null)
+										{
+											anchor.parentNode.insertBefore(child.cloneNode(true), anchor);
+											child = child.nextSibling;
+										}
+	
+										anchor.parentNode.removeChild(anchor);
+									}
+									else
+									{
+										anchor.setAttribute('href', value);
+									}
+
+									this.graph.labelChanged(this.state.cell, tmp.innerHTML);
+								});
+								
+								mxEvent.addListener(changeLink, 'click', mxUtils.bind(this, function(evt)
+								{
+									this.graph.showLinkDialog(currentLink.getAttribute('href') || '',
+										mxResources.get('apply'), updateLink);
+									mxEvent.consume(evt);
+								}));
+								
+								var trashLink = trash.cloneNode(true);
+								div.appendChild(trashLink);
+
+								mxEvent.addListener(trashLink, 'click', mxUtils.bind(this, function(evt)
+								{
+									updateLink();
+									mxEvent.consume(evt);
+								}));
+								
+								this.linkHint.appendChild(div);
+							}))(links[i], i);
 						}
 					}
 				}
@@ -14704,7 +14757,7 @@ if (typeof mxVertexHandler !== 'undefined')
 				if (this.labelShape != null)
 				{
 					this.labelShape.node.style.display = (this.graph.isEnabled() &&
-						this.graph.getSelectionCount() < this.graph.graphHandler.maxCells) ?
+						this.graph.getSelectionCount() <= this.graph.graphHandler.maxCells) ?
 						'' : 'none';
 				}
 			});

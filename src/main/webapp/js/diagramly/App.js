@@ -2957,7 +2957,8 @@ App.prototype.load = function()
 			{
 				try
 				{
-					this.stateArg = (urlParams['state'] != null && this.drive != null) ? JSON.parse(decodeURIComponent(urlParams['state'])) : null;
+					this.stateArg = (urlParams['state'] != null && this.drive != null) ?
+						JSON.parse(decodeURIComponent(urlParams['state'])) : null;
 				}
 				catch (e)
 				{
@@ -3178,7 +3179,8 @@ App.prototype.start = function()
 						var file = this.getCurrentFile();
 						EditorUi.debug('storage event', [evt], [file]);
 	
-						if (file != null && evt.key == '.draft-alive-check' && evt.newValue != null && file.draftId != null)
+						if (file != null && evt.key == '.draft-alive-check' &&
+							evt.newValue != null && file.draftId != null)
 						{
 							this.draftAliveCheck = evt.newValue;
 							file.saveDraft();
@@ -3210,7 +3212,12 @@ App.prototype.start = function()
 					if (id != lastId)
 					{
 						lastId = id;
-						this.loadFile(id, true);
+						var file = this.getCurrentFile();
+
+						if (file == null || file.getHash() != id)
+						{
+							this.loadFile(id, true);
+						}
 					}
 				}
 				catch (e)
@@ -3328,12 +3335,14 @@ App.prototype.start = function()
 					if (urlParams['demo'] == '1')
 					{
 						var prev = Editor.useLocalStorage;
-						this.createFile(this.defaultFilename, null, null, null, null, null, null, true);
+						this.createFile(this.defaultFilename, null,
+							null, null, null, null, null, true);
 						Editor.useLocalStorage = prev;
 					}
 					else if (urlParams['smart-template'] != null)
 					{
-						this.createFile(this.defaultFilename, null, null, null, null, null, null, true);
+						this.createFile(this.defaultFilename, null,
+							null, null, null, null, null, true);
 						this.actions.get('insertTemplate').funct();
 					}
 					else
@@ -3395,7 +3404,8 @@ App.prototype.start = function()
 							}
 							else if (!EditorUi.isElectronApp)
 							{
-								this.createFile(this.defaultFilename, this.getFileData(), null, null, null, null, null, true);
+								this.createFile(this.defaultFilename, this.getFileData(),
+									null, null, null, null, null, true);
 							}
 						}
 					}
@@ -3713,7 +3723,8 @@ App.prototype.checkDrafts = function()
 						}
 						else
 						{
-							this.createFile(this.defaultFilename, this.getFileData(), null, null, null, null, null, true);
+							this.createFile(this.defaultFilename, this.getFileData(),
+								null, null, null, null, null, true);
 						}
 					}));
 					dlg.init();
@@ -3724,7 +3735,8 @@ App.prototype.checkDrafts = function()
 				}
 				else
 				{
-					this.createFile(this.defaultFilename, this.getFileData(), null, null, null, null, null, true);
+					this.createFile(this.defaultFilename, this.getFileData(),
+						null, null, null, null, null, true);
 				}
 			}));
 		}), 0);
@@ -3755,15 +3767,16 @@ App.prototype.showSplash = function(force)
 	{
 		var dlg = new SplashDialog(this);
 		
-		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) ? 200 : 230, true, true,
+		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP ||
+			EditorUi.isElectronApp) ? 200 : 230, true, true,
 			mxUtils.bind(this, function(cancel)
 			{
 				// Creates a blank diagram if the dialog is closed
 				if (cancel && !mxClient.IS_CHROMEAPP)
 				{
 					var prev = Editor.useLocalStorage;
-					this.createFile(this.defaultFilename + (EditorUi.isElectronApp? '.drawio' : ''), null, null, null, null, null, null,
-						urlParams['local'] != '1');
+					this.createFile(this.defaultFilename + (EditorUi.isElectronApp? '.drawio' : ''),
+						null, null, null, null, null, null, urlParams['local'] != '1');
 					Editor.useLocalStorage = prev;
 				}
 			}), true);
@@ -4664,26 +4677,24 @@ App.prototype.saveFile = function(forceDialog, success)
 				}
 			});
 
+			var allowTab = !mxClient.IS_IOS || !navigator.standalone;
+
 			if (urlParams['save-dialog'] == '1')
 			{
 				var dlg = new SaveDialog(this, filename, mxUtils.bind(this, function(input, mode, folderId)
 				{
-					var name = input.value;
-					saveFunction(name, mode, input, folderId);
-				}));
+					saveFunction(input.value, mode, input, folderId);
+					this.hideDialog();
+				}), (allowTab) ? null : ['_blank']);
 
-				this.showDialog(dlg.container, 420, 136, true, false, mxUtils.bind(this, function(cancel)
+				this.showDialog(dlg.container, 420, 136, true, false, mxUtils.bind(this, function()
 				{
-					if (cancel && this.getCurrentFile() == null)
-					{
-						this.showSplash();
-					}
+					this.hideDialog();
 				}));
 				dlg.init();
 			}
 			else
 			{
-				var allowTab = !mxClient.IS_IOS || !navigator.standalone;
 				var prev = this.mode;
 				var serviceCount = this.getServiceCount(true);
 				
@@ -4924,6 +4935,12 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 		
 		try
 		{
+			var fileCreated = mxUtils.bind(this, function(file)
+			{
+				complete();
+				this.fileCreated(file, libs, replace, done, clibs, success);
+			});
+
 			if (mode == App.MODE_GOOGLE && this.drive != null)
 			{
 				if (folderId == null && this.stateArg != null && this.stateArg.folderId != null)
@@ -4931,59 +4948,31 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 					folderId = this.stateArg.folderId;
 				}
 	
-				this.drive.insertFile(title, data, folderId, mxUtils.bind(this, function(file)
-				{
-					complete();
-					this.fileCreated(file, libs, replace, done, clibs, success);
-				}), error);
+				this.drive.insertFile(title, data, folderId, fileCreated, error);
 			}
 			else if (mode == App.MODE_GITHUB && this.gitHub != null)
 			{
-				this.gitHub.insertFile(title, data, mxUtils.bind(this, function(file)
-				{
-					complete();
-					this.fileCreated(file, libs, replace, done, clibs, success);
-				}), error, false, folderId);
+				this.gitHub.insertFile(title, data, fileCreated, error, false, folderId);
 			}
 			else if (mode == App.MODE_GITLAB && this.gitLab != null)
 			{
-				this.gitLab.insertFile(title, data, mxUtils.bind(this, function(file)
-				{
-					complete();
-					this.fileCreated(file, libs, replace, done, clibs, success);
-				}), error, false, folderId);
+				this.gitLab.insertFile(title, data, fileCreated, error, false, folderId);
 			}
 			else if (mode == App.MODE_TRELLO && this.trello != null)
 			{
-				this.trello.insertFile(title, data, mxUtils.bind(this, function(file)
-				{
-					complete();
-					this.fileCreated(file, libs, replace, done, clibs, success);
-				}), error, false, folderId);
+				this.trello.insertFile(title, data, fileCreated, error, false, folderId);
 			}
 			else if (mode == App.MODE_DROPBOX && this.dropbox != null)
 			{
-				this.dropbox.insertFile(title, data, mxUtils.bind(this, function(file)
-				{
-					complete();
-					this.fileCreated(file, libs, replace, done, clibs, success);
-				}), error);
+				this.dropbox.insertFile(title, data, fileCreated, error);
 			}
 			else if (mode == App.MODE_ONEDRIVE && this.oneDrive != null)
 			{
-				this.oneDrive.insertFile(title, data, mxUtils.bind(this, function(file)
-				{
-					complete();
-					this.fileCreated(file, libs, replace, done, clibs, success);
-				}), error, false, folderId);
+				this.oneDrive.insertFile(title, data, fileCreated, error, false, folderId);
 			}
 			else if (mode == App.MODE_BROWSER)
 			{
-				StorageFile.insertFile(this, title, data, mxUtils.bind(this, function(file)
-				{
-					complete();
-					this.fileCreated(file, libs, replace, done, clibs, success);
-				}), error);
+				StorageFile.insertFile(this, title, data, fileCreated, error);
 			}
 			else if (!tempFile && mode == App.MODE_DEVICE && EditorUi.nativeFileSupport)
 			{
@@ -5008,7 +4997,8 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 			else
 			{
 				complete();
-				this.fileCreated(new LocalFile(this, data, title, mode == null), libs, replace, done, clibs, success);
+				this.fileCreated(new LocalFile(this, data, title, mode == null),
+					libs, replace, done, clibs, success);
 			}
 		}
 		catch (e)
@@ -5116,6 +5106,11 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs, success)
 					
 					this.loadLibraries(temp);
 				}
+
+				if (done != null)
+				{
+					done();
+				}
 			});
 
 			var fn2 = mxUtils.bind(this, function()
@@ -5145,20 +5140,10 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs, success)
 					window.openFile.setData(file.getData(), file.getTitle(), file.getMode() == null);
 				}
 
-				if (done != null)
-				{
-					done();
-				}
-				
 				window.openWindow(url, null, fn2);
 			}
 			else
 			{
-				if (done != null)
-				{
-					done();
-				}
-					
 				fn2();
 			}
 		});
@@ -6493,6 +6478,10 @@ App.prototype.getServiceForName = function(name)
 	else if (name == App.MODE_ONEDRIVE)
 	{
 		return this.oneDrive;
+	}
+	else if (name == App.MODE_DROPBOX)
+	{
+		return this.dropbox;
 	}
 	else if (name == App.MODE_GITHUB)
 	{

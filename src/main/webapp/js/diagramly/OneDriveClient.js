@@ -73,6 +73,11 @@ OneDriveClient.prototype.defEndpointHint = 'api.onedrive.com';
 OneDriveClient.prototype.endpointHint = OneDriveClient.prototype.defEndpointHint;
 
 /**
+ * Value for the root folder.
+ */
+OneDriveClient.prototype.rootId = {id: 'root', name: 'root', parentReference: {driveId: 'me'}};
+
+/**
  * Executes the first step for connecting to Google Drive.
  */
 OneDriveClient.prototype.extension = '.drawio';
@@ -1458,7 +1463,7 @@ OneDriveClient.prototype.pickFolder = function(fn, direct)
 		{
 			this.ui.confirm(mxResources.get('useRootFolder'), mxUtils.bind(this, function()
 			{
-				fn({value: [{id: 'root', name: 'root', parentReference: {driveId: 'me'}}]});
+				fn({value: [this.rootId]});
 				
 			}), openSaveDlg, mxResources.get('yes'), mxResources.get('noPickFolder') + '...', true);
 		}

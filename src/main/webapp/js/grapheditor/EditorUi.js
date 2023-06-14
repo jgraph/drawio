@@ -1316,7 +1316,8 @@ EditorUi.prototype.init = function()
 			ui.updateActionStates();
 		};
 		
-		// Hack to make editLink available in vertex handler
+		// Hack to make showLinkDialog and editLink available in vertex handler
+		graph.showLinkDialog = mxUtils.bind(ui, ui.showLinkDialog);
 		graph.editLink = ui.actions.get('editLink').funct;
 		
 		this.updateActionStates();
@@ -4144,6 +4145,53 @@ EditorUi.prototype.setScrollbars = function(value)
 };
 
 /**
+ * Function: fitDiagramToWindow
+ * 
+ * Zooms the diagram to fit into the window.
+ */
+EditorUi.prototype.fitDiagramToWindow = function()
+{
+	var graph = this.editor.graph;
+	var bounds = (graph.isSelectionEmpty()) ?
+		mxRectangle.fromRectangle(graph.getGraphBounds()) :
+		graph.getBoundingBox(graph.getSelectionCells())
+	var t = graph.view.translate;
+	var s = graph.view.scale;
+	
+	bounds.x = bounds.x / s - t.x;
+	bounds.y = bounds.y / s - t.y;
+	bounds.width /= s;
+	bounds.height /= s;
+
+	if (graph.backgroundImage != null)
+	{
+		bounds.add(new mxRectangle(0, 0,
+			graph.backgroundImage.width,
+			graph.backgroundImage.height));
+	}
+
+	if (bounds.width == 0 || bounds.height == 0)
+	{
+		graph.zoomTo(1);
+		this.resetScrollbars();
+	}
+	else
+	{
+		var b = Editor.fitWindowBorders;
+		
+		if (b != null)
+		{
+			bounds.x -= b.x;
+			bounds.y -= b.y;
+			bounds.width += b.width + b.x;
+			bounds.height += b.height + b.y;
+		}
+		
+		graph.fitWindow(bounds);
+	}
+};
+
+/**
  * Returns true if the graph has scrollbars.
  */
 EditorUi.prototype.hasScrollbars = function()
@@ -5294,7 +5342,7 @@ EditorUi.prototype.hideDialog = function(cancel, isEsc, matchContainer)
 		{
 			window.setTimeout(mxUtils.bind(this, function()
 			{
-				if (this.editor != null)
+				if (this.editor != null && (this.dialogs == null || this.dialogs.length == 0))
 				{
 					if (this.editor.graph.isEditing() && this.editor.graph.cellEditor.textarea != null)
 					{

@@ -1033,49 +1033,13 @@ Actions.prototype.init = function()
 	}, null, null, Editor.ctrlKey + ' - (Numpad) / Alt+Mousewheel');
 	this.addAction('fitWindow', function()
 	{
-		if (graph.pageVisible)
+		if (graph.pageVisible && graph.isSelectionEmpty())
 		{
 			graph.fitPages();
 		}
 		else
 		{
-			var bounds = (graph.isSelectionEmpty()) ?
-				mxRectangle.fromRectangle(graph.getGraphBounds()) :
-				graph.getBoundingBox(graph.getSelectionCells())
-			var t = graph.view.translate;
-			var s = graph.view.scale;
-			
-			bounds.x = bounds.x / s - t.x;
-			bounds.y = bounds.y / s - t.y;
-			bounds.width /= s;
-			bounds.height /= s;
-
-			if (graph.backgroundImage != null)
-			{
-				bounds.add(new mxRectangle(0, 0,
-					graph.backgroundImage.width,
-					graph.backgroundImage.height));
-			}
-
-			if (bounds.width == 0 || bounds.height == 0)
-			{
-				graph.zoomTo(1);
-				ui.resetScrollbars();
-			}
-			else
-			{
-				var b = Editor.fitWindowBorders;
-				
-				if (b != null)
-				{
-					bounds.x -= b.x;
-					bounds.y -= b.y;
-					bounds.width += b.width + b.x;
-					bounds.height += b.height + b.y;
-				}
-				
-				graph.fitWindow(bounds);
-			}
+			ui.fitDiagramToWindow();
 		}
 	}, null, null, Editor.ctrlKey + '+Shift+H');
 	this.addAction('fitPage', mxUtils.bind(this, function()

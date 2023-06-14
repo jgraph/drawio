@@ -92,7 +92,9 @@ GitHubClient.prototype.updateUser = function(success, error, failOnAuth)
 				}
 				else
 				{
-					error({message: mxResources.get('accessDenied')});
+					error({code: userReq.getStatus(), message:
+						this.getErrorMessage(userReq,
+						mxResources.get('accessDenied'))});
 				}
 			}
 			else if (userReq.getStatus() < 200 || userReq.getStatus() >= 300)

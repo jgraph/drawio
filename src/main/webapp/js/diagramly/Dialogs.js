@@ -2141,14 +2141,19 @@ var ParseDialog = function(editorUi, title, defaultType)
 			{
 				var k = 0;
 
-				while (lines[k].trim().length == 0) k++;
+				while (k < lines.length && (lines[k].trim().length == 0 ||
+					lines[k].substring(0, 2) == '%%'))
+				{
+					k++;
+				}
 
 				var diagramType = lines[k].trim().toLowerCase();
 				var sp = diagramType.indexOf(' ');
 				diagramType = diagramType.substring(0, sp > 0 ? sp : diagramType.length);
 				var inDrawioFormat = typeof mxMermaidToDrawio !== 'undefined' && 
 							type == 'mermaid2drawio' && diagramType != 'gantt' &&
-							diagramType != 'pie' && diagramType != 'timeline';
+							diagramType != 'pie' && diagramType != 'timeline' &&
+							diagramType != 'quadrantchart' && diagramType != 'c4context';
 
 				var graph = editorUi.editor.graph;
 				
@@ -2429,6 +2434,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 						
 						var edge = new mxCell((values.length > 2) ? values[1] : '', new mxGeometry());
 						edge.edge = true;
+						edge.geometry.relative = true;
 						source.insertEdge(edge, true);
 						target.insertEdge(edge, false);
 						cells.push(edge);
@@ -3306,7 +3312,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			var type = ((typeSelect.value != '') ? (' (' + mxUtils.trim(
 				mxUtils.getTextContent(typeSelect.options[
 					typeSelect.selectedIndex])) + ')') : '');
-			var useMermaidFormat = typeSelect.value == 'gantt' || typeSelect.value == 'pie';
+			var useMermaidFormat = typeSelect.value == 'gantt' || typeSelect.value == 'pie' ||
+						typeSelect.value == 'timeline' || typeSelect.value == 'quadrantchart' ||
+						typeSelect.value == 'c4context';
 			var title = description.value + type;
 			
 			if (typeof mxMermaidToDrawio !== 'undefined')
@@ -3334,7 +3342,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					img.style.height = '100%';
 					preview.appendChild(img);
 
-					var xml = editorUi.createMermaidXml('%% Input: ' + title +
+					var xml = editorUi.createMermaidXml('%% Prompt: ' + title +
 						'\n' + mermaidData, EditorUi.defaultMermaidConfig,
 						imageData, w, h);
 
@@ -4527,12 +4535,11 @@ NewDialog.tagsList = {};
 /**
  * 
  */
-var SaveDialog = function(editorUi, title, saveFn, allowBrowser, allowTab)
+var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType, base64Encoded)
 {
-	allowBrowser = (allowBrowser != null) ? allowBrowser : true;
-	allowTab = (allowTab != null) ? allowTab : true;
-
 	var div = document.createElement('div');
+	div.style.display = 'flex';
+	div.style.flexWrap = 'wrap';
 	div.style.whiteSpace = 'nowrap';
 
 	var table = document.createElement('div');
@@ -4541,6 +4548,52 @@ var SaveDialog = function(editorUi, title, saveFn, allowBrowser, allowTab)
 	table.style.gridAutoRows = 'auto auto 44px';
 	table.style.gridAutoColumns = '0fr minmax(0,1fr)';
 	table.style.width = '100%';
+
+	var preview = null;
+	var copyBtn = null;
+
+	// Disables SVG preview if SVG is not supported in browser
+	if (data != null && mimeType != null && (mimeType.substring(0, 6) == 'image/' &&
+		(mimeType.substring(0, 9) != 'image/svg' || mxClient.IS_SVG)))
+	{
+		table.style.display = 'inline-grid';
+		table.style.flexBasis = '75%';
+
+		preview = document.createElement('div');
+		preview.setAttribute('title', mxResources.get('preview'));
+		preview.style.display = 'inline-block';
+		preview.style.height = 'auto';
+		preview.style.maxWidth = '25%';
+		preview.style.margin = 'auto';
+
+		var img = document.createElement('img');
+		var temp = (base64Encoded) ? data : btoa(unescape(encodeURIComponent(data)));
+		img.setAttribute('src', 'data:' + mimeType + ';base64,' + temp);
+		img.style.boxSizing = 'border-box';
+		img.style.maxHeight = '50px';
+		img.style.maxWidth = '100%';
+		img.style.paddingLeft = '10px';
+		preview.appendChild(img);
+
+		if (!mxClient.IS_FF  && mimeType == 'image/png' && navigator.clipboard != null &&
+			typeof window.ClipboardItem === 'function')
+		{
+			copyBtn = mxUtils.button(mxResources.get('copy'), function()
+			{
+				var blob = editorUi.base64ToBlob(temp, 'image/png');
+				var html = '<img src="' + 'data:' + mimeType + ';base64,' + temp + '">';
+				var cbi = new ClipboardItem({'image/png': blob,
+					'text/html': new Blob([html], {type: 'text/html'})});
+				navigator.clipboard.write([cbi]).then(mxUtils.bind(this, function()
+				{
+					editorUi.alert(mxResources.get('copiedToClipboard'));
+				}))['catch'](mxUtils.bind(this, function(e)
+				{
+					editorUi.handleError(e);
+				}));
+			}, null, 'geBtn');
+		}
+	}
 	
 	var left = document.createElement('div');
 	left.style.display = 'flex';
@@ -4570,14 +4623,16 @@ var SaveDialog = function(editorUi, title, saveFn, allowBrowser, allowTab)
 	table.appendChild(left);
 	table.appendChild(right);
 
-	if (editorUi.editor.diagramFileTypes != null)
+	var typeSelect = null;
+
+	if (editorUi.editor.diagramFileTypes != null && mimeType == null)
 	{
 		left = left.cloneNode(false);
 		right = right.cloneNode(false);
 
 		mxUtils.write(left, mxResources.get('type') + ':');
 		
-		var typeSelect = FilenameDialog.createFileTypes(editorUi, saveAsInput,
+		typeSelect = FilenameDialog.createFileTypes(editorUi, saveAsInput,
 			editorUi.editor.diagramFileTypes);
 		typeSelect.style.boxSizing = 'border-box';
 		typeSelect.style.width = '100%';
@@ -4600,88 +4655,107 @@ var SaveDialog = function(editorUi, title, saveFn, allowBrowser, allowTab)
 	mxUtils.write(resetOption, mxResources.get('reset'));
 	resetOption.setAttribute('value', 'reset');
 
+	var localServices = ['browser', 'device', 'download', '_blank'];
 	var dash = '&nbsp;&nbsp;&#8211&nbsp;&nbsp;';
-	
-	function addStorageEntry(mode, path, id, selected, title, pickFolderEntry)
+
+	function addStorageEntry(mode, path, id, selected, title, entryType)
 	{
-		title = (title != null) ? title : editorUi.getTitleForService(mode);
 		var option = null;
 
-		if (mxUtils.indexOf(localServices, mode) >= 0 ||
-			editorUi.getServiceForName(mode) != null)
+		if (disabledModes == null || mxUtils.indexOf(disabledModes, mode) < 0)
 		{
-			option = document.createElement('option');
+			title = (title != null) ? title : editorUi.getTitleForService(mode);
 
-			if (pickFolderEntry)
+			if (mxUtils.indexOf(localServices, mode) >= 0 ||
+				editorUi.getServiceForName(mode) != null)
 			{
-				option.innerHTML = mxUtils.htmlEntities(title) + dash +
-					mxUtils.htmlEntities(mxResources.get('pickFolder')) + '...';
-				option.setAttribute('value', 'pickFolder-' + mode);
-				option.setAttribute('title', title + ' - ' +
-					mxResources.get('pickFolder') + '...');
+				option = document.createElement('option');
+
+				if (entryType == 'pick')
+				{
+					option.innerHTML = mxUtils.htmlEntities(title) + dash +
+						mxUtils.htmlEntities(mxResources.get('pickFolder')) + '...';
+					option.setAttribute('value', 'pickFolder-' + mode);
+					option.setAttribute('title', title + ' - ' +
+						mxResources.get('pickFolder') + '...');
+				}
+				else
+				{
+					var entryId = mode + ((id != null) ? ('-' + id) : '');
+					var entry = entries[entryId];
+
+					if (entry != null && entry.option != null)
+					{
+						entry.option.parentNode.removeChild(entry.option);
+					}
+
+					var shortPath = null;
+
+					if (path != null)
+					{
+						if (path.charAt(path.length - 1) == '/')
+						{
+							path = path.substring(0, path.length - 1);
+						}
+
+						if (path.charAt(0) == '/')
+						{
+							path = path.substring(1);
+						}
+
+						shortPath = path;
+
+						var idx = shortPath.lastIndexOf('/');
+
+						if (idx >= 0)
+						{
+							shortPath = shortPath.substring(idx + 1);
+						}
+						
+						if (shortPath.length > 25)
+						{
+							shortPath = shortPath.substring(0, 25) + '...';
+						}
+					}
+
+					option.innerHTML = ((shortPath != null) ? mxUtils.htmlEntities(shortPath) +
+						dash : '') + mxUtils.htmlEntities(title);
+					option.setAttribute('title', title + ((path != null) ? ' (' + path + ')' : '') +
+						((id != null && decodeURIComponent(id) != path) ? ' [' + id + ']' : ''));
+					option.setAttribute('value', entryId);
+					entries[entryId] = {option: option, mode: mode, path: path, id: id};
+
+					if (SaveDialog.lastValue == entryId)
+					{
+						selected = true;
+					}
+					else if (selected == null)
+					{
+						if (entryType == 'root')
+						{
+							selected = editorUi.mode == mode;
+						}
+						else if (storageSelect.value.substring(0, 11) == 'pickFolder-')
+						{
+							selected = true;
+						}
+					}
+
+					if (selected)
+					{
+						option.setAttribute('selected', 'selected');
+					}
+				}
+
+				storageSelect.appendChild(option);
 			}
-			else
-			{
-				var entryId = mode + ((id != null) ? ('-' + id) : '');
-				var entry = entries[entryId];
-
-				if (entry != null && entry.option != null)
-				{
-					entry.option.parentNode.removeChild(entry.option);
-				}
-
-				var shortPath = null;
-
-				if (path != null)
-				{
-					if (path.charAt(path.length - 1) == '/')
-					{
-						path = path.substring(0, path.length - 1);
-					}
-
-					if (path.charAt(0) == '/')
-					{
-						path = path.substring(1);
-					}
-
-					shortPath = path;
-
-					var idx = shortPath.lastIndexOf('/');
-
-					if (idx >= 0)
-					{
-						shortPath = shortPath.substring(idx + 1);
-					}
-					
-					if (shortPath.length > 25)
-					{
-						shortPath = shortPath.substring(0, 25) + '...';
-					}
-				}
-
-				option.innerHTML = ((shortPath != null) ? mxUtils.htmlEntities(shortPath) +
-					dash : '') + mxUtils.htmlEntities(title);
-				option.setAttribute('title', title + ((path != null) ? ' (' + path + ')' : '') +
-					((id != null) ? ' [' + id + ']' : ''));
-				option.setAttribute('value', entryId);
-				entries[entryId] = {option: option, mode: mode, path: path, id: id};
-
-				if (selected == null && id == null)
-				{
-					selected = editorUi.mode == mode;
-				}
-
-				if (selected)
-				{
-					option.setAttribute('selected', 'selected');
-				}
-			}
-
-			storageSelect.appendChild(option);
 		}
 
 		return option;
 	};
+
+	var pickFolderOption = null;
+	var defaultValue = null;
 
 	function pickFolder(mode)
 	{
@@ -4697,6 +4771,11 @@ var SaveDialog = function(editorUi, title, saveFn, allowBrowser, allowTab)
 			{
 				entry = {mode: mode, path: result.value[0].name, id: result.value[0].id};
 			}
+			else if ((mode == App.MODE_GITHUB || mode == App.MODE_GITLAB) &&
+				result != null && result.length > 0)
+			{
+				entry = {mode: mode, path: decodeURIComponent(result), id: result};
+			}
 
 			if (entry != null)
 			{
@@ -4709,16 +4788,26 @@ var SaveDialog = function(editorUi, title, saveFn, allowBrowser, allowTab)
 					option.parentNode.insertBefore(option,
 						option.parentNode.firstChild);
 				}
+
+				if (pickFolderOption != null)
+				{
+					pickFolderOption.parentNode.removeChild(pickFolderOption);
+					defaultValue = option.getAttribute('value');
+					storageSelect.value = defaultValue;
+					pickFolderOption = null;
+
+					storageChanged();
+				}
 			}
 		}, true, true, true, true);
 	};
 
-	var localServices = ['browser', 'device', 'download', '_blank'];
 	var entries = {};
 	
 	function checkExtension()
 	{
-		if (editorUi.editor.diagramFileTypes != null &&
+		if (typeSelect != null &&  entries[storageSelect.value] != null &&
+			editorUi.editor.diagramFileTypes != null &&
 			editorUi.editor.diagramFileTypes[typeSelect.value].extension == 'drawio')
 		{
 			var ext = editorUi.getExtensionForService(entries[storageSelect.value].mode);
@@ -4749,42 +4838,75 @@ var SaveDialog = function(editorUi, title, saveFn, allowBrowser, allowTab)
 		{
 			resetOption.style.display = 'none';
 		}
+		
+		addStorageEntry(App.MODE_GOOGLE, mxResources.get('myDrive'),
+			'root', null, null, 'root');
+		addStorageEntry(App.MODE_GOOGLE, null, null, null, null, 'pick');
 
-		addStorageEntry(App.MODE_GOOGLE, mxResources.get('myDrive'));
-		addStorageEntry(App.MODE_GOOGLE, null, null, null, null, true);
-		addStorageEntry(App.MODE_ONEDRIVE, mxResources.get('myFiles'));
-		addStorageEntry(App.MODE_ONEDRIVE, null, null, null, null, true);
+		if (editorUi.oneDrive != null)
+		{
+			addStorageEntry(App.MODE_ONEDRIVE, mxResources.get('myFiles'),
+				OneDriveFile.prototype.getIdOf(editorUi.oneDrive.rootId),
+				null, null, 'root');
+			addStorageEntry(App.MODE_ONEDRIVE, null, null, null, null, 'pick');
+		}
 		
 		if (editorUi.dropbox != null)
 		{
 			addStorageEntry(App.MODE_DROPBOX, 'Apps' + editorUi.dropbox.appPath);
 		}
 
-		addStorageEntry(App.MODE_GITHUB);
-		addStorageEntry(App.MODE_GITLAB);
+		addStorageEntry(App.MODE_GITHUB, null, null, null, null, 'pick');
+		addStorageEntry(App.MODE_GITLAB, null, null, null, null, 'pick');
 		addStorageEntry(App.MODE_TRELLO);
 
-		if (!Editor.useLocalStorage || urlParams['storage'] == 'device' ||
-			(editorUi.getCurrentFile() != null && urlParams['noDevice'] != '1'))
-		{
-			addStorageEntry('download');
+		var allowDevice = !Editor.useLocalStorage || urlParams['storage'] == 'device' ||
+			(editorUi.getCurrentFile() != null && urlParams['noDevice'] != '1');
 
-			if (EditorUi.nativeFileSupport)
-			{
-				addStorageEntry(App.MODE_DEVICE, null, null, editorUi.mode == App.MODE_DEVICE || !allowBrowser);
-			}
+		if (EditorUi.nativeFileSupport && allowDevice)
+		{
+			addStorageEntry(App.MODE_DEVICE, null, null, editorUi.mode == App.MODE_DEVICE ||
+				(disabledModes != null && mxUtils.indexOf(disabledModes,
+					App.MODE_BROWSER) >= 0) ? true : null);
 		}
 		
-		if (allowBrowser && isLocalStorage && urlParams['browser'] != '0')
+		if (isLocalStorage && urlParams['browser'] != '0')
 		{
 			addStorageEntry(App.MODE_BROWSER);
 		}
+
+		if (allowDevice)
+		{
+			addStorageEntry('download');
+		}
 		
-		if (allowTab && Editor.popupsAllowed)
+		if (Editor.popupsAllowed)
 		{
 			addStorageEntry('_blank', null, null, null, mxResources.get('openInNewWindow'));
 		}
+
+		storageSelect.appendChild(resetOption);
+
+		// Avoids folder picker on initial state
+		if (storageSelect.value.substring(0, 11) == 'pickFolder-' ||
+			storageSelect.value == 'reset')
+		{
+			pickFolderOption = document.createElement('option');
+			pickFolderOption.setAttribute('value', '');
+			pickFolderOption.setAttribute('selected', 'selected');
+			mxUtils.write(pickFolderOption, mxResources.get('pickFolder') + '...');
+			storageSelect.insertBefore(pickFolderOption, storageSelect.firstChild);
+		}
+		
+		defaultValue = storageSelect.value;
 	};
+
+	var saveBtn = mxUtils.button(mxResources.get('save'), function()
+	{
+		SaveDialog.lastValue = storageSelect.value;
+		var entry = entries[SaveDialog.lastValue];
+		saveFn(saveAsInput, entry.mode, entry.id);
+	}, null, 'geBtn gePrimaryBtn');
 
 	function storageChanged()
 	{
@@ -4798,30 +4920,55 @@ var SaveDialog = function(editorUi, title, saveFn, allowBrowser, allowTab)
 		else if (storageSelect.value.substring(0, 11) == 'pickFolder-')
 		{
 			var mode = storageSelect.value.substring(11);
-			storageSelect.value = mode;
+			storageSelect.value = defaultValue;
 			pickFolder(mode);
 		}
 		else
 		{
 			checkExtension();
 		}
+
+		saveBtn.innerHTML = '';
+		mxUtils.write(saveBtn, mxResources.get((
+			storageSelect.value == 'download' ||
+			storageSelect.value == '_blank') ?
+				'ok' : 'save'));
+		
+		if (storageSelect.value == '')
+		{
+			saveBtn.setAttribute('disabled', 'disabled');
+		}
+		else
+		{
+			saveBtn.removeAttribute('disabled');
+		}
 	};
 	
-	addStorageEntries();
 	mxEvent.addListener(storageSelect, 'change', storageChanged);
+	addStorageEntries();
 	storageChanged();
 
-	storageSelect.appendChild(resetOption);
-
 	right.appendChild(storageSelect);
+
+	// Selects last entry
+	if (SaveDialog.lastValue != null)
+	{
+		storageSelect.value = SaveDialog.lastValue;
+	}
 
 	table.appendChild(left);
 	table.appendChild(right);
 	div.appendChild(table);
 
+	if (preview != null)
+	{
+		div.appendChild(preview);
+	}
+
 	var btns = document.createElement('div');
+	btns.style.flexBasis = '100%';
 	btns.style.textAlign = 'right';
-	btns.style.marginTop = '8px';
+	btns.style.marginTop = (mimeType != null) ? '16px' : '8px';
 
 	if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
 	{
@@ -4841,12 +4988,14 @@ var SaveDialog = function(editorUi, title, saveFn, allowBrowser, allowTab)
 		btns.appendChild(cancelBtn);
 	}
 
-	// Save
-	btns.appendChild(mxUtils.button(mxResources.get('save'), function()
+	// Copy
+	if (copyBtn != null)
 	{
-		var entry = entries[storageSelect.value];
-		saveFn(saveAsInput, entry.mode, entry.id);
-	}, null, 'geBtn gePrimaryBtn'));
+		btns.appendChild(copyBtn);
+	}
+
+	// Save
+	btns.appendChild(saveBtn);
 
 	if (!editorUi.editor.cancelFirst)
 	{
@@ -11987,7 +12136,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		
 		if (customCatCount > 0)
 		{
-			var titleCss = 'font-weight: bold;background: #f9f9f9;padding: 5px 0 5px 0;text-align: center;margin-top: 10px;';
+			var titleCss = 'font-weight: bold;background: ' + (Editor.isDarkMode() ? '#060606' : '#f9f9f9') + ';padding: 5px 0 5px 0;text-align: center;margin-top: 10px;';
 			var title = document.createElement('div');
 			title.style.cssText = titleCss;
 			mxUtils.write(title, mxResources.get('custom'));

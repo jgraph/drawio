@@ -1890,7 +1890,7 @@ async function saveDraft(fileObject, data)
 			try
 			{
 				// Add Hidden attribute:
-				var child = spawn('attrib', ['+h', draftFileName], {shell: true});
+				var child = spawn('attrib', ['+h', draftFileName]);
     			child.on('error', function(err) 
 				{
 					console.log('hiding draft file error: ' + err);
@@ -1997,7 +1997,7 @@ async function saveFile(fileObject, data, origStat, overwrite, defEnc)
 					try
 					{
 						// Add Hidden attribute:
-						var child = spawn('attrib', ['+h', bkpPath], {shell: true});
+						var child = spawn('attrib', ['+h', bkpPath]);
 						child.on('error', function(err) 
 						{
 							console.log('hiding backup file error: ' + err);

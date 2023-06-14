@@ -429,7 +429,7 @@ Editor.selectFilename = function(input)
 
 		if (ext != 'drawio')
 		{
-			if (mxUtils.indexOf(['png', 'svg', 'html', 'xml'], ext) >= 0)
+			if (mxUtils.indexOf(['png', 'svg', 'html', 'xml', 'pdf'], ext) >= 0)
 			{
 				var temp = input.value.lastIndexOf('.drawio.', end);
 

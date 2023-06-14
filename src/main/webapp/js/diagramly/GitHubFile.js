@@ -297,9 +297,10 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error, unload
 							
 							if (error != null)
 							{
-								// Passes current commit message to avoid
-								// multiple dialogs after synchronize
-								error({commitMessage: message});
+								// Adds commit message to save after
+								// conflict has been resolved
+								err.commitMessage = message;
+								error(err);
 							}
 						}
 						else if (error != null)

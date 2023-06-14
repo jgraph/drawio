@@ -3228,7 +3228,7 @@
 
 			this.addMenuItems(menu, ['-', 'lightMode', 'darkMode'], parent);
 
-			if (editorUi.isAutoDarkMode(true))
+			if (editorUi.isAutoDarkModeSupported())
 			{
 				var item = editorUi.menus.addMenuItem(menu, 'autoMode', parent);
 

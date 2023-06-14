@@ -117,6 +117,10 @@ GraphViewer.prototype.minWidth = 100;
 GraphViewer.prototype.responsive = false;
 
 /**
+ * Dark mode
+ */
+GraphViewer.prototype.darkMode = false;
+/**
  * Initializes the viewer.
  */
 GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
@@ -138,6 +142,8 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 		this.graphConfig['center'] : (this.center || this.forceCenter);
 	this.checkVisibleState = (this.graphConfig['check-visible-state'] != null) ?
 		this.graphConfig['check-visible-state'] : this.checkVisibleState;
+	this.darkMode = (this.graphConfig['dark-mode'] != null) ?
+		this.graphConfig['dark-mode'] : this.darkMode;
 	this.toolbarItems = (this.graphConfig.toolbar != null) ?
 		this.graphConfig.toolbar.split(' ') : [];
 	this.zoomEnabled = mxUtils.indexOf(this.toolbarItems, 'zoom') >= 0;
@@ -172,6 +178,12 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 			var render = mxUtils.bind(this, function()
 			{
 				this.graph = new Graph(container);
+
+				if (this.darkMode)
+				{
+					EditorUi.setGraphDarkMode(this.graph, null, true);
+				}
+
 				this.graph.enableFlowAnimation = true;
 				this.graph.defaultPageBackgroundColor = 'transparent';
 				this.graph.diagramBackgroundColor = 'transparent';
@@ -1154,6 +1166,12 @@ GraphViewer.prototype.addToolbar = function()
 	toolbar.style.zIndex = this.toolbarZIndex;
 	toolbar.style.backgroundColor = '#eee';
 	toolbar.style.height = this.toolbarHeight + 'px';
+
+	if (this.darkMode)
+	{
+		toolbar.style.filter = 'invert(1)';
+	}
+
 	this.toolbar = toolbar;
 	
 	if (this.graphConfig['toolbar-position'] == 'inline')
@@ -1310,7 +1328,7 @@ GraphViewer.prototype.addToolbar = function()
 		{
 			pageInfo = container.ownerDocument.createElement('div');
 			pageInfo.style.cssText = 'display:inline-block;position:relative;top:5px;padding:0 4px 0 4px;' +
-				'vertical-align:top;font-family:Helvetica,Arial;font-size:12px;;cursor:default;'
+				'vertical-align:top;font-family:Helvetica,Arial;font-size:12px;;cursor:default;color:#000;'
 			mxUtils.setOpacity(pageInfo, 70);
 			
 			var prevButton = addButton(mxUtils.bind(this, function()
@@ -1437,11 +1455,17 @@ GraphViewer.prototype.addToolbar = function()
 						layersDialog.style.overflowY = 'auto';
 						layersDialog.style.maxHeight = (this.graph.container.clientHeight - this.toolbarHeight - 10) + 'px'
 						layersDialog.style.zIndex = this.toolbarZIndex + 1;
+						layersDialog.style.color = '#000';
 						mxUtils.setOpacity(layersDialog, 80);
 						var origin = mxUtils.getDocumentScrollOrigin(document);
 						layersDialog.style.left = origin.x + r.left - 1 + 'px';
 						layersDialog.style.top = origin.y + r.bottom - 2 + 'px';
 						
+						if (this.darkMode)
+						{
+							layersDialog.style.filter = 'invert(1)';
+						}
+
 						document.body.appendChild(layersDialog);
 					}
 				}), Editor.layersImage, mxResources.get('layers') || 'Layers');
@@ -1480,6 +1504,12 @@ GraphViewer.prototype.addToolbar = function()
 						tagsComponent.div.style.color = '#000';
 						tagsComponent.div.style.border = '1px solid #d0d0d0';
 						tagsComponent.div.style.zIndex = this.toolbarZIndex + 1;
+
+						if (this.darkMode)
+						{
+							tagsComponent.div.style.filter = 'invert(1)';
+						}
+
 						mxUtils.setOpacity(tagsComponent.div, 80);
 					}
 
@@ -1549,7 +1579,7 @@ GraphViewer.prototype.addToolbar = function()
 	{
 		var filename = container.ownerDocument.createElement('div');
 		filename.style.cssText = 'display:inline-block;position:relative;padding:3px 6px 0 6px;' +
-			'vertical-align:top;font-family:Helvetica,Arial;font-size:12px;top:4px;cursor:default;'
+			'vertical-align:top;font-family:Helvetica,Arial;font-size:12px;top:4px;cursor:default;color:#000;';
 		filename.setAttribute('title', this.graphConfig.title);
 		mxUtils.write(filename, this.graphConfig.title);
 		mxUtils.setOpacity(filename, 70);
@@ -1598,7 +1628,7 @@ GraphViewer.prototype.addToolbar = function()
 			
 			if (prevBorder == '1px solid transparent')
 			{
-				container.style.border = '1px solid #d0d0d0';
+				container.style.border = '1px solid ' + (this.darkMode? '#3d3d3d' : '#d0d0d0');
 			}
 			
 			document.body.appendChild(toolbar);
@@ -1677,6 +1707,7 @@ GraphViewer.prototype.createToolbarButton = function(fn, imgSrc, tip, enabled)
 	var a = document.createElement('div');
 	a.style.borderRight = '1px solid #d0d0d0';
 	a.style.padding = '3px 6px 3px 6px';
+	
 	mxEvent.addListener(a, 'click', fn);
 
 	if (tip != null)
@@ -1891,7 +1922,7 @@ GraphViewer.prototype.showLocalLightbox = function(container)
 
 	backdrop.style.cssText = 'position:fixed;top:0;left:0;bottom:0;right:0;';
 	backdrop.style.zIndex = this.lightboxZIndex;
-	backdrop.style.backgroundColor = '#000000';
+	backdrop.style.backgroundColor = this.darkMode? '#fff' : '#000000';
 	mxUtils.setOpacity(backdrop, 70);
 	
 	document.body.appendChild(backdrop);
@@ -1901,6 +1932,11 @@ GraphViewer.prototype.showLocalLightbox = function(container)
 	closeImg.setAttribute('src', Editor.closeBlackImage);
 	closeImg.style.cssText = 'position:fixed;top:32px;right:32px;';
 	closeImg.style.cursor = 'pointer';
+
+	if (this.darkMode)
+	{
+		closeImg.style.filter = 'invert(1)';
+	}
 	
 	mxEvent.addListener(closeImg, 'click', function()
 	{
@@ -1939,6 +1975,11 @@ GraphViewer.prototype.showLocalLightbox = function(container)
 		Editor.prototype.editButtonFunc = this.graphConfig.editFunc;
 	}
 	
+	Editor.isDarkMode = mxUtils.bind(this, function()
+	{	
+		return this.darkMode;
+	});
+
 	EditorUi.prototype.updateActionStates = function() {};
 	EditorUi.prototype.addBeforeUnloadListener = function() {};
 	EditorUi.prototype.addChromelessClickHandler = function() {};
@@ -1949,6 +1990,12 @@ GraphViewer.prototype.showLocalLightbox = function(container)
 	Graph.prototype.shadowId = 'lightboxDropShadow';
 	
 	var ui = new EditorUi(new Editor(true), document.createElement('div'), true);
+
+	if (this.darkMode)
+	{
+		ui.setDarkMode(true);
+	}
+
 	ui.editor.editBlankUrl = this.editBlankUrl;
 	
 	// Overrides instance variable and restores prototype state

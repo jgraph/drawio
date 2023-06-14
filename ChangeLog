@@ -1,3 +1,13 @@
+08-JUN-2023: 21.3.8
+
+- C[conf cloud] Fixed page anchor of imported pages when it has spaces [DID-8417]
+- Fixes auto dark mode option after dark mode change
+- Fixes editing for Mermaid declaration with comment
+- Fixes ignored selection in fitWindow [drawio-3647]
+- Adds edit and remove for links in labels [drawio-3654]
+- Pick folder for GitHub and GitLab in new save dialog
+- Fixes lost error message for GitLab return code 400
+
 01-JUN-2023: 21.3.7
 
 - [conf cloud] Keeping trailing spaces in attachment name [DID-8309]

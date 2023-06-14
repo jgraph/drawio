@@ -1262,3 +1262,4 @@ confA403ErrFaq=confA403ErrFaq
 confA404ErrFaq=confA404ErrFaq
 confA500ErrFaq=confA500ErrFaq
 confAOtherErrFaq=confAOtherErrFaq
+confAReplaceBaseUrl=confAReplaceBaseUrl

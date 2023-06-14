@@ -261,11 +261,6 @@ GitLabClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 				{
 					error({message: this.getErrorMessage(req, mxResources.get('fileNotFound'))});
 				}
-				else if (req.getStatus() === 400)
-				{
-					// Special case: flag to the caller that there was a conflict
-					error({status: 400});
-				}
 				else
 				{
 					error({status: req.getStatus(), message: this.getErrorMessage(req,

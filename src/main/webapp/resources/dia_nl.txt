@@ -1262,3 +1262,4 @@ confA403ErrFaq=Er zijn ({1}) fout(en) van type 403. Het is essentieel dat de hui
 confA404ErrFaq=Er zijn ({1}) fout(en) van type 404. De bijlage/pagina wordt niet gevonden. Dit komt door onjuiste migratie of een diagrambestand (een bijlage van de pagina) dat is verwijderd.
 confA500ErrFaq=Er zijn ({1}) fout(en) van type 500. Een interne serverfout bij Confluence Cloud. Dergelijke fouten zijn te wijten aan overbelasting van de server en worden meestal verholpen door de actie opnieuw te proberen.
 confAOtherErrFaq=Er zijn ({1}) andere fout(en). Controleer de foutbeschrijving. Als de beschrijving niet duidelijk is, neem dan contact op met onze ondersteuning.
+confAReplaceBaseUrl=Replace Base URL in diagram links when no page ID mapping is found
