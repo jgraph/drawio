@@ -2152,8 +2152,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 				diagramType = diagramType.substring(0, sp > 0 ? sp : diagramType.length);
 				var inDrawioFormat = typeof mxMermaidToDrawio !== 'undefined' && 
 							type == 'mermaid2drawio' && diagramType != 'gantt' &&
-							diagramType != 'pie' && diagramType != 'timeline' &&
-							diagramType != 'quadrantchart' && diagramType != 'c4context';
+							diagramType != 'pie' && diagramType != 'timeline';
 
 				var graph = editorUi.editor.graph;
 				
@@ -2434,7 +2433,6 @@ var ParseDialog = function(editorUi, title, defaultType)
 						
 						var edge = new mxCell((values.length > 2) ? values[1] : '', new mxGeometry());
 						edge.edge = true;
-						edge.geometry.relative = true;
 						source.insertEdge(edge, true);
 						target.insertEdge(edge, false);
 						cells.push(edge);
@@ -3312,9 +3310,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			var type = ((typeSelect.value != '') ? (' (' + mxUtils.trim(
 				mxUtils.getTextContent(typeSelect.options[
 					typeSelect.selectedIndex])) + ')') : '');
-			var useMermaidFormat = typeSelect.value == 'gantt' || typeSelect.value == 'pie' ||
-						typeSelect.value == 'timeline' || typeSelect.value == 'quadrantchart' ||
-						typeSelect.value == 'c4context';
+			var useMermaidFormat = typeSelect.value == 'gantt' || typeSelect.value == 'pie';
 			var title = description.value + type;
 			
 			if (typeof mxMermaidToDrawio !== 'undefined')

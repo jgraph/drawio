@@ -14524,7 +14524,7 @@ if (typeof mxVertexHandler !== 'undefined')
 				if (this.specialHandle != null)
 				{
 					this.specialHandle.node.style.display = (this.graph.isEnabled() &&
-						this.graph.getSelectionCount() <= this.graph.graphHandler.maxCells) ?
+						this.graph.getSelectionCount() < this.graph.graphHandler.maxCells) ?
 						'' : 'none';
 				}
 				
@@ -14757,7 +14757,7 @@ if (typeof mxVertexHandler !== 'undefined')
 				if (this.labelShape != null)
 				{
 					this.labelShape.node.style.display = (this.graph.isEnabled() &&
-						this.graph.getSelectionCount() <= this.graph.graphHandler.maxCells) ?
+						this.graph.getSelectionCount() < this.graph.graphHandler.maxCells) ?
 						'' : 'none';
 				}
 			});

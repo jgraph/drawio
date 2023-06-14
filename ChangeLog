@@ -1,6 +1,23 @@
+14-JUN-2023: 21.4.0
+
+- [jira cloud] Uses dark mode status from host in editor
+- [conf cloud] Uses dark mode status from host in editor
+- [conf cloud] Adds drawio-sketch macro support for page IDs import and re-indexing
+- Fixes possible NPE in fitDiagramToWindow
+- Fixes reset of view state after creating new files
+- [conf cloud] Hide support link in anon views
+- [conf cloud] Fixes link fixing of page IDs import [DID-5141]
+- Adds pass-through for user request error in GitHub
+- Fixes paste of HTML-formatted text [drawio-3666]
+- Fixes https://huntr.dev/bounties/ce75aa04-e4d6-4e0a-9db0-ae84c46ae9e2/
+
+13-JUN-2023: 21.3.9
+
+- Release rejected, failed to deploy to stage
+
 08-JUN-2023: 21.3.8
 
-- C[conf cloud] Fixed page anchor of imported pages when it has spaces [DID-8417]
+- [conf cloud] Fixed page anchor of imported pages when it has spaces [DID-8417]
 - Fixes auto dark mode option after dark mode change
 - Fixes editing for Mermaid declaration with comment
 - Fixes ignored selection in fitWindow [drawio-3647]

@@ -14682,7 +14682,6 @@
 	 */
 	EditorUi.prototype.pasteXml = function(xml, pasteAsLabel, compat, evt, html)
 	{
-		html = (html != null) ? html : true;
 		var graph = this.editor.graph;
 		var cells = null;
 		
