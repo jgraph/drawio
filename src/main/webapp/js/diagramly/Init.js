@@ -302,7 +302,7 @@ window.uiTheme = window.uiTheme || (function()
 			(urlParams['dev'] == 1 || urlParams['test'] == 1 ||
 			window.location.hostname === 'test.draw.io' ||
 			window.location.hostname === 'www.draw.io' ||
-			window.location.hostname === 'stage.diagrams.net' ||
+			window.location.hostname === 'preprod.diagrams.net' ||
 			window.location.hostname === 'app.diagrams.net' ||
 			window.location.hostname === 'jgraph.github.io'))
 		{

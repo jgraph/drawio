@@ -2152,7 +2152,8 @@ var ParseDialog = function(editorUi, title, defaultType)
 				diagramType = diagramType.substring(0, sp > 0 ? sp : diagramType.length);
 				var inDrawioFormat = typeof mxMermaidToDrawio !== 'undefined' && 
 							type == 'mermaid2drawio' && diagramType != 'gantt' &&
-							diagramType != 'pie' && diagramType != 'timeline';
+							diagramType != 'pie' && diagramType != 'timeline' &&
+							diagramType != 'quadrantchart' && diagramType != 'c4context';
 
 				var graph = editorUi.editor.graph;
 				
@@ -2433,6 +2434,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 						
 						var edge = new mxCell((values.length > 2) ? values[1] : '', new mxGeometry());
 						edge.edge = true;
+						edge.geometry.relative = true;
 						source.insertEdge(edge, true);
 						target.insertEdge(edge, false);
 						cells.push(edge);
@@ -3310,7 +3312,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			var type = ((typeSelect.value != '') ? (' (' + mxUtils.trim(
 				mxUtils.getTextContent(typeSelect.options[
 					typeSelect.selectedIndex])) + ')') : '');
-			var useMermaidFormat = typeSelect.value == 'gantt' || typeSelect.value == 'pie';
+			var useMermaidFormat = typeSelect.value == 'gantt' || typeSelect.value == 'pie' ||
+						typeSelect.value == 'timeline' || typeSelect.value == 'quadrantchart' ||
+						typeSelect.value == 'c4context';
 			var title = description.value + type;
 			
 			if (typeof mxMermaidToDrawio !== 'undefined')
@@ -4556,7 +4560,6 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 		table.style.flexBasis = '75%';
 
 		preview = document.createElement('div');
-		preview.setAttribute('title', mxResources.get('preview'));
 		preview.style.display = 'inline-block';
 		preview.style.height = 'auto';
 		preview.style.maxWidth = '25%';
@@ -4588,6 +4591,25 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 					editorUi.handleError(e);
 				}));
 			}, null, 'geBtn');
+		}
+
+		if (Editor.popupsAllowed && (disabledModes == null ||
+			mxUtils.indexOf(disabledModes, '_blank') < 0))
+		{
+			preview.setAttribute('title', mxResources.get('openInNewWindow'));
+			preview.style.cursor = 'pointer';
+			
+			mxEvent.addGestureListeners(preview, null, null, function(evt)
+			{
+				if (!mxEvent.isPopupTrigger(evt))
+				{
+					editorUi.openInNewWindow(data, mimeType, base64Encoded);
+				}
+			});
+		}
+		else
+		{
+			preview.setAttribute('title', mxResources.get('preview'));
 		}
 	}
 	
@@ -8855,7 +8877,11 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 									}
 									else if (entry.image != null)
 									{
-										preview.innerHTML += '<img border="0" style="max-width:100%;" src="' + entry.image + '"/>';
+										var img = document.createElement('img');
+										img.setAttribute('border', '0');
+										img.style.maxWidth = '100%';
+										img.setAttribute('src', entry.image);
+										preview.appendChild(img);
 									}
 									else if (entry.desc == null)
 									{
@@ -11761,9 +11787,9 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		{
 			diagrams[i].isExternal = !isTemplate;
 			var url = diagrams[i].url;
-			var title = mxUtils.htmlEntities(isTemplate? 
+			var title = isTemplate? 
 							mxResources.get(diagrams[i].title, null, diagrams[i].title): 
-							diagrams[i].title);
+							diagrams[i].title;
 			var tooltip = title || diagrams[i].url;
 			var imgUrl = diagrams[i].imgUrl;
 			var changedBy = diagrams[i].changedBy || '';
@@ -11790,7 +11816,11 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 					
 			if (title != null && title.length > titleLimit)
 			{
-				title = title.substring(0, titleLimit) + '&hellip;';
+				title = mxUtils.htmlEntities(title.substring(0, titleLimit)) + '&hellip;';
+			}
+			else
+			{
+				title = mxUtils.htmlEntities(title);
 			}
 			
 			if (asList)
@@ -11962,11 +11992,13 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 			entry.className = 'geTempDlgNewDiagramCatItem';
 			entry.setAttribute('title', label);
 			
-			label = mxUtils.htmlEntities(label);
-			
 			if (label.length > 15)
 			{
-				label = label.substring(0, 15) + '&hellip;';
+				label = mxUtils.htmlEntities(label.substring(0, 15)) + '&hellip;';
+			}
+			else
+			{
+				label = mxUtils.htmlEntities(label);
 			}
 
 			if (currentItem == null)
@@ -12081,12 +12113,15 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 				toUpperCase() + cat.substring(1));
 			
 			var fullLbl = label + ' (' + templateList.length + ')';
-			label = mxUtils.htmlEntities(label);
-			var lblOnly = label;
+			var lblOnly = mxUtils.htmlEntities(label);
 			
 			if (label.length > 15)
 			{
-				label = label.substring(0, 15) + '&hellip;';
+				label = mxUtils.htmlEntities(label.substring(0, 15)) + '&hellip;';
+			}
+			else
+			{
+				label = mxUtils.htmlEntities(label);
 			}
 			
 			return {lbl: label + ' (' + templateList.length + ')', fullLbl: fullLbl, lblOnly: lblOnly};

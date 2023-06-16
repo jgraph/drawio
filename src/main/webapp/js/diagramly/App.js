@@ -715,7 +715,7 @@ App.main = function(callback, createUi)
 				{
 					var content = mxUtils.getTextContent(scripts[0]);
 					
-					if (CryptoJS.MD5(content).toString() != '94ebd7472449efab95e00746ea00db60')
+					if (CryptoJS.MD5(content).toString() != '54e964166a638e485d475fdae66aa95d')
 					{
 						console.log('Change bootstrap script MD5 in the previous line:', CryptoJS.MD5(content).toString());
 						alert('[Dev] Bootstrap script change requires update of CSP');
@@ -2027,9 +2027,8 @@ App.prototype.isOwnDomain = function()
 	return window.location.hostname == 'test.draw.io' ||
 		window.location.hostname == 'www.draw.io' ||
 		window.location.hostname == 'drive.draw.io' ||
-		window.location.hostname == 'stage.diagrams.net' ||
-		window.location.hostname == 'app.diagrams.net' ||
-		window.location.hostname == 'jgraph.github.io';
+		window.location.hostname == 'preprod.diagrams.net' ||
+		window.location.hostname == 'app.diagrams.net';
 };
 
 /**

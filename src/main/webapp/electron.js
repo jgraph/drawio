@@ -3,7 +3,7 @@ const fsProm = require('fs/promises');
 const os = require('os');
 const path = require('path')
 const url = require('url')
-const {Menu: menu, shell, dialog,
+const {Menu: menu, shell, dialog, session,
 		clipboard, nativeImage, ipcMain, app, BrowserWindow} = require('electron')
 const crc = require('crc');
 const zlib = require('zlib');
@@ -81,6 +81,12 @@ catch(e)
 // Trying sandboxing the renderer for more protection
 //app.enableSandbox(); // This maybe the reason snap stopped working
 
+// Only allow request from the app code itself
+function validateSender (frame) 
+{
+	return frame.url.startsWith(url.pathToFileURL(__dirname).href);
+}
+
 function createWindow (opt = {})
 {
 	let lastWinSizeStr = store.get('lastWinSize');
@@ -140,8 +146,10 @@ function createWindow (opt = {})
 		mainWindow.webContents.openDevTools()
 	}
 
-	ipcMain.on('openDevTools', function()
+	ipcMain.on('openDevTools', function(e)
 	{
+		if (!validateSender(e.senderFrame)) return null;
+
 		mainWindow.webContents.openDevTools();
 	});
 
@@ -177,8 +185,10 @@ function createWindow (opt = {})
 
 		if (contents != null)
 		{
-	        ipcMain.once('isModified-result', async (evt, data) =>
+	        ipcMain.once('isModified-result', async (e, data) =>
 			{
+				if (!validateSender(e.senderFrame)) return null;
+
 				if (data.isModified)
 				{
 					// Can't use async function here because it crashes on Linux when win.destroy is called
@@ -203,8 +213,10 @@ function createWindow (opt = {})
 						{
 							contents.send('removeDraft');
 
-							ipcMain.once('draftRemoved', () =>
+							ipcMain.once('draftRemoved', (e) =>
 							{
+								if (!validateSender(e.senderFrame)) return null;
+
 								win.destroy();
 							});
 						}
@@ -246,8 +258,34 @@ function createWindow (opt = {})
 // Some APIs can only be used after this event occurs.
 app.on('ready', e =>
 {
-	ipcMain.on('newfile', (event, arg) =>
+	// Enforce our CSP on all contents
+	session.defaultSession.webRequest.onHeadersReceived((details, callback) => 
 	{
+		callback({
+			responseHeaders: {
+				...details.responseHeaders,
+				'Content-Security-Policy': ['default-src \'self\'; script-src \'self\' \'sha256-6g514VrT/cZFZltSaKxIVNFF46+MFaTSDTPB8WfYK+c=\' \'sha256-3SkDBaLE+ouvAOfTmG2TGwmQ2EE9AT0F2YcHvZmEMeo=\'; connect-src \'self\' https://*.draw.io https://*.diagrams.net https://fonts.googleapis.com https://fonts.gstatic.com; img-src * data:; media-src *; font-src *; frame-src \'none\'; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com; base-uri \'none\';child-src \'self\';object-src \'none\';']
+			}
+		})
+	});
+
+	// Enforce loading file only from our app directory
+	session.defaultSession.webRequest.onBeforeRequest({urls: ['file://*']}, (details, callback) =>
+	{
+		if (!details.url.startsWith(url.pathToFileURL(__dirname).href))
+		{
+			callback({cancel: true});
+		}
+		else
+		{
+			callback({});
+		}
+	});
+
+	ipcMain.on('newfile', (e, arg) =>
+	{
+		if (!validateSender(e.senderFrame)) return null;
+
 		let opts = {};
 
 		if (arg)
@@ -500,14 +538,18 @@ app.on('ready', e =>
 							    {
 									contents.send('import', fileContent);
 
-									ipcMain.once('import-success', function(evt, xml)
+									ipcMain.once('import-success', function(e, xml)
 						    	    {
+										if (!validateSender(e.senderFrame)) return null;
+
 										expArgs.xml = xml;
 										startExport();
 						    	    });
 						    	    
-						    	    ipcMain.once('import-error', function()
+						    	    ipcMain.once('import-error', function(e)
 						    	    {
+										if (!validateSender(e.senderFrame)) return null;
+
 						    	    	console.error('Error: cannot import VSDX file: ' + curFile);
 						    	    	next();
 						    	    });
@@ -678,8 +720,10 @@ app.on('ready', e =>
 
 			let loadEvtCount = 0;
 			
-			function loadFinished()
+			function loadFinished(e)
 			{
+				if (e != null && !validateSender(e.senderFrame)) return null;
+
 				loadEvtCount++;
 				
 				if (loadEvtCount == 2)
@@ -711,8 +755,10 @@ app.on('ready', e =>
     
 	let loadEvtCount = 0;
 			
-	function loadFinished()
+	function loadFinished(e)
 	{
+		if (e != null && !validateSender(e.senderFrame)) return null;
+
 		loadEvtCount++;
 		
 		if (loadEvtCount == 2)
@@ -747,16 +793,20 @@ app.on('ready', e =>
 		loadFinished();
     });
 	
-	function toggleSpellCheck()
+	function toggleSpellCheck(e)
 	{
+		if (e != null && !validateSender(e.senderFrame)) return null;
+
 		enableSpellCheck = !enableSpellCheck;
 		store.set('enableSpellCheck', enableSpellCheck);
 	};
 
 	ipcMain.on('toggleSpellCheck', toggleSpellCheck);
 
-	function toggleStoreBkp()
+	function toggleStoreBkp(e)
 	{
+		if (e != null && !validateSender(e.senderFrame)) return null;
+
 		enableStoreBkp = !enableStoreBkp;
 		store.set('enableStoreBkp', enableStoreBkp);
 	};
@@ -765,8 +815,11 @@ app.on('ready', e =>
 
     let updateNoAvailAdded = false;
     
-	function checkForUpdatesFn() 
+	function checkForUpdatesFn(e) 
 	{ 
+		if (e != null && e.senderFrame != null && 
+			!validateSender(e.senderFrame)) return null;
+
 		autoUpdater.checkForUpdates();
 		store.set('dontCheckUpdates', false);
 		
@@ -904,8 +957,10 @@ app.on('will-finish-launching', function()
 		    
 			let loadEvtCount = 0;
 			
-			function loadFinished()
+			function loadFinished(e)
 			{
+				if (e != null && !validateSender(e.senderFrame)) return null;
+
 				loadEvtCount++;
 				
 				if (loadEvtCount == 2)
@@ -1237,16 +1292,21 @@ function exportVsdx(event, args, directFinalize)
 
 	let loadEvtCount = 0;
 			
-	function loadFinished()
+	function loadFinished(e)
 	{
+		if (e != null && e.senderFrame != null &&
+			!validateSender(e.senderFrame)) return null;
+
 		loadEvtCount++;
 		
 		if (loadEvtCount == 2)
 		{
 	    	win.webContents.send('export-vsdx', args);
 	    	
-	        ipcMain.once('export-vsdx-finished', (evt, data) =>
+	        ipcMain.once('export-vsdx-finished', (e, data) =>
 			{
+				if (!validateSender(e.senderFrame)) return null;
+
 				var hasError = false;
 				
 				if (data == null)
@@ -1329,6 +1389,9 @@ async function mergePdfs(pdfFiles, xml)
 //TODO Use canvas to export images if math is not used to speedup export (no capturePage). Requires change to export3.html also
 function exportDiagram(event, args, directFinalize)
 {
+	if (event != null && event.senderFrame != null &&
+		!validateSender(event.senderFrame)) return null;
+
 	if (args.format == 'vsdx')
 	{
 		exportVsdx(event, args, directFinalize);
@@ -1387,8 +1450,10 @@ function exportDiagram(event, args, directFinalize)
 				ipcMain.once('export-finalize', finalize);
 			}
 
-			function renderingFinishHandler(evt, renderInfo)
+			function renderingFinishHandler(e, renderInfo)
 			{
+				if (!validateSender(e.senderFrame)) return null;
+
 				if (renderInfo == null)
 				{
 					event.reply('export-error');
@@ -1542,8 +1607,10 @@ function exportDiagram(event, args, directFinalize)
 				{
 					contents.send('get-svg-data');
 					
-					ipcMain.once('svg-data', (evt, data) =>
+					ipcMain.once('svg-data', (e, data) =>
 					{
+						if (!validateSender(e.senderFrame)) return null;
+
 						event.reply('export-success', data);
 					});
 				}
@@ -1557,13 +1624,17 @@ function exportDiagram(event, args, directFinalize)
 
 			if (args.format == 'xml')
 			{
-				ipcMain.once('xml-data', (evt, data) =>
+				ipcMain.once('xml-data', (e, data) =>
 				{
+					if (!validateSender(e.senderFrame)) return null;
+
 					event.reply('export-success', data);
 				});
 				
-				ipcMain.once('xml-data-error', () =>
+				ipcMain.once('xml-data-error', (e) =>
 				{
+					if (!validateSender(e.senderFrame)) return null;
+
 					event.reply('export-error');
 				});
 			}
@@ -1612,7 +1683,7 @@ function checkFileContent(body, enc)
 		
 		if (typeof body === 'string')
 		{
-			if (enc == 'base64')
+			if (enc === 'base64')
 			{
 				headBinay = Buffer.from(body.substring(0, 22), 'base64');
 				head = headBinay.toString();
@@ -2292,6 +2363,8 @@ function unwatchFile(filePath)
 
 ipcMain.on("rendererReq", async (event, args) => 
 {
+	if (!validateSender(event.senderFrame)) return null;
+
 	try
 	{
 		let ret = null;

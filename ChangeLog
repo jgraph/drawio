@@ -1,3 +1,15 @@
+16-JUN-2023: 21.4.1
+
+- Fixes misalignment of arrow labels [drawio-3668]
+- [conf cloud] Fixes NPE in theming code 
+- Updates stage sub domain to preprod
+- Adds click handler for preview in new save dialog
+- Ctrl+Drag of active anchor point starts move cell
+- Toggle selection drag starts move of selection
+- Fixes virtual bends for custom edge handlers
+- Ctrl/shift and selected state forces move on edges
+- Reviews innerHTML usage in dialogs.js
+
 14-JUN-2023: 21.4.0
 
 - [jira cloud] Uses dark mode status from host in editor

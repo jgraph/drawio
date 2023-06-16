@@ -17,6 +17,8 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			//----------------------------------------------------------//
 			//------------- Bootstrap script in index.html -------------//
 			//----------------------------------------------------------//
+			// Version 21.4.1
+			'\'sha256-6g514VrT/cZFZltSaKxIVNFF46+MFaTSDTPB8WfYK+c=\' ' +
 			// Version 20.8.14
 			'\'sha256-vrEVJkYyBW9H4tt1lYZtK5fDowIeRwUgYZfFTT36YpE=\' ' +
 			// Version 20.8.12
@@ -140,6 +142,8 @@ if (!mxIsElectron && location.protocol !== 'http:')
 					"Permissions-Policy" : "microphone=()"
 				}
 			}, null, 4));
+
+			console.log('Remember to add index.html new hashes to Desktop app (electron.js). In desktop, only newest hashes are needed.');
 		}
 	})();
 }
