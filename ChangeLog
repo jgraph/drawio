@@ -1,3 +1,7 @@
+17-JUN-2023: 21.5.0
+
+- Moves electron.js out of drawio project into desktop
+
 16-JUN-2023: 21.4.1
 
 - Fixes misalignment of arrow labels [drawio-3668]

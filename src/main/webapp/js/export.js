@@ -1,8 +1,34 @@
 var mxIsElectron = navigator.userAgent != null &&
-	navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
+	navigator.userAgent.toLowerCase().indexOf(' electron/') > -1 && 
+	navigator.userAgent.indexOf(' draw.io/') > -1;
 var GOOGLE_APPS_MAX_AREA = 25000000;
 var GOOGLE_SHEET_MAX_AREA = 1048576; //1024x1024
 
+/**
+ * Adds meta tag to the page.
+ */
+function mxmeta(content, httpEquiv)
+{
+	try
+	{
+		var s = document.createElement('meta');
+		
+		s.setAttribute('content', content);
+		s.setAttribute('http-equiv', httpEquiv);
+
+		var t = document.getElementsByTagName('meta')[0];
+		t.parentNode.insertBefore(s, t);
+	}
+	catch (e)
+	{
+		// ignore
+	}
+};
+
+if (mxIsElectron)
+{
+	mxmeta('default-src \'self\'; script-src \'self\'; connect-src \'self\' https://*.draw.io https://*.diagrams.net https://fonts.googleapis.com https://fonts.gstatic.com; img-src * data:; media-src *; font-src *; frame-src \'none\'; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com; base-uri \'none\';child-src \'self\';object-src \'none\';', 'Content-Security-Policy');
+}
 //TODO Add support for loading math from a local folder
 Editor.initMath((remoteMath? 'https://app.diagrams.net/' : '') + 'math/es5/startup.js');
 

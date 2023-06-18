@@ -325,7 +325,6 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': 'plugins/explore.js',
 	'monday': 'plugins/monday.js',
 	'voice': 'plugins/voice.js',
 	'tips': 'plugins/tooltips.js', 'svgdata': 'plugins/svgdata.js',
-	'electron': 'plugins/electron.js',
 	'number': 'plugins/number.js', 'sql': 'plugins/sql.js',
 	'props': 'plugins/props.js', 'text': 'plugins/text.js',
 	'anim': 'plugins/animation.js', 'update': 'plugins/update.js',
@@ -715,7 +714,7 @@ App.main = function(callback, createUi)
 				{
 					var content = mxUtils.getTextContent(scripts[0]);
 					
-					if (CryptoJS.MD5(content).toString() != '54e964166a638e485d475fdae66aa95d')
+					if (CryptoJS.MD5(content).toString() != '3428184eed5811f9c1458f703cb2806b')
 					{
 						console.log('Change bootstrap script MD5 in the previous line:', CryptoJS.MD5(content).toString());
 						alert('[Dev] Bootstrap script change requires update of CSP');

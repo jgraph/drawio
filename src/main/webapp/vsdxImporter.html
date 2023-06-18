@@ -3,65 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <title>VSDX Importer</title>
+<script type="text/javascript" src="js/vsdxImporter.js"></script>
 <script type="text/javascript" src="js/app.min.js"></script>
 <script type="text/javascript" src="js/extensions.min.js"></script>
-<script type="text/javascript">
-  function doImport(vsdxBuff, callback, error, file, customParam)
-  {
-	EditorUi.prototype.createUi = function(){};
-	EditorUi.prototype.addTrees = function(){};
-	EditorUi.prototype.updateActionStates = function(){};
- 	var editorUi = new EditorUi();
- 	var blob = file? file : new Blob([vsdxBuff], {type: 'application/octet-stream'});
-
- 	editorUi.importVisio(blob, callback, error, file? file.name : null, customParam);		
-  };
-
-  try
-  {
-	electron.registerMsgListener('import', (vsdxBuff) => 
-	{
-	 	doImport(vsdxBuff, function(xml)
-		{
-			electron.sendMessage('import-success', xml);
-		},
-		function()
-		{
-			electron.sendMessage('import-error');
-		});
-	});
-  }
-  catch(e) {} //Ignore
-</script>
 </head>
 <body>
 	<input type="file" id="fileUpload">
-	<script type="text/javascript">
-		document.getElementById('fileUpload').addEventListener('change', function()
-		{
-			const curFiles = this.files;
-
-			if(curFiles.length > 0) 
-			{
-				function createDoneDiv(msg)
-				{
-					var doneDiv = document.createElement('div');
-					doneDiv.id = 'doneDiv';
-					doneDiv.innerHTML = msg;
-					document.body.appendChild(doneDiv);
-				};
-				
-				doImport(null, function(xml)
-				{
-					window.importResXML = xml;
-					createDoneDiv('success');
-				}, function(err)
-				{
-					console.log(err)
-					createDoneDiv('error');
-				}, curFiles[0], window.customParam);
-			}
-		});
-	</script>
 </body>
 </html>
