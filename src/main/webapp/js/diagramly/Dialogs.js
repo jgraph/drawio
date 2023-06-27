@@ -7843,7 +7843,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
     
 	var tmp = document.createElement('div');
 	
-	function testMeta(re, cell, search, checkIndex)
+	function testMeta(re, cell, search)
 	{
 		if (typeof cell.value === 'object' && cell.value.attributes != null)
 		{
@@ -7855,8 +7855,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 				{
 					var value = mxUtils.trim(attrs[i].nodeValue.replace(/[\x00-\x1F\x7F-\x9F]|\s+/g, ' ')).toLowerCase();
 					
-					if ((re == null && ((checkIndex && value.indexOf(search) >= 0) ||
-						(!checkIndex && value.substring(0, search.length) === search))) ||
+					if ((re == null && value.indexOf(search) >= 0) ||
 						(re != null && re.test(value)))
 					{
 						return true;
@@ -7968,7 +7967,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 				var state = graph.view.getState(cells[i]);
 				
 				//Try the same cell with replace to find other occurances
-				if (trySameCell && re != null)
+				if (trySameCell)
 				{
 					active = active || state == lastFound;
 				}
@@ -7989,20 +7988,18 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 					label = mxUtils.trim(label.replace(/[\x00-\x1F\x7F-\x9F]|\s+/g, ' ')).toLowerCase();
 					var lblPosShift = 0;
 					
-					if (trySameCell && withReplace && re != null && state == lastFound)
+					if (trySameCell && withReplace && state == lastFound)
 					{
 						label = label.substr(lblMatchPos);
 						lblPosShift = lblMatchPos;
 					}
 					
 					var checkMeta = replaceInput.value == '';
-					var checkIndex = checkMeta;
 					
-					if ((re == null && ((checkIndex && label.indexOf(searchStr) >= 0) ||
-						(!checkIndex && label.substring(0, searchStr.length) === searchStr) ||
-						(checkMeta && testMeta(re, state.cell, searchStr, checkIndex)))) ||
+					if ((re == null && ((label.indexOf(searchStr) >= 0) ||
+						(checkMeta && testMeta(re, state.cell, searchStr)))) ||
 						(re != null && (re.test(label) || (checkMeta &&
-						testMeta(re, state.cell, searchStr, checkIndex)))))
+						testMeta(re, state.cell, searchStr)))))
 					{
 						if (withReplace)
 						{
@@ -8019,7 +8016,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 							else
 							{
 								lblMatch = searchStr;
-								lblMatchPos = lblMatch.length;
+								lblMatchPos = lblPosShift + label.indexOf(searchStr) + lblMatch.length;
 							} 	
 						}
 						
@@ -8177,7 +8174,8 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			var tagPos = [], p = -1;
 			
 			//Original position (startIndex) counts for \n which is removed when tags are removed, so handle <br> separately
-			str = str.replace(/<br>/ig, '\n');
+			// The same for block level elements which are replaced by \n
+			str = str.replace(/<br>/ig, '\n').replace(/(\s|\S)(<(BLOCKQUOTE|DIV|H1|H2|H3|H4|H5|H6|OL|P|PRE|TABLE|UL)[^>]*>)/ig, '$1\n$2');
 
 			while((p = str.indexOf('<', p + 1)) > -1)
 			{
@@ -8221,7 +8219,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 				tagDiff += tags[i].length;
 			}
 			
-			return newStr.replace(/\n/g, '<br>');
+			return newStr.replace(/\n(<(BLOCKQUOTE|DIV|H1|H2|H3|H4|H5|H6|OL|P|PRE|TABLE|UL)[^>]*>)/ig, '$1').replace(/\n/g, '<br>');
 		};
 		
 		var replaceFindBtn = mxUtils.button(mxResources.get('replFind'), function()
@@ -10088,7 +10086,7 @@ var EditGeometryDialog = function(editorUi, vertices)
 /**
  * Constructs a new dialog for creating files from templates.
  */
-var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
+var LibraryDialog = function(editorUi, name, library, initialImages, file, mode, allowBrowser)
 {
 	var images = [];
 	var graph = editorUi.editor.graph;
@@ -10821,7 +10819,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	    	
     	if (editorUi.isLocalFileSave())
     	{
-    		editorUi.saveLocalFile(data, filename, 'text/xml', null, null, true, null, 'xml');
+    		editorUi.saveLocalFile(data, filename, 'text/xml', null, null, allowBrowser != null? allowBrowser : true, null, 'xml');
     	}
     	else
     	{
@@ -13703,6 +13701,7 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		div.appendChild(graphDiv);
 
 		var editingGraph = new Graph(graphDiv);
+		editingGraph.transparentBackground = false;
 		editingGraph.autoExtend = false;
 		editingGraph.autoScroll = false;
 		editingGraph.setGridEnabled(false);
@@ -13729,7 +13728,7 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		//Add cell and current connection points on it
 		var geo = cell.geometry;
 		var mainCell = new mxCell(cell.value, new mxGeometry(0, 0, geo.width, geo.height),
-							cell.style + ';rotatable=0;resizable=0;connectable=0;editable=0;movable=0;');
+							cell.style + ';rotatable=0;resizable=0;connectable=0;editable=0;movable=0;fillColor=none;');
 		mainCell.vertex = true;
 		editingGraph.addCell(mainCell);
 
@@ -13812,15 +13811,11 @@ var ConnectionPointsDialog = function(editorUi, cell)
 			editingGraph.zoomIn();
 		}, 20);
 	
-		zoomInBtn.setAttribute('disabled', 'disabled');
-	
 		var zoomOutBtn = editorUi.createToolbarButton(Editor.zoomOutImage,
 			mxResources.get('zoomOut'), function()
 		{
 			editingGraph.zoomOut();
 		}, 20);
-	
-		zoomOutBtn.setAttribute('disabled', 'disabled');
 	
 		var zoomFitBtn = editorUi.createToolbarButton(Editor.zoomFitImage,
 			mxResources.get('fit'), function()
@@ -13838,6 +13833,35 @@ var ConnectionPointsDialog = function(editorUi, cell)
 			editingGraph.center();
 		}, 20);
 
+		var changeGridSize = function()
+		{
+			editorUi.prompt(mxResources.get('gridSize'), editingGraph.gridSize, function(newValue)
+			{
+				if (!isNaN(newValue) && newValue > 0)
+				{
+					editingGraph.setGridSize(newValue);
+					editingGraph.setGridEnabled(true);
+					editingGraph.refresh();
+				}
+			});
+		};
+
+		var gridBtn = editorUi.createToolbarButton(Editor.thinGridImage,
+			mxResources.get('grid'), function(evt)
+		{
+			if (mxEvent.isShiftDown(evt))
+			{
+				changeGridSize();
+			}
+			else
+			{
+				editingGraph.setGridEnabled(!editingGraph.isGridEnabled());
+				editingGraph.refresh();
+			}
+		}, 20);
+
+		mxEvent.addListener(gridBtn, 'dblclick', changeGridSize);
+
 		var deleteBtn = editorUi.createToolbarButton(Editor.trashImage,
 			mxResources.get('delete'), removeCPoints, 20);
 		mxUtils.setOpacity(deleteBtn, 10); //Disabled
@@ -13850,6 +13874,7 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		zoomBtns.appendChild(zoomInBtn);
 		zoomBtns.appendChild(zoomOutBtn);
 		zoomBtns.appendChild(zoomFitBtn);
+		zoomBtns.appendChild(gridBtn);
 		zoomBtns.appendChild(deleteBtn);
 
 		div.appendChild(zoomBtns);

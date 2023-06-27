@@ -4091,6 +4091,22 @@ EditorUi.prototype.canUndo = function()
 /**
  * 
  */
+EditorUi.prototype.replaceDiagramData = function(data)
+{
+	this.editor.graph.model.beginUpdate();
+	try
+	{
+		this.editor.setGraphXml(mxUtils.parseXml(data).documentElement);
+	}
+	finally
+	{
+		this.editor.graph.model.endUpdate();				
+	}
+};
+
+/**
+ * 
+ */
 EditorUi.prototype.getEditBlankXml = function()
 {
 	return mxUtils.getXml(this.editor.getGraphXml());
@@ -4994,6 +5010,14 @@ EditorUi.prototype.createStatusContainer = function()
 	mxEvent.addListener(container, 'click', mxUtils.bind(this, function(evt)
 	{
 		var elt = mxEvent.getSource(evt);
+
+		if (elt != container)
+		{
+			while (elt.parentNode != container)
+			{
+				elt = elt.parentNode;
+			}
+		}
 		
 		if (elt.nodeName != 'A')
 		{

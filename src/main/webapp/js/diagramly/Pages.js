@@ -243,6 +243,51 @@ ChangePage.prototype.execute = function()
 };
 
 /**
+ * 
+ */
+function ReplaceDiagram(ui, data)
+{
+	this.ui = ui;
+	this.data = data;
+};
+
+/**
+ * Function: execute
+ *
+ * Changes the current root of the view.
+ */
+ReplaceDiagram.prototype.execute = function()
+{
+	var graph = this.ui.editor.graph;
+	var data = this.ui.editor.getGraphXml();
+
+	this.ui.editor.readGraphState(this.data);
+	this.ui.editor.updateGraphComponents();
+	
+	var dec = new mxCodec(this.data.ownerDocument);
+	var model = new mxGraphModel();
+	dec.decode(this.data, model);
+	
+	this.data = data;
+
+	if (this.ui.currentPage)
+	{
+		this.ui.currentPage.viewState = graph.getViewState();
+		this.ui.currentPage.root = model.root;
+
+		if (this.ui.currentPage.model != null)
+		{
+			// Updates internal structures of offpage model
+			this.ui.currentPage.model.rootChanged(this.ui.currentPage.model.root);
+		}
+	}
+
+	graph.view.clear(graph.model.root, true);
+	graph.model.rootChanged(model.root);
+	graph.fireEvent(new mxEventObject(mxEvent.ROOT));
+};
+
+/**
  * Specifies the height of the tab container. Default is 36.
  */
 EditorUi.prototype.tabContainerHeight = 36;
@@ -1021,6 +1066,15 @@ EditorUi.prototype.updatePageRoot = function(page, checked)
 	}
 	
 	return page;
+};
+
+/**
+ * Adds keyboard shortcuts for page handling.
+ */
+EditorUi.prototype.replaceDiagramData = function(data)
+{
+	this.editor.graph.model.execute(new ReplaceDiagram(
+		this, mxUtils.parseXml(data).documentElement));
 };
 
 /**

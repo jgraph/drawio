@@ -1221,7 +1221,6 @@
 					null, null, props.scale, props.border);
 			}
 			
-			
 			return xml;
 		}
 	};

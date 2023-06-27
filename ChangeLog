@@ -1,3 +1,18 @@
+26-JUN-2023: 21.5.1
+
+- Adds tolerance for edge handles, click on terminal
+- Shift+alt+drag moves shapes, fixes inconsistencies
+- Shift+alt+drag on resize and terminal handle moves
+- Fixes highlight of connecting edges for shift+drag
+- Fixes update of table handlers, inconsistent code
+- Changes replace behavior to match find logic [drawio-3616]
+- Improves replace in html labels to cover more cases
+- Fixes status not clickable on icon [drawio-3688]
+- Fixes zoom in edit connection points [drawio-3684]
+- Adds grid in connection points dialog [drawio-3685]
+- Changes allowBrowser to an argument in LibraryDialog [DID-8641]
+- [desktop] Fixes stencils and shapes in export due to CSP restrictions
+
 17-JUN-2023: 21.5.0
 
 - Moves electron.js out of drawio project into desktop

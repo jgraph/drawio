@@ -685,7 +685,7 @@ var EditDiagramDialog = function(editorUi)
 	}
 	
 	var select = document.createElement('select');
-	select.style.width = '180px';
+	select.style.width = '196px';
 	select.className = 'geBtn';
 
 	if (editorUi.editor.graph.isEnabled())
@@ -728,20 +728,14 @@ var EditDiagramDialog = function(editorUi)
 		}
 		else if (select.value == 'replace')
 		{
-			editorUi.editor.graph.model.beginUpdate();
 			try
 			{
-				editorUi.editor.setGraphXml(mxUtils.parseXml(data).documentElement);
-				// LATER: Why is hideDialog between begin-/endUpdate faster?
+				editorUi.replaceDiagramData(data);
 				editorUi.hideDialog();
 			}
 			catch (e)
 			{
 				error = e;
-			}
-			finally
-			{
-				editorUi.editor.graph.model.endUpdate();				
 			}
 		}
 		else if (select.value == 'import')

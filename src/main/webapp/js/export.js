@@ -25,9 +25,54 @@ function mxmeta(content, httpEquiv)
 	}
 };
 
+function mxscript(src, onLoad)
+{
+	var s = document.createElement('script');
+	s.setAttribute('type', 'text/javascript');
+	s.setAttribute('src', src);
+	
+	if (onLoad != null)
+	{
+		var r = false;
+	
+		s.onload = s.onreadystatechange = function()
+		{
+			if (!r && (!this.readyState || this.readyState == 'complete'))
+			{
+				r = true;
+				onLoad();
+			}
+		};
+	}
+
+	var t = document.getElementsByTagName('script')[0];
+	
+	if (t != null)
+	{
+		t.parentNode.insertBefore(s, t);
+	}
+};
+
 if (mxIsElectron)
 {
 	mxmeta('default-src \'self\'; script-src \'self\'; connect-src \'self\' https://*.draw.io https://*.diagrams.net https://fonts.googleapis.com https://fonts.gstatic.com; img-src * data:; media-src *; font-src *; frame-src \'none\'; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com; base-uri \'none\';child-src \'self\';object-src \'none\';', 'Content-Security-Policy');
+	
+	// We can't use eval in Electron because of CSP, so load all shapes and disable eval
+	mxscript('js/stencils.min.js', function()
+	{
+		mxscript('js/shapes-14-6-5.min.js', function()
+		{
+			if (window.pendingRequest != null)
+			{
+				render(window.pendingRequest);
+			}
+
+			window.shapesLoaded = true;
+		});
+	});
+	
+	// Disables eval for JS (uses shapes-14-6-5.min.js)
+	mxStencilRegistry.allowEval = false;
 }
 //TODO Add support for loading math from a local folder
 Editor.initMath((remoteMath? 'https://app.diagrams.net/' : '') + 'math/es5/startup.js');
@@ -1012,7 +1057,14 @@ if (mxIsElectron)
 		{
 			try
 			{
-				render(arg);
+				if (window.shapesLoaded)
+				{
+					render(arg);
+				}
+				else
+				{
+					window.pendingRequest = arg;
+				}
 			}
 			catch(e)
 			{
