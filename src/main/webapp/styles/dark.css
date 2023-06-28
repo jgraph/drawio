@@ -2,7 +2,7 @@
 	--dark-color: #18141D;
 	--header-color: #363238;
 	--panel-color: #2A252F;
-	--text-color: #888888;
+	--text-color: #8D8D8D;
 	--border-color: #505759;
 }
 .geEditor * {
@@ -174,7 +174,7 @@ html body .geDiagramContainer {
 	border-color:var(--border-color);
 }
 html body .geSidebarContainer a, html body .geMenubarContainer a, html body .geToolbar a {
-	color:#cccccc;
+	color:#c0c0c0;
 }
 html body .geMenubarMenu {
 	border-color:var(--border-color) !important;

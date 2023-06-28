@@ -1,3 +1,10 @@
+28-JUN-2023: 21.5.2
+
+- Fixes text contrast in right sidebar [drawio-3691]
+- Fixes clipping of library symbol icons [DID-8634]
+- Replacing shape replaces all styles [drawio-3686]
+- Disables dark mode in jira and conf cloud [drawio-3692]
+
 26-JUN-2023: 21.5.1
 
 - Adds tolerance for edge handles, click on terminal

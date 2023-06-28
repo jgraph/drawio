@@ -2688,16 +2688,22 @@ Graph.prototype.init = function(container)
 	/**
 	 * Returns true if fast zoom preview should be used.
 	 */
-	Graph.prototype.pasteStyle = function(style, cells, keys)
+	Graph.prototype.pasteStyle = function(style, cells, keys, replaceAll)
 	{
-		keys = (keys != null) ? keys : Graph.pasteStyles;
-
-		Graph.removeKeys(style, function(key)
+		if (style != null)
 		{
-			return mxUtils.indexOf(keys, key) < 0;
-		});
+			if (!replaceAll)
+			{
+				keys = (keys != null) ? keys : Graph.pasteStyles;
 
-		this.updateCellStyles(style, cells);
+				Graph.removeKeys(style, function(key)
+				{
+					return mxUtils.indexOf(keys, key) < 0;
+				});
+			}
+
+			this.updateCellStyles(style, cells);
+		}
 	};
 			
 	/**
@@ -4544,20 +4550,46 @@ Graph.prototype.removeChildCells = function(cell)
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Graph.prototype.updateShapes = function(source, targets)
+Graph.prototype.updateShapes = function(source, targets, replaceStyles)
 {
 	this.model.beginUpdate();
 	try
 	{
+		var sourceStyle = this.model.getStyle(source);
+		var style = (replaceStyles) ? this.stylesheet.getCellStyle(sourceStyle, {}, false) : null;
+
+		// Handles special case of default shape
+		if (style != null && style[mxConstants.STYLE_SHAPE] == null)
+		{
+			if (this.model.isVertex(source))
+			{
+				style[mxConstants.STYLE_SHAPE] = this.stylesheet.
+					getDefaultVertexStyle()[mxConstants.STYLE_SHAPE];
+
+			}
+			else if (this.model.isEdge(source))
+			{
+				style[mxConstants.STYLE_SHAPE] = this.stylesheet.
+					getDefaultEdgeStyle()[mxConstants.STYLE_SHAPE];
+			}
+		}
+
 		// Replaces target styles and removes composite childs
 		for (var i = 0; i < targets.length; i++)
 		{
 			if ((this.model.isVertex(source) && this.model.isVertex(targets[i])) ||
 				this.model.isEdge(source) && this.model.isEdge(targets[i]))
 			{
-				var style = this.copyStyle(targets[i]);
-				this.model.setStyle(targets[i], this.model.getStyle(source));
-				this.pasteStyle(style, [targets[i]]);
+				if (replaceStyles)
+				{
+					this.pasteStyle(style, [targets[i]], null, true);
+				}
+				else
+				{
+					style = this.copyStyle(targets[i]);
+					this.model.setStyle(targets[i], sourceStyle);
+					this.pasteStyle(style, [targets[i]]);
+				}
 			}
 			
 			if (mxUtils.getValue(this.getCellStyle(targets[i],

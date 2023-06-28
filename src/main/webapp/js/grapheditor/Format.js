@@ -182,7 +182,7 @@ Format.prototype.immediateRefresh = function()
 	
 	var div = document.createElement('div');
 	div.style.whiteSpace = 'nowrap';
-	div.style.color = 'rgb(112, 112, 112)';
+	div.style.color = Editor.isDarkMode() ? '#8D8D8D' : '#616161';
 	div.style.textAlign = 'left';
 	div.style.cursor = 'default';
 	

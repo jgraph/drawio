@@ -2188,8 +2188,8 @@ Sidebar.prototype.createThumb = function(cells, width, height, parent, title, sh
 		var s = Math.floor(Math.min((width - 2 * this.thumbBorder) / bounds.width,
 			(height - 2 * this.thumbBorder) / bounds.height) * 100) / 100;
 		this.graph.view.scaleAndTranslate(s,
-			Math.floor((width - bounds.width * s) / 2 / s - bounds.x),
-			Math.floor((height - bounds.height * s) / 2 / s - bounds.y));
+			(width - bounds.width * s) / 2 / s - bounds.x,
+			(height - bounds.height * s) / 2 / s - bounds.y);
 	}
 
 	var node = null;
@@ -2977,7 +2977,7 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		if (cells != null && currentStyleTarget != null && activeArrow == styleTarget)
 		{
 			var tmp = graph.isCellSelected(currentStyleTarget.cell) ? graph.getSelectionCells() : [currentStyleTarget.cell];
-			graph.updateShapes((graph.model.isEdge(currentStyleTarget.cell)) ? cells[0] : cells[firstVertex], tmp);
+			graph.updateShapes((graph.model.isEdge(currentStyleTarget.cell)) ? cells[0] : cells[firstVertex], tmp, true);
 			graph.setSelectionCells(tmp);
 		}
 		else if (cells != null && activeArrow != null && currentTargetState != null && activeArrow != styleTarget)
@@ -3681,7 +3681,7 @@ Sidebar.prototype.itemClicked = function(cells, ds, evt, elt)
 	else if (mxEvent.isShiftDown(evt) && !graph.isSelectionEmpty())
 	{
 		var temp = graph.getEditableCells(graph.getSelectionCells());
-		graph.updateShapes(cells[0], temp);
+		graph.updateShapes(cells[0], temp, true);
 		graph.scrollCellToVisible(temp);
 	}
 	else
