@@ -747,6 +747,7 @@ subscript=Subíndice
 summary=Resumen
 superscript=Superíndice
 support=Soporte
+swap=Swap
 swimlaneDiagram=Diagrama Swimlane
 sysml=SysML
 tags=Etiquetas

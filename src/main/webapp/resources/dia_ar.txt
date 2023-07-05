@@ -747,6 +747,7 @@ subscript=‫خط صغير‬
 summary=Summary
 superscript=‫خط كبير‬
 support=‫مساعدة‬
+swap=Swap
 swimlaneDiagram=Swimlane Diagram
 sysml=SysML
 tags=Tags

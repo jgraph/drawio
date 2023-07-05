@@ -747,6 +747,7 @@ subscript=Alaindeksi
 summary=Yhteenveto
 superscript=Yläindeksi
 support=Tuki
+swap=échanger
 swimlaneDiagram=Kaistakaavio
 sysml=SysML
 tags=Tunnisteet

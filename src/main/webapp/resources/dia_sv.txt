@@ -747,6 +747,7 @@ subscript=Nedsänkt text
 summary=Summering
 superscript=Upphöjd text
 support=Support
+swap=Swap
 swimlaneDiagram=Simbanediagram
 sysml=SysML
 tags=Taggar

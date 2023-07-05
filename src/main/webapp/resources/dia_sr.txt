@@ -747,6 +747,7 @@ subscript=Potpis
 summary=Summary
 superscript=Natpis
 support=Podrška
+swap=Swap
 swimlaneDiagram=Swimlane Diagram
 sysml=SysML
 tags=Tags

@@ -747,6 +747,7 @@ subscript=‫סקריפט משנה‬
 summary=‫סיכום‬
 superscript=‫סופר סקריפט‬
 support=‫תמיכה‬
+swap=Swap
 swimlaneDiagram=Swimlane Diagram
 sysml=SysML
 tags=‫תגיות‬

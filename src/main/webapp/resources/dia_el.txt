@@ -747,6 +747,7 @@ subscript=Δείκτης
 summary=Σύνοψη
 superscript=Εκθέτης
 support=Υποστήριξη
+swap=Swap
 swimlaneDiagram=Διάγραμμα Swimlane
 sysml=SysML
 tags=Ετικέτες

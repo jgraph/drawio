@@ -747,6 +747,7 @@ subscript=Долен индекс
 summary=Обобщение
 superscript=Горен индекс
 support=Поддръжка
+swap=Swap
 swimlaneDiagram=Диаграма на Swimlane
 sysml=SysML
 tags=Тагове

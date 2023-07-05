@@ -747,6 +747,7 @@ subscript=Dolní index
 summary=Souhrn
 superscript=Horní index
 support=Podpora
+swap=Swap
 swimlaneDiagram=Diagram plavecké dráhy
 sysml=SysML
 tags=Štítky

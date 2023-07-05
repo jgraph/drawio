@@ -747,6 +747,7 @@ subscript=Pretplata
 summary=Sažetak
 superscript=Superskript
 support=Podrška
+swap=Swap
 swimlaneDiagram=Swimlane Diagram
 sysml=SysML
 tags=Oznake

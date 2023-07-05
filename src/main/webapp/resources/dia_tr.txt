@@ -747,6 +747,7 @@ subscript=Alt-simge
 summary=Özet
 superscript=Üst-simge
 support=Destek
+swap=Swap
 swimlaneDiagram=Swimlane Diagram
 sysml=SysML
 tags=Etiketler

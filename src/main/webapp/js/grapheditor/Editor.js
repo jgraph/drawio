@@ -225,6 +225,16 @@ Editor.sketchMode = false;
 /**
  * Dynamic change of dark mode for minimal and sketch theme.
  */
+Editor.enableCssDarkMode = true;
+
+/**
+ * Dynamic change of dark mode for minimal and sketch theme.
+ */
+Editor.cssDarkMode = false;
+
+/**
+ * Dynamic change of dark mode for minimal and sketch theme.
+ */
 Editor.darkMode = false;
 
 /**
@@ -2804,7 +2814,7 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn)
 			graph.view.backgroundPageShape.node.style.backgroundImage = image;
 			graph.view.backgroundPageShape.node.style.backgroundColor = color;
 			graph.view.backgroundPageShape.node.style.borderColor = graph.defaultPageBorderColor;
-			graph.container.className = 'geDiagramContainer geDiagramBackdrop';
+			graph.container.classList.add('geDiagramBackdrop');
 			canvas.style.backgroundImage = 'none';
 			canvas.style.backgroundColor = '';
 
@@ -2819,7 +2829,7 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn)
 		}
 		else
 		{
-			graph.container.className = 'geDiagramContainer';
+			graph.container.classList.remove('geDiagramBackdrop');
 			canvas.style.backgroundPosition = position;
 			canvas.style.backgroundImage = image;
 			

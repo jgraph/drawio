@@ -1,3 +1,17 @@
+04-JUL-2023: 21.6.0
+
+- Fixes special cases in replace shape [drawio-3686]
+- Enables new dark mode in production [drawio-3701]
+- [conf cloud]] Adds back dark theme [drawio-3698]
+- [jira cloud]] Adds back dark theme [drawio-3697]
+- [vsdx] Fixed edge labels [DID-8697]
+- Fixes blue guides remaining in view [drawio-3695]
+- Uses new dark mode in Notion extension [#3701]
+
+04-JUL-2023: 21.6.0
+
+- Release rejected
+
 28-JUN-2023: 21.5.2
 
 - Fixes text contrast in right sidebar [drawio-3691]

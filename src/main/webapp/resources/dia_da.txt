@@ -747,6 +747,7 @@ subscript=Sænket skrift
 summary=Resumé
 superscript=Hævet skrift
 support=Support
+swap=Swap
 swimlaneDiagram=Swimlane Diagram
 sysml=SysML
 tags=Tags

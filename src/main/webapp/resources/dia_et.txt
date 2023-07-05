@@ -747,6 +747,7 @@ subscript=Alaindeks
 summary=Kokkuvõte
 superscript=Ülaindeks
 support=Tugi
+swap=Swap
 swimlaneDiagram=Tegevusskeem
 sysml=SysML
 tags=Sildid

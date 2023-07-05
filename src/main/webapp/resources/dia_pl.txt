@@ -747,6 +747,7 @@ subscript=Indeks dolny
 summary=Podsumowanie
 superscript=Indeks górny
 support=Wsparcie
+swap=Swap
 swimlaneDiagram=Diagram toru wodnego
 sysml=SysML
 tags=Znaczniki

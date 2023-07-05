@@ -747,6 +747,7 @@ subscript=Нижний индекс
 summary=Сводка
 superscript=Верхний индекс
 support=Поддержка
+swap=Swap
 swimlaneDiagram=Диаграмма "плавательной дорожки"
 sysml=SysML
 tags=Метки

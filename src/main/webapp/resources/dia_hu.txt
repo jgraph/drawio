@@ -747,6 +747,7 @@ subscript=Index
 summary=Összegzés
 superscript=Mutatószám
 support=Támogatás
+swap=Swap
 swimlaneDiagram=Swimlane Diagram
 sysml=SysML
 tags=Címke

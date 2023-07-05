@@ -1552,6 +1552,81 @@ EditorUi.prototype.tryAndHandle = function(fn, error)
 /**
  * Returns information about the current selection.
  */
+EditorUi.prototype.convertDarkModeColors = function(cells, keys)
+{
+	var graph = this.editor.graph;
+	cells = (cells != null) ? cells : graph.getSelectionCells();
+	keys = (keys != null) ? keys : [mxConstants.STYLE_FONTCOLOR,
+		mxConstants.STYLE_FILLCOLOR, mxConstants.STYLE_GRADIENTCOLOR,
+		mxConstants.STYLE_STROKECOLOR, mxConstants.STYLE_IMAGE_BORDER,
+		mxConstants.STYLE_IMAGE_BACKGROUND, mxConstants.STYLE_LABEL_BORDERCOLOR,
+		mxConstants.STYLE_SWIMLANE_FILLCOLOR, mxConstants.STYLE_LABEL_BACKGROUNDCOLOR];
+	
+	var colorCache = {};
+	var canvas = document.createElement('canvas');
+	canvas.width = 1;
+	canvas.height = 1;
+
+	var ctx = canvas.getContext('2d', {willReadFrequently: true});
+	ctx.filter = 'invert(100%) hue-rotate(180deg) saturate(1.3)';
+	
+	graph.model.beginUpdate();
+	try
+	{
+		for (var i = 0; i < cells.length; i++)
+		{
+			if (graph.model.isEdge(cells[i]) || graph.model.isVertex(cells[i]))
+			{
+				var style = graph.getCurrentCellStyle(cells[i]);
+
+				if (style != null)
+				{
+					for (var j = 0; j < keys.length; j++)
+					{
+						try
+						{
+							var value = style[keys[j]];
+
+							if (value != null && value.charAt(0) == '#')
+							{
+								var result = colorCache[value];
+
+								if (result == null)
+								{
+									ctx.fillStyle = value;
+									ctx.fillRect(0, 0, 1, 1);
+									var imgData = ctx.getImageData(0, 0, 1, 1);
+
+									var r = imgData.data[0];
+									var g = imgData.data[1];
+									var b = imgData.data[2];
+
+									var rgb = b | (g << 8) | (r << 16);
+									result = '#' + (0x1000000 | rgb).toString(16).substring(1);
+									colorCache[value] = result;
+								}
+
+								graph.setCellStyles(keys[j], result, [cells[i]]);
+							}
+						}
+						catch (e)
+						{
+							// ignore
+						}
+					}
+				}
+			}
+		}
+	}
+	finally
+	{
+		graph.model.endUpdate();
+	}
+};
+
+/**
+ * Returns information about the current selection.
+ */
 EditorUi.prototype.updateSelectionStateForCell = function(result, cell, cells, initial)
 {
 	var graph = this.editor.graph;

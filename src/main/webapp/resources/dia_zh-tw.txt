@@ -747,6 +747,7 @@ subscript=下標
 summary=總結
 superscript=上標
 support=支援
+swap=Swap
 swimlaneDiagram=泳道圖
 sysml=SysML
 tags=標籤

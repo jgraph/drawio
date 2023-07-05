@@ -1354,7 +1354,7 @@ var com;
                         }
                     }
                     else {
-                        edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), source, target, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
+                        edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(true), source, target, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
                         var lblOffset = edgeShape.getLblEdgeOffset(graph.getView(), points);
                         edge.getGeometry().offset = (lblOffset);
                         
@@ -1478,10 +1478,10 @@ var com;
                     }
                     else {
                         if (edgeShape.getShapeIndex() === 0) {
-                            edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), null, null, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
+                            edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(true), null, null, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
                         }
                         else {
-                            edge = graph.createEdge(parent, null, edgeShape.getTextLabel(), null, null, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
+                            edge = graph.createEdge(parent, null, edgeShape.getTextLabel(true), null, null, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
                             edge = graph.addEdge(edge, parent, null, null, edgeShape.getShapeIndex() + this.shapeIndexShift++);
                         }
                         var lblOffset = edgeShape.getLblEdgeOffset(graph.getView(), points);

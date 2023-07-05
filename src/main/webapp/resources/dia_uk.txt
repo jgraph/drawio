@@ -747,6 +747,7 @@ subscript=Нижній індекс
 summary=Звіт
 superscript=Верхній індекс
 support=Підтримка
+swap=Swap
 swimlaneDiagram=Діаграма 'Плавальна доріжка' (Swimlane)
 sysml=SysML
 tags=Теги

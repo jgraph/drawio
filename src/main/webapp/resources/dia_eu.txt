@@ -747,6 +747,7 @@ subscript=Azpi-indizea
 summary=Laburpena
 superscript=Goi-indizea
 support=Euskarria
+swap=Swap
 swimlaneDiagram=Swimlane diagrama
 sysml=SysML
 tags=Etiketak

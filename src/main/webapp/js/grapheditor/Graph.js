@@ -4582,6 +4582,24 @@ Graph.prototype.updateShapes = function(source, targets, replaceStyles)
 			{
 				if (replaceStyles)
 				{
+					// Removes style classes
+					var cellStyle = this.model.getStyle(targets[i]);
+
+					if (cellStyle != null)
+					{
+						var tokens = cellStyle.split(';');
+
+						if (tokens.length > 0 && tokens[0].indexOf('=') < 0)
+						{
+							tokens = tokens.slice(1);
+						}
+
+						this.model.setStyle(targets[i], tokens.join(';'));
+					}
+
+					// Removes perimeter and points styles
+					this.setCellStyles(mxConstants.STYLE_PERIMETER, null, [targets[i]]);
+					this.setCellStyles('points', null, [targets[i]]);
 					this.pasteStyle(style, [targets[i]], null, true);
 				}
 				else

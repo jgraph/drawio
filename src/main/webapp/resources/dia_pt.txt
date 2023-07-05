@@ -747,6 +747,7 @@ subscript=Subescrever
 summary=Resumo
 superscript=Sobrescrever
 support=Ajuda
+swap=Swap
 swimlaneDiagram=Swimlane Diagram
 sysml=SysML
 tags=Marcadores

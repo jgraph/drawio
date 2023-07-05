@@ -8581,6 +8581,55 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 /**
  * 
  */
+var DarkModeColorsWindow = function(editorUi, x, y, w, h)
+{
+	var graph = editorUi.editor.graph;
+
+	var div = document.createElement('div');
+	div.style.display = 'flex';
+	div.style.alignItems = 'center';
+	div.style.justifyContent = 'center';
+	div.style.textAlign = 'center';
+	div.style.userSelect = 'none';
+	div.style.overflow = 'hidden';
+	div.style.height = '100%';
+	div.style.paddingTop = '16px';
+
+	var btn = mxUtils.button('Convert Colors', mxUtils.bind(this, function()
+	{
+		editorUi.convertDarkModeColors((graph.isSelectionEmpty()) ?
+			graph.getVerticesAndEdges() : graph.getSelectionCells());
+		this.window.setVisible(false);
+	}));
+
+	btn.setAttribute('title', 'Convert Colors');
+	btn.className = 'geBtn gePrimaryBtn';
+	
+	div.appendChild(btn);
+
+	var help = editorUi.menus.createHelpLink('https://github.com/jgraph/drawio/discussions/3701');
+	help.style.position = 'relative';
+	help.style.marginLeft = '6px';
+	div.appendChild(help);
+
+	this.window = new mxWindow('Dark Mode Colors', div, x, y, w, h, true, true);
+	this.window.destroyOnClose = false;
+	this.window.setMinimizable(false);
+	this.window.setMaximizable(false);
+	this.window.setResizable(false);
+	this.window.setClosable(true);
+	
+	this.window.addListener('show', mxUtils.bind(this, function()
+	{
+		this.window.fit();
+	}));
+	
+	editorUi.installResizeHandler(this, false);
+};
+
+/**
+ * 
+ */
 var TagsWindow = function(editorUi, x, y, w, h)
 {
 	var graph = editorUi.editor.graph;

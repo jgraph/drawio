@@ -903,7 +903,6 @@
 		    					}
 		    				};
 		    			}
-				
 					}
 	    		}
 
@@ -6584,11 +6583,47 @@
 		var defaultTransparent = false; /*graph.background == mxConstants.NONE || graph.background == null*/; 
 		var transparent = this.addCheckbox(div, mxResources.get('transparentBackground'),
 			defaultTransparent, null, null, format != 'jpeg');
-		var keepTheme = null;
-		
-		if (Editor.isDarkMode())
+
+		var appearanceSelect = null;
+
+		if (Editor.isDarkMode() || Editor.enableCssDarkMode)
 		{
-			keepTheme = this.addCheckbox(div, mxResources.get('dark'), true); 
+			var appearanceSelect = document.createElement('select');
+			appearanceSelect.style.maxWidth = '260px';
+			appearanceSelect.style.marginLeft = '8px';
+			appearanceSelect.style.marginTop = '16px';
+	
+			var lightOption = document.createElement('option');
+			lightOption.setAttribute('value', 'light');
+			mxUtils.write(lightOption, mxResources.get('light'));
+			appearanceSelect.appendChild(lightOption);
+	
+			var darkOption = document.createElement('option');
+			darkOption.setAttribute('value', 'dark');
+			mxUtils.write(darkOption, mxResources.get('dark'));
+			appearanceSelect.appendChild(darkOption);
+			
+			if (Editor.enableCssDarkMode && format == 'svg')
+			{
+				var autoOption = document.createElement('option');
+				autoOption.setAttribute('value', 'auto');
+				mxUtils.write(autoOption, mxResources.get('automatic'));
+				appearanceSelect.appendChild(autoOption);
+			}
+
+			mxUtils.write(div, mxResources.get('appearance') + ':');
+			div.appendChild(appearanceSelect);
+			mxUtils.br(div);
+
+			if (Editor.isDarkMode() || Editor.cssDarkMode)
+			{
+				darkOption.setAttribute('selected', 'selected');
+			}
+			else
+			{
+				lightOption.setAttribute('selected', 'selected');
+			}
+			
 			height += 26;
 		}
 		
@@ -6721,11 +6756,19 @@
 		{
 			this.lastExportBorder = borderInput.value;
 			this.lastExportZoom = zoomInput.value;
+
+			var keepThemeValue = null;
+
+			if (appearanceSelect != null)
+			{
+				keepThemeValue = (appearanceSelect.value != 'auto') ?
+					appearanceSelect.value == 'dark' : 'auto';
+			}
 			
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
 				include.checked, cb5.checked, borderInput.value, cb6.checked, false,
-				linkSelect.value, (grid != null) ? grid.checked : null, (keepTheme != null) ?
-				keepTheme.checked : null, exportSelect.value, txtSettingsSelect.value == 'embedFonts', 
+				linkSelect.value, (grid != null) ? grid.checked : null, keepThemeValue,
+				exportSelect.value, txtSettingsSelect.value == 'embedFonts',
 				txtSettingsSelect.value == 'lblToSvg');
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 340, height, true, true, null, null, null, null, true);
@@ -10749,6 +10792,7 @@
 			this.keyHandler.bindAction(67, false, 'insertEdge'); // C
 			this.keyHandler.bindAction(88, false, 'insertFreehand'); // X
 			this.keyHandler.bindAction(75, true, 'toggleShapes', true); // Ctrl+Shift+K
+			this.keyHandler.bindAction(54, true, 'convertDarkModeColors', true); // Ctrl+Shift+6
 			this.altShiftActions[81] = 'copyStyle'; // Alt+Shift+Q
 			this.altShiftActions[87] = 'pasteStyle'; // Alt+Shift+W
 			this.altShiftActions[83] = 'synchronize'; // Alt+Shift+S
@@ -11180,7 +11224,11 @@
 			this.hideShapePicker();
 		});
 
-		this.addListener('darkModeChanged', themeChangeListener);
+		if (!Editor.enableCssDarkMode)
+		{
+			this.addListener('darkModeChanged', themeChangeListener);
+		}
+
 		this.addListener('sketchModeChanged', themeChangeListener);
 		this.addListener('currentThemeChanged', mxUtils.bind(this, function()
 		{
@@ -11472,10 +11520,15 @@
 			this.inlineSizeChanged();
 			this.fitWindows();
 		}));
-		this.addListener('darkModeChanged', mxUtils.bind(this, function(evt)
+
+		if (!Editor.enableCssDarkMode)
 		{
-			this.inlineSizeChanged();
-		}));
+			this.addListener('darkModeChanged', mxUtils.bind(this, function(evt)
+			{
+				this.inlineSizeChanged();
+			}));
+		}
+
 		this.addListener('editInlineStop', mxUtils.bind(this, function(evt)
 		{
 			this.diagramContainer.style.width = '10px';
@@ -12842,17 +12895,6 @@
 						{
 							picker.appendChild(foldImg);
 						}
-						else if (value == 'simple' && this.commentsSupported() && iw > 560)
-						{
-							var commentElt = this.createMenuItem('comments', Editor.thinCommentImage, true);
-							commentElt.style.paddingLeft = '0px';
-							commentElt.style.backgroundSize = '24px';
-							commentElt.style.width = '26px';
-							commentElt.style.height = '30px';
-							commentElt.style.opacity = '0.7';
-
-							addElt(commentElt, mxResources.get('comments'));
-						}
 
 						this.sidebar.graph.cellRenderer.minSvgStrokeWidth = this.sidebar.minThumbStrokeWidth;
 					}
@@ -12916,10 +12958,16 @@
 						}, 200);
 					}
 				});
+
 				this.editor.addListener('fileLoaded', initPicker);
-				this.addListener('darkModeChanged', initPicker);
 				this.addListener('sketchModeChanged', initPicker);
 				this.addListener('currentThemeChanged', initPicker);
+
+				if (!Editor.enableCssDarkMode)
+				{
+					this.addListener('darkModeChanged', initPicker);
+				}
+
 				initPicker(true);
 
 				if (value == 'simple')
@@ -13012,6 +13060,16 @@
 					this.sketchMenubarElt.style.cssText = 'position:relative;flex-grow:0.5;' +
 						'overflow:visible;' + ((urlParams['embed'] != '1') ?
 						'flex-shrink:0;' : 'min-width:0;') + css;
+
+					if (this.commentElt == null)
+					{
+						this.commentElt = this.createMenuItem('comments', Editor.thinCommentImage, true);
+						this.commentElt.style.paddingLeft = '0px';
+						this.commentElt.style.backgroundSize = '24px';
+						this.commentElt.style.width = '26px';
+						this.commentElt.style.height = '30px';
+						this.commentElt.style.opacity = '0.7';
+					}
 
 					if (this.shareElt == null && urlParams['embed'] != '1' &&
 						this.getServiceName() == 'draw.io')
@@ -13109,6 +13167,11 @@
 						{
 							var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 
+							if (this.commentElt != null)
+							{
+								this.commentElt.style.display = (iw > 560 && this.commentsSupported()) ? '' : 'none';
+							}
+
 							if (this.shareElt != null)
 							{
 								this.shareElt.style.display = (iw > 360) ? '' : 'none';
@@ -13118,6 +13181,7 @@
 
 					refreshMenu();
 					mxEvent.addListener(window, 'resize', refreshMenu);
+					this.editor.addListener('fileLoaded', refreshMenu);
 				}
 
 				if (urlParams['embed'] != '1' && this.getServiceName() != 'atlassian')
@@ -13137,6 +13201,11 @@
 					{
 						this.formatElt.style.marginLeft = '';
 					}
+				}
+
+				if (this.commentElt != null)
+				{
+					this.sketchMenubarElt.appendChild(this.commentElt);
 				}
 				
 				if (this.shareElt != null)
@@ -13931,126 +14000,156 @@
 	/**
 	 * Dynamic change of dark mode.
 	 */
+	EditorUi.prototype.setCssDarkMode = function(value)
+	{
+		var node = (mxUtils.isAncestorNode(document.body, this.container)) ?
+			this.container : this.editor.graph.container;
+
+		if (node != null)
+		{
+			if (value)
+			{
+				node.classList.add('geDarkMode');
+			}
+			else
+			{
+				node.classList.remove('geDarkMode');
+			}
+		}
+	};
+
+	/**
+	 * Dynamic change of dark mode.
+	 */
 	EditorUi.prototype.doSetDarkMode = function(value, success, error)
 	{
-		var delayed = mxUtils.bind(this, function()
+		if (Editor.enableCssDarkMode)
 		{
-			if (Editor.darkMode != value)
-			{
-				var graph = this.editor.graph;
-				Editor.darkMode = value;
-
-				// Sets instance vars and graph stylesheet
-				this.spinner.opts.color = Editor.isDarkMode() ? '#c0c0c0' : '#000';
-				EditorUi.setGraphDarkMode(graph, document.body, Editor.isDarkMode());
-				
-				// Destroys windows with code for dark mode
-				if (this.actions.layersWindow != null)
-				{
-					var wasVisible = this.actions.layersWindow.window.isVisible();
-				
-					this.actions.layersWindow.window.setVisible(false);
-					this.actions.layersWindow.destroy();
-					this.actions.layersWindow = null;
-
-					if (wasVisible)
-					{
-						window.setTimeout(this.actions.get('layers').funct, 0);
-					}
-				}
-
-				if (this.menus != null && this.menus.commentsWindow != null)
-				{
-					this.menus.commentsWindow.window.setVisible(false);
-					this.menus.commentsWindow.destroy();
-					this.menus.commentsWindow = null;
-				}
-				
-				if (this.ruler != null)
-				{
-					this.ruler.updateStyle();
-				}
-
-				if (window.StyleFormatPanel != null)
-				{
-					StyleFormatPanel.prototype.defaultStrokeColor = Editor.isDarkMode() ? '#cccccc' : 'black';
-				}
-
-				if (window.Format != null)
-				{
-					Format.inactiveTabBackgroundColor = Editor.isDarkMode() ? '#000000' : '#e4e4e4';
-				}
-
-				mxConstants.DROP_TARGET_COLOR = Editor.isDarkMode() ? '#00ff00' : '#0000FF';
-				Editor.helpImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
-					Editor.darkHelpImage : Editor.lightHelpImage;
-				Editor.checkmarkImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
-					Editor.darkCheckmarkImage : Editor.lightCheckmarkImage;
-				
-				// Updates CSS
-				if (this.sketchStyleElt != null)
-				{
-					this.sketchStyleElt.innerHTML = Editor.createMinimalCss();
-				}
-				else if (Editor.styleElt != null)
-				{
-					Editor.styleElt.innerHTML = Editor.createMinimalCss();
-				}
-			}
-
-			// Adds or removes link to CSS
-			if (Editor.isDarkMode())
-			{
-				if (this.darkStyle.parentNode == null)
-				{
-					var head = document.getElementsByTagName('head')[0];
-					head.appendChild(this.darkStyle);
-				}
-			}
-			else if (this.darkStyle.parentNode != null)
-			{
-				this.darkStyle.parentNode.removeChild(this.darkStyle);
-			}
-
+			this.setCssDarkMode(value);
+			Editor.cssDarkMode = value;
 			success();
-		});
-
-		if (this.darkStyle != null)
-		{
-			delayed();
 		}
 		else
 		{
-			var darkStyle = this.createDarkStyle();
-
-			this.createTimeout(null, mxUtils.bind(this, function(timeout)
+			var delayed = mxUtils.bind(this, function()
 			{
-				darkStyle.onerror = mxUtils.bind(this, function(e)
+				if (Editor.darkMode != value)
 				{
-					if (timeout.clear())
-					{
-						error(new Error(mxResources.get('errorLoadingFile') +
-							' ' + darkStyle.getAttribute('href')));
-					}
-				});
+					var graph = this.editor.graph;
+					Editor.darkMode = value;
 
-				darkStyle.onload = mxUtils.bind(this, function()
+					// Sets instance vars and graph stylesheet
+					this.spinner.opts.color = Editor.isDarkMode() ? '#c0c0c0' : '#000';
+					EditorUi.setGraphDarkMode(graph, document.body, Editor.isDarkMode());
+					
+					// Destroys windows with code for dark mode
+					if (this.actions.layersWindow != null)
+					{
+						var wasVisible = this.actions.layersWindow.window.isVisible();
+					
+						this.actions.layersWindow.window.setVisible(false);
+						this.actions.layersWindow.destroy();
+						this.actions.layersWindow = null;
+
+						if (wasVisible)
+						{
+							window.setTimeout(this.actions.get('layers').funct, 0);
+						}
+					}
+
+					if (this.menus != null && this.menus.commentsWindow != null)
+					{
+						this.menus.commentsWindow.window.setVisible(false);
+						this.menus.commentsWindow.destroy();
+						this.menus.commentsWindow = null;
+					}
+					
+					if (this.ruler != null)
+					{
+						this.ruler.updateStyle();
+					}
+
+					if (window.StyleFormatPanel != null)
+					{
+						StyleFormatPanel.prototype.defaultStrokeColor = Editor.isDarkMode() ? '#cccccc' : 'black';
+					}
+
+					if (window.Format != null)
+					{
+						Format.inactiveTabBackgroundColor = Editor.isDarkMode() ? '#000000' : '#e4e4e4';
+					}
+
+					mxConstants.DROP_TARGET_COLOR = Editor.isDarkMode() ? '#00ff00' : '#0000FF';
+					Editor.helpImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
+						Editor.darkHelpImage : Editor.lightHelpImage;
+					Editor.checkmarkImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
+						Editor.darkCheckmarkImage : Editor.lightCheckmarkImage;
+					
+					// Updates CSS
+					if (this.sketchStyleElt != null)
+					{
+						this.sketchStyleElt.innerHTML = Editor.createMinimalCss();
+					}
+					else if (Editor.styleElt != null)
+					{
+						Editor.styleElt.innerHTML = Editor.createMinimalCss();
+					}
+				}
+
+				// Adds or removes link to CSS
+				if (Editor.isDarkMode())
 				{
-					if (timeout.clear())
+					if (this.darkStyle.parentNode == null)
 					{
-						this.darkStyle = darkStyle;
-						delayed();
+						var head = document.getElementsByTagName('head')[0];
+						head.appendChild(this.darkStyle);
 					}
-				});
+				}
+				else if (this.darkStyle.parentNode != null)
+				{
+					this.darkStyle.parentNode.removeChild(this.darkStyle);
+				}
 
-				var head = document.getElementsByTagName('head')[0];
-				head.appendChild(darkStyle);
-			}), mxUtils.bind(this, function()
+				success();
+			});
+
+			if (this.darkStyle != null)
 			{
-				error(new Error(mxResources.get('timeout') +
-					' ' + darkStyle.getAttribute('href')));
-			}));
-		};
+				delayed();
+			}
+			else
+			{
+				var darkStyle = this.createDarkStyle();
+
+				this.createTimeout(null, mxUtils.bind(this, function(timeout)
+				{
+					darkStyle.onerror = mxUtils.bind(this, function(e)
+					{
+						if (timeout.clear())
+						{
+							error(new Error(mxResources.get('errorLoadingFile') +
+								' ' + darkStyle.getAttribute('href')));
+						}
+					});
+
+					darkStyle.onload = mxUtils.bind(this, function()
+					{
+						if (timeout.clear())
+						{
+							this.darkStyle = darkStyle;
+							delayed();
+						}
+					});
+
+					var head = document.getElementsByTagName('head')[0];
+					head.appendChild(darkStyle);
+				}), mxUtils.bind(this, function()
+				{
+					error(new Error(mxResources.get('timeout') +
+						' ' + darkStyle.getAttribute('href')));
+				}));
+			};
+		}
 	};
 
 	/**
@@ -18184,17 +18283,19 @@
 	{
 		var sidebar = editorUiCreateSidebar.apply(this, arguments);
 
-		this.addListener('darkModeChanged', mxUtils.bind(this, function()
+		var refreshSidebar = mxUtils.bind(this, function()
 		{
 			sidebar.refresh();
 			this.restoreOpenLibraries();
-		}));
+		});
 
-		this.addListener('sketchModeChanged', mxUtils.bind(this, function()
+		if (!Editor.enableCssDarkMode)
 		{
-			sidebar.refresh();
-			this.restoreOpenLibraries();
-		}));
+			this.addListener('darkModeChanged', refreshSidebar);
+		}
+
+		this.addListener('sketchModeChanged', refreshSidebar);
+		this.addListener('currentThemeChanged', refreshSidebar);
 		
 		return sidebar;
 	};
@@ -18248,7 +18349,7 @@
 		this.actions.get('connectionArrows').setEnabled(active);
 		this.actions.get('connectionPoints').setEnabled(active);
 		this.actions.get('copyStyle').setEnabled(active && !graph.isSelectionEmpty());
-		this.actions.get('pasteStyle').setEnabled(active && ss.cells.length > 0);
+		this.actions.get('pasteStyle').setEnabled(this.copiedStyle != null && active && ss.cells.length > 0);
 		this.actions.get('editGeometry').setEnabled(ss.vertices.length > 0);
 		this.actions.get('createShape').setEnabled(active);
 		this.actions.get('createRevision').setEnabled(active);
@@ -19980,9 +20081,9 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	}
 
 	var resolvedLink = link.cloneNode();
-	resolvedLink.innerHTML = '<img src="' + IMAGE_PATH + '/check.png" style="width: 16px; padding: 2px;">';
+	resolvedLink.innerHTML = '<img class="geAdaptiveAsset" src="' + IMAGE_PATH + '/check.png" style="width: 16px; padding: 2px;">';
 	resolvedLink.setAttribute('title', mxResources.get('showResolved'));
-	resolvedLink.className = 'geButton geAdaptiveAsset';
+	resolvedLink.className = 'geButton';
 	var resolvedChecked = false;
 	
 	mxEvent.addListener(resolvedLink, 'click', function(evt)
@@ -20001,9 +20102,9 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	if (editorUi.commentsRefreshNeeded())
 	{
 		var refreshLink = link.cloneNode();
-		refreshLink.innerHTML = '<img src="' + IMAGE_PATH + '/update16.png" style="width: 16px; padding: 2px;">';
+		refreshLink.innerHTML = '<img class="geAdaptiveAsset" src="' + IMAGE_PATH + '/update16.png" style="width: 16px; padding: 2px;">';
 		refreshLink.setAttribute('title', mxResources.get('refresh'));
-		refreshLink.className = 'geButton geAdaptiveAsset';
+		refreshLink.className = 'geButton';
 		
 		mxEvent.addListener(refreshLink, 'click', function(evt)
 		{

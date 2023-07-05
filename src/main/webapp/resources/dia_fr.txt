@@ -747,6 +747,7 @@ subscript=Texte miniaturisé
 summary=Sommaire
 superscript=Texte agrandi
 support=Support
+swap=Swap
 swimlaneDiagram=Swimlane Diagram
 sysml=SysML
 tags=Tags

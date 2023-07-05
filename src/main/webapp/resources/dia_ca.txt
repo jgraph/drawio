@@ -747,6 +747,7 @@ subscript=Subíndex
 summary=Resum
 superscript=Superíndex
 support=Ajuda
+swap=Swap
 swimlaneDiagram=Diagrama de Carril de natació
 sysml=SysML
 tags=Etiquetes

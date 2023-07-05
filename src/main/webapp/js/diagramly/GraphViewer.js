@@ -20,7 +20,8 @@ mxUtils.extend(GraphViewer, mxEventSource);
 /**
  * Redirects editing to absolue URLs.
  */
-GraphViewer.prototype.editBlankUrl = 'https://app.diagrams.net/';
+GraphViewer.prototype.editBlankUrl = (urlParams['dev'] == '1') ? 
+	'https://test.draw.io/' : 'https://app.diagrams.net/';
 
 /**
  * Base URL for relative images.
@@ -120,6 +121,7 @@ GraphViewer.prototype.responsive = false;
  * Dark mode
  */
 GraphViewer.prototype.darkMode = false;
+
 /**
  * Initializes the viewer.
  */
@@ -181,7 +183,14 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 
 				if (this.darkMode)
 				{
-					EditorUi.setGraphDarkMode(this.graph, null, true);
+					if (Editor.enableCssDarkMode)
+					{
+						container.classList.add('geDarkMode');
+					}
+					else
+					{
+						EditorUi.setGraphDarkMode(this.graph, null, true);
+					}
 				}
 
 				this.graph.enableFlowAnimation = true;
@@ -1169,7 +1178,14 @@ GraphViewer.prototype.addToolbar = function()
 
 	if (this.darkMode)
 	{
-		toolbar.style.filter = 'invert(1)';
+		if (Editor.enableCssDarkMode)
+		{
+			toolbar.classList.add('geDarkMode');
+		}
+		else
+		{
+			toolbar.style.filter = 'invert(1)';
+		}
 	}
 
 	this.toolbar = toolbar;
@@ -1463,7 +1479,7 @@ GraphViewer.prototype.addToolbar = function()
 						
 						if (this.darkMode)
 						{
-							layersDialog.style.filter = 'invert(1)';
+							layersDialog.style.filter = 'invert(93%) hue-rotate(180deg)';
 						}
 
 						document.body.appendChild(layersDialog);
@@ -1507,7 +1523,7 @@ GraphViewer.prototype.addToolbar = function()
 
 						if (this.darkMode)
 						{
-							tagsComponent.div.style.filter = 'invert(1)';
+							tagsComponent.div.style.filter = 'invert(93%) hue-rotate(180deg)';
 						}
 
 						mxUtils.setOpacity(tagsComponent.div, 80);
@@ -1628,7 +1644,7 @@ GraphViewer.prototype.addToolbar = function()
 			
 			if (prevBorder == '1px solid transparent')
 			{
-				container.style.border = '1px solid ' + (this.darkMode? '#3d3d3d' : '#d0d0d0');
+				container.style.border = '1px solid #d0d0d0';
 			}
 			
 			document.body.appendChild(toolbar);
@@ -1674,6 +1690,8 @@ GraphViewer.prototype.addToolbar = function()
 		else
 		{
 			toolbar.style.top = -this.toolbarHeight + 'px';
+			// geDarkMode already set on container, so remove it from toolbar such that it doesn't invert colors twice
+			toolbar.classList.remove('geDarkMode');
 			container.appendChild(toolbar);
 		}
 	});
@@ -1720,6 +1738,11 @@ GraphViewer.prototype.createToolbarButton = function(fn, imgSrc, tip, enabled)
 	img.setAttribute('border', '0');
 	img.setAttribute('src', imgSrc);
 	img.style.width = '18px';
+
+	if (Editor.enableCssDarkMode)
+	{
+		img.className = 'geAdaptiveAsset';
+	}
 
 	if (enabled == null || enabled)
 	{
@@ -1922,7 +1945,7 @@ GraphViewer.prototype.showLocalLightbox = function(container)
 
 	backdrop.style.cssText = 'position:fixed;top:0;left:0;bottom:0;right:0;';
 	backdrop.style.zIndex = this.lightboxZIndex;
-	backdrop.style.backgroundColor = this.darkMode? '#fff' : '#000000';
+	backdrop.style.backgroundColor = '#000000';
 	mxUtils.setOpacity(backdrop, 70);
 	
 	document.body.appendChild(backdrop);
@@ -1935,7 +1958,14 @@ GraphViewer.prototype.showLocalLightbox = function(container)
 
 	if (this.darkMode)
 	{
-		closeImg.style.filter = 'invert(1)';
+		if (Editor.enableCssDarkMode)
+		{
+			closeImg.className = 'geAdaptiveAsset';
+		}
+		else
+		{
+			closeImg.style.filter = 'invert(1)';
+		}
 	}
 	
 	mxEvent.addListener(closeImg, 'click', function()
@@ -2327,7 +2357,11 @@ GraphViewer.initCss = function()
 	{
 		var style = document.createElement('style')
 		style.type = 'text/css';
-		style.innerHTML = ['div.mxTooltip {',
+		style.innerHTML = ['.geDarkMode {',
+			'filter: invert(93%) hue-rotate(180deg);background-color: transparent;}',
+			'.geDarkMode image, .geDarkMode img:not(.geAdaptiveAsset) {',
+			'filter: invert(100%) hue-rotate(180deg) saturate(1.25);}',
+			'div.mxTooltip {',
 			'-webkit-box-shadow: 3px 3px 12px #C0C0C0;',
 			'-moz-box-shadow: 3px 3px 12px #C0C0C0;',
 			'box-shadow: 3px 3px 12px #C0C0C0;',

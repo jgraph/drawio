@@ -747,6 +747,7 @@ subscript=ดรรชนีล่าง
 summary=ภาพรวม
 superscript=ดรรชนีบน
 support=ช่วยเหลือ
+swap=Swap
 swimlaneDiagram=Swimlane Diagram
 sysml=SysML
 tags=แท็ก

@@ -3,6 +3,25 @@
 	--border-color: #dadce0;
 	--text-color: #707070;
 }
+.geDarkMode {
+	filter: invert(93%) hue-rotate(180deg);
+	background:#151515;
+}
+.geDarkMode image, .geDarkMode img:not(.geAdaptiveAsset) {
+	filter: invert(100%) hue-rotate(180deg) saturate(1.25);
+}
+.geDarkMode div.mxWindow {
+	border-color: darkgray;
+}
+.geDarkMode div.mxRubberband {
+	border:1px dashed #202020 !important;
+	background:#a0a0a0 !important;
+}
+.geEditor {
+	position:absolute;
+	width:100%;
+	height:100%;
+}
 .geEditor *, div.mxWindow, .mxWindowTitle,
 .geEditor .geToolbarContainer .geColorButton {
 	border-color:var(--border-color);

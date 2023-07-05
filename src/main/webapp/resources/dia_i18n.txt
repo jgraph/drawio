@@ -747,6 +747,7 @@ subscript=subscript
 summary=summary
 superscript=superscript
 support=support
+swap=swap
 swimlaneDiagram=swimlaneDiagram
 sysml=sysml
 tags=tags

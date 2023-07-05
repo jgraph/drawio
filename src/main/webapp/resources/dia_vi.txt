@@ -747,6 +747,7 @@ subscript=Chỉ số dưới
 summary=Tóm tắt
 superscript=Số mũ/Chỉ số trên
 support=Hỗ trợ
+swap=Swap
 swimlaneDiagram=Swimlane Diagram
 sysml=SysML
 tags=Tags

@@ -747,6 +747,7 @@ subscript=Subskrip
 summary=Ringkasan
 superscript=Superskrip
 support=Dukungan
+swap=Swap
 swimlaneDiagram=Bagan Swimlane
 sysml=SysML
 tags=Tag

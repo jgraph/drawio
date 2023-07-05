@@ -747,6 +747,7 @@ subscript=아래 첨자
 summary=요약
 superscript=위 첨자
 support=고객지원
+swap=Swap
 swimlaneDiagram=구획면 다이어그램
 sysml=SysML
 tags=태그

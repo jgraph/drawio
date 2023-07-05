@@ -747,6 +747,7 @@ subscript=Subscrito
 summary=Sumário
 superscript=Sobrescrito
 support=Ajuda
+swap=Swap
 swimlaneDiagram=Fluxograma funcional
 sysml=SysML
 tags=Etiquetas

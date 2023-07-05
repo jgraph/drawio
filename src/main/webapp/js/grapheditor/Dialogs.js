@@ -1859,6 +1859,11 @@ var EditDataDialog = function(ui, cell)
 			icon.style.marginTop = (mxClient.IS_IE11) ? '0px' : '-4px';
 			icon.setAttribute('src', Editor.helpImage);
 			link.appendChild(icon);
+
+			if (Editor.enableCssDarkMode)
+			{
+				icon.className = 'geAdaptiveAsset';
+			}
 			
 			replace.appendChild(link);
 		}
@@ -2162,15 +2167,11 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	
 	var removeLink = link.cloneNode(false);
 	var img = document.createElement('img');
+	img.className = 'geAdaptiveAsset';
 	img.setAttribute('border', '0');
 	img.setAttribute('width', '22');
 	img.setAttribute('src', Editor.trashImage);
 	img.style.opacity = '0.9';
-
-	if (Editor.isDarkMode())
-	{
-		img.style.filter = 'invert(100%)';
-	}
 
 	removeLink.appendChild(img);
 
@@ -2463,6 +2464,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			inp.setAttribute('draggable', 'false');
 			inp.setAttribute('align', 'top');
 			inp.setAttribute('border', '0');
+			inp.className = 'geAdaptiveAsset';
 			inp.style.width = '16px';
 			inp.style.padding = '0px 6px 0 4px';
 			inp.style.marginTop = '2px';
@@ -2474,17 +2476,12 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			if (graph.model.isVisible(child))
 			{
 				inp.setAttribute('src', Editor.visibleImage);
-				mxUtils.setOpacity(ldiv, 75);
+				mxUtils.setOpacity(ldiv, 90);
 			}
 			else
 			{
 				inp.setAttribute('src', Editor.hiddenImage);
-				mxUtils.setOpacity(ldiv, 25);
-			}
-
-			if (Editor.isDarkMode())
-			{
-				inp.style.filter = 'invert(100%)';
+				mxUtils.setOpacity(ldiv, 40);
 			}
 
 			left.appendChild(inp);
@@ -2499,6 +2496,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			btn.setAttribute('draggable', 'false');
 			btn.setAttribute('align', 'top');
 			btn.setAttribute('border', '0');
+			btn.className = 'geAdaptiveAsset';
 			btn.style.width = '16px';
 			btn.style.padding = '0px 6px 0 0';
 			btn.style.marginTop = '2px';
@@ -2509,17 +2507,13 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			if (mxUtils.getValue(style, 'locked', '0') == '1')
 			{
 				btn.setAttribute('src', Editor.lockedImage);
-				mxUtils.setOpacity(btn, 75);
+				mxUtils.setOpacity(btn, 90);
+				ldiv.style.color = 'red';
 			}
 			else
 			{
 				btn.setAttribute('src', Editor.unlockedImage);
-				mxUtils.setOpacity(btn, 25);
-			}
-
-			if (Editor.isDarkMode())
-			{
-				btn.style.filter = 'invert(100%)';
+				mxUtils.setOpacity(btn, 40);
 			}
 			
 			if (graph.isEnabled())

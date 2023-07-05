@@ -549,25 +549,8 @@
 	/**
 	 * CSS for adaptive SVG dark mode.
 	 */
-	Editor.svgDarkModeCss = '@media (prefers-color-scheme: dark) {' +
-		':root {--light-color: #c9d1d9; --dark-color: #0d1117; }' +
-		'svg[style^="background-color:"] { background-color: var(--dark-color) !important; }' +
-		'g[filter="url(#dropShadow)"] { filter: none !important; }' +
-		'[stroke="rgb(0, 0, 0)"] { stroke: var(--light-color); }' +
-		'[stroke="rgb(255, 255, 255)"] { stroke: var(--dark-color); }' +
-		'[fill="rgb(0, 0, 0)"] { fill: var(--light-color); }' +
-		'[fill="rgb(255, 255, 255)"] { fill: var(--dark-color); }' +
-		'g[fill="rgb(0, 0, 0)"] text { fill: var(--light-color); }' +
-		'div[data-drawio-colors*="color: rgb(0, 0, 0)"]' +
-		'	div { color: var(--light-color) !important; }' +
-		'div[data-drawio-colors*="border-color: rgb(0, 0, 0)"]' +
-		'	{ border-color: var(--light-color) !important; }' +
-		'div[data-drawio-colors*="border-color: rgb(0, 0, 0)"]' +
-		'	div { border-color: var(--light-color) !important; }' +
-		'div[data-drawio-colors*="background-color: rgb(255, 255, 255)"]' +
-		'	{ background-color: var(--dark-color) !important; }' +
-		'div[data-drawio-colors*="background-color: rgb(255, 255, 255)"]' +
-		'	div { background-color: var(--dark-color) !important; }}';
+	Editor.svgDarkModeCss = 'svg { filter: invert(93%) hue-rotate(180deg); }' +
+		'svg image { invert(100%) hue-rotate(180deg) saturate(1.25) }';
 	
 	/**
 	 * Default value for the CSV import dialog.
@@ -1890,6 +1873,11 @@
 			if (config.oneDriveInlinePicker != null)
 			{
 				Editor.oneDriveInlinePicker = config.oneDriveInlinePicker;
+			}
+
+			if (config.enableCssDarkMode != null)
+			{
+				Editor.enableCssDarkMode = config.enableCssDarkMode;
 			}
 
 			if (config.darkColor != null)
@@ -3572,9 +3560,11 @@
 			// Handles special case where background is null but transparent is false
 			if (bg == null && transparentBackground == false)
 			{
-				bg = (keepTheme) ? this.graph.defaultPageBackgroundColor : '#ffffff';
+				bg = (keepTheme) ? (Editor.enableCssDarkMode ?
+					Editor.darkColor : this.graph.defaultPageBackgroundColor) :
+						'#ffffff';
 			}
-			
+
 			this.convertImages(graph.getSvg(null, null, border, noCrop, null, ignoreSelection,
 				null, null, null, addShadow, null, keepTheme, exportType, cells),
 				mxUtils.bind(this, function(svgRoot)
@@ -4699,10 +4689,12 @@
 			{
 				this.addActions(div, ['pasteStyle', 'pasteData']);
 			}
+
+			styleFormatPanelAddStyleOps.apply(this, arguments);
 			
-			return styleFormatPanelAddStyleOps.apply(this, arguments);
+			return div;
 		};
-		
+
 		/**
 		 * Initial collapsed state of the properties panel.
 		 */
@@ -6547,18 +6539,7 @@
 		var tempFg = null;
 		var tempBg = null;
 
-		if (false)
-		{
-			var svgDoc = result.ownerDocument;
-			var style = (svgDoc.createElementNS != null) ?
-		    	svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
-			svgDoc.setAttributeNS != null? style.setAttributeNS('type', 'text/css') :
-				style.setAttribute('type', 'text/css');
-			style.appendChild(svgDoc.createTextNode(Editor.svgDarkModeCss));
-			result.getElementsByTagName('defs')[0].appendChild(style);
-		}
-
-		if (!keepTheme && this.themes != null && this.defaultThemeName == 'darkTheme')
+		if (!keepTheme && this.themes != null && this.defaultThemeName == 'darkTheme' && !Editor.enableCssDarkMode)
 		{
 			temp = this.stylesheet;
 			tempFg = this.shapeForegroundColor;
@@ -6572,6 +6553,27 @@
 		}
 		
 		var result = graphGetSvg.apply(this, arguments);
+		
+		if (keepTheme && Editor.enableCssDarkMode)
+		{
+			var svgDoc = result.ownerDocument;
+			var style = (svgDoc.createElementNS != null) ?
+		    	svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
+			svgDoc.setAttributeNS != null? style.setAttributeNS('type', 'text/css') :
+				style.setAttribute('type', 'text/css');
+
+			var css = Editor.svgDarkModeCss;
+
+			if (keepTheme == 'auto')
+			{
+				css = '@media (prefers-color-scheme: dark) {' + css + '}';
+			}
+
+
+			style.appendChild(svgDoc.createTextNode(css));
+			result.getElementsByTagName('defs')[0].appendChild(style);
+		}
+
 		var extFonts = this.getCustomFonts();
 		
 		// Adds external fonts

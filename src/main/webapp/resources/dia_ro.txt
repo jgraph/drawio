@@ -747,6 +747,7 @@ subscript=Indice
 summary=Expunere sumara
 superscript=Text mărit
 support=Suport
+swap=Swap
 swimlaneDiagram=Swimlane Diagram
 sysml=SysML
 tags=Tag-uri

@@ -747,6 +747,7 @@ subscript=Tiefgestellt
 summary=Zusammenfassung
 superscript=Hochgestellt
 support=Support
+swap=Tauschen
 swimlaneDiagram=Swimlane-Diagramm
 sysml=SysML
 tags=Tags

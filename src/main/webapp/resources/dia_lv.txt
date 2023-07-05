@@ -747,6 +747,7 @@ subscript=Apakšraksts
 summary=Kopsavilkums
 superscript=Augšraksts
 support=Atbalsts
+swap=Swap
 swimlaneDiagram=Peldceliņa formāta diagramma
 sysml=SysML
 tags=Tagi
