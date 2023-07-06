@@ -1,4 +1,4 @@
-04-JUL-2023: 21.6.0
+04-JUL-2023: 21.6.1
 
 - Fixes special cases in replace shape [drawio-3686]
 - Enables new dark mode in production [drawio-3701]
