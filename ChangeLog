@@ -1,4 +1,14 @@
-04-JUL-2023: 21.6.0
+11-JUL-2023: 21.6.2
+
+- Fixes application icon background color
+- Adds swap for two selected vertices in Arrange tab
+- [conf cloud] Adds Gliffy non-mapped shapes to mass import report [DID-8704]
+- Fixes inverted background page colors [drawio-desktop-1375]
+- Hides explore for unconnected cells [drawio-3716]
+- Fixes move cells on fold in lightbox [DID-8763]
+- Fixes handling of UTF-8 in SVG images [drawio-506]
+
+05-JUL-2023: 21.6.1
 
 - Fixes special cases in replace shape [drawio-3686]
 - Enables new dark mode in production [drawio-3701]

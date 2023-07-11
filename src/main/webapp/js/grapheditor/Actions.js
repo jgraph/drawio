@@ -307,6 +307,36 @@ Actions.prototype.init = function()
 		}
 	});
 	
+	this.addAction('swap', function()
+	{
+		var cells = graph.getSelectionCells();
+		var model = graph.getModel();
+
+		if (cells.length == 2 && model.isVertex(cells[0]) && model.isVertex(cells[1]) &&
+			graph.getMovableCells(cells).length == 2)
+		{
+			var geo1 = graph.getCellGeometry(cells[0]);
+			var geo2 = graph.getCellGeometry(cells[1]);
+
+			if (geo1 != null && geo2 != null)
+			{
+				geo1 = geo1.clone();
+				geo2 = geo2.clone();
+				
+				model.beginUpdate();
+				try
+				{
+					model.setGeometry(cells[0], geo2);
+					model.setGeometry(cells[1], geo1);
+				}
+				finally
+				{
+					model.endUpdate();
+				}
+			}
+		}
+	});
+
 	this.addAction('copySize', function()
 	{
 		var cell = graph.getSelectionCell();

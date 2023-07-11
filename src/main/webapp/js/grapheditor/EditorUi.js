@@ -4755,6 +4755,7 @@ EditorUi.prototype.updateActionStates = function()
 	this.actions.get('grid').setEnabled(editable);
 	this.actions.get('undo').setEnabled(this.canUndo() && editable);
 	this.actions.get('redo').setEnabled(this.canRedo() && editable);
+	this.actions.get('swap').setEnabled(ss.cells.length == 2 && ss.vertices.length == 2);
 	this.actions.get('pasteSize').setEnabled(this.copiedSize != null && ss.vertices.length > 0);
 	this.actions.get('pasteData').setEnabled(this.copiedValue != null && ss.cells.length > 0);
 	this.actions.get('setAsDefaultStyle').setEnabled(graph.getSelectionCount() == 1);

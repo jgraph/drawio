@@ -547,12 +547,6 @@
 	].concat(Editor.commonProperties);
 
 	/**
-	 * CSS for adaptive SVG dark mode.
-	 */
-	Editor.svgDarkModeCss = 'svg { filter: invert(93%) hue-rotate(180deg); }' +
-		'svg image { invert(100%) hue-rotate(180deg) saturate(1.25) }';
-	
-	/**
 	 * Default value for the CSV import dialog.
 	 */
 	Editor.defaultCsvValue = '##\n' +
@@ -3536,7 +3530,7 @@
 	 */
 	Editor.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
 		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop, grid,
-		keepTheme, exportType, cells)
+		theme, exportType, cells)
 	{
 		try
 		{
@@ -3560,13 +3554,11 @@
 			// Handles special case where background is null but transparent is false
 			if (bg == null && transparentBackground == false)
 			{
-				bg = (keepTheme) ? (Editor.enableCssDarkMode ?
-					Editor.darkColor : this.graph.defaultPageBackgroundColor) :
-						'#ffffff';
+				bg = (theme == 'dark') ? Editor.darkColor : '#ffffff';
 			}
 
 			this.convertImages(graph.getSvg(null, null, border, noCrop, null, ignoreSelection,
-				null, null, null, addShadow, null, keepTheme, exportType, cells),
+				null, null, null, addShadow, null, theme, exportType, cells),
 				mxUtils.bind(this, function(svgRoot)
 			{
 				try
@@ -6527,19 +6519,68 @@
 	};
 
 	/**
+	 * Returns true if the given string contains an mxfile.
+	 */
+	Graph.prototype.adaptBackgroundPage = function(image, theme)
+	{
+		if (image != null && image.src != null)
+		{
+			var svg = Graph.getSvgFromDataUri(image.src);
+
+			if (svg != null)
+			{
+				try
+				{
+					var doc = new DOMParser().parseFromString(svg, 'text/xml');
+
+					// Removes dark theme CSS
+					var styles = doc.getElementsByTagName('style');
+
+					for (var i = 0; i < styles.length; i++)
+					{
+						if (styles[i].innerHTML == Graph.svgDarkModeCss)
+						{
+							styles[i].parentNode.removeChild(styles[i]);
+							break;
+						}
+					}
+
+					// Adds new dark theme CSS
+					if (theme == 'dark' || theme == 'auto')
+					{
+						var style = Graph.createSvgDarkModeStyle(doc, theme);
+						doc.getElementsByTagName('defs')[0].appendChild(style);
+					}
+
+					image = new mxImage(Editor.createSvgDataUri(mxUtils.getXml(
+						doc.documentElement)), image.width, image.height,
+						image.x, image.y)
+				}
+				catch (e)
+				{
+					// ignore
+				}
+			}
+		}
+
+		return image;
+	};
+
+	/**
 	 * Temporarily overrides stylesheet during image export in dark mode.
 	 */
 	var graphGetSvg = Graph.prototype.getSvg;
 	
 	Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp,
 		ignoreSelection, showText, imgExport, linkTarget, hasShadow,
-		incExtFonts, keepTheme, exportType, cells)
+		incExtFonts, theme, exportType, cells)
 	{
 		var temp = null;
 		var tempFg = null;
 		var tempBg = null;
 
-		if (!keepTheme && this.themes != null && this.defaultThemeName == 'darkTheme' && !Editor.enableCssDarkMode)
+		if (!Editor.enableCssDarkMode && this.themes != null && theme != null &&
+			((theme == 'dark') != (this.defaultThemeName == 'darkTheme')))
 		{
 			temp = this.stylesheet;
 			tempFg = this.shapeForegroundColor;
@@ -6551,26 +6592,21 @@
 			this.stylesheet = this.getDefaultStylesheet();
 			this.refresh();
 		}
-		
-		var result = graphGetSvg.apply(this, arguments);
-		
-		if (keepTheme && Editor.enableCssDarkMode)
+
+		var bgImg = null;
+
+		// Adapts background page to given theme
+		if (Editor.enableCssDarkMode && this.backgroundImage != null)
 		{
-			var svgDoc = result.ownerDocument;
-			var style = (svgDoc.createElementNS != null) ?
-		    	svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
-			svgDoc.setAttributeNS != null? style.setAttributeNS('type', 'text/css') :
-				style.setAttribute('type', 'text/css');
+			bgImg = this.backgroundImage;
+			this.backgroundImage = this.adaptBackgroundPage(bgImg, theme);
+		}
 
-			var css = Editor.svgDarkModeCss;
+		var result = graphGetSvg.apply(this, arguments);
 
-			if (keepTheme == 'auto')
-			{
-				css = '@media (prefers-color-scheme: dark) {' + css + '}';
-			}
-
-
-			style.appendChild(svgDoc.createTextNode(css));
+		if (Editor.enableCssDarkMode && (theme == 'dark' || theme == 'auto'))
+		{
+			var style = Graph.createSvgDarkModeStyle(result.ownerDocument, theme);
 			result.getElementsByTagName('defs')[0].appendChild(style);
 		}
 
@@ -6613,6 +6649,11 @@
 			document.body.appendChild(result);
 			Editor.MathJaxRender(result);
 			result.parentNode.removeChild(result);
+		}
+
+		if (bgImg != null)
+		{
+			this.backgroundImage = bgImg;
 		}
 		
 		if (temp != null)

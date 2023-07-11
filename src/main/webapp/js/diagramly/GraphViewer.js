@@ -2358,7 +2358,8 @@ GraphViewer.initCss = function()
 		var style = document.createElement('style')
 		style.type = 'text/css';
 		style.innerHTML = ['.geDarkMode {',
-			'filter: invert(93%) hue-rotate(180deg);background-color: transparent;}',
+			'filter: invert(93%) hue-rotate(180deg);',
+			'background-color: transparent;}',
 			'.geDarkMode image, .geDarkMode img:not(.geAdaptiveAsset) {',
 			'filter: invert(100%) hue-rotate(180deg) saturate(1.25);}',
 			'div.mxTooltip {',

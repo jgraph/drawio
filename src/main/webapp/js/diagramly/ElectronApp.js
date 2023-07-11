@@ -1992,8 +1992,8 @@ mxStencilRegistry.allowEval = false;
 				}
 				else 
 				{
-					editorUi.exportImage(s, false, true,
-						false, false, b, true, false, 'jpeg');
+					editorUi.exportImage(s, false, true, false,
+						false, b, true, false, 'jpeg');
 				}
 			}
 			else 

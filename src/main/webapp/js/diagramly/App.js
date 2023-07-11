@@ -7008,6 +7008,10 @@ App.prototype.updateHeader = function()
 			this.addListener('darkModeChanged', updateBackground);
 			updateBackground();
 		}
+		else
+		{
+			this.appIcon.style.backgroundColor = '#f08705';
+		}
 
 		mxUtils.setPrefixedStyle(this.appIcon.style, 'transition', 'all 125ms linear');
 

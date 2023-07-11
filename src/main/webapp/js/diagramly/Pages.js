@@ -484,8 +484,10 @@ EditorUi.prototype.getImageForPage = function(page, sourcePage, sourceGraph)
 
 	var temp = Graph.foreignObjectWarningText;
 	Graph.foreignObjectWarningText = '';
+	var theme = (Editor.cssDarkMode || Editor.isDarkMode()) ?
+		'dark' : 'light';
 	var svgRoot = graph.getSvg(null, null, null, null, null,
-		null, null, null, null, null, null, true);
+		null, null, null, null, null, null, theme);
 	var bounds = graph.getGraphBounds();
 	document.body.removeChild(graph.container);
 	Graph.foreignObjectWarningText = temp;

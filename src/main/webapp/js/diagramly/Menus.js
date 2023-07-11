@@ -836,7 +836,7 @@
 				'https://www.drawio.com/doc/faq/export-diagram',
 				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
 					addShadow, editable, embedImages, border, cropImage, currentPage,
-					linkTarget, grid, keepTheme, exportType, embedFonts, lblToSvg)
+					linkTarget, grid, theme, exportType, embedFonts, lblToSvg)
 				{
 					var val = parseInt(scale);
 					
@@ -851,7 +851,7 @@
 						{
 							editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
 								addShadow, editable, embedImages, border, !cropImage, false,
-								linkTarget, keepTheme, exportType, embedFonts);
+								linkTarget, theme, exportType, embedFonts);
 						}
 					}
 				}), true, null, 'svg', true);
@@ -864,7 +864,7 @@
 				editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
 					'https://www.drawio.com/doc/faq/export-diagram',
 					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable,
-						embedImages, border, cropImage, currentPage, dummy, grid, keepTheme, exportType)
+						embedImages, border, cropImage, currentPage, dummy, grid, theme, exportType)
 					{
 						var val = parseInt(scale);
 						
@@ -872,7 +872,7 @@
 						{
 							editorUi.exportImage(val / 100, transparentBackground, ignoreSelection,
 								addShadow, editable, border, !cropImage, false, null, grid, null,
-								keepTheme, exportType);
+								theme, exportType);
 						}
 					}), true, Editor.defaultIncludeDiagram, 'png', true);
 			}
@@ -892,7 +892,7 @@
 				editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
 					'https://www.drawio.com/doc/faq/export-diagram',
 					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable,
-						embedImages, border, cropImage, currentPage, dummy, grid, keepTheme, exportType)
+						embedImages, border, cropImage, currentPage, dummy, grid, theme, exportType)
 					{
 						var val = parseInt(scale);
 						
@@ -900,7 +900,7 @@
 						{
 							editorUi.exportImage(val / 100, false, ignoreSelection,
 								addShadow, false, border, !cropImage, false, 'jpeg',
-								grid, null, keepTheme, exportType);
+								grid, null, theme, exportType);
 						}
 					}), true, false, 'jpeg', true);
 			}
@@ -1273,7 +1273,7 @@
 					menubar != null && Editor.enableSimpleTheme &&
 					editorUi.getServiceName() != 'atlassian')
 				{
-					var themeMenu = this.get('appearance');
+					var themeMenu = this.get('dynamicAppearance');
 					
 					if (themeMenu != null)
 					{
@@ -3203,8 +3203,8 @@
 				}, parent);
 			}
 		}))).isEnabled = isGraphEnabled;
-		
-		this.put('appearance', new Menu(mxUtils.bind(this, function(menu, parent)
+
+		this.put('dynamicAppearance', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 
@@ -3261,6 +3261,23 @@
 			if (urlParams['embed'] != '1')
 			{
 				this.addMenuItems(menu, ['-', 'toggleSimpleMode'], parent);
+			}
+		})));
+		
+		this.put('appearance', new Menu(mxUtils.bind(this, function(menu, parent)
+		{
+			this.addMenuItems(menu, ['-', 'lightMode', 'darkMode'], parent);
+
+			if (editorUi.isAutoDarkModeSupported())
+			{
+				var item = editorUi.menus.addMenuItem(menu, 'autoMode', parent);
+
+				if (item != null)
+				{
+					item.setAttribute('title', mxResources.get('automatic') +
+						' (' + mxResources.get(Editor.cssDarkMode || Editor.isDarkMode() ?
+							'dark' : 'light') + ')');
+				}
 			}
 		})));
 

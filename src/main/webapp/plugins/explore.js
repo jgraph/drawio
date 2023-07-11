@@ -16,7 +16,7 @@ Draw.loadPlugin(function(ui)
 		
 		var graph = ui.editor.graph;
 		
-		if (graph.model.isVertex(graph.getSelectionCell()))
+		if (graph.getEdges(graph.getSelectionCell()).length > 0)
 		{
 			this.addMenuItems(menu, ['-', 'exploreFromHere'], null, evt);
 		}
@@ -68,13 +68,6 @@ Draw.loadPlugin(function(ui)
 		};
 		
 		mxEvent.addListener(document, 'keydown', keyHandler);
-		
-		// Global variable to make sure each cell in a response has
-		// a unique ID throughout the complete life of the program,
-		// in a real-life setup each cell should have an external
-		// ID on the business object or else the cell ID should be
-		// globally unique for the lifetime of the graph model.
-		var requestId = 0;
 		
 		function main(container)
 		{
@@ -134,19 +127,14 @@ Draw.loadPlugin(function(ui)
 				// Handles clicks on cells
 				graph.click = function(me)
 				{
-					var evt = me.getEvent();
 					var cell = me.getCell();
 					
-					if (cell != null && cell != graph.rootCell)
+					if (cell != null && graph.getEdges(cell).length > 0)
 					{
 						load(graph, cell);
 					}
 				};
-			
-				// Gets the default parent for inserting new cells. This
-				// is normally the first child of the root (ie. layer 0).
-				var parent = graph.getDefaultParent();
-
+				
 				var cx = graph.container.scrollWidth / 2;
 				var cy = graph.container.scrollHeight / 3;
 
@@ -161,16 +149,15 @@ Draw.loadPlugin(function(ui)
 				graph.getModel().addListener(mxEvent.CHANGE, function(sender, evt)
 				{
 					var changes = evt.getProperty('edit').changes;
-					var prev = mxText.prototype.enableBoundingBox;
 					mxText.prototype.enableBoundingBox = false;
 					graph.labelsVisible = false;
 					
 					mxEffects.animateChanges(graph, changes, function()
 					{
-						mxText.prototype.prev = true;
+						mxText.prototype.enableBoundingBox = true;
 						graph.labelsVisible = true;
-						graph.refresh();
 						graph.tooltipHandler.hide();
+						graph.refresh();
 					});
 				});
 
@@ -204,7 +191,8 @@ Draw.loadPlugin(function(ui)
 					{
 						var tmp = graph.getModel().getCell(key);
 						
-						if (tmp != graph.rootCell && graph.getModel().isVertex(tmp))
+						if (tmp != graph.rootCell && !graph.getModel().isAncestor(
+							graph.rootCell, tmp) && graph.getModel().isVertex(tmp))
 						{
 							graph.removeCells([tmp]);
 						}

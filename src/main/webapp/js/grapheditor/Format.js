@@ -1817,7 +1817,6 @@ ArrangePanel.prototype.addLayerOps = function(div)
 ArrangePanel.prototype.addGroupOps = function(div)
 {
 	var ui = this.editorUi;
-	var graph = ui.editor.graph;
 	var ss = ui.getSelectionState();
 	
 	div.style.paddingTop = '8px';
@@ -1827,7 +1826,8 @@ ArrangePanel.prototype.addGroupOps = function(div)
 	
 	if (!ss.cell && !ss.row)
 	{
-		count += this.addActions(div, ['group', 'ungroup', 'copySize', 'pasteSize']) +
+		count += this.addActions(div, ['group', 'ungroup',
+			'copySize', 'pasteSize', 'swap']) +
 			this.addActions(div, ['removeFromGroup']);
 	}
 
@@ -4495,7 +4495,8 @@ StyleFormatPanel.prototype.addSvgStyles = function(container)
 			var regex = new RegExp(exp);
 			
 			var data = ss.style.image.substring(ss.style.image.indexOf(',') + 1);
-			var xml = (window.atob) ? atob(data) : Base64.decode(data, true);
+			var xml = (window.atob) ? decodeURIComponent(escape(atob((data)))) :
+				Base64.decode(data, true);
 			var svg = mxUtils.parseXml(xml);
 			
 			if (svg != null)
@@ -4565,7 +4566,8 @@ StyleFormatPanel.prototype.addSvgRule = function(container, rule, svg, styleElem
 					var xml = mxUtils.getXml(svg.documentElement);
 					
 					graph.setCellStyles(mxConstants.STYLE_IMAGE, 'data:image/svg+xml,' +
-						((window.btoa) ? btoa(xml) : Base64.encode(xml, true)),
+						((window.btoa) ? btoa(unescape(encodeURIComponent(xml))) :
+							Base64.encode(xml, true)),
 						ui.getSelectionState().cells);
 				}), '#ffffff',
 				{

@@ -1216,8 +1216,8 @@
 
 				var props = this.getSvgFileProperties(fileNode);
 				
-				xml = this.getEmbeddedSvg(xml, graph, url, null, embeddedCallback, ignoreSelection, redirect,
-					null, null, props.scale, props.border);
+				xml = this.getEmbeddedSvg(xml, graph, url, null, embeddedCallback,
+					ignoreSelection, redirect, null, null, props.scale, props.border);
 			}
 			
 			return xml;
@@ -4104,7 +4104,7 @@
 				}
 			}), null, mxResources.get('close'), null, null, null, true, null, null, helpLink, buttons, elt);
 		
-		this.showDialog(dlg.container, 620, 460, true, false);
+		this.showDialog(dlg.container, 660, 480, true, false);
 		dlg.init();
 	};
 
@@ -5521,7 +5521,7 @@
 	 *
 	 */
 	EditorUi.prototype.exportSvg = function(scale, transparentBackground, ignoreSelection, addShadow,
-		editable, embedImages, border, noCrop, currentPage, linkTarget, keepTheme, exportType,
+		editable, embedImages, border, noCrop, currentPage, linkTarget, theme, exportType,
 		embedFonts, saveFn)
 	{
 		if (this.spinner.spin(document.body, mxResources.get('export')))
@@ -5540,7 +5540,7 @@
 				// Handles special case where background is null but transparent is false
 				if (bg == null && transparentBackground == false)
 				{
-					bg = (keepTheme) ? this.editor.graph.defaultPageBackgroundColor : '#ffffff';
+					bg = (theme == 'dark' && !Editor.enableSvgDarkMode) ? Editor.darkColor : '#ffffff';
 				}
 				
 				// Sets or disables alternate text for foreignObjects. Disabling is needed
@@ -5548,7 +5548,7 @@
 				var svgRoot = this.editor.graph.getSvg(bg, scale, border, noCrop, null,
 					ignoreSelection, null, null, (linkTarget == 'blank') ? '_blank' :
 					((linkTarget == 'self') ? '_top' : null), null, !embedFonts,
-					keepTheme, exportType);
+					theme, exportType);
 				
 				if (addShadow)
 				{
@@ -6584,35 +6584,35 @@
 		var transparent = this.addCheckbox(div, mxResources.get('transparentBackground'),
 			defaultTransparent, null, null, format != 'jpeg');
 
-		var appearanceSelect = null;
+		var themeSelect = null;
 
 		if (Editor.isDarkMode() || Editor.enableCssDarkMode)
 		{
-			var appearanceSelect = document.createElement('select');
-			appearanceSelect.style.maxWidth = '260px';
-			appearanceSelect.style.marginLeft = '8px';
-			appearanceSelect.style.marginTop = '16px';
+			var themeSelect = document.createElement('select');
+			themeSelect.style.maxWidth = '260px';
+			themeSelect.style.marginLeft = '8px';
+			themeSelect.style.marginTop = '16px';
 	
 			var lightOption = document.createElement('option');
 			lightOption.setAttribute('value', 'light');
 			mxUtils.write(lightOption, mxResources.get('light'));
-			appearanceSelect.appendChild(lightOption);
+			themeSelect.appendChild(lightOption);
 	
 			var darkOption = document.createElement('option');
 			darkOption.setAttribute('value', 'dark');
 			mxUtils.write(darkOption, mxResources.get('dark'));
-			appearanceSelect.appendChild(darkOption);
+			themeSelect.appendChild(darkOption);
 			
 			if (Editor.enableCssDarkMode && format == 'svg')
 			{
 				var autoOption = document.createElement('option');
 				autoOption.setAttribute('value', 'auto');
 				mxUtils.write(autoOption, mxResources.get('automatic'));
-				appearanceSelect.appendChild(autoOption);
+				themeSelect.appendChild(autoOption);
 			}
 
 			mxUtils.write(div, mxResources.get('appearance') + ':');
-			div.appendChild(appearanceSelect);
+			div.appendChild(themeSelect);
 			mxUtils.br(div);
 
 			if (Editor.isDarkMode() || Editor.cssDarkMode)
@@ -6633,11 +6633,13 @@
 		
 		if (format == 'png' || format == 'jpeg')
 		{
-			grid = this.addCheckbox(div, mxResources.get('grid'), false, this.isOffline() || !this.canvasSupported, false, true); 
+			grid = this.addCheckbox(div, mxResources.get('grid'), false,
+				this.isOffline() || !this.canvasSupported, false, true); 
 			height += 30;
 		}
 		
-		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), defaultInclude, null, null, format != 'jpeg');
+		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'),
+			defaultInclude, null, null, format != 'jpeg');
 		include.style.marginBottom = '16px';
 		
 		var cb5 = document.createElement('input');
@@ -6651,7 +6653,7 @@
 		}
 		
 		var txtSettingsSelect = document.createElement('select');
-		txtSettingsSelect.style.maxWidth = '260px';
+		txtSettingsSelect.style.maxWidth = '200px';
 		txtSettingsSelect.style.marginLeft = '8px';
 		txtSettingsSelect.style.marginBottom = '16px';
 
@@ -6757,17 +6759,9 @@
 			this.lastExportBorder = borderInput.value;
 			this.lastExportZoom = zoomInput.value;
 
-			var keepThemeValue = null;
-
-			if (appearanceSelect != null)
-			{
-				keepThemeValue = (appearanceSelect.value != 'auto') ?
-					appearanceSelect.value == 'dark' : 'auto';
-			}
-			
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
-				include.checked, cb5.checked, borderInput.value, cb6.checked, false,
-				linkSelect.value, (grid != null) ? grid.checked : null, keepThemeValue,
+				include.checked, cb5.checked, borderInput.value, cb6.checked, false, linkSelect.value,
+				(grid != null) ? grid.checked : null, (themeSelect != null) ? themeSelect.value : null,
 				exportSelect.value, txtSettingsSelect.value == 'embedFonts',
 				txtSettingsSelect.value == 'lblToSvg');
 		}), null, btnLabel, helpLink);
@@ -6948,8 +6942,8 @@
 	 */
 	EditorUi.prototype.createEmbedSvg = function(fit, shadow, image, lightbox, edit, layers, fn)
 	{
-		var svgRoot = this.editor.graph.getSvg(null, null, null, null, null,
-				null, null, null, null, null, !image);
+		var svgRoot = this.editor.graph.getSvg(null, null, null,
+			null, null, null, null, null, null, null, !image);
 		
 		// Keeps hashtag links on same page
 		var links = svgRoot.getElementsByTagName('a');
@@ -7327,7 +7321,7 @@
 	 * used, the images are converted to data URIs.
 	 */
 	EditorUi.prototype.getEmbeddedSvg = function(xml, graph, url, noHeader, callback, ignoreSelection,
-		redirect, embedImages, background, scale, border, shadow, keepTheme)
+		redirect, embedImages, background, scale, border, shadow, theme)
 	{
 		embedImages = (embedImages != null) ? embedImages : true;
 		border = (border != null) ? border : 0;
@@ -7342,7 +7336,7 @@
 		// Sets or disables alternate text for foreignObjects. Disabling is needed
 		// because PhantomJS seems to ignore switch statements and paint all text.
 		var svgRoot = graph.getSvg(bg, scale, border, null, null, ignoreSelection, null,
-			null, null, graph.shadowVisible || shadow, null, keepTheme, 'diagram');
+			null, null, graph.shadowVisible || shadow, null, theme, 'diagram');
 		
 		if (graph.shadowVisible || shadow)
 		{
@@ -7451,7 +7445,7 @@
 	 *
 	 */
 	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow,
-		editable, border, noCrop, currentPage, format, grid, dpi, keepTheme, exportType)
+		editable, border, noCrop, currentPage, format, grid, dpi, theme, exportType)
 	{
 		format = (format != null) ? format : 'png';
 		
@@ -7487,7 +7481,7 @@
 			   		this.spinner.stop();
 			   		this.handleError(e);
 				}), null, ignoreSelection, scale || 1, transparentBackground, addShadow,
-					null, null, border, noCrop, grid, keepTheme, exportType);
+					null, null, border, noCrop, grid, theme, exportType);
 			}
 			catch (e)
 			{
@@ -11224,11 +11218,7 @@
 			this.hideShapePicker();
 		});
 
-		if (!Editor.enableCssDarkMode)
-		{
-			this.addListener('darkModeChanged', themeChangeListener);
-		}
-
+		this.addListener('darkModeChanged', themeChangeListener);
 		this.addListener('sketchModeChanged', themeChangeListener);
 		this.addListener('currentThemeChanged', mxUtils.bind(this, function()
 		{
@@ -16419,14 +16409,21 @@
 											}
 										}
 
+										var theme = null;
+
+										if (data.keepTheme)
+										{
+											theme = (Editor.cssDarkMode || Editor.isDarkMode()) ? 'dark' : 'light'
+										}
+
 										this.editor.exportToCanvas(mxUtils.bind(this, function(canvas)
 										{
 											processUri(canvas.toDataURL('image/png'));
 										}), data.width, null, data.background, mxUtils.bind(this, function()
 										{
 											processUri(null);
-										}), null, null, data.scale, data.transparent, data.shadow, null,
-											graph, data.border, null, data.grid, data.keepTheme);
+										}), null, null, data.scale, data.transparent, data.shadow,
+											null, graph, data.border, null, data.grid, theme);
 									});
 
 									// Uses optional XML from incoming message
@@ -16519,6 +16516,13 @@
 										msg.data = Editor.createSvgDataUri(svg);
 										parent.postMessage(JSON.stringify(msg), '*');
 									});
+
+									var theme = null;
+
+									if (data.keepTheme)
+									{
+										theme = (Editor.cssDarkMode || Editor.isDarkMode()) ? 'dark' : 'light'
+									}
 									
 									if (data.format == 'xmlsvg')
 									{
@@ -16526,7 +16530,7 @@
 											(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
 										{
 											this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, postResult, null, null,
-												data.embedImages, bg, data.scale, data.border, data.shadow, data.keepTheme);
+												data.embedImages, bg, data.scale, data.border, data.shadow, theme);
 										}
 									}
 									else
@@ -16537,7 +16541,7 @@
 											this.editor.graph.setEnabled(false);
 											var svgRoot = this.editor.graph.getSvg(bg, data.scale, data.border, null, null,
 												null, null, null, null, this.editor.graph.shadowVisible || data.shadow,
-												null, data.keepTheme);
+												null, theme);
 											
 											if (this.editor.graph.shadowVisible || data.shadow)
 											{
@@ -19436,12 +19440,12 @@
 	};
 	
 	EditorUi.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
-			ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop, grid, keepTheme)
+			ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop, grid, theme)
 	{
 		EditorUi.logEvent('SHOULD NOT BE CALLED: exportToCanvas');
 		return this.editor.exportToCanvas(callback, width, imageCache, background, error, limitHeight,
 			ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border,
-			noCrop, grid, keepTheme);	
+			noCrop, grid, theme);	
 	};
 	
 	EditorUi.prototype.createImageUrlConverter = function()
