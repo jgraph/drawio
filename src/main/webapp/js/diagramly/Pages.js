@@ -557,7 +557,7 @@ EditorUi.prototype.initPages = function()
 			for (var i = 0; i < changes.length; i++)
 			{
 				if (changes[i] instanceof RenamePage ||
-					changes[i] instanceof MovePage ||
+					changes[i] instanceof ChangePage ||
 					changes[i] instanceof mxRootChange)
 				{
 					this.updateTabContainer();

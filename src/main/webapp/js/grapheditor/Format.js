@@ -1822,13 +1822,12 @@ ArrangePanel.prototype.addGroupOps = function(div)
 	div.style.paddingTop = '8px';
 	div.style.paddingBottom = '6px';
 
-	var count = 0;
-	
+	var count = this.addActions(div, ['group', 'ungroup']) +
+		this.addActions(div, ['removeFromGroup']);
+
 	if (!ss.cell && !ss.row)
 	{
-		count += this.addActions(div, ['group', 'ungroup',
-			'copySize', 'pasteSize', 'swap']) +
-			this.addActions(div, ['removeFromGroup']);
+		count += this.addActions(div, ['copySize', 'pasteSize', 'swap']);
 	}
 
 	var clearWaypoints = this.addAction(div, 'clearWaypoints');

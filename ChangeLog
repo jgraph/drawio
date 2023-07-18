@@ -1,3 +1,19 @@
+18-JUL-2023: 21.6.3
+
+- Shift+Alt+Drag moves selection cells [drawio-3726]
+- Fixes grouping of shapes with table [drawio-3725]
+- Updates DOMPurify from 3.0.3 to 3.0.5
+- Fixes update of page tabs after import [DID-8891]
+- [conf cloud] Load main file diagram if draft unchanged and old version in macro
+- Fixes Grid option in pdf export
+- [jira cloud] Added support for server zip format [DFJC-18]
+- [vsdx] Added support for rotated edge labels [DID-8697]
+- Fixes getBoundingBoxFromGeometry for nested groups
+- Fixes initial scrollbar for demo mode in simple UI
+- Removes voice plugin [CSP-2113]
+- Use Ctrl+Y and Ctrl+Shift+Z for redo [drawio-3733]
+- Sanitizes HTML markup in labels [CSP-2113]
+
 11-JUL-2023: 21.6.2
 
 - Fixes application icon background color

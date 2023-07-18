@@ -930,25 +930,9 @@
 		action.setToggleAction(true);
 		action.setSelectedCallback(function() { return graph.shadowVisible; });
 
-		editorUi.actions.put('about', new Action(mxResources.get('about') + ' ' + EditorUi.VERSION + '...', function(arg1, evt)
+		editorUi.actions.put('about', new Action('v' + EditorUi.VERSION, function(arg1, evt)
 		{
-			if (evt != null && mxEvent.isShiftDown(evt))
-			{
-				mxLog.show();
-
-				if (window.console != null)
-				{
-					console.log(editorUi, window);
-				}
-			}
-			else if (editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-			{
-				editorUi.alert(editorUi.editor.appName + ' ' + EditorUi.VERSION);
-			}
-			else
-			{
-				editorUi.openLink('https://www.drawio.com/');
-			}
+			// do nothing
 		}));
 		
 		editorUi.actions.addAction('support...', function()

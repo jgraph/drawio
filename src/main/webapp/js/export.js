@@ -529,7 +529,8 @@ function render(data)
 		
 		var pages = document.querySelectorAll('[id^=mxPage]');
 		
-		var cssTxt = 'margin: 0;padding: 0;background-image: ' + gridImage + ';background-position: ' + position;
+		var cssTxt = 'margin: 0;padding: 0;background-image: ' + gridImage + ';background-position: ' + position
+						+ ';background-color: ' + document.body.style.backgroundColor;
 		document.body.style.cssText = cssTxt;
 
 		for (var i = 0; i < pages.length; i++)
@@ -885,7 +886,7 @@ function render(data)
 				preview = new mxPrintPreview(graph, scale, pf, border, x0, y0);
 				preview.printBackgroundImage = true;
 				preview.autoOrigin = autoOrigin;
-				preview.backgroundColor = bg;
+				preview.backgroundColor = gridColor? 'transparent' : bg;
 				// Renders print output into this document and removes the graph container
 				preview.open(null, window, null, null, anchorId);
 				graph.container.parentNode.removeChild(graph.container);

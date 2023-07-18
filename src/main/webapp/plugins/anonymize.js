@@ -29,7 +29,7 @@ Draw.loadPlugin(function(editorUi)
 	
 	function anonymizeHtml(html)
 	{
-		div.innerHTML = html;
+		div.innerHTML = Graph.sanitizeHtml(html);
 		
 		replaceTextContent(div);
 		

@@ -664,7 +664,7 @@ var com;
                     var shapes = page.getShapes();
                     var hiddenTags = [];
 
-                    console.log('layers', layers);
+                    //console.log('layers', layers);
 					
                     for (var k = 0; k < layers.length; k++)
                     {
@@ -1240,6 +1240,33 @@ var com;
 					catch(e){} //Ignore
 				};
 				
+                function addEdgeSublabel(graph, edge, edgeShape, rotation, lblOffset)
+                {
+                    var label = edgeShape.createLabelSubShape(graph, edge);
+
+                    if (label != null)
+                    {
+                        if (rotation !== 0) 
+                        {
+                            var lblRot = label.getStyle().match(/;rotation=(\d+\.*\d+)/);
+                            
+                            if (lblRot != null)
+                            {
+                                rotation += parseFloat(lblRot[1]);
+                            }
+
+                            label.setStyle(label.getStyle().replace(/;rotation=(\d+\.*\d+)/, '') + ";rotation=" + (rotation > 60 && rotation < 240 ? (rotation + 180) % 360 : rotation));
+                        }
+
+                        var geo = label.getGeometry();
+                        geo.x = (0);
+                        geo.y = (0);
+                        geo.relative = (true);
+                        lblOffset = lblOffset || new mxPoint(0, 0);
+                        geo.offset = (new mxPoint(lblOffset.x - geo.width / 2, lblOffset.y - geo.height / 2));
+                    }
+                };
+
                 /**
                  * Adds a connected edge to the graph.
                  * These edged are the referenced in one Connect element at least.
@@ -1341,46 +1368,49 @@ var com;
                     var styleMap = edgeShape.getStyleFromEdgeShape(parentHeight);
                     var edge;
                     var rotation = edgeShape.getRotation();
-                    if (rotation !== 0) {
-                        edge = graph.insertEdge(parent, null, null, source, target, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
-                        var label = edgeShape.createLabelSubShape(graph, edge);
-                        if (label != null) {
-                            label.setStyle(label.getStyle() + ";rotation=" + (rotation > 60 && rotation < 240 ? (rotation + 180) % 360 : rotation));
-                            var geo = label.getGeometry();
-                            geo.x = (0);
-                            geo.y = (0);
-                            geo.relative = (true);
-                            geo.offset = (new mxPoint(-geo.width / 2, -geo.height / 2));
-                        }
+                    var textLabel = "";
+                    var hasSubLabel = edgeShape.isDisplacedLabel() || edgeShape.isRotatedLabel() || rotation !== 0;
+                    var lblOffset = edgeShape.getLblEdgeOffset(graph.getView(), points);
+
+                    if (!hasSubLabel) 
+                    {
+                        textLabel = edgeShape.getTextLabel(true);
                     }
-                    else {
-                        edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(true), source, target, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
-                        var lblOffset = edgeShape.getLblEdgeOffset(graph.getView(), points);
-                        edge.getGeometry().offset = (lblOffset);
-                        
-                        //add entry/exit points when edge, src, and trg are not rotated
-                        if (fromConstraint != null)
-            			{
-            				graph.setConnectionConstraint(edge, source, true,
-            						new mxConnectionConstraint(fromConstraint, false));
-            			}
-                        
-                        if (removeFirstPt)
-                    	{
-	                        points.shift();
-                    	}
-                        
-            			if (toConstraint != null)
-            			{
-            				graph.setConnectionConstraint(edge, target, false,
-            						new mxConnectionConstraint(toConstraint, false));
-            			}
-            			
-            			if (removeLastPt)
-        				{
-	        				points.pop();
-                        }
+
+                    edge = graph.insertEdge(parent, null, textLabel, source, target, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
+                    
+                    if (hasSubLabel) 
+                    {
+                        addEdgeSublabel(graph, edge, edgeShape, rotation, lblOffset);
                     }
+                    else
+                    {
+                        edge.getGeometry().offset = lblOffset;
+                    }
+
+                    //add entry/exit points when edge, src, and trg are not rotated
+                    if (fromConstraint != null)
+                    {
+                        graph.setConnectionConstraint(edge, source, true,
+                                new mxConnectionConstraint(fromConstraint, false));
+                    }
+                    
+                    if (removeFirstPt)
+                    {
+                        points.shift();
+                    }
+                    
+                    if (toConstraint != null)
+                    {
+                        graph.setConnectionConstraint(edge, target, false,
+                                new mxConnectionConstraint(toConstraint, false));
+                    }
+                    
+                    if (removeLastPt)
+                    {
+                        points.pop();
+                    }
+                    
                     var edgeGeometry = graph.getModel().getGeometry(edge);
                     
                     //when source.parent != target.parent the front end will change the edge parent to parent 1 but waypoints are not corrected
@@ -1458,35 +1488,32 @@ var com;
                     var edge;
                     var points = edgeShape.getRoutingPoints(parentHeight, beginXY, edgeShape.getRotation());
                     var rotation = edgeShape.getRotation();
-                    if (rotation !== 0) {
-                        if (edgeShape.getShapeIndex() === 0) {
-                            edge = graph.insertEdge(parent, null, null, null, null, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
-                        }
-                        else {
-                            edge = graph.createEdge(parent, null, null, null, null, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
-                            edge = graph.addEdge(edge, parent, null, null, edgeShape.getShapeIndex() + this.shapeIndexShift++);
-                        }
-                        var label = edgeShape.createLabelSubShape(graph, edge);
-                        if (label != null) {
-                            label.setStyle(label.getStyle() + ";rotation=" + (rotation > 60 && rotation < 240 ? (rotation + 180) % 360 : rotation));
-                            var geo = label.getGeometry();
-                            geo.x = (0);
-                            geo.y = (0);
-                            geo.relative = (true);
-                            geo.offset = (new mxPoint(-geo.width / 2, -geo.height / 2));
-                        }
+                    var textLabel = "";
+                    var hasSubLabel = edgeShape.isDisplacedLabel() || edgeShape.isRotatedLabel() || rotation !== 0;
+                    var lblOffset = edgeShape.getLblEdgeOffset(graph.getView(), points);
+                    
+                    if (!hasSubLabel) 
+                    {
+                        textLabel = edgeShape.getTextLabel(true);
+                    }
+
+                    if (edgeShape.getShapeIndex() === 0) {
+                        edge = graph.insertEdge(parent, null, textLabel, null, null, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
                     }
                     else {
-                        if (edgeShape.getShapeIndex() === 0) {
-                            edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(true), null, null, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
-                        }
-                        else {
-                            edge = graph.createEdge(parent, null, edgeShape.getTextLabel(true), null, null, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
-                            edge = graph.addEdge(edge, parent, null, null, edgeShape.getShapeIndex() + this.shapeIndexShift++);
-                        }
-                        var lblOffset = edgeShape.getLblEdgeOffset(graph.getView(), points);
-                        edge.getGeometry().offset = (lblOffset);
+                        edge = graph.createEdge(parent, null, textLabel, null, null, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
+                        edge = graph.addEdge(edge, parent, null, null, edgeShape.getShapeIndex() + this.shapeIndexShift++);
                     }
+
+                    if (hasSubLabel) 
+                    {
+                        addEdgeSublabel(graph, edge, edgeShape, rotation, lblOffset);
+                    }
+                    else
+                    {
+                        edge.getGeometry().offset = lblOffset;
+                    }
+
                     this.rotateChildEdge(graph.getModel(), parent, beginXY, endXY, points);
                     var edgeGeometry = graph.getModel().getGeometry(edge);
                     //remove begin/end points from points array

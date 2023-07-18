@@ -11876,7 +11876,6 @@
 		{
 			Editor.currentTheme = value;
 			this.themeSwitching = true;
-			var scrollState = this.saveScrollState();
 
 			mxUtils.setPrefixedStyle(this.container.style, 'transition',
 				'all ' + delay + 'ms ease-in-out');
@@ -11888,6 +11887,7 @@
 
 			window.setTimeout(mxUtils.bind(this, function()
 			{
+				var scrollState = this.saveScrollState();
 				this.editor.graph.stopEditing(false);
 				this.container.style.opacity = '0';
 
@@ -11951,6 +11951,44 @@
 		}
 
 		return noRestart;
+	};
+
+	/**
+	 * Saves scroll position
+	 */
+	EditorUi.prototype.saveScrollState = function()
+	{
+		var t = this.editor.graph.view.translate;
+		var x = this.diagramContainer.scrollLeft;
+		var y = this.diagramContainer.scrollTop;
+
+		if (this.embedViewport != null)
+		{
+			if (!Editor.inlineFullscreen)
+			{
+				x += this.embedViewport.x;
+				y += this.embedViewport.y;
+			}
+			else
+			{
+				x -= this.embedViewport.x;
+				y -= this.embedViewport.y;
+			}
+		}
+
+		return {x: x, y: y, tx: t.x, ty: t.y};
+	};
+   
+	/**
+	 * Dynamic change of dark mode.
+	 */
+	EditorUi.prototype.restoreScrollState = function(state)
+	{
+		var s = this.editor.graph.view.scale;
+		var t = this.editor.graph.view.translate;
+		
+		this.diagramContainer.scrollLeft = state.x + (t.x - state.tx) * s;
+		this.diagramContainer.scrollTop = state.y + (t.y - state.ty) * s;
 	};
 
 	/**
@@ -14180,46 +14218,6 @@
 		}
 	};
     
-	/**
-	 * Saves scroll position
-	 */
-	EditorUi.prototype.saveScrollState = function()
-	{
-		var t = this.editor.graph.view.translate;
-		var off = mxUtils.getOffset(this.diagramContainer);
-		var x = this.diagramContainer.scrollLeft - off.x;
-		var y = this.diagramContainer.scrollTop - off.y;
-
-		if (this.embedViewport != null)
-		{
-			if (!Editor.inlineFullscreen)
-			{
-				x += this.embedViewport.x;
-				y += this.embedViewport.y;
-			}
-			else
-			{
-				x -= this.embedViewport.x;
-				y -= this.embedViewport.y;
-			}
-		}
-
-		return {x: x, y: y, tx: t.x, ty: t.y};
-	};
-   
-	/**
-	 * Dynamic change of dark mode.
-	 */
-	EditorUi.prototype.restoreScrollState = function(state)
-	{
-		var s = this.editor.graph.view.scale;
-		var t = this.editor.graph.view.translate;
-		var off = mxUtils.getOffset(this.diagramContainer);
-		
-		this.diagramContainer.scrollLeft = state.x + off.x + (t.x - state.tx) * s;
-		this.diagramContainer.scrollTop = state.y + off.y + (t.y - state.ty) * s;
-	};
-
 	/**
 	 * Dynamic change of dark mode.
 	 */
