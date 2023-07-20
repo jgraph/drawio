@@ -90,18 +90,31 @@ async function main()
                                     }
                                 }
                                 
+                                // Checks for HTML entities in output
+                                if (value.includes('<') && value.includes('>'))
+                                {
+                                    if (!(value.replace('< >', '').indexOf('<') == -1 || // Invalid file name characters cases
+                                        value.replace('<a target=\'_blank\' href=\'{1}\'>{2}</a>', '').indexOf('<') == -1 ||   // Generic Link case
+                                        value.replace('<a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">').replace('</a>', '').indexOf('<') == -1)) // License Link case
+                                    {
+                                        value = value.replace(/<[^>]*>/g, 'HTML_LABEL_FILTERED').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                                    }
+                                }
+                                else if (value.includes('<'))
+                                {
+                                    value = value.replace(/</g, '&lt;');
+                                }
+                                else if (value.includes('>'))
+                                {
+                                    value = value.replace(/>/g, '&gt;');
+                                }
+
                                 if (rtl)
                                 {
                                     outputFiles[i] += key + '=' + '\u202B' + value + '\u202C' + '\n';
                                 }
                                 else
                                 {
-                                    // Checks for HTML entities in output
-                                    if (value.includes('<') || value.includes('>'))
-                                    {
-                                        console.log('**** WARNING: HTML Entities in ' + lang + '/' + key + '=' + value);
-                                    }
-
                                     outputFiles[i] += key + '=' + value + '\n';
                                 }
                             }

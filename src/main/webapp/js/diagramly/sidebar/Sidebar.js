@@ -191,79 +191,7 @@
 				'.scratchpad'));
 		}
 	};
-
-	/**
-	 * Adds hint for quick tutorial video for certain search terms.
-	 */
-	var siderbarInsertSearchHint = Sidebar.prototype.insertSearchHint;
 	
-	Sidebar.prototype.insertSearchHint = function(div, searchTerm, count, page, results, len, more, terms)
-	{
-		if (terms != null && page == 1)
-		{
-			var hintText = null;
-			
-			// Adds hint for text inserts
-			if (mxUtils.indexOf(terms, 'text') >= 0)
-			{
-				hintText = 'Double click anywhere in the diagram to insert text.';
-			}
-			else
-			{
-				// Checks if any of the following keywords are in the search terms
-				var words = ['line', 'lines', 'arrow', 'arrows', 'connect', 'connection', 'connections',
-				             'connector', 'connectors', 'curve', 'curves', 'link', 'links', 'directed',
-				             'directional', 'bidirectional'];
-				
-				for (var i = 0; i < words.length; i++)
-				{
-					if (mxUtils.indexOf(terms, words[i]) >= 0)
-					{
-						hintText = 'Need help with connections?';
-						break;
-					}
-				}
-			}
-			
-			if (hintText != null && !this.hideSearchHint)
-			{
-				var link = document.createElement('a');
-				link.setAttribute('href', 'https://youtu.be/Z0D96ZikMkc');
-				link.setAttribute('target', '_blank');
-				link.className = 'geTitle';
-				link.style.cssText = 'background-color:#ffd350;border-radius:6px;color:black;' +
-					'border:1px solid black !important;text-align:center;white-space:normal;' +
-					'padding:6px 0px 6px 0px !important;margin:4px 4px 8px 2px;font-size:12px;';
-				mxUtils.write(link, hintText);
-				
-				// Adds close button
-				var img = document.createElement('img');
-				img.setAttribute('src', Dialog.prototype.closeImage);
-				img.setAttribute('title', mxResources.get('hide'));
-				img.className = 'geDialogClose';
-				img.style.position = 'relative';
-				img.style.cursor = 'default';
-				img.style.top = '1px';
-				img.style.right = '0px';
-				
-				mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt)
-				{
-					link.parentNode.removeChild(link);
-					this.hideSearchHint = true;
-					mxEvent.consume(evt);
-				}));
-				
-				link.appendChild(img);
-				div.appendChild(link);
-				
-				// Shows hint only once
-				this.hideSearchHint = true;
-			}
-		}
-		
-		siderbarInsertSearchHint.apply(this, arguments);
-	};
-
 	/**
 	 * Toggle palette.
 	 */

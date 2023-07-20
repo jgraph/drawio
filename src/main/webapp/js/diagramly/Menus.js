@@ -2654,7 +2654,15 @@
 			link.style.cursor = 'pointer';
 			mxUtils.write(link, mxResources.get('getNotionChromeExtension'));
 			footer.appendChild(link);
+			
+			mxUtils.setPrefixedStyle(link.style, 'transition', 'all 1s ease');
+			mxUtils.setOpacity(link, 0);
 
+			window.setTimeout(function()
+			{
+				mxUtils.setOpacity(link, 100);
+			}, 300);
+			
 			mxEvent.addListener(link, 'click', function(evt)
 			{
 				editorUi.openLink('https://chrome.google.com/webstore/detail/drawio-for-notion/plhaalebpkihaccllnkdaokdoeaokmle');
@@ -2677,7 +2685,7 @@
 						}
 
 						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
-							allPages, lightbox, editLink, layers, url, null, params, true));
+							allPages, lightbox, editLink, layers, url, null, params));
 						editorUi.showDialog(dlg.container, 450, 240, true, true);
 						dlg.init();
 					});

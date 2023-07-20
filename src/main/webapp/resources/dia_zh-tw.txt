@@ -273,7 +273,7 @@ errorSavingFileForbidden=儲存檔案時發生錯誤。沒有足夠的存取權�
 errorSavingFileNameConflict=無法儲存此圖表。目前頁面已存在名為「{1}」的檔案。
 errorSavingFileNotFound=儲存檔案時發生錯誤。找不到檔案。
 errorSavingFileReadOnlyMode=唯讀模式啟動時無法儲存圖表。
-errorSavingFileSessionTimeout=你的會話已經結束。請<a target='_blank'href='{1}'>{2}</a>，然後返回此選項卡並再次儲存。
+errorSavingFileSessionTimeout=你的會話已經結束。請HTML_LABEL_FILTERED{2}HTML_LABEL_FILTERED，然後返回此選項卡並再次儲存。
 errorSendingFeedback=傳送回饋意見時發生錯誤。
 errorUpdatingPreview=更新預覽畫面出錯。
 exit=退出

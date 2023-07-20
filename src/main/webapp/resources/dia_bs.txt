@@ -428,7 +428,7 @@ insertRowAfter=Umetni red nakon
 insertText=Umetni tekst
 inserting=Umetanje
 installApp=Install App
-invalidFilename=Imena dijagrama ne smiju sadržavati sljedeće znakove: \ / | : ; { < & + ? = "
+invalidFilename=Imena dijagrama ne smiju sadržavati sljedeće znakove: \ / | : ; { &lt; & + ? = "
 invalidLicenseSeeThisPage=Vaša licenca nije validna, molimo pogledajte ovo <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">page</a>.
 invalidInput=Invalid input
 invalidName=Netačan naziv

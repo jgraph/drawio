@@ -428,7 +428,7 @@ insertRowAfter=Insereix una fila a sota
 insertText=Insereix text
 inserting=S'està inserint
 installApp=Instal·la l'aplicació
-invalidFilename=Els noms dels diagrames no poden contenir els següents caràcters: \ / | : ; { < & + ? = "
+invalidFilename=Els noms dels diagrames no poden contenir els següents caràcters: \ / | : ; { &lt; & + ? = "
 invalidLicenseSeeThisPage=La llicència no és vàlida, consulteu aquesta <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">pàgina</a>.
 invalidInput=L'entrada no és vàlida
 invalidName=El nom no és vàlid

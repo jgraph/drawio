@@ -273,7 +273,7 @@ errorSavingFileForbidden=Greška pri snimanju. Nedovoljna prava pristupa.
 errorSavingFileNameConflict=Dijagram nije sačuvan. Trenutna stranica već sadrži dijagram pod nazivom {1}
 errorSavingFileNotFound=Greška pri snimanju. Datoteka nije pronađena.
 errorSavingFileReadOnlyMode=Dijagram ne može biti sačuvan dok traje zabrana upisa.
-errorSavingFileSessionTimeout=Vaša sesija je istekla. Molimo <a target='_blank' href='{1}'>prijavite se</a> i vratite se na ovu karticu da pokušate ponovo da sačuvate.
+errorSavingFileSessionTimeout=Vaša sesija je istekla. Molimo HTML_LABEL_FILTEREDprijavite seHTML_LABEL_FILTERED i vratite se na ovu karticu da pokušate ponovo da sačuvate.
 errorSendingFeedback=Greška pri slanju povratne informacije.
 errorUpdatingPreview=Greška pri osvežavanju pregleda
 exit=Izlaz
@@ -428,7 +428,7 @@ insertRowAfter=Umetni red ispod
 insertText=Insert Text
 inserting=Umetanje
 installApp=Install App
-invalidFilename=Imena dijagrama ne smeju sadržati sledeće znake : \ / | : ; { < & + ? =
+invalidFilename=Imena dijagrama ne smeju sadržati sledeće znake : \ / | : ; { &lt; & + ? =
 invalidLicenseSeeThisPage=Your license is invalid, please see this <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">page</a>.
 invalidInput=Invalid input
 invalidName=Neispravno ime

@@ -428,7 +428,7 @@ insertRowAfter=Вставить строку снизу
 insertText=Добавить текст
 inserting=Вставка
 installApp=Установить приложение
-invalidFilename=Название диаграммы не может содержать следующие символы: \ / | : ; { < & + ? = "
+invalidFilename=Название диаграммы не может содержать следующие символы: \ / | : ; { &lt; & + ? = "
 invalidLicenseSeeThisPage=Ваша лицензия недействительна. Пожалуйста, посетите эту<a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">страницу</a>.
 invalidInput=Некорректное значение
 invalidName=Некорректное имя

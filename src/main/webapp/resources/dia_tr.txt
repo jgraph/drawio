@@ -273,7 +273,7 @@ errorSavingFileForbidden=Dosya kaydetme hatası. Yetersiz erişim hakları.
 errorSavingFileNameConflict=Diyagramı kaydedemedi. Mevcut sayfa '{1}' isimli dosyayı çoktan içeriyor
 errorSavingFileNotFound=Dosyayı kaydederken hata. Dosya bulunamadı.
 errorSavingFileReadOnlyMode=Salt okunur mod aktif olduğu için diyagram kaydedilemedi.
-errorSavingFileSessionTimeout=Oturumunuz sona ermiştir. Lütfen <a hedef='_boşluk' href='{1}'>{2}</a>
+errorSavingFileSessionTimeout=Oturumunuz sona ermiştir. Lütfen HTML_LABEL_FILTERED{2}HTML_LABEL_FILTERED
 errorSendingFeedback=Geri-bildirim gönderme hatası.
 errorUpdatingPreview=Önizleme güncelleme hatası
 exit=Çıkış

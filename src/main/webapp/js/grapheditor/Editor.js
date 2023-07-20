@@ -225,7 +225,7 @@ Editor.sketchMode = false;
 /**
  * Dynamic change of dark mode for minimal and sketch theme.
  */
-Editor.enableCssDarkMode = true;
+Editor.enableCssDarkMode = window.mxIsElectron? false : true; // Desktop app defaults to classic darkmode
 
 /**
  * Dynamic change of dark mode for minimal and sketch theme.

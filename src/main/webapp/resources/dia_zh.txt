@@ -273,7 +273,7 @@ errorSavingFileForbidden=保存文件时出错。没有足够的访问权限。
 errorSavingFileNameConflict=无法保存此绘图。当前页面已经包含名为 '{1}' 的文件。
 errorSavingFileNotFound=保存文件时出错，文件未找到。
 errorSavingFileReadOnlyMode=只读模式开启时无法保存绘图。
-errorSavingFileSessionTimeout=您的会话已经结束。请 <a target='_blank'href='{1}'>{2}</a>，然后返回此标签以尝试再次保存。
+errorSavingFileSessionTimeout=您的会话已经结束。请 HTML_LABEL_FILTERED{2}HTML_LABEL_FILTERED，然后返回此标签以尝试再次保存。
 errorSendingFeedback=发送反馈出错。
 errorUpdatingPreview=更新预览出错。
 exit=退出

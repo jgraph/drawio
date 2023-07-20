@@ -273,7 +273,7 @@ errorSavingFileForbidden=Klaida išsaugojant failą. Nepakankamos prieigos teis�
 errorSavingFileNameConflict=Nepavyko išsaugoti diagramos. Dabartiniame puslapyje jau yra failas pavadinimu '{1}'.
 errorSavingFileNotFound=Klaida išsaugojant failą. Failas nerastas.
 errorSavingFileReadOnlyMode=Nepavyko išsaugoti diagramos, kai aktyvus tik skaitymo režimas.
-errorSavingFileSessionTimeout=Jūsų sesija baigėsi. Prašau <a target='_blank' href='{1}'> {2} </a> ir grįžkite į šį skirtuką, kad pabandytumėte išsaugoti dar kartą.
+errorSavingFileSessionTimeout=Jūsų sesija baigėsi. Prašau HTML_LABEL_FILTERED {2} HTML_LABEL_FILTERED ir grįžkite į šį skirtuką, kad pabandytumėte išsaugoti dar kartą.
 errorSendingFeedback=Siunčiant atsiliepimą įvyko klaida.
 errorUpdatingPreview=Atnaujinant peržiūrą įvyko klaida.
 exit=Išeiti
@@ -428,7 +428,7 @@ insertRowAfter=Įterpti eilutę žemiau
 insertText=Insert Text
 inserting=Įterpimas
 installApp=Install App
-invalidFilename=Diagramos pavadinimuose neturi būti šių simbolių: \ / | :; {} <> & +? = "
+invalidFilename=Diagramos pavadinimuose neturi būti šių simbolių: \ / | :; {} HTML_LABEL_FILTERED & +? = "
 invalidLicenseSeeThisPage=Jūsų licencija negalioja. Peržiūrėkite šį <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud"> puslapį </a>.
 invalidInput=Neteisinga įvestis
 invalidName=Neteisingas vardas

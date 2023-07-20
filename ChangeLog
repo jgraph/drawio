@@ -1,3 +1,15 @@
+20-JUL-2023: 21.6.5
+
+- Fixes mxIsElectron undefined error in editor.js
+
+20-JUL-2023: 21.6.4
+
+- Uses URL hashtag for embed in Notion [drawio-3376]
+- [conf cloud] Removes draw.io support menu item from Confluence help menu [DID-8934]
+- [desktop] Changes default dark mode to classic [drawio-desktop-1391]
+- Adds html tags check/filteration to i18n parser [CSP-2113]
+- [conf cloud] Fixes Go to Containing Page button in embed diagrams viewer [DID-8704]
+
 18-JUL-2023: 21.6.3
 
 - Shift+Alt+Drag moves selection cells [drawio-3726]
