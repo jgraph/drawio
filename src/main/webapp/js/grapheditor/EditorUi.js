@@ -1568,7 +1568,7 @@ EditorUi.prototype.convertDarkModeColors = function(cells, keys)
 	canvas.height = 1;
 
 	var ctx = canvas.getContext('2d', {willReadFrequently: true});
-	ctx.filter = 'invert(100%) hue-rotate(180deg) saturate(1.3)';
+	ctx.filter = 'invert(100%) hue-rotate(180deg)';
 	
 	graph.model.beginUpdate();
 	try

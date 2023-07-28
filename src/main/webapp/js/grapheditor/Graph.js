@@ -1392,8 +1392,8 @@ Graph.svgDoctype = '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" ' +
 /**
  * CSS for adaptive SVG dark mode.
  */
-Graph.svgDarkModeCss = 'svg { filter: invert(93%) hue-rotate(180deg); }\n' +
-	'image { filter: invert(100%) hue-rotate(180deg) saturate(1.25) }';
+Graph.svgDarkModeCss = 'svg { filter: invert(100%) hue-rotate(180deg); }\n' +
+	'image { filter: invert(100%) hue-rotate(180deg) }';
 
 /**
  * 

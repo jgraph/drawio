@@ -1738,12 +1738,8 @@ GraphViewer.prototype.createToolbarButton = function(fn, imgSrc, tip, enabled)
 	img.setAttribute('border', '0');
 	img.setAttribute('src', imgSrc);
 	img.style.width = '18px';
-
-	if (Editor.enableCssDarkMode)
-	{
-		img.className = 'geAdaptiveAsset';
-	}
-
+	img.className = 'geAdaptiveAsset';
+	
 	if (enabled == null || enabled)
 	{
 		mxEvent.addListener(a, 'mouseenter', function()
@@ -1955,18 +1951,7 @@ GraphViewer.prototype.showLocalLightbox = function(container)
 	closeImg.setAttribute('src', Editor.closeBlackImage);
 	closeImg.style.cssText = 'position:fixed;top:32px;right:32px;';
 	closeImg.style.cursor = 'pointer';
-
-	if (this.darkMode)
-	{
-		if (Editor.enableCssDarkMode)
-		{
-			closeImg.className = 'geAdaptiveAsset';
-		}
-		else
-		{
-			closeImg.style.filter = 'invert(1)';
-		}
-	}
+	closeImg.className = 'geAdaptiveAsset';
 	
 	mxEvent.addListener(closeImg, 'click', function()
 	{

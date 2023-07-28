@@ -10142,6 +10142,12 @@
 			}
 
 			this.formatWidth = mxSettings.getFormatWidth();
+
+			if ((Editor.config == null || Editor.config.enableCssDarkMode == null) &&
+				mxSettings.settings.enableCssDarkMode != null)
+			{
+				Editor.enableCssDarkMode = mxSettings.settings.enableCssDarkMode;
+			}
 		}
 		
 		editorUiCreateUi.apply(this, arguments);
@@ -11511,13 +11517,13 @@
 			this.fitWindows();
 		}));
 
-		if (!Editor.enableCssDarkMode)
+		this.addListener('darkModeChanged', mxUtils.bind(this, function(evt)
 		{
-			this.addListener('darkModeChanged', mxUtils.bind(this, function(evt)
+			if (!Editor.enableCssDarkMode)
 			{
 				this.inlineSizeChanged();
-			}));
-		}
+			}
+		}));
 
 		this.addListener('editInlineStop', mxUtils.bind(this, function(evt)
 		{
@@ -12990,11 +12996,13 @@
 				this.editor.addListener('fileLoaded', initPicker);
 				this.addListener('sketchModeChanged', initPicker);
 				this.addListener('currentThemeChanged', initPicker);
-
-				if (!Editor.enableCssDarkMode)
+				this.addListener('darkModeChanged', mxUtils.bind(this, function()
 				{
-					this.addListener('darkModeChanged', initPicker);
-				}
+					if (!Editor.enableCssDarkMode)
+					{
+						initPicker();
+					}
+				}));
 
 				initPicker(true);
 
@@ -13959,6 +13967,25 @@
 			(this.getServiceName() == 'draw.io' && urlParams['embed'] != '1' &&
 			(!this.editor.chromeless || this.editor.editable) &&
 			mxSettings.settings.darkMode == null)));
+	};
+		
+	/**
+	 * Dynamic change of dark mode.
+	 */
+	EditorUi.prototype.setCssDarkModeEnabled = function(value)
+	{
+		var prev = Editor.isDarkMode() || Editor.cssDarkMode;
+
+		if (prev)
+		{
+			this.setDarkMode(false);
+		}
+
+		Editor.enableCssDarkMode = value;
+		mxSettings.settings.enableCssDarkMode = Editor.enableCssDarkMode;
+		mxSettings.save();
+		this.setDarkMode(prev);
+		this.fireEvent(new mxEventObject('cssDarkModeEnabledChanged'));
 	};
 	
 	/**
@@ -16306,8 +16333,19 @@
 								this.editor.graph.setEnabled(false);
 								var graph = this.editor.graph;
 								
-								var postDataBack = mxUtils.bind(this, function(uri)
+								var postDataBack = mxUtils.bind(this, function(uri, svg)
 								{
+									if (data.withSvg)
+									{
+										data.withSvg = false;
+										this.getEmbeddedSvg(xml, this.editor.graph, null, true, function(svg)
+										{
+											postDataBack(uri, svg);
+										}, null, null, data.embedImages, this.editor.graph.background, 
+										data.scale, data.border, data.shadow);	
+										return;
+									}
+
 									this.editor.graph.setEnabled(true);
 									this.spinner.stop();
 									
@@ -16315,6 +16353,7 @@
 									msg.format = data.format;
 									msg.message = data;
 									msg.data = uri;
+									msg.svg = svg;
 									msg.xml = xml;
 									parent.postMessage(JSON.stringify(msg), '*');
 								});
@@ -18291,11 +18330,13 @@
 			this.restoreOpenLibraries();
 		});
 
-		if (!Editor.enableCssDarkMode)
+		this.addListener('darkModeChanged', mxUtils.bind(this, function()
 		{
-			this.addListener('darkModeChanged', refreshSidebar);
-		}
-
+			if (!Editor.enableCssDarkMode)
+			{
+				refreshSidebar();
+			}
+		}));
 		this.addListener('sketchModeChanged', refreshSidebar);
 		this.addListener('currentThemeChanged', refreshSidebar);
 		

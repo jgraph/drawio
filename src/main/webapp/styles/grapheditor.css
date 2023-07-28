@@ -17,6 +17,9 @@
 	border:1px dashed #202020 !important;
 	background:#a0a0a0 !important;
 }
+.geDarkMode .geAdaptiveAsset {
+	filter:none !important
+}
 .geEditor {
 	position:absolute;
 	width:100%;

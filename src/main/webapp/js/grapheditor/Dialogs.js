@@ -1859,11 +1859,7 @@ var EditDataDialog = function(ui, cell)
 			icon.style.marginTop = (mxClient.IS_IE11) ? '0px' : '-4px';
 			icon.setAttribute('src', Editor.helpImage);
 			link.appendChild(icon);
-
-			if (Editor.enableCssDarkMode)
-			{
-				icon.className = 'geAdaptiveAsset';
-			}
+			icon.className = 'geAdaptiveAsset';
 			
 			replace.appendChild(link);
 		}

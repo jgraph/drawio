@@ -6994,20 +6994,20 @@ App.prototype.updateHeader = function()
 			this.appIconClicked(evt);
 		}));
 		
-		if (!Editor.enableCssDarkMode)
+		var updateBackground = mxUtils.bind(this, function()
 		{
-			var updateBackground = mxUtils.bind(this, function()
+			if (Editor.enableCssDarkMode)
+			{
+				this.appIcon.style.backgroundColor = '#f08705';
+			}
+			else
 			{
 				this.appIcon.style.backgroundColor = (!Editor.isDarkMode()) ? '#f08705' : '';
-			});
+			}
+		});
 
-			this.addListener('darkModeChanged', updateBackground);
-			updateBackground();
-		}
-		else
-		{
-			this.appIcon.style.backgroundColor = '#f08705';
-		}
+		this.addListener('darkModeChanged', updateBackground);
+		updateBackground();
 
 		mxUtils.setPrefixedStyle(this.appIcon.style, 'transition', 'all 125ms linear');
 
@@ -7453,11 +7453,7 @@ App.prototype.updateUserElementIcon = function()
 				icon.style.left = '16px';
 				icon.style.width = '12px';
 				icon.style.height = '12px';
-
-				if (Editor.enableCssDarkMode)
-				{
-					icon.className = 'geAdaptiveAsset';
-				}
+				icon.className = 'geAdaptiveAsset';
 
 				var err = file.getRealtimeError();
 				var state = file.getRealtimeState();

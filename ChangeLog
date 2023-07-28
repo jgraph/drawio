@@ -1,3 +1,9 @@
+28-JUL-2023: 21.6.6
+
+- Adds improve contrast, fixes CSS for old dark mode
+- [conf cloud] Added config option to generate SVG preview when a diagram is published (generateSVGs: true) [DID-8942]
+- [vsdx] Split EMF conversion into chunks to reduce the chance of timeout and reduce + retries on error
+
 20-JUL-2023: 21.6.5
 
 - Fixes mxIsElectron undefined error in editor.js

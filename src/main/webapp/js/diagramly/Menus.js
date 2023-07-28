@@ -30,12 +30,8 @@
 		icon.setAttribute('valign', 'bottom');
 		icon.setAttribute('src', Editor.helpImage);
 		link.appendChild(icon);
+		icon.className = 'geAdaptiveAsset';
 
-		if (Editor.enableCssDarkMode)
-		{
-			icon.className = 'geAdaptiveAsset';
-		}
-		
 		mxEvent.addGestureListeners(link, mxUtils.bind(this, function(evt)
 		{
 			this.editorUi.hideCurrentMenu();
@@ -1344,9 +1340,9 @@
 		});
 
 		// Adds action for converting dark mode colors
-		if (Editor.enableCssDarkMode)
+		editorUi.actions.put('convertDarkModeColors', new Action('Dark Mode Colors...', function(evt)
 		{
-			editorUi.actions.put('convertDarkModeColors', new Action('Dark Mode Colors...', function(evt)
+			if (Editor.enableCssDarkMode)
 			{
 				if (editorUi.darkModeColorsWindow == null)
 				{
@@ -1355,8 +1351,8 @@
 				}
 
 				editorUi.darkModeColorsWindow.window.setVisible(true);
-			}));
-		}
+			}
+		}));
 
 		// Adds fullscreen toggle to zoom menu in sketch and min
         var viewZoomMenu = this.get('viewZoom');
@@ -2776,6 +2772,21 @@
 				});
 			}
 		}
+
+		var action = editorUi.actions.addAction('improveContrast', function()
+		{
+			editorUi.setCssDarkModeEnabled(!Editor.enableCssDarkMode);
+		});
+		
+		action.isEnabled = function()
+		{
+			return Editor.isDarkMode() || Editor.cssDarkMode;
+		};
+		action.setToggleAction(true);
+		action.setSelectedCallback(function()
+		{
+			return Editor.enableCssDarkMode;
+		});
 		
 		var action = editorUi.actions.addAction('search', function()
 		{
@@ -3249,7 +3260,7 @@
 							'dark' : 'light') + ')');
 				}
 			}
-			
+
 			if (urlParams['embed'] != '1')
 			{
 				this.addMenuItems(menu, ['-', 'toggleSimpleMode'], parent);
@@ -3271,6 +3282,8 @@
 							'dark' : 'light') + ')');
 				}
 			}
+
+			this.addMenuItems(menu, ['-', 'improveContrast'], parent);
 		})));
 
 		editorUi.actions.addAction('addToScratchpad', function(evt)
