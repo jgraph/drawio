@@ -1484,8 +1484,16 @@ Graph.createSvgDarkModeStyle = function(svgDoc, theme)
  */
 Graph.getSvgFromDataUri = function(uri)
 {
-	return  Graph.xmlDeclaration + '\n' + Graph.svgDoctype + '\n' +
-		decodeURIComponent(escape(atob(uri.substring(uri.indexOf(',') + 1))));
+	if (uri != null && uri.substring(0, 14) == 'data:image/svg')
+	{
+		return Graph.xmlDeclaration + '\n' + Graph.svgDoctype + '\n' +
+			decodeURIComponent(escape(atob(uri.substring(
+				uri.indexOf(',') + 1))));
+	}
+	else
+	{
+		return null;
+	}
 };
 
 /**

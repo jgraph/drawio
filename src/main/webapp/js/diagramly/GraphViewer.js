@@ -2294,6 +2294,8 @@ GraphViewer.createViewerForElement = function(element, callback)
 
 GraphViewer.logAncestorFrames = function()
 {
+	return;
+
 	try
 	{
 		if (window.location.ancestorOrigins && window.location.hostname &&

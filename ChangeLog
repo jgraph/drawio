@@ -1,3 +1,11 @@
+10-AUG-2023: 21.6.8
+
+- Fixes possible background image error [DID-9099]
+
+07-AUG-2023: 21.6.7
+
+- Fixes offset after page selection [drawio-desktop-1411]
+
 28-JUL-2023: 21.6.6
 
 - Adds improve contrast, fixes CSS for old dark mode

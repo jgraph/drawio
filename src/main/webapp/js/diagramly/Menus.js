@@ -30,7 +30,11 @@
 		icon.setAttribute('valign', 'bottom');
 		icon.setAttribute('src', Editor.helpImage);
 		link.appendChild(icon);
-		icon.className = 'geAdaptiveAsset';
+
+		if (Editor.cssDarkMode)
+		{
+			icon.className = 'geAdaptiveAsset';
+		}
 
 		mxEvent.addGestureListeners(link, mxUtils.bind(this, function(evt)
 		{
@@ -3282,8 +3286,14 @@
 							'dark' : 'light') + ')');
 				}
 			}
-
-			this.addMenuItems(menu, ['-', 'improveContrast'], parent);
+			
+			menu.addSeparator(parent);
+			var item = editorUi.menus.addMenuItem(menu, 'improveContrast', parent);
+			
+			if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+			{
+				editorUi.menus.addLinkToItem(item, 'https://github.com/jgraph/drawio/discussions/3701');
+			}
 		})));
 
 		editorUi.actions.addAction('addToScratchpad', function(evt)

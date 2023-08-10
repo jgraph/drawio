@@ -6523,13 +6523,13 @@
 	 */
 	Graph.prototype.adaptBackgroundPage = function(image, theme)
 	{
-		if (image != null && image.src != null)
+		if (image != null && image.src != null && Graph.isPageLink(image.originalSrc))
 		{
-			var svg = Graph.getSvgFromDataUri(image.src);
-
-			if (svg != null)
+			try
 			{
-				try
+				var svg = Graph.getSvgFromDataUri(image.src);
+
+				if (svg != null)
 				{
 					var doc = new DOMParser().parseFromString(svg, 'text/xml');
 
@@ -6556,10 +6556,10 @@
 						doc.documentElement)), image.width, image.height,
 						image.x, image.y)
 				}
-				catch (e)
-				{
-					// ignore
-				}
+			}
+			catch (e)
+			{
+				// ignore
 			}
 		}
 

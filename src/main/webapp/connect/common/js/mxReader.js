@@ -288,7 +288,7 @@ DrawioViewer.prototype.init = function()
 				{
 					// Test if it's an absolute URL, but on the same domain (i.e. open in same window)
 					// There's a security setting (unknown which) that seems to stop the IE hack below working in
-					// IE 11, https://desk.draw.io/browse/DS-175, https://desk.draw.io/browse/DFCS-52
+					// IE 11, https://drawio.atlassian.net/browse/DS-175, https://drawio.atlassian.net/browse/DFCS-52
 					// Worst case is these users will open an absolute same domain link in a window
 
 					var link = document.createElement('a');

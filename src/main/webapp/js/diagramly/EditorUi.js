@@ -2948,9 +2948,9 @@
 						theme += Editor.isDarkMode() ? '-dark' : '-light';
 					}
 
-					EditorUi.logEvent({category: file.getMode().toUpperCase() + '-OPEN-FILE-' + file.getHash(),
-						action: 'size_' + file.getSize(),
-						label: 'autosave_' + ((this.editor.autosave) ? 'on' : 'off') + '_theme_' + theme});
+					// EditorUi.logEvent({category: file.getMode().toUpperCase() + '-OPEN-FILE-' + file.getHash(),
+					// 	action: 'size_' + file.getSize(),
+					// 	label: 'autosave_' + ((this.editor.autosave) ? 'on' : 'off') + '_theme_' + theme});
 				}
 				
 				EditorUi.debug('File.opened', [file]);
@@ -7844,9 +7844,9 @@
 							}
 						}
 						
-						EditorUi.logEvent({category: ext + '-MS-IMPORT-FILE',
-							action: 'filename_' + filename,
-							label: (remote) ? 'remote' : 'local'});
+						// EditorUi.logEvent({category: ext + '-MS-IMPORT-FILE',
+						// 	action: 'filename_' + filename,
+						// 	label: (remote) ? 'remote' : 'local'});
 					}
 					catch (e)
 					{
@@ -8277,9 +8277,9 @@
 			{
 				this.createTimeout(40000, mxUtils.bind(this, function(timeout)
 				{
-					EditorUi.logEvent({category: 'OPENAI-DIAGRAM',
-						action: 'generateOpenAiMermaidDiagram',
-						label: prompt});
+					// EditorUi.logEvent({category: 'OPENAI-DIAGRAM',
+					// 	action: 'generateOpenAiMermaidDiagram',
+					// 	label: prompt});
 					var url = 'https://www.draw.io/generate/v1';
 
 					var req = new mxXmlRequest(url, prompt, 'POST');

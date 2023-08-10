@@ -41,7 +41,8 @@ draw.io supports Chrome 70+, Firefox 70+, Safari 11+, Opera 50+, Native Android 
 Open-source, not open-contribution
 ----------------------------------
 
-[Similar to SQLite](https://www.sqlite.org/copyright.html), draw.io is closed to contributions.
+draw.io is not open source software. The complete source code required to build the app from scratch is not available.
+draw.io is also closed to contributions.
 
 The level of complexity of this project means that even simple changes 
 can break a _lot_ of other moving parts. The amount of testing required 

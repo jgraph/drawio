@@ -21,7 +21,7 @@ Examples of unacceptable behavior by participants include:
 * Public or private harassment, including focusing on individual developers when a topic should be broadly addressed.
 * Publishing others' private information, such as a physical or electronic address, without explicit permission
 * Other conduct which could reasonably be considered inappropriate in a professional setting
-* Not respecting other people's time, this is an open source project
+* Not respecting other people's time
 * Being impatient or rude
 * Pressing developers for priority fixes or ETAs
 * Guilting the developers into focusing on your issue(s)

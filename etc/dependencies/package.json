@@ -18,6 +18,7 @@
 	  "dompurify": "3.0.5",
 	  "spin.js": "2.0.0",
 	  "roughjs": "4.4.1",
+	  "mathjax": "3.2.2",
 	  "jscolor": "^3.8.0"
 	}
   }
