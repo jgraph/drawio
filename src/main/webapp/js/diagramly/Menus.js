@@ -839,6 +839,7 @@
 					linkTarget, grid, theme, exportType, embedFonts, lblToSvg)
 				{
 					var val = parseInt(scale);
+					editorUi.lastExportSvgEditable = editable;
 					
 					if (!isNaN(val) && val > 0)
 					{
@@ -854,7 +855,7 @@
 								linkTarget, theme, exportType, embedFonts);
 						}
 					}
-				}), true, null, 'svg', true);
+				}), true, editorUi.lastExportSvgEditable, 'svg', true);
 		}));
 		
 		editorUi.actions.put('exportPng', new Action(mxResources.get('formatPng') + '...', function()
@@ -867,6 +868,7 @@
 						embedImages, border, cropImage, currentPage, dummy, grid, theme, exportType)
 					{
 						var val = parseInt(scale);
+						editorUi.lastExportPngEditable = editable;
 						
 						if (!isNaN(val) && val > 0)
 						{
@@ -874,7 +876,7 @@
 								addShadow, editable, border, !cropImage, false, null, grid, null,
 								theme, exportType);
 						}
-					}), true, Editor.defaultIncludeDiagram, 'png', true);
+					}), true, editorUi.lastExportPngEditable, 'png', true);
 			}
 			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
 			{
@@ -4613,6 +4615,18 @@
 			storeBkpAction.setToggleAction(true);
 			storeBkpAction.setSelectedCallback(function() { return enableStoreBkp; });
 
+			var enableGoogleFonts = urlParams['isGoogleFontsEnabled'] == '1';
+			
+			var googleFontsAction = editorUi.actions.addAction('googleFonts', function()
+			{
+				editorUi.toggleGoogleFonts();
+				enableGoogleFonts = !enableGoogleFonts;
+				editorUi.alert(mxResources.get('restartForChangeRequired'));
+			});
+
+			googleFontsAction.setToggleAction(true);
+			googleFontsAction.setSelectedCallback(function() { return enableGoogleFonts; });
+
 			editorUi.actions.addAction('openDevTools', function()
 			{
 				editorUi.openDevTools();
@@ -4685,7 +4699,7 @@
 
 				if (EditorUi.isElectronApp)
 				{
-					editorUi.menus.addMenuItems(menu, ['-', 'spellCheck', 'autoBkp', 'drafts', '-'], parent);
+					editorUi.menus.addMenuItems(menu, ['-', 'googleFonts', 'spellCheck', 'autoBkp', 'drafts', '-'], parent);
 				}
 
 				this.addSubmenu('diagramLanguage', menu, parent);
@@ -4733,7 +4747,7 @@
 				
 				if (EditorUi.isElectronApp)
 				{
-					this.addMenuItems(menu, ['spellCheck', 'autoBkp', 'drafts', '-'], parent);
+					this.addMenuItems(menu, ['googleFonts', 'spellCheck', 'autoBkp', 'drafts', '-'], parent);
 				}
 
 				this.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-'], parent);
@@ -5862,7 +5876,8 @@
 						}
 					}
 				}));
-				this.editorUi.showDialog(dlg.container, 380, Editor.enableWebFonts ? 250 : 180, true, true);
+				this.editorUi.showDialog(dlg.container, 380, 
+					130 + (Editor.enableWebFonts ? 70 : 0) + (urlParams['isGoogleFontsEnabled'] != '0'? 50 : 0), true, true);
 				dlg.init();
 			}), parent, null, true);
 		})));

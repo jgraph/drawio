@@ -2358,6 +2358,36 @@ App.prototype.onBeforeUnload = function()
 			}
 			else if (file.isModified())
 			{
+				try
+				{
+					var evt = {category: 'WARN-CLOSE-MODIFIED-FILE-' + file.getHash(),
+						action: ((file.savingFile) ? 'saving' : '') +
+						((file.savingFile && file.savingFileTime != null) ? '_' +
+							Math.round((Date.now() - file.savingFileTime.getTime()) / 1000) : '') +
+						((file.saveLevel != null) ? ('-sl_' + file.saveLevel) : '') +
+						'-age_' + ((file.ageStart != null) ? Math.round((Date.now() - file.ageStart.getTime()) / 1000) : 'x') +
+						((this.editor.autosave) ? '' : '-nosave') +
+						((file.isAutosave()) ? '' : '-noauto') +
+						'-open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
+						'-save_' + ((file.lastSaved != null) ? Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
+						'-change_' + ((file.lastChanged != null) ? Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x')+
+						'-alive_' + Math.round((Date.now() - App.startTime.getTime()) / 1000),
+						label: (file.sync != null) ? ('client_' + file.sync.clientId) : 'nosync'};
+					
+					if (file.constructor == DriveFile && file.desc != null && this.drive != null)
+					{
+						evt.label += ((this.drive.user != null) ? ('-user_' + this.drive.user.id) : '-nouser') + '-rev_' +
+							file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate + '-size_' + file.getSize() +
+							'-mime_' + file.desc.mimeType;
+					}
+			
+					EditorUi.logEvent(evt);
+				}
+				catch (e)
+				{
+					// ignore
+				}
+
 				return mxResources.get('allChangesLost');
 			}
 			else

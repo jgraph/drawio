@@ -204,7 +204,7 @@
 	/**
 	 * Specifies if web fonts are enabled.
 	 */
-	Editor.enableWebFonts = urlParams['safe-style-src'] != '1';
+	Editor.enableWebFonts = urlParams['safe-style-src'] != '1' && !window.mxIsElectron;
 
 	/**
 	 * Disables the shadow option in the format panel.
@@ -6535,12 +6535,14 @@
 
 					// Removes dark theme CSS
 					var styles = doc.getElementsByTagName('style');
+					var css = mxUtils.htmlEntities(Graph.createSvgDarkModeCss(), false);
 
 					for (var i = 0; i < styles.length; i++)
 					{
-						if (styles[i].innerHTML == Graph.svgDarkModeCss)
+						if (styles[i].innerHTML == css)
 						{
 							styles[i].parentNode.removeChild(styles[i]);
+							
 							break;
 						}
 					}
@@ -6573,7 +6575,7 @@
 	
 	Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp,
 		ignoreSelection, showText, imgExport, linkTarget, hasShadow,
-		incExtFonts, theme, exportType, cells)
+		incExtFonts, theme, exportType, cells, noCssClass)
 	{
 		var temp = null;
 		var tempFg = null;
@@ -6606,10 +6608,17 @@
 
 		if (Editor.enableCssDarkMode && (theme == 'dark' || theme == 'auto'))
 		{
-			var style = Graph.createSvgDarkModeStyle(result.ownerDocument, theme);
+			var cssClass = (noCssClass) ? null : 'ge-export-svg-' + theme;
+			
+			if (cssClass != null)
+			{
+				result.setAttribute('class', cssClass);
+			}
+
+			var style = Graph.createSvgDarkModeStyle(result.ownerDocument, theme, cssClass);
 			result.getElementsByTagName('defs')[0].appendChild(style);
 		}
-
+		
 		var extFonts = this.getCustomFonts();
 		
 		// Adds external fonts
@@ -8487,6 +8496,19 @@
 							}
 						}
 					};
+
+					// Adapts background images
+					if (Editor.enableCssDarkMode)
+					{
+						var printGetBackgroundImage = pv.getBackgroundImage;
+						
+						pv.getBackgroundImage = function()
+						{
+							return graph.adaptBackgroundPage(
+								printGetBackgroundImage.apply(
+									this, arguments));
+						};
+					}
 					
 					if (typeof(MathJax) !== 'undefined')
 					{

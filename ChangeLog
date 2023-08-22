@@ -1,3 +1,12 @@
+22-AUG-2023: 21.6.9
+
+- Shows sidebar when libraries are loaded [drawio-3744]
+- Fixes toggle shapes panel ignores current state
+- Uses center of shapes for swap action
+- Remembers include diagram state for SVG/PNG export
+- Fixes CSS for exported dark mode SVG [drawio-3768]
+- Fixes printing of background images in CSS dark mode
+
 10-AUG-2023: 21.6.8
 
 - Fixes possible background image error [DID-9099]

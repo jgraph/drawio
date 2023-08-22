@@ -1265,4 +1265,4 @@ confA500ErrFaq=Hi ha ({1}) error(s) 500. Un error intern del servidor a Confluen
 confAOtherErrFaq=Hi ha ({1}) altre(s) error(s). Comproveu la descripció de l'error. Si la descripció no és clara, poseu-vos en contacte amb el nostre servei d'assistència.
 confAReplaceBaseUrl=Substituïu l'URL base als enllaços del diagrama quan no es trobi cap assignació d'ID de pàgina
 drawSvgPrev=Previsualització SVG de draw.io
-googleFonts=Google Fonts
+googleFonts=Fonts de Google

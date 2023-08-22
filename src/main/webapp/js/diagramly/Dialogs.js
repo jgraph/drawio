@@ -12931,8 +12931,12 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	}
 	
 	row.appendChild(td);
-	tbody.appendChild(row);
-	
+
+	if (urlParams['isGoogleFontsEnabled'] != '0')
+	{
+		tbody.appendChild(row);
+	}
+
 	row = document.createElement('tr');
 	
 	td = document.createElement('td');
@@ -12958,7 +12962,11 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	td = document.createElement('td');
 	td.appendChild(googleFontInput);
 	row.appendChild(td);
-	tbody.appendChild(row);
+
+	if (urlParams['isGoogleFontsEnabled'] != '0')
+	{
+		tbody.appendChild(row);
+	}
 	
 	//Generic remote fonts section
 	row = document.createElement('tr');

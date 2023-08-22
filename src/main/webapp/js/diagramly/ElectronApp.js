@@ -1839,6 +1839,11 @@ mxStencilRegistry.allowEval = false;
 		electron.sendMessage('toggleStoreBkp');
 	}
 	
+	App.prototype.toggleGoogleFonts = function()
+	{
+		electron.sendMessage('toggleGoogleFonts');
+	}
+
 	App.prototype.openDevTools = function()
 	{
 		electron.sendMessage('openDevTools');

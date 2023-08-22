@@ -3954,6 +3954,7 @@
 		
 		title.appendChild(buttons);
 		title.style.paddingRight = (buttons.childNodes.length * btnWidth) + 'px';
+		this.editor.fireEvent(new mxEventObject('libraryLoaded'));
 	};
 
 	/**
@@ -10417,6 +10418,19 @@
 				}
 			}
 		}));
+		
+		// Shows sidebar when libraries are loaded
+		this.editor.addListener('libraryLoaded', mxUtils.bind(this, function()
+		{
+			if (this.sidebarWindow != null)
+			{
+				this.sidebarWindow.window.setVisible(true);
+			}
+			else
+			{
+				this.toggleShapesPanel(true);
+			}
+		}));
 
 		// Restores background page reference in output data or
 		// replaces dark mode page image with normal mode image
@@ -12300,7 +12314,11 @@
 		if (value == 'simple' || value == 'sketch')
 		{
 			Editor.fitWindowBorders = new mxRectangle(60, 30, 30, 30);
-			graph.defaultEdgeLength = 120;
+
+			if (Editor.config == null || Editor.config.defaultEdgeLength == null)
+			{
+				graph.defaultEdgeLength = 120;
+			}
 
 			if (urlParams['grid'] == null)
 			{
@@ -13554,51 +13572,54 @@
 	 */
 	EditorUi.prototype.toggleShapesPanel = function(visible)
 	{
-		var size = EditorUi.prototype.hsplitPosition;
-
-		// On smaller screens this is set to 0
-		if (size == 0)
+		if (this.isShapesPanelVisible() != visible)
 		{
-			size = 134;
-		}
+			var size = EditorUi.prototype.hsplitPosition;
 
-		var x = this.hsplitPosition;
+			// On smaller screens this is set to 0
+			if (size == 0)
+			{
+				size = 134;
+			}
 
-		var doRefresh = mxUtils.bind(this, function()
-		{
-			this.hsplitPosition = tmp;
-			this.refresh();
-			this.diagramContainer.scrollLeft -= x - this.hsplitPosition;
-		});
-		
-		var tmp = (visible) ? size : 0;
-		var delay = 0.3;
+			var x = this.hsplitPosition;
 
-		mxUtils.setPrefixedStyle(this.sidebarContainer.style, 'transform', (tmp == 0) ? 'translateX(0)' : 'translateX(-100%)');
+			var doRefresh = mxUtils.bind(this, function()
+			{
+				this.hsplitPosition = tmp;
+				this.refresh();
+				this.diagramContainer.scrollLeft -= x - this.hsplitPosition;
+			});
+			
+			var tmp = (visible) ? size : 0;
+			var delay = 0.3;
 
-		if (tmp != 0)
-		{
-			doRefresh();
-		}
+			mxUtils.setPrefixedStyle(this.sidebarContainer.style, 'transform', (tmp == 0) ? 'translateX(0)' : 'translateX(-100%)');
 
-		window.setTimeout(mxUtils.bind(this, function()
-		{
-			mxUtils.setPrefixedStyle(this.sidebarContainer.style, 'transform', (tmp == 0) ? 'translateX(-100%)' : 'translateX(0)');
-			mxUtils.setPrefixedStyle(this.sidebarContainer.style, 'transition', 'transform ' + delay + 's ease-in-out');
-			mxUtils.setPrefixedStyle(this.sidebarContainer.style, 'transform-origin', 'top left');
+			if (tmp != 0)
+			{
+				doRefresh();
+			}
 
 			window.setTimeout(mxUtils.bind(this, function()
 			{
-				mxUtils.setPrefixedStyle(this.sidebarContainer.style, 'transition', null);
-				mxUtils.setPrefixedStyle(this.sidebarContainer.style, 'transform', null);
-				mxUtils.setPrefixedStyle(this.sidebarContainer.style, 'transform-origin', null);
-				
-				if (tmp == 0)
+				mxUtils.setPrefixedStyle(this.sidebarContainer.style, 'transform', (tmp == 0) ? 'translateX(-100%)' : 'translateX(0)');
+				mxUtils.setPrefixedStyle(this.sidebarContainer.style, 'transition', 'transform ' + delay + 's ease-in-out');
+				mxUtils.setPrefixedStyle(this.sidebarContainer.style, 'transform-origin', 'top left');
+
+				window.setTimeout(mxUtils.bind(this, function()
 				{
-					doRefresh();
-				}
-			}), delay * 1000);
-		}), 10);
+					mxUtils.setPrefixedStyle(this.sidebarContainer.style, 'transition', null);
+					mxUtils.setPrefixedStyle(this.sidebarContainer.style, 'transform', null);
+					mxUtils.setPrefixedStyle(this.sidebarContainer.style, 'transform-origin', null);
+					
+					if (tmp == 0)
+					{
+						doRefresh();
+					}
+				}), delay * 1000);
+			}), 10);
+		}
 	};
 
 	/**
