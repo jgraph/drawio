@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bidi-js": "^1.0.2",
+    "bidi-js": "^1.0.3",
     "node-fetch": "^3.2.10"
   }
 }
