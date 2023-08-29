@@ -710,7 +710,7 @@ App.main = function(callback, createUi)
 				{
 					var content = mxUtils.getTextContent(scripts[0]);
 					
-					if (CryptoJS.MD5(content).toString() != '1051f781b3ff28064a0d5d65ec513a37')
+					if (CryptoJS.MD5(content).toString() != '97d48990b1ef6de28697d2cc7083ca53')
 					{
 						console.log('Change bootstrap script MD5 in the previous line:', CryptoJS.MD5(content).toString());
 						alert('[Dev] Bootstrap script change requires update of CSP');
@@ -2255,7 +2255,7 @@ App.prototype.updateActionStates = function()
 /**
  * Adds the specified entry to the recent file list in local storage
  */
-App.prototype.addRecent = function(entry, type)
+App.prototype.addRecent = function(entry, type, max)
 {
 	if (isLocalStorage && localStorage != null)
 	{
@@ -2280,8 +2280,9 @@ App.prototype.addRecent = function(entry, type)
 		
 		if (recent != null)
 		{
+			max = (max != null) ? max : 10;
 			recent.unshift(entry);
-			recent = recent.slice(0, 10);
+			recent = recent.slice(0, max);
 			localStorage.setItem('.recent' + type, JSON.stringify(recent));
 		}
 	}
@@ -2358,35 +2359,7 @@ App.prototype.onBeforeUnload = function()
 			}
 			else if (file.isModified())
 			{
-				try
-				{
-					var evt = {category: 'WARN-CLOSE-MODIFIED-FILE-' + file.getHash(),
-						action: ((file.savingFile) ? 'saving' : '') +
-						((file.savingFile && file.savingFileTime != null) ? '_' +
-							Math.round((Date.now() - file.savingFileTime.getTime()) / 1000) : '') +
-						((file.saveLevel != null) ? ('-sl_' + file.saveLevel) : '') +
-						'-age_' + ((file.ageStart != null) ? Math.round((Date.now() - file.ageStart.getTime()) / 1000) : 'x') +
-						((this.editor.autosave) ? '' : '-nosave') +
-						((file.isAutosave()) ? '' : '-noauto') +
-						'-open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
-						'-save_' + ((file.lastSaved != null) ? Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
-						'-change_' + ((file.lastChanged != null) ? Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x')+
-						'-alive_' + Math.round((Date.now() - App.startTime.getTime()) / 1000),
-						label: (file.sync != null) ? ('client_' + file.sync.clientId) : 'nosync'};
-					
-					if (file.constructor == DriveFile && file.desc != null && this.drive != null)
-					{
-						evt.label += ((this.drive.user != null) ? ('-user_' + this.drive.user.id) : '-nouser') + '-rev_' +
-							file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate + '-size_' + file.getSize() +
-							'-mime_' + file.desc.mimeType;
-					}
-			
-					EditorUi.logEvent(evt);
-				}
-				catch (e)
-				{
-					// ignore
-				}
+				this.logIfModified(file);
 
 				return mxResources.get('allChangesLost');
 			}
@@ -2406,31 +2379,29 @@ App.prototype.onBeforeUnload = function()
  */
 App.prototype.updateDocumentTitle = function()
 {
-	if (!this.editor.graph.isLightboxView())
-	{
-		var title = this.editor.appName;
-		var file = this.getCurrentFile();
+	var title = this.editor.appName;
+	var file = this.getCurrentFile();
 
-		if (file != null && Editor.currentTheme == 'simple' &&
-			this.pages != null && this.currentPage != null)
-		{
-			title = this.getShortPageName(this.currentPage);
-		}
-		else if (this.isOfflineApp())
-		{
-			title += ' app';
-		}
-		
-		if (file != null)
-		{
-			var filename = (file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
-			title = filename + ' - ' + title;
-		}
-		
-		if (document.title != title)
-		{
-			document.title = title;
-		}
+	if (file != null && (this.editor.graph.isLightboxView() ||
+		Editor.currentTheme == 'simple') &&
+		this.pages != null && this.currentPage != null)
+	{
+		title = this.getShortPageName(this.currentPage);
+	}
+	else if (this.isOfflineApp())
+	{
+		title += ' app';
+	}
+	
+	if (file != null)
+	{
+		var filename = (file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
+		title = filename + ' - ' + title;
+	}
+	
+	if (document.title != title)
+	{
+		document.title = title;
 	}
 };
 
@@ -4657,7 +4628,7 @@ App.prototype.saveFile = function(forceDialog, success)
 					this.hideDialog();
 				}), (allowTab) ? null : ['_blank']);
 
-				this.showDialog(dlg.container, 420, 136, true, false, mxUtils.bind(this, function()
+				this.showDialog(dlg.container, 420, 150, true, false, mxUtils.bind(this, function()
 				{
 					this.hideDialog();
 				}));

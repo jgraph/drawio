@@ -289,9 +289,9 @@ mxStencilRegistry.allowEval = false;
 
 	var graphCreateLinkForHint = Graph.prototype.createLinkForHint;
 	
-	Graph.prototype.createLinkForHint = function(href, label)
+	Graph.prototype.createLinkForHint = function(href, label, associatedCell)
 	{
-		var a = graphCreateLinkForHint.call(this, href, label);
+		var a = graphCreateLinkForHint.call(this, href, label, associatedCell);
 		
 		if (href != null && !this.isCustomLink(href))
 		{

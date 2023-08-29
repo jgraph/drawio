@@ -1,3 +1,15 @@
+28-AUG-2023: 21.7.0
+
+- Adds page names in viewer tooltips [drawio-3763]
+- Adds README for Crypto JS library [CSP-2255]
+- Fixes canvas state after redrawShape [drawio-3806]
+- Adds checkbox for current layer with multiple cells
+- Fixes connect/select in locked layer [drawio-3760]
+- Adds Alt+C/V for copy-/pasteStyle [drawio-3632]
+- Adds initial API for custom links on context cells
+- Fixes possible cropping, reduces link dialog width
+- Adds Embed button to convert image URL to data URI
+
 22-AUG-2023: 21.6.9
 
 - Shows sidebar when libraries are loaded [drawio-3744]

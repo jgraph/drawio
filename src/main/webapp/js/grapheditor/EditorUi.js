@@ -3011,7 +3011,14 @@ EditorUi.prototype.initCanvas = function()
 					if (this.pages != null && this.pages.length > 1 && this.currentPage != null)
 					{
 						pageInfo.innerText = '';
-						mxUtils.write(pageInfo, (mxUtils.indexOf(this.pages, this.currentPage) + 1) + ' / ' + this.pages.length);
+						var index = mxUtils.indexOf(this.pages, this.currentPage);
+						mxUtils.write(pageInfo, (index + 1) + ' / ' + this.pages.length);
+						pageInfo.setAttribute('title', mxResources.get('currentPage') + ': ' +
+							this.currentPage.getName());
+						prevButton.setAttribute('title', mxResources.get('previousPage') + ': ' +
+							this.pages[mxUtils.mod(index - 1, this.pages.length)].getName());
+						nextButton.setAttribute('title', mxResources.get('nextPage') + ': ' +
+							this.pages[mxUtils.mod(index + 1, this.pages.length)].getName());
 					}
 				});
 				
@@ -3037,6 +3044,38 @@ EditorUi.prototype.initCanvas = function()
 					
 					updatePageInfo();
 				});
+
+				if (this.menus != null)
+				{
+					var pagesMenu = this.menus.get('pages');
+
+					if (pagesMenu != null)
+					{
+						mxEvent.addListener(pageInfo, 'click', mxUtils.bind(this, function(evt)
+						{
+							var menu = new mxPopupMenu(pagesMenu.funct);
+							menu.div.className += ' geMenubarMenu';
+							menu.smartSeparators = true;
+							menu.showDisabled = true;
+							menu.autoExpand = true;
+							
+							// Disables autoexpand and destroys menu when hidden
+							menu.hideMenu = mxUtils.bind(this, function()
+							{
+								mxPopupMenu.prototype.hideMenu.apply(menu, arguments);
+								menu.destroy();
+							});
+			
+							var offset = mxUtils.getOffset(pageInfo);
+							menu.popup(offset.x, offset.y + pageInfo.offsetHeight, null, evt);
+
+							mxEvent.addListener(menu.div, 'mouseleave', mxUtils.bind(this, function()
+							{
+								menu.hideMenu();
+							}));
+						}));
+					}
+				}
 				
 				this.editor.addListener('resetGraphView', updatePageButtons);
 				this.editor.addListener('pageSelected', updatePageInfo);

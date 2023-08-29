@@ -1067,7 +1067,10 @@
 				88: ui.actions.get('selectDescendants'), // Alt+Shift+X
 				80: ui.actions.get('selectParent'), // Alt+Shift+P
 				83: ui.actions.get('selectSiblings')} // Alt+Shift+S
-
+		
+		// New keyboard shortcuts for copy-/pasteStyle
+		var altActions = {67: ui.actions.get('copyStyle'), // Alt+C
+			86: ui.actions.get('pasteStyle')}; // Alt+V
 		var editorUiOnKeyDown = ui.onKeyDown;
 		
 		ui.onKeyDown = function(evt)
@@ -1079,8 +1082,9 @@
 				if (graph.isEnabled() && !graph.isEditing() && cell != null)
 				{
 					var action = (mxEvent.isAltDown(evt) && mxEvent.isShiftDown(evt)) ? 
-						altShiftActions[evt.keyCode] : null;
-					
+						altShiftActions[evt.keyCode] : (mxEvent.isAltDown(evt) ?
+							altActions[evt.keyCode] : null);
+
 					if (action != null)
 					{
 						action.funct(evt);

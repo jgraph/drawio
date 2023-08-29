@@ -2227,21 +2227,31 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			
 			editorUi.showPopupMenu(mxUtils.bind(this, function(menu, parent)
 			{
+				var layer = graph.getLayerForCells(graph.getSelectionCells());
+
 				for (var i = layerCount - 1; i >= 0; i--)
 				{
 					(mxUtils.bind(this, function(child)
 					{
+						var locked = mxUtils.getValue(graph.getCurrentCellStyle(child), 'locked', '0') == '1';
+
 						var item = menu.addItem(graph.convertValueToString(child) ||
-								mxResources.get('background'), null, mxUtils.bind(this, function()
+							mxResources.get('background'), null, mxUtils.bind(this, function()
 						{
-							graph.moveCells(graph.getSelectionCells(), 0, 0, false, child);
-						}), parent);
-						
-						if (graph.getSelectionCount() == 1 && graph.model.isAncestor(child, graph.getSelectionCell()))
+							if (!locked)
+							{
+								graph.moveCells(graph.getSelectionCells(), 0, 0, false, child);
+							}
+						}), parent, null, null, !locked);
+
+						if (locked)
+						{
+							menu.addCheckmark(item, Editor.lockedImage);
+						}
+						else if (child == layer)
 						{
 							menu.addCheckmark(item, Editor.checkmarkImage);
 						}
-						
 					}))(graph.model.getChildAt(graph.model.root, i));
 				}
 			}), offset.x, offset.y + insertLink.offsetHeight, evt);

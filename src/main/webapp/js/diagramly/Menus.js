@@ -362,7 +362,7 @@
 		editorUi.actions.addAction('properties...', function()
 		{
 			var dlg = new FilePropertiesDialog(editorUi);
-			editorUi.showDialog(dlg.container, 340, 160, true, true);
+			editorUi.showDialog(dlg.container, 340, 180, true, true);
 			dlg.init();
 		}).isEnabled = isGraphEnabled;
 	
@@ -820,7 +820,7 @@
 			{
 				editorUi.copiedStyle = graph.copyStyle(graph.getSelectionCell())
 			}
-		}, null, null, 'Alt+Shift+Q');
+		}, null, null, 'Alt+C');
 
 		editorUi.actions.addAction('pasteStyle', function()
 		{
@@ -828,7 +828,7 @@
 			{
 				graph.pasteStyle(editorUi.copiedStyle, graph.getSelectionCells())
 			}
-		}, null, null, 'Alt+Shift+W');
+		}, null, null, 'Alt+V');
 		
 		editorUi.actions.put('exportSvg', new Action(mxResources.get('formatSvg') + '...', function()
 		{
@@ -4545,13 +4545,16 @@
 		this.put('pages', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			var page = editorUi.currentPage;
-			
-			menu.addItem(mxResources.get('insertPage'), null, mxUtils.bind(this, function()
-			{
-				editorUi.insertPage();
-			}), parent);
 
-			menu.addSeparator(parent);
+			if (!editorUi.editor.graph.isLightboxView())
+			{
+				menu.addItem(mxResources.get('insertPage'), null, mxUtils.bind(this, function()
+				{
+					editorUi.insertPage();
+				}), parent);
+
+				menu.addSeparator(parent);
+			}
 			
 			if (editorUi.pages != null)
 			{
@@ -4561,7 +4564,7 @@
 					{
 						var item = null;
 
-						if (editorUi.pages[index] == page)
+						if (editorUi.pages[index] == page && !editorUi.editor.graph.isLightboxView())
 						{
 							item = editorUi.menus.addSubmenu('currentPage', menu, parent,
 								editorUi.getShortPageName(page));

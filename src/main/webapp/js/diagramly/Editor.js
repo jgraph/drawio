@@ -2791,7 +2791,7 @@
 	/**
 	 * 
 	 */
-	Editor.prototype.convertImageToDataUri = function(url, callback)
+	Editor.prototype.convertImageToDataUri = function(url, callback, error)
 	{
 		try
 		{
@@ -2862,7 +2862,14 @@
 					
 					if (acceptResponse)
 					{
-						callback(Editor.svgBrokenImage.src);
+						if (error != null)
+						{
+							error();
+						}
+						else
+						{
+							callback(Editor.svgBrokenImage.src);
+						}
 					}
 			    };
 			    
@@ -2871,7 +2878,14 @@
 		}
 		catch (e)
 		{
-			callback(Editor.svgBrokenImage.src);
+			if (error != null)
+			{
+				error();
+			}
+			else
+			{
+				callback(Editor.svgBrokenImage.src);
+			}
 		}
 	};
 	
@@ -6867,7 +6881,7 @@
 	 * 
 	 * This toggles the visible state of the cells with ID 3 and 4.
 	 */
-	Graph.prototype.handleCustomLink = function(href)
+	Graph.prototype.handleCustomLink = function(href, cell)
 	{
 		if (href.substring(0, 17) == 'data:action/json,')
 		{
@@ -6875,7 +6889,7 @@
 
 			if (link.actions != null)
 			{
-				this.executeCustomActions(link.actions);
+				this.executeCustomActions(link.actions, null, cell);
 			}
 		}
 	};
@@ -6885,7 +6899,7 @@
 	 * When adding new actions that reference cell IDs support for updating
 	 * those cell IDs must be handled in Graph.updateCustomLinkActions
 	 */
-	Graph.prototype.executeCustomActions = function(actions, done)
+	Graph.prototype.executeCustomActions = function(actions, done, cell)
 	{
 		if (!this.executingCustomActions)
 		{
@@ -6940,7 +6954,7 @@
 
 						if (this.isCustomLink(action.open))
 						{
-							if (!this.customLinkClicked(action.open))
+							if (!this.customLinkClicked(action.open, cell))
 							{
 								return;
 							}
@@ -7070,6 +7084,11 @@
 					if (cells.length > 0)
 					{
 						this.scrollCellToVisible(cells[0]);
+					}
+					
+					if (cell != null && action.explore != null)
+					{
+						Graph.exploreFromCell(this, cell, action.explore);
 					}
 
 					if (action.tags != null)

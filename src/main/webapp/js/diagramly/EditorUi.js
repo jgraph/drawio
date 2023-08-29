@@ -2791,7 +2791,54 @@
 		
 		return title;
 	};
-	
+		
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
+	EditorUi.prototype.logIfModified = function(file, discarded)
+	{
+		try
+		{
+			if (file != null)
+			{
+				if (discarded)
+				{
+					EditorUi.debug('File.closed', [file]);
+				}
+
+				if (file.isModified() && file.constructor == DriveFile &&
+					file.desc != null && this.drive != null)
+				{
+					var evt = {category: 'WARN-CLOSE-MODIFIED-FILE-' + file.getHash(),
+						action: (discarded ? 'DISCARDED' : 'WARNED') + ((file.savingFile) ? 'saving' : '') +
+						((file.savingFile && file.savingFileTime != null) ? '_' +
+							Math.round((Date.now() - file.savingFileTime.getTime()) / 1000) : '') +
+						((file.saveLevel != null) ? ('-sl_' + file.saveLevel) : '') +
+						'-age_' + ((file.ageStart != null) ? Math.round((Date.now() - file.ageStart.getTime()) / 1000) : 'x') +
+						((this.editor.autosave) ? '' : '-nosave') +
+						((file.isAutosave()) ? '' : '-noauto') +
+						'-open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
+						'-save_' + ((file.lastSaved != null) ? Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
+						'-change_' + ((file.lastChanged != null) ? Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x') +
+						'-alive_' + Math.round((Date.now() - App.startTime.getTime()) / 1000),
+						label: ((file.sync != null) ? ('client_' + file.sync.clientId) : 'nosync') +
+							((this.drive.user != null) ? ('-user_' + this.drive.user.id) : '-nouser') + '-rev_' +
+							file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate + '-size_' + file.getSize() +
+							'-mime_' + file.desc.mimeType};
+
+					EditorUi.logEvent(evt);
+				}
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+	};
+
 	/**
 	 * Translates this point by the given vector.
 	 * 
@@ -2809,8 +2856,8 @@
 		
 		if (oldFile != null)
 		{
-			EditorUi.debug('File.closed', [oldFile]);
 			oldFile.removeListener(this.descriptorChangedListener);
+			this.logIfModified(oldFile, true);
 			oldFile.close();
 		}
 		
@@ -4986,7 +5033,7 @@
 				this.hideDialog();
 			}), disabled, data, mimeType, base64Encoded);
 
-			this.showDialog(dlg.container, 420, 100, true, false, mxUtils.bind(this, function()
+			this.showDialog(dlg.container, 420, 110, true, false, mxUtils.bind(this, function()
 			{
 				this.hideDialog();
 			}));
@@ -5439,7 +5486,7 @@
 				this.hideDialog();
 			}), disabled, null, 'application/pdf');
 
-			this.showDialog(dlg.container, 420, 100, true, false, mxUtils.bind(this, function()
+			this.showDialog(dlg.container, 420, 110, true, false, mxUtils.bind(this, function()
 			{
 				this.hideDialog();
 			}));
@@ -10018,7 +10065,8 @@
 		maxSize = (maxSize != null) ? maxSize : this.maxImageSize;
 		var w = Math.max(1, img.width);
 		var h = Math.max(1, img.height);
-		
+		var originalData = data;
+
 		if (enabled && this.isResampleImageSize((fileSize != null) ? fileSize : data.length, thresh))
 		{
 			try
@@ -10036,7 +10084,6 @@
 	
 				    var ctx = canvas.getContext('2d');
 				    ctx.drawImage(img, 0, 0, w2, h2);
-				    
 				    var tmp = canvas.toDataURL();
 
 				    // Uses new image if smaller
@@ -10064,7 +10111,14 @@
 			}
 		}
 
-		fn(data, w, h);
+		if (enabled && originalData != data && maxSize > this.maxImageSize / 2 && data.length > this.maxImageBytes)
+		{
+			this.resizeImage(img, data, fn, enabled, maxSize / 1.5, thresh, fileSize);
+		}
+		else
+		{
+			fn(data, w, h);
+		}
 	};
 	
 	/**
@@ -10332,13 +10386,13 @@
 		};
 		
 		// Redirects custom link via UI for page link handling
-		graph.customLinkClicked = function(link)
+		graph.customLinkClicked = function(link, associatedCell)
 		{
 			var done = false;
 			
 			try
 			{
-				ui.handleCustomLink(link);
+				ui.handleCustomLink(link, associatedCell);
 				done = true;
 			}
 			catch (e)
@@ -10501,7 +10555,7 @@
 		{
 			var tmp = beforeClick;
 
-			beforeClick = function(evt, href)
+			beforeClick = function(evt, href, cell)
 			{
 				if (href == null)
 				{
@@ -10516,14 +10570,14 @@
 				if (href != null && graph.isCustomLink(href) &&
 					(mxEvent.isTouchEvent(evt) ||
 					!mxEvent.isPopupTrigger(evt)) &&
-					graph.customLinkClicked(href))
+					graph.customLinkClicked(href, cell))
 				{
 					mxEvent.consume(evt);
 				}
 				
 				if (tmp != null)
 				{
-					tmp(evt, href);
+					tmp(evt, href, cell);
 				}
 			};
 			
@@ -14528,7 +14582,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.handleCustomLink = function(href)
+	EditorUi.prototype.handleCustomLink = function(href, cell)
 	{
 		if (Graph.isPageLink(href))
 		{
@@ -14547,7 +14601,7 @@
 		}
 		else
 		{
-			this.editor.graph.handleCustomLink(href);
+			this.editor.graph.handleCustomLink(href, cell);
 		}
 	};
 
@@ -18177,7 +18231,7 @@
 	EditorUi.prototype.showLinkDialog = function(value, btnLabel, fn, showNewWindowOption, linkTarget)
 	{
 		var dlg = new LinkDialog(this, value, btnLabel, fn, true, showNewWindowOption, linkTarget);
-		this.showDialog(dlg.container, 560, 130, true, true);
+		this.showDialog(dlg.container, 440, 140, true, true);
 		dlg.init();
 	};
 	

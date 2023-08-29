@@ -500,7 +500,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					this.setLayersVisible(visible);
 				}
 				
-				this.graph.customLinkClicked = function(href)
+				this.graph.customLinkClicked = function(href, associatedCell)
 				{
 					try
 					{
@@ -515,7 +515,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 						}
 						else
 						{
-							this.handleCustomLink(href);
+							this.handleCustomLink(href, associatedCell);
 						}
 					}
 					catch (e)
@@ -1788,7 +1788,7 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 {
 	graph.linkPolicy = this.graphConfig.target || graph.linkPolicy;
 
-	graph.addClickHandler(this.graphConfig.highlight, mxUtils.bind(this, function(evt, href)
+	graph.addClickHandler(this.graphConfig.highlight, mxUtils.bind(this, function(evt, href, associatedCell)
 	{
 		if (href == null)
 		{
@@ -1824,7 +1824,7 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 		}
 		else if (href != null && ui == null && graph.isCustomLink(href) &&
 			(mxEvent.isTouchEvent(evt) || !mxEvent.isPopupTrigger(evt)) &&
-			graph.customLinkClicked(href))
+			graph.customLinkClicked(href, associatedCell))
 		{
 			// Workaround for text selection in Firefox on Windows
 			mxUtils.clearSelection();
