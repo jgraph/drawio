@@ -14557,19 +14557,6 @@ if (typeof mxVertexHandler !== 'undefined')
 			 		(mxEvent.isPopupTrigger(evt) && (me.getState() == null ||
 			 		mxEvent.isControlDown(evt) || mxEvent.isShiftDown(evt)));
 			};
-			
-			// Don't clear selection if multiple cells selected
-			var graphHandlerMouseDown = mxGraphHandler.prototype.mouseDown;
-			mxGraphHandler.prototype.mouseDown = function(sender, me)
-			{
-				graphHandlerMouseDown.apply(this, arguments);
-	
-				if (mxEvent.isTouchEvent(me.getEvent()) && this.graph.isCellSelected(me.getCell()) &&
-					this.graph.getSelectionCount() > 1)
-				{
-					this.delayedSelection = false;
-				}
-			};
 		}
 		else
 		{

@@ -3178,7 +3178,13 @@ EditorUi.prototype.initCanvas = function()
 					}
 					else
 					{
-						this.layersDialog = graph.createLayersDialog(null, true);
+						this.layersDialog = graph.createLayersDialog(mxUtils.bind(this, function()
+						{
+							if (this.chromelessResize)
+							{
+								this.chromelessResize();
+							}
+						}), true);
 						
 						mxEvent.addListener(this.layersDialog, 'mouseleave', mxUtils.bind(this, function()
 						{

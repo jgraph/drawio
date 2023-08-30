@@ -1,3 +1,11 @@
+30-AUG-2023: 21.7.1
+
+- Refreshes after showing/hiding cells [drawio-9263]
+- Fixes moving multiple cells on touch devices
+- Fixes anchors and edge style for sequence diagrams [drawio-desktop-1370]
+- Fixes replace shape for UML lifeline drop targets
+- Enables new save dialog
+
 28-AUG-2023: 21.7.0
 
 - Adds page names in viewer tooltips [drawio-3763]

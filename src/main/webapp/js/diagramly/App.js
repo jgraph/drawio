@@ -4620,7 +4620,7 @@ App.prototype.saveFile = function(forceDialog, success)
 
 			var allowTab = !mxClient.IS_IOS || !navigator.standalone;
 
-			if (urlParams['save-dialog'] == '1')
+			if (urlParams['save-dialog'] != '0')
 			{
 				var dlg = new SaveDialog(this, filename, mxUtils.bind(this, function(input, mode, folderId)
 				{

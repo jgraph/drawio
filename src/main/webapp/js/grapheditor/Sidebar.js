@@ -1701,11 +1701,11 @@ Sidebar.prototype.addUmlPalette = function(expand)
 	var divider = new mxCell('', new mxGeometry(0, 0, 40, 8), 'line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;');
 	divider.vertex = true;
 
-	var sequenceEdgeStyle = 'newEdgeStyle={"edgeStyle":"elbowEdgeStyle","elbow":"vertical","curved":0,"rounded":0};';
+	var sequenceEdgeStyle = 'newEdgeStyle={"curved":0,"rounded":0};';
 	var lifelineStyle = 'shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;' +
 		'collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;' + sequenceEdgeStyle;
-	var activationStyle = 'html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;' +
-		'targetShapes=umlLifeline;portConstraint=eastwest;' + sequenceEdgeStyle;
+	var activationStyle = 'html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;' +
+		'outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;' + sequenceEdgeStyle;
 	
 	// Default tags
 	var dt = 'uml static class ';
@@ -1963,8 +1963,8 @@ Sidebar.prototype.addUmlPalette = function(expand)
 	    	cell.vertex = true;
 	    	
 			var edge = new mxCell('dispatch', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;startArrow=oval;endArrow=block;' +
-				'startSize=8;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;');
-			edge.geometry.setTerminalPoint(new mxPoint(-60, 0), true);
+				'startSize=8;curved=0;rounded=0;entryX=0;entryY=0;entryDx=0;entryDy=5;');
+			edge.geometry.setTerminalPoint(new mxPoint(-70, 5), true);
 			edge.geometry.relative = true;
 			edge.edge = true;
 			
@@ -1978,15 +1978,15 @@ Sidebar.prototype.addUmlPalette = function(expand)
 	    	cell.vertex = true;
 	    	
 			var edge1 = new mxCell('dispatch', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=block;' +
-				'edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;');
-			edge1.geometry.setTerminalPoint(new mxPoint(-70, 0), true);
+				'curved=0;rounded=0;entryX=0;entryY=0;entryDx=0;entryDy=5;');
+			edge1.geometry.setTerminalPoint(new mxPoint(-70, 5), true);
 			edge1.geometry.relative = true;
 			edge1.edge = true;
 
 			cell.insertEdge(edge1, false);
 			
 			var edge2 = new mxCell('return', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=open;dashed=1;' +
-				'endSize=8;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;');
+				'endSize=8;curved=0;rounded=0;exitX=0;exitY=1;exitDx=0;exitDy=-5;');
 			edge2.geometry.setTerminalPoint(new mxPoint(-70, 75), false);
 			edge2.geometry.relative = true;
 			edge2.edge = true;
@@ -2017,15 +2017,15 @@ Sidebar.prototype.addUmlPalette = function(expand)
 			cell.vertex = true;
 
 			var edge1 = new mxCell('callback', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=block;' +
-				'edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;');
-			edge1.geometry.setTerminalPoint(new mxPoint(80, 0), true);
+				'curved=0;rounded=0;entryX=1;entryY=0;entryDx=0;entryDy=5;');
+			edge1.geometry.setTerminalPoint(new mxPoint(80, 5), true);
 			edge1.geometry.relative = true;
 			edge1.edge = true;
 
 			cell.insertEdge(edge1, false);
 
 			var edge2 = new mxCell('return', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=open;dashed=1;' +
-				'endSize=8;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;');
+				'endSize=8;curved=0;rounded=0;exitX=1;exitY=1;exitDx=0;exitDy=-5;');
 			edge2.geometry.setTerminalPoint(new mxPoint(80, 75), false);
 			edge2.geometry.relative = true;
 			edge2.edge = true;
@@ -2037,15 +2037,15 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		}),
 		this.createVertexTemplateEntry(activationStyle, 10, 80, '', 'Activation Bar', null, null, 'uml sequence activation bar'),
 	 	this.createEdgeTemplateEntry('html=1;verticalAlign=bottom;startArrow=oval;startFill=1;endArrow=block;startSize=8;' +
-		 	'edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;', 60, 0, 'dispatch', 'Found Message 1', null, 'uml sequence message call invoke dispatch'),
+		 	'curved=0;rounded=0;', 60, 0, 'dispatch', 'Found Message 1', null, 'uml sequence message call invoke dispatch'),
 	 	this.createEdgeTemplateEntry('html=1;verticalAlign=bottom;startArrow=circle;startFill=1;endArrow=open;startSize=6;endSize=8;' +
-			 'edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;', 80, 0, 'dispatch', 'Found Message 2', null, 'uml sequence message call invoke dispatch'),
-	 	this.createEdgeTemplateEntry('html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;',
+			 'curved=0;rounded=0;', 80, 0, 'dispatch', 'Found Message 2', null, 'uml sequence message call invoke dispatch'),
+	 	this.createEdgeTemplateEntry('html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;',
 			80, 0, 'dispatch', 'Message', null, 'uml sequence message call invoke dispatch'),
 		this.addEntry('uml sequence return message', function()
 		{
-			var edge = new mxCell('return', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;' +
-				'edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;');
+			var edge = new mxCell('return', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;' +
+				'endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;');
 			edge.geometry.setTerminalPoint(new mxPoint(80, 0), true);
 			edge.geometry.setTerminalPoint(new mxPoint(0, 0), false);
 			edge.geometry.relative = true;
@@ -3258,7 +3258,8 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		var cell = (!mxEvent.isAltDown(evt) && cells != null) ?
 			graph.getCellAt(x, y, null, null, null, function(state, x, y)
 			{
-				return graph.isContainer(state.cell);
+				return graph.isContainer(state.cell) && mxUtils.getValue(
+					state.style, 'dropTarget', '1') != '0';
 			}) : null;
 		
 		// Uses connectable parent vertex if one exists

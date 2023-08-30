@@ -5013,7 +5013,7 @@
 			}
 		});
 		
-		if (urlParams['save-dialog'] == '1')
+		if (urlParams['save-dialog'] != '0')
 		{
 			var disabled = [];
 
@@ -5471,7 +5471,7 @@
 			}
 		});
 
-		if (urlParams['save-dialog'] == '1')
+		if (urlParams['save-dialog'] != '0')
 		{
 			var disabled = [App.MODE_BROWSER];
 
@@ -10392,8 +10392,15 @@
 			
 			try
 			{
+				var bounds = this.getGraphBounds();
 				ui.handleCustomLink(link, associatedCell);
 				done = true;
+
+				if (ui.chromelessResize && !bounds.equals(this.getGraphBounds()))
+				{
+					ui.chromelessResize();
+					this.scrollCellToVisible(associatedCell);
+				}
 			}
 			catch (e)
 			{

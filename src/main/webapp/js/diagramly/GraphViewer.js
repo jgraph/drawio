@@ -515,7 +515,13 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 						}
 						else
 						{
+							var bounds = this.getGraphBounds();
 							this.handleCustomLink(href, associatedCell);
+							
+							if (!bounds.equals(this.getGraphBounds()))
+							{
+								self.crop();
+							}
 						}
 					}
 					catch (e)
@@ -2142,9 +2148,9 @@ GraphViewer.prototype.showLocalLightbox = function(container)
 				return this.xml;
 			});
 		
+			this.showLayers(graph, this.graph);
 			ui.lightboxFit();
 			ui.chromelessResize();
-			this.showLayers(graph, this.graph);
 		}
 		catch (e)
 		{

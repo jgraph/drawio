@@ -13,7 +13,7 @@
 		var divider = new mxCell('', new mxGeometry(0, 0, 40, 8), 'line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;');
 		divider.vertex = true;
 
-		var sequenceEdgeStyle = 'newEdgeStyle={"edgeStyle":"elbowEdgeStyle","elbow":"vertical","curved":0,"rounded":0};';
+		var sequenceEdgeStyle = 'newEdgeStyle={"curved":0,"rounded":0};';
 		var lifelineStyle = 'shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;' +
 			'collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;' + sequenceEdgeStyle;
 		// UML frames below are containers not shapes as used in sequence diagrams
@@ -672,7 +672,7 @@
 			this.addDataEntry(dt + 'lifeline sequence participant', 220, 300, 'Lifelines',
 				'7VRLboMwED2N98SWmnUhaTaNVDW9gANTsGRsd2wg6ek7gAlJW6RuumoXSOP3GXvwk5nI6tMOpav2tgDNxJaJDK0NY1WfMtCa8UQVTGwY5wl9jD8ssKuBTZxEMOEnBj4aWqkbGJFH9QpaGYitfDjryPhKur5saj2JmEgdoKohABKjI/w0Y2lXqQAHJ/Pe2tGghFWhpkk3Kypza4IkC8Z1gda9SCyhP34yCLSWzqvjcIweQcgb9KqFZ/DqfUJtE/qtM2sM5JPZWQyE+IC0Rw+C9KEDT2VqoNsWJRymAdcp43dvTf/nU7gQF4iJ+yteH+2Vexbx7JNooUELGFQu9YKVBmyhuPEmNwK0jSm+KNabodFwo7QBnBZTMUAxEjuwdFl4JkmnilBFRTImJ6lAlVW0iQmUfgTKi3cOGRUxZ99nTixmjv9n7u9lbjLEl+pXMkjL+U0duJsn9wM='),
 			this.addDataEntry(dt + 'lifeline execution', 220, 300, 'Lifelines',
-				'7ZZdT4MwFIZ/Te8Z3fy4FKbeaGKcf6DCEZoUWtsyNn+9p6XsQ4ZZYmJcXAjJ6XvO21L65KSEptXqXjNVPsocBKG3hKZaSttF1SoFIUgc8ZzQOYnjCF8S341kJz4bKaahtscY4s6wZKKBTnngbyB4DSFj7FqEjCmZcmFTib6I0ESB5hVY0JgRQX7aaklbcgsLxTJnbXGjqJW2wp3OJxhmsrYMLTqMcy3VC9MFuM+PfIEQTBn+6j/DKRqyRhu+hGcw/KNXZWPd0qmsa8h6s5LaomKsxjWcCMzYFgyGSQ3tbV7Aot/gZULii/fG/fkENomNROjNTl68yh33tihOvxSNTLAEbXnGxIgVN7iEfM8b7RVo2dT5oOJy7ifyJ4oLwGqUCi8FJO5B4mHpNZb0hkBN1PLclkGLglYCL8owDe1FZjqh2My1hQ6DwN1hBumAwQF6O8AoiSfpV5slZDb/QiCedykLWTOxy+BBNqynbOGgNkOq/yE4b1yIVAqp/T+nV5F7jgUq/hao6axzrLvh9SG8hnRtMPwJXdPRDjc5d7jTBPUnHe5XOtrs3NFOB5TpH+lcONze+3xu71r4CQ=='),
+				'7ZbRjpwgFIafhssmKmO3vay63Zs2aTp9AVbPKgkKBRxn+vQ9II7OOjaTbrJp0o2awH/ODwKfJxKat8cHzVTzVVYgCL0nNNdS2rHVHnMQgiQRrwgtSJJE+JDk80Y09tFIMQ2dvcWQjIYDEz2Myhf+BIJ3ECLGnkSImIYp1+xbMSURminQvAULGiMiyN9mLRsabmGvWOmsAy4Utca2uNIixmYpO8vQokO/0lL9YLoG9/qRTxCCKcMf/Ws4RUPZa8MP8B0M/zWpsrdu6lx2HZSTWUltUTFW4xxOBGbsAAabWQfDfVXDflrgXUaS9z97t/MZnANnidBPi7h4lAv3nJTkz5I2BjiAtrxkYsOKCzxAdeGNLhK07LtqlXFX+IH8ieIEcNykwksBiQeQeFj6hCmTIVATDbyyTdCioDXA6yYMQyeRmVGoz2PN0GEjcHedQbpicIXeAhgl8ST9bGmGt9uW5ZOStHA7NUbiReTdHIo3TfFVU1o8Ax2xamQtOyaWqF9F0HqY9+7bMeuP5y/5fAkfT1yIXAqp/dbSD5G7buUm+SM3u3R0nMbux2sUrSE60/YSiHabhSx+K2T/XyF7lcKVvhWu1yxcN/Gw+0cKFHbnvzgfu/jJ+w0='),
 			this.addDataEntry(dt + 'destruction occurence specification', 100, 300, 'Destruction Occurence Specification',
 				'lVTLbsMgEPwa7g6Oml5rO82llaqmP0DsrUHCxgX86td3wTiPJq7Sg6VldgbY3TEkTqthp1nDX1UBksRbEqdaKTtF1ZCClIRGoiBxRiiN8CP0eSG78tmoYRpqe4+AToKOyRYm5EV8ghQ1hK2MHWXIGM4aF7aVnEkkThrQogILGjMywG8nLOm5sLBvWO6kPRaKGLcVVpqtMMxVbRlKdFgXWjUfTJfgrh95gpSsMeLgr+EQDXmrjejgHYz4nlHVWnd0quoa8lncKG0RMVbjGQ4EZmwPBsOkhn5blLCfC9wkhD58ta7zCRwTR4jET2d5eVBn6hOJpr9ICxt0oK3ImVyQYoEdFBfa6IKgVVsXV4xN5jfyE8UDYFh0hYeCJXagcFh6REovCssDI5qcE3EQJQ+yeAaZmYDyqD2ZDIPgs9uei68895fVMpyWVqOzBjMcijBZ6z2ydzxz5cm7WkBvt2CYK50UYyA/hvVZh9Y3GrT+f39wefrffe7iOfgB'),
 		 	this.addEntry(dt + 'interaction', function()

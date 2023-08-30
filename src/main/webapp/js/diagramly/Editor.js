@@ -2238,7 +2238,7 @@
 		{description: 'diagramSvgDesc', extension: 'svg', mimeType: 'image/svg'},
 		{description: 'diagramHtmlDesc', extension: 'html', mimeType: 'text/html'}];
 	
-	if (urlParams['save-dialog'] != '1')
+	if (urlParams['save-dialog'] == '0')
 	{
 		Editor.prototype.diagramFileTypes.push({description: 'diagramXmlDesc', extension: 'xml', mimeType: 'text/xml'});
 	}
