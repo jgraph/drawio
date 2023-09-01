@@ -4929,7 +4929,11 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 	{
 		SaveDialog.lastValue = storageSelect.value;
 		var entry = entries[SaveDialog.lastValue];
-		saveFn(saveAsInput, entry.mode, entry.id);
+
+		if (entry != null)
+		{
+			saveFn(saveAsInput, entry.mode, entry.id);
+		}
 	}, null, 'geBtn gePrimaryBtn');
 
 	function storageChanged()
@@ -10630,6 +10634,11 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 	
 					mxEvent.addListener(wrapper, 'dragstart', function(evt)
 					{
+						if (stopEditing != null)
+						{
+							return;
+						}
+
 						if (data == null && img != null)
 						{
 							rem.style.visibility = 'hidden';
