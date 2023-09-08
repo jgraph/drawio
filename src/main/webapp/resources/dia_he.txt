@@ -351,6 +351,7 @@ formatHtmlEmbedded=HTML
 formatSvgEmbedded=‫SVG (עם XML)‬
 formatVsdx=VSDX
 formatVssx=VSSX
+formatWebp=WebP
 formatXmlPlain=‫XML (רגיל)‬
 formatXml=XML
 forum=‫דיון/פורום תמיכה‬

@@ -351,6 +351,7 @@ formatHtmlEmbedded=HTML
 formatSvgEmbedded=SVG (may XML)
 formatVsdx=VSDX
 formatVssx=VSSX
+formatWebp=WebP
 formatXmlPlain=XML (payak)
 formatXml=XML
 forum=Diskusyon/Usapang tulong

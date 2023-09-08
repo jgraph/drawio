@@ -351,6 +351,7 @@ formatHtmlEmbedded=HTML
 formatSvgEmbedded=SVG (với XML)
 formatVsdx=VSDX
 formatVssx=VSSX
+formatWebp=WebP
 formatXmlPlain=XML (Trơn)
 formatXml=XML
 forum=Thảo luận/Diễn đàn trợ giúp

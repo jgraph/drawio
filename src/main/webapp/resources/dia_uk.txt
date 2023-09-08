@@ -351,6 +351,7 @@ formatHtmlEmbedded=HTML
 formatSvgEmbedded=SVG (з XML)
 formatVsdx=VSDX
 formatVssx=VSSX
+formatWebp=WebP
 formatXmlPlain=XML (звичайний)
 formatXml=XML
 forum=Обговорення/Довідковий форум

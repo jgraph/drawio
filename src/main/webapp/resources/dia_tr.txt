@@ -351,6 +351,7 @@ formatHtmlEmbedded=HTML
 formatSvgEmbedded=SVG (XML ile)
 formatVsdx=VSDX
 formatVssx=VSSX
+formatWebp=WebP
 formatXmlPlain=XML (Normal)
 formatXml=XML
 forum=Tartışma/Yardım Forumları

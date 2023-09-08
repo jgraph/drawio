@@ -351,6 +351,7 @@ formatHtmlEmbedded=HTML
 formatSvgEmbedded=SVG (XMLrekin)
 formatVsdx=VSDX
 formatVssx=VSSX
+formatWebp=WebP
 formatXmlPlain=XML (arrunta)
 formatXml=XML
 forum=Laguntza/eztabaida foroak

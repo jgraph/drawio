@@ -6153,6 +6153,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	pageRadio.setAttribute('name', 'geLinkDialogOption');
 
 	var pageSelect = document.createElement('select');
+	pageSelect.style.maxWidth = '100%';
 	pageSelect.style.width = '380px';
 
 	var newWindowCheckbox = document.createElement('input');
@@ -6350,19 +6351,28 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	var btns = document.createElement('div');
 	btns.style.marginTop = '18px';
 	btns.style.textAlign = 'center';
-	
-	var helpBtn = mxUtils.button(mxResources.get('help'), function()
-	{
-		editorUi.openLink('https://www.drawio.com/doc/faq/custom-links');
-	});
 
-	helpBtn.style.verticalAlign = 'middle';
-	helpBtn.className = 'geBtn';
-	btns.appendChild(helpBtn);
-
-	if (editorUi.isOffline() && !mxClient.IS_CHROMEAPP)
+	if (!editorUi.isOffline())
 	{
-		helpBtn.style.display = 'none';
+		var link = document.createElement('a');
+		link.setAttribute('href', 'https://www.drawio.com/doc/faq/custom-links');
+		link.setAttribute('title', mxResources.get('help'));
+		link.setAttribute('target', '_blank');
+		link.style.marginLeft = '8px';
+		link.style.cursor = 'help';
+		
+		var icon = document.createElement('img');
+		mxUtils.setOpacity(icon, 50);
+		icon.style.height = '16px';
+		icon.style.width = '16px';
+		icon.setAttribute('border', '0');
+		icon.setAttribute('valign', 'middle');
+		icon.style.marginTop = (mxClient.IS_IE11) ? '0px' : '-4px';
+		icon.setAttribute('src', Editor.helpImage);
+		link.appendChild(icon);
+		icon.className = 'geAdaptiveAsset';
+		
+		btns.appendChild(link);
 	}
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
@@ -6412,7 +6422,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	selectDropdown.className = 'geBtn';
 	selectDropdown.style.position = 'relative';
 	selectDropdown.style.top = '1px';
-	selectDropdown.style.maxWidth = '120px';
+	selectDropdown.style.maxWidth = '100px';
 	var selectFn = {};
 
 	var option = document.createElement('option');

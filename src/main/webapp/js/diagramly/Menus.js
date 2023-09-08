@@ -846,7 +846,7 @@
 						if (lblToSvg)
 						{
 							editorUi.downloadFile('remoteSvg', null, null, ignoreSelection, null, cropImage,
-										 transparentBackground, scale, border, null, editable);
+								transparentBackground, scale, border, null, editable);
 						}
 						else
 						{
@@ -857,8 +857,8 @@
 					}
 				}), true, editorUi.lastExportSvgEditable, 'svg', true);
 		}));
-		
-		editorUi.actions.put('exportPng', new Action(mxResources.get('formatPng') + '...', function()
+
+		function exportImage(format, defaultEditable, done)
 		{
 			if (editorUi.isExportToCanvas())
 			{
@@ -868,51 +868,49 @@
 						embedImages, border, cropImage, currentPage, dummy, grid, theme, exportType)
 					{
 						var val = parseInt(scale);
-						editorUi.lastExportPngEditable = editable;
-						
+
 						if (!isNaN(val) && val > 0)
 						{
-							editorUi.exportImage(val / 100, transparentBackground, ignoreSelection,
-								addShadow, editable, border, !cropImage, false, null, grid, null,
-								theme, exportType);
+							editorUi.exportImage(val / 100, transparentBackground && format == 'png',
+								ignoreSelection, addShadow, editable && format == 'png', border,
+								!cropImage, false, format, grid, null, theme, exportType);
+
+							if (done != null)
+							{
+								done(scale, transparentBackground, ignoreSelection, addShadow, editable, embedImages,
+									border, cropImage, currentPage, dummy, grid, theme, exportType);
+							}
 						}
-					}), true, editorUi.lastExportPngEditable, 'png', true);
+					}), true, defaultEditable, format, true);
 			}
 			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
 			{
-				editorUi.showRemoteExportDialog(mxResources.get('export'), null, mxUtils.bind(this, function(ignoreSelection, editable, transparent, scale, border)
+				editorUi.showRemoteExportDialog(mxResources.get('export'), null, mxUtils.bind(this,
+					function(ignoreSelection, editable, transparent, scale, border)
 				{
-					editorUi.downloadFile((editable) ? 'xmlpng' : 'png', null, null, ignoreSelection, null, null, transparent, scale, border);
+					editorUi.downloadFile((editable && format == 'png') ? 'xmlpng' : format,
+						null, null, ignoreSelection, null, null, transparent, scale, border);
 				}), false, true);
 			}
+		};
+		
+		editorUi.actions.put('exportPng', new Action(mxResources.get('formatPng') + '...', function()
+		{
+			exportImage('png', editorUi.lastExportPngEditable, function(scale,
+				transparentBackground, ignoreSelection, addShadow, editable)
+			{
+				editorUi.lastExportPngEditable = editable;
+			});
 		}));
 		
 		editorUi.actions.put('exportJpg', new Action(mxResources.get('formatJpg') + '...', function()
 		{
-			if (editorUi.isExportToCanvas())
-			{
-				editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
-					'https://www.drawio.com/doc/faq/export-diagram',
-					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable,
-						embedImages, border, cropImage, currentPage, dummy, grid, theme, exportType)
-					{
-						var val = parseInt(scale);
-						
-						if (!isNaN(val) && val > 0)
-						{
-							editorUi.exportImage(val / 100, false, ignoreSelection,
-								addShadow, false, border, !cropImage, false, 'jpeg',
-								grid, null, theme, exportType);
-						}
-					}), true, false, 'jpeg', true);
-			}
-			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
-			{
-				editorUi.showRemoteExportDialog(mxResources.get('export'), null, mxUtils.bind(this, function(ignoreSelection, editable, tranaparent, scale, border)
-				{
-					editorUi.downloadFile('jpeg', null, null, ignoreSelection, null, null, null, scale, border);
-				}), true, true);
-			}
+			exportImage('jpeg');
+		}));
+		
+		editorUi.actions.put('exportWebp', new Action(mxResources.get('formatWebp') + '...', function()
+		{
+			exportImage('webp');
 		}));
 
 		action = editorUi.actions.addAction('copyAsImage', mxUtils.bind(this, function()
@@ -920,7 +918,7 @@
 			var cells = mxUtils.sortCells(graph.model.getTopmostCells(graph.getSelectionCells()));
 			var xml = mxUtils.getXml((cells.length == 0) ? editorUi.editor.getGraphXml() : graph.encodeCells(cells));
 			editorUi.copyImage(cells, xml);
-		}));
+		}), null, null, 'Ctrl+Alt+X');
 
 		// Disabled in Safari as operation is not allowed
 		action.visible = Editor.enableNativeCipboard && editorUi.isExportToCanvas() && !mxClient.IS_SF;
@@ -2920,6 +2918,11 @@
 				if (editorUi.jpgSupported)
 				{
 					this.addMenuItems(menu, ['exportJpg'], parent);
+				}
+
+				if (editorUi.webpSupported)
+				{
+					this.addMenuItems(menu, ['exportWebp'], parent);
 				}
 			}
 			
@@ -4961,7 +4964,7 @@
 			
 			editorUi.menus.addSubmenu('exportAs', menu, parent);
 			
-			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp || editorUi.getServiceName() == 'atlassian')
 			{
 				editorUi.menus.addMenuItems(menu, ['import'], parent);
 			}

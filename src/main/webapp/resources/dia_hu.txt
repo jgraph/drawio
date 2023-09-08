@@ -351,6 +351,7 @@ formatHtmlEmbedded=HTML-be beágyazott
 formatSvgEmbedded=SVG-be beágyazott XML (.svg)
 formatVsdx=VSDX
 formatVssx=VSSX
+formatWebp=WebP
 formatXmlPlain=Sima Draw.io (.xml)
 formatXml=XML
 forum=Fórum

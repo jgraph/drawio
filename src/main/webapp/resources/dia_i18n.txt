@@ -351,6 +351,7 @@ formatHtmlEmbedded=formatHtmlEmbedded
 formatSvgEmbedded=formatSvgEmbedded
 formatVsdx=formatVsdx
 formatVssx=formatVssx
+formatWebp=formatWebp
 formatXmlPlain=formatXmlPlain
 formatXml=formatXml
 forum=forum

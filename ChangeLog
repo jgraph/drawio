@@ -1,7 +1,23 @@
+08-SEP-2023: 21.7.4
+
+- AWS shapes update to Q2 2023 [drawio-3677]
+
+08-SEP-2023: 21.7.3
+
+- Adds title attribute support for custom links
+- Adds Ctrl+Alt+X for copy as image [drawio-3754]
+- Changed app name in shortcuts edit link to draw.io
+- Uses pre-line for newlines in tooltips [DID-9327]
+- Adds WebP image export [drawio-553]
+- Enables text selection in lightbox [drawio-3732]
+- [conf cloud] Added support for custom templates in page IDs import [DID-9320]
+- [conf cloud] Showing actual filename in viewer title tooltip when displayName is different [DID-9241]
+- Handles possible JSON parsing error in DriveClient
+
 01-SEP-2023: 21.7.2
 
 - Fixes library item zoom on label select [DID-9295]
-- Conf Cloud: Added support for diagram names with spaces (untrimmed) [DID-9038]
+- [conf cloud]] Added support for diagram names with spaces (untrimmed) [DID-9038]
 
 30-AUG-2023: 21.7.1
 

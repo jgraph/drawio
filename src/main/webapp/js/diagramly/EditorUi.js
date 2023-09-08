@@ -423,6 +423,7 @@
 	{
 		EditorUi.prototype.useCanvasForExport = false;
 		EditorUi.prototype.jpgSupported = false;
+		EditorUi.prototype.webpSupported = false;
 		
 		// Checks if canvas is supported
 		try
@@ -467,14 +468,16 @@
 			// ignore
 		}
 		
-		// Checks for client-side JPG support
+		// Checks for client-side JPG and WebP support
 		try
 		{
 		    var canvas = document.createElement('canvas');
 		    canvas.width = canvas.height = 1;
 		    var uri = canvas.toDataURL('image/jpeg');
-		    
 		    EditorUi.prototype.jpgSupported = (uri.match('image/jpeg') !== null);
+
+			uri = canvas.toDataURL('image/webp');
+		    EditorUi.prototype.webpSupported = (uri.match('image/webp') !== null);
 		}
 		catch (e)
 		{
@@ -6507,7 +6510,7 @@
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
 		var graph = this.editor.graph;
-		var height = (format == 'jpeg') ? 220 : 300;
+		var height = (format == 'jpeg' || format == 'webp') ? 220 : 300;
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, title);
@@ -6630,7 +6633,7 @@
 				
 		var defaultTransparent = false; /*graph.background == mxConstants.NONE || graph.background == null*/; 
 		var transparent = this.addCheckbox(div, mxResources.get('transparentBackground'),
-			defaultTransparent, null, null, format != 'jpeg');
+			defaultTransparent, null, null, format != 'jpeg' && format != 'webp');
 
 		var themeSelect = null;
 
@@ -6679,7 +6682,7 @@
 				
 		var grid = null;
 		
-		if (format == 'png' || format == 'jpeg')
+		if (format == 'png' || format == 'jpeg' || format == 'webp')
 		{
 			grid = this.addCheckbox(div, mxResources.get('grid'), false,
 				this.isOffline() || !this.canvasSupported, false, true); 
@@ -6687,7 +6690,7 @@
 		}
 		
 		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'),
-			defaultInclude, null, null, format != 'jpeg');
+			defaultInclude, null, null, format != 'jpeg' && format != 'webp');
 		include.style.marginBottom = '16px';
 		
 		var cb5 = document.createElement('input');
@@ -14580,12 +14583,39 @@
 		}
 		else if (href.substring(0, 5) == 'data:')
 		{
-			title = mxResources.get('action');
+			title = this.getCustomLinkTitle(href);
 		}
 		
 		return title;
 	};
-	
+
+	/**
+	 * 
+	 */
+	EditorUi.prototype.getCustomLinkTitle = function(href)
+	{
+		var result = mxResources.get('action');
+
+		if (href.substring(0, 17) == 'data:action/json,')
+		{
+			try
+			{
+				var link = JSON.parse(href.substring(17));
+
+				if (link != null && link.title != null)
+				{
+					result = link.title;
+				}
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		}
+
+		return result;
+	};
+
 	/**
 	 * 
 	 */

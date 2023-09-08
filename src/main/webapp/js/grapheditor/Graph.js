@@ -15151,7 +15151,7 @@ if (typeof mxVertexHandler !== 'undefined')
 								mxEvent.addListener(changeLink, 'click', mxUtils.bind(this, function(evt)
 								{
 									this.graph.showLinkDialog(currentLink.getAttribute('href') || '',
-										mxResources.get('apply'), updateLink);
+										mxResources.get('ok'), updateLink);
 									mxEvent.consume(evt);
 								}));
 								

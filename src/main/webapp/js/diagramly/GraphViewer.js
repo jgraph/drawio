@@ -474,7 +474,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				}
 				else if (this.graphConfig.title != null && this.showTitleAsTooltip)
 				{
-					container.setAttribute('title', this.graphConfig.title);
+					container.setAttribute('title', this.graphConfig.titleTooltip || this.graphConfig.title);
 				}
 				
 				if (!this.responsive)
@@ -1602,7 +1602,7 @@ GraphViewer.prototype.addToolbar = function()
 		var filename = container.ownerDocument.createElement('div');
 		filename.style.cssText = 'display:inline-block;position:relative;padding:3px 6px 0 6px;' +
 			'vertical-align:top;font-family:Helvetica,Arial;font-size:12px;top:4px;cursor:default;color:#000;';
-		filename.setAttribute('title', this.graphConfig.title);
+		filename.setAttribute('title', this.graphConfig.titleTooltip || this.graphConfig.title);
 		mxUtils.write(filename, this.graphConfig.title);
 		mxUtils.setOpacity(filename, 70);
 		
@@ -2178,20 +2178,20 @@ Dialog.prototype.getDocumentSize = function()
 /**
  * 
  */
-GraphViewer.prototype.updateTitle = function(title)
+GraphViewer.prototype.updateTitle = function(title, titleTooltip)
 {
 	title = title || '';
 	
 	if (this.showTitleAsTooltip && this.graph != null && this.graph.container != null)
 	{
-		this.graph.container.setAttribute('title', title);
+		this.graph.container.setAttribute('title', titleTooltip || title);
     }
 	
 	if (this.filename != null)
 	{
 		this.filename.innerText = '';
 		mxUtils.write(this.filename, title);
-		this.filename.setAttribute('title', title);
+		this.filename.setAttribute('title', titleTooltip || title);
 	}
 };
 
