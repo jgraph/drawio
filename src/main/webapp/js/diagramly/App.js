@@ -348,7 +348,6 @@ App.publicPlugin = [
 //	'import',
 	'replay',
 	'anon',
-	'flow',
 	'webcola',
 //	'rnd', 'page', 'gd',
 	'tags'
@@ -4147,6 +4146,7 @@ App.prototype.pickLibrary = function(mode)
 					try
 					{
 						this.loadLibrary(optionalFile);
+						this.showSidebar();
 					}
 					catch (e)
 					{
@@ -4164,6 +4164,7 @@ App.prototype.pickLibrary = function(mode)
 							try
 							{
 								this.loadLibrary(file);
+								this.showSidebar();
 							}
 							catch (e)
 							{
@@ -4199,7 +4200,9 @@ App.prototype.pickLibrary = function(mode)
 							{
 								try
 								{
-									this.loadLibrary(new LocalLibrary(this, e.target.result, file.name));
+									this.loadLibrary(new LocalLibrary(this,
+										e.target.result, file.name));
+									this.showSidebar();
 								}
 								catch (e)
 								{
@@ -4258,8 +4261,10 @@ App.prototype.pickLibrary = function(mode)
 		{
 			try
 			{
-				this.loadLibrary((mode == App.MODE_BROWSER) ? new StorageLibrary(this, xml, filename) :
+				this.loadLibrary((mode == App.MODE_BROWSER) ?
+					new StorageLibrary(this, xml, filename) :
 					new LocalLibrary(this, xml, filename));
+				this.showSidebar();
 			}
 			catch (e)
 			{

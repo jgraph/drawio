@@ -1,3 +1,13 @@
+12-SEP-2023: 21.7.5
+
+- Adds CSS styles for Latex SVG export [drawio-3839]
+- Removes invalid flow plugin UI entry [drawio-3840]
+- Fixes child edge bounding box offset [drawio-3844]
+- Fixes saving changes in Notion plugin [drawio-3846]
+- Shows shapes panel only after loading custom libs
+- [conf cloud] Improved error message for 413 HTTP error (file too large) [DID-9113]
+- Fixes contentLength header for UTF16 [drawio-3847]
+
 08-SEP-2023: 21.7.4
 
 - AWS shapes update to Q2 2023 [drawio-3677]

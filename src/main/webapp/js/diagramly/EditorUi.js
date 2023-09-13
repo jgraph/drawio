@@ -173,6 +173,7 @@
 			{
 				if (EditorUi.enableLogging && urlParams['dev'] != '1' &&
 					message != EditorUi.lastErrorMessage && message.indexOf('extension:') < 0 &&
+					message.indexOf('ResizeObserver loop completed with undelivered notifications') < 0 &&
 					err.stack.indexOf('extension:') < 0 && err.stack.indexOf('<anonymous>:') < 0)
 				{
 					EditorUi.lastErrorMessage = message;
@@ -3426,6 +3427,24 @@
 	EditorUi.prototype.getLibraryStorageHint = function(file)
 	{
 		return '';
+	};
+
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
+	EditorUi.prototype.showSidebar = function()
+	{
+		if (this.sidebarWindow != null)
+		{
+			this.sidebarWindow.window.setVisible(true);
+		}
+		else
+		{
+			this.toggleShapesPanel(true);
+		}
 	};
 
 	/**
@@ -9382,6 +9401,7 @@
 			if (xml != null && xml.substring(0, 10) == '<mxlibrary')
 			{
 				this.loadLibrary(new LocalLibrary(this, xml, filename));
+				this.showSidebar();
 			}
 			else
 			{
@@ -9558,6 +9578,7 @@
 					{
 						this.spinner.stop();
 						this.loadLibrary(new LocalLibrary(this, data, filename));
+						this.showSidebar();
 		    			
 		    			return null;
 					}
@@ -10480,19 +10501,6 @@
 						}
 					}
 				}
-			}
-		}));
-		
-		// Shows sidebar when libraries are loaded
-		this.editor.addListener('libraryLoaded', mxUtils.bind(this, function()
-		{
-			if (this.sidebarWindow != null)
-			{
-				this.sidebarWindow.window.setVisible(true);
-			}
-			else
-			{
-				this.toggleShapesPanel(true);
 			}
 		}));
 
@@ -15478,6 +15486,7 @@
     				try
 	    			{
     					this.loadLibrary(new LocalLibrary(this, xml, name));
+						this.showSidebar();
 	    			}
     				catch (e)
 	    			{
@@ -15567,6 +15576,7 @@
 				try
     			{
     				this.loadLibrary(new LocalLibrary(this, data, file.name));
+					this.showSidebar();
     			}
     			catch (e)
     			{
@@ -18770,6 +18780,7 @@
 						try
 						{
 							this.loadLibrary(new RemoteLibrary(this, libContent, lib));
+							this.showSidebar();
 						}
 						catch (e)
 						{

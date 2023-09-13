@@ -1011,6 +1011,7 @@ mxStencilRegistry.allowEval = false;
 			{
 				var library = new DesktopLibrary(this, data, fileEntry);
 				this.loadLibrary(library);
+				this.showSidebar();
 			}
 			catch (e)
 			{
@@ -1164,6 +1165,7 @@ mxStencilRegistry.allowEval = false;
 						try
 						{
 							this.loadLibrary(new LocalLibrary(this, xml, name));
+							this.showSidebar();
 						}
 						catch (e)
 						{
@@ -2128,6 +2130,7 @@ mxStencilRegistry.allowEval = false;
 		{
 			var library = new DesktopLibrary(this, data, fileEntry);
 			this.loadLibrary(library);
+			this.showSidebar();
 			success(library);
 		}), error, libPath);
 	};

@@ -6672,6 +6672,14 @@
 			document.body.appendChild(result);
 			Editor.MathJaxRender(result);
 			result.parentNode.removeChild(result);
+
+			// Copies MathJax CSS to output
+			var style = result.ownerDocument.getElementById('MJX-SVG-styles');
+
+			if (style != null)
+			{
+				result.getElementsByTagName('defs')[0].appendChild(style.cloneNode(true));
+			}
 		}
 
 		if (bgImg != null)

@@ -516,13 +516,15 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 	this.graph2.shapeBackgroundColor = style.backgroundColor;
 
 	// Applies current style for preview
-	var temp = this.graph2.cloneCells(cells);
-	this.editorUi.insertHandler(temp, null, this.graph2.model,
-		(!applyAllStyles) ? this.editorUi.editor.graph.defaultVertexStyle : null,
-		(!applyAllStyles) ? this.editorUi.editor.graph.defaultEdgeStyle : null,
-		applyAllStyles, true);
-	
-	this.graph2.addCells(temp);
+	if (cells != null)
+	{
+		var temp = this.graph2.cloneCells(cells);
+		this.editorUi.insertHandler(temp, null, this.graph2.model,
+			(!applyAllStyles) ? this.editorUi.editor.graph.defaultVertexStyle : null,
+			(!applyAllStyles) ? this.editorUi.editor.graph.defaultEdgeStyle : null,
+			applyAllStyles, true);
+		this.graph2.addCells(temp);
+	}
 
 	mxClient.NO_FO = fo;
 	var bounds = this.graph2.getGraphBounds();

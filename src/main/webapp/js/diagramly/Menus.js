@@ -4291,7 +4291,9 @@
 										
 										try
 										{
-											editorUi.loadLibrary(new UrlLibrary(this, req.getText(), fileUrl));
+											editorUi.loadLibrary(new UrlLibrary(
+												this, req.getText(), fileUrl));
+											editorUi.showSidebar();
 										}
 										catch (e)
 										{
