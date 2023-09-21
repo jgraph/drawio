@@ -629,6 +629,7 @@
 		'## x is from -1 to 1 along the edge, y is orthogonal, and dx/dy are offsets in pixels.\n' +
 		'## An optional placeholders with the string value "source" or "target" can be specified\n' +
 		'## to replace placeholders in the additional label with data from the source or target.\n' +
+		'## An optional data object can be specified to define the metadata for the connector.\n' +
 		'## The target column may contain a comma-separated list of values.\n' +
 		'## Multiple connect entries are allowed.\n' +
 		'#\n' +
@@ -651,7 +652,7 @@
 		'#\n' +
 		'# width: auto\n' +
 		'#\n' +
-		'## Node height. Possible value is a number (in px), auto or an @ sign followed by a column\n' +
+		'## Node height. Possible value is a number (in px), auto, width or an @ sign followed by a column\n' +
 		'## name that contains the value for the height. Default is auto.\n' +
 		'#\n' +
 		'# height: auto\n' +

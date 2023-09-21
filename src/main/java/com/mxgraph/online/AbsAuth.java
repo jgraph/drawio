@@ -30,7 +30,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 @SuppressWarnings("serial")
-abstract public class AbsAuth extends HttpServlet implements AuthComm
+abstract public class AbsAuth extends HttpServlet implements AbsComm
 {
 	private static final Logger log = Logger.getLogger(AbsAuth.class.getName());
 	private static final boolean DEBUG = false;

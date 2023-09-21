@@ -1999,17 +1999,6 @@ App.prototype.getPusher = function()
 /**
  * Shows a footer to download the desktop version once per session.
  */
-App.prototype.showNameChangeBanner = function()
-{
-	this.showBanner('DiagramsFooter', 'draw.io is now diagrams.net', mxUtils.bind(this, function()
-	{
-		this.openLink('https://www.drawio.com/blog/move-diagrams-net');
-	}));
-};
-
-/**
- * Shows a footer to download the desktop version once per session.
- */
 App.prototype.showNameConfBanner = function()
 {
 	this.showBanner('ConfFooter', 'Try draw.io for Confluence', mxUtils.bind(this, function()
@@ -3126,13 +3115,6 @@ App.prototype.start = function()
 							file.saveDraft();
 						}
 					}));
-				}
-
-				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOfflineApp() &&
-					urlParams['open'] == null && /www\.draw\.io$/.test(window.location.hostname) &&
-					(!this.editor.chromeless || this.editor.editable))
-				{
-					this.showNameChangeBanner();
 				}
 			}
 			catch (e)

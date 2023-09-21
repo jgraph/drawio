@@ -179,9 +179,16 @@ OneDriveClient.prototype.updateUser = function(success, error, failOnAuth)
 			}
 			else
 			{
-				var data = JSON.parse(req.getText());
-				this.setUser(new DrawioUser(data.id, data.mail, data.displayName));
-				success();
+				try
+				{
+					var data = JSON.parse(req.getText());
+					this.setUser(new DrawioUser(data.id, data.mail, data.displayName));
+					success();
+				}
+				catch (e)
+				{
+					error(e);
+				}
 			}
 		}
 	}), mxUtils.bind(this, function(err)

@@ -22,6 +22,8 @@ draw.io is a diagramming or whiteboarding application, depending on which theme 
 
 The application is designed to be used largely as-is. draw.io is not suitable as a framework for building other products from. For this try either [Tldraw](https://github.com/tldraw/tldraw) or [Excalidraw](https://github.com/excalidraw/excalidraw).
 
+Note, in particular, we don't have support for collaborative editing in this project. If this is important, one of the projects above is likely a better choice.
+
 If you are using a draw.io project/product and have issues or questions about the editor itself, the issue tracker and discussion in this GitHub project are likely a good place to look.
 
 Running

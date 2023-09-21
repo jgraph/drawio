@@ -1197,7 +1197,7 @@ Sidebar.prototype.addSearchPalette = function(expand)
 	
 	mxEvent.addListener(input, 'keydown', mxUtils.bind(this, function(evt)
 	{
-		if (evt.keyCode == 13 /* Enter */)
+		if (evt.keyCode == 13 /* Enter */ || evt.keyCode == 229 /* Next on Android */)
 		{
 			find();
 			mxEvent.consume(evt);
@@ -2302,48 +2302,51 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 		mxEvent.consume(evt);
 	});
 	
-	// Applies default styles
-	var originalCells = cells;
-	cells = this.graph.cloneCells(cells);
-	this.editorUi.insertHandler(originalCells, null, this.graph.model,
-		this.editorUi.editor.graph.defaultVertexStyle,
-		this.editorUi.editor.graph.defaultEdgeStyle,
-		true, true);
-
-	if (icon != null)
-	{
-		elt.style.backgroundImage = 'url(' + icon + ')';
-		elt.style.backgroundRepeat = 'no-repeat';
-		elt.style.backgroundPosition = 'center';
-		elt.style.backgroundSize = '24px 24px';
-	}
-	else
-	{
-		this.createThumb(originalCells, thumbWidth, thumbHeight,
-			elt, title, showLabel, showTitle, width, height);
-	}
-	
 	var bounds = new mxRectangle(0, 0, width, height);
 	
-	if (cells.length > 1 || cells[0].vertex)
+	// Applies default styles
+	if (cells != null && cells.length > 0)
 	{
-		var ds = this.createDragSource(elt, this.createDropHandler(cells, true, allowCellsInserted,
-			bounds, startEditing, sourceCell), this.createDragPreview(width, height),
-			cells, bounds, startEditing);
-		this.addClickHandler(elt, ds, cells, clickFn, startEditing);
-	
-		// Uses guides for vertices only if enabled in graph
-		ds.isGuidesEnabled = mxUtils.bind(this, function()
+		var originalCells = cells;
+		cells = this.graph.cloneCells(cells);
+		this.editorUi.insertHandler(originalCells, null, this.graph.model,
+			this.editorUi.editor.graph.defaultVertexStyle,
+			this.editorUi.editor.graph.defaultEdgeStyle,
+			true, true);
+
+		if (icon != null)
 		{
-			return this.editorUi.editor.graph.graphHandler.guidesEnabled;
-		});
-	}
-	else if (cells[0] != null && cells[0].edge)
-	{
-		var ds = this.createDragSource(elt, this.createDropHandler(cells, false, allowCellsInserted,
-			bounds, startEditing, sourceCell), this.createDragPreview(width, height),
-			cells, bounds, startEditing);
-		this.addClickHandler(elt, ds, cells, clickFn);
+			elt.style.backgroundImage = 'url(' + icon + ')';
+			elt.style.backgroundRepeat = 'no-repeat';
+			elt.style.backgroundPosition = 'center';
+			elt.style.backgroundSize = '24px 24px';
+		}
+		else
+		{
+			this.createThumb(originalCells, thumbWidth, thumbHeight,
+				elt, title, showLabel, showTitle, width, height);
+		}
+		
+		if (cells.length > 1 || cells[0].vertex)
+		{
+			var ds = this.createDragSource(elt, this.createDropHandler(cells, true, allowCellsInserted,
+				bounds, startEditing, sourceCell), this.createDragPreview(width, height),
+				cells, bounds, startEditing);
+			this.addClickHandler(elt, ds, cells, clickFn, startEditing);
+		
+			// Uses guides for vertices only if enabled in graph
+			ds.isGuidesEnabled = mxUtils.bind(this, function()
+			{
+				return this.editorUi.editor.graph.graphHandler.guidesEnabled;
+			});
+		}
+		else if (cells[0] != null && cells[0].edge)
+		{
+			var ds = this.createDragSource(elt, this.createDropHandler(cells, false, allowCellsInserted,
+				bounds, startEditing, sourceCell), this.createDragPreview(width, height),
+				cells, bounds, startEditing);
+			this.addClickHandler(elt, ds, cells, clickFn);
+		}
 	}
 	
 	// Shows a tooltip with the rendered cell

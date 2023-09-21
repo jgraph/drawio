@@ -1507,10 +1507,14 @@ var CreateGraphDialog = function(editorUi, title, type)
 			cells = editorUi.editor.graph.importCells(cells, pt.x, pt.y);
 			var view = editorUi.editor.graph.view;
 			var temp = view.getBounds(cells);
-			temp.x -= view.translate.x;
-			temp.y -= view.translate.y;
-			editorUi.editor.graph.scrollRectToVisible(temp);
-			editorUi.editor.graph.setSelectionCells(cells);
+
+			if (temp != null)
+			{
+				temp.x -= view.translate.x;
+				temp.y -= view.translate.y;
+				editorUi.editor.graph.scrollRectToVisible(temp);
+				editorUi.editor.graph.setSelectionCells(cells);
+			}
 			
 			if (container.parentNode != null)
 			{

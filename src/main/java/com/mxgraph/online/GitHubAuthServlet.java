@@ -6,7 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class GitHubAuthServlet extends GitHubAuth implements AuthServletComm
+public class GitHubAuthServlet extends GitHubAuth implements ServletComm
 {
     /**
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)

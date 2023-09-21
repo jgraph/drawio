@@ -586,6 +586,17 @@ EditorUi.prototype.initPages = function()
 			return result;
 		};
 
+		// Selects new default parent if root changes
+		graph.addListener(mxEvent.ROOT, mxUtils.bind(this, function()
+		{
+			if (graph.defaultParent != null &&
+				!graph.model.contains(graph.defaultParent))
+			{
+				graph.setDefaultParent(null);
+				graph.selectUnlockedLayer();
+			}
+		}));
+		
 		var pagesChanged = mxUtils.bind(this, function()
 		{
 			this.updateDocumentTitle();

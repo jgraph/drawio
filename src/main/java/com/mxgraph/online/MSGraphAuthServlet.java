@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @SuppressWarnings("serial")
-public class MSGraphAuthServlet extends MSGraphAuth implements AuthServletComm
+public class MSGraphAuthServlet extends MSGraphAuth implements ServletComm
 {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)

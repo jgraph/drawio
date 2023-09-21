@@ -2523,10 +2523,13 @@ Graph.rewritePageLinks = function(doc)
 		}
 	};
 
-	for (var i = 0; i < links.length; i++)
+	if (links != null)
 	{
-		rewriteLink(links[i], 'href');
-		rewriteLink(links[i], 'xlink:href');
+		for (var i = 0; i < links.length; i++)
+		{
+			rewriteLink(links[i], 'href');
+			rewriteLink(links[i], 'xlink:href');
+		}
 	}
 };
 
@@ -4771,6 +4774,33 @@ Graph.prototype.replacePlaceholders = function(cell, str, vars, translate)
 					if (name == 'id')
 					{
 						tmp = cell.id;
+					}
+					else if (name == 'width' && this.model.isVertex(cell))
+					{
+						var geo = this.getCellGeometry(cell);
+
+						if (geo != null)
+						{
+							tmp = geo.width;
+						}
+					}
+					else if (name == 'height' && this.model.isVertex(cell))
+					{
+						var geo = this.getCellGeometry(cell);
+
+						if (geo != null)
+						{
+							tmp = geo.height;
+						}
+					}
+					else if (name == 'length' && this.model.isEdge(cell))
+					{
+						var state = this.view.getState(cell);
+
+						if (state != null)
+						{
+							tmp = Math.round(state.length / this.view.scale);
+						}
 					}
 					else if (name.indexOf('{') < 0)
 					{
@@ -10112,7 +10142,10 @@ if (typeof mxVertexHandler !== 'undefined')
 				
 				for (var i = 0; i < elts.length; i++)
 				{
-					fn(elts[i]);
+					if (elts[i] != null)
+					{
+						fn(elts[i]);
+					}
 				}
 			}
 		};

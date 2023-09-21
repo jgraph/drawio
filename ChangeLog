@@ -1,3 +1,20 @@
+20-SEP-2023: 21.8.0
+
+- Ports Cache servlet to AWS Lambda [TI-11]
+- Fixes possible tab scrolling [drawio-desktop-1411]
+- Fixes default parent after root change [drawio-3868]
+- Adds inverse dark filter for iframes [drawio-3869]
+- Inserts overlapping connector on top [drawio-3853]
+- Fixes collapsed details viewer in FF [drawio-3292]
+- Adds spacing, alignment to default style [drawio-3307]
+- Fixes shape search on Android with Chromium [3321]
+- Adds width and height placeholders [drawio-3327]
+- Add allowed domain [DID-9475]
+- Adds length placeholder for edges [drawio-3327]
+- Fixes constrained collapsed resize [drawio-3274]
+- Adds edge meta data in CSV import [drawio-3324]
+- Adds support for same height as width in CSV import
+
 12-SEP-2023: 21.7.5
 
 - Adds CSS styles for Latex SVG export [drawio-3839]

@@ -117,7 +117,10 @@ EditorUi = function(editor, container, lightbox)
 		var styles = ['rounded', 'shadow', 'glass', 'dashed', 'dashPattern', 'labelBackgroundColor',
 			'labelBorderColor', 'comic', 'sketch', 'fillWeight', 'hachureGap', 'hachureAngle', 'jiggle',
 			'disableMultiStroke', 'disableMultiStrokeFill', 'fillStyle', 'curveFitting',
-			'simplification', 'sketchStyle', 'pointerEvents', 'strokeColor', 'strokeWidth'];
+			'simplification', 'sketchStyle', 'pointerEvents', 'strokeColor', 'strokeWidth',
+			'align', 'verticalAlign', 'spacingLeft', 'spacingRight', 'spacingTop',
+			'spacingBottom', 'spacing'
+		];
 		var connectStyles = ['shape', 'edgeStyle', 'curved', 'rounded', 'elbow', 'jumpStyle', 'jumpSize',
 			'comic', 'sketch', 'fillWeight', 'hachureGap', 'hachureAngle', 'jiggle',
 			'disableMultiStroke', 'disableMultiStrokeFill', 'fillStyle', 'curveFitting',
@@ -414,16 +417,28 @@ EditorUi = function(editor, container, lightbox)
 			{
 				function iOSversion()
 				{
-					if (/iP(hone|od|ad)/.test(navigator.platform)) {
+					var result = null;
+
+					if (/iP(hone|od|ad)/.test(navigator.platform))
+					{
 						// supports iOS 2.0 and later: <http://bit.ly/TJjs1V>
 						var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
-						
-						return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+
+						try
+						{
+							result = [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+						}
+						catch (e)
+						{
+							// ignore
+						}
 					}
-				}
+
+					return result;
+				};
 				
 				var ver = iOSversion();
-
+				
 				if (ver != null && ver[0] >= 16)
 				{
 					mxUtils.setPrefixedStyle(this.menubarContainer.style, 'userSelect', 'none');
@@ -3471,6 +3486,7 @@ EditorUi.prototype.initCanvas = function()
 		 */
 		var graphViewValidate = graph.view.validate;
 		var zero = new mxPoint();
+		var pageChanged = false;
 		var lastPage = null;
 
 		graph.view.validate = function()
@@ -3483,6 +3499,7 @@ EditorUi.prototype.initCanvas = function()
 					lastPage != ui.currentPage)
 				{
 					lastPage = ui.currentPage;
+					pageChanged = true;
 
 					// Sets initial translate based on geometries
 					// to avoid revalidation in sizeDidChange
@@ -3533,6 +3550,9 @@ EditorUi.prototype.initCanvas = function()
 
 			graph.sizeDidChange = function()
 			{
+				var skipScroll = pageChanged;
+				pageChanged = false;
+
 				if (this.container != null &&
 					mxUtils.hasScrollbars(this.container))
 				{
@@ -3549,14 +3569,19 @@ EditorUi.prototype.initCanvas = function()
 						{
 							this.view.x0 = pageLayout.x;
 							this.view.y0 = pageLayout.y;
-							this.autoTranslate = true;
 
 							// Requires full revalidation
+							this.autoTranslate = true;
 							this.view.setTranslate(tr.x, tr.y);
-							this.container.scrollLeft += Math.round((tr.x - tx) * this.view.scale);
-							this.container.scrollTop += Math.round((tr.y - ty) * this.view.scale);
 							this.autoTranslate = false;
-							
+
+							// Skipped if initial autoTranslate is wrong
+							if (!skipScroll)
+							{
+								this.container.scrollLeft += Math.round((tr.x - tx) * this.view.scale);
+								this.container.scrollTop += Math.round((tr.y - ty) * this.view.scale);
+							}
+
 							return;
 						}
 					}

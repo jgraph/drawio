@@ -7,7 +7,7 @@
 	filter: invert(93%) hue-rotate(180deg);
 	background:#151515;
 }
-.geDarkMode image, .geDarkMode img:not(.geAdaptiveAsset) {
+.geDarkMode image, .geDarkMode img:not(.geAdaptiveAsset), .geDarkMode iframe {
 	filter: invert(100%) hue-rotate(180deg) saturate(1.25);
 }
 .geDarkMode div.mxWindow {
