@@ -5520,14 +5520,21 @@ EditorUi.prototype.hideDialog = function(cancel, isEsc, matchContainer)
 		}
 		
 		var dlg = this.dialogs.pop();
+
+		// Temporary override to restore order of dialogs
+		// if dialogs are added in the close callback
+		var temp = this.dialogs.slice();
+		this.dialogs = [];
 		
 		if (dlg.close(cancel, isEsc) == false) 
 		{
-			//add the dialog back if dialog closing is cancelled
-			this.dialogs.push(dlg);
+			// Adds the dialog back if dialog closing is cancelled
+			this.dialogs = temp.concat(dlg).concat(this.dialogs);
+			
 			return;
 		}
-		
+
+		this.dialogs = temp;
 		this.dialog = (this.dialogs.length > 0) ? this.dialogs[this.dialogs.length - 1] : null;
 		this.editor.fireEvent(new mxEventObject('hideDialog'));
 		

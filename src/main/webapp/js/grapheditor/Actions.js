@@ -690,6 +690,11 @@ Actions.prototype.init = function()
 		    	}
 				
 				graph.removeCellsFromParent(temp);
+
+				if (temp.length > 0)
+				{
+					graph.scrollCellToVisible(temp[0]);
+				}
 			}
 		}
 	});

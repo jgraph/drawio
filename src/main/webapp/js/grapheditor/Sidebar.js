@@ -1197,7 +1197,7 @@ Sidebar.prototype.addSearchPalette = function(expand)
 	
 	mxEvent.addListener(input, 'keydown', mxUtils.bind(this, function(evt)
 	{
-		if (evt.keyCode == 13 /* Enter */ || evt.keyCode == 229 /* Next on Android */)
+		if (evt.keyCode == 13 /* Enter */)
 		{
 			find();
 			mxEvent.consume(evt);

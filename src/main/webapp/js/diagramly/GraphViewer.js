@@ -201,7 +201,6 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				if (this.responsive && this.graph.dialect == mxConstants.DIALECT_SVG)
 				{
 					var root = this.graph.view.getDrawPane().ownerSVGElement;
-					var canvas = this.graph.view.getCanvas();
 						
 					if (this.graphConfig.border != null)
 					{
@@ -301,7 +300,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					
 					if (diagrams.length > 0)
 					{
-						//Find the page index if the pageId is provided
+						// Finds index for given page ID
 						if (this.pageId != null)
 						{
 							for (var i = 0; i < diagrams.length; i++)
@@ -315,8 +314,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 						}
 						
 						var graphGetGlobalVariable = this.graph.getGlobalVariable;
-						var self = this;
-						
+
 						this.graph.getGlobalVariable = function(name)
 						{
 							var diagram = diagrams[self.currentPage];

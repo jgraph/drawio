@@ -3642,7 +3642,30 @@
 					else
 					{
 						var dlg = new CreateGraphDialog(editorUi, title, method);
-						editorUi.showDialog(dlg.container, 620, 420, true, false);
+						editorUi.showDialog(dlg.container, 620, 420, true, false, function(cancel, isEsc)
+						{
+							if (isEsc)
+							{
+								editorUi.confirm(mxResources.get('areYouSure'), function()
+								{
+									editorUi.hideDialog();
+								});
+
+								return false;
+							}
+							else if (dlg.graph != null)
+							{
+								if (dlg.graph.container.parentNode != null)
+								{
+									dlg.graph.container.parentNode.
+										removeChild(dlg.graph.container);
+								}
+
+								dlg.graph.destroy();
+								dlg.graph = null;
+							}
+						});
+
 						// Executed after dialog is added to dom
 						dlg.init();
 					}

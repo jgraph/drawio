@@ -2816,7 +2816,6 @@ Graph.prototype.init = function(container)
 		};
 	}
 
-
 	// Adds or updates CSS for flowAnimation style
 	this.addListener(mxEvent.SIZE, mxUtils.bind(this, function(sender, evt)
 	{
@@ -6215,15 +6214,17 @@ Graph.prototype.getFlowAnimationStyle = function()
 /**
  * Adds rack child layout style.
  */
-Graph.prototype.getFlowAnimationStyleCss = function(id)
+Graph.prototype.getFlowAnimationStyleCss = function(id, scale)
 {
+	scale = (scale != null) ? scale : this.view.scale;
+
 	return '.' + id + ' {\n' +
 	  'animation: ' + id + ' 0.5s linear;\n' +
 	  'animation-iteration-count: infinite;\n' +
 	'}\n' +
 	'@keyframes ' + id + ' {\n' +
 	  'to {\n' +
-	    'stroke-dashoffset: ' + (this.view.scale * -16) + ';\n' +
+	    'stroke-dashoffset: ' + (scale * -16) + ';\n' +
 	  '}\n' +
 	'}';
 };
@@ -11452,7 +11453,6 @@ if (typeof mxVertexHandler !== 'undefined')
 				svgCanvas.textEnabled = showText;
 				
 				imgExport = (imgExport != null) ? imgExport : this.createSvgImageExport();
-				var imgExportDrawCellState = imgExport.drawCellState;
 
 				// Ignores custom links
 				var imgExportGetLinkForCellState = imgExport.getLinkForCellState;
@@ -11468,8 +11468,10 @@ if (typeof mxVertexHandler !== 'undefined')
 				{
 					return state.view.graph.getLinkTargetForCell(state.cell);
 				};
-				
-				// Implements ignoreSelection flag
+
+				// Implements ignoreSelection flag and flow animation
+				var imgExportDrawCellState = imgExport.drawCellState;
+
 				imgExport.drawCellState = function(state, canvas)
 				{
 					var graph = state.view.graph;
@@ -11485,13 +11487,53 @@ if (typeof mxVertexHandler !== 'undefined')
 							graph.isCellSelected(parent);
 						parent = graph.model.getParent(parent);
 					}
-					
+
+					// Adds flow animation
+					var prevStroke = canvas.stroke;
+
+					canvas.stroke = function()
+					{
+						if (this.root != null && this.node != null &&
+							this.node.nodeName == 'path' &&
+							graph.enableFlowAnimation &&
+							graph.model.isEdge(state.cell) &&
+							mxUtils.getValue(state.style, 'flowAnimation', '0') == '1')
+						{
+							if (imgExport.flowAnimationStyle == null)
+							{
+								var id = 'ge-export-svg-flow-animation';
+								var svgDoc = this.root.ownerDocument;
+								var style = (svgDoc.createElementNS != null) ?
+									svgDoc.createElementNS(mxConstants.NS_SVG, 'style') :
+									svgDoc.createElement('style');
+								svgDoc.setAttributeNS != null? style.setAttributeNS('type', 'text/css') :
+									style.setAttribute('type', 'text/css');
+								style.innerHTML = graph.getFlowAnimationStyleCss(id, scale);
+								style.setAttribute('id', id);
+								svgDoc.getElementsByTagName('defs')[0].appendChild(style);
+
+								imgExport.flowAnimationStyle = style;
+							}
+
+							if (mxUtils.getValue(this.state.style, mxConstants.STYLE_DASHED, '0') != '1')
+							{
+								this.node.setAttribute('stroke-dasharray', (scale * 8));
+							}
+
+							this.node.setAttribute('class', imgExport.flowAnimationStyle.getAttribute('id'));
+						}
+
+						prevStroke.apply(this, arguments);
+					};
+
 					if ((ignoreSelection && lookup == null) || selected)
 					{
 						graph.view.redrawEnumerationState(state);
 						imgExportDrawCellState.apply(this, arguments);
 						this.doDrawShape(state.secondLabel, canvas);
 					}
+
+					canvas.stroke = prevStroke;
 				};
 				
 				var viewRoot = (this.view.currentRoot != null) ?
@@ -14412,7 +14454,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		/**
 		 * Updates the hint for the current operation.
 		 */
-		mxEdgeHandler.prototype.updateHint = function(me, point)
+		mxEdgeHandler.prototype.updateHint = function(me, point, edge)
 		{
 			if (this.hint == null)
 			{
@@ -14425,10 +14467,18 @@ if (typeof mxVertexHandler !== 'undefined')
 			var x = this.roundLength(point.x / s - t.x);
 			var y = this.roundLength(point.y / s - t.y);
 			var unit = this.graph.view.unit;
-			
+
 			this.hint.innerHTML = formatHintText(x, unit) + ', ' + formatHintText(y, unit);
 			this.hint.style.visibility = 'visible';
-			
+
+			if (edge != null)
+			{
+				edge.view.updateEdgeBounds(edge);
+				this.hint.innerHTML += ' (' + ((unit == mxConstants.POINTS) ?
+					Math.round(edge.length / s) : formatHintText(
+						edge.length / s, unit)) + ')';
+			}			
+
 			if (this.isSource || this.isTarget)
 			{
 				if (this.constraintHandler != null &&

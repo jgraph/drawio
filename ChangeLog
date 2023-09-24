@@ -1,3 +1,15 @@
+24-SEP-2023: 21.8.2
+
+- Confirm escape key for insert layout [drawio-3880]
+- Scrolls cell to visible after remove from group
+
+22-SEP-2023: 21.8.1
+
+- Attempt to fix NPE in GraphViewer
+- [conf cloud] Fixed custom templates loading in the editor [DID-9482]
+- [conf cloud] Prevent calling theme callback multiple times for the same event [DID-9505]
+- Fixes independent drag of cell with part=1 [DS-950]
+
 20-SEP-2023: 21.8.0
 
 - Ports Cache servlet to AWS Lambda [TI-11]

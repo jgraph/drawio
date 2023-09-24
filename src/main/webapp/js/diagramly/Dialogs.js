@@ -1478,12 +1478,6 @@ var CreateGraphDialog = function(editorUi, title, type)
 		{
 			editorUi.confirm(mxResources.get('areYouSure'), function()
 			{
-				if (container.parentNode != null)
-				{
-					graph.destroy();
-					container.parentNode.removeChild(container);
-				}
-		
 				editorUi.hideDialog();
 			});
 		})
@@ -1516,12 +1510,6 @@ var CreateGraphDialog = function(editorUi, title, type)
 				editorUi.editor.graph.setSelectionCells(cells);
 			}
 			
-			if (container.parentNode != null)
-			{
-				graph.destroy();
-				container.parentNode.removeChild(container);
-			}
-			
 			editorUi.hideDialog();
 		});
 		
@@ -1532,6 +1520,8 @@ var CreateGraphDialog = function(editorUi, title, type)
 		{
 			div.appendChild(cancelBtn);
 		}
+
+		this.graph = graph;
 	};
 
 	this.container = div;
