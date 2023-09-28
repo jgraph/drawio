@@ -1267,3 +1267,6 @@ confAOtherErrFaq=Er zijn ({1}) andere fout(en). Controleer de foutbeschrijving. 
 confAReplaceBaseUrl=Vervang de basis-URL in diagramlinks wanneer er geen pagina-ID-toewijzing wordt gevonden
 drawSvgPrev=draw.io SVG-voorbeeldweergave
 googleFonts=Google Fonts
+diagDupl=Duplicate Diagram Detected
+diagDuplMsg=This diagram is used in multiple places, which can result in unexpected results when edited. We've created an independent copy. Please open the editor again.
+diagDuplNoEditMsg=This diagram is used in multiple places. Please edit it within its own page.

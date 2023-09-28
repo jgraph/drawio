@@ -1267,3 +1267,6 @@ confAOtherErrFaq=({1}) muuta virhettä. Tarkista virheen kuvaus. Jos kuvaus on e
 confAReplaceBaseUrl=Vaihda perus-URL-osoite kaaviolinkeissä, kun sivutunnusten yhdistämistä ei löydy
 drawSvgPrev=draw.io SVG preview
 googleFonts=Google Fonts
+diagDupl=Duplicate Diagram Detected
+diagDuplMsg=This diagram is used in multiple places, which can result in unexpected results when edited. We've created an independent copy. Please open the editor again.
+diagDuplNoEditMsg=This diagram is used in multiple places. Please edit it within its own page.

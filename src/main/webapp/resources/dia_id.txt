@@ -1267,3 +1267,6 @@ confAOtherErrFaq=Ada ({1}) galat lain. Harap periksa deskripsi galat. Bila deskr
 confAReplaceBaseUrl=Menggantikan URL Dasar dalam tautan diagram ketika pemetaan ID halaman tidak ditemukan
 drawSvgPrev=draw.io SVG preview
 googleFonts=Google Fonts
+diagDupl=Duplicate Diagram Detected
+diagDuplMsg=This diagram is used in multiple places, which can result in unexpected results when edited. We've created an independent copy. Please open the editor again.
+diagDuplNoEditMsg=This diagram is used in multiple places. Please edit it within its own page.

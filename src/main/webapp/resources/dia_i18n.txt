@@ -1267,3 +1267,6 @@ confAOtherErrFaq=confAOtherErrFaq
 confAReplaceBaseUrl=confAReplaceBaseUrl
 drawSvgPrev=drawSvgPrev
 googleFonts=googleFonts
+diagDupl=diagDupl
+diagDuplMsg=diagDuplMsg
+diagDuplNoEditMsg=diagDuplNoEditMsg

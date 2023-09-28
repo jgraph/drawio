@@ -12882,7 +12882,8 @@
 	
 				var initPicker = mxUtils.bind(this, function(force)
 				{
-					if (force || document.body.contains(picker))
+					if (force || (document.body != null &&
+						document.body.contains(picker)))
 					{
 						function addKey(elt, key, kx, ky)
 						{
@@ -17402,8 +17403,7 @@
 					}
 					else
 					{
-						mxscript(DRAWIO_BASE_URL + '/js/orgchart.min.js',
-							onload, null, null, null, onerror);
+						mxscript('js/orgchart.min.js', onload, null, null, null, onerror);
 					}
 				}
 			}

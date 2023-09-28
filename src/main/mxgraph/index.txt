@@ -1,0 +1,316 @@
+Document: API Specification
+
+Overview:
+
+  This JavaScript library is divided into 8 packages. The top-level <mxClient>
+  class includes (or dynamically imports) everything else. The current version
+  is stored in <mxClient.VERSION>.
+
+  The *editor* package provides the classes required to implement a diagram
+  editor. The main class in this package is <mxEditor>.
+  
+  The *view* and *model* packages implement the graph component, represented
+  by <mxGraph>. It refers to a <mxGraphModel> which contains <mxCell>s and
+  caches the state of the cells in a <mxGraphView>. The cells are painted
+  using a <mxCellRenderer> based on the appearance defined in <mxStylesheet>.
+  Undo history is implemented in <mxUndoManager>. To display an icon on the
+  graph, <mxCellOverlay> may be used. Validation rules are defined with
+  <mxMultiplicity>.
+  
+  The *handler*, *layout* and *shape* packages contain event listeners,
+  layout algorithms and shapes, respectively. The graph event listeners
+  include <mxRubberband> for rubberband selection, <mxTooltipHandler>
+  for tooltips and <mxGraphHandler> for  basic cell modifications.
+  <mxCompactTreeLayout> implements a tree layout algorithm, and the 
+  shape package provides various shapes, which are subclasses of
+  <mxShape>.
+  
+  The *util* package provides utility classes including <mxClipboard> for
+  copy-paste, <mxDatatransfer> for drag-and-drop, <mxConstants> for keys and
+  values of stylesheets, <mxEvent> and <mxUtils> for cross-browser
+  event-handling and general purpose functions, <mxResources> for
+  internationalization and <mxLog> for console output.
+
+  The *io* package implements a generic <mxObjectCodec> for turning
+  JavaScript objects into XML. The main class is <mxCodec>.
+  <mxCodecRegistry> is the global registry for custom codecs.
+  
+Events:
+
+  There are three different types of events, namely native DOM events,
+  <mxEventObjects> which are fired in an <mxEventSource>, and <mxMouseEvents>
+  which are fired in <mxGraph>.
+
+  Some helper methods for handling native events are provided in <mxEvent>. It
+  also takes care of resolving cycles between DOM nodes and JavaScript event
+  handlers, which can lead to memory leaks in IE6.
+  
+  Most custom events in mxGraph are implemented using <mxEventSource>. Its
+  listeners are functions that take a sender and <mxEventObject>. Additionally,
+  the <mxGraph> class fires special <mxMouseEvents> which are handled using
+  mouse listeners, which are objects that provide a mousedown, mousemove and
+  mouseup method.
+  
+  Events in <mxEventSource> are fired using <mxEventSource.fireEvent>.
+  Listeners are added and removed using <mxEventSource.addListener> and
+  <mxEventSource.removeListener>. <mxMouseEvents> in <mxGraph> are fired using
+  <mxGraph.fireMouseEvent>. Listeners are added and removed using
+  <mxGraph.addMouseListener> and <mxGraph.removeMouseListener>, respectively.
+  
+Key bindings:
+  
+  The following key bindings are defined for mouse events in the client across
+  all browsers and platforms:
+  
+  - Control-Drag: Duplicates (clones) selected cells
+  - Shift-Rightlick: Shows the context menu
+  - Alt-Click: Forces rubberband (aka. marquee)
+  - Control-Select: Toggles the selection state
+  - Shift-Drag: Constrains the offset to one direction
+  - Shift-Control-Drag: Panning (also Shift-Rightdrag)
+  
+Configuration:
+
+  The following global variables may be defined before the client is loaded to
+  specify its language or base path, respectively.
+  
+  - mxBasePath: Specifies the path in <mxClient.basePath>.
+  - mxImageBasePath: Specifies the path in <mxClient.imageBasePath>.
+  - mxLanguage: Specifies the language for resources in <mxClient.language>.
+  - mxDefaultLanguage: Specifies the default language in <mxClient.defaultLanguage>.
+  - mxLoadResources: Specifies if any resources should be loaded. Default is true.
+  - mxLoadStylesheets: Specifies if any stylesheets should be loaded. Default is true.
+
+Reserved Words:
+
+  The mx prefix is used for all classes and objects in mxGraph. The mx prefix
+  can be seen as the global namespace for all JavaScript code in mxGraph. The
+  following fieldnames should not be used in objects.
+  
+  - *mxObjectId*: If the object is used with mxObjectIdentity
+  - *as*: If the object is a field of another object
+  - *id*: If the object is an idref in a codec
+  - *mxListenerList*: Added to DOM nodes when used with <mxEvent>
+  - *window._mxDynamicCode*: Temporarily used to load code in Safari and Chrome
+  (see <mxClient.include>).
+  - *_mxJavaScriptExpression*: Global variable that is temporarily used to
+  evaluate code in Safari, Opera, Firefox 3 and IE (see <mxUtils.eval>).
+
+Files:
+
+  The library contains these relative filenames. All filenames are relative
+  to <mxClient.basePath>.
+  
+Built-in Images:
+  
+  All images are loaded from the <mxClient.imageBasePath>, 
+  which you can change to reflect your environment. The image variables can 
+  also be changed individually.
+  
+  - mxGraph.prototype.collapsedImage
+  - mxGraph.prototype.expandedImage
+  - mxGraph.prototype.warningImage
+  - mxWindow.prototype.closeImage
+  - mxWindow.prototype.minimizeImage
+  - mxWindow.prototype.normalizeImage
+  - mxWindow.prototype.maximizeImage
+  - mxWindow.prototype.resizeImage
+  - mxPopupMenu.prototype.submenuImage
+  - mxUtils.errorImage
+  - mxConstraintHandler.prototype.pointImage
+
+  The basename of the warning image (images/warning without extension) used in 
+  <mxGraph.setCellWarning> is defined in <mxGraph.warningImage>.
+
+Resources:
+  
+  The <mxEditor> and <mxGraph> classes add the following resources to
+  <mxResources> at class loading time:
+
+  - resources/editor*.properties
+  - resources/graph*.properties
+  
+  By default, the library ships with English and German resource files.
+
+Images:
+
+  Recommendations for using images. Use GIF images (256 color palette) in HTML
+  elements (such as the toolbar and context menu), and PNG images (24 bit) for
+  all images which appear inside the graph component.
+  
+  - For PNG images inside HTML elements, Internet Explorer will ignore any 
+    transparency information.
+  - For GIF images inside the graph, Firefox on the Mac will display strange 
+    colors. Furthermore, only the first image for animated GIFs is displayed 
+    on the Mac.
+    
+  For faster image rendering during application runtime, images can be
+  prefetched using the following code:
+  
+  (code)
+  var image = new Image();
+  image.src = url_to_image;
+  (end)
+
+Deployment:
+
+  The client is added to the page using the following script tag inside the
+  head of a document:
+
+  (code)
+  <script type="text/javascript" src="js/mxClient.js"></script>
+  (end)
+
+  The deployment version of the mxClient.js file contains all required code
+  in a single file. For deployment, the complete javascript/src directory is
+  required.
+  
+Source Code:
+
+  If you are a source code customer and you wish to develop using the 
+  full source code, the commented source code is shipped in the 
+  javascript/devel/source.zip file. It contains one file for each class 
+  in mxGraph. To use the source code the source.zip file must be 
+  uncompressed and the mxClient.js URL in the HTML  page must be changed 
+  to reference the uncompressed mxClient.js from the source.zip file.
+
+Compression:
+ 
+  When using Apache2 with mod_deflate, you can use the following directive
+  in src/js/.htaccess to speedup the loading of the JavaScript sources:
+  
+  (code)
+  SetOutputFilter DEFLATE
+  (end)
+
+Classes:
+  
+  There are two types of "classes" in mxGraph: classes and singletons (where
+  only one instance exists). Singletons are mapped to global objects where the
+  variable name equals the classname. For example mxConstants is an object with
+  all the constants defined as object fields. Normal classes are mapped to a
+  constructor function and a prototype which defines the instance fields and
+  methods. For example, <mxEditor> is a function and mxEditor.prototype is the
+  prototype for the object that the mxEditor function creates. The mx prefix is
+  a convention that is used for all classes in the mxGraph package to avoid
+  conflicts with other objects in the global namespace.
+
+Subclassing:
+
+  For subclassing, the superclass must provide a constructor that is either
+  parameterless or handles an invocation with no arguments. Furthermore, the
+  special constructor field must be redefined after extending the prototype.
+  For example, the superclass of mxEditor is <mxEventSource>. This is
+  represented in JavaScript by first "inheriting" all fields and methods from
+  the superclass by assigning the prototype to an instance of the superclass,
+  eg. mxEditor.prototype = new mxEventSource() and redefining the constructor
+  field using mxEditor.prototype.constructor = mxEditor. The latter rule is
+  applied so that the type of an object can be retrieved via the name of it’s
+  constructor using mxUtils.getFunctionName(obj.constructor).
+
+Constructor:
+
+  For subclassing in mxGraph, the same scheme should be applied. For example,
+  for subclassing the <mxGraph> class, first a constructor must be defined for
+  the new class. The constructor calls the super constructor with any arguments
+  that it may have using the call function on the mxGraph function object,
+  passing along explitely each argument:
+
+  (code)
+  function MyGraph(container)
+  {
+    mxGraph.call(this, container);
+  }
+  (end)
+  
+  The prototype of MyGraph inherits from mxGraph as follows. As usual, the
+  constructor is redefined after extending the superclass:
+
+  (code)
+  MyGraph.prototype = new mxGraph();
+  MyGraph.prototype.constructor = MyGraph;
+  (end)
+  
+  You may want to define the codec associated for the class after the above
+  code. This code will be executed at class loading time and makes sure the
+  same codec is used to encode instances of mxGraph and MyGraph.
+
+  (code)
+  var codec = mxCodecRegistry.getCodec(mxGraph);
+  codec.template = new MyGraph();
+  mxCodecRegistry.register(codec);
+  (end)
+  
+Functions:
+
+  In the prototype for MyGraph, functions of mxGraph can then be extended as
+  follows.
+  
+  (code)
+  MyGraph.prototype.isCellSelectable = function(cell)
+  {
+    var selectable = mxGraph.prototype.isSelectable.apply(this, arguments);
+
+    var geo = this.model.getGeometry(cell);
+    return selectable && (geo == null || !geo.relative);
+  }
+  (end)
+  
+  The supercall in the first line is optional. It is done using the apply
+  function on the isSelectable function object of the mxGraph prototype, using
+  the special this and arguments variables as parameters. Calls to the
+  superclass function are only possible if the function is not replaced in the
+  superclass as follows, which is another way of “subclassing” in JavaScript.
+
+  (code)
+  mxGraph.prototype.isCellSelectable = function(cell)
+  {
+    var geo = this.model.getGeometry(cell);
+    return selectable &&
+        (geo == null ||
+        !geo.relative);
+  }
+  (end)
+
+  The above scheme is useful if a function definition needs to be replaced
+  completely.
+  
+  In order to add new functions and fields to the subclass, the following code
+  is used. The example below adds a new function to return the XML
+  representation of the graph model:
+
+  (code)
+  MyGraph.prototype.getXml = function()
+  {
+    var enc = new mxCodec();
+    return enc.encode(this.getModel());
+  }
+  (end)
+  
+Variables:
+
+  Likewise, a new field is declared and defined as follows.
+
+  (code)
+  MyGraph.prototype.myField = 'Hello, World!';
+  (end)
+  
+  Note that the value assigned to myField is created only once, that is, all
+  instances of MyGraph share the same value. If you require instance-specific
+  values, then the field must be defined in the constructor instead.
+
+  (code)
+  function MyGraph(container)
+  {
+    mxGraph.call(this, container);
+    
+    this.myField = new Array();
+  }
+  (end)
+
+  Finally, a new instance of MyGraph is created using the following code, where
+  container is a DOM node that acts as a container for the graph view:
+
+  (code)
+  var graph = new MyGraph(container);
+  (end)

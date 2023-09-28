@@ -7,7 +7,7 @@ As well as running this project, we run a production-grade deployment of the dia
 License
 -----------------
 
-The source code authored by us in this repo is licensed under the Apache v2, however, we do not claim to be an open source project.
+The source code authored by us in this repo is licensed under the Apache v2. The full core is open source, but the are some boundary functions that are difficult to publish in a way we can maintain them.
 
 The JGraph provided icons and diagram templates are licensed under the [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Additional terms may also apply where the icons are originally defined by a third-party copyright holder. We have checked in all cases that the original license allows use in this project. Also see the terms for using the draw.io logo below.
 
@@ -40,16 +40,12 @@ Supported Browsers
 
 draw.io supports Chrome 70+, Firefox 70+, Safari 11+, Opera 50+, Native Android browser 7x+, the default browser in the current and previous major iOS versions (e.g. 11.2.x and 10.3.x) and Edge 79+.
 
-This project is not open-source, nor open-contribution
+This project is not open-contribution
 ------------------------------------------------------
 
-draw.io is not open source software. The complete source code required to build the app from scratch is not available. The Apache license allows you to deploy the project and make changes to the source code that is available on the site.
-
-We do not make full human readable sources available to avoid a position where another commercial product affects our revenues.
+draw.io is also closed to contributions. We follow a development process compliant with our SOC 2 Type II process. We do not have a mechanism where we can accept contributions from non-staff members.
 
 draw.io is not suitable as a framework for building other products from. For this try either [Tldraw](https://github.com/tldraw/tldraw) or [Excalidraw](https://github.com/excalidraw/excalidraw).
-
-draw.io is also closed to contributions. We follow a development process compliant with our SOC 2 Type II process. We do not have a mechanism where we can accept contributions from non-staff members.
 
 Logo and trademark usage
 ------------------------

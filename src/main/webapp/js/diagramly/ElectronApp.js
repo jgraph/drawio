@@ -2,6 +2,7 @@ window.PLUGINS_BASE_PATH = '.';
 window.TEMPLATE_PATH = 'templates';
 window.DRAW_MATH_URL = 'math/es5';
 window.DRAWIO_BASE_URL = '.'; //Prevent access to online website since it is not allowed
+window.DRAWIO_SERVER_URL = '.';
 FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 EditorUi.draftSaveDelay = 5000;
 //Disables eval for JS (uses shapes-14-6-5.min.js)

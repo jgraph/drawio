@@ -1,3 +1,12 @@
+28-SEP-2023: 22.0.0
+
+- Adds DRAWIO_SERVER_URL as an additional URL to DRAWIO_BASE_URL. BASE_URL used to indicate
+	the URL both the back-end and static code were delivered on. SERVER_URL now provides a 
+	way to delivery on one URL and server the back-end functions on a different URL. 
+	By default the server URL value is blank.
+- Fixes search for uncompressed shapes, result order
+- Fixes dialog stack order [drawio-3883]
+
 24-SEP-2023: 21.8.2
 
 - Confirm escape key for insert layout [drawio-3880]

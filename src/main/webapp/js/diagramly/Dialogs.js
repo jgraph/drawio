@@ -3670,9 +3670,17 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				{
 					if (loading && editorUi.sidebar.currentElt == elt)
 					{
-						showTooltip(xml, mxEvent.getClientX(evt),
-							mxEvent.getClientY(evt), elt,
-							tooltipTitle);
+						try
+						{
+							showTooltip(xml, mxEvent.getClientX(evt),
+								mxEvent.getClientY(evt), elt,
+								tooltipTitle);
+						}
+						catch (e)
+						{
+							editorUi.sidebar.currentElt = null;
+							editorUi.handleError(e);
+						}
 					}
 					
 					loading = false;

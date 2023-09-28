@@ -1267,3 +1267,6 @@ confAOtherErrFaq=Возникли другие ошибки — ({1}) . Пожа
 confAReplaceBaseUrl=Замените базовый URL-адрес в ссылках на диаграмму, если сопоставление ID страницы не найдено
 drawSvgPrev=draw.io предпросмотр SVG
 googleFonts=Google Fonts
+diagDupl=Duplicate Diagram Detected
+diagDuplMsg=This diagram is used in multiple places, which can result in unexpected results when edited. We've created an independent copy. Please open the editor again.
+diagDuplNoEditMsg=This diagram is used in multiple places. Please edit it within its own page.

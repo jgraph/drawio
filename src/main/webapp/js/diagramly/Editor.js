@@ -8810,7 +8810,7 @@
 						pv.wnd.IMMEDIATE_PRINT = true;
 					}
 
-					doc.writeln('<script type="text/javascript" src="' + DRAWIO_BASE_URL + '/js/math-print.js"></script>');
+					doc.writeln('<script type="text/javascript" src="js/math-print.js"></script>');
 				}
 				
 				pv.closeDocument();
