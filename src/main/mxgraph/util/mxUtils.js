@@ -356,6 +356,33 @@ var mxUtils =
 	},
 
 	/**
+	 * Function: lastIndexOf
+	 * 
+	 * Returns the last index of obj in array or -1 if the array does not contain
+	 * the given object.
+	 * 
+	 * Parameters:
+	 * 
+	 * array - Array to check for the given obj.
+	 * obj - Object to find in the given array.
+	 */
+	lastIndexOf: function(array, obj)
+	{
+		if (array != null && obj != null)
+		{
+			for (var i = array.length - 1; i >= 0; i--)
+			{
+				if (array[i] == obj)
+				{
+					return i;
+				}
+			}
+		}
+		
+		return -1;
+	},
+
+	/**
 	 * Function: forEach
 	 * 
 	 * Calls the given function for each element of the given array and returns

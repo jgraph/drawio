@@ -8369,7 +8369,7 @@
 					// EditorUi.logEvent({category: 'OPENAI-DIAGRAM',
 					// 	action: 'generateOpenAiMermaidDiagram',
 					// 	label: prompt});
-					var url = 'https://www.draw.io/generate/v1';
+					var url = 'https://www.draw.io/generate/v2';
 
 					var req = new mxXmlRequest(url, prompt, 'POST');
 					
@@ -8390,8 +8390,7 @@
 							{
 								this.tryAndHandle(mxUtils.bind(this, function()
 								{
-									var response = mxUtils.trim(req.getText());
-									var result = this.extractMermaidDeclaration(response);
+									var result = mxUtils.trim(req.getText());
 									
 									this.generateMermaidImage(result, null, mxUtils.bind(this, function(data, w, h)
 									{
@@ -8400,8 +8399,7 @@
 											if (timeout.clear())
 											{
 												EditorUi.debug('EditorUi.generateOpenAiMermaidDiagram',
-													'\nprompt:', prompt, '\nresponse:', response,
-													'\nresult:', result);
+													'\nprompt:', prompt, '\nresult:', result);
 												
 												this.spinner.stop();
 												success(result, data, w, h);
@@ -8448,107 +8446,7 @@
 
 		fn();
 	};
-	
-	/**
-	 * Generates a Mermaid image.
-	 */
-	EditorUi.prototype.extractMermaidMindmap = function(lines)
-	{
-		if (lines[1].indexOf('orientation') > 0)
-		{
-			lines.splice(1, 1);
-		}
 
-		while (lines.length > 1 && lines[1] == '')
-		{
-			lines.splice(1, 1);
-		}
-
-		var newLines = [];
-
-		// Removes dashes in entries
-		for (var i = 2; i < lines.length; i++)
-		{
-			var temp = mxUtils.trim(lines[i]);
-
-			if (temp != '[' && temp != ']' &&
-				temp.substring(0, 2) != '%%' &&
-				temp.substring(0, 2) != '##')
-			{
-				temp = lines[i].replace(/[-|>]/g, ' ')
-				
-				if (mxUtils.trim(temp) != '' &&
-					temp.charAt(0) == ' ')
-				{
-					newLines.push(temp);
-				}
-			}
-		}
-
-		// Removes indentiation for root element
-		return 'mindmap\nroot((' + mxUtils.trim(lines[1]) +
-			'))\n' + newLines.join('\n');
-	};
-
-	/**
-	 * Generates a Mermaid image.
-	 */
-	EditorUi.prototype.extractMermaidDeclaration = function(value)
-	{
-		// Removes occasional "o" on first line in response
-		if (value.substring(0, 3) == 'o\n\n')
-		{
-			value = value.substring(3);
-		}
-
-		// Various formats supported
-		var tokens = value.split('```');
-		tokens = (tokens.length > 1) ? tokens : value.split('<pre>');
-		tokens = (tokens.length > 1) ? tokens : value.split('~~~');
-		tokens = (tokens.length > 1) ? tokens : value.split('%%');
-		tokens = (tokens.length > 1) ? tokens : value.split('(Begins)');
-		
-		var text = mxUtils.trim((tokens.length <= 1) ? value : tokens[1]);
-		var lines = text.split('\n');
-
-		// Removes occasional mermaid tag or other text on first line
-		if ((lines.length > 0 && mxUtils.trim(lines[0]) == 'mermaid') ||
-			(lines.length > 1 && mxUtils.indexOf(
-				EditorUi.mermaidDiagramTypes, lines[1]) >= 0))
-		{
-			lines.shift();
-			text = mxUtils.trim(lines.join('\n'));
-			lines = text.split('\n');
-		}
-
-		// Validates diagram type on first line
-		var type = lines[0].split(' ')[0].replace(/:$/, '');
-
-		try
-		{
-			if (type == 'mindmap' && lines.length > 2)
-			{
-				text = this.extractMermaidMindmap(lines);
-			}
-		}
-		catch (e)
-		{
-			// ignore
-		}
-
-		if (type.charAt(0) != '@' && mxUtils.indexOf(
-			EditorUi.mermaidDiagramTypes, type) < 0)
-		{
-			text = 'classDiagram\n' + text;
-		}
-
-		EditorUi.debug('EditorUi.extractMermaidDeclaration',
-			'\nlines:', lines, '\ntype:', type,
-			'\nvalue:', value, '\ntext:', text);
-
-		return text;
-	};
-		
 	/**
 	 * Removes all lines starting with %%.
 	 */

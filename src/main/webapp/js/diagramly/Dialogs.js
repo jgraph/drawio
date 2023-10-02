@@ -1255,6 +1255,7 @@ var CreateGraphDialog = function(editorUi, title, type)
 		var container = document.createElement('div');
 		container.style.position = 'relative';
 		container.style.border = '1px solid gray';
+		container.style.boxSizing = 'border-box';
 		container.style.width = '100%';
 		container.style.height = '360px';
 		container.style.overflow = 'hidden';

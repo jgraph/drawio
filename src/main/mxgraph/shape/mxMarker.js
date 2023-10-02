@@ -261,4 +261,33 @@ var mxMarker =
 
 	mxMarker.addMarker('diamond', diamond);
 	mxMarker.addMarker('diamondThin', diamond);
+
+	mxMarker.addMarker('manyOptional', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
+	{
+		var nx = unitX * (size + sw + 1);
+		var ny = unitY * (size + sw + 1);
+		var a = size / 2;
+		var px = pe.x;
+		var py = pe.y;
+		
+		pe.x -= 2 * nx - unitX * sw / 2;
+		pe.y -= 2 * ny - unitY * sw / 2;
+	
+		return function()
+		{
+			c.begin();
+			c.ellipse(px - 1.5 * nx - a, py - 1.5 * ny - a, 2 * a, 2 * a);
+			filled ? c.fillAndStroke() : c.stroke(); 
+		
+			c.begin();
+			c.moveTo(px, py);
+			c.lineTo(px - nx, py - ny);
+			
+			c.moveTo(px + ny / 2, py - nx / 2);
+			c.lineTo(px - nx, py - ny);
+			c.lineTo(px - ny / 2, py + nx / 2);
+	
+			c.stroke();
+		};
+	});
 })();

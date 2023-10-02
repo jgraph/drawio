@@ -1037,7 +1037,7 @@ App.main = function(callback, createUi)
 						 */
 						if (urlParams['chrome'] != '0' && urlParams['test'] == '1')
 						{
-							EditorUi.debug('App.start', [ui, (new Date().getTime() - t0.getTime()) + 'ms']);
+							EditorUi.debug('App.start', ['v' + EditorUi.VERSION, ui, (new Date().getTime() - t0.getTime()) + 'ms']);
 							
 							if (urlParams['export'] != null)
 							{
@@ -3296,7 +3296,6 @@ App.prototype.start = function()
 								this.getServiceName() == 'draw.io' && (id == null || id.length == 0) &&
 								!this.editor.isChromelessView())
 							{
-								
 								this.checkDrafts();
 							}
 							else if (id != null && id.length > 0)

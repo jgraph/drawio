@@ -458,8 +458,7 @@ mxGraphHandler.prototype.getInitialCellForEvent = function(me)
 	var state = me.getState();
 	
 	if ((!this.graph.isToggleEvent(me.getEvent()) || !mxEvent.isAltDown(me.getEvent())) &&
-		state != null && (!this.graph.isCellSelected(state.cell) ||
-		this.graph.isPart(state.cell)))
+		state != null && !this.graph.isCellSelected(state.cell))
 	{
 		var model = this.graph.model;
 		var next = this.graph.view.getState(model.getParent(state.cell));
@@ -509,7 +508,7 @@ mxGraphHandler.prototype.selectDelayed = function(me)
 	if (!this.graph.popupMenuHandler.isPopupTrigger(me))
 	{
 		var cell = me.getCell();
-		
+
 		if (cell == null)
 		{
 			cell = this.cell;
@@ -675,15 +674,51 @@ mxGraphHandler.prototype.getGuideStates = function()
  * 
  * initialCell - <mxCell> that triggered this handler.
  */
-mxGraphHandler.prototype.getCells = function(initialCell)
+mxGraphHandler.prototype.getCells = function(initialCell, cells)
 {
-	if (!this.delayedSelection && this.graph.isCellMovable(initialCell))
+	if (cells == null && !this.delayedSelection &&
+		this.graph.isCellMovable(initialCell))
 	{
-		return [initialCell];
+		return [this.graph.getCompositeParent(initialCell)];
 	}
 	else
 	{
-		return this.graph.getMovableCells(this.graph.getSelectionCells());
+		cells = (cells != null) ? cells : this.graph.getSelectionCells();
+		var dict = new mxDictionary();
+
+		// Gets composite parents
+		var comp = [];
+
+		for (var i = 0; i < cells.length; i++)
+		{
+			var cell = this.graph.getCompositeParent(cells[i]);
+
+			if (dict.get(cell) == null)
+			{
+				dict.put(cell, true);
+				comp.push(cell);
+			}
+		}
+
+		// Removes descendants
+		var result = [];
+
+		for (var i = 0; i < comp.length; i++)
+		{
+			var temp = this.graph.model.getParent(comp[i]);
+
+			while (dict.get(temp) == null && temp != null)
+			{
+				temp = this.graph.model.getParent(temp);
+			}
+
+			if (temp == null)
+			{
+				result.push(comp[i]);
+			}
+		}
+
+		return this.graph.getMovableCells(result);
 	}
 };
 
@@ -1045,14 +1080,24 @@ mxGraphHandler.prototype.mouseMove = function(sender, me)
 		Math.abs(this.mouseDownY - me.getY()) > tol))
 	{
 		this.delayedSelection = false;
+		this.cellWasClicked = true;
 
-		if (!mxEvent.isAltDown(me.getEvent()))
+		if (!this.graph.isCellSelected(this.cell) &&
+			!mxEvent.isAltDown(me.getEvent()))
 		{
-			graph.addSelectionCell(this.cell);
+			if (this.graph.isToggleEvent(me.getEvent()))
+			{
+				graph.addSelectionCell(this.cell);
+			}
+			else
+			{
+				graph.setSelectionCell(this.cell);
+			}
 		}
 		
 		this.start(this.cell, this.mouseDownX, this.mouseDownY,
-			graph.getMovableCells(graph.getSelectionCells()));
+			this.getCells(null, graph.getSelectionCells().
+				concat(me.getCell())));
 	}
 
 	var delta = (this.first != null) ? this.getDelta(me) : null;
@@ -1148,7 +1193,7 @@ mxGraphHandler.prototype.mouseMove = function(sender, me)
 			}
 			else
 			{
-				delta = this.graph.snapDelta(delta, this.bounds, !gridEnabled, false, false);
+				delta = graph.snapDelta(delta, this.bounds, !gridEnabled, false, false);
 			}
 			
 			if (this.guide != null && hideGuide)

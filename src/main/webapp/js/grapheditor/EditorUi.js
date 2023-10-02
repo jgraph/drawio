@@ -5512,29 +5512,50 @@ EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, no
  */
 EditorUi.prototype.hideDialog = function(cancel, isEsc, matchContainer)
 {
+	// Finds topmost non-closing dialog
+	// This closes dialogs underneath the closing dialog when hideDialog
+	// is called in the process of closing the current dialog
+	var dlg = null;
+
 	if (this.dialogs != null && this.dialogs.length > 0)
+	{
+		for (var i = this.dialogs.length - 1; i >= 0; i--)
+		{
+			if (!this.dialogs[i].closing)
+			{
+				dlg = this.dialogs[i];
+				break;
+			}
+		}
+	}
+	
+	if (dlg != null)
 	{
 		if (matchContainer != null && matchContainer != this.dialog.container.firstChild)
 		{
 			return;
 		}
 		
-		// Temporary overrides global state to restore correct order below
-		var dlg = this.dialogs.pop();
-		var temp = this.dialogs.slice();
-		this.dialogs = [];
+		dlg.closing = true;
 		
 		if (dlg.close(cancel, isEsc) == false) 
 		{
-			// Adds the dialog back in the right order
-			this.dialogs = temp.concat(dlg).concat(this.dialogs);
-			
+			delete dlg.closing;
+
 			return;
 		}
 
+		// Removes dialog from stack
+		delete dlg.closing;
+
+		var index = mxUtils.lastIndexOf(this.dialogs, dlg);
+
+		if (index >= 0)
+		{
+			this.dialogs.splice(index, 1);
+		}
+		
 		// Restores existing dialogs and adds new dialogs
-		this.dialogs = temp.concat(this.dialogs);
-		this.dialog = (this.dialogs.length > 0) ? this.dialogs[this.dialogs.length - 1] : null;
 		this.editor.fireEvent(new mxEventObject('hideDialog'));
 		
 		if (this.dialog == null && this.editor.graph.container != null &&

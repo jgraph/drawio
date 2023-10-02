@@ -1,3 +1,8 @@
+02-OCT-2023: 22.0.1
+
+- Ignores selection for nested cells with part style
+- Adds salesforce icons [drawio-2793]
+
 28-SEP-2023: 22.0.0
 
 - Adds DRAWIO_SERVER_URL as an additional URL to DRAWIO_BASE_URL. BASE_URL used to indicate

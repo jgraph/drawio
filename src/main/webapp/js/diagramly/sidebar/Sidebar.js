@@ -131,7 +131,7 @@
 	                                          	                          'Driers', 'Engines', 'Feeders', 'Filters', 'Fittings', 'Flow Sensors', 'Heat Exchangers', 'Instruments', 'Misc',
 	                                        	                          'Mixers', 'Piping', 'Pumps', 'Pumps DIN', 'Pumps ISO', 'Separators', 'Shaping Machines', 'Valves', 'Vessels']},
 //           	                           {id: 'salesforce'},
-//           	                           {id: 'salesforce', prefix: 'salesforce', libs: ['salesforce']},
+           	                           {id: 'salesforce', prefix: 'salesforce', libs: ['Components', 'Product', 'Platform', 'Industry']},
            	                           {id: 'signs', prefix: 'signs', libs: Sidebar.prototype.signs},
            	                           {id: 'gcp', prefix: 'gcp', libs: Sidebar.prototype.gcp},
            	                           {id: 'gcp2', prefix: 'gcp2', libs: Sidebar.prototype.gcp2},
@@ -478,7 +478,7 @@
 								{title: mxResources.get('ios'), id: 'ios', image: IMAGE_PATH + '/sidebar-ios.png'},
 								{title: mxResources.get('mockups'), id: 'mockups', image: IMAGE_PATH + '/sidebar-mockups.png'},
 								{title: 'Sitemap', id: 'sitemap', image: IMAGE_PATH + '/sidebar-sitemap.png'},
-//								{title: 'Salesforce', id: 'salesforce', image: IMAGE_PATH + '/sidebar-salesforce.png'},
+								{title: 'Salesforce', id: 'salesforce', image: IMAGE_PATH + '/sidebar-salesforce.png'},
 								{title: mxResources.get('uml') + ' 2.5', id: 'uml25', image: IMAGE_PATH + '/sidebar-uml25.png'},
 								{title: mxResources.get('uml'), id: 'uml', image: IMAGE_PATH + '/sidebar-uml.png'}]},
             			{title: mxResources.get('networking'),
@@ -1154,7 +1154,7 @@
 		this.addKubernetesPalette();
 		this.addMockupPalette();
 		this.addSitemapPalette();
-//		this.addSalesforcePalette();
+		this.addSalesforcePalette();
 		this.addUml25Palette();
 		this.addUmlPalette(false);
 		this.addAlliedTelesisPalette();
