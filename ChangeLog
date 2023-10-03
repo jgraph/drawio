@@ -1,3 +1,8 @@
+03-OCT-2023: 22.0.2
+
+- Fixes new save dialog for SharePoint [drawio-3900]
+- Fixes copy/paste after dialog was shown [drawio-3903]
+
 02-OCT-2023: 22.0.1
 
 - Ignores selection for nested cells with part style

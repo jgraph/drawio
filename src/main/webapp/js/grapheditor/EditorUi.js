@@ -5555,6 +5555,8 @@ EditorUi.prototype.hideDialog = function(cancel, isEsc, matchContainer)
 			this.dialogs.splice(index, 1);
 		}
 		
+		this.dialog = (this.dialogs.length > 0) ? this.dialogs[this.dialogs.length - 1] : null;
+
 		// Restores existing dialogs and adds new dialogs
 		this.editor.fireEvent(new mxEventObject('hideDialog'));
 		
