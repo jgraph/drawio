@@ -1,3 +1,9 @@
+05-OCT-2023: 22.0.3
+
+- Fixes possible NPE in clonePages error handler
+- [vsdx] Stops using default theme when theme index not found [DID-9622]
+- Fixes tags dialog icons in dark mode [drawio-3910]
+
 03-OCT-2023: 22.0.2
 
 - Fixes new save dialog for SharePoint [drawio-3900]

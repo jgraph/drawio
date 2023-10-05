@@ -1390,8 +1390,8 @@ EditorUi.prototype.clonePages = function(pages)
 		}
 		catch (e)
 		{
-			errors.push(mxResources.get('pageWithNumber', [i + 1]) +
-				' (' + pages[i].getName() + '): ' + e.message);
+			errors.push(mxResources.get('pageWithNumber',
+				[i + 1]) + ': ' + e.message);
 		}
 	}
 

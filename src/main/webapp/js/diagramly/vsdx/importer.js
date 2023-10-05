@@ -10072,7 +10072,12 @@ var com;
                                 return m.entries[i].value;
                             } return null; })(model.getThemes(), themeIndex);
                         if (theme == null) {
-                            theme = model.getDefaultTheme();
+                            if (urlParams['dev'] == '1')
+                            {
+                                console.log('No theme found for index ' + themeIndex);
+                            }
+                            // Using a default theme doesn't work well with all cases. Maybe give users an option to choose a default theme?
+                            // theme = model.getDefaultTheme();
                         }
                         var variant = page.getCellIntValue("VariationColorIndex", 0);
                         _this.setThemeAndVariant(theme, variant);

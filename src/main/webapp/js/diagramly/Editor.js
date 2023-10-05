@@ -6139,6 +6139,7 @@
 							img.setAttribute('src', visible ? Editor.visibleImage : Editor.hiddenImage);
 							img.setAttribute('title', mxResources.get(visible ? 'hideIt' : 'show', [tag]));
 							mxUtils.setOpacity(img, visible ? 75 : 25);
+							img.className = 'geAdaptiveAsset';
 							img.style.verticalAlign = 'middle';
 							img.style.cursor = 'pointer';
 							img.style.width = '16px';
@@ -6176,6 +6177,7 @@
 							img.setAttribute('src', Editor.selectImage);
 							img.setAttribute('title', mxResources.get('select'));
 							mxUtils.setOpacity(img, visible ? 75 : 25);
+							img.className = 'geAdaptiveAsset';
 							img.style.verticalAlign = 'middle';
 							img.style.cursor = 'pointer';
 							img.style.width = '16px';
@@ -6250,6 +6252,7 @@
 									img.setAttribute('src', Editor.trashImage);
 									img.setAttribute('title', mxResources.get('removeIt', [tag]));
 									mxUtils.setOpacity(img, visible ? 75 : 25);
+									img.className = 'geAdaptiveAsset';
 									img.style.verticalAlign = 'middle';
 									img.style.cursor = 'pointer';
 									img.style.width = '16px';
