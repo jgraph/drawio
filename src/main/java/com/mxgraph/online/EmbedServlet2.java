@@ -185,6 +185,8 @@ public class EmbedServlet2 extends HttpServlet
 				new String[] { SHAPES_PATH + "/pid2/mxPidValves.js" });
 		libraries.put("pidFlowSensors",
 				new String[] { STENCIL_PATH + "/pid/flow_sensors.xml" });
+		libraries.put("emoji",
+				new String[] { SHAPES_PATH + "/emoji/mxEmoji.js" });
 	}
 
 	/**

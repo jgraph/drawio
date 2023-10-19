@@ -8015,6 +8015,7 @@
 	mxStencilRegistry.libraries['pid2valves'] = [SHAPES_PATH + '/pid2/mxPidValves.js'];
 	mxStencilRegistry.libraries['pidFlowSensors'] = [STENCIL_PATH + '/pid/flow_sensors.xml'];
 	mxStencilRegistry.libraries['salesforce'] = [SHAPES_PATH + '/mxSalesforce.js', STENCIL_PATH + '/salesforce.xml'];
+	mxStencilRegistry.libraries['emoji'] = [SHAPES_PATH + '/emoji/mxEmoji.js'];
 
 	// Triggers dynamic loading for markers
 	mxMarker.getPackageForType = function(type)

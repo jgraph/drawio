@@ -1,3 +1,13 @@
+18-OCT-2023: 22.0.5
+
+- [conf cloud] Adds support for importing short links less than 6 characters [DID-9687]
+- [conf cloud] Fixes direct editing in blogposts [DID-9702]
+- [conf cloud] Fixes fullscreen (lightbox) view of diagrams in page templates [DID-9690]
+
+06-OCT-2023: 22.0.4
+
+- Adds Emoji shape support
+
 05-OCT-2023: 22.0.3
 
 - Fixes possible NPE in clonePages error handler
