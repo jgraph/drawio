@@ -1,3 +1,8 @@
+19-OCT-2023: 22.0.6
+
+- [conf cloud] Fixes Gliffy import hanging when import API fails [DID-9752]
+- [conf cloud] Adds support for importing short links with special characters [DID-9687]
+
 18-OCT-2023: 22.0.5
 
 - [conf cloud] Adds support for importing short links less than 6 characters [DID-9687]
