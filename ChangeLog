@@ -1,3 +1,7 @@
+24-OCT-2023: 22.0.7
+
+- [conf cloud] Fixed math in the viewer [DID-9794]
+
 19-OCT-2023: 22.0.6
 
 - [conf cloud] Fixes Gliffy import hanging when import API fails [DID-9752]
