@@ -1,3 +1,7 @@
+25-OCT-2023: 22.0.8
+
+- [conf cloud] Excludes old editor from duplicate macros fix [DID-9751]
+
 24-OCT-2023: 22.0.7
 
 - [conf cloud] Fixed math in the viewer [DID-9794]
