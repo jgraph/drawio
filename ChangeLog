@@ -1,3 +1,8 @@
+08-Nov-2023: 22.1.0
+
+- [conf cloud] Added confluence-content parameter support [DFCC-64]
+- Updates AWS icons to Q3 23 set [drawio-3945]
+
 25-OCT-2023: 22.0.8
 
 - [conf cloud] Excludes old editor from duplicate macros fix [DID-9751]
