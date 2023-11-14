@@ -1,3 +1,7 @@
+13-NOV-2023: 21.1.1
+
+- Reverts part of e6ea9f to restore child cell dragging behaviour [drawio-3967]
+
 08-Nov-2023: 22.1.0
 
 - [conf cloud] Added confluence-content parameter support [DFCC-64]

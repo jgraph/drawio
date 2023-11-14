@@ -1082,22 +1082,13 @@ mxGraphHandler.prototype.mouseMove = function(sender, me)
 		this.delayedSelection = false;
 		this.cellWasClicked = true;
 
-		if (!this.graph.isCellSelected(this.cell) &&
-			!mxEvent.isAltDown(me.getEvent()))
+		if (!mxEvent.isAltDown(me.getEvent()))
 		{
-			if (this.graph.isToggleEvent(me.getEvent()))
-			{
-				graph.addSelectionCell(this.cell);
-			}
-			else
-			{
-				graph.setSelectionCell(this.cell);
-			}
+			graph.addSelectionCell(this.cell);
 		}
 		
 		this.start(this.cell, this.mouseDownX, this.mouseDownY,
-			this.getCells(null, graph.getSelectionCells().
-				concat(me.getCell())));
+			graph.getMovableCells(graph.getSelectionCells()));
 	}
 
 	var delta = (this.first != null) ? this.getDelta(me) : null;
