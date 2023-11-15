@@ -417,6 +417,29 @@ mxGraphHandler.prototype.setRemoveCellsFromParent = function(value)
 };
 
 /**
+ * Function: isAncestorSelected
+ * 
+ * Returns true if the given cell and parent should propagate
+ * selection state to the parent.
+ */
+mxGraphHandler.prototype.isAncestorSelected = function(cell)
+{
+	var parent = this.graph.model.getParent(cell);
+
+	while (parent != null)
+	{
+		if (this.graph.isCellSelected(parent))
+		{
+			return true;
+		}
+		
+		parent = this.graph.model.getParent(parent);
+	}
+
+	return false;
+};
+
+/**
  * Function: isPropagateSelectionCell
  * 
  * Returns true if the given cell and parent should propagate
@@ -1033,7 +1056,15 @@ mxGraphHandler.prototype.roundLength = function(length)
  */
 mxGraphHandler.prototype.isValidDropTarget = function(target, me)
 {
-	return this.graph.model.getParent(this.cell) != target;
+	for (var i = 0; i < this.cells.length; i++)
+	{
+		if (this.graph.model.getParent(this.cells[i]) != target)
+		{
+			return true;
+		}
+	}
+
+	return false;
 };
 
 /**
@@ -1082,13 +1113,22 @@ mxGraphHandler.prototype.mouseMove = function(sender, me)
 		this.delayedSelection = false;
 		this.cellWasClicked = true;
 
-		if (!mxEvent.isAltDown(me.getEvent()))
+		if (!this.graph.isCellSelected(this.cell) &&
+			!mxEvent.isAltDown(me.getEvent()))
 		{
-			graph.addSelectionCell(this.cell);
+			if (this.graph.isToggleEvent(me.getEvent()))
+			{
+				graph.addSelectionCell(this.cell);
+			}
+			else if (!this.isAncestorSelected(this.cell))
+			{
+				graph.setSelectionCell(this.cell);
+			}
 		}
-		
+
 		this.start(this.cell, this.mouseDownX, this.mouseDownY,
-			graph.getMovableCells(graph.getSelectionCells()));
+			this.getCells(null, graph.getSelectionCells().
+				concat(me.getCell())));
 	}
 
 	var delta = (this.first != null) ? this.getDelta(me) : null;
@@ -1124,6 +1164,7 @@ mxGraphHandler.prototype.mouseMove = function(sender, me)
 			{
 				return mxUtils.indexOf(this.cells, state.cell) >= 0;
 			}));
+			
 			var hideGuide = true;
 			var target = null;
 			this.cloning = clone;
