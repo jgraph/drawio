@@ -1270,3 +1270,4 @@ googleFonts=Google Fonts
 diagDupl=Duplicate Diagram Detected
 diagDuplMsg=This diagram is used in multiple places, which can result in unexpected results when edited. We've created an independent copy. Please open the editor again.
 diagDuplNoEditMsg=This diagram is used in multiple places. Please edit it within its own page.
+confCloudMigConfirm=Warning: Links to Confluence pages within diagrams will be broken in this instance after this process. Do you want to proceed?

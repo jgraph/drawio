@@ -1270,3 +1270,4 @@ googleFonts=Fonts de Google
 diagDupl=Diagrama Duplicat Detectat
 diagDuplMsg=Aquest diagrama s'utilitza en diversos llocs, cosa que pot donar lloc a resultats inesperats quan s'edita. Hem creat una còpia independent. Torneu a obrir l'editor.
 diagDuplNoEditMsg=Aquest diagrama s'utilitza en diversos llocs. Si us plau, edita'l dins de la seva pròpia pàgina.
+confCloudMigConfirm=Warning: Links to Confluence pages within diagrams will be broken in this instance after this process. Do you want to proceed?

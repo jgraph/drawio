@@ -1270,3 +1270,4 @@ googleFonts=googleFonts
 diagDupl=diagDupl
 diagDuplMsg=diagDuplMsg
 diagDuplNoEditMsg=diagDuplNoEditMsg
+confCloudMigConfirm=confCloudMigConfirm

@@ -1270,3 +1270,4 @@ googleFonts=Google Fonts
 diagDupl=Kaavion kaksoiskappale havaittu
 diagDuplMsg=Tätä kaaviota käytetään useissa paikoissa, mikä voi johtaa odottamattomiin tuloksiin, kun sitä muokataan. Olemme luoneet itsenäisen kopion. Avaa editori uudelleen.
 diagDuplNoEditMsg=Tätä kaaviota käytetään useissa paikoissa. Muokkaa sitä omalla sivullaan.
+confCloudMigConfirm=Warning: Links to Confluence pages within diagrams will be broken in this instance after this process. Do you want to proceed?

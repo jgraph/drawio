@@ -1,9 +1,13 @@
-15-NOV-2023: 21.1.2
+17-NOV-2023: 22.1.3
+
+- Updates archimate icons [drawio-3863]
+
+15-NOV-2023: 22.1.2
 
 - Fixes move of child cells in groups [drawio-3967]
 - [conf cloud] Fixes bugs in rendering diagrams with pageInfo param [DFCC-64]
 
-13-NOV-2023: 21.1.1
+13-NOV-2023: 22.1.1
 
 - Reverts part of e6ea9f to restore child cell dragging behaviour [drawio-3967]
 

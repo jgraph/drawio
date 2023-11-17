@@ -86,7 +86,7 @@
 	Sidebar.prototype.veeam = ['Data Center', 'Misc', 'Software', 'Storage', 'UsersStatus', 'VASComponents', 'Backup Replication', 'Products', 'VMs and Tape', '2D', '3D'];
 	Sidebar.prototype.veeam2 = ['Auxiliary', 'Data Center', 'Features', 'General', 'Products and Components', 'Software', 'States', 'Storage', '3D'];
 
-	Sidebar.prototype.archimate3 = ['Application', 'Business', 'Composite', 'Implementation and Migration', 'Motivation', 'Physical', 'Relationships', 'Strategy', 'Technology'];
+	Sidebar.prototype.archimate3 = ['Application', 'Business', 'Generic', 'Implementation and Migration', 'Motivation', 'Relationships', 'Strategy', 'Technology'];
 
 	Sidebar.prototype.electrical = ['LogicGates', 'Resistors', 'Capacitors', 'Inductors', 'SwitchesRelays', 'Diodes', 'Sources', 'Transistors', 'Misc', 'Audio', 'PlcLadder', 'Abstract', 'Optical', 'VacuumTubes', 'Waveforms', 'Instruments', 'RotMech', 'Transmission'];
 
@@ -505,7 +505,7 @@
 								{title: 'Veeam', id: 'veeam2', image: IMAGE_PATH + '/sidebar-veeam.png'},
 								{title: 'VMware', id: 'vvd', image: IMAGE_PATH + '/sidebar-vvd.png'}]},
             			{title: mxResources.get('business'),
-            			entries: [{title: 'ArchiMate 3.0', id: 'archimate3', image: IMAGE_PATH + '/sidebar-archimate3.png'},
+            			entries: [{title: 'ArchiMate 3.2', id: 'archimate3', image: IMAGE_PATH + '/sidebar-archimate3.png'},
 								{title: mxResources.get('archiMate21'), id: 'archimate', image: IMAGE_PATH + '/sidebar-archimate.png'},
 								{title: mxResources.get('bpmn') + ' 2.0', id: 'bpmn2', image: IMAGE_PATH + '/sidebar-bpmn.png'},
 								{title: mxResources.get('sysml'), id: 'sysml', image: IMAGE_PATH + '/sidebar-sysml.png'},
