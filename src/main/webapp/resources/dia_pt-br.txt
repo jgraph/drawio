@@ -1270,4 +1270,5 @@ googleFonts=Google Fonts
 diagDupl=Duplicate Diagram Detected
 diagDuplMsg=This diagram is used in multiple places, which can result in unexpected results when edited. We've created an independent copy. Please open the editor again.
 diagDuplNoEditMsg=This diagram is used in multiple places. Please edit it within its own page.
-confCloudMigConfirm=Warning: Links to Confluence pages within diagrams will be broken in this instance after this process. Do you want to proceed?
+confCloudMigConfirm=Warning: This process will edit many pages and diagrams, so it is recommended to stop the Synchrony service during the process. Do you want to proceed?
+confCloudMigNotice=In the Cloud instance, please add linkAdjustments to draw.io configuration as follows {1}. Without this configuation, links in diagrams pointing to Confluence pages will not work.

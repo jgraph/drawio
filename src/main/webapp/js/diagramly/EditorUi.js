@@ -1922,7 +1922,7 @@
 			{
 				try
 				{
-					var layerIds = urlParams['layer-ids'].split(' ');
+					var layerIds = decodeURIComponent(urlParams['layer-ids']).split(' ');
 					var layerIdsMap = {};
 					
 					for (var i = 0; i < layerIds.length; i++)
@@ -4333,8 +4333,8 @@
 					{
 						msg = (notFoundMessage != null) ? notFoundMessage :
 							mxUtils.htmlEntities(mxResources.get('fileNotFoundOrDenied') +
-							((this.drive != null && this.drive.user != null) ? ' (' + this.drive.user.displayName +
-							', ' + this.drive.user.email+ ')' : ''), false);
+							((this.drive != null && this.drive.user != null) ?
+								' (' + this.drive.user.email+ ')' : ''), false);
 					}
 					
 					var id = (notFoundMessage != null) ? null : ((fileHash != null) ? fileHash : window.location.hash);
@@ -4352,24 +4352,26 @@
 						id = (id.substring(0, 2) == '#U') ? id.substring(45, id.lastIndexOf('%26ex')) : id.substring(2);
 						
 						// Special case where the button must have a different label and function
-						this.showError(title, msg, mxResources.get('openInNewWindow'), mxUtils.bind(this, function()
+						this.showError(title, msg, mxResources.get('tryOpeningViaThisPage'), mxUtils.bind(this, function()
 						{
 							this.editor.graph.openLink('https://drive.google.com/open?id=' + id);
-							this.handleError(resp, title, fn, invokeFnOnClose, notFoundMessage)
+
+							if (invokeFnOnClose != null)
+							{
+								invokeFnOnClose();
+							}
 						}), retry, mxResources.get('changeUser'), mxUtils.bind(this, function()
 						{
 							var driveUsers = this.drive.getUsersList();
-							
 							var div = document.createElement('div');
-							
-							var title = document.createElement('span');
-							title.style.marginTop = '6px';
+
+							var title = document.createElement('div');
+							title.style.marginBottom = '6px';
 							mxUtils.write(title, mxResources.get('changeUser') + ': ');
-							
 							div.appendChild(title);
 							
 							var usersSelect = document.createElement('select');
-							usersSelect.style.width = '200px';
+							usersSelect.style.width = '100%';
 							
 							//TODO This code is similar to Dialogs.js change user part in SplashDialog
 							function fillUsersSelect()
@@ -4437,7 +4439,7 @@
 							{
 								fn();
 							}
-						}), 480, 150);
+						}), 520, 150);
 
 						return;
 					}
@@ -6218,7 +6220,7 @@
 			mxEvent.addListener(testLink, 'click', mxUtils.bind(this, function()
 			{
 				this.hideDialog();
-				this.drive.showPermissions(file.getId());
+				this.drive.showPermissions(file.getId(), file);
 			}));
 		}
 
@@ -6325,7 +6327,7 @@
 			
 			var shareBtn = mxUtils.button(mxResources.get('share'), mxUtils.bind(this, function()
 			{
-				this.drive.showPermissions(file.getId());
+				this.drive.showPermissions(file.getId(), file);
 			}));
 			
 			shareBtn.style.marginTop = '12px';
@@ -13569,7 +13571,7 @@
 			// On smaller screens this is set to 0
 			if (size == 0)
 			{
-				size = 134;
+				size = this.defaultSidebarWidth;
 			}
 
 			var x = this.hsplitPosition;
@@ -19220,21 +19222,31 @@
 	{
 		this.openDatabase(mxUtils.bind(this, function(db)
 		{
-			storeName = storeName || 'objects';
-			
-			if (!Array.isArray(storeName))
+			try
 			{
-				storeName = [storeName];
-				key = [key];
+				storeName = storeName || 'objects';
+				
+				if (!Array.isArray(storeName))
+				{
+					storeName = [storeName];
+					key = [key];
+				}
+				
+				var trx = db.transaction(storeName, 'readwrite');
+				trx.oncomplete = success;
+				trx.onerror = error;
+				
+				for (var i = 0; i < storeName.length; i++)
+				{
+					trx.objectStore(storeName[i]).delete(key[i]);
+				}
 			}
-			
-			var trx = db.transaction(storeName, 'readwrite');
-			trx.oncomplete = success;
-			trx.onerror = error;
-			
-			for (var i = 0; i < storeName.length; i++)
+	        catch (e)
 			{
-				trx.objectStore(storeName[i]).delete(key[i]);
+				if (error != null)
+				{
+					error(e);
+				}
 			}
 		}), error);
 	};

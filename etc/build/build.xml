@@ -36,6 +36,7 @@
 			window.STYLE_PATH = window.STYLE_PATH || 'https://viewer.diagrams.net/styles';
 			window.SHAPES_PATH = window.SHAPES_PATH || 'https://viewer.diagrams.net/shapes';
 			window.STENCIL_PATH = window.STENCIL_PATH || 'https://viewer.diagrams.net/stencils';
+			window.DRAW_MATH_URL = window.DRAW_MATH_URL || 'https://viewer.diagrams.net/math/es5';
 			window.GRAPH_IMAGE_PATH  = window.GRAPH_IMAGE_PATH || 'https://viewer.diagrams.net/img';
 			window.mxImageBasePath = window.mxImageBasePath || 'https://viewer.diagrams.net/mxgraph/images';
 			window.mxBasePath = window.mxBasePath || 'https://viewer.diagrams.net/mxgraph/';

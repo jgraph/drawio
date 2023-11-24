@@ -361,6 +361,10 @@
         {
     		return mxUtils.getValue(state.style, mxConstants.STYLE_EDGE, null) == 'orthogonalEdgeStyle';
         }},
+        {name: 'segment', dispName: 'Segment Size', type: 'int', min: 0, defVal: mxConstants.ENTITY_SEGMENT, isVisible: function(state)
+        {
+    		return mxUtils.getValue(state.style, mxConstants.STYLE_EDGE, null) == 'entityRelationEdgeStyle';
+        }},
         {name: 'fillOpacity', dispName: 'Fill Opacity', type: 'int', min: 0, max: 100, defVal: 100},
         {name: 'strokeOpacity', dispName: 'Stroke Opacity', type: 'int', min: 0, max: 100, defVal: 100},
         {name: 'startFill', dispName: 'Start Fill', type: 'bool', defVal: true},
@@ -1822,6 +1826,11 @@
 				Graph.prototype.defaultEdgeLength = config.defaultEdgeLength
 			}
 
+			if (config.selectParentLayer != null)
+			{
+				Graph.selectParentLayer = config.selectParentLayer
+			}
+
 			if (config.autosaveDelay != null)
 			{
 				DrawioFile.prototype.autosaveDelay = config.autosaveDelay
@@ -2193,6 +2202,11 @@
      * Prefix for URLs that reference Google fonts.
      */
 	Editor.GOOGLE_FONTS = 'https://fonts.googleapis.com/css?family=';
+     
+    /**
+     * Prefix for URLs that reference Google fonts with CSS2.
+     */
+	Editor.GOOGLE_FONTS_CSS2 = 'https://fonts.googleapis.com/css2?family=';
     
 	/**
 	 * Alphabet for global unique IDs.
@@ -3414,7 +3428,7 @@
 						{
 							waiting++;
 							
-							this.loadUrl(fontUrl, mxUtils.bind(this, function(css)
+							this.loadUrl(Graph.rewriteGoogleFontUrl(fontUrl), mxUtils.bind(this, function(css)
 		                    {
 								this.cachedGoogleFonts[fontUrl] = css;
 								content.push(css + '\n');
@@ -5626,7 +5640,8 @@
 	 */
 	Graph.isGoogleFontUrl = function(url)
 	{
-		return url.substring(0, Editor.GOOGLE_FONTS.length) == Editor.GOOGLE_FONTS;
+		return url.substring(0, Editor.GOOGLE_FONTS.length) == Editor.GOOGLE_FONTS ||
+			url.substring(0, Editor.GOOGLE_FONTS_CSS2.length) == Editor.GOOGLE_FONTS_CSS2;
 	};
 
 	/**
@@ -5635,6 +5650,21 @@
 	Graph.isCssFontUrl = function(url)
 	{
 		return Graph.isGoogleFontUrl(url);
+	};
+
+	/**
+	 * Uses CSS2 for Google fonts to support bold font style eg.
+	 * https://fonts.googleapis.com/css?family=IBM+Plex+Sans is rewritten as
+	 * https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500
+	 */
+	Graph.rewriteGoogleFontUrl = function(url)
+	{
+		if (url != null && url.substring(0, Editor.GOOGLE_FONTS.length) == Editor.GOOGLE_FONTS)
+		{
+			url = Editor.GOOGLE_FONTS_CSS2 + url.substring(Editor.GOOGLE_FONTS.length) + ':wght@400;500';
+		}
+
+		return url;
 	};
 
 	/**
@@ -5651,7 +5681,7 @@
 			elt.setAttribute('rel', 'stylesheet');
 			elt.setAttribute('type', 'text/css');
 			elt.setAttribute('charset', 'UTF-8');
-			elt.setAttribute('href', url);
+			elt.setAttribute('href', Graph.rewriteGoogleFontUrl(url));
 		}
 		else
 		{
@@ -6656,7 +6686,7 @@
 				
 				if (Graph.isCssFontUrl(fontUrl))
 				{
-					prefix += '@import url(' + fontUrl + ');\n';
+					prefix += '@import url(' + Graph.rewriteGoogleFontUrl(fontUrl) + ');\n';
 				}
 				else
 				{
@@ -8516,7 +8546,7 @@
 							if (Graph.isCssFontUrl(fontUrl))
 							{
 						   		doc.writeln('<link rel="stylesheet" href="' +
-						   			mxUtils.htmlEntities(fontUrl) +
+						   			mxUtils.htmlEntities(Graph.rewriteGoogleFontUrl(fontUrl)) +
 						   			'" charset="UTF-8" type="text/css">');
 							}
 							else

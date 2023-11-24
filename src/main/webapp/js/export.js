@@ -182,6 +182,28 @@ function render(data)
 		Graph.translateDiagram = true;
 	}
 	
+	// Overrides graph bounds to include background images
+	var graphGetGraphBounds = graph.getGraphBounds;
+
+	graph.getGraphBounds = function()
+	{
+		var bounds = graphGetGraphBounds.apply(this, arguments);
+		var img = this.backgroundImage;
+		
+		if (img != null && img.width != null && img.height != null)
+		{
+			var t = this.view.translate;
+			var s = this.view.scale;
+
+			bounds = mxRectangle.fromRectangle(bounds);
+			bounds.add(new mxRectangle(
+				(t.x + img.x) * s, (t.y + img.y) * s,
+				img.width * s, img.height * s));
+		}
+
+		return bounds;
+	};
+	
 	//PNG+XML format
 	if (data.xml.substring(0, 5) == 'iVBOR' || (extras != null && extras.isPng))
 	{
@@ -467,7 +489,8 @@ function render(data)
 		//Note: This code targets Chrome as it is the browser used by export server
 		for (var i = 0; i < extFonts.length; i++)
 		{
-			if (extFonts[i].url.indexOf(Editor.GOOGLE_FONTS) == 0)
+			if (extFonts[i].url.indexOf(Editor.GOOGLE_FONTS) == 0 ||
+				extFonts[i].url.indexOf(Editor.GOOGLE_FONTS_CSS2) == 0)
 			{
 				var link = document.createElement('link');
 				
@@ -934,7 +957,9 @@ function render(data)
 
 				if (t.x < 0 || t.y < 0)
 				{
-					graph.view.setTranslate(t.x < 0? -bgImg.x * s : t.x, t.y < 0? -bgImg.y * s : t.y);
+					graph.view.setTranslate(
+						t.x < 0 ? Math.max(-bgImg.x * s, t.x) : t.x,
+						t.y < 0 ? Math.max(-bgImg.y * s, t.y) : t.y);
 					bounds.x = 0.5;
 					bounds.y = 0.5;
 				}

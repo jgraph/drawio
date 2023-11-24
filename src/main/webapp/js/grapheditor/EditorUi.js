@@ -1037,6 +1037,23 @@ EditorUi = function(editor, container, lightbox)
 			}
 		});
 		
+		// Selects parent layer for current selection
+		if (Graph.selectParentLayer)
+		{
+			graph.selectionModel.addListener(mxEvent.CHANGE, function()
+			{
+				if (graph.isEnabled() && !graph.isSelectionEmpty())
+				{
+					var layer = graph.getLayerForCells(graph.getSelectionCells());
+
+					if (layer != null)
+					{
+						graph.setDefaultParent(layer);
+					}
+				}
+			});
+		}
+
 		// Global handler to hide the current menu
 		this.gestureHandler = mxUtils.bind(this, function(evt)
 		{
@@ -1244,11 +1261,16 @@ EditorUi.prototype.toolbarHeight = 38;
 EditorUi.prototype.footerHeight = 28;
 
 /**
- * Specifies the position of the horizontal split bar. Default is 240 or 118 for
- * screen widths <= 640px.
+ * Specifies the default sidebar width.
+ */
+EditorUi.prototype.defaultSidebarWidth = Math.min(screen.width / 2,
+	(urlParams['sidebar-entries'] != 'large') ? 212 : 240);
+
+/**
+ * Specifies the position of the horizontal split bar.
  */
 EditorUi.prototype.hsplitPosition = (screen.width <= Editor.smallScreenWidth) ? 0 :
-	((urlParams['sidebar-entries'] != 'large') ? 212 : 240);
+	EditorUi.prototype.defaultSidebarWidth;
 
 /**
  * Specifies if animations are allowed in <executeLayout>. Default is true.

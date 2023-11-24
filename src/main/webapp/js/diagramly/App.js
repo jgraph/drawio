@@ -3141,6 +3141,21 @@ App.prototype.start = function()
 							this.loadFile(id, true);
 						}
 					}
+					else
+					{
+						var obj = this.getHashObject();
+
+						if (obj != null && obj.pageId != null && this.currentPage != null &&
+							obj.pageId != this.currentPage.getId())
+						{
+							var page = this.getPageById(obj.pageId);
+
+							if (page != null)
+							{
+								this.selectPage(page);
+							}
+						}
+					}
 				}
 				catch (e)
 				{
@@ -7486,6 +7501,17 @@ App.prototype.updateUserElementIcon = function()
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
+App.prototype.hideUserPanel = function()
+{
+	if (this.userPanel != null && this.userPanel.parentNode != null)
+	{
+		this.userPanel.parentNode.removeChild(this.userPanel);
+	}
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
 App.prototype.toggleUserPanel = function()
 {
 	if (this.userPanel == null)
@@ -7502,9 +7528,9 @@ App.prototype.toggleUserPanel = function()
 
 		mxEvent.addListener(document.body, 'click', mxUtils.bind(this, function(evt)
 		{
-			if (!mxEvent.isConsumed(evt) && this.userPanel != null && this.userPanel.parentNode != null)
+			if (!mxEvent.isConsumed(evt))
 			{
-				this.userPanel.parentNode.removeChild(this.userPanel);
+				this.hideUserPanel();
 			}
 		}));
 	}
@@ -7528,10 +7554,7 @@ App.prototype.toggleUserPanel = function()
 		
 		mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
 		{
-			if (this.userPanel.parentNode != null)
-			{
-				this.userPanel.parentNode.removeChild(this.userPanel);
-			}
+			this.hideUserPanel();
 		}));
 		
 		this.userPanel.appendChild(img);
@@ -7551,8 +7574,6 @@ App.prototype.toggleUserPanel = function()
 					if (file != null && file.constructor == DriveFile)
 					{
 						this.spinner.spin(document.body, spinnerMsg);
-							
-//									file.close();
 						this.fileLoaded(null);
 
 						// LATER: Use callback to wait for thumbnail update
@@ -7571,8 +7592,6 @@ App.prototype.toggleUserPanel = function()
 				var createUserRow = mxUtils.bind(this, function (user)
 				{
 					var tr = document.createElement('tr');
-					tr.setAttribute('title', 'User ID: ' + user.id);
-
 					var td = document.createElement('td');
 					td.setAttribute('valig', 'middle');
 					td.style.height = '59px';
@@ -7618,13 +7637,31 @@ App.prototype.toggleUserPanel = function()
 					td.appendChild(div);
 					tr.appendChild(td);
 
-					if (!user.isCurrent)
+					if (user.isCurrent)
 					{
+						tr.setAttribute('title', 'User ID: ' + user.id);
+					}
+					else
+					{
+						tr.setAttribute('title', mxResources.get('login') +
+							' (' + 'User ID: ' + user.id + ')');
 						tr.style.cursor = 'pointer';
 						tr.style.opacity = '0.3';
 
+						mxEvent.addListener(tr, 'mouseenter', mxUtils.bind(this, function()
+						{
+							tr.style.opacity = '1';
+						}));
+
+						mxEvent.addListener(tr, 'mouseleave', mxUtils.bind(this, function()
+						{
+							tr.style.opacity = '0.3';
+						}));
+
 						mxEvent.addListener(tr, 'click', mxUtils.bind(this, function(evt)
 						{
+							this.hideUserPanel();
+
 							closeFile(mxUtils.bind(this, function()
 							{
 								this.stateArg = null;
@@ -7639,7 +7676,7 @@ App.prototype.toggleUserPanel = function()
 								{
 									this.handleError(resp);
 								}), true); //Remember is true since add account imply keeping that account
-							}), mxResources.get('closingFile') + '...');
+							}), mxResources.get('changeUser') + '...');
 							
 							mxEvent.consume(evt);
 						}));

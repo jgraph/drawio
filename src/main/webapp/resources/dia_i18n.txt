@@ -1271,3 +1271,4 @@ diagDupl=diagDupl
 diagDuplMsg=diagDuplMsg
 diagDuplNoEditMsg=diagDuplNoEditMsg
 confCloudMigConfirm=confCloudMigConfirm
+confCloudMigNotice=confCloudMigNotice

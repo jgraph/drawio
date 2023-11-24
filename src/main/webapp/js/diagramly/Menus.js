@@ -2782,10 +2782,6 @@
 			editorUi.setCssDarkModeEnabled(!Editor.enableCssDarkMode);
 		});
 		
-		action.isEnabled = function()
-		{
-			return Editor.isDarkMode() || Editor.cssDarkMode;
-		};
 		action.setToggleAction(true);
 		action.setSelectedCallback(function()
 		{

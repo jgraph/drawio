@@ -1,3 +1,17 @@
+24-NOV-2023: 22.1.4
+
+- [conf cloud] Fixes diagram list editing older versions and not refreshing [DID-10113]
+- Adds selectParentLayer config switch [drawio-3928]
+- Fixes handling of space separated layer-ids in URL
+- Fixes improve contrast only enabled in dark mode
+- [conf cloud] Improving page IDs import report readability [DID-10039]
+- Selects current page based on browser address bar
+- Fixes PDF export for background images and pages
+- [conf cloud] Allows simple viewer with 3rd party cookies disabled [DID-10047]
+- Fixes relative path for MathJax in embedded HTML
+- Updates DOMPurify from 3.0.5 to 3.0.6
+- Fixes bold font for Google Fonts [drawio-3907]
+
 17-NOV-2023: 22.1.3
 
 - Updates archimate icons [drawio-3863]

@@ -106,7 +106,7 @@ Editor.useLocalStorage = typeof(Storage) != 'undefined' && mxClient.IS_IOS;
 /**
  * Window width for simple mode to collapse panels.
  */
-Editor.smallScreenWidth = 800;
+Editor.smallScreenWidth = 1024;
 
 /**
  * 

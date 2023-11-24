@@ -509,7 +509,7 @@ DriveFile.prototype.move = function(folderId, success, error)
  */
 DriveFile.prototype.share = function()
 {
-	this.ui.drive.showPermissions(this.getId());
+	this.ui.drive.showPermissions(this.getId(), this);
 };
 
 /**

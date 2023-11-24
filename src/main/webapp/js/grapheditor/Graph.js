@@ -1375,6 +1375,12 @@ Graph.defaultJumpSize = 6;
 Graph.zoomWheel = false;
 
 /**
+ * Specifies if the parent layer should be selected when the selection changes.
+ * Default is false.
+ */
+Graph.selectParentLayer = false;
+
+/**
  * Minimum width for table columns.
  */
 Graph.minTableColumnWidth = 20;
@@ -13548,11 +13554,15 @@ if (typeof mxVertexHandler !== 'undefined')
 		{
 			if (this.hint != null)
 			{
-				this.hint.parentNode.removeChild(this.hint);
+				if (this.hint.parentNode != null)
+				{
+					this.hint.parentNode.removeChild(this.hint);
+				}
+
 				this.hint = null;
 			}
 		};
-								
+		
 		/**
 		 * Overridden to allow for shrinking pools when lanes are resized.
 		 */

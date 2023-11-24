@@ -511,7 +511,7 @@ var SplashDialog = function(editorUi)
 				
 		if (editorUi.mode == App.MODE_GOOGLE && editorUi.drive != null)
 		{
-			var driveUsers =editorUi.drive.getUsersList();
+			var driveUsers = editorUi.drive.getUsersList();
 		
 			if (driveUsers.length > 0)
 			{
@@ -4993,7 +4993,7 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 	right.appendChild(storageSelect);
 
 	// Selects last entry
-	if (SaveDialog.lastValue != null)
+	if (SaveDialog.lastValue != null && entries[SaveDialog.lastValue] != null)
 	{
 		storageSelect.value = SaveDialog.lastValue;
 	}
@@ -10956,7 +10956,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 					    editorUi.showError(mxResources.get('error'), mxResources.get('diagramIsNotPublic'),
 							mxResources.get('share'), mxUtils.bind(this, function()
 							{
-								editorUi.drive.showPermissions(file.getId());
+								editorUi.drive.showPermissions(file.getId(), file);
 							}), null, mxResources.get('ok'), mxUtils.bind(this, function()
 							{
 								// Hides dialog

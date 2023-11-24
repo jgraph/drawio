@@ -1361,6 +1361,7 @@ GraphViewer.prototype.addToolbar = function()
 		return a;
 	});
 
+	var model = this.graph.getModel();
 	var layersDialog = null;
 	var tagsComponent = null;
 	var tagsDialog = null;
@@ -1394,8 +1395,6 @@ GraphViewer.prototype.addToolbar = function()
 			
 			nextButton.style.paddingLeft = '0px';
 			nextButton.style.paddingRight = '0px';
-			
-			var lastXmlNode = null;
 			
 			var update = mxUtils.bind(this, function()
 			{
@@ -1436,8 +1435,6 @@ GraphViewer.prototype.addToolbar = function()
 		{
 			if (this.layersEnabled)
 			{
-				var model = this.graph.getModel();
-
 				var layersButton = addButton(mxUtils.bind(this, function(evt)
 				{
 					if (layersDialog != null)

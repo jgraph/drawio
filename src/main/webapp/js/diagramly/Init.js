@@ -309,7 +309,7 @@ window.uiTheme = window.uiTheme || (function()
 			var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 			var userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
-			if (iw <= 800 ||  /android/i.test(userAgent) || (/iPad|iPhone|iPod/.test(userAgent) &&
+			if (iw <= 1024 ||  /android/i.test(userAgent) || (/iPad|iPhone|iPod/.test(userAgent) &&
 				!window.MSStream) || (navigator.userAgent.match(/Mac/) &&
 				navigator.maxTouchPoints && navigator.maxTouchPoints > 2))
 			{
