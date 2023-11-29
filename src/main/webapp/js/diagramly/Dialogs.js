@@ -4948,6 +4948,15 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 		}
 	}, null, 'geBtn gePrimaryBtn');
 
+	// Handles enter key
+	mxEvent.addListener(saveAsInput, 'keypress', function(e)
+	{
+		if (e.keyCode == 13)
+		{
+			saveBtn.click();
+		}
+	});
+
 	function storageChanged()
 	{
 		if (storageSelect.value == 'reset')
@@ -8739,6 +8748,377 @@ var DarkModeColorsWindow = function(editorUi, x, y, w, h)
 	}));
 	
 	editorUi.installResizeHandler(this, false);
+};
+
+/**
+ * 
+ */
+var ChatWindow = function(editorUi, x, y, w, h)
+{
+	var graph = editorUi.editor.graph;
+
+	var div = document.createElement('div');
+	div.style.textAlign = 'center';
+	div.style.userSelect = 'none';
+	div.style.overflow = 'hidden';
+	div.style.height = '100%';
+	
+	var hist = document.createElement('div');
+	hist.style.position = 'absolute';
+	hist.style.overflow = 'auto';
+	hist.style.top = '0px';
+	hist.style.left = '0px';
+	hist.style.right = '0px';
+	hist.style.bottom = '42px';
+
+	div.appendChild(hist);
+
+	var user = document.createElement('div');
+	user.style.position = 'absolute';
+	user.style.left = '0px';
+	user.style.right = '0px';
+	user.style.bottom = '0px';
+	user.style.padding = '6px';
+	user.style.height = '30px';
+
+	var inp = document.createElement('input');
+	inp.setAttribute('type', 'text');
+	inp.style.width = '100%';
+	inp.style.borderRadius = '4px';
+	inp.style.padding = '6px';
+	inp.style.boxSizing = 'border-box';
+	user.appendChild(inp);
+
+	function createBubble()
+	{
+		var bubble = document.createElement('div');
+		bubble.style.display = 'block';
+		bubble.style.padding = '6px';
+		bubble.style.borderRadius = '10px';
+		bubble.style.backgroundColor = '#e0e0e0';
+		bubble.style.marginBottom = '6px';
+		bubble.style.maxWidth = '80%';
+		bubble.style.position = 'relative';
+		bubble.style.textAlign = 'left';
+		bubble.style.wordWrap = 'break-word';
+		bubble.style.left = '0px';
+		bubble.style.right = '0px';
+		bubble.style.marginLeft = 'auto';
+		bubble.style.marginRight = 'auto';
+		bubble.style.marginTop = '6px';
+		bubble.style.marginBottom = '6px';
+
+		return bubble;
+	}
+
+	function addBubble(text)
+	{
+		var bubble = createBubble();
+		mxUtils.write(bubble, text);
+		hist.appendChild(bubble);
+
+		return bubble;
+	};
+
+	addBubble('This sends the diagram to ChatGPT for analysis and processing.').
+		style.backgroundColor = 'transparent';
+
+	function trimStart(text)
+	{
+		var index = text.indexOf('```');
+
+		if (index >= 0)
+		{
+			text = text.substring(text, 0, index + 6);
+		}
+
+		return text;
+	};
+
+	function trimEnd(text)
+	{
+		var index = text.lastIndexOf('```');
+
+		if (index >= 0)
+		{
+			text = text.substring(index + 3);
+		}
+
+		return text;
+	};
+
+	function extractDiagramData(text)
+	{
+		var start = text.indexOf('<mxGraphModel ');
+		var end = text.indexOf('</mxGraphModel>');
+
+		if (start < 0)
+		{
+			start = text.indexOf('<mxGraphModel>');
+		}
+
+		if (start >= 0 && end > start)
+		{
+			return [mxUtils.trim(trimStart(text.substring(0, start))),
+				text.substring(start, end + 15),
+				mxUtils.trim(trimEnd(text.substring(end + 15)))];
+		}
+
+		return null;
+	};
+
+	function addMessage(prompt)
+	{
+		addBubble(prompt);
+		var waiting = addBubble('');
+		
+		var messages = [];
+		var page = editorUi.currentPage;
+		var xml = (!editorUi.isDiagramEmpty() && page != null) ? editorUi.editor.getGraphXml() : null;
+
+		if (xml != null)
+		{
+			messages.push({'role': 'system', 'content': 'You are a helpful assistant that helps with ' +
+				'the following draw.io diagram and returns an updated draw.io diagram if needed.\n' +
+				mxUtils.getXml(xml)});
+		}
+		else
+		{
+			messages.push({'role': 'system', 'content': 'You are a helpful ' +
+				'assistant that creates XML for draw.io diagrams.'});
+		}
+
+		messages.push({'role': 'user', 'content': prompt});
+		
+		var params = {
+			model: 'gpt-3.5-turbo',
+			messages: messages
+		};
+
+		var tokens = 0;
+			
+		// Loops throrough all messages and counts the tokens in the content
+		for (var i = 0; i < params.messages.length; i++)
+		{
+			tokens += params.messages[i].content.match(/\b\w+\b|[^\w\s]|\=/g).length;
+		}
+
+		mxUtils.write(waiting, 'Processing  ' + tokens + ' tokens');
+
+		var img = document.createElement('img');
+		img.setAttribute('src', IMAGE_PATH + '/spin.gif');
+		img.style.marginLeft = '6px';
+		waiting.appendChild(img);
+		
+		waiting.scrollIntoView({ behavior: 'smooth',
+			block: 'end', inline: 'nearest'});
+
+		editorUi.createTimeout(30000, mxUtils.bind(this, function(timeout)
+		{
+			var req = new mxXmlRequest('https://api.openai.com/v1/chat/completions', JSON.stringify(params), 'POST');
+			
+			req.setRequestHeaders = mxUtils.bind(this, function(request, params)
+			{
+				request.setRequestHeader('Authorization', 'Bearer ' + decodeURIComponent(urlParams['chat']));
+				request.setRequestHeader('Content-Type', 'application/json');
+			});
+
+			var handleError = mxUtils.bind(this, function(e)
+			{
+				if (timeout.clear())
+				{
+					waiting.innerHTML = '';
+					mxUtils.write(waiting, e.message);
+					waiting.scrollIntoView({behavior: 'smooth',
+						block: 'end', inline: 'nearest'});
+				}
+			});
+
+			req.send(mxUtils.bind(this, function(req)
+			{
+				if (timeout.clear())
+				{
+					try
+					{
+						if (req.getStatus() >= 200 && req.getStatus() <= 299)
+						{
+							var response = JSON.parse(req.getText());
+							EditorUi.debug('EditorUi.ChatWindow.addMessage',
+								'prompt:', params, 'response:', response);
+							var text = mxUtils.trim(response.choices[0].message.content);
+							var data = extractDiagramData(text);
+							var cells = (data != null) ? editorUi.stringToCells(data[1]) : null;
+
+							if (cells != null && cells.length > 0)
+							{
+								var wrapper = document.createElement('div');
+								wrapper.style.display = 'inline-block';
+								wrapper.style.position = 'relative';
+								wrapper.style.left = '50%';
+								wrapper.style.transform = 'translateX(-50%)';
+								wrapper.style.padding = '6px';
+								wrapper.style.cursor = 'move';
+
+								var clickFn = mxUtils.bind(this, function(e)
+								{
+									graph.model.beginUpdate();
+									try
+									{
+										if (sentModel != null && editorUi.getPageIndex(page) != null)
+										{
+											editorUi.selectPage(page);
+											var patch = editorUi.diffCells(sentModel.root, model.root);
+											editorUi.patchPage(page, patch, null, true);
+										}
+										else
+										{
+											var children = model.getChildren(model.getChildAt(model.getRoot(), 0));
+											graph.setSelectionCells(graph.importCells(children));
+										}
+									}
+									finally
+									{
+										graph.model.endUpdate();
+									}
+
+									mxEvent.consume(e);
+								});
+
+								var size = graph.getBoundingBoxFromGeometry(cells);
+								wrapper.appendChild(editorUi.sidebar.createVertexTemplateFromCells(
+									cells, size.width, size.height, '', true,
+									null, true, false, clickFn, 160, 120));
+								
+								waiting.innerHTML = '';
+								bubble = waiting;
+
+								if (data[0].length > 0)
+								{
+									mxUtils.write(bubble, data[0]);
+									mxUtils.br(bubble);
+								}
+								
+								bubble.appendChild(wrapper);
+
+								var button = document.createElement('button');
+								button.className = 'geBtn gePrimaryBtn';
+								button.style.margin = '0px';
+								button.style.padding = '4px';
+								button.style.height = 'auto';
+								button.style.display = 'block';
+								button.style.position = 'relative';
+								button.style.left = '50%';
+								button.style.transform = 'translateX(-50%)';
+
+								// wrapper.setAttribute('draggable', 'true');
+								var doc = mxUtils.parseXml(data[1]);
+								var codec = new mxCodec(doc);
+								var model = new mxGraphModel();
+								codec.decode(doc.documentElement, model);
+								var sentModel = null;
+								
+								if (xml != null)
+								{
+									// Creates a diff of the sent and recevied diagram
+									// to patch the current page and not lose changes
+									var dec = new mxCodec(xml.ownerDocument);
+									sentModel = new mxGraphModel();
+									dec.decode(xml, sentModel);
+								}
+
+								mxUtils.write(button, mxResources.get((xml != null) ? 'apply' : 'insert'));
+								mxEvent.addListener(button, 'click', clickFn);
+								bubble.appendChild(button);
+
+								if (data[2].length > 0)
+								{
+									mxUtils.br(bubble);
+									mxUtils.write(bubble, data[2]);
+								}
+
+								bubble.scrollIntoView({behavior: 'smooth',
+									block: 'end', inline: 'nearest'});
+							}
+							else
+							{
+								waiting.innerHTML = '';
+								bubble = waiting;
+								mxUtils.write(bubble, text);
+								waiting.scrollIntoView({ behavior: 'smooth',
+									block: 'end', inline: 'nearest'});
+							}
+						}
+						else
+						{
+							var result = 'Error: ' + req.getStatus();
+
+							try
+							{
+								var resp = JSON.parse(req.getText());
+
+								if (resp != null && resp.error != null &&
+									resp.error.message != null)
+								{
+									result = resp.error.message;
+								}
+							}
+							catch (e)
+							{
+								// ignore
+							}
+							
+							waiting.innerHTML = '';
+							mxUtils.write(waiting, result);
+							waiting.scrollIntoView(
+								{behavior: 'smooth', block: 'end',
+								inline: 'nearest'});
+						}
+					}
+					catch (e)
+					{
+						handleError(e);
+					}
+				}
+			}), handleError);
+		}), function(e)
+		{
+			waiting.innerHTML = '';
+			mxUtils.write(waiting, e.message);
+			waiting.scrollIntoView({behavior: 'smooth',
+				block: 'end', inline: 'nearest'});
+		});
+	};
+
+	mxEvent.addListener(inp, 'keydown', function(evt)
+	{
+		if (evt.keyCode == 27 || (evt.keyCode == 13 && inp.value == 'clear'))
+		{
+			hist.innerHTML = '';
+			inp.value = '';
+		}
+		else if (evt.keyCode == 13 && !mxEvent.isShiftDown(evt))
+		{
+			addMessage(inp.value);
+			inp.value = '';
+		}
+	});
+
+	div.appendChild(user);
+
+	this.window = new mxWindow(mxResources.get('chatWindowTitle'), div, x, y, w, h, true, true);
+	this.window.minimumSize = new mxRectangle(0, 0, 100, 100);
+	this.window.destroyOnClose = false;
+	this.window.setMaximizable(false);
+	this.window.setResizable(true);
+	this.window.setClosable(true);
+
+	this.window.addListener('show', mxUtils.bind(this, function()
+	{
+		this.window.fit();
+		inp.focus();
+	}));
+	
+	editorUi.installResizeHandler(this, true);
 };
 
 /**

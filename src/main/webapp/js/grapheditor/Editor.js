@@ -825,10 +825,12 @@ Editor.prototype.getGraphXml = function(ignoreSelection)
 	{
 		var enc = new mxCodec(mxUtils.createXmlDocument());
 		node = enc.encode(this.graph.getModel());
+		enc.document.appendChild(node);
 	}
 	else
 	{
-		node = this.graph.encodeCells(mxUtils.sortCells(this.graph.model.getTopmostCells(
+		node = this.graph.encodeCells(mxUtils.sortCells(
+			this.graph.model.getTopmostCells(
 			this.graph.getSelectionCells())));
 	}
 
@@ -868,8 +870,8 @@ Editor.prototype.updateGraphComponents = function()
 	if (graph.container != null)
 	{
 		graph.view.validateBackground();
-		graph.container.style.overflow = (graph.scrollbars) ? 'auto' : this.defaultGraphOverflow;
-		
+		graph.container.style.overflow = (graph.scrollbars) ?
+			'auto' : this.defaultGraphOverflow;
 		this.fireEvent(new mxEventObject('updateGraphComponents'));
 	}
 };

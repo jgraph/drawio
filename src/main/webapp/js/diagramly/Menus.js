@@ -1008,6 +1008,33 @@
 		action.setToggleAction(true);
 		action.setSelectedCallback(mxUtils.bind(this, function() { return this.tagsWindow != null && this.tagsWindow.window.isVisible(); }));
 
+		if (urlParams['chat'] != null)
+		{
+			action = editorUi.actions.addAction('chatWindowTitle', mxUtils.bind(this, function()
+			{
+				if (this.chatWindow == null)
+				{
+					this.chatWindow = new ChatWindow(editorUi, 220, document.body.offsetHeight - 380, 250, 320);
+					this.chatWindow.window.addListener('show', mxUtils.bind(this, function()
+					{
+						editorUi.fireEvent(new mxEventObject('chat'));
+					}));
+					this.chatWindow.window.addListener('hide', function()
+					{
+						editorUi.fireEvent(new mxEventObject('chat'));
+					});
+					this.chatWindow.window.setVisible(true);
+					editorUi.fireEvent(new mxEventObject('chat'));
+				}
+				else
+				{
+					this.chatWindow.window.setVisible(!this.chatWindow.window.isVisible());
+				}
+			}));
+			action.setToggleAction(true);
+			action.setSelectedCallback(mxUtils.bind(this, function() { return this.chatWindow != null && this.chatWindow.window.isVisible(); }));
+		}
+
 		action = editorUi.actions.addAction('findReplace', mxUtils.bind(this, function(arg1, evt)
 		{
 			var findReplace = graph.isEnabled() && (evt == null || !mxEvent.isShiftDown(evt));
@@ -4449,7 +4476,7 @@
 				}
 				
 				editorUi.menus.addMenuItems(menu, ['-', 'findReplace',
-					'layers', 'tags', 'outline', '-'], parent);
+					'layers', 'tags', 'chatWindowTitle', 'outline', '-'], parent);
 				
 				if (editorUi.commentsSupported())
 				{
@@ -4465,7 +4492,7 @@
 			}
 			else
 			{
-				this.addMenuItems(menu, (['format', 'outline', 'layers', 'tags']).
+				this.addMenuItems(menu, (['format', 'outline', 'layers', 'tags', 'chatWindowTitle']).
 					concat((editorUi.commentsSupported()) ?
 					['comments', '-'] : ['-']));
 				
@@ -4972,7 +4999,8 @@
 				if (Editor.currentTheme == 'min')
 				{
 					editorUi.menus.addMenuItems(menu, ['toggleShapes', 'format',
-						'layers', 'tags', '-', 'findReplace'], parent);
+						'layers', 'tags', 'chatWindowTitle', '-',
+						'findReplace'], parent);
 			
 					if (editorUi.commentsSupported())
 					{
@@ -5003,7 +5031,8 @@
 					editorUi.menus.addMenuItems(menu, ['comments', '-'], parent);
 				}
 
-				editorUi.menus.addMenuItems(menu, ['toggleShapes', 'format', 'layers', 'tags', '-'], parent);	
+				editorUi.menus.addMenuItems(menu, ['toggleShapes', 'format',
+					'layers', 'tags', 'chatWindowTitle', '-'], parent);	
 				editorUi.menus.addMenuItems(menu, ['pageSetup'], parent);
 			}
 			else if (Editor.currentTheme != 'min')
@@ -5751,19 +5780,47 @@
 						if (css != null)
 						{
 							curFontName = Graph.stripQuotes(css.fontFamily);
-							curUrl = Graph.getFontUrl(curFontName, null);
+
+							// Finds the URL for the current font by finding the nearest parent element
+							// with a data-font-src attribute or the fontSource attribute from the cell
+							var state = graph.getView().getState(graph.cellEditor.getEditingCell());
+							var curUrl = (state != null) ? state.style['fontSource'] : null;
+			    			
+			    			if (curUrl != null)
+			    			{
+				    			curUrl = decodeURIComponent(curUrl);
+							}
+
+							var temp = node;
+
+							while (temp != null && temp != graph.cellEditor.textarea)
+							{
+								if (temp.getAttribute('data-font-src') != null)
+								{
+									curUrl = temp.getAttribute('data-font-src');
+									break;
+								}
+								else if (temp.getAttribute('face') == curFontName)
+								{
+									// Means that a system font is used for the element
+									curUrl = null;
+									break;
+								}
+
+								temp = temp.parentNode;
+							}
 							
 							if (curUrl != null)
 							{
-			    				if (Graph.isGoogleFontUrl(curUrl))
-			    				{
-			    					curUrl = null;
-			    					curType = 'g';
-			    				}
-			    				else
-			    				{
-			    					curType = 'w';
-			    				}
+								if (Graph.isGoogleFontUrl(curUrl))
+								{
+									curUrl = null;
+									curType = 'g';
+								}
+								else
+								{
+									curType = 'w';
+								}
 							}
 						}
 					}

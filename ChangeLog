@@ -1,3 +1,9 @@
+29-NOV-2023: 22.1.5
+
+- Fixes forwards refs for undo of replaceDiagramData
+- Adds defaultGridSize config option [DID-10031]
+- Fixes custom fonts while editing label [DID-10031]
+
 24-NOV-2023: 22.1.4
 
 - [conf cloud] Fixes diagram list editing older versions and not refreshing [DID-10113]

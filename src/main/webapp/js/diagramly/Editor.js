@@ -2012,6 +2012,21 @@
 				}
 			}
 
+			// Overrides default grid size
+			if (config.defaultGridSize != null)
+			{
+				var val = parseInt(config.defaultGridSize);
+				
+				if (!isNaN(val) && val > 0)
+				{
+					mxGraph.prototype.gridSize = val;
+				}
+				else
+				{
+					EditorUi.debug('Configuration Error: Int > 0 expected for defaultGridSize');
+				}
+			}
+
 			// Overrides grid steps
 			if (config.gridSteps != null)
 			{
@@ -6446,31 +6461,44 @@
 	{
 		// Adds the font element to the document
 		Graph.addFont(name, url);
-		
-		// Only valid known fonts are allowed as parameters so we set
-		// the real font name and the data-source-face in the element
-		// which is used as the face attribute when editing stops
-		// KNOWN: Undo for the DOM change is not working
-		document.execCommand('fontname', false, name);
 
-		// Finds element with new font name and checks its data-font-src attribute
-		if (url != null)
+		// Marks the element with a random font name so
+		// that it can be found in the code below
+		var temp = Editor.guid();
+		document.execCommand('fontname', false, temp);
+
+		// Finds the new or updated element and changes or
+		// removes is data-font-src attribute as required
+		var fonts = this.cellEditor.textarea.getElementsByTagName('font');
+		var elt = null;
+
+		for (var i = 0; i < fonts.length; i++)
 		{
-			var fonts = this.cellEditor.textarea.getElementsByTagName('font');
-			
-			// Enforces consistent font naming
-			url = Graph.getFontUrl(name, url);
-			
-			for (var i = 0; i < fonts.length; i++)
+			if (fonts[i].getAttribute('face') == temp)
 			{
-				if (fonts[i].getAttribute('face') == name)
-				{
-					if (fonts[i].getAttribute('data-font-src') != url)
-					{
-						fonts[i].setAttribute('data-font-src', url);
-					}
-				}
+				elt = fonts[i];
+				break;
 			}
+		}
+
+		if (elt != null)
+		{
+			fonts[i].setAttribute('face', name);
+
+			if (url != null)
+			{
+				fonts[i].setAttribute('data-font-src', url);
+			}
+			else
+			{
+				fonts[i].removeAttribute('data-font-src');
+			}
+		}
+		else
+		{
+			// Fallback to use the real font name if a new
+			// or updated element can not be found above
+			document.execCommand('fontname', false, name);
 		}
 	};
 	

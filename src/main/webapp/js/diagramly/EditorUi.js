@@ -12261,6 +12261,12 @@
 
 		if (this.menus != null)
 		{
+			if (this.menus.chatWindow != null)
+			{
+				this.menus.chatWindow.destroy();
+				this.menus.chatWindow = null;
+			}
+
 			if (this.menus.tagsWindow != null)
 			{
 				this.menus.tagsWindow.destroy();
@@ -13062,7 +13068,7 @@
 						mxResources.get('checksum');
 				}
 				else if (file.sync != null && (!file.sync.enabled ||
-					!file.sync.isRealtimeActive()))
+					!file.sync.isRealtimeActive()) && this.getServiceName() != 'atlassian') // Atlassian app has pulling sync (no RT)
 				{
 					status = mxResources.get('realtimeCollaboration') +
 						': ' + mxResources.get('disabled');

@@ -1035,6 +1035,11 @@ EditorUi.initMinimalTheme = function()
             	ui.actions.layersWindow.window.fit();
             }
 
+            if (ui.menus.chatWindow != null)
+            {
+            	ui.menus.chatWindow.window.fit();
+            }
+
             if (ui.menus.tagsWindow != null)
             {
             	ui.menus.tagsWindow.window.fit();

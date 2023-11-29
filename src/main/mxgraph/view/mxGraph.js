@@ -310,6 +310,7 @@
  * (code)
  * var enc = new mxCodec(mxUtils.createXmlDocument());
  * var node = enc.encode(graph.getModel());
+ * enc.document.appendChild(node);
  * (end)
  * 
  * This will produce an XML node than can be handled using the DOM API or

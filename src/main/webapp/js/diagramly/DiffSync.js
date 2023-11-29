@@ -773,7 +773,10 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 			}
 			else
 			{
-				var temp = this.diffPage(oldPages[i], newPage.page);
+				this.updatePageRoot(oldPages[i]);
+				this.updatePageRoot(newPage.page);
+
+				var temp = this.diffCells(oldPages[i].root, newPage.page.root);
 				var pageDiff = {};
 
 				if (!mxUtils.isEmptyObject(temp))
@@ -909,17 +912,14 @@ EditorUi.prototype.diffCellRecursive = function(cell, prev, lookup, diff, remove
 /**
  * Removes all labels, user objects and styles from the given node in-place.
  */
-EditorUi.prototype.diffPage = function(oldPage, newPage)
+EditorUi.prototype.diffCells = function(oldRoot, newRoot)
 {
 	var inserted = [];
 	var removed = [];
 	var result = {};
-
-	this.updatePageRoot(oldPage);
-	this.updatePageRoot(newPage);
-
-	var lookup = this.createCellLookup(newPage.root);
-	var diff = this.diffCellRecursive(oldPage.root, null, lookup, diff, removed);
+	
+	var lookup = this.createCellLookup(newRoot);
+	var diff = this.diffCellRecursive(oldRoot, null, lookup, null, removed);
 
 	for (var id in lookup)
 	{

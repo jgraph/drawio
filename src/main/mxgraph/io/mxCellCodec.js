@@ -172,6 +172,12 @@ mxCodecRegistry.register(function()
 							var decoder = mxCodecRegistry.codecs[element.nodeName] || this;
 							object = decoder.decode(dec, element);
 						}
+						else if (window.console != null)
+						{
+							console.error('mxCellCodec.beforeDecode: ' +
+								this.idrefs[i] + ' ' + ref + ' not found' +
+								' for cell ' + obj.getId());
+						}
 					}
 					
 					obj[attr] = object;
