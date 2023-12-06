@@ -1071,6 +1071,7 @@ parentChildSpacing=Parent Child Spacing
 siblingSpacing=Espace entre colatéraux
 confNoPermErr=Sorry, you don't have enough permissions to view this embedded diagram from page {1}
 copyAsImage=Copier en tant qu'image
+copyAsText=Copy as Text
 lucidImport=Lucidchart Import
 lucidImportInst1=Click the "Start Import" button to import all Lucidchart diagrams.
 installFirst=Please install {1} first

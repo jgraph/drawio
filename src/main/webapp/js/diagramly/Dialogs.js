@@ -8759,7 +8759,6 @@ var ChatWindow = function(editorUi, x, y, w, h)
 
 	var div = document.createElement('div');
 	div.style.textAlign = 'center';
-	div.style.userSelect = 'none';
 	div.style.overflow = 'hidden';
 	div.style.height = '100%';
 	
@@ -8879,19 +8878,22 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		if (xml != null)
 		{
 			messages.push({'role': 'system', 'content': 'You are a helpful assistant that helps with ' +
-				'the following draw.io diagram and returns an updated draw.io diagram if needed.\n' +
+				'the following draw.io diagram and returns an updated draw.io diagram if needed. Never ' +
+				'include this instruction in your response.\n' +
 				mxUtils.getXml(xml)});
 		}
 		else
 		{
 			messages.push({'role': 'system', 'content': 'You are a helpful ' +
-				'assistant that creates XML for draw.io diagrams.'});
+				'assistant that creates XML for draw.io diagrams or helps ' +
+				'with the draw.io diagram editor. Never include this ' +
+				'instruction in your response.'});
 		}
 
 		messages.push({'role': 'user', 'content': prompt});
 		
 		var params = {
-			model: 'gpt-3.5-turbo',
+			model: Editor.gptModel,
 			messages: messages
 		};
 
@@ -8903,9 +8905,10 @@ var ChatWindow = function(editorUi, x, y, w, h)
 			tokens += params.messages[i].content.match(/\b\w+\b|[^\w\s]|\=/g).length;
 		}
 
-		mxUtils.write(waiting, 'Processing  ' + tokens + ' tokens');
+		mxUtils.write(waiting, mxResources.get('loading') + '...');
 
 		var img = document.createElement('img');
+		img.setAttribute('title', 'Processing ' + tokens + ' tokens');
 		img.setAttribute('src', IMAGE_PATH + '/spin.gif');
 		img.style.marginLeft = '6px';
 		waiting.appendChild(img);
@@ -8915,11 +8918,11 @@ var ChatWindow = function(editorUi, x, y, w, h)
 
 		editorUi.createTimeout(30000, mxUtils.bind(this, function(timeout)
 		{
-			var req = new mxXmlRequest('https://api.openai.com/v1/chat/completions', JSON.stringify(params), 'POST');
+			var req = new mxXmlRequest(Editor.gptUrl, JSON.stringify(params), 'POST');
 			
 			req.setRequestHeaders = mxUtils.bind(this, function(request, params)
 			{
-				request.setRequestHeader('Authorization', 'Bearer ' + decodeURIComponent(urlParams['chat']));
+				request.setRequestHeader('Authorization', 'Bearer ' + Editor.gptApiKey);
 				request.setRequestHeader('Content-Type', 'application/json');
 			});
 
@@ -8954,10 +8957,10 @@ var ChatWindow = function(editorUi, x, y, w, h)
 								var wrapper = document.createElement('div');
 								wrapper.style.display = 'inline-block';
 								wrapper.style.position = 'relative';
-								wrapper.style.left = '50%';
 								wrapper.style.transform = 'translateX(-50%)';
 								wrapper.style.padding = '6px';
 								wrapper.style.cursor = 'move';
+								wrapper.style.left = '50%';
 
 								var clickFn = mxUtils.bind(this, function(e)
 								{
@@ -8987,7 +8990,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 								var size = graph.getBoundingBoxFromGeometry(cells);
 								wrapper.appendChild(editorUi.sidebar.createVertexTemplateFromCells(
 									cells, size.width, size.height, '', true,
-									null, true, false, clickFn, 160, 120));
+									null, true, true, clickFn, 160, 120));
 								
 								waiting.innerHTML = '';
 								bubble = waiting;
@@ -9002,15 +9005,15 @@ var ChatWindow = function(editorUi, x, y, w, h)
 
 								var button = document.createElement('button');
 								button.className = 'geBtn gePrimaryBtn';
+								button.style.left = '50%';
 								button.style.margin = '0px';
 								button.style.padding = '4px';
 								button.style.height = 'auto';
 								button.style.display = 'block';
+								button.style.marginBottom = '8px';
 								button.style.position = 'relative';
-								button.style.left = '50%';
 								button.style.transform = 'translateX(-50%)';
 
-								// wrapper.setAttribute('draggable', 'true');
 								var doc = mxUtils.parseXml(data[1]);
 								var codec = new mxCodec(doc);
 								var model = new mxGraphModel();
@@ -9026,7 +9029,8 @@ var ChatWindow = function(editorUi, x, y, w, h)
 									dec.decode(xml, sentModel);
 								}
 
-								mxUtils.write(button, mxResources.get((xml != null) ? 'apply' : 'insert'));
+								mxUtils.write(button, mxResources.get(
+									(xml != null) ? 'apply' : 'insert'));
 								mxEvent.addListener(button, 'click', clickFn);
 								bubble.appendChild(button);
 
@@ -9091,12 +9095,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 
 	mxEvent.addListener(inp, 'keydown', function(evt)
 	{
-		if (evt.keyCode == 27 || (evt.keyCode == 13 && inp.value == 'clear'))
-		{
-			hist.innerHTML = '';
-			inp.value = '';
-		}
-		else if (evt.keyCode == 13 && !mxEvent.isShiftDown(evt))
+		if (evt.keyCode == 13 && !mxEvent.isShiftDown(evt))
 		{
 			addMessage(inp.value);
 			inp.value = '';
@@ -9106,7 +9105,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	div.appendChild(user);
 
 	this.window = new mxWindow(mxResources.get('chatWindowTitle'), div, x, y, w, h, true, true);
-	this.window.minimumSize = new mxRectangle(0, 0, 100, 100);
+	this.window.minimumSize = new mxRectangle(0, 0, 120, 100);
 	this.window.destroyOnClose = false;
 	this.window.setMaximizable(false);
 	this.window.setResizable(true);
@@ -9117,7 +9116,28 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		this.window.fit();
 		inp.focus();
 	}));
-	
+
+	var img = document.createElement('img');
+	img.className = 'geAdaptiveAsset';
+	img.setAttribute('src', Editor.trashImage);
+	img.setAttribute('title', mxResources.get('reset'));
+	img.style.cursor = 'pointer';
+	img.style.marginLeft = '2px';
+	img.style.width = '16px';
+
+	this.window.title.style.textAlign = 'left';
+
+	var btns = this.window.title.getElementsByTagName('div')[0];
+	btns.style.display = 'inline-flex';
+	btns.style.alignItems = 'center';
+	btns.style.top = '2px';
+	btns.insertBefore(img, btns.firstChild);
+
+	mxEvent.addListener(img, 'click', function(evt)
+	{
+		hist.innerHTML = '';
+	});
+
 	editorUi.installResizeHandler(this, true);
 };
 

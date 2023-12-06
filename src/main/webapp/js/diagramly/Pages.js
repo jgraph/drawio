@@ -638,15 +638,18 @@ EditorUi.prototype.initPages = function()
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-EditorUi.prototype.scrollToPage = function()
+EditorUi.prototype.scrollToPage = function(page)
 {
-	var index = this.getSelectedPageIndex();
+	var index = (page != null) ? this.getPageIndex(page) :
+		this.getSelectedPageIndex();
 
-	if (this.tabScroller != null && this.tabScroller.children.length > index &&
-		this.tabScroller.children[index] != null)
+	if (index != null && this.tabScroller != null && this.tabScroller.
+		children.length > index && this.tabScroller.children[index] != null &&
+		this.tabScroller.children[index].className != 'geTab gePageTab geActivePage')
 	{
 		this.tabScroller.children[index].scrollIntoView(
-			{block: 'nearest', inline: 'nearest'});
+			{block: 'nearest', inline: (page != null) ?
+			'nearest' : 'center'});
 		this.tabScroller.children[index].className =
 			'geTab gePageTab geActivePage';
 		lastSelectedElt = this.tabScroller.children[index];
@@ -969,12 +972,6 @@ Graph.prototype.addExtFont = function(fontName, fontUrl, dontRemember)
 	// KNOWN: Font not added when pasting cells with custom fonts
 	if (fontName && fontUrl)
 	{
-		if (urlParams['ext-fonts'] != '1')
-		{
-			// Adds inserted fonts to font family menu
-			Graph.recentCustomFonts[fontName.toLowerCase()] = {name: fontName, url: fontUrl};
-		}
-		
 		var fontId = 'extFont_' + fontName;
 
 		if (document.getElementById(fontId) == null)
@@ -1827,13 +1824,12 @@ EditorUi.prototype.addTabListeners = function(page, tab)
 		// Do not consume event here to allow for drag and drop of tabs
 		menuWasVisible = this.currentMenu != null;
 		pageWasActive = page == this.currentPage;
+		this.scrollToPage(page);
 		
 		if (!graph.isMouseDown && !pageWasActive)
 		{
 			this.selectPage(page);
 		}
-		
-		this.scrollToPage();
 	});
 
 	var onMouseUp = mxUtils.bind(this, function(evt)

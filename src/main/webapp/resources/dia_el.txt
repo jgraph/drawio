@@ -1071,6 +1071,7 @@ parentChildSpacing=Απόσταση Γονικού-θυγατρικού
 siblingSpacing=Απόσταση ισότιμων
 confNoPermErr=Δυστυχώς, δεν έχετε αρκετά δικαιώματα για να δείτε αυτό το ενσωματωμένο διάγραμμα από τη σελίδα {1}
 copyAsImage=Αντιγραφή ως Εικόνα
+copyAsText=Copy as Text
 lucidImport=Εισαγωγή Lucidchart
 lucidImportInst1=Επιλέξτε το "Έναρξη εισαγωγής" για να εισαγάγετε όλα τα διαγράμματα Lucidchart.
 installFirst=Παρακαλούμε εγκαταστήστε πρώτα το {1}

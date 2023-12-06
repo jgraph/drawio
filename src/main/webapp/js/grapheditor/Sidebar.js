@@ -282,6 +282,11 @@ Sidebar.prototype.defaultImageHeight = 80;
 Sidebar.prototype.tooltipMouseDown = null;
 
 /**
+ * Specifies if libraries are expanded by default. Default is true.
+ */
+Sidebar.prototype.expandLibraries = true;
+
+/**
  * Reloads the sidebar.
  */
 Sidebar.prototype.refresh = function()
@@ -354,14 +359,24 @@ Sidebar.prototype.appendChild = function(child)
  */
 Sidebar.prototype.getTooltipOffset = function(elt, bounds)
 {
-	var b = document.body;
-	var d = document.documentElement;
-	var bottom = Math.max(b.clientHeight || 0, d.clientHeight);
-	var height = bounds.height + 2 * this.tooltipBorder;
-	
-	return new mxPoint(this.container.offsetWidth + 2 + this.editorUi.container.offsetLeft,
-		Math.min(bottom - height - 20 /*status bar*/, Math.max(0, (this.editorUi.container.offsetTop +
-			this.container.offsetTop + elt.offsetTop - this.wrapper.scrollTop - height / 2 + 16))));
+	if (mxUtils.isAncestorNode(this.container, elt))
+	{
+		var b = document.body;
+		var d = document.documentElement;
+		var bottom = Math.max(b.clientHeight || 0, d.clientHeight);
+		var height = bounds.height + 2 * this.tooltipBorder;
+		
+		return new mxPoint(this.container.offsetWidth + 2 + this.editorUi.container.offsetLeft,
+			Math.min(bottom - height - 20 /*status bar*/, Math.max(0, (this.editorUi.container.offsetTop +
+				this.container.offsetTop + elt.offsetTop - this.wrapper.scrollTop - height / 2 + 16))));	
+	}
+	else
+	{
+		var rect = elt.getBoundingClientRect();
+
+		return new mxPoint(rect.x + rect.width + this.tooltipBorder,
+			rect.y + rect.height / 2 - bounds.height / 2 - 6);
+	}
 };
 
 /**
@@ -3954,7 +3969,7 @@ Sidebar.prototype.addPalette = function(id, title, expanded, onInit)
 		div.style.touchAction = 'none';
 	}
 
-	if (expanded)
+	if (expanded && this.expandLibraries)
 	{
 		onInit(div);
 		onInit = null;

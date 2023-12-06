@@ -1071,6 +1071,7 @@ parentChildSpacing=parentChildSpacing
 siblingSpacing=siblingSpacing
 confNoPermErr=confNoPermErr
 copyAsImage=copyAsImage
+copyAsText=copyAsText
 lucidImport=lucidImport
 lucidImportInst1=lucidImportInst1
 installFirst=installFirst

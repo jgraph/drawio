@@ -1071,6 +1071,7 @@ parentChildSpacing=Aita-semeen arteko tartea
 siblingSpacing=Anaien arteko tartea
 confNoPermErr=Barkatu, ez daukazu {1} orrian kapsulatutako diagrama ikusteko baimen nahikorik
 copyAsImage=Kopiatu irudi gisa
+copyAsText=Copy as Text
 lucidImport=Lucidchart inportazioa
 lucidImportInst1=Egin klik "Hasi inportazioa" botoian Lucidchart diagramak inportatzeko.
 installFirst=Aurretik {1} instalatu

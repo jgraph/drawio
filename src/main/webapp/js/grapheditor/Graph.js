@@ -3982,17 +3982,23 @@ Graph.prototype.createLayouts = function(list)
 };
 
 /**
- * Returns the metadata of the given cells as a JSON object.
+ * Returns the metadata of the given cells as a JSON object. The value with
+ * resolved placeholders for the label is included if includeValues is true.
  */
-Graph.prototype.getDataForCells = function(cells)
+Graph.prototype.getDataForCells = function(cells, includeValues)
 {
 	var result = [];
 
 	for (var i = 0; i < cells.length; i++)
 	{
-		var attrs = (cells[i].value != null) ? cells[i].value.attributes : null;
 		var row = {};
 		row.id = cells[i].id;
+		var attrs = (cells[i].value != null) ? cells[i].value.attributes : null;
+
+		if (this.isReplacePlaceholders(cells[i]) && includeValues)
+		{
+			row.value = this.getLabel(cells[i]);
+		}
 
 		if (attrs != null)
 		{

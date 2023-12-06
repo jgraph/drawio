@@ -1071,6 +1071,7 @@ parentChildSpacing=Vertikālo struktūru atstarpes
 siblingSpacing=Horizontālo struktūru atstarpes
 confNoPermErr=Atvainojiet, jums nav pietiekamas atļaujas, lai skatītu šo ievietoto diagrammu no lapas {1}
 copyAsImage=Kopēt kā attēlu
+copyAsText=Copy as Text
 lucidImport=Lucidchart importēšana
 lucidImportInst1=Noklikšķiniet uz pogas "Sākt importēšanu", lai importētu visas Lucidchart diagrammas
 installFirst=Lūdzu vispirms instalējiet {1}

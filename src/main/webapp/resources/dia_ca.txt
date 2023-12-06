@@ -1071,6 +1071,7 @@ parentChildSpacing=Espaiat entre Pares i Fills
 siblingSpacing=Espaiat entre Germans
 confNoPermErr=Ho sentim, no teniu prou permisos per veure aquest diagrama incrustat des de la pàgina {1}
 copyAsImage=Copia com a Imatge
+copyAsText=Copy as Text
 lucidImport=Importació de Lucidchart
 lucidImportInst1=Feu clic al botó "Iniciar importació" per importar tots els diagrames de Lucidchart.
 installFirst=Instal·leu {1} primer

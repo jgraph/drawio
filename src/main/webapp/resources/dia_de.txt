@@ -1071,6 +1071,7 @@ parentChildSpacing=Vertikaler Abstand
 siblingSpacing=Horizontaler Abstand
 confNoPermErr=Zugriff auf Diagramm von Seite {1} verweigert
 copyAsImage=Als Bild kopieren
+copyAsText=Als Text kopieren
 lucidImport=Lucidchart Import
 lucidImportInst1=Klicken Sie "Import Starten" um alle Lucidchart Diagramme zu importieren.
 installFirst=Bitte installieren Sie zuerst {1}

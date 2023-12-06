@@ -1071,6 +1071,7 @@ parentChildSpacing=Разстояние между родителските де
 siblingSpacing=Разстояние между братя и сестри
 confNoPermErr=За съжаление нямате достатъчно разрешения, за да видите тази вградена диаграма от страница {1}
 copyAsImage=Копирай като изображение
+copyAsText=Copy as Text
 lucidImport=Lucidchart внос
 lucidImportInst1=Щракнете върху бутона „Стартиране на импортирането“, за да импортирате всички диаграми на Lucidchart.
 installFirst=Моля, първо инсталирайте {1}

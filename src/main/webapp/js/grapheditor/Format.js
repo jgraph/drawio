@@ -2373,8 +2373,6 @@ ArrangePanel.prototype.addGeometry = function(container)
 
 					dyUpdate = this.addGeometryHandler(dy, function(geo, value)
 					{
-						console.log('value', value);
-
 						geo.y = panel.fromUnit(value);
 					});
 				}

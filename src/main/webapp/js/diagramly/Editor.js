@@ -270,6 +270,26 @@
 	Editor.defaultBorder = 5;
 
 	/**
+	 * Specifies the ChatGPT API key. Default is null.
+	 */
+	Editor.gptApiKey = (urlParams['gpt-api-key'] != null) ?
+		decodeURIComponent(urlParams['gpt-api-key']) : null;
+
+	/**
+	 * Specifies the ChatGPT model. Default is 'gpt-3.5-turbo'.
+	 */
+	Editor.gptModel = (urlParams['gpt-model'] != null) ?
+		decodeURIComponent(urlParams['gpt-model']) : 'gpt-3.5-turbo';
+	
+	/**
+	 * Specifies the ChatGPT endpoint URL. Default is
+	 * 'https://api.openai.com/v1/chat/completions'.
+	 */
+	Editor.gptUrl = (urlParams['gpt-url'] != null) ?
+		decodeURIComponent(urlParams['gpt-url']) :
+		'https://api.openai.com/v1/chat/completions';
+	
+	/**
 	 * Common properties for all edges.
 	 */
 	Editor.commonProperties = [
@@ -1929,6 +1949,11 @@
 				var t = document.getElementsByTagName('script')[0];
 			  	t.parentNode.insertBefore(s, t);
 			}
+
+			if (config.expandLibraries != null)
+			{
+				Sidebar.prototype.expandLibraries = config.expandLibraries;
+			}
 			
 			// Configures the custom libraries
 			if (config.libraries != null)
@@ -2156,6 +2181,21 @@
 			if (config.restrictExport != null)
 			{
 				DrawioFile.RESTRICT_EXPORT = config.restrictExport;
+			}
+
+			if (config.gptApiKey != null)
+			{
+				Editor.gptApiKey = config.gptApiKey;
+			}
+
+			if (config.gptModel != null)
+			{
+				Editor.gptModel = config.gptModel;
+			}
+
+			if (config.gptUrl != null)
+			{
+				Editor.gptUrl = config.gptUrl;
 			}
 		}
 	};
@@ -5644,11 +5684,6 @@
 	 * Lookup table for mapping from font URL and name to elements in the DOM.
 	 */
 	Graph.customFontElements = {};
-		
-	/**
-	 * Lookup table for recent custom fonts.
-	 */
-	Graph.recentCustomFonts = {};
 
 	/**
 	 * Returns true if the given font URL references a Google font.
@@ -5713,7 +5748,15 @@
 		
 		return elt;
 	};
-	
+		
+	/**
+	 * Adds an entry to the recent custom fonts list.
+	 */
+	Graph.addRecentCustomFont = function(key, entry)
+	{
+		// Hook for registering recent custom fonts in the UI
+	};
+
 	/**
 	 * Adds a font to the document.
 	 */
@@ -5723,7 +5766,7 @@
 		{
 			var key = name.toLowerCase();
 			
-			// Blocks UI font from being overwritten
+			// Blocks UI fonts from being overwritten
 			if (key != 'helvetica' && name != 'arial' && key != 'sans-serif')
 			{
 				var entry = Graph.customFontElements[key];
@@ -5747,7 +5790,6 @@
 
 					entry = {name: name, url: url, elt: Graph.createFontElement(name, realUrl)};
 					Graph.customFontElements[key] = entry;
-					Graph.recentCustomFonts[key] = entry;
 					var head = document.getElementsByTagName('head')[0];
 					
 					if (callback != null)

@@ -54,6 +54,71 @@
 		}
 	};
 
+	/**
+	 * Removes the given font from the list of custom fonts.
+	 */
+	Menus.prototype.removeCustomFont = function(name, url)
+	{
+		for (var i = 0; i < this.customFonts.length; i++)
+		{
+			if (this.customFonts[i].name == name &&
+				this.customFonts[i].url == url)
+			{
+				this.customFonts.splice(i, 1);
+				this.editorUi.fireEvent(
+					new mxEventObject('customFontsChanged',
+					'customFonts', this.customFonts));
+				
+				break;
+			}
+		}
+	};
+
+	/**
+	 * Returns true if the given font is in the list of custom fonts.
+	 */
+	Menus.prototype.containsFont = function(name, url)
+	{
+		for (var i = 0; i < this.customFonts.length; i++)
+		{
+			if (this.customFonts[i].name == name &&
+				this.customFonts[i].url == url)
+			{
+				return true;
+			}
+		}
+
+		for (var i = 0; i < this.defaultFonts.length; i++)
+		{
+			var value = this.defaultFonts[i];
+			
+			if ((typeof value !== 'string' &&
+				value.fontFamily == name &&
+				value.fontUrl == url) ||
+				(typeof value === 'string' &&
+				value == name && url == null))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	};
+
+	/**
+	 * Adds the given font to the list of custom fonts.
+	 */
+	Menus.prototype.addCustomFont = function(name, url)
+	{
+		if (name != null && !this.containsFont(name, url))
+		{
+			this.customFonts.push({name: name, url: url});
+			this.editorUi.fireEvent(
+				new mxEventObject('customFontsChanged',
+				'customFonts', this.customFonts));
+		}
+	};
+
 	var menusInit = Menus.prototype.init;
 	Menus.prototype.init = function()
 	{
@@ -1008,7 +1073,8 @@
 		action.setToggleAction(true);
 		action.setSelectedCallback(mxUtils.bind(this, function() { return this.tagsWindow != null && this.tagsWindow.window.isVisible(); }));
 
-		if (urlParams['chat'] != null)
+		if (Editor.gptApiKey != null && Editor.gptModel != null && Editor.gptUrl != null &&
+			!editorUi.isOffline() && !EditorUi.isElectronApp)
 		{
 			action = editorUi.actions.addAction('chatWindowTitle', mxUtils.bind(this, function()
 			{
@@ -4434,8 +4500,8 @@
 		viewPanelsMenu.funct = function(menu, parent)
 		{
 			var file = editorUi.getCurrentFile();
-			editorUi.menus.addMenuItems(menu, ['toggleShapes', 'format', 'ruler',
-				'-', 'findReplace', 'layers', 'tags', 'outline', '-'], parent);
+			editorUi.menus.addMenuItems(menu, ['toggleShapes', 'format', 'ruler', '-',
+				'findReplace', 'layers', 'tags', 'chatWindowTitle', 'outline', '-'], parent);
 
 			if (editorUi.commentsSupported())
 			{
@@ -5489,7 +5555,7 @@
 			{
 				var graph = editorUi.editor.graph;
 
-				var tr = this.styleChange(menu, fontLabel || fontName,
+				var tr = this.styleChange(menu, (fontLabel != null) ? fontLabel : fontName,
 					(urlParams['ext-fonts'] != '1') ?
 						[mxConstants.STYLE_FONTFAMILY, 'fontSource', 'FType'] : [mxConstants.STYLE_FONTFAMILY],
 					(urlParams['ext-fonts'] != '1') ?
@@ -5535,29 +5601,24 @@
 				
 				if (deletable)
 				{
-					var img = document.createElement('span');
-					img.className = 'geSprite geSprite-delete';
-					img.style.cursor = 'pointer';
-					img.style.display = 'inline-block';
+					var img = document.createElement('img');
+					img.className = 'geAdaptiveAsset';
+					img.setAttribute('src', Editor.crossImage);
+					img.setAttribute('title', mxResources.get('delete'));
+					img.setAttribute('valign', 'absmiddle');
+					img.setAttribute('border', '0');
+					img.style.position = 'relative';
+					img.style.top = '2px';
+					img.style.width = '14px';
+					img.style.cursor = 'default';
+					img.style.margin = '0 3px';
 					tr.firstChild.nextSibling.nextSibling.appendChild(img);
 					
 					mxEvent.addListener(img, (mxClient.IS_POINTER) ? 'pointerup' : 'mouseup', mxUtils.bind(this, function(evt)
 					{
 						if (urlParams['ext-fonts'] != '1')
 						{
-							delete Graph.recentCustomFonts[fontName.toLowerCase()];
-							
-							for (var i = 0; i < this.customFonts.length; i++)
-							{
-								if (this.customFonts[i].name == fontName &&
-									this.customFonts[i].url == fontUrl)
-								{
-									this.customFonts.splice(i, 1);
-									editorUi.fireEvent(new mxEventObject('customFontsChanged'));
-									
-									break;
-								}
-							}
+							this.removeCustomFont(fontName, fontUrl);
 						}
 						else
 						{
@@ -5598,10 +5659,14 @@
 				Graph.addFont(fontName, fontUrl);
 				tr.firstChild.nextSibling.style.fontFamily = fontName;
 				
-				if (tooltip != null)
+				var tooltip = (fontLabel != null) ? fontLabel : fontName;
+						
+				if (fontUrl != null)
 				{
-					tr.setAttribute('title', tooltip);
+					tooltip += ' (' + fontUrl + ')';
 				}
+
+				tr.setAttribute('title', tooltip);
 			});
 			
 			var reserved = {};
@@ -5658,16 +5723,10 @@
 					}
 				};
 				
-				// Adds custom user defined fonts from local storage
+				// Adds custom user-defined fonts from local storage
 				for (var i = 0; i < this.customFonts.length; i++)
 				{
 					addEntry(this.customFonts[i]);
-				}
-				
-				// Adds fonts that were recently used in the editor
-				for (var key in Graph.recentCustomFonts)
-				{
-					addEntry(Graph.recentCustomFonts[key]);
 				}
 				
 				// Sorts by label
@@ -5691,8 +5750,8 @@
 				{
 					for (var i = 0; i < entries.length; i++)
 					{
-						addItem(entries[i].name, entries[i].url, true,
-							entries[i].label, entries[i].url);
+						addItem(entries[i].name, entries[i].url,
+							true, entries[i].label);
 					}
 	
 					menu.addSeparator(parent);
@@ -5700,7 +5759,6 @@
 				
 				menu.addItem(mxResources.get('reset'), null, mxUtils.bind(this, function()
 				{
-					Graph.recentCustomFonts = {};
 					this.customFonts = [];
 					editorUi.fireEvent(new mxEventObject('customFontsChanged'));
 				}), parent);
@@ -5795,16 +5853,19 @@
 
 							while (temp != null && temp != graph.cellEditor.textarea)
 							{
-								if (temp.getAttribute('data-font-src') != null)
+								if (temp.nodeType == mxConstants.NODETYPE_ELEMENT)
 								{
-									curUrl = temp.getAttribute('data-font-src');
-									break;
-								}
-								else if (temp.getAttribute('face') == curFontName)
-								{
-									// Means that a system font is used for the element
-									curUrl = null;
-									break;
+									if (temp.getAttribute('data-font-src') != null)
+									{
+										curUrl = temp.getAttribute('data-font-src');
+										break;
+									}
+									else if (temp.getAttribute('face') == curFontName)
+									{
+										// Means that a system font is used for the element
+										curUrl = null;
+										break;
+									}
 								}
 
 								temp = temp.parentNode;
@@ -5900,6 +5961,8 @@
 					
 					if (fontName != null && fontName.length > 0)
 					{
+						this.addCustomFont(fontName, fontUrl);
+
 						if (urlParams['ext-fonts'] != '1' && graph.isEditing())
 						{
 							graph.setFont(fontName, fontUrl);
@@ -5934,23 +5997,6 @@
 										
 										this.editorUi.editor.graph.addExtFont(fontName, fontUrl);
 									}
-								}
-								
-								var addToCustom = true;
-								
-								for (var i = 0; i < this.customFonts.length; i++)
-								{
-									if (this.customFonts[i].name == fontName)
-									{
-										addToCustom = false;
-										break;
-									}
-								}
-								
-								if (addToCustom)
-								{
-									this.customFonts.push({name: fontName, url: fontUrl});
-									this.editorUi.fireEvent(new mxEventObject('customFontsChanged', 'customFonts', this.customFonts));
 								}
 							}
 							finally

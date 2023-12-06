@@ -1071,6 +1071,7 @@ parentChildSpacing=Jarak Antara Induk Anak
 siblingSpacing=Jarak Antara Sejajar
 confNoPermErr=Maaf, Anda tidak punya cukup izin untuk melihat diagram tertanam dari halaman {1} ini
 copyAsImage=Salin sebagai gambar
+copyAsText=Copy as Text
 lucidImport=Impor Lucidchart
 lucidImportInst1=Klik tombol "Mulai Impor" untuk mengimpor semua diagram Lucidchart.
 installFirst=Harap pasang {1} terlebih dahulu

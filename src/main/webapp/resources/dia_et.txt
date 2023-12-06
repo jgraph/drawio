@@ -1071,6 +1071,7 @@ parentChildSpacing=Ülema alama vahekaugus
 siblingSpacing=Samal tasemel vahekaugus
 confNoPermErr=Sorry, you don't have enough permissions to view this embedded diagram from page {1}
 copyAsImage=Kopeerige pildina
+copyAsText=Copy as Text
 lucidImport=Lucidchart Import
 lucidImportInst1=Click the "Start Import" button to import all Lucidchart diagrams.
 installFirst=Please install {1} first

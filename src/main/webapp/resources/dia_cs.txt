@@ -1071,6 +1071,7 @@ parentChildSpacing=Rozestupy mezi nadřazeným a podřízeným prvkem
 siblingSpacing=Rozestupy mezi prvky na stejné úrovni
 confNoPermErr=Je nám líto, ale nemáte dostatečné oprávnění pro zobrazení tohoto vestavěného diagramu ze stránky {1}
 copyAsImage=Zkopírovat jako obrázek
+copyAsText=Copy as Text
 lucidImport=Import Lucidchart
 lucidImportInst1=Pokud chcete importovat všechny Lucidchart diagramy, klikněte na tlačítko „Zahájit import“.
 installFirst=Nejprve nainstalujte {1}

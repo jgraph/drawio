@@ -1071,6 +1071,7 @@ parentChildSpacing=Marge tussen niveaus
 siblingSpacing=Marge binnen niveaus
 confNoPermErr=Sorry, je hebt niet genoeg rechten om dit ingesloten diagram vanaf pagina {1} te bekijken
 copyAsImage=Kopiëren als afbeelding
+copyAsText=Copy as Text
 lucidImport=Lucidchart importeren
 lucidImportInst1=Klik op de knop "Import starten" om alle Lucidchart-diagrammen te importeren.
 installFirst=Installeer eerst {1}

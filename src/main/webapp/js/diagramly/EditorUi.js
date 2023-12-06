@@ -4055,9 +4055,16 @@
 					{
 						s += 'aspect=fixed;'
 					}
+
+					s = s + 'image=' + data + ';';
+
+					if (img.style != null)
+					{
+						s += img.style;
+					}
 					
-					content.appendChild(this.sidebar.createVertexTemplate(s + 'image=' +
-						data, img.w, img.h, '', img.title || '', false, null, true));
+					content.appendChild(this.sidebar.createVertexTemplate(s,
+						img.w, img.h, '', img.title || '', false, null, true));
 				}
 				else if (img.xml != null)
 				{

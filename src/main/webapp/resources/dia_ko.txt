@@ -1071,6 +1071,7 @@ parentChildSpacing=부모 자식 간격
 siblingSpacing=형제 간격
 confNoPermErr={1}페이지에 포함된 다이어그램을 볼 수 있는 권한이 부족합니다.
 copyAsImage=이미지로 복사
+copyAsText=Copy as Text
 lucidImport=Lucidchart 불러오기
 lucidImportInst1=Lucidchart 다이어그램을 draw.io로 불러오려면 "Lucidchart 불러오기"버튼을 선택하세요.
 installFirst={1} 을 먼저 설치하세요.

@@ -499,7 +499,7 @@ EditorUi = function(editor, container, lightbox)
 	
 		// Contains the main graph instance inside the given panel
 		graph.init(this.diagramContainer);
-	
+		
 	    // Improves line wrapping for in-place editor
 	    if (mxClient.IS_SVG && graph.view.getDrawPane() != null)
 	    {

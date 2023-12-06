@@ -1,3 +1,15 @@
+06-DEC-2023: 22.1.7
+
+- Fixes possible getAttribute is not a function
+
+06-DEC-2023: 22.1.6
+
+- Adds custom fonts to list only after graph changes
+- Adds style option for image libraries [DID-10031]
+- Adds expandLibraries config switch [drawio-1737]
+- Adds label value in edit data export [drawio-3949]
+- Updates GCP icons [drawio-3254]
+
 29-NOV-2023: 22.1.5
 
 - Fixes forwards refs for undo of replaceDiagramData

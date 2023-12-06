@@ -1728,7 +1728,7 @@ var EditDataDialog = function(ui, cell)
 
 	var exportBtn = mxUtils.button(mxResources.get('export'), mxUtils.bind(this, function(evt)
 	{
-		var result = graph.getDataForCells([cell]);
+		var result = graph.getDataForCells([cell], true);
 
 		var dlg = new EmbedDialog(ui, JSON.stringify(result, null, 2), null, null, function()
 		{

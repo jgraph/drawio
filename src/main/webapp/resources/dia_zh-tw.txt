@@ -1071,6 +1071,7 @@ parentChildSpacing=父子間距
 siblingSpacing=兄弟間距
 confNoPermErr=抱歉，您沒有檢視頁面 {1} 中嵌入圖表的權限
 copyAsImage=複製為圖片
+copyAsText=Copy as Text
 lucidImport=匯入 Lucidchart
 lucidImportInst1=點擊「開始匯入」按鈕並匯入所有 Lucidchart 圖表。
 installFirst=請先安裝 {1}
