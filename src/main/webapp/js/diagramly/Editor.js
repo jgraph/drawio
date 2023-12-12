@@ -1955,6 +1955,11 @@
 				Sidebar.prototype.expandLibraries = config.expandLibraries;
 			}
 			
+			if (config.appendCustomLibraries != null)
+			{
+				Sidebar.prototype.appendCustomLibraries = config.appendCustomLibraries;
+			}
+			
 			// Configures the custom libraries
 			if (config.libraries != null)
 			{
@@ -4904,15 +4909,18 @@
 				clrDiv.style.height = '4px';
 				clrDiv.style.margin = '2px';
 				clrDiv.style.border = '1px solid black';
-				clrDiv.style.background = !pValue || pValue == 'none'? 'url(\'' + Dialog.prototype.noColorImage + '\')' : pValue;
+				clrDiv.style.background = !pValue || pValue == 'none'?
+					'url(\'' + Dialog.prototype.noColorImage + '\')' : pValue;
 
 				btn = mxUtils.button('', mxUtils.bind(that, function(evt)
 				{
 					this.editorUi.pickColor(pValue, function(color)
 					{
-						clrDiv.style.background = color == 'none'? 'url(\'' + Dialog.prototype.noColorImage + '\')' : color;
+						clrDiv.style.background = color == 'none'?
+							'url(\'' + Dialog.prototype.noColorImage + '\')' : color;
 						applyStyleVal(pName, color, prop);
 					});
+					
 					mxEvent.consume(evt);
 				}));
 				
@@ -4929,7 +4937,9 @@
 				if (pValue != null)
 				{
 					var vals = pValue.split(',');
-					secondLevel.push({name: pName, values: vals, type: subType, defVal: defVal, countProperty: countProperty, parentRow: myRow, isDeletable: true, flipBkg: flipBkg});
+					secondLevel.push({name: pName, values: vals, type: subType,
+						defVal: defVal, countProperty: countProperty,
+						parentRow: myRow, isDeletable: true, flipBkg: flipBkg});
 				}
 				
 				btn = mxUtils.button('+', mxUtils.bind(that, function(evt)
@@ -4953,7 +4963,8 @@
 						}
 					}
 					
-					var newProp = {type: subType, parentRow: myRow, index: index, isDeletable: true, defVal: defVal, countProperty: countProperty};
+					var newProp = {type: subType, parentRow: myRow, index: index,
+						isDeletable: true, defVal: defVal, countProperty: countProperty};
 					var arrItem = createPropertyRow(pName, '', newProp, index % 2 == 0, flipBkg);
 					applyStyleVal(pName, defVal, newProp);
 					insertAfter(arrItem, beforeElem);

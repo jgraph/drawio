@@ -1356,7 +1356,8 @@ Menus.prototype.pickColor = function(key, cmd, defaultValue)
 			// Saves and restores text selection for in-place editor
 			var selState = graph.cellEditor.saveSelection();
 			
-			var dlg = new ColorDialog(this.editorUi, defaultValue || graph.shapeForegroundColor, mxUtils.bind(this, function(color)
+			var dlg = new ColorDialog(this.editorUi, defaultValue || graph.shapeForegroundColor,
+				mxUtils.bind(this, function(color)
 			{
 				graph.cellEditor.restoreSelection(selState);
 				document.execCommand(cmd, false, (color != mxConstants.NONE) ? color : 'transparent');

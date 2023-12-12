@@ -642,17 +642,20 @@ EditorUi.prototype.scrollToPage = function(page)
 {
 	var index = (page != null) ? this.getPageIndex(page) :
 		this.getSelectedPageIndex();
-
-	if (index != null && this.tabScroller != null && this.tabScroller.
-		children.length > index && this.tabScroller.children[index] != null &&
-		this.tabScroller.children[index].className != 'geTab gePageTab geActivePage')
+	var scrollPage = (page != null) ?
+		page : this.currentPage;
+	
+	if (index != null && this.tabScroller != null &&
+		this.tabScroller.children.length > index &&
+		this.tabScroller.children[index] != null &&
+		scrollPage != this.lastScrollPage)
 	{
 		this.tabScroller.children[index].scrollIntoView(
 			{block: 'nearest', inline: (page != null) ?
 			'nearest' : 'center'});
 		this.tabScroller.children[index].className =
 			'geTab gePageTab geActivePage';
-		lastSelectedElt = this.tabScroller.children[index];
+		this.lastScrollPage = scrollPage;
 	}
 };
 

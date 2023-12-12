@@ -5744,6 +5744,10 @@ App.prototype.loadLibraries = function(libs, done)
 									onerror();
 								}, null, true);
 							}
+							else
+							{
+								onerror(true);
+							}
 						}
 						else if (service == 'R')
 						{

@@ -1,3 +1,12 @@
+12-DEC-2023: 22.1.8
+
+- Adds color option in freehand dialog [drawio-3454]
+- Fixes reset icon for recent colors in dark mode
+- Adds appendCustomLibraries config switch [drawio-4027]
+- Fixes direction of edges in horizontal tree layout [DID-10171]
+- Sets edgeStyle for edges inserted from sidebar [drawio-1122]
+- Fixes scroll to inserted page tab
+
 06-DEC-2023: 22.1.7
 
 - Fixes possible getAttribute is not a function

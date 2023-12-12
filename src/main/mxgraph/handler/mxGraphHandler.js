@@ -417,29 +417,6 @@ mxGraphHandler.prototype.setRemoveCellsFromParent = function(value)
 };
 
 /**
- * Function: isAncestorSelected
- * 
- * Returns true if the given cell and parent should propagate
- * selection state to the parent.
- */
-mxGraphHandler.prototype.isAncestorSelected = function(cell)
-{
-	var parent = this.graph.model.getParent(cell);
-
-	while (parent != null)
-	{
-		if (this.graph.isCellSelected(parent))
-		{
-			return true;
-		}
-		
-		parent = this.graph.model.getParent(parent);
-	}
-
-	return false;
-};
-
-/**
  * Function: isPropagateSelectionCell
  * 
  * Returns true if the given cell and parent should propagate
@@ -1120,7 +1097,7 @@ mxGraphHandler.prototype.mouseMove = function(sender, me)
 			{
 				graph.addSelectionCell(this.cell);
 			}
-			else if (!this.isAncestorSelected(this.cell))
+			else if (!this.graph.isAncestorSelected(this.cell))
 			{
 				graph.setSelectionCell(this.cell);
 			}

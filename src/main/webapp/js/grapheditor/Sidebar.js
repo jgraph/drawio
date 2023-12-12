@@ -152,11 +152,6 @@ Sidebar.prototype.collapsedImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/collapsed
 Sidebar.prototype.expandedImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/expanded.gif' : 'data:image/gif;base64,R0lGODlhDQANAIABAJmZmf///yH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4wLWMwNjAgNjEuMTM0Nzc3LCAyMDEwLzAyLzEyLTE3OjMyOjAwICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDoxREY3NzBERjZGNUYxMUU1QjZEOThCNDYxMDQ2MzNCQiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDoxREY3NzBFMDZGNUYxMUU1QjZEOThCNDYxMDQ2MzNCQiI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjFERjc3MERENkY1RjExRTVCNkQ5OEI0NjEwNDYzM0JCIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjFERjc3MERFNkY1RjExRTVCNkQ5OEI0NjEwNDYzM0JCIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAQAAAQAsAAAAAA0ADQAAAhGMj6nL3QAjVHIu6azbvPtWAAA7';
 
 /**
- * 
- */
-Sidebar.prototype.searchImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/search.png' : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAAEaSURBVHjabNGxS5VxFIfxz71XaWuQUJCG/gCHhgTD9VpEETg4aMOlQRp0EoezObgcd220KQiXmpretTAHQRBdojlQEJyukPdt+b1ywfvAGc7wnHP4nlZd1yKijQW8xzNc4Su+ZOYfQ3T6/f4YNvEJYzjELXp4VVXVz263+7cR2niBxAFeZ2YPi3iHR/gYERPDwhpOsd6sz8x/mfkNG3iOlWFhFj8y89J9KvzGXER0GuEaD42mgwHqUtoljbcRsTBCeINpfM/MgZLKPpaxFxGbOCqDXmILN7hoJrTKH+axhxmcYRxP0MIDnOBDZv5q1XUNIuJxifJp+UNV7t7BFM6xeic0RMQ4Bpl5W/ol7GISx/eEUUTECrbx+f8A8xhiZht9zsgAAAAASUVORK5CYII=';
-
-/**
  * Specifies if tooltips should be visible. Default is true.
  */
 Sidebar.prototype.enableTooltips = true;
@@ -1011,11 +1006,15 @@ Sidebar.prototype.addSearchPalette = function(expand)
 	inner.appendChild(input);
 
 	var cross = document.createElement('img');
-	cross.setAttribute('src', Sidebar.prototype.searchImage);
+	cross.setAttribute('src', Editor.magnifyImage);
 	cross.setAttribute('title', mxResources.get('search'));
+	cross.className = 'geAdaptiveAsset';
 	cross.style.position = 'relative';
-	cross.style.left = '-18px';
-	cross.style.top = '1px';
+	cross.style.cursor = 'pointer';
+	cross.style.opacity = '0.5';
+	cross.style.height = '16px';
+	cross.style.left = '-20px';
+	cross.style.top = '4px';
 
 	// Needed to block event transparency in IE
 	cross.style.background = 'url(\'' + this.editorUi.editor.transparentImage + '\')';
@@ -1074,7 +1073,7 @@ Sidebar.prototype.addSearchPalette = function(expand)
 
 	function resetSearch()
 	{
-		cross.setAttribute('src', Sidebar.prototype.searchImage);
+		cross.setAttribute('src', Editor.magnifyImage);
 		cross.setAttribute('title', mxResources.get('search'));
 		button.style.display = 'none';
 		input.value = '';
@@ -1084,7 +1083,7 @@ Sidebar.prototype.addSearchPalette = function(expand)
 		
 	mxEvent.addListener(cross, 'click', function()
 	{
-		if (cross.getAttribute('src') == Dialog.prototype.closeImage)
+		if (cross.getAttribute('src') != Editor.magnifyImage)
 		{
 			resetSearch();
 		}
@@ -1254,12 +1253,12 @@ Sidebar.prototype.addSearchPalette = function(expand)
 		{
 			if (input.value == '')
 			{
-				cross.setAttribute('src', Sidebar.prototype.searchImage);
+				cross.setAttribute('src', Editor.magnifyImage);
 				cross.setAttribute('title', mxResources.get('search'));
 			}
 			else
 			{
-				cross.setAttribute('src', Dialog.prototype.closeImage);
+				cross.setAttribute('src', Editor.crossImage);
 				cross.setAttribute('title', mxResources.get('reset'));
 			}
 			

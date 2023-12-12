@@ -1915,7 +1915,7 @@
 				this.currentPage.root = this.editor.graph.model.root;
 				
 				// Scrolls to current page
-				this.scrollToPage();				
+				this.scrollToPage();
 			}
 			
 			if (urlParams['layer-ids'] != null)
@@ -3370,32 +3370,36 @@
 	/**
 	 * Changes the position of the library in the sidebar 
 	 */
-	EditorUi.prototype.repositionLibrary = function(nextChild) 
+	EditorUi.prototype.repositionLibrary = function(nextChild, append) 
 	{
 	    var c = this.sidebar.getEntryContainer();
-	    
-	    if (nextChild == null)
-	    {
-	    	var elts = this.sidebar.palettes['L.scratchpad'];
-	    	
-	    	if (elts == null)
-	    	{
-	    		elts = this.sidebar.palettes['search'];
-	    	}
-	    	
-	    	if (elts != null)
-	    	{
-	    		nextChild = elts[elts.length - 1].nextSibling;
-	    	}
-	    }
-	    
-		nextChild = (nextChild != null) ? nextChild : c.firstChild.nextSibling.nextSibling;
-		
-		var content = c.lastChild;
-		var title = content.previousSibling;
-		
-	    c.insertBefore(content, nextChild);
-	    c.insertBefore(title, content);
+
+		if (nextChild == null && (!append ||
+			!this.sidebar.appendCustomLibraries))
+		{
+			if (nextChild == null)
+			{
+				var elts = this.sidebar.palettes['L.scratchpad'];
+				
+				if (elts == null)
+				{
+					elts = this.sidebar.palettes['search'];
+				}
+				
+				if (elts != null)
+				{
+					nextChild = elts[elts.length - 1].nextSibling;
+				}
+			}
+			
+			nextChild = (nextChild != null) ? nextChild : c.firstChild.nextSibling.nextSibling;
+			
+			var content = c.lastChild;
+			var title = content.previousSibling;
+			
+			c.insertBefore(content, nextChild);
+			c.insertBefore(title, content);
+		}
 	}
 	
 	/**
@@ -3553,7 +3557,7 @@
 			library.div = contentDiv;
 		}
 	
-		this.repositionLibrary(nextSibling);
+		this.repositionLibrary(nextSibling, file.getHash() != 'L.scratchpad');
 		
 		// Adds tooltip for backend
 		var title = contentDiv.parentNode.previousSibling;

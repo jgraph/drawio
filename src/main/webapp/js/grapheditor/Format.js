@@ -1106,7 +1106,7 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 		this.editorUi.pickColor(color, function(newColor)
 		{
 			apply(newColor, null, true);
-		}, defaultColorValue);
+		});
 
 		mxEvent.consume(evt);
 	}));

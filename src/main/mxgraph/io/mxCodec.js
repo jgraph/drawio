@@ -303,6 +303,17 @@ mxCodec.prototype.addElement = function(node)
 };
 
 /**
+ * Function: isObjectIgnored
+ *
+ * Returns true if the given object is ignored by the codec. This
+ * implementation always returns false.
+ */
+mxCodec.prototype.isObjectIgnored = function(obj)
+{
+	return false;
+};
+
+/**
  * Function: getId
  *
  * Returns the ID of the specified object. This implementation
@@ -319,7 +330,7 @@ mxCodec.prototype.getId = function(obj)
 {
 	var id = null;
 	
-	if (obj != null)
+	if (obj != null && !this.isObjectIgnored(obj))
 	{
 		id = this.reference(obj);
 		
@@ -383,7 +394,7 @@ mxCodec.prototype.encode = function(obj)
 {
 	var node = null;
 	
-	if (obj != null && obj.constructor != null)
+	if (obj != null && obj.constructor != null && !this.isObjectIgnored(obj))
 	{
 		var enc = mxCodecRegistry.getCodec(obj.constructor);
 		
@@ -503,15 +514,18 @@ mxCodec.prototype.getConstructor = function(name)
  */
 mxCodec.prototype.encodeCell = function(cell, node, includeChildren)
 {
-	node.appendChild(this.encode(cell));
-	
-	if (includeChildren == null || includeChildren)
+	if (!this.isObjectIgnored(cell))
 	{
-		var childCount = cell.getChildCount();
+		node.appendChild(this.encode(cell));
 		
-		for (var i = 0; i < childCount; i++)
+		if (includeChildren == null || includeChildren)
 		{
-			this.encodeCell(cell.getChildAt(i), node);
+			var childCount = cell.getChildCount();
+			
+			for (var i = 0; i < childCount; i++)
+			{
+				this.encodeCell(cell.getChildAt(i), node);
+			}
 		}
 	}
 };

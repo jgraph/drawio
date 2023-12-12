@@ -270,6 +270,10 @@ a.geStatus .geStatusMessage {
 .geEditor select:hover:not([disabled]), .geColorBtn:hover:not([disabled]) {
 	background:#e5e5e5;
 }
+.geEditor button:active:not([disabled], .geBigButton, .geShareBtn),
+.geColorBtn:active:not([disabled]) {
+	opacity:0.7;
+}
 .geColorDropper {
 	cursor:pointer;
 	opacity:0.7;
@@ -565,6 +569,7 @@ html body div.geActivePage, .geRuler {
 	font-weight: 600;
 	display: inline-flex;
 	align-items: center;
+	cursor: move;
 }
 .gePageTab {
 	padding: 0px 12px 0px 12px;

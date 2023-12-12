@@ -442,7 +442,7 @@
 						var withBrush = !mxClient.IS_IE && !mxClient.IS_IE11;
 						editorUi.freehandWindow = new FreehandWindow(
 							editorUi, document.body.offsetWidth - 420, 102, 176,
-							withBrush? 120 : 84, withBrush);
+							withBrush? 126 : 90, withBrush);
 					}
 					
 					if (graph.freehand.isDrawing())

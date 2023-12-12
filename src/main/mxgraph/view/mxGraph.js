@@ -12317,6 +12317,29 @@ mxGraph.prototype.isCellSelected = function(cell)
 };
 
 /**
+ * Function: isAncestorSelected
+ * 
+ * Returns true if the given cell and parent should propagate
+ * selection state to the parent.
+ */
+mxGraph.prototype.isAncestorSelected = function(cell)
+{
+	var parent = this.model.getParent(cell);
+
+	while (parent != null)
+	{
+		if (this.isCellSelected(parent))
+		{
+			return true;
+		}
+		
+		parent = this.model.getParent(parent);
+	}
+
+	return false;
+};
+
+/**
  * Function: isSelectionEmpty
  * 
  * Returns true if the selection is empty.
