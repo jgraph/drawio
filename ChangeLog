@@ -1,3 +1,10 @@
+14-DEC-2023: 21.1.9
+
+- Scrolls to loaded libraries, fixes library export to browser
+- Fixes library moved to end after edit
+- Fixes relative links in print preview
+- Alt+Shift+Drag ignores cell under mouse if selection not empty
+
 12-DEC-2023: 22.1.8
 
 - Adds color option in freehand dialog [drawio-3454]

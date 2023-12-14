@@ -1103,9 +1103,17 @@ mxGraphHandler.prototype.mouseMove = function(sender, me)
 			}
 		}
 
+		var cells = graph.getSelectionCells();
+
+		if (!this.graph.isToggleEvent(me.getEvent()) ||
+			!mxEvent.isAltDown(me.getEvent()) ||
+			graph.isSelectionEmpty())
+		{
+			cells = cells.concat(me.getCell());
+		}
+
 		this.start(this.cell, this.mouseDownX, this.mouseDownY,
-			this.getCells(null, graph.getSelectionCells().
-				concat(me.getCell())));
+			this.getCells(null, cells));
 	}
 
 	var delta = (this.first != null) ? this.getDelta(me) : null;

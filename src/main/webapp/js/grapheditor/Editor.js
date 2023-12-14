@@ -1705,7 +1705,14 @@ PrintDialog.createPrintPreview = function(graph, scale, pf, border, x0, y0, auto
 	}
 	
 	preview.backgroundColor = bg;
-	
+
+	var getLinkForCellState = preview.getLinkForCellState;
+
+	preview.getLinkForCellState = function(state)
+	{
+		return graph.getAbsoluteUrl(getLinkForCellState.apply(this, arguments));
+	};
+
 	var writeHead = preview.writeHead;
 	
 	// Adds a border in the preview

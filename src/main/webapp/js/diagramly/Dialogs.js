@@ -8887,7 +8887,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	inner.style.cursor = 'default';
 
 	var inp = document.createElement('input');
-	inp.setAttribute('placeholder', 'Ask me anything');
+	inp.setAttribute('placeholder', mxResources.get('askMeAnything'));
 	inp.setAttribute('type', 'text');
 	inp.style.width = '100%';
 	inp.style.outline = 'none';

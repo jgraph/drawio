@@ -3368,14 +3368,14 @@
 	};
 	
 	/**
-	 * Changes the position of the library in the sidebar 
+	 * Changes the position of the library in the sidebar.
 	 */
 	EditorUi.prototype.repositionLibrary = function(nextChild, append) 
 	{
 	    var c = this.sidebar.getEntryContainer();
 
-		if (nextChild == null && (!append ||
-			!this.sidebar.appendCustomLibraries))
+		if (!this.sidebar.appendCustomLibraries ||
+			nextChild != null || !append)
 		{
 			if (nextChild == null)
 			{
@@ -3400,7 +3400,7 @@
 			c.insertBefore(content, nextChild);
 			c.insertBefore(title, content);
 		}
-	}
+	};
 	
 	/**
 	 * Translates this point by the given vector.
