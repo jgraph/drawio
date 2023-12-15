@@ -1307,12 +1307,37 @@ Actions.prototype.init = function()
 	toggleFontStyle('underline', mxConstants.FONT_UNDERLINE, function() { document.execCommand('underline', false, null); }, Editor.ctrlKey + '+U');
 	
 	// Color actions
-	this.addAction('fontColor...', function() { ui.menus.pickColor(mxConstants.STYLE_FONTCOLOR, 'forecolor', '000000'); });
-	this.addAction('strokeColor...', function() { ui.menus.pickColor(mxConstants.STYLE_STROKECOLOR); });
-	this.addAction('fillColor...', function() { ui.menus.pickColor(mxConstants.STYLE_FILLCOLOR); });
-	this.addAction('gradientColor...', function() { ui.menus.pickColor(mxConstants.STYLE_GRADIENTCOLOR); });
-	this.addAction('backgroundColor...', function() { ui.menus.pickColor(mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, 'backcolor'); });
-	this.addAction('borderColor...', function() { ui.menus.pickColor(mxConstants.STYLE_LABEL_BORDERCOLOR); });
+	this.addAction('fontColor...', function()
+	{
+		ui.menus.pickColor(mxConstants.STYLE_FONTCOLOR,
+			'forecolor', '000000', 'default',
+			graph.shapeForegroundColor);
+	});
+	this.addAction('strokeColor...', function()
+	{
+		ui.menus.pickColor(mxConstants.STYLE_STROKECOLOR, null,
+			null, 'default', graph.shapeForegroundColor);
+	});
+	this.addAction('fillColor...', function()
+	{
+		ui.menus.pickColor(mxConstants.STYLE_FILLCOLOR, null,
+			null, 'default', graph.shapeBackgroundColor);
+	});
+	this.addAction('gradientColor...', function()
+	{
+		ui.menus.pickColor(mxConstants.STYLE_GRADIENTCOLOR, null,
+			null, 'default', graph.shapeForegroundColor);
+	});
+	this.addAction('backgroundColor...', function()
+	{
+		ui.menus.pickColor(mxConstants.STYLE_LABEL_BACKGROUNDCOLOR,
+			'backcolor', null, 'default', graph.shapeBackgroundColor);
+	});
+	this.addAction('borderColor...', function()
+	{
+		ui.menus.pickColor(mxConstants.STYLE_LABEL_BORDERCOLOR,
+			null, null, 'default', graph.shapeForegroundColor);
+	});
 	
 	// Format actions
 	this.addAction('removeFormat', function()

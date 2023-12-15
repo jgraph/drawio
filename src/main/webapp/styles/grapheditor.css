@@ -20,6 +20,9 @@
 .geDarkMode .geAdaptiveAsset {
 	filter:none !important
 }
+.geDarkMode .geColorBtn > div {
+	border-color: #ffffff !important;
+}
 .geEditor {
 	position:absolute;
 	width:100%;

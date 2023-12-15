@@ -1,3 +1,11 @@
+15-DEC-2023: 21.1.11
+
+- Fixes default edge style overrides edges in sidebar [drawio-4038]
+
+15-DEC-2023: 21.1.10
+
+- Release stopped due to NPE in testing
+
 14-DEC-2023: 21.1.9
 
 - Scrolls to loaded libraries, fixes library export to browser

@@ -170,7 +170,8 @@ EditorUi = function(editor, container, lightbox)
 					'cells', [cell], 'force', true));
 				
 				// Blocks update of default style with style changes
-				// once the it was set using this function
+				// and allows change of edge style if default style
+				// was changed using this function via app UI
 				if (graph.getModel().isEdge(cell))
 				{
 					edgeStyleIgnored = true;
@@ -334,7 +335,11 @@ EditorUi = function(editor, container, lightbox)
 						var key = appliedStyles[j];
 						var styleValue = current[key];
 	
-						if (styleValue != null && (key != 'shape' || edge))
+						// Edge style is only applied if user assigned a
+						// default style using the respective button but
+						// not if the edge style is globally configured
+						if (styleValue != null && (key != 'edgeStyle' ||
+							edgeStyleIgnored) && (key != 'shape' || edge))
 						{
 							// Special case: Some styles are not applied here but in the connection handler
 							if (!edge || applyAll || mxUtils.indexOf(ignoredEdgeStyles, key) < 0)
@@ -5643,7 +5648,7 @@ EditorUi.prototype.ctrlEnter = function()
 /**
  * Display a color dialog.
  */
-EditorUi.prototype.pickColor = function(color, apply, defaultColor)
+EditorUi.prototype.pickColor = function(color, apply, defaultColor, defaultColorValue)
 {
 	var graph = this.editor.graph;
 	var selState = graph.cellEditor.saveSelection();
@@ -5658,7 +5663,7 @@ EditorUi.prototype.pickColor = function(color, apply, defaultColor)
 	}, function()
 	{
 		graph.cellEditor.restoreSelection(selState);
-	}, defaultColor);
+	}, defaultColor, defaultColorValue);
 	
 	this.showDialog(dlg.container, 230, h, true, false);
 	dlg.init();

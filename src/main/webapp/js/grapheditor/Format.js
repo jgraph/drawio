@@ -1097,8 +1097,8 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 	btn = mxUtils.button('', mxUtils.bind(this, function(evt)
 	{
 		var color = value;
-
-		if (color == 'default')
+		
+		if (color == 'default' && defaultColor != 'default')
 		{
 			color = defaultColorValue;
 		}
@@ -1106,7 +1106,8 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 		this.editorUi.pickColor(color, function(newColor)
 		{
 			apply(newColor, null, true);
-		});
+		}, (defaultColor == 'default') ? 'default' : null,
+			defaultColorValue);
 
 		mxEvent.consume(evt);
 	}));

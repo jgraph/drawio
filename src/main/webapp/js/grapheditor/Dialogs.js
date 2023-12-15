@@ -26,7 +26,7 @@ var OpenDialog = function()
 /**
  * Constructs a new color dialog.
  */
-var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor)
+var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defaultColorValue)
 {
 	this.editorUi = editorUi;
 	
@@ -44,20 +44,34 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor)
 	var applyFunction = (apply != null) ? apply :
 		this.createApplyFunction();
 
-	var defaultColorValue = (Editor.isDarkMode() &&
-		defaultColor == 'default') ?
-		'#ffffff' : '#000000';
+	if (defaultColorValue == null)
+	{
+		defaultColorValue = (Editor.isDarkMode() &&
+			defaultColor == 'default') ?
+			'#ffffff' : '#000000';
+	}
+
+	var defaultColorLabel = defaultColorValue.substring(1).toUpperCase() +
+		' (' + mxResources.get('automatic') + ')';
 	
 	function validateColorName(value, resolveDefault, defaultTextValue)
 	{
 		var color = value;
-
+		var lc = color.toLowerCase();
+		
 		// Resolves special names for default color value
-		if (defaultColor != null && color != defaultTextValue &&
-			color.toLowerCase() ==
-			mxResources.get('default').toLowerCase())
+		if (defaultColor != null &&
+			(color == '' || lc == 'automatic' ||
+			lc == defaultColorLabel.toLowerCase() ||
+			lc == mxResources.get('default').toLowerCase()) ||
+			lc == mxResources.get('automatic').toLowerCase())
 		{
 			color = 'default';
+		}
+
+		if (lc == mxResources.get('none').toLowerCase())
+		{
+			color = 'none';
 		}
 		
 		if (defaultColor != null && color == 'default')
@@ -84,7 +98,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor)
 				if (ctx.fillStyle != '#' + color.toLowerCase())
 				{
 					ctx.fillStyle = color;
-					color = ctx.fillStyle.substring(1);
+					color = ctx.fillStyle.substring(1).toUpperCase();
 				}
 			}
 			catch (e)
@@ -160,8 +174,8 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor)
 	
 	function createRecentColorTable()
 	{
-		var table = addPresets((ColorDialog.recentColors.length == 0) ? ['FFFFFF'] :
-					ColorDialog.recentColors, 11, 'FFFFFF', true);
+		var table = addPresets((ColorDialog.recentColors.length == 0) ?
+			['FFFFFF'] : ColorDialog.recentColors, 11, 'FFFFFF', true);
 		table.style.marginBottom = '8px';
 		
 		return table;
@@ -288,10 +302,10 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor)
 		var defaultBtn = mxUtils.button('', function()
 		{
 			picker.fromString(defaultColorValue);
-			input.value = mxResources.get('default');
+			input.value = defaultColorLabel;
 		});
 
-		defaultBtn.setAttribute('title', mxResources.get('default'));
+		defaultBtn.setAttribute('title', mxResources.get('reset'));
 		defaultBtn.style.cursor = 'pointer';
 		defaultBtn.style.position = 'relative';
 		defaultBtn.style.marginLeft = '4px';
@@ -367,8 +381,8 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor)
 	{
 		var value = input.value;
 		picker.fromString(validateColorName(value, true));
-		input.value = validateColorName(value, false,
-			mxResources.get('default'));
+		input.value = validateColorName(value,
+			false, defaultColorLabel);
 		selectInput();
 	});
 
@@ -421,7 +435,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor)
 		if (color == 'default')
 		{
 			picker.fromString(defaultColorValue);
-			input.value = mxResources.get('default');
+			input.value = defaultColorLabel;
 		}
 		else if (color == 'none')
 		{
@@ -490,22 +504,30 @@ ColorDialog.prototype.defaultColors = ['none', 'FFFFFF', 'E6E6E6', 'CCCCCC', 'B3
  */
 ColorDialog.prototype.createApplyFunction = function()
 {
-	return mxUtils.bind(this, function(color)
+	return ColorDialog.createApplyFunction(this.editorUi, this.currentColorKey);
+};
+
+/**
+ * Creates function to apply value
+ */
+ColorDialog.createApplyFunction = function(editorUi, colorKey)
+{
+	return function(color)
 	{
-		var graph = this.editorUi.editor.graph;
+		var graph = editorUi.editor.graph;
 		
 		graph.getModel().beginUpdate();
 		try
 		{
-			graph.setCellStyles(this.currentColorKey, color);
-			this.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', [this.currentColorKey],
+			graph.setCellStyles(colorKey, color);
+			editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', [colorKey],
 				'values', [color], 'cells', graph.getSelectionCells()));
 		}
 		finally
 		{
 			graph.getModel().endUpdate();
 		}
-	});
+	};
 };
 
 /**

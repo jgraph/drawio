@@ -8482,6 +8482,69 @@
 	/**
 	 * Generates a Mermaid image.
 	 */
+	EditorUi.prototype.extractMermaidDeclaration = function(value)
+	{
+		value = mxUtils.trim(value);
+
+		// Removes occasional "o" on first line in response
+		if (value.substring(0, 3) == 'o\n\n')
+		{
+			value = value.substring(3);
+		}
+	
+		// Various formats supported
+		var tokens = value.split('```');
+		tokens = (tokens.length > 1) ? tokens : value.split('<pre>');
+		tokens = (tokens.length > 1) ? tokens : value.split('~~~');
+		tokens = (tokens.length > 1) ? tokens : value.split('%%');
+		tokens = (tokens.length > 1) ? tokens : value.split('(Begins)');
+		
+		var text = mxUtils.trim((tokens.length <= 1) ? value : tokens[1]);
+		var lines = text.split('\n');
+	
+		// Removes occasional mermaid tag or other text on first line
+		if ((lines.length > 0 && mxUtils.trim(lines[0]) == 'mermaid') ||
+			(lines.length > 1 && mxUtils.indexOf(
+				mermaidDiagramTypes, lines[1]) >= 0))
+		{
+			lines.shift();
+			text = mxUtils.trim(lines.join('\n'));
+			lines = text.split('\n');
+		}
+	
+		// Validates diagram type on first line
+		var type = lines[0].split(' ')[0].replace(/:$/, '');
+	
+		try
+		{
+			if (type == 'mindmap' && lines.length > 2)
+			{
+				text = extractMermaidMindmap(lines);
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+	
+		/*if (type.charAt(0) != '@' && mxUtils.indexOf(
+			EditorUi.mermaidDiagramTypes, type) < 0)
+		{
+			text = 'classDiagram\n' + text;
+		}*/
+	
+		// TODO Is this too restrictive?
+		if (mxUtils.indexOf(EditorUi.mermaidDiagramTypes, type) < 0)
+		{
+			text = null;
+		}
+	
+		return text;
+	};
+
+	/**
+	 * Generates a Mermaid image.
+	 */
 	EditorUi.prototype.generateMermaidImage = function(data, config, success, error, parseErrorHandler)
 	{
 		data = this.removeMermaidComments(data);
@@ -14451,26 +14514,29 @@
 			setStyle(graph.defaultEdgeStyle, 'fontSize', parseInt(this.menus.defaultFontSize) - 4);
 		}
 
-		if (Editor.currentTheme == 'simple')
+		if (Editor.config == null || Editor.config.defaultEdgeStyle == null)
 		{
-			setStyle(graph.defaultEdgeStyle, 'edgeStyle', 'none');
-			setStyle(graph.defaultEdgeStyle, 'curved', '1');
-			setStyle(graph.defaultEdgeStyle, 'rounded', '0');
-			setStyle(graph.defaultEdgeStyle, 'endSize', '8');
-			setStyle(graph.defaultEdgeStyle, 'startSize', '8');
-		}
-		else if (Editor.currentTheme == 'sketch')
-		{
-			setStyle(graph.defaultEdgeStyle, 'edgeStyle', 'none');
-			setStyle(graph.defaultEdgeStyle, 'curved', '1');
-			setStyle(graph.defaultEdgeStyle, 'rounded', '0');
-			setStyle(graph.defaultEdgeStyle, 'jettySize', 'auto');
-			setStyle(graph.defaultEdgeStyle, 'orthogonalLoop', '1');
-			setStyle(graph.defaultEdgeStyle, 'endArrow', 'open');
-			setStyle(graph.defaultEdgeStyle, 'endSize', '14');
-			setStyle(graph.defaultEdgeStyle, 'startSize', '14');
-			setStyle(graph.defaultEdgeStyle, 'sourcePerimeterSpacing', '8');
-			setStyle(graph.defaultEdgeStyle, 'targetPerimeterSpacing', '8');
+			if (Editor.currentTheme == 'simple')
+			{
+				setStyle(graph.defaultEdgeStyle, 'edgeStyle', 'none');
+				setStyle(graph.defaultEdgeStyle, 'curved', '1');
+				setStyle(graph.defaultEdgeStyle, 'rounded', '0');
+				setStyle(graph.defaultEdgeStyle, 'endSize', '8');
+				setStyle(graph.defaultEdgeStyle, 'startSize', '8');
+			}
+			else if (Editor.currentTheme == 'sketch')
+			{
+				setStyle(graph.defaultEdgeStyle, 'edgeStyle', 'none');
+				setStyle(graph.defaultEdgeStyle, 'curved', '1');
+				setStyle(graph.defaultEdgeStyle, 'rounded', '0');
+				setStyle(graph.defaultEdgeStyle, 'jettySize', 'auto');
+				setStyle(graph.defaultEdgeStyle, 'orthogonalLoop', '1');
+				setStyle(graph.defaultEdgeStyle, 'endArrow', 'open');
+				setStyle(graph.defaultEdgeStyle, 'endSize', '14');
+				setStyle(graph.defaultEdgeStyle, 'startSize', '14');
+				setStyle(graph.defaultEdgeStyle, 'sourcePerimeterSpacing', '8');
+				setStyle(graph.defaultEdgeStyle, 'targetPerimeterSpacing', '8');
+			}
 		}
 
 		if (Editor.sketchMode)

@@ -1341,7 +1341,7 @@ Menus.prototype.promptChange = function(menu, label, hint, defaultValue, key, pa
 /**
  * Adds a handler for showing a menu in the given element.
  */
-Menus.prototype.pickColor = function(key, cmd, defaultValue)
+Menus.prototype.pickColor = function(key, cmd, defaultValue, defaultColor, defaultColorValue)
 {
 	var ui = this.editorUi;
 	
@@ -1385,12 +1385,6 @@ Menus.prototype.pickColor = function(key, cmd, defaultValue)
 		}
 		else
 		{
-			if (this.colorDialog == null)
-			{
-				this.colorDialog = new ColorDialog(this.editorUi);
-			}
-		
-			this.colorDialog.currentColorKey = key;
 			var state = graph.getView().getState(graph.getSelectionCell());
 			var color = mxConstants.NONE;
 			
@@ -1399,19 +1393,37 @@ Menus.prototype.pickColor = function(key, cmd, defaultValue)
 				color = state.style[key] || color;
 			}
 			
-			if (color == mxConstants.NONE)
+			if (defaultColor != null)
 			{
-				color = graph.shapeBackgroundColor.substring(1);
-				this.colorDialog.picker.fromString(color);
-				this.colorDialog.colorInput.value = mxConstants.NONE;
+				color = (/(^#?[a-zA-Z0-9]*$)/.test(color)) ? color : defaultColor;
+
+				this.editorUi.pickColor(color, ColorDialog.createApplyFunction(
+					this.editorUi, key), defaultColor, defaultColorValue);
 			}
 			else
 			{
-				this.colorDialog.picker.fromString(mxUtils.rgba2hex(color));
+				if (this.colorDialog == null)
+				{
+					this.colorDialog = new ColorDialog(this.editorUi);
+				}
+			
+				this.colorDialog.currentColorKey = key;
+
+				
+				if (color == mxConstants.NONE)
+				{
+					color = graph.shapeBackgroundColor.substring(1);
+					this.colorDialog.picker.fromString(color);
+					this.colorDialog.colorInput.value = mxConstants.NONE;
+				}
+				else
+				{
+					this.colorDialog.picker.fromString(mxUtils.rgba2hex(color));
+				}
+			
+				this.editorUi.showDialog(this.colorDialog.container, 230, h, true, true);
+				this.colorDialog.init();
 			}
-		
-			this.editorUi.showDialog(this.colorDialog.container, 230, h, true, true);
-			this.colorDialog.init();
 		}
 	}));
 };
