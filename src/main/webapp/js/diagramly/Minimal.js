@@ -1,4 +1,9 @@
 /**
+ * Installing theme.
+ */
+Editor.themes.push('min');
+
+/**
  * Testing dockable windows.
  */
 EditorUi.windowed = urlParams['windows'] != '0';

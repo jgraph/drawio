@@ -2147,9 +2147,9 @@ var ParseDialog = function(editorUi, title, defaultType)
 				var sp = diagramType.indexOf(' ');
 				diagramType = diagramType.substring(0, sp > 0 ? sp : diagramType.length);
 				var inDrawioFormat = typeof mxMermaidToDrawio !== 'undefined' && 
-							type == 'mermaid2drawio' && diagramType != 'gantt' &&
-							diagramType != 'pie' && diagramType != 'timeline' &&
-							diagramType != 'quadrantchart' && diagramType != 'c4context';
+					type == 'mermaid2drawio' && diagramType != 'gantt' &&
+					diagramType != 'pie' && diagramType != 'timeline' &&
+					diagramType != 'quadrantchart' && diagramType != 'c4context';
 
 				var graph = editorUi.editor.graph;
 				
@@ -2568,22 +2568,29 @@ var ParseDialog = function(editorUi, title, defaultType)
 		typeSelect.appendChild(tableOption);
 		tableOption.setAttribute('selected', 'selected');
 	}
-	
-	var mermaid2drawioOption = document.createElement('option');
-	mermaid2drawioOption.setAttribute('value', 'mermaid2drawio');
-	mxUtils.write(mermaid2drawioOption, mxResources.get('diagram'));
 
 	var mermaidOption = document.createElement('option');
 	mermaidOption.setAttribute('value', 'mermaid');
 	mxUtils.write(mermaidOption, mxResources.get('image'));
-	
+
 	if (defaultType == 'mermaid')
 	{
-		typeSelect.appendChild(mermaid2drawioOption);
-		mermaid2drawioOption.setAttribute('selected', 'selected');
-		typeSelect.appendChild(mermaidOption);
+		if (typeof mxMermaidToDrawio !== 'undefined')
+		{
+			var mermaid2drawioOption = document.createElement('option');
+			mermaid2drawioOption.setAttribute('value', 'mermaid2drawio');
+			mermaid2drawioOption.setAttribute('selected', 'selected');
+			mxUtils.write(mermaid2drawioOption, mxResources.get('diagram'));
+			typeSelect.appendChild(mermaid2drawioOption);
+		}
+		else
+		{
+			typeSelect.style.display = 'none';
+		}
 	}
 	
+	typeSelect.appendChild(mermaidOption);
+
 	var diagramOption = document.createElement('option');
 	diagramOption.setAttribute('value', 'diagram');
 	mxUtils.write(diagramOption, mxResources.get('diagram'));
@@ -3895,7 +3902,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	categories['basic'] = [{title: 'blankDiagram'}];
 	var templates = categories['basic'];
 	
-	if (editorUi.isExternalDataComms() && editorUi.getServiceName() == 'draw.io')
+	if (editorUi.isExternalDataComms() &&
+		editorUi.getServiceName() == 'draw.io' &&
+		typeof mxMermaidToDrawio !== 'undefined')
 	{
 		categories['smartTemplate'] = {content: createSmartTemplateContent()};
 	}
@@ -11582,7 +11591,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 	{
 		return function(data, mimeType, x, y, w, h, img, doneFn, file)
 		{
-			if (file != null && (/(\.v(dx|sdx?))($|\?)/i.test(file.name) || /(\.vs(x|sx?))($|\?)/i.test(file.name)))
+			if (file != null && editorUi.isVisioFilename(file.name))
 			{
 				editorUi.importVisio(file, mxUtils.bind(this, function(xml)
 				{

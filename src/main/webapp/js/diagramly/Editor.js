@@ -2772,8 +2772,7 @@
 			/app\.diagrams\.net$/.test(window.location.hostname)) &&
 			!this.isCorsEnabledForUrl(url))
 		{
-			var isVisioFilename = /(\.v(dx|sdx?))($|\?)/i.test(url) ||
-				/(\.vs(x|sx?))($|\?)/i.test(url);
+			var isVisioFilename = this.isVisioFilename(url);
 			var binary = /\.png$/i.test(url) || /\.pdf$/i.test(url);
 			var base64 = binary || isVisioFilename;
 			var nocache = 't=' + new Date().getTime();

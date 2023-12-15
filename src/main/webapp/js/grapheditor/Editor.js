@@ -178,9 +178,9 @@ Editor.fillStyles = [{val: 'auto', dispName: 'Auto'}, {val: 'hatch', dispName: '
 	{val: 'zigzag-line', dispName: 'ZigZag Line'}];
 
 /**
- * Graph themes for the format panel.
+ * List of supported custom themes.
  */
-Editor.themes = null;
+Editor.themes = [];
 
 /**
  * Specifies the image URL to be used for the transparent background.

@@ -960,6 +960,14 @@ App.main = function(callback, createUi)
 				{
 					try
 					{
+						// Checks theme support
+						if (Editor.currentTheme != '' && Editor.currentTheme != 'kennedy' &&
+							Editor.currentTheme != 'dark' && mxUtils.indexOf(
+								Editor.themes, Editor.currentTheme) < 0)
+						{
+							Editor.currentTheme = 'kennedy';
+						}
+						
 						var ui = (createUi != null) ? createUi() : new App(new Editor(
 								urlParams['chrome'] == '0' || uiTheme == 'min',
 								null, null, null, urlParams['chrome'] != '0'));
@@ -4660,9 +4668,8 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename, as
 	var base64 = false;
 	var realUrl = url;
 	var filterFn = (templateFilename != null) ? templateFilename : url;
-	var isVisioFilename = /(\.v(dx|sdx?))($|\?)/i.test(filterFn) ||
-		/(\.vs(x|sx?))($|\?)/i.test(filterFn);
 	var binary = /\.png$/i.test(filterFn) || /\.pdf$/i.test(filterFn);
+	var isVisioFilename = this.isVisioFilename(filterFn);
 	
 	if (!this.editor.isCorsEnabledForUrl(realUrl))
 	{
@@ -4742,8 +4749,7 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename, as
 		{
 			onerror(e);
 		}
-	}), onerror, /(\.png)($|\?)/i.test(filterFn) || /(\.v(dx|sdx?))($|\?)/i.test(filterFn) ||
-		/(\.vs(x|sx?))($|\?)/i.test(filterFn), null, null, base64);
+	}), onerror, /(\.png)($|\?)/i.test(filterFn) || isVisioFilename, null, null, base64);
 };
 
 /**

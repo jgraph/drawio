@@ -405,16 +405,19 @@
 			return editorUi.isAutoDarkMode(true);
 		});
 
-        var toggleSimpleModeAction = editorUi.actions.put('toggleSimpleMode', new Action(mxResources.get('simple'), function(e)
-        {
-			editorUi.setCurrentTheme((Editor.currentTheme == 'simple') ?
-				((!Editor.isDarkMode()) ? 'kennedy' : 'dark') : 'simple');
-        }));
+		if (mxUtils.indexOf(Editor.themes, 'simple') >= 0)
+		{
+			var toggleSimpleModeAction = editorUi.actions.put('toggleSimpleMode', new Action(mxResources.get('simple'), function(e)
+			{
+				editorUi.setCurrentTheme((Editor.currentTheme == 'simple') ?
+					((!Editor.isDarkMode()) ? 'kennedy' : 'dark') : 'simple');
+			}));
 
-		toggleSimpleModeAction.setToggleAction(true);
-		toggleSimpleModeAction.visible = Editor.currentTheme != 'min' && Editor.currentTheme != 'sketch' &&
-			Editor.currentTheme != 'atlas';
-		toggleSimpleModeAction.setSelectedCallback(function() { return Editor.currentTheme == 'simple'; });
+			toggleSimpleModeAction.setToggleAction(true);
+			toggleSimpleModeAction.visible = Editor.currentTheme != 'min' && Editor.currentTheme != 'sketch' &&
+				Editor.currentTheme != 'atlas';
+			toggleSimpleModeAction.setSelectedCallback(function() { return Editor.currentTheme == 'simple'; });
+		}
 
         var toggleSketchModeAction = editorUi.actions.put('toggleSketchMode', new Action(mxResources.get('sketch'), function(e)
         {
@@ -1503,13 +1506,13 @@
 				var title = document.createElement('div');
 				title.style.marginTop = '6px';
 				title.style.display = 'inline-block';
-				title.style.width = '140px';
+				title.style.width = '180px';
 				mxUtils.write(title, mxResources.get('orgChartType') + ': ');
 				
 				div.appendChild(title);
 				
 				var typeSelect = document.createElement('select');
-				typeSelect.style.width = '200px';
+				typeSelect.style.width = '160px';
 				typeSelect.style.boxSizing = 'border-box';
 				
 				//Types are hardcoded here since the code is not loaded yet
@@ -1547,14 +1550,14 @@
 				title = document.createElement('div');
 				title.style.marginTop = '6px';
 				title.style.display = 'inline-block';
-				title.style.width = '140px';
+				title.style.width = '180px';
 				mxUtils.write(title, mxResources.get('parentChildSpacing') + ': ');
 				div.appendChild(title);
 				
 				var parentChildSpacing = document.createElement('input');
 				parentChildSpacing.type = 'number';
 				parentChildSpacing.value = parentChildSpacingVal;
-				parentChildSpacing.style.width = '200px';
+				parentChildSpacing.style.width = '160px';
 				parentChildSpacing.style.boxSizing = 'border-box';
 				div.appendChild(parentChildSpacing);
 				
@@ -1566,14 +1569,14 @@
 				title = document.createElement('div');
 				title.style.marginTop = '6px';
 				title.style.display = 'inline-block';
-				title.style.width = '140px';
+				title.style.width = '180px';
 				mxUtils.write(title, mxResources.get('siblingSpacing') + ': ');
 				div.appendChild(title);
 				
 				var siblingSpacing = document.createElement('input');
 				siblingSpacing.type = 'number';
 				siblingSpacing.value = siblingSpacingVal;
-				siblingSpacing.style.width = '200px';
+				siblingSpacing.style.width = '160px';
 				siblingSpacing.style.boxSizing = 'border-box';
 				div.appendChild(siblingSpacing);
 				
@@ -3404,7 +3407,7 @@
 			editorUi.userPanel.style.right = '10px';
 			editorUi.userPanel.style.top = '10px';
 		});
-		
+
 		this.put('theme', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			var theme = (urlParams['sketch'] == '1') ? 'sketch' : mxSettings.getUi();
@@ -3431,44 +3434,22 @@
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
 
-			item = menu.addItem(mxResources.get('simple'), null, function()
+			for (var i = 0; i < Editor.themes.length; i++)
 			{
-				editorUi.setCurrentTheme('simple');
-			}, parent);
+				(mxUtils.bind(this, function(key)
+				{
+					item = menu.addItem(mxResources.get((key == 'min') ?
+						'minimal' : key), null, function()
+					{
+						editorUi.setCurrentTheme(key);
+					}, parent);
+	
+					if (theme == key)
+					{
+						menu.addCheckmark(item, Editor.checkmarkImage);
+					}
 
-			if (theme == 'simple')
-			{
-				menu.addCheckmark(item, Editor.checkmarkImage);
-			}
-
-			item = menu.addItem(mxResources.get('sketch'), null, function()
-			{
-				editorUi.setCurrentTheme('sketch');
-			}, parent);
-			
-			if (theme == 'sketch')
-			{
-				menu.addCheckmark(item, Editor.checkmarkImage);
-			}
-
-			item = menu.addItem(mxResources.get('minimal'), null, function()
-			{
-				editorUi.setCurrentTheme('min');
-			}, parent);
-			
-			if (theme == 'min')
-			{
-				menu.addCheckmark(item, Editor.checkmarkImage);
-			}
-			
-			item = menu.addItem(mxResources.get('atlas'), null, function()
-			{
-				editorUi.setCurrentTheme('atlas');
-			}, parent);
-			
-			if (theme == 'atlas')
-			{
-				menu.addCheckmark(item, Editor.checkmarkImage);
+				})(Editor.themes[i]));
 			}
 		})));
 
