@@ -4951,16 +4951,15 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		try
 		{
 			var keys = [mxConstants.STYLE_ROUNDED, mxConstants.STYLE_CURVED];
-			// Default for rounded is 1
-			var values = ['0', null];
+			var values = ['0', '0'];
 			
 			if (styleSelect.value == 'rounded')
 			{
-				values = ['1', null];
+				values = ['1', '0'];
 			}
 			else if (styleSelect.value == 'curved')
 			{
-				values = [null, '1'];
+				values = ['0', '1'];
 			}
 			
 			for (var i = 0; i < keys.length; i++)
@@ -5900,51 +5899,81 @@ DiagramStylePanel.prototype.getGlobalStyleButtons = function()
 	var editor = ui.editor;
 	var graph = editor.graph;
 
-	var buttons = [mxUtils.button(mxResources.get('sketch'), mxUtils.bind(this, function(evt)
+	var sketchDiv = document.createElement('div');
+	sketchDiv.style.fontWeight = 'bold';
+	sketchDiv.style.alignItems = 'center';
+	sketchDiv.style.textAlign = 'left';
+	sketchDiv.style.display = 'flex';
+	sketchDiv.style.padding = '4px';
+
+	var sketchInput = document.createElement('input');
+	sketchInput.setAttribute('type', 'checkbox');
+	sketchInput.style.margin = '1px 6px 0px 0px';
+	sketchInput.checked = Editor.sketchMode;
+	sketchDiv.appendChild(sketchInput);
+	mxUtils.write(sketchDiv, mxResources.get('sketch'));
+
+	mxEvent.addListener(sketchDiv, 'click', function(evt)
 	{
 		var value = !Editor.sketchMode;
+
+		// Temporary overrides sketch mode to avoid flickering
+		// for the first async update after updating cells
+		Editor.sketchMode = value;
+
 		graph.updateCellStyles({'sketch': (value) ? '1' : null,
 			'curveFitting': (value) ? Editor.sketchDefaultCurveFitting : null,
 			'jiggle': (value) ? Editor.sketchDefaultJiggle : null},
 			graph.getVerticesAndEdges());
-		ui.setSketchMode(value);
 		mxEvent.consume(evt);
-	})), mxUtils.button(mxResources.get('rounded'), mxUtils.bind(this, function(evt)
-	{
-		// Checks if all cells are rounded
-		var cells = graph.getVerticesAndEdges();
-		var rounded = true;
 
-		if (cells.length > 0)
+		// Restores and udpates sketch mode asynchronously
+		window.setTimeout(function()
 		{
-			for (var i = 0; i < cells.length; i++)
-			{
-				var style = graph.getCellStyle(cells[i]);
+			Editor.sketchMode = !value;
+			ui.setSketchMode(value);
+		});
+	});
 
-				if (mxUtils.getValue(style, mxConstants.STYLE_ROUNDED, 0) == 0)
+
+	var buttons = [sketchDiv, mxUtils.button(mxResources.get('rounded'),
+		mxUtils.bind(this, function(evt)
+		{
+			// Checks if all cells are rounded
+			var cells = graph.getVerticesAndEdges();
+			var rounded = true;
+
+			if (cells.length > 0)
+			{
+				for (var i = 0; i < cells.length; i++)
 				{
-					rounded = false;
-					break;
+					var style = graph.getCellStyle(cells[i]);
+
+					if (mxUtils.getValue(style, mxConstants.STYLE_ROUNDED, 0) == 0)
+					{
+						rounded = false;
+						break;
+					}
 				}
 			}
-		}
-		
-		rounded = !rounded;
-		graph.updateCellStyles({'rounded': (rounded) ? '1' : '0'}, cells);
+			
+			rounded = !rounded;
+			graph.updateCellStyles({'rounded': (rounded) ? '1' : '0'}, cells);
 
-		if (rounded)
-		{
-			graph.currentEdgeStyle['rounded'] = '1';
-			graph.currentVertexStyle['rounded'] = '1';
-		}
-		else
-		{
-			delete graph.currentEdgeStyle['rounded'];
-			delete graph.currentVertexStyle['rounded'];
-		}
+			if (rounded)
+			{
+				graph.currentEdgeStyle['rounded'] = '1';
+				graph.currentVertexStyle['rounded'] = '1';
+			}
+			else
+			{
+				delete graph.currentEdgeStyle['rounded'];
+				delete graph.currentVertexStyle['rounded'];
+			}
 
-		mxEvent.consume(evt);
-	}))];
+			mxEvent.consume(evt);
+		}
+	))];
 
 	return buttons;
 };

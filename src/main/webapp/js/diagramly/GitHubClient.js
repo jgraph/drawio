@@ -522,7 +522,34 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary, check
 		{
 			try
 			{
-				success(this.createGitHubFile(org, repo, ref, JSON.parse(req.getText()), asLibrary));
+				var obj = JSON.parse(req.getText());
+
+				// Additional request needed to get file contents
+				if (obj.content == '' && obj.git_url != null)
+				{
+					var contentReq = new mxXmlRequest(obj.git_url, null, 'GET');
+
+					this.executeRequest(contentReq, mxUtils.bind(this, function(contentReq)
+					{
+						var contentObject = JSON.parse(contentReq.getText());
+						
+						if (contentObject.content != '')
+						{
+							obj.content = contentObject.content;
+							obj.encoding = contentObject.encoding;
+
+							success(this.createGitHubFile(org, repo, ref, obj, asLibrary));
+						}
+						else
+						{
+							error({message: mxResources.get('errorLoadingFile')});
+						}
+					}), error);
+				}
+				else
+				{
+					success(this.createGitHubFile(org, repo, ref, obj, asLibrary));
+				}
 			}
 			catch (e)
 			{

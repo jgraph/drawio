@@ -1,3 +1,11 @@
+26-DEC-2023: 21.1.12
+
+- Handles possible empty content in GitHub [drawio-4045]
+- Fixes use of modified default style for sidebar items
+- Fixes use of defaults for curved edge styles
+- Adds new Kubernetes shapes [drawio-3699]
+- [conf cloud] Adds enableCssDarkMode config to viewers also [DID-10038]
+
 15-DEC-2023: 21.1.11
 
 - Fixes default edge style overrides edges in sidebar [drawio-4038]

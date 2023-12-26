@@ -8513,9 +8513,21 @@
 		var lines = text.split('\n');
 	
 		// Removes occasional mermaid tag or other text on first line
+		var type = (lines.length > 1) ? lines[1] : null;
+
+		if (type != null)
+		{
+			var dash = type.indexOf('-');
+
+			if (dash > 0)
+			{
+				type = type.substring(0, dash);
+			}
+		}
+
 		if ((lines.length > 0 && mxUtils.trim(lines[0]) == 'mermaid') ||
-			(lines.length > 1 && mxUtils.indexOf(
-				mermaidDiagramTypes, lines[1]) >= 0))
+			(type != null && mxUtils.indexOf(
+				EditorUi.mermaidDiagramTypes, type) >= 0))
 		{
 			lines.shift();
 			text = mxUtils.trim(lines.join('\n'));
@@ -8523,8 +8535,14 @@
 		}
 	
 		// Validates diagram type on first line
-		var type = lines[0].split(' ')[0].replace(/:$/, '');
-	
+		type = lines[0].split(' ')[0].replace(/:$/, '');
+		var dash = type.indexOf('-');
+
+		if (dash > 0)
+		{
+			type = type.substring(0, dash);
+		}
+
 		try
 		{
 			if (type == 'mindmap' && lines.length > 2)
@@ -8536,13 +8554,7 @@
 		{
 			// ignore
 		}
-	
-		/*if (type.charAt(0) != '@' && mxUtils.indexOf(
-			EditorUi.mermaidDiagramTypes, type) < 0)
-		{
-			text = 'classDiagram\n' + text;
-		}*/
-	
+		
 		// TODO Is this too restrictive?
 		if (mxUtils.indexOf(EditorUi.mermaidDiagramTypes, type) < 0)
 		{
@@ -10215,9 +10227,6 @@
 	{
 		if (Editor.isSettingsEnabled())
 		{
-			this.doSetSketchMode((mxSettings.settings.sketchMode != null && urlParams['rough'] == null &&
-				urlParams['sketch'] == null) ? mxSettings.settings.sketchMode : this.getDefaultSketchMode());
-
 			if (mxSettings.settings.sidebarTitles != null)
 			{
 				Sidebar.prototype.sidebarTitles = mxSettings.settings.sidebarTitles;
@@ -10233,6 +10242,9 @@
 		}
 		
 		editorUiCreateUi.apply(this, arguments);
+
+		this.doSetSketchMode((mxSettings.settings.sketchMode != null && urlParams['rough'] == null &&
+			urlParams['sketch'] == null) ? mxSettings.settings.sketchMode : this.getDefaultSketchMode());
 	};
 
 	/**
@@ -11314,7 +11326,6 @@
 		});
 
 		this.addListener('darkModeChanged', themeChangeListener);
-		this.addListener('sketchModeChanged', themeChangeListener);
 		this.addListener('currentThemeChanged', mxUtils.bind(this, function()
 		{
 			if (this.sidebar != null)

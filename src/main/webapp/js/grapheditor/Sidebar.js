@@ -19,6 +19,10 @@ function Sidebar(editorUi, container)
 	this.graph.shapeBackgroundColor = 'transparent';
 	this.graph.foldingEnabled = false;
 
+	// Uses the initial default style for rendering the sidebars
+	this.initialDefaultVertexStyle = mxUtils.clone(editorUi.editor.graph.defaultVertexStyle);
+	this.initialDefaultEdgeStyle = mxUtils.clone(editorUi.editor.graph.defaultEdgeStyle);
+	
 	// Wrapper for entries and footer
 	this.container.style.overflow = 'visible';
 	this.wrapper = document.createElement('div');
@@ -1347,7 +1351,7 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 	this.setCurrentSearchEntryLibrary('general', 'general');
 	var sb = this;
 
-	var temp = parseInt(this.editorUi.editor.graph.defaultVertexStyle['fontSize']);
+	var temp = parseInt(this.initialDefaultVertexStyle['fontSize']);
 	var fontSize = !isNaN(temp) ? 'fontSize=' + Math.min(16, temp) + ';' : '';
 
 	// Reusable cells
@@ -2353,8 +2357,7 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 		var originalCells = cells;
 		cells = this.graph.cloneCells(cells);
 		this.editorUi.insertHandler(originalCells, null, this.graph.model,
-			this.editorUi.editor.graph.defaultVertexStyle,
-			this.editorUi.editor.graph.defaultEdgeStyle,
+			this.initialDefaultVertexStyle, this.initialDefaultEdgeStyle,
 			true, true);
 
 		if (icon != null)

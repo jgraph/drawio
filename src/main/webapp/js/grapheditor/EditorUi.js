@@ -4286,6 +4286,22 @@ EditorUi.prototype.canUndo = function()
 };
 
 /**
+ * Returns the current page and XML for the given page.
+ */
+EditorUi.prototype.getDiagramSnapshot = function()
+{
+	return {node: this.editor.getGraphXml()};
+};
+
+/**
+ * 
+ */
+EditorUi.prototype.updateDiagramData = function(snapshot, node)
+{
+	this.replaceDiagramData(xUtils.getXml(node));
+};
+
+/**
  * 
  */
 EditorUi.prototype.replaceDiagramData = function(data)

@@ -1083,6 +1083,39 @@ EditorUi.prototype.updatePageRoot = function(page, checked)
 };
 
 /**
+ * Returns the current page and XML for the given page.
+ */
+EditorUi.prototype.getDiagramSnapshot = function()
+{
+	return {node: this.editor.getGraphXml(), page: this.currentPage};
+};
+
+/**
+ * 
+ */
+EditorUi.prototype.updateDiagramData = function(snapshot, node)
+{
+	if (this.getPageIndex(snapshot.page) == null)
+	{
+		this.insertPage(null, null, node);
+	}
+	else
+	{
+		var dec = new mxCodec(snapshot.node.ownerDocument);
+		var oldModel = new mxGraphModel();
+		dec.decode(snapshot.node, oldModel);
+
+		dec = new mxCodec(node.ownerDocument);
+		var newModel = new mxGraphModel();
+		dec.decode(node, newModel);
+
+		this.selectPage(snapshot.page);
+		var patch = this.diffCells(oldModel.root, newModel.root);
+		this.patchPage(snapshot.page, patch, null, true);
+	}
+};
+
+/**
  * Adds keyboard shortcuts for page handling.
  */
 EditorUi.prototype.replaceDiagramData = function(data)
@@ -1159,7 +1192,7 @@ EditorUi.prototype.selectNextPage = function(forward)
 /**
  * Returns true if the given string contains an mxfile.
  */
-EditorUi.prototype.insertPage = function(page, index)
+EditorUi.prototype.insertPage = function(page, index, node)
 {
 	if (this.editor.graph.isEnabled())
 	{
@@ -1168,7 +1201,8 @@ EditorUi.prototype.insertPage = function(page, index)
 			this.editor.graph.stopEditing(false);
 		}
 		
-		page = (page != null) ? page : this.createPage(null, this.createPageId());
+		page = (page != null) ? page : this.createPage(
+			null, this.createPageId(), node);
 		index = (index != null) ? index : this.pages.length;
 		
 		// Uses model to fire event and trigger autosave
@@ -1197,12 +1231,12 @@ EditorUi.prototype.createPageId = function()
 /**
  * Returns a new DiagramPage instance.
  */
-EditorUi.prototype.createPage = function(name, id)
+EditorUi.prototype.createPage = function(name, id, node)
 {
 	var doc = (this.fileNode != null) ? this.fileNode.ownerDocument : document;
 	var page = new DiagramPage(doc.createElement('diagram'), id);
 	page.setName((name != null) ? name : this.createPageName());
-	this.initDiagramNode(page);
+	this.initDiagramNode(page, node);
 	
 	return page;
 };
@@ -1327,6 +1361,7 @@ EditorUi.prototype.duplicatePage = function(page, name)
 			var newPage = new DiagramPage(node);
 			newPage.root = graph.cloneCell(graph.model.root,
 				null, cloneMap);
+			
 			// Updates cell IDs
 			var model = new mxGraphModel();
 			model.prefix = Editor.guid() + '-';
@@ -1366,12 +1401,16 @@ EditorUi.prototype.duplicatePage = function(page, name)
 /**
  * Duplicates the given page.
  */
-EditorUi.prototype.initDiagramNode = function(page)
+EditorUi.prototype.initDiagramNode = function(page, node)
 {
-	var enc = new mxCodec(mxUtils.createXmlDocument());
-	var temp = enc.encode(new mxGraphModel(page.root));
-	this.editor.graph.saveViewState(page.viewState, temp);
-	mxUtils.setTextContent(page.node, Graph.compressNode(temp));
+	if (node == null)
+	{
+		var enc = new mxCodec(mxUtils.createXmlDocument());
+		node = enc.encode(new mxGraphModel(page.root));
+	}
+
+	this.editor.graph.saveViewState(page.viewState, node);
+	mxUtils.setTextContent(page.node, Graph.compressNode(node));
 };
 
 /**

@@ -9076,6 +9076,37 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		return bubble;
 	}
 
+	function createButton(label, fn, layout)
+	{
+		var button = document.createElement('button');
+		button.className = 'geBtn gePrimaryBtn';
+		button.style.padding = '4px';
+		button.style.height = 'auto';
+		button.style.position = 'relative';
+
+		if (layout == 'flex')
+		{
+			button.style.overflow = 'hidden';
+			button.style.textOverflow = 'ellipsis';
+			button.style.whiteSpace = 'nowrap';
+			button.style.margin = '0px';
+			button.style.flexGrow = '1';
+		}
+		else
+		{
+			button.style.display = 'block';
+			button.style.margin = '8px';
+			button.style.left = '50%';
+			button.style.transform = 'translateX(-50%)';
+		}
+
+		mxUtils.write(button, label);
+		button.setAttribute('title', label);
+		mxEvent.addListener(button, 'click', fn);
+		
+		return button;
+	};
+
 	function addBubble(text)
 	{
 		var bubble = createBubble();
@@ -9208,188 +9239,199 @@ var ChatWindow = function(editorUi, x, y, w, h)
 			tokens += params.messages[i].content.match(/\b\w+\b|[^\w\s]|\=/g).length;
 		}
 
-		mxUtils.write(waiting, mxResources.get('loading') + '...');
-
-		var img = document.createElement('img');
-		img.setAttribute('title', 'Processing ' + tokens + ' tokens');
-		img.setAttribute('src', IMAGE_PATH + '/spin.gif');
-		img.style.marginLeft = '6px';
-		waiting.appendChild(img);
-		
-		waiting.scrollIntoView({ behavior: 'smooth',
-			block: 'end', inline: 'nearest'});
-
-		editorUi.createTimeout(30000, mxUtils.bind(this, function(timeout)
+		var processMessage = mxUtils.bind(this, function()
 		{
-			var req = new mxXmlRequest(Editor.gptUrl, JSON.stringify(params), 'POST');
+			waiting.innerHTML = '';
+			mxUtils.write(waiting, mxResources.get('loading') + '...');
+
+			var img = document.createElement('img');
+			img.setAttribute('title', 'Processing ' + tokens + ' tokens');
+			img.setAttribute('src', IMAGE_PATH + '/spin.gif');
+			img.style.marginLeft = '6px';
+			waiting.appendChild(img);
 			
-			req.setRequestHeaders = mxUtils.bind(this, function(request, params)
-			{
-				request.setRequestHeader('Authorization', 'Bearer ' + Editor.gptApiKey);
-				request.setRequestHeader('Content-Type', 'application/json');
-			});
+			waiting.scrollIntoView({ behavior: 'smooth',
+				block: 'end', inline: 'nearest'});
 
-			var handleError = mxUtils.bind(this, function(e)
+			editorUi.createTimeout(30000, mxUtils.bind(this, function(timeout)
 			{
-				timeout.clear();
-				waiting.innerHTML = '';
-				mxUtils.write(waiting, e.message);
-				waiting.scrollIntoView({behavior: 'smooth',
-					block: 'end', inline: 'nearest'});
+				var req = new mxXmlRequest(Editor.gptUrl, JSON.stringify(params), 'POST');
 				
-				if (window.console != null)
+				req.setRequestHeaders = mxUtils.bind(this, function(request, params)
 				{
-					console.error(e);
-				}
-			});
+					request.setRequestHeader('Authorization', 'Bearer ' + Editor.gptApiKey);
+					request.setRequestHeader('Content-Type', 'application/json');
+				});
 
-			var handleResponse = mxUtils.bind(this, function(text)
-			{
-				var data = extractDiagramData(text);
-				var cells = (data != null) ? editorUi.stringToCells(data[1]) : null;
-
-				if (cells != null && cells.length > 0)
+				var handleError = mxUtils.bind(this, function(e)
 				{
-					var wrapper = document.createElement('div');
-					wrapper.style.display = 'inline-block';
-					wrapper.style.position = 'relative';
-					wrapper.style.transform = 'translateX(-50%)';
-					wrapper.style.padding = '6px';
-					wrapper.style.left = '50%';
-
-					var clickFn = mxUtils.bind(this, function(e)
+					timeout.clear();
+					waiting.innerHTML = '';
+					mxUtils.write(waiting, e.message);
+					waiting.appendChild(createButton(
+							mxResources.get('tryAgain'),
+							processMessage));
+					waiting.scrollIntoView({behavior: 'smooth',
+						block: 'end', inline: 'nearest'});
+					
+					if (window.console != null)
 					{
-						graph.model.beginUpdate();
-						try
-						{
-							if (sentModel != null && editorUi.getPageIndex(page) != null)
-							{
-								editorUi.selectPage(page);
-								var patch = editorUi.diffCells(sentModel.root, model.root);
-								editorUi.patchPage(page, patch, null, true);
-							}
-							else
-							{
-								var children = model.getChildren(model.getChildAt(model.getRoot(), 0));
-								graph.setSelectionCells(graph.importCells(children));
-							}
-						}
-						finally
-						{
-							graph.model.endUpdate();
-						}
+						console.error(e);
+					}
+				});
 
-						mxEvent.consume(e);
-					});
+				var handleResponse = mxUtils.bind(this, function(text)
+				{
+					var data = extractDiagramData(text);
+					var cells = (data != null) ? editorUi.stringToCells(data[1]) : null;
 
-					var size = graph.getBoundingBoxFromGeometry(cells);
-
-					if (size != null)
+					if (cells != null && cells.length > 0)
 					{
-						wrapper.style.cursor = 'move';
-						wrapper.appendChild(editorUi.sidebar.createVertexTemplateFromCells(
-							cells, size.width, size.height, '', true,
-							null, true, true, clickFn, 160, 120));
+						var wrapper = document.createElement('div');
+						wrapper.style.display = 'inline-block';
+						wrapper.style.position = 'relative';
+						wrapper.style.transform = 'translateX(-50%)';
+						wrapper.style.padding = '6px';
+						wrapper.style.left = '50%';
+
+						var doc = mxUtils.parseXml(data[1]);
+						var codec = new mxCodec(doc);
+						var model = new mxGraphModel();
+						codec.decode(doc.documentElement, model);
+						var sentModel = null;
+						
+						if (xml != null)
+						{
+							// Creates a diff of the sent and recevied diagram
+							// to patch the current page and not lose changes
+							var dec = new mxCodec(xml.ownerDocument);
+							sentModel = new mxGraphModel();
+							dec.decode(xml, sentModel);
+						}
+						
+						var clickFn = mxUtils.bind(this, function(e)
+						{
+							graph.model.beginUpdate();
+							try
+							{
+								if (sentModel != null && editorUi.getPageIndex(page) != null)
+								{
+									editorUi.selectPage(page);
+									var patch = editorUi.diffCells(sentModel.root, model.root);
+									editorUi.patchPage(page, patch, null, true);
+								}
+								else
+								{
+									var children = model.getChildren(model.getChildAt(model.getRoot(), 0));
+									graph.setSelectionCells(graph.importCells(children));
+								}
+							}
+							finally
+							{
+								graph.model.endUpdate();
+							}
+
+							mxEvent.consume(e);
+						});
+
+						var size = graph.getBoundingBoxFromGeometry(cells);
+
+						if (size != null)
+						{
+							wrapper.style.cursor = 'move';
+							wrapper.appendChild(editorUi.sidebar.createVertexTemplateFromCells(
+								cells, size.width, size.height, '', true,
+								null, true, true, clickFn, 160, 120));
+						}
+						else
+						{
+							wrapper.style.padding = '14px';
+							mxUtils.write(wrapper, mxResources.get('noPreview'));
+						}
+						
+						waiting.innerHTML = '';
+						bubble = waiting;
+
+						if (data[0].length > 0)
+						{
+							mxUtils.write(bubble, data[0]);
+							mxUtils.br(bubble);
+						}
+						
+						bubble.appendChild(wrapper);
+
+						var buttons = document.createElement('div');
+						buttons.style.display = 'flex';
+						buttons.style.gap = '6px';
+						buttons.style.margin = '6px';
+
+						buttons.appendChild(createButton(
+							mxResources.get('tryAgain'),
+							processMessage, 'flex'));
+						buttons.appendChild(createButton(mxResources.get(
+							(xml != null) ? 'apply' : 'insert'),
+							clickFn, 'flex'));
+						waiting.appendChild(buttons);
+
+						if (data[2].length > 0)
+						{
+							mxUtils.br(bubble);
+							mxUtils.write(bubble, data[2]);
+						}
+
+						bubble.scrollIntoView({behavior: 'smooth',
+							block: 'end', inline: 'nearest'});
 					}
 					else
 					{
-						wrapper.style.padding = '14px';
-						mxUtils.write(wrapper, mxResources.get('noPreview'));
+						waiting.innerHTML = '';
+						bubble = waiting;
+						mxUtils.write(bubble, text);
+						waiting.scrollIntoView({ behavior: 'smooth',
+							block: 'end', inline: 'nearest'});
 					}
-					
-					waiting.innerHTML = '';
-					bubble = waiting;
+				});
 
-					if (data[0].length > 0)
-					{
-						mxUtils.write(bubble, data[0]);
-						mxUtils.br(bubble);
-					}
-					
-					bubble.appendChild(wrapper);
-
-					var button = document.createElement('button');
-					button.className = 'geBtn gePrimaryBtn';
-					button.style.left = '50%';
-					button.style.margin = '0px';
-					button.style.padding = '4px';
-					button.style.height = 'auto';
-					button.style.display = 'block';
-					button.style.marginBottom = '8px';
-					button.style.position = 'relative';
-					button.style.transform = 'translateX(-50%)';
-
-					var doc = mxUtils.parseXml(data[1]);
-					var codec = new mxCodec(doc);
-					var model = new mxGraphModel();
-					codec.decode(doc.documentElement, model);
-					var sentModel = null;
-					
-					if (xml != null)
-					{
-						// Creates a diff of the sent and recevied diagram
-						// to patch the current page and not lose changes
-						var dec = new mxCodec(xml.ownerDocument);
-						sentModel = new mxGraphModel();
-						dec.decode(xml, sentModel);
-					}
-
-					mxUtils.write(button, mxResources.get(
-						(xml != null) ? 'apply' : 'insert'));
-					mxEvent.addListener(button, 'click', clickFn);
-					bubble.appendChild(button);
-
-					if (data[2].length > 0)
-					{
-						mxUtils.br(bubble);
-						mxUtils.write(bubble, data[2]);
-					}
-
-					bubble.scrollIntoView({behavior: 'smooth',
-						block: 'end', inline: 'nearest'});
-				}
-				else
+				req.send(mxUtils.bind(this, function(req)
 				{
-					waiting.innerHTML = '';
-					bubble = waiting;
-					mxUtils.write(bubble, text);
-					waiting.scrollIntoView({ behavior: 'smooth',
-						block: 'end', inline: 'nearest'});
-				}
-			});
-
-			req.send(mxUtils.bind(this, function(req)
-			{
-				if (timeout.clear())
-				{
-					try
+					if (timeout.clear())
 					{
-						if (req.getStatus() >= 200 && req.getStatus() <= 299)
+						try
 						{
-							var response = JSON.parse(req.getText());
-							EditorUi.debug('EditorUi.ChatWindow.addMessage',
-								'prompt:', params, 'response:', response);
-							var text = mxUtils.trim(response.choices[0].message.content);
-							
-							if (typeSelect.value == 'create')
+							if (req.getStatus() >= 200 && req.getStatus() <= 299)
 							{
-								var mermaid = editorUi.extractMermaidDeclaration(text);
-
-								if (mermaid != null)
+								var response = JSON.parse(req.getText());
+								EditorUi.debug('EditorUi.ChatWindow.addMessage',
+									'prompt:', params, 'response:', response);
+								var text = mxUtils.trim(response.choices[0].message.content);
+								
+								if (typeSelect.value == 'create')
 								{
-									mxMermaidToDrawio.addListener(mxUtils.bind(this, function(data)
-									{
-										handleResponse(data);
-									}));
+									var mermaid = editorUi.extractMermaidDeclaration(text);
 
-									editorUi.generateMermaidImage(mermaid, null, function()
+									if (mermaid != null)
 									{
-										// callback implemented above
-									}, function(e)
+										mxMermaidToDrawio.addListener(mxUtils.bind(this, function(data)
+										{
+											handleResponse(data);
+										}));
+
+										editorUi.generateMermaidImage(mermaid, null, function()
+										{
+											// callback implemented above
+										}, function(e)
+										{
+											mxMermaidToDrawio.resetListeners();
+											handleError(e);
+										});
+									}
+									else
 									{
-										mxMermaidToDrawio.resetListeners();
-										handleError(e);
-									});
+										handleResponse(text);
+										waiting.appendChild(createButton(
+											mxResources.get('tryAgain'),
+											processMessage));
+									}
 								}
 								else
 								{
@@ -9398,78 +9440,49 @@ var ChatWindow = function(editorUi, x, y, w, h)
 							}
 							else
 							{
-								handleResponse(text);
-							}
-						}
-						else
-						{
-							var result = 'Error: ' + req.getStatus();
+								var result = 'Error: ' + req.getStatus();
 
-							try
-							{
-								var resp = JSON.parse(req.getText());
-
-								if (resp != null && resp.error != null &&
-									resp.error.message != null)
+								try
 								{
-									result = resp.error.message;
+									var resp = JSON.parse(req.getText());
+
+									if (resp != null && resp.error != null &&
+										resp.error.message != null)
+									{
+										result = resp.error.message;
+									}
 								}
+								catch (e)
+								{
+									// ignore
+								}
+								
+								waiting.innerHTML = '';
+								mxUtils.write(waiting, result);
+								waiting.scrollIntoView(
+									{behavior: 'smooth', block: 'end',
+									inline: 'nearest'});
 							}
-							catch (e)
-							{
-								// ignore
-							}
-							
-							waiting.innerHTML = '';
-							mxUtils.write(waiting, result);
-							waiting.scrollIntoView(
-								{behavior: 'smooth', block: 'end',
-								inline: 'nearest'});
+						}
+						catch (e)
+						{
+							handleError(e);
 						}
 					}
-					catch (e)
-					{
-						handleError(e);
-					}
-				}
-			}), handleError);
-		}), function(e)
-		{
-			waiting.innerHTML = '';
-			mxUtils.write(waiting, e.message);
-
-			if (e.retry != null)
+				}), handleError);
+			}), function(e)
 			{
-				var button = document.createElement('button');
-				button.className = 'geBtn gePrimaryBtn';
-				button.style.left = '50%';
-				button.style.margin = '0px';
-				button.style.padding = '4px';
-				button.style.height = 'auto';
-				button.style.display = 'block';
-				button.style.margin = '8px';
-				button.style.position = 'relative';
-				button.style.transform = 'translateX(-50%)';
-				mxUtils.write(button, mxResources.get('tryAgain'));
-				waiting.appendChild(button);
-				mxEvent.addListener(button, 'click', function()
-				{
-					waiting.innerHTML = '';
-					mxUtils.write(waiting, mxResources.get('loading') + '...');
-
-					var img = document.createElement('img');
-					img.setAttribute('title', 'Processing ' + tokens + ' tokens');
-					img.setAttribute('src', IMAGE_PATH + '/spin.gif');
-					img.style.marginLeft = '6px';
-					waiting.appendChild(img);
-					
-					e.retry();
-				});
-			}
-
-			waiting.scrollIntoView({behavior: 'smooth',
-				block: 'end', inline: 'nearest'});
+				waiting.innerHTML = '';
+				mxUtils.write(waiting, e.message);
+				waiting.appendChild(createButton(
+					mxResources.get('tryAgain'),
+					processMessage));
+				waiting.scrollIntoView({behavior: 'smooth',
+					block: 'end', inline: 'nearest'});
+			});
 		});
+
+		processMessage();
 	};
 
 	function send()

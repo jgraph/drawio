@@ -781,8 +781,9 @@ var EditDiagramDialog = function(editorUi)
 	textarea.style.width = '600px';
 	textarea.style.height = '360px';
 	textarea.style.marginBottom = '16px';
-	
-	textarea.value = mxUtils.getPrettyXml(editorUi.editor.getGraphXml());
+
+	var snapshot = editorUi.getDiagramSnapshot();
+	textarea.value = mxUtils.getPrettyXml(snapshot.node);
 	div.appendChild(textarea);
 	
 	this.init = function()
@@ -845,10 +846,19 @@ var EditDiagramDialog = function(editorUi)
 
 	if (editorUi.editor.graph.isEnabled())
 	{
-		var replaceOption = document.createElement('option');
-		replaceOption.setAttribute('value', 'replace');
-		mxUtils.write(replaceOption, mxResources.get('replaceExistingDrawing'));
-		select.appendChild(replaceOption);
+		var applyOption = document.createElement('option');
+		applyOption.setAttribute('value', 'apply');
+		mxUtils.write(applyOption, mxResources.get('apply',
+			null, 'Update Existing Drawing'));
+		select.appendChild(applyOption);
+	}
+
+	if (editorUi.editor.graph.isEnabled())
+	{
+		var insertOption = document.createElement('option');
+		insertOption.setAttribute('value', 'insert');
+		mxUtils.write(insertOption, mxResources.get('insert'));
+		select.appendChild(insertOption);
 	}
 
 	var newOption = document.createElement('option');
@@ -859,15 +869,7 @@ var EditDiagramDialog = function(editorUi)
 	{
 		select.appendChild(newOption);
 	}
-
-	if (editorUi.editor.graph.isEnabled())
-	{
-		var importOption = document.createElement('option');
-		importOption.setAttribute('value', 'import');
-		mxUtils.write(importOption, mxResources.get('addToExistingDrawing'));
-		select.appendChild(importOption);
-	}
-
+	
 	div.appendChild(select);
 
 	var okBtn = mxUtils.button(mxResources.get('ok'), function()
@@ -881,11 +883,12 @@ var EditDiagramDialog = function(editorUi)
 			editorUi.hideDialog();
 			editorUi.editor.editAsNew(data);
 		}
-		else if (select.value == 'replace')
+		else if (select.value == 'apply')
 		{
 			try
 			{
-				editorUi.replaceDiagramData(data);
+				var node = mxUtils.parseXml(data).documentElement;
+				editorUi.updateDiagramData(snapshot, node);
 				editorUi.hideDialog();
 			}
 			catch (e)
@@ -893,7 +896,7 @@ var EditDiagramDialog = function(editorUi)
 				error = e;
 			}
 		}
-		else if (select.value == 'import')
+		else if (select.value == 'insert')
 		{
 			editorUi.editor.graph.model.beginUpdate();
 			try
