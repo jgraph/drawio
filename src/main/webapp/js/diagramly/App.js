@@ -4669,7 +4669,7 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename, as
 	var realUrl = url;
 	var filterFn = (templateFilename != null) ? templateFilename : url;
 	var binary = /\.png$/i.test(filterFn) || /\.pdf$/i.test(filterFn);
-	var isVisioFilename = this.isVisioFilename(filterFn);
+	var isVisioFilename = EditorUi.isVisioFilename(filterFn);
 	
 	if (!this.editor.isCorsEnabledForUrl(realUrl))
 	{

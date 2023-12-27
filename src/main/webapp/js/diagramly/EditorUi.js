@@ -782,7 +782,7 @@
 	/**
 	 * Returns true if the given binary data is a Visio file.
 	 */
-	EditorUi.prototype.isVisioFilename = function(filename)
+	EditorUi.isVisioFilename = function(filename)
 	{
 		return (/(\.v(dx|sdx?))($|\?)/i.test(filename) ||
 			/(\.vs(x|sx?))($|\?)/i.test(filename));
@@ -3949,7 +3949,7 @@
 									}
 								});
 								
-								if (file != null && img != null && this.isVisioFilename(img))
+								if (file != null && img != null && EditorUi.isVisioFilename(img))
 								{
 									this.importVisio(file, function(xml)
 									{
@@ -9475,7 +9475,7 @@
 
 			this.importGraphML(data, handleResult);
         }
-		else if (file != null && filename != null && this.isVisioFilename(filename))
+		else if (file != null && filename != null && EditorUi.isVisioFilename(filename))
 		{
 			//  LATER: done and async are a hack before making this asynchronous
 			async = true;
@@ -9940,7 +9940,7 @@
 							});
 							
 							// Handles special cases
-							if (this.isVisioFilename(file.name))
+							if (EditorUi.isVisioFilename(file.name))
 							{
 								fn(null, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
 								{
@@ -10243,8 +10243,11 @@
 		
 		editorUiCreateUi.apply(this, arguments);
 
-		this.doSetSketchMode((mxSettings.settings.sketchMode != null && urlParams['rough'] == null &&
-			urlParams['sketch'] == null) ? mxSettings.settings.sketchMode : this.getDefaultSketchMode());
+		if (Editor.isSettingsEnabled())
+		{
+			this.doSetSketchMode((mxSettings.settings.sketchMode != null && urlParams['rough'] == null &&
+				urlParams['sketch'] == null) ? mxSettings.settings.sketchMode : this.getDefaultSketchMode());
+		}
 	};
 
 	/**
@@ -14645,7 +14648,7 @@
 				}
 			});
 			
-			if  (this.isVisioFilename(name))
+			if  (EditorUi.isVisioFilename(name))
 			{
 				this.importVisio(file, mxUtils.bind(this, function(xml)
 				{

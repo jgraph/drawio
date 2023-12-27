@@ -9580,9 +9580,9 @@ var TagsWindow = function(editorUi, x, y, w, h)
 						}
 					}
 				}
-			}, mxResources.get('enterValue') + ' (' + mxResources.get('tags') + ')');
+			}, mxResources.get('enterValue') + ' (' + mxResources.get('tags') + ')', null, null, null, null, null, null, null, 105);
 
-			editorUi.showDialog(dlg.container, 300, 80, true, true);
+			editorUi.showDialog(dlg.container, 320, 80, true, true);
 			dlg.init();
 		}
 	}, helpButton);
@@ -11604,7 +11604,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 	{
 		return function(data, mimeType, x, y, w, h, img, doneFn, file)
 		{
-			if (file != null && editorUi.isVisioFilename(file.name))
+			if (file != null && EditorUi.isVisioFilename(file.name))
 			{
 				editorUi.importVisio(file, mxUtils.bind(this, function(xml)
 				{

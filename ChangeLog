@@ -1,3 +1,14 @@
+27-DEC-2023: 21.1.14
+
+- Fixes this.isVisioFilename undefined in Editor.js
+- Fixes mxSettings is undefined [DID-10370]
+- Fixes NPE for minified freehand code in production build
+
+27-DEC-2023: 21.1.13
+
+- Fixes "Add tag" dialog title clipped [drawio-desktop-1537]
+- Increases maximumFileSizeToCacheInBytes to 10MB [DID-10317]
+
 26-DEC-2023: 21.1.12
 
 - Handles possible empty content in GitHub [drawio-4045]
