@@ -13135,7 +13135,7 @@
 		if (urlParams['ui'] == null && value != 'auto' && theme != 'atlas' &&
 			theme != 'min' && theme != 'sketch' && theme != 'simple')
 		{
-			this.setCurrentTheme((!Editor.isDarkMode()) ? 'kennedy' : 'dark', true);
+			this.setCurrentTheme((!value) ? 'kennedy' : 'dark', true);
 		}
 	};
 

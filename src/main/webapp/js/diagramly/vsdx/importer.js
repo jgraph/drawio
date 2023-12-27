@@ -450,7 +450,8 @@ var com;
 	                            		}
 	                            		else
                             			{
-	                            			emfDone();
+	                            			processedFiles++;
+			        	                    doneCheck();
                             			}
 	                            	}
 	                            	else if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(name, ".bmp")) {

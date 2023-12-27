@@ -1,3 +1,9 @@
+27-DEC-2023: 21.1.15
+
+- Fixes NPE of undefined function emfDone [drawio-4072]
+- Prints current version number in clear.html
+- Fixes dark mode not persisted in some cases [drawio-desktop-1540]
+
 27-DEC-2023: 21.1.14
 
 - Fixes this.isVisioFilename undefined in Editor.js

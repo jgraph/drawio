@@ -11,7 +11,7 @@ try
 		document.body.appendChild(document.createElement('br'));
 	};
 	
-	write('Clearing Cache...');
+	write('Clearing Cached version ' + EditorUi.VERSION + '...');
 
 	navigator.serviceWorker.getRegistrations().then(function(registrations)
 	{
