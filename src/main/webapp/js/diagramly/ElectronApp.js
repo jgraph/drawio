@@ -1624,6 +1624,9 @@ mxStencilRegistry.allowEval = false;
 	
 	LocalFile.prototype.saveDraft = function()
 	{
+		// Save draft only if file is not saved (prevents creating draft file after actual file is saved)
+		if (!this.isModified()) return;
+
 		if (this.fileObject == null)
 		{
 			//Use indexed db for unsaved files

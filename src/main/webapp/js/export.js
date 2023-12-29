@@ -373,7 +373,27 @@ function render(data)
 								bg = null;
 							}
 							
-							var svgRoot = graph.getSvg(bg, expScale, 0, false, null, true, null, null, null);
+							if (data.theme == 'dark')
+							{
+								// TODO Support enableCssDarkMode?
+								graph.shapeForegroundColor = Editor.lightColor;
+								graph.shapeBackgroundColor = Editor.darkColor;
+								graph.stylesheet = graph.getDefaultStylesheet();
+								graph.refresh();
+							}
+
+							var linkTarget = null;
+
+							if (data.linkTarget == 'same-win')
+							{
+								linkTarget = '_top';
+							}
+							else if (data.linkTarget == 'new-win')
+							{
+								linkTarget = '_blank';
+							}
+
+							var svgRoot = graph.getSvg(bg, expScale, 0, false, null, true, null, null, linkTarget);
 							
 							if (graph.shadowVisible)
 							{

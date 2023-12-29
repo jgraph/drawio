@@ -499,7 +499,7 @@
 		<delete file="${basedir}/.tmp0.js"/>
 	</target>
 
-	<target name="all" depends="app, integrate">
+	<target name="all" depends="integrate">
 		<delete file="${war.dir}/js/atlas-viewer.min.js"/>
 		<delete file="${war.dir}/js/atlas.min.js"/>
 	</target>

@@ -2176,7 +2176,7 @@
 			null, !Editor.defaultCompressed, format == 'pdf');
 		var from = null, to = null, allPages = null;
 
-		if (bounds.width * bounds.height > MAX_AREA || data.length > MAX_REQUEST_SIZE)
+		if (!EditorUi.isElectronApp && (bounds.width * bounds.height > MAX_AREA || data.length > MAX_REQUEST_SIZE))
 		{
 			throw {message: mxResources.get('drawingTooLarge')};
 		}
@@ -5093,7 +5093,7 @@
 			var dlg = new SaveDialog(this, filename, mxUtils.bind(this, function(input, mode, folderId)
 			{
 				saveFunction(input.value, mode, input, folderId);
-				this.hideDialog();
+				this.hideDialog(null, null, dlg.container);
 			}), disabled, data, mimeType, base64Encoded);
 
 			this.showDialog(dlg.container, 420, 110, true, false, mxUtils.bind(this, function()
@@ -5546,7 +5546,7 @@
 			var dlg = new SaveDialog(this, filename, mxUtils.bind(this, function(input, mode, folderId)
 			{
 				saveFunction(input.value, mode, input, folderId);
-				this.hideDialog();
+				this.hideDialog(null, null, dlg.container);
 			}), disabled, null, 'application/pdf');
 
 			this.showDialog(dlg.container, 420, 110, true, false, mxUtils.bind(this, function()

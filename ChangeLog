@@ -1,3 +1,7 @@
+29-DEC-2023: 21.1.16
+
+- Adds simple theme to atlas.min.js
+
 27-DEC-2023: 21.1.15
 
 - Fixes NPE of undefined function emfDone [drawio-4072]
