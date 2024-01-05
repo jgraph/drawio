@@ -4303,12 +4303,11 @@
 						(resp.message == '' && resp.name != null) ? resp.name : resp.message,
 						resp.filename, resp.lineNumber, resp.columnNumber, resp, 'INFO');
 				}
-				else
+
+				if ((urlParams['test'] == '1' || disableLogging) &&
+					window.console != null)
 				{
-					if (window.console != null)
-					{
-						console.error('EditorUi.handleError:', resp);
-					}
+					console.error('EditorUi.handleError:', resp);
 				}
 			}
 			catch (e)
@@ -4966,39 +4965,6 @@
 			((base64Encoded) ? '&binary=1' : ''));
 	};
 	
-	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
-	 */
-	EditorUi.prototype.base64ToBlob = function(base64Data, contentType)
-	{
-	    contentType = contentType || '';
-	    var sliceSize = 1024;
-	    var byteCharacters = atob(base64Data);
-	    var bytesLength = byteCharacters.length;
-	    var slicesCount = Math.ceil(bytesLength / sliceSize);
-	    var byteArrays = new Array(slicesCount);
-	
-	    for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex)
-	    {
-	        var begin = sliceIndex * sliceSize;
-	        var end = Math.min(begin + sliceSize, bytesLength);
-	
-	        var bytes = new Array(end - begin);
-	        
-	        for (var offset = begin, i = 0 ; offset < end; ++i, ++offset)
-	        {
-	            bytes[i] = byteCharacters[offset].charCodeAt(0);
-	        }
-	        
-	        byteArrays[sliceIndex] = new Uint8Array(bytes);
-	    }
-	
-	    return new Blob(byteArrays, {type: contentType});
-	};
-
 	/**
 	 * Translates this point by the given vector.
 	 * 
@@ -13987,18 +13953,6 @@
 		{
 			this.handleError(e);
 		}
-	};
-	
-	/**
-	 * Copies the given cells and XML to the clipboard as an embedded image.
-	 */
-	EditorUi.prototype.writeImageToClipboard = function(dataUrl, w, h, error)
-	{
-		var blob = this.base64ToBlob(dataUrl.substring(dataUrl.indexOf(',') + 1), 'image/png');
-		var html = '<img src="' + dataUrl + '" width="' + w + '" height="' + h + '">';
-		var cbi = new ClipboardItem({'image/png': blob,
-			'text/html': new Blob([html], {type: 'text/html'})});
-		navigator.clipboard.write([cbi])['catch'](error);
 	};
 
 	/**

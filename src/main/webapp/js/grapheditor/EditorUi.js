@@ -3055,6 +3055,7 @@ EditorUi.prototype.initCanvas = function()
 				pageInfo.style.fontWeight = 'bold';
 				pageInfo.style.marginTop = '8px';
 				pageInfo.style.fontSize = '14px';
+				pageInfo.style.cursor = 'default';
 
 				if (!mxClient.IS_IE && !mxClient.IS_IE11)
 				{
@@ -4905,6 +4906,7 @@ EditorUi.prototype.updateActionStates = function()
 	this.actions.get('autosize').setEnabled(ss.vertices.length > 0);
 	this.actions.get('copySize').setEnabled(ss.vertices.length == 1);
 	this.actions.get('clearWaypoints').setEnabled(ss.connections);
+	this.actions.get('clearAnchors').setEnabled(ss.connections);
 	this.actions.get('curved').setEnabled(ss.edges.length > 0);
 	this.actions.get('turn').setEnabled(ss.cells.length > 0);
 	this.actions.get('group').setEnabled((ss.cells.length > 1 ||
@@ -4923,6 +4925,7 @@ EditorUi.prototype.updateActionStates = function()
 	this.actions.get('enterGroup').setEnabled(ss.cells.length == 1 &&
 		graph.isValidRoot(ss.cells[0]));
 	this.actions.get('copyData').setEnabled(ss.cells.length == 1);
+	this.actions.get('copyAsText').setEnabled(ss.cells.length == 1);
 	this.actions.get('editLink').setEnabled(ss.cells.length == 1);
 	this.actions.get('editStyle').setEnabled(ss.cells.length == 1);
 	this.actions.get('editTooltip').setEnabled(ss.cells.length == 1);
@@ -5479,7 +5482,8 @@ EditorUi.prototype.addSplitHandler = function(elt, horizontal, dx, onChange)
  */
 EditorUi.prototype.prompt = function(title, defaultValue, fn)
 {
-	var dlg = new FilenameDialog(this, defaultValue, mxResources.get('apply'), function(newValue)
+	var dlg = new FilenameDialog(this, defaultValue,
+		mxResources.get('apply'), function(newValue)
 	{
 		fn(parseFloat(newValue));
 	}, title);
@@ -5702,6 +5706,72 @@ EditorUi.prototype.openFile = function()
 	{
 		window.openFile = null;
 	});
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+EditorUi.prototype.base64ToBlob = function(base64Data, contentType)
+{
+	contentType = contentType || '';
+	var sliceSize = 1024;
+	var byteCharacters = atob(base64Data);
+	var bytesLength = byteCharacters.length;
+	var slicesCount = Math.ceil(bytesLength / sliceSize);
+	var byteArrays = new Array(slicesCount);
+
+	for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex)
+	{
+		var begin = sliceIndex * sliceSize;
+		var end = Math.min(begin + sliceSize, bytesLength);
+
+		var bytes = new Array(end - begin);
+		
+		for (var offset = begin, i = 0 ; offset < end; ++i, ++offset)
+		{
+			bytes[i] = byteCharacters[offset].charCodeAt(0);
+		}
+		
+		byteArrays[sliceIndex] = new Uint8Array(bytes);
+	}
+
+	return new Blob(byteArrays, {type: contentType});
+};
+
+/**
+ * Copies the given cells and XML to the clipboard as an embedded image.
+ */
+EditorUi.prototype.writeImageToClipboard = function(dataUrl, w, h, error)
+{
+	var blob = this.base64ToBlob(dataUrl.substring(dataUrl.indexOf(',') + 1), 'image/png');
+	var html = '<img src="' + dataUrl + '" width="' + w + '" height="' + h + '">';
+	var cbi = new ClipboardItem({'image/png': blob,
+		'text/html': new Blob([html], {type: 'text/html'})});
+	navigator.clipboard.write([cbi])['catch'](error);
+};
+
+/**
+ * Copies the given cells and XML to the clipboard as an embedded image.
+ */
+EditorUi.prototype.writeHtmlToClipboard = function(html, error)
+{
+	var cbi = new ClipboardItem(
+	{
+		'text/plain': new Blob([Editor.convertHtmlToText(html)], {type: 'text/plain'}),
+		'text/html': new Blob([html], {type: 'text/html'})
+	});
+	navigator.clipboard.write([cbi])['catch'](error);
+};
+
+/**
+ * Writes the given text to the clipboard.
+ */
+EditorUi.prototype.writeTextToClipboard = function(text, error)
+{
+	navigator.clipboard.writeText(text)['catch'](error);
 };
 
 /**
@@ -6049,7 +6119,8 @@ EditorUi.prototype.saveFile = function(forceDialog)
 	}
 	else
 	{
-		var dlg = new FilenameDialog(this, this.editor.getOrCreateFilename(), mxResources.get('save'), mxUtils.bind(this, function(name)
+		var dlg = new FilenameDialog(this, this.editor.getOrCreateFilename(),
+			mxResources.get('save'), mxUtils.bind(this, function(name)
 		{
 			this.save(name);
 		}), null, mxUtils.bind(this, function(name)
@@ -6063,7 +6134,7 @@ EditorUi.prototype.saveFile = function(forceDialog)
 			
 			return false;
 		}));
-		this.showDialog(dlg.container, 300, 100, true, true);
+		this.showDialog(dlg.container, 340, 96, true, true);
 		dlg.init();
 	}
 };

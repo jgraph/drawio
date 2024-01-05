@@ -1269,7 +1269,8 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn, hideNoFilesErr
 							{
 								if (inFlightRequests === 0)
 								{
-									var dlg = new FilenameDialog(this.ui, 'org/repo/ref', mxResources.get('ok'), mxUtils.bind(this, function(value)
+									var dlg = new FilenameDialog(this.ui, 'org/repo/ref', mxResources.get('ok'),
+										mxUtils.bind(this, function(value)
 									{
 										if (value != null)
 										{

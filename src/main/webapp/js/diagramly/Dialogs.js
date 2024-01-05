@@ -2931,15 +2931,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				typeSelect.style.width = (compact || smallScreen) ? '80px' : '180px';
 				header.appendChild(typeSelect);
 			}
-			
-			if (editorUi.editor.fileExtensions != null)
-			{
-				var hint = FilenameDialog.createTypeHint(editorUi,
-					nameInput, editorUi.editor.fileExtensions);
-				hint.style.marginTop = '12px';
-				
-				header.appendChild(hint);
-			}
 		}
 	}
 
@@ -5124,17 +5115,12 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 
 	div.appendChild(nameInput);
 
-	if (hints != null)
+	if (hints != null && editorUi.editor.diagramFileTypes != null)
 	{
-		if (editorUi.editor.diagramFileTypes != null)
-		{
-			var typeSelect = FilenameDialog.createFileTypes(editorUi, nameInput, editorUi.editor.diagramFileTypes);
-			typeSelect.style.marginLeft = '6px';
-			typeSelect.style.width = '90px';
-			div.appendChild(typeSelect);
-		}
-		
-		div.appendChild(FilenameDialog.createTypeHint(editorUi, nameInput, hints));
+		var typeSelect = FilenameDialog.createFileTypes(editorUi, nameInput, editorUi.editor.diagramFileTypes);
+		typeSelect.style.marginLeft = '6px';
+		typeSelect.style.width = '90px';
+		div.appendChild(typeSelect);
 	}
 	
 	var copyBtn = null;
@@ -7957,7 +7943,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
     var help = ui.menus.createHelpLink('https://www.drawio.com/doc/faq/find-shapes');
     help.style.position = 'relative';
     help.style.marginLeft = '6px';
-    help.style.top = '-1px';
+    help.style.top = '3px';
     div.appendChild(help);
     
 	mxUtils.br(div);
@@ -9538,7 +9524,6 @@ var TagsWindow = function(editorUi, x, y, w, h)
 	if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
 	{
 		helpButton = editorUi.menus.createHelpLink('https://www.drawio.com/blog/tags-in-diagrams');
-		helpButton.style.marginLeft = '8px';
 	}
 
 	var tagsComponent = editorUi.editor.graph.createTagsDialog(mxUtils.bind(this, function()
@@ -9580,8 +9565,8 @@ var TagsWindow = function(editorUi, x, y, w, h)
 						}
 					}
 				}
-			}, mxResources.get('enterValue') + ' (' + mxResources.get('tags') + ')', null, null, null, null, null, null, null, 105);
-
+			}, mxResources.get('tags'), null, null, 'https://www.drawio.com/blog/tags-in-diagrams');
+			
 			editorUi.showDialog(dlg.container, 320, 80, true, true);
 			dlg.init();
 		}
@@ -11420,7 +11405,8 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 						}
 						else
 						{
-							var dlg = new FilenameDialog(editorUi, entry.title || '', mxResources.get('ok'), function(newTitle)
+							var dlg = new FilenameDialog(editorUi, entry.title || '',
+								mxResources.get('ok'), function(newTitle)
 							{
 								if (newTitle != null)
 								{
@@ -12647,28 +12633,29 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 			}
 			else if (openDiagram)
 			{
-				openBtn.className = "geTempDlgOpenBtn geTempDlgBtnDisabled geTempDlgBtnBusy";
+				openBtn.className = 'geTempDlgOpenBtn geTempDlgBtnDisabled geTempDlgBtnBusy';
 				startSubmit();
 			}
 			else
 			{
-				createBtn.className = "geTempDlgCreateBtn geTempDlgBtnDisabled geTempDlgBtnBusy";
+				createBtn.className = 'geTempDlgCreateBtn geTempDlgBtnDisabled geTempDlgBtnBusy';
 				var nameTitle = (((editorUi.mode == null || editorUi.mode == App.MODE_GOOGLE ||
-						editorUi.mode == App.MODE_BROWSER) ? mxResources.get('diagramName') : mxResources.get('filename')));
+					editorUi.mode == App.MODE_BROWSER) ? mxResources.get('diagramName') :
+						mxResources.get('filename')));
 				var nameDlg = new FilenameDialog(editorUi, editorUi.defaultFilename + '.drawio',
-						mxResources.get('ok'), startSubmit, nameTitle, function(name)
-						{
-							//TODO validate?
-							var valid = name != null && name.length > 0;
-							
-							if (valid && noDlgHide)
-							{
-								startSubmit(name);
-								return false; //prevent closing
-							}
-							
-							return valid;
-						}, null, null, null, cancelSubmit, withoutType? null : []);
+					mxResources.get('ok'), startSubmit, nameTitle, function(name)
+				{
+					//TODO validate?
+					var valid = name != null && name.length > 0;
+					
+					if (valid && noDlgHide)
+					{
+						startSubmit(name);
+						return false; //prevent closing
+					}
+					
+					return valid;
+				}, null, null, null, cancelSubmit, withoutType? null : []);
 						
 				editorUi.showDialog(nameDlg.container, 350, 80, true, true);
 				nameDlg.init();

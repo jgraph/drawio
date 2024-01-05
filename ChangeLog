@@ -1,3 +1,15 @@
+04-JAN-2023: 21.1.17
+
+- Adds copyAsText in Edit drop down [drawio-3949]
+- Replaces clearWaypoints button with drop down
+- Fixes clipping, replaces hint in filename dialog [drawio-4074]
+- Adds support for using the same URL in DRAWIO_LIGHTBOX_URL [docker-drawio-137]
+- Fixes selection propagation for current root
+- Fixes cursor for immediate edge handling in groups
+- Fixes cursor for immediate edge handling in selected ancestors
+- Fixes scrollbar positions after enter-/exitGroup
+- Fixes move of selected edges in groups
+
 29-DEC-2023: 21.1.16
 
 - Adds simple theme to atlas.min.js

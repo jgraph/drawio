@@ -612,16 +612,19 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 				{
 					if (page == 1)
 					{
-						div.appendChild(createLink(mxResources.get('filterCards') + '...', mxUtils.bind(this, function()
+						div.appendChild(createLink(mxResources.get('filterCards') + '...',
+							mxUtils.bind(this, function()
 						{
-							var dlg = new FilenameDialog(this.ui, filter, mxResources.get('ok'), mxUtils.bind(this, function(value)
+							var dlg = new FilenameDialog(this.ui, filter, mxResources.get('ok'),
+								mxUtils.bind(this, function(value)
 							{
 								if (value != null)
 								{
 									filter = value;
 									selectCard();
 								}
-							}), mxResources.get('filterCards'), null, null, 'http://help.trello.com/article/808-searching-for-cards-all-boards');
+							}), mxResources.get('filterCards'), null, null,
+								'http://help.trello.com/article/808-searching-for-cards-all-boards');
 							this.ui.showDialog(dlg.container, 300, 80, true, false);
 							dlg.init();
 						})));

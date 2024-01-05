@@ -2255,30 +2255,48 @@ PageSetupDialog.getFormats = function()
 /**
  * Constructs a new filename dialog.
  */
-var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validateFn, content, helpLink, closeOnBtn, cancelFn, hints, w, lblW)
+var FilenameDialog = function(editorUi, filename, buttonText, fn, label,
+	validateFn, content, helpLink, closeOnBtn, cancelFn, hints)
 {
 	closeOnBtn = (closeOnBtn != null) ? closeOnBtn : true;
 
-	var table = document.createElement('table');
-	var tbody = document.createElement('tbody');
-	var row = document.createElement('tr');
-	var td = document.createElement('td');
-	table.style.margin = '0 auto';
+	var container = document.createElement('div');
+	var table = document.createElement('div');
+	table.style.width = '100%';
+	table.style.display = 'grid';
+	table.style.gap = '5px 8px';
+	table.style.gridAutoColumns = 'auto 1fr';
 
-	td.style.textOverflow = 'ellipsis';
-	td.style.whiteSpace = 'nowrap';
-	td.style.textAlign = 'right';
-	td.style.maxWidth = (lblW? lblW + 15 : 100) + 'px';
-	td.style.fontSize = '10pt';
-	td.style.width = (lblW? lblW : 84) + 'px';
-	mxUtils.write(td, (label || mxResources.get('filename')) + ':');
-	
-	row.appendChild(td);
+	// Workaround for clipped focus rectangle in FF
+	table.style.boxSizing = 'border-box';
+	table.style.padding = '3px';
+
+	var td = document.createElement('div');
+	td.style.display = 'inline-flex';
+	td.style.alignItems = 'center';
+	td.style.justifyContent = 'flex-end';
+	td.style.minWidth = '0';
+
+	// Wrapper for text ellipsis
+	var wrapper = document.createElement('div');
+	wrapper.style.display = 'inline-block';
+	wrapper.style.textOverflow = 'ellipsis';
+	wrapper.style.whiteSpace = 'nowrap';
+	wrapper.style.overflow = 'hidden';
+	wrapper.style.fontSize = '10pt';
+
+	// Workaround for vertical clipping
+	wrapper.style.padding = '2px 0';
+
+	wrapper.setAttribute('title', label || mxResources.get('filename'));
+	mxUtils.write(wrapper, (label || mxResources.get('filename')) + ':');
+
+	td.appendChild(wrapper);
+	table.appendChild(td);
 	
 	var nameInput = document.createElement('input');
 	nameInput.setAttribute('value', filename || '');
-	nameInput.style.marginLeft = '4px';
-	nameInput.style.width = (w != null) ? w + 'px' : '180px';
+	nameInput.style.flexGrow = '1';
 	
 	var genericBtn = mxUtils.button(buttonText, function()
 	{
@@ -2327,7 +2345,6 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 			
 			if (dlg != null)
 			{
-				var graph = editorUi.editor.graph;
 				var dropElt = null;
 					
 				mxEvent.addListener(dlg, 'dragleave', function(evt)
@@ -2376,66 +2393,54 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 		}
 	};
 
-	td = document.createElement('td');
+	td = document.createElement('div');
+	td.style.display = 'inline-flex';
+	td.style.alignItems = 'center';
+	td.style.gap = '4px';
 	td.style.whiteSpace = 'nowrap';
 	td.appendChild(nameInput);
-	row.appendChild(td);
+	table.appendChild(td);
 	
 	if (label != null || content == null)
 	{
-		tbody.appendChild(row);
-		
-		if (hints != null)
-		{	
-			td.appendChild(FilenameDialog.createTypeHint(editorUi, nameInput, hints));
+		if (hints != null && editorUi.editor.diagramFileTypes != null)
+		{
+			td = document.createElement('div');
+			td.style.display = 'inline-flex';
+			td.style.alignItems = 'center';
+			td.style.textOverflow = 'ellipsis';
+			td.style.justifyContent = 'flex-end';
+			td.style.fontSize = '10pt';
+			mxUtils.write(td, mxResources.get('type') + ':');
+			table.appendChild(td);
 
-			if (editorUi.editor.diagramFileTypes != null)
-			{
-				row = document.createElement('tr');
-		
-				td = document.createElement('td');
-				td.style.textOverflow = 'ellipsis';
-				td.style.textAlign = 'right';
-				td.style.maxWidth = '100px';
-				td.style.fontSize = '10pt';
-				td.style.width = '84px';
-				mxUtils.write(td, mxResources.get('type') + ':');
-				row.appendChild(td);
+			td = document.createElement('div');
+			td.style.display = 'inline-flex';
+			td.style.alignItems = 'center';
+			td.style.whiteSpace = 'nowrap';
+			table.appendChild(td);
 
-				td = document.createElement('td');
-				td.style.whiteSpace = 'nowrap';
-				row.appendChild(td);
+			var typeSelect = FilenameDialog.createFileTypes(editorUi,
+				nameInput, editorUi.editor.diagramFileTypes);
+			typeSelect.style.width = '100%';
 
-				var typeSelect = FilenameDialog.createFileTypes(editorUi,
-					nameInput, editorUi.editor.diagramFileTypes);
-				typeSelect.style.marginLeft = '4px';
-				typeSelect.style.width = '198px';
-
-				td.appendChild(typeSelect);
-				nameInput.style.width = (w != null) ? (w - 40) + 'px' : '190px';
-
-				row.appendChild(td);
-				tbody.appendChild(row);
-			}
+			td.appendChild(typeSelect);
 		}
 	}
 	
 	if (content != null)
 	{
-		row = document.createElement('tr');
-		td = document.createElement('td');
-		td.colSpan = 2;
-		td.appendChild(content);
-		row.appendChild(td);
-		tbody.appendChild(row);
+		table.appendChild(content);
 	}
 	
-	row = document.createElement('tr');
-	td = document.createElement('td');
-	td.colSpan = 2;
-	td.style.paddingTop = (hints != null) ? '12px' : '20px';
-	td.style.whiteSpace = 'nowrap';
-	td.setAttribute('align', 'right');
+	row = document.createElement('div');
+	row.style.gridColumn = '1 / span 2';
+	row.style.paddingTop = (hints != null) ? '6px' : '14px';
+	row.style.whiteSpace = 'nowrap';
+	row.style.display = 'inline-flex';
+	row.style.alignItems = 'center';
+	row.style.justifyContent = 'flex-end';
+	row.setAttribute('align', 'right');
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
@@ -2448,7 +2453,7 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 	});
 	cancelBtn.className = 'geBtn';
 	
-	if (helpLink != null)
+	if (helpLink != null && (!editorUi.isOffline() || mxClient.IS_CHROMEAPP))
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
@@ -2456,12 +2461,12 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 		});
 		
 		helpBtn.className = 'geBtn';	
-		td.appendChild(helpBtn);
+		row.appendChild(helpBtn);
 	}
 
 	if (editorUi.editor.cancelFirst)
 	{
-		td.appendChild(cancelBtn);
+		row.appendChild(cancelBtn);
 	}
 	
 	mxEvent.addListener(nameInput, 'keypress', function(e)
@@ -2472,81 +2477,23 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 		}
 	});
 	
-	td.appendChild(genericBtn);
+	row.appendChild(genericBtn);
 	
 	if (!editorUi.editor.cancelFirst)
 	{
-		td.appendChild(cancelBtn);
+		row.appendChild(cancelBtn);
 	}
-
-	row.appendChild(td);
-	tbody.appendChild(row);
-	table.appendChild(tbody);
 	
-	this.container = table;
+	table.appendChild(row);
+	container.appendChild(table);
+	
+	this.container = container;
 };
 
 /**
  * 
  */
 FilenameDialog.filenameHelpLink = null;
-
-/**
- * 
- */
-FilenameDialog.createTypeHint = function(ui, nameInput, hints)
-{
-	var hint = document.createElement('img');
-	hint.style.backgroundPosition = 'center bottom';
-	hint.style.backgroundRepeat = 'no-repeat';
-	hint.style.margin = '2px 0 0 4px';
-	hint.style.verticalAlign = 'top';
-	hint.style.cursor = 'pointer';
-	hint.style.height = '16px';
-	hint.style.width = '16px';
-	mxUtils.setOpacity(hint, 70);
-	
-	var nameChanged = function()
-	{
-		hint.setAttribute('src', Editor.helpImage);
-		hint.setAttribute('title', mxResources.get('help'));
-		
-		for (var i = 0; i < hints.length; i++)
-		{
-			if (hints[i].ext.length > 0 && nameInput.value.toLowerCase().substring(
-				nameInput.value.length - hints[i].ext.length - 1) == '.' + hints[i].ext)
-			{
-				hint.setAttribute('title', mxResources.get(hints[i].title));
-				break;
-			}
-		}
-	};
-	
-	mxEvent.addListener(nameInput, 'keyup', nameChanged);
-	mxEvent.addListener(nameInput, 'change', nameChanged);
-	mxEvent.addListener(hint, 'click', function(evt)
-	{
-		var title = hint.getAttribute('title');
-		
-		if (hint.getAttribute('src') == Editor.helpImage)
-		{
-			ui.editor.graph.openLink(FilenameDialog.filenameHelpLink);
-		}
-		else if (title != '')
-		{
-			ui.showError(null, title, mxResources.get('help'), function()
-			{
-				ui.editor.graph.openLink(FilenameDialog.filenameHelpLink);
-			}, null, mxResources.get('ok'), null, null, null, 340, 90);
-		}
-		
-		mxEvent.consume(evt);
-	});
-	
-	nameChanged();
-	
-	return hint;
-};
 
 /**
  * 

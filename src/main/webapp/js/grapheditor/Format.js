@@ -1831,15 +1831,50 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		count += this.addActions(div, ['copySize', 'pasteSize', 'swap']);
 	}
 
-	var clearWaypoints = this.addAction(div, 'clearWaypoints');
+	var resetSelect = document.createElement('select');
+	resetSelect.style.width = '210px';
+	resetSelect.style.textAlign = 'center';
+	resetSelect.style.marginBottom = '2px';
 
-	if (clearWaypoints != null)
+	var ops = [{label: mxResources.get('reset'), action: 'reset'},
+		{label: mxResources.get('waypoints'), action: 'clearWaypoints'},
+		{label: mxResources.get('connectionPoints'), action: 'clearAnchors'}];
+
+	for (var i = 0; i < ops.length; i++)
 	{
+		var action = this.editorUi.actions.get(ops[i].action);
+
+		if (action == null || action.enabled)
+		{
+			var option = document.createElement('option');
+			option.setAttribute('value', ops[i].action);
+			option.setAttribute('title', ops[i].label +
+				((action != null && action.shortcut != null) ?
+					' (' + action.shortcut + ')' : ''));
+			mxUtils.write(option, ops[i].label);
+			resetSelect.appendChild(option);
+		}
+	}
+
+	if (resetSelect.children.length > 1)
+	{
+		resetSelect.value = 'reset';
+		div.appendChild(resetSelect);
 		mxUtils.br(div);
-		clearWaypoints.setAttribute('title', mxResources.get('clearWaypoints') +
-			' (' + this.editorUi.actions.get('clearWaypoints').shortcut + ')' +
-			' Shift+Click to Clear Anchor Points');
 		count++;
+
+		mxEvent.addListener(resetSelect, 'change', mxUtils.bind(this, function(evt)
+		{
+			var action = this.editorUi.actions.get(resetSelect.value);
+			resetSelect.value = 'reset';
+
+			console.log('here', action);
+
+			if (action != null)
+			{
+				action.funct();
+			}
+		}));
 	}
 
 	count += this.addActions(div, ['lockUnlock']);
@@ -3937,7 +3972,8 @@ TextFormatPanel.prototype.addFont = function(container)
 					{
 						var value = currentTable.getAttribute('cellPadding') || 0;
 						
-						var dlg = new FilenameDialog(ui, value, mxResources.get('apply'), mxUtils.bind(this, function(newValue)
+						var dlg = new FilenameDialog(ui, value, mxResources.get('apply'),
+							mxUtils.bind(this, function(newValue)
 						{
 							if (newValue != null && newValue.length > 0)
 							{
@@ -4606,9 +4642,9 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 		editSelect.style.textAlign = 'center';
 		editSelect.style.marginBottom = '2px';
 		
-		var ops = ['edit', 'editLink', 'editShape', 'editImage', 'editData',
-			'copyData', 'pasteData', 'editConnectionPoints', 'editGeometry',
-			'editTooltip', 'editStyle'];
+		var ops = ['edit', 'copyAsText', 'editLink', 'editShape', 'editImage',
+			'editData', 'copyData', 'pasteData', 'editConnectionPoints',
+			'editGeometry', 'editTooltip', 'editStyle'];
 		
 		for (var i = 0; i < ops.length; i++)
 		{

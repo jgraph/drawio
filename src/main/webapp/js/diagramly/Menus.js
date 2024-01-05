@@ -18,9 +18,14 @@
 	
 	Menus.prototype.createHelpLink = function(href)
 	{
-		var link = document.createElement('span');
+		var link = document.createElement('div');
 		link.setAttribute('title', mxResources.get('help'));
-		link.style.cssText = 'color:blue;text-decoration:underline;margin-left:8px;cursor:help;';
+		link.style.display = 'inline-flex';
+		link.style.alignItems = 'center';
+		link.style.cursor = 'help';
+		link.style.color = 'blue';
+		link.style.textDecoration = 'underline';
+		link.style.marginLeft = '4px';
 		
 		var icon = document.createElement('img');
 		mxUtils.setOpacity(icon, 50);
@@ -50,7 +55,10 @@
 	{
 		if (item != null)
 		{
-			item.firstChild.nextSibling.appendChild(this.createHelpLink(href));
+			var link = this.createHelpLink(href);
+			link.style.display = 'inline';
+			link.style.marginLeft = '8px';
+			item.firstChild.nextSibling.appendChild(link);
 		}
 	};
 
@@ -1748,7 +1756,8 @@
 		{
 			var lang = Graph.diagramLanguage || '';
 					
-			var dlg = new FilenameDialog(editorUi, lang, mxResources.get('ok'), mxUtils.bind(this, function(newLang)
+			var dlg = new FilenameDialog(editorUi, lang, mxResources.get('ok'),
+				mxUtils.bind(this, function(newLang)
 			{
 				if (newLang != null)
 				{
@@ -1756,8 +1765,9 @@
 					Graph.translateDiagram = true;
 					graph.refresh();
 				}
-			}), mxResources.get('languageCode'), null, null, 'https://www.drawio.com/blog/translate-diagrams');
-			editorUi.showDialog(dlg.container, 340, 96, true, true);
+			}), mxResources.get('languageCode'), null, null,
+				'https://www.drawio.com/blog/translate-diagrams');
+			editorUi.showDialog(dlg.container, 340, 80, true, true);
 			dlg.init();
 		});
 		
@@ -2950,7 +2960,8 @@
 				//Add support to saving files if embedded mode is running with files
 				var file = editorUi.getCurrentFile();
 				
-				if (file != null && file.constructor != EmbedFile && (file.constructor != LocalFile || file.mode != null))
+				if (file != null && file.constructor != EmbedFile &&
+					(file.constructor != LocalFile || file.mode != null))
 				{
 					editorUi.saveFile();
 				}
@@ -3500,7 +3511,7 @@
 						editorUi.showError(mxResources.get('error'), mxResources.get('invalidName'), mxResources.get('ok'));
 						
 						return false;
-					}, null, null, null, null, editorUi.editor.fileExtensions);
+					}, null, FilenameDialog.filenameHelpLink, null, null, editorUi.editor.fileExtensions);
 					this.editorUi.showDialog(dlg.container, 340, 96, true, true);
 					dlg.init();
 				}
@@ -4735,7 +4746,8 @@
 
 			editorUi.actions.addAction('drafts...', function()
 			{
-				var dlg = new FilenameDialog(editorUi, (EditorUi.draftSaveDelay / 1000) + '', mxResources.get('apply'), mxUtils.bind(this, function(newValue)
+				var dlg = new FilenameDialog(editorUi, (EditorUi.draftSaveDelay / 1000) + '',
+					mxResources.get('apply'), mxUtils.bind(this, function(newValue)
 				{
 					var val = parseInt(newValue);
 					
@@ -4746,7 +4758,7 @@
 						mxSettings.setDraftSaveDelay(val);
 						mxSettings.save();		
 					}
-				}), mxResources.get('draftSaveInt'), null, null, null, null, null, null, 50, 250);
+				}), mxResources.get('draftSaveInt'));
 				editorUi.showDialog(dlg.container, 320, 80, true, true);
 				dlg.init();
 			});

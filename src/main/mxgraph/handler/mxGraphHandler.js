@@ -465,7 +465,8 @@ mxGraphHandler.prototype.getInitialCellForEvent = function(me)
 
 		while (next != null && !this.graph.isCellSelected(next.cell) &&
 			(model.isVertex(next.cell) || model.isEdge(next.cell)) &&
-			this.isPropagateSelectionCell(state.cell, true, me))
+			this.isPropagateSelectionCell(state.cell, true, me) &&
+			next.cell != this.graph.getCurrentRoot())
 		{
 			state = next;
 			next = this.graph.view.getState(this.graph.getModel().getParent(state.cell));
@@ -544,7 +545,8 @@ mxGraphHandler.prototype.selectCellForEvent = function(cell, me)
 				while (this.graph.view.getState(parent) != null &&
 					(model.isVertex(parent) || (model.isEdge(parent) &&
 					!this.graph.isToggleEvent(me.getEvent()))) &&
-					this.isPropagateSelectionCell(cell, false, me))
+					this.isPropagateSelectionCell(cell, false, me) &&
+					parent != this.graph.getCurrentRoot())
 				{
 					cell = parent;
 					parent = model.getParent(cell);
@@ -1109,7 +1111,7 @@ mxGraphHandler.prototype.mouseMove = function(sender, me)
 			!mxEvent.isAltDown(me.getEvent()) ||
 			graph.isSelectionEmpty())
 		{
-			cells = cells.concat(me.getCell());
+			cells = cells.concat(this.cell);
 		}
 
 		this.start(this.cell, this.mouseDownX, this.mouseDownY,

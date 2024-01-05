@@ -1302,7 +1302,8 @@ Menus.prototype.promptChange = function(menu, label, hint, defaultValue, key, pa
 
 		var doStopEditing = (beforeFn != null) ? beforeFn() : true;
     	
-		var dlg = new FilenameDialog(this.editorUi, value, mxResources.get('apply'), mxUtils.bind(this, function(newValue)
+		var dlg = new FilenameDialog(this.editorUi, value, mxResources.get('apply'),
+			mxUtils.bind(this, function(newValue)
 		{
 			if (newValue != null && newValue.length > 0)
 			{

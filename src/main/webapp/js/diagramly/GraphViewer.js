@@ -1197,6 +1197,8 @@ GraphViewer.prototype.addToolbar = function()
 
 	// Creates toolbar for viewer
 	var toolbar = container.ownerDocument.createElement('div');
+	toolbar.style.display = 'flex';
+	toolbar.style.alignItems = 'center';
 	toolbar.style.position = 'absolute';
 	toolbar.style.overflow = 'hidden';
 	toolbar.style.boxSizing = 'border-box';
@@ -1374,8 +1376,8 @@ GraphViewer.prototype.addToolbar = function()
 		if (token == 'pages')
 		{
 			pageInfo = container.ownerDocument.createElement('div');
-			pageInfo.style.cssText = 'display:inline-block;position:relative;top:5px;padding:0 4px 0 4px;' +
-				'vertical-align:top;font-family:Helvetica,Arial;font-size:12px;;cursor:default;color:#000;'
+			pageInfo.style.cssText = 'display:inline-flex;position:relative;align-items:center;' +
+				'padding:4px;font-family:Helvetica,Arial;font-size:12px;;cursor:default;color:#000;'
 			mxUtils.setOpacity(pageInfo, 70);
 			
 			var prevButton = addButton(mxUtils.bind(this, function()
@@ -1400,7 +1402,7 @@ GraphViewer.prototype.addToolbar = function()
 			{
 				pageInfo.innerText = '';
 				mxUtils.write(pageInfo, (this.currentPage + 1) + ' / ' + this.diagrams.length);
-				pageInfo.style.display = (this.diagrams.length > 1) ? 'inline-block' : 'none';
+				pageInfo.style.display = (this.diagrams.length > 1) ? 'inline-flex' : 'none';
 				prevButton.style.display = pageInfo.style.display;
 				nextButton.style.display = pageInfo.style.display;
 			});
@@ -1499,7 +1501,7 @@ GraphViewer.prototype.addToolbar = function()
 						layersDialog.style.maxHeight = (this.graph.container.clientHeight - this.toolbarHeight - 10) + 'px'
 						layersDialog.style.zIndex = this.toolbarZIndex + 1;
 						layersDialog.style.color = '#000';
-						mxUtils.setOpacity(layersDialog, 80);
+						mxUtils.setOpacity(layersDialog, 85);
 						var origin = mxUtils.getDocumentScrollOrigin(document);
 						layersDialog.style.left = origin.x + r.left - 1 + 'px';
 						layersDialog.style.top = origin.y + r.bottom - 2 + 'px';
@@ -1515,10 +1517,10 @@ GraphViewer.prototype.addToolbar = function()
 				
 				model.addListener(mxEvent.CHANGE, function()
 				{
-					layersButton.style.display = (model.getChildCount(model.root) > 1) ? 'inline-block' : 'none';
+					layersButton.style.display = (model.getChildCount(model.root) > 1) ? 'inline-flex' : 'none';
 				});
 				
-				layersButton.style.display = (model.getChildCount(model.root) > 1) ? 'inline-block' : 'none';
+				layersButton.style.display = (model.getChildCount(model.root) > 1) ? 'inline-flex' : 'none';
 			}
 		}
 		else if (token == 'tags')
@@ -1553,7 +1555,7 @@ GraphViewer.prototype.addToolbar = function()
 							tagsComponent.div.style.filter = 'invert(93%) hue-rotate(180deg)';
 						}
 
-						mxUtils.setOpacity(tagsComponent.div, 80);
+						mxUtils.setOpacity(tagsComponent.div, 85);
 					}
 
 					if (tagsDialog != null)
@@ -1564,6 +1566,7 @@ GraphViewer.prototype.addToolbar = function()
 					else
 					{
 						tagsDialog = tagsComponent.div;
+						tagsDialog.style.position = 'absolute';
 						
 						mxEvent.addListener(tagsDialog, 'mouseleave', function()
 						{
@@ -1585,10 +1588,16 @@ GraphViewer.prototype.addToolbar = function()
 
 				model.addListener(mxEvent.CHANGE, mxUtils.bind(this, function()
 				{
-					tagsButton.style.display = (this.graph.getAllTags().length > 0) ? 'inline-block' : 'none';
+					tagsButton.style.display = (this.graph.getAllTags().length > 0) ? 'inline-flex' : 'none';
+
+					if (tagsDialog != null && this.graph.getAllTags().length == 0)
+					{
+						tagsDialog.parentNode.removeChild(tagsDialog);
+						tagsDialog = null;
+					}
 				}));
 				
-				tagsButton.style.display = (this.graph.getAllTags().length > 0) ? 'inline-block' : 'none';
+				tagsButton.style.display = (this.graph.getAllTags().length > 0) ? 'inline-flex' : 'none';
 			}
 		}
 		else if (token == 'lightbox')
@@ -1628,8 +1637,8 @@ GraphViewer.prototype.addToolbar = function()
 	if (this.graphConfig.title != null)
 	{
 		var filename = container.ownerDocument.createElement('div');
-		filename.style.cssText = 'display:inline-block;position:relative;padding:3px 6px 0 6px;' +
-			'vertical-align:top;font-family:Helvetica,Arial;font-size:12px;top:4px;cursor:default;color:#000;';
+		filename.style.cssText = 'display:inline-flex;position:relative;align-items:center;' +
+			'padding:6px;font-family:Helvetica,Arial;font-size:12px;cursor:default;color:#000;';
 		filename.setAttribute('title', this.graphConfig.titleTooltip || this.graphConfig.title);
 		mxUtils.write(filename, this.graphConfig.title);
 		mxUtils.setOpacity(filename, 70);
@@ -1653,9 +1662,11 @@ GraphViewer.prototype.addToolbar = function()
 	
 			// Workaround for position:relative set in ResizeSensor
 			var origin = mxUtils.getScrollOrigin(document.body)
-			var b = (document.body.style.position === 'relative') ? document.body.getBoundingClientRect() :
+			var b = (document.body.style.position === 'relative') ?
+				document.body.getBoundingClientRect() :
 				{left: -origin.x, top: -origin.y};
-			r = {left: r.left - b.left, top: r.top - b.top, bottom: r.bottom - b.top, right: r.right - b.left};
+			r = {left: r.left - b.left, top: r.top - b.top,
+				bottom: r.bottom - b.top, right: r.right - b.left};
 			
 			toolbar.style.left = r.left + 'px';
 
@@ -1690,6 +1701,12 @@ GraphViewer.prototype.addToolbar = function()
 					toolbar.parentNode.removeChild(toolbar);
 				}
 				
+				if (tagsDialog != null)
+				{
+					tagsDialog.parentNode.removeChild(tagsDialog);
+					tagsDialog = null;
+				}
+
 				if (layersDialog != null)
 				{
 					layersDialog.parentNode.removeChild(layersDialog);
@@ -1705,7 +1722,10 @@ GraphViewer.prototype.addToolbar = function()
 				
 				while (source != null)
 				{
-					if (source == container || source == toolbar || source == layersDialog)
+					if (source == container ||
+						source == toolbar ||
+						source == layersDialog ||
+						source == tagsDialog)
 					{
 						return;
 					}
@@ -1758,7 +1778,9 @@ GraphViewer.prototype.createToolbarButton = function(fn, imgSrc, tip, enabled)
 {
 	var a = document.createElement('div');
 	a.style.borderRight = '1px solid #d0d0d0';
-	a.style.padding = '3px 6px 3px 6px';
+	a.style.display = 'inline-flex';
+	a.style.alignItems = 'center';
+	a.style.padding = '6px';
 	
 	mxEvent.addListener(a, 'click', fn);
 
@@ -1767,7 +1789,6 @@ GraphViewer.prototype.createToolbarButton = function(fn, imgSrc, tip, enabled)
 		a.setAttribute('title', tip);
 	}
 	
-	a.style.display = 'inline-block';
 	var img = document.createElement('img');
 	img.setAttribute('border', '0');
 	img.setAttribute('src', imgSrc);

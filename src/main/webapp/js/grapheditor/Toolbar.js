@@ -729,7 +729,8 @@ Toolbar.prototype.createTextToolbar = function()
 			{
 				var value = table.getAttribute('cellPadding') || 0;
 				
-				var dlg = new FilenameDialog(this.editorUi, value, mxResources.get('apply'), mxUtils.bind(this, function(newValue)
+				var dlg = new FilenameDialog(this.editorUi, value, mxResources.get('apply'),
+					mxUtils.bind(this, function(newValue)
 				{
 					if (newValue != null && newValue.length > 0)
 					{

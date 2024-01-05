@@ -1704,7 +1704,8 @@ var EditDataDialog = function(ui, cell)
 		
 		mxEvent.addListener(text, 'dblclick', function(evt)
 		{
-			var dlg = new FilenameDialog(ui, id, mxResources.get('apply'), mxUtils.bind(this, function(value)
+			var dlg = new FilenameDialog(ui, id, mxResources.get('apply'),
+				mxUtils.bind(this, function(value)
 			{
 				if (value != null && value.length > 0 && value != id)
 				{
@@ -1729,7 +1730,8 @@ var EditDataDialog = function(ui, cell)
 							}
 							else
 							{
-								ui.handleError({message: mxResources.get('alreadyExst', [mxResources.get('page')])});
+								ui.handleError({message: mxResources.get('alreadyExst',
+									[mxResources.get('page')])});
 							}
 						}
 					}
@@ -1749,7 +1751,7 @@ var EditDataDialog = function(ui, cell)
 						}
 					}
 				}
-			}), mxResources.get('id'), null, null, null, null, null, null, 200);
+			}), mxResources.get('id'));
 			ui.showDialog(dlg.container, 300, 80, true, true);
 			dlg.init();
 		});

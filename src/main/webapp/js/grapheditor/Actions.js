@@ -380,6 +380,36 @@ Actions.prototype.init = function()
 			}
 		}
 	}, null, null, 'Alt+Shift+B');
+	
+	this.addAction('copyAsText', function()
+	{
+		var cell = graph.getSelectionCell();
+		
+		if (graph.isEnabled() && cell != null)
+		{
+			try
+			{
+				if (graph.isHtmlLabel(cell))
+				{
+					ui.writeHtmlToClipboard(graph.getLabel(cell), mxUtils.bind(this, function(e)
+					{
+						ui.handleError(e);
+					}));
+				}
+				else
+				{
+					ui.writeTextToClipboard(graph.getLabel(cell), mxUtils.bind(this, function(e)
+					{
+						ui.handleError(e);
+					}));
+				}
+			}
+			catch (e)
+			{
+				ui.handleError(e);
+			}
+		}
+	});
 
 	this.addAction('pasteData', function(evt, trigger)
 	{
@@ -1092,7 +1122,8 @@ Actions.prototype.init = function()
 	}));
 	this.put('customZoom', new Action(mxResources.get('custom') + '...', mxUtils.bind(this, function()
 	{
-		var dlg = new FilenameDialog(this.editorUi, parseInt(graph.getView().getScale() * 100), mxResources.get('apply'), mxUtils.bind(this, function(newValue)
+		var dlg = new FilenameDialog(this.editorUi, parseInt(graph.getView().getScale() * 100),
+			mxResources.get('apply'), mxUtils.bind(this, function(newValue)
 		{
 			var val = parseInt(newValue);
 			
@@ -1106,7 +1137,8 @@ Actions.prototype.init = function()
 	}), null, null, Editor.ctrlKey + '+0'));
 	this.addAction('pageScale...', mxUtils.bind(this, function()
 	{
-		var dlg = new FilenameDialog(this.editorUi, parseInt(graph.pageScale * 100), mxResources.get('apply'), mxUtils.bind(this, function(newValue)
+		var dlg = new FilenameDialog(this.editorUi, parseInt(graph.pageScale * 100),
+			mxResources.get('apply'), mxUtils.bind(this, function(newValue)
 		{
 			var val = parseInt(newValue);
 			
@@ -1567,10 +1599,38 @@ Actions.prototype.init = function()
 			rmWaypointAction.handler.removePoint(rmWaypointAction.handler.state, rmWaypointAction.index);
 		}
 	});
-	this.addAction('clearWaypoints', function(evt, trigger)
+	this.addAction('clearAnchors', function()
 	{
-		// Context menu click uses trigger, toolbar menu click uses evt
-		var evt = (trigger != null) ? trigger : evt;
+		var cells = graph.getSelectionCells();
+
+		if (cells != null)
+		{
+			cells = graph.getEditableCells(graph.addAllEdges(cells));
+			
+			graph.getModel().beginUpdate();
+			try
+			{
+				for (var i = 0; i < cells.length; i++)
+				{
+					var cell = cells[i];
+					
+					if (graph.getModel().isEdge(cell))
+					{
+						graph.setCellStyles(mxConstants.STYLE_EXIT_X, null, [cell]);
+						graph.setCellStyles(mxConstants.STYLE_EXIT_Y, null, [cell]);
+						graph.setCellStyles(mxConstants.STYLE_ENTRY_X, null, [cell]);
+						graph.setCellStyles(mxConstants.STYLE_ENTRY_Y, null, [cell]);
+					}
+				}
+			}
+			finally
+			{
+				graph.getModel().endUpdate();
+			}
+		}
+	});
+	this.addAction('clearWaypoints', function()
+	{
 		var cells = graph.getSelectionCells();
 
 		if (cells != null)
@@ -1588,15 +1648,7 @@ Actions.prototype.init = function()
 					{
 						var geo = graph.getCellGeometry(cell);
 			
-						// Resets fixed connection point
-						if (trigger != null && mxEvent.isShiftDown(evt))
-						{
-							graph.setCellStyles(mxConstants.STYLE_EXIT_X, null, [cell]);
-							graph.setCellStyles(mxConstants.STYLE_EXIT_Y, null, [cell]);
-							graph.setCellStyles(mxConstants.STYLE_ENTRY_X, null, [cell]);
-							graph.setCellStyles(mxConstants.STYLE_ENTRY_Y, null, [cell]);
-						}
-						else if (geo != null)
+						if (geo != null)
 						{
 							geo = geo.clone();
 							geo.points = null;

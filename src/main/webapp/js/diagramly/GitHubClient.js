@@ -698,7 +698,7 @@ GitHubClient.prototype.showCommitDialog = function(filename, isNew, success, can
 	}), mxResources.get('commitMessage'), null, null, null, null, mxUtils.bind(this, function()
 	{
 		cancel();
-	}), null, 280);
+	}));
 
 	this.ui.showDialog(dlg.container, 400, 80, true, false);
 	dlg.init();

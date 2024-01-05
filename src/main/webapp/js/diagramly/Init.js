@@ -230,7 +230,7 @@ if (urlParams['extAuth'] == '1' && /((iPhone|iPod|iPad).*AppleWebKit(?!.*Version
 }
 
 // Uses lightbox mode on viewer domain
-if (window.location.hostname == DRAWIO_LIGHTBOX_URL.substring(DRAWIO_LIGHTBOX_URL.indexOf('//') + 2))
+if (window.location.hostname == 'viewer.diagrams.net')
 {
 	urlParams['lightbox'] = '1';
 }	
