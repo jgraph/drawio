@@ -1060,6 +1060,10 @@ mxPrintPreview.prototype.addGraphFragment = function(dx, dy, scale, pageNumber, 
 	// Resets the translation
 	var translate = view.getTranslate();
 	view.translate = new mxPoint(dx, dy);
+
+	// Avoids destruction of existing handlers
+	var updateHandler = this.graph.selectionCellsHandler.updateHandler;
+	this.graph.selectionCellsHandler.updateHandler = function() {};
 	
 	// Redraws only states that intersect the clip
 	var redraw = this.graph.cellRenderer.redraw;
@@ -1152,7 +1156,7 @@ mxPrintPreview.prototype.addGraphFragment = function(dx, dy, scale, pageNumber, 
 					tmp.style.height = '';
 				}
 				// Tries to fetch all text labels and only text labels
-				else if (tmp.style.cursor != 'default' && name != 'div')
+				else if (!this.isTextLabel(tmp))
 				{
 					tmp.parentNode.removeChild(tmp);
 				}
@@ -1179,6 +1183,7 @@ mxPrintPreview.prototype.addGraphFragment = function(dx, dy, scale, pageNumber, 
 		this.graph.setEnabled(graphEnabled);
 		this.graph.container = previousContainer;
 		this.graph.cellRenderer.redraw = redraw;
+		this.graph.selectionCellsHandler.updateHandler = updateHandler;
 		view.canvas = canvas;
 		view.backgroundPane = backgroundPane;
 		view.drawPane = drawPane;
@@ -1187,6 +1192,16 @@ mxPrintPreview.prototype.addGraphFragment = function(dx, dy, scale, pageNumber, 
 		temp.destroy();
 		view.setEventsEnabled(eventsEnabled);
 	}
+};
+
+/**
+ * Function: isTextLabel
+ * 
+ * Returns true if the given node is a test label.
+ */
+mxPrintPreview.prototype.isTextLabel = function(node)
+{
+	return tmp.style.cursor == 'default' || node.nodeName.toLowerCase() == 'div';
 };
 
 /**

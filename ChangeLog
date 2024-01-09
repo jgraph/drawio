@@ -1,3 +1,13 @@
+09-JAN-2023: 21.1.18
+
+- Fixes overridden configurations [drawio-desktop-1564]
+- Removes multiple javascript protocol prefixes
+- Adds exit menu and fixed isModified detection [drawio-desktop-1222]
+- Fixed text replace when search query is " or ' [drawio-desktop-1152]
+- Fixes error messages of new files in offline mode [drawio-nextcloud-62]
+- Experimental support for vertical writing mode [drawio-4068]
+- Fixes relative links in SVG export
+
 04-JAN-2023: 21.1.17
 
 - Adds copyAsText in Edit drop down [drawio-3949]

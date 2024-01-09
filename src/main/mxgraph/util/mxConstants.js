@@ -2239,6 +2239,22 @@
 	TEXT_DIRECTION_RTL: 'rtl',
 
 	/**
+	 * Variable: TEXT_DIRECTION_VERTICAL_LR
+	 * 
+	 * Constant for vertical text direction left to right. Default is ltr.
+	 * Use this value for vertical left to right text direction.
+	 */
+	TEXT_DIRECTION_VERTICAL_LR: 'vertical-lr',
+
+	/**
+	 * Variable: TEXT_DIRECTION_VERTICAL_RL
+	 * 
+	 * Constant for vertical text direction right to left. Default is rtl.
+	 * Use this value for vertical right to left text direction.
+	 */
+	TEXT_DIRECTION_VERTICAL_RL: 'vertical-rl',
+
+	/**
 	 * Variable: DIRECTION_MASK_NONE
 	 * 
 	 * Constant for no direction.

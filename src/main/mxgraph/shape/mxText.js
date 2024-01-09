@@ -223,6 +223,31 @@ mxText.prototype.configurePointerEvents = function(c)
 };
 
 /**
+ * Function: getActualTextDirection
+ * 
+ * Returns the actual text direction.
+ */
+mxText.prototype.getActualTextDirection = function()
+{
+	var dir = this.textDirection;
+	
+	if (dir == mxConstants.TEXT_DIRECTION_AUTO)
+	{
+		dir = this.getAutoDirection();
+	}
+	
+	if (dir != mxConstants.TEXT_DIRECTION_LTR &&
+		dir != mxConstants.TEXT_DIRECTION_RTL &&
+		dir != mxConstants.TEXT_DIRECTION_VERTICAL_LR &&
+		dir != mxConstants.TEXT_DIRECTION_VERTICAL_RL)
+	{
+		dir = null;
+	}
+
+	return dir;
+};
+
+/**
  * Function: paint
  * 
  * Generic rendering code.
@@ -238,11 +263,13 @@ mxText.prototype.paint = function(c, update)
 	
 	this.updateTransform(c, x, y, w, h);
 	this.configureCanvas(c, x, y, w, h);
+				
+	var dir = this.getActualTextDirection();
 	
 	if (update)
 	{
 		c.updateText(x, y, w, h, this.align, this.valign, this.wrap, this.overflow,
-				this.clipped, this.getTextRotation(), this.node);
+				this.clipped, this.getTextRotation(), dir, this.node);
 	}
 	else
 	{
@@ -266,19 +293,7 @@ mxText.prototype.paint = function(c, update)
 		// Handles trailing newlines to make sure they are visible in rendering output
 		val = (!mxUtils.isNode(this.value) && this.replaceLinefeeds && fmt == 'html') ?
 			val.replace(/\n/g, '<br/>') : val;
-			
-		var dir = this.textDirection;
-	
-		if (dir == mxConstants.TEXT_DIRECTION_AUTO && !realHtml)
-		{
-			dir = this.getAutoDirection();
-		}
-		
-		if (dir != mxConstants.TEXT_DIRECTION_LTR && dir != mxConstants.TEXT_DIRECTION_RTL)
-		{
-			dir = null;
-		}
-		
+
 		c.text(x, y, w, h, val, this.align, this.valign, this.wrap, fmt,
 			this.overflow, this.clipped, this.getTextRotation(), dir);
 	}
@@ -801,8 +816,9 @@ mxText.prototype.redrawHtmlShapeWithCss3 = function()
 	var flex = 'position: absolute; left: ' + Math.round(this.bounds.x) + 'px; ' +
 		'top: ' + Math.round(this.bounds.y) + 'px; pointer-events: none; ';
 	var block = this.getTextCss();
+	var dir = this.getActualTextDirection();
 	
-	mxSvgCanvas2D.createCss(w + 2, h, this.align, this.valign, this.wrap, this.overflow, this.clipped,
+	mxSvgCanvas2D.createCss(w + 2, h, this.align, this.valign, this.wrap, this.overflow, this.clipped, dir,
 		(this.background != null) ? mxUtils.htmlEntities(this.background) : null,
 		(this.border != null) ? mxUtils.htmlEntities(this.border) : null,
 		flex, block, this.scale, mxUtils.bind(this, function(dx, dy, flex, item, block, ofl)
@@ -1215,6 +1231,7 @@ mxText.prototype.updateValue = function()
 		
 		if (divs.length > 0)
 		{
+			// LATER: Add vertical writing-mode support
 			var dir = this.textDirection;
 
 			if (dir == mxConstants.TEXT_DIRECTION_AUTO && this.dialect != mxConstants.DIALECT_STRICTHTML)

@@ -1451,7 +1451,7 @@ EditorUi.prototype.createSelectionState = function()
 EditorUi.prototype.initSelectionState = function()
 {
 	return {vertices: [], edges: [], cells: [], x: null, y: null, width: null, height: null,
-		style: {}, containsImage: false, containsLabel: false, fill: true, glass: true,
+		style: {}, containsImage: false, containsLabel: false, fill: true, glass: true, html: true,
 		rounded: true, autoSize: false, image: false, shadow: true, lineJumps: true, resizable: true,
 		table: false, cell: false, row: false, movable: true, rotatable: true, stroke: true,
 		swimlane: false, unlocked: this.editor.graph.isEnabled(), connections: false};
@@ -1786,6 +1786,7 @@ EditorUi.prototype.updateSelectionStateForCell = function(result, cell, cells, i
 	
 	if (state != null)
 	{
+		result.html = result.html && graph.isHtmlLabel(cell);
 		result.autoSize = result.autoSize || graph.isAutoSizeState(state);
 		result.glass = result.glass && graph.isGlassState(state);
 		result.rounded = result.rounded && graph.isRoundedState(state);

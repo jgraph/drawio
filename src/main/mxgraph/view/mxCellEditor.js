@@ -700,6 +700,9 @@ mxCellEditor.prototype.resize = function()
 	 		// TODO: Fix word wrapping preview for edge labels in helloworld.html
 			if (this.graph.isWrapping(state.cell) && (this.bounds.width >= 2 || this.bounds.height >= 2))
 			{
+				var dir = this.textDirection = mxUtils.getValue(state.style,
+					mxConstants.STYLE_TEXT_DIRECTION, mxConstants.DEFAULT_TEXT_DIRECTION);
+				var vertical = dir != null && dir.substring(0, 9) == 'vertical-';
 				this.textarea.style.wordWrap = mxConstants.WORD_WRAP;
 				this.textarea.style.whiteSpace = 'normal';
 
@@ -726,6 +729,10 @@ mxCellEditor.prototype.resize = function()
 						}
 						
 						this.textarea.style.width = tmp + 'px';
+					}
+					else if (vertical)
+					{
+						this.textarea.style.maxHeight = (this.bounds.height / scale) + 'px';
 					}
 					else
 					{
@@ -865,7 +872,6 @@ mxCellEditor.prototype.isLegacyEditor = function()
  */
 mxCellEditor.prototype.updateTextAreaStyle = function(state)
 {
-	var scale = this.graph.getView().scale;
 	var size = mxUtils.getValue(state.style, mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE);
 	var family = mxUtils.getValue(state.style, mxConstants.STYLE_FONTFAMILY, mxConstants.DEFAULT_FONTFAMILY);
 	var color = mxUtils.getValue(state.style, mxConstants.STYLE_FONTCOLOR, 'black');
@@ -898,6 +904,7 @@ mxCellEditor.prototype.updateTextAreaStyle = function(state)
 	this.textarea.style.fontFamily = family;
 	this.textarea.style.textAlign = align;
 	this.textarea.style.outline = 'none';
+	this.textarea.style.writingMode = '';
 	this.textarea.style.color = color;
 
 	var borderColor = this.getBorderColor(state);
@@ -911,24 +918,29 @@ mxCellEditor.prototype.updateTextAreaStyle = function(state)
 		this.textarea.style.border = 'none';
 	}
 			
-	var dir = this.textDirection = mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_DIRECTION, mxConstants.DEFAULT_TEXT_DIRECTION);
+	var dir = this.textDirection = mxUtils.getValue(state.style,
+		mxConstants.STYLE_TEXT_DIRECTION, mxConstants.DEFAULT_TEXT_DIRECTION);
+	this.textarea.removeAttribute('dir');
 	
 	if (dir == mxConstants.TEXT_DIRECTION_AUTO)
 	{
-		if (state != null && state.text != null && state.text.dialect != mxConstants.DIALECT_STRICTHTML &&
+		if (state != null && state.text != null &&
+			state.text.dialect != mxConstants.DIALECT_STRICTHTML &&
 			!mxUtils.isNode(state.text.value))
 		{
 			dir = state.text.getAutoDirection();
 		}
 	}
-	
-	if (dir == mxConstants.TEXT_DIRECTION_LTR || dir == mxConstants.TEXT_DIRECTION_RTL)
+
+	if (dir == mxConstants.TEXT_DIRECTION_LTR ||
+		dir == mxConstants.TEXT_DIRECTION_RTL)
 	{
 		this.textarea.setAttribute('dir', dir);
 	}
-	else
+	else if (dir == mxConstants.TEXT_DIRECTION_VERTICAL_LR ||
+		dir == mxConstants.TEXT_DIRECTION_VERTICAL_RL)
 	{
-		this.textarea.removeAttribute('dir');
+		this.textarea.style.writingMode = dir;
 	}
 };
 

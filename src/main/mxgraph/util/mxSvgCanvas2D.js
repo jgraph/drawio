@@ -1602,11 +1602,11 @@ mxSvgCanvas2D.prototype.createDiv = function(str)
 /**
  * Updates existing DOM nodes for text rendering. LATER: Merge common parts with text function below.
  */
-mxSvgCanvas2D.prototype.updateText = function(x, y, w, h, align, valign, wrap, overflow, clip, rotation, node)
+mxSvgCanvas2D.prototype.updateText = function(x, y, w, h, align, valign, wrap, overflow, clip, rotation, dir, node)
 {
 	if (node != null && node.firstChild != null && node.firstChild.firstChild != null)
 	{
-		this.updateTextNodes(x, y, w, h, align, valign, wrap, overflow, clip, rotation, node.firstChild);
+		this.updateTextNodes(x, y, w, h, align, valign, wrap, overflow, clip, rotation, dir, node.firstChild);
 	}
 };
 
@@ -1632,7 +1632,7 @@ mxSvgCanvas2D.prototype.addForeignObject = function(x, y, w, h, str, align, vali
 	
 	fo.appendChild(div);
 	group.appendChild(fo);
-	this.updateTextNodes(x, y, w, h, align, valign, wrap, overflow, clip, rotation, group);
+	this.updateTextNodes(x, y, w, h, align, valign, wrap, overflow, clip, rotation, dir, group);
 	
 	// Alternate content if foreignObject not supported
 	if (this.root.ownerDocument != document)
@@ -1655,18 +1655,19 @@ mxSvgCanvas2D.prototype.addForeignObject = function(x, y, w, h, str, align, vali
 /**
  * Updates existing DOM nodes for text rendering.
  */
-mxSvgCanvas2D.prototype.updateTextNodes = function(x, y, w, h, align, valign, wrap, overflow, clip, rotation, g)
+mxSvgCanvas2D.prototype.updateTextNodes = function(x, y, w, h, align, valign, wrap, overflow, clip, rotation, dir, g)
 {
 	var s = this.state.scale;
 
-	mxSvgCanvas2D.createCss(w + this.foreignObjectPadding, h, align, valign, wrap, overflow, clip,
+	mxSvgCanvas2D.createCss(w + this.foreignObjectPadding, h, align, valign, wrap, overflow, clip, dir,
 		(this.state.fontBackgroundColor != null) ? this.state.fontBackgroundColor : null,
 		(this.state.fontBorderColor != null) ? this.state.fontBorderColor : null,
 		'display: flex; align-items: unsafe ' +
 		((valign == mxConstants.ALIGN_TOP) ? 'flex-start' :
 		((valign == mxConstants.ALIGN_BOTTOM) ? 'flex-end' : 'center'))  + '; ' +
 		'justify-content: unsafe ' + ((align == mxConstants.ALIGN_LEFT) ? 'flex-start' :
-		((align == mxConstants.ALIGN_RIGHT) ? 'flex-end' : 'center'))  + '; ',
+		((align == mxConstants.ALIGN_RIGHT) ? 'flex-end' : 'center')) + '; ' +
+		((dir != null && dir.substring(0, 9) == 'vertical-') ? 'writing-mode: ' + dir + ';' : ''),
 		this.getTextCss(), s, mxUtils.bind(this, function(dx, dy, flex, item, block)
 	{
 		x += this.state.dx;
@@ -1748,10 +1749,11 @@ mxSvgCanvas2D.prototype.updateTextNodes = function(x, y, w, h, align, valign, wr
 /**
  * Updates existing DOM nodes for text rendering.
  */
-mxSvgCanvas2D.createCss = function(w, h, align, valign, wrap, overflow, clip, bg, border, flex, block, s, callback)
+mxSvgCanvas2D.createCss = function(w, h, align, valign, wrap, overflow, clip, dir, bg, border, flex, block, s, callback)
 {
 	var item = 'box-sizing: border-box; font-size: 0; text-align: ' + ((align == mxConstants.ALIGN_LEFT) ? 'left' :
 		((align == mxConstants.ALIGN_RIGHT) ? 'right' : 'center')) + '; ';
+	var vertical = dir != null && dir.substring(0, 9) == 'vertical-';
 	var pt = mxUtils.getAlignmentAsPoint(align, valign);
 	var ofl = 'overflow: hidden; ';
 	var fw = 'width: 1px; ';
@@ -1802,7 +1804,15 @@ mxSvgCanvas2D.createCss = function(w, h, align, valign, wrap, overflow, clip, bg
 	else
 	{
 		ofl = '';
-		dy = 0;
+
+		if (vertical)
+		{
+			dx =0;
+		}
+		else
+		{
+			dy = 0;
+		}
 	}
 	
 	var bgc = '';
@@ -1826,14 +1836,29 @@ mxSvgCanvas2D.createCss = function(w, h, align, valign, wrap, overflow, clip, bg
 		item += bgc;
 	}
 
-	if (wrap && w > 0)
+	if (wrap && ((vertical && h > 0) || (!vertical && w > 0)))
 	{
 		block += 'white-space: normal; word-wrap: ' + mxConstants.WORD_WRAP + '; ';
-		fw = 'width: ' + Math.round(w) + 'px; ';
-		
+
+		if (vertical)
+		{
+			fh = 'height: ' + Math.round(h) + 'px; ';
+		}
+		else
+		{
+			fw = 'width: ' + Math.round(w) + 'px; ';
+		}
+
 		if (ofl != '' && overflow != 'fill')
 		{
-			dy = 0;
+			if (vertical)
+			{
+				dx = 0;
+			}
+			else
+			{
+				dy = 0;
+			}
 		}
 	}
 	else
@@ -1915,7 +1940,7 @@ mxSvgCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, fo
 			// Ignores invalid XHTML labels
 			if (div != null)
 			{
-				if (dir != null)
+				if (dir != null && dir.substring(0, 9) == 'vertical-')
 				{
 					div.setAttribute('dir', dir);
 				}
@@ -2245,7 +2270,7 @@ mxSvgCanvas2D.prototype.plainText = function(x, y, w, h, str, align, valign, wra
 		tr += 'rotate(' + rotation  + ',' + this.format(x * s.scale) + ',' + this.format(y * s.scale) + ')';
 	}
 	
-	if (dir != null)
+	if (dir != null && dir.substring(0, 9) != 'vertical-')
 	{
 		node.setAttribute('direction', dir);
 	}

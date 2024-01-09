@@ -1706,6 +1706,15 @@ PrintDialog.createPrintPreview = function(graph, scale, pf, border, x0, y0, auto
 	
 	preview.backgroundColor = bg;
 
+	// Excludes hints from being printed as text labels
+	var isTextLabel = preview.isTextLabel;
+
+	preview.isTextLabel = function(node)
+	{
+		return !node.className == 'geHint' && isTextLabel.apply(this, arguments);
+	};
+
+	// Makes relative links absolute
 	var getLinkForCellState = preview.getLinkForCellState;
 
 	preview.getLinkForCellState = function(state)

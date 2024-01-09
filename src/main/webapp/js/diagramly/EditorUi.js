@@ -13601,31 +13601,37 @@
 		var graph = this.editor.graph;
 		graph.defaultVertexStyle = mxUtils.clone(Graph.prototype.defaultVertexStyle);
 		graph.defaultEdgeStyle = mxUtils.clone(Graph.prototype.defaultEdgeStyle);
+		
+		// Skipped if defaultVertexStyle or defaultEdgeStyle configured
+		if (Editor.config == null || (Editor.config.defaultVertexStyle == null &&
+			Editor.config.defaultEdgeStyle == null))
+		{
+			if (Editor.sketchMode)
+			{
+				this.menus.defaultFontSize = 20;
+			}
+			else if (Editor.currentTheme == 'simple')
+			{
+				this.menus.defaultFontSize = 16;
+			}
+			else
+			{
+				this.menus.defaultFontSize = Menus.prototype.defaultFontSize;
+			}
 
-		if (Editor.sketchMode)
-		{
-			this.menus.defaultFontSize = 20;
-		}
-		else if (Editor.currentTheme == 'simple')
-		{
-			this.menus.defaultFontSize = 16;
-		}
-		else
-		{
-			this.menus.defaultFontSize = Menus.prototype.defaultFontSize;
-		}
-
-		if (this.menus.defaultFontSize == Menus.prototype.defaultFontSize)
-		{
-			setStyle(graph.defaultEdgeStyle, 'fontSize', null);
-			setStyle(graph.defaultVertexStyle, 'fontSize', null);
-		}
-		else
-		{
-			setStyle(graph.defaultVertexStyle, 'fontSize', this.menus.defaultFontSize);	
-			setStyle(graph.defaultEdgeStyle, 'fontSize', parseInt(this.menus.defaultFontSize) - 4);
+			if (this.menus.defaultFontSize == Menus.prototype.defaultFontSize)
+			{
+				setStyle(graph.defaultEdgeStyle, 'fontSize', null);
+				setStyle(graph.defaultVertexStyle, 'fontSize', null);
+			}
+			else
+			{
+				setStyle(graph.defaultVertexStyle, 'fontSize', this.menus.defaultFontSize);	
+				setStyle(graph.defaultEdgeStyle, 'fontSize', parseInt(this.menus.defaultFontSize) - 4);
+			}
 		}
 
+		// Skipped if defaultEdgeStyle configured
 		if (Editor.config == null || Editor.config.defaultEdgeStyle == null)
 		{
 			if (Editor.currentTheme == 'simple')
@@ -13651,27 +13657,36 @@
 			}
 		}
 
-		if (Editor.sketchMode)
+		// Skipped if defaultFonts configured
+		if (Editor.config == null || Editor.config.defaultFonts == null)
 		{
-			this.menus.defaultFonts = Menus.prototype.defaultFonts.concat(Editor.sketchFonts);
-			
-			setStyle(graph.defaultVertexStyle, 'fontFamily', Editor.sketchFontFamily);
-			setStyle(graph.defaultVertexStyle, 'fontSource', Editor.sketchFontSource);
-			setStyle(graph.defaultVertexStyle, 'hachureGap', '4');
-			setStyle(graph.defaultVertexStyle, 'sketch', '1');
-			setStyle(graph.defaultVertexStyle, 'curveFitting', Editor.sketchDefaultCurveFitting);
-			setStyle(graph.defaultVertexStyle, 'jiggle', Editor.sketchDefaultJiggle);
+			if (Editor.sketchMode)
+			{
+				this.menus.defaultFonts = Menus.prototype.defaultFonts.concat(Editor.sketchFonts);
 
-			setStyle(graph.defaultEdgeStyle, 'fontFamily', Editor.sketchFontFamily);
-			setStyle(graph.defaultEdgeStyle, 'fontSource', Editor.sketchFontSource);
-			setStyle(graph.defaultEdgeStyle, 'sketch', '1');
-			setStyle(graph.defaultEdgeStyle, 'curveFitting', Editor.sketchDefaultCurveFitting);
-			setStyle(graph.defaultEdgeStyle, 'jiggle', Editor.sketchDefaultJiggle);
-			setStyle(graph.defaultEdgeStyle, 'hachureGap', '4');
-		}
-		else
-		{
-			this.menus.defaultFonts = Menus.prototype.defaultFonts;
+				// Skipped if defaultFonts, defaultVertexStyle or defaultEdgeStyle configured
+				if (Editor.config == null || (Editor.config.defaultVertexStyle == null &&
+					Editor.config.defaultEdgeStyle == null))
+				{
+					setStyle(graph.defaultVertexStyle, 'fontFamily', Editor.sketchFontFamily);
+					setStyle(graph.defaultVertexStyle, 'fontSource', Editor.sketchFontSource);
+					setStyle(graph.defaultVertexStyle, 'hachureGap', '4');
+					setStyle(graph.defaultVertexStyle, 'sketch', '1');
+					setStyle(graph.defaultVertexStyle, 'curveFitting', Editor.sketchDefaultCurveFitting);
+					setStyle(graph.defaultVertexStyle, 'jiggle', Editor.sketchDefaultJiggle);
+
+					setStyle(graph.defaultEdgeStyle, 'fontFamily', Editor.sketchFontFamily);
+					setStyle(graph.defaultEdgeStyle, 'fontSource', Editor.sketchFontSource);
+					setStyle(graph.defaultEdgeStyle, 'sketch', '1');
+					setStyle(graph.defaultEdgeStyle, 'curveFitting', Editor.sketchDefaultCurveFitting);
+					setStyle(graph.defaultEdgeStyle, 'jiggle', Editor.sketchDefaultJiggle);
+					setStyle(graph.defaultEdgeStyle, 'hachureGap', '4');
+				}
+			}
+			else
+			{
+				this.menus.defaultFonts = Menus.prototype.defaultFonts;
+			}
 		}
 
 		graph.currentVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
@@ -13812,17 +13827,7 @@
 			
 			this.addListener('customFontsChanged', mxUtils.bind(this, function(sender, evt)
 			{
-				if (urlParams['ext-fonts'] != '1')
-				{
-					mxSettings.setCustomFonts(this.menus.customFonts);
-				}
-				else
-				{
-					var customFonts = evt.getProperty('customFonts');
-					this.menus.customFonts = customFonts;
-					mxSettings.setCustomFonts(customFonts);
-				}
-				
+				mxSettings.setCustomFonts(this.menus.customFonts);
 				mxSettings.save();
 			}));
 			
@@ -15211,7 +15216,11 @@
 						
 						if (data != null)
 						{
-							if (data.charAt(0) == '%')
+							if (data.trim() == '')
+							{
+								data = null; // nextcloud case
+							}
+							else if (data.charAt(0) == '%')
 							{
 								data = decodeURIComponent(data);
 							}
@@ -15349,45 +15358,6 @@
 						var enableRecentDocs = data.enableRecent == 1;
 						var enableSearchDocs = data.enableSearch == 1;
 						var enableCustomTemp = data.enableCustomTemp == 1;
-						
-						if (urlParams['newTempDlg'] == '1' && !data.templatesOnly && data.callback != null)
-						{
-							var user = this.getCurrentUser();
-							
-							var tempDlg = new TemplatesDialog(this, function(xml, filename, itemInfo)
-							{
-								xml = xml || this.emptyDiagramXml;
-								
-								parent.postMessage(JSON.stringify({event: 'template', xml: xml,
-									blank: xml == this.emptyDiagramXml, name: filename,
-									tempUrl: itemInfo.url, libs: itemInfo.libs, 
-									builtIn: itemInfo.info != null && itemInfo.info.custContentId != null,
-									message: data}), '*');
-							}, mxUtils.bind(this, function()
-							{
-								this.actions.get('exit').funct();
-							}), null, null, user != null? user.id : null, 
-							enableRecentDocs? mxUtils.bind(this, function(recentReadyCallback, error, username) 
-							{
-								this.remoteInvoke('getRecentDiagrams', [username], null, recentReadyCallback, error);
-							}) : null, enableSearchDocs?  mxUtils.bind(this, function(searchStr, searchReadyCallback, error, username) 
-							{
-								this.remoteInvoke('searchDiagrams', [searchStr, username], null, searchReadyCallback, error);
-							}) : null, mxUtils.bind(this, function(obj, callback, error) 
-							{
-								this.remoteInvoke('getFileContent', [obj.url], null, callback, error);
-							}), null, enableCustomTemp? mxUtils.bind(this, function(customTempCallback) 
-							{
-								this.remoteInvoke('getCustomTemplates', null, null, customTempCallback, function()
-								{
-									customTempCallback({}, 0); //ignore error by sending empty templates
-								});
-							}) : null, false, false, true, true);
-							
-							this.showDialog(tempDlg.container, window.innerWidth, window.innerHeight, true, false, null, false, true);
-
-							return;
-						}
 						
 						var dlg = new NewDialog(this, false, data.templatesOnly? false : data.callback != null,
 							mxUtils.bind(this, function(xml, name, url, libs)

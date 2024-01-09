@@ -3255,15 +3255,34 @@ TextFormatPanel.prototype.addFont = function(container)
 	// NOTE: For automatic we use the value null since automatic
 	// requires the text to be non formatted and non-wrapped
 	var dirs = ['automatic', 'leftToRight', 'rightToLeft'];
+
+	if (ss.html && urlParams['test'] == '1')
+	{
+		dirs.push('vertical-leftToRight');
+		dirs.push('vertical-rightToLeft');
+	}
+
 	var dirSet = {'automatic': null,
-			'leftToRight': mxConstants.TEXT_DIRECTION_LTR,
-			'rightToLeft': mxConstants.TEXT_DIRECTION_RTL};
+		'leftToRight': mxConstants.TEXT_DIRECTION_LTR,
+		'rightToLeft': mxConstants.TEXT_DIRECTION_RTL,
+		'vertical-leftToRight': mxConstants.TEXT_DIRECTION_VERTICAL_LR,
+		'vertical-rightToLeft': mxConstants.TEXT_DIRECTION_VERTICAL_RL};
 
 	for (var i = 0; i < dirs.length; i++)
 	{
 		var dirOption = document.createElement('option');
 		dirOption.setAttribute('value', dirs[i]);
-		mxUtils.write(dirOption, mxResources.get(dirs[i]));
+
+		if (dirs[i].substring(0, 9) == 'vertical-')
+		{
+			mxUtils.write(dirOption, mxResources.get('vertical') +
+				' (' + mxResources.get(dirs[i].substring(9)) + ')');
+		}
+		else
+		{
+			mxUtils.write(dirOption, mxResources.get(dirs[i]));
+		}
+
 		dirSelect.appendChild(dirOption);
 	}
 
@@ -4117,9 +4136,17 @@ TextFormatPanel.prototype.addFont = function(container)
 		{
 			dirSelect.value = 'leftToRight';
 		}
-		else if (dir == mxConstants.TEXT_DIRECTION_AUTO)
+		else if (dir == mxConstants.TEXT_DIRECTION_AUTO || !ss.html)
 		{
 			dirSelect.value = 'automatic';
+		}
+		else if (dir == mxConstants.TEXT_DIRECTION_VERTICAL_LR)
+		{
+			dirSelect.value = 'vertical-leftToRight';
+		}
+		else if (dir == mxConstants.TEXT_DIRECTION_VERTICAL_RL)
+		{
+			dirSelect.value = 'vertical-rightToLeft';
 		}
 		
 		if (force || document.activeElement != globalSpacing)

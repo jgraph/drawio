@@ -5527,9 +5527,8 @@ Graph.prototype.getLinkForCell = function(cell)
 	{
 		var link = cell.value.getAttribute('link');
 		
-		// Removes links with leading javascript: protocol
-		// TODO: Check more possible attack vectors
-		if (link != null && link.toLowerCase().substring(0, 11) === 'javascript:')
+		// Removes javascript protocol
+		while (link != null && link.toLowerCase().substring(0, 11) === 'javascript:')
 		{
 			link = link.substring(11);
 		}
@@ -11479,7 +11478,7 @@ if (typeof mxVertexHandler !== 'undefined')
 				
 				imgExport.getLinkForCellState = function(state, canvas)
 				{
-					var result = imgExportGetLinkForCellState.apply(this, arguments);
+					var result = state.view.graph.getAbsoluteUrl(imgExportGetLinkForCellState.apply(this, arguments));
 					
 					return (result != null && !state.view.graph.isCustomLink(result)) ? result : null;
 				};
@@ -13527,7 +13526,9 @@ if (typeof mxVertexHandler !== 'undefined')
 		    }
 		};
 		
-		
+		/**
+		 * Format pixels in the given unit
+		 */
 		mxGraphView.prototype.formatUnitText = function(pixels) 
 		{
 			return pixels? formatHintText(pixels, this.unit) : pixels;
