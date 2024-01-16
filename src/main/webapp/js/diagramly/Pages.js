@@ -638,7 +638,7 @@ EditorUi.prototype.initPages = function()
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-EditorUi.prototype.scrollToPage = function(page)
+EditorUi.prototype.scrollToPage = function(page, force)
 {
 	var index = (page != null) ? this.getPageIndex(page) :
 		this.getSelectedPageIndex();
@@ -648,7 +648,7 @@ EditorUi.prototype.scrollToPage = function(page)
 	if (index != null && this.tabScroller != null &&
 		this.tabScroller.children.length > index &&
 		this.tabScroller.children[index] != null &&
-		scrollPage != this.lastScrollPage)
+		(scrollPage != this.lastScrollPage || force))
 	{
 		this.tabScroller.children[index].scrollIntoView(
 			{block: 'nearest', inline: (page != null) ?

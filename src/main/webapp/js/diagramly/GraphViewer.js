@@ -2356,8 +2356,6 @@ GraphViewer.createViewerForElement = function(element, callback)
 
 GraphViewer.logAncestorFrames = function()
 {
-	return;
-
 	try
 	{
 		if (window.location.ancestorOrigins && window.location.hostname &&
@@ -2377,7 +2375,7 @@ GraphViewer.logAncestorFrames = function()
 				message += ' -> ' + window.location.ancestorOrigins[i];
 			}
 
-			if (hostname.endsWith('.draw.io') && window.location.ancestorOrigins.length == 1 &&
+			if ((hostname.endsWith('ac.draw.io') || hostname.endsWith('aj.draw.io')) && window.location.ancestorOrigins.length == 1 &&
 					window.location.ancestorOrigins[0] && window.location.ancestorOrigins[0].endsWith('.atlassian.net'))
 			{
 				// do not log *.draw.io domains embedded directly into atlassian.net

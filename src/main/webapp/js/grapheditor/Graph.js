@@ -8095,7 +8095,7 @@ TableLayout.prototype.execute = function(parent)
 					
 					return curr == null || curr.type != type || curr.x != x || curr.y != y;
 				};
-				
+
 				for (var i = 0; i < pts.length - 1; i++)
 				{
 					var p1 = pts[i + 1];
@@ -8121,9 +8121,11 @@ TableLayout.prototype.execute = function(parent)
 					{
 						var state2 = this.validEdges[e];
 						var pts2 = state2.absolutePoints;
-						
+
 						if (pts2 != null && mxUtils.intersects(state, state2) && state2.style['noJump'] != '1')
 						{
+							var pl = null;
+							
 							// Compares each segment of the edge with the current segment
 							for (var j = 0; j < pts2.length - 1; j++)
 							{
@@ -8143,12 +8145,18 @@ TableLayout.prototype.execute = function(parent)
 								}
 								
 								var pt = mxUtils.intersection(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
-	
+
 								// Handles intersection between two segments
 								if (pt != null && (Math.abs(pt.x - p0.x) > thresh ||
 									Math.abs(pt.y - p0.y) > thresh) &&
 									(Math.abs(pt.x - p1.x) > thresh ||
-									Math.abs(pt.y - p1.y) > thresh))
+									Math.abs(pt.y - p1.y) > thresh) &&
+									// Removes jumps on overlapping incoming segments
+									(pl == null || mxUtils.ptLineDist(p0.x, p0.y, p1.x, p1.y, pl.x, pl.y) > thresh ||
+									mxUtils.ptLineDist(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y) > thresh) &&
+									// Removes jumps on overlapping outgoing segments
+									(pn == null || mxUtils.ptLineDist(p0.x, p0.y, p1.x, p1.y, pn.x, pn.y) > thresh ||
+									mxUtils.ptLineDist(p0.x, p0.y, p1.x, p1.y, p3.x, p3.y) > thresh))
 								{
 									var dx = pt.x - p0.x;
 									var dy = pt.y - p0.y;
@@ -8174,6 +8182,8 @@ TableLayout.prototype.execute = function(parent)
 										list.push(temp);
 									}
 								}
+
+								pl = p2;
 							}
 						}
 					}

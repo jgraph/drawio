@@ -1839,8 +1839,6 @@ App.prototype.init = function()
 
 App.logAncestorFrames = function()
 {
-	return;
-
 	try
 	{
 		if (window.location.ancestorOrigins && window.location.hostname &&

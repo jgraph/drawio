@@ -1940,7 +1940,7 @@ mxSvgCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, fo
 			// Ignores invalid XHTML labels
 			if (div != null)
 			{
-				if (dir != null && dir.substring(0, 9) == 'vertical-')
+				if (dir != null && dir.substring(0, 9) != 'vertical-')
 				{
 					div.setAttribute('dir', dir);
 				}

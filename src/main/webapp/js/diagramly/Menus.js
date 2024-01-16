@@ -4834,7 +4834,8 @@
 
 		this.put('movePage', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			var current = editorUi.getSelectedPageIndex();
+			var currentPage = editorUi.currentPage;
+			var current = editorUi.getPageIndex(currentPage);
 
 			if (editorUi.pages != null)
 			{
@@ -4847,6 +4848,7 @@
 							menu.addItem(editorUi.getShortPageName(editorUi.pages[index]), null, function()
 							{
 								editorUi.movePage(current, index);
+								editorUi.scrollToPage(currentPage, true);
 							}, parent);
 						})(i);
 					}

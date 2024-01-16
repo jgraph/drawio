@@ -3156,7 +3156,7 @@ var mxUtils =
 	 * 
 	 * Returns the distance between a line defined by two points and a point.
 	 * To get the distance between a point and a segment (with a specific
-	 * length) use <mxUtils.ptSeqDistSq>.
+	 * length) use <mxUtils.ptSegDistSq>.
 	 * 
 	 * Parameters:
 	 * 

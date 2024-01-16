@@ -693,8 +693,10 @@ GitHubClient.prototype.showCommitDialog = function(filename, isNew, success, can
 	var dlg = new FilenameDialog(this.ui, mxResources.get((isNew) ? 'addedFile' : 'updateFile',
 		[filename]), mxResources.get('ok'), mxUtils.bind(this, function(message)
 	{
-		resume();
-		success(message);
+		resume(function()
+		{
+			success(message);
+		});
 	}), mxResources.get('commitMessage'), null, null, null, null, mxUtils.bind(this, function()
 	{
 		cancel();

@@ -1,4 +1,11 @@
-09-JAN-2023: 21.1.18
+16-JAN-2024: 21.1.19
+
+- Scrolls page tab to visible after moving page
+- Fixes possible timeout when entering commit message
+- Removes line jumps at branching points [drawio-3965]
+- Fixes ignored text direction style [drawio-4104]
+
+09-JAN-2024: 21.1.18
 
 - Fixes overridden configurations [drawio-desktop-1564]
 - Removes multiple javascript protocol prefixes
@@ -8,7 +15,7 @@
 - Experimental support for vertical writing mode [drawio-4068]
 - Fixes relative links in SVG export
 
-04-JAN-2023: 21.1.17
+04-JAN-2024: 21.1.17
 
 - Adds copyAsText in Edit drop down [drawio-3949]
 - Replaces clearWaypoints button with drop down
