@@ -1,3 +1,13 @@
+17-JAN-2024: 21.1.21
+
+- Fixes immediate Dropbox file loading in dev mode
+- Updates DOMPurify from 3.0.6 to 3.0.8
+- Fixes dropbox naming clash in global scope, duplicate function
+
+16-JAN-2024: 21.1.20
+
+- Internal release, see release notes
+
 16-JAN-2024: 21.1.19
 
 - Scrolls page tab to visible after moving page

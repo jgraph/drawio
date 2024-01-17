@@ -134,17 +134,6 @@
 		var editorUi = this.editorUi;
 		var graph = editorUi.editor.graph;
 		var isGraphEnabled = mxUtils.bind(graph, graph.isEnabled);
-		var googleEnabled = ((urlParams['embed'] != '1' && urlParams['gapi'] != '0') ||
-			(urlParams['embed'] == '1' && urlParams['gapi'] == '1')) && mxClient.IS_SVG &&
-			isLocalStorage && (document.documentMode == null || document.documentMode >= 10);
-		var dropboxEnabled = ((urlParams['embed'] != '1' && urlParams['db'] != '0') || (urlParams['embed'] == '1' && urlParams['db'] == '1')) &&
-			mxClient.IS_SVG && (document.documentMode == null || document.documentMode > 9);
-		var oneDriveEnabled = (window.location.hostname == 'www.draw.io' || window.location.hostname == 'test.draw.io' ||
-			window.location.hostname == 'drive.draw.io' || window.location.hostname == 'app.diagrams.net') &&
-			(((urlParams['embed'] != '1' && urlParams['od'] != '0') || (urlParams['embed'] == '1' && urlParams['od'] == '1')) &&
-			!mxClient.IS_IOS && (navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10));
-		var trelloEnabled = urlParams['tr'] == '1' && mxClient.IS_SVG && (document.documentMode == null ||
-			document.documentMode > 9);
 
 		if (!mxClient.IS_SVG && !editorUi.isOffline())
 		{
@@ -635,8 +624,7 @@
 				if (isDrawioWeb)
 				{
 					transparentBkg = editorUi.addCheckbox(div,
-							mxResources.get('transparentBackground'), false);
-					
+						mxResources.get('transparentBackground'), false);
 					dlgH += 30;
 				}
 
@@ -3134,7 +3122,7 @@
 						pickFileFromService(editorUi.drive);
 					}, parent);
 				}
-				else if (googleEnabled && typeof window.DriveClient === 'function')
+				else if (editorUi.isModeEnabled(App.MODE_GOOGLE))
 				{
 					menu.addItem(mxResources.get('googleDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
 					{
@@ -3143,14 +3131,14 @@
 				}
 			}
 
-			if (editorUi.oneDrive != null)
+			if (editorUi.isModeReady(App.MODE_ONEDRIVE))
 			{
 				menu.addItem(mxResources.get('oneDrive') + '...', null, function()
 				{
 					pickFileFromService(editorUi.oneDrive);
 				}, parent);
 			}
-			else if (oneDriveEnabled && typeof window.OneDriveClient === 'function')
+			else if (editorUi.isModeEnabled(App.MODE_ONEDRIVE))
 			{
 				menu.addItem(mxResources.get('oneDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
 				{
@@ -3158,14 +3146,14 @@
 				}, parent, null, false);
 			}
 
-			if (editorUi.dropbox != null)
+			if (editorUi.isModeReady(App.MODE_DROPBOX))
 			{
 				menu.addItem(mxResources.get('dropbox') + '...', null, function()
 				{
 					pickFileFromService(editorUi.dropbox);
 				}, parent);
 			}
-			else if (dropboxEnabled && typeof window.DropboxClient === 'function')
+			else if (editorUi.isModeEnabled(App.MODE_DROPBOX))
 			{
 				menu.addItem(mxResources.get('dropbox') + ' (' + mxResources.get('loading') + '...)', null, function()
 				{
@@ -3175,7 +3163,7 @@
 			
 			menu.addSeparator(parent);
 			
-			if (editorUi.gitHub != null)
+			if (editorUi.isModeReady(App.MODE_GITHUB))
 			{
 				menu.addItem(mxResources.get('github') + '...', null, function()
 				{
@@ -3183,7 +3171,7 @@
 				}, parent);
 			}
 			
-			if (editorUi.gitLab != null)
+			if (editorUi.isModeReady(App.MODE_GITLAB))
 			{
 				menu.addItem(mxResources.get('gitlab') + '...', null, function()
 				{
@@ -3191,14 +3179,14 @@
 				}, parent);
 			}
 
-			if (editorUi.trello != null)
+			if (editorUi.isModeReady(App.MODE_TRELLO))
 			{
 				menu.addItem(mxResources.get('trello') + '...', null, function()
 				{
 					pickFileFromService(editorUi.trello);
 				}, parent);
 			}
-			else if (trelloEnabled && typeof window.TrelloClient === 'function')
+			else if (editorUi.isModeEnabled(App.MODE_TRELLO))
 			{
 				menu.addItem(mxResources.get('trello') + ' (' + mxResources.get('loading') + '...)', null, function()
 				{
@@ -3979,7 +3967,7 @@
 					editorUi.pickFile(App.MODE_GOOGLE);
 				}, parent);
 			}
-			else if (googleEnabled && typeof window.DriveClient === 'function')
+			else if (editorUi.isModeEnabled(App.MODE_GOOGLE))
 			{
 				menu.addItem(mxResources.get('googleDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
 				{
@@ -3987,29 +3975,29 @@
 				}, parent, null, false);
 			}
 			
-			if (editorUi.oneDrive != null)
+			if (editorUi.isModeReady(App.MODE_ONEDRIVE))
 			{
 				menu.addItem(mxResources.get('oneDrive') + '...', null, function()
 				{
 					editorUi.pickFile(App.MODE_ONEDRIVE);
 				}, parent);
 			}
-			else if (oneDriveEnabled && typeof window.OneDriveClient === 'function')
+			else if (editorUi.isModeEnabled(App.MODE_ONEDRIVE))
 			{
 				menu.addItem(mxResources.get('oneDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
 				{
 					// do nothing
 				}, parent, null, false);
 			}
-			
-			if (editorUi.dropbox != null)
+
+			if (editorUi.isModeReady(App.MODE_DROPBOX))
 			{
 				menu.addItem(mxResources.get('dropbox') + '...', null, function()
 				{
 					editorUi.pickFile(App.MODE_DROPBOX);
 				}, parent);
 			}
-			else if (dropboxEnabled && typeof window.DropboxClient === 'function')
+			else if (editorUi.isModeEnabled(App.MODE_DROPBOX))
 			{
 				menu.addItem(mxResources.get('dropbox') + ' (' + mxResources.get('loading') + '...)', null, function()
 				{
@@ -4019,7 +4007,7 @@
 
 			menu.addSeparator(parent);
 			
-			if (editorUi.gitHub != null)
+			if (editorUi.isModeReady(App.MODE_GITHUB))
 			{
 				menu.addItem(mxResources.get('github') + '...', null, function()
 				{
@@ -4027,7 +4015,7 @@
 				}, parent);
 			}
 			
-			if (editorUi.gitLab != null)
+			if (editorUi.isModeReady(App.MODE_GITLAB))
 			{
 				menu.addItem(mxResources.get('gitlab') + '...', null, function()
 				{
@@ -4035,14 +4023,14 @@
 				}, parent);
 			}
 
-			if (editorUi.trello != null)
+			if (editorUi.isModeReady(App.MODE_TRELLO))
 			{
 				menu.addItem(mxResources.get('trello') + '...', null, function()
 				{
 					editorUi.pickFile(App.MODE_TRELLO);
 				}, parent);
 			}
-			else if (trelloEnabled && typeof window.TrelloClient === 'function')
+			else if (editorUi.isModeEnabled(App.MODE_TRELLO))
 			{
 				menu.addItem(mxResources.get('trello') + ' (' + mxResources.get('loading') + '...)', null, function()
 				{
@@ -4085,7 +4073,7 @@
 							}
 							else
 							{
-								window.openWindow(((mxClient.IS_CHROMEAPP) ?
+								window.geOpenWindow(((mxClient.IS_CHROMEAPP) ?
 									'https://www.draw.io/' : 'https://' + location.host + '/') +
 									window.location.search + '#U' + encodeURIComponent(fileUrl));
 							}
@@ -4110,7 +4098,7 @@
 							editorUi.showLibraryDialog(null, null, null, null, App.MODE_GOOGLE);
 						}, parent);
 					}
-					else if (googleEnabled && typeof window.DriveClient === 'function')
+					else if (editorUi.isModeEnabled(App.MODE_GOOGLE))
 					{
 						menu.addItem(mxResources.get('googleDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
 						{
@@ -4119,14 +4107,14 @@
 					}
 				}
 
-				if (editorUi.oneDrive != null)
+				if (editorUi.isModeReady(App.MODE_ONEDRIVE))
 				{
 					menu.addItem(mxResources.get('oneDrive') + '...', null, function()
 					{
 						editorUi.showLibraryDialog(null, null, null, null, App.MODE_ONEDRIVE);
 					}, parent);
 				}
-				else if (oneDriveEnabled && typeof window.OneDriveClient === 'function')
+				else if (editorUi.isModeEnabled(App.MODE_ONEDRIVE))
 				{
 					menu.addItem(mxResources.get('oneDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
 					{
@@ -4134,14 +4122,14 @@
 					}, parent, null, false);
 				}
 
-				if (editorUi.dropbox != null)
+				if (editorUi.isModeReady(App.MODE_DROPBOX))
 				{
 					menu.addItem(mxResources.get('dropbox') + '...', null, function()
 					{
 						editorUi.showLibraryDialog(null, null, null, null, App.MODE_DROPBOX);
 					}, parent);
 				}
-				else if (dropboxEnabled && typeof window.DropboxClient === 'function')
+				else if (editorUi.isModeEnabled(App.MODE_DROPBOX))
 				{
 					menu.addItem(mxResources.get('dropbox') + ' (' + mxResources.get('loading') + '...)', null, function()
 					{
@@ -4151,7 +4139,7 @@
 				
 				menu.addSeparator(parent);
 				
-				if (editorUi.gitHub != null)
+				if (editorUi.isModeReady(App.MODE_GITHUB))
 				{
 					menu.addItem(mxResources.get('github') + '...', null, function()
 					{
@@ -4159,7 +4147,7 @@
 					}, parent);
 				}
 				
-				if (editorUi.gitLab != null)
+				if (editorUi.isModeReady(App.MODE_GITLAB))
 				{
 					menu.addItem(mxResources.get('gitlab') + '...', null, function()
 					{
@@ -4167,14 +4155,14 @@
 					}, parent);
 				}
 
-				if (editorUi.trello != null)
+				if (editorUi.isModeReady(App.MODE_TRELLO))
 				{
 					menu.addItem(mxResources.get('trello') + '...', null, function()
 					{
 						editorUi.showLibraryDialog(null, null, null, null, App.MODE_TRELLO);
 					}, parent);
 				}
-				else if (trelloEnabled && typeof window.TrelloClient === 'function')
+				else if (editorUi.isModeEnabled(App.MODE_TRELLO))
 				{
 					menu.addItem(mxResources.get('trello') + ' (' + mxResources.get('loading') + '...)', null, function()
 					{
@@ -4213,7 +4201,7 @@
 							editorUi.pickLibrary(App.MODE_GOOGLE);
 						}, parent);
 					}
-					else if (googleEnabled && typeof window.DriveClient === 'function')
+					else if (editorUi.isModeEnabled(App.MODE_GOOGLE))
 					{
 						menu.addItem(mxResources.get('googleDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
 						{
@@ -4222,14 +4210,14 @@
 					}
 				}
 
-				if (editorUi.oneDrive != null)
+				if (editorUi.isModeReady(App.MODE_ONEDRIVE))
 				{
 					menu.addItem(mxResources.get('oneDrive') + '...', null, function()
 					{
 						editorUi.pickLibrary(App.MODE_ONEDRIVE);
 					}, parent);
 				}
-				else if (oneDriveEnabled && typeof window.OneDriveClient === 'function')
+				else if (editorUi.isModeEnabled(App.MODE_ONEDRIVE))
 				{
 					menu.addItem(mxResources.get('oneDrive') + ' (' + mxResources.get('loading') + '...)', null, function()
 					{
@@ -4237,14 +4225,14 @@
 					}, parent, null, false);
 				}
 
-				if (editorUi.dropbox != null)
+				if (editorUi.isModeReady(App.MODE_DROPBOX))
 				{
 					menu.addItem(mxResources.get('dropbox') + '...', null, function()
 					{
 						editorUi.pickLibrary(App.MODE_DROPBOX);
 					}, parent);
 				}
-				else if (dropboxEnabled && typeof window.DropboxClient === 'function')
+				else if (editorUi.isModeEnabled(App.MODE_DROPBOX))
 				{
 					menu.addItem(mxResources.get('dropbox') + ' (' + mxResources.get('loading') + '...)', null, function()
 					{
@@ -4254,7 +4242,7 @@
 				
 				menu.addSeparator(parent);
 				
-				if (editorUi.gitHub != null)
+				if (editorUi.isModeReady(App.MODE_GITHUB))
 				{
 					menu.addItem(mxResources.get('github') + '...', null, function()
 					{
@@ -4262,7 +4250,7 @@
 					}, parent);
 				}
 				
-				if (editorUi.gitLab != null)
+				if (editorUi.isModeReady(App.MODE_GITLAB))
 				{
 					menu.addItem(mxResources.get('gitlab') + '...', null, function()
 					{
@@ -4270,14 +4258,14 @@
 					}, parent);
 				}
 
-				if (editorUi.trello != null)
+				if (editorUi.isModeReady(App.MODE_TRELLO))
 				{
 					menu.addItem(mxResources.get('trello') + '...', null, function()
 					{
 						editorUi.pickLibrary(App.MODE_TRELLO);
 					}, parent);
 				}
-				else if (trelloEnabled && typeof window.TrelloClient === 'function')
+				else if (editorUi.isModeEnabled(App.MODE_TRELLO))
 				{
 					menu.addItem(mxResources.get('trello') + ' (' + mxResources.get('loading') + '...)', null, function()
 					{

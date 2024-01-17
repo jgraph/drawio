@@ -662,6 +662,14 @@
 		var oldSpin = spinner.spin;
 		var thread = null;
 		var retry = null;
+
+		var resume = mxUtils.bind(this, function(fn)
+		{
+			if (fn != null)
+			{
+				fn();
+			}
+		});
 		
 		spinner.spin = function(container, label, error, timeout)
 		{
@@ -730,7 +738,7 @@
 				// Pause returns a function to resume the spinner
 				this.pause = mxUtils.bind(this, function()
 				{
-					var fn = function() { };
+					var fn = resume;
 					
 					if (this.active)
 					{
@@ -816,7 +824,7 @@
 		
 		spinner.pause = function()
 		{
-			return function() {};
+			return resume;
 		};
 		
 		return spinner;
@@ -14519,7 +14527,7 @@
 											}
 											else
 											{
-												window.openWindow(((mxClient.IS_CHROMEAPP) ?
+												window.geOpenWindow(((mxClient.IS_CHROMEAPP) ?
 													(EditorUi.drawHost + '/') : 'https://' + location.host + '/') +
 													window.location.search + '#U' + encodeURIComponent(data));
 											}
@@ -14886,7 +14894,7 @@
 				});
 				
 				window.openFile.setData(data, name);
-				window.openWindow(this.getUrl(), null, mxUtils.bind(this, function()
+				window.geOpenWindow(this.getUrl(), null, mxUtils.bind(this, function()
 				{
 					if (currentFile != null && currentFile.isModified())
 					{

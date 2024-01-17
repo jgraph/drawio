@@ -4743,12 +4743,13 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 						
 						if (shortPath.length > 40)
 						{
-							shortPath = shortPath.substring(0, 20) + '...' + shortPath.substring(shortPath.length - 20);
+							shortPath = shortPath.substring(0, 20) + '...' +
+								shortPath.substring(shortPath.length - 20);
 						}
 					}
 
-					option.innerHTML = ((shortPath != null) ? mxUtils.htmlEntities(shortPath) +
-						dash : '') + mxUtils.htmlEntities(title);
+					option.innerHTML = mxUtils.htmlEntities(title) + ((shortPath != null) ?
+						dash + mxUtils.htmlEntities(shortPath) : '');
 					option.setAttribute('title', title + ((path != null) ? ' (' + path + ')' : '') +
 						((id != null && decodeURIComponent(id) != path) ? ' [' + id + ']' : ''));
 					option.setAttribute('value', entryId);

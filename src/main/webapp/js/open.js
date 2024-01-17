@@ -165,7 +165,7 @@ function main()
 										{
 											if (window.parent != null)
 											{
-												window.parent.openWindow(window.parent.baseUrl + '#L' + encodeURIComponent(k), function()
+												window.parent.geOpenWindow(window.parent.baseUrl + '#L' + encodeURIComponent(k), function()
 												{
 													of.cancel(false);
 												}, function()
