@@ -2,7 +2,7 @@
  * Parse SQL CREATE TABLE. Simple initial version for community to improve.
  */
 Draw.loadPlugin(function(ui) {
-
+ 
     function TableModel() {
         this.Name = null;
         this.Properties = []
