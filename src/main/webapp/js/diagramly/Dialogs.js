@@ -8679,6 +8679,47 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 		btn.innerText = '';
 		btn.appendChild(tempDiv);
 		div.appendChild(btn);
+
+		var settings = document.createElement('img');
+		settings.setAttribute('title', mxResources.get('settings'));
+		settings.setAttribute('src', Editor.gearImage);
+		settings.className = 'geToolbarButton geAdaptiveAsset';
+		settings.style.position = 'absolute';
+		settings.style.boxSizing = 'border-box';
+		settings.style.padding = '2px';
+		settings.style.top = '8px';
+		settings.style.right = '38px';
+		settings.style.width = '18px';
+		settings.style.height = '18px';
+		settings.style.opacity = '0.6';
+		div.appendChild(settings);
+
+		mxEvent.addListener(settings, 'click', mxUtils.bind(this, function(evt)
+		{
+			var options = graph.freehand.getOptions();
+			
+			var dlg = new TextareaDialog(editorUi, mxResources.get('settings'), (options != null) ?
+				JSON.stringify(options, null, 2) : '',
+				mxUtils.bind(this, function(newValue)
+				{
+					if (newValue != null && newValue.length > 0)
+					{
+						try
+						{
+							graph.freehand.setOptions(JSON.parse(newValue));
+							editorUi.hideDialog();
+						}
+						catch (e)
+						{
+							editorUi.handleError(e);	
+						}
+					}
+				}), null, mxResources.get('close'));
+			
+				editorUi.showDialog(dlg.container, 660, 480, true, false);
+			dlg.init();
+		}));
+
 		mxUtils.br(div);
 
 		var brushSize = document.createElement('input');

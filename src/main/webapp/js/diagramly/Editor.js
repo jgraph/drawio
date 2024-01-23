@@ -253,18 +253,6 @@
 	Editor.globalVars = null;
 
 	/**
-	 * Reference to the config object passed to <configure>.
-	 */
-	Editor.config = null;
-
-	/**
-	 * Reference to the version of the last config object in
-	 * <configure>. If this is different to the last version in
-	 * mxSettings.parse, then the settings are reset.
-	 */
-	Editor.configVersion = null;
-
-	/**
 	 * Default border for image export (to allow for sketch style).
 	 */
 	Editor.defaultBorder = 5;
@@ -289,6 +277,30 @@
 		decodeURIComponent(urlParams['gpt-url']) :
 		'https://api.openai.com/v1/chat/completions';
 	
+	/**
+	 * Specifies if data URIs should be replaced with SVG sub-trees in SVG export.
+	 * Default is true.
+	 */
+	Editor.replaceSvgDataUris = true;
+	
+	/**
+	 * Specifies if foreignObject alternate content should be replaced with an image
+	 * of the HTML text. Default is true.
+	 */
+	Editor.foreignObjectImages = true;
+	
+	/**
+	 * Reference to the config object passed to <configure>.
+	 */
+	Editor.config = null;
+
+	/**
+	 * Reference to the version of the last config object in
+	 * <configure>. If this is different to the last version in
+	 * mxSettings.parse, then the settings are reset.
+	 */
+	Editor.configVersion = null;
+
 	/**
 	 * Common properties for all edges.
 	 */
@@ -2187,6 +2199,16 @@
 			{
 				DrawioFile.RESTRICT_EXPORT = config.restrictExport;
 			}
+			
+			if (config.replaceSvgDataUris != null)
+			{
+				Editor.replaceSvgDataUris = config.replaceSvgDataUris;
+			}
+
+			if (config.foreignObjectImages != null)
+			{
+				Editor.foreignObjectImages = config.foreignObjectImages;
+			}
 
 			if (config.gptApiKey != null)
 			{
@@ -2963,7 +2985,6 @@
 		}
 	};
 	
-	
 	/**
 	 * Converts all images in the SVG output to data URIs for immediate rendering
 	 */
@@ -3059,7 +3080,7 @@
 			callback(svgRoot);
 		}
 	};
-
+	
 	/**
 	 * Base64 encodes the given string. This method seems to be more
 	 * robust for encoding PNG from binary AJAX responses.
@@ -6743,7 +6764,7 @@
 				result.setAttribute('class', cssClass);
 			}
 
-			var style = Graph.createSvgDarkModeStyle(result.ownerDocument, theme, cssClass);
+			var style = Graph.createSvgDarkModeStyle(result.ownerDocument, theme, cssClass, background);
 			result.getElementsByTagName('defs')[0].appendChild(style);
 		}
 		

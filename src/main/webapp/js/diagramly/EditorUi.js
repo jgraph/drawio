@@ -659,6 +659,7 @@
 		});
 
 		// Extends spin method to include an optional label
+		var defaultTimeout = this.timeout;
 		var oldSpin = spinner.spin;
 		var thread = null;
 		var retry = null;
@@ -673,6 +674,7 @@
 		
 		spinner.spin = function(container, label, error, timeout)
 		{
+			timeout = (timeout != null) ? timeout : defaultTimeout;
 			var result = false;
 			
 			if (!this.active)
@@ -688,7 +690,7 @@
 						error({code: App.ERROR_TIMEOUT,
 							message: mxResources.get('timeout'),
 							retry: retry});
-					}, (timeout != null) ? timeout : this.timeout);
+					}, timeout);
 				}
 
 				oldSpin.call(this, container);
@@ -5672,7 +5674,17 @@
 		editable, embedImages, border, noCrop, currentPage, linkTarget, theme, exportType,
 		embedFonts, saveFn)
 	{
-		if (this.spinner.spin(document.body, mxResources.get('export')))
+		if (this.spinner.spin(document.body, mxResources.get('export'), mxUtils.bind(this, function(err)
+			{
+				Editor.addRetryToError(err, mxUtils.bind(this, function()
+				{
+					this.exportSvg(scale, transparentBackground, ignoreSelection, addShadow,
+						editable, embedImages, border, noCrop, currentPage, linkTarget, theme, exportType,
+						embedFonts, saveFn);
+				}));
+				
+				this.handleError(err);
+			})))
 		{
 			try
 			{
@@ -5688,15 +5700,23 @@
 				// Handles special case where background is null but transparent is false
 				if (bg == null && transparentBackground == false)
 				{
-					bg = (theme == 'dark' && !Editor.enableSvgDarkMode) ? Editor.darkColor : '#ffffff';
+					bg = (theme == 'dark' && !Editor.enableCssDarkMode) ? Editor.darkColor : '#ffffff';
 				}
 				
-				// Sets or disables alternate text for foreignObjects. Disabling is needed
-				// because PhantomJS seems to ignore switch statements and paint all text.
+				// Removes global foreignObject warning if image fallback is added for text
+				var graphAddForeignObjectWarning = this.editor.graph.addForeignObjectWarning;
+
+				if (Editor.foreignObjectImages)
+				{
+					this.editor.graph.addForeignObjectWarning = function() {};
+				}
+
 				var svgRoot = this.editor.graph.getSvg(bg, scale, border, noCrop, null,
 					ignoreSelection, null, null, (linkTarget == 'blank') ? '_blank' :
 					((linkTarget == 'self') ? '_top' : null), null, !embedFonts,
 					theme, exportType);
+
+				this.editor.graph.addForeignObjectWarning = graphAddForeignObjectWarning;
 				
 				if (addShadow)
 				{
@@ -5718,7 +5738,7 @@
 						{
 							mxUtils.popup(svg);
 						}));
-				}
+					}
 				});
 	
 				var doSave = mxUtils.bind(this, function(svgRoot)
@@ -5740,6 +5760,26 @@
 				{
 					this.editor.addMathCss(svgRoot);
 				}
+				
+				// Replaces alternate content
+				var processResult = mxUtils.bind(this, function(svgRoot)
+				{
+					// Fixes ignored SVG data URIs for Office
+					if (Editor.replaceSvgDataUris)
+					{
+						this.embedSvgImages(svgRoot);
+					}
+
+					// Improves foreignObject fallback for Office/Inkscape
+					if (Editor.foreignObjectImages)
+					{
+						this.replaceAlternateContent(svgRoot, theme, doSave);
+					}
+					else
+					{
+						doSave(svgRoot);
+					}
+				});
 
 				var done = mxUtils.bind(this, function(svgRoot)
 				{
@@ -5751,11 +5791,11 @@
 							this.thumbImageCache = new Object();
 						}
 						
-						this.editor.convertImages(svgRoot, doSave, this.thumbImageCache);
+						this.editor.convertImages(svgRoot, processResult, this.thumbImageCache);
 					}
 					else
 					{
-						doSave(svgRoot);
+						processResult(svgRoot);
 					}
 				});
 
@@ -5772,6 +5812,259 @@
 			catch (e)
 			{
 				this.handleError(e);
+			}
+		}
+	};
+	
+	/**
+	 * Replaces SVG data URIs in images with the actual SVG for
+	 * the images to be supported in apps like Powerpoint.
+	 */
+	EditorUi.prototype.replaceAlternateContent = function(root, theme, callback)
+	{
+		// Collects CSS
+		var css = '';
+
+		var styles = root.getElementsByTagName('style');
+
+		for (var i = 0; i < styles.length; i++)
+		{
+			css += styles[i].innerHTML;
+		}
+		
+		// Replaces alternate content with image of text
+		var switches = root.getElementsByTagName('switch');
+		counter = switches.length;
+
+		var done = mxUtils.bind(this, function()
+		{
+			counter--;
+
+			if (counter == 0)
+			{
+				callback(root);
+			}
+		});
+
+		// Caching for HTML size and images
+		var sizeCache = {};
+		var imgCache = {};
+		var convert = [];
+
+		function replaceElt(switchElt, x, y, size, src)
+		{
+			var node = mxUtils.createElementNs(root.ownerDocument,
+				mxConstants.NS_SVG, 'image');
+			
+			node.setAttribute('x', x);
+			node.setAttribute('y', y + 0.5);
+			node.setAttribute('width', size.width);
+			node.setAttribute('height', size.height);
+
+			// Workaround for missing namespace support
+			if (node.setAttributeNS == null)
+			{
+				node.setAttribute('xlink:href', src);
+			}
+			else
+			{
+				node.setAttributeNS(mxConstants.NS_XLINK, 'xlink:href', src);
+			}
+			
+			switchElt.replaceChild(node, switchElt.lastChild);
+			done();
+		};
+
+		// Create an image for the given foreignObject
+		for (var i = 0; i < switches.length; i++)
+		{
+			(mxUtils.bind(this, function(switchElt)
+			{
+				var divs = switchElt.getElementsByTagName('div');
+
+				if (divs.length > 0)
+				{
+					try
+					{
+						var temp = divs[0].cloneNode(true);
+						var x = parseInt(temp.style.marginLeft);
+						var y = parseInt(temp.style.paddingTop);
+						var measure = temp.getElementsByTagName('div')[1];
+
+						var alignItems = temp.style.alignItems;
+						var justifyContent = temp.style.justifyContent;
+
+						if (temp.style.height == '1px')
+						{
+							temp.style.alignItems = 'unsafe flex-start';
+						}
+
+						if (temp.style.width == '1px')
+						{
+							temp.style.justifyContent = 'unsafe flex-start';
+						}
+
+						temp.style.paddingTop = '';
+						temp.style.marginLeft = '';
+
+						var html = temp.outerHTML;
+						var size = sizeCache[html];
+
+						if (size == null)
+						{
+							temp.style.position = 'absolute';
+							temp.style.visibility = 'hidden'; 
+							document.body.appendChild(temp);
+
+							var w = 1;
+
+							if (temp.style.width == '1px')
+							{
+								w = measure.offsetWidth;
+							}
+							else
+							{
+								w = parseInt(temp.style.width);
+							}
+
+							var h = 1;
+
+							if (temp.style.height == '1px')
+							{
+								h = measure.offsetHeight;
+							}
+							else
+							{
+								h = parseInt(temp.style.height);
+							}
+
+							document.body.removeChild(temp);
+							size = new mxRectangle(x, y, w, h);
+							sizeCache[html] = size;
+						}
+						
+						if (temp.style.height == '1px')
+						{
+							if (alignItems == 'unsafe center')
+							{
+								y -= size.height / 2;
+							}
+							else if (alignItems == 'unsafe flex-end')
+							{
+								y -= size.height;
+							}
+						}
+
+						if (temp.style.width == '1px')
+						{
+							if (justifyContent == 'unsafe center')
+							{
+								x -= size.width / 2;
+							}
+							else if (justifyContent == 'unsafe flex-end')
+							{
+								x -= size.width;
+							}
+						}
+
+						// Adds padding for font metrics
+						size.height += (parseInt(measure.style.fontSize) / 4);
+
+						// Sequence of async conversion to images
+						convert.push(mxUtils.bind(this, function(next)
+						{
+							var cachedSrc = imgCache[html];
+
+							if (cachedSrc == null)
+							{
+								Graph.htmlToPng(html, size.width, size.height, mxUtils.bind(this, function(src)
+								{
+									replaceElt(switchElt, x, y, size, src);
+									imgCache[html] = src;
+									next();
+								}), css);
+							}
+							else
+							{
+								replaceElt(switchElt, x, y, size, cachedSrc);
+								next();
+							}
+						}));
+					}
+					catch (e)
+					{
+						done();
+					}
+				}
+				else
+				{
+					done();
+				}
+			}))(switches[i]);
+		}
+
+		if (counter == 0)
+		{
+			callback(root);
+		}
+		
+		var i = 0;
+
+		function next()
+		{
+			if (i < convert.length)
+			{
+				convert[i++](next);
+			}
+		};
+
+		next();
+	};
+
+	/**
+	 * Replaces SVG data URIs in images with the actual SVG for
+	 * the images to be supported in apps like Powerpoint.
+	 */
+	EditorUi.prototype.embedSvgImages = function(root)
+	{
+		var temp = root.getElementsByTagName('image');
+
+		// Clones array
+		var imgs = [];
+
+		for (var i = 0; i < temp.length; i++)
+		{
+			imgs.push(temp[i]);
+		}
+
+		// Replaces images
+		for (var i = 0; i < imgs.length; i++)
+		{
+			var node = imgs[i];
+			var href = null;
+
+			// Workaround for missing namespace support
+			if (node.setAttributeNS == null)
+			{
+				href = node.getAttribute('xlink:href');
+			}
+			else
+			{
+				href = node.getAttributeNS(mxConstants.NS_XLINK, 'href');
+			}
+
+			var data = Graph.getSvgFromDataUri(href);
+
+			if (data != null)
+			{
+				var svg = mxUtils.parseXml(data).documentElement;
+					
+				svg.setAttribute('x', node.getAttribute('x'));
+				svg.setAttribute('y', node.getAttribute('y'));
+				svg.setAttribute('width', node.getAttribute('width'));
+				svg.setAttribute('height', node.getAttribute('height'));
+
+				node.parentNode.replaceChild(svg, node);
 			}
 		}
 	};

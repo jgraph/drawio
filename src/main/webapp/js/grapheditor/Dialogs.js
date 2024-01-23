@@ -924,7 +924,7 @@ var EditDiagramDialog = function(editorUi)
 			
 		if (error != null)
 		{
-			mxUtils.alert(error.message);
+			editorUi.handleError(error);
 		}
 	});
 	okBtn.className = 'geBtn gePrimaryBtn';

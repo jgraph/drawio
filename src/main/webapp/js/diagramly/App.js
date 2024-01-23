@@ -3723,10 +3723,10 @@ App.prototype.showSplash = function(force)
 		
 		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP ||
 			EditorUi.isElectronApp) ? 200 : 230, true, true,
-			mxUtils.bind(this, function(cancel)
+			mxUtils.bind(this, function(cancel, isEsc)
 			{
 				// Creates a blank diagram if the dialog is closed
-				if (cancel && !mxClient.IS_CHROMEAPP)
+				if ((cancel || isEsc) && !mxClient.IS_CHROMEAPP)
 				{
 					var prev = Editor.useLocalStorage;
 					this.createFile(this.defaultFilename + (EditorUi.isElectronApp? '.drawio' : ''),
@@ -6388,68 +6388,91 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 App.prototype.save = function(name, done)
 {
 	var file = this.getCurrentFile();
-	
-	if (file != null && this.spinner.spin(document.body, mxResources.get('saving')))
-	{
-		var onerror = mxUtils.bind(this, function(e)
-		{
-			this.handleError(e);
-		});
+	var acceptResponse = true;
 
-		this.createTimeout(3 * this.timeout, mxUtils.bind(this, function(timeout)
+	var success = mxUtils.bind(this, function()
+	{
+		if (acceptResponse)
+		{
+			acceptResponse = false;
+			file.handleFileSuccess(true);
+
+			if (done != null)
+			{
+				done();
+			}
+		}
+	});
+
+	var error = mxUtils.bind(this, function(err)
+	{
+		if (acceptResponse)
+		{
+			acceptResponse = false;
+
+			Editor.addRetryToError(err, mxUtils.bind(this, function()
+			{
+				this.save(name, done);
+			}));
+
+			// Resets acceptResponse state for retry or
+			// invokes success if no longer modified
+			if (err != null && err.retry != null)
+			{
+				var retry = err.retry;
+
+				err.retry = function()
+				{
+					acceptResponse = true;
+
+					try
+					{
+						if (file.isModified())
+						{
+							retry();
+						}
+						else
+						{
+							success();
+						}
+					}
+					catch (e)
+					{
+						error(e);
+					}
+				};
+			}
+
+			file.handleFileError(err, err == null ||
+				err.name != 'AbortError');
+		}
+	});
+
+	if (file != null && this.spinner.spin(document.body,
+		mxResources.get('saving'), error, 3 * this.timeout))
+	{
+		try
 		{
 			this.editor.setStatus('');
-			
+
 			if (this.editor.graph.isEditing())
 			{
 				this.editor.graph.stopEditing();
 			}
-			
-			var success = mxUtils.bind(this, function()
-			{
-				if (timeout.clear())
-				{
-					file.handleFileSuccess(true);
 
-					if (done != null)
-					{
-						done();
-					}
-				}
-			});
-			
-			var error = mxUtils.bind(this, function(err)
+			if (name == file.getTitle())
 			{
-				if (timeout.clear())
-				{
-					if (file.isModified())
-					{
-						Editor.addRetryToError(err, mxUtils.bind(this, function()
-						{
-							this.save(name, done);
-						}));
-					}
-					
-					file.handleFileError(err, err == null || err.name != 'AbortError');
-				}
-			});
-			
-			try
-			{
-				if (name == file.getTitle())
-				{
-					file.save(true, success, error);
-				}
-				else
-				{
-					file.saveAs(name, success, error)
-				}
+				file.save(true, success, error);
 			}
-			catch (err)
+			else
 			{
-				error(err);
+				file.saveAs(name, success, error)
 			}
-		}), onerror);
+		}
+		catch (err)
+		{
+			error(err);
+		}
 	}
 };
 

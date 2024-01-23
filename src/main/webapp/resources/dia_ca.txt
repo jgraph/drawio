@@ -1275,3 +1275,4 @@ diagDuplMsg=Aquest diagrama s'utilitza en diversos llocs, cosa que pot donar llo
 diagDuplNoEditMsg=Aquest diagrama s'utilitza en diversos llocs. Si us plau, edita'l dins de la seva pròpia pàgina.
 confCloudMigConfirm=Warning: This process will edit many pages and diagrams, so it is recommended to stop the Synchrony service during the process. Do you want to proceed?
 confCloudMigNotice=In the Cloud instance, please add linkAdjustments to draw.io configuration as follows {1}. Without this configuation, links in diagrams pointing to Confluence pages will not work.
+confALogsPageDesc=This page contains logs of draw.io long running services as attachments

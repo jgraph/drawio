@@ -29,11 +29,17 @@ try
 			writeln('OK');
 		}
 		
+		var link = document.createElement('a');
+		link.style.marginRight = '6px';
+		link.setAttribute('href', 'javascript:window.location.reload();');
+		link.appendChild(document.createTextNode('Reload'));
+		document.body.appendChild(link);
+
 		if ((/test\.draw\.io$/.test(window.location.hostname)) ||
 			(/stage\.diagrams\.net$/.test(window.location.hostname)) ||
 			(/app\.diagrams\.net$/.test(window.location.hostname)))
 		{
-			var link = document.createElement('a');
+			link = link.cloneNode(false);
 			link.setAttribute('href', './');
 			link.appendChild(document.createTextNode('Start App'));
 			document.body.appendChild(link);

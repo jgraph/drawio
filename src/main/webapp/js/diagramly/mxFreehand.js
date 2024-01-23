@@ -111,6 +111,16 @@ function mxFreehand(graph)
 		return perfectFreehandOptions.size;
 	};
 
+	this.setOptions = function(value)
+	{
+		perfectFreehandOptions = value;
+	};
+
+	this.getOptions = function()
+	{
+		return perfectFreehandOptions;
+	};
+
 	var setEnabled = function(isEnabled)
 	{
 		enabled = isEnabled;
@@ -529,10 +539,3 @@ function mxFreehand(graph)
 	    }
 	};
 };
-
-mxFreehand.prototype.NO_SMOOTHING = 1;
-mxFreehand.prototype.MILD_SMOOTHING = 4;
-mxFreehand.prototype.NORMAL_SMOOTHING = 8;
-mxFreehand.prototype.VERY_SMOOTH_SMOOTHING = 12;
-mxFreehand.prototype.SUPER_SMOOTH_SMOOTHING = 16;
-mxFreehand.prototype.HYPER_SMOOTH_SMOOTHING = 20;

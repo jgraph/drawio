@@ -1,21 +1,30 @@
-17-JAN-2024: 21.1.21
+23-JAN-2024: 22.1.22
+
+- Adds experimental freehand settings [drawio-3093]
+- Ports Embed2 servlet to CF worker
+- Consistent handling for closing splash [drawio-4089]
+- [conf cloud] Storing services log to configuration space [drawio-3991]
+- [conf cloud] Improved viewer settings dialog
+- Improved compatibility for SVG export [drawio-4119]
+
+17-JAN-2024: 22.1.21
 
 - Fixes immediate Dropbox file loading in dev mode
 - Updates DOMPurify from 3.0.6 to 3.0.8
 - Fixes dropbox naming clash in global scope, duplicate function
 
-16-JAN-2024: 21.1.20
+16-JAN-2024: 22.1.20
 
 - Internal release, see release notes
 
-16-JAN-2024: 21.1.19
+16-JAN-2024: 22.1.19
 
 - Scrolls page tab to visible after moving page
 - Fixes possible timeout when entering commit message
 - Removes line jumps at branching points [drawio-3965]
 - Fixes ignored text direction style [drawio-4104]
 
-09-JAN-2024: 21.1.18
+09-JAN-2024: 22.1.18
 
 - Fixes overridden configurations [drawio-desktop-1564]
 - Removes multiple javascript protocol prefixes
@@ -25,7 +34,7 @@
 - Experimental support for vertical writing mode [drawio-4068]
 - Fixes relative links in SVG export
 
-04-JAN-2024: 21.1.17
+04-JAN-2024: 22.1.17
 
 - Adds copyAsText in Edit drop down [drawio-3949]
 - Replaces clearWaypoints button with drop down
@@ -37,28 +46,28 @@
 - Fixes scrollbar positions after enter-/exitGroup
 - Fixes move of selected edges in groups
 
-29-DEC-2023: 21.1.16
+29-DEC-2023: 22.1.16
 
 - Adds simple theme to atlas.min.js
 
-27-DEC-2023: 21.1.15
+27-DEC-2023: 22.1.15
 
 - Fixes NPE of undefined function emfDone [drawio-4072]
 - Prints current version number in clear.html
 - Fixes dark mode not persisted in some cases [drawio-desktop-1540]
 
-27-DEC-2023: 21.1.14
+27-DEC-2023: 22.1.14
 
 - Fixes this.isVisioFilename undefined in Editor.js
 - Fixes mxSettings is undefined [DID-10370]
 - Fixes NPE for minified freehand code in production build
 
-27-DEC-2023: 21.1.13
+27-DEC-2023: 22.1.13
 
 - Fixes "Add tag" dialog title clipped [drawio-desktop-1537]
 - Increases maximumFileSizeToCacheInBytes to 10MB [DID-10317]
 
-26-DEC-2023: 21.1.12
+26-DEC-2023: 22.1.12
 
 - Handles possible empty content in GitHub [drawio-4045]
 - Fixes use of modified default style for sidebar items
@@ -66,15 +75,15 @@
 - Adds new Kubernetes shapes [drawio-3699]
 - [conf cloud] Adds enableCssDarkMode config to viewers also [DID-10038]
 
-15-DEC-2023: 21.1.11
+15-DEC-2023: 22.1.11
 
 - Fixes default edge style overrides edges in sidebar [drawio-4038]
 
-15-DEC-2023: 21.1.10
+15-DEC-2023: 22.1.10
 
 - Release stopped due to NPE in testing
 
-14-DEC-2023: 21.1.9
+14-DEC-2023: 22.1.9
 
 - Scrolls to loaded libraries, fixes library export to browser
 - Fixes library moved to end after edit

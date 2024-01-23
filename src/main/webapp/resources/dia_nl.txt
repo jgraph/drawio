@@ -1275,3 +1275,4 @@ diagDuplMsg=Dit diagram wordt op meerdere plaatsen gebruikt, wat bij bewerking t
 diagDuplNoEditMsg=Dit diagram wordt op meerdere plaatsen gebruikt. Bewerk het op de eigen pagina.
 confCloudMigConfirm=Waarschuwing: links naar Confluence-pagina's binnen diagrammen worden in dit geval na dit proces verbroken. Wil je doorgaan?
 confCloudMigNotice=Voeg in de Cloud-instantie linkAdjustments toe om de configuratie van draw.io als volgt te configureren {1}. Zonder deze configuratie werken links in diagrammen die naar Confluence-pagina's verwijzen niet.
+confALogsPageDesc=This page contains logs of draw.io long running services as attachments

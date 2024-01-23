@@ -1660,16 +1660,7 @@ EditorUi.prototype.convertDarkModeColors = function(cells, keys)
 
 								if (result == null)
 								{
-									ctx.fillStyle = value;
-									ctx.fillRect(0, 0, 1, 1);
-									var imgData = ctx.getImageData(0, 0, 1, 1);
-
-									var r = imgData.data[0];
-									var g = imgData.data[1];
-									var b = imgData.data[2];
-
-									var rgb = b | (g << 8) | (r << 16);
-									result = '#' + (0x1000000 | rgb).toString(16).substring(1);
+									result = Graph.invertColor(value, ctx);
 									colorCache[value] = result;
 								}
 

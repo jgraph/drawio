@@ -1339,7 +1339,7 @@
 							}
 							else
 							{
-								elt.style.backgroundImage = 'url(' + ((Editor.isDarkMode()) ?
+								elt.style.backgroundImage = 'url(' + ((Editor.isDarkMode() || Editor.cssDarkMode) ?
 									Editor.darkModeImage : Editor.lightModeImage) + ')';
 							}
 						});
@@ -3879,8 +3879,10 @@
 
 				if (uiTheme == 'min' || Editor.currentTheme == 'simple')
 				{
-					this.addSubmenu('table', menu, parent);
 					this.addSubmenu('layout', menu, parent);
+					this.addSubmenu('insertLayout', menu, parent, mxResources.get('insert'));
+					menu.addSeparator(parent);
+					this.addSubmenu('table', menu, parent);
 				}
 				else
 				{
