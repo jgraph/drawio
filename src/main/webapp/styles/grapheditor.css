@@ -1764,6 +1764,7 @@ table.geProperties tr td {
 {
 	min-height: 184px;
 	white-space: nowrap;
+	overflow-x: auto;
 }
 
 .geStripedTable

@@ -835,24 +835,16 @@
 				'https://www.drawio.com/doc/faq/export-diagram',
 				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
 					addShadow, editable, embedImages, border, cropImage, currentPage,
-					linkTarget, grid, theme, exportType, embedFonts, lblToSvg)
+					linkTarget, grid, theme, exportType, embedFonts)
 				{
 					var val = parseInt(scale);
 					editorUi.lastExportSvgEditable = editable;
 					
 					if (!isNaN(val) && val > 0)
 					{
-						if (lblToSvg)
-						{
-							editorUi.downloadFile('remoteSvg', null, null, ignoreSelection, null, cropImage,
-								transparentBackground, scale, border, null, editable);
-						}
-						else
-						{
-							editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
-								addShadow, editable, embedImages, border, !cropImage, false,
-								linkTarget, theme, exportType, embedFonts);
-						}
+						editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
+							addShadow, editable, embedImages, border, !cropImage, false,
+							linkTarget, theme, exportType, embedFonts);
 					}
 				}), true, editorUi.lastExportSvgEditable, 'svg', true);
 		}));

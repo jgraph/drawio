@@ -1166,7 +1166,7 @@
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
 	EditorUi.prototype.createFileData = function(node, graph, file, url, forceXml, forceSvg, forceHtml,
-		embeddedCallback, ignoreSelection, compact, uncompressed)
+		embeddedCallback, ignoreSelection, compact, uncompressed, scale, border)
 	{
 		graph = (graph != null) ? graph : this.editor.graph;
 		forceXml = (forceXml != null) ? forceXml : false;
@@ -1284,6 +1284,18 @@
 				fileNode.removeAttribute('version');
 				fileNode.removeAttribute('editor');
 				fileNode.removeAttribute('type');
+			}
+
+			if (scale != null)
+			{
+				fileNode = fileNode.cloneNode(true);
+				fileNode.setAttribute('scale', scale);
+			}
+
+			if (border != null)
+			{
+				fileNode = fileNode.cloneNode(true);
+				fileNode.setAttribute('border', border);
 			}
 
 			var xml = (uncompressed) ? mxUtils.getPrettyXml(fileNode) : mxUtils.getXml(fileNode);
@@ -1700,7 +1712,8 @@
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
 	EditorUi.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback,
-		ignoreSelection, currentPage, node, compact, file, uncompressed, resolveReferences)
+		ignoreSelection, currentPage, node, compact, file, uncompressed, resolveReferences,
+		scale, border)
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		currentPage = (currentPage != null) ? currentPage : false;
@@ -1764,7 +1777,7 @@
 
 		var result = this.createFileData(node, graph, file, window.location.href,
 			forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, compact,
-			uncompressed);
+			uncompressed, scale, border);
 		
 		// Removes temporary graph from DOM
 		if (graph != this.editor.graph)
@@ -5674,13 +5687,13 @@
 		editable, embedImages, border, noCrop, currentPage, linkTarget, theme, exportType,
 		embedFonts, saveFn)
 	{
-		if (this.spinner.spin(document.body, mxResources.get('export'), mxUtils.bind(this, function(err)
+		if (this.spinner.spin(document.body, mxResources.get('exporting'), mxUtils.bind(this, function(err)
 			{
 				Editor.addRetryToError(err, mxUtils.bind(this, function()
 				{
 					this.exportSvg(scale, transparentBackground, ignoreSelection, addShadow,
-						editable, embedImages, border, noCrop, currentPage, linkTarget, theme, exportType,
-						embedFonts, saveFn);
+						editable, embedImages, border, noCrop, currentPage, linkTarget,
+						theme, exportType, embedFonts, saveFn);
 				}));
 				
 				this.handleError(err);
@@ -5747,12 +5760,15 @@
 					
 					if (editable)
 					{
-						svgRoot.setAttribute('content', this.getFileData(true, null, null, null, ignoreSelection,
-							currentPage, null, null, null, false));
+						svgRoot.setAttribute('content', this.getFileData(true, null, null,
+							null, ignoreSelection, currentPage, null, null, null, null,
+							null, scale, border));
 					}
 
-					saveFn(Graph.xmlDeclaration + '\n' + ((editable) ? Graph.svgFileComment + '\n' : '') +
-						Graph.svgDoctype + '\n' + mxUtils.getXml(svgRoot));
+					saveFn(Graph.xmlDeclaration + '\n' + ((editable) ?
+						Graph.svgFileComment + '\n' : '') +
+						Graph.svgDoctype + '\n' +
+						mxUtils.getXml(svgRoot));
 				});
 
 				// Adds CSS
@@ -5765,13 +5781,13 @@
 				var processResult = mxUtils.bind(this, function(svgRoot)
 				{
 					// Fixes ignored SVG data URIs for Office
-					if (Editor.replaceSvgDataUris)
+					if (Editor.replaceSvgDataUris && embedImages)
 					{
 						this.embedSvgImages(svgRoot);
 					}
 
 					// Improves foreignObject fallback for Office/Inkscape
-					if (Editor.foreignObjectImages)
+					if (Editor.foreignObjectImages && embedFonts)
 					{
 						this.replaceAlternateContent(svgRoot, theme, doSave);
 					}
@@ -5783,7 +5799,7 @@
 
 				var done = mxUtils.bind(this, function(svgRoot)
 				{
-					if (embedImages)
+					if (embedImages && !this.isOffline() && this.canvasSupported)
 					{
 						// Caches images
 						if (this.thumbImageCache == null)
@@ -7087,74 +7103,24 @@
 		cb5.style.marginBottom = '16px';
 		cb5.style.marginRight = '8px';
 		cb5.setAttribute('type', 'checkbox');
+
+		var cb7 = document.createElement('input');
+		cb7.style.marginBottom = '16px';
+		cb7.style.marginRight = '8px';
+		cb7.setAttribute('type', 'checkbox');
 		
-		if (this.isOffline() || !this.canvasSupported)
-		{
-			cb5.setAttribute('disabled', 'disabled');
-		}
-		
-		var txtSettingsSelect = document.createElement('select');
-		txtSettingsSelect.style.maxWidth = '200px';
-		txtSettingsSelect.style.marginLeft = '8px';
-		txtSettingsSelect.style.marginBottom = '16px';
-
-		var noneOption = document.createElement('option');
-		noneOption.setAttribute('value', 'none');
-		mxUtils.write(noneOption, mxResources.get('default'));
-		txtSettingsSelect.appendChild(noneOption);
-
-		var embedFontsOption = document.createElement('option');
-		embedFontsOption.setAttribute('value', 'embedFonts');
-		mxUtils.write(embedFontsOption, mxResources.get('embedFonts'));
-		txtSettingsSelect.appendChild(embedFontsOption);
-
-		var lblToSvgOption = document.createElement('option');
-		lblToSvgOption.setAttribute('value', 'lblToSvg');
-		mxUtils.write(lblToSvgOption, mxResources.get('lblToSvg'));
-		
-		if (this.getServiceName() == 'draw.io' && !this.isOffline() && !EditorUi.isElectronApp)
-		{
-			txtSettingsSelect.appendChild(lblToSvgOption);
-		}
-
-		mxEvent.addListener(txtSettingsSelect, 'change', mxUtils.bind(this, function()
-		{
-			if (txtSettingsSelect.value == 'lblToSvg')
-			{
-				cb5.checked = true;
-				cb5.setAttribute('disabled', 'disabled');
-				sizesOpt['page'].style.display = 'none';
-
-				if (exportSelect.value == 'page')
-				{
-					exportSelect.value = 'diagram';
-				}
-
-				shadow.checked = false;
-				shadow.setAttribute('disabled', 'disabled');
-
-				linkLost.style.display = 'inline-block';
-				linkSelect.style.display = 'none';
-			}
-			else if (cb5.getAttribute('disabled') == 'disabled')
-			{
-				cb5.checked = false;
-				cb5.removeAttribute('disabled');
-				shadow.removeAttribute('disabled');
-				sizesOpt['page'].style.display = '';
-				linkLost.style.display = 'none';
-				linkSelect.style.display = '';
-			}
-		}));
-
 		if (embedOption)
 		{
+			cb5.checked = (this.lastEmbedImages != null) ?
+				this.lastEmbedImages : true;
 			div.appendChild(cb5);
 			mxUtils.write(div, mxResources.get('embedImages'));
 			mxUtils.br(div);
 
-			mxUtils.write(div, mxResources.get('txtSettings') + ':');
-			div.appendChild(txtSettingsSelect);
+			cb7.checked = (this.lastEmbedFonts != null) ?
+				this.lastEmbedImages : true;
+			div.appendChild(cb7);
+			mxUtils.write(div, mxResources.get('embedFonts'));
 			mxUtils.br(div);
 			
 			height += 60;
@@ -7199,12 +7165,13 @@
 		{
 			this.lastExportBorder = borderInput.value;
 			this.lastExportZoom = zoomInput.value;
+			this.lastEmbedImages = cb5.checked;
+			this.lastEmbedFonts = cb7.checked;
 
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
-				include.checked, cb5.checked, borderInput.value, cb6.checked, false, linkSelect.value,
+				include.checked, cb5.checked && embedOption, borderInput.value, cb6.checked, false, linkSelect.value,
 				(grid != null) ? grid.checked : null, (themeSelect != null) ? themeSelect.value : null,
-				exportSelect.value, txtSettingsSelect.value == 'embedFonts',
-				txtSettingsSelect.value == 'lblToSvg');
+				exportSelect.value, cb7.checked);
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 340, height, true, true, null, null, null, null, true);
 		zoomInput.focus();
@@ -7889,8 +7856,17 @@
 		editable, border, noCrop, currentPage, format, grid, dpi, theme, exportType)
 	{
 		format = (format != null) ? format : 'png';
-		
-		if (this.spinner.spin(document.body, mxResources.get('exporting')))
+
+		if (this.spinner.spin(document.body, mxResources.get('exporting'), mxUtils.bind(this, function(err)
+		{
+			Editor.addRetryToError(err, mxUtils.bind(this, function()
+			{
+				this.exportImage(scale, transparentBackground, ignoreSelection, addShadow,
+					editable, border, noCrop, currentPage, format, grid, dpi, theme, exportType);
+			}));
+			
+			this.handleError(err);
+		})))
 		{
 			var selectionEmpty = this.editor.graph.isSelectionEmpty();
 			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : selectionEmpty;
@@ -7903,24 +7879,25 @@
 			
 			try
 			{
-			   	this.editor.exportToCanvas(mxUtils.bind(this, function(canvas)
-			   	{
-			   		this.spinner.stop();
-			   		
-			   		try
-			   		{
-			   			this.saveCanvas(canvas, (editable) ? this.getFileData(true, null,
-			   				null, null, ignoreSelection, currentPage) : null,
-			   				format, (this.pages == null || this.pages.length == 0), dpi);
-			   		}
-			   		catch (e)
-			   		{
-			   			this.handleError(e);
-			   		}
-			   	}), null, this.thumbImageCache, null, mxUtils.bind(this, function(e)
-			   	{
-			   		this.spinner.stop();
-			   		this.handleError(e);
+				this.editor.exportToCanvas(mxUtils.bind(this, function(canvas)
+				{
+					this.spinner.stop();
+					
+					try
+					{
+						this.saveCanvas(canvas, (editable) ? this.getFileData(true, null,
+							null, null, ignoreSelection, currentPage, null, null, null,
+							null, null, scale, border) : null, format,
+							(this.pages == null || this.pages.length == 0), dpi);
+					}
+					catch (e)
+					{
+						this.handleError(e);
+					}
+				}), null, this.thumbImageCache, null, mxUtils.bind(this, function(e)
+				{
+					this.spinner.stop();
+					this.handleError(e);
 				}), null, ignoreSelection, scale || 1, transparentBackground, addShadow,
 					null, null, border, noCrop, grid, theme, exportType);
 			}

@@ -6150,11 +6150,17 @@ Graph.prototype.fitWindow = function(bounds, border)
 
 	if (mxUtils.hasScrollbars(this.container))
 	{
-		var t = this.view.translate;
-		this.container.scrollLeft = (bounds.x + t.x) * this.view.scale -
-			Math.max((cw - bounds.width * this.view.scale) / 2 + border / 2, 0);
-		this.container.scrollTop = (bounds.y + t.y) * this.view.scale -
-			Math.max((ch - bounds.height * this.view.scale) / 2 + border / 2, 0);
+		// Call to zoom above may trigger an asynchronous update of the scrollbars
+		// as setting scrollTop/-Left is executed asynchronously so the code below
+		// ensures that the final state of the scrollbars is as intended.
+		window.setTimeout(mxUtils.bind(this, function()
+		{
+			var t = this.view.translate;
+			this.container.scrollLeft = (bounds.x + t.x) * this.view.scale -
+				Math.max((cw - bounds.width * this.view.scale) / 2 + border / 2, 0);
+			this.container.scrollTop = (bounds.y + t.y) * this.view.scale -
+				Math.max((ch - bounds.height * this.view.scale) / 2 + border / 2, 0);
+		}), 0);
 	}
 };
 

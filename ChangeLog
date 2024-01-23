@@ -1,3 +1,11 @@
+23-JAN-2024: 23.0.0
+
+- Major release increment due to removal of HTML labels to SVG path functionality
+- Removes convert label to SVG, embeds images and fonts by default in SVG export
+- Fixes scrollbars in fitWindow for viewbox action
+- Disables compressed XML in SVG export, sets scale/border for XML in SVG/PNG export [drawio-4125]
+- [conf cloud] Fixes Aspects dialog overflow issue [DID-10568]
+
 23-JAN-2024: 22.1.22
 
 - Adds experimental freehand settings [drawio-3093]
