@@ -2957,6 +2957,25 @@ var mxUtils =
 	},
 	
 	/**
+	 * Function: removeJavascriptProtocol
+	 * 
+	 * Removes leading javascript: protocol from the given link.
+	 * 
+	 * Parameters:
+	 * 
+	 * link - String that represents the link.
+	 */
+	removeJavascriptProtocol: function(link)
+	{
+		while (link != null && mxUtils.ltrim(link.toLowerCase()).substring(0, 11) === 'javascript:')
+		{
+			link = link.substring(link.toLowerCase().indexOf(':') + 1);
+		}
+
+		return link;
+	},
+
+	/**
 	 * Function: ltrim
 	 * 
 	 * Strips all whitespaces from the beginning of the string. Without the

@@ -793,13 +793,20 @@ Actions.prototype.init = function()
 		
 		if (graph.isEnabled() && cell != null && graph.isCellEditable(cell))
 		{
-			var value = graph.getLinkForCell(cell) || '';
+			var value = graph.getLinkForCell(cell, true) || '';
 			
 			ui.showLinkDialog(value, mxResources.get('ok'), function(link, docs, linkTarget)
 			{
-				link = mxUtils.trim(link);
-    			graph.setLinkForCell(cell, (link.length > 0) ? link : null);
-				graph.setAttributeForCell(cell, 'linkTarget', linkTarget);
+				graph.getModel().beginUpdate();
+				try
+				{
+					graph.setLinkForCell(cell, (link.length > 0) ? link : null);
+					graph.setAttributeForCell(cell, 'linkTarget', linkTarget);
+				}
+				finally
+				{
+					graph.getModel().endUpdate();
+				}
 			}, true, graph.getLinkTargetForCell(cell));
 		}
 	}, null, null, 'Alt+Shift+L');

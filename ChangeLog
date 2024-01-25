@@ -1,3 +1,17 @@
+25-JAN-2024: 23.0.2
+
+- Fallback to online resource for embed fonts and images
+- Fixes possible duplicate callback for XHR in error case
+- Adds fallback to raster for embedded SVG images
+- Fixes freehand drawing behaviour [drawio-4140]
+- Prevents XSS due to unchecked base URL parameter
+- Fixes inconsistent link and textbox dialogs
+
+24-JAN-2024: 23.0.1
+
+- Fixes possible scrollbar in connection points dialog
+- Fixes not adding existing tags to selection
+
 23-JAN-2024: 23.0.0
 
 - Major release increment due to removal of HTML labels to SVG path functionality

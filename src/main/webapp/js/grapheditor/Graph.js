@@ -1614,7 +1614,7 @@ Graph.createSvgNode = function(x, y, w, h, background)
 Graph.htmlToPng = function(html, w, h, fn, css, scale)
 {
 	css = (css != null) ? css : '';
-	scale = (scale != null) ? scale : 4;
+	scale = (scale != null) ? scale : Editor.htmlRasterScale;
 
 	var canvas = document.createElement('canvas');
 	canvas.width = w * scale;
@@ -2769,7 +2769,8 @@ Graph.prototype.defaultThemes = {};
  * Base URL for relative links.
  */
 Graph.prototype.baseUrl = (urlParams['base'] != null) ?
-	decodeURIComponent(urlParams['base']) :
+	mxUtils.removeJavascriptProtocol(
+		decodeURIComponent(urlParams['base'])) :
 	(((window != window.top) ? document.referrer :
 	document.location.toString()).split('#')[0]);
 
@@ -4400,7 +4401,6 @@ Graph.prototype.sanitizeHtml = function(value, editing)
  */
 Graph.prototype.updatePlaceholders = function()
 {
-	var model = this.model;
 	var validate = false;
 	
 	for (var key in this.model.cells)
@@ -5537,7 +5537,8 @@ Graph.prototype.convertValueToString = function(cell)
 			{
 				if (current.value != null && typeof(current.value) == 'object')
 				{
-					result = (current.hasAttribute(name)) ? ((current.getAttribute(name) != null) ?
+					result = (current.hasAttribute(name)) ?
+						((current.getAttribute(name) != null) ?
 							current.getAttribute(name) : '') : null;
 				}
 				
@@ -5574,29 +5575,32 @@ Graph.prototype.getLinksForState = function(state)
 	{
 		return state.text.node.getElementsByTagName('a');
 	}
-	
-	return null;
+	else
+	{
+		return null;
+	}
 };
 
 /**
  * Returns the link for the given cell.
  */
-Graph.prototype.getLinkForCell = function(cell)
+Graph.prototype.getLinkForCell = function(cell, allowUnsafe)
 {
 	if (cell.value != null && typeof(cell.value) == 'object')
 	{
 		var link = cell.value.getAttribute('link');
-		
-		// Removes javascript protocol
-		while (link != null && link.toLowerCase().substring(0, 11) === 'javascript:')
+
+		if (!allowUnsafe)
 		{
-			link = link.substring(11);
+			link = mxUtils.removeJavascriptProtocol(link);
 		}
-		
+
 		return link;
 	}
-	
-	return null;
+	else
+	{
+		return null;
+	}
 };
 
 /**
@@ -5608,8 +5612,10 @@ Graph.prototype.getLinkTargetForCell = function(cell)
 	{
 		return cell.value.getAttribute('linkTarget');
 	}
-
-	return null;
+	else
+	{
+		return null;
+	}
 };
 
 /**

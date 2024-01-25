@@ -22,24 +22,19 @@
 		link.setAttribute('title', mxResources.get('help'));
 		link.style.display = 'inline-flex';
 		link.style.alignItems = 'center';
+		link.style.marginLeft = '4px';
 		link.style.cursor = 'help';
 		link.style.color = 'blue';
-		link.style.textDecoration = 'underline';
-		link.style.marginLeft = '4px';
 		
 		var icon = document.createElement('img');
-		mxUtils.setOpacity(icon, 50);
+		icon.setAttribute('src', Editor.helpImage);
+		icon.setAttribute('valign', 'bottom');
+		icon.setAttribute('border', '0');
+		icon.className = 'geAdaptiveAsset';
+		mxUtils.setOpacity(icon, 60);
 		icon.style.height = '16px';
 		icon.style.width = '16px';
-		icon.setAttribute('border', '0');
-		icon.setAttribute('valign', 'bottom');
-		icon.setAttribute('src', Editor.helpImage);
 		link.appendChild(icon);
-
-		if (Editor.cssDarkMode)
-		{
-			icon.className = 'geAdaptiveAsset';
-		}
 
 		mxEvent.addGestureListeners(link, mxUtils.bind(this, function(evt)
 		{

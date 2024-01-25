@@ -172,6 +172,13 @@ mxXmlRequest.prototype.request = null;
 mxXmlRequest.prototype.decodeSimulateValues = false;
 
 /**
+ * Variable: acceptResponse
+ * 
+ * Specifies if the response has been processed with onload or onerror.
+ */
+mxXmlRequest.prototype.acceptResponse = true;
+
+/**
  * Function: isBinary
  * 
  * Returns <binary>.
@@ -319,8 +326,9 @@ mxXmlRequest.prototype.send = function(onload, onerror, timeout, ontimeout)
 		{
 			this.request.onreadystatechange = mxUtils.bind(this, function()
 			{
-				if (this.isReady())
+				if (this.isReady() && this.acceptResponse)
 				{
+					this.acceptResponse = false;
 					onload(this);
 					this.request.onreadystatechange = null;
 				}
@@ -340,7 +348,11 @@ mxXmlRequest.prototype.send = function(onload, onerror, timeout, ontimeout)
 		{
 			this.request.onerror = mxUtils.bind(this, function(e)
 			{
-				onerror(this, e);
+				if (this.acceptResponse)
+				{
+					this.acceptResponse = false;
+					onerror(this, e);
+				}
 			});
 		}
 		

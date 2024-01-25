@@ -6794,6 +6794,38 @@ EditorUi.prototype.createKeyHandler = function(editor)
 /**
  * Creates the keyboard event handler for the current graph and history.
  */
+EditorUi.prototype.createHelpIcon = function(href)
+{
+	var link = document.createElement('div');
+	link.setAttribute('title', mxResources.get('help'));
+	link.style.display = 'inline';
+	link.style.marginLeft = '8px';
+	link.style.cursor = 'help';
+
+	var icon = document.createElement('img');
+	icon.setAttribute('src', Editor.helpImage);
+	icon.setAttribute('valign', 'middle');
+	icon.setAttribute('border', '0');
+	icon.className = 'geAdaptiveAsset';
+	mxUtils.setOpacity(icon, 60);
+	icon.style.marginTop = '-4px';
+	icon.style.height = '16px';
+	icon.style.width = '16px';
+	link.appendChild(icon);
+
+	mxEvent.addListener(link, 'click', mxUtils.bind(this, function(evt)
+	{
+		this.hideCurrentMenu();
+		this.openLink(href);
+		mxEvent.consume(evt);
+	}));
+
+	return link;
+};
+
+/**
+ * Creates the keyboard event handler for the current graph and history.
+ */
 EditorUi.prototype.destroy = function()
 {
 	var graph = this.editor.graph;

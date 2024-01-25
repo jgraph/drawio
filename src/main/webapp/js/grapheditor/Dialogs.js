@@ -628,7 +628,9 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 	main.style.bottom = '64px';
 	buttons.style.bottom = '0px';
 	buttons.style.height = '60px';
-	buttons.style.textAlign = 'center';
+	buttons.style.textAlign = 'right';
+	buttons.style.paddingTop = '14px';
+	buttons.style.boxSizing = 'border-box';
 
 	mxUtils.write(top, title);
 
@@ -673,17 +675,11 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 
 	main.appendChild(nameInput);
 
-	if (helpLink != null)
+	if (helpLink != null && !editorUi.isOffline())
 	{
-		var helpBtn = mxUtils.button(mxResources.get('help'), function()
-		{
-			editorUi.editor.graph.openLink(helpLink);
-		});
-		helpBtn.className = 'geBtn';
-		
-		buttons.appendChild(helpBtn);
+		buttons.appendChild(editorUi.createHelpIcon(helpLink));
 	}
-	
+
 	if (customButtons != null)
 	{
 		for (var i = 0; i < customButtons.length; i++)
@@ -2003,25 +1999,8 @@ var EditDataDialog = function(ui, cell)
 		
 		if (EditDataDialog.placeholderHelpLink != null)
 		{
-			var link = document.createElement('a');
-			link.setAttribute('href', EditDataDialog.placeholderHelpLink);
-			link.setAttribute('title', mxResources.get('help'));
-			link.setAttribute('target', '_blank');
-			link.style.marginLeft = '8px';
-			link.style.cursor = 'help';
-			
-			var icon = document.createElement('img');
-			mxUtils.setOpacity(icon, 50);
-			icon.style.height = '16px';
-			icon.style.width = '16px';
-			icon.setAttribute('border', '0');
-			icon.setAttribute('valign', 'middle');
-			icon.style.marginTop = (mxClient.IS_IE11) ? '0px' : '-4px';
-			icon.setAttribute('src', Editor.helpImage);
-			link.appendChild(icon);
-			icon.className = 'geAdaptiveAsset';
-			
-			replace.appendChild(link);
+			replace.appendChild(ui.createHelpIcon(
+				EditDataDialog.placeholderHelpLink));
 		}
 		
 		buttons.appendChild(replace);

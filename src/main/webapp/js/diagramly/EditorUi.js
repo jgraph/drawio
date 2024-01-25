@@ -6060,7 +6060,7 @@
 			var href = null;
 
 			// Workaround for missing namespace support
-			if (node.setAttributeNS == null)
+			if (node.getAttributeNS == null)
 			{
 				href = node.getAttribute('xlink:href');
 			}
@@ -13681,8 +13681,6 @@
 					}
 
 					mxConstants.DROP_TARGET_COLOR = Editor.isDarkMode() ? '#00ff00' : '#0000FF';
-					Editor.helpImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
-						Editor.darkHelpImage : Editor.lightHelpImage;
 					Editor.checkmarkImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
 						Editor.darkCheckmarkImage : Editor.lightCheckmarkImage;
 					
@@ -17701,7 +17699,7 @@
 	EditorUi.prototype.showLinkDialog = function(value, btnLabel, fn, showNewWindowOption, linkTarget)
 	{
 		var dlg = new LinkDialog(this, value, btnLabel, fn, true, showNewWindowOption, linkTarget);
-		this.showDialog(dlg.container, 440, 140, true, true);
+		this.showDialog(dlg.container, 440, 120, true, true);
 		dlg.init();
 	};
 	

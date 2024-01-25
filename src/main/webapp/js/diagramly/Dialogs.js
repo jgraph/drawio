@@ -6123,13 +6123,12 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	inner.style.whiteSpace = 'nowrap';
 	inner.style.textOverflow = 'clip';
 	inner.style.cursor = 'default';
-	inner.style.paddingRight = '20px';
 
 	var linkInput = document.createElement('input');
 	linkInput.setAttribute('placeholder', mxResources.get('dragUrlsHere'));
 	linkInput.setAttribute('type', 'text');
 	linkInput.style.marginTop = '6px';
-	linkInput.style.width = '97%';
+	linkInput.style.width = '414px';
 	linkInput.style.boxSizing = 'border-box';
 	linkInput.style.backgroundImage = 'url(\'' + Dialog.prototype.clearImage + '\')';
 	linkInput.style.backgroundRepeat = 'no-repeat';
@@ -6171,8 +6170,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	pageRadio.setAttribute('name', 'geLinkDialogOption');
 
 	var pageSelect = document.createElement('select');
-	pageSelect.style.maxWidth = '100%';
-	pageSelect.style.width = '380px';
+	pageSelect.style.width = '414px';
 
 	var newWindowCheckbox = document.createElement('input');
 	newWindowCheckbox.setAttribute('type', 'checkbox');
@@ -6317,7 +6315,6 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 		{
 			// Setup the dnd listeners
 			var dlg = div.parentNode;
-			var graph = editorUi.editor.graph;
 			var dropElt = null;
 				
 			mxEvent.addListener(dlg, 'dragleave', function(evt)
@@ -6367,30 +6364,12 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	};
 	
 	var btns = document.createElement('div');
-	btns.style.marginTop = '18px';
-	btns.style.textAlign = 'center';
+	btns.style.marginTop = '16px';
+	btns.style.textAlign = 'right';
 
 	if (!editorUi.isOffline())
 	{
-		var link = document.createElement('a');
-		link.setAttribute('href', 'https://www.drawio.com/doc/faq/custom-links');
-		link.setAttribute('title', mxResources.get('help'));
-		link.setAttribute('target', '_blank');
-		link.style.marginLeft = '8px';
-		link.style.cursor = 'help';
-		
-		var icon = document.createElement('img');
-		mxUtils.setOpacity(icon, 50);
-		icon.style.height = '16px';
-		icon.style.width = '16px';
-		icon.setAttribute('border', '0');
-		icon.setAttribute('valign', 'middle');
-		icon.style.marginTop = (mxClient.IS_IE11) ? '0px' : '-4px';
-		icon.setAttribute('src', Editor.helpImage);
-		link.appendChild(icon);
-		icon.className = 'geAdaptiveAsset';
-		
-		btns.appendChild(link);
+		btns.appendChild(editorUi.createHelpIcon('https://www.drawio.com/doc/faq/custom-links'));
 	}
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
@@ -6440,7 +6419,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	selectDropdown.className = 'geBtn';
 	selectDropdown.style.position = 'relative';
 	selectDropdown.style.top = '1px';
-	selectDropdown.style.maxWidth = '100px';
+	selectDropdown.style.maxWidth = '120px';
 	var selectFn = {};
 
 	var option = document.createElement('option');
@@ -6580,15 +6559,11 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 		});
 	}
 
-	//TODO should Trello support this?
-	
 	mxEvent.addListener(linkInput, 'keypress', function(e)
 	{
 		if (e.keyCode == 13)
 		{
-			editorUi.hideDialog();
-			var value = (pageRadio.checked) ? pageSelect.value : linkInput.value;
-			fn(value, LinkDialog.selectedDocs);
+			mainBtn.click();
 		}
 	});
 
@@ -9582,29 +9557,31 @@ var TagsWindow = function(editorUi, x, y, w, h)
 				if (newValue != null && newValue.length > 0)
 				{
 					var temp = newValue.split(' ');
+					var newTags = [];
 					var tags = [];
 
 					for (var i = 0; i < temp.length; i++)
 					{
 						var token = mxUtils.trim(temp[i]);
 
-						if (token != '' && mxUtils.indexOf(
-							allTags, token) < 0)
+						if (token != '')
 						{
 							tags.push(token);
+
+							if (mxUtils.indexOf(allTags, token) < 0)
+							{
+								newTags.push(token);
+							}
 						}
 					}
 
-					if (tags.length > 0)
+					if (graph.isSelectionEmpty())
 					{
-						if (graph.isSelectionEmpty())
-						{
-							updateFn(allTags.concat(tags));
-						}
-						else
-						{
-							graph.addTagsForCells(graph.getSelectionCells(), tags);
-						}
+						updateFn(allTags.concat(newTags));
+					}
+					else
+					{
+						graph.addTagsForCells(graph.getSelectionCells(), tags);
 					}
 				}
 			}, mxResources.get('tags'), null, null, 'https://www.drawio.com/blog/tags-in-diagrams');
@@ -12398,10 +12375,9 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	td.appendChild(label);
 	
 	// Link to Google Fonts
-	if (!mxClient.IS_CHROMEAPP && (!editorUi.isOffline() || EditorUi.isElectronApp))
+	if (!editorUi.isOffline() || EditorUi.isElectronApp)
 	{
-		var link = editorUi.menus.createHelpLink('https://fonts.google.com/');
-		link.getElementsByTagName('img')[0].setAttribute('valign', 'middle');
+		var link = editorUi.createHelpIcon('https://fonts.google.com/');
 		td.appendChild(link);
 	}
 	
@@ -13257,14 +13233,14 @@ var ConnectionPointsDialog = function(editorUi, cell)
 			return editingGraph.addCell(cPoint);
 		};
 	
-		//Add cell and current connection points on it
+		// Add cell and current connection points on it
 		var geo = cell.geometry;
 		var mainCell = new mxCell(cell.value, new mxGeometry(0, 0, geo.width, geo.height),
 							cell.style + ';rotatable=0;resizable=0;connectable=0;editable=0;movable=0;fillColor=none;');
 		mainCell.vertex = true;
 		editingGraph.addCell(mainCell);
 
-		//Adding a point via double click
+		// Adding a point via double click
 		editingGraph.dblClick = function(evt, cell)
 		{
 			if (cell != null && cell != mainCell)
@@ -13293,14 +13269,15 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		keyHandler.bindKey(46, removeCPoints);
 		keyHandler.bindKey(8, removeCPoints);
 
-		//Force rubberband inside the cell
+		// Force rubberband inside the cell
 		editingGraph.getRubberband().isForceRubberbandEvent = function(event)
 		{
-			//Left click and not a click on a connection point
-			return event.evt.button == 0 
-					&& (event.getCell() == null || event.getCell() == mainCell);
+			// Left click and not a click on a connection point
+			return event.evt.button == 0 &&
+				(event.getCell() == null ||
+				event.getCell() == mainCell);
 		};
-		//Force panning inside the cell
+		// Force panning inside the cell
 		editingGraph.panningHandler.isForcePanningEvent = function(event)
 		{
 			return event.evt.button == 2;
@@ -13688,20 +13665,15 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		});
 		
 		resetBtn.className = 'geBtn';
-
+		
 		var buttons = document.createElement('div');
 		buttons.style.marginTop = '10px';
 		buttons.style.textAlign = 'right';
 
 		if (!editorUi.isOffline())
 		{
-			var helpBtn = mxUtils.button(mxResources.get('help'), function()
-			{
-				editorUi.openLink('https://www.drawio.com/doc/faq/shape-connection-points-customise');
-			});
-			
-			helpBtn.className = 'geBtn';
-			buttons.appendChild(helpBtn);
+			buttons.appendChild(editorUi.createHelpIcon(
+				'https://www.drawio.com/doc/faq/shape-connection-points-customise'));
 		}
 
 		if (editorUi.editor.cancelFirst)

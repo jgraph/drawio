@@ -1862,7 +1862,7 @@ App.blockedAncestorFrames = function()
 				message += ' -> ' + window.location.ancestorOrigins[i];
 
 				// Running commercial, competing services using our infrastructure isn't allowed.
-				if (message.endsWith('tabs.appsplus.co') || message.endsWith('confluence-cloud-excalidraw-ll3likebca-uc.a.run.app'))
+				if (message.endsWith('.appsplus.co') || message.endsWith('confluence-cloud-excalidraw-ll3likebca-uc.a.run.app'))
 				{
 					return true;
 				}
