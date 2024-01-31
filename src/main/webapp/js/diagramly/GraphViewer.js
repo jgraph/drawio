@@ -2386,13 +2386,13 @@ GraphViewer.blockedAncestorFrames = function()
 			{
 				// do not log *.draw.io domains embedded directly into atlassian.net
 			}
-			else if (window.location.ancestorOrigins.length > 0)
-			{
-				var img = new Image();
-				img.src = 'https://log.diagrams.net/images/1x1.png?src=ViewerAncestorFrames' +
-					((typeof window.EditorUi !== 'undefined') ? '&v=' + encodeURIComponent(EditorUi.VERSION) : '') +
-					'&data=' + encodeURIComponent(message);
-			}
+			// else if (window.location.ancestorOrigins.length > 0)
+			// {
+			// 	var img = new Image();
+			// 	img.src = 'https://log.diagrams.net/images/1x1.png?src=ViewerAncestorFrames' +
+			// 		((typeof window.EditorUi !== 'undefined') ? '&v=' + encodeURIComponent(EditorUi.VERSION) : '') +
+			// 		'&data=' + encodeURIComponent(message);
+			// }
 		}
 	}
 	catch (e)

@@ -1564,7 +1564,7 @@
 	/**
 	 * Extracts the XML from the compressed or non-compressed text chunk.
 	 */
-	Editor.parseDiagramNode = function(diagramNode, checked)
+	Editor.parseDiagramNode = function(diagramNode, checked, allowRecurse)
 	{
 		var text = mxUtils.trim(mxUtils.getTextContent(diagramNode));
 		var node = null;
@@ -1584,9 +1584,16 @@
 			
 			if (temp.length > 0)
 			{
+				var tempNode = temp[0];
+
+				if (allowRecurse)
+				{
+					tempNode = Editor.parseDiagramNode(tempNode, checked, false);
+				}
+
 				// Creates new document for unique IDs within mxGraphModel
 				var doc = mxUtils.createXmlDocument();
-				doc.appendChild(doc.importNode(temp[0], true));
+				doc.appendChild(doc.importNode(tempNode, true));
 				node = doc.documentElement;
 			}
 		}

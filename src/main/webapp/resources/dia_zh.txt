@@ -728,6 +728,7 @@ simpleArrow=简单箭头
 simpleViewer=Simple Viewer
 size=大小
 sketch=草图
+smoothing=Smoothing
 snapToGrid=对齐到网格
 solid=实线
 sourceSpacing=源距

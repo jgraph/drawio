@@ -728,6 +728,7 @@ simpleArrow=Lihtne nool
 simpleViewer=Lihtne vaade
 size=Suurus
 sketch=Sketš
+smoothing=Smoothing
 snapToGrid=Kinnita ruudustiku külge
 solid=Katkematu
 sourceSpacing=Allika vahekaugus

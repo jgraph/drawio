@@ -728,6 +728,7 @@ simpleArrow=Egyszerű nyíl
 simpleViewer=Simple Viewer
 size=Méret
 sketch=Sketch
+smoothing=Smoothing
 snapToGrid=Snap to Grid
 solid=Folytonos
 sourceSpacing=Forrás térköz

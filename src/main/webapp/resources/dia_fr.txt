@@ -728,6 +728,7 @@ simpleArrow=Flèche simple
 simpleViewer=Affichage simple
 size=Taille
 sketch=Croquis
+smoothing=Smoothing
 snapToGrid=Accrocher à la grille
 solid=Uni
 sourceSpacing=Espacement de la source

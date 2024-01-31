@@ -728,6 +728,7 @@ simpleArrow=Frecha Simple
 simpleViewer=Visualizador Simple
 size=Tamaño
 sketch=Borrador
+smoothing=Smoothing
 snapToGrid=Snap to Grid
 solid=Sólido
 sourceSpacing=Espazamento da Fonte

@@ -732,7 +732,7 @@
 						label = label + '...';
 					}
 					
-					status.innerHTML = label;
+					status.innerHTML = mxUtils.htmlEntities(label);
 					container.appendChild(status);
 					spinner.status = status;
 				}
@@ -6541,7 +6541,6 @@
 	{
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
-		var graph = this.editor.graph;
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, mxResources.get('html'));
@@ -15603,9 +15602,10 @@
 					}
 					else if (data.action == 'dialog')
 					{
-						this.showError((data.titleKey != null) ? mxResources.get(data.titleKey) : data.title,
-							(data.messageKey != null) ? mxResources.get(data.messageKey) : data.message,
-							(data.buttonKey != null) ? mxResources.get(data.buttonKey) : data.button);
+						this.showError((data.titleKey != null) ? mxResources.get(data.titleKey) :
+							data.title, (data.messageKey != null) ? mxResources.get(data.messageKey) :
+							mxUtils.htmlEntities(data.message), (data.buttonKey != null) ?
+							mxResources.get(data.buttonKey) : data.button);
 						
 						if (data.modified != null)
 						{

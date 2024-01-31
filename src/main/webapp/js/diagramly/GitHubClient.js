@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2017, JGraph Ltd
- * Copyright (c) 2006-2017, Gaudenz Alder
+ * Copyright (c) 2006-2024, JGraph Ltd
+ * Copyright (c) 2006-2024, draw.io AG
  */
 //Add a closure to hide the class private variables without changing the code a lot
 (function ()
@@ -35,7 +35,7 @@ GitHubClient.prototype.baseUrl = DRAWIO_GITHUB_API_URL;
 
 GitHubClient.prototype.baseHostUrl = DRAWIO_GITHUB_URL;
 
-GitHubClient.prototype.redirectUri = window.location.protocol + '//' + window.location.host + '/github2';
+GitHubClient.prototype.redirectUri = window.DRAWIO_SERVER_URL + 'github2';
 
 /**
  * Maximum file size of the GitHub REST API.

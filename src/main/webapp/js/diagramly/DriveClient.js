@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2020, JGraph Ltd
- * Copyright (c) 2006-2020, draw.io AG
+ * Copyright (c) 2006-2024, JGraph Ltd
+ * Copyright (c) 2006-2024, draw.io AG
  */
 
 //Add a closure to hide the class private variables without changing the code a lot
@@ -68,7 +68,7 @@ mxUtils.extend(DriveClient, mxEventSource);
 // Extends DrawioClient
 mxUtils.extend(DriveClient, DrawioClient);
 
-DriveClient.prototype.redirectUri = window.location.protocol + '//' + window.location.host + '/google';
+DriveClient.prototype.redirectUri = window.DRAWIO_SERVER_URL + 'google';
 DriveClient.prototype.GDriveBaseUrl = 'https://www.googleapis.com/drive/v2';
 
 /**

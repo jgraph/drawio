@@ -728,6 +728,7 @@ simpleArrow=Simpleng panuro
 simpleViewer=Simple Viewer
 size=Sukat
 sketch=Sketch
+smoothing=Smoothing
 snapToGrid=Snap to Grid
 solid=Solido
 sourceSpacing=Pag-eespasyo ng Pinagmulan

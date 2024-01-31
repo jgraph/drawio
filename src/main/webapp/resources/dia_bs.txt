@@ -728,6 +728,7 @@ simpleArrow=Jednostavna strijelica
 simpleViewer=Simple Viewer
 size=Veličina
 sketch=Sketch
+smoothing=Smoothing
 snapToGrid=Snap to Grid
 solid=Čvrsto
 sourceSpacing=Prored izvora

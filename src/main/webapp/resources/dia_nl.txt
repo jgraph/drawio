@@ -728,6 +728,7 @@ simpleArrow=Eenvoudige pijl
 simpleViewer=Eenvoudige weergave
 size=Grootte
 sketch=Sketch
+smoothing=Smoothing
 snapToGrid=Aan raster kleven
 solid=Massief
 sourceSpacing=Bronafstand

@@ -728,6 +728,7 @@ simpleArrow=Fletxa simple
 simpleViewer=Visualitzador simple
 size=Mida
 sketch=Esbós
+smoothing=Smoothing
 snapToGrid=Ajusta a la quadrícula
 solid=Continu
 sourceSpacing=Espaiat original

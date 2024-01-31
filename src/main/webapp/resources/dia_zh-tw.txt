@@ -728,6 +728,7 @@ simpleArrow=簡單箭頭
 simpleViewer=簡單檢視器
 size=大小
 sketch=Sketch
+smoothing=Smoothing
 snapToGrid=Snap to Grid
 solid=實線
 sourceSpacing=來源間距

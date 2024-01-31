@@ -728,6 +728,7 @@ simpleArrow=Yksinkertainen nuoli
 simpleViewer=Yksinkertainen katseluohjelma
 size=Koko
 sketch=Piirros
+smoothing=Smoothing
 snapToGrid=Kohdista ruudukkoon
 solid=Yhtenäinen
 sourceSpacing=Lähteen väli

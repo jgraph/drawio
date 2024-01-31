@@ -3014,7 +3014,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		if (xml != null && mxUtils.isAncestorNode(document.body, elt))
 		{
 			var doc = mxUtils.parseXml(xml);
-			var tempNode = Editor.parseDiagramNode(doc.documentElement);
+			var tempNode = Editor.parseDiagramNode(doc.documentElement, null, true);
 			var codec = new mxCodec(tempNode.ownerDocument);
 			var model = new mxGraphModel();
 			codec.decode(tempNode, model);
@@ -3617,9 +3617,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			{
 				realUrl = url;
 		
-				if (/^https?:\/\//.test(realUrl) && !editorUi.editor.isCorsEnabledForUrl(realUrl))
+				if (/^https?:\/\//.test(realUrl))
 				{
-					realUrl = PROXY_URL + '?url=' + encodeURIComponent(realUrl);
+					realUrl = editorUi.editor.isCorsEnabledForUrl(realUrl) ? realUrl :
+						PROXY_URL + '?url=' + encodeURIComponent(realUrl);
 				}
 				else
 				{
@@ -4298,7 +4299,16 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					{
 						if (typeof(node.getAttribute) !== 'undefined')
 						{
-							if (node.nodeName == 'clibs')
+							if (node.nodeName == 'parsererror')
+							{
+								if (window.console != null)
+								{
+									console.log('Parser error in ' +
+										templateFile + ': ' +
+										node.textContent);
+								}
+							}
+							else if (node.nodeName == 'clibs')
 							{
 								var name = node.getAttribute('name');
 								var adds = node.getElementsByTagName('add');
@@ -8671,28 +8681,15 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 
 		mxEvent.addListener(settings, 'click', mxUtils.bind(this, function(evt)
 		{
-			var options = graph.freehand.getOptions();
-			
-			var dlg = new TextareaDialog(editorUi, mxResources.get('settings'), (options != null) ?
-				JSON.stringify(options, null, 2) : '',
-				mxUtils.bind(this, function(newValue)
+			var smoothing = graph.freehand.getSmoothing();
+
+			editorUi.prompt('Smoothing (1-20)', smoothing, function(newValue)
+			{
+				if (!isNaN(newValue) && newValue > 0 && newValue <= 20)
 				{
-					if (newValue != null && newValue.length > 0)
-					{
-						try
-						{
-							graph.freehand.setOptions(JSON.parse(newValue));
-							editorUi.hideDialog();
-						}
-						catch (e)
-						{
-							editorUi.handleError(e);	
-						}
-					}
-				}), null, mxResources.get('close'));
-			
-				editorUi.showDialog(dlg.container, 660, 480, true, false);
-			dlg.init();
+					graph.freehand.setSmoothing(parseInt(newValue));
+				}
+			});
 		}));
 
 		mxUtils.br(div);

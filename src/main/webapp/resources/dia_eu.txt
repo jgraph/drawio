@@ -728,6 +728,7 @@ simpleArrow=Gezi arrunta
 simpleViewer=Ikustaile arrunta
 size=Tamaina
 sketch=Zirriborroa
+smoothing=Smoothing
 snapToGrid=Lotu sarera
 solid=Solidoa
 sourceSpacing=Letren arteko tartea

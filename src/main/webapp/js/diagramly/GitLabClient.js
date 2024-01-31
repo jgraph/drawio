@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2020, JGraph Ltd
- * Copyright (c) 2006-2020, draw.io AG
+ * Copyright (c) 2006-2024, JGraph Ltd
+ * Copyright (c) 2006-2024, draw.io AG
  */
 //Add a closure to hide the class private variables without changing the code a lot
 (function()
@@ -41,7 +41,7 @@ GitLabClient.prototype.maxFileSize = 10000000 /*10MB*/;
  */
 GitLabClient.prototype.authToken = 'Bearer';
 
-GitLabClient.prototype.redirectUri = window.location.protocol + '//' + window.location.host + '/gitlab';
+GitLabClient.prototype.redirectUri = window.DRAWIO_SERVER_URL + 'gitlab';
 
 /**
  * Authorizes the client, gets the userId and calls <open>.

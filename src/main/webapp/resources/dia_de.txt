@@ -728,6 +728,7 @@ simpleArrow=Einfacher Pfeil
 simpleViewer=Einfacher Viewer
 size=Größe
 sketch=Skizze
+smoothing=Glättung
 snapToGrid=Am Raster ausrichten
 solid=Durchgehend
 sourceSpacing=Anfangsabstand

@@ -1,3 +1,12 @@
+31-JAN-2024: 23.1.0
+
+- Fixes smoothing configuration for freehand [drawio-3093]
+- Fixes loading of uncompressed templates with CORS headers
+- [conf cloud] Handles trailing spaces in the diagram name for gliffy import [DID-10460]
+- Changes auth paths to use server url prefix
+- [conf cloud] Fixed outdated drafts when page is copied [DID-10546]
+- [conf cloud] Handles macros with macroId only parameter in gliffy import [DID-10460]
+
 25-JAN-2024: 23.0.2
 
 - Fallback to online resource for embed fonts and images

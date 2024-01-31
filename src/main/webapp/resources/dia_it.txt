@@ -728,6 +728,7 @@ simpleArrow=Freccia semplice
 simpleViewer=Visualizzatore semplice
 size=Dim.
 sketch=Schizzo
+smoothing=Smoothing
 snapToGrid=Aggancia alla griglia
 solid=Solido
 sourceSpacing=Spaziatura dell'origine

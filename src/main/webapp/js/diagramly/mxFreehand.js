@@ -86,9 +86,14 @@ function mxFreehand(graph)
 		selectInserted = value;
 	};
 
-	this.setSmoothing = function(smoothing)//TODO add smoothing settings
+	this.setSmoothing = function(smoothing)
 	{
 		bufferSize = smoothing;
+	};
+
+	this.getSmoothing = function()
+	{
+		return bufferSize;
 	};
 	
 	this.setPerfectFreehandMode = function(value)
@@ -109,16 +114,6 @@ function mxFreehand(graph)
 	this.getBrushSize = function()
 	{
 		return perfectFreehandOptions.size;
-	};
-
-	this.setOptions = function(value)
-	{
-		perfectFreehandOptions = value;
-	};
-
-	this.getOptions = function()
-	{
-		return perfectFreehandOptions;
 	};
 
 	var setEnabled = function(isEnabled)

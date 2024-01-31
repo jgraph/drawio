@@ -728,6 +728,7 @@ simpleArrow=Seta simples
 simpleViewer=Visualizador simples
 size=Tamanho
 sketch=Esboço
+smoothing=Smoothing
 snapToGrid=Alinhar à grade
 solid=Sólido
 sourceSpacing=Espaçamento entre fontes

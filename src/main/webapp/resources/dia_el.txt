@@ -728,6 +728,7 @@ simpleArrow=Απλό βέλος
 simpleViewer=Απλή Προβολή
 size=Μέγεθος
 sketch=Σχέδιο
+smoothing=Smoothing
 snapToGrid=Snap to Grid
 solid=Συμπαγές
 sourceSpacing=Απόσταση Πηγής

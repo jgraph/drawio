@@ -1868,12 +1868,12 @@ App.blockedAncestorFrames = function()
 				}
 			}
 
-			if (hostname.endsWith('embed.diagrams.net') && window.location.ancestorOrigins.length > 0)
-			{
-				var img = new Image();
-				img.src = 'https://log.diagrams.net/images/1x1.png?src=EditorEmbedAncestorFrames' +
-					'&v=' + encodeURIComponent(EditorUi.VERSION) + '&data=' + encodeURIComponent(message);
-			}
+			// if (hostname.endsWith('embed.diagrams.net') && window.location.ancestorOrigins.length > 0)
+			// {
+			// 	var img = new Image();
+			// 	img.src = 'https://log.diagrams.net/images/1x1.png?src=EditorEmbedAncestorFrames' +
+			// 		'&v=' + encodeURIComponent(EditorUi.VERSION) + '&data=' + encodeURIComponent(message);
+			// }
 		}
 	}
 	catch (e)

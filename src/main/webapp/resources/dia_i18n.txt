@@ -728,6 +728,7 @@ simpleArrow=simpleArrow
 simpleViewer=simpleViewer
 size=size
 sketch=sketch
+smoothing=smoothing
 snapToGrid=snapToGrid
 solid=solid
 sourceSpacing=sourceSpacing

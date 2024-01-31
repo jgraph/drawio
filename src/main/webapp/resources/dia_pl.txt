@@ -728,6 +728,7 @@ simpleArrow=Prosta strzałka
 simpleViewer=Łatwe przeglądanie
 size=Rozmiar
 sketch=Szkic
+smoothing=Smoothing
 snapToGrid=Przyciąganie do siatki
 solid=Ciągła
 sourceSpacing=Rozmieszczenie źródła

@@ -728,6 +728,7 @@ simpleArrow=‫سهم بسيط‬
 simpleViewer=Simple Viewer
 size=‫حجم‬
 sketch=Sketch
+smoothing=Smoothing
 snapToGrid=Snap to Grid
 solid=‫موحد‬
 sourceSpacing=‫تباعد المصدر‬

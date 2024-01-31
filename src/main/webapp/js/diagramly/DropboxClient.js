@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2017, JGraph Ltd
- * Copyright (c) 2006-2017, Gaudenz Alder
+ * Copyright (c) 2006-2024, JGraph Ltd
+ * Copyright (c) 2006-2024, draw.io AG
  */
 //Add a closure to hide the class private variables without changing the code a lot
 (function()
@@ -41,7 +41,7 @@ DropboxClient.prototype.maxRetries = 4;
 
 DropboxClient.prototype.clientId = window.DRAWIO_DROPBOX_ID;
 
-DropboxClient.prototype.redirectUri = window.location.protocol + '//' + window.location.host + '/dropbox';
+DropboxClient.prototype.redirectUri = window.DRAWIO_SERVER_URL + 'dropbox';
 
 /**
  * Authorizes the client, gets the userId and calls <open>.

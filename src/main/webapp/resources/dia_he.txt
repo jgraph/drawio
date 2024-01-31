@@ -728,6 +728,7 @@ simpleArrow=‫חץ פשוט‬
 simpleViewer=Simple Viewer
 size=‫גודל‬
 sketch=Sketch
+smoothing=Smoothing
 snapToGrid=Snap to Grid
 solid=‫מוצק‬
 sourceSpacing=‫מרווח מקור‬

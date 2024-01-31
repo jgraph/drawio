@@ -728,6 +728,7 @@ simpleArrow=Простая стрелка
 simpleViewer=Простой просмотрщик
 size=Размер
 sketch=Набросок
+smoothing=Smoothing
 snapToGrid=Привязка к сетке
 solid=Сплошная
 sourceSpacing=Расстояние между элементами

@@ -728,6 +728,7 @@ simpleArrow=Vienkārša bulta
 simpleViewer=Vienkāršs skats
 size=Izmērs
 sketch=Skice
+smoothing=Smoothing
 snapToGrid=Piestiprināt pie režģa
 solid=Blīvs
 sourceSpacing=Atstarpe starp avotiem

@@ -728,6 +728,7 @@ simpleArrow=Jednoduchá šipka
 simpleViewer=Jednoduchý prohlížeč
 size=Velikost
 sketch=Výkres
+smoothing=Smoothing
 snapToGrid=Přichytávat k mřížce
 solid=Plná
 sourceSpacing=Odsazení zdroje
