@@ -804,6 +804,7 @@ updatingPreview=미리보기 업데이트 중. 잠시만 기다려주세요.
 updatingSelection=선택내용 업데이트중. 잠시 기다려주세요.
 upload=업로드
 url=URL
+useCurrentSettings=Use current settings
 useOffline=오프라인 사용
 useRootFolder=루트 폴더 사용
 userManual=사용자 매뉴얼

@@ -804,6 +804,7 @@ updatingPreview=プレビューを更新中です。しばらくお待ちくだ�
 updatingSelection=選択を更新中です。しばらくお待ちください...
 upload=アップロード
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Use Offline
 useRootFolder=Use root folder?
 userManual=ユーザーマニュアル

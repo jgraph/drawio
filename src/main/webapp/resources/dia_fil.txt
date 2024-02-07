@@ -804,6 +804,7 @@ updatingPreview=Ina-update ang Paunang tingin.  Mangyaring maghintay...
 updatingSelection=Ina-update ang mga napili. Mangyaring maghintay...
 upload=Upload
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Use Offline
 useRootFolder=Use root folder?
 userManual=Gabay ng Gumagamit

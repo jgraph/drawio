@@ -4468,6 +4468,7 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
 App.prototype.saveFile = function(forceDialog, success)
 {
 	var file = this.getCurrentFile();
+	var prev = this.mode;
 	
 	if (file != null)
 	{
@@ -4626,43 +4627,20 @@ App.prototype.saveFile = function(forceDialog, success)
 					}
 				}
 			});
-
+			
 			var allowTab = !mxClient.IS_IOS || !navigator.standalone;
 
-			if (urlParams['save-dialog'] != '0')
+			var dlg = new SaveDialog(this, filename, mxUtils.bind(this, function(input, mode, folderId)
 			{
-				var dlg = new SaveDialog(this, filename, mxUtils.bind(this, function(input, mode, folderId)
-				{
-					saveFunction(input.value, mode, input, folderId);
-					this.hideDialog();
-				}), (allowTab) ? null : ['_blank']);
+				saveFunction(input.value, mode, input, folderId);
+				this.hideDialog();
+			}), (allowTab) ? null : ['_blank']);
 
-				this.showDialog(dlg.container, 420, 150, true, false, mxUtils.bind(this, function()
-				{
-					this.hideDialog();
-				}));
-				dlg.init();
-			}
-			else
+			this.showDialog(dlg.container, 420, 150, true, false, mxUtils.bind(this, function()
 			{
-				var prev = this.mode;
-				var serviceCount = this.getServiceCount(true);
-				
-				if (isLocalStorage)
-				{
-					serviceCount++;
-				}
-				
-				var rowLimit = (serviceCount <= 4) ? 2 : (serviceCount > 6 ? 4 : 3);
-				
-				var dlg = new CreateDialog(this, filename, saveFunction, mxUtils.bind(this, function()
-				{
-					this.hideDialog();
-				}), mxResources.get('saveAs'), mxResources.get('download'), null, null, allowTab,
-					null, true, rowLimit, null, null, null, this.editor.fileExtensions, false);
-				this.showDialog(dlg.container, 420, (serviceCount > rowLimit) ? 390 : 280, true, true);
-				dlg.init();
-			}
+				this.hideDialog();
+			}));
+			dlg.init();
 		}
 	}
 };

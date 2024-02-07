@@ -804,6 +804,7 @@ updatingPreview=预览更新中。请稍候...
 updatingSelection=选择更新中。请稍候...
 upload=上传
 url=URL
+useCurrentSettings=Use current settings
 useOffline=离线使用
 useRootFolder=要使用根目录吗？
 userManual=用户手册

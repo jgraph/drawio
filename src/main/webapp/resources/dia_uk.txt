@@ -804,6 +804,7 @@ updatingPreview=Попередній перегляд оновлюється. Б
 updatingSelection=Виділена область оновлюється. Будь ласка, зачекайте...
 upload=Завантажити
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Використовувати офлайн
 useRootFolder=Використовувати кореневу папку?
 userManual=Інструкція користувача

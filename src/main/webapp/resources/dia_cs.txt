@@ -804,6 +804,7 @@ updatingPreview=Náhled se aktualizuje. Čekejte prosím…
 updatingSelection=Výběr se aktualizuje. Čekejte prosím…
 upload=Nahrát
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Použít v režimu bez připojení k Internetu
 useRootFolder=Použít kořenovou složku?
 userManual=Uživatelská příručka

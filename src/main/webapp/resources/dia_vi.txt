@@ -804,6 +804,7 @@ updatingPreview=Đang cập nhật xem trước. Xin đợi...
 updatingSelection=Đang cập nhật lựa chọn. Xin đợi...
 upload=Tải lên
 url=Đường dẫn
+useCurrentSettings=Use current settings
 useOffline=Use Offline
 useRootFolder=Use root folder?
 userManual=Hướng dẫn sử dụng

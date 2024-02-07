@@ -804,6 +804,7 @@ updatingPreview=Updating Preview. Please wait...
 updatingSelection=Updating Selection. Please wait...
 upload=Upload
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Use Offline
 useRootFolder=Use root folder?
 userManual=User Manual

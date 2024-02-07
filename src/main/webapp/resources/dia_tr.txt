@@ -804,6 +804,7 @@ updatingPreview=Önizleme güncelleniyor. Lütfen bekleyin...
 updatingSelection=Seçimi güncelliyor. Lütfen bekleyin...
 upload=Yükle
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Çevrimdışı kullan
 useRootFolder=Use root folder?
 userManual=Kullanım kılavuzu

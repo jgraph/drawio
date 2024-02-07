@@ -804,6 +804,7 @@ updatingPreview=Esikatselua päivitetään. Ole hyvä ja odota...
 updatingSelection=Valintaa päivitetään. Ole hyvä ja odota...
 upload=Lataa
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Käytä offline-tilassa
 useRootFolder=Käytetäänkö pääkansiota?
 userManual=Käyttöopas

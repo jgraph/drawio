@@ -311,7 +311,14 @@ OneDriveClient.prototype.authenticateStep2 = function(state, success, error, fai
 				{
 					if (req.getStatus() >= 200 && req.getStatus() <= 299)
 					{
-						this.updateAuthInfo(JSON.parse(req.getText()), authInfo.remember, false, success, error);
+						try
+						{
+							this.updateAuthInfo(JSON.parse(req.getText()), authInfo.remember, false, success, error);
+						}
+						catch (e)
+						{
+							error({message: mxResources.get('authFailed'), retry: auth});
+						}
 					}
 					else 
 					{

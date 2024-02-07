@@ -804,6 +804,7 @@ updatingPreview=Actualizarea previzualizarii. Vă rugăm așteptați...
 updatingSelection=Actualizarea selecției. Vă rugăm așteptați...
 upload=Încărcare
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Use Offline
 useRootFolder=Use root folder?
 userManual=Manualul utilizatorului

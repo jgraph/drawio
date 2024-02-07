@@ -804,6 +804,7 @@ updatingPreview=‫מעדכן תצוגה מקדימה. אנא המתן...‬
 updatingSelection=‫מעדכן בחירה. אנא המתן...‬
 upload=‫העלה‬
 url=‫כתובת URL‬
+useCurrentSettings=Use current settings
 useOffline=Use Offline
 useRootFolder=Use root folder?
 userManual=‫מדריך למשתמש‬

@@ -804,6 +804,7 @@ updatingPreview=Aurrebista eguneratzen. Itxaron...
 updatingSelection=Hautapena eguneratzen. Itxaron...
 upload=Kargatu
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Lineaz kanpo erabili
 useRootFolder=Sustraia karpeta erabili?
 userManual=Erabiltzailearen eskuliburua

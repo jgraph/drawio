@@ -356,9 +356,17 @@
 		
 		editorUi.actions.addAction('properties...', function()
 		{
-			var dlg = new FilePropertiesDialog(editorUi);
-			editorUi.showDialog(dlg.container, 340, 180, true, true);
-			dlg.init();
+			if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+			{
+				editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
+				{
+					editorUi.spinner.stop();
+
+					var dlg = new FilePropertiesDialog(editorUi, url);
+					editorUi.showDialog(dlg.container, 340, 200, true, true);
+					dlg.init();
+				});
+			}
 		}).isEnabled = isGraphEnabled;
 	
 		if (window.mxFreehand)

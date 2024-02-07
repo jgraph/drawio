@@ -804,6 +804,7 @@ updatingPreview=Aggiornamento dell'anteprima in corso. Attendi...
 updatingSelection=Aggiornamento della selezione in corso. Attendi...
 upload=Carica
 url=URL
+useCurrentSettings=Utilizza le impostazioni attuali
 useOffline=Utilizza offline
 useRootFolder=Vuoi utilizzare la cartella radice?
 userManual=Manuale utente

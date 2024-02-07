@@ -452,6 +452,37 @@ var mxUtils =
 	},
 	
 	/**
+	 * Function: addItems
+	 * 
+	 * Adds all items from the given array to the given array.
+	 * If an item is an array, then its members are added.
+	 * 
+	 * Parameters:
+	 * 
+	 * to - Array to add the items to.
+	 * from - Array to add the items from.
+	 */
+	addItems: function(to, from)
+	{
+		for (var i = 0; i < from.length; i++)
+		{
+			if (from[i] != null)
+			{
+				if (from[i].constructor == Array)
+				{
+					mxUtils.addItems(to, from[i]);
+				}
+				else if (mxUtils.indexOf(to, from[i]) < 0)
+				{
+					to.push(from[i]);
+				}
+			}
+		}
+		
+		return to;
+	},
+	
+	/**
 	 * Function: isNode
 	 * 
 	 * Returns true if the given value is an XML node with the node name

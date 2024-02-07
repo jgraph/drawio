@@ -804,6 +804,7 @@ updatingPreview=Actualizando vista previa. Por favor, espere...
 updatingSelection=Actualizando selección. Por favor, espere...
 upload=Subir
 url=URL
+useCurrentSettings=Usar la configuración actual
 useOffline=Use sin conexión
 useRootFolder=¿Usar carpeta raíz?
 userManual=Manual de usuario

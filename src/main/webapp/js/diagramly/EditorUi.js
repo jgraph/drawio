@@ -2084,7 +2084,7 @@
 		try
 		{
 			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : this.editor.graph.isSelectionEmpty();
-			var basename = this.getBaseFilename(format == 'remoteSvg'? false : !currentPage);
+			var basename = this.getBaseFilename(!currentPage);
 			var filename = basename + ((format == 'xml' || (format == 'pdf' &&
 				includeXml)) ? '.drawio' : '') + '.' + format;
 			
@@ -2168,25 +2168,6 @@
 				else if (format == 'jpeg')
 				{
 					filename = basename + '.jpg';
-				}
-				else if (format == 'remoteSvg')
-				{
-					filename = basename + '.svg';
-					format = 'svg';
-					var b = parseInt(border);
-
-					if (typeof scale === 'string' && scale.indexOf('%') > 0)
-					{
-						scale = parseInt(scale) / 100;
-					}
-
-					if (b > 0)
-					{
-						var graph = this.editor.graph;
-						var bounds = graph.getGraphBounds();
-						w = Math.ceil(bounds.width * scale / graph.view.scale + 2 * b);
-						h = Math.ceil(bounds.height * scale / graph.view.scale + 2 * b);
-					}
 				}
 				
 				this.saveRequest(filename, format, mxUtils.bind(this, function(newTitle, base64)
@@ -5128,53 +5109,30 @@
 			}
 		});
 		
-		if (urlParams['save-dialog'] != '0')
+		var disabled = [];
+
+		if (!allowBrowser)
 		{
-			var disabled = [];
-
-			if (!allowBrowser)
-			{
-				disabled.push(App.MODE_BROWSER);
-			}
-
-			if (!allowTab)
-			{
-				disabled.push('_blank');
-			}
-
-			var dlg = new SaveDialog(this, filename, mxUtils.bind(this, function(input, mode, folderId)
-			{
-				saveFunction(input.value, mode, input, folderId);
-				this.hideDialog(null, null, dlg.container);
-			}), disabled, data, mimeType, base64Encoded);
-
-			this.showDialog(dlg.container, 420, 110, true, false, mxUtils.bind(this, function()
-			{
-				this.hideDialog();
-			}));
-
-			dlg.init();
+			disabled.push(App.MODE_BROWSER);
 		}
-		else
+
+		if (!allowTab)
 		{
-			var count = this.getServiceCount(allowBrowser);
-			
-			if (isLocalStorage)
-			{
-				count++;
-			}
-			
-			var rowLimit = (count <= 4) ? 2 : (count > 6 ? 4 : 3);
-			
-			var dlg = new CreateDialog(this, filename, saveFunction, mxUtils.bind(this, function()
-			{
-				this.hideDialog();
-			}), mxResources.get('saveAs'), mxResources.get('download'), false, allowBrowser, allowTab,
-				null, count > 1, rowLimit, data, mimeType, base64Encoded);
-			var height = (this.isServices(count)) ? ((count > rowLimit) ? 390 : 280) : 160;
-			this.showDialog(dlg.container, 420, height, true, true);
-			dlg.init();
+			disabled.push('_blank');
 		}
+
+		var dlg = new SaveDialog(this, filename, mxUtils.bind(this, function(input, mode, folderId)
+		{
+			saveFunction(input.value, mode, input, folderId);
+			this.hideDialog(null, null, dlg.container);
+		}), disabled, data, mimeType, base64Encoded);
+
+		this.showDialog(dlg.container, 420, 110, true, false, mxUtils.bind(this, function()
+		{
+			this.hideDialog();
+		}));
+		
+		dlg.init();
 	};
 	
 	/**
@@ -5585,50 +5543,26 @@
 				}
 			}
 		});
+		
+		var disabled = [App.MODE_BROWSER];
 
-		if (urlParams['save-dialog'] != '0')
+		if (!allowTab)
 		{
-			var disabled = [App.MODE_BROWSER];
-
-			if (!allowTab)
-			{
-				disabled.push('_blank');
-			}
-
-			var dlg = new SaveDialog(this, filename, mxUtils.bind(this, function(input, mode, folderId)
-			{
-				saveFunction(input.value, mode, input, folderId);
-				this.hideDialog(null, null, dlg.container);
-			}), disabled, null, 'application/pdf');
-
-			this.showDialog(dlg.container, 420, 110, true, false, mxUtils.bind(this, function()
-			{
-				this.hideDialog();
-			}));
-
-			dlg.init();
+			disabled.push('_blank');
 		}
-		else
+
+		var dlg = new SaveDialog(this, filename, mxUtils.bind(this, function(input, mode, folderId)
 		{
-			var count = this.getServiceCount(false);
-			
-			if (isLocalStorage)
-			{
-				count++;
-			}
-			
-			var rowLimit = (count <= 4) ? 2 : (count > 6 ? 4 : 3);
-			
-			var dlg = new CreateDialog(this, filename, saveFunction, mxUtils.bind(this, function()
-			{
-				this.hideDialog();
-			}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab,
-				null, count > 1, rowLimit, data, mimeType, base64Encoded);
-			
-			var height = (this.isServices(count)) ? ((count > 4) ? 390 : 280) : 160;
-			this.showDialog(dlg.container, 420, height, true, true);
-			dlg.init();
-		}
+			saveFunction(input.value, mode, input, folderId);
+			this.hideDialog(null, null, dlg.container);
+		}), disabled, null, 'application/pdf');
+
+		this.showDialog(dlg.container, 420, 110, true, false, mxUtils.bind(this, function()
+		{
+			this.hideDialog();
+		}));
+
+		dlg.init();
 	};
 
 	/**
@@ -10242,6 +10176,14 @@
 											console.error(e, file);
 										}
 									}
+								}
+								else
+								{
+									// Ignores file and decrements counter
+									barrier(index, mxUtils.bind(this, function()
+									{
+										return null;
+									}));
 								}
 							});
 							

@@ -804,6 +804,7 @@ updatingPreview=Oppdaterer forhåndsvisning. Vennligst vent...
 updatingSelection=Oppdaterer utvalg. Vennligst vent...
 upload=Last opp
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Use Offline
 useRootFolder=Use root folder?
 userManual=Brukermanual

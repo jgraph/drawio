@@ -804,6 +804,7 @@ updatingPreview=Mengemaskini Pratonton. Sila tunggu...
 updatingSelection=Memuat naik pilihan. Sila tunggu...
 upload=Muat naik
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Use Offline
 useRootFolder=Use root folder?
 userManual=Manual Pengguna

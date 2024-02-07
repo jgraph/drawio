@@ -1,0 +1,21 @@
+<svg
+	xmlns="http://www.w3.org/2000/svg" width="15.242" height="17.276">
+	<defs>
+		<linearGradient id="A" x1="7.621" y1="17.277" x2="7.621" y2="-.001" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#0078d4"/>
+			<stop offset=".817" stop-color="#5ea0ef"/>
+		</linearGradient>
+		<linearGradient id="B" x1="1.406" y1="3.126" x2="1.406" y2="14.149" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#9cebff"/>
+			<stop offset="1" stop-color="#50e6ff"/>
+		</linearGradient>
+		<linearGradient id="C" x1="-420.01" y1="-209.608" x2="-420.01" y2="-220.631" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#9cebff"/>
+			<stop offset="1" stop-color="#50e6ff"/>
+		</linearGradient>
+	</defs>
+	<path d="M0 .5A.5.5 0 0 1 .748.066L14.99 8.204a.5.5 0 0 1 0 .868L.748 17.21A.5.5 0 0 1 0 16.776zm2.812 3.985v8.306l7.269-4.153z" fill-rule="evenodd" fill="url(#A)"/>
+	<path d="M0 10.638v-4h2.812v4z" fill="url(#B)"/>
+	<path d="M9.521 12.196l-3.416 1.953-1.4-2.442 3.419-1.953z" fill="url(#C)"/>
+	<path d="M6.105 3.127L9.521 5.08 8.128 7.522 4.709 5.569z" fill="url(#C)"/>
+</svg>

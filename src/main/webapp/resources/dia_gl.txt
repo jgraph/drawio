@@ -804,6 +804,7 @@ updatingPreview=Actualizando Vista previa. Agarda por favor…
 updatingSelection=Actualizando Selección. Agarda por favor…
 upload=Carregar
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Empregar Fóra de liña
 useRootFolder=Empregar cartafol raíz?
 userManual=Manual de Usuario

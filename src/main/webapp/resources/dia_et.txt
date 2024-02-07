@@ -804,6 +804,7 @@ updatingPreview=Uuenda eelvaadet. Palun oota...
 updatingSelection=Uuendan valikut. Palun oota...
 upload=Lae üles
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Kasuta võrguta režiimis
 useRootFolder=Kasuta juurkataloogi?
 userManual=Kasutusjuhend

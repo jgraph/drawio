@@ -1,3 +1,17 @@
+06-FEB-2024: 23.1.2
+
+- Fixes possible spin forever in image dialogs [drawio-4166]
+- Uses SVG icons for Confluence Cloud viewer toolbar buttons
+- Handles possible parser error in OneDrive auth
+- Fixes prev is not defined when creating new files
+- [conf cloud] Removed custom libs 25 limit in listing [DID-10673][DID-10695]
+
+01-FEB-2024: 23.1.1
+
+- Update azure shapes [drawio-3333]
+- Fixes only first layer shown in template preview
+- Fixes image size and padding for savesidebar URL parameter
+
 31-JAN-2024: 23.1.0
 
 - Fixes smoothing configuration for freehand [drawio-3093]

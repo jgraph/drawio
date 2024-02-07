@@ -804,6 +804,7 @@ updatingPreview=updatingPreview
 updatingSelection=updatingSelection
 upload=upload
 url=url
+useCurrentSettings=useCurrentSettings
 useOffline=useOffline
 useRootFolder=useRootFolder
 userManual=userManual

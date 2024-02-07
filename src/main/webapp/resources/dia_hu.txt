@@ -804,6 +804,7 @@ updatingPreview=Előnézet frissitése. Kérem várjon...
 updatingSelection=Kiválasztás frissítése. Kérem várjon...
 upload=Feltöltés
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Use Offline
 useRootFolder=Use root folder?
 userManual=Használati utasítás

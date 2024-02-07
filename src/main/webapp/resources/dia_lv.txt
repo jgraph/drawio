@@ -804,6 +804,7 @@ updatingPreview=Notiek priekšskatījuma atjaunināšana. Lūdzu uzgaidiet...
 updatingSelection=Notiek atlases atjaunināšana. Lūdzu uzgaidiet...
 upload=Augšupielādēt
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Izmantojiet bezsaistē
 useRootFolder=Vai izmantot pamata mapi?
 userManual=Lietotāja rokasgrāmata

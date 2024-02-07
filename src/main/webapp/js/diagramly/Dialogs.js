@@ -3018,7 +3018,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			var codec = new mxCodec(tempNode.ownerDocument);
 			var model = new mxGraphModel();
 			codec.decode(tempNode, model);
-			var cells = model.root.getChildAt(0).children;
+			var cells = model.root.children;
 			
 			var ww = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 			var wh = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
@@ -5844,8 +5844,8 @@ var PopupDialog = function(editorUi, url, pre, fallback, hideDialog)
 			{
 			    if (dropElt != null)
 			    {
-				    	dropElt.parentNode.removeChild(dropElt);
-				    	dropElt = null;
+					dropElt.parentNode.removeChild(dropElt);
+					dropElt = null;
 			    }
 
 			    if (evt.dataTransfer.files.length > 0)
@@ -5871,11 +5871,11 @@ var PopupDialog = function(editorUi, url, pre, fallback, hideDialog)
 	    		}
 			    else if (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
 			    {
-				    	var uri = evt.dataTransfer.getData('text/uri-list');
-				    	
-				    	if ((/\.(gif|jpg|jpeg|tiff|png|svg)($|\?)/i).test(uri))
+					var uri = evt.dataTransfer.getData('text/uri-list');
+					
+					if ((/\.(gif|jpg|jpeg|tiff|png|svg)($|\?)/i).test(uri))
 					{
-				    		apply(decodeURIComponent(uri));
+				    	apply(decodeURIComponent(uri));
 					}
 			    }
 
@@ -8683,7 +8683,7 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 		{
 			var smoothing = graph.freehand.getSmoothing();
 
-			editorUi.prompt('Smoothing (1-20)', smoothing, function(newValue)
+			editorUi.prompt(mxResources.get('smoothing') + ' (1-20)', smoothing, function(newValue)
 			{
 				if (!isNaN(newValue) && newValue > 0 && newValue <= 20)
 				{
@@ -12890,7 +12890,7 @@ AspectDialog.prototype.createLayerItem = function(layer, pageId, graph, pageNode
 /**
  * Constructs a new page setup dialog.
  */
-var FilePropertiesDialog = function(editorUi)
+var FilePropertiesDialog = function(editorUi, publicLink)
 {	
 	var row, td;
 	var table = document.createElement('table');
@@ -13001,6 +13001,8 @@ var FilePropertiesDialog = function(editorUi)
 		row = document.createElement('tr');
 		td = document.createElement('td');
 		td.style.whiteSpace = 'nowrap';
+		td.style.overflow = 'hidden';
+		td.style.textOverflow = 'ellipsis';
 		td.style.fontSize = '10pt';
 		mxUtils.write(td, mxResources.get('compressed') + ':');
 		
@@ -13048,6 +13050,8 @@ var FilePropertiesDialog = function(editorUi)
 		row = document.createElement('tr');
 		td = document.createElement('td');
 		td.style.whiteSpace = 'nowrap';
+		td.style.overflow = 'hidden';
+		td.style.textOverflow = 'ellipsis';
 		td.style.fontSize = '10pt';
 		mxUtils.write(td, mxResources.get('realtimeCollaboration') + ':');
 		row.appendChild(td);
@@ -13107,6 +13111,8 @@ var FilePropertiesDialog = function(editorUi)
 		row = document.createElement('tr');
 		td = document.createElement('td');
 		td.style.whiteSpace = 'nowrap';
+		td.style.overflow = 'hidden';
+		td.style.textOverflow = 'ellipsis';
 		td.style.fontSize = '10pt';
 		mxUtils.write(td, mxResources.get('size') + ':');
 		row.appendChild(td);
@@ -13127,12 +13133,48 @@ var FilePropertiesDialog = function(editorUi)
 		tbody.appendChild(row);
 	}
 
+	if (publicLink != null)
+	{
+		row = document.createElement('tr');
+		td = document.createElement('td');
+		td.style.whiteSpace = 'nowrap';
+		td.style.overflow = 'hidden';
+		td.style.textOverflow = 'ellipsis';
+		td.style.fontSize = '10pt';
+		mxUtils.write(td, mxResources.get('publicDiagramUrl') + ':');
+		row.appendChild(td);
+
+		var a = document.createElement('a');
+		a.setAttribute('href', publicLink);
+		a.setAttribute('title', publicLink);
+		a.style.whiteSpace = 'nowrap';
+		a.style.overflow = 'hidden';
+		a.style.textOverflow = 'ellipsis';
+		a.style.display = 'block';
+		a.style.margin = '2px 0px 2px 8px';
+		a.style.fontSize = '10pt';
+		mxUtils.write(a, publicLink);
+
+		mxEvent.addListener(a, 'click', function(evt)
+		{
+			editorUi.openLink(publicLink);
+			mxEvent.consume(evt);
+		});
+
+		td = document.createElement('td');
+		td.appendChild(a);
+		row.appendChild(td);
+		tbody.appendChild(row);
+	}
+
 	if (file != null && file.fileObject != null &&
 		file.fileObject.path != null)
 	{
 		row = document.createElement('tr');
 		td = document.createElement('td');
 		td.style.whiteSpace = 'nowrap';
+		td.style.overflow = 'hidden';
+		td.style.textOverflow = 'ellipsis';
 		td.style.fontSize = '10pt';
 		mxUtils.write(td, mxResources.get('pathFilename') + ':');
 		row.appendChild(td);

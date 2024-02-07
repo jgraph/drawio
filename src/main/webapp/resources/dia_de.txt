@@ -804,6 +804,7 @@ updatingPreview=Aktualisiere Vorschau. Bitte warten...
 updatingSelection=Aktualisiere Markierung. Bitte warten...
 upload=Hochladen
 url=URL
+useCurrentSettings=Aktuelle Einstellungen verwenden
 useOffline=Offline verwenden
 useRootFolder=Wurzelverzeichnis verwenden?
 userManual=Benutzerhandbuch

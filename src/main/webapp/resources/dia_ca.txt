@@ -804,6 +804,7 @@ updatingPreview=S'està actualitzant la vista prèvia. Espereu...
 updatingSelection=S'està actualitzant la selecció. Espereu...
 upload=Carrega
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Feu-ho servir fora de línia
 useRootFolder=Voleu fer servir la carpeta arrel?
 userManual=Manual d'usuari

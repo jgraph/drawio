@@ -804,6 +804,7 @@ updatingPreview=Memutakhirkan Pratinjau. Harap tunggu
 updatingSelection=Memutakhirkan Pilihan. Harap tunggu...
 upload=Unggah
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Pakai Daring
 useRootFolder=Pakai folder root?
 userManual=Panduan Pengguna

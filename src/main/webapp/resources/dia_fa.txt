@@ -804,6 +804,7 @@ updatingPreview=‫در حال به روز رسانی پیش نما. لطفا م
 updatingSelection=‫در حال به روز رسانی انتخاب. لطفاً منتظر بمانید...‬
 upload=‫آپلود‬
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Use Offline
 useRootFolder=Use root folder?
 userManual=‫راهنمای کاربر‬

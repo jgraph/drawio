@@ -804,6 +804,7 @@ updatingPreview=Uppdaterar förhandsgranskning, vänligen vänta...
 updatingSelection=Uppdaterar markering, vänligen vänta…
 upload=Ladda upp
 url=URL
+useCurrentSettings=Use current settings
 useOffline=Använd offline
 useRootFolder=Använd rootkatalog?
 userManual=Användarmanual

@@ -1138,7 +1138,6 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		};
 		
 		// Redirects cursor for locked cells
-		var getCursorForMouseEvent = this.getCursorForMouseEvent; 
 		this.getCursorForMouseEvent = function(me)
 		{
 			var locked = me.state == null && me.sourceState != null && this.isCellLocked(me.sourceState.cell);
@@ -1434,6 +1433,53 @@ Graph.pasteStyles = ['rounded', 'shadow', 'dashed', 'dashPattern', 'fontFamily',
 					'endSize', 'targetPerimeterSpacing', 'startFill', 'startArrow', 'startSize', 'sourcePerimeterSpacing',
 					'arcSize', 'comic', 'sketch', 'fillWeight', 'hachureGap', 'hachureAngle', 'jiggle', 'disableMultiStroke',
 					'disableMultiStrokeFill', 'fillStyle', 'curveFitting', 'simplification', 'comicStyle'];
+
+/**
+ * Text styles.
+ */
+Graph.textStyles = ['fontFamily', 'fontSource', 'fontSize', 'fontColor'];
+
+/**
+ * Keys that always update the current edge style regardless of selection
+ */
+Graph.edgeStyles = ['edgeStyle', 'startArrow', 'startFill', 'startSize', 'endArrow', 'endFill', 'endSize'];
+
+/**
+ * Text styles.
+ */
+Graph.connectStyles = ['shape', 'edgeStyle', 'curved', 'rounded', 'elbow', 'jumpStyle', 'jumpSize',
+	'comic', 'sketch', 'fillWeight', 'hachureGap', 'hachureAngle', 'jiggle',
+	'disableMultiStroke', 'disableMultiStrokeFill', 'fillStyle', 'curveFitting',
+	'simplification', 'sketchStyle'];
+
+/**
+ * Text styles.
+ */
+Graph.ignoredEdgeStyles = ['curved', 'sourcePerimeterSpacing', 'targetPerimeterSpacing',
+	'startArrow', 'startFill', 'startSize', 'endArrow', 'endFill', 'endSize'];
+
+/**
+ * Text styles.
+ */
+Graph.cellStyleGroups = [
+	['startArrow', 'startFill', 'endArrow', 'endFill'],
+	['startSize', 'endSize'],
+	['sourcePerimeterSpacing', 'targetPerimeterSpacing'],
+	['fillColor', 'gradientColor', 'gradientDirection'],
+	['opacity'],
+	['html']];
+
+/**
+ * Text styles.
+ */
+Graph.cellStyles = mxUtils.addItems(mxUtils.addItems(mxUtils.addItems(
+	['rounded', 'shadow', 'glass', 'dashed', 'dashPattern', 'labelBackgroundColor',
+	'labelBorderColor', 'comic', 'sketch', 'fillWeight', 'hachureGap', 'hachureAngle',
+	'jiggle', 'disableMultiStroke', 'disableMultiStrokeFill', 'fillStyle', 'curveFitting',
+	'simplification', 'sketchStyle', 'pointerEvents', 'strokeColor', 'strokeWidth',
+	'align', 'verticalAlign', 'spacingLeft', 'spacingRight', 'spacingTop',
+	'spacingBottom', 'spacing'], Graph.textStyles), Graph.connectStyles),
+		Graph.cellStyleGroups);
 
 /**
  * Whitelist for known layout names.
@@ -3203,6 +3249,100 @@ Graph.prototype.init = function(container)
 			}
 
 			this.updateCellStyles(style, cells);
+		}
+	};
+
+	/**
+	 * Copies the style of the given cells to the given vertex and edge style.
+	 */
+	Graph.prototype.copyCellStyles = function(cells, keys, values, vertexStyle, edgeStyle, vertexStyleIgnored, edgeStyleIgnored)
+	{
+		var vertex = false;
+		var edge = false;
+		
+		if (cells.length > 0)
+		{
+			for (var i = 0; i < cells.length; i++)
+			{
+				vertex = this.getModel().isVertex(cells[i]) || vertex;
+				edge = this.getModel().isEdge(cells[i]) || edge;
+				
+				if (edge && vertex)
+				{
+					break;
+				}
+			}
+		}
+		else
+		{
+			vertex = true;
+			edge = true;
+		}
+
+		vertex = vertex && !vertexStyleIgnored;
+		edge = edge && !edgeStyleIgnored;
+
+		for (var i = 0; i < keys.length; i++)
+		{
+			var common = mxUtils.indexOf(Graph.textStyles, keys[i]) >= 0;
+
+			// Ignores transparent stroke colors
+			if (keys[i] != 'strokeColor' || (values[i] != null && values[i] != 'none'))
+			{
+				// Special case: Edge style and shape
+				if (mxUtils.indexOf(Graph.connectStyles, keys[i]) >= 0)
+				{
+					if (edge || mxUtils.indexOf(Graph.edgeStyles, keys[i]) >= 0)
+					{
+						if (values[i] == null)
+						{
+							delete edgeStyle[keys[i]];
+						}
+						else
+						{
+							edgeStyle[keys[i]] = values[i];
+						}
+					}
+					// Uses style for vertex if defined in styles
+					else if (vertex && mxUtils.indexOf(Graph.cellStyles, keys[i]) >= 0)
+					{
+						if (values[i] == null)
+						{
+							delete vertexStyle[keys[i]];
+						}
+						else
+						{
+							vertexStyle[keys[i]] = values[i];
+						}
+					}
+				}
+				else if (mxUtils.indexOf(Graph.cellStyles, keys[i]) >= 0)
+				{
+					if (vertex || common)
+					{
+						if (values[i] == null)
+						{
+							delete vertexStyle[keys[i]];
+						}
+						else
+						{
+							vertexStyle[keys[i]] = values[i];
+						}
+					}
+					
+					if (edge || common || mxUtils.indexOf(Graph.edgeStyles, keys[i]) >= 0)
+					{
+						if (values[i] == null)
+						{
+							delete edgeStyle[keys[i]];
+						}
+						else
+						{
+							edgeStyle[keys[i]] = values[i];
+						}
+					}
+				}
+			}
 		}
 	};
 			
