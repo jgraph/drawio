@@ -433,7 +433,8 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 {
 	applyAllStyles = (applyAllStyles != null) ? applyAllStyles : true;
 	this.tooltipMouseDown = mouseDown;
-	
+	var graph = this.editorUi.editor.graph;
+
 	// Lazy creation of the DOM nodes and graph instance
 	if (this.tooltip == null)
 	{
@@ -533,10 +534,10 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 	if (cells != null)
 	{
 		var temp = this.graph2.cloneCells(cells);
-		this.editorUi.insertHandler(temp, null, this.graph2.model,
-			(!applyAllStyles) ? this.editorUi.editor.graph.defaultVertexStyle : null,
-			(!applyAllStyles) ? this.editorUi.editor.graph.defaultEdgeStyle : null,
-			applyAllStyles, true);
+		this.graph2.pasteCellStyles(graph.includeDescendants(temp),
+			(!applyAllStyles) ? graph.defaultVertexStyle : graph.currentVertexStyle,
+			(!applyAllStyles) ? graph.defaultEdgeStyle : graph.currentEdgeStyle,
+			null, graph.pasteEdgeStyle);
 		this.graph2.addCells(temp);
 	}
 
@@ -1349,11 +1350,13 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 {
 	var lineTags = 'line lines connector connectors connection connections arrow arrows ';
 	this.setCurrentSearchEntryLibrary('general', 'general');
+	var graph = this.editorUi.editor.graph;
 	var sb = this;
 
 	var temp = parseInt(this.initialDefaultVertexStyle['fontSize']);
 	var fontSize = !isNaN(temp) ? 'fontSize=' + Math.min(16, temp) + ';' : '';
-
+	var edgeLabelStyle = graph.appendFontSize('edgeLabel;resizable=0;html=1;', graph.edgeFontSize);
+	
 	// Reusable cells
 	var field = new mxCell('List Item', new mxGeometry(0, 0, 80, 30),
 		'text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;' +
@@ -1364,12 +1367,11 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 	var fns = [
 	 	this.createVertexTemplateEntry('rounded=0;whiteSpace=wrap;html=1;', 120, 60, '', 'Rectangle', null, null, 'rect rectangle box'),
 	 	this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 120, 60, '', 'Rounded Rectangle', null, null, 'rounded rect rectangle box'),
-	 	// Explicit strokecolor/fillcolor=none is a workaround to maintain transparent background regardless of current style
-	 	this.createVertexTemplateEntry('text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;',
- 			60, 30, 'Text', 'Text', null, null, 'text textbox textarea label'),
-	 	this.createVertexTemplateEntry('text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;', 190, 120,
-			'<h1>Heading</h1><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>',
-			'Textbox', null, null, 'text textbox textarea'),
+	 	this.createVertexTemplateEntry(graph.appendFontSize('text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;',
+			graph.vertexFontSize), 60, 30, 'Text', 'Text', null, null, 'text textbox textarea label'),
+	 	this.createVertexTemplateEntry('text;html=1;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;', 190, 120,
+			'<h1>Heading</h1><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ' +
+			'ut labore et dolore magna aliqua.</p>', 'Textbox', null, null, 'text textbox textarea'),
  		this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;', 120, 80, '', 'Ellipse', null, null, 'oval ellipse state'),
 		this.createVertexTemplateEntry('whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Square', null, null, 'square'),
 		this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Circle', null, null, 'circle'),
@@ -1439,7 +1441,7 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 			edge.geometry.relative = true;
 			edge.edge = true;
 			
-	    	var cell0 = new mxCell('Label', new mxGeometry(0, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=center;verticalAlign=middle;');
+	    	var cell0 = new mxCell('Label', new mxGeometry(0, 0, 0, 0), edgeLabelStyle + ';align=center;verticalAlign=middle;');
 	    	cell0.geometry.relative = true;
 	    	cell0.setConnectable(false);
 	    	cell0.vertex = true;
@@ -1455,13 +1457,13 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 			edge.geometry.relative = true;
 			edge.edge = true;
 
-	    	var cell0 = new mxCell('Label', new mxGeometry(0, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=center;verticalAlign=middle;');
+	    	var cell0 = new mxCell('Label', new mxGeometry(0, 0, 0, 0), edgeLabelStyle + ';align=center;verticalAlign=middle;');
 	    	cell0.geometry.relative = true;
 	    	cell0.setConnectable(false);
 	    	cell0.vertex = true;
 	    	edge.insert(cell0);
 	    	
-	    	var cell1 = new mxCell('Source', new mxGeometry(-1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=left;verticalAlign=bottom;');
+	    	var cell1 = new mxCell('Source', new mxGeometry(-1, 0, 0, 0), edgeLabelStyle + ';align=left;verticalAlign=bottom;');
 	    	cell1.geometry.relative = true;
 	    	cell1.setConnectable(false);
 	    	cell1.vertex = true;
@@ -1477,19 +1479,19 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 			edge.geometry.relative = true;
 			edge.edge = true;
 			
-	    	var cell0 = new mxCell('Label', new mxGeometry(0, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=center;verticalAlign=middle;');
+	    	var cell0 = new mxCell('Label', new mxGeometry(0, 0, 0, 0), edgeLabelStyle + ';align=center;verticalAlign=middle;');
 	    	cell0.geometry.relative = true;
 	    	cell0.setConnectable(false);
 	    	cell0.vertex = true;
 	    	edge.insert(cell0);
 	    	
-	    	var cell1 = new mxCell('Source', new mxGeometry(-1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=left;verticalAlign=bottom;');
+	    	var cell1 = new mxCell('Source', new mxGeometry(-1, 0, 0, 0), edgeLabelStyle + ';align=left;verticalAlign=bottom;');
 	    	cell1.geometry.relative = true;
 	    	cell1.setConnectable(false);
 	    	cell1.vertex = true;
 	    	edge.insert(cell1);
 			
-	    	var cell2 = new mxCell('Target', new mxGeometry(1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=right;verticalAlign=bottom;');
+	    	var cell2 = new mxCell('Target', new mxGeometry(1, 0, 0, 0), edgeLabelStyle + ';align=right;verticalAlign=bottom;');
 	    	cell2.geometry.relative = true;
 	    	cell2.setConnectable(false);
 	    	cell2.vertex = true;
@@ -1843,7 +1845,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		this.createVertexTemplateEntry('shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;whiteSpace=wrap;html=1;', 100, 50, 'Module', 'Module', null, null, dt + 'module component'),
 		this.createVertexTemplateEntry('shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;', 70, 50,
 		   	'package', 'Package', null, null, dt + 'package'),
-		this.createVertexTemplateEntry('verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;whiteSpace=wrap;',
+		this.createVertexTemplateEntry('verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;',
 			160, 90, '<p style="margin:0px;margin-top:4px;text-align:center;text-decoration:underline;"><b>Object:Type</b></p><hr/>' +
 			'<p style="margin:0px;margin-left:8px;">field1 = value1<br/>field2 = value2<br>field3 = value3</p>', 'Object',
 			null, null, dt + 'object instance'),
@@ -1857,7 +1859,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		    var cell = new mxCell('<p style="margin:0px;margin-top:4px;text-align:center;">' +
 	    			'<b>Class</b></p>' +
 					'<hr size="1"/><div style="height:2px;"></div>', new mxGeometry(0, 0, 140, 60),
-					'verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;whiteSpace=wrap;');
+					'verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;');
 		    cell.vertex = true;
 			
 			return sb.createVertexTemplateFromCells([cell.clone()], cell.geometry.width, cell.geometry.height, 'Class 3');
@@ -1867,7 +1869,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		    var cell = new mxCell('<p style="margin:0px;margin-top:4px;text-align:center;">' +
 	    			'<b>Class</b></p>' +
 					'<hr size="1"/><div style="height:2px;"></div><hr size="1"/><div style="height:2px;"></div>', new mxGeometry(0, 0, 140, 60),
-					'verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;whiteSpace=wrap;');
+					'verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;');
 		    cell.vertex = true;
 			
 			return sb.createVertexTemplateFromCells([cell.clone()], cell.geometry.width, cell.geometry.height, 'Class 4');
@@ -1878,7 +1880,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 	    			'<b>Class</b></p>' +
 					'<hr size="1"/><p style="margin:0px;margin-left:4px;">+ field: Type</p><hr size="1"/>' +
 					'<p style="margin:0px;margin-left:4px;">+ method(): Type</p>', new mxGeometry(0, 0, 160, 90),
-					'verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;whiteSpace=wrap;');
+					'verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;');
 		    cell.vertex = true;
 			
 			return sb.createVertexTemplateFromCells([cell.clone()], cell.geometry.width, cell.geometry.height, 'Class 5');
@@ -1892,7 +1894,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 					'<hr size="1"/><p style="margin:0px;margin-left:4px;">' +
 					'+ method1(Type): Type<br/>' +
 					'+ method2(Type, Type): Type</p>', new mxGeometry(0, 0, 190, 140),
-					'verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;whiteSpace=wrap;');
+					'verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;');
 		    cell.vertex = true;
 			
 			return sb.createVertexTemplateFromCells([cell.clone()], cell.geometry.width, cell.geometry.height, 'Interface 2');
@@ -2356,10 +2358,9 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	{
 		var originalCells = cells;
 		cells = this.graph.cloneCells(cells);
-		this.editorUi.insertHandler(originalCells, null, this.graph.model,
-			this.initialDefaultVertexStyle, this.initialDefaultEdgeStyle,
-			true, true);
-
+		this.graph.pasteCellStyles(this.graph.includeDescendants(originalCells),
+			this.initialDefaultVertexStyle, this.initialDefaultEdgeStyle);
+		
 		if (icon != null)
 		{
 			elt.style.backgroundImage = 'url(' + icon + ')';
@@ -3067,8 +3068,9 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 			mxUtils.setOpacity(elt, 50);
 
 			var clones = graph.cloneCells(cells);
-			ui.insertHandler(clones, null, this.graph.model,
-				null, null, true, true);
+			this.graph.pasteCellStyles(graph.includeDescendants(clones),
+				graph.currentVertexStyle, graph.currentEdgeStyle,
+				null, graph.pasteEdgeStyle);
 			
 			sidebar.createThumb(clones, s * Math.max(1, bounds.width),
 				s * Math.max(1, bounds.height), elt, null, null, null,

@@ -149,10 +149,17 @@ DropboxClient.prototype.authenticateStep2 = function(state, success, error)
 				{
 					if (req.getStatus() >= 200 && req.getStatus() <= 299)
 					{
-						_token = JSON.parse(req.getText()).access_token;
-						this.client.setAccessToken(_token);
-						this.setUser(null);
-						success();
+						try
+						{
+							_token = JSON.parse(req.getText()).access_token;
+							this.client.setAccessToken(_token);
+							this.setUser(null);
+							success();
+						}
+						catch (e)
+						{
+							error({message: mxResources.get('authFailed'), retry: auth});
+						}
 					}
 					else 
 					{

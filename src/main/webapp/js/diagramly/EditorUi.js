@@ -28,6 +28,7 @@
 	EditorUi.enableLogging = urlParams['stealth'] != '1' && urlParams['lockdown'] != '1' &&
 		(/.*\.draw\.io$/.test(window.location.hostname) ||
 		/.*\.diagrams\.net$/.test(window.location.hostname)) &&
+		window.location.hostname != 'https://preprod.diagrams.net/' &&
 		window.location.hostname != 'support.draw.io';
 	
 	/**
@@ -2409,8 +2410,8 @@
 	 */
 	EditorUi.prototype.updateHashObject = function()
 	{
-		if (this.currentFile != null && this.currentFile.getHash() != '' &&
-			this.currentPage != null && this.getSelectedPageIndex() > 0)
+		if (this.currentFile != null && this.currentPage != null &&
+			this.currentFile.getHash() != '')
 		{
 			var obj = this.getHashObject();
 			obj.pageId = this.currentPage.getId();
@@ -2457,8 +2458,16 @@
 			{
 				// ignore
 			}
-
-			window.location.hash = id;
+			
+			// Adds to browsing history if hash object changed
+			if (last > 0 && id.lastIndexOf('#') > 0)
+			{
+				window.location.hash = id;
+			}
+			else
+			{
+				window.location.replace(id);
+			}
 		}
 	};
 
@@ -4216,6 +4225,14 @@
 		{
 			Editor.configurationKey = '.sketch-configuration';
 			Editor.settingsKey = '.sketch-config';
+		}
+
+		if (Editor.currentTheme == 'sketch')
+		{
+			Graph.prototype.defaultVertexStyle['fontFamily'] = Editor.sketchFontFamily;
+			Graph.prototype.defaultVertexStyle['fontSource'] = Editor.sketchFontSource;
+			Graph.prototype.defaultEdgeStyle['fontFamily'] = Editor.sketchFontFamily;
+			Graph.prototype.defaultEdgeStyle['fontSource'] = Editor.sketchFontSource;
 		}
     };
     
@@ -7969,10 +7986,8 @@
 					
 					if (applyDefaultStyles)
 					{
-						this.insertHandler(cells, null, null,
-							graph.defaultVertexStyle,
-							graph.defaultEdgeStyle,
-							false, true);
+						graph.pasteCellStyles(graph.includeDescendants(cells),
+							graph.defaultVertexStyle, graph.defaultEdgeStyle);
 					}
 				}
 				finally
@@ -9260,7 +9275,8 @@
 			    	try
 			    	{
 						cell = graph.insertVertex(graph.getDefaultParent(), null, text,
-								graph.snap(dx), graph.snap(dy), 1, 1, 'text;' + ((html) ? 'html=1;' : ''));
+								graph.snap(dx), graph.snap(dy), 1, 1, 'text;' +
+								((html) ? 'html=1;' : ''));
 						graph.updateCellSize(cell);
 						graph.fireEvent(new mxEventObject('textInserted', 'cells', [cell]));
 			    	}
@@ -9307,7 +9323,8 @@
 				    		// Fires cellsInserted to apply the current style to the inserted text.
 				    		// This requires the value to be empty when the event is fired.
 				    		cell = graph.insertVertex(graph.getDefaultParent(), null, '',
-								graph.snap(dx), graph.snap(dy), 1, 1, 'text;whiteSpace=wrap;' + ((html) ? 'html=1;' : ''));
+								graph.snap(dx), graph.snap(dy), 1, 1, 'text;whiteSpace=wrap;' +
+								((html) ? 'html=1;' : ''));
 				    		graph.fireEvent(new mxEventObject('textInserted', 'cells', [cell]));
 							
 							if (html)
@@ -13884,31 +13901,26 @@
 		
 		// Skipped if defaultVertexStyle or defaultEdgeStyle configured
 		if (Editor.config == null || (Editor.config.defaultVertexStyle == null &&
-			Editor.config.defaultEdgeStyle == null))
+		 	Editor.config.defaultEdgeStyle == null))
 		{
-			if (Editor.sketchMode)
+			if (Editor.currentTheme == 'sketch')
 			{
-				this.menus.defaultFontSize = 20;
+				graph.vertexFontSize = 20;
+				graph.edgeFontSize = graph.vertexFontSize - 4;
 			}
 			else if (Editor.currentTheme == 'simple')
 			{
-				this.menus.defaultFontSize = 16;
+				graph.vertexFontSize = 16;
+				graph.edgeFontSize = graph.vertexFontSize - 4;
 			}
 			else
 			{
-				this.menus.defaultFontSize = Menus.prototype.defaultFontSize;
+				graph.vertexFontSize = Graph.prototype.vertexFontSize;
+				graph.edgeFontSize = Graph.prototype.edgeFontSize;
 			}
 
-			if (this.menus.defaultFontSize == Menus.prototype.defaultFontSize)
-			{
-				setStyle(graph.defaultEdgeStyle, 'fontSize', null);
-				setStyle(graph.defaultVertexStyle, 'fontSize', null);
-			}
-			else
-			{
-				setStyle(graph.defaultVertexStyle, 'fontSize', this.menus.defaultFontSize);	
-				setStyle(graph.defaultEdgeStyle, 'fontSize', parseInt(this.menus.defaultFontSize) - 4);
-			}
+			// Font size for edges is applied to all inserted edges
+			setStyle(graph.defaultEdgeStyle, 'fontSize', graph.edgeFontSize);
 		}
 
 		// Skipped if defaultEdgeStyle configured
@@ -13936,32 +13948,31 @@
 				setStyle(graph.defaultEdgeStyle, 'targetPerimeterSpacing', '8');
 			}
 		}
-
+		
 		// Skipped if defaultFonts configured
 		if (Editor.config == null || Editor.config.defaultFonts == null)
 		{
-			if (Editor.sketchMode)
+			// Skipped if defaultFonts, defaultVertexStyle or defaultEdgeStyle configured
+			if (Editor.config == null || (Editor.config.defaultVertexStyle == null &&
+				Editor.config.defaultEdgeStyle == null))
 			{
-				this.menus.defaultFonts = Menus.prototype.defaultFonts.concat(Editor.sketchFonts);
-
-				// Skipped if defaultFonts, defaultVertexStyle or defaultEdgeStyle configured
-				if (Editor.config == null || (Editor.config.defaultVertexStyle == null &&
-					Editor.config.defaultEdgeStyle == null))
+				if (Editor.sketchMode)
 				{
-					setStyle(graph.defaultVertexStyle, 'fontFamily', Editor.sketchFontFamily);
-					setStyle(graph.defaultVertexStyle, 'fontSource', Editor.sketchFontSource);
-					setStyle(graph.defaultVertexStyle, 'hachureGap', '4');
 					setStyle(graph.defaultVertexStyle, 'sketch', '1');
 					setStyle(graph.defaultVertexStyle, 'curveFitting', Editor.sketchDefaultCurveFitting);
 					setStyle(graph.defaultVertexStyle, 'jiggle', Editor.sketchDefaultJiggle);
+					setStyle(graph.defaultVertexStyle, 'hachureGap', '4');
 
-					setStyle(graph.defaultEdgeStyle, 'fontFamily', Editor.sketchFontFamily);
-					setStyle(graph.defaultEdgeStyle, 'fontSource', Editor.sketchFontSource);
 					setStyle(graph.defaultEdgeStyle, 'sketch', '1');
 					setStyle(graph.defaultEdgeStyle, 'curveFitting', Editor.sketchDefaultCurveFitting);
 					setStyle(graph.defaultEdgeStyle, 'jiggle', Editor.sketchDefaultJiggle);
 					setStyle(graph.defaultEdgeStyle, 'hachureGap', '4');
 				}
+			}
+
+			if (Editor.currentTheme == 'sketch')
+			{
+				this.menus.defaultFonts = Menus.prototype.defaultFonts.concat(Editor.sketchFonts);
 			}
 			else
 			{

@@ -818,9 +818,23 @@
 		
 		editorUi.actions.addAction('copyStyle', function()
 		{
-			if (graph.isEnabled() && !graph.isSelectionEmpty())
+			if (graph.isEnabled() && graph.getSelectionCount() == 1)
 			{
-				editorUi.copiedStyle = graph.copyStyle(graph.getSelectionCell())
+				var cell = graph.getSelectionCell();
+				var style = graph.getCellStyle(cell, false);
+				editorUi.copiedStyle = {};
+				var values = [];
+				var keys = [];
+
+				for (var key in style)
+				{
+					values.push(style[key]);
+					keys.push(key);
+				}
+				
+				graph.copyCellStyles([cell], keys, values,
+					editorUi.copiedStyle, editorUi.copiedStyle,
+					null, null, null, true);
 			}
 		}, null, null, 'Alt+C');
 
@@ -828,7 +842,8 @@
 		{
 			if (graph.isEnabled() && !graph.isSelectionEmpty() && editorUi.copiedStyle != null)
 			{
-				graph.pasteStyle(editorUi.copiedStyle, graph.getSelectionCells())
+				graph.pasteCellStyles(graph.includeDescendants(graph.getSelectionCells()),
+					editorUi.copiedStyle, editorUi.copiedStyle, true);
 			}
 		}, null, null, 'Alt+V');
 		
@@ -3748,9 +3763,10 @@
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-    			graph.startEditingAtCell(insertVertex('Text', 60, 30, 'text;strokeColor=none;align=center;' +
-					'fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;',
-					(evt != null && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt) &&
+    			graph.startEditingAtCell(insertVertex('Text', 60, 30, graph.appendFontSize(
+					'text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;' +
+					'whiteSpace=wrap;rounded=0;', graph.vertexFontSize), (evt != null &&
+					!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt) &&
 					graph.isMouseInsertPoint()) ? graph.getInsertPoint() : null));
 			}
 		}, null, null, 'A')).isEnabled = isGraphEnabled;
