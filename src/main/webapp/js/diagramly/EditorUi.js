@@ -6007,33 +6007,92 @@
 		// Replaces images
 		for (var i = 0; i < imgs.length; i++)
 		{
-			var node = imgs[i];
-			var href = null;
-
-			// Workaround for missing namespace support
-			if (node.getAttributeNS == null)
+			try
 			{
-				href = node.getAttribute('xlink:href');
+				var node = imgs[i];
+				var href = null;
+
+				// Workaround for missing namespace support
+				if (node.getAttributeNS == null)
+				{
+					href = node.getAttribute('xlink:href');
+				}
+				else
+				{
+					href = node.getAttributeNS(mxConstants.NS_XLINK, 'href');
+				}
+
+				var svg = this.getSvgSubtree(href);
+
+				if (svg != null)
+				{
+					svg.setAttribute('x', node.getAttribute('x'));
+					svg.setAttribute('y', node.getAttribute('y'));
+					svg.setAttribute('width', node.getAttribute('width'));
+					svg.setAttribute('height', node.getAttribute('height'));
+
+					node.parentNode.replaceChild(svg, node);
+				}
 			}
-			else
+			catch (e)
 			{
-				href = node.getAttributeNS(mxConstants.NS_XLINK, 'href');
-			}
-
-			var data = Graph.getSvgFromDataUri(href);
-
-			if (data != null)
-			{
-				var svg = mxUtils.parseXml(data).documentElement;
-					
-				svg.setAttribute('x', node.getAttribute('x'));
-				svg.setAttribute('y', node.getAttribute('y'));
-				svg.setAttribute('width', node.getAttribute('width'));
-				svg.setAttribute('height', node.getAttribute('height'));
-
-				node.parentNode.replaceChild(svg, node);
+				// ignore
 			}
 		}
+	};
+	
+	/**
+	 * Returns SVG with modified CSS rules that limit scope to subtree.
+	 */
+	EditorUi.prototype.getSvgSubtree = function(href)
+	{
+		var data = Graph.getSvgFromDataUri(href);
+		var svg = null;
+
+		if (data != null)
+		{
+			svg = mxUtils.parseXml(data).documentElement;
+			var styles = svg.getElementsByTagName('style');
+
+			if (styles.length > 0)
+			{
+				var id = 'svg-image-' + Editor.guid();
+				svg.setAttribute('id', id);
+				
+				// Adds ID selector for all CSS rules to limit scope
+				var doc = document.implementation.createHTMLDocument(''),
+				styleElement = document.createElement('style');
+
+				for (var j = 0; j < styles.length; j++)
+				{
+					styleElement.textContent = styles[j].textContent;
+					doc.body.appendChild(styleElement);
+					var modifiedCss = '';
+
+					for (var k = 0; k < styleElement.sheet.cssRules.length; k++)
+					{
+						var rule = styleElement.sheet.cssRules[k];
+
+						if (rule.selectorText != null)
+						{
+							var tokens = rule.selectorText.split(',');
+
+							for (var l = 0; l < tokens.length; l++)
+							{
+								tokens[l] = '#' + id + ' ' + tokens[l];
+							}
+
+							rule.selectorText = tokens.join(',');
+							modifiedCss += rule.cssText + '\n';
+						}
+					}
+
+					styles[j].textContent = modifiedCss;
+				}
+			}
+		}
+
+		return svg;
 	};
 	
 	/**
