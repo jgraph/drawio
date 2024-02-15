@@ -333,11 +333,7 @@ mxCellEditor.prototype.getInitialValue = function(state, trigger)
 	var result = mxUtils.htmlEntities(this.graph.getEditingValue(state.cell, trigger), false);
 	
     // Workaround for trailing line breaks being ignored in the editor
-	if (document.documentMode != 8 && document.documentMode != 9 &&
-		document.documentMode != 10)
-	{
-		result = mxUtils.replaceTrailingNewlines(result, '<div><br></div>');
-	}
+	result = mxUtils.replaceTrailingNewlines(result, '<div><br></div>');
     
     return result.replace(/\n/g, '<br>');
 };
@@ -528,17 +524,8 @@ mxCellEditor.prototype.installListeners = function(elt)
 	
 	mxEvent.addListener(elt, evtName, resizeHandler);
 	mxEvent.addListener(window, 'resize', resizeHandler);
-
-	if (document.documentMode >= 9)
-	{
-		mxEvent.addListener(elt, 'DOMNodeRemoved', resizeHandler);
-		mxEvent.addListener(elt, 'DOMNodeInserted', resizeHandler);
-	}
-	else
-	{
-		mxEvent.addListener(elt, 'cut', resizeHandler);
-		mxEvent.addListener(elt, 'paste', resizeHandler);
-	}
+	mxEvent.addListener(elt, 'cut', resizeHandler);
+	mxEvent.addListener(elt, 'paste', resizeHandler);
 };
 
 /**
@@ -590,18 +577,8 @@ mxCellEditor.prototype.resize = function()
 			this.bounds = this.getEditorBounds(state);
 			this.textarea.style.width = Math.round(this.bounds.width / scale) + 'px';
 			this.textarea.style.height = Math.round(this.bounds.height / scale) + 'px';
-			
-			// FIXME: Offset when scaled
-			if (document.documentMode == 8)
-			{
-				this.textarea.style.left = Math.round(this.bounds.x) + 'px';
-				this.textarea.style.top = Math.round(this.bounds.y) + 'px';
-			}
-			else
-			{
-				this.textarea.style.left = Math.max(0, Math.round(this.bounds.x + 1)) + 'px';
-				this.textarea.style.top = Math.max(0, Math.round(this.bounds.y + 1)) + 'px';
-			}
+			this.textarea.style.left = Math.max(0, Math.round(this.bounds.x + 1)) + 'px';
+			this.textarea.style.top = Math.max(0, Math.round(this.bounds.y + 1)) + 'px';
 			
 			// Installs native word wrapping and avoids word wrap for empty label placeholder
 			if (this.graph.isWrapping(state.cell) && (this.bounds.width >= 2 || this.bounds.height >= 2) &&
@@ -709,7 +686,7 @@ mxCellEditor.prototype.resize = function()
 				if (this.textarea.innerHTML != this.getEmptyLabelText())
 				{				
 					// Forces automatic reflow if text is removed from an oversize label and normal word wrap
-					var tmp = Math.round(this.bounds.width / ((document.documentMode == 8) ? scale : scale)) + this.wordWrapPadding;
+					var tmp = Math.round(this.bounds.width / scale) + this.wordWrapPadding;
 
 					if (this.textarea.style.position != 'relative')
 					{
@@ -751,43 +728,10 @@ mxCellEditor.prototype.resize = function()
 				this.textarea.style.width = '';
 			}
 			
-			// LATER: Keep in visible area, add fine tuning for pixel precision
-			// Workaround for wrong measuring in IE8 standards
-			if (document.documentMode == 8)
-			{
-				this.textarea.style.zoom = '1';
-				this.textarea.style.height = 'auto';
-			}
-			
-			// TODO: Update CSS width and height if smaller than minResize or remove minResize
-			//if (this.minResize != null)
-			//{
-			//	ow = Math.max(ow, this.minResize.width);
-			//	oh = Math.max(oh, this.minResize.height);
-			//}
-			
-			// LATER: Keep in visible area, add fine tuning for pixel precision
-			if (document.documentMode == 8)
-			{
-				var ow = this.textarea.scrollWidth;
-				var oh = this.textarea.scrollHeight;
-				
-				// LATER: Scaled wrapping and position is wrong in IE8
-				this.textarea.style.left = Math.max(0, Math.ceil((this.bounds.x - m.x * (this.bounds.width -
-					(ow + 1) * scale) + ow * (scale - 1) * 0 + (m.x + 0.5) * 2) / scale)) + 'px';
-				this.textarea.style.top = Math.max(0, Math.ceil((this.bounds.y - m.y * (this.bounds.height -
-					(oh + 0.5) * scale) + oh * (scale - 1) * 0 + Math.abs(m.y + 0.5) * 1) / scale)) + 'px';
-				// Workaround for wrong event handling width and height
-				this.textarea.style.width = Math.round(ow * scale) + 'px';
-				this.textarea.style.height = Math.round(oh * scale) + 'px';
-			}
-			else
-			{
-				this.textarea.style.left = Math.max(0, Math.round(this.bounds.x - m.x *
-					(this.bounds.width - 2)) + 1) + 'px';
-				this.textarea.style.top = Math.max(0, Math.round(this.bounds.y - m.y *
-					(this.bounds.height - 4) + ((m.y == -1) ? 3 : 0)) + 1) + 'px';
-			}
+			this.textarea.style.left = Math.max(0, Math.round(this.bounds.x - m.x *
+				(this.bounds.width - 2)) + 1) + 'px';
+			this.textarea.style.top = Math.max(0, Math.round(this.bounds.y - m.y *
+				(this.bounds.height - 4) + ((m.y == -1) ? 3 : 0)) + 1) + 'px';
 	 	}
 
 		mxUtils.setPrefixedStyle(this.textarea.style, 'transformOrigin', '0px 0px');

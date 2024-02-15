@@ -10544,7 +10544,7 @@ if (typeof mxVertexHandler !== 'undefined')
 					
 					if (label != null && label.length > 0)
 					{
-						div.innerHTML = label;
+						div.innerHTML = Graph.sanitizeHtml(label);
 						var elts = div.getElementsByTagName((tagName != null) ? tagName : '*');
 						
 						for (var j = 0; j < elts.length; j++)
@@ -10982,7 +10982,7 @@ if (typeof mxVertexHandler !== 'undefined')
 
 			if (fontSize != null)
 			{
-				if (style.length > 0)
+				if (style.length > 0 && style.charAt(style.length - 1) != ';')
 				{
 					style += ';';
 				}
@@ -13765,6 +13765,13 @@ if (typeof mxVertexHandler !== 'undefined')
 				if (mxUtils.getValue(state.style, 'nl2Br', '1') == '1')
 				{
 					result = result.replace(/\r\n/g, '<br/>').replace(/\n/g, '<br/>');
+
+					// Workaround for trailing line breaks being ignored in the output
+					if (result.length > 0 && (result.substring(result.length - 5) == '<br/>' ||
+						result.substring(result.length - 4) == '<br>'))
+					{
+						result = result.substring(0, result.lastIndexOf('<br')) + '<div><br/></div>';
+					}
 				}
 				else
 				{

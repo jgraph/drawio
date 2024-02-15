@@ -1,3 +1,12 @@
+15-FEB-2024: 23.1.5
+
+- [conf cloud] Add charset to requests to protect from default charset changes
+- [conf cloud] Added requests rate limiting retrials for long running services [DID-10681]
+- Fixes incorrect font colors in PDF output [drawio-4176]
+- Removes text editing code for IE8/9/10
+- Fixes possible XSS in Graph.updateLabelElements [CSP-2963]
+- Fixes possible XSS in ErrorDialog [CSP-2964]
+
 13-FEB-2024: 23.1.4
 
 - Fixes CSS scope in SVG sub-trees [drawio-4119]

@@ -1352,8 +1352,8 @@ var ErrorDialog = function(editorUi, title, message, buttonText, fn, retry, butt
 	{
 		message = message.replace(/\n/g, '<br/>');
 	}
-
-	p2.innerHTML = message;
+	
+	p2.innerHTML = Graph.sanitizeHtml(message);
 	div.appendChild(p2);
 	
 	var btns = document.createElement('div');
