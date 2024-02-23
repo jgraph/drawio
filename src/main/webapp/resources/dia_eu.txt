@@ -1278,3 +1278,4 @@ diagDuplNoEditMsg=Diagrama hau hainbat lekutan erabiltzen da. Mesedez, edita eza
 confCloudMigConfirm=Abisua: prozesu honek orrialde eta diagrama asko editatuko ditu, beraz, prozesuan zehar sinkronizazio zerbitzua geldiaraztea gomendatzen da. Jarraitu nahi duzu?
 confCloudMigNotice=Hodeiko instantzian, gehitu linkAdjustments draw.io konfigurazioan honela {1}. Konfigurazio hori gabe, Confluence orrietara seinalatzen duten diagrametan estekek ez dute funtzionatuko.
 confALogsPageDesc=This page contains logs of draw.io long running services as attachments
+confEditOnlyInPageEditor=Can only be edited within Confluence page editor

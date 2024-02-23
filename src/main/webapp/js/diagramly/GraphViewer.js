@@ -1820,7 +1820,7 @@ GraphViewer.prototype.createToolbarButton = function(fn, imgSrc, tip, enabled)
 	return a;
 };
 
-GraphViewer.prototype.disableButton = function(token)
+GraphViewer.prototype.disableButton = function(token, tooltip)
 {
 	var def = this.graphConfig['toolbar-buttons']? this.graphConfig['toolbar-buttons'][token] : null;
 			
@@ -1833,6 +1833,11 @@ GraphViewer.prototype.disableButton = function(token)
 		{
 			def.elem.style.backgroundColor = '#eee';
 		});
+
+		if (tooltip)
+		{
+			def.elem.setAttribute('title', tooltip);
+		}
 	}
 };
 

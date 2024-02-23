@@ -1278,3 +1278,4 @@ diagDuplNoEditMsg=diagDuplNoEditMsg
 confCloudMigConfirm=confCloudMigConfirm
 confCloudMigNotice=confCloudMigNotice
 confALogsPageDesc=confALogsPageDesc
+confEditOnlyInPageEditor=confEditOnlyInPageEditor

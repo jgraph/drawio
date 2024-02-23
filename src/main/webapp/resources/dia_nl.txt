@@ -1278,3 +1278,4 @@ diagDuplNoEditMsg=Dit diagram wordt op meerdere plaatsen gebruikt. Bewerk het op
 confCloudMigConfirm=Waarschuwing: links naar Confluence-pagina's binnen diagrammen worden in dit geval na dit proces verbroken. Wil je doorgaan?
 confCloudMigNotice=Voeg in de Cloud-instantie linkAdjustments toe om de configuratie van draw.io als volgt te configureren {1}. Zonder deze configuratie werken links in diagrammen die naar Confluence-pagina's verwijzen niet.
 confALogsPageDesc=Deze pagina bevat de draw.io-logboeken van langlopende diensten als bijlagen
+confEditOnlyInPageEditor=Can only be edited within Confluence page editor

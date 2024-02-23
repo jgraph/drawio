@@ -1,3 +1,11 @@
+22-FEB-2024: 23.1.6
+
+- Fixes possible XSS in tooltips for overlays [CSP-2969]
+- Fixes reference to clip path [drawio-4202]
+- Fixes possible XSS in fontCss for print preview [CSP-2986]
+- [conf cloud] Added tooltip to edit button when disabled
+- [conf cloud] Using v2 api to edit the page in direct diagram editing
+
 15-FEB-2024: 23.1.5
 
 - [conf cloud] Add charset to requests to protect from default charset changes

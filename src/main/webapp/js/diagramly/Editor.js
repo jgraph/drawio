@@ -8692,7 +8692,8 @@
 						if (editorUi.editor.fontCss != null)
 						{
 							doc.writeln('<style type="text/css">');
-							doc.writeln(editorUi.editor.fontCss);
+							doc.writeln(mxUtils.htmlEntities(editorUi.editor.fontCss,
+								false, false, false));
 							doc.writeln('</style>');
 						}
 						

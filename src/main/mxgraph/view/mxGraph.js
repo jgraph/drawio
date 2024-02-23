@@ -9337,7 +9337,7 @@ mxGraph.prototype.getTooltip = function(state, node, x, y)
 				// LATER: Exit loop if tip is not null
 				if (tip == null && (node == shape.node || node.parentNode == shape.node))
 				{
-					tip = shape.overlay.toString();
+					tip = mxUtils.htmlEntities(shape.overlay.toString()).replace(/\\n/g, '<br>');
 				}
 			});
 		}

@@ -332,7 +332,7 @@ mxSvgCanvas2D.prototype.format = function(value)
 mxSvgCanvas2D.prototype.getBaseUrl = function()
 {
 	var href = window.location.href;
-	var hash = href.lastIndexOf('#');
+	var hash = href.indexOf('#');
 	
 	if (hash > 0)
 	{
