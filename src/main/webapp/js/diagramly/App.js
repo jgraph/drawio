@@ -1103,7 +1103,7 @@ App.main = function(callback, createUi)
 					{
 						mxLanguage = 'en';
 						doLoad(mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
-								mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage));
+							mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage));
 					};
 				}
 			});

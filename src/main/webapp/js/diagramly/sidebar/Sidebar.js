@@ -136,7 +136,6 @@
 	                                   {id: 'pid2', prefix: 'pid2', libs: ['Agitators', 'Apparatus Elements', 'Centrifuges', 'Compressors', 'Compressors ISO', 'Crushers Grinding', 
 	                                          	                          'Driers', 'Engines', 'Feeders', 'Filters', 'Fittings', 'Flow Sensors', 'Heat Exchangers', 'Instruments', 'Misc',
 	                                        	                          'Mixers', 'Piping', 'Pumps', 'Pumps DIN', 'Pumps ISO', 'Separators', 'Shaping Machines', 'Valves', 'Vessels']},
-//           	                           {id: 'salesforce'},
            	                           {id: 'salesforce', prefix: 'salesforce', libs: ['Components', 'Product', 'Platform', 'Industry']},
            	                           {id: 'signs', prefix: 'signs', libs: Sidebar.prototype.signs},
            	                           {id: 'gcp', prefix: 'gcp', libs: Sidebar.prototype.gcp},

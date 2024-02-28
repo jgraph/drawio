@@ -1307,7 +1307,8 @@
 		{
 			var result = sidebarCreateAdvancedShapes.apply(this, arguments);
 			var graph = this.graph;
-			
+			var sb = this;
+
 			// Style that defines the key, value pairs to be used for creating styles of new connections if no incoming edge exists
 			var orgEdgeStyle = 'edgeStyle=elbowEdgeStyle;elbow=vertical;sourcePerimeterSpacing=0;' +
 				'targetPerimeterSpacing=0;startArrow=none;endArrow=none;rounded=0;curved=0;';
@@ -1562,7 +1563,7 @@
 	
 					cell2.insertEdge(edge2, false);
 										
-				    	return sb.createVertexTemplateFromCells([edge, edge2, cell, cell2], 220, 60, 'Sub Sections');
+				    return sb.createVertexTemplateFromCells([edge, edge2, cell, cell2], 220, 60, 'Sub Sections');
 				})
 			]);
 		};

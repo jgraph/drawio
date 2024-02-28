@@ -547,7 +547,7 @@ Editor.prototype.appName = document.title;
 /**
  * 
  */
-Editor.prototype.editBlankUrl = window.location.protocol + '//' + window.location.host + '/';
+Editor.prototype.editBlankUrl = window.location.origin + window.location.pathname;
 
 /**
  * Default value for the graph container overflow style.

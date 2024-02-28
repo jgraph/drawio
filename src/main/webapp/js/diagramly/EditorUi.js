@@ -2899,28 +2899,28 @@
 					EditorUi.debug('File.closed', [file]);
 				}
 
-				if (file.isModified() && file.constructor == DriveFile &&
-					file.desc != null && this.drive != null)
-				{
-					var evt = {category: 'WARN-CLOSE-MODIFIED-FILE-' + file.getHash(),
-						action: (discarded ? 'DISCARDED' : 'WARNED') + ((file.savingFile) ? 'saving' : '') +
-						((file.savingFile && file.savingFileTime != null) ? '_' +
-							Math.round((Date.now() - file.savingFileTime.getTime()) / 1000) : '') +
-						((file.saveLevel != null) ? ('-sl_' + file.saveLevel) : '') +
-						'-age_' + ((file.ageStart != null) ? Math.round((Date.now() - file.ageStart.getTime()) / 1000) : 'x') +
-						((this.editor.autosave) ? '' : '-nosave') +
-						((file.isAutosave()) ? '' : '-noauto') +
-						'-open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
-						'-save_' + ((file.lastSaved != null) ? Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
-						'-change_' + ((file.lastChanged != null) ? Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x') +
-						'-alive_' + Math.round((Date.now() - App.startTime.getTime()) / 1000),
-						label: ((file.sync != null) ? ('client_' + file.sync.clientId) : 'nosync') +
-							((this.drive.user != null) ? ('-user_' + this.drive.user.id) : '-nouser') + '-rev_' +
-							file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate + '-size_' + file.getSize() +
-							'-mime_' + file.desc.mimeType};
+				// if (file.isModified() && file.constructor == DriveFile &&
+				// 	file.desc != null && this.drive != null)
+				// {
+				// 	var evt = {category: 'WARN-CLOSE-MODIFIED-FILE-' + file.getHash(),
+				// 		action: (discarded ? 'DISCARDED' : 'WARNED') + ((file.savingFile) ? 'saving' : '') +
+				// 		((file.savingFile && file.savingFileTime != null) ? '_' +
+				// 			Math.round((Date.now() - file.savingFileTime.getTime()) / 1000) : '') +
+				// 		((file.saveLevel != null) ? ('-sl_' + file.saveLevel) : '') +
+				// 		'-age_' + ((file.ageStart != null) ? Math.round((Date.now() - file.ageStart.getTime()) / 1000) : 'x') +
+				// 		((this.editor.autosave) ? '' : '-nosave') +
+				// 		((file.isAutosave()) ? '' : '-noauto') +
+				// 		'-open_' + ((file.opened != null) ? Math.round((Date.now() - file.opened.getTime()) / 1000) : 'x') +
+				// 		'-save_' + ((file.lastSaved != null) ? Math.round((Date.now() - file.lastSaved.getTime()) / 1000) : 'x') +
+				// 		'-change_' + ((file.lastChanged != null) ? Math.round((Date.now() - file.lastChanged.getTime()) / 1000) : 'x') +
+				// 		'-alive_' + Math.round((Date.now() - App.startTime.getTime()) / 1000),
+				// 		label: ((file.sync != null) ? ('client_' + file.sync.clientId) : 'nosync') +
+				// 			((this.drive.user != null) ? ('-user_' + this.drive.user.id) : '-nouser') + '-rev_' +
+				// 			file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate + '-size_' + file.getSize() +
+				// 			'-mime_' + file.desc.mimeType};
 
-					EditorUi.logEvent(evt);
-				}
+				// 	EditorUi.logEvent(evt);
+				// }
 			}
 		}
 		catch (e)
@@ -3138,20 +3138,20 @@
 					}
 				}
 				
-				if (EditorUi.enableLogging && !this.isOffline())
-				{
-		        	try
-		        	{
-		        		EditorUi.logEvent({category: 'ERROR-LOAD-FILE-' +
-		        			((file != null) ? file.getHash() : 'none'),
-		        			action: 'message_' + e.message,
-		        			label: 'stack_' + e.stack});
-		        	}
-		        	catch (e)
-		        	{
-		        		// ignore
-		        	}
-				}
+				// if (EditorUi.enableLogging && !this.isOffline())
+				// {
+		        // 	try
+		        // 	{
+		        // 		EditorUi.logEvent({category: 'ERROR-LOAD-FILE-' +
+		        // 			((file != null) ? file.getHash() : 'none'),
+		        // 			action: 'message_' + e.message,
+		        // 			label: 'stack_' + e.stack});
+		        // 	}
+		        // 	catch (e)
+		        // 	{
+		        // 		// ignore
+		        // 	}
+				// }
 				
 				// Asynchronous handling of errors
 				var fn = mxUtils.bind(this, function()
@@ -8584,33 +8584,33 @@
 
 							try
 							{
-								EditorUi.logEvent({category: 'LUCIDCHART-IMPORT-FILE',
-									action: 'size_' + data.length});
+								// EditorUi.logEvent({category: 'LUCIDCHART-IMPORT-FILE',
+								// 	action: 'size_' + data.length});
 
-									if (window.console != null && urlParams['test'] == '1')
+								if (window.console != null && urlParams['test'] == '1')
+								{
+									var args = [new Date().toISOString(), 'convertLucidChart', obj];
+
+									if (obj.state != null)
 									{
-										var args = [new Date().toISOString(), 'convertLucidChart', obj];
-
-										if (obj.state != null)
-										{
-											args.push(JSON.parse(obj.state));
-										}
-				
-										if (obj.svgThumbs != null)
-										{
-											for (var i = 0; i < obj.svgThumbs.length; i++)
-											{
-												args.push(Editor.createSvgDataUri(obj.svgThumbs[i]));
-											}
-										}
-
-										if (obj.thumb != null)
-										{
-											args.push(obj.thumb);
-										}
-
-										console.log.apply(console, args);
+										args.push(JSON.parse(obj.state));
 									}
+			
+									if (obj.svgThumbs != null)
+									{
+										for (var i = 0; i < obj.svgThumbs.length; i++)
+										{
+											args.push(Editor.createSvgDataUri(obj.svgThumbs[i]));
+										}
+									}
+
+									if (obj.thumb != null)
+									{
+										args.push(obj.thumb);
+									}
+
+									console.log.apply(console, args);
+								}
 							}
 							catch (e)
 							{

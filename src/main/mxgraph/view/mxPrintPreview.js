@@ -742,7 +742,7 @@ mxPrintPreview.prototype.writeHead = function(doc, css)
 {
 	if (this.title != null)
 	{
-		doc.writeln('<title>' + this.title + '</title>');
+		doc.writeln('<title>' + mxUtils.htmlEntities(this.title) + '</title>');
 	}
 	
 	// Adds all required stylesheets
@@ -775,14 +775,14 @@ mxPrintPreview.prototype.writeHead = function(doc, css)
 			((pf.height / this.pixelsPerInch) + this.pageMargin).toFixed(2) + 'in;';
 
 		doc.writeln('@page {');
-		doc.writeln('  margin: ' + this.pageMargin + 'in;');
-		doc.writeln('  size: ' + size);
+		doc.writeln('  margin: ' + mxUtils.htmlEntities(this.pageMargin) + 'in;');
+		doc.writeln('  size: ' + mxUtils.htmlEntities(size));
 		doc.writeln('}');
 	}
 
 	if (css != null)
 	{
-		doc.writeln(css);
+		doc.writeln(mxUtils.htmlEntities(css, false, false, false));
 	}
 	
 	doc.writeln('</style>');

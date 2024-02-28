@@ -2,6 +2,7 @@
 {
 	Sidebar.prototype.addDFDPalette = function()
 	{
+		var sb = this;
 		var w = 100;
 		var h = 100;
 		var s = 'html=1;dashed=0;whiteSpace=wrap;shape=mxgraph.dfd.';

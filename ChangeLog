@@ -1,3 +1,17 @@
+28-FEB-2024: 23.1.8
+
+- Remove unnecessary servlets from deployment
+- Fixes possible XSS in print preview title [CSP-3018]
+- Fixes editBlankUrl for subpaths [drawio-4152]
+- Fixes possible NPE in Sidebar
+- Salesforce shape library fix
+- AWS shapes update [DS-951]
+- [conf cloud] Fixed some re-indexing issues in logging and search text property [DID-10652]
+
+26-FEB-2024: 23.1.7
+
+- Debug build to attempt to find rogue resources load
+
 22-FEB-2024: 23.1.6
 
 - Fixes possible XSS in tooltips for overlays [CSP-2969]

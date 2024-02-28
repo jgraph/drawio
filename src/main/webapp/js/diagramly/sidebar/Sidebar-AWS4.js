@@ -31,12 +31,12 @@
 		this.addAWS4ApplicationIntegrationPalette(s, w, h, w2, gn, sb);
 		this.setCurrentSearchEntryLibrary('aws4', 'aws4AR VR');
 		this.addAWS4ARVRPalette(s, w, h, w2, gn, sb);
-		this.setCurrentSearchEntryLibrary('aws4', 'aws4Cloud Financial Management');
-		this.addAWS4CloudFinancialManagementPalette(s, w, h, w2, gn, sb);
 		this.setCurrentSearchEntryLibrary('aws4', 'aws4Blockchain');
 		this.addAWS4BlockchainPalette(s, w, h, w2, gn, sb);
 		this.setCurrentSearchEntryLibrary('aws4', 'aws4Business Applications');
 		this.addAWS4BusinessApplicationsPalette(s, w, h, w2, gn, sb);
+		this.setCurrentSearchEntryLibrary('aws4', 'aws4Cloud Financial Management');
+		this.addAWS4CloudFinancialManagementPalette(s, w, h, w2, gn, sb);
 		this.setCurrentSearchEntryLibrary('aws4', 'aws4Compute');
 		this.addAWS4ComputePalette(s, w, h, w2, gn, sb);
 		this.setCurrentSearchEntryLibrary('aws4', 'aws4Contact Center');
@@ -459,6 +459,8 @@
 					 w2, w2, '', 'Simple Queue Service', null, null, this.getTagsForStencil(gn, 'sqs simple queue service', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.appsync;',
 					 w2, w2, '', 'AppSync', null, null, this.getTagsForStencil(gn, 'appsync', dt).join(' ')),
+			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.b2b_data_interchange;',
+					 w2, w2, '', 'B2B Data Interchange', null, null, this.getTagsForStencil(gn, 'b2b data interchange', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.eventbridge;',
 					 w2, w2, '', 'EventBridge', null, null, this.getTagsForStencil(gn, 'eventbridge event bridge', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.managed_workflows_for_apache_airflow;',
@@ -588,8 +590,6 @@
 					 w2, w2, '', 'Chime SDK', null, null, this.getTagsForStencil(gn, 'chime sdk software development kit', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.chime;',
 					 w2, w2, '', 'Chime Voice Connector', null, null, this.getTagsForStencil(gn, 'chime voice connector', dt).join(' ')),
-			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.connect;',
-					 w2, w2, '', 'Connect', null, null, this.getTagsForStencil(gn, 'connect', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.honeycode;',
 					 w2, w2, '', 'Honeycode', null, null, this.getTagsForStencil(gn, 'honeycode', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.pinpoint;',
@@ -916,7 +916,9 @@
 		this.addPaletteFunctions('aws4Contact Center', 'AWS / Contact Center', false,
 		[
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.contact_center;',
-					 w2, w2, '', 'Contact Center', null, null, this.getTagsForStencil(gn, 'contact center', dt).join(' '))
+					 w2, w2, '', 'Contact Center', null, null, this.getTagsForStencil(gn, 'contact center', dt).join(' ')),
+			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.connect;',
+					 w2, w2, '', 'Connect', null, null, this.getTagsForStencil(gn, 'connect', dt).join(' '))
 		]);
 	};
 
@@ -993,6 +995,8 @@
 					 w2, w2, '', 'Professional Services', null, null, this.getTagsForStencil(gn, 'professional services', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.repost;',
 					 w2, w2, '', 'rePost', null, null, this.getTagsForStencil(gn, 'repost', dt).join(' ')),
+			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.repost_private;',
+					 w2, w2, '', 'rePost Private', null, null, this.getTagsForStencil(gn, 'repost private', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.support;',
 					 w2, w2, '', 'Support', null, null, this.getTagsForStencil(gn, 'support', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.training_certification;',
@@ -1204,6 +1208,8 @@
 					 w2, w2, '', 'WorkLink', null, null, this.getTagsForStencil(gn, 'worklink', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.workspaces_family;',
 					 w2, w2, '', 'WorkSpaces Family', null, null, this.getTagsForStencil(gn, 'workspaces family', dt).join(' ')),
+			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.workspaces_thin_client;',
+					 w2, w2, '', 'WorkSpaces Thin Client', null, null, this.getTagsForStencil(gn, 'workspaces thin client', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.workdocs;',
 					 w2, w2, '', 'WorkDocs', null, null, this.getTagsForStencil(gn, 'workdocs', dt).join(' ')),
 				
@@ -1536,6 +1542,8 @@
 					 w2, w2, '', 'Personalize', null, null, this.getTagsForStencil(gn, 'personalize', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.polly;',
 					 w2, w2, '', 'Polly', null, null, this.getTagsForStencil(gn, 'polly', dt).join(' ')),
+			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.q;',
+					 w2, w2, '', 'Q', null, null, this.getTagsForStencil(gn, 'q', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.rekognition_2;',
 					 w2, w2, '', 'Rekognition', null, null, this.getTagsForStencil(gn, 'rekognition', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.sagemaker;',
