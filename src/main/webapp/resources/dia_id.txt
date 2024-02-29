@@ -331,6 +331,7 @@ fitWindow=Paskan Jendela
 flip=Jungkirkan
 flipH=Jungkir Horizontal
 flipV=Jungkir Vertikal
+flowAnimation=Flow Animation
 flowchart=Diagram Alir
 folder=Folder
 font=Fonta

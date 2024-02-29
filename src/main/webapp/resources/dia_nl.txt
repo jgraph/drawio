@@ -331,6 +331,7 @@ fitWindow=Passend in venster
 flip=Spiegelen
 flipH=Horizontaal spiegelen
 flipV=Verticaal spiegelen
+flowAnimation=Flow Animation
 flowchart=Stroomschema
 folder=Map
 font=Lettertype

@@ -331,6 +331,7 @@ fitWindow=Anpassa till fönster
 flip=Rotera
 flipH=Vänd horisontellt
 flipV=Vänd vertikalt
+flowAnimation=Flow Animation
 flowchart=Flödesschema
 folder=Mapp
 font=Teckensnitt

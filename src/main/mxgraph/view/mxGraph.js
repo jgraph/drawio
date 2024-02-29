@@ -2384,10 +2384,11 @@ mxGraph.prototype.setCellWarning = function(cell, warning, img, isSelect)
  * Parameters:
  * 
  * evt - Optional mouse event that triggered the editing.
+ * initialText - Optional string that specifies the initial editing value.
  */
-mxGraph.prototype.startEditing = function(evt)
+mxGraph.prototype.startEditing = function(evt, initialText)
 {
-	this.startEditingAtCell(null, evt);
+	this.startEditingAtCell(null, evt, initialText);
 };
 
 /**
@@ -2401,8 +2402,9 @@ mxGraph.prototype.startEditing = function(evt)
  * 
  * cell - <mxCell> to start the in-place editor for.
  * evt - Optional mouse event that triggered the editing.
+ * initialText - Optional string that specifies the initial editing value.
  */
-mxGraph.prototype.startEditingAtCell = function(cell, evt)
+mxGraph.prototype.startEditingAtCell = function(cell, evt, initialText)
 {
 	if (evt == null || !mxEvent.isMultiTouchEvent(evt))
 	{
@@ -2420,7 +2422,7 @@ mxGraph.prototype.startEditingAtCell = function(cell, evt)
 		{
 			this.fireEvent(new mxEventObject(mxEvent.START_EDITING,
 					'cell', cell, 'event', evt));
-			this.cellEditor.startEditing(cell, evt);
+			this.cellEditor.startEditing(cell, evt, initialText);
 			this.fireEvent(new mxEventObject(mxEvent.EDITING_STARTED,
 					'cell', cell, 'event', evt));
 		}

@@ -331,6 +331,7 @@ fitWindow=Ajuster à la fenêtre
 flip=Retourner
 flipH=Retourner horizontalement
 flipV=Retourner verticalement
+flowAnimation=Flow Animation
 flowchart=Diagramme de flux
 folder=Dossier
 font=Police

@@ -188,13 +188,21 @@ mxImageExport.prototype.drawText = function(state, canvas)
  {
 	 if (shape != null && shape.checkBounds())
 	 {
-		 canvas.save();
-		 
-		 shape.beforePaint(canvas);
-		 shape.paint(canvas);
-		 shape.afterPaint(canvas);
-		 
-		 canvas.restore();
+		var root = canvas.root;
+		var node = shape.node;
+		
+		canvas.root = shape.createSvg();
+		root.appendChild(canvas.root);
+		shape.node = canvas.root;
+		canvas.save();
+
+		shape.beforePaint(canvas);
+		shape.paint(canvas);
+		shape.afterPaint(canvas);
+		
+		canvas.restore();
+		shape.node = node;
+		canvas.root = root;
 	 }
  };
  

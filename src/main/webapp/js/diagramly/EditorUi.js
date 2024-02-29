@@ -5858,15 +5858,36 @@
 						var y = parseInt(temp.style.paddingTop);
 						var measure = temp.getElementsByTagName('div')[1];
 
+						var rl = false;
+						var vertical = false;
 						var alignItems = temp.style.alignItems;
 						var justifyContent = temp.style.justifyContent;
 
-						if (temp.style.height == '1px')
+						if (temp.style.writingMode != null)
 						{
-							temp.style.alignItems = 'unsafe flex-start';
+							var writingMode = temp.style.writingMode;
+							vertical = writingMode.substring(0, 9) == 'vertical-';
+							rl = writingMode.substring(writingMode.length - 3) == '-rl';
 						}
 
-						if (temp.style.width == '1px')
+						var h1 = (!vertical && temp.style.height == '1px') ||
+							(vertical && temp.style.width == '1px');
+						var w1 = (!vertical && temp.style.width == '1px') ||
+							(vertical && temp.style.height == '1px');
+
+						if (h1)
+						{
+							if (vertical && rl)
+							{
+								temp.style.alignItems = 'unsafe flex-end';
+							}
+							else
+							{
+								temp.style.alignItems = 'unsafe flex-start';
+							}
+						}
+
+						if (w1)
 						{
 							temp.style.justifyContent = 'unsafe flex-start';
 						}
@@ -5921,14 +5942,17 @@
 								y -= size.height;
 							}
 						}
-
+						
 						if (temp.style.width == '1px')
 						{
-							if (justifyContent == 'unsafe center')
+							if ((!vertical && justifyContent == 'unsafe center') ||
+								(vertical && alignItems == 'unsafe center'))
 							{
 								x -= size.width / 2;
 							}
-							else if (justifyContent == 'unsafe flex-end')
+							else if ((!vertical && justifyContent == 'unsafe flex-end') ||
+								(vertical && ((!rl && alignItems == 'unsafe flex-end') ||
+								(rl && alignItems == 'unsafe flex-start'))))
 							{
 								x -= size.width;
 							}

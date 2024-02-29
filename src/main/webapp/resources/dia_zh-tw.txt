@@ -331,6 +331,7 @@ fitWindow=適應視窗大小
 flip=翻轉
 flipH=水平鏡像
 flipV=垂直鏡像
+flowAnimation=Flow Animation
 flowchart=流程圖
 folder=資料夾
 font=字型

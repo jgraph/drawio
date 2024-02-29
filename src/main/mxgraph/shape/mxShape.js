@@ -479,9 +479,75 @@ mxShape.prototype.getLabelMargins= function(rect)
 mxShape.prototype.checkBounds = function()
 {
 	return (!isNaN(this.scale) && isFinite(this.scale) && this.scale > 0 &&
-			this.bounds != null && !isNaN(this.bounds.x) && !isNaN(this.bounds.y) &&
-			!isNaN(this.bounds.width) && !isNaN(this.bounds.height) &&
-			this.bounds.width > 0 && this.bounds.height > 0);
+		this.bounds != null && !isNaN(this.bounds.x) && !isNaN(this.bounds.y) &&
+		!isNaN(this.bounds.width) && !isNaN(this.bounds.height) &&
+		this.bounds.width > 0 && this.bounds.height > 0);
+};
+
+/**
+ * Function: getShadowStyle
+ * 
+ * Removes all child nodes and resets all CSS.
+ */
+mxShape.prototype.getShadowStyle = function()
+{
+	var s = {
+		dx: mxConstants.SHADOW_OFFSET_X,
+		dy: mxConstants.SHADOW_OFFSET_Y,
+		blur: mxConstants.SHADOW_BLUR,
+		color: mxConstants.SHADOWCOLOR,
+		opacity: mxConstants.SHADOW_OPACITY * 100
+	};
+
+	if (this.style != null)
+	{
+		s.dx = mxUtils.getValue(this.style,
+			mxConstants.STYLE_SHADOW_OFFSET_X, s.dx);
+		s.dy = mxUtils.getValue(this.style,
+			mxConstants.STYLE_SHADOW_OFFSET_Y, s.dy);
+		s.blur = mxUtils.getValue(this.style,
+			mxConstants.STYLE_SHADOW_BLUR, s.blur);
+		s.color = mxUtils.getValue(this.style,
+			mxConstants.STYLE_SHADOWCOLOR, s.color);
+		s.opacity = mxUtils.getValue(this.style,
+			mxConstants.STYLE_SHADOW_OPACITY, s.opacity);
+	}
+
+	return s;
+};
+
+/**
+ * Function: createDropShadow
+ * 
+ * Removes all child nodes and resets all CSS.
+ */
+mxShape.prototype.createDropShadow = function(shadowStyle, scale)
+{
+	return 'drop-shadow(' + Math.round(shadowStyle.dx * scale * 100) / 100 + 'px ' +
+		Math.round(shadowStyle.dy * scale * 100) / 100 + 'px ' +
+		Math.round(shadowStyle.blur * scale * 100) / 100 + 'px ' +
+		mxUtils.hex2rgba(shadowStyle.color, shadowStyle.opacity / 100) + ')';
+};
+
+/**
+ * Function: updateSvgFilters
+ * 
+ * Removes all child nodes and resets all CSS.
+ */
+mxShape.prototype.updateSvgFilters = function(scale)
+{
+	this.node.style.filter = (this.isShadow && this.isShadowEnabled()) ?
+		this.createDropShadow(this.getShadowStyle(), scale) : '';
+};
+
+/**
+ * Function: isShadowEnabled
+ * 
+ * Removes all child nodes and resets all CSS.
+ */
+mxShape.prototype.isShadowEnabled = function()
+{
+	return true;
 };
 
 /**
@@ -497,28 +563,9 @@ mxShape.prototype.redrawShape = function()
 	{
 		// Specifies if events should be handled
 		canvas.pointerEvents = this.pointerEvents;
-	
 		this.beforePaint(canvas);
 		this.paint(canvas);
 		this.afterPaint(canvas);
-	
-		if (this.node != canvas.root)
-		{
-			// Forces parsing in IE8 standards mode - slow! avoid. TODO, remove?
-			this.node.insertAdjacentHTML('beforeend', canvas.root.outerHTML);
-		}
-	
-		if (this.node.nodeName == 'DIV' && document.documentMode == 8) // TODO, remove?
-		{
-			// Makes DIV transparent to events for IE8 in IE8 standards
-			// mode (Note: Does not work for IE9 in IE8 standards mode
-			// and not for IE11 in enterprise mode)
-			this.node.style.filter = '';
-			
-			// Adds event transparency in IE8 standards
-			mxUtils.addTransparentBackgroundFilter(this.node);
-		}
-		
 		this.destroyCanvas(canvas);
 	}
 };
@@ -630,7 +677,8 @@ mxShape.prototype.updateHtmlFilters = function(node)
 			'Color=\'' + mxConstants.VML_SHADOWCOLOR + '\')';
 	}
 	
-	if (this.fill != null && this.fill != mxConstants.NONE && this.gradient && this.gradient != mxConstants.NONE)
+	if (this.fill != null && this.fill != mxConstants.NONE &&
+		this.gradient && this.gradient != mxConstants.NONE)
 	{
 		var start = this.fill;
 		var end = this.gradient;
@@ -710,10 +758,6 @@ mxShape.prototype.updateHtmlColors = function(node)
 	{
 		 node.style.backgroundColor = 'transparent';
 	}
-	else if (document.documentMode == 8)
-	{
-		mxUtils.addTransparentBackgroundFilter(node);
-	}
 	else
 	{
 		this.setTransparentBackgroundImage(node);
@@ -727,7 +771,7 @@ mxShape.prototype.updateHtmlColors = function(node)
  */
 mxShape.prototype.updateHtmlBounds = function(node)
 {
-	var sw = (document.documentMode >= 9) ? 0 : Math.ceil(this.strokewidth * this.scale);
+	var sw = Math.ceil(this.strokewidth * this.scale);
 	node.style.borderWidth = Math.max(1, sw) + 'px';
 	node.style.overflow = 'hidden';
 	
@@ -787,14 +831,14 @@ mxShape.prototype.destroyCanvas = function(canvas)
  * 
  * Invoked before paint is called.
  */
-mxShape.prototype.beforePaint = function(c) { }
+mxShape.prototype.beforePaint = function(c) { };
 
 /**
  * Function: afterPaint
  * 
  * Invokes after paint was called.
  */
-mxShape.prototype.afterPaint = function(c) { }
+mxShape.prototype.afterPaint = function(c) { };
 
 /**
  * Function: paint
@@ -844,6 +888,7 @@ mxShape.prototype.paint = function(c)
 	
 	this.updateTransform(c, x, y, w, h);
 	this.configureCanvas(c, x, y, w, h);
+	this.updateSvgFilters((c != null) ? c.state.scale : s);
 
 	// Adds background rectangle to capture events
 	var bg = null;
@@ -967,14 +1012,14 @@ mxShape.prototype.configureCanvas = function(c, x, y, w, h)
 	// Sets alpha, colors and gradients
 	if (this.isShadow != null)
 	{
-		c.setShadow(this.isShadow);
+		c.setShadow(this.isShadow, this.shadowStyle);
 	}
 	
 	// Dash pattern
 	if (this.isDashed != null)
 	{
-		c.setDashed(this.isDashed, (this.style != null) ?
-			mxUtils.getValue(this.style, mxConstants.STYLE_FIX_DASH, false) == 1 : false);
+		c.setDashed(this.isDashed, (this.style != null) ? mxUtils.getValue(
+			this.style, mxConstants.STYLE_FIX_DASH, false) == 1 : false);
 	}
 
 	if (dash != null)
@@ -982,10 +1027,12 @@ mxShape.prototype.configureCanvas = function(c, x, y, w, h)
 		c.setDashPattern(dash);
 	}
 
-	if (this.fill != null && this.fill != mxConstants.NONE && this.gradient && this.gradient != mxConstants.NONE)
+	if (this.fill != null && this.fill != mxConstants.NONE &&
+		this.gradient && this.gradient != mxConstants.NONE)
 	{
 		var b = this.getGradientBounds(c, x, y, w, h);
-		c.setGradient(this.fill, this.gradient, b.x, b.y, b.width, b.height, this.gradientDirection);
+		c.setGradient(this.fill, this.gradient, b.x, b.y,
+			b.width, b.height, this.gradientDirection);
 	}
 	else
 	{
@@ -1336,7 +1383,7 @@ mxShape.prototype.apply = function(state)
 		this.isDashed = mxUtils.getValue(this.style, mxConstants.STYLE_DASHED, this.isDashed) == 1;
 		this.isRounded = mxUtils.getValue(this.style, mxConstants.STYLE_ROUNDED, this.isRounded) == 1;
 		this.glass = mxUtils.getValue(this.style, mxConstants.STYLE_GLASS, this.glass) == 1;
-		
+
 		if (this.fill == mxConstants.NONE)
 		{
 			this.fill = null;
@@ -1489,8 +1536,23 @@ mxShape.prototype.augmentBoundingBox = function(bbox)
 {
 	if (this.isShadow)
 	{
-		bbox.width += Math.ceil(mxConstants.SHADOW_OFFSET_X * this.scale);
-		bbox.height += Math.ceil(mxConstants.SHADOW_OFFSET_Y * this.scale);
+		var ss = this.getShadowStyle();
+
+		if (ss.dx < 0)
+		{
+			bbox.x += ss.dx;
+			bbox.width -= ss.dx;
+		}
+
+		if (ss.dy < 0)
+		{
+			bbox.y += ss.dy;
+			bbox.height -= ss.dy;
+		}
+
+		bbox.grow(Math.max(ss.blur, 0) * this.scale * 2);
+		bbox.width += Math.ceil(Math.max(ss.dx, 0) * this.scale);
+		bbox.height += Math.ceil(Math.max(ss.dy, 0) * this.scale);
 	}
 	
 	// Adds stroke width

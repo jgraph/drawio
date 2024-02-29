@@ -1757,6 +1757,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		'collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;' + sequenceEdgeStyle;
 	var activationStyle = 'html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;' +
 		'outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;' + sequenceEdgeStyle;
+	var hr = '<hr size="1" style="border-style:solid;"/>';
 	
 	// Default tags
 	var dt = 'uml static class ';
@@ -1828,7 +1829,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		this.addEntry(dt + 'component', function()
 		{
 		    var cell = new mxCell('<p style="margin:0px;margin-top:6px;text-align:center;"><b>Component</b></p>' +
-				'<hr/><p style="margin:0px;margin-left:8px;">+ Attribute1: Type<br/>+ Attribute2: Type</p>', new mxGeometry(0, 0, 180, 90),
+				hr + '<p style="margin:0px;margin-left:8px;">+ Attribute1: Type<br/>+ Attribute2: Type</p>', new mxGeometry(0, 0, 180, 90),
 				'align=left;overflow=fill;html=1;dropTarget=0;whiteSpace=wrap;');
 		    cell.vertex = true;
 		    
@@ -1846,7 +1847,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		this.createVertexTemplateEntry('shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;', 70, 50,
 		   	'package', 'Package', null, null, dt + 'package'),
 		this.createVertexTemplateEntry('verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;',
-			160, 90, '<p style="margin:0px;margin-top:4px;text-align:center;text-decoration:underline;"><b>Object:Type</b></p><hr/>' +
+			160, 90, '<p style="margin:0px;margin-top:4px;text-align:center;text-decoration:underline;"><b>Object:Type</b></p>' + hr +
 			'<p style="margin:0px;margin-left:8px;">field1 = value1<br/>field2 = value2<br>field3 = value3</p>', 'Object',
 			null, null, dt + 'object instance'),
 		this.createVertexTemplateEntry('verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;',180, 90,
@@ -1858,7 +1859,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		{
 		    var cell = new mxCell('<p style="margin:0px;margin-top:4px;text-align:center;">' +
 	    			'<b>Class</b></p>' +
-					'<hr size="1"/><div style="height:2px;"></div>', new mxGeometry(0, 0, 140, 60),
+					hr + '<div style="height:2px;"></div>', new mxGeometry(0, 0, 140, 60),
 					'verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;');
 		    cell.vertex = true;
 			
@@ -1868,7 +1869,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		{
 		    var cell = new mxCell('<p style="margin:0px;margin-top:4px;text-align:center;">' +
 	    			'<b>Class</b></p>' +
-					'<hr size="1"/><div style="height:2px;"></div><hr size="1"/><div style="height:2px;"></div>', new mxGeometry(0, 0, 140, 60),
+					hr + '<div style="height:2px;"></div>' + hr + '<div style="height:2px;"></div>', new mxGeometry(0, 0, 140, 60),
 					'verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;');
 		    cell.vertex = true;
 			
@@ -1877,8 +1878,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		this.addEntry(dt + 'object instance', function()
 		{
 		    var cell = new mxCell('<p style="margin:0px;margin-top:4px;text-align:center;">' +
-	    			'<b>Class</b></p>' +
-					'<hr size="1"/><p style="margin:0px;margin-left:4px;">+ field: Type</p><hr size="1"/>' +
+	    			'<b>Class</b></p>' + hr + '<p style="margin:0px;margin-left:4px;">+ field: Type</p>' + hr +
 					'<p style="margin:0px;margin-left:4px;">+ method(): Type</p>', new mxGeometry(0, 0, 160, 90),
 					'verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;');
 		    cell.vertex = true;
@@ -1889,9 +1889,8 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		{
 		    var cell = new mxCell('<p style="margin:0px;margin-top:4px;text-align:center;">' +
 	    			'<i>&lt;&lt;Interface&gt;&gt;</i><br/><b>Interface</b></p>' +
-					'<hr size="1"/><p style="margin:0px;margin-left:4px;">+ field1: Type<br/>' +
-					'+ field2: Type</p>' +
-					'<hr size="1"/><p style="margin:0px;margin-left:4px;">' +
+					hr + '<p style="margin:0px;margin-left:4px;">+ field1: Type<br/>' +
+					'+ field2: Type</p>' + hr + '<p style="margin:0px;margin-left:4px;">' +
 					'+ method1(Type): Type<br/>' +
 					'+ method2(Type, Type): Type</p>', new mxGeometry(0, 0, 190, 140),
 					'verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;');

@@ -331,6 +331,7 @@ fitWindow=Побиране в прозореца
 flip=Завъртане огледално
 flipH=Завъртане огледално в хоризонтална равнина
 flipV=Завъртане огледално във вертикална равнина
+flowAnimation=Flow Animation
 flowchart=Блок-схема
 folder=Папка
 font=Шрифт

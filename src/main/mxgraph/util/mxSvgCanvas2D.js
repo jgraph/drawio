@@ -281,7 +281,7 @@ mxSvgCanvas2D.prototype.fontMetricsPadding = 10;
  * 
  * Padding to be added to render text in foreignObject. Default is 2.
  */
- mxSvgCanvas2D.prototype.foreignObjectPadding = 2;
+mxSvgCanvas2D.prototype.foreignObjectPadding = 2;
 
 /**
  * Variable: cacheOffsetSize
@@ -934,11 +934,6 @@ mxSvgCanvas2D.prototype.addNode = function(filled, stroked)
 			node.setAttribute('pointer-events', 'none');
 		}
 		
-		if (s.shadow)
-		{
-			this.root.appendChild(this.createShadow(node));
-		}
-		
 		// Adds stroke tolerance
 		if (this.strokeTolerance > 0 && (!filled || s.fillColor == null))
 		{
@@ -956,6 +951,42 @@ mxSvgCanvas2D.prototype.addNode = function(filled, stroked)
 		
 		this.node = null;
 	}
+};
+
+/**
+ * Function: addTolerance
+ * 
+ * Transfers the stroke attributes from <state> to <node>.
+ */
+mxSvgCanvas2D.prototype.getShadowFilter = function()
+{
+	var s = this.state;
+	var tmp = s.shadowStyle;
+
+	if (s.scale != 1)
+	{
+		var tok = tmp.split('(');
+
+		if (tok.length > 0)
+		{
+			var args = tok[1].split(' ');
+
+			if (args.length > 3)
+			{
+				function arg(index)
+				{
+					return Math.round(parseFloat(args[index]) *
+						s.scale * 100) / 100 + 'px';
+				};
+
+				tmp = tok[0] + '(' + arg(0) + ' ' + arg(1) + ' ' + arg(2) + ' ' +
+					args.slice(3).join(' ')  + ((tok.length > 2) ?
+					'(' + tok.slice(2).join('(') : '');
+			}
+		}
+	}
+
+	return tmp;
 };
 
 /**
@@ -1659,14 +1690,34 @@ mxSvgCanvas2D.prototype.updateTextNodes = function(x, y, w, h, align, valign, wr
 {
 	var s = this.state.scale;
 
+	var vertical = dir != null && dir.substring(0, 9) == 'vertical-';
+	var justifyContent = '';
+	var alignItems = '';
+
+	if (vertical)
+	{
+		var rl = dir.substring(dir.length - 3) == '-rl';
+		
+		alignItems = ((align == mxConstants.ALIGN_LEFT) ?
+			(rl ? 'flex-end' : 'flex-start') :
+			((align == mxConstants.ALIGN_RIGHT) ?
+			(rl ? 'flex-start' : 'flex-end') : 'center'))
+		justifyContent = ((valign == mxConstants.ALIGN_TOP) ? 'flex-start' :
+			((valign == mxConstants.ALIGN_BOTTOM) ? 'flex-end' : 'center'))
+	}
+	else
+	{
+		alignItems = ((valign == mxConstants.ALIGN_TOP) ? 'flex-start' :
+			((valign == mxConstants.ALIGN_BOTTOM) ? 'flex-end' : 'center'))
+		justifyContent = ((align == mxConstants.ALIGN_LEFT) ? 'flex-start' :
+			((align == mxConstants.ALIGN_RIGHT) ? 'flex-end' : 'center'))
+	}
+	
 	mxSvgCanvas2D.createCss(w + this.foreignObjectPadding, h, align, valign, wrap, overflow, clip, dir,
 		(this.state.fontBackgroundColor != null) ? this.state.fontBackgroundColor : null,
 		(this.state.fontBorderColor != null) ? this.state.fontBorderColor : null,
-		'display: flex; align-items: unsafe ' +
-		((valign == mxConstants.ALIGN_TOP) ? 'flex-start' :
-		((valign == mxConstants.ALIGN_BOTTOM) ? 'flex-end' : 'center'))  + '; ' +
-		'justify-content: unsafe ' + ((align == mxConstants.ALIGN_LEFT) ? 'flex-start' :
-		((align == mxConstants.ALIGN_RIGHT) ? 'flex-end' : 'center')) + '; ' +
+		'display: flex; align-items: unsafe ' + alignItems + '; ' +
+		'justify-content: unsafe ' + justifyContent + '; ' +
 		((dir != null && dir.substring(0, 9) == 'vertical-') ? 'writing-mode: ' + dir + ';' : ''),
 		this.getTextCss(), s, mxUtils.bind(this, function(dx, dy, flex, item, block)
 	{
@@ -1751,9 +1802,20 @@ mxSvgCanvas2D.prototype.updateTextNodes = function(x, y, w, h, align, valign, wr
  */
 mxSvgCanvas2D.createCss = function(w, h, align, valign, wrap, overflow, clip, dir, bg, border, flex, block, s, callback)
 {
-	var item = 'box-sizing: border-box; font-size: 0; text-align: ' + ((align == mxConstants.ALIGN_LEFT) ? 'left' :
-		((align == mxConstants.ALIGN_RIGHT) ? 'right' : 'center')) + '; ';
 	var vertical = dir != null && dir.substring(0, 9) == 'vertical-';
+	var item = 'box-sizing: border-box; font-size: 0; ';
+
+	if (vertical)
+	{
+		item += 'text-align: ' + ((valign == mxConstants.ALIGN_TOP) ? 'left' :
+			((valign == mxConstants.ALIGN_BOTTOM) ? 'right' : 'center')) + '; ';
+	}
+	else
+	{
+		item += 'text-align: ' + ((align == mxConstants.ALIGN_LEFT) ? 'left' :
+			((align == mxConstants.ALIGN_RIGHT) ? 'right' : 'center')) + '; ';
+	}
+	
 	var pt = mxUtils.getAlignmentAsPoint(align, valign);
 	var ofl = 'overflow: hidden; ';
 	var fw = 'width: 1px; ';
@@ -1807,7 +1869,7 @@ mxSvgCanvas2D.createCss = function(w, h, align, valign, wrap, overflow, clip, di
 
 		if (vertical)
 		{
-			dx =0;
+			dx = 0;
 		}
 		else
 		{
@@ -2485,7 +2547,9 @@ mxSvgCanvas2D.prototype.addTextBackground = function(node, str, x, y, w, h, alig
 			var div = document.createElement('div');
 
 			// Wrapping and clipping can be ignored here
-			div.style.lineHeight = (mxConstants.ABSOLUTE_LINE_HEIGHT) ? (s.fontSize * mxConstants.LINE_HEIGHT) + 'px' : mxConstants.LINE_HEIGHT;
+			div.style.lineHeight = (mxConstants.ABSOLUTE_LINE_HEIGHT) ?
+				(s.fontSize * mxConstants.LINE_HEIGHT) + 'px' :
+				mxConstants.LINE_HEIGHT;
 			div.style.fontSize = s.fontSize + 'px';
 			div.style.fontFamily = s.fontFamily;
 			div.style.whiteSpace = 'nowrap';

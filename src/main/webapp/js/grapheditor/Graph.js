@@ -10,6 +10,7 @@
 		['shy', '173']
     ];
 
+	// Converts HTML entites for parsing XML
 	var parseXml = mxUtils.parseXml;
 	
 	mxUtils.parseXml = function(text)
@@ -23,6 +24,14 @@
 
 		return parseXml(text);
 	};
+
+	// Sanitizes text for HTML string size measure
+	var getSizeForString = mxUtils.getSizeForString;
+
+	mxUtils.getSizeForString = function(text, fontSize, fontFamily, textWidth)
+	{
+		return getSizeForString(Graph.sanitizeHtml(text), fontSize, fontFamily, textWidth);
+	}
 })();
 
 // Shim for missing toISOString in older versions of IE
@@ -1434,7 +1443,7 @@ Graph.textStyles = ['fontFamily', 'fontSource', 'fontSize', 'fontColor', 'fontSt
  */
 Graph.edgeStyles = ['edgeStyle', 'elbow', 'jumpStyle', 'jumpSize', 'startArrow',
 	'startFill', 'startSize', 'endArrow', 'endFill', 'endSize', 'flowAnimation',
-	'sourcePerimeterSpacing', 'targetPerimeterSpacing'];
+	'sourcePerimeterSpacing', 'targetPerimeterSpacing', 'curved'];
 
 /**
  * Styles that are ignored together (if one appears all are ignored).
@@ -1453,7 +1462,8 @@ Graph.cellStyles = mxUtils.addItems(mxUtils.addItems(mxUtils.addItems(
 	'hachureGap', 'hachureAngle', 'jiggle', 'disableMultiStroke', 'disableMultiStrokeFill',
 	'fillStyle', 'curveFitting', 'simplification', 'sketchStyle', 'pointerEvents', 'opacity',
 	'strokeColor', 'strokeWidth', 'align', 'verticalAlign', 'spacingLeft', 'spacingRight',
-	'spacingTop', 'spacingBottom', 'spacing', 'arcSize', 'comicStyle', 'swimlaneFillColor'],
+	'spacingTop', 'spacingBottom', 'spacing', 'arcSize', 'comicStyle', 'swimlaneFillColor',
+	'shadowOffsetX', 'shadowOffsetY', 'shadowBlur', 'shadowColor', 'shadowOpacity'],
 		Graph.textStyles), Graph.edgeStyles), Graph.cellStyleGroups);
 
 /**
@@ -2296,8 +2306,6 @@ Graph.removePasteFormatting = function(elt, ignoreTabs)
 		
 		if (elt.nodeType == mxConstants.NODETYPE_ELEMENT && elt.style != null)
 		{
-			elt.style.whiteSpace = '';
-			
 			if (elt.style.color == '#000000')
 			{
 				elt.style.color = '';
@@ -2330,7 +2338,8 @@ Graph.removePasteFormatting = function(elt, ignoreTabs)
 			}
 
 			// Replaces tabs
-			if (!ignoreTabs && elt.innerHTML != null)
+			if (!ignoreTabs && elt.innerHTML != null &&
+				elt.innerHTML.indexOf('\t') >= 0)
 			{
 				var tabNode = Graph.createTabNode(4);
 				elt.innerHTML = elt.innerHTML.replace(/\t/g,
@@ -3061,9 +3070,7 @@ Graph.prototype.init = function(container)
 	 */
 	Graph.prototype.isShadowState = function(state)
 	{
-		var shape = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null);
-		
-		return (shape != 'image');
+		return true;
 	};
 	
 	/**
@@ -3279,34 +3286,7 @@ Graph.prototype.init = function(container)
 			// Ignores transparent stroke colors
 			if (keys[i] != 'strokeColor' || (values[i] != null && values[i] != 'none'))
 			{
-				// Special case: Edge style and shape
-				/*if (mxUtils.indexOf(Graph.connectStyles, keys[i]) >= 0)
-				{
-					if (edge || mxUtils.indexOf(Graph.edgeStyles, keys[i]) >= 0)
-					{
-						if (values[i] == null)
-						{
-							delete edgeStyle[keys[i]];
-						}
-						else
-						{
-							edgeStyle[keys[i]] = values[i];
-						}
-					}
-					// Uses style for vertex if defined in styles
-					else if (vertex && mxUtils.indexOf(Graph.cellStyles, keys[i]) >= 0)
-					{
-						if (values[i] == null)
-						{
-							delete vertexStyle[keys[i]];
-						}
-						else
-						{
-							vertexStyle[keys[i]] = values[i];
-						}
-					}
-				}
-				else */if (mxUtils.indexOf(Graph.cellStyles, keys[i]) >= 0)
+				if (mxUtils.indexOf(Graph.cellStyles, keys[i]) >= 0)
 				{
 					if (vertex || common)
 					{
@@ -3320,7 +3300,7 @@ Graph.prototype.init = function(container)
 						}
 					}
 					
-					if (edge || common)// || mxUtils.indexOf(Graph.edgeStyles, keys[i]) >= 0)
+					if (edge || common)
 					{
 						if (values[i] == null)
 						{
@@ -11692,6 +11672,8 @@ if (typeof mxVertexHandler !== 'undefined')
 			
 			//Disable Css Transforms if it is used
 			var origUseCssTrans = this.useCssTransforms;
+			var origEnabledFlowAnimation = this.enableFlowAnimation;
+			this.enableFlowAnimation = false;
 			
 			if (origUseCssTrans) 
 			{
@@ -11912,7 +11894,7 @@ if (typeof mxVertexHandler !== 'undefined')
 					{
 						if (this.root != null && this.node != null &&
 							this.node.nodeName == 'path' &&
-							graph.enableFlowAnimation &&
+							origEnabledFlowAnimation &&
 							graph.model.isEdge(state.cell) &&
 							mxUtils.getValue(state.style, 'flowAnimation', '0') == '1')
 						{
@@ -11963,6 +11945,8 @@ if (typeof mxVertexHandler !== 'undefined')
 			}
 			finally
 			{
+				this.enableFlowAnimation = origEnabledFlowAnimation;
+
 				if (origUseCssTrans) 
 				{
 					this.useCssTransforms = true;
@@ -13235,15 +13219,21 @@ if (typeof mxVertexHandler !== 'undefined')
 		 */
 		mxCellEditor.prototype.alignText = function(align, evt)
 		{
+			var state = this.graph.getView().getState(this.editingCell);
+			var dir = mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_DIRECTION,
+				mxConstants.DEFAULT_TEXT_DIRECTION);
+			var vertical = dir != null && dir.substring(0, 9) == 'vertical-';
 			var shiftPressed = evt != null && mxEvent.isShiftDown(evt);
 			
-			if (shiftPressed || (window.getSelection != null && window.getSelection().containsNode != null))
+			if (shiftPressed || (window.getSelection != null &&
+				window.getSelection().containsNode != null))
 			{
 				var allSelected = true;
 				
 				this.graph.processElements(this.textarea, function(node)
 				{
-					if (shiftPressed || window.getSelection().containsNode(node, true))
+					if (shiftPressed || vertical ||
+						window.getSelection().containsNode(node, true))
 					{
 						node.removeAttribute('align');
 						node.style.textAlign = null;
@@ -13254,13 +13244,16 @@ if (typeof mxVertexHandler !== 'undefined')
 					}
 				});
 				
-				if (allSelected)
+				if (allSelected || vertical)
 				{
 					this.graph.cellEditor.setAlign(align);
 				}
 			}
 			
-			document.execCommand('justify' + align.toLowerCase(), false, null);
+			if (!vertical)
+			{
+				document.execCommand('justify' + align.toLowerCase(), false, null);
+			}
 		};
 		
 		/**
@@ -13398,151 +13391,7 @@ if (typeof mxVertexHandler !== 'undefined')
 			
 			// Selects editing cell
 			this.graph.setSelectionCell(cell);
-
-			// Enables focus outline for edges and edge labels
-			var parent = this.graph.getModel().getParent(cell);
-			var geo = this.graph.getCellGeometry(cell);
-			
-			if ((this.graph.getModel().isEdge(parent) && geo != null && geo.relative) ||
-				this.graph.getModel().isEdge(cell))
-			{
-				// IE>8 and FF on Windows uses outline default of none
-				if (mxClient.IS_IE || mxClient.IS_IE11 || (mxClient.IS_FF && mxClient.IS_WIN))
-				{
-					this.textarea.style.outline = 'gray dotted 1px';
-				}
-				else
-				{
-					this.textarea.style.outline = '';
-				}
-			}
 		}
-
-		/**
-		 * HTML in-place editor
-		 */
-		var cellEditorInstallListeners = mxCellEditor.prototype.installListeners;
-		mxCellEditor.prototype.installListeners = function(elt)
-		{
-			cellEditorInstallListeners.apply(this, arguments);
-
-			// Adds a reference from the clone to the original node, recursively
-			function reference(node, clone)
-			{
-				clone.originalNode = node;
-				
-				node = node.firstChild;
-				var child = clone.firstChild;
-				
-				while (node != null && child != null)
-				{
-					reference(node, child);
-					node = node.nextSibling;
-					child = child.nextSibling;
-				}
-				
-				return clone;
-			};
-			
-			// Checks the given node for new nodes, recursively
-			function checkNode(node, clone)
-			{
-				if (node != null)
-				{
-					if (clone.originalNode != node)
-					{
-						cleanNode(node);
-					}
-					else
-					{
-						node = node.firstChild;
-						clone = clone.firstChild;
-						
-						while (node != null)
-						{
-							var nextNode = node.nextSibling;
-							
-							if (clone == null)
-							{
-								cleanNode(node);
-							}
-							else
-							{
-								checkNode(node, clone);
-								clone = clone.nextSibling;
-							}
-	
-							node = nextNode;
-						}
-					}
-				}
-			};
-
-			// Removes unused DOM nodes and attributes, recursively
-			function cleanNode(node)
-			{
-				var child = node.firstChild;
-				
-				while (child != null)
-				{
-					var next = child.nextSibling;
-					cleanNode(child);
-					child = next;
-				}
-				
-				if ((node.nodeType != 1 || (node.nodeName !== 'BR' && node.firstChild == null)) &&
-					(node.nodeType != 3 || mxUtils.trim(mxUtils.getTextContent(node)).length == 0))
-				{
-					node.parentNode.removeChild(node);
-				}
-				else
-				{
-					// Removes linefeeds
-					if (node.nodeType == 3)
-					{
-						mxUtils.setTextContent(node, mxUtils.getTextContent(node).replace(/\n|\r/g, ''));
-					}
-
-					// Removes CSS classes and styles (for Word and Excel)
-					if (node.nodeType == 1)
-					{
-						node.removeAttribute('style');
-						node.removeAttribute('class');
-						node.removeAttribute('width');
-						node.removeAttribute('cellpadding');
-						node.removeAttribute('cellspacing');
-						node.removeAttribute('border');
-					}
-				}
-			};
-			
-			// Handles paste from Word, Excel etc by removing styles, classnames and unused nodes
-			// LATER: Fix undo/redo for paste
-			if (document.documentMode !== 7 && document.documentMode !== 8)
-			{
-				mxEvent.addListener(this.textarea, 'paste', mxUtils.bind(this, function(evt)
-				{
-					var clone = reference(this.textarea, this.textarea.cloneNode(true));
-	
-					window.setTimeout(mxUtils.bind(this, function()
-					{
-						if (this.textarea != null)
-						{
-							// Paste from Word or Excel
-							if (this.textarea.innerHTML.indexOf('<o:OfficeDocumentSettings>') >= 0 ||
-								this.textarea.innerHTML.indexOf('<!--[if !mso]>') >= 0)
-							{
-								checkNode(this.textarea, clone);
-							}
-							else
-							{
-								Graph.removePasteFormatting(this.textarea.firstChild);
-							}
-						}
-					}), 0);
-				}));
-			}
-		};
 		
 		mxCellEditor.prototype.toggleViewMode = function()
 		{
@@ -13840,14 +13689,6 @@ if (typeof mxVertexHandler !== 'undefined')
 		{
 			var color = mxUtils.getValue(state.style, mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, null);
 
-			if ((color == null || color == mxConstants.NONE) &&
-				(state.cell.geometry != null && state.cell.geometry.width > 0) &&
-				(mxUtils.getValue(state.style, mxConstants.STYLE_ROTATION, 0) != 0 ||
-				mxUtils.getValue(state.style, mxConstants.STYLE_HORIZONTAL, 1) == 0))
-			{
-				color = mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, null);
-			}
-
 			if (color == mxConstants.NONE)
 			{
 				color = null;
@@ -13863,14 +13704,6 @@ if (typeof mxVertexHandler !== 'undefined')
 		mxCellEditor.prototype.getBorderColor = function(state)
 		{
 			var color = mxUtils.getValue(state.style, mxConstants.STYLE_LABEL_BORDERCOLOR, null);
-
-			if ((color == null || color == mxConstants.NONE) &&
-				(state.cell.geometry != null && state.cell.geometry.width > 0) &&
-				(mxUtils.getValue(state.style, mxConstants.STYLE_ROTATION, 0) != 0 ||
-				mxUtils.getValue(state.style, mxConstants.STYLE_HORIZONTAL, 1) == 0))
-			{
-				color = mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, null);
-			}
 
 			if (color == mxConstants.NONE)
 			{

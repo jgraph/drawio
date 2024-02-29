@@ -331,6 +331,7 @@ fitWindow=Tilpas vindue
 flip=Vend
 flipH=Vend horisontalt
 flipV=Vend vertikalt
+flowAnimation=Flow Animation
 flowchart=Flowchart
 folder=Mappe
 font=Skrifttype

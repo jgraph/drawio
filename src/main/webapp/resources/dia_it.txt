@@ -331,6 +331,7 @@ fitWindow=Adatta alla finestra
 flip=Capovolgi
 flipH=Capovolgi orizzontalmente
 flipV=Capovolgi verticalmente
+flowAnimation=Flow Animation
 flowchart=Diagramma di flusso
 folder=Cartella
 font=Carattere

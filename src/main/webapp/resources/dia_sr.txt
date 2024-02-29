@@ -331,6 +331,7 @@ fitWindow=Prilagodi prozoru
 flip=Preokreni
 flipH=Preokreni vodoravno
 flipV=Preokreni uspravno
+flowAnimation=Flow Animation
 flowchart=Flowchart
 folder=Folder
 font=Font

@@ -331,6 +331,7 @@ fitWindow=‫ملائمة الشاشة‬
 flip=‫انعكاس‬
 flipH=‫انعكاس أفقي‬
 flipV=‫انعكاس عمودي‬
+flowAnimation=Flow Animation
 flowchart=Flowchart
 folder=Folder
 font=‫خط‬

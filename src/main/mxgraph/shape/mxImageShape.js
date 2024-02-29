@@ -31,7 +31,6 @@ function mxImageShape(bounds, image, fill, stroke, strokewidth)
 	this.fill = fill;
 	this.stroke = stroke;
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
-	this.shadow = false;
 };
 
 /**

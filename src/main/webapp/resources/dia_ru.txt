@@ -331,6 +331,7 @@ fitWindow=Вписать в окно
 flip=Отразить
 flipH=Отразить слева направо
 flipV=Отразить сверху вниз
+flowAnimation=Flow Animation
 flowchart=Блок-схемы
 folder=Папка
 font=Шрифт

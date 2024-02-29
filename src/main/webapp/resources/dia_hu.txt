@@ -331,6 +331,7 @@ fitWindow=Ablakhoz
 flip=Tükröz
 flipH=Vízszintesen tükröz
 flipV=Merőlegesen tükröz
+flowAnimation=Flow Animation
 flowchart=Folyamatábra
 folder=Mappa
 font=Betűtípus

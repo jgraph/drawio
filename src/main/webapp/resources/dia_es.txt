@@ -331,6 +331,7 @@ fitWindow=Ajustar a la ventana
 flip=Voltear
 flipH=Voltear horizontalmente
 flipV=Voltear verticalmente
+flowAnimation=Flow Animation
 flowchart=Diagrama de flujo
 folder=Carpeta
 font=Fuente

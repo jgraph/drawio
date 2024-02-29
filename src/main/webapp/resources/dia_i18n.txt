@@ -331,6 +331,7 @@ fitWindow=fitWindow
 flip=flip
 flipH=flipH
 flipV=flipV
+flowAnimation=flowAnimation
 flowchart=flowchart
 folder=folder
 font=font

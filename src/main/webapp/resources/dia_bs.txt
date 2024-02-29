@@ -331,6 +331,7 @@ fitWindow=Prilagodi prozoru
 flip=Okreni
 flipH=Okreni vodoravno
 flipV=Okreni uspravno
+flowAnimation=Flow Animation
 flowchart=Dijagram toka
 folder=Folder
 font=Font

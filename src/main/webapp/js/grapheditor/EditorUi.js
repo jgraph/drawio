@@ -2187,26 +2187,7 @@ EditorUi.prototype.onKeyPress = function(evt)
 		evt.which !== 27 && !mxEvent.isAltDown(evt) && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt))
 	{
 		graph.escape();
-		graph.startEditing();
-
-		// Workaround for FF where char is lost if cursor is placed before char
-		if (mxClient.IS_FF)
-		{
-			var ce = graph.cellEditor;
-			
-			if (ce.textarea != null)
-			{
-				ce.textarea.innerHTML = String.fromCharCode(evt.which);
-	
-				// Moves cursor to end of textarea
-				var range = document.createRange();
-				range.selectNodeContents(ce.textarea);
-				range.collapse(false);
-				var sel = window.getSelection();
-				sel.removeAllRanges();
-				sel.addRange(range);
-			}
-		}
+		graph.startEditing(null, String.fromCharCode(evt.which));
 	}
 };
 

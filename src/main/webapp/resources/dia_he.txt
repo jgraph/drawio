@@ -331,6 +331,7 @@ fitWindow=‫התאם לחלון‬
 flip=‫הפוך‬
 flipH=‫הפוך אופקית‬
 flipV=‫הפוך אנכית‬
+flowAnimation=Flow Animation
 flowchart=‫תרשים זרימה‬
 folder=‫תיקיה‬
 font=‫גופן‬

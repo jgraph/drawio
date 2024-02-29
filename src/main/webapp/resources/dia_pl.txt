@@ -331,6 +331,7 @@ fitWindow=Dopasuj do okna
 flip=Odbij
 flipH=Odbij poziomo
 flipV=Odbij pionowo
+flowAnimation=Flow Animation
 flowchart=Schemat blokowy
 folder=Folder
 font=Czcionka

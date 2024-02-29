@@ -331,6 +331,7 @@ fitWindow=Vừa với cửa sổ
 flip=Lật
 flipH=Lật ngang
 flipV=Lật dọc
+flowAnimation=Flow Animation
 flowchart=Biểu đồ Flowchart
 folder=Thư mục
 font=Font chữ

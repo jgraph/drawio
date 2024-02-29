@@ -65,7 +65,8 @@ if (urlParams['dev'] == '1')
 				
 				if (cell.style != null)
 				{
-					tip += '<br>style=<div style="display:inline-block;vertical-align:bottom;white-space:nowrap;width:480px;overflow:hidden;text-overflow:ellipsis;">' + cell.style + '</span>';
+					tip += '<br>style=<div style="display:inline-block;vertical-align:bottom;white-space:nowrap;width:480px;' +
+						'overflow:hidden;text-overflow:ellipsis;">' + mxUtils.htmlEntities(cell.style) + '</span>';
 				}
 			}
 			

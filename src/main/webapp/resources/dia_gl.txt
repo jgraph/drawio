@@ -331,6 +331,7 @@ fitWindow=Axustar á xanela
 flip=Invertir
 flipH=Invertir horizontalmente
 flipV=Invertir verticalmente
+flowAnimation=Flow Animation
 flowchart=Diagrama de fluxo
 folder=Cartafol
 font=Fonte

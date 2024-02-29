@@ -331,6 +331,7 @@ fitWindow=Talpinti į langą
 flip=Apversti
 flipH=Pasukiti iš kairės į dešinę
 flipV=Apverskiti į apačią
+flowAnimation=Flow Animation
 flowchart=Blokinė schema
 folder=Katalogas
 font=Šriftas

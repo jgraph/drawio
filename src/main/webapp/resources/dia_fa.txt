@@ -331,6 +331,7 @@ fitWindow=‫تنظیم پنجره‬
 flip=‫برگرداندن‬
 flipH=‫برگردان افقی‬
 flipV=‫برگردان عمودی‬
+flowAnimation=Flow Animation
 flowchart=‫فلوچارت‬
 folder=‫پوشه‬
 font=‫فونت‬

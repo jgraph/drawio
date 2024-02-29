@@ -1,3 +1,11 @@
+29-FEB-2024: 24.0.0
+
+- Adds shape shadow style option [drawio-1671]
+- Uses drop-shadow CSS filter for shape shadows [drawio-1671]
+- Disables shape shadow option for Safari
+- Fixes possible XSS in mxUtils.getSizeForString [CSP-3024]
+- Supports vertical writing mode [drawio-4068]
+
 28-FEB-2024: 23.1.8
 
 - Remove unnecessary servlets from deployment

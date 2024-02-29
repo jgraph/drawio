@@ -331,6 +331,7 @@ fitWindow=Ikasya sa Window
 flip=Baligtarin
 flipH=Baligtarin pahalang
 flipV=Baligtarin patayo
+flowAnimation=Flow Animation
 flowchart=Flowchart
 folder=Folder
 font=Istilo ng titik

@@ -3636,14 +3636,14 @@ var mxUtils =
 	 * 
 	 * Converts the given hexadecimal color value to an RGBA string.
 	 */
-	hex2rgba: function(value)
+	hex2rgba: function(value, alpha)
 	{
 		if (value != null && value.length >= 7 && value.charAt(0) == '#')
 		{
 			var r = parseInt(value.substring(1, 3), 16);
 			var g = parseInt(value.substring(3, 5), 16);
 			var b = parseInt(value.substring(5, 7), 16);
-			var a = 1;
+			var a = (alpha != null) ? alpha : 1;
 			
 			if (value.length > 7)
 			{

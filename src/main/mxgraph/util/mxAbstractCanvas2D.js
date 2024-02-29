@@ -163,6 +163,7 @@ mxAbstractCanvas2D.prototype.createState = function()
 		fontFamily: mxConstants.DEFAULT_FONTFAMILY,
 		fontStyle: 0,
 		shadow: false,
+		shadowStyle: null,
 		shadowColor: mxConstants.SHADOWCOLOR,
 		shadowAlpha: mxConstants.SHADOW_OPACITY,
 		shadowDx: mxConstants.SHADOW_OFFSET_X,
@@ -536,9 +537,10 @@ mxAbstractCanvas2D.prototype.setFontStyle = function(value)
  * 
  * Enables or disables and configures the current shadow.
  */
-mxAbstractCanvas2D.prototype.setShadow = function(enabled)
+mxAbstractCanvas2D.prototype.setShadow = function(enabled, style)
 {
 	this.state.shadow = enabled;
+	this.state.shadowStyle = style;
 };
 
 /**

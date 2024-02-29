@@ -331,6 +331,7 @@ fitWindow=Pencereye sığdır
 flip=Çevir
 flipH=Yatay çevir
 flipV=Dikey çevir
+flowAnimation=Flow Animation
 flowchart=Akım şeması
 folder=Klasör
 font=Yazı tipi

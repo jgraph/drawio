@@ -331,6 +331,7 @@ fitWindow=ウィンドウに合わせる
 flip=反転
 flipH=水平方向に反転
 flipV=垂直方向に反転
+flowAnimation=Flow Animation
 flowchart=フローチャート
 folder=フォルダー
 font=フォント

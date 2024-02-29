@@ -398,6 +398,47 @@ mxCellRenderer.prototype.getLabelValue = function(state)
 };
 
 /**
+ * Function: createTextShape
+ * 
+ * Creates the the text shape for the given state and dialect.
+ * 
+ * Parameters:
+ * 
+ * state - <mxCellState> for which the label should be created.
+ */
+mxCellRenderer.prototype.createTextShape = function(state, value, dialect)
+{
+	var graph = state.view.graph;
+
+	var text = new this.defaultTextShape(value, new mxRectangle(),
+		(state.style[mxConstants.STYLE_ALIGN] || mxConstants.ALIGN_CENTER),
+		graph.getVerticalAlign(state),
+		state.style[mxConstants.STYLE_FONTCOLOR],
+		state.style[mxConstants.STYLE_FONTFAMILY],
+		state.style[mxConstants.STYLE_FONTSIZE],
+		state.style[mxConstants.STYLE_FONTSTYLE],
+		state.style[mxConstants.STYLE_SPACING],
+		state.style[mxConstants.STYLE_SPACING_TOP],
+		state.style[mxConstants.STYLE_SPACING_RIGHT],
+		state.style[mxConstants.STYLE_SPACING_BOTTOM],
+		state.style[mxConstants.STYLE_SPACING_LEFT],
+		state.style[mxConstants.STYLE_HORIZONTAL],
+		state.style[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR],
+		state.style[mxConstants.STYLE_LABEL_BORDERCOLOR],
+		graph.isWrapping(state.cell) && graph.isHtmlLabel(state.cell),
+		graph.isLabelClipped(state.cell),
+		state.style[mxConstants.STYLE_OVERFLOW],
+		state.style[mxConstants.STYLE_LABEL_PADDING],
+		mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_DIRECTION, mxConstants.DEFAULT_TEXT_DIRECTION));
+	text.opacity = mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_OPACITY, 100);
+	text.dialect = dialect;
+	text.style = state.style;
+	text.state = state;
+
+	return text;
+};
+
+/**
  * Function: createLabel
  * 
  * Creates the label for the given cell state.
@@ -409,37 +450,13 @@ mxCellRenderer.prototype.getLabelValue = function(state)
 mxCellRenderer.prototype.createLabel = function(state, value)
 {
 	var graph = state.view.graph;
-	var isEdge = graph.getModel().isEdge(state.cell);
 	
 	if (state.style[mxConstants.STYLE_FONTSIZE] > 0 || state.style[mxConstants.STYLE_FONTSIZE] == null)
 	{
 		// Avoids using DOM node for empty labels
 		var isForceHtml = (graph.isHtmlLabel(state.cell) || (value != null && mxUtils.isNode(value)));
-
-		state.text = new this.defaultTextShape(value, new mxRectangle(),
-				(state.style[mxConstants.STYLE_ALIGN] || mxConstants.ALIGN_CENTER),
-				graph.getVerticalAlign(state),
-				state.style[mxConstants.STYLE_FONTCOLOR],
-				state.style[mxConstants.STYLE_FONTFAMILY],
-				state.style[mxConstants.STYLE_FONTSIZE],
-				state.style[mxConstants.STYLE_FONTSTYLE],
-				state.style[mxConstants.STYLE_SPACING],
-				state.style[mxConstants.STYLE_SPACING_TOP],
-				state.style[mxConstants.STYLE_SPACING_RIGHT],
-				state.style[mxConstants.STYLE_SPACING_BOTTOM],
-				state.style[mxConstants.STYLE_SPACING_LEFT],
-				state.style[mxConstants.STYLE_HORIZONTAL],
-				state.style[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR],
-				state.style[mxConstants.STYLE_LABEL_BORDERCOLOR],
-				graph.isWrapping(state.cell) && graph.isHtmlLabel(state.cell),
-				graph.isLabelClipped(state.cell),
-				state.style[mxConstants.STYLE_OVERFLOW],
-				state.style[mxConstants.STYLE_LABEL_PADDING],
-				mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_DIRECTION, mxConstants.DEFAULT_TEXT_DIRECTION));
-		state.text.opacity = mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_OPACITY, 100);
-		state.text.dialect = (isForceHtml) ? mxConstants.DIALECT_STRICTHTML : state.view.graph.dialect;
-		state.text.style = state.style;
-		state.text.state = state;
+		state.text = this.createTextShape(state, value, (isForceHtml) ?
+			mxConstants.DIALECT_STRICTHTML : state.view.graph.dialect);
 		this.initializeLabel(state, state.text);
 		this.configureShape(state);
 		
@@ -915,8 +932,10 @@ mxCellRenderer.prototype.redrawLabel = function(state, forced)
 	var value = this.getLabelValue(state);
 	var wrapping = graph.isWrapping(state.cell);
 	var clipping = graph.isLabelClipped(state.cell);
-	var isForceHtml = (state.view.graph.isHtmlLabel(state.cell) || (value != null && mxUtils.isNode(value)));
-	var dialect = (isForceHtml) ? mxConstants.DIALECT_STRICTHTML : state.view.graph.dialect;
+	var isForceHtml = (state.view.graph.isHtmlLabel(state.cell) ||
+		(value != null && mxUtils.isNode(value)));
+	var dialect = (isForceHtml) ? mxConstants.DIALECT_STRICTHTML :
+		state.view.graph.dialect;
 	var overflow = state.style[mxConstants.STYLE_OVERFLOW] || 'visible';
 
 	if (state.text != null && (state.text.wrap != wrapping || state.text.clipped != clipping ||
@@ -1029,6 +1048,7 @@ mxCellRenderer.prototype.isTextShapeInvalid = function(state, shape)
 		check('background', mxConstants.STYLE_LABEL_BACKGROUNDCOLOR) ||
 		check('border', mxConstants.STYLE_LABEL_BORDERCOLOR) ||
 		check('opacity', mxConstants.STYLE_TEXT_OPACITY, 100) ||
+		check('textShadow', mxConstants.STYLE_TEXT_SHADOW, false) ||
 		check('textDirection', mxConstants.STYLE_TEXT_DIRECTION, mxConstants.DEFAULT_TEXT_DIRECTION);
 };
 
@@ -1069,20 +1089,20 @@ mxCellRenderer.prototype.getTextScale = function(state)
  * 
  * state - <mxCellState> whose label bounds should be returned.
  */
-mxCellRenderer.prototype.getLabelBounds = function(state)
+mxCellRenderer.prototype.getLabelBounds = function(state, text, margin, disableRotation)
 {
-	var graph = state.view.graph;
-	var scale = state.view.scale;
-	var isEdge = graph.getModel().isEdge(state.cell);
+	text = (text != null) ? text : state.text;
 	var bounds = new mxRectangle(state.absoluteOffset.x, state.absoluteOffset.y);
+	var isEdge = state.view.graph.getModel().isEdge(state.cell);
+	var scale = state.view.scale;
 
 	if (isEdge)
 	{
-		var spacing = state.text.getSpacing();
+		var spacing = text.getSpacing(null, margin);
 		bounds.x += spacing.x * scale;
 		bounds.y += spacing.y * scale;
 		
-		var geo = graph.getCellGeometry(state.cell);
+		var geo = state.view.graph.getCellGeometry(state.cell);
 		
 		if (geo != null)
 		{
@@ -1093,7 +1113,7 @@ mxCellRenderer.prototype.getLabelBounds = function(state)
 	else
 	{
 		// Inverts label position
-		if (state.text.isPaintBoundsInverted())
+		if (text.isPaintBoundsInverted() && !disableRotation)
 		{
 			var tmp = bounds.x;
 			bounds.x = bounds.y;
@@ -1108,7 +1128,7 @@ mxCellRenderer.prototype.getLabelBounds = function(state)
 		bounds.height = Math.max(1, state.height);
 	}
 
-	if (state.text.isPaintBoundsInverted())
+	if (text.isPaintBoundsInverted() && !disableRotation)
 	{
 		// Rotates around center of state
 		var t = (state.width - state.height) / 2;
@@ -1141,7 +1161,7 @@ mxCellRenderer.prototype.getLabelBounds = function(state)
 	
 	if (!isEdge)
 	{
-		this.rotateLabelBounds(state, bounds);
+		this.rotateLabelBounds(state, bounds, text, margin, disableRotation);
 	}
 	
 	return bounds;
@@ -1158,10 +1178,11 @@ mxCellRenderer.prototype.getLabelBounds = function(state)
  * state - <mxCellState> whose label bounds should be rotated.
  * bounds - <mxRectangle> the rectangle to be rotated.
  */
-mxCellRenderer.prototype.rotateLabelBounds = function(state, bounds)
+mxCellRenderer.prototype.rotateLabelBounds = function(state, bounds, text, margin, disableRotation)
 {
-	bounds.y -= state.text.margin.y * bounds.height;
-	bounds.x -= state.text.margin.x * bounds.width;
+	var m = (margin != null) ? margin : text.margin
+	bounds.y -= m.y * bounds.height;
+	bounds.x -= m.x * bounds.width;
 	
 	if (!this.legacySpacing || (state.style[mxConstants.STYLE_OVERFLOW] != 'fill' &&
 		state.style[mxConstants.STYLE_OVERFLOW] != 'width' &&
@@ -1169,7 +1190,7 @@ mxCellRenderer.prototype.rotateLabelBounds = function(state, bounds)
 		state.style[mxConstants.STYLE_BLOCK_SPACING] == '1')))
 	{
 		var s = state.view.scale;
-		var spacing = state.text.getSpacing(state.style[mxConstants.STYLE_BLOCK_SPACING] == '1');
+		var spacing = text.getSpacing(state.style[mxConstants.STYLE_BLOCK_SPACING] == '1', m);
 		bounds.x += spacing.x * s;
 		bounds.y += spacing.y * s;
 		
@@ -1177,11 +1198,13 @@ mxCellRenderer.prototype.rotateLabelBounds = function(state, bounds)
 		var vpos = mxUtils.getValue(state.style, mxConstants.STYLE_VERTICAL_LABEL_POSITION, mxConstants.ALIGN_MIDDLE);
 		var lw = mxUtils.getValue(state.style, mxConstants.STYLE_LABEL_WIDTH, null);
 		
-		bounds.width = Math.max(0, bounds.width - ((hpos == mxConstants.ALIGN_CENTER && lw == null) ? (state.text.spacingLeft * s + state.text.spacingRight * s) : 0));
-		bounds.height = Math.max(0, bounds.height - ((vpos == mxConstants.ALIGN_MIDDLE) ? (state.text.spacingTop * s + state.text.spacingBottom * s) : 0));
+		bounds.width = Math.max(0, bounds.width - ((hpos == mxConstants.ALIGN_CENTER &&
+			lw == null) ? (text.spacingLeft * s + text.spacingRight * s) : 0));
+		bounds.height = Math.max(0, bounds.height - ((vpos == mxConstants.ALIGN_MIDDLE) ?
+			(text.spacingTop * s + text.spacingBottom * s) : 0));
 	}
 
-	var theta = state.text.getTextRotation();
+	var theta = (!disableRotation) ? text.getTextRotation() : 0;
 
 	// Only needed if rotated around another center
 	if (theta != 0 && state != null && state.view.graph.model.isVertex(state.cell))
@@ -1193,7 +1216,7 @@ mxCellRenderer.prototype.rotateLabelBounds = function(state, bounds)
 		{
 			var rad = theta * (Math.PI / 180);
 			var pt = mxUtils.getRotatedPoint(new mxPoint(bounds.x, bounds.y),
-					Math.cos(rad), Math.sin(rad), new mxPoint(cx, cy));
+				Math.cos(rad), Math.sin(rad), new mxPoint(cx, cy));
 			
 			bounds.x = pt.x;
 			bounds.y = pt.y;

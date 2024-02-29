@@ -331,6 +331,7 @@ fitWindow=Potrivește ferestră
 flip=Întoarce
 flipH=Întoarce pe orizontală
 flipV=Întoarce pe verticală
+flowAnimation=Flow Animation
 flowchart=Diagramă
 folder=Dosar
 font=Font

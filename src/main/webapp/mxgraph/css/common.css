@@ -8,15 +8,16 @@ div.mxRubberband {
 }
 .mxCellEditor {
 	background: url(data:image/gif;base64,R0lGODlhMAAwAIAAAP///wAAACH5BAEAAAAALAAAAAAwADAAAAIxhI+py+0Po5y02ouz3rz7D4biSJbmiabqyrbuC8fyTNf2jef6zvf+DwwKh8Si8egpAAA7);
-	_background: url('../images/transparent.gif');
 	border-color: transparent;
 	border-style: solid;
-	display: inline-block;
-	position: absolute;
+	width: fit-content;
+	position: relative;
 	overflow: visible;
 	word-wrap: normal;
 	border-width: 0;
 	min-width: 1px;
+	display: block;
+	outline: none;
 	resize: none;
 	padding: 0px;
 	margin: 0px;
@@ -30,7 +31,6 @@ div.mxWindow {
 	-moz-box-shadow: 3px 3px 12px #C0C0C0;
 	box-shadow: 3px 3px 12px #C0C0C0;
 	background: url(data:image/gif;base64,R0lGODlhGgAUAIAAAOzs7PDw8CH5BAAAAAAALAAAAAAaABQAAAIijI+py70Ao5y02lud3lzhD4ZUR5aPiKajyZbqq7YyB9dhAQA7);
-	_background: url('../images/window.gif');
 	border:1px solid #c3c3c3;
 	position: absolute;
 	overflow: hidden;
@@ -43,8 +43,7 @@ table.mxWindow {
 	font-size: 8pt;
 }
 td.mxWindowTitle {
-	background: url(data:image/gif;base64,R0lGODlhFwAXAMQAANfX18rKyuHh4c7OzsDAwMHBwc/Pz+Li4uTk5NHR0dvb2+jo6O/v79/f3/n5+dnZ2dbW1uPj44yMjNPT0+Dg4N3d3ebm5szMzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAAAALAAAAAAXABcAAAWQICESxWiW5Ck6bOu+MMvMdG3f86LvfO/rlqBwSCwaj8ikUohoOp/QaDNCrVqvWKpgezhsv+AwmEIum89ocmPNbrvf64p8Tq/b5Yq8fs/v5x+AgYKDhIAAh4iJiouHEI6PkJGSjhOVlpeYmZUJnJ2en6CcBqMDpaanqKgXq6ytrq+rAbKztLW2shK5uru8vbkhADs=)  repeat-x;
-	_background: url('../images/window-title.gif') repeat-x;
+	background: url(data:image/gif;base64,R0lGODlhFwAXAMQAANfX18rKyuHh4c7OzsDAwMHBwc/Pz+Li4uTk5NHR0dvb2+jo6O/v79/f3/n5+dnZ2dbW1uPj44yMjNPT0+Dg4N3d3ebm5szMzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAAAALAAAAAAXABcAAAWQICESxWiW5Ck6bOu+MMvMdG3f86LvfO/rlqBwSCwaj8ikUohoOp/QaDNCrVqvWKpgezhsv+AwmEIum89ocmPNbrvf64p8Tq/b5Yq8fs/v5x+AgYKDhIAAh4iJiouHEI6PkJGSjhOVlpeYmZUJnJ2en6CcBqMDpaanqKgXq6ytrq+rAbKztLW2shK5uru8vbkhADs=) repeat-x;
 	text-overflow: ellipsis;
 	white-space: nowrap;
  	text-align: center;
@@ -110,7 +109,6 @@ div.mxPopupMenu {
 	-moz-box-shadow: 3px 3px 12px #C0C0C0;
 	box-shadow: 3px 3px 12px #C0C0C0;
 	background: url(data:image/gif;base64,R0lGODlhGgAUAIAAAOzs7PDw8CH5BAAAAAAALAAAAAAaABQAAAIijI+py70Ao5y02lud3lzhD4ZUR5aPiKajyZbqq7YyB9dhAQA7);
-	_background: url('../images/window.gif');
 	position: absolute;
 	border-style: solid;
 	border-width: 1px;

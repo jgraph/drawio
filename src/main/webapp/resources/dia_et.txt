@@ -331,6 +331,7 @@ fitWindow=Sobita aknasse
 flip=Pööra ümber
 flipH=Pööra horisontaalselt
 flipV=Pööra vertikaalselt
+flowAnimation=Flow Animation
 flowchart=Vooskeem
 folder=Kaust
 font=Font

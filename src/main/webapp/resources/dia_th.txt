@@ -331,6 +331,7 @@ fitWindow=พอดีหน้าต่าง
 flip=พลิก
 flipH=พลิกไปแนวนอน
 flipV=พลิกไปแนวตั้ง
+flowAnimation=Flow Animation
 flowchart=ผังงาน
 folder=โฟลเดอร์
 font=ตัวอักษร

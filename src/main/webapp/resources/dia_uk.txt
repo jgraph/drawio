@@ -331,6 +331,7 @@ fitWindow=За розміром вікна
 flip=Перевернути
 flipH=Перевернути горизонтально
 flipV=Перевернути вертикально
+flowAnimation=Flow Animation
 flowchart=Блок-схема
 folder=Папка
 font=Шрифт

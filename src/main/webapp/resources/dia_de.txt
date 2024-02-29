@@ -331,6 +331,7 @@ fitWindow=An Fenstergröße anpassen
 flip=Spiegeln
 flipH=Horizontal Spiegeln
 flipV=Vertikal Spiegeln
+flowAnimation=Fliessend
 flowchart=Ablaufdiagramm
 folder=Ordner
 font=Schrift

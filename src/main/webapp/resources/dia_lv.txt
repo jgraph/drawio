@@ -331,6 +331,7 @@ fitWindow=Ietilpināt logā
 flip=Apvērst
 flipH=Apvērst horizontāli
 flipV=Apvērst vertikāli
+flowAnimation=Flow Animation
 flowchart=Blokshēma
 folder=Mape
 font=Fonts

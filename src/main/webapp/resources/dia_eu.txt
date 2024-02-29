@@ -331,6 +331,7 @@ fitWindow=Doitu leihora
 flip=Irauli
 flipH=Irauli horizontalki
 flipV=Irauli bertikalki
+flowAnimation=Flow Animation
 flowchart=Fluxu-diagrama
 folder=Karpeta
 font=Letra-tipoa

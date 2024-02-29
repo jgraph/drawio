@@ -106,17 +106,17 @@
 	 * Variable: SHADOWCOLOR
 	 * 
 	 * Defines the color to be used to draw shadows in shapes and windows.
-	 * Default is gray.
+	 * Default is #808080.
 	 */
-	SHADOWCOLOR: 'gray',
+	SHADOWCOLOR: '#808080',
 
 	/**
 	 * Variable: VML_SHADOWCOLOR
 	 * 
 	 * Used for shadow color in filters where transparency is not supported
-	 * (Microsoft Internet Explorer). Default is gray.
+	 * (Microsoft Internet Explorer). Default is #808080.
 	 */
-	VML_SHADOWCOLOR: 'gray',
+	VML_SHADOWCOLOR: '#808080',
 
 	/**
 	 * Variable: SHADOW_OFFSET_X
@@ -131,6 +131,13 @@
 	 * Specifies the y-offset of the shadow. Default is 3.
 	 */
 	SHADOW_OFFSET_Y: 3,
+	
+	/**
+	 * Variable: SHADOW_BLUR
+	 * 
+	 * Specifies the blur of the shadow. Default is 2.
+	 */
+	SHADOW_BLUR: 2,
 	
 	/**
 	 * Variable: SHADOW_OPACITY
@@ -1362,6 +1369,54 @@
 	 * Value is "shadow".
 	 */
 	STYLE_SHADOW: 'shadow',
+	
+	/**
+	 * Variable: STYLE_TEXT_SHADOW
+	 * 
+	 * Defines the key for the text shadow style. The type of the value is Boolean.
+	 * Value is "textShadow".
+	 */
+	STYLE_TEXT_SHADOW: 'textShadow',
+	
+	/**
+	 * Variable: STYLE_SHADOW_OFFSET_X
+	 * 
+	 * Defines the key for the shadow offset x style. The type of the value is int.
+	 * Value is "shadowOffsetX".
+	 */
+	STYLE_SHADOW_OFFSET_X: 'shadowOffsetX',
+	
+	/**
+	 * Variable: STYLE_SHADOW_OFFSET_Y
+	 * 
+	 * Defines the key for the shadow offset y style. The type of the value is int.
+	 * Value is "shadowOffsetY".
+	 */
+	STYLE_SHADOW_OFFSET_Y: 'shadowOffsetY',
+	
+	/**
+	 * Variable: STYLE_SHADOW_BLUR
+	 * 
+	 * Defines the key for the shadow blur style. The type of the value is int.
+	 * Value is "shadowBlur".
+	 */
+	STYLE_SHADOW_BLUR: 'shadowBlur',
+		
+	/**
+	 * Variable: STYLE_SHADOWCOLOR
+	 * 
+	 * Defines the key for the shadow color style. The type of the value is int.
+	 * Value is "shadowColor".
+	 */
+	STYLE_SHADOWCOLOR: 'shadowColor',
+			
+	/**
+	 * Variable: STYLE_SHADOW_OPACITY
+	 * 
+	 * Defines the key for the shadow opacity style. The type of the value is int.
+	 * Value is "shadowOpacity".
+	 */
+	STYLE_SHADOW_OPACITY: 'shadowOpacity',
 	
 	/**
 	 * Variable: STYLE_SEGMENT

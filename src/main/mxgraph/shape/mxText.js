@@ -263,6 +263,7 @@ mxText.prototype.paint = function(c, update)
 	
 	this.updateTransform(c, x, y, w, h);
 	this.configureCanvas(c, x, y, w, h);
+	this.updateSvgFilters((c != null) ? c.state.scale : s);
 				
 	var dir = this.getActualTextDirection();
 	
@@ -698,6 +699,16 @@ mxText.prototype.configureCanvas = function(c, x, y, w, h)
 	c.setFontFamily(this.family);
 	c.setFontSize(this.size);
 	c.setFontStyle(this.fontStyle);
+};
+
+/**
+ * Function: isShadowEnabled
+ * 
+ * Removes all child nodes and resets all CSS.
+ */
+mxText.prototype.isShadowEnabled = function()
+{
+	return (this.style != null) ? mxUtils.getValue(this.style, 'textShadow', false) : false;
 };
 
 /**
@@ -1398,9 +1409,9 @@ mxText.prototype.updateSize = function(node, enableWrap)
 };
 
 /**
- * Function: getMargin
+ * Function: updateMargin
  *
- * Returns the spacing as an <mxPoint>.
+ * Updates the margin of this text shape.
  */
 mxText.prototype.updateMargin = function()
 {
@@ -1412,16 +1423,18 @@ mxText.prototype.updateMargin = function()
  *
  * Returns the spacing as an <mxPoint>.
  */
-mxText.prototype.getSpacing = function(noBase)
+mxText.prototype.getSpacing = function(noBase, margin)
 {
 	var dx = 0;
 	var dy = 0;
 
-	if (this.align == mxConstants.ALIGN_CENTER)
+	if ((margin != null && margin.x == -0.5) ||
+		(margin == null && this.align == mxConstants.ALIGN_CENTER))
 	{
 		dx = (this.spacingLeft - this.spacingRight) / 2;
 	}
-	else if (this.align == mxConstants.ALIGN_RIGHT)
+	else if ((margin != null && margin.x == -1) ||
+		(margin == null && this.align == mxConstants.ALIGN_RIGHT))
 	{
 		dx = -this.spacingRight - (noBase? 0 : this.baseSpacingRight);
 	}

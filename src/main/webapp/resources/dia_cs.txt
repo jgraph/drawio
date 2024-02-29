@@ -331,6 +331,7 @@ fitWindow=Přizpůsobit oknu
 flip=Převrátit
 flipH=Převrátit vodorovně
 flipV=Převrátit svisle
+flowAnimation=Flow Animation
 flowchart=Vývojový diagram
 folder=Složka
 font=Písmo

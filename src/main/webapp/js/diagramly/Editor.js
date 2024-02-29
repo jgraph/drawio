@@ -385,9 +385,56 @@
         	isVisible: function(state, format)
         {
         	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
-        }}
+        }},
+		{name: mxConstants.STYLE_SHADOW, dispName: mxResources.get('Shadow'), type: 'bool', defVal: false, isVisible: function(state, format)
+		{
+			return state.containsLabel;
+		}, onChange: function(graph, value)
+		{
+			// Toggles text shadow together with shape shadow
+			graph.setCellStyles(mxConstants.STYLE_TEXT_SHADOW, value, graph.getSelectionCells());
+		}},
+		{name: mxConstants.STYLE_TEXT_SHADOW, dispName: 'Text Shadow', type: 'bool', defVal: false, isVisible: function(state, format)
+		{
+			return mxUtils.getValue(state.style, 'shadow', '0') == '1';
+		}},
+		{name: mxConstants.STYLE_SHADOWCOLOR, dispName: 'Shadow Color', type: 'color', getDefaultValue: function()
+		{
+			return mxConstants.SHADOWCOLOR;
+		}, isVisible: function(state, format)
+		{
+			return mxUtils.getValue(state.style, 'shadow', '0') == '1';
+		}},
+		{name: mxConstants.STYLE_SHADOW_OPACITY, dispName: 'Shadow Opacity', type: 'int', min: 0, max: 100, getDefaultValue: function()
+		{
+			return mxConstants.SHADOW_OPACITY * 100;
+		}, isVisible: function(state, format)
+		{
+			return mxUtils.getValue(state.style, 'shadow', '0') == '1';
+		}},
+		{name: mxConstants.STYLE_SHADOW_OFFSET_X, dispName: 'Shadow Offset X', type: 'int', getDefaultValue: function()
+		{
+			return mxConstants.SHADOW_OFFSET_X;
+		}, isVisible: function(state, format)
+		{
+			return mxUtils.getValue(state.style, 'shadow', '0') == '1';
+		}},
+		{name: mxConstants.STYLE_SHADOW_OFFSET_Y, dispName: 'Shadow Offset Y', type: 'int', getDefaultValue: function()
+		{
+			return mxConstants.SHADOW_OFFSET_Y;
+		}, isVisible: function(state, format)
+		{
+			return mxUtils.getValue(state.style, 'shadow', '0') == '1';
+		}},
+		{name: mxConstants.STYLE_SHADOW_BLUR, dispName: 'Shadow Blur', type: 'int', min: 0, getDefaultValue: function()
+		{
+			return mxConstants.SHADOW_BLUR;
+		}, isVisible: function(state, format)
+		{
+			return mxUtils.getValue(state.style, 'shadow', '0') == '1';
+		}}
 	];
-
+	
 	/**
 	 * Common properties for all edges.
 	 */
@@ -424,7 +471,6 @@
         {name: 'cloneable', dispName: 'Cloneable', type: 'bool', defVal: true},
         {name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true},
         {name: 'noJump', dispName: 'No Jumps', type: 'bool', defVal: false},
-        {name: 'flowAnimation', dispName: 'Flow Animation', type: 'bool', defVal: false},
 		{name: 'ignoreEdge', dispName: 'Ignore Edge', type: 'bool', defVal: false},
         {name: 'orthogonalLoop', dispName: 'Loop Routing', type: 'bool', defVal: false},
 		{name: 'orthogonal', dispName: 'Orthogonal', type: 'bool', defVal: false}
@@ -2226,6 +2272,31 @@
 			if (config.foreignObjectImages != null)
 			{
 				Editor.foreignObjectImages = config.foreignObjectImages;
+			}
+
+			if (config.shadowColor != null)
+			{
+				mxConstants.SHADOW_COLOR = config.shadowColor;
+			}
+
+			if (config.shadowOpacity != null)
+			{
+				mxConstants.SHADOW_OPACITY = config.shadowOpacity;
+			}
+
+			if (config.shadowOffsetX != null)
+			{
+				mxConstants.SHADOW_OFFSET_X = config.shadowOffsetX;
+			}
+
+			if (config.shadowOffsetY != null)
+			{
+				mxConstants.SHADOW_OFFSET_Y = config.shadowOffsetY;
+			}
+
+			if (config.shadowBlur != null)
+			{
+				mxConstants.SHADOW_BLUR = config.shadowBlur;
 			}
 
 			if (config.gptApiKey != null)
@@ -5437,7 +5508,8 @@
 				for (var j = 0; j < prop.values.length; j++)
 				{
 					//mxUtils.clone failed because of the HTM element, so manual cloning is used
-					var iProp = {type: prop.type, parentRow: prop.parentRow, isDeletable: prop.isDeletable, index: j, defVal: prop.defVal, countProperty: prop.countProperty, size: prop.size};
+					var iProp = {type: prop.type, parentRow: prop.parentRow, isDeletable: prop.isDeletable, index: j,
+							defVal: prop.defVal, countProperty: prop.countProperty, size: prop.size};
 					var arrItem = createPropertyRow(prop.name, prop.values[j], iProp, j % 2 == 0, prop.flipBkg);
 					insertAfter(arrItem, insertElem);
 					insertElem = arrItem;

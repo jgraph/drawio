@@ -331,6 +331,7 @@ fitWindow=Ajustar janela
 flip=Inverter
 flipH=Inverter horizontalmente
 flipV=Inverter vertical
+flowAnimation=Flow Animation
 flowchart=Diagrama
 folder=Pasta
 font=Fonte

@@ -331,6 +331,7 @@ fitWindow=Προσαρμογή μεγέθους Παραθύρου
 flip=Αναστροφή
 flipH=Οριζόντια αναστροφή
 flipV=Κάθετη αναστροφή
+flowAnimation=Flow Animation
 flowchart=Διάγραμμα ροής
 folder=Φάκελος
 font=Γραμματοσειρά

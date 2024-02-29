@@ -331,6 +331,7 @@ fitWindow=창 크기에 맞추기
 flip=뒤집기
 flipH=가로로 뒤집기
 flipV=세로로 뒤집기
+flowAnimation=Flow Animation
 flowchart=순서도
 folder=폴더
 font=글꼴

@@ -331,6 +331,7 @@ fitWindow=Muatkan Tetingkap
 flip=Pusing
 flipH=Pusing Melintang
 flipV=Pusing Menegak
+flowAnimation=Flow Animation
 flowchart=Carta Aliran
 folder=Folder
 font=Font

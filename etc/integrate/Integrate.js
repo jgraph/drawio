@@ -37,7 +37,7 @@ EditorUi.prototype.convertImageToDataUri = function(url, callback)
 		}),
 		function()
 		{
-			callback(this.svgBrokenImage.src);
+			callback(url);
 		});
 	}
     else
@@ -51,7 +51,7 @@ EditorUi.prototype.convertImageToDataUri = function(url, callback)
             }),
             function()
             {
-                callback();
+                callback(url);
             });
         }
         else
@@ -78,13 +78,13 @@ EditorUi.prototype.convertImageToDataUri = function(url, callback)
 		        }
 		        catch (e)
 		        {
-	        		callback(self.svgBrokenImage.src);
+	        		callback(url);
 		        }
 		    };
 		    
 		    img.onerror = function()
 		    {
-	    		callback(self.svgBrokenImage.src);
+	    		callback(url);
 		    };
 		    
 		    img.src = url;

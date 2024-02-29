@@ -331,6 +331,7 @@ fitWindow=Sovita ikkuna
 flip=Käännä
 flipH=Käännä vaakasuunnassa
 flipV=Käännä pystysuunnassa
+flowAnimation=Flow Animation
 flowchart=Vuokaavio
 folder=Kansio
 font=Fontti
