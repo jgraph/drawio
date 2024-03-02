@@ -56,7 +56,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			'https://dl.dropboxusercontent.com https://api.openai.com https://drawio.dev ' +
 			'https://*.google.com https://fonts.gstatic.com https://fonts.googleapis.com; ' +
 			// font-src about: is required for MathJax HTML-CSS output with STIX
-			'img-src * data: blob:; media-src * data:; font-src * about:; ' +
+			'img-src * data: blob:; media-src * data:; font-src * data: about:; ' +
 			// www.draw.io required for browser data migration to app.diagrams.net and
 			// viewer.diagrams.net required for iframe embed preview
 			'frame-src %frame-src% \'self\' https://viewer.diagrams.net https://www.draw.io https://*.google.com; ' +

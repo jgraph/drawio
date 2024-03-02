@@ -462,8 +462,20 @@
         {name: 'perimeterSpacing', dispName: 'Terminal Spacing', type: 'float', defVal: 0},
         {name: 'anchorPointDirection', dispName: 'Anchor Direction', type: 'bool', defVal: true},
         {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
+        {name: 'dashPattern', dispName: 'Dash Pattern', type: 'numbers', defVal: ''},
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
-        {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
+		{name: 'flowAnimationDuration', dispName: 'Flow Duration', type: 'int', defVal: 500, isVisible: function(state)
+		{
+			return mxUtils.getValue(state.style, 'flowAnimation', null) == '1';
+		}},
+		{name: 'flowAnimationTimingFunction', dispName: 'Flow Timing', type: 'enum', defVal: 'linear',
+			enumList: [{val: 'linear', dispName: 'Linear'}, {val: 'ease', dispName: 'Ease'}, {val: 'ease-in', dispName: 'Ease-in'},
+			{val: 'ease-out', dispName: 'Ease-out'}, {val: 'ease-in-out', dispName: 'Ease-in-out'}], isVisible: function(state)
+			{
+				return mxUtils.getValue(state.style, 'flowAnimation', null) == '1';
+			}
+		},
+		{name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
         {name: 'metaEdit', dispName: 'Edit Dialog', type: 'bool', defVal: false},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
         {name: 'bendable', dispName: 'Bendable', type: 'bool', defVal: true},
@@ -5299,11 +5311,13 @@
 						function setInputVal()
 						{
 							var inputVal = input.value;
-							inputVal = inputVal.length == 0 && pType != 'string'? 0 : inputVal;
+							inputVal = inputVal.length == 0 && pType != 'string' &&
+								pType != 'numbers'? 0 : inputVal;
 							
 							if (prop.allowAuto)
 							{
-								if (inputVal.trim != null && inputVal.trim().toLowerCase() == 'auto')
+								if (inputVal.trim != null && inputVal.trim().
+									toLowerCase() == 'auto')
 								{
 									inputVal = 'auto';
 									pType = 'string';
@@ -5324,7 +5338,17 @@
 								inputVal = prop.max;
 							}
 
-							var newVal = encodeURIComponent((pType == 'int'? parseInt(inputVal) : inputVal) + '');
+							var newVal = null;
+
+							try
+							{
+								newVal = (pType == 'numbers') ? inputVal.match(/\d+/g).map(Number).join(' ') :
+									encodeURIComponent((pType == 'int'? parseInt(inputVal) : inputVal) + '');
+							}
+							catch(e)
+							{
+								// ignores parsing errors
+							}
 							
 							applyStyleVal(pName, newVal, prop);
 						}

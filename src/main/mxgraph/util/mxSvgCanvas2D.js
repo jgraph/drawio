@@ -1160,7 +1160,7 @@ mxSvgCanvas2D.prototype.createDashPattern = function(scale)
 		{
 			for (var i = 0; i < dash.length; i++)
 			{
-				pat[i] = Number(dash[i]) * scale;
+				pat[i] = Math.round(Number(dash[i]) * scale * 100) / 100;
 			}
 		}
 	}

@@ -1574,14 +1574,19 @@ ArrangePanel.prototype.init = function()
 	if (ss.containsLabel)
 	{
 		// Adds functions from hidden style format panel
-		var span = document.createElement('div');
-		span.style.width = '100%';
-		span.style.marginTop = '0px';
-		span.style.fontWeight = 'bold';
-		span.style.padding = '10px 0 0 14px';
-		mxUtils.write(span, mxResources.get('style'));
-		this.container.appendChild(span);
-			
+		// No title required for more than one selected cell
+		// as no actions are added in this case
+		if (ss.cells.length == 1)
+		{
+			var span = document.createElement('div');
+			span.style.width = '100%';
+			span.style.marginTop = '0px';
+			span.style.fontWeight = 'bold';
+			span.style.padding = '10px 0 0 14px';
+			mxUtils.write(span, mxResources.get('style'));
+			this.container.appendChild(span);
+		}
+		
 		new StyleFormatPanel(this.format, this.editorUi, this.container);
 	}
 };
@@ -7048,11 +7053,6 @@ DiagramFormatPanel.prototype.addGridOption = function(container)
  */
 DiagramFormatPanel.prototype.addDocumentProperties = function(div)
 {
-	// Hook for subclassers
-	var ui = this.editorUi;
-	var editor = ui.editor;
-	var graph = editor.graph;
-	
 	div.appendChild(this.createTitle(mxResources.get('options')));
 
 	return div;

@@ -11775,6 +11775,11 @@
 				if (darkMode || urlParams['dark'] == '1' ||
 					Editor.currentTheme == 'dark')
 				{
+					if (urlParams['contrast'] != null)
+					{
+						Editor.enableCssDarkMode = urlParams['contrast'] != '0';
+					}
+					
 					this.setDarkMode(true);
 				}
 			}

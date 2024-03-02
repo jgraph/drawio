@@ -1,3 +1,12 @@
+02-MAR-2024: 24.0.1
+
+- Updates DOMPurify from 3.0.8 to 3.0.9
+- Adds contrast URL parameter [drawio-3701]
+- Fixes preview of SVG export with embedded fonts
+- [conf cloud] Adds migration support for pageInfo parameter, templateUrl to re-indexing, improves tinyUrl parsing regex
+- [conf cloud] Adds support for templateUrl with pageInfo in viewer
+- [conf cloud] Shows custom contents based on macros in the page instead of page custom contents (easier deletion and no re-indexing)
+
 29-FEB-2024: 24.0.0
 
 - Adds shape shadow style option [drawio-1671]

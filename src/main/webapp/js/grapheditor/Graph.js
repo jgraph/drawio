@@ -2931,16 +2931,6 @@ Graph.prototype.init = function(container)
 		};
 	}
 
-	// Adds or updates CSS for flowAnimation style
-	this.addListener(mxEvent.SIZE, mxUtils.bind(this, function(sender, evt)
-	{
-		if (this.container != null && this.flowAnimationStyle)
-		{
-			var id = this.flowAnimationStyle.getAttribute('id');
-			this.flowAnimationStyle.innerHTML = this.getFlowAnimationStyleCss(id);
-		}
-	}));
-
 	this.initLayoutManager();
 };
 
@@ -6534,6 +6524,66 @@ Graph.prototype.getTooltipForCell = function(cell)
 };
 
 /**
+ * 
+ */
+Graph.prototype.addFlowAnimation = function(node, style, scale, animationId)
+{
+	var dashArray = node.getAttribute('stroke-dasharray');
+	var tokens = [];
+
+	if (dashArray == '' || dashArray == null)
+	{
+		tokens = String(mxUtils.getValue(style, mxConstants.STYLE_DASH_PATTERN, '8')).split(' ');
+		var sw = (mxUtils.getValue(style, mxConstants.STYLE_FIX_DASH, false) == 1 ||
+			style['dashPattern'] == null) ? 1 : mxUtils.getNumber(style,
+				mxConstants.STYLE_STROKEWIDTH, 1);
+
+		if (tokens.length > 0)
+		{
+			for (var i = 0; i < tokens.length; i++)
+			{
+				tokens[i] = Math.round(Number(tokens[i]) * scale * sw * 100) / 100;
+			}
+		}
+
+		node.setAttribute('stroke-dasharray', tokens.join(' '));
+	}
+	else
+	{
+		tokens = dashArray.split(' ');
+	}
+
+	if (tokens.length > 0)
+	{
+		var sum = 0;
+
+		for (var i = 0; i < tokens.length; i++)
+		{
+			var temp = parseFloat(tokens[i]);
+
+			if (!isNaN(temp))
+			{
+				sum += parseFloat(tokens[i]);
+			}
+		}
+		
+		// If an odd number of values is provided, then the list of
+		// values is repeated to yield an even number of values
+		if (tokens.length % 2 != 0)
+		{
+			sum *= 2;
+		}
+
+		var d = Math.round((sum / scale / 16) * parseInt(mxUtils.getValue(
+			style, 'flowAnimationDuration', 500)));
+		var tf = mxUtils.getValue(style, 'flowAnimationTimingFunction', 'linear');
+		node.style.animation = animationId + ' ' + d + 'ms ' +
+			mxUtils.htmlEntities(tf) + ' infinite';
+		node.style.strokeDashoffset = sum;
+	}
+};
+
+/**
  * Adds rack child layout style.
  */
 Graph.prototype.getFlowAnimationStyle = function()
@@ -6558,18 +6608,12 @@ Graph.prototype.getFlowAnimationStyle = function()
 /**
  * Adds rack child layout style.
  */
-Graph.prototype.getFlowAnimationStyleCss = function(id, scale)
+Graph.prototype.getFlowAnimationStyleCss = function(id)
 {
-	scale = (scale != null) ? scale : this.view.scale;
-
-	return '.' + id + ' {\n' +
-	  'animation: ' + id + ' 0.5s linear;\n' +
-	  'animation-iteration-count: infinite;\n' +
-	'}\n' +
-	'@keyframes ' + id + ' {\n' +
-	  'to {\n' +
-	    'stroke-dashoffset: ' + (scale * -16) + ';\n' +
-	  '}\n' +
+	return '@keyframes ' + id + ' {\n' +
+	'  to {\n' +
+	'    stroke-dashoffset: 0;\n' +
+	'  }\n' +
 	'}';
 };
 
@@ -8344,21 +8388,13 @@ TableLayout.prototype.execute = function(parent)
 			this.state.view.graph.model.isEdge(this.state.cell) &&
 			mxUtils.getValue(this.state.style, 'flowAnimation', '0') == '1')
 		{
+			var anim = this.state.view.graph.getFlowAnimationStyle();
 			var paths = this.node.getElementsByTagName('path');
 			
-			if (paths.length > 1)
+			if (anim != null && paths.length > 1)
 			{
-				if (mxUtils.getValue(this.state.style, mxConstants.STYLE_DASHED, '0') != '1')
-				{
-					paths[1].setAttribute('stroke-dasharray', (this.state.view.scale * 8));
-				}
-				
-				var anim = this.state.view.graph.getFlowAnimationStyle();
-				
-				if (anim != null)
-				{
-					paths[1].setAttribute('class', anim.getAttribute('id'));
-				}
+				this.state.view.graph.addFlowAnimation(paths[1], this.state.style,
+					this.state.view.scale, anim.getAttribute('id'));
 			}
 		}
 	};
@@ -11888,41 +11924,39 @@ if (typeof mxVertexHandler !== 'undefined')
 					}
 
 					// Adds flow animation
+					var animationId = 'ge-export-svg-flow-animation';
 					var prevStroke = canvas.stroke;
 
 					canvas.stroke = function()
 					{
-						if (this.root != null && this.node != null &&
-							this.node.nodeName == 'path' &&
+						var node = this.node;
+
+						// Updates dash pattern
+						prevStroke.apply(this, arguments);
+
+						if (this.root != null && node != null &&
+							node.nodeName == 'path' &&
 							origEnabledFlowAnimation &&
 							graph.model.isEdge(state.cell) &&
 							mxUtils.getValue(state.style, 'flowAnimation', '0') == '1')
 						{
 							if (imgExport.flowAnimationStyle == null)
 							{
-								var id = 'ge-export-svg-flow-animation';
 								var svgDoc = this.root.ownerDocument;
 								var style = (svgDoc.createElementNS != null) ?
 									svgDoc.createElementNS(mxConstants.NS_SVG, 'style') :
 									svgDoc.createElement('style');
 								svgDoc.setAttributeNS != null? style.setAttributeNS('type', 'text/css') :
 									style.setAttribute('type', 'text/css');
-								style.innerHTML = graph.getFlowAnimationStyleCss(id, scale);
-								style.setAttribute('id', id);
+								style.innerHTML = graph.getFlowAnimationStyleCss(animationId);
+								style.setAttribute('id', animationId);
 								svgDoc.getElementsByTagName('defs')[0].appendChild(style);
 
 								imgExport.flowAnimationStyle = style;
 							}
 
-							if (mxUtils.getValue(this.state.style, mxConstants.STYLE_DASHED, '0') != '1')
-							{
-								this.node.setAttribute('stroke-dasharray', (scale * 8));
-							}
-
-							this.node.setAttribute('class', imgExport.flowAnimationStyle.getAttribute('id'));
+							graph.addFlowAnimation(node, state.style, scale, animationId);
 						}
-
-						prevStroke.apply(this, arguments);
 					};
 
 					if ((ignoreSelection && lookup == null) || selected)
