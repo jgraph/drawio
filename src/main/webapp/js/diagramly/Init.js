@@ -19,7 +19,7 @@ window.isSvgBrowser = true;
 // Base URL defines cases where an absolute URL is needed (eg. embedding)
 window.DRAWIO_BASE_URL = window.DRAWIO_BASE_URL || ((/.*\.draw\.io$/.test(window.location.hostname)) || (/.*\.diagrams\.net$/.test(window.location.hostname)) ?
 	window.location.protocol + '//' + window.location.hostname : 'https://app.diagrams.net');
-window.DRAWIO_SERVER_URL = window.DRAWIO_SERVER_URL || window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/';
+window.DRAWIO_SERVER_URL = window.DRAWIO_SERVER_URL || window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/';
 window.DRAWIO_LIGHTBOX_URL = window.DRAWIO_LIGHTBOX_URL || 'https://viewer.diagrams.net';
 window.EXPORT_URL = window.EXPORT_URL || 'https://convert.diagrams.net/node/export';
 window.PLANT_URL = window.PLANT_URL || 'https://plant-aws.diagrams.net';

@@ -3021,7 +3021,7 @@ var mxUtils =
 	 */
 	ltrim: function(str, chars)
 	{
-		chars = chars || "\\s";
+		chars = chars || "\\s|\\0";
 		
 		return (str != null) ? str.replace(new RegExp("^[" + chars + "]+", "g"), "") : null;
 	},
@@ -3041,7 +3041,7 @@ var mxUtils =
 	 */
 	rtrim: function(str, chars)
 	{
-		chars = chars || "\\s";
+		chars = chars || "\\s|\\0";
 		
 		return (str != null) ? str.replace(new RegExp("[" + chars + "]+$", "g"), "") : null;
 	},

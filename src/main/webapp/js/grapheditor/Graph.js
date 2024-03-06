@@ -6526,89 +6526,90 @@ Graph.prototype.getTooltipForCell = function(cell)
 /**
  * 
  */
-Graph.prototype.addFlowAnimation = function(node, style, scale, animationId)
+Graph.prototype.addFlowAnimationToNode = function(node, style, scale, id)
 {
-	var dashArray = node.getAttribute('stroke-dasharray');
-	var tokens = [];
-
-	if (dashArray == '' || dashArray == null)
+	if (node != null && id != null)
 	{
-		tokens = String(mxUtils.getValue(style, mxConstants.STYLE_DASH_PATTERN, '8')).split(' ');
-		var sw = (mxUtils.getValue(style, mxConstants.STYLE_FIX_DASH, false) == 1 ||
-			style['dashPattern'] == null) ? 1 : mxUtils.getNumber(style,
-				mxConstants.STYLE_STROKEWIDTH, 1);
+		var dashArray = node.getAttribute('stroke-dasharray');
+		var tokens = [];
+
+		if (dashArray == '' || dashArray == null)
+		{
+			tokens = String(mxUtils.getValue(style, mxConstants.STYLE_DASH_PATTERN, '8')).split(' ');
+			var sw = (mxUtils.getValue(style, mxConstants.STYLE_FIX_DASH, false) == 1 ||
+				style['dashPattern'] == null) ? 1 : mxUtils.getNumber(style,
+					mxConstants.STYLE_STROKEWIDTH, 1);
+
+			if (tokens.length > 0)
+			{
+				for (var i = 0; i < tokens.length; i++)
+				{
+					tokens[i] = Math.round(Number(tokens[i]) * scale * sw * 100) / 100;
+				}
+			}
+
+			node.setAttribute('stroke-dasharray', tokens.join(' '));
+		}
+		else
+		{
+			tokens = dashArray.split(' ');
+		}
 
 		if (tokens.length > 0)
 		{
+			var sum = 0;
+
 			for (var i = 0; i < tokens.length; i++)
 			{
-				tokens[i] = Math.round(Number(tokens[i]) * scale * sw * 100) / 100;
+				var temp = parseFloat(tokens[i]);
+
+				if (!isNaN(temp))
+				{
+					sum += parseFloat(tokens[i]);
+				}
 			}
-		}
-
-		node.setAttribute('stroke-dasharray', tokens.join(' '));
-	}
-	else
-	{
-		tokens = dashArray.split(' ');
-	}
-
-	if (tokens.length > 0)
-	{
-		var sum = 0;
-
-		for (var i = 0; i < tokens.length; i++)
-		{
-			var temp = parseFloat(tokens[i]);
-
-			if (!isNaN(temp))
+			
+			// If an odd number of values is provided, then the list of
+			// values is repeated to yield an even number of values
+			if (tokens.length % 2 != 0)
 			{
-				sum += parseFloat(tokens[i]);
+				sum *= 2;
 			}
-		}
-		
-		// If an odd number of values is provided, then the list of
-		// values is repeated to yield an even number of values
-		if (tokens.length % 2 != 0)
-		{
-			sum *= 2;
-		}
 
-		var d = Math.round((sum / scale / 16) * parseInt(mxUtils.getValue(
-			style, 'flowAnimationDuration', 500)));
-		var tf = mxUtils.getValue(style, 'flowAnimationTimingFunction', 'linear');
-		node.style.animation = animationId + ' ' + d + 'ms ' +
-			mxUtils.htmlEntities(tf) + ' infinite';
-		node.style.strokeDashoffset = sum;
+			var d = Math.round((sum / scale / 16) * parseInt(mxUtils.getValue(
+				style, 'flowAnimationDuration', 500)));
+			var tf = mxUtils.getValue(style, 'flowAnimationTimingFunction', 'linear');
+			var ad = mxUtils.getValue(style, 'flowAnimationDirection', 'normal');
+			node.style.animation = id + ' ' + d + 'ms ' + mxUtils.htmlEntities(tf) +
+				' infinite ' + mxUtils.htmlEntities(ad);
+			node.style.strokeDashoffset = sum;
+		}
 	}
 };
 
 /**
  * Adds rack child layout style.
  */
-Graph.prototype.getFlowAnimationStyle = function()
+Graph.prototype.addFlowAnimationStyle = function()
 {
 	var head = document.getElementsByTagName('head')[0];
 	
-	if (head != null && this.flowAnimationStyle == null)
+	if (head != null && this.flowAnimationId == null)
 	{
-		this.flowAnimationStyle = document.createElement('style')
-		this.flowAnimationStyle.setAttribute('id',
-			'geEditorFlowAnimation-' + Editor.guid());
-		this.flowAnimationStyle.type = 'text/css';
-		var id = this.flowAnimationStyle.getAttribute('id');
-		this.flowAnimationStyle.innerHTML = this.getFlowAnimationStyleCss(id);
-
-		head.appendChild(this.flowAnimationStyle);
+		this.flowAnimationId = 'ge-flow-animation-' + Editor.guid();
+		var style = document.createElement('style');
+		style.innerHTML = this.createFlowAnimationCss(
+			this.flowAnimationId);
+		head.appendChild(style);
 	}
 
-	return this.flowAnimationStyle;
+	return this.flowAnimationId;
 };
 
 /**
  * Adds rack child layout style.
  */
-Graph.prototype.getFlowAnimationStyleCss = function(id)
+Graph.prototype.createFlowAnimationCss = function(id)
 {
 	return '@keyframes ' + id + ' {\n' +
 	'  to {\n' +
@@ -8379,23 +8380,50 @@ TableLayout.prototype.execute = function(parent)
 	 */
 	var mxShapePaint = mxShape.prototype.paint;
 	
-	mxShape.prototype.paint = function()
+	mxShape.prototype.isFlowAnimationEnabled = function()
+	{
+		return this.state != null && this.state.view.graph.enableFlowAnimation &&
+			this.state.view.graph.model.isEdge(this.state.cell) &&
+			mxUtils.getValue(this.state.style, 'flowAnimation', '0') == '1';
+	};
+
+	mxShape.prototype.getFlowAnimationPath = function()
+	{
+		var paths = (this.node != null) ? this.node.
+			getElementsByTagName('path') : null;
+		
+		if (paths != null)
+		{
+			// Returns the first visible path
+			for (var i = 0; i < paths.length; i++)
+			{
+				if (paths[i].getAttribute('visibility') != 'hidden')
+				{
+					return paths[i];
+				}
+			}
+		}
+
+		return null;
+	};
+
+	mxShape.prototype.addFlowAnimationToShape = function()
+	{
+		if (this.state != null)
+		{
+			this.state.view.graph.addFlowAnimationToNode(
+				this.getFlowAnimationPath(), this.state.style, this.state.view.scale,
+				this.state.view.graph.addFlowAnimationStyle());
+		}
+	};
+
+	mxShape.prototype.paint = function(canvas)
 	{
 		mxShapePaint.apply(this, arguments);
 
-		if (this.state != null && this.node != null &&
-			this.state.view.graph.enableFlowAnimation &&
-			this.state.view.graph.model.isEdge(this.state.cell) &&
-			mxUtils.getValue(this.state.style, 'flowAnimation', '0') == '1')
+		if (this.isFlowAnimationEnabled())
 		{
-			var anim = this.state.view.graph.getFlowAnimationStyle();
-			var paths = this.node.getElementsByTagName('path');
-			
-			if (anim != null && paths.length > 1)
-			{
-				this.state.view.graph.addFlowAnimation(paths[1], this.state.style,
-					this.state.view.scale, anim.getAttribute('id'));
-			}
+			this.addFlowAnimationToShape();
 		}
 	};
 	
@@ -11906,6 +11934,22 @@ if (typeof mxVertexHandler !== 'undefined')
 
 				// Implements ignoreSelection flag and flow animation
 				var imgExportDrawCellState = imgExport.drawCellState;
+				var flowAnimationId = null;
+
+				var addFlowAnimationStyle = mxUtils.bind(this, function()
+				{
+					if (flowAnimationId == null)
+					{
+						flowAnimationId  = 'ge-flow-animation-' + Editor.guid();
+						var style = (svgDoc.createElementNS != null) ?
+							svgDoc.createElementNS(mxConstants.NS_SVG, 'style') :
+							svgDoc.createElement('style');
+						style.innerHTML = this.createFlowAnimationCss(flowAnimationId);
+						svgDoc.getElementsByTagName('defs')[0].appendChild(style);
+					}
+
+					return flowAnimationId;
+				});
 
 				imgExport.drawCellState = function(state, canvas)
 				{
@@ -11924,49 +11968,38 @@ if (typeof mxVertexHandler !== 'undefined')
 					}
 
 					// Adds flow animation
-					var animationId = 'ge-export-svg-flow-animation';
-					var prevStroke = canvas.stroke;
-
-					canvas.stroke = function()
+					if (state.shape != null)
 					{
-						var node = this.node;
-
-						// Updates dash pattern
-						prevStroke.apply(this, arguments);
-
-						if (this.root != null && node != null &&
-							node.nodeName == 'path' &&
-							origEnabledFlowAnimation &&
-							graph.model.isEdge(state.cell) &&
-							mxUtils.getValue(state.style, 'flowAnimation', '0') == '1')
+						try
 						{
-							if (imgExport.flowAnimationStyle == null)
+							var isFlowAnimationEnabled = state.shape.isFlowAnimationEnabled;
+							var addFlowAnimationToShape = state.shape.addFlowAnimationToShape;
+
+							state.shape.isFlowAnimationEnabled = function()
 							{
-								var svgDoc = this.root.ownerDocument;
-								var style = (svgDoc.createElementNS != null) ?
-									svgDoc.createElementNS(mxConstants.NS_SVG, 'style') :
-									svgDoc.createElement('style');
-								svgDoc.setAttributeNS != null? style.setAttributeNS('type', 'text/css') :
-									style.setAttribute('type', 'text/css');
-								style.innerHTML = graph.getFlowAnimationStyleCss(animationId);
-								style.setAttribute('id', animationId);
-								svgDoc.getElementsByTagName('defs')[0].appendChild(style);
+								return origEnabledFlowAnimation && graph.model.isEdge(state.cell) &&
+									mxUtils.getValue(state.style, 'flowAnimation', '0') == '1';
+							};
+							
+							state.shape.addFlowAnimationToShape = function()
+							{
+								graph.addFlowAnimationToNode(this.getFlowAnimationPath(),
+									state.style, scale, addFlowAnimationStyle());
+							};
 
-								imgExport.flowAnimationStyle = style;
+							if ((ignoreSelection && lookup == null) || selected)
+							{
+								graph.view.redrawEnumerationState(state);
+								imgExportDrawCellState.apply(this, arguments);
+								this.doDrawShape(state.secondLabel, canvas);
 							}
-
-							graph.addFlowAnimation(node, state.style, scale, animationId);
 						}
-					};
-
-					if ((ignoreSelection && lookup == null) || selected)
-					{
-						graph.view.redrawEnumerationState(state);
-						imgExportDrawCellState.apply(this, arguments);
-						this.doDrawShape(state.secondLabel, canvas);
+						finally
+						{
+							state.shape.isFlowAnimationEnabled = isFlowAnimationEnabled;
+							state.shape.addFlowAnimationToShape = addFlowAnimationToShape;
+						}
 					}
-
-					canvas.stroke = prevStroke;
 				};
 				
 				var viewRoot = (this.view.currentRoot != null) ?

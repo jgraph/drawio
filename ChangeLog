@@ -1,3 +1,10 @@
+05-MAR-2024: 24.0.2
+
+- Fixes DRAWIO_SERVER_URL if query string contains forward slash
+- Handles double-quotes in page URLs
+- Fixes waypoints for grouped edges [drawio-desktop-1646]
+- Fixes ignored null bytes in mxUtils.trim
+
 02-MAR-2024: 24.0.1
 
 - Updates DOMPurify from 3.0.8 to 3.0.9

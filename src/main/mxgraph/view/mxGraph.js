@@ -4025,6 +4025,9 @@ mxGraph.prototype.groupCells = function(group, border, cells)
 				this.model.setGeometry(group, new mxGeometry());
 			}
 
+			// Resizes the group
+			this.cellsResized([group], [bounds], false);
+
 			// Adds the group into the parent
 			var index = this.model.getChildCount(parent);
 			this.cellsAdded([group], parent, index, null, null, false, false, false);
@@ -4033,10 +4036,7 @@ mxGraph.prototype.groupCells = function(group, border, cells)
 			index = this.model.getChildCount(group);
 			this.cellsAdded(cells, group, index, null, null, false, false, false);
 			this.cellsMoved(cells, -bounds.x, -bounds.y, false, false, false);
-
-			// Resizes the group
-			this.cellsResized([group], [bounds], false);
-
+			
 			this.fireEvent(new mxEventObject(mxEvent.GROUP_CELLS,
 					'group', group, 'border', border, 'cells', cells));
 		}
@@ -4855,7 +4855,19 @@ mxGraph.prototype.cellsAdded = function(cells, parent, index, source, target, ab
 						index--;
 					}
 
+					// Stops maintaining edge parent on edges that are being added
+					var updateEdgeParent = this.model.updateEdgeParent;
+
+					this.model.updateEdgeParent = function(edge, root)
+					{
+						if (mxUtils.indexOf(cells, edge) < 0)
+						{
+							updateEdgeParent.apply(this, arguments);
+						}
+					};
+
 					this.model.add(parent, cells[i], index + i);
+					this.model.updateEdgeParent = updateEdgeParent;
 					
 					if (this.autoSizeCellsOnAdd)
 					{
@@ -7687,13 +7699,13 @@ mxGraph.prototype.getBoundingBoxFromGeometry = function(cells, includeEdges,
 						{
 							if (pt != null)
 							{
-								if (tmp == null)
+								if (bbox == null)
 								{
-									tmp = new mxRectangle(pt.x, pt.y, 0, 0);
+									bbox = new mxRectangle(pt.x, pt.y, 0, 0);
 								}
 								else
 								{
-									tmp.add(new mxRectangle(pt.x, pt.y, 0, 0));
+									bbox.add(new mxRectangle(pt.x, pt.y, 0, 0));
 								}
 							}
 						};
@@ -7710,18 +7722,14 @@ mxGraph.prototype.getBoundingBoxFromGeometry = function(cells, includeEdges,
 												
 						var pts = geo.points;
 						
-						if (pts != null && pts.length > 0)
+						if (pts != null)
 						{
-							var tmp = new mxRectangle(pts[0].x, pts[0].y, 0, 0);
-
-							for (var j = 1; j < pts.length; j++)
+							for (var j = 0; j < pts.length; j++)
 							{
 								addPoint(pts[j]);
 							}
 						}
 						
-						bbox = tmp;
-
 						if (bbox != null && this.model.isVertex(parent) && mxUtils.indexOf(
 							(ancestors != null) ? ancestors : cells, parent) >= 0)
 						{

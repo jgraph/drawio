@@ -475,6 +475,14 @@
 				return mxUtils.getValue(state.style, 'flowAnimation', null) == '1';
 			}
 		},
+		{name: 'flowAnimationDirection', dispName: 'Flow Direction', type: 'enum', defVal: 'normal',
+			enumList: [{val: 'normal', dispName: 'Normal'}, {val: 'reverse', dispName: 'Reverse'},
+			{val: 'alternate', dispName: 'Alternate'}, {val: 'alternate-reverse', dispName: 'Alternate-Reverse'}],
+			isVisible: function(state)
+			{
+				return mxUtils.getValue(state.style, 'flowAnimation', null) == '1';
+			}
+		},
 		{name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
         {name: 'metaEdit', dispName: 'Edit Dialog', type: 'bool', defVal: false},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
