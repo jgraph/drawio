@@ -547,6 +547,12 @@ EditorUi.prototype.initPages = function()
 			}
 			
 			graphViewValidateBackground.apply(graph.view, arguments);
+			
+			// Uses SVG subtree to support custom fonts and images
+			if (graph.view.backgroundImage != null)
+			{
+				this.embedSvgImages(graph.view.backgroundImage.node);
+			}
 		});
 
 		// Adds a graph model listener to update the view

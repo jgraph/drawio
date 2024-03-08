@@ -4226,14 +4226,6 @@
 			Editor.configurationKey = '.sketch-configuration';
 			Editor.settingsKey = '.sketch-config';
 		}
-
-		if (Editor.currentTheme == 'sketch')
-		{
-			Graph.prototype.defaultVertexStyle['fontFamily'] = Editor.sketchFontFamily;
-			Graph.prototype.defaultVertexStyle['fontSource'] = Editor.sketchFontSource;
-			Graph.prototype.defaultEdgeStyle['fontFamily'] = Editor.sketchFontFamily;
-			Graph.prototype.defaultEdgeStyle['fontSource'] = Editor.sketchFontSource;
-		}
     };
     
 	EditorUi.initTheme();
@@ -5747,6 +5739,15 @@
 						doSave(svgRoot);
 					}
 				});
+				
+				// Converts background pages to subtrees so that
+				// images can be converted and embedded next
+				if (Editor.replaceSvgDataUris && embedImages &&
+					this.editor.graph.backgroundImage != null &&
+					this.editor.graph.backgroundImage.originalSrc != null)
+				{
+					this.embedSvgImages(svgRoot);
+				}
 
 				var done = mxUtils.bind(this, function(svgRoot)
 				{
@@ -14036,7 +14037,7 @@
 				setStyle(graph.defaultEdgeStyle, 'targetPerimeterSpacing', '8');
 			}
 		}
-		
+
 		// Skipped if defaultFonts configured
 		if (Editor.config == null || Editor.config.defaultFonts == null)
 		{
@@ -14044,13 +14045,22 @@
 			if (Editor.config == null || (Editor.config.defaultVertexStyle == null &&
 				Editor.config.defaultEdgeStyle == null))
 			{
+				if (Editor.currentTheme == 'sketch' || Editor.sketchMode)
+				{
+					setStyle(graph.defaultVertexStyle, 'fontFamily', Editor.sketchFontFamily);
+					setStyle(graph.defaultVertexStyle, 'fontSource', Editor.sketchFontSource);
+
+					setStyle(graph.defaultEdgeStyle, 'fontFamily', Editor.sketchFontFamily);
+					setStyle(graph.defaultEdgeStyle, 'fontSource', Editor.sketchFontSource);
+				}
+
 				if (Editor.sketchMode)
 				{
 					setStyle(graph.defaultVertexStyle, 'sketch', '1');
 					setStyle(graph.defaultVertexStyle, 'curveFitting', Editor.sketchDefaultCurveFitting);
 					setStyle(graph.defaultVertexStyle, 'jiggle', Editor.sketchDefaultJiggle);
 					setStyle(graph.defaultVertexStyle, 'hachureGap', '4');
-
+					
 					setStyle(graph.defaultEdgeStyle, 'sketch', '1');
 					setStyle(graph.defaultEdgeStyle, 'curveFitting', Editor.sketchDefaultCurveFitting);
 					setStyle(graph.defaultEdgeStyle, 'jiggle', Editor.sketchDefaultJiggle);
@@ -17984,6 +17994,8 @@
 		this.actions.get('makeCopy').setEnabled(file != null && !file.isRestricted());
 		this.actions.get('editDiagram').setEnabled(active && (file == null || !file.isRestricted()));
 		this.actions.get('publishLink').setEnabled(file != null && !file.isRestricted());
+		this.actions.get('removeFormat').setEnabled(graph.isEnabled() &&
+			!graph.isSelectionEmpty() && !graph.isEditing());
 		this.actions.get('tags').setEnabled(this.diagramContainer.style.visibility != 'hidden');
 		this.actions.get('layers').setEnabled(this.diagramContainer.style.visibility != 'hidden');
 		this.actions.get('outline').setEnabled(this.diagramContainer.style.visibility != 'hidden');

@@ -913,13 +913,18 @@ mxGraphView.prototype.getBackgroundPageBounds = function()
  */
 mxGraphView.prototype.redrawBackgroundImage = function(backgroundImage, bg)
 {
-	backgroundImage.scale = this.scale;
-	backgroundImage.bounds.x = this.scale * (this.translate.x + bg.x);
-	backgroundImage.bounds.y = this.scale * (this.translate.y + bg.y);
-	backgroundImage.bounds.width = this.scale * bg.width;
-	backgroundImage.bounds.height = this.scale * bg.height;
-
-	backgroundImage.redraw();
+	var bounds = new mxRectangle(
+		this.scale * (this.translate.x + bg.x),
+		this.scale * (this.translate.y + bg.y),
+		this.scale * bg.width, this.scale * bg.height);
+	
+	if (backgroundImage.scale != this.scale ||
+		!bounds.equals(backgroundImage.bounds))
+	{
+		backgroundImage.scale = this.scale;
+		backgroundImage.bounds = bounds;
+		backgroundImage.redraw();
+	}
 };
 
 /**

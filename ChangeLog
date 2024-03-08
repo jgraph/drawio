@@ -1,3 +1,13 @@
+08-MAR-2024: 24.0.3
+
+- [conf cloud] Enables direct editing without custom content
+- [conf cloud] Fixed imported libraries name if end with ".xml" [DID-10920]
+- Adds block padding and margin properties to style panel [drawio-4198]
+- Uses default spacing for Textbox shape
+- Fixes default font for sketch mode [drawio-4216]
+- Fixes broken MathJax output after zoom [drawio-4242]
+- Fixes custom fonts and images in background pages [drawio-4239,drawio-3712,drawio-3281,drawio-2733,drawio-2367]
+
 05-MAR-2024: 24.0.2
 
 - Fixes DRAWIO_SERVER_URL if query string contains forward slash

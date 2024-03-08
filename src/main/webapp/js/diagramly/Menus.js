@@ -1252,6 +1252,13 @@
 		{
 			this.put('language', new Menu(mxUtils.bind(this, function(menu, parent)
 			{
+				var currentLanguage = mxLanguage;
+
+				if (urlParams['lang'] == null && isLocalStorage)
+				{
+					currentLanguage = mxSettings.settings.language;
+				}
+				
 				var addLangItem = mxUtils.bind(this, function (id)
 				{
 					var lang = (id == '') ? mxResources.get('automatic') : mxLanguageMap[id];
@@ -1265,7 +1272,7 @@
 							editorUi.alert(mxResources.get('restartForChangeRequired'));
 						}), parent);
 						
-						if (id == mxLanguage || (id == '' && mxLanguage == null))
+						if (id == currentLanguage || (id == '' && currentLanguage == null))
 						{
 							menu.addCheckmark(item, Editor.checkmarkImage);
 						}
