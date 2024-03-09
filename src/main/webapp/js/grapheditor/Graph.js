@@ -13287,39 +13287,43 @@ if (typeof mxVertexHandler !== 'undefined')
 		mxCellEditor.prototype.alignText = function(align, evt)
 		{
 			var state = this.graph.getView().getState(this.editingCell);
-			var dir = mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_DIRECTION,
-				mxConstants.DEFAULT_TEXT_DIRECTION);
-			var vertical = dir != null && dir.substring(0, 9) == 'vertical-';
-			var shiftPressed = evt != null && mxEvent.isShiftDown(evt);
-			
-			if (shiftPressed || (window.getSelection != null &&
-				window.getSelection().containsNode != null))
+
+			if (state != null)
 			{
-				var allSelected = true;
+				var dir = mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_DIRECTION,
+					mxConstants.DEFAULT_TEXT_DIRECTION);
+				var vertical = dir != null && dir.substring(0, 9) == 'vertical-';
+				var shiftPressed = evt != null && mxEvent.isShiftDown(evt);
 				
-				this.graph.processElements(this.textarea, function(node)
+				if (shiftPressed || (window.getSelection != null &&
+					window.getSelection().containsNode != null))
 				{
-					if (shiftPressed || vertical ||
-						window.getSelection().containsNode(node, true))
+					var allSelected = true;
+					
+					this.graph.processElements(this.textarea, function(node)
 					{
-						node.removeAttribute('align');
-						node.style.textAlign = null;
-					}
-					else
+						if (shiftPressed || vertical ||
+							window.getSelection().containsNode(node, true))
+						{
+							node.removeAttribute('align');
+							node.style.textAlign = null;
+						}
+						else
+						{
+							allSelected = false;
+						}
+					});
+					
+					if (allSelected || vertical)
 					{
-						allSelected = false;
+						this.graph.cellEditor.setAlign(align);
 					}
-				});
-				
-				if (allSelected || vertical)
-				{
-					this.graph.cellEditor.setAlign(align);
 				}
-			}
-			
-			if (!vertical)
-			{
-				document.execCommand('justify' + align.toLowerCase(), false, null);
+				
+				if (!vertical)
+				{
+					document.execCommand('justify' + align.toLowerCase(), false, null);
+				}
 			}
 		};
 		
@@ -15541,24 +15545,27 @@ if (typeof mxVertexHandler !== 'undefined')
 									tmp.innerHTML = Graph.sanitizeHtml(this.graph.getLabel(this.state.cell));
 									var anchor = tmp.getElementsByTagName('a')[index];
 
-									if (value == null || value == '')
+									if (anchor != null)
 									{
-										var child = anchor.cloneNode(true).firstChild;
-
-										while (child != null)
+										if (value == null || value == '')
 										{
-											anchor.parentNode.insertBefore(child.cloneNode(true), anchor);
-											child = child.nextSibling;
-										}
-	
-										anchor.parentNode.removeChild(anchor);
-									}
-									else
-									{
-										anchor.setAttribute('href', value);
-									}
+											var child = anchor.cloneNode(true).firstChild;
 
-									this.graph.labelChanged(this.state.cell, tmp.innerHTML);
+											while (child != null)
+											{
+												anchor.parentNode.insertBefore(child.cloneNode(true), anchor);
+												child = child.nextSibling;
+											}
+		
+											anchor.parentNode.removeChild(anchor);
+										}
+										else
+										{
+											anchor.setAttribute('href', value);
+										}
+
+										this.graph.labelChanged(this.state.cell, tmp.innerHTML);
+									}
 								});
 								
 								mxEvent.addListener(changeLink, 'click', mxUtils.bind(this, function(evt)

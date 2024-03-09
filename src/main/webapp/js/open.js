@@ -1,8 +1,6 @@
 // Handles form-submit by preparing to process response
 function handleSubmit()
 {
-	var form = window.openForm || document.getElementById('openForm');
-	
 	if (window.parent.openNew && window.parent.baseUrl != null)
 	{
 		window.parent.openFile.setConsumer(null);
@@ -182,7 +180,10 @@ function main()
 									{
 										window.parent.openBrowserFile(k, function(data)
 										{
-											window.parent.openFile.setData(data, k);
+											if (window.parent != null)
+											{
+												window.parent.openFile.setData(data, k);
+											}
 										}, function()
 										{
 											//TODO add error

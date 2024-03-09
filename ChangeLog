@@ -1,3 +1,7 @@
+09-MAR-2024: 24.0.4
+
+- [conf cloud] Fixes copied pages with embed upload macro editing [DID-11003]
+
 08-MAR-2024: 24.0.3
 
 - [conf cloud] Enables direct editing without custom content

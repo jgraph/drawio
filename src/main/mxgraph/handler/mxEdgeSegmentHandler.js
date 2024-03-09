@@ -296,45 +296,47 @@ mxEdgeSegmentHandler.prototype.start = function(x, y, index)
 mxEdgeSegmentHandler.prototype.createBends = function()
 {
 	var bends = [];
-	
-	// Source
-	var bend = this.createHandleShape(0);
-	this.initBend(bend);
-	bend.setCursor(mxConstants.CURSOR_TERMINAL_HANDLE);
-	bends.push(bend);
-
 	var pts = this.getCurrentPoints();
 
-	// Waypoints (segment handles)
-	if (this.graph.isCellBendable(this.state.cell))
+	if (pts != null)
 	{
-		if (this.points == null)
-		{
-			this.points = [];
-		}
+		// Source
+		var bend = this.createHandleShape(0);
+		this.initBend(bend);
+		bend.setCursor(mxConstants.CURSOR_TERMINAL_HANDLE);
+		bends.push(bend);
 
-		for (var i = 0; i < pts.length - 1; i++)
+		// Waypoints (segment handles)
+		if (this.graph.isCellBendable(this.state.cell))
 		{
-			bend = this.createVirtualBend();
-			bends.push(bend);
-			var horizontal = Math.round(pts[i].x - pts[i + 1].x) == 0;
-			
-			// Special case where dy is 0 as well
-			if (Math.round(pts[i].y - pts[i + 1].y) == 0 && i < pts.length - 2)
+			if (this.points == null)
 			{
-				horizontal = Math.round(pts[i].x - pts[i + 2].x) == 0;
+				this.points = [];
 			}
-			
-			bend.setCursor((horizontal) ? 'col-resize' : 'row-resize');
-			this.points.push(new mxPoint(0,0));
-		}
-	}
 
-	// Target
-	var bend = this.createHandleShape(pts.length, null, true);
-	this.initBend(bend);
-	bend.setCursor(mxConstants.CURSOR_TERMINAL_HANDLE);
-	bends.push(bend);
+			for (var i = 0; i < pts.length - 1; i++)
+			{
+				bend = this.createVirtualBend();
+				bends.push(bend);
+				var horizontal = Math.round(pts[i].x - pts[i + 1].x) == 0;
+				
+				// Special case where dy is 0 as well
+				if (Math.round(pts[i].y - pts[i + 1].y) == 0 && i < pts.length - 2)
+				{
+					horizontal = Math.round(pts[i].x - pts[i + 2].x) == 0;
+				}
+				
+				bend.setCursor((horizontal) ? 'col-resize' : 'row-resize');
+				this.points.push(new mxPoint(0,0));
+			}
+		}
+
+		// Target
+		var bend = this.createHandleShape(pts.length, null, true);
+		this.initBend(bend);
+		bend.setCursor(mxConstants.CURSOR_TERMINAL_HANDLE);
+		bends.push(bend);
+	}
 
 	return bends;
 };
