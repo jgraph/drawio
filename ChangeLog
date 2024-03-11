@@ -1,3 +1,8 @@
+11-MAR-2024: 24.0.5
+
+- Adds checkbox for text shadow [drawio-4247]
+- Explore ignores hidden edges [drawio-4243]
+
 09-MAR-2024: 24.0.4
 
 - [conf cloud] Fixes copied pages with embed upload macro editing [DID-11003]
