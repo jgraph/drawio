@@ -386,52 +386,45 @@
         {
         	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
         }},
-		{name: mxConstants.STYLE_SHADOW, dispName: mxResources.get('Shadow'), type: 'bool', defVal: false, isVisible: function(state, format)
-		{
-			return state.containsLabel;
-		}, onChange: function(graph, value)
-		{
-			// Toggles text shadow together with shape shadow
-			graph.setCellStyles(mxConstants.STYLE_TEXT_SHADOW, value, graph.getSelectionCells());
-		}},
-		{name: mxConstants.STYLE_TEXT_SHADOW, dispName: 'Text Shadow', type: 'bool', defVal: false, isVisible: function(state, format)
-		{
-			return mxUtils.getValue(state.style, 'shadow', '0') == '1';
-		}},
 		{name: mxConstants.STYLE_SHADOWCOLOR, dispName: 'Shadow Color', type: 'color', getDefaultValue: function()
 		{
 			return mxConstants.SHADOWCOLOR;
 		}, isVisible: function(state, format)
 		{
-			return mxUtils.getValue(state.style, 'shadow', '0') == '1';
+			return mxUtils.getValue(state.style, mxConstants.STYLE_SHADOW, '0') == '1' ||
+				mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_SHADOW, '0') == '1';
 		}},
 		{name: mxConstants.STYLE_SHADOW_OPACITY, dispName: 'Shadow Opacity', type: 'int', min: 0, max: 100, getDefaultValue: function()
 		{
 			return mxConstants.SHADOW_OPACITY * 100;
 		}, isVisible: function(state, format)
 		{
-			return mxUtils.getValue(state.style, 'shadow', '0') == '1';
+			return mxUtils.getValue(state.style, mxConstants.STYLE_SHADOW, '0') == '1' ||
+				mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_SHADOW, '0') == '1';
 		}},
 		{name: mxConstants.STYLE_SHADOW_OFFSET_X, dispName: 'Shadow Offset X', type: 'int', getDefaultValue: function()
 		{
 			return mxConstants.SHADOW_OFFSET_X;
 		}, isVisible: function(state, format)
 		{
-			return mxUtils.getValue(state.style, 'shadow', '0') == '1';
+			return mxUtils.getValue(state.style, mxConstants.STYLE_SHADOW, '0') == '1' ||
+				mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_SHADOW, '0') == '1';
 		}},
 		{name: mxConstants.STYLE_SHADOW_OFFSET_Y, dispName: 'Shadow Offset Y', type: 'int', getDefaultValue: function()
 		{
 			return mxConstants.SHADOW_OFFSET_Y;
 		}, isVisible: function(state, format)
 		{
-			return mxUtils.getValue(state.style, 'shadow', '0') == '1';
+			return mxUtils.getValue(state.style, mxConstants.STYLE_SHADOW, '0') == '1' ||
+				mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_SHADOW, '0') == '1';
 		}},
 		{name: mxConstants.STYLE_SHADOW_BLUR, dispName: 'Shadow Blur', type: 'int', min: 0, getDefaultValue: function()
 		{
 			return mxConstants.SHADOW_BLUR;
 		}, isVisible: function(state, format)
 		{
-			return mxUtils.getValue(state.style, 'shadow', '0') == '1';
+			return mxUtils.getValue(state.style, mxConstants.STYLE_SHADOW, '0') == '1' ||
+				mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_SHADOW, '0') == '1';
 		}}
 	];
 	

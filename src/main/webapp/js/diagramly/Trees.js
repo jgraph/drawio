@@ -1241,6 +1241,7 @@
 				this.moveHandle.style.width = '24px';
 				this.moveHandle.style.height = '24px';
 				this.graph.container.appendChild(this.moveHandle);
+				this.redrawMoveHandle();
 				
 				mxEvent.addGestureListeners(this.moveHandle, mxUtils.bind(this, function(evt)
 				{
@@ -1261,7 +1262,11 @@
 		mxVertexHandler.prototype.redrawHandles = function()
 		{
 			vertexHandlerRedrawHandles.apply(this, arguments);
-			
+			this.redrawMoveHandle();
+		};
+		
+		mxVertexHandler.prototype.redrawMoveHandle = function()
+		{
 			if (this.moveHandle != null)
 			{
 				this.moveHandle.style.left = this.state.x + this.state.width +

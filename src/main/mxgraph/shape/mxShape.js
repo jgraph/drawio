@@ -521,12 +521,12 @@ mxShape.prototype.getShadowStyle = function()
  * 
  * Removes all child nodes and resets all CSS.
  */
-mxShape.prototype.createDropShadow = function(shadowStyle, scale)
+mxShape.prototype.createDropShadow = function(style, scale)
 {
-	return 'drop-shadow(' + Math.round(shadowStyle.dx * scale * 100) / 100 + 'px ' +
-		Math.round(shadowStyle.dy * scale * 100) / 100 + 'px ' +
-		Math.round(shadowStyle.blur * scale * 100) / 100 + 'px ' +
-		mxUtils.hex2rgba(shadowStyle.color, shadowStyle.opacity / 100) + ')';
+	return 'drop-shadow(' + Math.round(style.dx * scale * 100) / 100 + 'px ' +
+		Math.round(style.dy * scale * 100) / 100 + 'px ' +
+		Math.round(style.blur * scale * 100) / 100 + 'px ' +
+		mxUtils.hex2rgba(style.color, style.opacity / 100) + ')';
 };
 
 /**
@@ -536,7 +536,7 @@ mxShape.prototype.createDropShadow = function(shadowStyle, scale)
  */
 mxShape.prototype.updateSvgFilters = function(scale)
 {
-	this.node.style.filter = (this.isShadow && this.isShadowEnabled()) ?
+	this.node.style.filter = (this.isShadowEnabled()) ?
 		this.createDropShadow(this.getShadowStyle(), scale) : '';
 };
 
@@ -547,7 +547,7 @@ mxShape.prototype.updateSvgFilters = function(scale)
  */
 mxShape.prototype.isShadowEnabled = function()
 {
-	return true;
+	return this.isShadow;
 };
 
 /**

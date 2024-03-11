@@ -3215,14 +3215,14 @@ TextFormatPanel.prototype.addFont = function(container)
 	
 	var directions = ['topLeft', 'top', 'topRight', 'left', 'center', 'right', 'bottomLeft', 'bottom', 'bottomRight'];
 	var lset = {'topLeft': [mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_BOTTOM],
-			'top': [mxConstants.ALIGN_CENTER, mxConstants.ALIGN_TOP, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_BOTTOM],
-			'topRight': [mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_TOP, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_BOTTOM],
-			'left': [mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE],
-			'center': [mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE],
-			'right': [mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE],
-			'bottomLeft': [mxConstants.ALIGN_LEFT, mxConstants.ALIGN_BOTTOM, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_TOP],
-			'bottom': [mxConstants.ALIGN_CENTER, mxConstants.ALIGN_BOTTOM, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_TOP],
-			'bottomRight': [mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_BOTTOM, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP]};
+		'top': [mxConstants.ALIGN_CENTER, mxConstants.ALIGN_TOP, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_BOTTOM],
+		'topRight': [mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_TOP, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_BOTTOM],
+		'left': [mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE],
+		'center': [mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE],
+		'right': [mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE],
+		'bottomLeft': [mxConstants.ALIGN_LEFT, mxConstants.ALIGN_BOTTOM, mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_TOP],
+		'bottom': [mxConstants.ALIGN_CENTER, mxConstants.ALIGN_BOTTOM, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_TOP],
+		'bottomRight': [mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_BOTTOM, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP]};
 
 	for (var i = 0; i < directions.length; i++)
 	{
@@ -3530,7 +3530,9 @@ TextFormatPanel.prototype.addFont = function(container)
 		graph.stylesheet.getDefaultVertexStyle() :
 		graph.stylesheet.getDefaultEdgeStyle();
 
-	var panel = (graph.cellEditor.isContentEditing()) ? this.createColorOption(mxResources.get('fontColor'), function()
+	var panel = (graph.cellEditor.isContentEditing()) ?
+		this.createColorOption(mxResources.get('fontColor'),
+		function()
 	{
 		return currentFontColor;
 	}, function(color)
@@ -3570,7 +3572,8 @@ TextFormatPanel.prototype.addFont = function(container)
 					var child = newFonts[i].firstChild;
 
 					// Moves the font element to inside the anchor element and adopts all children
-					if (child != null && child.nodeName == 'A' && child.nextSibling == null &&
+					if (child != null && child.nodeName == 'A' &&
+						child.nextSibling == null &&
 						child.firstChild != null)
 					{
 						var parent = newFonts[i].parentNode;
@@ -3593,13 +3596,15 @@ TextFormatPanel.prototype.addFont = function(container)
 		}
 		else
 		{
-			document.execCommand('forecolor', false, (color != mxConstants.NONE) ?
-				color : 'transparent');
+			document.execCommand('forecolor', false,
+				(color != mxConstants.NONE) ?
+					color : 'transparent');
 			ui.fireEvent(new mxEventObject('styleChanged',
 				'keys', [mxConstants.STYLE_FONTCOLOR],
 				'values', [color], 'cells', ss.cells));
 		}
-	}, (defs[mxConstants.STYLE_FONTCOLOR] != null) ? defs[mxConstants.STYLE_FONTCOLOR] : graph.shapeForegroundColor,
+	}, (defs[mxConstants.STYLE_FONTCOLOR] != null) ?
+		defs[mxConstants.STYLE_FONTCOLOR] : graph.shapeForegroundColor,
 	{
 		install: function(apply) { fontColorApply = apply; },
 		destroy: function() { fontColorApply = null; }
@@ -3640,11 +3645,23 @@ TextFormatPanel.prototype.addFont = function(container)
 	colorPanel.appendChild(panel);
 	colorPanel.appendChild(bgPanel);
 	
+	var textShadow = this.createCellOption(mxResources.get('shadow'),
+		mxConstants.STYLE_TEXT_SHADOW, 0);
+	textShadow.style.width = '100%';
+	textShadow.style.fontWeight = 'bold';
+
+	if (!Editor.enableShadowOption)
+	{
+		textShadow.getElementsByTagName('input')[0].setAttribute('disabled', 'disabled');
+		mxUtils.setOpacity(textShadow, 60);
+	}
+	
 	if (!graph.cellEditor.isContentEditing())
 	{
 		colorPanel.appendChild(borderPanel);
+		colorPanel.appendChild(textShadow);
 	}
-	
+
 	container.appendChild(colorPanel);
 
 	var extraPanel = this.createPanel();
@@ -5987,11 +6004,7 @@ StyleFormatPanel.prototype.addEffects = function(div)
 			addOption(mxResources.get('glass'), mxConstants.STYLE_GLASS, 0);
 		}
 		
-		var option = addOption(mxResources.get('shadow'), mxConstants.STYLE_SHADOW, 0, function(cells, value)
-		{
-			// Toggles text shadow together with shape shadow
-			graph.setCellStyles(mxConstants.STYLE_TEXT_SHADOW, value, cells);
-		});
+		var option = addOption(mxResources.get('shadow'), mxConstants.STYLE_SHADOW, 0);
 
 		if (!Editor.enableShadowOption)
 		{

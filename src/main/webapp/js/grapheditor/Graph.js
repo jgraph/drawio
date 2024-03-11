@@ -1443,6 +1443,7 @@ Graph.textStyles = ['fontFamily', 'fontSource', 'fontSize', 'fontColor', 'fontSt
  */
 Graph.edgeStyles = ['edgeStyle', 'elbow', 'jumpStyle', 'jumpSize', 'startArrow',
 	'startFill', 'startSize', 'endArrow', 'endFill', 'endSize', 'flowAnimation',
+	'flowAnimationDirection', 'flowAnimationTimingFunction', 'flowAnimationDuration',
 	'sourcePerimeterSpacing', 'targetPerimeterSpacing', 'curved'];
 
 /**
@@ -2028,12 +2029,6 @@ Graph.exploreFromCell = function(sourceGraph, selectionCell, config)
 					}
 				};
 				
-
-
-				console.log('graph', graph);
-
-
-
 				var cx = graph.container.scrollWidth / 2;
 				var cy = graph.container.scrollHeight / 3;
 
@@ -2187,7 +2182,13 @@ Graph.exploreFromCell = function(sourceGraph, selectionCell, config)
 
 			for (var i = 0; i < edges.length; i++)
 			{
-				if (edges[i].getTerminal(true) != null && edges[i].getTerminal(false) != null)
+				if (edges[i].getTerminal(true) != null &&
+					edges[i].getTerminal(false) != null &&
+					sourceGraph.isCellVisible(edges[i]) &&
+					sourceGraph.isCellVisible(edges[i].getTerminal(true)) &&
+					sourceGraph.isCellVisible(edges[i].getTerminal(false)) &&
+					sourceGraph.isCellVisible(sourceGraph.getLayerForCell(edges[i])) &&
+					mxUtils.getValue(sourceGraph.getCellStyle(edges[i]), 'ignoreEdge', '0') != '1')
 				{
 					validEdges.push(edges[i]);
 				}
@@ -14848,7 +14849,7 @@ if (typeof mxVertexHandler !== 'undefined')
 			'<stop offset="30%" style="stop-color:#f0f0f0;" /><stop offset="100%" style="stop-color:#AFB0B6;" /></linearGradient></defs>' +
 			'<rect x="0" y="0" width="9" height="9" stroke="#8A94A5" fill="url(#grad1)" stroke-width="2"/>' +
 			'<path d="M 4.5 2 L 4.5 7 M 2 4.5 L 7 4.5 z" stroke="#000"/>');
-
+		
 		/**
 		 * Updates the hint for the current operation.
 		 */

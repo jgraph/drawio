@@ -708,7 +708,8 @@ mxText.prototype.configureCanvas = function(c, x, y, w, h)
  */
 mxText.prototype.isShadowEnabled = function()
 {
-	return (this.style != null) ? mxUtils.getValue(this.style, 'textShadow', false) : false;
+	return (this.style != null) ? mxUtils.getValue(this.style,
+		mxConstants.STYLE_TEXT_SHADOW, false) : false;
 };
 
 /**
