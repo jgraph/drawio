@@ -2520,17 +2520,14 @@ mxGraphView.prototype.getDecoratorPane = function()
 mxGraphView.prototype.isContainerEvent = function(evt)
 {
 	var source = mxEvent.getSource(evt);
-
-	return (source == this.graph.container ||
-		source.parentNode == this.backgroundPane ||
-		(source.parentNode != null &&
-		source.parentNode.parentNode == this.backgroundPane) ||
+	
+	return source == this.graph.container ||
+		this.backgroundPane.contains(source) ||
 		source == this.canvas.parentNode ||
 		source == this.canvas ||
-		source == this.backgroundPane ||
 		source == this.drawPane ||
 		source == this.overlayPane ||
-		source == this.decoratorPane);
+		source == this.decoratorPane;
 };
 
 /**

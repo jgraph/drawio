@@ -1,3 +1,11 @@
+13-MAR-2024: 24.0.6
+
+- Moves subtree when tree is collapsed [drawio-3113]
+- Fixes ignored given local filename [drawio-3555]
+- Fixes possible NPE in Graph.executeCustomActions
+- Fixes event handling on background pages
+- Fixes %length% placeholder in child edge labels [drawio-1677]
+
 11-MAR-2024: 24.0.5
 
 - Adds checkbox for text shadow [drawio-4247]

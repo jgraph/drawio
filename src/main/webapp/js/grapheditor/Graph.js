@@ -2168,7 +2168,7 @@ Graph.exploreFromCell = function(sourceGraph, selectionCell, config)
 				}
 			}
 		};
-
+		
 		// Gets the edges from the source cell and adds the targets
 		function rootChanged(graph, cell)
 		{
@@ -2185,10 +2185,10 @@ Graph.exploreFromCell = function(sourceGraph, selectionCell, config)
 				if (edges[i].getTerminal(true) != null &&
 					edges[i].getTerminal(false) != null &&
 					sourceGraph.isCellVisible(edges[i]) &&
+					!sourceGraph.isEdgeIgnored(edges[i]) &&
 					sourceGraph.isCellVisible(edges[i].getTerminal(true)) &&
 					sourceGraph.isCellVisible(edges[i].getTerminal(false)) &&
-					sourceGraph.isCellVisible(sourceGraph.getLayerForCell(edges[i])) &&
-					mxUtils.getValue(sourceGraph.getCellStyle(edges[i]), 'ignoreEdge', '0') != '1')
+					sourceGraph.isCellVisible(sourceGraph.getLayerForCell(edges[i]))) 
 				{
 					validEdges.push(edges[i]);
 				}
@@ -5116,9 +5116,17 @@ Graph.prototype.replacePlaceholders = function(cell, str, vars, translate)
 							tmp = geo.height;
 						}
 					}
-					else if (name == 'length' && this.model.isEdge(cell))
+					else if (name == 'length')
 					{
-						var state = this.view.getState(cell);
+						// Gets ancestor edge
+						var edge = cell;
+
+						while (edge != null && !this.model.isEdge(edge))
+						{
+							edge = this.model.getParent(edge);
+						}
+
+						var state = this.view.getState(edge);
 
 						if (state != null)
 						{

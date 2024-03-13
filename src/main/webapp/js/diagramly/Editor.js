@@ -7378,6 +7378,11 @@
 
 						if (action.tags.hidden != null)
 						{
+							if (hidden == null)
+							{
+								hidden = [];
+							}
+							
 							hidden = hidden.concat(action.tags.hidden);
 						}
 

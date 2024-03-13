@@ -3944,8 +3944,7 @@ App.prototype.createFileSystemOptions = function(name)
 		}
 	}
 	
-	// TODO: Specify default filename
-	return {types: ext, fileName: name};
+	return {types: ext, suggestedName: name};
 };
 
 /**
