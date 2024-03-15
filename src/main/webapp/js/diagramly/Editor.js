@@ -3173,9 +3173,12 @@
 										next();
 									}
 								}
-								else if (src != null)
+								else
 								{
-									img.setAttribute(srcAttr, src);
+									if (src != null)
+									{
+										img.setAttribute(srcAttr, src);
+									}
 
 									next();
 								}
@@ -5212,6 +5215,7 @@
 				row.appendChild(td);
 				td = document.createElement('td');
 				td.className = 'gePropRowCell';
+				td.setAttribute('title', (pValue != null) ? pValue : mxResources.get('none'));
 				
 				if (pType == 'color')
 				{
@@ -5283,9 +5287,23 @@
 					var inp = document.createElement('input');
 					inp.setAttribute('readonly', '');
 					inp.value = pValue;
-					inp.style.width = '96px';
 					inp.style.borderWidth = '0px';
-					td.appendChild(inp);
+
+					if (pName == 'id')
+					{
+						inp.style.width = '80%';
+						inp.style.position = 'absolute';
+						inp.style.right = '6px';
+						inp.style.textAlign = 'right';
+						row.firstChild.setAttribute('colspan', '2');
+						inp.setAttribute('title', pValue);
+						row.firstChild.appendChild(inp);
+					}
+					else
+					{
+						inp.style.width = '96px';
+						td.appendChild(inp);
+					}
 				}
 				else
 				{
@@ -5486,7 +5504,8 @@
 			//Add it to top (always)
 			if (cellId != null && !hideId)
 			{
-				grid.appendChild(createPropertyRow('id', mxUtils.htmlEntities(cellId), {dispName: 'ID', type: 'readOnly'}, true, false));
+				grid.appendChild(createPropertyRow('id', mxUtils.htmlEntities(cellId),
+					{dispName: 'id', type: 'readOnly'}, true, false));
 			}
 			
 			for (var key in properties)
@@ -6887,7 +6906,7 @@
 	
 	Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp,
 		ignoreSelection, showText, imgExport, linkTarget, hasShadow,
-		incExtFonts, theme, exportType, cells, noCssClass)
+		incExtFonts, theme, exportType, cells, noCssClass, disableLinks)
 	{
 		var temp = null;
 		var tempFg = null;

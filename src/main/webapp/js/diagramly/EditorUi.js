@@ -6049,12 +6049,15 @@
 
 				var svg = this.getSvgSubtree(href);
 
-				if (svg != null)
+				// Checks nodeName as parsers can get foreignObjects
+				// content to go before the SVG element
+				if (svg != null && svg.nodeName == 'svg')
 				{
 					svg.setAttribute('x', node.getAttribute('x'));
 					svg.setAttribute('y', node.getAttribute('y'));
 					svg.setAttribute('width', node.getAttribute('width'));
 					svg.setAttribute('height', node.getAttribute('height'));
+					svg.style.fontFamily = 'initial';
 
 					node.parentNode.replaceChild(svg, node);
 				}
@@ -6076,7 +6079,9 @@
 
 		if (data != null)
 		{
-			svg = mxUtils.parseXml(data).documentElement;
+			svg = Graph.sanitizeNode(mxUtils.parseXml(data).documentElement);
+
+			// Limits CSS rules to subtree
 			var styles = svg.getElementsByTagName('style');
 
 			if (styles.length > 0)

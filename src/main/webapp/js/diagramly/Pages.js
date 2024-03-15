@@ -487,7 +487,7 @@ EditorUi.prototype.getImageForPage = function(page, sourcePage, sourceGraph)
 	var theme = (Editor.cssDarkMode || Editor.isDarkMode()) ?
 		'dark' : 'light';
 	var svgRoot = graph.getSvg(null, null, null, null, null, null,
-		null, null, null, null, null, theme, null, null, true);
+		null, null, null, null, null, theme, null, null, true, true);
 	
 	var bounds = graph.getGraphBounds();
 	document.body.removeChild(graph.container);

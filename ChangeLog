@@ -1,3 +1,15 @@
+14-MAR-2024: 24.0.7
+
+- Moves Cloudflare workers to mxgraph-gliffy-java repository
+- Fixes possible HTML content as SVG subtree
+- Fixes overridden font in background page images
+- Fixes timeout for invalid image in SVG export
+- Disables and removes links in background pages
+- Adds tooltips for values in Property pane
+- Fixes clipped cell ID in Property pane [drawio-4262]
+- Fixes regex performance in Graph.isLink [drawio-3939]
+- [conf cloud] Adds upload embed diagrams to custom templates parsing [DID-11066]
+
 13-MAR-2024: 24.0.6
 
 - Moves subtree when tree is collapsed [drawio-3113]

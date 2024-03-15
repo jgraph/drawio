@@ -2645,18 +2645,8 @@ Graph.rewritePageLinks = function(doc)
  */
 Graph.isLink = function(text)
 {
-	return text != null && Graph.linkPattern.test(text);
+	return text != null && text.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
 };
-
-/**
- * Regular expression for links.
- */
-Graph.linkPattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-	'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-	'((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-	'(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-	'(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-	'(\\#[-a-z\\d_]*)?$','i'); // fragment locator
 
 /**
  * Graph inherits from mxGraph.
@@ -11729,7 +11719,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		 */
 		Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp,
 			ignoreSelection, showText, imgExport, linkTarget, hasShadow, incExtFonts,
-			theme, exportType, cells)
+			theme, exportType, cells, noCssClass, disableLinks)
 		{
 			var lookup = null;
 			
@@ -12014,8 +12004,17 @@ if (typeof mxVertexHandler !== 'undefined')
 				var viewRoot = (this.view.currentRoot != null) ?
 					this.view.currentRoot : this.model.root;
 				imgExport.drawState(this.getView().getState(viewRoot), svgCanvas);
-				this.updateSvgLinks(root, linkTarget, true);
 				this.addForeignObjectWarning(svgCanvas, root);
+
+				// Disables links
+				if (disableLinks)
+				{
+					this.disableSvgLinks(root);
+				}
+				else
+				{
+					this.updateSvgLinks(root, linkTarget, true);
+				}
 				
 				return root;
 			}
@@ -12069,6 +12068,30 @@ if (typeof mxVertexHandler !== 'undefined')
 				a.appendChild(text);
 				sw.appendChild(a);
 				root.appendChild(sw);
+			}
+		};
+			
+		/**
+		 * Hook for creating the canvas used in getSvg.
+		 */
+		Graph.prototype.disableSvgLinks = function(node)
+		{
+			var links = node.getElementsByTagName('a');
+			
+			for (var i = 0; i < links.length; i++)
+			{
+				var href = links[i].getAttribute('href');
+				
+				if (href == null)
+				{
+					href = links[i].getAttribute('xlink:href');
+				}
+				
+				if (href != null)
+				{
+					links[i].style.pointerEvents = 'none';
+					links[i].setAttribute('href', '');
+				}
 			}
 		};
 		
