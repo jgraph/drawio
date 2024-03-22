@@ -2195,7 +2195,11 @@ var ParseDialog = function(editorUi, title, defaultType)
 					}
 				}, function(e)
 				{
-					mxMermaidToDrawio.resetListeners();
+					if (typeof mxMermaidToDrawio !== 'undefined')
+					{
+						mxMermaidToDrawio.resetListeners();
+					}
+					
 					editorUi.handleError(e);
 				});
 			}
@@ -2908,7 +2912,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		{
 			mxEvent.addGestureListeners(div.parentNode.parentNode, mxUtils.bind(this, function(evt)
 			{
-				editorUi.sidebar.hideTooltip();
+				if (editorUi.sidebar != null)
+				{
+					editorUi.sidebar.hideTooltip();
+				}
 			}), null, null);
 		}
 	};

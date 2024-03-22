@@ -4221,7 +4221,8 @@ Graph.prototype.initLayoutManager = function()
 			{
 				return new TableLayout(this.graph);
 			}
-			else if (style['childLayout'] != null && style['childLayout'].charAt(0) == '[')
+			else if (style['childLayout'] != null &&
+				String(style['childLayout']).charAt(0) == '[')
 			{
 				try
 				{

@@ -153,9 +153,6 @@
     </background>
     <foreground>
         <fillstroke/>
-        <path>
-        </path>
-        <stroke/>
         <ellipse h="40" w="40" x="30" y="30"/>
         <stroke/>
         <path>

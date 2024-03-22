@@ -98,9 +98,6 @@
     </background>
     <foreground>
         <fillstroke/>
-        <path>
-        </path>
-        <stroke/>
         <fillcolor color="none"/>
         <linejoin join="round"/>
         <path>

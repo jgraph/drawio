@@ -633,11 +633,11 @@ Actions.prototype.init = function()
 	this.addAction('bringForward', function(evt)
 	{
 		graph.orderCells(false, null, true);
-	});
+	}, null, null, Editor.ctrlKey + '+Alt+Shift+F');
 	this.addAction('sendBackward', function(evt)
 	{
 		graph.orderCells(true, null, true);
-	});
+	}, null, null, Editor.ctrlKey + '+Alt+Shift+B');
 	this.addAction('group', function()
 	{
 		if (graph.isEnabled())

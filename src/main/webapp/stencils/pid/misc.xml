@@ -1440,9 +1440,6 @@
         <stroke/>
         <ellipse h="20" w="20" x="60" y="60"/>
         <stroke/>
-        <path>
-        </path>
-        <stroke/>
     </foreground>
 </shape>
 <shape aspect="variable" h="80" name="Funnel" strokewidth="inherit" w="40">

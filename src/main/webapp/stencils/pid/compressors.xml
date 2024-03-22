@@ -61,9 +61,6 @@
             <close/>
         </path>
         <fillstroke/>
-        <path>
-        </path>
-        <stroke/>
     </foreground>
 </shape>
 <shape aspect="variable" h="67" name="Centrifugal Compressor" strokewidth="inherit" w="70">

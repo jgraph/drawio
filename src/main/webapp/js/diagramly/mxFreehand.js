@@ -15,7 +15,7 @@ function mxFreehand(graph)
 	}));
 	
 	//Code inspired by https://stackoverflow.com/questions/40324313/svg-smooth-freehand-drawing
-	var bufferSize = mxFreehand.prototype.NORMAL_SMOOTHING;
+	var bufferSize = mxFreehand.prototype.MILD_SMOOTHING;
 	var path = null;
 	var partPathes = [];
 	var strPath;
@@ -373,7 +373,9 @@ function mxFreehand(graph)
 		    {
 				var e = me.getEvent();
 				
-				if (!enabled || mxEvent.isPopupTrigger(e) || mxEvent.isMultiTouchEvent(e))
+				if (!enabled || mxEvent.isPopupTrigger(e) ||
+					mxEvent.isMiddleMouseButton(e) ||
+					mxEvent.isMultiTouchEvent(e))
 				{
 					return;
 				}
@@ -384,6 +386,7 @@ function mxFreehand(graph)
 
 			    path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 			    path.setAttribute('fill', perfectFreehandMode? strokeColor : 'none');
+				path.setAttribute('pointer-events', 'none');
 			    path.setAttribute('stroke', strokeColor);
 			    path.setAttribute('stroke-width', strokeWidth);
 			    
@@ -414,7 +417,8 @@ function mxFreehand(graph)
 	    }),
 	    mouseMove: mxUtils.bind(this, function(sender, me)
 	    {
-		    if (path && graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
+		    if (path != null && graph.isEnabled() &&
+				!graph.isCellLocked(graph.getDefaultParent()))
 		    {
 	    		var e = me.getEvent();
 				var pt = getMousePosition(e);
@@ -432,7 +436,8 @@ function mxFreehand(graph)
 	    }),
 	    mouseUp: mxUtils.bind(this, function(sender, me)
 	    {
-			if (path && graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent())) 
+			if (path != null && graph.isEnabled() &&
+				!graph.isCellLocked(graph.getDefaultParent())) 
 			{
 				endPath(me.getEvent());
 				me.consume();

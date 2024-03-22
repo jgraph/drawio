@@ -592,8 +592,6 @@
     </background>
     <foreground>
         <fillstroke/>
-        <path>
-        </path>
         <stroke/>
         <rect h="13.5" w="4" x="58" y="103.27"/>
         <fillstroke/>

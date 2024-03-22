@@ -1,3 +1,11 @@
+22-MAR_2024: 24.0.8
+
+- Fixes background of ID property
+- Fixes lost page links in pasted cells
+- Adds shortcut for bringForward/sendBackward [drawio-desktop-1662]
+- Fixes mouse wheel in freehand mode [drawio-4278]
+- [conf cloud] Refreshes viewer if loaded version doesn't match one in storage format [DID-10966]
+
 14-MAR-2024: 24.0.7
 
 - Moves Cloudflare workers to mxgraph-gliffy-java repository

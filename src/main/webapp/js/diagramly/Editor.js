@@ -5291,9 +5291,11 @@
 
 					if (pName == 'id')
 					{
-						inp.style.width = '80%';
-						inp.style.position = 'absolute';
+						inp.style.width = '190px';
+						inp.style.position = 'relative';
 						inp.style.right = '6px';
+						inp.style.float = 'right';
+						inp.style.background = 'none';
 						inp.style.textAlign = 'right';
 						row.firstChild.setAttribute('colspan', '2');
 						inp.setAttribute('title', pValue);

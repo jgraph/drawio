@@ -7962,6 +7962,24 @@
 	 */
 
 	/**
+	 * Adds the local page IDs to the given mapping.
+	 */
+	EditorUi.prototype.addLocalPagesToMapping = function(mapping)
+	{
+		mapping = (mapping != null) ? mapping : {};
+
+		if (this.pages != null)
+		{
+			for (var i = 0; i < this.pages.length; i++)
+			{
+				mapping[this.pages[i].getId()] = this.pages[i].getId();
+			}
+		}
+
+		return mapping;
+	};
+
+	/**
 	 * Imports the given XML into the existing diagram.
 	 */
 	EditorUi.prototype.importXml = function(xml, dx, dy, crop, noErrorHandling, addNewPage, applyDefaultStyles)
@@ -8056,6 +8074,8 @@
 						
 						if (cells != null)
 						{
+							this.addLocalPagesToMapping(mapping);
+
 							for (var i = 0; i < cells.length; i++)
 							{
 								this.updatePageLinksForCell(mapping, cells[i]);

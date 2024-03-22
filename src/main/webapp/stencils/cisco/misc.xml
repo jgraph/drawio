@@ -4278,9 +4278,6 @@
 <linejoin join="round"/>
 <fillstroke/>
 <strokewidth width="0.67"/>
-<path>
-</path>
-<fillstroke/>
 <strokecolor color="#ffffff"/>
 <strokewidth width="0.4"/>
 <linejoin join="round"/>
@@ -14008,9 +14005,6 @@
 <move x="81" y="0"/>
 <line x="80.33" y="2"/>
 <fillstroke/>
-<path>
-</path>
-<stroke/>
 </foreground>
 </shape>
 <shape name="Turret" h="41" w="103.33" aspect="variable" strokewidth="inherit">

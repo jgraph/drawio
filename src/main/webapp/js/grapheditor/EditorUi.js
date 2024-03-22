@@ -6111,6 +6111,12 @@ EditorUi.prototype.altShiftActions = {
   69: 'pasteData' // Alt+Shift+E
 };
 
+// Ctrl+Alt+Shift+Keycode mapping to action
+EditorUi.prototype.ctrlAltShiftActions = {
+	70: 'bringForward', // Ctrl+Alt+Shift+F
+	66: 'sendBackward', // Ctrl+Alt+Shift+B
+};
+
 // Ctrl+Alt+Keycode mapping to action
 EditorUi.prototype.ctrlAltActions = {
 	88: 'copyAsImage' // Ctrl+Alt+X
@@ -6314,7 +6320,12 @@ EditorUi.prototype.createKeyHandler = function(editor)
 			var action = null;
 
 			// TODO: Add alt modifier state in core API, here are some specific cases
-			if (mxEvent.isShiftDown(evt) && mxEvent.isAltDown(evt))
+			if (mxEvent.isShiftDown(evt) && this.isControlDown(evt) && mxEvent.isAltDown(evt))
+			{
+				action = editorUi.actions.get(editorUi.ctrlAltShiftActions[evt.keyCode]);
+
+			}
+			else if (mxEvent.isShiftDown(evt) && mxEvent.isAltDown(evt))
 			{
 				action = editorUi.actions.get(editorUi.altShiftActions[evt.keyCode]);
 

@@ -960,9 +960,6 @@
         <ellipse h="100" w="100" x="0" y="0"/>
         <fillstroke/>
         <path>
-        </path>
-        <fillstroke/>
-        <path>
             <move x="50" y="0"/>
             <line x="50" y="100"/>
             <move x="100" y="50"/>

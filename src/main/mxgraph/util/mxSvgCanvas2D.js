@@ -2500,7 +2500,8 @@ mxSvgCanvas2D.prototype.addTextBackground = function(node, str, x, y, w, h, alig
 {
 	var s = this.state;
 
-	if (s.fontBackgroundColor != null || s.fontBorderColor != null)
+	if (document.body != null && (s.fontBackgroundColor != null ||
+		s.fontBorderColor != null))
 	{
 		var bbox = null;
 		
