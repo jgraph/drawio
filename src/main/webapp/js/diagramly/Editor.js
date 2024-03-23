@@ -244,6 +244,11 @@
 	Editor.defaultCompressed = false;
 
 	/**
+	 * Specifies if data should be compressed internally. Default is false.
+	 */
+	Editor.internalCompression = urlParams['internal-compression'] == '1';
+
+	/**
 	 * Specifies if XML files should be compressed. Default is true.
 	 */
 	Editor.oneDriveInlinePicker = (window.urlParams != null && window.urlParams['inlinePicker'] == '0') ? false : true;
@@ -1666,16 +1671,21 @@
 	 */
 	Editor.getDiagramNodeXml = function(diagramNode)
 	{
-		var text = mxUtils.getTextContent(diagramNode);
+		var text = mxUtils.getNodeValue(diagramNode);
 		var xml = null;
 		
 		if (text.length > 0)
 		{
 			xml = Graph.decompress(text);
 		}
-		else if (diagramNode.firstChild != null)
+		else
 		{
-			xml = mxUtils.getXml(diagramNode.firstChild);
+			var temp = diagramNode.getElementsByTagName('mxGraphModel');
+
+			if (temp != null && temp.length > 0)
+			{
+				xml = mxUtils.getXml(temp[0]);
+			}
 		}
 		
 		return xml;

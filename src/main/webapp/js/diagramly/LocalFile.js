@@ -80,9 +80,9 @@ LocalFile.prototype.isRenamable = function()
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-LocalFile.prototype.save = function(revision, success, error)
+LocalFile.prototype.save = function(revision, success, error, unloading, overwrite)
 {
-	this.saveAs(this.title, success, error);
+	this.saveAs(this.title, success, error, unloading, overwrite);
 };
 
 /**
@@ -91,20 +91,9 @@ LocalFile.prototype.save = function(revision, success, error)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-LocalFile.prototype.saveAs = function(title, success, error)
+LocalFile.prototype.saveAs = function(title, success, error, unloading, overwrite)
 {
-	this.saveFile(title, false, success, error);
-};
-
-/**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-LocalFile.prototype.saveAs = function(title, success, error)
-{
-	this.saveFile(title, false, success, error);
+	this.saveFile(title, false, success, error, null, unloading, overwrite);
 };
 
 /**
@@ -150,7 +139,7 @@ LocalFile.prototype.getLatestVersion = function(success, error)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-LocalFile.prototype.saveFile = function(title, revision, success, error, useCurrentData)
+LocalFile.prototype.saveFile = function(title, revision, success, error, useCurrentData, unloading, overwrite)
 {
 	if (title != this.title)
 	{
@@ -203,7 +192,7 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 				});
 				
 				// Saves a copy as a draft while saving
-				this.saveDraft();
+				this.saveDraft(savedData);
 				
 				this.fileHandle.createWritable().then(mxUtils.bind(this, function(writable)
 				{
@@ -216,7 +205,7 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 							'conflict', this.desc.lastModified !=
 								newDesc.lastModified);
 						
-						if (this.desc.lastModified == newDesc.lastModified)
+						if (overwrite || this.desc.lastModified == newDesc.lastModified)
 						{
 							writable.write((binary) ? this.ui.base64ToBlob(data, 'image/png') : data).then(mxUtils.bind(this, function()
 							{

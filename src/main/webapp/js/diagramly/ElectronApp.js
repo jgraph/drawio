@@ -1628,7 +1628,7 @@ mxStencilRegistry.allowEval = false;
 		}
 	};
 	
-	LocalFile.prototype.saveDraft = function()
+	LocalFile.prototype.saveDraft = function(data)
 	{
 		// Save draft only if file is not saved (prevents creating draft file after actual file is saved)
 		if (!this.isModified()) return;
@@ -1643,7 +1643,7 @@ mxStencilRegistry.allowEval = false;
 			electron.request({
 				action: 'saveDraft',
 				fileObject: this.fileObject,
-				data: this.ui.getFileData()
+				data: (data != null) ? data : this.ui.getFileData()
 			}, mxUtils.bind(this, function(draftFileName)
 			{
 				this.fileObject.draftFileName = draftFileName;

@@ -1343,8 +1343,16 @@
 		{
 			// Updates current page XML if selection is ignored
 			EditorUi.removeChildNodes(this.currentPage.node);
-			mxUtils.setTextContent(this.currentPage.node, Graph.compressNode(node));
 
+			if (Editor.internalCompression)
+			{
+				mxUtils.setTextContent(this.currentPage.node, Graph.compressNode(node));
+			}
+			else
+			{
+				this.currentPage.node.appendChild(node);
+			}
+			
 			// Creates a clone of the file node for processing
 			node = this.fileNode.cloneNode(false);
 
@@ -1357,8 +1365,7 @@
 				
 				if (modelNode == null && uncompressed)
 				{
-					var text = mxUtils.trim(mxUtils.getTextContent(pageNode));
-					clone = pageNode.cloneNode(false);
+					var text = mxUtils.getNodeValue(pageNode);
 					
 					if (text.length > 0)
 					{
@@ -1366,6 +1373,7 @@
 						
 						if (tmp != null && tmp.length > 0)
 						{
+							clone = pageNode.cloneNode(false);
 							clone.appendChild(mxUtils.parseXml(tmp).documentElement);
 						}
 					}
@@ -1404,7 +1412,15 @@
 							this.editor.graph.saveViewState(page.viewState,
 								temp, null, resolveReferences);
 							EditorUi.removeChildNodes(currNode);
-							mxUtils.setTextContent(currNode, Graph.compressNode(temp));
+
+							if (Editor.internalCompression)
+							{
+								mxUtils.setTextContent(currNode, Graph.compressNode(temp));
+							}
+							else
+							{
+								currNode.appendChild(temp);
+							}
 
 							// Marks the page as up-to-date
 							delete page.needsUpdate;
@@ -1437,7 +1453,15 @@
 								this.editor.graph.saveViewState(page.viewState,
 									temp, null, resolveReferences);
 								currNode = currNode.cloneNode(false);
-								mxUtils.setTextContent(currNode, Graph.compressNode(temp));
+
+								if (Editor.internalCompression)
+								{
+									mxUtils.setTextContent(currNode, Graph.compressNode(temp));
+								}
+								else
+								{
+									currNode.appendChild(temp);
+								}
 							}
 						}
 					}
@@ -3997,7 +4021,11 @@
 												{
 													var cells = this.stringToCells(Editor.getDiagramNodeXml(pages[i]));
 													var size = this.editor.graph.getBoundingBoxFromGeometry(cells);
-													addCells(cells, new mxRectangle(0, 0, size.width, size.height), evt);
+
+													if (size != null)
+													{
+														addCells(cells, new mxRectangle(0, 0, size.width, size.height), evt);
+													}
 												}
 												
 												done = true;

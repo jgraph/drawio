@@ -1,4 +1,12 @@
-22-MAR_2024: 24.0.8
+23-MAR-2024: 24.1.0
+
+- Improves save performance for files with images [DID-11006]
+
+23-MAR-2024: 24.0.9
+
+Improves remote changes handling in DrawioFileSync.fastForward
+
+22-MAR-2024: 24.0.8
 
 - Fixes background of ID property
 - Fixes lost page links in pasted cells

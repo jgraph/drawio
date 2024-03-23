@@ -964,7 +964,10 @@ DrawioFileSync.prototype.receiveRemoteChanges = function(data)
  */
 DrawioFileSync.prototype.scheduleCleanup = function(lazy)
 {
-	var delay = (lazy == false) ? 0 : this.cleanupDelay;
+	// Adds 2 secs per 10MB of file size to allow for remote save with
+	// local fastForward before cleanup is triggered
+	var sizeDelaySec = Math.min(15, Math.floor(this.file.getSize() / 5000000));
+	var delay = (lazy == false) ? 0 : this.cleanupDelay + sizeDelaySec * 1000;
 	var prev = this.cleanupThread;
 	
 	if (lazy != true || this.cleanupThread != null)
@@ -1522,7 +1525,23 @@ DrawioFileSync.prototype.fastForward = function(desc)
 	this.file.patchDescriptor(this.file.getDescriptor(), desc);
 	this.file.setShadowPages(this.ui.clonePages(this.ui.pages));
 	this.file.theirPages = this.ui.clonePages(this.ui.pages);
+
+	// Forces update of internal page state for remote changes
+	// Note that clonePages does not clone the needsUpdate flag
+	var prevOwnPages = this.file.ownPages;
 	this.file.ownPages = this.ui.clonePages(this.ui.pages);
+
+	for (var i = 0; i < this.file.ownPages.length; i++)
+	{
+		if (this.ui.getHashValueForPages([this.file.ownPages[i]]) !=
+			this.ui.getHashValueForPages([prevOwnPages[i]]))
+		{
+			this.file.ownPages[i].needsUpdate = true;
+			
+			EditorUi.debug('DrawioFileSync.fastForward', [this],
+				this.file.ownPages[i].getName() + ' needs update');
+		}
+	}
 
 	var thread = this.cleanupThread;
 	window.clearTimeout(this.cleanupThread);

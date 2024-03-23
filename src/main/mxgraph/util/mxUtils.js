@@ -1095,6 +1095,38 @@ var mxUtils =
 	},
 
 	/**
+	 * Function: getNodeValue
+	 * 
+	 * Returns the node value of the specified node and its
+	 * text and cdata children as a string. The node values
+	 * are trimmed and concatenated. Returns null if no value
+	 * was found.
+	 * 
+	 * Parameters:
+	 * 
+	 * node - DOM node to return the node value for.
+	 */
+	getNodeValue: function(node)
+	{
+		node = node.firstChild;
+		var result = [];
+
+		while (node != null)
+		{
+			if ((node.nodeType == mxConstants.NODETYPE_TEXT ||
+				node.nodeType == mxConstants.NODETYPE_CDATA) &&
+				node.nodeValue != null)
+			{
+				result.push(mxUtils.trim(node.nodeValue));
+			}
+
+			node = node.nextSibling;
+		}
+
+		return (result.length > 0) ? result.join('') : '';
+	},
+	
+	/**
 	 * Function: getTextContent
 	 * 
 	 * Returns the text content of the specified node.

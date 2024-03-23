@@ -88,7 +88,9 @@
 <line x="23" y="25"/>
 <line x="19.67" y="28.33"/>
 <close/>
-<fillstroke/>
+</path>
+<fill/>
+<path>
 <move x="24.33" y="29.66"/>
 <line x="27.67" y="26.33"/>
 <line x="26" y="24.66"/>

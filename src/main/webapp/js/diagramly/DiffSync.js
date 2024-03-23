@@ -733,7 +733,16 @@ EditorUi.prototype.getPagesForNode = function(node, nodeName)
 	{
 		var page = new DiagramPage(node.ownerDocument.createElement('diagram'));
 		page.setName(mxResources.get('pageWithNumber', [1]));
-		mxUtils.setTextContent(page.node, Graph.compressNode(node, true));
+
+		if (Editor.internalCompression)
+		{
+			mxUtils.setTextContent(page.node, Graph.compressNode(node, true));
+		}
+		else
+		{
+			page.node.appendChild(node.cloneNode(true));
+		}
+
 		pages.push(page);
 	}
 	

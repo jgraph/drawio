@@ -2301,6 +2301,7 @@
 			var prevDiffPages = null;
 			var prevPatchPages = null;
 			var prevClonePages = null;
+			var prevGetFileData = null;
 			var prevGetHashValueForPages = null;
 			var prevResolveCrossReferences = null;
 
@@ -2446,6 +2447,27 @@
 						var t0 = Date.now();
 						var result = prevResolveCrossReferences.apply(this, arguments);
 						EditorUi.debug('[Performance] EditorUi.resolveCrossReferences',
+							[this], 'time', (Date.now() - t0) + ' ms',
+							'args', arguments);
+
+						return result;
+					};
+				}
+
+				if (prevGetFileData != null)
+				{
+					editorUi.getFileData = prevGetFileData;
+					prevGetFileData = null;
+				}
+				else
+				{
+					prevGetFileData = editorUi.getFileData;
+
+					editorUi.getFileData = function()
+					{
+						var t0 = Date.now();
+						var result = prevGetFileData.apply(this, arguments);
+						EditorUi.debug('[Performance] EditorUi.getFileData',
 							[this], 'time', (Date.now() - t0) + ' ms',
 							'args', arguments);
 

@@ -478,6 +478,11 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow, imme
 			}
 			else
 			{
+				this.invalidChecksum = false;
+				this.inConflictState = false;
+				this.setDescriptor(file.getDescriptor());
+				this.descriptorChanged();
+
 				EditorUi.debug('File.mergeFile', [this],
 					'file', [file], 'ignored', ignored);
 			
@@ -1863,7 +1868,7 @@ DrawioFile.prototype.addAllSavedStatus = function(status)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFile.prototype.saveDraft = function()
+DrawioFile.prototype.saveDraft = function(data)
 {
 	try
 	{
@@ -1882,7 +1887,7 @@ DrawioFile.prototype.saveDraft = function()
 		var draft = {type: 'draft',
 			created: this.created,
 			modified: new Date().getTime(),
-			data: this.ui.getFileData(),
+			data: (data != null) ? data : this.ui.getFileData(),
 			title: this.getTitle(),
 			fileObject: this.fileObject,
 			aliveCheck: this.ui.draftAliveCheck};
@@ -2358,6 +2363,54 @@ DrawioFile.prototype.getErrorMessage = function(err)
 DrawioFile.prototype.isOverdue = function()
 {
 	return this.ageStart != null && (Date.now() - this.ageStart.getTime()) >= this.ui.warnInterval;
+};
+
+/**
+ * Invoked when the compression has changed.
+ */
+DrawioFile.prototype.compressionChanged = function(compressed)
+{
+	// Changes the internal compressed data in the pages to the current state
+	var pages = (this.ownPages != null) ? this.ownPages : this.ui.pages;
+
+	if (!Editor.internalCompression && pages != null)
+	{
+		for (var i = 0; i < pages.length; i++)
+		{
+			var pageNode = pages[i].node;
+
+			if (pageNode != null && (this.ui.currentPage == null ||
+				this.ui.currentPage.getId() != pages[i].getId()))
+			{
+				var models = pageNode.getElementsByTagName('mxGraphModel');
+				var modelNode = (models.length > 0) ? models[0] : null;
+				var xml = Graph.decompress(mxUtils.getNodeValue(pageNode));
+
+				if (compressed)
+				{
+					if (xml.length == 0 && modelNode != null)
+					{
+						EditorUi.removeChildNodes(pageNode);
+						mxUtils.setTextContent(pageNode, Graph.compressNode(modelNode));
+
+						EditorUi.debug('DrawioFile.compressionChanged',
+							[this], 'Page ' + i + ' compressed');
+					}
+				}
+				else
+				{
+					if (xml.length > 0 && modelNode == null)
+					{
+						EditorUi.removeChildNodes(pageNode);
+						pageNode.appendChild(mxUtils.parseXml(xml).documentElement);
+
+						EditorUi.debug('DrawioFile.compressionChanged',
+							[this], 'Page ' + i + ' decompressed');
+					}
+				}
+			}
+		}
+	}
 };
 
 /**
