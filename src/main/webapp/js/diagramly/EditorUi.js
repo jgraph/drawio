@@ -10429,18 +10429,18 @@
 		else
 		{
 			this.showDialog(new ConfirmDialog(this, mxResources.get('resizeLargeImages'),
-			function(remember)
-			{
-				wrapper(remember, true);
-			},
-			function(remember)
-			{
-				wrapper(remember, false);
-			}, mxResources.get('resize'), mxResources.get('actualSize'),
-			'<img style="margin-top:8px;" src="' + Editor.loResImage + '"/>',
-			'<img style="margin-top:8px;" src="' + Editor.hiResImage + '"/>',
-			isLocalStorage || mxClient.IS_CHROMEAPP).container, 340,
-			(isLocalStorage || mxClient.IS_CHROMEAPP) ? 220 : 200, true, true);
+				function(remember)
+				{
+					wrapper(remember, true);
+				},
+				function(remember)
+				{
+					wrapper(remember, false);
+				}, mxResources.get('resize'), mxResources.get('actualSize'),
+				'<img style="margin-top:8px;" src="' + Editor.loResImage + '"/>',
+				'<img style="margin-top:8px;" src="' + Editor.hiResImage + '"/>',
+				isLocalStorage || mxClient.IS_CHROMEAPP).container, 340,
+				(isLocalStorage || mxClient.IS_CHROMEAPP) ? 226 : 200, true, true);
 		}
 	};
 	
@@ -19402,13 +19402,21 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	function showError(commentDiv)
 	{
 		commentDiv.style.border = '1px solid red';
-		commentDiv.removeChild(commentDiv.busyImg);
+
+		if (commentDiv.busyImg.parentNode == commentDiv)
+		{
+			commentDiv.removeChild(commentDiv.busyImg);
+		}
 	};
 	
 	function showDone(commentDiv)
 	{
 		commentDiv.style.border = '';
-		commentDiv.removeChild(commentDiv.busyImg);
+		
+		if (commentDiv.busyImg.parentNode == commentDiv)
+		{
+			commentDiv.removeChild(commentDiv.busyImg);
+		}
 	};
 
 	function addComment(comment, parentArr, parent, level, showResolved)
@@ -19436,7 +19444,9 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		
 		var userImg = document.createElement('img');
 		userImg.className = 'geCommentUserImg';
-		userImg.src = comment.user.pictureUrl || Editor.userImage;
+		userImg.src = (comment.user != null &&
+			comment.user.pictureUrl != null) ?
+			comment.user.pictureUrl : Editor.userImage;
 		headerDiv.appendChild(userImg);
 		
 		var headerTxt = document.createElement('div');
@@ -19445,7 +19455,8 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		
 		var usernameDiv = document.createElement('div');
 		usernameDiv.className = 'geCommentUsername';
-		mxUtils.write(usernameDiv, comment.user.displayName || '');
+		mxUtils.write(usernameDiv, (comment.user != null) ?
+			comment.user.displayName : '');
 		headerTxt.appendChild(usernameDiv);
 		
 		var dateDiv = document.createElement('div');
@@ -19576,7 +19587,9 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		
 		var user = editorUi.getCurrentUser();
 		
-		if (user != null && user.id == comment.user.id && !readOnly && !comment.isLocked)
+		if (user != null && comment.user != null &&
+			user.id == comment.user.id &&
+			!readOnly && !comment.isLocked)
 		{
 			addAction(mxResources.get('edit'), function()
 			{

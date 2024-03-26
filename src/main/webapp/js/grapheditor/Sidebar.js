@@ -3270,7 +3270,8 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 				
 				this.previewElement.style.display = '';
 			}
-			else if (dragSource.currentHighlight.state != null &&
+			else if (dragSource.currentHighlight != null &&
+				dragSource.currentHighlight.state != null &&
 				graph.model.isEdge(dragSource.currentHighlight.state.cell))
 			{
 				// Centers drop cells when splitting edges

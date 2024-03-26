@@ -5823,14 +5823,17 @@
 					
 					picker.innerText = '';
 					
-					for (var i = 0; i < colorsets.length; i++)
+					if (colorsets != null)
 					{
-						if (i > 0 && mxUtils.mod(i, 4) == 0)
+						for (var i = 0; i < colorsets.length; i++)
 						{
-							mxUtils.br(picker);
+							if (i > 0 && mxUtils.mod(i, 4) == 0)
+							{
+								mxUtils.br(picker);
+							}
+							
+							addButton(colorsets[i]);
 						}
-						
-						addButton(colorsets[i]);
 					}
 				});
 

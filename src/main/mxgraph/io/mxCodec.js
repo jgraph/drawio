@@ -471,22 +471,14 @@ mxCodec.prototype.getConstructor = function(name)
 {
 	var ctor = null;
 	
-	try
+	if (mxCodec.allowlist == null || mxUtils.indexOf(
+			mxCodec.allowlist, name) >= 0)
 	{
-		if (mxCodec.allowlist == null || mxUtils.indexOf(
-				mxCodec.allowlist, name) >= 0)
-		{
-			ctor = window[name];
-		}
-		else if (window.console != null)
-		{
-			console.error('mxCodec.getConstructor: ' + name +
-				' not allowed in mxCodec.allowlist');
-		}
+		ctor = window[name];
 	}
-	catch (err)
+	else
 	{
-		// ignore
+		throw new Error('Unknown object type \"' + name + '\"');
 	}
 
 	return ctor;

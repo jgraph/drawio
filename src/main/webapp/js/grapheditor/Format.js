@@ -2530,6 +2530,7 @@ ArrangePanel.prototype.addGeometry = function(container)
 		
 		if (geo.relative)
 		{
+			geo.offset = (geo.offset != null) ? geo.offset : new mxPoint();
 			geo.offset.x = value;
 		}
 		else
@@ -2543,6 +2544,7 @@ ArrangePanel.prototype.addGeometry = function(container)
 		
 		if (geo.relative)
 		{
+			geo.offset = (geo.offset != null) ? geo.offset : new mxPoint();
 			geo.offset.y = value;
 		}
 		else

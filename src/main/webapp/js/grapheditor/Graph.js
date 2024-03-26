@@ -11759,16 +11759,17 @@ if (typeof mxVertexHandler !== 'undefined')
 					(((ignoreSelection && lookup == null) || nocrop ||
 					exportType == 'diagram') ? this.getGraphBounds() :
 					this.getBoundingBox(this.getSelectionCells()));
+				var bgImg = this.backgroundImage;
+				var tr = this.view.translate;
 				var vs = this.view.scale;
-				
-				if (exportType == 'diagram' && this.backgroundImage != null)
+
+				if (exportType == 'diagram' && bgImg != null &&
+					bgImg.width != null && bgImg.height != null)
 				{
 					bounds = mxRectangle.fromRectangle(bounds);
-					bounds.add(new mxRectangle(
-						(this.view.translate.x + this.backgroundImage.x) * vs,
-						(this.view.translate.y + this.backgroundImage.y) * vs,
-					 	this.backgroundImage.width * vs,
-					 	this.backgroundImage.height * vs));
+					bounds.add(new mxRectangle((tr.x + bgImg.x) * vs,
+						(tr.y + bgImg.y) * vs, bgImg.width * vs,
+					 	bgImg.height * vs));
 				}
 	
 				if (bounds == null)
@@ -11895,14 +11896,12 @@ if (typeof mxVertexHandler !== 'undefined')
 				};
 				
 				// Paints background image
-				var bgImg = this.backgroundImage;
-				
-				if (bgImg != null)
+				if (bgImg != null && bgImg.width != null && bgImg.height != null)
 				{
 					var s2 = vs / scale;
-					var tr = this.view.translate;
-					var tmp = new mxRectangle((bgImg.x + tr.x) * s2, (bgImg.y + tr.y) * s2,
-						bgImg.width * s2, bgImg.height * s2);
+					var tmp = new mxRectangle((bgImg.x + tr.x) * s2,
+						(bgImg.y + tr.y) * s2, bgImg.width * s2,
+						bgImg.height * s2);
 					
 					// Checks if visible
 					if (mxUtils.intersects(bounds, tmp))

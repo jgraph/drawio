@@ -1,3 +1,9 @@
+@media (forced-colors: active)
+{
+	html .geMenubarContainer {
+		background: transparent !important;
+	}
+}
 html body .geToolbarContainer .geButton, html body .geToolbarContainer .geLabel {
 	padding:3px 5px 5px 5px;
 	position: relative;

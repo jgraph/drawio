@@ -1080,6 +1080,8 @@ App.main = function(callback, createUi)
 				}
 				else
 				{
+					// Note: Lazy loading stencils.min.js in viewer.diagrams.net
+					// has no impact as stencils.min.js is pre-cached in PWA
 					mxStencilRegistry.allowEval = false;
 					App.loadScripts(['js/shapes-14-6-5.min.js', 'js/stencils.min.js',
 						'js/extensions.min.js'], realMain, function(e)
@@ -5471,8 +5473,24 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 								{
 									return peerChar + id;
 								};
-								
-								window.location.hash = '#' + currentFile.getHash();
+
+								var hash = '#' + currentFile.getHash();
+
+								try
+								{
+									var obj = this.getHashObject();
+
+									if (obj != null && !mxUtils.isEmptyObject(obj))
+									{
+										hash = hash + '#' + encodeURIComponent(JSON.stringify(obj));
+									}
+								}
+								catch (e)
+								{
+									// ignore
+								}
+
+								window.location.replace(hash);
 							}
 							else if (file == currentFile && file.getMode() == null)
 							{

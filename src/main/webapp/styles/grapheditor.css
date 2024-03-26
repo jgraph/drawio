@@ -3,6 +3,51 @@
 	--border-color: #dadce0;
 	--text-color: #707070;
 }
+@media (forced-colors: active)
+{
+	:root {
+		--panel-color: #ffffff;
+		--border-color: #000000;
+		--text-color: #000000;
+	}
+	* {
+		forced-color-adjust: none;
+	}
+	*:not(svg *, .mxCellEditor, .mxCellEditor *, .geButton), *::-webkit-scrollbar-thumb,
+	div.mxWindow, .geToolbarContainer, .geActiveItem, .geBtn,
+	.geToolbarButton, .geEditor button, .geEditor select,
+	.geSidebarTooltip, html body button.gePrimaryBtn,
+	html body .geDialog button.gePrimaryBtn {
+		border-color: #000000 !important;
+		color: #000000 !important;
+		font-size: 102%;
+	}
+	.geSidebarTooltip, html body button.gePrimaryBtn, html body .geDialog button.gePrimaryBtn {
+		border-style: solid !important;
+	}
+	html body button.gePrimaryBtn, html body .geDialog button.gePrimaryBtn
+	{
+		border-width: 3px !important;
+		font-weight: bold;
+	}
+	input, .geEditor button, .geEditor select, *::-webkit-scrollbar-thumb,
+	html body button.gePrimaryBtn, html body .geDialog button.gePrimaryBtn {
+		background: none !important;
+	}
+	.geActiveItem {
+		background-color: lightgray !important;
+	}
+	div.mxWindow *, .geToolbarContainer *, .geActiveItem,
+	.geBtn, .geToolbarButton {
+		opacity: 1 !important;
+	}
+	div.mxRubberband {
+		opacity: 0.8 !important;
+	}
+	html body a.geActiveItem.geAdaptiveAsset {
+		filter: invert(100%) !important;
+	}
+}
 .geDarkMode {
 	filter: invert(93%) hue-rotate(180deg);
 	background:#151515;
