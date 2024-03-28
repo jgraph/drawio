@@ -2,7 +2,7 @@
 	--dark-color: #18141D;
 	--header-color: #1B1D1E;
 	--panel-color: #1B1D1E;
-	--text-color: #8D8D8D;
+	--text-color: #c7c7c7;
 	--border-color: #505759;
 }
 .geEditor * {
@@ -35,11 +35,11 @@ html body.geEditor div.mxPopupMenu {
 }
 .geEditor .geTabItem {
 	background:var(--panel-color);
-	border-color:#000000;
+	border-color:var(--border-color);
 }
 .geTabContainer {
-	border-left-color:#000000;
-	border-right-color:#000000;
+	border-left-color:var(--border-color);
+	border-right-color:var(--border-color);
 }
 .geTabContainer div {
 	border-color:var(--dark-color);
@@ -70,13 +70,17 @@ html .geEditor div.mxTooltip, html .geHint
 	background: var(--panel-color);
 	color:#c0c0c0;
 }
+html .geToolbarButton {
+	border-color:var(--border-color);
+	color:#303030;
+}
 html > body > div > div.geToolbarContainer.geSimpleMainMenu,
 html > body > div > div.geToolbarContainer.geSimpleMainMenu .geToolbarContainer {
 	background:var(--header-color);
 }
 html > body > div > div.geToolbarContainer.geSimpleMainMenu,
 html body .mxWindowTitle, .geDialogTitle, .geDialogFooter {
-	border-color:black !important;
+	border-color:var(--border-color) !important;
 }
 html body .geFooterContainer a, html body .geDiagramContainer a, html body .geStatus a {
 	color:#337ab7;
@@ -128,7 +132,7 @@ html body.geEditor .geSidebar, html body.geEditor .geSidebarContainer .geTitle, 
 html body.geEditor .geBaseButton, html body.geEditor .geSidebarTooltip, html body.geEditor .geBaseButton, html body.geEditor select,
 html body.geEditor .geSidebarContainer .geDropTarget, html body.geEditor .geToolbarContainer {
 	background:var(--panel-color);
-	border-color:var(--dark-color);
+	border-color:var(--border-color);
 	color:#EDEDED;
 }
 html body.geEditor .geSidebar, html body.geEditor .geSidebarContainer .geTitle, html body.geEditor input, html body.geEditor textarea,

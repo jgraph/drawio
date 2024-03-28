@@ -395,6 +395,7 @@ helpTranslate=Hjælp os med at oversætte denne applikation
 hide=Skjul
 hideIt=Skjul {1}
 hidden=Skjult
+highContrast=High Contrast
 home=Hjem
 horizontal=Vandret
 horizontalFlow=Vandret flow

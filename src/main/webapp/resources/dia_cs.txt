@@ -395,6 +395,7 @@ helpTranslate=Pomozte nám přeložit tuto aplikaci
 hide=Skrýt
 hideIt=Skrýt {1}
 hidden=Skryto
+highContrast=High Contrast
 home=Domů
 horizontal=Vodorovně
 horizontalFlow=Vodorovný tok

@@ -395,6 +395,7 @@ helpTranslate=Auta meitä kääntämään tämä sovellus
 hide=Piilota
 hideIt=Piilota {1}
 hidden=Piilotettu
+highContrast=High Contrast
 home=Koti
 horizontal=Vaakasuora
 horizontalFlow=Vaakasuora virta

@@ -395,6 +395,7 @@ helpTranslate=協助我們翻譯此應用程式
 hide=隱藏
 hideIt=隱藏 {1}
 hidden=已隱藏
+highContrast=High Contrast
 home=最上層的組
 horizontal=水平
 horizontalFlow=水平流線

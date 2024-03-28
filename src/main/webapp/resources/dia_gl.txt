@@ -395,6 +395,7 @@ helpTranslate=Axúdanos a traducir a aplicación
 hide=Agochar
 hideIt=Agochar {1}
 hidden=Agochado
+highContrast=High Contrast
 home=Inicio
 horizontal=Horizontal
 horizontalFlow=Fluxo horizontal

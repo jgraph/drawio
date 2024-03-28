@@ -395,6 +395,7 @@ helpTranslate=Hjälp oss att översätta denna applikation
 hide=Dölj
 hideIt=Dölj {1}
 hidden=Dold
+highContrast=High Contrast
 home=Hem
 horizontal=Horisontell
 horizontalFlow=Horisontellt flöde

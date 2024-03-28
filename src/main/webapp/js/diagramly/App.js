@@ -101,7 +101,7 @@ App = function(editor, container, lightbox)
 			
 			if (wnd == null || wnd === undefined)
 			{
-				this.showDialog(new PopupDialog(this, url, pre, fallback).container, 320, 140, true, true);
+				this.showDialog(new PopupDialog(this, url, pre, fallback).container, 320, 160, true, true);
 			}
 			else if (pre != null)
 			{
@@ -2902,53 +2902,60 @@ App.prototype.load = function()
 		// Checks if we're running in embedded mode
 		if (urlParams['embed'] != '1')
 		{
-			if (this.spinner.spin(document.body, mxResources.get('starting')))
+			try
 			{
-				try
+				if (this.spinner.spin(document.body, mxResources.get('starting')))
 				{
-					this.stateArg = (urlParams['state'] != null && this.drive != null) ?
-						JSON.parse(decodeURIComponent(urlParams['state'])) : null;
-				}
-				catch (e)
-				{
-					// ignores invalid state args
-				}
-				
-				this.editor.graph.setEnabled(this.getCurrentFile() != null);
-				
-				// Passes the userId from the state parameter to the client
-				if ((window.location.hash == null || window.location.hash.length == 0) &&
-					this.drive != null && this.stateArg != null && this.stateArg.userId != null)
-				{
-					this.drive.setUserId(this.stateArg.userId);
-				}
-
-				// Legacy support for fileId parameter which is moved to the hash tag
-				if (urlParams['fileId'] != null)
-				{
-					window.location.hash = 'G' + urlParams['fileId'];
-					window.location.search = this.getSearch(['fileId']);
-				}
-				else
-				{
-					// Asynchronous or disabled loading of client
-					if (this.drive == null)
+					try
 					{
-						if (this.mode == App.MODE_GOOGLE)
-						{
-							this.mode = null;
-						}
-						
-						this.start();
+						this.stateArg = (urlParams['state'] != null && this.drive != null) ?
+							JSON.parse(decodeURIComponent(urlParams['state'])) : null;
+					}
+					catch (e)
+					{
+						// ignores invalid state args
+					}
+					
+					this.editor.graph.setEnabled(this.getCurrentFile() != null);
+					
+					// Passes the userId from the state parameter to the client
+					if ((window.location.hash == null || window.location.hash.length == 0) &&
+						this.drive != null && this.stateArg != null && this.stateArg.userId != null)
+					{
+						this.drive.setUserId(this.stateArg.userId);
+					}
+
+					// Legacy support for fileId parameter which is moved to the hash tag
+					if (urlParams['fileId'] != null)
+					{
+						window.location.hash = 'G' + urlParams['fileId'];
+						window.location.search = this.getSearch(['fileId']);
 					}
 					else
 					{
-						this.loadGapi(mxUtils.bind(this, function()
+						// Asynchronous or disabled loading of client
+						if (this.drive == null)
 						{
+							if (this.mode == App.MODE_GOOGLE)
+							{
+								this.mode = null;
+							}
+							
 							this.start();
-						}));
+						}
+						else
+						{
+							this.loadGapi(mxUtils.bind(this, function()
+							{
+								this.start();
+							}));
+						}
 					}
 				}
+			}
+			catch (e)
+			{
+				this.handleError(e);
 			}
 		}
 		else
@@ -3659,17 +3666,12 @@ App.prototype.checkDrafts = function()
 					}), mxUtils.bind(this, function(index, success)
 					{
 						index = (index != '') ? index : 0;
+						this.removeDatabaseItem(drafts[index].key);
 						
-						// Discard draft
-						this.confirm(mxResources.get('areYouSure'), null, mxUtils.bind(this, function()
+						if (success != null)
 						{
-							this.removeDatabaseItem(drafts[index].key);
-							
-							if (success != null)
-							{
-								success();
-							}
-						}), mxResources.get('no'), mxResources.get('yes'));
+							success();
+						}
 					}), null, null, null, (drafts.length > 1) ? drafts : null);
 					this.showDialog(dlg.container, 640, 480, true, false, mxUtils.bind(this, function(cancel)
 					{
@@ -5573,7 +5575,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 	else if (currentFile != null && !sameWindow)
 	{
 		this.showDialog(new PopupDialog(this, this.getUrl() + '#' + id,
-			null, fn).container, 320, 140, true, true);
+			null, fn).container, 320, 160, true, true);
 	}
 	else
 	{

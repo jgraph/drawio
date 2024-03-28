@@ -227,7 +227,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 							td.style.backgroundColor = '#' + clr;
 						}
 
-						var name = this.colorNames[clr.toUpperCase()];
+						var name = this.colorNames[String(clr).toUpperCase()];
 
 						if (name != null)
 						{

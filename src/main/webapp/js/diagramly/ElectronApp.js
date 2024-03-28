@@ -1121,13 +1121,8 @@ mxStencilRegistry.allowEval = false;
 					}), mxUtils.bind(this, function(index)
 					{
 						index = index || 0;
-					
-						// Discard draft
-						this.confirm(mxResources.get('areYouSure'), null, mxUtils.bind(this, async function()
-						{
-							await requestSync({action: 'deleteFile', file: drafts[index].path});
-							this.hideDialog();
-						}), mxResources.get('no'), mxResources.get('yes'));
+						await requestSync({action: 'deleteFile', file: drafts[index].path});
+						this.hideDialog();
 					}), null, null, null, (drafts.length > 1) ? drafts : null);
 					
 					this.showDialog(dlg.container, 640, 480, true, false);

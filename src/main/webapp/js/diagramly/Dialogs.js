@@ -7564,11 +7564,33 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	
 	var draftSelected = mxUtils.bind(this, function()
 	{
-		doc = mxUtils.parseXml(drafts[select.value].data);
-		node = editorUi.editor.extractGraphModel(doc.documentElement, true);
-		currentPage = 0;
-			
-		this.init();
+		if (select.value == '-1')
+		{
+			select.value = select.options[0].value;
+			draftSelected();
+
+			// Discard all drafts
+			editorUi.confirm(mxResources.get('areYouSure'), null, mxUtils.bind(this, async function()
+			{
+				for (var i = 0; i < drafts.length; i++)
+				{
+					discardFn.apply(this, [i, mxUtils.bind(this, function()
+					{
+						// Do nothing
+					})]);
+				}
+
+				editorUi.hideDialog(true);
+			}), mxResources.get('no'), mxResources.get('yes'));
+		}
+		else
+		{
+			doc = mxUtils.parseXml(drafts[select.value].data);
+			node = editorUi.editor.extractGraphModel(doc.documentElement, true);
+			currentPage = 0;
+				
+			this.init();
+		}
 	});
 	
 	if (drafts != null)
@@ -7590,9 +7612,13 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 			
 			select.appendChild(opt);
 		}
-		
+
+		// Delete all option
+		var opt = document.createElement('option');
+		opt.setAttribute('value', '-1');
+		mxUtils.write(opt, mxResources.get('deleteAll'));
+		select.appendChild(opt);
 		titleDiv.appendChild(select);
-		
 		mxEvent.addListener(select, 'change', draftSelected);
 	}
 	
@@ -7682,23 +7708,26 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 
 	var restoreBtn = mxUtils.button(discardLabel || mxResources.get('discard'), function()
 	{
-		discardFn.apply(this, [select.value, mxUtils.bind(this, function()
+		editorUi.confirm(mxResources.get('areYouSure'), null, mxUtils.bind(this, async function()
 		{
-			if (select.parentNode != null)
+			discardFn.apply(this, [select.value, mxUtils.bind(this, function()
 			{
-				select.options[select.selectedIndex].parentNode.removeChild(select.options[select.selectedIndex]);
-				
-				if (select.options.length > 0)
+				if (select.parentNode != null)
 				{
-					select.value = select.options[0].value;
-					draftSelected();
+					select.options[select.selectedIndex].parentNode.removeChild(select.options[select.selectedIndex]);
+					
+					if (select.options.length > 1)
+					{
+						select.value = select.options[0].value;
+						draftSelected();
+					}
+					else
+					{
+						editorUi.hideDialog(true);
+					}
 				}
-				else
-				{
-					editorUi.hideDialog(true);
-				}
-			}
-		})]);
+			})]);
+		}), mxResources.get('no'), mxResources.get('yes'));
 	});
 	restoreBtn.className = 'geBtn';
 	

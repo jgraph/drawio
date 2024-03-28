@@ -395,6 +395,7 @@ helpTranslate=Segítsen a program fordításában
 hide=Elrejt
 hideIt={1}-t elrejt
 hidden=Elrejtett
+highContrast=High Contrast
 home=Otthon
 horizontal=Vízszintes
 horizontalFlow=Vízszintes folyam

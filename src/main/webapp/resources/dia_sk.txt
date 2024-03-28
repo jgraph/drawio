@@ -395,6 +395,7 @@ helpTranslate=Help us translate this application
 hide=Hide
 hideIt=Hide {1}
 hidden=Hidden
+highContrast=High Contrast
 home=Home
 horizontal=Horizontal
 horizontalFlow=Horizontal Flow

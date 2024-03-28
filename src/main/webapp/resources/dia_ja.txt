@@ -395,6 +395,7 @@ helpTranslate=このアプリケーションの翻訳お手伝いをしてくだ
 hide=非表示する
 hideIt={1}を隠す
 hidden=隠された
+highContrast=High Contrast
 home=ホーム
 horizontal=水平
 horizontalFlow=横向きフロー図

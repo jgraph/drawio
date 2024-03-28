@@ -395,6 +395,7 @@ helpTranslate=Ajută-ne să traducem această aplicație
 hide=Ascunde
 hideIt=Ascunde {1}
 hidden=Ascuns
+highContrast=High Contrast
 home=Acasă
 horizontal=Orizontal
 horizontalFlow=Curgere orizontală

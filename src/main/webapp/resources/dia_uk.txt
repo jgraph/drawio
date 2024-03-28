@@ -395,6 +395,7 @@ helpTranslate=Допоможіть нам перекласти цей засто
 hide=Приховати
 hideIt=Приховати {1}
 hidden=Приховано
+highContrast=High Contrast
 home=На верхній рівень
 horizontal=Горизонтально
 horizontalFlow=Горизонтальний потік

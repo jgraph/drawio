@@ -395,6 +395,7 @@ helpTranslate=ช่วยเราแปลแอพพลิเคชั่น
 hide=ซ่อน
 hideIt=ซ่อน {1}
 hidden=ถูกซ่อนไว้
+highContrast=High Contrast
 home=หน้าแรก
 horizontal=แนวนอน
 horizontalFlow=แผนผังในแนวนอน

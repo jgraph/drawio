@@ -395,6 +395,7 @@ helpTranslate=Помогите нам перевести draw.io
 hide=Скрыть
 hideIt=Скрыть {1}
 hidden=Скрытый
+highContrast=High Contrast
 home=На верхний уровень
 horizontal=Горизонтально
 horizontalFlow=Горизонтальный поток

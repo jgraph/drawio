@@ -395,6 +395,7 @@ helpTranslate=helpTranslate
 hide=hide
 hideIt=hideIt
 hidden=hidden
+highContrast=highContrast
 home=home
 horizontal=horizontal
 horizontalFlow=horizontalFlow

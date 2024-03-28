@@ -395,6 +395,7 @@ helpTranslate=Palīdziet mums iztulkot šo lietojumprogrammu
 hide=Slēpt
 hideIt=Slēpt {1}
 hidden=Paslēpts
+highContrast=High Contrast
 home=Uz sākotnējo
 horizontal=Horizontāli
 horizontalFlow=Horizontāla plūsma

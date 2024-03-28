@@ -395,6 +395,7 @@ helpTranslate=Βοηθήστε μας να μεταφράσουμε αυτή τ�
 hide=Απόκρυψη
 hideIt=Απόκρυψη {1}
 hidden=Κρυφό
+highContrast=High Contrast
 home=Αρχική
 horizontal=Οριζόντια
 horizontalFlow=Οριζόντια Ροή

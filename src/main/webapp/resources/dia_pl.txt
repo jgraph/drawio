@@ -395,6 +395,7 @@ helpTranslate=Pomóż nam przetłumaczyć tę aplikację
 hide=Ukryj
 hideIt=Ukryj {1}
 hidden=Ukryte
+highContrast=High Contrast
 home=Początek
 horizontal=Poziomo
 horizontalFlow=Przepływ poziomy

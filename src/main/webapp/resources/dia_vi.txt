@@ -395,6 +395,7 @@ helpTranslate=Giúp chúng tôi dịch ứng dụng này
 hide=Ẩn
 hideIt=Ẩn {1}
 hidden=Đã ẩn
+highContrast=High Contrast
 home=Về nhóm gốc
 horizontal=Chiều ngang
 horizontalFlow=Luồng theo chiều ngang

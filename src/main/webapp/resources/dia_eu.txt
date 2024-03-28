@@ -395,6 +395,7 @@ helpTranslate=Laguntza eman itzultzailtzeko
 hide=Ezkutatu
 hideIt={1} ezkutatu
 hidden=Ezkutuan
+highContrast=High Contrast
 home=Hasiera
 horizontal=Horizontala
 horizontalFlow=Fluxu horizontala

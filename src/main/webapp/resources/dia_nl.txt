@@ -395,6 +395,7 @@ helpTranslate=Help ons deze applicatie te vertalen
 hide=Verbergen
 hideIt={1} verbergen
 hidden=Verborgen
+highContrast=High Contrast
 home=Startpagina
 horizontal=Horizontaal
 horizontalFlow=Horizontale stroom

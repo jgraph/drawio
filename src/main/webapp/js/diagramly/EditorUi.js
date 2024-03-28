@@ -706,6 +706,7 @@
 					}
 
 					var status = document.createElement('div');
+					status.className = 'geSpinnerStatus';
 					status.style.position = 'absolute';
 					status.style.whiteSpace = 'nowrap';
 					status.style.background = '#4B4243';
@@ -4129,19 +4130,14 @@
 				this.addSelectionToScratchpad = addSelection;
 			}
 			
-			if (!this.isOffline() && file.title == '.scratchpad' && EditorUi.scratchpadHelpLink != null)
+			if (!this.isOffline() && file.title == '.scratchpad' &&
+				EditorUi.scratchpadHelpLink != null)
 			{
-				var link = document.createElement('span');
-				link.setAttribute('title', mxResources.get('help'));
-				link.style.cssText = 'color:#a3a3a3;text-decoration:none;margin-right:2px;cursor:pointer;';
-				mxUtils.write(link, '?');
-				
-				mxEvent.addGestureListeners(link, mxUtils.bind(this, function(evt)
-				{
-					this.openLink(EditorUi.scratchpadHelpLink);
-					mxEvent.consume(evt);
-				}));
-				
+				var link = this.createHelpIcon(EditorUi.scratchpadHelpLink);
+				var img = link.getElementsByTagName('img')[0];
+				link.style.marginRight = '1px';
+				img.style.marginTop = '-2px';
+				img.style.opacity = '';
 				buttons.insertBefore(link, buttons.firstChild);
 			}
 		}
@@ -11863,6 +11859,16 @@
 				darkMode = true;
 			}
 		}
+
+		if (urlParams['high-contrast'] == '1')
+		{
+			this.setHighContrast(true);
+		}
+		else if (Editor.isSettingsEnabled() && !this.editor.graph.isLightboxView() &&
+			mxSettings.settings.highContrast != null)
+		{
+			this.setHighContrast(mxSettings.settings.highContrast);
+		}
 		
 		this.installSettings();
 
@@ -13561,6 +13567,66 @@
 	};
 
 	/**
+	 * Sets dark mode and persists the setting.
+	 */
+	EditorUi.prototype.setAndPersistHighContrast = function(value)
+	{
+		this.setHighContrast(value);
+
+		if (Editor.isSettingsEnabled())
+		{
+			mxSettings.settings.highContrast = value;
+			mxSettings.save();
+		}
+	};
+
+	/**
+	 * Sets dark mode and persists the setting.
+	 */
+	EditorUi.prototype.isHighContrast = function()
+	{
+		var highContrastStylesheet = document.getElementById('high-contrast-stylesheet');
+
+		if (highContrastStylesheet != null && window.matchMedia)
+		{
+			var media = highContrastStylesheet.getAttribute('media');
+
+			return media == 'all' || (media != 'not all' &&
+				window.matchMedia('(forced-colors: active)').matches);
+		}
+		else
+		{
+			return false;
+		}
+	};
+
+	/**
+	 * Sets dark mode and persists the setting.
+	 */
+	EditorUi.prototype.setHighContrast = function(value)
+	{
+		var highContrastStylesheet = document.getElementById('high-contrast-stylesheet');
+
+		if (highContrastStylesheet != null && window.matchMedia)
+		{
+			var match = window.matchMedia('(forced-colors: active)').matches;
+			var media = highContrastStylesheet.getAttribute('media');
+			var on = media == 'all' || (media != 'not all' && match);
+			
+			if (on && !value)
+			{
+				highContrastStylesheet.setAttribute('media', (match) ?
+					'not all' : '(forced-colors: active)');
+			}
+			else if (!on && value)
+			{
+				highContrastStylesheet.setAttribute('media', (match) ?
+					'(forced-colors: active)' : 'all');
+			}
+		}
+	};
+
+	/**
 	 * Dynamic change of dark mode.
 	 */
 	EditorUi.prototype.isRulerVisible = function()
@@ -13792,6 +13858,21 @@
 					else if (Editor.styleElt != null)
 					{
 						Editor.styleElt.innerHTML = Editor.createMinimalCss();
+					}
+				}
+				
+				var node = (mxUtils.isAncestorNode(document.body, this.container)) ?
+					this.container : this.editor.graph.container;
+			
+				if (node != null)
+				{
+					if (Editor.isDarkMode())
+					{
+						node.classList.add('geLegacyDarkMode');
+					}
+					else
+					{
+						node.classList.remove('geLegacyDarkMode');
 					}
 				}
 
@@ -15856,7 +15937,10 @@
 	
 						this.showDialog(dlg.container, 620, 460, true, false, mxUtils.bind(this, function(cancel)
 						{
-							this.sidebar.hideTooltip();
+							if (this.sidebar != null)
+							{
+								this.sidebar.hideTooltip();
+							}
 							
 							if (cancel)
 							{
@@ -19456,7 +19540,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		var usernameDiv = document.createElement('div');
 		usernameDiv.className = 'geCommentUsername';
 		mxUtils.write(usernameDiv, (comment.user != null) ?
-			comment.user.displayName : '');
+			comment.user.displayName : mxResources.get('unknownUser'));
 		headerTxt.appendChild(usernameDiv);
 		
 		var dateDiv = document.createElement('div');

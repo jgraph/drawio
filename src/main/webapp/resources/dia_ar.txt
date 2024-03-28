@@ -395,6 +395,7 @@ helpTranslate=‫ساعدنا في ترجمة هذا التطبيق‬
 hide=‫إخفاء‬
 hideIt=‫إخفاء {1}‬
 hidden=‫مخفي‬
+highContrast=High Contrast
 home=‫الرئيسية‬
 horizontal=‫أفقي‬
 horizontalFlow=‫تدفق أفقي‬

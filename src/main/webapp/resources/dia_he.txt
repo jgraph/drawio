@@ -395,6 +395,7 @@ helpTranslate=‫עזור לנו לתרגם את האפליקציה הזו‬
 hide=‫הסתר‬
 hideIt=‫הסתר {1}‬
 hidden=‫מוסתר‬
+highContrast=High Contrast
 home=‫בית‬
 horizontal=‫אופקי‬
 horizontalFlow=‫סידור אופקי‬

@@ -395,6 +395,7 @@ helpTranslate=Bu uygulamayı tercümede bize yardım edin
 hide=Gizle
 hideIt=Gizle {1}
 hidden=Gizli
+highContrast=High Contrast
 home=Anasayfa
 horizontal=Yatay
 horizontalFlow=Yatay akış

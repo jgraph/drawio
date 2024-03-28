@@ -395,6 +395,7 @@ helpTranslate=Hilf uns diese Anwendung zu übersetzen
 hide=Verstecken
 hideIt={1} verstecken
 hidden=Versteckt
+highContrast=Hoher Kontrast
 home=Ursprung
 horizontal=Horizontal
 horizontalFlow=Horizontaler Fluss

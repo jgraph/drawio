@@ -395,6 +395,7 @@ helpTranslate=Ajuda'ns a traduir aquesta aplicació
 hide=Amaga
 hideIt=Amaga {1}
 hidden=Amagat
+highContrast=High Contrast
 home=Inici
 horizontal=Horitzontal
 horizontalFlow=Flux horitzontal

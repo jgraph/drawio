@@ -395,6 +395,7 @@ helpTranslate=Bantu kami menterjemahkan aplikasi ini
 hide=Sembunyikan
 hideIt=Sembunyikan {1}
 hidden=Tersembunyi
+highContrast=High Contrast
 home=Halaman utama
 horizontal=Melintang
 horizontalFlow=Aliran Melintang

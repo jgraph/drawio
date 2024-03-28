@@ -395,6 +395,7 @@ helpTranslate=Ajude-nos a traduzir esta aplicação
 hide=Ocultar
 hideIt=Ocultar {1}
 hidden=Oculto
+highContrast=High Contrast
 home=Página inicial
 horizontal=Horizontal
 horizontalFlow=Fluxo horizontal

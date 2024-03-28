@@ -395,6 +395,7 @@ helpTranslate=Padėkite mums išversti šią programą
 hide=Paslėpti
 hideIt=Paslėpti {1}
 hidden=Paslėptas
+highContrast=High Contrast
 home=Į pagrindinį
 horizontal=Horizontalus
 horizontalFlow=Horizontalusis srautas

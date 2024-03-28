@@ -395,6 +395,7 @@ helpTranslate=Aidez-nous à traduire cette application
 hide=Masquer
 hideIt=Masquer {1}
 hidden=Masqué
+highContrast=High Contrast
 home=Accueil
 horizontal=Horizontal
 horizontalFlow=Flux horizontal

@@ -1,3 +1,10 @@
+28-MAR-2024: 24.2.1
+
+- Adds menu item for high contrast mode
+- Adds shortcuts.svg to PWA [drawio-desktop-1130]
+- [conf cloud] Fixes special XML characters in import services [DID-10752]
+- Fixes C4 labels [drawio-4300]
+
 26-MAR-2024: 24.2.0
 
 - Naming fix for [draw-3336]

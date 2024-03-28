@@ -96,9 +96,16 @@ Draw.loadPlugin(function(ui) {
 				{
 					window.setTimeout(function()
 					{
-						processDelta(delta);
-						delta = delta.nextSibling;
-						nextStep();
+						try
+						{
+							processDelta(delta);
+							delta = delta.nextSibling;
+							nextStep();
+						}
+						catch (e)
+						{
+							ui.handleError(e);
+						}
 					}, delay);
 				}
 			};

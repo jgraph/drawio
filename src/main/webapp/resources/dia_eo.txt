@@ -395,6 +395,7 @@ helpTranslate=Helpu nin traduki ĉi tiun aplikaĵon
 hide=Kaŝi
 hideIt=Kaŝi {1}
 hidden=Kaŝita
+highContrast=High Contrast
 home=Home
 horizontal=Horizontal
 horizontalFlow=Horizontal Flow

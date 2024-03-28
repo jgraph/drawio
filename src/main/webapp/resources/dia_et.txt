@@ -395,6 +395,7 @@ helpTranslate=Aita meil seda rakendust tõlkida
 hide=Peida
 hideIt=Peida {1}
 hidden=Peidetud
+highContrast=High Contrast
 home=Kodu
 horizontal=Horisontaalne
 horizontalFlow=Horisontaalne voog

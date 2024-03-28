@@ -395,6 +395,7 @@ helpTranslate=Pomozite nam u prevođenju ove aplikacije
 hide=Sakrij
 hideIt=Sakrij {1}
 hidden=Sakriven
+highContrast=High Contrast
 home=Dom
 horizontal=Vodoravan
 horizontalFlow=Vodoravni tok
