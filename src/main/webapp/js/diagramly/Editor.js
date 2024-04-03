@@ -242,12 +242,7 @@
 	 * Specifies if XML files should be compressed by default. Default is false.
 	 */
 	Editor.defaultCompressed = false;
-
-	/**
-	 * Specifies if data should be compressed internally. Default is false.
-	 */
-	Editor.internalCompression = urlParams['internal-compression'] == '1';
-
+	
 	/**
 	 * Specifies if XML files should be compressed. Default is true.
 	 */

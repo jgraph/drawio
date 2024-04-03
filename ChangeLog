@@ -1,3 +1,10 @@
+03-APR-2024: 24.2.2
+
+- [conf cloud] Fixes timeout error fetching custom libraries when libraries page not found [DID-11193]
+- Fixes iphone shape in small sizes [DID-11188]
+- Writes warning for unknown object type, ignored value [DID-11225]
+- Removes internalCompression feature flag
+
 28-MAR-2024: 24.2.1
 
 - Adds menu item for high contrast mode

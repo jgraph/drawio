@@ -166,15 +166,7 @@ SelectPage.prototype.execute = function()
 		EditorUi.removeChildNodes(page.node);
 		
 		// Stores current diagram state in the page
-		if (Editor.internalCompression)
-		{
-			mxUtils.setTextContent(page.node, Graph.compressNode(temp));
-		}
-		else
-		{
-			page.node.appendChild(temp);
-		}
-
+		page.node.appendChild(temp);
 		page.viewState = graph.getViewState();
 		page.root = graph.model.root;
 		
@@ -1426,16 +1418,7 @@ EditorUi.prototype.initDiagramNode = function(page, node)
 
 	this.editor.graph.saveViewState(page.viewState, node);
 	EditorUi.removeChildNodes(this.currentPage.node);
-
-	if (Editor.internalCompression)
-	{
-		mxUtils.setTextContent(page.node, Graph.compressNode(node));
-	}
-	else
-	{
-		page.node.appendChild(node);
-	}
-
+	page.node.appendChild(node);
 };
 
 /**

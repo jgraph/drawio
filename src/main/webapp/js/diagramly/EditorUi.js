@@ -1344,15 +1344,7 @@
 		{
 			// Updates current page XML if selection is ignored
 			EditorUi.removeChildNodes(this.currentPage.node);
-
-			if (Editor.internalCompression)
-			{
-				mxUtils.setTextContent(this.currentPage.node, Graph.compressNode(node));
-			}
-			else
-			{
-				this.currentPage.node.appendChild(node);
-			}
+			this.currentPage.node.appendChild(node);
 			
 			// Creates a clone of the file node for processing
 			node = this.fileNode.cloneNode(false);
@@ -1413,15 +1405,7 @@
 							this.editor.graph.saveViewState(page.viewState,
 								temp, null, resolveReferences);
 							EditorUi.removeChildNodes(currNode);
-
-							if (Editor.internalCompression)
-							{
-								mxUtils.setTextContent(currNode, Graph.compressNode(temp));
-							}
-							else
-							{
-								currNode.appendChild(temp);
-							}
+							currNode.appendChild(temp);
 
 							// Marks the page as up-to-date
 							delete page.needsUpdate;
@@ -1454,15 +1438,7 @@
 								this.editor.graph.saveViewState(page.viewState,
 									temp, null, resolveReferences);
 								currNode = currNode.cloneNode(false);
-
-								if (Editor.internalCompression)
-								{
-									mxUtils.setTextContent(currNode, Graph.compressNode(temp));
-								}
-								else
-								{
-									currNode.appendChild(temp);
-								}
+								currNode.appendChild(temp);
 							}
 						}
 					}

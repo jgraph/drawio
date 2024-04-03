@@ -2373,7 +2373,7 @@ DrawioFile.prototype.compressionChanged = function(compressed)
 	// Changes the internal compressed data in the pages to the current state
 	var pages = (this.ownPages != null) ? this.ownPages : this.ui.pages;
 
-	if (!Editor.internalCompression && pages != null)
+	if (pages != null)
 	{
 		for (var i = 0; i < pages.length; i++)
 		{

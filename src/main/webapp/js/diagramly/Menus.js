@@ -1596,7 +1596,7 @@
 		{
 			if (!mxClient.IS_CHROMEAPP && editorUi.isOffline())
 			{
-				this.addMenuItems(menu, ['about'], parent);
+				this.addMenuItems(menu, ['keyboardShortcuts', '-', 'about'], parent);
 			}
 			else
 			{

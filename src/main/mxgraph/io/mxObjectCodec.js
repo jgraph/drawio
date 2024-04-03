@@ -1006,9 +1006,13 @@ mxObjectCodec.prototype.addObjectValue = function(obj, fieldname, value, templat
 		{
 			obj[fieldname] = value;
 		}
-		else
+		else if (obj.constructor === Array)
 		{
 			obj.push(value);
+		}
+		else
+		{
+			throw new Error('Could not add object');
 		}
 		//mxLog.debug('Decoded '+mxUtils.getFunctionName(obj.constructor)+'.'+fieldname+': '+value);
 	}

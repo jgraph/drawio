@@ -126,7 +126,7 @@ mxShapeMockupiPhone.prototype.customProperties = [
 mxShapeMockupiPhone.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	c.translate(x, y);
-	var rSize = 25;
+	var rSize = w < 100 ? 4 : 25;
 	this.background(c, x, y, w, h, rSize);
 	c.setShadow(false);
 	this.foreground(c, x, y, w, h, rSize);
@@ -598,12 +598,15 @@ mxShapeMockupiPhone.prototype.foreground = function(c, x, y, w, h, rSize)
 	c.roundrect(0, 0, w, h, rSize, rSize);
 	c.stroke();
 
-	rSize = 22.5;
-	c.begin();
-	c.setStrokeColor('#666666');
-	c.roundrect(5, 5, w - 10, h - 10, rSize, rSize);
-	c.stroke();
-
+	if (w > 50)
+	{
+		rSize = w < 100? 3 : 22.5;
+		c.begin();
+		c.setStrokeColor('#666666');
+		c.roundrect(5, 5, w - 10, h - 10, rSize, rSize);
+		c.stroke();
+	}
+	
 	c.setAlpha(1);
 	c.ellipse(w * 0.4875, h * 0.04125, w * 0.025, h * 0.0125);
 	c.setStrokeWidth(2.5);
