@@ -2540,7 +2540,9 @@
 						editorUi.createHtml(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor, fit, allPages,
 							layers, tags, lightbox, editLink, mxUtils.bind(this, function(html, scriptTag)
 							{
-								var dlg = new EmbedDialog(editorUi, html + '\n' + scriptTag, null, null, function()
+								// Comment is workaround for file data check in checkFileContent for Electron
+								var dlg = new EmbedDialog(editorUi, '<!-- ' + editorUi.editor.appName + ' diagram -->\n' +
+									html + '\n' + scriptTag + '\n', null, null, function()
 								{
 									var wnd = window.open();
 									var doc = wnd.document;

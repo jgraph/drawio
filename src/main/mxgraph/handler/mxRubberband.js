@@ -170,7 +170,8 @@ mxRubberband.prototype.isForceRubberbandEvent = function(me)
 mxRubberband.prototype.mouseDown = function(sender, me)
 {
 	if (!me.isConsumed() && this.isEnabled() && this.graph.isEnabled() &&
-		me.getState() == null && !mxEvent.isMultiTouchEvent(me.getEvent()))
+		(me.getState() == null || this.graph.isCellLocked(me.getCell())) &&
+		!mxEvent.isMultiTouchEvent(me.getEvent()))
 	{
 		var offset = mxUtils.getOffset(this.graph.container);
 		var origin = mxUtils.getScrollOrigin(this.graph.container);

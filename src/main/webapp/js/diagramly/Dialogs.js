@@ -726,7 +726,8 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 	var previewBtn = null;
 	
 	// Loads forever in IE9
-	if (EmbedDialog.showPreviewOption && (!mxClient.IS_CHROMEAPP || validUrl) && !navigator.standalone && (validUrl ||
+	if (EmbedDialog.showPreviewOption && !mxIsElectron &&
+		(!mxClient.IS_CHROMEAPP || validUrl) && !navigator.standalone && (validUrl ||
 		(mxClient.IS_SVG && (document.documentMode == null || document.documentMode > 9))))
 	{
 		previewBtn = mxUtils.button((previewTitle != null) ? previewTitle :
@@ -798,7 +799,7 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 	
 	if (!validUrl || result.length > 7500)
 	{
-		var downloadBtn = mxUtils.button(mxResources.get('download'), function()
+		var downloadBtn = mxUtils.button(mxResources.get(mxIsElectron ? 'save' : 'download'), function()
 		{
 			editorUi.hideDialog();
 			editorUi.saveData((filename != null) ? filename : 'embed.txt', 'txt', result, 'text/plain');

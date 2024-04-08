@@ -935,7 +935,9 @@ mxSvgCanvas2D.prototype.addNode = function(filled, stroked)
 		}
 		
 		// Adds stroke tolerance
-		if (this.strokeTolerance > 0 && (!filled || s.fillColor == null))
+		if (this.strokeTolerance > 0 && (!filled || s.fillColor == null ||
+			(!mxShape.forceFilledPointerEvents && !this.pointerEvents &&
+				this.originalRoot == null)))
 		{
 			this.addTolerance(node);
 		}

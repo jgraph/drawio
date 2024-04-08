@@ -450,81 +450,88 @@ BaseFormatPanel.prototype.installInputHandler = function(input, key, defaultValu
 	
 	var selState = null;
 	var updating = false;
+	var lastValue = null;
 	
 	var update = mxUtils.bind(this, function(evt)
 	{
 		var value = (isFloat) ? parseFloat(input.value) : parseInt(input.value);
 
-		// Special case: angle mod 360
-		if (!isNaN(value) && key == mxConstants.STYLE_ROTATION)
+		if (value != lastValue)
 		{
-			// Workaround for decimal rounding errors in floats is to
-			// use integer and round all numbers to two decimal point
-			value = mxUtils.mod(Math.round(value * 100), 36000) / 100;
-		}
-		
-		value = Math.min(max, Math.max(min, (isNaN(value)) ? defaultValue : value));
-		
-		if (graph.cellEditor.isContentEditing() && textEditFallback)
-		{
-			if (!updating)
+			lastValue = value;
+
+			// Special case: angle mod 360
+			if (!isNaN(value) && key == mxConstants.STYLE_ROTATION)
 			{
-				updating = true;
-				
-				if (selState != null)
-				{
-					graph.cellEditor.restoreSelection(selState);
-					selState = null;
-				}
-				
-				textEditFallback(value);
-				input.value = value + unit;
-	
-				// Restore focus and selection in input
-				updating = false;
-			}
-		}
-		else if (value != mxUtils.getValue(ui.getSelectionState().style, key, defaultValue))
-		{
-			if (graph.isEditing())
-			{
-				graph.stopEditing(true);
+				// Workaround for decimal rounding errors in floats is to
+				// use integer and round all numbers to two decimal point
+				value = mxUtils.mod(Math.round(value * 100), 36000) / 100;
 			}
 			
-			graph.getModel().beginUpdate();
-			try
+			value = Math.min(max, Math.max(min, (isNaN(value)) ? defaultValue : value));
+			
+			if (graph.cellEditor.isContentEditing() && textEditFallback)
 			{
-				var cells = ui.getSelectionState().cells;
-				graph.setCellStyles(key, value, cells);
-
-				// Handles special case for fontSize where HTML labels are parsed and updated
-				if (key == mxConstants.STYLE_FONTSIZE)
+				if (!updating)
 				{
-					graph.updateLabelElements(cells, function(elt)
+					updating = true;
+					
+					if (selState != null)
 					{
-						elt.style.fontSize = value + 'px';
-						elt.removeAttribute('size');
-					});
-				}
-				
-				for (var i = 0; i < cells.length; i++)
-				{
-					if (graph.model.getChildCount(cells[i]) == 0)
-					{
-						graph.autoSizeCell(cells[i], false);
+						graph.cellEditor.restoreSelection(selState);
+						selState = null;
 					}
+					
+					textEditFallback(value);
+					input.value = value + unit;
+		
+					// Restore focus and selection in input
+					updating = false;
+				}
+			}
+			else if (value != mxUtils.getValue(ui.getSelectionState().style, key, defaultValue))
+			{
+				if (graph.isEditing())
+				{
+					graph.stopEditing(true);
 				}
 				
-				ui.fireEvent(new mxEventObject('styleChanged', 'keys', [key],
-						'values', [value], 'cells', cells));
+				graph.getModel().beginUpdate();
+				try
+				{
+					var cells = ui.getSelectionState().cells;
+					graph.setCellStyles(key, value, cells);
+
+					// Handles special case for fontSize where HTML labels are parsed and updated
+					if (key == mxConstants.STYLE_FONTSIZE)
+					{
+						graph.updateLabelElements(cells, function(elt)
+						{
+							elt.style.fontSize = value + 'px';
+							elt.removeAttribute('size');
+						});
+					}
+					
+					for (var i = 0; i < cells.length; i++)
+					{
+						if (graph.model.getChildCount(cells[i]) == 0)
+						{
+							graph.autoSizeCell(cells[i], false);
+						}
+					}
+					
+					ui.fireEvent(new mxEventObject('styleChanged', 'keys', [key],
+							'values', [value], 'cells', cells));
+				}
+				finally
+				{
+					graph.getModel().endUpdate();
+				}
 			}
-			finally
-			{
-				graph.getModel().endUpdate();
-			}
+			
+			input.value = value + unit;
 		}
-		
-		input.value = value + unit;
+
 		mxEvent.consume(evt);
 	});
 
@@ -551,7 +558,7 @@ BaseFormatPanel.prototype.installInputHandler = function(input, key, defaultValu
 	
 	mxEvent.addListener(input, 'change', update);
 	mxEvent.addListener(input, 'blur', update);
-	
+
 	return update;
 };
 
@@ -3349,8 +3356,8 @@ TextFormatPanel.prototype.addFont = function(container)
 	// after first character was entered (as the font element is lazy created)
 	var pendingFontSize = null;
 
-	var inputUpdate = this.installInputHandler(input, mxConstants.STYLE_FONTSIZE, Menus.prototype.defaultFontSize, 1, 999, ' pt',
-	function(fontSize)
+	var inputUpdate = this.installInputHandler(input, mxConstants.STYLE_FONTSIZE,
+		Menus.prototype.defaultFontSize, 1, 999, ' ' + Editor.fontSizeUnit, function(fontSize)
 	{
 		// IE does not support containsNode
 		// KNOWN: Fixes font size issues but bypasses undo
@@ -3415,9 +3422,21 @@ TextFormatPanel.prototype.addFont = function(container)
 				{
 					updateSize(elts[i]);
 				}
+
+				// Handles font element inserted before selection text
+				if (selection.rangeCount > 0)
+				{
+					var container = selection.getRangeAt(0).commonAncestorContainer;
+
+					if (container != graph.cellEditor.textarea &&
+						graph.cellEditor.textarea.contains(container))
+					{
+						updateSize(container.parentNode);
+					}
+				}
 			}
 
-			input.value = fontSize + ' pt';
+			input.value = fontSize + ' ' + Editor.fontSizeUnit;
 		}
 		else if (window.getSelection || document.selection)
 		{
@@ -3473,7 +3492,7 @@ TextFormatPanel.prototype.addFont = function(container)
 						// for potential fontSize values of parent elements that don't match
 						window.setTimeout(function()
 						{
-							input.value = pendingFontSize + ' pt';
+							input.value = pendingFontSize + ' ' + Editor.fontSizeUnit;
 							pendingFontSize = null;
 						}, 0);
 						
@@ -4096,7 +4115,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		if (force || document.activeElement != input)
 		{
 			var tmp = parseFloat(mxUtils.getValue(ss.style, mxConstants.STYLE_FONTSIZE, Menus.prototype.defaultFontSize));
-			input.value = (isNaN(tmp)) ? '' : tmp  + ' pt';
+			input.value = (isNaN(tmp)) ? '' : tmp + ' ' + Editor.fontSizeUnit;
 		}
 		
 		var align = mxUtils.getValue(ss.style, mxConstants.STYLE_ALIGN, mxConstants.ALIGN_CENTER);
@@ -4478,7 +4497,7 @@ TextFormatPanel.prototype.addFont = function(container)
 								}
 								else
 								{
-									input.value = (isNaN(fontSize)) ? '' : fontSize + ' pt';
+									input.value = (isNaN(fontSize)) ? '' : fontSize + ' ' + Editor.fontSizeUnit;
 								}
 								
 								var lh = parseFloat(lineHeight);

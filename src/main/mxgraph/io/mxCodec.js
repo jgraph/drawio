@@ -306,11 +306,11 @@ mxCodec.prototype.addElement = function(node)
  * Function: isObjectIgnored
  *
  * Returns true if the given object is ignored by the codec. This
- * implementation always returns false.
+ * implementation returns false if the given object is not null.
  */
 mxCodec.prototype.isObjectIgnored = function(obj)
 {
-	return false;
+	return obj == null;
 };
 
 /**
@@ -526,7 +526,12 @@ mxCodec.prototype.encodeCell = function(cell, node, includeChildren)
 {
 	if (!this.isObjectIgnored(cell))
 	{
-		node.appendChild(this.encode(cell));
+		var cellNode = this.encode(cell);
+
+		if (cellNode != null)
+		{
+			node.appendChild(cellNode);
+		}
 		
 		if (includeChildren == null || includeChildren)
 		{

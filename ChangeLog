@@ -1,3 +1,13 @@
+08-APR-2024: 24.2.3
+
+- Adds Editor.fontSizeUnit, fixes possible unhandled font element
+- Disables dots fillStyle in sketch mode
+- Updates Rough.js from 4.4.1 to 4.6.6
+- Enables rubberband on locked shapes [drawio-desktop-1684]
+- Fixes saving of embed HTML in desktop [drawio-4301]
+- Updates DOMPurify from 3.0.11 to 3.1.0
+- Fixes ignored anchor links in SVG for Chrome PDF export
+
 03-APR-2024: 24.2.2
 
 - [conf cloud] Fixes timeout error fetching custom libraries when libraries page not found [DID-11193]

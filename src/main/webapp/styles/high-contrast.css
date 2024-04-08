@@ -46,8 +46,8 @@ html body .geDialog button.gePrimaryBtn, button.geBigButton {
 	border-style: solid !important;
 	font-weight: bold;
 }
-input, .geEditor button:not(.geStyleButton), .geEditor select,
-*::-webkit-scrollbar-thumb, .geEditor .geColorBtn {
+input:not(input.gePropEditor), .geEditor button:not(.geStyleButton),
+.geEditor select, *::-webkit-scrollbar-thumb, .geEditor .geColorBtn {
 	background: none;
 }
 html body button.gePrimaryBtn, html body .geDialog button.gePrimaryBtn,

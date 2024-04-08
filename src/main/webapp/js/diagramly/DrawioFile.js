@@ -660,6 +660,22 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag, fun
 				{
 					var type = (data != null) ? 'Report' : 'Error';
 					var latest = this.ui.getHashValueForPages(latestFile.getShadowPages());
+					var latestVersion = 'unknown';
+
+					try
+					{
+						var node = (latestFile.initialData != null && latestFile.initialData.length > 0) ?
+							mxUtils.parseXml(latestFile.initialData).documentElement : null;
+						
+						if (node != null && node.getAttribute('version') != null)
+						{
+							latestVersion = node.getAttribute('version');
+						}
+					}
+					catch (e)
+					{
+						// ignore
+					}
 				
 					EditorUi.logError('Checksum ' + type + ' in ' + functionName + ' ' + id,
 						null, this.getMode() + '.' + this.getId(),
@@ -672,8 +688,9 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag, fun
 						((current != null) ? ('-current_' + current) : '') +
 						((rev != null) ? ('-rev_' + this.ui.hashValue(rev)) : '') +
 						((latest != null) ? ('-latest_' + latest) : '') +
-						((latestFile != null) ? ('-latestRev_' + this.ui.hashValue(
-							latestFile.getCurrentRevisionId())) : ''));
+						'-latestRev_' + this.ui.hashValue(
+							latestFile.getCurrentRevisionId()) +
+						('-latestVersion_' + latestVersion));
 
 					EditorUi.logEvent({category: 'CHECKSUM-ERROR-SYNC-FILE-' + id,
 						action: functionName, label: 'user_' + uid + ((this.sync != null) ?
@@ -2756,14 +2773,21 @@ DrawioFile.prototype.contentChanged = function()
  */
 DrawioFile.prototype.close = function(unloading)
 {
-	this.updateFileData();
-	this.stats.closed++;
-	
-	if (this.isAutosave() && this.isModified())
+	try
 	{
-		this.save(this.isAutosaveRevision(), null, null, unloading);
+		this.updateFileData();
+	
+		if (this.isAutosave() && this.isModified())
+		{
+			this.save(this.isAutosaveRevision(), null, null, unloading);
+		}
 	}
-
+	catch (e)
+	{
+		// ignore
+	}
+	
+	this.stats.closed++;
 	this.destroy();
 };
 

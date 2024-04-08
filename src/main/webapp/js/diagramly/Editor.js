@@ -640,11 +640,12 @@
         {
         	var fillColor = mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, null);
         	
-        	return format.editorUi.editor.graph.isSwimlane(state.vertices[0]) ||
+        	return !mxShape.forceFilledPointerEvents ||
+				(format.editorUi.editor.graph.isSwimlane(state.vertices[0]) ||
         		fillColor == null || fillColor == mxConstants.NONE ||
 				mxUtils.getValue(state.style, mxConstants.STYLE_FILL_OPACITY, 100) == 0 ||
 				mxUtils.getValue(state.style, mxConstants.STYLE_OPACITY, 100) == 0 ||
-				state.style['pointerEvents'] != null;
+				state.style['pointerEvents'] != null);
         }},
         {name: 'moveCells', dispName: 'Move Cells on Fold', type: 'bool', defVal: false, isVisible: function(state, format)
         {
@@ -1046,6 +1047,12 @@
 			
 			var fillStyle = mxUtils.getValue(this.shape.style, 'fillStyle', 'auto');
 			
+			// Dots fill style is disable due to performance problems
+			if (fillStyle == 'dots')
+			{
+				fillStyle = 'auto';
+			}
+			
 			if (fillStyle == 'auto')
 			{
 				// One of the following backgrounds for solid fill
@@ -1064,7 +1071,7 @@
 				fillStyle = (style.fill != null && (gradient != null || mxUtils.indexOf(
 					bg, mxUtils.hex2rgb(style.fill)) >= 0)) ? 'solid' : defs['fillStyle'];
 			}
-			
+
 			style['fillStyle'] = fillStyle;
 			
 			return style;

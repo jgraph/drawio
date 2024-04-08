@@ -647,6 +647,9 @@ mxPrintPreview.prototype.open = function(css, targetWindow, forcePageBreaks, kee
 				{
 					var anchor = doc.createElement('a');
 					anchor.setAttribute('id', id);
+					// Workaround for PDF export in Chrome where anchor links
+					// are only working when referenced outside SVG elements
+					anchor.setAttribute('href', '#' + id);
 					div.insertBefore(anchor, div.firstChild);
 				}
 

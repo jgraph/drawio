@@ -638,7 +638,11 @@ mxGraphHandler.prototype.mouseDown = function(sender, me)
 			}
 
 			this.cellWasClicked = true;
-			this.consumeMouseEvent(mxEvent.MOUSE_DOWN, me);
+
+			if (!this.graph.isCellLocked(cell))
+			{
+				this.consumeMouseEvent(mxEvent.MOUSE_DOWN, me);
+			}
 		}
 	}
 };

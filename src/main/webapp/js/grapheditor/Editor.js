@@ -253,6 +253,11 @@ Editor.darkColor = (Editor.enableCssDarkMode) ? '#121212' : '#18141D';
 Editor.lightColor = '#f0f0f0';
 
 /**
+ * Label for the font size unit. Default is 'pt'.
+ */
+Editor.fontSizeUnit = 'pt';
+
+/**
  * Returns the current state of the dark mode.
  */
 Editor.isDarkMode = function(value)
