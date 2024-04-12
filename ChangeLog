@@ -1,3 +1,15 @@
+12-APR-2024: 24.2.5
+
+- [conf cloud] Improves embedding from URL and CSV via proxy and confluence attachments [DID-11234]
+- Fixes possible DOM error in mxGraph.panGraph
+- Sorts files and folders in OneDrive picker [drawio-2870]
+- Checks size in Graph.clipSvgDataUri [drawio-desktop-1686]
+- Fixes C4 shape container names [drawio-4312]
+
+10-APR-2024: 24.2.4
+
+- Release skipped
+
 08-APR-2024: 24.2.3
 
 - Adds Editor.fontSizeUnit, fixes possible unhandled font element

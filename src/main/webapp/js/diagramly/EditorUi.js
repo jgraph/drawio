@@ -8448,7 +8448,7 @@
 			if (!this.doImportVisio && !this.loadingExtensions && !this.isOffline(true))
 			{
 				this.loadingExtensions = true;
-				mxscript('js/extensions.min.js', delayed, null, null, null, handleError);
+				mxscript(window.DRAWIO_SERVER_URL + 'js/extensions.min.js', delayed, null, null, null, handleError);
 			}
 			else
 			{
@@ -8513,7 +8513,7 @@
 			if (!this.doImportGraphML && !this.loadingExtensions && !this.isOffline(true))
 			{
 				this.loadingExtensions = true;
-				mxscript('js/extensions.min.js', delayed, null, null, null, handleError);
+				mxscript(window.DRAWIO_SERVER_URL + 'js/extensions.min.js', delayed, null, null, null, handleError);
 			}
 			else
 			{
@@ -8578,7 +8578,7 @@
 				if (typeof VsdxExport === 'undefined' && !this.loadingExtensions && !this.isOffline(true))
 				{
 					this.loadingExtensions = true;
-					mxscript('js/extensions.min.js', delayed, null, null, null, handleError);
+					mxscript(window.DRAWIO_SERVER_URL + 'js/extensions.min.js', delayed, null, null, null, handleError);
 				}
 				else
 				{
@@ -8709,7 +8709,7 @@
 				}
 				else
 				{
-					mxscript('js/extensions.min.js', delayed,
+					mxscript(window.DRAWIO_SERVER_URL + 'js/extensions.min.js', delayed,
 						null, null, null, handleError);
 				}
 			}
@@ -9061,7 +9061,7 @@
 			}
 			else
 			{
-				mxscript('js/extensions.min.js', delayed,
+				mxscript(window.DRAWIO_SERVER_URL + 'js/extensions.min.js', delayed,
 					null, null, null, onerror);
 			}
 		}
@@ -9756,7 +9756,7 @@
 		if (typeof JSZip === 'undefined' && !this.loadingExtensions && !this.isOffline(true))
 		{
 			this.loadingExtensions = true;
-			mxscript('js/extensions.min.js', delayed,
+			mxscript(window.DRAWIO_SERVER_URL + 'js/extensions.min.js', delayed,
 				null, null, null, onerror);
 		}
 		else
@@ -16959,7 +16959,7 @@
 					}
 					else
 					{
-						mxscript('js/orgchart.min.js', onload, null, null, null, onerror);
+						mxscript(window.DRAWIO_SERVER_URL + 'js/orgchart.min.js', onload, null, null, null, onerror);
 					}
 				}
 			}

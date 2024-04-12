@@ -809,7 +809,7 @@ var mxUtils =
 	 */
 	htmlEntities: function(s, newline, quotes, tab)
 	{
-		s = String(s || '');
+		s = String((s != null) ? s : '');
 		
 		s = s.replace(/&/g,'&amp;'); // 38 26
 		s = s.replace(/</g,'&lt;'); // 60 3C

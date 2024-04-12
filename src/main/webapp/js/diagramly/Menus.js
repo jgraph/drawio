@@ -4647,7 +4647,14 @@
 			{
 				menu.addItem(mxResources.get('insertPage'), null, mxUtils.bind(this, function()
 				{
-					editorUi.insertPage();
+					try
+					{
+						editorUi.insertPage();
+					}
+					catch (e)
+					{
+						editorUi.handleError(e);
+					}
 				}), parent);
 
 				menu.addSeparator(parent);

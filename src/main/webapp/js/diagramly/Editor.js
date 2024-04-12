@@ -9135,6 +9135,11 @@
 			}
 		};
 		
+		if (!editorUi.isOffline())
+		{
+			buttons.appendChild(editorUi.createHelpIcon('https://www.drawio.com/doc/faq/print-diagram'));
+		}
+		
 		var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 		{
 			editorUi.hideDialog();
@@ -9146,23 +9151,19 @@
 			buttons.appendChild(cancelBtn);
 		}
 		
-		if (!editorUi.isOffline())
-		{
-			var helpBtn = mxUtils.button(mxResources.get('help'), function()
-			{
-				graph.openLink('https://www.drawio.com/doc/faq/print-diagram');
-			});
-			
-			helpBtn.className = 'geBtn';
-			buttons.appendChild(helpBtn);
-		}
-		
 		if (PrintDialog.previewEnabled)
 		{
 			var previewBtn = mxUtils.button(mxResources.get('preview'), function()
 			{
-				editorUi.hideDialog();
-				preview(false);
+				try
+				{
+					preview(false);
+					editorUi.hideDialog();
+				}
+				catch (e)
+				{
+					editorUi.handleError(e);
+				}
 			});
 			previewBtn.className = 'geBtn';
 			buttons.appendChild(previewBtn);
@@ -9170,8 +9171,15 @@
 		
 		var printBtn = mxUtils.button(mxResources.get((!PrintDialog.previewEnabled) ? 'ok' : 'print'), function()
 		{
-			editorUi.hideDialog();
-			preview(true);
+			try
+			{
+				preview(true);
+				editorUi.hideDialog();
+			}
+			catch (e)
+			{
+				editorUi.handleError(e);
+			}
 		});
 		printBtn.className = 'geBtn gePrimaryBtn';
 		buttons.appendChild(printBtn);

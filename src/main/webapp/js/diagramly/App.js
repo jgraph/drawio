@@ -640,6 +640,17 @@ App.main = function(callback, createUi)
 		{
 			return;
 		}
+
+		// Checks if electron is defined in Electron app
+		if (mxIsElectron && typeof electron === 'undefined')
+		{
+			alert('Runtime Environment not found.');
+			document.body.innerHTML = '<div style="margin-top:10%;text-align:center;">' +
+				'<img src="mxgraph/images/warning.png" align="top" style="padding-right:6px;"/>' +
+				'Runtime Environment not found.</div>';
+			
+			return;
+		}
 		
 		App.isMainCalled = true;
 		// Handles uncaught errors before the app is loaded

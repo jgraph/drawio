@@ -770,25 +770,6 @@ mxGraphView.prototype.validateBackgroundImage = function()
 			this.backgroundImage.dialect = this.graph.dialect;
 			this.backgroundImage.init(this.backgroundPane);
 			this.backgroundImage.redraw();
-
-			// Workaround for ignored event on background in IE8 standards mode
-			if (document.documentMode == 8 && !mxClient.IS_EM)
-			{
-				mxEvent.addGestureListeners(this.backgroundImage.node,
-					mxUtils.bind(this, function(evt)
-					{
-						this.graph.fireMouseEvent(mxEvent.MOUSE_DOWN, new mxMouseEvent(evt));
-					}),
-					mxUtils.bind(this, function(evt)
-					{
-						this.graph.fireMouseEvent(mxEvent.MOUSE_MOVE, new mxMouseEvent(evt));
-					}),
-					mxUtils.bind(this, function(evt)
-					{
-						this.graph.fireMouseEvent(mxEvent.MOUSE_UP, new mxMouseEvent(evt));
-					})
-				);
-			}
 		}
 		
 		this.redrawBackgroundImage(this.backgroundImage, bg);

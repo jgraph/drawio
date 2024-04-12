@@ -8064,7 +8064,14 @@ mxGraph.prototype.panGraph = function(dx, dy)
 					// Inserts elements only if not empty
 					if (this.shiftPreview1.firstChild != null)
 					{
-						this.container.insertBefore(this.shiftPreview1, canvas.parentNode);
+						if (canvas.parentNode != null && canvas.parentNode.parentNode == this.container)
+						{
+							this.container.insertBefore(this.shiftPreview1, canvas.parentNode);
+						}
+						else
+						{
+							this.container.appendChild(this.shiftPreview1);
+						}
 					}
 					
 					if (this.shiftPreview2.firstChild != null)

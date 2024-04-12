@@ -2508,6 +2508,7 @@ Graph.clipSvgDataUri = function(dataUri, ignorePreserveAspect)
 							}
 							
 							var vb = svgs[0].getAttribute('viewBox');
+							var viewBox = null;
 							
 							if (vb != null && !isNaN(w) && !isNaN(h))
 							{
@@ -2517,17 +2518,25 @@ Graph.clipSvgDataUri = function(dataUri, ignorePreserveAspect)
 								{
 									fx = parseFloat(tokens[2]) / w;
 									fy = parseFloat(tokens[3]) / h;
+
+									viewBox = new mxRectangle(parseFloat(tokens[0]), parseFloat(tokens[1]),
+										parseFloat(tokens[2]), parseFloat(tokens[3]));
 								}
 							}
 
 							var size = svgs[0].getBBox();
-
+							
 							if (size.width > 0 && size.height > 0)
 							{
-								div.getElementsByTagName('svg')[0].setAttribute('viewBox', size.x +
-									' ' + size.y + ' ' + size.width + ' ' + size.height);
-								div.getElementsByTagName('svg')[0].setAttribute('width', size.width / fx);
-								div.getElementsByTagName('svg')[0].setAttribute('height', size.height / fy);
+								// SVG is only updated if area is less than 70%
+								if (viewBox == null || (size.width * size.height) <
+									(viewBox.width * viewBox.height * 0.7))
+								{
+									div.getElementsByTagName('svg')[0].setAttribute('viewBox', size.x +
+										' ' + size.y + ' ' + size.width + ' ' + size.height);
+									div.getElementsByTagName('svg')[0].setAttribute('width', size.width / fx);
+									div.getElementsByTagName('svg')[0].setAttribute('height', size.height / fy);
+								}
 							}
 						}
 						catch (e)
@@ -12074,7 +12083,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		/**
 		 * Hook for creating the canvas used in getSvg.
 		 */
-		Graph.prototype.disableSvgLinks = function(node)
+		Graph.prototype.disableSvgLinks = function(node, visit)
 		{
 			var links = node.getElementsByTagName('a');
 			
@@ -12091,6 +12100,11 @@ if (typeof mxVertexHandler !== 'undefined')
 				{
 					links[i].style.pointerEvents = 'none';
 					links[i].setAttribute('href', '');
+				}
+
+				if (visit)
+				{
+					visit(links[i]);
 				}
 			}
 		};

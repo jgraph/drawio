@@ -1731,7 +1731,15 @@ EditorUi.prototype.createPageInsertTab = function()
 	return this.createControlTab(mxResources.get('insertPage'),
 		Editor.plusImage, mxUtils.bind(this, function(evt)
 		{
-			this.insertPage();
+			try
+			{
+				this.insertPage();
+			}
+			catch (e)
+			{
+				this.handleError(e);
+			}
+
 			mxEvent.consume(evt);
 		}));
 };

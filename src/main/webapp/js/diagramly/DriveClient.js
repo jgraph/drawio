@@ -1674,8 +1674,9 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 													// Logs failed save
 													try
 													{
-														EditorUi.logError('Critical: Saving to Google Drive failed ' + file.desc.id,
-															null, 'from-' + head0 + '.' + mod0 + '-' + this.ui.hashValue(etag0) +
+														EditorUi.logError('Critical: Saving to Google Drive failed',
+															null, 'id-' + file.desc.id +
+															'-from-' + head0 + '.' + mod0 + '-' + this.ui.hashValue(etag0) +
 															'-to-' + resp.headRevisionId + '.' + resp.modifiedDate + '-' +
 															this.ui.hashValue(resp.etag) + ((temp.length > 0) ? '-errors-' + temp : ''),
 															'user-' + ((this.user != null) ? this.user.id : 'nouser') +

@@ -733,6 +733,37 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 							potentialDrawioFiles.push(file);
 						}
 					}
+
+					// Sorts entries by type and name
+					potentialDrawioFiles.sort(function(a, b)
+					{
+						var nameA = a.name.toLowerCase();
+						var nameB = b.name.toLowerCase();
+
+						if (a.folder && !b.folder)
+						{
+							return -1;
+						}
+						else if (!a.folder && b.folder)
+						{
+							return 1;
+						}
+						else
+						{
+							if (nameA < nameB)
+							{
+								return -1;
+							}
+							else if (nameA > nameB)
+							{
+								return 1;
+							}
+							else
+							{
+								return 0;
+							}
+						}
+					});
 				}
 
 				if (resp['@odata.nextLink'] && potentialDrawioFiles.length < 1000) // TODO Support dynamic paging instead of 1000 limit
