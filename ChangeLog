@@ -1,3 +1,18 @@
+19-APR-2024: 24.2.7
+
+- Simplifies print dialog
+- Adds linecap and linejoin style [drawio-4200]
+- Removes test.draw.io domain for development
+- Adds Open Library option in Edit dropdown [drawio-3499,1357]
+- Adds support for stencils in Open Library option
+- Fixes dynamic loading of stencils in Firefox [DID-11328]
+- Fixes possible scrollbars, all pages label in print dialog
+- Changes font size unit label to px [drawio-3615,drawio-desktop-1448]
+
+18-APR-2024: 24.2.6
+
+- Build failure
+
 12-APR-2024: 24.2.5
 
 - [conf cloud] Improves embedding from URL and CSV via proxy and confluence attachments [DID-11234]

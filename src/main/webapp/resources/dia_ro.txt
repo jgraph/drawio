@@ -616,7 +616,6 @@ preview=Previzualizare
 previousPage=Pagina anterioară
 presentationMode=Mod prezentare
 print=Imprimare
-printAllPages=Imprimă toate paginile
 procEng=Inginerie de procesare
 project=Proiect
 priority=Prioritate

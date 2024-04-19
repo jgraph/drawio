@@ -616,7 +616,6 @@ preview=预览
 previousPage=上一页
 presentationMode=Presentation Mode
 print=打印
-printAllPages=打印所有页
 procEng=工艺流程
 project=方案
 priority=优先级

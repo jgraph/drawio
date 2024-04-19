@@ -750,7 +750,80 @@
 			}
 		}
 	};
+
+	/**
+	 * 
+	 */
+	Sidebar.prototype.getUniqueLibraries = function(libs)
+	{
+		var lookup = {};
+		var result = [];
+
+		for (var i = 0; i < libs.length; i++)
+		{
+			var key = JSON.stringify(libs[i]);
+
+			if (lookup[key] == null)
+			{
+				lookup[key] = true;
+				result.push(libs[i]);
+			}
+		}
 		
+		return result;
+	};
+
+	/**
+	 * 
+	 */
+	Sidebar.prototype.openLibraries = function(libs)
+	{
+		libs = this.getUniqueLibraries(libs);
+		var elts = null;
+
+		for (var i = 0; i < libs.length; i++)
+		{
+			var config = this.getConfigurationById(libs[i].id);
+
+			if (config != null)
+			{
+				var temp = this.openLibrary(config,
+					libs[i].lib || libs[i].id);
+
+				if (temp != null && elts == null)
+				{
+					elts = temp;
+				}
+			}
+		}
+
+		if (elts != null)
+		{
+			window.setTimeout(function()
+			{
+				elts[0].scrollIntoView({behavior: 'smooth'});
+			}, 0);
+		}
+	};
+
+	/**
+	 * Opens the given library.
+	 */
+	Sidebar.prototype.openLibrary = function(config, lib)
+	{
+		this.showPalettes(config.prefix || '', config.libs || [config.id], true);
+		var elts = this.showPalette(lib, true);
+		
+		if (elts != null && elts.length > 1 && elts[1].firstChild != null &&
+			(elts[1].firstChild.firstChild == null ||
+			elts[1].firstChild.style.display == 'none'))
+		{
+			elts[0].click();
+		}
+
+		return elts;
+	};
+
 	/**
 	 * Adds shape search UI.
 	 */
@@ -764,35 +837,11 @@
 			{
 				menu.addItem(mxResources.get('openLibrary'), null, mxUtils.bind(this, function()
 				{
-					for (var i = 0; i < libs.length; i++)
-					{
-						(mxUtils.bind(this, function(lib)
-						{
-							var config = this.getConfigurationById(lib.id);
-							
-							if (config != null)
-							{
-								this.showPalettes(config.prefix || '', config.libs || [config.id], true);
-								var elts = this.showPalette(libs[i].lib || libs[i].id, true);
-								
-								if (elts != null && elts.length > 1 && elts[1].firstChild != null &&
-									(elts[1].firstChild.firstChild == null ||
-									elts[1].firstChild.style.display == 'none'))
-								{
-									elts[0].click();
-								}
-								
-								window.setTimeout(function()
-								{
-									elts[1].scrollIntoView({behavior: 'smooth'});
-								}, 0);
-								
-								mxEvent.consume(evt);
-							}
-						}))(libs[i]);
-					}
+					this.openLibraries(libs);
 				}));
 			}), offset.x, offset.y + elt.offsetHeight, evt);
+
+			mxEvent.consume(evt);
 		}
 	};
 
@@ -831,6 +880,13 @@
 								this.createVertexTemplateEntry(style, parseInt(shapes[i].w),
 										parseInt(shapes[i].h), '', stc.replace(/_/g, ' '),
 										null, null, this.filterTags(tags.join(' ')));
+
+								if (this.currentSearchEntryLibrary != null)
+								{
+									this.addLibForStyle(this.getKeyStyle(style),
+										this.currentSearchEntryLibrary);
+								}
+
 								this.setCurrentSearchEntryLibrary();
 							}
 						}
@@ -1304,22 +1360,36 @@
 	};
 	
 	/**
-	 * Adds server icon results to local search results
+	 * Returns true if the search index was loaded.
 	 */
-	var sidebarSearchEntries = Sidebar.prototype.searchEntries;
-	
-	Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, error)
+	Sidebar.prototype.isSearchIndexLoaded = function()
 	{
-		var succ = success;
-		
-		// Lazy-load indices
+		return this.searchIndexData == null;
+	}
+
+	/**
+	 * Lazy-loading for search index.
+	 */
+	Sidebar.prototype.updateSearchIndex = function()
+	{
 		if (this.searchIndexData != null)
 		{
 			this.addSearchIndex(JSON.parse(Graph.decompress(this.searchIndexData)));
 			this.searchIndexData = null;
 		}
+	};
+
+	/**
+	 * Adds server icon results to local search results
+	 */
+	var sidebarSearchEntries = Sidebar.prototype.searchEntries;
+	
+	Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, error, searchClosedLibraries)
+	{
+		var succ = success;
+		this.updateSearchIndex();
 		
-		if (ICONSEARCH_PATH != null)
+		if (ICONSEARCH_PATH != null && searchClosedLibraries)
 		{
 			success = mxUtils.bind(this, function(results, len, more, terms)
 			{

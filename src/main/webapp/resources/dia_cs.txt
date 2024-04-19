@@ -616,7 +616,6 @@ preview=Náhled
 previousPage=Předchozí stránka
 presentationMode=Presentation Mode
 print=Tisk
-printAllPages=Tisknout všechny stránky
 procEng=Proces. inženýrství
 project=Projekt
 priority=Priorita

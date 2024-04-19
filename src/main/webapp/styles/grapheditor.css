@@ -542,8 +542,11 @@ div.mxWindow .geButton {
 html body div.geActivePage, .geRuler {
 	background:#fff;
 }
-.geInactivePage:hover, .geControlTab:hover {
+.geInactivePage:hover *, .geControlTab:hover * {
 	opacity:0.5;
+}
+.geControlTab:hover .geAdaptiveAsset {
+	opacity:0.3;
 }
 .geTabMenuButton {
 	width:14px;
@@ -562,15 +565,22 @@ html body div.geActivePage, .geRuler {
 .geTabMenuButton:hover {
 	opacity:0.7;
 }
-.geTabContainer > :first-child {
+.geTabContainer > :first-child,
+.geTabScroller > :first-child {
 	border-left-style:none;
 }
-.geTabContainer > :first-child > :first-child {
-	border-left-style:none;
+.geTabContainer > .geControlTab:first-child {
+	border-right-style:solid;
+}
+.geTab .geAdaptiveAsset {
+	opacity: 0.5;
+}
+.geTab.geDisabledControlTab .geAdaptiveAsset {
+	opacity: 0.1;
 }
 .geTab {
 	height: 100%;
-	border-left-width:1px;
+	border-width:1px;
 	border-left-style:solid;
 	text-overflow:ellipsis;
 	border-color:#dadce0;

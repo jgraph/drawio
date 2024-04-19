@@ -4797,7 +4797,27 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 		var ops = ['edit', 'copyAsText', 'editLink', 'editShape', 'editImage',
 			'editData', 'copyData', 'pasteData', 'editConnectionPoints',
 			'editGeometry', 'editTooltip', 'editStyle'];
-		
+		var libs = null;
+
+		if (this.editorUi.sidebar != null)
+		{
+			var keyStyle = this.editorUi.sidebar.getKeyStyle(ss.cells[0].style);
+			libs = this.editorUi.sidebar.getLibsForStyle(keyStyle);
+
+			// Adds open library action and updates search index when invoked
+			// if no libs were found but the shape name is likely to be known
+			if (libs == null && !this.editorUi.sidebar.isSearchIndexLoaded() &&
+				ss.style.shape != null && ss.style.shape.substring(0, 8) == 'mxgraph.')
+			{
+				libs = [];
+			}
+		}
+
+		if (libs != null)
+		{
+			ops.push('openLibrary');
+		}
+
 		for (var i = 0; i < ops.length; i++)
 		{
 			var action = this.editorUi.actions.get(ops[i]);
@@ -4825,12 +4845,36 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 
 			mxEvent.addListener(editSelect, 'change', mxUtils.bind(this, function(evt)
 			{
-				var action = this.editorUi.actions.get(editSelect.value);
-				editSelect.value = 'edit';
-
-				if (action != null)
+				if (editSelect.value == 'openLibrary')
 				{
-					action.funct();
+					if (libs.length == 0)
+					{
+						// Updates search index and tries again
+						this.editorUi.sidebar.updateSearchIndex();
+						var keyStyle = this.editorUi.sidebar.getKeyStyle(ss.cells[0].style);
+						libs = this.editorUi.sidebar.getLibsForStyle(keyStyle);
+					}
+
+					if (libs.length > 0)
+					{
+						this.editorUi.sidebar.openLibraries(libs);
+					}
+					else
+					{
+						this.editorUi.handleError({message: mxResources.get('objectNotFound')});
+					}
+
+					editSelect.value = 'edit';
+				}
+				else
+				{
+					var action = this.editorUi.actions.get(editSelect.value);
+					editSelect.value = 'edit';
+
+					if (action != null)
+					{
+						action.funct();
+					}
 				}
 			}));
 			

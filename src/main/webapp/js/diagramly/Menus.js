@@ -491,10 +491,9 @@
 			if (!EditorUi.isElectronApp && (editorUi.isOffline() || editorUi.printPdfExport))
 			{
 				// Export PDF action for chrome OS (same as print with different dialog title)
-				editorUi.showDialog(new PrintDialog(editorUi, mxResources.get('formatPdf')).container, 360,
-						(editorUi.pages != null && editorUi.pages.length > 1 && (editorUi.editor.editable ||
-						urlParams['hide-pages'] != '1')) ?
-						470 : 390, true, true);
+				editorUi.showDialog(new PrintDialog(editorUi, mxResources.get('formatPdf')).container, 320,
+					(editorUi.pages != null && editorUi.pages.length > 1 && (editorUi.editor.editable ||
+					urlParams['hide-pages'] != '1')) ? 330 : 260, true, true);
 			}
 			else
 			{

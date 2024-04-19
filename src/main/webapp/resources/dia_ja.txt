@@ -616,7 +616,6 @@ preview=印刷プレビュー
 previousPage=前のページ
 presentationMode=Presentation Mode
 print=印刷
-printAllPages=すべてのページ
 procEng=Proc. Eng.
 project=プロジェクト
 priority=優先順位

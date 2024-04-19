@@ -616,7 +616,6 @@ preview=Preview
 previousPage=Forrige side
 presentationMode=Presentation Mode
 print=Udskriv
-printAllPages=Udskriv alle sider
 procEng=Procesteknologi
 project=Projekt
 priority=Prioritet

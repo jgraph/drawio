@@ -616,7 +616,6 @@ preview=Voorbeeldweergave
 previousPage=Vorige pagina
 presentationMode=Presentatiemodus
 print=Afdrukken
-printAllPages=Alle pagina's afdrukken
 procEng=Procestechnologie
 project=Project
 priority=Prioriteit

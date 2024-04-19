@@ -616,7 +616,6 @@ preview=Esikatsele
 previousPage=Edellinen sivu
 presentationMode=Esitystila
 print=Tulosta
-printAllPages=Tulosta kaikki sivut
 procEng=Prosessitekniikka
 project=Projekti
 priority=Prioriteetti

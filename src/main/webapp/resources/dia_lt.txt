@@ -616,7 +616,6 @@ preview=Preview
 previousPage=Previous Page
 presentationMode=Presentation Mode
 print=Print
-printAllPages=Print All Pages
 procEng=Proc. Eng.
 project=Project
 priority=Priority

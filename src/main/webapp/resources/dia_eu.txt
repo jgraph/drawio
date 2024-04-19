@@ -616,7 +616,6 @@ preview=Aurrebista
 previousPage=Aurreko orria
 presentationMode=Aurkezpen modua
 print=Inprimatu
-printAllPages=Orri guztiak inprimatu
 procEng=Prozesuen ingeniaritza
 project=Proiektua
 priority=Lehentasuna

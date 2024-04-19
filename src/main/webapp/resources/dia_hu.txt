@@ -616,7 +616,6 @@ preview=Előnézet
 previousPage=Előző oldal
 presentationMode=Presentation Mode
 print=Nyomtat
-printAllPages=Összes oldalt nyomtat
 procEng=Folyamatmérnöki
 project=Terv
 priority=Prioritás

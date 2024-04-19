@@ -425,7 +425,8 @@ mxAbstractCanvas2D.prototype.setDashPattern = function(value)
 /**
  * Function: setLineCap
  * 
- * Sets the current line cap.
+ * Sets the current line cap. Possible values are flat, round and square.
+ * Default is flat.
  */
 mxAbstractCanvas2D.prototype.setLineCap = function(value)
 {
@@ -435,7 +436,8 @@ mxAbstractCanvas2D.prototype.setLineCap = function(value)
 /**
  * Function: setLineJoin
  * 
- * Sets the current line join.
+ * Sets the current line join. Possible values are arcs, bevel, miter,
+ * miter-clip and round. Default is miter.
  */
 mxAbstractCanvas2D.prototype.setLineJoin = function(value)
 {

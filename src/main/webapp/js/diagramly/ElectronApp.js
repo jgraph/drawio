@@ -53,7 +53,7 @@ mxStencilRegistry.allowEval = false;
 	PrintDialog.previewEnabled = false;
 	
 	PrintDialog.electronPrint = function(editorUi, allPages, pagesFrom, pagesTo, 
-			fit, sheetsAcross, sheetsDown, zoom, pageScale, pageFormat)
+			fit, sheetsAcross, sheetsDown, zoom, pageScale)
 	{
 		var xml = '', title = '';
 		var file = editorUi.getCurrentFile();
@@ -80,8 +80,6 @@ mxStencilRegistry.allowEval = false;
 			from: pagesFrom - 1,
 			to: pagesTo - 1,
 			allPages: allPages,
-			pageWidth: pageFormat.width,
-			pageHeight: pageFormat.height,
 			pageScale: pageScale,
 			fit: fit,
 			sheetsAcross: sheetsAcross,

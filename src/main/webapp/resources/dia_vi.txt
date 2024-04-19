@@ -616,7 +616,6 @@ preview=Xem trước
 previousPage=Trang trước
 presentationMode=Presentation Mode
 print=In
-printAllPages=In tất cả các trang
 procEng=Quy trình kĩ thuật
 project=Dự án
 priority=Độ ưu tiên

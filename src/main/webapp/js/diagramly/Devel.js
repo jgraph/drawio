@@ -6,7 +6,7 @@
  * is used for development mode where the JS is in separate
  * files and the mxClient.js loads other files.
  */
-if (!mxIsElectron && location.protocol !== 'http:')
+if (!mxIsElectron)
 {
 	(function()
 	{
@@ -18,6 +18,8 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			//----------------------------------------------------------//
 			//------------- Bootstrap script in index.html -------------//
 			//----------------------------------------------------------//
+			// Version 24.2.6
+			'\'sha256-CuxCZzdV/xHExthsNvH0rD+sU8zQAaYT5XLu6LHfH78=\' ' +
 			// Version 21.7.0
 			'\'sha256-dLMFD7ijAw6AVaqecS7kbPcFFzkxQ+yeZSsKpOdLxps=\' ' +
 			// Version 21.6.7

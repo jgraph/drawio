@@ -616,7 +616,6 @@ preview=Paunang tingin
 previousPage=Nakaraang Pahina
 presentationMode=Presentation Mode
 print=Iprinta
-printAllPages=Iprinta ang lahat ng mga pahina
 procEng=Proc. Eng.
 project=Proyekto
 priority=Prayoridad

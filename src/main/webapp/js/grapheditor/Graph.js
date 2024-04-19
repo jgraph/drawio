@@ -2623,7 +2623,7 @@ Graph.isPageLink = function(text)
 /**
  * Returns true if the given string is a page link.
  */
-Graph.rewritePageLinks = function(doc)
+Graph.rewritePageLinks = function(doc, removeNamespace)
 {
 	var links = doc.getElementsByTagName('a');
 
@@ -2631,9 +2631,22 @@ Graph.rewritePageLinks = function(doc)
 	{
 		var href = link.getAttribute(attrib);
 
-		if (href != null && Graph.isPageLink(href))
+		if (href != null)
 		{
-			link.setAttribute(attrib, '#' + href.substring(href.indexOf(':') + 1));
+			if (Graph.isPageLink(href))
+			{
+				href = '#' + href.substring(href.indexOf(':') + 1);
+			}
+
+			var newAttrib = attrib;
+
+			if (removeNamespace && attrib == 'xlink:href')
+			{
+				link.removeAttribute(attrib);
+				newAttrib = 'href';
+			}
+
+			link.setAttribute(newAttrib, href);
 		}
 	};
 
@@ -8934,6 +8947,24 @@ mxStencilRegistry.packages = [];
  */
 mxStencilRegistry.filesLoaded = {};
 
+/**
+ * Returns true if the given file has been loaded.
+ */
+mxStencilRegistry.isFileLoaded = function(name)
+{
+	// Workaround for asynchronous loading of stencils in Firefox
+	// even if the XML request was marked as being synchronous
+	return !mxClient.IS_FF && mxStencilRegistry.filesLoaded[name];
+};
+
+/**
+ * Marks the given file as loaded.
+ */
+mxStencilRegistry.setFileLoaded = function(name)
+{
+	mxStencilRegistry.filesLoaded[name] = true;
+};
+
 // Extends the default stencil registry to add dynamic loading
 mxStencilRegistry.getStencil = function(name)
 {
@@ -8956,10 +8987,10 @@ mxStencilRegistry.getStencil = function(name)
 					{
 						var fname = libs[i];
 						
-						if (!mxStencilRegistry.filesLoaded[fname])
+						if (!mxStencilRegistry.isFileLoaded(fname))
 						{
-							mxStencilRegistry.filesLoaded[fname] = true;
-							
+							mxStencilRegistry.setFileLoaded(fname);
+
 							if (fname.toLowerCase().substring(fname.length - 4, fname.length) == '.xml')
 							{
 								mxStencilRegistry.loadStencilSet(fname, null);

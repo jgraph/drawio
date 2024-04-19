@@ -6032,40 +6032,47 @@
 		// Replaces images
 		for (var i = 0; i < imgs.length; i++)
 		{
-			try
+			this.replaceSvgImage(imgs[i]);
+		}
+	};
+	
+	/**
+	 * Replaces the given SVG image with an SVG subtree.
+	 */
+	EditorUi.prototype.replaceSvgImage = function(node)
+	{
+		try
+		{
+			var href = null;
+
+			// Workaround for missing namespace support
+			if (node.getAttributeNS == null)
 			{
-				var node = imgs[i];
-				var href = null;
-
-				// Workaround for missing namespace support
-				if (node.getAttributeNS == null)
-				{
-					href = node.getAttribute('xlink:href');
-				}
-				else
-				{
-					href = node.getAttributeNS(mxConstants.NS_XLINK, 'href');
-				}
-
-				var svg = this.getSvgSubtree(href);
-
-				// Checks nodeName as parsers can get foreignObjects
-				// content to go before the SVG element
-				if (svg != null && svg.nodeName == 'svg')
-				{
-					svg.setAttribute('x', node.getAttribute('x'));
-					svg.setAttribute('y', node.getAttribute('y'));
-					svg.setAttribute('width', node.getAttribute('width'));
-					svg.setAttribute('height', node.getAttribute('height'));
-					svg.style.fontFamily = 'initial';
-
-					node.parentNode.replaceChild(svg, node);
-				}
+				href = node.getAttribute('xlink:href');
 			}
-			catch (e)
+			else
 			{
-				// ignore
+				href = node.getAttributeNS(mxConstants.NS_XLINK, 'href');
 			}
+
+			var svg = this.getSvgSubtree(href);
+
+			// Checks nodeName as parsers can get foreignObjects
+			// content to go before the SVG element
+			if (svg != null && svg.nodeName == 'svg')
+			{
+				svg.setAttribute('x', node.getAttribute('x'));
+				svg.setAttribute('y', node.getAttribute('y'));
+				svg.setAttribute('width', node.getAttribute('width'));
+				svg.setAttribute('height', node.getAttribute('height'));
+				svg.style.fontFamily = 'initial';
+
+				node.parentNode.replaceChild(svg, node);
+			}
+		}
+		catch (e)
+		{
+			// ignore
 		}
 	};
 	
@@ -11122,9 +11129,9 @@
 		// Overrides print dialog size
 		ui.actions.get('print').funct = function()
 		{
-			ui.showDialog(new PrintDialog(ui).container, 360,
+			ui.showDialog(new PrintDialog(ui).container, 320,
 				(ui.pages != null && ui.pages.length > 1) ?
-				470 : 390, true, true);
+				330 : 260, true, true);
 		};
 
 		// Specifies the default filename

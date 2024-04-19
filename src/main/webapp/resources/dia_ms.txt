@@ -616,7 +616,6 @@ preview=Pratonton
 previousPage=Halaman Sebelumnya
 presentationMode=Presentation Mode
 print=Cetak
-printAllPages=Cetak Semua Halaman
 procEng=Kejuruteraan Proses
 project=Projek
 priority=Sifat

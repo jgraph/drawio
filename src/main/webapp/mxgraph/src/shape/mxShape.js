@@ -1048,6 +1048,19 @@ mxShape.prototype.configureCanvas = function(c, x, y, w, h)
 		c.setFillStyle(this.fillStyle);
 	}
 
+	if (this.style != null)
+	{
+		if (this.style['linecap'] != null)
+		{
+			c.setLineCap(this.style['linecap']);
+		}
+
+		if (this.style['linejoin'] != null)
+		{
+			c.setLineJoin(this.style['linejoin']);
+		}
+	}
+
 	c.setStrokeColor(this.stroke);
 	this.configurePointerEvents(c);
 };

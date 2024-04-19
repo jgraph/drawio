@@ -253,9 +253,9 @@ Editor.darkColor = (Editor.enableCssDarkMode) ? '#121212' : '#18141D';
 Editor.lightColor = '#f0f0f0';
 
 /**
- * Label for the font size unit. Default is 'pt'.
+ * Label for the font size unit. Default is 'px'.
  */
-Editor.fontSizeUnit = 'pt';
+Editor.fontSizeUnit = 'px';
 
 /**
  * Returns the current state of the dark mode.
@@ -1725,20 +1725,6 @@ PrintDialog.createPrintPreview = function(graph, scale, pf, border, x0, y0, auto
 		return graph.getAbsoluteUrl(getLinkForCellState.apply(this, arguments));
 	};
 
-	var writeHead = preview.writeHead;
-	
-	// Adds a border in the preview
-	preview.writeHead = function(doc)
-	{
-		writeHead.apply(this, arguments);
-		
-		doc.writeln('<style type="text/css">');
-		doc.writeln('@media screen {');
-		doc.writeln('  body > div { padding:30px;box-sizing:content-box; }');
-		doc.writeln('}');
-		doc.writeln('</style>');
-	};
-	
 	return preview;
 };
 
@@ -2836,7 +2822,7 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn)
 		// KNOWN: Rounding errors for certain scales (eg. 144%, 121% in Chrome, FF and Safari). Workaround
 		// in Chrome is to use 100% for the svg size, but this results in blurred grid for large diagrams.
 		var size = tmp2;
-		var svg =  '<svg width="' + size + '" height="' + size + '" xmlns="' + mxConstants.NS_SVG + '">' +
+		var svg = '<svg width="' + size + '" height="' + size + '" xmlns="' + mxConstants.NS_SVG + '">' +
 		    '<defs><pattern id="grid" width="' + tmp2 + '" height="' + tmp2 + '" patternUnits="userSpaceOnUse">' +
 		    '<path d="' + d.join(' ') + '" fill="none" stroke="' + color + '" opacity="0.2" stroke-width="1"/>' +
 		    '<path d="M ' + tmp2 + ' 0 L 0 0 0 ' + tmp2 + '" fill="none" stroke="' + color + '" stroke-width="1"/>' +

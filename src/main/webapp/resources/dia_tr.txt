@@ -616,7 +616,6 @@ preview=Önizleme
 previousPage=Önceki sayfa
 presentationMode=Presentation Mode
 print=Yazdır
-printAllPages=Bütün sayfaları yazdır
 procEng=Proc.eng
 project=Proje
 priority=Öncelik

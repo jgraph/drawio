@@ -616,7 +616,6 @@ preview=미리보기
 previousPage=이전 페이지
 presentationMode=프레젠테이션 모드
 print=인쇄
-printAllPages=모든 페이지 인쇄
 procEng=Process Enginerring
 project=프로젝트
 priority=우선순위

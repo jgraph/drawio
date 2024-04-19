@@ -616,7 +616,6 @@ preview=Pregled
 previousPage=Prethodna stranica
 presentationMode=Presentation Mode
 print=Printanje
-printAllPages=Printaj sve stranice
 procEng=Proc. Inž.
 project=Projekat
 priority=Prioritet

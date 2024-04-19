@@ -616,7 +616,6 @@ preview=‫תצוגה מקדימה‬
 previousPage=‫העמוד הקודם‬
 presentationMode=Presentation Mode
 print=‫הדפס‬
-printAllPages=‫הדפס את כל הדפים‬
 procEng=‫הנדסת תהליך‬
 project=‫פרויקט‬
 priority=‫סדר עדיפויות‬

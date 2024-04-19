@@ -616,7 +616,6 @@ preview=ดูภาพก่อนพิมพ์
 previousPage=หน้าก่อนหน้านี้
 presentationMode=Presentation Mode
 print=พิมพ์
-printAllPages=พิมพ์ทุกหน้า
 procEng=Proc. ภาษาอังกฤษ
 project=แผนงาน
 priority=ความสำคัญ

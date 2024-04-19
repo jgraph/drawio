@@ -58,7 +58,8 @@ html body button.gePrimaryBtn, html body .geDialog button.gePrimaryBtn,
 	background-color: lightgray !important;
 }
 div.mxWindow *, .geToolbarContainer *, .geActiveItem:not(.geLegacyDarkMode *),
-.geBtn, .geToolbarButton, .geTitle img {
+.geBtn, .geToolbarButton, .geTab .geAdaptiveAsset:not(.geDisabledControlTab *, :hover),
+.geTitle img {
 	opacity: 1 !important;
 }
 html body.geLegacyDarkMode a.geActiveItem.geAdaptiveAsset {

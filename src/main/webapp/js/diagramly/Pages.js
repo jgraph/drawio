@@ -1643,11 +1643,36 @@ EditorUi.prototype.checkTabScrollerOverflow = function()
 		this.tabContainer.children.length > 2)
 	{
 		var overflow = this.tabScroller.scrollWidth > this.tabScroller.offsetWidth;
-		this.leftScrollTab.style.opacity = (!overflow) ? 0 :
-			((this.tabScroller.scrollLeft == 0) ? 0.2 : 1);
-		this.rightScrollTab.style.opacity = (!overflow) ? 0 :
-			((Math.ceil(this.tabScroller.scrollLeft) + this.tabScroller.offsetWidth >=
-				this.tabScroller.scrollWidth) ? 0.2 : 1);
+
+		if (!overflow)
+		{
+			this.leftScrollTab.style.display = 'none';
+			this.rightScrollTab.style.display = 'none';
+		}
+		else
+		{
+			this.leftScrollTab.style.display = '';
+			this.rightScrollTab.style.display = '';
+
+			if (this.tabScroller.scrollLeft == 0)
+			{
+				this.leftScrollTab.classList.add('geDisabledControlTab');
+			}
+			else
+			{
+				this.leftScrollTab.classList.remove('geDisabledControlTab');
+			}
+
+			if (Math.ceil(this.tabScroller.scrollLeft) + this.tabScroller.offsetWidth >=
+				this.tabScroller.scrollWidth)
+			{
+				this.rightScrollTab.classList.add('geDisabledControlTab');
+			}
+			else
+			{
+				this.rightScrollTab.classList.remove('geDisabledControlTab');
+			}
+		}
 	}
 };
 
@@ -1712,7 +1737,6 @@ EditorUi.prototype.createControlTab = function(title, image, fn)
 	inner.style.backgroundPosition = 'center';
 	inner.style.backgroundSize = '24px';
 	inner.style.position = 'relative';
-	inner.style.opacity = '0.5';
 	inner.style.width = '100%';
 	inner.style.height = '100%';
 

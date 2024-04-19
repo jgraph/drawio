@@ -931,14 +931,14 @@ function render(data)
 				preview.autoOrigin = autoOrigin;
 				preview.backgroundColor = gridColor? 'transparent' : bg;
 				// Renders print output into this document and removes the graph container
-				preview.open(null, window, null, null, anchorId);
+				preview.open(null, window, null, null, anchorId, pf);
 				graph.container.parentNode.removeChild(graph.container);
 			}
 			else
 			{
 				preview.backgroundColor = bg;
 				preview.autoOrigin = autoOrigin; 
-				preview.appendGraph(graph, scale, x0, y0, null, null, anchorId);
+				preview.appendGraph(graph, scale, x0, y0, null, null, anchorId, pf);
 			}
 
 			// Adds shadow
@@ -1074,7 +1074,13 @@ function render(data)
 	{
 		renderPage();
 	}
-	
+
+	if (preview != null)
+	{
+		preview.addPendingCss(document);
+		Graph.rewritePageLinks(document, true);
+	}
+
 	if (fallbackFont)
 	{
 		// Add a fallbackFont font to all labels in case the selected font doesn't support the character

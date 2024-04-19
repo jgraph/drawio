@@ -425,7 +425,14 @@
 		{
 			return mxUtils.getValue(state.style, mxConstants.STYLE_SHADOW, '0') == '1' ||
 				mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_SHADOW, '0') == '1';
-		}}
+		}},
+        {name: 'linecap', dispName: 'Line Cap', type: 'enum', defVal: null,
+        	enumList: [{val: null, dispName: 'Flat'}, {val: 'round', dispName: 'Round'}, {val: 'square', dispName: 'Square'}]
+        },
+		{name: 'linejoin', dispName: 'Line Join', type: 'enum', defVal: null,
+        	enumList: [{val: null, dispName: 'Miter'}, {val: 'arcs', dispName: 'Arcs'}, {val: 'bevel', dispName: 'Bevel'},
+			{val: 'miter-clip', dispName: 'Miter-Clip'}, {val: 'round', dispName: 'Round'}]
+        },
 	];
 	
 	/**
@@ -1698,12 +1705,13 @@
 	 */
 	Editor.extractGraphModelFromPdf = function(base64)
 	{
+		var result = null;
 		base64 = base64.substring(base64.indexOf(',') + 1);
 
 		// Workaround for invalid character error in Safari
 		var f = (window.atob && !mxClient.IS_SF) ? atob(base64) : Base64.decode(base64, true);
-		
-		//The new format of embedding diagram XML as embedded file (attachment) is in PDF 1.7
+
+		// Extracts Subject or Embedded file attachment from PDF 1.7
 		if (f.substring(0, 8) == '%PDF-1.7')
 		{
 			var blockStart = f.indexOf('EmbeddedFile'); 
@@ -1717,75 +1725,120 @@
 				{
 					var streamEnd = f.indexOf('endstream', streamStart - 1);
 				
-					return pako.inflateRaw(Graph.stringToArrayBuffer(f.substring(streamStart, streamEnd)), {to: 'string'});
+					return pako.inflateRaw(Graph.stringToArrayBuffer(
+						f.substring(streamStart, streamEnd)), {to: 'string'});
 				}
 			}
-			
-			//Not found
-			return null;
-		}
-		
-		var check = '/Subject (%3Cmxfile';
-		var result = null;
-		var curline = '';
-		var checked = 0;
-		var pos = 0;
-		var obj = [];
-		var buf = null;
-		var nr = null;
-		
-		while (pos < f.length)
-		{
-			var b = f.charCodeAt(pos);
-			pos += 1;
-			
-			if (b != 10)
+
+			var last = f.indexOf('/ObjStm');
+
+			while (last > 0)
 			{
-				curline += String.fromCharCode(b);
-			}
-			
-			if (b == check.charCodeAt(checked))
-			{
-				checked++;
-			}
-			else
-			{
-				checked = 0;
-			}
-			
-			if (checked == check.length)
-			{
-				var end = f.indexOf('%3C%2Fmxfile%3E)', pos) + 15; //15 is the length of encoded </mxfile>
-				pos -= 9; //9 is the length of encoded <mxfile
+				var streamStart = f.indexOf('stream', last) + 9; //the start of the stream [skipping header check]
+				var streamEnd = f.indexOf('endstream', streamStart - 1);
 				
-				// Default case is XML inlined in Subject metadata
-				if (end > pos)
+				function hex_to_ascii(hex)
 				{
-					result = f.substring(pos, end);
+					var str = [];
 					
+					for (var n = 0; n < hex.length; n += 2)
+					{
+						var code = hex.substr(n, 2);
+
+						// Encoded mxfile is URI encoded ASCII
+						if (code != '00')
+						{
+							str.push(String.fromCharCode(parseInt(code, 16)));
+						}
+					}
+
+					return str.join('');
+				};
+
+				var text = pako.inflateRaw(Graph.stringToArrayBuffer(
+					f.substring(streamStart, streamEnd)), {to: 'string'});
+				var subj = text.indexOf('/Subject <');
+
+				// Extracts Subject from PDF 1.4
+				if (subj > 0)
+				{
+					var temp = text.substring(subj + 14, text.indexOf('>', subj));
+
+					if (temp != null)
+					{
+						result = hex_to_ascii(temp);
+					}
+
 					break;
 				}
+
+				last = f.indexOf('/ObjStm', last + 1);
 			}
+		}
+
+		// Extracts subject from PDF 1.4
+		if (result == null && f.substring(0, 8) == '%PDF-1.4')
+		{
+			var check = '/Subject (%3Cmxfile';
+			var curline = '';
+			var checked = 0;
+			var pos = 0;
+			var obj = [];
+			var buf = null;
 			
-			// Creates table for lookup if no inline data is found
-			if (b == 10)
+			while (pos < f.length)
 			{
-				if (curline == 'endobj')
+				var b = f.charCodeAt(pos);
+				pos += 1;
+				
+				if (b != 10)
 				{
-					buf = null;
-				}
-				else if (curline.substring(curline.length - 3, curline.length) == 'obj' ||
-					curline == 'xref' || curline == 'trailer')
-				{
-					buf = [];
-					obj[curline.split(' ')[0]] = buf;
-				}
-				else if (buf != null)
-				{
-					buf.push(curline);
+					curline += String.fromCharCode(b);
 				}
 				
-				curline = '';
+				if (b == check.charCodeAt(checked))
+				{
+					checked++;
+				}
+				else
+				{
+					checked = 0;
+				}
+				
+				if (checked == check.length)
+				{
+					var end = f.indexOf('%3C%2Fmxfile%3E', pos) + 15; //15 is the length of encoded </mxfile>
+					pos -= 9; //9 is the length of encoded <mxfile
+
+					// Default case is XML inlined in Subject metadata
+					if (end > pos)
+					{
+						result = f.substring(pos, end);
+
+						break;
+					}
+				}
+				
+				// Creates table for lookup if no inline data is found
+				if (b == 10)
+				{
+					if (curline == 'endobj')
+					{
+						buf = null;
+					}
+					else if (curline.substring(curline.length - 3, curline.length) == 'obj' ||
+						curline == 'xref' || curline == 'trailer')
+					{
+						buf = [];
+						obj[curline.split(' ')[0]] = buf;
+					}
+					else if (buf != null)
+					{
+						buf.push(curline);
+					}
+					
+					curline = '';
+				}
 			}
 		}
 		
@@ -5255,6 +5308,8 @@
 					mxEvent.addListener(td, 'click', mxUtils.bind(that, function()
 					{
 						var select = document.createElement('select');
+						var nullValue = 'null';
+						var nullOption = null;
 						setElementPos(td, select);
 
 						for (var i = 0; i < pEnumList.length; i++)
@@ -5264,15 +5319,28 @@
 							opElem.value = mxUtils.htmlEntities(op.val);
 							mxUtils.write(opElem, mxResources.get(op.dispName, null, op.dispName));
 							select.appendChild(opElem);
+
+							if (op.val == null)
+							{
+								opElem.value = nullValue;
+								nullOption = opElem;
+							}
 						}
 						
-						select.value = pValue;
+						select.value = (pValue == null && nullOption != null) ? nullValue : pValue;
 						
 						div.appendChild(select);
 
 						mxEvent.addListener(select, 'change', function()
 						{
 							var newVal = mxUtils.htmlEntities(select.value);
+
+							if (select[select.selectedIndex] == nullOption ||
+								newVal.value == nullValue)
+							{
+								newVal = null;
+							}
+
 							applyStyleVal(pName, newVal, prop);
 							//set value triggers a redraw of the panel which removes the select and updates the row
 						});
@@ -8385,15 +8453,20 @@
 		mxUtils.write(title, titleText || mxResources.get('print'));
 		div.appendChild(title);
 		
+		// Workaround for blank pages with no margins
+		var printScale = (mxClient.IS_SF) ? 0.7 : 1;
 		var pageCount = 1;
 		var currentPage = 1;
 
 		// Pages
 		var pagesSection = document.createElement('div');
-		pagesSection.style.cssText = 'border-bottom:1px solid lightGray;padding-bottom:12px;margin-bottom:12px;';
+		pagesSection.style.borderBottom = '1px solid lightGray';
+		pagesSection.style.paddingBottom = '12px';
+		pagesSection.style.marginBottom = '12px';
 		
 		var allPagesRadio = document.createElement('input');
-		allPagesRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
+		allPagesRadio.style.marginRight = '8px';
+		allPagesRadio.style.marginBottom = '8px';
 		allPagesRadio.setAttribute('value', 'all');
 		allPagesRadio.setAttribute('type', 'radio');
 		allPagesRadio.setAttribute('name', 'pages-printdialog');
@@ -8401,7 +8474,11 @@
 		pagesSection.appendChild(allPagesRadio);
 
 		var span = document.createElement('span');
-		mxUtils.write(span, mxResources.get('printAllPages'));
+		mxUtils.write(span, mxResources.get('allPages'));
+		mxEvent.addListener(span, 'click', function()
+		{
+			allPagesRadio.checked = true;
+		});
 		pagesSection.appendChild(span);
 
 		mxUtils.br(pagesSection);
@@ -8415,9 +8492,13 @@
 		var span = document.createElement('span');
 		mxUtils.write(span, mxResources.get('pages') + ':');
 		pagesSection.appendChild(span);
+		mxEvent.addListener(span, 'click', function()
+		{
+			pagesRadio.checked = true;
+		});
 		
 		var pagesFromInput = document.createElement('input');
-		pagesFromInput.style.cssText = 'margin:0 8px 0 8px;'
+		pagesFromInput.style.margin = '0 8px 0 8px';
 		pagesFromInput.setAttribute('value', '1');
 		pagesFromInput.setAttribute('type', 'number');
 		pagesFromInput.setAttribute('min', '1');
@@ -8479,7 +8560,7 @@
 		else if (pageCount > 1)
 		{
 			div.appendChild(pagesSection);
-			pagesRadio.checked = true;
+			allPagesRadio.checked = true;
 		}
 
 		mxUtils.br(pagesSection);
@@ -8497,7 +8578,6 @@
 
 		// Adjust to ...
 		var adjustSection = document.createElement('div');
-		adjustSection.style.marginBottom = '10px';
 
 		if (pageCount == 1)
 		{
@@ -8507,7 +8587,6 @@
 		}
 		else
 		{
-
 			selectionOnlyRadio.setAttribute('name', 'pages-printdialog');
 			selectionOnlyRadio.style.marginBottom = '8px';
 			pagesSection.appendChild(selectionOnlyRadio);
@@ -8517,6 +8596,14 @@
 		mxUtils.write(span, mxResources.get('selectionOnly'));
 		selectionOnlyRadio.parentNode.appendChild(span);
 
+		if (!graph.isSelectionEmpty())
+		{
+			mxEvent.addListener(span, 'click', function()
+			{
+				selectionOnlyRadio.checked = true;
+			});
+		}
+
 		if (pageCount == 1)
 		{
 			mxUtils.br(selectionOnlyRadio.parentNode);
@@ -8524,20 +8611,24 @@
 
 		var adjustRadio = document.createElement('input');
 		adjustRadio.style.marginRight = '8px';
-		
 		adjustRadio.setAttribute('value', 'adjust');
 		adjustRadio.setAttribute('type', 'radio');
 		adjustRadio.setAttribute('name', 'printZoom');
 		adjustSection.appendChild(adjustRadio);
 
 		var span = document.createElement('span');
-		mxUtils.write(span, mxResources.get('adjustTo'));
+		mxUtils.write(span, mxResources.get('adjustTo') + ':');
 		adjustSection.appendChild(span);
+		mxEvent.addListener(adjustSection, 'click', function()
+		{
+			adjustRadio.checked = true;
+		});
 		
 		var zoomInput = document.createElement('input');
-		zoomInput.style.cssText = 'margin:0 8px 0 8px;';
-		zoomInput.setAttribute('value', '100 %');
-		zoomInput.style.width = '50px';
+		zoomInput.style.width = '60px';
+		zoomInput.style.marginLeft = '4px';
+		zoomInput.value = (editorUi.lastPrintZoom != null) ?
+			editorUi.lastPrintZoom : '100 %';
 		adjustSection.appendChild(zoomInput);
 		
 		mxEvent.addListener(zoomInput, 'focus', function()
@@ -8547,20 +8638,44 @@
 		
 		div.appendChild(adjustSection);
 
+		// Crop
+		var cropSection = adjustSection.cloneNode(false);
+		cropSection.style.margin = '2px 0 6px 0';
+		cropSection.style.border = 'none';
+
+		var cropRadio = adjustRadio.cloneNode(true);
+		cropRadio.setAttribute('value', 'fit');
+		cropSection.appendChild(cropRadio);
+
+		var span = document.createElement('span');
+		mxUtils.write(span, mxResources.get('crop'));
+		cropSection.appendChild(span);
+		mxEvent.addListener(cropSection, 'click', function()
+		{
+			cropRadio.checked = true;
+		});
+
+		div.appendChild(cropSection);
+
 		// Fit to ...
 		var fitSection = pagesSection.cloneNode(false);
+		fitSection.style.marginBottom = '0';
+		fitSection.style.border = 'none';
 
 		var fitRadio = adjustRadio.cloneNode(true);
 		fitRadio.setAttribute('value', 'fit');
 		adjustRadio.setAttribute('checked', 'checked');
 		
 		var spanFitRadio = document.createElement('div');
-		spanFitRadio.style.cssText = 'display:inline-block;vertical-align:top;padding-top:2px;';
+		spanFitRadio.style.display = 'inline-block';
+		spanFitRadio.style.verticalAlign = 'top';
+		spanFitRadio.style.paddingTop = '2px';
 		spanFitRadio.appendChild(fitRadio);
 		fitSection.appendChild(spanFitRadio);
 		
 		var table = document.createElement('table');
 		table.style.display = 'inline-block';
+		table.style.borderSpacing = '0';
 		var tbody = document.createElement('tbody');
 		
 		var row1 = document.createElement('tr');
@@ -8578,9 +8693,13 @@
 		td4.style.textAlign = 'right';
 
 		mxUtils.write(td1, mxResources.get('fitTo'));
+		mxEvent.addListener(fitSection, 'click', function()
+		{
+			fitRadio.checked = true;
+		});
 		
 		var sheetsAcrossInput = document.createElement('input');
-		sheetsAcrossInput.style.cssText = 'margin:0 8px 0 8px;';
+		sheetsAcrossInput.style.margin = '0 8px 0 8px;';
 		sheetsAcrossInput.setAttribute('value', '1');
 		sheetsAcrossInput.setAttribute('min', '1');
 		sheetsAcrossInput.setAttribute('type', 'number');
@@ -8624,56 +8743,29 @@
 		fitSection.appendChild(table);
 		
 		div.appendChild(fitSection);
-		
-		// Page scale ...
-		var pageScaleSection = document.createElement('div');
 
-		var span = document.createElement('div');
-		span.style.fontWeight = 'bold';
-		span.style.marginBottom = '12px';
-		mxUtils.write(span, mxResources.get('paperSize'));
-		pageScaleSection.appendChild(span);
-		
-		var span = document.createElement('div');
-		span.style.marginBottom = '12px';
+		mxUtils.write(div, mxResources.get('borderWidth') + ':');
+		var borderInput = document.createElement('input');
+		borderInput.setAttribute('type', 'text');
+		borderInput.style.width = '60px';
+		borderInput.style.marginLeft = '4px';
+		borderInput.value = (editorUi.lastPrintBorder != null) ?
+			editorUi.lastPrintBorder : mxPrintPreview.prototype.pageMargin;
+		div.appendChild(borderInput);
+		mxUtils.br(div);
 
-		var accessor = PageSetupDialog.addPageFormatPanel(span, 'printdialog',
-			editorUi.editor.graph.pageFormat || mxConstants.PAGE_FORMAT_A4_PORTRAIT);
-		pageScaleSection.appendChild(span);
-		
-		var span = document.createElement('span');
-		mxUtils.write(span, mxResources.get('pageScale'));
-		pageScaleSection.appendChild(span);
-		
-		var pageScaleInput = document.createElement('input');
-		pageScaleInput.style.cssText = 'margin:0 8px 0 8px;';
-		pageScaleInput.setAttribute('value', '100 %');
-		pageScaleInput.style.width = '60px';
-		pageScaleSection.appendChild(pageScaleInput);
-		
-		div.appendChild(pageScaleSection);
-		
 		// Buttons
 		var buttons = document.createElement('div');
-		buttons.style.cssText = 'text-align:right;margin:48px 0 0 0;';
+		buttons.style.marginTop = '26px';
+		buttons.style.textAlign = 'right';
+		buttons.style.whiteSpace = 'nowrap';
 		
 		// Overall scale for print-out to account for print borders in dialogs etc
 		function preview(print)
 		{
-			var printScale = parseInt(pageScaleInput.value) / 100;
-			
-			if (isNaN(printScale))
-			{
-				printScale = 1;
-				pageScaleInput.value = '100 %';
-			}
-			
-			// Workaround for better output in Safari
-			if (mxClient.IS_SF)
-			{
-				printScale *= 0.75;
-			}
-			
+			editorUi.lastPrintZoom = zoomInput.value;
+			editorUi.lastPrintBorder = borderInput.value;
+
 			// Disables dark mode while printing
 			var darkStylesheet = null;
 			var darkFg = graph.shapeForegroundColor;
@@ -8713,10 +8805,10 @@
 				var x0 = 0;
 				var y0 = 0;
 		
-				var pf = accessor.get();
+				var pf = mxRectangle.fromRectangle(thisGraph.pageFormat);
 				var scale = 1 / thisGraph.pageScale;
 				var autoOrigin = fitRadio.checked;
-		
+				
 				if (autoOrigin)
 				{
 					var h = parseInt(sheetsAcrossInput.value);
@@ -8737,9 +8829,6 @@
 				}
 		
 				// Applies print scale
-				pf = mxRectangle.fromRectangle(pf);
-				pf.width = Math.ceil(pf.width * printScale);
-				pf.height = Math.ceil(pf.height * printScale);
 				scale *= printScale;
 				
 				// Starts at first visible page
@@ -8754,13 +8843,28 @@
 					autoOrigin = true;
 				}
 
+				if (cropRadio.checked)
+				{
+					pf.width = gb.width / thisGraph.view.scale;
+					pf.height = gb.height / thisGraph.view.scale;
+				}
+
+				pf.width = Math.ceil(pf.width * printScale);
+				pf.height = Math.ceil(pf.height * printScale);
 				var anchorId = (pageId != null) ? 'page/id,' + pageId : null;
-				
+
 				if (pv == null)
 				{
-					pv = PrintDialog.createPrintPreview(thisGraph, scale, pf, border, x0, y0, autoOrigin);
+					pv = PrintDialog.createPrintPreview(thisGraph, scale, null, border, x0, y0, autoOrigin);
+					pv.title = editorUi.getBaseFilename(true);
 					pv.pageSelector = false;
 					pv.mathEnabled = false;
+					var pageMargin = parseInt(borderInput.value);
+					
+					if (!isNaN(pageMargin))
+					{
+						pv.pageMargin = pageMargin;
+					}
 
 					if (selectionOnlyRadio.checked)
 					{
@@ -8769,14 +8873,7 @@
 							return thisGraph.isCellSelected(cell);
 						};
 					}
-					
-					var file = editorUi.getCurrentFile();
-					
-					if (file != null)
-					{
-						pv.title = file.getTitle();
-					}
-					
+
 					var writeHead = pv.writeHead;
 					
 					// Overridden to add custom fonts
@@ -8802,12 +8899,12 @@
 							doc.writeln('</style>');
 						}
 						
-						var extFonts = thisGraph.getCustomFonts();
+						var fonts = thisGraph.getCustomFonts();
 						
-						for (var i = 0; i < extFonts.length; i++)
+						for (var i = 0; i < fonts.length; i++)
 						{
-							var fontName = extFonts[i].name;
-							var fontUrl = extFonts[i].url;
+							var fontName = fonts[i].name;
+							var fontUrl = fonts[i].url;
 							
 							if (Graph.isCssFontUrl(fontUrl))
 							{
@@ -8838,17 +8935,36 @@
 									this, arguments));
 						};
 					}
-					
+
+					// Replaces background images with SVG subtrees
+					if (Editor.replaceSvgDataUris)
+					{
+						var printDrawBackgroundImage = pv.drawBackgroundImage;
+
+						mxPrintPreview.prototype.drawBackgroundImage = function(img)
+						{
+							printDrawBackgroundImage.apply(this, arguments);
+
+							if (img.node != null)
+							{
+								editorUi.embedSvgImages(img.node);
+
+								graph.disableSvgLinks(img.node, function(link)
+								{
+									link.setAttribute('href', 'javascript:void(0)');		
+								});
+							}
+						};
+					}
+
+					// Enables or disables MathJax rendering for individual pages
 					if (typeof(MathJax) !== 'undefined')
 					{
-						// Adds class to ignore if math is disabled
-						var printPreviewRenderPage = pv.renderPage;
+						var printPreviewAddGraphFragment = pv.addGraphFragment;
 						
-						pv.renderPage = function(w, h, dx, dy, content, pageNumber)
+						pv.addGraphFragment = function(dx, dy, scale, pageNumber, div, clip)
 						{
-							var prev = mxClient.NO_FO;
-							var result = printPreviewRenderPage.apply(this, arguments);
-							mxClient.NO_FO = prev;
+							printPreviewAddGraphFragment.apply(this, arguments);
 							
 							if (this.graph.mathEnabled)
 							{
@@ -8856,10 +8972,8 @@
 							}
 							else
 							{
-								result.className = 'geDisableMathJax';
+								div.classList.add('geDisableMathJax');
 							}
-							
-							return result;
 						};
 					}
 					
@@ -8882,7 +8996,7 @@
 					}
 					
 					// Generates the print output
-					pv.open(null, null, forcePageBreaks, true, anchorId);
+					pv.open(null, null, forcePageBreaks, true, anchorId, pf);
 					
 					// Restores flowAnimation
 					graph.enableFlowAnimation = enableFlowAnimation;
@@ -8907,7 +9021,7 @@
 					
 					pv.backgroundColor = bg;
 					pv.autoOrigin = autoOrigin;
-					pv.appendGraph(thisGraph, scale, x0, y0, forcePageBreaks, true, anchorId);
+					pv.appendGraph(thisGraph, scale, x0, y0, forcePageBreaks, true, anchorId, pf);
 					
 					var extFonts = thisGraph.getCustomFonts();
 					
@@ -8956,9 +9070,8 @@
 
 			if (EditorUi.isElectronApp)
 			{
-				PrintDialog.electronPrint(editorUi, allPagesRadio.checked, pagesFrom, pagesTo,  fitRadio.checked,
-					sheetsAcrossInput.value, sheetsDownInput.value, parseInt(zoomInput.value) / 100,
-					parseInt(pageScaleInput.value) / 100, accessor.get());
+				PrintDialog.electronPrint(editorUi, allPagesRadio.checked, pagesFrom, pagesTo,
+					fitRadio.checked, sheetsAcrossInput.value, sheetsDownInput.value, 1, 1);
 				
 				return;
 			}
@@ -9015,7 +9128,7 @@
 							mathEnabled = page.viewState.mathEnabled;
 							bg = page.viewState.background;
 							bgImage = page.viewState.backgroundImage;
-							tempGraph.extFonts = page.viewState.extFonts;
+							tempGraph.pageFormat = page.viewState.pageFormat;
 						}
 
 						// Forces update of background page image in offscreen page
@@ -9115,9 +9228,9 @@
 				}
 				
 				pv.closeDocument();
-
+				
 				// Rewrites page links to point to internal anchors
-				Graph.rewritePageLinks(pv.wnd.document);
+				Graph.rewritePageLinks(pv.wnd.document, true);
 				
 				if (!pv.mathEnabled && print)
 				{
@@ -9133,6 +9246,8 @@
 				graph.stylesheet = darkStylesheet;
 				graph.refresh();
 			}
+
+			return pv;
 		};
 		
 		if (!editorUi.isOffline())
@@ -9168,7 +9283,7 @@
 			previewBtn.className = 'geBtn';
 			buttons.appendChild(previewBtn);
 		}
-		
+
 		var printBtn = mxUtils.button(mxResources.get((!PrintDialog.previewEnabled) ? 'ok' : 'print'), function()
 		{
 			try

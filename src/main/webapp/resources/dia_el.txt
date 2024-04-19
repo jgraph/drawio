@@ -616,7 +616,6 @@ preview=Προεπισκόπηση
 previousPage=Προηγούμενη Σελίδα
 presentationMode=Presentation Mode
 print=Εκτύπωση
-printAllPages=Εκτύπωση όλων των σελίδων
 procEng=Μηχανική Διαδικασία
 project=Πρότζεκτ
 priority=Προτεραιότητα
