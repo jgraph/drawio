@@ -1282,3 +1282,4 @@ confCloudMigConfirm=Peringatan: Proses ini akan menyunting banyak halaman dan di
 confCloudMigNotice=Dalam instansi Cloud, harap tambahkan linkAdjustments ke konfigurasi draw.io sebagai berikut {1}. Tanpa konfigurasi ini, tautan dalam diagram yang menunjuk ke Confluence tidak akan bekerja.
 confALogsPageDesc=Halaman ini memuat catatan log dari layanan draw.io yang berjalan lama sebagai lampiran
 confEditOnlyInPageEditor=Hanya dapat diedit di dalam editor halaman Confluence
+confEvalWarn=Evaluation License - Not for production use

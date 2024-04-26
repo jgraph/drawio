@@ -1282,3 +1282,4 @@ confCloudMigConfirm=Avís: aquest procés editarà moltes pàgines i diagrames, 
 confCloudMigNotice=A la instància del núvol, afegiu linkAdjustments a la configuració de draw.io de la manera següent {1}. Sense aquesta configuració, els enllaços dels diagrames que apunten a les pàgines de Confluence no funcionaran.
 confALogsPageDesc=Aquesta pàgina conté registres de serveis de llarga durada de draw.io com a fitxers adjunts
 confEditOnlyInPageEditor=Només es pot editar amb l'editor de pàgines de Confluence
+confEvalWarn=Evaluation License - Not for production use

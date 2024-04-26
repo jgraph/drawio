@@ -430,7 +430,7 @@ html .geToolbarButton:active:not([disabled]) {
 	opacity: 0.2 !important;
 }
 .mxDisabled:hover {
-	background:inherit !important;
+	background-color:inherit !important;
 }
 .geMenubar a.geStatus {
 	color:#888888;
@@ -488,7 +488,7 @@ div.mxWindow .geButton {
 	border:1px solid transparent;
 }
 .geToolbarContainer .mxDisabled:hover {
-	border:1px solid transparent !important;
+	border-color:transparent !important;
 	opacity:0.2 !important;
 }
 .geDiagramBackdrop {

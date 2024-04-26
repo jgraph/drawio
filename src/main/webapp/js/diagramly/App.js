@@ -398,27 +398,34 @@ App.getStoredMode = function()
 	
 	if (mode == null && typeof(Storage) != 'undefined')
 	{
-		var cookies = document.cookie.split(";");
-		
-		for (var i = 0; i < cookies.length; i++)
+		try
 		{
-			// Removes spaces around cookie
-			var cookie = mxUtils.trim(cookies[i]);
+			var cookies = document.cookie.split(";");
 			
-			if (cookie.substring(0, 5) == 'MODE=')
+			for (var i = 0; i < cookies.length; i++)
 			{
-				mode = cookie.substring(5);
-				break;
+				// Removes spaces around cookie
+				var cookie = mxUtils.trim(cookies[i]);
+				
+				if (cookie.substring(0, 5) == 'MODE=')
+				{
+					mode = cookie.substring(5);
+					break;
+				}
+			}
+			
+			if (mode != null && isLocalStorage)
+			{
+				// Moves to local storage
+				var expiry = new Date();
+				expiry.setYear(expiry.getFullYear() - 1);
+				document.cookie = 'MODE=; expires=' + expiry.toUTCString();
+				localStorage.setItem('.mode', mode);
 			}
 		}
-		
-		if (mode != null && isLocalStorage)
+		catch (e)
 		{
-			// Moves to local storage
-			var expiry = new Date();
-			expiry.setYear(expiry.getFullYear() - 1);
-			document.cookie = 'MODE=; expires=' + expiry.toUTCString();
-			localStorage.setItem('.mode', mode);
+			// ignore
 		}
 	}
 	
@@ -442,8 +449,8 @@ App.getStoredMode = function()
 			
 			App.mode = urlParams['mode'];
 		}
-			
-		if (App.mode == null)
+		
+		if (App.mode == null && urlParams['embed'] != '1')
 		{
 			// Stored mode overrides preferred mode
 			App.mode = App.getStoredMode();

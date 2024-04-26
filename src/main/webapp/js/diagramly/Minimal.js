@@ -566,11 +566,14 @@ EditorUi.initMinimalTheme = function()
 		function addMenu(id, small, img)
 		{
 			var menu = ui.menus.get(id);
-
+			
 			var elt = menuObj.addMenu(mxResources.get(id), mxUtils.bind(this, function()
 			{
 				// Allows extensions of menu.functid
-				menu.funct.apply(this, arguments);
+				if (!elt.classList.contains('mxDisabled'))
+				{
+					menu.funct.apply(this, arguments);
+				}
 			}), before);
             
 			elt.className = 'geMenuItem';
@@ -999,6 +1002,11 @@ EditorUi.initMinimalTheme = function()
 				null, mxResources.get('delete'), ui.actions.get('delete'),
 				(small) ? Editor.trashImage : null)], (small) ? 60 : null);
 
+			if (!graph.isEnabled())
+			{
+				elt.classList.add('mxDisabled');
+			}
+
 			if (iw >= 411)
 			{
 				createGroup([undoElt, redoElt], 60);
@@ -1015,6 +1023,8 @@ EditorUi.initMinimalTheme = function()
         };
         
         refreshMenu();
+
+		ui.addListener('lockedChanged', refreshMenu);
         
         mxEvent.addListener(window, 'resize', function()
 		{

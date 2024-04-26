@@ -167,6 +167,13 @@ mxPrintPreview.prototype.pixelsPerInch = 90;
 mxPrintPreview.prototype.pageMargin = 27;
 
 /**
+ * Variable: overflowClipMargin
+ * 
+ * overflowClipMargin for SVG container. Default is 1px.
+ */
+mxPrintPreview.prototype.overflowClipMargin = '1px';
+
+/**
  * Variable: defaultCss
  * 
  * Default CSS for the HEAD section of the print preview.
@@ -377,6 +384,42 @@ mxPrintPreview.prototype.appendGraph = function(graph, scale, x0, y0, forcePageB
 };
 
 /**
+ * Function: getPageClassCss
+ * 
+ * Gets the CSS for the given page CSS class and page format.
+ */
+mxPrintPreview.prototype.getPageClassCss = function(pageClass, pageFormat)
+{
+	var pm = this.pageMargin;
+	var ppi = this.pixelsPerInch;
+	var size = ((pageFormat.width / ppi)).toFixed(2) + 'in ' +
+		((pageFormat.height / ppi)).toFixed(2) + 'in';
+
+	var css = '@page ' + pageClass + ' {\n' +
+		'  margin: 0;\n' +
+		'  size: ' + mxUtils.htmlEntities(size) + ';\n' +
+		'}\n' +
+		'.' + pageClass + ' {\n' +
+		'  page: ' + pageClass + ';\n' +
+		((mxClient.IS_SF) ?
+			'  padding: ' + mxUtils.htmlEntities((pm / ppi).toFixed(2)) + 'in;\n' : '') +
+		'  width: ' + mxUtils.htmlEntities((((pageFormat.width) /
+			ppi)).toFixed(2)) + 'in;\n' +
+		'  height: ' + mxUtils.htmlEntities((((pageFormat.height) /
+			ppi)).toFixed(2)) + 'in;\n' +
+		'}\n';
+	
+	if (!mxClient.IS_SF)
+	{
+		css += '.' + pageClass + ' > svg {\n' +
+		'  margin: ' + mxUtils.htmlEntities((pm / ppi).toFixed(2)) + 'in;\n' +
+		'}\n';
+	}
+
+	return css;
+};
+
+/**
  * Function: open
  * 
  * Shows the print preview window. The window is created here if it does
@@ -505,22 +548,7 @@ mxPrintPreview.prototype.open = function(css, targetWindow, forcePageBreaks, kee
 			if (this.pageFormatClass[pageClass] == null)
 			{
 				this.pageFormatClass[pageClass] = true;
-				var ppi = this.pixelsPerInch;
-				var pm = this.pageMargin;
-				var size = ((pageFormat.width / ppi)).toFixed(2) + 'in ' +
-					((pageFormat.height / ppi)).toFixed(2) + 'in';
-				
-				this.pendingCss += '@page ' + pageClass + ' {\n' +
-					'  margin: ' + mxUtils.htmlEntities((pm / ppi).toFixed(2)) + 'in;\n' +
-					'  size: ' + mxUtils.htmlEntities(size) + ';\n' +
-					'}\n' +
-					'.' + pageClass + ' {\n' +
-					'  page: ' + pageClass + ';\n' +
-					'  width: ' + mxUtils.htmlEntities((((pageFormat.width - 2 * pm) /
-						ppi)).toFixed(2)) + 'in;\n' +
-					'  height: ' + mxUtils.htmlEntities((((pageFormat.height - 2 * pm) /
-						ppi)).toFixed(2)) + 'in;\n' +
-					'}\n';
+				this.pendingCss += this.getPageClassCss(pageClass, pageFormat);
 			}
 		}
 
@@ -589,8 +617,8 @@ mxPrintPreview.prototype.open = function(css, targetWindow, forcePageBreaks, kee
 				var clip = new mxRectangle(dx, dy, availableWidth, availableHeight);
 				this.addGraphFragment(-dx, -dy, this.scale, pageNum, div, clip);
 
-				// Adds given ID as anchor for internal links
-				if (id != null && i == 0)
+				// Adds given ID as anchor for internal links in first page
+				if (id != null && i == 0 && j == 0)
 				{
 					div.setAttribute('id', id);
 				}
@@ -621,6 +649,11 @@ mxPrintPreview.prototype.open = function(css, targetWindow, forcePageBreaks, kee
 		{
 			div.parentNode.removeChild(div);
 		}
+
+		if (window.console != null)
+		{
+			console.error(e);
+		}
 	}
 	finally
 	{
@@ -628,18 +661,6 @@ mxPrintPreview.prototype.open = function(css, targetWindow, forcePageBreaks, kee
 	}
 
 	return this.wnd;
-};
-
-/**
- * Function: addPageBreak
- * 
- * Adds a page break to the given document.
- */
-mxPrintPreview.prototype.addPageBreak = function(doc)
-{
-	var hr = doc.createElement('hr');
-	hr.className = 'mxPageBreak';
-	doc.body.appendChild(hr);
 };
 
 /**
@@ -708,11 +729,6 @@ mxPrintPreview.prototype.writeHead = function(doc, css)
 	// Removes horizontal rules and page selector from print output
 	doc.writeln('<style type="text/css">');
 	doc.writeln(this.defaultCss);
-	doc.writeln('@media screen {');
-	doc.writeln('  body > div {');
-	doc.writeln('    padding: ' + (this.pageMargin / this.pixelsPerInch) + 'in;');
-	doc.writeln('  }');
-	doc.writeln('}');
 	var pf = this.pageFormat;
 
 	// Sets printer defaults
@@ -874,12 +890,14 @@ mxPrintPreview.prototype.addGraphFragment = function(dx, dy, scale, pageNumber, 
 	if (this.printBackgroundImage)
 	{
 		var bg = this.getBackgroundImage();
-
+		
 		if (bg != null)
 		{
-			var bounds = new mxRectangle(Math.round((dx + bg.x) * s),
-				Math.round((dy + bg.y) * s),
-				bg.width * s - 1, bg.height * s - 1);
+			var bounds = new mxRectangle(
+				Math.round(dx * s + bg.x),
+				Math.round(dy * s + bg.y),
+				bg.width - 1, bg.height - 1);
+			
 			var bgImg = new mxImageShape(bounds, bg.src);
 			bgImg.dialect = this.graph.dialect;
 		}
@@ -888,9 +906,11 @@ mxPrintPreview.prototype.addGraphFragment = function(dx, dy, scale, pageNumber, 
 	// Gets the transformed clip for intersection check below
 	if (this.clipping)
 	{
-		var tempClip = new mxRectangle((clip.x + translate.x + 1.5) * s,
+		var tempClip = new mxRectangle(
+			(clip.x + translate.x + 1.5) * s,
 			(clip.y + translate.y + 1.5) * s,
-			(clip.width - 1.5) * s / realScale, (clip.height - 1.5) * s / realScale);
+			(clip.width - 1.5) * s / realScale,
+			(clip.height - 1.5) * s / realScale);
 		var self = this;
 
 		// Checks clipping rectangle for speedup
@@ -926,10 +946,12 @@ mxPrintPreview.prototype.addGraphFragment = function(dx, dy, scale, pageNumber, 
 
 		if (bgImg != null)
 		{
-			var temp = new mxRectangle(bgImg.bounds.x + translate.x,
-				bgImg.bounds.y + translate.y,
-				bgImg.bounds.width, bgImg.bounds.height);
-
+			var temp = new mxRectangle(
+				bgImg.bounds.x * s + (translate.x - dx) * s,
+				bgImg.bounds.y * s + (translate.y - dy) * s,
+				bgImg.bounds.width * s,
+				bgImg.bounds.height * s);
+			
 			if (!mxUtils.intersects(tempClip, temp))
 			{
 				bgImg = null;
@@ -974,10 +996,13 @@ mxPrintPreview.prototype.addGraphFragment = function(dx, dy, scale, pageNumber, 
 				tmp.style.display = '';
 				tmp.style.maxWidth = '100%';
 				tmp.style.maxHeight = '100%';
-				tmp.style.overflow = 'hidden';
+				tmp.style.overflow = (mxClient.IS_SF) ? 'hidden' : 'clip';
+				tmp.style.overflowClipMargin = this.overflowClipMargin;
 				tmp.setAttribute('viewBox', '0 0 ' +
-					clip.width + ' ' + clip.height);
-
+					((mxClient.IS_SF) ?
+					((clip.width + 1) + ' ' + (clip.height + 1)) :	
+					((clip.width - 1) + ' ' + (clip.height - 1))));
+				
 				// Workaround for no dimension in Safari
 				if (mxClient.IS_SF)
 				{

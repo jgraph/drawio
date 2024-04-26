@@ -1282,3 +1282,4 @@ confCloudMigConfirm=Abisua: prozesu honek orrialde eta diagrama asko editatuko d
 confCloudMigNotice=Hodeiko instantzian, gehitu linkAdjustments draw.io konfigurazioan honela {1}. Konfigurazio hori gabe, Confluence orrietara seinalatzen duten diagrametan estekek ez dute funtzionatuko.
 confALogsPageDesc=This page contains logs of draw.io long running services as attachments
 confEditOnlyInPageEditor=Can only be edited within Confluence page editor
+confEvalWarn=Evaluation License - Not for production use

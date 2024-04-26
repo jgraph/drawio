@@ -307,6 +307,125 @@
 	};
 	
 	/**
+	 * Replaces SVG data URIs in images with the actual SVG for
+	 * the images to be supported in apps like Powerpoint.
+	 */
+	EditorUi.embedSvgImages = function(root)
+	{
+		var temp = root.getElementsByTagName('image');
+
+		// Clones array
+		var imgs = [];
+
+		for (var i = 0; i < temp.length; i++)
+		{
+			imgs.push(temp[i]);
+		}
+
+		// Replaces images
+		for (var i = 0; i < imgs.length; i++)
+		{
+			EditorUi.replaceSvgImage(imgs[i]);
+		}
+	};
+	
+	/**
+	 * Replaces the given SVG image with an SVG subtree.
+	 */
+	EditorUi.replaceSvgImage = function(node)
+	{
+		try
+		{
+			var href = null;
+
+			// Workaround for missing namespace support
+			if (node.getAttributeNS == null)
+			{
+				href = node.getAttribute('xlink:href');
+			}
+			else
+			{
+				href = node.getAttributeNS(mxConstants.NS_XLINK, 'href');
+			}
+
+			var svg = EditorUi.getSvgSubtree(href);
+
+			// Checks nodeName as parsers can get foreignObjects
+			// content to go before the SVG element
+			if (svg != null && svg.nodeName == 'svg')
+			{
+				svg.setAttribute('x', node.getAttribute('x'));
+				svg.setAttribute('y', node.getAttribute('y'));
+				svg.setAttribute('width', node.getAttribute('width'));
+				svg.setAttribute('height', node.getAttribute('height'));
+				svg.style.fontFamily = 'initial';
+
+				node.parentNode.replaceChild(svg, node);
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+	};
+	
+	/**
+	 * Returns SVG with modified CSS rules that limit scope to subtree.
+	 */
+	EditorUi.getSvgSubtree = function(href)
+	{
+		var data = Graph.getSvgFromDataUri(href);
+		var svg = null;
+
+		if (data != null)
+		{
+			svg = Graph.sanitizeNode(mxUtils.parseXml(data).documentElement);
+
+			// Limits CSS rules to subtree
+			var styles = svg.getElementsByTagName('style');
+
+			if (styles.length > 0)
+			{
+				var id = 'svg-image-' + Editor.guid();
+				svg.setAttribute('id', id);
+				
+				// Adds ID selector for all CSS rules to limit scope
+				var doc = document.implementation.createHTMLDocument(''),
+				styleElement = document.createElement('style');
+
+				for (var j = 0; j < styles.length; j++)
+				{
+					styleElement.textContent = styles[j].textContent;
+					doc.body.appendChild(styleElement);
+					var modifiedCss = '';
+
+					for (var k = 0; k < styleElement.sheet.cssRules.length; k++)
+					{
+						var rule = styleElement.sheet.cssRules[k];
+
+						if (rule.selectorText != null)
+						{
+							var tokens = rule.selectorText.split(',');
+
+							for (var l = 0; l < tokens.length; l++)
+							{
+								tokens[l] = '#' + id + ' ' + tokens[l];
+							}
+
+							rule.selectorText = tokens.join(',');
+							modifiedCss += rule.cssText + '\n';
+						}
+					}
+
+					styles[j].textContent = modifiedCss;
+				}
+			}
+		}
+
+		return svg;
+	};
+	
+	/**
 	 * Contains the default XML for an empty diagram.
 	 */
 	EditorUi.prototype.emptyDiagramXml = '<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/></root></mxGraphModel>';
@@ -419,6 +538,11 @@
 	 */
 	EditorUi.prototype.showRemoteCursors = true;
 
+	/**
+	 * Specifies if the diagram is locked. Default is false.
+	 */
+	EditorUi.prototype.locked = false;
+	
 	/**
 	 * Capability check for canvas export
 	 */
@@ -533,6 +657,23 @@
 		{
 			fn();
 		}
+	};
+	
+	/**
+	 * Abstraction for local storage access.
+	 */
+	EditorUi.prototype.isLocked = function()
+	{
+		return this.locked;
+	};
+	
+	/**
+	 * Abstraction for local storage access.
+	 */
+	EditorUi.prototype.setLocked = function(value)
+	{
+		this.locked = value;
+		this.fireEvent(new mxEventObject('lockedChanged'));
 	};
 	
 	/**
@@ -2176,17 +2317,9 @@
 				{
 					try
 					{
-						var prev = this.editor.graph.pageVisible;
-						
-						//Only override if page is actually visible
-						if (pageVisible == false)
-						{
-							this.editor.graph.pageVisible = pageVisible;
-						}
-						
 						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64,
-							transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h);
-						this.editor.graph.pageVisible = prev;
+							transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h,
+							!pageVisible);
 						
 						return req;
 					}
@@ -2204,12 +2337,11 @@
 	};
 	
 	// Note: Remember to adjust ElectronApp override when this function is modified
-	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection,
-		base64, transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h)
+	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64,
+		transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop)
 	{
 		var params = this.downloadRequestBuilder(filename, format, ignoreSelection, base64,
-			transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h);
-
+			transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop);
 		var paramsStr = '';
 
 		for (var p in params)
@@ -2231,12 +2363,12 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.downloadRequestBuilder = function(filename, format, ignoreSelection,
-		base64, transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h)
+	EditorUi.prototype.downloadRequestBuilder = function(filename, format, ignoreSelection, base64,
+		transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop)
 	{
 		var graph = this.editor.graph;
 		var bounds = graph.getGraphBounds();
-		
+
 		// Exports only current page for images that does not contain file data, but for
 		// the other formats with XML included or pdf with all pages, we need to send the complete data and use
 		// the from/to URL parameters to specify the page to be exported.
@@ -2328,7 +2460,8 @@
 			scale: scale,
 			border: border,
 			w: (w && isFinite(w)? w : null),
-			h: (h && isFinite(h)? h : null)
+			h: (h && isFinite(h)? h : null),
+			crop: (crop != null && crop) ? '1' : '0'
 		};
 	};
 	
@@ -5726,7 +5859,7 @@
 					// Fixes ignored SVG data URIs for Office
 					if (Editor.replaceSvgDataUris && embedImages)
 					{
-						this.embedSvgImages(svgRoot);
+						EditorUi.embedSvgImages(svgRoot);
 					}
 
 					// Improves foreignObject fallback for Office/Inkscape
@@ -5746,7 +5879,7 @@
 					this.editor.graph.backgroundImage != null &&
 					this.editor.graph.backgroundImage.originalSrc != null)
 				{
-					this.embedSvgImages(svgRoot);
+					EditorUi.embedSvgImages(svgRoot);
 				}
 
 				var done = mxUtils.bind(this, function(svgRoot)
@@ -6013,125 +6146,6 @@
 		next();
 	};
 
-	/**
-	 * Replaces SVG data URIs in images with the actual SVG for
-	 * the images to be supported in apps like Powerpoint.
-	 */
-	EditorUi.prototype.embedSvgImages = function(root)
-	{
-		var temp = root.getElementsByTagName('image');
-
-		// Clones array
-		var imgs = [];
-
-		for (var i = 0; i < temp.length; i++)
-		{
-			imgs.push(temp[i]);
-		}
-
-		// Replaces images
-		for (var i = 0; i < imgs.length; i++)
-		{
-			this.replaceSvgImage(imgs[i]);
-		}
-	};
-	
-	/**
-	 * Replaces the given SVG image with an SVG subtree.
-	 */
-	EditorUi.prototype.replaceSvgImage = function(node)
-	{
-		try
-		{
-			var href = null;
-
-			// Workaround for missing namespace support
-			if (node.getAttributeNS == null)
-			{
-				href = node.getAttribute('xlink:href');
-			}
-			else
-			{
-				href = node.getAttributeNS(mxConstants.NS_XLINK, 'href');
-			}
-
-			var svg = this.getSvgSubtree(href);
-
-			// Checks nodeName as parsers can get foreignObjects
-			// content to go before the SVG element
-			if (svg != null && svg.nodeName == 'svg')
-			{
-				svg.setAttribute('x', node.getAttribute('x'));
-				svg.setAttribute('y', node.getAttribute('y'));
-				svg.setAttribute('width', node.getAttribute('width'));
-				svg.setAttribute('height', node.getAttribute('height'));
-				svg.style.fontFamily = 'initial';
-
-				node.parentNode.replaceChild(svg, node);
-			}
-		}
-		catch (e)
-		{
-			// ignore
-		}
-	};
-	
-	/**
-	 * Returns SVG with modified CSS rules that limit scope to subtree.
-	 */
-	EditorUi.prototype.getSvgSubtree = function(href)
-	{
-		var data = Graph.getSvgFromDataUri(href);
-		var svg = null;
-
-		if (data != null)
-		{
-			svg = Graph.sanitizeNode(mxUtils.parseXml(data).documentElement);
-
-			// Limits CSS rules to subtree
-			var styles = svg.getElementsByTagName('style');
-
-			if (styles.length > 0)
-			{
-				var id = 'svg-image-' + Editor.guid();
-				svg.setAttribute('id', id);
-				
-				// Adds ID selector for all CSS rules to limit scope
-				var doc = document.implementation.createHTMLDocument(''),
-				styleElement = document.createElement('style');
-
-				for (var j = 0; j < styles.length; j++)
-				{
-					styleElement.textContent = styles[j].textContent;
-					doc.body.appendChild(styleElement);
-					var modifiedCss = '';
-
-					for (var k = 0; k < styleElement.sheet.cssRules.length; k++)
-					{
-						var rule = styleElement.sheet.cssRules[k];
-
-						if (rule.selectorText != null)
-						{
-							var tokens = rule.selectorText.split(',');
-
-							for (var l = 0; l < tokens.length; l++)
-							{
-								tokens[l] = '#' + id + ' ' + tokens[l];
-							}
-
-							rule.selectorText = tokens.join(',');
-							modifiedCss += rule.cssText + '\n';
-						}
-					}
-
-					styles[j].textContent = modifiedCss;
-				}
-			}
-		}
-
-		return svg;
-	};
-	
 	/**
 	 * 
 	 */
@@ -10642,6 +10656,13 @@
 		var ui = this;
 		var graph = this.editor.graph;
 
+		var graphIsEnabled = graph.isEnabled;
+
+		graph.isEnabled = function()
+		{
+			return graphIsEnabled.apply(this, arguments) && !ui.isLocked();
+		};
+
 		// Stops panning while freehand is active
 		if (Graph.touchStyle)
 		{
@@ -11131,7 +11152,7 @@
 		{
 			ui.showDialog(new PrintDialog(ui).container, 320,
 				(ui.pages != null && ui.pages.length > 1) ?
-				330 : 260, true, true);
+				350 : 280, true, true);
 		};
 
 		// Specifies the default filename

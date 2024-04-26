@@ -2543,6 +2543,21 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	
 	function refresh()
 	{
+		if (graph.isEnabled())
+		{
+			removeLink.classList.remove('mxDisabled');
+			dataLink.classList.remove('mxDisabled');
+			duplicateLink.classList.remove('mxDisabled');;
+			addLink.classList.remove('mxDisabled');
+		}
+		else
+		{
+			removeLink.classList.add('mxDisabled');
+			dataLink.classList.add('mxDisabled');
+			duplicateLink.classList.add('mxDisabled');
+			addLink.classList.add('mxDisabled');
+		}
+		
 		layerCount = graph.model.getChildCount(graph.model.root)
 		listDiv.innerText = '';
 		layerDivs.clear();
@@ -2629,11 +2644,20 @@ var LayersWindow = function(editorUi, x, y, w, h)
 				mxUtils.setOpacity(ldiv, 40);
 			}
 
+			if (!graph.isEnabled())
+			{
+				mxUtils.setOpacity(inp, 50);
+			}
+
 			left.appendChild(inp);
 			
 			mxEvent.addListener(inp, 'click', function(evt)
 			{
-				graph.model.setVisible(child, !graph.model.isVisible(child));
+				if (graph.isEnabled())
+				{
+					graph.model.setVisible(child, !graph.model.isVisible(child));
+				}
+
 				mxEvent.consume(evt);
 			});
 
@@ -2849,6 +2873,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	refresh();
 	graph.model.addListener(mxEvent.CHANGE, refresh);
 	graph.addListener('defaultParentChanged', refresh);
+	editorUi.addListener('lockedChanged', refresh);
 	
 	graph.selectionModel.addListener(mxEvent.CHANGE, function()
 	{

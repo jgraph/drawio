@@ -552,7 +552,7 @@ EditorUi.prototype.initPages = function()
 			// Uses SVG subtree to support custom fonts and images
 			if (graph.view.backgroundImage != null)
 			{
-				this.embedSvgImages(graph.view.backgroundImage.node);
+				EditorUi.embedSvgImages(graph.view.backgroundImage.node);
 			}
 		});
 

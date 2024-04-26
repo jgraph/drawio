@@ -346,6 +346,17 @@
 			toggleSimpleModeAction.setSelectedCallback(function() { return Editor.currentTheme == 'simple'; });
 		}
 
+		if (urlParams['test'] == '1')
+		{
+			var toggleReadOnlyAction = editorUi.actions.put('toggleReadOnly', new Action(mxResources.get('readOnly'), function(e)
+			{
+				editorUi.setLocked(!editorUi.isLocked());
+			}));
+
+			toggleReadOnlyAction.setToggleAction(true);
+			toggleReadOnlyAction.setSelectedCallback(function() { return editorUi.isLocked(); });
+		}
+
         var toggleSketchModeAction = editorUi.actions.put('toggleSketchMode', new Action(mxResources.get('sketch'), function(e)
         {
 			editorUi.setSketchMode(!Editor.sketchMode);
@@ -493,7 +504,7 @@
 				// Export PDF action for chrome OS (same as print with different dialog title)
 				editorUi.showDialog(new PrintDialog(editorUi, mxResources.get('formatPdf')).container, 320,
 					(editorUi.pages != null && editorUi.pages.length > 1 && (editorUi.editor.editable ||
-					urlParams['hide-pages'] != '1')) ? 330 : 260, true, true);
+					urlParams['hide-pages'] != '1')) ? 350 : 280, true, true);
 			}
 			else
 			{
@@ -503,22 +514,11 @@
 				
 				var hd = document.createElement('h3');
 				mxUtils.write(hd, mxResources.get('formatPdf'));
-				hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:4px';
+				hd.style.width = '100%';
+				hd.style.textAlign = 'center';
+				hd.style.marginTop = '0px';
+				hd.style.marginBottom = '4px';
 				div.appendChild(hd);
-				
-				var cropEnableFn = function()
-				{
-					if (allPages != this && this.checked)
-					{
-						crop.removeAttribute('disabled');
-						crop.checked = !graph.pageVisible;
-					}
-					else
-					{
-						crop.setAttribute('disabled', 'disabled');
-						crop.checked = false;
-					}
-				};
 				
 				var dlgH = 200;
 				var pageCount = 1;
@@ -530,7 +530,7 @@
 					var pagesRadio = editorUi.addRadiobox(div, 'pages', mxResources.get('pages') + ':', false, null, true);
 
 					var pagesFromInput = document.createElement('input');
-					pagesFromInput.style.cssText = 'margin:0 8px 0 8px;'
+					pagesFromInput.style.margin = '0 8px 0 8px';
 					pagesFromInput.setAttribute('value', '1');
 					pagesFromInput.setAttribute('type', 'number');
 					pagesFromInput.setAttribute('min', '1');
@@ -586,29 +586,21 @@
 					pagesToInput.setAttribute('max', pageCount);
 					mxUtils.br(div);
 
-					var selection = editorUi.addRadiobox(div, 'pages', mxResources.get('selectionOnly'), false, graph.isSelectionEmpty());
-					var crop = editorUi.addCheckbox(div, mxResources.get('crop'), false, true);
-					var grid = editorUi.addCheckbox(div, mxResources.get('grid'), false, false);
+					var selection = editorUi.addRadiobox(div, 'pages', mxResources.get('selectionOnly'),
+						false, graph.isSelectionEmpty());
+					var crop = editorUi.addCheckbox(div, mxResources.get('crop'), false);
+					var grid = editorUi.addCheckbox(div, mxResources.get('grid'), false);
 					
-					mxEvent.addListener(allPages, 'change', cropEnableFn);
-					mxEvent.addListener(pagesRadio, 'change', cropEnableFn);
-					mxEvent.addListener(selection, 'change', cropEnableFn);
-					dlgH += 64;
+					dlgH += 70;
 				}
 				else
 				{
 					var selection = editorUi.addCheckbox(div, mxResources.get('selectionOnly'),
-							false, graph.isSelectionEmpty());
+						false, graph.isSelectionEmpty());
 					var crop = editorUi.addCheckbox(div, mxResources.get('crop'),
-							!graph.pageVisible || !editorUi.pdfPageExport,
-							!editorUi.pdfPageExport);
-					var grid = editorUi.addCheckbox(div, mxResources.get('grid'), false, false);
-					
-					// Crop is only enabled if selection only is selected
-					if (!editorUi.pdfPageExport)
-					{
-						mxEvent.addListener(selection, 'change', cropEnableFn);	
-					}
+						!graph.pageVisible || !editorUi.pdfPageExport,
+						!editorUi.pdfPageExport);
+					var grid = editorUi.addCheckbox(div, mxResources.get('grid'), false);
 				}
 				
 				var isDrawioWeb = !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
@@ -4563,8 +4555,8 @@
 				}
 
 				this.addMenuItems(menu, ['tooltips', 'ruler', '-', 'grid', 'guides',
-					'-', 'connectionArrows', 'connectionPoints', '-',
-					'resetView', 'zoomIn', 'zoomOut'], parent);
+					'toggleReadOnly', '-', 'connectionArrows', 'connectionPoints',
+					'-', 'resetView', 'zoomIn', 'zoomOut'], parent);
 
 				if (urlParams['sketch'] != '1')
 				{
@@ -4654,8 +4646,8 @@
 					{
 						editorUi.handleError(e);
 					}
-				}), parent);
-
+				}), parent, null, editorUi.editor.graph.isEnabled());
+				
 				menu.addSeparator(parent);
 			}
 			
@@ -4763,9 +4755,9 @@
 		this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			// Compatiblity code for live UI switch and static UI
-			var sketchTheme = Editor.currentTheme == 'simple' || urlParams['sketch'] == '1';
-			
-			if (sketchTheme || uiTheme == 'min')
+			if (Editor.currentTheme == 'simple' ||
+				Editor.currentTheme == 'sketch' ||
+				Editor.currentTheme == 'min')
 			{
 				if ((urlParams['embed'] != '1' || urlParams['atlas'] == '1') &&
 					urlParams['extAuth'] != '1' && editorUi.mode != App.MODE_ATLAS &&
@@ -4790,7 +4782,7 @@
 				
 				editorUi.menus.addSubmenu('units', menu, parent);
 				editorUi.menus.addMenuItems(menu, ['-', 'copyConnect',
-					'collapseExpand', 'tooltips', '-'], parent);
+					'collapseExpand', 'tooltips', 'toggleReadOnly', '-'], parent);
 
 				var file = editorUi.getCurrentFile();
 

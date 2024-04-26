@@ -1,3 +1,30 @@
+26-APR-2024: 24.3.1
+
+- Fixes breadcrumb trail after refresh in OneDrive picker [drawio-4339]
+- Fixes diagrams in Google Add ons [drawio-4349]
+- Fixes diagram size in Google Add ons [drawio-4351]
+- Removes margin for cropped PDF export [drawio-4353]
+- [conf cloud] Fixes AP.navigator.getLocation returning incorrect pageId in drafts [DID-11399]
+
+24-APR-2024: 24.3.0
+
+- Enable internal links in PDF export [drawio-722]
+
+24-APR-2024: 24.2.9
+
+- Adds support for PDF+XML files in OneDrive picker [drawio-4339]
+- Adds autosize and resizable to style clipboard [drawio-4285]
+- Fixes PWA for iOS and iPadOS [drawio-4342]
+- Adds support for iframe sandbox attribute [drawio-4340]
+- Skips getStoredMode in embed mode [drawio-4340]
+
+22-APR-2024: 24.2.8
+
+- Adds experimental read-only mode [drawio-desktop-1380]
+- [conf cloud] Adds support for server lightbox links [DID-11348]
+- Enables crop option in PDF export dialog
+- Fixes background images, page IDs in print preview
+
 19-APR-2024: 24.2.7
 
 - Simplifies print dialog

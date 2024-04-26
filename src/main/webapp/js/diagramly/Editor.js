@@ -2835,7 +2835,8 @@
 			{
 				options:
 				{
-					skipHtmlTags: {'[+]': ['text']}
+					skipHtmlTags: {'[+]': ['text']},
+					ignoreHtmlClass: 'geDisableMathJax'
 				},
 				loader:
 				{
@@ -8453,8 +8454,7 @@
 		mxUtils.write(title, titleText || mxResources.get('print'));
 		div.appendChild(title);
 		
-		// Workaround for blank pages with no margins
-		var printScale = (mxClient.IS_SF) ? 0.7 : 1;
+		var printScale = 1;
 		var pageCount = 1;
 		var currentPage = 1;
 
@@ -8463,6 +8463,7 @@
 		pagesSection.style.borderBottom = '1px solid lightGray';
 		pagesSection.style.paddingBottom = '12px';
 		pagesSection.style.marginBottom = '12px';
+		pagesSection.style.whiteSpace = 'nowrap';
 		
 		var allPagesRadio = document.createElement('input');
 		allPagesRadio.style.marginRight = '8px';
@@ -8485,7 +8486,6 @@
 
 		// Page range
 		var pagesRadio = allPagesRadio.cloneNode(true);
-		allPagesRadio.setAttribute('checked', 'checked');
 		pagesRadio.setAttribute('value', 'range');
 		pagesSection.appendChild(pagesRadio);
 		
@@ -8498,11 +8498,11 @@
 		});
 		
 		var pagesFromInput = document.createElement('input');
-		pagesFromInput.style.margin = '0 8px 0 8px';
+		pagesFromInput.style.margin = '0 4px';
 		pagesFromInput.setAttribute('value', '1');
 		pagesFromInput.setAttribute('type', 'number');
 		pagesFromInput.setAttribute('min', '1');
-		pagesFromInput.style.width = '50px';
+		pagesFromInput.style.width = '40px';
 		pagesSection.appendChild(pagesFromInput);
 		
 		var span = document.createElement('span');
@@ -8524,8 +8524,10 @@
 		
 		function validatePageRange()
 		{
-			pagesToInput.value = Math.max(1, Math.min(pageCount, Math.max(parseInt(pagesToInput.value), parseInt(pagesFromInput.value))));
-			pagesFromInput.value = Math.max(1, Math.min(pageCount, Math.min(parseInt(pagesToInput.value), parseInt(pagesFromInput.value))));
+			pagesToInput.value = Math.max(1, Math.min(pageCount,
+				Math.max(parseInt(pagesToInput.value), parseInt(pagesFromInput.value))));
+			pagesFromInput.value = Math.max(1, Math.min(pageCount,
+				Math.min(parseInt(pagesToInput.value), parseInt(pagesFromInput.value))));
 		};
 		
 		mxEvent.addListener(pagesFromInput, 'change', validatePageRange);
@@ -8537,30 +8539,53 @@
 
 			if (editorUi.currentPage != null)
 			{
-				for (var i = 0; i < editorUi.pages.length; i++)
+				for (var i = 0; i < pageCount; i++)
 				{
 					if (editorUi.currentPage == editorUi.pages[i])
 					{
 						currentPage = i + 1;
-						pagesFromInput.value = currentPage;
-						pagesToInput.value = currentPage;
 						break;
 					}
 				}
 			}
 		}
 		
+		if (editorUi.lastPrintPagesFromInput != null &&
+			editorUi.lastPrintPagesToInput != null)
+		{
+			pagesFromInput.value = Math.min(pageCount,
+				Math.max(1, editorUi.lastPrintPagesFromInput));
+			pagesToInput.value = Math.min(pageCount,
+				Math.max(1, editorUi.lastPrintPagesToInput));
+		}
+		else
+		{
+			pagesFromInput.value = currentPage;
+			pagesToInput.value = currentPage;
+		}
+		
 		pagesFromInput.setAttribute('max', pageCount);
 		pagesToInput.setAttribute('max', pageCount);
-		
-		if (!editorUi.isPagesEnabled())
+
+		var currPage = mxUtils.button(mxResources.get('currentPage'), function(evt)
 		{
+			pagesFromInput.value = currentPage;
+			pagesToInput.value = currentPage;
 			pagesRadio.checked = true;
-		}
-		else if (pageCount > 1)
+		});
+
+		currPage.setAttribute('title', mxResources.get('currentPage'));
+		currPage.style.marginLeft = '4px';
+		currPage.style.maxWidth = '100px';
+		currPage.style.overflow = 'hidden';
+		currPage.style.textOverflow = 'ellipsis';
+		currPage.style.whiteSpace = 'nowrap';
+
+		pagesSection.appendChild(currPage);
+		
+		if (pageCount > 1)
 		{
 			div.appendChild(pagesSection);
-			allPagesRadio.checked = true;
 		}
 
 		mxUtils.br(pagesSection);
@@ -8595,6 +8620,19 @@
 		var span = document.createElement('span');
 		mxUtils.write(span, mxResources.get('selectionOnly'));
 		selectionOnlyRadio.parentNode.appendChild(span);
+
+		if (!editorUi.isPagesEnabled() || editorUi.lastPrintPagesRadioChecked)
+		{
+			pagesRadio.checked = true;
+		}
+		else if (!graph.isSelectionEmpty() && editorUi.lastPrintSelectionOnlyChecked)
+		{
+			selectionOnlyRadio.checked = true;
+		}
+		else
+		{
+			allPagesRadio.checked = true;
+		}
 
 		if (!graph.isSelectionEmpty())
 		{
@@ -8664,7 +8702,6 @@
 
 		var fitRadio = adjustRadio.cloneNode(true);
 		fitRadio.setAttribute('value', 'fit');
-		adjustRadio.setAttribute('checked', 'checked');
 		
 		var spanFitRadio = document.createElement('div');
 		spanFitRadio.style.display = 'inline-block';
@@ -8700,7 +8737,7 @@
 		
 		var sheetsAcrossInput = document.createElement('input');
 		sheetsAcrossInput.style.margin = '0 8px 0 8px;';
-		sheetsAcrossInput.setAttribute('value', '1');
+		sheetsAcrossInput.setAttribute('value', editorUi.lastPrintSheetsAcross || '1');
 		sheetsAcrossInput.setAttribute('min', '1');
 		sheetsAcrossInput.setAttribute('type', 'number');
 		sheetsAcrossInput.style.width = '40px';
@@ -8713,6 +8750,7 @@
 		mxUtils.write(td4, mxResources.get('fitToBy'));
 		
 		var sheetsDownInput = sheetsAcrossInput.cloneNode(true);
+		sheetsAcrossInput.setAttribute('value', editorUi.lastPrintSheetsDown || '1');
 		td5.appendChild(sheetsDownInput);
 		
 		mxEvent.addListener(sheetsAcrossInput, 'focus', function()
@@ -8724,6 +8762,19 @@
 		{
 			fitRadio.checked = true;
 		});
+
+		if (editorUi.lastPrintFitRadioChecked)
+		{
+			fitRadio.checked = true;
+		}
+		else if (editorUi.lastPrintCropRadioChecked)
+		{
+			cropRadio.checked = true;
+		}
+		else
+		{
+			adjustRadio.checked = true;
+		}
 
 		var span = document.createElement('span');
 		mxUtils.write(span, mxResources.get('fitToSheetsDown'));
@@ -8763,8 +8814,27 @@
 		// Overall scale for print-out to account for print borders in dialogs etc
 		function preview(print)
 		{
+			editorUi.lastPrintPagesRadioChecked = pagesRadio.checked;
+			editorUi.lastPrintSelectionOnlyChecked = selectionOnlyRadio.checked;
+			editorUi.lastPrintCropRadioChecked = cropRadio.checked;
+			editorUi.lastPrintFitRadioChecked = fitRadio.checked;
+
+			if (pagesRadio.checked && pagesFromInput.value < pagesToInput.value)
+			{
+				editorUi.lastPrintPagesFromInput = pagesFromInput.value;
+				editorUi.lastPrintPagesToInput = pagesToInput.value;
+			}
+			else
+			{
+				editorUi.lastPrintPagesFromInput = null;
+				editorUi.lastPrintPagesToInput = null;
+			}
+
 			editorUi.lastPrintZoom = zoomInput.value;
 			editorUi.lastPrintBorder = borderInput.value;
+
+			editorUi.lastPrintSheetsAcross = sheetsAcrossInput.value;
+			editorUi.lastPrintSheetsDown = sheetsDownInput.value;
 
 			// Disables dark mode while printing
 			var darkStylesheet = null;
@@ -8806,10 +8876,10 @@
 				var y0 = 0;
 		
 				var pf = mxRectangle.fromRectangle(thisGraph.pageFormat);
+				var autoOrigin = fitRadio.checked || cropRadio.checked;
 				var scale = 1 / thisGraph.pageScale;
-				var autoOrigin = fitRadio.checked;
 				
-				if (autoOrigin)
+				if (fitRadio.checked)
 				{
 					var h = parseInt(sheetsAcrossInput.value);
 					var v = parseInt(sheetsDownInput.value);
@@ -8819,7 +8889,14 @@
 				}
 				else
 				{
-					scale = parseInt(zoomInput.value) / (100 * thisGraph.pageScale);
+					if (adjustRadio.checked)
+					{
+						scale = parseInt(zoomInput.value) / (100 * thisGraph.pageScale);
+					}
+					else
+					{
+						scale = 1 / thisGraph.pageScale;
+					}
 					
 					if (isNaN(scale))
 					{
@@ -8941,13 +9018,13 @@
 					{
 						var printDrawBackgroundImage = pv.drawBackgroundImage;
 
-						mxPrintPreview.prototype.drawBackgroundImage = function(img)
+						pv.drawBackgroundImage = function(img)
 						{
 							printDrawBackgroundImage.apply(this, arguments);
 
 							if (img.node != null)
 							{
-								editorUi.embedSvgImages(img.node);
+								EditorUi.embedSvgImages(img.node);
 
 								graph.disableSvgLinks(img.node, function(link)
 								{
@@ -8982,10 +9059,6 @@
 					var tempFg = graph.shapeForegroundColor;
 					var tempBg = graph.shapeBackgroundColor;
 					
-					// Disables dashed printing of flowAnimation
-					var enableFlowAnimation = graph.enableFlowAnimation;
-					graph.enableFlowAnimation = false;
-
 					if (graph.themes != null && graph.defaultThemeName == 'darkTheme')
 					{
 						temp = graph.stylesheet;
@@ -8997,9 +9070,6 @@
 					
 					// Generates the print output
 					pv.open(null, null, forcePageBreaks, true, anchorId, pf);
-					
-					// Restores flowAnimation
-					graph.enableFlowAnimation = enableFlowAnimation;
 					
 					// Restores the stylesheet
 					if (temp != null)

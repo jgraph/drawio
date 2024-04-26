@@ -3382,7 +3382,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					mxEvent.addGestureListeners(magnify, mouseDownHandler, null, mouseUpHandler);
 				}, function(e)
 				{
-					mxMermaidToDrawio.resetListeners();
+					if (mxMermaidToDrawio.resetListeners != null)
+					{
+						mxMermaidToDrawio.resetListeners();
+					}
+
 					editorUi.handleError(e);
 				}
 			);
@@ -5043,10 +5047,8 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 
 	if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
 	{
-		btns.appendChild(mxUtils.button(mxResources.get('help'), function()
-		{
-			editorUi.openLink('https://www.drawio.com/doc/faq/save-file-formats');
-		}, null, 'geBtn'));
+		btns.appendChild(editorUi.createHelpIcon(
+			'https://www.drawio.com/doc/faq/save-file-formats'));
 	}
 
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
@@ -12157,7 +12159,7 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 	
 	var btns = document.createElement('div');
 	btns.style.marginTop = (marginTop != null) ? marginTop : '30px';
-	btns.style.textAlign = 'center';
+	btns.style.textAlign = 'right';
 	
 	if (buttonsContent != null)
 	{

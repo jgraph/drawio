@@ -125,6 +125,7 @@ Format.prototype.init = function()
 	graph.addListener(mxEvent.ROOT, this.update);
 	ui.addListener('styleChanged', this.update);
 	ui.addListener('darkModeChanged', this.update);
+	ui.addListener('lockedChanged', this.update);
 	
 	this.refresh();
 };
@@ -4603,7 +4604,8 @@ StyleFormatPanel.prototype.init = function()
 	if (!ss.containsLabel && ss.cells.length > 0)
 	{
 		if (ss.containsImage && ss.vertices.length == 1 && ss.style.shape == 'image' &&
-			ss.style.image != null && ss.style.image.substring(0, 19) == 'data:image/svg+xml;')
+			ss.style.image != null && String(ss.style.image).
+				substring(0, 19) == 'data:image/svg+xml;')
 		{
 			this.container.appendChild(this.addSvgStyles(this.createPanel()));
 		}
@@ -4807,7 +4809,8 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 			// Adds open library action and updates search index when invoked
 			// if no libs were found but the shape name is likely to be known
 			if (libs == null && !this.editorUi.sidebar.isSearchIndexLoaded() &&
-				ss.style.shape != null && ss.style.shape.substring(0, 8) == 'mxgraph.')
+				ss.style.shape != null && String(ss.style.shape).
+					substring(0, 8) == 'mxgraph.')
 			{
 				libs = [];
 			}
@@ -4855,7 +4858,7 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 						libs = this.editorUi.sidebar.getLibsForStyle(keyStyle);
 					}
 
-					if (libs.length > 0)
+					if (libs != null && libs.length > 0)
 					{
 						this.editorUi.sidebar.openLibraries(libs);
 					}
@@ -4878,7 +4881,7 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 				}
 			}));
 			
-			if (ss.image && ss.cells.length > 0)
+			if (ss.image)
 			{
 				var graph = this.editorUi.editor.graph;
 				var state = graph.view.getState(graph.getSelectionCell());
@@ -6157,24 +6160,27 @@ DiagramStylePanel.prototype.getGlobalStyleButtons = function()
 
 	mxEvent.addListener(sketchDiv, 'click', function(evt)
 	{
-		var value = !Editor.sketchMode;
-
-		// Temporary overrides sketch mode to avoid flickering
-		// for the first async update after updating cells
-		Editor.sketchMode = value;
-
-		graph.updateCellStyles({'sketch': (value) ? '1' : null,
-			'curveFitting': (value) ? Editor.sketchDefaultCurveFitting : null,
-			'jiggle': (value) ? Editor.sketchDefaultJiggle : null},
-			graph.getVerticesAndEdges());
-		mxEvent.consume(evt);
-
-		// Restores and udpates sketch mode asynchronously
-		window.setTimeout(function()
+		if (graph.isEnabled())
 		{
-			Editor.sketchMode = !value;
-			ui.setSketchMode(value);
-		});
+			var value = !Editor.sketchMode;
+
+			// Temporary overrides sketch mode to avoid flickering
+			// for the first async update after updating cells
+			Editor.sketchMode = value;
+
+			graph.updateCellStyles({'sketch': (value) ? '1' : null,
+				'curveFitting': (value) ? Editor.sketchDefaultCurveFitting : null,
+				'jiggle': (value) ? Editor.sketchDefaultJiggle : null},
+				graph.getVerticesAndEdges());
+			mxEvent.consume(evt);
+
+			// Restores and udpates sketch mode asynchronously
+			window.setTimeout(function()
+			{
+				Editor.sketchMode = !value;
+				ui.setSketchMode(value);
+			});
+		}
 	});
 
 
@@ -6217,6 +6223,26 @@ DiagramStylePanel.prototype.getGlobalStyleButtons = function()
 		}
 	))];
 
+	if (!graph.isEnabled())
+	{
+		for (var i = 0; i < buttons.length; i++)
+		{
+			if (buttons[i].nodeName == 'BUTTON')
+			{
+				buttons[i].setAttribute('disabled', 'disabled');
+			}
+			else
+			{
+				var inp = buttons[i].getElementsByTagName('input');
+
+				if (inp.length > 0)
+				{
+					inp[0].setAttribute('disabled', 'disabled');
+				}
+			}
+		}
+	}
+
 	return buttons;
 };
 
@@ -6228,8 +6254,6 @@ DiagramStylePanel.prototype.addView = function(div)
 	var ui = this.editorUi;
 	var editor = ui.editor;
 	var graph = editor.graph;
-	var model = graph.getModel();
-	var gridColor = graph.view.gridColor;
 
 	div.style.paddingTop = '2px';
 	div.style.whiteSpace = 'normal';
@@ -6283,6 +6307,25 @@ DiagramStylePanel.prototype.addView = function(div)
 	opts.appendChild(table);
 	div.appendChild(opts);
 
+	if (graph.isEnabled())
+	{
+		this.addGraphStyles(div);
+	}
+
+	return div;
+};
+
+
+/**
+ * Adds the label menu items to the given menu and parent.
+ */
+DiagramStylePanel.prototype.addGraphStyles = function(div)
+{
+	var ui = this.editorUi;
+	var editor = ui.editor;
+	var graph = editor.graph;
+	var model = graph.getModel();
+	var gridColor = graph.view.gridColor;
 	var defaultStyles = ['fillColor', 'strokeColor', 'fontColor', 'gradientColor'];
 	
 	div.style.whiteSpace = 'normal';

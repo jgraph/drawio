@@ -1282,3 +1282,4 @@ confCloudMigConfirm=Warning: This process will edit many pages and diagrams, so 
 confCloudMigNotice=In the Cloud instance, please add linkAdjustments to draw.io configuration as follows {1}. Without this configuration, links in diagrams pointing to Confluence pages will not work.
 confALogsPageDesc=This page contains logs of draw.io long running services as attachments
 confEditOnlyInPageEditor=Редактирование возможно только в редакторе страницы Confluence
+confEvalWarn=Evaluation License - Not for production use
