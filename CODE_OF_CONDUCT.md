@@ -25,7 +25,7 @@ Examples of unacceptable behavior by participants include:
 * Being impatient or rude
 * Pressing developers for priority fixes or ETAs
 * Guilting the developers into focusing on your issue(s)
-* Repeatedly showing an inappropriate level of entitlement
+* Repeatedly showing an inappropriate level of entitlement, asking for issue status, or bumping issues.
 
 ## Our Responsibilities
 
