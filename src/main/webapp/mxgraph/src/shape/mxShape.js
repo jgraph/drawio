@@ -404,13 +404,13 @@ mxShape.prototype.updateBoundsFromPoints = function()
 	
 	if (pts != null && pts.length > 0 && pts[0] != null)
 	{
-		this.bounds = new mxRectangle(Number(pts[0].x), Number(pts[0].y), 1, 1);
+		this.bounds = new mxRectangle(Number(pts[0].x), Number(pts[0].y), this.scale, this.scale);
 		
 		for (var i = 1; i < this.points.length; i++)
 		{
 			if (pts[i] != null)
 			{
-				this.bounds.add(new mxRectangle(Number(pts[i].x), Number(pts[i].y), 1, 1));
+				this.bounds.add(new mxRectangle(Number(pts[i].x), Number(pts[i].y), this.scale, this.scale));
 			}
 		}
 	}

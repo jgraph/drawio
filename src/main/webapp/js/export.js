@@ -74,8 +74,13 @@ if (mxIsElectron)
 	// Disables eval for JS (uses shapes-14-6-5.min.js)
 	mxStencilRegistry.allowEval = false;
 }
-//TODO Add support for loading math from a local folder
+
+// TODO Add support for loading math from a local folder
 Editor.initMath((remoteMath? 'https://app.diagrams.net/' : '') + 'math/es5/startup.js');
+
+// Marks individual font and CSS URLs as preloaded
+var fontPreload = {};
+var cssPreload = {};
 
 function render(data)
 {
@@ -495,6 +500,138 @@ function render(data)
 		}
 	};
 
+	// Waits for the given font
+	function waitForFont(url)
+	{
+		try
+		{
+			if (url != null && fontPreload[url] == null)
+			{
+				waitCounter++;
+				fontPreload[url] = true;
+				mxUtils.get(url, decrementWaitCounter,
+					decrementWaitCounter, false, 10000,
+					decrementWaitCounter);
+			}
+		}
+		catch (e)
+		{
+			// ignore font
+		}
+	};
+
+	// Waits for the fonts in the given CSS
+	function waitForFonts(fontCss)
+	{
+		var parts = fontCss.split('url(');
+		
+		for (var i = 1; i < parts.length; i++)
+		{
+			try
+			{
+				var idx = parts[i].indexOf(')');
+				var url = Editor.trimCssUrl(parts[i].substring(0, idx));
+				waitForFont(url);
+			}
+			catch (e)
+			{
+				// ignore font css
+			}
+		}
+	};
+
+	// Loads and processes the fonts in the given Google Font URL
+	function processGoogleFontCss(url)
+	{
+		try
+		{
+			if (Graph.isGoogleFontUrl(url) && cssPreload[url] == null)
+			{			
+				cssPreload[url] = true;
+
+				var link = document.createElement('link');
+				link.setAttribute('rel', 'preload');
+				link.setAttribute('as', 'style');
+				link.setAttribute('href', url);
+				document.getElementsByTagName('head')[0].appendChild(link);
+
+				// Loads the stylesheet to wait for fonts
+				waitCounter++;
+
+				mxUtils.get(url, mxUtils.bind(this, function(req)
+				{
+					try
+					{
+						if (req.getStatus() >= 200 && req.getStatus() <= 299)
+						{
+							waitForFonts(req.getText());
+						}
+
+						decrementWaitCounter();
+					}
+					catch(e)
+					{
+						decrementWaitCounter();
+					}
+				}), decrementWaitCounter, false, 10000, decrementWaitCounter);
+			}
+		}
+		catch (e)
+		{
+			// ignore stylesheet
+		}
+	};
+
+	// Waits for Google Font CSS imports in the given element
+	function waitForGoogleFontImports(elt)
+	{
+		var style = elt.getElementsByTagName('style');
+
+		for (var i = 0; i < style.length; i++)
+		{
+			var parts = style[i].innerHTML.split('@import url(');
+
+			for (var i = 1; i < parts.length; i++)
+			{
+				try
+				{
+					var idx = parts[i].indexOf(')');
+					var url = Editor.trimCssUrl(parts[i].substring(0, idx));
+					processGoogleFontCss(url);
+				}
+				catch (e)
+				{
+					// ignore import
+				}
+			}
+		}
+	};
+
+	// Intercepts loading of Google Fonts CSS
+	var origCreateFontElement = Graph.createFontElement;
+
+	Graph.createFontElement = function(name, url)
+	{
+		var elt = origCreateFontElement.apply(this, arguments);
+
+		try
+		{
+			if (elt != null && elt.nodeName.toLowerCase() == 'link' &&
+				elt.getAttribute('type') == 'text/css' &&
+				elt.getAttribute('rel') == 'stylesheet')
+			{
+				processGoogleFontCss(elt.getAttribute('href'));
+			}
+		}
+		catch (e)
+		{
+			// ignore stylesheet
+		}
+
+		return elt;
+	};
+
+	// Adds wait counter for loading fonts
 	var origAddFont = Graph.addFont;
 	
 	Graph.addFont = function(name, url)
@@ -502,7 +639,10 @@ function render(data)
 		waitCounter++;
 		return origAddFont.call(this, name, url, decrementWaitCounter);	
 	};
-		
+	
+	/**
+	 * Renders the given page or all pages.
+	 */
 	function renderPage(currentPageId)
 	{
 		// Configures math typesetting
@@ -619,44 +759,13 @@ function render(data)
 		}
 		
 		// Sets initial value for PDF page background
+		var gb = graph.getGraphBounds();
 		graph.pdfPageVisible = false;
 		
 		// Handles PDF output where the output should match the page format if the page is visible
 		if (data.print || data.format == 'pdf')
 		{
-			//Electron printing
 			var printScale = 1;
-			
-			if (data.print)
-			{
-				document.title = data.fileTitle;
-				
-				var gb = graph.getGraphBounds();
-				printScale = data.pageScale;
-		
-				if (isNaN(printScale))
-				{
-					printScale = 1;
-				}
-				
-				if (data.fit)
-				{
-					var h = parseInt(data.sheetsAcross);
-					var v = parseInt(data.sheetsDown);
-					
-					data.scale = Math.min((data.pageHeight * v) / (gb.height / graph.view.scale),
-						(data.pageWidth * h) / (gb.width / graph.view.scale));
-				}
-				else
-				{
-					data.scale = data.scale / graph.pageScale;
-					
-					if (isNaN(data.scale))
-					{
-						printScale = 1 / graph.pageScale;
-					}
-				}
-			}
 			
 			var pw = data.pageWidth || xmlDoc.documentElement.getAttribute('pageWidth');
 			var ph = data.pageHeight || xmlDoc.documentElement.getAttribute('pageHeight');
@@ -673,7 +782,40 @@ function render(data)
 			{
 				graph.pageScale = ps;
 			}
+
+			if (data.fileTitle != null)
+			{
+				document.title = data.fileTitle;
+			}
 			
+			var pf = graph.pageFormat;
+			var temp = data.scale;
+			pf.width = Math.ceil(pf.width * graph.pageScale);
+			pf.height = Math.ceil(pf.height * graph.pageScale);
+			var scale = 1;
+
+			if (data.fit == '1' && data.sheetsAcross != null && data.sheetsDown != null)
+			{
+				var h = data.sheetsAcross;
+				var v = data.sheetsDown;
+
+				if (!isNaN(temp))
+				{
+					pf.width = Math.ceil(pf.width * temp);
+					pf.height = Math.ceil(pf.height * temp);
+				}
+				
+				scale = Math.min((pf.height * v) / (gb.height / graph.view.scale),
+					(pf.width * h) / (gb.width / graph.view.scale));
+			}
+			else
+			{
+				scale = !isNaN(temp) ? temp : 1;
+			}
+
+			// Applies print scale
+			data.scale = scale * printScale;
+
 			graph.getPageSize = function()
 			{
 				return new mxRectangle(0, 0, this.pageFormat.width * this.pageScale,
@@ -807,7 +949,7 @@ function render(data)
 		bounds.width = Math.ceil(bounds.width + data.border) + 1; //The 1 extra pixels to prevent cutting the cells on the edges when crop is enabled
 		bounds.height = Math.ceil(bounds.height + data.border) + 1; //The 1 extra pixels to prevent starting a new page. TODO Not working in every case
 		
-		//Print to pdf fails for 1x1 pages
+		// Print to pdf fails for 1x1 pages
 		if (bounds.width <= 1 && bounds.height <= 1)
 		{
 			bounds.width = 2;
@@ -820,28 +962,20 @@ function render(data)
 		if (graph.pdfPageVisible)
 		{
 			var pf = graph.pageFormat || mxConstants.PAGE_FORMAT_A4_PORTRAIT;
-			var scale = data.print? data.scale : 1 / graph.pageScale;
-			var autoOrigin = (data.print && data.fit != null) ? data.fit :
-				(xmlDoc.documentElement.getAttribute('page') != '1' ||
-				(data.crop != null && data.crop == '1'));
+			var scale = (data.print || data.format == 'pdf') ? data.scale : 1 / graph.pageScale;
+			var autoOrigin = ((data.print || data.format == 'pdf') && data.fit == '1') ||
+				data.crop == '1' || xmlDoc.documentElement.getAttribute('page') != '1';
 			var border = 0;
 
 			// Negative coordinates are cropped or shifted if page visible
-			var gb = graph.getGraphBounds();
 			var x0 = 0;
 			var y0 = 0;
 	
-			if (data.crop != null && data.crop == '1')
+			if (data.crop == '1')
 			{
-				pf.width = gb.width / graph.view.scale;
-				pf.height = gb.height / graph.view.scale;
+				pf.width = gb.width * scale;
+				pf.height = gb.height * scale;
 			}
-
-			// Applies print scale
-			pf = mxRectangle.fromRectangle(pf);
-			pf.width = Math.ceil(pf.width * printScale); //The 1 extra pixels to prevent cutting the cells on the right edge of the page
-			pf.height = Math.ceil(pf.height * printScale); //The 1 extra pixels to prevent starting a new page. TODO Not working in every case
-			scale *= printScale;
 
 			// Starts at first visible page
 			if (!autoOrigin)
@@ -859,16 +993,13 @@ function render(data)
 				preview.printBackgroundImage = true;
 				preview.autoOrigin = autoOrigin;
 				preview.backgroundColor = bg;
-
-				// Removes margin for cropped PDF export
-				if (data.crop == '1')
-				{
-					preview.pageMargin = 0;
-				}
-
+				preview.pageMargin = (data.pageMargin != null) ?
+					parseInt(data.pageMargin) : ((data.crop == '1') ?
+						0 : preview.pageMargin);
+				
 				// Replaces background images with SVG subtrees
 				var previewDrawBackgroundImage = preview.drawBackgroundImage;
-
+				
 				preview.drawBackgroundImage = function(img)
 				{
 					previewDrawBackgroundImage.apply(this, arguments);
@@ -891,48 +1022,26 @@ function render(data)
 				{
 					previewAddGraphFragment.apply(this, arguments);
 
-					var graph = this.graph;
-					var svgs = div.getElementsByTagName('svg');
-
-					if (gridColor != null && svgs.length > 0)
-					{
-						var page = svgs[0];
-						var view = graph.view;
-						var gridImage = btoa(unescape(encodeURIComponent(view.createSvgGrid(gridColor))));
-						gridImage = 'url(' + 'data:image/svg+xml;base64,' + gridImage + ')';
-						var phase = graph.gridSize * view.gridSteps * view.scale;
-						
-						var x0 = 0;
-						var y0 = 0;
-						
-						if (view.backgroundPageShape != null)
-						{
-							var bds = view.getBackgroundPageBounds();
-							
-							x0 = 1 + bds.x;
-							y0 = 1 + bds.y;
-						}
-
-						// Computes the offset to maintain origin for grid	
-						var position = -Math.round(phase - mxUtils.mod(view.translate.x * view.scale - x0, phase)) + 'px ' +
-							-Math.round(phase - mxUtils.mod(view.translate.y * view.scale - y0, phase)) + 'px';
-						page.style.backgroundImage = gridImage;
-						page.style.backgroundPosition = position;
-						page.style.backgroundSize = phase + 'px';
-					}
-
 					// Disables math rendering in graph
 					if (!graph.mathEnabled)
 					{
 						div.classList.add('geDisableMathJax')
 					}
+
+					waitForGoogleFontImports(div);
 				};
 
 				// Renders print output into this document and removes the graph container
+				preview.gridColor = gridColor;
+				preview.gridSize = graph.gridSize;
+				preview.gridSteps = graph.view.gridSteps;
 				preview.open(null, window, null, null, anchorId, pf);
 			}
 			else
 			{
+				preview.gridColor = gridColor;
+				preview.gridSize = graph.gridSize;
+				preview.gridSteps = graph.view.gridSteps;
 				preview.backgroundColor = bg;
 				preview.autoOrigin = autoOrigin; 
 				preview.appendGraph(graph, scale, x0, y0, null, null, anchorId, pf);
@@ -1001,8 +1110,8 @@ function render(data)
 	{
 		var to = diagrams.length - 1;
 		
-		//Parameters to and all pages should not be sent with formats other than PDF with page view enabled
-		if (!data.allPages)
+		// Parameters to and all pages should not be sent with formats other than PDF with page view enabled
+		if (data.allPages != '1')
 		{
 			if (data.pageId != null)
 			{
@@ -1046,7 +1155,7 @@ function render(data)
 		};
 
 		waitCounter += to - from + 1;
-			
+		
 		for (var i = from; i <= to; i++) 
 		{
 			if (diagrams[i] != null)
@@ -1099,7 +1208,8 @@ function render(data)
 	waitForImages('image', 'xlink:href');
 	waitForImages('img', 'src');
 	renderMath(document.body);
-	// Immediate return if not waiting for any content
+	
+	// Invokes callback
 	decrementWaitCounter();
 	
 	return graph;

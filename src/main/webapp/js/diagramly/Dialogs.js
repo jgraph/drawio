@@ -1387,6 +1387,7 @@ var CreateGraphDialog = function(editorUi, title, type)
 			layout = new mxCompactTreeLayout(graph);
 			layout.edgeRouting = false;
 			layout.levelDistance = 30;
+			layout.sortEdges = true;
 			edgeStyle = 'edgeStyle=elbowEdgeStyle;elbow=horizontal;';
 		}
 		else if (type == 'verticalTree')
@@ -1394,6 +1395,7 @@ var CreateGraphDialog = function(editorUi, title, type)
 			layout = new mxCompactTreeLayout(graph, false);
 			layout.edgeRouting = false;
 			layout.levelDistance = 30;
+			layout.sortEdges = true;
 			edgeStyle = 'edgeStyle=elbowEdgeStyle;elbow=vertical;';
 		}
 		else if (type == 'radialTree')

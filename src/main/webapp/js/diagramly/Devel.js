@@ -18,6 +18,8 @@ if (!mxIsElectron)
 			//----------------------------------------------------------//
 			//------------- Bootstrap script in index.html -------------//
 			//----------------------------------------------------------//
+			// Version 24.3.2
+			'\'sha256-qgjuMiWd1HsOihB9Ppd7j72lY0gT8BpBkiRIJFO3sRQ=\' ' +
 			// Version 24.2.6
 			'\'sha256-CuxCZzdV/xHExthsNvH0rD+sU8zQAaYT5XLu6LHfH78=\' ' +
 			// Version 21.7.0
@@ -74,7 +76,7 @@ if (!mxIsElectron)
 			// Adds script tags and loads shapes with eval
 			replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com \'unsafe-eval\'').
 			// Adds Trello and Dropbox backend storage
-			replace(/%connect-src%/g, 'https://*.dropboxapi.com https://trello.com https://api.trello.com').
+			replace(/%connect-src%/g, 'https://*.dropboxapi.com https://trello.com https://api.trello.com https://my.microsoftpersonalcontent.com').
 			// Loads common.css from mxgraph
 			replace(/%style-src%/g, '').
 			replace(/%frame-src%/g, '').

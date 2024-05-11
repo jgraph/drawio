@@ -904,7 +904,21 @@ mxGraphView.prototype.redrawBackgroundImage = function(backgroundImage, bg)
 	{
 		backgroundImage.scale = this.scale;
 		backgroundImage.bounds = bounds;
-		backgroundImage.redraw();
+
+		// Updates bounds of image or svg to keep rendered content
+		if (backgroundImage.node != null && backgroundImage.node.nodeName == 'g' &&
+			(backgroundImage.node.firstChild.nodeName == 'image' ||
+			backgroundImage.node.firstChild.nodeName == 'svg'))
+		{
+			backgroundImage.node.firstChild.setAttribute('x', bounds.x);
+			backgroundImage.node.firstChild.setAttribute('y', bounds.y);
+			backgroundImage.node.firstChild.setAttribute('width', bounds.width);
+			backgroundImage.node.firstChild.setAttribute('height', bounds.height);
+		}
+		else
+		{
+			backgroundImage.redraw();
+		}
 	}
 };
 

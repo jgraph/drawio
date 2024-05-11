@@ -380,7 +380,7 @@ EditorUi.prototype.getPageById = function(id, pages)
 /**
  * Returns the background image for the given page link.
  */
-EditorUi.prototype.createImageForPageLink = function(src, sourcePage, sourceGraph)
+EditorUi.prototype.createImageForPageLink = function(src, sourcePage, sourceGraph, addFonts)
 {
 	var comma = src.indexOf(',');
 	var result = null;
@@ -391,7 +391,7 @@ EditorUi.prototype.createImageForPageLink = function(src, sourcePage, sourceGrap
 
 		if (page != null && page != sourcePage)
 		{
-			result = this.getImageForPage(page, sourcePage, sourceGraph);
+			result = this.getImageForPage(page, sourcePage, sourceGraph, addFonts);
 			result.originalSrc = src;
 		}
 	}
@@ -451,7 +451,7 @@ EditorUi.prototype.pageSelected = function()
 /**
  * Returns true if the given string contains an mxfile.
  */
-EditorUi.prototype.getImageForPage = function(page, sourcePage, sourceGraph)
+EditorUi.prototype.getImageForPage = function(page, sourcePage, sourceGraph, addFonts)
 {
 	sourceGraph = (sourceGraph != null) ? sourceGraph : this.editor.graph;
 	var graphGetGlobalVariable = sourceGraph.getGlobalVariable;
@@ -487,8 +487,8 @@ EditorUi.prototype.getImageForPage = function(page, sourcePage, sourceGraph)
 	Graph.foreignObjectWarningText = '';
 	var theme = (Editor.cssDarkMode || Editor.isDarkMode()) ?
 		'dark' : 'light';
-	var svgRoot = graph.getSvg(null, null, null, null, null, null,
-		null, null, null, null, null, theme, null, null, true, true);
+	var svgRoot = graph.getSvg(null, null, null, null, null, null, null,
+		null, null, null, addFonts, theme, null, null, true, true);
 	
 	var bounds = graph.getGraphBounds();
 	document.body.removeChild(graph.container);

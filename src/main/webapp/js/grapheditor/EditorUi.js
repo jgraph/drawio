@@ -3840,6 +3840,14 @@ EditorUi.prototype.open = function()
 };
 
 /**
+ * 
+ */
+EditorUi.prototype.showPrintDialog = function(title, fn)
+{
+	this.showDialog(new PrintDialog(this, title, fn).container, 300, 180, true, true);
+};
+
+/**
  * Shows the given popup menu.
  */
 EditorUi.prototype.showPopupMenu = function(fn, x, y, evt)
@@ -6525,6 +6533,7 @@ EditorUi.prototype.createHelpIcon = function(href)
 	link.setAttribute('title', mxResources.get('help'));
 	link.style.display = 'inline';
 	link.style.marginLeft = '8px';
+	link.style.marginRight = '4px';
 	link.style.cursor = 'help';
 
 	var icon = document.createElement('img');

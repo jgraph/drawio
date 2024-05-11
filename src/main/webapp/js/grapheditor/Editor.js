@@ -1440,9 +1440,9 @@ var ErrorDialog = function(editorUi, title, message, buttonText, fn, retry, butt
 /**
  * Constructs a new print dialog.
  */
-var PrintDialog = function(editorUi, title)
+var PrintDialog = function(editorUi, title, fn)
 {
-	this.create(editorUi, title);
+	this.create(editorUi, title, fn);
 };
 
 /**

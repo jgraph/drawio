@@ -508,140 +508,21 @@
 			}
 			else
 			{
-				var noPages = editorUi.pages == null || editorUi.pages.length <= 1;
-				var div = document.createElement('div');
-				div.style.whiteSpace = 'nowrap';
-				
-				var hd = document.createElement('h3');
-				mxUtils.write(hd, mxResources.get('formatPdf'));
-				hd.style.width = '100%';
-				hd.style.textAlign = 'center';
-				hd.style.marginTop = '0px';
-				hd.style.marginBottom = '4px';
-				div.appendChild(hd);
-				
-				var dlgH = 200;
-				var pageCount = 1;
-				var currentPage = null;
-				
-				if (editorUi.pdfPageExport && !noPages)
+				editorUi.showPrintDialog(mxResources.get('formatPdf'), mxUtils.bind(this, function(preview, args)
 				{
-					var allPages = editorUi.addRadiobox(div, 'pages', mxResources.get('allPages'), true);
-					var pagesRadio = editorUi.addRadiobox(div, 'pages', mxResources.get('pages') + ':', false, null, true);
-
-					var pagesFromInput = document.createElement('input');
-					pagesFromInput.style.margin = '0 8px 0 8px';
-					pagesFromInput.setAttribute('value', '1');
-					pagesFromInput.setAttribute('type', 'number');
-					pagesFromInput.setAttribute('min', '1');
-					pagesFromInput.style.width = '50px';
-					div.appendChild(pagesFromInput);
+					var pageCount = (editorUi.pages != null) ? editorUi.pages.length : 1;
+					var noPages = editorUi.pages == null || editorUi.pages.length <= 1;
+					var idx = editorUi.getPageIndex(editorUi.currentPage);
+					var currentPage = (idx != null) ? idx + 1 : 1;
+					var pageRange = (!args.allPages && (args.pagesFrom != currentPage || args.pagesTo != currentPage)) ?
+						{from: Math.max(0, Math.min(pageCount - 1, args.pagesFrom - 1)),
+							to: Math.max(0, Math.min(pageCount - 1, args.pagesTo - 1))} : null;
 					
-					var span = document.createElement('span');
-					mxUtils.write(span, mxResources.get('to'));
-					div.appendChild(span);
-					
-					var pagesToInput = pagesFromInput.cloneNode(true);
-					div.appendChild(pagesToInput);
-
-					mxEvent.addListener(pagesFromInput, 'focus', function()
-					{
-						pagesRadio.checked = true;
-					});
-					
-					mxEvent.addListener(pagesToInput, 'focus', function()
-					{
-						pagesRadio.checked = true;
-					});					
-
-					function validatePageRange()
-					{
-						pagesToInput.value = Math.max(1, Math.min(pageCount, Math.max(parseInt(pagesToInput.value), parseInt(pagesFromInput.value))));
-						pagesFromInput.value = Math.max(1, Math.min(pageCount, Math.min(parseInt(pagesToInput.value), parseInt(pagesFromInput.value))));
-					};
-					
-					mxEvent.addListener(pagesFromInput, 'change', validatePageRange);
-					mxEvent.addListener(pagesToInput, 'change', validatePageRange);
-					
-					if (editorUi.pages != null)
-					{
-						pageCount = editorUi.pages.length;
-			
-						if (editorUi.currentPage != null)
-						{
-							for (var i = 0; i < editorUi.pages.length; i++)
-							{
-								if (editorUi.currentPage == editorUi.pages[i])
-								{
-									currentPage = i + 1;
-									pagesFromInput.value = currentPage;
-									pagesToInput.value = currentPage;
-									break;
-								}
-							}
-						}
-					}
-					
-					pagesFromInput.setAttribute('max', pageCount);
-					pagesToInput.setAttribute('max', pageCount);
-					mxUtils.br(div);
-
-					var selection = editorUi.addRadiobox(div, 'pages', mxResources.get('selectionOnly'),
-						false, graph.isSelectionEmpty());
-					var crop = editorUi.addCheckbox(div, mxResources.get('crop'), false);
-					var grid = editorUi.addCheckbox(div, mxResources.get('grid'), false);
-					
-					dlgH += 70;
-				}
-				else
-				{
-					var selection = editorUi.addCheckbox(div, mxResources.get('selectionOnly'),
-						false, graph.isSelectionEmpty());
-					var crop = editorUi.addCheckbox(div, mxResources.get('crop'),
-						!graph.pageVisible || !editorUi.pdfPageExport,
-						!editorUi.pdfPageExport);
-					var grid = editorUi.addCheckbox(div, mxResources.get('grid'), false);
-				}
-				
-				var isDrawioWeb = !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-					editorUi.getServiceName() == 'draw.io';
-
-				var transparentBkg = null, include = null;
-				
-				if (EditorUi.isElectronApp || isDrawioWeb)
-				{
-					include = editorUi.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'),
-						Editor.defaultIncludeDiagram);
-					dlgH += 30;
-				}
-				
-				if (isDrawioWeb)
-				{
-					transparentBkg = editorUi.addCheckbox(div,
-						mxResources.get('transparentBackground'), false);
-					dlgH += 30;
-				}
-
-				var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
-				{
-					var pageRange = null;
-
-					if (!noPages)
-					{
-						var from = parseInt(pagesFromInput.value);
-						var to = parseInt(pagesToInput.value);
-						pageRange = (!allPages.checked &&
-							(from != currentPage || to != currentPage)) ?
-							{from: Math.max(0, Math.min(pageCount - 1, from - 1)),
-							to: Math.max(0, Math.min(pageCount - 1, to - 1))} : null;
-					}
-					
-					editorUi.downloadFile('pdf', null, null, !selection.checked,
-						noPages? true : !allPages.checked && pageRange == null,
-						!crop.checked, transparentBkg != null && transparentBkg.checked, null,
-						null, grid.checked, include != null && include.checked, pageRange);
-				}), null, mxResources.get('export'));
-				editorUi.showDialog(dlg.container, 300, dlgH, true, true);
+					editorUi.downloadFile('pdf', null, null, !args.selection, noPages ||
+						(!args.allPages && args.pagesFrom == currentPage && args.pagesTo == currentPage), !args.crop,
+						args.transparent, args.scale, null, args.grid, args.includeCopy, pageRange, args.border,
+						args.fit, args.sheetsAcross, args.sheetsDown);					
+				}));
 			}
 		}));
 

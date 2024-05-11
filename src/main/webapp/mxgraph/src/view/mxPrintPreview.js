@@ -155,9 +155,9 @@ mxPrintPreview.prototype.addPageCss = false;
 /**
  * Variable: pixelsPerInch
  * 
- * CSS page size ratio. Default is 90.
+ * CSS page size ratio. Default is 96.
  */
-mxPrintPreview.prototype.pixelsPerInch = 90;
+mxPrintPreview.prototype.pixelsPerInch = 96;
 
 /**
  * Variable: pageMargin
@@ -172,6 +172,34 @@ mxPrintPreview.prototype.pageMargin = 27;
  * overflowClipMargin for SVG container. Default is 1px.
  */
 mxPrintPreview.prototype.overflowClipMargin = '1px';
+
+/**
+ * Variable: gridSize
+ * 
+ * Size for the background grid.
+ */
+mxPrintPreview.prototype.gridSize = null;
+
+/**
+ * Variable: gridSteps
+ * 
+ * Steps for the background grid.
+ */
+mxPrintPreview.prototype.gridSteps = null;
+
+/**
+ * Variable: gridColor
+ * 
+ * Color for the background grid.
+ */
+mxPrintPreview.prototype.gridColor = null;
+
+/**
+ * Variable: gridStrokeWidth
+ * 
+ * Stroke width for the background grid. Default is 0.5.
+ */
+mxPrintPreview.prototype.gridStrokeWidth = 0.5;
 
 /**
  * Variable: defaultCss
@@ -374,13 +402,13 @@ mxPrintPreview.prototype.getDoctype = function()
  * 
  * Adds the given graph to the existing print preview.
  */
-mxPrintPreview.prototype.appendGraph = function(graph, scale, x0, y0, forcePageBreaks, keepOpen, id, pageFormat)
+mxPrintPreview.prototype.appendGraph = function(graph, scale, x0, y0, forcePageBreaks, keepOpen, id, pageFormat, cells)
 {
 	this.graph = graph;
 	this.scale = (scale != null) ? scale : 1 / graph.pageScale;
 	this.x0 = x0;
 	this.y0 = y0;
-	this.open(null, null, forcePageBreaks, keepOpen, id, pageFormat);
+	this.open(null, null, forcePageBreaks, keepOpen, id, pageFormat, cells);
 };
 
 /**
@@ -403,9 +431,9 @@ mxPrintPreview.prototype.getPageClassCss = function(pageClass, pageFormat)
 		'  page: ' + pageClass + ';\n' +
 		((mxClient.IS_SF) ?
 			'  padding: ' + mxUtils.htmlEntities((pm / ppi).toFixed(2)) + 'in;\n' : '') +
-		'  width: ' + mxUtils.htmlEntities((((pageFormat.width) /
+		'  width: ' + mxUtils.htmlEntities(((pageFormat.width /
 			ppi)).toFixed(2)) + 'in;\n' +
-		'  height: ' + mxUtils.htmlEntities((((pageFormat.height) /
+		'  height: ' + mxUtils.htmlEntities(((pageFormat.height /
 			ppi)).toFixed(2)) + 'in;\n' +
 		'}\n';
 	
@@ -431,7 +459,7 @@ mxPrintPreview.prototype.getPageClassCss = function(pageClass, pageFormat)
  * targetWindow - Optional window that should be used for rendering. If
  * this is specified then no HEAD tag, CSS and BODY tag will be written.
  */
-mxPrintPreview.prototype.open = function(css, targetWindow, forcePageBreaks, keepOpen, id, pageFormat)
+mxPrintPreview.prototype.open = function(css, targetWindow, forcePageBreaks, keepOpen, id, pageFormat, cells)
 {
 	var div = null;
 
@@ -499,7 +527,8 @@ mxPrintPreview.prototype.open = function(css, targetWindow, forcePageBreaks, kee
 		}
 
 		// Computes the horizontal and vertical page count
-		var bounds = mxRectangle.fromRectangle(this.graph.getGraphBounds());
+		var bounds = mxRectangle.fromRectangle((cells != null) ?
+			this.graph.getBoundingBox(cells) : this.graph.getGraphBounds());
 		var currentScale = this.graph.getView().getScale();
 		var sc = currentScale / this.scale;
 		var tr = this.graph.getView().getTranslate();
@@ -543,7 +572,8 @@ mxPrintPreview.prototype.open = function(css, targetWindow, forcePageBreaks, kee
 			}
 
 			pageClass = mxUtils.htmlEntities('gePageFormat-' +
-				pageFormat.width + '-' + pageFormat.height);
+				String(pageFormat.width).replaceAll('.', '_') + '-' +
+				String(pageFormat.height).replaceAll('.', '_'));
 
 			if (this.pageFormatClass[pageClass] == null)
 			{
@@ -1002,6 +1032,8 @@ mxPrintPreview.prototype.addGraphFragment = function(dx, dy, scale, pageNumber, 
 					((mxClient.IS_SF) ?
 					((clip.width + 1) + ' ' + (clip.height + 1)) :	
 					((clip.width - 1) + ' ' + (clip.height - 1))));
+
+				this.addGrid(tmp, clip);
 				
 				// Workaround for no dimension in Safari
 				if (mxClient.IS_SF)
@@ -1041,6 +1073,91 @@ mxPrintPreview.prototype.addGraphFragment = function(dx, dy, scale, pageNumber, 
 		temp.destroy();
 		view.setEventsEnabled(eventsEnabled);
 	}
+};
+
+/**
+ * Function: addGrid
+ * 
+ * Returns true if the given node is a test label.
+ */
+mxPrintPreview.prototype.addGrid = function(svg, clip)
+{
+	if (this.gridSize > 0 && this.gridSteps > 0 && this.gridColor != null)
+	{
+		var grid = this.createSvgGrid(svg, clip);
+		var defsElt = mxUtils.getSvgDefs(svg);
+		
+		if (defsElt.nextSibling != null)
+		{
+			defsElt.parentNode.insertBefore(grid, defsElt.nextSibling);
+		}
+		else
+		{
+			defsElt.parentNode.appendChild(grid);
+		}
+	}
+};
+
+/**
+ * Function: createSvgGrid
+ * 
+ * Creates the SVG grid.
+ */
+mxPrintPreview.prototype.createSvgGrid = function(svg, clip)
+{
+	var size = this.gridSize;
+	var svgDoc = svg.ownerDocument;
+	var group = (svgDoc.createElementNS != null) ?
+		svgDoc.createElementNS(mxConstants.NS_SVG, 'g') :
+		svgDoc.createElement('g');
+
+	var xp = mxUtils.mod(Math.ceil(Math.round(clip.x) / size), this.gridSteps);
+	var x = mxUtils.mod(size - mxUtils.mod(Math.round(clip.x), size), size);
+
+	var yp = mxUtils.mod(Math.ceil(Math.round(clip.y) / size), this.gridSteps);
+	var y = mxUtils.mod(size - mxUtils.mod(Math.round(clip.y), size), size);
+	
+	x *= this.scale;
+	y *= this.scale;
+	size *= this.scale;
+
+	var hlines = Math.ceil(clip.height / size);
+
+	for (var i = 0; i < hlines; i++)
+	{
+		var line = (svgDoc.createElementNS != null) ?
+			svgDoc.createElementNS(mxConstants.NS_SVG, 'line') :
+			svgDoc.createElement('line');
+		line.setAttribute('x1', 0);
+		line.setAttribute('y1', (i * size) + y);
+		line.setAttribute('x2', clip.width);
+		line.setAttribute('y2', (i * size) + y);
+		line.setAttribute('stroke', this.gridColor);
+		line.setAttribute('opacity', (mxUtils.mod(i + yp,
+			this.gridSteps) == 0) ? '1' : '0.2');
+		line.setAttribute('stroke-width', '0.5');
+		group.appendChild(line);
+	}
+
+	var vlines = Math.ceil(clip.width / size);
+
+	for (var i = 0; i < vlines; i++)
+	{
+		var line = (svgDoc.createElementNS != null) ?
+			svgDoc.createElementNS(mxConstants.NS_SVG, 'line') :
+			svgDoc.createElement('line');
+		line.setAttribute('x1', (i * size) + x);
+		line.setAttribute('y1', 0);
+		line.setAttribute('x2', (i * size) + x);
+		line.setAttribute('y2', clip.height);
+		line.setAttribute('stroke', this.gridColor);
+		line.setAttribute('opacity', (mxUtils.mod(i + xp,
+			this.gridSteps) == 0) ? '1' : '0.2');
+		line.setAttribute('stroke-width', '0.5');
+		group.appendChild(line);
+	}
+
+	return group;
 };
 
 /**

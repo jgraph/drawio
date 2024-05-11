@@ -52,41 +52,51 @@ mxStencilRegistry.allowEval = false;
 
 	PrintDialog.previewEnabled = false;
 	
-	PrintDialog.electronPrint = function(editorUi, allPages, pagesFrom, pagesTo, 
-			fit, sheetsAcross, sheetsDown, zoom, pageScale)
+	PrintDialog.electronPrint = function(editorUi, args)
 	{
-		var xml = '', title = '';
+		var graph = editorUi.editor.graph;
 		var file = editorUi.getCurrentFile();
-		
+
 		if (file)
 		{
 			file.updateFileData();
-			xml = editorUi.getFileData(true, null, null, null, null, false,
-				null, null, null, false, true);
-			title = file.title;
 		}
+
+		var xml = editorUi.getFileData(true, null, null, null,
+			!args.selection, false, null, null, null, false, true);
 		
-		var extras = {globalVars: editorUi.editor.graph.getExportVariables()};
+		var extras = {globalVars: graph.getExportVariables()};
 
 		if (Graph.translateDiagram)
 		{
 			extras.diagramLanguage = Graph.diagramLanguage;
 		}
 
+		if (args.grid)
+		{
+			extras.grid = {
+				size: graph.gridSize,
+				steps: graph.view.gridSteps,
+				color: graph.view.gridColor
+			};
+		}
+		
 		new mxElectronRequest('export', {
+			fileTitle: editorUi.getBaseFilename(true),
 			print: true,
 			format: 'pdf',
 			xml: xml,
-			from: pagesFrom - 1,
-			to: pagesTo - 1,
-			allPages: allPages,
-			pageScale: pageScale,
-			fit: fit,
-			sheetsAcross: sheetsAcross,
-			sheetsDown: sheetsDown,
-			scale: zoom,
+			from: args.pagesFrom - 1,
+			to: args.pagesTo - 1,
+			allPages: args.allPages ? '1' : '0',
+			pageScale: 1,
+			fit: args.fit ? '1' : '0',
+			sheetsAcross: args.sheetsAcross,
+			sheetsDown: args.sheetsDown,
+			scale: args.scale,
 			extras: JSON.stringify(extras),
-			fileTitle: title
+			border: args.border,
+			crop: args.crop ? '1' : '0'
 		}).send(function(){}, function(){});
 	};
 	
@@ -147,7 +157,9 @@ mxStencilRegistry.allowEval = false;
 						{
 							plugins[i] = './' + plugins[i];
 						}
-						else
+
+						// External plugins in App Data folder (Needs enabling plugins)
+						if (!plugins[i].startsWith('./plugins/'))
 						{
 							let pluginFile = await requestSync({
 								action: 'getPluginFile',
@@ -311,7 +323,7 @@ mxStencilRegistry.allowEval = false;
 
 	// Initializes the user interface
 	var editorUiInit = EditorUi.prototype.init;
-	EditorUi.prototype.init = function()
+	EditorUi.prototype.init = async function()
 	{
 		editorUiInit.apply(this, arguments);
 
@@ -528,6 +540,22 @@ mxStencilRegistry.allowEval = false;
 		editorUi.keyHandler.bindAction(78, true, 'new'); // Ctrl+N
 		editorUi.keyHandler.bindAction(79, true, 'open'); // Ctrl+O
 
+		var isFullScreen = await requestSync('isFullscreen');
+
+		var fullscreenAction = editorUi.actions.addAction('fullscreen', async function()
+		{
+			electron.sendMessage('toggleFullscreen');
+			isFullScreen = await requestSync('isFullscreen');
+		});
+
+		fullscreenAction.visible = true;
+		fullscreenAction.setToggleAction(true);
+		
+		fullscreenAction.setSelectedCallback(function()
+		{
+			return isFullScreen;
+		});
+		
 		function createGraph()
 		{
 			var graph = new Graph();
@@ -1191,7 +1219,24 @@ mxStencilRegistry.allowEval = false;
 				if (tmp != null)
 				{
 					var name = fileEntry.name;
-					fn(null, tmp, null, name.substring(0, name.lastIndexOf('.')) + '.drawio', false);
+
+					if (name.substring(name.length - 4) == '.pdf')
+					{
+						name = name.substring(0, name.length - 4);
+					}
+
+					name = name.substring(0, name.lastIndexOf('.')) + '.drawio';
+					
+					fn(null, tmp, null, name, false);
+
+					// Fixes ignore filename in above callback
+					var file = this.getCurrentFile();
+
+					if (file != null)
+					{
+						file.rename(name);
+					}
+
 					checkDrafts();
 					return;
 				}
@@ -1412,6 +1457,7 @@ mxStencilRegistry.allowEval = false;
 	LocalFile.prototype.setEditable = function(editable)
 	{
 		this.editable = editable;
+		this.descriptorChanged();
 	};
 	
 	LocalFile.prototype.saveFile = async function(revision, success, error, unloading, overwrite)
@@ -1957,13 +2003,15 @@ mxStencilRegistry.allowEval = false;
 		return this.response;
 	}
 	
-	//Direct export to pdf
-	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection,
-		base64, transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h)
+	// Direct export to pdf
+	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64,
+		transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop, margin,
+		fit, sheetsAcross, sheetsDown)
 	{
-		var params = this.downloadRequestBuilder(filename, format, ignoreSelection,
-			base64, transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h);
-
+		var params = this.downloadRequestBuilder(filename, format, ignoreSelection, base64,
+			transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop,
+			margin, fit, sheetsAcross, sheetsDown);
+		
 		return new mxElectronRequest('export', params);
 	};
 	

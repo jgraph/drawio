@@ -11034,7 +11034,7 @@ var com;
 	                    	for (var i = 0; i < rows.length; i++)
 	                    	{
 			                    var row = rows[i];
-                            	var n = row.getAttribute("N");
+                            	var n = row.getAttribute("N"), v = null;
                             	
 								var cells = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildElements(row);
 
@@ -11045,10 +11045,18 @@ var com;
                         			 
                         			if (cn == 'Value')
                         			{
-                            			props.push({key: n, val: cell.getAttribute("V")});
-                            			break;
+                            			v = cell.getAttribute("V");
                         			}
+                                    else if (cn == 'Label')
+                                    {
+                                        n = cell.getAttribute("V");
+                                    }
                         		}
+
+                                if (v != null)
+                                {
+                                    props.push({key: n, val: v});
+                                }
 		                    }
                     	}
 

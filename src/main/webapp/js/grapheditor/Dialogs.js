@@ -1005,15 +1005,7 @@ var ExportDialog = function(editorUi)
 	jpgOption.setAttribute('value', 'jpg');
 	mxUtils.write(jpgOption, mxResources.get('formatJpg'));
 	imageFormatSelect.appendChild(jpgOption);
-
-	if (!editorUi.printPdfExport)
-	{
-		var pdfOption = document.createElement('option');
-		pdfOption.setAttribute('value', 'pdf');
-		mxUtils.write(pdfOption, mxResources.get('formatPdf'));
-		imageFormatSelect.appendChild(pdfOption);
-	}
-
+	
 	var svgOption = document.createElement('option');
 	svgOption.setAttribute('value', 'svg');
 	mxUtils.write(svgOption, mxResources.get('formatSvg'));

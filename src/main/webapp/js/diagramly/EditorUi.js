@@ -413,10 +413,11 @@
 							}
 
 							rule.selectorText = tokens.join(',');
-							modifiedCss += rule.cssText + '\n';
 						}
-					}
 
+						modifiedCss += rule.cssText + '\n';
+					}
+					
 					styles[j].textContent = modifiedCss;
 				}
 			}
@@ -726,10 +727,19 @@
 	 */
 	EditorUi.prototype.setMathEnabled = function(value)
 	{
-		this.editor.graph.mathEnabled = value;
+		var graph = this.editor.graph;
+		graph.mathEnabled = value;
+
+		// Forces refresh of background image
+		if (graph.view.backgroundImage != null)
+		{
+			graph.view.backgroundImage.destroy();
+			graph.view.backgroundImage = null;
+		}
+
 		this.editor.updateGraphComponents();
-		this.editor.graph.refresh();
-		this.editor.graph.defaultMathEnabled = value;
+		graph.refresh();
+		graph.defaultMathEnabled = value;
 		
 		this.fireEvent(new mxEventObject('mathEnabledChanged'));
 	};
@@ -2222,7 +2232,8 @@
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
 	EditorUi.prototype.downloadFile = function(format, uncompressed, addShadow, ignoreSelection,
-		currentPage, pageVisible, transparent, scale, border, grid, includeXml, pageRange)
+		currentPage, pageVisible, transparent, scale, border, grid, includeXml, pageRange, margin,
+		fit, sheetsAcross, sheetsDown)
 	{
 		try
 		{
@@ -2319,7 +2330,7 @@
 					{
 						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64,
 							transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h,
-							!pageVisible);
+							!pageVisible, margin, fit, sheetsAcross, sheetsDown);
 						
 						return req;
 					}
@@ -2338,10 +2349,12 @@
 	
 	// Note: Remember to adjust ElectronApp override when this function is modified
 	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64,
-		transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop)
+		transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop, margin,
+		fit, sheetsAcross, sheetsDown)
 	{
 		var params = this.downloadRequestBuilder(filename, format, ignoreSelection, base64,
-			transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop);
+			transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop,
+			margin, fit, sheetsAcross, sheetsDown);
 		var paramsStr = '';
 
 		for (var p in params)
@@ -2364,7 +2377,8 @@
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
 	EditorUi.prototype.downloadRequestBuilder = function(filename, format, ignoreSelection, base64,
-		transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop)
+		transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop, margin,
+		fit, sheetsAcross, sheetsDown)
 	{
 		var graph = this.editor.graph;
 		var bounds = graph.getGraphBounds();
@@ -2459,9 +2473,13 @@
 			extras: JSON.stringify(extras),
 			scale: scale,
 			border: border,
+			pageMargin: margin,
 			w: (w && isFinite(w)? w : null),
 			h: (h && isFinite(h)? h : null),
-			crop: (crop != null && crop) ? '1' : '0'
+			crop: (crop != null && crop) ? '1' : '0',
+			fit: (fit != null && fit) ? '1' : '0',
+			sheetsAcross: sheetsAcross,
+			sheetsDown: sheetsDown
 		};
 	};
 	
@@ -5873,15 +5891,6 @@
 					}
 				});
 				
-				// Converts background pages to subtrees so that
-				// images can be converted and embedded next
-				if (Editor.replaceSvgDataUris && embedImages &&
-					this.editor.graph.backgroundImage != null &&
-					this.editor.graph.backgroundImage.originalSrc != null)
-				{
-					EditorUi.embedSvgImages(svgRoot);
-				}
-
 				var done = mxUtils.bind(this, function(svgRoot)
 				{
 					if (embedImages && !this.isOffline() && this.canvasSupported)
@@ -8059,6 +8068,15 @@
 							if (this.pages != null && this.pages.length == 1 && this.isDiagramEmpty())
 							{
 								mapping[diagrams[0].getAttribute('id')] = this.pages[0].getId();
+
+								var name = diagrams[0].getAttribute('name');
+
+								if (name != null && name != '')
+								{
+									this.editor.graph.model.execute(new RenamePage(
+										this, this.pages[0], name));
+								}	
+
 								node = Editor.parseDiagramNode(diagrams[0]);
 								crop = false;
 								i0 = 1;
@@ -9984,18 +10002,17 @@
 		    			
 		    			return null;
 					}
-					else if (this.getServiceName() != 'atlassian' && urlParams['embed'] != '1' && 
-						this.isCompatibleString(data) && files.length == 1 &&
-						this.isBlankFile() && !this.canUndo())
-					{
-						// Opens as diagram if current file is blank with no undoable changes
-						this.spinner.stop();
-						this.fileLoaded(new LocalFile(this, data, filename, true));
-
-						return null;
-					}
 					else
 					{
+						// Drop on empty file ignores drop location
+						if (this.isCompatibleString(data) && files.length == 1 && evt != null &&
+							evt.type == 'drop' && this.isBlankFile() && !this.canUndo())
+						{
+							crop = false;
+							x = 0;
+							y = 0;
+						}
+
 						return this.importFile(data, mimeType, x, y, w, h, filename,
 							done, file, crop, ignoreEmbeddedXml, evt);
 					}
@@ -10938,16 +10955,21 @@
 				{
 					result = {src: result.originalSrc};
 				}
-				else if (resolveReferences && this.themes != null &&
-					this.defaultThemeName == 'darkTheme')
+				else
 				{
 					var temp = this.stylesheet;
 					var tempFg = this.shapeForegroundColor;
 					var tempBg = this.shapeBackgroundColor;
-					this.stylesheet = this.getDefaultStylesheet();
-					this.shapeBackgroundColor = '#ffffff';
-					this.shapeForegroundColor = '#000000';
-					result = ui.createImageForPageLink(result.originalSrc);
+
+					if (this.themes != null && this.defaultThemeName == 'darkTheme')
+					{
+						this.stylesheet = this.getDefaultStylesheet();
+						this.shapeBackgroundColor = '#ffffff';
+						this.shapeForegroundColor = '#000000';
+					}
+
+					result = ui.createImageForPageLink(result.originalSrc, null, null, true);
+					
 					this.shapeBackgroundColor = tempBg;
 					this.shapeForegroundColor = tempFg;
 					this.stylesheet = temp;
@@ -11146,14 +11168,6 @@
 			this.menus.isShowArrangeItems = this.menus.isShowStyleItems;
 			this.menus.isShowCellEditItems = this.menus.isShowStyleItems;
 		}
-
-		// Overrides print dialog size
-		ui.actions.get('print').funct = function()
-		{
-			ui.showDialog(new PrintDialog(ui).container, 320,
-				(ui.pages != null && ui.pages.length > 1) ?
-				350 : 280, true, true);
-		};
 
 		// Specifies the default filename
 		this.defaultFilename = mxResources.get('untitledDiagram');
@@ -14829,6 +14843,549 @@
 	};
 
 	/**
+	 * 
+	 */
+	EditorUi.prototype.showPrintDialog = function(title, fn)
+	{
+		var h = 320;
+
+		if (this.editor.graph.isEnabled())
+		{
+			h += 40;
+		}
+
+		if (this.pages != null && this.pages.length > 1)
+		{
+			h += 40;
+
+			// Additional height in lightbox for pages
+			if (!this.editor.graph.isEnabled())
+			{
+				h += 10;
+			}
+		}
+
+		// Additional height for include diagram
+		if (fn != null && !mxClient.IS_CHROMEAPP &&
+			this.getServiceName() == 'draw.io')
+		{
+			h += 20;
+		}
+
+		this.showDialog(new PrintDialog(this, title, fn).container, 320, h, true, true);
+	};
+
+	/**
+	 * 
+	 */
+	EditorUi.prototype.print = function(preview, args)
+	{
+		var editor = this.editor;
+		var graph = editor.graph;
+		var printScale = 1;
+		var idx = this.getPageIndex(this.currentPage);
+		var currentPage = (idx != null) ? idx + 1 : 1;
+		
+		// Disables dark mode while printing
+		var darkStylesheet = null;
+		var darkFg = graph.shapeForegroundColor;
+		var darkBg = graph.shapeBackgroundColor;
+
+		if (graph.themes != null && graph.defaultThemeName == 'darkTheme')
+		{
+			darkStylesheet = graph.stylesheet;
+			graph.stylesheet = graph.getDefaultStylesheet()
+			graph.shapeForegroundColor = '#000000';
+			graph.shapeBackgroundColor = '#ffffff';
+			graph.refresh();
+		}
+
+		var printGraph = mxUtils.bind(this, function(thisGraph, pv, forcePageBreaks, pageId)
+		{
+			// Workaround for CSS transforms affecting the print output
+			// is to disable during print output and restore after
+			var prev = thisGraph.useCssTransforms;
+			var prevTranslate = thisGraph.currentTranslate;
+			var prevScale = thisGraph.currentScale;
+			var prevViewTranslate = thisGraph.view.translate;
+			var prevViewScale = thisGraph.view.scale;
+
+			if (thisGraph.useCssTransforms)
+			{
+				thisGraph.useCssTransforms = false;
+				thisGraph.currentTranslate = new mxPoint(0,0);
+				thisGraph.currentScale = 1;
+				thisGraph.view.translate = new mxPoint(0,0);
+				thisGraph.view.scale = 1;
+			}
+
+			// Negative coordinates are cropped or shifted if page visible
+			var gb = thisGraph.getGraphBounds();
+			var border = 0;
+			var x0 = 0;
+			var y0 = 0;
+
+			var pf = mxRectangle.fromRectangle(thisGraph.pageFormat);
+			var autoOrigin = args.fit || args.crop || !thisGraph.pageVisible;
+			var temp = args.scale;
+			pf.width = Math.ceil(pf.width * thisGraph.pageScale);
+			pf.height = Math.ceil(pf.height * thisGraph.pageScale);
+			var scale = 1;
+
+			if (args.fit)
+			{
+				var h = args.sheetsAcross;
+				var v = args.sheetsDown;
+
+				if (!isNaN(temp))
+				{
+					pf.width = Math.ceil(pf.width * temp);
+					pf.height = Math.ceil(pf.height * temp);
+				}
+
+				scale = Math.min((pf.height * v) / (gb.height / thisGraph.view.scale),
+					(pf.width * h) / (gb.width / thisGraph.view.scale));
+			}
+			else
+			{
+				scale = !isNaN(temp) ? temp : 1;
+			}
+
+			// Applies print scale
+			scale *= printScale;
+		
+			// Starts at first visible page
+			if (!autoOrigin && thisGraph.pageVisible)
+			{
+				var layout = thisGraph.getPageLayout();
+				x0 -= layout.x * pf.width;
+				y0 -= layout.y * pf.height;
+			}
+			else
+			{
+				autoOrigin = true;
+			}
+
+			if (args.crop)
+			{
+				if (args.selection)
+				{
+					gb = graph.getBoundingBox(graph.getSelectionCells());
+				}
+				
+				pf.width = gb.width * scale / thisGraph.view.scale;
+				pf.height = gb.height * scale / thisGraph.view.scale;
+			}
+
+			pf.width = Math.ceil(pf.width * printScale);
+			pf.height = Math.ceil(pf.height * printScale);
+			var anchorId = (pageId != null) ? 'page/id,' + pageId : null;
+
+			if (pv == null)
+			{
+				pv = PrintDialog.createPrintPreview(thisGraph, scale, null, border, x0, y0, autoOrigin);
+				pv.title = this.getBaseFilename(true);
+				pv.pageSelector = false;
+				pv.mathEnabled = false;
+				var pageMargin = args.border;
+				
+				if (!isNaN(pageMargin))
+				{
+					pv.pageMargin = pageMargin;
+				}
+
+				if (args.selection)
+				{
+					pv.isCellVisible = function(cell)
+					{
+						return thisGraph.isCellSelected(cell);
+					};
+				}
+
+				var writeHead = pv.writeHead;
+				
+				// Overridden to add custom fonts
+				pv.writeHead = function(doc)
+				{
+					writeHead.apply(this, arguments);
+					
+					// Fixes bold math when exported to PDF
+					if (mxClient.IS_GC)
+					{
+						doc.writeln('<style type="text/css">');
+						doc.writeln('@media print {');
+						doc.writeln('.MathJax svg { shape-rendering: crispEdges; }');
+						doc.writeln('}');
+						doc.writeln('</style>');
+					}
+
+					if (editor.fontCss != null)
+					{
+						doc.writeln('<style type="text/css">');
+						doc.writeln(mxUtils.htmlEntities(editor.fontCss,
+							false, false, false));
+						doc.writeln('</style>');
+					}
+					
+					var fonts = thisGraph.getCustomFonts();
+					
+					for (var i = 0; i < fonts.length; i++)
+					{
+						var fontName = fonts[i].name;
+						var fontUrl = fonts[i].url;
+						
+						if (Graph.isCssFontUrl(fontUrl))
+						{
+							doc.writeln('<link rel="stylesheet" href="' +
+								mxUtils.htmlEntities(Graph.rewriteGoogleFontUrl(fontUrl)) +
+								'" charset="UTF-8" type="text/css">');
+						}
+						else
+						{
+							doc.writeln('<style type="text/css">');
+							doc.writeln('@font-face {\n' +
+								'font-family: "' + mxUtils.htmlEntities(fontName) + '";\n' + 
+								'src: url("' + mxUtils.htmlEntities(fontUrl) + '");\n}');
+							doc.writeln('</style>');
+						}
+					}
+				};
+
+				// Adapts background images
+				if (Editor.enableCssDarkMode)
+				{
+					var printGetBackgroundImage = pv.getBackgroundImage;
+					
+					pv.getBackgroundImage = function()
+					{
+						return graph.adaptBackgroundPage(
+							printGetBackgroundImage.apply(
+								this, arguments));
+					};
+				}
+
+				// Replaces background images with SVG subtrees
+				if (Editor.replaceSvgDataUris)
+				{
+					var printDrawBackgroundImage = pv.drawBackgroundImage;
+
+					pv.drawBackgroundImage = function(img)
+					{
+						printDrawBackgroundImage.apply(this, arguments);
+
+						if (img.node != null)
+						{
+							EditorUi.embedSvgImages(img.node);
+
+							graph.disableSvgLinks(img.node, function(link)
+							{
+								link.setAttribute('href', 'javascript:void(0)');		
+							});
+						}
+					};
+				}
+
+				// Renders grid and handles math
+				var printPreviewAddGraphFragment = pv.addGraphFragment;
+
+				pv.addGraphFragment = function(dx, dy, scale, pageNumber, div, clip)
+				{
+					printPreviewAddGraphFragment.apply(this, arguments);
+					
+					if (this.graph.mathEnabled)
+					{
+						this.mathEnabled = this.mathEnabled || true;
+					}
+					else
+					{
+						div.classList.add('geDisableMathJax');
+					}
+				};
+				
+				// Switches stylesheet for print output in dark mode
+				var temp = null;
+				var tempFg = graph.shapeForegroundColor;
+				var tempBg = graph.shapeBackgroundColor;
+				
+				if (graph.themes != null && graph.defaultThemeName == 'darkTheme')
+				{
+					temp = graph.stylesheet;
+					graph.stylesheet = graph.getDefaultStylesheet()
+					graph.shapeForegroundColor = '#000000';
+					graph.shapeBackgroundColor = '#ffffff';
+					graph.refresh();
+				}
+				
+				// Generates the print output
+				if (args.grid)
+				{
+					pv.gridSize = thisGraph.gridSize;
+					pv.gridSteps = thisGraph.view.gridSteps;
+					pv.gridColor = thisGraph.view.gridColor;
+				}
+
+				pv.open(null, null, forcePageBreaks, true, anchorId, pf,
+					(args.selection) ? thisGraph.getSelectionCells() : null);
+				
+				// Restores the stylesheet
+				if (temp != null)
+				{
+					graph.shapeForegroundColor = tempFg;
+					graph.shapeBackgroundColor = tempBg;
+					graph.stylesheet = temp;
+					graph.refresh();
+				}
+			}
+			else
+			{				
+				var bg = thisGraph.background;
+				
+				if (bg == null || bg == '' || bg == mxConstants.NONE)
+				{
+					bg = '#ffffff';
+				}
+
+				pv.backgroundColor = bg;
+				pv.autoOrigin = autoOrigin;
+				
+				if (args.grid)
+				{
+					pv.gridSize = thisGraph.gridSize;
+					pv.gridSteps = thisGraph.view.gridSteps;
+					pv.gridColor = thisGraph.view.gridColor;
+				}
+
+				pv.appendGraph(thisGraph, scale, x0, y0, forcePageBreaks, true, anchorId, pf,
+					(args.selection) ? thisGraph.getSelectionCells() : null);
+				
+				var extFonts = thisGraph.getCustomFonts();
+				
+				if (pv.wnd != null)
+				{
+					for (var i = 0; i < extFonts.length; i++)
+					{
+						var fontName = extFonts[i].name;
+						var fontUrl = extFonts[i].url;
+						
+						if (Graph.isCssFontUrl(fontUrl))
+						{
+							pv.wnd.document.writeln('<link rel="stylesheet" href="' +
+								mxUtils.htmlEntities(fontUrl) +
+								'" charset="UTF-8" type="text/css">');
+						}
+						else
+						{
+							pv.wnd.document.writeln('<style type="text/css">');
+							pv.wnd.document.writeln('@font-face {\n' +
+								'font-family: "' + mxUtils.htmlEntities(fontName) + '";\n' + 
+								'src: url("' + mxUtils.htmlEntities(fontUrl) + '");\n}');
+							pv.wnd.document.writeln('</style>');
+						}
+					}
+				}
+			}
+			
+			// Restores state if css transforms are used
+			if (prev)
+			{
+				thisGraph.useCssTransforms = prev;
+				thisGraph.currentTranslate = prevTranslate;
+				thisGraph.currentScale = prevScale;
+				thisGraph.view.translate = prevViewTranslate;
+				thisGraph.view.scale = prevViewScale;
+			}
+			
+			return pv;
+		});
+		
+		var pagesFrom = args.pagesFrom;
+		var pagesTo = args.pagesTo;
+		var ignorePages = !args.allPages;
+		var pv = null;
+
+		if (EditorUi.isElectronApp)
+		{
+			PrintDialog.electronPrint(this, args);
+			
+			return;
+		}
+		
+		if (ignorePages)
+		{
+			ignorePages = args.selection ||
+				(pagesFrom == currentPage &&
+				pagesTo == currentPage);
+		}
+		
+		if (!ignorePages && this.pages != null && this.pages.length)
+		{
+			var i0 = 0;
+			var imax = this.pages.length - 1;
+			
+			if (!args.allPages)
+			{
+				i0 = parseInt(pagesFrom) - 1;
+				imax = parseInt(pagesTo) - 1;
+			}
+			
+			for (var i = i0; i <= imax; i++)
+			{
+				var page = this.pages[i];
+				var tempGraph = (page == this.currentPage) ? graph : null;
+
+				if (tempGraph == null)
+				{
+					tempGraph = this.createTemporaryGraph(graph.stylesheet);
+					tempGraph.shapeForegroundColor = graph.shapeForegroundColor;
+					tempGraph.shapeBackgroundColor = graph.shapeBackgroundColor;
+
+					// Restores graph settings that are relevant for printing
+					var pageVisible = true;
+					var mathEnabled = false;
+					var bg = null;
+					var bgImage = null;
+					
+					if (page.viewState == null)
+					{
+						// Workaround to extract view state from XML node
+						// This changes the state of the page and parses
+						// the XML for the graph model even if not needed.
+						if (page.root == null)
+						{
+							this.updatePageRoot(page);
+						}
+					}
+					
+					if (page.viewState != null)
+					{
+						pageVisible = page.viewState.pageVisible;
+						mathEnabled = page.viewState.mathEnabled;
+						bg = page.viewState.background;
+						bgImage = page.viewState.backgroundImage;
+						tempGraph.pageFormat = page.viewState.pageFormat;
+						tempGraph.gridSize = page.viewState.gridSize;
+					}
+
+					// Forces update of background page image in offscreen page
+					if (bgImage != null && bgImage.originalSrc != null)
+					{
+						bgImage = this.createImageForPageLink(
+							bgImage.originalSrc, page);
+					}
+					
+					tempGraph.background = bg;
+					tempGraph.backgroundImage = (bgImage != null) ? new mxImage(
+						bgImage.src, bgImage.width, bgImage.height,
+						bgImage.x, bgImage.y) : null;
+					tempGraph.pageVisible = pageVisible;
+					tempGraph.mathEnabled = mathEnabled;
+
+					// Overrides graph bounds to include background images
+					var graphGetGraphBounds = tempGraph.getGraphBounds;
+
+					tempGraph.getGraphBounds = function()
+					{
+						var bounds = graphGetGraphBounds.apply(this, arguments);
+						var img = this.backgroundImage;
+						
+						if (img != null && img.width != null && img.height != null)
+						{
+							var t = this.view.translate;
+							var s = this.view.scale;
+
+							bounds = mxRectangle.fromRectangle(bounds);
+							bounds.add(new mxRectangle(
+								(t.x + img.x) * s, (t.y + img.y) * s,
+								img.width * s, img.height * s));
+						}
+
+						return bounds;
+					};
+
+					// Redirects placeholders to current page
+					var graphGetGlobalVariable = tempGraph.getGlobalVariable;
+	
+					tempGraph.getGlobalVariable = function(name)
+					{
+						if (name == 'page')
+						{
+							return page.getName();
+						}
+						else if (name == 'pagenumber')
+						{
+							return i + 1;
+						}
+						else if (name == 'pagecount')
+						{
+							return (this.pages != null) ? this.pages.length : 1;
+						}
+						
+						return graphGetGlobalVariable.apply(this, arguments);
+					};
+					
+					document.body.appendChild(tempGraph.container);
+					this.updatePageRoot(page);
+					tempGraph.model.setRoot(page.root);
+				}
+				
+				pv = printGraph(tempGraph, pv, i != imax, page.getId());
+
+				if (tempGraph != graph)
+				{
+					tempGraph.container.parentNode.removeChild(tempGraph.container);
+				}
+			}
+		}
+		else
+		{
+			pv = printGraph(graph);
+		}
+		
+		if (pv == null || pv.wnd == null)
+		{
+			this.handleError({message: mxResources.get('errorUpdatingPreview')});
+		}
+		else
+		{
+			if (pv.mathEnabled)
+			{
+				var doc = pv.wnd.document;
+				
+				// Adds asynchronous printing when MathJax finishes rendering
+				// via global variable that is checked in math-print.js to
+				// avoid generating unsafe-inline script or adding SHA to CSP
+				if (!preview)
+				{
+					pv.wnd.IMMEDIATE_PRINT = true;
+				}
+
+				doc.writeln('<script type="text/javascript" src="js/math-print.js"></script>');
+			}
+			
+			pv.closeDocument();
+			
+			// Rewrites page links to point to internal anchors
+			Graph.rewritePageLinks(pv.wnd.document, true);
+			
+			if (!pv.mathEnabled && !preview)
+			{
+				PrintDialog.printPreview(pv);
+			}
+		}
+		
+		// Restores dark mode
+		if (darkStylesheet != null)
+		{
+			graph.shapeForegroundColor = darkFg;
+			graph.shapeBackgroundColor = darkBg;
+			graph.stylesheet = darkStylesheet;
+			graph.refresh();
+		}
+
+		return pv;
+	};
+
+	/**
 	 * Adds a file drop handler for opening local files.
 	 */
 	EditorUi.prototype.addFileDropHandler = function(elts)
@@ -17704,6 +18261,7 @@
 		    				treeLayout.levelDistance = nodespacing;
 		    				treeLayout.edgeRouting = false;
 		    				treeLayout.resetEdges = false;
+							treeLayout.sortEdges = true;
 		    				
 		    				this.executeLayout(function()
 		    	    		{

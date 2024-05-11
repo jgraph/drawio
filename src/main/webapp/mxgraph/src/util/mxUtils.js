@@ -731,6 +731,40 @@ var mxUtils =
 	},
 
 	/**
+	 * Function: getSvgDefs
+	 * 
+	 * Get or create the defs section in the given SVG element.
+	 */
+	getSvgDefs: function(svgRoot)
+	{
+		var doc = svgRoot.ownerDocument;
+		var defs = svgRoot.getElementsByTagName('defs');
+		var defsElt = null;
+		
+		if (defs.length == 0 || defs[0].parentNode != svgRoot)
+		{
+			defsElt = (doc.createElementNS != null) ?
+				doc.createElementNS(mxConstants.NS_SVG, 'defs') :
+				doc.createElement('defs');
+			
+			if (svgRoot.firstChild != null)
+			{
+				svgRoot.insertBefore(defsElt, svgRoot.firstChild);
+			}
+			else
+			{
+				svgRoot.appendChild(defsElt);
+			}
+		}
+		else
+		{
+			defsElt = defs[0];
+		}
+	
+		return defsElt;
+	},
+
+	/**
 	 * Function: clearSelection
 	 * 
 	 * Clears the current selection in the page.

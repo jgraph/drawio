@@ -1282,4 +1282,4 @@ confCloudMigConfirm=Waarschuwing: links naar Confluence-pagina's binnen diagramm
 confCloudMigNotice=Voeg in de Cloud-instantie linkAdjustments toe om de configuratie van draw.io als volgt te configureren {1}. Zonder deze configuratie werken links in diagrammen die naar Confluence-pagina's verwijzen niet.
 confALogsPageDesc=Deze pagina bevat de draw.io-logboeken van langlopende diensten als bijlagen
 confEditOnlyInPageEditor=Kan alleen worden bewerkt binnen de Confluence-pagina-editor
-confEvalWarn=Evaluation License - Not for production use
+confEvalWarn=Evaluatielicentie - niet voor productiegebruik

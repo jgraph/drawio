@@ -1518,10 +1518,11 @@ Graph.createSvgDarkModeCss = function(cssClass)
 {
 	cssClass = (cssClass != null) ? '.' + cssClass : '';
 
-	return 'svg' + cssClass + ' { filter: invert(100%) hue-rotate(180deg); }\n' +
+	return 'svg' + cssClass + ':not(mjx-container > svg) { filter: invert(100%) hue-rotate(180deg); }\n' +
 		'svg' + cssClass + ' foreignObject img,\n' +
 		'svg' + cssClass + ' image:not(svg' + cssClass + ' switch image),\n' +
-		'svg' + cssClass + ' svg { filter: invert(100%) hue-rotate(180deg) }';
+		'svg' + cssClass + ' svg:not(mjx-container > svg)\n' +
+		'{ filter: invert(100%) hue-rotate(180deg) }';
 };
 
 /**
@@ -4203,6 +4204,7 @@ Graph.prototype.initLayoutManager = function()
 				var treeLayout = new mxCompactTreeLayout(this.graph);
 				treeLayout.horizontal = mxUtils.getValue(style, 'horizontalTree', '1') == '1';
 				treeLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
+				treeLayout.sortEdges = mxUtils.getValue(style, 'sortEdges', '0') == '1';
 				treeLayout.groupPadding = mxUtils.getValue(style, 'parentPadding', 20);
 				treeLayout.levelDistance = mxUtils.getValue(style, 'treeLevelDistance', 30);
 				treeLayout.maintainParentLocation = true;

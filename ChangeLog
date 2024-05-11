@@ -1,3 +1,20 @@
+10-MAY-2024: 24.4.0
+
+- [vsdx] Fixes attribute labels [drawio-4299]
+- Fixes built-in plugins enabling in windows [drawio-desktop-1508]
+- Adds full support for fullscreen menu option [drawio-desktop-1638]
+- Improves font support in PDF export
+- Improves refresh when Math rendered
+- Adds my.microsoftpersonalcontent.com to CSP
+- Fixes first page title when a file is imported into an empty diagram [drawio-3519]
+- [conf cloud] Adds global config to disable diagram revisions (disableVersioning: true) [DID-10247]
+- Adds grid, selection cells to mxPrintPreview
+- Merges print, PDF and advanced PDF export dialog
+- Fixes bounding box for edge shapes [DID-11356]
+- Fixes label position for Kubernetes shapes [drawio-4386]
+- Updates DOMPurify from 3.1.0 to 3.1.2
+- Handles possible errors in App.clearServiceWorker [drawio-4340]
+
 26-APR-2024: 24.3.1
 
 - Fixes breadcrumb trail after refresh in OneDrive picker [drawio-4339]
