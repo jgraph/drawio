@@ -484,6 +484,7 @@ linewidth=선 두께
 link=링크
 links=링크
 loading=불러오는 중입니다.
+locked=Locked
 lockUnlock=잠금/잠금 해제
 loggedOut=로그아웃
 logIn=로그인

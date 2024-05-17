@@ -727,7 +727,7 @@ App.main = function(callback, createUi)
 				{
 					var content = mxUtils.getTextContent(bootstrap);
 					
-					if (CryptoJS.MD5(content).toString() != 'e67d72090cb74390e6c8d29461b8a907')
+					if (CryptoJS.MD5(content).toString() != 'ff68e9badc5b6bcb8f482e0c64b103a7')
 					{
 						console.log('Change bootstrap script MD5 in the previous line:', CryptoJS.MD5(content).toString());
 						alert('[Dev] Bootstrap script change requires update of CSP');
@@ -1527,23 +1527,6 @@ App.prototype.init = function()
 	 */	
 	this.descriptorChangedListener = mxUtils.bind(this, this.descriptorChanged);
 
-	/**
-	 * Creates github client.
-	 */
-	this.gitHub = (!mxClient.IS_IE || document.documentMode == 10 ||
-			mxClient.IS_IE11 || mxClient.IS_EDGE) &&
-			(urlParams['gh'] != '0' && (urlParams['embed'] != '1' ||
-			urlParams['gh'] == '1')) ? new GitHubClient(this) : null;
-	
-	if (this.gitHub != null)
-	{
-		this.gitHub.addListener('userChanged', mxUtils.bind(this, function()
-		{
-			this.updateUserElement();
-			this.restoreLibraries();
-		}));
-	}
-
 	this.addListener('currentThemeChanged', mxUtils.bind(this, function()
 	{
 		if (this.compactMode && this.isDefaultTheme(Editor.currentTheme))
@@ -1553,20 +1536,57 @@ App.prototype.init = function()
 	}));
 
 	/**
+	 * Creates github client.
+	 */
+	try
+	{
+		this.gitHub = (!mxClient.IS_IE || document.documentMode == 10 ||
+				mxClient.IS_IE11 || mxClient.IS_EDGE) &&
+				(urlParams['gh'] != '0' && (urlParams['embed'] != '1' ||
+				urlParams['gh'] == '1')) ? new GitHubClient(this) : null;
+		
+		if (this.gitHub != null)
+		{
+			this.gitHub.addListener('userChanged', mxUtils.bind(this, function()
+			{
+				this.updateUserElement();
+				this.restoreLibraries();
+			}));
+		}
+	}
+	catch (e)
+	{
+		if (window.console != null)
+		{
+			console.log('GitHubClient disabled: ' + e.message);
+		}
+	}
+
+	/**
 	 * Creates gitlab client.
 	 */
-	this.gitLab = (!mxClient.IS_IE || document.documentMode == 10 ||
-		mxClient.IS_IE11 || mxClient.IS_EDGE) &&
-		(urlParams['gl'] != '0' && (urlParams['embed'] != '1' ||
-		urlParams['gl'] == '1')) ? new GitLabClient(this) : null;
-
-	if (this.gitLab != null)
+	try
 	{
-		this.gitLab.addListener('userChanged', mxUtils.bind(this, function()
+		this.gitLab = (!mxClient.IS_IE || document.documentMode == 10 ||
+			mxClient.IS_IE11 || mxClient.IS_EDGE) &&
+			(urlParams['gl'] != '0' && (urlParams['embed'] != '1' ||
+			urlParams['gl'] == '1')) ? new GitLabClient(this) : null;
+
+		if (this.gitLab != null)
 		{
-			this.updateUserElement();
-			this.restoreLibraries();
-		}));
+			this.gitLab.addListener('userChanged', mxUtils.bind(this, function()
+			{
+				this.updateUserElement();
+				this.restoreLibraries();
+			}));
+		}
+	}
+	catch (e)
+	{
+		if (window.console != null)
+		{
+			console.log('GitLabClient disabled: ' + e.message);
+		}
 	}
 
 	/**
@@ -1581,19 +1601,26 @@ App.prototype.init = function()
 		{
 			if (typeof OneDrive !== 'undefined')
 			{
-				/**
-				 * Holds the x-coordinate of the point.
-				 */
-				this.oneDrive = new OneDriveClient(this);
-				
-				this.oneDrive.addListener('userChanged', mxUtils.bind(this, function()
+				try
 				{
-					this.updateUserElement();
-					this.restoreLibraries();
-				}));
-				
-				// Notifies listeners of new client
-				this.fireEvent(new mxEventObject('clientLoaded', 'client', this.oneDrive));
+					this.oneDrive = new OneDriveClient(this);
+					
+					this.oneDrive.addListener('userChanged', mxUtils.bind(this, function()
+					{
+						this.updateUserElement();
+						this.restoreLibraries();
+					}));
+					
+					// Notifies listeners of new client
+					this.fireEvent(new mxEventObject('clientLoaded', 'client', this.oneDrive));
+				}
+				catch (e)
+				{
+					if (window.console != null)
+					{
+						console.log('OneDriveClient disabled: ' + e.message);
+					}
+				}	
 			}
 			else if (window.DrawOneDriveClientCallback == null)
 			{
@@ -1634,7 +1661,7 @@ App.prototype.init = function()
 				{
 					if (window.console != null)
 					{
-						console.error(e);
+						console.log('TrelloClient disabled: ' + e.message);
 					}
 				}
 			}
@@ -1661,17 +1688,27 @@ App.prototype.init = function()
 			{
 				var doInit = mxUtils.bind(this, function()
 				{
-					this.drive = new DriveClient(this);
-					
-					this.drive.addListener('userChanged', mxUtils.bind(this, function()
+					try
 					{
-						this.updateUserElement();
-						this.restoreLibraries();
-						// this.checkLicense();
-					}))
-					
-					// Notifies listeners of new client
-					this.fireEvent(new mxEventObject('clientLoaded', 'client', this.drive));
+						this.drive = new DriveClient(this);
+						
+						this.drive.addListener('userChanged', mxUtils.bind(this, function()
+						{
+							this.updateUserElement();
+							this.restoreLibraries();
+							// this.checkLicense();
+						}))
+						
+						// Notifies listeners of new client
+						this.fireEvent(new mxEventObject('clientLoaded', 'client', this.drive));
+					}
+					catch (e)
+					{
+						if (window.console != null)
+						{
+							console.log('DriveClient disabled: ' + e.message);
+						}
+					}
 				});
 				
 				if (window.DrawGapiClientCallback != null)
@@ -1731,7 +1768,7 @@ App.prototype.init = function()
 				{
 					if (window.console != null)
 					{
-						console.error(e);
+						console.log('DropboxClient disabled: ' + e.message);
 					}
 				}
 			}
@@ -3276,7 +3313,17 @@ App.prototype.start = function()
 						}
 						
 						this.fileLoaded(file);
-						this.getCurrentFile().setModified(!this.editor.chromeless);
+
+						if (!this.editor.chromeless)
+						{
+							// Handles possible copy of modified file
+							file.fileChanged();
+
+							window.setTimeout(mxUtils.bind(this, function()
+							{
+								this.actions.get('resetView').funct();
+							}), 0);
+						}
 					});
 
 					var parent = window.opener || window.parent;
@@ -6785,7 +6832,7 @@ App.prototype.descriptorChanged = function()
 		}
 		
 		var graph = this.editor.graph;
-		var editable = file.isEditable() && !file.invalidChecksum;
+		var editable = file.isEditable();
 		
 		if (graph.isEnabled() && !editable)
 		{

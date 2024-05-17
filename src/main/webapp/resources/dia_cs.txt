@@ -484,6 +484,7 @@ linewidth=Šířka řádku
 link=Odkaz
 links=Odkazy
 loading=Načítá se
+locked=Locked
 lockUnlock=Zamknout/odemknout
 loggedOut=Odhlášeni
 logIn=Přihlásit

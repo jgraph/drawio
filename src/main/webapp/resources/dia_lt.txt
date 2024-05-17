@@ -484,6 +484,7 @@ linewidth=Linijos storis
 link=Nuoroda
 links=Nuorodos
 loading=Įkėlimas
+locked=Locked
 lockUnlock=Užrakinti/Atrakinti
 loggedOut=Atsijungęs
 logIn=Prisijungti

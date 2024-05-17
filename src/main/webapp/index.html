@@ -325,14 +325,14 @@
 								});
 							});
 						}
-						else if (!supportedDomain)
+						else if (!supportedDomain || navigator.onLine)
 						{
 							mxscript('js/PostConfig.js');
 						}
 					});
 				};
 				
-				if (!supportedDomain || mxIsElectron)
+				if (!supportedDomain || mxIsElectron || navigator.onLine)
 				{
 					mxscript('js/PreConfig.js', loadAppJS);
 				}

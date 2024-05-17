@@ -484,6 +484,7 @@ linewidth=‫רוחב הקו‬
 link=‫קישור‬
 links=‫קישורים‬
 loading=‫טוען‬
+locked=Locked
 lockUnlock=‫נעל/שחרר‬
 loggedOut=‫מנותק‬
 logIn=‫התחבר‬

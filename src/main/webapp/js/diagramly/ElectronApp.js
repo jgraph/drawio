@@ -1338,66 +1338,6 @@ mxStencilRegistry.allowEval = false;
 		this.stat = stat;
 	};
 	
-	LocalFile.prototype.reloadFile = function(success)
-	{
-		if (this.fileObject == null)
-		{
-			this.ui.handleError({message: mxResources.get('fileNotFound')});
-		}
-		else
-		{
-			this.ui.spinner.stop();
-			
-			var fn = mxUtils.bind(this, function()
-			{
-				this.setModified(false);
-				var page = this.ui.currentPage;
-				var viewState = this.ui.editor.graph.getViewState();
-				var selection = this.ui.editor.graph.getSelectionCells();
-				
-				if (this.ui.spinner.spin(document.body, mxResources.get('loading')))
-				{
-					this.ui.readGraphFile(mxUtils.bind(this, function(fileEntry, data, stat, name, isModified)
-					{
-						this.ui.spinner.stop();
-						
-						var file = new LocalFile(this.ui, data, '');
-						file.fileObject = fileEntry;
-						file.stat = stat;
-						file.setModified(isModified? true : false);
-						this.ui.fileLoaded(file);
-						this.ui.restoreViewState(page, viewState, selection);
-		
-						if (this.backupPatch != null)
-						{
-							this.patch([this.backupPatch]);
-						}
-						
-						if (success != null)
-						{
-							success();
-						}
-					}), mxUtils.bind(this, function(err)
-					{
-						this.handleFileError(err);
-					}), this.fileObject.path);
-				}
-			});
-	
-			if (this.isModified() && this.backupPatch == null)
-			{
-				this.ui.confirm(mxResources.get('allChangesLost'), mxUtils.bind(this, function()
-				{
-					this.handleFileSuccess(DrawioFile.SYNC == 'manual');
-				}), fn, mxResources.get('cancel'), mxResources.get('discardChanges'));
-			}
-			else
-			{
-				fn();
-			}
-		}
-	};
-
 	LocalFile.prototype.isAutosave = function()
 	{
 		return this.fileObject != null && DrawioFile.prototype.isAutosave.apply(this, arguments);

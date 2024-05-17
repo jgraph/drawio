@@ -484,6 +484,7 @@ linewidth=Linjevidde
 link=Lenke
 links=Lenker
 loading=Laster inn
+locked=Locked
 lockUnlock=Lås/lås opp
 loggedOut=Utlogget
 logIn=Logg inn

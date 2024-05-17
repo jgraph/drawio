@@ -239,25 +239,15 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 											this.saveDelay)));
 									this.desc = resp;
 									
-									// Shows possible errors but keeps the modified flag as the
-									// file was saved but the cache entry could not be written
-									if (token != null || !Editor.enableRealtimeCache)
+									this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
 									{
-										this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
+										this.contentChanged();
+										
+										if (success != null)
 										{
-											this.contentChanged();
-											
-											if (success != null)
-											{
-												success(resp);
-											}
-										}), error, token, pages, checksum);
-									}
-									else if (success != null)
-									{
-										// TODO: Fix possible saving state never being reset
-										success(resp);
-									}
+											success(resp);
+										}
+									}), error, token, pages, checksum);
 								}
 								else if (error != null)
 								{
@@ -410,8 +400,6 @@ DriveFile.prototype.makeCopy = function(success, error, timestamp)
 			this.desc = resp;
 			this.ui.spinner.stop();
 			this.setModified(false);
-			
-			this.backupPatch = null;
 			this.invalidChecksum = false;
 			this.inConflictState = false;
 			

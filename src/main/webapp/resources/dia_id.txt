@@ -484,6 +484,7 @@ linewidth=Lebar garis
 link=Tautan
 links=Tautan
 loading=Memuat
+locked=Locked
 lockUnlock=Mengunci/Membuka
 loggedOut=Keluar
 logIn=masuk

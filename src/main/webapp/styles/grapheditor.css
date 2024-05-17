@@ -602,7 +602,7 @@ html body div.geActivePage, .geRuler {
 	overflow:hidden;
 }
 .geSidebarContainer .geTitle {
-	display:block;
+	display:flex;
 	font-size:13px;
 	border-color: #e5e5e5;
 	border-bottom:1px solid #e5e5e5;
@@ -614,6 +614,23 @@ html body div.geActivePage, .geRuler {
 	overflow:hidden;
 	text-overflow:ellipsis;
 	line-height:1.4em;
+	justify-content:start;
+	align-items:center;
+}
+.geSidebarContainer .geTitle > span {
+	flex-grow: 1;
+    flex-shrink: 1;
+    width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.geSidebarContainer .geTitle > div {
+    background-color: inherit;
+    flex-grow: 0;
+    padding-right: 2px;
+}
+.geSidebarContainer .geTitle > img {
+	margin-right:8px;
 }
 .geSidebarContainer .geTitle:hover {
 	background: #eee;

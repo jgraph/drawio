@@ -515,10 +515,10 @@ mxOutline.prototype.destroy = function()
 	
 	if (this.source != null)
 	{
+		this.source.removeListener(this.scrollHandler);
 		this.source.removeListener(this.updateHandler);
 		this.source.getView().removeListener(this.updateHandler);
 		this.source.getModel().removeListener(this.updateHandler);
-		this.source.removeListener(mxEvent.PAN, this.scrollHandler);
 		mxEvent.removeListener(this.source.container, 'scroll', this.scrollHandler);
 		this.source = null;
 	}

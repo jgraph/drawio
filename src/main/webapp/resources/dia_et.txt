@@ -484,6 +484,7 @@ linewidth=Rea laius
 link=Link
 links=Lingid
 loading=Laeb
+locked=Locked
 lockUnlock=Lukusta/Ava
 loggedOut=Välja logitud
 logIn=logi sisse

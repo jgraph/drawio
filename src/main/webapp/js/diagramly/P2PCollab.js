@@ -892,10 +892,8 @@ function P2PCollab(ui, sync, channelId)
 		if (this.cursorHandler != null)
 		{
 			mxEvent.removeListener(graph.container, 'scroll', this.cursorHandler);
-			graph.getView().removeListener(mxEvent.SCALE, this.cursorHandler);
-			graph.getView().removeListener(mxEvent.TRANSLATE, this.cursorHandler);
-			graph.getView().removeListener(mxEvent.SCALE_AND_TRANSLATE, this.cursorHandler);
-			ui.editor.removeListener('pageSelected', this.cursorHandler);
+			graph.view.removeListener(this.cursorHandler);
+			ui.editor.removeListener(this.cursorHandler);
 			ui.removeListener(this.cursorHandler);
 		}
 

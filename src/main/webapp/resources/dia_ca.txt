@@ -484,6 +484,7 @@ linewidth=Amplada de la línia
 link=Enllaç
 links=Enllaços
 loading=Carregant
+locked=Locked
 lockUnlock=Bloquejar/Desbloquejar
 loggedOut=Desconnectat
 logIn=Iniciar sessió

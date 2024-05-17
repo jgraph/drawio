@@ -484,6 +484,7 @@ linewidth=Çizgi genişliği
 link=Link
 links=Linkler
 loading=Yüklüyor
+locked=Locked
 lockUnlock=Kilitle/Kilidini Aç
 loggedOut=Çıkış Yapıldı
 logIn=Giriş yapın

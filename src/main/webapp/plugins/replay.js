@@ -229,8 +229,16 @@ Draw.loadPlugin(function(ui) {
 						
 						function step()
 						{
-							console.log(processDelta(edit, true));
-							edit = edit.nextSibling;
+							try
+							{
+								console.log(processDelta(edit, true));
+								edit = edit.nextSibling;
+							}
+							catch (e)
+							{
+								ui.handleError(e);
+								edit = null;
+							}
 							
 							return edit != null;
 						}

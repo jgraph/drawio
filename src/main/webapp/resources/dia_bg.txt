@@ -484,6 +484,7 @@ linewidth=Ширина на линията
 link=Линк
 links=Линкове
 loading=Зареждане
+locked=Locked
 lockUnlock=Заключване/Отключване
 loggedOut=Излязохте
 logIn=вход

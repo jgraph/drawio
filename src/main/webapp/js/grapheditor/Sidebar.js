@@ -105,6 +105,17 @@ function Sidebar(editorUi, container)
 		this.showTooltips = true;
 		this.hideTooltip();
 	}));
+
+	// Stops dragging if escape is pressed
+	this.escapeListener = mxUtils.bind(this, function(sender, evt)
+	{
+		if (this.activeDragSource != null && this.activeDragSource.isActive())
+		{
+			this.activeDragSource.reset();
+		}
+	});
+
+	this.editorUi.editor.graph.addListener(mxEvent.ESCAPE, this.escapeListener);
 	
 	this.init();
 };
@@ -2335,7 +2346,10 @@ Sidebar.prototype.createTitle = function(label)
 	var elt = document.createElement('a');
 	elt.setAttribute('title', mxResources.get('sidebarTooltip'));
 	elt.className = 'geTitle';
-	mxUtils.write(elt, label);
+	
+	var span = document.createElement('span');
+	mxUtils.write(span, label);
+	elt.appendChild(span);
 
 	return elt;
 };
@@ -3203,15 +3217,6 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		});
 	}
 	
-	// Stops dragging if cancel is pressed
-	graph.addListener(mxEvent.ESCAPE, function(sender, evt)
-	{
-		if (dragSource.isActive())
-		{
-			dragSource.reset();
-		}
-	});
-
 	// Overrides mouseDown to ignore popup triggers
 	var mouseDown = dragSource.mouseDown;
 	
@@ -3794,10 +3799,21 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		return target;
 	});
 	
+	// Sets active drag source
+	var startDrag = dragSource.startDrag;
+
+	dragSource.startDrag = function(evt)
+	{
+		sidebar.activeDragSource = this;
+		startDrag.apply(this, arguments);
+	};
+
+	// Clears active drag source
+	var stopDrag = dragSource.stopDrag;
+
 	dragSource.stopDrag = function()
 	{
-		mxDragSource.prototype.stopDrag.apply(this, arguments);
-		
+		stopDrag.apply(this, arguments);
 		var elts = [roundSource, roundTarget, styleTarget, arrowUp, arrowRight, arrowDown, arrowLeft];
 		
 		for (var i = 0; i < elts.length; i++)
@@ -3813,6 +3829,7 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 			currentStateHandle.reset();
 		}
 		
+		sidebar.activeDragSource = null;
 		currentStateHandle = null;
 		currentTargetState = null;
 		currentStyleTarget = null;
@@ -4409,6 +4426,12 @@ Sidebar.prototype.destroy = function()
 		
 		this.graph.destroy();
 		this.graph = null;
+	}
+
+	if (this.escapeListener != null)
+	{
+		this.editorUi.editor.graph.removeListener(this.escapeListener);
+		this.escapeListener = null;
 	}
 	
 	if (this.pointerUpHandler != null)

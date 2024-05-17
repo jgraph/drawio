@@ -1,3 +1,26 @@
+17-MAY-2024: 24.4.4
+
+- Improves diff sync for removed default layer
+
+16-MAY-2024: 24.4.3
+
+- [conf cloud] Updates CSP based on the deprecation notice https://developer.atlassian.com/cloud/confluence/changelog/#CHANGE-1601
+- Improves diff sync and handles special cases
+
+15-MAY-2024: 24.4.2
+
+- Fixes possible NPE in StorageFile.getEtag
+
+15-MAY-2024: 24.4.1
+
+- Improves page switching performance
+- Updates DOMPurify from 3.1.2 to 3.1.3
+- Restores view and selection state after merge of local files
+- Adds conflict handling for browser files for testing
+- Fixes inactive escape listeners in sidebar [drawio-4379]
+- Moves locking to file [drawio-desktop-1380]
+- Adds automatic merge for browser files
+
 10-MAY-2024: 24.4.0
 
 - [vsdx] Fixes attribute labels [drawio-4299]

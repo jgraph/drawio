@@ -12978,6 +12978,63 @@ var FilePropertiesDialog = function(editorUi, publicLink)
 		};
 	};
 
+	if (urlParams['test'] == '1')
+	{
+		var initialLocked = (file != null) ? file.isLocked() : false;
+
+		row = document.createElement('tr');
+		td = document.createElement('td');
+		td.style.whiteSpace = 'nowrap';
+		td.style.overflow = 'hidden';
+		td.style.textOverflow = 'ellipsis';
+		td.style.fontSize = '10pt';
+
+		// TODO: Use mxResources.get('locked')
+		mxUtils.write(td, 'Locked' + ':');
+		
+		row.appendChild(td);
+
+		var lockedInput = document.createElement('input');
+		lockedInput.setAttribute('type', 'checkbox');
+		
+		if (initialLocked)
+		{
+			lockedInput.setAttribute('checked', 'checked');
+			lockedInput.defaultChecked = true;
+		}
+		
+		td = document.createElement('td');
+		td.style.whiteSpace = 'nowrap';
+		td.appendChild(lockedInput);
+		row.appendChild(td);
+		tbody.appendChild(row);
+
+		this.init = function()
+		{
+			lockedInput.focus();
+		};
+
+		addApply(function(success, error)
+		{
+			if (editorUi.fileNode != null && initialLocked != lockedInput.checked)
+			{
+				window.setTimeout(function()
+				{
+					if (file != null)
+					{
+						file.setLocked(lockedInput.checked);
+					}
+
+					success();
+				}, 0);
+			}
+			else
+			{
+				success();
+			}
+		});
+	}
+
 	if (isPng || isSvg)
 	{
 		var scale = 1;
@@ -13035,7 +13092,7 @@ var FilePropertiesDialog = function(editorUi, publicLink)
 		row.appendChild(td);
 		tbody.appendChild(row);
 		
-		this.init = function()
+		this.init = this.init || function()
 		{
 			zoomInput.focus();
 			
@@ -13095,7 +13152,7 @@ var FilePropertiesDialog = function(editorUi, publicLink)
 		row.appendChild(td);
 		tbody.appendChild(row);
 		
-		this.init = function()
+		this.init = this.init || function()
 		{
 			compressedInput.focus();
 		};

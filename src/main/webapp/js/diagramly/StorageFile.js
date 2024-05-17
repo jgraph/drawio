@@ -15,20 +15,43 @@ StorageFile = function(ui, data, title)
 	DrawioFile.call(this, ui, data);
 	
 	this.title = title;
+	this.etag = this.getEtag(data);
 };
 
 //Extends mxEventSource
 mxUtils.extend(StorageFile, DrawioFile);
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+* Updates the descriptor of this file with the one from the given file.
+*/
+StorageFile.prototype.getEtag = function(data)
+{
+	if (data == null)
+	{
+		return null;
+	}
+	else
+	{
+		var content = mxUtils.parseXml(data);
+
+		return content.documentElement.getAttribute('etag');
+	}
+};
+
+/**
+ * Sets the delay for autosave in milliseconds. Default is 1000.
  */
-StorageFile.prototype.autosaveDelay = 2000;
+StorageFile.prototype.autosaveDelay = 500;
 
 /**
  * Sets the delay for autosave in milliseconds. Default is 20000.
  */
 StorageFile.prototype.maxAutosaveDelay = 20000;
+
+/**
+ * Maximum number if attempts to automatically catchup on save.
+ */
+StorageFile.prototype.maxRetries = 5;
 
 /**
  * A differentiator of the stored object type (file or lib)
@@ -44,6 +67,42 @@ StorageFile.prototype.type = 'F';
 StorageFile.prototype.getMode = function()
 {
 	return App.MODE_BROWSER;
+};
+
+/**
+ * Overridden to enable the autosave option in the document properties dialog.
+ */
+StorageFile.prototype.isSyncSupported = function()
+{
+	return true
+};
+
+/**
+ * Overridden to enable the autosave option in the document properties dialog.
+ */
+StorageFile.prototype.isPolling = function()
+{
+	return this.isSyncSupported();
+};
+
+/**
+ * Overridden to enable the autosave option in the document properties dialog.
+ */
+StorageFile.prototype.getPollingInterval = function()
+{
+	return 2000;
+};
+
+/**
+ * Hook for subclassers to get the latest version ID of this file
+ * and return it in the success handler.
+ */
+StorageFile.prototype.getLatestVersionId = function(success, error)
+{
+	StorageFile.getFileContent(this.ui, this.title, mxUtils.bind(this, function(data)
+	{
+		success(this.getEtag(data));
+	}), error);
 };
 
 /**
@@ -88,6 +147,30 @@ StorageFile.prototype.isRenamable = function()
 };
 
 /**
+ * Adds all listeners.
+ */
+StorageFile.prototype.getDescriptor = function()
+{
+	return this.etag;
+};
+
+/**
+* Updates the descriptor of this file with the one from the given file.
+*/
+StorageFile.prototype.setDescriptor = function(etag)
+{
+	this.etag = etag;
+};
+
+/**
+ * Returns the etag from the given descriptor.
+ */
+StorageFile.prototype.getDescriptorEtag = function(desc)
+{
+	return desc;
+};
+
+/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.
@@ -106,8 +189,10 @@ StorageFile.prototype.save = function(revision, success, error)
  */
 StorageFile.prototype.saveAs = function(title, success, error)
 {
-	DrawioFile.prototype.save.apply(this, arguments);
-	this.saveFile(title, false, success, error);
+	DrawioFile.prototype.save.apply(this, [false, mxUtils.bind(this, function()
+	{
+		this.saveFile(this.getTitle(), false, success, error);
+	}), error]);
 };
 
 /**
@@ -221,8 +306,10 @@ StorageFile.getFileInfo = function(ui, title, success, error)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-StorageFile.prototype.saveFile = function(title, revision, success, error)
+StorageFile.prototype.saveFile = function(title, revision, success, error, retry)
 {
+	retry = (retry != null) ? retry : 0;
+
 	if (!this.isEditable())
 	{
 		if (success != null)
@@ -234,64 +321,7 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
 	{
 		var fn = mxUtils.bind(this, function()
 		{
-			if (this.isRenamable())
-			{
-				this.title = title;
-			}
-			
-			try
-			{
-				var saveDone = mxUtils.bind(this, function()
-				{
-					this.setModified(this.getShadowModified());
-					this.contentChanged();
-					
-					if (success != null)
-					{
-						success();
-					}
-		        });
-				
-				this.setShadowModified(false);
-				var data = this.getData();
-				
-				this.ui.setDatabaseItem(null, [{
-						title: this.title,
-						size: data.length,
-						lastModified: Date.now(),
-						type: this.type
-					}, {
-						title: this.title,
-						data: data
-					}], saveDone, mxUtils.bind(this, function()
-					{
-						if (this.ui.database == null) //fallback to localstorage
-						{
-							try
-							{
-								this.ui.setLocalData(this.title, data, saveDone);
-							}
-							catch (e)
-							{
-								if (error != null)
-								{
-									error(e);
-								}
-							}
-						}
-						else if (error != null)
-						{
-							error();
-						}
-					}), ['filesInfo', 'files']);
-			}
-			catch (e)
-			{
-				if (error != null)
-				{
-					error(e);
-				}
-			}
+			this.writeFile(title, success, error);
 		});
 		
 		// Checks for trailing dots
@@ -305,13 +335,132 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
 			{
 				if (!this.isRenamable() || this.getTitle() == title || data == null)
 				{
-					fn();
+					this.getLatestVersion(mxUtils.bind(this, function(file)
+					{
+						if (file.getDescriptor() != this.getDescriptor())
+						{
+							EditorUi.debug('StorageFile.saveFile',
+								[this], 'conflict', [file]);
+
+							this.mergeFile(file, mxUtils.bind(this, function()
+							{
+								if (retry >= this.maxRetries ||
+									this.invalidChecksum ||
+									this.inConflictState)
+								{
+									this.inConflictState = true;
+
+									if (error != null)
+									{
+										error();
+									}
+								}
+								else
+								{
+									this.retrySave(mxUtils.bind(this, function()
+									{
+										this.updateFileData();
+										this.saveFile(title, revision,
+											success, error, retry + 1);
+									}));
+								}
+							}), error);
+						}
+						else
+						{
+							fn();
+						}
+					}), error);
 				}
 				else
 				{
 					this.ui.confirm(mxResources.get('replaceIt', [title]), fn, error);
 				}
 			}), error);
+		}
+	}
+
+	EditorUi.debug('StorageFile.saveFile', [this], 'title', title,
+		'revision', revision, 'retry', retry);
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+StorageFile.prototype.retrySave = function(fn)
+{
+	var delay = 300 + Math.random() * 300;
+	window.setTimeout(fn, delay);
+	
+	EditorUi.debug('StorageFile.retrySave', [this], 'delay', delay);
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+StorageFile.prototype.writeFile = function(title, success, error)
+{
+	if (this.isRenamable())
+	{
+		this.title = title;
+	}
+	
+	try
+	{
+		var desc = this.getDescriptor();
+		var data = this.getData();
+
+		var saveDone = mxUtils.bind(this, function()
+		{
+			this.setModified(this.getShadowModified());
+			this.setDescriptor(this.getEtag(data));
+			this.contentChanged();
+			this.fileSaved(data, desc, success, error);
+		});
+		
+		this.setShadowModified(false);
+
+		this.ui.setDatabaseItem(null, [{
+				title: this.title,
+				size: data.length,
+				lastModified: Date.now(),
+				type: this.type
+			}, {
+				title: this.title,
+				data: data
+			}], saveDone, mxUtils.bind(this, function()
+			{
+				if (this.ui.database == null) //fallback to localstorage
+				{
+					try
+					{
+						this.ui.setLocalData(this.title, data, saveDone);
+					}
+					catch (e)
+					{
+						if (error != null)
+						{
+							error(e);
+						}
+					}
+				}
+				else if (error != null)
+				{
+					error();
+				}
+			}), ['filesInfo', 'files']);
+	}
+	catch (e)
+	{
+		if (error != null)
+		{
+			error(e);
 		}
 	}
 };
@@ -360,18 +509,6 @@ StorageFile.prototype.rename = function(title, success, error)
 	{
 		success();
 	}
-};
-
-/**
- * Returns the location as a new object.
- * @type mx.Point
- */
-StorageFile.prototype.open = function()
-{
-	DrawioFile.prototype.open.apply(this, arguments);
-
-	// Immediately creates the storage entry
-	this.saveFile(this.getTitle());
 };
 
 /**

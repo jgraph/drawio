@@ -484,6 +484,7 @@ linewidth=Līnijas platums
 link=Saite
 links=Saites
 loading=Notiek ielāde
+locked=Locked
 lockUnlock=Bloķēt/atbloķēt
 loggedOut=Izlogojies
 logIn=Pieslēgties

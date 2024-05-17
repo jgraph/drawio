@@ -484,6 +484,7 @@ linewidth=ความกว้างของเส้น
 link=เชื่อมโยง
 links=เชื่อมโยง
 loading=กำหลังโหลด
+locked=Locked
 lockUnlock=ล็อก/เอาล็อกออก
 loggedOut=ออกจากระบบ
 logIn=เข้าสู่ระบบ

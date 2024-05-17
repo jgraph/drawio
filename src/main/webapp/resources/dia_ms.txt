@@ -484,6 +484,7 @@ linewidth=Lebar garis
 link=Pautan
 links=Pautan
 loading=Memuatkan
+locked=Locked
 lockUnlock=Kunci/Buka kunci
 loggedOut=Log Keluar
 logIn=log masuk

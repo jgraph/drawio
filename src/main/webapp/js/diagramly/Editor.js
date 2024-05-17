@@ -8286,6 +8286,19 @@
 	/**
 	 * Selects first unlocked layer if one exists
 	 */
+	Graph.prototype.checkDefaultParent = function()
+	{
+		if (this.defaultParent != null &&
+			!this.model.contains(this.defaultParent))
+		{
+			this.setDefaultParent(null);
+			this.selectUnlockedLayer();
+		}
+	};
+	
+	/**
+	 * Selects first unlocked layer if one exists
+	 */
 	Graph.prototype.selectUnlockedLayer = function()
 	{
 		if (this.defaultParent == null)

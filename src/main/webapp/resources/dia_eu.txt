@@ -484,6 +484,7 @@ linewidth=Lerroaren zabalera
 link=Esteka
 links=Estekak
 loading=Kargatzen
+locked=Locked
 lockUnlock=Blokeatu/Desblokeatu
 loggedOut=Deskonektatuta
 logIn=Hasi saioa

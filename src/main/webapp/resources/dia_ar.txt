@@ -484,6 +484,7 @@ linewidth=‫عرض الخط‬
 link=‫رابط‬
 links=Links
 loading=‫تحميل‬
+locked=Locked
 lockUnlock=‫قفل/إلغاء قفل‬
 loggedOut=‫تم تسجيل الخروج‬
 logIn=log in

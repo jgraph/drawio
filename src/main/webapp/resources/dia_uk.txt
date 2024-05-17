@@ -484,6 +484,7 @@ linewidth=Товщина лінії
 link=Посилання
 links=Декілька посилань
 loading=Завантаження
+locked=Locked
 lockUnlock=Замкнути/Відімкнути
 loggedOut=Ви вийшли
 logIn=Увійти

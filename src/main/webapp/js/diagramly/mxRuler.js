@@ -555,10 +555,8 @@ mxRuler.prototype.destroy = function()
 	mxGuide.prototype.destroy = this.origGuideDestroy;
     this.graph.removeListener(this.sizeListener);
     this.graph.container.removeEventListener('scroll', this.scrollListener);
-    this.graph.view.removeListener('unitChanged', this.unitListener);
-    this.ui.removeListener('pageViewChanged', this.pageListener);
-    this.ui.removeListener('pageScaleChanged', this.pageListener);
-    this.ui.removeListener('pageFormatChanged', this.pageListener);
+    this.graph.view.removeListener(this.unitListener);
+    this.ui.removeListener(this.pageListener);
     
     if (this.container != null)
     {

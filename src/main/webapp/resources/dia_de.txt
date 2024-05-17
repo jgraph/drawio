@@ -484,6 +484,7 @@ linewidth=Linienbreite
 link=Verknüpfung
 links=Verknüpfungen
 loading=Wird geladen
+locked=Gesperrt
 lockUnlock=Sperren/Entsperren
 loggedOut=Nicht angemeldet
 logIn=anmelden

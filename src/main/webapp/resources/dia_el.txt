@@ -484,6 +484,7 @@ linewidth=Μήκος Γραμμής
 link=Σύνδεσμος
 links=Σύνδεσμοι
 loading=Φόρτωση
+locked=Locked
 lockUnlock=Κλείδωμα/Ξεκλείδωμα
 loggedOut=Αποσυνδέθηκε
 logIn=Είσοδος

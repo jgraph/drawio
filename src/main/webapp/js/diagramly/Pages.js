@@ -43,6 +43,12 @@ DiagramPage.prototype.root = null;
 DiagramPage.prototype.viewState = null;
 
 /**
+ * Specifies if the diagram in the page was been modified
+ * and the cached XML data needs to be updated.
+ */
+DiagramPage.prototype.diagramModified = false;
+
+/**
  * 
  */
 DiagramPage.prototype.getId = function()
@@ -71,6 +77,22 @@ DiagramPage.prototype.setName = function(value)
 	{
 		this.node.setAttribute('name', value);
 	}
+};
+
+/**
+ * Sets the diagram modified flag.
+ */
+DiagramPage.prototype.setDiagramModified = function(value)
+{
+	this.diagramModified = value;
+};
+
+/**
+ * Returns the diagram modified flag.
+ */
+DiagramPage.prototype.isDiagramModified = function()
+{
+	return this.diagramModified;
 };
 
 /**
@@ -162,11 +184,16 @@ SelectPage.prototype.execute = function()
 		var page = this.ui.currentPage;
 		var editor = this.ui.editor;
 		var graph = editor.graph;
-		var temp = editor.getGraphXml(true);
-		EditorUi.removeChildNodes(page.node);
 		
-		// Stores current diagram state in the page
-		page.node.appendChild(temp);
+		if (page.isDiagramModified())
+		{
+			page.setDiagramModified(false);
+
+			// Updates cached diagram data
+			EditorUi.removeChildNodes(page.node);
+			page.node.appendChild(editor.getGraphXml(true));
+		}
+
 		page.viewState = graph.getViewState();
 		page.root = graph.model.root;
 		
@@ -556,7 +583,7 @@ EditorUi.prototype.initPages = function()
 			}
 		});
 
-		// Adds a graph model listener to update the view
+		// Adds a graph model listener to update the view and diagram modified flag
 		this.editor.graph.model.addListener(mxEvent.CHANGE, mxUtils.bind(this, function(sender, evt)
 		{
 			var edit = evt.getProperty('edit');
@@ -571,6 +598,12 @@ EditorUi.prototype.initPages = function()
 					this.updateTabContainer();
 					break;	
 				}
+			}
+
+			if (this.currentPage != null && !(changes.length == 1 &&
+				changes[0] instanceof SelectPage))
+			{
+				this.currentPage.setDiagramModified(true);
 			}
 		}));
 		
@@ -596,12 +629,7 @@ EditorUi.prototype.initPages = function()
 		// Selects new default parent if root changes
 		graph.addListener(mxEvent.ROOT, mxUtils.bind(this, function()
 		{
-			if (graph.defaultParent != null &&
-				!graph.model.contains(graph.defaultParent))
-			{
-				graph.setDefaultParent(null);
-				graph.selectUnlockedLayer();
-			}
+			graph.checkDefaultParent();
 		}));
 		
 		var pagesChanged = mxUtils.bind(this, function()
@@ -1060,6 +1088,10 @@ EditorUi.prototype.updatePageRoot = function(page, checked)
 		{
 			// Initializes page object with new empty root
 			page.root = this.editor.graph.model.createRoot();
+
+			// Sets default cell IDs
+			page.root.setId('0');
+			page.root.children[0].setId('1');
 		}
 	}
 	else if (page.viewState == null)
@@ -1084,6 +1116,14 @@ EditorUi.prototype.updatePageRoot = function(page, checked)
 		{
 			page.viewState = this.editor.graph.createViewState(page.graphModelNode);	
 		}
+	}
+
+	// Ensures the root has a default layer
+	if (page.root.children == null || page.root.children.length == 0)
+	{
+		var layer = new mxCell();
+		layer.setId('1');
+		page.root.insert(layer);
 	}
 	
 	return page;

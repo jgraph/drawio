@@ -484,6 +484,7 @@ linewidth=Linjebredde
 link=Link
 links=Links
 loading=Indlæser
+locked=Locked
 lockUnlock=Lås/lås op
 loggedOut=Logget af
 logIn=Log ind

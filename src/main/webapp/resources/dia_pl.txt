@@ -484,6 +484,7 @@ linewidth=Szerokość linii
 link=Hiperłącze
 links=Hiperłącza
 loading=Ładuję
+locked=Locked
 lockUnlock=Zablokuj/odblokuj
 loggedOut=Wylogowany
 logIn=Zaloguj

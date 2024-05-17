@@ -484,6 +484,7 @@ linewidth=Lapad ng linya
 link=Link
 links=Mga Link
 loading=Naglo-load
+locked=Locked
 lockUnlock=Isara/ Buksan
 loggedOut=Nag-Log out
 logIn=Mag-Log in

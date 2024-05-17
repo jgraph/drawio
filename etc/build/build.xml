@@ -301,7 +301,7 @@
 				<file name="EditorUi.js" />
 				<file name="DiffSync.js" />
 				<file name="Settings.js" />
-				<file name="DrawioFilePuller.js" />
+				<file name="DrawioFilePolling.js" />
 				<file name="DrawioFileSync.js" />
 				<file name="App.js" />
 				<file name="Menus.js" />
@@ -385,7 +385,7 @@
 				<file name="EditorUi.js" />
 				<file name="DiffSync.js" />
 				<file name="Settings.js" />
-				<file name="DrawioFilePuller.js" />
+				<file name="DrawioFilePolling.js" />
 				<file name="DrawioFileSync.js" />
 			</sources>
 				

@@ -484,6 +484,7 @@ linewidth=Debljina linije
 link=Veza
 links=Links
 loading=Učitavanje
+locked=Locked
 lockUnlock=Zaključaj/Otključaj
 loggedOut=Odlogovan
 logIn=log in

@@ -484,6 +484,7 @@ linewidth=Толщина линии
 link=Ссылка
 links=Ссылки
 loading=Загрузка
+locked=Locked
 lockUnlock=Блокировать/Разблокировать
 loggedOut=Вышел
 logIn=Войти

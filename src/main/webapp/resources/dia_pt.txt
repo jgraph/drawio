@@ -484,6 +484,7 @@ linewidth=Largura da linha
 link=Link
 links=Links
 loading=A carregar
+locked=Locked
 lockUnlock=Bloquear/Desbloquear
 loggedOut=Desconetado
 logIn=Conetar

@@ -346,17 +346,6 @@
 			toggleSimpleModeAction.setSelectedCallback(function() { return Editor.currentTheme == 'simple'; });
 		}
 
-		if (urlParams['test'] == '1')
-		{
-			var toggleReadOnlyAction = editorUi.actions.put('toggleReadOnly', new Action(mxResources.get('readOnly'), function(e)
-			{
-				editorUi.setLocked(!editorUi.isLocked());
-			}));
-
-			toggleReadOnlyAction.setToggleAction(true);
-			toggleReadOnlyAction.setSelectedCallback(function() { return editorUi.isLocked(); });
-		}
-
         var toggleSketchModeAction = editorUi.actions.put('toggleSketchMode', new Action(mxResources.get('sketch'), function(e)
         {
 			editorUi.setSketchMode(!Editor.sketchMode);
@@ -4436,8 +4425,8 @@
 				}
 
 				this.addMenuItems(menu, ['tooltips', 'ruler', '-', 'grid', 'guides',
-					'toggleReadOnly', '-', 'connectionArrows', 'connectionPoints',
-					'-', 'resetView', 'zoomIn', 'zoomOut'], parent);
+					'-', 'connectionArrows', 'connectionPoints', '-',
+					'resetView', 'zoomIn', 'zoomOut'], parent);
 
 				if (urlParams['sketch'] != '1')
 				{

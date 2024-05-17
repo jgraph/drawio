@@ -484,6 +484,7 @@ linewidth=Spessore linea
 link=Collegamento
 links=Collegamenti
 loading=Caricamento
+locked=Locked
 lockUnlock=Blocca/Sblocca
 loggedOut=Uscito
 logIn=accedi

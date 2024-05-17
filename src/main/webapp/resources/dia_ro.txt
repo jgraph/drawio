@@ -484,6 +484,7 @@ linewidth=Grosime linie
 link=Legătură
 links=Legături
 loading=Se încarcă
+locked=Locked
 lockUnlock=Blochează/deblochează
 loggedOut=Deconectat
 logIn=Conectează-te

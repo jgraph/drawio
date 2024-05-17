@@ -484,6 +484,7 @@ linewidth=‫عرض خظ‬
 link=‫پیوند‬
 links=‫لینک ها‬
 loading=‫فراخوانی‬
+locked=Locked
 lockUnlock=‫ققل کردن/بازکردن‬
 loggedOut=‫خارج شده‬
 logIn=‫وارد شدن‬

@@ -484,6 +484,7 @@ linewidth=Chiều rộng của dòng
 link=Đường dẫn
 links=Đường dẫn
 loading=Đang tải
+locked=Locked
 lockUnlock=Khóa/Mở khóa
 loggedOut=Đã đăng xuất
 logIn=Đăng nhập

@@ -484,6 +484,7 @@ linewidth=Rivin leveys
 link=Linkki
 links=Linkit
 loading=Ladataan
+locked=Locked
 lockUnlock=Lukitse/Avaa
 loggedOut=Kirjautunut ulos
 logIn=Kirjaudu sisään

@@ -6566,11 +6566,10 @@ EditorUi.prototype.destroy = function()
 
 	if (graph != null && this.selectionStateListener != null)
 	{
-		graph.getSelectionModel().removeListener(mxEvent.CHANGE, this.selectionStateListener);
-		graph.getModel().removeListener(mxEvent.CHANGE, this.selectionStateListener);
-		graph.removeListener(mxEvent.EDITING_STARTED, this.selectionStateListener);
-		graph.removeListener(mxEvent.EDITING_STOPPED, this.selectionStateListener);
-		graph.getView().removeListener('unitChanged', this.selectionStateListener);
+		graph.getSelectionModel().removeListener(this.selectionStateListener);
+		graph.getModel().removeListener(this.selectionStateListener);
+		graph.getView().removeListener(this.selectionStateListener);
+		graph.removeListener(this.selectionStateListener);
 		this.selectionStateListener = null;
 	}
 	

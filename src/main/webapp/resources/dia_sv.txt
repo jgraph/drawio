@@ -484,6 +484,7 @@ linewidth=Linjebredd
 link=Länk
 links=Länkar
 loading=Laddar
+locked=Locked
 lockUnlock=Lås/Lås upp
 loggedOut=Utloggad
 logIn=Inloggning

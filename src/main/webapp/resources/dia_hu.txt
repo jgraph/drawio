@@ -484,6 +484,7 @@ linewidth=Vonalvastagság
 link=Link
 links=Linkek
 loading=Betöltés
+locked=Locked
 lockUnlock=Bezár/Kizár
 loggedOut=Kijelentkezve
 logIn=Bejelentkez

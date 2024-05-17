@@ -484,6 +484,7 @@ linewidth=Linewidth
 link=Link
 links=Links
 loading=Loading
+locked=Locked
 lockUnlock=Lock/Unlock
 loggedOut=Logged Out
 logIn=log in

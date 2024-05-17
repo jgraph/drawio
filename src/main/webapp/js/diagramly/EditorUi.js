@@ -538,11 +538,6 @@
 	 * Restores app defaults for UI
 	 */
 	EditorUi.prototype.showRemoteCursors = true;
-
-	/**
-	 * Specifies if the diagram is locked. Default is false.
-	 */
-	EditorUi.prototype.locked = false;
 	
 	/**
 	 * Capability check for canvas export
@@ -665,16 +660,9 @@
 	 */
 	EditorUi.prototype.isLocked = function()
 	{
-		return this.locked;
-	};
-	
-	/**
-	 * Abstraction for local storage access.
-	 */
-	EditorUi.prototype.setLocked = function(value)
-	{
-		this.locked = value;
-		this.fireEvent(new mxEventObject('lockedChanged'));
+		var file = this.getCurrentFile();
+
+		return file != null && file.isLocked()
 	};
 	
 	/**
@@ -1231,8 +1219,11 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.replaceFileData = function(data)
+	EditorUi.prototype.replaceFileData = function(data, patches)
 	{
+		EditorUi.debug('EditorUi.replaceFileData', [this],
+			'data', [data], 'patches', patches);
+		
 		data = this.validateFileData(data);
 		var node = (data != null && data.length > 0) ? mxUtils.parseXml(data).documentElement : null;
 
@@ -1303,6 +1294,14 @@
 					{
 						graph.model.execute(new ChangePage(this, oldPages[i], null));
 					}
+				}
+				
+				// Updates internal sync state for current file
+				var file = this.getCurrentFile();
+
+				if (file != null)
+				{
+					file.fileReplaced(patches);
 				}
 			}
 			finally
@@ -1838,9 +1837,11 @@
 				{
 					currentFile.reloadFile(mxUtils.bind(this, function()
 					{
+						this.spinner.stop();
 						currentFile.handleFileSuccess(DrawioFile.SYNC == 'manual');
 					}), mxUtils.bind(this, function(err)
 					{
+						this.spinner.stop();
 						currentFile.handleFileError(err, true);
 					}));
 				}
@@ -2104,6 +2105,9 @@
 			{
 				var nodes = node.getElementsByTagName('diagram');
 
+				// Checks for duplicate page IDs
+				var pages = {};
+
 				if (nodes.length > 0)
 				{
 					var hashObj = this.getHashObject();
@@ -2137,6 +2141,15 @@
 						{
 							selectedPage = page;
 						}
+
+						if (pages[page.getId()] == null)
+						{
+							pages[page.getId()] = page;
+						}
+						else
+						{
+							throw new Error(page.getId() + ': Duplicate page ID');
+						}
 					}
 					
 					this.currentPage = (selectedPage != null) ? selectedPage :
@@ -2161,6 +2174,9 @@
 			if (this.currentPage != null)
 			{
 				this.currentPage.root = this.editor.graph.model.root;
+
+				// Resets initial modified state
+				this.currentPage.setDiagramModified(false);
 				
 				// Scrolls to current page
 				this.scrollToPage();
@@ -3182,12 +3198,6 @@
 				else if (file.isModified())
 				{
 					file.addUnsavedStatus();
-					
-					// Restores unsaved data
-					if (file.backupPatch != null)
-					{
-						file.patch([file.backupPatch]);
-					}
 				}
 				else
 				{
@@ -3806,12 +3816,7 @@
 	    }
 	    
 	    var buttons = document.createElement('div');
-	    buttons.style.position = 'absolute';
-	    buttons.style.right = '0px';
-	    buttons.style.top = '0px';
-	    buttons.style.padding = '8px'	    
 	    buttons.style.backgroundColor = 'inherit';
-	    
 	    title.style.position = 'relative';
 	    
 	    var btnWidth = 18;
@@ -3892,14 +3897,12 @@
 					spinBtn.style.marginRight = '2px';
 					spinBtn.style.marginTop = '-2px';
 					buttons.insertBefore(spinBtn, buttons.firstChild);
-					title.style.paddingRight = (buttons.childNodes.length * btnWidth) + 'px';
 					
 					this.saveLibrary(file.getTitle(), images, file, file.getMode(), true, true, function()
 					{
 						if (spinBtn != null && spinBtn.parentNode != null)
 						{
 							spinBtn.parentNode.removeChild(spinBtn);
-							title.style.paddingRight = (buttons.childNodes.length * btnWidth) + 'px';
 						}
 					});
 				}
@@ -3917,7 +3920,6 @@
 							{
 								if (saveBtn != null && !file.isModified())
 								{
-									title.style.paddingRight = (buttons.childNodes.length * btnWidth) + 'px';
 									saveBtn.parentNode.removeChild(saveBtn);
 									saveBtn = null;
 								}
@@ -3925,8 +3927,6 @@
 						
 						mxEvent.consume(evt);
 					}));
-					
-					title.style.paddingRight = (buttons.childNodes.length * btnWidth) + 'px';
 				}
 			});
 			
@@ -4270,7 +4270,6 @@
 		}
 		
 		title.appendChild(buttons);
-		title.style.paddingRight = (buttons.childNodes.length * btnWidth) + 'px';
 		this.editor.fireEvent(new mxEventObject('libraryLoaded'));
 	};
 
