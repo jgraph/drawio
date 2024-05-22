@@ -1345,38 +1345,19 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 			// Compares the checksum
 			if (checksum != null && checksum != current)
 			{
-				// Logs checksum error
-				var logError = mxUtils.bind(this, function(failed)
-				{
-					try
-					{
-						this.file.checksumError(function() {}, patches, null, null,
-							'merge with fallback ' + (failed ? 'failed' : 'success'),
-							checksum, current, this.file.getCurrentRevisionId());
-					}
-					catch (e)
-					{
-						// ignore
-					}
-				});
-
-				// Fallback to full reload with logging
+				// Fallback to full reload with mergeFile
 				this.reload(mxUtils.bind(this, function()
 				{
 					if (success != null)
 					{
 						success();
 					}
-
-					logError(false);
 				}), mxUtils.bind(this, function()
 				{
 					if (error != null)
 					{
 						error();
 					}
-
-					logError(true);
 				}), abort, null, immediate);
 
 				// Abnormal termination
@@ -1434,26 +1415,12 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 		
 		try
 		{
-			if (this.file.errorReportsEnabled)
-			{
-				var from = this.ui.hashValue(this.file.getCurrentRevisionId());
-				var to = this.ui.hashValue(target);
-				
-				this.file.sendErrorReport('Error in merge',
-					'From: ' + from + '\nTo: ' + to +
-					'\nChecksum: ' + checksum +
-					'\nPatches:\n' + this.file.compressReportData(
-						JSON.stringify(patches, null, 2)), e);
-			}
-			else
-			{
-				var user = this.file.getCurrentUser();
-				var uid = (user != null) ? user.id : 'unknown';
-				
-				EditorUi.logError('Error in merge', null,
-					this.file.getMode() + '.' +
-					this.file.getId(), uid, e);
-			}
+			var user = this.file.getCurrentUser();
+			var uid = (user != null) ? user.id : 'unknown';
+			
+			EditorUi.logError('Error in merge', null,
+				this.file.getMode() + '.' +
+				this.file.getId(), uid, e);
 		}
 		catch (e2)
 		{

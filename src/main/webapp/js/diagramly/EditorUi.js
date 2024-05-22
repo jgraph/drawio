@@ -11450,12 +11450,22 @@
 		if (Editor.isSettingsEnabled())
 		{
 			var view = this.editor.graph.view;
-			view.setUnit(mxSettings.getUnit());
+			var unit = mxSettings.getUnit();
+			view.setUnit(unit);
+
+			// Updates page size unit (using mm instead of m)
+			Editor.pageSizeUnit = (unit == mxConstants.METERS) ?
+				mxConstants.MILLIMETERS : unit;
 			
 			view.addListener('unitChanged', function(sender, evt)
 			{
-				mxSettings.setUnit(evt.getProperty('unit'));
-				mxSettings.save();		
+				var unit = evt.getProperty('unit');
+				mxSettings.setUnit(unit);
+				mxSettings.save();
+				
+				// Updates page size unit (using mm instead of m)
+				Editor.pageSizeUnit = (unit == mxConstants.METERS) ?
+					mxConstants.MILLIMETERS : unit;
 			});
 
 			var showRuler = this.canvasSupported && document.documentMode != 9 &&

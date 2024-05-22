@@ -801,7 +801,7 @@ mxCellEditor.prototype.startEditing = function(cell, trigger, initialText)
 			this.textShape = this.graph.cellRenderer.createTextShape(state, '', this.graph.dialect);
 		}
 
-		window.setTimeout(mxUtils.bind(this, function()
+		var fn = mxUtils.bind(this, function()
 		{
 			if (this.editingCell != null)
 			{
@@ -814,10 +814,18 @@ mxCellEditor.prototype.startEditing = function(cell, trigger, initialText)
 
 				this.resize();
 				this.graph.container.appendChild(this.textarea);
+
+				// Moves shape to upper third of screen for possible on-screen keyboard
+				if (mxClient.IS_IOS)
+				{
+					this.graph.container.scrollTop = Math.max(this.graph.container.scrollTop,
+						state.y + state.height - this.graph.container.clientHeight / 3);
+				}
+
 				this.textarea.scrollIntoView(
 					{block: 'nearest', inline: 'nearest'});
 				this.textarea.focus();
-
+				
 				if (initialText != null)
 				{
 					this.textarea.innerHTML = initialText;
@@ -837,7 +845,17 @@ mxCellEditor.prototype.startEditing = function(cell, trigger, initialText)
 					document.execCommand('selectAll', false, null);
 				}
 			}
-		}), 0);
+		});
+		
+		// Asynchronous does not show on-screen keyboard on iOS
+		if (mxClient.IS_IOS)
+		{
+			fn();
+		}
+		else
+		{
+			window.setTimeout(fn, 0);
+		}
 	}
 };
 

@@ -162,11 +162,6 @@ DrawioFile.prototype.inConflictState = false;
 DrawioFile.prototype.invalidChecksum = false;
 
 /**
- * Specifies if error reports should be sent.
- */
-DrawioFile.prototype.errorReportsEnabled = false;
-
-/**
  * Specifies if stats should be sent.
  */
 DrawioFile.prototype.ageStart = null;
@@ -393,23 +388,7 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow, imme
 					
 					if (checksum != null && checksum != current)
 					{
-						var details = null;
-
-						if (this.errorReportsEnabled)
-						{
-							var fileData = this.compressReportData(this.getAnonymizedXmlForPages(pages));
-							var data = this.compressReportData(this.getAnonymizedXmlForPages(patched));
-							var from = this.ui.hashValue(file.getCurrentEtag());
-							var to = this.ui.hashValue(this.getCurrentEtag());
-
-							details = 'Shadow Details: ' + JSON.stringify(patchedDetails) +
-								'\nChecksum: ' + checksum + '\nCurrent: ' + current +
-								'\nCurrent Details: ' + JSON.stringify(currentDetails) +
-								'\nFrom: ' + from + '\nTo: ' + to + '\n\nFile Data:\n' +
-								fileData + '\nPatched Shadow:\n' + data;
-						}
-						
-						this.checksumError(error, patches, details, null, 'mergeFile',
+						this.checksumError(error, patches, null, null, 'mergeFile',
 							checksum, current, file.getCurrentRevisionId());
 						
 						// Abnormal termination
@@ -462,19 +441,12 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow, imme
 					{
 						if (reportError)
 						{
-							if (this.errorReportsEnabled)
-							{
-								this.sendErrorReport('Error in mergeFile', null, e);
-							}
-							else
-							{
-								var user = this.getCurrentUser();
-								var uid = (user != null) ? user.id : 'unknown';
-								
-								EditorUi.logError('Error in mergeFile', null,
-									this.getMode() + '.' + this.getId(),
-									uid, e);
-							}
+							var user = this.getCurrentUser();
+							var uid = (user != null) ? user.id : 'unknown';
+							
+							EditorUi.logError('Error in mergeFile', null,
+								this.getMode() + '.' + this.getId(),
+								uid, e);
 						}
 					}
 					catch (e2)
@@ -588,147 +560,100 @@ DrawioFile.prototype.checksumError = function(fn, patches, details, etag, functi
 	
 	try
 	{
-		if (this.errorReportsEnabled)
+		var user = this.getCurrentUser();
+		var uid = (user != null) ? user.id : 'unknown';
+		var id = (this.getId() != '') ? this.getId() :
+			('(' + this.ui.hashValue(this.getTitle()) + ')');
+		var bytes = JSON.stringify(patches).length;
+		var limit = 1000;
+		var data = null;
+		
+		if (patches != null && bytes < limit)
 		{
-			if (patches != null)
+			for (var i = 0; i < patches.length; i++)
 			{
-				for (var i = 0; i < patches.length; i++)
-				{
-					this.ui.anonymizePatch(patches[i]);
-				}
+				this.ui.anonymizePatch(patches[i]);
 			}
 			
-			var fn = mxUtils.bind(this, function(file)
+			data = JSON.stringify(patches);
+
+			if (data != null && data.length < limit)
 			{
-				var json = this.compressReportData(
-					JSON.stringify(patches, null, 2));
-				var remote = (file == null) ?  'n/a' :
-					this.compressReportData(
-						this.getAnonymizedXmlForPages(
-							this.ui.getPagesForXml(file.data)),
-								25000);
-				
-				this.sendErrorReport('Checksum Error in ' + functionName + ' ' + this.getHash(),
-					((details != null) ? (details) : '') +  '\n\nPatches:\n' + json +
-					((remote != null) ? ('\n\nRemote:\n' + remote) : ''), null, 70000);
-			});
-	
-			if (etag == null)
-			{
-				fn(null);
+				data = Graph.compress(data);
 			}
 			else
 			{
-				this.getLatestVersion(mxUtils.bind(this, function(file)
-				{
-					if (file != null && file.getCurrentEtag() == etag)
-					{
-						fn(file);
-					}
-					else
-					{
-						fn(null);
-					}
-				}), function() {});
+				data = null;
 			}
 		}
-		else
-		{
-			var user = this.getCurrentUser();
-			var uid = (user != null) ? user.id : 'unknown';
-			var id = (this.getId() != '') ? this.getId() :
-				('(' + this.ui.hashValue(this.getTitle()) + ')');
-			var bytes = JSON.stringify(patches).length;
-			var limit = 1000;
-			var data = null;
-			
-			if (patches != null && bytes < limit)
-			{
-				for (var i = 0; i < patches.length; i++)
-				{
-					this.ui.anonymizePatch(patches[i]);
-				}
-	
-				data = JSON.stringify(patches);
-	
-				if (data != null && data.length < limit)
-				{
-					data = Graph.compress(data);
-				}
-				else
-				{
-					data = null;
-				}
-			}
 
-			this.getLatestVersion(mxUtils.bind(this, function(latestFile)
-			{				
-				// Logs checksum error for file
+		this.getLatestVersion(mxUtils.bind(this, function(latestFile)
+		{				
+			// Logs checksum error for file
+			try
+			{
+				var type = (data != null) ? 'report' : 'error';
+				var latest = this.ui.getHashValueForPages(latestFile.getShadowPages());
+				var latestVersion = 'unknown';
+				var latestAgent = 'unknown';
+				var latestType = 'unknown';
+				
 				try
 				{
-					var type = (data != null) ? 'report' : 'error';
-					var latest = this.ui.getHashValueForPages(latestFile.getShadowPages());
-					var latestVersion = 'unknown';
-					var latestAgent = 'unknown';
-					var latestType = 'unknown';
+					var node = (latestFile.initialData != null && latestFile.initialData.length > 0) ?
+						mxUtils.parseXml(latestFile.initialData).documentElement : null;
 					
-					try
+					if (node != null)
 					{
-						var node = (latestFile.initialData != null && latestFile.initialData.length > 0) ?
-							mxUtils.parseXml(latestFile.initialData).documentElement : null;
-						
-						if (node != null)
+						if (node.getAttribute('version') != null)
 						{
-							if (node.getAttribute('version') != null)
-							{
-								latestVersion = node.getAttribute('version');
-							}
+							latestVersion = node.getAttribute('version');
+						}
 
-							if (node.getAttribute('agent') != null)
-							{
-								latestAgent = node.getAttribute('agent');
-							}
+						if (node.getAttribute('agent') != null)
+						{
+							latestAgent = node.getAttribute('agent');
+						}
 
-							if (node.getAttribute('type') != null)
-							{
-								latestType = node.getAttribute('type');
-							}
+						if (node.getAttribute('type') != null)
+						{
+							latestType = node.getAttribute('type');
 						}
 					}
-					catch (e)
-					{
-						// ignore
-					}
-				
-					EditorUi.logError('Checksum ' + type + ' in ' + functionName,
-						null, this.getMode() + '.' + id,
-						'user_' + uid + ((this.sync != null) ?
-						'-client_' + this.sync.clientId : '-nosync') +
-						'-bytes_' + bytes + '-patches_' + patches.length +
-						((data != null) ? ('-json_' + data) : '')  +
-						'-size_' + this.getSize() +
-						((checksum != null) ? ('-expected_' + checksum) : '') +
-						((current != null) ? ('-current_' + current) : '') +
-						((rev != null) ? ('-rev_' + this.ui.hashValue(rev)) : '') +
-						((latest != null) ? ('-latest_' + latest) : '') +
-						'-latestRev_' + this.ui.hashValue(
-							latestFile.getCurrentRevisionId()) +
-						('-latestVersion_' + latestVersion) +
-						('-latestAgent_' + latestAgent) +
-						('-latestType_' + latestType));
-					
-					EditorUi.logEvent({category: 'CHECKSUM-ERROR-SYNC-FILE-' + id,
-						action: functionName, label: 'user_' + uid + ((this.sync != null) ?
-						'-client_' + this.sync.clientId : '-nosync') +
-						'-bytes_' + bytes + '-patches_' + patches.length +
-						'-size_' + this.getSize()});
 				}
 				catch (e)
 				{
 					// ignore
 				}
-			}), function() {});
-		}
+			
+				EditorUi.logError('Checksum ' + type + ' in ' + functionName,
+					null, this.getMode() + '.' + id,
+					'user_' + uid + ((this.sync != null) ?
+					'-client_' + this.sync.clientId : '-nosync') +
+					'-bytes_' + bytes + '-patches_' + patches.length +
+					((data != null) ? ('-json_' + data) : '')  +
+					'-size_' + this.getSize() +
+					((checksum != null) ? ('-expected_' + checksum) : '') +
+					((current != null) ? ('-current_' + current) : '') +
+					((rev != null) ? ('-rev_' + this.ui.hashValue(rev)) : '') +
+					((latest != null) ? ('-latest_' + latest) : '') +
+					'-latestRev_' + this.ui.hashValue(
+						latestFile.getCurrentRevisionId()) +
+					('-latestVersion_' + latestVersion) +
+					('-latestAgent_' + latestAgent) +
+					('-latestType_' + latestType));
+				
+				EditorUi.logEvent({category: 'CHECKSUM-ERROR-SYNC-FILE-' + id,
+					action: functionName, label: 'user_' + uid + ((this.sync != null) ?
+					'-client_' + this.sync.clientId : '-nosync') +
+					'-bytes_' + bytes + '-patches_' + patches.length +
+					'-size_' + this.getSize()});
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		}), function() {});
 	}
 	catch (e)
 	{
@@ -2676,19 +2601,12 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error, t
 
 			try
 			{
-				if (this.errorReportsEnabled)
-				{
-					this.sendErrorReport('Error in fileSaved', null, e);
-				}
-				else
-				{
-					var user = this.getCurrentUser();
-					var uid = (user != null) ? user.id : 'unknown';
-					
-					EditorUi.logError('Error in fileSaved', null,
-						this.getMode() + '.' + this.getId(),
-						uid, e);
-				}
+				var user = this.getCurrentUser();
+				var uid = (user != null) ? user.id : 'unknown';
+				
+				EditorUi.logError('Error in fileSaved', null,
+					this.getMode() + '.' + this.getId(),
+					uid, e);
 			}
 			catch (e2)
 			{

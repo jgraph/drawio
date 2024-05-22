@@ -1,3 +1,18 @@
+22-MAY-2024: 24.4.6
+
+- Fixes possible NPE in Graph.initTouch
+
+22-MAY-2024: 24.4.5
+
+- Updates Teams app to use SDK v2.22.0 [CSP-3150]
+- Fixes in-place editing on iOS [drawio-4411]
+- Updates DOMPurify from 3.1.3 to 3.1.4
+- Fixes possible overwritten library files in browser storage
+- Blocks popup menu and shape picker in freehand mode
+- Fixes units for table cell size change [drawio-4360]
+- Fixes handling of parallel edges in explore plugin [drawio-4422]
+- Adds units for custom page size [DID-11607]
+
 17-MAY-2024: 24.4.4
 
 - Improves diff sync for removed default layer

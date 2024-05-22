@@ -4447,26 +4447,12 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
 				}
 				else if (mode == App.MODE_BROWSER)
 				{
-					var fn = mxUtils.bind(this, function()
-					{
-						var file = new StorageLibrary(this, xml, name);
-						
-						// Inserts data into local storage
-						file.saveFile(name, false, mxUtils.bind(this, function()
+					StorageFile.doInsertFile(new StorageLibrary(this, xml, name),
+						mxUtils.bind(this, function(file)
 						{
 							this.hideDialog(true);
 							this.libraryLoaded(file, images);
-						}), error);
-					});
-					
-					if (localStorage.getItem(name) == null)
-					{
-						fn();
-					}
-					else
-					{
-						this.confirm(mxResources.get('replaceIt', [name]), fn);
-					}
+						}), error)
 				}
 				else
 				{

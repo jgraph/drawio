@@ -203,7 +203,8 @@ StorageFile.prototype.saveAs = function(title, success, error)
  */
 StorageFile.insertFile = function(ui, title, data, success, error, file)
 {
-	StorageFile.doInsertFile(new StorageFile(ui, data, title), success, error);
+	StorageFile.doInsertFile((file != null) ? file :
+		new StorageFile(ui, data, title), success, error);
 };
 
 /**

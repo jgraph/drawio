@@ -154,20 +154,7 @@ if (!Uint8Array.from) {
   }());
 }
 
-/**
- * Measurements Units
- */
-mxConstants.POINTS = 1;
-mxConstants.MILLIMETERS = 2;
-mxConstants.INCHES = 3;
-mxConstants.METERS = 4;
-
-/**
- * This ratio is with page scale 1
- */
-mxConstants.PIXELS_PER_MM = 3.937;
-mxConstants.PIXELS_PER_INCH = 100;
-mxConstants.SHADOW_OPACITY = 0.25;
+// Overrides global constants
 mxConstants.SHADOWCOLOR = '#000000';
 mxConstants.VML_SHADOWCOLOR = '#d0d0d0';
 
@@ -2041,19 +2028,32 @@ Graph.exploreFromCell = function(sourceGraph, selectionCell, config)
 				graph.model.endUpdate();
 
 				// Animates the changes in the graph model
+				var ignored = false;
+
 				graph.getModel().addListener(mxEvent.CHANGE, function(sender, evt)
 				{
-					var changes = evt.getProperty('edit').changes;
-					mxText.prototype.enableBoundingBox = false;
-					graph.labelsVisible = false;
-					
-					mxEffects.animateChanges(graph, changes, function()
+					if (!ignored)
 					{
-						mxText.prototype.enableBoundingBox = true;
-						graph.labelsVisible = true;
-						graph.tooltipHandler.hide();
-						graph.refresh();
-					});
+						var changes = evt.getProperty('edit').changes;
+						mxText.prototype.enableBoundingBox = false;
+						graph.labelsVisible = false;
+						ignored = true;
+						
+						mxEffects.animateChanges(graph, changes, function()
+						{
+							// Keeps parallel edges apart
+							var layout = new mxParallelEdgeLayout(graph);
+							layout.spacing = 60;
+							layout.execute(graph.getDefaultParent());
+
+							mxText.prototype.enableBoundingBox = true;
+							graph.labelsVisible = true;
+							graph.tooltipHandler.hide();
+							graph.refresh();
+
+							ignored = false;
+						});
+					}
 				});
 
 				load(graph, cell);
@@ -2156,11 +2156,6 @@ Graph.exploreFromCell = function(sourceGraph, selectionCell, config)
 							graph.getModel().setGeometry(vertices[i], geo);
 						}
 					}
-					
-					// Keeps parallel edges apart
-					var layout = new mxParallelEdgeLayout(graph);
-					layout.spacing = 60;
-					layout.execute(graph.getDefaultParent());
 				}
 				finally
 				{
@@ -13270,28 +13265,31 @@ if (typeof mxVertexHandler !== 'undefined')
 			// selecting parent for selected children in groups before this check can be made.
 			this.popupMenuHandler.mouseUp = mxUtils.bind(this, function(sender, me)
 			{
-				var isMouseEvent = mxEvent.isMouseEvent(me.getEvent());
-				this.popupMenuHandler.popupTrigger = !this.isEditing() && this.isEnabled() &&
-					(me.getState() == null || !me.isSource(me.getState().control)) &&
-					(this.popupMenuHandler.popupTrigger || (!menuShowing && !isMouseEvent &&
-					((selectionEmpty && me.getCell() == null && this.isSelectionEmpty()) ||
-					(cellSelected && this.isCellSelected(me.getCell())))));
-
-				// Delays popup menu to allow for double tap to start editing
-				var popup = (!cellSelected || isMouseEvent) ? null : mxUtils.bind(this, function(cell)
+				if (this.freehand != null && (!this.freehand.isDrawing()))
 				{
-					window.setTimeout(mxUtils.bind(this, function()
-					{
-						if (!this.isEditing())
-						{
-							var origin = mxUtils.getScrollOrigin();
-							this.popupMenuHandler.popup(me.getX() + origin.x + 1,
-								me.getY() + origin.y + 1, cell, me.getEvent());
-						}
-					}), 300);
-				});
+					var isMouseEvent = mxEvent.isMouseEvent(me.getEvent());
+					this.popupMenuHandler.popupTrigger = !this.isEditing() && this.isEnabled() &&
+						(me.getState() == null || !me.isSource(me.getState().control)) &&
+						(this.popupMenuHandler.popupTrigger || (!menuShowing && !isMouseEvent &&
+						((selectionEmpty && me.getCell() == null && this.isSelectionEmpty()) ||
+						(cellSelected && this.isCellSelected(me.getCell())))));
 
-				mxPopupMenuHandler.prototype.mouseUp.apply(this.popupMenuHandler, [sender, me, popup]);
+					// Delays popup menu to allow for double tap to start editing
+					var popup = (!cellSelected || isMouseEvent) ? null : mxUtils.bind(this, function(cell)
+					{
+						window.setTimeout(mxUtils.bind(this, function()
+						{
+							if (!this.isEditing())
+							{
+								var origin = mxUtils.getScrollOrigin();
+								this.popupMenuHandler.popup(me.getX() + origin.x + 1,
+									me.getY() + origin.y + 1, cell, me.getEvent());
+							}
+						}), 300);
+					});
+
+					mxPopupMenuHandler.prototype.mouseUp.apply(this.popupMenuHandler, [sender, me, popup]);
+				}
 			});
 		};
 		
