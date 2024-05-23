@@ -999,7 +999,15 @@ var com;
 							
                             return v1;
                         }
-                        else {
+                        else 
+                        {
+                            // When an edge is a group, we need to process the children (and keep the edge, so no fill (color) for the group)
+                            // TODO Not the best results (e.g, an extra edge is added in some cases), but covers most cases
+                            if (shape.isGroup()) 
+                            {
+                                this.addGroup(graph, shape, parent, pageId, parentHeight, true);
+                            }
+
                             shape.setShapeIndex(graph.getModel().getChildCount(parent));
                             /* put */ (function (m, k, v) { if (m.entries == null)
                                 m.entries = []; for (var i = 0; i < m.entries.length; i++)
@@ -1027,16 +1035,16 @@ var com;
                  * @param {com.mxgraph.io.vsdx.VsdxShape} shape
                  * @param {number} pageId
                  */
-                mxVsdxCodec.prototype.addGroup = function (graph, shape, parent, pageId, parentHeight) {
+                mxVsdxCodec.prototype.addGroup = function (graph, shape, parent, pageId, parentHeight, forceNoFill) {
                     var d = shape.getDimensions();
                     var master = shape.getMaster();
                     var styleMap = shape.getStyleFromShape();
                     var geomList = shape.getGeomList();
-                    if (geomList.isNoFill()) {
+                    if (geomList.isNoFill() || forceNoFill) {
                         /* put */ (styleMap[mxConstants.STYLE_FILLCOLOR] = "none");
                         /* put */ (styleMap[mxConstants.STYLE_GRADIENTCOLOR] = "none");
                     }
-                    if (geomList.isNoLine()) {
+                    if (geomList.isNoLine() || forceNoFill) {
                         /* put */ (styleMap[mxConstants.STYLE_STROKECOLOR] = "none");
                     }
                     /* put */ (styleMap["html"] = "1");
@@ -10111,8 +10119,8 @@ var com;
 
                         // TODO It's hard to detect edges that should be treated like vertexes whhen they are groups and have child shapes.
                         // TODO Check this again if more complains are received or if we can have an edge group
-                        _this.vertex = vertex || (!page.connectsMap[_this.Id] && (_this.childShapes != null && !(function (m) { if (m.entries == null)
-                            m.entries = []; return m.entries.length == 0; })(_this.childShapes)) || (_this.geomList != null && (!_this.geomList.isNoFill()  || _this.geomList.getGeoCount() > 1)));
+                        _this.vertex = vertex; //|| (!page.connectsMap[_this.Id] && (_this.childShapes != null && !(function (m) { if (m.entries == null)
+                            //m.entries = []; return m.entries.length == 0; })(_this.childShapes)) || (_this.geomList != null && (!_this.geomList.isNoFill()  || _this.geomList.getGeoCount() > 1)));
                         _this.layerMember = _this.getValue(_this.getCellElement$java_lang_String("LayerMember"));
                         
                         if (_this.layerMember)

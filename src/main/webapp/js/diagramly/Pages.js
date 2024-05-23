@@ -1092,6 +1092,9 @@ EditorUi.prototype.updatePageRoot = function(page, checked)
 			// Sets default cell IDs
 			page.root.setId('0');
 			page.root.children[0].setId('1');
+
+			// Marks the page as needing an update
+			page.needsUpdate = true;
 		}
 	}
 	else if (page.viewState == null)
@@ -1099,7 +1102,6 @@ EditorUi.prototype.updatePageRoot = function(page, checked)
 		if (page.graphModelNode == null)
 		{
 			var node = this.editor.extractGraphModel(page.node);
-			
 			var cause = Editor.extractParserError(node);
 			
 			if (cause)
@@ -1124,6 +1126,9 @@ EditorUi.prototype.updatePageRoot = function(page, checked)
 		var layer = new mxCell();
 		layer.setId('1');
 		page.root.insert(layer);
+
+		// Marks the page as needing an update
+		page.needsUpdate = true;
 	}
 	
 	return page;
@@ -1457,7 +1462,7 @@ EditorUi.prototype.initDiagramNode = function(page, node)
 	}
 
 	this.editor.graph.saveViewState(page.viewState, node);
-	EditorUi.removeChildNodes(this.currentPage.node);
+	EditorUi.removeChildNodes(page.node);
 	page.node.appendChild(node);
 };
 

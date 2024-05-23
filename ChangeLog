@@ -1,3 +1,11 @@
+23-MAY-2024: 24.4.7
+
+- Fixes possible NPE for inserted pages
+- Forces XML update for inserted default root and layer
+- [vsdx] Another trial to fix edge as a group [drawio-1722]
+- [conf cloud] Potential fix for copy/paste in draft pages [DID-11494]
+- Fixes possible empty diagram node in mxfile [DID-11645]
+
 22-MAY-2024: 24.4.6
 
 - Fixes possible NPE in Graph.initTouch

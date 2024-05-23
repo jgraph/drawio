@@ -1497,8 +1497,9 @@ DrawioFileSync.prototype.fastForward = function(desc)
 
 	for (var i = 0; i < this.file.ownPages.length; i++)
 	{
-		if (this.ui.getHashValueForPages([this.file.ownPages[i]]) !=
-			this.ui.getHashValueForPages([prevOwnPages[i]]))
+		if (prevOwnPages[i] != null &&
+			(this.ui.getHashValueForPages([this.file.ownPages[i]]) !=
+			this.ui.getHashValueForPages([prevOwnPages[i]])))
 		{
 			this.file.ownPages[i].needsUpdate = true;
 		}
