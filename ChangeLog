@@ -1,3 +1,7 @@
+24-MAY-2024: 24.4.8
+
+- Fixes default shadow opacity [drawio-desktop-1750]
+
 23-MAY-2024: 24.4.7
 
 - Fixes possible NPE for inserted pages

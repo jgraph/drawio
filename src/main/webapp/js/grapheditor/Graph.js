@@ -155,6 +155,7 @@ if (!Uint8Array.from) {
 }
 
 // Overrides global constants
+mxConstants.SHADOW_OPACITY = 0.25;
 mxConstants.SHADOWCOLOR = '#000000';
 mxConstants.VML_SHADOWCOLOR = '#d0d0d0';
 
