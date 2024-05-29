@@ -618,7 +618,6 @@ BaseFormatPanel.prototype.addAction = function(div, name)
 		btn.style.marginBottom = '2px';
 		btn.style.width = '210px';
 		div.appendChild(btn);
-		result = true;
 	}
 
 	return btn;
@@ -4862,7 +4861,7 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 			{
 				if (editSelect.value == 'openLibrary')
 				{
-					if (libs.length == 0)
+					if (libs != null && libs.length == 0)
 					{
 						// Updates search index and tries again
 						this.editorUi.sidebar.updateSearchIndex();

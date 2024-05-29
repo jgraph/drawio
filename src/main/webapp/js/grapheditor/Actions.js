@@ -1940,7 +1940,8 @@ Actions.prototype.init = function()
 	{
 		var cell = graph.getSelectionCell();
 
-		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()) && cell != null)
+		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()) &&
+			cell != null && cell.geometry != null)
 		{
 			var dlg = new ConnectionPointsDialog(ui, cell);
 	    	ui.showDialog(dlg.container, 350, 450, true, false, function() 

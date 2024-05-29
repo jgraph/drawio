@@ -420,8 +420,9 @@ mxCellState.prototype.setState = function(state)
  */
 mxCellState.prototype.clone = function()
 {
- 	var clone = new mxCellState(this.view, this.cell, this.style);
-
+ 	var clone = new mxCellState(this.view, this.cell,
+		(this.style != null) ? mxUtils.clone(this.style) : null);
+	
 	// Clones the absolute points
 	if (this.absolutePoints != null)
 	{

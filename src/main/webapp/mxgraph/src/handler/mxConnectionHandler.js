@@ -1295,14 +1295,21 @@ mxConnectionHandler.prototype.mouseMove = function(sender, me)
 			else if (this.previous != null && mxEvent.isShiftDown(me.getEvent()) &&
 				!this.graph.isIgnoreTerminalEvent(me.getEvent()))
 			{
-				if (Math.abs(this.previous.getCenterX() - point.x) <
-					Math.abs(this.previous.getCenterY() - point.y))
+				var pt = new mxPoint(this.previous.getCenterX(), this.previous.getCenterY());
+				
+				if (this.sourceConstraint != null)
 				{
-					point.x = this.previous.getCenterX();
+					pt = this.first;
+				}
+				
+				if (Math.abs(pt.x - point.x) <
+					Math.abs(pt.y - point.y))
+				{
+					point.x = pt.x;
 				}
 				else
 				{
-					point.y = this.previous.getCenterY();
+					point.y = pt.y;
 				}
 			}
 			

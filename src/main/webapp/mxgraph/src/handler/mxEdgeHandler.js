@@ -42,7 +42,8 @@ function mxEdgeHandler(state)
 			
 			if (dirty)
 			{
-				this.graph.cellRenderer.redraw(this.state, false, state.view.isRendering());
+				this.graph.cellRenderer.redraw(this.state,
+					false, state.view.isRendering());
 			}
 		});
 		
@@ -945,8 +946,7 @@ mxEdgeHandler.prototype.mouseDown = function(sender, me)
 				this.handle = handle;
 			}
 
-			if (!mxEvent.isControlDown(me.getEvent()) &&
-				!mxEvent.isShiftDown(me.getEvent()))
+			if (!mxEvent.isShiftDown(me.getEvent()))
 			{
 				me.consume();
 			}
@@ -1585,8 +1585,8 @@ mxEdgeHandler.prototype.mouseMove = function(sender, me)
 		mxEvent.consume(me.getEvent());
 		me.consume();
 	}
-	else if (!mxEvent.isControlDown(me.getEvent()) && !mxEvent.isShiftDown(me.getEvent()) &&
-		this.mouseDownX != null && this.mouseDownY != null && this.handle != null)
+	else if (!mxEvent.isShiftDown(me.getEvent()) && this.handle != null &&
+		this.mouseDownX != null && this.mouseDownY != null)
 	{
 		var tol = this.graph.tolerance;
 
@@ -1621,8 +1621,9 @@ mxEdgeHandler.prototype.mouseUp = function(sender, me)
 		// Ignores event if mouse has not been moved
 		if (me.getX() != this.startX || me.getY() != this.startY)
 		{
-			var clone = !this.graph.isIgnoreTerminalEvent(me.getEvent()) && this.graph.isCloneEvent(me.getEvent()) &&
-				this.cloneEnabled && this.graph.isCellsCloneable();
+			var clone = !this.graph.isIgnoreTerminalEvent(me.getEvent()) &&
+				this.cloneEnabled && this.graph.isCloneEvent(me.getEvent()) &&
+				this.graph.isCellsCloneable();
 			
 			// Displays the reason for not carriying out the change
 			// if there is an error message with non-zero length
@@ -1691,19 +1692,18 @@ mxEdgeHandler.prototype.mouseUp = function(sender, me)
 						if (clone)
 						{
 							var geo = model.getGeometry(edge);
-							var clone = this.graph.cloneCell(edge);
-							model.add(parent, clone, model.getChildCount(parent));
+							var clonedEdge = this.graph.cloneCell(edge);
+							model.add(parent, clonedEdge, model.getChildCount(parent));
 							
 							if (geo != null)
 							{
 								geo = geo.clone();
-								model.setGeometry(clone, geo);
+								model.setGeometry(clonedEdge, geo);
 							}
 							
 							var other = model.getTerminal(edge, !this.isSource);
-							this.graph.connectCell(clone, other, !this.isSource);
-							
-							edge = clone;
+							this.graph.connectCell(clonedEdge, other, !this.isSource);
+							edge = clonedEdge;
 						}
 						
 						edge = this.connect(edge, terminal, this.isSource, clone, me);
@@ -1742,7 +1742,7 @@ mxEdgeHandler.prototype.mouseUp = function(sender, me)
 			else
 			{
 				this.graph.getView().invalidate(this.state.cell);
-				this.graph.getView().validate(this.state.cell);						
+				this.graph.getView().validate(this.state.cell);
 			}
 		}
 		else if (this.graph.isToggleEvent(me.getEvent()))

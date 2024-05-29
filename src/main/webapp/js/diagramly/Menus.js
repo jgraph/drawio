@@ -1610,7 +1610,7 @@
 				if (!graph.isSelectionEmpty())
 				{
 					var cells = graph.cloneCells(graph.getSelectionCells());
-					var bbox = graph.getBoundingBoxFromGeometry(cells);
+					var bbox = graph.getBoundingBoxFromGeometry(cells, true);
 					cells = graph.moveCells(cells, -bbox.x, -bbox.y);
 					
 					editorUi.showTextDialog('Create Sidebar Entry', 'this.addDataEntry(\'tag1 tag2\', ' +

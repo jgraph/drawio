@@ -1,3 +1,14 @@
+29-MAY-2024: 24.4.10
+
+- Improves edge label positions in Explorer Plugin [drawio-4424]
+- Fixes shift+drag for new lines with anchor points [drawio-4197]
+- Adds new teams domain to frame ancestor CSP
+
+27-MAY-2024: 24.4.9
+
+- Uses 4 digits after the decimal poin for inches [drawio-desktop-1739]
+- Fixes inconcistent handling of Ctrl and Cmd key for edges
+
 24-MAY-2024: 24.4.8
 
 - Fixes default shadow opacity [drawio-desktop-1750]

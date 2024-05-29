@@ -301,9 +301,19 @@ var mxSettings =
 	},
 	load: function()
 	{
-		if (isLocalStorage && typeof(JSON) !== 'undefined')
+		try
 		{
-			mxSettings.parse(localStorage.getItem(mxSettings.key));
+			if (isLocalStorage && typeof(JSON) !== 'undefined')
+			{
+				mxSettings.parse(localStorage.getItem(mxSettings.key));
+			}
+		}
+		catch (e)
+		{
+			if (window.console != null)
+			{
+				console.log('Error loading settings:', mxSettings.key, e);
+			}
 		}
 
 		if (mxSettings.settings == null)

@@ -1510,7 +1510,8 @@ EditorUi.prototype.clonePage = function(page)
 		EditorUi.transientViewStateProperties)
 	result.root = this.editor.graph.model.cloneCell(
 		page.root, null, true);
-
+	result.diagramModified = page.diagramModified;
+	
 	return result;
 };
 
