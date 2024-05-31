@@ -973,8 +973,8 @@ function render(data)
 	
 			if (data.crop == '1')
 			{
-				pf.width = gb.width * scale;
-				pf.height = gb.height * scale;
+				pf.width = (gb.width + 1.5) * scale;
+				pf.height = (gb.height + 1.5) * scale;
 			}
 
 			// Starts at first visible page

@@ -3269,26 +3269,22 @@
 		{
 			var theme = (urlParams['sketch'] == '1') ? 'sketch' : mxSettings.getUi();
 			
-			var item = menu.addItem(mxResources.get('automatic'), null, function()
+			var autoItem = menu.addItem(mxResources.get('automatic'), null, function()
 			{
 				editorUi.setCurrentTheme('');
 			}, parent);
 			
-			if (theme != 'kennedy' && theme != 'atlas' &&
-				theme != 'dark' && theme != 'simple' &&
-				theme != 'sketch' && theme != 'min')
-			{
-				menu.addCheckmark(item, Editor.checkmarkImage);
-			}
-			
-			item = menu.addItem(mxResources.get('classic'), null, function()
+			var item = menu.addItem(mxResources.get('classic'), null, function()
 			{
 				editorUi.setCurrentTheme((!Editor.isDarkMode()) ? 'kennedy' : 'dark');
 			}, parent);
 
+			var themeFound = false;
+			
 			if (theme == 'kennedy' || theme == 'dark')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
+				themeFound = true;
 			}
 
 			for (var i = 0; i < Editor.themes.length; i++)
@@ -3304,9 +3300,14 @@
 					if (theme == key)
 					{
 						menu.addCheckmark(item, Editor.checkmarkImage);
+						themeFound = true;
 					}
-
 				})(Editor.themes[i]));
+			}
+			
+			if (!themeFound)
+			{
+				menu.addCheckmark(autoItem, Editor.checkmarkImage);
 			}
 		})));
 
@@ -3831,8 +3832,8 @@
 
         this.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-			editorUi.addInsertMenuItems(menu, parent, ['fromText',
-				'plantUml', 'mermaid', '-', 'formatSql']);
+			var advancedItems = ['fromText', 'plantUml'].concat(window.isMermaidEnabled? ['mermaid'] : []).concat(['-', 'formatSql']);
+			editorUi.addInsertMenuItems(menu, parent, advancedItems);
 			
 			menu.addItem(mxResources.get('csv') + '...', null, function()
 			{

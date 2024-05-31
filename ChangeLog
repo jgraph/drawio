@@ -1,3 +1,17 @@
+31-MAY-2024: 24.2.13
+
+- Moves polyfill scope
+
+31-MAY-2024: 24.4.12
+
+- Adds empty polyfill for structuredClone to avoid mermaid.js syntax error
+
+31-MAY-2024: 24.4.11
+
+- Updates Mermaid to v10.9.1
+- Fixes cropped PDF output [drawio-desktop-1747]
+- Fixes inconsistent handling of empty diagram nodes
+
 29-MAY-2024: 24.4.10
 
 - Improves edge label positions in Explorer Plugin [drawio-4424]
@@ -6,7 +20,7 @@
 
 27-MAY-2024: 24.4.9
 
-- Uses 4 digits after the decimal poin for inches [drawio-desktop-1739]
+- Uses 4 digits after the decimal point for inches [drawio-desktop-1739]
 - Fixes inconcistent handling of Ctrl and Cmd key for edges
 
 24-MAY-2024: 24.4.8

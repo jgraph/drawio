@@ -15,6 +15,9 @@ window.mxLoadSettings = window.mxLoadSettings || urlParams['configure'] != '1';
 // Checks for SVG support
 window.isSvgBrowser = true;
 
+// Checks for Mermaid support
+window.isMermaidEnabled = typeof structuredClone === 'function';
+
 // CUSTOM_PARAMETERS - URLs for save and export
 // Base URL defines cases where an absolute URL is needed (eg. embedding)
 window.DRAWIO_BASE_URL = window.DRAWIO_BASE_URL || ((/.*\.draw\.io$/.test(window.location.hostname)) || (/.*\.diagrams\.net$/.test(window.location.hostname)) ?
@@ -486,4 +489,16 @@ if ((window.location.hash == null || window.location.hash.length <= 1) &&
 	urlParams['open'] != null)
 {
 	window.location.hash = urlParams['open'];
+}
+
+// TODO: One day we could remove this. It's just to stop mermaid throwing syntax error on startup for pre v98 browsers
+// Maybe remove in 2027
+if (typeof window.structuredClone !== 'function')
+{
+	window.structuredClone = function(value)
+	{
+		{
+			return value;
+		}
+	}
 }

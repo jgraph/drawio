@@ -1650,6 +1650,7 @@
 	 */
 	Editor.parseDiagramNode = function(diagramNode, checked, allowRecurse)
 	{
+		Editor.validateDiagramNode(diagramNode);
 		var text = mxUtils.trim(mxUtils.getTextContent(diagramNode));
 		var node = null;
 		
@@ -1690,6 +1691,7 @@
 	 */
 	Editor.getDiagramNodeXml = function(diagramNode)
 	{
+		Editor.validateDiagramNode(diagramNode);
 		var text = mxUtils.getNodeValue(diagramNode);
 		var xml = null;
 		
@@ -1708,6 +1710,22 @@
 		}
 		
 		return xml;
+	};
+
+	/**
+	 * Initializes diagram nodes with no content.
+	 */
+	Editor.validateDiagramNode = function(diagramNode)
+	{
+		if (mxUtils.trim(mxUtils.getTextContent(diagramNode)).length == 0 &&
+			mxUtils.getChildNodes(diagramNode).length == 0)
+		{
+			var codec = new mxCodec();
+			var model = new mxGraphModel();
+			diagramNode.appendChild(codec.encode(model));
+		}
+
+		return diagramNode;
 	};
 
 	/**

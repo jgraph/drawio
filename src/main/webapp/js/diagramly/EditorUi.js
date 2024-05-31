@@ -10814,7 +10814,7 @@
 				{
 					data = this.graph.getAttributeForCell(cell, 'mermaidData');
 				
-					if (data != null)
+					if (data != null && window.isMermaidEnabled)
 					{
 						this.editMermaidData(cell, trigger, data);
 					}
@@ -14750,10 +14750,31 @@
 			{
 				// KNOWN: Paste from IE11 to other browsers on Windows
 				// seems to paste the contents of index.html
-				var xml = (asHtml) ? elt.innerHTML :
-					mxUtils.trim((elt.innerText == null) ?
-					mxUtils.getTextContent(elt) : elt.innerText);
 				var compat = false;
+				var xml = '';
+
+				if (asHtml)
+				{
+					// Extracts compatible XML data
+					if (elt.textContent != null &&
+						(elt.textContent.substring(0, 7) == '<mxfile' &&
+						elt.textContent.substring(elt.textContent.length - 9) == '</mxfile>') ||
+						(elt.textContent.substring(0, 13) == '<mxGraphModel' &&
+						elt.textContent.substring(elt.textContent.length - 15) == '</mxGraphModel>'))
+					{
+						// Replaces &nbsp; in text content with normal spaces
+						xml = elt.textContent.replace(/\u00a0/g, ' ');
+					}
+					else
+					{
+						xml = elt.innerHTML;
+					}
+				}
+				else
+				{
+					xml = mxUtils.trim((elt.innerText == null) ?
+						mxUtils.getTextContent(elt) : elt.innerText);
+				}
 
 				// Workaround for junk after XML in VM
 				try
@@ -14982,8 +15003,8 @@
 					gb = graph.getBoundingBox(graph.getSelectionCells());
 				}
 				
-				pf.width = gb.width * scale / thisGraph.view.scale;
-				pf.height = gb.height * scale / thisGraph.view.scale;
+				pf.width = (gb.width + 1) * scale / thisGraph.view.scale;
+				pf.height = (gb.height + 1) * scale / thisGraph.view.scale;
 			}
 
 			pf.width = Math.ceil(pf.width * printScale);

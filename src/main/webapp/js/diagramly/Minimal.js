@@ -112,6 +112,7 @@ EditorUi.initMinimalTheme = function()
 				menu.funct.apply(this, arguments);
 			}));
 			
+			elt.setAttribute('title', label);
 			elt.style.cssText = css;
 			elt.className = 'geTitle';
 			container.appendChild(elt);
@@ -143,11 +144,13 @@ EditorUi.initMinimalTheme = function()
 			else
 			{
 				var elt = addMenu('newLibrary', mxResources.get('newLibrary'));
+				elt.style.display = 'block';
 				elt.style.fontSize = '11px';
 				elt.style.left = '0';
 				
 				var elt = addMenu('openLibraryFrom', mxResources.get('openLibraryFrom'));
 				elt.style.borderLeftStyle = 'solid';
+				elt.style.display = 'block';
 				elt.style.fontSize = '11px';
 				elt.style.left = '50%';
 			}

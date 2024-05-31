@@ -2146,13 +2146,28 @@ var ParseDialog = function(editorUi, title, defaultType)
 					k++;
 				}
 
+				if (lines[k].trim() == '---')
+				{
+					do
+					{
+						k++;
+					}
+					while (k < lines.length && lines[k].trim() != '---');
+					
+					k++;
+				}
+
 				var diagramType = lines[k].trim().toLowerCase();
 				var sp = diagramType.indexOf(' ');
 				diagramType = diagramType.substring(0, sp > 0 ? sp : diagramType.length);
+				// TODO Better to add only what we support?
 				var inDrawioFormat = typeof mxMermaidToDrawio !== 'undefined' && 
 					type == 'mermaid2drawio' && diagramType != 'gantt' &&
 					diagramType != 'pie' && diagramType != 'timeline' &&
-					diagramType != 'quadrantchart' && diagramType != 'c4context';
+					diagramType != 'quadrantchart' && diagramType != 'c4context' &&
+					diagramType != 'block-beta' && diagramType != 'zenuml' &&
+					diagramType != 'xychart-beta' && diagramType != 'sankey-beta';
+
 
 				var graph = editorUi.editor.graph;
 				
@@ -3910,7 +3925,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	
 	if (editorUi.isExternalDataComms() &&
 		editorUi.getServiceName() == 'draw.io' &&
-		typeof mxMermaidToDrawio !== 'undefined')
+		typeof mxMermaidToDrawio !== 'undefined' &&
+		window.isMermaidEnabled)
 	{
 		categories['smartTemplate'] = {content: createSmartTemplateContent()};
 	}
@@ -8935,7 +8951,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	typeSelect.appendChild(selectionOption);
 	selects.appendChild(typeSelect);
 
-	if (typeof mxMermaidToDrawio !== 'undefined')
+	if (typeof mxMermaidToDrawio !== 'undefined' && window.isMermaidEnabled)
 	{
 		var createOption = document.createElement('option');
 		createOption.setAttribute('value', 'create');
@@ -10047,7 +10063,8 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 			}
 
 			// Redirects scratchpad and search entries
-			if ((Editor.currentTheme == 'sketch' ||
+			if ((Editor.currentTheme == 'simple' ||
+				Editor.currentTheme == 'sketch' ||
 				Editor.currentTheme == 'min') &&
 				Editor.isSettingsEnabled())
 			{
