@@ -1240,10 +1240,10 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn, hideNoFilesErr
 			{
 				this.ui.tryAndHandle(mxUtils.bind(this, function()
 				{
-					callback(group, JSON.parse(req.getText()));
+					callback(group, JSON.parse(req.getText() || '[]'));
 					spinnerRequestFinished();
 				}));
-			}), error);
+			}), error, true);
 		});
 		
 		listGroups(mxUtils.bind(this, function(groups)
