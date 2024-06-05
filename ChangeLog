@@ -1,4 +1,13 @@
-31-MAY-2024: 24.2.13
+05-JUN-2024: 24.4.14
+
+- Adds support for adaptive polling
+- Updates DOMPurify from 3.1.4 to 3.1.5
+- Adds support for mermaid flowchart elk renderer [drawio-3634]
+- Undo/redo selects and scrolls to modified cells [drawio-desktop-1766]
+- Fixes preview for sidebar items [drawio-desktop-1737]
+- Improves UX for AI generate template tile
+
+31-MAY-2024: 24.4.13
 
 - Moves polyfill scope
 

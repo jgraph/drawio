@@ -1910,7 +1910,8 @@ mxGraph.prototype.getSelectionCellsForChanges = function(changes, ignoreFn)
 	
 	var addCell = mxUtils.bind(this, function(cell)
 	{
-		if (!dict.get(cell) && this.model.contains(cell))
+		if (cell != null && !dict.get(cell) &&
+			this.model.contains(cell))
 		{
 			if (this.model.isEdge(cell) || this.model.isVertex(cell))
 			{
@@ -1936,26 +1937,37 @@ mxGraph.prototype.getSelectionCellsForChanges = function(changes, ignoreFn)
 		if (change.constructor != mxRootChange &&
 			(ignoreFn == null || !ignoreFn(change)))
 		{
-			var cell = null;
-
-			if (change instanceof mxChildChange)
-			{
-				cell = change.child;
-			}
-			else if (change.cell != null &&
-				change.cell instanceof mxCell)
-			{
-				cell = change.cell;
-			}
-			
-			if (cell != null)
-			{
-				addCell(cell);
-			}
+			addCell(this.getCellForChange(change));
 		}
 	}
 	
 	return cells;
+};
+
+/**
+ * Function: getCellForChange
+ * 
+ * Returns the cell associated with the given change.
+ * 
+ * Parameters:
+ * 
+ * change - The change to return the cell for.
+ */
+mxGraph.prototype.getCellForChange = function(change)
+{
+	var cell = null;
+
+	if (change instanceof mxChildChange)
+	{
+		cell = change.child;
+	}
+	else if (change.cell != null &&
+		change.cell instanceof mxCell)
+	{
+		cell = change.cell;
+	}
+
+	return cell;
 };
 
 /**

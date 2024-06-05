@@ -2263,9 +2263,10 @@ Graph.exploreFromCell = function(sourceGraph, selectionCell, config)
 
 			if (cell.startIndex > 0)
 			{
-				var backCell = graph.createVertex(null, null,
-					mxResources.get('previousPage') + '...',
-					0, 0, 100, 30, btnStyle);
+				var backCell = graph.createVertex(null, null, mxResources.get('previousPage') + ' (' +
+					Math.ceil((cell.startIndex || 0) / pageSize) + '/' +
+					Math.ceil(edges.length / pageSize) + ')',
+					0, 0, 120, 30, btnStyle);
 				backCell.referenceCell = realCell;
 				backCell.startIndex = Math.max(0, (cell.startIndex || 0) - pageSize);
 				clones.splice(0, 0, backCell);
@@ -2273,9 +2274,9 @@ Graph.exploreFromCell = function(sourceGraph, selectionCell, config)
 			
 			if (edges.length > (cell.startIndex || 0) + pageSize)
 			{
-				var moreCell = graph.createVertex(null, null,
-					mxResources.get('nextPage') + '...',
-					0, 0, 100, 30, btnStyle);
+				var moreCell = graph.createVertex(null, null, mxResources.get('nextPage') + ' (' +
+					(Math.ceil((cell.startIndex || 0) / pageSize) + 2) + '/' +
+					Math.ceil(edges.length / pageSize) + ')', 0, 0, 120, 30, btnStyle);
 				moreCell.referenceCell = realCell;
 				moreCell.startIndex = (cell.startIndex || 0) + pageSize;
 				clones.splice(0, 0, moreCell);

@@ -614,6 +614,17 @@ Actions.prototype.init = function()
 		}
 	}, null, null, Editor.ctrlKey + '+L');
 
+	// TODO: Remove when new translations are added
+	mxResources.parse('explore=Explore');
+
+	this.addAction('explore', function()
+	{
+		if (graph.model.isVertex(graph.getSelectionCell()))
+		{
+			Graph.exploreFromCell(ui.editor.graph, ui.editor.graph.getSelectionCell());
+		}
+	});
+
 	// Navigation actions
 	this.addAction('home', function() { graph.home(); }, null, null, 'Shift+Home');
 	this.addAction('exitGroup', function() { graph.exitGroup(); }, null, null, Editor.ctrlKey + '+Shift+Home');

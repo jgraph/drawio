@@ -52,8 +52,6 @@ function Sidebar(editorUi, container)
 		}
 	});
 
-	mxEvent.addListener(document, (mxClient.IS_POINTER) ? 'pointerup' : 'mouseup', this.pointerUpHandler);
-
 	this.pointerDownHandler = mxUtils.bind(this, function()
 	{
 		if (this.tooltipCloseImage == null || this.tooltipCloseImage.style.display == 'none')
@@ -62,9 +60,7 @@ function Sidebar(editorUi, container)
 			this.hideTooltip();
 		}
 	});
-	
-	mxEvent.addListener(document, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown', this.pointerDownHandler);
-	
+
 	this.pointerMoveHandler = mxUtils.bind(this, function(evt)
 	{
 		if (Date.now() - this.lastCreated > 300 && (this.tooltipCloseImage == null ||
@@ -86,8 +82,6 @@ function Sidebar(editorUi, container)
 		}
 	});
 
-	mxEvent.addListener(document, (mxClient.IS_POINTER) ? 'pointermove' : 'mousemove', this.pointerMoveHandler);
-
 	// Handles mouse leaving the window
 	this.pointerOutHandler = mxUtils.bind(this, function(evt)
 	{
@@ -97,7 +91,21 @@ function Sidebar(editorUi, container)
 		}
 	});
 	
-	mxEvent.addListener(document, (mxClient.IS_POINTER) ? 'pointerout' : 'mouseout', this.pointerOutHandler);
+	// Adds listeners in capture phase to bypass blocking in other listeners
+	if (window.addEventListener)
+	{
+		document.addEventListener((mxClient.IS_POINTER) ? 'pointerup' : 'mouseup', this.pointerUpHandler, true)
+		document.addEventListener((mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown', this.pointerDownHandler, true)
+		document.addEventListener((mxClient.IS_POINTER) ? 'pointermove' : 'mousemove', this.pointerMoveHandler, true)
+		document.addEventListener((mxClient.IS_POINTER) ? 'pointerout' : 'mouseout', this.pointerOutHandler, true)
+	}
+	else
+	{
+		mxEvent.addListener(document, (mxClient.IS_POINTER) ? 'pointerup' : 'mouseup', this.pointerUpHandler);
+		mxEvent.addListener(document, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown', this.pointerDownHandler);
+		mxEvent.addListener(document, (mxClient.IS_POINTER) ? 'pointermove' : 'mousemove', this.pointerMoveHandler);
+		mxEvent.addListener(document, (mxClient.IS_POINTER) ? 'pointerout' : 'mouseout', this.pointerOutHandler);
+	}
 
 	// Enables tooltips after scroll
 	mxEvent.addListener(container, 'scroll', mxUtils.bind(this, function()
@@ -622,6 +630,7 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		
 		this.tooltipTitle.style.display = '';
 		mxUtils.write(this.tooltipTitle, title);
+		this.tooltipTitle.setAttribute('title', title);
 		
 		// Allows for wider labels
 		w2 = Math.min(this.maxTooltipWidth, Math.max(width, this.tooltipTitle.scrollWidth + 4));
@@ -879,14 +888,19 @@ Sidebar.prototype.addEntry = function(tags, fn)
 	{
 		var self = this;
 		var createVertexTemplateFromCells = this.createVertexTemplateFromCells;
+		
 		this.createVertexTemplateFromCells = function(cells, width, height, title, allowCellsInserted)
 		{
-			for (var i = 0; i < cells.length; i++)
+			if (cells != null)
 			{
-				self.addLibForStyle(self.getKeyStyle(cells[i].style),
-					this.currentSearchEntryLibrary);
+				for (var i = 0; i < cells.length; i++)
+				{
+					self.addLibForStyle(self.getKeyStyle(cells[i].style),
+						this.currentSearchEntryLibrary);
+				}
 			}
 		};
+
 		fn();
 		this.createVertexTemplateFromCells = createVertexTemplateFromCells;
 	}
@@ -2497,7 +2511,7 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 		cells = this.graph.cloneCells(cells);
 		this.graph.pasteCellStyles(this.graph.includeDescendants(originalCells),
 			this.initialDefaultVertexStyle, this.initialDefaultEdgeStyle);
-		
+
 		if (icon != null)
 		{
 			elt.style.backgroundImage = 'url(' + icon + ')';
@@ -2531,18 +2545,23 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 				cells, bounds, startEditing);
 			this.addClickHandler(elt, ds, cells, clickFn);
 		}
-	}
 	
-	// Shows a tooltip with the rendered cell
-	if (!mxClient.IS_IOS && showTooltip)
-	{
-		mxEvent.addGestureListeners(elt, null, mxUtils.bind(this, function(evt)
+		// Shows a tooltip with the rendered cell
+		if (!mxClient.IS_IOS && showTooltip)
 		{
-			if (mxEvent.isMouseEvent(evt))
+			mxEvent.addGestureListeners(elt, null, mxUtils.bind(this, function(evt)
 			{
-				this.showTooltip(elt, cells, bounds.width, bounds.height, title, showLabel);
-			}
-		}));
+				if (mxEvent.isMouseEvent(evt))
+				{
+					this.showTooltip(elt, cells, bounds.width, bounds.height, title, showLabel);
+				}
+			}));
+		}
+	}
+	else
+	{
+		elt.style.backgroundImage = 'url(' + Editor.svgBrokenImage.src + ')';
+		elt.setAttribute('title', title);
 	}
 	
 	return elt;
@@ -4019,14 +4038,23 @@ Sidebar.prototype.createVertexTemplate = function(style, width, height, value, t
 Sidebar.prototype.createVertexTemplateFromData = function(data, width, height, title, showLabel,
 	showTitle, allowCellsInserted, showTooltip)
 {
-	var doc = mxUtils.parseXml(Graph.decompress(data));
-	var codec = new mxCodec(doc);
+	var cells = null;
 
-	var model = new mxGraphModel();
-	codec.decode(doc.documentElement, model);
+	try
+	{
+		var doc = mxUtils.parseXml(Graph.decompress(data));
+		var codec = new mxCodec(doc);
+
+		var model = new mxGraphModel();
+		codec.decode(doc.documentElement, model);
+		
+		cells = this.graph.cloneCells(model.root.getChildAt(0).children);
+	}
+	catch (e)
+	{
+		title = mxResources.get('error') + ': ' + e.message;
+	}
 	
-	var cells = this.graph.cloneCells(model.root.getChildAt(0).children);
-
 	return this.createVertexTemplateFromCells(cells, width, height, title, showLabel, showTitle,
 		allowCellsInserted, showTooltip);
 };
@@ -4158,7 +4186,7 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 
 	mxEvent.addListener(title, 'click', mxUtils.bind(this, function(evt)
 	{
-		if (mxEvent.getSource(evt) == title)
+		if (title.contains(mxEvent.getSource(evt)))
 		{
 			if (content.style.display == 'none')
 			{

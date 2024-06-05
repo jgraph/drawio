@@ -52,6 +52,8 @@
 <template url="basic/sequence.xml" title="Sequence Diagram" tags="Sequence;Diagram;Sequence"/>
 <template url="basic/kanban.xml" title="Simple Kanban Board" tags="Simple;Kanban;Board;Kanban"/>
 <template url="basic/cross.xml" title="Cross-Functional Flowchart" tags="Cross-Functional;Flowchart;Cross"/>
+<template url="basic/placeholder.xml" title="placeholders" tags="placeholder;Network;Subnet;;Folding;Collapse;Expand;"/>
+<template url="basic/mindmap.xml" title="mindmaps" tags="mindmap;Folding;Collapse;Expand;Tree;Subtree"/>
 <template url="business/accd.xml" name="Accd" libs="general" tags="Accd"/>
 <template url="business/archimate.xml" name="Archimate" libs="general;archimate3" tags="Archimate"/>
 <template url="business/bpmn.xml" name="Bpmn" libs="general;bpmn" tags="Bpmn"/>
@@ -72,6 +74,7 @@
 <template url="charts/org_chart_1.xml" name="Org chart 1" libs="general" tags="Org;chart"/>
 <template url="charts/org_chart_2.xml" name="Org chart 2" libs="general" tags="Org;chart"/>
 <template url="charts/work_breakdown_structure.xml" name="Work breakdown structure" libs="general" tags="Work;breakdown;structure"/>
+<template url="charts/processbar.xml" name="Process Bar" libs="general" tags="Process;bar;stack;steps"/>
 <template url="cloud/aws/aws_1.xml" name="Aws 1" libs="general;aws4" tags="Aws"/>
 <template url="cloud/aws/aws_2.xml" name="Aws 2" libs="general;aws4" tags="Aws"/>
 <template url="cloud/aws/aws_3.xml" name="Aws 3" libs="general;aws4" tags="Aws"/>

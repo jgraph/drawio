@@ -17,16 +17,33 @@ DrawioFilePolling = function(file, sync)
 DrawioFilePolling.prototype.maxRetries = 2;
 
 /**
+ * The minimum delay between polls for adaptive polling.
+ */
+DrawioFilePolling.prototype.minPollDelay = 2000;
+
+/**
  * Starts the polling with the given delay.
  */
 DrawioFilePolling.prototype.start = function(delay)
 {
     if (!this.isConnected())
     {
-        this.thread = setInterval(mxUtils.bind(this, function()
+        this.maxDelay = delay;
+        this.delay = delay;
+
+        var threadFn = mxUtils.bind(this, function()
         {
-            this.poll();
-        }), delay);
+            this.poll(0, nextFn);
+        });
+
+        var nextFn = mxUtils.bind(this, function()
+        {
+            // To get adaptive polling, we use timeout instead of interval
+            this.thread = setTimeout(threadFn, this.delay);
+            this.delay = Math.min(this.maxDelay, this.delay + 2000); // TODO this or this.delay * 2
+        });
+
+        nextFn();
 
         EditorUi.debug('DrawioFilePolling.start', [this],
             'thread', this.thread, 'delay', delay,
@@ -39,6 +56,11 @@ DrawioFilePolling.prototype.start = function(delay)
  */
 DrawioFilePolling.prototype.updateStatus = function()
 {
+    if (this.hasOtherWriters())
+    {
+        this.sync.lastMessage = mxResources.get('otherUsersEditing');
+    }
+
     this.sync.lastModified = this.file.getLastModifiedDate();
     this.sync.updateStatus();
 };
@@ -46,7 +68,7 @@ DrawioFilePolling.prototype.updateStatus = function()
 /**
  * Checks if the file has been modified.
  */
-DrawioFilePolling.prototype.poll = function(retry)
+DrawioFilePolling.prototype.poll = function(retry, nextFn)
 {
     retry = (retry != null) ? retry : 0;
 
@@ -56,8 +78,12 @@ DrawioFilePolling.prototype.poll = function(retry)
         {
             this.retryPoll(mxUtils.bind(this, function()
             {
-                this.poll(retry + 1);
+                this.poll(retry + 1, nextFn);
             }));
+        }
+        else
+        {
+            nextFn();
         }
     });
 
@@ -73,14 +99,23 @@ DrawioFilePolling.prototype.poll = function(retry)
                 {
                     this.file.mergeFile(latestFile, mxUtils.bind(this, function()
                     {
+                        // An update is detected, so start adaptive polling
+                        this.delay = this.minPollDelay;
+                        this.lastOtherWriter = Date.now();
                         this.updateStatus();
+                        nextFn();
                     }), handleError);
                 }), handleError);
             }
             else
             {
                 this.updateStatus();
+                nextFn();
             }
+        }
+        else
+        {
+            nextFn();
         }
         
     }), handleError);
@@ -108,7 +143,7 @@ DrawioFilePolling.prototype.stop = function()
     EditorUi.debug('DrawioFilePolling.stop',
         [this], 'thread', this.thread);
     
-    clearInterval(this.thread);
+    clearTimeout(this.thread);
     this.thread = null;
 };
 
@@ -118,4 +153,9 @@ DrawioFilePolling.prototype.stop = function()
 DrawioFilePolling.prototype.isConnected = function()
 {
     return this.thread != null;
+};
+
+DrawioFilePolling.prototype.hasOtherWriters = function()
+{
+    return this.lastOtherWriter != null && Date.now() - this.lastOtherWriter < 60 * 1000; // Other writer detected in the last minute
 };

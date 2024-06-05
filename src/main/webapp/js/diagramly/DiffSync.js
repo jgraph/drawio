@@ -407,10 +407,6 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
 				{
 					model.remove(cell);
 				}
-				else
-				{
-					EditorUi.debug('EditorUi.patchPage: Removed cell not found', id);
-				}
 			}
 		}
 		

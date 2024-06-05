@@ -1831,6 +1831,7 @@ ArrangePanel.prototype.addLayerOps = function(div)
 ArrangePanel.prototype.addGroupOps = function(div)
 {
 	var ui = this.editorUi;
+	var graph = ui.editor.graph;
 	var ss = ui.getSelectionState();
 	
 	div.style.paddingTop = '8px';
@@ -1889,6 +1890,15 @@ ArrangePanel.prototype.addGroupOps = function(div)
 	}
 
 	count += this.addActions(div, ['lockUnlock']);
+
+	if (ss.vertices.length == 1 && ss.edges.length == 0)
+	{
+		if (graph.getOpposites(graph.getEdges(ss.vertices[0]),
+			ss.vertices[0]).length > 0)
+		{
+			count += this.addActions(div, ['explore']);
+		}
+	}
 
 	if (count == 0)
 	{

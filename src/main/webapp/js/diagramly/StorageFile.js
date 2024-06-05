@@ -90,7 +90,7 @@ StorageFile.prototype.isPolling = function()
  */
 StorageFile.prototype.getPollingInterval = function()
 {
-	return 2000;
+	return 10000;
 };
 
 /**
@@ -222,8 +222,7 @@ StorageFile.doInsertFile = function(file, success, error)
 	{
 		var fn = function()
 		{
-			// Inserts data into local storage
-			file.saveFile(title, false, function()
+			file.writeFile(title, function()
 			{
 				success(file);
 			}, error);

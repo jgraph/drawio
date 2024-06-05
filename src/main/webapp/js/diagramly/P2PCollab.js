@@ -794,8 +794,12 @@ function P2PCollab(ui, sync, channelId)
 					if (!rejoinCalled)
 					{
 						EditorUi.debug('P2PCollab: calling rejoin on', ws.joinId);
-						rejoinCalled = true;
-						this.joinFile(true);
+
+						window.setTimeout(mxUtils.bind(this, function()
+						{
+							rejoinCalled = true;
+							this.joinFile(true);
+						}), 200);
 					}
 				}
 

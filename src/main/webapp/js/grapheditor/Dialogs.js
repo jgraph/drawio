@@ -1653,11 +1653,13 @@ var EditDataDialog = function(ui, cell)
 	
 	var temp = [];
 	var isLayer = graph.getModel().getParent(cell) == graph.getModel().getRoot();
+	var style = graph.getCellStyle(cell);
 
 	for (var i = 0; i < attrs.length; i++)
 	{
-		if ((attrs[i].nodeName != 'label' || Graph.translateDiagram ||
-			isLayer) && attrs[i].nodeName != 'placeholders')
+		if ((attrs[i].nodeName != 'label' || style['metaEdit'] == '1' ||
+			Graph.translateDiagram || isLayer) &&
+			attrs[i].nodeName != 'placeholders')
 		{
 			temp.push({name: attrs[i].nodeName, value: attrs[i].nodeValue});
 		}
@@ -1666,7 +1668,15 @@ var EditDataDialog = function(ui, cell)
 	// Sorts by name
 	temp.sort(function(a, b)
 	{
-	    if (a.name < b.name)
+		if (a.name == 'label')
+		{
+			return 1;
+		}
+		else if (b.name == 'label')
+		{
+			return -1;
+		}
+	    else if (a.name < b.name)
 	    {
 	    	return -1;
 	    }

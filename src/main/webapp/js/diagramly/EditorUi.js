@@ -4284,8 +4284,8 @@
 			{
 				var img = imgs[i];
 				var data = img.data;
-				
-				if (data != null)
+
+				if (data != null && data.substring(0, 5) == 'data:')
 				{
 					data = this.convertDataUri(data);
 					var s = 'shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;';
@@ -4309,20 +4309,18 @@
 				{
 					var cells = this.stringToCells((img.xml.charAt(0) == '<') ?
 						img.xml : Graph.decompress(img.xml));
-
-					if (cells.length > 0)
-					{
-						content.appendChild(this.sidebar.createVertexTemplateFromCells(
-							cells, img.w, img.h, img.title || '', true, null, true));
-					}
+					var title = (cells.length == 0) ? mxResources.get('drawingEmpty') : 
+						((img.title != null) ? img.title : '');
+					content.appendChild(this.sidebar.createVertexTemplateFromCells(
+						cells, img.w, img.h, title, true, null, true));
 				}
 			}
 			catch (e)
 			{
+				var title = (e.message != null) ? mxResources.get('error') +
+					': ' + e.message : String(e);
 				var elt = this.sidebar.createVertexTemplateFromCells(null,
-					img.w, img.h, mxResources.get('error') + ': ' +
-					e.message, true, null, true);
-				elt.style.backgroundImage = 'url(' + Editor.svgBrokenImage.src + ')';
+					img.w, img.h, title, true, null, true);
 				content.appendChild(elt);
 			}
 		}
@@ -8762,7 +8760,7 @@
 	/**
 	 * Generates a Mermaid image.
 	 */
-	EditorUi.prototype.createMermaidXml = function(input, config, data, w, h)
+	EditorUi.prototype.createMermaidXml = function(input, config, data, w, h, prompt)
 	{
 		var graph = new Graph(document.createElement('div'));
 		var cell = graph.insertVertex(null, null, null, 0, 0, w, h,
@@ -8770,6 +8768,11 @@
 			'imageAspect=1;image=' + data + ';')
 		graph.setAttributeForCell(cell, 'mermaidData', JSON.stringify(
 			{data: input, config: config}, null, 2));
+
+		if (prompt != null)
+		{
+			graph.setAttributeForCell(cell, 'templatePrompt', prompt);
+		}
 
 		var codec = new mxCodec();
 		var node = codec.encode(graph.getModel());
@@ -8787,108 +8790,81 @@
 
 		var fn = mxUtils.bind(this, function()
 		{
-			if (this.spinner.spin(document.body, mxResources.get('loading')))
+			this.createTimeout(10000, mxUtils.bind(this, function(timeout)
 			{
-				this.createTimeout(40000, mxUtils.bind(this, function(timeout)
+				// EditorUi.logEvent({category: 'OPENAI-DIAGRAM',
+				// 	action: 'generateOpenAiMermaidDiagram',
+				// 	label: prompt});
+				var url = 'https://www.draw.io/generate/v2';
+				var req = new mxXmlRequest(url, prompt, 'POST');
+				
+				var handleError = mxUtils.bind(this, function(e)
 				{
-					// EditorUi.logEvent({category: 'OPENAI-DIAGRAM',
-					// 	action: 'generateOpenAiMermaidDiagram',
-					// 	label: prompt});
-					var url = 'https://www.draw.io/generate/v2';
-
-					var req = new mxXmlRequest(url, prompt, 'POST');
-					
-					var handleError = mxUtils.bind(this, function(e)
+					if (timeout.clear())
 					{
-						if (timeout.clear())
-						{
-							this.spinner.stop();
-							error(e);
-						}
-					});
-
-					req.send(mxUtils.bind(this, function(req)
+						error(e);
+					}
+				});
+				
+				req.send(mxUtils.bind(this, function(req)
+				{
+					if (timeout.isAlive())
 					{
-						if (timeout.isAlive())
+						if (req.getStatus() >= 200 && req.getStatus() <= 299)
 						{
-							if (req.getStatus() >= 200 && req.getStatus() <= 299)
+							this.tryAndHandle(mxUtils.bind(this, function()
 							{
-								this.tryAndHandle(mxUtils.bind(this, function()
+								var result = mxUtils.trim(req.getText());
+								
+								this.generateMermaidImage(result, null, mxUtils.bind(this, function(data, w, h)
 								{
-									var result = mxUtils.trim(req.getText());
-									
-									this.generateMermaidImage(result, null, mxUtils.bind(this, function(data, w, h)
+									this.tryAndHandle(mxUtils.bind(this, function()
 									{
-										this.tryAndHandle(mxUtils.bind(this, function()
+										if (timeout.clear())
 										{
-											if (timeout.clear())
-											{
-												EditorUi.debug('EditorUi.generateOpenAiMermaidDiagram',
-													'\nprompt:', prompt, '\nresult:', result);
-												
-												this.spinner.stop();
-												success(result, data, w, h);
-											}
-										}), handleError);
-									}), handleError, mxUtils.bind(this, function(e)
+											EditorUi.debug('EditorUi.generateOpenAiMermaidDiagram',
+												'\nprompt:', prompt, '\nresult:', result);
+											success(result, data, w, h);
+										}
+									}), handleError);
+								}), handleError, mxUtils.bind(this, function(e)
+								{
+									if (retryCount++ < maxRetries)
 									{
-										if (retryCount++ < maxRetries)
+										if (timeout.clear())
 										{
-											if (timeout.clear())
-											{
-												this.spinner.stop();
-												fn();
-											}
+											fn();
 										}
-										else
-										{
-											handleError(e);
-										}
-									}));
-								}), handleError);
-							}
-							else
-							{
-								var e = {message: mxResources.get('error') + ' ' + req.getStatus()};
-
-								try
-								{
-									e = JSON.parse(req.getText());
-									e = e.error;
-								}
-								catch (e)
-								{
-									// ignore
-								}
-
-								handleError(e);
-							}
+									}
+									else
+									{
+										handleError(e);
+									}
+								}));
+							}), handleError);
 						}
-					}), handleError);
-				}), error);
-			}
+						else
+						{
+							var e = {message: mxResources.get('error') + ' ' + req.getStatus()};
+
+							try
+							{
+								e = JSON.parse(req.getText());
+								e = e.error;
+							}
+							catch (e)
+							{
+								// ignore
+							}
+
+							handleError(e);
+						}
+					}
+				}), handleError);
+			}), error);
 		});
 
 		fn();
-	};
-
-	/**
-	 * Removes all lines starting with %%.
-	 */
-	EditorUi.prototype.removeMermaidComments = function(data)
-	{
-		var lines = data.split('\n');
-		var result = [];
-
-		for (var i = 0; i < lines.length; i++)
-		{
-			if (lines[i].substring(0, 2) != '%%')
-			{
-				result.push(lines[i]);
-			}
-		}
-
-		return result.join('\n');
 	};
 
 	/**
@@ -8971,8 +8947,6 @@
 	 */
 	EditorUi.prototype.generateMermaidImage = function(data, config, success, error, parseErrorHandler)
 	{
-		data = this.removeMermaidComments(data);
-
 		var onerror = mxUtils.bind(this, function(e)
 		{
 			this.loadingMermaid = false;
@@ -13065,6 +13039,8 @@
 		btn.style.marginLeft = '6px';
 		btn.style.width = size + 'px';
 		btn.style.height = size + 'px';
+		btn.style.flexShrink = '0';
+		btn.style.flexGrow = '0';
 
 		if (fn != null)
 		{
