@@ -1,3 +1,11 @@
+06-JUN-2024: 24.5.1
+
+- [conf-cloud] Fixes viewer scope
+
+06-JUN-2024: 24.5.0
+
+- Changes viewer to use main google project 671 ID
+
 06-JUN-2024: 24.4.15
 
 - Fixes possible clipping in sidebar popup

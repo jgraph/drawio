@@ -38,17 +38,10 @@ window.DriveClient = function(editorUi, isExtAuth)
 		// Uses separate name for the viewer auth tokens
 		this.cookieName = 'gDriveViewerAuthInfo';
 		this.token = this.getPersistentToken();
-		
-		this.appId = window.DRAWIO_GOOGLE_VIEWER_APP_ID || '850530949725';
-		this.clientId = window.DRAWIO_GOOGLE_VIEWER_CLIENT_ID || '850530949725.apps.googleusercontent.com';
-		this.scopes = ['https://www.googleapis.com/auth/drive.readonly',
-			'https://www.googleapis.com/auth/userinfo.profile'];
 	}
-	else
-	{
-		this.appId = window.DRAWIO_GOOGLE_APP_ID || '671128082532';
-		this.clientId = window.DRAWIO_GOOGLE_CLIENT_ID || '671128082532-jhphbq6d0e1gnsus9mn7vf8a6fjn10mp.apps.googleusercontent.com';
-	}
+
+	this.appId = window.DRAWIO_GOOGLE_APP_ID || '671128082532';
+	this.clientId = window.DRAWIO_GOOGLE_CLIENT_ID || '671128082532-jhphbq6d0e1gnsus9mn7vf8a6fjn10mp.apps.googleusercontent.com';
 	
 	this.mimeTypes = this.xmlMimeType + ',application/mxe,application/mxr,' +
 		'application/vnd.jgraph.mxfile.realtime,application/vnd.jgraph.mxfile.rtlegacy';
