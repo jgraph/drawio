@@ -490,6 +490,21 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		this.graph2.setConnectable(false);
 		this.graph2.setPanning(false);
 		this.graph2.setEnabled(false);
+
+		// Renders oveflow on SVG
+		if (this.graph2.dialect == mxConstants.DIALECT_SVG)
+		{
+			var root = this.graph2.view.getDrawPane().ownerSVGElement;
+			
+			if (root != null)
+			{
+				root.style.overflow = 'visible';
+			}
+		}
+		else
+		{
+			this.graph2.view.canvas.style.overflow = 'visible';
+		}
 		
 		// Blocks all links
 		this.graph2.openLink = mxUtils.bind(this, function()

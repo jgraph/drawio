@@ -58,16 +58,13 @@ Actions.prototype.init = function()
 	}, null, null, 'Enter'));
 	this.addAction('keyPressEnter', function()
 	{
-		if (graph.isEnabled())
+		if (graph.isSelectionEmpty())
 		{
-			if (graph.isSelectionEmpty())
-			{
-				ui.actions.get('smartFit').funct();
-			}
-			else
-			{
-				graph.startEditingAtCell();
-			}
+			ui.actions.get('smartFit').funct();
+		}
+		else if (graph.isEnabled())
+		{
+			graph.startEditingAtCell();
 		}
 	});
 	this.addAction('import...', function()
@@ -101,7 +98,7 @@ Actions.prototype.init = function()
 		});
 	}).isEnabled = isGraphEnabled;
 	this.addAction('save', function() { ui.saveFile(false); }, null, null, Editor.ctrlKey + '+S').isEnabled = isGraphEnabled;
-	this.addAction('saveAs...', function() { ui.saveFile(true); }, null, null, Editor.ctrlKey + '+Shift+S').isEnabled = isGraphEnabled;
+	this.addAction('saveAs...', function() { ui.saveFile(true); }, null, null, Editor.ctrlKey + '+Shift+S');
 	this.addAction('export...', function() { ui.showDialog(new ExportDialog(ui).container, 300, 340, true, true); });
 	this.addAction('editDiagram...', function()
 	{
@@ -613,10 +610,7 @@ Actions.prototype.init = function()
 			}
 		}
 	}, null, null, Editor.ctrlKey + '+L');
-
-	// TODO: Remove when new translations are added
-	mxResources.parse('explore=Explore');
-
+	
 	this.addAction('explore', function()
 	{
 		if (graph.model.isVertex(graph.getSelectionCell()))

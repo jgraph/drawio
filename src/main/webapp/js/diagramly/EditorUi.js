@@ -3191,8 +3191,9 @@
 				// Realtime files have a valid status message
 				if (!file.isEditable())
 				{
-					this.editor.setStatus('<span class="geStatusAlert">' +
-						mxUtils.htmlEntities(mxResources.get('readOnly')) + '</span>');
+					this.editor.setStatus('<div class="geStatusBox" title="' +
+						mxUtils.htmlEntities(mxResources.get('readOnly')) + '">' +
+						mxUtils.htmlEntities(mxResources.get('readOnly')) + '</div>');
 				}
 				// Handles modified state after error of loading new file
 				else if (file.isModified())
@@ -15645,7 +15646,7 @@
 	/**
 	 * Opens the given files in the editor.
 	 */
-	EditorUi.prototype.openFileHandle = function(data, name, file, temp, fileHandle)
+	EditorUi.prototype.openFileHandle = function(data, name, file, temp, fileHandle, editable)
 	{
 		if (name != null && name.length > 0)
 		{
@@ -15812,7 +15813,8 @@
 	    		}
 				
 				this.spinner.stop();
-				this.openLocalFile(data, name, temp, fileHandle, (fileHandle != null) ? file : null);
+				this.openLocalFile(data, name, temp, fileHandle,
+					(fileHandle != null) ? file : null, editable);
 			}
 		}
 	};
@@ -15867,7 +15869,7 @@
 	/**
 	 * Shows the layers dialog if the graph has more than one layer.
 	 */
-	EditorUi.prototype.openLocalFile = function(data, name, temp, fileHandle, desc)
+	EditorUi.prototype.openLocalFile = function(data, name, temp, fileHandle, desc, editable)
 	{
 		var currentFile = this.getCurrentFile();
 		
@@ -15887,8 +15889,9 @@
 			}
 			else
 			{
-				this.fileLoaded(new LocalFile(this, data, name ||
-					this.defaultFilename, temp, fileHandle, desc));
+				this.fileLoaded(new LocalFile(this, data,
+					name || this.defaultFilename, temp,
+					fileHandle, desc, editable));
 			}
 		});
 

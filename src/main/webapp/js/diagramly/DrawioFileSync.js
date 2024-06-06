@@ -592,9 +592,8 @@ DrawioFileSync.prototype.updateStatus = function()
 				(!this.file.isEditable() ? '<div class="geStatusBox" title="' +
 					mxUtils.htmlEntities(mxResources.get('readOnly')) + '">' +
 					mxUtils.htmlEntities(mxResources.get('readOnly')) + '</div>' :
-				(this.file.isLocked() && Editor.lockedImage != null ?
-				' <img class="geAdaptiveAsset" data-action="properties" style="margin-left:4px;" src="' +
-					Editor.lockedImage + '"/>' : '')) +
+				(this.file.isLocked() ? ' <img class="geToolbarButton geAdaptiveAsset" data-action="properties" ' +
+					'style="margin-left:4px;flex-shrink:0;" src="' + Editor.lockedImage + '"/>' : '')) +
 				(status != null ? '<div class="geStatusBox" title="' + mxUtils.htmlEntities(status) + '">' +
 					mxUtils.htmlEntities(status) + '</div>' : '') +
 				((msg != null) ? ' <div class="geStatusBox" data-effect="fade" title="' + mxUtils.htmlEntities(msg) + '">' +

@@ -58,21 +58,23 @@ mxConnector.prototype.paintEdgeShape = function(c, pts)
 	// paint the markers after painting the line.
 	var sourceMarker = this.createMarker(c, pts, true);
 	var targetMarker = this.createMarker(c, pts, false);
-
 	mxPolyline.prototype.paintEdgeShape.apply(this, arguments);
-	
+
 	// Disables shadows, dashed styles and fixes fill color for markers
-	c.setFillColor(this.stroke);
 	c.setShadow(false);
 	c.setDashed(false);
 	
 	if (sourceMarker != null)
 	{
+		c.setFillColor(mxUtils.getValue(this.style,
+			mxConstants.STYLE_STARTFILLCOLOR, this.stroke));
 		sourceMarker();
 	}
 	
 	if (targetMarker != null)
 	{
+		c.setFillColor(mxUtils.getValue(this.style,
+			mxConstants.STYLE_ENDFILLCOLOR, this.stroke));
 		targetMarker();
 	}
 };
@@ -87,8 +89,8 @@ mxConnector.prototype.createMarker = function(c, pts, source)
 {
 	var result = null;
 	var n = pts.length;
-	var type = mxUtils.getValue(this.style, (source) ? mxConstants.STYLE_STARTARROW :
-			mxConstants.STYLE_ENDARROW);
+	var type = mxUtils.getValue(this.style, (source) ?
+		mxConstants.STYLE_STARTARROW : mxConstants.STYLE_ENDARROW);
 	var p0 = (source) ? pts[1] : pts[n - 2];
 	var pe = (source) ? pts[0] : pts[n - 1];
 

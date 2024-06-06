@@ -8,7 +8,7 @@
  * @param {number} x X-coordinate of the point.
  * @param {number} y Y-coordinate of the point.
  */
-LocalFile = function(ui, data, title, temp, fileHandle, desc)
+LocalFile = function(ui, data, title, temp, fileHandle, desc, editable)
 {
 	DrawioFile.call(this, ui, data);
 	
@@ -16,6 +16,7 @@ LocalFile = function(ui, data, title, temp, fileHandle, desc)
 	this.mode = (temp) ? null : App.MODE_DEVICE;
 	this.fileHandle = fileHandle;
 	this.desc = desc;
+	this.editable = editable;
 };
 
 //Extends mxEventSource
@@ -72,6 +73,30 @@ LocalFile.prototype.getTitle = function()
 LocalFile.prototype.isRenamable = function()
 {
 	return true;
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+LocalFile.prototype.isEditable = function()
+{
+	return DrawioFile.prototype.isEditable.apply(this, arguments) &&
+		(this.editable == null || this.editable);
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+LocalFile.prototype.setEditable = function(editable)
+{
+	this.editable = editable;
+	this.descriptorChanged();
 };
 
 /**
@@ -145,6 +170,7 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 	{
 		this.fileHandle = null;
 		this.desc = null;
+		this.editable = null;
 	}
 	
 	this.title = title;
@@ -163,7 +189,7 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 	{
 		this.setModified(this.getShadowModified());
 		this.contentChanged();
-		
+
 		if (success != null)
 		{
 			success();

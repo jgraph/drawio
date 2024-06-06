@@ -1506,6 +1506,14 @@
 	STYLE_ENDFILL: 'endFill',
 
 	/**
+	 * Variable: STYLE_ENDFILLCOLOR
+	 * 
+	 * Defines the key for the endFillColor style. If not specified then the
+	 * stroke color is used to fill the markers. Value is "endFillColor".
+	 */
+	STYLE_ENDFILLCOLOR: 'endFillColor',
+
+	/**
 	 * Variable: STYLE_STARTFILL
 	 * 
 	 * Defines the key for the startFill style. Use 0 for no fill or 1 (default)
@@ -1513,6 +1521,14 @@
 	 * "startFill".
 	 */
 	STYLE_STARTFILL: 'startFill',
+
+	/**
+	 * Variable: STYLE_STARTFILLCOLOR
+	 * 
+	 * Defines the key for the startFillColor style. If not specified then the
+	 * stroke color is used to fill the markers. Value is "startFillColor".
+	 */
+	STYLE_STARTFILLCOLOR: 'startFillColor',
 
 	/**
 	 * Variable: STYLE_DASHED

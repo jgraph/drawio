@@ -1262,7 +1262,9 @@ mxStencilRegistry.allowEval = false;
 						if (file != null && file.fileObject != null && file.fileObject.path == path)
 						{
 							file.setEditable(false);
-							this.editor.setStatus('<div class="geStatusAlert">' + mxResources.get('readOnly') + '</div>');
+							this.editor.setStatus('<div class="geStatusBox" title="' +
+								mxUtils.htmlEntities(mxResources.get('readOnly')) + '">' +
+								mxUtils.htmlEntities(mxResources.get('readOnly')) + '</div>');
 						}
 					}
 				}));
@@ -1387,17 +1389,6 @@ mxStencilRegistry.allowEval = false;
 	LocalFile.prototype.isConflict = function(stat)
 	{
 		return stat != null && this.stat != null && stat.mtimeMs != this.stat.mtimeMs;
-	};
-	
-	LocalFile.prototype.isEditable = function()
-	{
-		return this.editable != null? this.editable : this.ui.editor.editable;
-	};
-
-	LocalFile.prototype.setEditable = function(editable)
-	{
-		this.editable = editable;
-		this.descriptorChanged();
 	};
 	
 	LocalFile.prototype.saveFile = async function(revision, success, error, unloading, overwrite)

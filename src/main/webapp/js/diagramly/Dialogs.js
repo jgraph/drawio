@@ -1273,13 +1273,23 @@ var CreateGraphDialog = function(editorUi, title, type)
 		graph.view.setTranslate(20, 20);
 		graph.border = 20;
 		graph.panningHandler.useLeftButtonForPanning = true;
+
+		// Fixes in-place editor position
+	    if (mxClient.IS_SVG && graph.view.getDrawPane() != null)
+		{
+			var root = graph.view.getDrawPane().ownerSVGElement;
+			
+			if (root != null)
+			{
+				root.style.position = 'absolute';
+			}
+		}
 		
 		var vertexStyle = 'rounded=1;';
 		var edgeStyle = 'curved=1;';
 		var startStyle = 'ellipse';
 		
 		// FIXME: Does not work in iPad
-		var mxCellRendererInstallCellOverlayListeners = mxCellRenderer.prototype.installCellOverlayListeners;
 		graph.cellRenderer.installCellOverlayListeners = function(state, overlay, shape)
 		{
 			mxCellRenderer.prototype.installCellOverlayListeners.apply(this, arguments);
@@ -1338,7 +1348,7 @@ var CreateGraphDialog = function(editorUi, title, type)
 					v2 = graph.insertVertex(parent, null, 'Entry', geo.x, geo.y, 80, 30, vertexStyle);
 					addOverlay(v2);
 					graph.view.refresh(v2);
-					var e1 = graph.insertEdge(parent, null, '', cell, v2, edgeStyle);
+					graph.insertEdge(parent, null, '', cell, v2, edgeStyle);
 				}, function()
 				{
 					graph.scrollCellToVisible(v2);
@@ -3485,10 +3495,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	
 	function create()
 	{
-		if (templateXml == lastAiXml)
+		if (templateXml != null && templateXml == lastAiXml)
 		{
 			EditorUi.logEvent({category: 'OPENAI-DIAGRAM',
-				 action: 'templateUsed',
+				 action: 'templateGenerated',
 				 label: lastAiTitle});
 		}
 
@@ -3834,7 +3844,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		editorUi.generateOpenAiMermaidDiagram(prompt,
 			function(mermaidData, imageData, w, h)
 			{
-				if (selectedElt == generateElt)
+				if (selectedElt == generateElt && generateInput.style.visibility == 'hidden')
 				{
 					generateBackground = 'url(' + 'data:image/svg+xml;base64,' +
 						imageData.substring(imageData.indexOf(',') + 1) + ')';
@@ -13310,63 +13320,58 @@ var FilePropertiesDialog = function(editorUi, publicLink)
 			}
 		};
 	};
+	
+	var initialLocked = (file != null) ? file.isLocked() : false;
 
-	if (urlParams['test'] == '1')
+	row = document.createElement('tr');
+	td = document.createElement('td');
+	td.style.whiteSpace = 'nowrap';
+	td.style.overflow = 'hidden';
+	td.style.textOverflow = 'ellipsis';
+	td.style.fontSize = '10pt';
+
+	mxUtils.write(td, mxResources.get('locked') + ':');
+	row.appendChild(td);
+
+	var lockedInput = document.createElement('input');
+	lockedInput.setAttribute('type', 'checkbox');
+	
+	if (initialLocked)
 	{
-		var initialLocked = (file != null) ? file.isLocked() : false;
-
-		row = document.createElement('tr');
-		td = document.createElement('td');
-		td.style.whiteSpace = 'nowrap';
-		td.style.overflow = 'hidden';
-		td.style.textOverflow = 'ellipsis';
-		td.style.fontSize = '10pt';
-
-		// TODO: Use mxResources.get('locked')
-		mxUtils.write(td, 'Locked' + ':');
-		
-		row.appendChild(td);
-
-		var lockedInput = document.createElement('input');
-		lockedInput.setAttribute('type', 'checkbox');
-		
-		if (initialLocked)
-		{
-			lockedInput.setAttribute('checked', 'checked');
-			lockedInput.defaultChecked = true;
-		}
-		
-		td = document.createElement('td');
-		td.style.whiteSpace = 'nowrap';
-		td.appendChild(lockedInput);
-		row.appendChild(td);
-		tbody.appendChild(row);
-
-		this.init = function()
-		{
-			lockedInput.focus();
-		};
-
-		addApply(function(success, error)
-		{
-			if (editorUi.fileNode != null && initialLocked != lockedInput.checked)
-			{
-				window.setTimeout(function()
-				{
-					if (file != null)
-					{
-						file.setLocked(lockedInput.checked);
-					}
-
-					success();
-				}, 0);
-			}
-			else
-			{
-				success();
-			}
-		});
+		lockedInput.setAttribute('checked', 'checked');
+		lockedInput.defaultChecked = true;
 	}
+	
+	td = document.createElement('td');
+	td.style.whiteSpace = 'nowrap';
+	td.appendChild(lockedInput);
+	row.appendChild(td);
+	tbody.appendChild(row);
+
+	this.init = function()
+	{
+		lockedInput.focus();
+	};
+
+	addApply(function(success, error)
+	{
+		if (editorUi.fileNode != null && initialLocked != lockedInput.checked)
+		{
+			window.setTimeout(function()
+			{
+				if (file != null)
+				{
+					file.setLocked(lockedInput.checked);
+				}
+
+				success();
+			}, 0);
+		}
+		else
+		{
+			success();
+		}
+	});
 
 	if (isPng || isSvg)
 	{

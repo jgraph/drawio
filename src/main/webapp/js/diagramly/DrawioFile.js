@@ -1839,9 +1839,8 @@ DrawioFile.prototype.addAllSavedStatus = function(status)
 		var rev = (this.isRevisionHistorySupported() && status != mxUtils.htmlEntities(
 			mxResources.get(this.savingStatusKey)) + '...') ? 'data-action="revisionHistory" ' : '';
 		this.ui.editor.setStatus('<div ' + rev + 'title="'+ status + '">' + status +
-			(this.isLocked() && Editor.lockedImage != null ?
-			' <img class="geAdaptiveAsset" data-action="properties" style="margin-left:4px;" src="' +
-					Editor.lockedImage + '"/>' : '') + '</div>');
+			(this.isLocked() ? ' <img class="geToolbarButton geAdaptiveAsset" data-action="properties" ' +
+			'style="margin-left:4px;flex-shrink:0;" src="' + Editor.lockedImage + '"/>' : '') + '</div>');
 	}
 };
 

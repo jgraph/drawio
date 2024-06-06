@@ -2471,8 +2471,9 @@ App.prototype.updateDocumentTitle = function()
 /**
  * Returns a thumbnail of the current file.
  */
-App.prototype.getThumbnail = function(width, fn)
+App.prototype.getThumbnail = function(width, fn, border)
 {
+	border = (border != null) ? border : 0;
 	var result = false;
 	
 	try
@@ -2567,7 +2568,7 @@ App.prototype.getThumbnail = function(width, fn)
 		   	{
 		   		// Continues with null in error case
 		   		success();
-		   	}, null, null, null, null, null, null, graph, null, null, null,
+		   	}, null, null, null, null, null, null, graph, border, null, null,
 			   null, 'diagram', null);
 		   	
 		   	result = true;
@@ -3927,28 +3928,39 @@ App.prototype.loadFileSystemEntry = function(fileHandle, success, error)
 					
 			reader.onload = mxUtils.bind(this, function(e)
 			{
-				try
+				var doSuccess = mxUtils.bind(this, function(editable)
 				{
-					if (success != null)
+					try
 					{
-						var data = e.target.result;
-						
-						if (file.type == 'image/png')
+						if (success != null)
 						{
-							data = this.extractGraphModelFromPng(data);
+							var data = e.target.result;
+							
+							if (file.type == 'image/png')
+							{
+								data = this.extractGraphModelFromPng(data);
+							}
+							
+							success(new LocalFile(this, data, file.name, null, fileHandle, file, editable));
 						}
-	
-						success(new LocalFile(this, data, file.name, null, fileHandle, file));
+						else
+						{
+							this.openFileHandle(e.target.result, file.name, file, false, fileHandle, editable);
+						}
 					}
-					else
+					catch(e)
 					{
-						this.openFileHandle(e.target.result, file.name, file, false, fileHandle);
+						error(e);
 					}
-				}
-				catch(e)
+				});
+
+				fileHandle.createWritable().then(mxUtils.bind(this, function(writable)
 				{
-					error(e);
-				}
+					doSuccess(true);
+				}), mxUtils.bind(this, function(e)
+				{
+					doSuccess(false);
+				}));
 			});
 			
 			reader.onerror = error;
@@ -4566,6 +4578,7 @@ App.prototype.saveFile = function(forceDialog, success)
 				file.fileHandle = fileHandle;
 				file.title = desc.name;
 				file.desc = desc;
+				file.editable = null;
 				this.save(desc.name, done);
 			}), null, this.createFileSystemOptions(file.getTitle()));
 		}
