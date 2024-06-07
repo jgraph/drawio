@@ -1286,3 +1286,5 @@ confALogsPageDesc=Aquesta pàgina conté registres de serveis de llarga durada d
 confEditOnlyInPageEditor=Només es pot editar amb l'editor de pàgines de Confluence
 confEvalWarn=Llicència d'Avaluació - No per a ús en producció
 otherUsersEditing=Other user(s) are editing this diagram
+firtTimeGD=First time to access this file?
+drawioGDAppNotInstalled=draw.io Google Drive app is not installed, please install it first

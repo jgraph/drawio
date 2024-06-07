@@ -1286,3 +1286,5 @@ confALogsPageDesc=This page contains logs of draw.io long running services as at
 confEditOnlyInPageEditor=Редактирование возможно только в редакторе страницы Confluence
 confEvalWarn=Evaluation License - Not for production use
 otherUsersEditing=Other user(s) are editing this diagram
+firtTimeGD=First time to access this file?
+drawioGDAppNotInstalled=draw.io Google Drive app is not installed, please install it first

@@ -1286,3 +1286,5 @@ confALogsPageDesc=Deze pagina bevat de draw.io-logboeken van langlopende dienste
 confEditOnlyInPageEditor=Kan alleen worden bewerkt binnen de Confluence-pagina-editor
 confEvalWarn=Evaluatielicentie - niet voor productiegebruik
 otherUsersEditing=Other user(s) are editing this diagram
+firtTimeGD=First time to access this file?
+drawioGDAppNotInstalled=draw.io Google Drive app is not installed, please install it first

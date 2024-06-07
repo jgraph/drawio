@@ -791,7 +791,7 @@ DropboxClient.prototype.pickLibrary = function(fn)
 					this.ui.handleError(e);
 				});
 				
-				var tmp = files[0].link.indexOf(this.appPath);
+				var tmp = (files[0].link != null) ? files[0].link.indexOf(this.appPath) : -1;
 	
 				if (tmp > 0)
 				{
@@ -918,7 +918,7 @@ DropboxClient.prototype.pickFile = function(fn, readOnly)
 						}
 						else
 						{
-							var tmp = files[0].link.indexOf(this.appPath);
+							var tmp = (files[0].link != null) ? files[0].link.indexOf(this.appPath) : -1;
 
 							if (tmp > 0)
 							{

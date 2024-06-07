@@ -1,3 +1,8 @@
+07-JUN-2024: 24.5.2
+
+- [conf cloud] Adds Drive file access and app check to embed macro
+- Fixes bulk change of cell styles [drawio-3961]
+
 06-JUN-2024: 24.5.1
 
 - [conf-cloud] Fixes viewer scope

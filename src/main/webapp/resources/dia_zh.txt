@@ -1286,3 +1286,5 @@ confALogsPageDesc=此页面包含 draw.io 长期运行服务的日志附件
 confEditOnlyInPageEditor=只能在 Confluence 页面编辑器中编辑
 confEvalWarn=评估许可 - 不得用于生产用途
 otherUsersEditing=其他用户正在编辑此绘图
+firtTimeGD=First time to access this file?
+drawioGDAppNotInstalled=draw.io Google Drive app is not installed, please install it first

@@ -146,7 +146,7 @@ DriveClient.prototype.maxRetries = 5;
 /**
  * Executes the first step for connecting to Google Drive.
  */
-DriveClient.prototype.staleEtagMaxRetries = 3;
+DriveClient.prototype.staleEtagMaxRetries = 4;
 
 /**
  * Executes the first step for connecting to Google Drive.
@@ -1299,39 +1299,6 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 };
 
 /**
- * Returns the checksum stored in the properties of the given file.
- */
-DriveClient.prototype.getStoredChecksum = function(file)
-{
-	var checksum = null;
-
-	if (file.desc != null && file.desc.properties != null)
-	{
-		for (var i = 0; i < file.desc.properties.length; i++)
-		{
-			if (file.desc.properties[i].key == 'checksum')
-			{
-				var temp = file.desc.properties[i].value;
-
-				if (temp != null && temp.length > 0)
-				{
-					var tokens = temp.split(':');
-
-					if (tokens.length == 2)
-					{
-						checksum = tokens[1];
-					}
-				}
-
-				break;
-			}
-		}
-	}
-
-	return checksum;
-};
-
-/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.
@@ -1686,7 +1653,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 												{
 													retryCount++;
 													var jitter = 1 + 0.1 * (Math.random() - 0.5);
-													var delay = Math.round(retryCount * 2 * this.coolOff * jitter);
+													var delay = Math.round(Math.pow(2, retryCount) * this.coolOff * jitter);
 													window.setTimeout(doExecuteSave, delay);
 
 													if (urlParams['test'] == '1')
@@ -1705,16 +1672,11 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 													// Logs failed save
 													try
 													{
-														var oldChecksum = this.getStoredChecksum(file);
-
 														EditorUi.logError('Saving to Google Drive failed',
-															null, 'id-' + file.desc.id + 
+															null, 'id-' + file.desc.id +
 															'-from-' + head0 + '.' + mod0 + '-' + this.ui.hashValue(etag0) +
 															'-to-' + resp.headRevisionId + '.' + resp.modifiedDate + '-' +
-															this.ui.hashValue(resp.etag) +
-															((oldChecksum != null) ? '-old-checksum_' + oldChecksum : '') +
-															((checksum != null) ? '-new-checksum_' + checksum : '') +
-															((temp.length > 0) ? '-errors-' + temp : ''),
+															this.ui.hashValue(resp.etag) + ((temp.length > 0) ? '-errors-' + temp : ''),
 															'user-' + ((this.user != null) ? this.user.id : 'nouser') +
 															((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync') +
 															'-retries-' + retryCount);
