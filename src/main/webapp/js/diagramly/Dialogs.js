@@ -3362,6 +3362,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					{
 						templateXml = modelXml;
 						lastAiXml = templateXml;
+						lastAiTitle = 'Smart Template: ' + title;
 					}
 				}));
 			}
@@ -3393,7 +3394,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 						{
 							templateXml = xml;
 							lastAiXml = xml;
-							lastAiTitle = 'Smart Template: ' + title;
 						}
 
 						var magnify = magnifyImage.cloneNode(true);

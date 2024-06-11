@@ -3064,12 +3064,50 @@ var mxUtils =
 	 */
 	removeJavascriptProtocol: function(link)
 	{
+		link = (link != null) ? mxUtils.zapGremlins(link) : null;
+
 		while (link != null && mxUtils.ltrim(link.toLowerCase()).substring(0, 11) === 'javascript:')
 		{
 			link = link.substring(link.toLowerCase().indexOf(':') + 1);
 		}
 
 		return link;
+	},
+	
+	/**
+	 * Function: zapGremlins
+	 * 
+	 * Removes all illegal control characters with ASCII code <32 except TAB, LF
+	 * and CR.
+	 * 
+	 * Parameters:
+	 * 
+	 * text - String that represents the text.
+	 */
+	zapGremlins: function(text)
+	{
+		var lastIndex = 0;
+		var checked = [];
+		
+		for (var i = 0; i < text.length; i++)
+		{
+			var code = text.charCodeAt(i);
+			
+			// Removes all control chars except TAB, LF and CR
+			if (!((code >= 32 || code == 9 || code == 10 || code == 13) &&
+				code != 0xFFFF && code != 0xFFFE))
+			{
+				checked.push(text.substring(lastIndex, i));
+				lastIndex = i + 1;
+			}
+		}
+		
+		if (lastIndex > 0 && lastIndex < text.length)
+		{
+			checked.push(text.substring(lastIndex));
+		}
+		
+		return (checked.length == 0) ? text : checked.join('');
 	},
 
 	/**

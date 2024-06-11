@@ -3427,11 +3427,11 @@ App.prototype.start = function()
 									}
 								}));
 							}
-							else if (urlParams['splash'] != '0' || urlParams['mode'] != null)
+							else if (urlParams['splash'] != '0' || (urlParams['mode'] != null && !EditorUi.isElectronApp))
 							{
 								this.loadFile();
 							}
-							else if (!EditorUi.isElectronApp)
+							else
 							{
 								this.createFile(this.defaultFilename, this.getFileData(),
 									null, null, null, null, null, true);
@@ -3953,14 +3953,24 @@ App.prototype.loadFileSystemEntry = function(fileHandle, success, error)
 						error(e);
 					}
 				});
-
-				fileHandle.createWritable().then(mxUtils.bind(this, function(writable)
+				
+				if (fileHandle.queryPermission)
 				{
-					doSuccess(true);
-				}), mxUtils.bind(this, function(e)
+					fileHandle.queryPermission({mode: 'readwrite'}).then(mxUtils.bind(this, function(permission)
+					{
+						doSuccess(permission !== 'denied');
+					}));
+				}
+				else
 				{
-					doSuccess(false);
-				}));
+					fileHandle.createWritable().then(mxUtils.bind(this, function()
+					{
+						doSuccess(true);
+					}), mxUtils.bind(this, function(e)
+					{
+						doSuccess(false);
+					}));
+				}
 			});
 			
 			reader.onerror = error;

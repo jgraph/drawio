@@ -6100,7 +6100,8 @@
 						}
 
 						// Adds padding for font metrics
-						size.height += (parseInt(measure.style.fontSize) / 4);
+						size = new mxRectangle(x, y, size.width, size.height +
+							(parseInt(measure.style.fontSize) / 4));
 
 						// Sequence of async conversion to images
 						convert.push(mxUtils.bind(this, function(next)

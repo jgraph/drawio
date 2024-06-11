@@ -1,3 +1,10 @@
+11-JUN-2024: 24.5.3
+
+- Fixes show start screen option [drawio-desktop-1738]
+- Fixes fallback text position [drawio-desktop-1624]
+- Removes control characters in link check
+- Uses current unit in line position (start, end) in Format panel - Arrange [drawio-1915]
+
 07-JUN-2024: 24.5.2
 
 - [conf cloud] Adds Drive file access and app check to embed macro

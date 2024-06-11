@@ -2764,6 +2764,7 @@ ArrangePanel.prototype.addEdgeGeometryHandler = function(input, fn)
  */
 ArrangePanel.prototype.addEdgeGeometry = function(container)
 {
+	var panel = this;
 	var ui = this.editorUi;
 	var graph = ui.editor.graph;
 	var rect = ui.getSelectionState();
@@ -2819,14 +2820,14 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 	mxUtils.write(span, mxResources.get('linestart'));
 	divs.appendChild(span);
 
-	var xs = this.addUnitInput(divs, 'pt', 87, 52, function()
+	var xs = this.addUnitInput(divs, this.getUnit(), 87, 52, function()
 	{
 		xsUpdate.apply(this, arguments);
-	});
-	var ys = this.addUnitInput(divs, 'pt', 16, 52, function()
+	}, this.getUnitStep(), null, null, this.isFloatUnit());
+	var ys = this.addUnitInput(divs, this.getUnit(), 16, 52, function()
 	{
 		ysUpdate.apply(this, arguments);
-	});
+	}, this.getUnitStep(), null, null, this.isFloatUnit());
 
 	mxUtils.br(divs);
 	this.addLabel(divs, mxResources.get('left'), 87, 64);
@@ -2845,14 +2846,14 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 	mxUtils.write(span, mxResources.get('lineend'));
 	divt.appendChild(span);
 
-	var xt = this.addUnitInput(divt, 'pt', 87, 52, function()
+	var xt = this.addUnitInput(divt, this.getUnit(), 87, 52, function()
 	{
 		xtUpdate.apply(this, arguments);
-	});
-	var yt = this.addUnitInput(divt, 'pt', 16, 52, function()
+	}, this.getUnitStep(), null, null, this.isFloatUnit());
+	var yt = this.addUnitInput(divt, this.getUnit(), 16, 52, function()
 	{
 		ytUpdate.apply(this, arguments);
-	});
+	}, this.getUnitStep(), null, null, this.isFloatUnit());
 
 	mxUtils.br(divt);
 	this.addLabel(divt, mxResources.get('left'), 87, 64);
@@ -2889,8 +2890,8 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 			if (geo != null && geo.sourcePoint != null &&
 				graph.model.getTerminal(cell, true) == null)
 			{
-				xs.value = geo.sourcePoint.x;
-				ys.value = geo.sourcePoint.y;
+				xs.value = this.inUnit(geo.sourcePoint.x) + ' ' + this.getUnit();
+				ys.value = this.inUnit(geo.sourcePoint.y) + ' ' + this.getUnit();
 			}
 			else
 			{
@@ -2900,8 +2901,8 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 			if (geo != null && geo.targetPoint != null &&
 				graph.model.getTerminal(cell, false) == null)
 			{
-				xt.value = geo.targetPoint.x;
-				yt.value = geo.targetPoint.y;
+				xt.value = this.inUnit(geo.targetPoint.x) + ' ' + this.getUnit();
+				yt.value = this.inUnit(geo.targetPoint.y) + ' ' + this.getUnit();
 			}
 			else
 			{
@@ -2917,22 +2918,22 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 
 	xsUpdate = this.addEdgeGeometryHandler(xs, function(geo, value)
 	{
-		geo.sourcePoint.x = value;
+		geo.sourcePoint.x = panel.fromUnit(value);
 	});
 
 	ysUpdate = this.addEdgeGeometryHandler(ys, function(geo, value)
 	{
-		geo.sourcePoint.y = value;
+		geo.sourcePoint.y = panel.fromUnit(value);
 	});
 
 	xtUpdate = this.addEdgeGeometryHandler(xt, function(geo, value)
 	{
-		geo.targetPoint.x = value;
+		geo.targetPoint.x = panel.fromUnit(value);
 	});
 
 	ytUpdate = this.addEdgeGeometryHandler(yt, function(geo, value)
 	{
-		geo.targetPoint.y = value;
+		geo.targetPoint.y = panel.fromUnit(value);
 	});
 
 	graph.getModel().addListener(mxEvent.CHANGE, listener);
