@@ -16,15 +16,17 @@ Examples of behavior that contributes to creating a positive environment include
 
 Examples of unacceptable behavior by participants include:
 
-* The use of sexualized language or imagery and unwelcome sexual attention or advances
-* Trolling, insulting/derogatory comments, and personal or political attacks
+* The use of sexualized language or imagery and unwelcome sexual attention or advances.
+* Trolling, insulting/derogatory comments, and personal or political attacks.
 * Public or private harassment, including focusing on individual developers when a topic should be broadly addressed.
-* Publishing others' private information, such as a physical or electronic address, without explicit permission
-* Other conduct which could reasonably be considered inappropriate in a professional setting
-* Not respecting other people's time
-* Being impatient or rude
-* Pressing developers for priority fixes or ETAs
-* Guilting the developers into focusing on your issue(s)
+* Publishing others' private information, such as a physical or electronic address, without explicit permission.
+* Other conduct which could reasonably be considered inappropriate in a professional setting.
+* Not respecting other people's time.
+* Being impatient or rude.
+* Pressing developers for priority fixes or ETAs.
+* Guilting the developers into focusing on your issue(s).
+* Ignoring that a request has been declined and repeating your point over and over .
+* "X app has it, why don't you?"
 * Repeatedly showing an inappropriate level of entitlement, asking for issue status, or bumping issues.
 
 ## Our Responsibilities

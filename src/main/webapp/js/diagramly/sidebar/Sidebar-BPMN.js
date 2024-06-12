@@ -69,7 +69,7 @@
 			this.addDataEntry('container swimlane pool vertical', 380, 480, 'Vertical Pool 2',
 				'xZTfboMgFIefhnv+uGbXtVtv2qSJT0D0pJChGKRT+/Q7Cs5trYk3XS9MON/hJ/CFQERadnsna3W0BRgi3ohInbU+jMouBWMIp7ogYkc4p/gR/r7QZWOX1tJB5dcEeAh8SnOBQE7WmgAb35sIm1aXRlZYbZUvcZc7hsNcaVMcZG8vw1qNl/nHVG0dNPoKp2kj7A86yg4pRYox5zNsYM0HoKzTV1t5aeKMGWTDEvFvrdIeslrmQ7BFgcjiYcB56BaFjCja2IMtwbsep7S68CrMEK9BGlWgzyrGkgnKJoDzd3b2i4Oo+L5ucaP7MFjllK1UfmNr1ZH5/SPHQLwiPw0w/igDyZIB/kQDLPlPBS9LCsQzL8HmgQqwnJ+0sffrxfsC'),
 			this.createVertexTemplateEntry('swimlane;startSize=20;whiteSpace=wrap;html=1;', 120, 320, 'Lane', 'Vertical Swimlane', null, null, 'swimlane lane pool'),
-			this.createVertexTemplateEntry('points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];rounded=1;arcSize=10;dashed=1;strokeColor=#000000;fillColor=none;gradientColor=none;dashPattern=8 3 1 3;strokeWidth=2;whiteSpace=wrap;html=1;',
+			this.createVertexTemplateEntry('points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];rounded=1;arcSize=10;dashed=1;fillColor=none;gradientColor=none;dashPattern=8 3 1 3;strokeWidth=2;whiteSpace=wrap;html=1;',
 				200, 200, '', 'Group', null, null, this.getTagsForStencil('bpmn', 'group', 'bpmn business process model ').join(' ')),
 				
 			this.createEdgeTemplateEntry(s5 + 'none;startArrow=none;', ew, eh, '', 'Association', null, dt + 'association'),

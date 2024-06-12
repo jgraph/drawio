@@ -1,3 +1,10 @@
+12-JUN-2024: 24.5.4
+
+- Fixes link to members page for GitLab files [jgraph/drawio#4213]
+- Uses current unit in edge start/end/width/size/spacing in Format panel [jgraph/drawio#2993]
+- Fixes conflict dialog for deleted files in desktop
+- Fixes BPMN group shape in dark mode [jgraph/drawio#4471]
+
 11-JUN-2024: 24.5.3
 
 - Fixes show start screen option [drawio-desktop-1738]
