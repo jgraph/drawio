@@ -2424,24 +2424,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	}
 
 	ldiv.appendChild(dataLink);
-	
-	function renameLayer(layer)
-	{
-		if (graph.isEnabled() && layer != null)
-		{
-			var label = graph.convertValueToString(layer);
-			var dlg = new FilenameDialog(editorUi, label || mxResources.get('background'),
-				mxResources.get('rename'), mxUtils.bind(this, function(newValue)
-			{
-				if (newValue != null)
-				{
-					graph.cellLabelChanged(layer, newValue);
-				}
-			}), mxResources.get('enterName'));
-			editorUi.showDialog(dlg.container, 300, 100, true, true);
-			dlg.init();
-		}
-	};
+	var layerDivs = new mxDictionary();
 	
 	var duplicateLink = link.cloneNode(false);
 	duplicateLink.setAttribute('title', mxResources.get('duplicate'));
@@ -2495,16 +2478,19 @@ var LayersWindow = function(editorUi, x, y, w, h)
 		if (graph.isEnabled())
 		{
 			graph.model.beginUpdate();
+			var cell
 			
 			try
 			{
-				var cell = graph.addCell(new mxCell(mxResources.get('untitledLayer')), graph.model.root);
+				cell = graph.addCell(new mxCell(mxResources.get('untitledLayer')), graph.model.root);
 				graph.setDefaultParent(cell);
 			}
 			finally
 			{
 				graph.model.endUpdate();
 			}
+
+			renameLayer(cell);
 		}
 		
 		mxEvent.consume(evt);
@@ -2517,8 +2503,6 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	
 	ldiv.appendChild(addLink);
 	div.appendChild(ldiv);
-	
-	var layerDivs = new mxDictionary();
 	
 	var dot = document.createElement('span');
 	dot.setAttribute('title', mxResources.get('selectionOnly'));
@@ -2569,7 +2553,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			var ldiv = document.createElement('div');
 			ldiv.className = 'geToolbarContainer';
 			layerDivs.put(child, ldiv);
-
+			
 			ldiv.style.overflow = 'hidden';
 			ldiv.style.position = 'relative';
 			ldiv.style.padding = '4px';
@@ -2590,6 +2574,8 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			left.style.textOverflow = 'ellipsis';
 			left.style.overflow = 'hidden';
 			
+			var span = document.createElement('span');
+			
 			mxEvent.addListener(ldiv, 'dragover', function(evt)
 			{
 				evt.dataTransfer.dropEffect = 'move';
@@ -2600,13 +2586,16 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			
 			mxEvent.addListener(ldiv, 'dragstart', function(evt)
 			{
-				dragSource = ldiv;
-				
-				// Workaround for no DnD on DIV in FF
-				if (mxClient.IS_FF)
+				if (span.contentEditable != 'true')
 				{
-					// LATER: Check what triggers a parse as XML on this in FF after drop
-					evt.dataTransfer.setData('Text', '<layer/>');
+					dragSource = ldiv;
+					
+					// Workaround for no DnD on DIV in FF
+					if (mxClient.IS_FF)
+					{
+						// LATER: Check what triggers a parse as XML on this in FF after drop
+						evt.dataTransfer.setData('Text', '<layer/>');
+					}
 				}
 			});
 			
@@ -2721,16 +2710,16 @@ var LayersWindow = function(editorUi, x, y, w, h)
 
 			left.appendChild(btn);
 
-			var span = document.createElement('span');
 			mxUtils.write(span, label);
 			span.style.display = 'block';
 			span.style.whiteSpace = 'nowrap';
 			span.style.overflow = 'hidden';
 			span.style.textOverflow = 'ellipsis';
 			span.style.position = 'absolute';
+			span.style.padding = '2px';
 			span.style.left = '52px';
 			span.style.right = '8px';
-			span.style.top = '8px';
+			span.style.top = '6px';
 
 			left.appendChild(span);
 			ldiv.appendChild(left);
@@ -2818,7 +2807,8 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			{
 				var nodeName = mxEvent.getSource(evt).nodeName;
 				
-				if (nodeName != 'INPUT' && nodeName != 'IMG')
+				if (nodeName != 'INPUT' && nodeName != 'IMG' &&
+					span.contentEditable != 'true')
 				{
 					renameLayer(child);
 					mxEvent.consume(evt);
@@ -2834,7 +2824,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 
 			mxEvent.addListener(ldiv, 'click', function(evt)
 			{
-				if (graph.isEnabled())
+				if (graph.isEnabled() && span.contentEditable != 'true')
 				{
 					graph.setDefaultParent(defaultParent);
 					graph.view.setCurrentRoot(null);
@@ -2877,6 +2867,76 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	graph.model.addListener(mxEvent.CHANGE, refresh);
 	graph.addListener('defaultParentChanged', refresh);
 	editorUi.addListener('lockedChanged', refresh);
+
+	function renameLayer(layer)
+	{
+		if (graph.isEnabled() && layer != null)
+		{
+			var div = layerDivs.get(layer);
+
+			if (div != null)
+			{
+				var spans = div.getElementsByTagName('span');
+
+				if (spans != null && spans.length > 0)
+				{
+					var span = spans[0];
+					var oldValue = mxUtils.getTextContent(span);
+					span.style.textOverflow = '';
+					span.style.cursor = 'text';
+					span.contentEditable = 'true';
+					span.focus();
+					document.execCommand('selectAll', false, null);
+
+					// Stops drag and drop on parent div
+					div.removeAttribute('draggable');
+					div.style.cursor = '';
+
+					var stopEditing = function(applyValue)
+					{
+						if (span.contentEditable == 'true')
+						{
+							span.contentEditable = 'false';
+							var newValue = mxUtils.getTextContent(span);
+
+							if (applyValue && newValue != oldValue)
+							{
+								var newValue = mxUtils.getTextContent(span);
+
+								if (newValue.length > 0)
+								{
+									graph.cellLabelChanged(layer, newValue);
+								}
+								else
+								{
+									graph.cellLabelChanged(layer, mxResources.get('untitledLayer'));
+								}
+							}
+							else
+							{
+								refresh();
+							}
+						}
+					};
+
+					mxEvent.addListener(span, 'keydown', function(evt)
+					{
+						if (evt.keyCode == 13 || evt.keyCode == 27)
+						{
+							stopEditing(evt.keyCode == 13);
+							mxEvent.consume(evt);
+						}
+					});
+
+					mxEvent.addListener(span, 'blur', function(evt)
+					{
+						stopEditing(true);
+						mxEvent.consume(evt);
+					});
+				}
+			}
+		}
+	};
 	
 	graph.selectionModel.addListener(mxEvent.CHANGE, function()
 	{

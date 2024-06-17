@@ -4216,21 +4216,19 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 
 						// Captures child nodes
 						var children = [];
-
+						
 						for (var i = 0; i < title.children.length; i++)
 						{
 							children.push(title.children[i]);
-							title.removeChild(title.children[i]);
-						}			
+						}
 
-						var prev = title.innerHTML;
 						title.innerHTML = mxResources.get('loading') + '...';
 						
 						window.setTimeout(mxUtils.bind(this, function()
 						{
 							this.setContentVisible(content, true);
 							title.style.cursor = '';
-							title.innerHTML = prev;
+							title.innerHTML = '';
 
 							// Restores child nodes
 							for (var i = 0; i < children.length; i++)

@@ -1911,7 +1911,8 @@ mxGraph.prototype.getSelectionCellsForChanges = function(changes, ignoreFn)
 	var addCell = mxUtils.bind(this, function(cell)
 	{
 		if (cell != null && !dict.get(cell) &&
-			this.model.contains(cell))
+			this.model.contains(cell) &&
+			!this.model.isLayer(cell))
 		{
 			if (this.model.isEdge(cell) || this.model.isVertex(cell))
 			{

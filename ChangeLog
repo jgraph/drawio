@@ -1,3 +1,12 @@
+17-JUN-2024: 24.5.5
+
+- Simplifies publish dialog [jgraph/drawio#4346]
+- Allows image links in libraries [jgraph/drawio#4474]
+- Runs PNGs through pngquant with default settings
+- Fixes change of default connection style [jgraph/drawio#4479]
+- Fixes math rendering in revision compare view
+- Adds in-place editing for layer names [jgraph/drawio#902]
+
 12-JUN-2024: 24.5.4
 
 - Fixes link to members page for GitLab files [jgraph/drawio#4213]

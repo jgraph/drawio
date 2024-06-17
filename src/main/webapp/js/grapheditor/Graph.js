@@ -3304,9 +3304,9 @@ Graph.prototype.init = function(container)
 			// Ignores transparent stroke colors
 			if (keys[i] != 'strokeColor' || (values[i] != null && values[i] != 'none'))
 			{
-				if (mxUtils.indexOf(Graph.cellStyles, keys[i]) >= 0)
+				if (mxUtils.indexOf(Graph.cellStyles, keys[i]) >= 0 || keys[i] == 'shape')
 				{
-					if (vertex || common)
+					if (keys[i] != 'shape' && (vertex || common))
 					{
 						if (values[i] == null)
 						{

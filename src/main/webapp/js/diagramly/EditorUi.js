@@ -3820,7 +3820,6 @@
 	    buttons.style.backgroundColor = 'inherit';
 	    title.style.position = 'relative';
 	    
-	    var btnWidth = 18;
 		var btn = document.createElement('img');
 		btn.className = 'geAdaptiveAsset';
 		btn.setAttribute('src', Editor.crossImage);
@@ -4286,9 +4285,9 @@
 				var img = imgs[i];
 				var data = img.data;
 
-				if (data != null && data.substring(0, 5) == 'data:')
+				if (data != null)
 				{
-					data = this.convertDataUri(data);
+					data = (data.substring(0, 5) == 'data:') ? this.convertDataUri(data) : data;
 					var s = 'shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;';
 					
 					if (img.aspect == 'fixed')
@@ -6254,10 +6253,12 @@
 					if (value != null)
 					{
 						editUrl = value;
+						customOption.setAttribute('title', value);
 					}
 					else
 					{
 						editSelect.value = 'blank';
+						customOption.removeAttribute('title');
 					}
 				}, mxResources.get('url'), null, null, null, null, function()
 				{
@@ -6406,7 +6407,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.createUrlParameters = function(linkTarget, linkColor, allPages, lightbox, editLink, layers, params)
+	EditorUi.prototype.createUrlParameters = function(linkTarget, linkColor, lightbox, editLink, layers, params)
 	{
 		params = (params != null) ? params : [];
 		
@@ -6444,22 +6445,19 @@
 			}
 		}
 		
-		if (allPages && this.currentPage != null && this.pages != null &&
-			this.currentPage != this.pages[0])
-		{
-			params.push('page-id=' + this.currentPage.getId());
-		}
-		
 		return params;
 	};
 	
 	/**
 	 * 
 	 */
-	EditorUi.prototype.createLink = function(linkTarget, linkColor, allPages, lightbox, editLink, layers, url, ignoreFile, params, useOpenParameter)
+	EditorUi.prototype.createLink = function(linkTarget, linkColor, allPages, lightbox, editLink, layers,
+		url, ignoreFile, params, useOpenParameter, currentPage)
 	{
-		params = this.createUrlParameters(linkTarget, linkColor, allPages, lightbox, editLink, layers, params);
 		var file = this.getCurrentFile();
+		params = this.createUrlParameters(linkTarget, linkColor,
+			lightbox && (file == null || file.constructor != window.DriveFile),
+			editLink, layers, params);
 		var addTitle = true;
 		var data = '';
 
@@ -6469,10 +6467,8 @@
 		}
 		else
 		{
-			var file = this.getCurrentFile();
-
 			// Fallback to non-public URL for Drive files	
-			if (!ignoreFile && file != null && file.constructor == window.DriveFile)
+			if (!ignoreFile && file != null && file.getHash() != '')
 			{
 				data = '#' + file.getHash();
 				addTitle = false;
@@ -6495,9 +6491,14 @@
 			params.push('open=' + data.substring(1));
 			data = '';
 		}
+
+		if (currentPage && this.currentPage != null)
+		{
+			params.push('page-id=' + this.currentPage.getId());
+		}
 		
-		return ((lightbox && urlParams['dev'] != '1') ? EditorUi.lightboxHost :
-			(((mxClient.IS_CHROMEAPP || EditorUi.isElectronApp ||
+		return ((lightbox && file != null && file.constructor == window.DriveFile) ?
+			EditorUi.lightboxHost : (((mxClient.IS_CHROMEAPP || EditorUi.isElectronApp ||
 			!(/.*\.draw\.io$/.test(window.location.hostname))) ?
 			EditorUi.drawHost : 'https://' + window.location.host))) + '/' +
 			((params.length > 0) ? '?' + params.join('&') : '') + data;
@@ -6733,65 +6734,63 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.showPublishLinkDialog = function(title, hideShare, width, height, fn, showFrameOption, helpLink, footer)
+	EditorUi.prototype.showPublishLinkDialog = function(title, width, height, showFrameOption,
+		helpLink, footer, publicUrl, file, fn)
 	{
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
-		var graph = this.editor.graph;
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, title || mxResources.get('publish'));
-		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:12px';
+		hd.style.width = '100%';
+		hd.style.textAlign = 'center';
+		hd.style.marginTop = '2px';
+		hd.style.marginBottom = '20px';
 		div.appendChild(hd);
 		
-		var file = this.getCurrentFile();
+		var linkSelect = document.createElement('select');
 		var dy = 0;
-		
-		if (file != null && file.constructor == window.DriveFile && !hideShare)
+
+		if (publicUrl != null || (file != null && file.getHash() != ''))
 		{
-			dy = 80;
-			helpLink = (helpLink != null) ? helpLink : 'https://www.drawio.com/doc/faq/google-drive-publicly-publish-diagram';
-			var hintSection = document.createElement('div');
-			hintSection.style.cssText = 'border-bottom:1px solid lightGray;padding-bottom:14px;padding-top:6px;margin-bottom:14px;text-align:center;';
-			
-			var text = document.createElement('div');
-			text.style.whiteSpace = 'normal';
-			mxUtils.write(text, mxResources.get('linkAccountRequired'));
-			hintSection.appendChild(text);
-			
-			var shareBtn = mxUtils.button(mxResources.get('share'), mxUtils.bind(this, function()
+			dy = 30;
+
+			linkSelect.className = 'geBtn';
+			linkSelect.style.marginBottom = '8px';
+			linkSelect.style.marginLeft = '0px';
+			linkSelect.style.width = '100%';
+			linkSelect.style.boxSizing = 'border-box';
+
+			var authRequired = document.createElement('option');
+			mxUtils.write(authRequired, mxResources.get('authorizationRequired'));
+			authRequired.setAttribute('value', 'auth');
+			linkSelect.appendChild(authRequired);
+
+			if (file == null || file.getHash() == '')
 			{
-				this.drive.showPermissions(file.getId(), file);
-			}));
-			
-			shareBtn.style.marginTop = '12px';
-			shareBtn.className = 'geBtn';
-			hintSection.appendChild(shareBtn);
-			div.appendChild(hintSection);
-			
-			var testLink = document.createElement('a');
-			testLink.style.paddingLeft = '12px';
-			testLink.style.color = 'gray';
-			testLink.style.fontSize = '11px';
-			testLink.style.cursor = 'pointer';
-			mxUtils.write(testLink, mxResources.get('check'));
-			hintSection.appendChild(testLink);
-			
-			mxEvent.addListener(testLink, 'click', mxUtils.bind(this, function()
+				authRequired.setAttribute('disabled', 'disabled');
+			}
+
+			var publicLink = document.createElement('option');
+			publicLink.setAttribute('value', 'public');
+			linkSelect.appendChild(publicLink);
+
+			if (publicUrl != null)
 			{
-				if (this.spinner.spin(document.body, mxResources.get('loading')))
-				{
-					this.getPublicUrl(this.getCurrentFile(), mxUtils.bind(this, function(url)
-					{
-						this.spinner.stop();
-						
-						var dlg = new ErrorDialog(this, null, mxResources.get((url != null) ?
-							'diagramIsPublic' : 'diagramIsNotPublic'), mxResources.get('ok'));
-						this.showDialog(dlg.container, 300, 80, true, false);
-						dlg.init();
-					}));
-				}
-			}));
+				mxUtils.write(publicLink, mxResources.get('publicDiagramUrl'));
+				publicLink.setAttribute('title', publicUrl);
+				linkSelect.value = 'public';
+			}
+			else
+			{
+				mxUtils.write(publicLink, mxResources.get('publicDiagramUrl') +
+					' (' + mxResources.get('diagramIsNotPublic') + ')');
+				publicLink.setAttribute('disabled', 'disabled');
+			}
+			
+			div.appendChild(linkSelect);
+			mxUtils.br(div);
+			linkSelect.focus();
 		}
 		else
 		{
@@ -6831,15 +6830,24 @@
 		}
 		
 		var linkSection = this.addLinkSection(div, showFrameOption);
-		var hasPages = this.pages != null && this.pages.length > 1;
-		var allPages = null;
+		var currentPage = null;
 		
-		if (file == null || file.constructor != window.DriveFile || hideShare)
+		if (this.pages != null && this.currentPage != null &&
+			this.getPageIndex(this.currentPage) > 0)
 		{
-			allPages = this.addCheckbox(div, mxResources.get('allPages'), hasPages, !hasPages);
+			dy += 30;
+			var name = (this.currentPage != null) ? this.currentPage.getName() : '';
+
+			if (name.length > 16)
+			{
+				name = name.substring(0, 16) + '...';
+			}
+
+			currentPage = this.addCheckbox(div, mxResources.get('currentPage') + ': ' + name);
 		}
-		
-		var lightbox = this.addCheckbox(div, mxResources.get('lightbox'), true, null, null, !showFrameOption);
+
+		var lightbox = this.addCheckbox(div, mxResources.get('lightbox'),
+			true, null, null, !showFrameOption);
 		var editSection = this.addEditButton(div, lightbox);
 		var edit = editSection.getEditInput();
 
@@ -6854,7 +6862,7 @@
 		var layers = this.addCheckbox(div, mxResources.get('layers'), true);
 		layers.style.marginLeft = edit.style.marginLeft;
 		layers.style.marginTop = '8px';
-				
+		
 		var tags = this.addCheckbox(div, mxResources.get('tags'), true);
 		tags.style.marginLeft = edit.style.marginLeft;
 		tags.style.marginBottom = '16px';
@@ -6866,11 +6874,13 @@
 			{
 				layers.removeAttribute('disabled');
 				edit.removeAttribute('disabled');
+				tags.removeAttribute('disabled');
 			}
 			else
 			{
 				layers.setAttribute('disabled', 'disabled');
 				edit.setAttribute('disabled', 'disabled');
+				tags.setAttribute('disabled', 'disabled');
 			}
 			
 			if (edit.checked && lightbox.checked)
@@ -6886,12 +6896,13 @@
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
 			fn(linkSection.getTarget(), linkSection.getColor(),
-				(allPages == null) ? true : allPages.checked,
-				lightbox.checked, editSection.getLink(),
-				layers.checked, (widthInput != null) ? widthInput.value : null,
-				(heightInput != null) ? heightInput.value : null, tags.checked);
+				(currentPage == null) ? false : currentPage.checked,
+				lightbox.checked, editSection.getLink(), layers.checked,
+				(widthInput != null) ? widthInput.value : null,
+				(heightInput != null) ? heightInput.value : null,
+				tags.checked, linkSelect.value);
 		}), null, mxResources.get('create'), helpLink, footer);
-		this.showDialog(dlg.container, 340, 300 + dy, true, true);
+		this.showDialog(dlg.container, 340, 296 + dy, true, true);
 		
 		if (widthInput != null)
 		{
@@ -6906,7 +6917,7 @@
 				document.execCommand('selectAll', false, null);
 			}
 		}
-		else
+		else (linkSelect.parentNode == null)
 		{
 			linkSection.focus();
 		}
@@ -12195,7 +12206,8 @@
 			var source = mxEvent.getSource(evt);
 			
 			if (graph.container != null && graph.isEnabled() && !graph.isMouseDown && !graph.isEditing() &&
-				this.dialog == null && source.nodeName != 'INPUT' && source.nodeName != 'TEXTAREA')
+				this.dialog == null && source.nodeName != 'INPUT' && source.nodeName != 'TEXTAREA' &&
+				source.contentEditable != 'true')
 			{
 				if (evt.keyCode == 224 /* FF */ || (!mxClient.IS_MAC && evt.keyCode == 17 /* Control */) ||
 					(mxClient.IS_MAC && (evt.keyCode == 91 || evt.keyCode == 93) /* Left/Right Meta */))
@@ -16163,7 +16175,14 @@
 	{
 		if (file != null)
 		{
-			file.getPublicUrl(fn);
+			if (this.spinner.spin(document.body, mxResources.get('loading')))
+			{
+				file.getPublicUrl(mxUtils.bind(this, function(url)
+				{
+					this.spinner.stop();
+					fn(url);
+				}));
+			}
 		}
 		else
 		{

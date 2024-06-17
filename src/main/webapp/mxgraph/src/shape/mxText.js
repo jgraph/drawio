@@ -497,7 +497,9 @@ mxText.prototype.updateBoundingBox = function()
 		if (node.ownerSVGElement != null)
 		{
 			if (node.firstChild != null && node.firstChild.firstChild != null &&
-				node.firstChild.firstChild.nodeName == 'foreignObject')
+				node.firstChild.firstChild.nodeName == 'foreignObject' &&
+				node.firstChild.firstChild.firstChild != null &&
+				node.firstChild.firstChild.firstChild.firstChild != null)
 			{
 				// Uses second inner DIV for font metrics
 				node = node.firstChild.firstChild.firstChild.firstChild;

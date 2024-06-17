@@ -2002,38 +2002,6 @@ EditorUi.prototype.addTabListeners = function(page, tab)
 };
 
 /**
- * Returns an absolute URL to the given page or null of absolute links
- * to pages are not supported in this file.
- */
-EditorUi.prototype.getLinkForPage = function(page, params, lightbox)
-{
-	if (page != null && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
-	{
-		var file = this.getCurrentFile();
-		
-		if (file != null && file.constructor != LocalFile && this.getServiceName() == 'draw.io')
-		{
-			var search = this.getSearch(['create', 'title', 'mode', 'url', 'drive', 'splash',
-				'state', 'clibs', 'ui', 'viewbox', 'hide-pages', 'sketch']);
-			search += ((search.length == 0) ? '?' : '&') + 'page-id=' + page.getId();
-			
-			if (params != null)
-			{
-				search += '&' + params.join('&');
-			}
-			
-			return ((lightbox && urlParams['dev'] != '1') ? EditorUi.lightboxHost :
-				(((mxClient.IS_CHROMEAPP || EditorUi.isElectronApp ||
-				!(/.*\.draw\.io$/.test(window.location.hostname))) ?
-				EditorUi.drawHost : 'https://' + window.location.host))) +
-				'/' + search + '#' + file.getHash();
-		}
-	}
-	
-	return null;
-};
-
-/**
  * Returns true if the given string contains an mxfile.
  */
 EditorUi.prototype.createPageMenu = function(page, label)
@@ -2042,16 +2010,6 @@ EditorUi.prototype.createPageMenu = function(page, label)
 	{
 		if (urlParams['embed'] != 1)
 		{
-			var url = this.getLinkForPage(page);
-
-			if (url != null)
-			{
-				menu.addItem(mxResources.get('link') + '...', null, mxUtils.bind(this, function()
-				{
-					this.showPageLinkDialog(page);
-				}));
-			}
-			
 			if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && this.getServiceName() == 'draw.io')
 			{
 				menu.addItem(mxResources.get('openInNewWindow'), null, mxUtils.bind(this, function()
@@ -2059,8 +2017,6 @@ EditorUi.prototype.createPageMenu = function(page, label)
 					this.editor.editAsNew(this.getFileData(true, null, null, null, true, true));
 				}), parent);
 			}
-
-			menu.addSeparator(parent);
 		}
 
 		menu.addItem(mxResources.get('duplicate'), null, mxUtils.bind(this, function()
@@ -2085,44 +2041,6 @@ EditorUi.prototype.createPageMenu = function(page, label)
 			this.renamePage(page, label);
 		}), parent);
 	});
-};
-
-/**
- * Returns true if the given string contains an mxfile.
- */
-EditorUi.prototype.showPageLinkDialog = function(page)
-{
-	var graph = this.editor.graph;
-
-	this.showPublishLinkDialog(mxResources.get('url'), true, null, null,
-		mxUtils.bind(this, function(linkTarget, linkColor, allPages, lightbox, editLink, layers)
-	{
-		var params = this.createUrlParameters(linkTarget, linkColor, allPages, lightbox, editLink, layers);
-		
-		if (!allPages)
-		{
-			params.push('hide-pages=1');
-		}
-		
-		if (!graph.isSelectionEmpty())
-		{
-			var bounds = graph.getBoundingBox(graph.getSelectionCells());
-					
-			var t = graph.view.translate;
-			var s = graph.view.scale;
-			bounds.width /= s;
-			bounds.height /= s;
-			bounds.x = bounds.x / s - t.x;
-			bounds.y = bounds.y / s - t.y;
-		
-			params.push('viewbox=' + encodeURIComponent(JSON.stringify({x: Math.round(bounds.x), y: Math.round(bounds.y),
-				width: Math.round(bounds.width), height: Math.round(bounds.height), border: 100})));
-		}
-		
-		var dlg = new EmbedDialog(this, this.getLinkForPage(page, params, lightbox));
-		this.showDialog(dlg.container, 450, 240, true, true);
-		dlg.init();
-	}));
 };
 
 //Overrides ChangePageSetup codec to exclude page

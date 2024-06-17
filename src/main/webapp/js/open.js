@@ -16,8 +16,11 @@ function handleSubmit()
 // Hides this dialog
 function hideWindow(cancel)
 {
-	window.parent.openFile.cancel(cancel);
-}
+	if (window.parent.openFile != null)
+	{
+		window.parent.openFile.cancel(cancel);
+	}
+};
 
 function fileChanged()
 {
@@ -32,7 +35,7 @@ function fileChanged()
 	{
 		openButton.setAttribute('disabled', 'disabled');
 	}		
-}
+};
 
 function main()
 {
