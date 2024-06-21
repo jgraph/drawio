@@ -30,6 +30,7 @@ allTags=Tất cả Tags
 anchor=Neo
 android=Android
 angle=Góc
+animations=Hoạt Hình
 arc=Arc
 areYouSure=Bạn chắc chắn chứ?
 ensureDataSaved=Hãy chắc chắn rằng dữ liệu đã được lưu trước khi đóng.

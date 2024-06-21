@@ -30,6 +30,7 @@ allTags=Všechny štítky
 anchor=Kotva
 android=Android
 angle=Úhel
+animations=Animace
 arc=Oblouk
 areYouSure=Opravdu to chcete?
 ensureDataSaved=Před uzavřením se ujistěte, že vaše data jsou uložena.

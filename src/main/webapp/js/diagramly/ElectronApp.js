@@ -1811,28 +1811,43 @@ mxStencilRegistry.allowEval = false;
 	App.prototype.checkForUpdates = function()
 	{
 		electron.sendMessage('checkForUpdates');
-	}
+	};
 	
 	App.prototype.toggleSpellCheck = function()
 	{
 		electron.sendMessage('toggleSpellCheck');
-	}
+	};
 
 	App.prototype.toggleStoreBkp = function()
 	{
 		electron.sendMessage('toggleStoreBkp');
-	}
+	};
 	
 	App.prototype.toggleGoogleFonts = function()
 	{
 		electron.sendMessage('toggleGoogleFonts');
-	}
+	};
 
 	App.prototype.openDevTools = function()
 	{
 		electron.sendMessage('openDevTools');
-	}
-	
+	};
+		
+	App.prototype.desktopZoomIn = function()
+	{
+		electron.sendMessage('zoomIn');
+	};
+
+	App.prototype.desktopZoomOut = function()
+	{
+		electron.sendMessage('zoomOut');
+	};
+
+	App.prototype.desktopResetZoom = function()
+	{
+		electron.sendMessage('resetZoom');
+	};
+
 	/**
 	 * Copies the given cells and XML to the clipboard as an embedded image.
 	 */

@@ -36,7 +36,7 @@ try
 		document.body.appendChild(link);
 
 		if ((/test\.draw\.io$/.test(window.location.hostname)) ||
-			(/stage\.diagrams\.net$/.test(window.location.hostname)) ||
+			(/preprod\.diagrams\.net$/.test(window.location.hostname)) ||
 			(/app\.diagrams\.net$/.test(window.location.hostname)))
 		{
 			link = link.cloneNode(false);

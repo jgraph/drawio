@@ -82,9 +82,9 @@ mxTooltipHandler.prototype.destroyed = false;
 /**
  * Variable: enabled
  * 
- * Specifies if events are handled. Default is true.
+ * Specifies if events are handled. Default is false.
  */
-mxTooltipHandler.prototype.enabled = true;
+mxTooltipHandler.prototype.enabled = false;
 
 /**
  * Function: isEnabled

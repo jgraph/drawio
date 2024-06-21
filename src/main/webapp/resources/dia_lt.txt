@@ -30,6 +30,7 @@ allTags=Visos žymės
 anchor=Inkaras
 android=Android
 angle=Kampas
+animations=Animacijos
 arc=Lankas
 areYouSure=Ar tu tuo tikras?
 ensureDataSaved=Prieš uždarydami įsitikinkite, kad jūsų duomenys buvo išsaugoti.

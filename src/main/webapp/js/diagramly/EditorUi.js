@@ -2467,7 +2467,8 @@
 			extras.grid = {
 				size: graph.gridSize,
 				steps: graph.view.gridSteps,
-				color: graph.view.gridColor
+				color: (Editor.isDarkMode() && format == 'pdf') ?
+					mxGraphView.prototype.defaultGridColor : graph.view.gridColor
 			};
 		}
 		
@@ -11722,7 +11723,7 @@
 			}), false);
 		}
 
-		graph.enableFlowAnimation = true;
+		graph.enableFlowAnimation = Editor.enableAnimations;
 		this.initPages();
 
 		// Embedded mode
@@ -15141,7 +15142,9 @@
 				{
 					pv.gridSize = thisGraph.gridSize;
 					pv.gridSteps = thisGraph.view.gridSteps;
-					pv.gridColor = thisGraph.view.gridColor;
+					pv.gridColor = Editor.isDarkMode() ?
+						mxGraphView.prototype.defaultGridColor :
+						thisGraph.view.gridColor;
 				}
 
 				pv.open(null, null, forcePageBreaks, true, anchorId, pf,
@@ -15172,7 +15175,9 @@
 				{
 					pv.gridSize = thisGraph.gridSize;
 					pv.gridSteps = thisGraph.view.gridSteps;
-					pv.gridColor = thisGraph.view.gridColor;
+					pv.gridColor = Editor.isDarkMode() ?
+						mxGraphView.prototype.defaultGridColor :
+						thisGraph.view.gridColor;
 				}
 
 				pv.appendGraph(thisGraph, scale, x0, y0, forcePageBreaks, true, anchorId, pf,

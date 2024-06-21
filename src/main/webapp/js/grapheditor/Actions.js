@@ -1076,7 +1076,7 @@ Actions.prototype.init = function()
 		{
 			graph.zoomIn();
 		}
-	}, null, null, Editor.ctrlKey + ' + (Numpad) / Alt+Mousewheel');
+	}, null, null, Editor.ctrlKey + ' + / Alt+Mousewheel');
 	this.addAction('zoomOut', function(evt)
 	{
 		if (graph.isFastZoomEnabled())
@@ -1087,7 +1087,7 @@ Actions.prototype.init = function()
 		{
 			graph.zoomOut();
 		}
-	}, null, null, Editor.ctrlKey + ' - (Numpad) / Alt+Mousewheel');
+	}, null, null, Editor.ctrlKey + ' - / Alt+Mousewheel');
 	this.addAction('fitWindow', function()
 	{
 		if (graph.pageVisible && graph.isSelectionEmpty())

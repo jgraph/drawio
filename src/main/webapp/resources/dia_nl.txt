@@ -30,6 +30,7 @@ allTags=Alle tags
 anchor=Anker
 android=Android
 angle=Hoek
+animations=Animaties
 arc=Boog
 areYouSure=Weet u het zeker?
 ensureDataSaved=Zorg dat uw gegevens zijn opgeslagen alvorens af te sluiten.

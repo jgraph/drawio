@@ -30,6 +30,7 @@ allTags=Всички тагове
 anchor=Котва
 android=Android
 angle=Ъгъл
+animations=Анимации
 arc=Дъга
 areYouSure=Сигурни ли сте?
 ensureDataSaved=Моля уверете се, че цялата Ви информация е запазена, преди да затворите.

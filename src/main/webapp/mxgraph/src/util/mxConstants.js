@@ -1779,6 +1779,16 @@
 	STYLE_AUTOSIZE: 'autosize',
 
 	/**
+	 * Variable: STYLE_AUTOSIZE_GRID
+	 * 
+	 * Defines if the grid should be used for autosize. Default is null, meaning
+	 * the current state of gridEnabled in the graph is used. Possible values are
+	 * null, 0 or 1, meaning use default, ignore or use the grid. Value is
+	 * "autosizeGrid".
+	 */
+	STYLE_AUTOSIZE_GRID: 'autosizeGrid',
+
+	/**
 	 * Variable: STYLE_FIXED_WIDTH
 	 * 
 	 * Defines the key for the fixedWidth style. This specifies if the width should

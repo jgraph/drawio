@@ -30,6 +30,7 @@ allTags=Etiketa guztiak
 anchor=Aingura
 android=Android
 angle=Angelua
+animations=Animazioak
 arc=Arkua
 areYouSure=Ziur al zaude?
 ensureDataSaved=Egiaztatu zure datuak gordeta daudela itxi aurretik.

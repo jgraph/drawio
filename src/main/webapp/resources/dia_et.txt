@@ -30,6 +30,7 @@ allTags=Kõik sildid
 anchor=Ankur
 android=Android
 angle=Nurk
+animations=Animatsioonid
 arc=Kaar
 areYouSure=Oled kindel?
 ensureDataSaved=Kontrolli enne sulgemist andmete salvestumist.

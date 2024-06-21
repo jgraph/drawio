@@ -6468,9 +6468,16 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	keyHandler.bindControlShiftKey(35, function() { graph.enterGroup(); }); // Ctrl+Shift+End
 	keyHandler.bindShiftKey(36, function() { graph.home(); }); // Ctrl+Shift+Home
 	keyHandler.bindKey(35, function() { graph.refresh(); }); // End
-	keyHandler.bindAction(107, true, 'zoomIn'); // Ctrl+Plus
-	keyHandler.bindAction(109, true, 'zoomOut'); // Ctrl+Minus
 	keyHandler.bindAction(80, true, 'print'); // Ctrl+P
+	
+	// Zoom keys are best effort for international keyboards, the actual
+	// US keycodes for + is 192 and - is 173. Keypad + is 107 and - is 109.
+	keyHandler.bindAction(107, true, 'zoomIn'); // Ctrl+Plus (Numpad)
+	keyHandler.bindAction(109, true, 'zoomOut'); // Ctrl+Minus (Numpad)
+	keyHandler.bindAction(192, true, 'zoomIn'); // Ctrl + (US)
+	keyHandler.bindAction(222, true, 'zoomIn'); // Ctrl Minus (CH: '/?)
+	keyHandler.bindAction(173, true, 'zoomOut'); // Ctrl - (US)
+	keyHandler.bindAction(189, true, 'zoomOut'); // Ctrl Slash (CH: -/_)
 	
 	if (!this.editor.chromeless || this.editor.editable)
 	{

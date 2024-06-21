@@ -30,6 +30,7 @@ allTags=Totes les etiquetes
 anchor=Enllaç
 android=Android
 angle=Angle
+animations=Animacions
 arc=Arc
 areYouSure=Esteu segur?
 ensureDataSaved=Si us plau, assegureu-vos d'haver desat les dades abans de tancar.

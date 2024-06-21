@@ -1518,16 +1518,32 @@
 					{
 						editorUi.checkForUpdates();
 					});
-					
+
+					editorUi.actions.put('desktopZoomIn', new Action(mxResources.get('zoomIn'), function()
+					{
+						editorUi.desktopZoomIn();
+					}));
+
+					editorUi.actions.put('desktopZoomOut', new Action(mxResources.get('zoomOut'), function()
+					{
+						editorUi.desktopZoomOut();
+					}));
+
+					editorUi.actions.put('desktopResetZoom', new Action(mxResources.get('actualSize'), function()
+					{
+						editorUi.desktopResetZoom();
+					}));
+
 					this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart',
 						'website', 'support', '-'], parent);
 
 					if (urlParams['disableUpdate'] != '1')
 					{
-						this.addMenuItems(menu, ['check4Updates'], parent);
+						this.addMenuItems(menu, ['check4Updates', '-'], parent);
 					}
 
-					this.addMenuItems(menu, ['openDevTools', '-', 'about'], parent);
+					this.addMenuItems(menu, ['desktopResetZoom', 'desktopZoomIn',
+						'desktopZoomOut', '-', 'openDevTools', '-', 'about'], parent);
 				}
 				else
 				{
@@ -3499,7 +3515,7 @@
 			{
 				editorUi.handleError(e);
 			}
-		}));
+		})).isEnabled = isGraphEnabled;
 
 		this.put('embed', new Menu(mxUtils.bind(this, function(menu, parent)
 		{

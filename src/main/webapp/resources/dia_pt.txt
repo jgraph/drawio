@@ -30,6 +30,7 @@ allTags=Todas as marcas
 anchor=Âncora
 android=Android
 angle=Ângulo
+animations=Animações
 arc=Arc
 areYouSure=Tem a certeza?
 ensureDataSaved=Por favor, assegure-se de guardar os seus dados antes de fechar.
