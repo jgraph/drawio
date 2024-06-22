@@ -30,7 +30,6 @@ allTags=Kaikki tägit
 anchor=Ankkuri
 android=Android
 angle=Kulma
-animations=Animaatioita
 arc=Kaari
 areYouSure=Oletko varma?
 ensureDataSaved=Ole hyvä ja tarkista, että tietosi on tallennettu ennen sulkemista.

@@ -30,7 +30,6 @@ allTags=allTags
 anchor=anchor
 android=android
 angle=angle
-animations=animations
 arc=arc
 areYouSure=areYouSure
 ensureDataSaved=ensureDataSaved

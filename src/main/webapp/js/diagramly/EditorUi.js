@@ -7175,9 +7175,55 @@
 			height += 30;
 		}
 		
-		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'),
+		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram') + ':',
 			defaultInclude, null, null, format != 'jpeg' && format != 'webp');
-		include.style.marginBottom = '16px';
+		
+		var includeSelect = document.createElement('select');
+		includeSelect.style.maxWidth = '260px';
+		includeSelect.style.marginLeft = '28px';
+
+		if (format == 'png' || format == 'svg')
+		{
+			var includeAllPagesOption = document.createElement('option');
+			includeAllPagesOption.setAttribute('value', 'allPages');
+			mxUtils.write(includeAllPagesOption, mxResources.get('allPages'));
+			includeSelect.appendChild(includeAllPagesOption);
+
+			var includeCurrentPageOption = document.createElement('option');
+			includeCurrentPageOption.setAttribute('value', 'currentPage');
+			mxUtils.write(includeCurrentPageOption, mxResources.get('currentPage'));
+			includeSelect.appendChild(includeCurrentPageOption);
+
+			include.style.marginBottom = '12px';
+			includeSelect.style.marginBottom = '16px';
+			div.appendChild(includeSelect);
+			mxUtils.br(div);
+			height += 20;
+
+			if (this.lastEmbedInclude != null)
+			{
+				includeSelect.value = this.lastEmbedInclude;
+			}
+
+			function updateIncludeSelect()
+			{
+				if (include.checked)
+				{
+					includeSelect.removeAttribute('disabled');
+				}
+				else
+				{
+					includeSelect.setAttribute('disabled', 'disabled');
+				}
+			};
+
+			mxEvent.addListener(include, 'change', updateIncludeSelect);
+			updateIncludeSelect();
+		}
+		else
+		{
+			include.style.marginBottom = '16px';
+		}
 		
 		var cb5 = document.createElement('input');
 		cb5.style.marginBottom = '16px';
@@ -7203,7 +7249,7 @@
 			mxUtils.write(div, mxResources.get('embedFonts'));
 			mxUtils.br(div);
 			
-			height += 60;
+			height += 50;
 		}
 
 		var linkSelect = document.createElement('select');
@@ -7247,10 +7293,13 @@
 			this.lastExportZoom = zoomInput.value;
 			this.lastEmbedImages = cb5.checked;
 			this.lastEmbedFonts = cb7.checked;
+			this.lastEmbedInclude = includeSelect.value;
 
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
-				include.checked, cb5.checked && embedOption, borderInput.value, cb6.checked, false, linkSelect.value,
-				(grid != null) ? grid.checked : null, (themeSelect != null) ? themeSelect.value : null,
+				include.checked, cb5.checked && embedOption, borderInput.value, cb6.checked,
+				(format == 'png' || format == 'svg') && includeSelect.value == 'currentPage',
+				linkSelect.value, (grid != null) ? grid.checked : null,
+				(themeSelect != null) ? themeSelect.value : null,
 				exportSelect.value, cb7.checked);
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 340, height, true, true, null, null, null, null, true);

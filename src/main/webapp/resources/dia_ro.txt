@@ -30,7 +30,6 @@ allTags=Toate etichetele
 anchor=Ancoră
 android=Android
 angle=Unghi
-animations=Animatii
 arc=Arc
 areYouSure=Sigur?
 ensureDataSaved=Asigură-te ca ai salvat datele înainte de a închide.

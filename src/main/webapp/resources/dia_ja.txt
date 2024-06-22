@@ -30,7 +30,6 @@ allTags=すべてのタグ
 anchor=アンカー
 android=Android
 angle=角度
-animations=アニメーション
 arc=円弧
 areYouSure=よろしいですか？
 ensureDataSaved=終了する前にデータが保存されていることを確認してください。

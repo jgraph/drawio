@@ -30,7 +30,6 @@ allTags=Ĉiuj etikedoj
 anchor=Ankro
 android=Android
 angle=Angulo
-animations=Animacioj
 arc=Arc
 areYouSure=Ĉu vi certas?
 ensureDataSaved=Please ensure your data is saved before closing.

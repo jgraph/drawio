@@ -712,7 +712,7 @@
 					if (!isNaN(val) && val > 0)
 					{
 						editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
-							addShadow, editable, embedImages, border, !cropImage, false,
+							addShadow, editable, embedImages, border, !cropImage, currentPage,
 							linkTarget, theme, exportType, embedFonts);
 					}
 				}), true, editorUi.lastExportSvgEditable, 'svg', true);
@@ -733,12 +733,13 @@
 						{
 							editorUi.exportImage(val / 100, transparentBackground && format == 'png',
 								ignoreSelection, addShadow, editable && format == 'png', border,
-								!cropImage, false, format, grid, null, theme, exportType);
+								!cropImage, currentPage, format, grid, null, theme, exportType);
 
 							if (done != null)
 							{
-								done(scale, transparentBackground, ignoreSelection, addShadow, editable, embedImages,
-									border, cropImage, currentPage, dummy, grid, theme, exportType);
+								done(scale, transparentBackground, ignoreSelection, addShadow,
+									editable, embedImages, border, cropImage, currentPage,
+									dummy, grid, theme, exportType);
 							}
 						}
 					}), true, defaultEditable, format, true);

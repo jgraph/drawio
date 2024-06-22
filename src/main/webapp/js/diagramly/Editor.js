@@ -269,6 +269,11 @@
 	Editor.defaultBorder = 5;
 
 	/**
+	 * Specifies if cell metadata should be added to SVG output. Default is false.
+	 */
+	Editor.addSvgMetadata = false;
+
+	/**
 	 * Specifies animations should be enabled. Default is true.
 	 */
 	Editor.enableAnimations = true;

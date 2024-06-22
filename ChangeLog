@@ -1,3 +1,8 @@
+22-JUN-2024: 24.6.2
+
+- Adds option to include current page in PNG and SVG export [jgraph/drawio#2860]
+- Fixes Cmd + US keyboard shortcut [jgraph/drawio-desktop#1792]
+
 21-JUN-2024: 24.6.1
 
 - Improves Google Drive app not installed message [DID-11885]

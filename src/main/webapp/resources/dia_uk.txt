@@ -30,7 +30,6 @@ allTags=Всі мітки
 anchor=Якір
 android=Android
 angle=Кут
-animations=Анімації
 arc=Дуга
 areYouSure=Ви впевнені?
 ensureDataSaved=Перед виходом, будь ласка, переконайтеся, що ваші дані збережено.

@@ -30,7 +30,6 @@ allTags=‫همه برچسبها‬
 anchor=‫لنگر‬
 android=‫اندروید‬
 angle=‫زاویه‬
-animations=‫تصاوير متحرك‬
 arc=Arc
 areYouSure=‫آیا مطمئن هستید؟‬
 ensureDataSaved=‫لطفا مطمئن شوید که پیش از بستن، اطلاعات شما ذخیره شده باشد.‬

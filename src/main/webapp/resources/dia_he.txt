@@ -30,7 +30,6 @@ allTags=‫כל התגיות‬
 anchor=‫עוגן‬
 android=‫אנדרואיד‬
 angle=‫זווית‬
-animations=‫אנימציות‬
 arc=‫קשת‬
 areYouSure=‫האם אתה בטוח?‬
 ensureDataSaved=‫אנא וודא ששמרת את המידע לפני סגירה.‬

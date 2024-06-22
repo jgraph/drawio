@@ -30,7 +30,6 @@ allTags=Összes címke
 anchor=Horgony
 android=Android
 angle=Szög
-animations=Animációk
 arc=Ív
 areYouSure=Biztos benne?
 ensureDataSaved=Kérem mentse adatait kilépés előtt.

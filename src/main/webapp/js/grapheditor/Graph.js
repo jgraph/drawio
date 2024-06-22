@@ -11773,7 +11773,7 @@ if (typeof mxVertexHandler !== 'undefined')
 					canvas.root = this.addCellData(state.cell,
 						(svgDoc.createElementNS != null) ?
 							svgDoc.createElementNS(mxConstants.NS_SVG, 'g') :
-							svgDoc.createElement('g'), false);
+							svgDoc.createElement('g'), Editor.addSvgMetadata);
 					root.appendChild(canvas.root);
 					visitStatesRecursive.apply(this, arguments);
 					canvas.root = root;
