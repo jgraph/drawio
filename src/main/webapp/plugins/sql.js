@@ -134,7 +134,6 @@ Draw.loadPlugin(function(ui) {
                             pkCol = pkCol.split(".")[1];
                         }
                         pkCol = pkCol.trim();
-                        // FOREIGN KEY (`Artist Id`) REFERENCES `Artist`(`ArtistId`)
                         statement += `,\n\tFOREIGN KEY (${this.dbTypeEnds(fkCol)}) REFERENCES ${this.dbTypeEnds(fk.entityA)}(${this.dbTypeEnds(pkCol)})`;
                     }
                 }
@@ -160,9 +159,14 @@ Draw.loadPlugin(function(ui) {
     sqlInputGenSQL.value = '-- click a database type button'
     mxUtils.br(divGenSQL);
     divGenSQL.appendChild(sqlInputGenSQL);
-
+    var theMenuExportAs = ui.menus.get('exportAs');
+    let buttonLabel = 'tosql=To SQL'
+    // vscode extension support
+    if(!(theMenuExportAs && theMenuExportAs.enabled)) {
+        buttonLabel = 'tosql=Export As SQL'
+    }
     // Extends Extras menu
-    mxResources.parse('tosql=To SQL');
+    mxResources.parse(buttonLabel);
 
     const wndGenSQL = new mxWindow(mxResources.get('tosql'), divGenSQL, document.body.offsetWidth - 480, 140,
         320, 320, true, true);
@@ -280,7 +284,6 @@ Draw.loadPlugin(function(ui) {
                                                         let startArr = edge.style.indexOf(startCheck) != -1 ?
                                                         edge.style.substring(edge.style.indexOf(startCheck) + startCheck.length, edge.style.substring(edge.style.indexOf(startCheck) + startCheck.length).indexOf(";") + edge.style.indexOf(startCheck) + startCheck.length)
                                                         : ""
-                                                        // var matchingArrows = startArr == endArr
 
                                                         var manyCheck = ["open","many"]
                                                         var sourceIsPrimary = endArr && manyCheck
@@ -338,12 +341,6 @@ Draw.loadPlugin(function(ui) {
                                                             // add composite entity
                                                             if(entities[compositeEntity.name]){
                                                                 // DON'T add duplicate composite tables
-                                                                // var countE = 2;
-                                                                // while(entities[compositeEntity.name + countE.toString()]){
-                                                                //     countE++;
-                                                                // }
-                                                                // compositeEntity.name = compositeEntity.name + countE.toString()
-                                                                // entities[compositeEntity.name] = compositeEntity
                                                             } else {
                                                                 entities[compositeEntity.name] = compositeEntity
                                                             }
@@ -1442,12 +1439,21 @@ Draw.loadPlugin(function(ui) {
         oldMenu.apply(this, arguments);
         ui.menus.addMenuItems(menu, ['fromSql'], parent);
     };
+    if(theMenuExportAs && theMenuExportAs.enabled) {
+        var oldMenuExportAs = theMenuExportAs.funct;
 
-    var theMenuExportAs = ui.menus.get('exportAs');
-    var oldMenuExportAs = theMenuExportAs.funct;
-
-    theMenuExportAs.funct = function(menu, parent) {
-        oldMenuExportAs.apply(this, arguments);
-        ui.menus.addMenuItems(menu, ['tosql'], parent);
-    };
+        theMenuExportAs.funct = function(menu, parent) {
+            oldMenuExportAs.apply(this, arguments);
+            ui.menus.addMenuItems(menu, ['tosql'], parent);
+        };
+    } else {
+        // vscode file export sql menu
+	    var menu = ui.menus.get('file');
+	    var oldMenuExportAs = menu.funct;
+        menu.funct = function(menu, parent) {
+            oldMenuExportAs.apply(this, arguments);
+            debugger
+            ui.menus.addMenuItems(menu, ['tosql'], parent);
+        };
+    }
 });
