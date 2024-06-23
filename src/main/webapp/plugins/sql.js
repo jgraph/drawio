@@ -1452,7 +1452,6 @@ Draw.loadPlugin(function(ui) {
 	    var oldMenuExportAs = menu.funct;
         menu.funct = function(menu, parent) {
             oldMenuExportAs.apply(this, arguments);
-            debugger
             ui.menus.addMenuItems(menu, ['tosql'], parent);
         };
     }
