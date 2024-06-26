@@ -1,3 +1,10 @@
+25-JUN-2024: 24.6.3
+
+- Removes drop shadow in PDF export [jgraph/drawio-desktop#1784]
+- Conf Cloud: Added support for copied pages in Gliffy import [DID-11864]
+- Conf Cloud: Added support for inplaceEdits configuration [DID-11923]
+- Removes uponSanitizeAttribute listener for SVG content attribute [DND-1208]
+
 22-JUN-2024: 24.6.2
 
 - Adds option to include current page in PNG and SVG export [jgraph/drawio#2860]

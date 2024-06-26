@@ -30,6 +30,7 @@ allTags=Wszystkie znaczniki
 anchor=Kotwica
 android=Android
 angle=Kąt
+animations=Animacje
 arc=Łuk
 areYouSure=Czy jesteś pewny?
 ensureDataSaved=Przed zamknięciem upewnij się, czy dane zostały zapisane.

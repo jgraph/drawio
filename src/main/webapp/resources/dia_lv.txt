@@ -30,6 +30,7 @@ allTags=Visas atzīmes
 anchor=Enkurs
 android=Androids
 angle=Leņķis
+animations=Animācijas
 arc=Loks
 areYouSure=Vai tu esi pārliecināts?
 ensureDataSaved=Ludzu pirms aizvēršanas pārliecinies, ka tavi dati ir sagrlabāti.

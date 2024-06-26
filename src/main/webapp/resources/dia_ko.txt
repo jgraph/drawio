@@ -30,6 +30,7 @@ allTags=모든 태그
 anchor=앵커
 android=Android
 angle=각도
+animations=애니메이션
 arc=둥글게
 areYouSure=계속 진행하시겠습니까?
 ensureDataSaved=종료하기 전에 데이터를 모두 저장하세요.

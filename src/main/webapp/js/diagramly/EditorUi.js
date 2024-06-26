@@ -11772,7 +11772,6 @@
 			}), false);
 		}
 
-		graph.enableFlowAnimation = Editor.enableAnimations;
 		this.initPages();
 
 		// Embedded mode
@@ -11936,6 +11935,15 @@
 		
 		this.installSettings();
 
+		// Animations
+		this.addListener('enableAnimationsChanged', mxUtils.bind(this, function(sender, evt)
+		{
+			graph.enableFlowAnimation = Editor.enableAnimations;
+			graph.refresh();
+		}));
+
+		graph.enableFlowAnimation = Editor.enableAnimations;
+		
 		if (screen.width <= Editor.smallScreenWidth)
 		{
 			this.formatWidth = 0;
@@ -14455,6 +14463,20 @@
 			this.addListener('gridColorChanged', mxUtils.bind(this, function(sender, evt)
 			{
 				mxSettings.setGridColor(this.editor.graph.view.gridColor, Editor.isDarkMode());
+				mxSettings.save();
+			}));
+
+			/**
+			 * Persists animations switch.
+			 */
+			if (mxSettings.settings.enableAnimations != null)
+			{
+				Editor.enableAnimations = mxSettings.settings.enableAnimations;
+			}
+			
+			this.addListener('enableAnimationsChanged', mxUtils.bind(this, function(sender, evt)
+			{
+				mxSettings.settings.enableAnimations = Editor.enableAnimations;
 				mxSettings.save();
 			}));
 

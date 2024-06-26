@@ -1188,6 +1188,14 @@ Actions.prototype.init = function()
 	action.setSelectedCallback(function() { return graph.graphHandler.guidesEnabled; });
 	action.setEnabled(false);
 	
+	action = this.addAction('animations', function()
+	{
+		Editor.enableAnimations = !Editor.enableAnimations;
+		ui.fireEvent(new mxEventObject('enableAnimationsChanged'));
+	});
+	action.setToggleAction(true);
+	action.setSelectedCallback(function() { return Editor.enableAnimations; });
+	
 	action = this.addAction('tooltips', function()
 	{
 		graph.tooltipHandler.setEnabled(!graph.tooltipHandler.isEnabled());

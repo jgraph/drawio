@@ -30,6 +30,7 @@ allTags=Все теги
 anchor=Якорь
 android=Android
 angle=Угол
+animations=Анимации
 arc=Дуга
 areYouSure=Вы уверены?
 ensureDataSaved=Пожалуйста, перед закрытием убедитесь, что ваши данные сохранены.

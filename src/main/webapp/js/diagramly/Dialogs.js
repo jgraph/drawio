@@ -3063,7 +3063,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			var wh = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 			
 			// TODO: Use maxscreensize
-			editorUi.sidebar.createTooltip(elt, cells, Math.min(ww - 80, 1000), Math.min(wh - 80, 800),
+			editorUi.sidebar.createTooltip(elt, cells, Math.min(ww - 120, 1000), Math.min(wh - 120, 800),
 				(title != null) ? mxResources.get(title) : null,
 				true, new mxPoint(x, y), true, function()
 				{

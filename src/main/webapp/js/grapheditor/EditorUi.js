@@ -6474,10 +6474,11 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	// US keycodes for + is 61 and - is 173. Keypad + is 107 and - is 109.
 	keyHandler.bindAction(107, true, 'zoomIn'); // Ctrl+Plus (Numpad)
 	keyHandler.bindAction(109, true, 'zoomOut'); // Ctrl+Minus (Numpad)
-	keyHandler.bindAction(61, true, 'zoomIn'); // Ctrl + (US)
-	keyHandler.bindAction(222, true, 'zoomIn'); // Ctrl Minus (CH: '/?)
-	keyHandler.bindAction(173, true, 'zoomOut'); // Ctrl - (US)
-	keyHandler.bindAction(189, true, 'zoomOut'); // Ctrl Slash (CH: -/_)
+	keyHandler.bindAction(61, true, 'zoomIn'); // Ctrl +   tested by DB, firefox only.
+	keyHandler.bindAction(187, true, 'zoomIn'); // Ctrl + (US)   tested by DB, chrome and desktop
+	keyHandler.bindAction(222, true, 'zoomIn'); // Ctrl Minus (CH: '/?)  tested by GA, CH keyboard
+	keyHandler.bindAction(173, true, 'zoomOut'); // Ctrl - (US)   tested by DB, firefox only.
+	keyHandler.bindAction(189, true, 'zoomOut'); // Ctrl Slash (CH: -/_)   tested by DB, chrome and desktop
 	
 	if (!this.editor.chromeless || this.editor.editable)
 	{

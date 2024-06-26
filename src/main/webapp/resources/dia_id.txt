@@ -30,6 +30,7 @@ allTags=Semua Tag
 anchor=Jangkar
 android=Android
 angle=Sudut
+animations=Animasi
 arc=Busur
 areYouSure=Anda yakin?
 ensureDataSaved=Pastikan data tersimpan sebelum menutup.

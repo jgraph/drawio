@@ -1586,8 +1586,9 @@ var mxUtils =
 	 * Makes sure the given node is inside the visible area of the window. This
 	 * is done by setting the left and top in the style. 
 	 */
-	fit: function(node)
+	fit: function(node, margin)
 	{
+		margin = margin || 0;
 		var ds = mxUtils.getDocumentSize();
 		var left = parseInt(node.offsetLeft);
 		var width = parseInt(node.offsetWidth);
@@ -1595,24 +1596,20 @@ var mxUtils =
 		var offset = mxUtils.getDocumentScrollOrigin(node.ownerDocument);
 		var sl = offset.x;
 		var st = offset.y;
-
-		var b = document.body;
-		var d = document.documentElement;
-		var right = (sl) + ds.width;
+		var right = sl + ds.width - margin;
 		
 		if (left + width > right)
 		{
-			node.style.left = Math.max(sl, right - width) + 'px';
+			node.style.left = Math.max(sl + margin, right - width) + 'px';
 		}
 		
 		var top = parseInt(node.offsetTop);
 		var height = parseInt(node.offsetHeight);
-		
-		var bottom = st + ds.height;
+		var bottom = st + ds.height - margin;
 		
 		if (top + height > bottom)
 		{
-			node.style.top = Math.max(st, bottom - height) + 'px';
+			node.style.top = Math.max(st + margin, bottom - height) + 'px';
 		}
 	},
 

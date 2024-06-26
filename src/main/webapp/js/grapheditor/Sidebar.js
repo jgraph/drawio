@@ -182,7 +182,7 @@ Sidebar.prototype.expandedImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/expanded.g
 Sidebar.prototype.enableTooltips = true;
 
 /**
- * Specifies the delay for the tooltip. Default is 16 px.
+ * Specifies the border for the tooltip. Default is 16 px.
  */
 Sidebar.prototype.tooltipBorder = 16;
 
@@ -704,7 +704,7 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 	this.tooltip.style.left = left + 'px';
 	this.tooltip.style.top = top + 'px';
 	
-	mxUtils.fit(this.tooltip);
+	mxUtils.fit(this.tooltip, this.tooltipBorder);
 	this.lastCreated = Date.now();
 };
 

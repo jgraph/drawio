@@ -2440,17 +2440,6 @@ DOMPurify.addHook('afterSanitizeAttributes', function(node)
 	}
 });
 
-// Workaround for removed content with empty nodes
-DOMPurify.addHook('uponSanitizeAttribute', function (node, evt)
-{
-	if (node.nodeName == 'svg' && evt.attrName == 'content')
-	{
-		evt.forceKeepAttr = true;
-	}
-	
-	return node;
-});
-
 /**
  * Sanitizes the given value.
  */

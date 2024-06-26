@@ -30,6 +30,7 @@ allTags=‫كل الواصفات‬
 anchor=‫مرساة‬
 android=‫أندرويد‬
 angle=‫زاوية‬
+animations=‫الرسوم المتحركة‬
 arc=Arc
 areYouSure=‫هل أنت متأكد؟‬
 ensureDataSaved=‫المرجو التحقق من حفظ البيانات قبل الإغلاق.‬

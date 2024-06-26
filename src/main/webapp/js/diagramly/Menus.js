@@ -4629,7 +4629,7 @@
 				
 				editorUi.menus.addSubmenu('units', menu, parent);
 				editorUi.menus.addMenuItems(menu, ['-', 'copyConnect',
-					'collapseExpand', 'tooltips', 'toggleReadOnly', '-'], parent);
+					'collapseExpand', 'tooltips', '-'], parent);
 
 				var file = editorUi.getCurrentFile();
 
