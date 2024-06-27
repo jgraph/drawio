@@ -3530,7 +3530,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				function doSave(mode, folderId, filename)
 				{
 					editorUi.createFile(filename, templateXml, (templateLibs != null &&
-						templateLibs.length > 0) ? templateLibs : mode, null, function()
+						templateLibs.length > 0) ? templateLibs : null, mode, function()
 					{
 						editorUi.hideDialog();
 					}, null, folderId, null, (templateClibs != null &&
@@ -3671,6 +3671,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					generateElt.style.backgroundSize = 'contain';
 					generateInput.style.visibility = 'hidden';
 					generateButton.style.visibility = 'hidden';
+					helpGenerate.style.visibility = 'hidden';
 					editGenerate.style.visibility = 'hidden';
 					magnifyGenerate.style.visibility = (lastAiXml != null) ? 'visible' : 'hidden';
 					generateElt.getElementsByTagName('table')[0].style.visibility = 'visible';
@@ -3696,6 +3697,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				{
 					generateInput.style.visibility = 'visible';
 					generateButton.style.visibility = 'visible';
+					helpGenerate.style.visibility = 'visible';
 					editGenerate.style.visibility = 'hidden';
 					magnifyGenerate.style.visibility = 'hidden';
 				}
@@ -3776,9 +3778,23 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	editGenerate.style.right = '';
 	editGenerate.style.left = '2px';
 
+	var helpGenerate = magnifyImage.cloneNode(true);
+	helpGenerate.setAttribute('src', Editor.helpImage);
+	helpGenerate.setAttribute('title', mxResources.get('help'));
+	helpGenerate.style.opacity = '1';
+	helpGenerate.style.right = '-8px';
+	helpGenerate.style.top = '-8px';
+
+	mxEvent.addListener(helpGenerate, 'click', function(evt)
+	{
+		editorUi.openLink('https://www.drawio.com/blog/write-query-generate-diagram');
+		mxEvent.consume(evt);
+	});
+	
 	generateInput.style.visibility = 'hidden';
 	generateButton.style.visibility = 'hidden';
 	editGenerate.style.visibility = 'hidden';
+	helpGenerate.style.visibility = 'hidden';
 	magnifyGenerate.style.visibility = 'hidden';
 
 	function createGenerate()
@@ -3787,6 +3803,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		generateElt.getElementsByTagName('table')[0].style.visibility = 'hidden';
 		generateInput.style.visibility = 'visible';
 		generateButton.style.visibility = 'visible';
+		helpGenerate.style.visibility = 'visible';
 		editGenerate.style.visibility = 'hidden';
 		magnifyGenerate.style.visibility = 'hidden';
 		generateInput.focus();
@@ -3821,6 +3838,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	{
 		generateInput.style.visibility = 'hidden';
 		generateButton.style.visibility = 'hidden';
+		helpGenerate.style.visibility = 'hidden';
 		generateElt.style.backgroundImage = generateBackground;
 		generateElt.style.backgroundSize = 'contain';
 		editGenerate.style.visibility = 'visible';
@@ -3835,6 +3853,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		{
 			generateInput.style.visibility = 'hidden';
 			generateButton.style.visibility = 'hidden';
+			helpGenerate.style.visibility = 'hidden';
 			var listenerTriggered = false;
 
 			var prompt = 'Write a detailed and complex MermaidJS declaration for ' +
@@ -3880,6 +3899,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					{
 						generateInput.style.visibility = 'visible';
 						generateButton.style.visibility = 'visible';
+						helpGenerate.style.visibility = 'visible';
 						editGenerate.style.visibility = 'visible';
 						magnifyGenerate.style.visibility = 'visible';
 						editorUi.handleError(e);
@@ -4149,10 +4169,12 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			if (templateType == 'generative' && generateElt == null)
 			{
 				elt.style.backgroundImage = generateBackground;
+				elt.style.overflow = 'visible';
 				elt.appendChild(magnifyGenerate);
 				elt.appendChild(editGenerate);
 				elt.appendChild(generateInput);
 				elt.appendChild(generateButton);
+				elt.appendChild(helpGenerate);
 				generateElt = elt;
 			}
 
@@ -4795,17 +4817,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	btns.style.bottom = '24px';
 	btns.style.right = '40px';
 	
-	if (!compact && !editorUi.isOffline() && showName && callback == null && !createOnly)
-	{
-		var helpBtn = mxUtils.button(mxResources.get('help'), function()
-		{
-			editorUi.openLink('https://support.draw.io/display/DO/Creating+and+Opening+Files');
-		});
-		
-		helpBtn.className = 'geBtn';	
-		btns.appendChild(helpBtn);
-	}
-
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
 		if (cancelCallback != null)

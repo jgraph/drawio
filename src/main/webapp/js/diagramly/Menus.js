@@ -4413,8 +4413,8 @@
 					editorUi.menus.addMenuItems(menu, ['pageTabs'], parent);
 				}
 
-				this.addMenuItems(menu, ['tooltips', 'ruler', '-', 'grid', 'guides',
-					'-', 'connectionArrows', 'connectionPoints', '-',
+				this.addMenuItems(menu, ['ruler', '-', 'tooltips', 'animations',
+					'-', 'grid', 'guides', '-', 'connectionArrows', 'connectionPoints', '-',
 					'resetView', 'zoomIn', 'zoomOut'], parent);
 
 				if (urlParams['sketch'] != '1')
@@ -4629,7 +4629,7 @@
 				
 				editorUi.menus.addSubmenu('units', menu, parent);
 				editorUi.menus.addMenuItems(menu, ['-', 'copyConnect',
-					'collapseExpand', 'tooltips', '-'], parent);
+					'collapseExpand', '-', 'tooltips', 'animations', '-'], parent);
 
 				var file = editorUi.getCurrentFile();
 
