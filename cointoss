@@ -1,0 +1,21 @@
+#include <stdio.h>
+
+int main(){
+    int head,tail,total=1;
+    char name,coin;
+    printf("What is your name?\n> ");
+    scanf("%s",name);
+    printf("Hello, %s!",name);
+
+    printf("Tossing a coin...\n");
+    while(total <= 3){
+        printf("Round %d: ",total);
+        scanf("%s",coin);
+        if(coin == 'Heads') head++;
+        else tail++;
+    }
+    printf("Heads: %d, Tails: %d\n",head,tail);
+    printf("%s won!\n",name);
+
+    return 0;
+}
