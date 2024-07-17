@@ -6992,7 +6992,7 @@
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
 		var graph = this.editor.graph;
-		var height = (format == 'jpeg' || format == 'webp') ? 220 : 300;
+		var height = (format == 'jpeg' || format == 'webp') ? 220 : 320;
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, title);

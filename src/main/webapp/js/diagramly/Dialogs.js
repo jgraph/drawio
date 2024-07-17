@@ -3865,8 +3865,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			{
 				mxMermaidToDrawio.addListener(mxUtils.bind(this, function(modelXml)
 				{
-					listenerTriggered = true;
-					templateXml = modelXml;
+					if (modelXml != editorUi.emptyDiagramXml)
+					{
+						listenerTriggered = true;
+						templateXml = modelXml;
+					}
 				}));
 			}
 

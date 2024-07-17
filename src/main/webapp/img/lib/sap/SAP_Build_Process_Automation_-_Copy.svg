@@ -1,0 +1,82 @@
+<svg
+	xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="-0.5 -0.5 32 32" style="background-color:rgb(255, 255, 255)">
+	<style>
+		<![CDATA[.B{color-interpolation-filters:sRGB}.C{flood-opacity:0}]]>
+	</style>
+	<path fill="#fff" d="M0 0h32v32H0z"/>
+	<svg width="32" height="32" viewBox="0 0 16 16" fill="none" x="-1" y="-.5">
+		<g clip-path="url(#I)">
+			<circle cx="7.999" cy="8" r="7.532" fill="url(#E)" stroke="#d5dadd" stroke-width=".274"/>
+			<g clip-path="url(#J)">
+				<mask id="A" maskUnits="userSpaceOnUse" x="2" y="2" width="13" height="12" mask-type="alpha">
+					<path d="M9.536 9.351c.975-.309 1.68-1.21 1.68-2.272 0-1.318-1.085-2.387-2.423-2.387h-.918c-1.318 0-2.387 1.069-2.387 2.387v2.864a1.43 1.43 0 1 0 2.864 0V7.237c0-.184.264-.215.306-.035l.429 1.843c.062.256.217.38.449.306z" fill="#000"/>
+				</mask>
+				<g mask="url(#A)">
+					<g filter="url(#B)">
+						<path d="M13.851 4.237c-.909.85-2.251 1.175-2.412 5.021s-4.798 2.656-5.781 2.22c-1.74-.772-4.264-5.862-1.356-7.456S9 1.099 10.74 1.871s4.02 1.516 3.11 2.366z" fill="url(#F)"/>
+					</g>
+					<g filter="url(#C)">
+						<path d="M13.207 6.546c-1.058.244-3.267-.78-5.072 2.053s-4.989.546-5.541-.214C1.618 7.04 1.757 2.752 4.65 2.821s6.129.494 7.104 1.838 2.511 1.642 1.453 1.886z" fill="url(#G)"/>
+					</g>
+					<g filter="url(#D)">
+						<path d="M3.579 9.303c-1.283-.364-2.028-1.7-1.664-2.983s2.977-3.854 4.26-3.49S7.97 5.604 7.606 6.887 5.24 9.774 3.579 9.303z" fill="url(#H)"/>
+					</g>
+				</g>
+			</g>
+		</g>
+		<defs>
+			<filter id="B" x="2.525" y="1.018" width="12.429" height="11.699" filterUnits="userSpaceOnUse" class="B">
+				<feFlood result="A" class="C"/>
+				<feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="B"/>
+				<feOffset dx="0.224202" dy="0.0448405"/>
+				<feGaussianBlur stdDeviation=".336"/>
+				<feComposite in2="B" operator="out"/>
+				<feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0"/>
+				<feBlend in2="A"/>
+				<feBlend in="SourceGraphic"/>
+			</filter>
+			<filter id="C" x="1.601" y="2.193" width="12.86" height="8.502" filterUnits="userSpaceOnUse" class="B">
+				<feFlood result="A" class="C"/>
+				<feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="B"/>
+				<feOffset dx="0.224202" dy="0.0448405"/>
+				<feGaussianBlur stdDeviation=".336"/>
+				<feComposite in2="B" operator="out"/>
+				<feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0"/>
+				<feBlend in2="A"/>
+				<feBlend in="SourceGraphic"/>
+			</filter>
+			<filter id="D" x="1.374" y="2.168" width="7.243" height="7.937" filterUnits="userSpaceOnUse" class="B">
+				<feFlood result="A" class="C"/>
+				<feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="B"/>
+				<feOffset dx="0.224202" dy="0.0448405"/>
+				<feGaussianBlur stdDeviation=".336"/>
+				<feComposite in2="B" operator="out"/>
+				<feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0"/>
+				<feBlend in2="A"/>
+				<feBlend in="SourceGraphic"/>
+			</filter>
+			<linearGradient id="E" x1="1.721" y1="2.508" x2="13.452" y2="14.469" gradientUnits="userSpaceOnUse">
+				<stop stop-color="#fff"/>
+				<stop offset="1" stop-color="#eaecee"/>
+			</linearGradient>
+			<radialGradient id="F" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(8.3387 5.25878) rotate(79.0967) scale(10.9044 10.098)">
+				<stop stop-color="#1348ff"/>
+				<stop offset="1" stop-color="#06238d"/>
+			</radialGradient>
+			<radialGradient id="G" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(9.25005 1.63802) rotate(108.549) scale(14.3518 25.47)">
+				<stop stop-color="#0195ff"/>
+				<stop offset="1" stop-color="#1147e9"/>
+			</radialGradient>
+			<radialGradient id="H" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(7.14136 3.78706) rotate(144.746) scale(8.70165 11.8371)">
+				<stop stop-color="#0bf"/>
+				<stop offset="1" stop-color="#008bff"/>
+			</radialGradient>
+			<clipPath id="I">
+				<path fill="#fff" transform="translate(-.001)" d="M0 0h16v16H0z"/>
+			</clipPath>
+			<clipPath id="J">
+				<path fill="#fff" transform="translate(3.499 3.167)" d="M0 0h9.667v9.667H0z"/>
+			</clipPath>
+		</defs>
+	</svg>
+</svg>

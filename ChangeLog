@@ -1,4 +1,16 @@
-27-JUN 2024: 24.6.4
+17-JUL-2024: 24.7.1
+
+- Removes host domain checks [DID-12104]
+
+16-JUL-2024: 24.7.0
+
+- Adds SAP icons [jgraph/drawio#4199]
+
+10-JUL-2024: 24.6.5
+
+- [conf cloud] Fixed relative links when owningPageId is empty [DID-12053]
+
+27-JUN-2024: 24.6.4
 
 - Fixes reset of selected shape groups [drawio-desktop#1783]
 - Removes broken help link in template dialog

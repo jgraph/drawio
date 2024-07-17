@@ -1,0 +1,69 @@
+<svg
+	xmlns="http://www.w3.org/2000/svg" width="14.405" height="12.604" viewBox="-0.5 -0.5 14.405 12.604">
+	<style>
+		<![CDATA[.E{color-interpolation-filters:sRGB}.F{flood-opacity:0}]]>
+	</style>
+	<defs>
+		<filter id="A" x="4.848" y="3.07" width="10.131" height="10.054" filterUnits="userSpaceOnUse" class="E">
+			<feFlood result="C" class="F"/>
+			<feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="D"/>
+			<feOffset dx="0.224202" dy="0.0448405"/>
+			<feGaussianBlur stdDeviation=".336"/>
+			<feComposite in2="D" operator="out"/>
+			<feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0"/>
+			<feBlend in2="C"/>
+			<feBlend in="SourceGraphic"/>
+		</filter>
+		<filter id="B" x="1.261" y="2.734" width="10.086" height="10.054" filterUnits="userSpaceOnUse" class="E">
+			<feFlood result="C" class="F"/>
+			<feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="D"/>
+			<feOffset dx="0.224202" dy="0.0448405"/>
+			<feGaussianBlur stdDeviation=".336"/>
+			<feComposite in2="D" operator="out"/>
+			<feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0"/>
+			<feBlend in2="C"/>
+			<feBlend in="SourceGraphic"/>
+		</filter>
+		<filter id="C" x="2.81" y="6.477" width="6.445" height="6.778" filterUnits="userSpaceOnUse" class="E">
+			<feFlood result="C" class="F"/>
+			<feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="D"/>
+			<feOffset dx="0.224202" dy="0.0448405"/>
+			<feGaussianBlur stdDeviation=".336"/>
+			<feComposite in2="D" operator="out"/>
+			<feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0"/>
+			<feBlend in2="C"/>
+			<feBlend in="SourceGraphic"/>
+		</filter>
+		<radialGradient id="D" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(5.803252,7.1759663,-6.9313318,5.6054144,9.68655,6.97809)">
+			<stop stop-color="#1348ff"/>
+			<stop offset="1" stop-color="#06238d"/>
+		</radialGradient>
+		<radialGradient id="E" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(8.4430427,10.083631,-18.63903,15.606494,3.97674,4.0049)">
+			<stop stop-color="#0195ff"/>
+			<stop offset="1" stop-color="#1147e9"/>
+		</radialGradient>
+		<radialGradient id="F" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-2.2933105,6.8759105,-9.5325711,-3.1793819,6.23824,7.37818)">
+			<stop stop-color="#0bf"/>
+			<stop offset="1" stop-color="#008bff"/>
+		</radialGradient>
+		<clipPath id="G">
+			<path fill="#fff" transform="translate(3.499 2.833)" d="M0 0h9.667v9.667H0z"/>
+		</clipPath>
+	</defs>
+	<g clip-path="url(#G)" transform="matrix(1.882353 0 0 1.882353 -8.98274 -8.628)" fill="none">
+		<mask id="H" maskUnits="userSpaceOnUse" x="2" y="1" width="13" height="13" mask-type="alpha">
+			<path d="M6.764 5.273c.328-.574.908-.955 1.571-.955s1.24.382 1.572.957l2.06 3.581a1.44 1.44 0 0 1-.526 1.965 1.43 1.43 0 0 1-1.959-.527l-.492-.858c-.115-.22-.143-.46-.1-.772l.196-1.083c.033-.173-.201-.259-.287-.105L8.23 8.478l-1.046 1.816c-.397.685-1.271.925-1.959.527a1.44 1.44 0 0 1-.526-1.965z" fill="#000"/>
+		</mask>
+		<g mask="url(#H)">
+			<g filter="url(#A)">
+				<path d="M14.007 7.819c-.425 1-2.327.388-1.231 2.891-.655 1.007-1.635 1.697-2.574 1.697-1.661 0-6.269-1.74-4.513-4.04s4.001-4.669 5.662-4.669 3.081 3.121 2.656 4.121z" fill="url(#D)"/>
+			</g>
+			<g filter="url(#B)">
+				<path d="M10.345 7.409c-.512 1.206-2.252.461-1.156 2.964-.655 1.007-1.635 1.697-2.574 1.697-1.661 0-6.269-1.74-4.513-4.04s4.001-4.669 5.662-4.669 3.094 2.842 2.582 4.048z" fill="url(#E)"/>
+			</g>
+			<g filter="url(#C)">
+				<path d="M6.847 12.233c-1.166.648-2.636.229-3.284-.937S3.334 8.66 4.5 8.012c.713-.928 2.28-1.333 3.312-.288s.544 3.671-.964 4.51z" fill="url(#F)"/>
+			</g>
+		</g>
+	</g>
+</svg>
