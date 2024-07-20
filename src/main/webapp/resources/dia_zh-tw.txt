@@ -30,6 +30,7 @@ allTags=所有標籤
 anchor=錨點
 android=Android
 angle=角度
+animations=動畫
 arc=弧線
 areYouSure=是否確定？
 ensureDataSaved=關閉前請確認您的資料已儲存。

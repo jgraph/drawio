@@ -770,7 +770,20 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 				error(this.parseRequestText(req));				
 			}
 		}
-	}), error);
+	}), function(err)
+	{
+		if (error != null)
+		{
+			// Replaces ObjectHandle is Invalid error message
+			if (err != null && err.error != null &&
+				err.error.message === 'ObjectHandle is Invalid')
+			{
+				err.error.message = mxResources.get('fileNotFoundOrDenied');
+			}
+			
+			error(err);
+		}
+	});
 };
 
 /**

@@ -712,7 +712,7 @@
 					if (!isNaN(val) && val > 0)
 					{
 						editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
-							addShadow, editable, embedImages, border, !cropImage, false,
+							addShadow, editable, embedImages, border, !cropImage, currentPage,
 							linkTarget, theme, exportType, embedFonts);
 					}
 				}), true, editorUi.lastExportSvgEditable, 'svg', true);
@@ -733,12 +733,13 @@
 						{
 							editorUi.exportImage(val / 100, transparentBackground && format == 'png',
 								ignoreSelection, addShadow, editable && format == 'png', border,
-								!cropImage, false, format, grid, null, theme, exportType);
+								!cropImage, currentPage, format, grid, null, theme, exportType);
 
 							if (done != null)
 							{
-								done(scale, transparentBackground, ignoreSelection, addShadow, editable, embedImages,
-									border, cropImage, currentPage, dummy, grid, theme, exportType);
+								done(scale, transparentBackground, ignoreSelection, addShadow,
+									editable, embedImages, border, cropImage, currentPage,
+									dummy, grid, theme, exportType);
 							}
 						}
 					}), true, defaultEditable, format, true);
@@ -1518,16 +1519,32 @@
 					{
 						editorUi.checkForUpdates();
 					});
-					
+
+					editorUi.actions.put('desktopZoomIn', new Action(mxResources.get('zoomIn'), function()
+					{
+						editorUi.desktopZoomIn();
+					}));
+
+					editorUi.actions.put('desktopZoomOut', new Action(mxResources.get('zoomOut'), function()
+					{
+						editorUi.desktopZoomOut();
+					}));
+
+					editorUi.actions.put('desktopResetZoom', new Action(mxResources.get('actualSize'), function()
+					{
+						editorUi.desktopResetZoom();
+					}));
+
 					this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart',
 						'website', 'support', '-'], parent);
 
 					if (urlParams['disableUpdate'] != '1')
 					{
-						this.addMenuItems(menu, ['check4Updates'], parent);
+						this.addMenuItems(menu, ['check4Updates', '-'], parent);
 					}
 
-					this.addMenuItems(menu, ['openDevTools', '-', 'about'], parent);
+					this.addMenuItems(menu, ['desktopResetZoom', 'desktopZoomIn',
+						'desktopZoomOut', '-', 'openDevTools', '-', 'about'], parent);
 				}
 				else
 				{
@@ -3499,7 +3516,7 @@
 			{
 				editorUi.handleError(e);
 			}
-		}));
+		})).isEnabled = isGraphEnabled;
 
 		this.put('embed', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
@@ -4396,8 +4413,8 @@
 					editorUi.menus.addMenuItems(menu, ['pageTabs'], parent);
 				}
 
-				this.addMenuItems(menu, ['tooltips', 'ruler', '-', 'grid', 'guides',
-					'-', 'connectionArrows', 'connectionPoints', '-',
+				this.addMenuItems(menu, ['ruler', '-', 'tooltips', 'animations',
+					'-', 'grid', 'guides', '-', 'connectionArrows', 'connectionPoints', '-',
 					'resetView', 'zoomIn', 'zoomOut'], parent);
 
 				if (urlParams['sketch'] != '1')
@@ -4612,7 +4629,7 @@
 				
 				editorUi.menus.addSubmenu('units', menu, parent);
 				editorUi.menus.addMenuItems(menu, ['-', 'copyConnect',
-					'collapseExpand', 'tooltips', 'toggleReadOnly', '-'], parent);
+					'collapseExpand', '-', 'tooltips', 'animations', '-'], parent);
 
 				var file = editorUi.getCurrentFile();
 

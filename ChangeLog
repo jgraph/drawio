@@ -1,3 +1,52 @@
+17-JUL-2024: 24.7.1
+
+- Removes host domain checks [DID-12104]
+
+16-JUL-2024: 24.7.0
+
+- Adds SAP icons [jgraph/drawio#4199]
+
+10-JUL-2024: 24.6.5
+
+- [conf cloud] Fixed relative links when owningPageId is empty [DID-12053]
+
+27-JUN-2024: 24.6.4
+
+- Fixes reset of selected shape groups [drawio-desktop#1783]
+- Removes broken help link in template dialog
+- Fixes missing URL parameters for published Drive files [jgraph/drawio#4501]
+- Fixes arrows in mermaid sequence diagram converter
+- Adds UI switch to toggle animations [jgraph/drawio#4491]
+
+25-JUN-2024: 24.6.3
+
+- Removes drop shadow in PDF export [jgraph/drawio-desktop#1784]
+- Conf Cloud: Added support for copied pages in Gliffy import [DID-11864]
+- Conf Cloud: Added support for inplaceEdits configuration [DID-11923]
+- Removes uponSanitizeAttribute listener for SVG content attribute [DND-1208]
+
+22-JUN-2024: 24.6.2
+
+- Adds option to include current page in PNG and SVG export [jgraph/drawio#2860]
+- Fixes Cmd + US keyboard shortcut [jgraph/drawio-desktop#1792]
+
+21-JUN-2024: 24.6.1
+
+- Improves Google Drive app not installed message [DID-11885]
+- Disables shadows in printing and PDF export [jgraph/drawio-desktop#1784]
+
+20-JUN-2024: 24.6.0
+
+- Adds autosizeGrid style [jgraph/drawio#1131]
+- Adds Editor.enableChatGpt with config switch
+- Ignores service worker registration errors [jgraph/drawio#4483]
+- Adds UI zoom to desktop help menu [jgraph/drawio-desktop#1359]
+- Adds non-numpad zoom keyboard shortcuts [jgraph/drawio-desktop#978]
+- Uses quotes for CSS font-family [jgraph/drawio-desktop#1604]
+- Adds Editor.enableAnimations with config switch [jgraph/drawio#4491]
+- Fixes grid color for print and PDF export in dark mode [jgraph/drawio#4488]
+- Preserves cell hierarchy in SVG output [jgraph/drawio#3960]
+
 17-JUN-2024: 24.5.5
 
 - Simplifies publish dialog [jgraph/drawio#4346]

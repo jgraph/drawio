@@ -204,9 +204,13 @@ mxPrintPreview.prototype.gridStrokeWidth = 0.5;
 /**
  * Variable: defaultCss
  * 
- * Default CSS for the HEAD section of the print preview.
+ * Default CSS for the HEAD section of the print preview. Shape shadows cause
+ * the output to get resterized and are therefore disabled for print and PDF.
  */
 mxPrintPreview.prototype.defaultCss =
+	'g[style*="filter: drop-shadow("] {\n' +
+	'  filter: none !important;\n' +
+	'}\n' +
 	'@media screen {\n' +
 	'  body {\n' +
 	'    background: gray;\n' +

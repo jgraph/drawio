@@ -30,6 +30,7 @@ allTags=Alle tags
 anchor=Anker
 android=Android
 angle=Vinkel
+animations=Animationer
 arc=Arc
 areYouSure=Er du sikker?
 ensureDataSaved=Vær sikker på at dine data er gemt, før du lukker.

@@ -772,15 +772,7 @@ App.main = function(callback, createUi)
 			}
 			catch (e)
 			{
-				if (window.console != null && !EditorUi.isElectronApp)
-				{
-					console.error(e);
-				}
-				else
-				{
-					mxLog.show();
-					mxLog.debug(e.stack);
-				}
+				// ignore
 			}
 			
 			// Loads Pusher API

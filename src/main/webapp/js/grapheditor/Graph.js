@@ -2440,17 +2440,6 @@ DOMPurify.addHook('afterSanitizeAttributes', function(node)
 	}
 });
 
-// Workaround for removed content with empty nodes
-DOMPurify.addHook('uponSanitizeAttribute', function (node, evt)
-{
-	if (node.nodeName == 'svg' && evt.attrName == 'content')
-	{
-		evt.forceKeepAttr = true;
-	}
-	
-	return node;
-});
-
 /**
  * Sanitizes the given value.
  */
@@ -4595,7 +4584,8 @@ Graph.prototype.createVertexWipeAnimation = function(state, wipeIn)
  */
 Graph.prototype.getPageSize = function()
 {
-	return (this.pageVisible) ? new mxRectangle(0, 0, this.pageFormat.width * this.pageScale,
+	return (this.pageVisible && this.pageFormat != null) ?
+		new mxRectangle(0, 0, this.pageFormat.width * this.pageScale,
 			this.pageFormat.height * this.pageScale) : this.scrollTileSize;
 };
 
@@ -10365,8 +10355,9 @@ if (typeof mxVertexHandler !== 'undefined')
 		/**
 		 * Overrides autosize to add a border.
 		 */
-		Graph.prototype.getPreferredSizeForCell = function(cell)
+		Graph.prototype.getPreferredSizeForCell = function(cell, w, gridEnabled)
 		{
+			gridEnabled = (gridEnabled != null) ? gridEnabled : this.gridEnabled;
 			var result = mxGraph.prototype.getPreferredSizeForCell.apply(this, arguments);
 			
 			// Adds buffer
@@ -10375,7 +10366,7 @@ if (typeof mxVertexHandler !== 'undefined')
 				result.width += 10;
 				result.height += 4;
 				
-				if (this.gridEnabled)
+				if (gridEnabled)
 				{
 					result.width = this.snap(result.width);
 					result.height = this.snap(result.height);
@@ -11729,6 +11720,55 @@ if (typeof mxVertexHandler !== 'undefined')
 		{
 			var exp = new mxImageExport();
 			
+			// Adds cell ID to SVG group
+			exp.addCellData = function(cell, group, includeValue)
+			{
+				group.setAttribute('data-cell-id', cell.id);
+
+				if (includeValue)
+				{
+					if (mxUtils.isNode(cell.value))
+					{
+						for (var i = 0; i < cell.value.attributes.length; i++)
+						{
+							var attrib = cell.value.attributes[i];
+							group.setAttribute('data-cell-' + attrib.name, attrib.value);
+						}
+					}
+					else if (typeof cell.value === 'object')
+					{
+						for (var key in cell.value)
+						{
+							group.setAttribute('data-cell-' + key, cell.value[key]);
+						}
+					}
+					else if (cell.value != null)
+					{
+						group.setAttribute('data-cell-value', cell.value);
+					}
+				}
+
+				return group;
+			};
+
+			// Maps cell hierarchy to SVG group structure
+			var visitStatesRecursive = exp.visitStatesRecursive;
+			exp.visitStatesRecursive = function(state, canvas, visitor)
+			{
+				if (state != null)
+				{
+					var root = canvas.root;
+					var svgDoc = canvas.root.ownerDocument;
+					canvas.root = this.addCellData(state.cell,
+						(svgDoc.createElementNS != null) ?
+							svgDoc.createElementNS(mxConstants.NS_SVG, 'g') :
+							svgDoc.createElement('g'), Editor.addSvgMetadata);
+					root.appendChild(canvas.root);
+					visitStatesRecursive.apply(this, arguments);
+					canvas.root = root;
+				}
+			};
+
 			// Adds hyperlinks (experimental)
 			exp.getLinkForCellState = mxUtils.bind(this, function(state, canvas)
 			{

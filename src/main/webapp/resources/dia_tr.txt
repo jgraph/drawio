@@ -30,6 +30,7 @@ allTags=Tüm etiketler
 anchor=Bağlantı
 android=Android
 angle=Açı
+animations=Animasyonlar
 arc=Yay
 areYouSure=Emin misiniz?
 ensureDataSaved=Lütfen kapatmadan önce verinizin kaydedildiğinden emin olun.

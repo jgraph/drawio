@@ -84,11 +84,11 @@
 		];
 			
 		this.addPalette('archimate3Generic', 'Archimate 3.2 / Generic', false, mxUtils.bind(this, function(content)
-				{
-					for (var i = 0; i < fns.length; i++)
-					{
-						content.appendChild(fns[i](content));
-					}
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
 		}));
 	};
 
@@ -146,11 +146,11 @@
 		];
 			
 		this.addPalette('archimate3Application', 'Archimate 3.2 / Application', false, mxUtils.bind(this, function(content)
-				{
-					for (var i = 0; i < fns.length; i++)
-					{
-						content.appendChild(fns[i](content));
-					}
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
 		}));
 	};
 
@@ -225,11 +225,11 @@
 		];
 			
 		this.addPalette('archimate3Business', 'Archimate 3.2 / Business', false, mxUtils.bind(this, function(content)
-				{
-					for (var i = 0; i < fns.length; i++)
-					{
-						content.appendChild(fns[i](content));
-					}
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
 		}));
 	};
 
@@ -271,11 +271,11 @@
 		];
 			
 		this.addPalette('archimate3Implementation and Migration', 'Archimate 3.2 / Implementation and Migration', false, mxUtils.bind(this, function(content)
-				{
-					for (var i = 0; i < fns.length; i++)
-					{
-						content.appendChild(fns[i](content));
-					}
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
 		}));
 	};
 	
@@ -336,11 +336,11 @@
 		];
 			
 		this.addPalette('archimate3Motivation', 'Archimate 3.2 / Motivation', false, mxUtils.bind(this, function(content)
-				{
-					for (var i = 0; i < fns.length; i++)
-					{
-						content.appendChild(fns[i](content));
-					}
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
 		}));
 	};
 	
@@ -403,11 +403,11 @@
 		];
 			
 		this.addPalette('archimate3Relationships', 'Archimate 3.2 / Relationships', false, mxUtils.bind(this, function(content)
-				{
-					for (var i = 0; i < fns.length; i++)
-					{
-						content.appendChild(fns[i](content));
-					}
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
 		}));
 	};
 	
@@ -444,11 +444,11 @@
 		];
 			
 		this.addPalette('archimate3Strategy', 'Archimate 3.2 / Strategy', false, mxUtils.bind(this, function(content)
-				{
-					for (var i = 0; i < fns.length; i++)
-					{
-						content.appendChild(fns[i](content));
-					}
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
 		}));
 	};
 	
@@ -533,11 +533,11 @@
 		];
 			
 		this.addPalette('archimate3Technology', 'Archimate 3.2 / Technology', false, mxUtils.bind(this, function(content)
-				{
-					for (var i = 0; i < fns.length; i++)
-					{
-						content.appendChild(fns[i](content));
-					}
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
 		}));
 	};
 })();

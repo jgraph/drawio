@@ -157,6 +157,7 @@
 <template url="other/infographic_3.xml" name="Infographic 3" libs="general;mockups;signs" tags="Infographic"/>
 <template url="other/infographic_4.xml" name="Infographic 4" libs="general;mockups;signs" tags="Infographic"/>
 <template url="other/lan_plan.xml" name="Lan plan" libs="general;floorplan" tags="Lan;plan"/>
+<template url="other/water_cycle.xml" name="Lan plan" libs="general;floorplan" tags="Lan;plan"/>
 <template url="software/class_1.xml" name="Class 1" libs="general;uml" tags="Class"/>
 <template url="software/class_2.xml" name="Class 2" libs="general;uml" tags="Class"/>
 <template url="software/component.xml" name="Component" libs="general;uml" tags="Component"/>

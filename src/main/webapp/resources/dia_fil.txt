@@ -30,6 +30,7 @@ allTags=Lahat ng mga Tag
 anchor=Angkla
 android=Android
 angle=Anggulo
+animations=Mga Animation
 arc=Arc
 areYouSure=Sigurado ka ba?
 ensureDataSaved=Pakiseguro na ang iyong mga datos ay nai-save bago ito isara

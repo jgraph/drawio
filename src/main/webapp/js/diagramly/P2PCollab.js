@@ -799,7 +799,7 @@ function P2PCollab(ui, sync, channelId)
 						{
 							rejoinCalled = true;
 							this.joinFile(true);
-						}), 200);
+						}), 500);
 					}
 				}
 

@@ -1076,7 +1076,7 @@ Actions.prototype.init = function()
 		{
 			graph.zoomIn();
 		}
-	}, null, null, Editor.ctrlKey + ' + (Numpad) / Alt+Mousewheel');
+	}, null, null, Editor.ctrlKey + ' + / Alt+Mousewheel');
 	this.addAction('zoomOut', function(evt)
 	{
 		if (graph.isFastZoomEnabled())
@@ -1087,7 +1087,7 @@ Actions.prototype.init = function()
 		{
 			graph.zoomOut();
 		}
-	}, null, null, Editor.ctrlKey + ' - (Numpad) / Alt+Mousewheel');
+	}, null, null, Editor.ctrlKey + ' - / Alt+Mousewheel');
 	this.addAction('fitWindow', function()
 	{
 		if (graph.pageVisible && graph.isSelectionEmpty())
@@ -1187,6 +1187,14 @@ Actions.prototype.init = function()
 	action.setToggleAction(true);
 	action.setSelectedCallback(function() { return graph.graphHandler.guidesEnabled; });
 	action.setEnabled(false);
+	
+	action = this.addAction('animations', function()
+	{
+		Editor.enableAnimations = !Editor.enableAnimations;
+		ui.fireEvent(new mxEventObject('enableAnimationsChanged'));
+	});
+	action.setToggleAction(true);
+	action.setSelectedCallback(function() { return Editor.enableAnimations; });
 	
 	action = this.addAction('tooltips', function()
 	{

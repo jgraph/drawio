@@ -56,6 +56,8 @@
 
 	Sidebar.prototype.cisco_safe = ['Architecture', 'Business Icons', 'Capability', 'Design', 'IoT Things Icons', 'People Places Things Icons', 'Security Icons', 'Technology Icons', 'Threat'];
 	
+	Sidebar.prototype.sap = ['Annotations', 'Colored Connectors', 'Foundations', 'Integration Suite', 'App Dev Automation', 'Data Analytics', 'AI', 'Generic Icons', 'Component Groups', 'Components', 'Default Connectors', 'Default Shapes', 'Numbers', 'Products', 'Build Workzone', 'Semantic Accent', 'Texts'];
+	
 	Sidebar.prototype.sysml = ['Model Elements', 'Blocks', 'Ports and Flows', 'Constraint Blocks', 'Activities', 'Interactions', 'State Machines', 
 	                           'Use Cases', 'Allocations', 'Requirements', 'Profiles', 'Stereotypes'];
 
@@ -146,6 +148,7 @@
            	                           {id: 'aws2', prefix: 'aws2', libs: Sidebar.prototype.aws2},
            	                           {id: 'aws3', prefix: 'aws3', libs: Sidebar.prototype.aws3},
            	                           {id: 'aws4b', prefix: 'aws4b', libs: Sidebar.prototype.aws4b},
+           	                           {id: 'sap', prefix: 'sap', libs: Sidebar.prototype.sap},
            	                           {id: 'aws4', prefix: 'aws4', libs: Sidebar.prototype.aws4},
            	                           {id: 'pid', prefix: 'pid', libs: Sidebar.prototype.pids},
            	                           {id: 'cisco', prefix: 'cisco', libs: Sidebar.prototype.cisco},
@@ -511,6 +514,7 @@
 								{title: 'Network', id: 'network', image: IMAGE_PATH + '/sidebar-network.png'},
 								{title: 'Office', id: 'office', image: IMAGE_PATH + '/sidebar-office.png'},
 								{title: mxResources.get('rack'), id: 'rack', image: IMAGE_PATH + '/sidebar-rack.png'},
+								{title: 'SAP', id: 'sap', image: IMAGE_PATH + '/sidebar-sap.png'},
 								{title: 'Veeam', id: 'veeam2', image: IMAGE_PATH + '/sidebar-veeam.png'},
 								{title: 'VMware', id: 'vvd', image: IMAGE_PATH + '/sidebar-vvd.png'}]},
             			{title: mxResources.get('business'),
@@ -1065,6 +1069,7 @@
 		this.addGCPIconsPalette();
 		this.addIBMPalette();
 		this.addNetworkPalette();
+		this.addSAPPalette();
 		this.addOfficePalette();
 		this.addRackPalette(rack, dir);
 		this.addVeeamPalette();

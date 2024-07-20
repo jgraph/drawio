@@ -30,6 +30,7 @@ allTags=Semua Tag
 anchor=Sauh
 android=Android
 angle=Sudut
+animations=Animasi
 arc=Arc
 areYouSure=Pastikah anda?
 ensureDataSaved=Sila pastikan data anda telah disimpan sebelum menutup.

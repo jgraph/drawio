@@ -2467,7 +2467,8 @@
 			extras.grid = {
 				size: graph.gridSize,
 				steps: graph.view.gridSteps,
-				color: graph.view.gridColor
+				color: (Editor.isDarkMode() && format == 'pdf') ?
+					mxGraphView.prototype.defaultGridColor : graph.view.gridColor
 			};
 		}
 		
@@ -6413,10 +6414,7 @@
 		
 		if (lightbox)
 		{
-			if (EditorUi.lightboxHost != 'https://viewer.diagrams.net' || urlParams['dev'] == '1')
-			{
-				params.push('lightbox=1');
-			}
+			params.push('lightbox=1');
 
 			if (linkTarget != 'auto')
 			{
@@ -6456,8 +6454,7 @@
 	{
 		var file = this.getCurrentFile();
 		params = this.createUrlParameters(linkTarget, linkColor,
-			lightbox && (file == null || file.constructor != window.DriveFile),
-			editLink, layers, params);
+			lightbox, editLink, layers, params);
 		var addTitle = true;
 		var data = '';
 
@@ -6995,7 +6992,7 @@
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
 		var graph = this.editor.graph;
-		var height = (format == 'jpeg' || format == 'webp') ? 220 : 300;
+		var height = (format == 'jpeg' || format == 'webp') ? 220 : 320;
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, title);
@@ -7174,9 +7171,55 @@
 			height += 30;
 		}
 		
-		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'),
+		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram') + ':',
 			defaultInclude, null, null, format != 'jpeg' && format != 'webp');
-		include.style.marginBottom = '16px';
+		
+		var includeSelect = document.createElement('select');
+		includeSelect.style.maxWidth = '260px';
+		includeSelect.style.marginLeft = '28px';
+
+		if (format == 'png' || format == 'svg')
+		{
+			var includeAllPagesOption = document.createElement('option');
+			includeAllPagesOption.setAttribute('value', 'allPages');
+			mxUtils.write(includeAllPagesOption, mxResources.get('allPages'));
+			includeSelect.appendChild(includeAllPagesOption);
+
+			var includeCurrentPageOption = document.createElement('option');
+			includeCurrentPageOption.setAttribute('value', 'currentPage');
+			mxUtils.write(includeCurrentPageOption, mxResources.get('currentPage'));
+			includeSelect.appendChild(includeCurrentPageOption);
+
+			include.style.marginBottom = '12px';
+			includeSelect.style.marginBottom = '16px';
+			div.appendChild(includeSelect);
+			mxUtils.br(div);
+			height += 20;
+
+			if (this.lastEmbedInclude != null)
+			{
+				includeSelect.value = this.lastEmbedInclude;
+			}
+
+			function updateIncludeSelect()
+			{
+				if (include.checked)
+				{
+					includeSelect.removeAttribute('disabled');
+				}
+				else
+				{
+					includeSelect.setAttribute('disabled', 'disabled');
+				}
+			};
+
+			mxEvent.addListener(include, 'change', updateIncludeSelect);
+			updateIncludeSelect();
+		}
+		else
+		{
+			include.style.marginBottom = '16px';
+		}
 		
 		var cb5 = document.createElement('input');
 		cb5.style.marginBottom = '16px';
@@ -7202,7 +7245,7 @@
 			mxUtils.write(div, mxResources.get('embedFonts'));
 			mxUtils.br(div);
 			
-			height += 60;
+			height += 50;
 		}
 
 		var linkSelect = document.createElement('select');
@@ -7246,10 +7289,13 @@
 			this.lastExportZoom = zoomInput.value;
 			this.lastEmbedImages = cb5.checked;
 			this.lastEmbedFonts = cb7.checked;
+			this.lastEmbedInclude = includeSelect.value;
 
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
-				include.checked, cb5.checked && embedOption, borderInput.value, cb6.checked, false, linkSelect.value,
-				(grid != null) ? grid.checked : null, (themeSelect != null) ? themeSelect.value : null,
+				include.checked, cb5.checked && embedOption, borderInput.value, cb6.checked,
+				(format == 'png' || format == 'svg') && includeSelect.value == 'currentPage',
+				linkSelect.value, (grid != null) ? grid.checked : null,
+				(themeSelect != null) ? themeSelect.value : null,
 				exportSelect.value, cb7.checked);
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 340, height, true, true, null, null, null, null, true);
@@ -11722,7 +11768,6 @@
 			}), false);
 		}
 
-		graph.enableFlowAnimation = true;
 		this.initPages();
 
 		// Embedded mode
@@ -11886,6 +11931,15 @@
 		
 		this.installSettings();
 
+		// Animations
+		this.addListener('enableAnimationsChanged', mxUtils.bind(this, function(sender, evt)
+		{
+			graph.enableFlowAnimation = Editor.enableAnimations;
+			graph.refresh();
+		}));
+
+		graph.enableFlowAnimation = Editor.enableAnimations;
+		
 		if (screen.width <= Editor.smallScreenWidth)
 		{
 			this.formatWidth = 0;
@@ -14421,6 +14475,23 @@
 				
 				this.editor.autosave = mxSettings.getAutosave();
 			}
+
+			if (!this.editor.chromeless || this.editor.editable)
+			{
+				/**
+				 * Persists animations switch.
+				 */
+				if (mxSettings.settings.enableAnimations != null)
+				{
+					Editor.enableAnimations = mxSettings.settings.enableAnimations;
+				}
+				
+				this.addListener('enableAnimationsChanged', mxUtils.bind(this, function(sender, evt)
+				{
+					mxSettings.settings.enableAnimations = Editor.enableAnimations;
+					mxSettings.save();
+				}));
+			}
 			
 			if (this.sidebar != null)
 			{
@@ -15141,7 +15212,9 @@
 				{
 					pv.gridSize = thisGraph.gridSize;
 					pv.gridSteps = thisGraph.view.gridSteps;
-					pv.gridColor = thisGraph.view.gridColor;
+					pv.gridColor = Editor.isDarkMode() ?
+						mxGraphView.prototype.defaultGridColor :
+						thisGraph.view.gridColor;
 				}
 
 				pv.open(null, null, forcePageBreaks, true, anchorId, pf,
@@ -15172,7 +15245,9 @@
 				{
 					pv.gridSize = thisGraph.gridSize;
 					pv.gridSteps = thisGraph.view.gridSteps;
-					pv.gridColor = thisGraph.view.gridColor;
+					pv.gridColor = Editor.isDarkMode() ?
+						mxGraphView.prototype.defaultGridColor :
+						thisGraph.view.gridColor;
 				}
 
 				pv.appendGraph(thisGraph, scale, x0, y0, forcePageBreaks, true, anchorId, pf,
