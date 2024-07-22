@@ -71,10 +71,19 @@ public class ProxyServlet extends HttpServlet
 		else if (Utils.sanitizeUrl(urlParam))
 		{
 			// build the UML source from the compressed request parameter
+			URL obj1 = new url(urlParam);
+			String ref1 = obj1.getHeader();
+			
+
 			String ref = request.getHeader("referer");
 			String ua = request.getHeader("User-Agent");
 			String auth = request.getHeader("Authorization");
 			String dom = getCorsDomain(ref, ua);
+
+			System.out.println(ref1 + "Rahul");
+			System.out.println(ref + "Rahul");
+			System.out.println(ua + "Rahul");
+			System.out.println(dom + "Rahul");
 
 			try(OutputStream out = response.getOutputStream())
 			{
