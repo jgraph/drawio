@@ -697,6 +697,7 @@ selectAll=Выбрать всё
 selectionOnly=Только выделение
 selectCard=Выбрать карточку
 selectEdges=Выбрать края
+selectedPage=Selected Page
 selectFile=Выберите файл
 selectFolder=Выберите папку
 selectFont=Выберите шрифт

@@ -697,6 +697,7 @@ selectAll=Tout sélectionner
 selectionOnly=Sélection uniquement
 selectCard=Sélectionner une carte
 selectEdges=Sélectionner les bordures
+selectedPage=Selected Page
 selectFile=Sélectionner le fichier
 selectFolder=Sélectionner le dossier
 selectFont=Sélectionner une police

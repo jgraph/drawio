@@ -697,6 +697,7 @@ selectAll=Seleccionar tudo
 selectionOnly=Seleccionar somente
 selectCard=Select Card
 selectEdges=Seleccionar margens
+selectedPage=Selected Page
 selectFile=Seleccionar Ficheiro
 selectFolder=Seleccionar Pasta
 selectFont=Seleccionar uma fonte

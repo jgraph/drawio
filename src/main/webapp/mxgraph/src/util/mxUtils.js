@@ -102,6 +102,68 @@ var mxUtils =
 			};
 		}
 	}(),
+		
+	/**
+	 * Function: getCssFontFamily
+	 * 
+	 * Gets the CSS font family or families without quotes.
+	 */
+	getCssFontFamily: function(fontFamily)
+	{
+		if (typeof fontFamily === 'string')
+		{
+			var tokens = fontFamily.split(',');
+
+			for (var i = 0; i < tokens.length; i++)
+			{
+				tokens[i] = mxUtils.trim(tokens[i]);
+
+				if (tokens[i].charAt(0) == '"' && tokens[i].charAt(tokens[i].length - 1) == '"')
+				{
+					tokens[i] = tokens[i].substring(1, tokens[i].length - 1);
+				}
+			}
+
+			fontFamily = tokens.join(', ');
+		}
+
+		return fontFamily;
+	},
+
+	/**
+	 * Function: parseCssFontFamily
+	 * 
+	 * Parses the given CSS font family or families and returns a properly
+	 * quotes and escaped font family definition for use in CSS.
+	 */
+	parseCssFontFamily: function(fontFamily, htmlEntities)
+	{
+		if (typeof fontFamily === 'string')
+		{
+			var tokens = fontFamily.split(',');
+
+			for (var i = 0; i < tokens.length; i++)
+			{
+				tokens[i] = mxUtils.trim(tokens[i]);
+
+				if (tokens[i].charAt(0) == '"' && tokens[i].charAt(tokens[i].length - 1) == '"')
+				{
+					tokens[i] = tokens[i].substring(1, tokens[i].length - 1);
+				}
+
+				if (htmlEntities)
+				{
+					tokens[i] = mxUtils.htmlEntities(tokens[i]);
+				}
+
+				tokens[i] = '"' + tokens[i] + '"';
+			}
+
+			fontFamily = tokens.join(', ');
+		}
+
+		return fontFamily;
+	},
 	
 	/**
 	 * Function: parseCssNumber

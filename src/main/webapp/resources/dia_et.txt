@@ -697,6 +697,7 @@ selectAll=Vali kõik
 selectionOnly=Ainult valik
 selectCard=Vali kaart
 selectEdges=Vali ääred
+selectedPage=Selected Page
 selectFile=Vali fail
 selectFolder=Vali kaust
 selectFont=Vali font

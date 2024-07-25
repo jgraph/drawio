@@ -26,17 +26,7 @@ mxUtils.extend(StorageFile, DrawioFile);
 */
 StorageFile.prototype.getEtag = function(data)
 {
-	if (data == null)
-	{
-		return null;
-	}
-	else
-	{
-		var content = mxUtils.parseXml(data);
-
-		return content.documentElement.getAttribute('etag');
-	}
-};
+	return this.ui.hashValue((data != null) ? data : '');};
 
 /**
  * Sets the delay for autosave in milliseconds. Default is 1000.
@@ -91,6 +81,15 @@ StorageFile.prototype.isPolling = function()
 StorageFile.prototype.getPollingInterval = function()
 {
 	return 10000;
+};
+
+/**
+ * Hook for subclassers to get the latest descriptor of this file
+ * and return it in the success handler.
+ */
+StorageFile.prototype.loadDescriptor = function(success, error)
+{
+	this.getLatestVersionId(success, error);
 };
 
 /**

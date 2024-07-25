@@ -697,6 +697,7 @@ selectAll=すべて選択
 selectionOnly=選択範囲のみ
 selectCard=Select Card
 selectEdges=辺を選択
+selectedPage=Selected Page
 selectFile=ファイルを選択します
 selectFolder=フォルダーを選択します
 selectFont=フォントを選択する

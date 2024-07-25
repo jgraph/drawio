@@ -697,6 +697,7 @@ selectAll=Izaberi sve
 selectionOnly=Samo odabrano
 selectCard=Select Card
 selectEdges=Izaberi rubove
+selectedPage=Selected Page
 selectFile=Izaberi fajl
 selectFolder=Izaberi folder
 selectFont=Izaberi font

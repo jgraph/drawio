@@ -697,6 +697,7 @@ selectAll=Mindent kijelöl
 selectionOnly=Csak a kijelölt
 selectCard=Select Card
 selectEdges=Éleket kijelöl
+selectedPage=Selected Page
 selectFile=Fájlt kijelöl
 selectFolder=Betűtípust kijelöl
 selectFont=Betűkészlet választás

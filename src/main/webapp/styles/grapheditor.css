@@ -35,6 +35,9 @@
 	width:100%;
 	height:100%;
 }
+.mxCellEditor {
+	font-family:initial;
+}
 .geEditor *:not(svg *, .mxCellEditor *), div.mxWindow, .mxWindowTitle,
 .geEditor .geToolbarContainer .geColorButton {
 	border-color:var(--border-color);

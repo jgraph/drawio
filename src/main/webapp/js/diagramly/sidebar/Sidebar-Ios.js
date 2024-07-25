@@ -32,11 +32,97 @@
 			this.createVertexTemplateEntry(s + 'iBgFlat;strokeColor=#18211b;fillColor=#dddddd;', sizeX * 0.875, sizeY * 0.7, '', 'iPad background (gray)', null, null, null),
 			this.createVertexTemplateEntry(s + 'iBgStriped;strokeColor=#18211b;fillColor=#5D7585;strokeColor2=#657E8F;', sizeX * 0.875, sizeY * 0.7, '', 'iPad background (striped)', null, null, null),
 			this.createVertexTemplateEntry(s + 'iBgMap;strokeColor=#18211b;strokeColor2=#008cff;fillColor2=#96D1FF;', sizeX * 0.875, sizeY * 0.7, '', 'iPad background (map)', null, null, null),
-			this.addDataEntry(null, 165, 50, 'Button bar',
-				'3ZfdboIwFMefhltSKCjeIptZsl3tCTqo0KxQUurUPf0OpfgJiVN0OowJ55z20P7Ov01r4Wm+mklSZm8iodzCTxaeSiFU85avppRzy0UssXBkuS6Cv+U+90QdHUUlkbRQp3Rwmw5fhC9o42kclVpz48hUDsOKHAuHVUYSsQQDgZGQKqOJMSBS1u3zVVrPxWaisqWkMQwilO/su475dTslxSedCi6kzo49/UBkzjjf8c/1A37IlzCYTRsrRAHJQjNuKhVd9c5du8zEZ1TkVMk1NFmyRGWmxchvumWUpZnp5jfMEKkaO9103ZKEFwOzGyw+AvuiaA4eZzjASpThQilRHEDeRWlwHXGPvfoHEcJZCgkiTud1saqSxKxIX7UVOfWn56JQJntgzJ1EI/2cWhH3vIo4ru1fXhOvQ+yjVG3GPkRNSBFnNZpDTBvemqb5kHMqNtyNre3gGcGu9xLsQkUdTAdQud+ncny9bQQ9pMJNaVpitxH86GEF79+p4Md9gveGI/ohYE/P/8nObiqEx/ZNlR88rPLHd6r8SZ/yr3hiPNzqAa4fjf3g+CRpFsOlku89dUIMoSDWsQGWw1bkt1kOrQAecD1M7nQ9OE4H0r+/Ov3menTmYfyM6xGY2zutju1deX8A'),
-
-			this.createVertexTemplateEntry(s + 'iButtonBar;buttonText=Item 1,+Item 2,Item 3,Item 4;textColor=#999999;textColor2=#ffffff;strokeColor=#444444;strokeColor2=#c4c4c4;', 165, 80, '', 'Button Bar', null, null, null),
-
+			
+			this.addEntry('button bar', function()
+			{
+				var cell = new mxCell('', new mxGeometry(0, 0, 165, 50),
+			    	'swimlane;shape=mxgraph.bootstrap.anchor;strokeColor=#C4C4C4;fillColor=#ffffff;fontColor=#666666;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=0;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;');
+				cell.vertex = true;
+				var field1 = new mxCell('Item 1', new mxGeometry(0, 0, 165, 12.5),
+					'text;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;shape=mxgraph.bootstrap.topButton;rSize=5;fillColor=inherit;fontColor=inherit;fontSize=8;');
+				field1.vertex = true;
+				cell.insert(field1);
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 6, 5), 'shape=mxgraph.ios7.misc.right;strokeColor=#C4C4C4;');
+			   	marker1.geometry.relative = true;
+			   	marker1.geometry.offset = new mxPoint(-20, -2.5);
+			   	marker1.vertex = true;
+			   	field1.insert(marker1);
+				var field2 = new mxCell('Item 2', new mxGeometry(0, 0, 165, 12.5),
+					'text;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;rSize=5;fillColor=#5D7585;gradientColor=#008cff;fontColor=#ffffff;fontSize=8;');
+				field2.vertex = true;
+				cell.insert(field2);
+			   	var marker2 = new mxCell('', new mxGeometry(1, 0.5, 6, 5), 'shape=mxgraph.ios7.misc.right;strokeColor=#C4C4C4;');
+			   	marker2.geometry.relative = true;
+			   	marker2.geometry.offset = new mxPoint(-20, -2.5);
+			   	marker2.vertex = true;
+			   	field2.insert(marker2);
+				var field3 = new mxCell('Item 3', new mxGeometry(0, 0, 165, 12.5),
+					'text;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;rSize=5;fillColor=inherit;fontColor=inherit;fontSize=8;');
+				field3.vertex = true;
+				cell.insert(field3);
+			   	var marker3 = new mxCell('', new mxGeometry(1, 0.5, 6, 5), 'shape=mxgraph.ios7.misc.right;strokeColor=#C4C4C4;');
+			   	marker3.geometry.relative = true;
+			   	marker3.geometry.offset = new mxPoint(-20, -2.5);
+			   	marker3.vertex = true;
+			   	field3.insert(marker3);
+				var field4 = new mxCell('Item 4', new mxGeometry(0, 0, 165, 12.5),
+					'text;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;shape=mxgraph.bootstrap.bottomButton;rSize=5;fillColor=inherit;fontColor=inherit;fontSize=8;');
+				field4.vertex = true;
+				cell.insert(field4);
+			   	var marker4 = new mxCell('', new mxGeometry(1, 0.5, 6, 5), 'shape=mxgraph.ios7.misc.right;strokeColor=#C4C4C4;');
+			   	marker4.geometry.relative = true;
+			   	marker4.geometry.offset = new mxPoint(-20, -2.5);
+			   	marker4.vertex = true;
+			   	field4.insert(marker4);
+				
+				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Button bar');
+			}),
+		    
+			this.addEntry('button bar', function()
+			{
+				var cell = new mxCell('', new mxGeometry(0, 0, 165, 80),
+			    	'swimlane;shape=mxgraph.bootstrap.anchor;strokeColor=#C4C4C4;fillColor=#ffffff;fontColor=#999999;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=0;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;');
+				cell.vertex = true;
+				var field1 = new mxCell('Item 1', new mxGeometry(0, 0, 165, 20),
+					'text;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;shape=mxgraph.bootstrap.topButton;rSize=5;fillColor=inherit;fontColor=inherit;fontSize=12;');
+				field1.vertex = true;
+				cell.insert(field1);
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 6, 12), 'shape=mxgraph.ios7.misc.right;strokeColor=#C4C4C4;strokeWidth=3;');
+			   	marker1.geometry.relative = true;
+			   	marker1.geometry.offset = new mxPoint(-25, -6);
+			   	marker1.vertex = true;
+			   	field1.insert(marker1);
+				var field2 = new mxCell('Item 2', new mxGeometry(0, 0, 165, 20),
+					'text;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;rSize=5;fillColor=#5D7585;gradientColor=#008cff;fontColor=#ffffff;fontSize=12;');
+				field2.vertex = true;
+				cell.insert(field2);
+			   	var marker2 = new mxCell('', new mxGeometry(1, 0.5, 6, 12), 'shape=mxgraph.ios7.misc.right;strokeColor=#C4C4C4;strokeWidth=3;');
+			   	marker2.geometry.relative = true;
+			   	marker2.geometry.offset = new mxPoint(-25, -6);
+			   	marker2.vertex = true;
+			   	field2.insert(marker2);
+				var field3 = new mxCell('Item 3', new mxGeometry(0, 0, 165, 20),
+					'text;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;rSize=5;fillColor=inherit;fontColor=inherit;fontSize=12;');
+				field3.vertex = true;
+				cell.insert(field3);
+			   	var marker3 = new mxCell('', new mxGeometry(1, 0.5, 6, 12), 'shape=mxgraph.ios7.misc.right;strokeColor=#C4C4C4;strokeWidth=3;');
+			   	marker3.geometry.relative = true;
+			   	marker3.geometry.offset = new mxPoint(-25, -6);
+			   	marker3.vertex = true;
+			   	field3.insert(marker3);
+				var field4 = new mxCell('Item 4', new mxGeometry(0, 0, 165, 20),
+					'text;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;shape=mxgraph.bootstrap.bottomButton;rSize=5;fillColor=inherit;fontColor=inherit;fontSize=12;');
+				field4.vertex = true;
+				cell.insert(field4);
+			   	var marker4 = new mxCell('', new mxGeometry(1, 0.5, 6, 12), 'shape=mxgraph.ios7.misc.right;strokeColor=#C4C4C4;strokeWidth=3;');
+			   	marker4.geometry.relative = true;
+			   	marker4.geometry.offset = new mxPoint(-25, -6);
+			   	marker4.vertex = true;
+			   	field4.insert(marker4);
+				
+				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Button bar');
+			}),
+		    
 			this.addEntry(null, function()
 			{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 175, 15), s4 + 'iAppBar;strokeWidth=1;sketch=0;');
@@ -100,11 +186,97 @@
 					sizeX * 0.2175, sizeY * 0.0375, '', 'Prev/next button', null, null, null),
 			this.createVertexTemplateEntry(s2 + 'iTextInput;strokeColor=#444444;buttonText=;fontSize=8;whiteSpace=wrap;align=left;', 
 					sizeX * 0.2175, sizeY * 0.0375, 'Default text', 'Text input', null, null, null),
-			this.addDataEntry(null, 165, 50, 'Radio Buttons',
-				'7ZbdTsIwFMefZrdka4F4K6DcaDTqCxR62Bq7dWmrgE/vaXv4UFhCgnJFkyU7nznn/1uTZXxcr6ZWtNWjkaAzfpfxsTXGp7d6NQatM5YrmfFJxliOT8buO6JFjOatsND4UwpYKvgU+gOSJzmcX2tyVL7GsSZFxkeuEtIs0cjRkMJVIMnASBvy61UZdukp43rWwhyHGNlX9RViPOR5a95hbLSxsTsfxoORhdJ6z7+IB/3YTyrcZhNrTAOhKcw/rFOf8AIutc9pFbAeVp1yRBdpMQVTg7drTFkq6SvKGA5SWQWqrKhsQN2FS3a5Ld2Jiy+k73Gt+YHWT61XpkFfcaD6RlBsoVqXNsZFxUwDSf5LMBkP+oVWZYM+DYugvmvFXDXlQ7QmLBSaxhOSGzKPAdFiBvrZOBVn5BOb1BgFgdVc6Idf8VpJGYbbJtzSINsAjfJmWvoa9j6tk+Cx4/CogPUI3Jr03th7cI+hPZ9sv5vs4X26kj2bbDG8ENhBN1h+Pth+PFewO7Ds5mJ3dtiNtn+9s3+Ptl/8D1g0d79LMfbjb+ob'),
-			this.addDataEntry(null, 165, 50, 'Checkboxes',
-				'7ZZbT8IwFMc/zV7J1gLBRxnKCyZG/AJlPWyN3bq0RYef3tOLeGEQEoUXbbKk55rT/29NmtC87uaatdWd4iATepPQXCtlw67ucpAyIangCZ0lhKT4JeT2QDTz0bRlGhp7SgEJBc9MbiB4gsPYrYyOytY41ixL6NRUjKsXNFI0ODMV8GhgpHX5dVe6swyEMgOtocAhpnopXl2Mujyr1RPkSirtu9OxXxhZCyk/+dd+oR/7cYGneY81qgHXFIqNNuIZHsCE9m6MeBrQFrqDinhXlGMOqgart5jyIritYsZ4FMoqEGUVy0ZByZSZYJe70g99cRMl7peb7sm9BGtFU6IzO5/y6b6+3C/0MynKBn0S1q7EtKzAeRbemhFXqBob+0yi2cdPshXIe2WEFcr100G5qYMhCiYX3+K14NwddJdwHQfZBeIoj6qNP89JdEk/3VhABpHsNgJ5tz/R72P/c/TDI+jPeOn+0R9Cn40vRH50hDz9PfJFBcXTSnX7wK/8+vPAyeRil318BPnw/7Jfnv0wOw95ND8eaz725S33Bg=='),
-			   	
+
+			this.addEntry('radio buttons', function()
+			{
+				var cell = new mxCell('', new mxGeometry(0, 0, 165, 50),
+			    	'swimlane;shape=mxgraph.bootstrap.rrect;rSize=3;strokeColor=#666666;fillColor=#ffffff;fontColor=#666666;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=0;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;');
+				cell.vertex = true;
+				var field1 = new mxCell('Option 1', new mxGeometry(0, 0, 165, 12.5),
+					'text;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;shape=mxgraph.bootstrap.topButton;rSize=3;fillColor=none;fontColor=inherit;fontSize=8;');
+				field1.vertex = true;
+				cell.insert(field1);
+			   	var marker1 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'shape=ellipse;resizable=0;fillColor=#dddddd;html=1;');
+			   	marker1.geometry.relative = true;
+			   	marker1.geometry.offset = new mxPoint(3, -2.5);
+			   	marker1.vertex = true;
+			   	field1.insert(marker1);
+				var field2 = new mxCell('Option 2', new mxGeometry(0, 0, 165, 12.5),
+					'text;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;rSize=5;fillColor=none;fontColor=inherit;fontSize=8;');
+				field2.vertex = true;
+				cell.insert(field2);
+			   	var marker2 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'shape=ellipse;resizable=0;fillColor=#dddddd;html=1;');
+			   	marker2.geometry.relative = true;
+			   	marker2.geometry.offset = new mxPoint(3, -2.5);
+			   	marker2.vertex = true;
+			   	field2.insert(marker2);
+				var field3 = new mxCell('Option 3', new mxGeometry(0, 0, 165, 12.5),
+					'text;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;rSize=5;fillColor=none;fontColor=inherit;fontSize=8;');
+				field3.vertex = true;
+				cell.insert(field3);
+			   	var marker3 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'shape=ellipse;resizable=0;fillColor=#444444;html=1;');
+			   	marker3.geometry.relative = true;
+			   	marker3.geometry.offset = new mxPoint(3, -2.5);
+			   	marker3.vertex = true;
+			   	field3.insert(marker3);
+				var field4 = new mxCell('Option 4', new mxGeometry(0, 0, 165, 12.5),
+					'text;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;shape=mxgraph.bootstrap.bottomButton;rSize=5;fillColor=none;fontColor=inherit;fontSize=8;');
+				field4.vertex = true;
+				cell.insert(field4);
+			   	var marker4 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'shape=ellipse;resizable=0;fillColor=#dddddd;html=1;');
+			   	marker4.geometry.relative = true;
+			   	marker4.geometry.offset = new mxPoint(3, -2.5);
+			   	marker4.vertex = true;
+			   	field4.insert(marker4);
+				
+				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Radio buttons');
+			}),
+		    
+			this.addEntry('checkboxes', function()
+			{
+				var cell = new mxCell('', new mxGeometry(0, 0, 165, 50),
+			    	'swimlane;shape=mxgraph.bootstrap.rrect;rSize=3;strokeColor=#666666;fillColor=#ffffff;fontColor=#666666;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=0;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;');
+				cell.vertex = true;
+				var field1 = new mxCell('Setting 1', new mxGeometry(0, 0, 165, 12.5),
+					'text;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;shape=mxgraph.bootstrap.topButton;rSize=3;fillColor=none;fontColor=inherit;fontSize=8;');
+				field1.vertex = true;
+				cell.insert(field1);
+			   	var marker1 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'resizable=0;fillColor=#dddddd;html=1;');
+			   	marker1.geometry.relative = true;
+			   	marker1.geometry.offset = new mxPoint(3, -2.5);
+			   	marker1.vertex = true;
+			   	field1.insert(marker1);
+				var field2 = new mxCell('Setting 2', new mxGeometry(0, 0, 165, 12.5),
+					'text;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;rSize=5;fillColor=none;fontColor=inherit;fontSize=8;');
+				field2.vertex = true;
+				cell.insert(field2);
+			   	var marker2 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'resizable=0;fillColor=#dddddd;html=1;');
+			   	marker2.geometry.relative = true;
+			   	marker2.geometry.offset = new mxPoint(3, -2.5);
+			   	marker2.vertex = true;
+			   	field2.insert(marker2);
+				var field3 = new mxCell('Setting 3', new mxGeometry(0, 0, 165, 12.5),
+					'text;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;rSize=5;fillColor=none;fontColor=inherit;fontSize=8;');
+				field3.vertex = true;
+				cell.insert(field3);
+			   	var marker3 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'shape=mxgraph.ios.checkbox;resizable=0;fillColor=#999999;html=1;');
+			   	marker3.geometry.relative = true;
+			   	marker3.geometry.offset = new mxPoint(3, -2.5);
+			   	marker3.vertex = true;
+			   	field3.insert(marker3);
+				var field4 = new mxCell('Setting 4', new mxGeometry(0, 0, 165, 12.5),
+					'text;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;shape=mxgraph.bootstrap.bottomButton;rSize=5;fillColor=none;fontColor=inherit;fontSize=8;');
+				field4.vertex = true;
+				cell.insert(field4);
+			   	var marker4 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'resizable=0;fillColor=#dddddd;html=1;');
+			   	marker4.geometry.relative = true;
+			   	marker4.geometry.offset = new mxPoint(3, -2.5);
+			   	marker4.vertex = true;
+			   	field4.insert(marker4);
+				
+				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Checkboxes');
+			}),
+		    
 			this.createVertexTemplateEntry(s2 + 'iComboBox;spacingTop=2;spacingLeft=2;align=left;strokeColor=#444444;fontColor=#666666;buttonText=;fontSize=8;fillColor=#dddddd;fillColor2=#3D5565;sketch=0;whiteSpace=wrap;', 
 					sizeX * 0.29, sizeY * 0.0375, 'Option 1', 'Combobox', null, null, null),
 			this.createVertexTemplateEntry(s2 + 'iOnOffButton;mainText=;strokeColor=#444444;fontSize=9;fontColor=#ffffff;spacingRight=14;buttonState=on;sketch=0;', sizeX * 0.2175, sizeY * 0.0375, 
@@ -133,8 +305,32 @@
 			this.createVertexTemplateEntry(s + 'iCallButtons;', sizeX * 0.87, sizeY * 0.575, '', 'Call buttons', null, null, null),
 			this.createVertexTemplateEntry(s2 + 'iOption;barPos=80;pointerPos=bottom;buttonText=Option;fontSize=10;fontColor=#ffffff;spacingBottom=6;', sizeX * 0.375, sizeY * 0.06875, '', 'Option', null, null, null),
 			this.createVertexTemplateEntry(s + 'iAlphaList;fontSize=7.5;', sizeX * 0.075, sizeY * 0.5625, '', 'Alphabet list', null, null, null),
-			this.createVertexTemplateEntry(s2 + 'iHorButtonBar;buttonText=Item 1,+Item 2,Item 3,Item 4;textColor=#999999;textColor2=#ffffff;strokeColor=#444444;strokeColor2=#c4c4c4;fillColor2=#008cff;fontSize=8;sketch=0;', sizeX * 0.825, sizeY * 0.03125,
-					'', 'Horizontal button bar', null, null, null),
+
+			this.addEntry('button group horizontal', function()
+			{
+				var cell = new mxCell('', new mxGeometry(0, 0, 165, 12.5),
+			    	'swimlane;shape=mxgraph.bootstrap.anchor;strokeColor=#444444;fillColor=#ffffff;fontColor=#999999;fontStyle=0;childLayout=stackLayout;horizontal=0;startSize=0;horizontalStack=1;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;');
+				cell.vertex = true;
+				var field1 = new mxCell('Item 1', new mxGeometry(0, 0, 41.25, 12.5),
+					'text;strokeColor=inherit;align=center;verticalAlign=middle;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;shape=mxgraph.bootstrap.leftButton;rSize=3;fillColor=inherit;fontColor=inherit;fontSize=8;');
+				field1.vertex = true;
+				cell.insert(field1);
+				var field2 = new mxCell('Item 2', new mxGeometry(0, 0, 41.25, 12.5),
+					'text;strokeColor=inherit;align=center;verticalAlign=middle;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;rSize=3;fillColor=#5D7585;gradientColor=#008cff;fontColor=#ffffff;fontSize=8;');
+				field2.vertex = true;
+				cell.insert(field2);
+				var field3 = new mxCell('Item 3', new mxGeometry(0, 0, 41.25, 30),
+					'text;strokeColor=inherit;align=center;verticalAlign=middle;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;rSize=3;fillColor=inherit;fontColor=inherit;fontSize=8;');
+				field3.vertex = true;
+				cell.insert(field3);
+				var field4 = new mxCell('Item 4', new mxGeometry(0, 0, 41.25, 12.5),
+					'text;strokeColor=inherit;align=center;verticalAlign=middle;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;shape=mxgraph.bootstrap.rightButton;rSize=3;fillColor=inherit;fontColor=inherit;spacing=10;dropTarget=0;fontSize=8;');
+				field4.vertex = true;
+				cell.insert(field4);
+				
+				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Button group, horizontal');
+			}),
+						    
 			this.createVertexTemplateEntry(s3 + 'iPin;fillColor2=#00dd00;fillColor3=#004400;strokeColor=#006600;', sizeX * 0.05, sizeY * 0.0625, '', 'Pin', null, null, null),
 			this.createVertexTemplateEntry(s3 + 'iPin;fillColor2=#dd0000;fillColor3=#440000;strokeColor=#660000;', sizeX * 0.05, sizeY * 0.0625, '', 'Pin', null, null, null),
 			this.createVertexTemplateEntry(s3 + 'iPin;fillColor2=#ccccff;fillColor3=#0000ff;strokeColor=#000066;', sizeX * 0.05, sizeY * 0.0625, '', 'Pin', null, null, null),

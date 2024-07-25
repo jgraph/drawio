@@ -697,6 +697,7 @@ selectAll=selectAll
 selectionOnly=selectionOnly
 selectCard=selectCard
 selectEdges=selectEdges
+selectedPage=selectedPage
 selectFile=selectFile
 selectFolder=selectFolder
 selectFont=selectFont

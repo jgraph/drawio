@@ -697,6 +697,7 @@ selectAll=Piliin lahat
 selectionOnly=Ang mga napili lamang
 selectCard=Select Card
 selectEdges=Piliin ang mga gilid
+selectedPage=Selected Page
 selectFile=Pumili ang File
 selectFolder=Pumili ng folder
 selectFont=Pumili ng istilo ng teksto

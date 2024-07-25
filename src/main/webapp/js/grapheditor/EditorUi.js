@@ -524,7 +524,7 @@ EditorUi = function(editor, container, lightbox)
 		
 								if (css != null && ui.toolbar != null)
 								{
-									ui.toolbar.setFontName(Graph.stripQuotes(css.fontFamily));
+									ui.toolbar.setFontName(mxUtils.getCssFontFamily(css.fontFamily));
 									ui.toolbar.setFontSize(parseInt(css.fontSize));
 								}
 							}

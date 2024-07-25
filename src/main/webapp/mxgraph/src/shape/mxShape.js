@@ -608,6 +608,7 @@ mxShape.prototype.createCanvas = function()
 		canvas.setFillColor = function() {};
 		canvas.setGradient = function() {};
 		canvas.setDashed = function() {};
+		canvas.image = function() {};
 		canvas.text = function() {};
 	}
 
@@ -868,13 +869,7 @@ mxShape.prototype.paint = function(c)
 			stroke.apply(this, arguments);
 		};
 
-		var fillAndStroke = c.fillAndStroke;
-		
-		c.fillAndStroke = function()
-		{
-			strokeDrawn = true;
-			fillAndStroke.apply(this, arguments);
-		};
+		c.fillAndStroke = c.stroke;
 	}
 
 	// Scale is passed-through to canvas
@@ -940,8 +935,12 @@ mxShape.prototype.paint = function(c)
 		}
 		else
 		{
-			// Paints vertex shape
+			// Paints vertex shape and resets translates
+			var dx = c.state.dx;
+			var dy = c.state.dy;
 			this.paintVertexShape(c, x, y, w, h);
+			c.state.dx = dx;
+			c.state.dy = dy;
 		}
 	}
 	

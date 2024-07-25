@@ -697,6 +697,7 @@ selectAll=Zaznacz wszystko
 selectionOnly=Tylko wybrane
 selectCard=Wybierz kartę
 selectEdges=Zaznacz brzegi
+selectedPage=Selected Page
 selectFile=Wybierz plik
 selectFolder=Wybierz folder
 selectFont=Wybierz czcionkę

@@ -2567,37 +2567,6 @@ Graph.clipSvgDataUri = function(dataUri, ignorePreserveAspect)
 };
 
 /**
- * Returns the CSS font family from the given computed style.
- */
-Graph.stripQuotes = function(text)
-{
-	if (text != null)
-	{
-		if (text.charAt(0) == '\'')
-		{
-			text = text.substring(1);
-		}
-		
-		if (text.charAt(text.length - 1) == '\'')
-		{
-			text = text.substring(0, text.length - 1);
-		}
-	
-		if (text.charAt(0) == '"')
-		{
-			text = text.substring(1);
-		}
-		
-		if (text.charAt(text.length - 1) == '"')
-		{
-			text = text.substring(0, text.length - 1);
-		}
-	}
-	
-	return text;
-};
-
-/**
  * Create remove icon. 
  */
 Graph.createRemoveIcon = function(title, onclick)
@@ -14915,7 +14884,8 @@ if (typeof mxVertexHandler !== 'undefined')
 		{
 			edgeHandlerMouseUp.apply(this, arguments);
 			
-			if (this.linkHint != null && this.linkHint.style.display == 'none')
+			if (this.linkHint != null && this.linkHint.style.display == 'none' &&
+				this.graph.getSelectionCount() == 1)
 			{
 				this.linkHint.style.display = '';
 			}
@@ -15566,7 +15536,8 @@ if (typeof mxVertexHandler !== 'undefined')
 				this.rotationShape.node.style.display = (this.graph.getSelectionCount() == 1) ? '' : 'none';
 			}
 			
-			if (this.linkHint != null && this.linkHint.style.display == 'none')
+			if (this.linkHint != null && this.linkHint.style.display == 'none' &&
+				this.graph.getSelectionCount() == 1)
 			{
 				this.linkHint.style.display = '';
 			}
@@ -15610,6 +15581,8 @@ if (typeof mxVertexHandler !== 'undefined')
 					if (this.linkHint == null)
 					{
 						this.linkHint = createHint();
+
+						mxUtils.setPrefixedStyle(this.linkHint.style, 'transform', 'translate(-50%,0)');
 						this.linkHint.style.padding = '6px 8px 6px 8px';
 						this.linkHint.style.opacity = '1';
 						this.linkHint.style.filter = '';
@@ -15843,7 +15816,7 @@ if (typeof mxVertexHandler !== 'undefined')
 					b = Math.max(b, tb.y + tb.height);
 				}
 				
-				this.linkHint.style.left = Math.max(0, Math.round(rs.x + (rs.width - this.linkHint.clientWidth) / 2)) + 'px';
+				this.linkHint.style.left = (rs.x + rs.width / 2) + 'px';
 				this.linkHint.style.top = Math.round(b + this.verticalOffset / 2 + Editor.hintOffset) + 'px';
 				this.linkHint.style.display = (this.graph.getSelectionCount() > 1) ? 'none' : '';
 			}
@@ -15901,7 +15874,7 @@ if (typeof mxVertexHandler !== 'undefined')
 						b.add(this.state.text.bounds);
 					}
 					
-					this.linkHint.style.left = Math.max(0, Math.round(b.x + (b.width - this.linkHint.clientWidth) / 2)) + 'px';
+					this.linkHint.style.left = (b.x + b.width / 2) + 'px';
 					this.linkHint.style.top = Math.round(b.y + b.height + Editor.hintOffset) + 'px';
 					this.linkHint.style.display = (this.graph.getSelectionCount() > 1) ? 'none' : '';
 				}

@@ -697,6 +697,7 @@ selectAll=Vælg Alt
 selectionOnly=Kun valgte
 selectCard=Select Card
 selectEdges=Vælg Kanter
+selectedPage=Selected Page
 selectFile=Vælg fil
 selectFolder=Vælg mappe
 selectFont=Vælg en skrifttype

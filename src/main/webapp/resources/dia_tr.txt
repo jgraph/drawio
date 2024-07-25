@@ -697,6 +697,7 @@ selectAll=Tümünü seç
 selectionOnly=Sadece seçim
 selectCard=Select Card
 selectEdges=Kenarları seç
+selectedPage=Selected Page
 selectFile=Dosyayı seç
 selectFolder=Klasörü seç
 selectFont=Bir yazı tipi seç

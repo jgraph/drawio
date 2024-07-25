@@ -697,6 +697,7 @@ selectAll=Επιλογή Όλων
 selectionOnly=Επιλογή Μόνο
 selectCard=Επιλογή Κάρτας
 selectEdges=Επιλογή Άκρων
+selectedPage=Selected Page
 selectFile=Επιλογή Αρχείου
 selectFolder=Επιλογή Φακέλου
 selectFont=Επιλογή Γραμματοσειράς

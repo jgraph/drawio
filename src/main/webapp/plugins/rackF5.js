@@ -24,7 +24,7 @@ mxUtils.extend(mxRackF5BigIp1600, mxShape);
 
 mxRackF5BigIp1600.prototype.cst = 
 {
-		SHAPE_BIG_IP_1600 : 'mxgraph.rackF5Shapes.big_ip_1600'
+	SHAPE_BIG_IP_1600 : 'mxgraph.rackF5Shapes.big_ip_1600'
 };
 
 /**
@@ -1549,17 +1549,17 @@ mxCellRenderer.registerShape(mxRackF5BigIpi10000.prototype.cst.SHAPE_BIG_IP_I100
  */
 Draw.loadPlugin(function(ui)
 {
-	var w = 100;
-	var h = 100;
-	var stencilPath = "path=https://jgraph.github.io/drawio-libs/libs/f5/;";
-	var s = stencilPath + 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;fillColor=#ffffff;outlineConnect=0;shape=mxgraph.rackF5Shapes.';
-	
-	var gn = 'mxgraph.rackF5Shapes';
-	var dt = '';
-	
 	// Avoids having to bind all functions to "this"
 	var sb = ui.sidebar;
 
+	// Skips adding sidebar entries in lightbox
+	if (sb == null)
+	{
+		return;
+	}
+
+	var stencilPath = "path=https://jgraph.github.io/drawio-libs/libs/f5/;";
+	
 	// Default tags
 	var dt = 'rack f5 network ';
 	

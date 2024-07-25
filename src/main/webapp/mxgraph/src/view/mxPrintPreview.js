@@ -155,9 +155,9 @@ mxPrintPreview.prototype.addPageCss = false;
 /**
  * Variable: pixelsPerInch
  * 
- * CSS page size ratio. Default is 96.
+ * CSS page size ratio. Default is 100.
  */
-mxPrintPreview.prototype.pixelsPerInch = 96;
+mxPrintPreview.prototype.pixelsPerInch = 100;
 
 /**
  * Variable: pageMargin
@@ -630,8 +630,7 @@ mxPrintPreview.prototype.open = function(css, targetWindow, forcePageBreaks, kee
 		for (var i = 0; i < vpages; i++)
 		{
 			var dy = i * availableHeight / this.scale - this.y0 / this.scale +
-				(bounds.y - tr.y * currentScale) / currentScale -
-					((i == 0) ? 0 : 1);
+				(bounds.y - tr.y * currentScale) / currentScale - i;
 			
 			for (var j = 0; j < hpages; j++)
 			{
@@ -641,8 +640,7 @@ mxPrintPreview.prototype.open = function(css, targetWindow, forcePageBreaks, kee
 				}
 				
 				var dx = j * availableWidth / this.scale - this.x0 / this.scale +
-					(bounds.x - tr.x * currentScale) / currentScale -
-						((j == 0) ? 0 : 1);
+					(bounds.x - tr.x * currentScale) / currentScale - j;
 				var pageNum = i * hpages + j + 1;
 				div = doc.createElement('div');
 				div.style.display = 'flex';

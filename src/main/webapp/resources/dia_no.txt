@@ -697,6 +697,7 @@ selectAll=Velg alt
 selectionOnly=Bare utvalg
 selectCard=Select Card
 selectEdges=Velg kanter
+selectedPage=Selected Page
 selectFile=Velg fil
 selectFolder=Velg mappe
 selectFont=Velg skrifttype

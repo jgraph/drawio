@@ -697,6 +697,7 @@ selectAll=Vybrat vše
 selectionOnly=Jen výběr
 selectCard=Vybrat kartu
 selectEdges=Vybrat hrany
+selectedPage=Selected Page
 selectFile=Vybrat soubor
 selectFolder=Vybrat složku
 selectFont=Vybrat písmo

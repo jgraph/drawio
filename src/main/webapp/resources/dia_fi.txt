@@ -697,6 +697,7 @@ selectAll=Valitse kaikki
 selectionOnly=Vain valinta
 selectCard=Valitse kortti
 selectEdges=Valitse reunat
+selectedPage=Selected Page
 selectFile=Valitse tiedosto
 selectFolder=Valitse kansio
 selectFont=Valitse fontti

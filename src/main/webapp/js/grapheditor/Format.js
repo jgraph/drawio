@@ -4586,7 +4586,7 @@ TextFormatPanel.prototype.addFont = function(container)
 							// in the log which seems to be IE8- only / 29.01.15
 							if (fontMenu.firstChild != null)
 							{
-								fontMenu.firstChild.nodeValue = Graph.stripQuotes(css.fontFamily);
+								fontMenu.firstChild.nodeValue = mxUtils.getCssFontFamily(css.fontFamily);
 							}
 						}
 					}

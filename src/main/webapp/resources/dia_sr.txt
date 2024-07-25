@@ -697,6 +697,7 @@ selectAll=Izaberi sve
 selectionOnly=Selection Only
 selectCard=Select Card
 selectEdges=Izaberi grane
+selectedPage=Selected Page
 selectFile=Select File
 selectFolder=Select Folder
 selectFont=Izaberi font

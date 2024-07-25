@@ -6226,7 +6226,14 @@
 				
 				if (name != null)
 				{
-					Graph.addFont(name, decodeURIComponent(url));
+					try
+					{
+						Graph.addFont(name, decodeURIComponent(url));
+					}
+					catch (e)
+					{
+						// ignore
+					}
 				}
 			}
 		}

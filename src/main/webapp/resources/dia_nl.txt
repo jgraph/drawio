@@ -697,6 +697,7 @@ selectAll=Alles selecteren
 selectionOnly=Alleen selectie
 selectCard=Kaart selecteren
 selectEdges=Randen selecteren
+selectedPage=Selected Page
 selectFile=Bestand selecteren
 selectFolder=Map selecteren
 selectFont=Lettertype selecteren

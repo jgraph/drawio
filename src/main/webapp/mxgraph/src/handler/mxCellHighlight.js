@@ -88,9 +88,9 @@ mxCellHighlight.prototype.state = null;
  * Variable: spacing
  * 
  * Specifies the spacing between the highlight for vertices and the vertex.
- * Default is 2.
+ * Default is 0.
  */
-mxCellHighlight.prototype.spacing = 2;
+mxCellHighlight.prototype.spacing = 0;
 
 /**
  * Variable: resetHandler

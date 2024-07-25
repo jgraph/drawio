@@ -697,6 +697,7 @@ selectAll=เลือกทั้งหมด
 selectionOnly=เลือกเท่านั้น
 selectCard=Select Card
 selectEdges=เลือกขอบ
+selectedPage=Selected Page
 selectFile=เลือกไฟล์
 selectFolder=เลือกโฟลเดอร์
 selectFont=เลือกตัวอักษร

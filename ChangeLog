@@ -1,3 +1,33 @@
+25-JUL-2024: 24.7.5
+
+- [conf cloud] Applies link adjustment configuration to diagram editor [DID-12118]
+- AWS shapes update
+- [conf cloud] Fixed NPE when editing some diagrams [DID-12175]
+- Fixes cell highlight bounding box [jgraph/drawio#4509]
+
+23-JUL-2024: 24.7.4
+
+- Fixes page break alignment in print preview [jgraph/drawio#4447]
+- Fixes timeout for synchronize of StorageFile
+- Removes modified, etag and type attribute from mxfile [jgraph/drawio#4461]
+- Fixes handling of font lists and quotes in font names [jgraph/drawio#4560]
+- [conf cloud] Fixes new diagram dangling drafts issue [DID-12168, DID-12166, DID-12158, DID-12159]
+
+22-JUL-2024: 24.7.3
+
+- Updates SAP shapes
+- [conf cloud] Showing confluence images when 3rd party cookies are disabled [DID-12108]
+- Fixes PDF export and print pixel ratio [DID-12130]
+- Fixes ignored transform on SVG subtree [jgraph/drawio#4557]
+- Removes data-cell-id in SVG subtrees
+- [conf cloud] Fixes embed macro insertion
+
+19-JUL-2024: 24.7.2
+
+- [conf cloud] Uses v2 connect endpoint calls
+- Excludes clipart from shape search index [jgraph/drawio#4547]
+- [conf DC] Improved Google Drive app not installed error handling [DID-12115]
+
 17-JUL-2024: 24.7.1
 
 - Removes host domain checks [DID-12104]

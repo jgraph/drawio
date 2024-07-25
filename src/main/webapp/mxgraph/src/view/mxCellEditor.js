@@ -691,7 +691,7 @@ mxCellEditor.prototype.updateTextAreaStyle = function(state)
 	this.textarea.style.fontStyle = (italic) ? 'italic' : '';
 	this.textarea.style.fontSize = Math.round(size) + 'px';
 	this.textarea.style.zIndex = this.zIndex;
-	this.textarea.style.fontFamily = family;
+	this.textarea.style.fontFamily = mxUtils.parseCssFontFamily(family);
 	this.textarea.style.writingMode = '';
 	this.textarea.style.color = color;
 

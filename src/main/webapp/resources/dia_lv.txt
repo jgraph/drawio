@@ -697,6 +697,7 @@ selectAll=Izvēlēties visu
 selectionOnly=Tikai atlasītais
 selectCard=Izvēlēties karti
 selectEdges=Izvēlēties malas
+selectedPage=Selected Page
 selectFile=Izvēlēties failu
 selectFolder=Izvēlēties mapi
 selectFont=Izvēlēties fontu

@@ -697,6 +697,7 @@ selectAll=Markera allt
 selectionOnly=Endast val
 selectCard=Select Card
 selectEdges=Markera kanter
+selectedPage=Selected Page
 selectFile=Välj fil
 selectFolder=Välj mapp
 selectFont=Välj teckensnitt

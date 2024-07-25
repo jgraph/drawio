@@ -697,6 +697,7 @@ selectAll=모두 선택
 selectionOnly=선택 영역만
 selectCard=카드 선택
 selectEdges=연결선 선택
+selectedPage=Selected Page
 selectFile=파일 선택
 selectFolder=폴더 선택
 selectFont=글꼴 선택

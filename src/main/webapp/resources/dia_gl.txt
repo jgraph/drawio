@@ -697,6 +697,7 @@ selectAll=Procurar Todo
 selectionOnly=Só a Selección
 selectCard=Seleccionar Carta
 selectEdges=Seleccionar Bordos
+selectedPage=Selected Page
 selectFile=Seleccionar Arquivo
 selectFolder=Seleccionar Cartafol
 selectFont=Seleccionar Fonte

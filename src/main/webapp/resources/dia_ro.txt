@@ -697,6 +697,7 @@ selectAll=Selectează tot
 selectionOnly=Doar selecția
 selectCard=Selectează card
 selectEdges=Selectează margini
+selectedPage=Selected Page
 selectFile=Selectează fișier
 selectFolder=Selectează director
 selectFont=Selectează font

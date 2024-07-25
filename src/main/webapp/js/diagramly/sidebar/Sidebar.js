@@ -578,16 +578,11 @@
 					canvas.setFontSize(14);
 
 					// Extracts title text
-					var children = title.childNodes;
+					var spans = title.getElementsByTagName('span');
 
-					for (var i = 0; i < children.length; i++)
+					if (spans.length > 0)
 					{
-						if (children[i].nodeType == mxConstants.NODETYPE_TEXT)
-						{
-							canvas.plainText(6, 0, 0, 0, mxUtils.getTextContent(children[i]));
-
-							break;
-						}
+						canvas.text(6, 0, 0, 0, mxUtils.getTextContent(spans[0]));
 					}
 
 					for (var i = 0; i < svgs.length; i++)

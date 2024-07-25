@@ -697,6 +697,7 @@ selectAll=Маркиране на всичко
 selectionOnly=Само маркираното
 selectCard=Изберете Карта
 selectEdges=Избор на ръбове
+selectedPage=Selected Page
 selectFile=Избор на файл
 selectFolder=Избор на папка
 selectFont=Избор на шрифт

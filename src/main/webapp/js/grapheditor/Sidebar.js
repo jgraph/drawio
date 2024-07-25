@@ -1700,6 +1700,21 @@ Sidebar.prototype.addMiscPalette = function(expand)
  			'<ul><li>Value 1</li><li>Value 2</li><li>Value 3</li></ul>', 'Unordered List'),
 	 	this.createVertexTemplateEntry('text;strokeColor=none;fillColor=none;html=1;whiteSpace=wrap;verticalAlign=middle;overflow=hidden;', 100, 80,
  			'<ol><li>Value 1</li><li>Value 2</li><li>Value 3</li></ol>', 'Ordered List'),
+
+	 	this.createVertexTemplateEntry('shape=table;startSize=0;container=1;collapsible=0;childLayout=tableLayout;fontSize=11;fillColor=none;strokeColor=none;', 60, 60,
+ 			'', 'Vertical List'),
+		this.addDataEntry('vertical list', 60, 60, 'Vertical List',
+			'7VjbbqMwEP0aXldcQrp9hfSyUvel3R9wwwRba2xkJiX063eMnaRNgxR2V1EUIYHkGWYGzznjI0SQ5NXmwbCa/9QFyCC5C5LcaI1uVW1ykDKIQ1EEySKI45DuIL4feBr1T8OaGVB4SkLsEt6YXIPzOEeDnfSOhrPaLpG9WlfWIDP4It6tLyR7qRUyocCQHfW2lKxuRB/tIriQxRPr9Bq3dbZWtqJsXyyy2SshZa6lttWUVu6FRv+GA6ffNxiEzWDvvcs3/gC6AjQdhbSiQO4i5g6ekIMoOX72scbZ5S5zDyQtPJbHcU1G4vqsW2qKayPeLZzSI3eIddOKSjIFj8CKA1emi26X9REwoTgYYbFGXfsICSv0y1eNqCtvGI9CeJTHwuj6FzMlbEOOkFVrobAHLs3oIijz8FsapNRxTna0t+my4QZzrWjHNEK2LLAGW2gOR2N+KuXxX1Eepf9O+ewL5T8QKvJEg9TTxlEw+QxLZKrsTxfHSvqD1HKB8FKzpQ1tSSLcYVM2ek/KENmagFpJO1YLLooC1HG+xs1Ezy6YuzdwJEcHNBH0GZOipJctXL2soQaEKp9c9fRUHpP/zqMvtgd7dDUmqXfFkM7aWhXNl+HY7fOkeUknibgoieg+k34GxZgPKcbwJEyKMUhrevWKcTMpxiUqRhKeTTG+DylGMinGeMW4uXrFuJ0E4gIEYna+T4ooHFKI2aQQ4xXi9toUgsz9zyUX/vHf0x8='),
+	 	this.addEntry('vertical list', mxUtils.bind(this, function()
+	 	{
+	 		var cell = new mxCell('Link', new mxGeometry(0, 0, 60, 40), 'text;html=1;strokeColor=none;fillColor=none;whiteSpace=wrap;align=center;verticalAlign=middle;fontColor=#0000EE;fontStyle=4;');
+	 		cell.vertex = true;
+	 		this.graph.setLinkForCell(cell, 'https://www.draw.io');
+
+	 		return this.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Vertical List');
+	 	})),
+
+
  		this.addDataEntry('table', 180, 120, 'Table 1', '7VnbcpswEP0aXjtcYsd9NUnTh/Yl6Q8o1trSVEiMWAeTr+8KhGlSe2xwJpMSZvCMdtmVteccwY4IkjTb3VmWi5+GgwqS2yBJrTHYjLJdCkoFcSh5kNwEcRzSL4i/Hbkb1XfDnFnQeE5C3CQ8MbWFxtM4CqyUdxSC5W6I7NG5lgUyiw/y2flCsldGI5MaLNlRbSvF8kLW0U2EkIr/YJXZYjtPay3XlO0ni+Zk+/WARdgdral2+YLuwGSAtqKQUnIUPmLR1B0KkBvRpnkwQlY0js0+t4OIBh6lw4glPRG7NyWVJYyVzw4o5TF5jWJRykwxDd+B8VeupeHVPsua35AaZRzaUguw0qGIJvcRCtboh48G0WTesB6G8CBD3Jr8F7MbaEPWUqn2b7TRjvfcSI01cLMlXQRlGn6ZBTOqOCU76my6XLjF1GhaMYnDTQuswBKKwaTHw0i/egPOr87nnFaMkql7WCHTm3rDCMyU3xulkAgPOVu50JJ2fbN/tIvu2DjGsiGE1srp6UZIzkEfJqqfGGpawd4+QcNuNJSf5CQ/8570+Mk6LHvPxhSVphnSHtpqXvzD+X6dZ8lgNslgsAx2L0kbkSrmkyouVcX+xTwiWVxPfcKH6hOql6S/R9uwmJ4Mp+m6Hn3b8HWSwWAZjLdtiMJJFpfKYox9QxRNjcNHbBwW79g4RD2O5T7vsyE6fQz43z8Mepw2TkL4RM3DdCJ5uS5G0D2Q2X0rasL//pT0Bw=='),
  		this.addDataEntry('table', 180, 120, 'Table 2', '7ZlLc9owEMc/ja8dP3jlimnSQ3pJOr0reMGayFqPvNSQT9+VLUMCOEDbyaTYM2ZGWq9e/99K7MheFGfrOyPy9DsmoLzoqxfFBpHqUraOQSkv9GXiRTMvDH3+eeFty9ugeuvnwoCmcxqEdYNfQq2gttSGgjbKGYpU5LZI4smapillPM1ZwMUylQSPuZjb9yUvgm0FCUOP8sWafK7PUZOQGoxrM0elRF7IqrPaI5UquRcbXFEzTFOz3qtM33P7wnkbLF9XF9y9Gy0YVcMbfIYYFdoBE1iIlbIduXWCIVi3alWZnFB3gBmQ2bBLKRNKncek1tNPQS7TppkT2RdFbVhu2+6k54JT/ziJ6EISD1haGGjki1VYOT325S9KmSmh4RuIZM80xWTjTIS5KylYkCs+IRFmjexuuf5RhInB/IcwS2hcFlKpBoJGbeMmR6mpEmg45Ycli/0vQ2/IK4u5Huzq/Fh3QzFq5snRY7sFUVAJBZ2ELnUKRp4NPfwz6IN/wHxwwPxnVQz9oBU+T52kUA8wJ6GX5+xI3oHaeu9wHaFzWQQga7pQNgJnqUwS0HtQwr+FEp2EMrqQietsp9vFvQlFYLQg3jgrnRQHoLfzPIv9sJV9+8bvNPv1W1JXFAqj1lCI+lB4JxS2/7tXFAvjPg34VGnA5i30j8gKJq3HwaDjx8H46rOCm1b2w559t7KCwG+NhVEfCx1LC4Kgzws+Y14w+cC8IDi8rGsOhHHHD4Tg9M3df38CHF4QNvQnPf2u5QbtN4c3fTBceXLA1d0Hotr99fej3w=='),
 		this.addDataEntry('table title', 180, 150, 'Table with Title 1', '7VnbbtswDP0avw6WXSfda5yue9he2v6AGjGRMFkyZKZO+vWjbOWyJVluQ9G6BmxApChaOudIIOQozYvFveOl/GkF6Ci9i9LcWYttq1jkoHWUxEpE6ThKkpjeKPl2oJc1vXHJHRg8ZUDSDnjheg6t54k/a2i9FS518FaSl76JTW86qpA7fFSv3pfG5JhYg1wZcORgja01LyvVhI+bCKm0+MGXdo6rRCuL0jn7C3KrrR8vYMrn2vunlDV8hQ3IDrMFh7A4uOLGFZZ7D7YAdEsKqZVAGSJuW1RiCWomV8Oy4ORV65itx24ApEbAcD+e6Q6e/4bywda0LGmdevUA6oDVNryNXatCcwPfgYu/XCMrlutR2ygqI8EpjyLaMkRomGJoPltEWwTDBRjivcwJZ8sn7mawCpkqrVefMdZ4QZRWGWyAy0b0EJR5/CWLMlpxTjbb2PT4cIe5NTRjEo1PC7zCGqqLSU/2k74MtARqj2ng5j9I4OZ0CdACUHH9ABPkZtZsLImFDluolgrhseQTH1rTEdFuM+OjN+QcIt0SYFPt5TWWSggw+3k7TxsNy+DuXqAlm11KV3p0jw7OpCck22B5djauaWmGI22puRHVDufreZ4kg6yXwcUyWPxJWodUMehVca0qWNI9WQz7suE9lg3DNywbbvuT4Thdw86XDV97GVwsg+6WDSzuZXGtLLpYNzDWFw7vsXBg7A0rB7Z7idcfDru3gsevBT/8aXDG7WMvhE9UPfRXktfrogPlA5mbP0tt+PaPp98='),
@@ -4342,7 +4357,7 @@ Sidebar.prototype.addImagePalette = function(id, title, prefix, postfix, items, 
 	{
 		(mxUtils.bind(this, function(item, title, tmpTags)
 		{
-			if (tmpTags == null)
+			if (tmpTags == null && (prefix == null || prefix.substring(0, 17) != 'img/lib/clip_art/'))
 			{
 				var slash = item.lastIndexOf('/');
 				var dot = item.lastIndexOf('.');

@@ -426,7 +426,7 @@ mxSvgCanvas2D.prototype.createAlternateContent = function(fo, x, y, w, h, str, a
 		alt.setAttribute('x', Math.round(x + s.dx));
 		alt.setAttribute('y', Math.round(y + s.dy + dy * s.fontSize));
 		alt.setAttribute('fill', s.fontColor || 'black');
-		alt.setAttribute('font-family', '"' + s.fontFamily + '"');
+		alt.setAttribute('font-family', mxUtils.parseCssFontFamily(s.fontFamily));
 		alt.setAttribute('font-size', Math.round(s.fontSize) + 'px');
 
 		// Text-anchor start is default in SVG
@@ -1950,7 +1950,7 @@ mxSvgCanvas2D.prototype.getTextCss = function()
 		(mxConstants.LINE_HEIGHT * this.lineHeightCorrection);
 
 	var css = 'display: inline-block; font-size: ' + mxUtils.htmlEntities(s.fontSize) + 'px; ' +
-		'font-family: "' + mxUtils.htmlEntities(s.fontFamily) + '"; color: ' +
+		'font-family: ' + mxUtils.parseCssFontFamily(s.fontFamily, true) + '; color: ' +
 		mxUtils.htmlEntities(s.fontColor) + '; line-height: ' + mxUtils.htmlEntities(lh) +
 		'; pointer-events: ' + ((this.pointerEvents) ?
 			mxUtils.htmlEntities(this.pointerEventsValue) : 'none') + '; ';
@@ -2464,7 +2464,7 @@ mxSvgCanvas2D.prototype.updateFont = function(node)
 	
 	if (!this.styleEnabled || s.fontFamily != mxConstants.DEFAULT_FONTFAMILY)
 	{
-		node.setAttribute('font-family', '"' + s.fontFamily + '"');
+		node.setAttribute('font-family', mxUtils.parseCssFontFamily(s.fontFamily));
 	}
 
 	if ((s.fontStyle & mxConstants.FONT_BOLD) == mxConstants.FONT_BOLD)
@@ -2556,7 +2556,7 @@ mxSvgCanvas2D.prototype.addTextBackground = function(node, str, x, y, w, h, alig
 				(s.fontSize * mxConstants.LINE_HEIGHT) + 'px' :
 				mxConstants.LINE_HEIGHT;
 			div.style.fontSize = s.fontSize + 'px';
-			div.style.fontFamily = '"' + s.fontFamily + '"';
+			div.style.fontFamily = mxUtils.parseCssFontFamily(s.fontFamily);
 			div.style.whiteSpace = 'nowrap';
 			div.style.position = 'absolute';
 			div.style.visibility = 'hidden';

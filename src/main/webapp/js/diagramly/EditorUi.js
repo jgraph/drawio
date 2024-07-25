@@ -360,7 +360,17 @@
 				svg.setAttribute('height', node.getAttribute('height'));
 				svg.style.fontFamily = 'initial';
 
-				node.parentNode.replaceChild(svg, node);
+				// Adds group with optional transform attribute
+				var group = mxUtils.createElementNs(svg.ownerDocument,
+					mxConstants.NS_SVG, 'g');
+				group.appendChild(svg);
+
+				if (node.hasAttribute('transform'))
+				{
+					group.setAttribute('transform', node.getAttribute('transform'));
+				}
+				
+				node.parentNode.replaceChild(group, node);
 			}
 		}
 		catch (e)
@@ -420,6 +430,14 @@
 					
 					styles[j].textContent = modifiedCss;
 				}
+			}
+
+			// Removes data-cell-id attribute from all elements
+			var elements = svg.getElementsByTagName('*');
+
+			for (var i = 0; i < elements.length; i++)
+			{
+				elements[i].removeAttribute('data-cell-id');
 			}
 		}
 
@@ -1388,10 +1406,12 @@
 			{
 				// Removes old metadata
 				fileNode.removeAttribute('userAgent');
+				fileNode.removeAttribute('modified');
 				fileNode.removeAttribute('version');
 				fileNode.removeAttribute('editor');
 				fileNode.removeAttribute('pages');
 				fileNode.removeAttribute('type');
+				fileNode.removeAttribute('etag');
 				
 				if (mxClient.IS_CHROMEAPP)
 				{
@@ -1407,18 +1427,9 @@
 				}
 				
 				// Adds new metadata
-				fileNode.setAttribute('modified', new Date().toISOString());
 				fileNode.setAttribute('agent', (navigator.userAgent != null) ?
 					navigator.userAgent : navigator.appVersion);
 				fileNode.setAttribute('version', EditorUi.VERSION);
-				fileNode.setAttribute('etag', Editor.guid());
-				
-				var md = (file != null) ? file.getMode() : this.mode;
-				
-				if (md != null)
-				{
-					fileNode.setAttribute('type', md);
-				}
 				
 				if (fileNode.getElementsByTagName('diagram').length > 1 && this.pages != null)
 				{

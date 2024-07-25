@@ -697,6 +697,7 @@ selectAll=Pilih Semua
 selectionOnly=Pilihan Saja
 selectCard=Pilih Kartu
 selectEdges=Pilih Tepi
+selectedPage=Selected Page
 selectFile=Pilih Berkas
 selectFolder=Pilih Folder
 selectFont=Pilih Fonta

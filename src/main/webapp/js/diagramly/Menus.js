@@ -5452,7 +5452,7 @@
 
 						if (css != null)
 						{
-							curFontName = Graph.stripQuotes(css.fontFamily);
+							curFontName = mxUtils.getCssFontFamily(css.fontFamily);
 
 							// Finds the URL for the current font by finding the nearest parent element
 							// with a data-font-src attribute or the fontSource attribute from the cell

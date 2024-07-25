@@ -697,6 +697,7 @@ selectAll=Chọn tất cả
 selectionOnly=Chỉ những mục đã chọn
 selectCard=Select Card
 selectEdges=Chọn cạnh
+selectedPage=Selected Page
 selectFile=Chọn tập tin
 selectFolder=Chọn thư mục
 selectFont=Chọn font

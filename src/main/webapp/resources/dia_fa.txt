@@ -697,6 +697,7 @@ selectAll=‫انتخاب همه‬
 selectionOnly=‫انتخاب تنها‬
 selectCard=Select Card
 selectEdges=‫انتخاب لبه ها‬
+selectedPage=Selected Page
 selectFile=‫انتخاب فایل‬
 selectFolder=‫انتخاب پوشه‬
 selectFont=‫انتخاب فونت‬

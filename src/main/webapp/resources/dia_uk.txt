@@ -697,6 +697,7 @@ selectAll=Вибрати все
 selectionOnly=Тільки обране
 selectCard=Вибрати карту
 selectEdges=Вибрати краї
+selectedPage=Selected Page
 selectFile=Вибрати файл
 selectFolder=Вибрати папку
 selectFont=Вибрати шрифт

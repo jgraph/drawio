@@ -697,6 +697,7 @@ selectAll=Hautatu guztia
 selectionOnly=Hautatutakoa bakarrik
 selectCard=Hautatu txartela
 selectEdges=Hautatu ertzak
+selectedPage=Selected Page
 selectFile=Hautatu fitxategia
 selectFolder=Hautatu karpeta
 selectFont=Letra-tipoa hautatu
