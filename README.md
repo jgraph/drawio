@@ -7,7 +7,7 @@ As well as running this project, we run a production-grade deployment of the dia
 License
 -----------------
 
-The source code authored by us in this repo is licensed under the Apache v2. The full core is open source, but there are some boundary functions that are difficult to publish in a way we can maintain them.
+The source code authored by us in this repo is licensed under a modified Apache v2 license. This project is not an open source project as a result.
 
 The JGraph provided icons and diagram templates are licensed under the [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Additional terms may also apply where the icons are originally defined by a third-party copyright holder. We have checked in all cases that the original license allows use in this project. Also see the terms for using the draw.io logo below.
 
@@ -43,7 +43,7 @@ draw.io supports Chrome 98+, Firefox 94+, Safari 15.4+, Opera 84+, WebView Andro
 This project is not open-contribution
 ------------------------------------------------------
 
-draw.io is also closed to contributions. We follow a development process compliant with our SOC 2 Type II process. We do not have a mechanism where we can accept contributions from non-staff members.
+draw.io is also closed to contributions, as it's not open source. We follow a development process compliant with our SOC 2 Type II process. We do not have a mechanism where we can accept contributions from non-staff members.
 
 draw.io is not suitable as a framework for building other products from. For this try either [Tldraw](https://github.com/tldraw/tldraw) or [Excalidraw](https://github.com/excalidraw/excalidraw).
 
