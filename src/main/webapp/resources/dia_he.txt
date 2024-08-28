@@ -431,11 +431,11 @@ insertPage=‫הוספת עמוד‬
 insertRectangle=‫הוספת מלבן‬
 insertRhombus=Insert Rhombus
 insertRowBefore=‫הוספת שורה למעלה‬
-insertRowAfter=‫הוספת  שורה למטה‬
+insertRowAfter=‫הוספת שורה למטה‬
 insertText=‫הוספת טקסט‬
 inserting=‫מוסיף‬
 installApp=Install App
-invalidFilename=‫שם הדיאגרמה אינו יכול לכלול את התווים הבאים:  \ / | : ; { } < > & + ? = "‬
+invalidFilename=‫שם הדיאגרמה אינו יכול לכלול את התווים הבאים: \ / | : ; { } < > & + ? = "‬
 invalidLicenseSeeThisPage=‫הרשיון שלך אינו תקף. בדוק ב <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">page</a>‬
 invalidInput=Invalid input
 invalidName=‫שם לא תקין‬
@@ -547,7 +547,7 @@ north=‫צפון‬
 notADiagramFile=‫זהו אינו קובץ דיאגרמה‬
 notALibraryFile=‫זהו אינו קובץ ספרייה‬
 notAvailable=‫לא זמין‬
-notAUtf8File=‫זהו אינו  קובץ UTF-8‬
+notAUtf8File=‫זהו אינו קובץ UTF-8‬
 notConnected=‫לא מחובר‬
 note=‫הערה‬
 notion=Notion

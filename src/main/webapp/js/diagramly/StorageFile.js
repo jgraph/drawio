@@ -328,6 +328,10 @@ StorageFile.prototype.saveFile = function(title, revision, success, error, retry
 		{
 			error({message: mxResources.get('invalidName')});
 		}
+		else if (this instanceof StorageLibrary)
+		{
+			fn(); // No need to check for conflicts with libraries			
+		}
 		else
 		{
 			StorageFile.getFileInfo(this.ui, title, mxUtils.bind(this, function(data)

@@ -6504,8 +6504,10 @@
 		{
 			params.push('page-id=' + this.currentPage.getId());
 		}
-		
-		return ((lightbox && file != null && file.constructor == window.DriveFile) ?
+
+		// Uses current host for non-public GitLab and GitHub files
+		return ((lightbox && (url != null || (file != null &&
+			file.getMode() != App.MODE_GITHUB && file.getMode() != App.MODE_GITLAB))) ?
 			EditorUi.lightboxHost : (((mxClient.IS_CHROMEAPP || EditorUi.isElectronApp ||
 			!(/.*\.draw\.io$/.test(window.location.hostname))) ?
 			EditorUi.drawHost : 'https://' + window.location.host))) + '/' +
@@ -6757,53 +6759,53 @@
 		div.appendChild(hd);
 		
 		var linkSelect = document.createElement('select');
-		var dy = 0;
+		var dy = 30;
 
-		if (publicUrl != null || (file != null && file.getHash() != ''))
+		linkSelect.className = 'geBtn';
+		linkSelect.style.marginBottom = '8px';
+		linkSelect.style.marginLeft = '0px';
+		linkSelect.style.width = '100%';
+		linkSelect.style.boxSizing = 'border-box';
+
+		if (file == null || file.getHash() == '')
 		{
-			dy = 30;
+			helpLink = (helpLink != null) ? helpLink : 'https://www.drawio.com/doc/faq/publish-diagram-as-link';
+			var makeCopy = document.createElement('option');
+			mxUtils.write(makeCopy, mxResources.get('makeCopy'));
+			makeCopy.setAttribute('value', 'copy');
+			linkSelect.appendChild(makeCopy);
+		}
 
-			linkSelect.className = 'geBtn';
-			linkSelect.style.marginBottom = '8px';
-			linkSelect.style.marginLeft = '0px';
-			linkSelect.style.width = '100%';
-			linkSelect.style.boxSizing = 'border-box';
+		var authRequired = document.createElement('option');
+		mxUtils.write(authRequired, mxResources.get('authorizationRequired'));
+		authRequired.setAttribute('value', 'auth');
+		linkSelect.appendChild(authRequired);
 
-			var authRequired = document.createElement('option');
-			mxUtils.write(authRequired, mxResources.get('authorizationRequired'));
-			authRequired.setAttribute('value', 'auth');
-			linkSelect.appendChild(authRequired);
+		if (file == null || file.getHash() == '')
+		{
+			authRequired.setAttribute('disabled', 'disabled');
+		}
 
-			if (file == null || file.getHash() == '')
-			{
-				authRequired.setAttribute('disabled', 'disabled');
-			}
+		var publicLink = document.createElement('option');
+		publicLink.setAttribute('value', 'public');
+		linkSelect.appendChild(publicLink);
 
-			var publicLink = document.createElement('option');
-			publicLink.setAttribute('value', 'public');
-			linkSelect.appendChild(publicLink);
-
-			if (publicUrl != null)
-			{
-				mxUtils.write(publicLink, mxResources.get('publicDiagramUrl'));
-				publicLink.setAttribute('title', publicUrl);
-				linkSelect.value = 'public';
-			}
-			else
-			{
-				mxUtils.write(publicLink, mxResources.get('publicDiagramUrl') +
-					' (' + mxResources.get('diagramIsNotPublic') + ')');
-				publicLink.setAttribute('disabled', 'disabled');
-			}
-			
-			div.appendChild(linkSelect);
-			mxUtils.br(div);
-			linkSelect.focus();
+		if (publicUrl != null)
+		{
+			mxUtils.write(publicLink, mxResources.get('publicDiagramUrl'));
+			publicLink.setAttribute('title', publicUrl);
+			linkSelect.value = 'public';
 		}
 		else
 		{
-			helpLink = (helpLink != null) ? helpLink : 'https://www.drawio.com/doc/faq/publish-diagram-as-link';
+			mxUtils.write(publicLink, mxResources.get('publicDiagramUrl') +
+				' (' + mxResources.get('diagramIsNotPublic') + ')');
+			publicLink.setAttribute('disabled', 'disabled');
 		}
+		
+		div.appendChild(linkSelect);
+		mxUtils.br(div);
+		linkSelect.focus();
 		
 		var widthInput = null;
 		var heightInput = null;
@@ -6851,7 +6853,7 @@
 				name = name.substring(0, 16) + '...';
 			}
 
-			currentPage = this.addCheckbox(div, mxResources.get('currentPage') + ': ' + name);
+			currentPage = this.addCheckbox(div, mxResources.get('selectedPage') + ': ' + name);
 		}
 
 		var lightbox = this.addCheckbox(div, mxResources.get('lightbox'),
@@ -9040,6 +9042,13 @@
 				config = (config != null) ? config : mxUtils.clone(EditorUi.defaultMermaidConfig);
 				config.securityLevel = 'strict';
 				config.startOnLoad = false;
+
+				// Math labels
+				if (typeof mxMermaidToDrawio !== 'undefined' && config.flowchart && data.indexOf('$$') >= 0)
+				{
+					config.flowchart.htmlLabels = true;
+					mxMermaidToDrawio.htmlLabels = true;
+				}
 
 				if (Editor.isDarkMode())
 				{

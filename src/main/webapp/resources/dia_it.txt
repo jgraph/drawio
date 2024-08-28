@@ -435,7 +435,7 @@ insertRowAfter=Inserisci riga sotto
 insertText=Inserisci testo
 inserting=Inserimento in corso
 installApp=Installa applicazione
-invalidFilename=Il nome del diagramma non può contenere i seguenti caratteri:  \ / | : ; { } < > & + ? = "
+invalidFilename=Il nome del diagramma non può contenere i seguenti caratteri: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=La tua licenza non è valida. Leggi questa <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">pagina</a>.
 invalidInput=Inserimento non valido
 invalidName=Nome non valido
@@ -861,7 +861,7 @@ recentlyUsed=Utilizzati di recente
 listView=Vista a elenco
 gridView=Vista a griglia
 resultsFor=Risultati per '{1}'
-oneDriveCharsNotAllowed=I seguenti caratteri non sono consentiti: ~ " # %  * : < > ? / \ { | }
+oneDriveCharsNotAllowed=I seguenti caratteri non sono consentiti: ~ " # % * : < > ? / \ { | }
 oneDriveInvalidDeviceName=Il nome del dispositivo specificato non è valido
 officeNotLoggedOD=Non hai effettuato l'accesso a OneDrive. Apri il riquadro attività di draw.io e accedi prima.
 officeSelectSingleDiag=Seleziona solo un singolo diagramma draw.io senza altri contenuti.
@@ -1258,7 +1258,7 @@ addTeamInst2=Quindi, configura quale membro della squadra può modificare/aggiun
 drawioTeams=Squadre di draw.io
 members=Membri
 adminEditors=Amministratori/redattori
-allowAll=Permettere tutto
+allowAll=Consenti tutto
 noTeams=Nessuna squadra trovata
 errorLoadingTeams=Errore durante il caricamento delle squadre
 noTeamMembers=Nessun membro del team trovato

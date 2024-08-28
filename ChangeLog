@@ -1,3 +1,18 @@
+28-AUG-2024: 24.7.8
+
+- Adds math typesetting support for Mermaid [drawio-desktop-1824]
+- [conf cloud] Handle incorrect draft status of a page [DID-12384]
+
+12-AUG-2024: 24.7.7
+
+- [conf cloud] Improved mass import error message to match API v2 behavior [DID-12282]
+- Fixes scratchpad saving errors [drawio-1833]
+
+29-JUL-2024: 24.7.6
+
+- Uses current host only for non-public GitLab and GitHub files [jgraph/drawio#4502]
+- [conf cloud] Fixed Giffy mass import issues [DID-12199]
+
 25-JUL-2024: 24.7.5
 
 - [conf cloud] Applies link adjustment configuration to diagram editor [DID-12118]

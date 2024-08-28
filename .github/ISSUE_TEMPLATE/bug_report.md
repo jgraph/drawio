@@ -7,7 +7,7 @@ about: Create a report to help us improve
 ### Preflight Checklist
 <!-- Please ensure you've completed the following steps by replacing [ ] with [x]-->
 
-* [ ] I agree to follow the [Code of Conduct](https://github.com/jgraph/drawio/blob/master/CODE_OF_CONDUCT.md) that this project adheres to.
+* [ ] I agree to follow the [Code of Conduct](https://github.com/jgraph/drawio/blob/dev/CODE_OF_CONDUCT.md) that this project adheres to.
 * [ ] I have searched the issue tracker for a feature request that matches the one I want to file, without success.
 
 You must agree to search and the code of conduct. You must fill in this entire template. If you delete part/all or miss parts out your issue will be closed.

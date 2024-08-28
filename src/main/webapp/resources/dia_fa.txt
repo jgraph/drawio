@@ -30,7 +30,7 @@ allTags=‫همه برچسبها‬
 anchor=‫لنگر‬
 android=‫اندروید‬
 angle=‫زاویه‬
-animations=‫تصاوير متحرك‬
+animations=‫انیمیشن ها‬
 arc=Arc
 areYouSure=‫آیا مطمئن هستید؟‬
 ensureDataSaved=‫لطفا مطمئن شوید که پیش از بستن، اطلاعات شما ذخیره شده باشد.‬
@@ -435,7 +435,7 @@ insertRowAfter=‫وارد کردن یک ردیف در بعد‬
 insertText=‫وارد کردن متن‬
 inserting=‫وارد کردن‬
 installApp=Install App
-invalidFilename=‫نامهای نمودارها نباید شامل کاراکترهای زیر باشد:  \ / | : ; { } < > & + ? = "‬
+invalidFilename=‫نامهای نمودارها نباید شامل کاراکترهای زیر باشد: \ / | : ; { } < > & + ? = "‬
 invalidLicenseSeeThisPage=‫مجوز شما نامعتبر است. لطفا این بخش را ببینید <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">صفحه</a>.‬
 invalidInput=Invalid input
 invalidName=‫نام نامعتبر‬

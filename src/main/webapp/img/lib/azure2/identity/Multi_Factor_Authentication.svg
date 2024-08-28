@@ -1,0 +1,35 @@
+<svg id="uuid-1a6d3e4d-0a01-44d3-92c5-394fe9e3e899"
+	xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+	<defs>
+		<linearGradient id="uuid-9013fdd0-e916-4daa-b2f6-81a75ae64975" x1="4.34" y1="774.565" x2="4.34" y2="784.665" gradientTransform="translate(4 785.516) scale(1 -1)" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#d2ebff" />
+			<stop offset="1" stop-color="#f0fffd" />
+		</linearGradient>
+		<linearGradient id="uuid-307f03b6-d2a8-4c40-a3d5-4597e6001bae" x1="10.15" y1="764.096" x2="10.15" y2="782.166" gradientTransform="translate(4 785.516) scale(1 -1)" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#0078d4" />
+			<stop offset=".17" stop-color="#1c84dc" />
+			<stop offset=".38" stop-color="#3990e4" />
+			<stop offset=".59" stop-color="#4d99ea" />
+			<stop offset=".8" stop-color="#5a9eee" />
+			<stop offset="1" stop-color="#5ea0ef" />
+		</linearGradient>
+		<linearGradient id="uuid-ab22557f-a545-4bda-aa34-5920761d8169" x1="14.155" y1="16.539" x2="14.155" y2="6.209" gradientTransform="matrix(1, 0, 0, 1, 0, 0)" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#d2ebff" />
+			<stop offset="1" stop-color="#f0fffd" />
+		</linearGradient>
+	</defs>
+	<rect y=".021" width="16.68" height="11.87" rx=".6" ry=".6" fill="#0078d4" />
+	<rect x=".97" y=".851" width="14.74" height="10.1" rx=".3" ry=".3" fill="url(#uuid-9013fdd0-e916-4daa-b2f6-81a75ae64975)" isolation="isolate" opacity=".9" />
+	<rect x="10.3" y="5.129" width="7.7" height="12.85" rx=".3" ry=".3" fill="url(#uuid-307f03b6-d2a8-4c40-a3d5-4597e6001bae)" />
+	<rect x="13.27" y="5.559" width="1.77" height=".24" rx=".11" ry=".11" fill="#f2f2f2" />
+	<rect x="7.48" y=".391" width="1.77" height=".24" rx=".11" ry=".11" fill="#f2f2f2" />
+	<rect x="13.72" y="16.969" width=".86" height=".73" rx=".2" ry=".2" fill="#f2f2f2" />
+	<rect x="11.03" y="6.209" width="6.25" height="10.33" rx=".14" ry=".14" fill="url(#uuid-ab22557f-a545-4bda-aa34-5920761d8169)" isolation="isolate" opacity=".9" />
+	<g>
+		<circle cx="8.365" cy="11.904" r="4.288" fill="#86d633" />
+		<g>
+			<path d="M7.926,13.341l-.394,.394c-.067,.067-.176,.067-.243,0h0l-1.565-1.565c-.067-.067-.067-.176,0-.243h0l.272-.272c.067-.067,.176-.067,.243,0h0l1.686,1.686h0Z" fill="#fff" />
+			<path d="M7.296,13.739l-.394-.394h0l3.598-3.598c.067-.067,.176-.067,.243,0h0l.272,.272c.067,.067,.067,.176,0,.243h0l-3.477,3.477c-.067,.067-.176,.067-.243,0h0Z" fill="#f0f0f0" />
+		</g>
+	</g>
+</svg>

@@ -34,6 +34,10 @@
 		this.addAzure2DevOpsPalette(gn, r, sb, s + 'devops/');
 		this.setCurrentSearchEntryLibrary('azure2', 'azure2General');
 		this.addAzure2GeneralPalette(gn, r, sb, s + 'general/');
+
+		this.setCurrentSearchEntryLibrary('azure2', 'azure2Hybrid and Multicloud');
+		this.addAzure2HybridAndMulticloudPalette(gn, r, sb, s + 'hybrid_multicloud/');
+
 		this.setCurrentSearchEntryLibrary('azure2', 'azure2Identity');
 		this.addAzure2IdentityPalette(gn, r, sb, s + 'identity/');
 		this.setCurrentSearchEntryLibrary('azure2', 'azure2Integration');
@@ -77,6 +81,8 @@
 		
 		var fns =
 		[
+			this.createVertexTemplateEntry(s + 'AI_Studio.svg;',
+				r * 0.16, r * 0.17, '', 'AI Studio', null, null, this.getTagsForStencil(gn, 'ai studio', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Anomaly_Detector.svg;',
 					r * 0.17, r * 0.17, '', 'Anomaly Detector', null, null, this.getTagsForStencil(gn, 'anomaly detector', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Applied_AI.svg;',
@@ -109,8 +115,13 @@
 					r * 0.17, r * 0.17, '', 'Immersive Readers', null, null, this.getTagsForStencil(gn, 'immersive readers', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Language_Services.svg;',
 					r * 0.17, r * 0.17, '', 'Language', null, null, this.getTagsForStencil(gn, 'language services', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Cognitive_Services_Decisions.svg;',
+					r * 0.17, r * 0.17, '', 'Cognitive Services Decisions', null, null, this.getTagsForStencil(gn, 'cognitive services decisions', dt).join(' ')),
+
+			this.createVertexTemplateEntry(s + 'Content_Safety.svg;',
+				r * 0.17, r * 0.17, '', 'Content Safety', null, null, this.getTagsForStencil(gn, 'content safety', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Language_Understanding.svg;',
-					r * 0.17, r * 0.17, '', 'Language Understanding', null, null, this.getTagsForStencil(gn, 'language understanding', dt).join(' ')),
+				r * 0.17, r * 0.17, '', 'Language Understanding', null, null, this.getTagsForStencil(gn, 'language understanding', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Machine_Learning.svg;',
 					r * 0.16, r * 0.17, '', 'Machine Learning', null, null, this.getTagsForStencil(gn, '', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Machine_Learning_Studio_Classic_Web_Services.svg;',
@@ -123,12 +134,18 @@
 					r * 0.137, r * 0.17, '', 'Metrics Advisor', null, null, this.getTagsForStencil(gn, 'metrics advisor', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Object_Understanding.svg;',
 					r * 0.17, r * 0.17, '', 'Object Understanding', null, null, this.getTagsForStencil(gn, 'object understanding', dt).join(' ')),
+
+			this.createVertexTemplateEntry(s + 'Azure_OpenAI.svg;',
+				r * 0.17, r * 0.17, '', 'OpenAI', null, null, this.getTagsForStencil(gn, 'openai open ai', dt).join(' ')),
+	
 			this.createVertexTemplateEntry(s + 'Personalizers.svg;',
 					r * 0.17, r * 0.138, '', 'Personalizers', null, null, this.getTagsForStencil(gn, 'personalizers', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'QnA_Makers.svg;',
 					r * 0.17, r * 0.17, '', 'QnA Makers', null, null, this.getTagsForStencil(gn, 'qna makers', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Serverless_Search.svg;',
+				r * 0.17, r * 0.17, '', 'Serverless Search', null, null, this.getTagsForStencil(gn, 'serverless search', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Speech_Services.svg;',
-					r * 0.17, r * 0.17, '', 'Speech Services', null, null, this.getTagsForStencil(gn, 'speech services', dt).join(' ')),
+				r * 0.17, r * 0.17, '', 'Speech Services', null, null, this.getTagsForStencil(gn, 'speech services', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Translator_Text.svg;',
 					r * 0.17, r * 0.17, '', 'Translator Text', null, null, this.getTagsForStencil(gn, 'translator text', dt).join(' '))
 		];
@@ -505,8 +522,10 @@
 					r * 0.1625, r * 0.16, '', 'Instance Pools', null, null, this.getTagsForStencil(gn, 'instance pools', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Managed_Database.svg;',
 					r * 0.17, r * 0.16, '', 'Managed Database', null, null, this.getTagsForStencil(gn, 'managed', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Oracle_Database.svg;',
+				r * 0.17, r * 0.17, '', 'Oracle Database', null, null, this.getTagsForStencil(gn, 'oracle database', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Purview_Accounts.svg;',
-					r * 0.17, r * 0.105, '', 'Purview Accounts', null, null, this.getTagsForStencil(gn, 'azure purview accounts', dt).join(' ')),
+				r * 0.17, r * 0.105, '', 'Purview Accounts', null, null, this.getTagsForStencil(gn, 'azure purview accounts', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_SQL.svg;',
 					r * 0.16, r * 0.115, '', 'SQL', null, null, this.getTagsForStencil(gn, 'sql', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'SQL_Data_Warehouses.svg;',
@@ -560,8 +579,12 @@
 					r * 0.17, r * 0.1692, '', 'Change Analysis', null, null, this.getTagsForStencil(gn, 'change analysis', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'CloudTest.svg;',
 					r * 0.147, r * 0.17, '', 'CloudTest', null, null, this.getTagsForStencil(gn, 'cloudtest cloud test', dt).join(' ')),
+
+			this.createVertexTemplateEntry(s + 'Code_Optimization.svg;',
+				r * 0.17, r * 0.17, '', 'Code Optimization', null, null, this.getTagsForStencil(gn, 'code optimization', dt).join(' ')),
+	
 			this.createVertexTemplateEntry(s + 'Azure_DevOps.svg;',
-					r * 0.16, r * 0.16, '', 'DevOps', null, null, this.getTagsForStencil(gn, 'devops', dt).join(' ')),
+				r * 0.16, r * 0.16, '', 'DevOps', null, null, this.getTagsForStencil(gn, 'devops', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'DevOps_Starter.svg;',
 					r * 0.17, r * 0.1594, '', 'DevOps Starter', null, null, this.getTagsForStencil(gn, 'devops starter', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'DevTest_Labs.svg;',
@@ -798,6 +821,33 @@
 		}));
 	};
 
+	Sidebar.prototype.addAzure2HybridAndMulticloudPalette = function(gn, r, sb, s)
+	{
+		var dt = 'azure hybrid and multicloud ';
+		
+		var fns =
+		[
+			this.createVertexTemplateEntry(s + 'Azure_Operator_5G_Core.svg;',
+					r * 0.17, r * 0.1133, '', 'Azure Operator 5G Core', null, null, this.getTagsForStencil(gn, 'operator 5g core', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Azure_Operator_Insights.svg;',
+				r * 0.17, r * 0.17, '', 'Azure Operator Insights', null, null, this.getTagsForStencil(gn, 'operator insights', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Azure_Operator_Nexus.svg;',
+				r * 0.17, r * 0.17, '', 'Azure Operator Nexus', null, null, this.getTagsForStencil(gn, 'operator nexus', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Azure_Operator_Service_Manager.svg;',
+				r * 0.17, r * 0.17, '', 'Azure Operator Service Manager', null, null, this.getTagsForStencil(gn, 'operator service manager', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Azure_Programmable_Connectivity.svg;',
+				r * 0.17, r * 0.17, '', 'Azure Programmable Connectivity', null, null, this.getTagsForStencil(gn, 'operator programmable connectivity', dt).join(' ')),
+			];
+			
+		this.addPalette('azure2Hybrid and Multicloud', 'Azure / Hybrid and Multicloud', false, mxUtils.bind(this, function(content)
+				{
+					for (var i = 0; i < fns.length; i++)
+					{
+						content.appendChild(fns[i](content));
+					}
+		}));
+	};
+
 	Sidebar.prototype.addAzure2IdentityPalette = function(gn, r, sb, s)
 	{
 		var dt = 'azure identity ';
@@ -810,6 +860,8 @@
 					r * 0.175, r * 0.16, '', 'Active Directory', null, null, this.getTagsForStencil(gn, 'active directory', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Active_Directory_Connect_Health.svg;',
 					r * 0.1725, r * 0.16, '', 'Active Directory Connect Health', null, null, this.getTagsForStencil(gn, 'active directory connect health', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Active_Directory_Connect_Health2.svg;',
+					r * 0.17, r * 0.1511, '', 'Active Directory Connect Health', null, null, this.getTagsForStencil(gn, 'active directory connect health', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_AD_B2C.svg;',
 					r * 0.1725, r * 0.16, '', 'AD B2C', null, null, this.getTagsForStencil(gn, 'ad b2c', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_AD_Domain_Services.svg;',
@@ -826,12 +878,32 @@
 					r * 0.17, r * 0.17, '', 'API Proxy', null, null, this.getTagsForStencil(gn, 'api application programming interface proxy', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'App_Registrations.svg;',
 					r * 0.1575, r * 0.16, '', 'App Registrations', null, null, this.getTagsForStencil(gn, 'app registrations', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Azure_AD_B2C2.svg;',
+				r * 0.17, r * 0.1511, '', 'Azure AD B2C', null, null, this.getTagsForStencil(gn, 'ad b2c', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Custom_Azure_AD_Roles.svg;',
 					r * 0.17, r * 0.17, '', 'Custom Azure AD Roles', null, null, this.getTagsForStencil(gn, 'custom azure ad roles', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Enterprise_Applications.svg;',
 					r * 0.16, r * 0.16, '', 'Enterprise Applications', null, null, this.getTagsForStencil(gn, 'enterprise applications', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Entra_Connect.svg;',
+				r * 0.17, r * 0.1606, '', 'Entra Connect', null, null, this.getTagsForStencil(gn, 'entra connect', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Entra_Domain_Services.svg;',
+				r * 0.17, r * 0.17, '', 'Entra Domain Services', null, null, this.getTagsForStencil(gn, 'entra domain services', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Entra_Global_Secure_Access.svg;',
+				r * 0.17, r * 0.17, '', 'Entra Global Secure Access', null, null, this.getTagsForStencil(gn, 'entra global secure access', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Entra_ID_Protection.svg;',
+				r * 0.17, r * 0.1511, '', 'Entra ID Protection', null, null, this.getTagsForStencil(gn, 'entra id protection', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Entra_Internet_Access.svg;',
+				r * 0.17, r * 0.17, '', 'Entra Internet Access', null, null, this.getTagsForStencil(gn, 'entra internet access', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Entra_Managed_Identities.svg;',
+				r * 0.17, r * 0.1511, '', 'Entra Managed Identities', null, null, this.getTagsForStencil(gn, 'entra managed identities', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Entra_Private_Access.svg;',
+				r * 0.17, r * 0.17, '', 'Entra Private Access', null, null, this.getTagsForStencil(gn, 'entra private access', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Entra_Privileged_Identity_Management.svg;',
+				r * 0.17, r * 0.17, '', 'Entra Privileged Identity Management', null, null, this.getTagsForStencil(gn, 'entra privileged identity management', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Entra_Verified_ID.svg;',
+				r * 0.17, r * 0.1511, '', 'Entra Verified ID', null, null, this.getTagsForStencil(gn, 'entra verified id', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'External_Identities.svg;',
-					r * 0.1562, r * 0.17, '', 'External Identities', null, null, this.getTagsForStencil(gn, 'external identities', dt).join(' ')),
+				r * 0.1562, r * 0.17, '', 'External Identities', null, null, this.getTagsForStencil(gn, 'external identities', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Groups.svg;',
 					r * 0.17, r * 0.14, '', 'Groups', null, null, this.getTagsForStencil(gn, 'groups', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Identity_Governance.svg;',
@@ -840,8 +912,10 @@
 					r * 0.128, r * 0.17, '', 'Information Protection', null, null, this.getTagsForStencil(gn, 'information protection', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Managed_Identities.svg;',
 					r * 0.17, r * 0.165, '', 'Managed Identities', null, null, this.getTagsForStencil(gn, 'managed identities', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Multi_Factor_Authentication.svg;',
+				r * 0.17, r * 0.17, '', 'Multi-Factor Authentication', null, null, this.getTagsForStencil(gn, 'multi factor authentication', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'PIM.svg;',
-					r * 0.15, r * 0.17, '', 'PIM', null, null, this.getTagsForStencil(gn, 'pim privileged identity management', dt).join(' ')),
+				r * 0.15, r * 0.17, '', 'PIM', null, null, this.getTagsForStencil(gn, 'pim privileged identity management', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Security.svg;',
 					r * 0.1418, r * 0.17, '', 'Security', null, null, this.getTagsForStencil(gn, 'security', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Tenant_Properties.svg;',
@@ -851,8 +925,10 @@
 			this.createVertexTemplateEntry(s + 'Users.svg;',
 					r * 0.16, r * 0.175, '', 'Users', null, null, this.getTagsForStencil(gn, 'users', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Verifiable_Credentials.svg;',
-					r * 0.17, r * 0.17, '', 'Verifiable Credentials', null, null, this.getTagsForStencil(gn, 'verifiable credentials', dt).join(' '))
-		];
+					r * 0.17, r * 0.17, '', 'Verifiable Credentials', null, null, this.getTagsForStencil(gn, 'verifiable credentials', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Verification_As_A_Service.svg;',
+				r * 0.17, r * 0.17, '', 'Verification As A Service', null, null, this.getTagsForStencil(gn, 'verification as service', dt).join(' '))
+			];
 			
 		this.addPalette('azure2Identity', 'Azure / Identity', false, mxUtils.bind(this, function(content)
 				{
@@ -891,6 +967,8 @@
 					r * 0.1675, r * 0.15, '', 'Event Grid Topics', null, null, this.getTagsForStencil(gn, 'event grid topics', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Integration_Accounts.svg;',
 					r * 0.16, r * 0.16, '', 'Integration Accounts', null, null, this.getTagsForStencil(gn, 'integration accounts', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Integration_Environments.svg;',
+					r * 0.1606, r * 0.17, '', 'Integration Environments', null, null, this.getTagsForStencil(gn, 'integration environments', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Integration_Service_Environments.svg;',
 					r * 0.17, r * 0.17, '', 'Integration Service Environments', null, null, this.getTagsForStencil(gn, 'integration service environments', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Logic_Apps.svg;',
@@ -1037,7 +1115,9 @@
 			this.createVertexTemplateEntry(s + 'IoT_Edge.svg;',
 					r * 0.17, r * 0.17, '', 'IoT Edge', null, null, this.getTagsForStencil(gn, 'edge', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'IoT_Hub.svg;',
-					r * 0.16, r * 0.16, '', 'IoT Hub', null, null, this.getTagsForStencil(gn, 'roles', dt).join(' ')),
+					r * 0.16, r * 0.16, '', 'IoT Hub', null, null, this.getTagsForStencil(gn, 'hub', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Azure_IoT_Operations.svg;',
+					r * 0.17, r * 0.1606, '', 'IoT Operations', null, null, this.getTagsForStencil(gn, 'operations', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/internet_of_things/Logic_Apps.svg;',
 					r * 0.17, r * 0.17, '', 'Logic Apps', null, null, this.getTagsForStencil(gn, 'logic apps', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Logic_Apps.svg;',
@@ -1053,7 +1133,11 @@
 			this.createVertexTemplateEntry(s + 'Notification_Hubs.svg;',
 					r * 0.1675, r * 0.14, '', 'Notification Hubs', null, null, this.getTagsForStencil(gn, 'notification hubs', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/azure_stack/Azure_Stack.svg;',
-					r * 0.1647, r * 0.17, '', 'Stack', null, null, this.getTagsForStencil(gn, 'azure stack', dt).join(' ')),
+					r * 0.1647, r * 0.17, '', 'Stack', null, null, this.getTagsForStencil(gn, 'stack', dt).join(' ')),
+			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/iot/Azure_Stack_HCI_Sizer.svg;',
+					r * 0.17, r * 0.17, '', 'Stack HCI Sizer', null, null, this.getTagsForStencil(gn, 'stack hci sizer', dt).join(' ')),
+			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/iot/Stack_HCI_Premium.svg;',
+					r * 0.17, r * 0.17, '', 'Stack HCI Premium', null, null, this.getTagsForStencil(gn, 'stack hci premium', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Stream_Analytics_Jobs.svg;',
 					r * 0.17, r * 0.145, '', 'Stream Analytics Jobs', null, null, this.getTagsForStencil(gn, 'stream analytics jobs', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Time_Series_Data_Sets.svg;',
@@ -1135,6 +1219,8 @@
 					r * 0.1725, r * 0.15, '', 'Recovery Services Vaults', null, null, this.getTagsForStencil(gn, 'recovery services vaults', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Resource_Graph_Explorer.svg;',
 					r * 0.1675, r * 0.16, '', 'Resource Graph Explorer', null, null, this.getTagsForStencil(gn, 'resource graph explorer', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Resources_Provider.svg;',
+					r * 0.1511, r * 0.17, '', 'Resources Provider', null, null, this.getTagsForStencil(gn, 'resources provider', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Scheduler_Job_Collections.svg;',
 					r * 0.17, r * 0.16, '', 'Scheduler Job Collections', null, null, this.getTagsForStencil(gn, 'scheduler job collections', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Service_Catalog_MAD.svg;',
@@ -1149,7 +1235,7 @@
 					r * 0.16, r * 0.17, '', 'User Privacy', null, null, this.getTagsForStencil(gn, 'user privacy', dt).join(' '))
 		];
 			
-		this.addPalette('azure2Management Governance', 'Azure / Management Governance', false, mxUtils.bind(this, function(content)
+		this.addPalette('azure2Management Governance', 'Azure / Management and Governance', false, mxUtils.bind(this, function(content)
 				{
 					for (var i = 0; i < fns.length; i++)
 					{
@@ -1269,7 +1355,7 @@
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/analytics/Log_Analytics_Workspaces.svg;',
 					r * 0.16, r * 0.16, '', 'Log Analytics Workspaces', null, null, this.getTagsForStencil(gn, 'log analytics workspaces', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/management_governance/Metrics.svg;',
-					r * 0.137, r * 0.17, '', 'Metrics Advisor', null, null, this.getTagsForStencil(gn, 'metrics advisor', dt).join(' ')),
+					r * 0.16, r * 0.17, '', 'Metrics Advisor', null, null, this.getTagsForStencil(gn, 'metrics advisor', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/management_governance/Monitor.svg;',
 					r * 0.16, r * 0.16, '', 'Monitor', null, null, this.getTagsForStencil(gn, 'monitor', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/networking/Network_Watcher.svg;',
@@ -1297,20 +1383,30 @@
 		
 		var fns =
 		[
+			this.createVertexTemplateEntry(s + 'Application_Gateway_Containers.svg;',
+					r * 0.17, r * 0.1606, '', 'Application Gateway Containers', null, null, this.getTagsForStencil(gn, 'application gateway containers', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Application_Gateways.svg;',
 					r * 0.16, r * 0.16, '', 'Application Gateways', null, null, this.getTagsForStencil(gn, 'application gateways', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'ATM_Multistack.svg;',
+					r * 0.17, r * 0.17, '', 'ATM Multistack', null, null, this.getTagsForStencil(gn, 'atm multistack', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Bastions.svg;',
 					r * 0.145, r * 0.17, '', 'Bastions', null, null, this.getTagsForStencil(gn, 'bastions', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'CDN_Profiles.svg;',
 					r * 0.17, r * 0.1, '', 'CDN Profiles', null, null, this.getTagsForStencil(gn, 'cdn profiles', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Azure_Communications_Gateway.svg;',
+					r * 0.17, r * 0.17, '', 'Communications Gateway', null, null, this.getTagsForStencil(gn, 'communications gateway', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/other/Connected_Cache.svg;',
 					r * 0.17, r * 0.14, '', 'Connected Cache', null, null, this.getTagsForStencil(gn, 'connected cache', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Connections.svg;',
 					r * 0.17, r * 0.17, '', 'Connections', null, null, this.getTagsForStencil(gn, 'connections', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'DDoS_Protection_Plans.svg;',
 					r * 0.14, r * 0.17, '', 'DDoS Protection Plans', null, null, this.getTagsForStencil(gn, 'ddos protection plans', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'DNS_Multistack.svg;',
+					r * 0.17, r * 0.17, '', 'DNS Multistack', null, null, this.getTagsForStencil(gn, 'dns multistack', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'DNS_Private_Resolver.svg;',
 					r * 0.17, r * 0.15, '', 'DNS Private Resolver', null, null, this.getTagsForStencil(gn, 'dns private resolver', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'DNS_Security_Policy.svg;',
+					r * 0.17, r * 0.17, '', 'DNS Security Policy', null, null, this.getTagsForStencil(gn, 'dns security policy', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'DNS_Zones.svg;',
 					r * 0.16, r * 0.16, '', 'DNS Zones', null, null, this.getTagsForStencil(gn, 'dns domain name server zones', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'ExpressRoute_Circuits.svg;',
@@ -1323,6 +1419,8 @@
 					r * 0.1775, r * 0.15, '', 'Firewalls', null, null, this.getTagsForStencil(gn, 'firewalls', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Front_Doors.svg;',
 					r * 0.17, r * 0.15, '', 'Front Doors', null, null, this.getTagsForStencil(gn, 'front doors', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'IP_Address_Manager.svg;',
+					r * 0.17, r * 0.1511, '', 'IP Address Manager', null, null, this.getTagsForStencil(gn, 'ip address manager', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'IP_Groups.svg;',
 					r * 0.1675, r * 0.13, '', 'IP Groups', null, null, this.getTagsForStencil(gn, 'ip internet protocol groups', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Load_Balancer_Hub.svg;',
@@ -1412,12 +1510,18 @@
 					r * 0.1634, r * 0.17, '', 'AAD Licenses', null, null, this.getTagsForStencil(gn, 'aad licenses', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'ACS_Solutions_Builder.svg;',
 					r * 0.17, r * 0.13, '', 'ACS Solutions Builder', null, null, this.getTagsForStencil(gn, 'acs solutions builder', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'AKS_Automatic.svg;',
+					r * 0.17, r * 0.17, '', 'AKS Automatic', null, null, this.getTagsForStencil(gn, 'aks automatic', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'AKS_Istio.svg;',
+					r * 0.17, r * 0.17, '', 'AKS Istio', null, null, this.getTagsForStencil(gn, 'aks istio', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'API_Proxy.svg;',
 					r * 0.17, r * 0.095, '', 'API Proxy', null, null, this.getTagsForStencil(gn, 'api application programming interface proxy', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'App_Compliance_Automation.svg;',
 					r * 0.17, r * 0.1237, '', 'App Compliance Automation', null, null, this.getTagsForStencil(gn, 'app compliance automation', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/identity/App_Registrations.svg;',
 					r * 0.1673, r * 0.17, '', 'App Registrations', null, null, this.getTagsForStencil(gn, 'app registrations', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'App_Space_Component.svg;',
+					r * 0.1417, r * 0.17, '', 'App Space Compoment', null, null, this.getTagsForStencil(gn, 'app space component', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Aquila.svg;',
 					r * 0.17, r * 0.167, '', 'Aquila', null, null, this.getTagsForStencil(gn, 'aquila', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Arc_Data_Services.svg;',
@@ -1442,6 +1546,8 @@
 					r * 0.17, r * 0.1449, '', 'Backup Vault', null, null, this.getTagsForStencil(gn, 'backup vault', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Bare_Metal_Infrastructure.svg;',
 					r * 0.17, r * 0.16, '', 'Bare Metal Infrastructure', null, null, this.getTagsForStencil(gn, 'bare metal infrastructure', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Business_Process_Tracking.svg;',
+					r * 0.1228, r * 0.17, '', 'Business Process Tracking', null, null, this.getTagsForStencil(gn, 'business process tracking', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Center_for_SAP.svg;',
 					r * 0.17, r * 0.17, '', 'Center for SAP', null, null, this.getTagsForStencil(gn, 'center for sap', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Central_Service_Instance_for_SAP.svg;',
@@ -1458,6 +1564,8 @@
 					r * 0.17, r * 0.125, '', 'Communication Services', null, null, this.getTagsForStencil(gn, 'communication services', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Compliance_Center.svg;',
 					r * 0.17, r * 0.17, '', 'Compliance Center', null, null, this.getTagsForStencil(gn, 'compliance center', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Compute_Fleet.svg;',
+					r * 0.17, r * 0.17, '', 'Compute Fleet', null, null, this.getTagsForStencil(gn, 'compute fleet', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/compute/Azure_Compute_Galleries.svg;',
 					r * 0.17, r * 0.17, '', 'Compute Galleries', null, null, this.getTagsForStencil(gn, 'compute galleries', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Confidential_Ledger.svg;',
@@ -1532,6 +1640,8 @@
 					r * 0.155, r * 0.16, '', 'Detonation', null, null, this.getTagsForStencil(gn, 'detonation', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Device_Update_IoT_Hub.svg;',
 					r * 0.15, r * 0.17, '', 'Device Update IoT Hub', null, null, this.getTagsForStencil(gn, 'device updateiot hub internet of things', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Azure_Dev_Tunnels.svg;',
+					r * 0.17, r * 0.17, '', 'Dev Tunnels', null, null, this.getTagsForStencil(gn, 'dev tunnels', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Disk_Pool.svg;',
 					r * 0.17, r * 0.165, '', 'Disk Pool', null, null, this.getTagsForStencil(gn, 'disk pool', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Edge_Hardware_Center.svg;',
@@ -1540,6 +1650,10 @@
 					r * 0.165, r * 0.17, '', 'Edge Management', null, null, this.getTagsForStencil(gn, 'edge management', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Elastic_SAN.svg;',
 					r * 0.17, r * 0.17, '', 'Elastic SAN', null, null, this.getTagsForStencil(gn, 'elastic san', dt).join(' ')),
+			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/identity/Active_Directory_Connect_Health2.svg;',
+					r * 0.17, r * 0.1511, '', 'Entra Connect Health', null, null, this.getTagsForStencil(gn, 'entra connect health', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Entra_Connect_Sync.svg;',
+					r * 0.17, r * 0.17, '', 'Entra Connect Sync', null, null, this.getTagsForStencil(gn, 'entra connect sync', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Entra_Identity.svg;',
 					r * 0.17, r * 0.1511, '', 'Entra Identity', null, null, this.getTagsForStencil(gn, 'entra identity', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Exchange_On_Premises_Access.svg;',
@@ -1554,8 +1668,12 @@
 					r * 0.135, r * 0.17, '', 'Fiji', null, null, this.getTagsForStencil(gn, 'fiji', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Grafana.svg;',
 					r * 0.17, r * 0.132, '', 'Grafana', null, null, this.getTagsForStencil(gn, 'grafana', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'HDI_AKS_Cluster.svg;',
+					r * 0.1511, r * 0.17, '', 'HDI AKS Cluster', null, null, this.getTagsForStencil(gn, 'hdi aks cluster', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_HPC_Workbench.svg;',
 					r * 0.139, r * 0.17, '', 'HPC Workbench', null, null, this.getTagsForStencil(gn, 'hpc workbench', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'IcM_Troubleshooting.svg;',
+					r * 0.17, r * 0.17, '', 'IcM Troubleshooting', null, null, this.getTagsForStencil(gn, 'icm troubleshooting', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Image_Definition.svg;',
 					r * 0.17, r * 0.16, '', 'Image Definition', null, null, this.getTagsForStencil(gn, 'image definition', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Image_Version.svg;',
@@ -1576,6 +1694,10 @@
 					r * 0.17, r * 0.17, '', 'Local Network Gateways', null, null, this.getTagsForStencil(gn, 'local network gateways', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Log_Analytics_Query_Pack.svg;',
 					r * 0.17, r * 0.17, '', 'Log Analytics Query Pack', null, null, this.getTagsForStencil(gn, 'log analytics query pack', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Managed_DevOps_Pools.svg;',
+					r * 0.17, r * 0.17, '', 'Managed DevOps Pools', null, null, this.getTagsForStencil(gn, 'managed devops pools', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Managed_File_Shares.svg;',
+					r * 0.17, r * 0.17, '', 'Managed File Shares', null, null, this.getTagsForStencil(gn, 'managed file shares', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Managed_Instance_Apache_Cassandra.svg;',
 					r * 0.17, r * 0.17, '', 'Managed Instance Apache Cassandra', null, null, this.getTagsForStencil(gn, 'managed instance apache cassandra', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Marketplace_Management.svg;',
@@ -1588,6 +1710,10 @@
 					r * 0.17, r * 0.17, '', 'Modular Data Center', null, null, this.getTagsForStencil(gn, 'modular data center', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Monitor_Dashboard.svg;',
 					r * 0.17, r * 0.158, '', 'Monitor Dashboard', null, null, this.getTagsForStencil(gn, 'monitor dashboard', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Monitor_Health_Models.svg;',
+					r * 0.17, r * 0.17, '', 'Monitor Health Models', null, null, this.getTagsForStencil(gn, 'monitor health models', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Azure_Monitor_Pipeline.svg;',
+					r * 0.17, r * 0.1228, '', 'Monitor Pipeline', null, null, this.getTagsForStencil(gn, 'monitor pipeline', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'MS_Dev_Box.svg;',
 					r * 0.17, r * 0.17, '', 'MS Dev Box', null, null, this.getTagsForStencil(gn, 'ms dev box', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Network_Function_Manager.svg;',
@@ -1602,6 +1728,8 @@
 					r * 0.17, r * 0.17, '', 'Open Supply Chain Platform', null, null, this.getTagsForStencil(gn, 'open supply chain platform', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Orbital.svg;',
 					r * 0.17, r * 0.17, '', 'Orbital', null, null, this.getTagsForStencil(gn, 'orbital', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'OSConfig.svg;',
+					r * 0.17, r * 0.1417, '', 'OSConfig', null, null, this.getTagsForStencil(gn, 'osconfig', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Peering_Service.svg;',
 					r * 0.17, r * 0.1725, '', 'Peering Service', null, null, this.getTagsForStencil(gn, 'peering service', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Peerings.svg;',
@@ -1632,12 +1760,16 @@
 					r * 0.165, r * 0.17, '', 'Sphere', null, null, this.getTagsForStencil(gn, 'sphere', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'SSH_Keys.svg;',
 					r * 0.17, r * 0.15, '', 'SSH Keys', null, null, this.getTagsForStencil(gn, 'ssh keys', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Storage_Actions.svg;',
+					r * 0.17, r * 0.17, '', 'Storage Actions', null, null, this.getTagsForStencil(gn, 'storage actions', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Storage_Mover.svg;',
 					r * 0.17, r * 0.1672, '', 'Storage Mover', null, null, this.getTagsForStencil(gn, 'storage mover', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Storage_Tasks.svg;',
 					r * 0.17, r * 0.17, '', 'Storage Tasks', null, null, this.getTagsForStencil(gn, 'storage tasks', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Support_Center_Blue.svg;',
 					r * 0.15, r * 0.17, '', 'Support Center Blue', null, null, this.getTagsForStencil(gn, 'support center blue', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Azure_Sustainability.svg;',
+					r * 0.17, r * 0.17, '', 'Support Sustainability', null, null, this.getTagsForStencil(gn, 'sustainability', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Targets_Management.svg;',
 					r * 0.17, r * 0.17, '', 'Targets Management', null, null, this.getTagsForStencil(gn, 'targets management', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Template_Specs.svg;',
@@ -1652,6 +1784,8 @@
 					r * 0.17, r * 0.1211, '', 'Video Analyzers', null, null, this.getTagsForStencil(gn, 'update center', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Video_Indexer.svg;',
 					r * 0.15, r * 0.17, '', 'Video Indexer', null, null, this.getTagsForStencil(gn, 'video indexer', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Virtual_Enclaves.svg;',
+					r * 0.1511, r * 0.17, '', 'Virtual Enclaves', null, null, this.getTagsForStencil(gn, 'virtual enclaves', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Virtual_Instance_for_SAP.svg;',
 					r * 0.17, r * 0.1571, '', 'Virtual Instance for SAP', null, null, this.getTagsForStencil(gn, 'virtual instance for sap', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'VM_Application_Definition.svg;',
@@ -1662,6 +1796,8 @@
 					r * 0.17, r * 0.1355, '', 'VMWare Solution', null, null, this.getTagsForStencil(gn, 'vm virtual machine vmware solution', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'WAC.svg;',
 					r * 0.155, r * 0.17, '', 'WAC', null, null, this.getTagsForStencil(gn, 'wac windows admin center', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'WAC_Installer.svg;',
+					r * 0.17, r * 0.17, '', 'WAC Installer', null, null, this.getTagsForStencil(gn, 'wac windows admin center installer', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Web_App_Database.svg;',
 					r * 0.17, r * 0.17, '', 'Web App Database', null, null, this.getTagsForStencil(gn, 'web app database', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Web_Jobs.svg;',
@@ -1671,8 +1807,10 @@
 			this.createVertexTemplateEntry(s + 'Windows_Virtual_Desktop.svg;',
 					r * 0.17, r * 0.17, '', 'Windows Virtual Desktop', null, null, this.getTagsForStencil(gn, 'windows virtual desktop', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Worker_Container_App.svg;',
-					r * 0.17, r * 0.165, '', 'Worker Container App', null, null, this.getTagsForStencil(gn, 'worker container app', dt).join(' '))
-		];
+					r * 0.17, r * 0.165, '', 'Worker Container App', null, null, this.getTagsForStencil(gn, 'worker container app', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Workspace_Gateway.svg;',
+				r * 0.17, r * 0.1417, '', 'Workspace Gateway', null, null, this.getTagsForStencil(gn, 'workspace gateway', dt).join(' '))
+			];
 			
 		this.addPalette('azure2Other', 'Azure / Other', false, mxUtils.bind(this, function(content)
 				{
@@ -1831,8 +1969,10 @@
 		
 		var fns =
 		[
+			this.createVertexTemplateEntry(s + 'API_Center.svg;',
+				r * 0.17, r * 0.17, '', 'API Center', null, null, this.getTagsForStencil(gn, 'api center', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/devops/API_Connections.svg;',
-					r * 0.17, r * 0.1133, '', 'API Connections', null, null, this.getTagsForStencil(gn, 'api connections application programming interface', dt).join(' ')),
+				r * 0.17, r * 0.1133, '', 'API Connections', null, null, this.getTagsForStencil(gn, 'api connections application programming interface', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/app_services/API_Management_Services.svg;',
 					r * 0.17, r * 0.1575, '', 'API Management Services', null, null, this.getTagsForStencil(gn, 'api application programming interface management services', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/app_services/App_Service_Certificates.svg;',
@@ -1845,6 +1985,8 @@
 					r * 0.17, r * 0.17, '', 'App Service Plans', null, null, this.getTagsForStencil(gn, 'app service plans', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/app_services/App_Services.svg;',
 					r * 0.17, r * 0.17, '', 'App Services', null, null, this.getTagsForStencil(gn, 'app services', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'App_Space.svg;',
+					r * 0.17, r * 0.17, '', 'App Space', null, null, this.getTagsForStencil(gn, 'app space', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/app_services/Search_Services.svg;',
 					r * 0.17, r * 0.1228, '', 'Cognitive Search', null, null, this.getTagsForStencil(gn, 'cognitive search', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/ai_machine_learning/Cognitive_Services.svg;',

@@ -1,6 +1,6 @@
 # *DO NOT DIRECTLY EDIT THIS FILE, IT IS AUTOMATICALLY GENERATED AND IT IS BASED ON:*
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
-about=Info  kohta
+about=Info kohta
 aboutDrawio=Info draw.io kohta
 accessDenied=Ligipääs keelatud
 accounts=Accounts
@@ -124,7 +124,7 @@ draftFound=Mustand {1} jaoks on leitud. Lae see töötluskeskkonda või tühista
 draftRevisionMismatch=Selle lehe jagatud mustandis on selle diagrammi erinev versioon. Muutke diagrammi mustandist, et tagada uusima versiooni kasutamine.
 selectDraft=Valige redigeerimise jätkamiseks mustand:
 dragAndDropNotSupported=Piltidele puudub pukseerimise tugi. Kas sooviksid selle asemel importida?
-dropboxCharsNotAllowed=Järgnevad tähemärgid pole lubatud:  \ / : ? * " |
+dropboxCharsNotAllowed=Järgnevad tähemärgid pole lubatud: \ / : ? * " |
 check=Kontrolli
 checksum=Kontrollsumma
 circle=Ring
@@ -275,7 +275,7 @@ errorSavingFileUnknown=Viga Google'i serveritega autoriseerimisel. Palun värske
 errorSavingFileForbidden=Viga faili salvestamisel. Ebapiisavad ligipääsuõigused.
 errorSavingFileNameConflict=Diagramm ei salvestunud. Käesolev leht juba sisaldab faili nimega '{1}'.
 errorSavingFileNotFound=Viga faili salvestamisel. Faili ei leitud.
-errorSavingFileReadOnlyMode=Diagramm ei salvestunud kuna 'vaid loetav'  režiim on aktiivne.
+errorSavingFileReadOnlyMode=Diagramm ei salvestunud kuna 'vaid loetav' režiim on aktiivne.
 errorSavingFileSessionTimeout=Sessioon on lõppenud. Palun <a target='_blank' href='{1}'>{2}</a> ja naase sellele vahelehele, et proovida uuesti salvestamist.
 errorSendingFeedback=Viga tagasiside saatmisel.
 errorUpdatingPreview=Viga eelvaate uuendamisel.
@@ -435,7 +435,7 @@ insertRowAfter=Sisesta rida allapoole
 insertText=Sisesta tekst
 inserting=Sisestamine
 installApp=Paigalda Äpp
-invalidFilename=Diagrammi nimed ei tohi sisaldada järgnevaid tähemärke:  \ / | : ; { } < > & + ? = "
+invalidFilename=Diagrammi nimed ei tohi sisaldada järgnevaid tähemärke: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Sinu litsents on kehtetu, palun vaata seda <a target="_blank" href="https://www.drawio.com/doc/faq/license-drawio-confluence-jira-cloud">lehte</a>.
 invalidInput=Viga sisestamisel
 invalidName=Viga nimes
@@ -861,7 +861,7 @@ recentlyUsed=Viimati kasutatud
 listView=Nimekiri
 gridView=Ruudustiku vaade
 resultsFor=Tulemused {1} jaoks
-oneDriveCharsNotAllowed=Ebasobivad sümbolid:  ~ " # %  * : < > ? / \ { | }
+oneDriveCharsNotAllowed=Ebasobivad sümbolid: ~ " # % * : < > ? / \ { | }
 oneDriveInvalidDeviceName=Antud seadme nimi on vigane.
 officeNotLoggedOD=Sa pole OneDrive sisse logitud. Palun ava draw.io töölaud ja logi sisse.
 officeSelectSingleDiag=Palun vali ainult üks draw.io diagramm.
