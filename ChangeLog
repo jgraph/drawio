@@ -1,3 +1,44 @@
+30-SEP-2024: 24.7.17
+
+- [conf cloud] Fixes showing older versions of a diagram in page history [DID-12641]
+- [conf cloud] Adds libraries edit/add from the editor [DID-12585]
+
+20-SEP-2024: 24.7.16
+
+- Fixes editorui parameter for loadLibrary [DID-12644]
+
+19-SEP-2024: 24.7.15
+
+- Uses java17 for GAE deployment
+- [conf cloud] Adds diagram translation support via ["translateDiagrams": true] config
+- [conf cloud] Fixes a NPE [DID-12553]
+
+13-SEP-2024: 24.7.14
+
+- Updates to mermaid 11.2.0
+- [conf cloud] Uses retry-after header info when rate-limiting hits
+
+11-SEP-2024: 24.7.13
+
+- [conf cloud] Fixes errors in diagrams list
+
+05-SEP-2024: 24.7.12
+
+- Internal release
+
+05-SEP-2024: 24.7.11
+
+- Fixes possible XSS for tooltips in dev mode
+
+02-SEP-2024: 24.7.10
+
+- Internal release
+
+02-SEP-2024: 24.7.9
+
+- Fixes exit flag in save event message [jgraph/drawio#4010]
+- [conf cloud] Using viewerTimeout config in the editor also [DID-12425]
+
 28-AUG-2024: 24.7.8
 
 - Adds math typesetting support for Mermaid [drawio-desktop-1824]
