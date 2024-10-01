@@ -1288,5 +1288,5 @@ confALogsPageDesc=Halaman ini memuat catatan log dari layanan draw.io yang berja
 confEditOnlyInPageEditor=Hanya dapat diedit di dalam editor halaman Confluence
 confEvalWarn=Lisensi Evaluasi - Tidak untuk penggunaan produksi
 otherUsersEditing=Pengguna lain sedang mengedit diagram ini
-firtTimeGD=Pertama kali mengakses berkas ini?
+firstTimeGD=Pertama kali mengakses berkas ini?
 drawioGDAppNotInstalled=Aplikasi Google Drive draw.io tidak terpasang, harap pasang terlebih dahulu

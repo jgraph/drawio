@@ -3774,33 +3774,16 @@ var mxUtils =
 			}
 		}
 	},
-        
-	/**
-	 * Function: hex2rgb
-	 * 
-	 * Converts the given hexadecimal color value to an RGBA string.
-	 */
-	hex2rgb: function(value)
-	{
-		if (value != null && value.length == 7 && value.charAt(0) == '#')
-		{
-			var r = parseInt(value.substring(1, 3), 16);
-			var g = parseInt(value.substring(3, 5), 16);
-			var b = parseInt(value.substring(5, 7), 16);
-			
-			value = 'rgb(' + r + ', ' + g + ', ' + b + ')';
-		}
-
-		return value;
-	},
 	
 	/**
-	 * Function: hex2rgba
+	 * Function: parseHexColor
 	 * 
-	 * Converts the given hexadecimal color value to an RGBA string.
+	 * Returns an object with r, g, b and a properties in the range 0-255.
 	 */
-	hex2rgba: function(value, alpha)
+	parseHexColor: function(value, alpha)
 	{
+		var result = null;
+
 		if (value != null && value.length >= 7 && value.charAt(0) == '#')
 		{
 			var r = parseInt(value.substring(1, 3), 16);
@@ -3813,9 +3796,44 @@ var mxUtils =
 				a = parseInt(value.substring(7, 9), 16) / 255;
 			}
 
-			value = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
+			result = {r: r, g: g, b: b, a: a};
 		}
 
+		return result;
+	},
+	
+	/**
+	 * Function: hex2rgb
+	 * 
+	 * Converts the given hexadecimal color value to an RGB string.
+	 */
+	hex2rgb: function(value)
+	{
+		var rgb = mxUtils.parseHexColor(value);
+
+		if (rgb != null)
+		{
+			value = 'rgb(' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ')';
+		}
+
+		return value;
+	},
+	
+	/**
+	 * Function: hex2rgba
+	 * 
+	 * Converts the given hexadecimal color value to an RGBA string.
+	 */
+	hex2rgba: function(value, alpha)
+	{
+		var rgba = mxUtils.parseHexColor(value, alpha);
+
+		if (rgba != null)
+		{
+			value = 'rgba(' + rgba.r + ', ' + rgba.g + ', ' +
+				rgba.b + ', ' + rgba.a + ')';
+		}
+		
 		return value;
 	},
 	

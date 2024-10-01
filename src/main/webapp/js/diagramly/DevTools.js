@@ -12,7 +12,7 @@ if (urlParams['dev'] == '1')
 			var tip = graphGetTooltipForCell.apply(this, arguments);
 			var geo = this.getCellGeometry(cell);
 			
-			tip += ((tip.length > 0) ? '<br>' : '') + 'id=' + cell.id + '<br>';
+			tip += ((tip.length > 0) ? '<br>' : '') + 'id=' + mxUtils.htmlEntities(cell.id) + '<br>';
 			
 			if (geo != null)
 			{

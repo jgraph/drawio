@@ -1688,7 +1688,7 @@ App.prototype.init = function()
 						{
 							this.updateUserElement();
 							this.restoreLibraries();
-							// this.checkLicense();
+							this.checkLicense();
 						}))
 						
 						// Notifies listeners of new client
@@ -1911,7 +1911,7 @@ App.blockedAncestorFrames = function()
 				message += ' -> ' + window.location.ancestorOrigins[i];
 
 				// Running commercial, competing services using our infrastructure isn't allowed.
-				if (message.endsWith('.appsplus.co') || message.endsWith('confluence-cloud-excalidraw-ll3likebca-uc.a.run.app'))
+				if (message.endsWith('dan6v7pm1f1a1.cloudfront.net') || message.endsWith('confluence-cloud-excalidraw-ll3likebca-uc.a.run.app'))
 				{
 					return true;
 				}

@@ -3351,6 +3351,19 @@
 				
 				if (!noDialogs)
 				{
+					if (e.fallbackFileData != null)
+					{
+						e.alternateAction = {
+							label: mxResources.get('makeCopy'),
+							funct: mxUtils.bind(this, function()
+							{
+								this.hideDialog();
+								var tempFile = new LocalFile(this, e.fallbackFileData, this.defaultFilename, true);
+								this.fileLoaded(tempFile);
+							})
+						};
+					}
+
 					this.handleError(e, mxResources.get('errorLoadingFile'), fn, true, null, null, true);
 				}
 				else
@@ -4754,6 +4767,11 @@
 				{
 					return this.openLink('mailto:' + mxUtils.htmlEntities(e.ownerEmail));
 				});
+			}
+			else if (e != null && e.alternateAction != null)
+			{
+				btn3 = e.alternateAction.label;
+				fn3 = e.alternateAction.funct;
 			}
 	
 			this.showError(title, msg, btn, fn, retry, null, null, btn3, fn3,
@@ -17063,6 +17081,23 @@
 							urlParams['saveAndExit'] = data.saveAndExit;
 						}
 						
+						if (urlParams['saveAndExit'] == '1' ||
+							urlParams['publishClose'] == '1')
+						{
+							this.actions.get('save').shortcut = null;
+
+							if (!this.editor.chromeless || this.editor.editable)
+							{
+								this.keyHandler.bindAction(83, true, 'saveAndExit'); // Ctrl+S
+
+								if (urlParams['noSaveBtn'] != '1')
+								{
+									this.actions.get('save').shortcut = Editor.ctrlKey + '+Shift+S';
+									this.keyHandler.bindAction(83, true, 'save', true); // Ctrl+Shift+S
+								}
+							}
+						}
+
 						if (data.noSaveBtn != null && urlParams['noSaveBtn'] == null)
 						{
 							urlParams['noSaveBtn'] = data.noSaveBtn;
@@ -17495,7 +17530,7 @@
 			{
 				div.appendChild(this.createEmbedButton(urlParams['publishClose'] == '1' ?
 					mxResources.get('publish') : mxResources.get('saveAndExit'),
-					this.actions.get('saveAndExit').funct, null, true));
+					this.actions.get('saveAndExit').funct, Editor.ctrlKey + '+S', true));
 			}
 		}
 		else
@@ -17503,12 +17538,13 @@
 			div.appendChild(this.createEmbedButton(mxResources.get('save'), mxUtils.bind(this, function()
 			{
 				this.actions.get('save').funct(false);
-			}), Editor.ctrlKey + '+S', true));
+			}), urlParams['saveAndExit'] == '1' ? Editor.ctrlKey + '+Shift+S' :
+				Editor.ctrlKey + '+S', true));
 			
 			if (urlParams['saveAndExit'] == '1')
 			{
 				div.appendChild(this.createEmbedButton(mxResources.get('saveAndExit'),
-					this.actions.get('saveAndExit').funct));
+					this.actions.get('saveAndExit').funct, Editor.ctrlKey + '+S'));
 			}
 		}
 

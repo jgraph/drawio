@@ -1288,5 +1288,5 @@ confALogsPageDesc=Aquesta pàgina conté registres de serveis de llarga durada d
 confEditOnlyInPageEditor=Només es pot editar amb l'editor de pàgines de Confluence
 confEvalWarn=Llicència d'Avaluació - No per a ús en producció
 otherUsersEditing=Altres usuaris estan editant aquest diagrama
-firtTimeGD=Primer cop que accediu a aquest fitxer?
+firstTimeGD=Primer cop que accediu a aquest fitxer?
 drawioGDAppNotInstalled=L'aplicació draw.io de Google Drive no està instal·lada, primer instal·leu-la

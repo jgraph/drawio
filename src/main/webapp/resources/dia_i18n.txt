@@ -1288,5 +1288,5 @@ confALogsPageDesc=confALogsPageDesc
 confEditOnlyInPageEditor=confEditOnlyInPageEditor
 confEvalWarn=confEvalWarn
 otherUsersEditing=otherUsersEditing
-firtTimeGD=firtTimeGD
+firstTimeGD=firstTimeGD
 drawioGDAppNotInstalled=drawioGDAppNotInstalled

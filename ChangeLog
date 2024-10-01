@@ -1,8 +1,3 @@
-30-SEP-2024: 24.7.17
-
-- [conf cloud] Fixes showing older versions of a diagram in page history [DID-12641]
-- [conf cloud] Adds libraries edit/add from the editor [DID-12585]
-
 20-SEP-2024: 24.7.16
 
 - Fixes editorui parameter for loadLibrary [DID-12644]

@@ -1483,13 +1483,28 @@ EditorUi.prototype.clonePages = function(pages)
 		catch (e)
 		{
 			errors.push(mxResources.get('pageWithNumber',
-				[i + 1]) + ': ' + e.message);
+				[i + 1]) + ': ' + e.toString());
 		}
 	}
 
 	if (errors.length > 0)
 	{
-		throw new Error(errors.join('\n'));
+		var error = new Error(errors.join('\n'));
+
+		// Provides error handling with XML of valid pages for fallback
+		try
+		{
+			if (result.length > 0)
+			{
+				error.fallbackFileData = this.getXmlForPages(result);
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+
+		throw error;
 	}
 	
 	return result;
