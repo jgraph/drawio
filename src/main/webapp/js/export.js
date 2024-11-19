@@ -646,7 +646,8 @@ function render(data)
 	function renderPage(currentPageId)
 	{
 		// Configures math typesetting
-		graph.mathEnabled = xmlDoc.documentElement.getAttribute('math') == '1';
+		math = xmlDoc.documentElement.getAttribute('math') == '1';
+		graph.mathEnabled = math;
 
 		// Sets grid size
 		var gs = xmlDoc.documentElement.getAttribute('gridSize');

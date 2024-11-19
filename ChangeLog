@@ -1,3 +1,36 @@
+13-NOV-2024: 24.8.6
+
+- Corrects sidebar build
+
+13-NOV-2024: 24.8.5
+
+- [conf cloud] Removes target options from the page IDs export [DID-12937]
+- Adds Alibaba Cloud stencils
+- [teams] Fixes mobile app file picker
+
+04-NOV-2024: 24.8.4
+
+- [conf cloud] Removes confluence embed file hash to fix embed iframe [DID-12936]
+
+25-OCT-2024: 24.8.3
+
+- [desktop] Fixes print page size [jgraph/drawio-desktop#1893]
+
+23-OCT-2024: 24.8.2
+
+- Adds IBM Cloud stencil set
+
+22-OCT-2024: 24.8.1
+
+- Initial convert of confluence connect manifest to forge
+
+18-OCT-2024: 24.8.0
+
+- Fixes math typesetting in svg export [jgraph/drawio-desktop#1874]
+- Adds new Citrix stencil set
+- Initial convert of jira connect manifest to forge
+- [jira cloud] Fixes search page error
+
 30-SEP-2024: 24.7.17
 
 - [conf cloud] Fixes showing older versions of a diagram in page history [DID-12641]

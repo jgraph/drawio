@@ -89,6 +89,7 @@
 				<file name="Sidebar.js" />
 				<file name="Sidebar-ActiveDirectory.js" />
 				<file name="Sidebar-Advanced.js" />
+				<file name="Sidebar-AlibabaCloud.js" />
 				<file name="Sidebar-AlliedTelesis.js" />
 				<file name="Sidebar-Android.js" />
 				<file name="Sidebar-ArchiMate.js" />
@@ -111,6 +112,7 @@
 				<file name="Sidebar-Cisco19.js" />
 				<file name="Sidebar-CiscoSafe.js" />
 				<file name="Sidebar-Citrix.js" />
+				<file name="Sidebar-Citrix2.js" />
 				<file name="Sidebar-Cumulus.js" />
 				<file name="Sidebar-DFD.js" />
 				<file name="Sidebar-EIP.js" />
@@ -124,6 +126,7 @@
 				<file name="Sidebar-GCPIcons.js" />
 				<file name="Sidebar-Gmdl.js" />
 				<file name="Sidebar-IBM.js" />
+				<file name="Sidebar-IBMCloud.js" />
 				<file name="Sidebar-Infographic.js" />
 				<file name="Sidebar-Ios.js" />
 				<file name="Sidebar-Ios7.js" />
