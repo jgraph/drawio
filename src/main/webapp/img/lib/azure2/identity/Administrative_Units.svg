@@ -1,0 +1,112 @@
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18">
+	<style>
+		<![CDATA[.B{fill:#0078d4}]]>
+	</style>
+	<defs>
+		<linearGradient id="A" x1="9.282" y1="12.079" x2="16.974" y2="7.637" gradientUnits="userSpaceOnUse">
+			<stop offset=".384" stop-color="#005ba1"/>
+			<stop offset=".829" stop-color="#0078d4"/>
+		</linearGradient>
+		<linearGradient id="B" x1="5.573" y1="12.94" x2="14.846" y2="7.422" gradientUnits="userSpaceOnUse">
+			<stop offset=".392" stop-color="#0078d4"/>
+			<stop offset=".961" stop-color="#5ea0ef"/>
+		</linearGradient>
+		<linearGradient id="C" x1="7.118" y1="7.126" x2="7.118" y2="16.176" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#83b9f9"/>
+			<stop offset="1" stop-color="#5ea0ef"/>
+		</linearGradient>
+		<linearGradient id="D" x1="6.919" y1="3.088" x2="7.502" y2="10.336" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#83b9f9"/>
+			<stop offset=".9" stop-color="#5ea0ef"/>
+		</linearGradient>
+	</defs>
+	<path d="M16.235 12.663a3.93 3.93 0 0 0-2.49-3.53 2.045 2.045 0 1 0-2.295-.017c-1.483.423-2.3 1.712-2.49 3.547a.661.661 0 0 0 .587.717l6.053.032a.644.644 0 0 0 .652-.635v-.008a.226.226 0 0 0-.017-.106z" fill="url(#A)" id="E"/>
+	<path d="M14.524 13.255C14.275 11.247 13.3 9.54 11.5 8.966a2.485 2.485 0 1 0-2.789-.021c-1.8.514-2.8 2.081-3.025 4.31a.8.8 0 0 0 .713.872l7.355.039a.781.781 0 0 0 .792-.772v-.01a.284.284 0 0 0-.022-.129z" fill="url(#B)" id="F"/>
+	<path d="M11.6 15.029a.97.97 0 0 0 .97-.97.543.543 0 0 0 0-.114c-.383-3.05-2.12-5.528-5.43-5.528s-5.121 2.1-5.479 5.5a.977.977 0 0 0 .872 1.068z" fill="url(#C)" id="G"/>
+	<path d="M7.185 9.142a3.036 3.036 0 0 1-1.631-.489l1.631 4.281 1.63-4.248a3.105 3.105 0 0 1-1.63.456z" fill="#fff" opacity=".8" id="H"/>
+	<circle cx="7.16" cy="6.085" r="3.058" fill="url(#D)" id="I"/>
+	<path id="J" d="M1.715 0h2.086v.604H1.715z" class="B"/>
+	<path id="K" d="M17.418.932H18V0h-.921v.604h.339z" class="B"/>
+	<path id="L" d="M.667 17.015H0V18h.964v-.646H.667z" class="B"/>
+	<path id="M" d="M17.079 17.354V18H18v-.953h-.582v.307z" class="B"/>
+	<path id="N" d="M.964.604V0H0v.911h.667V.604z" class="B"/>
+	<path id="O" d="M4.839 0h2.086v.604H4.839z" class="B"/>
+	<path id="P" d="M7.952 0h2.086v.604H7.952z" class="B"/>
+	<path id="Q" d="M11.075 0h2.086v.604h-2.086z" class="B"/>
+	<path id="R" d="M14.199 0h2.086v.604h-2.086z" class="B"/>
+	<path id="S" d="M1.736 17.354h2.086v.604H1.736z" class="B"/>
+	<path id="T" d="M4.849 17.354h2.086v.604H4.849z" class="B"/>
+	<path id="U" d="M7.973 17.354h2.086v.604H7.973z" class="B"/>
+	<path id="V" d="M11.096 17.354h2.086v.604h-2.086z" class="B"/>
+	<path id="W" d="M14.209 17.354h2.086v.604h-2.086z" class="B"/>
+	<path id="X" d="M17.396 1.641H18v2.086h-.604z" class="B"/>
+	<path id="Y" d="M17.396 4.754H18V6.84h-.604z" class="B"/>
+	<path id="Z" d="M17.396 7.878H18v2.086h-.604z" class="B"/>
+	<path id="a" d="M17.396 10.991H18v2.086h-.604z" class="B"/>
+	<path id="b" d="M17.396 14.114H18V16.2h-.604z" class="B"/>
+	<path id="c" d="M0 1.62h.604v2.086H0z" class="B"/>
+	<path id="d" d="M0 4.744h.604V6.83H0z" class="B"/>
+	<path id="e" d="M0 7.856h.604v2.086H0z" class="B"/>
+	<path id="f" d="M0 10.98h.604v2.086H0z" class="B"/>
+	<path id="g" d="M0 14.093h.604v2.086H0z" class="B"/>
+	<use xlink:href="#E"/>
+	<use xlink:href="#F"/>
+	<use xlink:href="#G"/>
+	<use xlink:href="#H"/>
+	<use xlink:href="#I"/>
+	<use xlink:href="#J"/>
+	<use xlink:href="#K"/>
+	<use xlink:href="#L"/>
+	<use xlink:href="#M"/>
+	<use xlink:href="#N"/>
+	<use xlink:href="#O"/>
+	<use xlink:href="#P"/>
+	<use xlink:href="#Q"/>
+	<use xlink:href="#R"/>
+	<use xlink:href="#S"/>
+	<use xlink:href="#T"/>
+	<use xlink:href="#U"/>
+	<use xlink:href="#V"/>
+	<use xlink:href="#W"/>
+	<use xlink:href="#X"/>
+	<use xlink:href="#Y"/>
+	<use xlink:href="#Z"/>
+	<use xlink:href="#a"/>
+	<use xlink:href="#b"/>
+	<use xlink:href="#c"/>
+	<use xlink:href="#d"/>
+	<use xlink:href="#e"/>
+	<use xlink:href="#f"/>
+	<use xlink:href="#g"/>
+	<use xlink:href="#E"/>
+	<use xlink:href="#F"/>
+	<use xlink:href="#G"/>
+	<use xlink:href="#H"/>
+	<use xlink:href="#I"/>
+	<use xlink:href="#J"/>
+	<use xlink:href="#K"/>
+	<use xlink:href="#L"/>
+	<use xlink:href="#M"/>
+	<use xlink:href="#N"/>
+	<use xlink:href="#O"/>
+	<use xlink:href="#P"/>
+	<use xlink:href="#Q"/>
+	<use xlink:href="#R"/>
+	<use xlink:href="#S"/>
+	<use xlink:href="#T"/>
+	<use xlink:href="#U"/>
+	<use xlink:href="#V"/>
+	<use xlink:href="#W"/>
+	<use xlink:href="#X"/>
+	<use xlink:href="#Y"/>
+	<use xlink:href="#Z"/>
+	<use xlink:href="#a"/>
+	<use xlink:href="#b"/>
+	<use xlink:href="#c"/>
+	<use xlink:href="#d"/>
+	<use xlink:href="#e"/>
+	<use xlink:href="#f"/>
+	<use xlink:href="#g"/>
+</svg>

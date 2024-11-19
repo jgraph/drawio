@@ -1,0 +1,20 @@
+<svg
+	xmlns="http://www.w3.org/2000/svg" width="14.988" height="17.996">
+	<defs>
+		<linearGradient id="A" x1="7.491" y1="16.728" x2="7.491" y2="1.265" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#0078d4"/>
+			<stop offset=".06" stop-color="#0a7cd7"/>
+			<stop offset=".34" stop-color="#2e8ce1"/>
+			<stop offset=".59" stop-color="#4897e9"/>
+			<stop offset=".82" stop-color="#589eed"/>
+			<stop offset="1" stop-color="#5ea0ef"/>
+		</linearGradient>
+	</defs>
+	<path d="M14.988 8.4c0 4.837-5.949 8.732-7.251 9.525a.45.45 0 0 1-.486 0C5.951 17.142 0 13.247 0 8.4V2.583a.466.466 0 0 1 .456-.466C5.094 2 4.022 0 7.494 0s2.4 2 7.038 2.117a.466.466 0 0 1 .456.466z" fill="#0078d4"/>
+	<path d="M13.945 8.48c0 4.169-5.121 7.513-6.243 8.188a.4.4 0 0 1-.417 0c-1.121-.675-6.242-4.019-6.242-8.188V3.518a.406.406 0 0 1 .331-.47.368.368 0 0 1 .066-.006c3.989-.07 3.076-1.777 6.054-1.777s2.064 1.707 6.054 1.777a.407.407 0 0 1 .4.4z" fill="url(#A)"/>
+	<path fill="#50e6ff" d="M10.874 7.016v3.932l-3.37 1.986V8.982z"/>
+	<path fill="#c3f1ff" d="M10.874 7.016l-3.37 1.986-3.39-1.986 3.39-1.986z"/>
+	<path fill="#9cebff" d="M7.504 9.002v3.932l-3.39-1.986V7.016z"/>
+	<path fill="#c3f1ff" d="M7.504 12.934l-3.39-1.986 3.39-1.966z"/>
+	<path fill="#9cebff" d="M7.504 12.934l3.37-1.986-3.37-1.966z"/>
+</svg>

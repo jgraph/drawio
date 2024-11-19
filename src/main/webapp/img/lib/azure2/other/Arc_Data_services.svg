@@ -1,0 +1,28 @@
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink" width="17.152" height="17.924">
+	<defs>
+		<linearGradient id="A" x1="2.998" y1="8.41" x2="14.159" y2="8.41" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#005ba1"/>
+			<stop offset=".52" stop-color="#0078d4"/>
+			<stop offset="1" stop-color="#005ba1"/>
+		</linearGradient>
+		<path id="B" d="M17.124 15.118c-.16.7-1.035 1.391-2.617 1.929a21.585 21.585 0 0 1-12.125.017C.925 16.55.139 15.894.016 15.222c-.022-.118 0-1.966 0-1.966l17.136-.16-.028 2.022z"/>
+		<path id="C" d="M8.575 4.039c-3.082 0-5.581-.87-5.581-2.019v10.76c0 1.106 2.456 2 5.5 2.02h.081c3.082 0 5.58-.871 5.58-2.02V2.02c.004 1.123-2.494 2.019-5.58 2.019z"/>
+		<path id="D" d="M14.159 2.02c0 1.123-2.5 2.019-5.58 2.019S2.998 3.172 2.998 2.02 5.497 0 8.575 0s5.58.87 5.58 2.02"/>
+		<path id="E" d="M12.862 1.854c0 .714-1.924 1.289-4.283 1.289s-4.284-.577-4.284-1.289S6.219.572 8.575.572s4.283.574 4.283 1.283"/>
+		<path id="F" d="M8.575 2.172a10.059 10.059 0 0 0-3.387.5 9.947 9.947 0 0 0 3.387.473 9.691 9.691 0 0 0 3.386-.5 10.332 10.332 0 0 0-3.386-.473z"/>
+	</defs>
+	<use xlink:href="#B" fill="#5ea0ef"/>
+	<ellipse cx="8.443" cy="13.303" rx="8.576" ry="2.965" transform="rotate(359.425)" fill="#50e6ff"/>
+	<use xlink:href="#C" fill="url(#A)"/>
+	<use xlink:href="#D" fill="#e8e8e8"/>
+	<use xlink:href="#E" fill="#50e6ff"/>
+	<use xlink:href="#F" fill="#198ab3"/>
+	<use xlink:href="#B" fill="#5ea0ef"/>
+	<ellipse cx="8.443" cy="13.303" rx="8.576" ry="2.965" transform="rotate(359.425)" fill="#50e6ff"/>
+	<use xlink:href="#C" fill="url(#A)"/>
+	<use xlink:href="#D" fill="#e8e8e8"/>
+	<use xlink:href="#E" fill="#50e6ff"/>
+	<use xlink:href="#F" fill="#198ab3"/>
+</svg>

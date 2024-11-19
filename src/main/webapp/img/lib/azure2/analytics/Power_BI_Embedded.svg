@@ -1,0 +1,25 @@
+<svg
+	xmlns="http://www.w3.org/2000/svg" width="12.788" height="17.052">
+	<defs>
+		<clipPath id="A">
+			<path d="M9.71 1.185a.711.711 0 0 1 .711-.711h4.263a.71.71 0 0 1 .71.711v15.63a.71.71 0 0 1-.71.711H3.316a.71.71 0 0 1-.71-.711V9.71a.71.71 0 0 1 .71-.71h2.842V5.448a.711.711 0 0 1 .711-.711H9.71z" fill="none"/>
+		</clipPath>
+		<linearGradient id="B" x1="8.573" y1=".564" x2="16.068" y2="16.452" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#e6ad10"/>
+			<stop offset="1" stop-color="#c87e0e"/>
+		</linearGradient>
+		<linearGradient id="C" x1="5.689" y1="4.979" x2="11.993" y2="17.204" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#f6d751"/>
+			<stop offset="1" stop-color="#e6ad10"/>
+		</linearGradient>
+		<linearGradient id="D" x1="3.39" y1="8.669" x2="6.873" y2="16.925" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#f9e589"/>
+			<stop offset="1" stop-color="#f6d751"/>
+		</linearGradient>
+	</defs>
+	<g clip-path="url(#A)" transform="translate(-2.606 -.474)">
+		<path d="M15.394.474v17.052H9.71V.474z" fill="url(#B)"/>
+		<path d="M11.842 5.448v12.078H6.158V4.737h4.973a.711.711 0 0 1 .711.711z" fill="url(#C)"/>
+		<path d="M2.606 9v8.526H8.29V9.71A.711.711 0 0 0 7.579 9z" fill="url(#D)"/>
+	</g>
+</svg>

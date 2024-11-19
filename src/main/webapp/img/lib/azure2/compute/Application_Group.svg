@@ -1,0 +1,17 @@
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink" width="17" height="17">
+	<defs>
+		<linearGradient id="A" x1="8.5" y1="17" x2="8.5" y2="0" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#005ba1"/>
+			<stop offset=".168" stop-color="#0063ae"/>
+			<stop offset=".577" stop-color="#0072ca"/>
+			<stop offset=".815" stop-color="#0078d4"/>
+		</linearGradient>
+		<path id="B" d="M7.276 10.132h2.448v2.448H7.276zM4.42 6.868h2.448V4.42H4.762a.341.341 0 0 0-.342.342zm.342 5.712h2.106v-2.448H4.42v2.106a.341.341 0 0 0 .342.342zM4.42 9.724h2.448V7.276H4.42zm5.712 2.856h2.106a.341.341 0 0 0 .342-.342v-2.106h-2.448zM7.276 9.724h2.448V7.276H7.276zm2.856 0h2.448V7.276h-2.448zm0-5.3v2.444h2.448V4.762a.341.341 0 0 0-.342-.342zM7.276 6.868h2.448V4.42H7.276z"/>
+	</defs>
+	<circle cx="8.5" cy="8.5" r="8.5" fill="url(#A)"/>
+	<use xlink:href="#B" fill="#fff"/>
+	<circle cx="8.5" cy="8.5" r="8.5" fill="url(#A)"/>
+	<use xlink:href="#B" fill="#fff"/>
+</svg>

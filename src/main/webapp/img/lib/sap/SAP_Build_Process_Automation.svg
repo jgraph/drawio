@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="11.456"
+   height="13.366"
+   viewBox="-0.5 -0.5 11.456 13.366"
+   version="1.1"
+   id="svg110"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs114">
+    <defs
+       id="defs106">
+      <filter
+         id="B"
+         x="2.5250001"
+         y="1.018"
+         width="12.429"
+         height="11.699"
+         filterUnits="userSpaceOnUse"
+         class="B">
+        <feFlood
+           result="A"
+           class="C"
+           id="feFlood29" />
+        <feColorMatrix
+           in="SourceAlpha"
+           values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+           result="B"
+           id="feColorMatrix31" />
+        <feOffset
+           dx="0.224202"
+           dy="0.0448405"
+           id="feOffset33" />
+        <feGaussianBlur
+           stdDeviation=".336"
+           id="feGaussianBlur35" />
+        <feComposite
+           in2="B"
+           operator="out"
+           id="feComposite37" />
+        <feColorMatrix
+           values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0"
+           id="feColorMatrix39" />
+        <feBlend
+           in2="A"
+           id="feBlend41"
+           result="result1"
+           mode="normal" />
+        <feBlend
+           in="SourceGraphic"
+           in2="result1"
+           id="feBlend43"
+           mode="normal" />
+      </filter>
+      <filter
+         id="C"
+         x="1.601"
+         y="2.1930001"
+         width="12.86"
+         height="8.5019999"
+         filterUnits="userSpaceOnUse"
+         class="B">
+        <feFlood
+           result="A"
+           class="C"
+           id="feFlood46" />
+        <feColorMatrix
+           in="SourceAlpha"
+           values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+           result="B"
+           id="feColorMatrix48" />
+        <feOffset
+           dx="0.224202"
+           dy="0.0448405"
+           id="feOffset50" />
+        <feGaussianBlur
+           stdDeviation=".336"
+           id="feGaussianBlur52" />
+        <feComposite
+           in2="B"
+           operator="out"
+           id="feComposite54" />
+        <feColorMatrix
+           values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0"
+           id="feColorMatrix56" />
+        <feBlend
+           in2="A"
+           id="feBlend58"
+           result="result1"
+           mode="normal" />
+        <feBlend
+           in="SourceGraphic"
+           in2="result1"
+           id="feBlend60"
+           mode="normal" />
+      </filter>
+      <filter
+         id="D"
+         x="1.374"
+         y="2.168"
+         width="7.243"
+         height="7.9369998"
+         filterUnits="userSpaceOnUse"
+         class="B">
+        <feFlood
+           result="A"
+           class="C"
+           id="feFlood63" />
+        <feColorMatrix
+           in="SourceAlpha"
+           values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+           result="B"
+           id="feColorMatrix65" />
+        <feOffset
+           dx="0.224202"
+           dy="0.0448405"
+           id="feOffset67" />
+        <feGaussianBlur
+           stdDeviation=".336"
+           id="feGaussianBlur69" />
+        <feComposite
+           in2="B"
+           operator="out"
+           id="feComposite71" />
+        <feColorMatrix
+           values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0"
+           id="feColorMatrix73" />
+        <feBlend
+           in2="A"
+           id="feBlend75"
+           result="result1"
+           mode="normal" />
+        <feBlend
+           in="SourceGraphic"
+           in2="result1"
+           id="feBlend77"
+           mode="normal" />
+      </filter>
+      <linearGradient
+         id="E"
+         x1="1.721"
+         y1="2.5079999"
+         x2="13.452"
+         y2="14.469"
+         gradientUnits="userSpaceOnUse"
+         gradientTransform="matrix(2,0,0,2,-1,-0.5)">
+        <stop
+           stop-color="#fff"
+           id="stop80" />
+        <stop
+           offset="1"
+           stop-color="#eaecee"
+           id="stop82" />
+      </linearGradient>
+      <radialGradient
+         id="F"
+         cx="0"
+         cy="0"
+         r="1"
+         gradientUnits="userSpaceOnUse"
+         gradientTransform="matrix(2.0625891,10.707552,-9.9157091,1.9100569,8.3387,5.25878)">
+        <stop
+           stop-color="#1348ff"
+           id="stop85" />
+        <stop
+           offset="1"
+           stop-color="#06238d"
+           id="stop87" />
+      </radialGradient>
+      <radialGradient
+         id="G"
+         cx="0"
+         cy="0"
+         r="1"
+         gradientUnits="userSpaceOnUse"
+         gradientTransform="matrix(-4.5655309,13.606252,-24.146883,-8.1024032,9.25005,1.63802)">
+        <stop
+           stop-color="#0195ff"
+           id="stop90" />
+        <stop
+           offset="1"
+           stop-color="#1147e9"
+           id="stop92" />
+      </radialGradient>
+      <radialGradient
+         id="H"
+         cx="0"
+         cy="0"
+         r="1"
+         gradientUnits="userSpaceOnUse"
+         gradientTransform="matrix(-7.1057784,5.0226115,-6.8324002,-9.6661908,7.14136,3.78706)">
+        <stop
+           stop-color="#0bf"
+           id="stop95" />
+        <stop
+           offset="1"
+           stop-color="#008bff"
+           id="stop97" />
+      </radialGradient>
+      <clipPath
+         id="I">
+        <path
+           fill="#ffffff"
+           transform="translate(-0.001)"
+           d="M 0,0 H 16 V 16 H 0 Z"
+           id="path100" />
+      </clipPath>
+      <clipPath
+         id="J">
+        <path
+           fill="#ffffff"
+           transform="translate(3.499,3.167)"
+           d="M 0,0 H 9.667 V 9.667 H 0 Z"
+           id="path103" />
+      </clipPath>
+    </defs>
+  </defs>
+  <style
+     id="style2"><![CDATA[.B{color-interpolation-filters:sRGB}.C{flood-opacity:0}]]></style>
+  <g
+     clip-path="url(#J)"
+     id="g25"
+     transform="matrix(2,0,0,2,-11.476,-9.884)"
+     style="fill:none">
+    <mask
+       id="A"
+       maskUnits="userSpaceOnUse"
+       x="2"
+       y="2"
+       width="13"
+       height="12"
+       mask-type="alpha">
+      <path
+         d="m 9.536,9.351 c 0.975,-0.309 1.68,-1.21 1.68,-2.272 0,-1.318 -1.085,-2.387 -2.423,-2.387 H 7.875 c -1.318,0 -2.387,1.069 -2.387,2.387 v 2.864 a 1.432,1.432 0 1 0 2.864,0 V 7.237 c 0,-0.184 0.264,-0.215 0.306,-0.035 l 0.429,1.843 c 0.062,0.256 0.217,0.38 0.449,0.306 z"
+         fill="#000000"
+         id="path8" />
+    </mask>
+    <g
+       mask="url(#A)"
+       id="g23">
+      <g
+         filter="url(#B)"
+         id="g13">
+        <path
+           d="M 13.851,4.237 C 12.942,5.087 11.6,5.412 11.439,9.258 11.278,13.104 6.641,11.914 5.658,11.478 3.918,10.706 1.394,5.616 4.302,4.022 7.21,2.428 9,1.099 10.74,1.871 c 1.74,0.772 4.02,1.516 3.11,2.366 z"
+           fill="url(#F)"
+           id="path11"
+           style="fill:url(#F)" />
+      </g>
+      <g
+         filter="url(#C)"
+         id="g17">
+        <path
+           d="M 13.207,6.546 C 12.149,6.79 9.94,5.766 8.135,8.599 6.33,11.432 3.146,9.145 2.594,8.385 1.618,7.04 1.757,2.752 4.65,2.821 c 2.893,0.069 6.129,0.494 7.104,1.838 0.975,1.344 2.511,1.642 1.453,1.886 z"
+           fill="url(#G)"
+           id="path15"
+           style="fill:url(#G)" />
+      </g>
+      <g
+         filter="url(#D)"
+         id="g21">
+        <path
+           d="M 3.579,9.303 C 2.296,8.939 1.551,7.603 1.915,6.32 2.279,5.037 4.892,2.466 6.175,2.83 7.458,3.194 7.97,5.604 7.606,6.887 7.242,8.17 5.24,9.774 3.579,9.303 Z"
+           fill="url(#H)"
+           id="path19"
+           style="fill:url(#H)" />
+      </g>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,537 @@
+<?xml version="1.0"?>
+<project basedir="." default="all">
+	
+	<property file="build.properties.local" />
+	<property file="build.properties" />
+	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${jscompiler}" />
+
+	<target name="merge">
+    	<concat destfile="${basedir}/../../build/shapes.js" fixlastline="yes" append="no">
+    		<fileset dir="${war.dir}/shapes" includes="**/*.js"/>
+    		<fileset dir="${war.dir}/stencils" includes="**/*.js"/>
+    	</concat>
+    	
+		<java fork="false" classname="Xml2Js" classpath=".">
+			<arg value="../../src/main/webapp/stencils"/>
+			<arg value="../../src/main/webapp/js/stencils.min.js"/>
+		</java>
+		
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/shapes-14-6-5.min.js">
+			<sources dir="${basedir}/../../build">
+				<file name="shapes.js" />
+			</sources>
+		</jscomp>
+		
+		<tstamp>
+      		<format property="time.stamp" pattern="MM/dd/yyyy hh:mm aa" unit="hour"/>
+  		</tstamp>
+		
+		<delete dir="${basedir}/../../build"/>
+	</target>
+
+	<target name="app" depends="merge">
+		<delete file="${basedir}/.tmp0.js"/>
+		<echo file="${basedir}/.tmp0.js">
+			window.PROXY_URL = window.PROXY_URL || 'https://viewer.diagrams.net/proxy';
+			window.STYLE_PATH = window.STYLE_PATH || 'https://viewer.diagrams.net/styles';
+			window.SHAPES_PATH = window.SHAPES_PATH || 'https://viewer.diagrams.net/shapes';
+			window.STENCIL_PATH = window.STENCIL_PATH || 'https://viewer.diagrams.net/stencils';
+			window.DRAW_MATH_URL = window.DRAW_MATH_URL || 'https://viewer.diagrams.net/math/es5';
+			window.GRAPH_IMAGE_PATH  = window.GRAPH_IMAGE_PATH || 'https://viewer.diagrams.net/img';
+			window.mxImageBasePath = window.mxImageBasePath || 'https://viewer.diagrams.net/mxgraph/images';
+			window.mxBasePath = window.mxBasePath || 'https://viewer.diagrams.net/mxgraph/';
+			window.mxLoadStylesheets = window.mxLoadStylesheets || false;
+		</echo>
+
+		<delete file="${basedir}/.tmp1.js"/>
+		<copy file="${war.dir}/styles/default.xml" tofile="${basedir}/.tmp1.xml" overwrite="true"/>
+		<replaceregexp file="${basedir}/.tmp1.xml" match="${line.separator}" flags="g" replace=""/>
+		<replaceregexp file="${basedir}/.tmp1.xml" match="\t" flags="g" replace=""/>
+		<replaceregexp file="${basedir}/.tmp1.xml" match="'" flags="g" replace="\\\\'" byline="true"/>
+		
+		<delete file="${basedir}/Graph-Stylesheet.js"/>
+		<echo file="${basedir}/Graph-Stylesheet.js">Graph.prototype.defaultThemes['default-style2'] = mxUtils.parseXml(`</echo>
+		<concat destfile="${basedir}/Graph-Stylesheet.js" fixlastline="no" append="true">
+			<filelist dir="${basedir}" files=".tmp1.xml"/>
+		</concat>
+		<echo file="${basedir}/Graph-Stylesheet.js" append="true">`).documentElement;</echo>
+		<echo file="${basedir}/Graph-Stylesheet.js" append="true">Graph.prototype.defaultThemes['darkTheme'] = Graph.prototype.defaultThemes['default-style2'];</echo>
+		
+		<delete file="${basedir}/.tmp2.xml"/>
+		<copy file="${war.dir}/resources/dia.txt" tofile="${basedir}/.tmp2.xml" overwrite="true"/>
+		<replaceregexp file="${basedir}/.tmp2.xml" match="${line.separator}" flags="g" replace="\\\\n"/>
+		<replaceregexp file="${basedir}/.tmp2.xml" match="'" flags="g" replace="\\\\'" byline="true"/>
+		
+		<delete file="${basedir}/Graph-Resources.js"/>
+		<echo file="${basedir}/Graph-Resources.js">mxResources.parse(`</echo>
+		<concat destfile="${basedir}/Graph-Resources.js" fixlastline="no" append="true">
+			<filelist dir="${basedir}" files=".tmp2.xml"/>
+		</concat>
+		<echo file="${basedir}/Graph-Resources.js" append="true">`);</echo>
+		
+		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${basedir}/grapheditor.min.js">
+			<sources dir="${grapheditor.dir}">
+				<file name="Editor.js" />
+				<file name="EditorUi.js" />
+				<file name="Sidebar.js" />
+				<file name="Graph.js" />
+				<file name="Format.js" />
+				<file name="Shapes.js" />
+				<file name="Actions.js" />
+				<file name="Menus.js" />
+				<file name="Toolbar.js" />
+				<file name="Dialogs.js" />
+			</sources>
+		</jscomp>
+		
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/sidebar.min.js">
+			<sources dir="${war.dir}/js/diagramly/sidebar">
+				<file name="Sidebar.js" />
+				<file name="Sidebar-ActiveDirectory.js" />
+				<file name="Sidebar-Advanced.js" />
+				<file name="Sidebar-AlibabaCloud.js" />
+				<file name="Sidebar-AlliedTelesis.js" />
+				<file name="Sidebar-Android.js" />
+				<file name="Sidebar-ArchiMate.js" />
+				<file name="Sidebar-ArchiMate3.js" />
+				<file name="Sidebar-Arrows2.js" />
+				<file name="Sidebar-Atlassian.js" />
+				<file name="Sidebar-AWS.js" />
+				<file name="Sidebar-AWS3.js" />
+				<file name="Sidebar-AWS3D.js" />
+				<file name="Sidebar-AWS4.js" />
+				<file name="Sidebar-AWS4b.js" />
+				<file name="Sidebar-Azure.js" />
+				<file name="Sidebar-Azure2.js" />
+				<file name="Sidebar-Basic.js" />
+				<file name="Sidebar-Bootstrap.js" />
+				<file name="Sidebar-BPMN.js" />
+				<file name="Sidebar-C4.js" />
+				<file name="Sidebar-Cabinet.js" />
+				<file name="Sidebar-Cisco.js" />
+				<file name="Sidebar-Cisco19.js" />
+				<file name="Sidebar-CiscoSafe.js" />
+				<file name="Sidebar-Citrix.js" />
+				<file name="Sidebar-Citrix2.js" />
+				<file name="Sidebar-Cumulus.js" />
+				<file name="Sidebar-DFD.js" />
+				<file name="Sidebar-EIP.js" />
+				<file name="Sidebar-Electrical.js" />
+				<file name="Sidebar-ER.js" />
+				<file name="Sidebar-Floorplan.js" />
+				<file name="Sidebar-Flowchart.js" />
+				<file name="Sidebar-FluidPower.js" />
+				<file name="Sidebar-GCP.js" />
+				<file name="Sidebar-GCP2.js" />
+				<file name="Sidebar-GCPIcons.js" />
+				<file name="Sidebar-Gmdl.js" />
+				<file name="Sidebar-IBM.js" />
+				<file name="Sidebar-IBMCloud.js" />
+				<file name="Sidebar-Infographic.js" />
+				<file name="Sidebar-Ios.js" />
+				<file name="Sidebar-Ios7.js" />
+				<file name="Sidebar-Kubernetes.js" />
+				<file name="Sidebar-LeanMapping.js" />
+				<file name="Sidebar-Mockup.js" />
+				<file name="Sidebar-MSCAE.js" />
+				<file name="Sidebar-Network.js" />
+				<file name="Sidebar-Office.js" />
+				<file name="Sidebar-PID.js" />
+				<file name="Sidebar-Rack.js" />
+				<file name="Sidebar-Salesforce.js" />
+				<file name="Sidebar-SAP.js" />
+				<file name="Sidebar-Signs.js" />
+				<file name="Sidebar-Sitemap.js" />
+				<file name="Sidebar-Sysml.js" />
+				<file name="Sidebar-ThreatModeling.js" />
+				<file name="Sidebar-UML25.js" />
+				<file name="Sidebar-Veeam.js" />
+				<file name="Sidebar-Veeam2.js" />
+				<file name="Sidebar-VVD.js" />
+				<file name="Sidebar-WebIcons.js" />
+			</sources>
+		</jscomp>
+		
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/client.min.js">
+			<sources dir="${war.dir}/js/deflate">
+				<file name="base64.js" />
+			</sources>
+
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="Init.js" />
+			</sources>
+
+			<sources dir="${grapheditor.dir}">
+				<file name="Init.js" />
+			</sources>
+
+			<sources dir="${war.dir}/mxgraph">
+				<file name="mxClient.js" />
+			</sources>
+			
+			<sources dir="${war.dir}/js/jscolor">
+				<file name="jscolor.js" />
+			</sources>
+		</jscomp>
+
+		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${basedir}/.tmp0.min.js">
+			<sources dir="${basedir}">
+				<file name=".tmp0.js"/>
+			</sources>
+		</jscomp>
+			
+		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${basedir}/.tmp1.js">
+			<sources dir="${grapheditor.dir}">
+				<file name="Editor.js" />
+				<file name="EditorUi.js" />
+				<file name="Graph.js" />
+				<file name="Shapes.js" />
+				<file name="Actions.js" />
+			</sources>
+			
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="DrawioFile.js" />
+				<file name="LocalFile.js" />
+				<file name="Editor.js" />
+				<file name="EditorUi.js" />
+				<file name="Pages.js" />
+				<file name="Trees.js" />
+				<file name="Minimal.js" />
+				<file name="DrawioComment.js" />
+				<file name="DrawioUser.js" />
+			</sources>
+					
+			<sources dir="${basedir}">
+				<file name="Graph-Resources.js" />
+				<file name="Graph-Stylesheet.js" />
+			</sources>
+
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="GraphViewer.js" />
+			</sources>
+		</jscomp>
+		
+		<concat destfile="${basedir}/base-viewer.min.js" fixlastline="yes" append="no">
+			<filelist dir="${basedir}" files=".tmp0.min.js"/>
+			<filelist dir="${war.dir}/js/spin" files="spin.min.js"/>
+			<filelist dir="${war.dir}/js/sanitizer" files="purify.min.js"/>
+			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
+			<filelist dir="${war.dir}/js/rough" files="rough.min.js"/>
+			<filelist dir="${basedir}" files="client.min.js,.tmp1.js"/>
+    	</concat>
+
+		<loadfile property="version" srcFile="../../VERSION"/>
+		<replace file="${basedir}/base-viewer.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
+		
+		<echo file="${basedir}/.tmp2.js">
+			(function()
+			{
+				Editor.initMath();
+				GraphViewer.initCss();
+				
+				if (window.onDrawioViewerLoad != null)
+				{
+					window.onDrawioViewerLoad();
+				}
+				else
+				{
+					GraphViewer.processElements();
+				}
+			})();
+		</echo>
+		
+		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${basedir}/.tmp2.min.js">
+			<sources dir="${basedir}">
+				<file name=".tmp2.js"/>
+			</sources>
+		</jscomp>
+		
+		<concat destfile="${war.dir}/js/viewer.min.js" fixlastline="yes" append="no">
+			<filelist dir="${basedir}" files="base-viewer.min.js,.tmp2.min.js"/>
+    	</concat>
+
+		<!-- Disables eval for JS (uses shapes-14-6-5.min.js) and registers PWA -->
+		<echo file="${basedir}/.tmp3.js">
+			mxStencilRegistry.allowEval = false;
+			
+			(function()
+			{
+				try
+				{
+					if (Editor.enableServiceWorker)
+					{
+						navigator.serviceWorker.register('/service-worker.js');
+					}
+				}
+				catch (e)
+				{
+					if (window.console != null)
+					{
+						console.error(e);
+					}
+				}
+			})();
+		</echo>
+		
+		<concat destfile="${war.dir}/js/viewer-static.min.js" fixlastline="yes" append="no">
+			<filelist dir="${basedir}" files="base-viewer.min.js"/>
+			<filelist dir="${war.dir}/js" files="shapes-14-6-5.min.js"/>
+			<filelist dir="${basedir}" files=".tmp3.js,.tmp2.min.js"/>
+		</concat>
+
+		<delete file="${war.dir}/js/extensions.min.js"/>
+		<delete file="${basedir}/.tmp0.js"/>
+		<delete file="${basedir}/.tmp0.min.js"/>
+		<delete file="${basedir}/.tmp1.js"/>
+		<delete file="${basedir}/.tmp2.js"/>
+		<delete file="${basedir}/.tmp2.min.js"/>
+		<delete file="${basedir}/.tmp3.js"/>
+		<delete file="${basedir}/.tmp1.xml"/>
+		<delete file="${basedir}/.tmp2.xml"/>
+
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp1.js">
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="DrawioFile.js" />
+				<file name="LocalFile.js" />
+				<file name="LocalLibrary.js" />
+				<file name="StorageFile.js" />
+				<file name="StorageLibrary.js" />
+				<file name="RemoteFile.js" />
+				<file name="RemoteLibrary.js" />
+				<file name="UrlLibrary.js" />
+				<file name="EmbedFile.js" />
+				<file name="Dialogs.js" />
+				<file name="Editor.js" />
+				<file name="EditorUi.js" />
+				<file name="DiffSync.js" />
+				<file name="Settings.js" />
+				<file name="DrawioFilePolling.js" />
+				<file name="DrawioFileSync.js" />
+				<file name="App.js" />
+				<file name="Menus.js" />
+				<file name="Pages.js" />
+				<file name="Trees.js" />
+				<file name="Minimal.js" />
+				<file name="DistanceGuides.js" />
+				<file name="mxRuler.js" />
+				<file name="mxFreehand.js" />
+				<file name="DrawioUser.js" />
+				<file name="DrawioComment.js" />
+			</sources>
+				
+			<sources dir="${basedir}">
+				<file name="Graph-Stylesheet.js" />
+			</sources>
+		</jscomp>
+			
+		<concat destfile="${basedir}/base.min.js" fixlastline="yes" append="no">
+			<filelist dir="${war.dir}/js/spin" files="spin.min.js"/>
+			<filelist dir="${war.dir}/js/sanitizer" files="purify.min.js"/>
+			<filelist dir="${war.dir}/js/cryptojs" files="aes.min.js"/>
+			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
+			<filelist dir="${war.dir}/js/rough" files="rough.min.js"/>
+			<filelist dir="${war.dir}/js/freehand" files="perfect-freehand.js"/>
+			<filelist dir="${basedir}" files="client.min.js,grapheditor.min.js,sidebar.min.js,.tmp1.js"/>
+    	</concat>
+
+		<replace file="${basedir}/base.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
+		
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/extensions.min.js">
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="Extensions.js" />
+			</sources>
+			<sources dir="${war.dir}/js/diagramly/vsdx">
+				<file name="VsdxExport.js" />
+				<file name="mxVsdxCanvas2D.js" />
+				<file name="bmpDecoder.js" />
+				<file name="importer.js" />
+			</sources>
+			<sources dir="${war.dir}/js/diagramly/graphml">
+				<file name="mxGraphMlCodec.js" />
+			</sources>
+		</jscomp>
+
+		<delete file="${war.dir}/js/orgchart.min.js"/>
+		<concat destfile="${war.dir}/js/orgchart.min.js" fixlastline="yes" append="no">
+			<filelist dir="${war.dir}/js/orgchart" files="bridge.min.js,bridge.collections.min.js,OrgChart.Layout.min.js"/>
+    	</concat>
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp3.js">
+			<sources dir="${war.dir}/js/orgchart">
+				<file name="mxOrgChartLayout.js" />
+			</sources>
+		</jscomp>
+		<concat destfile="${war.dir}/js/orgchart.min.js" fixlastline="yes" append="yes">
+			<filelist dir="${basedir}" files=".tmp3.js"/>
+    	</concat>
+		<delete file="${basedir}/.tmp3.js"/>
+
+		<concat destfile="${war.dir}/js/extensions.min.js" fixlastline="yes" append="yes">
+			<fileset file="${war.dir}/js/jszip/jszip.min.js"/>
+			<fileset file="${war.dir}/js/mermaid/mermaid.min.js"/>
+			<fileset file="${war.dir}/js/orgchart.min.js"/>
+    	</concat>
+		
+		<delete file="${basedir}/.tmp1.js"/>
+		
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp1.js">
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="DrawioFile.js" />
+				<file name="LocalFile.js" />
+				<file name="LocalLibrary.js" />
+				<file name="StorageFile.js" />
+				<file name="StorageLibrary.js" />
+				<file name="RemoteFile.js" />
+				<file name="RemoteLibrary.js" />
+				<file name="UrlLibrary.js" />
+				<file name="EmbedFile.js" />
+				<file name="Dialogs.js" />
+				<file name="Editor.js" />
+				<file name="EditorUi.js" />
+				<file name="DiffSync.js" />
+				<file name="Settings.js" />
+				<file name="DrawioFilePolling.js" />
+				<file name="DrawioFileSync.js" />
+			</sources>
+				
+			<sources dir="${basedir}">
+				<file name="Graph-Stylesheet.js" />
+			</sources>
+
+			<sources dir="${war.dir}/js/diagramly/util">
+				<file name="mxAsyncCanvas.js" />
+				<file name="mxJsCanvas.js" />
+			</sources>
+
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="DrawioClient.js" />
+				<file name="DrawioUser.js" />
+				<file name="DriveFile.js" />
+				<file name="DriveLibrary.js" />
+				<file name="DriveClient.js" />
+				<file name="DropboxFile.js" />
+				<file name="DropboxLibrary.js" />
+				<file name="DropboxClient.js" />
+				<file name="OneDriveFile.js" />
+				<file name="OneDriveLibrary.js" />
+				<file name="OneDriveClient.js" />
+				<file name="GitHubFile.js" />
+				<file name="GitHubLibrary.js" />
+				<file name="GitHubClient.js" />
+				<file name="TrelloFile.js" />
+				<file name="TrelloLibrary.js" />
+				<file name="TrelloClient.js" />
+				<file name="GitLabFile.js" />
+				<file name="GitLabLibrary.js" />
+				<file name="GitLabClient.js" />
+				<file name="DrawioComment.js" />
+				<file name="DriveComment.js" />
+			</sources>
+			
+			<sources dir="${war.dir}/js/onedrive">
+				<file name="mxODPicker.js" />
+			</sources>
+			
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="App.js" />
+				<file name="Menus.js" />
+				<file name="Pages.js" />
+				<file name="Trees.js" />
+				<file name="Minimal.js" />
+				<file name="DistanceGuides.js" />
+				<file name="mxRuler.js" />
+				<file name="mxFreehand.js" />
+				<file name="P2PCollab.js" />
+			</sources>
+		</jscomp>
+
+		<concat destfile="${war.dir}/js/app.min.js" fixlastline="yes" append="no">
+			<filelist dir="${war.dir}/js/spin" files="spin.min.js"/>
+			<filelist dir="${war.dir}/js/sanitizer" files="purify.min.js"/>
+			<filelist dir="${war.dir}/js/cryptojs" files="aes.min.js"/>
+			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
+			<filelist dir="${war.dir}/js/rough" files="rough.min.js"/>
+			<filelist dir="${war.dir}/js/freehand" files="perfect-freehand.js"/>
+			<filelist dir="${basedir}" files="client.min.js,grapheditor.min.js,sidebar.min.js,.tmp1.js"/>
+    	</concat>
+
+		<replace file="${war.dir}/js/app.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
+
+		<delete file="${basedir}/Graph-Stylesheet.js"/>
+		<delete file="${basedir}/Graph-Resources.js"/>
+		<delete file="${basedir}/grapheditor.min.js"/>
+		<delete file="${basedir}/sidebar.min.js"/>
+		<delete file="${basedir}/client.min.js"/>
+		<delete file="${basedir}/.tmp1.js"/>
+	</target>
+
+	<target name="atlas" depends="app">
+		<concat destfile="${war.dir}/js/atlas-viewer.min.js" fixlastline="yes" append="no">
+			<file name="${basedir}/base-viewer.min.js" />
+			<file name="${war.dir}/js/orgchart.min.js" />
+    	</concat>
+
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp0.js">
+			<sources dir="${war.dir}/connect/common/js">
+				<file name="mxReader.js" />
+			</sources>
+		</jscomp>
+
+	    <concat destfile="${war.dir}/js/atlas.min.js" fixlastline="yes" append="no">
+			<file name="${basedir}/base.min.js" />
+			<file name="${war.dir}/js/extensions.min.js" />
+			<file name="${basedir}/.tmp0.js" />
+    	</concat>
+
+		<delete file="${basedir}/.tmp0.js"/>
+	</target>
+
+	<target name="integrate" depends="atlas">
+		<copy file="${war.dir}/js/atlas.min.js" tofile="${war.dir}/js/integrate.min.js" overwrite="true"/>
+
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp0.js">
+			<sources dir="${basedir}/../integrate">
+				<file name="Integrate.js" />
+			</sources>
+		</jscomp>
+		
+	    <concat destfile="${war.dir}/js/integrate.min.js" fixlastline="yes" append="yes">
+			<file name="${war.dir}/js/shapes-14-6-5.min.js" />
+    		<file name="${war.dir}/js/stencils.min.js" />
+    		<file name="${basedir}/.tmp0.js" />
+   		</concat>
+
+		<delete file="${basedir}/.tmp0.js"/>
+	</target>
+
+	<target name="all" depends="integrate">
+		<delete file="${war.dir}/js/atlas-viewer.min.js"/>
+		<delete file="${war.dir}/js/atlas.min.js"/>
+	</target>
+
+	<!-- ================== Stand-alone war creation ============================= -->
+
+	<path id="javac.class.path">
+		<fileset dir="${war.dir}/WEB-INF/lib" />
+	</path>
+
+	<target name="javac" description="Java compilation">
+		<mkdir dir="${javac.dir}"/>
+		<javac includeantruntime="false" srcdir="${src.dir}" destdir="${javac.dir}">
+			<classpath refid="javac.class.path" />
+		</javac>
+		<copy todir="${javac.dir}" file="${src.dir}/log4j.properties" />
+	</target>
+
+	<target name="clean" description="Cleans build directories">
+		<delete dir="${javac.dir}"/>
+		<delete dir="${build.dir}"/>
+		<delete file="${basedir}/base.min.js"/>
+		<delete file="${basedir}/base-viewer.min.js"/>
+	</target>
+	
+	<target name="war" depends="app, javac" description="Create the stand-alone war file">
+		<zip destfile="${build.dir}/${war.name}" basedir="${war.dir}" >
+		</zip>
+	</target>
+
+</project>

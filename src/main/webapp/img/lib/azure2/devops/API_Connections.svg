@@ -1,0 +1,35 @@
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink" width="18.011" height="12">
+	<defs>
+		<linearGradient id="A" x1="11.955" y1="12" x2="11.955" y2="3.49" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#5e9624"/>
+			<stop offset=".01" stop-color="#5e9724"/>
+			<stop offset=".35" stop-color="#6cab29"/>
+			<stop offset=".68" stop-color="#73b82c"/>
+			<stop offset="1" stop-color="#76bc2d"/>
+		</linearGradient>
+		<linearGradient id="B" x1="6.055" y1="8.51" x2="6.055" y2="0" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#0078d4"/>
+			<stop offset=".82" stop-color="#5ea0ef"/>
+		</linearGradient>
+		<linearGradient id="C" x1="10.515" y1="3.82" x2="7.935" y2="7.5" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#005ba1"/>
+			<stop offset=".14" stop-color="#035da3" stop-opacity=".97"/>
+			<stop offset=".3" stop-color="#0b63aa" stop-opacity=".88"/>
+			<stop offset=".47" stop-color="#196eb6" stop-opacity=".73"/>
+			<stop offset=".65" stop-color="#2d7cc6" stop-opacity=".52"/>
+			<stop offset=".84" stop-color="#468edb" stop-opacity=".26"/>
+			<stop offset="1" stop-color="#5ea0ef" stop-opacity="0"/>
+		</linearGradient>
+		<path id="D" d="M14.185 3.49h-4.53A4 4 0 0 0 5.905 7h1.42a2.49 2.49 0 0 1 2.33-2h4.53a2.59 2.59 0 0 1 2.44 2.71 2.6 2.6 0 0 1-2.44 2.72h-4.53a2.49 2.49 0 0 1-2.33-2h-1.42A4 4 0 0 0 9.655 12h4.53a4.06 4.06 0 0 0 3.82-4.26 4.06 4.06 0 0 0-3.82-4.25z"/>
+		<path id="E" d="M8.355 7h-4.53a2.59 2.59 0 0 1-2.44-2.74 2.6 2.6 0 0 1 2.44-2.72h4.53a2.49 2.49 0 0 1 2.33 2h1.42A4 4 0 0 0 8.355 0h-4.53a4.06 4.06 0 0 0-3.82 4.26 4.06 4.06 0 0 0 3.82 4.25h4.53A4 4 0 0 0 12.105 5h-1.42a2.49 2.49 0 0 1-2.33 2z"/>
+		<path id="F" d="M8.355 7h-3v1.54h3A4 4 0 0 0 12.105 5h-1.42a2.49 2.49 0 0 1-2.33 2z"/>
+	</defs>
+	<use xlink:href="#D" fill="url(#A)"/>
+	<use xlink:href="#E" fill="url(#B)"/>
+	<use xlink:href="#F" fill="url(#C)"/>
+	<use xlink:href="#D" fill="url(#A)"/>
+	<use xlink:href="#E" fill="url(#B)"/>
+	<use xlink:href="#F" fill="url(#C)"/>
+</svg>

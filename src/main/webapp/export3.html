@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<script src="js/export-init.js"></script>
+	<!-- CSS for print output is needed for using current window -->
+	<style type="text/css">
+	  	.MathJax svg { shape-rendering: crispEdges; }
+	</style>
+	<style type="text/css">
+		@media print {
+			body > div {
+				page-break-inside: avoid;
+				page-break-after: always;
+			}
+			g[style*="filter: drop-shadow("] {
+				filter: none !important;
+			}
+		}
+	</style>
+	<link rel="stylesheet" href="mxgraph/css/common.css" charset="UTF-8" type="text/css">
+	<link rel="stylesheet" href="export-fonts.css" charset="UTF-8" type="text/css">
+    <script src="js/app.min.js"></script>
+	<script src="js/export.js"></script>
+</head>
+<body style="margin: 0px; overflow: hidden; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+</body>
+</html>

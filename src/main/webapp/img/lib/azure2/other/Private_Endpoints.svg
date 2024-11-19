@@ -1,0 +1,23 @@
+<svg
+	xmlns="http://www.w3.org/2000/svg" width="17.931" height="17.059">
+	<defs>
+		<linearGradient id="A" x1="9.05" y1=".078" x2="9.05" y2="3.553" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#50e6ff"/>
+			<stop offset="1" stop-color="#32bedd"/>
+		</linearGradient>
+		<linearGradient id="B" x1="9.031" y1="13.372" x2="9.031" y2="9.897" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#5e9624"/>
+			<stop offset=".183" stop-color="#629c25"/>
+			<stop offset=".435" stop-color="#6dae2a"/>
+			<stop offset=".726" stop-color="#7fcb30"/>
+			<stop offset=".822" stop-color="#86d633"/>
+		</linearGradient>
+	</defs>
+	<path d="M7.816 12.871a1.738 1.738 0 1 0 2.436-2.479 1.715 1.715 0 0 0-.626-.389V2.538H8.514v7.444a1.729 1.729 0 0 0-.7 2.891z" fill="#b3b3b3"/>
+	<circle cx="9.05" cy="1.738" r="1.738" fill="url(#A)"/>
+	<path d="M6.161 16.307l-.662.663a.3.3 0 0 1-.424.001L.183 12.092a.6.6 0 0 1-.001-.849l.662-.663 5.317 5.302a.3.3 0 0 1 .001.424z" fill="#50e6ff"/>
+	<path d="M5.402 6.415l.663.662a.3.3 0 0 1 .001.424l-5.225 5.24-.664-.662a.6.6 0 0 1-.001-.849l4.802-4.815a.3.3 0 0 1 .425 0z" fill="#1490df"/>
+	<path d="M17.088 10.581l.662.663a.6.6 0 0 1-.001.849l-4.892 4.878a.3.3 0 0 1-.424-.001l-.662-.663a.3.3 0 0 1 .001-.424z" fill="#50e6ff"/>
+	<path d="M17.755 12.076l-.663.662-5.225-5.24a.3.3 0 0 1 .001-.424l.663-.662a.3.3 0 0 1 .424.001l4.802 4.815a.6.6 0 0 1-.001.849z" fill="#1490df"/>
+	<circle cx="9.031" cy="11.635" r="1.738" fill="url(#B)"/>
+</svg>

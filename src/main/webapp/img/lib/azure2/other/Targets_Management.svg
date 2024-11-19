@@ -1,0 +1,23 @@
+<svg
+	xmlns="http://www.w3.org/2000/svg" width="17.486" height="17.974">
+	<defs>
+		<linearGradient id="A" x1="9.765" y1="10.739" x2="7.774" y2="7.291" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#eeaa45"/>
+			<stop offset="1" stop-color="#f4cf97"/>
+		</linearGradient>
+		<linearGradient id="B" x1="8.769" y1="14.502" x2="8.769" y2="3.528" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#0078d4"/>
+			<stop offset="1" stop-color="#5ea0f0"/>
+		</linearGradient>
+	</defs>
+	<circle cx="8.769" cy="9.015" r="1.991" fill="url(#A)"/>
+	<g fill="#82bbff">
+		<rect x="7.952" width="1.634" height="4.658" rx=".817"/>
+		<rect x="7.952" y="13.316" width="1.634" height="4.658" rx=".817"/>
+		<g transform="rotate(90)">
+			<rect x="8.198" y="-17.486" width="1.634" height="4.658" rx=".817"/>
+			<rect x="8.198" y="-4.658" width="1.634" height="4.658" rx=".817"/>
+		</g>
+	</g>
+	<path d="M8.769 14.502a5.487 5.487 0 1 1 5.487-5.487 5.493 5.493 0 0 1-5.487 5.487zm0-9.553a4.066 4.066 0 1 0 4.066 4.066 4.071 4.071 0 0 0-4.066-4.066z" fill="url(#B)"/>
+</svg>

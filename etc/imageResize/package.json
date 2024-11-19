@@ -1,0 +1,17 @@
+{
+  "name": "drawio-image-resize",
+  "version": "1.0.0",
+  "description": "",
+  "main": "drawImageResize.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "image-size": "^1.1.1",
+    "sharp": "^0.33.2",
+    "yargs": "^17.7.2"
+  }
+}

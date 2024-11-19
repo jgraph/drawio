@@ -1,0 +1,78 @@
+:root {
+	--panel-color: #ffffff;
+	--border-color: #000000;
+	--text-color: #000000;
+}
+.geEditor, .geSidebarContainer .geTitle  {
+	font-size:15px;
+}
+.geFormatContainer, .geTab, .geStatus > *,
+.geSearchSidebar input, .geSpinnerStatus {
+	font-size:14px !important;
+}
+.geEditor div.mxTooltip {
+	font-size: 12px;
+}
+.geHint {
+	font-size:11pt;
+}
+body.geLegacyDarkMode *:not(svg *, .mxCellEditor, .mxCellEditor *, .geButton, .geLabel,
+img, .geIcon, .geDarkMode *, .geToolbarButton), .geLegacyDarkMode *::-webkit-scrollbar-thumb,
+.geLegacyDarkMode div.mxWindow, .geLegacyDarkMode .geToolbarContainer,
+html > body.geLegacyDarkMode > div > div.geToolbarContainer.geSimpleMainMenu,
+.geLegacyDarkMode .geActiveItem, .geLegacyDarkMode .geBtn, .geLegacyDarkMode .geEditor select,
+.geLegacyDarkMode .geSidebarTooltip, .geLegacyDarkMode html body button.gePrimaryBtn,
+.geLegacyDarkMode .geEditor button, .geLegacyDarkMode html body .geDialog button.gePrimaryBtn {
+	border-color: #ffffff !important;
+	color: #ffffff !important;
+}
+*:not(svg *, .mxCellEditor, .mxCellEditor *, .geButton, .geLabel,
+img, .geIcon, input, .geSpinnerStatus), div.mxWindow,
+.geToolbarContainer, .geActiveItem, .geBtn,
+.geToolbarButton, .geEditor select, .geSidebarTooltip,
+html body .geDialog button.gePrimaryBtn:not(.geLegacyDarkMode *),
+.geTitle, html body button.gePrimaryBtn, .geEditor button,
+*::-webkit-scrollbar-thumb {
+	border-color: #000000 !important;
+	color: #000000 !important;
+}
+.geSidebarTooltip, html body button.gePrimaryBtn,
+html body .geDialog button.gePrimaryBtn {
+	border-style: solid !important;
+}
+html body button.gePrimaryBtn:not(.geSidebarFooter *),
+html body .geDialog button.gePrimaryBtn, button.geBigButton {
+	border-width: 3px !important;
+	border-style: solid !important;
+	font-weight: bold;
+}
+input:not(input.gePropEditor), .geEditor button:not(.geStyleButton),
+.geEditor select, *::-webkit-scrollbar-thumb, .geEditor .geColorBtn {
+	background: none;
+}
+html body button.gePrimaryBtn, html body .geDialog button.gePrimaryBtn,
+.geDialogTitle, .geDialogFooter {
+	background: none !important;
+}
+.geActiveItem {
+	background-color: lightgray !important;
+}
+div.mxWindow *, .geToolbarContainer *, .geActiveItem:not(.geLegacyDarkMode *),
+.geBtn, .geToolbarButton, .geTab .geAdaptiveAsset:not(.geDisabledControlTab *, :hover),
+.geTitle img {
+	opacity: 1 !important;
+}
+html body.geLegacyDarkMode a.geActiveItem.geAdaptiveAsset {
+	filter: none !important;
+}
+html body a.geActiveItem.geAdaptiveAsset:not(.geLegacyDarkMode *),
+html body .geActivePage {
+	filter: invert(100%) !important;
+}
+html body.geEditor.geLegacyDarkMode div.mxRubberband {
+	border-color:#ffffff !important;
+}
+html body.geEditor div.mxRubberband {
+	border-style:solid !important;
+	border-color:#000000 !important;
+}
