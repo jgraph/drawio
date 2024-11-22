@@ -6,6 +6,7 @@ accessDenied=Sarbidea ukatuta
 accounts=Kontuak
 action=Ekintza
 actualSize=Uneko tamaina
+adaptiveColors=Kolore egokigarriak
 add=Gehitu
 addAccount=Gehitu kontua
 addedFile=Gehituta {1}

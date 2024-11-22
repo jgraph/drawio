@@ -6,6 +6,7 @@ accessDenied=Truy cập bị từ chối
 accounts=Accounts
 action=Action
 actualSize=Kích thước thực tế
+adaptiveColors=Màu SắC Thích ỨNg
 add=Thêm
 addAccount=Add account
 addedFile=Đã thêm {1}

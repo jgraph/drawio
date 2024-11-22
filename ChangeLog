@@ -1,3 +1,18 @@
+22-NOV-2024: 24.8.9
+
+- Forces service worker to reload Confluence and Jira html to fetch the new CSP header [DID-13083]
+
+21-NOV-2024: 24.8.8
+
+- Fixes possible NPE
+
+21-NOV-2024: 24.8.7
+
+- Fixes font size and line height change for selection text [jgraph/drawio-desktop#1880]
+- Removes implicit CSS values and empty style attributes from DOM
+- Adds OpenStack stencils
+- Adds Power Platform stencils to Azure and Dynamics365 stencils
+
 13-NOV-2024: 24.8.6
 
 - Corrects sidebar build

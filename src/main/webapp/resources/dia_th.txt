@@ -6,6 +6,7 @@ accessDenied=ปฏิเสธการเข้าถึง
 accounts=Accounts
 action=Action
 actualSize=ขนาดปกติ
+adaptiveColors=สีที่ปรับเปลี่ยนได้
 add=เพิ่ม
 addAccount=Add account
 addedFile=Info kohta

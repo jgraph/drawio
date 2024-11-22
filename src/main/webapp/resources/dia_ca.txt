@@ -6,6 +6,7 @@ accessDenied=Accés denegat
 accounts=Comptes
 action=Acció
 actualSize=Mida real
+adaptiveColors=Colors adaptatius
 add=Afegeix
 addAccount=Afegeix un compte
 addedFile={1} afegit

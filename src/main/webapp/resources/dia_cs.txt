@@ -6,6 +6,7 @@ accessDenied=Přístup odepřen
 accounts=Účty
 action=Akce
 actualSize=Skutečná velikost
+adaptiveColors=Adaptivní barvy
 add=Přidat
 addAccount=Přidat účet
 addedFile=Přidáno: {1}

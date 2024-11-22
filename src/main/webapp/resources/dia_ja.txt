@@ -6,6 +6,7 @@ accessDenied=アクセス拒否されました
 accounts=Accounts
 action=Action
 actualSize=実寸
+adaptiveColors=アダプティブカラー
 add=追加する
 addAccount=アカウントを追加する
 addedFile={1} を追加しました。

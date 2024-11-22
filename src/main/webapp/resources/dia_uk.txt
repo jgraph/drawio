@@ -6,6 +6,7 @@ accessDenied=Доступ заборонено
 accounts=Accounts
 action=Дія
 actualSize=Фактичний розмір
+adaptiveColors=Адаптивні Кольори
 add=Додати
 addAccount=Додати профіль
 addedFile=Додано {1}

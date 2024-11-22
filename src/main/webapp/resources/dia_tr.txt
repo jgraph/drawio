@@ -6,6 +6,7 @@ accessDenied=erişim engellendi
 accounts=Accounts
 action=Eylem
 actualSize=Gerçek boyut
+adaptiveColors=Uyarlanabilir renkler
 add=Ekle
 addAccount=Hesap ekle
 addedFile=Eklendi

@@ -6,6 +6,7 @@ accessDenied=Piekļuve liegta
 accounts=Konti
 action=Darbība
 actualSize=Patiesais izmērs
+adaptiveColors=Adaptīvās krāsas
 add=Pievienot
 addAccount=Pievienot kontu
 addedFile=Pievienots {1}

@@ -6,6 +6,7 @@ accessDenied=Prieiga draudžiama
 accounts=Accounts
 action=Veiksmas
 actualSize=Esamas dydis
+adaptiveColors=Prisitaikančios spalvos
 add=Pridėti
 addAccount=Pridėti paskyrą
 addedFile=Pridėta

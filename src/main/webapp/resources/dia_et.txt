@@ -6,6 +6,7 @@ accessDenied=Ligipääs keelatud
 accounts=Accounts
 action=Tegevus
 actualSize=Tegelik suurus
+adaptiveColors=Kohanevad värvid
 add=Lisa
 addAccount=Lisa konto
 addedFile=Lisatud {1}

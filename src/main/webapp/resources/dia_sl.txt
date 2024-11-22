@@ -6,6 +6,7 @@ accessDenied=Access Denied
 accounts=Accounts
 action=Action
 actualSize=Actual Size
+adaptiveColors=Prilagodljive barve
 add=Add
 addAccount=Add account
 addedFile=Added {1}

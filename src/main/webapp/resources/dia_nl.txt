@@ -6,6 +6,7 @@ accessDenied=Toegang geweigerd
 accounts=Accounts
 action=Actie
 actualSize=Ware grootte
+adaptiveColors=Adaptieve kleuren
 add=Toevoegen
 addAccount=Account toevoegen
 addedFile={1} toegevoegd

@@ -7,7 +7,7 @@ As well as running this project, we run a production-grade deployment of the dia
 License
 -----------------
 
-The source code authored by us in this repo is licensed under a modified Apache v2 license. This project is not an open source project as a result.
+The minified code authored by us in this repo is licensed under an Apache v2 license, but the sources to build those files are not in this repo. This is not an open source project.
 
 The JGraph provided icons and diagram templates are licensed under the [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Additional terms may also apply where the icons are originally defined by a third-party copyright holder. We have checked in all cases that the original license allows use in this project. Also see the terms for using the draw.io logo below.
 
@@ -20,7 +20,7 @@ Scope of the Project
 
 draw.io is a diagramming or whiteboarding application, depending on which theme is selected. It is not an SVG editing app, the SVG export is designed only for embedding in web pages, not for further editing in other tools.
 
-The application is designed to be used largely as-is. draw.io is not suitable as a framework for building other products from. For this try either [Tldraw](https://github.com/tldraw/tldraw) or [Excalidraw](https://github.com/excalidraw/excalidraw).
+The application is designed to be entirely as-is. draw.io is not suitable as a framework for building other products from, as source code is not provided. For this try either [Tldraw](https://github.com/tldraw/tldraw) or [Excalidraw](https://github.com/excalidraw/excalidraw).
 
 Note, in particular, we don't have support for collaborative editing in this project. If this is important, one of the projects above is likely a better choice.
 
@@ -39,13 +39,6 @@ Supported Browsers
 ------------------
 
 draw.io supports Chrome 98+, Firefox 94+, Safari 15.4+, Opera 84+, WebView Android 98+, Safari iOS 15.4+ and Edge 98+.
-
-This project is not open-contribution
-------------------------------------------------------
-
-draw.io is also closed to contributions, as it's not open source. We follow a development process compliant with our SOC 2 Type II process. We do not have a mechanism where we can accept contributions from non-staff members.
-
-draw.io is not suitable as a framework for building other products from. For this try either [Tldraw](https://github.com/tldraw/tldraw) or [Excalidraw](https://github.com/excalidraw/excalidraw).
 
 Logo and trademark usage
 ------------------------

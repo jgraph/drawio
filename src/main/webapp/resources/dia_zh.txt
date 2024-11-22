@@ -6,6 +6,7 @@ accessDenied=没有权限访问
 accounts=账号
 action=操作
 actualSize=实际尺寸
+adaptiveColors=自适应颜色
 add=添加
 addAccount=添加账户
 addedFile=已添加 {1}

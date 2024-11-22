@@ -6,6 +6,7 @@ accessDenied=Akses Ditolak
 accounts=Accounts
 action=Action
 actualSize=Saiz Sebenar
+adaptiveColors=Warna Adaptif
 add=Tambah
 addAccount=Add account
 addedFile=Tambah {1}

@@ -6,6 +6,7 @@ accessDenied=Доступ запрещён
 accounts=Аккаунты
 action=Действие
 actualSize=Фактический размер
+adaptiveColors=Адаптивные Цвета
 add=Добавить
 addAccount=Добавить аккаунт
 addedFile=Добавлено {1}

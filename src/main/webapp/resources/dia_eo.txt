@@ -6,6 +6,7 @@ accessDenied=Aliro rifuzita
 accounts=Accounts
 action=Ago
 actualSize=Vera grandeco
+adaptiveColors=Adaptaj koloroj
 add=Aldoni
 addAccount=Aldoni konton
 addedFile={1} aldonita

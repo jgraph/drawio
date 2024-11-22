@@ -6,6 +6,7 @@ accessDenied=user
 accounts=Accounts
 action=Действие
 actualSize=Действителен размер
+adaptiveColors=Адаптивни Цветове
 add=Добавяне
 addAccount=Добавяне на акаунт
 addedFile=Добавен {1}

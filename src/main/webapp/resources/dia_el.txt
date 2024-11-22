@@ -6,6 +6,7 @@ accessDenied=Άρνηση πρόσβασης
 accounts=Accounts
 action=Ενέργεια
 actualSize=Πραγματικό Μέγεθος
+adaptiveColors=Προσαρμόσιμα Χρώματα
 add=Προσθήκη
 addAccount=Προσθήκη λογαριασμού
 addedFile=Προστέθηκε {1}

@@ -6,6 +6,7 @@ accessDenied=Accès refusé
 accounts=Comptes
 action=Action
 actualSize=Taille réelle
+adaptiveColors=Couleurs adaptatives
 add=Ajouter
 addAccount=Ajouter un compte
 addedFile=Ajouté(e) {1}

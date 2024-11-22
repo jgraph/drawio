@@ -6,6 +6,7 @@ accessDenied=存取遭拒
 accounts=帳號
 action=動作
 actualSize=實際尺寸
+adaptiveColors=自適應顏色
 add=新增
 addAccount=新增帳號
 addedFile=已新增 {1}

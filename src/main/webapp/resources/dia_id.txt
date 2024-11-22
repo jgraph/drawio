@@ -6,6 +6,7 @@ accessDenied=Akses Ditolak
 accounts=Akun
 action=Aksi
 actualSize=Ukuran Aktual
+adaptiveColors=Warna Adaptif
 add=Tambahkan
 addAccount=Tambahkan akun
 addedFile={1} ditambahkan

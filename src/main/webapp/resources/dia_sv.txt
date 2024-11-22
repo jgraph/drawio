@@ -6,6 +6,7 @@ accessDenied=Åtkomst nekad
 accounts=Accounts
 action=Action
 actualSize=Verklig storlek
+adaptiveColors=Adaptiva färger
 add=Lägg till
 addAccount=Lägg till konto
 addedFile={1} tillagd

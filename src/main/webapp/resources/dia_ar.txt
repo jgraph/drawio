@@ -6,6 +6,7 @@ accessDenied=‫غير مسموح بالدخول‬
 accounts=Accounts
 action=‫فعل‬
 actualSize=‫الحجم الحقيقي‬
+adaptiveColors=‫الألوان التكيفية‬
 add=‫إضافة‬
 addAccount=‫إضافة حساب‬
 addedFile=‫تمت إضافة {1}‬

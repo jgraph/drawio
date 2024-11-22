@@ -6,6 +6,7 @@ accessDenied=Pääsy kielletty
 accounts=Tilit
 action=Toiminto
 actualSize=Oikea koko
+adaptiveColors=Mukautuvat värit
 add=Lisää
 addAccount=Lisää tili
 addedFile=Lisätty {1}

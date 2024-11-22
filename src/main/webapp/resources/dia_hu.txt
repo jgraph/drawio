@@ -6,6 +6,7 @@ accessDenied=Hozzáférés elutasítva
 accounts=Accounts
 action=Művelet
 actualSize=Aktuális méret
+adaptiveColors=Adaptív színek
 add=Hozzáad
 addAccount=Fiók hozzáadása
 addedFile={1} hozzáadva

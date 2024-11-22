@@ -6,6 +6,7 @@ accessDenied=접근이 거부되었습니다.
 accounts=계정
 action=액션
 actualSize=실제 크기
+adaptiveColors=적응형 색상
 add=추가
 addAccount=계정 추가
 addedFile={1}이 추가되었습니다.

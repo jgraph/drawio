@@ -6,6 +6,7 @@ accessDenied=‫הגישה דחתה‬
 accounts=Accounts
 action=‫פעולה‬
 actualSize=‫גודל אמיתי‬
+adaptiveColors=‫צבעים מסתגלים‬
 add=‫הוסף‬
 addAccount=‫הוסף חשבון‬
 addedFile=‫נוסף {1}‬
