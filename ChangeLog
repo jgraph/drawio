@@ -1,3 +1,23 @@
+29-NOV-2024: 25.0.0
+
+- Restructures project files
+
+28-NOV-2024: 24.9.3
+
+- NPE fixes
+
+27-NOV-2024: 24.9.2
+
+- [conf cloud] Improving theme detection timing [DID-13083]
+
+25-NOV-2024: 24.9.1
+
+- Reverts DOMPurifty to 3.1.5 [DID-13161]
+
+23-NOV-2024: 24.9.0
+
+- Updates workbox to 7.3.0 in build docker image
+
 22-NOV-2024: 24.8.9
 
 - Forces service worker to reload Confluence and Jira html to fetch the new CSP header [DID-13083]
