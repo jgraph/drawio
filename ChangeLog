@@ -1,3 +1,7 @@
+30-NOV-2024: 25.0.1
+
+- Updates DOMPurify from 3.1.5 to 3.2.2 with fix for [DID-13161]
+
 29-NOV-2024: 25.0.0
 
 - Restructures project files
