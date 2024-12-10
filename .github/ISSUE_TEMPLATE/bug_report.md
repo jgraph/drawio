@@ -12,7 +12,7 @@ about: Create a report to help us improve
 
 You must agree to search and the code of conduct. You must fill in this entire template. If you delete part/all or miss parts out your issue will be closed.
 
-If you are technical, you should reporting bugs along the lines of https://marker.io/blog/how-to-write-bug-report. If you are not technical, we will make allowances, please try to make an effort to understand the process.
+If you are technical, you should report bugs along the lines of https://marker.io/blog/how-to-write-bug-report. If you are not technical, we will make allowances, please try to make an effort to understand the process.
 
 **Describe the bug**
 A clear and concise description of what the bug is.
