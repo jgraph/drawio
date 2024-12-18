@@ -1,5 +1,5 @@
-                              JGraph License 2.0
-                  Based on Apache License Version 2.0, January 2004
+                                 Apache License
+                           Version 2.0, January 2004
                         http://www.apache.org/licenses/
 
    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
@@ -173,20 +173,12 @@
       incurred by, or claims asserted against, such Contributor by reason
       of your accepting any such warranty or additional liability.
 
-  10. None of the Work may be used in any form as part, or whole, of an
-      integration, plugin or app that integrates with Atlassian's
-      Confluence or Jira products.
-
-  11. None of the Work may be used in any form as part, or whole, by
-      DSR corporation, dsr-corporation.com, their staff, contractors or
-      subsidiaries of DSR corporation.
-
    END OF TERMS AND CONDITIONS
 
-   APPENDIX: How to apply the JGraph Adapted Apache License to your work.
+   APPENDIX: How to apply the Apache License to your work.
 
-      To apply the JGraph Adapted Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "{}"
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
       replaced with your own identifying information. (Don't include
       the brackets!)  The text should be enclosed in the appropriate
       comment syntax for the file format. We also recommend that a
@@ -194,13 +186,13 @@
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright {yyyy} {name of copyright owner}
+   Copyright [yyyy] [name of copyright owner]
 
-   Licensed under the JGraph Adapted Apache License, Version 2.0 (the "License");
+   Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
-       https://github.com/jgraph/drawio/blob/dev/LICENSE
+       http://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
