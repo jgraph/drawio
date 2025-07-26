@@ -51,6 +51,9 @@ public class ConverterServlet  extends HttpServlet
 		{
 			try 
 			{
+				//may need an endpoint trust. The behaviour of the image would ne
+				//to match small size on the hard disk because we can add mean field games
+				//in reverse engineering.
 				API_KEY = Utils
 							.readInputStream(getServletContext()
 							.getResourceAsStream(API_KEY_FILE_PATH))
