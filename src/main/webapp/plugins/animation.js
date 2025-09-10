@@ -296,6 +296,7 @@ Draw.loadPlugin(function(editorUi)
 		
 		var applyBtn = mxUtils.button('Apply', function()
 		{
+            var root = editorUi.editor.graph.getModel().getRoot()
 			editorUi.editor.graph.setAttributeForCell(root, 'animation', list.value);
 		});
 		td21.appendChild(applyBtn);
@@ -313,6 +314,17 @@ Draw.loadPlugin(function(editorUi)
 		this.window.setResizable(true);
 		this.window.setClosable(true);
 		this.window.setVisible(true);
+
+        var currentRoot = editorUi.editor.graph.getModel().getRoot()
+        editorUi.editor.addListener('pageSelected', () => {
+            editorUi.editor.graph.setAttributeForCell(currentRoot, 'animation', list.value)
+            setTimeout(() => {
+                currentRoot = editorUi.editor.graph.getModel().getRoot()
+                if (currentRoot.value != null && typeof (currentRoot.value) == 'object') {
+                    list.value = currentRoot.value.getAttribute('animation')
+                }
+            }, 1)
+        })
 	};
 	
 	// Autostart in chromeless mode
