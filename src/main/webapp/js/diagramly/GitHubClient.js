@@ -606,7 +606,14 @@ GitHubClient.prototype.createGitHubFile = function(org, repo, ref, data, asLibra
 			}
 			else
 			{
-				content = Base64.decode(content);
+				try{
+					// Properly decode UTF-8 content from base64 to handle emoji and international characters
+					const bytes = Uint8Array.from(Base64.decode(content, true), ch => ch.charCodeAt(0));	
+					content = new TextDecoder('utf-8').decode(bytes);
+				}
+				catch(e){
+					content = Base64.decode(content);
+				}
 			}
 		}
 	}
