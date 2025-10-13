@@ -359,6 +359,8 @@ function mxFreehand(graph)
 		
 		if (evtName == mxEvent.MOUSE_MOVE && enabled)
 		{
+			graph.container.style.cursor = "crosshair";
+			
 			if (me.sourceState != null)
 			{
 				me.sourceState.setCursor('crosshair');
