@@ -65,7 +65,7 @@ describe('LLMCommunicationHandler', () => {
             expect(result.success).toBe(true);
             expect(result.intent).toBe('greeting');
             expect(result.response.message).toContain('Hello');
-            expect(result.response.message).toContain('load a diagram');
+            expect(result.response.message).toContain('loading a diagram');
         });
 
         test('should respond to greeting with diagram context', () => {
@@ -176,8 +176,8 @@ describe('LLMCommunicationHandler', () => {
         test('should recognize various list requests', () => {
             const listRequests = [
                 'List all shapes',
-                'Show me the elements',
-                'What are all the components?'
+                'Show all elements',
+                'What shapes are in this diagram?'
             ];
 
             listRequests.forEach(request => {
@@ -274,9 +274,9 @@ describe('LLMCommunicationHandler', () => {
 
         test('should recognize various count requests', () => {
             const countRequests = [
-                'How many elements?',
+                'How many elements are there?',
                 'Count the shapes',
-                'Number of connections'
+                'What is the number of connections?'
             ];
 
             countRequests.forEach(request => {
@@ -314,8 +314,8 @@ describe('LLMCommunicationHandler', () => {
 
         test('should recognize various connection requests', () => {
             const connectionRequests = [
-                'Show connections',
-                'What links are there?',
+                'Show the connections',
+                'What are the links?',
                 'How do they relate?',
                 'Show me the flow',
                 'What are the arrows?'

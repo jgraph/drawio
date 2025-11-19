@@ -93,18 +93,26 @@ class LLMCommunicationHandler {
     _analyzeIntent(message) {
         const lowerMessage = message.toLowerCase();
 
-        // Define intent patterns
-        const intents = {
-            describe: /describe|explain|what is|tell me about|overview/i,
-            findShape: /find|where|locate|search|look for/i,
-            listShapes: /list|show|all shapes|elements|components/i,
-            countElements: /how many|count|number of/i,
-            connections: /connect|link|relation|flow|arrow/i,
-            help: /help|how do|can you|what can/i,
-            greeting: /hello|hi|hey|good morning|good afternoon/i
-        };
+        // Define intent patterns - ORDER MATTERS! More specific patterns first
+        // Using array of tuples to maintain order
+        const intentPatterns = [
+            // Check greetings first (simple, non-overlapping)
+            ['greeting', /^(hello|hi|hey|good morning|good afternoon)/i],
+            // Check help requests
+            ['help', /\b(help|how do i|can you help|what can you do)\b/i],
+            // Check countElements early (before connections which might match "connections")
+            ['countElements', /\b(how many|count|number of)\b/i],
+            // Check connections before listShapes (both use "show")
+            ['connections', /\b(connect\w*|link\w*|relat\w*|flow\w*|arrow\w*)\b/i],
+            // Check findShape before listShapes
+            ['findShape', /\b(find|where is|locate|search for|look for)\b/i],
+            // Check describe
+            ['describe', /\b(describe|explain|what is|tell me about|overview|about this)\b/i],
+            // listShapes is more general, check last
+            ['listShapes', /\b(list|show all|all shapes|all elements|all components|what shapes)\b/i]
+        ];
 
-        for (const [intent, pattern] of Object.entries(intents)) {
+        for (const [intent, pattern] of intentPatterns) {
             if (pattern.test(lowerMessage)) {
                 return intent;
             }
