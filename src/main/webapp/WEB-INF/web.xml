@@ -129,6 +129,16 @@
     <servlet-name>DropboxAuthServlet</servlet-name>
     <url-pattern>/dropbox</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description/>
+    <display-name>WellKnownServlet</display-name>
+    <servlet-name>WellKnownServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.WellKnownServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>WellKnownServlet</servlet-name>
+    <url-pattern>/.well-known/*</url-pattern>
+  </servlet-mapping>
   <mime-mapping>
     <extension>css</extension>
     <mime-type>text/css</mime-type>
