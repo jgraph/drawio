@@ -1,0 +1,30 @@
+# Test container for running LLM integration tests
+FROM node:20-alpine
+
+LABEL maintainer="draw.io"
+LABEL description="draw.io test runner"
+
+# Install git for any git-based dependencies
+RUN apk add --no-cache git
+
+WORKDIR /app
+
+# Copy test files
+COPY tests/llm-integration/package*.json ./tests/llm-integration/
+
+# Install dependencies
+WORKDIR /app/tests/llm-integration
+RUN npm ci --only=production=false
+
+# Copy test source
+COPY tests/llm-integration/ ./
+
+# Create results directory
+RUN mkdir -p /app/test-results
+
+# Set environment
+ENV NODE_ENV=test
+ENV CI=true
+
+# Default command - run tests
+CMD ["npm", "test", "--", "--coverage", "--coverageDirectory=/app/test-results/coverage"]

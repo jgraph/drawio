@@ -1,0 +1,47 @@
+# Git
+.git
+.gitignore
+
+# Build artifacts
+build/
+*.war
+
+# Node modules (will be installed in container)
+**/node_modules
+tests/**/node_modules
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test results (generated in container)
+**/coverage/
+**/test-results/
+
+# Docker files (not needed in image)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Development files
+etc/build/*.properties.local
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
