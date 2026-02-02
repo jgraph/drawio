@@ -884,7 +884,7 @@ Actions.prototype.init = function()
 			
 			for (var i = 0; i < cells.length; i++)
 			{
-				state = graph.getView().getState(cells[i]);
+				var state = graph.getView().getState(cells[i]);
 				
 				if (state != null)
 				{
