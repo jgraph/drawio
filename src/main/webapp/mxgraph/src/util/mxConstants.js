@@ -575,11 +575,10 @@
 	/**
 	 * Variable: WORD_WRAP
 	 * 
-	 * Defines the CSS value for the word-wrap property. Default is "normal".
-	 * Change this to "break-word" to allow long words to be able to be broken
-	 * and wrap onto the next line.
+	 * Defines the CSS value for the word-wrap property. Default is "break-word"
+	 * to allow long words to be broken and wrap onto the next line.
 	 */
-	WORD_WRAP: 'normal',
+	WORD_WRAP: 'break-word',
 
 	/**
 	 * Variable: ABSOLUTE_LINE_HEIGHT
