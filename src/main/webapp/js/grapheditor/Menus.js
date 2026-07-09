@@ -63,27 +63,40 @@ Menus.prototype.init = function()
 		
 		if (shape != 'arrow')
 		{
-			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-				[null, null, null], null, parent, true, Format.straightImage.src)).setAttribute('title', mxResources.get('straight'));
-			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-				['orthogonalEdgeStyle', null, null], null, parent, true, Format.orthogonalImage.src)).setAttribute('title', mxResources.get('orthogonal'));
-			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-				['elbowEdgeStyle', 'vertical', null, null], null, parent, true, Format.verticalElbowImage.src)).setAttribute('title', mxResources.get('horizontal'));
-			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-				['elbowEdgeStyle', null, null, null], null, parent, true, Format.horizontalElbowImage.src)).setAttribute('title', mxResources.get('vertical'));
-			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-				['isometricEdgeStyle', null, null, null], null, parent, true, Format.horizontalIsometricImage.src)).setAttribute('title', mxResources.get('isometric'));
-			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-				['isometricEdgeStyle', 'vertical', null, null], null, parent, true, Format.verticalIsometricImage.src)).setAttribute('title', mxResources.get('isometric'));
-	
+			// Each routing entry also clears libavoidRouting so the choices stay
+			// mutually exclusive (picking any plain routing turns auto-routing off).
+			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				[null, null, null, null], null, parent, true, Format.straightImage.src)).setAttribute('title', mxResources.get('straight'));
+			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				['orthogonalEdgeStyle', null, null, null], null, parent, true, Format.orthogonalImage.src)).setAttribute('title', mxResources.get('orthogonal'));
+
+			// libavoid obstacle-avoiding routing (orthogonal + flag, routed at once).
+			if (typeof LibavoidRouting !== 'undefined')
+			{
+				Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+					['orthogonalEdgeStyle', null, null, '1'], null, parent, true, Format.libavoidImage.src, function(graph, edges)
+					{
+						LibavoidRouting.autoReroute(graph, edges);
+					})).setAttribute('title', mxResources.get('libavoidAutoRoute'));
+			}
+
+			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				['elbowEdgeStyle', 'vertical', null, null, null], null, parent, true, Format.verticalElbowImage.src)).setAttribute('title', mxResources.get('horizontal'));
+			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				['elbowEdgeStyle', null, null, null, null], null, parent, true, Format.horizontalElbowImage.src)).setAttribute('title', mxResources.get('vertical'));
+			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				['isometricEdgeStyle', null, null, null, null], null, parent, true, Format.horizontalIsometricImage.src)).setAttribute('title', mxResources.get('isometric'));
+			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				['isometricEdgeStyle', 'vertical', null, null, null], null, parent, true, Format.verticalIsometricImage.src)).setAttribute('title', mxResources.get('isometric'));
+
 			if (shape == null || shape == 'connector')
 			{
-				Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-					['orthogonalEdgeStyle', '1', null], null, parent, true, Format.curvedImage.src)).setAttribute('title', mxResources.get('curved'));
+				Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+					['orthogonalEdgeStyle', '1', null, null], null, parent, true, Format.curvedImage.src)).setAttribute('title', mxResources.get('curved'));
 			}
-			
-			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-				['entityRelationEdgeStyle', null, null], null, parent, true, Format.entityImage.src)).setAttribute('title', mxResources.get('entityRelation'));
+
+			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				['entityRelationEdgeStyle', null, null, null], null, parent, true, Format.entityImage.src)).setAttribute('title', mxResources.get('entityRelation'));
 		}
 	})));
 	
@@ -1176,7 +1189,7 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent, showOption
 /**
  * Adds a style change item to the given menu.
  */
-Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, parent, reset, image)
+Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, parent, reset, image, postFn)
 {
 	return this.showIconOnly(menu.addItem(label, image, mxUtils.bind(this, function()
 	{
@@ -1235,6 +1248,13 @@ Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, pa
 				'styleChanged', 'cells', edges,
 				'keys', keys, 'values', values,
 				'force', edges.length == 0));
+
+			// Optional follow-up inside the same update (e.g. libavoid routing the
+			// edges immediately after the style is applied, atomically with it).
+			if (postFn != null)
+			{
+				postFn(graph, edges);
+			}
 		}
 		finally
 		{

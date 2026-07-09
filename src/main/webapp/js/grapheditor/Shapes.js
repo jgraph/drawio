@@ -309,7 +309,18 @@
 		var fixedHeader = mxUtils.getValue(this.style,
 			mxConstants.STYLE_FIXED_HEADER, this.fixedHeaderDefault);
 
-		if ((start == 0 && !fixedHeader) || this.outline)
+		if (start == 0 && this.isRounded && !this.outline)
+		{
+			// Headerless rounded table: PartialRectangleShape has no arc
+			// support and the swimlane path derives its arc from the title
+			// size (0 here), so both paint square corners. Paint the
+			// rounded background directly with the rectangle arc.
+			var r = mxShape.prototype.getArcSize.call(this, w, h);
+			c.begin();
+			c.roundrect(x, y, w, h, r, r);
+			c.fillAndStroke();
+		}
+		else if ((start == 0 && !fixedHeader) || this.outline)
 		{
 			PartialRectangleShape.prototype.paintVertexShape.apply(this, arguments);
 		}
@@ -2851,27 +2862,50 @@
 		return false;
 	};
 
+	// lifelineMirror=1 repeats the head (participant box or icon plus a
+	// painted copy of the label) at the foot of the cell, so a single
+	// lifeline cell renders both participant ends of a UML sequence
+	// column. Off by default for backward compatibility.
+	UmlLifeline.prototype.isMirrored = function()
+	{
+		return mxUtils.getValue(this.style, 'lifelineMirror', '0') == '1';
+	};
+
+	// Head (and mirrored foot) height. With lifelineMirror=1 the head is
+	// clamped to half the cell height so head and foot never overlap.
+	UmlLifeline.prototype.getHeadSize = function(h)
+	{
+		return Math.max(0, Math.min(this.isMirrored() ? h / 2 : h,
+			parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
+	};
+
 	UmlLifeline.prototype.getLabelBounds = function(rect)
 	{
-		var size = Math.max(0, Math.min(rect.height, parseFloat(
-			mxUtils.getValue(this.style, 'size', this.size)) * this.scale));
-		
+		var size = Math.max(0, Math.min(this.isMirrored() ? rect.height / 2 : rect.height,
+			parseFloat(mxUtils.getValue(this.style, 'size', this.size)) * this.scale));
+
 		return new mxRectangle(rect.x, rect.y, rect.width, size);
 	};
 
 	UmlLifeline.prototype.paintBackground = function(c, x, y, w, h)
 	{
-		var size = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
+		var size = this.getHeadSize(h);
+		var mirror = this.isMirrored();
 		var participant = mxUtils.getValue(this.style, 'participant');
-		
+
 		if (participant == null || this.state == null)
 		{
 			mxRectangleShape.prototype.paintBackground.call(this, c, x, y, w, size);
+
+			if (mirror)
+			{
+				mxRectangleShape.prototype.paintBackground.call(this, c, x, y + h - size, w, size);
+			}
 		}
 		else
 		{
 			var ctor = this.state.view.graph.cellRenderer.getShape(participant);
-			
+
 			if (ctor != null && ctor != UmlLifeline)
 			{
 				var shape = new ctor();
@@ -2879,15 +2913,24 @@
 				c.save();
 				shape.paintVertexShape(c, x, y, w, size);
 				c.restore();
+
+				if (mirror)
+				{
+					c.save();
+					shape.paintVertexShape(c, x, y + h - size, w, size);
+					c.restore();
+				}
 			}
 		}
-		
-		if (size < h)
+
+		var lineEnd = mirror ? h - size : h;
+
+		if (size < lineEnd)
 		{
 			c.setDashed(mxUtils.getValue(this.style, 'lifelineDashed', '1') == '1');
 			c.begin();
 			c.moveTo(x + w / 2, y + size);
-			c.lineTo(x + w / 2, y + h);
+			c.lineTo(x + w / 2, y + lineEnd);
 			c.end();
 			c.stroke();
 		}
@@ -2900,14 +2943,87 @@
 		// a stray rect around the icon (visible on docs-sequence-32's
 		// queue-typed Alice top vs the matching bottom box).
 		var participant = mxUtils.getValue(this.style, 'participant');
+		var size = this.getHeadSize(h);
+		var mirror = this.isMirrored();
 
-		if (participant != null) return;
+		if (participant == null)
+		{
+			mxRectangleShape.prototype.paintForeground.call(this, c, x, y, w, Math.min(h, size));
 
-		var size = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
-		mxRectangleShape.prototype.paintForeground.call(this, c, x, y, w, Math.min(h, size));
+			if (mirror)
+			{
+				mxRectangleShape.prototype.paintForeground.call(this, c, x, y + h - size, w, size);
+			}
+		}
+
+		if (mirror)
+		{
+			this.paintMirrorLabel(c, x, y + h - size, w, size);
+		}
+	};
+
+	// Paints a copy of the cell's label into the mirrored foot box. The
+	// regular (editable) label stays in the head via getLabelBounds; the
+	// copy follows the style's align/verticalAlign/spacing keys so the
+	// foot text lands exactly like the head text (e.g. typed sequence
+	// actors use verticalAlign=bottom;spacingBottom=4 to sit below the
+	// icon, capsule types center it).
+	UmlLifeline.prototype.paintMirrorLabel = function(c, x, y, w, h)
+	{
+		var label = (this.state != null) ?
+			this.state.view.graph.getLabel(this.state.cell) : null;
+
+		// Remember what was painted so the renderer invalidates the shape
+		// when only the value changes (see isShapeInvalid override below).
+		this.mirrorLabelValue = label;
+
+		if (label == null || label == '')
+		{
+			return;
+		}
+
+		c.setFontColor(mxUtils.getValue(this.style, mxConstants.STYLE_FONTCOLOR, 'black'));
+		c.setFontBackgroundColor(mxUtils.getValue(this.style, mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, null));
+		c.setFontBorderColor(mxUtils.getValue(this.style, mxConstants.STYLE_LABEL_BORDERCOLOR, null));
+		c.setFontFamily(mxUtils.getValue(this.style, mxConstants.STYLE_FONTFAMILY, mxConstants.DEFAULT_FONTFAMILY));
+		c.setFontSize(parseFloat(mxUtils.getValue(this.style, mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE)));
+		c.setFontStyle(parseInt(mxUtils.getValue(this.style, mxConstants.STYLE_FONTSTYLE, 0)));
+
+		var align = mxUtils.getValue(this.style, mxConstants.STYLE_ALIGN, mxConstants.ALIGN_CENTER);
+		var valign = mxUtils.getValue(this.style, mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_MIDDLE);
+		var spacing = parseInt(mxUtils.getValue(this.style, mxConstants.STYLE_SPACING, 2));
+		var spacingTop = parseFloat(mxUtils.getValue(this.style, mxConstants.STYLE_SPACING_TOP, 0)) + spacing;
+		var spacingBottom = parseFloat(mxUtils.getValue(this.style, mxConstants.STYLE_SPACING_BOTTOM, 0)) + spacing;
+		var spacingLeft = parseFloat(mxUtils.getValue(this.style, mxConstants.STYLE_SPACING_LEFT, 0)) + spacing;
+		var spacingRight = parseFloat(mxUtils.getValue(this.style, mxConstants.STYLE_SPACING_RIGHT, 0)) + spacing;
+
+		// Top/bottom anchors carry the same 1 px inset mxText applies to
+		// its label bounds, so the copy lines up with a real cell label.
+		var tx = (align == mxConstants.ALIGN_LEFT) ? x + spacingLeft :
+			((align == mxConstants.ALIGN_RIGHT) ? x + w - spacingRight : x + w / 2);
+		var ty = (valign == mxConstants.ALIGN_TOP) ? y + spacingTop + 1 :
+			((valign == mxConstants.ALIGN_BOTTOM) ? y + h - spacingBottom - 1 : y + h / 2);
+
+		var wrap = mxUtils.getValue(this.style, mxConstants.STYLE_WHITE_SPACE, null) == 'wrap';
+		var format = mxUtils.getValue(this.style, 'html', '0') == '1' ? 'html' : '';
+
+		c.text(tx, ty, wrap ? w - spacingLeft - spacingRight : 0, 0, label,
+			align, valign, wrap, format, null, false, 0, null);
 	};
 
 	mxCellRenderer.registerShape('umlLifeline', UmlLifeline);
+
+	// Shape repaints are skipped when only the cell value changes, which
+	// would leave the painted foot copy of a lifelineMirror label stale
+	// after in-place edits. Only shapes that painted a mirror label carry
+	// mirrorLabelValue, so the extra check is a no-op everywhere else.
+	var cellRendererIsShapeInvalid = mxCellRenderer.prototype.isShapeInvalid;
+	mxCellRenderer.prototype.isShapeInvalid = function(state, shape)
+	{
+		return cellRendererIsShapeInvalid.apply(this, arguments) ||
+			(shape.mirrorLabelValue !== undefined && shape.mirrorLabelValue !=
+				state.view.graph.getLabel(state.cell));
+	};
 	
 	// UML Frame Shape
 	function UmlFrame()
@@ -3002,12 +3118,19 @@
 	mxPerimeter.LifelinePerimeter = function (bounds, vertex, next, orthogonal)
 	{
 		var size = UmlLifeline.prototype.size;
-		
+		var max = bounds.y + bounds.height;
+
 		if (vertex != null)
 		{
 			size = mxUtils.getValue(vertex.style, 'size', size) * vertex.view.scale;
+
+			// Connections stay on the body line, off the mirrored foot box
+			if (mxUtils.getValue(vertex.style, 'lifelineMirror', '0') == '1')
+			{
+				max -= size;
+			}
 		}
-		
+
 		var sw = (parseFloat(vertex.style[mxConstants.STYLE_STROKEWIDTH] || 1) * vertex.view.scale / 2) - 1;
 
 		if (next.x < bounds.getCenterX())
@@ -3015,8 +3138,8 @@
 			sw += 1;
 			sw *= -1;
 		}
-		
-		return new mxPoint(bounds.getCenterX() + sw, Math.min(bounds.y + bounds.height,
+
+		return new mxPoint(bounds.getCenterX() + sw, Math.min(max,
 				Math.max(bounds.y + size, next.y)));
 	};
 	
@@ -6004,7 +6127,10 @@
 
 	PipeShape.prototype.getFlowAnimationPath = function()
 	{
-		return mxShape.prototype.getFlowAnimationPath.call(this, 2);
+		// The second line stroke (inner pipe) only exists when a fillColor
+		// is set - fall back to the casing stroke for hollow pipes.
+		return mxShape.prototype.getFlowAnimationPath.call(this, 2) ||
+			mxShape.prototype.getFlowAnimationPath.call(this);
 	};
 
 	PipeShape.prototype.origPaintEdgeShape = PipeShape.prototype.paintEdgeShape;

@@ -16,6 +16,101 @@
 		mxPopupMenuShowMenu.apply(this, arguments);
 	};
 	
+	// Styles for the live layout containers used by Insert > Layout and by
+	// the Advanced sidebar section (Sidebar-Advanced.js) — a single source
+	// so menu inserts and sidebar templates stay in sync. Both variants are
+	// transparentBounds=1 containers: the stored geometry stays pinned at
+	// (0,0,0,0) with the children carrying the absolute position, the
+	// visible box is derived from the children expanded by groupPadding
+	// (plus the swimlane title bar), and every layout run anchors at the
+	// content's current top-left — parent resize (resizeLayoutRoot /
+	// resizeParent) is disabled automatically for transparent roots. The
+	// menu inserts a borderless group (style); the sidebar templates keep
+	// the titled swimlane look (sidebarStyle). The spacing matches the
+	// legacy flowLayout/treeLayout sidebar containers: 50 between
+	// ranks/levels, 30 (flow) / 40 (tree) between siblings. elk.padding is
+	// inert while the container is transparent (the anchor cancels it) but
+	// keeps the legacy margins if transparentBounds is ever toggled off.
+	// The ELK entries use the JSON childLayout form and run through the
+	// layout-manager path; see CLAUDE.md "ELK childLayout containers".
+	Menus.layoutContainers = (function()
+	{
+		var elkChildLayout = function(layout, config)
+		{
+			config.resizeLayoutRoot = true;
+
+			// Pin node sizes (the Arrange dialog's default): without this the
+			// applier writes ELK's node sizes back on every re-run, and ELK
+			// grows nodes for their labels — a manual resize of a shape in
+			// the container would be overwritten by the next run.
+			config.resizeNodes = false;
+
+			// URL-encoded so no ';' or '=' from the JSON can corrupt the
+			// style-string parsing (see Graph.encodeChildLayout).
+			return 'childLayout=' + Graph.encodeChildLayout(
+				[{layout: layout, config: config}]) + ';';
+		};
+
+		var group = function(extra)
+		{
+			return 'group;transparentBounds=1;groupPadding=20;' + extra;
+		};
+
+		var swimlane = function(sideTitle, extra)
+		{
+			return 'swimlane;html=1;startSize=20;horizontal=' +
+				((sideTitle) ? '0' : '1') + ';resizable=0;fontSize=12;' +
+				'transparentBounds=1;groupPadding=20;' + extra;
+		};
+
+		var entry = function(sideTitle, width, height, extra)
+		{
+			return {width: width, height: height, style: group(extra),
+				sidebarStyle: swimlane(sideTitle, extra)};
+		};
+
+		var topPad = '[top=40,left=20,bottom=20,right=20]';
+		var leftPad = '[top=20,left=40,bottom=20,right=20]';
+
+		return {
+			horizontalFlow: entry(true, 460, 150, 'containerType=tree;' +
+				elkChildLayout('elkLayered', {'elk.direction': 'RIGHT',
+					'elk.layered.spacing.nodeNodeBetweenLayers': '50',
+					'elk.padding': leftPad, edgeStyle: 'orthogonalEdgeStyle',
+					corners: 'rounded', extractIsolated: false})),
+			verticalFlow: entry(false, 270, 280, 'containerType=tree;' +
+				elkChildLayout('elkLayered', {'elk.direction': 'DOWN',
+					'elk.layered.spacing.nodeNodeBetweenLayers': '50',
+					'elk.padding': topPad, edgeStyle: 'orthogonalEdgeStyle',
+					corners: 'rounded', extractIsolated: false})),
+			// edgeNode = half of nodeNode centers the shared tree-edge channel
+			// between the levels (mrtree routes it at level end + edgeNode).
+			// corners 'rounded' (edge mode stays 'auto') so edges drawn with
+			// the session's default style get their corners normalized to the
+			// seeded rounded=1 look on the next run; radial/organic/circle
+			// route straight edges where corners have no visual effect.
+			horizontalTree: entry(true, 300, 160, 'containerType=tree;' +
+				elkChildLayout('elkTree', {'elk.direction': 'RIGHT',
+					'elk.spacing.nodeNode': '40',
+					'elk.spacing.edgeNode': '20', 'elk.padding': leftPad,
+					corners: 'rounded'})),
+			verticalTree: entry(false, 280, 180, 'containerType=tree;' +
+				elkChildLayout('elkTree', {'elk.direction': 'DOWN',
+					'elk.spacing.nodeNode': '40',
+					'elk.spacing.edgeNode': '20', 'elk.padding': topPad,
+					corners: 'rounded'})),
+			radialTree: entry(false, 320, 320, 'containerType=tree;' +
+				elkChildLayout('elkRadial', {'elk.padding': topPad})),
+			organic: entry(false, 320, 320,
+				elkChildLayout('elkOrganic', {'elk.padding': topPad})),
+			circle: entry(false, 320, 320, 'childLayout=circleLayout;')
+		};
+	})();
+
+	// Default style for edges seeded inside the layout containers above.
+	Menus.layoutContainerEdgeStyle = 'html=1;rounded=1;curved=0;' +
+		'sourcePerimeterSpacing=0;targetPerimeterSpacing=0;startSize=6;endSize=6;';
+
 	Menus.prototype.createHelpLink = function(href)
 	{
 		return this.editorUi.createHelpIcon(href);
@@ -818,7 +913,7 @@
 		{
 			if (graph.isEnabled() && !graph.isSelectionEmpty() && editorUi.copiedStyle != null)
 			{
-				graph.pasteCellStyles(graph.includeDescendants(graph.getSelectionCells()),
+				graph.pasteCellStyles(graph.includeDescendantParts(graph.getSelectionCells()),
 					editorUi.copiedStyle, editorUi.copiedStyle, true);
 			}
 		}, null, null,  Editor.altKey + '+V');
@@ -851,7 +946,7 @@
 		{
 			if (graph.isEnabled() && !graph.isSelectionEmpty() && editorUi.copiedTextStyle != null)
 			{
-				graph.pasteTextStyles(graph.includeDescendants(graph.getSelectionCells()),
+				graph.pasteTextStyles(graph.includeDescendantParts(graph.getSelectionCells()),
 					editorUi.copiedTextStyle);
 			}
 		}, null, null, Editor.altKey + '+' + Editor.shiftKey + '+V');
@@ -871,7 +966,8 @@
 					{
 						editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
 							addShadow, editable, embedImages, border, !cropImage, currentPage,
-							linkTarget, theme, exportType, embedFonts, null, embedCellMetadata);
+							linkTarget, theme, exportType, embedFonts, null, embedCellMetadata,
+							grid);
 					}
 				}), true, editorUi.lastExportSvgEditable, 'svg', true);
 		}));
@@ -1422,6 +1518,21 @@
 
 		layoutMenu.funct = function(menu, parent)
 		{
+			// Re-runs the most recent layout with the same options (recorded
+			// as a custom-layout array on lastLayoutSpec by executeLayoutSpec,
+			// ElkLayout.run, LibavoidRouting.run and the custom layout
+			// dialog); grayed out until a layout has run in this session.
+			menu.addItem(mxResources.get('runLastLayout'), null, function()
+			{
+				// retargetSelection: as a menu gesture the replay may retarget
+				// a selected layout container's childLayout, like the other
+				// Arrange > Layout items (programmatic executeLayoutSpec
+				// callers must not).
+				editorUi.executeLayoutSpec(editorUi.lastLayoutSpec, null, true);
+			}, parent, null, isGraphEnabled() && editorUi.lastLayoutSpec != null);
+
+			menu.addSeparator(parent);
+
 			if (typeof ElkLayout !== 'undefined')
 			{
 				// Resolve each menu name through ElkLayout.MENU_PRESETS (the single
@@ -1586,6 +1697,16 @@
 			{
 				editorUi.tryAndHandle(mxUtils.bind(this, function()
 				{
+					// A single selected layout container takes circle as its new
+					// childLayout (same value as Insert > Layout > Circle).
+					var container = editorUi.getSelectedLayoutContainer();
+
+					if (container != null)
+					{
+						editorUi.setContainerChildLayout(container, 'circleLayout');
+						return;
+					}
+
 					var layout = new mxCircleLayout(graph);
 
 					editorUi.executeLayout(function()
@@ -1609,6 +1730,24 @@
 
 			menu.addSeparator(parent);
 
+			if (typeof LibavoidRouting !== 'undefined')
+			{
+				menu.addItem(mxResources.get('orthogonalRouting') + '...', null, mxUtils.bind(this, function()
+				{
+					editorUi.tryAndHandle(mxUtils.bind(this, function()
+					{
+						editorUi.prompt(mxResources.get('spacing'), LibavoidRouting.shapeBufferDistance, mxUtils.bind(this, function(newValue)
+						{
+							editorUi.tryAndHandle(mxUtils.bind(this, function()
+							{
+								var buffer = parseFloat(newValue);
+								LibavoidRouting.run(editorUi, isNaN(buffer) ? null : {shapeBufferDistance: buffer});
+							}));
+						}));
+					}));
+				}), parent);
+			}
+
 			menu.addItem(mxResources.get('parallels') + '...', null, mxUtils.bind(this, function()
 			{
 				editorUi.tryAndHandle(mxUtils.bind(this, function()
@@ -1622,6 +1761,22 @@
 						{
 							layout.spacing = newValue;
 
+							// Records the run for Run Last Layout (replayed
+							// through the shared layout-spec pipeline).
+							editorUi.lastLayoutSpec = [{layout: 'mxParallelEdgeLayout',
+								config: {spacing: layout.spacing, checkOverlap: true}}];
+
+							// A single selected layout container takes the run
+							// as its new childLayout instead of a one-shot run.
+							var container = editorUi.getSelectedLayoutContainer();
+
+							if (container != null)
+							{
+								editorUi.setContainerChildLayout(container,
+									editorUi.lastLayoutSpec);
+								return;
+							}
+
 							editorUi.executeLayout(function()
 							{
 								layout.execute(graph.getDefaultParent(), (!graph.isSelectionEmpty()) ?
@@ -1631,7 +1786,7 @@
 					}));
 				}));
 			}), parent);
-			
+
 			if (typeof ElkLayout !== 'undefined')
 			{
 				menu.addSeparator(parent);
@@ -2661,7 +2816,7 @@
 
 								var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
 									true, lightbox, editLink, layers, (link == 'public') ? publicUrl : null,
-									null, params, null, currentPage, null, darkMode, linkIcons, tooltipIcons));
+									link == 'copy', params, null, currentPage, null, darkMode, linkIcons, tooltipIcons));
 								editorUi.showDialog(dlg.container, 450, 270, true, true, null, false, null, new mxRectangle(0, 0, 400, 250));
 								dlg.init();
 							}, null, true);
@@ -2855,7 +3010,7 @@
 							var dlg = new EmbedDialog(editorUi, '<iframe frameborder="0" style="width:' + width +
 								';height:' + height + ';" src="' + editorUi.createLink(linkTarget, linkColor,
 								true, lightbox, editLink, layers, (link == 'public') ? publicUrl : null,
-								null, params, null, currentPage, transparent, darkMode, linkIcons, tooltipIcons) + '"' + ((transparent) ?
+								link == 'copy', params, null, currentPage, transparent, darkMode, linkIcons, tooltipIcons) + '"' + ((transparent) ?
 								' allowtransparency="true"' : '') + '></iframe>');
 							editorUi.showDialog(dlg.container, 450, 270, true, true, null, false, null, new mxRectangle(0, 0, 400, 250));
 							dlg.init();
@@ -2883,7 +3038,7 @@
 
 						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
 							true, lightbox, editLink, layers, (link == 'public') ? publicUrl : null,
-							null, params, null, currentPage, null, darkMode, linkIcons, tooltipIcons));
+							link == 'copy', params, null, currentPage, null, darkMode, linkIcons, tooltipIcons));
 						editorUi.showDialog(dlg.container, 450, 270, true, true, null, false, null, new mxRectangle(0, 0, 400, 250));
 						dlg.init();
 					}, null, true);
@@ -2951,6 +3106,14 @@
 		{
 			if (graph.isEnabled())
 			{
+				// Drop the persisted current edge style so the reset is permanent
+				// (otherwise updateDefaultStyles would restore it on the next reload).
+				if (typeof mxSettings !== 'undefined' && mxSettings.setCurrentEdgeStyle != null &&
+					mxSettings.settings != null)
+				{
+					mxSettings.setCurrentEdgeStyle(null);
+				}
+
 				editorUi.clearDefaultStyle();
 
 				if (Editor.sketchMode)
@@ -3929,78 +4092,96 @@
 
 		var addInsertAction = function(method)
 		{
-			var title = mxResources.get(method) + '...';
-			
-			editorUi.actions.put(method, new Action(title, function(evt)
+			var title = mxResources.get(method);
+
+			editorUi.actions.put(method, new Action(title + '...', function(evt)
 			{
-				if (method == 'fromText' || method == 'formatSql' ||
-					method == 'plantUml' || method == 'mermaid')
-				{
-					var dlg = new ParseDialog(editorUi, title, method);
-					editorUi.showDialog(dlg.container, 640, 420, true,
-						false, null, null, null, new mxRectangle(0, 0, 440, 280));
-					dlg.init();
-				}
-				else
-				{
-					var dlg = new CreateGraphDialog(editorUi, title, method);
+				var dlg = new ParseDialog(editorUi, title, method);
+				editorUi.showDialog(dlg.container, 640, 420, true,
+					false, null, null, null, new mxRectangle(0, 0, 440, 280));
+				dlg.init();
+			})).isEnabled = isGraphEnabled;
+		};
 
-					editorUi.showDialog(dlg.container, 620, 420, true, false, function(cancel, isEsc)
+		// Inserts a live layout container with a small seed graph. Replaces the
+		// old CreateGraphDialog (a mini editor in a modal): the container's
+		// childLayout style makes the layout manager re-run the layout whenever
+		// cells inside it are added, connected or resized, so the diagram is
+		// assembled directly on the canvas with the full editing UX instead.
+		// Styles and seed cells mirror the Advanced sidebar layout containers.
+		var addInsertLayoutAction = function(method, containerStyle, edgeStyle, seed)
+		{
+			editorUi.actions.put(method, new Action(mxResources.get(method), function()
+			{
+				if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
+				{
+					// transparentBounds container: the stored geometry stays
+					// pinned at (0,0,0,0) and the insert position goes into
+					// the children, which carry the absolute position. The
+					// layout manager lays the seed out on insert, anchored
+					// at the seeds' top-left.
+					var container = new mxCell('',
+						new mxGeometry(0, 0, 0, 0), containerStyle);
+					container.vertex = true;
+
+					var pt = graph.getFreeInsertPoint();
+					var vertices = [];
+
+					for (var i = 0; i < seed.nodes.length; i++)
 					{
-						if (isEsc)
-						{
-							if (dlg.graph != null && dlg.graph.getModel().getChildCount(
-								dlg.graph.getDefaultParent()) > 1)
-							{
-								// Same shared confirm as the Close button and
-								// file close. Primary "Cancel" keeps the dialog
-								// open; secondary "Discard Changes" closes it.
-								editorUi.confirm(mxResources.get('allChangesLost'),
-									null, function()
-								{
-									editorUi.hideDialog();
-								}, mxResources.get('cancel'),
-									mxResources.get('discardChanges'));
+						var v = new mxCell(seed.nodes[i], new mxGeometry(
+							pt.x + 20, pt.y + 20, 100, 40),
+							'whiteSpace=wrap;html=1;');
+						v.vertex = true;
+						vertices.push(container.insert(v));
+					}
 
-								return false;
-							}
-						}
-						else if (dlg.graph != null)
-						{
-							if (dlg.graph.container.parentNode != null)
-							{
-								dlg.graph.container.parentNode.
-									removeChild(dlg.graph.container);
-							}
+					for (var i = 0; i < seed.edges.length; i++)
+					{
+						var e = new mxCell('', new mxGeometry(), edgeStyle);
+						e.geometry.relative = true;
+						e.edge = true;
+						vertices[seed.edges[i][0]].insertEdge(e, true);
+						vertices[seed.edges[i][1]].insertEdge(e, false);
+						container.insert(e);
+					}
 
-							dlg.graph.destroy();
-							dlg.graph = null;
-						}
-					}, false, false, new mxRectangle(0, 0, 440, 280));
-
-					// Executed after dialog is added to dom
-					dlg.init();
+					insertCell(container);
 				}
 			})).isEnabled = isGraphEnabled;
 		};
 
+		// Container styles are shared with the Advanced sidebar templates via
+		// Menus.layoutContainers (see the static above). Trees/radial/organic
+		// pass no edge treatment (edgeStyle 'auto', corners 'keep') — the same
+		// defaults the Arrange > Layout dialog uses for the non-layered
+		// algorithms.
+		var treeSeed = {nodes: ['Root', 'Child 1', 'Child 2'], edges: [[0, 1], [0, 2]]};
+		var flowSeed = {nodes: ['Start', 'Task', 'Task', 'End'],
+			edges: [[0, 1], [0, 2], [1, 3], [2, 3]]};
+
+		var addLayoutContainerAction = function(name, seed)
+		{
+			addInsertLayoutAction(name, Menus.layoutContainers[name].style,
+				Menus.layoutContainerEdgeStyle, seed);
+		};
+
+		addLayoutContainerAction('horizontalFlow', flowSeed);
+		addLayoutContainerAction('verticalFlow', flowSeed);
+		addLayoutContainerAction('horizontalTree', treeSeed);
+		addLayoutContainerAction('verticalTree', treeSeed);
+		addLayoutContainerAction('radialTree', treeSeed);
+		addLayoutContainerAction('organic', treeSeed);
+		addLayoutContainerAction('circle', treeSeed);
+
 		addInsertAction('mermaid');
-		addInsertAction('horizontalFlow');
-		addInsertAction('verticalFlow');
-		addInsertAction('horizontalTree');
-		addInsertAction('verticalTree');
-		addInsertAction('radialTree');
-		addInsertAction('organic');
-		addInsertAction('circle');
 		addInsertAction('fromText');
 		addInsertAction('formatSql');
 
-		// Shows PlantUML if customized or enabled and online
-		if (window.PLANT_URL != 'https://plant-aws.diagrams.net' ||
-			(EditorUi.enablePlantUml && !editorUi.isOffline()))
-		{
-			addInsertAction('plantUml');
-		}
+		// Always available: both outputs (editable diagram group and static
+		// SVG image) parse locally with the native converter and need no
+		// PlantUML server
+		addInsertAction('plantUml');
 		
 		var insertCell = function(cell)
 		{
@@ -4293,14 +4474,8 @@
 
         this.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-			var insertMenuItems = ['fromText', 'plantUml', 'formatSql', 'csv'];
-
-			if (!EditorUi.enablePlantUml)
-			{
-				insertMenuItems.splice(1, 1);
-			}
-
-			this.addMenuItems(menu, insertMenuItems, parent);
+			this.addMenuItems(menu, ['fromText', 'plantUml',
+				'formatSql', 'csv'], parent);
 			
 			if (Editor.currentTheme == 'simple' || Editor.currentTheme == 'min')
 			{

@@ -48,11 +48,17 @@ function Sidebar(editorUi, container)
 		}
 	});
 
-	this.pointerDownHandler = mxUtils.bind(this, function()
+	this.pointerDownHandler = mxUtils.bind(this, function(evt)
 	{
 		if (this.tooltipCloseImage == null || this.tooltipCloseImage.style.display == 'none')
 		{
 			this.showTooltips = false;
+			this.hideTooltip();
+		}
+		// Closes closable tooltips on pointer events outside of the tooltip
+		else if (this.tooltip != null && this.tooltip.style.display != 'none' &&
+			!mxUtils.isAncestorNode(this.tooltip, mxEvent.getSource(evt)))
+		{
 			this.hideTooltip();
 		}
 	});
@@ -292,6 +298,11 @@ Sidebar.prototype.maxTooltipWidth = 400;
 Sidebar.prototype.maxTooltipHeight = 400;
 
 /**
+ * Maximum zoom for scaled-down closable tooltips. Default is 2.
+ */
+Sidebar.prototype.maxTooltipZoom = 2;
+
+/**
  * Specifies if stencil files should be loaded and added to the search index
  * when stencil palettes are added. If this is false then the stencil files
  * are lazy-loaded when the palette is shown.
@@ -457,12 +468,39 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		this.tooltip.style.zIndex = mxPopupMenu.prototype.zIndex - 1;
 		document.body.appendChild(this.tooltip);
 
-		mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt)
+		mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt, up, pinch, cx, cy)
 		{
-			this.hideTooltip();
+			// Zooms tooltips that were scaled down to fit, hides others
+			if (this.tooltipZoomControls.style.display != 'none')
+			{
+				var factor = this.graph2.zoomFactor;
+
+				// Slower zoom for pinch gesture on trackpad
+				if (evt.deltaY != null && Math.abs(evt.deltaY) < 40 &&
+					Math.round(evt.deltaY) != evt.deltaY)
+				{
+					factor = 1 + (Math.abs(evt.deltaY) / 20) * (factor - 1);
+				}
+
+				var rect = this.tooltipContent.getBoundingClientRect();
+				this.setTooltipZoom(this.tooltipZoom * ((up) ? factor : 1 / factor),
+					((cx != null) ? cx : mxEvent.getClientX(evt)) - rect.left,
+					((cy != null) ? cy : mxEvent.getClientY(evt)) - rect.top);
+				mxEvent.consume(evt);
+			}
+			else
+			{
+				this.hideTooltip();
+			}
 		}), this.tooltip);
-		
-		this.graph2 = new Graph(this.tooltip, null, null, this.editorUi.editor.graph.getStylesheet());
+
+		// Scrollable pane between the graph and the overlaid buttons and title
+		this.tooltipContent = document.createElement('div');
+		this.tooltipContent.style.width = '100%';
+		this.tooltipContent.style.height = '100%';
+		this.tooltip.appendChild(this.tooltipContent);
+
+		this.graph2 = new Graph(this.tooltipContent, null, null, this.editorUi.editor.graph.getStylesheet());
 		this.graph2.shapeBackgroundColor = this.graph.shapeBackgroundColor;
 		this.graph2.resetViewOnRootChange = false;
 		this.graph2.foldingEnabled = false;
@@ -496,11 +534,16 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		
 		mxEvent.addGestureListeners(this.tooltip, mxUtils.bind(this, function(evt)
 		{
+			if (mxUtils.isAncestorNode(this.tooltipZoomControls, mxEvent.getSource(evt)))
+			{
+				return;
+			}
+
 			if (this.tooltipMouseDown != null)
 			{
 				this.tooltipMouseDown(evt);
 			}
-			
+
 			window.setTimeout(mxUtils.bind(this, function()
 			{
 				if (this.tooltipCloseImage == null || this.tooltipCloseImage.style.display == 'none')
@@ -510,20 +553,107 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 			}), 0);
 		}), null, mxUtils.bind(this, function(evt)
 		{
-			this.hideTooltip();
+			// Keeps zoomed tooltips visible for scrolling and ignores
+			// clicks on the zoom controls
+			if (!this.isTooltipZoomed() && !mxUtils.isAncestorNode(
+				this.tooltipZoomControls, mxEvent.getSource(evt)))
+			{
+				this.hideTooltip();
+			}
 		}));
-		
+
+		// Pans a zoomed tooltip on drag inside its viewport
+		mxEvent.addGestureListeners(this.tooltipContent, mxUtils.bind(this, function(evt)
+		{
+			if (this.isTooltipZoomed() && evt.isPrimary != false &&
+				(!mxEvent.isMouseEvent(evt) || mxEvent.isLeftMouseButton(evt)))
+			{
+				var content = this.tooltipContent;
+				var rect = content.getBoundingClientRect();
+				var px = mxEvent.getClientX(evt);
+				var py = mxEvent.getClientY(evt);
+
+				// Ignores events over the scrollbars for native scrolling
+				if (px - rect.left < content.clientWidth &&
+					py - rect.top < content.clientHeight)
+				{
+					var sl = content.scrollLeft;
+					var st = content.scrollTop;
+					content.style.cursor = 'grabbing';
+
+					var move = function(evt2)
+					{
+						content.scrollLeft = sl - mxEvent.getClientX(evt2) + px;
+						content.scrollTop = st - mxEvent.getClientY(evt2) + py;
+						mxEvent.consume(evt2);
+					};
+
+					var end = mxUtils.bind(this, function(evt2)
+					{
+						mxEvent.removeGestureListeners(document, null, move, end);
+						content.style.cursor = (this.isTooltipZoomed()) ? 'grab' : '';
+					});
+
+					mxEvent.addGestureListeners(document, null, move, end);
+					mxEvent.consume(evt, true, false);
+				}
+			}
+		}));
+
 		var close = document.createElement('img');
 		close.setAttribute('src', Editor.crossImage);
 		close.setAttribute('title', mxResources.get('close'));
 		close.className = 'geButton';
 		this.tooltip.appendChild(close);
 		this.tooltipCloseImage = close;
-		
+
 		mxEvent.addListener(close, 'click', mxUtils.bind(this, function(evt)
 		{
 			this.hideTooltip();
 			mxEvent.consume(evt);
+		}));
+
+		// Zoom controls for tooltips that were scaled down to fit
+		var controls = document.createElement('div');
+		controls.style.position = 'absolute';
+		controls.style.right = '26px';
+		controls.style.top = '2px';
+		controls.style.whiteSpace = 'nowrap';
+		this.tooltip.appendChild(controls);
+		this.tooltipZoomControls = controls;
+
+		var addZoomButton = mxUtils.bind(this, function(src, title, fn)
+		{
+			var btn = document.createElement('img');
+			btn.setAttribute('src', src);
+			btn.setAttribute('title', title);
+			btn.className = 'geButton';
+			btn.style.position = 'static';
+			controls.appendChild(btn);
+
+			mxEvent.addListener(btn, 'click', mxUtils.bind(this, function(evt)
+			{
+				fn();
+				mxEvent.consume(evt);
+			}));
+		});
+
+		addZoomButton(Editor.zoomInImage, mxResources.get('zoomIn'),
+			mxUtils.bind(this, function()
+		{
+			this.setTooltipZoom(this.tooltipZoom * this.graph2.zoomFactor);
+		}));
+
+		addZoomButton(Editor.zoomOutImage, mxResources.get('zoomOut'),
+			mxUtils.bind(this, function()
+		{
+			this.setTooltipZoom(this.tooltipZoom / this.graph2.zoomFactor);
+		}));
+
+		addZoomButton(Editor.zoomFitImage, mxResources.get('fit'),
+			mxUtils.bind(this, function()
+		{
+			this.setTooltipZoom(this.tooltipFitScale);
 		}));
 	}
 	
@@ -558,14 +688,20 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 
 	mxClient.NO_FO = fo;
 	var bounds = this.graph2.getGraphBounds();
-	
+	this.tooltipFitScale = null;
+
 	// Maximum size applied with transform for faster repaint
 	if (maxSize && w > 0 && h > 0 && (bounds.width > w || bounds.height > h))
 	{
 		var s = Math.round(Math.min(w / bounds.width, h / bounds.height) * 100) / 100;
-		
+
 		if (!mxClient.NO_FO)
 		{
+			// Remembers fitted scale and unscaled size for setTooltipZoom
+			this.tooltipFitScale = s;
+			this.tooltipDocWidth = bounds.width + 2 * this.tooltipBorder + 4;
+			this.tooltipDocHeight = bounds.height + 2 * this.tooltipBorder;
+
 			this.graph2.view.getDrawPane().ownerSVGElement.style.transform = 'scale(' + s + ')';
 			this.graph2.view.getDrawPane().ownerSVGElement.style.transformOrigin = '0 0';
 			bounds.width *= s;
@@ -583,12 +719,27 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 	{
 		this.graph2.view.getDrawPane().ownerSVGElement.style.transform = '';
 	}
-	
+
+	// Resets zoom and scrollbars from the previous tooltip
+	this.tooltipZoom = this.tooltipFitScale;
+	this.tooltipZoomControls.style.display = (closable &&
+		this.tooltipFitScale != null) ? '' : 'none';
+	this.tooltipContent.style.overflow = 'visible';
+	this.tooltipContent.style.cursor = '';
+
+	if (!mxClient.NO_FO)
+	{
+		var root = this.graph2.view.getDrawPane().ownerSVGElement;
+		root.style.width = '100%';
+		root.style.height = '100%';
+	}
+
 	var width = bounds.width + 2 * this.tooltipBorder + 4;
 	var height = bounds.height + 2 * this.tooltipBorder;
-	
+
 	this.tooltip.style.overflow = 'visible';
 	this.tooltip.style.width = width + 'px';
+	this.tooltipContent.style.height = height + 'px';
 	var w2 = width;
 	
 	// Adds title for entry
@@ -638,11 +789,22 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 	this.tooltip.style.height = height + 'px';
 	var x0 = -Math.round(bounds.x - this.tooltipBorder) +
 		((w2 > width) ? (w2 - width) / 2 : 0);
+
+	if (w2 > width && this.tooltipFitScale != null)
+	{
+		// Keeps the centered content inside the zoomed scroll range
+		this.tooltipDocWidth += (w2 - width) / 2;
+	}
+
 	var y0 = -Math.round(bounds.y - this.tooltipBorder);
 	off = (off != null) ? off : this.getTooltipOffset(elt, bounds);
 	var left = off.x;
 	var top = off.y;
 	
+	// Remembers the content offset for setTooltipZoom
+	this.tooltipDx = x0;
+	this.tooltipDy = y0;
+
 	if (x0 != 0 || y0 != 0)
 	{
 		this.graph2.view.canvas.setAttribute('transform', 'translate(' + x0 + ',' + y0 + ')');
@@ -660,6 +822,73 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 	
 	mxUtils.fit(this.tooltip, this.tooltipBorder);
 	this.lastCreated = Date.now();
+};
+
+/**
+ * Returns true if the current tooltip is zoomed beyond its fitted scale.
+ */
+Sidebar.prototype.isTooltipZoomed = function()
+{
+	return this.tooltipFitScale != null && this.tooltipZoom > this.tooltipFitScale;
+};
+
+/**
+ * Sets the zoom of a tooltip that was scaled down to fit, adding scrollbars
+ * while the content is larger than the fitted tooltip size. The optional
+ * cx and cy define the fixpoint of the zoom in the tooltip viewport,
+ * defaulting to its center.
+ */
+Sidebar.prototype.setTooltipZoom = function(zoom, cx, cy)
+{
+	if (this.tooltipFitScale != null)
+	{
+		zoom = Math.max(this.tooltipFitScale, Math.min(this.maxTooltipZoom, zoom));
+		var root = this.graph2.view.getDrawPane().ownerSVGElement;
+		var content = this.tooltipContent;
+		cx = (cx != null) ? cx : content.clientWidth / 2;
+		cy = (cy != null) ? cy : content.clientHeight / 2;
+
+		// Keeps the fixpoint stable while zooming
+		var dx = (content.scrollLeft + cx) / this.tooltipZoom;
+		var dy = (content.scrollTop + cy) / this.tooltipZoom;
+		this.tooltipZoom = zoom;
+
+		if (this.isTooltipZoomed())
+		{
+			// Zooms via the canvas transform with the SVG sized to the visible
+			// diagram so that its layout size defines the exact scroll range
+			// (a CSS scale transform does not shrink the scrollable size)
+			this.graph2.view.canvas.setAttribute('transform', 'scale(' + zoom +
+				') translate(' + this.tooltipDx + ',' + this.tooltipDy + ')');
+			root.style.transform = '';
+			root.style.width = Math.ceil(this.tooltipDocWidth * zoom) + 'px';
+			root.style.height = Math.ceil(this.tooltipDocHeight * zoom) + 'px';
+			content.style.overflow = 'auto';
+			content.scrollLeft = Math.round(dx * zoom - cx);
+			content.scrollTop = Math.round(dy * zoom - cy);
+		}
+		else
+		{
+			// Restores the fitted view
+			if (this.tooltipDx != 0 || this.tooltipDy != 0)
+			{
+				this.graph2.view.canvas.setAttribute('transform',
+					'translate(' + this.tooltipDx + ',' + this.tooltipDy + ')');
+			}
+			else
+			{
+				this.graph2.view.canvas.removeAttribute('transform');
+			}
+
+			root.style.transform = 'scale(' + this.tooltipFitScale + ')';
+			root.style.transformOrigin = '0 0';
+			root.style.width = '100%';
+			root.style.height = '100%';
+			content.style.overflow = 'visible';
+		}
+
+		content.style.cursor = (this.isTooltipZoomed()) ? 'grab' : '';
+	}
 };
 
 /**

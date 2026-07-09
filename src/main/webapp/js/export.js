@@ -147,27 +147,174 @@ function exportUsesMath(xml)
 	}
 };
 
+// Returns the HTML of every cell label in the given diagram XML that contains
+// math delimiters, across all pages, as an array of individual label strings.
+// Used to warm up MathJax (load the TeX packages and font chunks those formulas
+// need) before the crop bounds are measured, so the synchronous typeset in
+// renderPage succeeds rather than throwing MathJax's "retry" for a not-yet-
+// loaded package. Kept per-label (not concatenated) so each label is sanitized
+// and typeset in its own element, mirroring the per-cell render — a bare '<' in
+// one label (e.g. the TeX relation in "$x<y$") cannot merge into the next label
+// and realign its math delimiters. [jgraph/drawio#5564]
+function collectMathLabels(xml)
+{
+	var labels = [];
+
+	try
+	{
+		var node = mxUtils.parseXml(xml).documentElement;
+		var models = [];
+
+		if (node.nodeName == 'mxfile')
+		{
+			var diagrams = node.getElementsByTagName('diagram');
+
+			for (var i = 0; i < diagrams.length; i++)
+			{
+				var model = Editor.parseDiagramNode(diagrams[i]);
+
+				if (model != null)
+				{
+					models.push(model);
+				}
+			}
+		}
+		else
+		{
+			models.push(node);
+		}
+
+		for (var i = 0; i < models.length; i++)
+		{
+			// Reads both mxCell value and object/UserObject label attributes
+			var elts = models[i].getElementsByTagName('*');
+
+			for (var j = 0; j < elts.length; j++)
+			{
+				var value = (elts[j].getAttribute != null) ? elts[j].getAttribute('value') : null;
+				var label = (elts[j].getAttribute != null) ? elts[j].getAttribute('label') : null;
+
+				if (value != null && Editor.containsMath(value))
+				{
+					labels.push(value);
+				}
+
+				if (label != null && Editor.containsMath(label))
+				{
+					labels.push(label);
+				}
+			}
+		}
+	}
+	catch (e)
+	{
+		// Falls back to no warm-up; renderPage's typeset may then miss lazily
+		// loaded packages, but the export still proceeds.
+	}
+
+	return labels;
+};
+
 function render(data)
 {
-	// Math typesetting must be available before the diagram is measured below,
-	// so the export crop follows the rendered math size rather than the raw
-	// formula source. MathJax loads asynchronously (see Editor.initMath) and the
-	// export is typically triggered before it is ready, so when the diagram uses
-	// math, wait for MathJax to load and then render. [jgraph/drawio#5564]
+	// Math typesetting must be available AND the TeX packages/font chunks that
+	// the diagram's formulas need must be loaded before the diagram is measured
+	// below, so the export crop follows the rendered math size rather than the
+	// raw formula source. MathJax loads asynchronously (see Editor.initMath) and
+	// additionally loads TeX extension packages and font chunks lazily on first
+	// use, so the synchronous MathJax.typeset in renderPage throws a "retry" for
+	// any formula that needs a not-yet-loaded package (e.g. \boldsymbol,
+	// \mathcal, gathered) and the bounds fall back to the wide source size. So
+	// when the diagram uses math, wait for MathJax, then warm it up by typesetting
+	// the diagram's math labels via the promise-based API (which performs the
+	// async loads) and only then render. [jgraph/drawio#5564]
 	if (Editor.mathOutputSize && data.xml != null && !data.mathChecked &&
-		(typeof MathJax === 'undefined' || typeof MathJax.typeset !== 'function') &&
 		exportUsesMath(data.xml))
 	{
 		// Computes exportUsesMath only once, then polls for MathJax readiness.
 		data.mathChecked = true;
 		var mathWaitStart = Date.now();
 
+		var warmUpMath = function()
+		{
+			// Typesets the diagram's math labels off-screen so MathJax loads
+			// every TeX package and font chunk they need; the synchronous typeset
+			// in renderPage then succeeds and the crop reflects the rendered math.
+			try
+			{
+				var labels = collectMathLabels(data.xml);
+
+				if (labels.length == 0)
+				{
+					render(data);
+					return;
+				}
+
+				var div = document.createElement('div');
+				div.style.cssText = 'position:absolute;visibility:hidden;' +
+					'left:-10000px;top:-10000px;';
+
+				// One element per label (sanitized individually, mirroring the
+				// per-cell render) so a '<' in one label cannot corrupt the next.
+				for (var i = 0; i < labels.length; i++)
+				{
+					var lbl = document.createElement('div');
+					lbl.innerHTML = Graph.sanitizeHtml(labels[i]);
+					div.appendChild(lbl);
+				}
+
+				document.body.appendChild(div);
+
+				var proceeded = false;
+
+				// Idempotent: guards against being invoked by both the resolve
+				// and reject handlers (e.g. if render below throws synchronously),
+				// which would otherwise start a second render pass on the same data.
+				var done = function()
+				{
+					if (proceeded)
+					{
+						return;
+					}
+
+					proceeded = true;
+
+					if (div.parentNode != null)
+					{
+						div.parentNode.removeChild(div);
+					}
+
+					render(data);
+				};
+
+				MathJax.typesetPromise([div]).then(done)['catch'](function(e)
+				{
+					if (window.console != null)
+					{
+						console.log('Error in MathJax export warm-up: ' + e);
+					}
+
+					done();
+				});
+			}
+			catch (e)
+			{
+				// Any failure just proceeds to render without the warm-up.
+				render(data);
+			}
+		};
+
 		var waitForMath = function()
 		{
 			// Falls back to rendering without waiting after a timeout so a
 			// missing or broken MathJax never blocks the export indefinitely.
-			if ((typeof MathJax !== 'undefined' && typeof MathJax.typeset === 'function') ||
-				Date.now() - mathWaitStart > 10000)
+			if (typeof MathJax !== 'undefined' &&
+				typeof MathJax.typeset === 'function' &&
+				typeof MathJax.typesetPromise === 'function')
+			{
+				warmUpMath();
+			}
+			else if (Date.now() - mathWaitStart > 10000)
 			{
 				render(data);
 			}
@@ -465,6 +612,13 @@ function render(data)
 				electron.sendMessage('export-error', 'Invalid layout JSON: ' + (e.message || e));
 				return graph;
 			}
+		}
+		else if (typeof LibavoidRouting !== 'undefined' &&
+			mxUtils.trim(data.layout) === LibavoidRouting.LAYOUT_NAME)
+		{
+			// Bare libavoid shorthand -> JSON list, routed via createLayouts below.
+			layoutList = [{layout: LibavoidRouting.LAYOUT_NAME}];
+			layoutIsJson = true;
 		}
 		else
 		{
@@ -797,10 +951,15 @@ function render(data)
 						electron.registerMsgListener('get-svg-data', (arg) => 
 						{
 							graph.mathEnabled = math; //Enable math such that getSvg works as expected
-							// Returns the exported SVG for the given graph (see EditorUi.exportSvg)
-							var bg = graph.background;
-								
-							if (bg == mxConstants.NONE)
+							// Returns the exported SVG for the given graph (see EditorUi.exportSvg).
+							// An explicit --transparent (data.bg == 'none') forces a transparent
+							// background; otherwise the page background is read from the diagram XML
+							// (graph.background is not populated in this headless renderer, as the
+							// model is decoded directly without setGraphXml) [jgraph/drawio-desktop#2469]
+							var bg = (data.bg == mxConstants.NONE) ? null :
+								xmlDoc.documentElement.getAttribute('background');
+
+							if (bg == mxConstants.NONE || bg == '')
 							{
 								bg = null;
 							}
@@ -914,7 +1073,12 @@ function render(data)
 						});
 						
 						//For some reason, Electron 9 doesn't send this object as is without stringifying. Usually when variable is external to function own scope
-						electron.sendMessage('render-finished', {bounds: JSON.stringify(bounds), pageCount: pageCount});
+						// Include the resolved diagram XML so the main process can embed it
+						// in PNG/PDF output (-e). For Mermaid/CSV/layout inputs the source
+						// file isn't draw.io XML, so the main process has no (or a pre-layout)
+						// args.xml; data.xml here is the real post-conversion model.
+						electron.sendMessage('render-finished', {bounds: JSON.stringify(bounds),
+							pageCount: pageCount, xml: (data.embedXml == '1') ? data.xml : null});
 					}
 					catch(e)
 					{
@@ -1122,7 +1286,7 @@ function render(data)
 
 		if (gs != null)
 		{
-			graph.gridSize = parseInt(gs);
+			graph.gridSize = parseFloat(gs);
 		}
 		else
 		{
@@ -1157,8 +1321,9 @@ function render(data)
 		// labels are only typeset later (see renderMath below), so the bounds
 		// computed in this function would otherwise reflect the much wider source
 		// text and crop the export with excessive margins. render() waits for
-		// MathJax to load before reaching this point (see the math gate at the
-		// top of render), so typeset synchronously now and refresh the bounds.
+		// MathJax to load and warms up the required TeX packages/fonts before
+		// reaching this point (see the math gate at the top of render), so this
+		// synchronous typeset succeeds; refresh the bounds from it.
 		// [jgraph/drawio#5564]
 		if (Editor.mathOutputSize && graph.mathEnabled &&
 			typeof MathJax !== 'undefined' && typeof MathJax.typeset === 'function')
@@ -1169,14 +1334,15 @@ function render(data)
 			}
 			catch (e)
 			{
-				// Fonts may not be loaded yet; bounds fall back to source size
+				// A package/font may still be loading; bounds fall back to source
+				// size and renderMath below typesets the final output correctly.
 			}
 
 			graph.refreshMathBounds();
 		}
 
 		var bg;
-		
+
 		if (data.format == 'pdf')
 		{
 			if (data.bg == 'none' || bg == '')

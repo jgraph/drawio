@@ -69,6 +69,35 @@ ElkLayoutBindings.run = function(editorUi, algorithm, options, runOptions, done)
 	var layout = new ElkLayout(graph, algorithm, options, runOptions);
 	var spinner = editorUi.spinner;
 
+	// Records the run for Arrange > Layout > Run Last Layout as a
+	// custom-layout entry, so a re-run replays the same options through
+	// the shared layout-spec pipeline (see EditorUi.executeLayoutSpec).
+	var specName = Graph.elkLayoutNameForAlgorithm(algorithm);
+
+	if (specName != null)
+	{
+		editorUi.lastLayoutSpec = [{layout: specName,
+			config: Graph.elkOptionsToConfig(options, runOptions)}];
+
+		// A single selected layout container takes the run as its new
+		// childLayout instead of a one-shot layout — the style write
+		// re-runs the layout (setContainerChildLayout strips the dialog's
+		// selection-as-root ids and pins the container defaults).
+		var container = editorUi.getSelectedLayoutContainer();
+
+		if (container != null)
+		{
+			editorUi.setContainerChildLayout(container, editorUi.lastLayoutSpec);
+
+			if (done != null)
+			{
+				done();
+			}
+
+			return;
+		}
+	}
+
 	if (spinner != null && spinner.spin != null)
 	{
 		spinner.spin(document.body, mxResources.get('loading'));
@@ -209,6 +238,21 @@ ElkLayoutBindings.DIALOG_FIELDS = {
 	]
 };
 
+// Group padding — the space each laid-out container keeps between its border
+// (or title bar) and its children. Every algorithm lays out containers, so
+// every dialog gets the row. Not an ELK option: `runOption: true` routes the
+// value into runOptions.groupPadding (→ the bridge's adapter) instead of
+// layoutOptions. Blank means "automatic" (the bridge's 20/10/10/10 defaults;
+// a cell's own groupPadding style always wins — see ElkAdapter).
+(function()
+{
+	for (var algorithm in ElkLayoutBindings.DIALOG_FIELDS)
+	{
+		ElkLayoutBindings.DIALOG_FIELDS[algorithm].push({key: 'groupPadding',
+			type: 'number', label: 'groupPadding', def: '', runOption: true});
+	}
+})();
+
 /**
  * Opens a config dialog for the given algorithm. By default, Apply runs the
  * layout via ElkLayout.run; passing `onApply` swaps that behavior so callers
@@ -231,11 +275,17 @@ ElkLayoutBindings.runWithDialog = function(editorUi, algorithm, baseOptions, dia
 
 	// Selection-as-root(s): collect every selected vertex up to the algorithm's
 	// max-roots cap. Radial accepts exactly 1; layered/mrtree accept any number.
+	// Skipped when Apply will divert to a childLayout rewrite (single layout
+	// container selected, default run mode): the divert strips rootCellIds,
+	// so the checkbox would be dead UI. The custom layout dialog's Add flow
+	// (onApply set) keeps it — its JSON runs later under another selection.
 	var sel = graph.getSelectionCells();
 	var maxRoots = ElkLayout.MAX_ROOTS[algorithm] || 0;
 	var rootCandidates = [];
+	var layoutContainer = (typeof onApply === 'function') ?
+		null : editorUi.getSelectedLayoutContainer();
 
-	if (maxRoots > 0)
+	if (maxRoots > 0 && (typeof onApply === 'function' || layoutContainer == null))
 	{
 		for (var ci = 0; ci < sel.length && rootCandidates.length < maxRoots; ci++)
 		{
@@ -331,6 +381,32 @@ ElkLayoutBindings.runWithDialog = function(editorUi, algorithm, baseOptions, dia
 		row.appendChild(lbl);
 
 		var current = saved[f.key] != null ? saved[f.key] : f.def;
+
+		// When Apply will divert to a selected layout container, seed the
+		// Group Padding field from the container's own style — that is the
+		// value the container actually uses (style wins over the run option,
+		// and a transparentBounds container renders its box from it), so the
+		// field shows and edits the effective padding instead of a stale
+		// remembered value.
+		if (f.key === 'groupPadding' && layoutContainer != null)
+		{
+			var stylePadding = graph.getCellStyle(layoutContainer)['groupPadding'];
+
+			if (stylePadding != null)
+			{
+				try
+				{
+					stylePadding = decodeURIComponent(String(stylePadding));
+				}
+				catch (e)
+				{
+					// keep as-is
+				}
+
+				current = stylePadding;
+			}
+		}
+
 		var input;
 
 		if (f.type === 'select')
@@ -359,7 +435,8 @@ ElkLayoutBindings.runWithDialog = function(editorUi, algorithm, baseOptions, dia
 		row.appendChild(input);
 		shapeSection.appendChild(row);
 		inputs[f.key] = {input: input, type: f.type,
-			omitIfNegative: f.omitIfNegative === true};
+			omitIfNegative: f.omitIfNegative === true,
+			runOption: f.runOption === true};
 	}
 
 	// Edge style selector — controls routing/segments. 'auto' picks
@@ -409,11 +486,16 @@ ElkLayoutBindings.runWithDialog = function(editorUi, algorithm, baseOptions, dia
 
 	if (isLayered)
 	{
+		// A saved 'orthogonalStrict' predates the connector unification:
+		// 'orthogonal' now emits the strict (canonical) mode, so the legacy
+		// value folds onto it.
+		var savedConnector = (saved.__connector === 'orthogonalStrict') ?
+			'orthogonal' : saved.__connector;
+
 		connectorSelect = addSelect(edgeSection, 'connector', [
 			{value: 'orthogonal', label: 'orthogonal'},
-			{value: 'orthogonalStrict', label: 'orthogonalStrict'},
 			{value: 'polyline', label: 'polyline'}
-		], saved.__connector, 'orthogonal');
+		], savedConnector, 'orthogonal');
 	}
 	else
 	{
@@ -468,6 +550,30 @@ ElkLayoutBindings.runWithDialog = function(editorUi, algorithm, baseOptions, dia
 	preserveOriginRow.appendChild(preserveOriginLbl);
 	toggleSection.appendChild(preserveOriginRow);
 
+	// Shared-stem opt-out (mrtree only). Default on: a parent's outgoing
+	// edges leave through one shared segment at the side's center — the
+	// legacy compact-tree look. Unchecked keeps ELK's spread exit points,
+	// one per child edge (the bridge's sharedStems:false).
+	var sharedStemsCb = null;
+
+	if (algorithm === 'mrtree')
+	{
+		var sharedStemsRow = document.createElement('div');
+		sharedStemsRow.className = 'geDialogCheckRow';
+
+		sharedStemsCb = document.createElement('input');
+		sharedStemsCb.setAttribute('type', 'checkbox');
+		sharedStemsCb.id = 'geElkSharedStems';
+		if (saved.__sharedStems !== false) sharedStemsCb.checked = true;
+		sharedStemsRow.appendChild(sharedStemsCb);
+
+		var sharedStemsLbl = document.createElement('label');
+		sharedStemsLbl.setAttribute('for', sharedStemsCb.id);
+		mxUtils.write(sharedStemsLbl, mxResources.get('sharedStems'));
+		sharedStemsRow.appendChild(sharedStemsLbl);
+		toggleSection.appendChild(sharedStemsRow);
+	}
+
 	// Use-selection-as-root(s) opt-in (only when applicable)
 	var rootCb = null;
 
@@ -511,12 +617,29 @@ ElkLayoutBindings.runWithDialog = function(editorUi, algorithm, baseOptions, dia
 	var applyFn = function()
 	{
 		var layoutOptions = {};
+		var runOptionValues = {};
 		var newSaved = {};
 
 		for (var key in inputs)
 		{
 			var entry = inputs[key];
 			var val = entry.input.value;
+
+			// Bridge options (e.g. groupPadding) go into runOptions below,
+			// not into the ELK layoutOptions map — before the number
+			// coercion: groupPadding accepts a single number OR a CSS-style
+			// 'top right bottom left' string (e.g. seeded from a container's
+			// style), which parseFloat would truncate to its first value.
+			if (entry.runOption)
+			{
+				val = String(val).trim();
+				if (val === '') continue;
+
+				var asNum = parseFloat(val);
+				runOptionValues[key] = (String(asNum) === val) ? asNum : val;
+				newSaved[key] = val;
+				continue;
+			}
 
 			if (entry.type === 'number')
 			{
@@ -549,6 +672,11 @@ ElkLayoutBindings.runWithDialog = function(editorUi, algorithm, baseOptions, dia
 		newSaved.__corners = cornersSelect.value;
 		newSaved.__preserveOrigin = !!preserveOriginCb.checked;
 
+		if (sharedStemsCb != null)
+		{
+			newSaved.__sharedStems = !!sharedStemsCb.checked;
+		}
+
 		// Connector preset → (elk.edgeRouting, edgeStyleMode) pair. Only the
 		// sensible combinations are exposed; mixing orthogonal-routing with
 		// straight-render (or vice versa) produced visually broken edges and
@@ -560,25 +688,26 @@ ElkLayoutBindings.runWithDialog = function(editorUi, algorithm, baseOptions, dia
 			var connector = connectorSelect.value;
 			newSaved.__connector = connector;
 
-			if (connector === 'orthogonalStrict')
-			{
-				layoutOptions['elk.edgeRouting'] = 'ORTHOGONAL';
-				edgeStyleMode = 'orthogonalEdgeStyle';
-			}
-			else if (connector === 'polyline')
+			if (connector === 'polyline')
 			{
 				layoutOptions['elk.edgeRouting'] = 'POLYLINE';
 				edgeStyleMode = 'straight';
 			}
 			else
 			{
-				// 'orthogonal' (default) — orthogonal routing with the
-				// orthogonalEdgeStyle SegmentConnector upgrade (orthogonal=1 on
-				// edges that can't upgrade). Matches the MCP create_diagram
-				// output and the mermaid-edit post-pass so all three layout
-				// routes produce the same edges by default. (Was 'elkCompat'.)
+				// 'orthogonal' (default) — ELK orthogonal routing rendered in
+				// the canonical strict mode: every edge becomes a live
+				// orthogonalEdgeStyle SegmentConnector reproducing ELK's exact
+				// route. Reading CANONICAL_EDGE keeps the dialog, the MCP
+				// create_diagram postLayout and the mermaid-edit post-pass
+				// producing the same edges by construction. (The former
+				// 'orthogonalStrict' entry folded into this one when the
+				// perpendicular-perimeter pins made the conservative and
+				// strict renders identical; the conservative modes remain
+				// reachable via JSON childLayout specs.)
 				layoutOptions['elk.edgeRouting'] = 'ORTHOGONAL';
-				edgeStyleMode = 'orthogonal';
+				edgeStyleMode = (ElkLayout.CANONICAL_EDGE || {}).edgeStyleMode ||
+					'orthogonalEdgeStyle';
 			}
 		}
 		else
@@ -597,9 +726,21 @@ ElkLayoutBindings.runWithDialog = function(editorUi, algorithm, baseOptions, dia
 			preserveOrigin: !!preserveOriginCb.checked
 		};
 
+		for (var roKey in runOptionValues)
+		{
+			runOptions[roKey] = runOptionValues[roKey];
+		}
+
 		if (rootCb != null && rootCb.checked && rootCandidates.length > 0)
 		{
 			runOptions.rootCellIds = rootCandidates.map(function(c) { return c.id; });
+		}
+
+		// Default true — only the opt-out needs passing (and persisting via
+		// elkOptionsToConfig when the custom layout dialog captures this).
+		if (sharedStemsCb != null && !sharedStemsCb.checked)
+		{
+			runOptions.sharedStems = false;
 		}
 
 		if (typeof onApply === 'function')
@@ -640,6 +781,44 @@ ElkLayoutBindings.runWithDialog = function(editorUi, algorithm, baseOptions, dia
 	editorUi.showDialog(dlg.container, 360, null, true, true);
 };
 
+// ─── Editor hook: release libavoid auto-routing on routed edges ─────
+
+// A run that stamps its own edge routing takes ownership of the edges: turn
+// libavoid auto-routing OFF on them (libavoidRouting=0 where enabled, via
+// LibavoidRouting.releaseEdges) — otherwise the next gesture re-routes the
+// just-laid-out edges per-edge through libavoid, destroying the layout's
+// routing (ELK's stamped exit/entry pins force fanned detours). An explicit
+// edgeStyleMode 'keep' leaves edge routing, and therefore the flag, alone
+// ('auto' resolves to a stamping mode, so it releases too). Runs inside the
+// layout's own model edit and honors the run's scope (cellFilter /
+// selection-as-root components), so one undo reverts layout + flags and a
+// scoped run doesn't touch other components' flags. Covers every ELK entry
+// point through the shared _applyResult: dialog, layout-spec/CSV runs, Run
+// Last Layout replays and childLayout containers (converged container
+// re-runs stay empty edits — the flag is only written while it is '1').
+var installElkLibavoidRelease = function(cls)
+{
+	var elkApplyResult = cls.prototype._applyResult;
+
+	cls.prototype._applyResult = function(parent, ctx, result)
+	{
+		elkApplyResult.apply(this, arguments);
+
+		if (this.edgeStyleMode !== 'keep' &&
+			typeof LibavoidRouting !== 'undefined' &&
+			LibavoidRouting.releaseEdges != null)
+		{
+			LibavoidRouting.releaseEdges(this.graph, parent,
+				this._effectiveCellFilter);
+		}
+	};
+};
+
+if (elkLayoutLoaded)
+{
+	installElkLibavoidRelease(ElkLayout);
+}
+
 // If the statics were staged (the bundle hadn't defined ElkLayout when this
 // file ran), copy them onto ElkLayout as soon as it appears. Capped poll so a
 // genuinely missing bundle logs once instead of spinning forever.
@@ -656,6 +835,8 @@ if (!elkLayoutLoaded)
 			{
 				ElkLayout[elkKey] = ElkLayoutBindings[elkKey];
 			}
+
+			installElkLibavoidRelease(ElkLayout);
 		}
 		else if (++elkAttachTries > 600)
 		{

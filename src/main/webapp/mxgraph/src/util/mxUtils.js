@@ -2618,7 +2618,10 @@ var mxUtils =
         		seif = -1;
         	}
             
-        	sds = seif * Math.sqrt((r1x * r2y - r1x * rydd - r2y * rxdd) / (r1x * rydd + r2y * rxdd));
+        	// Clamps radicand to zero for radii that only just span the chord
+        	// (eg. semicircles), where rounding errors can make it negative and
+        	// the NaN would otherwise silently drop the arc (SVG spec F.6.6.2)
+        	sds = seif * Math.sqrt(Math.max(0, (r1x * r2y - r1x * rydd - r2y * rxdd) / (r1x * rydd + r2y * rxdd)));
         }
         
         var txd = sds * r1 * ryd / r2;

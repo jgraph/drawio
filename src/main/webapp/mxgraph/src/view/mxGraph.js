@@ -4388,23 +4388,25 @@ mxGraph.prototype.updateGroupBounds = function(cells, border, moveGroup, topBord
 					
 					if (bounds != null && bounds.width > 0 && bounds.height > 0)
 					{
-						// Adds the size of the title area for swimlanes
+						// Adds the size of the title area for swimlanes and
+						// the footer region (opposite the title)
 						var size = (this.isSwimlane(cells[i])) ?
 							this.getActualStartSize(cells[i], true) : new mxRectangle();
+						var footer = this.getActualFooterSize(cells[i], true);
 						geo = geo.clone();
-						
+
 						if (moveGroup)
 						{
-							geo.x = Math.round(geo.x + bounds.x - border - size.x - leftBorder);
-							geo.y = Math.round(geo.y + bounds.y - border - size.y - topBorder);
+							geo.x = Math.round(geo.x + bounds.x - border - size.x - leftBorder - footer.x);
+							geo.y = Math.round(geo.y + bounds.y - border - size.y - topBorder - footer.y);
 						}
-						
-						geo.width = Math.round(bounds.width + 2 * border + size.x + leftBorder + rightBorder + size.width);
-						geo.height = Math.round(bounds.height + 2 * border + size.y + topBorder + bottomBorder + size.height);
-						
+
+						geo.width = Math.round(bounds.width + 2 * border + size.x + leftBorder + rightBorder + size.width + footer.x + footer.width);
+						geo.height = Math.round(bounds.height + 2 * border + size.y + topBorder + bottomBorder + size.height + footer.y + footer.height);
+
 						this.model.setGeometry(cells[i], geo);
-						this.moveCells(children, border + size.x - bounds.x + leftBorder,
-								border + size.y - bounds.y + topBorder);
+						this.moveCells(children, border + size.x - bounds.x + leftBorder + footer.x,
+								border + size.y - bounds.y + topBorder + footer.y);
 					}
 				}
 			}
@@ -9772,7 +9774,63 @@ mxGraph.prototype.getActualStartSize = function(swimlane, ignoreState)
 			result.width = size;
 		}
 	}
-	
+
+	return result;
+};
+
+/**
+ * Function: getActualFooterSize
+ *
+ * Returns the actual footer size of the given cell as an <mxRectangle>
+ * where top, left, bottom, right footer sizes are returned as y, x,
+ * height and width, respectively. For swimlanes the footer is painted on
+ * the side opposite the title, taking into account direction and
+ * horizontal and vertical flip styles; for other cells it is painted at
+ * the bottom (see <mxRectangleShape.paintFooter>). Returns an empty
+ * rectangle if no <mxConstants.STYLE_FOOTER_SIZE> is set.
+ *
+ * Parameters:
+ *
+ * cell - <mxCell> whose footer size should be returned.
+ * ignoreState - Optional boolean that specifies if cell state should be ignored.
+ */
+mxGraph.prototype.getActualFooterSize = function(cell, ignoreState)
+{
+	var result = new mxRectangle();
+	var style = this.getCurrentCellStyle(cell, ignoreState);
+	var size = Math.max(0, parseInt(mxUtils.getValue(style,
+		mxConstants.STYLE_FOOTER_SIZE, 0)));
+
+	if (size > 0)
+	{
+		if (this.isSwimlane(cell, ignoreState))
+		{
+			// The footer sits opposite the title
+			var dir = this.getSwimlaneDirection(style);
+
+			if (dir == mxConstants.DIRECTION_NORTH)
+			{
+				result.height = size;
+			}
+			else if (dir == mxConstants.DIRECTION_WEST)
+			{
+				result.width = size;
+			}
+			else if (dir == mxConstants.DIRECTION_SOUTH)
+			{
+				result.y = size;
+			}
+			else
+			{
+				result.x = size;
+			}
+		}
+		else
+		{
+			result.height = size;
+		}
+	}
+
 	return result;
 };
 

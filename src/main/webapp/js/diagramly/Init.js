@@ -33,7 +33,6 @@ window.DRAWIO_SERVER_URL = window.DRAWIO_SERVER_URL || window.location.origin +
 	window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/';
 window.DRAWIO_LIGHTBOX_URL = window.DRAWIO_LIGHTBOX_URL || 'https://viewer.diagrams.net';
 window.EXPORT_URL = window.EXPORT_URL || 'https://convert.diagrams.net/node/export';
-window.PLANT_URL = window.PLANT_URL || 'https://plant-aws.diagrams.net';
 window.DRAW_MATH_URL = window.DRAW_MATH_URL || 'math4/es5';
 window.VSS_CONVERT_URL = window.VSS_CONVERT_URL || 'https://convert.diagrams.net/VsdConverter/api/converter';
 window.REALTIME_URL = window.REALTIME_URL || window.DRAWIO_SERVER_URL + 'cache';

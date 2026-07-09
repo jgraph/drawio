@@ -2033,13 +2033,20 @@ var AboutDialog = function(editorUi)
 /**
  * Constructs a simple textarea dialog.
  */
-var SimpleTextareaDialog = function(editorUi, value, fn, buttonLabel, helpLink)
+var SimpleTextareaDialog = function(editorUi, value, fn, buttonLabel, helpLink, headerControl, applyKeepsOpen)
 {
+	var initialValue = (value != null) ? value : '';
+	var applying = false;
+
 	var div = document.createElement('div');
 	div.style.display = 'flex';
 	div.style.flexDirection = 'column';
 	div.style.height = '100%';
 	div.style.boxSizing = 'border-box';
+	// the flex column never overflows (the textarea scrolls internally),
+	// so opt out of the .geDialog > :first-child scroll container — it
+	// clips the focus halo of the bottom-row controls
+	div.style.overflow = 'visible';
 
 	var textarea = document.createElement('textarea');
 	textarea.style.flex = '1';
@@ -2067,6 +2074,13 @@ var SimpleTextareaDialog = function(editorUi, value, fn, buttonLabel, helpLink)
 		buttons.appendChild(editorUi.createHelpIcon(helpLink));
 	}
 
+	// Optional caller-supplied control (e.g. a select) placed left of the
+	// action buttons, matching the type dropdown in ParseDialog.
+	if (headerControl != null)
+	{
+		buttons.appendChild(headerControl);
+	}
+
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
 		editorUi.hideDialog();
@@ -2083,7 +2097,30 @@ var SimpleTextareaDialog = function(editorUi, value, fn, buttonLabel, helpLink)
 	var okBtn = mxUtils.button((buttonLabel != null) ?
 		buttonLabel : mxResources.get('apply'), function()
 	{
-		editorUi.hideDialog();
+		// applyKeepsOpen leaves the dialog open for an async fn that may
+		// fail (e.g. mermaid parsing) so the input isn't lost; the caller
+		// hides it via this.hide() once the apply succeeds, like the
+		// mermaid branch in ParseDialog.
+		if (applyKeepsOpen)
+		{
+			fn(textarea.value);
+
+			return;
+		}
+
+		// suppresses the unsaved-changes confirmation a caller may have
+		// wired into the dialog's onClose (see shouldConfirmClose)
+		applying = true;
+
+		try
+		{
+			editorUi.hideDialog();
+		}
+		finally
+		{
+			applying = false;
+		}
+
 		fn(textarea.value);
 	});
 
@@ -2108,6 +2145,36 @@ var SimpleTextareaDialog = function(editorUi, value, fn, buttonLabel, helpLink)
 	{
 		textarea.focus();
 		textarea.scrollTop = 0;
+	};
+
+	/**
+	 * True when closing now would lose the user's edits: the text differs
+	 * from the initial value and the close wasn't triggered by Apply.
+	 * Callers use this from the dialog's onClose to show an
+	 * "all changes will be lost" confirmation.
+	 */
+	this.shouldConfirmClose = function()
+	{
+		return !applying && textarea.value != initialValue;
+	};
+
+	/**
+	 * Hides the dialog with the unsaved-changes confirmation suppressed.
+	 * Used with applyKeepsOpen: the caller closes the dialog once its
+	 * async apply has succeeded.
+	 */
+	this.hide = function()
+	{
+		applying = true;
+
+		try
+		{
+			editorUi.hideDialog();
+		}
+		finally
+		{
+			applying = false;
+		}
 	};
 
 	div.appendChild(buttons);

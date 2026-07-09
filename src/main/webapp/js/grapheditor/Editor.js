@@ -165,8 +165,10 @@ Editor.extensionImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3d
 Editor.colorDropperImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTYgNDJ2LTguNGwxOC44NS0xOC44NS0zLjYtMy42TDIzLjMgOS4xbDQuNiA0LjZMMzUgNi42cS41NS0uNTUgMS4xNzUtLjU1dDEuMTc1LjU1bDQuMDUgNC4wNXEuNTUuNTUuNTUgMS4xNzVUNDEuNCAxM2wtNy4xIDcuMSA0LjYgNC42LTIuMDUgMi4wNS0zLjYtMy42TDE0LjQgNDJabTMtM2g0LjM1TDMxLjEgMjEuMjVsLTQuMzUtNC4zNUw5IDM0LjY1Wm0yMy4xNS0yMSA2LjItNi4yLTIuMTUtMi4xNS02LjIgNi4yWm0wIDBMMzAgMTUuODUgMzIuMTUgMThaIi8+PC9zdmc+';
 Editor.magnifyImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiPjxwYXRoIGQ9Ik03ODQtMTIwIDUzMi0zNzJxLTMwIDI0LTY5IDM4dC04MyAxNHEtMTA5IDAtMTg0LjUtNzUuNVQxMjAtNTgwcTAtMTA5IDc1LjUtMTg0LjVUMzgwLTg0MHExMDkgMCAxODQuNSA3NS41VDY0MC01ODBxMCA0NC0xNCA4M3QtMzggNjlsMjUyIDI1Mi01NiA1NlpNMzgwLTQwMHE3NSAwIDEyNy41LTUyLjVUNTYwLTU4MHEwLTc1LTUyLjUtMTI3LjVUMzgwLTc2MHEtNzUgMC0xMjcuNSA1Mi41VDIwMC01ODBxMCA3NSA1Mi41IDEyNy41VDM4MC00MDBaIi8+PC9zdmc+';
 Editor.sendImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiPjxwYXRoIGQ9Ik0xMjAtMTYwdi02NDBsNzYwIDMyMC03NjAgMzIwWm04MC0xMjAgNDc0LTIwMC00NzQtMjAwdjE0MGwyNDAgNjAtMjQwIDYwdjE0MFptMCAwdi00MDAgNDAwWiIvPjwvc3ZnPg==';
+Editor.micImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMDAwMDAwIj48cGF0aCBkPSJNNDgwLTQwMHEtNTAgMC04NS0zNXQtMzUtODV2LTI0MHEwLTUwIDM1LTg1dDg1LTM1cTUwIDAgODUgMzV0MzUgODV2MjQwcTAgNTAtMzUgODV0LTg1IDM1Wm0tNDAgMzIwdi0xMjNxLTEwNC0xNC0xNzItOTN0LTY4LTE4NGg4MHEwIDgzIDU4LjUgMTQxLjVUNDgwLTI4MHE4MyAwIDE0MS41LTU4LjVUNjgwLTQ4MGg4MHEwIDEwNS02OCAxODR0LTE3MiA5M3YxMjNoLTgwWiIvPjwvc3ZnPg==';
 Editor.sparklesImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwcHgiIGhlaWdodD0iODAwcHgiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMjU5LjkyLDI2Mi45MSwyMTYuNCwxNDkuNzdhOSw5LDAsMCwwLTE2LjgsMEwxNTYuMDgsMjYyLjkxYTksOSwwLDAsMS01LjE3LDUuMTdMMzcuNzcsMzExLjZhOSw5LDAsMCwwLDAsMTYuOGwxMTMuMTQsNDMuNTJhOSw5LDAsMCwxLDUuMTcsNS4xN0wxOTkuNiw0OTAuMjNhOSw5LDAsMCwwLDE2LjgsMGw0My41Mi0xMTMuMTRhOSw5LDAsMCwxLDUuMTctNS4xN0wzNzguMjMsMzI4LjRhOSw5LDAsMCwwLDAtMTYuOEwyNjUuMDksMjY4LjA4QTksOSwwLDAsMSwyNTkuOTIsMjYyLjkxWiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iNDAiIGRhdGEtZGFya3JlYWRlci1pbmxpbmUtc3Ryb2tlPSIiIHN0eWxlPSItLWRhcmtyZWFkZXItaW5saW5lLXN0cm9rZTogIzE4MWExYjsiLz4KPHBvbHlnb24gcG9pbnRzPSIxMDggNjggODggMTYgNjggNjggMTYgODggNjggMTA4IDg4IDE2MCAxMDggMTA4IDE2MCA4OCAxMDggNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjMwIi8+Cjxwb2x5Z29uIHBvaW50cz0iNDI2LjY3IDExNy4zMyA0MDAgNDggMzczLjMzIDExNy4zMyAzMDQgMTQ0IDM3My4zMyAxNzAuNjcgNDAwIDI0MCA0MjYuNjcgMTcwLjY3IDQ5NiAxNDQgNDI2LjY3IDExNy4zMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMzAiLz4KPC9zdmc+';
 Editor.thinSparklesImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwcHgiIGhlaWdodD0iODAwcHgiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIgogICAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxwYXRoIGQ9Ik0yNTkuOTIsMjYyLjkxLDIxNi40LDE0OS43N2E5LDksMCwwLDAtMTYuOCwwTDE1Ni4wOCwyNjIuOTFhOSw5LDAsMCwxLTUuMTcsNS4xN0wzNy43NywzMTEuNmE5LDksMCwwLDAsMCwxNi44bDExMy4xNCw0My41MmE5LDksMCwwLDEsNS4xNyw1LjE3TDE5OS42LDQ5MC4yM2E5LDksMCwwLDAsMTYuOCwwbDQzLjUyLTExMy4xNGE5LDksMCwwLDEsNS4xNy01LjE3TDM3OC4yMywzMjguNGE5LDksMCwwLDAsMC0xNi44TDI2NS4wOSwyNjguMDhBOSw5LDAsMCwxLDI1OS45MiwyNjIuOTFaIiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSIyNCIgZGF0YS1kYXJrcmVhZGVyLWlubGluZS1zdHJva2U9IiIgc3R5bGU9Ii0tZGFya3JlYWRlci1pbmxpbmUtc3Ryb2tlOiAjMTgxYTFiOyIvPgogICAgPHBvbHlnb24gcG9pbnRzPSIxMDggNjggODggMTYgNjggNjggMTYgODggNjggMTA4IDg4IDE2MCAxMDggMTA4IDE2MCA4OCAxMDggNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjI0Ii8+CiAgICA8cG9seWdvbiBwb2ludHM9IjQyNi42NyAxMTcuMzMgNDAwIDQ4IDM3My4zMyAxMTcuMzMgMzA0IDE0NCAzNzMuMzMgMTcwLjY3IDQwMCAyNDAgNDI2LjY3IDE3MC42NyA0OTYgMTQ0IDQyNi42NyAxMTcuMzMiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjI0Ii8+Cjwvc3ZnPg==';
+Editor.layoutImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMWYxZjFmIj48cGF0aCBkPSJNNjAwLTE2MHYtODBINDQwdi0yMDBoLTgwdjgwSDgwdi0yNDBoMjgwdjgwaDgwdi0yMDBoMTYwdi04MGgyODB2MjQwSDYwMHYtODBoLTgwdjMyMGg4MHYtODBoMjgwdjI0MEg2MDBabTgwLTgwaDEyMHYtODBINjgwdjgwWk0xNjAtNDQwaDEyMHYtODBIMTYwdjgwWm01MjAtMjAwaDEyMHYtODBINjgwdjgwWm0wIDQwMHYtODAgODBaTTI4MC00NDB2LTgwIDgwWm00MDAtMjAwdi04MCA4MFoiLz48L3N2Zz4=';
 Editor.arrowRightImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMDAwMDAwIj48cGF0aCBkPSJNNDAwLTI4MHYtNDAwbDIwMCAyMDAtMjAwIDIwMFoiLz48L3N2Zz4=';
 Editor.arrowDownImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMDAwMDAwIj48cGF0aCBkPSJNNDgwLTM2MCAyODAtNTYwaDQwMEw0ODAtMzYwWiIvPjwvc3ZnPg==';
 Editor.arrowUpImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMDAwMDAwIj48cGF0aCBkPSJtMjgwLTQwMCAyMDAtMjAwIDIwMCAyMDBIMjgwWiIvPjwvc3ZnPg==';
@@ -897,23 +899,23 @@ Editor.selectSubstring = function(input, startPos, endPos)
 /**
  * 
  */
-Editor.toUnit = function(value, unit)
+Editor.toUnit = function(pixels, unit)
 {
 	if (unit == mxConstants.INCHES)
 	{
-		return Math.round(value * 100 / mxConstants.PIXELS_PER_INCH) / 100;
+		return Math.round(pixels * 1000 / mxConstants.PIXELS_PER_INCH) / 1000;
 	}
 	else if (unit == mxConstants.MILLIMETERS)
 	{
-		return  Math.round(value * 100 / mxConstants.PIXELS_PER_MM) / 100;
+		return  Math.round(pixels * 1000 / mxConstants.PIXELS_PER_MM) / 1000;
 	}
 	else if (unit == mxConstants.METERS)
 	{
-		return  Math.round(value * 1000 / (mxConstants.PIXELS_PER_MM * 1000)) / 1000;
+		return  Math.round(pixels * 100000 / (mxConstants.PIXELS_PER_MM * 1000)) / 100000;
 	}
 	else
 	{
-		return Math.round(value);
+		return Math.round(pixels * 10) / 10;
 	}
 };
 
@@ -924,20 +926,20 @@ Editor.fromUnit = function(value, unit)
 {
 	if (unit == mxConstants.INCHES)
 	{
-		return Math.round(value * mxConstants.PIXELS_PER_INCH);
+		value = value * mxConstants.PIXELS_PER_INCH;
 	}
 	else if (unit == mxConstants.MILLIMETERS)
 	{
-		return Math.round(value * mxConstants.PIXELS_PER_MM);
+		value = value * mxConstants.PIXELS_PER_MM;
 	}
 	else if (unit == mxConstants.METERS)
 	{
-		return Math.round(value * mxConstants.PIXELS_PER_MM * 1000);
+		value = value * mxConstants.PIXELS_PER_MM * 1000;
 	}
-	else
-	{
-		return Math.round(value);
-	}
+
+	// Rounds to 0.1px so unit round-trips are stable and values
+	// entered in one unit convert back exactly (eg. 1/8in = 12.5px)
+	return Math.round(value * 10) / 10;
 };
 
 /**
@@ -2326,10 +2328,11 @@ PrintDialog.prototype.create = function(editorUi)
 		var x0 = 0;
 		var y0 = 0;
 
-		// Applies print scale
+		// Applies print scale without rounding so the printed page grid
+		// stays aligned with the page breaks on the canvas
 		pf = mxRectangle.fromRectangle(pf);
-		pf.width = Math.ceil(pf.width * printScale);
-		pf.height = Math.ceil(pf.height * printScale);
+		pf.width = pf.width * printScale;
+		pf.height = pf.height * printScale;
 		scale *= printScale;
 		
 		// Starts at first visible page
@@ -2537,6 +2540,7 @@ var PageSetupDialog = function(editorUi)
 	var gridSizeInput = document.createElement('input');
 	gridSizeInput.setAttribute('type', 'number');
 	gridSizeInput.setAttribute('min', '0');
+	gridSizeInput.setAttribute('step', 'any');
 	gridSizeInput.style.width = '60px';
 	gridSizeInput.style.flex = '0 0 auto';
 	gridSizeInput.value = graph.getGridSize();
@@ -2544,7 +2548,7 @@ var PageSetupDialog = function(editorUi)
 
 	mxEvent.addListener(gridSizeInput, 'change', function()
 	{
-		var value = parseInt(gridSizeInput.value);
+		var value = parseFloat(gridSizeInput.value);
 		gridSizeInput.value = Math.max(1, (isNaN(value)) ? graph.getGridSize() : value);
 	});
 
@@ -2880,7 +2884,7 @@ var PageSetupDialog = function(editorUi)
 	// Apply function
 	var applyFn = function()
 	{
-		var gridSize = parseInt(gridSizeInput.value);
+		var gridSize = parseFloat(gridSizeInput.value);
 
 		if (!isNaN(gridSize) && graph.gridSize !== gridSize)
 		{
@@ -3024,7 +3028,8 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 	unitSelect.style.boxSizing = 'border-box';
 	var units = [{label: mxResources.get('points'), unit: mxConstants.POINTS},
 		{label: mxResources.get('inches'), unit: mxConstants.INCHES},
-		{label: mxResources.get('millimeters'), unit: mxConstants.MILLIMETERS}];
+		{label: mxResources.get('millimeters'), unit: mxConstants.MILLIMETERS},
+		{label: mxResources.get('meters'), unit: mxConstants.METERS}];
 
 	for (var i = 0; i < units.length; i++)
 	{
@@ -3175,9 +3180,14 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 			heightInput.value = Editor.toUnit(pageFormat.height, unitSelect.value);
 		}
 		
-		var newPageFormat = new mxRectangle(0, 0,
-			Math.floor(Editor.fromUnit(parseFloat(widthInput.value), unitSelect.value)),
-			Math.floor(Editor.fromUnit(parseFloat(heightInput.value), unitSelect.value)));
+		// Uses the exact preset size so that selecting a standard format never
+		// depends on the display precision of the current unit round-tripping
+		var newPageFormat = (f.format != null) ? new mxRectangle(0, 0,
+			(!landscapeCheckBox.checked) ? f.format.width : f.format.height,
+			(!landscapeCheckBox.checked) ? f.format.height : f.format.width) :
+			new mxRectangle(0, 0,
+				Editor.fromUnit(parseFloat(widthInput.value), unitSelect.value),
+				Editor.fromUnit(parseFloat(heightInput.value), unitSelect.value));
 		
 		// Initial select of custom should not update page format to avoid update of combo
 		if (!quiet && (newPageFormat.width != pageFormat.width ||

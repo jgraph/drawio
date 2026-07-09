@@ -216,7 +216,8 @@ function mxinclude(src)
 
     if (mxIsElectron)
     {
-        mxmeta(null, 'default-src \'self\'; script-src \'self\' \'sha256-6g514VrT/cZFZltSaKxIVNFF46+MFaTSDTPB8WfYK+c=\' ' +
+        // 'wasm-unsafe-eval' is required for the inlined libavoid WASM edge router
+        mxmeta(null, 'default-src \'self\'; script-src \'self\' \'sha256-6g514VrT/cZFZltSaKxIVNFF46+MFaTSDTPB8WfYK+c=\' \'wasm-unsafe-eval\' ' +
             (urlParams['dev'] != '1' ? '' : ' \'unsafe-eval\'') + '; ' +
             'connect-src \'self\' https://*.draw.io https://*.diagrams.net https://fonts.googleapis.com https://fonts.gstatic.com; ' +
             'img-src * data:; media-src *; font-src * data:; frame-src \'self\'; style-src \'self\' \'unsafe-inline\' ' +
@@ -288,6 +289,7 @@ if (urlParams['dev'] == '1')
         // ELK before Mermaid (Mermaid binds to window.ELK).
         mxscript('js/elk/drawio-elk.min.js');
         mxscript('js/mermaid/drawio-mermaid.min.js');
+        mxscript('js/plantuml/drawio-plantuml.min.js');
     }
 
     mxscript(drawDevUrl + 'js/PostConfig.js');
@@ -332,7 +334,10 @@ else
                                         {
                                             mxscript('js/mermaid/drawio-mermaid.min.js', function()
                                             {
-                                                mxscript('js/PostConfig.js');
+                                                mxscript('js/plantuml/drawio-plantuml.min.js', function()
+                                                {
+                                                    mxscript('js/PostConfig.js');
+                                                });
                                             });
                                         });
                                     });

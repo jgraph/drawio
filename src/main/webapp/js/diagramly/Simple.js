@@ -296,6 +296,7 @@ Editor.themes.push('atlas');
 					Editor.thinGestureImage : Editor.freehandImage, true);
 				var generateElt = this.createMenuItem('generate', (value == 'simple') ?
 					Editor.thinSparklesImage : Editor.sparklesImage, true);
+				var layoutElt = this.createMenu('layout', Editor.layoutImage);
 				var insertElt = this.createMenu('insert', (value == 'simple') ?
 					Editor.thinAddCircleImage : Editor.addBoxImage);
 				var tableElt = this.createMenu('table', Editor.thinTableImage);
@@ -316,6 +317,7 @@ Editor.themes.push('atlas');
 						if (!graph.isEnabled() && urlParams['embedInline'] != '1')
 						{
 							freehandElt.classList.add('mxDisabled');
+							layoutElt.classList.add('mxDisabled');
 							insertElt.classList.add('mxDisabled');
 							tableElt.classList.add('mxDisabled');
 							shapesElt.classList.add('mxDisabled');
@@ -323,6 +325,7 @@ Editor.themes.push('atlas');
 						else
 						{
 							freehandElt.classList.remove('mxDisabled');
+							layoutElt.classList.remove('mxDisabled');
 							insertElt.classList.remove('mxDisabled');
 							tableElt.classList.remove('mxDisabled');
 							shapesElt.classList.remove('mxDisabled');
@@ -416,6 +419,11 @@ Editor.themes.push('atlas');
 									addElt(generateElt, mxResources.get('generate'));
 								}
 
+								if (iw >= 580 + eo)
+								{
+									this.sketchPickerMenuElt.appendChild(layoutElt);
+								}
+
 								if (iw >= 540 + eo)
 								{
 									this.sketchPickerMenuElt.appendChild(tableElt);
@@ -462,6 +470,7 @@ Editor.themes.push('atlas');
 									addElt(generateElt, mxResources.get('generate'));
 								}
 
+								this.sketchPickerMenuElt.appendChild(layoutElt);
 								this.sketchPickerMenuElt.appendChild(shapesElt);
 							}
 							

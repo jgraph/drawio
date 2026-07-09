@@ -288,7 +288,9 @@ mxStencilRegistry.allowEval = false;
 			break;
 		}
 
-		mxmeta(null, 'default-src \'self\'; connect-src \'self\' https://fonts.googleapis.com https://fonts.gstatic.com; img-src * data:; ' +
+		// script-src needs 'wasm-unsafe-eval' for the inlined libavoid WASM edge router
+		// (scripts otherwise fall back to default-src 'self', which blocks WebAssembly)
+		mxmeta(null, 'default-src \'self\'; script-src \'self\' \'wasm-unsafe-eval\'; connect-src \'self\' https://fonts.googleapis.com https://fonts.gstatic.com; img-src * data:; ' +
 			'media-src *; font-src * data:; frame-src \'self\'; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com', 'Content-Security-Policy');
 
 		//Disable web plugins loading

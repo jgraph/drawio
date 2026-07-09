@@ -744,54 +744,6 @@ App.main = function(callback, createUi)
 						if (reg != null)
 						{
 							EditorUi.debug('App.main', 'Updating service worker');
-
-							// Notifies the user once a newer version becomes available. A
-							// non-null controller means this is an update, not a first install.
-							var notifyUpdate = function()
-							{
-								if (!App.updateAvailable && navigator.serviceWorker.controller != null)
-								{
-									App.updateAvailable = true;
-
-									if (App.onUpdateAvailable != null)
-									{
-										App.onUpdateAvailable();
-									}
-								}
-							};
-
-							// Tracks a worker until it is installed (waiting) or activated
-							var trackWorker = function(worker)
-							{
-								if (worker != null)
-								{
-									if (worker.state == 'installed' || worker.state == 'activated')
-									{
-										notifyUpdate();
-									}
-									else
-									{
-										worker.addEventListener('statechange', function()
-										{
-											if (worker.state == 'installed' || worker.state == 'activated')
-											{
-												notifyUpdate();
-											}
-										});
-									}
-								}
-							};
-
-							// Covers an update already in progress or waiting when this runs,
-							// as well as one found by the reg.update() call below
-							trackWorker(reg.installing);
-							trackWorker(reg.waiting);
-
-							reg.addEventListener('updatefound', function()
-							{
-								trackWorker(reg.installing);
-							});
-
 							reg.update();
 						}
 						// Skips service worker install on first load
@@ -1539,43 +1491,11 @@ App.prototype.initializeViewerMode = function()
 };
 
 /**
- * Shows a notification in the notification bell when a newer version of the
- * app is available. Clicking it clears the service worker cache (forcing the
- * new version to be loaded on the next start) and prompts for a restart.
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.showUpdateNotification = function(test)
-{
-	// Only handles updates on the official hosted domains (test bypasses this)
-	if (this.editor.isChromelessView() || urlParams['embed'] == '1' ||
-		(!test && !this.isOwnGDriveDomain()))
-	{
-		return;
-	}
-
-	this.updateNotif = {timestamp: Date.now(), isNew: true,
-		content: mxResources.get('appUpdateAvailable'),
-		funct: mxUtils.bind(this, function()
-	{
-		// TODO: Remove. Pass-through to test the restart dialog without a
-		// service worker to clear (e.g. in dev mode)
-		if (test)
-		{
-			this.alert(mxResources.get('restartForChangeRequired'));
-		}
-		else
-		{
-			App.clearServiceWorker(mxUtils.bind(this, function()
-			{
-				this.alert(mxResources.get('restartForChangeRequired'));
-			}));
-		}
-	})};
-
-	// Merges with any server notifications and (re)attaches the bell
-	this.showNotification(this.lastNotifs, this.lastNotifReadFlag);
-	this.updateButtonContainer(true);
-};
-
 App.prototype.init = function()
 {
 	if (App.blockedAncestorFrames())
@@ -1592,23 +1512,6 @@ App.prototype.init = function()
 	 * Holds the listener for description changes.
 	 */	
 	this.descriptorChangedListener = mxUtils.bind(this, this.descriptorChanged);
-
-	// Shows a notification when a newer app version becomes available. The
-	// detection runs in App.main so the hook covers both orderings (update
-	// found before or after the UI is initialized).
-	App.onUpdateAvailable = mxUtils.bind(this, this.showUpdateNotification);
-
-	// ?test-update=1 simulates an available update for testing (TODO: remove)
-	if (App.updateAvailable || urlParams['test-update'] == '1')
-	{
-		var testUpdate = urlParams['test-update'] == '1';
-
-		// Deferred so the menubar is ready (and to mimic async arrival)
-		window.setTimeout(mxUtils.bind(this, function()
-		{
-			this.showUpdateNotification(testUpdate);
-		}), testUpdate ? 3000 : 0);
-	}
 
 	this.addListener('currentThemeChanged', mxUtils.bind(this, function()
 	{
@@ -3965,8 +3868,8 @@ App.prototype.openGenerateDialog = function(prompt)
 		var saved = mxSettings.getWindowState('chat');
 		var cx = (saved != null && saved.x != null) ? saved.x : 224;
 		var cy = (saved != null && saved.y != null) ? saved.y : 104;
-		var cw = (saved != null && saved.w != null) ? saved.w : 360;
-		var ch = (saved != null && saved.h != null) ? saved.h : 480;
+		var cw = (saved != null && saved.w != null) ? saved.w : 440;
+		var ch = (saved != null && saved.h != null) ? saved.h : 440;
 
 		this.chatWindow = new ChatWindow(this, cx, cy, cw, ch);
 		this.chatWindow.window.addListener('show', mxUtils.bind(this, function()
@@ -6852,15 +6755,6 @@ App.prototype.fetchAndShowNotification = function(target, subtarget)
 
 App.prototype.showNotification = function(notifs, lsReadFlag)
 {
-	// Keeps the last server notifications so locally-injected ones (e.g. app
-	// updates) can be merged in and survive a server-triggered re-render
-	this.lastNotifs = notifs;
-	this.lastNotifReadFlag = lsReadFlag;
-
-	notifs = (this.updateNotif != null) ?
-		[this.updateNotif].concat((notifs != null) ? notifs : []) :
-		((notifs != null) ? notifs : []);
-
 	var newCount = notifs.length;
 
 	if (Editor.currentTheme == 'min' || Editor.currentTheme == 'simple')
@@ -6914,7 +6808,7 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 			unread[i].className = 'circle';
 		}
 		
-		if (isLocalStorage && lsReadFlag != null && notifs[0])
+		if (isLocalStorage && notifs[0])
 		{
 			localStorage.setItem(lsReadFlag, notifs[0].timestamp);
 		}
@@ -7029,15 +6923,7 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 				notifEl.innerHTML = '<div class="circle' + (notif.isNew? ' active' : '') + '"></div><span class="time">' + 
 										mxUtils.htmlEntities(mxResources.get('timeAgo', [str], '{1} ago')) + '</span>' + 
 										'<p>' + mxUtils.htmlEntities(notif.content) + '</p>';
-				if (notif.funct)
-				{
-					mxEvent.addListener(notifEl, 'click', function()
-					{
-						editorUi.notificationWin.style.display = 'none';
-						notif.funct();
-					});
-				}
-				else if (notif.link)
+				if (notif.link)
 				{
 					mxEvent.addListener(notifEl, 'click', function()
 					{

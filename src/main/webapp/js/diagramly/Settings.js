@@ -73,6 +73,15 @@ var mxSettings =
 	{
 		mxSettings.settings.showStartScreen = showStartScreen;
 	},
+	getCurrentEdgeStyle: function()
+	{
+		return (mxSettings.settings != null) ? mxSettings.settings.currentEdgeStyle : null;
+	},
+	setCurrentEdgeStyle: function(value)
+	{
+		mxSettings.settings.currentEdgeStyle = value;
+		mxSettings.save();
+	},
 	getGridColor: function(darkMode)
 	{
 		var result = (darkMode) ? mxSettings.settings.darkGridColor :
@@ -325,7 +334,10 @@ var mxSettings =
 			isNew: true,
 			unit: mxConstants.POINTS,
 			isRulerOn: false,
-			windowStates: {}
+			windowStates: {},
+			// Persisted global current edge style (the toolbar dropdown's choice for
+			// new edges when nothing is selected). null => use the theme default.
+			currentEdgeStyle: null
 		};
 	},
 	init: function()

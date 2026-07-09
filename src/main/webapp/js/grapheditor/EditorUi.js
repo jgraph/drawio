@@ -3117,6 +3117,20 @@ EditorUi.prototype.showTypingShim = function()
 
 	if (state != null)
 	{
+		// Never steal focus from a text input or editable element that lives
+		// outside the graph container (Find/Replace, Edit Data, ...). Checked
+		// before either the clipboard element or the shim is focused: a
+		// clipboard element left attached (e.g. after Ctrl+F, whose Ctrl/Meta
+		// keyup teardown the Find dialog consumes) would otherwise grab the
+		// next keystroke out of the search field.
+		var ae = document.activeElement;
+
+		if (ae != null && ae !== document.body && ae !== graph.container &&
+			!graph.container.contains(ae))
+		{
+			return;
+		}
+
 		// Position near the cell so IME candidate window appears at the right location
 		shim.style.left = Math.round(state.x) + 'px';
 		shim.style.top = Math.round(state.y) + 'px';
@@ -3172,14 +3186,10 @@ EditorUi.prototype.showTypingShim = function()
 			return;
 		}
 
-		// Do not steal focus from input/textarea elements outside the graph
-		// container (e.g., Find/Replace dialog, Edit Data dialog) or from
-		// the contentEditable clipboard element used by native copy/paste
-		var ae = document.activeElement;
-
-		if ((ae == null || ae === document.body || ae === graph.container ||
-			graph.container.contains(ae)) && (ae == null ||
-			ae.contentEditable !== 'true'))
+		// External inputs are already handled by the early return above, so ae
+		// is null/body/container/inside-container here. Still defer to a
+		// contentEditable inside the container (e.g. the clipboard element).
+		if (ae == null || ae.contentEditable !== 'true')
 		{
 			shim.focus({preventScroll: true});
 		}
@@ -3408,6 +3418,13 @@ EditorUi.prototype.getImageForEdgeShape = function(style)
  */
 EditorUi.prototype.getImageForEdgeStyle = function(style)
 {
+	// libavoid auto-routing edges are orthogonal + the flag; show the distinct
+	// obstacle-avoiding icon rather than the plain orthogonal one.
+	if (mxUtils.getValue(style, 'libavoidRouting', null) == '1')
+	{
+		return Format.libavoidImage.src;
+	}
+
 	var result = Format.orthogonalImage.src;
 	var es = mxUtils.getValue(style, mxConstants.STYLE_EDGE, null);
 	

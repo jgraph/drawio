@@ -395,12 +395,6 @@
 		decodeURIComponent(urlParams['claude-api-key']) : null;
 
 	/**
-	 * Specifies the ChatGPT API key. Default is null.
-	 */
-	Editor.gptApiKey = (urlParams['gpt-api-key'] != null) ?
-		decodeURIComponent(urlParams['gpt-api-key']) : null;
-	
-	/**
 	 * Specifies the ChatGPT endpoint URL. Default is
 	 * 'https://api.openai.com/v1/chat/completions'.
 	 */
@@ -419,12 +413,17 @@
 			'format based on the given prompt. Begin with a concise checklist (3-7 bullets) of what you will ' +
 			'do; keep items conceptual, not implementation-level. Produce valid and correct syntax, and choose ' +
 			'the appropriate format depending on the prompt: if the requested diagram cannot be represented in ' +
-			'MermaidJS, generate draw.io XML instead but do not use indentation and newlines. After producing the ' +
+			'MermaidJS, generate draw.io XML instead but do not use indentation and newlines. When asked to ' +
+			'modify a diagram that is given in the conversation as draw.io XML, return the complete updated ' +
+			'diagram as draw.io XML, not MermaidJS. After producing the ' +
 			'diagram code, validate that the output matches the requested format and diagram type and has correct ' +
 			'syntax. Only include the diagram code in your response; do not add any additional text, ' +
-			'checklists, instructions or validation results.',
+			'checklists, instructions or validation results. If the prompt is a question or does not ask ' +
+			'for a diagram, answer it as plain text without any diagram code instead.',
 		'update': 'You are a helpful assistant that helps with ' +
-			'the following draw.io diagram and returns an updated draw.io diagram if needed. If the ' +
+			'the following draw.io diagram and returns an updated draw.io diagram if needed. When ' +
+			'asked to modify the diagram, return the complete updated diagram as draw.io XML without ' +
+			'indentation and newlines - never as MermaidJS or any other format. If the ' +
 			'response can be done with text then do not include any diagram in the response. Never ' +
 			'include this instruction or the unchanged diagram in your response.\n{data}',
 		'assist': 'You are a helpful assistant that creates XML for draw.io diagrams or helps ' +
@@ -477,8 +476,8 @@
 			request: {
 				max_tokens: 8192,
 				model: '{model}',
+				system: '{action}',
 				messages: [
-					{role: 'assistant', content: '{action}'},
 					{role: 'user', content: '{prompt}'}
 				],
 			},
@@ -490,13 +489,23 @@
 	 * Adds a list of available AI models.
 	 */
 	Editor.aiModels = [
+		{name: 'Claude 4.8 Opus', model: 'claude-opus-4-8', config: 'claude'},
 		{name: 'Claude 4.6 Opus', model: 'claude-opus-4-6', config: 'claude'},
-		{name: 'Claude 4.6 Sonnet', model: 'claude-sonnet-4-6', config: 'claude'},
 		{name: 'Gemini 3 Pro Preview', model: 'gemini-3-pro-preview', config: 'gemini'},
 		{name: 'Gemini 2.5 Pro', model: 'gemini-2.5-pro', config: 'gemini'},
 		{name: 'GPT-5.1', model: 'gpt-5.1-2025-11-13', config: 'gpt'},
 		{name: 'GPT-4.1', model: 'gpt-4.1-2025-04-14', config: 'gpt'},
 	];
+
+	/**
+	 * Maximum number of characters (prompt, attached context and conversation
+	 * history combined) sent to the hosted AI service, which is free for the
+	 * user and paid for by draw.io. The conversation is truncated to the
+	 * newest turns that fit; a prompt/attachment that alone exceeds the limit
+	 * is rejected with the promptTooLarge error. 0 disables the limit.
+	 * BYO-key models are not limited.
+	 */
+	Editor.maxPublicPromptLength = 10000;
 
 	/**
 	 * Specifies if data URIs should be replaced with SVG sub-trees in SVG export.
@@ -510,6 +519,13 @@
 	 */
 	Editor.foreignObjectImages = true;
 		
+	/**
+	 * Specifies if fonts should be embedded as data URIs in exported and saved
+	 * SVG files. If disabled, external font references are added instead.
+	 * Default is true.
+	 */
+	Editor.embedSvgFonts = true;
+
 	/**
 	 * Specifies the theme to use for SVG files. Possible values are 'light',
 	 * 'dark' and 'auto'. Default is 'auto'.
@@ -718,10 +734,12 @@
     		return mxUtils.getValue(state.style, 'curved', '0') == '1';
         }},
         {name: 'sourcePortConstraint', dispName: 'Source Constraint', type: 'enum', defVal: 'none',
-        	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+        	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'},
+        		{val: 'northsouth', dispName: 'North + South'}, {val: 'eastwest', dispName: 'East + West'}]
         },
         {name: 'targetPortConstraint', dispName: 'Target Constraint', type: 'enum', defVal: 'none',
-        	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+        	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'},
+        		{val: 'northsouth', dispName: 'North + South'}, {val: 'eastwest', dispName: 'East + West'}]
         },
         {name: 'jettySize', dispName: 'Jetty Size', type: 'int', min: 0, defVal: 'auto', allowAuto: true, isVisible: function(state)
         {
@@ -831,7 +849,8 @@
         	enumList: [{val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
         {name: 'portConstraint', dispName: 'Constraint', type: 'enum', defVal: 'none',
-        	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+        	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'},
+        		{val: 'northsouth', dispName: 'North + South'}, {val: 'eastwest', dispName: 'East + West'}]
         },
         {name: 'portConstraintRotation', dispName: 'Rotate Constraint', type: 'bool', defVal: false},
         {name: 'connectable', dispName: 'Connectable', type: 'bool', getDefaultValue: function(state, format)
@@ -866,6 +885,16 @@
 		}, isVisible: function(state, format)
         {
     		return state.vertices.length > 0 && state.edges.length == 0;
+        }},
+        {name: 'containerType', dispName: 'Container Type', type: 'enum', defVal: null,
+        	enumList: [{val: null, dispName: 'Default'}, {val: 'tree', dispName: 'Tree'}],
+        	isVisible: function(state, format)
+        {
+        	var cell = (state.vertices.length == 1 && state.edges.length == 0) ? state.vertices[0] : null;
+        	var graph = format.editorUi.editor.graph;
+
+        	return cell != null && (graph.isSwimlane(cell) || graph.isContainer(cell) ||
+        		graph.model.getChildCount(cell) > 0 || state.style['containerType'] != null);
         }},
         {name: 'dropTarget', dispName: 'Drop Target', type: 'bool', getDefaultValue: function(state, format)
         {
@@ -1138,7 +1167,8 @@
 		'#\n' +
 		'## Name or JSON of layout. Possible values are auto, none, verticaltree, horizontaltree,\n' +
 		'## verticalflow, horizontalflow, organic, circle, orgchart, the ELK shorthands\n' +
-		'## elkRadial, elkOrganic, elkStress, or a JSON string as used in Layout, Apply.\n' +
+		'## elkRadial, elkOrganic, elkStress, libavoid (orthogonal edge routing), parallels\n' +
+		'## (spread overlapping parallel edges), or a JSON string as used in Layout, Apply.\n' +
 		'## Default is auto.\n' +
 		'#\n' +
 		'# layout: auto\n' +
@@ -1432,9 +1462,21 @@
 			c.setStrokeColor(o.fill || '');
 			c.setStrokeWidth(fweight);
 			c.setDashed(false);
-			
+
+			var prev = (ctx.root != null) ? ctx.root.lastChild : null;
+
 			this._drawToContext(ctx, drawing, o);
-			
+
+			// Tags the hachure fill path so getFlowAnimationPath skips it:
+			// it is stroked in the FILL color and would otherwise win the
+			// flow animation path selection for filled sketch shapes.
+			if (ctx.root != null && ctx.root.lastChild != null &&
+				ctx.root.lastChild != prev &&
+				ctx.root.lastChild.nodeName == 'path')
+			{
+				ctx.root.lastChild.setAttribute('data-rough-fill', '1');
+			}
+
 			c.setDashed(dashed);
 			c.setStrokeWidth(strokeWidth);
 			c.setStrokeColor(strokeColor);
@@ -3185,6 +3227,11 @@
 			if (config.foreignObjectImages != null)
 			{
 				Editor.foreignObjectImages = config.foreignObjectImages;
+			}
+
+			if (config.embedSvgFonts != null)
+			{
+				Editor.embedSvgFonts = config.embedSvgFonts;
 			}
 
 			if (config.shadowColor != null)
@@ -6188,7 +6235,8 @@
 		];
 		
 		mxCellRenderer.defaultShapes['document'].prototype.customProperties = [
-	        {name: 'size', dispName: 'Size', type: 'float', defVal: 0.3, min:0, max:1}
+	        {name: 'size', dispName: 'Size', type: 'float', defVal: 0.3, min:0, max:1},
+	        {name: 'boundedLbl', dispName: 'Bounded Label', type: 'bool', defVal: false}
 		];
 		
 		mxCellRenderer.defaultShapes['internalStorage'].prototype.customProperties = [
@@ -6200,7 +6248,20 @@
 		mxCellRenderer.defaultShapes['cube'].prototype.customProperties = [
 	        {name: 'size', dispName: 'Size', type: 'float', min:0, defVal:20 },
 	        {name: 'darkOpacity', dispName: 'Dark Opacity', type: 'float', min:-1, max:1, defVal:0 },
-	        {name: 'darkOpacity2', dispName: 'Dark Opacity 2', type: 'float', min:-1, max:1, defVal:0 }
+	        {name: 'darkOpacity2', dispName: 'Dark Opacity 2', type: 'float', min:-1, max:1, defVal:0 },
+	        {name: 'boundedLbl', dispName: 'Bounded Label', type: 'bool', defVal: false}
+		];
+
+		mxCellRenderer.defaultShapes['cylinder'].prototype.customProperties = [
+	        {name: 'boundedLbl', dispName: 'Bounded Label', type: 'bool', defVal: false}
+		];
+
+		mxCellRenderer.defaultShapes['cylinder3'].prototype.customProperties = [
+	        {name: 'boundedLbl', dispName: 'Bounded Label', type: 'bool', defVal: false}
+		];
+
+		mxCellRenderer.defaultShapes['umlState'].prototype.customProperties = [
+	        {name: 'boundedLbl', dispName: 'Bounded Label', type: 'bool', defVal: false}
 		];
 		
 		mxCellRenderer.defaultShapes['step'].prototype.customProperties = [
@@ -6215,13 +6276,18 @@
 		];
 		
 		mxCellRenderer.defaultShapes['tape'].prototype.customProperties = [
-	        {name: 'size', dispName: 'Size', type: 'float', min:0, max:1, defVal:0.4 }
+	        {name: 'size', dispName: 'Size', type: 'float', min:0, max:1, defVal:0.4 },
+	        {name: 'boundedLbl', dispName: 'Bounded Label', type: 'bool', defVal: false}
 		];
 		
 		mxCellRenderer.defaultShapes['note'].prototype.customProperties = [
 	        {name: 'size', dispName: 'Fold Size', type: 'float', min:0, defVal: 30},
 	        {name: 'darkOpacity', dispName: 'Dark Opacity', type: 'float', min:-1, max:1, defVal:0 },
 	    ];
+
+		mxCellRenderer.defaultShapes['note2'].prototype.customProperties = [
+	        {name: 'boundedLbl', dispName: 'Bounded Label', type: 'bool', defVal: false}
+		];
 		
 		mxCellRenderer.defaultShapes['card'].prototype.customProperties = [
 	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
@@ -6241,7 +6307,8 @@
 	        {name: 'tabHeight', dispName: 'Tab Height', type: 'float'},
 	        {name: 'tabPosition', dispName: 'Tap Position', type: 'enum',
 	        	enumList: [{val: 'left', dispName: 'Left'}, {val: 'right', dispName: 'Right'}]
-	        }
+	        },
+	        {name: 'boundedLbl', dispName: 'Bounded Label', type: 'bool', defVal: false}
 	    ];
 		
 		mxCellRenderer.defaultShapes['swimlane'].prototype.customProperties = [
@@ -6324,7 +6391,8 @@
 		
 		mxCellRenderer.defaultShapes['manualInput'].prototype.customProperties = [
 	        {name: 'size', dispName: 'Size', type: 'float', min:0, defVal:30 },
-	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: 20}
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: 20},
+	        {name: 'boundedLbl', dispName: 'Bounded Label', type: 'bool', defVal: false}
 		];
 		
 		mxCellRenderer.defaultShapes['loopLimit'].prototype.customProperties = [
@@ -6367,13 +6435,14 @@
 		
 		mxCellRenderer.defaultShapes['umlLifeline'].prototype.customProperties = [
 			{name: 'participant', dispName:'Participant', type:'enum', defVal:'none', enumList:[
-				{val:'none', dispName: 'Default'},	
-				{val:'umlActor', dispName: 'Actor'},	
-				{val:'umlBoundary', dispName: 'Boundary'},	
-				{val:'umlEntity', dispName: 'Entity'},	
-				{val:'umlControl', dispName: 'Control'},	
+				{val:'none', dispName: 'Default'},
+				{val:'umlActor', dispName: 'Actor'},
+				{val:'umlBoundary', dispName: 'Boundary'},
+				{val:'umlEntity', dispName: 'Entity'},
+				{val:'umlControl', dispName: 'Control'},
 				]},
-			{name: 'size', dispName:'Height', type:'float', defVal:40, min:0}
+			{name: 'size', dispName:'Height', type:'float', defVal:40, min:0},
+			{name: 'lifelineMirror', dispName:'Mirror Head', type:'bool', defVal:false}
 		];
 		
 		mxCellRenderer.defaultShapes['umlFrame'].prototype.customProperties = [
@@ -6993,16 +7062,25 @@
 						function setInputVal()
 						{
 							var inputVal = input.value;
-							inputVal = inputVal.length == 0 && pType != 'string' &&
-								pType != 'numbers'? 0 : inputVal;
-							
+							// LOCAL type: setInputVal can run twice for one edit
+							// (enter-commit + the blur listener) — mutating the
+							// row's pType would make the second run misparse the
+							// value (an empty value came back as 0, not auto).
+							var type = pType;
+
+							// A cleared value means AUTO for auto-capable properties
+							// (jettySize) — only an explicitly entered 0 means 0 —
+							// and 0 for the other numeric types.
+							inputVal = inputVal.trim().length == 0 && type != 'string' &&
+								type != 'numbers'? ((prop.allowAuto) ? 'auto' : 0) : inputVal;
+
 							if (prop.allowAuto)
 							{
 								if (inputVal.trim != null && inputVal.trim().
 									toLowerCase() == 'auto')
 								{
 									inputVal = 'auto';
-									pType = 'string';
+									type = 'string';
 								}
 								else
 								{
@@ -7010,11 +7088,11 @@
 									inputVal = isNaN(inputVal)? 0 : inputVal;
 								}
 							}
-							
+
 							if (prop.min != null && inputVal < prop.min)
 							{
 								inputVal = prop.min;
-							} 
+							}
 							else if (prop.max != null && inputVal > prop.max)
 							{
 								inputVal = prop.max;
@@ -7024,14 +7102,18 @@
 
 							try
 							{
-								newVal = (pType == 'numbers') ? inputVal.match(/\d+/g).map(Number).join(' ') :
-									encodeURIComponent((pType == 'int'? parseInt(inputVal) : inputVal) + '');
+								// Auto is the property's default: REMOVE the key
+								// (null unsets it in setCellStyles) instead of
+								// writing jettySize=auto into the style.
+								newVal = (type == 'numbers') ? inputVal.match(/\d+/g).map(Number).join(' ') :
+									(inputVal === 'auto' && prop.allowAuto && prop.defVal == 'auto') ? null :
+									encodeURIComponent((type == 'int'? parseInt(inputVal) : inputVal) + '');
 							}
 							catch(e)
 							{
 								// ignores parsing errors
 							}
-							
+
 							applyStyleVal(pName, newVal, prop, null, input);
 						}
 						
@@ -8457,6 +8539,34 @@
 	};
 	
 	/**
+	 * Returns the CSS with external references for the custom fonts.
+	 */
+	Graph.prototype.getExtFontCss = function()
+	{
+		var extFonts = this.getCustomFonts();
+		var prefix = '';
+		var postfix = '';
+
+		for (var i = 0; i < extFonts.length; i++)
+		{
+			var fontName = extFonts[i].name, fontUrl = extFonts[i].url;
+
+			if (Graph.isCssFontUrl(fontUrl))
+			{
+				prefix += '@import url(' + Graph.rewriteGoogleFontUrl(fontUrl) + ');\n';
+			}
+			else
+			{
+				postfix += '@font-face {\n' +
+					'font-family: "' + fontName + '";\n' +
+					'src: url("' + fontUrl + '");\n}\n';
+			}
+		}
+
+		return prefix + postfix;
+	};
+
+	/**
 	 * Assigns the given custom font to the selected text.
 	 */
 	Graph.prototype.setFont = function(name, url)
@@ -8599,7 +8709,7 @@
 	
 	Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp,
 		ignoreSelection, showText, imgExport, linkTarget, hasShadow,
-		incExtFonts, theme, exportType, cells, noCssClass, disableLinks)
+		incExtFonts, theme, exportType, cells, noCssClass, disableLinks, grid)
 	{
 		// Sizes the export crop to the rendered MathJax output rather than the
 		// raw formula source. Export paths that build a temporary graph (and the
@@ -8647,37 +8757,18 @@
 			result.setAttribute('style', style);
 		}
 		
-		var extFonts = this.getCustomFonts();
-		
+		var extFontCss = (incExtFonts) ? this.getExtFontCss() : '';
+
 		// Adds external fonts
-		if (incExtFonts && extFonts.length > 0)
+		if (extFontCss.length > 0)
 		{
 			var svgDoc = result.ownerDocument;
 			var style = (svgDoc.createElementNS != null) ?
 		    	svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
 			(svgDoc.setAttributeNS != null) ? style.setAttributeNS('type', 'text/css') :
 				style.setAttribute('type', 'text/css');
-			
-			var prefix = '';
-			var postfix = '';
-			    	
-			for (var i = 0; i < extFonts.length; i++)
-			{
-				var fontName = extFonts[i].name, fontUrl = extFonts[i].url;
-				
-				if (Graph.isCssFontUrl(fontUrl))
-				{
-					prefix += '@import url(' + Graph.rewriteGoogleFontUrl(fontUrl) + ');\n';
-				}
-				else
-				{
-					postfix += '@font-face {\n' +
-			            'font-family: "' + fontName + '";\n' + 
-			            'src: url("' + fontUrl + '");\n}\n';
-				}				
-			}
-			
-			style.appendChild(svgDoc.createTextNode(prefix + postfix));
+
+			style.appendChild(svgDoc.createTextNode(extFontCss));
 			result.getElementsByTagName('defs')[0].appendChild(style);
 		}
 
@@ -10709,6 +10800,8 @@
 		{
 			this.fireEvent(new mxEventObject('shadowVisibleChanged'));
 		}
+		
+		return Math.ceil(this.svgShadowSize * this.svgShadowBlur);
 	};
 	
 	/**
@@ -11408,6 +11501,7 @@
 			editorUi.lastPrintZoom = zoomInput.value;
 			editorUi.lastPrintBorder = borderInput.value;
 			editorUi.lastPrintGrid = gridInput.checked;
+			editorUi.lastPrintShadow = shadowsInput.checked;
 			editorUi.lastPrintTransparent = transparentInput.checked;
 			editorUi.lastPrintInclude = includeInput.checked;
 			editorUi.lastPrintSheetsAcross = sheetsAcrossInput.value;
@@ -12352,14 +12446,19 @@
 				continue;
 			}
 
-			var paths = state.shape.node.getElementsByTagName('path');
+			// Shape-aware path selection (skips the hidden hit/tolerance
+			// paths, finds the rough.js stroke of sketch=1 edges and honors
+			// shape overrides like PipeShape) - the previous hardcoded
+			// paths[1] hit the invisible plain hit path on sketch edges.
+			var path = (state.shape.getFlowAnimationPath != null) ?
+				state.shape.getFlowAnimationPath() : null;
 
-			if (paths.length <= 1)
+			if (path == null)
 			{
 				continue;
 			}
 
-			var hasFlow = paths[1].getAttribute('class') == 'mxEdgeFlow';
+			var hasFlow = path.getAttribute('class') == 'mxEdgeFlow';
 			var enable = (status == 'start') ||
 				(status == 'toggle' && !hasFlow);
 			var disable = (status == 'stop') ||
@@ -12369,20 +12468,20 @@
 
 			if (disable)
 			{
-				paths[1].removeAttribute('class');
+				path.removeAttribute('class');
 
 				if (!dashed)
 				{
-					paths[1].removeAttribute('stroke-dasharray');
+					path.removeAttribute('stroke-dasharray');
 				}
 			}
 			else if (enable)
 			{
-				paths[1].setAttribute('class', 'mxEdgeFlow');
+				path.setAttribute('class', 'mxEdgeFlow');
 
 				if (!dashed)
 				{
-					paths[1].setAttribute('stroke-dasharray', '8');
+					path.setAttribute('stroke-dasharray', '8');
 				}
 			}
 		}

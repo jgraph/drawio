@@ -69,7 +69,9 @@ Toolbar.prototype.init = function()
 	this.addSeparator(null, minWidth - 120);
 	this.addItems(['insertFreehand', 'generate'], null, null,
 		[Editor.freehandImage, Editor.sparklesImage], minWidth - 120);
-	
+	var layoutMenu = this.addMenu(this.editorUi.menus.get('layout'), null, Editor.layoutImage);
+	layoutMenu.setAttribute('data-min-width', minWidth - 120);
+
 	this.editorUi.dependsOnLanguage(mxUtils.bind(this, function()
 	{
 		if (this.edgeShapeMenu != null)
@@ -86,6 +88,7 @@ Toolbar.prototype.init = function()
 		insertMenu.setAttribute('title', mxResources.get('insert') + ' (' + mxResources.get('doubleClickTooltip') + ')');
 		shapesElt.setAttribute('title', mxResources.get('shapes'));
 		tableMenu.setAttribute('title', mxResources.get('table'));
+		layoutMenu.setAttribute('title', mxResources.get('layout'));
 	}));
 };
 

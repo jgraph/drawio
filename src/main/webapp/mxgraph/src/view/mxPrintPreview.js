@@ -1118,11 +1118,13 @@ mxPrintPreview.prototype.createSvgGrid = function(svg, clip)
 		svgDoc.createElementNS(mxConstants.NS_SVG, 'g') :
 		svgDoc.createElement('g');
 
-	var xp = mxUtils.mod(Math.ceil(Math.round(clip.x) / size), this.gridSteps);
-	var x = mxUtils.mod(size - mxUtils.mod(Math.round(clip.x), size), size);
+	// No rounding of the clip origin so the grid phase stays continuous
+	// across page seams for fractional page sizes and grid sizes
+	var xp = mxUtils.mod(Math.ceil(clip.x / size), this.gridSteps);
+	var x = mxUtils.mod(size - mxUtils.mod(clip.x, size), size);
 
-	var yp = mxUtils.mod(Math.ceil(Math.round(clip.y) / size), this.gridSteps);
-	var y = mxUtils.mod(size - mxUtils.mod(Math.round(clip.y), size), size);
+	var yp = mxUtils.mod(Math.ceil(clip.y / size), this.gridSteps);
+	var y = mxUtils.mod(size - mxUtils.mod(clip.y, size), size);
 	
 	x *= this.scale;
 	y *= this.scale;

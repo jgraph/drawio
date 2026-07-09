@@ -1,5 +1,207 @@
+08-JUL-2026: 30.3.6
+
+- Remove server-rendered PlantUML outputs, add native Image option
+- Fixes replacement position when switching diagram to image on edit
+
+08-JUL-2026: 30.3.5
+
+- Appends version to SW revisions
+
+08-JUL-2026: 30.3.4
+
+- Set diagram as the default for plantuml. Prevent atlassian and desktop from egress
+
+08-JUL-2026: 30.3.3
+
+- Clean up ChatWindow generate dialog (phase 1): dead code, fallback bug, type seam
+- Add Reply (follow-up) option to ChatWindow responses [BYO-key only]
+- Offer Reply on text-only ChatWindow answers; factor out addReplyButton
+- Phase 2: split ChatWindow mode from context in the generate dialog
+- Replace per-response Reply button with an "Include conversation" checkbox
+- Phase 3: move clipboard verbs + reset out of the mode select into Commands menu
+- Rework generate dialog as a chat: conversation list, attach menu, model selector
+- Cap free draw.io backend prompts at 1000 chars with a clear error
+- Raise free draw.io model prompt cap to 10000 chars, name the tier in the error
+- Add Claude 4.8 Opus to the AI models, replacing Claude 4.6 Sonnet
+- Add dictation to the chat composer; require XML back for XML modifications
+- Cap the free backend on the full sent payload; add a ring char counter
+- Replace preconfigured Claude 4.6 Opus with Claude Sonnet 5 in aiModels
+- Fix PlantUML loader crash on preprod + mirrored lifelines
+- Remove per-message delete from the chat; delete whole threads in the sidebar
+- Refine the free-tier counter into a Claude-style dial with popover
+- Zoom and pan for scaled-down sidebar tooltip previews
+- Update resources submodule for the generate-dialog chat UI strings
+- Update vendored drawio-plantuml bundle to commit 393944e
+- Replace preconfigured Sonnet 5 with Opus 4.6 and default the chat window to 440x440
+
+08-JUL-2026: 30.3.2
+
+- Add option to disable font embedding in SVG output [jgraph/drawio#5337]
+- Fix stale Configuration dialog pointer in CLAUDE.md
+- Paste style only applies to selected cells and their composite parts [jgraph/drawio#5374]
+- Retain manual export settings for the session [jgraph/drawio#5653]
+- Move global shadow option from View section to diagram style panel
+- Normalize transparentBounds geometry before layout manager runs
+- Group padding option for all containers, honored by autosize
+- Reserve swimlane footerSize in transparentBounds and layout parent resize
+- Border band targets connections at containers under overlapping children [jgraph/drawio#5374]
+- Update vendored drawio-plantuml bundle to commit f6a243a
+- Guiding placeholder for empty animation and action step lists
+- Adds wasm-unsafe-eval to desktop CSP
+
+07-JUL-2026: 30.3.1
+
+- Adds wasm-unsafe-eval to CSP
+- Add lifelineMirror option to UML lifeline shape
+- vendor: update mermaid bundle (dev 89e95b2 — opt-in singleLifelines sequence lifelines)
+- Accept URL-encoded newEdgeStyle values
+- Add Mirror Head property for UML lifeline shape
+- vendor: update mermaid bundle (dev d80fd5d — single-cell mirrored lifelines by default)
+- Avoids unsafe-eval on libavoid
+
+07-JUL-2026: 30.3.0
+
+- Add libavoid orthogonal edge routing (Arrange > Layout)
+- fix: upgrade p3x-xml2json from 2024.4.116 to 2024.4.121
+- Add libavoid auto-routing edge style with live obstacle avoidance
+- Add live libavoid preview while dragging an edge endpoint
+- Fix infinite recursion in mxEdgeHandler.reset (var-name collision)
+- Make libavoid endpoint-drag preview exactly match the committed route
+- Add libavoid entry to the edge-style routing picker
+- Drop the edge-panel auto-route checkbox in favor of the routing-picker entry
+- Add libavoid routing entry to the toolbar and inline-toolbar edge pickers
+- Dim waypoint handles on libavoid auto-routed edges
+- Re-route libavoid edges a moved shape lands on, not just connected ones
+- Route the new-edge preview when dragging from the hover-icon arrows
+- Make libavoid obstacle-avoiding routing the default edge style
+- Fix new-edge preview (diagonal segments) and apply routing on insert
+- Route the new-edge preview through the handler's waypoint path (orthogonal endpoints)
+- Re-route libavoid edges when a new shape is inserted onto their path
+- Respect fixed connection points in libavoid routing (no terminal intersection)
+- Honour fixed anchors on newly created edges (re-route on CONNECT)
+- Read the fresh edge style for fixed-anchor routing on insert
+- Live-route connected edges while dragging a shape (move preview)
+- Fix shape-move live preview routing against reset cell states
+- Recompute edge endpoints in shape-move preview (updateFixedTerminalPoints)
+- Re-route bent auto-edges on endpoint drag; harden move preview
+- Honour fixed anchors in the endpoint-drag preview
+- Pin the dragged end to a snapped connection point in the endpoint preview
+- Honour fixed anchors in the new-connection (hover-icon) preview
+- Expose libavoid orthogonal routing as a JSON layout (CLI/embed/headless)
+- Update drawio-i18n: libavoid orthogonal routing strings in all locales
+- Address libavoid code review: WASM leak, deferred-flag, robustness, churn
+- Fix libavoid shape-move preview for jump-style and overlapped edges
+- Persist the global current edge style across sessions
+- Add routing-strategy switch for libavoid shape-move preview
+- Revert libavoid routing as the default edge style
+- Expose Diagram/Image dropdown in the Mermaid edit dialog
+- Expose Bounded Label toggle for all shapes that support boundedLbl
+- vendor: update mermaid bundle (dev eb22455 — combined features + LCA edge fix)
+- Fix stale-detour flash when an endpoint drag straightens a libavoid edge
+- Warm up MathJax packages before export math measure [jgraph/drawio#5564]
+- Include edges in group bounds so edge-only selections group again [jgraph/drawio#5656]
+- Escalate edges to the transparentBounds parent on click, like shapes
+- Highlight the active item in each inline connection popover section
+- Add a Grid option to the SVG export dialog
+- Clamp negative arc radicand that dropped semicircle stencil arcs [jgraph/drawio#956]
+- Escalate z-order changes on table cells and rows to the table [jgraph/drawio#4350]
+- Revert "feat(appUpdate): notify of available update via notification bell" [jgraph/drawio#5658]
+- Add Check for Updates to the Help menu of the hosted versions [jgraph/drawio#5658]
+- Apply text color as inline style to avoid red <font> placeholder in dark mode [jgraph/drawio-desktop#2076]
+- Honour jettySize at fixed connection points in libavoid routing
+- Default a cleared jettySize property to auto instead of 0
+- Fix cleared jettySize reverting to 0 via the property editor's blur re-run
+- Remove Check for Updates from the Help menu [jgraph/drawio#5658]
+- Remove the jettySize key from the style for auto instead of writing it
+- Fix white background in fixed-theme dark SVG exports on browsers without light-dark()
+- Add Make a Copy option to publish link dialogs for stored files
+- Replace radio buttons with dropdown in the embed HTML dialog
+- Fix silent CLI PNG/JPEG export failure when shadow is enabled [jgraph/drawio-desktop#2230]
+- Fix libavoid loader parse error from glob pattern in header comment
+- Add libavoid and parallels layout shorthands, Run Last Layout and toolbar layout menu
+- Add experimental native PlantUML diagram insert via drawio-plantuml
+- Fix rounded corners on headerless tables
+- Confirm before closing diagram source-edit dialogs with unapplied changes
+- Deselect locked-group descendants when the lock icon engages
+- Unclip focus halo on bottom-row controls in textarea dialogs
+- Fix libavoid routing of compact/wrapped diagrams; menu order
+- Replace Insert > Layout dialogs with live layout containers
+- Use ELK layouts for Insert > Layout containers via async layout manager
+- Straight edges for the radial tree layout
+- Fit the container to the circle in circleLayout childLayouts
+- Add title-side margin in ELK layout containers
+- Share layout container styles with the Advanced sidebar, match legacy spacing
+- Run ELK childLayouts synchronously inside the triggering edit
+- Fix self-loop misdetection in applyNewEdgeStyle for tree tools
+- Use transparentBounds for the tree containers in the sidebar
+- Center the tree containers' edge channel between the levels
+- Refresh drawio-elk bundle after rebase onto upstream bridge fixes
+- Fix unit snap side for right-side numbering in rack cabinet [jgraph/drawio#5342]
+- Skip enclosing containers as libavoid routing obstacles
+- Make libavoid auto-routing defer to layout containers
+- Keep rigid translation in libavoid shape-move preview
+- Document libavoid container ownership and routing changes
+- Fix un-undoable ghost routes from the libavoid move preview
+- Skip jetty checkpoints libavoid cannot honour
+- Demote libavoid's skipped-checkpoint warnings to console.debug
+- Skip layouts for cells outside the model in the layout manager
+- vendor: update mermaid bundle (dev 76232de — flowchart edge ids/animation/linkStyle, blank subgraph labels + transparent containers)
+- Refresh drawio-elk bundle: selection-as-root scopes to connected components
+- Higher-precision units for grid and page size [jgraph/drawio-desktop#1739]
+- Release libavoid auto-routing on edges an ELK run routes
+- Refresh drawio-elk bundle: anchor content when the layout root is transparentBounds
+- Insert > Layout containers become transparentBounds groups
+- Legacy shared-stem tree edges for the ELK tree layout
+- Refresh drawio-elk bundle: center tree-edge entries on the child
+- Make shapes inside layout containers resizable
+- Updates MathJax from 4.1.2 to 4.1.3
+- Cap libavoid jetty stubs to the terminal pair's gap clearance
+- Lazy libavoid jetty enforcement; jetty cap moves into the core
+- Refresh drawio-mermaid bundle: reject invalid links like upstream
+- Keep the update mermaid dialog open on parse errors
+- Restore source-defined connector ends on mermaid updates
+- Layout runs retarget a selected layout container's childLayout
+- URL-encode JSON childLayout style values
+- Support flow animation on sketch style edges
+- Lay out containers as units in ELK runs, add group padding option
+- Keep relative and part=1 cells fixed inside their parent in ELK runs
+- Never move connected ports and docked cells in ELK runs
+- Skip labels of transparentBounds cells in the ELK input
+- Fixes layout dialog title
+- Route edges from corner-docked ports out their actual side
+- Honor diagram background in CLI SVG export, support --transparent
+- Strip trailing zeros from mm display [jgraph/drawio-desktop#1739]
+- Stop typing shim clipboard branch stealing focus from Find [jgraph/drawio-desktop#2465]
+- Make View section in Format panel collapsible with persistent state
+- Close the nested async childLayout autosave loop
+- Reject non-converging childLayouts and method-clobbering configs
+- Reflow ELK layout boxes on container collapse/expand and shape-part resize
+- Cascade tree container deletes with an orphan check
+- Select cell inserted via hover arrows in tree containers
+- Expose containerType in the Format panel property grid
+- Fall back to minimal delete when a cascade would wipe a tree container
+- Straighten ELK fan-in/fan-out stubs at inset perimeters and ports
+- Retain per-edge corner styles across layout container re-runs
+- Fix center-attached fan pins and conservative-mode fan-in kinks
+- Unify the ELK connector dropdown on the strict orthogonal mode
+- Delete edges in tree containers without the orphan cascade
+- Honor port-constraint masks in ELK layouts, expose combined values
+- Keep user-connected fixed anchors across ELK layout runs
+- Honor port-constraint masks in libavoid routing, re-route on edits
+- Keep free edge ends off the corners of anchored nodes in ELK runs
+- Honor snapToPoint in libavoid routing via candidate anchor pins
+- Honor snapToPoint and jettySize in ELK runs, spread free ports by destination
+- Keep the final approach straight when a snapped end offsets a zero-bend route
+- Snap masked ends to declared anchors in ELK runs, straighten jetty stub tips
+- Update vendored drawio-plantuml bundle to commit 5147280
+- Update vendored drawio-plantuml bundle to commit a403b72
+- Update vendored drawio-plantuml bundle to commit 95fc435
+- Honor explicit jettySize at masked ends in ELK runs
+- chore(mermaid): rebuild bundle with sequence edge fixes [DID-19423, DID-19529]
+
 30-JUN-2026: 30.2.7
 
+- Expose the Diagram/Image output dropdown when editing a Mermaid cell
 - Adds experimental loop handle
 - fix: Enhance inner loop handling and waypoint management in edge rendering
 - Implement inner loop waypoints for enhanced loop handling in edge styles

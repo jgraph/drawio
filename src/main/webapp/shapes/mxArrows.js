@@ -30,7 +30,8 @@ mxShapeArrows2Arrow.prototype.customProperties = [
 	{name: 'dy', dispName: 'Arrow Width', type: 'float', min:0, max:1, defVal: 0.6},
 	{name: 'notch', dispName: 'Notch', type: 'float', min:0, defVal: 0},
 	{name: 'headCrossline', dispName: 'Head Crossline', type: 'bool', defVal: false},
-	{name: 'tailCrossline', dispName: 'Tail Crossline', type: 'bool', defVal: false}
+	{name: 'tailCrossline', dispName: 'Tail Crossline', type: 'bool', defVal: false},
+	{name: 'boundedLbl', dispName: 'Bounded Label', type: 'bool', defVal: false}
 ];
 
 mxShapeArrows2Arrow.prototype.cst = {
@@ -223,7 +224,8 @@ mxShapeArrows2TwoWayArrow.prototype.cst = {
 
 mxShapeArrows2TwoWayArrow.prototype.customProperties = [
 	{name: 'dx', dispName: 'Arrowhead Length', type: 'float', min:0, defVal: 35},
-	{name: 'dy', dispName: 'Arrow Width', type: 'float', min:0, max:1, defVal: 0.6}
+	{name: 'dy', dispName: 'Arrow Width', type: 'float', min:0, max:1, defVal: 0.6},
+	{name: 'boundedLbl', dispName: 'Bounded Label', type: 'bool', defVal: false}
 ];
 
 /**

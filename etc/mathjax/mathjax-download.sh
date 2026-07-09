@@ -6,7 +6,15 @@
 set -e  # Exit on error
 
 # Configuration
-MATHJAX_VERSION="4.1.2"  # Change to specific version
+# Update the mathjax version in etc/dependencies/package.json before running this script
+PACKAGE_JSON="$(pwd)/../dependencies/package.json"
+MATHJAX_VERSION=$(sed -n 's/.*"mathjax": *"\([^"]*\)".*/\1/p' "$PACKAGE_JSON")
+
+if [ -z "$MATHJAX_VERSION" ]; then
+    echo "Failed to read mathjax version from $PACKAGE_JSON" >&2
+    exit 1
+fi
+
 CDN_BASE="https://cdn.jsdelivr.net/npm/mathjax@${MATHJAX_VERSION}"
 FONT_BASE="https://cdn.jsdelivr.net/npm/@mathjax"
 TARGET_DIR="$(pwd)/../../src/main/webapp/math4/es5"

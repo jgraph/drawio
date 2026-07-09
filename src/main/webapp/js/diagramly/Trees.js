@@ -177,10 +177,21 @@
 	
 				result = style['containerType'] == 'tree';
 			}
-			
+
 			return result;
 		};
-	
+
+		// Returns the nearest ancestor with containerType=tree, or null
+		function treeContainerOf(cell)
+		{
+			while (cell != null && !hasTreeParent(cell))
+			{
+				cell = model.getParent(cell);
+			}
+
+			return (cell != null) ? model.getParent(cell) : null;
+		};
+
 		function hasLayoutParent(cell)
 		{
 			var result = false;
@@ -357,17 +368,198 @@
 		/**
 		 * Overriddes
 		 */
+		// Returns the cells removed for the given explicitly deleted cells:
+		// a vertex inside a tree container takes all edges connected to it
+		// or its descendants with it (edges in a tree are structural and
+		// must not be left dangling) and the removal cascades down the tree
+		// to vertices orphaned by it, except inside the containers in the
+		// optional noCascade dictionary. Only SHAPE deletions seed the
+		// cascade: an explicitly deleted edge removes just itself and cuts
+		// the branch below it loose instead of taking it along
+		function collectTreeRemoval(cells, noCascade)
+		{
+			var result = {cells: [], deleted: new mxDictionary(),
+				cut: new mxDictionary(), cascaded: []};
+			var queued = new mxDictionary();
+			var queue = [];
+
+			// Marks an edge for removal; a cut on behalf of a removed VERTEX
+			// (cascade) also schedules the orphan check for the edge's target
+			// in the cascade below (a cut edge no longer counts as a
+			// connection to the parent — explicitly deleted edges count as
+			// cut in those checks too, they just never seed one). The source
+			// terminal is never checked so a removal never propagates
+			// towards the root. Scheduling is independent of the cut marking
+			// because the same edge can arrive both ways: with includeEdges
+			// the explicit cells contain a removed vertex's incident edges
+			// too, so the vertex removal may reach an edge that is already
+			// cut but not yet scheduled.
+			function cutEdge(edge, cascade)
+			{
+				if (edge != null)
+				{
+					if (!result.cut.get(edge))
+					{
+						result.cut.put(edge, true);
+						result.cells.push(edge);
+					}
+
+					if (cascade && !queued.get(edge))
+					{
+						queued.put(edge, true);
+						queue.push(edge);
+					}
+				}
+			};
+
+			function removeVertex(vertex)
+			{
+				if (!result.deleted.get(vertex))
+				{
+					result.deleted.put(vertex, true);
+					result.cells.push(vertex);
+
+					var edges = graph.getAllEdges([vertex]);
+
+					for (var j = 0; j < edges.length; j++)
+					{
+						cutEdge(edges[j], true);
+					}
+				}
+			};
+
+			for (var i = 0; i < cells.length; i++)
+			{
+				var target = cells[i];
+
+				if (model.isEdge(target))
+				{
+					// No cascade: deleting an edge keeps the branch below it
+					// in place (disconnected), so a wrong edge can be removed
+					// and redrawn without losing the subtree
+					cutEdge(target, false);
+				}
+				else if (model.isVertex(target) && treeContainerOf(target) != null)
+				{
+					removeVertex(target);
+				}
+				else if (target != null)
+				{
+					result.cells.push(target);
+				}
+			}
+
+			// Cascades the removal down the tree: a vertex reached by an
+			// edge cut for a removed vertex is itself removed only if it is
+			// inside a tree container and all of its incoming edges are cut,
+			// ie. it is orphaned by this deletion; otherwise only the edge
+			// is removed and the vertex and the subtree below it are kept,
+			// connected to their other parent(s)
+			while (queue.length > 0)
+			{
+				var child = model.getTerminal(queue.shift(), false);
+
+				if (child != null && !result.deleted.get(child) &&
+					model.isVertex(child))
+				{
+					var container = treeContainerOf(child);
+
+					if (container != null && (noCascade == null ||
+						!noCascade.get(container)))
+					{
+						var incoming = graph.getIncomingTreeEdges(child);
+						var orphaned = true;
+
+						for (var j = 0; j < incoming.length; j++)
+						{
+							if (!result.cut.get(incoming[j]))
+							{
+								orphaned = false;
+								break;
+							}
+						}
+
+						if (orphaned)
+						{
+							result.cascaded.push(child);
+							removeVertex(child);
+						}
+					}
+				}
+			}
+
+			return result;
+		};
+
+		// Returns true if a vertex below the container survives the removal
+		// with at least one of its edges, ie. some of the graph remains
+		function hasConnectedSurvivor(container, result)
+		{
+			var stack = [container];
+
+			while (stack.length > 0)
+			{
+				var cell = stack.pop();
+
+				for (var i = 0; i < model.getChildCount(cell); i++)
+				{
+					var child = model.getChildAt(cell, i);
+
+					if (model.isVertex(child) && !result.deleted.get(child))
+					{
+						for (var j = 0; j < model.getEdgeCount(child); j++)
+						{
+							if (!result.cut.get(model.getEdgeAt(child, j)))
+							{
+								return true;
+							}
+						}
+					}
+
+					stack.push(child);
+				}
+			}
+
+			return false;
+		};
+
+		// Returns a dictionary of the tree containers where the cascade
+		// would remove the whole graph inside the container, or null
+		function getWipedTreeContainers(result)
+		{
+			var checked = new mxDictionary();
+			var wiped = null;
+
+			for (var i = 0; i < result.cascaded.length; i++)
+			{
+				var container = treeContainerOf(result.cascaded[i]);
+
+				if (container != null && !checked.get(container))
+				{
+					checked.put(container, true);
+
+					if (!hasConnectedSurvivor(container, result))
+					{
+						wiped = (wiped != null) ? wiped : new mxDictionary();
+						wiped.put(container, true);
+					}
+				}
+			}
+
+			return wiped;
+		};
+
 		var graphRemoveCells = graph.removeCells;
-		
+
 		graph.removeCells = function(cells, includeEdges)
 		{
 			includeEdges = (includeEdges != null) ? includeEdges : true;
-			
+
 			if (cells == null)
 			{
 				cells = this.getDeletableCells(this.getSelectionCells());
 			}
-	
+
 			// Adds all edges to the cells
 			if (includeEdges)
 			{
@@ -375,55 +567,22 @@
 				// in cells or descendant of cells
 				cells = this.getDeletableCells(this.addAllEdges(cells));
 			}
-			
-			var tmp = [];
-			
-			for (var i = 0; i < cells.length; i++)
-			{
-				var target = cells[i];
-				
-				if (model.isEdge(target) && hasTreeParent(target))
-				{
-					tmp.push(target);
-					target = model.getTerminal(target, false);
-				}
-				
-				if (isTreeVertex(target))
-				{
-					var subtree = [];
-					
-					graph.traverse(target, true, function(vertex, edge)
-					{
-						var treeEdge = edge != null && graph.isTreeEdge(edge);
-						
-						if (treeEdge)
-						{
-							subtree.push(edge);
-						}
-						
-						if (edge == null || treeEdge)
-						{
-							subtree.push(vertex);
-						}
 
-						return edge == null || treeEdge;
-					});
-					
-					if (subtree.length > 0)
-					{
-						tmp = tmp.concat(subtree);
-						var edges = graph.getIncomingTreeEdges(cells[i]);
-						cells = cells.concat(edges);
-					}
-				}
-				else if (target != null)
-				{
-					tmp.push(cells[i]);
-				}
+			var result = collectTreeRemoval(cells, null);
+			var wiped = getWipedTreeContainers(result);
+
+			// A cascade that would delete the whole graph inside a tree
+			// container is more than the gesture intends - falls back to
+			// the minimal set with no dangling edges for those containers:
+			// a vertex takes only its incident edges with it and a selected
+			// edge removes just itself
+			if (wiped != null)
+			{
+				result = collectTreeRemoval(cells, wiped);
 			}
-			
-			cells = tmp;
-			
+
+			cells = result.cells;
+
 			return graphRemoveCells.apply(this, arguments);
 		};
 	
@@ -1180,29 +1339,41 @@
 		};
 	
 		var graphConnectVertex = graph.connectVertex;
-		
-		graph.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt, targetCell)
+
+		graph.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt, createTarget, done)
 		{
 			var edges = graph.getIncomingTreeEdges(source);
-			
+
 			if (isTreeVertex(source))
 			{
 				var dir = getTreeDirection(source);
 				var h1 = dir == mxConstants.DIRECTION_EAST || dir == mxConstants.DIRECTION_WEST;
 				var h2 = direction == mxConstants.DIRECTION_EAST || direction == mxConstants.DIRECTION_WEST;
-				
+				var result = null;
+
 				if (dir == direction || edges.length == 0)
 				{
-					return addChild(source, direction);
+					result = addChild(source, direction);
 				}
 				else if (h1 == h2)
 				{
-					return addParent(source);
+					result = addParent(source);
 				}
 				else
 				{
-					return addSibling(source, direction != mxConstants.DIRECTION_NORTH &&
+					result = addSibling(source, direction != mxConstants.DIRECTION_NORTH &&
 						direction != mxConstants.DIRECTION_WEST);
+				}
+
+				// Invokes the callback like the base function so that the
+				// caller selects the inserted cells (eg. hover arrow click)
+				if (done != null)
+				{
+					done(result);
+				}
+				else
+				{
+					return result;
 				}
 			}
 			else
@@ -1290,11 +1461,20 @@
 				'"segment":10,"curved":1,"sourcePerimeterSpacing":0,"targetPerimeterSpacing":0};';
 			var treeEdgeStyle = 'newEdgeStyle={"edgeStyle":"elbowEdgeStyle","startArrow":"none","endArrow":"none"};';
 
+			// The tree containers are only "semi layouted" — the tree tools place
+			// new cells but nothing ever resizes the group, so children can end
+			// up outside the box or flush against its border. transparentBounds
+			// derives the visible bounds from the children instead (padded by
+			// groupPadding plus the title bar), with the stored geometry pinned
+			// at (0,0,0,0) per the transparentBounds convention.
+			var treeContainerStyle = 'swimlane;startSize=20;horizontal=1;' +
+				'containerType=tree;transparentBounds=1;groupPadding=20;';
+
 			return result.concat([
 				this.addEntry('tree container', function()
 				{
-					var cell = new mxCell('Tree Container', new mxGeometry(0, 0, 400, 320),
-						'swimlane;startSize=20;horizontal=1;containerType=tree;');
+					var cell = new mxCell('Tree Container', new mxGeometry(0, 0, 0, 0),
+						treeContainerStyle);
 					cell.vertex = true;
 					
 			    	var cell2 = new mxCell('Parent', new mxGeometry(140, 60, 120, 40),
@@ -1316,13 +1496,13 @@
 			    	cell.insert(cell2);
 			    	cell.insert(cell3);
 					
-			    	return sb.createVertexTemplateFromCells([cell], cell.geometry.width,
-				    	cell.geometry.height, cell.value);
+			    	// Thumbnail size = derived bounds (children bbox + padding + title)
+			    	return sb.createVertexTemplateFromCells([cell], 160, 180, cell.value);
 				}),
 				this.addEntry('tree mindmap mindmaps central idea branch topic', function()
 				{
-					var mindmap = new mxCell('Mindmap', new mxGeometry(0, 0, 420, 126),
-						'swimlane;startSize=20;horizontal=1;containerType=tree;');
+					var mindmap = new mxCell('Mindmap', new mxGeometry(0, 0, 0, 0),
+						treeContainerStyle);
 					mindmap.vertex = true;
 					
 					var cell = new mxCell('Central Idea', new mxGeometry(160, 60, 100, 40),
@@ -1392,8 +1572,8 @@
 					mindmap.insert(cell4);
 					mindmap.insert(cell5);
 					
-					return sb.createVertexTemplateFromCells([mindmap], mindmap.geometry.width,
-						mindmap.geometry.height, mindmap.value);
+					// Thumbnail size = derived bounds (children bbox + padding + title)
+					return sb.createVertexTemplateFromCells([mindmap], 420, 126, mindmap.value);
 				}),
 				this.addEntry('tree mindmap mindmaps central idea', function()
 				{
@@ -1446,8 +1626,8 @@
 				}),
 				this.addEntry('tree orgchart organization division', function()
 				{
-					var orgchart = new mxCell('Orgchart', new mxGeometry(0, 0, 280, 220),
-						'swimlane;startSize=20;horizontal=1;containerType=tree;' + treeEdgeStyle);
+					var orgchart = new mxCell('Orgchart', new mxGeometry(0, 0, 0, 0),
+						treeContainerStyle + treeEdgeStyle);
 					orgchart.vertex = true;
 				
 			    	var cell = new mxCell('Organization', new mxGeometry(80, 40, 120, 60),
@@ -1483,8 +1663,8 @@
 					orgchart.insert(cell2);
 					orgchart.insert(cell3);
 					
-					return sb.createVertexTemplateFromCells([orgchart], orgchart.geometry.width,
-							orgchart.geometry.height, orgchart.value);
+					// Thumbnail size = derived bounds (children bbox + padding + title)
+					return sb.createVertexTemplateFromCells([orgchart], 280, 220, orgchart.value);
 				}),
 				this.addEntry('tree root', function()
 				{

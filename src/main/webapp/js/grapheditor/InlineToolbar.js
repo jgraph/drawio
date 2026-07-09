@@ -646,28 +646,21 @@ InlineToolbar.prototype.clampToContainer = function(x, y, w, h)
 };
 
 /**
- * Returns the index of the active edge style item.
+ * Returns the index of the item whose icon matches the given image source,
+ * or -1 if none matches. The routing and shape sections mirror the Format
+ * panel's "waypoints" and "connection" dropdowns, which resolve the current
+ * cell style to exactly one icon via EditorUi.getImageForEdgeStyle /
+ * getImageForEdgeShape. Selecting the item that carries that canonical icon
+ * keeps the inline toolbar's highlight in sync with the Format panel and
+ * guarantees a single active item, even when the edge carries unrelated
+ * style attributes (dash pattern, arrow sizes, width) that a strict
+ * key/value match would trip over.
  */
-InlineToolbar.prototype.getActiveEdgeStyleIndex = function(items, style)
+InlineToolbar.prototype.getActiveIndexForImage = function(items, imageSrc)
 {
 	for (var i = 0; i < items.length; i++)
 	{
-		var item = items[i];
-		var match = true;
-
-		for (var j = 0; j < item.keys.length; j++)
-		{
-			var val = item.values[j];
-			var cur = mxUtils.getValue(style, item.keys[j], null);
-
-			if ((val == null ? null : String(val)) != (cur == null ? null : String(cur)))
-			{
-				match = false;
-				break;
-			}
-		}
-
-		if (match)
+		if (items[i].img === imageSrc)
 		{
 			return i;
 		}
@@ -1908,6 +1901,7 @@ InlineToolbar.prototype.showConnStyleMenu = function(evt)
 		try
 		{
 			var selCells = graph.getSelectionCells();
+			var edges = [];
 
 			for (var i = 0; i < selCells.length; i++)
 			{
@@ -1929,7 +1923,16 @@ InlineToolbar.prototype.showConnStyleMenu = function(evt)
 					{
 						graph.setCellStyles(item.keys[j], item.values[j], [selCells[i]]);
 					}
+
+					edges.push(selCells[i]);
 				}
+			}
+
+			// Optional follow-up inside the same update (libavoid routes the edges
+			// immediately after the style is applied, atomically with it).
+			if (item.postFn != null)
+			{
+				item.postFn(graph, edges);
 			}
 		}
 		finally
@@ -1955,41 +1958,55 @@ InlineToolbar.prototype.showConnStyleMenu = function(evt)
 
 	if (shape != 'arrow')
 	{
+		// Each routing item also carries libavoidRouting so picking any plain
+		// routing clears the flag, keeping the choices mutually exclusive. The
+		// active-item highlight is resolved via getImageForEdgeStyle, which
+		// already distinguishes a libavoid edge from a plain orthogonal one.
 		routingItems.push({img: Format.straightImage.src, title: mxResources.get('straight'),
-			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-			values: [null, null, null], reset: true});
+			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+			values: [null, null, null, null], reset: true});
 		routingItems.push({img: Format.orthogonalImage.src, title: mxResources.get('orthogonal'),
-			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-			values: ['orthogonalEdgeStyle', null, null], reset: true});
+			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+			values: ['orthogonalEdgeStyle', null, null, null], reset: true});
+
+		if (typeof LibavoidRouting !== 'undefined')
+		{
+			routingItems.push({img: Format.libavoidImage.src, title: mxResources.get('libavoidAutoRoute'),
+				keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				values: ['orthogonalEdgeStyle', null, null, '1'], reset: true,
+				postFn: function(graph, edges) { LibavoidRouting.autoReroute(graph, edges); }});
+		}
+
 		routingItems.push({img: Format.verticalElbowImage.src, title: mxResources.get('horizontal'),
-			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-			values: ['elbowEdgeStyle', 'vertical', null, null], reset: true});
+			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+			values: ['elbowEdgeStyle', 'vertical', null, null, null], reset: true});
 		routingItems.push({img: Format.horizontalElbowImage.src, title: mxResources.get('vertical'),
-			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-			values: ['elbowEdgeStyle', null, null, null], reset: true});
+			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+			values: ['elbowEdgeStyle', null, null, null, null], reset: true});
 		routingItems.push({img: Format.horizontalIsometricImage.src, title: mxResources.get('isometric'),
-			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-			values: ['isometricEdgeStyle', null, null, null], reset: true});
+			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+			values: ['isometricEdgeStyle', null, null, null, null], reset: true});
 		routingItems.push({img: Format.verticalIsometricImage.src, title: mxResources.get('isometric'),
-			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-			values: ['isometricEdgeStyle', 'vertical', null, null], reset: true});
+			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+			values: ['isometricEdgeStyle', 'vertical', null, null, null], reset: true});
 
 		if (shape == null || shape == 'connector')
 		{
 			routingItems.push({img: Format.curvedImage.src, title: mxResources.get('curved'),
-				keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-				values: ['orthogonalEdgeStyle', '1', null], reset: true});
+				keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				values: ['orthogonalEdgeStyle', '1', null, null], reset: true});
 		}
 
 		routingItems.push({img: Format.entityImage.src, title: mxResources.get('entityRelation'),
-			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-			values: ['entityRelationEdgeStyle', null, null], reset: true});
+			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+			values: ['entityRelationEdgeStyle', null, null, null], reset: true});
 	}
 
 	if (routingItems.length > 0)
 	{
 		this.buildIconGrid(body, routingItems,
-			this.getActiveEdgeStyleIndex(routingItems, style), applyItem);
+			this.getActiveIndexForImage(routingItems,
+				this.editorUi.getImageForEdgeStyle(style)), applyItem);
 	}
 
 	// Section 2: Edge shape
@@ -2018,7 +2035,8 @@ InlineToolbar.prototype.showConnStyleMenu = function(evt)
 	}
 
 	this.buildIconGrid(body, shapeItems,
-		this.getActiveEdgeStyleIndex(shapeItems, style), applyItem);
+		this.getActiveIndexForImage(shapeItems,
+			this.editorUi.getImageForEdgeShape(style)), applyItem);
 
 	// Section 3: Bend style
 	var bendKeys = [mxConstants.STYLE_ROUNDED, mxConstants.STYLE_CURVED];

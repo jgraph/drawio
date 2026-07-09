@@ -846,9 +846,33 @@ mxRackRackCabinet3.prototype.cst =
 		TEXT_SIZE : 'textSize'
 };
 
+// Updates the child layout margins so that the 33px allowance for the
+// numbering column (9px frame + 24px numbers) is on the numbered side
+mxRackRackCabinet3.updateNumberMargins = function(graph, dirLeft, numDisp)
+{
+	var cells = graph.getSelectionCells();
+
+	for (var i = 0; i < cells.length; i++)
+	{
+		var style = graph.getCellStyle(cells[i]);
+		var left = (dirLeft != null) ? dirLeft != '0' :
+			mxUtils.getValue(style, 'rackUnitDirLeft', 1) != 0;
+		var margin = (((numDisp != null) ? numDisp :
+			mxUtils.getValue(style, 'numDisp', 'descend')) == 'off') ? 9 : 33;
+
+		graph.setCellStyles('marginLeft', (left) ? margin : 9, [cells[i]]);
+		graph.setCellStyles('marginRight', (left) ? 9 : margin, [cells[i]]);
+	}
+};
+
 mxRackRackCabinet3.prototype.customProperties = [
 	{name: 'startUnit', dispName: 'Starting unit', type: 'int', defVal: 1},
-	{name: 'rackUnitDirLeft', dispName: 'Numbering on left', type: 'boolean', defVal: true},
+	{name: 'rackUnitDirLeft', dispName: 'Numbering on left', type: 'boolean', defVal: true,
+		onChange: function(graph, newValue)
+		{
+			mxRackRackCabinet3.updateNumberMargins(graph, newValue, null);
+		}
+	},
 	{name: 'rackUnitSize', dispName: 'Unit height', type: 'float', defVal: 14.8},
 	{name: 'fillColor2', dispName: 'Panel Color', type: 'color', defVal: '#ffffff', primary: true},
 	{name: 'textColor', dispName: 'Number text color', type: 'color', defVal: '#666666', primary: true},
@@ -857,7 +881,7 @@ mxRackRackCabinet3.prototype.customProperties = [
 		enumList: [{val: 'off', dispName: 'Off'}, {val: 'ascend', dispName: 'Ascending'}, {val: 'descend', dispName: 'Descending'}],
 		onChange: function(graph, newValue)
 		{
-			graph.setCellStyles('marginLeft', (newValue == 'off') ? 9 : 33, graph.getSelectionCells());
+			mxRackRackCabinet3.updateNumberMargins(graph, null, newValue);
 		}
 	}
 ];

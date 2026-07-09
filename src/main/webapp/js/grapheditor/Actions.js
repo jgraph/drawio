@@ -956,7 +956,11 @@ Actions.prototype.init = function()
 
 						if (graph.getModel().getChildCount(cell) > 0)
 						{
-							graph.updateGroupBounds([cell], 0, true);
+							// Keeps the groupPadding style as the per-side gap
+							// between the group bounds and its children
+							var pad = graph.getTransparentBoundsPadding(cell);
+							graph.updateGroupBounds([cell], 0, true,
+								pad.n, pad.e, pad.s, pad.w);
 						}
 						else
 						{

@@ -381,6 +381,21 @@ mxStackLayout.prototype.execute = function(parent)
 			}
 		}
 
+		// Handles the footer size, painted opposite the title for swimlanes
+		// and at the bottom for other containers: reduces the fill size when
+		// the footer is on the fill axis; the stack-axis case is handled in
+		// updateParentGeometry and resizeLast below
+		var pstyle = this.graph.getCellStyle(parent);
+		var footer = Math.max(0, mxUtils.getNumber(pstyle,
+			mxConstants.STYLE_FOOTER_SIZE, 0));
+		var footerHorz = !this.graph.isSwimlane(parent) ||
+			mxUtils.getValue(pstyle, mxConstants.STYLE_HORIZONTAL, true) == 1;
+
+		if (footer > 0 && horizontal == footerHorz)
+		{
+			fillValue -= footer;
+		}
+
 		model.beginUpdate();
 		try
 		{
@@ -512,11 +527,13 @@ mxStackLayout.prototype.execute = function(parent)
 			{
 				if (horizontal)
 				{
-					last.width = pgeo.width - last.x - this.spacing - this.marginRight - this.marginLeft;
+					last.width = pgeo.width - last.x - this.spacing - this.marginRight -
+						this.marginLeft - ((footerHorz) ? 0 : footer);
 				}
 				else
 				{
-					last.height = pgeo.height - last.y - this.spacing - this.marginBottom;
+					last.height = pgeo.height - last.y - this.spacing - this.marginBottom -
+						((footerHorz) ? footer : 0);
 				}
 				
 				this.setChildGeometry(lastChild, last);
@@ -564,14 +581,24 @@ mxStackLayout.prototype.setChildGeometry = function(child, geo)
 mxStackLayout.prototype.updateParentGeometry = function(parent, pgeo, last)
 {
 	var horizontal = this.isHorizontal();
-	var model = this.graph.getModel();	
+	var model = this.graph.getModel();
+
+	// Keeps the parent's footer region (painted opposite the title for
+	// swimlanes and at the bottom for other containers) clear of the last
+	// child when the footer is on the stack axis
+	var style = this.graph.getCellStyle(parent);
+	var footer = Math.max(0, mxUtils.getNumber(style,
+		mxConstants.STYLE_FOOTER_SIZE, 0));
+	var footerHorz = !this.graph.isSwimlane(parent) ||
+		mxUtils.getValue(style, mxConstants.STYLE_HORIZONTAL, true) == 1;
 
 	var pgeo2 = pgeo.clone();
-	
+
 	if (horizontal)
 	{
-		var tmp = last.x + last.width + this.marginRight + this.border;
-		
+		var tmp = last.x + last.width + this.marginRight + this.border +
+			((footerHorz) ? 0 : footer);
+
 		if (this.resizeParentMax)
 		{
 			pgeo2.width = Math.max(pgeo2.width, tmp);
@@ -583,8 +610,9 @@ mxStackLayout.prototype.updateParentGeometry = function(parent, pgeo, last)
 	}
 	else
 	{
-		var tmp = last.y + last.height + this.marginBottom + this.border;
-		
+		var tmp = last.y + last.height + this.marginBottom + this.border +
+			((footerHorz) ? footer : 0);
+
 		if (this.resizeParentMax)
 		{
 			pgeo2.height = Math.max(pgeo2.height, tmp);

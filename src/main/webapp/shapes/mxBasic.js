@@ -95,7 +95,8 @@ mxUtils.extend(mxShapeBasicRectCallout, mxActor);
 
 mxShapeBasicRectCallout.prototype.customProperties = [
 	{name: 'dx', dispName: 'Callout Position', type: 'float', min:0, defVal:30},
-	{name: 'dy', dispName: 'Callout Size', type: 'float', min:0, defVal:15}
+	{name: 'dy', dispName: 'Callout Size', type: 'float', min:0, defVal:15},
+	{name: 'boundedLbl', dispName: 'Bounded Label', type: 'bool', defVal: false}
 ];
 
 mxShapeBasicRectCallout.prototype.cst = {RECT_CALLOUT : 'mxgraph.basic.rectCallout'};
@@ -204,7 +205,8 @@ mxShapeBasicRoundRectCallout.prototype.getLabelMargins = mxShapeBasicRectCallout
 mxShapeBasicRoundRectCallout.prototype.customProperties = [
 	{name: 'size', dispName: 'Arc Size', type: 'float', min:0, defVal:5},
 	{name: 'dx', dispName: 'Callout Position', type: 'float', min:0, defVal:30},
-	{name: 'dy', dispName: 'Callout Size', type: 'float', min:0, defVal:15}
+	{name: 'dy', dispName: 'Callout Size', type: 'float', min:0, defVal:15},
+	{name: 'boundedLbl', dispName: 'Bounded Label', type: 'bool', defVal: false}
 ];
 
 /**

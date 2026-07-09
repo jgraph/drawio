@@ -64,6 +64,9 @@ Format.horizontalIsometricImage = Graph.createSvgImage(16, 18, '<path transform=
 Format.verticalIsometricImage = Graph.createSvgImage(16, 18, '<path transform="translate(32,4)scale(-1,1)" stroke-width="2.5" d="M 0 26 L 4 26 L 4 30 L 0 30 Z M 4 26 L 19 17 L 10 12 L 26 4 M 26 0 L 30 0 L 30 4 L 26 4 Z" stroke="black" fill="none"/>', 36, 36);
 Format.curvedImage = Graph.createSvgImage(16, 18, '<path transform="translate(3,4)" stroke-width="2.5" d="M 0 26 L 4 26 L 4 30 L 0 30 Z M 2 26 Q 2 14 14 14 Q 28 14 28 4 M 26 0 L 30 0 L 30 4 L 26 4 Z" stroke="black" fill="none"/>', 36, 36);
 Format.entityImage = Graph.createSvgImage(16, 18, '<path transform="translate(3,4)" stroke-width="2.5" d="M 0 26 L 4 26 L 4 30 L 0 30 Z M 4 28 L 10 28 L 20 2 L 26 2 M 26 0 L 30 0 L 30 4 L 26 4 Z" stroke="black" fill="none"/>', 36, 36);
+// libavoid obstacle-avoiding routing: an orthogonal connector that detours
+// around an outlined obstacle box (source bottom-left, target top-right).
+Format.libavoidImage = Graph.createSvgImage(16, 18, '<path transform="translate(3,4)" stroke-width="2.5" d="M 0 26 L 4 26 L 4 30 L 0 30 Z M 2 26 L 8 26 L 8 7 L 28 7 L 28 4 M 26 0 L 30 0 L 30 4 L 26 4 Z M 12 11 L 20 11 L 20 19 L 12 19 Z" stroke="black" fill="none"/>', 36, 36);
 Format.sharpBendImage = Graph.createSvgImage(16, 18, '<path transform="translate(3,4)" stroke-width="2.5" d="M 6 2 L 6 22 L 26 22" stroke="black" fill="none"/>', 36, 36);
 Format.roundedBendImage = Graph.createSvgImage(16, 18, '<path transform="translate(3,4)" stroke-width="2.5" d="M 6 2 L 6 12 Q 6 22 16 22 L 26 22" stroke="black" fill="none"/>', 36, 36);
 Format.curvedBendImage = Graph.createSvgImage(16, 18, '<path transform="translate(3,4)" stroke-width="2.5" d="M 6 2 Q 6 22 26 22" stroke="black" fill="none"/>', 36, 36);
@@ -795,10 +798,9 @@ BaseFormatPanel.prototype.addActions = function(div, names)
 /**
  * 
  */
-BaseFormatPanel.prototype.createStepper = function(input, update, step, height, disableFocus, defaultValue, isFloat)
+BaseFormatPanel.prototype.createStepper = function(input, update, step, disableFocus, defaultValue, isFloat)
 {
 	step = (step != null) ? step : 1;
-	height = (height != null) ? height : 9;
 	var bigStep = 10 * step;
 	
 	var stepper = document.createElement('div');
@@ -824,10 +826,11 @@ BaseFormatPanel.prototype.createStepper = function(input, update, step, height, 
 		}
 		
 		var val = isFloat? parseFloat(input.value) : parseInt(input.value);
-		
+
 		if (!isNaN(val))
 		{
-			input.value = val + increment;
+			// Rounds to avoid IEEE754 artifacts (eg. 0.2 + 0.1) in the input
+			input.value = Math.round((val + increment) * 1000000) / 1000000;
 			
 			if (update != null)
 			{
@@ -2752,7 +2755,8 @@ BaseFormatPanel.prototype.fromUnit = function(value)
 
 BaseFormatPanel.prototype.isFloatUnit = function()
 {
-	return this.editorUi.editor.graph.view.unit != mxConstants.POINTS;
+	// Points are 0.1px-precision too, so all units parse as float
+	return true;
 };
 
 /**
@@ -3288,77 +3292,88 @@ ArrangePanel.prototype.addGeometry = function(container)
 		container.appendChild(div2);
 	}
 
-	// Adds the "automatic" checkbox at the bottom of the section for a single
-	// group with child cells. It toggles transparentBounds, which derives the
-	// group's position and size from its children instead of storing them, so
-	// it only applies when there are children to derive from (an empty group or
-	// swimlane would collapse to wrong bounds). The margin clears the
-	// absolutely positioned position labels above it.
+	// Adds the group padding input and the "automatic" checkbox at the bottom
+	// of the section for a single selected vertex.
 	var groupCell = (rect.vertices.length == 1 && rect.edges.length == 0) ?
 		rect.vertices[0] : null;
 
-	if (groupCell != null && model.getChildCount(groupCell) > 0)
+	// The padding input applies to all containers (incl. swimlanes): it sets
+	// the groupPadding style, the gap layouts keep between the container
+	// bounds and its children and, for transparentBounds cells, the border
+	// added around the child-derived bounds.
+	var showPadding = groupCell != null &&
+		(transparent || graph.isContainer(groupCell));
+
+	// The automatic checkbox toggles transparentBounds, which derives the
+	// group's position and size from its children instead of storing them, so
+	// it only applies when there are children to derive from (an empty group
+	// or swimlane would collapse to wrong bounds).
+	var showAuto = groupCell != null && model.getChildCount(groupCell) > 0;
+
+	if (showPadding || showAuto)
 	{
 		div2.style.paddingBottom = '6px';
 
-		// When automatic (transparentBounds) is on, a "border width" input sets the
-		// groupPadding (the gap kept between the derived bounds and the children).
-		// It sits below the position inputs and above the automatic checkbox, with
-		// its input aligned to the right column of the size/position rows.
-		if (transparent)
+		// The padding input sits below the position inputs and above the
+		// automatic checkbox, with its input aligned to the right column of
+		// the size/position rows.
+		if (showPadding)
 		{
-			var borderWrapper = document.createElement('div');
-			borderWrapper.style.position = 'relative';
-			borderWrapper.style.height = '24px';
+			var paddingWrapper = document.createElement('div');
+			paddingWrapper.style.position = 'relative';
+			paddingWrapper.style.height = '24px';
 			// Clears the absolutely positioned position labels above (their
 			// marginTop 10 + height 16) and adds the same gap the position row
-			// has above it, so the spacing before the border row is consistent.
-			borderWrapper.style.marginTop = '40px';
+			// has above it, so the spacing before the padding row is consistent.
+			paddingWrapper.style.marginTop = '40px';
 
-			var borderLabel = document.createElement('span');
-			borderLabel.style.position = 'absolute';
-			borderLabel.style.left = '0px';
-			borderLabel.style.lineHeight = '24px';
-			mxUtils.write(borderLabel, mxResources.get('borderWidth'));
-			borderLabel.setAttribute('title', mxResources.get('borderWidth'));
-			borderWrapper.appendChild(borderLabel);
+			var paddingLabel = document.createElement('span');
+			paddingLabel.style.position = 'absolute';
+			paddingLabel.style.left = '0px';
+			paddingLabel.style.lineHeight = '24px';
+			mxUtils.write(paddingLabel, mxResources.get('groupPadding'));
+			paddingLabel.setAttribute('title', mxResources.get('groupPadding'));
+			paddingWrapper.appendChild(paddingLabel);
 
-			var borderInput = document.createElement('input');
-			borderInput.setAttribute('type', 'text');
-			borderInput.style.position = 'absolute';
-			borderInput.style.left = '148px';
-			borderInput.style.width = '52px';
-			borderInput.setAttribute('title', mxResources.get('borderWidth'));
-			borderWrapper.appendChild(borderInput);
-			div2.appendChild(borderWrapper);
+			var paddingInput = document.createElement('input');
+			paddingInput.setAttribute('type', 'text');
+			paddingInput.style.position = 'absolute';
+			paddingInput.style.left = '148px';
+			paddingInput.style.width = '52px';
+			paddingInput.setAttribute('title', mxResources.get('groupPadding'));
+			paddingWrapper.appendChild(paddingInput);
+			div2.appendChild(paddingWrapper);
 
-			this.installInputHandler(borderInput, mxConstants.STYLE_GROUP_PADDING,
+			this.installInputHandler(paddingInput, mxConstants.STYLE_GROUP_PADDING,
 				0, 0, 999, '', null, false);
 
-			var borderListener = mxUtils.bind(this, function()
+			var paddingListener = mxUtils.bind(this, function()
 			{
-				if (document.activeElement != borderInput)
+				if (document.activeElement != paddingInput)
 				{
 					var value = parseInt(mxUtils.getValue(ui.getSelectionState().style,
 						mxConstants.STYLE_GROUP_PADDING, 0));
-					borderInput.value = isNaN(value) ? 0 : value;
+					paddingInput.value = isNaN(value) ? 0 : value;
 				}
 			});
 
-			model.addListener(mxEvent.CHANGE, borderListener);
-			this.listeners.push({destroy: function() { model.removeListener(borderListener); }});
-			this.addKeyHandler(borderInput, borderListener);
-			borderListener();
+			model.addListener(mxEvent.CHANGE, paddingListener);
+			this.listeners.push({destroy: function() { model.removeListener(paddingListener); }});
+			this.addKeyHandler(paddingInput, paddingListener);
+			paddingListener();
 		}
 
-		var autoWrapper = document.createElement('div');
-		autoWrapper.className = 'geFormatEntry';
-		autoWrapper.style.marginTop = transparent ? '6px' : '26px';
-		var autoOpt = this.createCellOption(mxResources.get('automatic'),
-			'transparentBounds', null, '1', 'null');
-		autoOpt.className = 'geFullWidthElement';
-		autoWrapper.appendChild(autoOpt);
-		div2.appendChild(autoWrapper);
+		if (showAuto)
+		{
+			var autoWrapper = document.createElement('div');
+			autoWrapper.className = 'geFormatEntry';
+			autoWrapper.style.marginTop = showPadding ? '6px' : '26px';
+			var autoOpt = this.createCellOption(mxResources.get('automatic'),
+				'transparentBounds', null, '1', 'null');
+			autoOpt.className = 'geFullWidthElement';
+			autoWrapper.appendChild(autoOpt);
+			div2.appendChild(autoWrapper);
+		}
 	}
 };
 
@@ -6446,27 +6461,42 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	{
 		if (ss.style.shape != 'arrow')
 		{
-			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-				[null, null, null], null, null, true, Format.straightImage.src)).setAttribute('title', mxResources.get('straight'));
-			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-				['orthogonalEdgeStyle', null, null], null, null, true, Format.orthogonalImage.src)).setAttribute('title', mxResources.get('orthogonal'));
-			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-				['elbowEdgeStyle', 'vertical', null, null], null, null, true, Format.verticalElbowImage.src)).setAttribute('title', mxResources.get('horizontal'));
-			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-				['elbowEdgeStyle', null, null, null], null, null, true, Format.horizontalElbowImage.src)).setAttribute('title', mxResources.get('vertical'));
-			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-				['isometricEdgeStyle', null, null, null], null, null, true, Format.horizontalIsometricImage.src)).setAttribute('title', mxResources.get('isometric'));
-			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-				['isometricEdgeStyle', 'vertical', null, null], null, null, true, Format.verticalIsometricImage.src)).setAttribute('title', mxResources.get('isometric'));
-			
+			// Each routing entry also CLEARS libavoidRouting so the choices stay
+			// mutually exclusive (picking any plain routing turns auto-routing off).
+			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				[null, null, null, null], null, null, true, Format.straightImage.src)).setAttribute('title', mxResources.get('straight'));
+			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				['orthogonalEdgeStyle', null, null, null], null, null, true, Format.orthogonalImage.src)).setAttribute('title', mxResources.get('orthogonal'));
+
+			// libavoid obstacle-avoiding routing: orthogonal edge + the flag, routed
+			// immediately (postFn) and re-routed thereafter on move/reconnect. Only
+			// shown when the extensions bundle (libavoid) is present.
+			if (typeof LibavoidRouting !== 'undefined')
+			{
+				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+					['orthogonalEdgeStyle', null, null, '1'], null, null, true, Format.libavoidImage.src, function(graph, edges)
+					{
+						LibavoidRouting.autoReroute(graph, edges);
+					})).setAttribute('title', mxResources.get('libavoidAutoRoute'));
+			}
+
+			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				['elbowEdgeStyle', 'vertical', null, null, null], null, null, true, Format.verticalElbowImage.src)).setAttribute('title', mxResources.get('horizontal'));
+			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				['elbowEdgeStyle', null, null, null, null], null, null, true, Format.horizontalElbowImage.src)).setAttribute('title', mxResources.get('vertical'));
+			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				['isometricEdgeStyle', null, null, null, null], null, null, true, Format.horizontalIsometricImage.src)).setAttribute('title', mxResources.get('isometric'));
+			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				['isometricEdgeStyle', 'vertical', null, null, null], null, null, true, Format.verticalIsometricImage.src)).setAttribute('title', mxResources.get('isometric'));
+
 			if (ss.style.shape == 'connector')
 			{
-				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-					['orthogonalEdgeStyle', '1', null], null, null, true, Format.curvedImage.src)).setAttribute('title', mxResources.get('curved'));
+				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+					['orthogonalEdgeStyle', '1', null, null], null, null, true, Format.curvedImage.src)).setAttribute('title', mxResources.get('curved'));
 			}
-			
-			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
-				['entityRelationEdgeStyle', null, null], null, null, true, Format.entityImage.src)).setAttribute('title', mxResources.get('entityRelation'));
+
+			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				['entityRelationEdgeStyle', null, null, null], null, null, true, Format.entityImage.src)).setAttribute('title', mxResources.get('entityRelation'));
 		}
 	})), '', null, stylePanel2);
 
@@ -6957,31 +6987,31 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 		if (force || document.activeElement != startSize)
 		{
-			var tmp = parseInt(mxUtils.getValue(ss.style, mxConstants.STYLE_STARTSIZE, mxConstants.DEFAULT_MARKERSIZE));
+			var tmp = parseFloat(mxUtils.getValue(ss.style, mxConstants.STYLE_STARTSIZE, mxConstants.DEFAULT_MARKERSIZE));
 			startSize.value = (isNaN(tmp)) ? '' : this.inUnit(tmp) + ' ' + this.getUnit();
 		}
 		
 		if (force || document.activeElement != startSpacing)
 		{
-			var tmp = parseInt(mxUtils.getValue(ss.style, mxConstants.STYLE_SOURCE_PERIMETER_SPACING, 0));
+			var tmp = parseFloat(mxUtils.getValue(ss.style, mxConstants.STYLE_SOURCE_PERIMETER_SPACING, 0));
 			startSpacing.value = (isNaN(tmp)) ? '' : this.inUnit(tmp) + ' ' + this.getUnit();
 		}
 
 		if (force || document.activeElement != endSize)
 		{
-			var tmp = parseInt(mxUtils.getValue(ss.style, mxConstants.STYLE_ENDSIZE, mxConstants.DEFAULT_MARKERSIZE));
+			var tmp = parseFloat(mxUtils.getValue(ss.style, mxConstants.STYLE_ENDSIZE, mxConstants.DEFAULT_MARKERSIZE));
 			endSize.value = (isNaN(tmp)) ? '' : this.inUnit(tmp) + ' ' + this.getUnit();
 		}
 		
 		if (force || document.activeElement != startSpacing)
 		{
-			var tmp = parseInt(mxUtils.getValue(ss.style, mxConstants.STYLE_TARGET_PERIMETER_SPACING, 0));
+			var tmp = parseFloat(mxUtils.getValue(ss.style, mxConstants.STYLE_TARGET_PERIMETER_SPACING, 0));
 			endSpacing.value = (isNaN(tmp)) ? '' : this.inUnit(tmp) + ' ' + this.getUnit();
 		}
 		
 		if (force || document.activeElement != perimeterSpacing)
 		{
-			var tmp = parseInt(mxUtils.getValue(ss.style, mxConstants.STYLE_PERIMETER_SPACING, 0));
+			var tmp = parseFloat(mxUtils.getValue(ss.style, mxConstants.STYLE_PERIMETER_SPACING, 0));
 			perimeterSpacing.value = (isNaN(tmp)) ? '' : this.inUnit(tmp) + ' ' + this.getUnit();
 		}
 	});
@@ -7096,7 +7126,7 @@ StyleFormatPanel.prototype.addLineJumps = function(container)
 
 			if (force || document.activeElement != jumpSize)
 			{
-				var tmp = parseInt(mxUtils.getValue(ss.style, 'jumpSize', Graph.defaultJumpSize));
+				var tmp = parseFloat(mxUtils.getValue(ss.style, 'jumpSize', Graph.defaultJumpSize));
 				jumpSize.value = (isNaN(tmp)) ? '' : this.inUnit(tmp) + ' ' + this.getUnit();
 			}
 		});
@@ -7380,18 +7410,26 @@ DiagramStylePanel.prototype.addView = function(div)
 	var editor = ui.editor;
 	var graph = editor.graph;
 	
-	var opts = document.createElement('div');
-	opts.className = 'geFormatEntry';
-
 	if (graph.isEnabled())
 	{
-		var row = document.createElement('div');
-		row.style.display = 'flex';
-		row.style.alignItems = 'center';
-		row.style.justifyContent = 'center';
-		row.style.gap = '8px';
-		row.style.width = '204px';
+		var createRow = function()
+		{
+			var opts = document.createElement('div');
+			opts.className = 'geFormatEntry';
 
+			var row = document.createElement('div');
+			row.style.display = 'flex';
+			row.style.alignItems = 'center';
+			row.style.justifyContent = 'center';
+			row.style.gap = '8px';
+			row.style.width = '204px';
+			opts.appendChild(row);
+			div.appendChild(opts);
+
+			return row;
+		};
+
+		var row = createRow();
 		var buttons = this.getGlobalStyleButtons();
 
 		// Natural-width slots clustered in the center; shrink with ellipsis
@@ -7420,6 +7458,48 @@ DiagramStylePanel.prototype.addView = function(div)
 			row.appendChild(btn);
 		}
 
+		// Global shadow and light/dark toggle on a second line
+		var row2 = createRow();
+
+		var shadow = this.createOption(mxResources.get('shadow'), function()
+		{
+			return graph.shadowVisible;
+		}, function(checked)
+		{
+			var change = new ChangePageSetup(ui);
+			change.ignoreColor = true;
+			change.ignoreImage = true;
+			change.shadowVisible = checked;
+
+			graph.model.execute(change);
+		},
+		{
+			install: function(apply)
+			{
+				this.listener = function()
+				{
+					apply(graph.shadowVisible);
+				};
+
+				graph.addListener('shadowVisibleChanged', this.listener);
+			},
+			destroy: function()
+			{
+				graph.removeListener(this.listener);
+			}
+		});
+
+		shadow.style.flex = '0 1 auto';
+		shadow.style.minWidth = '0';
+
+		if (!Editor.enableShadowOption)
+		{
+			shadow.getElementsByTagName('input')[0].setAttribute('disabled', 'disabled');
+			mxUtils.setOpacity(shadow, 60);
+		}
+
+		row2.appendChild(shadow);
+
 		if (mxUtils.lightDarkColorSupported)
 		{
 			var img = document.createElement('img');
@@ -7439,11 +7519,8 @@ DiagramStylePanel.prototype.addView = function(div)
 				}
 			});
 
-			row.appendChild(img);
+			row2.appendChild(img);
 		}
-
-		opts.appendChild(row);
-		div.appendChild(opts);
 
 		if (Editor.styles != null)
 		{
@@ -7919,7 +7996,9 @@ DiagramFormatPanel.prototype.init = function()
 	var editor = ui.editor;
 	var graph = editor.graph;
 
-	this.container.appendChild(this.addView(this.createPanel()));
+	var viewSec = this.createCollapsibleSection(mxResources.get('view'), false);
+	viewSec.contentDiv.appendChild(this.addView(this.createPanel()));
+	this.container.appendChild(viewSec.wrapper);
 
 	if (graph.isEnabled())
 	{
@@ -7943,9 +8022,7 @@ DiagramFormatPanel.prototype.addView = function(div)
 	var ui = this.editorUi;
 	var editor = ui.editor;
 	var graph = editor.graph;
-	
-	div.appendChild(this.createTitle(mxResources.get('view')));
-	
+
 	// Grid
 	this.addGridOption(div);
 	
@@ -8053,42 +8130,6 @@ DiagramFormatPanel.prototype.addView = function(div)
 		}, '#ffffff');
 
 		div.appendChild(bgColor);
-
-		var option = this.createOption(mxResources.get('shadow'), function()
-		{
-			return graph.shadowVisible;
-		}, function(checked)
-		{
-			var change = new ChangePageSetup(ui);
-			change.ignoreColor = true;
-			change.ignoreImage = true;
-			change.shadowVisible = checked;
-			
-			graph.model.execute(change);
-		},
-		{
-			install: function(apply)
-			{
-				this.listener = function()
-				{
-					apply(graph.shadowVisible);
-				};
-				
-				ui.addListener('shadowVisibleChanged', this.listener);
-			},
-			destroy: function()
-			{
-				ui.removeListener(this.listener);
-			}
-		});
-		
-		if (!Editor.enableShadowOption)
-		{
-			option.getElementsByTagName('input')[0].setAttribute('disabled', 'disabled');
-			mxUtils.setOpacity(option, 60);
-		}
-
-		div.appendChild(option);
 	}
 	
 	return div;
@@ -8209,7 +8250,7 @@ DiagramFormatPanel.prototype.addGridOption = function(container)
 		}
 		else if (e.keyCode == 27)
 		{
-			input.value = graph.getGridSize();
+			input.value = fPanel.inUnit(graph.getGridSize()) + ' ' + fPanel.getUnit();
 			graph.container.focus();
 			mxEvent.consume(e);
 		}
@@ -8217,7 +8258,7 @@ DiagramFormatPanel.prototype.addGridOption = function(container)
 	
 	function update(evt)
 	{
-		var value = fPanel.isFloatUnit()? parseFloat(input.value) : parseInt(input.value);
+		var value = parseFloat(input.value);
 		value = fPanel.fromUnit(Math.max(fPanel.inUnit(1), (isNaN(value)) ? fPanel.inUnit(10) : value));
 		
 		if (value != graph.getGridSize())
