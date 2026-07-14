@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Medtag en kopi af mit diagram
 increaseIndent=Forøg indrykning
 decreaseIndent=Reducér indrykning
 inherit=Nedarv
+initialPage=Startside
 initialView=Startvisning
 insert=Indsæt
 insertColumnBefore=Indsæt kolonne til venstre

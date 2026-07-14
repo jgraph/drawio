@@ -906,7 +906,6 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn, hideNoFilesErr
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, mxResources.get((showFiles) ? 'selectFile' : 'selectFolder'));
-	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:12px';
 	content.appendChild(hd);
 
 	var btn = this.ui.createToolbarButton(Editor.refreshImage,

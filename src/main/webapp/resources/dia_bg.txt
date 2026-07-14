@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Включи копие от моята диаграма
 increaseIndent=Увеличаване на отстъпа
 decreaseIndent=Намаляване на отстъпа
 inherit=Наследяване
+initialPage=Първоначална страница
 initialView=Първоначален изглед
 insert=Вмъкване
 insertColumnBefore=Вмъкване на колона отляво

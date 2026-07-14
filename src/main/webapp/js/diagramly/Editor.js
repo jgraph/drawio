@@ -11003,10 +11003,6 @@
 		div.appendChild(scrollWrapper);
 
 		var title = document.createElement('h3');
-		title.style.width = '100%';
-		title.style.textAlign = 'center';
-		title.style.marginTop = '0px';
-		title.style.marginBottom = '10px';
 		mxUtils.write(title, titleText || mxResources.get('print'));
 		scrollWrapper.appendChild(title);
 

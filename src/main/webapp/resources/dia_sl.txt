@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Vključi kopijo mojega diagrama
 increaseIndent=Povečaj zamik
 decreaseIndent=Zmanjšaj zamik
 inherit=Podeduj
+initialPage=Začetna stran
 initialView=Začetni pogled
 insert=Vstavi
 insertColumnBefore=Vstavi stolpec levo

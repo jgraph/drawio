@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Titarnissami kopi ilanngullugu
 increaseIndent=Sinerissat Annertillugit
 decreaseIndent=Sinerissat Mikisorillugit
 inherit=Kingornussiaq
+initialPage=Aallaqqaataani qupperneq
 initialView=Aallaqqaataani takusassaq
 insert=Ikkullugu
 insertColumnBefore=Ikkua saamunga ilissiguk

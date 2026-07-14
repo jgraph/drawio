@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="13.804 13.614 16.625 20.772">
+  <defs>
+    <mask id="mask0_7271_11030" maskUnits="userSpaceOnUse" x="13" y="13" width="18" height="22">
+      <path d="M25.7672 13.6143C28.8578 13.6143 30.4288 15.8571 30.4288 18.2942C30.4288 20.7312 30.4288 24.4267 30.4288 28.1939C30.4288 31.9611 27.5041 34.3858 22.8434 34.3858C18.1827 34.3858 15.4248 31.5232 14.3479 29.7008C13.5187 28.2604 13.5851 26.1836 14.9146 24.7075C16.2769 23.1384 18.9399 23.0153 20.8702 24.8691L23.0115 26.9436C23.2508 27.1645 23.4825 27.0326 23.5715 26.9436C23.6605 26.8547 23.7406 26.6613 23.5715 26.3645C23.5715 26.3645 22.078 23.8263 21.7313 23.2037C21.3845 22.5811 21.3983 21.7291 21.3983 21.7291C21.3983 21.7291 21.4107 20.5165 21.4107 18.2942C21.4107 16.0718 22.6765 13.6143 25.7672 13.6143Z" fill="#fff"/>
+    </mask>
+    <linearGradient id="paint1_linear_7271_11030" x1="12.9234" y1="14.7774" x2="31.214" y2="33.1469" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1348FF"/>
+      <stop offset="1" stop-color="#06238D"/>
+    </linearGradient>
+    <linearGradient id="paint2_linear_7271_11030" x1="20.6017" y1="17.6854" x2="24.7431" y2="36.4897" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0195FF"/>
+      <stop offset="0.991028" stop-color="#1147E9"/>
+    </linearGradient>
+    <linearGradient id="paint3_linear_7271_11030" x1="15.3771" y1="21.7919" x2="25.3481" y2="31.7559" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00BBFF"/>
+      <stop offset="1" stop-color="#008BFF"/>
+    </linearGradient>
+  </defs>
+  <g mask="url(#mask0_7271_11030)">
+    <path d="M35.1947 24C35.1947 31.217 29.3441 37.0676 22.1271 37.0676C14.91 37.0676 9.05945 31.217 9.05945 24C9.05945 16.7829 14.91 10.9324 22.1271 10.9324C29.3441 10.9324 35.1947 16.7829 35.1947 24Z" fill="url(#paint1_linear_7271_11030)"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M21.7449 16.5972C32.5767 16.5972 33.7599 35.101 24.5417 36.9719C9.16189 40.0935 10.9132 16.5972 21.7449 16.5972Z" fill="url(#paint2_linear_7271_11030)"/>
+    <ellipse cx="20.3661" cy="26.7755" rx="7.12015" ry="7.12015" fill="url(#paint3_linear_7271_11030)"/>
+  </g>
+</svg>

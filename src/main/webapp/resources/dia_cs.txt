@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Zahrnout kopii diagramu
 increaseIndent=Zvětšit odsazení
 decreaseIndent=Zmenšit odsazení
 inherit=Zdědit
+initialPage=Počáteční stránka
 initialView=Počáteční zobrazení
 insert=Vložit
 insertColumnBefore=Vložit sloupec vlevo

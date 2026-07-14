@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=నా రేఖాచిత్రం కాపీని 
 increaseIndent=ఇండెంట్ పెంచు
 decreaseIndent=ఇండెంట్ తగ్గించు
 inherit=వారసత్వం
+initialPage=ప్రారంభ పేజీ
 initialView=ప్రారంభ వీక్షణ
 insert=చొప్పించు
 insertColumnBefore=ఎడమవైపు నిలువు వరుస చేర్చు

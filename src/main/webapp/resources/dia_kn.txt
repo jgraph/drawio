@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=ನನ್ನ ರೇಖಾಚಿತ್ರದ ಪ್ರತ�
 increaseIndent=ಇಂಡೆಂಟ್ ಹೆಚ್ಚಿಸಿ
 decreaseIndent=ಇಂಡೆಂಟ್ ಕಡಿಮೆ ಮಾಡಿ
 inherit=ಪಿತ್ರಾರ್ಜಿತ
+initialPage=ಆರಂಭಿಕ ಪುಟ
 initialView=ಆರಂಭಿಕ ವೀಕ್ಷಣೆ
 insert=ಸೇರಿಸಿ
 insertColumnBefore=ಎಡಕ್ಕೆ ಕಾಲಮ್ ಸೇರಿಸಿ

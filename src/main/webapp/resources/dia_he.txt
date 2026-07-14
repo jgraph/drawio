@@ -443,6 +443,7 @@ includeCopyOfMyDiagram=‫כלול עותק של הדיאגרמה שלי‬
 increaseIndent=‫הגדל מרחק מהשוליים‬
 decreaseIndent=‫הקטן מרחק מהשוליים‬
 inherit=ירושה
+initialPage=‫עמוד התחלתי‬
 initialView=‫תצוגה התחלתית‬
 insert=‫הוספה‬
 insertColumnBefore=‫הוספת עמודה משמאל‬

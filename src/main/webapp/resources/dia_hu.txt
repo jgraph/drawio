@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Diagram másolatának csatolása
 increaseIndent=Behúzás növelése
 decreaseIndent=Behúzás csökkentése
 inherit=Öröklés
+initialPage=Kezdeti oldal
 initialView=Kezdeti nézet
 insert=Beszúrás
 insertColumnBefore=Oszlop beszúrása balra

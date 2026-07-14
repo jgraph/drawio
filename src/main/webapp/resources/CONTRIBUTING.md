@@ -13,9 +13,9 @@ Keys must match those in `dia.txt` exactly. Values are the translated strings.
 
 ## How to Contribute
 
-1. Fork this repository
-2. Edit the relevant `dia_{lang}.txt` file
-3. Submit a pull request against the `dev` branch
+1. Fork the [draw.io repository](https://github.com/jgraph/drawio)
+2. Edit the relevant `src/main/webapp/resources/dia_{lang}.txt` file
+3. Submit a pull request
 
 ### Adding or Updating Translations
 
@@ -29,7 +29,7 @@ Keys must match those in `dia.txt` exactly. Values are the translated strings.
 Open an issue first to discuss. A new language requires:
 
 1. A new `dia_{lang}.txt` file with the same keys as `dia.txt`
-2. An entry in `mxLanguageMap` in `src/main/webapp/js/diagramly/Init.js` (in the main [drawio](https://github.com/jgraph/drawio) repo)
+2. An entry in `mxLanguageMap` in `src/main/webapp/js/diagramly/Init.js`
 
 ## Format Rules
 
@@ -43,4 +43,4 @@ Open an issue first to discuss. A new language requires:
 
 ## Review Process
 
-All changes are reviewed when the submodule is updated in the main draw.io repository.
+All changes are reviewed as part of the draw.io release pipeline.

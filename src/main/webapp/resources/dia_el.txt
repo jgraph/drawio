@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Να περιληφθεί ένα αντίγραφο το�
 increaseIndent=Αύξηση εσοχής
 decreaseIndent=Μείωση εσοχής
 inherit=Κληρονόμηση
+initialPage=Αρχική σελίδα
 initialView=Αρχική προβολή
 insert=Εισαγωγή
 insertColumnBefore=Εισαγωγή Στήλης Αριστερά

@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Inkluzivi kopion de mia diagramo
 increaseIndent=Pliigi Krommarĝenon
 decreaseIndent=Malpliigi Krommarĝenon
 inherit=Heredi
+initialPage=Komenca paĝo
 initialView=Komenca vido
 insert=Enmeti
 insertColumnBefore=Enmeti Kolumnon Maldekstre

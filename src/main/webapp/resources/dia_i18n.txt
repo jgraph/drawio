@@ -447,6 +447,7 @@ includeCopyOfMyDiagram=includeCopyOfMyDiagram
 increaseIndent=increaseIndent
 decreaseIndent=decreaseIndent
 inherit=inherit
+initialPage=initialPage
 initialView=initialView
 insert=insert
 insertColumnBefore=insertColumnBefore

@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Kopie meines Diagramms einfügen
 increaseIndent=Einzug vergrößern
 decreaseIndent=Einzug verringern
 inherit=Erben
+initialPage=Startseite
 initialView=Anfangsansicht
 insert=Einfügen
 insertColumnBefore=Spalte links einfügen

@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Uključi kopiju mog dijagrama
 increaseIndent=Uvećaj urez
 decreaseIndent=Smanji urez
 inherit=Наследи
+initialPage=Početna stranica
 initialView=Početni prikaz
 insert=Umetni
 insertColumnBefore=Umetni kolumnu levo

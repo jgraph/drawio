@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=મારા ડાયાગ્રામની નકલ 
 increaseIndent=ઇન્ડેન્ટ વધારો
 decreaseIndent=ઇન્ડેન્ટ ઘટાડો
 inherit=વારસામાં લો
+initialPage=પ્રારંભિક પૃષ્ઠ
 initialView=પ્રારંભિક દૃશ્ય
 insert=દાખલ કરો
 insertColumnBefore=ડાબે કૉલમ દાખલ કરો

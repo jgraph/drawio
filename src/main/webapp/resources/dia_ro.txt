@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Include o copie a diagramei mele
 increaseIndent=Mărește indentare
 decreaseIndent=Micșorează indentare
 inherit=Moștenește
+initialPage=Pagină inițială
 initialView=Vizualizare inițială
 insert=Inserează
 insertColumnBefore=Inserează o coloană la stânga

@@ -1016,6 +1016,29 @@ LibavoidRouting.samePoints = function(a, b)
  *
  * @returns {boolean} whether any edge was routed.
  */
+/**
+ * The absolute-model free point of a DANGLING (unconnected) edge end, or null
+ * when that end is connected to a terminal cell. Reads the edge geometry's
+ * terminal point (parent-relative) and shifts it by the edge's absolute parent
+ * offset — the same frame collectVertices and the committed waypoints use — so
+ * the core can route an unconnected end to the exact point the drag preview
+ * showed (computeRoutes' sourcePoint/targetPoint).
+ */
+LibavoidRouting.danglingPoint = function(graph, edge, source)
+{
+	var geo = graph.getModel().getGeometry(edge);
+	var p = (geo != null) ? geo.getTerminalPoint(source) : null;
+
+	if (p == null)
+	{
+		return null;
+	}
+
+	var off = LibavoidRouting.getAbsoluteParentOffset(graph, edge);
+
+	return {x: p.x + off.x, y: p.y + off.y};
+};
+
 LibavoidRouting.routeCells = function(graph, Avoid, edgeCells, opts, setStyle)
 {
 	var model = graph.getModel();
@@ -1036,28 +1059,43 @@ LibavoidRouting.routeCells = function(graph, Avoid, edgeCells, opts, setStyle)
 
 		var s = model.getTerminal(c, true);
 		var t = model.getTerminal(c, false);
+		var sVertex = (s != null && model.isVertex(s));
+		var tVertex = (t != null && model.isVertex(t));
 
-		if (s != null && t != null && model.isVertex(s) && model.isVertex(t))
+		// A DANGLING end (no terminal vertex) routes to its free point, so a
+		// committed edge with one unconnected end matches its drag preview
+		// (which routes source-vertex -> free Point via the warm session).
+		var sPoint = sVertex ? null : LibavoidRouting.danglingPoint(graph, c, true);
+		var tPoint = tVertex ? null : LibavoidRouting.danglingPoint(graph, c, false);
+
+		// Need at least one real vertex end (like the preview, which routes from a
+		// fixed shape); an edge dangling at BOTH ends is left alone.
+		if ((sVertex || sPoint != null) && (tVertex || tPoint != null) &&
+			(sVertex || tVertex))
 		{
 			// transparentBounds terminals are not in collectVertices —
 			// register their derived hull so the core can route from/to them.
-			LibavoidRouting.addTerminalVertex(graph, vertices, added, s);
-			LibavoidRouting.addTerminalVertex(graph, vertices, added, t);
+			if (sVertex) { LibavoidRouting.addTerminalVertex(graph, vertices, added, s); }
+			if (tVertex) { LibavoidRouting.addTerminalVertex(graph, vertices, added, t); }
 
 			// getCellStyle (parses the cell's current style string), NOT
 			// getCurrentCellStyle (the cached state style): on a fresh insert the
 			// state hasn't re-validated yet, so its cached style is missing the
-			// exitX/entryX that setConnectionConstraint just set.
+			// exitX/entryX that setConnectionConstraint just set. A dangling end
+			// takes no constraint/pin/mask/jetty — it's a bare free point.
 			var st = graph.getCellStyle(c);
-			edges.push({id: c.getId(), source: s.getId(), target: t.getId(),
-				sourceConstraint: LibavoidRouting.fixedConstraint(st, true),
-				targetConstraint: LibavoidRouting.fixedConstraint(st, false),
-				sourcePoints: LibavoidRouting.snapPoints(graph, s, st, graph.getCellStyle(s)),
-				targetPoints: LibavoidRouting.snapPoints(graph, t, st, graph.getCellStyle(t)),
-				sourceSides: LibavoidRouting.maskSides(st, graph.getCellStyle(s), true),
-				targetSides: LibavoidRouting.maskSides(st, graph.getCellStyle(t), false),
-				sourceJetty: LibavoidRouting.jettyFor(st, true),
-				targetJetty: LibavoidRouting.jettyFor(st, false)});
+			edges.push({id: c.getId(),
+				source: sVertex ? s.getId() : null,
+				target: tVertex ? t.getId() : null,
+				sourcePoint: sPoint, targetPoint: tPoint,
+				sourceConstraint: sVertex ? LibavoidRouting.fixedConstraint(st, true) : null,
+				targetConstraint: tVertex ? LibavoidRouting.fixedConstraint(st, false) : null,
+				sourcePoints: sVertex ? LibavoidRouting.snapPoints(graph, s, st, graph.getCellStyle(s)) : null,
+				targetPoints: tVertex ? LibavoidRouting.snapPoints(graph, t, st, graph.getCellStyle(t)) : null,
+				sourceSides: sVertex ? LibavoidRouting.maskSides(st, graph.getCellStyle(s), true) : null,
+				targetSides: tVertex ? LibavoidRouting.maskSides(st, graph.getCellStyle(t), false) : null,
+				sourceJetty: sVertex ? LibavoidRouting.jettyFor(st, true) : 0,
+				targetJetty: tVertex ? LibavoidRouting.jettyFor(st, false) : 0});
 			byId[c.getId()] = c;
 		}
 	}
@@ -1263,22 +1301,30 @@ LibavoidRouting.edgeRouteBounds = function(graph, edge)
 	var model = graph.getModel();
 	var s = model.getTerminal(edge, true);
 	var t = model.getTerminal(edge, false);
+	var sVertex = (s != null && model.isVertex(s));
+	var tVertex = (t != null && model.isVertex(t));
 
-	if (s == null || t == null || !model.isVertex(s) || !model.isVertex(t))
+	// A dangling end contributes its free point (not a terminal centre) to the
+	// route bbox, so a moved shape still detects the auto-edge it's connected to.
+	// Need at least one vertex end.
+	if (!sVertex && !tVertex)
 	{
 		return null;
 	}
 
-	var sb = LibavoidRouting.getAbsoluteModelBounds(graph, s);
-	var tb = LibavoidRouting.getAbsoluteModelBounds(graph, t);
+	var sb = sVertex ? LibavoidRouting.getAbsoluteModelBounds(graph, s) : null;
+	var tb = tVertex ? LibavoidRouting.getAbsoluteModelBounds(graph, t) : null;
+	var sPt = sVertex ? null : LibavoidRouting.danglingPoint(graph, edge, true);
+	var tPt = tVertex ? null : LibavoidRouting.danglingPoint(graph, edge, false);
 
-	if (sb == null || tb == null)
+	if ((sVertex && sb == null) || (tVertex && tb == null) ||
+		(sPt == null && !sVertex) || (tPt == null && !tVertex))
 	{
 		return null;
 	}
 
-	var scx = sb.x + sb.w / 2, scy = sb.y + sb.h / 2;
-	var tcx = tb.x + tb.w / 2, tcy = tb.y + tb.h / 2;
+	var scx = sVertex ? sb.x + sb.w / 2 : sPt.x, scy = sVertex ? sb.y + sb.h / 2 : sPt.y;
+	var tcx = tVertex ? tb.x + tb.w / 2 : tPt.x, tcy = tVertex ? tb.y + tb.h / 2 : tPt.y;
 	var minX = Math.min(scx, tcx), maxX = Math.max(scx, tcx);
 	var minY = Math.min(scy, tcy), maxY = Math.max(scy, tcy);
 
@@ -2260,8 +2306,16 @@ LibavoidRouting.solveMovePreview = function(graph, handler, mdx, mdy)
 		c = map[id];
 		var s = model.getTerminal(c, true);
 		var t = model.getTerminal(c, false);
+		var sVertex = (s != null && model.isVertex(s));
+		var tVertex = (t != null && model.isVertex(t));
 
-		if (s == null || t == null || !model.isVertex(s) || !model.isVertex(t))
+		// A dangling end re-routes to its (stationary) free point when the
+		// connected shape moves — same as routeCells. Need one vertex end.
+		var sPoint = sVertex ? null : LibavoidRouting.danglingPoint(graph, c, true);
+		var tPoint = tVertex ? null : LibavoidRouting.danglingPoint(graph, c, false);
+
+		if (!((sVertex || sPoint != null) && (tVertex || tPoint != null) &&
+			(sVertex || tVertex)))
 		{
 			continue;
 		}
@@ -2270,8 +2324,10 @@ LibavoidRouting.solveMovePreview = function(graph, handler, mdx, mdy)
 		// preview's translation of the displayed route is already correct — skip
 		// the re-solve unless the translated route lands within buffer distance
 		// of a stationary obstacle (only those can newly conflict; everything
-		// moving keeps its relative geometry).
-		if (handler.isCellMoving(c) && handler.isCellMoving(s) && handler.isCellMoving(t))
+		// moving keeps its relative geometry). Only applies with two vertex ends;
+		// a dangling end's free point stays put, so always re-solve those.
+		if (sVertex && tVertex &&
+			handler.isCellMoving(c) && handler.isCellMoving(s) && handler.isCellMoving(t))
 		{
 			var bb = LibavoidRouting.edgeRouteBounds(graph, c);
 
@@ -2299,15 +2355,18 @@ LibavoidRouting.solveMovePreview = function(graph, handler, mdx, mdy)
 		}
 
 		var est = graph.getCellStyle(c);
-		edgeArray.push({id: c.getId(), source: s.getId(), target: t.getId(),
-			sourceConstraint: LibavoidRouting.fixedConstraint(est, true),
-			targetConstraint: LibavoidRouting.fixedConstraint(est, false),
-			sourcePoints: LibavoidRouting.snapPoints(graph, s, est, graph.getCellStyle(s)),
-			targetPoints: LibavoidRouting.snapPoints(graph, t, est, graph.getCellStyle(t)),
-			sourceSides: LibavoidRouting.maskSides(est, graph.getCellStyle(s), true),
-			targetSides: LibavoidRouting.maskSides(est, graph.getCellStyle(t), false),
-			sourceJetty: LibavoidRouting.jettyFor(est, true),
-			targetJetty: LibavoidRouting.jettyFor(est, false)});
+		edgeArray.push({id: c.getId(),
+			source: sVertex ? s.getId() : null,
+			target: tVertex ? t.getId() : null,
+			sourcePoint: sPoint, targetPoint: tPoint,
+			sourceConstraint: sVertex ? LibavoidRouting.fixedConstraint(est, true) : null,
+			targetConstraint: tVertex ? LibavoidRouting.fixedConstraint(est, false) : null,
+			sourcePoints: sVertex ? LibavoidRouting.snapPoints(graph, s, est, graph.getCellStyle(s)) : null,
+			targetPoints: tVertex ? LibavoidRouting.snapPoints(graph, t, est, graph.getCellStyle(t)) : null,
+			sourceSides: sVertex ? LibavoidRouting.maskSides(est, graph.getCellStyle(s), true) : null,
+			targetSides: tVertex ? LibavoidRouting.maskSides(est, graph.getCellStyle(t), false) : null,
+			sourceJetty: sVertex ? LibavoidRouting.jettyFor(est, true) : 0,
+			targetJetty: tVertex ? LibavoidRouting.jettyFor(est, false) : 0});
 		byId[c.getId()] = c;
 	}
 
@@ -2470,6 +2529,26 @@ LibavoidRouting.livePreviewMove = function(handler, dx, dy)
 			state.invalid = false;
 			graph.cellRenderer.redraw(state, true);
 			touched[id] = edge;
+
+			// Repositions the edge's child labels: their states derive from the
+			// parent edge state only at validation time, which the transient
+			// preview bypasses (and the base preview never re-validates edges
+			// that are merely crossed by the drag), so they would keep painting
+			// on the old route. The restore paths need no equivalent —
+			// invalidate recurses into the children.
+			var childCount = model.getChildCount(edge);
+
+			for (var j = 0; j < childCount; j++)
+			{
+				var childState = view.getState(model.getChildAt(edge, j));
+
+				if (childState != null)
+				{
+					view.updateCellState(childState);
+					childState.invalid = false;
+					graph.cellRenderer.redraw(childState, true);
+				}
+			}
 		}
 	}
 	finally

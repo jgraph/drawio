@@ -485,11 +485,11 @@ OUTPUT FILES (in src/main/webapp/js/):
 		     drawio-elk must come before drawio-mermaid so that window.ELK is
 		     defined when mermaid's layout bridge reads globalThis.ELK, and
 		     before the ElkLayout editor statics so they attach immediately.
-		     The libavoid files are concatenated raw (already processed by
-		     etc/build/vendor-libavoid.js) in fixed order: glue → base64 wasm →
-		     loader → the shared routing core (defines AvoidRouting; canonical,
-		     vendored verbatim by drawio-mcp) → the Closure-compiled
-		     LibavoidRouting editor binding. -->
+		     The libavoid files are concatenated raw in fixed order: the pure-JS
+		     bundle (self-contained/self-publishing — defines window.Avoid
+		     synchronously on load, like drawio-mermaid) → the shared routing core
+		     (defines AvoidRouting; canonical, vendored verbatim by drawio-mcp) →
+		     the Closure-compiled LibavoidRouting editor binding. -->
 		<concat destfile="${war.dir}/js/extensions.min.js" fixlastline="yes" append="yes">
 			<fileset file="${war.dir}/js/jszip/jszip.min.js"/>
 			<fileset file="${war.dir}/js/elk/drawio-elk.min.js"/>
@@ -497,8 +497,6 @@ OUTPUT FILES (in src/main/webapp/js/):
 			<fileset file="${war.dir}/js/mermaid/drawio-mermaid.min.js"/>
 			<fileset file="${war.dir}/js/orgchart.min.js"/>
 			<fileset file="${war.dir}/js/libavoid-js/libavoid.min.js"/>
-			<fileset file="${war.dir}/js/libavoid-js/libavoid-wasm.js"/>
-			<fileset file="${war.dir}/js/libavoid-js/libavoid-loader.js"/>
 			<fileset file="${war.dir}/js/libavoid-js/libavoid-routing.js"/>
 			<filelist dir="${basedir}" files=".tmplibavoid.js"/>
     	</concat>

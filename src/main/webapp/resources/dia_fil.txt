@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Magsama ng kopya ng aking dayagram
 increaseIndent=Dagdagan ang indensyon
 decreaseIndent=Bawasan ang indensyon
 inherit=Manahin
+initialPage=Paunang pahina
 initialView=Paunang tanaw
 insert=Isingit
 insertColumnBefore=Magsingit ng Hanay sa Kaliwa

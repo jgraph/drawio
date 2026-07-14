@@ -443,6 +443,7 @@ includeCopyOfMyDiagram=‫تضمين نسخة من المخطط‬
 increaseIndent=‫زيادة المسافة القبلية‬
 decreaseIndent=‫تخفيض المسافة القبلية‬
 inherit=وراثة
+initialPage=‫الصفحة الأولية‬
 initialView=‫العرض الأولي‬
 insert=‫إضافة‬
 insertColumnBefore=‫إضافة عمود على اليسار‬

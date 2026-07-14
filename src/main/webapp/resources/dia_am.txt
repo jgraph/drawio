@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=የእኔን ዳያግራም ቅጂ ያካትቱ
 increaseIndent=ገደብ ጨምር
 decreaseIndent=ገደብ ቀንስ
 inherit=ውረስ
+initialPage=የመጀመሪያ ገጽ
 initialView=የመጀመሪያ እይታ
 insert=አስገባ
 insertColumnBefore=ዓምድ በግራ አስገባ

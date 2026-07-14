@@ -1058,7 +1058,21 @@ Actions.prototype.init = function()
 		{
 			if (newValue != null && newValue.length > 0)
 			{
-				graph.setCellStyles(mxConstants.STYLE_ROTATION, newValue);
+				// Rotates group children as a rigid body (see setCellRotation)
+				var cells = graph.getSelectionCells();
+
+				graph.getModel().beginUpdate();
+				try
+				{
+					for (var i = 0; i < cells.length; i++)
+					{
+						graph.setCellRotation(cells[i], newValue);
+					}
+				}
+				finally
+				{
+					graph.getModel().endUpdate();
+				}
 			}
 		}, mxResources.get('enterValue') + ' (' + mxResources.get('rotation') + ' 0-360)');
 		

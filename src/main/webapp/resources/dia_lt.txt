@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Įtraukti mano diagramos kopiją
 increaseIndent=Padidinti įtrauką
 decreaseIndent=Sumažinti įtrauką
 inherit=Paveldėti
+initialPage=Pradinis puslapis
 initialView=Pradinis vaizdas
 insert=Įterpti
 insertColumnBefore=Įterpti stulpelį kairėje

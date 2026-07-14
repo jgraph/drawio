@@ -555,26 +555,9 @@ BaseFormatPanel.prototype.installInputHandler = function(input, key, defaultValu
 					// rotation handle) instead of only spinning the group's own shape
 					if (key == mxConstants.STYLE_ROTATION)
 					{
-						var plain = [];
-
 						for (var i = 0; i < cells.length; i++)
 						{
-							if (graph.model.isVertex(cells[i]) && graph.model.getChildCount(cells[i]) > 0 &&
-								!graph.isTable(cells[i]) && !graph.isTableRow(cells[i]) &&
-								!graph.isTableCell(cells[i]) && !graph.isSwimlane(cells[i]))
-							{
-								var cur = parseFloat(graph.getCurrentCellStyle(cells[i])[mxConstants.STYLE_ROTATION]) || 0;
-								graph.rotateCell(cells[i], value - cur);
-							}
-							else
-							{
-								plain.push(cells[i]);
-							}
-						}
-
-						if (plain.length > 0)
-						{
-							graph.setCellStyles(key, value, plain);
+							graph.setCellRotation(cells[i], value);
 						}
 					}
 					else
@@ -6473,7 +6456,8 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 			// libavoid obstacle-avoiding routing: orthogonal edge + the flag, routed
 			// immediately (postFn) and re-routed thereafter on move/reconnect. Only
-			// shown when the extensions bundle (libavoid) is present.
+			// shown when the extensions bundle (libavoid) is loaded (a no-op in
+			// viewers / configs without extensions.min.js).
 			if (typeof LibavoidRouting !== 'undefined')
 			{
 				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],

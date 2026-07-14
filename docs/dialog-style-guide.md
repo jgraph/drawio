@@ -32,6 +32,7 @@ content area becomes scrollable so the footer stays reachable:
 ## Spacing (handled by CustomDialog and Dialog)
 
 - **Dialog padding**: 24px on all sides (`.geDialog` CSS)
+- **Title margin-bottom**: 16px (`.geDialog h3` CSS)
 - **Buttons margin-top**: 34px (default in `CustomDialog`)
 - **Container padding-bottom**: 10px (`CustomDialog` adds this to prevent margin collapse)
 - **Dialog chrome**: `Dialog` constructor adds 48px to both width and height for padding
@@ -153,14 +154,18 @@ section.appendChild(row);
 
 ## Dialog Title
 
-Center-aligned `<h3>` with standard margins:
+A plain `<h3>` — all styling comes from the central `.geDialog h3` rule
+(centered, 16px bottom margin, `flex-shrink: 0` for flex-column layouts):
 
 ```javascript
 var hd = document.createElement('h3');
 mxUtils.write(hd, title);
-hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 div.appendChild(hd);
 ```
+
+Never set inline styles on dialog titles; if a special layout genuinely
+needs different margins (e.g. a title inside a header row), the inline
+override is the documented exception, not the norm.
 
 ## Edit Button (Lightbox Dialogs)
 
@@ -191,6 +196,59 @@ the control even when a long (e.g. German) label grows past the 100px column —
 not add per-control `marginLeft` inside a form row, and if a longer label needs
 more room, increase the dialog width rather than overriding `min-width` on
 individual labels.
+
+## Multi-Line Rows (`geDialogFormRowTop`)
+
+`geDialogFormRow` centers the label vertically, which is correct for
+single-line rows. When the row's content spans multiple lines — stacked
+controls (e.g. the Page Setup paper-size panel) or wrapping hint text —
+add `geDialogFormRowTop` so the label top-aligns with the first content
+line instead of floating against the middle of the block:
+
+```javascript
+row.className = 'geDialogFormRow geDialogFormRowTop';
+```
+
+The class sets `align-items: flex-start` and pads the label so it sits
+optically on the first line. Do not top-align single-line rows — mixed
+alignments within one dialog read as a bug.
+
+## Typography
+
+Dialogs inherit the app font (`.geEditor`, 14px system stack). Never set
+font family, size or weight inline in a dialog — every text role has a
+central rule:
+
+| Role | Size / weight | Where it comes from |
+|---|---|---|
+| Title | ~16px bold | plain `<h3>` (see Dialog Title) |
+| Labels, checkbox text, body | 14px normal | inherited — no styling needed |
+| Controls (input, select, textarea) | 13px normal | `.geDialog` CSS; selects that borrow `.geBtn` for sizing are forced back to normal weight by `.geDialog select` |
+| Buttons | 14px / weight 550 | `.geBtn` — buttons only, never text |
+| Hint / muted secondary text | 12px muted | `.geDialogHint` |
+| Collapsible section header | 13px | `addAdvancedSection` (`.geCollapsibleTitle`) |
+
+`geDialogHint` covers all muted secondary text: explanatory hints
+describing what an option does (e.g. the lightbox-animation note in Page
+Setup), unit suffixes next to compact inline inputs (e.g. "ms"),
+de-emphasized checkbox labels in dense header rows, and empty-state
+placeholders. The current *value* of an entry (e.g. the Initial View
+status) is content, not a hint — it uses the regular text style.
+Component stylesheets that define their own micro-typography (e.g. the
+cell/tag selector chips in the Animation dialog) keep their own sizes
+and weights but reuse the hint palette, `light-dark(#6e6e73, #a0a0a0)`
+— don't fork new muted grays.
+
+**Truncated text**: `.geDialog` uses `line-height: 1em`, so an
+auto-height element that truncates with `overflow: hidden;
+text-overflow: ellipsis` clips glyph descenders (e.g. the "g" in
+German "Vorgegeben"). Give such elements `line-height: normal` so the
+line box has full glyph height; the ellipsis still handles horizontal
+overflow.
+
+If a new dialog needs a size or weight this table doesn't cover, add a
+class and a table row — one-off inline font styles are how
+inconsistencies creep in.
 
 ## Non-Resizable Dialogs
 

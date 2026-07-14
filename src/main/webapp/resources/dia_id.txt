@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Cantumkan salinan diagram saya
 increaseIndent=Tambahkan Indentasi
 decreaseIndent=Kurangi Indentasi
 inherit=Warisi
+initialPage=Halaman awal
 initialView=Tampilan awal
 insert=Sisipkan
 insertColumnBefore=Sisipkan Kolom Kiri

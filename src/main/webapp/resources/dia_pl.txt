@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Dołącz kopię mojego diagramu
 increaseIndent=Zwiększ wcięcie
 decreaseIndent=Zmniejsz wcięcie
 inherit=Dziedzicz
+initialPage=Strona początkowa
 initialView=Widok początkowy
 insert=Wstaw
 insertColumnBefore=Wstaw kolumnę z lewej

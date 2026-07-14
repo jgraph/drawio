@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Diagramaren kopia bat barne
 increaseIndent=Koska handitu
 decreaseIndent=Koska txikitu
 inherit=Heredatu
+initialPage=Hasierako orria
 initialView=Hasierako ikuspegia
 insert=Txertatu
 insertColumnBefore=Txertatu zutabea ezkerraldean

@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Uključi kopiju mog dijagrama
 increaseIndent=Povećaj uvlaku
 decreaseIndent=Smanji uvlaku
 inherit=Naslijedi
+initialPage=Početna stranica
 initialView=Početni prikaz
 insert=Umetni
 insertColumnBefore=Umetni stupac lijevo

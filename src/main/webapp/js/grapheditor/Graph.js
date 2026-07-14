@@ -201,7 +201,7 @@ mxGraphView.prototype.gridSteps = 4;
 mxGraphView.prototype.minGridSize = 4;
 
 // UrlParams is null in embed mode
-mxGraphView.prototype.defaultGridColor = '#d0d0d0';
+mxGraphView.prototype.defaultGridColor = '#e6e6e6';
 mxGraphView.prototype.defaultDarkGridColor = '#424242';
 mxGraphView.prototype.gridColor = mxGraphView.prototype.defaultGridColor;
 
@@ -8813,6 +8813,105 @@ Graph.prototype.updateShapes = function(source, targets, replaceStyles)
 };
 
 /**
+ * Replaces the style of the given edge label with the one of the given
+ * source cell and adapts its size to the label text with the given padding
+ * (default is 3), keeping its text, text styles and position on the edge.
+ * If an edge is given, its label is moved to a new child cell. Returns the
+ * label cell.
+ */
+Graph.prototype.updateEdgeLabelShape = function(source, cell, padding)
+{
+	padding = (padding != null) ? padding : 3;
+	var textStyle = this.copyStyle(cell);
+	var label = cell;
+
+	this.model.beginUpdate();
+	try
+	{
+		// Moves the label of the edge to a new child cell
+		if (this.model.isEdge(cell))
+		{
+			var value = this.model.getValue(cell);
+			var text = value;
+
+			// Keeps other data on the edge and moves the label text
+			if (value != null && typeof value == 'object')
+			{
+				text = this.convertValueToString(cell);
+				value = value.cloneNode(true);
+
+				if (Graph.translateDiagram && Graph.diagramLanguage != null &&
+					value.hasAttribute('label_' + Graph.diagramLanguage))
+				{
+					value.setAttribute('label_' + Graph.diagramLanguage, '');
+				}
+				else
+				{
+					value.setAttribute('label', '');
+				}
+			}
+			else
+			{
+				value = '';
+			}
+
+			var edgeGeo = this.getCellGeometry(cell);
+			label = new mxCell(text, new mxGeometry(0, 0, 0, 0), '');
+			label.geometry.relative = true;
+			label.vertex = true;
+
+			if (edgeGeo != null)
+			{
+				label.geometry.x = edgeGeo.x;
+				label.geometry.y = edgeGeo.y;
+
+				if (edgeGeo.offset != null)
+				{
+					label.geometry.offset = edgeGeo.offset.clone();
+				}
+			}
+
+			label = this.addCell(label, cell);
+			this.model.setValue(cell, value);
+		}
+
+		this.updateShapes(source, [label], true);
+
+		// Maintains the text styles of the original label, which are
+		// replaced by updateShapes and must be applied before the
+		// preferred size for the cell is computed below
+		this.pasteStyle(textStyle, [label], ['fontFamily', 'fontSource',
+			'fontSize', 'fontColor', 'fontStyle', 'textOpacity',
+			'horizontal', 'textDirection']);
+		this.setCellStyles('resizable', null, [label]);
+
+		// Adapts the size to the label text with padding and keeps the
+		// label centered at its position on the edge
+		var geo = this.getCellGeometry(label);
+		var size = this.getPreferredSizeForCell(label, null, false);
+
+		if (geo != null && size != null)
+		{
+			var width = size.width + 2 * padding;
+			var height = size.height + 2 * padding;
+			geo = geo.clone();
+			var offset = (geo.offset != null) ? geo.offset : new mxPoint(0, 0);
+			geo.offset = new mxPoint(Math.round(offset.x + (geo.width - width) / 2),
+				Math.round(offset.y + (geo.height - height) / 2));
+			geo.width = width;
+			geo.height = height;
+			this.model.setGeometry(label, geo);
+		}
+	}
+	finally
+	{
+		this.model.endUpdate();
+	}
+
+	return label;
+};
+
+/**
  * Selects cells for connect vertex return value.
  */
 Graph.prototype.selectCellsForConnectVertex = function(cells, evt, hoverIcons)
@@ -15923,6 +16022,42 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 
 		/**
+		 * Returns true if the given cell is a group whose rotation must be
+		 * applied by rotating its children as a rigid body (via rotateCell)
+		 * rather than by spinning the group's own shape. Tables, table rows,
+		 * table cells and swimlanes keep the plain per-shape rotation.
+		 */
+		Graph.prototype.isRotatableGroup = function(cell)
+		{
+			var model = this.getModel();
+
+			return model.isVertex(cell) && model.getChildCount(cell) > 0 &&
+				!this.isTable(cell) && !this.isTableRow(cell) &&
+				!this.isTableCell(cell) && !this.isSwimlane(cell);
+		};
+
+		/**
+		 * Sets the absolute rotation of the given cell. Rotatable groups are
+		 * routed through rotateCell with the delta to their current rotation
+		 * so the children rotate as a rigid body like the rotation handle;
+		 * all other cells (and non-numeric values) get the plain style write.
+		 */
+		Graph.prototype.setCellRotation = function(cell, value)
+		{
+			var angle = parseFloat(value);
+
+			if (!isNaN(angle) && this.isRotatableGroup(cell))
+			{
+				this.rotateCell(cell, angle - (parseFloat(this.getCurrentCellStyle(
+					cell)[mxConstants.STYLE_ROTATION]) || 0));
+			}
+			else
+			{
+				this.setCellStyles(mxConstants.STYLE_ROTATION, value, [cell]);
+			}
+		};
+
+		/**
 		 * Rotates the given cell and its non-relative children by the given angle
 		 * (in degrees) about the cell's center, baking the rotation into the child
 		 * geometries so a group rotates as a rigid body. This mirrors the algorithm
@@ -15938,34 +16073,42 @@ if (typeof mxVertexHandler !== 'undefined')
 
 				if (model.isVertex(cell) || model.isEdge(cell))
 				{
-					if (!model.isEdge(cell))
+					model.beginUpdate();
+					try
 					{
-						var total = (this.getCurrentCellStyle(cell)[mxConstants.STYLE_ROTATION] || 0) + angle;
-						this.setCellStyles(mxConstants.STYLE_ROTATION, total, [cell]);
-					}
-
-					var geo = this.getCellGeometry(cell);
-
-					if (geo != null)
-					{
-						var pgeo = this.getCellGeometry(parent);
-
-						if (pgeo != null && !model.isEdge(parent))
+						if (!model.isEdge(cell))
 						{
-							geo = geo.clone();
-							geo.rotate(angle, new mxPoint(pgeo.width / 2, pgeo.height / 2));
-							model.setGeometry(cell, geo);
+							var total = (this.getCurrentCellStyle(cell)[mxConstants.STYLE_ROTATION] || 0) + angle;
+							this.setCellStyles(mxConstants.STYLE_ROTATION, total, [cell]);
 						}
 
-						if ((model.isVertex(cell) && !geo.relative) || model.isEdge(cell))
-						{
-							var childCount = model.getChildCount(cell);
+						var geo = this.getCellGeometry(cell);
 
-							for (var i = 0; i < childCount; i++)
+						if (geo != null)
+						{
+							var pgeo = this.getCellGeometry(parent);
+
+							if (pgeo != null && !model.isEdge(parent))
 							{
-								this.rotateCell(model.getChildAt(cell, i), angle, cell);
+								geo = geo.clone();
+								geo.rotate(angle, new mxPoint(pgeo.width / 2, pgeo.height / 2));
+								model.setGeometry(cell, geo);
+							}
+
+							if ((model.isVertex(cell) && !geo.relative) || model.isEdge(cell))
+							{
+								var childCount = model.getChildCount(cell);
+
+								for (var i = 0; i < childCount; i++)
+								{
+									this.rotateCell(model.getChildAt(cell, i), angle, cell);
+								}
 							}
 						}
+					}
+					finally
+					{
+						model.endUpdate();
 					}
 				}
 			}
@@ -16083,8 +16226,7 @@ if (typeof mxVertexHandler !== 'undefined')
 					{
 						// Groups rotate as a rigid body (children baked) like the rotation
 						// handle, instead of the leaf-shape size/direction swap below
-						if (model.getChildCount(cell) > 0 && !this.isTable(cell) &&
-							!this.isTableRow(cell) && !this.isTableCell(cell) && !this.isSwimlane(cell))
+						if (this.isRotatableGroup(cell))
 						{
 							this.rotateCell(cell, (backwards) ? -90 : 90);
 							select.push(cell);
@@ -23160,9 +23302,7 @@ if (typeof mxVertexHandler !== 'undefined')
 				var graph = this.state.view.graph;
 
 				// Groups rotate as a rigid body (children baked) like the rotation handle
-				if (graph.model.getChildCount(this.state.cell) > 0 && !graph.isTable(this.state.cell) &&
-					!graph.isTableRow(this.state.cell) && !graph.isTableCell(this.state.cell) &&
-					!graph.isSwimlane(this.state.cell))
+				if (graph.isRotatableGroup(this.state.cell))
 				{
 					graph.rotateCell(this.state.cell, 90);
 				}

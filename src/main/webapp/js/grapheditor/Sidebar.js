@@ -272,6 +272,26 @@ if (urlParams['sidebar-entries'] != 'large')
  */
 Sidebar.prototype.virtualThumbs = typeof IntersectionObserver != 'undefined';
 
+/*
+ * Defers a palette's content creation (onInit) until the expanded
+ * palette scrolls near the viewport — virtualThumbs at the palette
+ * level. Startup and Expand All then only pay for the palettes in
+ * view, even with every library expanded; the rest initialize on
+ * scroll. Falls back to eager init (the historical behavior) on
+ * browsers without IntersectionObserver support (IE11, Safari <12.1).
+ */
+Sidebar.prototype.virtualPalettes = typeof IntersectionObserver != 'undefined';
+
+/**
+ * Placeholder height (in px) for expanded palettes whose content
+ * creation is deferred. Callers that know their entry count refine
+ * this via setDeferredPaletteSize so that off-screen palettes occupy
+ * roughly their real height (a zero-height placeholder would sit at
+ * the same scroll offset as its neighbors and trigger the observer
+ * for all of them at once).
+ */
+Sidebar.prototype.deferredPaletteHeight = 60;
+
 /**
  * Specifies the size of the sidebar titles.
  */
@@ -338,6 +358,10 @@ Sidebar.prototype.refresh = function()
 	this.graph.stylesheet.styles = mxUtils.clone(
 		graph.getStylesheet().styles);
 	var scrollTop = this.wrapper.scrollTop;
+
+	// Drops pending lazy-render callbacks so the observers do not keep
+	// the DOM removed below alive; recreated lazily on next use
+	this.disconnectObservers();
 	this.wrapper.innerText = '';
 	var temp = this.palettes;
 	this.palettes = new Object();
@@ -4242,6 +4266,44 @@ Sidebar.prototype.isDropStyleTargetIgnored = function(state)
 };
 
 /**
+ * Returns the state of the edge label at the given position for the given
+ * edge state, checking the labels of the child cells and the label of the
+ * edge itself, in which case the given state is returned.
+ */
+Sidebar.prototype.getEdgeLabelStateAt = function(state, x, y)
+{
+	var graph = state.view.graph;
+	var result = null;
+
+	var childCount = graph.model.getChildCount(state.cell);
+
+	for (var i = childCount - 1; i >= 0 && result == null; i--)
+	{
+		var child = graph.model.getChildAt(state.cell, i);
+
+		if (graph.model.isVertex(child))
+		{
+			var childState = graph.view.getState(child);
+
+			if (childState != null && (mxUtils.contains(childState, x, y) ||
+				(childState.text != null && childState.text.boundingBox != null &&
+				mxUtils.contains(childState.text.boundingBox, x, y))))
+			{
+				result = childState;
+			}
+		}
+	}
+
+	if (result == null && state.text != null && state.text.boundingBox != null &&
+		mxUtils.contains(state.text.boundingBox, x, y))
+	{
+		result = state;
+	}
+
+	return result;
+};
+
+/**
  * Lazily creates a shared IntersectionObserver used to defer thumb
  * rendering until the entry scrolls near the viewport. Used by the
  * virtual thumbs path in createItem.
@@ -4272,6 +4334,137 @@ Sidebar.prototype.getThumbObserver = function()
 	}
 
 	return this.thumbObserver;
+};
+
+/**
+ * Lazily creates a shared IntersectionObserver used to defer palette
+ * content creation until the expanded palette scrolls near the
+ * viewport. Used by the virtual palettes path in deferPaletteInit.
+ */
+Sidebar.prototype.getPaletteObserver = function()
+{
+	if (this.paletteObserver == null)
+	{
+		this.paletteObserver = new IntersectionObserver(mxUtils.bind(this, function(entries)
+		{
+			for (var i = 0; i < entries.length; i++)
+			{
+				var entry = entries[i];
+
+				if (entry.isIntersecting)
+				{
+					var fn = entry.target.initPaletteFn;
+
+					if (fn != null)
+					{
+						this.paletteObserver.unobserve(entry.target);
+						fn();
+					}
+				}
+			}
+		// Viewport root like getThumbObserver — the sidebar wrapper has
+		// a zero-size rect in some themes (e.g. simple), which makes an
+		// element root never intersect
+		}), {rootMargin: '200px 0px'});
+	}
+
+	return this.paletteObserver;
+};
+
+/**
+ * Defers the given palette content creation until the content div
+ * first scrolls near the viewport. The pending initializer is kept on
+ * the content div so expand/collapse only toggles visibility — a
+ * collapsed (or hidden) palette never intersects and stays
+ * uninitialized until it is both expanded and scrolled into view.
+ */
+Sidebar.prototype.deferPaletteInit = function(content, title, onInit)
+{
+	if (content.style.minHeight == '')
+	{
+		content.style.minHeight = this.deferredPaletteHeight + 'px';
+	}
+
+	content.initPaletteFn = mxUtils.bind(this, function()
+	{
+		content.initPaletteFn = null;
+		content.style.minHeight = '';
+
+		var fo = mxClient.NO_FO;
+		mxClient.NO_FO = Editor.prototype.originalNoForeignObject;
+		onInit(content, title);
+		mxClient.NO_FO = fo;
+	});
+
+	this.getPaletteObserver().observe(content);
+};
+
+/**
+ * Refines the placeholder height of a deferred palette from its entry
+ * count so off-screen palettes occupy roughly their real height.
+ */
+Sidebar.prototype.setDeferredPaletteSize = function(content, count)
+{
+	if (content != null && content.initPaletteFn != null && count > 0)
+	{
+		// Nominal 200px content width; exact numbers don't matter, the
+		// estimate only spreads the palettes out so the observer can
+		// tell which ones are actually near the viewport
+		var perRow = Math.max(1, Math.floor(200 /
+			(this.thumbWidth + 2 * this.thumbBorder + 4)));
+		content.style.minHeight = (Math.ceil(count / perRow) *
+			(this.thumbHeight + 2 * this.thumbBorder + 6)) + 'px';
+	}
+};
+
+/**
+ * Stops observing the given DOM subtree (deferred palette content and
+ * thumb placeholders) before it is removed from the DOM, so the shared
+ * observers do not keep the detached nodes alive.
+ */
+Sidebar.prototype.unobserveElements = function(elt)
+{
+	if (elt.nodeType == mxConstants.NODETYPE_ELEMENT &&
+		(this.thumbObserver != null || this.paletteObserver != null))
+	{
+		var nodes = [elt].concat(Array.prototype.slice.call(
+			elt.querySelectorAll('.geItem, .geSidebar')));
+
+		for (var i = 0; i < nodes.length; i++)
+		{
+			if (this.thumbObserver != null && nodes[i].renderThumbFn != null)
+			{
+				nodes[i].renderThumbFn = null;
+				this.thumbObserver.unobserve(nodes[i]);
+			}
+
+			if (this.paletteObserver != null && nodes[i].initPaletteFn != null)
+			{
+				nodes[i].initPaletteFn = null;
+				this.paletteObserver.unobserve(nodes[i]);
+			}
+		}
+	}
+};
+
+/**
+ * Disconnects the shared thumb and palette observers, dropping all
+ * pending lazy-render callbacks. Used when the sidebar is rebuilt;
+ * the observers are recreated lazily on next use.
+ */
+Sidebar.prototype.disconnectObservers = function()
+{
+	if (this.thumbObserver != null)
+	{
+		this.thumbObserver.disconnect();
+		this.thumbObserver = null;
+	}
+
+	if (this.paletteObserver != null)
+	{
+		this.paletteObserver.disconnect();
+		this.paletteObserver = null;
+	}
 };
 
 /**
@@ -4339,9 +4532,18 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		
 		if (cells != null && currentStyleTarget != null && activeArrow == styleTarget)
 		{
-			var tmp = graph.isCellSelected(currentStyleTarget.cell) ? graph.getSelectionCells() : [currentStyleTarget.cell];
-			graph.updateShapes((graph.model.isEdge(currentStyleTarget.cell)) ? cells[0] : cells[firstVertex], tmp, true);
-			graph.setSelectionCells(tmp);
+			// Replaces the shape of the edge label under the mouse
+			if (styleTargetLabel)
+			{
+				graph.setSelectionCell(graph.updateEdgeLabelShape(
+					cells[firstVertex], currentStyleTarget.cell));
+			}
+			else
+			{
+				var tmp = graph.isCellSelected(currentStyleTarget.cell) ? graph.getSelectionCells() : [currentStyleTarget.cell];
+				graph.updateShapes((graph.model.isEdge(currentStyleTarget.cell)) ? cells[0] : cells[firstVertex], tmp, true);
+				graph.setSelectionCells(tmp);
+			}
 		}
 		else if (cells != null && activeArrow != null && currentTargetState != null && activeArrow != styleTarget)
 		{
@@ -4427,6 +4629,8 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 	var currentTargetState = null;
 	var currentStateHandle = null;
 	var currentStyleTarget = null;
+	var styleTargetBounds = null;
+	var styleTargetLabel = false;
 	var activeTarget = false;
 	
 	var arrowUp = createArrow(this.triangleUp, mxResources.get('connect'));
@@ -4667,8 +4871,13 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 			timeOnTarget = new Date().getTime() - startTime;
 		}
 
-		// Shift means disabled, delayed on cells with children, shows after this.dropTargetDelay, hides after 2500ms
-		if (dropStyleEnabled && (timeOnTarget < 2500) && state != null && !mxEvent.isShiftDown(evt) &&
+		// Uses the label of the edge or one of its children as the replace target
+		var labelState = (state != null && graph.model.isEdge(state.cell) &&
+			firstVertex != null && !graph.model.isEdge(cells[0])) ?
+			this.getEdgeLabelStateAt(state, x, y) : null;
+
+		// Shift means disabled, delayed on cells with children, shows after this.dropTargetDelay, hides after 3500ms
+		if (dropStyleEnabled && (timeOnTarget < 3500) && state != null && !mxEvent.isShiftDown(evt) &&
 			// If shape is equal or target has no stroke, fill and gradient then use longer delay except for images
 			(((mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE) != mxUtils.getValue(sourceCellStyle, mxConstants.STYLE_SHAPE) &&
 			(mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE) != mxConstants.NONE ||
@@ -4676,49 +4885,67 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 			mxUtils.getValue(state.style, mxConstants.STYLE_GRADIENTCOLOR, mxConstants.NONE) != mxConstants.NONE)) ||
 			mxUtils.getValue(sourceCellStyle, mxConstants.STYLE_SHAPE) == 'image') ||
 			timeOnTarget > 1500 || graph.model.isEdge(state.cell)) && (timeOnTarget > this.dropTargetDelay) &&
-			!this.isDropStyleTargetIgnored(state) && ((graph.model.isVertex(state.cell) && firstVertex != null) ||
+			!this.isDropStyleTargetIgnored(state) && (labelState != null ||
+			(graph.model.isVertex(state.cell) && firstVertex != null) ||
 			(graph.model.isEdge(state.cell) && graph.model.isEdge(cells[0]))))
 		{
-			if (graph.isCellEditable(state.cell))
+			if (graph.isCellEditable((labelState != null) ? labelState.cell : state.cell))
 			{
-				currentStyleTarget = state;
-				var tmp = (graph.model.isEdge(state.cell)) ? graph.view.getPoint(state) :
-					new mxPoint(state.getCenterX(), state.getCenterY());
+				currentStyleTarget = (labelState != null) ? labelState : state;
+				styleTargetLabel = labelState != null;
+				var tmp = null;
+
+				// Places the icon at the center of the label
+				if (labelState != null && labelState.text != null &&
+					labelState.text.boundingBox != null)
+				{
+					tmp = new mxPoint(labelState.text.boundingBox.getCenterX(),
+						labelState.text.boundingBox.getCenterY());
+				}
+				else
+				{
+					tmp = (graph.model.isEdge(currentStyleTarget.cell)) ?
+						graph.view.getPoint(currentStyleTarget) :
+						new mxPoint(currentStyleTarget.getCenterX(),
+							currentStyleTarget.getCenterY());
+				}
+
 				tmp = new mxRectangle(tmp.x - this.refreshTarget.width / 2, tmp.y - this.refreshTarget.height / 2,
 					this.refreshTarget.width, this.refreshTarget.height);
-				
+
 				styleTarget.style.left = Math.floor(tmp.x) + 'px';
 				styleTarget.style.top = Math.floor(tmp.y) + 'px';
-				
+
 				if (styleTargetParent == null)
 				{
 					graph.container.appendChild(styleTarget);
 					styleTargetParent = styleTarget.parentNode;
 				}
-				
+
+				styleTargetBounds = tmp;
 				checkArrow(x, y, tmp, styleTarget);
 			}
 		}
-		// Does not reset on ignored edges
-		else if (currentStyleTarget == null || !mxUtils.contains(currentStyleTarget, x, y) ||
+		// Does not reset on ignored edges or inside the icon bounds
+		else if (currentStyleTarget == null || !(mxUtils.contains(currentStyleTarget, x, y) ||
+			(styleTargetBounds != null && mxUtils.contains(styleTargetBounds, x, y))) ||
 			(timeOnTarget > 1500 && !mxEvent.isShiftDown(evt)))
 		{
 			currentStyleTarget = null;
-			
+			styleTargetBounds = null;
+			styleTargetLabel = false;
+
 			if (styleTargetParent != null)
 			{
 				styleTarget.parentNode.removeChild(styleTarget);
 				styleTargetParent = null;
 			}
 		}
-		else if (currentStyleTarget != null && styleTargetParent != null)
+		else if (currentStyleTarget != null && styleTargetParent != null &&
+			styleTargetBounds != null)
 		{
 			// Sets active Arrow as side effect
-			var tmp = (graph.model.isEdge(currentStyleTarget.cell)) ? graph.view.getPoint(currentStyleTarget) :
-				new mxPoint(currentStyleTarget.getCenterX(), currentStyleTarget.getCenterY());
-			tmp = new mxRectangle(tmp.x - this.refreshTarget.width / 2, tmp.y - this.refreshTarget.height / 2,
-				this.refreshTarget.width, this.refreshTarget.height);
-			checkArrow(x, y, tmp, styleTarget);
+			checkArrow(x, y, styleTargetBounds, styleTarget);
 		}
 		
 		// Checks if inside bounds
@@ -5004,6 +5231,8 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		currentStateHandle = null;
 		currentTargetState = null;
 		currentStyleTarget = null;
+		styleTargetBounds = null;
+		styleTargetLabel = false;
 		styleTargetParent = null;
 		activeArrow = null;
 	};
@@ -5287,7 +5516,7 @@ Sidebar.prototype.createEdgeTemplateFromCells = function(cells, width, height, t
  */
 Sidebar.prototype.addPaletteFunctions = function(id, title, expanded, fns)
 {
-	this.addPalette(id, title, expanded, mxUtils.bind(this, function(content)
+	var div = this.addPalette(id, title, expanded, mxUtils.bind(this, function(content)
 	{
 		for (var i = 0; i < fns.length; i++)
 		{
@@ -5299,19 +5528,26 @@ Sidebar.prototype.addPaletteFunctions = function(id, title, expanded, fns)
 			}
 		}
 	}));
+
+	this.setDeferredPaletteSize(div, fns.length);
+
+	return div;
 };
 
 /**
- * Adds the given palette.
+ * Adds the given palette. The optional eager flag forces the content
+ * to be created synchronously when expanded, bypassing the deferred
+ * virtualPalettes path — used for interactive palettes (user
+ * libraries, scratchpad) whose content is accessed programmatically.
  */
-Sidebar.prototype.addPalette = function(id, title, expanded, onInit)
+Sidebar.prototype.addPalette = function(id, title, expanded, onInit, eager)
 {
 	var elt = this.createTitle(title);
 	this.appendChild(elt);
-	
+
 	var div = document.createElement('div');
 	div.className = 'geSidebar';
-	
+
 	// Disables built-in pan and zoom on touch devices
 	if (mxClient.IS_POINTER)
 	{
@@ -5320,14 +5556,22 @@ Sidebar.prototype.addPalette = function(id, title, expanded, onInit)
 
 	if (expanded && this.expandLibraries)
 	{
-		onInit(div, elt);
+		if (this.virtualPalettes && !eager)
+		{
+			this.deferPaletteInit(div, elt, onInit);
+		}
+		else
+		{
+			onInit(div, elt);
+		}
+
 		onInit = null;
 	}
 	else
 	{
 		div.style.display = 'none';
 	}
-	
+
     this.addFoldingHandler(elt, div, onInit);
 	
 	var outer = document.createElement('div');
@@ -5368,22 +5612,32 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 				if (!initialized)
 				{
 					initialized = true;
-					
-					if (funct != null)
+
+					if (funct != null && this.virtualPalettes)
+					{
+						// Shows the palette immediately and lets the
+						// observer create the content when it scrolls
+						// into view (right away if the palette is in
+						// view, but Expand All stays cheap for the
+						// off-screen palettes)
+						this.deferPaletteInit(content, title, funct);
+						this.setContentVisible(content, true);
+					}
+					else if (funct != null)
 					{
 						// Wait cursor does not show up on Mac
 						title.style.cursor = 'wait';
 
 						// Captures child nodes
 						var children = [];
-						
+
 						for (var i = 0; i < title.children.length; i++)
 						{
 							children.push(title.children[i]);
 						}
 
 						title.innerHTML = mxResources.get('loading') + '...';
-						
+
 						window.setTimeout(mxUtils.bind(this, function()
 						{
 							this.setContentVisible(content, true);
@@ -5470,19 +5724,20 @@ Sidebar.prototype.setContentVisible = function(content, visible)
 Sidebar.prototype.removePalette = function(id)
 {
 	var elts = this.palettes[id];
-	
+
 	if (elts != null)
 	{
 		this.palettes[id] = null;
-		
+
 		for (var i = 0; i < elts.length; i++)
 		{
+			this.unobserveElements(elts[i]);
 			this.container.removeChild(elts[i]);
 		}
-		
+
 		return true;
 	}
-	
+
 	return false;
 };
 

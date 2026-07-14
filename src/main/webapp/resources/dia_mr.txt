@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=माझ्या आकृतीची प्रत स
 increaseIndent=इंडेंट वाढवा
 decreaseIndent=इंडेंट कमी करा
 inherit=वारसा
+initialPage=प्रारंभिक पृष्ठ
 initialView=प्रारंभिक दृश्य
 insert=घाला
 insertColumnBefore=डावीकडे स्तंभ घाला

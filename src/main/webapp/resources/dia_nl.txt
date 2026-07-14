@@ -447,6 +447,7 @@ includeCopyOfMyDiagram=Een kopie van mijn diagram toevoegen
 increaseIndent=Inspringing vergroten
 decreaseIndent=Inspringing verkleinen
 inherit=Overnemen
+initialPage=Startpagina
 initialView=Startweergave
 insert=Invoegen
 insertColumnBefore=Kolom links invoegen

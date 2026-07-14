@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Вложить копию моей диаграммы
 increaseIndent=Увеличить отступ
 decreaseIndent=Уменьшить отступ
 inherit=Наследовать
+initialPage=Начальная страница
 initialView=Начальный вид
 insert=Вставить
 insertColumnBefore=Добавить столбец слева

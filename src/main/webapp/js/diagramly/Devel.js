@@ -44,10 +44,7 @@ if (!mxIsElectron)
 		if (urlParams['print-csp'] == '1')
 		{
 			console.log('Content-Security-Policy');
-			// 'wasm-unsafe-eval' allows the inlined libavoid WASM edge router to compile
-			// (ships in extensions/atlas/integrate, so app + teams + ac + aj need it);
-			// viewer and import serve no libavoid, dev is covered by 'unsafe-eval'
-			var app_diagrams_net = csp.replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com \'wasm-unsafe-eval\'').
+			var app_diagrams_net = csp.replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com').
 				replace(/%connect-src%/g, 'https://*.dropboxapi.com https://api.trello.com').
 				replace(/%frame-src%/g, '').
 					replace(/%style-src%/g, '').
@@ -66,7 +63,7 @@ if (!mxIsElectron)
 			console.log('viewer.diagrams.net:', viewer_diagrams_net);
 
 			var teams_diagrams_net = csp
-				.replace(/%script-src%/g, '\'wasm-unsafe-eval\'')
+				.replace(/%script-src%/g, '')
 				.replace(/%connect-src%/g, 'https://res.cdn.office.net')
 				.replace(/%frame-src%/g, '')
 				.replace(/%style-src%/g, '')
@@ -76,7 +73,7 @@ if (!mxIsElectron)
 				
 			console.log('teams.diagrams.net:', teams_diagrams_net);
 
-			var ac_draw_io = csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net \'wasm-unsafe-eval\'').
+			var ac_draw_io = csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net').
 					replace(/%frame-src%/g, 'https://www.lucidchart.com https://app.lucidchart.com https://lucid.app blob:').
 					replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net https://connect-cdn.atl-paas.net').
 					replace(/%connect-src%/g, '').
@@ -84,7 +81,7 @@ if (!mxIsElectron)
 					'worker-src https://ac.draw.io/service-worker.js;';
 			console.log('ac.draw.io:', ac_draw_io);
 
-			var aj_draw_io = csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net \'wasm-unsafe-eval\'').
+			var aj_draw_io = csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net').
 					replace(/%frame-src%/g, 'blob:').
 					replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net https://connect-cdn.atl-paas.net').
 					replace(/%connect-src%/g, 'https://api.atlassian.com https://api.media.atlassian.com').
@@ -281,15 +278,14 @@ mxscript(drawDevUrl + 'js/mermaid/drawio-mermaid.min.js');
 // default) of the PlantUML insert dialog.
 mxscript(drawDevUrl + 'js/plantuml/drawio-plantuml.min.js');
 
-// libavoid-js obstacle-avoiding orthogonal edge router (vendored WASM, see
-// js/libavoid-js/README.md). Fixed order: glue (defines AvoidLib) → base64
-// wasm payload → loader (decodes it, parks window.__libavoidReady) → the
-// shared routing core (defines AvoidRouting; canonical, vendored verbatim by
-// drawio-mcp) → the LibavoidRouting editor binding (Arrange > Layout >
-// Orthogonal Routing).
+// libavoid obstacle-avoiding orthogonal edge router (pure-JS, built from source
+// in ../drawio-libavoid; see js/libavoid-js/README.md). The bundle is
+// self-contained and self-publishing (like drawio-mermaid): it defines
+// window.Avoid synchronously on load — no separate loader. Fixed order: the
+// bundle → the shared routing core (defines AvoidRouting; canonical, vendored
+// verbatim by drawio-mcp) → the LibavoidRouting editor binding (Arrange >
+// Layout > Orthogonal Routing).
 mxscript(drawDevUrl + 'js/libavoid-js/libavoid.min.js');
-mxscript(drawDevUrl + 'js/libavoid-js/libavoid-wasm.js');
-mxscript(drawDevUrl + 'js/libavoid-js/libavoid-loader.js');
 mxscript(drawDevUrl + 'js/libavoid-js/libavoid-routing.js');
 mxscript(drawDevUrl + 'js/diagramly/LibavoidRouting.js');
 

@@ -910,7 +910,6 @@ var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor)
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, mxResources.get('background'));
-	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 	div.appendChild(hd);
 
 	var isPageLink = img != null && img.originalSrc != null;
@@ -1879,7 +1878,6 @@ var ParseDialog = function(editorUi, title, defaultType)
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, title || mxResources.get('insert'));
-	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px;flex-shrink:0';
 	div.appendChild(hd);
 
 	var textarea = document.createElement('textarea');
@@ -2666,7 +2664,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 							doSave(mode, folderId, input.value);
 						}), null, null, null, null, editorUi.mode);
 
-						editorUi.showDialog(dlg.container, 420, 150, true, false);
+						editorUi.showDialog(dlg.container, 420, 162, true, false);
 						dlg.init();
 					}
 					else
@@ -3955,7 +3953,7 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 	var table = document.createElement('div');
 	table.style.display = 'grid';
 	table.style.gap = '5px 8px';
-	table.style.gridAutoRows = 'auto auto 44px';
+	table.style.gridAutoRows = 'auto auto auto';
 	table.style.gridAutoColumns = '0fr minmax(0,1fr)';
 	table.style.width = '100%';
 
@@ -4452,7 +4450,7 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 	var btns = document.createElement('div');
 	btns.style.flexBasis = '100%';
 	btns.style.textAlign = 'right';
-	btns.style.marginTop = (mimeType != null) ? '16px' : '8px';
+	btns.style.marginTop = '20px';
 
 	if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
 	{
@@ -5572,7 +5570,6 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, mxResources.get('editLink'));
-	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 	div.appendChild(hd);
 
 	var urlRadio = document.createElement('input');
@@ -6270,7 +6267,7 @@ function installCustomActionStyles()
 		'.geSelField{display:inline-flex;align-items:center;gap:6px;',
 			'font:12px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,',
 			'Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}',
-		'.geSelFieldLabel{color:light-dark(#6e6e73,#9a9aa0);',
+		'.geSelFieldLabel{color:light-dark(#6e6e73,#a0a0a0);',
 			'font-weight:500;letter-spacing:0.01em}',
 
 		// Chip (the count pill itself)
@@ -6306,17 +6303,6 @@ function installCustomActionStyles()
 			'width:5px;height:5px;margin-left:6px;',
 			'border:solid currentColor;border-width:0 1.4px 1.4px 0;',
 			'transform:translateY(-2px) rotate(45deg);opacity:.55}',
-
-		// Tag pill (inside chip and inside picker)
-		'.geTagPill{display:inline-block;max-width:90px;padding:1px 8px;',
-			'border-radius:999px;background:light-dark(#e5e5ea,#48484a);',
-			'color:light-dark(#1d1d1f,#e5e5e7);',
-			'font-size:11px;font-weight:500;line-height:1.4;',
-			'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;',
-			'vertical-align:middle}',
-		'.geTagPillMore{display:inline-block;padding:1px 6px;',
-			'border-radius:999px;background:transparent;',
-			'color:light-dark(#6e6e73,#9a9aa0);font-size:11px;font-weight:500}',
 
 		// Icon-only inline buttons (Use Selection / Show on Canvas)
 		'.geSelIconBtn{display:inline-flex;align-items:center;justify-content:center;',
@@ -6380,7 +6366,7 @@ function installCustomActionStyles()
 		'.geTagPickerModeBar{display:flex;align-items:center;gap:6px;',
 			'padding:6px 10px 4px}',
 		'.geTagPickerModeLabel{font-size:11px;font-weight:500;',
-			'color:light-dark(#6e6e73,#9a9aa0);margin-right:4px}',
+			'color:light-dark(#6e6e73,#a0a0a0);margin-right:4px}',
 		'.geTagPickerModeBtn{padding:2px 10px;border-radius:999px;',
 			'font:inherit;font-size:11px;font-weight:500;cursor:pointer;',
 			'border:1px solid light-dark(#d2d2d7,#48484a);',
@@ -8552,7 +8538,6 @@ var RecoveryDialog = function(editorUi, candidates, okFn, cancelFn)
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, mxResources.get('recoverTitle'));
-	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 	div.appendChild(hd);
 
 	var addCandidate = function(candidate)
@@ -12306,9 +12291,10 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	listHeader.style.cssText = 'display:flex;align-items:center;' +
 		'justify-content:space-between;margin-bottom:6px;flex:0 0 auto';
 
-	// Shared style for the three header checkbox labels.
+	// Shared layout for the three header checkbox labels — the muted
+	// font comes from .geDialogHint.
 	var headerLabelCss = 'display:flex;align-items:center;gap:4px;' +
-		'cursor:pointer;font-size:12px;color:light-dark(#6e6e73,#a0a0a0)';
+		'cursor:pointer';
 
 	// Loop checkbox — only meaningful in page mode (chromeless playback
 	// reads the loop flag from the file). Action mode (custom links) is
@@ -12325,6 +12311,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	if (kind == 'page')
 	{
 		var loopLabel = document.createElement('label');
+		loopLabel.className = 'geDialogHint';
 		loopLabel.style.cssText = headerLabelCss;
 		loopCheckbox = document.createElement('input');
 		loopCheckbox.type = 'checkbox';
@@ -12348,6 +12335,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		disabledWrap.style.cssText = 'flex:1;display:flex;' +
 			'justify-content:center';
 		var disabledLabel = document.createElement('label');
+		disabledLabel.className = 'geDialogHint';
 		disabledLabel.style.cssText = headerLabelCss;
 		disabledCheckbox = document.createElement('input');
 		disabledCheckbox.type = 'checkbox';
@@ -12376,6 +12364,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	}
 
 	var advancedLabel = document.createElement('label');
+	advancedLabel.className = 'geDialogHint';
 	advancedLabel.style.cssText = headerLabelCss;
 	var advancedCheckbox = document.createElement('input');
 	advancedCheckbox.type = 'checkbox';
@@ -12859,9 +12848,9 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	// ============================================================
 
 	// Indices into data.steps of the rows whose selection checkbox is
-	// on. Structural mutations either remap the indices (single-row
-	// delete) or clear them (reorder, Delete All, raw-JSON edits, page
-	// switch) — they would otherwise go stale.
+	// on. Structural mutations clear the indices (delete, reorder,
+	// Delete All, raw-JSON edits, page switch; paste/duplicate re-select
+	// the inserted block) — they would otherwise go stale.
 	var selectedSteps = new Set();
 
 	// Last explicitly toggled index — the range end for shift-click.
@@ -12872,6 +12861,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	var copyBtnRef = null;
 	var pasteBtnRef = null;
 	var duplicateBtnRef = null;
+	var deleteBtnRef = null;
 
 	var setEditBtnEnabled = function(b, enabled)
 	{
@@ -12886,6 +12876,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		var clip = AnimationDialog.stepsClipboard;
 		setEditBtnEnabled(copyBtnRef, selectedSteps.size > 0);
 		setEditBtnEnabled(duplicateBtnRef, selectedSteps.size > 0);
+		setEditBtnEnabled(deleteBtnRef, selectedSteps.size > 0);
 		setEditBtnEnabled(pasteBtnRef, clip != null && clip.length > 0);
 	};
 
@@ -12997,6 +12988,24 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		}
 
 		insertSteps(steps, order[order.length - 1] + 1);
+	};
+
+	// Delete: removes the selected steps. This is the only way to delete
+	// individual steps — the rows carry no per-row delete icon.
+	var deleteSelection = function()
+	{
+		if (selectedSteps.size == 0) return;
+
+		var order = selectionOrder();
+
+		for (var i = order.length - 1; i >= 0; i--)
+		{
+			data.steps.splice(order[i], 1);
+		}
+
+		selectedSteps.clear();
+		selectionAnchor = null;
+		refresh();
 	};
 
 	// ============================================================
@@ -13625,7 +13634,8 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			if (spec.label)
 			{
 				var lbl = document.createElement('span');
-				lbl.style.cssText = 'flex:0 0 auto;color:light-dark(#6e6e73,#a0a0a0);font-size:11px';
+				lbl.className = 'geDialogHint';
+				lbl.style.cssText = 'flex:0 0 auto';
 				mxUtils.write(lbl, spec.label);
 				row.appendChild(lbl);
 			}
@@ -13702,7 +13712,8 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		if (spec.label)
 		{
 			var lbl = document.createElement('span');
-			lbl.style.cssText = 'flex:0 0 auto;color:light-dark(#6e6e73,#a0a0a0);font-size:11px';
+			lbl.className = 'geDialogHint';
+			lbl.style.cssText = 'flex:0 0 auto';
 			mxUtils.write(lbl, spec.label);
 			row.appendChild(lbl);
 		}
@@ -13728,9 +13739,9 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		if (playingSteps.has(idx)) row.classList.add('geAnimationStepActive');
 		if (selectedSteps.has(idx)) row.classList.add('geAnimationStepSelected');
 
-		// Selection checkbox — feeds the Copy / Paste / Duplicate buttons
-		// next to the Add picker. Shift-click selects the whole range
-		// from the last toggled row (the anchor).
+		// Selection checkbox — feeds the Copy / Paste / Duplicate / Delete
+		// buttons next to the Add picker. Shift-click selects the whole
+		// range from the last toggled row (the anchor).
 		var selectCb = document.createElement('input');
 		selectCb.type = 'checkbox';
 		selectCb.setAttribute('data-step-select', '1');
@@ -13893,7 +13904,8 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 				row.appendChild(durInput);
 
 				var msLbl = document.createElement('span');
-				msLbl.style.cssText = 'flex:0 0 auto;color:light-dark(#6e6e73,#a0a0a0);font-size:11px';
+				msLbl.className = 'geDialogHint';
+				msLbl.style.cssText = 'flex:0 0 auto';
 				mxUtils.write(msLbl, 'ms');
 				row.appendChild(msLbl);
 			}
@@ -13948,30 +13960,6 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 				graph.executeCustomActions(single);
 			});
 		row.appendChild(previewIconBtn);
-
-		row.appendChild(makeImgButton(Editor.trashImage,
-			mxResources.get('delete'), function()
-			{
-				data.steps.splice(idx, 1);
-
-				// Keep the selection on the same steps: drop the deleted
-				// row, shift the indices behind it down by one.
-				var next = new Set();
-				for (var v of selectedSteps)
-				{
-					if (v < idx) next.add(v);
-					else if (v > idx) next.add(v - 1);
-				}
-				selectedSteps = next;
-
-				if (selectionAnchor === idx) selectionAnchor = null;
-				else if (selectionAnchor != null && selectionAnchor > idx)
-				{
-					selectionAnchor--;
-				}
-
-				refresh();
-			}));
 
 		return row;
 	};
@@ -14162,7 +14150,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 
 	pickRow.appendChild(pickSelect);
 
-	// Copy / Paste / Duplicate for the checkbox-selected steps
+	// Copy / Paste / Duplicate / Delete for the checkbox-selected steps
 	// [jgraph/drawio#5672]. The clipboard is shared across dialogs
 	// (AnimationDialog.stepsClipboard), so sequences can be pasted into
 	// another page's animation or a cell's custom action. Duplicate
@@ -14183,6 +14171,8 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		pasteSteps);
 	duplicateBtnRef = makeEditButton(Editor.duplicateImage, 'duplicate',
 		'Duplicate', duplicateSelection);
+	deleteBtnRef = makeEditButton(Editor.trashImage, 'delete', 'Delete',
+		deleteSelection);
 	updateEditButtons();
 
 	staticRefreshers.push(function()
@@ -14195,11 +14185,12 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	});
 
 	// Keyboard shortcuts for the list view: Ctrl/Cmd+C copies the
-	// selected steps, Ctrl/Cmd+V pastes, Ctrl/Cmd+D duplicates. Only
-	// fires when the focus is on a non-text control inside this dialog
-	// (clicking a selection checkbox focuses it) — text fields keep
-	// their native clipboard behavior, and stopPropagation keeps the
-	// canvas key handler from also acting on the same stroke.
+	// selected steps, Ctrl/Cmd+V pastes, Ctrl/Cmd+D duplicates,
+	// Delete/Backspace deletes. Only fires when the focus is on a
+	// non-text control inside this dialog (clicking a selection checkbox
+	// focuses it) — text fields keep their native clipboard/editing
+	// behavior, and stopPropagation keeps the canvas key handler from
+	// also acting on the same stroke.
 	div.addEventListener('keydown', function(e)
 	{
 		var t = e.target;
@@ -14213,30 +14204,35 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			return;
 		}
 
-		if (!(mxClient.IS_MAC ? e.metaKey : e.ctrlKey) || e.altKey)
-		{
-			return;
-		}
-
 		var key = (e.key != null) ? e.key.toLowerCase() : '';
 		var handled = false;
 
-		if (key == 'c' && selectedSteps.size > 0 &&
-			window.getSelection().toString() == '')
+		if ((key == 'delete' || key == 'backspace') &&
+			!e.metaKey && !e.ctrlKey && !e.altKey &&
+			selectedSteps.size > 0)
 		{
-			copySelection();
+			deleteSelection();
 			handled = true;
 		}
-		else if (key == 'v' && AnimationDialog.stepsClipboard != null &&
-			AnimationDialog.stepsClipboard.length > 0)
+		else if ((mxClient.IS_MAC ? e.metaKey : e.ctrlKey) && !e.altKey)
 		{
-			pasteSteps();
-			handled = true;
-		}
-		else if (key == 'd' && selectedSteps.size > 0)
-		{
-			duplicateSelection();
-			handled = true;
+			if (key == 'c' && selectedSteps.size > 0 &&
+				window.getSelection().toString() == '')
+			{
+				copySelection();
+				handled = true;
+			}
+			else if (key == 'v' && AnimationDialog.stepsClipboard != null &&
+				AnimationDialog.stepsClipboard.length > 0)
+			{
+				pasteSteps();
+				handled = true;
+			}
+			else if (key == 'd' && selectedSteps.size > 0)
+			{
+				duplicateSelection();
+				handled = true;
+			}
 		}
 
 		if (handled)
@@ -14823,7 +14819,6 @@ var CustomGitLabUrlWarningDialog = function(editorUi, requestedUrl)
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, mxResources.get('customGitlabUrlTitle'));
-	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 	div.appendChild(hd);
 
 	var p = document.createElement('p');
@@ -15438,7 +15433,6 @@ var PluginsDialog = function(editorUi, addFn, delFn, closeOnly)
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, mxResources.get('plugins'));
-	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 	div.appendChild(hd);
 
 	var inner = document.createElement('div');
@@ -15457,13 +15451,14 @@ var PluginsDialog = function(editorUi, addFn, delFn, closeOnly)
 		if (plugins.length == 0)
 		{
 			inner.innerText = '';
-			inner.style.color = 'light-dark(#6e6e73, #a0a0a0)';
-			mxUtils.write(inner, mxResources.get('noPlugins'));
+			var noPlugins = document.createElement('div');
+			noPlugins.className = 'geDialogHint';
+			mxUtils.write(noPlugins, mxResources.get('noPlugins'));
+			inner.appendChild(noPlugins);
 		}
 		else
 		{
 			inner.innerText = '';
-			inner.style.color = '';
 
 			for (var i = 0; i < plugins.length; i++)
 			{
@@ -16224,7 +16219,6 @@ var EditGeometryDialog = function(editorUi, vertices)
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, mxResources.get('editGeometry'));
-	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 	div.appendChild(hd);
 
 	// Helper to create an inline field with label and input
@@ -16420,7 +16414,8 @@ var EditGeometryDialog = function(editorUi, vertices)
 
 				if (mxUtils.trim(rotInput.value).length > 0)
 				{
-					graph.setCellStyles(mxConstants.STYLE_ROTATION, Number(rotInput.value), [vertices[i]]);
+					// Rotates group children as a rigid body (see setCellRotation)
+					graph.setCellRotation(vertices[i], Number(rotInput.value));
 				}
 			}
 		}
@@ -17726,7 +17721,6 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, mxResources.get('font'));
-	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 	div.appendChild(hd);
 
 	function addFormRow(section, labelText, input)
@@ -18244,7 +18238,6 @@ var FilePropertiesDialog = function(editorUi, publicLink)
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, mxResources.get('properties'));
-	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 	div.appendChild(hd);
 
 	var file = editorUi.getCurrentFile();

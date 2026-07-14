@@ -448,7 +448,6 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, showFiles? mxResources.get('selectFile') : mxResources.get('selectCard'));
-	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:12px';
 	content.appendChild(hd);
 
 	var div = document.createElement('div');

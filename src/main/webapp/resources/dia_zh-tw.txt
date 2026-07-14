@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=包含我的圖表的副本
 increaseIndent=增加內縮
 decreaseIndent=減少內縮
 inherit=繼承
+initialPage=初始頁面
 initialView=初始檢視
 insert=插入
 insertColumnBefore=插入左方欄

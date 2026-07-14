@@ -1,3 +1,29 @@
+14-JUL-2026: 30.3.11
+
+- Improves consistency of the export and publish dialogs
+- Fixes boot error when a stale cached extensions.min.js lacks LibavoidRouting.isSupported
+
+14-JUL-2026: 30.3.10
+
+
+
+14-JUL-2026: 30.3.9
+
+- Fixes ELK layout statics being wiped by double bundle load [jgraph/drawio-desktop#2471]
+- Extends replace shape timeout to 3500ms [jgraph/drawio-desktop#2474]
+- Updates DOMPurify from 3.4.11 to 3.4.12
+- Fixes NaN edge label geometry for zero-length edges in getRelativePoint [jgraph/drawio#5498]
+- Replaces per-row delete with a selection Delete in the Animation dialog [jgraph/drawio#5672]
+- Adds replace shape via drag and drop for edge labels [jgraph/drawio#5284]
+- Fixes edge labels left behind by the libavoid move preview [jgraph/drawio#5284]
+- Fixes inconsistent spacing in save dialog
+- Graceful fallback for libavoid if wasm-unsafe-eval not available
+- Lazy sidebar palette init for expanded shape libraries [jgraph/drawio#5690]
+- Fixes clipped major grid lines at tile boundaries [jgraph/drawio#212]
+- Adds Sort Pages action [jgraph/drawio#5549]
+- Updates SAP generic icons and adds Joule Studio icon [jgraph/drawio#5241]
+- Rotate group children in rotation prompt and geometry dialog [jgraph/drawio#4463]
+
 13-JUL-2026: 30.3.8
 
 

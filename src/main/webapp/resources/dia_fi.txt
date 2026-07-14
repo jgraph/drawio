@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Liitä kopio kaaviostani
 increaseIndent=Lisää sisennystä
 decreaseIndent=Vähennä sisennystä
 inherit=Peri
+initialPage=Aloitussivu
 initialView=Aloitusnäkymä
 insert=Lisää
 insertColumnBefore=Lisää sarake vasemmalle

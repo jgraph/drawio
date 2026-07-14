@@ -2500,7 +2500,6 @@ var PageSetupDialog = function(editorUi)
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, mxResources.get('pageSetup'));
-	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 	div.appendChild(hd);
 
 	// Paper size section
@@ -2508,7 +2507,7 @@ var PageSetupDialog = function(editorUi)
 	paperSection.className = 'geDialogSection';
 
 	var paperRow = document.createElement('div');
-	paperRow.className = 'geDialogFormRow';
+	paperRow.className = 'geDialogFormRow geDialogFormRowTop';
 
 	var paperLabel = document.createElement('span');
 	paperLabel.className = 'geDialogFormLabel';
@@ -2683,8 +2682,9 @@ var PageSetupDialog = function(editorUi)
 		viewStatus.style.overflow = 'hidden';
 		viewStatus.style.textOverflow = 'ellipsis';
 		viewStatus.style.whiteSpace = 'nowrap';
-		viewStatus.style.fontSize = '12px';
-		viewStatus.style.color = 'light-dark(#6e6e73,#a0a0a0)';
+		// The dialog's 1em line-height would clip descenders under
+		// overflow:hidden - give the single-line box full glyph height
+		viewStatus.style.lineHeight = 'normal';
 
 		var updateViewStatus = function()
 		{
@@ -2763,7 +2763,7 @@ var PageSetupDialog = function(editorUi)
 		animationSection.className = 'geDialogSection';
 
 		var animationRow = document.createElement('div');
-		animationRow.className = 'geDialogFormRow';
+		animationRow.className = 'geDialogFormRow geDialogFormRowTop';
 
 		// The label keeps its natural width (no styleLabel) so the hint
 		// text next to the Edit button gets the remaining row width
@@ -2782,10 +2782,9 @@ var PageSetupDialog = function(editorUi)
 		animationContent.style.gap = '8px';
 
 		var animationHint = document.createElement('span');
+		animationHint.className = 'geDialogHint';
 		animationHint.style.flex = '1 1 auto';
 		animationHint.style.minWidth = '0';
-		animationHint.style.fontSize = '12px';
-		animationHint.style.color = 'light-dark(#6e6e73,#a0a0a0)';
 		mxUtils.write(animationHint,
 			mxResources.get('lightboxAnimationHint', null,
 				'Plays automatically when the page is shown in lightbox mode.'));
@@ -3815,6 +3814,11 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn, div)
 			d.push('M 0 ' + tmp3 + ' L ' + tmp2 + ' ' + tmp3 + ' M ' + tmp3 + ' 0 L ' + tmp3 + ' ' + tmp2);
 		}
 		
+		// Major grid lines on all four tile edges: the pattern clips the outer half of a
+		// stroke on the tile boundary, so adjacent tiles must supply the two halves
+		var major = 'M ' + tmp2 + ' 0 L 0 0 0 ' + tmp2 +
+			' M ' + tmp2 + ' 0 L ' + tmp2 + ' ' + tmp2 + ' L 0 ' + tmp2;
+
 		// KNOWN: Rounding errors for certain scales (eg. 144%, 121% in Chrome, FF and Safari). Workaround
 		// in Chrome is to use 100% for the svg size, but this results in blurred grid for large diagrams.
 		var size = tmp2;
@@ -3833,7 +3837,7 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn, div)
 		    '<defs><pattern id="grid" width="' + tmp2 + '" height="' + tmp2 + '" patternUnits="userSpaceOnUse">' +
 		    '<path d="' + d.join(' ') + '" fill="none" style="stroke:' + mxUtils.htmlEntities(cssColor.cssText) +
 			';" stroke="' + cssColor.light + '" opacity="0.2" stroke-width="1"/>' +
-		    '<path d="M ' + tmp2 + ' 0 L 0 0 0 ' + tmp2 + '" fill="none" style="stroke:' +
+		    '<path d="' + major + '" fill="none" style="stroke:' +
 			mxUtils.htmlEntities(cssColor.cssText) + ';" stroke="' +
 			cssColor.light + '" stroke-width="1"/>' +
 		    '</pattern></defs><rect width="100%" height="100%" fill="url(#grid)"/></svg>';

@@ -284,12 +284,11 @@ if (urlParams['dev'] == '1')
         mxscript('js/desktop/DesktopLibrary.js');
         mxscript('js/desktop/ElectronApp.js');
 
-        // ELK and Mermaid engines. The desktop is offline, so the on-demand
-        // loader in EditorUi.loadMermaid never runs; load them eagerly here,
-        // ELK before Mermaid (Mermaid binds to window.ELK).
-        mxscript('js/elk/drawio-elk.min.js');
-        mxscript('js/mermaid/drawio-mermaid.min.js');
-        mxscript('js/plantuml/drawio-plantuml.min.js');
+        // ELK, Mermaid and PlantUML are loaded by Devel.js above. Do not
+        // load js/elk/drawio-elk.min.js again here: re-running its footer
+        // (var ElkLayout = ELK.ElkLayout) replaces the class after the
+        // ElkLayout.js editor statics have attached, breaking Arrange >
+        // Layout with "ElkLayout.runWithDialog is not a function".
     }
 
     mxscript(drawDevUrl + 'js/PostConfig.js');
@@ -324,21 +323,21 @@ else
                                 {
                                     mxscript('js/shapes-14-6-5.min.js', function()
                                     {
-                                        // ELK and Mermaid engines for the layout menu
-                                        // and Mermaid file import. Loaded eagerly here
-                                        // because the desktop is offline, which disables
-                                        // the on-demand loader in EditorUi.loadMermaid.
-                                        // ELK must precede Mermaid so that window.ELK is
-                                        // published before the Mermaid bundle binds to it.
-                                        mxscript('js/elk/drawio-elk.min.js', function()
+                                        // ELK and Mermaid ship inside extensions.min.js
+                                        // above (elk bundle, then the ElkLayout editor
+                                        // statics, then mermaid). Loading
+                                        // js/elk/drawio-elk.min.js again would re-run its
+                                        // footer (var ElkLayout = ELK.ElkLayout) and swap
+                                        // in a bare class without the statics, breaking
+                                        // Arrange > Layout with "ElkLayout.runWithDialog
+                                        // is not a function" [jgraph/drawio-desktop#2471].
+                                        // Only PlantUML is not in extensions.min.js; it
+                                        // is preloaded here and EditorUi.loadPlantUml
+                                        // skips its own load once mxPlantUmlToDrawio is
+                                        // defined.
+                                        mxscript('js/plantuml/drawio-plantuml.min.js', function()
                                         {
-                                            mxscript('js/mermaid/drawio-mermaid.min.js', function()
-                                            {
-                                                mxscript('js/plantuml/drawio-plantuml.min.js', function()
-                                                {
-                                                    mxscript('js/PostConfig.js');
-                                                });
-                                            });
+                                            mxscript('js/PostConfig.js');
                                         });
                                     });
                                 });

@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=मेरे आरेख की एक प्रति �
 increaseIndent=इंडेंट बढ़ाएँ
 decreaseIndent=इंडेंट घटाएँ
 inherit=इनहेरिट करें
+initialPage=प्रारंभिक पृष्ठ
 initialView=प्रारंभिक दृश्य
 insert=डालें
 insertColumnBefore=बाईं ओर कॉलम डालें

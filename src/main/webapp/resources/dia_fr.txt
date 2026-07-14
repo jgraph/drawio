@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Inclure une copie de mon diagramme
 increaseIndent=Augmenter l'indentation
 decreaseIndent=Diminuer l'indentation
 inherit=Hériter
+initialPage=Page initiale
 initialView=Vue initiale
 insert=Insérer
 insertColumnBefore=Insérer une colonne à gauche

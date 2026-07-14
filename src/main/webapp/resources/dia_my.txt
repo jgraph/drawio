@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=ကျွန်ုပ်၏ ပုံကြမ်း မ�
 increaseIndent=အစားထိုးမှု တိုးမြှင့်
 decreaseIndent=အစားထိုးမှု လျှော့ချ
 inherit=အမွေဆက်ခံ
+initialPage=ကနဦးစာမျက်နှာ
 initialView=ကနဦးမြင်ကွင်း
 insert=ထည့်သွင်း
 insertColumnBefore=ဘယ်ဘက်တွင် ကော်လံထည့်ရန်

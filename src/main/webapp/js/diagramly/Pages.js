@@ -1632,6 +1632,39 @@ EditorUi.prototype.movePage = function(oldIndex, newIndex)
 }
 
 /**
+ * Sorts pages by name in natural ascending order as one undoable edit.
+ */
+EditorUi.prototype.sortPages = function()
+{
+	var sorted = this.pages.slice().sort(function(a, b)
+	{
+		return (a.getName() || '').localeCompare(b.getName() || '',
+			undefined, {numeric: true, sensitivity: 'base'});
+	});
+
+	var model = this.editor.graph.model;
+	model.beginUpdate();
+	try
+	{
+		for (var i = 0; i < sorted.length; i++)
+		{
+			var index = mxUtils.indexOf(this.pages, sorted[i]);
+
+			if (index != i)
+			{
+				this.movePage(index, i);
+			}
+		}
+	}
+	finally
+	{
+		model.endUpdate();
+	}
+
+	this.scrollToPage(this.currentPage, true);
+};
+
+/**
  * Returns true if the given string contains an mxfile.
  */
 EditorUi.prototype.createTabContainer = function()

@@ -261,6 +261,15 @@
 			var page = editorUi.currentPage;
 			editorUi.duplicatePage(page, mxResources.get('copyOf', [page.getName()]));
 		})).isEnabled = function() { return editorUi.currentPage != null; };
+
+		editorUi.actions.put('sortPages', new Action(mxResources.get('sortPages'), function()
+		{
+			editorUi.sortPages();
+		})).isEnabled = function()
+		{
+			return editorUi.pages != null && editorUi.pages.length > 1 &&
+				editorUi.editor.graph.isEnabled();
+		};
 		
 		var shareCursorAction = editorUi.actions.addAction('shareCursor', function()
 		{
@@ -480,16 +489,17 @@
 
 			var hd = document.createElement('h3');
 			mxUtils.write(hd, mxResources.get('formatXml'));
-			hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 			div.appendChild(hd);
 
 			var section = document.createElement('div');
 			section.className = 'geDialogSection';
 
 			var selection = editorUi.addCheckbox(section, mxResources.get('selectionOnly'),
-				false, graph.isSelectionEmpty());
-			var compressed = editorUi.addCheckbox(section, mxResources.get('compressed'), Editor.defaultCompressed);
-			var pages = editorUi.addCheckbox(section, mxResources.get('allPages'), !noPages, noPages);
+				false, graph.isSelectionEmpty(), null, null, null, null, true);
+			var pages = editorUi.addCheckbox(section, mxResources.get('allPages'), !noPages, noPages,
+				null, null, null, null, true);
+			var compressed = editorUi.addCheckbox(section, mxResources.get('compressed'),
+				Editor.defaultCompressed, null, null, null, null, null, true);
 
 			div.appendChild(section);
 
@@ -511,7 +521,7 @@
 					!selection.checked, noPages || !pages.checked);
 			}), null, mxResources.get('export'));
 
-			editorUi.showDialog(dlg.container, 300, 200, true, true);
+			editorUi.showDialog(dlg.container, 300, null, true, true);
 		}));
 		
 		if (Editor.enableExportUrl)
@@ -548,7 +558,6 @@
 
 			var hd = document.createElement('h3');
 			mxUtils.write(hd, mxResources.get('formatJson'));
-			hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 			div.appendChild(hd);
 
 			var section = document.createElement('div');
@@ -556,11 +565,13 @@
 
 			var graph = editorUi.editor.graph;
 			var selection = editorUi.addCheckbox(section, mxResources.get('selectionOnly'),
-				false, graph.isSelectionEmpty());
-			var pages = editorUi.addCheckbox(section, mxResources.get('allPages'), !noPages, noPages);
-			var includeCopy = editorUi.addCheckbox(section, mxResources.get('includeCopyOfMyDiagram'), false);
+				false, graph.isSelectionEmpty(), null, null, null, null, true);
+			var pages = editorUi.addCheckbox(section, mxResources.get('allPages'), !noPages, noPages,
+				null, null, null, null, true);
+			var includeCopy = editorUi.addCheckbox(section, mxResources.get('includeCopyOfMyDiagram'),
+				false, null, null, null, null, null, true);
 			var compressed = editorUi.addCheckbox(section, mxResources.get('compressed'),
-				Editor.defaultCompressed, true);
+				Editor.defaultCompressed, true, null, null, null, null, true);
 
 			div.appendChild(section);
 
@@ -600,7 +611,7 @@
 					JSON.stringify(json, null, 2), 'application/json');
 			}), null, mxResources.get('export'));
 
-			editorUi.showDialog(dlg.container, 300, 240, true, true);
+			editorUi.showDialog(dlg.container, 300, null, true, true);
 		}));
 
 		editorUi.actions.put('exportHtml', new Action('formatHtmlEmbedded' + '...', function()
@@ -1272,7 +1283,6 @@
 
 				var hd = document.createElement('h3');
 				mxUtils.write(hd, mxResources.get('formatVsdx'));
-				hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 				div.appendChild(hd);
 
 				var section = document.createElement('div');
@@ -1733,6 +1743,8 @@
 
 			menu.addSeparator(parent);
 
+			// Shown only when the libavoid extensions bundle is loaded (a no-op
+			// in viewers / configs without extensions.min.js).
 			if (typeof LibavoidRouting !== 'undefined')
 			{
 				menu.addItem(mxResources.get('orthogonalRouting') + '...', null, mxUtils.bind(this, function()
@@ -2818,7 +2830,7 @@
 								}
 
 								var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
-									true, lightbox, editLink, layers, (link == 'public') ? publicUrl : null,
+									allPages, lightbox, editLink, layers, (link == 'public') ? publicUrl : null,
 									link == 'copy', params, null, currentPage, null, darkMode, linkIcons, tooltipIcons));
 								editorUi.showDialog(dlg.container, 450, 270, true, true, null, false, null, new mxRectangle(0, 0, 400, 250));
 								dlg.init();
@@ -3012,7 +3024,7 @@
 
 							var dlg = new EmbedDialog(editorUi, '<iframe frameborder="0" style="width:' + width +
 								';height:' + height + ';" src="' + editorUi.createLink(linkTarget, linkColor,
-								true, lightbox, editLink, layers, (link == 'public') ? publicUrl : null,
+								allPages, lightbox, editLink, layers, (link == 'public') ? publicUrl : null,
 								link == 'copy', params, null, currentPage, transparent, darkMode, linkIcons, tooltipIcons) + '"' + ((transparent) ?
 								' allowtransparency="true"' : '') + '></iframe>');
 							editorUi.showDialog(dlg.container, 450, 270, true, true, null, false, null, new mxRectangle(0, 0, 400, 250));
@@ -3040,7 +3052,7 @@
 						}
 
 						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
-							true, lightbox, editLink, layers, (link == 'public') ? publicUrl : null,
+							allPages, lightbox, editLink, layers, (link == 'public') ? publicUrl : null,
 							link == 'copy', params, null, currentPage, null, darkMode, linkIcons, tooltipIcons));
 						editorUi.showDialog(dlg.container, 450, 270, true, true, null, false, null, new mxRectangle(0, 0, 400, 250));
 						dlg.init();
@@ -3761,7 +3773,7 @@
 						}), input.value);
 					}), null, null, null, null, null, null, [App.MODE_GOOGLE], mxResources.get('ok'));
 					
-					editorUi.showDialog(dlg.container, 420, 150, true, false, mxUtils.bind(this, function()
+					editorUi.showDialog(dlg.container, 420, 162, true, false, mxUtils.bind(this, function()
 					{
 						editorUi.hideDialog();
 					}));
@@ -3826,7 +3838,7 @@
 	            	}
 				}), null, null, null, null, null, file.getMode());
 
-				editorUi.showDialog(dlg.container, 420, 70, true, false, mxUtils.bind(this, function()
+				editorUi.showDialog(dlg.container, 420, 82, true, false, mxUtils.bind(this, function()
 				{
 					editorUi.hideDialog();
 				}));
@@ -5203,6 +5215,7 @@
 				if (!editorUi.editor.graph.isLightboxView())
 				{
 					menu.addSeparator(parent);
+					this.addMenuItems(menu, ['sortPages'], parent);
 
 					menu.addItem(mxResources.get('deleteAll'), null, mxUtils.bind(this, function()
 					{

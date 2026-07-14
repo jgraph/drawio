@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=මගේ රූප සටහනේ පිටපතක්
 increaseIndent=ඉන්ඩෙන්ට් වැඩි කරන්න
 decreaseIndent=ඉන්ඩෙන්ට් අඩු කරන්න
 inherit=උරුම කරන්න
+initialPage=ආරම්භක පිටුව
 initialView=ආරම්භක දසුන
 insert=ඇතුළු කරන්න
 insertColumnBefore=වම් පැත්තට තීරුවක් ඇතුළු කරන්න

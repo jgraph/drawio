@@ -2186,7 +2186,7 @@ mxGraphView.prototype.getRelativePoint = function(edgeState, x, y)
 			}
 
 			// Constructs the relative point for the label
-			return new mxPoint(((totalLength / 2 - length - projlen) / totalLength) * -2,
+			return new mxPoint((totalLength > 0) ? ((totalLength / 2 - length - projlen) / totalLength) * -2 : 0,
 						yDistance / this.scale);
 		}
 	}

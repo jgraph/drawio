@@ -5099,7 +5099,7 @@ App.prototype.saveFile = function(forceDialog, success)
 				}
 			}), (allowTab) ? null : ['_blank']);
 
-			this.showDialog(dlg.container, 420, 150, true, false, mxUtils.bind(this, function()
+			this.showDialog(dlg.container, 420, 162, true, false, mxUtils.bind(this, function()
 			{
 				this.hideDialog();
 			}));

@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Incluír unha copia do meu diagrama
 increaseIndent=Aumentar a sangría
 decreaseIndent=Diminuír a sangría
 inherit=Herdar
+initialPage=Páxina inicial
 initialView=Vista inicial
 insert=Inserir
 insertColumnBefore=Inserir Columna á Esquerda

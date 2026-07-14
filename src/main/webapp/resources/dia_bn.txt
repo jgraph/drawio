@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=আমার ডায়াগ্রামের এক�
 increaseIndent=ইনডেন্ট বাড়ান
 decreaseIndent=ইনডেন্ট কমান
 inherit=উত্তরাধিকার
+initialPage=প্রারম্ভিক পৃষ্ঠা
 initialView=প্রারম্ভিক ভিউ
 insert=সন্নিবেশ
 insertColumnBefore=বামে কলাম সন্নিবেশ করুন

@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=내 다이어그램 복사본 포함
 increaseIndent=들여쓰기 증가
 decreaseIndent=내어쓰기
 inherit=상속
+initialPage=초기 페이지
 initialView=초기 보기
 insert=삽입
 insertColumnBefore=왼쪽에 열 삽입

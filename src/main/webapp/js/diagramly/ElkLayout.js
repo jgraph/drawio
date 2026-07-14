@@ -300,7 +300,6 @@ ElkLayoutBindings.runWithDialog = function(editorUi, algorithm, baseOptions, dia
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, dialogTitle || mxResources.get('layout'));
-	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 	div.appendChild(hd);
 
 	// Three sections: layout-shape fields / edge fields / checkboxes.

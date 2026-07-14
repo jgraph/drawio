@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=எனது வரைபடத்தின் நகல�
 increaseIndent=உள்தள்ளலை அதிகரி
 decreaseIndent=உள்தள்ளலைக் குறை
 inherit=மரபுரிமை
+initialPage=ஆரம்ப பக்கம்
 initialView=ஆரம்ப பார்வை
 insert=செருகு
 insertColumnBefore=இடது நெடுவரிசையைச் செருகு

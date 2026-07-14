@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=എന്റെ ഡയഗ്രാമിന്റെ ഒ�
 increaseIndent=ഇൻഡന്റ് വർദ്ധിപ്പിക്കുക
 decreaseIndent=ഇൻഡന്റ് കുറയ്ക്കുക
 inherit=പാരമ്പര്യം
+initialPage=പ്രാരംഭ പേജ്
 initialView=പ്രാരംഭ കാഴ്ച
 insert=ഉൾപ്പെടുത്തുക
 insertColumnBefore=ഇടത്തേക്ക് കോളം ചേർക്കുക

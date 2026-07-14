@@ -4470,14 +4470,15 @@
 	EditorUi.prototype.removeLibrarySidebar = function(id)
 	{
 		var elts = this.sidebar.palettes[id];
-		
+
 		if (elts != null)
 		{
 			for (var i = 0; i < elts.length; i++)
 			{
+				this.sidebar.unobserveElements(elts[i]);
 				elts[i].parentNode.removeChild(elts[i]);
 			}
-			
+
 			delete this.sidebar.palettes[id];
 		}
 	};
@@ -4726,11 +4727,14 @@
 			}
 		}
 
+		// Eager init: the library content is wired up below (drop
+		// targets, edit dialog) and edited in place, so it must not
+		// go through the deferred virtualPalettes path
 		var contentDiv = this.sidebar.addPalette(file.getHash(), tmp,
 			(expand != null) ? expand : true, mxUtils.bind(this, function(content)
 		{
 			addImages(images, content);
-	    }));
+	    }), true);
 
 		if (library != null)
 		{
@@ -6327,7 +6331,6 @@
 
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, mxResources.get('formatAnimatedGif', null, 'Animated GIF'));
-		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 		div.appendChild(hd);
 
 		// --- Settings section ---
@@ -6796,7 +6799,7 @@
 			this.hideDialog(null, null, dlg.container);
 		}), disabled, data, mimeType, base64Encoded, defaultMode);
 
-		this.showDialog(dlg.container, 420, 110, true, false, mxUtils.bind(this, function()
+		this.showDialog(dlg.container, 420, (mimeType != null) ? 114 : 122, true, false, mxUtils.bind(this, function()
 		{
 			this.hideDialog();
 		}));
@@ -7302,7 +7305,7 @@
 			this.hideDialog(null, null, dlg.container);
 		}), disabled, null, 'application/pdf');
 
-		this.showDialog(dlg.container, 420, 110, true, false, mxUtils.bind(this, function()
+		this.showDialog(dlg.container, 420, 114, true, false, mxUtils.bind(this, function()
 		{
 			this.hideDialog();
 		}));
@@ -8237,9 +8240,12 @@
 			data = '';
 		}
 
-		if (currentPage && this.currentPage != null)
+		// Accepts the page to open or true for the current page (legacy)
+		var linkPage = (currentPage == true) ? this.currentPage : currentPage;
+
+		if (linkPage != null && typeof linkPage.getId === 'function')
 		{
-			params.push('page-id=' + this.currentPage.getId());
+			params.push('page-id=' + linkPage.getId());
 		}
 
 		if (transparent)
@@ -8390,6 +8396,44 @@
 	/**
 	 * 
 	 */
+	/**
+	 * Adds a "Pages:" form row with an All Pages/Current Page select to the
+	 * given section and returns {row, select}. The row is only added for
+	 * multi-page files (row is null otherwise); the select defaults to all
+	 * pages.
+	 */
+	EditorUi.prototype.addPagesRow = function(section)
+	{
+		var pagesSelect = document.createElement('select');
+		pagesSelect.style.maxWidth = '260px';
+
+		var allPagesOption = document.createElement('option');
+		mxUtils.write(allPagesOption, mxResources.get('allPages'));
+		allPagesOption.setAttribute('value', 'allPages');
+		pagesSelect.appendChild(allPagesOption);
+
+		var currentPageOption = document.createElement('option');
+		mxUtils.write(currentPageOption, mxResources.get('currentPage'));
+		currentPageOption.setAttribute('value', 'currentPage');
+		pagesSelect.appendChild(currentPageOption);
+
+		var pagesRow = null;
+
+		if (this.pages != null && this.pages.length > 1)
+		{
+			pagesRow = document.createElement('div');
+			pagesRow.className = 'geDialogFormRow';
+			var pagesLbl = document.createElement('span');
+			pagesLbl.className = 'geDialogFormLabel';
+			mxUtils.write(pagesLbl, mxResources.get('pages') + ':');
+			pagesRow.appendChild(pagesLbl);
+			pagesRow.appendChild(pagesSelect);
+			section.appendChild(pagesRow);
+		}
+
+		return {row: pagesRow, select: pagesSelect};
+	};
+
 	EditorUi.prototype.showHtmlDialog = function(btnLabel, helpLink, publicUrl, fn)
 	{
 		var div = document.createElement('div');
@@ -8397,15 +8441,15 @@
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, mxResources.get('html'));
-		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:12px';
 		div.appendChild(hd);
 
 		var linkSelect = document.createElement('select');
 
 		linkSelect.className = 'geBtn';
-		linkSelect.style.marginBottom = '8px';
-		linkSelect.style.marginLeft = '0px';
-		linkSelect.style.width = '100%';
+		// 4px inset keeps the 3px focus ring inside the dialog's
+		// overflow-clipping content wrappers
+		linkSelect.style.margin = '0 4px 8px 4px';
+		linkSelect.style.width = 'calc(100% - 8px)';
 		linkSelect.style.boxSizing = 'border-box';
 
 		var makeCopy = document.createElement('option');
@@ -8459,6 +8503,7 @@
 		optSection.className = 'geDialogSection';
 
 		var linkSection = this.addLinkSection(optSection);
+		var pages = this.addPagesRow(optSection);
 
 		var themeSelect = document.createElement('select');
 		themeSelect.style.maxWidth = '260px';
@@ -8509,9 +8554,6 @@
 
 		var fit = this.addCheckbox(optSection, mxResources.get('fit'),
 			true, null, null, null, null, null, true);
-		var hasPages = this.pages != null && this.pages.length > 1;
-		var allPages = this.addCheckbox(optSection, mxResources.get('allPages'),
-			hasPages, !hasPages, null, null, null, null, true);
 		var lightbox = this.addCheckbox(optSection, mxResources.get('lightbox'),
 			true, null, null, null, null, null, true);
 
@@ -8591,7 +8633,8 @@
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
 			fn((linkSelect.value == 'url') ? publicUrl : null, zoom.checked, zoomInput.value, linkSection.getTarget(),
-				linkSection.getColor(), fit.checked, allPages.checked, layers.checked, tags.checked,
+				linkSection.getColor(), fit.checked, pages.row != null &&
+				pages.select.value == 'allPages', layers.checked, tags.checked,
 				lightbox.checked, (editSection != null) ? editSection.getLink() : null,
 				(themeSelect != null) ? themeSelect.value : null,
 				tags.checked && useTagSettings.checked,
@@ -8613,25 +8656,22 @@
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, title || mxResources.get('publish'));
-		hd.style.width = '100%';
-		hd.style.textAlign = 'center';
-		hd.style.marginTop = '0px';
-		hd.style.marginBottom = '10px';
 		div.appendChild(hd);
 		
 		var linkSelect = document.createElement('select');
 
 		linkSelect.className = 'geBtn';
-		linkSelect.style.marginBottom = '8px';
-		linkSelect.style.marginLeft = '0px';
-		linkSelect.style.width = '100%';
+		// 4px inset keeps the 3px focus ring inside the dialog's
+		// overflow-clipping content wrappers
+		linkSelect.style.margin = '0 4px 8px 4px';
+		linkSelect.style.width = 'calc(100% - 8px)';
 		linkSelect.style.boxSizing = 'border-box';
 
 		helpLink = (helpLink != null) ? helpLink :
 			'https://www.drawio.com/docs/manual/export/publish-link/';
 
 		var makeCopy = document.createElement('option');
-		mxUtils.write(makeCopy, mxResources.get('makeCopy'));
+		mxUtils.write(makeCopy, mxResources.get('includeCopyOfMyDiagram'));
 		makeCopy.setAttribute('value', 'copy');
 		linkSelect.appendChild(makeCopy);
 
@@ -8640,7 +8680,11 @@
 		authRequired.setAttribute('value', 'auth');
 		linkSelect.appendChild(authRequired);
 
-		if (file == null || file.getHash() == '')
+		// Authorization requires a cloud-stored file - a device/browser file's
+		// link only resolves locally, there is no access to be controlled
+		if (file == null || file.getHash() == '' ||
+			file.getMode() == App.MODE_DEVICE ||
+			file.getMode() == App.MODE_BROWSER)
 		{
 			authRequired.setAttribute('disabled', 'disabled');
 		}
@@ -8668,7 +8712,6 @@
 		
 		div.appendChild(linkSelect);
 		mxUtils.br(div);
-		linkSelect.focus();
 
 		// --- Options section ---
 		var optSection = document.createElement('div');
@@ -8715,45 +8758,54 @@
 
 
 
-		var allPagesSelect = document.createElement('select');
-		allPagesSelect.className = 'geBtn';
+		var pages = this.addPagesRow(optSection);
+		var allPagesSelect = pages.select;
 
-		var allPagesOption = document.createElement('option');
-		mxUtils.write(allPagesOption, mxResources.get('allPages'));
-		allPagesOption.setAttribute('value', 'allPages');
-		allPagesSelect.appendChild(allPagesOption);
-
-		var currentPageOption = document.createElement('option');
-		mxUtils.write(currentPageOption, mxResources.get('currentPage'));
-		currentPageOption.setAttribute('value', 'currentPage');
-		allPagesSelect.appendChild(currentPageOption);
-		
-		var currentPage = null;
-		
-		if (this.pages != null && this.currentPage != null &&
-			this.getPageIndex(this.currentPage) > 0)
+		// Page scope only applies to links that embed a copy of the diagram -
+		// authorization and public links reference the live file, which
+		// always contains all pages
+		if (pages.row != null && !showAllPagesOption)
 		{
-			var name = (this.currentPage != null) ? this.currentPage.getName() : '';
-
-			if (name.length > 16)
+			var updatePagesVisible = function()
 			{
-				name = name.substring(0, 16) + '...';
+				pages.row.style.display = (linkSelect.value == 'copy') ? '' : 'none';
+			};
+
+			mxEvent.addListener(linkSelect, 'change', updatePagesVisible);
+			updatePagesVisible();
+		}
+
+		var initialPageSelect = null;
+
+		if (this.pages != null && this.pages.length > 1)
+		{
+			var initialPageRow = document.createElement('div');
+			initialPageRow.className = 'geDialogFormRow';
+			var initialPageLbl = document.createElement('span');
+			initialPageLbl.className = 'geDialogFormLabel';
+			mxUtils.write(initialPageLbl, mxResources.get('initialPage',
+				null, 'Initial Page') + ':');
+			initialPageRow.appendChild(initialPageLbl);
+
+			initialPageSelect = document.createElement('select');
+			initialPageSelect.style.maxWidth = '260px';
+
+			for (var i = 0; i < this.pages.length; i++)
+			{
+				var pageOption = document.createElement('option');
+				mxUtils.write(pageOption, this.pages[i].getName());
+				pageOption.setAttribute('value', i);
+
+				if (this.pages[i] == this.currentPage)
+				{
+					pageOption.setAttribute('selected', 'selected');
+				}
+
+				initialPageSelect.appendChild(pageOption);
 			}
 
-			if (showAllPagesOption)
-			{
-				var pagesRow = document.createElement('div');
-				pagesRow.className = 'geDialogFormRow';
-				var pagesLbl = document.createElement('span');
-				pagesLbl.className = 'geDialogFormLabel';
-				mxUtils.write(pagesLbl, mxResources.get('pages') + ':');
-				pagesRow.appendChild(pagesLbl);
-				pagesRow.appendChild(allPagesSelect);
-				optSection.appendChild(pagesRow);
-			}
-
-			currentPage = this.addCheckbox(optSection, mxResources.get('selectedPage') + ': ' + name,
-				null, null, null, null, null, null, true);
+			initialPageRow.appendChild(initialPageSelect);
+			optSection.appendChild(initialPageRow);
 		}
 
 		var themeSelect = document.createElement('select');
@@ -8868,8 +8920,11 @@
 
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
+			// The first page is the default landing page - only an explicit
+			// other page is encoded into the link
 			fn(linkSection.getTarget(), linkSection.getColor(),
-				(currentPage == null) ? false : currentPage.checked,
+				(initialPageSelect == null || initialPageSelect.selectedIndex <= 0) ?
+					null : this.pages[initialPageSelect.selectedIndex],
 				lightbox.checked, editSection.getLink(), layers.checked,
 				(widthInput != null) ? widthInput.value : null,
 				(heightInput != null) ? heightInput.value : null,
@@ -8894,9 +8949,9 @@
 				document.execCommand('selectAll', false, null);
 			}
 		}
-		else (linkSelect.parentNode == null)
+		else
 		{
-			linkSection.focus();
+			linkSelect.focus();
 		}
 	};
 
@@ -8910,7 +8965,6 @@
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, mxResources.get('image'));
-		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 		div.appendChild(hd);
 
 		if (showZoomBorder)
@@ -9007,7 +9061,6 @@
 
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, title);
-		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 		div.appendChild(hd);
 
 		// --- Dimensions section ---
@@ -9650,7 +9703,6 @@
 		{
 			var hd = document.createElement('h3');
 			mxUtils.write(hd, title);
-			hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px';
 			div.appendChild(hd);
 		}
 
@@ -23806,6 +23858,8 @@
 		entries.push({label: 'parallels', kind: 'simple', layoutName: 'mxParallelEdgeLayout',
 			config: {spacing: 20, checkOverlap: true}});
 
+		// Shown only when the libavoid extensions bundle is loaded (a no-op in
+		// viewers / configs without extensions.min.js).
 		if (typeof LibavoidRouting !== 'undefined')
 		{
 			entries.push({label: 'orthogonalRouting', kind: 'simple',
@@ -25680,7 +25734,6 @@
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, mxUtils.htmlEntities(title));
-		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:12px';
 		div.appendChild(hd);
 
 		var libsSection = document.createElement('div');

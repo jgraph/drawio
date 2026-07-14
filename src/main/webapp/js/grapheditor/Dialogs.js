@@ -2354,7 +2354,6 @@ var EditDiagramDialog = function(editorUi)
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, mxResources.get('editDiagram'));
-	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:10px;flex-shrink:0';
 	div.appendChild(hd);
 
 	var textarea = document.createElement('textarea');

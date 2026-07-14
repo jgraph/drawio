@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=Iekļaujiet manas diagrammas kopiju
 increaseIndent=Palielināt atkāpi
 decreaseIndent=Samazināt atkāpi
 inherit=Mantot
+initialPage=Sākotnējā lapa
 initialView=Sākotnējais skats
 insert=Ievietot
 insertColumnBefore=Ievietot kolonu pa kreisi

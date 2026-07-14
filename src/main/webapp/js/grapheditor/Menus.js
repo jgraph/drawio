@@ -71,6 +71,8 @@ Menus.prototype.init = function()
 				['orthogonalEdgeStyle', null, null, null], null, parent, true, Format.orthogonalImage.src)).setAttribute('title', mxResources.get('orthogonal'));
 
 			// libavoid obstacle-avoiding routing (orthogonal + flag, routed at once).
+			// Shown only when the libavoid extensions bundle is loaded (a no-op
+			// in viewers / configs without extensions.min.js).
 			if (typeof LibavoidRouting !== 'undefined')
 			{
 				Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],

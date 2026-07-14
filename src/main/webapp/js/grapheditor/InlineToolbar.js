@@ -1966,6 +1966,8 @@ InlineToolbar.prototype.showConnStyleMenu = function(evt)
 			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
 			values: ['orthogonalEdgeStyle', null, null, null], reset: true});
 
+		// Shown only when the libavoid extensions bundle is loaded (a no-op in
+		// viewers / configs without extensions.min.js).
 		if (typeof LibavoidRouting !== 'undefined')
 		{
 			routingItems.push({img: Format.libavoidImage.src, title: mxResources.get('libavoidAutoRoute'),

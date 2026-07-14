@@ -448,6 +448,7 @@ includeCopyOfMyDiagram=‫یک کپی از نمودار من را اضافه ک�
 increaseIndent=‫افزایش فاصله‌ی سرسطر‬
 decreaseIndent=‫کاهش فاصله‌ی سرسطر‬
 inherit=ارث‌بری
+initialPage=‫صفحه اولیه‬
 initialView=‫نمای اولیه‬
 insert=‫درج‬
 insertColumnBefore=‫وارد کردن ستون در سمت چپ‬

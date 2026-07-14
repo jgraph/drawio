@@ -1,70 +1,75 @@
-# libavoid-js (vendored)
+# libavoid (pure-JS, built from source)
 
 Obstacle-avoiding **orthogonal edge routing** for the Arrange &gt; Layout &gt;
-**Orthogonal Routing** menu item. libavoid never moves a vertex — it only
-computes edge paths that route around the vertices as obstacles. Vendored from
-the upstream [`libavoid-js`](https://github.com/Aksem/libavoid-js) npm package,
-the Emscripten/WASM port of [libavoid](https://www.adaptagrams.org/).
+**Orthogonal Routing** menu item (and the `orthogonalEdge` childLayout).
+libavoid never moves a vertex — it only computes edge paths that route around
+the vertices as obstacles.
 
-This is the **only** part of the build that ships a WebAssembly binary, and
-unlike `js/elk` / `js/mermaid` (which load bundles from a CDN in some contexts)
-libavoid must ship fully inline: the offline PWA and the sandboxed embed can't
-`fetch` the `.wasm`. So the `.wasm` is base64-inlined and handed to the
-Emscripten module as `wasmBinary` — it instantiates with no network access.
+The bundle here is **built from source** in the sibling repo
+[`../drawio-libavoid`](https://github.com/jgraph/drawio-libavoid) — the same
+pattern as `drawio-elk` / `drawio-mermaid`, down to the refresh path
+(`ant bundles`) and being a **single, self-contained, self-publishing** bundle
+loaded via one `<script>` tag. That repo compiles the published
+[libavoid](https://www.adaptagrams.org/) C++ (from the Adaptagrams submodule,
+LGPL-2.1) with a small draw.io-authored **embind** binding into one pure-JS file
+(Emscripten wasm2js, `-sWASM=0`). Like `drawio-mermaid` publishes
+`mxMermaidToDrawio`, this bundle publishes `window.Avoid` itself on load — there
+is **no separate loader file** and no bespoke vendor script.
 
-**CSP requirement**: pages loading this module need `'wasm-unsafe-eval'` (or
-`'unsafe-eval'`) in `script-src`, and nothing more. Upstream is built without
-Emscripten's `-sDYNAMIC_EXECUTION=0`, so its embind glue also generated JS
-invokers via `new Function(...)` at module init — needing full
-`'unsafe-eval'` and aborting under the diagrams.net CSP even after the wasm
-compiled. `vendor-libavoid.js` (`patchEmbindDynamicExecution`) replaces both
-codegen sites with eval-free equivalents at vendor time (the `.wasm` is
-untouched), and hard-fails if a future upstream bump reintroduces dynamic
-code generation. On CSP failure the loader still degrades gracefully:
-`window.__libavoidReady` resolves to `null` and routing is disabled.
+**No WebAssembly, no dynamic loading.** Earlier versions shipped a WASM binary
+(base64-inlined, decoded and instantiated asynchronously). That is gone:
+
+- **CSP**: pure JS built with `-sDYNAMIC_EXECUTION=0` needs **neither
+  `'unsafe-eval'` nor `'wasm-unsafe-eval'`** — it runs under any `script-src`.
+- **Synchronous init**: built with `-sWASM_ASYNC_COMPILATION=0`, so
+  `initAvoidModule(mod)` populates the embind classes on `mod` before it
+  returns. The bundle's own bootstrap (baked in via `--extern-post-js`) calls it
+  and publishes `globalThis.Avoid` in one tick — no promise to await, no CSP
+  probe, no availability race, no separate loader.
+
+The tradeoff is size/speed (pure JS is ~2–4× the old wasm and slower per solve),
+which is acceptable: routing runs on user gestures, not a hot loop, and
+universal CSP compatibility is the goal.
 
 ## Artifacts
 
 | File | Origin | Purpose |
 |---|---|---|
-| `libavoid.min.js` | **generated** from upstream `dist/index.js` | Emscripten glue: IIFE-wrapped, `import.meta.url` neutralized, loader patched to take an inlined `wasmBinary` + an optional `printErr` (`globalThis.__LIBAVOID_PRINT_ERR`), embind's `new Function` codegen replaced with eval-free invokers (CSP, see above), source-map pointer dropped, ESM export stripped, `globalThis.AvoidLib` aliased. |
-| `libavoid-wasm.js` | **generated** from upstream `dist/libavoid.wasm` | `window.__LIBAVOID_WASM_B64 = "<base64>"` (~640 KB). |
-| `libavoid-loader.js` | **hand-authored** | Decodes the base64 → `globalThis.__LIBAVOID_WASM_BINARY`, defines `__LIBAVOID_PRINT_ERR` (demotes libavoid's non-actionable "skipping checkpoint" stderr warnings to `console.debug`), calls `AvoidLib.load()`, parks the promise on `window.__libavoidReady` (resolves to the `Avoid` namespace, or `null` on failure). |
+| `libavoid.min.js` | **copied** from `../drawio-libavoid/dist/libavoid.js` (by `ant bundles`) | The pure-JS module (wasm2js, embind, `DYNAMIC_EXECUTION=0`, synchronous). Self-publishing: on load it calls its own `initAvoidModule` factory synchronously, sets `window.Avoid` (and `window.__libavoidReady = Promise.resolve(Avoid)` for back-compat), and installs the `printErr` filter (demotes libavoid's non-actionable "skipping checkpoint" stderr to `console.debug`). |
 | `libavoid-routing.js` | **hand-authored** | The shared routing core, `globalThis.AvoidRouting`: `computeRoutes` (obstacle-avoiding solve incl. fixed-connection-point pins and jettySize stub checkpoints) plus the pure geometry helpers (`constraintForPoint`, `jettyStub`, `filterEnclosing`, `insideAny`, `dirForPoint`, `clamp01`). **Canonical source** — drawio-mcp vendors verbatim copies (see Algorithm sync). |
 | `LICENSE` | upstream | LGPL-2.1 — shipped for attribution (libavoid is LGPL). |
 
 The editor adapter lives next to the other layouts:
-[`js/diagramly/LibavoidRouting.js`](../diagramly/LibavoidRouting.js).
+[`js/diagramly/LibavoidRouting.js`](../diagramly/LibavoidRouting.js). It reads
+`window.Avoid` directly (always set at load). The routing UI entry points gate
+only on `typeof LibavoidRouting !== 'undefined'` — i.e. whether the extensions
+bundle is loaded (a no-op in viewers). There is no availability/CSP probe: the
+bundle is pure JS and can't be blocked by a CSP, so the old `isSupported()`
+helper and the wasm-unsafe-eval fallback are gone.
 
 ## Load order (fixed)
 
-`libavoid.min.js` → `libavoid-wasm.js` → `libavoid-loader.js` →
-`libavoid-routing.js` → `LibavoidRouting.js`. Enforced in `Devel.js` (dev)
-and the `extensions.min.js` concat in `etc/build/github-build.xml` (prod).
-(`libavoid-routing.js` itself has no load-order dependency — every entry
-point takes the `Avoid` namespace as a parameter — it is simply kept in the
-block.) libavoid flows transitively into `atlas.min.js`, `integrate.min.js`,
-and the desktop build because they include `extensions.min.js` whole.
+`libavoid.min.js` → `libavoid-routing.js` → `LibavoidRouting.js`. Enforced in
+`Devel.js` (dev) and the `extensions.min.js` concat in
+`etc/build/github-build.xml` (prod). (`libavoid-routing.js` itself has no
+load-order dependency — every entry point takes the `Avoid` namespace as a
+parameter — it is simply kept in the block.) libavoid flows transitively into
+`atlas.min.js`, `integrate.min.js`, and the desktop build because they include
+`extensions.min.js` whole.
 
 ## Refreshing
 
+Exactly like `drawio-elk` / `drawio-mermaid` — via the internal `bundles` Ant
+target, which rebuilds all three sibling bundles and copies them in:
+
 ```sh
-cd etc/build
-ant vendor-libavoid          # npm pack libavoid-js@<version>, transform, write artifacts
-# or, from a local copy of the upstream files:
-node vendor-libavoid.js --from /path/to/dir/with/libavoid.min.js+libavoid.wasm
+cd drawio-dev/etc/build
+ant bundles     # runs `npm run build` in each sibling, copies the outputs
 ```
 
-Regenerates `libavoid.min.js`, `libavoid-wasm.js`, `LICENSE`.
-`libavoid-loader.js`, `libavoid-routing.js` and this README are hand-authored —
-not regenerated. The pinned version lives in `etc/build/vendor-libavoid.js`
-(`VERSION`).
-
-**Currently vendored: `libavoid-js@0.5.0-beta.5`.**
-
-If an upstream bump changes the minified loader signature, the
-`wasmBinary` patch in `vendor-libavoid.js` hard-fails ("Could not patch libavoid
-loader…") instead of silently shipping a fetch-on-load bundle — update the regex.
+libavoid's `npm run build` needs the Emscripten SDK (the other two need only
+Node). `libavoid-routing.js` and this README are hand-authored — not copied. The
+C++ version is pinned by the adaptagrams submodule commit in `../drawio-libavoid`.
 
 ## Algorithm sync
 
@@ -73,5 +78,4 @@ vendors verbatim copies (`mcp-app-server/vendor/libavoid/` for the inlined
 viewer, `mcp-tool-server/vendor/libavoid/` for the node-side pass — the
 latter side-effect imports the plain script and reads
 `globalThis.AvoidRouting`). When this file changes, copy it over both. The
-WASM globals (`AvoidLib` / `window.Avoid` / `window.__libavoidReady`) are
-deliberately identical across both repos.
+`window.Avoid` global is deliberately identical across both repos.
