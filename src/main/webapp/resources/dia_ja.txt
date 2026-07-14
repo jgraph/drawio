@@ -513,7 +513,6 @@ leftAlign=左揃え
 leftToRight=左から右
 libraryTooltip=ここに図形をドラッグ＆ドロップするか、+をクリックして挿入。ダブルクリックで編集。
 lightbox=ライトボックス
-lightboxAnimation=ライトボックスのアニメーション
 lightboxAnimationHint=ライトボックスモードでページが表示されると自動的に再生されます。
 line=線
 lineend=線の終点

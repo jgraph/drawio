@@ -508,7 +508,6 @@ leftAlign=‫محاذاة إلى اليسار‬
 leftToRight=‫من اليسار إلى اليمين‬
 libraryTooltip=‫اسحب وأفلت الأشكال هنا أو انقر + للإدراج. انقر نقرًا مزدوجًا للتعديل.‬
 lightbox=‫صندوق الضوء‬
-lightboxAnimation=حركة وضع الـ lightbox
 lightboxAnimationHint=تُشغّل تلقائيًا عند عرض الصفحة في وضع الـ lightbox.
 line=‫الخط‬
 lineend=‫نهاية الخط‬

@@ -89,7 +89,7 @@ Menus.prototype.init = function()
 			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
 				['isometricEdgeStyle', 'vertical', null, null, null], null, parent, true, Format.verticalIsometricImage.src)).setAttribute('title', mxResources.get('isometric'));
 
-			if (shape == null || shape == 'connector')
+			if (state == null || Graph.edgeSupportsCurved(state.style))
 			{
 				Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
 					['orthogonalEdgeStyle', '1', null, null], null, parent, true, Format.curvedImage.src)).setAttribute('title', mxResources.get('curved'));

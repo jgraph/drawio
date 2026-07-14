@@ -513,7 +513,6 @@ leftAlign=Căn lề trái
 leftToRight=Trái sang phải
 libraryTooltip=Kéo và thả hình vào đây hoặc nhấn + để thêm vào. Nhấp đôi chuột để chỉnh sửa.
 lightbox=Hiệu ứng Lightbox
-lightboxAnimation=Hoạt ảnh lightbox
 lightboxAnimationHint=Tự động phát khi trang được hiển thị ở chế độ lightbox.
 line=Đường thẳng
 lineend=Cuối đường

@@ -513,7 +513,6 @@ leftAlign=По левому краю
 leftToRight=Слева направо
 libraryTooltip=Для добавления фигуры перенесите её сюда при помощи мыши или нажмите «+». Дважды нажмите для редактирования.
 lightbox=Галерея
-lightboxAnimation=Анимация в режиме lightbox
 lightboxAnimationHint=Воспроизводится автоматически, когда страница отображается в режиме lightbox.
 line=Линия
 lineend=Конец линии

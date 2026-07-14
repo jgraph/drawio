@@ -906,7 +906,6 @@ EmbedDialog.showPreviewOption = true;
  */
 var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor)
 {
-	var graph = editorUi.editor.graph;
 	var div = document.createElement('div');
 
 	var hd = document.createElement('h3');
@@ -1238,7 +1237,7 @@ var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor)
 		});
 	}
 
-	// Options section (fill color + shadow)
+	// Options section (fill color)
 	var optSection = document.createElement('div');
 	optSection.className = 'geDialogSection';
 	optSection.style.display = (showColor) ? '' : 'none';
@@ -1277,7 +1276,21 @@ var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor)
 		}
 		else
 		{
-			backgroundButton.style.backgroundColor = newBackgroundColor;
+			var cssColor = mxUtils.getLightDarkColor(newBackgroundColor);
+
+			if (mxUtils.isLightDarkColor(newBackgroundColor) &&
+				cssColor.light != cssColor.dark)
+			{
+				backgroundButton.style.background = 'linear-gradient(to right bottom, ' +
+					cssColor.cssText + ' 50%, ' + mxUtils.invertLightDarkColor(cssColor).
+					cssText + ' 50.3%)';
+			}
+			else
+			{
+				backgroundButton.style.background = '';
+				backgroundButton.style.backgroundColor = cssColor.cssText;
+			}
+
 			backgroundButton.style.display = '';
 			cb.checked = true;
 		}
@@ -1294,7 +1307,7 @@ var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor)
 
 		if (cb.checked)
 		{
-			newBackgroundColor = '#ffffff';
+			newBackgroundColor = editorUi.editor.graph.defaultPageBackgroundColor;
 		}
 		else
 		{
@@ -1317,35 +1330,6 @@ var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor)
 
 	bgRow.appendChild(backgroundButton);
 	optSection.appendChild(bgRow);
-
-	var shadowRow = document.createElement('div');
-	shadowRow.className = 'geDialogCheckRow';
-	shadowRow.style.cursor = 'default';
-
-	var shadow = document.createElement('input');
-	shadow.setAttribute('type', 'checkbox');
-	shadow.defaultChecked = graph.shadowVisible;
-	shadow.checked = shadow.defaultChecked;
-	shadowRow.appendChild(shadow);
-
-	var shadowLabel = document.createElement('label');
-	mxUtils.write(shadowLabel, mxResources.get('shadow'));
-	shadowRow.appendChild(shadowLabel);
-
-	if (!mxClient.IS_SVG || mxClient.IS_SF)
-	{
-		shadow.setAttribute('disabled', 'disabled');
-	}
-
-	mxEvent.addListener(shadowRow, 'click', function(evt)
-	{
-		if (mxEvent.getSource(evt) != shadow)
-		{
-			shadow.checked = !shadow.checked;
-		}
-	});
-
-	optSection.appendChild(shadowRow);
 	div.appendChild(optSection);
 
 	// Buttons
@@ -1422,8 +1406,7 @@ var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor)
 		urlChanged(null, function(url)
 		{
 			applyFn((url != '' && url != null) ? new mxImage(url, widthInput.value,
-				heightInput.value) : null, url == null, newBackgroundColor,
-				(!mxClient.IS_SVG || mxClient.IS_SF) ? null : shadow.checked);
+				heightInput.value) : null, url == null, newBackgroundColor);
 		});
 	});
 
@@ -6492,7 +6475,16 @@ function installCustomActionStyles()
 		// the row whose step is currently executing. Subtle blue tint,
 		// no border-shift so the row height stays stable.
 		'.geAnimationStepActive{background:',
-			'light-dark(rgba(0,113,227,.10),rgba(10,132,255,.18))}'
+			'light-dark(rgba(0,113,227,.10),rgba(10,132,255,.18))}',
+
+		// Selected step highlight — rows whose selection checkbox is on
+		// (feeds Copy / Paste / Duplicate). Weaker than the active tint
+		// so the playback highlight stays visible; the combined state
+		// gets its own stronger tint.
+		'.geAnimationStepSelected{background:',
+			'light-dark(rgba(0,113,227,.06),rgba(10,132,255,.10))}',
+		'.geAnimationStepActive.geAnimationStepSelected{background:',
+			'light-dark(rgba(0,113,227,.16),rgba(10,132,255,.28))}'
 	].join('');
 
 	var style = document.createElement('style');
@@ -10023,6 +10015,21 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	div.style.height = '100%';
 	div.style.boxSizing = 'border-box';
 
+	// draw.io toggles dark mode with a class plus an inline color-scheme on
+	// the editor container, but this window lives under document.body and
+	// does not inherit that scheme in every theme - so the native model
+	// <select> popup and the dialog's light-dark() colors would follow the OS
+	// instead of the editor theme (e.g. a white dropdown in dark mode). Track
+	// it explicitly on the dialog root.
+	var updateColorScheme = function()
+	{
+		div.style.colorScheme = (Editor.isDarkMode != null &&
+			Editor.isDarkMode()) ? 'dark' : 'light';
+	};
+
+	updateColorScheme();
+	editorUi.addListener('darkModeChanged', updateColorScheme);
+
 	mxEvent.addGestureListeners(div, function(evt)
 	{
 		if (editorUi.sidebar != null)
@@ -10393,7 +10400,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 
 	var inp = document.createElement('textarea');
 	inp.setAttribute('rows', '1');
-	inp.setAttribute('placeholder', mxResources.get('askMeAnything'));
+	inp.setAttribute('placeholder', mxResources.get('describeYourDiagram'));
 	inp.style.width = '100%';
 	inp.style.outline = 'none';
 	inp.style.border = 'none';
@@ -10480,7 +10487,11 @@ var ChatWindow = function(editorUi, x, y, w, h)
 
 	var modelSelect = document.createElement('select');
 	modelSelect.style.borderColor = 'transparent';
-	modelSelect.style.background = 'transparent';
+	// An explicit adaptive background (matching the composer) - a transparent
+	// native <select> is painted white by some browsers even under a dark
+	// color-scheme. This is not a .geDialog, so the global select styling
+	// that gives every other dropdown a dark background does not apply here.
+	modelSelect.style.background = 'light-dark(#e0e0e0, #3a3a3a)';
 	modelSelect.style.textOverflow = 'ellipsis';
 	modelSelect.style.fontSize = '11px';
 	modelSelect.style.opacity = '0.8';
@@ -10689,27 +10700,30 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	});
 
 	var counterSvg = document.createElementNS(svgNs, 'svg');
-	counterSvg.setAttribute('width', '15');
-	counterSvg.setAttribute('height', '15');
+	counterSvg.setAttribute('width', '13');
+	counterSvg.setAttribute('height', '13');
 	counterSvg.setAttribute('viewBox', '0 0 36 36');
 	counterSvg.style.display = 'block';
 
+	// r=14 with stroke-width 5 keeps the ring inside the 36 box;
+	// pathLength=100 lets the arc dash-array stay a plain percentage
 	var counterTrack = document.createElementNS(svgNs, 'circle');
 	counterTrack.setAttribute('cx', '18');
 	counterTrack.setAttribute('cy', '18');
-	counterTrack.setAttribute('r', '15.915');
+	counterTrack.setAttribute('r', '14');
 	counterTrack.setAttribute('fill', 'none');
 	counterTrack.setAttribute('stroke', 'light-dark(#d8d8d8, #555555)');
-	counterTrack.setAttribute('stroke-width', '4');
+	counterTrack.setAttribute('stroke-width', '5');
 	counterSvg.appendChild(counterTrack);
 
 	var counterArc = document.createElementNS(svgNs, 'circle');
 	counterArc.setAttribute('cx', '18');
 	counterArc.setAttribute('cy', '18');
-	counterArc.setAttribute('r', '15.915');
+	counterArc.setAttribute('r', '14');
 	counterArc.setAttribute('fill', 'none');
-	counterArc.setAttribute('stroke-width', '4');
+	counterArc.setAttribute('stroke-width', '5');
 	counterArc.setAttribute('stroke-linecap', 'round');
+	counterArc.setAttribute('pathLength', '100');
 	counterArc.setAttribute('transform', 'rotate(-90 18 18)');
 	counterSvg.appendChild(counterArc);
 
@@ -10922,7 +10936,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		btn.className = 'geAdaptiveAsset geLibraryButton';
 		btn.setAttribute('src', Editor.refreshImage);
 		btn.setAttribute('title', (title != null) ? title :
-			mxResources.get('tryAgain'));
+			mxResources.get('retry'));
 		buttons.appendChild(btn);
 		mxEvent.addListener(btn, 'click', fn);
 
@@ -10968,6 +10982,27 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	// prompt (drag/tooltip label), applyCtx ({xmlNode, page} snapshot,
 	// {fresh: true} for a diff against the current page, or null for
 	// insert-only), retryFn (re-runs the request) and infoLabel.
+	// Encodes the current page's model keeping only the cells whose id is in
+	// the given set (plus root and layers) - the same filtering the selection
+	// attachment uses, keyed on a tracked cell set. Used to snapshot an
+	// inserted diagram so a later response can update it in place.
+	var scopedNode = function(ids)
+	{
+		var enc = new mxCodec(mxUtils.createXmlDocument());
+
+		enc.isObjectIgnored = function(obj)
+		{
+			return obj.constructor == mxCell &&
+				!graph.model.isRoot(obj) && !graph.model.isLayer(obj) &&
+				!(obj.id != null && ids[obj.id]);
+		};
+
+		var node = enc.encode(graph.getModel());
+		node.ownerDocument.appendChild(node);
+
+		return node;
+	};
+
 	var renderResponseData = function(target, data, opts)
 	{
 		var cells = null;
@@ -10977,6 +11012,21 @@ var ChatWindow = function(editorUi, x, y, w, h)
 			try
 			{
 				cells = editorUi.stringToCells(data[1]);
+
+				// A full <mxfile> that wraps a bare <mxGraphModel> (no
+				// <diagram> element, as some models emit) is not unwrapped by
+				// stringToCells; pull the inner model out and retry so the
+				// file still renders inline instead of falling back to raw XML
+				if (cells.length == 0)
+				{
+					var inner = Editor.extractGraphModelFromText(data[1]);
+
+					if (inner != null && inner[1].length > 0 &&
+						inner[1] != data[1])
+					{
+						cells = editorUi.stringToCells(inner[1]);
+					}
+				}
 			}
 			catch (e)
 			{
@@ -10992,10 +11042,15 @@ var ChatWindow = function(editorUi, x, y, w, h)
 			editorUi.sidebar.graph.moveCells(cells, -bbox.x, -bbox.y);
 			var sentModel = null;
 
+			// Returns the page-side cells created by the import (fresh ids -
+			// importCells strips the source ids and the model assigns new ones)
 			var insertCells = function()
 			{
 				var pt = graph.getFreeInsertPoint();
-				graph.setSelectionCells(graph.importCells(cells, pt.x, pt.y));
+				var inserted = graph.importCells(cells, pt.x, pt.y);
+				graph.setSelectionCells(inserted);
+
+				return inserted;
 			};
 
 			var insertFn = function(e)
@@ -11005,14 +11060,23 @@ var ChatWindow = function(editorUi, x, y, w, h)
 					editorUi.sidebar.hideTooltip();
 				}
 
+				var inserted = null;
+
 				graph.model.beginUpdate();
 				try
 				{
-					insertCells();
+					inserted = insertCells();
 				}
 				finally
 				{
 					graph.model.endUpdate();
+				}
+
+				// Adopt the inserted diagram as the conversation's update
+				// target so a later response can modify it in place
+				if (opts.onInsert != null)
+				{
+					opts.onInsert(inserted);
 				}
 
 				if (graph.getSelectionCell() != null)
@@ -11038,11 +11102,12 @@ var ChatWindow = function(editorUi, x, y, w, h)
 
 				try
 				{
-					var page = null;
+					var page = opts.applyCtx.page;
 					var base = null;
 
 					if (opts.applyCtx.fresh)
 					{
+						// Pasted response: diff against a fresh full-page snapshot
 						var enc = new mxCodec(mxUtils.createXmlDocument());
 						var node = enc.encode(graph.getModel());
 						node.ownerDocument.appendChild(node);
@@ -11053,6 +11118,11 @@ var ChatWindow = function(editorUi, x, y, w, h)
 					}
 					else
 					{
+						// Static snapshot of what the model was shown (a
+						// page/selection attachment, or the adopted diagram it
+						// last returned). Diffing against this - not the live
+						// page - means only the model's own changes are applied,
+						// so manual edits to untouched cells survive.
 						if (sentModel == null)
 						{
 							var dec2 = new mxCodec(opts.applyCtx.xmlNode.ownerDocument);
@@ -11061,8 +11131,9 @@ var ChatWindow = function(editorUi, x, y, w, h)
 						}
 
 						base = sentModel;
-						page = opts.applyCtx.page;
 					}
+
+					var insertedFallback = null;
 
 					graph.model.beginUpdate();
 					try
@@ -11084,15 +11155,29 @@ var ChatWindow = function(editorUi, x, y, w, h)
 							EditorUi.debug('EditorUi.ChatWindow.apply',
 								'base', base, 'receivedModel', receivedModel,
 								'patch', patch);
+
+							// Track the applied diagram so the next response
+							// diffs against what the model last returned
+							if (opts.onApplied != null)
+							{
+								opts.onApplied(doc.documentElement, page);
+							}
 						}
 						else
 						{
-							insertCells();
+							insertedFallback = insertCells();
 						}
 					}
 					finally
 					{
 						graph.model.endUpdate();
+					}
+
+					// Apply target was gone: the fallback inserted a fresh copy,
+					// so adopt it like a normal insert
+					if (insertedFallback != null && opts.onInsert != null)
+					{
+						opts.onInsert(insertedFallback);
 					}
 
 					if (graph.getSelectionCell() != null)
@@ -11142,18 +11227,10 @@ var ChatWindow = function(editorUi, x, y, w, h)
 			var buttons = document.createElement('div');
 			buttons.style.display = 'flex';
 
+			// No retry button on a successful response - retry is only
+			// offered when the request failed (see the error branch below)
 			var btn = document.createElement('img');
 			btn.className = 'geAdaptiveAsset geLibraryButton';
-
-			if (opts.retryFn != null)
-			{
-				btn.setAttribute('src', Editor.refreshImage);
-				btn.setAttribute('title', mxResources.get('refresh'));
-				buttons.appendChild(btn);
-				mxEvent.addListener(btn, 'click', opts.retryFn);
-				btn = btn.cloneNode();
-			}
-
 			btn.setAttribute('src', Editor.copyImage);
 			btn.setAttribute('title', mxResources.get('copy'));
 			buttons.appendChild(btn);
@@ -11231,30 +11308,29 @@ var ChatWindow = function(editorUi, x, y, w, h)
 				target.appendChild(createDivForText(data[2]));
 			}
 		}
-		else if (data == null)
+		else if (data == null || (data[1] != null && data[1].length > 0))
 		{
-			mxUtils.write(target, mxResources.get('errShowingDiag'));
+			// A diagram was expected but produced no cells (e.g. a truncated
+			// or malformed XML reply): surface it as an error with a retry
+			// rather than dumping the raw XML as if it were a normal answer
+			if (data != null && data[0] != null && data[0].length > 0)
+			{
+				target.appendChild(createDivForText(data[0]));
+			}
+
+			target.appendChild(createError({message:
+				mxResources.get('errShowingDiag')}, opts.retryFn));
 		}
 		else
 		{
+			// Plain-text answer (no diagram payload): show it as-is with no
+			// retry, since it is a successful response
 			target.style.whiteSpace = 'pre-wrap';
 			target.appendChild(createDivForText(data[0]));
 
-			// Surfaces the response body when it carried content that
-			// could not be turned into a diagram (e.g. a truncated or
-			// malformed XML reply), so the chat shows the result and a
-			// retry instead of an empty bubble
-			if (data[1] != null && data[1].length > 0)
+			if (data[2] != null && data[2].length > 0)
 			{
-				target.appendChild(createDivForText(data[1]));
-			}
-
-			target.appendChild(createDivForText(data[2]));
-
-			if (opts.retryFn != null)
-			{
-				target.appendChild(createRetryButton(opts.retryFn,
-					mxResources.get('refresh')));
+				target.appendChild(createDivForText(data[2]));
 			}
 		}
 
@@ -11339,6 +11415,16 @@ var ChatWindow = function(editorUi, x, y, w, h)
 
 				// History grew - refresh the ring for the next message
 				updateCounter();
+			},
+			// Replaces the recorded assistant content (used when a response is
+			// inserted, to make the model iterate on the as-inserted XML)
+			amend: function(assistantContent)
+			{
+				if (assistantTurn != null)
+				{
+					assistantTurn.content = assistantContent;
+					updateCounter();
+				}
 			}
 		};
 	};
@@ -11560,6 +11646,62 @@ var ChatWindow = function(editorUi, x, y, w, h)
 			applyCtx = conv.lastContext;
 		}
 
+		// Called when this response's cells are inserted: adopts them as the
+		// conversation's live update target and rewrites the recorded assistant
+		// turn to the as-inserted XML (page ids/positions) so the model
+		// iterates on what is actually on the canvas.
+		var onInsert = function(insertedCells)
+		{
+			try
+			{
+				if (insertedCells == null || insertedCells.length == 0)
+				{
+					return;
+				}
+
+				var ids = {};
+
+				var collect = function(cell)
+				{
+					if (cell.id != null)
+					{
+						ids[cell.id] = true;
+					}
+
+					for (var i = 0; i < graph.model.getChildCount(cell); i++)
+					{
+						collect(graph.model.getChildAt(cell, i));
+					}
+				};
+
+				for (var i = 0; i < insertedCells.length; i++)
+				{
+					collect(insertedCells[i]);
+				}
+
+				// Snapshot the inserted diagram; this becomes the base the next
+				// response diffs against (same shape as a page/selection chip)
+				var node = scopedNode(ids);
+				conv.lastContext = {xmlNode: node, page: editorUi.currentPage};
+
+				recorder.amend('The current diagram as draw.io XML (keep ' +
+					'these cell ids when modifying it):\n```xml\n' +
+					mxUtils.getXml(node) + '\n```');
+			}
+			catch (e)
+			{
+				EditorUi.debug('EditorUi.ChatWindow.onInsert', 'error', e);
+			}
+		};
+
+		// Called after a successful Apply: retargets the conversation at the
+		// diagram the model just returned so the next response diffs against
+		// it rather than the original snapshot.
+		var onApplied = function(receivedNode, page)
+		{
+			conv.lastContext = {xmlNode: receivedNode, page: page};
+		};
+
 		var historyTurns = conv.turns.slice();
 		var t0 = Date.now();
 		var processMessage = null;
@@ -11694,6 +11836,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 									renderModelText(waiting, text, {prompt: prompt,
 										applyCtx: applyCtx, retryFn: processMessage,
 										recordTurn: recorder.record,
+										onInsert: onInsert, onApplied: onApplied,
 										infoLabel: (urlParams['test'] == 1) ?
 											backend.label + ' (' + dt + ' ms)' : null},
 										handleErrorWithTimeout);
@@ -11767,6 +11910,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 							renderResponseData(waiting, ['', xml, ''],
 								{prompt: prompt, applyCtx: applyCtx,
 								retryFn: processMessage,
+								onInsert: onInsert, onApplied: onApplied,
 								infoLabel: (urlParams['test'] == 1) ?
 									backend.label + ' (' + dt + ' ms)' : null});
 							recorder.record(xml);
@@ -11817,8 +11961,9 @@ var ChatWindow = function(editorUi, x, y, w, h)
 								waiting.innerHTML = '';
 								renderModelText(waiting, mxUtils.trim(respText),
 									{prompt: (prompt != '') ? prompt : chip.label,
-									applyCtx: applyCtx,
-									recordTurn: recorder.record}, pasteFailed);
+									applyCtx: applyCtx, recordTurn: recorder.record,
+									onInsert: onInsert, onApplied: onApplied},
+									pasteFailed);
 							}
 							catch (e)
 							{
@@ -11964,6 +12109,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	this.window.addListener(mxEvent.DESTROY, function()
 	{
 		hidePopover();
+		editorUi.removeListener(updateColorScheme);
 
 		if (counterPopover.parentNode != null)
 		{
@@ -12100,9 +12246,9 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 				opts.windowTitleFallback || 'Animation');
 		}
 		// Default title — page-mode opens via Edit > Page Setup > Edit;
-		// the section there is labelled "Lightbox animation", so reuse
-		// that resource to keep the wording consistent.
-		return mxResources.get('lightboxAnimation', null, 'Lightbox animation');
+		// the section there is labelled "Animation", so reuse that
+		// resource to keep the wording consistent.
+		return mxResources.get('animation', null, 'Animation');
 	};
 
 	var div = document.createElement('div');
@@ -12302,6 +12448,31 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		if (msg != null) jsonError.textContent = msg;
 	};
 
+	// Formats a JSON parse error for the inline message. Engines that
+	// only report a character offset (V8's "at position N") get the
+	// offset resolved to a line/column against the textarea content —
+	// a raw offset is useless in a multi-line script. Messages that
+	// already carry line info (Firefox, newer V8) pass through as is.
+	var describeJsonError = function(text, e)
+	{
+		var msg = (e != null && e.message != null) ? e.message : String(e);
+
+		if (!(/line \d+/i.test(msg)))
+		{
+			var m = msg.match(/at position (\d+)/i);
+
+			if (m != null)
+			{
+				var pos = Math.min(parseInt(m[1], 10), text.length);
+				var head = text.substring(0, pos).split('\n');
+				msg += ' (line ' + head.length + ' column ' +
+					(head[head.length - 1].length + 1) + ')';
+			}
+		}
+
+		return mxResources.get('error', null, 'Error') + ': ' + msg;
+	};
+
 	// Validates the current textarea content and updates the inline error.
 	var validateTextarea = function()
 	{
@@ -12312,8 +12483,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		}
 		catch (e)
 		{
-			showJsonError(mxResources.get('error', null, 'Error') +
-				': ' + e.message);
+			showJsonError(describeJsonError(list.value, e));
 		}
 	};
 
@@ -12685,6 +12855,151 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	};
 
 	// ============================================================
+	// Step selection + copy/paste/duplicate [jgraph/drawio#5672]
+	// ============================================================
+
+	// Indices into data.steps of the rows whose selection checkbox is
+	// on. Structural mutations either remap the indices (single-row
+	// delete) or clear them (reorder, Delete All, raw-JSON edits, page
+	// switch) — they would otherwise go stale.
+	var selectedSteps = new Set();
+
+	// Last explicitly toggled index — the range end for shift-click.
+	var selectionAnchor = null;
+
+	// Toolbar buttons (created next to the Add picker below); their
+	// enabled state tracks the selection and the shared clipboard.
+	var copyBtnRef = null;
+	var pasteBtnRef = null;
+	var duplicateBtnRef = null;
+
+	var setEditBtnEnabled = function(b, enabled)
+	{
+		if (b == null) return;
+		b.disabled = !enabled;
+		b.style.opacity = (enabled) ? '' : '0.3';
+		b.style.cursor = (enabled) ? 'pointer' : 'default';
+	};
+
+	var updateEditButtons = function()
+	{
+		var clip = AnimationDialog.stepsClipboard;
+		setEditBtnEnabled(copyBtnRef, selectedSteps.size > 0);
+		setEditBtnEnabled(duplicateBtnRef, selectedSteps.size > 0);
+		setEditBtnEnabled(pasteBtnRef, clip != null && clip.length > 0);
+	};
+
+	// Applies selection highlight + checkbox state to the existing rows
+	// without rebuilding them (keeps focused inputs alive).
+	var renderSelection = function()
+	{
+		var rows = stepList.querySelectorAll('[data-step-idx]');
+
+		for (var i = 0; i < rows.length; i++)
+		{
+			var rowIdx = parseInt(rows[i].getAttribute('data-step-idx'), 10);
+			var on = selectedSteps.has(rowIdx);
+			rows[i].classList.toggle('geAnimationStepSelected', on);
+			var cb = rows[i].querySelector('input[data-step-select]');
+			if (cb != null) cb.checked = on;
+		}
+
+		updateEditButtons();
+	};
+
+	// Selected indices in list order.
+	var selectionOrder = function()
+	{
+		return Array.from(selectedSteps).sort(function(a, b)
+		{
+			return a - b;
+		});
+	};
+
+	// Copies the selected steps (in list order) to the clipboard shared
+	// by every AnimationDialog / CustomActionDialog in this session, so
+	// sequences can be pasted into another page's animation or a cell
+	// action. Also mirrors the JSON to the system clipboard for pasting
+	// into the Edit Text view or elsewhere (best effort).
+	var copySelection = function()
+	{
+		if (selectedSteps.size == 0) return;
+
+		var order = selectionOrder();
+		var steps = [];
+
+		for (var i = 0; i < order.length; i++)
+		{
+			steps.push(clone(data.steps[order[i]]));
+		}
+
+		AnimationDialog.stepsClipboard = steps;
+
+		if (navigator.clipboard != null &&
+			navigator.clipboard.writeText != null)
+		{
+			navigator.clipboard.writeText(JSON.stringify(steps, null, 2))
+				['catch'](function() { /* ignored */ });
+		}
+
+		updateEditButtons();
+	};
+
+	// Inserts clones of the given steps at the given index and selects
+	// the inserted block, so the result is visible and can be moved,
+	// deleted or re-copied immediately.
+	var insertSteps = function(steps, at)
+	{
+		var clones = clone(steps);
+		Array.prototype.splice.apply(data.steps, [at, 0].concat(clones));
+
+		selectedSteps.clear();
+		for (var i = 0; i < clones.length; i++)
+		{
+			selectedSteps.add(at + i);
+		}
+		selectionAnchor = at;
+
+		refresh();
+
+		var row = stepList.querySelector('[data-step-idx="' + at + '"]');
+		if (row != null && row.scrollIntoView != null)
+		{
+			row.scrollIntoView({block: 'nearest'});
+		}
+	};
+
+	// Paste target: after the selected block if there is one, else at
+	// the end of the list.
+	var pasteSteps = function()
+	{
+		var clip = AnimationDialog.stepsClipboard;
+		if (clip == null || clip.length == 0) return;
+
+		var order = selectionOrder();
+		var at = (order.length > 0) ?
+			order[order.length - 1] + 1 : data.steps.length;
+		insertSteps(clip, at);
+	};
+
+	// Duplicate: copy of the selected block inserted right behind it,
+	// without touching the clipboard.
+	var duplicateSelection = function()
+	{
+		if (selectedSteps.size == 0) return;
+
+		var order = selectionOrder();
+		var steps = [];
+
+		for (var i = 0; i < order.length; i++)
+		{
+			steps.push(data.steps[order[i]]);
+		}
+
+		insertSteps(steps, order[order.length - 1] + 1);
+	};
+
+	// ============================================================
 	// Drag-and-drop
 	// ============================================================
 
@@ -12794,6 +13109,10 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			var step = data.steps.splice(s, 1)[0];
 			if (s < insertAt) insertAt--;
 			data.steps.splice(insertAt, 0, step);
+			// Reorder shifts an arbitrary span of indices — drop the
+			// selection instead of remapping it.
+			selectedSteps.clear();
+			selectionAnchor = null;
 			refresh();
 		});
 	};
@@ -13054,6 +13373,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			mxUtils.write(empty, mxResources.get('noStepsYet', null,
 				'No steps yet. Add the first step below.'));
 			stepList.appendChild(empty);
+			updateEditButtons();
 			return;
 		}
 
@@ -13062,6 +13382,8 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			stepList.appendChild(makeStepRow(data.steps[i], i,
 				i == data.steps.length - 1));
 		}
+
+		updateEditButtons();
 	};
 
 	var rowBase = function(isLast)
@@ -13404,6 +13726,44 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		// highlight simultaneously while their effects play.
 		row.setAttribute('data-step-idx', idx);
 		if (playingSteps.has(idx)) row.classList.add('geAnimationStepActive');
+		if (selectedSteps.has(idx)) row.classList.add('geAnimationStepSelected');
+
+		// Selection checkbox — feeds the Copy / Paste / Duplicate buttons
+		// next to the Add picker. Shift-click selects the whole range
+		// from the last toggled row (the anchor).
+		var selectCb = document.createElement('input');
+		selectCb.type = 'checkbox';
+		selectCb.setAttribute('data-step-select', '1');
+		selectCb.checked = selectedSteps.has(idx);
+		selectCb.title = mxResources.get('select', null, 'Select');
+		selectCb.style.cssText = 'flex:0 0 auto;margin:0;' +
+			'accent-color:light-dark(#0071e3,#0a84ff)';
+		selectCb.addEventListener('click', function(e)
+		{
+			if (e.shiftKey && selectionAnchor != null)
+			{
+				var from = Math.min(selectionAnchor, idx);
+				var to = Math.max(selectionAnchor, idx);
+
+				for (var i = from; i <= to; i++)
+				{
+					selectedSteps.add(i);
+				}
+			}
+			else if (selectCb.checked)
+			{
+				selectedSteps.add(idx);
+				selectionAnchor = idx;
+			}
+			else
+			{
+				selectedSteps['delete'](idx);
+				selectionAnchor = idx;
+			}
+
+			renderSelection();
+		});
+		row.appendChild(selectCb);
 
 		row.appendChild(makeDragHandle(row, idx));
 		attachDropTarget(row, idx);
@@ -13593,6 +13953,23 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			mxResources.get('delete'), function()
 			{
 				data.steps.splice(idx, 1);
+
+				// Keep the selection on the same steps: drop the deleted
+				// row, shift the indices behind it down by one.
+				var next = new Set();
+				for (var v of selectedSteps)
+				{
+					if (v < idx) next.add(v);
+					else if (v > idx) next.add(v - 1);
+				}
+				selectedSteps = next;
+
+				if (selectionAnchor === idx) selectionAnchor = null;
+				else if (selectionAnchor != null && selectionAnchor > idx)
+				{
+					selectionAnchor--;
+				}
+
 				refresh();
 			}));
 
@@ -13634,6 +14011,10 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			if (parsed != null && Array.isArray(parsed.steps))
 			{
 				data = parsed;
+				// Raw edits invalidate the row indices behind the
+				// checkbox selection.
+				selectedSteps.clear();
+				selectionAnchor = null;
 				showJsonError(null);
 
 				// Sync the Loop / Disabled checkboxes if the user edited
@@ -13660,8 +14041,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			// Surface the parse error and mark invalid (Save is blocked).
 			// data is intentionally left at the last valid state so an
 			// in-progress typo doesn't wipe the user's steps.
-			showJsonError(mxResources.get('error', null, 'Error') +
-				': ' + e.message);
+			showJsonError(describeJsonError(list.value, e));
 		}
 	});
 
@@ -13782,6 +14162,90 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 
 	pickRow.appendChild(pickSelect);
 
+	// Copy / Paste / Duplicate for the checkbox-selected steps
+	// [jgraph/drawio#5672]. The clipboard is shared across dialogs
+	// (AnimationDialog.stepsClipboard), so sequences can be pasted into
+	// another page's animation or a cell's custom action. Duplicate
+	// inserts the copy right behind the selected block.
+	var editBtnL10n = [];
+
+	var makeEditButton = function(src, key, fallback, fn)
+	{
+		var b = makeImgButton(src, mxResources.get(key, null, fallback), fn);
+		editBtnL10n.push({el: b, key: key, fallback: fallback});
+		pickRow.appendChild(b);
+		return b;
+	};
+
+	copyBtnRef = makeEditButton(Editor.copyImage, 'copy', 'Copy',
+		copySelection);
+	pasteBtnRef = makeEditButton(Editor.pasteImage, 'paste', 'Paste',
+		pasteSteps);
+	duplicateBtnRef = makeEditButton(Editor.duplicateImage, 'duplicate',
+		'Duplicate', duplicateSelection);
+	updateEditButtons();
+
+	staticRefreshers.push(function()
+	{
+		for (var i = 0; i < editBtnL10n.length; i++)
+		{
+			var b = editBtnL10n[i];
+			b.el.title = mxResources.get(b.key, null, b.fallback);
+		}
+	});
+
+	// Keyboard shortcuts for the list view: Ctrl/Cmd+C copies the
+	// selected steps, Ctrl/Cmd+V pastes, Ctrl/Cmd+D duplicates. Only
+	// fires when the focus is on a non-text control inside this dialog
+	// (clicking a selection checkbox focuses it) — text fields keep
+	// their native clipboard behavior, and stopPropagation keeps the
+	// canvas key handler from also acting on the same stroke.
+	div.addEventListener('keydown', function(e)
+	{
+		var t = e.target;
+		var tag = (t != null && t.tagName != null) ?
+			t.tagName.toLowerCase() : '';
+
+		if (tag == 'textarea' || tag == 'select' ||
+			(tag == 'input' && t.type != 'checkbox') ||
+			(t != null && t.isContentEditable))
+		{
+			return;
+		}
+
+		if (!(mxClient.IS_MAC ? e.metaKey : e.ctrlKey) || e.altKey)
+		{
+			return;
+		}
+
+		var key = (e.key != null) ? e.key.toLowerCase() : '';
+		var handled = false;
+
+		if (key == 'c' && selectedSteps.size > 0 &&
+			window.getSelection().toString() == '')
+		{
+			copySelection();
+			handled = true;
+		}
+		else if (key == 'v' && AnimationDialog.stepsClipboard != null &&
+			AnimationDialog.stepsClipboard.length > 0)
+		{
+			pasteSteps();
+			handled = true;
+		}
+		else if (key == 'd' && selectedSteps.size > 0)
+		{
+			duplicateSelection();
+			handled = true;
+		}
+
+		if (handled)
+		{
+			e.preventDefault();
+			e.stopPropagation();
+		}
+	});
+
 	div.appendChild(addSection);
 
 	// Reads the visible canvas window in graph coordinates — same math as
@@ -13879,6 +14343,8 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 				'Are you sure?'), function()
 			{
 				data.steps = [];
+				selectedSteps.clear();
+				selectionAnchor = null;
 				refresh();
 			});
 			return;
@@ -14291,6 +14757,9 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 				currentRoot = newRoot;
 				loadFromContext();
 				setDirty(false);
+				// The new page's steps are unrelated to the old indices.
+				selectedSteps.clear();
+				selectionAnchor = null;
 				renderList();
 				stopPlayer();
 			}
@@ -14337,6 +14806,11 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		}
 	}), 0);
 };
+
+// Clipboard for animation steps — shared across every AnimationDialog and
+// CustomActionDialog instance in this session so sequences can be copied
+// between pages and cell actions. Holds deep clones; pasting clones again.
+AnimationDialog.stepsClipboard = null;
 
 /**
  * Warning dialog shown when the GitLab server URL has been overridden via the

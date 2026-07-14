@@ -16,10 +16,11 @@ Draw.loadPlugin(function(editorUi)
 {
 	// The `animation` resource is only loaded when this plugin is
 	// loaded — the rest of the editor uses the `effects` key
-	// (picker section, custom-action link summary) and
-	// `lightboxAnimation` (page-mode dialog title). The action itself
-	// ('animation') is registered by the core (see Menus.js) so we
-	// just need to surface it in the Extras menu.
+	// (picker section, custom-action link summary) or a built-in
+	// 'Animation' fallback (Page Setup label, animation window
+	// title). The action itself ('animation') is registered by the
+	// core (see Menus.js) so we just need to surface it in the
+	// Extras menu.
 	mxResources.parse('animation=Animation');
 
 	// Classic plugin override pattern: wrap the existing Extras menu

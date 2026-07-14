@@ -512,7 +512,6 @@ leftAlign=leftAlign
 leftToRight=leftToRight
 libraryTooltip=libraryTooltip
 lightbox=lightbox
-lightboxAnimation=Lightbox Animation
 lightboxAnimationHint=Plays automatically when the page is shown in lightbox mode.
 line=line
 lineend=lineend

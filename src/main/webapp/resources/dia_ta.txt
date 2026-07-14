@@ -513,7 +513,6 @@ leftAlign=இடது சீரமைப்பு
 leftToRight=இடமிருந்து வலமாக
 libraryTooltip=வடிவங்களை இங்கே இழுத்து விடுங்கள் அல்லது செருக + கிளிக் செய்யுங்கள். திருத்த இருமுறை கிளிக் செய்யுங்கள்.
 lightbox=ஒளிப்பெட்டி
-lightboxAnimation=Lightbox அனிமேஷன்
 lightboxAnimationHint=பக்கம் lightbox பயன்முறையில் காட்டப்படும்போது தானாகவே இயங்கும்.
 line=கோடு
 lineend=கோடு முடிவு

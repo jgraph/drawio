@@ -513,7 +513,6 @@ leftAlign=ဘယ်ဘက်ညှိ
 leftToRight=ဘယ်မှညာသို့
 libraryTooltip=ပုံသဏ္ဍာန်များကို ဤနေရာသို့ ဆွဲချပါ သို့မဟုတ် ထည့်သွင်းရန် + ကို နှိပ်ပါ။ တည်းဖြတ်ရန် နှစ်ချက်နှိပ်ပါ။
 lightbox=Lightbox
-lightboxAnimation=Lightbox အန်နီမေးရှင်း
 lightboxAnimationHint=စာမျက်နှာကို lightbox မုဒ်တွင် ပြသသောအခါ အလိုအလျောက် ဖွင့်ပေးသည်။
 line=မျဉ်း
 lineend=မျဉ်းအဆုံး

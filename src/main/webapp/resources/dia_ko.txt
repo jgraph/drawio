@@ -513,7 +513,6 @@ leftAlign=왼쪽 정렬
 leftToRight=좌에서 우로
 libraryTooltip=도형을 여기로 끌어서 놓거나 +를 클릭하여 삽입하세요. 편집하려면 두 번 클릭합니다.
 lightbox=라이트박스
-lightboxAnimation=라이트박스 애니메이션
 lightboxAnimationHint=페이지가 라이트박스 모드로 표시되면 자동으로 재생됩니다.
 line=선
 lineend=선 끝

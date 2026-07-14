@@ -53,7 +53,7 @@
 
 		var group = function(extra)
 		{
-			return 'group;transparentBounds=1;groupPadding=20;' + extra;
+			return 'group;connectable=0;transparentBounds=1;groupPadding=20;' + extra;
 		};
 
 		var swimlane = function(sideTitle, extra)
@@ -1204,15 +1204,18 @@
 		action.setToggleAction(true);
 		action.setSelectedCallback(mxUtils.bind(this, function() { return this.animationWindow != null && this.animationWindow.window.isVisible(); }));
 
-		// Shown on aj/ac domains
-		if ((EditorUi.isElectronApp ||
-			(Editor.enableAi || ((Editor.config == null ||
+		// Shown on aj/ac domains and in the desktop app unless
+		// AI is explicitly disabled in the configuration
+		if (((EditorUi.isElectronApp && (Editor.enableAi ||
+			Editor.config == null || (Editor.config.enableAi == null &&
+			Editor.config.enableChatGpt == null))) ||
+			((Editor.enableAi || ((Editor.config == null ||
 			Editor.config.enableAi == null) &&
 			(/ac\.draw\.io$/.test(window.location.hostname)) ||
 			(/aj\.draw\.io$/.test(window.location.hostname)))) &&
 			!editorUi.isOffline() &&
 			Editor.aiActions.length > 0 &&
-			editorUi.isExternalDataComms()) &&
+			editorUi.isExternalDataComms())) &&
 			editorUi.getServiceName() == 'draw.io' &&
 			EditorUi.isMermaidSupported())
 		{

@@ -513,7 +513,6 @@ leftAlign=Venstrejuster
 leftToRight=Fra venstre mod højre
 libraryTooltip=Træk og slip former her eller klik + for at indsætte. Dobbeltklik for at ændre.
 lightbox=Lightbox
-lightboxAnimation=Lightbox-animation
 lightboxAnimationHint=Afspilles automatisk, når siden vises i lightbox-tilstand.
 line=Linje
 lineend=Linjeafslutning

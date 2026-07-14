@@ -227,6 +227,7 @@ Editor.autosizeImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy
 Editor.checkmarkImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMjJweCIgaGVpZ2h0PSIxOHB4IiB2ZXJzaW9uPSIxLjEiPjxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDQgMCkiIGQ9Ik03LjE4MSwxNS4wMDdhMSwxLDAsMCwxLS43OTMtMC4zOTFMMy4yMjIsMTAuNUExLDEsMCwxLDEsNC44MDgsOS4yNzRMNy4xMzIsMTIuM2w2LjA0NC04Ljg2QTEsMSwwLDEsMSwxNC44Myw0LjU2OWwtNi44MjMsMTBhMSwxLDAsMCwxLS44LjQzN0g3LjE4MVoiIGZpbGw9IiMwMDAwMDAiLz48L3N2Zz4=';
 Editor.swapImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMDAwMDAwIj48cGF0aCBkPSJNMzIwLTQ0MHYtMjg3TDIxNy02MjRsLTU3LTU2IDIwMC0yMDAgMjAwIDIwMC01NyA1Ni0xMDMtMTAzdjI4N2gtODBaTTYwMC04MCA0MDAtMjgwbDU3LTU2IDEwMyAxMDN2LTI4N2g4MHYyODdsMTAzLTEwMyA1NyA1Nkw2MDAtODBaIi8+PC9zdmc+';
 Editor.copyImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMDAwMDAwIj48cGF0aCBkPSJNNzYwLTIwMEgzMjBxLTMzIDAtNTYuNS0yMy41VDI0MC0yODB2LTU2MHEwLTMzIDIzLjUtNTYuNVQzMjAtOTIwaDI4MGwyNDAgMjQwdjQwMHEwIDMzLTIzLjUgNTYuNVQ3NjAtMjAwWk01NjAtNjQwdi0yMDBIMzIwdjU2MGg0NDB2LTM2MEg1NjBaTTE2MC00MHEtMzMgMC01Ni41LTIzLjVUODAtMTIwdi01NjBoODB2NTYwaDQ0MHY4MEgxNjBabTE2MC04MDB2MjAwLTIwMCA1NjAtNTYwWiIvPjwvc3ZnPg==';
+Editor.pasteImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMDAwMDAwIj48cGF0aCBkPSJNMjAwLTEyMHEtMzMgMC01Ni41LTIzLjVUMTIwLTIwMHYtNTYwcTAtMzMgMjMuNS01Ni41VDIwMC04NDBoMTY4cTEzLTM2IDQzLjUtNTh0NjguNS0yMnEzOCAwIDY4LjUgMjJ0NDMuNSA1OGgxNjhxMzMgMCA1Ni41IDIzLjVUODQwLTc2MHY1NjBxMCAzMy0yMy41IDU2LjVUNzYwLTEyMEgyMDBabTAtODBoNTYwdi01NjBoLTgwdjEyMEgyODB2LTEyMGgtODB2NTYwWm0yODAtNTYwcTE3IDAgMjguNS0xMS41VDUyMC04MDBxMC0xNy0xMS41LTI4LjVUNDgwLTg0MHEtMTcgMC0yOC41IDExLjVUNDQwLTgwMHEwIDE3IDExLjUgMjguNVQ0ODAtNzYwWiIvPjwvc3ZnPg==';
 Editor.doubleArrowUpImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMDAwMDAwIj48cGF0aCBkPSJtMjk2LTIyNC01Ni01NiAyNDAtMjQwIDI0MCAyNDAtNTYgNTYtMTg0LTE4My0xODQgMTgzWm0wLTI0MC01Ni01NiAyNDAtMjQwIDI0MCAyNDAtNTYgNTYtMTg0LTE4My0xODQgMTgzWiIvPjwvc3ZnPg==';
 Editor.doubleArrowDownImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMDAwMDAwIj48cGF0aCBkPSJNNDgwLTIwMCAyNDAtNDQwbDU2LTU2IDE4NCAxODMgMTg0LTE4MyA1NiA1Ni0yNDAgMjQwWm0wLTI0MEwyNDAtNjgwbDU2LTU2IDE4NCAxODMgMTg0LTE4MyA1NiA1Ni0yNDAgMjQwWiIvPjwvc3ZnPg==';
 Editor.opacityImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMWYxZjFmIj48cGF0aCBkPSJNNDgwLTEyMHEtMTMzIDAtMjI2LjUtOTJUMTYwLTQzNnEwLTY1IDI1LTEyMS41VDI1NC02NThsMjI2LTIyMiAyMjYgMjIycTQ0IDQ0IDY5IDEwMC41VDgwMC00MzZxMCAxMzItOTMuNSAyMjRUNDgwLTEyMFpNMjQyLTQwMGg0NzRxMTItNzItMTMuNS0xMjNUNjUwLTYwMEw0ODAtNzY4IDMxMC02MDBxLTI3IDI2LTUzIDc3dC0xNSAxMjNaIi8+PC9zdmc+';
@@ -2567,64 +2568,17 @@ var PageSetupDialog = function(editorUi)
 	mxUtils.write(bgLabel, mxResources.get('background') + ':');
 	bgRow.appendChild(styleLabel(bgLabel));
 
-	var bgContent = document.createElement('div');
-	bgContent.style.display = 'flex';
-	bgContent.style.alignItems = 'center';
-	bgContent.style.gap = '8px';
-	bgContent.style.flex = '1';
-	bgContent.style.minWidth = '0';
-	styleContent(bgContent);
-
-	var imgPreview = document.createElement('div');
-	imgPreview.style.display = 'inline-block';
-	imgPreview.style.verticalAlign = 'middle';
-	imgPreview.style.backgroundPosition = 'center center';
-	imgPreview.style.backgroundRepeat = 'no-repeat';
-	imgPreview.style.backgroundSize = 'contain';
-	imgPreview.style.border = '1px solid lightGray';
-	imgPreview.style.borderRadius = '4px';
-	imgPreview.style.height = '32px';
-	imgPreview.style.width = '64px';
-	imgPreview.style.cursor = 'pointer';
-	imgPreview.style.padding = '4px';
-	imgPreview.style.flexShrink = '0';
-
 	var newBackgroundImage = graph.backgroundImage;
 	var newBackgroundColor = graph.background;
-	var newShadowVisible = graph.shadowVisible;
 
-	function updateBackgroundImage()
+	var changeImageLink = document.createElement('button');
+	changeImageLink.className = 'geBtn';
+	changeImageLink.style.margin = '0px';
+	mxUtils.write(changeImageLink, mxResources.get('change') + '...');
+
+	mxEvent.addListener(changeImageLink, 'click', function(evt)
 	{
-		var img = newBackgroundImage;
-
-		if (img != null && img.originalSrc != null)
-		{
-			img = editorUi.createImageForPageLink(img.originalSrc, null);
-		}
-
-		if (img != null && img.src != null)
-		{
-			imgPreview.style.backgroundImage = 'url(' + img.src + ')';
-			imgPreview.style.display = 'inline-block';
-		}
-		else
-		{
-			imgPreview.style.backgroundImage = '';
-			imgPreview.style.display = 'none';
-		}
-
-		imgPreview.style.backgroundColor = '';
-
-		if (newBackgroundColor != null && newBackgroundColor != mxConstants.NONE)
-		{
-			imgPreview.style.backgroundColor = newBackgroundColor;
-			imgPreview.style.display = 'inline-block';
-		}
-	};
-
-	var changeImage = function(evt)
-	{
-		editorUi.showBackgroundImageDialog(function(image, failed, color, shadowVisible)
+		editorUi.showBackgroundImageDialog(function(image, failed, color)
 		{
 			if (!failed)
 			{
@@ -2634,36 +2588,24 @@ var PageSetupDialog = function(editorUi)
 				}
 
 				newBackgroundImage = image;
-				newShadowVisible = shadowVisible;
 			}
 
 			newBackgroundColor = color;
-			updateBackgroundImage();
 		}, newBackgroundImage, newBackgroundColor, true);
 
 		mxEvent.consume(evt);
-	};
+	});
 
-	mxEvent.addListener(imgPreview, 'click', changeImage);
-
-	var changeImageLink = document.createElement('button');
-	changeImageLink.className = 'geBtn';
-	changeImageLink.style.margin = '0px';
-	mxUtils.write(changeImageLink, mxResources.get('change') + '...');
-	mxEvent.addListener(changeImageLink, 'click', changeImage);
-
-	updateBackgroundImage();
-	bgContent.appendChild(imgPreview);
-	bgContent.appendChild(changeImageLink);
-	bgRow.appendChild(bgContent);
-
+	bgRow.appendChild(styleContent(changeImageLink));
 	bgSection.appendChild(bgRow);
 	div.appendChild(bgSection);
 
-	// Adaptive colors section
-	var adaptiveSection = document.createElement('div');
-	adaptiveSection.className = 'geDialogSection';
+	// Less common options live in a collapsed Advanced section. Each option
+	// keeps its own geDialogSection card: the helper's content div is the
+	// first card, the other cards are appended to the collapsible wrapper.
+	var advanced = editorUi.addAdvancedSection(div);
 
+	// Adaptive colors section
 	var adaptiveRow = document.createElement('div');
 	adaptiveRow.className = 'geDialogFormRow';
 
@@ -2703,14 +2645,13 @@ var PageSetupDialog = function(editorUi)
 		adaptiveRow.appendChild(helpLink);
 	}
 
-	adaptiveSection.appendChild(adaptiveRow);
-	div.appendChild(adaptiveSection);
+	advanced.content.appendChild(adaptiveRow);
 
 	// Initial view section — lets the author pin the page's opening viewport
 	// (pan + zoom). Stored on the diagram node via ChangePageView and restored
 	// by EditorUi.fitInitialView on the fitDiagramOnLoad / fitDiagramOnPage
 	// paths. Pages live in the diagramly layer, so the section (and its apply
-	// below) are skipped when there is no current page (e.g. bare grapheditor).
+	// below) is skipped when there is no current page (e.g. bare grapheditor).
 	var pendingViewBox, viewBoxChanged;
 
 	if (editorUi.currentPage != null)
@@ -2807,15 +2748,15 @@ var PageSetupDialog = function(editorUi)
 		viewButtonRow.appendChild(resetViewBtn);
 
 		viewSection.appendChild(viewButtonRow);
-		div.appendChild(viewSection);
+		advanced.wrapper.appendChild(viewSection);
 	}
 
-	// Lightbox animation section — entry point for the page-level
-	// animation editor. The animation auto-plays when the page is
-	// viewed in chromeless / lightbox mode. AnimationDialog isn't part
-	// of the grapheditor layer, so we guard the section with a
-	// `typeof` check; in builds without the diagramly layer (rare —
-	// only the bare-bones grapheditor demo) the row is skipped.
+	// Animation section — entry point for the page-level animation editor.
+	// The animation auto-plays when the page is viewed in chromeless /
+	// lightbox mode (the hint text explains this). AnimationDialog isn't
+	// part of the grapheditor layer, so we guard the section with a `typeof`
+	// check; in builds without the diagramly layer (rare — only the
+	// bare-bones grapheditor demo) the section is skipped.
 	if (typeof AnimationDialog !== 'undefined')
 	{
 		var animationSection = document.createElement('div');
@@ -2824,11 +2765,14 @@ var PageSetupDialog = function(editorUi)
 		var animationRow = document.createElement('div');
 		animationRow.className = 'geDialogFormRow';
 
+		// The label keeps its natural width (no styleLabel) so the hint
+		// text next to the Edit button gets the remaining row width
 		var animationLabel = document.createElement('span');
 		animationLabel.className = 'geDialogFormLabel';
+		animationLabel.style.minWidth = '0';
 		mxUtils.write(animationLabel,
-			mxResources.get('lightboxAnimation', null, 'Lightbox animation') + ':');
-		animationRow.appendChild(styleLabel(animationLabel));
+			mxResources.get('animation', null, 'Animation') + ':');
+		animationRow.appendChild(animationLabel);
 
 		var animationContent = document.createElement('div');
 		animationContent.style.flex = '1';
@@ -2878,7 +2822,7 @@ var PageSetupDialog = function(editorUi)
 
 		animationRow.appendChild(styleContent(animationContent));
 		animationSection.appendChild(animationRow);
-		div.appendChild(animationSection);
+		advanced.wrapper.appendChild(animationSection);
 	}
 
 	// Apply function
@@ -2900,11 +2844,6 @@ var PageSetupDialog = function(editorUi)
 
 		change.ignoreImage = oldSrc === newSrc;
 
-		if (newShadowVisible != null)
-		{
-			change.shadowVisible = newShadowVisible;
-		}
-
 		var newAdaptive = adaptiveDropdown.value;
 		var currentAdaptive = (graph.adaptiveColors == null) ?
 			'default' : graph.adaptiveColors;
@@ -2918,7 +2857,6 @@ var PageSetupDialog = function(editorUi)
 		if (graph.pageFormat.width != change.previousFormat.width ||
 			graph.pageFormat.height != change.previousFormat.height ||
 			!change.ignoreColor || !change.ignoreImage ||
-			change.shadowVisible != graph.shadowVisible ||
 			adaptiveChanged)
 		{
 			graph.model.execute(change);
@@ -3942,8 +3880,8 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn, div)
 		// Does not show page breaks if the scale is too small
 		visible = visible && Math.min(bounds.width, bounds.height) > this.minPageBreakDist;
 
-		var horizontalCount = (visible) ? Math.ceil(height / bounds.height) - 1 : 0;
-		var verticalCount = (visible) ? Math.ceil(width / bounds.width) - 1 : 0;
+		var horizontalCount = (visible) ? Math.min(this.maxPageBreaks, Math.ceil(height / bounds.height) - 1) : 0;
+		var verticalCount = (visible) ? Math.min(this.maxPageBreaks, Math.ceil(width / bounds.width) - 1) : 0;
 		var right = bounds2.x + width;
 		var bottom = bounds2.y + height;
 

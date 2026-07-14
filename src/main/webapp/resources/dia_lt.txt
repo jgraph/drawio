@@ -513,7 +513,6 @@ leftAlign=Lygiuoti kairėje
 leftToRight=Iš kairės į dešinę
 libraryTooltip=Nuvilkite figūras čia arba spustelėkite +, kad įterptumėte. Dukart spustelėkite, jei norite redaguoti.
 lightbox=Galerija
-lightboxAnimation=Lightbox animacija
 lightboxAnimationHint=Paleidžiama automatiškai, kai puslapis rodomas lightbox režimu.
 line=Linija
 lineend=Linijos galas

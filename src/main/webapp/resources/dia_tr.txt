@@ -513,7 +513,6 @@ leftAlign=Sola hizala
 leftToRight=Soldan sağa
 libraryTooltip=Şekilleri buraya sürükle ve bırak veya eklemek için + tıkla. Düzenlemek için çift tıkla.
 lightbox=Lightbox
-lightboxAnimation=Lightbox animasyonu
 lightboxAnimationHint=Sayfa lightbox modunda gösterildiğinde otomatik olarak oynatılır.
 line=Çizgi
 lineend=Çizgi sonu

@@ -513,7 +513,6 @@ leftAlign=Aligner à gauche
 leftToRight=De gauche à droite
 libraryTooltip=Glissez-déposez les formes ici ou cliquez sur + pour insérer. Double-cliquez pour modifier.
 lightbox=Lightbox
-lightboxAnimation=Animation en mode lightbox
 lightboxAnimationHint=Se lance automatiquement lorsque la page est affichée en mode lightbox.
 line=Ligne
 lineend=Fin de la ligne

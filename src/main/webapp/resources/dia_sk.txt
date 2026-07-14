@@ -513,7 +513,6 @@ leftAlign=Zarovnať vľavo
 leftToRight=Zľava doprava
 libraryTooltip=Presuňte tvary sem alebo kliknite na + pre vloženie. Dvojklikom upravíte.
 lightbox=Lightbox
-lightboxAnimation=Animácia v režime lightbox
 lightboxAnimationHint=Prehrá sa automaticky, keď je stránka zobrazená v režime lightbox.
 line=Čiara
 lineend=Koniec čiary

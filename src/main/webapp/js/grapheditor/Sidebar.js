@@ -1213,12 +1213,103 @@ Sidebar.prototype.splitCompoundToken = function(token)
 };
 
 /**
- * Collects entries matching a single term (exact + Soundex).
- * Returns { exact: [entries], phonetic: [entries] }.
+ * Returns true if the character before index in key is a word boundary,
+ * ie. the start of the key, a non-alphanumeric character (eg. "-") or
+ * a letter-digit transition.
+ */
+Sidebar.prototype.isTagMatchBoundary = function(key, index)
+{
+	if (index == 0)
+	{
+		return true;
+	}
+
+	var prev = key.charCodeAt(index - 1);
+	var curr = key.charCodeAt(index);
+	var prevDigit = prev >= 48 && prev <= 57;
+	var currDigit = curr >= 48 && curr <= 57;
+
+	// Non-alphanumeric characters are boundaries
+	if (!prevDigit && !(prev >= 97 && prev <= 122))
+	{
+		return true;
+	}
+
+	return prevDigit != currDigit;
+};
+
+/**
+ * Collects entries for tags that contain the given term, eg. "7050"
+ * matches the tag "dcs-7050qx-32" of a shape imported from a VSSX
+ * library. Matches at word boundaries within a tag are added to
+ * prefix, matches elsewhere to substring. Entries in seen are ignored
+ * and matched entries are added to seen.
+ */
+Sidebar.prototype.matchPartialEntries = function(term, seen, prefix, substring)
+{
+	// Requires longer terms for matches inside words to avoid noise
+	var minInnerLength = 4;
+
+	if (term.length >= 2)
+	{
+		for (var key in this.taglist)
+		{
+			var c = key.charCodeAt(0);
+
+			// Ignores Soundex keys (upper case first letter) and exact matches
+			if ((c >= 65 && c <= 90) || key === term)
+			{
+				continue;
+			}
+
+			var idx = key.indexOf(term);
+
+			if (idx >= 0)
+			{
+				var entry = this.taglist[key];
+
+				if (typeof entry === 'object' && entry.entries != null)
+				{
+					// Checks if any occurrence starts at a word boundary
+					var boundary = false;
+					var j = idx;
+
+					while (j >= 0 && !boundary)
+					{
+						boundary = this.isTagMatchBoundary(key, j);
+						j = (boundary) ? j : key.indexOf(term, j + 1);
+					}
+
+					if (boundary || term.length >= minInnerLength)
+					{
+						var target = (boundary) ? prefix : substring;
+						var arr = entry.entries;
+
+						for (var k = 0; k < arr.length; k++)
+						{
+							if (seen.get(arr[k]) == null)
+							{
+								seen.put(arr[k], true);
+								target.push(arr[k]);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+};
+
+/**
+ * Collects entries matching a single term (exact, partial and Soundex).
+ * Returns { exact: [entries], prefix: [entries], substring: [entries],
+ * phonetic: [entries] }.
  */
 Sidebar.prototype.matchTermEntries = function(term, reverseMap)
 {
 	var exact = [];
+	var prefix = [];
+	var substring = [];
 	var phonetic = [];
 
 	var found = this.taglist[term];
@@ -1250,6 +1341,17 @@ Sidebar.prototype.matchTermEntries = function(term, reverseMap)
 		}
 	}
 
+	// Adds partial matches on tags, eg. for searching parts of shape
+	// names in imported libraries where the whole name is one tag
+	var seen = new mxDictionary();
+
+	for (var i = 0; i < exact.length; i++)
+	{
+		seen.put(exact[i], true);
+	}
+
+	this.matchPartialEntries(term, seen, prefix, substring);
+
 	var normalized = Editor.soundex(term.replace(/\.*\d*$/, ''));
 
 	if (normalized.length > 0 && normalized !== term)
@@ -1262,7 +1364,7 @@ Sidebar.prototype.matchTermEntries = function(term, reverseMap)
 		}
 	}
 
-	return { exact: exact, phonetic: phonetic };
+	return { exact: exact, prefix: prefix, substring: substring, phonetic: phonetic };
 };
 
 /**
@@ -1360,7 +1462,8 @@ Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, er
 
 		for (var i = 0; i < termMatches.length; i++)
 		{
-			var arr = termMatches[i].exact.concat(termMatches[i].phonetic);
+			var arr = termMatches[i].exact.concat(termMatches[i].prefix,
+				termMatches[i].substring, termMatches[i].phonetic);
 			var tmpDict = new mxDictionary();
 
 			if (arr.length > 0)
@@ -1394,8 +1497,11 @@ Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, er
 			}
 		}
 
-		// Score candidates: +1.0 per exact match, +0.5 per Soundex-only match
-		// Each shape scores at most once per term (exact wins over Soundex)
+		// Score candidates: +1.0 per exact match, +0.8 per match at a word
+		// boundary in a tag, +0.6 per match inside a tag, +0.5 per
+		// Soundex-only match. Each shape scores at most once per term
+		// (using its best tier)
+		var tierScores = [1.0, 0.8, 0.6, 0.5];
 		var scores = new mxDictionary();
 		var allEntries = new mxDictionary();
 		var candidateFilter = null;
@@ -1413,33 +1519,25 @@ Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, er
 
 		for (var i = 0; i < termMatches.length; i++)
 		{
-			var exactForTerm = new mxDictionary();
+			var matchedForTerm = new mxDictionary();
+			var tiers = [termMatches[i].exact, termMatches[i].prefix,
+				termMatches[i].substring, termMatches[i].phonetic];
 
-			for (var j = 0; j < termMatches[i].exact.length; j++)
+			for (var t = 0; t < tiers.length; t++)
 			{
-				var entry = termMatches[i].exact[j];
-
-				if (candidateFilter == null || candidateFilter.get(entry) != null)
+				for (var j = 0; j < tiers[t].length; j++)
 				{
-					var prev = scores.get(entry);
+					var entry = tiers[t][j];
 
-					scores.put(entry, (prev || 0) + 1.0);
-					allEntries.put(entry, entry);
-					exactForTerm.put(entry, true);
-				}
-			}
+					if ((candidateFilter == null || candidateFilter.get(entry) != null) &&
+						matchedForTerm.get(entry) == null)
+					{
+						var prev = scores.get(entry);
 
-			for (var j = 0; j < termMatches[i].phonetic.length; j++)
-			{
-				var entry = termMatches[i].phonetic[j];
-
-				if ((candidateFilter == null || candidateFilter.get(entry) != null) &&
-					exactForTerm.get(entry) == null)
-				{
-					var prev = scores.get(entry);
-
-					scores.put(entry, (prev || 0) + 0.5);
-					allEntries.put(entry, entry);
+						matchedForTerm.put(entry, true);
+						scores.put(entry, (prev || 0) + tierScores[t]);
+						allEntries.put(entry, entry);
+					}
 				}
 			}
 		}

@@ -513,7 +513,6 @@ leftAlign=Alinea a l'esquerra
 leftToRight=D'esquerra a dreta
 libraryTooltip=Arrossega i amolla formes aquí o clica + per a inserir. Doble clic per editar.
 lightbox=Lightbox
-lightboxAnimation=Animació en lightbox
 lightboxAnimationHint=Es reprodueix automàticament quan la pàgina es mostra en mode lightbox.
 line=Línia
 lineend=Final de la línia

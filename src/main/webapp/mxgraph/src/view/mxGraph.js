@@ -1016,6 +1016,16 @@ mxGraph.prototype.pageBreakDashed = true;
 mxGraph.prototype.minPageBreakDist = 20;
 
 /**
+ * Variable: maxPageBreaks
+ *
+ * Specifies the maximum number of page break lines that are drawn per axis in
+ * <updatePageBreaks>. This bounds the drawing loop so that a diagram with
+ * extreme cell coordinates (and therefore extreme graph bounds) cannot force
+ * an effectively infinite, main-thread-blocking loop. Default is 10000.
+ */
+mxGraph.prototype.maxPageBreaks = 10000;
+
+/**
  * Variable: preferPageSize
  * 
  * Specifies if the graph size should be rounded to the next page number in
@@ -3256,8 +3266,8 @@ mxGraph.prototype.updatePageBreaks = function(visible, width, height)
 	// Does not show page breaks if the scale is too small
 	visible = visible && Math.min(bounds.width, bounds.height) > this.minPageBreakDist;
 
-	var horizontalCount = (visible) ? Math.ceil(gb.height / bounds.height) + 1 : 0;
-	var verticalCount = (visible) ? Math.ceil(gb.width / bounds.width) + 1 : 0;
+	var horizontalCount = (visible) ? Math.min(this.maxPageBreaks, Math.ceil(gb.height / bounds.height) + 1) : 0;
+	var verticalCount = (visible) ? Math.min(this.maxPageBreaks, Math.ceil(gb.width / bounds.width) + 1) : 0;
 	var right = (verticalCount - 1) * bounds.width;
 	var bottom = (horizontalCount - 1) * bounds.height;
 	

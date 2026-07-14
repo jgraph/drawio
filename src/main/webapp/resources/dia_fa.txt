@@ -513,7 +513,6 @@ leftAlign=‫تراز از سمت چپ‬
 leftToRight=‫چپ به راست‬
 libraryTooltip=‫شکلها را در اینجا کشیده و بیندازید یا بر روی + کلیک کنید تا شکل را وارد کنید. برای ویرایش دوبار کلیک کنید.‬
 lightbox=‫جعبه نور‬
-lightboxAnimation=انیمیشن lightbox
 lightboxAnimationHint=وقتی صفحه در حالت lightbox نمایش داده می‌شود، به صورت خودکار پخش می‌شود.
 line=‫خط‬
 lineend=‫انتهای خط‬

@@ -513,7 +513,6 @@ leftAlign=左对齐
 leftToRight=从左到右
 libraryTooltip=将图形拖放至此或单击+以插入。双击进行编辑。
 lightbox=灯箱特效
-lightboxAnimation=灯箱动画
 lightboxAnimationHint=当页面在灯箱模式下显示时自动播放。
 line=线条
 lineend=线末端

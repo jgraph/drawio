@@ -513,7 +513,6 @@ leftAlign=Pangilia Kushoto
 leftToRight=Kushoto kwenda Kulia
 libraryTooltip=Buruta na udondoshe maumbo hapa au bofya + kuingiza. Bofya mara mbili kuhariri.
 lightbox=Lightbox
-lightboxAnimation=Uhuishaji wa Lightbox
 lightboxAnimationHint=Inacheza kiotomatiki ukurasa unapoonyeshwa katika hali ya lightbox.
 line=Mstari
 lineend=Mwisho wa mstari

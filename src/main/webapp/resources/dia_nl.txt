@@ -512,7 +512,6 @@ leftAlign=Links uitlijnen
 leftToRight=Links naar rechts
 libraryTooltip=Sleep en plaats de vormen hier of klik + om in te voegen. Dubbelklik om aan te passen.
 lightbox=Lightbox
-lightboxAnimation=Lightbox-animatie
 lightboxAnimationHint=Wordt automatisch afgespeeld wanneer de pagina in lightbox-modus wordt weergegeven.
 line=Lijn
 lineend=Einde van de lijn

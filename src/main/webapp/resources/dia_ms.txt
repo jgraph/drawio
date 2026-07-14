@@ -513,7 +513,6 @@ leftAlign=Jajaran kiri
 leftToRight=Kiri ke kanan
 libraryTooltip=Seret dan lepas bentuk di sini atau klik + untuk memasukkan. Klik dua kali untuk menyunting.
 lightbox=Lightbox
-lightboxAnimation=Animasi lightbox
 lightboxAnimationHint=Dimainkan secara automatik apabila halaman dipaparkan dalam mod lightbox.
 line=Garis
 lineend=Hujung garis

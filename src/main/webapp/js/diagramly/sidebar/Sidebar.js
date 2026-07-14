@@ -442,7 +442,8 @@
 							libs.push(entry.id + '.' + k);
 						}
 						
-						this.showPalettes('', libs, visible[entry.id]);
+						// Missing entries must hide the palette or showPalette toggles it
+						this.showPalettes('', libs, visible[entry.id] == true);
 					}
 				}
 			}

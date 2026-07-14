@@ -294,12 +294,8 @@ Editor.themes.push('atlas');
 				
 				var freehandElt = this.createMenuItem('insertFreehand', (value == 'simple') ?
 					Editor.thinGestureImage : Editor.freehandImage, true);
-				var generateElt = this.createMenuItem('generate', (value == 'simple') ?
-					Editor.thinSparklesImage : Editor.sparklesImage, true);
-				var layoutElt = this.createMenu('layout', Editor.layoutImage);
 				var insertElt = this.createMenu('insert', (value == 'simple') ?
 					Editor.thinAddCircleImage : Editor.addBoxImage);
-				var tableElt = this.createMenu('table', Editor.thinTableImage);
 				var shapesElt = insertElt.cloneNode(true);
 				shapesElt.style.backgroundImage = 'url(' + ((value == 'simple') ?
 					Editor.thinShapesImage : Editor.shapesImage) + ')';
@@ -317,17 +313,13 @@ Editor.themes.push('atlas');
 						if (!graph.isEnabled() && urlParams['embedInline'] != '1')
 						{
 							freehandElt.classList.add('mxDisabled');
-							layoutElt.classList.add('mxDisabled');
 							insertElt.classList.add('mxDisabled');
-							tableElt.classList.add('mxDisabled');
 							shapesElt.classList.add('mxDisabled');
 						}
 						else
 						{
 							freehandElt.classList.remove('mxDisabled');
-							layoutElt.classList.remove('mxDisabled');
 							insertElt.classList.remove('mxDisabled');
-							tableElt.classList.remove('mxDisabled');
 							shapesElt.classList.remove('mxDisabled');
 						}
 
@@ -384,7 +376,7 @@ Editor.themes.push('atlas');
 								this.sidebar.graph.cellRenderer.minSvgStrokeWidth = 0.9;
 							}
 
-							if (value != 'simple' || iw >= 660 + eo)
+							if (value != 'simple' || iw >= 780 + eo)
 							{
 								var textElt = this.sidebar.createVertexTemplate(graph.appendFontSize(Editor.defaultTextStyle,
 									graph.vertexFontSize), 60, 30, 'Text', mxResources.get('text') + ' (A)', true, false,
@@ -399,34 +391,19 @@ Editor.themes.push('atlas');
 
 							if (value == 'simple')
 							{
-								if (iw >= 600 + eo)
+								if (iw >= 800 + eo)
 								{
 									addElt(boxElt, mxResources.get('rectangle') + ' (D)', null, 'D');
 								}
 
-								if (iw >= 400 + eo)
+								if (iw >= 540 + eo)
 								{
 									this.sketchPickerMenuElt.appendChild(shapesElt);
 								}
 
-								if (iw >= 460 + eo)
+								if (iw >= 680 + eo)
 								{
 									addElt(freehandElt, mxResources.get('freehand') + ' (X)', null, 'X');
-								}
-
-								if (iw >= 500 + eo && this.actions.get('generate') != null)
-								{
-									addElt(generateElt, mxResources.get('generate'));
-								}
-
-								if (iw >= 580 + eo)
-								{
-									this.sketchPickerMenuElt.appendChild(layoutElt);
-								}
-
-								if (iw >= 540 + eo)
-								{
-									this.sketchPickerMenuElt.appendChild(tableElt);
 								}
 							}
 							else
@@ -457,20 +434,8 @@ Editor.themes.push('atlas');
 								cell.geometry.width = this.editor.graph.defaultEdgeLength + 20;
 								cell.geometry.setTerminalPoint(new mxPoint(0, 20), true);
 								cell.geometry.setTerminalPoint(new mxPoint(cell.geometry.width, 20), false);
-				
-								addElt(this.sidebar.createEdgeTemplateFromCells([cell],
-									cell.geometry.width, 40, mxResources.get('arrow'),
-									true, null, true, false, null, tw, th),
-									mxResources.get('arrow'));
 								
 								addElt(freehandElt, mxResources.get('freehand') + ' (X)', null, 'X');
-
-								if (this.actions.get('generate') != null)
-								{
-									addElt(generateElt, mxResources.get('generate'));
-								}
-
-								this.sketchPickerMenuElt.appendChild(layoutElt);
 								this.sketchPickerMenuElt.appendChild(shapesElt);
 							}
 							

@@ -513,7 +513,6 @@ leftAlign=ግራ አሰላለፍ
 leftToRight=ግራ ወደ ቀኝ
 libraryTooltip=ቅርጾችን እዚህ ጎትተው ይጣሉ ወይም + ን ጫን ለማስገባት። ለማርትዕ ሁለት ጊዜ ጠቅ ያድርጉ።
 lightbox=Lightbox
-lightboxAnimation=የብርሃንሳጥን አኒሜሽን
 lightboxAnimationHint=ገጹ በብርሃንሳጥን ሁነታ ሲታይ በራስ-ሰር ይጫወታል።
 line=መስመር
 lineend=መስመር መጨረሻ

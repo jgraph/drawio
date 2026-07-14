@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.File;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
@@ -406,12 +407,17 @@ public class EmbedServlet2 extends HttpServlet
 
 			for (int i = 0; i < urls.length; i++)
 			{
-				// Checks if URL already fetched to avoid duplicates
-				if (!completed.contains(urls[i]) && Utils.sanitizeUrl(urls[i]))
+				InetAddress validatedAddr;
+
+				// Checks if URL already fetched to avoid duplicates. Uses the
+				// address resolved by the check to pin the connection so the
+				// host is not resolved a second time (DNS-rebinding TOCTOU).
+				if (!completed.contains(urls[i])
+						&& (validatedAddr = Utils.validatedAddress(urls[i])) != null)
 				{
 					completed.add(urls[i]);
 					URL url = new URL(urls[i]);
-					URLConnection connection = url.openConnection();
+					URLConnection connection = Utils.openPinnedConnection(url, validatedAddr);
 					((HttpURLConnection) connection).setInstanceFollowRedirects(false);
 					connection.setRequestProperty("User-Agent", "draw.io");
 					ByteArrayOutputStream stream = new ByteArrayOutputStream();

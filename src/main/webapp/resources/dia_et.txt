@@ -513,7 +513,6 @@ leftAlign=Vasakjoondus
 leftToRight=Vasakult paremale
 libraryTooltip=Lohista ja kukuta kujundid siia või kliki + lisamiseks. Topeltklõps muutmiseks.
 lightbox=Valguskast
-lightboxAnimation=Lightbox-animatsioon
 lightboxAnimationHint=Käivitub automaatselt, kui leht kuvatakse lightbox-režiimis.
 line=Joon
 lineend=Joone lõpp

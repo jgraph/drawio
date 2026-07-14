@@ -513,7 +513,6 @@ leftAlign=Līdzināt pa kreisi
 leftToRight=No kreisās puses uz labo
 libraryTooltip=Velciet un nometiet formas šeit vai noklikšķiniet uz +, lai ievietotu. Veiciet dubultklikšķi, lai rediģētu.
 lightbox=Galerija
-lightboxAnimation=Lightbox animācija
 lightboxAnimationHint=Automātiski tiek atskaņota, kad lapa tiek parādīta lightbox režīmā.
 line=Līnija
 lineend=Līnijas beigas

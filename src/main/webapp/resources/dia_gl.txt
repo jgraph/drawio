@@ -513,7 +513,6 @@ leftAlign=Aliñar á Esquerda
 leftToRight=De esquerda a dereita
 libraryTooltip=Arrastra e solta as formas aquí ou preme + para inserires. Preme dúas veces para editares.
 lightbox=Lightbox
-lightboxAnimation=Animación en lightbox
 lightboxAnimationHint=Reprodúcese automaticamente cando a páxina se mostra en modo lightbox.
 line=Liña
 lineend=Fin de liña

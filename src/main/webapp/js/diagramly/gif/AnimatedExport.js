@@ -22,8 +22,8 @@ function AnimatedGifExport(editorUi)
  *   border: padding in pixels (default 0)
  *   transparent: transparent background (default false)
  *   repeat: loop count, 0 = forever (default 0)
- *   background: background color (default '#ffffff')
- *   theme: 'light' or 'dark' (default null for auto)
+ *   background: background color (default white or dark page background)
+ *   theme: 'light' or 'dark' (default null for light)
  *
  * Callback receives the GIF Blob or null on error.
  */
@@ -40,7 +40,7 @@ AnimatedGifExport.prototype.doExport = function(options, callback, errorCallback
 	var repeat = (options.repeat != null) ? options.repeat : 0;
 	var bg = transparent ? null :
 		((options.background != null && options.background != mxConstants.NONE) ?
-			options.background : '#ffffff');
+			options.background : 'light-dark(#ffffff,' + Editor.darkColor + ')');
 	var theme = options.theme || null;
 
 	try
@@ -128,6 +128,18 @@ AnimatedGifExport.prototype.renderFrames = function(svgRoot, animInfos,
 	encoder.setRepeat(repeat);
 	encoder.setTransparent(transparent);
 
+	// Resolves light-dark() backgrounds to the exported theme as
+	// canvas fillStyle is not resolved against the SVG color-scheme
+	var fillStyle = null;
+
+	if (bg != null)
+	{
+		var cssBg = mxUtils.getLightDarkColor(bg);
+		fillStyle = (theme == 'dark' &&
+			this.editorUi.editor.graph.getAdaptiveColors() != 'none') ?
+			cssBg.dark : cssBg.light;
+	}
+
 	var frameIndex = 0;
 
 	var renderNextFrame = mxUtils.bind(this, function()
@@ -198,9 +210,9 @@ AnimatedGifExport.prototype.renderFrames = function(svgRoot, animInfos,
 				canvas.height = h;
 				var ctx = canvas.getContext('2d');
 
-				if (bg != null)
+				if (fillStyle != null)
 				{
-					ctx.fillStyle = bg;
+					ctx.fillStyle = fillStyle;
 					ctx.fillRect(0, 0, w, h);
 				}
 

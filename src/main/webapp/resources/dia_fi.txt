@@ -513,7 +513,6 @@ leftAlign=Tasaa vasemmalle
 leftToRight=Vasemmalta oikealle
 libraryTooltip=Vedä ja pudota muotoja tänne tai klikkaa + lisätäksesi. Muokkaa kaksoisnapsauttamalla.
 lightbox=Lightbox
-lightboxAnimation=Lightbox-animaatio
 lightboxAnimationHint=Toistetaan automaattisesti, kun sivu näytetään lightbox-tilassa.
 line=Viiva
 lineend=Viivan loppu

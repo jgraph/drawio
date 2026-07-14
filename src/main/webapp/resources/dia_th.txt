@@ -513,7 +513,6 @@ leftAlign=จัดชิดซ้าย
 leftToRight=ซ้ายไปขวา
 libraryTooltip=ลากและวางรูปร่างที่นี่ หรือคลิก + เพื่อแทรก ดับเบิ้ลคลิกเพื่อแก้ไข
 lightbox=ไลท์บ็อกซ์
-lightboxAnimation=แอนิเมชัน lightbox
 lightboxAnimationHint=เล่นอัตโนมัติเมื่อหน้าแสดงในโหมด lightbox
 line=เส้น
 lineend=สิ้นสุดเส้น

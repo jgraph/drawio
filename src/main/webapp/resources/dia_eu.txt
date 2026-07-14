@@ -513,7 +513,6 @@ leftAlign=Lerrokatu ezkerrera
 leftToRight=Ezkerretik eskuinera
 libraryTooltip=Arrastatu eta jaregin formak hemen edo klikatu + txertatzeko. Klik bikoitza editatzeko.
 lightbox=Argi-kutxa
-lightboxAnimation=Lightbox animazioa
 lightboxAnimationHint=Automatikoki erreproduzitzen da orria lightbox moduan erakusten denean.
 line=Lerroa
 lineend=Lerro amaiera

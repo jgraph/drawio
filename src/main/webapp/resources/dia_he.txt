@@ -508,7 +508,6 @@ leftAlign=‫ישור לשמאל‬
 leftToRight=‫משמאל לימין‬
 libraryTooltip=‫גרור ושחרר צורות לכאן, או לחץ על + כדי להוסיף. לחץ לחיצה כפולה כדי לערוך‬
 lightbox=Lightbox
-lightboxAnimation=אנימציית lightbox
 lightboxAnimationHint=מתנגנת אוטומטית כאשר הדף מוצג במצב lightbox.
 line=‫קו‬
 lineend=‫סיום הקו‬

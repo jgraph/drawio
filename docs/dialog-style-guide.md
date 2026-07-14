@@ -94,6 +94,11 @@ height on every toggle so the new rows are not clipped by the dialog's
 Do not pass an explicit height to `showDialog` — keep `null` so the initial
 measurement covers the collapsed state cleanly.
 
+To keep multiple separate section cards inside the collapsed area, append
+additional `geDialogSection` divs to `advanced.wrapper` (the collapsible
+container); `advanced.content` then serves as the first card (see the
+Page Setup dialog).
+
 ## Form Rows (`geDialogFormRow`)
 
 Use for label + input pairs (text fields, selects):

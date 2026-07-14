@@ -3300,9 +3300,12 @@ ArrangePanel.prototype.addGeometry = function(container)
 	// The padding input applies to all containers (incl. swimlanes): it sets
 	// the groupPadding style, the gap layouts keep between the container
 	// bounds and its children and, for transparentBounds cells, the border
-	// added around the child-derived bounds.
+	// added around the child-derived bounds. Cells that carry a groupPadding
+	// style show it too (e.g. Mermaid/PlantUML image cells, where it is the
+	// image margin).
 	var showPadding = groupCell != null &&
-		(transparent || graph.isContainer(groupCell));
+		(transparent || graph.isContainer(groupCell) ||
+		mxUtils.getValue(rect.style, mxConstants.STYLE_GROUP_PADDING, null) != null);
 
 	// The automatic checkbox toggles transparentBounds, which derives the
 	// group's position and size from its children instead of storing them, so
@@ -3365,14 +3368,14 @@ ArrangePanel.prototype.addGeometry = function(container)
 
 		if (showAuto)
 		{
-			var autoWrapper = document.createElement('div');
-			autoWrapper.className = 'geFormatEntry';
-			autoWrapper.style.marginTop = showPadding ? '6px' : '26px';
+			// Appends to the option's geFormatEntry class (flex, vertically
+			// centered) rather than replacing it, so the checkbox stays
+			// middle-aligned with its label.
 			var autoOpt = this.createCellOption(mxResources.get('automatic'),
 				'transparentBounds', null, '1', 'null');
-			autoOpt.className = 'geFullWidthElement';
-			autoWrapper.appendChild(autoOpt);
-			div2.appendChild(autoWrapper);
+			autoOpt.className += ' geFullWidthElement';
+			autoOpt.style.marginTop = showPadding ? '6px' : '26px';
+			div2.appendChild(autoOpt);
 		}
 	}
 };
@@ -6489,7 +6492,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
 				['isometricEdgeStyle', 'vertical', null, null, null], null, null, true, Format.verticalIsometricImage.src)).setAttribute('title', mxResources.get('isometric'));
 
-			if (ss.style.shape == 'connector')
+			if (Graph.edgeSupportsCurved(ss.style))
 			{
 				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
 					['orthogonalEdgeStyle', '1', null, null], null, null, true, Format.curvedImage.src)).setAttribute('title', mxResources.get('curved'));
@@ -6888,9 +6891,8 @@ StyleFormatPanel.prototype.addStroke = function(container)
 			altInput.value = (isNaN(tmp)) ? '' : this.inUnit(tmp) + ' ' + this.getUnit();
 		}
 		
-		styleSelect.style.visibility = (ss.style.shape == 'connector' ||
-			ss.style.shape == 'filledEdge' || ss.style.shape == 'wire' ||
-			ss.style.shape == 'pipe') ? '' : 'hidden';
+		styleSelect.style.visibility = (ss.edges.length > 0 &&
+			Graph.edgeSupportsCurved(ss.style)) ? '' : 'hidden';
 		
 		if (mxUtils.getValue(ss.style, mxConstants.STYLE_CURVED, null) == '1')
 		{
@@ -8057,17 +8059,25 @@ DiagramFormatPanel.prototype.addView = function(div)
 	{
 		if (this.showBackgroundImageOption)
 		{
-			var bg = this.createOption(mxResources.get('background'), function()
+			var hasBackground = function()
 			{
-				return graph.backgroundImage != null;
-			}, function(checked)
+				return graph.backgroundImage != null || (graph.background != null &&
+					graph.background != mxConstants.NONE);
+			};
+
+			var bg = this.createOption(mxResources.get('background'), hasBackground,
+				function(checked)
 			{
-				if (!checked)
+				if (checked)
 				{
-					var change = new ChangePageSetup(ui, null, null);
-					change.ignoreColor = true;
+					var change = new ChangePageSetup(ui, graph.defaultPageBackgroundColor);
+					change.ignoreImage = true;
 
 					graph.model.execute(change);
+				}
+				else
+				{
+					graph.model.execute(new ChangePageSetup(ui, null, null));
 				}
 			},
 			{
@@ -8075,9 +8085,10 @@ DiagramFormatPanel.prototype.addView = function(div)
 				{
 					this.listener = function()
 					{
-						apply(graph.backgroundImage != null);
+						apply(hasBackground());
 					};
-					
+
+					ui.addListener('backgroundColorChanged', this.listener);
 					ui.addListener('backgroundImageChanged', this.listener);
 				},
 				destroy: function()
@@ -8086,15 +8097,8 @@ DiagramFormatPanel.prototype.addView = function(div)
 				}
 			});
 
-			var input = bg.getElementsByTagName('input')[0];
-
-			if (input != null)
-			{
-				input.style.visibility = graph.backgroundImage != null ? 'visible' : 'hidden';
-			}
-			
 			var label = bg.getElementsByTagName('span')[0];
-			
+
 			if (label != null)
 			{
 				label.style.maxWidth = '80px';
@@ -8104,32 +8108,19 @@ DiagramFormatPanel.prototype.addView = function(div)
 			{
 				ui.showBackgroundImageDialog(null,
 					ui.editor.graph.backgroundImage,
-					ui.editor.graph.background);
+					ui.editor.graph.background, true);
 				mxEvent.consume(evt);
 			})
-			
+
 			btn.style.position = 'absolute';
 			btn.style.height = '22px';
 			btn.style.left = '102px';
 			btn.style.width = '110px';
 			btn.style.maxWidth = btn.style.width;
-			
+
 			bg.appendChild(btn);
 			div.appendChild(bg);
 		}
-
-		var bgColor = this.createColorOption(mxResources.get('backgroundColor'), function()
-		{
-			return graph.background;
-		}, function(color)
-		{
-			var change = new ChangePageSetup(ui, color);
-			change.ignoreImage = true;
-
-			graph.model.execute(change);
-		}, '#ffffff');
-
-		div.appendChild(bgColor);
 	}
 	
 	return div;

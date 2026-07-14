@@ -513,7 +513,6 @@ leftAlign=Poravnaj lijevo
 leftToRight=S lijeva na desno
 libraryTooltip=Povucite i ispustite oblike ovdje ili kliknite + za umetanje. Dvaput kliknite za uređivanje.
 lightbox=Lightbox
-lightboxAnimation=Animacija u lightbox načinu
 lightboxAnimationHint=Reproducira se automatski kada se stranica prikaže u lightbox načinu.
 line=Linija
 lineend=Kraj linije

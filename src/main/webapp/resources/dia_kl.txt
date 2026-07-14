@@ -513,7 +513,6 @@ leftAlign=Saumimut qitiqquneq
 leftToRight=Saumiit talerpimmut
 libraryTooltip=Titartat maani nuussinnaavat imaluunniit + tooruk ilassillugu. Marluk tooruk allanngortillugu.
 lightbox=Lightbox
-lightboxAnimation=Lightbox-imi animationi
 lightboxAnimationHint=Quppernermi lightbox-imut takutinneqaraangat namminerlu aallartittarpoq.
 line=Tittartoq
 lineend=Tittartoq naavoq

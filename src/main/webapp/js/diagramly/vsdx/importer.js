@@ -12672,6 +12672,9 @@ var com;
                             var style = "text;" + com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "=");
                             var y = parent.getGeometry().height - (txtPinYV + txtHV - txtLocPinYV);
                             var x = txtPinXV - txtLocPinXV;
+                			//FIXME one file has txtPinX/Y values extremely high which cause draw.io to hang (see getLblEdgeOffset)
+                            if (Math.abs(x) > 1.0E11 || Math.abs(y) > 1.0E11)
+                                return null;
                             if (rotation > 0) {
                                 var tmpGeo = new mxGeometry(x, y, txtWV, txtHV);
                                 var pgeo = parent.getGeometry();

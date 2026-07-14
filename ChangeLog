@@ -1,3 +1,46 @@
+13-JUL-2026: 30.3.8
+
+
+
+13-JUL-2026: 30.3.7
+
+- Update an inserted AI diagram in place when iterating on it
+- Fix white model dropdown in dark mode; shrink and thicken the usage ring
+- Use 5 for the context-usage ring thickness
+- Give the model select an explicit background (fixes white dropdown)
+- Use the describeYourDiagram placeholder for the chat input
+- Render AI diagram replies inline; retry only on error
+- Add color-scheme light dark to Mermaid and PlantUML image cells
+- Arrange top-left cell icons as move, lock below, edit right
+- Fix Automatic checkbox alignment, show Group Padding for styled cells
+- Match Mermaid and PlantUML image padding with the diagram groups
+- Disables AI in desktop when enableai set false in config
+- Updates excludes
+- Fixes layout icon in simple theme
+- Fewer insert icons for small screens in simple theme
+- Add foldingIconSize cell style and Format panel property [DID-19577]
+- Removes Generate and Table quick access toolbar icons in simple theme
+- Removes layout and table icon from simple toolbar
+- Patches java SSRF - GHSA-m3q9-cwfq-hcjc
+- Completes SSRF blocklist in proxy - GHSA-xc39-mcq4-fr4q
+- Updates azure icons [jgraph/drawio#5301]
+- Fixes visibility of unchecked custom libraries in More Shapes dialog [jgraph/drawio#5491]
+- Fixes dark mode colors in animated GIF export [jgraph/drawio#5619]
+- Fixes missing line jump where overlapping edges cross a third edge [jgraph/drawio#5582]
+- Adds partial and word-boundary matching to shape search for imported library names [jgraph/drawio#5461]
+- Fixes dark mode colors in Copy as Image/SVG [jgraph/drawio#5455]
+- Adds copy/paste of steps in the Animation dialog [jgraph/drawio#5672]
+- Removes arrow, generate and layout from sketch sidebar
+- Adds ground, earth tags for ground symbols
+- Unifies background options in Page Setup and Format panel
+- Adds curved style support for link and arrow connectors
+- Moves less common print dialog options into collapsed Advanced section
+- Adds connectable=0 to Insert > Layout containers
+- Fixes libavoid routing for transparentBounds edge terminals
+- Removes unused lightboxAnimation key in all locales
+- Fixes page scale being ignored in desktop print output [jgraph/drawio#5540]
+- Caps page-break count to prevent DoS from extreme cell coordinates
+
 08-JUL-2026: 30.3.6
 
 - Remove server-rendered PlantUML outputs, add native Image option

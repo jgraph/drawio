@@ -170,7 +170,12 @@ mxStencilRegistry.allowEval = false;
 			allPages: args.allPages ? '1' : '0',
 			pageWidth: graph.pageFormat.width,
 			pageHeight: graph.pageFormat.height,
-			pageScale: 1,
+			// Rendered pages span pageFormat * pageScale to match the editor's
+			// page breaks; the main process maps each rendered page onto one
+			// physical sheet via scaleFactor = 100 / pageScale. A hardcoded 1
+			// here printed the page cuts of an unscaled page grid
+			// [jgraph/drawio#5540]
+			pageScale: graph.pageScale,
 			fit: args.fit ? '1' : '0',
 			sheetsAcross: args.sheetsAcross,
 			sheetsDown: args.sheetsDown,

@@ -513,7 +513,6 @@ leftAlign=Vänsterjustera
 leftToRight=Vänster till höger
 libraryTooltip=Dra-och-släpp former hit, eller markera objekt och klicka + för att lägga till. Dubbelklicka för att redigera.
 lightbox=Lightbox
-lightboxAnimation=Lightbox-animation
 lightboxAnimationHint=Spelas upp automatiskt när sidan visas i lightbox-läge.
 line=Linje
 lineend=Linjeavslut

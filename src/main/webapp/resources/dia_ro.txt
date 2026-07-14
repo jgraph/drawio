@@ -513,7 +513,6 @@ leftAlign=Aliniere la stânga
 leftToRight=De la stânga la dreapta
 libraryTooltip=Trage și plasează formele aici sau dă clic pe + pentru a insera. Dă dublu clic pentru a edita.
 lightbox=Lightbox
-lightboxAnimation=Animație în lightbox
 lightboxAnimationHint=Se redă automat când pagina este afișată în modul lightbox.
 line=Linie
 lineend=Final de linie

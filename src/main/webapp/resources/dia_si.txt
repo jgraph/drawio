@@ -513,7 +513,6 @@ leftAlign=වමට පෙළගස්වන්න
 leftToRight=වමේ සිට දකුණට
 libraryTooltip=හැඩතල මෙහි ඇදගෙන දමන්න හෝ ඇතුළත් කිරීමට + ක්ලික් කරන්න. සංස්කරණය කිරීමට දෙවරක් ක්ලික් කරන්න.
 lightbox=ලයිට්බොක්ස්
-lightboxAnimation=Lightbox සජීවීකරණය
 lightboxAnimationHint=පිටුව lightbox ආකාරයෙන් පෙන්වන විට ස්වයංක්‍රීයව ක්‍රියාත්මක වේ.
 line=රේඛාව
 lineend=රේඛා අන්තය

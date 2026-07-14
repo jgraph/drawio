@@ -513,7 +513,6 @@ leftAlign=Bal igazítás
 leftToRight=Balról jobbra
 libraryTooltip=Fogd és vidd ide az alakzatokat vagy klikk a +-ra a beszúráshoz. Dupla klikk a módosításhoz.
 lightbox=Lightbox
-lightboxAnimation=Animáció lightbox módban
 lightboxAnimationHint=Automatikusan lejátszódik, amikor az oldal lightbox módban jelenik meg.
 line=Vonal
 lineend=Vonalvég

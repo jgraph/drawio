@@ -513,7 +513,6 @@ leftAlign=Подравняване наляво
 leftToRight=От ляво надясно
 libraryTooltip=Плъзнете и пуснете форми тук или кликнете на +, за да вмъкнете. Кликнете два пъти за редактиране.
 lightbox=Лайтбокс
-lightboxAnimation=Анимация в режим lightbox
 lightboxAnimationHint=Възпроизвежда се автоматично, когато страницата се показва в режим lightbox.
 line=Линия
 lineend=Край на линията

@@ -513,7 +513,6 @@ leftAlign=বামে সারিবদ্ধ
 leftToRight=বাম থেকে ডানে
 libraryTooltip=আকৃতি এখানে টেনে আনুন অথবা সন্নিবেশ করতে + ক্লিক করুন। সম্পাদনা করতে ডাবল ক্লিক করুন।
 lightbox=লাইটবক্স
-lightboxAnimation=লাইটবক্স অ্যানিমেশন
 lightboxAnimationHint=পৃষ্ঠাটি লাইটবক্স মোডে দেখানো হলে স্বয়ংক্রিয়ভাবে চালু হয়।
 line=রেখা
 lineend=রেখার শেষ

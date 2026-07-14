@@ -553,7 +553,6 @@ leftAlign=Left Align
 leftToRight=Left to Right
 libraryTooltip=Drag and drop shapes here or click + to insert. Double click to edit.
 lightbox=Lightbox
-lightboxAnimation=Lightbox Animation
 lightboxAnimationHint=Plays automatically when the page is shown in lightbox mode.
 line=Line
 lineend=Line End

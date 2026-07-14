@@ -513,7 +513,6 @@ leftAlign=Вирівнювання по лівому краю
 leftToRight=Зліва направо
 libraryTooltip=Перетягніть фігури сюди або натисніть +, щоб вставити. Натисніть двічі, щоб змінити.
 lightbox=Lightbox
-lightboxAnimation=Анімація в режимі lightbox
 lightboxAnimationHint=Відтворюється автоматично, коли сторінка показується в режимі lightbox.
 line=Лінія
 lineend=Кінець лінії

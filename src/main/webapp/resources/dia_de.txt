@@ -513,7 +513,6 @@ leftAlign=Links
 leftToRight=Von links nach rechts
 libraryTooltip=Objekte per Drag und Drop oder durch Klicken auf + hier einfügen. Doppelklicken zum Bearbeiten.
 lightbox=Lightbox
-lightboxAnimation=Lightbox-Animation
 lightboxAnimationHint=Wird automatisch abgespielt, wenn die Seite im Lightbox-Modus angezeigt wird.
 line=Linie
 lineend=Linienende

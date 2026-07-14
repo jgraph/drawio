@@ -513,7 +513,6 @@ leftAlign=Wyrównaj do lewej
 leftToRight=Od lewej do prawej
 libraryTooltip=Przeciągnij i upuść kształty tutaj lub kliknij +, aby wstawić. Kliknij podwójnie, aby edytować.
 lightbox=Lightbox
-lightboxAnimation=Animacja w trybie lightbox
 lightboxAnimationHint=Odtwarza się automatycznie, gdy strona jest wyświetlana w trybie lightbox.
 line=Linia
 lineend=Koniec linii

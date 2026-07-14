@@ -123,6 +123,15 @@ mxArrowConnector.prototype.augmentBoundingBox = function(bbox)
  */
 mxArrowConnector.prototype.paintEdgeShape = function(c, pts)
 {
+	// Approximates the curve with a fine polyline so that the outline is
+	// computed with the straight segment logic below
+	var isCurved = this.isCurved() && pts.length > 2;
+
+	if (isCurved)
+	{
+		pts = this.getCurvePoints(pts);
+	}
+
 	// Geometry of arrow
 	var strokeWidth = this.strokewidth;
 	
@@ -140,8 +149,27 @@ mxArrowConnector.prototype.paintEdgeShape = function(c, pts)
 	var spacing = (openEnded) ? 0 : this.arrowSpacing + strokeWidth / 2;
 	var startSize = this.startSize + strokeWidth;
 	var endSize = this.endSize + strokeWidth;
-	var isRounded = this.isArrowRounded();
-	
+
+	// Rounded joins make no visual difference on the fine polyline and their
+	// fixed-size control point offsets overshoot its short segments
+	var isRounded = !isCurved && this.isArrowRounded();
+
+	// Markers are painted straight so the curve is cut where the marker
+	// starts and the removed part replaced by the chord that the marker
+	// rides on, with its base on the curve
+	if (isCurved && !openEnded)
+	{
+		if (markerStart)
+		{
+			pts = this.trimCurveForMarker(pts, spacing + startSize, true);
+		}
+
+		if (markerEnd)
+		{
+			pts = this.trimCurveForMarker(pts, spacing + endSize, false);
+		}
+	}
+
 	// Base vector (between first points)
 	var pe = pts[pts.length - 1];
 	var dx = pts[1].x - pts[0].x;
@@ -425,6 +453,132 @@ mxArrowConnector.prototype.paintMarker = function(c, ptX, ptY, nx, ny, size, arr
 mxArrowConnector.prototype.isArrowRounded = function()
 {
 	return this.isRounded;
+};
+
+/**
+ * Function: isCurved
+ *
+ * Returns whether the edge path is painted as a curve.
+ */
+mxArrowConnector.prototype.isCurved = function()
+{
+	return this.style != null && this.style[mxConstants.STYLE_CURVED] == 1;
+};
+
+/**
+ * Function: getCurvePoints
+ *
+ * Returns a fine polyline that approximates the curve painted by
+ * <mxPolyline.paintCurvedLine> for the given guide points (a quadratic
+ * spline through the midpoints between consecutive control points). The
+ * number of samples per curve segment is based on its length on the
+ * screen.
+ */
+mxArrowConnector.prototype.getCurvePoints = function(pts)
+{
+	var result = [pts[0]];
+	var n = pts.length;
+	var p0 = pts[0];
+
+	for (var i = 1; i < n - 1; i++)
+	{
+		var pc = pts[i];
+		var pe = (i < n - 2) ? new mxPoint((pts[i].x + pts[i + 1].x) / 2,
+			(pts[i].y + pts[i + 1].y) / 2) : pts[i + 1];
+		var dx0 = pc.x - p0.x;
+		var dy0 = pc.y - p0.y;
+		var dx1 = pe.x - pc.x;
+		var dy1 = pe.y - pc.y;
+		var len = (Math.sqrt(dx0 * dx0 + dy0 * dy0) +
+			Math.sqrt(dx1 * dx1 + dy1 * dy1)) * this.scale;
+		var steps = Math.max(4, Math.min(Math.ceil(len / 8), 64));
+
+		for (var j = 1; j <= steps; j++)
+		{
+			var u = j / steps;
+			var iu = 1 - u;
+
+			result.push(new mxPoint(
+				iu * iu * p0.x + 2 * iu * u * pc.x + u * u * pe.x,
+				iu * iu * p0.y + 2 * iu * u * pc.y + u * u * pe.y));
+		}
+
+		p0 = pe;
+	}
+
+	return result;
+};
+
+/**
+ * Function: trimCurveForMarker
+ *
+ * Removes the part of the given points that is covered by the marker at
+ * the given distance from the first (source) or last terminal point and
+ * replaces it with the point at exactly that distance, so that the marker
+ * base sits on the curve and the last segment is the chord the marker is
+ * painted on. Returns the points unchanged if the curve is shorter than
+ * the marker.
+ */
+mxArrowConnector.prototype.trimCurveForMarker = function(pts, dist, source)
+{
+	var n = pts.length;
+	var pc = (source) ? pts[0] : pts[n - 1];
+
+	// Returns the point between the outer point p0 and the inner point p1
+	// at the given distance to the terminal point
+	function cutPoint(p0, p1)
+	{
+		var dx = p1.x - p0.x;
+		var dy = p1.y - p0.y;
+		var fx = p0.x - pc.x;
+		var fy = p0.y - pc.y;
+		var a = dx * dx + dy * dy;
+		var b = 2 * (fx * dx + fy * dy);
+		var c = fx * fx + fy * fy - dist * dist;
+		var disc = b * b - 4 * a * c;
+
+		if (a == 0 || disc < 0)
+		{
+			return p0;
+		}
+
+		var t = Math.max(0, Math.min(1, (-b - Math.sqrt(disc)) / (2 * a)));
+
+		return new mxPoint(p0.x + t * dx, p0.y + t * dy);
+	};
+
+	if (source)
+	{
+		for (var i = 1; i < n - 1; i++)
+		{
+			var dx = pts[i].x - pc.x;
+			var dy = pts[i].y - pc.y;
+
+			if (dx * dx + dy * dy >= dist * dist)
+			{
+				return [pc, cutPoint(pts[i], pts[i - 1])].concat(pts.slice(i));
+			}
+		}
+	}
+	else
+	{
+		for (var i = n - 2; i > 0; i--)
+		{
+			var dx = pts[i].x - pc.x;
+			var dy = pts[i].y - pc.y;
+
+			if (dx * dx + dy * dy >= dist * dist)
+			{
+				var result = pts.slice(0, i + 1);
+				result.push(cutPoint(pts[i], pts[i + 1]));
+				result.push(pc);
+
+				return result;
+			}
+		}
+	}
+
+	return pts;
 };
 
 /**

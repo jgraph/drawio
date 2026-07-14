@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -597,6 +598,58 @@ public class Utils
 	}
 
 	/**
+	 * Returns true if the address is an IPv6 Unique Local Address (fc00::/7,
+	 * which spans fc00::/8 and fd00::/8 - including AWS's fd00:ec2::/32 IMDS
+	 * range). This must be tested on the raw address bytes: the JDK's
+	 * {@link InetAddress#getHostAddress()} always returns the fully expanded
+	 * eight-group form and never "::"-compresses, so a startsWith("fc00::")
+	 * or startsWith("fd00::") string check never matches a real ULA and lets
+	 * the whole range through.
+	 *
+	 * @param address the resolved address to test
+	 * @return true if the address is in fc00::/7
+	 */
+	private static boolean isUniqueLocalIPv6(InetAddress address)
+	{
+		if (address instanceof Inet6Address)
+		{
+			byte[] bytes = address.getAddress();
+
+			// fc00::/7: high 7 bits are 1111110, i.e. first byte 0xFC or 0xFD
+			return bytes.length == 16 && (bytes[0] & 0xFE) == 0xFC;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns true if the address is in the RFC 6598 shared / Carrier-Grade-NAT
+	 * range 100.64.0.0/10 (100.64.0.0 - 100.127.255.255). This range is not
+	 * octet-aligned, so it cannot be matched with a startsWith prefix without
+	 * either missing part of it or over-blocking the surrounding public
+	 * 100.0.0.0/8 space; the raw bytes are masked instead. It is routable
+	 * internal space in many deployments (AWS EKS secondary pod CIDRs, some
+	 * k8s CNIs, Oracle Cloud, Tailscale, ISP CGNAT).
+	 *
+	 * @param address the resolved address to test
+	 * @return true if the address is in 100.64.0.0/10
+	 */
+	private static boolean isSharedCgnatIPv4(InetAddress address)
+	{
+		if (address instanceof Inet4Address)
+		{
+			byte[] bytes = address.getAddress();
+
+			// 100.64.0.0/10: first octet 100, second octet's top 2 bits = 01
+			return bytes.length == 4
+					&& (bytes[0] & 0xFF) == 100
+					&& (bytes[1] & 0xC0) == 0x40;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Resolves and validates the host of the given URL exactly once and returns
 	 * the resolved address, or null if the URL is not permitted (malformed,
 	 * unknown host, non-http(s), disallowed port, or pointing at a private,
@@ -665,8 +718,8 @@ public class Utils
 						|| hostAddress.startsWith("192.168.")
 						|| hostAddress.startsWith("198.18.")
 						|| hostAddress.startsWith("198.19.")
-						|| hostAddress.startsWith("fc00::")
-						|| hostAddress.startsWith("fd00::")
+						|| isSharedCgnatIPv4(address)
+						|| isUniqueLocalIPv6(address)
 						|| host.endsWith(".arpa");
 	
 				return ((protocol.equals("http") || protocol.equals("https"))

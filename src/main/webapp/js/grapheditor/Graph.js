@@ -3490,6 +3490,20 @@ Graph.isLink = function(text)
 mxUtils.extend(Graph, mxGraph);
 
 /**
+ * Returns true if the edge shape in the given style paints the curved style
+ * (see mxPolyline.paintCurvedLine and mxArrowConnector.getCurvePoints). A
+ * missing shape renders via mxConnector, which supports it.
+ */
+Graph.edgeSupportsCurved = function(style)
+{
+	var shape = mxUtils.getValue(style, mxConstants.STYLE_SHAPE, null);
+
+	return shape == null || shape == 'connector' || shape == 'filledEdge' ||
+		shape == 'wire' || shape == 'pipe' || shape == 'link' ||
+		shape == 'flexArrow';
+};
+
+/**
  * Subdivides the given absolute points into a fine polyline that approximates
  * the curve actually drawn for curved/bezier edges, so the tangent is taken
  * from the rendered spline instead of the straight control polygon. Mirrors
@@ -13487,25 +13501,28 @@ TableLayout.prototype.execute = function(parent)
 									var dx = pt.x - p0.x;
 									var dy = pt.y - p0.y;
 									var temp = {distSq: dx * dx + dy * dy, x: pt.x, y: pt.y};
-								
+
 									// Intersections must be ordered by distance from start of segment
+									var idx = list.length;
+
 									for (var t = 0; t < list.length; t++)
 									{
 										if (list[t].distSq > temp.distSq)
 										{
-											list.splice(t, 0, temp);
-											temp = null;
-											
+											idx = t;
+
 											break;
 										}
 									}
-									
-									// Ignores multiple intersections at segment joint
-									if (temp != null && (list.length == 0 ||
-										list[list.length - 1].x !== temp.x ||
-										list[list.length - 1].y !== temp.y))
+
+									// Ignores multiple intersections at segment joints and
+									// where overlapping edges cross the current segment
+									if ((idx == 0 || Math.abs(list[idx - 1].x - temp.x) > thresh ||
+										Math.abs(list[idx - 1].y - temp.y) > thresh) &&
+										(idx == list.length || Math.abs(list[idx].x - temp.x) > thresh ||
+										Math.abs(list[idx].y - temp.y) > thresh))
 									{
-										list.push(temp);
+										list.splice(idx, 0, temp);
 									}
 								}
 
@@ -21364,6 +21381,15 @@ if (typeof mxVertexHandler !== 'undefined')
 						var pt = new mxPoint(
 							self.bounds.x - 12 - padding.x / 2 - offset,
 							self.bounds.y - 12 - padding.y / 2 - offset);
+
+						// Shifts below the move icon when both are present (the
+						// move icon holds the corner, the edit icon goes right).
+						if (graph.isMoveIconVisible(cell) &&
+							graph.isCellMovable(cell))
+						{
+							pt.y += 24;
+						}
+
 						var deg = Number((self.currentAlpha != null) ? self.currentAlpha :
 							(self.state.style[mxConstants.STYLE_ROTATION] || '0'));
 						var alpha = mxUtils.toRadians(deg);
@@ -21471,7 +21497,7 @@ if (typeof mxVertexHandler !== 'undefined')
 							self.bounds.y - 12 - padding.y / 2 - offset);
 
 						// Shifts right along the top edge when the lock and/or
-						// move icon occupies the corner (lock above move), so
+						// move icon occupies the corner (move above lock), so
 						// the icons form an L: corner column plus this one.
 						if (graph.isCellMovable(cell) &&
 							(graph.isLockedGroupIconVisible(cell) ||
@@ -21559,13 +21585,8 @@ if (typeof mxVertexHandler !== 'undefined')
 						var x = self.bounds.x - 12 - padding.x / 2 - offset;
 						var y = self.bounds.y - 12 - padding.y / 2 - offset;
 
-						// Shifts below the lock icon when both are present so
-						// the top-left corner can host them stacked vertically.
-						if (graph.isLockedGroupIconVisible(cell))
-						{
-							y += 24;
-						}
-
+						// Holds the top-left corner; the lock icon shifts below
+						// it when both are present.
 						this.shape.bounds.width = size;
 						this.shape.bounds.height = size;
 						this.shape.bounds.x = x - size / 2;
@@ -22189,21 +22210,63 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 
 		/**
+		 * Creates the expanded or collapsed folding icon for the given size.
+		 */
+		Graph.createFoldingImage = function(s, collapsed)
+		{
+			return (collapsed) ?
+				Graph.createSvgImage(s, s, '<defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">' +
+					'<stop offset="30%" style="stop-color:#f0f0f0;" /><stop offset="100%" style="stop-color:#AFB0B6;" /></linearGradient></defs>' +
+					'<rect x="0" y="0" width="9" height="9" stroke="#8A94A5" fill="url(#grad1)" stroke-width="2"/>' +
+					'<path d="M 4.5 2 L 4.5 7 M 2 4.5 L 7 4.5 z" stroke="#000"/>', 9, 9) :
+				Graph.createSvgImage(s, s, '<defs><linearGradient id="grad1" x1="50%" y1="0%" x2="50%" y2="100%">' +
+					'<stop offset="30%" style="stop-color:#f0f0f0;" /><stop offset="100%" style="stop-color:#AFB0B6;" /></linearGradient></defs>' +
+					'<rect x="0" y="0" width="9" height="9" stroke="#8A94A5" fill="url(#grad1)" stroke-width="2"/>' +
+					'<path d="M 2 4.5 L 7 4.5 z" stroke="#000"/>', 9, 9);
+		};
+
+		/**
 		 * Replaces folding icons with SVG.
 		 */
 		Graph.updateFoldingImages = function(s)
 		{
-			Graph.prototype.expandedImage = Graph.createSvgImage(s, s, '<defs><linearGradient id="grad1" x1="50%" y1="0%" x2="50%" y2="100%">' +
-				'<stop offset="30%" style="stop-color:#f0f0f0;" /><stop offset="100%" style="stop-color:#AFB0B6;" /></linearGradient></defs>' +
-				'<rect x="0" y="0" width="9" height="9" stroke="#8A94A5" fill="url(#grad1)" stroke-width="2"/>' +
-				'<path d="M 2 4.5 L 7 4.5 z" stroke="#000"/>', 9, 9);
-			Graph.prototype.collapsedImage = Graph.createSvgImage(s, s, '<defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">' +
-				'<stop offset="30%" style="stop-color:#f0f0f0;" /><stop offset="100%" style="stop-color:#AFB0B6;" /></linearGradient></defs>' +
-				'<rect x="0" y="0" width="9" height="9" stroke="#8A94A5" fill="url(#grad1)" stroke-width="2"/>' +
-				'<path d="M 4.5 2 L 4.5 7 M 2 4.5 L 7 4.5 z" stroke="#000"/>', 9, 9);
+			Graph.prototype.expandedImage = Graph.createFoldingImage(s, false);
+			Graph.prototype.collapsedImage = Graph.createFoldingImage(s, true);
 		};
 
 		Graph.updateFoldingImages(9);
+
+		/**
+		 * Cache for folding icons created for the foldingIconSize style.
+		 */
+		Graph.foldingImages = {};
+
+		/**
+		 * Overridden to honor the foldingIconSize style.
+		 */
+		Graph.prototype.getFoldingImage = function(state)
+		{
+			var image = mxGraph.prototype.getFoldingImage.apply(this, arguments);
+
+			if (image != null)
+			{
+				var size = parseInt(mxUtils.getValue(state.style, 'foldingIconSize', 0));
+
+				if (size > 0)
+				{
+					var key = size + '-' + this.isCellCollapsed(state.cell);
+					image = Graph.foldingImages[key];
+
+					if (image == null)
+					{
+						image = Graph.createFoldingImage(size, this.isCellCollapsed(state.cell));
+						Graph.foldingImages[key] = image;
+					}
+				}
+			}
+
+			return image;
+		};
 
 		/**
 		 * Updates the hint for the current operation.

@@ -513,7 +513,6 @@ leftAlign=Maldekstra ĝisrandigo
 leftToRight=De maldekstre dekstren
 libraryTooltip=Trenu kaj faligu formojn ĉi tien aŭ klaku + por enmeti. Duoble klaku por redakti.
 lightbox=Lumkesto
-lightboxAnimation=Animacio en lightbox
 lightboxAnimationHint=Ludas aŭtomate kiam la paĝo montriĝas en lightbox-reĝimo.
 line=Linio
 lineend=Liniofino

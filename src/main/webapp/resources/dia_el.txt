@@ -513,7 +513,6 @@ leftAlign=Στοίχιση Αριστερά
 leftToRight=Από αριστερά προς δεξιά
 libraryTooltip=Σύρετε τα σχήματα εδώ ή πατήστε + για εισαγωγή. Πατήστε διπλό κλικ για επεξεργασία.
 lightbox=Lightbox
-lightboxAnimation=Κινούμενο σχέδιο lightbox
 lightboxAnimationHint=Αναπαράγεται αυτόματα όταν η σελίδα εμφανίζεται σε λειτουργία lightbox.
 line=Γραμμή
 lineend=Τέλος Γραμμής

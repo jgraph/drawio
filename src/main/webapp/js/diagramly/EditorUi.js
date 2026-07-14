@@ -289,11 +289,13 @@
 	};
 
 	/**
-	 * Default padding (px) drawn around mermaid image cells, matching the small
-	 * margin the legacy upstream-rendered images had (their content sat ~8px
-	 * from each edge). Overridable per cell via the mermaidData `border` field.
+	 * Default padding (px) drawn around mermaid image cells, matching the
+	 * groupPadding of the editable wrapper groups (mxMermaidToDrawio and
+	 * mxPlantUmlToDrawio groupStyle — keep in sync) so both output types
+	 * show the same margin. Overridable per cell via the groupPadding
+	 * style (legacy image cells: the stored mermaidData `border` field).
 	 */
-	EditorUi.mermaidImageBorder = 8;
+	EditorUi.mermaidImageBorder = 10;
 
 	/**
 	 * Updates action states depending on the selection.
@@ -5719,18 +5721,13 @@
 	 */
 	EditorUi.prototype.showBackgroundImageDialog = function(apply, img, color, showColor)
 	{
-		apply = (apply != null) ? apply : mxUtils.bind(this, function(image, failed, color, shadowVisible)
+		apply = (apply != null) ? apply : mxUtils.bind(this, function(image, failed, color)
 		{
 			if (!failed)
 			{
 				var change = new ChangePageSetup(this, (showColor) ? color : null, image);
 				change.ignoreColor = !showColor;
 
-				if (shadowVisible != null && showColor)
-				{
-					change.shadowVisible = shadowVisible;
-				}
-				
 				this.editor.graph.model.execute(change);
 			}
 		});
@@ -6430,6 +6427,39 @@
 		formRow.appendChild(loopSelect);
 		section.appendChild(formRow);
 
+		// Appearance selects the color scheme that light-dark() colors
+		// resolve to when the frames are rasterized [jgraph/drawio#5619]
+		formRow = document.createElement('div');
+		formRow.className = 'geDialogFormRow';
+		lbl = document.createElement('span');
+		lbl.className = 'geDialogFormLabel';
+		mxUtils.write(lbl, mxResources.get('appearance') + ':');
+		formRow.appendChild(lbl);
+		var themeSelect = document.createElement('select');
+
+		var lightOption = document.createElement('option');
+		lightOption.setAttribute('value', 'light');
+		mxUtils.write(lightOption, mxResources.get('light'));
+		themeSelect.appendChild(lightOption);
+
+		var darkOption = document.createElement('option');
+		darkOption.setAttribute('value', 'dark');
+		mxUtils.write(darkOption, mxResources.get('dark'));
+		themeSelect.appendChild(darkOption);
+
+		var defaultTheme = (Editor.isDarkMode()) ? 'dark' : 'light';
+		themeSelect.value = (this.lastExportTheme != null) ?
+			this.lastExportTheme : defaultTheme;
+
+		// Stored override may be an option that doesn't exist here (eg. auto)
+		if (themeSelect.selectedIndex < 0)
+		{
+			themeSelect.value = defaultTheme;
+		}
+
+		formRow.appendChild(themeSelect);
+		section.appendChild(formRow);
+
 		div.appendChild(section);
 
 		// --- Options section ---
@@ -6459,6 +6489,8 @@
 			this.lastExportLoops = (parseInt(loopSelect.value) != 0) ?
 				parseInt(loopSelect.value) : null;
 			this.lastExportTransparent = (transparent.checked) ? true : null;
+			this.lastExportTheme = (themeSelect.value == defaultTheme) ?
+				null : themeSelect.value;
 
 			this.exportAnimatedGif({
 				fps: parseInt(fpsSelect.value),
@@ -6466,10 +6498,12 @@
 				border: parseInt(borderInput.value) || 0,
 				repeat: parseInt(loopSelect.value),
 				transparent: transparent.checked,
+				theme: themeSelect.value,
 				background: transparent.checked ? null :
 					((this.editor.graph.background != null &&
 					  this.editor.graph.background != mxConstants.NONE) ?
-						this.editor.graph.background : '#ffffff')
+						this.editor.graph.background :
+						'light-dark(#ffffff,' + Editor.darkColor + ')')
 			});
 		}), null, mxResources.get('export'),
 			'https://www.drawio.com/doc/faq/export-diagram');
@@ -7882,6 +7916,10 @@
 
 		return {
 			content: content,
+			// The collapsible container around content — append further
+			// geDialogSection siblings here to keep separate section cards
+			// inside the collapsed area (see PageSetupDialog)
+			wrapper: contentWrapper,
 			expand: function()
 			{
 				setExpanded(true);
@@ -11659,9 +11697,10 @@
 	 * Renders the given diagram XML to an SVG element via a temporary graph.
 	 * An optional border (px, at scale 1) adds uniform padding around the
 	 * content — used by the Mermaid image path to match the small padding the
-	 * legacy upstream-rendered images had.
+	 * legacy upstream-rendered images had. The optional theme is passed to
+	 * getSvg, which writes the resolved color-scheme onto the SVG root.
 	 */
-	EditorUi.prototype.getSvgForXml = function(xml, border)
+	EditorUi.prototype.getSvgForXml = function(xml, border, theme)
 	{
 		var result = null;
 		var graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
@@ -11672,7 +11711,7 @@
 			var codec = new mxCodec(mxUtils.parseXml(xml));
 			codec.decode(mxUtils.parseXml(xml).documentElement, graph.getModel());
 			result = graph.getSvg(null, null, border, null, null, null, null,
-				null, null, null, null, null, null, null, true, true);
+				null, null, null, null, theme, null, null, true, true);
 		}
 		finally
 		{
@@ -12336,18 +12375,24 @@
 
 	/**
 	 * Renders the given parsed Mermaid XML (the output of parseMermaidDiagram)
-	 * to an SVG image and returns {data, width, height}, where data is a
-	 * semicolon-free data URI ready to be stored in a shape=image cell style.
-	 * The upstream Mermaid renderer is gone, so the image is draw.io's own SVG
+	 * to an SVG image and returns {data, width, height, border}, where data is
+	 * a semicolon-free data URI ready to be stored in a shape=image cell style
+	 * and border is the resolved padding the render used. The upstream Mermaid
+	 * renderer is gone, so the image is draw.io's own SVG
 	 * rendering of the parsed cells (matching what the editable diagram shows).
-	 * The optional border (px, the mermaidData `border` field) defaults to
-	 * EditorUi.mermaidImageBorder when null/invalid.
+	 * The optional border (px) defaults to
+	 * EditorUi.mermaidImageBorder when null/invalid. The 'auto' theme stamps
+	 * color-scheme: light dark on the SVG root so the light-dark() colors in
+	 * the image follow the viewer's theme (SVG-as-image renders light without
+	 * the declaration). Safari does not yet propagate the embedding color
+	 * scheme into SVG images and keeps rendering the light values (see
+	 * web-platform-tests/interop#1058).
 	 */
 	EditorUi.prototype.getMermaidImageForXml = function(parsedXml, border)
 	{
 		border = parseFloat(border);
 		border = isNaN(border) ? EditorUi.mermaidImageBorder : border;
-		var svgRoot = this.getSvgForXml(parsedXml, border);
+		var svgRoot = this.getSvgForXml(parsedXml, border, 'auto');
 		var w = parseFloat(svgRoot.getAttribute('width'));
 		var h = parseFloat(svgRoot.getAttribute('height'));
 
@@ -12372,18 +12417,23 @@
 		return {
 			data: this.convertDataUri(Editor.createSvgDataUri(mxUtils.getXml(svgRoot))),
 			width: w,
-			height: h
+			height: h,
+			border: border
 		};
 	};
 
 	/**
 	 * Builds the XML for a shape=image cell that renders the given parsed
 	 * Mermaid XML as a static SVG image and carries the Mermaid source on
-	 * mermaidData (so double-click can re-edit it). Mirrors the legacy
+	 * mermaidData (so double-click or the editIcon pen handle re-edits it,
+	 * like the editable group wrapper). Mirrors the legacy
 	 * image-based Mermaid insert that was removed with mermaid.min.js. The
-	 * optional border (px) is the configurable mermaidData `border` field;
-	 * when omitted the EditorUi.mermaidImageBorder default applies and no
-	 * border is stored (keeping the legacy {data, config} format). The
+	 * optional border (px) defaults to EditorUi.mermaidImageBorder; the
+	 * resolved value is kept as the groupPadding cell style — the same key
+	 * the editable group wrapper uses, so the margin round-trips across
+	 * image/diagram switches and style edits carry over into re-renders
+	 * (see getMermaidImageBorder; the legacy mermaidData `border` field is
+	 * no longer written). The
 	 * optional dataAttr selects the source attribute for other converters
 	 * (PlantUML passes plantUmlData), like replaceLockedGroupChildren.
 	 */
@@ -12392,9 +12442,10 @@
 		var img = this.getMermaidImageForXml(parsedXml, border);
 		var graph = new Graph(document.createElement('div'));
 		var cell = graph.insertVertex(null, null, null, 0, 0, img.width, img.height,
-			'shape=image;noLabel=1;verticalAlign=top;imageAspect=1;image=' + img.data + ';');
+			'shape=image;noLabel=1;verticalAlign=top;imageAspect=1;editIcon=1;' +
+			'groupPadding=' + img.border + ';image=' + img.data + ';');
 		graph.setAttributeForCell(cell, (dataAttr != null) ? dataAttr : 'mermaidData',
-			JSON.stringify({data: mermaidData, config: config, border: border}, null, 2));
+			JSON.stringify({data: mermaidData, config: config}, null, 2));
 
 		if (prompt != null)
 		{
@@ -12424,11 +12475,34 @@
 	};
 
 	/**
+	 * Returns the image border for re-rendering the given Mermaid/PlantUML
+	 * cell: the groupPadding cell style when present — the same key the
+	 * editable group wrapper uses, so the margin matches across
+	 * image/diagram switches and style edits carry over — else the stored
+	 * data border (legacy image cells, which carried it in
+	 * mermaidData/plantUmlData), else null for the
+	 * EditorUi.mermaidImageBorder default.
+	 */
+	EditorUi.prototype.getMermaidImageBorder = function(cell, storedBorder)
+	{
+		// ignoreState: resolves from the model, not the cached view state —
+		// the padding-change refresh runs from BEFORE_UNDO, before the edit
+		// is dispatched, where the state style still has the old value
+		// (reading it re-stamped the old padding and fought the change).
+		var pad = parseFloat(mxUtils.getValue(this.editor.graph
+			.getCurrentCellStyle(cell, true), 'groupPadding', ''));
+
+		return (!isNaN(pad)) ? pad : storedBorder;
+	};
+
+	/**
 	 * Re-renders a shape=image Mermaid cell from freshly-parsed Mermaid XML,
 	 * keeping it an image (style, size and mermaidData are updated in place).
 	 * Used by the double-click edit path so legacy/static image cells stay
-	 * images instead of being converted to editable diagrams. The border (px,
-	 * the mermaidData `border` field) is preserved across the re-render. The
+	 * images instead of being converted to editable diagrams. The resolved
+	 * border (px) is kept as the groupPadding cell style, like
+	 * createMermaidImageXml (legacy cells' stored `border` migrates there on
+	 * the first re-render and is no longer written). The
 	 * optional dataAttr selects the source attribute for other converters
 	 * (PlantUML passes plantUmlData), like replaceLockedGroupChildren.
 	 */
@@ -12437,6 +12511,13 @@
 		var graph = this.editor.graph;
 		var img = this.getMermaidImageForXml(parsedXml, border);
 		graph.setCellStyles('image', img.data, [cell]);
+
+		// Upgrades image cells created before the pen handle existed
+		graph.setCellStyles('editIcon', '1', [cell]);
+
+		// Keeps the padding on the style so edits carry over and the margin
+		// round-trips across image/diagram switches
+		graph.setCellStyles('groupPadding', img.border, [cell]);
 		var geo = graph.model.getGeometry(cell);
 
 		if (geo != null)
@@ -12448,7 +12529,74 @@
 		}
 
 		graph.setAttributeForCell(cell, (dataAttr != null) ? dataAttr : 'mermaidData',
-			JSON.stringify({data: text, config: config, border: border}, null, 2));
+			JSON.stringify({data: text, config: config}, null, 2));
+	};
+
+	/**
+	 * Re-renders a Mermaid or PlantUML image cell from its stored source so
+	 * the image applies the cell's current groupPadding style. Used when the
+	 * style changes outside the edit dialog (Arrange panel padding input,
+	 * Edit Style, ...). Legacy server-rendered PlantUML payloads (with a
+	 * `format`) are skipped — re-rendering would silently migrate them to
+	 * the native representation, which only the edit dialog does. Parse
+	 * errors are ignored (the style keeps the new value; a broken source
+	 * surfaces its error on the next explicit re-edit). The parse configs
+	 * mirror the edit dialog's image branches.
+	 */
+	EditorUi.prototype.refreshMermaidImage = function(cell)
+	{
+		var graph = this.editor.graph;
+		var data = graph.getAttributeForCell(cell, 'plantUmlData');
+		var dataAttr = (data != null) ? 'plantUmlData' : 'mermaidData';
+		data = (data != null) ? data : graph.getAttributeForCell(cell, 'mermaidData');
+		var obj = null;
+
+		if (data != null)
+		{
+			try
+			{
+				obj = JSON.parse(data);
+			}
+			catch (e)
+			{
+				// ignored: not a valid source payload
+			}
+		}
+
+		if (obj != null && obj.data != null && obj.format == null)
+		{
+			var border = this.getMermaidImageBorder(cell, obj.border);
+			var ignore = function() {};
+			var apply = mxUtils.bind(this, function(xml)
+			{
+				// Skips stale applies: if the padding changed again while the
+				// parse was in flight, the newer refresh owns the cell
+				if (graph.model.contains(cell) &&
+					this.getMermaidImageBorder(cell, obj.border) == border)
+				{
+					graph.model.beginUpdate();
+					try
+					{
+						this.updateMermaidImage(cell, obj.data, null, xml,
+							border, dataAttr);
+					}
+					finally
+					{
+						graph.model.endUpdate();
+					}
+				}
+			});
+
+			if (dataAttr == 'plantUmlData')
+			{
+				this.parsePlantUmlDiagram(obj.data, null, apply, ignore);
+			}
+			else
+			{
+				this.parseMermaidDiagram(obj.data,
+					mxUtils.clone(EditorUi.legacyMermaidConfig), apply, ignore);
+			}
+		}
 	};
 
 	/**
@@ -12458,7 +12606,9 @@
 	 * wrapGroup or createMermaidImageXml; it is imported at the old cell's
 	 * visible top-left (parent offsets are accumulated so a nested cell keeps
 	 * its on-screen position) and the old cell is removed. Like the insert
-	 * paths, the imported content lands in the current layer.
+	 * paths, the imported content lands in the current layer. Returns the
+	 * inserted cells so callers can restyle the replacement (e.g. carry the
+	 * groupPadding onto the new wrapper).
 	 */
 	EditorUi.prototype.replaceMermaidCell = function(cell, newXml)
 	{
@@ -12504,6 +12654,8 @@
 		}
 
 		graph.scrollCellToVisible(graph.getSelectionCell());
+
+		return inserted;
 	};
 
 	/**
@@ -14094,6 +14246,55 @@
 			};
 		}
 		
+		// Re-renders Mermaid/PlantUML image cells when their groupPadding
+		// style changes (Arrange panel padding input, Edit Style, ...), so
+		// the image margin follows the style immediately. Runs from
+		// BEFORE_UNDO — the endingUpdate latch folds the re-render into the
+		// same undoable edit (like the sync layout manager), so undo
+		// restores style and image together; if the parser bundle still has
+		// to load, the apply lands in its own edit instead (async callback).
+		// The re-render's own writes never re-trigger this: they keep the
+		// groupPadding value unchanged, and only changed values react.
+		var groupPaddingValue = function(style)
+		{
+			var m = /(?:^|;)groupPadding=([^;]*)/.exec((style != null) ? style : '');
+
+			return (m != null) ? m[1] : null;
+		};
+
+		graph.model.addListener(mxEvent.BEFORE_UNDO, function(sender, evt)
+		{
+			var edit = evt.getProperty('edit');
+
+			if (edit != null && edit.changes != null)
+			{
+				// Snapshot: the refresh appends its own writes to this edit
+				var count = edit.changes.length;
+				var cells = [];
+
+				for (var i = 0; i < count; i++)
+				{
+					var change = edit.changes[i];
+
+					if (change instanceof mxStyleChange && change.cell != null &&
+						graph.model.isVertex(change.cell) &&
+						groupPaddingValue(change.style) != groupPaddingValue(change.previous) &&
+						/(?:^|;)shape=image(?:;|$)/.test((change.style != null) ? change.style : '') &&
+						(graph.getAttributeForCell(change.cell, 'mermaidData') != null ||
+						graph.getAttributeForCell(change.cell, 'plantUmlData') != null) &&
+						mxUtils.indexOf(cells, change.cell) < 0)
+					{
+						cells.push(change.cell);
+					}
+				}
+
+				for (var i = 0; i < cells.length; i++)
+				{
+					ui.refreshMermaidImage(cells[i]);
+				}
+			}
+		});
+
 		// Shows a source-edit textarea dialog whose close paths (Cancel,
 		// Escape, close icon) ask for confirmation when unapplied edits
 		// would be lost, and whose modal background never closes it.
@@ -14206,10 +14407,12 @@
 	    						// Keep image cells as images: re-render the SVG and
 	    						// update the cell in place. Legacy server-rendered
 	    						// images lose their `format` here (migrated to the
-	    						// client-rendered representation). The configurable
-	    						// plantUmlData border is preserved.
+	    						// client-rendered representation). The padding follows
+	    						// the groupPadding style (legacy stored border as
+	    						// fallback), see getMermaidImageBorder.
 	    						ui.updateMermaidImage(cell, text, null, xml,
-	    							obj.border, 'plantUmlData');
+	    							ui.getMermaidImageBorder(cell, obj.border),
+	    							'plantUmlData');
 	    					}
 	    					else if (isGroup && !asImage)
 	    					{
@@ -14224,11 +14427,20 @@
 	    					{
 	    						// Output type changed (or a legacy <pre> text cell is
 	    						// migrated): swap the cell for the chosen
-	    						// representation, keeping its position
-	    						ui.replaceMermaidCell(cell, asImage ?
+	    						// representation, keeping its position. The padding
+	    						// follows the old cell across the switch (its
+	    						// groupPadding style, or a legacy stored border).
+	    						var border = ui.getMermaidImageBorder(cell, obj.border);
+	    						var inserted = ui.replaceMermaidCell(cell, asImage ?
 	    							ui.createMermaidImageXml(text, null, xml, null,
-	    								obj.border, 'plantUmlData') :
+	    								border, 'plantUmlData') :
 	    							mxPlantUmlToDrawio.wrapGroup(xml, text, config));
+
+	    						if (!asImage && border != null)
+	    						{
+	    							graph.setCellStyles('groupPadding',
+	    								border, inserted);
+	    						}
 	    					}
 	    				}
 	    				finally
@@ -14328,8 +14540,10 @@
 	    						// Keep image cells as images: re-render the SVG and
 	    						// update the cell in place. Stored config stays null
 	    						// (legacy image-cell format); see parseMermaidImage.
-	    						// The configurable mermaidData border is preserved.
-	    						ui.updateMermaidImage(cell, text, null, xml, obj.border);
+	    						// The padding follows the groupPadding style (legacy
+	    						// stored border as fallback), see getMermaidImageBorder.
+	    						ui.updateMermaidImage(cell, text, null, xml,
+	    							ui.getMermaidImageBorder(cell, obj.border));
 	    					}
 	    					else if (!isImage && !asImage)
 	    					{
@@ -14338,12 +14552,20 @@
 	    					else
 	    					{
 	    						// Output type changed: swap the cell for the other
-	    						// representation, keeping its position. The image
-	    						// carries the mermaidData border (default for a cell
-	    						// that was a diagram); the diagram uses a null config.
-	    						ui.replaceMermaidCell(cell, asImage ?
-	    							ui.createMermaidImageXml(text, null, xml, null, obj.border) :
+	    						// representation, keeping its position. The padding
+	    						// follows the old cell across the switch (its
+	    						// groupPadding style, or a legacy stored border);
+	    						// the diagram uses a null config.
+	    						var border = ui.getMermaidImageBorder(cell, obj.border);
+	    						var inserted = ui.replaceMermaidCell(cell, asImage ?
+	    							ui.createMermaidImageXml(text, null, xml, null, border) :
 	    							mxMermaidToDrawio.wrapGroup(xml, text, config));
+
+	    						if (!asImage && border != null)
+	    						{
+	    							graph.setCellStyles('groupPadding',
+	    								border, inserted);
+	    						}
 	    					}
 	    				}
 	    				finally
@@ -18745,7 +18967,8 @@
 			{
 				var graph = this.editor.graph;
 				var svgRoot = graph.getSvg(null, scale, null, null, null, null,
-					null, null, null, null, null, null, null,
+					null, null, null, null, null,
+					(Editor.isDarkMode()) ? 'dark' : 'light', null,
 					(cells.length > 0) ? cells : null);
 
 				if (xml != null)
@@ -18823,7 +19046,8 @@
 					this.handleError(e);
 				}), null, null, scale, this.editor.graph.background == null ||
 					this.editor.graph.background == mxConstants.NONE,
-					null, null, null, 10, null, null, false, null,
+					null, null, null, 10, null, null,
+					(Editor.isDarkMode()) ? 'dark' : 'light', null,
 					(cells.length > 0) ? cells : null);
 			}
 		}

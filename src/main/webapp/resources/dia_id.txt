@@ -513,7 +513,6 @@ leftAlign=Rata Kiri
 leftToRight=Kiri ke kanan
 libraryTooltip=Seret dan jatuhkan bentuk di sini atau klik + untuk menyisipkan. Klik dua kali untuk mengedit.
 lightbox=Lightbox
-lightboxAnimation=Animasi lightbox
 lightboxAnimationHint=Diputar otomatis ketika halaman ditampilkan dalam mode lightbox.
 line=Garis
 lineend=Ujung garis

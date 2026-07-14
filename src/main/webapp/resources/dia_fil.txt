@@ -513,7 +513,6 @@ leftAlign=Ihanay sa kaliwa
 leftToRight=Kaliwa papuntang Kanan
 libraryTooltip=Maghila at lagay ng mga hugis dito o pindutin ang + para magsingit. Dobleng pindot para mag-edit
 lightbox=Lightbox
-lightboxAnimation=Animasyon ng lightbox
 lightboxAnimationHint=Awtomatikong nagpe-play kapag ipinakita ang pahina sa lightbox mode.
 line=Linya
 lineend=Dulo ng linya
