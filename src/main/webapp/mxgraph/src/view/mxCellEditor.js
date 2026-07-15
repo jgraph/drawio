@@ -719,7 +719,13 @@ mxCellEditor.prototype.updateTextAreaStyle = function(state)
 	{
 		txtDecor.push('line-through');
 	}
-	
+
+	if (txtDecor.length > 0 && (mxUtils.getValue(state.style, mxConstants.STYLE_FONTSTYLE, 0) &
+		mxConstants.FONT_UNDERLINE_DOTTED) == mxConstants.FONT_UNDERLINE_DOTTED)
+	{
+		txtDecor.push('dotted');
+	}
+
 	this.textarea.style.lineHeight = (mxConstants.ABSOLUTE_LINE_HEIGHT) ?
 		Math.round(size * mxConstants.LINE_HEIGHT) + 'px' : mxConstants.LINE_HEIGHT;
 	this.textarea.style.textDecoration = txtDecor.join(' ');

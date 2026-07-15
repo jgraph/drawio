@@ -815,6 +815,7 @@ sketch=স্কেচ
 smoothing=মসৃণকরণ
 snapToGrid=গ্রিডে স্ন্যাপ করুন
 solid=কঠিন
+sortPages=পৃষ্ঠাসমূহ সাজান
 sourceSpacing=উৎস ব্যবধান
 south=দক্ষিণ
 software=সফটওয়্যার

@@ -815,6 +815,7 @@ sketch=සටහන
 smoothing=සුමට කිරීම
 snapToGrid=ජාලකයට අමුණන්න
 solid=ඝන
+sortPages=පිටු අනුපිළිවෙළට සකසන්න
 sourceSpacing=මූලාශ්‍ර පරතරය
 south=දකුණ
 software=මෘදුකාංග

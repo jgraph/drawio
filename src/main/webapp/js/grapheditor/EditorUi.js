@@ -123,6 +123,7 @@ EditorUi = function(editor, container, lightbox)
 				else
 				{
 					vertexStyleIgnored = false;
+					graph.pasteStylesToText = false;
 				}
 
 				var style = graph.getCellStyle(cell, false);
@@ -164,6 +165,12 @@ EditorUi = function(editor, container, lightbox)
 				else
 				{
 					vertexStyleIgnored = true;
+
+					// Applies all styles to inserted text cells if the default
+					// style was set from a text cell (see pasteCellStyles)
+					var cellStyle = model.getStyle(cell);
+					graph.pasteStylesToText = typeof cellStyle === 'string' &&
+						mxUtils.indexOf(cellStyle.split(';'), 'text') >= 0;
 				}
 			}
 			catch (e)
@@ -177,6 +184,7 @@ EditorUi = function(editor, container, lightbox)
 			graph.currentEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
 			graph.currentVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
 			graph.pasteEdgeStyle = false;
+			graph.pasteStylesToText = false;
 			edgeStyleIgnored = false;
 			vertexStyleIgnored = false;
 			
@@ -2481,7 +2489,8 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 				{
 					this.sidebar.graph.pasteCellStyles([cell],
 						graph.currentVertexStyle,
-						graph.currentEdgeStyle);
+						graph.currentEdgeStyle, null, null,
+						graph.pasteStylesToText);
 				}
 			}
 

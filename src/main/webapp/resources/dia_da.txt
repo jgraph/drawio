@@ -815,6 +815,7 @@ sketch=Skitse
 smoothing=Udjævning
 snapToGrid=Fastgør til gitter
 solid=Fast
+sortPages=Sortér sider
 sourceSpacing=Kildeafstand
 south=Syd
 software=Software

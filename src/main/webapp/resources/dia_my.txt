@@ -815,6 +815,7 @@ sketch=ပုံကြမ်း
 smoothing=ချောမွေ့စေခြင်း
 snapToGrid=ဂရစ်သို့ ကပ်ရန်
 solid=အစိုင်အခဲ
+sortPages=စာမျက်နှာများ စီရန်
 sourceSpacing=အရင်းအမြစ် အကွာအဝေး
 south=တောင်
 software=ဆော့ဖ်ဝဲ

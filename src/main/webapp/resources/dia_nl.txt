@@ -814,6 +814,7 @@ sketch=Schets
 smoothing=Gladmaken
 snapToGrid=Aan raster kleven
 solid=Massief
+sortPages=Pagina's sorteren
 sourceSpacing=Bronafstand
 south=Onder
 software=Software

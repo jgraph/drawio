@@ -485,12 +485,17 @@ mxSvgCanvas2D.prototype.createAlternateContent = function(fo, x, y, w, h, str, a
 		{
 			txtDecor.push('line-through');
 		}
-		
+
 		if (txtDecor.length > 0)
 		{
 			alt.setAttribute('text-decoration', txtDecor.join(' '));
+
+			if ((s.fontStyle & mxConstants.FONT_UNDERLINE_DOTTED) == mxConstants.FONT_UNDERLINE_DOTTED)
+			{
+				alt.style.textDecorationStyle = 'dotted';
+			}
 		}
-		
+
 		mxUtils.write(alt, text);
 		
 		return alt;
@@ -2051,9 +2056,14 @@ mxSvgCanvas2D.prototype.getTextCss = function()
 	{
 		deco.push('line-through');
 	}
-	
+
 	if (deco.length > 0)
 	{
+		if ((s.fontStyle & mxConstants.FONT_UNDERLINE_DOTTED) == mxConstants.FONT_UNDERLINE_DOTTED)
+		{
+			deco.push('dotted');
+		}
+
 		css += 'text-decoration: ' + deco.join(' ') + '; ';
 	}
 
@@ -3484,10 +3494,15 @@ mxSvgCanvas2D.prototype.updateFont = function(node)
 	{
 		txtDecor.push('line-through');
 	}
-	
+
 	if (txtDecor.length > 0)
 	{
 		node.setAttribute('text-decoration', txtDecor.join(' '));
+
+		if ((s.fontStyle & mxConstants.FONT_UNDERLINE_DOTTED) == mxConstants.FONT_UNDERLINE_DOTTED)
+		{
+			node.style.textDecorationStyle = 'dotted';
+		}
 	}
 };
 

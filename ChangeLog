@@ -1,3 +1,33 @@
+15-JUL-2026: 30.3.12
+
+- Update vendored drawio-plantuml bundle to commit 90f4230
+- Update vendored drawio-plantuml bundle to commit a7bd5b0
+- Changes default grid color from d0 to e6
+- Ship libavoid as a pure-JS vendored bundle (no WASM, no eval)
+- Refresh libavoid bundle: bind ConnRef endpoint setters (fixes previews)
+- Improves dialog title spacing and page controls consistency
+- Fixes clipped descenders in the Page Setup initial view value
+- Migrates one-off dialog secondary-text styles to geDialogHint
+- Route dangling libavoid edge ends so the commit matches the drag preview
+- Uses padding 3 and keeps text styles in edge label shape replace [jgraph/drawio#5284]
+- Converts the i18n resources submodule to regular files in this repo
+- Removes -- from comments - not allowed
+- Splits CLAUDE.md into per-directory files and docs/claude guides
+- Updates libavoid algorithm-sync docs to the CDN topology
+- Updates libavoid bundle: unsatisfiable nudging no longer aborts the router
+- Moves the ER weak key underline into the cell style [jgraph/drawio#5536]
+- Scales rotated group children along the rotated axes [jgraph/drawio#4890]
+- Updates translations
+- Uses fill and stroke colors for sized edge labels in style tiles [jgraph/drawio#5284]
+- Applies full default style to text cells when set from a text cell [jgraph/drawio#3535]
+- Serializes connection points with six decimal places [jgraph/drawio#4901]
+- Shows spinner while creating print output
+- Preserves opacity for embedded SVG images [jgraph/drawio#4582]
+- Applies font style to advanced ruler numbers [jgraph/drawio#5685]
+- Fixes text background color state for multi-line selections [jgraph/drawio#5250]
+- Fixes opening shared OneDrive files via Open button [jgraph/drawio#3758]
+- Applies fixed dark/light theme in export page rendering [jgraph/drawio-desktop#2295]
+
 14-JUL-2026: 30.3.11
 
 - Improves consistency of the export and publish dialogs

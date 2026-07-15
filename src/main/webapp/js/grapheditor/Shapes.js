@@ -6813,6 +6813,11 @@
 			if (txtDecor.length > 0)
 			{
 				text.setAttribute('text-decoration', txtDecor.join(' '));
+
+				if ((fontStyle & mxConstants.FONT_UNDERLINE_DOTTED) == mxConstants.FONT_UNDERLINE_DOTTED)
+				{
+					text.style.textDecorationStyle = 'dotted';
+				}
 			}
 
 			// Alignment

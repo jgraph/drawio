@@ -353,6 +353,12 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 
 	function doSubmit()
 	{
+		//handle remote items which is accessed indirectly
+		if (selectedFile != null && selectedFile.remoteItem != null)
+		{
+			selectedFile = selectedFile.remoteItem;
+		}
+
 		function submit(img)
 		{
 			pickedFileCallback(selectedFile, img);	
@@ -813,6 +819,8 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 	{
 		if (selectedFile != null)
 		{
+			//handle remote items which is accessed indirectly
+			selectedFile = selectedFile.remoteItem? selectedFile.remoteItem : selectedFile;
 			addToRecent(selectedFile);	
 		}
 		

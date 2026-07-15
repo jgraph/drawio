@@ -815,6 +815,7 @@ sketch=Eskizas
 smoothing=Smoothing
 snapToGrid=Snap to Grid
 solid=Ištisinis
+sortPages=Rikiuoti puslapius
 sourceSpacing=Source Spacing
 south=Pietūs
 software=Programinė įranga

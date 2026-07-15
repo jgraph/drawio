@@ -815,6 +815,7 @@ sketch=Bosquejo
 smoothing=Suavizado
 snapToGrid=Ajustar a la cuadrícula
 solid=Sólida
+sortPages=Ordenar páginas
 sourceSpacing=Espaciado de origen
 south=Sur
 software=Software

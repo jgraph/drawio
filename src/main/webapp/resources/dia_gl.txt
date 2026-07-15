@@ -815,6 +815,7 @@ sketch=Borrador
 smoothing=Suavizado
 snapToGrid=Axustar á Grella
 solid=Sólido
+sortPages=Ordenar Páxinas
 sourceSpacing=Espazamento da Fonte
 south=Sul
 software=Software

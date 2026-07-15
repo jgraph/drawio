@@ -808,6 +808,7 @@ sketch=‫رسم تخطيطي‬
 smoothing=‫تنعيم‬
 snapToGrid=‫التقاط إلى الشبكة‬
 solid=‫موحد‬
+sortPages=‫ترتيب الصفحات‬
 sourceSpacing=‫تباعد المصدر‬
 south=‫جنوب‬
 software=‫برنامج‬

@@ -815,6 +815,7 @@ sketch=Sketsa
 smoothing=Penghalusan
 snapToGrid=Lekatkan ke Kisi
 solid=Padat
+sortPages=Urutkan Halaman
 sourceSpacing=Spasi Sumber
 south=Selatan
 software=Perangkat Lunak

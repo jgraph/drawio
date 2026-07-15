@@ -815,6 +815,7 @@ sketch=สเก็ตช์
 smoothing=การปรับให้เรียบ
 snapToGrid=จัดชิดเส้นตาราง
 solid=ทึบ
+sortPages=เรียงลำดับหน้า
 sourceSpacing=เว้นวรรคแหล่งข้อมูล
 south=ทิศใต้
 software=ซอฟท์แวร์

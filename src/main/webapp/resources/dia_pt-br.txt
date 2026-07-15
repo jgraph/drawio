@@ -815,6 +815,7 @@ sketch=Esboço
 smoothing=Suavização
 snapToGrid=Alinhar à grade
 solid=Sólido
+sortPages=Ordenar páginas
 sourceSpacing=Espaçamento da origem
 south=Inferior
 software=Software

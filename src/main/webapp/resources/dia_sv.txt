@@ -815,6 +815,7 @@ sketch=Skiss
 smoothing=Utjämning
 snapToGrid=Fäst mot rutnät
 solid=Heldragen
+sortPages=Sortera sidor
 sourceSpacing=Källavstånd
 south=Söder
 software=Mjukvara

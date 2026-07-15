@@ -527,6 +527,11 @@
 					group.setAttribute('transform', node.getAttribute('transform'));
 				}
 				
+				if (node.hasAttribute('opacity'))
+				{
+					group.setAttribute('opacity', node.getAttribute('opacity'));
+				}
+				
 				node.parentNode.replaceChild(group, node);
 			}
 		}

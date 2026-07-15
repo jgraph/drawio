@@ -815,6 +815,7 @@ sketch=ಸ್ಕೆಚ್
 smoothing=ಸುಗಮೀಕರಣ
 snapToGrid=ಗ್ರಿಡ್‌ಗೆ ಸ್ನ್ಯಾಪ್ ಮಾಡಿ
 solid=ಘನ
+sortPages=ಪುಟಗಳನ್ನು ವಿಂಗಡಿಸಿ
 sourceSpacing=ಮೂಲ ಅಂತರ
 south=ದಕ್ಷಿಣ
 software=ಸಾಫ್ಟ್‌ವೇರ್

@@ -815,6 +815,7 @@ sketch=Скица
 smoothing=Гладкост
 snapToGrid=Привързване към решетка
 solid=Плътна
+sortPages=Сортиране на страници
 sourceSpacing=Разстояние при източника
 south=Юг
 software=Софтуер

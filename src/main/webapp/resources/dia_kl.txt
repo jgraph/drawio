@@ -815,6 +815,7 @@ sketch=Titarneq
 smoothing=Qalersaatitsinneq
 snapToGrid=Aqqumut nipititsineq
 solid=Imaq
+sortPages=Quppernerit tulleriiaakkit
 sourceSpacing=Aallarniup assingit
 south=Kujataa
 software=Software

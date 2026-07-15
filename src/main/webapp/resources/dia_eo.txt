@@ -815,6 +815,7 @@ sketch=Skizo
 smoothing=Glatigado
 snapToGrid=Kapti al krado
 solid=Solida
+sortPages=Ordigi paĝojn
 sourceSpacing=Fonta interspaco
 south=Sudo
 software=Programaro

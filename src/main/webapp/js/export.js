@@ -217,6 +217,16 @@ function collectMathLabels(xml)
 
 function render(data)
 {
+	// Fixed-theme exports resolve adaptive light-dark() colors to the
+	// requested side while rendering, as EditorUi.exportSvg does in the app.
+	// This page is what PNG/JPEG/PDF exports capture, so this is also what
+	// applies the theme to those formats [jgraph/drawio-desktop#2295]
+	if (data.theme == 'dark' || data.theme == 'light')
+	{
+		mxUtils.lightDarkColorSupported = false;
+		mxUtils.preferDarkColor = data.theme == 'dark';
+	}
+
 	// Math typesetting must be available AND the TeX packages/font chunks that
 	// the diagram's formulas need must be loaded before the diagram is measured
 	// below, so the export crop follows the rendered math size rather than the
@@ -1352,10 +1362,17 @@ function render(data)
 			else
 			{
 				bg = xmlDoc.documentElement.getAttribute('background');
-				
+
 				if (bg == 'none' || !bg)
 				{
 					bg = '#ffffff';
+				}
+
+				// Resolves the background to the requested fixed-theme side
+				// (the light-dark flags are set in render)
+				if (data.theme == 'dark' || data.theme == 'light')
+				{
+					bg = mxUtils.getLightDarkColor(bg).cssText;
 				}
 			}
 		}
@@ -1375,7 +1392,24 @@ function render(data)
 			{
 				bg = '#ffffff';
 			}
-			
+
+			// Fixed-theme exports use the default canvas color where the page
+			// would otherwise be transparent (unless explicitly transparent) and
+			// resolve the background to the requested side, so the captured
+			// pixels match the theme [jgraph/drawio-desktop#2295]
+			if (data.theme == 'dark' || data.theme == 'light')
+			{
+				if (bg == null && data.bg != 'none')
+				{
+					bg = graph.shapeBackgroundColor;
+				}
+
+				if (bg != null)
+				{
+					bg = mxUtils.getLightDarkColor(bg).cssText;
+				}
+			}
+
 			// Sets background color on page
 			if (bg != null)
 			{

@@ -814,6 +814,7 @@ sketch=sketch
 smoothing=smoothing
 snapToGrid=snapToGrid
 solid=solid
+sortPages=sortPages
 sourceSpacing=sourceSpacing
 south=south
 software=software

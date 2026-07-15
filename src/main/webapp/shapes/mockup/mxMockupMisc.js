@@ -1232,6 +1232,9 @@ mxShapeMockupRuler2.prototype.foreground = function(c, x, y, w, h)
 {
 	var facing = mxUtils.getValue(this.style, mxShapeMockupRuler2.prototype.cst.ORIENTATION, mxShapeMockupRuler2.prototype.cst.FACE_DOWN);
 	var fontColor = mxUtils.getValue(this.style, mxConstants.STYLE_FONTCOLOR, '#000000');
+	var fontSize = mxUtils.getValue(this.style, mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE);
+	var fontFamily = mxUtils.getValue(this.style, mxConstants.STYLE_FONTFAMILY, mxConstants.DEFAULT_FONTFAMILY);
+	var fontStyle = mxUtils.getValue(this.style, mxConstants.STYLE_FONTSTYLE, 0);
 	var dx = mxUtils.getValue(this.style, 'dx', '100');
 	var unitSize = dx / 10;
 	this.state.style['spacingLeft'] = Math.round(1000 * Math.max(0, Math.min(w, dx))) / 1000 - 4;
@@ -1239,6 +1242,9 @@ mxShapeMockupRuler2.prototype.foreground = function(c, x, y, w, h)
 	unitSize = Math.max(unitSize, 1);
 	
 	c.setFontColor(fontColor);
+	c.setFontSize(fontSize);
+	c.setFontFamily(fontFamily);
+	c.setFontStyle(fontStyle);
 	
 	var currX = unitSize;
 	var i = 1;

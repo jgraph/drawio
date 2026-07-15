@@ -815,6 +815,7 @@ sketch=スケッチ
 smoothing=スムージング
 snapToGrid=グリッドに合わせる
 solid=実線
+sortPages=ページの並べ替え
 sourceSpacing=始点の間隔
 south=下
 software=ソフトウェア

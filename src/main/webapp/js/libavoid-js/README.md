@@ -35,7 +35,7 @@ universal CSP compatibility is the goal.
 
 | File | Origin | Purpose |
 |---|---|---|
-| `libavoid.min.js` | **copied** from `../drawio-libavoid/dist/libavoid.js` (by `ant bundles`) | The pure-JS module (wasm2js, embind, `DYNAMIC_EXECUTION=0`, synchronous). Self-publishing: on load it calls its own `initAvoidModule` factory synchronously, sets `window.Avoid` (and `window.__libavoidReady = Promise.resolve(Avoid)` for back-compat), and installs the `printErr` filter (demotes libavoid's non-actionable "skipping checkpoint" stderr to `console.debug`). |
+| `libavoid.min.js` | **copied** from `../drawio-libavoid/dist/libavoid.js` (by `ant bundles`) | The pure-JS module (wasm2js, embind, `DYNAMIC_EXECUTION=0`, synchronous). Self-publishing: on load it calls its own `initAvoidModule` factory synchronously, sets `window.Avoid` (and `window.__libavoidReady = Promise.resolve(Avoid)` for back-compat), and installs the `printErr` filter (demotes libavoid's non-actionable "skipping checkpoint" stderr to `console.debug`). Compiled **exception-free**: a C++ throw would abort the module and kill routing for the session, so the build patches VPSC's internal throw/catch into explicit control flow and defines `-DNDEBUG` — see `../drawio-libavoid/build/patches/`. |
 | `libavoid-routing.js` | **hand-authored** | The shared routing core, `globalThis.AvoidRouting`: `computeRoutes` (obstacle-avoiding solve incl. fixed-connection-point pins and jettySize stub checkpoints) plus the pure geometry helpers (`constraintForPoint`, `jettyStub`, `filterEnclosing`, `insideAny`, `dirForPoint`, `clamp01`). **Canonical source** — drawio-mcp vendors verbatim copies (see Algorithm sync). |
 | `LICENSE` | upstream | LGPL-2.1 — shipped for attribution (libavoid is LGPL). |
 
@@ -73,9 +73,24 @@ C++ version is pinned by the adaptagrams submodule commit in `../drawio-libavoid
 
 ## Algorithm sync
 
-`libavoid-routing.js` here is the **canonical** routing core. drawio-mcp
-vendors verbatim copies (`mcp-app-server/vendor/libavoid/` for the inlined
-viewer, `mcp-tool-server/vendor/libavoid/` for the node-side pass — the
-latter side-effect imports the plain script and reads
-`globalThis.AvoidRouting`). When this file changes, copy it over both. The
-`window.Avoid` global is deliberately identical across both repos.
+`libavoid-routing.js` here is the **canonical** routing core. It reaches its
+consumers through the viewer.diagrams.net CDN whenever a draw.io release
+ships this directory
+(`https://viewer.diagrams.net/js/libavoid-js/libavoid-routing.js`):
+
+- The **drawio-mcp app server** loads it straight from the CDN in its
+  sandboxed iframe (ETag-versioned URLs,
+  `mcp-app-server/src/libavoid-versions.js`) — no vendored copy.
+- The **drawio-mcp tool server** (node-side pass) loads the CURRENT core
+  through an ETag-revalidated per-user disk cache
+  (`mcp-tool-server/src/routing-core-cache.js`, revalidated against the CDN
+  once per process), so routing fixes land there automatically too. Its
+  vendored `mcp-tool-server/vendor/libavoid/libavoid-routing.js` is a
+  verbatim copy kept only as the cold-cache/offline/pre-release fallback —
+  refresh it when this file changes (lagging between releases is expected;
+  the runtime cache wins whenever the CDN is reachable).
+
+Only the routing core is shared — never loaders: every `AvoidRouting` entry
+point takes the `Avoid` namespace as a parameter, so each consumer
+loads/publishes `Avoid` its own way (this repo synchronously via the pure-JS
+bundle; the mcp tool server via its vendored node WASM build).

@@ -815,6 +815,7 @@ sketch=స్కెచ్
 smoothing=స్మూతింగ్
 snapToGrid=గ్రిడ్‌కు స్నాప్ చేయి
 solid=సాలిడ్
+sortPages=పేజీలను క్రమబద్ధీకరించండి
 sourceSpacing=సోర్స్ స్పేసింగ్
 south=దక్షిణం
 software=సాఫ్ట్‌వేర్

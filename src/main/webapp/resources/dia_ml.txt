@@ -815,6 +815,7 @@ sketch=സ്കെച്ച്
 smoothing=സ്മൂത്തിംഗ്
 snapToGrid=ഗ്രിഡിലേക്ക് സ്നാപ്പ് ചെയ്യുക
 solid=സോളിഡ്
+sortPages=പേജുകൾ അടുക്കുക
 sourceSpacing=ഉറവിട അകലം
 south=തെക്ക്
 software=സോഫ്റ്റ്‌വെയർ

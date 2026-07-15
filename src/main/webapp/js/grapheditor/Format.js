@@ -4227,8 +4227,13 @@ TextFormatPanel.prototype.addFont = function(container)
 				{
 					color = graph.shapeBackgroundColor;
 				}
-				
+
 				Graph.setTextColor(graph.cellEditor.textarea, color, false);
+
+				// Updates the cached color so the synchronous re-read of the
+				// checkbox state in apply reflects the color set above, the
+				// async update via updateCssHandler runs after this
+				currentBgColor = color;
 				ui.fireEvent(new mxEventObject('styleChanged',
 					'keys', [mxConstants.STYLE_LABEL_BACKGROUNDCOLOR],
 					'values', [color], 'cells', ss.cells));

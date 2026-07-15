@@ -815,6 +815,7 @@ sketch=草图
 smoothing=Smoothing
 snapToGrid=对齐到网格
 solid=实线
+sortPages=页面排序
 sourceSpacing=源距
 south=向下
 software=软件

@@ -7416,7 +7416,14 @@
 										model.isEdge(model.getParent(cells[i]));
 									var cellStyle = graph.getCellStyle(cells[i]);
 									var isImage = cellStyle != null && cellStyle.shape == 'image';
-									cellMeta.push({isEdgeLabel: isEdgeLabel, isImage: isImage});
+									var geo = graph.getCellGeometry(cells[i]);
+
+									// Edge labels with a size are shapes that use the fill and
+									// stroke colors (see updateEdgeLabelShape) while zero-size
+									// edge labels and images use the label background and
+									// border colors
+									cellMeta.push({isLabel: isImage || (isEdgeLabel &&
+										(geo == null || geo.width <= 0 || geo.height <= 0))});
 
 									if (!isEdgeLabel && !isImage)
 									{
@@ -7424,19 +7431,19 @@
 									}
 								}
 
-								var fillKey = labelOnly ? mxConstants.STYLE_LABEL_BACKGROUNDCOLOR :
-									mxConstants.STYLE_FILLCOLOR;
-								var strokeKey = labelOnly ? mxConstants.STYLE_LABEL_BORDERCOLOR :
-									mxConstants.STYLE_STROKECOLOR;
-
 								for (var i = 0; i < cells.length; i++)
 								{
 									var meta = cellMeta[i];
 
-									if (!labelOnly && (meta.isEdgeLabel || meta.isImage))
+									if (!labelOnly && meta.isLabel)
 									{
 										continue;
 									}
+
+									var fillKey = (meta.isLabel) ? mxConstants.STYLE_LABEL_BACKGROUNDCOLOR :
+										mxConstants.STYLE_FILLCOLOR;
+									var strokeKey = (meta.isLabel) ? mxConstants.STYLE_LABEL_BORDERCOLOR :
+										mxConstants.STYLE_STROKECOLOR;
 
 									var style = model.getStyle(cells[i]);
 
@@ -7458,7 +7465,7 @@
 												style = mxUtils.setStyle(style, fillKey, colorset['fill']);
 											}
 
-											if (!labelOnly)
+											if (!meta.isLabel)
 											{
 												if (colorset['gradient'] == '' || colorset['gradient'] == null)
 												{
@@ -7501,7 +7508,7 @@
 										style = mxUtils.setStyle(style, fillKey, null);
 										style = mxUtils.setStyle(style, strokeKey, null);
 
-										if (!labelOnly)
+										if (!meta.isLabel)
 										{
 											style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, null);
 										}
@@ -11552,20 +11559,41 @@
 		{
 			buttons.appendChild(cancelBtn);
 		}
+
+		// Async preview or print with spinner
+		function doPreview(print)
+		{
+			try
+			{
+				editorUi.hideDialog();
+
+				if (editorUi.spinner.spin(document.body, mxResources.get('updatingPreview')))
+				{
+					window.setTimeout(function()
+					{
+						try
+						{
+							preview(print);
+							editorUi.spinner.stop();
+						}
+						catch (e)
+						{
+							editorUi.handleError(e);
+						}
+					}, 0);
+				}
+			}
+			catch (e)
+			{
+				editorUi.handleError(e);
+			}
+		};
 		
 		if (PrintDialog.previewEnabled && fn == null)
 		{
 			var previewBtn = mxUtils.button(mxResources.get('preview'), function()
 			{
-				try
-				{
-					editorUi.hideDialog();
-					preview(false);
-				}
-				catch (e)
-				{
-					editorUi.handleError(e);
-				}
+				doPreview(false);
 			});
 
 			previewBtn.className = 'geBtn';
@@ -11576,15 +11604,7 @@
 			(!PrintDialog.previewEnabled) ? 'ok' : 'print';
 		var printBtn = mxUtils.button(mxResources.get(btnTitle), function()
 		{
-			try
-			{
-				editorUi.hideDialog();
-				preview(true);
-			}
-			catch (e)
-			{
-				editorUi.handleError(e);
-			}
+			doPreview(true);
 		});
 
 		printBtn.className = 'geBtn gePrimaryBtn';

@@ -815,6 +815,7 @@ sketch=Набросок
 smoothing=Сглаживание
 snapToGrid=Привязка к сетке
 solid=Сплошная
+sortPages=Сортировать страницы
 sourceSpacing=Отступ от начала
 south=Юг
 software=Программное обеспечение

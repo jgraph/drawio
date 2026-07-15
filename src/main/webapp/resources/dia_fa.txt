@@ -815,6 +815,7 @@ sketch=‫طرح‬
 smoothing=‫صاف‌سازی‬
 snapToGrid=‫چسبیدن به شبکه‬
 solid=‫ممتد‬
+sortPages=‫مرتب‌سازی صفحات‬
 sourceSpacing=‫فاصله بندی منبع‬
 south=‫جنوب‬
 software=‫نرم‌افزار‬

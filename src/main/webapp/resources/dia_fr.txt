@@ -815,6 +815,7 @@ sketch=Croquis
 smoothing=Lissage
 snapToGrid=Accrocher à la grille
 solid=Uni
+sortPages=Trier les pages
 sourceSpacing=Espacement de la source
 south=Sud
 software=Logiciel

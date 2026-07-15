@@ -815,6 +815,7 @@ sketch=Skisse
 smoothing=Utjevning
 snapToGrid=Fest til rutenett
 solid=Solid
+sortPages=Sorter sider
 sourceSpacing=Kildeavstand
 south=Sør
 software=Programvare

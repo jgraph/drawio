@@ -815,6 +815,7 @@ sketch=Dibuho
 smoothing=Pagpapakinis
 snapToGrid=Idikit sa Grid
 solid=Solido
+sortPages=I-sort ang mga pahina
 sourceSpacing=Pag-eespasyo ng Pinagmulan
 south=Timog
 software=Software

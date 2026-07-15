@@ -18940,6 +18940,7 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		xInput.setAttribute('type', 'number');
 		xInput.setAttribute('min', '0');
 		xInput.setAttribute('max', '100');
+		xInput.setAttribute('step', 'any');
 		xInput.style.width = '45px';
 		xInput.style.margin = '0 4px 0 4px';
 		pointPropsDiv.appendChild(xInput);
@@ -18960,6 +18961,7 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		yInput.setAttribute('type', 'number');
 		yInput.setAttribute('min', '0');
 		yInput.setAttribute('max', '100');
+		yInput.setAttribute('step', 'any');
 		yInput.style.width = '45px';
 		yInput.style.margin = '0 4px 0 4px';
 		pointPropsDiv.appendChild(yInput);
@@ -18975,17 +18977,18 @@ var ConnectionPointsDialog = function(editorUi, cell)
 
 		function applyPointProp()
 		{
-			var x = parseInt(xInput.value) || 0;
+			var x = parseFloat(xInput.value) || 0;
 			x = x < 0? 0 : (x > 100? 100 : x);
 			xInput.value = x;
 
-			var y = parseInt(yInput.value) || 0;
+			var y = parseFloat(yInput.value) || 0;
 			y = y < 0? 0 : (y > 100? 100 : y);
 			yInput.value = y;
 
 			var dx = parseInt(dxInput.value) || 0;
 			var dy = parseInt(dyInput.value) || 0;
-			var constObj = new mxConnectionConstraint(new mxPoint(x/100, y/100), false, null, dx, dy);
+			var constObj = new mxConnectionConstraint(new mxPoint(parseFloat((x / 100).toFixed(6)),
+				parseFloat((y / 100).toFixed(6))), false, null, dx, dy);
 			var cp = editingGraph.getConnectionPoint(state, constObj);
 
 			var cell = editingGraph.getSelectionCell();
@@ -19009,9 +19012,11 @@ var ConnectionPointsDialog = function(editorUi, cell)
 				return {x: cp.constObj.point.x, y: cp.constObj.point.y, dx: cp.constObj.dx, dy: cp.constObj.dy};
 			}
 
+			// Two decimal places (mxUtils.format) are not enough precision as
+			// points drift off the grid on shapes larger than 100pt
 			var dx = 0, dy = 0, mGeo = mainCell.geometry;
-			var x = mxUtils.format((cp.geometry.x + CP_HLF_SIZE - mGeo.x) / mGeo.width);
-			var y = mxUtils.format((cp.geometry.y + CP_HLF_SIZE - mGeo.y) / mGeo.height);
+			var x = parseFloat(((cp.geometry.x + CP_HLF_SIZE - mGeo.x) / mGeo.width).toFixed(6));
+			var y = parseFloat(((cp.geometry.y + CP_HLF_SIZE - mGeo.y) / mGeo.height).toFixed(6));
 
 			if (x < 0)
 			{
@@ -19051,8 +19056,8 @@ var ConnectionPointsDialog = function(editorUi, cell)
 				}
 				
 				var constraint = getConstraintFromCPoint(cell);
-				xInput.value = constraint.x * 100;
-				yInput.value = constraint.y * 100;
+				xInput.value = parseFloat((constraint.x * 100).toFixed(4));
+				yInput.value = parseFloat((constraint.y * 100).toFixed(4));
 				dxInput.value = constraint.dx;
 				dyInput.value = constraint.dy;
 				pointPropsDiv.style.visibility = '';

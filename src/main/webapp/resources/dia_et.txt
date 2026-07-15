@@ -815,6 +815,7 @@ sketch=Visand
 smoothing=Silumine
 snapToGrid=Kinnita ruudustiku külge
 solid=Katkematu
+sortPages=Sordi lehed
 sourceSpacing=Allika vahe
 south=Lõuna
 software=Tarkvara

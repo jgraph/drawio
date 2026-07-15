@@ -815,6 +815,7 @@ sketch=ஓவியம்
 smoothing=மென்மையாக்கல்
 snapToGrid=கட்டத்திற்கு பொருத்து
 solid=திடமான
+sortPages=பக்கங்களை வரிசைப்படுத்து
 sourceSpacing=மூல இடைவெளி
 south=தெற்கு
 software=மென்பொருள்

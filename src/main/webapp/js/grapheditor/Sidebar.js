@@ -706,7 +706,8 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		this.graph2.pasteCellStyles(graph.includeDescendants(temp),
 			(!applyAllStyles) ? graph.defaultVertexStyle : graph.currentVertexStyle,
 			(!applyAllStyles) ? graph.defaultEdgeStyle : graph.currentEdgeStyle,
-			null, graph.pasteEdgeStyle);
+			null, graph.pasteEdgeStyle, (applyAllStyles) ?
+				graph.pasteStylesToText : false);
 		this.graph2.addCells(temp);
 	}
 
@@ -4583,7 +4584,7 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 			var clones = graph.cloneCells(cells);
 			this.graph.pasteCellStyles(graph.includeDescendants(clones),
 				graph.currentVertexStyle, graph.currentEdgeStyle,
-				null, graph.pasteEdgeStyle);
+				null, graph.pasteEdgeStyle, graph.pasteStylesToText);
 			
 			sidebar.createThumb(clones, s * Math.max(1, bounds.width),
 				s * Math.max(1, bounds.height), elt, null, null, null,

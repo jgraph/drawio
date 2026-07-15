@@ -815,6 +815,7 @@ sketch=草圖
 smoothing=平滑化
 snapToGrid=貼齊格線
 solid=實線
+sortPages=頁面排序
 sourceSpacing=來源間距
 south=南
 software=軟體

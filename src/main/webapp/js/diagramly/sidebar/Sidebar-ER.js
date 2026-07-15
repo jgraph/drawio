@@ -114,8 +114,10 @@
 				100, 40, 'Attribute', 'Attribute', null, null, dt + 'attribute chen'),
 			this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;align=center;fontStyle=4;',
 				100, 40, 'Attribute', 'Key Attribute', null, null, dt + 'attribute key chen'),
-			this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;align=center;',
-				100, 40, '<span style="border-bottom: 1px dotted">Attribute</span>', 'Weak Key Attribute', null, null, dt + 'attribute key weak chen'),
+			// Dotted underline lives in the style (FONT_UNDERLINE | FONT_UNDERLINE_DOTTED), not in
+			// label HTML, so it survives editing the label [jgraph/drawio#5536]
+			this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;align=center;fontStyle=20;',
+				100, 40, 'Attribute', 'Weak Key Attribute', null, null, dt + 'attribute key weak chen'),
 			this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;align=center;dashed=1;',
 				100, 40, 'Attribute', 'Derived Attribute', null, null, dt + 'attribute derived chen'),
 			this.createVertexTemplateEntry('ellipse;shape=doubleEllipse;margin=3;whiteSpace=wrap;html=1;align=center;',

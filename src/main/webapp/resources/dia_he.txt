@@ -808,6 +808,7 @@ sketch=‫סקיצה‬
 smoothing=Smoothing
 snapToGrid=Snap to Grid
 solid=‫מוצק‬
+sortPages=‫מיין עמודים‬
 sourceSpacing=‫מרווח מקור‬
 south=‫דרום‬
 software=‫תוכנה‬

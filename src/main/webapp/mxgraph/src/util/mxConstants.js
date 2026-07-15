@@ -2087,11 +2087,20 @@
 
 	/**
 	 * Variable: FONT_STRIKETHROUGH
-	 * 
+	 *
 	 * Constant for strikthrough fonts. Default is 8.
 	 */
 	FONT_STRIKETHROUGH: 8,
-	
+
+	/**
+	 * Variable: FONT_UNDERLINE_DOTTED
+	 *
+	 * Constant for dotted text decorations. Only takes effect together
+	 * with <FONT_UNDERLINE> or <FONT_STRIKETHROUGH> and renders all text
+	 * decorations of the label dotted. Default is 16.
+	 */
+	FONT_UNDERLINE_DOTTED: 16,
+
 	/**
 	 * Variable: SHAPE_RECTANGLE
 	 * 

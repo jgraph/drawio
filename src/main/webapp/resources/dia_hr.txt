@@ -815,6 +815,7 @@ sketch=Skica
 smoothing=Zaglađivanje
 snapToGrid=Prikvači na mrežu
 solid=Puno
+sortPages=Sortiraj stranice
 sourceSpacing=Razmak izvora
 south=Jug
 software=Softver

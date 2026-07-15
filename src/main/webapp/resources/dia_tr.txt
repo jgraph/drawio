@@ -815,6 +815,7 @@ sketch=Eskiz
 smoothing=Yumuşatma
 snapToGrid=Izgaraya Yapış
 solid=Katı
+sortPages=Sayfaları Sırala
 sourceSpacing=Kaynak boşluğu
 south=Güney
 software=Yazılım

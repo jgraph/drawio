@@ -815,6 +815,7 @@ sketch=Szkic
 smoothing=Wygładzanie
 snapToGrid=Przyciąganie do siatki
 solid=Ciągła
+sortPages=Sortuj strony
 sourceSpacing=Rozmieszczenie źródła
 south=Południe
 software=Oprogramowanie

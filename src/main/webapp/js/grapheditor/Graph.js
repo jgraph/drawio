@@ -4699,6 +4699,12 @@ Graph.prototype.destroy = function()
 	Graph.prototype.pasteEdgeStyle = false;
 
 	/**
+	 * Specifies if the default vertex style was set from a text cell, in
+	 * which case all cell styles are applied to inserted text cells.
+	 */
+	Graph.prototype.pasteStylesToText = false;
+
+	/**
 	 * Returns information about the current selection.
 	 */
 	Graph.prototype.isFillState = function(state)
@@ -4739,10 +4745,28 @@ Graph.prototype.destroy = function()
 	Graph.prototype.getTextColor = function(node, isForeground)
 	{
 		var attr = (isForeground) ? 'color' : 'background-color';
-		var temp = (node == this.cellEditor.textarea && isForeground) ?
-			'default' : Graph.getGivenColor(node, attr);
+		var temp = null;
+
+		// A selection across multiple elements, eg. several lines, resolves
+		// to a common ancestor that carries no color itself, so the color
+		// given within the selection takes precedence over the ancestors
+		if (node != null && window.getSelection)
+		{
+			var selection = window.getSelection();
+			var elts = node.getElementsByTagName('*');
+
+			for (var i = 0; i < elts.length && temp == null; i++)
+			{
+				if (elts[i].style != null &&
+					selection.containsNode(elts[i], true))
+				{
+					temp = Graph.getGivenColor(elts[i], attr);
+				}
+			}
+		}
+
 		var tempNode = node;
-		
+
 		while (temp == null && tempNode != null &&
 			tempNode != this.cellEditor.textarea.parentNode)
 		{
@@ -5562,11 +5586,12 @@ Graph.prototype.destroy = function()
 	/**
 	 * 
 	 */
-	Graph.prototype.pasteCellStyles = function(cells, vertexStyle, edgeStyle, force, pasteEdgeStyle)
+	Graph.prototype.pasteCellStyles = function(cells, vertexStyle, edgeStyle, force, pasteEdgeStyle, pasteStylesToText)
 	{
 		vertexStyle = (vertexStyle != null) ? vertexStyle : this.currentVertexStyle;
 		edgeStyle = (edgeStyle != null) ? edgeStyle : this.currentEdgeStyle;
 		pasteEdgeStyle = (pasteEdgeStyle != null) ? pasteEdgeStyle : this.pasteEdgeStyle;
+		pasteStylesToText = (pasteStylesToText != null) ? pasteStylesToText : this.pasteStylesToText;
 
 		this.model.beginUpdate();
 		try
@@ -5592,8 +5617,11 @@ Graph.prototype.destroy = function()
 
 				if (isText || isEdgeLabel)
 				{
-					// Applies only basic text styles
-					appliedStyles = Graph.textStyles;
+					// Applies only basic text styles unless the default style was
+					// set from a text cell (edge labels always use basic text
+					// styles so they stay consistent with the edge's own label)
+					appliedStyles = (isText && !isEdgeLabel && pasteStylesToText) ?
+						Graph.cellStyles : Graph.textStyles;
 				}
 				else
 				{
@@ -16115,6 +16143,191 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 
 		/**
+		 * Returns true if a recursive resize of the given group must transform
+		 * the children in rotated group coordinates (see resizeChildCells):
+		 * the cell is a rotatable group (see isRotatableGroup) with a
+		 * non-zero rotation.
+		 */
+		Graph.prototype.isRotatedGroupResize = function(cell)
+		{
+			return this.isRotatableGroup(cell) && mxUtils.mod(parseFloat(
+				this.getCurrentCellStyle(cell)[mxConstants.STYLE_ROTATION]) || 0, 360) != 0;
+		};
+
+		/**
+		 * Scales the children of rotated groups in rotated group coordinates.
+		 * The base implementation scales each child geometry along the
+		 * unrotated axes relative to the group origin, but the children of a
+		 * rotated group are themselves rotated with baked geometries (see
+		 * rotateCell), so the resize gesture scales them along the group's
+		 * rotated axes and the base scaling slides them off the group border.
+		 * [jgraph/drawio#4890]
+		 */
+		var graphResizeChildCells = Graph.prototype.resizeChildCells;
+		Graph.prototype.resizeChildCells = function(cell, newGeo)
+		{
+			if (this.isRotatedGroupResize(cell))
+			{
+				var alpha = parseFloat(this.getCurrentCellStyle(cell)[
+					mxConstants.STYLE_ROTATION]) || 0;
+				this.resizeRotatedGroupChildren(cell, this.model.getGeometry(cell),
+					newGeo, alpha, alpha);
+			}
+			else
+			{
+				graphResizeChildCells.apply(this, arguments);
+			}
+		};
+
+		/**
+		 * Transforms the children of a group for a resize from oldGeo to
+		 * newGeo, where the resize scales the group along axes rotated by its
+		 * rotation angle. oldAngle and newAngle are the group's rotation
+		 * before and after the resize; they only differ for the recursive
+		 * calls into nested groups whose own angle changes as part of a
+		 * non-uniform resize.
+		 *
+		 * Since children do not inherit the parent rotation in rendering,
+		 * each child center is mapped with rotate(newAngle) o scale o
+		 * rotate(-oldAngle) about the group center, and the child box is
+		 * scaled along its own axes as seen from the rotated frame. This is
+		 * exact for children whose angle relative to the group is a multiple
+		 * of 90 degrees (the common case, since rotateCell keeps group and
+		 * children in lockstep) and for uniform scaling; other combinations
+		 * shear, which a rotated rectangle cannot represent, and get the
+		 * closest rotated box.
+		 */
+		Graph.prototype.resizeRotatedGroupChildren = function(cell, oldGeo, newGeo, oldAngle, newAngle)
+		{
+			var model = this.getModel();
+			var sx = (oldGeo.width != 0) ? newGeo.width / oldGeo.width : 1;
+			var sy = (oldGeo.height != 0) ? newGeo.height / oldGeo.height : 1;
+			var rad = mxUtils.toRadians(oldAngle);
+			var cos = Math.cos(-rad);
+			var sin = Math.sin(-rad);
+			var rad2 = mxUtils.toRadians(newAngle);
+			var cos2 = Math.cos(rad2);
+			var sin2 = Math.sin(rad2);
+			var cx = oldGeo.width / 2;
+			var cy = oldGeo.height / 2;
+			var cx2 = newGeo.width / 2;
+			var cy2 = newGeo.height / 2;
+
+			// Maps a point in the old to the new group coordinates
+			var map = function(x, y)
+			{
+				var tx = cos * (x - cx) - sin * (y - cy);
+				var ty = sin * (x - cx) + cos * (y - cy);
+				tx *= sx;
+				ty *= sy;
+
+				return new mxPoint(cx2 + cos2 * tx - sin2 * ty,
+					cy2 + sin2 * tx + cos2 * ty);
+			};
+
+			var mapPoints = function(pts)
+			{
+				if (pts != null)
+				{
+					for (var i = 0; i < pts.length; i++)
+					{
+						if (pts[i] != null)
+						{
+							var pt = map(pts[i].x, pts[i].y);
+							pts[i].x = pt.x;
+							pts[i].y = pt.y;
+						}
+					}
+				}
+			};
+
+			var childCount = model.getChildCount(cell);
+
+			for (var i = 0; i < childCount; i++)
+			{
+				var child = model.getChildAt(cell, i);
+				var geo = this.getCellGeometry(child);
+
+				if (geo != null)
+				{
+					if (model.isEdge(child))
+					{
+						geo = geo.clone();
+						mapPoints([geo.sourcePoint, geo.targetPoint]);
+						mapPoints(geo.points);
+						model.setGeometry(child, geo);
+					}
+					else if (model.isVertex(child) && !geo.relative)
+					{
+						var style = this.getCurrentCellStyle(child);
+						var theta = parseFloat(style[mxConstants.STYLE_ROTATION]) || 0;
+						var phi = mxUtils.toRadians(theta - oldAngle);
+
+						// Scales of the child's width and height axes as seen
+						// from the frame the group scaling operates in
+						var ux = sx * Math.cos(phi);
+						var uy = sy * Math.sin(phi);
+						var ex = Math.sqrt(ux * ux + uy * uy);
+						var ey = Math.sqrt(sx * sx * Math.sin(phi) * Math.sin(phi) +
+							sy * sy * Math.cos(phi) * Math.cos(phi));
+
+						if (style[mxConstants.STYLE_ASPECT] == 'fixed')
+						{
+							ex = ey = Math.min(ex, ey);
+						}
+
+						var pt = map(geo.getCenterX(), geo.getCenterY());
+						var prev = geo;
+						geo = geo.clone();
+						var theta2 = theta;
+
+						if (this.isCellResizable(child))
+						{
+							if (style[mxConstants.STYLE_RESIZE_WIDTH] != '0')
+							{
+								geo.width = prev.width * ex;
+							}
+
+							if (style[mxConstants.STYLE_RESIZE_HEIGHT] != '0')
+							{
+								geo.height = prev.height * ey;
+							}
+
+							theta2 = Math.round((newAngle + mxUtils.toDegree(
+								Math.atan2(uy, ux))) * 100) / 100;
+						}
+
+						if (this.isCellMovable(child))
+						{
+							geo.x = pt.x - geo.width / 2;
+							geo.y = pt.y - geo.height / 2;
+						}
+
+						model.setGeometry(child, geo);
+
+						if (Math.abs(mxUtils.mod(theta2, 360) -
+							mxUtils.mod(theta, 360)) > 0.01)
+						{
+							this.setCellStyles(mxConstants.STYLE_ROTATION,
+								mxUtils.mod(theta2, 360), [child]);
+						}
+						else
+						{
+							theta2 = theta;
+						}
+
+						this.resizeRotatedGroupChildren(child, prev, geo, theta, theta2);
+					}
+					else
+					{
+						// Keeps the base behavior for relative children
+						this.scaleCell(child, sx, sy, true);
+					}
+				}
+			}
+		};
+
+		/**
 		 * Turns the given cells and returns the changed cells.
 		 */
 		Graph.prototype.turnShapes = function(cells, backwards)
@@ -20211,7 +20424,13 @@ if (typeof mxVertexHandler !== 'undefined')
 					{
 						txtDecor.push('line-through');
 					}
-					
+
+					if (txtDecor.length > 0 && (mxUtils.getValue(state.style, mxConstants.STYLE_FONTSTYLE, 0) &
+							mxConstants.FONT_UNDERLINE_DOTTED) == mxConstants.FONT_UNDERLINE_DOTTED)
+					{
+						txtDecor.push('dotted');
+					}
+
 					this.textarea.style.lineHeight = (mxConstants.ABSOLUTE_LINE_HEIGHT) ? Math.round(size * mxConstants.LINE_HEIGHT) + 'px' : mxConstants.LINE_HEIGHT;
 					this.textarea.style.fontSize = Math.round(size) + 'px';
 					this.textarea.style.textDecoration = txtDecor.join(' ');
@@ -21037,7 +21256,25 @@ if (typeof mxVertexHandler !== 'undefined')
 			return this.graph.isRecursiveVertexResize(state) &&
 				!mxEvent.isAltDown(me.getEvent());
 		};
-		
+
+		/**
+		 * Graph.resizeChildCells computes the children of rotated groups from
+		 * the old and new group geometry directly, so the child offset that
+		 * compensates the recentered group origin for the base axis-aligned
+		 * child scaling must not be applied on top of it.
+		 */
+		var vertexHandlerResizeCell = mxVertexHandler.prototype.resizeCell;
+		mxVertexHandler.prototype.resizeCell = function(cell, dx, dy, index, gridEnabled, constrained, recurse)
+		{
+			if (recurse && this.graph.isRotatedGroupResize(cell))
+			{
+				this.childOffsetX = 0;
+				this.childOffsetY = 0;
+			}
+
+			vertexHandlerResizeCell.apply(this, arguments);
+		};
+
 		/**
 		 * Enables centered resize events.
 		 */

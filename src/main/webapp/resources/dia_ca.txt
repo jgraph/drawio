@@ -815,6 +815,7 @@ sketch=Esbós
 smoothing=Allisant
 snapToGrid=Ajusta a la quadrícula
 solid=Continu
+sortPages=Ordena les pàgines
 sourceSpacing=Espaiat original
 south=Sud
 software=Software

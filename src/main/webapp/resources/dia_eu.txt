@@ -815,6 +815,7 @@ sketch=Zirriborroa
 smoothing=Leuntzea
 snapToGrid=Lotu sarera
 solid=Solidoa
+sortPages=Ordenatu orriak
 sourceSpacing=Jatorriaren tartea
 south=Hegoaldea
 software=Softwarea

@@ -815,6 +815,7 @@ sketch=Skizze
 smoothing=Glättung
 snapToGrid=Am Raster ausrichten
 solid=Durchgehend
+sortPages=Seiten sortieren
 sourceSpacing=Anfangsabstand
 south=Süd
 software=Software

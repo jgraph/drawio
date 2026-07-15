@@ -815,6 +815,7 @@ sketch=Náčrt
 smoothing=Smoothing
 snapToGrid=Snap to Grid
 solid=Plný
+sortPages=Zoradiť strany
 sourceSpacing=Source Spacing
 south=Juh
 software=Softvér

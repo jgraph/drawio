@@ -724,9 +724,14 @@ mxText.prototype.getTextCss = function()
 	{
 		deco.push('line-through');
 	}
-	
+
 	if (deco.length > 0)
 	{
+		if ((this.fontStyle & mxConstants.FONT_UNDERLINE_DOTTED) == mxConstants.FONT_UNDERLINE_DOTTED)
+		{
+			deco.push('dotted');
+		}
+
 		css += 'text-decoration: ' + deco.join(' ') + '; ';
 	}
 
@@ -1041,9 +1046,14 @@ mxText.prototype.updateFont = function(node)
 	{
 		txtDecor.push('line-through');
 	}
-	
+
+	if (txtDecor.length > 0 && (this.fontStyle & mxConstants.FONT_UNDERLINE_DOTTED) == mxConstants.FONT_UNDERLINE_DOTTED)
+	{
+		txtDecor.push('dotted');
+	}
+
 	style.textDecoration = txtDecor.join(' ');
-	
+
 	if (this.align == mxConstants.ALIGN_CENTER)
 	{
 		style.textAlign = 'center';

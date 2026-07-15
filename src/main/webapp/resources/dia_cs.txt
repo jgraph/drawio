@@ -815,6 +815,7 @@ sketch=Skica
 smoothing=Vyhlazování
 snapToGrid=Přichytávat k mřížce
 solid=Plná
+sortPages=Seřadit stránky
 sourceSpacing=Odsazení zdroje
 south=Jih
 software=Software

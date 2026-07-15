@@ -815,6 +815,7 @@ sketch=Σχέδιο
 smoothing=Εξομάλυνση
 snapToGrid=Κούμπωμα στο Πλέγμα
 solid=Συμπαγές
+sortPages=Ταξινόμηση Σελίδων
 sourceSpacing=Απόσταση Πηγής
 south=Νότια
 software=Λογισμικό

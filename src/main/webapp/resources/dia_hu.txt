@@ -815,6 +815,7 @@ sketch=Vázlat
 smoothing=Simítás
 snapToGrid=Rácshoz igazítás
 solid=Folytonos
+sortPages=Oldalak rendezése
 sourceSpacing=Forrás térköz
 south=Dél
 software=Szoftver

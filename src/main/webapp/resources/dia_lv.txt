@@ -815,6 +815,7 @@ sketch=Skice
 smoothing=Izlīdzināšana
 snapToGrid=Piestiprināt pie režģa
 solid=Blīvs
+sortPages=Kārtot lapas
 sourceSpacing=Avota atstarpe
 south=Dienvidi
 software=Programmatūra
