@@ -1042,12 +1042,13 @@ mxEdgeHandler.prototype.removeHint = function() { };
 
 /**
  * Function: roundLength
- * 
- * Hook for rounding the unscaled width or height. This uses Math.round.
+ *
+ * Hook for rounding the unscaled width or height. This uses 2 decimal
+ * places so that fractional grid sizes (eg. metric units) are kept.
  */
 mxEdgeHandler.prototype.roundLength = function(length)
 {
-	return Math.round(length);
+	return Math.round(length * 100) / 100;
 };
 
 /**
@@ -1894,8 +1895,8 @@ mxEdgeHandler.prototype.convertPoint = function(point, gridEnabled)
 		point.y = this.graph.snap(point.y);
 	}
 	
-	point.x = Math.round(point.x / scale - tr.x);
-	point.y = Math.round(point.y / scale - tr.y);
+	point.x = this.roundLength(point.x / scale - tr.x);
+	point.y = this.roundLength(point.y / scale - tr.y);
 
 	var pstate = this.graph.getView().getState(
 		this.graph.getModel().getParent(this.state.cell));

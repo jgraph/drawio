@@ -1256,6 +1256,13 @@ Actions.prototype.init = function()
 	action.setToggleAction(true);
 	action.setSelectedCallback(function() { return graph.connectionHandler.isCreateTarget(); });
 	action.isEnabled = isGraphEnabled;
+	action = this.addAction('stopEditingOnEnter', function()
+	{
+		graph.setEnterStopsCellEditing(!graph.isEnterStopsCellEditing());
+		ui.fireEvent(new mxEventObject('enterStopsCellEditingChanged'));
+	});
+	action.setToggleAction(true);
+	action.setSelectedCallback(function() { return graph.isEnterStopsCellEditing(); });
 	action = this.addAction('autosave', function()
 	{
 		ui.editor.setAutosave(!ui.editor.autosave);

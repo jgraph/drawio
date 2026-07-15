@@ -649,14 +649,14 @@ var SplashDialog = function(editorUi)
 /**
  * Constructs a new embed dialog
  */
-var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, title, tweet, previewTitle, filename)
+var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, title, tweet, previewTitle, filename, hideExport)
 {
 	tweet = (tweet != null) ? tweet : 'Check out the diagram I made using @drawio';
 	var div = document.createElement('div');
 	div.style.height = '100%';
 	div.style.display = 'flex';
 	div.style.flexDirection = 'column';
-	var maxSize = 500000;
+	var maxSize = EmbedDialog.maxSize;
 
 	// Checks if result is a link
 	var validUrl = /^https?:\/\//.test(result) || /^mailto:\/\//.test(result);
@@ -804,14 +804,18 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 		buttons.appendChild(previewBtn);
 	}
 	
-	var downloadBtn = mxUtils.button(mxResources.get('export'), function()
+	if (!hideExport)
+	{
+		var downloadBtn = mxUtils.button(mxResources.get('export'), function()
 		{
 			editorUi.hideDialog();
-			editorUi.saveData((filename != null) ? filename : 'embed.txt', 'txt', result, 'text/plain');
+			editorUi.saveData((filename != null) ? filename : 'embed.txt',
+				'txt', result, 'text/plain');
 		});
-		
+
 		downloadBtn.className = 'geBtn';
 		buttons.appendChild(downloadBtn);
+	}
 
 	if (!editorUi.isOffline() && result.length < maxSize)
 	{
@@ -852,6 +856,7 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 		editorUi.hideDialog();
 	});
 
+	closeBtn.className = 'geBtn';
 	buttons.appendChild(closeBtn);
 
 	var copyBtn = mxUtils.button(mxResources.get('copy'), function()
@@ -878,7 +883,6 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 		{
 			buttons.appendChild(copyBtn);
 			copyBtn.className = 'geBtn gePrimaryBtn';
-			closeBtn.className = 'geBtn';
 		}
 		else
 		{
@@ -888,7 +892,6 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 	else if (previewBtn != null)
 	{
 		buttons.appendChild(previewBtn);
-		closeBtn.className = 'geBtn';
 		previewBtn.className = 'geBtn gePrimaryBtn';
 	}
 	
@@ -900,6 +903,11 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
  * Add embed dialog option.
  */
 EmbedDialog.showPreviewOption = true;
+
+/**
+ * Maximum size for contents to be displayed in the dialog.
+ */
+EmbedDialog.maxSize = 500000;
 
 /**
  * Constructs a new parse dialog.
@@ -4027,7 +4035,29 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 			preview.setAttribute('title', mxResources.get('preview'));
 		}
 	}
-	
+	else if (data != null && !base64Encoded && mimeType != null &&
+		(mimeType.substring(0, 5) == 'text/' || mimeType == 'application/json') &&
+		navigator.clipboard != null && navigator.clipboard.writeText != null)
+	{
+		copyBtn = mxUtils.button(mxResources.get('copy'), function()
+		{
+			editorUi.writeTextToClipboard(data, function(e)
+			{
+				editorUi.handleError(e);
+			}, function()
+			{
+				if (defaultMode == 'copy')
+				{
+					editorUi.hideDialog();
+				}
+				else
+				{
+					editorUi.alert(mxResources.get('copiedToClipboard'));
+				}
+			});
+		}, null, 'geBtn');
+	}
+
 	var left = document.createElement('div');
 	left.style.display = 'flex';
 	left.style.padding = '1px';
@@ -18095,7 +18125,8 @@ AspectDialog.prototype.init = function()
 	}
 	else
 	{
-		this.createPageItem('1', 'Page-1', mxUtils.parseXml(xml).documentElement);
+		this.createPageItem('1', mxResources.get('pageWithNumber', [1]),
+			mxUtils.parseXml(xml).documentElement);
 	}
 };
 

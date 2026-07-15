@@ -232,30 +232,35 @@ mxStencilRegistry.allowEval = false;
 				{
 					try
 					{
-						if (plugins[i].indexOf('..') >= 0)
+						// Resolved into a local variable as plugins is the live settings
+						// array and rewritten entries would be persisted on the next
+						// settings save, breaking resolution on the following start
+						var pluginUrl = plugins[i];
+
+						if (pluginUrl.indexOf('..') >= 0)
 						{
 							continue;
 						}
-						else if (plugins[i].startsWith('/plugins/'))
+						else if (pluginUrl.startsWith('/plugins/'))
 						{
-							plugins[i] = '.' + plugins[i];
+							pluginUrl = '.' + pluginUrl;
 						}
-						else if (plugins[i].startsWith('plugins/'))
+						else if (pluginUrl.startsWith('plugins/'))
 						{
-							plugins[i] = './' + plugins[i];
+							pluginUrl = './' + pluginUrl;
 						}
 
 						// External plugins in App Data folder (Needs enabling plugins)
-						if (!plugins[i].startsWith('./plugins/'))
+						if (!pluginUrl.startsWith('./plugins/'))
 						{
 							let pluginFile = await requestSync({
 								action: 'getPluginFile',
 								plugin: plugins[i]
 							});
-							
+
 							if (pluginFile != null)
 							{
-								plugins[i] = 'file://' + pluginFile;
+								pluginUrl = 'file://' + pluginFile;
 							}
 							else
 							{
@@ -265,7 +270,7 @@ mxStencilRegistry.allowEval = false;
 
 						try
 						{
-							mxscript(plugins[i]);
+							mxscript(pluginUrl);
 						}
 						catch (e)
 						{

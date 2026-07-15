@@ -236,18 +236,18 @@ Editor.shareImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53M
 /**
  * All fill styles supported by rough.js.
  */
-Editor.roughFillStyles = [{val: 'auto', dispName: 'Auto'}, {val: 'hachure', dispName: 'Hachure'},
-	{val: 'solid', dispName: 'Solid'}, {val: 'zigzag', dispName: 'ZigZag'},
-	{val: 'cross-hatch', dispName: 'Cross Hatch'}, {val: 'dashed', dispName: 'Dashed'},
-	{val: 'zigzag-line', dispName: 'ZigZag Line'}];
+Editor.roughFillStyles = [{val: 'auto', dispName: 'Auto', res: 'automatic'}, {val: 'hachure', dispName: 'Hachure', res: 'hachure'},
+	{val: 'solid', dispName: 'Solid', res: 'solid'}, {val: 'zigzag', dispName: 'ZigZag', res: 'zigzag'},
+	{val: 'cross-hatch', dispName: 'Cross Hatch', res: 'crossHatch'}, {val: 'dashed', dispName: 'Dashed', res: 'dashed'},
+	{val: 'zigzag-line', dispName: 'ZigZag Line', res: 'zigzagLine'}];
 
 /**
  * Fill styles for normal mode.
  */
-Editor.fillStyles = [{val: 'auto', dispName: 'Auto'}, {val: 'hatch', dispName: 'Hatch'},
-	{val: 'solid', dispName: 'Solid'}, {val: 'dots', dispName: 'Dots'}, 
-	{val: 'cross-hatch', dispName: 'Cross Hatch'}, {val: 'dashed', dispName: 'Dashed'},
-	{val: 'zigzag-line', dispName: 'ZigZag Line'}];
+Editor.fillStyles = [{val: 'auto', dispName: 'Auto', res: 'automatic'}, {val: 'hatch', dispName: 'Hatch', res: 'hatch'},
+	{val: 'solid', dispName: 'Solid', res: 'solid'}, {val: 'dots', dispName: 'Dots', res: 'dots'},
+	{val: 'cross-hatch', dispName: 'Cross Hatch', res: 'crossHatch'}, {val: 'dashed', dispName: 'Dashed', res: 'dashed'},
+	{val: 'zigzag-line', dispName: 'ZigZag Line', res: 'zigzagLine'}];
 
 /**
  * List of supported custom themes.

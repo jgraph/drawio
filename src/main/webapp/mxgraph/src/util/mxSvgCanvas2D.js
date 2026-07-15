@@ -434,8 +434,125 @@ mxSvgCanvas2D.prototype.getAlternateText = function(fo, x, y, w, h, str, align, 
 };
 
 /**
+ * Function: getAlternateTextLines
+ *
+ * Returns the alternate text for the given foreignObject as an array of
+ * lines. Splits the text at linefeeds, applies word wrapping at the given
+ * width if wrap is enabled and truncates the lines to the visible box if
+ * the label is clipped, so that the fallback approximates the layout of
+ * the foreignObject in viewers with no support for foreignObjects.
+ */
+mxSvgCanvas2D.prototype.getAlternateTextLines = function(text, w, h, wrap, overflow, clip)
+{
+	var s = this.state;
+	var lines = text.split(/\r\n|\r|\n/);
+	var doWrap = (wrap || overflow == 'fill' || overflow == 'width') && w > 0;
+	var maxWidth = w + this.foreignObjectPadding;
+	var ctx = null;
+
+	if (doWrap || (clip && w > 0))
+	{
+		// Uses canvas text measuring with the current font. This is an
+		// approximation as the fonts in the target viewer may differ.
+		ctx = document.createElement('canvas').getContext('2d');
+		ctx.font = (((s.fontStyle & mxConstants.FONT_ITALIC) ==
+				mxConstants.FONT_ITALIC) ? 'italic ' : '') +
+			(((s.fontStyle & mxConstants.FONT_BOLD) ==
+				mxConstants.FONT_BOLD) ? 'bold ' : '') +
+			s.fontSize + 'px ' + mxUtils.parseCssFontFamily(s.fontFamily);
+	}
+
+	// Applies word wrapping at the wrapping width of the foreignObject
+	if (doWrap && ctx != null)
+	{
+		var wrapped = [];
+
+		for (var i = 0; i < lines.length; i++)
+		{
+			var words = lines[i].split(/\s+/);
+			var line = '';
+
+			for (var j = 0; j < words.length; j++)
+			{
+				if (words[j].length > 0)
+				{
+					var next = (line.length > 0) ? line + ' ' + words[j] : words[j];
+
+					if (line.length > 0 && ctx.measureText(next).width > maxWidth)
+					{
+						wrapped.push(line);
+						line = words[j];
+					}
+					else
+					{
+						line = next;
+					}
+
+					// Breaks CJK text that is wider than the wrapping width
+					// at character level like the browser as it contains no
+					// word boundaries (other overflowing content is left to
+					// overflow like HTML with word-wrap normal)
+					while (line.length > 1 && ctx.measureText(line).width > maxWidth &&
+						/[\u2E80-\uFAFF\uFE30-\uFE4F\uFF00-\uFFEF]/.test(line))
+					{
+						var index = line.length - 1;
+
+						while (index > 1 && ctx.measureText(line.substring(0, index)).width > maxWidth)
+						{
+							index--;
+						}
+
+						wrapped.push(line.substring(0, index));
+						line = line.substring(index);
+					}
+				}
+			}
+
+			wrapped.push(line);
+		}
+
+		lines = wrapped;
+	}
+
+	// Removes lines that are not visible if the label is clipped
+	if ((clip || overflow == 'fill') && h > 0)
+	{
+		var visibleLines = Math.max(1, Math.floor(h / Math.round(
+			mxConstants.LINE_HEIGHT * s.fontSize)));
+
+		if (lines.length > visibleLines)
+		{
+			lines = lines.slice(0, visibleLines);
+			lines[lines.length - 1] += '...';
+		}
+	}
+
+	// Truncates the lines at the width if the label is clipped without wrapping
+	if (clip && !doWrap && ctx != null)
+	{
+		for (var i = 0; i < lines.length; i++)
+		{
+			if (ctx.measureText(lines[i]).width > maxWidth)
+			{
+				var index = lines[i].length - 1;
+
+				while (index > 1 && ctx.measureText(
+					lines[i].substring(0, index) + '...').width > maxWidth)
+				{
+					index--;
+				}
+
+				lines[i] = mxUtils.trim(lines[i].substring(0, index)) + '...';
+			}
+		}
+	}
+
+	return lines;
+};
+
+/**
  * Function: getAlternateContent
- * 
+ *
  * Returns the alternate content for the given foreignObject.
  */
 mxSvgCanvas2D.prototype.createAlternateContent = function(fo, x, y, w, h, str, align, valign, wrap, format, overflow, clip, rotation)
@@ -450,10 +567,22 @@ mxSvgCanvas2D.prototype.createAlternateContent = function(fo, x, y, w, h, str, a
 		var anchor = (align == mxConstants.ALIGN_RIGHT) ? 'end' :
 			(align == mxConstants.ALIGN_LEFT) ? 'start' :
 			'middle';
-	
+
+		var lines = this.getAlternateTextLines(text, w, h, wrap, overflow, clip);
+		var lh = Math.round(mxConstants.LINE_HEIGHT * s.fontSize);
+		var x0 = Math.round(x + s.dx);
+
+		// Aligns the block of lines vertically at the anchor point like the
+		// flex layout of the foreignObject: hanging below the anchor for top,
+		// centered for middle and above the anchor for bottom alignment
+		var y0 = y + s.dy + dy * s.fontSize -
+			((valign == mxConstants.ALIGN_TOP) ? 0 :
+			((valign == mxConstants.ALIGN_BOTTOM) ? (lines.length - 1) * lh :
+			(lines.length - 1) * lh / 2));
+
 		var alt = this.createElement('text');
-		alt.setAttribute('x', Math.round(x + s.dx));
-		alt.setAttribute('y', Math.round(y + s.dy + dy * s.fontSize));
+		alt.setAttribute('x', x0);
+		alt.setAttribute('y', Math.round(y0));
 		alt.setAttribute('fill', s.fontColor || 'black');
 		alt.setAttribute('font-family', mxUtils.parseCssFontFamily(s.fontFamily));
 		alt.setAttribute('font-size', Math.round(s.fontSize) + 'px');
@@ -496,8 +625,22 @@ mxSvgCanvas2D.prototype.createAlternateContent = function(fo, x, y, w, h, str, a
 			}
 		}
 
-		mxUtils.write(alt, text);
-		
+		if (lines.length > 1)
+		{
+			for (var i = 0; i < lines.length; i++)
+			{
+				var tspan = this.createElement('tspan');
+				tspan.setAttribute('x', x0);
+				tspan.setAttribute('y', Math.round(y0 + i * lh));
+				mxUtils.write(tspan, lines[i]);
+				alt.appendChild(tspan);
+			}
+		}
+		else
+		{
+			mxUtils.write(alt, lines[0]);
+		}
+
 		return alt;
 	}
 	else
@@ -1445,42 +1588,93 @@ mxSvgCanvas2D.prototype.ellipse = function(x, y, w, h)
 
 /**
  * Function: image
- * 
- * Private helper function to create SVG elements
+ *
+ * Private helper function to create SVG elements. The optional cssVars
+ * renders the image as a use tag with the given CSS declarations in its
+ * style attribute, so that CSS variables apply to the referenced SVG
+ * content. Note that external references are not loaded where SVG is
+ * rendered as an image, eg. in PNG export.
  */
-mxSvgCanvas2D.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV, clipPath)
+mxSvgCanvas2D.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV, clipPath, cssVars)
 {
 	src = this.converter.convert(src);
-	
+
 	// LATER: Add option for embedding images as base64.
 	aspect = (aspect != null) ? aspect : true;
 	flipH = (flipH != null) ? flipH : false;
 	flipV = (flipV != null) ? flipV : false;
-	
+
 	var s = this.state;
 	x += s.dx;
 	y += s.dy;
-	
-	var node = this.createElement('image');
+
+	var node = null;
+
+	if (cssVars != null)
+	{
+		// Inlines themed SVG images as shared symbols via the
+		// createImageSymbol hook where available
+		var ref = (this.createImageSymbol != null) ?
+			this.createImageSymbol(src, aspect) : null;
+
+		// Data URIs are not supported in use tags so the theming
+		// is ignored if no symbol was created for the image
+		if (ref != null || src.substring(0, 5) != 'data:')
+		{
+			var href = (ref != null) ? '#' + ref : src;
+			node = this.createElement('use');
+
+			// Empty declarations share the image without theming
+			if (cssVars != '')
+			{
+				node.setAttribute('style', cssVars);
+			}
+
+			node.setAttribute('href', href);
+
+			if (node.setAttributeNS != null)
+			{
+				node.setAttributeNS(mxConstants.NS_XLINK, 'xlink:href', href);
+			}
+		}
+	}
+
+	if (node == null && this.dedupImages && this.defs != null)
+	{
+		// Shares repeated images via a definition and use tags
+		var def = '#' + this.getImageDef(src, w * s.scale, h * s.scale, aspect);
+		node = this.createElement('use');
+		node.setAttribute('href', def);
+
+		if (node.setAttributeNS != null)
+		{
+			node.setAttributeNS(mxConstants.NS_XLINK, 'xlink:href', def);
+		}
+	}
+	else if (node == null)
+	{
+		node = this.createElement('image');
+
+		// Workaround for missing namespace support
+		if (node.setAttributeNS == null)
+		{
+			node.setAttribute('xlink:href', src);
+		}
+		else
+		{
+			node.setAttributeNS(mxConstants.NS_XLINK, 'xlink:href', src);
+		}
+
+		if (!aspect)
+		{
+			node.setAttribute('preserveAspectRatio', 'none');
+		}
+	}
+
 	node.setAttribute('x', this.format(x * s.scale) + this.imageOffset);
 	node.setAttribute('y', this.format(y * s.scale) + this.imageOffset);
 	node.setAttribute('width', this.format(w * s.scale));
 	node.setAttribute('height', this.format(h * s.scale));
-	
-	// Workaround for missing namespace support
-	if (node.setAttributeNS == null)
-	{
-		node.setAttribute('xlink:href', src);
-	}
-	else
-	{
-		node.setAttributeNS(mxConstants.NS_XLINK, 'xlink:href', src);
-	}
-	
-	if (!aspect)
-	{
-		node.setAttribute('preserveAspectRatio', 'none');
-	}
 
 	if (s.alpha < 1 || s.fillAlpha < 1)
 	{
@@ -1528,6 +1722,72 @@ mxSvgCanvas2D.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV, 
 	}
 	
 	this.root.appendChild(node);
+};
+
+/**
+ * Function: getImageDef
+ *
+ * Returns the ID of the definition for the given image with the given
+ * size, adding the definition to <defs> if it does not yet exist. The
+ * image is wrapped in a symbol so that all sizes with the same aspect
+ * ratio share one definition, as the use tags scale the symbol via its
+ * viewBox. Used if <dedupImages> is enabled.
+ */
+mxSvgCanvas2D.prototype.getImageDef = function(src, w, h, aspect)
+{
+	if (this.imageDefs == null)
+	{
+		this.imageDefs = {};
+		this.imageDefIds = {};
+	}
+
+	// All aspect ratios are equivalent if the aspect is not preserved
+	var key = src + '|' + aspect + '|' +
+		((aspect && h != 0) ? (w / h).toFixed(4) : '');
+	var id = this.imageDefs[key];
+
+	if (id == null)
+	{
+		id = 'mx-image-' + mxUtils.hashCode(key);
+
+		// Resolves hash collisions between different keys
+		while (this.imageDefIds[id] != null)
+		{
+			id += '-1';
+		}
+
+		var symbol = this.createElement('symbol');
+		symbol.setAttribute('id', id);
+		symbol.setAttribute('viewBox', '0 0 ' + this.format(w) +
+			' ' + this.format(h));
+
+		var img = this.createElement('image');
+		img.setAttribute('width', this.format(w));
+		img.setAttribute('height', this.format(h));
+
+		// Workaround for missing namespace support
+		if (img.setAttributeNS == null)
+		{
+			img.setAttribute('xlink:href', src);
+		}
+		else
+		{
+			img.setAttributeNS(mxConstants.NS_XLINK, 'xlink:href', src);
+		}
+
+		if (!aspect)
+		{
+			symbol.setAttribute('preserveAspectRatio', 'none');
+			img.setAttribute('preserveAspectRatio', 'none');
+		}
+
+		symbol.appendChild(img);
+		this.defs.appendChild(symbol);
+		this.imageDefs[key] = id;
+		this.imageDefIds[id] = key;
+	}
+
+	return id;
 };
 
 /**

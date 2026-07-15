@@ -148,10 +148,21 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		// '	background-color:#ddd;' + 
 		// '	border-radius:50%;' + 
 		// '}' + 
-		'.odRefreshButton:active {' + 
-		'	opacity:0.7;' + 
-		'}' + 
-		'.odFilesList {' + 
+		'.odRefreshButton:active {' +
+		'	opacity:0.7;' +
+		'}' +
+		'.searchBar {' +
+		'	position:absolute;' +
+		'	top:4px;' +
+		'	right:30px;' +
+		'	z-index:1;' +
+		'}' +
+		'.searchBar > input {' +
+		'	box-sizing: border-box;' +
+		'	width: 140px;' +
+		'	font-size: 13px;' +
+		'}' +
+		'.odFilesList {' +
 		'	box-sizing: border-box;' + 
 		'	position:absolute;' + 
 		'	top:32px;' + 
@@ -533,6 +544,14 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
         _$('.odFilesSec').style.display = 'block';
        // _$('#signOutLnk').style.display = '';
 
+        // Server-side search is only supported for the Sharepoint sites list
+        _$('.searchBar').style.display = driveId == 'sharepoint'? '' : 'none';
+
+        if (driveId != 'sharepoint' || searchTxt == null)
+        {
+        	_$('#odSearchBox').value = '';
+        }
+
 		if (prevDiv != null)
 		{
 			prevDiv.innerText = '';
@@ -637,7 +656,9 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 			{
 				var emptyMsg = document.createElement('div');
 				emptyMsg.className = 'odEmptyFolder';
-				emptyMsg.innerHTML = mxUtils.htmlEntities(mxResources.get('folderEmpty', null, 'Folder is empty!'));
+				emptyMsg.innerHTML = mxUtils.htmlEntities(isSharepointSites == 1 && searchTxt?
+					mxResources.get('noResultsFor', [searchTxt], 'No results for \'' + searchTxt + '\'') :
+					mxResources.get('folderEmpty', null, 'Folder is empty!'));
 				filesList.appendChild(emptyMsg);
 			}
 			else
@@ -683,7 +704,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
         		breadcrumb = [{name: mxResources.get('sharedWithMe', null, 'Shared With Me'), driveId: driveId}];
         		break;
         	case 'sharepoint':
-        		url = '/sites?search=';
+        		url = '/sites?search=' + (searchTxt != null? encodeURIComponent(searchTxt) : '');
         		breadcrumb = [{name: mxResources.get('sharepointSites', null, 'Sharepoint Sites'), driveId: driveId}];
         		isSharepointSites = 1;
         		break;
@@ -696,7 +717,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
         		breadcrumb.push({name: folderName, driveId: driveId, folderId: folderId, siteId: siteId});
         		url = '/drives/' + siteId + (folderId? '/items/' + folderId : '/root') + '/children';
         		break;
-        	case 'search': //TODO search doesn't return any results, find out why then remove display: none from the searchBox
+        	case 'search': //TODO file search doesn't return any results, find out why then enable the searchBox for file folders also
         		driveId = selectedDriveId;
         		breadcrumb = [{driveId: driveId, name: mxResources.get('back', null, 'Back')}];
         		searchTxt = encodeURIComponent(searchTxt.replace(/\'/g, '\\\''));
@@ -882,36 +903,60 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		});
 	}
 	
-	//Search (Currently API doesn't work)
+	//Search is only enabled for the Sharepoint sites list (file search API doesn't work)
 	var delayTimer = null;
-	
+
 	function doSearch(searchStr)
 	{
-		if (requestInProgress) return;
 		delayTimer = null;
-		fillFolderFiles('search', null, null, null, searchStr)
+
+		if (lastFolderArgs == null || lastFolderArgs[0] != 'sharepoint')
+		{
+			return;
+		}
+
+		if (requestInProgress)
+		{
+			//Retry until the current request is finished
+			delayTimer = setTimeout(function()
+			{
+				doSearch(searchStr);
+			}, 500);
+		}
+		else
+		{
+			fillFolderFiles('sharepoint', null, null, null, searchStr);
+		}
 	};
-	
-	//Use keyup to detect delete and backspace
-	_$('#odSearchBox').addEventListener('keyup', function(evt)
+
+	var searchBox = _$('#odSearchBox');
+
+	//Input event also fires when the search input is cleared
+	searchBox.addEventListener('input', function()
 	{
-		var searchInput = this;
-		
+		var searchStr = this.value;
+
 		if (delayTimer != null)
 		{
 			clearTimeout(delayTimer);
 		}
-		
+
+		delayTimer = setTimeout(function()
+		{
+			doSearch(searchStr);
+		}, 500);
+	});
+
+	searchBox.addEventListener('keyup', function(evt)
+	{
 		if (evt.keyCode == 13)
 		{
-			doSearch(searchInput.value);
-		}
-		else
-		{
-			delayTimer = setTimeout(function()
+			if (delayTimer != null)
 			{
-				doSearch(searchInput.value);	
-			}, 500);
+				clearTimeout(delayTimer);
+			}
+
+			doSearch(this.value);
 		}
 	});
 	

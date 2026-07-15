@@ -7304,6 +7304,9 @@ EditorUi.prototype.ctrlAltActions = {
 	88: 'copyAsImage' // Ctrl+Alt+X
 };
 
+// Alt+Keycode mapping to action, empty by default
+EditorUi.prototype.altActions = {};
+
 /**
  * Creates the keyboard event handler for the current graph and history.
  */
@@ -7526,6 +7529,10 @@ EditorUi.prototype.createKeyHandler = function(editor)
 			else if (this.isControlDown(evt) && mxEvent.isAltDown(evt))
 			{
 				action = editorUi.actions.get(editorUi.ctrlAltActions[evt.keyCode]);
+			}
+			else if (mxEvent.isAltDown(evt))
+			{
+				action = editorUi.actions.get(editorUi.altActions[evt.keyCode]);
 			}
 
 			if (action != null)

@@ -228,24 +228,121 @@ mxShape.prototype.getConstraints = function(style, w, h)
 	return null;
 };
 
-// Override for clipSvg style
-mxImageShape.prototype.getImageDataUri = function()
+// Override for clipSvg and cssVars styles, where theming is left to the
+// given canvas via getImageCssVars if it inlines SVG images as symbols
+mxImageShape.prototype.getImageDataUri = function(c)
 {
 	var src = String(this.image);
 
-	if (src.substring(0, 26) == 'data:image/svg+xml;base64,' && this.style != null &&
-		mxUtils.getValue(this.style, 'clipSvg', '0') == '1')
+	if (src.substring(0, 26) == 'data:image/svg+xml;base64,' && this.style != null)
 	{
-		if (this.clippedSvg == null || this.clippedImage != src)
+		if (mxUtils.getValue(this.style, 'clipSvg', '0') == '1')
 		{
-			this.clippedSvg = Graph.clipSvgDataUri(src);
-			this.clippedImage = src;
+			if (this.clippedSvg == null || this.clippedImage != src)
+			{
+				this.clippedSvg = Graph.clipSvgDataUri(src);
+				this.clippedImage = src;
+			}
+
+			src = this.clippedSvg;
 		}
-		
-		src = this.clippedSvg;
+
+		if (c == null || c.createImageSymbol == null)
+		{
+			var vars = Graph.getCssVariables(this.style);
+
+			if (vars != null)
+			{
+				if (this.themedSvg == null || this.themedImage != src ||
+					this.themedVars != vars)
+				{
+					this.themedSvg = Graph.setSvgDataUriCssVars(src, vars);
+					this.themedImage = src;
+					this.themedVars = vars;
+				}
+
+				src = this.themedSvg;
+			}
+		}
+		else
+		{
+			// Canonicalizes editable CSS rules so that instances with
+			// different colors share a symbol in exports
+			var exp = mxUtils.getValue(this.style, 'editableCssRules', null);
+
+			if (exp != null)
+			{
+				if (this.canonicalSvg === undefined || this.canonicalImage != src ||
+					this.canonicalRules != exp)
+				{
+					this.canonicalSvg = Graph.canonicalizeSvgCssRules(src, exp);
+					this.canonicalImage = src;
+					this.canonicalRules = exp;
+				}
+
+				if (this.canonicalSvg != null)
+				{
+					src = this.canonicalSvg.uri;
+				}
+			}
+		}
 	}
 
 	return src;
+};
+
+// Override for cssVars style with same-origin image URLs and, if the
+// given canvas inlines SVG images as symbols, embedded SVG images
+mxImageShape.prototype.getImageCssVars = function(c)
+{
+	var src = String(this.image);
+	var result = null;
+
+	if (this.style != null)
+	{
+		if (src.substring(0, 5) != 'data:')
+		{
+			if (Graph.isSameOrigin(src))
+			{
+				result = Graph.getCssVariables(this.style);
+			}
+		}
+		else if (c != null && c.createImageSymbol != null &&
+			src.substring(0, 26) == 'data:image/svg+xml;base64,')
+		{
+			var vars = [];
+
+			// Colors of editable CSS rules, extracted in getImageDataUri
+			// which is invoked before this for the same canvas
+			if (this.canonicalSvg != null && this.canonicalRules ==
+				mxUtils.getValue(this.style, 'editableCssRules', null))
+			{
+				vars.push(this.canonicalSvg.vars);
+			}
+
+			if (mxUtils.getValue(this.style, 'cssVars', null) != null)
+			{
+				var temp = Graph.getCssVariables(this.style);
+
+				if (temp != null)
+				{
+					vars.push(temp);
+				}
+				else if (vars.length == 0)
+				{
+					// Shares unthemed instances of the image via the symbol
+					result = '';
+				}
+			}
+
+			if (vars.length > 0)
+			{
+				result = vars.join('; ');
+			}
+		}
+	}
+
+	return result;
 };
 
 // Override for default colors
@@ -3405,6 +3502,572 @@ Graph.clipSvgDataUri = function(dataUri)
 	}
 	
 	return dataUri;
+};
+
+/**
+ * Returns the CSS custom property declarations for the cssVars style in
+ * the given cell style, or null if there are none. cssVars lists the
+ * comma-separated variable names, the value for each name is taken from
+ * the style key of the same name with a -- prefix, to avoid collisions
+ * with other style keys. Names without a value are ignored so that the
+ * fallbacks in the SVG take effect.
+ */
+Graph.getCssVariables = function(style)
+{
+	var names = mxUtils.getValue(style, 'cssVars', null);
+	var result = null;
+
+	if (names != null && names != '')
+	{
+		var tokens = String(names).split(',');
+		var vars = [];
+
+		for (var i = 0; i < tokens.length; i++)
+		{
+			var name = mxUtils.trim(tokens[i]);
+
+			// Tolerates the -- prefix in declared names
+			if (name.substring(0, 2) == '--')
+			{
+				name = name.substring(2);
+			}
+
+			var value = (name != '') ? mxUtils.getValue(style, '--' + name, null) : null;
+
+			if (value != null && value != '')
+			{
+				vars.push('--' + name + ': ' + value);
+			}
+		}
+
+		if (vars.length > 0)
+		{
+			result = vars.join('; ');
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Adds the given CSS declarations to the style attribute of the root
+ * element in the given SVG data URI and returns the updated data URI
+ * with all script tags and event handlers removed.
+ */
+Graph.setSvgDataUriCssVars = function(dataUri, vars)
+{
+	if (dataUri != null && dataUri.substring(0, 26) == 'data:image/svg+xml;base64,' &&
+		Graph.isStyleAllowed(vars))
+	{
+		try
+		{
+			var data = decodeURIComponent(escape(atob(dataUri.substring(26))));
+			var idx = data.indexOf('<svg');
+
+			if (idx >= 0)
+			{
+				// Strips leading XML declaration and doctypes
+				var div = document.createElement('div');
+				div.innerHTML = Graph.sanitizeHtml(data.substring(idx));
+				var svgs = div.getElementsByTagName('svg');
+
+				if (svgs.length > 0)
+				{
+					var style = svgs[0].getAttribute('style');
+
+					// Enables resolution of light-dark colors in the SVG
+					if (vars.indexOf('light-dark(') >= 0 &&
+						(style == null || style.indexOf('color-scheme') < 0))
+					{
+						vars += '; color-scheme: light dark';
+					}
+
+					svgs[0].setAttribute('style', ((style != null && style != '') ?
+						style + '; ' : '') + vars);
+					dataUri = 'data:image/svg+xml;base64,' +
+						btoa(unescape(encodeURIComponent(mxUtils.getXml(svgs[0]))));
+				}
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+	}
+
+	return dataUri;
+};
+
+/**
+ * Returns true if the given URL resolves to the same origin as the
+ * current document.
+ */
+Graph.isSameOrigin = function(url)
+{
+	try
+	{
+		var a = document.createElement('a');
+		a.setAttribute('href', url);
+
+		return a.origin == window.location.origin;
+	}
+	catch (e)
+	{
+		return false;
+	}
+};
+
+/**
+ * Prefixes all IDs, local references and CSS class names in the given
+ * SVG element with the given prefix, to avoid collisions when the
+ * content is inlined into another document.
+ */
+Graph.prefixSvgIds = function(root, prefix)
+{
+	var refAttrs = ['fill', 'stroke', 'filter', 'clip-path', 'mask',
+		'marker-start', 'marker-mid', 'marker-end', 'style'];
+
+	var prefixUrls = function(value)
+	{
+		return value.replace(/url\(\s*(['"]?)#/g, 'url($1#' + prefix);
+	};
+
+	var prefixSelectors = function(css)
+	{
+		// Prefixes class and ID selectors outside of rule bodies. Note
+		// that nested rules, eg. in media queries, are not supported.
+		return css.replace(/([^{}]*)(\{[^{}]*\})/g, function(match, sel, body)
+		{
+			return sel.replace(/([.#])(-?[A-Za-z_][\w-]*)/g,
+				'$1' + prefix + '$2') + prefixUrls(body);
+		});
+	};
+
+	var elts = root.getElementsByTagName('*');
+
+	for (var i = 0; i < elts.length; i++)
+	{
+		var elt = elts[i];
+		var id = elt.getAttribute('id');
+
+		if (id != null && id != '')
+		{
+			elt.setAttribute('id', prefix + id);
+		}
+
+		var cls = elt.getAttribute('class');
+
+		if (cls != null && cls != '')
+		{
+			var tokens = cls.split(/\s+/);
+
+			for (var j = 0; j < tokens.length; j++)
+			{
+				if (tokens[j] != '')
+				{
+					tokens[j] = prefix + tokens[j];
+				}
+			}
+
+			elt.setAttribute('class', tokens.join(' '));
+		}
+
+		if (elt.nodeName.toLowerCase() == 'style')
+		{
+			mxUtils.setTextContent(elt, prefixSelectors(
+				mxUtils.getTextContent(elt)));
+		}
+		else
+		{
+			for (var j = 0; j < refAttrs.length; j++)
+			{
+				var value = elt.getAttribute(refAttrs[j]);
+
+				if (value != null && value.indexOf('url(') >= 0)
+				{
+					elt.setAttribute(refAttrs[j], prefixUrls(value));
+				}
+			}
+
+			var hrefAttrs = ['href', 'xlink:href'];
+
+			for (var j = 0; j < hrefAttrs.length; j++)
+			{
+				var value = elt.getAttribute(hrefAttrs[j]);
+
+				if (value != null && value.charAt(0) == '#')
+				{
+					elt.setAttribute(hrefAttrs[j], '#' + prefix + value.substring(1));
+				}
+			}
+		}
+	}
+};
+
+/**
+ * Uses the browser for parsing the given CSS into a list of rules.
+ */
+Graph.getCssRules = function(css)
+{
+	var doc = document.implementation.createHTMLDocument('');
+	var styleElement = document.createElement('style');
+
+	mxUtils.setTextContent(styleElement, css);
+	doc.body.appendChild(styleElement);
+
+	return styleElement.sheet.cssRules;
+};
+
+/**
+ * Replaces the color values of CSS rules that match the given expression
+ * in the given SVG data URI with CSS variables and returns the rewritten
+ * data URI and the variable declarations for the replaced values, or null
+ * if there are no matching rules. Instances of the same image with
+ * different colors return the same data URI, so that they can share a
+ * symbol in exports with their colors in the style of the use tags.
+ */
+Graph.canonicalizeSvgCssRules = function(dataUri, exp)
+{
+	var result = null;
+
+	if (dataUri != null && dataUri.substring(0, 26) == 'data:image/svg+xml;base64,')
+	{
+		try
+		{
+			var data = decodeURIComponent(escape(atob(dataUri.substring(26))));
+			var idx = data.indexOf('<svg');
+
+			if (idx >= 0)
+			{
+				// Strips leading XML declaration and doctypes
+				var div = document.createElement('div');
+				div.innerHTML = Graph.sanitizeHtml(data.substring(idx));
+				var svgs = div.getElementsByTagName('svg');
+
+				if (svgs.length > 0)
+				{
+					var svg = svgs[0];
+					var regex = new RegExp(exp);
+					var styles = svg.getElementsByTagName('style');
+					var props = ['fill', 'stroke', 'stop-color'];
+					var vars = [];
+
+					for (var i = 0; i < styles.length; i++)
+					{
+						var rules = Graph.getCssRules(mxUtils.getTextContent(styles[i]));
+						var cssTxt = '';
+
+						for (var j = 0; j < rules.length; j++)
+						{
+							var rule = rules[j];
+
+							if (rule.selectorText != null && regex.test(rule.selectorText))
+							{
+								for (var k = 0; k < props.length; k++)
+								{
+									var value = mxUtils.trim(rule.style.getPropertyValue(props[k]));
+
+									if (value != '' && value.substring(0, 4) != 'url(' &&
+										value.substring(0, 4) != 'var(')
+									{
+										rule.style.setProperty(props[k],
+											'var(--mx-r' + vars.length + ')');
+										vars.push('--mx-r' + vars.length + ': ' + value);
+									}
+								}
+							}
+
+							cssTxt += rule.cssText + '\n';
+						}
+
+						mxUtils.setTextContent(styles[i], cssTxt);
+					}
+
+					if (vars.length > 0)
+					{
+						// Enables resolution of light-dark colors in the values
+						if (svg.style != null &&
+							svg.style.getPropertyValue('color-scheme') == '')
+						{
+							svg.style.colorScheme = 'light dark';
+						}
+
+						result = {
+							uri: 'data:image/svg+xml;base64,' +
+								btoa(unescape(encodeURIComponent(mxUtils.getXml(svg)))),
+							vars: vars.join('; ')
+						};
+					}
+				}
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Replaces use tags that are the only reference to an image definition
+ * created by mxSvgCanvas2D.getImageDef with the image itself and
+ * removes the definition.
+ */
+Graph.inlineSingleUseImages = function(root)
+{
+	var uses = root.getElementsByTagName('use');
+	var counts = {};
+	var temp = [];
+
+	for (var i = 0; i < uses.length; i++)
+	{
+		var ref = uses[i].getAttribute('href');
+
+		if (ref == null)
+		{
+			ref = uses[i].getAttribute('xlink:href');
+		}
+
+		if (ref != null && ref.substring(0, 10) == '#mx-image-')
+		{
+			counts[ref] = (counts[ref] || 0) + 1;
+			temp.push(uses[i]);
+		}
+	}
+
+	for (var i = 0; i < temp.length; i++)
+	{
+		var use = temp[i];
+		var ref = use.getAttribute('href');
+
+		if (ref == null)
+		{
+			ref = use.getAttribute('xlink:href');
+		}
+
+		if (counts[ref] == 1)
+		{
+			var symbol = root.querySelector('[id="' + ref.substring(1) + '"]');
+			var img = (symbol != null && symbol.nodeName == 'symbol') ?
+				symbol.getElementsByTagName('image')[0] : null;
+
+			if (img != null)
+			{
+				// Copies position and rendering attributes from the use tag
+				var clone = img.cloneNode(true);
+				var attrs = use.attributes;
+
+				for (var j = 0; j < attrs.length; j++)
+				{
+					var name = attrs[j].name;
+
+					if (name != 'href' && name != 'xlink:href')
+					{
+						clone.setAttribute(name, attrs[j].value);
+					}
+				}
+
+				use.parentNode.replaceChild(clone, use);
+				symbol.parentNode.removeChild(symbol);
+			}
+		}
+	}
+};
+
+/**
+ * Replaces deprecated font elements with spans using the equivalent CSS
+ * styles. Existing inline styles take precedence over the legacy color,
+ * face and size attributes, same as in HTML rendering.
+ */
+Graph.replaceFontElements = function(root)
+{
+	// CSS keywords for the legacy font sizes 1-7
+	var sizes = ['x-small', 'small', 'medium', 'large',
+		'x-large', 'xx-large', 'xxx-large'];
+	var fonts = root.getElementsByTagName('font');
+	var temp = [];
+
+	// Copies the live node list as it shrinks with each replacement
+	for (var i = 0; i < fonts.length; i++)
+	{
+		temp.push(fonts[i]);
+	}
+
+	for (var i = 0; i < temp.length; i++)
+	{
+		var font = temp[i];
+		var span = (font.ownerDocument.createElementNS != null) ?
+			font.ownerDocument.createElementNS(font.namespaceURI, 'span') :
+			font.ownerDocument.createElement('span');
+		var attrs = font.attributes;
+
+		for (var j = 0; j < attrs.length; j++)
+		{
+			var name = attrs[j].name;
+
+			if (name != 'color' && name != 'face' && name != 'size')
+			{
+				span.setAttribute(name, attrs[j].value);
+			}
+		}
+
+		var color = font.getAttribute('color');
+
+		if (color != null && span.style.color == '')
+		{
+			// Adds missing hash for hexadecimal colors
+			if (/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(color))
+			{
+				color = '#' + color;
+			}
+
+			span.style.color = color;
+		}
+
+		if (font.getAttribute('face') != null && span.style.fontFamily == '')
+		{
+			span.style.fontFamily = font.getAttribute('face');
+		}
+
+		var size = font.getAttribute('size');
+
+		if (size != null && span.style.fontSize == '')
+		{
+			var n = parseInt(size);
+
+			if (!isNaN(n))
+			{
+				// Relative sizes are based on default size 3
+				if (size.charAt(0) == '+' || size.charAt(0) == '-')
+				{
+					n = 3 + n;
+				}
+
+				span.style.fontSize = sizes[Math.max(0, Math.min(6, n - 1))];
+			}
+		}
+
+		while (font.firstChild != null)
+		{
+			span.appendChild(font.firstChild);
+		}
+
+		font.parentNode.replaceChild(span, font);
+	}
+};
+
+/**
+ * Creates a symbol for the given SVG data URI in the given defs section
+ * and returns its ID, or null if no symbol could be created. Repeated
+ * calls with the same source share the symbol, so that themed instances
+ * reuse the image data with per-use CSS variables. The given cache
+ * object must be retained by the caller across calls.
+ */
+Graph.createSvgImageSymbol = function(defs, cache, src, aspect)
+{
+	if (cache.keys == null)
+	{
+		cache.keys = {};
+		cache.ids = {};
+	}
+
+	var key = src + '|' + aspect;
+	var result = cache.keys[key];
+
+	if (result === undefined)
+	{
+		result = null;
+
+		try
+		{
+			if (defs != null && src != null &&
+				src.substring(0, 26) == 'data:image/svg+xml;base64,')
+			{
+				var data = decodeURIComponent(escape(atob(src.substring(26))));
+				var idx = data.indexOf('<svg');
+
+				if (idx >= 0)
+				{
+					// Strips leading XML declaration and doctypes
+					var div = document.createElement('div');
+					div.innerHTML = Graph.sanitizeHtml(data.substring(idx));
+					var svgs = div.getElementsByTagName('svg');
+
+					if (svgs.length > 0)
+					{
+						var svg = svgs[0];
+						var vb = svg.getAttribute('viewBox');
+
+						if (vb == null || vb == '')
+						{
+							var w = parseFloat(svg.getAttribute('width'));
+							var h = parseFloat(svg.getAttribute('height'));
+							vb = (!isNaN(w) && !isNaN(h) && w > 0 && h > 0) ?
+								'0 0 ' + w + ' ' + h : null;
+						}
+
+						// Symbols require a viewBox for scaling of the content
+						if (vb != null)
+						{
+							var id = 'mx-symbol-' + mxUtils.hashCode(key);
+
+							// Resolves hash collisions between different keys
+							while (cache.ids[id] != null)
+							{
+								id += '-1';
+							}
+
+							Graph.prefixSvgIds(svg, id + '-');
+
+							var doc = defs.ownerDocument;
+							var symbol = (doc.createElementNS != null) ?
+								doc.createElementNS(mxConstants.NS_SVG, 'symbol') :
+								doc.createElement('symbol');
+							symbol.setAttribute('id', id);
+							symbol.setAttribute('viewBox', vb);
+
+							if (!aspect)
+							{
+								symbol.setAttribute('preserveAspectRatio', 'none');
+							}
+
+							// Keeps color-scheme and other styles of the root
+							var style = svg.getAttribute('style');
+
+							if (style != null && style != '')
+							{
+								symbol.setAttribute('style', style.replace(
+									/url\(\s*(['"]?)#/g, 'url($1#' + id + '-'));
+							}
+
+							var children = svg.childNodes;
+
+							for (var i = 0; i < children.length; i++)
+							{
+								symbol.appendChild((doc.importNode != null) ?
+									doc.importNode(children[i], true) :
+									children[i].cloneNode(true));
+							}
+
+							defs.appendChild(symbol);
+							cache.ids[id] = key;
+							result = id;
+						}
+					}
+				}
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+
+		cache.keys[key] = result;
+	}
+
+	return result;
 };
 
 /**
@@ -18520,11 +19183,11 @@ if (typeof mxVertexHandler !== 'undefined')
 				var htmlConverter = document.createElement('div');
 				
 				// Adds simple text fallback for viewers with no support for foreignObjects
+				// (line wrapping and clipping is applied in createAlternateContent)
 				var getAlternateText = svgCanvas.getAlternateText;
 				svgCanvas.getAlternateText = function(fo, x, y, w, h, str,
 					align, valign, wrap, format, overflow, clip, rotation)
 				{
-					// Assumes a max character width of 0.5em
 					if (str != null && this.state.fontSize > 0)
 					{
 						try
@@ -18538,43 +19201,7 @@ if (typeof mxVertexHandler !== 'undefined')
 								htmlConverter.innerHTML = str;
 								str = mxUtils.extractTextWithWhitespace(htmlConverter.childNodes);
 							}
-							
-							// Workaround for substring breaking double byte UTF
-							var exp = Math.ceil(2 * w / this.state.fontSize);
-							var result = [];
-							var length = 0;
-							var index = 0;
-							
-							while ((exp == 0 || length < exp) && index < str.length)
-							{
-								var char = str.charCodeAt(index);
-								
-								if (char == 10 || char == 13)
-								{
-									if (length > 0)
-									{
-										break;
-									}
-								}
-								else
-								{
-									result.push(str.charAt(index));
 
-									if (char < 255)
-									{
-										length++;
-									}
-								}
-								
-								index++;
-							}
-							
-							// Uses result and adds ellipsis if more than 1 char remains
-							if (result.length < str.length && str.length - result.length > 1)
-							{
-								str = mxUtils.trim(result.join('')) + '...';
-							}
-							
 							return str;
 						}
 						catch (e)
@@ -18698,6 +19325,13 @@ if (typeof mxVertexHandler !== 'undefined')
 					this.view.currentRoot : this.model.root;
 				imgExport.drawState(this.getView().getState(viewRoot), svgCanvas);
 				this.addForeignObjectWarning(svgCanvas, root);
+
+				// Inlines image definitions that are referenced only once
+				Graph.inlineSingleUseImages(root);
+
+				// Replaces deprecated font elements in labels with spans
+				// to keep the HTML in the output valid [jgraph/drawio#5679]
+				Graph.replaceFontElements(root);
 
 				// Routes light-dark() colors that contain a var() through a
 				// custom property so they degrade to the light color in browsers
@@ -18840,7 +19474,18 @@ if (typeof mxVertexHandler !== 'undefined')
 			canvas.minStrokeWidth = this.cellRenderer.minSvgStrokeWidth;
 			canvas.adaptiveColors = this.getAdaptiveColors();
 			canvas.pointerEvents = true;
-			
+			canvas.dedupImages = true;
+
+			// Inlines themed SVG images as shared symbols
+			canvas.createImageSymbol = function(src, aspect)
+			{
+				this.imageSymbols = (this.imageSymbols != null) ?
+					this.imageSymbols : {};
+
+				return Graph.createSvgImageSymbol(this.defs,
+					this.imageSymbols, src, aspect);
+			};
+
 			return canvas;
 		};
 		

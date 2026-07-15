@@ -373,7 +373,8 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 
 							if (name == 'page')
 							{
-								return diagram.getAttribute('name') || 'Page-' + (self.currentPage + 1);
+								return diagram.getAttribute('name') || mxResources.get('pageWithNumber',
+									[self.currentPage + 1], 'Page-' + (self.currentPage + 1));
 							}
 							else if (name == 'pagenumber')
 							{

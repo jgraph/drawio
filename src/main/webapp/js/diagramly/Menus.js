@@ -2856,78 +2856,8 @@
 							layers, tags, lightbox, editLink, mxUtils.bind(this, function(html, scriptTag)
 							{
 								// Comment is workaround for file data check in checkFileContent for Electron
-								var dlg = new EmbedDialog(editorUi, '<!-- ' + editorUi.editor.appName + ' diagram -->\n' +
-									html + '\n' + scriptTag + '\n', null, null, function()
-								{
-									try
-									{
-										var wnd = window.open();
-										
-										if (wnd != null && wnd.document != null)
-										{
-											var doc = wnd.document;
-
-											if (document.compatMode === 'CSS1Compat')
-											{
-												doc.writeln('<!DOCTYPE html>');
-											}
-											
-											doc.writeln('<html>');
-											doc.writeln('<head><title>' + encodeURIComponent(mxResources.get('preview')) +
-												'</title><meta charset="utf-8"></head>');
-											doc.writeln('<body>');
-											doc.writeln(html);
-											
-											var direct = mxClient.IS_EDGE;
-											
-											if (direct)
-											{
-												doc.writeln(scriptTag);
-											}
-											
-											doc.writeln('</body>');
-											doc.writeln('</html>');
-											doc.close();
-											
-											// Adds script tag after closing page and delay to fix timing issues
-											if (!direct)
-											{
-												var info = wnd.document.createElement('div');
-												info.marginLeft = '26px';
-												info.marginTop = '26px';
-												mxUtils.write(info, mxResources.get('updatingDocument'));
-
-												var img = wnd.document.createElement('img');
-												img.setAttribute('src', window.location.protocol + '//' + window.location.hostname +
-													'/' + IMAGE_PATH + '/spin.gif');
-												img.style.marginLeft = '6px';
-												info.appendChild(img);
-												
-												wnd.document.body.insertBefore(info, wnd.document.body.firstChild);
-												
-												window.setTimeout(function()
-												{
-													var script = document.createElement('script');
-													script.type = 'text/javascript';
-													script.src = /<script.*?src="(.*?)"/.exec(scriptTag)[1];
-													doc.body.appendChild(script);
-													
-													info.parentNode.removeChild(info);
-												}, 20);
-											}
-										}
-										else
-										{
-											editorUi.handleError({message: mxResources.get('errorUpdatingPreview')});
-										}
-									}
-									catch (e)
-									{
-										editorUi.handleError(e);
-									}
-								});
-								editorUi.showDialog(dlg.container, 450, 270, true, true, null, false, null, new mxRectangle(0, 0, 400, 250));
-								dlg.init();
+								editorUi.saveData('embed.html', 'html', '<!-- ' + editorUi.editor.appName + ' diagram -->\n' +
+									html + '\n' + scriptTag + '\n', 'text/html');
 							}), theme, useTagSettings, linkIcons, tooltipIcons);
 					});
 				});
@@ -2965,9 +2895,7 @@
 						editorUi.createEmbedImage(fit, shadow, retina, lightbox, editLink, layers, linkIcons, tooltipIcons, function(result)
 						{
 							editorUi.spinner.stop();
-							var dlg = new EmbedDialog(editorUi, result);
-							editorUi.showDialog(dlg.container, 450, 270, true, true, null, false, null, new mxRectangle(0, 0, 400, 250));
-							dlg.init();
+							editorUi.saveData('embed.html', 'html', result, 'text/html');
 						}, function(err)
 						{
 							editorUi.spinner.stop();
@@ -2980,17 +2908,14 @@
 
 			editorUi.actions.put('embedSvg', new Action('formatSvg' + '...', function()
 			{
-				editorUi.showEmbedImageDialog(function(fit, shadow, image, lightbox, editLink, layers, linkIcons, tooltipIcons)
+				editorUi.showEmbedImageDialog(function(fit, shadow, image, lightbox, editLink, layers, linkIcons, tooltipIcons, theme, allPages)
 				{
 					if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 					{
-						editorUi.createEmbedSvg(fit, shadow, image, lightbox, editLink, layers, linkIcons, tooltipIcons, function(result)
+						editorUi.createEmbedSvg(fit, shadow, image, lightbox, editLink, layers, linkIcons, tooltipIcons, theme, allPages, function(result)
 						{
 							editorUi.spinner.stop();
-
-							var dlg = new EmbedDialog(editorUi, result);
-							editorUi.showDialog(dlg.container, 450, 270, true, true, null, false, null, new mxRectangle(0, 0, 400, 250));
-							dlg.init();
+							editorUi.saveData('embed.html', 'html', result, 'text/html');
 						}, function(err)
 						{
 							editorUi.spinner.stop();
@@ -2998,7 +2923,7 @@
 						});
 					}
 				}, mxResources.get('formatSvg'), mxResources.get('image'),
-					true, 'https://www.drawio.com/docs/manual/export/embed-svg/');
+					true, 'https://www.drawio.com/docs/manual/export/embed-svg/', true, true);
 			}));
 			
 			editorUi.actions.put('embedIframe', new Action('iframe' + '...', function()
@@ -5333,8 +5258,8 @@
 				menu.addSeparator(parent);
 
 				editorUi.menus.addSubmenu('units', menu, parent);
-				editorUi.menus.addMenuItems(menu, ['-', 'copyConnect',
-					'collapseExpand', '-', 'tooltips', 'animations', '-'], parent);
+				editorUi.menus.addMenuItems(menu, ['-', 'copyConnect', 'collapseExpand',
+					'stopEditingOnEnter', '-', 'tooltips', 'animations', '-'], parent);
 
 				var file = editorUi.getCurrentFile();
 
@@ -5418,7 +5343,7 @@
 					this.addMenuItems(menu, ['autosave'], parent);
 				}
 
-				this.addMenuItems(menu, ['-', 'copyConnect', 'collapseExpand', '-'], parent);
+				this.addMenuItems(menu, ['-', 'copyConnect', 'collapseExpand', 'stopEditingOnEnter', '-'], parent);
 				this.addSubmenu('diagramLanguage', menu, parent);
 				this.addMenuItems(menu, ['editDiagram', '-'], parent);
 

@@ -1,5 +1,52 @@
+15-JUL-2026: 30.1.13
+
+- Initial test
+- Removes cssVars rendering experiment from mxImageShape
+- Adds cssVars style for theming embedded SVG images
+- Adds cssVars support for same-origin SVG image URLs
+- Adds light-dark support and prefixed style keys for cssVars
+- Shares repeated images in SVG exports via defs and use tags
+- Inlines themed SVG images as shared symbols in exports
+- Inlines SVG images referenced in use tags when embedding images
+- Tolerates the -- prefix in declared cssVars names
+- Keeps IDs of shared images when embedding SVG images in exports
+- Collapses image definitions with shared data when embedding images
+- Shares unthemed instances of cssVars SVG images in exports
+- Converts image URLs to data URIs when setting cssVars colors
+- Shares image definitions across sizes and inlines single-use images
+- Keeps aspect handling when embedding SVG images in exports
+- Collapses inline images with shared data when embedding images
+- Canonicalizes editable CSS rules for shared symbols in exports
+- Shares image data across aspect modes and themed symbols in exports
+- Removes cssVars test icon
+- Sets CSS vars atomically with embedded image and keeps original URL
+- Add scroll option to JSON embed protocol load message
+- Adds search filter for Sharepoint sites in OneDrive picker [jgraph/drawio#5012]
+- Adds keyboardShortcuts configuration option for custom hotkeys [jgraph/drawio#4182]
+- Keeps fractional grid alignment for dragged edge points [jgraph/drawio#5675]
+- Embeds fonts in saved SVG files [jgraph/drawio#2886]
+- Fixes dropped PDF export after print dialog spinner
+- Adds appearance option in embed SVG dialog
+- Moves appearance option into advanced section of embed dialogs
+- Left aligns edit select with other dropdowns in embed dialogs
+- Shows custom edit URL as tooltip in embed dialogs
+- Adds copy option for text output in save dialog
+- Disables initial page option for current page links in publish dialog
+- Fixes missing CSS class for close button in embed dialog
+- Shows save dialog for embed HTML, image and SVG
+- Uses blob URLs to show data in new windows
+- Adds pages option in embed SVG dialog
+- vendor: update mermaid bundle (dev e44ce3f — c4 row wrapping tracks screen.availWidth like upstream)
+- Adds missing translations for fill styles, style previews, font dialog and default page names [jgraph/drawio#4006]
+- Ignores navigator.onLine in desktop app as all resources are local [jgraph/drawio-desktop#2485]
+- Replaces deprecated font elements with spans in SVG export [jgraph/drawio#5679]
+- Wraps and clips text fallbacks for HTML labels in SVG export [jgraph/drawio#5687]
+- Stops desktop plugin loading from persisting resolved plugin paths in settings [jgraph/drawio-desktop#1993]
+- Adds Stop Editing on Enter option [jgraph/drawio#2196]
+
 15-JUL-2026: 30.3.12
 
+- Replaces deprecated font elements with spans in SVG export [jgraph/drawio#5679]
 - Update vendored drawio-plantuml bundle to commit 90f4230
 - Update vendored drawio-plantuml bundle to commit a7bd5b0
 - Changes default grid color from d0 to e6

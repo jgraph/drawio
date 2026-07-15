@@ -3523,6 +3523,28 @@ var mxUtils =
 	{
 		return mxUtils.ltrim(mxUtils.rtrim(str, chars), chars);
 	},
+
+	/**
+	 * Function: hashCode
+	 *
+	 * Returns a 32-bit hash of the given string as an unsigned
+	 * base36 string.
+	 *
+	 * Parameters:
+	 *
+	 * str - String to be hashed.
+	 */
+	hashCode: function(str)
+	{
+		var h = 5381;
+
+		for (var i = 0; i < str.length; i++)
+		{
+			h = ((h << 5) + h + str.charCodeAt(i)) | 0;
+		}
+
+		return (h >>> 0).toString(36);
+	},
 	
 	/**
 	 * Function: isNumeric

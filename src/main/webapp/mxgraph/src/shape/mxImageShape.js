@@ -134,9 +134,20 @@ mxImageShape.prototype.isRoundable = function()
  * 
  * Returns the image to be rendered.
  */
-mxImageShape.prototype.getImageDataUri = function()
+mxImageShape.prototype.getImageDataUri = function(c)
 {
 	return this.image;
+};
+
+/**
+ * Function: getImageCssVars
+ *
+ * Returns the optional CSS declarations to be applied to the image
+ * content in the given canvas.
+ */
+mxImageShape.prototype.getImageCssVars = function(c)
+{
+	return null;
 };
 
 /**
@@ -196,7 +207,8 @@ mxImageShape.prototype.paintVertexShape = function(c, x, y, w, h)
 			}
 		}
 
-		c.image(x, y, w, h, this.getImageDataUri(), this.preserveImageAspect, false, false, clip);
+		c.image(x, y, w, h, this.getImageDataUri(c), this.preserveImageAspect, false, false, clip,
+			this.getImageCssVars(c));
 
 		if (this.imageBorder != null)
 		{

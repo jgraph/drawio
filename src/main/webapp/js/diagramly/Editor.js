@@ -2649,6 +2649,23 @@
 				Editor.passThroughKeys = config.passThroughKeys;
 			}
 
+			// Custom keyboard shortcuts that bind keys to actions and
+			// override the default bindings. Each entry is {keyCode,
+			// control, shift, alt, action} where action is the name of
+			// an entry in EditorUi.actions, or null to remove an
+			// existing binding. See EditorUi.installKeyboardShortcuts.
+			if (config.keyboardShortcuts != null)
+			{
+				if (Array.isArray(config.keyboardShortcuts))
+				{
+					Editor.keyboardShortcuts = config.keyboardShortcuts;
+				}
+				else
+				{
+					EditorUi.debug('Configuration Error: Array expected for keyboardShortcuts');
+				}
+			}
+
 			// When set, the host blocks new windows/tabs (e.g. a VS Code webview):
 			// link clicks are forwarded to the host via {event:'openLink'} instead
 			// of window.open, and "open in new window/tab" options are hidden.
@@ -4841,10 +4858,445 @@
 			}
 		});
 		
+		// Converts SVG images referenced in use tags, eg. for themed images
+		// with cssVars, into local symbols with the theming per use tag
+		var symbolCache = new Object();
+
+		var getDefs = function()
+		{
+			var defs = svgRoot.getElementsByTagName('defs')[0];
+
+			if (defs == null)
+			{
+				var doc = svgRoot.ownerDocument;
+				defs = (doc.createElementNS != null) ?
+					doc.createElementNS(mxConstants.NS_SVG, 'defs') :
+					doc.createElement('defs');
+				svgRoot.insertBefore(defs, svgRoot.firstChild);
+			}
+
+			return defs;
+		};
+
+		var convertUses = mxUtils.bind(this, function()
+		{
+			var uses = svgRoot.getElementsByTagName('use');
+
+			for (var i = 0; i < uses.length; i++)
+			{
+				(mxUtils.bind(this, function(use)
+				{
+					pending.push(mxUtils.bind(this, function()
+					{
+						try
+						{
+							var href = use.getAttribute('href');
+
+							if (href == null)
+							{
+								href = use.getAttribute('xlink:href');
+							}
+
+							if (href != null && href.charAt(0) != '#' &&
+								href.substring(0, 5) != 'data:')
+							{
+								var src = converter.convert(href);
+
+								var inlineSymbol = function(uri)
+								{
+									var id = Graph.createSvgImageSymbol(
+										getDefs(), symbolCache, uri, true);
+
+									if (id != null)
+									{
+										use.setAttribute('href', '#' + id);
+										use.setAttribute('xlink:href', '#' + id);
+									}
+
+									next();
+								};
+
+								var tmp = cache[src];
+
+								if (tmp == null)
+								{
+									this.convertImageToDataUri(src, function(uri)
+									{
+										if (uri != null && uri != src)
+										{
+											cache[src] = uri;
+										}
+
+										inlineSymbol(uri);
+									});
+								}
+								else
+								{
+									inlineSymbol(tmp);
+								}
+							}
+							else
+							{
+								next();
+							}
+						}
+						catch (e)
+						{
+							next();
+						}
+					}));
+				}))(uses[i]);
+			}
+		});
+
+		// Collapses images that share the same data so that the data is
+		// stored only once, eg. for images with the same URL that were
+		// embedded at multiple sizes or aspect ratios, including inline
+		// instances. Uses symbols with the intrinsic size of the image so
+		// that use tags can scale the shared content, with one symbol per
+		// aspect mode that reference a shared image for the data. Images
+		// that match the source of an existing symbol for themed images
+		// are redirected to that symbol.
+		var dedupImageDefs = mxUtils.bind(this, function()
+		{
+			pending.push(mxUtils.bind(this, function()
+			{
+				try
+				{
+					var temp = svgRoot.getElementsByTagName('image');
+					var images = [];
+
+					for (var i = 0; i < temp.length; i++)
+					{
+						images.push(temp[i]);
+					}
+
+					var redirects = {};
+					var payloads = {};
+					var keys = [];
+
+					var retargetUses = function()
+					{
+						var uses = svgRoot.getElementsByTagName('use');
+
+						for (var i = 0; i < uses.length; i++)
+						{
+							var ref = uses[i].getAttribute('href');
+
+							if (ref == null)
+							{
+								ref = uses[i].getAttribute('xlink:href');
+							}
+
+							if (ref != null && redirects[ref] != null)
+							{
+								uses[i].setAttribute('href', '#' + redirects[ref]);
+								uses[i].setAttribute('xlink:href', '#' + redirects[ref]);
+							}
+						}
+					};
+
+					var replaceWithUse = function(img, id)
+					{
+						var use = (svgRoot.ownerDocument.createElementNS != null) ?
+							svgRoot.ownerDocument.createElementNS(mxConstants.NS_SVG, 'use') :
+							svgRoot.ownerDocument.createElement('use');
+
+						// Copies position and rendering attributes
+						var attrs = img.attributes;
+
+						for (var j = 0; j < attrs.length; j++)
+						{
+							var name = attrs[j].name;
+
+							if (name != 'href' && name != 'xlink:href' &&
+								name != 'preserveAspectRatio')
+							{
+								use.setAttribute(name, attrs[j].value);
+							}
+						}
+
+						use.setAttribute('href', '#' + id);
+						use.setAttribute('xlink:href', '#' + id);
+						img.parentNode.replaceChild(use, img);
+					};
+
+					for (var i = 0; i < images.length; i++)
+					{
+						var img = images[i];
+						var def = img;
+						var inline = true;
+
+						if (img.parentNode.nodeName == 'symbol')
+						{
+							// Accepts images wrapped in a symbol for shared
+							// sizing and ignores other symbol content
+							if (img.getAttribute('id') == null &&
+								String(img.parentNode.getAttribute('id') || '').
+									substring(0, 9) == 'mx-image-')
+							{
+								def = img.parentNode;
+								inline = false;
+							}
+							else
+							{
+								continue;
+							}
+						}
+						else if (String(img.getAttribute('id') || '').
+							substring(0, 9) == 'mx-image-')
+						{
+							inline = false;
+						}
+
+						var href = img.getAttribute('xlink:href');
+
+						if (href != null && href.substring(0, 5) == 'data:')
+						{
+							var par = def.getAttribute('preserveAspectRatio') || '';
+
+							// Redirects to an existing symbol for themed images
+							// with the same source, which have a deterministic ID
+							if (href.substring(0, 18) == 'data:image/svg+xml')
+							{
+								var symbolId = 'mx-symbol-' + mxUtils.hashCode(
+									href + '|' + (par != 'none'));
+								var symbol = svgRoot.querySelector('[id="' + symbolId + '"]');
+
+								if (symbol != null && symbol.nodeName == 'symbol')
+								{
+									if (inline)
+									{
+										replaceWithUse(img, symbolId);
+									}
+									else
+									{
+										redirects['#' + def.getAttribute('id')] = symbolId;
+										def.parentNode.removeChild(def);
+									}
+
+									continue;
+								}
+							}
+
+							if (payloads[href] == null)
+							{
+								payloads[href] = {};
+								keys.push(href);
+							}
+
+							if (payloads[href][par] == null)
+							{
+								payloads[href][par] = [];
+							}
+
+							payloads[href][par].push({node: def, inline: inline});
+						}
+					}
+
+					retargetUses();
+
+					var processNext = function()
+					{
+						var href = null;
+						var work = null;
+
+						// Finds next payload with multiple instances or aspects
+						while (keys.length > 0 && href == null)
+						{
+							href = keys.pop();
+							work = payloads[href];
+							var count = 0;
+							var members = 0;
+
+							for (var par in work)
+							{
+								count++;
+								members = Math.max(members, work[par].length);
+							}
+
+							if (count < 2 && members < 2)
+							{
+								href = null;
+							}
+						}
+
+						if (href == null)
+						{
+							next();
+						}
+						else
+						{
+							var loader = new Image();
+
+							loader.onload = function()
+							{
+								try
+								{
+									var w = loader.naturalWidth;
+									var h = loader.naturalHeight;
+
+									if (w > 0 && h > 0)
+									{
+										var doc = svgRoot.ownerDocument;
+										var aspects = 0;
+
+										for (var par in work)
+										{
+											aspects++;
+										}
+
+										var createElt = function(tag)
+										{
+											return (doc.createElementNS != null) ?
+												doc.createElementNS(mxConstants.NS_SVG, tag) :
+												doc.createElement(tag);
+										};
+
+										var createImage = function()
+										{
+											var inner = createElt('image');
+											inner.setAttribute('width', w);
+											inner.setAttribute('height', h);
+
+											// Workaround for missing namespace support
+											if (inner.setAttributeNS == null)
+											{
+												inner.setAttribute('xlink:href', href);
+											}
+											else
+											{
+												inner.setAttributeNS(mxConstants.NS_XLINK,
+													'xlink:href', href);
+											}
+
+											return inner;
+										};
+
+										var shared = null;
+
+										// Stores the data in a shared image if it is
+										// used with multiple aspect modes
+										if (aspects > 1)
+										{
+											shared = 'mx-data-' + mxUtils.hashCode(href);
+
+											// Resolves collisions with existing IDs
+											while (svgRoot.querySelector('[id="' + shared + '"]') != null)
+											{
+												shared += '-1';
+											}
+
+											var data = createImage();
+											data.setAttribute('id', shared);
+											getDefs().appendChild(data);
+										}
+
+										for (var par in work)
+										{
+											var imgs = work[par];
+											var id = null;
+
+											// Reuses the ID of the first shared definition
+											for (var i = 0; i < imgs.length && id == null; i++)
+											{
+												if (!imgs[i].inline)
+												{
+													id = imgs[i].node.getAttribute('id');
+												}
+											}
+
+											if (id == null)
+											{
+												id = 'mx-image-' + mxUtils.hashCode(href + '|' + par);
+
+												// Resolves collisions with existing IDs
+												while (svgRoot.querySelector('[id="' + id + '"]') != null)
+												{
+													id += '-1';
+												}
+											}
+
+											var symbol = createElt('symbol');
+											symbol.setAttribute('id', id);
+											symbol.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+
+											if (par != '')
+											{
+												symbol.setAttribute('preserveAspectRatio', par);
+											}
+
+											if (shared != null)
+											{
+												var use = createElt('use');
+												use.setAttribute('href', '#' + shared);
+												use.setAttribute('xlink:href', '#' + shared);
+												symbol.appendChild(use);
+											}
+											else
+											{
+												symbol.appendChild(createImage());
+											}
+
+											getDefs().appendChild(symbol);
+
+											// Replaces inline images with use tags and
+											// removes the shared definitions
+											for (var i = 0; i < imgs.length; i++)
+											{
+												var node = imgs[i].node;
+
+												if (imgs[i].inline)
+												{
+													replaceWithUse(node, id);
+												}
+												else
+												{
+													if (node.getAttribute('id') != id)
+													{
+														redirects['#' + node.getAttribute('id')] = id;
+													}
+
+													node.parentNode.removeChild(node);
+												}
+											}
+										}
+
+										retargetUses();
+									}
+								}
+								catch (e)
+								{
+									// ignore
+								}
+
+								processNext();
+							};
+
+							loader.onerror = function()
+							{
+								processNext();
+							};
+
+							loader.src = href;
+						}
+					};
+
+					processNext();
+				}
+				catch (e)
+				{
+					next();
+				}
+			}));
+		});
+
 		// Converts all known image tags in output
 		// LATER: Add support for images in CSS
 		convertImages('image', 'xlink:href');
 		convertImages('img', 'src');
+		convertUses();
+		dedupImageDefs();
 		next();
 	};
 		
@@ -11567,7 +12019,16 @@
 			{
 				editorUi.hideDialog();
 
-				if (editorUi.spinner.spin(document.body, mxResources.get('updatingPreview')))
+				// Only the print/preview path (fn == null) renders synchronously
+				// here and needs the spinner. The export path (fn != null) issues
+				// its own request with its own spinner (e.g. saveRequest), which
+				// no-ops and silently drops the request if a spinner is already
+				// active, so it must not run under updatingPreview
+				if (fn != null)
+				{
+					preview(print);
+				}
+				else if (editorUi.spinner.spin(document.body, mxResources.get('updatingPreview')))
 				{
 					window.setTimeout(function()
 					{

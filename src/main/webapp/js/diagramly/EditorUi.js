@@ -505,11 +505,28 @@
 			{
 				var w = svg.getAttribute('width');
 				var h = svg.getAttribute('height');
-				svg.setAttribute('x', node.getAttribute('x'));
-				svg.setAttribute('y', node.getAttribute('y'));
+
+				// Positions are undefined for image definitions in defs
+				if (node.hasAttribute('x'))
+				{
+					svg.setAttribute('x', node.getAttribute('x'));
+				}
+
+				if (node.hasAttribute('y'))
+				{
+					svg.setAttribute('y', node.getAttribute('y'));
+				}
+
 				svg.setAttribute('width', node.getAttribute('width'));
 				svg.setAttribute('height', node.getAttribute('height'));
 				svg.style.fontFamily = 'initial';
+
+				// Keeps the aspect handling of the replaced image
+				if (node.getAttribute('preserveAspectRatio') != null)
+				{
+					svg.setAttribute('preserveAspectRatio',
+						node.getAttribute('preserveAspectRatio'));
+				}
 
 				// Handles existing width and height
 				if (w > 0 && h > 0 && svg.getAttribute('viewBox') == null)
@@ -521,6 +538,12 @@
 				var group = mxUtils.createElementNs(svg.ownerDocument,
 					mxConstants.NS_SVG, 'g');
 				group.appendChild(svg);
+
+				// Keeps the ID of images that are shared via use tags
+				if (node.hasAttribute('id'))
+				{
+					group.setAttribute('id', node.getAttribute('id'));
+				}
 
 				if (node.hasAttribute('transform'))
 				{
@@ -997,7 +1020,10 @@
 	 */
 	EditorUi.prototype.isOffline = function(ignoreStealth)
 	{
-		return this.isOfflineApp() || !navigator.onLine || (!ignoreStealth && (urlParams['stealth'] == '1' || urlParams['lockdown'] == '1'));
+		// navigator.onLine is false on systems with no network interface so is
+		// ignored in the desktop app where all resources are local
+		return this.isOfflineApp() || (!navigator.onLine && !EditorUi.isElectronApp) ||
+			(!ignoreStealth && (urlParams['stealth'] == '1' || urlParams['lockdown'] == '1'));
 	};
 
 	/**
@@ -4010,6 +4036,21 @@
 				this.editor.fireEvent(new mxEventObject('fileLoaded'));
 				result = true;
 
+				// Loads fonts into the local cache for saving
+				// SVG files with embedded fonts
+				if (Editor.embedSvgFonts && /(\.svg)$/i.test(file.getTitle()))
+				{
+					try
+					{
+						this.editor.loadFonts();
+						this.editor.embedExtFonts(function() { });
+					}
+					catch (e)
+					{
+						// ignore
+					}
+				}
+
 				if (!this.isOffline() && file.getMode() != null)
 				{
 					var theme = (urlParams['sketch'] == '1') ? 'sketch' : uiTheme;
@@ -6730,25 +6771,25 @@
 					{
 						this.openInNewWindow(data, mimeType, base64Encoded);
 					}
-					else if (mimeType != null && mimeType.substring(0, 9) == 'text/html')
+					else if (mimeType != null && mimeType.substring(0, 9) == 'text/html' &&
+						data.length < EmbedDialog.maxSize)
 					{
-						var dlg = new EmbedDialog(this, data);
+						var dlg = new EmbedDialog(this, data, null, null,
+							null, null, null, null, null, true);
 						this.showDialog(dlg.container, 450, 270, true, true, null,
 							false, null, new mxRectangle(0, 0, 400, 250));
 						dlg.init();
 					}
 					else
 					{
-						var win = window.open('about:blank');
-						
+						// Native rendering of text is faster than writing
+						// a pre element and keeps the charset intact
+						var win = window.open(URL.createObjectURL(new Blob([data],
+							{type: 'text/plain;charset=utf-8'})));
+
 						if (win == null)
 						{
 							mxUtils.popup(data, true);
-						}
-						else
-						{
-							win.document.write('<pre>' + mxUtils.htmlEntities(data, false) + '</pre>');
-							win.document.close();
 						}
 					}
 				}
@@ -6817,52 +6858,13 @@
 	 */
 	EditorUi.prototype.openInNewWindow = function(data, mimeType, base64Encoded)
 	{
-		var win = window.open('about:blank');
-		
-		if (win == null || win.document == null)
+		var win = window.open(URL.createObjectURL((base64Encoded) ?
+			this.base64ToBlob(data, mimeType) :
+			new Blob([data], {type: mimeType})));
+
+		if (win == null)
 		{
 			mxUtils.popup(data, true);
-		}
-		else
-		{
-			var bg = 'background: light-dark(rgb(255, 255, 255), rgb(18, 18, 18))';
-
-			// Extracs background color from SVG style
-			if (mimeType == 'image/svg+xml')
-			{
-				var doc = mxUtils.parseXml(data);
-				var temp = doc.documentElement.style.backgroundColor;
-
-				if (temp != '')
-				{
-					bg = 'background: ' + temp + ';';
-				}
-			}
-			
-			var prefix = '<html><head><meta charset="UTF-8"></head><body ' +
-				'style="color-scheme: light dark; ' + bg + '">';
-
-			if (mimeType == 'image/svg+xml' && !mxClient.IS_SVG)
-			{
-				win.document.write(prefix + '<pre>' + mxUtils.htmlEntities(data, false) + '</pre></body></html>');
-				win.document.close();
-			}
-			else
-			{
-				if (mimeType == 'image/svg+xml' && !base64Encoded)
-				{
-					win.document.write(prefix + data + '</body></html>');
-				}
-				else
-				{
-					var temp = (base64Encoded) ? data : btoa(unescape(encodeURIComponent(data)));
-				
-					win.document.write(prefix + '<img style="max-width:100%;" src="data:' +
-						mimeType  + ';base64,' + temp + '"/></body></html>');
-				}
-				
-				win.document.close();
-			}
 		}
 	};
 	
@@ -7951,8 +7953,16 @@
 		var editRow = document.createElement('div');
 		editRow.className = 'geDialogCheckRow';
 
-		var edit = this.addCheckbox(editRow, mxResources.get('edit') + ':', true, null, true);
+		// Checkbox and label form the fixed label column so the select
+		// is left aligned with the form row selects in the same section
+		var editLbl = document.createElement('span');
+		editLbl.className = 'geDialogFormLabel';
+		editLbl.style.display = 'flex';
+		editLbl.style.alignItems = 'center';
+
+		var edit = this.addCheckbox(editLbl, mxResources.get('edit') + ':', true, null, true);
 		edit.style.marginTop = '0px';
+		editRow.appendChild(editLbl);
 
 		var file = this.getCurrentFile();
 		var editUrl = '';
@@ -7964,9 +7974,6 @@
 
 		var editSelect = document.createElement('select');
 		editSelect.style.maxWidth = '200px';
-		editSelect.style.width = 'auto';
-		editSelect.style.marginLeft = '8px';
-		editSelect.style.marginRight = '10px';
 		editSelect.className = 'geBtn';
 
 		var blankOption = document.createElement('option');
@@ -7992,11 +7999,13 @@
 					{
 						editUrl = value;
 						customOption.setAttribute('title', value);
+						editSelect.setAttribute('title', value);
 					}
 					else
 					{
 						editSelect.value = 'blank';
 						customOption.removeAttribute('title');
+						editSelect.removeAttribute('title');
 					}
 				}, mxResources.get('url'), null, null, null, null, function()
 				{
@@ -8004,6 +8013,10 @@
 				});
 				this.showDialog(dlg2.container, 300, 80, true, false);
 				dlg2.init();
+			}
+			else
+			{
+				editSelect.removeAttribute('title');
 			}
 		}));
 		
@@ -8510,34 +8523,6 @@
 		var linkSection = this.addLinkSection(optSection);
 		var pages = this.addPagesRow(optSection);
 
-		var themeSelect = document.createElement('select');
-		themeSelect.style.maxWidth = '260px';
-
-		var lightOption = document.createElement('option');
-		lightOption.setAttribute('value', 'light');
-		mxUtils.write(lightOption, mxResources.get('light'));
-		themeSelect.appendChild(lightOption);
-
-		var darkOption = document.createElement('option');
-		darkOption.setAttribute('value', 'dark');
-		mxUtils.write(darkOption, mxResources.get('dark'));
-		themeSelect.appendChild(darkOption);
-
-		var autoOption = document.createElement('option');
-		autoOption.setAttribute('value', 'auto');
-		mxUtils.write(autoOption, mxResources.get('automatic'));
-		autoOption.setAttribute('selected', 'selected');
-		themeSelect.appendChild(autoOption);
-
-		var themeRow = document.createElement('div');
-		themeRow.className = 'geDialogFormRow';
-		var themeLbl = document.createElement('span');
-		themeLbl.className = 'geDialogFormLabel';
-		mxUtils.write(themeLbl, mxResources.get('appearance') + ':');
-		themeRow.appendChild(themeLbl);
-		themeRow.appendChild(themeSelect);
-		optSection.appendChild(themeRow);
-
 		var zoomRow = document.createElement('div');
 		zoomRow.className = 'geDialogCheckRow';
 		var zoom = document.createElement('input');
@@ -8566,6 +8551,63 @@
 
 		var advanced = this.addAdvancedSection(div);
 		var advSection = advanced.content;
+
+		var themeSelect = document.createElement('select');
+		themeSelect.style.maxWidth = '260px';
+
+		var lightOption = document.createElement('option');
+		lightOption.setAttribute('value', 'light');
+		mxUtils.write(lightOption, mxResources.get('light'));
+		themeSelect.appendChild(lightOption);
+
+		var darkOption = document.createElement('option');
+		darkOption.setAttribute('value', 'dark');
+		mxUtils.write(darkOption, mxResources.get('dark'));
+		themeSelect.appendChild(darkOption);
+
+		var autoOption = document.createElement('option');
+		autoOption.setAttribute('value', 'auto');
+		mxUtils.write(autoOption, mxResources.get('automatic'));
+		autoOption.setAttribute('selected', 'selected');
+		themeSelect.appendChild(autoOption);
+
+		var themeRow = document.createElement('div');
+		themeRow.className = 'geDialogFormRow';
+		var themeLbl = document.createElement('span');
+		themeLbl.className = 'geDialogFormLabel';
+		mxUtils.write(themeLbl, mxResources.get('appearance') + ':');
+		themeRow.appendChild(themeLbl);
+		themeRow.appendChild(themeSelect);
+		advSection.appendChild(themeRow);
+
+		var editSection = null;
+
+		if (EditorUi.enableHtmlEditOption)
+		{
+			editSection = this.addEditButton(advSection, lightbox);
+			var edit = editSection.getEditInput();
+
+			mxEvent.addListener(lightbox, 'change', function()
+			{
+				if (lightbox.checked)
+				{
+					edit.removeAttribute('disabled');
+				}
+				else
+				{
+					edit.setAttribute('disabled', 'disabled');
+				}
+
+				if (edit.checked && lightbox.checked)
+				{
+					editSection.getEditSelect().removeAttribute('disabled');
+				}
+				else
+				{
+					editSection.getEditSelect().setAttribute('disabled', 'disabled');
+				}
+			});
+		}
 
 		var layers = this.addCheckbox(advSection, mxResources.get('layers'),
 			true, null, null, null, null, null, true);
@@ -8605,35 +8647,6 @@
 				tooltipIcons.setAttribute('disabled', 'disabled');
 			}
 		});
-
-		var editSection = null;
-
-		if (EditorUi.enableHtmlEditOption)
-		{
-			editSection = this.addEditButton(advSection, lightbox);
-			var edit = editSection.getEditInput();
-
-			mxEvent.addListener(lightbox, 'change', function()
-			{
-				if (lightbox.checked)
-				{
-					edit.removeAttribute('disabled');
-				}
-				else
-				{
-					edit.setAttribute('disabled', 'disabled');
-				}
-
-				if (edit.checked && lightbox.checked)
-				{
-					editSection.getEditSelect().removeAttribute('disabled');
-				}
-				else
-				{
-					editSection.getEditSelect().setAttribute('disabled', 'disabled');
-				}
-			});
-		}
 
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
@@ -8811,7 +8824,39 @@
 
 			initialPageRow.appendChild(initialPageSelect);
 			optSection.appendChild(initialPageRow);
+
+			// Initial page requires the other pages to be included
+			var updateInitialPageEnabled = function()
+			{
+				if (pages.row.style.display != 'none' &&
+					allPagesSelect.value == 'currentPage')
+				{
+					initialPageSelect.setAttribute('disabled', 'disabled');
+				}
+				else
+				{
+					initialPageSelect.removeAttribute('disabled');
+				}
+			};
+
+			mxEvent.addListener(allPagesSelect, 'change', updateInitialPageEnabled);
+			mxEvent.addListener(linkSelect, 'change', updateInitialPageEnabled);
+			updateInitialPageEnabled();
 		}
+
+		var lightbox = this.addCheckbox(optSection, mxResources.get('lightbox'),
+			true, null, null, !showFrameOption, null, null, true);
+
+		// Cannot disable lightbox in iframes
+		if (showFrameOption && lightbox.checkRow != null)
+		{
+			lightbox.checkRow.style.display = 'none';
+		}
+
+		div.appendChild(optSection);
+
+		var advanced = this.addAdvancedSection(div);
+		var advSection = advanced.content;
 
 		var themeSelect = document.createElement('select');
 		themeSelect.style.maxWidth = '260px';
@@ -8841,22 +8886,8 @@
 			mxUtils.write(themeLbl, mxResources.get('appearance') + ':');
 			themeRow.appendChild(themeLbl);
 			themeRow.appendChild(themeSelect);
-			optSection.appendChild(themeRow);
+			advSection.appendChild(themeRow);
 		}
-
-		var lightbox = this.addCheckbox(optSection, mxResources.get('lightbox'),
-			true, null, null, !showFrameOption, null, null, true);
-
-		// Cannot disable lightbox in iframes
-		if (showFrameOption && lightbox.checkRow != null)
-		{
-			lightbox.checkRow.style.display = 'none';
-		}
-
-		div.appendChild(optSection);
-
-		var advanced = this.addAdvancedSection(div);
-		var advSection = advanced.content;
 
 		var editSection = this.addEditButton(advSection, lightbox);
 		var edit = editSection.getEditInput();
@@ -8926,9 +8957,11 @@
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
 			// The first page is the default landing page - only an explicit
-			// other page is encoded into the link
+			// other page is encoded into the link and only if the link
+			// includes the other pages
 			fn(linkSection.getTarget(), linkSection.getColor(),
-				(initialPageSelect == null || initialPageSelect.selectedIndex <= 0) ?
+				(initialPageSelect == null || initialPageSelect.selectedIndex <= 0 ||
+					initialPageSelect.getAttribute('disabled') != null) ?
 					null : this.pages[initialPageSelect.selectedIndex],
 				lightbox.checked, editSection.getLink(), layers.checked,
 				(widthInput != null) ? widthInput.value : null,
@@ -9699,7 +9732,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.showEmbedImageDialog = function(fn, title, imageLabel, shadowEnabled, helpLink)
+	EditorUi.prototype.showEmbedImageDialog = function(fn, title, imageLabel, shadowEnabled, helpLink, themeOption, pagesOption)
 	{
 		var div = document.createElement('div');
 		var graph = this.editor.graph;
@@ -9713,6 +9746,8 @@
 
 		var optSection = document.createElement('div');
 		optSection.className = 'geDialogSection';
+
+		var pages = (pagesOption) ? this.addPagesRow(optSection) : null;
 
 		var fit = this.addCheckbox(optSection, mxResources.get('fit'), true,
 			null, null, null, null, null, true);
@@ -9728,6 +9763,46 @@
 
 		var advanced = this.addAdvancedSection(div);
 		var advSection = advanced.content;
+
+		var themeSelect = null;
+
+		if (themeOption)
+		{
+			themeSelect = document.createElement('select');
+			themeSelect.style.maxWidth = '260px';
+
+			var lightOption = document.createElement('option');
+			lightOption.setAttribute('value', 'light');
+			mxUtils.write(lightOption, mxResources.get('light'));
+			themeSelect.appendChild(lightOption);
+
+			var darkOption = document.createElement('option');
+			darkOption.setAttribute('value', 'dark');
+			mxUtils.write(darkOption, mxResources.get('dark'));
+			themeSelect.appendChild(darkOption);
+
+			if (mxUtils.lightDarkColorSupported)
+			{
+				var autoThemeOption = document.createElement('option');
+				autoThemeOption.setAttribute('value', 'auto');
+				mxUtils.write(autoThemeOption, mxResources.get('automatic'));
+				themeSelect.appendChild(autoThemeOption);
+				themeSelect.value = 'auto';
+			}
+			else
+			{
+				themeSelect.value = (Editor.isDarkMode()) ? 'dark' : 'light';
+			}
+
+			var themeRow = document.createElement('div');
+			themeRow.className = 'geDialogFormRow';
+			var themeLbl = document.createElement('span');
+			themeLbl.className = 'geDialogFormLabel';
+			mxUtils.write(themeLbl, mxResources.get('appearance') + ':');
+			themeRow.appendChild(themeLbl);
+			themeRow.appendChild(themeSelect);
+			advSection.appendChild(themeRow);
+		}
 
 		var editSection = this.addEditButton(advSection, lightbox);
 		var edit = editSection.getEditInput();
@@ -9750,12 +9825,22 @@
 					layers.removeAttribute('disabled');
 				}
 
+				if (pages != null)
+				{
+					pages.select.removeAttribute('disabled');
+				}
+
 				edit.removeAttribute('disabled');
 				linkIcons.removeAttribute('disabled');
 				tooltipIcons.removeAttribute('disabled');
 			}
 			else
 			{
+				if (pages != null)
+				{
+					pages.select.setAttribute('disabled', 'disabled');
+				}
+
 				layers.setAttribute('disabled', 'disabled');
 				edit.setAttribute('disabled', 'disabled');
 				linkIcons.setAttribute('disabled', 'disabled');
@@ -9776,7 +9861,10 @@
 		{
 			fn(fit.checked, shadow.checked, image.checked, lightbox.checked,
 				editSection.getLink(), layers.checked,
-				linkIcons.checked, tooltipIcons.checked);
+				linkIcons.checked, tooltipIcons.checked,
+				(themeSelect != null) ? themeSelect.value : null,
+				(pages != null) ? (pages.row != null &&
+					pages.select.value == 'allPages') : null);
 		}), null, mxResources.get('embed'), helpLink);
 		this.showDialog(dlg.container, 280, null, true, true);
 	};
@@ -9879,10 +9967,33 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.createEmbedSvg = function(fit, shadow, image, lightbox, edit, layers, linkIcons, tooltipIcons, fn)
+	EditorUi.prototype.createEmbedSvg = function(fit, shadow, image, lightbox, edit, layers, linkIcons, tooltipIcons, theme, allPages, fn)
 	{
-		var svgRoot = this.editor.graph.getSvg(null, null, null, null,
-			null, null, null, null, null, null, !image, 'auto');
+		theme = (theme != null) ? theme : 'auto';
+		allPages = (allPages != null) ? allPages : true;
+		var page = this.getSelectedPageIndex();
+		var prevLightDarkColorSupported = mxUtils.lightDarkColorSupported;
+		var prevPreferDarkColor = mxUtils.preferDarkColor;
+
+		// Resolves adaptive colors to one side for fixed themes
+		if (theme == 'light' || theme == 'dark')
+		{
+			mxUtils.lightDarkColorSupported = false;
+			mxUtils.preferDarkColor = theme == 'dark';
+		}
+
+		var svgRoot = null;
+
+		try
+		{
+			svgRoot = this.editor.graph.getSvg(null, null, null, null,
+				null, null, null, null, null, null, !image, theme);
+		}
+		finally
+		{
+			mxUtils.lightDarkColorSupported = prevLightDarkColorSupported;
+			mxUtils.preferDarkColor = prevPreferDarkColor;
+		}
 		
 		// Keeps hashtag links on same page
 		var links = svgRoot.getElementsByTagName('a');
@@ -9903,7 +10014,8 @@
 		
 		if (lightbox)
 		{
-			svgRoot.setAttribute('content', this.getFileData(true));
+			svgRoot.setAttribute('content', this.getFileData(
+				true, null, null, null, null, !allPages));
 		}
 		
 		// Adds shadow filter
@@ -9924,6 +10036,7 @@
 				// KNOWN: Message passing does not seem to work in IE11
 				onclick = "onclick=\"(function(img){if(img.wnd!=null&&!img.wnd.closed){img.wnd.focus();}else{var r=function(evt){if(evt.data=='ready'&&evt.source==img.wnd){img.wnd.postMessage(decodeURIComponent(" +
 					"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('" + EditorUi.lightboxHost + "/?client=1" +
+					((allPages && page != null) ? ("&page=" + page) : "") +
 					((edit) ? "&edit=_blank" : "") + ((layers) ? '&layers=1' : '') +
 					((linkIcons) ? '&link-icons=1' : '') +
 					((tooltipIcons) ? '&tooltip-icons=1' : '') + "');}})(this);\"";
@@ -9949,8 +10062,6 @@
 			// Adds double click handling
 			if (lightbox)
 			{
-				var page = this.getSelectedPageIndex();
-
 				// KNOWN: Message passing does not seem to work in IE11
 				var js = "(function(svg){var src=window.event.target||window.event.srcElement;" +
 					// Ignores link events
@@ -9963,7 +10074,7 @@
 					"window.addEventListener('message',r);" +
 					// Opens lightbox window
 					"svg.wnd=window.open('" + EditorUi.lightboxHost + "/?client=1" +
-					((page != null) ? ("&page=" + page) : "") +
+					((allPages && page != null) ? ("&page=" + page) : "") +
 					((edit) ? "&edit=_blank" : "") + ((layers) ? '&layers=1' : '') +
 					((linkIcons) ? '&link-icons=1' : '') +
 					((tooltipIcons) ? '&tooltip-icons=1' : '') + "');}}})(this);";
@@ -9983,9 +10094,12 @@
 			
 			if (css != '')
 			{
-				svgRoot.setAttribute('style', css);
+				// Appends to keep color-scheme added in getSvg
+				var style = svgRoot.getAttribute('style');
+				svgRoot.setAttribute('style', ((style != null &&
+					style.length > 0) ? style + ' ' : '') + css);
 			}
-			
+
 			// Adds CSS
 			this.editor.addFontCss(svgRoot);
 			
@@ -10258,7 +10372,9 @@
 
 	/**
 	 * Returns the SVG of the diagram with embedded XML. If a callback function is
-	 * used, the images are converted to data URIs.
+	 * used, the images are converted to data URIs and fonts are embedded async.
+	 * Without a callback, fonts are embedded synchronously from the local font
+	 * cache, using external font references while the cache is being loaded.
 	 */
 	EditorUi.prototype.getEmbeddedSvg = function(xml, graph, url, noHeader, callback, ignoreSelection,
 		redirect, embedImages, background, scale, border, shadow, theme, addSvgData, embedFonts)
@@ -10282,9 +10398,47 @@
 		// Sets or disables alternate text for foreignObjects. Disabling is needed
 		// because PhantomJS seems to ignore switch statements and paint all text.
 		var imgExport = this.editor.graph.createSvgImageExport(xml != null, addSvgData);
-		var svgRoot = graph.getSvg(bg, scale, border, null, null, ignoreSelection, null,
-			imgExport, null, graph.shadowVisible || shadow, null, theme, 'diagram');
-		
+		var prevAddFont = Graph.addFont;
+		var tempFontLookup = null;
+
+		// Uses temporary font lookup to restrict font embedding to the
+		// fonts used in the rendered cells for synchronous calls
+		if (callback == null)
+		{
+			tempFontLookup = {};
+
+			Graph.addFont = function(name, url, callback, elementLookup)
+			{
+				prevAddFont.call(this, name, url, callback, tempFontLookup);
+			};
+
+			// Adds fonts from cell styles to temporary font lookup
+			var prevDrawCellState = imgExport.drawCellState;
+
+			imgExport.drawCellState = function(state, canvas)
+			{
+				if (state != null)
+				{
+					Graph.processFontStyle(state.style);
+				}
+
+				prevDrawCellState.apply(this, arguments);
+			};
+		}
+
+		var svgRoot = null;
+
+		try
+		{
+			svgRoot = graph.getSvg(bg, scale, border, null, null, ignoreSelection, null,
+				imgExport, null, graph.shadowVisible || shadow, null, theme, 'diagram');
+		}
+		finally
+		{
+			// Restores global font registration
+			Graph.addFont = prevAddFont;
+		}
+
 		if (graph.shadowVisible || shadow)
 		{
 			graph.addSvgShadow(svgRoot, null, null, border == 0);
@@ -10346,6 +10500,50 @@
 		}
 		else
 		{
+			// Restricts font embedding to fonts used in rendered cells
+			var prevCustomFontElements = Graph.customFontElements;
+			Graph.customFontElements = tempFontLookup;
+
+			try
+			{
+				// Embeds fonts synchronously if all fonts are in the local
+				// cache, otherwise the fonts are loaded into the cache for
+				// the next call and external references are used below
+				var fontsEmbedded = false;
+
+				this.embedFonts(svgRoot, function()
+				{
+					fontsEmbedded = true;
+				}, embedFonts);
+
+				if (!fontsEmbedded)
+				{
+					try
+					{
+						// Global font CSS was added above if it was resolved
+						if (this.editor.resolvedFontCss == null)
+						{
+							this.editor.addFontCss(svgRoot);
+						}
+
+						var extFontCss = this.editor.graph.getExtFontCss();
+
+						if (extFontCss.length > 0)
+						{
+							this.editor.addFontCss(svgRoot, extFontCss);
+						}
+					}
+					catch (e)
+					{
+						// ignore
+					}
+				}
+			}
+			finally
+			{
+				Graph.customFontElements = prevCustomFontElements;
+			}
+
 			return done(svgRoot);
 		}
 	};
@@ -15280,7 +15478,11 @@
 			this.altShiftActions[81] = 'copyStyle'; // Alt+Shift+Q
 			this.altShiftActions[87] = 'pasteStyle'; // Alt+Shift+W
 			this.altShiftActions[83] = 'synchronize'; // Alt+Shift+S
-			
+
+			// Applies custom keyboard shortcuts from the configuration
+			// after the default bindings so that they take precedence
+			this.installKeyboardShortcuts();
+
 			if (urlParams['embedInline'] == '1')
 			{
 				document.body.classList.add('geEmbedInline');
@@ -18854,7 +19056,21 @@
 				mxSettings.setCreateTarget(graph.connectionHandler.isCreateTarget());
 				mxSettings.save();
 			}));
-			
+
+			/**
+			 * Persists stop editing on enter switch.
+			 */
+			if (mxSettings.settings.enterStopsCellEditing != null)
+			{
+				graph.setEnterStopsCellEditing(mxSettings.settings.enterStopsCellEditing);
+			}
+
+			this.addListener('enterStopsCellEditingChanged', mxUtils.bind(this, function(sender, evt)
+			{
+				mxSettings.settings.enterStopsCellEditing = graph.isEnterStopsCellEditing();
+				mxSettings.save();
+			}));
+
 			/**
 			 * Persists default page format.
 			 */
@@ -19004,13 +19220,13 @@
 	 */
 	EditorUi.prototype.writeTextToClipboard = function(text, error, done)
 	{
-		navigator.clipboard.writeText(text)['catch'](error).then(function()
+		navigator.clipboard.writeText(text).then(function()
 		{
 			if (done != null)
 			{
 				done();
 			}
-		});
+		})['catch'](error);
 	};
 
 	/**
@@ -22016,6 +22232,133 @@
 		window.addEventListener('keydown', this.passThroughKeysListener, true);
 	};
 
+	/**
+	 * Display names for key codes without a printable character, used for
+	 * the menu shortcut hints of custom keyboard shortcuts.
+	 */
+	EditorUi.keyNames = {
+		8: 'Backspace', 9: 'Tab', 13: 'Enter', 32: 'Space',
+		33: 'PageUp', 34: 'PageDown', 35: 'End', 36: 'Home',
+		37: 'Left', 38: 'Up', 39: 'Right', 40: 'Down',
+		45: 'Insert', 46: 'Delete', 107: '+', 109: '-',
+		112: 'F1', 113: 'F2', 114: 'F3', 115: 'F4', 116: 'F5',
+		117: 'F6', 118: 'F7', 119: 'F8', 120: 'F9', 121: 'F10',
+		122: 'F11', 123: 'F12', 187: '+', 189: '-'
+	};
+
+	/**
+	 * Installs the custom keyboard shortcuts from the configuration
+	 * (Editor.keyboardShortcuts, set via Editor.configure). Each entry is
+	 * {keyCode, control, shift, alt, action} where keyCode is a JavaScript
+	 * key code or a single character, and action the name of an entry in
+	 * EditorUi.actions, or null to remove an existing binding for the
+	 * given key. Custom bindings override the default bindings.
+	 */
+	EditorUi.prototype.installKeyboardShortcuts = function()
+	{
+		if (Editor.keyboardShortcuts != null)
+		{
+			for (var i = 0; i < Editor.keyboardShortcuts.length; i++)
+			{
+				this.installKeyboardShortcut(Editor.keyboardShortcuts[i]);
+			}
+		}
+	};
+
+	/**
+	 * Installs a single custom keyboard shortcut, see
+	 * EditorUi.installKeyboardShortcuts for the entry format.
+	 */
+	EditorUi.prototype.installKeyboardShortcut = function(entry)
+	{
+		var isChar = typeof entry.keyCode === 'string' && entry.keyCode.length == 1;
+		var code = (isChar) ? entry.keyCode.toUpperCase().charCodeAt(0) :
+			parseInt(entry.keyCode);
+
+		if (isNaN(code))
+		{
+			EditorUi.debug('Configuration Error: Invalid keyCode for keyboardShortcuts', entry);
+
+			return;
+		}
+
+		if (entry.alt)
+		{
+			var actions = (entry.control) ?
+				((entry.shift) ? this.ctrlAltShiftActions : this.ctrlAltActions) :
+				((entry.shift) ? this.altShiftActions : this.altActions);
+
+			if (entry.action != null)
+			{
+				actions[code] = entry.action;
+			}
+			else
+			{
+				delete actions[code];
+			}
+		}
+		else if (entry.action != null)
+		{
+			// Resolves the action when the key is pressed so that actions
+			// added after startup (eg. by plugins) can be bound here
+			var f = mxUtils.bind(this, function()
+			{
+				var action = this.actions.get(entry.action);
+
+				if (action != null && action.isEnabled())
+				{
+					action.funct.apply(this, arguments);
+				}
+			});
+
+			if (entry.control)
+			{
+				if (entry.shift)
+				{
+					this.keyHandler.bindControlShiftKey(code, f);
+				}
+				else
+				{
+					this.keyHandler.bindControlKey(code, f);
+				}
+			}
+			else
+			{
+				if (entry.shift)
+				{
+					this.keyHandler.bindShiftKey(code, f);
+				}
+				else
+				{
+					this.keyHandler.bindKey(code, f);
+				}
+			}
+		}
+		else
+		{
+			var keys = (entry.control) ?
+				((entry.shift) ? this.keyHandler.controlShiftKeys : this.keyHandler.controlKeys) :
+				((entry.shift) ? this.keyHandler.shiftKeys : this.keyHandler.normalKeys);
+			delete keys[code];
+		}
+
+		// Updates the shortcut shown in the menus for the action
+		if (entry.action != null)
+		{
+			var action = this.actions.get(entry.action);
+			var keyName = (isChar) ? entry.keyCode.toUpperCase() :
+				(((code >= 48 && code <= 57) || (code >= 65 && code <= 90)) ?
+				String.fromCharCode(code) : EditorUi.keyNames[code]);
+
+			if (action != null && keyName != null)
+			{
+				action.shortcut = ((entry.control) ? Editor.ctrlKey + '+' : '') +
+					((entry.alt) ? Editor.altKey + '+' : '') +
+					((entry.shift) ? Editor.shiftKey + '+' : '') + keyName;
+			}
+		}
+	};
+
 	EditorUi.prototype.installMessageHandler = function(fn)
 	{
 		var changeListener = null;
@@ -22919,6 +23262,38 @@
 								graph.maxFitScale = fitMaxScale;
 								graph.fit(fitBorder, null, null, null, null, true);
 								graph.maxFitScale = prev;
+							});
+						}
+
+						// Scrolls the given diagram coordinate to the top left
+						// corner of the viewport after loading (and after the
+						// optional scale or fit above)
+						if (data.scroll != null && data.scroll.x != null &&
+							data.scroll.y != null)
+						{
+							var scrollPos = data.scroll;
+							var beforeScroll = afterLoad;
+
+							afterLoad = mxUtils.bind(this, function()
+							{
+								if (beforeScroll != null)
+								{
+									beforeScroll();
+								}
+
+								var graph = this.editor.graph;
+								var s = graph.view.scale;
+								var t = graph.view.translate;
+
+								if (mxUtils.hasScrollbars(graph.container))
+								{
+									graph.container.scrollLeft = (t.x + scrollPos.x) * s;
+									graph.container.scrollTop = (t.y + scrollPos.y) * s;
+								}
+								else
+								{
+									graph.view.setTranslate(-scrollPos.x, -scrollPos.y);
+								}
 							});
 						}
 

@@ -226,7 +226,8 @@
 						{
 							if (name == 'page')
 							{
-								return diagrams[0].getAttribute('name') || 'Page-1';
+								return diagrams[0].getAttribute('name') ||
+									mxResources.get('pageWithNumber', [1], 'Page-1');
 							}
 							else if (name == 'pagenumber')
 							{

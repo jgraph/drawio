@@ -169,8 +169,8 @@ mxElbowEdgeHandler.prototype.convertPoint = function(point, gridEnabled)
 		point.y = this.graph.snap(point.y);
 	}
 	
-	point.x = Math.round(point.x / scale - tr.x - origin.x);
-	point.y = Math.round(point.y / scale - tr.y - origin.y);
+	point.x = this.roundLength(point.x / scale - tr.x - origin.x);
+	point.y = this.roundLength(point.y / scale - tr.y - origin.y);
 	
 	return point;
 };

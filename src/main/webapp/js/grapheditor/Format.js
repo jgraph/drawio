@@ -5499,10 +5499,17 @@ StyleFormatPanel.prototype.init = function()
 	if (!ss.containsLabel && ss.cells.length > 0)
 	{
 		if (ss.containsImage && ss.vertices.length == 1 && ss.style.shape == 'image' &&
-			ss.style.image != null && String(ss.style.image).
-				substring(0, 19) == 'data:image/svg+xml;')
+			ss.style.image != null)
 		{
-			this.container.appendChild(this.addSvgStyles(this.createPanel()));
+			if (String(ss.style.image).substring(0, 19) == 'data:image/svg+xml;')
+			{
+				this.container.appendChild(this.addSvgStyles(this.createPanel()));
+			}
+
+			if (ss.style.cssVars != null)
+			{
+				this.container.appendChild(this.addSvgVars(this.createPanel()));
+			}
 		}
 
 		if (ss.fill)
@@ -5561,13 +5568,7 @@ StyleFormatPanel.prototype.init = function()
  */
 StyleFormatPanel.prototype.getCssRules = function(css)
 {
-	var doc = document.implementation.createHTMLDocument('');
-	var styleElement = document.createElement('style');
-	
-	mxUtils.setTextContent(styleElement, css);
-	doc.body.appendChild(styleElement);
-
-	return styleElement.sheet.cssRules;
+	return Graph.getCssRules(css);
 };
 
 /**
@@ -5718,6 +5719,135 @@ StyleFormatPanel.prototype.addSvgRule = function(container, rule, svg, styleElem
 		addStyleRule(rule, 'stroke', mxResources.get('line'), singleColorMode);
 		addStyleRule(rule, 'stop-color', mxResources.get('gradient'), singleColorMode);
 	}
+};
+
+/**
+ * Adds color options for the CSS variables defined in the cssVars style.
+ * The value for each variable is stored in the style key of the same
+ * name with a -- prefix.
+ */
+StyleFormatPanel.prototype.addSvgVars = function(container)
+{
+	var ui = this.editorUi;
+	var graph = ui.editor.graph;
+	var ss = ui.getSelectionState();
+	container.style.paddingTop = '6px';
+	container.style.paddingBottom = '6px';
+	container.style.fontWeight = 'bold';
+	container.style.display = 'none';
+
+	var singleColorMode = mxUtils.getValue(ss.style, 'darkMode', null) == '0';
+
+	// Respects an explicit light color scheme in embedded SVG images
+	if (!singleColorMode && String(ss.style.image).substring(0, 19) == 'data:image/svg+xml;')
+	{
+		try
+		{
+			var data = ss.style.image.substring(ss.style.image.indexOf(',') + 1);
+			var xml = (window.atob) ? decodeURIComponent(escape(atob((data)))) :
+				Base64.decode(data, true);
+			var svg = mxUtils.parseXml(xml);
+
+			if (svg != null)
+			{
+				singleColorMode = svg.documentElement.style.colorScheme == 'light';
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+	}
+
+	// Sets the given CSS variable style on the given cells. A linked image
+	// is first converted to a data URI and the variable is set with the
+	// image in one atomic change, so that themed images are always
+	// self-contained, eg. for synchronous exports. The original URL is
+	// kept in the imageUrl style. If the conversion fails, then the
+	// variable is not set and an error is shown.
+	var setCssVar = function(name, value, cells)
+	{
+		var src = String(mxUtils.getValue(ui.getSelectionState().style,
+			mxConstants.STYLE_IMAGE, ''));
+
+		if (value != null && src != '' && src.substring(0, 5) != 'data:' &&
+			typeof ui.editor.convertImageToDataUri === 'function')
+		{
+			ui.editor.convertImageToDataUri(src, function(uri)
+			{
+				if (uri != null && uri != src &&
+					uri.substring(0, 26) == 'data:image/svg+xml;base64,')
+				{
+					graph.getModel().beginUpdate();
+					try
+					{
+						graph.setCellStyles(mxConstants.STYLE_IMAGE,
+							'data:image/svg+xml,' + uri.substring(26), cells);
+						graph.setCellStyles('imageUrl', src, cells);
+						graph.setCellStyles(name, value, cells);
+					}
+					finally
+					{
+						graph.getModel().endUpdate();
+					}
+				}
+				else
+				{
+					ui.handleError({message: mxResources.get('errorLoadingFile')});
+				}
+			});
+		}
+		else
+		{
+			graph.setCellStyles(name, value, cells);
+		}
+	};
+
+	var addVarOption = mxUtils.bind(this, function(name)
+	{
+		var option = this.createColorOption(name, function()
+		{
+			return mxUtils.getValue(ui.getSelectionState().style, '--' + name, null);
+		}, function(color)
+		{
+			setCssVar('--' + name, (color == mxConstants.NONE) ? null :
+				mxUtils.getLightDarkColor(color).cssText,
+				ui.getSelectionState().cells);
+		}, '#ffffff',
+		{
+			install: function(apply)
+			{
+				// ignore
+			},
+			destroy: function()
+			{
+				// ignore
+			}
+		}, null, null, null, singleColorMode);
+
+		container.appendChild(option);
+		container.style.display = '';
+	});
+
+	var tokens = String(mxUtils.getValue(ss.style, 'cssVars', '')).split(',');
+
+	for (var i = 0; i < tokens.length; i++)
+	{
+		var name = mxUtils.trim(tokens[i]);
+
+		// Tolerates the -- prefix in declared names
+		if (name.substring(0, 2) == '--')
+		{
+			name = name.substring(2);
+		}
+
+		if (name != '')
+		{
+			addVarOption(name);
+		}
+	}
+
+	return container;
 };
 
 /**
@@ -5940,7 +6070,8 @@ StyleFormatPanel.prototype.addFill = function(container)
 		{
 			var fillStyleOption = document.createElement('option');
 			fillStyleOption.setAttribute('value', Editor.fillStyles[i].val);
-			mxUtils.write(fillStyleOption, Editor.fillStyles[i].dispName);
+			mxUtils.write(fillStyleOption, mxResources.get(Editor.fillStyles[i].res,
+				null, Editor.fillStyles[i].dispName));
 			fillStyleSelect.appendChild(fillStyleOption);
 		}
 	};
@@ -5954,7 +6085,8 @@ StyleFormatPanel.prototype.addFill = function(container)
 		{
 			var fillStyleOption = document.createElement('option');
 			fillStyleOption.setAttribute('value', Editor.roughFillStyles[i].val);
-			mxUtils.write(fillStyleOption, Editor.roughFillStyles[i].dispName);
+			mxUtils.write(fillStyleOption, mxResources.get(Editor.roughFillStyles[i].res,
+				null, Editor.roughFillStyles[i].dispName));
 			fillStyleSelect.appendChild(fillStyleOption);
 		}
 
@@ -7709,9 +7841,22 @@ DiagramStylePanel.prototype.addGraphStyles = function(div)
 		graph2.model.beginUpdate();
 		try
 		{
-			var v1 = graph2.insertVertex(graph2.getDefaultParent(), null, 'Shape', 2, 2, 56, 30, 'strokeWidth=2;');
-			var e1 = graph2.insertEdge(graph2.getDefaultParent(), null, 'Connector', v1, v1,
-				'edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endSize=3;strokeWidth=2;')
+			// Scales down the font for translations wider than the preview
+			var shapeLabel = mxResources.get('shape', null, 'Shape');
+			var connectorLabel = mxResources.get('connector', null, 'Connector');
+			var fontSize = mxUtils.getValue(graph.stylesheet.getDefaultVertexStyle(),
+				mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE);
+			var labelWidth = Math.max(mxUtils.getSizeForString(shapeLabel, fontSize,
+				mxConstants.DEFAULT_FONTFAMILY).width, mxUtils.getSizeForString(
+				connectorLabel, fontSize, mxConstants.DEFAULT_FONTFAMILY).width);
+			var fontStyle = (labelWidth > 56) ? 'fontSize=' +
+				Math.max(9, Math.floor(fontSize * 56 / labelWidth)) + ';' : '';
+
+			var v1 = graph2.insertVertex(graph2.getDefaultParent(), null,
+				shapeLabel, 2, 2, 56, 30, 'strokeWidth=2;' + fontStyle);
+			var e1 = graph2.insertEdge(graph2.getDefaultParent(), null,
+				connectorLabel, v1, v1, 'edgeStyle=orthogonalEdgeStyle;rounded=0;' +
+				'orthogonalLoop=1;jettySize=auto;endSize=3;strokeWidth=2;' + fontStyle)
 			e1.geometry.points = [new mxPoint(28, 46)];
 			e1.geometry.offset = new mxPoint(0, 8);
 		}
