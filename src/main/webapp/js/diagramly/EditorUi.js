@@ -5402,7 +5402,7 @@
 	/**
 	 * Shows a tabbed configuration dialog with visual editor and JSON tabs.
 	 */
-	EditorUi.prototype.showConfigurationEditorDialog = function(title, key, customButtons, elt, helpLink, applyFn)
+	EditorUi.prototype.showConfigurationEditorDialog = function(title, key, customButtons, helpLink)
 	{
 		var editorUi = this;
 		var value = localStorage.getItem(key);
@@ -5480,18 +5480,6 @@
 
 		tabBar.appendChild(editorTabBtn);
 		tabBar.appendChild(jsonTabBtn);
-
-		if (elt != null)
-		{
-			var headerWrapper = document.createElement('div');
-			headerWrapper.style.marginLeft = 'auto';
-			headerWrapper.style.display = 'flex';
-			headerWrapper.style.alignItems = 'center';
-			headerWrapper.style.paddingRight = '4px';
-			headerWrapper.style.paddingBottom = '2px';
-			headerWrapper.appendChild(elt);
-			tabBar.appendChild(headerWrapper);
-		}
 
 		div.appendChild(tabBar);
 
@@ -5693,11 +5681,6 @@
 
 			try
 			{
-				if (applyFn != null)
-				{
-					applyFn(newValue);
-				}
-
 				if (newValue == value)
 				{
 					modified = false;
@@ -19045,32 +19028,6 @@
 				mxSettings.save();
 			}));
 			
-			/**
-			 * Persists copy on connect switch.
-			 */
-			graph.connectionHandler.setCreateTarget(mxSettings.isCreateTarget());
-			this.fireEvent(new mxEventObject('copyConnectChanged'));
-			
-			this.addListener('copyConnectChanged', mxUtils.bind(this, function(sender, evt)
-			{
-				mxSettings.setCreateTarget(graph.connectionHandler.isCreateTarget());
-				mxSettings.save();
-			}));
-
-			/**
-			 * Persists stop editing on enter switch.
-			 */
-			if (mxSettings.settings.enterStopsCellEditing != null)
-			{
-				graph.setEnterStopsCellEditing(mxSettings.settings.enterStopsCellEditing);
-			}
-
-			this.addListener('enterStopsCellEditingChanged', mxUtils.bind(this, function(sender, evt)
-			{
-				mxSettings.settings.enterStopsCellEditing = graph.isEnterStopsCellEditing();
-				mxSettings.save();
-			}));
-
 			/**
 			 * Persists default page format.
 			 */

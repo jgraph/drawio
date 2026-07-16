@@ -65,14 +65,6 @@ var mxSettings =
 			localStorage.setItem('.drawio-config', JSON.stringify(value));
 		}
 	},
-	getShowStartScreen: function()
-	{
-		return mxSettings.settings.showStartScreen;
-	},
-	setShowStartScreen: function(showStartScreen)
-	{
-		mxSettings.settings.showStartScreen = showStartScreen;
-	},
 	getCurrentEdgeStyle: function()
 	{
 		return (mxSettings.settings != null) ? mxSettings.settings.currentEdgeStyle : null;
@@ -265,14 +257,6 @@ var mxSettings =
 
 		mxSettings.settings.windowStates[name] = state;
 	},
-	isCreateTarget: function()
-	{
-		return mxSettings.settings.createTarget;
-	},
-	setCreateTarget: function(value)
-	{
-		mxSettings.settings.createTarget = value;
-	},
 	getPageFormat: function()
 	{
 		return mxSettings.settings.pageFormat;
@@ -319,10 +303,8 @@ var mxSettings =
 			sidebarWidth: null,
 			collapsedSections: {},
 			collapsedLibraries: {},
-			createTarget: urlParams['sketch'] == '1',
 			pageFormat: mxGraph.prototype.pageFormat,
 			search: true,
-			showStartScreen: false,
 			gridColor: mxGraphView.prototype.defaultGridColor,
 			darkGridColor: mxGraphView.prototype.defaultDarkGridColor,
 			darkMode: 'auto',
@@ -436,11 +418,6 @@ var mxSettings =
 				delete mxSettings.settings.lastAlert;
 			}
 			
-			if (mxSettings.settings.createTarget == null)
-			{
-				mxSettings.settings.createTarget = false;
-			}
-			
 			if (mxSettings.settings.pageFormat == null)
 			{
 				mxSettings.settings.pageFormat = mxGraph.prototype.pageFormat;
@@ -449,11 +426,6 @@ var mxSettings =
 			if (mxSettings.settings.search == null)
 			{
 				mxSettings.settings.search = true;
-			}
-			
-			if (mxSettings.settings.showStartScreen == null)
-			{
-				mxSettings.settings.showStartScreen = false;
 			}
 			
 			if (mxSettings.settings.gridColor == null)

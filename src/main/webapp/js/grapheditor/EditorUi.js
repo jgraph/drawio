@@ -2109,18 +2109,16 @@ EditorUi.prototype.installShapePicker = function()
 				{
 					if (cell != null)
 					{
-						graph.connectVertex(temp, dir, graph.defaultEdgeLength, mouseEvent, true, false, function(x, y, execute)
+						graph.connectVertex(temp, dir, graph.defaultEdgeLength,
+							mouseEvent, true, false, null, function(cells)
 						{
-							execute(cell);
-								
+							graph.selectCellsForConnectVertex(cells);
+
 							if (ui.hoverIcons != null)
 							{
 								ui.hoverIcons.update(graph.view.getState(cell));
 							}
-						}, function(cells)
-						{
-							graph.selectCellsForConnectVertex(cells);
-						}, mouseEvent, this.hoverIcons);
+						}, cell);
 					}
 				}), dir, true);
 
@@ -7359,7 +7357,90 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	};
 
 	var thread = null;
-	
+
+	// Helper function to commit a pending cursor-key move
+	function commitNudge()
+	{
+		if (thread != null)
+		{
+			window.clearTimeout(thread);
+			thread = null;
+		}
+
+		var handler = graph.graphHandler;
+
+		if (handler != null && handler.first != null)
+		{
+			var scale = graph.getView().scale;
+			var dx = handler.roundLength(handler.currentDx / scale);
+			var dy = handler.roundLength(handler.currentDy / scale);
+			handler.moveCells(handler.cells, dx, dy);
+			handler.reset();
+		}
+	};
+
+	// Commits pending cursor-key moves before mouse gestures are processed
+	// so that panning or rubberband selection does not continue the open
+	// move session with a delta relative to the keyboard anchor point
+	var graphFireMouseEvent = graph.fireMouseEvent;
+
+	graph.fireMouseEvent = function(evtName, me, sender)
+	{
+		if (evtName == mxEvent.MOUSE_DOWN)
+		{
+			commitNudge();
+		}
+
+		graphFireMouseEvent.apply(this, arguments);
+	};
+
+	// Helper function to center the given cells in the viewport if they are
+	// not fully visible, so that a selection that is moved or resized with
+	// the cursor keys stays in view
+	function scrollCellsToVisible(cells)
+	{
+		var handler = graph.graphHandler;
+		var c = graph.container;
+		var b = null;
+
+		if (handler != null && handler.first != null)
+		{
+			if (handler.bounds != null)
+			{
+				// Cells are not moved until the change is committed so the
+				// pending preview offset is added to the start bounds
+				b = mxRectangle.fromRectangle(handler.bounds);
+				b.x += handler.currentDx;
+				b.y += handler.currentDy;
+			}
+		}
+		else
+		{
+			b = graph.view.getBounds(cells);
+		}
+
+		if (b != null && c != null &&
+			(b.x < c.scrollLeft || b.y < c.scrollTop ||
+			b.x + b.width > c.scrollLeft + c.clientWidth ||
+			b.y + b.height > c.scrollTop + c.clientHeight))
+		{
+			var t = graph.view.translate;
+			var tr = new mxPoint(t.x, t.y);
+
+			if (graph.scrollRectToVisible(new mxRectangle(
+				b.getCenterX() - t.x - c.clientWidth / 2,
+				b.getCenterY() - t.y - c.clientHeight / 2,
+				c.clientWidth, c.clientHeight)))
+			{
+				// Triggers an update via the view's event source
+				var tr2 = new mxPoint(t.x, t.y);
+				graph.view.translate.x = tr.x;
+				graph.view.translate.y = tr.y;
+				graph.view.setTranslate(tr2.x, tr2.y);
+			}
+		}
+	};
+
 	// Helper function to move cells with the cursor keys
 	function nudge(keyCode, stepSize, resize)
 	{
@@ -7486,20 +7567,13 @@ EditorUi.prototype.createKeyHandler = function(editor)
 							{
 								window.clearTimeout(thread);
 							}
-							
-							thread = window.setTimeout(function()
-							{
-								if (handler.first != null)
-								{
-									var dx = handler.roundLength(handler.currentDx / scale);
-									var dy = handler.roundLength(handler.currentDy / scale);
-									handler.moveCells(handler.cells, dx, dy);
-									handler.reset();
-								}
-							}, 400);
+
+							thread = window.setTimeout(commitNudge, 400);
 						}
 					}
 				}
+
+				scrollCellsToVisible(cells);
 			}
 		}
 	};

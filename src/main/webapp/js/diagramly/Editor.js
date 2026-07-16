@@ -3052,6 +3052,18 @@
 				Graph.prototype.defaultConnectable = config.defaultConnectable;
 			}
 
+			// Overrides copy on connect
+			if (config.copyOnConnect != null)
+			{
+				mxConnectionHandler.prototype.createTarget = config.copyOnConnect;
+			}
+
+			// Overrides stop editing on enter
+			if (config.stopEditingOnEnter != null)
+			{
+				mxGraph.prototype.enterStopsCellEditing = config.stopEditingOnEnter;
+			}
+
 			// Overrides default folding enabled
 			if (config.defaultFoldingEnabled != null)
 			{
@@ -8391,6 +8403,12 @@
 	 * Specifies if the page should be visible for new files. Default is true.
 	 */
 	Graph.prototype.defaultPageVisible = urlParams['pv'] != '0';
+
+	/**
+	 * Copy on connect is enabled by default in the sketch theme. Use the
+	 * copyOnConnect configuration key to override.
+	 */
+	mxConnectionHandler.prototype.createTarget = urlParams['sketch'] == '1';
 
 	/**
 	 * Properties for the SVG shadow effect.

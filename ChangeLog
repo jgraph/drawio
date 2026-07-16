@@ -1,6 +1,16 @@
-15-JUL-2026: 30.1.13
+16-JUL-2026: 30.3.13
 
-- Initial test
+- Clarifies override help and separates toggle lists in Configuration dialog
+- Uses picked shape from hover shape picker in tree containers
+- Removes Quip-only internationalization and mathematicalTypesetting toggles from the Configuration dialog
+- Moves Copy on Connect, Stop Editing on Enter and Show Start Screen options to the configuration [jgraph/drawio#2196]
+- Requires release versions to directly follow the last diagramly-* tag
+- Centers find matches that are not fully visible in the viewport [jgraph/drawio#5276]
+- Centers selections moved or resized with the cursor keys that are not fully visible in the viewport [jgraph/drawio#4841]
+- Commits pending cursor-key moves before mouse gestures to avoid the open move session being continued with a mouse-based delta
+- Fixes compounding page scale in multi-page PDF export with fit page enabled [jgraph/drawio-desktop#2490]
+- Removes incorrect release numbering
+
 - Removes cssVars rendering experiment from mxImageShape
 - Adds cssVars style for theming embedded SVG images
 - Adds cssVars support for same-origin SVG image URLs

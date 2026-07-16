@@ -9671,10 +9671,11 @@ Graph.prototype.insertEdgeBeforeCell = function(edge, cell)
 
 /**
  * Adds a connection to the given vertex or clones the vertex in special layout
- * containers without creating a connection.
+ * containers without creating a connection. If targetCell is given then it is
+ * used as the new target instead of asking createTarget or cloning the source.
  */
-Graph.prototype.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt, createTarget, done)
-{	
+Graph.prototype.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt, createTarget, done, targetCell)
+{
 	ignoreCellAt = (ignoreCellAt) ? ignoreCellAt : false;
 	
 	// Ignores relative edge labels
@@ -9913,10 +9914,17 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 		}
 	});
 	
-	if (createTarget != null && realTarget == null && duplicate &&
-		(target != null || !cloneSource))
+	if ((createTarget != null || targetCell != null) && realTarget == null &&
+		duplicate && (target != null || !cloneSource))
 	{
-		createTarget(dx + pt.x * s, dy + pt.y * s, execute);
+		if (targetCell != null)
+		{
+			return execute(targetCell);
+		}
+		else
+		{
+			createTarget(dx + pt.x * s, dy + pt.y * s, execute);
+		}
 	}
 	else
 	{

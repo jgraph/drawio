@@ -326,57 +326,50 @@ window.uiTheme = window.uiTheme || (function()
 })();
 
 /**
- * Overrides splash URL parameter via local storage
+ * Overrides splash URL parameter via configuration
  */
-(function() 
+(function()
 {
 	if (typeof JSON !== 'undefined')
 	{
-		// Cannot use mxSettings here
-		if (isLocalStorage) 
+		// Cannot use mxSettings or Editor.config here
+		var showSplash = (window.DRAWIO_CONFIG != null) ?
+			window.DRAWIO_CONFIG.showSplashOnStart : null;
+
+		if (isLocalStorage)
 		{
-			try
-			{
-				var key = (urlParams['sketch'] == '1') ? '.sketch-config' : '.drawio-config';
-				var value = localStorage.getItem(key);
-				var showSplash = false;
-				
-				if (value != null)
-				{
-					showSplash = JSON.parse(value).showStartScreen;
-				}
-				
-				if (showSplash == false && urlParams['splash'] == null)
-				{
-					urlParams['splash'] = '0';
-				}
-			}
-			catch (e)
-			{
-				// ignore
-			}
-			
-			// Handles lockdown configuration
+			// Handles lockdown and splash screen configuration
 			try
 			{
 				var value = localStorage.getItem('.configuration');
-				var lockdown = null;
 
 				if (value != null)
 				{
 					var config = JSON.parse(value);
-					lockdown = config.lockdown;
-				}
-				
-				if (lockdown != null)
-				{
-					urlParams['lockdown'] = lockdown;
+
+					if (config != null)
+					{
+						if (config.lockdown != null)
+						{
+							urlParams['lockdown'] = config.lockdown;
+						}
+
+						if (config.showSplashOnStart != null)
+						{
+							showSplash = config.showSplashOnStart;
+						}
+					}
 				}
 			}
 			catch (e)
 			{
 				// ignore
 			}
+		}
+
+		if (showSplash != true && urlParams['splash'] == null)
+		{
+			urlParams['splash'] = '0';
 		}
 	}
 	

@@ -861,17 +861,59 @@
 			
 			return mxConstants.DIRECTION_EAST;
 		};
-		
-		function addSibling(cell, after)
+
+		/**
+		 * Replaces the cloned source vertex in clones with the given target
+		 * cell (eg. from the shape picker), moved to the position of the
+		 * source cell so that the relative placement logic in the callers
+		 * works unchanged. Tree behaviour styles are copied from the source
+		 * cell so that the new cell works like a clone of the source.
+		 */
+		function replaceTargetCell(clones, cell, targetCell)
+		{
+			if (targetCell != null)
+			{
+				var style = graph.getCurrentCellStyle(cell);
+				var keys = ['treeFolding', 'treeMoving', 'newEdgeStyle'];
+
+				for (var i = 0; i < keys.length; i++)
+				{
+					if (style[keys[i]] != null && (targetCell.style == null ||
+						targetCell.style.indexOf(keys[i] + '=') < 0))
+					{
+						targetCell.style = mxUtils.setStyle(
+							targetCell.style, keys[i], style[keys[i]]);
+					}
+				}
+
+				if (targetCell.geometry != null && cell.geometry != null)
+				{
+					targetCell.geometry.x = cell.geometry.x;
+					targetCell.geometry.y = cell.geometry.y;
+				}
+
+				if (graph.model.getTerminal(clones[0], false) == clones[1])
+				{
+					graph.model.setTerminal(clones[0], targetCell, false);
+				}
+
+				clones[1] = targetCell;
+			}
+
+			return clones;
+		};
+
+		function addSibling(cell, after, targetCell)
 		{
 			after = (after != null) ? after : true;
-			
+
 			graph.model.beginUpdate();
 			try
 			{
 				var parent = graph.model.getParent(cell);
 				var edges = graph.getIncomingTreeEdges(cell);
-				var clones = graph.cloneCells([edges[0], cell]);
+				var clones = replaceTargetCell(graph.cloneCells(
+					[edges[0], cell]), cell, targetCell);
 				graph.model.setTerminal(clones[0], graph.model.getTerminal(edges[0], true), true);
 				var dir = getTreeDirection(cell);
 				var pgeo = parent.geometry;
@@ -1003,14 +1045,15 @@
 			}
 		};
 	
-		function addParent(cell)
+		function addParent(cell, targetCell)
 		{
 			graph.model.beginUpdate();
 			try
 			{
 				var dir = getTreeDirection(cell);
 				var edges = graph.getIncomingTreeEdges(cell);
-				var clones = graph.cloneCells([edges[0], cell]);
+				var clones = replaceTargetCell(graph.cloneCells(
+					[edges[0], cell]), cell, targetCell);
 				graph.model.setTerminal(edges[0], clones[1], false);
 				graph.model.setTerminal(clones[0], clones[1], true);
 				graph.model.setTerminal(clones[0], cell, false);
@@ -1075,7 +1118,7 @@
 			}
 		};
 	
-		function addChild(cell, direction)
+		function addChild(cell, direction, targetCell)
 		{
 			graph.model.beginUpdate();
 			try
@@ -1083,7 +1126,7 @@
 				var parent = graph.model.getParent(cell);
 				var edges = graph.getIncomingTreeEdges(cell);
 				var dir = getTreeDirection(cell);
-				
+
 				// Handles special case for click on tree root
 				if (edges.length == 0)
 				{
@@ -1091,8 +1134,9 @@
 						graph.createCurrentEdgeStyle())];
 					dir = direction;
 				}
-				
-				var clones = graph.cloneCells([edges[0], cell]);
+
+				var clones = replaceTargetCell(graph.cloneCells(
+					[edges[0], cell]), cell, targetCell);
 				graph.model.setTerminal(clones[0], cell, true);
 				
 				if (graph.model.getTerminal(clones[0], false) == null)
@@ -1130,8 +1174,8 @@
 				{
 					clones[1].geometry.x = (bbox == null) ? cell.geometry.x + (cell.geometry.width -
 						clones[1].geometry.width) / 2 : (bbox.x + bbox.width) / s - tr.x -
-						pgeo.x + spacing; 
-					clones[1].geometry.y += clones[1].geometry.height - pgeo.y + level;
+						pgeo.x + spacing;
+					clones[1].geometry.y += cell.geometry.height - pgeo.y + level;
 				}
 				else if (dir == mxConstants.DIRECTION_NORTH)
 				{
@@ -1149,7 +1193,7 @@
 				}
 				else
 				{
-					clones[1].geometry.x += clones[1].geometry.width - pgeo.x + level;
+					clones[1].geometry.x += cell.geometry.width - pgeo.x + level;
 					clones[1].geometry.y = (bbox == null) ? cell.geometry.y + (cell.geometry.height -
 						clones[1].geometry.height) / 2 : (bbox.y + bbox.height) / s - tr.y + -
 						pgeo.y + spacing;
@@ -1340,7 +1384,7 @@
 	
 		var graphConnectVertex = graph.connectVertex;
 
-		graph.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt, createTarget, done)
+		graph.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt, createTarget, done, targetCell)
 		{
 			var edges = graph.getIncomingTreeEdges(source);
 
@@ -1353,16 +1397,16 @@
 
 				if (dir == direction || edges.length == 0)
 				{
-					result = addChild(source, direction);
+					result = addChild(source, direction, targetCell);
 				}
 				else if (h1 == h2)
 				{
-					result = addParent(source);
+					result = addParent(source, targetCell);
 				}
 				else
 				{
 					result = addSibling(source, direction != mxConstants.DIRECTION_NORTH &&
-						direction != mxConstants.DIRECTION_WEST);
+						direction != mxConstants.DIRECTION_WEST, targetCell);
 				}
 
 				// Invokes the callback like the base function so that the

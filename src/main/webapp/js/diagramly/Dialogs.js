@@ -9274,7 +9274,18 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			}
 			
 			lastFound = firstMatch;
-			graph.scrollCellToVisible(lastFound.cell);
+			var c = graph.container;
+
+			//Centers the match unless it is already fully visible, so it
+			//does not end up flush against the viewport edge where it is
+			//easily missed
+			if (c == null || lastFound.x < c.scrollLeft ||
+				lastFound.y < c.scrollTop ||
+				lastFound.x + lastFound.width > c.scrollLeft + c.clientWidth ||
+				lastFound.y + lastFound.height > c.scrollTop + c.clientHeight)
+			{
+				graph.scrollCellToVisible(lastFound.cell, true);
+			}
 			
 			if (graph.isEnabled() && !graph.isCellLocked(lastFound.cell))
 			{

@@ -506,6 +506,16 @@ function render(data)
 	data.w = parseFloat(data.w) || 0;
 	data.h = parseFloat(data.h) || 0;
 	data.scale = parseFloat(data.scale) || 1;
+
+	// Keeps the scale of the request separate as renderPage overwrites
+	// data.scale with the computed scale of each rendered page, so reading
+	// it back as the input scale compounded across the pages of a multi-page
+	// PDF export with fit page enabled and shrunk each page by the fit
+	// scale of the previous one [jgraph/drawio-desktop#2490]
+	if (data.reqScale == null)
+	{
+		data.reqScale = data.scale;
+	}
 	
 	var extras = null;
 	
@@ -1492,7 +1502,7 @@ function render(data)
 			}
 
 			var pf = graph.pageFormat;
-			var temp = data.scale;
+			var temp = data.reqScale;
 			pf.width = Math.ceil(pf.width * graph.pageScale);
 			pf.height = Math.ceil(pf.height * graph.pageScale);
 			var scale = 1;

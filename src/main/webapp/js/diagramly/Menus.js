@@ -853,19 +853,6 @@
 				'noAdaptiveColors'], parent);
 		})));
 
-		if (isLocalStorage)
-		{
-			var action = editorUi.actions.addAction('showStartScreen', function()
-			{
-				mxSettings.setShowStartScreen(!mxSettings.getShowStartScreen());
-				urlParams['splash'] = (mxSettings.getShowStartScreen()) ? '1' : '0';
-				mxSettings.save();
-			});
-			
-			action.setToggleAction(true);
-			action.setSelectedCallback(function() { return mxSettings.getShowStartScreen(); });
-		}
-
 		var autosaveAction = editorUi.actions.addAction('autosave', function()
 		{
 			editorUi.editor.setAutosave(!editorUi.editor.autosave);
@@ -1312,37 +1299,6 @@
 		{
 			editorUi.actions.addAction('configuration...', function()
 			{
-				// Moves show start screen option to configuration dialog in sketch
-				var splashCb = document.createElement('input');
-				splashCb.setAttribute('type', 'checkbox');
-				splashCb.style.marginRight = '8px';
-				splashCb.checked = mxSettings.getShowStartScreen();
-				splashCb.defaultChecked = splashCb.checked;
-
-				if (Editor.isSettingsEnabled() && (Editor.currentTheme == 'sketch' ||
-					Editor.currentTheme == 'simple' || Editor.currentTheme == 'min'))
-				{
-					var showSplash = document.createElement('span');
-					showSplash.style.display = 'flex';
-					showSplash.style.alignItems = 'center';
-					showSplash.style.cssFloat = 'right';
-					showSplash.style.cursor = 'pointer';
-					showSplash.style.userSelect = 'none';
-					showSplash.style.marginTop = '-3px';
-					showSplash.appendChild(splashCb);
-					mxUtils.write(showSplash, mxResources.get('showStartScreen'));
-
-					mxEvent.addListener(showSplash, 'click', function(evt)
-					{
-						if (mxEvent.getSource(evt) != splashCb)
-						{	
-							splashCb.checked = !splashCb.checked;
-						}
-					});
-
-					header = showSplash;
-				}
-				
 				var buttons = [[mxResources.get('reset'), function()
 				{
 					editorUi.confirm(mxResources.get('areYouSure'), function()
@@ -1426,15 +1382,7 @@
 				}
 				
 				editorUi.showConfigurationEditorDialog(mxResources.get('configuration') + ':', Editor.configurationKey,
-					buttons, splashCb.parentNode, 'https://www.drawio.com/doc/faq/configure-diagram-editor',
-					function()
-					{
-						if (splashCb.parentNode != null)
-						{
-							mxSettings.setShowStartScreen(splashCb.checked);
-							mxSettings.save();
-						}
-					});
+					buttons, 'https://www.drawio.com/doc/faq/configure-diagram-editor');
 			});
 		}
 		
@@ -5258,8 +5206,9 @@
 				menu.addSeparator(parent);
 
 				editorUi.menus.addSubmenu('units', menu, parent);
-				editorUi.menus.addMenuItems(menu, ['-', 'copyConnect', 'collapseExpand',
-					'stopEditingOnEnter', '-', 'tooltips', 'animations', '-'], parent);
+				this.addSubmenu('diagramLanguage', menu, parent);
+				editorUi.menus.addMenuItems(menu, ['-', 'collapseExpand',
+					'animations', 'tooltips'], parent);
 
 				var file = editorUi.getCurrentFile();
 
@@ -5269,16 +5218,15 @@
 					{
 						this.addMenuItems(menu, ['showRemoteCursors'], parent);
 					}
-					
-					editorUi.menus.addMenuItems(menu, ['ruler', '-'], parent);
+
+					editorUi.menus.addMenuItems(menu, ['ruler'], parent);
 				}
 
 				if (EditorUi.isElectronApp)
 				{
-					editorUi.menus.addMenuItems(menu, ['-', 'googleFonts', 'spellCheck', 'autoBkp', 'drafts', '-'], parent);
+					editorUi.menus.addMenuItems(menu, ['-', 'googleFonts', 'spellCheck', 'autoBkp', 'drafts'], parent);
 				}
 
-				this.addSubmenu('diagramLanguage', menu, parent);
 				menu.addSeparator(parent);
 
 				if (editorUi.mode != App.MODE_ATLAS)
@@ -5309,15 +5257,15 @@
 
 				if (EditorUi.isElectronApp)
 				{
-					this.addMenuItems(menu, ['-', 'googleFonts', 'spellCheck', 'autoBkp', 'drafts', '-'], parent);
+					this.addMenuItems(menu, ['-', 'googleFonts', 'spellCheck', 'autoBkp', 'drafts'], parent);
 				}
-				
+
 				menu.addSeparator(parent);
 
 				if (typeof(MathJax) !== 'undefined')
 				{
 					var item = this.addMenuItem(menu, 'mathematicalTypesetting', parent);
-					
+
 					if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 					{
 						this.addLinkToItem(item, 'https://www.drawio.com/doc/faq/math-typesetting');
@@ -5330,20 +5278,13 @@
 
 					if (file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
 					{
-						this.addMenuItems(menu, ['-', 'showRemoteCursors', 'shareCursor'], parent);
-					}
-
-					menu.addSeparator(parent);
-					
-					if (isLocalStorage || mxClient.IS_CHROMEAPP)
-					{
-						this.addMenuItems(menu, ['showStartScreen'], parent);
+						this.addMenuItems(menu, ['showRemoteCursors', 'shareCursor'], parent);
 					}
 
 					this.addMenuItems(menu, ['autosave'], parent);
 				}
 
-				this.addMenuItems(menu, ['-', 'copyConnect', 'collapseExpand', 'stopEditingOnEnter', '-'], parent);
+				this.addMenuItems(menu, ['collapseExpand', '-'], parent);
 				this.addSubmenu('diagramLanguage', menu, parent);
 				this.addMenuItems(menu, ['editDiagram', '-'], parent);
 
