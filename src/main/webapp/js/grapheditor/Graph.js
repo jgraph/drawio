@@ -21541,6 +21541,9 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 
 		/**
+		 * Makes edges transparent for fixed points, using the topmost vertex
+		 * beneath the event instead (or none), so that a connection point
+		 * occupied by an edge endpoint stays reachable for more connections.
 		 * Shows the connection points of a container instead of an overlapping
 		 * child if the event is on the container's border band. A cell that
 		 * already has the focus keeps it, so that its own connection points
@@ -21550,13 +21553,36 @@ if (typeof mxVertexHandler !== 'undefined')
 		mxConstraintHandler.prototype.getCellForEvent = function(me, point)
 		{
 			var cell = mxConstraintHandlerGetCellForEvent.apply(this, arguments);
+			var x = (point != null) ? point.x : me.getGraphX();
+			var y = (point != null) ? point.y : me.getGraphY();
+
+			if (cell != null && this.graph.model.isEdge(cell))
+			{
+				var model = this.graph.model;
+				var temp = this.graph.getCellAt(x, y, null, true, false, function(state)
+				{
+					// Ignores labels of edges
+					return model.isEdge(model.getParent(state.cell));
+				});
+
+				// Applies the connectable parent rule of the base function
+				if (temp != null && !this.graph.isCellConnectable(temp))
+				{
+					var parent = model.getParent(temp);
+
+					if (model.isVertex(parent) && this.graph.isCellConnectable(parent))
+					{
+						temp = parent;
+					}
+				}
+
+				cell = (this.graph.isCellLocked(temp)) ? null : temp;
+			}
 
 			if (cell != null && (this.currentFocus == null ||
 				this.currentFocus.cell != cell))
 			{
-				var container = this.graph.getBorderContainer(cell,
-					(point != null) ? point.x : me.getGraphX(),
-					(point != null) ? point.y : me.getGraphY());
+				var container = this.graph.getBorderContainer(cell, x, y);
 
 				if (container != null)
 				{

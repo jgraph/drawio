@@ -177,6 +177,68 @@
 			<fillstroke/>
 		</foreground>
 	</shape>
+	<shape aspect="variable" h="110" name="MOSFET IC N Body Diode" strokewidth="inherit" w="100">
+		<connections>
+			<constraint name="G" perimeter="0" x="0" y="0.7182"/>
+			<constraint name="D" perimeter="0" x="0.7" y="0"/>
+			<constraint name="S" perimeter="0" x="0.7" y="1"/>
+		</connections>
+		<background>
+			<ellipse h="90" w="90" x="10" y="10"/>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<path>
+				<move x="79" y="44.5"/>
+				<line x="95" y="44.5"/>
+				<move x="80" y="60"/>
+				<line x="94" y="60"/>
+				<line x="87" y="45"/>
+				<close/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="87" y="44.5"/>
+				<line x="87" y="25"/>
+				<line x="70" y="25"/>
+				<move x="87" y="60"/>
+				<line x="87" y="85"/>
+				<line x="70" y="85"/>
+			</path>
+			<stroke/>
+			<path>
+				<move x="45" y="35"/>
+				<line x="70" y="35"/>
+				<line x="70" y="0"/>
+				<move x="0" y="79"/>
+				<line x="42" y="79"/>
+				<line x="42" y="30.5"/>
+				<move x="45" y="55"/>
+				<line x="70" y="55"/>
+				<line x="70" y="110"/>
+				<move x="45" y="75"/>
+				<line x="70" y="75"/>
+			</path>
+			<stroke/>
+			<path>
+				<move x="60.5" y="50"/>
+				<line x="46" y="55"/>
+				<line x="60.5" y="60"/>
+				<close/>
+			</path>
+			<fillstroke/>
+			<strokewidth width="2"/>
+			<path>
+				<move x="45" y="50"/>
+				<line x="45" y="60"/>
+				<move x="45" y="70"/>
+				<line x="45" y="80"/>
+				<move x="45" y="30"/>
+				<line x="45" y="40"/>
+			</path>
+			<fillstroke/>
+		</foreground>
+	</shape>
 	<shape aspect="variable" h="110" name="MOSFET IC P" strokewidth="inherit" w="100">
 		<connections>
 			<constraint name="G" perimeter="0" x="0" y="0.7182"/>
@@ -188,6 +250,68 @@
 		</background>
 		<foreground>
 			<fillstroke/>
+			<path>
+				<move x="45" y="35"/>
+				<line x="70" y="35"/>
+				<line x="70" y="0"/>
+				<move x="45" y="55"/>
+				<line x="70" y="55"/>
+				<line x="70" y="110"/>
+				<move x="45" y="75"/>
+				<line x="70" y="75"/>
+				<move x="0" y="79"/>
+				<line x="42" y="79"/>
+				<line x="42" y="30.5"/>
+			</path>
+			<stroke/>
+			<path>
+				<move x="54" y="50"/>
+				<line x="69" y="55"/>
+				<line x="54" y="60"/>
+				<close/>
+			</path>
+			<fillstroke/>
+			<strokewidth width="2"/>
+			<path>
+				<move x="45" y="30"/>
+				<line x="45" y="40"/>
+				<move x="45" y="50"/>
+				<line x="45" y="60"/>
+				<move x="45" y="70"/>
+				<line x="45" y="80"/>
+			</path>
+			<fillstroke/>
+		</foreground>
+	</shape>
+	<shape aspect="variable" h="110" name="MOSFET IC P Body Diode" strokewidth="inherit" w="100">
+		<connections>
+			<constraint name="G" perimeter="0" x="0" y="0.7182"/>
+			<constraint name="D" perimeter="0" x="0.7" y="0"/>
+			<constraint name="S" perimeter="0" x="0.7" y="1"/>
+		</connections>
+		<background>
+			<ellipse h="90" w="90" x="10" y="10"/>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<path>
+				<move x="79" y="60"/>
+				<line x="95" y="60"/>
+				<move x="80" y="45"/>
+				<line x="94" y="45"/>
+				<line x="87" y="59"/>
+				<close/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="87" y="45"/>
+				<line x="87" y="25"/>
+				<line x="70" y="25"/>
+				<move x="87" y="60"/>
+				<line x="87" y="85"/>
+				<line x="70" y="85"/>
+			</path>
+			<stroke/>
 			<path>
 				<move x="45" y="35"/>
 				<line x="70" y="35"/>

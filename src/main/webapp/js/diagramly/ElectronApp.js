@@ -480,6 +480,33 @@ mxStencilRegistry.allowEval = false;
 			electron.sendMessage('draftRemoved', {});
 		});
 
+		electron.registerMsgListener('saveAndClose', (uniqueId) =>
+		{
+			const currentFile = editorUi.getCurrentFile();
+			let resultSent = false;
+
+			// Ensures a single result is sent even if the save flow calls
+			// more than one callback
+			let sendResult = (success) =>
+			{
+				if (!resultSent)
+				{
+					resultSent = true;
+					electron.sendMessage('saveAndClose-result', {uniqueId: uniqueId, success: success});
+				}
+			};
+
+			if (currentFile == null || !currentFile.isModified())
+			{
+				sendResult(true);
+			}
+			else
+			{
+				editorUi.saveFile(null, () => sendResult(true),
+					() => sendResult(false), () => sendResult(false));
+			}
+		});
+
 		// Adds support for libraries
 		this.actions.addAction('newLibrary...', mxUtils.bind(this, function()
 		{
@@ -1193,6 +1220,11 @@ mxStencilRegistry.allowEval = false;
 					}
 					else
 					{
+						// Adopts the new stat for timestamp-only changes (eg. FUSE
+						// mounts finalize mtime after write) so the next save
+						// doesn't misdetect a conflict
+						file.stat = latestFile.stat;
+
 						EditorUi.debug('EditorUi.handleFileChange', [this],
 							'No changes detected in file', [file]);
 					}
@@ -1664,19 +1696,19 @@ mxStencilRegistry.allowEval = false;
 	
 	var autoSaveEnabled = false;
 
-	LocalFile.prototype.save = function(revision, success, error, unloading, overwrite)
+	LocalFile.prototype.save = function(revision, success, error, unloading, overwrite, cancel)
 	{
 		if (!this.isEditable())
 		{
-			this.saveAs(this.title, success, error);
+			this.saveAs(this.title, success, error, cancel);
 			return;
 		}
 
 		DrawioFile.prototype.save.apply(this, [revision, mxUtils.bind(this, function()
 		{
-			this.saveFile(revision, mxUtils.bind(this, function() 
+			this.saveFile(revision, mxUtils.bind(this, function()
 			{
-				//Only for first save after auto save is enabled (excluding the save as [overwrite]) 
+				//Only for first save after auto save is enabled (excluding the save as [overwrite])
 				if (autoSaveEnabled && !overwrite && EditorUi.enableDrafts)
 				{
 					this.removeDraft();
@@ -1684,7 +1716,7 @@ mxStencilRegistry.allowEval = false;
 
 				autoSaveEnabled = false;
 				success.apply(this, arguments);
-			}), error, unloading, overwrite);
+			}), error, unloading, overwrite, cancel);
 		}), error, unloading, overwrite]);
 	};
 
@@ -1693,7 +1725,7 @@ mxStencilRegistry.allowEval = false;
 		return stat != null && this.stat != null && stat.mtimeMs != this.stat.mtimeMs;
 	};
 	
-	LocalFile.prototype.saveFile = async function(revision, success, error, unloading, overwrite)
+	LocalFile.prototype.saveFile = async function(revision, success, error, unloading, overwrite, cancel)
 	{
 		//Safeguard in case saveFile is called from online code in the future
 		if (typeof success !== 'function')
@@ -1844,6 +1876,11 @@ mxStencilRegistry.allowEval = false;
 					else
 					{
 						this.ui.spinner.stop();
+
+						if (cancel != null)
+						{
+							cancel();
+						}
 					}
 				}
 				else
@@ -1855,6 +1892,11 @@ mxStencilRegistry.allowEval = false;
 			{
 				error(e);
 			}
+		}
+		else if (cancel != null)
+		{
+			//Another save is already in progress (eg. autosave), this save request is dropped
+			cancel();
 		}
 	};
 
@@ -1887,7 +1929,7 @@ mxStencilRegistry.allowEval = false;
 		this.ui.addRecent({id: this.fileObject.path, title: title});
 	};
 
-	LocalFile.prototype.saveAs = async function(title, success, error)
+	LocalFile.prototype.saveAs = async function(title, success, error, cancel)
 	{
 		try
 		{
@@ -1929,6 +1971,10 @@ mxStencilRegistry.allowEval = false;
 					this.ui.watchFile(this);
 					success();
 				}), error, null, true);
+			}
+			else if (cancel != null)
+			{
+				cancel();
 			}
 		}
 		catch (e)
@@ -2023,10 +2069,10 @@ mxStencilRegistry.allowEval = false;
 	/**
 	 * Loads the given file handle as a local file.
 	 */
-	App.prototype.saveFile = function(forceDialog)
+	App.prototype.saveFile = function(forceDialog, success, error, cancel)
 	{
 		var file = this.getCurrentFile();
-		
+
 		if (file != null)
 		{
 			if (!forceDialog && file.getTitle() != null)
@@ -2037,12 +2083,22 @@ mxStencilRegistry.allowEval = false;
 					{
 						file.removeDraft();
 					}
-					
+
 					file.handleFileSuccess(true);
+
+					if (success != null)
+					{
+						success();
+					}
 				}), mxUtils.bind(this, function(err)
 				{
 					file.handleFileError(err, true);
-				}));
+
+					if (error != null)
+					{
+						error(err);
+					}
+				}), null, null, cancel);
 			}
 			else
 			{
@@ -2058,12 +2114,22 @@ mxStencilRegistry.allowEval = false;
 						file.removeDraft();
 						file.fileObject = curFileObject;
 					}
-					
+
 					file.handleFileSuccess(true);
+
+					if (success != null)
+					{
+						success();
+					}
 				}), mxUtils.bind(this, function(err)
 				{
 					file.handleFileError(err, true);
-				}));
+
+					if (error != null)
+					{
+						error(err);
+					}
+				}), cancel);
 			}
 		}
 	};
@@ -2489,5 +2555,77 @@ mxStencilRegistry.allowEval = false;
 			this.showSidebar();
 			success(library);
 		}), error, libPath);
+	};
+
+	// Returns the filesystem path for URLs that point to local files
+	// (file:// URLs, drive, UNC and absolute paths), null otherwise
+	Editor.getLocalFilePath = function(url)
+	{
+		if (url != null && url.substring(0, 7) == 'file://')
+		{
+			var path = decodeURIComponent(url.substring(7).split(/[?#]/)[0]);
+
+			// Removes leading slash before Windows drive letters (file:///C:/...)
+			return (/^\/[a-zA-Z]:/.test(path)) ? path.substring(1) : path;
+		}
+		else if (url != null && /^([a-zA-Z]:[\\\/]|[\\\/])/.test(url))
+		{
+			return url;
+		}
+
+		return null;
+	};
+
+	// Reads URLs that point to local files via the main process so libraries
+	// and templates configured with local paths or file:// URLs work in the
+	// desktop app [jgraph/drawio-desktop#1278]
+	var editorLoadUrl = Editor.prototype.loadUrl;
+
+	Editor.prototype.loadUrl = function(url, success, error, forceBinary, retry, dataUriPrefix, noBinary, headers)
+	{
+		try
+		{
+			var filename = Editor.getLocalFilePath(url);
+
+			if (filename == null)
+			{
+				editorLoadUrl.apply(this, arguments);
+			}
+			else
+			{
+				var binary = !noBinary && (forceBinary || /(\.png)($|\?)/i.test(url) ||
+					/(\.jpe?g)($|\?)/i.test(url) || /(\.gif)($|\?)/i.test(url) ||
+					/(\.pdf)($|\?)/i.test(url));
+
+				electron.request({action: 'readFile', filename: filename,
+					encoding: (binary) ? 'base64' : 'utf-8'}, function(data)
+				{
+					if (success != null)
+					{
+						if (binary)
+						{
+							data = ((dataUriPrefix != null) ? dataUriPrefix :
+								'data:image/png;base64,') + data;
+						}
+
+						success(data);
+					}
+				}, function(msg)
+				{
+					if (error != null)
+					{
+						error({message: (msg != null) ? msg :
+							mxResources.get('fileNotFound')});
+					}
+				});
+			}
+		}
+		catch (e)
+		{
+			if (error != null)
+			{
+				error(e);
+			}
+		}
 	};
 })();

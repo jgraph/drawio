@@ -134,7 +134,7 @@ DrawioConfigEditor.install = function(container, options)
 			{ key: 'enableNativeClipboard', name: 'Native Clipboard', help: 'Use native system clipboard' },
 			{ key: 'replaceSvgDataUris', name: 'Replace SVG Data URIs', help: 'Replace data URIs with SVG sub-trees in export' },
 			{ key: 'foreignObjectImages', name: 'Foreign Object Images', help: 'Replace foreignObject with images' },
-			{ key: 'embedSvgFonts', name: 'Embed SVG Fonts', help: 'Embed fonts as data URIs in exported and saved SVG files, disable to keep external font references' },
+			{ key: 'embedSvgFonts', name: 'Embed SVG Fonts', help: 'Default for embedding fonts as data URIs in exported and saved SVG files, can be overridden per file in the file properties' },
 			{ key: 'removeImageMetadata', name: 'Remove Image Metadata', help: 'Strip metadata from images' },
 			{ key: 'expandPatternsForPrint', name: 'Expand Patterns for Print', help: 'Expand patterns to visible graphics during print/PDF export' }
 		],

@@ -175,12 +175,25 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 	
 	this.title = title;
 
-	// Updates data after changing file name
-	if (!useCurrentData)
+	// Updates data after changing file name, waits for the fonts to be
+	// loaded into the local cache for saving SVG files with embedded
+	// fonts, keeps the synchronous flow during page unload
+	if (!useCurrentData && !unloading)
+	{
+		this.loadFonts(mxUtils.bind(this, function()
+		{
+			this.updateFileData();
+			this.saveFile(title, revision, success, error,
+				true, unloading, overwrite);
+		}));
+
+		return;
+	}
+	else if (!useCurrentData)
 	{
 		this.updateFileData();
 	}
-	
+
 	var binary = Editor.useCanvasForExport && /(\.png)$/i.test(this.getTitle());
 	this.setShadowModified(false);
 	var savedData = this.getData();

@@ -1947,7 +1947,8 @@
 				var props = this.getSvgFileProperties(fileNode);
 
 				xml = this.getEmbeddedSvg(xml, graph, url, null, embeddedCallback, ignoreSelection,
-					redirect, null, null, props.scale, props.border, null, Editor.svgFileTheme);
+					redirect, null, null, props.scale, props.border, null, Editor.svgFileTheme,
+					null, props.embedFonts);
 			}
 			
 			return xml;
@@ -4038,7 +4039,8 @@
 
 				// Loads fonts into the local cache for saving
 				// SVG files with embedded fonts
-				if (Editor.embedSvgFonts && /(\.svg)$/i.test(file.getTitle()))
+				if (/(\.svg)$/i.test(file.getTitle()) &&
+					this.getSvgFileProperties(this.fileNode).embedFonts)
 				{
 					try
 					{
@@ -10216,7 +10218,12 @@
 	 */
 	EditorUi.prototype.getSvgFileProperties = function(node)
 	{
-		return this.getPngFileProperties(node);
+		var props = this.getPngFileProperties(node);
+
+		props.embedFonts = (node != null && node.hasAttribute('embedFonts')) ?
+			node.getAttribute('embedFonts') != 'false' : Editor.embedSvgFonts;
+
+		return props;
 	};
 	
 	/**

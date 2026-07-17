@@ -1,3 +1,16 @@
+17-JUL-2026: 30.3.14
+
+- Replaces invalid transparent fill value with none in SVG export [jgraph/drawio#5563]
+- Resolves light-dark colors for text fallbacks in SVG export
+- Adds local file path and file URL support for library and template URLs in the desktop app [jgraph/drawio-desktop#1278]
+- Adds NMOS and PMOS shapes with body diode to Electrical/Transistors [jgraph/drawio#5412]
+- Adopts new file stat when content unchanged on watched file change [jgraph/drawio-desktop#2312]
+- Caches picked fonts for saving SVG files with embedded fonts [jgraph/drawio#2886]
+- Adds per-file option for embedding fonts in saved SVG files [jgraph/drawio#2886]
+- Loads fonts before updating the file data in saves [jgraph/drawio#2886]
+- Adds save support to the desktop unsaved changes close dialog [jgraph/drawio-desktop#2335]
+- Looks through edges to keep occupied fixed points connectable [jgraph/drawio-desktop#1245]
+
 16-JUL-2026: 30.3.13
 
 - Clarifies override help and separates toggle lists in Configuration dialog

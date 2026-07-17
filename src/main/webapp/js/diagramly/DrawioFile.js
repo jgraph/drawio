@@ -91,6 +91,12 @@ DrawioFile.prototype.maxAutosaveDelay = 30000;
 DrawioFile.prototype.optimisticSyncDelay = 300;
 
 /**
+ * Specifies the maximum time to wait for the fonts to be loaded into the
+ * local font cache before saving the file with external font references.
+ */
+DrawioFile.prototype.loadFontsTimeout = 5000;
+
+/**
  * Contains the thread for the next autosave.
  */
 DrawioFile.prototype.autosaveThread = null;
@@ -1057,6 +1063,54 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges)
 };
 
 /**
+ * Loads the fonts used in the diagram into the local font cache if this is
+ * the current file in the UI and an SVG file that is saved with embedded
+ * fonts, so that the following synchronous update of the file data can
+ * embed the font data. The callback is invoked when the fonts are
+ * available, immediately if there is nothing to load, or after
+ * loadFontsTimeout ms if the fonts cannot be loaded in time.
+ */
+DrawioFile.prototype.loadFonts = function(callback)
+{
+	if (this.ui.getCurrentFile() == this && /(\.svg)$/i.test(this.getTitle()) &&
+		this.ui.getSvgFileProperties(this.ui.fileNode).embedFonts)
+	{
+		var timeoutThread = null;
+		var called = false;
+
+		var done = function()
+		{
+			if (!called)
+			{
+				called = true;
+				window.clearTimeout(timeoutThread);
+				callback();
+			}
+		};
+
+		// Falls back to external font references in the saved data
+		// if the fonts cannot be loaded in time
+		timeoutThread = window.setTimeout(done, this.loadFontsTimeout);
+
+		try
+		{
+			this.ui.editor.loadFonts(mxUtils.bind(this, function()
+			{
+				this.ui.editor.embedExtFonts(done);
+			}));
+		}
+		catch (e)
+		{
+			done();
+		}
+	}
+	else
+	{
+		callback();
+	}
+};
+
+/**
  * Adds the listener for automatically saving the diagram for local changes.
  */
 DrawioFile.prototype.save = function(revision, success, error, unloading, overwrite, manual)
@@ -1092,12 +1146,42 @@ DrawioFile.prototype.save = function(revision, success, error, unloading, overwr
 		}
 		else
 		{
-			this.updateFileData();
 			this.clearAutosave();
-			
-			if (success != null)
+
+			var doSave = mxUtils.bind(this, function()
 			{
-				success();
+				try
+				{
+					this.updateFileData();
+
+					if (success != null)
+					{
+						success();
+					}
+				}
+				catch (e)
+				{
+					if (error != null)
+					{
+						error(e);
+					}
+					else
+					{
+						throw e;
+					}
+				}
+			});
+
+			// Waits for the fonts used in the file to be loaded into
+			// the local cache for saving SVG files with embedded fonts,
+			// keeps the synchronous flow during page unload
+			if (unloading)
+			{
+				doSave();
+			}
+			else
+			{
+				this.loadFonts(doSave);
 			}
 		}
 	}

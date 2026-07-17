@@ -5585,10 +5585,14 @@
 
                 (mxUtils.bind(this, function(url)
                 {
-                    if (this.cachedFonts[url] == null)
+                	var cached = this.cachedFonts[url];
+
+                    if (cached == null)
                     {
-                        // Mark font as being fetched and fetch it
-                    	this.cachedFonts[url] = url;
+                        // Marks font as being fetched, concurrent calls wait
+                        // for the result via the callbacks in the waiters list
+                        var waiters = [];
+                    	this.cachedFonts[url] = waiters;
                         waiting++;
                         
                         var mime = 'application/x-font-ttf';
@@ -5619,21 +5623,41 @@
                             mime = 'application/font-sfnt';
                         }
 
+						var fontDone = mxUtils.bind(this, function(uri)
+						{
+							this.cachedFonts[url] = uri;
+							waiting--;
+							finish();
+
+							for (var k = 0; k < waiters.length; k++)
+							{
+								waiters[k]();
+							}
+						});
+
 						this.mapFontUrl(mime, url, mxUtils.bind(this, function(realMime, realUrl)
 						{
 							// LATER: Remove cache-control header
-							this.loadUrl(realUrl, mxUtils.bind(this, function(uri)
+							this.loadUrl(realUrl, function(uri)
 							{
-								this.cachedFonts[url] = uri;
-								waiting--;
-								finish();
-							}), mxUtils.bind(this, function(err)
+								fontDone(uri);
+							}, function(err)
 							{
-								// LATER: handle error
-								waiting--;
-								finish();
-							}), true, null, 'data:' + realMime + ';charset=utf-8;base64,');
+								// LATER: handle error, keeps external font URL
+								fontDone(url);
+							}, true, null, 'data:' + realMime + ';charset=utf-8;base64,');
 						}));
+                    }
+                    else if (typeof cached != 'string')
+                    {
+                        // Waits for the font that is being fetched in another call
+                        waiting++;
+
+                        cached.push(function()
+                        {
+                            waiting--;
+                            finish();
+                        });
                     }
                 }))(Editor.trimCssUrl(parts[i].substring(0, idx)), format);
             }

@@ -580,10 +580,25 @@ mxSvgCanvas2D.prototype.createAlternateContent = function(fo, x, y, w, h, str, a
 			((valign == mxConstants.ALIGN_BOTTOM) ? (lines.length - 1) * lh :
 			(lines.length - 1) * lh / 2));
 
+		var cssFontColor = this.getLightDarkColor(s.fontColor || 'black');
 		var alt = this.createElement('text');
 		alt.setAttribute('x', x0);
 		alt.setAttribute('y', Math.round(y0));
-		alt.setAttribute('fill', s.fontColor || 'black');
+
+		// Alternate content is rendered in viewers with no support for
+		// light-dark colors so the fill attribute must be a plain color,
+		// using none for transparent as it is not a valid paint value
+		// in SVG 1.1 and renders black in Inkscape and PowerPoint
+		if (cssFontColor.light == 'transparent')
+		{
+			alt.setAttribute('fill', 'none');
+		}
+		else
+		{
+			alt.setAttribute('fill', cssFontColor.light);
+			alt.style.fill = cssFontColor.cssText;
+		}
+
 		alt.setAttribute('font-family', mxUtils.parseCssFontFamily(s.fontFamily));
 		alt.setAttribute('font-size', Math.round(s.fontSize) + 'px');
 
@@ -1226,6 +1241,14 @@ mxSvgCanvas2D.prototype.updateFill = function()
 			}
 
 			lightFill = fill;
+		}
+		else if (String(s.fillColor).toLowerCase() == mxConstants.NONE)
+		{
+			// NONE reaches this point via setGradient. Uses none as
+			// transparent is not a valid paint value in SVG 1.1 and
+			// renders black in Inkscape and PowerPoint
+			lightFill = 'none';
+			fill = 'none';
 		}
 		else
 		{

@@ -18328,39 +18328,10 @@ var FilePropertiesDialog = function(editorUi, publicLink)
 		return row;
 	};
 
-	var initialLocked = (file != null) ? file.isLocked() : false;
-
-	// Settings section: editable toggles and inputs
+	// Settings section: editable toggles and inputs, file type
+	// specific options above the common options
 	var settingsSection = document.createElement('div');
 	settingsSection.className = 'geDialogSection';
-
-	var lockedInput = editorUi.addCheckbox(settingsSection, mxResources.get('locked'),
-		initialLocked, null, null, null, null, null, true);
-
-	this.init = function()
-	{
-		lockedInput.focus();
-	};
-
-	addApply(function(success, error)
-	{
-		if (editorUi.fileNode != null && initialLocked != lockedInput.checked)
-		{
-			window.setTimeout(function()
-			{
-				if (file != null)
-				{
-					file.setLocked(lockedInput.checked);
-				}
-
-				success();
-			}, 0);
-		}
-		else
-		{
-			success();
-		}
-	});
 
 	if (isPng || isSvg)
 	{
@@ -18391,6 +18362,14 @@ var FilePropertiesDialog = function(editorUi, publicLink)
 		borderInput.setAttribute('value', border);
 		addFormRow(settingsSection, mxResources.get('borderWidth'), borderInput);
 
+		var embedFontsInput = null;
+
+		if (isSvg)
+		{
+			embedFontsInput = editorUi.addCheckbox(settingsSection, mxResources.get('embedFonts'),
+				editorUi.getSvgFileProperties(node).embedFonts, null, null, null, null, null, true);
+		}
+
 		this.init = this.init || function()
 		{
 			zoomInput.focus();
@@ -18411,6 +18390,12 @@ var FilePropertiesDialog = function(editorUi, publicLink)
 			{
 				editorUi.fileNode.setAttribute('scale', Math.max(0, parseInt(zoomInput.value) / 100));
 				editorUi.fileNode.setAttribute('border', Math.max(0, parseInt(borderInput.value)));
+
+				if (embedFontsInput != null)
+				{
+					editorUi.fileNode.setAttribute('embedFonts',
+						(embedFontsInput.checked) ? 'true' : 'false');
+				}
 
 				if (file != null)
 				{
@@ -18458,6 +18443,36 @@ var FilePropertiesDialog = function(editorUi, publicLink)
 			}
 		});
 	}
+
+	var initialLocked = (file != null) ? file.isLocked() : false;
+
+	var lockedInput = editorUi.addCheckbox(settingsSection, mxResources.get('locked'),
+		initialLocked, null, null, null, null, null, true);
+
+	this.init = this.init || function()
+	{
+		lockedInput.focus();
+	};
+
+	addApply(function(success, error)
+	{
+		if (editorUi.fileNode != null && initialLocked != lockedInput.checked)
+		{
+			window.setTimeout(function()
+			{
+				if (file != null)
+				{
+					file.setLocked(lockedInput.checked);
+				}
+
+				success();
+			}, 0);
+		}
+		else
+		{
+			success();
+		}
+	});
 
 	if (file != null && file.isRealtimeOptional())
 	{
