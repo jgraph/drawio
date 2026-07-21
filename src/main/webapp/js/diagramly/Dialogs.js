@@ -4360,8 +4360,8 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 
 		addStorageEntry(App.MODE_TRELLO);
 
-		var allowDevice = !Editor.useLocalStorage || urlParams['storage'] == 'device' ||
-			(editorUi.getCurrentFile() != null && urlParams['noDevice'] != '1');
+		var allowDevice = urlParams['noDevice'] != '1' && (!Editor.useLocalStorage ||
+			urlParams['storage'] == 'device' || editorUi.getCurrentFile() != null);
 
 		if (EditorUi.nativeFileSupport && allowDevice)
 		{
@@ -4379,7 +4379,20 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 		{
 			addStorageEntry('download');
 		}
-		
+
+		// Adds device and download if there is no other place to save
+		// the file, ie. ignores noDevice if all else is disabled
+		if (storageSelect.options.length == 0)
+		{
+			if (EditorUi.nativeFileSupport)
+			{
+				addStorageEntry(App.MODE_DEVICE, null, null,
+					editorUi.mode == App.MODE_DEVICE ? true : null);
+			}
+
+			addStorageEntry('download');
+		}
+
 		if (Editor.popupsAllowed)
 		{
 			addStorageEntry('_blank', null, null, null, mxResources.get('openInNewWindow'));

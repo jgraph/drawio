@@ -298,9 +298,7 @@ mxStencilRegistry.allowEval = false;
 			break;
 		}
 
-		// script-src needs 'wasm-unsafe-eval' for the inlined libavoid WASM edge router
-		// (scripts otherwise fall back to default-src 'self', which blocks WebAssembly)
-		mxmeta(null, 'default-src \'self\'; script-src \'self\' \'wasm-unsafe-eval\'; connect-src \'self\' https://fonts.googleapis.com https://fonts.gstatic.com; img-src * data:; ' +
+		mxmeta(null, 'default-src \'self\'; connect-src \'self\' https://fonts.googleapis.com https://fonts.gstatic.com; img-src * data:; ' +
 			'media-src *; font-src * data:; frame-src \'self\'; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com', 'Content-Security-Policy');
 
 		//Disable web plugins loading
@@ -404,18 +402,9 @@ mxStencilRegistry.allowEval = false;
 			menu.addSeparator(parent);
 			this.addMenuItems(menu, ['newLibrary', 'openLibrary'], parent);
 
-			var file = editorUi.getCurrentFile();
-			
-			if (file != null && editorUi.fileNode != null)
+			if (editorUi.getCurrentFile() != null && editorUi.fileNode != null)
 			{
-				var filename = (file.getTitle() != null) ?
-					file.getTitle() : editorUi.defaultFilename;
-				
-				if (!/(\.html)$/i.test(filename) &&
-					!/(\.svg)$/i.test(filename))
-				{
-					this.addMenuItems(menu, ['-', 'properties']);
-				}
+				this.addMenuItems(menu, ['-', 'properties']);
 			}
 			
 			this.addMenuItems(menu, ['-', 'pageSetup', 'print', '-', 'close', '-', 'exit'], parent);
@@ -2452,7 +2441,11 @@ mxStencilRegistry.allowEval = false;
 	EditorUi.prototype.saveData = async function(filename, format, data, mimeType, base64Encoded)
 	{
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
-		var lastDir = localStorage.getItem('.lastExpDir');
+		var file = this.getCurrentFile();
+		// Defaults to the folder of the current file like saveAs [jgraph/drawio-desktop#2132]
+		var lastDir = (file != null && file.fileObject != null && file.fileObject.path != null) ?
+			await requestSync({action: 'dirname', path: file.fileObject.path}) :
+			localStorage.getItem('.lastExpDir');
 		
 		// Spinner.stop is asynchronous so we must invoke save dialog asynchronously
 		// to give the spinner some time to stop spinning

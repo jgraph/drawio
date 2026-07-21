@@ -2233,6 +2233,7 @@ Sidebar.prototype.addSearchPalette = function(expand)
 								active = false;
 								page++;
 								this.insertSearchHint(div, searchTerm, count, page, results, len, more, terms);
+								this.insertSearchResultsHeader(div, searchTerm, page);
 
 								// Allows to repeat the search
 								if (results.length == 0 && page == 1)
@@ -2524,6 +2525,17 @@ Sidebar.prototype.insertSearchHint = function(div, searchTerm, count, page, resu
 		mxUtils.write(err, temp);
 		div.appendChild(err);
 	}
+};
+
+/**
+ * Hook for a header above the search results (called with the page already
+ * incremented, so 1 is the first page). Does nothing here - the application
+ * layer overrides this (grapheditor must not know about specific search
+ * providers).
+ */
+Sidebar.prototype.insertSearchResultsHeader = function(div, searchTerm, page)
+{
+	// Overridden in the application
 };
 
 /**
@@ -4740,10 +4752,13 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 				
 				if (geo2 != null && !geo2.relative && graph.model.isVertex(parent) && parent != view.currentRoot)
 				{
+					// Uses the parent origin as the base of the child coordinate
+					// space since state.x/y of transparentBounds parents also
+					// contains the child-derived bounds offset
 					var pState = view.getState(parent);
-					
-					dx = pState.x;
-					dy = pState.y;
+
+					dx = view.scale * (view.translate.x + pState.origin.x);
+					dy = view.scale * (view.translate.y + pState.origin.y);
 				}
 				
 				var dx2 = geo3.x;

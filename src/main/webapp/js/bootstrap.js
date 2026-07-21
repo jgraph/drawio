@@ -216,8 +216,7 @@ function mxinclude(src)
 
     if (mxIsElectron)
     {
-        // 'wasm-unsafe-eval' is required for the inlined libavoid WASM edge router
-        mxmeta(null, 'default-src \'self\'; script-src \'self\' \'sha256-6g514VrT/cZFZltSaKxIVNFF46+MFaTSDTPB8WfYK+c=\' \'wasm-unsafe-eval\' ' +
+        mxmeta(null, 'default-src \'self\'; script-src \'self\' \'sha256-6g514VrT/cZFZltSaKxIVNFF46+MFaTSDTPB8WfYK+c=\' ' +
             (urlParams['dev'] != '1' ? '' : ' \'unsafe-eval\'') + '; ' +
             'connect-src \'self\' https://*.draw.io https://*.diagrams.net https://fonts.googleapis.com https://fonts.gstatic.com; ' +
             'img-src * data:; media-src *; font-src * data:; frame-src \'self\'; style-src \'self\' \'unsafe-inline\' ' +

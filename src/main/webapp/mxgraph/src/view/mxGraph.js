@@ -6302,17 +6302,21 @@ mxGraph.prototype.extendParent = function(cell)
 
 			if (geo != null && !geo.relative)
 			{
+				// Multi-value padding is CSS TRBL order; only the east and
+				// south values apply here as the parent only ever grows to
+				// the right and bottom (top/left would require shifting the
+				// children).
 				var style = this.getCurrentCellStyle(parent);
-				var padding = parseFloat(mxUtils.getValue(style,
+				var padding = mxUtils.parsePadding(mxUtils.getValue(style,
 					mxConstants.STYLE_GROUP_PADDING, 0));
 
-				if (p.width < geo.x + geo.width + padding ||
-					p.height < geo.y + geo.height + padding)
+				if (p.width < geo.x + geo.width + padding.e ||
+					p.height < geo.y + geo.height + padding.s)
 				{
 					p = p.clone();
 
-					p.width = Math.max(p.width, geo.x + geo.width + padding);
-					p.height = Math.max(p.height, geo.y + geo.height + padding);
+					p.width = Math.max(p.width, geo.x + geo.width + padding.e);
+					p.height = Math.max(p.height, geo.y + geo.height + padding.s);
 
 					this.cellsResized([parent], [p], false);
 				}
@@ -6340,8 +6344,9 @@ mxGraph.prototype.contractParent = function(cell)
 
 		if (parent != null && pgeo != null && !this.isCellCollapsed(parent))
 		{
+			// East/south values only, matching extendParent
 			var style = this.getCurrentCellStyle(parent);
-			var padding = parseFloat(mxUtils.getValue(style,
+			var padding = mxUtils.parsePadding(mxUtils.getValue(style,
 				mxConstants.STYLE_GROUP_PADDING, 0));
 			var maxX = 0;
 			var maxY = 0;
@@ -6360,8 +6365,8 @@ mxGraph.prototype.contractParent = function(cell)
 				}
 			}
 
-			maxX += padding;
-			maxY += padding;
+			maxX += padding.e;
+			maxY += padding.s;
 
 			if (maxX > 0 && maxY > 0 &&
 				(pgeo.width > maxX || pgeo.height > maxY))

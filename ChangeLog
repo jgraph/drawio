@@ -1,3 +1,49 @@
+21-JUL-2026: 30.4.1
+
+- Offers built-in libraries as chips in shape search
+- Skips installed icon sets in shape search chips
+- Updates pako to 2.2.0
+- Removes wasm-unsafe-eval from desktop
+- Reserves stack layout title space on the painted swimlane side [jgraph/drawio#5362]
+- Fixes content shift against the crop in image export [jgraph/drawio#4938]
+- Hides device and download options for noDevice=1 in save dialog unless no other option is available
+- Accepts CSS-style space-separated values in the group padding input
+- Applies per-side group padding in extendParent and contractParent
+- Clips page breaks, page guides and ruler ticks to the visible area for extreme cell coordinates [jgraph/drawio#3251]
+- Limits the number of pages in the print output [jgraph/drawio#3251]
+- Limits the number of pages in the export renderer print output [jgraph/drawio#3251]
+- Handles invalid URI encoding in string properties
+- Repairs invalid characters and HTML entities in XML parsing and output
+- Adds resources configuration option for overriding and adding language resources [jgraph/drawio#1191]
+- Closes preview tooltips on escape before closing the dialog
+- Fixes clipping at the crop in image export [jgraph/drawio#4938]
+- Extends export bounds by the crisp offset of painted shapes [jgraph/drawio#4938]
+- Fixes coordinate frame, knot vector and cubic fitting in VSDX NURBS edge import [jgraph/drawio#2104]
+- Converts Lucidchart curves to exact cubic bezier edges on import [jgraph/drawio#1047]
+- Converts VSDX edge arcs, elliptical arcs, polylines and beziers to exact curves on import [jgraph/drawio#2104]
+- Fixes offset of cells imported after a same-block loop edge in Lucidchart import
+- Converts VSDX freeform splines to exact cubic beziers in shape geometry [jgraph/drawio#2104]
+- Improvements to GraphML curve import
+- Export dialog defaults to current file folder [jgraph/drawio-desktop#2132]
+
+18-JUL-2026: 30.4.0
+
+- Fixes sidebar drop preview position on children of transparentBounds groups
+- Records the preserve origin flag in the last layout spec
+- Shows file properties menu item for svg and html files in all themes
+- Routes non-tree edges of tree layouts as orthogonal overlays
+- Adds grouped icon search with installable set chips
+- Build of version 30.4.0
+- Build of version 30.4.0
+
+18-JUL-2026: 30.4.0
+
+- Build of version 30.4.0
+
+18-JUL-2026: 30.4.0
+
+
+
 17-JUL-2026: 30.3.14
 
 - Replaces invalid transparent fill value with none in SVG export [jgraph/drawio#5563]

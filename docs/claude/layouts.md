@@ -234,6 +234,41 @@ json-layout-specification.md); an explicit `portSpread` also skips the
 collapse. The core mrtree router stays fixture-faithful to upstream ELK; only
 the bridge restyles the result.
 
+## mrtree non-tree edges route as overlays (July 2026)
+
+mrtree only truly lays out a SPANNING TREE — its treeify phase eliminates
+every edge whose target is already reached (fan-in, cross links, back
+edges), re-inserts them after placement, and then routes them badly:
+same-level edges as diagonal middle-to-middle lines with a steep-end kink,
+and a fan-in target's incoming edges — including the real tree edge —
+staggered at (i+1)/(n+1) fractions instead of the side center. The bridge
+now pulls those edges OUT of the ELK input up front
+(`ElkLayout.extractNonTreeEdges`, a per-hierarchy-level mirror of the core
+DFSTreeifyer incl. its BFS variant and re-rooting quirk, so placement is
+unchanged — locked by the suite's placement-parity check) and treats them as
+overlay edges after the apply: drawio-dev's binding overrides the facade's
+`canRouteNonTreeEdges`/`routeNonTreeEdges` hook pair
+(`installElkNonTreeRouting`, diagramly/ElkLayout.js) to route them via
+`LibavoidRouting.routeCells` — obstacle-avoiding orthogonal routes, written
+inside the same model edit with value-guarded geometry (converged container
+re-runs stay EMPTY edits), `setStyle` off because the bridge's restyle pass
+already forces `edgeStyle=orthogonalEdgeStyle` + the run's corners on
+extras and strips their layout-stamped pins (user anchors with
+`exitDx`/`entryDx` stay verbatim, and libavoid honors them as fixed
+constraints). Straight overlay routes come back as ZERO bends — libavoid
+returns bend points only, so a stacked pair gets `points=null` and renders
+as a plain SegmentConnector line. Without libavoid (mcp/headless, module
+not yet loaded) the base hook claims nothing and extras fall back to
+`edgeStyle=orthogonalEdgeStyle` with cleared waypoints and floating ends —
+the dynamic router; when the module is still loading, the drawio-dev
+override kicks `__libavoidReady` and re-runs the container layout once
+ready (an upgrade pass; converged containers make it an empty edit). The
+fan-in target keeps ONE incoming tree edge, so its entry pin returns to the
+side center. Opt out per run with the bare config key `nonTreeEdges:'elk'`
+(legacy behavior, same plumbing as `sharedStems`). Locked by
+drawio-elk's verify-bridge-nontree-edges.mjs (classification, fallback
+styling, claimed-path reset skip, convergence, placement parity, opt-out).
+
 ## Per-edge corner picks survive manager re-runs (July 2026)
 
 The manager builds childLayout ELK layouts with `enforceCorners:false`

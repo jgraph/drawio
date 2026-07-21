@@ -1874,8 +1874,9 @@
 	 *
 	 * Defines the key for the groupPadding style. This specifies the padding
 	 * in pixels between the children of a group and the group bounds when
-	 * using extendParent or contractParent. Default is 0. Value is
-	 * "groupPadding".
+	 * using extendParent or contractParent. Accepts 1-4 space-separated
+	 * values in CSS TRBL order (see mxUtils.parsePadding). Default is 0.
+	 * Value is "groupPadding".
 	 */
 	STYLE_GROUP_PADDING: 'groupPadding',
 

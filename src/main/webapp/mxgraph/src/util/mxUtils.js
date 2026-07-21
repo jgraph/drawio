@@ -871,18 +871,141 @@ var mxUtils =
 	parseXml: function(xml)
 	{
 		var parser = new DOMParser();
-		
+
 		var node = parser.parseFromString(xml, 'text/xml');
 
 		var errors = (node != null) ? node.getElementsByTagName('parsererror') : null;
-		
+
 		if (errors != null && errors.length > 0)
 		{
-			// Very aggressive workaround but the xml is not readable otherwise
-			node = parser.parseFromString(xml.replace(/&#([0-9a-fA-F]+);/g, ''), 'text/xml');
+			// Retries with common encoding errors repaired
+			node = parser.parseFromString(mxUtils.repairXml(xml), 'text/xml');
 		}
 
 		return node;
+	},
+
+	/**
+	 * Variable: htmlEntityCodes
+	 *
+	 * Maps the names of all HTML 4 character entities, except the predefined
+	 * XML entities, to their character codes. Used in <repairXml> to convert
+	 * named HTML entities to character references.
+	 */
+	htmlEntityCodes: {'nbsp': 160, 'iexcl': 161, 'cent': 162, 'pound': 163,
+		'curren': 164, 'yen': 165, 'brvbar': 166, 'sect': 167, 'uml': 168,
+		'copy': 169, 'ordf': 170, 'laquo': 171, 'not': 172, 'shy': 173,
+		'reg': 174, 'macr': 175, 'deg': 176, 'plusmn': 177, 'sup2': 178,
+		'sup3': 179, 'acute': 180, 'micro': 181, 'para': 182, 'middot': 183,
+		'cedil': 184, 'sup1': 185, 'ordm': 186, 'raquo': 187, 'frac14': 188,
+		'frac12': 189, 'frac34': 190, 'iquest': 191, 'Agrave': 192,
+		'Aacute': 193, 'Acirc': 194, 'Atilde': 195, 'Auml': 196, 'Aring': 197,
+		'AElig': 198, 'Ccedil': 199, 'Egrave': 200, 'Eacute': 201,
+		'Ecirc': 202, 'Euml': 203, 'Igrave': 204, 'Iacute': 205, 'Icirc': 206,
+		'Iuml': 207, 'ETH': 208, 'Ntilde': 209, 'Ograve': 210, 'Oacute': 211,
+		'Ocirc': 212, 'Otilde': 213, 'Ouml': 214, 'times': 215, 'Oslash': 216,
+		'Ugrave': 217, 'Uacute': 218, 'Ucirc': 219, 'Uuml': 220, 'Yacute': 221,
+		'THORN': 222, 'szlig': 223, 'agrave': 224, 'aacute': 225, 'acirc': 226,
+		'atilde': 227, 'auml': 228, 'aring': 229, 'aelig': 230, 'ccedil': 231,
+		'egrave': 232, 'eacute': 233, 'ecirc': 234, 'euml': 235, 'igrave': 236,
+		'iacute': 237, 'icirc': 238, 'iuml': 239, 'eth': 240, 'ntilde': 241,
+		'ograve': 242, 'oacute': 243, 'ocirc': 244, 'otilde': 245, 'ouml': 246,
+		'divide': 247, 'oslash': 248, 'ugrave': 249, 'uacute': 250,
+		'ucirc': 251, 'uuml': 252, 'yacute': 253, 'thorn': 254, 'yuml': 255,
+		'OElig': 338, 'oelig': 339, 'Scaron': 352, 'scaron': 353, 'Yuml': 376,
+		'fnof': 402, 'circ': 710, 'tilde': 732, 'Alpha': 913, 'Beta': 914,
+		'Gamma': 915, 'Delta': 916, 'Epsilon': 917, 'Zeta': 918, 'Eta': 919,
+		'Theta': 920, 'Iota': 921, 'Kappa': 922, 'Lambda': 923, 'Mu': 924,
+		'Nu': 925, 'Xi': 926, 'Omicron': 927, 'Pi': 928, 'Rho': 929,
+		'Sigma': 931, 'Tau': 932, 'Upsilon': 933, 'Phi': 934, 'Chi': 935,
+		'Psi': 936, 'Omega': 937, 'alpha': 945, 'beta': 946, 'gamma': 947,
+		'delta': 948, 'epsilon': 949, 'zeta': 950, 'eta': 951, 'theta': 952,
+		'iota': 953, 'kappa': 954, 'lambda': 955, 'mu': 956, 'nu': 957,
+		'xi': 958, 'omicron': 959, 'pi': 960, 'rho': 961, 'sigmaf': 962,
+		'sigma': 963, 'tau': 964, 'upsilon': 965, 'phi': 966, 'chi': 967,
+		'psi': 968, 'omega': 969, 'thetasym': 977, 'upsih': 978, 'piv': 982,
+		'ensp': 8194, 'emsp': 8195, 'thinsp': 8201, 'zwnj': 8204, 'zwj': 8205,
+		'lrm': 8206, 'rlm': 8207, 'ndash': 8211, 'mdash': 8212, 'lsquo': 8216,
+		'rsquo': 8217, 'sbquo': 8218, 'ldquo': 8220, 'rdquo': 8221,
+		'bdquo': 8222, 'dagger': 8224, 'Dagger': 8225, 'bull': 8226,
+		'hellip': 8230, 'permil': 8240, 'prime': 8242, 'Prime': 8243,
+		'lsaquo': 8249, 'rsaquo': 8250, 'oline': 8254, 'frasl': 8260,
+		'euro': 8364, 'image': 8465, 'weierp': 8472, 'real': 8476,
+		'trade': 8482, 'alefsym': 8501, 'larr': 8592, 'uarr': 8593,
+		'rarr': 8594, 'darr': 8595, 'harr': 8596, 'crarr': 8629, 'lArr': 8656,
+		'uArr': 8657, 'rArr': 8658, 'dArr': 8659, 'hArr': 8660, 'forall': 8704,
+		'part': 8706, 'exist': 8707, 'empty': 8709, 'nabla': 8711,
+		'isin': 8712, 'notin': 8713, 'ni': 8715, 'prod': 8719, 'sum': 8721,
+		'minus': 8722, 'lowast': 8727, 'radic': 8730, 'prop': 8733,
+		'infin': 8734, 'ang': 8736, 'and': 8743, 'or': 8744, 'cap': 8745,
+		'cup': 8746, 'int': 8747, 'there4': 8756, 'sim': 8764, 'cong': 8773,
+		'asymp': 8776, 'ne': 8800, 'equiv': 8801, 'le': 8804, 'ge': 8805,
+		'sub': 8834, 'sup': 8835, 'nsub': 8836, 'sube': 8838, 'supe': 8839,
+		'oplus': 8853, 'otimes': 8855, 'perp': 8869, 'sdot': 8901,
+		'lceil': 8968, 'rceil': 8969, 'lfloor': 8970, 'rfloor': 8971,
+		'lang': 9001, 'rang': 9002, 'loz': 9674, 'spades': 9824, 'clubs': 9827,
+		'hearts': 9829, 'diams': 9830},
+
+	/**
+	 * Function: repairXml
+	 *
+	 * Repairs common encoding errors in the given XML string for parsing in
+	 * <parseXml>: Removes characters that are not allowed in XML, removes
+	 * character references to such characters, converts named HTML entities
+	 * (eg. &nbsp;) to character references and escapes ampersands that are
+	 * not part of an entity or character reference. Character data in valid
+	 * parts of the input, including CDATA sections, is not modified, so the
+	 * result is identical to the input after parsing if the input contains
+	 * no errors.
+	 *
+	 * Parameters:
+	 *
+	 * text - String that contains the XML data.
+	 */
+	repairXml: function(text)
+	{
+		text = mxUtils.zapGremlins(text);
+
+		// Ignores the content of CDATA sections at odd indices
+		var parts = text.split(/(<!\[CDATA\[[\s\S]*?\]\]>)/);
+
+		for (var i = 0; i < parts.length; i += 2)
+		{
+			parts[i] = parts[i].replace(
+				/&(?:#([0-9]+);|#[xX]([0-9a-fA-F]+);|([a-zA-Z][a-zA-Z0-9]*);)?/g,
+				function(match, dec, hex, name)
+			{
+				if (dec != null || hex != null)
+				{
+					var code = (dec != null) ? parseInt(dec, 10) : parseInt(hex, 16);
+
+					// Removes references to characters that are not allowed in XML
+					return ((code >= 32 || code == 9 || code == 10 || code == 13) &&
+						(code < 0xD800 || code > 0xDFFF) && code != 0xFFFE &&
+						code != 0xFFFF && code <= 0x10FFFF) ? match : '';
+				}
+				else if (name != null)
+				{
+					// Keeps predefined XML entities
+					if (name == 'amp' || name == 'lt' || name == 'gt' ||
+						name == 'quot' || name == 'apos')
+					{
+						return match;
+					}
+
+					var code = mxUtils.htmlEntityCodes[name];
+
+					// Converts known HTML entities to character references and
+					// escapes unknown entities to appear as literal text
+					return (code != null) ? '&#' + code + ';' : '&amp;' + name + ';';
+				}
+
+				// Escapes ampersands that are not part of an entity
+				return '&amp;';
+			});
+		}
+
+		return parts.join('');
 	},
 
 	/**
@@ -1039,6 +1162,30 @@ var mxUtils =
 	},
 
 	/**
+	 * Function: safeDecodeURIComponent
+	 *
+	 * Returns the given URI component decoded via decodeURIComponent, or
+	 * unchanged if it is not a valid encoding, eg. if it contains a raw
+	 * percent sign. Used for values that are stored URI encoded but may
+	 * have been edited directly or predate the encoding.
+	 *
+	 * Parameters:
+	 *
+	 * value - String that contains the URI component to be decoded.
+	 */
+	safeDecodeURIComponent: function(value)
+	{
+		try
+		{
+			return decodeURIComponent(value);
+		}
+		catch (e)
+		{
+			return value;
+		}
+	},
+
+	/**
 	 * Function: getXml
 	 * 
 	 * Returns the XML content of the specified node. For Internet Explorer,
@@ -1054,7 +1201,9 @@ var mxUtils =
 	 */
 	getXml: function(node, linefeed)
 	{
-		var xml = new XMLSerializer().serializeToString(node);
+		// Removes characters that are not allowed in XML but are
+		// serialized without escaping and would break parsing
+		var xml = mxUtils.zapGremlins(new XMLSerializer().serializeToString(node));
 
 		// Replaces linefeeds with HTML Entities.
 		linefeed = linefeed || '&#xa;';
@@ -1118,8 +1267,8 @@ var mxUtils =
 			}
 			else if (node.nodeType == mxConstants.NODETYPE_COMMENT)
 			{
-				var value = mxUtils.getTextContent(node);
-				
+				var value = mxUtils.zapGremlins(mxUtils.getTextContent(node));
+
 				if (value.length > 0)
 				{
 					result.push(indent + '<!--' + value + '-->' + newline);
@@ -1127,8 +1276,8 @@ var mxUtils =
 			}
 			else if (node.nodeType == mxConstants.NODETYPE_TEXT)
 			{
-				var value = mxUtils.trim(mxUtils.getTextContent(node));
-				
+				var value = mxUtils.zapGremlins(mxUtils.trim(mxUtils.getTextContent(node)));
+
 				if (value.length > 0)
 				{
 					result.push(indent + mxUtils.htmlEntities(value, false, false) + newline);
@@ -1136,26 +1285,27 @@ var mxUtils =
 			}
 			else if (node.nodeType == mxConstants.NODETYPE_CDATA)
 			{
-				var value = mxUtils.getTextContent(node);
-				
+				var value = mxUtils.zapGremlins(mxUtils.getTextContent(node));
+
 				if (value.length > 0)
 				{
-					result.push(indent + '<![CDATA[' + value + ']]' + newline);
+					result.push(indent + '<![CDATA[' + value + ']]>' + newline);
 				}
 			}
 			else
 			{
 				result.push(indent + '<' + node.nodeName);
-				
+
 				// Creates the string with the node attributes
 				// and converts all HTML entities in the values
 				var attrs = node.attributes;
-				
+
 				if (attrs != null)
 				{
 					for (var i = 0; i < attrs.length; i++)
 					{
-						var val = mxUtils.htmlEntities(attrs[i].value);
+						var val = mxUtils.htmlEntities(mxUtils.zapGremlins(
+							attrs[i].value)).replace(/\r/g, '&#xd;');
 						result.push(' ' + attrs[i].nodeName + '="' + val + '"');
 					}
 				}
@@ -1975,6 +2125,59 @@ var mxUtils =
 		}
 		
 		return Number(value);
+	},
+
+	/**
+	 * Function: parsePadding
+	 *
+	 * Parses a CSS-style padding value (1-4 space-separated numbers) into an
+	 * object with n, e, s and w (top, right, bottom, left) number properties.
+	 * Like CSS, one value applies to all four sides, two are vertical and
+	 * horizontal, three are top, horizontal and bottom, and four are top,
+	 * right, bottom and left (TRBL order, clockwise). The value is
+	 * URI-decoded first: style values are URI-encoded when written from the
+	 * properties panel, which turns the space separators into %20.
+	 *
+	 * Parameters:
+	 *
+	 * value - String or number containing 1-4 space-separated values.
+	 */
+	parsePadding: function(value)
+	{
+		var str = (value != null) ? String(value) : '';
+
+		try
+		{
+			str = decodeURIComponent(str);
+		}
+		catch (e)
+		{
+			// keep str as-is
+		}
+
+		var parts = str.trim().split(/\s+/);
+		var nums = parts.map(function(p)
+		{
+			var n = parseFloat(p);
+			return isNaN(n) ? 0 : n;
+		});
+
+		if (nums.length === 1)
+		{
+			return {n: nums[0], e: nums[0], s: nums[0], w: nums[0]};
+		}
+
+		if (nums.length === 2)
+		{
+			return {n: nums[0], e: nums[1], s: nums[0], w: nums[1]};
+		}
+
+		if (nums.length === 3)
+		{
+			return {n: nums[0], e: nums[1], s: nums[2], w: nums[1]};
+		}
+
+		return {n: nums[0], e: nums[1], s: nums[2], w: nums[3]};
 	},
 
 	/**
@@ -3431,37 +3634,52 @@ var mxUtils =
 	
 	/**
 	 * Function: zapGremlins
-	 * 
+	 *
 	 * Removes all illegal control characters with ASCII code <32 except TAB, LF
-	 * and CR.
-	 * 
+	 * and CR, and all unpaired surrogates.
+	 *
 	 * Parameters:
-	 * 
+	 *
 	 * text - String that represents the text.
 	 */
 	zapGremlins: function(text)
 	{
 		var lastIndex = 0;
 		var checked = [];
-		
+
 		for (var i = 0; i < text.length; i++)
 		{
 			var code = text.charCodeAt(i);
-			
-			// Removes all control chars except TAB, LF and CR
-			if (!((code >= 32 || code == 9 || code == 10 || code == 13) &&
-				code != 0xFFFF && code != 0xFFFE))
+			var valid = (code >= 32 || code == 9 || code == 10 || code == 13) &&
+				code != 0xFFFF && code != 0xFFFE;
+
+			// Removes unpaired surrogates
+			if (valid && code >= 0xD800 && code <= 0xDFFF)
+			{
+				if (code <= 0xDBFF)
+				{
+					var next = (i + 1 < text.length) ? text.charCodeAt(i + 1) : 0;
+					valid = next >= 0xDC00 && next <= 0xDFFF;
+				}
+				else
+				{
+					var prev = (i > 0) ? text.charCodeAt(i - 1) : 0;
+					valid = prev >= 0xD800 && prev <= 0xDBFF;
+				}
+			}
+
+			if (!valid)
 			{
 				checked.push(text.substring(lastIndex, i));
 				lastIndex = i + 1;
 			}
 		}
-		
+
 		if (lastIndex > 0 && lastIndex < text.length)
 		{
 			checked.push(text.substring(lastIndex));
 		}
-		
+
 		return (checked.length == 0) ? text : checked.join('');
 	},
 

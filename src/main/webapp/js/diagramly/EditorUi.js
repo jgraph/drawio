@@ -774,6 +774,12 @@
 	EditorUi.prototype.maxTextBytes = 500000;
 
 	/**
+	 * Maximum number of pages in the print output. This bounds the print
+	 * preview so that extreme cell coordinates cannot block the UI.
+	 */
+	EditorUi.prototype.maxPrintPageCount = 1000;
+
+	/**
 	 * Holds the current file.
 	 */
 	EditorUi.prototype.currentFile = null;
@@ -20377,7 +20383,40 @@
 			pf.height = pf.height * printScale;
 			var anchorId = (pageId != null) ? 'page/id,' + pageId : null;
 
-			if (pv == null)
+			// Computes the number of pages in the output the same way as
+			// mxPrintPreview.open and stops the output if the total exceeds
+			// maxPrintPageCount, so that extreme cell coordinates cannot
+			// block the UI with an excessive number of pages
+			var pb = (args.selection) ? thisGraph.getBoundingBox(
+				thisGraph.getSelectionCells()) : thisGraph.getGraphBounds();
+
+			if (pb != null)
+			{
+				var psc = thisGraph.view.scale / scale;
+				var pbw = pb.width;
+				var pbh = pb.height;
+				var px0 = x0;
+				var py0 = y0;
+
+				if (!autoOrigin)
+				{
+					px0 -= thisGraph.view.translate.x * scale;
+					py0 -= thisGraph.view.translate.y * scale;
+					pbw += pb.x;
+					pbh += pb.y;
+				}
+
+				printPageCount += Math.max(1, Math.ceil((pbw / psc + px0) / (pf.width + 1))) *
+					Math.max(1, Math.ceil((pbh / psc + py0) / (pf.height + 1)));
+			}
+
+			tooManyPages = tooManyPages || printPageCount > this.maxPrintPageCount;
+
+			if (tooManyPages)
+			{
+				// Skips the output, view state is restored below
+			}
+			else if (pv == null)
 			{
 				pv = PrintDialog.createPrintPreview(thisGraph, scale, null, border, x0, y0, autoOrigin);
 				pv.title = this.getBaseFilename(true);
@@ -20606,6 +20645,8 @@
 		var pagesFrom = args.pagesFrom;
 		var pagesTo = args.pagesTo;
 		var ignorePages = !args.allPages;
+		var printPageCount = 0;
+		var tooManyPages = false;
 		var pv = null;
 
 		if (EditorUi.isElectronApp)
@@ -20633,7 +20674,7 @@
 				imax = parseInt(pagesTo) - 1;
 			}
 			
-			for (var i = i0; i <= imax; i++)
+			for (var i = i0; i <= imax && !tooManyPages; i++)
 			{
 				var page = this.pages[i];
 				var tempGraph = (page == this.currentPage) ? graph : null;
@@ -20749,7 +20790,19 @@
 		{
 			pv = printGraph(graph);
 		}
-		
+
+		if (tooManyPages)
+		{
+			if (pv != null && pv.wnd != null && pv.wnd != window)
+			{
+				pv.wnd.close();
+			}
+
+			this.handleError({message: mxResources.get('drawingTooLarge')});
+
+			return null;
+		}
+
 		if (pv == null || pv.wnd == null)
 		{
 			this.handleError({message: mxResources.get('errorUpdatingPreview')});
@@ -21961,6 +22014,14 @@
 					// selection-as-root cell ids make no sense here (and cell
 					// ids don't belong in a persistent style).
 					delete config.rootCellIds;
+
+					// Preserve-origin is a one-shot-run concept (anchor at the
+					// content's position before this gesture): transparent
+					// containers anchor unconditionally anyway, and a
+					// non-transparent container must keep re-packing to its
+					// padding origin or the resizeLayoutRoot frame stops
+					// hugging the content.
+					delete config.preserveOrigin;
 
 					// Container-critical defaults, matching Menus.layoutContainers
 					// (explicit values win): pin node sizes so a manual resize

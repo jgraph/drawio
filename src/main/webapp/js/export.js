@@ -7,6 +7,9 @@ var mxIsElectron = navigator.userAgent != null &&
 	navigator.userAgent.indexOf(' draw.io/') > -1;
 var GOOGLE_APPS_MAX_AREA = 25000000;
 var GOOGLE_SHEET_MAX_AREA = 1000000; // The maximum number of pixels is 1 million.
+// Maximum number of pages in the print output so that extreme cell
+// coordinates cannot block the renderer with an excessive number of pages
+var MAX_PRINT_PAGE_COUNT = 1000;
 var shadowBlocker = null;
 
 /**
@@ -95,7 +98,15 @@ if (mxIsElectron)
 		{
 			if (window.pendingRequest != null)
 			{
-				render(window.pendingRequest);
+				try
+				{
+					render(window.pendingRequest);
+				}
+				catch(e)
+				{
+					console.log(e);
+					electron.sendMessage('render-finished', null);
+				}
 			}
 
 			window.shapesLoaded = true;
@@ -933,6 +944,7 @@ function render(data)
 	};
 	
 	var preview = null;
+	var printPageCount = 0;
 	var waitCounter = 1;
 	var bounds;
 	var pageId;
@@ -1706,7 +1718,34 @@ function render(data)
 			}
 
 			var anchorId = (currentPageId != null) ? 'page/id,' + currentPageId : null;
-			
+
+			// Computes the number of pages in the output the same way as
+			// mxPrintPreview.open and stops the export if the total exceeds
+			// MAX_PRINT_PAGE_COUNT, so that extreme cell coordinates cannot
+			// block the renderer with an excessive number of pages
+			var pcb = graph.getGraphBounds();
+			var pcs = graph.view.scale / scale;
+			var pcw = pcb.width;
+			var pch = pcb.height;
+			var pcx = x0;
+			var pcy = y0;
+
+			if (!autoOrigin)
+			{
+				pcx -= graph.view.translate.x * scale;
+				pcy -= graph.view.translate.y * scale;
+				pcw += pcb.x;
+				pch += pcb.y;
+			}
+
+			printPageCount += Math.max(1, Math.ceil((pcw / pcs + pcx) / (pf.width + 1))) *
+				Math.max(1, Math.ceil((pch / pcs + pcy) / (pf.height + 1)));
+
+			if (printPageCount > MAX_PRINT_PAGE_COUNT)
+			{
+				throw new Error('Too many pages in print output: ' + printPageCount);
+			}
+
 			if (preview == null)
 			{
 				preview = new mxPrintPreview(graph, scale, pf, border, x0, y0);

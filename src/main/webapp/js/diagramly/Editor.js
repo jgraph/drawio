@@ -165,6 +165,13 @@
 	 * Default value for custom libraries in mxSettings.
 	 */
 	Editor.enableCustomLibraries = true;
+
+	/**
+	 * Requests data URIs from the icon search service so inserted icons
+	 * are self-contained (no remote image references in the file). Off by
+	 * default online to keep files small.
+	 */
+	Editor.inlineExtIcons = false;
 	
 	/**
 	 * Not yet implemented. Reading uncompressed supported.
@@ -2688,6 +2695,25 @@
 				style.appendChild(document.createTextNode(config.customCss));
 				document.head.appendChild(style);
 			}
+
+			// Overrides existing or adds new language resources for
+			// mxResources.get. Maps from resource keys to strings, or to
+			// objects with one entry per language and main as the fallback,
+			// eg. {"saveAs": {"main": "Save a Copy", "de": "Kopie speichern"},
+			// "myKey": "My Text"}. See Editor.applyCustomResources.
+			if (config.resources != null)
+			{
+				if (typeof config.resources === 'object' &&
+					!Array.isArray(config.resources))
+				{
+					Editor.customResources = config.resources;
+					Editor.applyCustomResources();
+				}
+				else
+				{
+					EditorUi.debug('Configuration Error: Object expected for resources');
+				}
+			}
 			
 			if (config.enableLocalFonts != null)
 			{
@@ -3007,6 +3033,12 @@
 			if (config.enableCustomLibraries != null)
 			{
 				Editor.enableCustomLibraries = config.enableCustomLibraries;
+			}
+
+			// Inlines icon search results as data URIs on insert
+			if (config.inlineExtIcons != null)
+			{
+				Editor.inlineExtIcons = config.inlineExtIcons;
 			}
 			
 			// Overrides default vertex style
@@ -3413,6 +3445,50 @@
 				Editor.aiModels = config.aiModels;
 			}
 		}
+	};
+
+	/**
+	 * Applies Editor.customResources to mxResources, see Editor.configure.
+	 * Values with one entry per language are resolved using the lowercase
+	 * current language, the part before the dash (eg. de for de-ch) or
+	 * main, in this order.
+	 */
+	Editor.applyCustomResources = function()
+	{
+		if (Editor.customResources != null)
+		{
+			var lan = (mxClient.language != null) ?
+				mxClient.language.toLowerCase() : null;
+			var dash = (lan != null) ? lan.indexOf('-') : -1;
+
+			for (var key in Editor.customResources)
+			{
+				var value = Editor.customResources[key];
+
+				if (value != null && typeof value === 'object')
+				{
+					value = ((lan != null) ? value[lan] : null) ||
+						((dash > 0) ? value[lan.substring(0, dash)] : null) ||
+						value['main'];
+				}
+
+				if (typeof value === 'string')
+				{
+					mxResources.resources[key] = value;
+				}
+			}
+		}
+	};
+
+	// Reapplies custom resources after each parsed resource bundle so that
+	// configured values take precedence over the built-in language files,
+	// including after the language was changed
+	var mxResourcesParse = mxResources.parse;
+
+	mxResources.parse = function(text)
+	{
+		mxResourcesParse.apply(this, arguments);
+		Editor.applyCustomResources();
 	};
 	
 	/**
@@ -4607,6 +4683,7 @@
 		// /^https?:\/\/[^\/]*\.iconfinder.com\//.test(url) ||
 		return (this.corsRegExp != null && this.corsRegExp.test(url)) ||
 			url.substring(0, 34) === 'https://raw.githubusercontent.com/' ||
+			url.substring(0, 27) === 'https://icons.diagrams.net/' ||
 			url.substring(0, 29) === 'https://fonts.googleapis.com/' ||
 			url.substring(0, 26) === 'https://fonts.gstatic.com/';
 	};
@@ -7049,18 +7126,6 @@
 			var graph = this.editorUi.editor.graph;
 			var secondLevel = [];
 
-			function safeDecodeURIComponent(value)
-			{
-				try
-				{
-					return decodeURIComponent(value);
-				}
-				catch (e)
-				{
-					return value;
-				}
-			};
-			
 			function insertAfter(newElem, curElem)
 			{
 				curElem.parentNode.insertBefore(newElem, curElem.nextSibling);
@@ -7353,7 +7418,7 @@
 				td = document.createElement('td');
 				td.className = 'gePropRowCell';
 				td.setAttribute('title', (pValue != null) ?
-					safeDecodeURIComponent(pValue) : mxResources.get('none'));
+					mxUtils.safeDecodeURIComponent(pValue) : mxResources.get('none'));
 
 				mxEvent.addListener(td, 'click', mxUtils.bind(that, function(e)
 				{
@@ -7521,7 +7586,7 @@
 					let valueDiv = document.createElement('div');
 					valueDiv.className = 'gePropValue';
 					td.appendChild(valueDiv);
-					valueDiv.innerHTML = mxUtils.htmlEntities(safeDecodeURIComponent(pValue));
+					valueDiv.innerHTML = mxUtils.htmlEntities(mxUtils.safeDecodeURIComponent(pValue));
 
 					mxEvent.addListener(td, 'click', mxUtils.bind(that, function(e)
 					{
@@ -7537,7 +7602,7 @@
 						valueDiv.innerHTML = '';
 						var input = document.createElement('input');
 						setElementPos(valueDiv, input);
-						input.value = safeDecodeURIComponent(pValue);
+						input.value = mxUtils.safeDecodeURIComponent(pValue);
 						input.className = 'gePropEditor';
 						
 						if ((pType == 'int' || pType == 'float') && !prop.allowAuto)
@@ -9364,7 +9429,7 @@
 	 */
 	mxGraphView.prototype.createEnumerationValue = function(state)
 	{
-		var value = decodeURIComponent(mxUtils.getValue(state.style, 'enumerateValue', ''));
+		var value = mxUtils.safeDecodeURIComponent(mxUtils.getValue(state.style, 'enumerateValue', ''));
 
 		if (value == '')
 		{

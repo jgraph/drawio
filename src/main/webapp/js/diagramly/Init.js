@@ -58,6 +58,11 @@ window.SHAPES_PATH = window.SHAPES_PATH || 'shapes';
 window.GRAPH_IMAGE_PATH = window.GRAPH_IMAGE_PATH || 'img';
 window.ICONSEARCH_PATH = window.ICONSEARCH_PATH || (urlParams['dev'] && window.location.protocol != 'file:' ?
 	'iconSearch2' : window.DRAWIO_SERVER_URL + 'iconSearch2');
+// Grouped icon search service (v3): returns icon sets alongside results
+// and supports server-side data URI inlining. Takes precedence over
+// ICONSEARCH_PATH in the sidebar search when defined.
+window.ICON_SERVICE_PATH = window.ICON_SERVICE_PATH || (urlParams['dev'] && window.location.protocol != 'file:' ?
+	'api/icons' : window.DRAWIO_SERVER_URL + 'api/icons');
 window.TEMPLATE_PATH = window.TEMPLATE_PATH || 'templates';
 window.NEW_DIAGRAM_CATS_PATH = window.NEW_DIAGRAM_CATS_PATH || 'newDiagramCats';
 window.PLUGINS_BASE_PATH = window.PLUGINS_BASE_PATH || '';

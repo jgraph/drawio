@@ -122,6 +122,7 @@ DrawioConfigEditor.install = function(container, options)
 		],
 		'library-toggles': [
 			{ key: 'enableCustomLibraries', name: 'Enable Custom Libraries', help: 'Allow open and new library functions' },
+			{ key: 'inlineExtIcons', name: 'Inline Icon Search Results', help: 'Insert icon search results as embedded images instead of remote references' },
 			{ key: 'appendCustomLibraries', name: 'Append Custom Libraries', help: 'Custom libraries appear after built-in ones' }
 		],
 		'export-toggles': [
@@ -1447,6 +1448,11 @@ DrawioConfigEditor.html = [
 	'        <label for="cfg-keyboardShortcuts">Keyboard Shortcuts (JSON)</label>',
 	'        <textarea id="cfg-keyboardShortcuts" data-key="keyboardShortcuts" data-type="json" placeholder=\'[{"keyCode": "T", "control": true, "shift": true, "action": "tags"}]\' style="min-height: 60px;"></textarea>',
 	'        <p class="field__help">Custom keyboard shortcuts. Entries are {keyCode, control, shift, alt, action} where keyCode is a key code or single character and action is an action name, or null to remove a binding.</p>',
+	'      </div>',
+	'      <div class="field">',
+	'        <label for="cfg-resources">Language Resources (JSON)</label>',
+	'        <textarea id="cfg-resources" data-key="resources" data-type="json" placeholder=\'{"saveAs": {"main": "Save a Copy", "de": "Kopie speichern"}, "myKey": "My Text"}\' style="min-height: 60px;"></textarea>',
+	'        <p class="field__help">Overrides existing or adds new language resources for user interface text. Maps resource keys to strings, or to objects with one entry per language code and main as the fallback.</p>',
 	'      </div>',
 	'      <div id="general-toggles"></div>',
 	'    </div>',

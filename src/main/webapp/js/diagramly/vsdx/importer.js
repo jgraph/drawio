@@ -1314,53 +1314,74 @@ var com;
                     return new mxPoint(x, y);
                 }
                 
-                mxVsdxCodec.prototype.processEdgeGeo = function (edgeShape, edge, parentHeight) 
+                mxVsdxCodec.prototype.processEdgeGeo = function (edgeShape, edge, parentHeight)
                 {
                     try
                     {
-                        var rows = edgeShape.geomList.geomList[0].rows;
-                        
-                        // Detect Line jumps (best effort)
-                        for (var i = 0; i < rows.length; i++)
+                        if (edgeShape.geomList == null || edgeShape.geomList.geomList == null ||
+                            edgeShape.geomList.geomList.length === 0)
                         {
-                            if (rows[i] instanceof com.mxgraph.io.vsdx.geometry.ArcTo)
+                            return null;
+                        }
+
+                        // Convert curve geometry (NURBS, elliptical arcs, beziers, plain
+                        // arc edges) to a bezier edge; getControlPoints scans all
+                        // geometry sections and returns null if there is nothing curved
+                        var result = null;
+
+                        try
+                        {
+                            result = edgeShape.getControlPoints(parentHeight);
+                        }
+                        catch(e)
+                        {
+                            console.log(e);
+                        }
+
+                        if (result != null && result.points != null && result.points.length > 0)
+                        {
+                            // Use curved style - if isBezier, add bezier=1
+                            if (result.isBezier)
                             {
-                                edge.style += 'jumpStyle=arc;';
-                                break;
+                                edge.style += 'curved=1;bezier=1;';
+                            }
+                            else
+                            {
+                                // Through-points - use regular curved style
+                                edge.style += 'curved=1;';
+                            }
+                            var geo = edge.getGeometry();
+
+                            if (geo != null)
+                            {
+                                geo.points = result.points;
+
+                                // Callers apply parent group transforms to these
+                                return result.points;
                             }
                         }
-                        
-                        // Handle NURBS - convert to curved edge
-                        for (var i = 0; i < rows.length; i++)
+                        else
                         {
-                            if (rows[i] instanceof com.mxgraph.io.vsdx.geometry.NURBSTo)
+                            // Detect Line jumps (best effort) on unconverted paths -
+                            // converted ones have any jump arcs baked into the curve
+                            var rows = edgeShape.geomList.geomList[0].rows;
+
+                            for (var i = 0; rows != null && i < rows.length; i++)
                             {
-                                var result = edgeShape.getControlPoints(parentHeight);
-                                
-                                if (result != null && result.points != null && result.points.length > 0)
+                                if (rows[i] instanceof com.mxgraph.io.vsdx.geometry.ArcTo)
                                 {
-                                    // Use curved style - if isBezier, add bezier=1
-                                    if (result.isBezier)
-                                    {
-                                        edge.style += 'curved=1;bezier=1;';
-                                    }
-                                    else
-                                    {
-                                        // Through-points - use regular curved style
-                                        edge.style += 'curved=1;';
-                                    }
-                                    var geo = edge.getGeometry();
-                                    
-                                    if (geo != null)
-                                    {
-                                        geo.points = result.points;
-                                    }
+                                    edge.style += 'jumpStyle=arc;';
+                                    break;
                                 }
-                                break;
                             }
                         }
                     }
-                    catch(e){} // Ignore
+                    catch(e)
+                    {
+                        console.log(e);
+                    }
+
+                    return null;
                 };
 				
                 function addEdgeSublabel(graph, edge, edgeShape, rotation, lblOffset)
@@ -1535,20 +1556,20 @@ var com;
                     }
                     
                     var edgeGeometry = graph.getModel().getGeometry(edge);
-                    
+                    var accX = 0;
+                    var accY = 0;
+                    var reparented = false;
+
                     //when source.parent != target.parent the front end will change the edge parent to parent 1 but waypoints are not corrected
                     if (source.parent != target.parent && parent != null && parent.id != 1 && source.parent.id == 1)
                 	{
-                    	var accX = 0;
-                    	var accY = 0;
-                    	
                     	var prnt = parent;
-                    	
-                    	do 
+
+                    	do
                     	{
                         	var prntGeo = prnt.geometry;
-                        	
-                            if (prntGeo != null) 
+
+                            if (prntGeo != null)
                             {
                             	accX += prntGeo.x;
                             	accY += prntGeo.y;
@@ -1556,19 +1577,66 @@ var com;
                             prnt = prnt.parent;
                     	}
                     	while(prnt != null);
-                    	
+
                     	edge.parent = source.parent;
-                    	
+                    	reparented = true;
+
                     	for (var i = 0; i < points.length; i++)
                 		{
                     		points[i].x += accX;
                     		points[i].y += accY;
                 		}
                 	}
-                    
+
                     edgeGeometry.points = (points);
                     // NURBS/curve handling is done in processEdgeGeo
-					this.processEdgeGeo(edgeShape, edge, parentHeight) ;
+					var curvePoints = this.processEdgeGeo(edgeShape, edge, parentHeight);
+
+                    if (curvePoints != null)
+                    {
+                        // The converted curve is computed in the edge shape's own frame:
+                        // apply the same parent group rotation the routing points got
+                        // above (terminal args are throwaways - beginXY/endXY were
+                        // already rotated)
+                        this.rotateChildEdge(graph.getModel(), parent, new mxPoint(0, 0), new mxPoint(0, 0), curvePoints);
+
+                        // Re-anchor the label to the converted path (offsets are
+                        // relative, so this stays valid across the translation below)
+                        var curveLblOffset = edgeShape.getLblEdgeOffset(graph.getView(),
+                            [beginXY].concat(curvePoints, [endXY]));
+
+                        if (curveLblOffset != null)
+                        {
+                            if (hasSubLabel)
+                            {
+                                if (edge.getChildCount() > 0)
+                                {
+                                    var subLbl = edge.getChildAt(0);
+                                    var subGeo = subLbl.getGeometry();
+
+                                    if (subGeo != null && subGeo.offset != null)
+                                    {
+                                        subGeo.offset = new mxPoint(curveLblOffset.x - subGeo.width / 2,
+                                            curveLblOffset.y - subGeo.height / 2);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                edgeGeometry.offset = curveLblOffset;
+                            }
+                        }
+
+                        // And the same re-parent translation
+                        if (reparented)
+                        {
+                            for (var i = 0; i < curvePoints.length; i++)
+                            {
+                                curvePoints[i].x += accX;
+                                curvePoints[i].y += accY;
+                            }
+                        }
+                    }
 
                     var layers = this.layerIndexToNames(edgeShape.layerMember);
                             
@@ -1636,7 +1704,41 @@ var com;
                     edgeGeometry.setTerminalPoint(beginXY, true);
                     edgeGeometry.setTerminalPoint(endXY, false);
                     // NURBS/curve handling is done in processEdgeGeo
-					this.processEdgeGeo(edgeShape, edge, parentHeight) ;
+					var curvePoints = this.processEdgeGeo(edgeShape, edge, parentHeight);
+
+                    if (curvePoints != null)
+                    {
+                        // The converted curve is computed in the edge shape's own frame:
+                        // apply the same parent group rotation the routing points and
+                        // terminals got above (terminal args are throwaways)
+                        this.rotateChildEdge(graph.getModel(), parent, new mxPoint(0, 0), new mxPoint(0, 0), curvePoints);
+
+                        // Re-anchor the label to the converted path
+                        var curveLblOffset = edgeShape.getLblEdgeOffset(graph.getView(),
+                            [beginXY].concat(curvePoints, [endXY]));
+
+                        if (curveLblOffset != null)
+                        {
+                            if (hasSubLabel)
+                            {
+                                if (edge.getChildCount() > 0)
+                                {
+                                    var subLbl = edge.getChildAt(0);
+                                    var subGeo = subLbl.getGeometry();
+
+                                    if (subGeo != null && subGeo.offset != null)
+                                    {
+                                        subGeo.offset = new mxPoint(curveLblOffset.x - subGeo.width / 2,
+                                            curveLblOffset.y - subGeo.height / 2);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                edgeGeometry.offset = curveLblOffset;
+                            }
+                        }
+                    }
 
                     return edge;
                 };
@@ -2871,10 +2973,11 @@ var com;
                             var row = this_1.rows[index124];
                             {
                                 /* append */ 
-                            	(function (sb) 
+                            	(function (sb)
                                 {
                             		//Some files has null rows
-                                	return sb.str = sb.str.concat(row != null? row.handle(p, shape) : ''); 
+                            		//The row list and position let SplineStart consume its SplineKnot rows
+                                	return sb.str = sb.str.concat(row != null? row.handle(p, shape, this_1.rows, index124) : '');
                                 })(geomElemParsed);
                             }
                         };
@@ -7732,23 +7835,51 @@ var com;
                             return _this;
                         }
                         /**
-                         *
+                         * Control point and knot of a B-spline. The SplineStart row that
+                         * heads the run emits the whole curve (see SplineStart.handle),
+                         * so a knot row that belongs to one produces no output of its
+                         * own. A knot row without a valid SplineStart falls back to a
+                         * straight segment to its control point.
                          * @param {mxPoint} p
                          * @param {com.mxgraph.io.vsdx.Shape} shape
+                         * @param {com.mxgraph.io.vsdx.geometry.Row[]} rows
+                         * @param {number} index
                          * @return {string}
                          */
-                        SplineKnot.prototype.handle = function (p, shape) {
-                            if (this.x != null && this.y != null && this.a != null) {
-                                var x = this.x * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
-                                var y = this.y * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
-                                var a = this.a;
-                                var knot = a;
-                                y = 100 - y;
-                                x = Math.round(x * 100.0) / 100.0;
-                                y = Math.round(y * 100.0) / 100.0;
-                                knot = Math.round(knot * 100.0) / 100.0;
-                                shape.setLastX(x);
-                                shape.setLastY(y);
+                        SplineKnot.prototype.handle = function (p, shape, rows, index) {
+                            var geometry = com.mxgraph.io.vsdx.geometry;
+
+                            // Walk back over the run: only rows a SplineStart would have
+                            // consumed (complete knot rows and deleted rows) may sit
+                            // between this row and its SplineStart
+                            if (this.x != null && this.y != null && this.a != null && rows != null && index != null) {
+                                for (var i = index - 1; i >= 0; i--) {
+                                    var r = rows[i];
+                                    if (r == null || r instanceof geometry.DelRow ||
+                                        (r instanceof geometry.SplineKnot && r.x != null && r.y != null && r.a != null)) {
+                                        continue;
+                                    }
+                                    if (r instanceof geometry.SplineStart && r.x != null && r.y != null &&
+                                        r.a != null && r.b != null && r.c != null && r.d != null) {
+                                        return "";
+                                    }
+                                    break;
+                                }
+                            }
+                            if (this.x != null && this.y != null) {
+                                var h = shape.getHeight();
+                                var w = shape.getWidth();
+                                if (w > 0 && h > 0) {
+                                    var x = this.x * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$() * 100.0 / w;
+                                    var y = 100 - this.y * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$() * 100.0 / h;
+                                    x = Math.round(x * 100.0) / 100.0;
+                                    y = Math.round(y * 100.0) / 100.0;
+                                    p.x = (x);
+                                    p.y = (y);
+                                    shape.setLastX(x);
+                                    shape.setLastY(y);
+                                    return "<line x=\"" + x + "\" y=\"" + y + "\"/>";
+                                }
                             }
                             return "";
                         };
@@ -7781,31 +7912,177 @@ var com;
                             return _this;
                         }
                         /**
-                         *
+                         * Emits the whole spline run as stencil cubic bezier segments.
+                         * The run defines a B-spline: the control points are the current
+                         * point, this row's X,Y and each following SplineKnot's X,Y; the
+                         * knots are B (first knot), A (second knot), each SplineKnot's A
+                         * and C (last knot) repeated until #knots = #control points +
+                         * degree + 1, so the curve is clamped at the end (same convention
+                         * as the NURBS element, see nurbsSegsTo). D is the degree.
                          * @param {mxPoint} p
                          * @param {com.mxgraph.io.vsdx.Shape} shape
+                         * @param {com.mxgraph.io.vsdx.geometry.Row[]} rows
+                         * @param {number} index
                          * @return {string}
                          */
-                        SplineStart.prototype.handle = function (p, shape) {
+                        SplineStart.prototype.handle = function (p, shape, rows, index) {
                             if (this.x != null && this.y != null && this.a != null && this.b != null && this.c != null && this.d != null) {
                                 var h = shape.getHeight();
                                 var w = shape.getWidth();
-                                var x = this.x * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
-                                var y = this.y * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
-                                var c = this.c;
-                                var d = (this.d | 0);
-                                var lastKnot = c;
-                                shape.setLastKnot(lastKnot);
-                                var degree = d;
-                                y = 100 - y;
-                                x = Math.round(x * 100.0) / 100.0;
-                                y = Math.round(y * 100.0) / 100.0;
-                                lastKnot = Math.round(lastKnot * 100.0) / 100.0;
-                                var x0 = shape.getLastX() * w / 100.0;
-                                var y0 = shape.getLastY() * h / 100.0;
-                                shape.setLastX(x);
-                                shape.setLastY(y);
-                                return "<curve ";
+                                if (!(w > 0) || !(h > 0)) {
+                                    return "";
+                                }
+                                var geometry = com.mxgraph.io.vsdx.geometry;
+                                var cf = com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
+
+                                // Local coordinates (inches, Y-up) to stencil space
+                                // (0..100, Y-down)
+                                function toStencil(rx, ry) {
+                                    return { x: rx * cf * 100.0 / w, y: 100 - ry * cf * 100.0 / h };
+                                }
+
+                                var ctrlPts = [{ x: shape.getLastX(), y: shape.getLastY() }, toStencil(this.x, this.y)];
+                                var knots = [this.b, this.a];
+
+                                if (rows != null && index != null) {
+                                    for (var i = index + 1; i < rows.length; i++) {
+                                        var r = rows[i];
+                                        if (r == null || r instanceof geometry.DelRow) {
+                                            continue;
+                                        }
+                                        if (r instanceof geometry.SplineKnot && r.x != null && r.y != null && r.a != null) {
+                                            ctrlPts.push(toStencil(r.x, r.y));
+                                            knots.push(r.a);
+                                        }
+                                        else {
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                var n = ctrlPts.length - 1;
+                                var deg = Math.min(Math.max(1, Math.round(this.d)), n);
+
+                                while (knots.length < n + deg + 2) {
+                                    knots.push(this.c);
+                                }
+
+                                // Validity: non-decreasing, no knot multiplicity above
+                                // degree + 1 and a non-empty curve domain
+                                var usable = true;
+                                for (var k = 1; k < knots.length && usable; k++) {
+                                    usable = knots[k] >= knots[k - 1];
+                                }
+                                for (var k = 0; k <= n && usable; k++) {
+                                    usable = knots[k] < knots[k + deg + 1];
+                                }
+                                usable = usable && knots[deg] < knots[n + 1];
+
+                                // Fall back to a uniform clamped knot vector if the stored
+                                // values are unusable
+                                if (!usable) {
+                                    knots = [];
+                                    for (var k = 0; k <= deg; k++) {
+                                        knots.push(0);
+                                    }
+                                    for (var k = 1; k <= n - deg; k++) {
+                                        knots.push(k / (n - deg + 1));
+                                    }
+                                    for (var k = 0; k <= deg; k++) {
+                                        knots.push(1);
+                                    }
+                                }
+
+                                var uStart = knots[deg];
+                                var uEnd = knots[n + 1];
+
+                                // De Boor's algorithm (spline rows are non-rational, so no
+                                // weights; see nurbsSegsTo for the rational variant)
+                                function findSpan(u) {
+                                    if (u >= knots[n + 1]) return n;
+                                    if (u <= knots[deg]) return deg;
+                                    var low = deg, high = n + 1;
+                                    while (high - low > 1) {
+                                        var mid = Math.floor((low + high) / 2);
+                                        if (u < knots[mid]) high = mid;
+                                        else low = mid;
+                                    }
+                                    return low;
+                                }
+
+                                function evaluate(u) {
+                                    var span = findSpan(u);
+                                    var pts = [];
+                                    for (var j = 0; j <= deg; j++) {
+                                        var idx = Math.max(0, Math.min(span - deg + j, n));
+                                        pts.push({ x: ctrlPts[idx].x, y: ctrlPts[idx].y });
+                                    }
+                                    for (var lvl = 1; lvl <= deg; lvl++) {
+                                        for (var j = deg; j >= lvl; j--) {
+                                            var ii = span - deg + j;
+                                            var denom = knots[ii + deg + 1 - lvl] - knots[ii];
+                                            var alpha = (denom > 1e-10) ? (u - knots[ii]) / denom : 0;
+                                            pts[j] = {
+                                                x: (1 - alpha) * pts[j - 1].x + alpha * pts[j].x,
+                                                y: (1 - alpha) * pts[j - 1].y + alpha * pts[j].y
+                                            };
+                                        }
+                                    }
+                                    return pts[deg];
+                                }
+
+                                function r2(v) {
+                                    return Math.round(v * 100.0) / 100.0;
+                                }
+
+                                var result = "";
+
+                                // If the spline does not start at the current point (start
+                                // not clamped), join with a straight segment
+                                var first = evaluate(uStart);
+                                if (Math.abs(first.x - ctrlPts[0].x) > 0.5 || Math.abs(first.y - ctrlPts[0].y) > 0.5) {
+                                    result += "<line x=\"" + r2(first.x) + "\" y=\"" + r2(first.y) + "\"/>\n";
+                                }
+
+                                // One cubic per knot span: between consecutive distinct
+                                // knots the spline is a single polynomial arc, so for
+                                // degree <= 3 a cubic through its points at t = 0, 1/3,
+                                // 2/3, 1 reproduces it exactly; higher degrees are
+                                // subdivided
+                                var eps = (uEnd - uStart) * 1e-6;
+                                var breaks = [uStart];
+                                for (var k = deg + 1; k <= n + 1; k++) {
+                                    if (knots[k] > breaks[breaks.length - 1] + eps) {
+                                        breaks.push(Math.min(knots[k], uEnd));
+                                    }
+                                }
+
+                                var nSub = Math.max(1, deg - 2);
+                                for (var seg = 0; seg < breaks.length - 1; seg++) {
+                                    for (var sub = 0; sub < nSub; sub++) {
+                                        var uA = breaks[seg] + (breaks[seg + 1] - breaks[seg]) * sub / nSub;
+                                        var uB = breaks[seg] + (breaks[seg + 1] - breaks[seg]) * (sub + 1) / nSub;
+                                        var s0 = evaluate(uA);
+                                        var s1 = evaluate(uA + (uB - uA) / 3);
+                                        var s2 = evaluate(uA + (uB - uA) * 2 / 3);
+                                        var s3 = evaluate(uB);
+
+                                        // Exact cubic interpolation of the points at
+                                        // t = 0, 1/3, 2/3, 1
+                                        result += "<curve x1=\"" + r2((-5 * s0.x + 18 * s1.x - 9 * s2.x + 2 * s3.x) / 6) +
+                                            "\" y1=\"" + r2((-5 * s0.y + 18 * s1.y - 9 * s2.y + 2 * s3.y) / 6) +
+                                            "\" x2=\"" + r2((2 * s0.x - 9 * s1.x + 18 * s2.x - 5 * s3.x) / 6) +
+                                            "\" y2=\"" + r2((2 * s0.y - 9 * s1.y + 18 * s2.y - 5 * s3.y) / 6) +
+                                            "\" x3=\"" + r2(s3.x) + "\" y3=\"" + r2(s3.y) + "\"/>\n";
+                                    }
+                                }
+
+                                var last = evaluate(uEnd);
+                                p.x = (r2(last.x));
+                                p.y = (r2(last.y));
+                                shape.setLastX(p.x);
+                                shape.setLastY(p.y);
+                                return result;
                             }
                             return "";
                         };
@@ -12212,230 +12489,607 @@ var com;
                      * @return {Object} Object with {points: mxPoint[], isBezier: boolean}
                      */
                     VsdxShape.prototype.getControlPoints = function (parentHeight) {
-                        if (this.geomList == null || this.geomList.geomList == null || 
+                        if (this.geomList == null || this.geomList.geomList == null ||
                             this.geomList.geomList.length === 0)
                         {
                             return null;
                         }
-                        
-                        var rows = this.geomList.geomList[0].rows;
-                        
+
+                        var geometry = com.mxgraph.io.vsdx.geometry;
+
+                        // Use the first geometry section that needs a curve conversion:
+                        // NURBS, elliptical arcs and bezier rows always do; a lone ArcTo
+                        // (nothing else drawn) is a plain arc edge, while ArcTo mixed
+                        // into a longer path is Visio's baked-in line jump
+                        // representation, which stays on the jumpStyle=arc heuristic
+                        var rows = null;
+
+                        for (var g = 0; g < this.geomList.geomList.length && rows == null; g++)
+                        {
+                            var geomObj = this.geomList.geomList[g];
+                            var geomRows = geomObj.rows;
+
+                            // Hidden sections are not rendered (matches getRoutingPoints)
+                            if (geomRows == null || geomObj.isNoShow())
+                            {
+                                continue;
+                            }
+
+                            var drawRows = 0;
+                            var arcRows = 0;
+                            var curveRows = 0;
+
+                            for (var i = 0; i < geomRows.length; i++)
+                            {
+                                var r = geomRows[i];
+
+                                // Some files have null rows
+                                if (r == null || r instanceof geometry.DelRow || r instanceof geometry.Ellipse ||
+                                    r instanceof geometry.InfiniteLine ||
+                                    r instanceof geometry.MoveTo || r instanceof geometry.RelMoveTo)
+                                {
+                                    continue;
+                                }
+
+                                drawRows++;
+
+                                // RelEllipticalArcTo extends EllipticalArcTo
+                                if (r instanceof geometry.NURBSTo || r instanceof geometry.EllipticalArcTo ||
+                                    r instanceof geometry.RelCubBezTo || r instanceof geometry.RelQuadBezTo)
+                                {
+                                    curveRows++;
+                                }
+                                else if (r instanceof geometry.ArcTo)
+                                {
+                                    arcRows++;
+                                }
+                            }
+
+                            if (curveRows > 0 || (arcRows === 1 && drawRows === 1))
+                            {
+                                rows = geomRows;
+                            }
+                        }
+
+                        if (rows == null)
+                        {
+                            return null;
+                        }
+
+                        // Get edge endpoints in screen coordinates
+                        var startXY = this.getStartXY(parentHeight);
+                        var endXY = this.getEndXY(parentHeight);
+
+                        // Conversion factor (VSDX inches to pixels)
+                        var cf = com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
+
+                        // Shape XForm in pixels: geometry coordinates are in the shape's
+                        // local frame (Y-up, origin at the shape's bottom-left) and map to
+                        // the page as Pin + R(Angle) * Flip * (local - LocPin)
+                        var dims = this.getDimensions();
+                        var geoWidth = dims.x;
+                        var geoHeight = dims.y;
+                        var pinX = this.getPinX();
+                        var pinY = this.getPinY();
+                        var locPinX = this.getLocPinX();
+                        var locPinY = this.getLocPinY();
+                        var angle = parseFloat(this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.ANGLE), "0")) || 0;
+                        var flipX = '1' == this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FLIP_X), "0") ? -1 : 1;
+                        var flipY = '1' == this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FLIP_Y), "0") ? -1 : 1;
+                        var cosA = Math.cos(angle);
+                        var sinA = Math.sin(angle);
+
+                        // Maps a point in the shape's local frame (in pixels) to screen
+                        // coordinates (page Y flipped via parentHeight)
+                        function localToScreen(lx, ly) {
+                            var dx = (lx - locPinX) * flipX;
+                            var dy = (ly - locPinY) * flipY;
+
+                            return {x: pinX + dx * cosA - dy * sinA,
+                                y: parentHeight - (pinY + dx * sinA + dy * cosA)};
+                        }
+
+                        // Inverse of localToScreen (flips are their own inverse)
+                        function screenToLocal(sx, sy) {
+                            var dxs = sx - pinX;
+                            var dys = (parentHeight - sy) - pinY;
+
+                            return {x: (dxs * cosA + dys * sinA) * flipX + locPinX,
+                                y: (-dxs * sinA + dys * cosA) * flipY + locPinY};
+                        }
+
+                        // Pixel tolerance when joining path pieces to the edge terminals
+                        // (getStartXY/getEndXY are quantized to whole pixels)
+                        var JOIN_EPS = 2;
+
+                        // Cubic bezier segments accumulated over all rows of the path.
+                        // current is tracked in screen coordinates, currentLocal in the
+                        // shape's local frame (needed for arc geometry)
+                        var current = {x: startXY.x, y: startXY.y};
+                        var currentLocal = screenToLocal(startXY.x, startXY.y);
+                        var segments = [];
+
+                        function curveSegTo(cp1, cp2, pt) {
+                            segments.push({cp1: cp1, cp2: cp2, anchor: pt});
+                            current = pt;
+                        }
+
+                        function lineSegTo(pt) {
+                            curveSegTo(
+                                {x: current.x + (pt.x - current.x) / 3, y: current.y + (pt.y - current.y) / 3},
+                                {x: current.x + (pt.x - current.x) * 2 / 3, y: current.y + (pt.y - current.y) * 2 / 3},
+                                pt);
+                        }
+
+                        function lineSegToLocal(lp) {
+                            lineSegTo(localToScreen(lp.x, lp.y));
+                            currentLocal = lp;
+                        }
+
+                        function curveSegToLocal(c1L, c2L, eL) {
+                            curveSegTo(localToScreen(c1L.x, c1L.y), localToScreen(c2L.x, c2L.y),
+                                localToScreen(eL.x, eL.y));
+                            currentLocal = eL;
+                        }
+
+                        // Appends bezier segments for an elliptical arc from the current
+                        // point through thruL to endL (local px). axisAngle = rotation of
+                        // the ellipse's major axis vs the local x-axis (radians),
+                        // axisRatio = major/minor axis ratio. Circular arcs use
+                        // axisAngle 0, axisRatio 1. The arc direction is the one that
+                        // passes through thruL, so no sweep/large-arc flags are needed.
+                        // Falls back to a straight segment when degenerate.
+                        function arcSegsTo(thruL, endL, axisAngle, axisRatio) {
+                            if (!isFinite(axisAngle) || !isFinite(axisRatio) || axisRatio <= 0)
+                            {
+                                lineSegToLocal(endL);
+                                return;
+                            }
+
+                            var ca = Math.cos(axisAngle);
+                            var sa = Math.sin(axisAngle);
+
+                            // Work frame: rotate by -axisAngle and scale y by the axis
+                            // ratio so the ellipse becomes a circle. Both maps are
+                            // affine, so bezier control points transform exactly.
+                            function toWork(pt) {
+                                return {x: pt.x * ca + pt.y * sa, y: (-pt.x * sa + pt.y * ca) * axisRatio};
+                            }
+
+                            function fromWork(pt) {
+                                var wy = pt.y / axisRatio;
+                                return {x: pt.x * ca - wy * sa, y: pt.x * sa + wy * ca};
+                            }
+
+                            var s = toWork(currentLocal);
+                            var m = toWork(thruL);
+                            var e = toWork(endL);
+
+                            // Circumcenter of the three points
+                            var den = 2 * ((s.x - m.x) * (m.y - e.y) - (m.x - e.x) * (s.y - m.y));
+
+                            if (Math.abs(den) < 1e-7)
+                            {
+                                // Collinear or repeated points
+                                lineSegToLocal(endL);
+                                return;
+                            }
+
+                            var s2 = s.x * s.x + s.y * s.y;
+                            var m2 = m.x * m.x + m.y * m.y;
+                            var e2 = e.x * e.x + e.y * e.y;
+                            var cx = ((s2 - m2) * (m.y - e.y) - (m2 - e2) * (s.y - m.y)) / den;
+                            var cy = ((m2 - e2) * (s.x - m.x) - (s2 - m2) * (m.x - e.x)) / den;
+                            var r = Math.sqrt((s.x - cx) * (s.x - cx) + (s.y - cy) * (s.y - cy));
+
+                            var thS = Math.atan2(s.y - cy, s.x - cx);
+                            var thM = Math.atan2(m.y - cy, m.x - cx);
+                            var thE = Math.atan2(e.y - cy, e.x - cx);
+
+                            // Sweep from start to end in the direction that passes
+                            // through the through-point
+                            var TWO_PI = 2 * Math.PI;
+                            var ccwE = (thE - thS + TWO_PI) % TWO_PI;
+                            var ccwM = (thM - thS + TWO_PI) % TWO_PI;
+                            var sweep = (ccwM <= ccwE) ? ccwE : ccwE - TWO_PI;
+
+                            if (sweep === 0)
+                            {
+                                lineSegToLocal(endL);
+                                return;
+                            }
+
+                            // One cubic per quarter-circle slice at most (max radial
+                            // error ~0.027% of the radius)
+                            var nSegs = Math.max(1, Math.ceil(Math.abs(sweep) / (Math.PI / 2)));
+                            var delta = sweep / nSegs;
+                            var kf = 4 / 3 * Math.tan(delta / 4);
+
+                            for (var si = 0; si < nSegs; si++)
+                            {
+                                var a0 = thS + si * delta;
+                                var a1 = a0 + delta;
+                                var c0x = Math.cos(a0), s0y = Math.sin(a0);
+                                var c1x = Math.cos(a1), s1y = Math.sin(a1);
+
+                                var cp1 = fromWork({x: cx + r * (c0x - kf * s0y), y: cy + r * (s0y + kf * c0x)});
+                                var cp2 = fromWork({x: cx + r * (c1x + kf * s1y), y: cy + r * (s1y - kf * c1x)});
+                                var pe = (si === nSegs - 1) ? endL : fromWork({x: cx + r * c1x, y: cy + r * s1y});
+
+                                curveSegToLocal(cp1, cp2, pe);
+                            }
+                        }
+
+                        // Converts one NURBSTo row to bezier segments. The control points
+                        // are the current point, the points in the NURBS formula and the
+                        // row's X,Y cells; the knot vector is the C cell, the formula's
+                        // per-point knots, the A cell and the formula's first argument
+                        // repeated degree + 1 times.
+                        function nurbsSegsTo(row) {
+                            if (row.formulaE == null || row.x == null || row.y == null)
+                            {
+                                return false;
+                            }
+
+                            var eValue = row.formulaE.replace(/NURBS\s*\(/i, '').replace(/\)\s*$/, '');
+                            var values = eValue.split(/\s*,\s*/);
+
+                            if (values.length < 8)
+                            {
+                                return false;
+                            }
+
+                            var knotLast = parseFloat(values[0]);
+                            var degree = Math.round(parseFloat(values[1]));
+                            var xType = parseFloat(values[2]);
+                            var yType = parseFloat(values[3]);
+
+                            if (!isFinite(knotLast) || !isFinite(degree) || degree < 1)
+                            {
+                                return false;
+                            }
+
+                            // xType/yType 0 = relative (fraction of Width/Height),
+                            // otherwise local coordinates in inches
+                            var ctrlPts = [{x: current.x, y: current.y, w: row.d || 1}]; // D = first weight
+                            var innerKnots = [];
+
+                            for (var j = 4; j + 3 < values.length; j += 4) {
+                                var rawX = parseFloat(values[j]);
+                                var rawY = parseFloat(values[j + 1]);
+
+                                var pt = localToScreen((xType === 0) ? rawX * geoWidth : rawX * cf,
+                                    (yType === 0) ? rawY * geoHeight : rawY * cf);
+                                innerKnots.push(parseFloat(values[j + 2]) || 0);
+                                ctrlPts.push({x: pt.x, y: pt.y, w: parseFloat(values[j + 3]) || 1});
+                            }
+
+                            // The row's X,Y cells are the last control point (local coords)
+                            var endPt = localToScreen(row.x * cf, row.y * cf);
+                            ctrlPts.push({x: endPt.x, y: endPt.y, w: row.b || 1}); // B = last weight
+
+                            var n = ctrlPts.length - 1; // n = number of ctrl pts - 1
+                            var p = Math.max(1, Math.min(degree, n)); // degree
+
+                            // Real knot vector as stored in the file
+                            var knots = [row.c || 0]; // C = first knot
+
+                            for (var k = 0; k < innerKnots.length; k++) {
+                                knots.push(innerKnots[k]);
+                            }
+
+                            knots.push(row.a || 0); // A = second to last knot
+
+                            for (var k = 0; k <= p; k++) {
+                                knots.push(knotLast);
+                            }
+
+                            // Validity: non-decreasing and no knot multiplicity above p+1
+                            var usable = true;
+
+                            for (var k = 1; k < knots.length && usable; k++) {
+                                usable = knots[k] >= knots[k - 1];
+                            }
+
+                            for (var k = 0; k <= n && usable; k++) {
+                                usable = knots[k] < knots[k + p + 1];
+                            }
+
+                            // Fall back to a uniform clamped knot vector if the stored
+                            // values are unusable
+                            if (!usable) {
+                                knots = [];
+
+                                for (var k = 0; k <= p; k++) {
+                                    knots.push(0);
+                                }
+
+                                for (var k = 1; k <= n - p; k++) {
+                                    knots.push(k / (n - p + 1));
+                                }
+
+                                for (var k = 0; k <= p; k++) {
+                                    knots.push(1);
+                                }
+                            }
+
+                            var uStart = knots[p];
+                            var uEnd = knots[n + 1];
+
+                            if (!(uEnd > uStart))
+                            {
+                                return false;
+                            }
+
+                            // De Boor's algorithm for B-spline evaluation
+                            function findSpan(u) {
+                                if (u >= knots[n + 1]) return n;
+                                if (u <= knots[p]) return p;
+
+                                var low = p, high = n + 1;
+                                while (high - low > 1) {
+                                    var mid = Math.floor((low + high) / 2);
+                                    if (u < knots[mid]) high = mid;
+                                    else low = mid;
+                                }
+                                return low;
+                            }
+
+                            function evaluateNURBS(u) {
+                                var span = findSpan(u);
+
+                                // Initialize with weighted control points
+                                var d = [];
+                                for (var j = 0; j <= p; j++) {
+                                    var idx = span - p + j;
+                                    idx = Math.max(0, Math.min(idx, n));
+                                    var pt = ctrlPts[idx];
+                                    d.push({x: pt.x * pt.w, y: pt.y * pt.w, w: pt.w});
+                                }
+
+                                // De Boor recursion
+                                for (var r = 1; r <= p; r++) {
+                                    for (var j = p; j >= r; j--) {
+                                        var ii = span - p + j;
+                                        var denom = knots[ii + p + 1 - r] - knots[ii];
+                                        var alpha = (denom > 1e-10) ? (u - knots[ii]) / denom : 0;
+
+                                        d[j] = {
+                                            x: (1 - alpha) * d[j-1].x + alpha * d[j].x,
+                                            y: (1 - alpha) * d[j-1].y + alpha * d[j].y,
+                                            w: (1 - alpha) * d[j-1].w + alpha * d[j].w
+                                        };
+                                    }
+                                }
+
+                                var w = Math.abs(d[p].w) > 1e-10 ? d[p].w : 1;
+                                return {x: d[p].x / w, y: d[p].y / w};
+                            }
+
+                            // One bezier segment per knot span: between consecutive
+                            // distinct knots the spline is a single polynomial arc, so a
+                            // cubic through its points at t = 0, 1/3, 2/3, 1 reproduces it
+                            // exactly (up to rational weights)
+                            var eps = (uEnd - uStart) * 1e-6;
+                            var breaks = [uStart];
+
+                            for (var k = p + 1; k <= n + 1; k++) {
+                                if (knots[k] > breaks[breaks.length - 1] + eps) {
+                                    breaks.push(Math.min(knots[k], uEnd));
+                                }
+                            }
+
+                            // If the spline does not start at the current point (start not
+                            // clamped), join with a straight segment
+                            var first = evaluateNURBS(uStart);
+
+                            if (Math.abs(first.x - current.x) > JOIN_EPS || Math.abs(first.y - current.y) > JOIN_EPS)
+                            {
+                                lineSegTo(first);
+                            }
+
+                            for (var seg = 0; seg < breaks.length - 1; seg++) {
+                                var uA = breaks[seg];
+                                var uB = breaks[seg + 1];
+
+                                var s0 = evaluateNURBS(uA);
+                                var s1 = evaluateNURBS(uA + (uB - uA) / 3);
+                                var s2 = evaluateNURBS(uA + (uB - uA) * 2 / 3);
+                                var s3 = evaluateNURBS(uB);
+
+                                // Exact cubic interpolation of the points at
+                                // t = 0, 1/3, 2/3, 1
+                                curveSegTo(
+                                    {x: (-5 * s0.x + 18 * s1.x - 9 * s2.x + 2 * s3.x) / 6,
+                                        y: (-5 * s0.y + 18 * s1.y - 9 * s2.y + 2 * s3.y) / 6},
+                                    {x: (2 * s0.x - 9 * s1.x + 18 * s2.x - 5 * s3.x) / 6,
+                                        y: (2 * s0.y - 9 * s1.y + 18 * s2.y - 5 * s3.y) / 6},
+                                    s3);
+                            }
+
+                            return true;
+                        }
+
+                        // Walk the full row list so paths mixing curve rows with other
+                        // row types keep their overall shape
                         for (var i = 0; i < rows.length; i++)
                         {
                             var row = rows[i];
-                            
-                            if (row instanceof com.mxgraph.io.vsdx.geometry.NURBSTo)
+
+                            // Some files have null rows
+                            if (row == null || row instanceof geometry.DelRow || row instanceof geometry.Ellipse ||
+                                row instanceof geometry.InfiniteLine || row.x == null || row.y == null)
                             {
-                                var formulaE = row.formulaE;
-                                
-                                if (formulaE == null)
+                                continue;
+                            }
+
+                            if (row instanceof geometry.MoveTo || row instanceof geometry.RelMoveTo)
+                            {
+                                if (segments.length > 0)
+                                {
+                                    // A second subpath cannot be represented on an edge
+                                    break;
+                                }
+
+                                var mvLocal = (row instanceof geometry.RelMoveTo) ?
+                                    {x: row.x * geoWidth, y: row.y * geoHeight} :
+                                    {x: row.x * cf, y: row.y * cf};
+                                var mv = localToScreen(mvLocal.x, mvLocal.y);
+                                currentLocal = mvLocal;
+
+                                // Keep the edge terminal as the path start if the move is
+                                // (up to rounding) the begin point
+                                if (Math.abs(mv.x - current.x) > JOIN_EPS || Math.abs(mv.y - current.y) > JOIN_EPS)
+                                {
+                                    lineSegTo(mv);
+                                }
+                            }
+                            else if (row instanceof geometry.NURBSTo)
+                            {
+                                if (!nurbsSegsTo(row))
                                 {
                                     return null;
                                 }
-                                
-                                // Get edge endpoints in screen coordinates
-                                var startXY = this.getStartXY(parentHeight);
-                                var endXY = this.getEndXY(parentHeight);
-                                
-                                // Edge vector
-                                var edgeWidth = endXY.x - startXY.x;
-                                var edgeHeight = endXY.y - startXY.y;
-                                
-                                // Conversion factor (VSDX inches to pixels)
-                                var cf = com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
-                                
-                                // Get knot values from NURBSTo cells
-                                var knotFirst = row.c || 0;      // C = first knot
-                                var knotSecondLast = row.a || 0; // A = second to last knot
-                                var weightFirst = row.d || 1;    // D = first weight
-                                var weightLast = row.b || 1;     // B = last weight
-                                
-                                // Parse NURBS formula
-                                var eValue = formulaE.replace(/NURBS\s*\(/i, '').replace(/\)$/, '');
-                                var values = eValue.split(/\s*,\s*/);
-                                
-                                if (values.length < 8)
+
+                                currentLocal = {x: row.x * cf, y: row.y * cf};
+                            }
+                            else if (row instanceof geometry.EllipticalArcTo &&
+                                row.a != null && row.b != null && row.c != null && row.d != null)
+                            {
+                                // A,B = point on the arc, C = major axis angle,
+                                // D = major/minor axis ratio (RelEllipticalArcTo extends
+                                // EllipticalArcTo with Width/Height fractions)
+                                var eaRel = row instanceof geometry.RelEllipticalArcTo;
+
+                                arcSegsTo(
+                                    eaRel ? {x: row.a * geoWidth, y: row.b * geoHeight} :
+                                        {x: row.a * cf, y: row.b * cf},
+                                    eaRel ? {x: row.x * geoWidth, y: row.y * geoHeight} :
+                                        {x: row.x * cf, y: row.y * cf},
+                                    row.c, row.d);
+                            }
+                            else if (row instanceof geometry.ArcTo)
+                            {
+                                // Circular arc; A = bow (arc midpoint to chord midpoint).
+                                // A positive bow bulges to the right of begin->end travel
+                                // in the Y-up local frame (matches ArcTo.handle's
+                                // sweep-flag convention)
+                                var arcEnd = {x: row.x * cf, y: row.y * cf};
+                                var bow = (row.a != null) ? row.a * cf : 0;
+                                var cdx = arcEnd.x - currentLocal.x;
+                                var cdy = arcEnd.y - currentLocal.y;
+                                var chord = Math.sqrt(cdx * cdx + cdy * cdy);
+
+                                if (Math.abs(bow) < 0.01 || chord < 0.01)
                                 {
-                                    return null;
+                                    lineSegToLocal(arcEnd);
                                 }
-                                
-                                var knotLast = parseFloat(values[0]);
-                                var degree = Math.round(parseFloat(values[1]));
-                                var xType = parseFloat(values[2]);
-                                var yType = parseFloat(values[3]);
-                                
-                                
-                                // Function to convert raw VSDX coords to screen coords
-                                function toScreen(rawX, rawY) {
-                                    var screenX, screenY;
-                                    
-                                    if (xType === 0) { // Relative (0-1 of edge width)
-                                        screenX = startXY.x + rawX * edgeWidth;
-                                    } else { // Absolute (inches from start)
-                                        screenX = startXY.x + rawX * cf;
-                                    }
-                                    
-                                    if (yType === 0) { // Relative (0-1 of edge height)
-                                        screenY = startXY.y + rawY * edgeHeight;
-                                    } else { // Absolute (inches, VSDX Y-up so negate)
-                                        screenY = startXY.y - rawY * cf;
-                                    }
-                                    
-                                    return {x: screenX, y: screenY};
+                                else
+                                {
+                                    arcSegsTo(
+                                        {x: (currentLocal.x + arcEnd.x) / 2 + bow * cdy / chord,
+                                            y: (currentLocal.y + arcEnd.y) / 2 - bow * cdx / chord},
+                                        arcEnd, 0, 1);
                                 }
-                                
-                                // Build control points array with weights
-                                var ctrlPts = [];
-                                ctrlPts.push({x: startXY.x, y: startXY.y, w: weightFirst});
-                                
-                                // Extract interior control points from formula
-                                for (var j = 4; j + 3 < values.length; j += 4) {
-                                    var rawX = parseFloat(values[j]);
-                                    var rawY = parseFloat(values[j + 1]);
-                                    var weight = parseFloat(values[j + 3]) || 1;
-                                    
-                                    var pt = toScreen(rawX, rawY);
-                                    ctrlPts.push({x: pt.x, y: pt.y, w: weight});
-                                }
-                                
-                                ctrlPts.push({x: endXY.x, y: endXY.y, w: weightLast});
-                                
-                                var n = ctrlPts.length - 1; // n = number of ctrl pts - 1
-                                var p = Math.min(degree, n); // degree
-                                
-                                // Build clamped knot vector
-                                // For n+1 control points, degree p: need n+p+2 knots
-                                // Clamped: first p+1 knots = knotFirst, last p+1 knots = knotLast
-                                // Interior knots: n+p+2 - 2*(p+1) = n-p knots
-                                var knots = [];
-                                
-                                // First p+1 knots = knotFirst (for clamped start)
-                                for (var k = 0; k <= p; k++) {
-                                    knots.push(knotFirst);
-                                }
-                                
-                                // Interior knots
-                                // For 5 ctrl pts (n=4), p=3: need 1 interior knot = knotSecondLast
-                                // For more ctrl pts, we'd need more interior knots from the formula
-                                var numInterior = n - p;
-                                if (numInterior === 1) {
-                                    knots.push(knotSecondLast);
-                                } else if (numInterior > 1) {
-                                    // Interpolate between knotFirst and knotLast
-                                    for (var k = 1; k <= numInterior; k++) {
-                                        var t = k / (numInterior + 1);
-                                        knots.push(knotFirst + t * (knotLast - knotFirst));
-                                    }
-                                }
-                                
-                                // Last p+1 knots = knotLast (for clamped end)
-                                for (var k = 0; k <= p; k++) {
-                                    knots.push(knotLast);
-                                }
-                                
-                                // De Boor's algorithm for B-spline evaluation
-                                function findSpan(u) {
-                                    if (u >= knots[n + 1]) return n;
-                                    if (u <= knots[p]) return p;
-                                    
-                                    var low = p, high = n + 1;
-                                    while (high - low > 1) {
-                                        var mid = Math.floor((low + high) / 2);
-                                        if (u < knots[mid]) high = mid;
-                                        else low = mid;
-                                    }
-                                    return low;
-                                }
-                                
-                                function evaluateNURBS(u) {
-                                    var span = findSpan(u);
-                                    
-                                    // Initialize with weighted control points
-                                    var d = [];
-                                    for (var j = 0; j <= p; j++) {
-                                        var idx = span - p + j;
-                                        idx = Math.max(0, Math.min(idx, n));
-                                        var pt = ctrlPts[idx];
-                                        d.push({x: pt.x * pt.w, y: pt.y * pt.w, w: pt.w});
-                                    }
-                                    
-                                    // De Boor recursion
-                                    for (var r = 1; r <= p; r++) {
-                                        for (var j = p; j >= r; j--) {
-                                            var ii = span - p + j;
-                                            var denom = knots[ii + p + 1 - r] - knots[ii];
-                                            var alpha = (denom > 1e-10) ? (u - knots[ii]) / denom : 0;
-                                            
-                                            d[j] = {
-                                                x: (1 - alpha) * d[j-1].x + alpha * d[j].x,
-                                                y: (1 - alpha) * d[j-1].y + alpha * d[j].y,
-                                                w: (1 - alpha) * d[j-1].w + alpha * d[j].w
-                                            };
+                            }
+                            else if (row instanceof geometry.RelCubBezTo &&
+                                row.a != null && row.b != null && row.c != null && row.d != null)
+                            {
+                                curveSegToLocal({x: row.a * geoWidth, y: row.b * geoHeight},
+                                    {x: row.c * geoWidth, y: row.d * geoHeight},
+                                    {x: row.x * geoWidth, y: row.y * geoHeight});
+                            }
+                            else if (row instanceof geometry.RelQuadBezTo &&
+                                row.a != null && row.b != null)
+                            {
+                                // Degree elevation of the quadratic control point
+                                var q = {x: row.a * geoWidth, y: row.b * geoHeight};
+                                var qEnd = {x: row.x * geoWidth, y: row.y * geoHeight};
+
+                                curveSegToLocal(
+                                    {x: currentLocal.x + (q.x - currentLocal.x) * 2 / 3,
+                                        y: currentLocal.y + (q.y - currentLocal.y) * 2 / 3},
+                                    {x: qEnd.x + (q.x - qEnd.x) * 2 / 3, y: qEnd.y + (q.y - qEnd.y) * 2 / 3},
+                                    qEnd);
+                            }
+                            else if (row instanceof geometry.PolylineTo && row.formulaA != null)
+                            {
+                                // POLYLINE(xType, yType, x1, y1, ...): type 0 = fraction
+                                // of Width/Height, otherwise local coordinates
+                                var pv = row.formulaA.replace(/\s/g, '').replace(/POLYLINE\(/i, '')
+                                    .replace(/\)$/, '').split(',');
+
+                                if (pv.length >= 2)
+                                {
+                                    var pxType = parseFloat(pv[0]);
+                                    var pyType = parseFloat(pv[1]);
+
+                                    for (var pj = 2; pj + 1 < pv.length; pj += 2)
+                                    {
+                                        var prX = parseFloat(pv[pj]);
+                                        var prY = parseFloat(pv[pj + 1]);
+
+                                        if (isFinite(prX) && isFinite(prY))
+                                        {
+                                            lineSegToLocal({x: (pxType === 0) ? prX * geoWidth : prX * cf,
+                                                y: (pyType === 0) ? prY * geoHeight : prY * cf});
                                         }
                                     }
-                                    
-                                    var w = Math.abs(d[p].w) > 1e-10 ? d[p].w : 1;
-                                    return {x: d[p].x / w, y: d[p].y / w};
                                 }
-                                
-                                // Sample the NURBS curve
-                                var numSamples = Math.max(30, ctrlPts.length * 8);
-                                var samples = [];
-                                
-                                for (var s = 0; s <= numSamples; s++) {
-                                    var u = knotFirst + (knotLast - knotFirst) * s / numSamples;
-                                    var pt = evaluateNURBS(u);
-                                    samples.push(pt);
-                                }
-                                
-                                // Fit cubic Bezier segments to samples
-                                // For draw.io bezier=1 edges:
-                                // - Source terminal is set separately (NOT in geo.points)
-                                // - Target terminal is set separately (NOT in geo.points)
-                                // - geo.points = [cp1, cp2, anchor, cp1, cp2, anchor, ..., cp1, cp2]
-                                //   where anchors are intermediate points, and last segment has no anchor (target is the anchor)
-                                
-                                var numSegments = Math.max(1, Math.ceil((ctrlPts.length - 1) / 2));
-                                var pointsPerSegment = Math.floor(numSamples / numSegments);
-                                
-                                var pointList = [];
-                                
-                                for (var seg = 0; seg < numSegments; seg++) {
-                                    var startIdx = seg * pointsPerSegment;
-                                    var endIdx = (seg === numSegments - 1) ? numSamples : (seg + 1) * pointsPerSegment;
-                                    
-                                    var s0 = samples[startIdx];
-                                    var s3 = samples[endIdx];
-                                    
-                                    // Get points at 1/3 and 2/3 for fitting
-                                    var idx1 = startIdx + Math.floor((endIdx - startIdx) / 3);
-                                    var idx2 = startIdx + Math.floor(2 * (endIdx - startIdx) / 3);
-                                    var s1 = samples[idx1];
-                                    var s2 = samples[idx2];
-                                    
-                                    // Fit Bezier control points using cubic Bezier interpolation
-                                    // Given points on curve at t=0 (s0), t=1/3 (s1), t=2/3 (s2), t=1 (s3)
-                                    // Solve for control points CP1, CP2
-                                    var cp1x = s0.x + (s1.x - s0.x) * 3 / 2 - (s3.x - s0.x) / 6;
-                                    var cp1y = s0.y + (s1.y - s0.y) * 3 / 2 - (s3.y - s0.y) / 6;
-                                    var cp2x = s3.x + (s2.x - s3.x) * 3 / 2 - (s0.x - s3.x) / 6;
-                                    var cp2y = s3.y + (s2.y - s3.y) * 3 / 2 - (s0.y - s3.y) / 6;
-                                    
-                                    pointList.push(new mxPoint(Math.round(cp1x * 100) / 100, Math.round(cp1y * 100) / 100));
-                                    pointList.push(new mxPoint(Math.round(cp2x * 100) / 100, Math.round(cp2y * 100) / 100));
-                                    
-                                    // Add anchor point for all segments except the last
-                                    // (last segment's anchor is the target terminal)
-                                    if (seg < numSegments - 1) {
-                                        pointList.push(new mxPoint(Math.round(s3.x * 100) / 100, Math.round(s3.y * 100) / 100));
-                                    }
-                                }
-                                
-                                return {points: pointList, isBezier: true};
+
+                                lineSegToLocal({x: row.x * cf, y: row.y * cf});
+                            }
+                            else if (row instanceof geometry.RelLineTo ||
+                                row instanceof geometry.RelCubBezTo ||
+                                row instanceof geometry.RelQuadBezTo ||
+                                row instanceof geometry.RelEllipticalArcTo)
+                            {
+                                // Relative coordinates (straight best effort for bezier
+                                // and arc rows with missing cells)
+                                lineSegToLocal({x: row.x * geoWidth, y: row.y * geoHeight});
+                            }
+                            else
+                            {
+                                // LineTo exactly and, as a straight best effort,
+                                // spline rows
+                                lineSegToLocal({x: row.x * cf, y: row.y * cf});
                             }
                         }
-                        
-                        return null;
+
+                        if (segments.length === 0)
+                        {
+                            return null;
+                        }
+
+                        // Close any gap to the edge end terminal (normally the path
+                        // already ends there up to rounding)
+                        if (Math.abs(current.x - endXY.x) > JOIN_EPS || Math.abs(current.y - endXY.y) > JOIN_EPS)
+                        {
+                            lineSegTo({x: endXY.x, y: endXY.y});
+                        }
+
+                        // For draw.io bezier=1 edges:
+                        // - Source terminal is set separately (NOT in geo.points)
+                        // - Target terminal is set separately (NOT in geo.points)
+                        // - geo.points = [cp1, cp2, anchor, cp1, cp2, anchor, ..., cp1, cp2]
+                        //   where anchors are intermediate points, and last segment has no anchor (target is the anchor)
+                        var pointList = [];
+
+                        for (var i = 0; i < segments.length; i++)
+                        {
+                            var s = segments[i];
+                            pointList.push(new mxPoint(Math.round(s.cp1.x * 100) / 100, Math.round(s.cp1.y * 100) / 100));
+                            pointList.push(new mxPoint(Math.round(s.cp2.x * 100) / 100, Math.round(s.cp2.y * 100) / 100));
+
+                            // Add anchor point for all segments except the last
+                            // (last segment's anchor is the target terminal)
+                            if (i < segments.length - 1)
+                            {
+                                pointList.push(new mxPoint(Math.round(s.anchor.x * 100) / 100, Math.round(s.anchor.y * 100) / 100));
+                            }
+                        }
+
+                        return {points: pointList, isBezier: true};
                     };
                     /**
                      * Analyzes a edge shape and returns a string with the style.

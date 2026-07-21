@@ -813,9 +813,67 @@ var installElkLibavoidRelease = function(cls)
 	};
 };
 
+// ─── Editor hook: route mrtree non-tree overlay edges via libavoid ──
+
+// The bridge pulls an mrtree run's non-tree edges (fan-in, cross links,
+// back edges) out of the ELK input and offers them to the environment
+// after the apply pass (nonTreeEdges 'route', the default — see the
+// bridge's routeNonTreeEdges base). Claim them whenever the libavoid
+// module is ready: obstacle-avoiding orthogonal routes beat the
+// orthogonalEdgeStyle fallback in dense trees (SegmentConnector only
+// avoids the edge's own terminals). routeCells runs inside the layout's
+// own model edit with value-guarded geometry writes, so converged
+// container re-runs stay empty edits; setStyle stays off — the bridge's
+// restyle pass already stamps edgeStyle=orthogonalEdgeStyle and the run's
+// corners on these edges.
+var installElkNonTreeRouting = function(cls)
+{
+	cls.prototype.canRouteNonTreeEdges = function(parent, edges)
+	{
+		if (typeof LibavoidRouting === 'undefined')
+		{
+			return false;
+		}
+
+		if (window.Avoid != null)
+		{
+			return true;
+		}
+
+		// Module still loading: fall back to orthogonalEdgeStyle for this
+		// run and re-run the layout once libavoid is ready so the routes
+		// upgrade in place — a converged container re-runs as an empty
+		// edit, so a spurious kick is free (and a non-container parent has
+		// no manager layout, making the kick a no-op).
+		if (window.__libavoidReady != null && !this.__nonTreeUpgradeKicked)
+		{
+			this.__nonTreeUpgradeKicked = true;
+			var graph = this.graph;
+
+			window.__libavoidReady.then(function(Avoid)
+			{
+				if (Avoid != null && parent != null &&
+					graph.getModel().contains(parent) &&
+					graph.layoutManager != null)
+				{
+					graph.layoutManager.executeLayout(parent, false);
+				}
+			});
+		}
+
+		return false;
+	};
+
+	cls.prototype.routeNonTreeEdges = function(parent, edges)
+	{
+		LibavoidRouting.routeCells(this.graph, window.Avoid, edges, null, false);
+	};
+};
+
 if (elkLayoutLoaded)
 {
 	installElkLibavoidRelease(ElkLayout);
+	installElkNonTreeRouting(ElkLayout);
 }
 
 // If the statics were staged (the bundle hadn't defined ElkLayout when this
@@ -836,6 +894,7 @@ if (!elkLayoutLoaded)
 			}
 
 			installElkLibavoidRelease(ElkLayout);
+			installElkNonTreeRouting(ElkLayout);
 		}
 		else if (++elkAttachTries > 600)
 		{

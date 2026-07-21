@@ -3285,7 +3285,8 @@ ArrangePanel.prototype.addGeometry = function(container)
 	// bounds and its children and, for transparentBounds cells, the border
 	// added around the child-derived bounds. Cells that carry a groupPadding
 	// style show it too (e.g. Mermaid/PlantUML image cells, where it is the
-	// image margin).
+	// image margin). Accepts 1-4 space-separated values in CSS TRBL order
+	// (Graph.parsePadding).
 	var showPadding = groupCell != null &&
 		(transparent || graph.isContainer(groupCell) ||
 		mxUtils.getValue(rect.style, mxConstants.STYLE_GROUP_PADDING, null) != null);
@@ -3330,18 +3331,80 @@ ArrangePanel.prototype.addGeometry = function(container)
 			paddingWrapper.appendChild(paddingInput);
 			div2.appendChild(paddingWrapper);
 
-			this.installInputHandler(paddingInput, mxConstants.STYLE_GROUP_PADDING,
-				0, 0, 999, '', null, false);
-
-			var paddingListener = mxUtils.bind(this, function()
+			// Not installInputHandler: that plumbing is numeric-only (parseInt
+			// on write and display), which would truncate a multi-value padding
+			// to its first number — including on a plain focus+blur, clobbering
+			// per-side values set via the layout dialogs or Edit Style. This
+			// handler round-trips the raw style value and writes 1-4 numbers
+			// re-joined with spaces (parseFloat per token, so no ;/= can reach
+			// the style).
+			var currentPadding = function()
 			{
-				if (document.activeElement != paddingInput)
+				var value = mxUtils.getValue(ui.getSelectionState().style,
+					mxConstants.STYLE_GROUP_PADDING, 0);
+
+				// The properties panel URI-encodes style values (space -> %20)
+				try
 				{
-					var value = parseInt(mxUtils.getValue(ui.getSelectionState().style,
-						mxConstants.STYLE_GROUP_PADDING, 0));
-					paddingInput.value = isNaN(value) ? 0 : value;
+					value = decodeURIComponent(String(value));
+				}
+				catch (e)
+				{
+					// keep value as-is
+				}
+
+				return String(value);
+			};
+
+			var paddingListener = mxUtils.bind(this, function(sender, evt, force)
+			{
+				if (force || document.activeElement != paddingInput)
+				{
+					paddingInput.value = currentPadding();
 				}
 			});
+
+			var applyPadding = mxUtils.bind(this, function(evt)
+			{
+				var text = paddingInput.value.trim();
+				var tokens = (text == '') ? ['0'] : text.split(/\s+/);
+				var valid = tokens.length <= 4;
+				var values = [];
+
+				for (var i = 0; i < tokens.length && valid; i++)
+				{
+					var num = parseFloat(tokens[i]);
+					valid = !isNaN(num);
+
+					if (valid)
+					{
+						values.push(Math.min(999, Math.max(0, num)));
+					}
+				}
+
+				var value = values.join(' ');
+
+				if (valid && value != currentPadding())
+				{
+					if (graph.isEditing())
+					{
+						graph.stopEditing(true);
+					}
+
+					var cells = ui.getSelectionState().cells;
+					graph.setCellStyles(mxConstants.STYLE_GROUP_PADDING, value, cells);
+					ui.fireEvent(new mxEventObject('styleChanged',
+						'keys', [mxConstants.STYLE_GROUP_PADDING],
+						'values', [value], 'cells', cells));
+				}
+
+				// Normalizes the display, or reverts it for invalid input
+				paddingListener(null, null, true);
+				mxEvent.consume(evt);
+			});
+
+			mxEvent.addListener(paddingInput, 'change', applyPadding);
+			mxEvent.addListener(paddingInput, 'blur', applyPadding);
 
 			model.addListener(mxEvent.CHANGE, paddingListener);
 			this.listeners.push({destroy: function() { model.removeListener(paddingListener); }});

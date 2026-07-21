@@ -1,30 +1,9 @@
 /**
  * Copyright (c) 2006-2012, JGraph Holdings Ltd
  */
-// Workaround for handling named HTML entities in mxUtils.parseXml
-// LATER: How to configure DOMParser to just ignore all entities?
+// NOTE: Named HTML entities in mxUtils.parseXml are handled in mxUtils.repairXml
 (function()
 {
-	var entities = [
-		['nbsp', '160'],
-		['shy', '173']
-    ];
-
-	// Converts HTML entites for parsing XML
-	var parseXml = mxUtils.parseXml;
-	
-	mxUtils.parseXml = function(text)
-	{
-		for (var i = 0; i < entities.length; i++)
-	    {
-	        text = text.replace(new RegExp(
-	        	'&' + entities[i][0] + ';', 'g'),
-		        '&#' + entities[i][1] + ';');
-	    }
-
-		return parseXml(text);
-	};
-
 	// Overrides color inversion if disabled
 	// TODO
 
@@ -992,8 +971,6 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			// Create virtual cell state for page centers
 			if (this.graph.pageVisible)
 			{
-				var guides = [];
-				
 				var pf = this.graph.pageFormat;
 				var ps = this.graph.pageScale;
 				var pw = pf.width * ps;
@@ -1001,22 +978,47 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 				var t = this.graph.view.translate;
 				var s = this.graph.view.scale;
 
-				var layout = this.graph.getPageLayout();
-				
-				for (var i = 0; i < layout.width; i++)
+				// Ignores pages that are too small on screen and restricts the
+				// guides to the visible pages plus one viewport of margin in
+				// each direction so that extreme cell coordinates cannot block
+				// the UI with an excessive number of guides
+				if (Math.min(pw, ph) * s > this.graph.minPageBreakDist)
 				{
-					guides.push(new mxRectangle(((layout.x + i) * pw + t.x) * s,
-						(layout.y * ph + t.y) * s, pw * s, ph * s));
+					var layout = this.graph.getPageLayout();
+					var c = this.graph.container;
+					var i0 = 0;
+					var i1 = layout.width;
+					var j0 = 1;
+					var j1 = layout.height;
+
+					if (c != null)
+					{
+						var x0 = (c.scrollLeft - c.clientWidth) / s - t.x;
+						var y0 = (c.scrollTop - c.clientHeight) / s - t.y;
+
+						i0 = Math.max(0, Math.floor(x0 / pw) - layout.x);
+						i1 = Math.min(i1, Math.ceil((x0 + 3 * c.clientWidth / s) / pw) - layout.x);
+						j0 = Math.max(1, Math.floor(y0 / ph) - layout.y);
+						j1 = Math.min(j1, Math.ceil((y0 + 3 * c.clientHeight / s) / ph) - layout.y);
+					}
+
+					var guides = [];
+
+					for (var i = i0; i < i1; i++)
+					{
+						guides.push(new mxRectangle(((layout.x + i) * pw + t.x) * s,
+							(layout.y * ph + t.y) * s, pw * s, ph * s));
+					}
+
+					for (var j = j0; j < j1; j++)
+					{
+						guides.push(new mxRectangle((layout.x * pw + t.x) * s,
+							((layout.y + j) * ph + t.y) * s, pw * s, ph * s));
+					}
+
+					// Page center guides have precedence over normal guides
+					result = guides.concat(result);
 				}
-				
-				for (var j = 1; j < layout.height; j++)
-				{
-					guides.push(new mxRectangle((layout.x * pw + t.x) * s,
-						((layout.y + j) * ph + t.y) * s, pw * s, ph * s));
-				}
-				
-				// Page center guides have precedence over normal guides
-				result = guides.concat(result);
 			}
 			
 			return result;
@@ -7863,7 +7865,7 @@ Graph.decodeNewEdgeStyle = function(value)
  * elkDisco / elkBox) the config is split: keys starting with `elk.` are
  * forwarded as ELK layout options; bare keys (edgeStyle, corners, resizeNodes,
  * preserveOrigin, rootCellIds, useViewStateSizing, respectFixedPosition,
- * mermaidPolicy, sharedStems) are mapped to the ElkLayout constructor's
+ * mermaidPolicy, sharedStems, nonTreeEdges) are mapped to the ElkLayout constructor's
  * `options` argument. The optional elkOptions argument overrides those
  * options per call site (the layout manager passes enforceCorners=false so
  * childLayout re-runs don't clobber per-edge corner choices) — it never
@@ -7956,7 +7958,9 @@ Graph.prototype.createLayouts = function(list, elkOptions)
  *       resizeNodes  → applierOptions.resizeParent
  *       preserveOrigin / rootCellIds / useViewStateSizing /
  *       respectFixedPosition / mermaidPolicy / sharedStems
- *       (mrtree stem collapse, default true) / groupPadding
+ *       (mrtree stem collapse, default true) / nonTreeEdges
+ *       (mrtree non-tree edges: 'route' overlays them via libavoid or
+ *       orthogonalEdgeStyle, 'elk' keeps mrtree's own routing) / groupPadding
  *       (container padding base, number or CSS-style string) → passed through
  *
  * Unknown bare keys are ignored. The function is exported on Graph so the
@@ -7994,7 +7998,7 @@ Graph.elkConfigToOptions = function(config)
 				key === 'includeEdgeLabels' || key === 'includeVertexLabels' ||
 				key === 'portSpread' || key === 'resizeLayoutRoot' ||
 				key === 'extractIsolated' || key === 'sharedStems' ||
-				key === 'groupPadding')
+				key === 'nonTreeEdges' || key === 'groupPadding')
 			{
 				options[key] = config[key];
 			}
@@ -8047,9 +8051,13 @@ Graph.elkOptionsToConfig = function(layoutOptions, runOptions)
 			config.resizeNodes = runOptions.applierOptions.resizeParent === true;
 		}
 
-		if (runOptions.preserveOrigin === false)
+		// Preserve-origin is OFF by default in the bridge (headless callers
+		// get raw ELK coordinates), so the explicit opt-in is the deviation
+		// that must be recorded — omitting it would flip a replayed run
+		// (Run Last Layout) back to drifting to the origin.
+		if (runOptions.preserveOrigin === true)
 		{
-			config.preserveOrigin = false;
+			config.preserveOrigin = true;
 		}
 
 		// Default true (mrtree collapses sibling stems onto the parent's
@@ -8057,6 +8065,13 @@ Graph.elkOptionsToConfig = function(layoutOptions, runOptions)
 		if (runOptions.sharedStems === false)
 		{
 			config.sharedStems = false;
+		}
+
+		// Default 'route' (mrtree extracts non-tree edges and routes them
+		// as overlays) — only the legacy opt-out deviates.
+		if (runOptions.nonTreeEdges === 'elk')
+		{
+			config.nonTreeEdges = 'elk';
 		}
 
 		// Container padding base (number or CSS-style 'top right bottom
@@ -10748,51 +10763,13 @@ Graph.prototype.isSelectParentFirst = function(cell)
 };
 
 /**
- * Parses a CSS-style padding string into {n, e, s, w}.
- * - 1 value: all four sides
- * - 2 values: vertical, horizontal
- * - 3 values: top, horizontal, bottom
- * - 4 values: top, right, bottom, left (CSS TRBL order, clockwise)
+ * Parses a CSS-style padding string into {n, e, s, w}. The parser lives in
+ * mxUtils.parsePadding so the core consumers (extendParent/contractParent)
+ * can share it; kept on the prototype for existing callers.
  */
 Graph.prototype.parsePadding = function(value)
 {
-	var str = (value != null) ? String(value) : '';
-
-	// Style values are URI-encoded when written from the properties panel,
-	// which turns the space separators into %20. Decode so the split below
-	// recognises them.
-	try
-	{
-		str = decodeURIComponent(str);
-	}
-	catch (e)
-	{
-		// keep str as-is
-	}
-
-	var parts = str.trim().split(/\s+/);
-	var nums = parts.map(function(p)
-	{
-		var n = parseFloat(p);
-		return isNaN(n) ? 0 : n;
-	});
-
-	if (nums.length === 1)
-	{
-		return {n: nums[0], e: nums[0], s: nums[0], w: nums[0]};
-	}
-
-	if (nums.length === 2)
-	{
-		return {n: nums[0], e: nums[1], s: nums[0], w: nums[1]};
-	}
-
-	if (nums.length === 3)
-	{
-		return {n: nums[0], e: nums[1], s: nums[2], w: nums[1]};
-	}
-
-	return {n: nums[0], e: nums[1], s: nums[2], w: nums[3]};
+	return mxUtils.parsePadding(value);
 };
 
 /**
@@ -19091,6 +19068,58 @@ if (typeof mxVertexHandler !== 'undefined')
 
 				// Prepares SVG document that holds the output
 				var s = scale / vs;
+				// Extends the bounds by the painted extent of shapes with the
+				// half pixel screen offset of odd stroke widths (see
+				// mxImageExport.getSvgShapeOffset) so that they are not
+				// clipped at the right and bottom edge of the crop, except
+				// for fixed size page output [jgraph/drawio#4938]
+				if (exportType != 'page')
+				{
+					imgExport = (imgExport != null) ? imgExport :
+						this.createSvgImageExport();
+					var offsetCanvas = {state: {scale: s}};
+					var extended = null;
+
+					this.view.states.visit(mxUtils.bind(this, function(id, state)
+					{
+						if (state.shape != null && state.shape.boundingBox != null)
+						{
+							var off = imgExport.getSvgShapeOffset(state.shape, offsetCanvas);
+
+							if (off != 0)
+							{
+								var painted = (ignoreSelection && lookup == null);
+								var cell = state.cell;
+
+								// Checks if cell or ancestor is exported
+								while (!painted && cell != null)
+								{
+									painted = (lookup != null) ? lookup.get(cell) :
+										this.isCellSelected(cell);
+									cell = this.model.getParent(cell);
+								}
+
+								if (painted)
+								{
+									var dt = off * vs / scale;
+									extended = (extended != null) ? extended :
+										mxRectangle.fromRectangle(bounds);
+									extended.add(new mxRectangle(
+										state.shape.boundingBox.x + dt,
+										state.shape.boundingBox.y + dt,
+										state.shape.boundingBox.width,
+										state.shape.boundingBox.height));
+								}
+							}
+						}
+					}));
+
+					if (extended != null)
+					{
+						bounds = extended;
+					}
+				}
+
 				var w = Math.max(1, Math.ceil(bounds.width * s) + 2 * border) +
 					((hasShadow && border == 0) ? 5 : 0);
 				var h = Math.max(1, Math.ceil(bounds.height * s) + 2 * border) +
@@ -19116,15 +19145,19 @@ if (typeof mxVertexHandler !== 'undefined')
 					root.appendChild(rect);
 				}
 
-			    // Renders graph. Offset will be multiplied with state's scale when painting state.
-				// TextOffset only seems to affect FF output but used everywhere for consistency.
+			    // Renders graph
 				var group = mxUtils.createElementNs(
 					svgDoc, mxConstants.NS_SVG, 'g');
 			    root.appendChild(group);
 
 				var svgCanvas = this.createSvgCanvas(group);
-				var dx = Math.floor(border / scale - bounds.x / vs);
-				var dy = Math.floor(border / scale - bounds.y / vs);
+				// Floors the translate at the output scale so that content
+				// moves by whole output pixels, keeping strokes crisp, and
+				// so that a fractional crop origin clips less than one pixel
+				// at the top and left at all export scales, instead of up to
+				// one pixel per unit of the scale [jgraph/drawio#4938]
+				var dx = Math.floor((border / scale - bounds.x / vs) * s) / s;
+				var dy = Math.floor((border / scale - bounds.y / vs) * s) / s;
 				svgCanvas.translate(dx, dy);
 				svgCanvas.idPrefix = 'drawio-svg-' + Editor.guid();
 

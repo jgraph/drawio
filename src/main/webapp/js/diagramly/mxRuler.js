@@ -258,8 +258,18 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
         
         //Draw ticks
         ctx.fillStyle = style.fontClr;
-        
-        for (var i = hasPageView? rStart : rStart % (step * scale); i <= rEnd; i += step * scale) 
+
+        var tickDist = step * scale;
+        var firstTick = hasPageView? rStart : rStart % tickDist;
+
+        //Starts at the first tick in the visible area, keeping the tick phase,
+        //so the loop is bounded when scrolled far into a large page layout
+        if (firstTick < RULER_THICKNESS - tickDist)
+    	{
+        	firstTick += Math.floor((RULER_THICKNESS - firstTick) / tickDist) * tickDist;
+    	}
+
+        for (var i = firstTick; i <= rEnd; i += tickDist)
         {
         	 var current = Math.round((i - rStart) / scale / step);
         	

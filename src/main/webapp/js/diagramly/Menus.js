@@ -5473,13 +5473,7 @@
 			{
 				if (file != null && editorUi.fileNode != null && urlParams['embedInline'] != '1')
 				{
-					var filename = (file.getTitle() != null) ?
-						file.getTitle() : editorUi.defaultFilename;
-					
-					if (!/(\.html)$/i.test(filename))
-					{
-						this.addMenuItems(menu, ['-', 'properties']);
-					}
+					this.addMenuItems(menu, ['-', 'properties']);
 				}
 			}
 	
@@ -5702,14 +5696,7 @@
 
 				if (file != null && editorUi.fileNode != null && urlParams['embedInline'] != '1')
 				{
-					var filename = (file.getTitle() != null) ?
-						file.getTitle() : editorUi.defaultFilename;
-
-					if ((file.constructor == DriveFile && file.sync != null &&
-						file.sync.isConnected()) || !/(\.html)$/i.test(filename))
-					{
-						this.addMenuItems(menu, ['properties'], parent);
-					}
+					this.addMenuItems(menu, ['properties'], parent);
 				}
 
 				if (Editor.currentTheme == 'simple')
@@ -5830,14 +5817,7 @@
 				
 				if (file != null && editorUi.fileNode != null && urlParams['embedInline'] != '1')
 				{
-					var filename = (file.getTitle() != null) ?
-						file.getTitle() : editorUi.defaultFilename;
-					
-					if ((file.constructor == DriveFile && file.sync != null &&
-						file.sync.isConnected()) || !/(\.html)$/i.test(filename))
-					{
-						this.addMenuItems(menu, ['-', 'properties']);
-					}
+					this.addMenuItems(menu, ['-', 'properties']);
 				}
 				
 				this.addMenuItems(menu, ['-', 'pageSetup'], parent);

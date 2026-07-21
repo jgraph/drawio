@@ -196,7 +196,7 @@ mxImageExport.prototype.drawText = function(state, canvas)
 		shape.node = canvas.root;
 		canvas.save();
 
-		var off = shape.getSvgScreenOffset();
+		var off = this.getSvgShapeOffset(shape, canvas);
 
 		if (off != 0)
 		{
@@ -216,7 +216,33 @@ mxImageExport.prototype.drawText = function(state, canvas)
 		canvas.root = root;
 	 }
  };
- 
+
+/**
+ * Function: getSvgShapeOffset
+ *
+ * Returns the crisp rendering offset for the given shape in the export.
+ * The exported graph is cropped to bounds that grow by the raw strokewidth
+ * (see mxShape.augmentBoundingBox), so the offset is only applied where a
+ * stroke grew those bounds, with the parity taken from the stroke width at
+ * the scale of the output rather than the screen. Otherwise the content
+ * shifts against the crop, adding padding on one side of the exported
+ * image and clipping content on the other. Shape-specific overrides of
+ * the screen offset (eg. mxText, mxImageShape) are used unchanged.
+ */
+mxImageExport.prototype.getSvgShapeOffset = function(shape, canvas)
+{
+	if (shape.getSvgScreenOffset != mxShape.prototype.getSvgScreenOffset)
+	{
+		return shape.getSvgScreenOffset();
+	}
+
+	var sw = (shape.stencil != null && shape.stencil.strokewidth != 'inherit') ?
+		Number(shape.stencil.strokewidth) : shape.strokewidth;
+	var scale = shape.scale * ((canvas.state != null) ? canvas.state.scale : 1);
+
+	return (shape.stroke != null && mxUtils.mod(Math.round(sw * scale), 2) == 1) ? 0.5 : 0;
+};
+
 /**
  * Function: drawOverlays
  * 

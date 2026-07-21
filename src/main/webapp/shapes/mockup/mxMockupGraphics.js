@@ -677,7 +677,7 @@ mxShapeMockupGauge.prototype.background = function(c, w, h)
 mxShapeMockupGauge.prototype.foreground = function(c, w, h)
 {
 	var gaugePos = mxUtils.getValue(this.style, mxShapeMockupGauge.prototype.cst.GAUGE_POS, '0');
-	var scaleColors = decodeURIComponent(mxUtils.getValue(this.style, mxShapeMockupGauge.prototype.cst.SCALE_COLORS, '#888888,#aaaaaa,#444444').toString()).split(',');
+	var scaleColors = mxUtils.safeDecodeURIComponent(mxUtils.getValue(this.style, mxShapeMockupGauge.prototype.cst.SCALE_COLORS, '#888888,#aaaaaa,#444444').toString()).split(',');
 	var gaugeLabels = mxUtils.getValue(this.style, mxShapeMockupGauge.prototype.cst.GAUGE_LABELS, 'CPU[%],0,100').toString().split(',');
 	var needleColor = mxUtils.getValue(this.style, mxShapeMockupGauge.prototype.cst.NEEDLE_COLOR, '#008cff');
 	var fillColor = mxUtils.getValue(this.style, mxConstants.STYLE_FILLCOLOR, '#ffffff');
@@ -848,7 +848,7 @@ mxShapeMockupPlotChart.prototype.foreground = function(c, x, y, w, h)
 {
 	var shapeStroke = mxUtils.getValue(this.style, mxShapeMockupPlotChart.prototype.cst.STROKE_COLOR2, '#dddddd');
 	var coordStroke = mxUtils.getValue(this.style, mxShapeMockupPlotChart.prototype.cst.STROKE_COLOR3, '#666666');
-	var shapesColors = decodeURIComponent(mxUtils.getValue(this.style, mxShapeMockupPlotChart.prototype.cst.SHAPES_COLORS, '#00aaff,#0044ff,#008cff').toString()).split(',');
+	var shapesColors = mxUtils.safeDecodeURIComponent(mxUtils.getValue(this.style, mxShapeMockupPlotChart.prototype.cst.SHAPES_COLORS, '#00aaff,#0044ff,#008cff').toString()).split(',');
 
 	var strokeWidth = mxUtils.getValue(this.style, mxConstants.STYLE_STROKEWIDTH, '1');
 	var shapeSize = Math.min(w, h) * 0.03;
@@ -1028,7 +1028,7 @@ mxShapeMockupGanttChart.prototype.background = function(c, x, y, w, h, bgColor, 
 
 mxShapeMockupGanttChart.prototype.foreground = function(c, x, y, w, h)
 {
-	var shapesColors = decodeURIComponent(mxUtils.getValue(this.style, mxShapeMockupGanttChart.prototype.cst.SHAPES_COLORS, '#888888,#bbbbbb').toString()).split(',');
+	var shapesColors = mxUtils.safeDecodeURIComponent(mxUtils.getValue(this.style, mxShapeMockupGanttChart.prototype.cst.SHAPES_COLORS, '#888888,#bbbbbb').toString()).split(',');
 	var textColor = mxUtils.getValue(this.style, mxShapeMockupGanttChart.prototype.cst.TEXT_COLOR, '#666666');
 	var textSize = mxUtils.getValue(this.style, mxShapeMockupGanttChart.prototype.cst.TEXT_SIZE, '#12');
 

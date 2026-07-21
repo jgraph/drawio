@@ -3867,7 +3867,7 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn, div)
 		}
 	};
 	
-	// Draws page breaks only within the page
+	// Draws page breaks only within the visible area
 	mxGraph.prototype.updatePageBreaks = function(visible, width, height)
 	{
 		var scale = this.view.scale;
@@ -3881,13 +3881,50 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn, div)
 		height = bounds2.height;
 		var bounds = new mxRectangle(scale * tr.x, scale * tr.y, fmt.width * ps, fmt.height * ps);
 
-		// Does not show page breaks if the scale is too small
-		visible = visible && Math.min(bounds.width, bounds.height) > this.minPageBreakDist;
+		// Maps from canvas to screen coordinates using the DOM as the view
+		// state is normalized in this call if CSS transforms are used
+		var ctm = (this.view.canvas != null && this.view.canvas.getCTM != null) ?
+			this.view.canvas.getCTM() : null;
+		var cs = (ctm != null) ? ctm.a : 1;
+		var cx = (ctm != null) ? ctm.e : 0;
+		var cy = (ctm != null) ? ctm.f : 0;
 
-		var horizontalCount = (visible) ? Math.min(this.maxPageBreaks, Math.ceil(height / bounds.height) - 1) : 0;
-		var verticalCount = (visible) ? Math.min(this.maxPageBreaks, Math.ceil(width / bounds.width) - 1) : 0;
+		// Does not show page breaks if the scale is too small
+		visible = visible && Math.min(bounds.width, bounds.height) * cs > this.minPageBreakDist;
+
+		var horizontalCount = (visible) ? Math.ceil(height / bounds.height) - 1 : 0;
+		var verticalCount = (visible) ? Math.ceil(width / bounds.width) - 1 : 0;
 		var right = bounds2.x + width;
 		var bottom = bounds2.y + height;
+
+		// Restricts the page breaks to the visible area plus one viewport of
+		// margin in each direction so that extreme cell coordinates cannot
+		// block the UI with an excessive number of nodes, and keeps track of
+		// the covered area for updating the clipped page breaks after scrolling
+		var hMin = 0;
+		var hMax = horizontalCount - 1;
+		var vMin = 0;
+		var vMax = verticalCount - 1;
+		this.pageBreakCoverage = null;
+
+		if (visible && this.container != null)
+		{
+			var cw = this.container.clientWidth;
+			var ch = this.container.clientHeight;
+			var x0 = (this.container.scrollLeft - cw - cx) / cs - bounds2.x;
+			var y0 = (this.container.scrollTop - ch - cy) / cs - bounds2.y;
+
+			vMin = Math.max(0, Math.floor(x0 / bounds.width) - 1);
+			vMax = Math.min(verticalCount - 1, Math.ceil((x0 + 3 * cw / cs) / bounds.width));
+			hMin = Math.max(0, Math.floor(y0 / bounds.height) - 1);
+			hMax = Math.min(horizontalCount - 1, Math.ceil((y0 + 3 * ch / cs) / bounds.height));
+
+			if (hMin > 0 || hMax < horizontalCount - 1 || vMin > 0 || vMax < verticalCount - 1)
+			{
+				this.pageBreakCoverage = new mxRectangle(this.container.scrollLeft - cw / 2,
+					this.container.scrollTop - ch / 2, 2 * cw, 2 * ch);
+			}
+		}
 
 		if (this.horizontalPageBreaks == null && horizontalCount > 0)
 		{
@@ -3903,16 +3940,24 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn, div)
 		{
 			if (breaks != null)
 			{
-				var count = (breaks == this.horizontalPageBreaks) ? horizontalCount : verticalCount; 
-				
-				for (var i = 0; i <= count; i++)
+				var horizontal = breaks == this.horizontalPageBreaks;
+				var first = (horizontal) ? hMin : vMin;
+				var last = (horizontal) ? hMax : vMax;
+
+				// Bounds the drawing loop as a fallback where the visible
+				// area is unknown (eg. no container)
+				var count = (visible && isFinite(first) && isFinite(last)) ?
+					Math.max(0, Math.min(this.maxPageBreaks, last - first + 1)) : 0;
+
+				for (var i = 0; i < count; i++)
 				{
-					var pts = (breaks == this.horizontalPageBreaks) ?
-						[new mxPoint(Math.round(bounds2.x), Math.round(bounds2.y + (i + 1) * bounds.height)),
-						 new mxPoint(Math.round(right), Math.round(bounds2.y + (i + 1) * bounds.height))] :
-						[new mxPoint(Math.round(bounds2.x + (i + 1) * bounds.width), Math.round(bounds2.y)),
-						 new mxPoint(Math.round(bounds2.x + (i + 1) * bounds.width), Math.round(bottom))];
-					
+					var pos = first + i + 1;
+					var pts = (horizontal) ?
+						[new mxPoint(Math.round(bounds2.x), Math.round(bounds2.y + pos * bounds.height)),
+						 new mxPoint(Math.round(right), Math.round(bounds2.y + pos * bounds.height))] :
+						[new mxPoint(Math.round(bounds2.x + pos * bounds.width), Math.round(bounds2.y)),
+						 new mxPoint(Math.round(bounds2.x + pos * bounds.width), Math.round(bottom))];
+
 					if (breaks[i] != null && breaks[i].node != null)
 					{
 						breaks[i].points = pts;

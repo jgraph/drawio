@@ -521,7 +521,19 @@ EditorUi = function(editor, container, lightbox)
 			}
 			else if (!mxEvent.isConsumed(evt) && evt.keyCode == 27 /* Escape */)
 			{
-				this.hideDialog(null, true);
+				// Closes closable tooltips (eg. template preview) before dialogs
+				if (this.sidebar != null && this.sidebar.tooltip != null &&
+					this.sidebar.tooltip.style.display != 'none' &&
+					this.sidebar.tooltipCloseImage != null &&
+					this.sidebar.tooltipCloseImage.style.display != 'none')
+				{
+					this.sidebar.hideTooltip();
+					mxEvent.consume(evt);
+				}
+				else
+				{
+					this.hideDialog(null, true);
+				}
 			}
 		});
 	   	
@@ -1234,6 +1246,8 @@ EditorUi.prototype.init = function()
 		}
 		
 		// Hides tooltips and connection points when scrolling
+		var pageBreaksUpdate = null;
+
 		mxEvent.addListener(graph.container, 'scroll', mxUtils.bind(this, function()
 		{
 			graph.tooltipHandler.hide();
@@ -1241,6 +1255,25 @@ EditorUi.prototype.init = function()
 			if (graph.connectionHandler != null && graph.connectionHandler.constraintHandler != null)
 			{
 				graph.connectionHandler.constraintHandler.reset();
+			}
+
+			// Redraws the clipped page breaks if the visible area is no
+			// longer within the area covered by the last update
+			if (graph.pageBreakCoverage != null && pageBreaksUpdate == null)
+			{
+				var b = graph.pageBreakCoverage;
+				var c = graph.container;
+
+				if (c.scrollLeft < b.x || c.scrollTop < b.y ||
+					c.scrollLeft + c.clientWidth > b.x + b.width ||
+					c.scrollTop + c.clientHeight > b.y + b.height)
+				{
+					pageBreaksUpdate = window.requestAnimationFrame(function()
+					{
+						pageBreaksUpdate = null;
+						graph.updatePageBreaks(graph.pageBreaksVisible, 0, 0);
+					});
+				}
 			}
 		}));
 		
