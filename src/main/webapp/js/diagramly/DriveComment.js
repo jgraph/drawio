@@ -14,25 +14,25 @@ mxUtils.extend(DriveComment, DrawioComment);
 DriveComment.prototype.addReply = function(reply, success, error, doResolve, doReopen)
 {
 	var body = {'content': reply.content};
-	
-	if (doResolve) 
+
+	if (doResolve)
 	{
-		body.verb = 'resolve';
-	} 
-	else if (doReopen) 
-	{
-		body.verb = 'reopen';
+		body.action = 'resolve';
 	}
-	
+	else if (doReopen)
+	{
+		body.action = 'reopen';
+	}
+
 	this.file.ui.drive.executeRequest(
 		{
-			url: '/files/' + this.file.getId() + '/comments/' + this.id + '/replies',
+			fullUrl: this.file.getCommentUrl('/' + this.id + '/replies', 'id'),
 			params: body,
 			method: 'POST'
 		},
 		mxUtils.bind(this, function(resp)
 		{
-			success(resp.replyId); //pass comment id
+			success(resp.id); //pass reply id
 		}), error);
 };
 
@@ -40,16 +40,12 @@ DriveComment.prototype.editComment = function(newContent, success, error)
 {
 	this.content = newContent;
 	var body = {'content': newContent};
-	 
+
 	this.file.ui.drive.executeRequest(
-		this.pCommentId?
 		{
-			url: '/files/' + this.file.getId() + '/comments/' + this.pCommentId + '/replies/' + this.id, 
-			params: body,
-			method: 'PATCH'
-		} :
-		{
-			url: '/files/' + this.file.getId() + '/comments/' + this.id, 
+			fullUrl: this.pCommentId ?
+				this.file.getCommentUrl('/' + this.pCommentId + '/replies/' + this.id, 'id') :
+				this.file.getCommentUrl('/' + this.id, 'id'),
 			params: body,
 			method: 'PATCH'
 		},
@@ -59,13 +55,9 @@ DriveComment.prototype.editComment = function(newContent, success, error)
 DriveComment.prototype.deleteComment = function(success, error)
 {
 	this.file.ui.drive.executeRequest(
-		this.pCommentId?
 		{
-			url: '/files/' + this.file.getId() + '/comments/' + this.pCommentId + '/replies/' + this.id,
-			method: 'DELETE'
-		}:
-		{
-			url: '/files/' + this.file.getId() + '/comments/' + this.id,
+			fullUrl: this.file.getCommentUrl((this.pCommentId ?
+				'/' + this.pCommentId + '/replies' : '') + '/' + this.id),
 			method: 'DELETE'
 		},
 	success, error);

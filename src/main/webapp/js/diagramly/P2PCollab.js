@@ -531,7 +531,7 @@ function P2PCollab(ui, sync, channelId)
 						msg = msgData.msg;
 					}
 
-					sync.handleMessageData(msg.d);
+					sync.handleMessageData(msg.d, msg.c);
 				break;
 			}
 

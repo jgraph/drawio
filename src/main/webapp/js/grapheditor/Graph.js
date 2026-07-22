@@ -3047,6 +3047,60 @@ Graph.sanitizeHtml = function(value, editing)
 };
 
 /**
+ * Installs the styles for the note box once. Injected so the box works
+ * in viewers where the editor stylesheets are not loaded.
+ */
+Graph.installNoteBoxStyle = function()
+{
+	if (Graph.installNoteBoxStyle.done)
+	{
+		return;
+	}
+
+	Graph.installNoteBoxStyle.done = true;
+
+	var css = [
+		'.geNoteBox{position:fixed;z-index:10001;min-width:120px;max-width:360px;',
+			'max-height:50vh;overflow:auto;box-sizing:border-box;padding:10px 14px;',
+			'background:#ffffff;color:#1d1d1f;border:1px solid #d2d2d7;',
+			'border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.2);',
+			'font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,',
+			// pre-line matches how tooltips render their HTML
+			'Helvetica,Arial,sans-serif;user-select:text;cursor:auto;',
+			'white-space:pre-line}',
+		'.geDarkMode .geNoteBox{background:#2a2a2a;color:#e5e5e7;',
+			'border-color:#505050}',
+		'.geNoteBox h1,.geNoteBox h2,.geNoteBox h3,.geNoteBox h4,.geNoteBox h5,',
+			'.geNoteBox h6{margin:6px 0 4px 0;line-height:1.3}',
+		'.geNoteBox h1{font-size:17px}.geNoteBox h2{font-size:15px}',
+		'.geNoteBox h3,.geNoteBox h4,.geNoteBox h5,.geNoteBox h6{font-size:13px}',
+		'.geNoteBox ul,.geNoteBox ol{margin:4px 0;padding-left:22px}',
+		'.geNoteBox blockquote{margin:4px 0;padding:2px 10px;',
+			'border-left:3px solid #d2d2d7;opacity:0.85}',
+		'.geNoteBox pre{margin:4px 0;padding:6px 8px;border-radius:6px;',
+			'background:rgba(127,127,127,0.15);overflow:auto}',
+		'.geNoteBox code{font-family:monospace;font-size:12px}',
+		'.geNoteBox hr{border:none;border-top:1px solid #d2d2d7;margin:6px 0}',
+		'.geNoteBox a{color:#0071e3}',
+		'.geDarkMode .geNoteBox a{color:#0a84ff}',
+		// Sticky so the button stays visible when the box scrolls
+		'.geNoteBox .geNoteEditBtn{float:right;position:sticky;top:0;',
+			'width:22px;height:22px;margin:-4px -9px 4px 10px;',
+			'border-radius:5px;cursor:pointer;user-select:none;opacity:0.6}',
+		'.geNoteBox .geNoteEditBtn:hover{opacity:1;',
+			'background:rgba(127,127,127,0.15)}',
+		'.geNoteBox .geNoteEditBtn img{display:block;width:16px;',
+			'height:16px;margin:3px}',
+		'.geDarkMode .geNoteBox .geNoteEditBtn img{filter:invert(1)}'
+	].join('');
+
+	var style = document.createElement('style');
+	style.setAttribute('type', 'text/css');
+	style.appendChild(document.createTextNode(css));
+	document.getElementsByTagName('head')[0].appendChild(style);
+};
+
+/**
  * Returns true if the two style strings are compatible for merging spans.
  * Ignores no-op values like background-color: initial.
  */
@@ -4528,7 +4582,13 @@ Graph.prototype.editAfterInsert = false;
 /**
  * Defines the built-in properties to be ignored in tooltips.
  */
-Graph.prototype.builtInProperties = ['label', 'tooltip', 'placeholders', 'placeholder'];
+Graph.prototype.builtInProperties = ['label', 'tooltip', 'placeholders', 'placeholder', 'note'];
+
+/**
+ * Specifies if icons should be shown on cells with a note. Default is
+ * true (the icon is the affordance for reading the note).
+ */
+Graph.prototype.showNoteIcons = true;
 
 /**
  * Defines if the graph is part of an EditorUi. If this is false the graph can
@@ -9443,7 +9503,11 @@ Graph.prototype.removeChildCells = function(cell)
 };
 
 /**
- * Creates a drop handler for inserting the given cells.
+ * Replaces the style of the given targets with the style of the given
+ * source cell. If the source is a vertex with children (eg. a group),
+ * vertex targets adopt the size of the source, keeping their center,
+ * and their children are replaced with clones of the children of the
+ * source.
  */
 Graph.prototype.updateShapes = function(source, targets, replaceStyles)
 {
@@ -9509,6 +9573,39 @@ Graph.prototype.updateShapes = function(source, targets, replaceStyles)
 				false), 'composite', '0') == '1')
 			{
 				this.removeChildCells(targets[i]);
+			}
+
+			// Replaces the children of vertex targets with clones of the
+			// children of a vertex source and applies the source size to
+			// the target, keeping the center of the target
+			if (this.model.isVertex(source) && this.model.isVertex(targets[i]) &&
+				this.model.getChildCount(source) > 0 && targets[i] != source)
+			{
+				this.removeChildCells(targets[i]);
+				var geo = this.getCellGeometry(source);
+				var geo2 = this.getCellGeometry(targets[i]);
+
+				if (geo != null && geo2 != null)
+				{
+					geo2 = geo2.clone();
+
+					if (!geo2.relative)
+					{
+						geo2.x = Math.round(geo2.getCenterX() - geo.width / 2);
+						geo2.y = Math.round(geo2.getCenterY() - geo.height / 2);
+					}
+
+					geo2.width = geo.width;
+					geo2.height = geo.height;
+					this.model.setGeometry(targets[i], geo2);
+				}
+
+				var children = this.cloneCells(this.model.getChildCells(source));
+
+				for (var j = 0; j < children.length; j++)
+				{
+					this.model.add(targets[i], children[j]);
+				}
 			}
 		}
 	}
@@ -11481,9 +11578,11 @@ Graph.prototype.getCurrentViewBox = function()
 };
 
 /**
- * Overrides tooltips to show custom tooltip or metadata.
+ * Overrides tooltips to show custom tooltip or metadata. If limitWidth
+ * is true then the result is wrapped in a container that is limited
+ * to the maximum tooltip width.
  */
-Graph.prototype.convertValueToTooltip = function(cell)
+Graph.prototype.convertValueToTooltip = function(cell, limitWidth)
 {
 	var tmp = null;
 
@@ -11507,6 +11606,12 @@ Graph.prototype.convertValueToTooltip = function(cell)
 			}
 			
 			tmp = Graph.sanitizeHtml(tmp);
+
+			if (limitWidth && tmp.length > 0 && Editor.tooltipMaxWidth > 0)
+			{
+				tmp = '<div style="max-width:' + Editor.tooltipMaxWidth +
+					'px;text-overflow:ellipsis;overflow:hidden;">' + tmp + '</div>';
+			}
 		}
 	}
 
@@ -11604,6 +11709,36 @@ Graph.prototype.getTooltipForCell = function(cell)
 	}
 	
 	return tip;
+};
+
+/**
+ * Renders the tooltip markup for hovers over the tooltip icon. The base
+ * implementation shows overlay tooltips as escaped plain text.
+ */
+Graph.prototype.getTooltip = function(state, node, x, y)
+{
+	if (state != null && state.overlays != null)
+	{
+		var overTooltipIcon = false;
+
+		state.overlays.visit(function(id, shape)
+		{
+			if (shape.overlay != null && shape.overlay.isTooltipOverlay &&
+				(node == shape.node || node.parentNode == shape.node))
+			{
+				overTooltipIcon = true;
+			}
+		});
+
+		// Safe for the HTML-based tooltip handler as the markup is
+		// sanitized in convertValueToTooltip
+		if (overTooltipIcon)
+		{
+			return this.convertValueToTooltip(state.cell, true);
+		}
+	}
+
+	return mxGraph.prototype.getTooltip.apply(this, arguments);
 };
 
 /**
@@ -13954,6 +14089,70 @@ TableLayout.prototype.execute = function(parent)
 				for (var i = cell.overlays.length - 1; i >= 0; i--)
 				{
 					if (cell.overlays[i].isTooltipOverlay)
+					{
+						cell.overlays.splice(i, 1);
+					}
+				}
+
+				if (cell.overlays.length == 0)
+				{
+					cell.overlays = null;
+				}
+			}
+
+			if (this.graph.showNoteIcons)
+			{
+				var note = this.graph.getNoteForCell(cell);
+				var hasNote = note != null && note.length > 0;
+				var hasNoteOverlay = false;
+
+				if (cell.overlays != null)
+				{
+					for (var i = 0; i < cell.overlays.length; i++)
+					{
+						if (cell.overlays[i].isNoteOverlay)
+						{
+							hasNoteOverlay = true;
+							break;
+						}
+					}
+				}
+
+				if (hasNote && !hasNoteOverlay)
+				{
+					var overlay = this.graph.createNoteOverlay(cell);
+
+					if (overlay != null)
+					{
+						if (cell.overlays == null)
+						{
+							cell.overlays = [];
+						}
+
+						cell.overlays.push(overlay);
+					}
+				}
+				else if (!hasNote && hasNoteOverlay)
+				{
+					for (var i = cell.overlays.length - 1; i >= 0; i--)
+					{
+						if (cell.overlays[i].isNoteOverlay)
+						{
+							cell.overlays.splice(i, 1);
+						}
+					}
+
+					if (cell.overlays.length == 0)
+					{
+						cell.overlays = null;
+					}
+				}
+			}
+			else if (cell.overlays != null)
+			{
+				for (var i = cell.overlays.length - 1; i >= 0; i--)
+				{
+					if (cell.overlays[i].isNoteOverlay)
 					{
 						cell.overlays.splice(i, 1);
 					}
@@ -17675,7 +17874,7 @@ if (typeof mxVertexHandler !== 'undefined')
 					else
 					{
 						var mouseEvt = evt.getProperty('event');
-						var tip = graph.getTooltipForCell(cell);
+						var tip = graph.convertValueToTooltip(cell, true);
 
 						if (tip != null && tip.length > 0)
 						{
@@ -17688,6 +17887,170 @@ if (typeof mxVertexHandler !== 'undefined')
 			}
 
 			return null;
+		};
+
+		/**
+		 * Creates a note overlay for the given cell. A click shows the
+		 * rendered note in a box.
+		 */
+		Graph.prototype.createNoteOverlay = function(cell)
+		{
+			var note = this.getNoteForCell(cell);
+
+			if (note != null && note.length > 0)
+			{
+				// Bottom left corner: top left and right belong to the
+				// tooltip and link icons, bottom right to the comment icon
+				var overlay = new mxCellOverlay(
+					new mxImage(Editor.lightDarkNoteImage, 16, 16),
+					mxResources.get('note', null, 'Note'), mxConstants.ALIGN_LEFT,
+					mxConstants.ALIGN_BOTTOM, new mxPoint(-8, 8));
+				overlay.isNoteOverlay = true;
+
+				var graph = this;
+				overlay.addListener(mxEvent.CLICK, function(sender, evt)
+				{
+					graph.showNoteBox(evt.getProperty('cell'),
+						evt.getProperty('event'));
+				});
+
+				return overlay;
+			}
+
+			return null;
+		};
+
+		/**
+		 * Shows the rendered note of the given cell in a box at the event
+		 * position. An edit button is added if the note can be edited.
+		 */
+		Graph.prototype.showNoteBox = function(cell, evt)
+		{
+			var note = this.convertValueToNote(cell);
+
+			if (note == null || note.length == 0)
+			{
+				return;
+			}
+
+			this.hideNoteBox();
+			Graph.installNoteBoxStyle();
+
+			var div = document.createElement('div');
+			div.className = 'geNoteBox';
+			div.innerHTML = Graph.sanitizeHtml(note);
+
+			if (this.isEnabled() && this.isCellEditable(cell))
+			{
+				var editBtn = document.createElement('a');
+				editBtn.className = 'geNoteEditBtn';
+				editBtn.setAttribute('title', mxResources.get(
+					'editNote', null, 'Edit Note'));
+
+				var img = document.createElement('img');
+				img.setAttribute('src', Editor.editImage);
+				editBtn.appendChild(img);
+
+				mxEvent.addListener(editBtn, 'click', mxUtils.bind(this, function(e)
+				{
+					this.hideNoteBox();
+
+					// The editNote action works on the selection
+					this.setSelectionCell(cell);
+					this.editNote(cell);
+					mxEvent.consume(e);
+				}));
+
+				// First child so the note contents flow around the
+				// floating button
+				div.insertBefore(editBtn, div.firstChild);
+			}
+
+			// Routes links in the note through openLink
+			var graph = this;
+			mxEvent.addListener(div, 'click', function(e)
+			{
+				var source = mxEvent.getSource(e);
+
+				while (source != null && source != div)
+				{
+					if (source.nodeName == 'A')
+					{
+						var href = source.getAttribute('href');
+
+						if (href != null)
+						{
+							graph.openLink(href);
+						}
+
+						mxEvent.consume(e);
+						break;
+					}
+
+					source = source.parentNode;
+				}
+			});
+
+			document.body.appendChild(div);
+
+			// Positions the box at the event, clamped to the viewport
+			var x = (evt != null) ? mxEvent.getClientX(evt) : 20;
+			var y = (evt != null) ? mxEvent.getClientY(evt) : 20;
+			var iw = window.innerWidth || document.documentElement.clientWidth;
+			var ih = window.innerHeight || document.documentElement.clientHeight;
+			div.style.left = Math.max(8, Math.min(x, iw - div.offsetWidth - 8)) + 'px';
+			div.style.top = Math.max(8, Math.min(y + 8, ih - div.offsetHeight - 8)) + 'px';
+
+			var closeHandler = mxUtils.bind(this, function(e)
+			{
+				if (e.type == 'keydown' && e.keyCode != 27 /* Escape */)
+				{
+					return;
+				}
+
+				if (e.type == 'mousedown' && div.contains(mxEvent.getSource(e)))
+				{
+					return;
+				}
+
+				this.hideNoteBox();
+			});
+
+			this.noteBox = {div: div, closeHandler: closeHandler};
+
+			// Deferred so the click that opened the box is ignored
+			window.setTimeout(function()
+			{
+				mxEvent.addListener(document, 'mousedown', closeHandler);
+				mxEvent.addListener(document, 'keydown', closeHandler);
+			}, 0);
+		};
+
+		/**
+		 * Hides the note box.
+		 */
+		Graph.prototype.hideNoteBox = function()
+		{
+			if (this.noteBox != null)
+			{
+				if (this.noteBox.div.parentNode != null)
+				{
+					this.noteBox.div.parentNode.removeChild(this.noteBox.div);
+				}
+
+				mxEvent.removeListener(document, 'mousedown', this.noteBox.closeHandler);
+				mxEvent.removeListener(document, 'keydown', this.noteBox.closeHandler);
+				this.noteBox = null;
+			}
+		};
+
+		/**
+		 * Opens the note editor for the given cell. This is a hook that is
+		 * implemented in EditorUi where the actions are available.
+		 */
+		Graph.prototype.editNote = function(cell)
+		{
+			// empty - implemented in EditorUi
 		};
 
 		/**
@@ -17706,14 +18069,47 @@ if (typeof mxVertexHandler !== 'undefined')
 		Graph.prototype.setTooltipForCell = function(cell, link)
 		{
 			var key = 'tooltip';
-			
+
 			if (Graph.translateDiagram && Graph.diagramLanguage != null &&
 				mxUtils.isNode(cell.value) && cell.value.hasAttribute('tooltip_' + Graph.diagramLanguage))
 			{
 				key = 'tooltip_' + Graph.diagramLanguage;
 			}
-			
+
 			this.setAttributeForCell(cell, key, link);
+		};
+
+		/**
+		 * Returns the markdown note for the given cell, or null.
+		 */
+		Graph.prototype.getNoteForCell = function(cell)
+		{
+			return this.getAttributeForCell(cell, 'note', null);
+		};
+
+		/**
+		 * Sets the markdown note for the given cell. Empty notes remove
+		 * the attribute.
+		 */
+		Graph.prototype.setNoteForCell = function(cell, note)
+		{
+			this.setAttributeForCell(cell, 'note',
+				(note != null && note.length > 0) ? note : null);
+		};
+
+		/**
+		 * Returns the note for the given cell with placeholders resolved.
+		 */
+		Graph.prototype.convertValueToNote = function(cell)
+		{
+			var note = this.getNoteForCell(cell);
+
+			if (note != null && this.isReplacePlaceholders(cell))
+			{
+				note = this.replacePlaceholders(cell, note);
+			}
+
+			return note;
 		};
 		
 		/**
@@ -18895,9 +19291,149 @@ if (typeof mxVertexHandler !== 'undefined')
 		 * @param {number} dx X-coordinate of the translation.
 		 * @param {number} dy Y-coordinate of the translation.
 		 */
-		Graph.prototype.createSvgImageExport = function(includeCellId, addSvgData)
+		Graph.prototype.createSvgImageExport = function(includeCellId, addSvgData, icons, iconLinkTarget)
 		{
 			var exp = new mxImageExport();
+			var self = this;
+
+			// Adds tooltip, link and note icons like the editor overlays. Icons
+			// are drawn through the canvas so they follow the export transform.
+			// Cells whose tooltip is plain text keep the built-in title below
+			// and get no icon. HTML popup content is sanitized here at export
+			// time as the exported file cannot sanitize at display time.
+			if (icons)
+			{
+				var drawCellState = exp.drawCellState;
+
+				exp.drawCellState = function(state, canvas)
+				{
+					drawCellState.apply(this, arguments);
+
+					if (canvas.root != null && state.cell != null &&
+						state.cell.geometry != null)
+					{
+						// Icons are placed outside the cell touching its
+						// corner, matching mxCellOverlay.getBounds for the
+						// editor overlays with their +-8 pixel offsets
+						var vs = self.view.scale;
+						var size = 16;
+
+						var addIcon = function(src, x, y, title, type, content, link)
+						{
+							if (link != null)
+							{
+								canvas.setLink(link, iconLinkTarget);
+							}
+
+							// Shape coordinates are model units in the canvas
+							// (see mxShape.paint), so the view scale is removed
+							// from the state coordinates at the call sites
+							canvas.image(x, y, size, size, src, true);
+
+							if (link != null)
+							{
+								canvas.setLink(null);
+							}
+
+							var node = canvas.root.lastChild;
+
+							// Wraps the icon in a group that carries the popup
+							// data, as embedding images replaces the icon image
+							// with an inline SVG subtree without its attributes
+							if (node != null)
+							{
+								var wrap = node.ownerDocument.createElementNS(
+									mxConstants.NS_SVG, 'g');
+								wrap.style.cursor = 'pointer';
+								wrap.setAttribute('data-icon', type);
+
+								if (content != null)
+								{
+									wrap.setAttribute('data-icon-content', content);
+								}
+
+								if (title != null && title != '')
+								{
+									var temp = node.ownerDocument.createElementNS(
+										mxConstants.NS_SVG, 'title');
+									mxUtils.write(temp, title.substring(0, 1000));
+									wrap.appendChild(temp);
+								}
+
+								canvas.root.replaceChild(wrap, node);
+								wrap.appendChild(node);
+
+								var isLink = node.nodeName.toLowerCase() == 'a';
+								var img = (isLink) ? node.lastChild : node;
+
+								// Adds a transparent hit target on top as pointer
+								// events are unreliable on use tags and nested SVG
+								// images, inside the link so that it stays clickable
+								if (img != null && img.getAttribute != null &&
+									img.getAttribute('x') != null)
+								{
+									var hit = node.ownerDocument.createElementNS(
+										mxConstants.NS_SVG, 'rect');
+									hit.setAttribute('x', img.getAttribute('x'));
+									hit.setAttribute('y', img.getAttribute('y'));
+									hit.setAttribute('width', img.getAttribute('width'));
+									hit.setAttribute('height', img.getAttribute('height'));
+									hit.setAttribute('fill', 'none');
+									hit.setAttribute('pointer-events', 'all');
+									((isLink) ? node : wrap).appendChild(hit);
+								}
+							}
+						};
+
+						// Serializes the sanitized HTML as XML so that reading it
+						// back via innerHTML cannot fail or change the parsed
+						// result when the exported SVG is opened as an XML
+						// document (HTML output is not always well-formed XML)
+						var toXml = function(html)
+						{
+							var div = document.createElement('div');
+							div.innerHTML = Graph.sanitizeHtml(html);
+
+							return (div.firstChild != null) ? mxUtils.getXml(div) : null;
+						};
+
+						var tip = self.convertValueToTooltip(state.cell);
+
+						if (tip != null && tip != '' && /<\/?[a-zA-Z][^>]*>/.test(tip))
+						{
+							addIcon(Editor.lightDarkTooltipImage, state.x / vs - size,
+								state.y / vs - size, Editor.convertHtmlToText(tip),
+								'tooltip', toXml(tip));
+						}
+
+						var link = self.getLinkForCell(state.cell);
+
+						if (link != null && link != '' && !self.isCustomLink(link))
+						{
+							addIcon(Editor.lightDarkLinkImage, (state.x + state.width) / vs,
+								state.y / vs - size, link, 'link', null, link);
+						}
+
+						var note = (self.getNoteForCell != null) ?
+							self.getNoteForCell(state.cell) : null;
+
+						if (note != null && note != '')
+						{
+							// Resolves placeholders once so the hover title and
+							// the popup content show the same resolved note
+							var noteValue = self.convertValueToNote(state.cell);
+							var noteXml = toXml(noteValue);
+
+							if (noteXml != null)
+							{
+								addIcon(Editor.lightDarkNoteImage, state.x / vs - size,
+									(state.y + state.height) / vs,
+									Editor.convertHtmlToText(noteValue), 'note', noteXml);
+							}
+						}
+					}
+				};
+			}
 
 			// Adds cell IDs and cell heirarchy
 			exp.addCellData = function(cell, group, includeValue)

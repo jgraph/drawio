@@ -2098,18 +2098,60 @@ var ParseDialog = function(editorUi, title, defaultType)
 	}
 
 	buttons.appendChild(typeSelect);
-	
+
 	mxEvent.addListener(typeSelect, 'change', function()
 	{
 		var newDefaultValue = getDefaultValue();
-		
+
 		if (textarea.value.length == 0 || textarea.value == defaultValue)
 		{
 			defaultValue = newDefaultValue;
 			textarea.value = defaultValue;
 		}
 	});
-	
+
+	// Previews the parse result in the zoomable tooltip, keeping the
+	// dialog open, using the same parser and config as the insert
+	if (editorUi.sidebar != null && (defaultType == 'mermaid' ||
+		defaultType == 'plantUml'))
+	{
+		var previewBtn = mxUtils.button(mxResources.get('preview'), function(evt)
+		{
+			if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+			{
+				var showPreview = function(xml)
+				{
+					editorUi.spinner.stop();
+					editorUi.showPreviewTooltip(xml, evt);
+				};
+
+				var onError = function(e)
+				{
+					editorUi.spinner.stop();
+					editorUi.handleError(e);
+				};
+
+				if (defaultType == 'mermaid')
+				{
+					// The image output parses with the legacy config, like
+					// parseMermaidImage, so the preview matches the insert
+					editorUi.parseMermaidDiagram(textarea.value,
+						(typeSelect.value == 'mermaidImage') ?
+							mxUtils.clone(EditorUi.legacyMermaidConfig) : null,
+						showPreview, onError);
+				}
+				else
+				{
+					editorUi.parsePlantUmlDiagram(textarea.value, null,
+						showPreview, onError);
+				}
+			}
+		});
+
+		previewBtn.className = 'geBtn';
+		buttons.appendChild(previewBtn);
+	}
+
 	var cancelBtn = mxUtils.button(mxResources.get('close'), function()
 	{
 		if (textarea.value == defaultValue)
@@ -2603,13 +2645,14 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	var templateExtUrl = null;
 	var templateRealUrl = null;
 	var templateInfoObj = null;
-	var lastAiXml = null;
-	var lastAiTitle = null;
+	var lastAiXml = editorUi.lastGenerateXml;
+	var lastAiTitle = editorUi.lastGenerateTitle;
 
 	function create()
 	{
 		if (selectedElt == generateElt && templateXml == null &&
-			generateButton != null && generateInput != null)
+			generateButton != null && generateInput != null &&
+			mxUtils.trim(generateInput.value) != '')
 		{
 			if (callback && editorUi.spinner.spin(document.body,
 				mxResources.get('generate') + ' \''+
@@ -2778,7 +2821,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	var w = 140;
 	var h = w;
 	var generateElt = null;
-	var generateBackground = 'url(' + Editor.thinSparklesImage + ')';
+	var generateBackground = (editorUi.lastGenerateBackground != null) ?
+		editorUi.lastGenerateBackground : 'url(' + Editor.thinSparklesImage + ')';
 	
 	var generateForm = document.createElement('div');
 	generateForm.className = 'geGenerateDiagramForm';
@@ -2932,10 +2976,15 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 	mxEvent.addListener(generateInput, 'input', updateGenerateButtonState);
 
-	function stopInput()
+	function resetPreview()
 	{
 		generatePreview.style.backgroundImage = generateBackground;
 		generatePreview.style.backgroundSize = 'contain';
+	};
+
+	function stopInput()
+	{
+		resetPreview();
 		generateForm.style.display = 'none';
 		generatePreview.style.display = '';
 		editGenerate.style.visibility = 'visible';
@@ -2944,6 +2993,15 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 	var generatingDiagram = false;
 
+	function startGenerating()
+	{
+		generatingDiagram = true;
+		generatePreview.style.backgroundImage = 'url(' + Editor.spinImage + ')';
+		generatePreview.style.backgroundSize = '12px 12px';
+		generatePreview.style.display = '';
+		generateForm.style.display = 'none';
+	};
+
 	function generateDiagram(cancel)
 	{
 		if (generatingDiagram)
@@ -2951,15 +3009,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			return;
 		}
 
-		generatingDiagram = true;
 		var desc = mxUtils.trim(generateInput.value);
 
 		if (!cancel && desc != '')
 		{
-			generatePreview.style.backgroundImage = 'url(' + Editor.spinImage + ')';
-			generatePreview.style.backgroundSize = '12px 12px';
-			generatePreview.style.display = '';
-			generateForm.style.display = 'none';
+			startGenerating();
 
 			editorUi.generateOpenAiMermaidDiagram(desc, function(xml)
 			{
@@ -2974,6 +3028,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					templateXml = xml;
 					lastAiXml = xml;
 					lastAiTitle = desc;
+					editorUi.lastGenerateXml = xml;
+					editorUi.lastGenerateTitle = desc;
+					editorUi.lastGenerateBackground = generateBackground;
 					stopInput();
 
 					if (insertWasPressed)
@@ -2981,9 +3038,15 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 						create();
 					}
 				}
+				else
+				{
+					// Removes progress icon if the result was discarded
+					resetPreview();
+				}
 			}, mxUtils.bind(this, function(e)
 			{
 				generatingDiagram = false;
+				resetPreview();
 
 				if (selectedElt == generateElt)
 				{
@@ -2991,6 +3054,20 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					generatePreview.style.display = 'none';
 					editGenerate.style.visibility = 'hidden';
 					magnifyGenerate.style.visibility = 'hidden';
+
+					if (e != null && e.retry != null)
+					{
+						// Restores progress state for retry so that the
+						// success handler above accepts the result
+						var retry = e.retry;
+
+						e.retry = function()
+						{
+							startGenerating();
+							retry();
+						};
+					}
+
 					editorUi.handleError(e);
 				}
 			}));
@@ -3226,6 +3303,15 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				elt.appendChild(magnifyGenerate);
 				elt.appendChild(editGenerate);
 				generateElt = elt;
+
+				// Restores last generated diagram from this session
+				if (lastAiXml != null)
+				{
+					elt.setAttribute('title', lastAiTitle);
+					generateInput.value = lastAiTitle;
+					updateGenerateButtonState();
+					magnifyGenerate.style.display = '';
+				}
 			}
 
 			if (select)
@@ -3761,45 +3847,49 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 										}
 									}
 									
-									var list = categories[category];
-									
-									if (list == null)
+									if (EditorUi.enabledTemplateSections == null ||
+										mxUtils.indexOf(EditorUi.enabledTemplateSections, category) >= 0)
 									{
-										list = [];
-										categories[category] = list;
-									}
-									
-									var tempLibs = node.getAttribute('clibs');
-									
-									if (clibs[tempLibs] != null)
-									{
-										tempLibs = clibs[tempLibs];
-									}
-									
-									var tempObj = {url: node.getAttribute('url'), libs: node.getAttribute('libs'),
-										title: node.getAttribute('title'), tooltip: node.getAttribute('name') || node.getAttribute('url'),
-										preview: node.getAttribute('preview'), clibs: tempLibs, tags: node.getAttribute('tags')};
-									list.push(tempObj);
+										var list = categories[category];
 										
-									if (subCategory != null)
-									{
-										var subCats = subCategories[category];
-										
-										if (subCats == null)
+										if (list == null)
 										{
-											subCats = {};
-											subCategories[category] = subCats;
+											list = [];
+											categories[category] = list;
 										}
 										
-										var subCatList = subCats[subCategory];
+										var tempLibs = node.getAttribute('clibs');
 										
-										if (subCatList == null)
+										if (clibs[tempLibs] != null)
 										{
-											subCatList = [];
-											subCats[subCategory] = subCatList;
+											tempLibs = clibs[tempLibs];
 										}
 										
-										subCatList.push(tempObj);
+										var tempObj = {url: node.getAttribute('url'), libs: node.getAttribute('libs'),
+											title: node.getAttribute('title'), tooltip: node.getAttribute('name') || node.getAttribute('url'),
+											preview: node.getAttribute('preview'), clibs: tempLibs, tags: node.getAttribute('tags')};
+										list.push(tempObj);
+											
+										if (subCategory != null)
+										{
+											var subCats = subCategories[category];
+											
+											if (subCats == null)
+											{
+												subCats = {};
+												subCategories[category] = subCats;
+											}
+											
+											var subCatList = subCats[subCategory];
+											
+											if (subCatList == null)
+											{
+												subCatList = [];
+												subCats[subCategory] = subCatList;
+											}
+											
+											subCatList.push(tempObj);
+										}
 									}
 								}
 							}
@@ -5781,7 +5871,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 		// overflow:hidden that drives the horizontal ellipsis.
 		actionSummary.style.cssText = 'flex:1;min-width:0;font-size:13px;' +
 			'line-height:1.5;' +
-			'color:light-dark(#1d1d1f,#e0e0e0);' +
+			'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color));' +
 			'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' +
 			'margin-left:8px';
 
@@ -6310,15 +6400,15 @@ function installCustomActionStyles()
 		'.geSelField{display:inline-flex;align-items:center;gap:6px;',
 			'font:12px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,',
 			'Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}',
-		'.geSelFieldLabel{color:light-dark(#6e6e73,#a0a0a0);',
+		'.geSelFieldLabel{color:light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));',
 			'font-weight:500;letter-spacing:0.01em}',
 
 		// Chip (the count pill itself)
 		'.geSelChip{display:inline-flex;align-items:center;gap:4px;',
 			'min-height:24px;padding:2px 10px;border-radius:999px;',
-			'border:1px solid light-dark(#d2d2d7,#48484a);',
-			'background:light-dark(#fafafa,#2c2c2e);',
-			'color:light-dark(#1d1d1f,#e5e5e7);font:inherit;font-weight:500;',
+			'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));',
+			'background:light-dark(var(--soft-color), var(--dark-card-color));',
+			'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color));font:inherit;font-weight:500;',
 			// flex:0 0 auto so the chip never shrinks below its content
 			// — when the dialog narrows the row overflows (clipped by
 			// row.overflow:hidden) from the right edge instead of the
@@ -6331,15 +6421,15 @@ function installCustomActionStyles()
 		// Tag chip is clickable (opens picker) so it gets hover affordance
 		'button.geSelChip,a.geSelChip{cursor:pointer}',
 		'button.geSelChip:hover,a.geSelChip:hover{',
-			'background:light-dark(#f0f0f2,#3a3a3c);',
-			'border-color:light-dark(#b9b9be,#5a5a5e)}',
+			'background:light-dark(var(--soft-hover-color), var(--dark-soft-hover-color));',
+			'border-color:light-dark(var(--strong-border-color), var(--dark-strong-border-color))}',
 		'button.geSelChip:focus-visible{outline:2px solid ',
-			'light-dark(#0071e3,#0a84ff);outline-offset:1px}',
-		'.geSelChipEmpty{color:light-dark(#8e8e93,#7a7a7e);',
+			'light-dark(var(--focus-color), var(--dark-focus-color));outline-offset:1px}',
+		'.geSelChipEmpty{color:light-dark(var(--faint-text-color), var(--dark-faint-text-color));',
 			'border-style:dashed;background:transparent}',
-		'.geSelChipAll{background:light-dark(#e8f0fe,#10325f);',
+		'.geSelChipAll{background:light-dark(var(--mention-background-color), var(--dark-mention-background-color));',
 			'border-color:light-dark(#a3c4f8,#2a5aa8);',
-			'color:light-dark(#0a4bb0,#7eb1ff)}',
+			'color:light-dark(var(--mention-color), var(--dark-mention-color))}',
 		'.geSelChipTags{padding:2px 6px;gap:3px}',
 		// Disclosure caret on chips that open a popover
 		'.geSelChipExpandable::after{content:"";display:inline-block;',
@@ -6350,18 +6440,18 @@ function installCustomActionStyles()
 		// Icon-only inline buttons (Use Selection / Show on Canvas)
 		'.geSelIconBtn{display:inline-flex;align-items:center;justify-content:center;',
 			'width:24px;height:24px;padding:0;border-radius:6px;',
-			'border:1px solid light-dark(#d2d2d7,#48484a);',
-			'background:light-dark(#ffffff,#1c1c1e);',
-			'color:light-dark(#3a3a3f,#cfcfd3);cursor:pointer;',
+			'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));',
+			'background:light-dark(var(--field-color), var(--dark-field-color));',
+			'color:light-dark(var(--text-color), var(--dark-text-color));cursor:pointer;',
 			'transition:background-color .15s,border-color .15s,color .15s}',
-		'.geSelIconBtn:hover{background:light-dark(#f5f5f7,#2c2c2e);',
-			'border-color:light-dark(#b9b9be,#5a5a5e);',
-			'color:light-dark(#0071e3,#0a84ff)}',
+		'.geSelIconBtn:hover{background:light-dark(var(--soft-color), var(--dark-card-color));',
+			'border-color:light-dark(var(--strong-border-color), var(--dark-strong-border-color));',
+			'color:light-dark(var(--focus-color), var(--dark-focus-color))}',
 		'.geSelIconBtn:focus-visible{outline:2px solid ',
-			'light-dark(#0071e3,#0a84ff);outline-offset:1px}',
-		'.geSelIconBtn:active{background:light-dark(#e5e5ea,#3a3a3c)}',
-		'.geSelIconBtnActive{background:light-dark(#0071e3,#0a84ff);',
-			'border-color:light-dark(#0071e3,#0a84ff);',
+			'light-dark(var(--focus-color), var(--dark-focus-color));outline-offset:1px}',
+		'.geSelIconBtn:active{background:light-dark(var(--inactive-color), var(--dark-soft-color))}',
+		'.geSelIconBtnActive{background:light-dark(var(--focus-color), var(--dark-focus-color));',
+			'border-color:light-dark(var(--focus-color), var(--dark-focus-color));',
 			'color:#ffffff}',
 		'.geSelIconBtnActive:hover{background:light-dark(#0062c4,#1a90ff);',
 			'border-color:light-dark(#0062c4,#1a90ff);',
@@ -6372,11 +6462,11 @@ function installCustomActionStyles()
 		// (12px radius, soft shadow, bouncy scale-in animation with
 		// transform-origin pinned to the arrow tip).
 		'.geTagPicker{position:fixed;z-index:10000;min-width:220px;max-width:300px;',
-			'background:light-dark(#ffffff,#1c1c1e);',
+			'background:light-dark(var(--field-color), var(--dark-field-color));',
 			'border:1px solid light-dark(#d0d0d0,#505050);border-radius:12px;',
 			'box-shadow:0 4px 16px rgba(0,0,0,0.15);',
 			'font:12px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,',
-			'Helvetica,Arial,sans-serif;color:light-dark(#1d1d1f,#e5e5e7);',
+			'Helvetica,Arial,sans-serif;color:light-dark(var(--strong-text-color), var(--dark-strong-text-color));',
 			'opacity:0;transform:scale(0);',
 			'transition:transform .2s cubic-bezier(0.34,1.56,0.64,1),',
 			'opacity .1s ease-out}',
@@ -6386,38 +6476,38 @@ function installCustomActionStyles()
 		// rotated-square bleed inside the popover's content area.
 		'.geTagPickerArrow{position:absolute;top:-7px;width:0;height:0;',
 			'border-left:7px solid transparent;border-right:7px solid transparent;',
-			'border-bottom:7px solid light-dark(#d2d2d7,#48484a);',
+			'border-bottom:7px solid light-dark(var(--field-border-color), var(--dark-field-border-color));',
 			'pointer-events:none}',
 		'.geTagPickerArrow::after{content:"";position:absolute;',
 			'top:1px;left:-6px;width:0;height:0;',
 			'border-left:6px solid transparent;border-right:6px solid transparent;',
-			'border-bottom:6px solid light-dark(#ffffff,#1c1c1e)}',
+			'border-bottom:6px solid light-dark(var(--field-color), var(--dark-field-color))}',
 		'.geTagPickerArrowBottom{top:auto;bottom:-7px;',
 			'border-bottom:none;',
-			'border-top:7px solid light-dark(#d2d2d7,#48484a)}',
+			'border-top:7px solid light-dark(var(--field-border-color), var(--dark-field-border-color))}',
 		'.geTagPickerArrowBottom::after{top:auto;bottom:1px;',
 			'border-bottom:none;',
-			'border-top:6px solid light-dark(#ffffff,#1c1c1e)}',
+			'border-top:6px solid light-dark(var(--field-color), var(--dark-field-color))}',
 		'.geTagPickerHeader{padding:10px 14px 6px;font-weight:600;',
-			'color:light-dark(#1d1d1f,#e5e5e7);font-size:12px;',
+			'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color));font-size:12px;',
 			'letter-spacing:.02em;text-transform:uppercase;opacity:.8}',
 		'.geTagPickerEmpty{padding:14px 18px;',
-			'color:light-dark(#8e8e93,#7a7a7e);font-style:italic;text-align:center}',
+			'color:light-dark(var(--faint-text-color), var(--dark-faint-text-color));font-style:italic;text-align:center}',
 		'.geTagPickerFooter{padding:4px;',
-			'border-top:1px solid light-dark(#e5e5ea,#3a3a3c)}',
+			'border-top:1px solid light-dark(var(--inactive-color), var(--dark-soft-color))}',
 		// AND/OR mode toggle in the tag picker header
 		'.geTagPickerModeBar{display:flex;align-items:center;gap:6px;',
 			'padding:6px 10px 4px}',
 		'.geTagPickerModeLabel{font-size:11px;font-weight:500;',
-			'color:light-dark(#6e6e73,#a0a0a0);margin-right:4px}',
+			'color:light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));margin-right:4px}',
 		'.geTagPickerModeBtn{padding:2px 10px;border-radius:999px;',
 			'font:inherit;font-size:11px;font-weight:500;cursor:pointer;',
-			'border:1px solid light-dark(#d2d2d7,#48484a);',
-			'background:transparent;color:light-dark(#3a3a3f,#cfcfd3);',
+			'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));',
+			'background:transparent;color:light-dark(var(--text-color), var(--dark-text-color));',
 			'transition:background-color .12s,color .12s,border-color .12s}',
-		'.geTagPickerModeBtn:hover{background:light-dark(#f0f0f2,#2c2c2e)}',
-		'.geTagPickerModeBtnActive{background:light-dark(#0071e3,#0a84ff);',
-			'border-color:light-dark(#0071e3,#0a84ff);color:#ffffff}',
+		'.geTagPickerModeBtn:hover{background:light-dark(var(--soft-hover-color), var(--dark-card-color))}',
+		'.geTagPickerModeBtnActive{background:light-dark(var(--focus-color), var(--dark-focus-color));',
+			'border-color:light-dark(var(--focus-color), var(--dark-focus-color));color:#ffffff}',
 		'.geTagPickerModeBtnActive:hover{',
 			'background:light-dark(#0062c4,#1a90ff);',
 			'border-color:light-dark(#0062c4,#1a90ff)}',
@@ -6432,8 +6522,8 @@ function installCustomActionStyles()
 		'.geTagCloudPill{display:inline-block;padding:3px 10px;',
 			'border-radius:999px;cursor:pointer;font:inherit;',
 			'font-size:11px;font-weight:500;line-height:1.4;',
-			'background:light-dark(#e5e5ea,#48484a);',
-			'color:light-dark(#3a3a3f,#cfcfd3);',
+			'background:light-dark(var(--inactive-color), var(--dark-field-border-color));',
+			'color:light-dark(var(--text-color), var(--dark-text-color));',
 			'border:1px solid transparent;white-space:nowrap;',
 			'transition:background-color .12s,color .12s,border-color .12s}',
 		'.geTagCloudPill:hover{background:light-dark(#d5d5da,#5a5a5e)}',
@@ -6453,9 +6543,9 @@ function installCustomActionStyles()
 		'.geLayerPickerRow{display:flex;align-items:center;gap:8px;',
 			'padding:5px 8px;border-radius:6px;cursor:pointer;',
 			'font:inherit;font-size:12px;',
-			'color:light-dark(#1d1d1f,#e5e5e7);',
+			'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color));',
 			'transition:background-color .1s}',
-		'.geLayerPickerRow:hover{background:light-dark(#f0f0f2,#2c2c2e)}',
+		'.geLayerPickerRow:hover{background:light-dark(var(--soft-hover-color), var(--dark-card-color))}',
 		'.geLayerPickerRow input[type="checkbox"]{margin:0;flex:0 0 auto}',
 		'.geLayerPickerRowLabel{flex:1;white-space:nowrap;',
 			'overflow:hidden;text-overflow:ellipsis}',
@@ -6488,32 +6578,32 @@ function installCustomActionStyles()
 		'.geActionMenuItem{display:block;width:100%;padding:6px 12px;',
 			'background:none;border:0;border-radius:6px;text-align:left;',
 			'font:inherit;font-size:13px;cursor:pointer;',
-			'color:light-dark(#1d1d1f,#e5e5e7);',
+			'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color));',
 			'transition:background-color .1s}',
-		'.geActionMenuItem:hover{background:light-dark(#f0f0f2,#2c2c2e)}',
-		'.geActionMenuItemActive{color:light-dark(#0071e3,#0a84ff);',
+		'.geActionMenuItem:hover{background:light-dark(var(--soft-hover-color), var(--dark-card-color))}',
+		'.geActionMenuItemActive{color:light-dark(var(--focus-color), var(--dark-focus-color));',
 			'font-weight:600}',
 		'.geActionMenuItemDanger{color:light-dark(#d70015,#ff453a)}',
 		'.geActionMenuItemDanger:hover{background:light-dark(#fdf0f0,#3a2020)}',
 		'.geActionMenuItemDisabled{color:light-dark(#aeaeb2,#636366);',
 			'cursor:default;pointer-events:none}',
 		'.geActionMenuSeparator{height:1px;margin:4px 6px;',
-			'background:light-dark(#e5e5ea,#3a3a3c)}',
+			'background:light-dark(var(--inactive-color), var(--dark-soft-color))}',
 
 		// Active step highlight — applied by the animation preview to
 		// the row whose step is currently executing. Subtle blue tint,
 		// no border-shift so the row height stays stable.
 		'.geAnimationStepActive{background:',
-			'light-dark(rgba(0,113,227,.10),rgba(10,132,255,.18))}',
+			'light-dark(color-mix(in srgb, var(--focus-color) 10%, transparent), color-mix(in srgb, var(--dark-focus-color) 18%, transparent))}',
 
 		// Selected step highlight — rows whose selection checkbox is on
 		// (feeds Copy / Paste / Duplicate). Weaker than the active tint
 		// so the playback highlight stays visible; the combined state
 		// gets its own stronger tint.
 		'.geAnimationStepSelected{background:',
-			'light-dark(rgba(0,113,227,.06),rgba(10,132,255,.10))}',
+			'light-dark(color-mix(in srgb, var(--focus-color) 6%, transparent), color-mix(in srgb, var(--dark-focus-color) 10%, transparent))}',
 		'.geAnimationStepActive.geAnimationStepSelected{background:',
-			'light-dark(rgba(0,113,227,.16),rgba(10,132,255,.28))}'
+			'light-dark(color-mix(in srgb, var(--focus-color) 16%, transparent), color-mix(in srgb, var(--dark-focus-color) 28%, transparent))}'
 	].join('');
 
 	var style = document.createElement('style');
@@ -10122,7 +10212,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	var conversations = [];
 	var currentConv = null;
 
-	var itemActiveBg = 'light-dark(#e0e0e0, #3a3a3a)';
+	var itemActiveBg = 'light-dark(var(--highlight-color), var(--dark-soft-color))';
 	var itemHoverBg = 'light-dark(#ececec, #333333)';
 
 	var updateConvItems = function()
@@ -10324,7 +10414,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	// plus (attach) menu, paste (clipboard transport) and model selector
 	var user = document.createElement('div');
 	user.style.borderRadius = '12px';
-	user.style.backgroundColor = 'light-dark(#e0e0e0, #3a3a3a)';
+	user.style.backgroundColor = 'light-dark(var(--highlight-color), var(--dark-soft-color))';
 	user.style.padding = '8px 10px';
 	user.style.marginTop = '8px';
 	user.style.flexShrink = '0';
@@ -10530,7 +10620,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	// native <select> is painted white by some browsers even under a dark
 	// color-scheme. This is not a .geDialog, so the global select styling
 	// that gives every other dropdown a dark background does not apply here.
-	modelSelect.style.background = 'light-dark(#e0e0e0, #3a3a3a)';
+	modelSelect.style.background = 'light-dark(var(--highlight-color), var(--dark-soft-color))';
 	modelSelect.style.textOverflow = 'ellipsis';
 	modelSelect.style.fontSize = '11px';
 	modelSelect.style.opacity = '0.8';
@@ -11586,7 +11676,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		bubble.style.marginBottom = '2px';
 		bubble.style.marginLeft = '40%';
 		bubble.style.borderRadius = '10px';
-		bubble.style.backgroundColor = 'light-dark(#e0e0e0, #3a3a3a)';
+		bubble.style.backgroundColor = 'light-dark(var(--highlight-color), var(--dark-soft-color))';
 		mxUtils.write(bubble, (prompt != '') ? prompt : chip.label);
 		conv.el.appendChild(bubble);
 
@@ -12293,7 +12383,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	var div = document.createElement('div');
 	div.style.cssText = 'padding:18px;box-sizing:border-box;height:100%;' +
 		'display:flex;flex-direction:column;font-size:13px;overflow:hidden;' +
-		'color:light-dark(#1d1d1f,#e0e0e0)';
+		'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color))';
 
 	// Optional title row — only rendered for action mode (opts.showTitle).
 	// Lets the user attach a human-readable label to a custom action, which
@@ -12322,9 +12412,9 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		titleInput = document.createElement('input');
 		titleInput.type = 'text';
 		titleInput.style.cssText = 'flex:1;padding:4px 6px;' +
-			'border:1px solid light-dark(#d2d2d7,#48484a);border-radius:4px;' +
-			'background:light-dark(#ffffff,#1c1c1e);' +
-			'color:light-dark(#1d1d1f,#e0e0e0)';
+			'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));border-radius:4px;' +
+			'background:light-dark(var(--field-color), var(--dark-field-color));' +
+			'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color))';
 		var applyTitlePlaceholder = function()
 		{
 			titleInput.placeholder = mxResources.get('optional', null, 'optional');
@@ -12448,8 +12538,8 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		// and the right-aligned inputs both visible instead of letting
 		// the inputs slide into the chip's space.
 		'overflow:auto;padding:4px;box-sizing:border-box;' +
-		'border:1px solid light-dark(#d2d2d7,#48484a);border-radius:6px;' +
-		'background:light-dark(#ffffff,#1c1c1e)';
+		'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));border-radius:6px;' +
+		'background:light-dark(var(--field-color), var(--dark-field-color))';
 	// Contain row-reorder drag events — otherwise dragover bubbles to
 	// the mxGraph canvas, which highlights as if a cell were being dropped.
 	containDragEvents(stepList);
@@ -12461,9 +12551,9 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	list.style.cssText = 'display:none;width:100%;flex:1 1 0;min-height:0;' +
 		'resize:none;font-family:monospace;font-size:12px;' +
 		'padding:8px;box-sizing:border-box;' +
-		'border:1px solid light-dark(#d2d2d7,#48484a);border-radius:6px;' +
-		'background:light-dark(#ffffff,#1c1c1e);' +
-		'color:light-dark(#1d1d1f,#e0e0e0)';
+		'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));border-radius:6px;' +
+		'background:light-dark(var(--field-color), var(--dark-field-color));' +
+		'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color))';
 	div.appendChild(list);
 
 	// Inline validation message for advanced (raw JSON) mode. Shown when the
@@ -13135,7 +13225,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			e.dataTransfer.dropEffect = 'move';
 			row._dropInsertAt = insertAt;
 
-			var color = 'light-dark(#007aff,#0a84ff)';
+			var color = 'light-dark(var(--focus-color), var(--dark-focus-color))';
 
 			if (insertAfter)
 			{
@@ -13188,9 +13278,9 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		b.type = 'button';
 		b.title = title;
 		b.style.cssText = 'flex:0 0 22px;height:22px;line-height:1;padding:0;' +
-			'border:1px solid light-dark(#d2d2d7,#48484a);border-radius:3px;' +
+			'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));border-radius:3px;' +
 			'background:transparent;cursor:pointer;font-size:14px;' +
-			'color:light-dark(#1d1d1f,#e0e0e0)';
+			'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color))';
 
 		if (!enabled)
 		{
@@ -13241,9 +13331,9 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		// the browser size to the natural content. Per-field `opts.width`
 		// hints from the schemas are ignored.
 		inp.style.cssText = 'padding:2px 4px;' +
-			'border:1px solid light-dark(#d2d2d7,#48484a);border-radius:3px;' +
-			'background:light-dark(#ffffff,#1c1c1e);' +
-			'color:light-dark(#1d1d1f,#e0e0e0)';
+			'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));border-radius:3px;' +
+			'background:light-dark(var(--field-color), var(--dark-field-color));' +
+			'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color))';
 
 		return inp;
 	};
@@ -13507,7 +13597,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	{
 		var target = document.createElement('span');
 		target.style.cssText = 'flex:1 1 auto;min-width:0;' +
-			'color:light-dark(#1d1d1f,#e0e0e0);' +
+			'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color));' +
 			'overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
 
 		var refs = [];
@@ -13598,14 +13688,14 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			var wrap = document.createElement('label');
 			wrap.style.cssText = 'flex:0 0 auto;display:inline-flex;' +
 				'align-items:center;gap:4px;cursor:pointer;font-size:12px;' +
-				'color:light-dark(#1d1d1f,#e0e0e0);user-select:none';
+				'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color));user-select:none';
 			if (title) wrap.title = title;
 
 			var cb = document.createElement('input');
 			cb.type = 'checkbox';
 			cb.checked = !!get();
 			cb.style.cssText = 'margin:0;accent-color:' +
-				'light-dark(#0071e3,#0a84ff)';
+				'light-dark(var(--focus-color), var(--dark-focus-color))';
 			cb.addEventListener('change', function()
 			{
 				if (cb.checked) set(true);
@@ -13663,9 +13753,9 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		{
 			var sel = document.createElement('select');
 			sel.style.cssText = 'flex:0 0 auto;padding:2px 4px;' +
-				'border:1px solid light-dark(#d2d2d7,#48484a);border-radius:3px;' +
-				'background:light-dark(#ffffff,#1c1c1e);' +
-				'color:light-dark(#1d1d1f,#e0e0e0)';
+				'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));border-radius:3px;' +
+				'background:light-dark(var(--field-color), var(--dark-field-color));' +
+				'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color))';
 			for (var i = 0; i < spec.options.length; i++)
 			{
 				var o = document.createElement('option');
@@ -13722,15 +13812,15 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			{
 				inp.style.cssText = 'flex:0 0 ' + w + 'px;min-width:0;' +
 					'height:22px;padding:1px;cursor:pointer;' +
-					'border:1px solid light-dark(#d2d2d7,#48484a);border-radius:3px;' +
-					'background:light-dark(#ffffff,#1c1c1e)';
+					'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));border-radius:3px;' +
+					'background:light-dark(var(--field-color), var(--dark-field-color))';
 			}
 			else
 			{
 				inp.style.cssText = 'flex:0 0 ' + w + 'px;min-width:0;padding:2px 4px;' +
-					'border:1px solid light-dark(#d2d2d7,#48484a);border-radius:3px;' +
-					'background:light-dark(#ffffff,#1c1c1e);' +
-					'color:light-dark(#1d1d1f,#e0e0e0)';
+					'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));border-radius:3px;' +
+					'background:light-dark(var(--field-color), var(--dark-field-color));' +
+					'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color))';
 			}
 
 			var placeholder = (spec.placeholderKey != null) ?
@@ -13802,7 +13892,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		selectCb.checked = selectedSteps.has(idx);
 		selectCb.title = mxResources.get('select', null, 'Select');
 		selectCb.style.cssText = 'flex:0 0 auto;margin:0;' +
-			'accent-color:light-dark(#0071e3,#0a84ff)';
+			'accent-color:light-dark(var(--focus-color), var(--dark-focus-color))';
 		selectCb.addEventListener('click', function(e)
 		{
 			if (e.shiftKey && selectionAnchor != null)
@@ -13874,9 +13964,9 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		//      desaturate the rendered pixels as a last resort. Harmless
 		//      for already-monochrome glyphs.
 		immediateBtn.style.cssText = 'flex:0 0 22px;height:22px;line-height:1;' +
-			'padding:0;border:1px solid light-dark(#d2d2d7,#48484a);' +
+			'padding:0;border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));' +
 			'border-radius:3px;background:transparent;cursor:pointer;' +
-			'font-size:14px;color:light-dark(#1d1d1f,#e0e0e0);' +
+			'font-size:14px;color:light-dark(var(--strong-text-color), var(--dark-strong-text-color));' +
 			'font-family:"Segoe UI Symbol","Apple Symbols",sans-serif;' +
 			'font-variant-emoji:text;filter:grayscale(1) contrast(2)';
 		applyImmediateIcon();
@@ -14105,9 +14195,9 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 
 	var pickSelect = document.createElement('select');
 	pickSelect.style.cssText = 'flex:1 1 200px;min-width:180px;padding:5px 6px;' +
-		'border:1px solid light-dark(#d2d2d7,#48484a);border-radius:4px;' +
-		'background:light-dark(#ffffff,#1c1c1e);' +
-		'color:light-dark(#1d1d1f,#e0e0e0);font-size:13px';
+		'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));border-radius:4px;' +
+		'background:light-dark(var(--field-color), var(--dark-field-color));' +
+		'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color));font-size:13px';
 
 	// Placeholder option — selected by default, can't be picked as a real
 	// step. After picking a real option we reset back to this. Localized

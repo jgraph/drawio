@@ -236,7 +236,8 @@ placeholders. The current *value* of an entry (e.g. the Initial View
 status) is content, not a hint — it uses the regular text style.
 Component stylesheets that define their own micro-typography (e.g. the
 cell/tag selector chips in the Animation dialog) keep their own sizes
-and weights but reuse the hint palette, `light-dark(#6e6e73, #a0a0a0)`
+and weights but reuse the hint palette,
+`light-dark(var(--secondary-text-color), var(--dark-secondary-text-color))`
 — don't fork new muted grays.
 
 **Truncated text**: `.geDialog` uses `line-height: 1em`, so an
@@ -288,6 +289,18 @@ other margin values (16px, 20px, 30px) for button rows.
 
 All CSS uses `light-dark()` for color values. Never hardcode colors in JS — use
 the CSS classes which handle both modes automatically.
+
+Colors come from the theme palette defined in the `:root` block of
+`styles/grapheditor.css` (`--strong-text-color`, `--field-color`,
+`--field-border-color`, `--focus-color`, … and their `--dark-*`
+counterparts). Always reference these variables instead of literal hex
+values — user color schemes override the variables via the `css`
+configuration property, and literals silently opt a component out of
+theming. Alpha tints of an accent derive from it via
+`color-mix(in srgb, var(--focus-color) 25%, transparent)`. The exception
+is CSS injected by viewer-shared code (e.g. `geNoteBox` in `Graph.js`):
+the viewer runs on third-party pages where the variables don't exist and
+generic names could collide with host CSS, so literals stay there.
 
 ## Testing Dialogs
 

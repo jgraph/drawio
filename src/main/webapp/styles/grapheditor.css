@@ -24,6 +24,50 @@
 	--dark-inverse-active-color: #c4c4c4;
 	--dark-highlight-color: #000000;
 	--dark-header-color: #1B1D1E;
+	/* Dialogs, windows and comments */
+	--dialog-color: #f0f0f0;
+	--dark-dialog-color: #2a2a2a;
+	--strong-text-color: #1d1d1f;
+	--dark-strong-text-color: #e5e5e7;
+	--secondary-text-color: #6e6e73;
+	--dark-secondary-text-color: #a0a0a0;
+	--faint-text-color: #8e8e93;
+	--dark-faint-text-color: #7a7a7e;
+	/* Input fields, cards and chips */
+	--field-color: #ffffff;
+	--dark-field-color: #1c1c1e;
+	--field-border-color: #d2d2d7;
+	--dark-field-border-color: #48484a;
+	--strong-border-color: #b9b9be;
+	--dark-strong-border-color: #5a5a5e;
+	--card-color: #ffffff;
+	--dark-card-color: #2c2c2e;
+	--soft-color: whitesmoke;
+	--dark-soft-color: #3a3a3c;
+	--soft-hover-color: #f0f0f2;
+	--dark-soft-hover-color: #3a3a3c;
+	/* Accents (selected and focused states) */
+	--focus-color: #0071e3;
+	--dark-focus-color: #0a84ff;
+	--mention-color: #0a4bb0;
+	--dark-mention-color: #7eb1ff;
+	--mention-background-color: #e8f0fe;
+	--dark-mention-background-color: #10325f;
+	--selected-color: #d4e4f7;
+	--selected-hover-color: #c4d8f0;
+	--active-item-color: lightgray;
+	--dark-active-item-color: darkgray;
+	/* Status */
+	--error-color: #b62623;
+	--dark-error-color: #ffffff;
+	--error-background-color: #eacccc;
+	--dark-error-background-color: #a20025;
+	/* Misc */
+	--scrollbar-color: #e2e2e2;
+	--dark-scrollbar-color: #2c2c2c;
+	--prop-stripe-color: #fcfcfc;
+	--prop-accent-color: #D9E1F2;
+	--prop-accent-text-color: #305496;
 }
 
 .geEditor * {
@@ -253,7 +297,7 @@ div[id*="dgeMermaidOutput-"] {
 }
 
 .geEditor input:not(svg *, .geButton) {
-	background-color: light-dark(white, var(--dark-toolbar-color));
+	background-color: light-dark(var(--field-color), var(--dark-toolbar-color));
 }
 
 .geHsplit {
@@ -339,10 +383,16 @@ div[id*="dgeMermaidOutput-"] {
 .geDarkMode .gePropHeader,
 .geDarkMode .geStyleBtn .geAdaptiveAsset.geArrow,
 .geAtlas .geMenubar .geButtonContainer .geButton:empty,
+.geAtlas .geMenubar .geButtonContainer .geButton:has(> span.geCommentsBadge:only-child),
 .geAtlas .geMenubar .geButtonContainer .geButton .geAdaptiveAsset:not(.geDarkMode *),
 .geAtlas .geMenubar .geButtonContainer .geButton img:last-child {
 	filter: invert(1);
 	outline: none;
+}
+
+/* Cancels out the inversion for the badge in the atlas menubar */
+.geAtlas .geMenubar .geButtonContainer span.geCommentsBadge {
+	filter: invert(1);
 }
 
 .geDarkMode .geStyleBtn .geAdaptiveAsset.geArrow {
@@ -374,7 +424,7 @@ div[id*="dgeMermaidOutput-"] {
 }
 
 .geFormatTitle {
-	background: light-dark(var(--inactive-color), black);
+	background: light-dark(var(--inactive-color), var(--dark-highlight-color));
 	border-bottom-style: solid;
 	border-left-style: solid;
 	border-width: 1px;
@@ -622,7 +672,7 @@ html body.geSimple .geMenuItem {
 	padding: 6px 10px 6px 10px;
 	border: none;
 	border-radius: 5px;
-	color: light-dark(#353535, #cccccc);
+	color: light-dark(var(--text-color), var(--dark-text-color));
 	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .11), inset 0 -1px 0 0 rgba(0, 0, 0, .08), 0 1px 2px 0 rgba(0, 0, 0, .04);
 }
 
@@ -830,11 +880,11 @@ html body.geDarkMode .geBigStandardButton {
 html body.geDarkMode .geFooterContainer td:hover,
 html body.geDarkMode #geFooterItem1:hover,
 html body.geDarkMode .geBigStandardButton:hover {
-	background-color: #000000;
+	background-color: var(--dark-highlight-color);
 }
 
 html body.geDarkMode.geEditor table.mxPopupMenu tr.mxPopupMenuItemHover {
-	background-color: #000000;
+	background-color: var(--dark-highlight-color);
 }
 
 html body.geDarkMode.geEditor .geBaseButton:hover {
@@ -853,15 +903,9 @@ html body.geDarkMode table.mxPopupMenu hr {
 html body.geDarkMode .geDialog,
 html body.geDarkMode div.mxWindow,
 html body div.mxWindow.geDarkMode {
-	background-color: #2a2a2a;
+	background-color: var(--dark-dialog-color);
 	border-color: #838383;
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-html .geDarkMode .geCommentContainer {
-	background-color: transparent;
-	border-width: 1px;
-	color: inherit;
 }
 
 .mxCellEditor {
@@ -1120,8 +1164,8 @@ div.geFormatContainer {
 
 .geStatus .geStatusAlert {
 	padding: 4px 10px;
-	background-color: light-dark(#eacccc, #a20025);
-	color: light-dark(#b62623, white) !important;
+	background-color: light-dark(var(--error-background-color), var(--dark-error-background-color));
+	color: light-dark(var(--error-color), var(--dark-error-color)) !important;
 }
 
 .geStatusDiv {
@@ -1512,7 +1556,7 @@ table.mxPopupMenu tr.mxPopupMenuItemHover {
 }
 
 .geActiveItem:not(.geButton *, .geButton *) {
-	background-color: light-dark(lightgray, darkgray);
+	background-color: light-dark(var(--active-item-color), var(--dark-active-item-color));
 }
 
 .mxDisabled:hover {
@@ -1672,7 +1716,8 @@ a.geStatus>div {
 	width: 22px;
 }
 
-.geButton:empty:not(.geVerticalToolbar *, .geZoomInput, .geTemplate *, .geSidebarTooltip *) {
+.geButton:empty:not(.geVerticalToolbar *, .geZoomInput, .geTemplate *, .geSidebarTooltip *),
+.geButton:has(> span.geCommentsBadge:only-child):not(.geVerticalToolbar *, .geZoomInput, .geTemplate *, .geSidebarTooltip *) {
 	width: 28px;
 }
 
@@ -1757,7 +1802,7 @@ a.geStatus>div {
 	padding: 6px 0;
 	position: relative;
 	white-space: nowrap;
-	border-top: 1px solid light-dark(#e0e0e0, #3a3a3a);
+	border-top: 1px solid light-dark(var(--border-color), var(--dark-border-color));
 }
 
 .geFormatSection:first-child {
@@ -1836,7 +1881,7 @@ a.geStatus>div {
 	height: 0;
 	border-style: solid;
 	border-width: 4px 0 4px 6px;
-	border-color: transparent transparent transparent light-dark(#5f6368, #9aa0a6);
+	border-color: transparent transparent transparent light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
 	transition: transform 0.15s ease;
 	flex-shrink: 0;
 }
@@ -2075,7 +2120,7 @@ a.geStatus>div {
 
 .geDialog {
 	position: absolute;
-	background-color: light-dark(#f0f0f0, #2a2a2a);
+	background-color: light-dark(var(--dialog-color), var(--dark-dialog-color));
 	line-height: 1em;
 	overflow: hidden;
 	padding: 24px;
@@ -2121,7 +2166,7 @@ a.geStatus>div {
 .geDialog select {
 	border-radius: 6px;
 	border: light-dark(1px solid rgba(0, 0, 0, 0.15), 1px solid rgba(255, 255, 255, 0.15));
-	background-color: light-dark(white, #1e1e1e);
+	background-color: light-dark(var(--field-color), var(--dark-field-color));
 	padding: 4px 8px;
 	font-size: 13px;
 	outline: none;
@@ -2132,8 +2177,8 @@ a.geStatus>div {
 .geDialog input[type="number"]:focus,
 .geDialog textarea:focus,
 .geDialog select:focus {
-	border-color: light-dark(#007aff, #0a84ff);
-	box-shadow: 0 0 0 3px light-dark(rgba(0, 122, 255, 0.25), rgba(10, 132, 255, 0.25));
+	border-color: light-dark(var(--focus-color), var(--dark-focus-color));
+	box-shadow: 0 0 0 3px light-dark(color-mix(in srgb, var(--focus-color) 25%, transparent), color-mix(in srgb, var(--dark-focus-color) 25%, transparent));
 }
 
 /* Some dialog selects carry .geBtn for its sizing; keep the button font
@@ -2178,7 +2223,7 @@ a.geStatus>div {
 }
 
 .geDialogFormLabel {
-	color: light-dark(#1d1d1f, #e0e0e0);
+	color: light-dark(var(--strong-text-color), var(--dark-strong-text-color));
 	min-width: 100px;
 	flex-shrink: 0;
 }
@@ -2209,7 +2254,7 @@ a.geStatus>div {
    current value of an entry, which stays in the regular text style */
 .geDialogHint {
 	font-size: 12px;
-	color: light-dark(#6e6e73, #a0a0a0);
+	color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
 }
 
 .geDialogCheckRow {
@@ -2238,7 +2283,7 @@ a.geStatus>div {
 }
 
 .geDialogCheckRow label {
-	color: light-dark(#1d1d1f, #e0e0e0);
+	color: light-dark(var(--strong-text-color), var(--dark-strong-text-color));
 	cursor: pointer;
 }
 
@@ -2267,7 +2312,7 @@ a.geStatus>div {
 }
 
 .geDialogInlineField label {
-	color: light-dark(#1d1d1f, #e0e0e0);
+	color: light-dark(var(--strong-text-color), var(--dark-strong-text-color));
 	white-space: nowrap;
 }
 
@@ -2296,7 +2341,7 @@ a.geStatus>div {
 	font-size: 13px;
 	font-weight: 600;
 	text-align: center;
-	color: light-dark(#1d1d1f, #e0e0e0);
+	color: light-dark(var(--strong-text-color), var(--dark-strong-text-color));
 }
 
 .geDialogFooter {
@@ -2311,7 +2356,7 @@ a.geStatus>div {
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
-	color: light-dark(#6e6e73, #98989d);
+	color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
 	background-color: light-dark(rgba(0, 0, 0, 0.04), rgba(255, 255, 255, 0.04));
 	padding: 8px 12px 8px 16px;
 	border-bottom: light-dark(1px solid rgba(0, 0, 0, 0.06), 1px solid rgba(255, 255, 255, 0.06));
@@ -2325,7 +2370,7 @@ a.geStatus>div {
 	cursor: pointer;
 	font-size: 13px;
 	line-height: normal;
-	color: light-dark(#1d1d1f, #e0e0e0);
+	color: light-dark(var(--strong-text-color), var(--dark-strong-text-color));
 	transition: background-color 0.1s ease;
 }
 
@@ -2334,11 +2379,11 @@ a.geStatus>div {
 }
 
 .geMoreShapesItem.geMoreShapesItemSelected {
-	background-color: light-dark(#d4e4f7, rgba(10, 132, 255, 0.2));
+	background-color: light-dark(var(--selected-color), color-mix(in srgb, var(--dark-focus-color) 20%, transparent));
 }
 
 .geMoreShapesItem.geMoreShapesItemSelected:hover {
-	background-color: light-dark(#c4d8f0, rgba(10, 132, 255, 0.25));
+	background-color: light-dark(var(--selected-hover-color), color-mix(in srgb, var(--dark-focus-color) 25%, transparent));
 }
 
 .geMoreShapesItem input[type="checkbox"] {
@@ -2375,7 +2420,7 @@ a.geStatus>div {
 	align-items: center;
 	gap: 6px;
 	font-size: 13px;
-	color: light-dark(#1d1d1f, #e0e0e0);
+	color: light-dark(var(--strong-text-color), var(--dark-strong-text-color));
 	cursor: pointer;
 	user-select: none;
 }
@@ -2587,22 +2632,22 @@ table.geProperties tr th {
 }
 
 .gePropRow>.gePropRowCell {
-	background-color: light-dark(#fff, var(--ge-dark-panel-color));
+	background-color: light-dark(var(--field-color), var(--ge-dark-panel-color));
 }
 
 .gePropRowAlt>.gePropRowCell {
-	background-color: light-dark(#fcfcfc, var(--ge-dark-panel-color));
+	background-color: light-dark(var(--prop-stripe-color), var(--ge-dark-panel-color));
 }
 
 .gePropRowDark>.gePropRowCell {
-	background-color: light-dark(#fff, var(--ge-dark-panel-color));
-	color: light-dark(#305496, #cccccc);
+	background-color: light-dark(var(--field-color), var(--ge-dark-panel-color));
+	color: light-dark(var(--prop-accent-text-color), var(--dark-text-color));
 	font-weight: bold;
 }
 
 .gePropRowDarkAlt>.gePropRowCell {
-	background-color: light-dark(#D9E1F2, #000000);
-	color: light-dark(#305496, #cccccc);
+	background-color: light-dark(var(--prop-accent-color), var(--dark-highlight-color));
+	color: light-dark(var(--prop-accent-text-color), var(--dark-text-color));
 	font-weight: bold;
 }
 
@@ -2616,6 +2661,9 @@ table.geProperties tr th {
 	height: 100%;
 	margin-bottom: 10px;
 	overflow: auto;
+	font: 12px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	-webkit-font-smoothing: antialiased;
+	color: light-dark(var(--strong-text-color), var(--dark-strong-text-color));
 }
 
 .geCommentsToolbar {
@@ -2635,54 +2683,57 @@ table.geProperties tr th {
 	left: 0px;
 	right: 0px;
 	top: 0px;
+	scroll-behavior: smooth;
 }
 
 .geCommentContainer {
 	position: relative;
-	padding: 12px;
-	margin: 5px;
+	padding: 10px 12px 8px 12px;
+	margin: 7px 8px;
 	min-height: 50px;
 	display: block;
-	background-color: white;
-	border-width: 0px 0px 1px 0px;
-	border-style: solid;
+	background-color: light-dark(var(--card-color), var(--dark-card-color));
+	border: 1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));
 	border-radius: 10px;
 	white-space: nowrap;
-	box-shadow: 2px 2px 6px rgba(60, 64, 67, .15);
-	color: #3C4043;
+	box-shadow: 0 1px 3px light-dark(rgba(60, 64, 67, 0.08), rgba(0, 0, 0, 0.25));
+	color: light-dark(var(--strong-text-color), var(--dark-strong-text-color));
 }
 
 .geCommentHeader {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 	width: 100%;
 	height: 32px;
 }
 
 .geCommentUserImg {
-	width: 32px;
-	height: 32px;
+	width: 28px;
+	height: 28px;
 	border-radius: 50%;
-	float: left;
-	background-color: whitesmoke;
+	flex: 0 0 auto;
+	background-color: light-dark(var(--soft-color), var(--dark-soft-color));
 }
 
 .geCommentHeaderTxt {
 	overflow: hidden;
-	height: 32px;
-	padding-left: 5px;
+	flex: 1 1 auto;
+	min-width: 0;
 }
 
 .geCommentUsername {
 	overflow: hidden;
-	height: 18px;
-	font-size: 15px;
-	font-weight: bold;
+	white-space: nowrap;
+	font-size: 12.5px;
+	font-weight: 600;
 	text-overflow: ellipsis;
 }
 
 .geCommentDate {
-	color: #707070;
+	color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
 	overflow: hidden;
-	height: 14px;
+	white-space: nowrap;
 	font-size: 11px;
 	text-overflow: ellipsis;
 }
@@ -2692,44 +2743,66 @@ table.geProperties tr th {
 }
 
 .geCommentTxt {
-	font-size: 14px;
-	padding-top: 5px;
+	font-size: 13px;
+	padding-top: 6px;
 	white-space: normal;
 	min-height: 12px;
+	overflow-wrap: break-word;
+	user-select: text;
+	cursor: text;
 }
 
 .geCommentEditTxtArea {
-	margin-top: 5px;
-	font-size: 14px !important;
+	margin-top: 6px;
+	font: inherit;
+	font-size: 13px !important;
 	min-height: 12px;
 	max-width: 100%;
 	min-width: 100%;
 	width: 100%;
 	box-sizing: border-box;
+	padding: 6px 8px;
+	border: 1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));
+	border-radius: 8px;
+	background-color: light-dark(var(--field-color), var(--dark-field-color));
+	color: inherit;
+	outline: none;
+	user-select: text;
+	transition: border-color .15s, box-shadow .15s;
+}
+
+.geCommentEditTxtArea:focus {
+	border-color: light-dark(var(--focus-color), var(--dark-focus-color));
+	box-shadow: 0 0 0 2px light-dark(color-mix(in srgb, var(--focus-color) 15%, transparent), color-mix(in srgb, var(--dark-focus-color) 25%, transparent));
 }
 
 .geCommentEditBtns {
 	width: 100%;
 	box-sizing: border-box;
-	padding-top: 5px;
-	height: 20px;
+	padding-top: 6px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 6px;
 }
 
 .geCommentEditBtn {
-	padding: 3px 8px 3px 8px !important;
-	float: right !important;
-	margin-left: 5px;
+	padding: 4px 12px !important;
+	margin-left: 0;
+	border-radius: 6px;
 }
 
 .geCommentActions {
-	color: #707070;
-	font-size: 12px;
+	color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
+	font-size: 11.5px;
 }
 
 .geCommentActionsList {
-	list-style-type: disc;
+	list-style-type: none;
 	margin: 0px;
-	padding: 10px 0 0 0;
+	padding: 6px 0 0 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2px;
 }
 
 .geCommentAction {
@@ -2737,24 +2810,24 @@ table.geProperties tr th {
 	padding: 0;
 }
 
-.geCommentAction:before {
-	content: "\2022";
-	padding: 5px;
-}
-
-.geCommentAction:first-child:before {
-	content: "";
-	padding: 0;
+.geCommentAction:first-child {
+	margin-left: -8px;
 }
 
 .geCommentActionLnk {
 	cursor: pointer;
-	color: #707070;
+	color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
 	text-decoration: none;
+	display: inline-block;
+	padding: 3px 8px;
+	border-radius: 6px;
+	transition: background-color .15s, color .15s;
 }
 
 .geCommentActionLnk:hover {
-	text-decoration: underline;
+	text-decoration: none;
+	background-color: light-dark(var(--soft-hover-color), var(--dark-soft-hover-color));
+	color: light-dark(var(--focus-color), var(--dark-focus-color));
 }
 
 .geCheckedBtn {
@@ -2767,6 +2840,325 @@ table.geProperties tr th {
 	position: absolute;
 	top: 5px;
 	right: 5px;
+}
+
+div.geCommentEditTxtArea {
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+	cursor: text;
+}
+
+/* Chip that shows and jumps to the shape a comment is anchored to,
+   matching the selector chips in the animation dialog */
+.geCommentAnchorRow {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding-top: 8px;
+	min-width: 0;
+}
+
+.geCommentAnchorChip {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	min-height: 22px;
+	padding: 1px 10px;
+	border-radius: 999px;
+	border: 1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));
+	background-color: light-dark(var(--soft-color), var(--dark-soft-color));
+	color: light-dark(var(--strong-text-color), var(--dark-strong-text-color));
+	font-size: 11.5px;
+	font-weight: 500;
+	max-width: 100%;
+	min-width: 0;
+	white-space: nowrap;
+	box-sizing: border-box;
+	text-decoration: none;
+	cursor: default;
+	transition: background-color .15s, border-color .15s, color .15s;
+}
+
+.geCommentAnchorChip svg {
+	flex: 0 0 auto;
+	display: block;
+}
+
+.geCommentAnchorChip > span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+a.geCommentAnchorChip {
+	cursor: pointer;
+}
+
+a.geCommentAnchorChip:hover {
+	background-color: light-dark(var(--soft-hover-color), var(--dark-field-border-color));
+	border-color: light-dark(var(--strong-border-color), var(--dark-strong-border-color));
+	color: light-dark(var(--focus-color), var(--dark-focus-color));
+	text-decoration: none;
+}
+
+.geCommentAnchorChipDeleted {
+	border-style: dashed;
+	background-color: transparent;
+	color: light-dark(var(--faint-text-color), var(--dark-faint-text-color));
+	font-style: italic;
+}
+
+.geCommentAnchorAttach {
+	border-style: dashed;
+	background-color: transparent;
+	color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
+}
+
+a.geCommentAnchorAttach:hover {
+	background-color: transparent;
+}
+
+/* Disclosure caret on the attach chip (opens the anchor type menu) */
+.geCommentAnchorAttach::after {
+	content: "";
+	display: inline-block;
+	width: 5px;
+	height: 5px;
+	margin-left: 2px;
+	border: solid currentColor;
+	border-width: 0 1.4px 1.4px 0;
+	transform: translateY(-2px) rotate(45deg);
+	opacity: .55;
+}
+
+.geCommentMentionRow svg {
+	vertical-align: middle;
+	margin-right: 6px;
+}
+
+/* Toolbar and editing area of the small markup editor (notes, tooltips) */
+.geMarkupToolbar {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	flex-shrink: 0;
+	margin-bottom: 6px;
+}
+
+a.geMarkupTbBtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 24px;
+	height: 24px;
+	padding: 0 6px;
+	box-sizing: border-box;
+	border-radius: 6px;
+	font-size: 12.5px;
+	line-height: 1;
+	cursor: pointer;
+	color: light-dark(var(--text-color), var(--dark-text-color));
+	user-select: none;
+}
+
+a.geMarkupTbBtn:hover {
+	background-color: light-dark(var(--soft-hover-color), var(--dark-soft-hover-color));
+}
+
+a.geMarkupTbBtn.geActiveItem {
+	background-color: light-dark(var(--mention-background-color), var(--dark-mention-background-color));
+	color: light-dark(var(--mention-color), var(--dark-mention-color));
+}
+
+a.geMarkupSourceBtn {
+	margin-left: auto;
+	font-size: 11.5px;
+}
+
+/* Overrides the floating note box styles for the WYSIWYG editing area */
+.geNoteBox.geMarkupWysiwyg {
+	position: static;
+	min-width: 0;
+	max-width: none;
+	max-height: none;
+	box-shadow: none;
+	z-index: auto;
+	overflow: auto;
+	background: light-dark(var(--field-color), var(--dark-field-color));
+	color: inherit;
+	border-color: light-dark(var(--field-border-color), var(--dark-field-border-color));
+	cursor: text;
+}
+
+.geNoteBox.geMarkupWysiwyg:focus {
+	outline: none;
+	border-color: light-dark(var(--mention-color), var(--dark-mention-color));
+}
+
+/* Dims the diagram while picking a point or area for a comment anchor */
+.geCommentAnchorPicking > svg {
+	opacity: 0.4;
+	transition: opacity .15s ease;
+}
+
+/* Shapes carry their own cursor styles so the crosshair is forced on
+   everything while picking */
+.geCommentAnchorPicking,
+.geCommentAnchorPicking * {
+	cursor: crosshair !important;
+}
+
+/* Rubberband preview while framing an area for a comment anchor */
+.geCommentAnchorPickPreview {
+	position: absolute;
+	border: 1.5px dashed light-dark(var(--focus-color), var(--dark-focus-color));
+	background-color: light-dark(color-mix(in srgb, var(--focus-color) 8%, transparent), color-mix(in srgb, var(--dark-focus-color) 12%, transparent));
+	border-radius: 2px;
+	pointer-events: none;
+	z-index: 1;
+}
+
+/* Pulse marker shown after jumping to a point anchor */
+.geCommentAnchorMarker {
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	margin: -6px 0 0 -6px;
+	border-radius: 50%;
+	background-color: light-dark(var(--focus-color), var(--dark-focus-color));
+	pointer-events: none;
+	z-index: 1;
+	animation: geCommentAnchorPulse 0.9s ease-out 2;
+}
+
+@keyframes geCommentAnchorPulse {
+	0% {
+		box-shadow: 0 0 0 0 light-dark(color-mix(in srgb, var(--focus-color) 50%, transparent), color-mix(in srgb, var(--dark-focus-color) 60%, transparent));
+	}
+	100% {
+		box-shadow: 0 0 0 18px transparent;
+	}
+}
+
+.geCommentAnchorRemove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	margin: 0 -5px 0 1px;
+	border-radius: 50%;
+	font-size: 13px;
+	font-style: normal;
+	line-height: 1;
+	cursor: pointer;
+	color: light-dark(var(--faint-text-color), var(--dark-faint-text-color));
+	transition: background-color .15s, color .15s;
+}
+
+.geCommentAnchorRemove:hover {
+	background-color: light-dark(var(--inactive-color), var(--dark-strong-border-color));
+	color: light-dark(var(--strong-text-color), var(--dark-strong-text-color));
+}
+
+.geCommentMention {
+	color: light-dark(var(--mention-color), var(--dark-mention-color));
+	background-color: light-dark(var(--mention-background-color), var(--dark-mention-background-color));
+	border-radius: 4px;
+	padding: 0px 3px;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.geCommentMentionMenu {
+	position: absolute;
+	z-index: 2;
+	max-width: calc(100% - 24px);
+	overflow: hidden;
+	padding: 4px;
+	box-sizing: border-box;
+	background-color: light-dark(var(--field-color), var(--dark-field-color));
+	border: 1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));
+	border-radius: 10px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.geCommentMentionRow {
+	padding: 4px 8px;
+	cursor: pointer;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 12px;
+	border-radius: 6px;
+}
+
+.geCommentMentionRow:hover,
+.geCommentMentionRowSelected {
+	background-color: light-dark(var(--soft-hover-color), var(--dark-soft-hover-color));
+}
+
+.geCommentMentionImg {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	vertical-align: middle;
+	margin-right: 6px;
+	background-color: light-dark(var(--soft-color), var(--dark-soft-color));
+}
+
+/* Inline icon variant of the avatar, eg. for groups without a photo */
+span.geCommentMentionImg {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
+}
+
+span.geCommentMentionImg svg {
+	margin: 0;
+}
+
+.geCommentMentionGroupTag {
+	display: inline-block;
+	margin-left: 6px;
+	padding: 0px 6px;
+	border-radius: 999px;
+	border: 1px solid light-dark(var(--field-border-color), var(--dark-strong-border-color));
+	color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
+	font-size: 10px;
+	line-height: 14px;
+	vertical-align: middle;
+}
+
+.geCommentMentionMail {
+	color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
+	padding-left: 6px;
+	font-size: 11px;
+}
+
+/* Element+class selector to win over the generic .geButton>span rule */
+span.geCommentsBadge {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	min-width: 10px;
+	height: 14px;
+	line-height: 14px;
+	border-radius: 7px;
+	padding: 0px 2px;
+	background-color: #d74134;
+	color: #ffffff;
+	font-size: 9px;
+	font-weight: bold;
+	text-align: center;
+	overflow: visible;
+	pointer-events: none;
+}
+
+/* Cancels out the inversion of the toolbar button in dark mode */
+.geDarkMode .geCommentsBadge {
+	filter: invert(1);
 }
 
 .geAspectDlgListItem {
@@ -2853,7 +3245,7 @@ table.geProperties tr th {
 .geNotification-bell * {
 	display: block;
 	margin: 0 auto;
-	background-color: light-dark(#656565, #aaa);
+	background-color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
 }
 
 .geBell-top {
@@ -3309,7 +3701,7 @@ table.geProperties tr th {
 }
 
 .geEditor *::-webkit-scrollbar-thumb {
-	background-color: light-dark(#e2e2e2, #2c2c2c);
+	background-color: light-dark(var(--scrollbar-color), var(--dark-scrollbar-color));
 	background-clip: padding-box;
 	border: solid transparent;
 	border-radius: 4px;

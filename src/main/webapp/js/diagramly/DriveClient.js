@@ -63,6 +63,7 @@ mxUtils.extend(DriveClient, DrawioClient);
 
 DriveClient.prototype.redirectUri = window.DRAWIO_SERVER_URL + 'google';
 DriveClient.prototype.GDriveBaseUrl = 'https://www.googleapis.com/drive/v2';
+DriveClient.prototype.GDriveV3BaseUrl = 'https://www.googleapis.com/drive/v3';
 
 /**
  * OAuth 2.0 scopes for installing Drive Apps.

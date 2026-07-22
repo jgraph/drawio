@@ -770,15 +770,32 @@ Actions.prototype.init = function()
 				}
 			}
 			
-	    	var dlg = new TextareaDialog(ui, mxResources.get('editTooltip') + ':', tooltip, function(newValue)
+	    	var dlg = new MarkupDialog(ui, mxResources.get('editTooltip') + ':', tooltip, function(newValue)
 			{
 				graph.setTooltipForCell(cell, newValue);
 			});
-			ui.showDialog(dlg.container, 320, 200, true, true, null, null, null,
-				new mxRectangle(0, 0, 240, 140), null, 'editTooltip');
+			ui.showDialog(dlg.container, 420, 300, true, true, null, null, null,
+				new mxRectangle(0, 0, 320, 240), null, 'editTooltip');
 			dlg.init();
 		}
 	}, null, null,  Editor.altKey + '+' + Editor.shiftKey + '+T');
+	this.addAction('editNote...', function()
+	{
+		var cell = graph.getSelectionCell();
+
+		if (graph.isEnabled() && cell != null && graph.isCellEditable(cell))
+		{
+			var note = graph.getNoteForCell(cell) || '';
+
+	    	var dlg = new MarkupDialog(ui, mxResources.get('editNote') + ':', note, function(newValue)
+			{
+				graph.setNoteForCell(cell, newValue);
+			});
+			ui.showDialog(dlg.container, 420, 300, true, true, null, null, null,
+				new mxRectangle(0, 0, 320, 240), null, 'editNote');
+			dlg.init();
+		}
+	}, null, null,  Editor.altKey + '+' + Editor.shiftKey + '+N');
 	this.addAction('openLink', function()
 	{
 		var link = graph.getLinkForCell(graph.getSelectionCell());

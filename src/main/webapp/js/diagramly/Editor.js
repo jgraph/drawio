@@ -42,6 +42,7 @@
 	Editor.thinLightImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTI0IDMwLjc1cTIuOCAwIDQuNzc1LTEuOTc1UTMwLjc1IDI2LjggMzAuNzUgMjRxMC0yLjgtMS45NzUtNC43NzVRMjYuOCAxNy4yNSAyNCAxNy4yNXEtMi44IDAtNC43NzUgMS45NzVRMTcuMjUgMjEuMiAxNy4yNSAyNHEwIDIuOCAxLjk3NSA0Ljc3NVEyMS4yIDMwLjc1IDI0IDMwLjc1Wk0yNCAzM3EtMy43NSAwLTYuMzc1LTIuNjI1VDE1IDI0cTAtMy43NSAyLjYyNS02LjM3NVQyNCAxNXEzLjc1IDAgNi4zNzUgMi42MjVUMzMgMjRxMCAzLjc1LTIuNjI1IDYuMzc1VDI0IDMzWk0zLjY1IDI1LjE1cS0uNSAwLS44MjUtLjMyNVEyLjUgMjQuNSAyLjUgMjRxMC0uNS4zMjUtLjgyNS4zMjUtLjMyNS44MjUtLjMyNWg1LjJxLjUgMCAuODI1LjMyNVExMCAyMy41IDEwIDI0cTAgLjUtLjMyNS44MjUtLjMyNS4zMjUtLjgyNS4zMjVabTM1LjUgMHEtLjUgMC0uODI1LS4zMjVRMzggMjQuNSAzOCAyNHEwLS41LjMyNS0uODI1LjMyNS0uMzI1LjgyNS0uMzI1aDUuMnEuNSAwIC44MjUuMzI1LjMyNS4zMjUuMzI1LjgyNSAwIC41LS4zMjUuODI1LS4zMjUuMzI1LS44MjUuMzI1Wk0yNCAxMHEtLjUgMC0uODI1LS4zMjUtLjMyNS0uMzI1LS4zMjUtLjgyNXYtNS4ycTAtLjUuMzI1LS44MjVRMjMuNSAyLjUgMjQgMi41cS41IDAgLjgyNS4zMjUuMzI1LjMyNS4zMjUuODI1djUuMnEwIC41LS4zMjUuODI1UTI0LjUgMTAgMjQgMTBabTAgMzUuNXEtLjUgMC0uODI1LS4zMjUtLjMyNS0uMzI1LS4zMjUtLjgyNXYtNS4ycTAtLjUuMzI1LS44MjVRMjMuNSAzOCAyNCAzOHEuNSAwIC44MjUuMzI1LjMyNS4zMjUuMzI1LjgyNXY1LjJxMCAuNS0uMzI1LjgyNS0uMzI1LjMyNS0uODI1LjMyNVpNMTIuNSAxNC4xbC0zLTIuOTVxLS4zNS0uMzUtLjMyNS0uODI1UTkuMiA5Ljg1IDkuNSA5LjVxLjM1LS4zNS44LS4zNS40NSAwIC44NS4zNWwyLjk1IDNxLjMuMzUuMy44IDAgLjQ1LS4zLjgtLjMuMy0uNzc1LjMtLjQ3NSAwLS44MjUtLjNabTI0LjM1IDI0LjQtMi45NS0zcS0uMy0uMzUtLjMtLjggMC0uNDUuMzUtLjguMjUtLjM1LjcyNS0uMzV0LjgyNS4zNWwzIDIuOTVxLjM1LjM1LjMyNS44MjUtLjAyNS40NzUtLjMyNS44MjUtLjM1LjM1LS44LjM1LS40NSAwLS44NS0uMzVaTTMzLjkgMTQuMXEtLjM1LS4zNS0uMzUtLjggMC0uNDUuMzUtLjhsMi45NS0zcS4zNS0uMzUuODI1LS4zMjUuNDc1LjAyNS44MjUuMzI1LjM1LjM1LjM1LjggMCAuNDUtLjM1Ljg1bC0zIDIuOTVxLS4zLjMtLjc3NS4zLS40NzUgMC0uODI1LS4zWk05LjUgMzguNXEtLjM1LS4zNS0uMzUtLjggMC0uNDUuMzUtLjg1bDMtMi45NXEuMzUtLjM1LjgtLjM1LjQ1IDAgLjguMzUuMzUuMy4zMjUuNzc1LS4wMjUuNDc1LS4zMjUuODI1bC0yLjk1IDNxLS40LjM1LS44NS4zNS0uNDUgMC0uOC0uMzVaTTI0IDI0WiIvPjwvc3ZnPg==';
 	Editor.thinDarkImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTI0LjA1IDQxcS03LjEgMC0xMi4wNS00Ljk1UTcuMDUgMzEuMSA3LjA1IDI0cTAtNi44IDQuNi0xMS42NSA0LjYtNC44NSAxMS4zLTUuMjUuMiAwIC40NS4wMjV0LjcuMDI1UTIyLjc1IDguNyAyMiAxMC43MjVxLS43NSAyLjAyNS0uNzUgNC4yNzUgMCA0LjkgMy40NSA4LjM1IDMuNDUgMy40NSA4LjM1IDMuNDUgMi4yIDAgNC4yNzUtLjY3NVQ0MC45IDI0LjJxMCAuMzUuMDI1LjU1LjAyNS4yLjAyNS4zNS0uNCA2LjctNS4yNSAxMS4zUTMwLjg1IDQxIDI0LjA1IDQxWm0wLTIuMjVxNS4xNSAwIDkuMDc1LTMuMTI1UTM3LjA1IDMyLjUgMzguMiAyOC4xcS0xLjIuNS0yLjUuNzI1LTEuMy4yMjUtMi42NS4yMjUtNS44NSAwLTkuOTUtNC4xVDE5IDE1cTAtMS4xNS4yMjUtMi40MjVUMjAgOS43NXEtNC42NSAxLjQtNy42NSA1LjM3NVQ5LjM1IDI0cTAgNi4xNSA0LjI3NSAxMC40NSA0LjI3NSA0LjMgMTAuNDI1IDQuM1ptLS4yNS0xNC41WiIvPjwvc3ZnPg==';
 	Editor.thinCommentImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTEyLjUgMjcuNWgyM3YtMi4yNWgtMjNabTAtNi4zNWgyM3YtMi4zaC0yM1ptMC02LjRoMjNWMTIuNWgtMjNaTTQzIDQyLjEgMzUuOSAzNWgtMjhxLTEuMTUgMC0yLjAyNS0uODc1VDUgMzIuMVY3LjlxMC0xLjE1Ljg3NS0yLjAyNVQ3LjkgNWgzMi4ycTEuMiAwIDIuMDUuODc1UTQzIDYuNzUgNDMgNy45Wk03LjI1IDcuOXYyNC44NUgzNi45bDMuODUgMy44NVY3LjlxMC0uMy0uMTc1LS40NzVUNDAuMSA3LjI1SDcuOXEtLjMgMC0uNDc1LjE3NVQ3LjI1IDcuOVptMCAwdjI4LjdWNy4yNSA3LjlaIi8+PC9zdmc+';
+	Editor.lightDarkCommentImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBzdHlsZT0iY29sb3Itc2NoZW1lOmxpZ2h0IGRhcms7IiBmaWxsPSJsaWdodC1kYXJrKCMwMDAwMDAsI2ZmZmZmZikiPjxwYXRoIGQ9Ik0yNDAtNDAwaDQ4MHYtODBIMjQwdjgwWm0wLTEyMGg0ODB2LTgwSDI0MHY4MFptMC0xMjBoNDgwdi04MEgyNDB2ODBaTTgwLTgwdi03MjBxMC0zMyAyMy41LTU2LjVUMTYwLTg4MGg2NDBxMzMgMCA1Ni41IDIzLjVUODgwLTgwMHY0ODBxMCAzMy0yMy41IDU2LjVUODAwLTI0MEgyNDBMODAtODBabTEyNi0yNDBoNTk0di00ODBIMTYwdjUyNWw0Ni00NVptLTQ2IDB2LTQ4MCA0ODBaIi8+PC9zdmc+';
 	Editor.thinMenuImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTEzLjUgMjYuMTVxLjkgMCAxLjUyNS0uNjI1LjYyNS0uNjI1LjYyNS0xLjUyNSAwLS45LS42MjUtMS41MjUtLjYyNS0uNjI1LTEuNTI1LS42MjUtLjkgMC0xLjUyNS42MjUtLjYyNS42MjUtLjYyNSAxLjUyNSAwIC45LjYyNSAxLjUyNS42MjUuNjI1IDEuNTI1LjYyNVptMTAuNSAwcS45IDAgMS41MjUtLjYyNS42MjUtLjYyNS42MjUtMS41MjUgMC0uOS0uNjI1LTEuNTI1UTI0LjkgMjEuODUgMjQgMjEuODVxLS45IDAtMS41MjUuNjI1LS42MjUuNjI1LS42MjUgMS41MjUgMCAuOS42MjUgMS41MjUuNjI1LjYyNSAxLjUyNS42MjVabTEwLjUgMHEuODUgMCAxLjQ3NS0uNjI1UTM2LjYgMjQuOSAzNi42IDI0cTAtLjktLjYyNS0xLjUyNS0uNjI1LS42MjUtMS41MjUtLjYyNS0uODUgMC0xLjQ3NS42MjUtLjYyNS42MjUtLjYyNSAxLjUyNSAwIC45LjYyNSAxLjUyNS42MjUuNjI1IDEuNTI1LjYyNVpNMjQgNDNxLTMuOTUgMC03LjQtMS41dC02LjAyNS00LjA3NVE4IDM0Ljg1IDYuNSAzMS40VDUgMjRxMC0zLjk1IDEuNS03LjQyNVE4IDEzLjEgMTAuNTc1IDEwLjU1IDEzLjE1IDggMTYuNiA2LjVUMjQgNXEzLjk1IDAgNy40MjUgMS41UTM0LjkgOCAzNy40NSAxMC41NSA0MCAxMy4xIDQxLjUgMTYuNTc1IDQzIDIwLjA1IDQzIDI0cTAgMy45NS0xLjUgNy40dC00LjA1IDYuMDI1UTM0LjkgNDAgMzEuNDI1IDQxLjUgMjcuOTUgNDMgMjQgNDNabTAtMi4yNXE3IDAgMTEuODc1LTQuOVQ0MC43NSAyNHEwLTctNC44NzUtMTEuODc1VDI0IDcuMjVxLTYuOTUgMC0xMS44NSA0Ljg3NVE3LjI1IDE3IDcuMjUgMjRxMCA2Ljk1IDQuOSAxMS44NSA0LjkgNC45IDExLjg1IDQuOVpNMjQgMjRaIi8+PC9zdmc+';
 	Editor.thinViewImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTUgMzlWOWgzOHYzMFptMjguNTUtMjAuNmg3LjJ2LTcuMTVoLTcuMlptMCA4Ljk1aDcuMnYtNi43aC03LjJabS0yNi4zIDkuNEgzMS4zdi0yNS41SDcuMjVabTI2LjMgMGg3LjJWMjkuNmgtNy4yWiIvPjwvc3ZnPg==';
 	Editor.thinUserAddImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTM2LjYgMjcuNXYtNi4zNWgtNi4zNXYtMi4zaDYuMzVWMTIuNWgyLjN2Ni4zNWg2LjM1djIuM0gzOC45djYuMzVaTTE4IDIzLjM1cS0yLjkgMC00Ljc3NS0xLjg3NVExMS4zNSAxOS42IDExLjM1IDE2LjdxMC0yLjkgMS44NzUtNC43NVQxOCAxMC4xcTIuOSAwIDQuNzc1IDEuODUgMS44NzUgMS44NSAxLjg3NSA0Ljc1dC0xLjg3NSA0Ljc3NVEyMC45IDIzLjM1IDE4IDIzLjM1Wk0zIDM4LjZ2LTMuOHEwLTEuNS44LTIuNzV0Mi4yNS0xLjlxMy40NS0xLjUgNi4yNzUtMi4xNSAyLjgyNS0uNjUgNS42NzUtLjY1IDIuODUgMCA1LjY1LjY1IDIuOC42NSA2LjI1IDIuMTUgMS40NS43IDIuMjc1IDEuOTI1VDMzIDM0Ljh2My44Wm0yLjI1LTIuMjVoMjUuNVYzNC44cTAtLjc1LS41LTEuNDc1LS41LS43MjUtMS4zLTEuMTI1LTMuMi0xLjUtNS42NzUtMi4wNVEyMC44IDI5LjYgMTggMjkuNnEtMi44IDAtNS4zLjU1VDcgMzIuMnEtLjguNC0xLjI3NSAxLjEyNS0uNDc1LjcyNS0uNDc1IDEuNDc1Wk0xOCAyMS4xcTEuODUgMCAzLjEtMS4yNXQxLjI1LTMuMTVxMC0xLjg1LTEuMjUtMy4xVDE4IDEyLjM1cS0xLjg1IDAtMy4xIDEuMjV0LTEuMjUgMy4xcTAgMS45IDEuMjUgMy4xNVQxOCAyMS4xWm0wLTQuNFptMCAxOS42NVoiLz48L3N2Zz4=';
@@ -339,6 +340,12 @@
 	 * Specifies if tooltip icons should be shown on shapes. Default is false.
 	 */
 	Editor.showTooltipIcons = false;
+
+	/**
+	 * Specifies if icons should be shown on cells with a note.
+	 * Default is true.
+	 */
+	Editor.showNoteIcons = true;
 
 	/**
 	 * Specifies the tooltip font size in pixels. Default is null (uses CSS default of 11px).
@@ -2434,8 +2441,10 @@
 			}
 		}
 
-		// Extracts subject from PDF 1.4
-		if (result == null && f.substring(0, 8) == '%PDF-1.4')
+		// Extracts inline or referenced subject from other PDF versions,
+		// including files rewritten by external editors (eg. Preview
+		// saves PDF 1.3 with the subject as a literal string)
+		if (result == null && f.substring(0, 5) == '%PDF-')
 		{
 			var check = '/Subject (%3Cmxfile';
 			var curline = '';
@@ -2508,11 +2517,16 @@
 		
 		if (result != null)
 		{
+			// Decodes the string escapes of external editors that rewrite
+			// the subject as a literal string (eg. Preview escapes the
+			// backslashes of the embedded subject), then the escaped
+			// parentheses of the embedded subject
 			result = decodeURIComponent(result.
+				replace(/\\([\\()])/g, '$1').
 				replace(/\\\(/g, "(").
 				replace(/\\\)/g, ")"));
 		}
-		
+
 		return result;
 	};
 
@@ -2779,6 +2793,18 @@
 			{
 				EditorUi.templateFile = config.templateFile;
 			}
+
+			if (config.enabledTemplateSections != null)
+			{
+				if (Array.isArray(config.enabledTemplateSections))
+				{
+					EditorUi.enabledTemplateSections = config.enabledTemplateSections;
+				}
+				else
+				{
+					EditorUi.debug('Configuration Error: Array expected for enabledTemplateSections');
+				}
+			}
 			
 			if (config.styles != null)
 			{
@@ -2861,6 +2887,11 @@
 			if (config.showTooltipIcons != null)
 			{
 				Editor.showTooltipIcons = config.showTooltipIcons;
+			}
+
+			if (config.showNoteIcons != null)
+			{
+				Editor.showNoteIcons = config.showNoteIcons;
 			}
 
 			if (config.tooltipFontSize != null)
@@ -5792,11 +5823,12 @@
 	};
     
     /**
-     * Embeds external fonts
+     * Embeds the external fonts in the given font lookup. Default lookup
+     * is Graph.customFontElements.
      */
-    Editor.prototype.embedExtFonts = function(callback)
+    Editor.prototype.embedExtFonts = function(callback, lookup)
     {
-    	var extFonts = this.graph.getCustomFonts();
+    	var extFonts = this.graph.getCustomFonts(lookup);
 		
 		if (extFonts.length > 0)
 		{
@@ -5835,7 +5867,7 @@
 		                    }), mxUtils.bind(this, function(err)
 		                    {
 		                        waiting--;
-								content.push('@import url(' + fontUrl + ');\n');
+								content.push('@import url("' + Graph.escapeCssString(fontUrl) + '");\n');
 		                        googleCssDone();
 		                    }));
 						}
@@ -5847,8 +5879,8 @@
 					else
 					{
 						content.push('@font-face {' +
-							'font-family: "' + fontName + '";' + 
-							'src: url("' + fontUrl + '")}\n');
+							'font-family: "' + Graph.escapeCssString(fontName) + '";' +
+							'src: url("' + Graph.escapeCssString(fontUrl) + '")}\n');
 					}
 				}))(extFonts[i].name, extFonts[i].url);
 			}
@@ -8248,7 +8280,10 @@
 	/**
 	 * Lookup table for mapping from font URL and name to elements in the DOM.
 	 */
-	Graph.customFontElements = {};
+	// Uses a null prototype as the keys are untrusted, lowercased font
+	// names so that names such as __proto__ or constructor are stored as
+	// regular entries instead of resolving to inherited object members
+	Graph.customFontElements = Object.create(null);
 
 	/**
 	 * Returns true if the given font URL references a Google font.
@@ -8283,6 +8318,22 @@
 	};
 
 	/**
+	 * Escapes the given value for use inside a double-quoted CSS string,
+	 * such as a font-family name or a url(...) target. Font names and URLs
+	 * come from untrusted cell styles, so escaping the quote, backslash and
+	 * control characters (including newlines) keeps them inside the string
+	 * and prevents breaking out to inject CSS rules into exports or the
+	 * document stylesheet.
+	 */
+	Graph.escapeCssString = function(value)
+	{
+		return (value != null) ? String(value).replace(/[\x00-\x1f\x7f"\\]/g, function(chr)
+		{
+			return '\\' + chr.charCodeAt(0).toString(16) + ' ';
+		}) : value;
+	};
+
+	/**
 	 * Creates the DOM node for the custom font.
 	 */
 	Graph.createFontElement = function(name, url)
@@ -8302,9 +8353,9 @@
 		{
 			if (style == null)
 			{
-				style = '@font-face {\n' +	
-					'font-family: "' + name + '";\n' + 	
-					'src: url("' + url + '");\n}'
+				style = '@font-face {\n' +
+					'font-family: "' + Graph.escapeCssString(name) + '";\n' +
+					'src: url("' + Graph.escapeCssString(url) + '");\n}'
 			}
 
 			elt = document.createElement('style');
@@ -8338,10 +8389,15 @@
 			{
 				var entry = elementLookup[key];
 				
-				// Replaces element if URL has changed
+				// Replaces element if URL has changed, element is not
+				// in the document for temporary font lookups
 				if (entry != null && entry.url != url)
 				{
-					entry.elt.parentNode.removeChild(entry.elt);
+					if (entry.elt.parentNode != null)
+					{
+						entry.elt.parentNode.removeChild(entry.elt);
+					}
+
 					entry = null;
 				}
 				
@@ -9091,12 +9147,14 @@
 	};
 	
 	/**
-	 * Returns all custom fonts (old and new).
+	 * Returns all custom fonts (old and new) in the given font lookup.
+	 * Default lookup is Graph.customFontElements.
 	 */
-	Graph.prototype.getCustomFonts = function()
+	Graph.prototype.getCustomFonts = function(lookup)
 	{
+		lookup = (lookup != null) ? lookup : Graph.customFontElements;
 		var fonts = this.extFonts;
-		
+
 		if (fonts != null)
 		{
 			fonts = fonts.slice();
@@ -9105,22 +9163,23 @@
 		{
 			fonts = [];
 		}
-		
-		for (var key in Graph.customFontElements)
+
+		for (var key in lookup)
 		{
-			var font = Graph.customFontElements[key];
+			var font = lookup[key];
 			fonts.push({name: font.name, url: font.url});
 		}
-		
+
 		return fonts;
 	};
-	
+
 	/**
-	 * Returns the CSS with external references for the custom fonts.
+	 * Returns the CSS with external references for the custom fonts in
+	 * the given font lookup. Default lookup is Graph.customFontElements.
 	 */
-	Graph.prototype.getExtFontCss = function()
+	Graph.prototype.getExtFontCss = function(lookup)
 	{
-		var extFonts = this.getCustomFonts();
+		var extFonts = this.getCustomFonts(lookup);
 		var prefix = '';
 		var postfix = '';
 
@@ -9130,13 +9189,14 @@
 
 			if (Graph.isCssFontUrl(fontUrl))
 			{
-				prefix += '@import url(' + Graph.rewriteGoogleFontUrl(fontUrl) + ');\n';
+				prefix += '@import url("' + Graph.escapeCssString(
+					Graph.rewriteGoogleFontUrl(fontUrl)) + '");\n';
 			}
 			else
 			{
 				postfix += '@font-face {\n' +
-					'font-family: "' + fontName + '";\n' +
-					'src: url("' + fontUrl + '");\n}\n';
+					'font-family: "' + Graph.escapeCssString(fontName) + '";\n' +
+					'src: url("' + Graph.escapeCssString(fontUrl) + '");\n}\n';
 			}
 		}
 
@@ -12042,6 +12102,30 @@
 			optionsSection.appendChild(includeRow);
 		}
 
+		// Notes as sticky note annotations, added by the local export
+		// pipeline which only exists in the desktop app (tooltips and
+		// links are always exported)
+		var iconsInput = document.createElement('input');
+		iconsInput.setAttribute('type', 'checkbox');
+		iconsInput.setAttribute('id', 'gePrintDlgIcons');
+		iconsInput.style.marginRight = '8px';
+		iconsInput.checked = (editorUi.lastPrintIcons != null) ?
+			editorUi.lastPrintIcons : false;
+
+		if (fn != null && EditorUi.isElectronApp)
+		{
+			var iconsRow = document.createElement('div');
+			iconsRow.className = 'geDialogCheckRow';
+			iconsRow.appendChild(iconsInput);
+
+			var span = document.createElement('label');
+			span.setAttribute('for', 'gePrintDlgIcons');
+			mxUtils.write(span, mxResources.get('notes'));
+			iconsRow.appendChild(span);
+
+			optionsSection.appendChild(iconsRow);
+		}
+
 
 		advanced.wrapper.appendChild(optionsSection);
 
@@ -12078,6 +12162,7 @@
 			editorUi.lastPrintShadow = shadowsInput.checked;
 			editorUi.lastPrintTransparent = transparentInput.checked;
 			editorUi.lastPrintInclude = includeInput.checked;
+			editorUi.lastPrintIcons = iconsInput.checked;
 			editorUi.lastPrintSheetsAcross = sheetsAcrossInput.value;
 			editorUi.lastPrintSheetsDown = sheetsDownInput.value;
 
@@ -12088,6 +12173,7 @@
 			args.shadows = shadowsInput.checked;
 			args.transparent = transparentInput.checked;
 			args.includeCopy = includeInput.checked;
+			args.icons = iconsInput.checked && EditorUi.isElectronApp;
 			args.sheetsAcross = parseInt(sheetsAcrossInput.value);
 			args.sheetsDown = parseInt(sheetsDownInput.value);
 			args.pagesFrom = parseInt(pagesFromInput.value);

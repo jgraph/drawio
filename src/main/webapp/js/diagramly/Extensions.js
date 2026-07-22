@@ -6374,8 +6374,11 @@ LucidImporter = {};
 		try
 		{
 			var select = [];
-			var lookup = {};
-			var edgesGroups = {};
+			// Null prototypes as these are keyed by untrusted Lucidchart block
+			// ids (obj.id / Endpoint.Block) so an id such as __proto__ cannot
+			// resolve to Object.prototype (aborting the import) or swap the map.
+			var lookup = Object.create(null);
+			var edgesGroups = Object.create(null);
 			var blocksMap = {};
 			var queue = [];
 

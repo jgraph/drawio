@@ -168,6 +168,12 @@
 	EditorUi.templateFile = TEMPLATE_PATH + '/index.xml';
 
 	/**
+	 * Specifies the sections of the templates index file to be shown in
+	 * the templates dialog. Null means all sections are visible.
+	 */
+	EditorUi.enabledTemplateSections = null;
+
+	/**
 	 * Specifies the URL for the diffsync cache.
 	 */
 	EditorUi.cacheUrl = window.REALTIME_URL;
@@ -2915,6 +2921,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
+	// Note: Remember to adjust ElectronApp override when this function is modified
 	EditorUi.prototype.getBaseFilename = function(ignorePageName)
 	{
 		var file = this.getCurrentFile();
@@ -2949,7 +2956,7 @@
 	 */
 	EditorUi.prototype.downloadFile = function(format, uncompressed, addShadow, ignoreSelection,
 		currentPage, pageVisible, transparent, scale, border, grid, includeXml, pageRange, margin,
-		fit, sheetsAcross, sheetsDown, shadows)
+		fit, sheetsAcross, sheetsDown, shadows, icons)
 	{
 		try
 		{
@@ -3048,7 +3055,7 @@
 					{
 						var req = this.createDownloadRequest(filename, format, ignoreSelection, '1',
 							transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h,
-							!pageVisible, margin, fit, sheetsAcross, sheetsDown, shadows);
+							!pageVisible, margin, fit, sheetsAcross, sheetsDown, shadows, icons);
 
 						req.send(mxUtils.bind(this, function(req)
 						{
@@ -3082,7 +3089,7 @@
 						{
 							var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64,
 								transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h,
-								!pageVisible, margin, fit, sheetsAcross, sheetsDown, shadows);
+								!pageVisible, margin, fit, sheetsAcross, sheetsDown, shadows, icons);
 
 							return req;
 						}
@@ -3103,11 +3110,11 @@
 	// Note: Remember to adjust ElectronApp override when this function is modified
 	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64,
 		transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop, margin,
-		fit, sheetsAcross, sheetsDown, shadows)
+		fit, sheetsAcross, sheetsDown, shadows, icons)
 	{
 		var params = this.downloadRequestBuilder(filename, format, ignoreSelection, base64,
 			transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop,
-			margin, fit, sheetsAcross, sheetsDown, shadows);
+			margin, fit, sheetsAcross, sheetsDown, shadows, icons);
 		var paramsStr = '';
 
 		for (var p in params)
@@ -3131,7 +3138,7 @@
 	 */
 	EditorUi.prototype.downloadRequestBuilder = function(filename, format, ignoreSelection, base64,
 		transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop, margin,
-		fit, sheetsAcross, sheetsDown, shadows)
+		fit, sheetsAcross, sheetsDown, shadows, icons)
 	{
 		var graph = this.editor.graph;
 		var bounds = graph.getGraphBounds();
@@ -3247,7 +3254,8 @@
 			fit: (fit != null && fit) ? '1' : '0',
 			shadows: (shadows != null && shadows) ? '1' : '0',
 			sheetsAcross: sheetsAcross,
-			sheetsDown: sheetsDown
+			sheetsDown: sheetsDown,
+			icons: (icons != null && icons) ? '1' : '0'
 		};
 	};
 	
@@ -7363,9 +7371,139 @@
 	/**
 	 *
 	 */
+	/**
+	 * Adds the style and script for the hover and click popups of the tooltip
+	 * and note icons added by createSvgImageExport to the given exported SVG.
+	 * The popup content in the data-icon-content attributes was sanitized at
+	 * export time and the script contains no dynamic parts. The script only
+	 * runs where the SVG is the document, eg. opened in a browser tab or via
+	 * an object tag, not when the SVG is shown with an img tag.
+	 */
+	EditorUi.prototype.addSvgIconHandlers = function(svgRoot)
+	{
+		if (svgRoot.querySelector('[data-icon-content]') == null)
+		{
+			return;
+		}
+
+		var svgDoc = svgRoot.ownerDocument;
+		var style = (svgDoc.createElementNS != null) ?
+			svgDoc.createElementNS(mxConstants.NS_SVG, 'style') :
+			svgDoc.createElement('style');
+		style.appendChild(svgDoc.createTextNode(
+			'.geSvgPopup { display: inline-block; box-sizing: border-box; max-width: 100%; max-height: 100%; ' +
+			'overflow: auto; background-color: #ffffff; border: 1px solid #c0c0c0; border-radius: 4px; ' +
+			'box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.25); padding: 8px; color: #000000; ' +
+			'font-family: Helvetica, Arial, sans-serif; font-size: 12px; word-break: break-word; } ' +
+			'@media (prefers-color-scheme: dark) { .geSvgPopup { ' +
+			'background-color: #2a252f; border-color: #505050; color: #ffffff; } } ' +
+			// Hides the icons and any open popup in print output as they are
+			// interactive helpers rather than part of the diagram
+			'@media print { [data-icon], .geSvgPopup { display: none; } }'));
+		svgRoot.appendChild(style);
+
+		var script = (svgDoc.createElementNS != null) ?
+			svgDoc.createElementNS(mxConstants.NS_SVG, 'script') :
+			svgDoc.createElement('script');
+		script.setAttribute('type', 'text/javascript');
+
+		var code = '(function() {\n' +
+			'var svg = document.documentElement;\n' +
+			'var fo = null, active = null, pinned = false, thread = null;\n' +
+			'function hide() {\n' +
+			'if (fo != null && fo.parentNode != null) { fo.parentNode.removeChild(fo); }\n' +
+			'fo = null; active = null; pinned = false;\n' +
+			'}\n' +
+			'function cancel() {\n' +
+			'if (thread != null) { window.clearTimeout(thread); thread = null; }\n' +
+			'}\n' +
+			'function schedule() {\n' +
+			'cancel();\n' +
+			'if (!pinned) { thread = window.setTimeout(hide, 300); }\n' +
+			'}\n' +
+			'function show(icon) {\n' +
+			'cancel();\n' +
+			'if (active == icon) { return; }\n' +
+			'hide();\n' +
+			'var content = icon.getAttribute("data-icon-content");\n' +
+			'if (content == null || content == "") { return; }\n' +
+			'var x = parseFloat(icon.getAttribute("x"));\n' +
+			'var y = parseFloat(icon.getAttribute("y"));\n' +
+			'var w = parseFloat(icon.getAttribute("width"));\n' +
+			'if (isNaN(x) || isNaN(y)) {\n' +
+			'try { var bb = icon.getBBox(); x = bb.x; y = bb.y; w = bb.width; }\n' +
+			'catch (e) { x = 0; y = 0; }\n' +
+			'}\n' +
+			'if (isNaN(w) || w <= 0) { w = 16; }\n' +
+			'var vb = (svg.viewBox != null && svg.viewBox.baseVal != null &&\n' +
+			'svg.viewBox.baseVal.width > 0) ? svg.viewBox.baseVal : null;\n' +
+			'var maxW = (vb != null) ? vb.width : (svg.clientWidth || 800);\n' +
+			'var maxH = (vb != null) ? vb.height : (svg.clientHeight || 600);\n' +
+			'var pw = Math.max(60, Math.min(320, maxW - 4));\n' +
+			'var ph = Math.max(40, Math.min(220, maxH - 4));\n' +
+			'fo = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");\n' +
+			'fo.setAttribute("width", pw);\n' +
+			'fo.setAttribute("height", ph);\n' +
+			'var div = document.createElementNS("http://www.w3.org/1999/xhtml", "div");\n' +
+			'div.setAttribute("class", "geSvgPopup");\n' +
+			'div.innerHTML = content;\n' +
+			'div.addEventListener("mouseenter", cancel);\n' +
+			'div.addEventListener("mouseleave", schedule);\n' +
+			'fo.appendChild(div);\n' +
+			'svg.appendChild(fo);\n' +
+			'var mw = div.offsetWidth;\n' +
+			'var mh = div.offsetHeight;\n' +
+			'if (mw > 0) { pw = Math.min(pw, mw + 2); }\n' +
+			'if (mh > 0) { ph = Math.min(ph, mh + 2); }\n' +
+			'var px = x + w + 4;\n' +
+			'var py = y;\n' +
+			'if (vb != null) {\n' +
+			'px = Math.max(vb.x, Math.min(px, vb.x + vb.width - pw - 2));\n' +
+			'py = Math.max(vb.y, Math.min(py, vb.y + vb.height - ph - 2));\n' +
+			'}\n' +
+			'fo.setAttribute("x", px);\n' +
+			'fo.setAttribute("y", py);\n' +
+			'fo.setAttribute("width", pw);\n' +
+			'fo.setAttribute("height", ph);\n' +
+			'active = icon;\n' +
+			'}\n' +
+			'var icons = document.querySelectorAll("[data-icon-content]");\n' +
+			'for (var i = 0; i < icons.length; i++) {\n' +
+			'(function(icon) {\n' +
+			'icon.addEventListener("click", function(evt) {\n' +
+			'if (active == icon) { hide(); }\n' +
+			'else { show(icon); pinned = true; }\n' +
+			'evt.preventDefault();\n' +
+			'evt.stopPropagation();\n' +
+			'});\n' +
+			'icon.addEventListener("mouseenter", function() {\n' +
+			'if (pinned) { cancel(); }\n' +
+			'else { show(icon); }\n' +
+			'});\n' +
+			'icon.addEventListener("mouseleave", schedule);\n' +
+			'})(icons[i]);\n' +
+			'}\n' +
+			'document.addEventListener("mousedown", function(evt) {\n' +
+			'if (fo != null && (active == null || !active.contains(evt.target)) &&\n' +
+			'!fo.contains(evt.target)) { hide(); }\n' +
+			'});\n' +
+			'document.addEventListener("keydown", function(evt) {\n' +
+			'if (evt.keyCode == 27) { hide(); }\n' +
+			'});\n' +
+			'})();';
+
+		// Single line as mxUtils.getXml replaces linefeeds with entities,
+		// which are not decoded inside the CDATA section below
+		code = code.replace(/\n/g, ' ');
+
+		// CDATA keeps the code intact for both XML and HTML parsers
+		script.appendChild(svgDoc.createCDATASection(code));
+		svgRoot.appendChild(script);
+	};
+
 	EditorUi.prototype.exportSvg = function(scale, transparentBackground, ignoreSelection, addShadow,
 		editable, embedImages, border, noCrop, currentPage, linkTarget, theme, exportType,
-		embedFonts, saveFn, addSvgData, grid)
+		embedFonts, saveFn, addSvgData, grid, icons)
 	{
 		if (this.spinner.spin(document.body, mxResources.get('exporting'), mxUtils.bind(this, function(err)
 			{
@@ -7373,7 +7511,7 @@
 				{
 					this.exportSvg(scale, transparentBackground, ignoreSelection, addShadow,
 						editable, embedImages, border, noCrop, currentPage, linkTarget,
-						theme, exportType, embedFonts, saveFn, addSvgData, grid);
+						theme, exportType, embedFonts, saveFn, addSvgData, grid, icons);
 				}));
 				
 				this.handleError(err);
@@ -7413,34 +7551,26 @@
 					mxUtils.preferDarkColor = theme == 'dark';
 				}
 
-				// Uses temporary font lookup for export
-				var prevAddFont = Graph.addFont;
-				var tempFontLookup = {};
-
-				Graph.addFont = function(name, url, callback, elementLookup)
+				// Extends the border so that the icons outside of the cell
+				// bounds, up to 16 pixels at scale 1, are not clipped
+				if (icons)
 				{
-					prevAddFont.call(this, name, url, callback, tempFontLookup);
-				};
+					border = Math.max((border != null) ? border : 0, Math.ceil(16 * scale));
+				}
 
-				var imgExport = this.editor.graph.createSvgImageExport(editable, addSvgData);
+				var imgExport = this.editor.graph.createSvgImageExport(editable, addSvgData,
+					icons, (linkTarget == 'self') ? '_top' : '_blank');
+				var tempFontLookup = Object.create(null);
 
-				// Adds font to temporary font lookup
-				var prevDrawCellState = imgExport.drawCellState;
-
-				imgExport.drawCellState = function(state, canvas)
+				// Restricts font embedding to fonts used in rendered cells
+				var svgRoot = this.getSvgWithFontLookup(tempFontLookup, imgExport,
+					mxUtils.bind(this, function()
 				{
-					if (state != null)
-					{
-						Graph.processFontStyle(state.style);
-					}
-
-					prevDrawCellState.apply(this, arguments);
-				};
-
-				var svgRoot = this.editor.graph.getSvg(bg, scale, border, noCrop, null,
-					ignoreSelection, null, imgExport, (linkTarget == 'blank') ? '_blank' :
-					((linkTarget == 'self') ? '_top' : null), null, !embedFonts,
-					theme, exportType, null, null, null, grid);
+					return this.editor.graph.getSvg(bg, scale, border, noCrop, null,
+						ignoreSelection, null, imgExport, (linkTarget == 'blank') ? '_blank' :
+						((linkTarget == 'self') ? '_top' : null), null, null,
+						theme, exportType, null, null, null, grid);
+				}));
 				
 				mxUtils.lightDarkColorSupported = prevLightDarkColorSupported;
 				mxUtils.preferDarkColor = prevPreferDarkColor;
@@ -7450,7 +7580,12 @@
 				{
 					this.editor.graph.addSvgShadow(svgRoot);
 				}
-				
+
+				if (icons)
+				{
+					this.addSvgIconHandlers(svgRoot);
+				}
+
 				var filename = this.getBaseFilename() + ((editable) ? '.drawio' : '') + '.svg';
 
 				saveFn = (saveFn != null) ? saveFn : mxUtils.bind(this, function(svg)
@@ -7512,16 +7647,8 @@
 					}
 				});
 
-				// Uses temporary font lookup for export
-				var prevCustomFontElements = Graph.customFontElements;
-				Graph.customFontElements = tempFontLookup;
-				
 				var done = mxUtils.bind(this, function(svgRoot)
 				{
-					// Restores global state
-					Graph.customFontElements = prevCustomFontElements
-					Graph.addFont = prevAddFont;
-
 					if (embedImages && !this.isOffline() && Editor.canvasSupported)
 					{
 						// Caches images
@@ -7538,15 +7665,10 @@
 					}
 				});
 
-				if (embedFonts)
-				{
-					this.embedFonts(svgRoot, done, true);
-				}
-				else
-				{
-					this.editor.addFontCss(svgRoot);
-					done(svgRoot);
-				}
+				// Adds fonts of rendered cells as CSS or external
+				// references [jgraph/drawio#5000]
+				this.embedFonts(svgRoot, done, (embedFonts) ? true : false,
+					tempFontLookup);
 			}
 			catch (e)
 			{
@@ -9301,6 +9423,10 @@
 		cb8.setAttribute('type', 'checkbox');
 		cb8.id = 'geCheckbox-' + Editor.guid();
 
+		var cb9 = document.createElement('input');
+		cb9.setAttribute('type', 'checkbox');
+		cb9.id = 'geCheckbox-' + Editor.guid();
+
 		var linkSelect = document.createElement('select');
 		linkSelect.style.maxWidth = '260px';
 
@@ -9637,6 +9763,19 @@
 			lbl.setAttribute('for', cb8.id);
 			embedMetaRow.appendChild(lbl);
 			advSection.appendChild(embedMetaRow);
+
+			// Tooltip, link and note icons with hover and click popups
+			cb9.checked = (this.lastEmbedIcons != null) ?
+				this.lastEmbedIcons : false;
+
+			var iconsRow = document.createElement('div');
+			iconsRow.className = 'geDialogCheckRow';
+			iconsRow.appendChild(cb9);
+			var lbl = document.createElement('label');
+			mxUtils.write(lbl, mxResources.get('icons'));
+			lbl.setAttribute('for', cb9.id);
+			iconsRow.appendChild(lbl);
+			advSection.appendChild(iconsRow);
 		}
 
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
@@ -9688,6 +9827,7 @@
 				this.lastEmbedImages = cb5.checked;
 				this.lastEmbedFonts = cb7.checked;
 				this.lastEmbedCellMetadata = cb8.checked;
+				this.lastEmbedIcons = cb9.checked;
 			}
 
 			if (format == 'png' || format == 'svg')
@@ -9704,7 +9844,8 @@
 					(themeSelect != null) ? themeSelect.value : null,
 					exportSelect.value, cb7.checked, cb8.checked && embedOption,
 					(format == 'png' && parseInt(customDpi.value) > 0 &&
-						parseInt(customDpi.value) != 100) ? parseInt(customDpi.value) : null);
+						parseInt(customDpi.value) != 100) ? parseInt(customDpi.value) : null,
+					cb9.checked && embedOption);
 			}
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 360, null, true, true, null, null, null, null, true);
@@ -10367,6 +10508,45 @@
 	}
 
 	/**
+	 * Invokes the given render function with the given image export while
+	 * the fonts of the rendered cells are collected into the given font
+	 * lookup instead of the global font lookup and returns the result of
+	 * the function. The image export must be passed to getSvg in fn.
+	 */
+	EditorUi.prototype.getSvgWithFontLookup = function(fontLookup, imgExport, fn)
+	{
+		var prevAddFont = Graph.addFont;
+
+		Graph.addFont = function(name, url, callback, elementLookup)
+		{
+			prevAddFont.call(this, name, url, callback, fontLookup);
+		};
+
+		// Adds fonts from cell styles to the font lookup
+		var prevDrawCellState = imgExport.drawCellState;
+
+		imgExport.drawCellState = function(state, canvas)
+		{
+			if (state != null)
+			{
+				Graph.processFontStyle(state.style);
+			}
+
+			prevDrawCellState.apply(this, arguments);
+		};
+
+		try
+		{
+			return fn();
+		}
+		finally
+		{
+			// Restores global font registration
+			Graph.addFont = prevAddFont;
+		}
+	};
+
+	/**
 	 * Returns the SVG of the diagram with embedded XML. If a callback function is
 	 * used, the images are converted to data URIs and fonts are embedded async.
 	 * Without a callback, fonts are embedded synchronously from the local font
@@ -10394,46 +10574,14 @@
 		// Sets or disables alternate text for foreignObjects. Disabling is needed
 		// because PhantomJS seems to ignore switch statements and paint all text.
 		var imgExport = this.editor.graph.createSvgImageExport(xml != null, addSvgData);
-		var prevAddFont = Graph.addFont;
-		var tempFontLookup = null;
+		var tempFontLookup = Object.create(null);
 
-		// Uses temporary font lookup to restrict font embedding to the
-		// fonts used in the rendered cells for synchronous calls
-		if (callback == null)
+		// Restricts font embedding to fonts used in rendered cells
+		var svgRoot = this.getSvgWithFontLookup(tempFontLookup, imgExport, function()
 		{
-			tempFontLookup = {};
-
-			Graph.addFont = function(name, url, callback, elementLookup)
-			{
-				prevAddFont.call(this, name, url, callback, tempFontLookup);
-			};
-
-			// Adds fonts from cell styles to temporary font lookup
-			var prevDrawCellState = imgExport.drawCellState;
-
-			imgExport.drawCellState = function(state, canvas)
-			{
-				if (state != null)
-				{
-					Graph.processFontStyle(state.style);
-				}
-
-				prevDrawCellState.apply(this, arguments);
-			};
-		}
-
-		var svgRoot = null;
-
-		try
-		{
-			svgRoot = graph.getSvg(bg, scale, border, null, null, ignoreSelection, null,
+			return graph.getSvg(bg, scale, border, null, null, ignoreSelection, null,
 				imgExport, null, graph.shadowVisible || shadow, null, theme, 'diagram');
-		}
-		finally
-		{
-			// Restores global font registration
-			Graph.addFont = prevAddFont;
-		}
+		});
 
 		if (graph.shadowVisible || shadow)
 		{
@@ -10492,52 +10640,41 @@
 				{
 					done(svgRoot);
 				}
-			}), embedFonts);
+			}), embedFonts, tempFontLookup);
 		}
 		else
 		{
-			// Restricts font embedding to fonts used in rendered cells
-			var prevCustomFontElements = Graph.customFontElements;
-			Graph.customFontElements = tempFontLookup;
+			// Embeds fonts synchronously if all fonts are in the local
+			// cache, otherwise the fonts are loaded into the cache for
+			// the next call and external references are used below
+			var fontsEmbedded = false;
 
-			try
+			this.embedFonts(svgRoot, function()
 			{
-				// Embeds fonts synchronously if all fonts are in the local
-				// cache, otherwise the fonts are loaded into the cache for
-				// the next call and external references are used below
-				var fontsEmbedded = false;
+				fontsEmbedded = true;
+			}, embedFonts, tempFontLookup);
 
-				this.embedFonts(svgRoot, function()
+			if (!fontsEmbedded)
+			{
+				try
 				{
-					fontsEmbedded = true;
-				}, embedFonts);
-
-				if (!fontsEmbedded)
-				{
-					try
+					// Global font CSS was added above if it was resolved
+					if (this.editor.resolvedFontCss == null)
 					{
-						// Global font CSS was added above if it was resolved
-						if (this.editor.resolvedFontCss == null)
-						{
-							this.editor.addFontCss(svgRoot);
-						}
-
-						var extFontCss = this.editor.graph.getExtFontCss();
-
-						if (extFontCss.length > 0)
-						{
-							this.editor.addFontCss(svgRoot, extFontCss);
-						}
+						this.editor.addFontCss(svgRoot);
 					}
-					catch (e)
+
+					var extFontCss = this.editor.graph.getExtFontCss(tempFontLookup);
+
+					if (extFontCss.length > 0)
 					{
-						// ignore
+						this.editor.addFontCss(svgRoot, extFontCss);
 					}
 				}
-			}
-			finally
-			{
-				Graph.customFontElements = prevCustomFontElements;
+				catch (e)
+				{
+					// ignore
+				}
 			}
 
 			return done(svgRoot);
@@ -10547,9 +10684,10 @@
 	/**
 	 * Embeds font CSS as data URIs into the given svgRoot. If embedFonts is
 	 * false, external font references are added instead. Default for
-	 * embedFonts is Editor.embedSvgFonts.
+	 * embedFonts is Editor.embedSvgFonts. The optional font lookup limits
+	 * the custom fonts, default is Graph.customFontElements.
 	 */
-	EditorUi.prototype.embedFonts = function(svgRoot, callback, embedFonts)
+	EditorUi.prototype.embedFonts = function(svgRoot, callback, embedFonts, fontLookup)
 	{
 		embedFonts = (embedFonts != null) ? embedFonts : Editor.embedSvgFonts;
 
@@ -10558,7 +10696,7 @@
 			try
 			{
 				this.editor.addFontCss(svgRoot);
-				var extFontCss = this.editor.graph.getExtFontCss();
+				var extFontCss = this.editor.graph.getExtFontCss(fontLookup);
 
 				if (extFontCss.length > 0)
 				{
@@ -10598,7 +10736,7 @@
 						{
 							callback(svgRoot);
 						}
-					}));
+					}), fontLookup);
 				}
 				catch (e)
 				{
@@ -11970,6 +12108,49 @@
 		}
 
 		return result;
+	};
+
+	/**
+	 * Shows the given diagram XML in the zoomable sidebar preview tooltip
+	 * (as used for generated diagrams in ChatWindow), anchored at the given
+	 * event's pointer position. Content larger than the viewport is scaled
+	 * down to fit and gets zoom controls. Used by the Mermaid and PlantUML
+	 * insert/edit dialogs to preview the parse result without inserting it.
+	 */
+	EditorUi.prototype.showPreviewTooltip = function(xml, evt)
+	{
+		if (this.sidebar != null)
+		{
+			var cells = this.stringToCells(xml);
+
+			if (cells.length > 0)
+			{
+				var ww = window.innerWidth || document.documentElement.clientWidth ||
+					document.body.clientWidth;
+				var wh = window.innerHeight || document.documentElement.clientHeight ||
+					document.body.clientHeight;
+
+				this.sidebar.createTooltip(mxEvent.getSource(evt), cells,
+					Math.min(ww - 120, 1600), Math.min(wh - 120, 1200), null,
+					true, new mxPoint(mxEvent.getClientX(evt),
+					mxEvent.getClientY(evt)), true, null, true, false);
+
+				// The document's pointer handlers hide the closable tooltip on
+				// any pointer event outside of it; Escape and Ctrl+Enter close
+				// the hosting dialog without such an event, so the preview is
+				// also hidden whenever a dialog closes.
+				if (this.previewTooltipDialogListener == null)
+				{
+					this.previewTooltipDialogListener = mxUtils.bind(this, function()
+					{
+						this.sidebar.hideTooltip();
+					});
+
+					this.editor.addListener('hideDialog',
+						this.previewTooltipDialogListener);
+				}
+			}
+		}
 	};
 
 	/**
@@ -14444,6 +14625,7 @@
 		// Shows link icons in main graph
 		graph.showLinkIcons = Editor.showLinkIcons || urlParams['link-icons'] == '1';
 		graph.showTooltipIcons = Editor.showTooltipIcons || urlParams['tooltip-icons'] == '1';
+		graph.showNoteIcons = Editor.showNoteIcons && urlParams['note-icons'] != '0';
 
 		// Opens the edit tooltip dialog for the given cell
 		var editorUi = this;
@@ -14453,6 +14635,15 @@
 			if (cell != null)
 			{
 				editorUi.actions.get('editTooltip').funct();
+			}
+		};
+
+		// Opens the note editor for the given cell
+		graph.editNote = function(cell)
+		{
+			if (cell != null)
+			{
+				editorUi.actions.get('editNote').funct();
 			}
 		};
 
@@ -14704,10 +14895,28 @@
 	    				ui.handleError(e);
 	    			}
 	    		}, onError);
-			}, null, null, showTypeSelect ? typeSelect : null, true);
+			}, null, null, showTypeSelect ? typeSelect : null, true,
+				(ui.sidebar == null) ? null : function(text, evt)
+			{
+				// Previews the parse result the apply would produce, in the
+				// zoomable tooltip, keeping the dialog open
+				if (ui.spinner.spin(document.body, mxResources.get('loading')))
+				{
+					ui.parsePlantUmlDiagram(text, isGroup ? obj.config : null,
+						function(xml)
+					{
+						ui.spinner.stop();
+						ui.showPreviewTooltip(xml, evt);
+					}, function(e)
+					{
+						ui.spinner.stop();
+						ui.handleError(e);
+					});
+				}
+			});
 			showGuardedTextareaDialog(dlg);
 		};
-		
+
 		// Starts editing Mermaid data. Re-parses via the native parser and
 		// replaces the cell's children with the result. Legacy shape=image
 		// mermaid cells are migrated to the editable group wrapper on the fly.
@@ -14829,10 +15038,33 @@
 	    				ui.handleError(e);
 	    			}
 	    		}, onError);
-			}, null, null, showTypeSelect ? typeSelect : null, true);
+			}, null, null, showTypeSelect ? typeSelect : null, true,
+				(ui.sidebar == null) ? null : function(text, evt)
+			{
+				// Previews the parse result the apply would produce, in the
+				// zoomable tooltip, keeping the dialog open. Uses the same
+				// config selection as the apply handler above.
+				if (ui.spinner.spin(document.body, mxResources.get('loading')))
+				{
+					var config = (typeSelect.value == 'mermaidImage') ?
+						EditorUi.legacyMermaidConfig :
+						(isImage ? null : obj.config);
+
+					ui.parseMermaidDiagram(text, mxUtils.clone(config),
+						function(xml)
+					{
+						ui.spinner.stop();
+						ui.showPreviewTooltip(xml, evt);
+					}, function(e)
+					{
+						ui.spinner.stop();
+						ui.handleError(e);
+					});
+				}
+			});
 			showGuardedTextareaDialog(dlg);
 		};
-		
+
 		// Overrides function to add editing for Plant UML.
 		var cellEditorStartEditing = graph.cellEditor.startEditing;
 		graph.cellEditor.startEditing = function(cell, trigger, initialText)
@@ -15148,6 +15380,42 @@
 					this.addMenuItems(menu, ['-', 'addToScratchpad'], null, evt);
 				}
 
+				// Adds a comment on the selected cells for files that
+				// support anchored comments
+				if (graph.getSelectionCount() > 0 && ui.commentsSupported() &&
+					ui.anchoredCommentsSupported() && ui.canComment() &&
+					this.showCommentsWindow != null)
+				{
+					var selected = graph.getSelectionCells();
+					var menus = this;
+
+					menu.addSeparator();
+					menu.addItem(mxResources.get('comment') + '...', null, function()
+					{
+						if (ui.currentPage != null)
+						{
+							var c = null;
+
+							if (selected.length == 1)
+							{
+								c = selected[0].id;
+							}
+							else
+							{
+								c = [];
+
+								for (var i = 0; i < selected.length; i++)
+								{
+									c.push(selected[i].id);
+								}
+							}
+
+							menus.showCommentsWindow(null,
+								{p: ui.currentPage.getId(), c: c});
+						}
+					});
+				}
+
 				if (graph.isSelectionEmpty() && !this.isShowStyleItems())
 				{
 					this.addMenuItems(menu, ['-', 'exitGroup', 'home'], null, evt);
@@ -15257,6 +15525,24 @@
 			this.menus.isShowArrangeItems = this.menus.isShowStyleItems;
 			this.menus.isShowCellEditItems = this.menus.isShowStyleItems;
 		}
+
+		// Loads the comments of the file in the background after it was
+		// opened and keeps the comment icons on the cells up to date
+		var updateCommentOverlays = mxUtils.bind(this, function()
+		{
+			this.updateCommentOverlays();
+		});
+
+		this.addListener('commentsChanged', updateCommentOverlays);
+		this.addListener('darkModeChanged', updateCommentOverlays);
+		this.editor.addListener('pageSelected', updateCommentOverlays);
+
+		this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
+		{
+			// Overlays of the previous file were disposed with its model
+			this.commentOverlays = null;
+			this.refreshCommentCache();
+		}));
 
 		// In passiveScroll mode, override insert point to use context menu location.
 		// Insert actions pass pt=null when there's no mouse insert point, which
@@ -16123,18 +16409,9 @@
 			this.setHighContrast(true);
 		}
 
-		if (Editor.isSettingsEnabled())
+		if (Editor.isSettingsEnabled() && mxSettings.settings.pages != null)
 		{
-			if (mxSettings.settings.pages != null)
-			{
-				this.setTabContainerVisible(mxSettings.settings.pages);
-			}
-			
-			if (mxSettings.settings.compactMode != null &&
-				this.isDefaultTheme(Editor.currentTheme))
-			{
-				this.setCompactMode(mxSettings.settings.compactMode);
-			}
+			this.setTabContainerVisible(mxSettings.settings.pages);
 		}
 
 		this.installSettings();
@@ -20475,8 +20752,8 @@
 						{
 							doc.writeln('<style type="text/css">');
 							doc.writeln('@font-face {\n' +
-								'font-family: "' + mxUtils.htmlEntities(fontName) + '";\n' + 
-								'src: url("' + mxUtils.htmlEntities(fontUrl) + '");\n}');
+								'font-family: "' + mxUtils.htmlEntities(Graph.escapeCssString(fontName)) + '";\n' +
+								'src: url("' + mxUtils.htmlEntities(Graph.escapeCssString(fontUrl)) + '");\n}');
 							doc.writeln('</style>');
 						}
 					}
@@ -20621,8 +20898,8 @@
 						{
 							pv.wnd.document.writeln('<style type="text/css">');
 							pv.wnd.document.writeln('@font-face {\n' +
-								'font-family: "' + mxUtils.htmlEntities(fontName) + '";\n' + 
-								'src: url("' + mxUtils.htmlEntities(fontUrl) + '");\n}');
+								'font-family: "' + mxUtils.htmlEntities(Graph.escapeCssString(fontName)) + '";\n' +
+								'src: url("' + mxUtils.htmlEntities(Graph.escapeCssString(fontUrl)) + '");\n}');
 							pv.wnd.document.writeln('</style>');
 						}
 					}
@@ -23099,12 +23376,19 @@
 											(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
 										{
 											this.editor.graph.setEnabled(false);
-											var imgExport = data.embedCellMetadata ?
-												this.editor.graph.createSvgImageExport(false, true) : null;
-											var svgRoot = this.editor.graph.getSvg(bg, data.scale, data.border, null, null,
-												null, null, imgExport, null, this.editor.graph.shadowVisible || data.shadow,
-												null, theme);
-											
+											var imgExport = this.editor.graph.createSvgImageExport(
+												false, (data.embedCellMetadata) ? true : false);
+											var tempFontLookup = Object.create(null);
+
+											// Restricts font embedding to fonts used in rendered cells
+											var svgRoot = this.getSvgWithFontLookup(tempFontLookup, imgExport,
+												mxUtils.bind(this, function()
+											{
+												return this.editor.graph.getSvg(bg, data.scale, data.border, null, null,
+													null, null, imgExport, null, this.editor.graph.shadowVisible || data.shadow,
+													null, theme);
+											}));
+
 											if (this.editor.graph.shadowVisible || data.shadow)
 											{
 												this.editor.graph.addSvgShadow(svgRoot);
@@ -23123,7 +23407,7 @@
 												{
 													postResult(mxUtils.getXml(svgRoot));
 												}
-											}), data.embedFonts);
+											}), data.embedFonts, tempFontLookup);
 										}
 									}
 									
@@ -24543,8 +24827,11 @@
     		
     		if (lines.length > 0)
     		{
-        		// Internal lookup table
-        		var lookups = {};
+        		// Internal lookup table. Uses a null prototype as the keys are
+        		// untrusted connect targets (from the parsed # connect: directive)
+        		// so that a target such as __proto__ is a regular entry and cannot
+        		// resolve to or pollute Object.prototype.
+        		var lookups = Object.create(null);
         		
         		// Default values
         		graph = (graph != null) ? graph : this.editor.graph;
@@ -24785,7 +25072,10 @@
 					{
 						if (lookups[edges[e].to] == null)
 						{
-							lookups[edges[e].to] = {};
+							// Null prototype: inner keys are untrusted cell
+							// attribute values that must not swap the map's
+							// prototype or resolve to inherited members.
+							lookups[edges[e].to] = Object.create(null);
 						}
 					}
 				}
@@ -26972,8 +27262,494 @@
 	EditorUi.prototype.canComment = function()
 	{
 		var file = this.getCurrentFile();
-		
+
 		return file != null? file.canComment() : true;
+	};
+
+	/**
+	 * Are comments anchored to shapes supported
+	 */
+	EditorUi.prototype.anchoredCommentsSupported = function()
+	{
+		var file = this.getCurrentFile();
+
+		return file != null? file.anchoredCommentsSupported() : false;
+	};
+
+	/**
+	 * Are @mentions in comments supported
+	 */
+	EditorUi.prototype.mentionsSupported = function()
+	{
+		var file = this.getCurrentFile();
+
+		return file != null? file.mentionsSupported() : false;
+	};
+
+	/**
+	 * Get the people that can be mentioned in comments
+	 */
+	EditorUi.prototype.getMentionCandidates = function(success, error)
+	{
+		var file = this.getCurrentFile();
+
+		if (file != null)
+		{
+			file.getMentionCandidates(success, error);
+		}
+		else
+		{
+			success([]);
+		}
+	};
+
+	/**
+	 * Returns the object the comment cache is stored on: the current file
+	 * or, without a file, this instance (eg. integrations that override
+	 * getComments on a headless UI).
+	 */
+	EditorUi.prototype.getCommentCacheTarget = function()
+	{
+		var file = this.getCurrentFile();
+
+		return (file != null) ? file : this;
+	};
+
+	/**
+	 * Loads the comments into the cache on the current file without
+	 * blocking and fires a commentsChanged event when done. The cache
+	 * serves the comment indicators and the comments window. Concurrent
+	 * calls share one request.
+	 */
+	EditorUi.prototype.refreshCommentCache = function(success, error)
+	{
+		if (this.commentsSupported())
+		{
+			var target = this.getCommentCacheTarget();
+
+			if (target.commentCacheCallbacks != null)
+			{
+				target.commentCacheCallbacks.push([success, error]);
+			}
+			else
+			{
+				target.commentCacheCallbacks = [[success, error]];
+
+				var done = mxUtils.bind(this, function(index, arg)
+				{
+					var callbacks = target.commentCacheCallbacks;
+					target.commentCacheCallbacks = null;
+
+					for (var i = 0; callbacks != null && i < callbacks.length; i++)
+					{
+						if (callbacks[i][index] != null)
+						{
+							callbacks[i][index](arg);
+						}
+					}
+				});
+
+				this.getComments(mxUtils.bind(this, function(list)
+				{
+					if (this.getCommentCacheTarget() == target)
+					{
+						target.commentCache = list;
+						this.fireEvent(new mxEventObject('commentsChanged'));
+					}
+
+					done(0, list);
+				}), mxUtils.bind(this, function(err)
+				{
+					done(1, err);
+				}));
+			}
+		}
+		else if (success != null)
+		{
+			success(null);
+		}
+	};
+
+	/**
+	 * Invoked after a comment was added, changed, deleted, resolved or
+	 * re-opened locally. Notifies collaborators and refreshes the cache
+	 * so the indicators reflect the change.
+	 */
+	EditorUi.prototype.commentsUpdated = function()
+	{
+		if (this.commentsSupported())
+		{
+			var file = this.getCurrentFile();
+
+			if (file != null && file.sync != null)
+			{
+				file.sync.sendCommentsChangedMessage();
+			}
+
+			this.refreshCommentCache();
+		}
+	};
+
+	/**
+	 * Returns the number of unresolved top-level comments in the cache.
+	 */
+	EditorUi.prototype.getUnresolvedCommentCount = function()
+	{
+		var cache = this.getCommentCacheTarget().commentCache;
+		var result = 0;
+
+		if (cache != null)
+		{
+			for (var i = 0; i < cache.length; i++)
+			{
+				if (!cache[i].isResolved)
+				{
+					result++;
+				}
+			}
+		}
+
+		return result;
+	};
+
+	/**
+	 * Returns the cells for the anchor of the given comment that still
+	 * exist (empty array if the page or all cells were deleted). Also
+	 * checks non-current pages.
+	 */
+	EditorUi.prototype.getCommentAnchorCells = function(comment)
+	{
+		var ids = comment.getAnchorCellIds();
+		var result = [];
+
+		if (ids != null && ids.length > 0)
+		{
+			var pageId = comment.getAnchorPageId();
+			var page = (pageId == null) ? this.currentPage : this.getPageById(pageId);
+
+			if (page != null)
+			{
+				if (page == this.currentPage)
+				{
+					for (var i = 0; i < ids.length; i++)
+					{
+						var cell = this.editor.graph.model.getCell(ids[i]);
+
+						if (cell != null)
+						{
+							result.push(cell);
+						}
+					}
+				}
+				else
+				{
+					try
+					{
+						this.updatePageRoot(page);
+					}
+					catch (e)
+					{
+						// Treats an unparseable page like a deleted one
+						return result;
+					}
+
+					if (page.root != null)
+					{
+						var remaining = {};
+						var count = 0;
+
+						for (var i = 0; i < ids.length; i++)
+						{
+							if (!remaining[ids[i]])
+							{
+								remaining[ids[i]] = true;
+								count++;
+							}
+						}
+
+						var collect = function(cell)
+						{
+							if (count > 0)
+							{
+								if (remaining[cell.getId()])
+								{
+									remaining[cell.getId()] = false;
+									result.push(cell);
+									count--;
+								}
+
+								for (var i = 0; i < cell.getChildCount(); i++)
+								{
+									collect(cell.getChildAt(i));
+								}
+							}
+						};
+
+						collect(page.root);
+					}
+				}
+			}
+		}
+
+		return result;
+	};
+
+	/**
+	 * Navigates to the anchor of the given comment: switches the page if
+	 * needed, then selects and scrolls to the anchor cell or restores the
+	 * anchor viewport. Returns true if the anchor was found.
+	 */
+	EditorUi.prototype.gotoCommentAnchor = function(comment)
+	{
+		var pageId = comment.getAnchorPageId();
+
+		if (pageId != null && this.currentPage != null &&
+			pageId != this.currentPage.getId())
+		{
+			var page = this.getPageById(pageId);
+
+			if (page == null)
+			{
+				return false;
+			}
+
+			this.selectPage(page);
+		}
+
+		var graph = this.editor.graph;
+		var cellIds = comment.getAnchorCellIds();
+
+		if (cellIds != null && cellIds.length > 0)
+		{
+			var cells = [];
+
+			for (var i = 0; i < cellIds.length; i++)
+			{
+				var cell = graph.model.getCell(cellIds[i]);
+
+				if (cell != null)
+				{
+					cells.push(cell);
+				}
+			}
+
+			if (cells.length > 0)
+			{
+				// Cells cannot be selected in read-only mode so they are
+				// highlighted instead
+				if (graph.isEnabled())
+				{
+					graph.setSelectionCells(cells);
+				}
+				else
+				{
+					graph.highlightCells(cells, '#0071e3', 2000);
+				}
+
+				graph.scrollCellToVisible(cells[0]);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		var rect = comment.getAnchorRect();
+
+		if (rect != null && rect.w > 0 && rect.h > 0)
+		{
+			graph.fitWindow(new mxRectangle(rect.x, rect.y, rect.w, rect.h), 0);
+		}
+
+		var pt = comment.getAnchorPoint();
+
+		if (pt != null)
+		{
+			// Centers the point at the current zoom and shows a short
+			// pulse marker at the location
+			var s = graph.view.scale;
+			var t = graph.view.translate;
+			var container = graph.container;
+
+			container.scrollLeft = Math.round((pt.x + t.x) * s - container.clientWidth / 2);
+			container.scrollTop = Math.round((pt.y + t.y) * s - container.clientHeight / 2);
+
+			var marker = document.createElement('div');
+			marker.className = 'geCommentAnchorMarker';
+			marker.style.left = Math.round((pt.x + t.x) * s) + 'px';
+			marker.style.top = Math.round((pt.y + t.y) * s) + 'px';
+			container.appendChild(marker);
+
+			window.setTimeout(function()
+			{
+				if (marker.parentNode != null)
+				{
+					marker.parentNode.removeChild(marker);
+				}
+			}, 2000);
+		}
+
+		return true;
+	};
+
+	/**
+	 * Adds a badge with the number of unresolved comments of the file to
+	 * the given toolbar button and keeps it up to date. Hidden at zero.
+	 */
+	EditorUi.prototype.addCommentsBadge = function(elt)
+	{
+		var badge = document.createElement('span');
+		badge.className = 'geCommentsBadge';
+		badge.style.display = 'none';
+		elt.appendChild(badge);
+
+		var update = mxUtils.bind(this, function()
+		{
+			var count = this.getUnresolvedCommentCount();
+
+			badge.style.display = (count > 0) ? '' : 'none';
+			badge.innerText = '';
+			mxUtils.write(badge, (count > 99) ? '99+' : String(count));
+		});
+
+		this.addListener('commentsChanged', update);
+		this.editor.addListener('fileLoaded', update);
+		update();
+
+		return badge;
+	};
+
+	/**
+	 * Makes the given comments toolbar button a drag source: dropping it
+	 * on a shape starts a comment anchored to that shape, dropping it on
+	 * an empty part of the canvas starts a comment anchored to that
+	 * point. Inactive for files without anchored comments.
+	 */
+	EditorUi.prototype.installCommentDragSource = function(elt)
+	{
+		var ui = this;
+
+		// Ghost shown under the pointer while dragging
+		var dragElt = document.createElement('div');
+		dragElt.style.width = '24px';
+		dragElt.style.height = '24px';
+		dragElt.style.backgroundImage = 'url(' + Editor.lightDarkCommentImage + ')';
+		dragElt.style.backgroundSize = '100% 100%';
+		dragElt.style.opacity = '0.9';
+
+		var dragSource = mxUtils.makeDraggable(elt, function()
+		{
+			return ui.editor.graph;
+		}, function(graph, evt, cell, x, y)
+		{
+			if (ui.currentPage != null && ui.menus != null &&
+				ui.menus.showCommentsWindow != null)
+			{
+				var anchor = (cell != null) ?
+					{p: ui.currentPage.getId(), c: cell.id} :
+					{p: ui.currentPage.getId(),
+						pt: {x: Math.round(x), y: Math.round(y)}};
+
+				ui.menus.showCommentsWindow(null, anchor);
+			}
+		}, dragElt);
+
+		// Mouse only: consuming the touchstart would suppress the tap on
+		// the button. Inactive for files without anchored comments.
+		var mouseDown = dragSource.mouseDown;
+
+		dragSource.mouseDown = function(evt)
+		{
+			if (mxEvent.isMouseEvent(evt) && !mxEvent.isPopupTrigger(evt) &&
+				ui.commentsSupported() && ui.anchoredCommentsSupported() &&
+				ui.canComment())
+			{
+				mouseDown.apply(this, arguments);
+			}
+		};
+
+		return dragSource;
+	};
+
+	/**
+	 * Updates the comment icons on the cells of the current page. Cells
+	 * with at least one unresolved comment anchored to them get a small
+	 * comment icon. The overlays are view-only and are never part of the
+	 * file or of exports.
+	 */
+	EditorUi.prototype.updateCommentOverlays = function()
+	{
+		var graph = this.editor.graph;
+
+		// Removes the current comment overlays (cells of a previous file
+		// are simply forgotten with the model)
+		if (this.commentOverlays != null)
+		{
+			for (var i = 0; i < this.commentOverlays.length; i++)
+			{
+				graph.removeCellOverlay(this.commentOverlays[i].cell,
+					this.commentOverlays[i].overlay);
+			}
+		}
+
+		this.commentOverlays = null;
+		var file = this.getCurrentFile();
+
+		if (file != null && file.anchoredCommentsSupported() &&
+			file.commentCache != null && !this.editor.isChromelessView())
+		{
+			var pageId = (this.currentPage != null) ? this.currentPage.getId() : null;
+			var cells = {};
+
+			for (var i = 0; i < file.commentCache.length; i++)
+			{
+				var comment = file.commentCache[i];
+				var ids = comment.getAnchorCellIds();
+
+				if (!comment.isResolved && ids != null &&
+					comment.getAnchorPageId() == pageId)
+				{
+					for (var j = 0; j < ids.length; j++)
+					{
+						cells[ids[j]] = true;
+					}
+				}
+			}
+
+			this.commentOverlays = [];
+
+			for (var id in cells)
+			{
+				(mxUtils.bind(this, function(cellId)
+				{
+					var cell = graph.model.getCell(cellId);
+
+					if (cell != null)
+					{
+						// Bottom right corner: top left and right belong to
+						// the tooltip and link icons, bottom left to the
+						// note icon
+						var overlay = new mxCellOverlay(new mxImage(
+							Editor.lightDarkCommentImage, 16, 16),
+							mxResources.get('comments'), mxConstants.ALIGN_RIGHT,
+							mxConstants.ALIGN_BOTTOM, new mxPoint(8, 8));
+						overlay.isCommentOverlay = true;
+						overlay.cursor = 'pointer';
+
+						overlay.addListener(mxEvent.CLICK, mxUtils.bind(this, function()
+						{
+							if (this.menus != null && this.menus.showCommentsWindow != null)
+							{
+								this.menus.showCommentsWindow(cellId);
+							}
+						}));
+
+						graph.addCellOverlay(cell, overlay);
+						this.commentOverlays.push({cell: cell, overlay: overlay});
+					}
+				}))(id);
+			}
+		}
 	};
 
 	/**
@@ -27189,8 +27965,12 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 {
 	var readOnly = !editorUi.canComment();
 	var canReplyToReplies = editorUi.canReplyToReplies();
+	var mentionsEnabled = editorUi.mentionsSupported();
+	var anchorsEnabled = editorUi.anchoredCommentsSupported();
+	var mentionCandidates = [];
+	var pendingScrollCell = null;
 	var curEdited = null;
-		
+
 	var div = document.createElement('div');
 	div.className = 'geCommentsWin';
 	// div.style.background = 'light-dark(whiteSmoke, ' + Editor.darkColor + ')';
@@ -27231,19 +28011,1017 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		
 		noComments.style.display = (visibleCount == 0) ? 'block' : 'none';
 	};
-	
+
+	// Loads the people with access to the file for resolving mention
+	// tokens to names and for the composer autocompletion
+	if (mentionsEnabled)
+	{
+		editorUi.getMentionCandidates(function(candidates)
+		{
+			mentionCandidates = candidates;
+
+			// Updates the chips that were rendered before the names arrived
+			var chips = listDiv.querySelectorAll('.geCommentMention[data-email]');
+
+			for (var i = 0; i < chips.length; i++)
+			{
+				chips[i].innerText = '';
+				mxUtils.write(chips[i], '@' + resolveMentionName(
+					chips[i].getAttribute('data-email')));
+			}
+		}, function()
+		{
+			// Without candidates mentions degrade to plain email tokens
+		});
+	}
+
+	function resolveMentionName(email)
+	{
+		for (var i = 0; i < mentionCandidates.length; i++)
+		{
+			if (mentionCandidates[i].email != null && email != null &&
+				mentionCandidates[i].email.toLowerCase() == email.toLowerCase())
+			{
+				return mentionCandidates[i].displayName || email;
+			}
+		}
+
+		return email;
+	};
+
+	function createMentionChip(email)
+	{
+		var chip = document.createElement('span');
+		chip.className = 'geCommentMention';
+		chip.setAttribute('data-email', email);
+		chip.contentEditable = 'false';
+		mxUtils.write(chip, '@' + resolveMentionName(email));
+
+		return chip;
+	};
+
+	// Writes the comment content into the given element, rendering
+	// +email/@email mention tokens as name chips
+	function writeCommentText(elt, content)
+	{
+		elt.innerText = '';
+		content = (content != null) ? content : '';
+
+		if (!mentionsEnabled)
+		{
+			mxUtils.write(elt, content);
+		}
+		else
+		{
+			var re = /[+@]([A-Za-z0-9.!#$%&'*/=?^_`{|}~+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,})/g;
+			var last = 0;
+			var match = null;
+
+			while ((match = re.exec(content)) != null)
+			{
+				if (match.index > last)
+				{
+					mxUtils.write(elt, content.substring(last, match.index));
+				}
+
+				elt.appendChild(createMentionChip(match[1]));
+				last = match.index + match[0].length;
+			}
+
+			if (last < content.length)
+			{
+				mxUtils.write(elt, content.substring(last));
+			}
+		}
+	};
+
+	// Single-stroke icons for the anchor chips, in the style of the
+	// selector chips in the animation dialog (currentColor keeps them
+	// working in light and dark mode)
+	var anchorTargetIcon = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" ' +
+		'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
+		'stroke-linejoin="round" aria-hidden="true">' +
+		'<circle cx="8" cy="8" r="5"/><circle cx="8" cy="8" r="1.5" ' +
+		'fill="currentColor" stroke="none"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2"/></svg>';
+	var anchorPageIcon = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" ' +
+		'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
+		'stroke-linejoin="round" aria-hidden="true">' +
+		'<path d="M4 1.5h5.5L12.5 4.5v10h-8.5z M9.5 1.5v3h3"/></svg>';
+	var anchorPointIcon = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" ' +
+		'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
+		'stroke-linejoin="round" aria-hidden="true">' +
+		'<path d="M8 14.5s4.5-4.2 4.5-8a4.5 4.5 0 1 0-9 0c0 3.8 4.5 8 4.5 8z"/>' +
+		'<circle cx="8" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>';
+	var anchorRegionIcon = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" ' +
+		'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
+		'stroke-linejoin="round" aria-hidden="true">' +
+		'<rect x="2.5" y="4" width="11" height="8" rx="1" stroke-dasharray="2.6 2.2"/></svg>';
+	var anchorAttachIcon = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" ' +
+		'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
+		'stroke-linejoin="round" aria-hidden="true">' +
+		'<path d="M8 2v8M4.5 6.5L8 10l3.5-3.5M3 13h10"/></svg>';
+	var mentionGroupIcon = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" ' +
+		'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
+		'stroke-linejoin="round" aria-hidden="true">' +
+		'<circle cx="6" cy="5.5" r="2.4"/>' +
+		'<path d="M1.5 13.5c0-2.6 2-3.9 4.5-3.9s4.5 1.3 4.5 3.9"/>' +
+		'<circle cx="11.3" cy="6" r="2"/>' +
+		'<path d="M12.3 10.1c1.6.5 2.2 1.6 2.2 3.4"/></svg>';
+
+	// One-shot mode to pick an anchor on the canvas: a click sets a point,
+	// in region mode a drag frames an area. Escape or a click outside of
+	// the canvas cancels. The graph is disabled while picking so nothing
+	// is selected or moved.
+	function startAnchorPick(comment, row, editable, region)
+	{
+		var graph = editorUi.editor.graph;
+		var container = graph.container;
+		var wasEnabled = graph.isEnabled();
+		var preview = null;
+		var first = null;
+		var firstClient = null;
+		var last = null;
+		var lastClient = null;
+
+		graph.setEnabled(false);
+
+		// Dims the diagram and forces the crosshair cursor to show that
+		// a location is being picked
+		container.classList.add('geCommentAnchorPicking');
+
+		// The pick has precedence over anything under the mouse, eg. the
+		// click actions of the link and comment icons (which stop the
+		// propagation on their own nodes), so all listeners are captured
+		// at the document and gestures over the diagram are consumed
+		// before they reach the icons or the graph
+		var pickEvents = (mxClient.IS_POINTER) ?
+			{down: ['pointerdown'], move: ['pointermove'], up: ['pointerup']} :
+			{down: ['mousedown', 'touchstart'], move: ['mousemove', 'touchmove'],
+			up: ['mouseup', 'touchend']};
+
+		function forEachPickEvent(fn)
+		{
+			for (var kind in pickEvents)
+			{
+				for (var i = 0; i < pickEvents[kind].length; i++)
+				{
+					fn(pickEvents[kind][i], (kind == 'down') ? down :
+						((kind == 'move') ? move : up));
+				}
+			}
+		};
+
+		// Swallows the click that the browser fires after the final
+		// gesture so the icons under the mouse are not activated
+		var clickBlocker = function(evt)
+		{
+			if (container.contains(mxEvent.getSource(evt)))
+			{
+				mxEvent.consume(evt);
+			}
+		};
+
+		function toGraphPoint(evt)
+		{
+			var pt = mxUtils.convertPoint(container,
+				mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+
+			return new mxPoint(pt.x / graph.view.scale - graph.view.translate.x,
+				pt.y / graph.view.scale - graph.view.translate.y);
+		};
+
+		function cleanUp()
+		{
+			forEachPickEvent(function(name, handler)
+			{
+				document.removeEventListener(name, handler, true);
+			});
+
+			// Captured so Escape only ends the picking, not the composer
+			document.removeEventListener('keydown', keyHandler, true);
+
+			// The suppressed click of the final gesture fires after the
+			// mouseup so the blocker is removed deferred
+			window.setTimeout(function()
+			{
+				document.removeEventListener('click', clickBlocker, true);
+			}, 0);
+
+			container.classList.remove('geCommentAnchorPicking');
+			graph.setEnabled(wasEnabled);
+
+			if (preview != null && preview.parentNode != null)
+			{
+				preview.parentNode.removeChild(preview);
+			}
+		};
+
+		function finish(anchor)
+		{
+			cleanUp();
+
+			if (anchor != null)
+			{
+				comment.anchor = anchor;
+				renderAnchorRow(comment, row, editable);
+			}
+		};
+
+		var keyHandler = function(evt)
+		{
+			if (evt.keyCode == 27 /* Escape */)
+			{
+				finish(null);
+				mxEvent.consume(evt);
+			}
+		};
+
+		var down = function(evt)
+		{
+			// A gesture outside of the diagram cancels the mode
+			if (!container.contains(mxEvent.getSource(evt)))
+			{
+				finish(null);
+
+				return;
+			}
+
+			first = toGraphPoint(evt);
+			firstClient = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+
+			if (region)
+			{
+				preview = document.createElement('div');
+				preview.className = 'geCommentAnchorPickPreview';
+				container.appendChild(preview);
+			}
+
+			mxEvent.consume(evt);
+		};
+
+		var move = function(evt)
+		{
+			if (first != null)
+			{
+				last = toGraphPoint(evt);
+				lastClient = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+
+				if (preview != null)
+				{
+					var s = graph.view.scale;
+					var t = graph.view.translate;
+
+					preview.style.left = Math.round((Math.min(first.x, last.x) + t.x) * s) + 'px';
+					preview.style.top = Math.round((Math.min(first.y, last.y) + t.y) * s) + 'px';
+					preview.style.width = Math.round(Math.abs(last.x - first.x) * s) + 'px';
+					preview.style.height = Math.round(Math.abs(last.y - first.y) * s) + 'px';
+					mxEvent.consume(evt);
+				}
+			}
+		};
+
+		var up = function(evt)
+		{
+			if (first == null)
+			{
+				return;
+			}
+
+			if (editorUi.currentPage == null)
+			{
+				finish(null);
+
+				return;
+			}
+
+			var pageId = editorUi.currentPage.getId();
+
+			if (!region)
+			{
+				finish({p: pageId, pt: {x: Math.round(first.x), y: Math.round(first.y)}});
+			}
+			else
+			{
+				// touchend has no coordinates so the last move wins
+				var cur = last;
+				var curClient = lastClient;
+
+				try
+				{
+					cur = toGraphPoint(evt);
+					curClient = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+				}
+				catch (e)
+				{
+					// ignore
+				}
+
+				// Drags below the click threshold cancel the mode
+				if (cur == null || curClient == null ||
+					(Math.abs(curClient.x - firstClient.x) < 4 &&
+					Math.abs(curClient.y - firstClient.y) < 4))
+				{
+					finish(null);
+				}
+				else
+				{
+					finish({p: pageId, r: {
+						x: Math.round(Math.min(first.x, cur.x)),
+						y: Math.round(Math.min(first.y, cur.y)),
+						w: Math.round(Math.abs(cur.x - first.x)),
+						h: Math.round(Math.abs(cur.y - first.y))}});
+				}
+			}
+
+			mxEvent.consume(evt);
+		};
+
+		// Deferred so the click that started the mode is not captured
+		window.setTimeout(function()
+		{
+			forEachPickEvent(function(name, handler)
+			{
+				document.addEventListener(name, handler, true);
+			});
+
+			document.addEventListener('click', clickBlocker, true);
+			document.addEventListener('keydown', keyHandler, true);
+		}, 0);
+	};
+
+	// Clips anchor chip labels to a reasonable length
+	function clipAnchorLabel(label)
+	{
+		label = (label != null) ? mxUtils.trim(label.replace(/\s+/g, ' ')) : '';
+
+		if (label.length > 25)
+		{
+			label = label.substring(0, 25) + '…';
+		}
+
+		return label;
+	};
+
+	// Returns the plain text label of the given cell for the anchor chip.
+	// getLabel resolves placeholders like the rendered label on the canvas.
+	function getAnchorCellLabel(cell)
+	{
+		var label = '';
+
+		try
+		{
+			var value = editorUi.editor.graph.getLabel(cell);
+
+			if (typeof value === 'string')
+			{
+				label = Editor.convertHtmlToText(value);
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+
+		return clipAnchorLabel(label) || mxResources.get('shape');
+	};
+
+	// Renders the anchor chips of the given comment into row: a chip that
+	// jumps to the shape, page or viewport the comment is attached to and,
+	// while composing, a menu chip to attach the selected shape, the
+	// current page or the current viewport, and a control to remove the
+	// anchor before saving (stored anchors are immutable in the APIs)
+	function renderAnchorRow(comment, row, editable)
+	{
+		row.innerText = '';
+		row.style.display = '';
+
+		function addRemoveControl(chip)
+		{
+			if (editable)
+			{
+				var removeElt = document.createElement('span');
+				removeElt.className = 'geCommentAnchorRemove';
+				removeElt.setAttribute('title', mxResources.get('remove'));
+				mxUtils.write(removeElt, '×');
+
+				mxEvent.addListener(removeElt, 'click', function(evt)
+				{
+					comment.anchor = null;
+					renderAnchorRow(comment, row, editable);
+					evt.preventDefault();
+					mxEvent.consume(evt);
+				});
+
+				chip.appendChild(removeElt);
+			}
+		};
+
+		function addJumpChip(icon, labelText, title, deleted)
+		{
+			var chip = document.createElement((!deleted) ? 'a' : 'span');
+			chip.className = 'geCommentAnchorChip' +
+				((deleted) ? ' geCommentAnchorChipDeleted' : '');
+			chip.innerHTML = icon;
+
+			var label = document.createElement('span');
+			mxUtils.write(label, labelText);
+			chip.appendChild(label);
+
+			if (!deleted)
+			{
+				if (title != null)
+				{
+					chip.setAttribute('title', title);
+				}
+
+				mxEvent.addListener(chip, 'click', function(evt)
+				{
+					editorUi.gotoCommentAnchor(comment);
+					evt.preventDefault();
+					mxEvent.consume(evt);
+				});
+			}
+
+			addRemoveControl(chip);
+			row.appendChild(chip);
+		};
+
+		if (comment.getAnchorCellId() != null)
+		{
+			var cells = editorUi.getCommentAnchorCells(comment);
+			var chipLabel = null;
+			var chipTitle = null;
+
+			if (cells.length == 0)
+			{
+				chipLabel = mxResources.get('shapeDeleted');
+			}
+			else if (cells.length == 1)
+			{
+				chipLabel = getAnchorCellLabel(cells[0]);
+				chipTitle = mxResources.get('shape');
+			}
+			else
+			{
+				// Multiple cells are labelled with their count like the
+				// selector chips in the animation dialog
+				chipLabel = cells.length + ' ' + mxResources.get('cells');
+				var labels = [];
+
+				for (var i = 0; i < cells.length; i++)
+				{
+					labels.push(getAnchorCellLabel(cells[i]));
+				}
+
+				chipTitle = labels.join('\n');
+			}
+
+			addJumpChip(anchorTargetIcon, chipLabel, chipTitle, cells.length == 0);
+		}
+		else if (comment.getAnchorPageId() != null)
+		{
+			var page = editorUi.getPageById(comment.getAnchorPageId());
+			var icon = anchorPageIcon;
+			var kind = null;
+
+			if (comment.getAnchorRect() != null)
+			{
+				icon = anchorRegionIcon;
+				kind = 'area';
+			}
+			else if (comment.getAnchorPoint() != null)
+			{
+				icon = anchorPointIcon;
+				kind = 'point';
+			}
+
+			// Point and area chips are labelled by their kind, page chips
+			// by the page name (which is shown as the tooltip otherwise)
+			var chipLabel = (page == null) ? mxResources.get('pageNotFound') :
+				((kind != null) ? mxResources.get(kind) :
+				(clipAnchorLabel(page.getName()) || mxResources.get('page')));
+
+			addJumpChip(icon, chipLabel, (page != null) ?
+				(page.getName() || mxResources.get('page')) : null, page == null);
+		}
+		else if (editable)
+		{
+			// Menu to attach the comment to the selected shape, the
+			// current page or the current viewport
+			var attach = document.createElement('a');
+			attach.className = 'geCommentAnchorChip geCommentAnchorAttach';
+			attach.setAttribute('title', mxResources.get('attach'));
+			attach.innerHTML = anchorAttachIcon;
+
+			var label = document.createElement('span');
+			mxUtils.write(label, mxResources.get('attach'));
+			attach.appendChild(label);
+
+			var menuDiv = null;
+			var downHandler = null;
+
+			function hideAttachMenu()
+			{
+				if (menuDiv != null && menuDiv.parentNode != null)
+				{
+					menuDiv.parentNode.removeChild(menuDiv);
+				}
+
+				menuDiv = null;
+
+				if (downHandler != null)
+				{
+					mxEvent.removeListener(document, 'mousedown', downHandler);
+					downHandler = null;
+				}
+			};
+
+			function addAttachOption(icon, labelText, fn)
+			{
+				var opt = document.createElement('div');
+				opt.className = 'geCommentMentionRow';
+				opt.innerHTML = icon;
+
+				var optLabel = document.createElement('span');
+				mxUtils.write(optLabel, labelText);
+				opt.appendChild(optLabel);
+
+				mxEvent.addListener(opt, 'mousedown', function(evt)
+				{
+					hideAttachMenu();
+					fn();
+					renderAnchorRow(comment, row, editable);
+					evt.preventDefault();
+					mxEvent.consume(evt);
+				});
+
+				menuDiv.appendChild(opt);
+			};
+
+			mxEvent.addListener(attach, 'click', function(evt)
+			{
+				if (menuDiv != null)
+				{
+					hideAttachMenu();
+				}
+				else if (editorUi.currentPage != null)
+				{
+					var graph = editorUi.editor.graph;
+					var pageId = editorUi.currentPage.getId();
+					menuDiv = document.createElement('div');
+					menuDiv.className = 'geCommentMentionMenu';
+
+					if (graph.getSelectionCount() == 1)
+					{
+						addAttachOption(anchorTargetIcon,
+							getAnchorCellLabel(graph.getSelectionCell()), function()
+						{
+							comment.anchor = {p: pageId, c: graph.getSelectionCell().id};
+						});
+					}
+					else if (graph.getSelectionCount() > 1)
+					{
+						addAttachOption(anchorTargetIcon, graph.getSelectionCount() +
+							' ' + mxResources.get('cells'), function()
+						{
+							var cells = graph.getSelectionCells();
+							var ids = [];
+
+							for (var i = 0; i < cells.length; i++)
+							{
+								ids.push(cells[i].id);
+							}
+
+							comment.anchor = {p: pageId, c: ids};
+						});
+					}
+
+					addAttachOption(anchorPointIcon, mxResources.get('point') + '…', function()
+					{
+						startAnchorPick(comment, row, editable, false);
+					});
+
+					addAttachOption(anchorRegionIcon, mxResources.get('area') + '…', function()
+					{
+						startAnchorPick(comment, row, editable, true);
+					});
+
+					addAttachOption(anchorPageIcon, mxResources.get('currentPage'), function()
+					{
+						comment.anchor = {p: pageId};
+					});
+
+					menuDiv.style.left = attach.offsetLeft + 'px';
+					menuDiv.style.top = (attach.offsetTop + attach.offsetHeight + 2) + 'px';
+					row.parentNode.insertBefore(menuDiv, row.nextSibling);
+
+					// Closes the menu on clicks outside of it
+					downHandler = function(evt2)
+					{
+						var source = mxEvent.getSource(evt2);
+
+						if (menuDiv != null && source != attach && !attach.contains(source) &&
+							!menuDiv.contains(source))
+						{
+							hideAttachMenu();
+						}
+					};
+
+					mxEvent.addListener(document, 'mousedown', downHandler);
+				}
+
+				evt.preventDefault();
+				mxEvent.consume(evt);
+			});
+
+			row.appendChild(attach);
+		}
+		else
+		{
+			row.style.display = 'none';
+		}
+	};
+
+	// Returns the content of the given comment editor. Mention chips are
+	// serialized as +email tokens which Drive detects server-side and
+	// notifies the mentioned person about
+	function getCommentEditorValue(elt)
+	{
+		if (elt.nodeName == 'TEXTAREA')
+		{
+			return elt.value;
+		}
+		else
+		{
+			var result = [];
+
+			var walk = function(node)
+			{
+				for (var child = node.firstChild; child != null; child = child.nextSibling)
+				{
+					if (child.nodeType == 3)
+					{
+						result.push(child.nodeValue);
+					}
+					else if (child.nodeType == 1)
+					{
+						if (child.nodeName == 'BR')
+						{
+							result.push('\n');
+						}
+						else if (child.getAttribute != null &&
+							child.getAttribute('data-email') != null)
+						{
+							result.push('+' + child.getAttribute('data-email'));
+						}
+						else
+						{
+							// Block elements start a new line (contenteditable
+							// wraps lines in divs)
+							if ((child.nodeName == 'DIV' || child.nodeName == 'P') &&
+								result.length > 0 && result[result.length - 1] != '\n' &&
+								!/\n$/.test(result[result.length - 1]))
+							{
+								result.push('\n');
+							}
+
+							walk(child);
+						}
+					}
+				}
+			};
+
+			walk(elt);
+
+			return result.join('').replace(/\u00a0/g, ' ');
+		}
+	};
+
+	// Adds the @mention autocompletion to the given contenteditable editor
+	function installMentionHandler(elt)
+	{
+		var menuDiv = null;
+		var selected = 0;
+		var matches = [];
+		var current = null;
+
+		function hideMenu()
+		{
+			if (menuDiv != null && menuDiv.parentNode != null)
+			{
+				menuDiv.parentNode.removeChild(menuDiv);
+			}
+
+			menuDiv = null;
+			current = null;
+		};
+
+		// Finds an @query between an @ and the caret in the current text node
+		function findQuery()
+		{
+			var sel = window.getSelection();
+
+			if (sel == null || sel.rangeCount == 0)
+			{
+				return null;
+			}
+
+			var range = sel.getRangeAt(0);
+
+			if (!range.collapsed || range.startContainer.nodeType != 3 ||
+				!elt.contains(range.startContainer))
+			{
+				return null;
+			}
+
+			var text = range.startContainer.nodeValue.substring(0, range.startOffset);
+
+			// The last @ after a whitespace or the start of the text. The
+			// query may contain another @ for typing complete addresses.
+			var match = /(^|[\s\u00a0])@([^\s\u00a0]*)$/.exec(text);
+
+			if (match == null)
+			{
+				return null;
+			}
+
+			return {node: range.startContainer, start: match.index + match[1].length,
+				end: range.startOffset, query: match[2]};
+		};
+
+		function applyMention(candidate)
+		{
+			if (current == null)
+			{
+				return;
+			}
+
+			var node = current.node;
+			var rest = node.nodeValue.substring(current.end);
+			node.nodeValue = node.nodeValue.substring(0, current.start);
+
+			var chip = createMentionChip(candidate.email);
+			var space = document.createTextNode('\u00a0' + rest);
+			node.parentNode.insertBefore(chip, node.nextSibling);
+			chip.parentNode.insertBefore(space, chip.nextSibling);
+
+			var sel = window.getSelection();
+			var range = document.createRange();
+			range.setStart(space, 1);
+			range.collapse(true);
+			sel.removeAllRanges();
+			sel.addRange(range);
+
+			hideMenu();
+		};
+
+		function updateMenu()
+		{
+			current = findQuery();
+
+			if (current == null)
+			{
+				hideMenu();
+
+				return;
+			}
+
+			var query = current.query.toLowerCase();
+			matches = [];
+
+			for (var i = 0; i < mentionCandidates.length && matches.length < 6; i++)
+			{
+				var cand = mentionCandidates[i];
+
+				if (query.length == 0 ||
+					(cand.displayName != null && cand.displayName.toLowerCase().indexOf(query) >= 0) ||
+					(cand.email != null && cand.email.toLowerCase().indexOf(query) >= 0))
+				{
+					matches.push(cand);
+				}
+			}
+
+			// Offers a complete typed address as a mention target, eg. for
+			// people with access via a domain-wide share
+			if (/^[A-Za-z0-9.!#$%&'*/=?^_`{|}~+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/.test(current.query))
+			{
+				var exists = false;
+
+				for (var i = 0; i < matches.length; i++)
+				{
+					if (matches[i].email != null &&
+						matches[i].email.toLowerCase() == query)
+					{
+						exists = true;
+						break;
+					}
+				}
+
+				if (!exists)
+				{
+					matches.push({email: current.query});
+				}
+			}
+
+			if (matches.length == 0)
+			{
+				hideMenu();
+
+				return;
+			}
+
+			selected = Math.min(selected, matches.length - 1);
+
+			if (menuDiv == null)
+			{
+				menuDiv = document.createElement('div');
+				menuDiv.className = 'geCommentMentionMenu';
+				elt.parentNode.insertBefore(menuDiv, elt.nextSibling);
+			}
+
+			menuDiv.style.left = elt.offsetLeft + 'px';
+			menuDiv.style.top = (elt.offsetTop + elt.offsetHeight) + 'px';
+			menuDiv.innerText = '';
+
+			for (var i = 0; i < matches.length; i++)
+			{
+				(function(cand, index)
+				{
+					var row = document.createElement('div');
+					row.className = 'geCommentMentionRow' +
+						((index == selected) ? ' geCommentMentionRowSelected' : '');
+
+					var img = null;
+
+					if (cand.pictureUrl == null && cand.isGroup)
+					{
+						img = document.createElement('span');
+						img.className = 'geCommentMentionImg';
+						img.innerHTML = mentionGroupIcon;
+					}
+					else
+					{
+						img = document.createElement('img');
+						img.className = 'geCommentMentionImg';
+						img.src = (cand.pictureUrl != null) ? cand.pictureUrl : Editor.userImage;
+					}
+
+					row.appendChild(img);
+
+					var name = document.createElement('span');
+					mxUtils.write(name, cand.displayName || cand.email);
+					row.appendChild(name);
+
+					if (cand.isGroup)
+					{
+						var groupTag = document.createElement('span');
+						groupTag.className = 'geCommentMentionGroupTag';
+						mxUtils.write(groupTag, mxResources.get('group'));
+						row.appendChild(groupTag);
+					}
+
+					if (cand.displayName != null && cand.email != null)
+					{
+						var mail = document.createElement('span');
+						mail.className = 'geCommentMentionMail';
+						mxUtils.write(mail, cand.email);
+						row.appendChild(mail);
+					}
+
+					// mousedown keeps the selection in the editor alive
+					mxEvent.addListener(row, 'mousedown', function(evt)
+					{
+						applyMention(cand);
+						evt.preventDefault();
+						mxEvent.consume(evt);
+					});
+
+					menuDiv.appendChild(row);
+				})(matches[i], i);
+			}
+		};
+
+		mxEvent.addListener(elt, 'keydown', function(evt)
+		{
+			if (menuDiv != null && !mxEvent.isConsumed(evt))
+			{
+				if (evt.keyCode == 40 /* Down */ || evt.keyCode == 38 /* Up */)
+				{
+					selected = (selected + ((evt.keyCode == 40) ? 1 : matches.length - 1)) %
+						matches.length;
+					updateMenu();
+					evt.preventDefault();
+					mxEvent.consume(evt);
+				}
+				else if ((evt.keyCode == 13 /* Enter */ || evt.keyCode == 9 /* Tab */) &&
+					!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt))
+				{
+					applyMention(matches[selected]);
+					evt.preventDefault();
+					mxEvent.consume(evt);
+				}
+				else if (evt.keyCode == 27 /* Escape */)
+				{
+					hideMenu();
+					evt.preventDefault();
+					mxEvent.consume(evt);
+				}
+			}
+		});
+
+		mxEvent.addListener(elt, 'input', updateMenu);
+
+		mxEvent.addListener(elt, 'keyup', function(evt)
+		{
+			// Caret moves do not fire input events
+			if (evt.keyCode == 37 || evt.keyCode == 39 ||
+				evt.keyCode == 35 || evt.keyCode == 36)
+			{
+				updateMenu();
+			}
+		});
+
+		mxEvent.addListener(elt, 'blur', function()
+		{
+			// Deferred so a click on a row is applied first
+			window.setTimeout(hideMenu, 200);
+		});
+
+		// Pastes as plain text so no markup enters the composer
+		mxEvent.addListener(elt, 'paste', function(evt)
+		{
+			evt.preventDefault();
+			var text = (evt.clipboardData != null) ?
+				evt.clipboardData.getData('text/plain') : null;
+
+			if (text != null && text.length > 0)
+			{
+				document.execCommand('insertText', false, text);
+			}
+		});
+	};
+
+	// Returns a new comment editor, a textarea or, with mentions enabled,
+	// a contenteditable element that supports mention chips
+	function createCommentEditor(content, minHeight)
+	{
+		var elt = null;
+
+		if (!mentionsEnabled)
+		{
+			elt = document.createElement('textarea');
+			elt.value = content;
+		}
+		else
+		{
+			elt = document.createElement('div');
+			elt.contentEditable = true;
+			writeCommentText(elt, content);
+			installMentionHandler(elt);
+		}
+
+		elt.className = 'geCommentEditTxtArea';
+		elt.style.minHeight = minHeight + 'px';
+
+		return elt;
+	};
+
 	function editComment(comment, cdiv, saveCallback, deleteOnCancel)
 	{
 		curEdited = {div: cdiv, comment: comment, saveCallback: saveCallback, deleteOnCancel: deleteOnCancel};
-		
+
 		var commentTxt = cdiv.querySelector('.geCommentTxt');
 		var actionsDiv = cdiv.querySelector('.geCommentActionsList');
-		
-		var textArea = document.createElement('textarea');
-		textArea.className = 'geCommentEditTxtArea';
-		textArea.style.minHeight = commentTxt.offsetHeight + 'px';
-		textArea.value = comment.content;
+
+		// Removes the editor of a previous edit of this comment, eg. when
+		// the list was refreshed while the comment was being edited
+		var oldEditors = cdiv.querySelectorAll(
+			'.geCommentEditTxtArea, .geCommentEditBtns, .geCommentAnchorRowEdit');
+
+		for (var i = 0; i < oldEditors.length; i++)
+		{
+			if (oldEditors[i].parentNode == cdiv)
+			{
+				cdiv.removeChild(oldEditors[i]);
+			}
+		}
+
+		var textArea = createCommentEditor(comment.content, commentTxt.offsetHeight);
 		cdiv.insertBefore(textArea, commentTxt);
+
+		// Chip to attach the comment to the selected shape, the current
+		// page or the current viewport, to jump to the anchor and to
+		// remove it. Only while composing a new comment as anchors are
+		// immutable once stored.
+		var anchorRow = null;
+
+		if (anchorsEnabled && comment.id == null && comment.pCommentId == null)
+		{
+			anchorRow = document.createElement('div');
+			anchorRow.className = 'geCommentAnchorRow geCommentAnchorRowEdit';
+			renderAnchorRow(comment, anchorRow, true);
+			cdiv.insertBefore(anchorRow, commentTxt);
+		}
 		
 		var btnDiv = document.createElement('div');
 		btnDiv.className = 'geCommentEditBtns';
@@ -27267,7 +29045,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 			{
 				reset();
 			}
-			
+
 			curEdited = null;
 		});
 		
@@ -27276,10 +29054,16 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		
 		var saveBtn = mxUtils.button(mxResources.get('save'), function()
 		{
-			commentTxt.innerText = '';
-			comment.content = textArea.value;
-			mxUtils.write(commentTxt, comment.content);
+			comment.content = getCommentEditorValue(textArea);
+			writeCommentText(commentTxt, comment.content);
 			reset();
+
+			// The anchor is immutable once the comment is stored
+			if (anchorRow != null)
+			{
+				renderAnchorRow(comment, anchorRow, false);
+			}
+
 			saveCallback(comment);
 			curEdited = null;
 		});
@@ -27406,9 +29190,29 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		headerTxt.appendChild(dateDiv);
 		cdiv.appendChild(headerDiv);
 		
+		// Shows a chip that jumps to the anchor on anchored comments (the
+		// chip while composing is added by editComment)
+		if (anchorsEnabled && level == 0 && comment.getAnchorCellId != null &&
+			comment.anchor != null)
+		{
+			if (comment.getAnchorCellIds() != null)
+			{
+				cdiv.setAttribute('data-anchor-cell',
+					comment.getAnchorCellIds().join(','));
+			}
+
+			if (comment.id != null)
+			{
+				var anchorRow = document.createElement('div');
+				anchorRow.className = 'geCommentAnchorRow';
+				renderAnchorRow(comment, anchorRow, false);
+				cdiv.appendChild(anchorRow);
+			}
+		}
+
 		var commentTxtDiv = document.createElement('div');
 		commentTxtDiv.className = 'geCommentTxt';
-		mxUtils.write(commentTxtDiv, comment.content || '');
+		writeCommentText(commentTxtDiv, comment.content);
 		cdiv.appendChild(commentTxtDiv);
 		
 		if (comment.isLocked)
@@ -27487,9 +29291,10 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 					newReply.id = id;
 					comment.replies.push(newReply);
 					showDone(replyComment);
-					
+
 					if (saveCallback) saveCallback();
-					
+
+					editorUi.commentsUpdated();
 				}, function(err)
 				{
 					doEdit();
@@ -27542,6 +29347,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 						comment.editComment(comment.content, function()
 						{
 							showDone(cdiv);
+							editorUi.commentsUpdated();
 						}, function(err)
 						{
 							showError(cdiv);
@@ -27599,6 +29405,8 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 							
 							noComments.style.display = (listDiv.getElementsByTagName('div').length == 0) ? 'block' : 'none';
 						}
+
+						editorUi.commentsUpdated();
 					}, function(err)
 					{
 						showError(cdiv);
@@ -27696,43 +29504,58 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		return cdiv;
 	};
 
+	// Starts composing a new comment, optionally anchored to a shape
+	var startNewComment = mxUtils.bind(this, function(anchor)
+	{
+		if (readOnly)
+		{
+			return;
+		}
+
+		var newComment = editorUi.newComment('', editorUi.getCurrentUser());
+		newComment.anchor = (anchor != null) ? anchor : null;
+		var newCommentDiv = addComment(newComment, comments, null, 0);
+
+		function doAddComment()
+		{
+			editComment(newComment, newCommentDiv, function(newComment)
+			{
+				showBusy(newCommentDiv);
+
+				editorUi.addComment(newComment, function(id)
+				{
+					newComment.id = id;
+					comments.push(newComment);
+					showDone(newCommentDiv);
+					editorUi.commentsUpdated();
+				}, function(err)
+				{
+					showError(newCommentDiv);
+					doAddComment();
+					editorUi.handleError(err, null, null, null,
+						mxUtils.htmlEntities(mxResources.get('objectNotFound')));
+				});
+			}, true);
+		}
+
+		doAddComment();
+	});
+
+	this.startNewComment = startNewComment;
+
 	if (!readOnly)
 	{
 		var addLink = link.cloneNode();
 		addLink.style.backgroundImage = 'url(' + Editor.plusImage + ')';
 		addLink.setAttribute('title', mxResources.get('create') + '...');
-		
+
 		mxEvent.addListener(addLink, 'click', function(evt)
 		{
-			var newComment = editorUi.newComment('', editorUi.getCurrentUser());
-			var newCommentDiv = addComment(newComment, comments, null, 0);
-			
-			function doAddComment()
-			{
-				editComment(newComment, newCommentDiv, function(newComment)
-				{
-					showBusy(newCommentDiv);
-					
-					editorUi.addComment(newComment, function(id)
-					{
-						newComment.id = id;
-						comments.push(newComment);
-						showDone(newCommentDiv);
-					}, function(err)
-					{
-						showError(newCommentDiv);
-						doAddComment();
-						editorUi.handleError(err, null, null, null,
-							mxUtils.htmlEntities(mxResources.get('objectNotFound')));
-					});
-				}, true);
-			}
-			
-			doAddComment();
+			startNewComment();
 			evt.preventDefault();
 			mxEvent.consume(evt);
 		});
-		
+
 		ldiv.appendChild(addLink);
 	}
 
@@ -27800,10 +29623,106 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 
 	var comments = [];
 
+	// Scrolls to the first comment anchored to the given cell. The target
+	// is kept for the next render unless clear is set.
+	var applyPendingScroll = function(clear)
+	{
+		if (pendingScrollCell != null)
+		{
+			var children = listDiv.childNodes;
+
+			for (var i = 0; i < children.length; i++)
+			{
+				if (children[i].getAttribute != null &&
+					children[i].getAttribute('data-anchor-cell') != null &&
+					mxUtils.indexOf(children[i].getAttribute('data-anchor-cell').split(','),
+						pendingScrollCell) >= 0)
+				{
+					listDiv.scrollTop = children[i].offsetTop - listDiv.offsetTop;
+					pendingScrollCell = null;
+
+					break;
+				}
+			}
+
+			if (clear)
+			{
+				pendingScrollCell = null;
+			}
+		}
+	};
+
+	this.scrollToCell = function(cellId)
+	{
+		pendingScrollCell = cellId;
+		applyPendingScroll(false);
+	};
+
+	// Renders the given comments, preserving the scroll position and a
+	// comment that is currently being composed or edited
+	var renderComments = mxUtils.bind(this, function(list)
+	{
+		function sortReplies(replies)
+		{
+			if (replies != null)
+			{
+				//Sort replies old to new
+				replies.sort(function(r1, r2)
+				{
+					return new Date(r1.modifiedDate) - new Date(r2.modifiedDate);
+				});
+
+				for (var i = 0; i < replies.length; i++)
+				{
+					sortReplies(replies[i].replies);
+				}
+			}
+		};
+
+		//Sort comments old to new
+		list.sort(function(c1, c2)
+		{
+			return new Date(c1.modifiedDate) - new Date(c2.modifiedDate);
+		});
+
+		// Keeps the text of a composer that is still in the list
+		if (curEdited != null)
+		{
+			var editorElt = curEdited.div.querySelector('.geCommentEditTxtArea');
+
+			if (editorElt != null)
+			{
+				curEdited.comment.content = getCommentEditorValue(editorElt);
+			}
+		}
+
+		var scrollTop = listDiv.scrollTop;
+		listDiv.innerText = '';
+		listDiv.appendChild(noComments);
+		noComments.style.display = 'block';
+		comments = list;
+
+		for (var i = 0; i < comments.length; i++)
+		{
+			sortReplies(comments[i].replies);
+			addComment(comments[i], comments, null, 0, resolvedChecked);
+		}
+
+		//New comment case
+		if (curEdited != null && curEdited.comment.id == null && curEdited.comment.pCommentId == null)
+		{
+			listDiv.appendChild(curEdited.div);
+			editComment(curEdited.comment, curEdited.div, curEdited.saveCallback, curEdited.deleteOnCancel);
+		}
+
+		listDiv.scrollTop = scrollTop;
+		applyPendingScroll(true);
+	});
+
 	var refresh = mxUtils.bind(this, function()
 	{
 		this.hasError = false;
-		
+
 		if (curEdited != null)
 		{
 			try
@@ -27811,8 +29730,8 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 				curEdited.div = curEdited.div.cloneNode(true);
 				var commentEditTxt = curEdited.div.querySelector('.geCommentEditTxtArea');
 				var commentEditBtns = curEdited.div.querySelector('.geCommentEditBtns');
-				
-				curEdited.comment.content = commentEditTxt.value;
+
+				curEdited.comment.content = getCommentEditorValue(commentEditTxt);
 				commentEditTxt.parentNode.removeChild(commentEditTxt);
 				commentEditBtns.parentNode.removeChild(commentEditBtns);
 			}
@@ -27821,61 +29740,45 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 				editorUi.handleError(e);
 			}
 		}
-		
-		listDiv.innerHTML = '<div style="padding-top:10px;text-align:center;"><img src="' + IMAGE_PATH + '/spin.gif" valign="middle"> ' +
-			mxUtils.htmlEntities(mxResources.get('loading')) + '...</div>';
-		
+
 		canReplyToReplies = editorUi.canReplyToReplies();
-		
+
 		if (editorUi.commentsSupported())
 		{
-			editorUi.getComments(function(list)
+			// Shows the cached comments immediately and refreshes them in
+			// the background (rendered via the commentsChanged event). With
+			// a composer open the current list is kept and rendered once
+			// after the refresh to not re-attach the composer twice.
+			if (editorUi.getCommentCacheTarget().commentCache != null)
 			{
-				function sortReplies(replies)
+				if (curEdited == null)
 				{
-					if (replies != null)
-					{
-						//Sort replies old to new
-						replies.sort(function(r1, r2)
-						{
-							return new Date(r1.modifiedDate) - new Date(r2.modifiedDate);
-						});
-						
-						for (var i = 0; i < replies.length; i++)
-						{
-							sortReplies(replies[i].replies);
-						}						
-					}
-				};
-				
-				//Sort comments old to new
-				list.sort(function(c1, c2)
-				{
-					return new Date(c1.modifiedDate) - new Date(c2.modifiedDate);
-				});
+					renderComments(editorUi.getCommentCacheTarget().commentCache);
+				}
+			}
+			else
+			{
+				listDiv.innerHTML = '<div style="padding-top:10px;text-align:center;"><img src="' + IMAGE_PATH + '/spin.gif" valign="middle"> ' +
+					mxUtils.htmlEntities(mxResources.get('loading')) + '...</div>';
+			}
 
-				listDiv.innerText = '';
-				listDiv.appendChild(noComments);
-				noComments.style.display = 'block';
-				comments = list;
-				
-				for (var i = 0; i < comments.length; i++)
-				{
-					sortReplies(comments[i].replies);
-					addComment(comments[i], comments, null, 0, resolvedChecked);
-				}
-				
-				//New comment case
-				if (curEdited != null && curEdited.comment.id == null && curEdited.comment.pCommentId == null)
-				{
-					listDiv.appendChild(curEdited.div);
-					editComment(curEdited.comment, curEdited.div, curEdited.saveCallback, curEdited.deleteOnCancel);
-				}
-				
-			}, mxUtils.bind(this, function(err)
+			editorUi.refreshCommentCache(mxUtils.bind(this, function(list)
 			{
-				listDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('error') + (err && err.message? ': ' + err.message : ''));
-				this.hasError = true;
+				// The commentsChanged listener never re-renders while a
+				// comment is being composed so an explicit refresh
+				// re-attaches the preserved composer here
+				if (list != null && curEdited != null)
+				{
+					renderComments(list);
+				}
+			}), mxUtils.bind(this, function(err)
+			{
+				// Keeps showing the cached comments if the refresh failed
+				if (editorUi.getCommentCacheTarget().commentCache == null)
+				{
+					listDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('error') + (err && err.message? ': ' + err.message : ''));
+					this.hasError = true;
+				}
 			}));
 		}
 		else
@@ -27885,8 +29788,26 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		}
 	});
 
+	// Updates the list when the comment cache was refreshed, eg. by a
+	// collaborator changing a comment, unless a comment is being composed
+	var commentsChangedListener = mxUtils.bind(this, function()
+	{
+		if (curEdited == null)
+		{
+			var cache = editorUi.getCommentCacheTarget().commentCache;
+
+			if (cache != null)
+			{
+				this.hasError = false;
+				renderComments(cache);
+			}
+		}
+	});
+
+	editorUi.addListener('commentsChanged', commentsChangedListener);
+
 	refresh();
-	
+
 	this.refreshComments = refresh;
 
 	//Refresh the modified date of each comment if the window is visible
@@ -27939,8 +29860,11 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	{
 		this.window.fit();
 	}));
-	
-	editorUi.installResizeHandler(this, true);
+
+	editorUi.installResizeHandler(this, true, function()
+	{
+		editorUi.removeListener(commentsChangedListener);
+	});
 };
 
 /**

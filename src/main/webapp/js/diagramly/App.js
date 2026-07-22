@@ -301,8 +301,7 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': 'plugins/explore.js',
 	'replay': 'plugins/replay.js', 'anon': 'plugins/anonymize.js',
 	'tr': 'plugins/trello.js', 'f5': 'plugins/rackF5.js',
 	'webcola': 'plugins/webcola/webcola.js', 'rnd': 'plugins/random.js',
-	'page': 'plugins/page.js', 'gd': 'plugins/googledrive.js',
-	'tags': 'plugins/tags.js'};
+	'page': 'plugins/page.js', 'tags': 'plugins/tags.js'};
 
 App.publicPlugin = [
 	'ex',
@@ -319,7 +318,7 @@ App.publicPlugin = [
 	'replay',
 	'anon',
 	'webcola',
-//	'rnd', 'page', 'gd',
+//	'rnd', 'page',
 	'tags'
 ];
 
@@ -1520,6 +1519,13 @@ App.prototype.init = function()
 			this.setCompactMode(true);
 		}
 	}));
+
+	// Restores compact mode from settings
+	if (Editor.isSettingsEnabled() && mxSettings.settings.compactMode != null &&
+		this.isDefaultTheme(Editor.currentTheme))
+	{
+		this.setCompactMode(mxSettings.settings.compactMode);
+	}
 
 	/**
 	 * Creates github client.
@@ -6524,6 +6530,13 @@ App.prototype.updateButtonContainer = function(skipNotifications)
 					}));
 
 					this.buttonContainer.appendChild(this.commentButton);
+
+					// Shows the number of unresolved comments of the file
+					this.addCommentsBadge(this.commentButton);
+
+					// Dragging the button to the canvas starts a comment
+					// on the shape or point it is dropped on
+					this.installCommentDragSource(this.commentButton);
 				}
 
 				this.commentButton.style.display = (this.commentsSupported()) ? '' : 'none';

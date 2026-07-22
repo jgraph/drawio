@@ -3007,6 +3007,16 @@
 		var wrap = mxUtils.getValue(this.style, mxConstants.STYLE_WHITE_SPACE, null) == 'wrap';
 		var format = mxUtils.getValue(this.style, 'html', '0') == '1' ? 'html' : '';
 
+		// Painting the raw label straight onto the canvas bypasses the HTML
+		// sanitization the normal label path applies in getLabelValue, so a
+		// crafted html=1 label would inject script into the foot copy (XSS).
+		// Sanitize here to match the head label; plain text is escaped by
+		// the canvas and needs no extra handling.
+		if (format == 'html')
+		{
+			label = Graph.sanitizeHtml(label);
+		}
+
 		c.text(tx, ty, wrap ? w - spacingLeft - spacingRight : 0, 0, label,
 			align, valign, wrap, format, null, false, 0, null);
 	};

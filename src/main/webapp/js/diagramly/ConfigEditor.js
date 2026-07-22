@@ -50,7 +50,7 @@ DrawioConfigEditor.install = function(container, options)
 	var config = {};
 	var fontLists = { defaultFonts: [], customFonts: [] };
 	var colorLists = { presetColors: [], customPresetColors: [], defaultColors: [] };
-	var tagLists = { enabledLibraries: [], defaultCustomLibraries: [], hideMenuItems: [], hideMenus: [] };
+	var tagLists = { enabledLibraries: [], defaultCustomLibraries: [], hideMenuItems: [], hideMenus: [], enabledTemplateSections: [] };
 	var schemeData = { defaultColorSchemes: [], customColorSchemes: [] };
 	var editorContext = options.editorContext || {};
 	var isDesktop = (options.isDesktop != null) ? options.isDesktop :
@@ -106,6 +106,7 @@ DrawioConfigEditor.install = function(container, options)
 			{ key: 'enableWindowDocking', name: 'Window Docking', help: 'Enable window docking' },
 			{ key: 'showLinkIcons', name: 'Show Link Icons', help: 'Show link icons on shapes' },
 			{ key: 'showTooltipIcons', name: 'Show Tooltip Icons', help: 'Show tooltip icons on shapes' },
+			{ key: 'showNoteIcons', name: 'Show Note Icons', help: 'Show note icons on shapes' },
 			{ key: 'showConnectHandle', name: 'Show Connect Handle', help: 'Show connection handle on hover' },
 			{ key: 'intersectionSelect', name: 'Intersection Select', help: 'Select cells by intersection rather than containment' },
 			{ key: 'swimlaneSelectionEnabled', name: 'Swimlane Body Selection', help: 'Click an empty swimlane body to select the swimlane (default on)' }
@@ -801,7 +802,7 @@ DrawioConfigEditor.install = function(container, options)
 		config = {};
 		fontLists = { defaultFonts: [], customFonts: [] };
 		colorLists = { presetColors: [], customPresetColors: [], defaultColors: [] };
-		tagLists = { enabledLibraries: [], defaultCustomLibraries: [], hideMenuItems: [], hideMenus: [] };
+		tagLists = { enabledLibraries: [], defaultCustomLibraries: [], hideMenuItems: [], hideMenus: [], enabledTemplateSections: [] };
 		schemeData = { defaultColorSchemes: [], customColorSchemes: [] };
 
 		Object.keys(obj).forEach(function(key)
@@ -830,7 +831,7 @@ DrawioConfigEditor.install = function(container, options)
 				return;
 			}
 
-			if (key === 'enabledLibraries' || key === 'defaultCustomLibraries' || key === 'hideMenuItems' || key === 'hideMenus')
+			if (key === 'enabledLibraries' || key === 'defaultCustomLibraries' || key === 'hideMenuItems' || key === 'hideMenus' || key === 'enabledTemplateSections')
 			{
 				if (Array.isArray(val)) { tagLists[key] = val.map(function(v) { return String(v); }); config[key] = val; }
 				return;
@@ -909,7 +910,7 @@ DrawioConfigEditor.install = function(container, options)
 
 		['defaultFonts', 'customFonts'].forEach(renderFontTags);
 		['presetColors', 'customPresetColors', 'defaultColors'].forEach(renderColorSwatches);
-		['enabledLibraries', 'defaultCustomLibraries', 'hideMenuItems', 'hideMenus'].forEach(renderTagList);
+		['enabledLibraries', 'defaultCustomLibraries', 'hideMenuItems', 'hideMenus', 'enabledTemplateSections'].forEach(renderTagList);
 		['defaultColorSchemes', 'customColorSchemes'].forEach(renderSchemeEditor);
 
 		if (config.defaultMacroParameters)
@@ -1099,6 +1100,7 @@ DrawioConfigEditor.install = function(container, options)
 	setupTagList('defaultCustomLibraries');
 	setupTagList('hideMenuItems');
 	setupTagList('hideMenus');
+	setupTagList('enabledTemplateSections');
 	setupSchemeEditor('defaultColorSchemes');
 	setupSchemeEditor('customColorSchemes');
 	setupMacroParams();
@@ -1637,6 +1639,15 @@ DrawioConfigEditor.html = [
 	'      <div class="field">',
 	'        <label for="cfg-templateFile">Template File URL</label>',
 	'        <input type="url" id="cfg-templateFile" data-key="templateFile" placeholder="https://app.diagrams.net/templates/index.xml">',
+	'      </div>',
+	'      <div class="field">',
+	'        <label>Template Sections</label>',
+	'        <div class="tag-list" id="enabledTemplateSections-tags"></div>',
+	'        <div class="tag-input-wrap">',
+	'          <input type="text" id="enabledTemplateSections-input" placeholder="Add section (e.g. business, charts)...">',
+	'          <button type="button" class="btn btn--secondary btn--sm" id="enabledTemplateSections-add">Add</button>',
+	'        </div>',
+	'        <p class="field__help">Sections shown in the template dialog. Leave empty for all.</p>',
 	'      </div>',
 	'      <div class="field">',
 	'        <label for="cfg-libraries">Libraries (JSON)</label>',

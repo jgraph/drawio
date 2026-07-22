@@ -2082,7 +2082,7 @@ DrawioFile.prototype.addAllSavedStatus = function(status)
 		var rev = (this.isRevisionHistorySupported() && status != mxUtils.htmlEntities(
 			mxResources.get(this.savingStatusKey)) + '...') ? 'data-action="revisionHistory" ' : '';
 		this.ui.editor.setStatus('<div ' + rev + 'title="'+ status + '">' + status +
-			(this.isLocked() ? ' <img class="geToolbarButton" data-action="properties" ' +
+			(this.isLocked() ? ' <img class="geToolbarButton geAdaptiveAsset" data-action="properties" ' +
 			'style="margin-left:4px;flex-shrink:0;" src="' + Editor.lockedImage + '"/>' : '') + '</div>');
 	}
 };
@@ -3126,6 +3126,30 @@ DrawioFile.prototype.destroy = function()
 DrawioFile.prototype.commentsSupported = function()
 {
 	return false; //The default is false and files that support it must explicitly state that
+};
+
+/**
+ * Are comments anchored to shapes supported
+ */
+DrawioFile.prototype.anchoredCommentsSupported = function()
+{
+	return false;
+};
+
+/**
+ * Are @mentions in comments supported
+ */
+DrawioFile.prototype.mentionsSupported = function()
+{
+	return false;
+};
+
+/**
+ * Get the people that can be mentioned in comments of the file
+ */
+DrawioFile.prototype.getMentionCandidates = function(success, error)
+{
+	success([]); //placeholder
 };
 
 /**

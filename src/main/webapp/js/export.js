@@ -512,6 +512,118 @@ function render(data)
 	
 	var graph = new Graph(container);
 	graph.enableFlowAnimation = true;
+
+	// Tags the rendered nodes of cells with tooltips and notes so their page
+	// positions can be measured in collectAnnotRects for PDF annotations
+	var collectTooltips = data.format == 'pdf' && !data.print;
+	var collectNotes = collectTooltips && data.icons == '1';
+
+	if (collectTooltips)
+	{
+		var cellRendererRedraw = graph.cellRenderer.redraw;
+
+		graph.cellRenderer.redraw = function(state)
+		{
+			cellRendererRedraw.apply(this, arguments);
+
+			if (state != null && state.cell != null && state.shape != null &&
+				state.shape.node != null)
+			{
+				if (graph.convertValueToTooltip != null)
+				{
+					var tip = Editor.convertHtmlToText(
+						graph.convertValueToTooltip(state.cell));
+
+					if (tip != null && tip != '')
+					{
+						state.shape.node.setAttribute('data-tooltip', tip);
+					}
+				}
+
+				if (collectNotes)
+				{
+					// Reads the attribute directly if the note accessors are
+					// missing, as this render window uses app.min.js which
+					// can be older than this file in development
+					var rawNote = (graph.getNoteForCell != null) ?
+						graph.getNoteForCell(state.cell) :
+						((state.cell.value != null && mxUtils.isNode(state.cell.value)) ?
+							state.cell.value.getAttribute('note') : null);
+
+					if (rawNote != null && rawNote != '')
+					{
+						var note = Editor.convertHtmlToText(
+							(graph.convertValueToNote != null) ?
+								graph.convertValueToNote(state.cell) : rawNote);
+
+						if (note != null && note != '')
+						{
+							state.shape.node.setAttribute('data-note', note);
+						}
+					}
+				}
+			}
+		};
+	}
+
+	// Returns the rects of the nodes tagged above in CSS pixels relative to
+	// their output page for the annotations in the PDF output. Page divs
+	// are the only children of the body in paged output except for the
+	// hidden LoadingComplete marker (the graph container is removed by
+	// mxPrintPreview).
+	function collectAnnotRects()
+	{
+		var result = [];
+
+		if (collectTooltips && graph.pdfPageVisible)
+		{
+			var page = 0;
+
+			for (var child = document.body.firstChild; child != null; child = child.nextSibling)
+			{
+				if (child.nodeName != null && child.nodeName.toLowerCase() == 'div' &&
+					child.id != 'LoadingComplete')
+				{
+					page++;
+					var pageRect = child.getBoundingClientRect();
+
+					if (pageRect.width > 0 && pageRect.height > 0)
+					{
+						var nodes = child.querySelectorAll('[data-tooltip], [data-note]');
+
+						for (var i = 0; i < nodes.length; i++)
+						{
+							var rect = nodes[i].getBoundingClientRect();
+							var x0 = Math.max(0, rect.left - pageRect.left);
+							var y0 = Math.max(0, rect.top - pageRect.top);
+							var x1 = Math.min(pageRect.width, rect.right - pageRect.left);
+							var y1 = Math.min(pageRect.height, rect.bottom - pageRect.top);
+
+							if (x1 > x0 && y1 > y0)
+							{
+								var types = ['tooltip', 'note'];
+
+								for (var j = 0; j < types.length; j++)
+								{
+									var tip = nodes[i].getAttribute('data-' + types[j]);
+
+									if (tip != null && tip != '')
+									{
+										result.push({type: types[j], page: page,
+											x: x0, y: y0, w: x1 - x0, h: y1 - y0,
+											pw: pageRect.width, ph: pageRect.height,
+											tip: tip});
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return result;
+	}
 	
 	data.border = parseInt(data.border) || 0;
 	data.w = parseFloat(data.w) || 0;
@@ -1082,13 +1194,14 @@ function render(data)
 										
 										if (Graph.isCssFontUrl(fontUrl))
 										{
-											prefix += '@import url(' + Graph.rewriteGoogleFontUrl(fontUrl) + ');\n';
+											prefix += '@import url("' + Graph.escapeCssString(
+												Graph.rewriteGoogleFontUrl(fontUrl)) + '");\n';
 										}
 										else
 										{
 											postfix += '@font-face {\n' +
-												'font-family: "' + fontName + '";\n' + 
-												'src: url("' + fontUrl + '");\n}\n';
+												'font-family: "' + Graph.escapeCssString(fontName) + '";\n' +
+												'src: url("' + Graph.escapeCssString(fontUrl) + '");\n}\n';
 										}				
 									}
 									
@@ -1109,8 +1222,11 @@ function render(data)
 						// in PNG/PDF output (-e). For Mermaid/CSV/layout inputs the source
 						// file isn't draw.io XML, so the main process has no (or a pre-layout)
 						// args.xml; data.xml here is the real post-conversion model.
+						var annotRects = collectAnnotRects();
+
 						electron.sendMessage('render-finished', {bounds: JSON.stringify(bounds),
-							pageCount: pageCount, xml: (data.embedXml == '1') ? data.xml : null});
+							pageCount: pageCount, xml: (data.embedXml == '1') ? data.xml : null,
+							annots: (annotRects.length > 0) ? JSON.stringify(annotRects) : null});
 					}
 					catch(e)
 					{

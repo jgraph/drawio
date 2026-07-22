@@ -4249,13 +4249,14 @@ Sidebar.prototype.getDropAndConnectGeometry = function(source, target, direction
 };
 
 /**
- * Limits drop style to non-transparent source shapes.
+ * Limits drop style to non-transparent source shapes and groups.
  */
 Sidebar.prototype.isDropStyleEnabled = function(cells, firstVertex)
 {
 	var result = true;
 	
-	if (firstVertex != null && cells.length == 1)
+	if (firstVertex != null && cells.length == 1 &&
+		this.graph.model.getChildCount(cells[firstVertex]) == 0)
 	{
 		var vstyle = this.graph.getCellStyle(cells[firstVertex]);
 		
@@ -4534,6 +4535,10 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		}
 	}
 	
+	// Checks if the replace source is a group
+	var groupSource = firstVertex != null &&
+		graph.model.getChildCount(cells[firstVertex]) > 0;
+
 	var dropStyleEnabled = this.isDropStyleEnabled(cells, firstVertex);
 	
 	var dragSource = mxUtils.makeDraggable(elt, graph, mxUtils.bind(this, function(graph, evt, target, x, y)
@@ -4889,13 +4894,13 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 
 		// Uses the label of the edge or one of its children as the replace target
 		var labelState = (state != null && graph.model.isEdge(state.cell) &&
-			firstVertex != null && !graph.model.isEdge(cells[0])) ?
+			firstVertex != null && !groupSource && !graph.model.isEdge(cells[0])) ?
 			this.getEdgeLabelStateAt(state, x, y) : null;
 
 		// Shift means disabled, delayed on cells with children, shows after this.dropTargetDelay, hides after 3500ms
 		if (dropStyleEnabled && (timeOnTarget < 3500) && state != null && !mxEvent.isShiftDown(evt) &&
-			// If shape is equal or target has no stroke, fill and gradient then use longer delay except for images
-			(((mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE) != mxUtils.getValue(sourceCellStyle, mxConstants.STYLE_SHAPE) &&
+			// If shape is equal or target has no stroke, fill and gradient then use longer delay except for images and groups
+			((((mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE) != mxUtils.getValue(sourceCellStyle, mxConstants.STYLE_SHAPE) || groupSource) &&
 			(mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE) != mxConstants.NONE ||
 			mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE) != mxConstants.NONE ||
 			mxUtils.getValue(state.style, mxConstants.STYLE_GRADIENTCOLOR, mxConstants.NONE) != mxConstants.NONE)) ||

@@ -5929,7 +5929,7 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 		
 		var ops = ['edit', 'copyAsText', 'editLink', 'editShape', 'editImage',
 			'editData', 'copyData', 'pasteData',
-			'editConnectionPoints', 'editGeometry', 'editPolygon', 'editTooltip', 'editStyle'];
+			'editConnectionPoints', 'editGeometry', 'editPolygon', 'editTooltip', 'editNote', 'editStyle'];
 		var libs = null;
 
 		if (this.editorUi.sidebar != null)

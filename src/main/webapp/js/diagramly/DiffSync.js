@@ -44,6 +44,18 @@ EditorUi.prototype.cellProperties = {id: true, value: true, xmlValue: true, vert
 	mxObjectId: true, mxTransient: true};
 
 /**
+ * Returns true if the given key must never be copied from an untrusted patch
+ * onto an object as it would allow prototype pollution (eg. a diff key or a
+ * cell/view-state property called __proto__, constructor or prototype). Patches
+ * are attacker-controlled JSON (collab and embed protocol) so keys are guarded
+ * at every point where they are written to an object.
+ */
+EditorUi.isPrototypePollutionKey = function(key)
+{
+	return key == '__proto__' || key == 'constructor' || key == 'prototype';
+};
+
+/**
  * Shared codec.
  */
 EditorUi.prototype.codec = new mxCodec();
@@ -311,6 +323,11 @@ EditorUi.prototype.patchViewState = function(page, diff)
 
 		for (var key in diff)
 		{
+			if (EditorUi.isPrototypePollutionKey(key))
+			{
+				continue;
+			}
+
 			try
 			{
 				this.patchViewStateProperty(page, diff, key);
@@ -727,7 +744,7 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
 		
 		for (var key in diff)
 		{
-			if (!this.cellProperties[key])
+			if (!this.cellProperties[key] && !EditorUi.isPrototypePollutionKey(key))
 			{
 				cell[key] = diff[key];
 			}
@@ -1193,7 +1210,7 @@ EditorUi.prototype.getCellForJson = function(json)
 	
 	for (var key in json)
 	{
-		if (!this.cellProperties[key])
+		if (!this.cellProperties[key] && !EditorUi.isPrototypePollutionKey(key))
 		{
 			cell[key] = json[key];
 		}

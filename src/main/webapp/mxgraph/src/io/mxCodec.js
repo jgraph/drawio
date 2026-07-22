@@ -115,7 +115,12 @@ function mxCodec(document)
 {
 	this.document = document || mxUtils.createXmlDocument();
 	this.duplicates = [];
-	this.objects = [];
+	// Uses a null prototype as object IDs are untrusted (cell IDs and idrefs
+	// such as source/target/parent) so that IDs like __proto__ or constructor
+	// are stored and looked up as regular entries instead of resolving to
+	// inherited members (eg. an edge terminal ref of __proto__ returning
+	// Array.prototype, which mxObjectIdentity would then pollute).
+	this.objects = Object.create(null);
 };
 
 /**
@@ -278,8 +283,10 @@ mxCodec.prototype.updateElements = function()
 {
 	if (this.elements == null)
 	{
-		this.elements = new Object();
-		
+		// Null prototype: element IDs come from untrusted XML so IDs such as
+		// __proto__ must not resolve to inherited object members.
+		this.elements = Object.create(null);
+
 		if (this.document.documentElement != null)
 		{
 			this.addElement(this.document.documentElement);

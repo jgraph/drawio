@@ -1095,8 +1095,8 @@ Graph.prototype.addExtFont = function(fontName, fontUrl, dontRemember)
 				var style = document.createElement('style');
 				
 				style.appendChild(document.createTextNode('@font-face {\n' +
-					'\tfont-family: "'+ fontName +'";\n' + 
-					'\tsrc: url("'+ fontUrl +'");\n}'));
+					'\tfont-family: "'+ Graph.escapeCssString(fontName) +'";\n' +
+					'\tsrc: url("'+ Graph.escapeCssString(fontUrl) +'");\n}'));
 				
 				style.setAttribute('id', fontId);
 				var head = document.getElementsByTagName('head')[0];

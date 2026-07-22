@@ -133,6 +133,11 @@ GraphViewer.prototype.showLinkIcons = false;
 GraphViewer.prototype.showTooltipIcons = false;
 
 /**
+ * Specifies if note icons should be shown on shapes. Default is true.
+ */
+GraphViewer.prototype.showNoteIcons = true;
+
+/**
  * Initializes the viewer.
  */
 GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
@@ -163,6 +168,8 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 		this.graphConfig['show-link-icons'] : this.showLinkIcons;
 	this.showTooltipIcons = (this.graphConfig['show-tooltip-icons'] != null) ?
 		this.graphConfig['show-tooltip-icons'] : this.showTooltipIcons;
+	this.showNoteIcons = (this.graphConfig['show-note-icons'] != null) ?
+		this.graphConfig['show-note-icons'] : this.showNoteIcons;
 	this.toolbarItems = (this.graphConfig.toolbar != null) ?
 		this.graphConfig.toolbar.split(' ') : [];
 	this.zoomEnabled = mxUtils.indexOf(this.toolbarItems, 'zoom') >= 0;
@@ -298,6 +305,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				this.graph.autoScroll = false;
 				this.graph.showLinkIcons = this.showLinkIcons;
 				this.graph.showTooltipIcons = this.showTooltipIcons;
+				this.graph.showNoteIcons = this.showNoteIcons;
 				this.graph.setEnabled(false);
 				
 				if (this.graphConfig['toolbar-nohide'] == true)

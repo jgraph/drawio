@@ -122,7 +122,12 @@ mxStencilRegistry.allowEval = false;
 	EditDiagramDialog.showNewWindowOption = false;
 
 	PrintDialog.previewEnabled = false;
-	
+
+	// Adds PDF with embedded XML as an editable file format (PDF export
+	// and re-save run through the local Electron export pipeline)
+	Editor.prototype.diagramFileTypes = Editor.prototype.diagramFileTypes.concat(
+		[{description: 'formatPdf', extension: 'pdf', mimeType: 'application/pdf'}]);
+
 	PrintDialog.electronPrint = function(editorUi, args)
 	{
 		var graph = editorUi.editor.graph;
@@ -1285,7 +1290,7 @@ mxStencilRegistry.allowEval = false;
 			action: 'showOpenDialog',
 			defaultPath: lastDir || (await requestSync('getDocumentsFolder')),
 			filters: [
-				{ name: 'draw.io Diagrams', extensions: ['drawio', 'xml', 'png', 'svg', 'html'] },
+				{ name: 'draw.io Diagrams', extensions: ['drawio', 'xml', 'png', 'svg', 'html', 'pdf'] },
         	    { name: 'VSDX Documents', extensions: ['vsdx'] },
         	    { name: 'Mermaid', extensions: ['mmd', 'mermaid'] },
         	    { name: 'All Files', extensions: ['*'] }
@@ -1320,12 +1325,41 @@ mxStencilRegistry.allowEval = false;
 		defaultExtension = (defaultExtension != null) ? defaultExtension : 'drawio';
 
 		if (tokens.length == 1 || mxUtils.indexOf(['xml',
-			'html', 'drawio', 'png', 'svg'], ext) < 0)
+			'html', 'drawio', 'png', 'svg', 'pdf'], ext) < 0)
 		{
 			tokens.push(defaultExtension);
 		}
 
 		return tokens.join('.');
+	};
+
+	// Adds .pdf to the stripped extensions so exports of foo.drawio.pdf
+	// derive foo.* filenames like the other editable formats
+	EditorUi.prototype.getBaseFilename = function(ignorePageName)
+	{
+		var file = this.getCurrentFile();
+		var basename = (file != null && file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
+
+		if (/(\.xml)$/i.test(basename) || /(\.html)$/i.test(basename) ||
+			/(\.svg)$/i.test(basename) || /(\.png)$/i.test(basename) ||
+			/(\.pdf)$/i.test(basename))
+		{
+			basename = basename.substring(0, basename.lastIndexOf('.'));
+		}
+
+		if (/(\.drawio)$/i.test(basename))
+		{
+			basename = basename.substring(0, basename.lastIndexOf('.'));
+		}
+
+		if (!ignorePageName && this.pages != null && this.pages.length > 1 &&
+			this.currentPage != null && this.currentPage.node.getAttribute('name') != null &&
+			this.currentPage.getName().length > 0)
+		{
+			basename = basename + '-' + this.currentPage.getName();
+		}
+
+		return basename;
 	};
 
 	//In order not to repeat the logic for opening a file, we collect files information here and use them in openLocalFile
@@ -1503,30 +1537,17 @@ mxStencilRegistry.allowEval = false;
 			}
 			else if (/\.pdf$/i.test(path))
 			{
-				var tmp = Editor.extractGraphModelFromPdf('data:application/pdf;base64,' + data);
-				
-				if (tmp != null)
+				// Opens PDFs with embedded XML in place as editable files
+				// like PNG below (previously extracted to a new .drawio file)
+				data = Editor.extractGraphModelFromPdf('data:application/pdf;base64,' + data);
+
+				// Stops before the file is bound to the path as a save
+				// would overwrite the PDF with an empty diagram
+				if (data == null)
 				{
-					var name = fileEntry.name;
-
-					if (name.substring(name.length - 4) == '.pdf')
-					{
-						name = name.substring(0, name.length - 4);
-					}
-
-					name = name.substring(0, name.lastIndexOf('.')) + '.drawio';
-					
-					fn(null, tmp, null, name, false);
-
-					// Fixes ignore filename in above callback
-					var file = this.getCurrentFile();
-
-					if (file != null)
-					{
-						file.rename(name);
-					}
-
+					fnErr(new Error(mxResources.get('notADiagramFile')));
 					checkDrafts();
+
 					return;
 				}
 			}
@@ -1535,6 +1556,16 @@ mxStencilRegistry.allowEval = false;
 				// Detecting png by extension. Would need https://github.com/mscdex/mmmagic
 				// to do it by inspection
 				data = this.extractGraphModelFromPng('data:image/png;base64,' + data);
+
+				// Stops before the file is bound to the path as a save
+				// would overwrite the image with an empty diagram
+				if (data == null)
+				{
+					fnErr(new Error(mxResources.get('notADiagramFile')));
+					checkDrafts();
+
+					return;
+				}
 			}
 
 			electron.request({action: 'fileStat', file: path}, mxUtils.bind(this, function(stat_p)
@@ -1663,14 +1694,137 @@ mxStencilRegistry.allowEval = false;
 		this.stat = stat;
 	};
 	
+	LocalFile.prototype.isPdfFile = function()
+	{
+		return this.fileObject != null && /\.pdf$/i.test(this.fileObject.name);
+	};
+
+	// Autosave for PDF files re-runs the full export pipeline on every
+	// change, so it is off by default and opt-in via the autosave toggle
 	LocalFile.prototype.isAutosave = function()
 	{
+		if (this.isPdfFile())
+		{
+			return !this.inConflictState && isPdfAutosaveEnabled();
+		}
+
 		return this.fileObject != null && DrawioFile.prototype.isAutosave.apply(this, arguments);
 	};
-	
+
+	// Detaches PDF files from the global autosave option (see toggle below)
 	LocalFile.prototype.isAutosaveOptional = function()
 	{
-		return this.fileObject != null;
+		return this.fileObject != null && !this.isPdfFile();
+	};
+
+	var isPdfAutosaveEnabled = function()
+	{
+		return localStorage.getItem('.pdfAutosave') == '1';
+	};
+
+	var setPdfAutosaveEnabled = function(ui, value)
+	{
+		localStorage.setItem('.pdfAutosave', (value) ? '1' : '0');
+
+		// Refreshes the autosave checkbox and menu item
+		ui.editor.fireEvent(new mxEventObject('autosaveChanged'));
+
+		var file = ui.getCurrentFile();
+
+		if (value && file != null && file.isModified())
+		{
+			file.fileChanged();
+		}
+	};
+
+	var isCurrentFilePdf = function(ui)
+	{
+		var file = ui.getCurrentFile();
+
+		return file != null && file.constructor == LocalFile &&
+			file.isPdfFile() && file.isEditable();
+	};
+
+	// Repurposes the autosave action to toggle PDF autosave for PDF files
+	var origMenusInit = Menus.prototype.init;
+
+	Menus.prototype.init = function()
+	{
+		origMenusInit.apply(this, arguments);
+
+		var editorUi = this.editorUi;
+		var action = editorUi.actions.get('autosave');
+
+		action.funct = function()
+		{
+			if (isCurrentFilePdf(editorUi))
+			{
+				setPdfAutosaveEnabled(editorUi, !isPdfAutosaveEnabled());
+			}
+			else
+			{
+				editorUi.editor.setAutosave(!editorUi.editor.autosave);
+			}
+		};
+
+		action.setSelectedCallback(function()
+		{
+			return action.isEnabled() && ((isCurrentFilePdf(editorUi)) ?
+				isPdfAutosaveEnabled() : editorUi.editor.autosave);
+		});
+	};
+
+	// Keeps the autosave menu item enabled for PDF files where
+	// isAutosaveOptional is false
+	var origUpdateActionStates = EditorUi.prototype.updateActionStates;
+
+	EditorUi.prototype.updateActionStates = function()
+	{
+		origUpdateActionStates.apply(this, arguments);
+
+		if (isCurrentFilePdf(this))
+		{
+			this.actions.get('autosave').setEnabled(true);
+		}
+	};
+
+	// Adds the autosave option for PDF files to the diagram format panel
+	// (the global autosave option is hidden via isAutosaveOptional)
+	var diagramFormatPanelAddOptions = DiagramFormatPanel.prototype.addOptions;
+
+	DiagramFormatPanel.prototype.addOptions = function(div)
+	{
+		div = diagramFormatPanelAddOptions.apply(this, arguments);
+
+		var ui = this.editorUi;
+
+		if (ui.editor.graph.isEnabled() && isCurrentFilePdf(ui))
+		{
+			div.appendChild(this.createOption(mxResources.get('autosave'), function()
+			{
+				return isPdfAutosaveEnabled();
+			}, function(checked)
+			{
+				setPdfAutosaveEnabled(ui, checked);
+			},
+			{
+				install: function(apply)
+				{
+					this.listener = function()
+					{
+						apply(isPdfAutosaveEnabled());
+					};
+
+					ui.editor.addListener('autosaveChanged', this.listener);
+				},
+				destroy: function()
+				{
+					ui.editor.removeListener(this.listener);
+				}
+			}));
+		}
+
+		return div;
 	};
 	
 	LocalFile.prototype.getTitle = function()
@@ -1801,7 +1955,14 @@ mxStencilRegistry.allowEval = false;
 					}));
 				});
 	
-				if (!/(\.png)$/i.test(this.fileObject.name))
+				if (this.isPdfFile())
+				{
+					this.ui.getEmbeddedPdf(function(data)
+					{
+						doSave(data, 'binary');
+					}, error);
+				}
+				else if (!/(\.png)$/i.test(this.fileObject.name))
 				{
 					doSave(this.getData());
 				}
@@ -2358,13 +2519,52 @@ mxStencilRegistry.allowEval = false;
 	// Direct export to pdf
 	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64,
 		transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop, margin,
-		fit, sheetsAcross, sheetsDown, shadows)
+		fit, sheetsAcross, sheetsDown, shadows, icons)
 	{
 		var params = this.downloadRequestBuilder(filename, format, ignoreSelection, base64,
 			transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop,
-			margin, fit, sheetsAcross, sheetsDown, shadows);
-		
+			margin, fit, sheetsAcross, sheetsDown, shadows, icons);
+
 		return new mxElectronRequest('export', params);
+	};
+
+	// Renders all pages to PDF with the diagram XML embedded via the local
+	// export pipeline, mirroring getEmbeddedPng for PNG files
+	EditorUi.prototype.getEmbeddedPdf = function(success, error)
+	{
+		var req = this.createDownloadRequest(null, 'pdf', true, '0',
+			null, false, null, null, false, true);
+
+		req.send(function()
+		{
+			try
+			{
+				var data = req.getText();
+
+				// The main process replies with the raw PDF bytes
+				if (typeof data !== 'string')
+				{
+					var bytes = (data instanceof ArrayBuffer) ? new Uint8Array(data) : data;
+					var result = [];
+
+					for (var i = 0; i < bytes.length; i += 65536)
+					{
+						result.push(String.fromCharCode.apply(null, bytes.subarray(i, i + 65536)));
+					}
+
+					data = result.join('');
+				}
+
+				success(data);
+			}
+			catch (e)
+			{
+				if (error != null)
+				{
+					error(e);
+				}
+			}
+		}, error);
 	};
 	
 	var origSetAutosave = Editor.prototype.setAutosave;

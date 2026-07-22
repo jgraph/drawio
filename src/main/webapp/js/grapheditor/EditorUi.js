@@ -5993,6 +5993,7 @@ EditorUi.prototype.updateActionStates = function()
 	this.actions.get('editLink').setEnabled(ss.cells.length == 1);
 	this.actions.get('editStyle').setEnabled(ss.cells.length > 0);
 	this.actions.get('editTooltip').setEnabled(ss.cells.length == 1);
+	this.actions.get('editNote').setEnabled(ss.cells.length == 1);
 	this.actions.get('openLink').setEnabled(ss.cells.length == 1 &&
 		graph.getLinkForCell(ss.cells[0]) != null);
 	this.actions.get('guides').setEnabled(graph.isEnabled());
@@ -7317,6 +7318,7 @@ EditorUi.prototype.altShiftActions = {
   79: 'connectionPoints', // Alt+Shift+O
   81: 'editConnectionPoints', // Alt+Shift+Q
   84: 'editTooltip', // Alt+Shift+T
+  78: 'editNote', // Alt+Shift+N
   86: 'pasteSize', // Alt+Shift+V
   70: 'copySize', // Alt+Shift+F
   66: 'copyData', // Alt+Shift+B

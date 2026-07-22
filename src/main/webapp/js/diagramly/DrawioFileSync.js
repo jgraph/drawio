@@ -135,7 +135,7 @@ DrawioFileSync = function(file)
 					}
 					else if (msg.v === DrawioFileSync.PROTOCOL && msg.d != null)
 					{
-						this.handleMessageData(msg.d);
+						this.handleMessageData(msg.d, msg.c);
 					}
 				}
 			}
@@ -505,7 +505,7 @@ DrawioFileSync.prototype.updateStatus = function()
 					(!this.file.isEditable() ? '<div class="geStatusBox" title="' +
 						mxUtils.htmlEntities(mxResources.get('readOnly')) + '">' +
 						mxUtils.htmlEntities(mxResources.get('readOnly')) + '</div>' :
-					(this.file.isLocked() ? ' <img class="geToolbarButton" data-action="properties" ' +
+					(this.file.isLocked() ? ' <img class="geToolbarButton geAdaptiveAsset" data-action="properties" ' +
 						'style="margin-left:4px;flex-shrink:0;" src="' + Editor.lockedImage + '"/>' : '')) +
 					(status != null ? '<div class="geStatusBox" title="' + mxUtils.htmlEntities(status) + '">' +
 						mxUtils.htmlEntities(status) + '</div>' : '') +
@@ -611,13 +611,21 @@ DrawioFileSync.prototype.sendJoinMessage = function()
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFileSync.prototype.handleMessageData = function(data)
+DrawioFileSync.prototype.handleMessageData = function(data, clientId)
 {
 	if (data.a == 'desc')
 	{
 		if (!this.file.savingFile)
 		{
 			this.reloadDescriptor();
+		}
+	}
+	else if (data.a == 'comments')
+	{
+		// Ignores the echo of this client's own notification
+		if (clientId == null || clientId != this.clientId)
+		{
+			this.commentsChanged();
 		}
 	}
 	else if (data.a == 'join' || data.a == 'leave')
@@ -651,6 +659,43 @@ DrawioFileSync.prototype.handleMessageData = function(data)
 			this.fileChangedNotify();
 		}
 	}
+};
+
+/**
+ * Delay before the comment cache is refreshed after a remote update.
+ */
+DrawioFileSync.prototype.commentsChangedDelay = 2000;
+
+/**
+ * Notifies collaborators that the comments of the file were changed.
+ * Clients that do not know the action ignore the message so the
+ * protocol version is not bumped.
+ */
+DrawioFileSync.prototype.sendCommentsChangedMessage = function()
+{
+	this.notify(this.createMessage({a: 'comments'}));
+};
+
+/**
+ * Schedules a refresh of the comment cache after a remote comment update.
+ * Debounced as updates often arrive in bursts (eg. resolve adds a reply).
+ */
+DrawioFileSync.prototype.commentsChanged = function()
+{
+	if (this.commentsChangedThread != null)
+	{
+		window.clearTimeout(this.commentsChangedThread);
+	}
+
+	this.commentsChangedThread = window.setTimeout(mxUtils.bind(this, function()
+	{
+		this.commentsChangedThread = null;
+
+		if (this.isValidState())
+		{
+			this.ui.refreshCommentCache();
+		}
+	}), this.commentsChangedDelay);
 };
 
 /**
@@ -2145,7 +2190,13 @@ DrawioFileSync.prototype.destroy = function()
 
 		this.notify(this.createMessage(leave));
 	}
-	
+
+	if (this.commentsChangedThread != null)
+	{
+		window.clearTimeout(this.commentsChangedThread);
+		this.commentsChangedThread = null;
+	}
+
 	this.stop();
 
 	if (this.onlineListener != null)

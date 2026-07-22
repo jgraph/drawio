@@ -1,3 +1,40 @@
+22-JUL-2026: 30.4.3
+
+- Extracts diagram XML from PDFs rewritten by external editors
+- Adds tooltip, link and note icons to SVG export and notes to PDF export
+- Hides SVG export icons and popups in print output
+- Routes UI colors through :root theme variables for custom color schemes [jgraph/drawio#5692]
+- Guards untrusted-key maps against prototype pollution (patch/decode XSS)
+
+22-JUL-2026: 30.4.2
+
+- Adds anchored comments, mentions and comment indicators for Google Drive files [jgraph/drawio#1694]
+- Improves version handling in release flow
+- Moves comment indicators to the bottom right corner [jgraph/drawio#1694]
+- Adds notes for cells with indicator icons and a WYSIWYG markup editor, also used for editing tooltips [jgraph/drawio#1547]
+- Adapts locked file status icon to dark mode
+- Sanitizes UML lifelineMirror foot label to prevent stored XSS
+- Adds mandatory security-review guidance to CLAUDE.md
+- Removes keyboard shortcut from editNote action [jgraph/drawio#1547]
+- Adds Alt+Shift+N keyboard shortcut for editNote action [jgraph/drawio#1547]
+- Moves compact mode restore from EditorUi to App to fix presentation mode error
+- Adds Ctrl/Cmd+cursor page navigation in presentation mode
+- Allows the replace icon to replace a shape with a dragged group [jgraph/drawio#3687]
+- Adds preview button to the Mermaid and PlantUML insert/edit dialogs [DID-8862]
+- Fixes generate tile state after errors and persists last generated diagram in template dialog
+- Shows note box on note icon click with edit button if editable [jgraph/drawio#1547]
+- Adds enabledTemplateSections config option to filter template dialog sections [jgraph/drawio#1417]
+- Removes stale gd plugin registry entry for deleted googledrive.js
+- Removes unused fonts from SVG export with external font references [jgraph/drawio#5000]
+- Uses explicit font lookups for used fonts in SVG exports [jgraph/drawio#5000]
+- Adds PDF as an editable file format in the desktop app [jgraph/drawio#4389]
+- Fixes empty diagram overwriting PNGs without diagram data in the desktop app
+- Uses null prototype for custom font lookups keyed by font name
+- Renders tooltip markup as width-limited HTML for the tooltip icon [jgraph/drawio#1547]
+- Escapes custom font names and URLs in exported and document CSS
+- Escapes custom font names and URLs in print and export server CSS [jgraph/drawio#5000]
+- vendor: update mermaid bundle (dev a23de8e — DID-19662 sequence activation events, bar child-y, box-edge margins)
+
 21-JUL-2026: 30.4.1
 
 - Offers built-in libraries as chips in shape search

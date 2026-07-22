@@ -654,7 +654,7 @@
 						editorUi.downloadFile('pdf', null, null, !args.selection, noPages ||
 							(!args.allPages && args.pagesFrom == currentPage && args.pagesTo == currentPage), !args.crop,
 							args.transparent, args.scale, null, args.grid, args.includeCopy, pageRange, args.border,
-							args.fit, args.sheetsAcross, args.sheetsDown, args.shadows);					
+							args.fit, args.sheetsAcross, args.sheetsDown, args.shadows, args.icons);					
 					}), mxResources.get('export'));
 		}));
 
@@ -955,7 +955,8 @@
 				'https://www.drawio.com/doc/faq/export-diagram',
 				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
 					addShadow, editable, embedImages, border, cropImage, currentPage,
-					linkTarget, grid, theme, exportType, embedFonts, embedCellMetadata)
+					linkTarget, grid, theme, exportType, embedFonts, embedCellMetadata,
+					dpi, icons)
 				{
 					var val = parseInt(scale);
 					editorUi.lastExportSvgEditable = editable;
@@ -965,7 +966,7 @@
 						editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
 							addShadow, editable, embedImages, border, !cropImage, currentPage,
 							linkTarget, theme, exportType, embedFonts, null, embedCellMetadata,
-							grid);
+							grid, icons);
 					}
 				}), true, editorUi.lastExportSvgEditable, 'svg', true);
 		}));
@@ -3894,6 +3895,7 @@
 			ui.destroy = function()
 			{
 				mxEvent.removeListener(document.documentElement, 'keydown', keydownHandler);
+				editorUi.keyHandler.setEnabled(keyHandlerEnabled);
 				document.body.removeChild(backdrop);
 				document.body.removeChild(toolbar);
 				document.body.style.overflow = overflow;
@@ -3912,7 +3914,27 @@
 				{
 					ui.destroy();
 				}
+				else if ((evt.keyCode == 37 || evt.keyCode == 39) && !mxEvent.isShiftDown(evt) &&
+					(mxEvent.isControlDown(evt) || (mxClient.IS_MAC && mxEvent.isMetaDown(evt))) &&
+					ui.pages != null && ui.pages.length > 1)
+				{
+					// Moves to the previous/next page in the presentation
+					var next = ui.getSelectedPageIndex() + ((evt.keyCode == 39) ? 1 : -1);
+
+					if (next >= 0 && next < ui.pages.length)
+					{
+						ui.selectPage(ui.pages[next]);
+						ui.lightboxFit();
+						ui.chromelessResize();
+					}
+
+					mxEvent.consume(evt);
+				}
 			};
+
+			// Disables keyboard shortcuts in the underlying editor
+			var keyHandlerEnabled = editorUi.keyHandler.isEnabled();
+			editorUi.keyHandler.setEnabled(false);
 
 			mxEvent.addListener(document.documentElement, 'keydown', keydownHandler);
 
@@ -4834,13 +4856,17 @@
 		this.put('edit', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			this.addMenuItems(menu, ['undo', 'redo', '-', 'cut', 'copy', 'copyAsImage', 'copyAsSvg', 'paste',
-				'delete', '-', 'duplicate', '-', 'findReplace', '-', 'editData', 'editTooltip', '-',
+				'delete', '-', 'duplicate', '-', 'findReplace', '-', 'editData', 'editTooltip', 'editNote', '-',
 				'editStyle',  'editGeometry', 'editPolygon', 'editConnectionPoints', '-', 'edit', '-',
 				'editLink', 'openLink', '-', 'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-',
 				'lockUnlock']);
 		})));
 
-		var action = editorUi.actions.addAction('comments', mxUtils.bind(this, function()
+		// Shows the comments window, creating it if needed, and optionally
+		// scrolls to the comments of a cell or starts a comment anchored
+		// to a cell (also used by the comment icons on the cells and by
+		// the popup menu)
+		this.showCommentsWindow = mxUtils.bind(this, function(scrollToCellId, newCommentAnchor)
 		{
 			if (this.commentsWindow == null)
 			{
@@ -4867,24 +4893,39 @@
 				{
 					editorUi.restoreWindowState('comments', this.commentsWindow);
 				}
-				else
-				{
-					this.commentsWindow.window.setVisible(true);
-				}
 
 				editorUi.fireEvent(new mxEventObject('comments'));
 			}
+			else if (!this.commentsWindow.window.isVisible())
+			{
+				// Shows the cached comments and refreshes them in the
+				// background
+				this.commentsWindow.refreshComments();
+			}
+
+			this.commentsWindow.window.setVisible(true);
+			this.commentsWindow.refreshCommentsTime();
+
+			if (scrollToCellId != null)
+			{
+				this.commentsWindow.scrollToCell(scrollToCellId);
+			}
+
+			if (newCommentAnchor != null)
+			{
+				this.commentsWindow.startNewComment(newCommentAnchor);
+			}
+		});
+
+		var action = editorUi.actions.addAction('comments', mxUtils.bind(this, function()
+		{
+			if (this.commentsWindow != null && this.commentsWindow.window.isVisible())
+			{
+				this.commentsWindow.window.setVisible(false);
+			}
 			else
 			{
-				var isVisible = !this.commentsWindow.window.isVisible();
-				this.commentsWindow.window.setVisible(isVisible);
-
-				this.commentsWindow.refreshCommentsTime();
-
-				if (isVisible && this.commentsWindow.hasError)
-				{
-					this.commentsWindow.refreshComments();
-				}
+				this.showCommentsWindow();
 			}
 		}));
 		action.setToggleAction(true);
@@ -5006,7 +5047,7 @@
 			// Last entry edits cell label
 			this.addMenuItems(menu, ['editLink', 'editShape', 'editImage', 'crop', '-',
 				'editData', 'copyData', 'pasteData', '-', 'editPolygon', 'editConnectionPoints',
-				'editGeometry', '-', 'editTooltip', 'editStyle', '-', 'edit'], parent);
+				'editGeometry', '-', 'editTooltip', 'editNote', 'editStyle', '-', 'edit'], parent);
 		})));
 				
 		// Current page menu

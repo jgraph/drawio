@@ -726,12 +726,15 @@ mxGraphModel.prototype.cellAdded = function(cell)
 					collision = this.getCell(cell.getId());
 				}
 				
-				// Lazily creates the cells dictionary
+				// Lazily creates the cells dictionary. Uses a null prototype
+				// as cell IDs are untrusted so that IDs such as __proto__ or
+				// constructor are stored as regular entries instead of being
+				// looked up (getCell) or written as inherited object members.
 				if (this.cells == null)
 				{
-					this.cells = new Object();
+					this.cells = Object.create(null);
 				}
-				
+
 				this.cells[cell.getId()] = cell;
 			}
 		}

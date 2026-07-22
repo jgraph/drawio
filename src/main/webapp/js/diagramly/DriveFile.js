@@ -846,47 +846,150 @@ DriveFile.prototype.commentsSupported = function()
 };
 
 /**
+ * Are comments anchored to shapes supported
+ */
+DriveFile.prototype.anchoredCommentsSupported = function()
+{
+	return true;
+};
+
+/**
+ * Are @mentions in comments supported
+ */
+DriveFile.prototype.mentionsSupported = function()
+{
+	return true;
+};
+
+/**
+ * Fields returned for comments and their replies. The v3 comments
+ * endpoints error without an explicit fields parameter.
+ */
+DriveFile.prototype.commentFields = 'id,content,createdTime,modifiedTime,deleted,resolved,anchor,' +
+	'author(displayName,photoLink,me),replies(id,content,createdTime,modifiedTime,deleted,' +
+	'author(displayName,photoLink,me))';
+
+/**
+ * Returns the URL for the v3 comments API of this file. path is appended
+ * to the comments collection (eg. '/id/replies'), fields is required for
+ * all v3 comments requests except DELETE.
+ */
+DriveFile.prototype.getCommentUrl = function(path, fields)
+{
+	return this.ui.drive.GDriveV3BaseUrl + '/files/' + this.getId() + '/comments' + path +
+		((fields != null) ? '?fields=' + encodeURIComponent(fields) : '');
+};
+
+/**
+ * Returns the Drive API anchor string for the given drawio anchor object.
+ * Drive stores anchors of third-party file types as opaque strings (such
+ * comments show as unanchored in the Drive UI). Anchors are immutable in
+ * the API so there is no re-anchoring.
+ */
+DriveFile.prototype.encodeCommentAnchor = function(anchor)
+{
+	return JSON.stringify({'r': 'head', 'a': [{'drawio': anchor}]});
+};
+
+/**
+ * Returns the drawio anchor object from the given Drive API anchor string
+ * or null. Malformed anchors and anchors written by other tools are
+ * ignored.
+ */
+DriveFile.prototype.decodeCommentAnchor = function(anchorStr)
+{
+	try
+	{
+		if (anchorStr != null)
+		{
+			var obj = JSON.parse(anchorStr);
+
+			if (obj != null && obj.a != null && obj.a.length > 0)
+			{
+				for (var i = 0; i < obj.a.length; i++)
+				{
+					if (obj.a[i] != null && typeof obj.a[i].drawio === 'object' &&
+						obj.a[i].drawio !== null)
+					{
+						return obj.a[i].drawio;
+					}
+				}
+			}
+		}
+	}
+	catch (e)
+	{
+		// ignore
+	}
+
+	return null;
+};
+
+/**
  * Get comments of the file
  */
 DriveFile.prototype.getComments = function(success, error)
 {
 	var currentUser = this.ui.getCurrentUser();
-	
-	function driveCommentToDrawio(file, gComment, pCommentId)
+	var file = this;
+
+	function driveCommentToDrawio(gComment, pCommentId)
 	{
 		if (gComment.deleted) return null; //skip deleted comments
-		
-		var comment = new DriveComment(file, gComment.commentId || gComment.replyId, gComment.content, 
-				gComment.modifiedDate, gComment.createdDate, gComment.status == 'resolved',
-				gComment.author.isAuthenticatedUser? currentUser :
-				new DrawioUser(gComment.author.permissionId, gComment.author.emailAddress,
-						gComment.author.displayName, gComment.author.picture.url), pCommentId);
-		
+
+		var comment = new DriveComment(file, gComment.id, gComment.content,
+				gComment.modifiedTime, gComment.createdTime, gComment.resolved == true,
+				(gComment.author != null && gComment.author.me) ? currentUser :
+				new DrawioUser(null, null, (gComment.author != null) ?
+						gComment.author.displayName : null, (gComment.author != null) ?
+						gComment.author.photoLink : null), pCommentId);
+
+		if (pCommentId == null)
+		{
+			comment.anchor = file.decodeCommentAnchor(gComment.anchor);
+		}
+
 		for (var i = 0; gComment.replies != null && i < gComment.replies.length; i++)
 		{
-			comment.addReplyDirect(driveCommentToDrawio(file, gComment.replies[i], gComment.commentId));
+			comment.addReplyDirect(driveCommentToDrawio(gComment.replies[i], gComment.id));
 		}
-		
+
 		return comment;
 	};
-	
-	this.ui.drive.executeRequest(
+
+	var comments = [];
+
+	var fetchPage = mxUtils.bind(this, function(pageToken)
 	{
-		url: '/files/' + this.getId() + '/comments'
-	},
-	mxUtils.bind(this, function(resp)
-	{
-		var comments = [];
-		
-		for (var i = 0; i < resp.items.length; i++)
+		this.ui.drive.executeRequest(
 		{
-			var comment = driveCommentToDrawio(this, resp.items[i]);
-			
-			if (comment != null) comments.push(comment);
-		}
-		
-		success(comments);
-	}), error);
+			fullUrl: this.getCommentUrl('', 'nextPageToken,comments(' + this.commentFields + ')') +
+				'&pageSize=100' + ((pageToken != null) ?
+				'&pageToken=' + encodeURIComponent(pageToken) : '')
+		},
+		mxUtils.bind(this, function(resp)
+		{
+			var items = (resp != null && resp.comments != null) ? resp.comments : [];
+
+			for (var i = 0; i < items.length; i++)
+			{
+				var comment = driveCommentToDrawio(items[i]);
+
+				if (comment != null) comments.push(comment);
+			}
+
+			if (resp != null && resp.nextPageToken != null)
+			{
+				fetchPage(resp.nextPageToken);
+			}
+			else
+			{
+				success(comments);
+			}
+		}), error);
+	});
+
+	fetchPage(null);
 };
 
 /**
@@ -895,17 +998,80 @@ DriveFile.prototype.getComments = function(success, error)
 DriveFile.prototype.addComment = function(comment, success, error)
 {
 	var body = {'content': comment.content};
-	
+
+	if (comment.anchor != null)
+	{
+		body.anchor = this.encodeCommentAnchor(comment.anchor);
+	}
+
 	this.ui.drive.executeRequest(
 	{
-		url: '/files/' + this.getId() + '/comments',
+		fullUrl: this.getCommentUrl('', 'id'),
 		method: 'POST',
 		params: body
 	},
 	mxUtils.bind(this, function(resp)
 	{
-		success(resp.commentId); //pass comment id
+		success(resp.id); //pass comment id
 	}), error);
+};
+
+/**
+ * Get the people that can be mentioned in comments of the file. Mentions
+ * are limited to the people with access to the file as the API cannot
+ * start Drive's share-on-mention flow.
+ */
+DriveFile.prototype.getMentionCandidates = function(success, error)
+{
+	if (this.mentionCandidates != null)
+	{
+		success(this.mentionCandidates);
+
+		return;
+	}
+
+	var candidates = [];
+
+	var fetchPage = mxUtils.bind(this, function(pageToken)
+	{
+		this.ui.drive.executeRequest(
+		{
+			fullUrl: this.ui.drive.GDriveV3BaseUrl + '/files/' + this.getId() +
+				'/permissions?supportsAllDrives=true&pageSize=100&fields=' +
+				encodeURIComponent('nextPageToken,permissions(type,deleted,emailAddress,displayName,photoLink)') +
+				((pageToken != null) ? '&pageToken=' + encodeURIComponent(pageToken) : '')
+		},
+		mxUtils.bind(this, function(resp)
+		{
+			var items = (resp != null && resp.permissions != null) ? resp.permissions : [];
+
+			for (var i = 0; i < items.length; i++)
+			{
+				// Mentions need an email address so people and groups are
+				// included, not domain or anyone-with-the-link permissions
+				if ((items[i].type == 'user' || items[i].type == 'group') &&
+					!items[i].deleted && items[i].emailAddress != null)
+				{
+					var candidate = new DrawioUser(null, items[i].emailAddress,
+						items[i].displayName, items[i].photoLink);
+					candidate.isGroup = items[i].type == 'group';
+					candidates.push(candidate);
+				}
+			}
+
+			if (resp != null && resp.nextPageToken != null)
+			{
+				fetchPage(resp.nextPageToken);
+			}
+			else
+			{
+				this.mentionCandidates = candidates;
+				success(candidates);
+			}
+		}), error);
+	});
+
+	fetchPage(null);
 };
 
 /**
