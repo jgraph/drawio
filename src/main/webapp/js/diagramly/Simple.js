@@ -412,7 +412,7 @@ Editor.themes.push('atlas');
 									mxResources.get('note') + ' (S)', true, false, null, true, null, tw, th),
 									mxResources.get('note') + ' (S)', null, 'S');
 								addElt(boxElt, mxResources.get('rectangle') + ' (D)', null, 'D');
-								addElt(this.sidebar.createVertexTemplate('ellipse;whiteSpace=wrap;html=1;', 160, 100, '',
+								addElt(this.sidebar.createVertexTemplate('ellipse;whiteSpace=wrap;html=1;shapeInside=1;', 160, 100, '',
 									mxResources.get('ellipse') + ' (F)', true, false, null, true, null, tw, th),
 									mxResources.get('ellipse') + ' (F)', null, 'F');
 

@@ -9,12 +9,15 @@ var mxStyleRegistry =
 	 *
 	 * Singleton class that acts as a global converter from string to object values
 	 * in a style. This is currently only used to perimeters and edge styles.
-	 * 
+	 *
 	 * Variable: values
 	 *
-	 * Maps from strings to objects.
+	 * Maps from strings to objects. The map has no prototype so that perimeter
+	 * or edge style names from untrusted cell styles cannot resolve inherited
+	 * members of Object.prototype (eg. constructor or toString, which pass the
+	 * typeof == 'function' checks below and would then be called as a style).
 	 */
-	values: [],
+	values: Object.create(null),
 
 	/**
 	 * Function: putValue

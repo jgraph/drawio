@@ -1754,6 +1754,18 @@ EditorUi.prototype.removeUserDefinedDarkColors = function(cells, includeLabels, 
 	cells = (cells != null) ? cells : graph.getSelectionCells();
 	var keys = Graph.colorStyles;
 
+	// Label colors in styles follow the labels option like
+	// the colors in HTML labels below
+	if (!includeLabels)
+	{
+		keys = keys.filter(function(key)
+		{
+			return key != mxConstants.STYLE_FONTCOLOR &&
+				key != mxConstants.STYLE_LABEL_BORDERCOLOR &&
+				key != mxConstants.STYLE_LABEL_BACKGROUNDCOLOR;
+		});
+	}
+
 	// Element for parsing HTML labels and implementing dark mode colors
 	var tempDiv = document.createElement('div');
 	
@@ -2770,15 +2782,15 @@ EditorUi.prototype.getCellsForShapePicker = function(cell, hovering, showEdges)
 	}
 
 	var cells = [cell, createVertex('whiteSpace=wrap;html=1;'),
-		createVertex('ellipse;whiteSpace=wrap;html=1;', 80, 80),
-		createVertex('rhombus;whiteSpace=wrap;html=1;', 80, 80),
+		createVertex('ellipse;whiteSpace=wrap;html=1;shapeInside=1;', 80, 80),
+		createVertex('rhombus;whiteSpace=wrap;html=1;shapeInside=1;', 80, 80),
 		createVertex('rounded=1;whiteSpace=wrap;html=1;'),
-		createVertex('shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;'),
-		createVertex('shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;fixedSize=1;', 120, 60),
-		createVertex('shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;', 120, 80),
-		createVertex('shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;', 120, 80),
+		createVertex('shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;'),
+		createVertex('shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;', 120, 60),
+		createVertex('shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;', 120, 80),
+		createVertex('shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;', 120, 80),
 		createVertex('shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;'),
-		createVertex('triangle;whiteSpace=wrap;html=1;', 60, 80),
+		createVertex('triangle;whiteSpace=wrap;html=1;shapeInside=1;', 60, 80),
 		createVertex('shape=document;whiteSpace=wrap;html=1;boundedLbl=1;', 120, 80),
 		createVertex('shape=tape;whiteSpace=wrap;html=1;', 120, 100),
 		createVertex('ellipse;shape=cloud;whiteSpace=wrap;html=1;', 120, 80),

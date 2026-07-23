@@ -1,3 +1,63 @@
+23-JUL-2026: 31.0.2
+
+- Applies shapeInside to all insertion paths of the supported shapes [jgraph/drawio#4535]
+- Improves the conversation list in the Generate dialog
+
+23-JUL-2026: 31.0.1
+
+- Adds backoff, max attempts and reactivation retry for realtime socket rejoin
+- Patches the visible document on merge while the realtime socket is disconnected
+- Hardens the release channel fail-safe paths
+- Documents the stable channel promote runbook in the release README
+
+23-JUL-2026: 31.0.0
+
+- Supports fontFamily/fontUrl entries in the config editor font chips
+- Fixes selection border position for rotated edge labels with non-centered alignment
+- Creates writable before data generation in local file save
+- Resets saving state on synchronous errors in Drive save
+- Reports busy error for concurrent Drive save attempts
+- Uses core oval/halfCircle markers for SysML interface templates
+- Update vendored drawio-plantuml bundle to commit bacc703
+- Hides busy save errors for automatic saves
+- Shows SVG export tooltip icons for plain text tooltips
+- Removes note icon tooltip and uses pointer cursor for overlay icons
+- Added more features to user mention in comments to support Confluence (accountId, no notification, liveSearch, ...)
+- Fixes displaced children of negative-size shapes in VSDX import
+- Fixes crafted-diagram DoS from prototype-member shape/marker/style names
+- Adds base support for text flow in shapes [jgraph/drawio#4535]
+- Adds search ranking weights to list current shape libraries before superseded ones
+- Fixes stale shape search results when the search term is deleted
+- Fixes more prototype-member map lookups from untrusted style/import data
+- Adds forced and fully disabled outline connect modes via outlineConnect style
+- Guards ELK childLayout spec against prototype-member layout names
+- Renames textFlowShapePadding to shapeInsidePadding
+- Adds automatic font size support for text flow in shapes
+- Hardens libavoid routing core maps against prototype-member cell ids
+- Fixes prototype pollution in Confluence page-id CSV import
+- Fixes prototype pollution in Confluence custom-content admin reindex
+- Guards embed RPC dispatch allow-list against inherited method names
+- Adds label padding between text and label background [jgraph/drawio#3355]
+- Fixes decimal values in numbers-type properties in the property grid
+- Adds text flow for SVG label conversion [jgraph/drawio#4535]
+- Extends centered text flow overflow above the shape
+- Triggers autosave for page view changes in inline embed mode
+- Fixes custom links not working after failed link action [jgraph/drawio-desktop#2161]
+- Refines centered text flow overflow symmetry
+- Enables text flow for supported shapes in the General palette
+- Clips expanded fill patterns to their tiles for printing
+- Adds fill pattern properties for normal mode [jgraph/drawio#3201]
+- Fixes vertical text flow alignment and joins detached trailing lines [jgraph/drawio#4535]
+- Adds customTemplates configuration option
+- Fixes ignored Labels option for label style colors in Adaptive Colors
+- Improves Adaptive Colors window layout
+- Embeds only the selected page in single page CLI exports [jgraph/drawio-desktop#2365]
+- Adds beta/stable release channel plumbing for app.diagrams.net
+- Enforces minimum table size and non-negative cell geometries in table layout
+- Matches editor text flow to the rendered label [jgraph/drawio#4535]
+- Fixes caret position when typing starts the text flow editor [jgraph/drawio#4535]
+- Reduces outgoing realtime traffic while no other collaborators are connected
+
 22-JUL-2026: 30.4.3
 
 - Extracts diagram XML from PDFs rewritten by external editors

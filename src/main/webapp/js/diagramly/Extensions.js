@@ -6258,7 +6258,7 @@ LucidImporter = {};
 				{
 					memberCells.push(v);
 				}
-				else if (blocksMap[key] != null)
+				else if (Object.prototype.hasOwnProperty.call(blocksMap, key) && blocksMap[key] != null)
 				{
 					memberCells.push(blocksMap[key]);
 					//Edges are not yet created, so, create a map for them

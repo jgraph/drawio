@@ -24,11 +24,14 @@ var mxStencilRegistry =
 {
 	/**
 	 * Class: mxStencilRegistry
-	 * 
+	 *
 	 * A singleton class that provides a registry for stencils and the methods
-	 * for painting those stencils onto a canvas or into a DOM.
+	 * for painting those stencils onto a canvas or into a DOM. The stencils
+	 * map has no prototype so that stencil names from untrusted cell styles
+	 * or library files cannot resolve or overwrite inherited members of
+	 * Object.prototype (eg. __proto__ or constructor).
 	 */
-	stencils: {},
+	stencils: Object.create(null),
 	
 	/**
 	 * Function: addStencil

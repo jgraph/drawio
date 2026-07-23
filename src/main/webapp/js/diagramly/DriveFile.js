@@ -186,6 +186,8 @@ DriveFile.prototype.save = function(revision, success, error, unloading, overwri
  */
 DriveFile.prototype.saveFile = function(title, revision, success, error, unloading, overwrite)
 {
+	var wasSaving = this.savingFile;
+
 	try
 	{
 		if (!this.isEditable())
@@ -340,12 +342,22 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 					}
 				});
 				
-				doSave(overwrite, revision);				
+				doSave(overwrite, revision);
 			}));
+		}
+		else if (error != null)
+		{
+			error({code: App.ERROR_BUSY, message: mxResources.get('busy')});
 		}
 	}
 	catch (e)
 	{
+		// Resets saving state only if it was set by this call
+		if (!wasSaving)
+		{
+			this.savingFile = false;
+		}
+
 		if (error != null)
 		{
 			error(e);

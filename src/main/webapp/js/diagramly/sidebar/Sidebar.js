@@ -1928,6 +1928,19 @@
 		'network', 'citrix', 'gcp2', 'archimate'];
 
 	/**
+	 * Search ranking weights for superseded libraries - on equal search
+	 * scores, shapes from the latest library of a family rank above the
+	 * ones from its predecessors (eg. "aws" lists AWS 2026 shapes before
+	 * AWS18 and AWS17), independent of the order in which the palettes
+	 * were added to the search index. Only breaks ties, so a demoted
+	 * shape that matches the search terms better still ranks first. The
+	 * default UML library is not demoted as it is enabled by default.
+	 */
+	Sidebar.prototype.librarySearchWeights = {aws3: -2, aws4b: -1,
+		azure: -1, cisco: -1, citrix: -1, gcp2: -1, network: -1,
+		veeam: -1, archimate: -1};
+
+	/**
 	 * Stores the icon sets returned for the given search terms and shows
 	 * them as chips if the results header has already been rendered (the
 	 * sets can arrive before or after the header depending on whether the

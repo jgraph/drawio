@@ -1794,13 +1794,16 @@ var com;
                     
                     //Check for -ve width/height cells and correct it
                     var geo = cell.geometry;
-                    
+
                     if (geo != null)
                 	{
+                    	var dx = 0, dy = 0;
+
                     	if (geo.height < 0)
                 		{
                     		geo.height = Math.abs(geo.height);
                     		geo.y -= geo.height;
+                    		dy = geo.height;
                     		cell.style += ';flipV=1;';
                 		}
 
@@ -1808,7 +1811,25 @@ var com;
                 		{
                     		geo.width = Math.abs(geo.width);
                     		geo.x -= geo.width;
+                    		dx = geo.width;
                     		cell.style += ';flipH=1;';
+                		}
+
+                    	// Normalizing moves the cell's origin while child geometries
+                    	// are relative to it (not to the box), so shift the children
+                    	// back to keep their absolute positions (e.g. line labels on
+                    	// connectors with Width=EndX-BeginX < 0, see issue 5228)
+                    	if (dx != 0 || dy != 0)
+                		{
+                    		for (var ci = 0; ci < model.getChildCount(cell); ci++)
+                    		{
+                    			var childGeo = model.getChildAt(cell, ci).geometry;
+
+                    			if (childGeo != null)
+                    			{
+                    				childGeo.translate(dx, dy);
+                    			}
+                    		}
                 		}
                 	}
                     
@@ -2392,12 +2413,12 @@ var com;
                          * Map with the document's colors.<br/>
                          * The key is the index number and the value is the hex representation of the color.
                          */
-                        /*private*/ this.colorElementMap = ({});
+                        /*private*/ this.colorElementMap = (Object.create(null));
                         /**
                          * Map with the document's fonts.<br/>
                          * The key is the ID and the value is the name of the font.
                          */
-                        /*private*/ this.fontElementMap = ({});
+                        /*private*/ this.fontElementMap = (Object.create(null));
                     }
                     mxPropertiesManager.__static_initialize = function () { if (!mxPropertiesManager.__static_initialized) {
                         mxPropertiesManager.__static_initialized = true;
@@ -3513,11 +3534,11 @@ var com;
                          * Map of master objects indexed by their ID. Before you think you're being clever by making
                          * the index an Integer as for pages, don't, there are reasons.
                          */
-                        this.masters = ({});
+                        this.masters = (Object.create(null));
                         /**
                          * Map stylesheets indexed by their ID
                          */
-                        this.stylesheets = ({});
+                        this.stylesheets = (Object.create(null));
                         /**
                          * Map themes indexed by their index
                          */
@@ -9699,7 +9720,7 @@ var com;
                                     var ix = row.getAttribute("IX") || "";
                                     if (!(ix.length === 0)) {
                                         if (this.fields == null) {
-                                            this.fields = ({});
+                                            this.fields = (Object.create(null));
                                         }
                                         var del = row.getAttribute("Del");
                                         if ((function (o1, o2) { if (o1 && o1.equals) {
@@ -10893,7 +10914,7 @@ var com;
                      * @param {*} children the text Elements
                      */
                     VsdxShape.prototype.initLabels = function (children) {
-                        this.paragraphs = ({});
+                        this.paragraphs = (Object.create(null));
                         var ch = null;
                         var pg = null;
                         var fld = null;

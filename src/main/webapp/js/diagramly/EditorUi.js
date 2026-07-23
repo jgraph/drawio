@@ -174,6 +174,12 @@
 	EditorUi.enabledTemplateSections = null;
 
 	/**
+	 * Specifies additional templates to be added to the sections of the
+	 * templates dialog. Null means no additional templates are added.
+	 */
+	EditorUi.customTemplates = null;
+
+	/**
 	 * Specifies the URL for the diffsync cache.
 	 */
 	EditorUi.cacheUrl = window.REALTIME_URL;
@@ -2791,7 +2797,7 @@
 				try
 				{
 					var layerIds = decodeURIComponent(urlParams['layer-ids']).split(' ');
-					var layerIdsMap = {};
+					var layerIdsMap = Object.create(null);
 					
 					for (var i = 0; i < layerIds.length; i++)
 					{
@@ -23197,7 +23203,7 @@
 										{
 											var graphModel = graph.model;
 											var layers = graphModel.getChildCells(graphModel.getRoot());
-											var layerIdsMap = {};
+											var layerIdsMap = Object.create(null);
 											
 											for (var i = 0; i < data.layerIds.length; i++)
 											{
@@ -23641,7 +23647,7 @@
 								graph.maxFitScale = maxFitScale;
 								
 								graph.fit(2 * border, null, null, null, null, null, h0);
-								this.setPageVisible(false);
+								this.setPageVisible(urlParams['pv'] == '1');
 
 								if (this.minInlineWidth != null &&
 									graph.getGraphBounds().width < this.minInlineWidth)
@@ -24066,7 +24072,10 @@
 						this.addListener('mathEnabledChanged', changeListener);
 						this.addListener('gridEnabledChanged', changeListener);
 						this.addListener('guidesEnabledChanged', changeListener);
+						this.addListener('tooltipsEnabledChanged', changeListener);
 						this.addListener('pageViewChanged', changeListener);
+						this.addListener('connectionPointsChanged', changeListener);
+						this.addListener('connectionArrowsChanged', changeListener);
 					}
 
 					// Runs afterLoad before sending the load response so that
@@ -24823,7 +24832,7 @@
     		var allCells = [];
 			var parents = [];
     		var cells = [];
-    		var dups = {};
+    		var dups = Object.create(null);
     		
     		if (lines.length > 0)
     		{
@@ -25141,7 +25150,7 @@
 						
 						if (labelname != null && labels != null)
 						{
-							var tempLabel = labels[newCell.getAttribute(labelname)];
+							var lbKey = newCell.getAttribute(labelname); var tempLabel = (lbKey != null && Object.prototype.hasOwnProperty.call(labels, lbKey)) ? labels[lbKey] : null;
 							
 							if (tempLabel != null)
 							{
@@ -25156,7 +25165,7 @@
 
 						if (stylename != null && styles != null)
 						{
-							var tempStyle = styles[newCell.getAttribute(stylename)];
+							var stKey = newCell.getAttribute(stylename); var tempStyle = (stKey != null && Object.prototype.hasOwnProperty.call(styles, stKey)) ? styles[stKey] : null;
 							
 							if (tempStyle != null)
 							{
@@ -27287,20 +27296,99 @@
 	};
 
 	/**
-	 * Get the people that can be mentioned in comments
+	 * Are free-typed addresses offered as mention targets. Only relevant
+	 * for backends whose mention tokens are email-based.
 	 */
-	EditorUi.prototype.getMentionCandidates = function(success, error)
+	EditorUi.prototype.freeMentionsSupported = function()
+	{
+		var file = this.getCurrentFile();
+
+		return file != null? file.freeMentionsSupported() : false;
+	};
+
+	/**
+	 * Are mention candidates searched server-side as the user types. If
+	 * true, getMentionCandidates is called with the typed query and its
+	 * results are shown unfiltered, otherwise the candidates are fetched
+	 * once and filtered locally.
+	 */
+	EditorUi.prototype.mentionsLiveSearch = function()
+	{
+		var file = this.getCurrentFile();
+
+		return file != null? file.mentionsLiveSearch() : false;
+	};
+
+	/**
+	 * Does the backend notify mentioned people. If false, a hint is shown
+	 * in the comment composer when a mention is inserted.
+	 */
+	EditorUi.prototype.mentionNotificationsSupported = function()
+	{
+		var file = this.getCurrentFile();
+
+		return file != null? file.mentionNotificationsSupported() : true;
+	};
+
+	/**
+	 * Get the people that can be mentioned in comments. query is the text
+	 * typed after the @ and is only passed with mentionsLiveSearch.
+	 */
+	EditorUi.prototype.getMentionCandidates = function(success, error, query)
 	{
 		var file = this.getCurrentFile();
 
 		if (file != null)
 		{
-			file.getMentionCandidates(success, error);
+			file.getMentionCandidates(success, error, query);
 		}
 		else
 		{
 			success([]);
 		}
+	};
+
+	/**
+	 * Returns the plain text token that represents a mention of the given
+	 * user in the comment content. The default is the +email token that
+	 * Drive detects server-side. Backends override this in pairs with
+	 * parseMentionTokens.
+	 */
+	EditorUi.prototype.serializeMention = function(user)
+	{
+		return '+' + user.email;
+	};
+
+	/**
+	 * Returns the given comment content split into plain text segments
+	 * and mention objects ({id, email, displayName, pictureUrl}) for
+	 * rendering. The default parses the +email/@email tokens written by
+	 * serializeMention.
+	 */
+	EditorUi.prototype.parseMentionTokens = function(content)
+	{
+		var re = /[+@]([A-Za-z0-9.!#$%&'*/=?^_`{|}~+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,})/g;
+		var segments = [];
+		var last = 0;
+		var match = null;
+
+		while ((match = re.exec(content)) != null)
+		{
+			if (match.index > last)
+			{
+				segments.push(content.substring(last, match.index));
+			}
+
+			segments.push({email: match[1]});
+			last = match.index + match[0].length;
+		}
+
+		if (last < content.length)
+		{
+			segments.push(content.substring(last));
+		}
+
+		return segments;
 	};
 
 	/**
@@ -27966,6 +28054,9 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	var readOnly = !editorUi.canComment();
 	var canReplyToReplies = editorUi.canReplyToReplies();
 	var mentionsEnabled = editorUi.mentionsSupported();
+	var liveMentions = mentionsEnabled && editorUi.mentionsLiveSearch();
+	var freeMentions = mentionsEnabled && editorUi.freeMentionsSupported();
+	var mentionNotifications = !mentionsEnabled || editorUi.mentionNotificationsSupported();
 	var anchorsEnabled = editorUi.anchoredCommentsSupported();
 	var mentionCandidates = [];
 	var pendingScrollCell = null;
@@ -28013,8 +28104,10 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	};
 
 	// Loads the people with access to the file for resolving mention
-	// tokens to names and for the composer autocompletion
-	if (mentionsEnabled)
+	// tokens to names and for the composer autocompletion. With live
+	// search there is no prefetched list, names come from the parsed
+	// mention tokens instead.
+	if (mentionsEnabled && !liveMentions)
 	{
 		editorUi.getMentionCandidates(function(candidates)
 		{
@@ -28049,19 +28142,28 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		return email;
 	};
 
-	function createMentionChip(email)
+	function createMentionChip(user)
 	{
 		var chip = document.createElement('span');
 		chip.className = 'geCommentMention';
-		chip.setAttribute('data-email', email);
+		chip.setAttribute('data-mention', editorUi.serializeMention(user));
+
+		// Keeps the label updatable when the candidate list arrives after
+		// the chip was rendered (see getMentionCandidates above)
+		if (user.email != null)
+		{
+			chip.setAttribute('data-email', user.email);
+		}
+
 		chip.contentEditable = 'false';
-		mxUtils.write(chip, '@' + resolveMentionName(email));
+		mxUtils.write(chip, '@' + (user.displayName || ((user.email != null) ?
+			resolveMentionName(user.email) : user.id)));
 
 		return chip;
 	};
 
 	// Writes the comment content into the given element, rendering
-	// +email/@email mention tokens as name chips
+	// mention tokens as name chips (see EditorUi.parseMentionTokens)
 	function writeCommentText(elt, content)
 	{
 		elt.innerText = '';
@@ -28073,24 +28175,18 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		}
 		else
 		{
-			var re = /[+@]([A-Za-z0-9.!#$%&'*/=?^_`{|}~+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,})/g;
-			var last = 0;
-			var match = null;
+			var segments = editorUi.parseMentionTokens(content);
 
-			while ((match = re.exec(content)) != null)
+			for (var i = 0; i < segments.length; i++)
 			{
-				if (match.index > last)
+				if (typeof segments[i] === 'string')
 				{
-					mxUtils.write(elt, content.substring(last, match.index));
+					mxUtils.write(elt, segments[i]);
 				}
-
-				elt.appendChild(createMentionChip(match[1]));
-				last = match.index + match[0].length;
-			}
-
-			if (last < content.length)
-			{
-				mxUtils.write(elt, content.substring(last));
+				else
+				{
+					elt.appendChild(createMentionChip(segments[i]));
+				}
 			}
 		}
 	};
@@ -28504,10 +28600,11 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 			addJumpChip(icon, chipLabel, (page != null) ?
 				(page.getName() || mxResources.get('page')) : null, page == null);
 		}
-		else if (editable)
+		else if (editable && editorUi.currentPage != null)
 		{
 			// Menu to attach the comment to the selected shape, the
-			// current page or the current viewport
+			// current page or the current viewport. Requires a current
+			// page, eg. headless UIs used by integrations have none.
 			var attach = document.createElement('a');
 			attach.className = 'geCommentAnchorChip geCommentAnchorAttach';
 			attach.setAttribute('title', mxResources.get('attach'));
@@ -28643,8 +28740,9 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	};
 
 	// Returns the content of the given comment editor. Mention chips are
-	// serialized as +email tokens which Drive detects server-side and
-	// notifies the mentioned person about
+	// serialized as the backend's mention tokens (see
+	// EditorUi.serializeMention) which the backend turns into
+	// notifications for the mentioned people
 	function getCommentEditorValue(elt)
 	{
 		if (elt.nodeName == 'TEXTAREA')
@@ -28670,9 +28768,9 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 							result.push('\n');
 						}
 						else if (child.getAttribute != null &&
-							child.getAttribute('data-email') != null)
+							child.getAttribute('data-mention') != null)
 						{
-							result.push('+' + child.getAttribute('data-email'));
+							result.push(child.getAttribute('data-mention'));
 						}
 						else
 						{
@@ -28704,6 +28802,22 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		var selected = 0;
 		var matches = [];
 		var current = null;
+		var searchThread = null;
+		var noNotifyHint = null;
+
+		// Backends that cannot notify mentioned people disclose that in
+		// the composer when the first mention is inserted
+		function showNoNotifyHint()
+		{
+			if (!mentionNotifications && noNotifyHint == null)
+			{
+				noNotifyHint = document.createElement('div');
+				noNotifyHint.style.cssText = 'font-size:11px;opacity:0.7;padding:2px 0;';
+				mxUtils.write(noNotifyHint, mxResources.get('mentionNoNotify',
+					null, 'People you mention are not notified'));
+				elt.parentNode.insertBefore(noNotifyHint, elt.nextSibling);
+			}
+		};
 
 		function hideMenu()
 		{
@@ -28760,10 +28874,11 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 			var rest = node.nodeValue.substring(current.end);
 			node.nodeValue = node.nodeValue.substring(0, current.start);
 
-			var chip = createMentionChip(candidate.email);
+			var chip = createMentionChip(candidate);
 			var space = document.createTextNode('\u00a0' + rest);
 			node.parentNode.insertBefore(chip, node.nextSibling);
 			chip.parentNode.insertBefore(space, chip.nextSibling);
+			showNoNotifyHint();
 
 			var sel = window.getSelection();
 			var range = document.createRange();
@@ -28786,10 +28901,45 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 				return;
 			}
 
-			var query = current.query.toLowerCase();
-			matches = [];
+			if (liveMentions)
+			{
+				// Debounced server-side search, results are shown unfiltered.
+				// Responses for a query that is no longer current are dropped.
+				if (searchThread != null)
+				{
+					window.clearTimeout(searchThread);
+				}
 
-			for (var i = 0; i < mentionCandidates.length && matches.length < 6; i++)
+				searchThread = window.setTimeout(function()
+				{
+					searchThread = null;
+
+					if (current == null)
+					{
+						return;
+					}
+
+					var query = current.query;
+
+					editorUi.getMentionCandidates(function(candidates)
+					{
+						if (current != null && current.query == query)
+						{
+							showMenu(candidates.slice(0, 6));
+						}
+					}, function()
+					{
+						// Keeps the previous menu on search errors
+					}, query);
+				}, 300);
+
+				return;
+			}
+
+			var query = current.query.toLowerCase();
+			var newMatches = [];
+
+			for (var i = 0; i < mentionCandidates.length && newMatches.length < 6; i++)
 			{
 				var cand = mentionCandidates[i];
 
@@ -28797,20 +28947,21 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 					(cand.displayName != null && cand.displayName.toLowerCase().indexOf(query) >= 0) ||
 					(cand.email != null && cand.email.toLowerCase().indexOf(query) >= 0))
 				{
-					matches.push(cand);
+					newMatches.push(cand);
 				}
 			}
 
 			// Offers a complete typed address as a mention target, eg. for
 			// people with access via a domain-wide share
-			if (/^[A-Za-z0-9.!#$%&'*/=?^_`{|}~+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/.test(current.query))
+			if (freeMentions &&
+				/^[A-Za-z0-9.!#$%&'*/=?^_`{|}~+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/.test(current.query))
 			{
 				var exists = false;
 
-				for (var i = 0; i < matches.length; i++)
+				for (var i = 0; i < newMatches.length; i++)
 				{
-					if (matches[i].email != null &&
-						matches[i].email.toLowerCase() == query)
+					if (newMatches[i].email != null &&
+						newMatches[i].email.toLowerCase() == query)
 					{
 						exists = true;
 						break;
@@ -28819,9 +28970,16 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 
 				if (!exists)
 				{
-					matches.push({email: current.query});
+					newMatches.push({email: current.query});
 				}
 			}
+
+			showMenu(newMatches);
+		};
+
+		function showMenu(newMatches)
+		{
+			matches = newMatches;
 
 			if (matches.length == 0)
 			{

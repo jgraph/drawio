@@ -610,6 +610,17 @@
 	};
 
 	/**
+	 * Returns true if the given style defines a pattern fill style that is
+	 * rendered as an SVG fill pattern when sketch mode is disabled.
+	 */
+	Editor.isPatternFillStyle = function(style)
+	{
+		var fillStyle = mxUtils.getValue(style, 'fillStyle', 'auto');
+
+		return fillStyle != 'auto' && fillStyle != 'solid';
+	};
+
+	/**
 	 * Common properties for all edges.
 	 */
 	Editor.commonProperties = [
@@ -632,17 +643,20 @@
         }},
         {name: 'fillWeight', dispName: 'Fill Weight', type: 'int', defVal: -1, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1' &&
-				state.vertices.length > 0;
+        	return (mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1' ||
+				Editor.isPatternFillStyle(state.style)) && state.vertices.length > 0;
         }},
         {name: 'hachureGap', dispName: 'Hachure Gap', type: 'int', defVal: -1, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1' &&
-				state.vertices.length > 0;
+        	return (mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1' ||
+				Editor.isPatternFillStyle(state.style)) && state.vertices.length > 0;
         }},
         {name: 'hachureAngle', dispName: 'Hachure Angle', type: 'int', defVal: -41, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1' &&
+        	// The dots pattern ignores the hachure angle in normal mode
+        	return (mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1' ||
+				(Editor.isPatternFillStyle(state.style) &&
+				mxUtils.getValue(state.style, 'fillStyle', 'auto') != 'dots')) &&
 				state.vertices.length > 0;
         }},
         {name: 'curveFitting', dispName: 'Curve Fitting', type: 'float', defVal: 0.95, isVisible: function(state, format)
@@ -811,6 +825,37 @@
 	 * Common properties for all vertices.
 	 */
 	Editor.commonVertexProperties = [
+		{name: 'shapeInsideShape', dispName: 'Text Flow Shape', type: 'enum', defVal: null,
+			enumList: [{val: null, dispName: 'Automatic'}, {val: 'dataStorage', dispName: 'Data Storage'},
+				{val: 'ellipse', dispName: 'Ellipse'}, {val: 'hexagon', dispName: 'Hexagon'},
+				{val: 'or', dispName: 'Or'}, {val: 'parallelogram', dispName: 'Parallelogram'},
+				{val: 'rhombus', dispName: 'Rhombus'}, {val: 'step', dispName: 'Step'},
+				{val: 'trapezoid', dispName: 'Trapezoid'}, {val: 'triangle', dispName: 'Triangle'},
+				{val: 'xor', dispName: 'Xor'}],
+			onChange: function(graph, newValue)
+			{
+				// Enables the text flow with an explicit flow shape so
+				// that the effect is immediately visible
+				if (newValue != null && newValue != '')
+				{
+					var cells = graph.getSelectionCells();
+					var vertices = [];
+
+					for (var i = 0; i < cells.length; i++)
+					{
+						if (graph.model.isVertex(cells[i]))
+						{
+							vertices.push(cells[i]);
+						}
+					}
+
+					if (vertices.length > 0)
+					{
+						graph.setCellStyles('shapeInside', '1', vertices);
+					}
+				}
+			}},
+		{name: 'shapeInsidePadding', dispName: 'Text Flow Padding', type: 'float', min: 0, defVal: 2},
         {name: 'colspan', dispName: 'Colspan', type: 'int', min: 1, defVal: 1, isVisible: function(state, format)
         {
         	var graph = format.editorUi.editor.graph;
@@ -859,7 +904,6 @@
         		{val: 'fill', dispName: 'Fill'}, {val: 'width', dispName: 'Width'}]
         },
         {name: 'noLabel', dispName: 'Hide Label', type: 'bool', defVal: false},
-        {name: 'labelPadding', dispName: 'Label Padding', type: 'float', defVal: 0},
         {name: 'direction', dispName: 'Direction', type: 'enum', defVal: 'east',
         	enumList: [{val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
@@ -880,6 +924,10 @@
         }},
         {name: 'allowArrows', dispName: 'Allow Arrows', type: 'bool', defVal: true},
         {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
+        {name: 'outlineConnect', dispName: 'Outline Connect', defVal: '1', type: 'enum',
+        	enumList: [{val: '1', dispName: 'Default'}, {val: '0', dispName: 'Delayed'},
+        		{val: '2', dispName: 'Always'}, {val: '3', dispName: 'Never'}]
+        },
         {name: 'perimeter', dispName: 'Perimeter', defVal: 'none', type: 'enum',
         	enumList: [{val: 'none', dispName: 'None'},
         			{val: 'rectanglePerimeter', dispName: 'Rectangle'}, {val: 'ellipsePerimeter', dispName: 'Ellipse'},
@@ -2805,6 +2853,18 @@
 					EditorUi.debug('Configuration Error: Array expected for enabledTemplateSections');
 				}
 			}
+
+			if (config.customTemplates != null)
+			{
+				if (Array.isArray(config.customTemplates))
+				{
+					EditorUi.customTemplates = config.customTemplates;
+				}
+				else
+				{
+					EditorUi.debug('Configuration Error: Array expected for customTemplates');
+				}
+			}
 			
 			if (config.styles != null)
 			{
@@ -3763,6 +3823,22 @@
 				((t.angle !== 0) ? ' rotate(' + (t.angle * 180 / Math.PI) + ')' : '') +
 				' scale(' + t.sx + ((t.sy !== t.sx) ? ',' + t.sy : '') + ')');
 
+			// Replicates the implicit clipping of pattern content to the tile
+			// (overflow is hidden on SVG patterns) so that expanded tiles
+			// render exactly like the on-screen pattern, eg. the default
+			// hatch stroke is centered on the tile edge and only half of
+			// its width is visible
+			var tileClipId = clipPrefix + (++clipCounter);
+			var tileClip = svgRoot.ownerDocument.createElementNS(svgNS, 'clipPath');
+			tileClip.setAttribute('id', tileClipId);
+
+			var tileRect = svgRoot.ownerDocument.createElementNS(svgNS, 'rect');
+			tileRect.setAttribute('x', '0');
+			tileRect.setAttribute('y', '0');
+			tileRect.setAttribute('width', pw);
+			tileRect.setAttribute('height', ph);
+			tileClip.appendChild(tileRect);
+
 			// Generate tiles by cloning pattern children
 			var patternChildren = pattern.childNodes;
 
@@ -3773,6 +3849,10 @@
 					var tileGroup = svgRoot.ownerDocument.createElementNS(svgNS, 'g');
 					tileGroup.setAttribute('transform',
 						'translate(' + (tx * pw) + ',' + (ty * ph) + ')');
+
+					// Evaluated in the tile's user space so the shared
+					// rect clips each tile in its local coordinates
+					tileGroup.setAttribute('clip-path', 'url(#' + tileClipId + ')');
 
 					for (var c = 0; c < patternChildren.length; c++)
 					{
@@ -3798,6 +3878,7 @@
 			}
 
 			defs.appendChild(clipPath);
+			defs.appendChild(tileClip);
 
 			// Insert the pattern group after the element's parent group
 			// to maintain correct stacking order
@@ -7701,7 +7782,7 @@
 								// Auto is the property's default: REMOVE the key
 								// (null unsets it in setCellStyles) instead of
 								// writing jettySize=auto into the style.
-								newVal = (type == 'numbers') ? inputVal.match(/\d+/g).map(Number).join(' ') :
+								newVal = (type == 'numbers') ? inputVal.match(/\d*\.?\d+/g).map(Number).join(' ') :
 									(inputVal === 'auto' && prop.allowAuto && prop.defVal == 'auto') ? null :
 									encodeURIComponent((type == 'int'? parseInt(inputVal) : inputVal) + '');
 							}
@@ -10205,7 +10286,7 @@
 				}
 			});
 
-			var executeNextAction = mxUtils.bind(this, function()
+			var dispatchNextAction = mxUtils.bind(this, function()
 			{
 				// Bail out if the graph was torn down (e.g. presentation /
 				// lightbox view closed) mid-animation — a deferred step must
@@ -10248,8 +10329,27 @@
 
 						if (this.isCustomLink(action.open))
 						{
+							// A failed link (customLinkClicked shows the error
+							// dialog and returns false, e.g. pageNotFound)
+							// aborts the chain. The abort must reset the
+							// execution flags like the teardown guard above —
+							// leaving executingCustomActions latched sends
+							// every later call into the already-executing
+							// branch, silently disabling all custom links
+							// until the page is reloaded
+							// [jgraph/drawio-desktop#2161]. done() still fires
+							// so a waiting animation player unwinds instead of
+							// hanging on a step that never completes.
 							if (!this.customLinkClicked(action.open, cell))
 							{
+								this.executingCustomActions = false;
+								this.stoppingCustomActions = false;
+
+								if (done != null)
+								{
+									done();
+								}
+
 								return;
 							}
 						}
@@ -10655,6 +10755,29 @@
 					{
 						done();
 					}
+				}
+			});
+
+			// An action that throws (e.g. a broken action body) must not
+			// leave executingCustomActions latched — that silently disables
+			// all custom links until the page is reloaded — nor leave the
+			// model transaction open. Wraps every dispatch entry (initial,
+			// recursive and the async waitAndExecute continuations) and
+			// rethrows so a synchronous caller still surfaces the error
+			// dialog (graph.customLinkClicked catches via handleError).
+			var executeNextAction = mxUtils.bind(this, function()
+			{
+				try
+				{
+					dispatchNextAction();
+				}
+				catch (e)
+				{
+					this.executingCustomActions = false;
+					this.stoppingCustomActions = false;
+					endUpdate();
+
+					throw e;
 				}
 			});
 

@@ -3780,7 +3780,79 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		{
 			realUrl = PROXY_URL + '?url=' + encodeURIComponent(realUrl);
 		}
-		
+
+		function addTemplateEntry(entry, clibs)
+		{
+			var url = entry.url;
+
+			if (url != null)
+			{
+				var category = entry.section;
+				var subCategory = entry.subsection;
+
+				if (category == null)
+				{
+					var slash = url.indexOf('/');
+					category = url.substring(0, slash);
+
+					if (subCategory == null)
+					{
+						var nextSlash = url.indexOf('/', slash + 1);
+
+						if (nextSlash > -1)
+						{
+							subCategory = url.substring(slash + 1, nextSlash);
+						}
+					}
+				}
+
+				if (EditorUi.enabledTemplateSections == null ||
+					mxUtils.indexOf(EditorUi.enabledTemplateSections, category) >= 0)
+				{
+					var list = categories[category];
+
+					if (list == null)
+					{
+						list = [];
+						categories[category] = list;
+					}
+
+					var tempLibs = entry.clibs;
+
+					if (clibs[tempLibs] != null)
+					{
+						tempLibs = clibs[tempLibs];
+					}
+
+					var tempObj = {url: entry.url, libs: entry.libs,
+						title: entry.title, tooltip: entry.name || entry.url,
+						preview: entry.preview, clibs: tempLibs, tags: entry.tags};
+					list.push(tempObj);
+
+					if (subCategory != null)
+					{
+						var subCats = subCategories[category];
+
+						if (subCats == null)
+						{
+							subCats = {};
+							subCategories[category] = subCats;
+						}
+
+						var subCatList = subCats[subCategory];
+
+						if (subCatList == null)
+						{
+							subCatList = [];
+							subCats[subCategory] = subCatList;
+						}
+
+						subCatList.push(tempObj);
+					}
+				}
+			}
+		};
+
 		function loadDrawioTemplates()
 		{
 			mxUtils.get(realUrl, function(req)
@@ -3824,81 +3896,32 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 							}
 							else
 							{
-								var url = node.getAttribute('url');
-								
-								if (url != null)
-								{
-									var category = node.getAttribute('section');
-									var subCategory = node.getAttribute('subsection');
-									
-									if (category == null)
-									{
-										var slash = url.indexOf('/');
-										category = url.substring(0, slash);
-										
-										if (subCategory == null)
-										{
-											var nextSlash = url.indexOf('/', slash + 1);
-											
-											if (nextSlash > -1)
-											{
-												subCategory = url.substring(slash + 1, nextSlash);
-											}
-										}
-									}
-									
-									if (EditorUi.enabledTemplateSections == null ||
-										mxUtils.indexOf(EditorUi.enabledTemplateSections, category) >= 0)
-									{
-										var list = categories[category];
-										
-										if (list == null)
-										{
-											list = [];
-											categories[category] = list;
-										}
-										
-										var tempLibs = node.getAttribute('clibs');
-										
-										if (clibs[tempLibs] != null)
-										{
-											tempLibs = clibs[tempLibs];
-										}
-										
-										var tempObj = {url: node.getAttribute('url'), libs: node.getAttribute('libs'),
-											title: node.getAttribute('title'), tooltip: node.getAttribute('name') || node.getAttribute('url'),
-											preview: node.getAttribute('preview'), clibs: tempLibs, tags: node.getAttribute('tags')};
-										list.push(tempObj);
-											
-										if (subCategory != null)
-										{
-											var subCats = subCategories[category];
-											
-											if (subCats == null)
-											{
-												subCats = {};
-												subCategories[category] = subCats;
-											}
-											
-											var subCatList = subCats[subCategory];
-											
-											if (subCatList == null)
-											{
-												subCatList = [];
-												subCats[subCategory] = subCatList;
-											}
-											
-											subCatList.push(tempObj);
-										}
-									}
-								}
+								addTemplateEntry({url: node.getAttribute('url'),
+									section: node.getAttribute('section'),
+									subsection: node.getAttribute('subsection'),
+									libs: node.getAttribute('libs'),
+									clibs: node.getAttribute('clibs'),
+									title: node.getAttribute('title'),
+									name: node.getAttribute('name'),
+									preview: node.getAttribute('preview'),
+									tags: node.getAttribute('tags')}, clibs);
 							}
 						}
-						
+
 						node = node.nextSibling;
 					}
-					
-				
+
+					if (Array.isArray(EditorUi.customTemplates))
+					{
+						for (var i = 0; i < EditorUi.customTemplates.length; i++)
+						{
+							if (EditorUi.customTemplates[i] != null)
+							{
+								addTemplateEntry(EditorUi.customTemplates[i], clibs);
+							}
+						}
+					}
+
 				spinner.stop();
 					initUi();
 				}
@@ -10034,50 +10057,46 @@ var AdaptiveColorsWindow = function(editorUi, x, y, w, h)
 	var div = document.createElement('div');
 	div.style.userSelect = 'none';
 	div.style.overflow = 'hidden';
+	div.style.boxSizing = 'border-box';
+	div.style.padding = '12px';
 	div.style.height = '100%';
 
+	// This window lives under document.body and does not inherit the
+	// editor's color scheme in every theme - track it explicitly so
+	// the light-dark() colors of the controls follow the editor
+	var updateColorScheme = function()
+	{
+		div.style.colorScheme = (Editor.isDarkMode != null &&
+			Editor.isDarkMode()) ? 'dark' : 'light';
+	};
+
+	updateColorScheme();
+	editorUi.addListener('darkModeChanged', updateColorScheme);
+
 	var section = document.createElement('div');
-	section.style.display = 'flex';
-	section.style.alignItems = 'center';
-	section.style.justifyContent = 'center';
-	section.style.paddingTop = '20px';
+	section.className = 'geDialogSection';
 
-	var labelCheckbox = document.createElement('input');
-	labelCheckbox.setAttribute('type', 'checkbox');
-	labelCheckbox.style.marginRight = '4px';
-	labelCheckbox.checked = true;
+	var backgroundCheckbox = editorUi.addCheckbox(section,
+		mxResources.get('background'), true, null, null,
+		null, null, null, true);
+	var labelCheckbox = editorUi.addCheckbox(section,
+		mxResources.get('labels'), true, null, null,
+		null, null, null, true);
+	div.appendChild(section);
 
-	var backgroundCheckbox = document.createElement('input');
-	backgroundCheckbox.setAttribute('type', 'checkbox');
-	backgroundCheckbox.style.marginRight = '4px';
-	backgroundCheckbox.checked = true;
-
-	var btn = mxUtils.button(mxResources.get('removeIt', [mxResources.get('userDefined')]), mxUtils.bind(this, function()
+	var btn = mxUtils.button(mxResources.get('removeIt', [mxResources.get('userDefined')]), function()
 	{
 		editorUi.removeUserDefinedDarkColors((graph.isSelectionEmpty()) ?
 			graph.getVerticesAndEdges() : graph.getSelectionCells(),
 			labelCheckbox.checked, backgroundCheckbox.checked);
-	}));
+	});
 
-	btn.setAttribute('title', 'Convert Colors');
 	btn.className = 'geBtn gePrimaryBtn';
-	section.appendChild(btn);
-	div.appendChild(section);
+	btn.style.boxSizing = 'border-box';
+	btn.style.margin = '0';
+	btn.style.width = '100%';
+	div.appendChild(btn);
 
-	section = section.cloneNode(false);
-	section.appendChild(backgroundCheckbox);
-	section.style.paddingTop = '8px';
-
-	mxUtils.write(section, mxResources.get('background'));
-	div.appendChild(section);
-
-	section = section.cloneNode(false);
-	section.appendChild(labelCheckbox);
-	section.style.paddingTop = '8px';
-	
-	mxUtils.write(section, mxResources.get('labels'));
-	div.appendChild(section);
-	
 	this.window = new mxWindow(mxResources.get('adaptiveColors'), div, x, y, w, h, true, true);
 	this.window.destroyOnClose = false;
 	this.window.setMinimizable(false);
@@ -10172,7 +10191,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	convBar.style.display = 'flex';
 	convBar.style.flexDirection = 'column';
 	convBar.style.flexShrink = '0';
-	convBar.style.width = '130px';
+	convBar.style.width = '150px';
 	convBar.style.boxSizing = 'border-box';
 	convBar.style.padding = '8px 6px 20px 6px';
 	convBar.style.borderRight = '1px solid light-dark(#e5e5e5, #505050)';
@@ -10223,12 +10242,29 @@ var ChatWindow = function(editorUi, x, y, w, h)
 			conv.active = (conv == currentConv);
 			conv.item.style.backgroundColor = (conv.active) ?
 				itemActiveBg : 'transparent';
+
+			// Delete stays visible once there is something to delete as
+			// hover-only affordances are unreachable on touch devices
+			conv.del.style.display = (conv.el.firstChild != null) ?
+				'' : 'none';
 		}
 	};
 
 	var selectConversation = function(conv)
 	{
 		currentConv = conv;
+
+		// Keeps at most one empty conversation - the placeholder left
+		// behind when switching away holds no state and is discarded
+		for (var i = conversations.length - 1; i >= 0; i--)
+		{
+			if (conversations[i] != conv &&
+				conversations[i].el.firstChild == null)
+			{
+				removeConversation(conversations[i]);
+			}
+		}
+
 		hist.innerHTML = '';
 		hist.appendChild(conv.el);
 		hist.scrollTop = hist.scrollHeight;
@@ -10237,15 +10273,17 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		inp.focus();
 	};
 
+	// Untitled conversations show the composer placeholder as a hint
+	// rather than repeating the New Chat button label
 	var setConversationTitle = function(conv, title)
 	{
 		conv.title = title;
 		conv.label.innerHTML = '';
 		mxUtils.write(conv.label, (title != null) ?
-			title : mxResources.get('newChat'));
+			title : mxResources.get('describeYourDiagram'));
 		conv.label.style.fontStyle = (title != null) ? '' : 'italic';
 		conv.item.setAttribute('title', (title != null) ?
-			title : mxResources.get('newChat'));
+			title : mxResources.get('describeYourDiagram'));
 	};
 
 	var removeConversation = function(conv)
@@ -10311,13 +10349,13 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		del.style.width = '13px';
 		del.style.flexShrink = '0';
 		del.style.cursor = 'pointer';
-		del.style.opacity = '0';
+		del.style.opacity = '0.6';
+		del.style.display = 'none';
 		item.appendChild(del);
+		conv.del = del;
 
 		mxEvent.addListener(item, 'mouseenter', function()
 		{
-			del.style.opacity = '0.6';
-
 			if (!conv.active)
 			{
 				item.style.backgroundColor = itemHoverBg;
@@ -10326,8 +10364,6 @@ var ChatWindow = function(editorUi, x, y, w, h)
 
 		mxEvent.addListener(item, 'mouseleave', function()
 		{
-			del.style.opacity = '0';
-
 			if (!conv.active)
 			{
 				item.style.backgroundColor = 'transparent';
@@ -11636,6 +11672,9 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		waiting.className = 'geSidebar';
 		conv.el.appendChild(waiting);
 
+		// The conversation may just have received its first content
+		updateConvItems();
+
 		var fail = function(e)
 		{
 			waiting.innerHTML = '';
@@ -11679,6 +11718,9 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		bubble.style.backgroundColor = 'light-dark(var(--highlight-color), var(--dark-soft-color))';
 		mxUtils.write(bubble, (prompt != '') ? prompt : chip.label);
 		conv.el.appendChild(bubble);
+
+		// The conversation may just have received its first content
+		updateConvItems();
 
 		if (chip != null && prompt != '')
 		{
@@ -12207,7 +12249,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 
 	this.window = new mxWindow(mxResources.get('generate'),
 		div, x, y, w, h, true, true);
-	this.window.minimumSize = new mxRectangle(0, 0, 260, 200);
+	this.window.minimumSize = new mxRectangle(0, 0, 280, 200);
 	this.window.destroyOnClose = false;
 	this.window.setMaximizable(false);
 	this.window.setResizable(true);

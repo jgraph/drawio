@@ -781,40 +781,54 @@ BaseFormatPanel.prototype.addActions = function(div, names)
 /**
  * 
  */
-BaseFormatPanel.prototype.createStepper = function(input, update, step, disableFocus, defaultValue, isFloat)
+BaseFormatPanel.prototype.createStepper = function(input, update, step, disableFocus, defaultValue, isFloat, changeFn)
 {
 	step = (step != null) ? step : 1;
 	var bigStep = 10 * step;
-	
+
 	var stepper = document.createElement('div');
 	stepper.className = 'geBtnStepper';
 	stepper.style.position = 'absolute';
 	stepper.style.left = '200px';
-	
+
 	var up = document.createElement('div');
 	up.style.height = '9px';
 	up.style.backgroundImage = 'url(' + Editor.arrowUpImage + ')';
 	up.style.width = '10px';
 	stepper.appendChild(up);
-	
+
 	var down = up.cloneNode(false);
 	down.style.backgroundImage = 'url(' + Editor.arrowDownImage + ')';
 	stepper.appendChild(down);
 
 	function changeValue(increment, localDefaultValue, evt)
 	{
+		// Values that are not a single number (eg. CSS-style shorthands)
+		// are stepped by the given function instead
+		if (changeFn != null)
+		{
+			changeFn(increment);
+
+			if (update != null)
+			{
+				update(evt);
+			}
+
+			return;
+		}
+
 		if (input.value == '')
 		{
 			input.value = (defaultValue != null) ? defaultValue : localDefaultValue;
 		}
-		
+
 		var val = isFloat? parseFloat(input.value) : parseInt(input.value);
 
 		if (!isNaN(val))
 		{
 			// Rounds to avoid IEEE754 artifacts (eg. 0.2 + 0.1) in the input
 			input.value = Math.round((val + increment) * 1000000) / 1000000;
-			
+
 			if (update != null)
 			{
 				update(evt);
@@ -4606,6 +4620,42 @@ TextFormatPanel.prototype.addFont = function(container)
 		extraPanel.appendChild(autosizeOpt);
 	}
 
+	// Flows wrapped label text along the shape outline, only shown for
+	// shapes with a supported outline (see Graph.shapeInsideOutlines)
+	var shapeInsideSupported = ss.vertices.length > 0 &&
+		ss.vertices.length == ss.cells.length;
+
+	for (var i = 0; i < ss.vertices.length && shapeInsideSupported; i++)
+	{
+		var geo = graph.getCellGeometry(ss.vertices[i]);
+		shapeInsideSupported = geo != null && graph.getShapeInsideOutline(
+			graph.getCurrentCellStyle(ss.vertices[i]),
+			geo.width, geo.height) != null;
+	}
+
+	if (shapeInsideSupported)
+	{
+		var fitOpt = this.createCellOption(mxResources.get('fitTextToShape'),
+			'shapeInside', '0', null, null, mxUtils.bind(this, function(cells, value)
+		{
+			// Forces a repaint of the text flow
+			for (var i = 0; i < cells.length; i++)
+			{
+				graph.refresh(cells[i]);
+			}
+		}));
+		fitOpt.style.fontWeight = 'bold';
+
+		// Requires word wrap
+		if (mxUtils.getValue(ss.style, mxConstants.STYLE_WHITE_SPACE, null) != 'wrap')
+		{
+			fitOpt.getElementsByTagName('input')[0].setAttribute('disabled', 'disabled');
+			fitOpt.style.opacity = '0.5';
+		}
+
+		extraPanel.appendChild(fitOpt);
+	}
+
 	if (!ui.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 	{
 		convertToSvg.getElementsByTagName('span')[0].style.maxWidth = '172px';
@@ -4704,11 +4754,91 @@ TextFormatPanel.prototype.addFont = function(container)
 	mxEvent.addListener(labelWidth, 'change', labelWidthUpdate);
 	mxEvent.addListener(labelWidth, 'blur', labelWidthUpdate);
 
+	// Label padding controls the space between the label text and its
+	// background box (the labelPadding style, 1-4 CSS-style shorthand
+	// values). The panel is only visible while a label background or
+	// border color is set as the padding is not painted otherwise.
+	var labelPaddingPanel = this.createPanel();
+	labelPaddingPanel.className = 'geFormatEntry';
+	labelPaddingPanel.style.fontWeight = 'bold';
+	labelPaddingPanel.setAttribute('title', mxResources.get('labelPadding'));
+
+	var labelPaddingTitle = document.createElement('span');
+	labelPaddingTitle.className = 'geStyleLabel';
+	labelPaddingTitle.style.maxWidth = '140px';
+	mxUtils.write(labelPaddingTitle, mxResources.get('labelPadding'));
+	labelPaddingPanel.appendChild(labelPaddingTitle);
+
+	var labelPaddingUpdate = mxUtils.bind(this, function(evt)
+	{
+		var tokens = labelPadding.value.match(/\d*\.?\d+/g);
+		var value = (tokens != null) ? tokens.slice(0, 4).map(Number).join(' ') : null;
+
+		// An all-zero value is the default and removes the style
+		if (mxUtils.parseCssSpacing(value) == null)
+		{
+			value = null;
+		}
+
+		if (value != mxUtils.getValue(ui.getSelectionState().style, mxConstants.STYLE_LABEL_PADDING, null))
+		{
+			if (graph.isEditing())
+			{
+				graph.stopEditing(true);
+			}
+
+			var cells = ui.getSelectionState().cells;
+
+			graph.getModel().beginUpdate();
+			try
+			{
+				graph.setCellStyles(mxConstants.STYLE_LABEL_PADDING, value, cells);
+				ui.fireEvent(new mxEventObject('styleChanged', 'keys', [mxConstants.STYLE_LABEL_PADDING],
+					'values', [value], 'cells', cells));
+			}
+			finally
+			{
+				graph.getModel().endUpdate();
+			}
+		}
+
+		labelPadding.value = (value == null) ? '' : value;
+		mxEvent.consume(evt);
+	});
+
+	var labelPadding = document.createElement('input');
+	labelPadding.style.position = 'absolute';
+	labelPadding.style.left = (216 - 16 - 52) + 'px';
+	labelPadding.style.width = '52px';
+	labelPadding.setAttribute('title', mxResources.get('labelPadding'));
+	labelPaddingPanel.appendChild(labelPadding);
+
+	// Steps all values of the CSS-style shorthand
+	var labelPaddingStepper = this.createStepper(labelPadding, labelPaddingUpdate, 1, null, null, null,
+		function(increment)
+	{
+		var tokens = labelPadding.value.match(/\d*\.?\d+/g);
+		tokens = (tokens != null) ? tokens.slice(0, 4).map(Number) : [0];
+
+		for (var i = 0; i < tokens.length; i++)
+		{
+			tokens[i] = Math.max(0, tokens[i] + increment);
+		}
+
+		labelPadding.value = tokens.join(' ');
+	});
+	labelPaddingStepper.style.left = (216 - 16) + 'px';
+	labelPaddingPanel.appendChild(labelPaddingStepper);
+
+	mxEvent.addListener(labelPadding, 'change', labelPaddingUpdate);
+	mxEvent.addListener(labelPadding, 'blur', labelPaddingUpdate);
+
 	if (!graph.cellEditor.isContentEditing())
 	{
 		var advancedSec = this.createCollapsibleSection(mxResources.get('advanced'), true);
 		advancedSec.contentDiv.appendChild(extraPanel);
 		advancedSec.contentDiv.appendChild(labelWidthPanel);
+		advancedSec.contentDiv.appendChild(labelPaddingPanel);
 		container.appendChild(advancedSec.wrapper);
 		var opacityPanel = this.createRelativeOption(mxResources.get('opacity'), mxConstants.STYLE_TEXT_OPACITY);
 		opacityPanel.style.borderTopStyle = 'solid';
@@ -5213,6 +5343,15 @@ TextFormatPanel.prototype.addFont = function(container)
 			var tmp = parseFloat(mxUtils.getValue(ss.style, mxConstants.STYLE_LABEL_WIDTH, ''));
 			labelWidth.value = (isNaN(tmp)) ? '' : this.inUnit(tmp) + ' ' + this.getUnit();
 		}
+
+		if (force || document.activeElement != labelPadding)
+		{
+			labelPadding.value = mxUtils.getValue(ss.style, mxConstants.STYLE_LABEL_PADDING, '');
+		}
+
+		labelPaddingPanel.style.display = (mxUtils.getValue(ss.style, mxConstants.STYLE_LABEL_BACKGROUNDCOLOR,
+			mxConstants.NONE) != mxConstants.NONE || mxUtils.getValue(ss.style, mxConstants.STYLE_LABEL_BORDERCOLOR,
+			mxConstants.NONE) != mxConstants.NONE) ? '' : 'none';
 	});
 
 	globalUpdate = this.installInputHandler(globalSpacing, mxConstants.STYLE_SPACING, 2, -999, 999, 
@@ -5233,6 +5372,7 @@ TextFormatPanel.prototype.addFont = function(container)
 	this.addKeyHandler(bottomSpacing, listener);
 	this.addKeyHandler(leftSpacing, listener);
 	this.addKeyHandler(labelWidth, listener);
+	this.addKeyHandler(labelPadding, listener);
 
 	graph.getModel().addListener(mxEvent.CHANGE, listener);
 	this.listeners.push({destroy: function() { graph.getModel().removeListener(listener); }});

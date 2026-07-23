@@ -11,10 +11,12 @@ var mxMarker =
 	 * registry. NOTE: The signatures in this class will change.
 	 * 
 	 * Variable: markers
-	 * 
-	 * Maps from markers names to functions to paint the markers.
+	 *
+	 * Maps from markers names to functions to paint the markers. The map has
+	 * no prototype so that marker names from untrusted cell styles cannot
+	 * resolve inherited members of Object.prototype (eg. __proto__).
 	 */
-	markers: [],
+	markers: Object.create(null),
 	
 	/**
 	 * Function: addMarker

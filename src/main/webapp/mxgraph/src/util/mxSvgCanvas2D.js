@@ -823,16 +823,24 @@ mxSvgCanvas2D.prototype.createSvgGradient = function(start, end, alpha1, alpha2,
  *
  * Private helper function to create fillPattern Id. The id must encode every
  * input that affects the resulting pattern element (type, dimensions, stroke
- * width, both light and dark color components, scale) so that two patterns
- * that differ in any of those attributes get distinct ids and are never
- * shared via getElementById lookups across shapes.
+ * width, both light and dark color components, scale, gap, weight and angle
+ * overrides) so that two patterns that differ in any of those attributes get
+ * distinct ids and are never shared via getElementById lookups across shapes.
  */
-mxSvgCanvas2D.prototype.createFillPatternId = function(type, strokeSize, color, scale)
+mxSvgCanvas2D.prototype.createFillPatternId = function(type, strokeSize, color, scale, gap, weight, angle)
 {
 	var parts = ['mx-pattern', type,
 		Math.round(strokeSize * 100),
 		color.light, color.dark,
 		Math.round(scale * 100)];
+
+	// Appended only if set so that ids for default patterns are stable
+	if (gap != null || weight != null || angle != null)
+	{
+		parts.push((gap != null) ? Math.round(gap * 100) : 'a',
+			(weight != null) ? Math.round(weight * 100) : 'a',
+			(angle != null) ? Math.round(angle * 100) : 'a');
+	}
 
 	// Removes illegal characters from gradient ID
 	return parts.join('-').toLowerCase().replace(/^[^a-z]+|[^\w:.-]+/gi, '_');
@@ -841,12 +849,37 @@ mxSvgCanvas2D.prototype.createFillPatternId = function(type, strokeSize, color, 
 /**
  * Function: getFillPattern
  *
- * Private helper function to create FillPattern SVG elements
+ * Private helper function to create FillPattern SVG elements. The optional
+ * hachureGap, fillWeight and hachureAngle styles override the stroke
+ * distance, stroke width and angle of the pattern, which are otherwise
+ * derived from the shape's stroke width.
  */
-mxSvgCanvas2D.prototype.getFillPattern = function(type, strokeSize, color, scale)
+mxSvgCanvas2D.prototype.getFillPattern = function(type, strokeSize, color, scale, hachureGap, fillWeight, hachureAngle)
 {
 	color = this.getLightDarkColor(color);
-	var id = this.createFillPatternId(type, strokeSize, color, scale);
+
+	// Validates overrides from untrusted styles where -1, auto and
+	// non-numeric values mean unset. The gap is clamped to a minimum
+	// of 1 to avoid degenerate patterns.
+	var gap = parseFloat(hachureGap);
+	gap = (!isFinite(gap) || gap <= 0) ? null : Math.max(1, gap);
+	var weight = parseFloat(fillWeight);
+	weight = (!isFinite(weight) || weight <= 0) ? null : weight;
+	var angle = parseFloat(hachureAngle);
+	angle = (!isFinite(angle)) ? null : angle;
+
+	// If any pattern property is set then the unset properties use the
+	// rough.js automatic values so that the same style looks similar in
+	// sketch and normal mode. If no property is set, the legacy pattern
+	// geometry derived from the stroke width is used unchanged.
+	if (gap != null || weight != null || angle != null)
+	{
+		gap = (gap != null) ? gap : Math.max(1, strokeSize * 4);
+		weight = (weight != null) ? weight : strokeSize / 2;
+		angle = (angle != null) ? angle : -41;
+	}
+
+	var id = this.createFillPatternId(type, strokeSize, color, scale, gap, weight, angle);
 	var fillPattern = this.fillPatterns[id];
 
 	if (fillPattern == null)
@@ -877,20 +910,20 @@ mxSvgCanvas2D.prototype.getFillPattern = function(type, strokeSize, color, scale
 			switch(type)
 			{
 				case 'hatch':
-					fillPattern = this.createHatchPattern(strokeSize, color, scale);
+					fillPattern = this.createHatchPattern(strokeSize, color, scale, gap, weight);
 					break;
 				case 'dots':
-					fillPattern = this.createDotsPattern(strokeSize, color, scale);
+					fillPattern = this.createDotsPattern(strokeSize, color, scale, gap, weight);
 					break;
 				case 'cross-hatch':
-					fillPattern = this.createCrossHatchPattern(strokeSize, color, scale);
+					fillPattern = this.createCrossHatchPattern(strokeSize, color, scale, gap, weight);
 					break;
 				case 'dashed':
-					fillPattern = this.createDashedPattern(strokeSize, color, scale);
+					fillPattern = this.createDashedPattern(strokeSize, color, scale, gap, weight);
 					break;
 				case 'zigzag': //TODO Add this pattern
 				case 'zigzag-line':
-					fillPattern = this.createZigZagLinePattern(strokeSize, color, scale);
+					fillPattern = this.createZigZagLinePattern(strokeSize, color, scale, gap, weight);
 					break;
 				default:
 					return null;
@@ -920,18 +953,29 @@ mxSvgCanvas2D.prototype.getFillPattern = function(type, strokeSize, color, scale
 	var ty = (vt != null) ? this.format(vt.y * scale) : 0;
 	var hasRotate = (type !== 'dots');
 
+	// Rotates the vertical base strokes of the pattern so they run at the
+	// given hachure angle (rough.js convention, 0 means horizontal)
+	var rotation = (angle != null) ? 90 + angle : 45;
+
 	fillPattern.setAttribute('patternTransform',
 		'translate(' + tx + ',' + ty + ')' +
-		(hasRotate ? ' rotate(45)' : '') +
+		(hasRotate ? ' rotate(' + rotation + ')' : '') +
 		' scale(' + scale + ')');
 
 	return fillPattern.getAttribute('id');
 };
 
-mxSvgCanvas2D.prototype.createHatchPattern = function(strokeSize, color, scale)
+mxSvgCanvas2D.prototype.createHatchPattern = function(strokeSize, color, scale, gap, weight)
 {
-	var baseSW = strokeSize * 1.5;
-	var size = this.format(10 + baseSW);
+	var baseSW = (weight != null) ? weight : strokeSize * 1.5;
+	var size = this.format((gap != null) ? gap : 10 + baseSW);
+
+	// A weight is set if any pattern property is used and is the visible
+	// stripe width so the stroke is drawn centered in the tile. The default
+	// stroke keeps the legacy geometry centered on the tile edge where the
+	// implicit clipping of pattern content to the tile halves its visible
+	// width.
+	var x = (weight != null) ? size / 2 : 0;
 
 	var fillPattern = this.createElement('pattern');
 	fillPattern.setAttribute('patternUnits', 'userSpaceOnUse');
@@ -941,9 +985,9 @@ mxSvgCanvas2D.prototype.createHatchPattern = function(strokeSize, color, scale)
 	fillPattern.setAttribute('y', '0');
 
 	var line = this.createElement('line');
-	line.setAttribute('x1', '0');
+	line.setAttribute('x1', x);
 	line.setAttribute('y1', '0');
-	line.setAttribute('x2', '0');
+	line.setAttribute('x2', x);
 	line.setAttribute('y2', size);
 	line.setAttribute('stroke', color.light); // TODO Is Gradient Color possible?
 	line.style.stroke = color.cssText;
@@ -953,10 +997,13 @@ mxSvgCanvas2D.prototype.createHatchPattern = function(strokeSize, color, scale)
 	return fillPattern;
 };
 
-mxSvgCanvas2D.prototype.createDashedPattern = function(strokeSize, color, scale)
+mxSvgCanvas2D.prototype.createDashedPattern = function(strokeSize, color, scale, gap, weight)
 {
-	var baseSW = strokeSize * 1.5;
-	var size = this.format(10 + baseSW);
+	var baseSW = (weight != null) ? weight : strokeSize * 1.5;
+	var size = this.format((gap != null) ? gap : 10 + baseSW);
+
+	// See createHatchPattern for the explicit weight geometry
+	var x = (weight != null) ? size / 2 : 0;
 
 	var fillPattern = this.createElement('pattern');
 	fillPattern.setAttribute('patternUnits', 'userSpaceOnUse');
@@ -966,9 +1013,9 @@ mxSvgCanvas2D.prototype.createDashedPattern = function(strokeSize, color, scale)
 	fillPattern.setAttribute('y', '0');
 
 	var line = this.createElement('line');
-	line.setAttribute('x1', '0');
+	line.setAttribute('x1', x);
 	line.setAttribute('y1', size / 4);
-	line.setAttribute('x2', '0');
+	line.setAttribute('x2', x);
 	line.setAttribute('y2', 3 * size / 4);
 	line.setAttribute('stroke', color.light); // TODO Is Gradient Color possible?
 	line.style.stroke = color.cssText;
@@ -978,10 +1025,10 @@ mxSvgCanvas2D.prototype.createDashedPattern = function(strokeSize, color, scale)
 	return fillPattern;
 };
 
-mxSvgCanvas2D.prototype.createZigZagLinePattern = function(strokeSize, color, scale)
+mxSvgCanvas2D.prototype.createZigZagLinePattern = function(strokeSize, color, scale, gap, weight)
 {
-	var baseSW = strokeSize * 1.5;
-	var size = this.format(10 + baseSW);
+	var baseSW = (weight != null) ? weight : strokeSize * 1.5;
+	var size = this.format((gap != null) ? gap : 10 + baseSW);
 
 	var fillPattern = this.createElement('pattern');
 	fillPattern.setAttribute('patternUnits', 'userSpaceOnUse');
@@ -1002,10 +1049,10 @@ mxSvgCanvas2D.prototype.createZigZagLinePattern = function(strokeSize, color, sc
 	return fillPattern;
 };
 
-mxSvgCanvas2D.prototype.createCrossHatchPattern = function(strokeSize, color, scale)
+mxSvgCanvas2D.prototype.createCrossHatchPattern = function(strokeSize, color, scale, gap, weight)
 {
-	var baseSW = strokeSize * 0.5;
-	var size = this.format(1.5 * (10 + baseSW));
+	var baseSW = (weight != null) ? weight : strokeSize * 0.5;
+	var size = this.format((gap != null) ? gap : 1.5 * (10 + baseSW));
 
 	var fillPattern = this.createElement('pattern');
 	fillPattern.setAttribute('patternUnits', 'userSpaceOnUse');
@@ -1028,9 +1075,14 @@ mxSvgCanvas2D.prototype.createCrossHatchPattern = function(strokeSize, color, sc
 	return fillPattern;
 };
 
-mxSvgCanvas2D.prototype.createDotsPattern = function(strokeSize, color, scale)
+mxSvgCanvas2D.prototype.createDotsPattern = function(strokeSize, color, scale, gap, weight)
 {
-	var size = this.format(10 + strokeSize);
+	var size = this.format((gap != null) ? gap : 10 + strokeSize);
+
+	// The weight is the dot diameter (rough.js convention). Pattern content
+	// is clipped to the tile so the radius is capped at half the tile size
+	// to keep overlapping dots round.
+	var radius = (weight != null) ? Math.min(weight / 2, size / 2) : size / 4;
 
 	var fillPattern = this.createElement('pattern');
 	fillPattern.setAttribute('patternUnits', 'userSpaceOnUse');
@@ -1042,7 +1094,7 @@ mxSvgCanvas2D.prototype.createDotsPattern = function(strokeSize, color, scale)
 	var circle = this.createElement('circle');
 	circle.setAttribute('cx', size / 2);
 	circle.setAttribute('cy', size / 2);
-	circle.setAttribute('r', size / 4);
+	circle.setAttribute('r', radius);
 	circle.setAttribute('stroke', 'none');
 	circle.setAttribute('fill', color.light); // TODO Is Gradient Color possible?
 	circle.style.fill = color.cssText;
@@ -1261,7 +1313,8 @@ mxSvgCanvas2D.prototype.updateFill = function()
 	var baseStrokeWidth = Math.max(this.minStrokeWidth, Math.max(0.01,
 		this.format(s.strokeWidth)));
 	var pId = (s.fillStyle == null || s.fillStyle == 'auto' || s.fillStyle == 'solid') ? null :
-		this.getFillPattern(s.fillStyle, baseStrokeWidth, fill, s.scale);
+		this.getFillPattern(s.fillStyle, baseStrokeWidth, fill, s.scale,
+			s.hachureGap, s.fillWeight, s.hachureAngle);
 
 	if (isGradient || pId == null)
 	{
@@ -2079,9 +2132,10 @@ mxSvgCanvas2D.prototype.updateTextNodes = function(x, y, w, h, align, valign, wr
 		this.getLightDarkColor(this.state.fontBackgroundColor) : null;
 	var cssBorder = (this.state.fontBorderColor != null) ?
 		this.getLightDarkColor(this.state.fontBorderColor) : null;
-	
+	var padding = (cssBg != null || cssBorder != null) ? this.state.labelPadding : null;
+
 	mxSvgCanvas2D.createCss(w + this.foreignObjectPadding, h, align, valign, wrap, overflow, clip, dir,
-		(cssBg != null) ? cssBg.cssText : null, (cssBorder != null) ? cssBorder.cssText : null,
+		(cssBg != null) ? cssBg.cssText : null, (cssBorder != null) ? cssBorder.cssText : null, padding,
 		'display: flex; align-items: unsafe ' + alignItems + '; ' +
 		'justify-content: unsafe ' + justifyContent + '; ' +
 		((dir != null && dir.substring(0, 9) == 'vertical-') ? 'writing-mode: ' + dir + ';' : ''),
@@ -2164,7 +2218,7 @@ mxSvgCanvas2D.prototype.updateTextNodes = function(x, y, w, h, align, valign, wr
 /**
  * Updates existing DOM nodes for text rendering.
  */
-mxSvgCanvas2D.createCss = function(w, h, align, valign, wrap, overflow, clip, dir, bg, border, flex, block, s, callback)
+mxSvgCanvas2D.createCss = function(w, h, align, valign, wrap, overflow, clip, dir, bg, border, padding, flex, block, s, callback)
 {
 	var vertical = dir != null && dir.substring(0, 9) == 'vertical-';
 	var item = 'box-sizing: border-box; font-size: 0; ';
@@ -2252,6 +2306,20 @@ mxSvgCanvas2D.createCss = function(w, h, align, valign, wrap, overflow, clip, di
 	{
 		// Duplicates border properties for inherit color fallback over border CSS
 		bgc += 'border-width: 1px; border-style: solid; border-color: inherit; border: 1px solid ' + border + '; ';
+	}
+
+	if (bgc != '' && padding != null)
+	{
+		bgc += 'padding: ' + padding.top + 'px ' + padding.right + 'px ' +
+			padding.bottom + 'px ' + padding.left + 'px; ';
+
+		if (ofl == '' || clip)
+		{
+			// Grows the painted background box around the text without moving
+			// the text or changing the wrapping width
+			bgc += 'margin: ' + (-padding.top) + 'px ' + (-padding.right) + 'px ' +
+				(-padding.bottom) + 'px ' + (-padding.left) + 'px; ';
+		}
 	}
 
 	if (ofl == '' || clip)
@@ -2609,9 +2677,131 @@ mxSvgCanvas2D.prototype.wrapSvgTextElement = function(textEl, maxWidth)
 		return ctx.measureText(token.text).width;
 	}
 
-	// Step 4: Layout tokens into lines
+	// Step 4: Layout tokens into lines. With a text flow (shapeInside) the
+	// available width and horizontal offset are resolved per line from the
+	// flow provider, including a push down when a word does not fit the
+	// current band and a second pass for the vertical alignment (the line
+	// widths depend on the vertical start position within the shape).
+	var flow = this.textFlow;
+	var lineExtras = null;
 	var lines = [[]];
 	var lineWidth = 0;
+
+	if (flow != null)
+	{
+		var lh = fontSize * mxConstants.LINE_HEIGHT;
+
+		var layoutFlow = function(startY)
+		{
+			var res = {lines: [[]], extras: [], height: 0};
+			var cursor = startY;
+			var band = flow.available(cursor, cursor + lh);
+			res.extras.push({x: band.x, width: band.width, shift: 0});
+			var lw = 0;
+
+			function newLine()
+			{
+				var cur = res.lines[res.lines.length - 1];
+
+				if (cur.length > 0 && cur[cur.length - 1].isSpace)
+				{
+					cur.pop();
+				}
+
+				cursor += lh;
+				res.lines.push([]);
+				band = flow.available(cursor, cursor + lh);
+				res.extras.push({x: band.x, width: band.width, shift: 0});
+				lw = 0;
+			};
+
+			for (var i = 0; i < tokens.length; i++)
+			{
+				var token = tokens[i];
+
+				if (token.width == null)
+				{
+					token.width = measureWord(token);
+				}
+
+				if (token.isSpace)
+				{
+					if (lw > 0)
+					{
+						res.lines[res.lines.length - 1].push(token);
+						lw += token.width;
+					}
+
+					continue;
+				}
+
+				var atWordBoundary = i > 0 && tokens[i - 1].isSpace;
+
+				if (lw + token.width > band.width && lw > 0 && atWordBoundary)
+				{
+					newLine();
+				}
+
+				// Pushes empty lines down until the word fits the band
+				var guard = 0;
+
+				while (lw == 0 && token.width > band.width &&
+					cursor - startY < flow.boxHeight && guard++ < 400)
+				{
+					cursor += lh;
+					var extra = res.extras[res.extras.length - 1];
+					extra.shift += lh;
+					band = flow.available(cursor, cursor + lh);
+					extra.x = band.x;
+					extra.width = band.width;
+				}
+
+				res.lines[res.lines.length - 1].push(token);
+				lw += token.width;
+			}
+
+			res.height = (cursor + lh) - startY;
+
+			return res;
+		};
+
+		// Iterates the vertical start position (may be negative when the
+		// text overflows the shape) so that the line widths match where
+		// plainText places the block via totalHeight
+		var flowLayout = layoutFlow(0);
+		var startY = 0;
+
+		for (var p = 0; p < 3; p++)
+		{
+			var nextY = 0;
+
+			if (flow.valign == mxConstants.ALIGN_MIDDLE)
+			{
+				nextY = (flow.boxHeight - flowLayout.height) / 2;
+			}
+			else if (flow.valign == mxConstants.ALIGN_BOTTOM)
+			{
+				nextY = flow.boxHeight - flowLayout.height;
+			}
+			else
+			{
+				break;
+			}
+
+			if (Math.abs(nextY - startY) < 1)
+			{
+				break;
+			}
+
+			startY = nextY;
+			flowLayout = layoutFlow(startY);
+		}
+
+		lines = flowLayout.lines;
+		lineExtras = flowLayout.extras;
+	}
+	else
+	{
 
 	for (var i = 0; i < tokens.length; i++)
 	{
@@ -2653,6 +2843,8 @@ mxSvgCanvas2D.prototype.wrapSvgTextElement = function(textEl, maxWidth)
 		lineWidth += w;
 	}
 
+	}
+
 	// Widest rendered line (trailing whitespace trimmed), measured with the
 	// same canvas metrics used for the wrap decision. adjustBlockTextOverflow
 	// uses this as the content width to start-anchor overflowing clipped text,
@@ -2683,11 +2875,12 @@ mxSvgCanvas2D.prototype.wrapSvgTextElement = function(textEl, maxWidth)
 		}
 	}
 
-	if (lines.length <= 1)
+	if (flow == null && lines.length <= 1)
 	{
 		// No wrapping needed, but expose the single-line width so block-mode
 		// overflow anchoring still works for unbreakable content wider than
-		// the cell.
+		// the cell. With a text flow all lines carry offsets, so even a
+		// single line is emitted below.
 		return {elements: null, totalHeight: 0, maxLineWidth: maxLineWidth};
 	}
 
@@ -2718,11 +2911,29 @@ mxSvgCanvas2D.prototype.wrapSvgTextElement = function(textEl, maxWidth)
 			}
 		}
 
+		// Adds the push down of the text flow for this line
+		if (lineExtras != null && lineExtras[i] != null)
+		{
+			cursorY += lineExtras[i].shift;
+		}
+
 		// Adds baseline (ascent) for this line
 		cursorY += lineFontSize;
 
 		var newText = self.createElement('text');
 		newText.setAttribute('y', self.format(cursorY));
+
+		// Offsets the line to the available interval of the text flow,
+		// relative to the anchor of the alignment
+		if (lineExtras != null && lineExtras[i] != null)
+		{
+			var extra = lineExtras[i];
+			var lineX = (flow.align == mxConstants.ALIGN_LEFT) ? extra.x :
+				((flow.align == mxConstants.ALIGN_RIGHT) ?
+					extra.x + extra.width - flow.boxWidth :
+					extra.x + extra.width / 2 - flow.boxWidth / 2);
+			newText.setAttribute('x', self.format(lineX));
+		}
 
 		// Group consecutive tokens from the same segment and build tspans
 		var j = 0;
@@ -3868,7 +4079,17 @@ mxSvgCanvas2D.prototype.addTextBackground = function(node, str, x, y, w, h, alig
 
 			bbox = new mxRectangle((x + 1) * s.scale, (y + 2) * s.scale, w * s.scale, (h + 1) * s.scale);
 		}
-		
+
+		// Fixed-size boxes cannot reflow the text so padding is ignored there
+		if (bbox != null && s.labelPadding != null &&
+			overflow != 'fill' && overflow != 'width')
+		{
+			bbox.x -= s.labelPadding.left * s.scale;
+			bbox.y -= s.labelPadding.top * s.scale;
+			bbox.width += (s.labelPadding.left + s.labelPadding.right) * s.scale;
+			bbox.height += (s.labelPadding.top + s.labelPadding.bottom) * s.scale;
+		}
+
 		if (bbox != null)
 		{
 			var n = this.createElement('rect');

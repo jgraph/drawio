@@ -159,6 +159,7 @@ mxAbstractCanvas2D.prototype.createState = function()
 		fontColor: '#000000',
 		fontBackgroundColor: null,
 		fontBorderColor: null,
+		labelPadding: null,
 		fontSize: mxConstants.DEFAULT_FONTSIZE,
 		fontFamily: mxConstants.DEFAULT_FONTFAMILY,
 		fontStyle: 0,
@@ -348,17 +349,21 @@ mxAbstractCanvas2D.prototype.setFillColor = function(value)
 
 /**
  * Function: setFillStyle
- * 
- * Sets the current fill style.
+ *
+ * Sets the current fill style and the optional hachure gap, fill weight
+ * and hachure angle that configure pattern fill styles.
  */
- mxAbstractCanvas2D.prototype.setFillStyle = function(value)
+ mxAbstractCanvas2D.prototype.setFillStyle = function(value, hachureGap, fillWeight, hachureAngle)
  {
 	 if (value == mxConstants.NONE)
 	 {
 		 value = null;
 	 }
-	 
+
 	 this.state.fillStyle = value;
+	 this.state.hachureGap = hachureGap;
+	 this.state.fillWeight = fillWeight;
+	 this.state.hachureAngle = hachureAngle;
  };
  
 /**
@@ -485,8 +490,20 @@ mxAbstractCanvas2D.prototype.setFontBackgroundColor = function(value)
 };
 
 /**
+ * Function: setLabelPadding
+ *
+ * Sets the current label padding, a CSS-style spacing shorthand of 1-4
+ * space-separated numbers for the padding between the label text and
+ * its background box (see <mxUtils.parseCssSpacing>).
+ */
+mxAbstractCanvas2D.prototype.setLabelPadding = function(value)
+{
+	this.state.labelPadding = mxUtils.parseCssSpacing(value);
+};
+
+/**
  * Function: setFontBorderColor
- * 
+ *
  * Sets the current font border color.
  */
 mxAbstractCanvas2D.prototype.setFontBorderColor = function(value)

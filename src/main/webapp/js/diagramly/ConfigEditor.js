@@ -71,6 +71,13 @@ DrawioConfigEditor.install = function(container, options)
 		return div.innerHTML;
 	}
 
+	// Text-node serialization leaves quotes intact, so double-quoted
+	// attribute values additionally need quote escaping
+	function escapeAttr(str)
+	{
+		return escapeHtml(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+	}
+
 	function q(selector) { return container.querySelector(selector); }
 	function qAll(selector) { return container.querySelectorAll(selector); }
 
@@ -380,9 +387,17 @@ DrawioConfigEditor.install = function(container, options)
 		var el = q('#' + listKey + '-tags');
 		var html = '';
 
+		// Entries are kept in their original form: plain font names or
+		// {fontFamily, fontUrl} objects for web fonts (e.g. Google Fonts)
 		fontLists[listKey].forEach(function(font, i)
 		{
-			html += '<span class="tag"><span>' + escapeHtml(font) + '</span>' +
+			var isObj = (font !== null && typeof font === 'object');
+			var name = isObj ? String(font.fontFamily || '') : String(font);
+			var url = (isObj && font.fontUrl) ? String(font.fontUrl) : null;
+
+			html += '<span class="tag"' + ((url != null) ? ' title="' + escapeAttr(url) + '"' : '') + '>' +
+				'<span>' + escapeHtml(name) + '</span>' +
+				((url != null) ? '<span class="tag__link">&#8599;</span>' : '') +
 				'<button type="button" class="tag__remove" data-list="' + listKey + '" data-index="' + i + '">&times;</button></span>';
 		});
 
@@ -409,16 +424,29 @@ DrawioConfigEditor.install = function(container, options)
 	function setupFontList(listKey)
 	{
 		var input = q('#' + listKey + '-input');
+		var urlInput = q('#' + listKey + '-url');
 		var addBtn = q('#' + listKey + '-add');
 
 		function addFont()
 		{
-			var val = input.value.trim();
-			if (val) { fontLists[listKey].push(val); input.value = ''; syncFontList(listKey); renderFontTags(listKey); }
+			var name = input.value.trim();
+			var url = urlInput.value.trim();
+
+			if (name)
+			{
+				fontLists[listKey].push((url) ? { fontFamily: name, fontUrl: url } : name);
+				input.value = '';
+				urlInput.value = '';
+				syncFontList(listKey);
+				renderFontTags(listKey);
+			}
 		}
 
+		function onEnter(e) { if (e.key === 'Enter') { e.preventDefault(); addFont(); } }
+
 		addBtn.addEventListener('click', addFont);
-		input.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); addFont(); } });
+		input.addEventListener('keydown', onEnter);
+		urlInput.addEventListener('keydown', onEnter);
 		renderFontTags(listKey);
 	}
 
@@ -813,7 +841,9 @@ DrawioConfigEditor.install = function(container, options)
 			{
 				if (Array.isArray(val))
 				{
-					fontLists[key] = val.map(function(f) { return typeof f === 'object' ? f.fontFamily || '' : String(f); });
+					// Keep entries as-is so {fontFamily, fontUrl} objects
+					// survive chip editing (names derived in renderFontTags)
+					fontLists[key] = val.slice();
 					config[key] = val;
 				}
 				return;
@@ -1325,6 +1355,7 @@ DrawioConfigEditor.css = [
 	'  color: light-dark(var(--color-text-secondary), var(--color-text-secondary-dark)); font-size: 13px; padding: 0 1px; line-height: 1;',
 	'}',
 	'.geConfigEditor .tag__remove:hover { color: var(--color-error); }',
+	'.geConfigEditor .tag__link { color: light-dark(var(--color-text-secondary), var(--color-text-secondary-dark)); font-size: 9px; line-height: 1; }',
 	'.geConfigEditor .tag-input-wrap { display: flex; gap: 4px; margin-top: 4px; }',
 	'.geConfigEditor .tag-input-wrap input { flex: 1; }',
 	'.geConfigEditor .search-box { position: sticky; top: 0; z-index: 50; background: light-dark(var(--color-bg), var(--color-bg-dark)); padding: 6px 0 8px; }',
@@ -1650,6 +1681,11 @@ DrawioConfigEditor.html = [
 	'        <p class="field__help">Sections shown in the template dialog. Leave empty for all.</p>',
 	'      </div>',
 	'      <div class="field">',
+	'        <label for="cfg-customTemplates">Custom Templates (JSON)</label>',
+	'        <textarea id="cfg-customTemplates" data-key="customTemplates" data-type="json" placeholder=\'[{"section": "basic", "url": "https://example.com/template.xml", "title": "My Template", "preview": "https://example.com/template.png"}]\' style="min-height: 60px;"></textarea>',
+	'        <p class="field__help">Templates added to the sections of the template dialog</p>',
+	'      </div>',
+	'      <div class="field">',
 	'        <label for="cfg-libraries">Libraries (JSON)</label>',
 	'        <textarea id="cfg-libraries" data-key="libraries" data-type="json" placeholder=\'[{"title": {"main": "Company"}, "entries": [...]}]\' style="min-height: 60px;"></textarea>',
 	'        <p class="field__help">Custom library sections for the left panel</p>',
@@ -1667,18 +1703,20 @@ DrawioConfigEditor.html = [
 	'        <div class="tag-list" id="defaultFonts-tags"></div>',
 	'        <div class="tag-input-wrap">',
 	'          <input type="text" id="defaultFonts-input" placeholder="Add font name...">',
+	'          <input type="text" id="defaultFonts-url" placeholder="Font URL (optional)">',
 	'          <button type="button" class="btn btn--secondary btn--sm" id="defaultFonts-add">Add</button>',
 	'        </div>',
-	'        <p class="field__help">Font names for the format panel font picker</p>',
+	'        <p class="field__help">Font names for the format panel font picker; add a URL for web fonts (e.g. a Google Fonts CSS link)</p>',
 	'      </div>',
 	'      <div class="field">',
 	'        <label>Custom Fonts</label>',
 	'        <div class="tag-list" id="customFonts-tags"></div>',
 	'        <div class="tag-input-wrap">',
 	'          <input type="text" id="customFonts-input" placeholder="Add font name...">',
+	'          <input type="text" id="customFonts-url" placeholder="Font URL (optional)">',
 	'          <button type="button" class="btn btn--secondary btn--sm" id="customFonts-add">Add</button>',
 	'        </div>',
-	'        <p class="field__help">Additional fonts added before default fonts</p>',
+	'        <p class="field__help">Additional fonts added before default fonts; add a URL for web fonts (e.g. a Google Fonts CSS link)</p>',
 	'      </div>',
 	'      <div class="field">',
 	'        <label for="cfg-fontCss">Font CSS (@font-face rules)</label>',

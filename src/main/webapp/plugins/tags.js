@@ -90,7 +90,7 @@ Draw.loadPlugin(function(editorUi)
 		
 		function getLookup(tagList)
 		{
-			var lookup = {};
+			var lookup = Object.create(null);
 			
 			for (var i = 0; i < tagList.length; i++)
 			{
@@ -138,7 +138,7 @@ Draw.loadPlugin(function(editorUi)
 			}
 		};
 		
-		var hiddenTags = {};
+		var hiddenTags = Object.create(null);
 		var hiddenTagCount = 0;
 		var graphIsCellVisible = graph.isCellVisible;
 

@@ -268,6 +268,14 @@ if (urlParams['embedInline'] == '1')
 	urlParams['plugins'] = '0';
 	urlParams['proto'] = 'json';
 	urlParams['prefetchFonts'] = '1';
+
+	// Forces page view off by default so the inline editor matches the
+	// host page while the page setting stored in the file is preserved
+	// (see savedGraphState in Editor.setGraphXml/getGraphXml)
+	if (urlParams['pv'] == null)
+	{
+		urlParams['pv'] = '0';
+	}
 }
 
 /**

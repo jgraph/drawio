@@ -36,12 +36,14 @@ function mxCellRenderer() { };
 
 /**
  * Variable: defaultShapes
- * 
+ *
  * Static array that contains the globally registered shapes which are
  * known to all instances of this class. For adding new shapes you should
- * use the static <mxCellRenderer.registerShape> function.
+ * use the static <mxCellRenderer.registerShape> function. The map has no
+ * prototype so that shape names from untrusted cell styles cannot resolve
+ * inherited members of Object.prototype (eg. __proto__ or constructor).
  */
-mxCellRenderer.defaultShapes = new Object();
+mxCellRenderer.defaultShapes = Object.create(null);
 
 /**
  * Variable: defaultEdgeShape

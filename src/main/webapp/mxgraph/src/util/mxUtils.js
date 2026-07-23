@@ -287,8 +287,52 @@ var mxUtils =
 		{
 			value = 0;
 		}
-		
+
 		return value;
+	},
+
+	/**
+	 * Function: parseCssSpacing
+	 *
+	 * Parses the given CSS-style spacing shorthand of 1-4 space-separated
+	 * numbers (top, right, bottom, left with the usual CSS shorthand
+	 * expansion) and returns an object with top, right, bottom and left
+	 * set to the resolved non-negative numbers, or null if the value is
+	 * null, cannot be parsed or resolves to zero on all sides.
+	 */
+	parseCssSpacing: function(value)
+	{
+		var result = null;
+
+		if (value != null && value !== '')
+		{
+			var tokens = String(value).split(/\s+/);
+			var values = [];
+
+			for (var i = 0; i < tokens.length && values.length < 4; i++)
+			{
+				if (tokens[i].length > 0)
+				{
+					var v = parseFloat(tokens[i]);
+					values.push((isFinite(v)) ? Math.max(0, v) : 0);
+				}
+			}
+
+			if (values.length > 0)
+			{
+				var top = values[0];
+				var right = (values.length > 1) ? values[1] : top;
+				var bottom = (values.length > 2) ? values[2] : top;
+				var left = (values.length > 3) ? values[3] : right;
+
+				if (top > 0 || right > 0 || bottom > 0 || left > 0)
+				{
+					result = {top: top, right: right, bottom: bottom, left: left};
+				}
+			}
+		}
+
+		return result;
 	},
 
 	/**

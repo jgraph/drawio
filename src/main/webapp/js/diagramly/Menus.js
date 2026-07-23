@@ -1452,7 +1452,7 @@
 			if (editorUi.adaptiveColorsWindow == null)
 			{
 				editorUi.adaptiveColorsWindow = new AdaptiveColorsWindow(
-					editorUi, document.body.offsetWidth - 520, 80, 200, 160);
+					editorUi, document.body.offsetWidth - 520, 80, 220, 180);
 			}
 
 			editorUi.adaptiveColorsWindow.window.setVisible(true);
@@ -4200,7 +4200,7 @@
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-    	    	insertVertex('', 80, 80, 'ellipse;whiteSpace=wrap;html=1;', (evt != null &&
+    	    	insertVertex('', 80, 80, 'ellipse;whiteSpace=wrap;html=1;shapeInside=1;', (evt != null &&
 					!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt) &&
 					graph.isMouseInsertPoint()) ? graph.getInsertPoint() : null);
 			}
@@ -4210,7 +4210,7 @@
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-    	    	insertVertex('', 80, 80, 'rhombus;whiteSpace=wrap;html=1;', (evt != null &&
+    	    	insertVertex('', 80, 80, 'rhombus;whiteSpace=wrap;html=1;shapeInside=1;', (evt != null &&
 					!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt) &&
 					graph.isMouseInsertPoint()) ? graph.getInsertPoint() : null);
 			}

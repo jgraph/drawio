@@ -1207,6 +1207,16 @@ DrawioFileSync.prototype.isRealtimeActive = function()
 };
 
 /**
+ * Returns true if the realtime channel has an established session
+ * that delivers remote changes to the visible document.
+ */
+DrawioFileSync.prototype.isRealtimeConnected = function()
+{
+	return this.p2pCollab != null && this.p2pCollab.isFileJoined() &&
+		this.p2pCollab.getState() == 1 /* OPEN */;
+};
+
+/**
  * Computes and sends the local changes if the file was changed.
  */
 DrawioFileSync.prototype.sendLocalChanges = function()
@@ -1372,6 +1382,28 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 					{
 						this.ui.editor.graph.refresh();
 						this.snapshotVars = newVars;
+					}
+
+					// Patches the visible document if the realtime channel
+					// is not delivering remote changes (eg. session setup
+					// failed) as they otherwise only reach ownPages and
+					// stay invisible until cleanup, which is starved while
+					// the socket is reconnecting. Uses the diff to the own
+					// pages as they contain the merged remote and local
+					// changes (sendLocalChanges was called above), so this
+					// converges and cannot apply received changes twice.
+					if (!this.isRealtimeConnected())
+					{
+						var visible = [this.ui.diffPages(this.ui.pages,
+							this.file.ownPages)];
+
+						if (!this.file.ignorePatches(visible))
+						{
+							// Aligns remote state as in cleanup
+							this.file.theirPages = this.ui.clonePages(
+								this.file.ownPages);
+							this.file.patch(visible);
+						}
 					}
 				}
 				

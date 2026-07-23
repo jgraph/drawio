@@ -23,12 +23,15 @@ mxShapeSysMLComposite.prototype.paintForeground = function(c, x, y, w, h)
 	{
 		var shape = mxCellRenderer.defaultShapes[this.style['symbol0']];
 
-		c.save();
-			
-		var tmp = new shape();
-		tmp.style = this.style;
-		shape.prototype.paintVertexShape.call(tmp, c, x, y, w, h);
-		c.restore();
+		if (shape != null)
+		{
+			c.save();
+
+			var tmp = new shape();
+			tmp.style = this.style;
+			shape.prototype.paintVertexShape.call(tmp, c, x, y, w, h);
+			c.restore();
+		}
 
 		c.setDashed(false);
 			
@@ -965,7 +968,8 @@ mxMarker.addMarker('sysMLPackCont', function(c, shape, type, pe, unitX, unitY, s
 });
 
 //**********************************************************************************************************************************************************
-//Required Interface
+//Required Interface (LEGACY, misnamed: draws the ball = provided-interface symbol; kept
+//unchanged so stored diagrams keep rendering — new content uses endArrow=oval instead)
 //**********************************************************************************************************************************************************
 mxMarker.addMarker('sysMLReqInt', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
 {
@@ -983,7 +987,8 @@ mxMarker.addMarker('sysMLReqInt', function(c, shape, type, pe, unitX, unitY, siz
 });
 
 //**********************************************************************************************************************************************************
-//Provided Interface
+//Provided Interface (LEGACY, misnamed: draws the socket = required-interface symbol; kept
+//unchanged so stored diagrams keep rendering — new content uses endArrow=halfCircle instead)
 //**********************************************************************************************************************************************************
 mxMarker.addMarker('sysMLProvInt', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
 {

@@ -1159,6 +1159,8 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 	    // outlineConnect=0 is a custom style that means do not connect to strokes inside the shape,
 	    // or in other words, connect to the shape's perimeter if the highlight is under the mouse
 	    // (the name is because the highlight, including all strokes, is called outline in the code)
+	    // outlineConnect=2 forces outline connect while the mouse is over the shape and
+	    // outlineConnect=3 disables outline connect, including the timer-based activation
 	    var connectionHandleIsOutlineConnectEvent = this.connectionHandler.isOutlineConnectEvent;
 	    
 	    this.connectionHandler.isOutlineConnectEvent = function(me)
@@ -1169,8 +1171,17 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			}
 			else
 			{
-		    	return (this.currentState != null && me.getState() == this.currentState && timeOnTarget > 2000) ||
-		    		((this.currentState == null || mxUtils.getValue(this.currentState.style, 'outlineConnect', '1') != '0') &&
+		    	var outlineConnect = (this.currentState != null) ? mxUtils.getValue(
+		    		this.currentState.style, 'outlineConnect', '1') : '1';
+
+		    	if (outlineConnect == '3')
+		    	{
+		    		return false;
+		    	}
+
+		    	return (this.currentState != null && me.getState() == this.currentState &&
+		    		(outlineConnect == '2' || timeOnTarget > 2000)) ||
+		    		((this.currentState == null || outlineConnect != '0') &&
 		    		connectionHandleIsOutlineConnectEvent.apply(this, arguments));
 			}
 	    };
@@ -4207,6 +4218,1535 @@ Graph.isLink = function(text)
  * Graph inherits from mxGraph.
  */
 mxUtils.extend(Graph, mxGraph);
+
+/**
+ * Default margin between the shape outline and the text flow for shapeInside
+ * labels, see getShapeInsidePadding.
+ */
+Graph.prototype.shapeInsideMargin = 2;
+
+/**
+ * Returns the margin between the shape outline and the text flow from the
+ * shapeInsidePadding style as a safe, non-negative number.
+ */
+Graph.prototype.getShapeInsidePadding = function(style)
+{
+	var result = parseFloat(mxUtils.getValue(style,
+		'shapeInsidePadding', this.shapeInsideMargin));
+
+	return (isFinite(result) && result >= 0) ? result : this.shapeInsideMargin;
+};
+
+/**
+ * Mirrors the given text flow outline horizontally, ie. for flipH styles.
+ */
+Graph.mirrorShapeInsideOutline = function(outline)
+{
+	function mirror(pts)
+	{
+		if (pts == null)
+		{
+			return null;
+		}
+
+		var result = [];
+
+		for (var i = 0; i < pts.length; i++)
+		{
+			result.push([1 - pts[i][0], pts[i][1]]);
+		}
+
+		return result;
+	};
+
+	return {left: mirror(outline.right), right: mirror(outline.left)};
+};
+
+/**
+ * Text flow outlines for wrapped labels with shapeInside=1. Maps shape names
+ * to functions that return the label exclusion regions for the left and right
+ * half of the label as arrays of relative [x, y] points in cell coordinates,
+ * or null if the given style is not supported. The points are rendered as
+ * shape-outside polygons on two floats, one per half. Disjoint regions in
+ * one half are connected with a hairline strip along the outer edge, which
+ * does not affect the resulting line boxes.
+ */
+Graph.shapeInsideOutlines = {
+	'rhombus': function(style, w, h)
+	{
+		return {left: [[0, 0], [0.5, 0], [0, 0.5], [0.5, 1], [0, 1]],
+			right: [[1, 0], [0.5, 0], [1, 0.5], [0.5, 1], [1, 1]]};
+	},
+	'ellipse': function(style, w, h)
+	{
+		var left = [[0, 0], [0.5, 0]];
+		var right = [[1, 0], [0.5, 0]];
+		var n = 20;
+
+		for (var i = 1; i < n; i++)
+		{
+			// Smoothstep clusters the samples at the vertical extremes
+			// where the curve is steep, so that the polygon chords stay
+			// close to the curve
+			var u = i / n;
+			var t = u * u * (3 - 2 * u);
+			var x = 0.5 * (1 - Math.sqrt(1 - Math.pow(2 * t - 1, 2)));
+
+			left.push([x, t]);
+			right.push([1 - x, t]);
+		}
+
+		left.push([0.5, 1], [0, 1]);
+		right.push([0.5, 1], [1, 1]);
+
+		return {left: left, right: right};
+	},
+	'triangle': function(style, w, h)
+	{
+		var dir = mxUtils.getValue(style, mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
+		var flipH = mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1';
+		var flipV = mxUtils.getValue(style, mxConstants.STYLE_FLIPV, '0') == '1';
+
+		// Direction north/south swaps the flip axes (see mxShape.updateTransform)
+		if (dir == mxConstants.DIRECTION_NORTH || dir == mxConstants.DIRECTION_SOUTH)
+		{
+			var tmp = flipH;
+			flipH = flipV;
+			flipV = tmp;
+		}
+
+		// Resolves the effective orientation of the apex
+		if (dir == mxConstants.DIRECTION_EAST || dir == mxConstants.DIRECTION_WEST)
+		{
+			if (flipH)
+			{
+				dir = (dir == mxConstants.DIRECTION_EAST) ?
+					mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_EAST;
+			}
+		}
+		else if (flipV)
+		{
+			dir = (dir == mxConstants.DIRECTION_NORTH) ?
+				mxConstants.DIRECTION_SOUTH : mxConstants.DIRECTION_NORTH;
+		}
+
+		if (dir == mxConstants.DIRECTION_NORTH)
+		{
+			return {left: [[0, 0], [0.5, 0], [0, 1]],
+				right: [[1, 0], [0.5, 0], [1, 1]]};
+		}
+		else if (dir == mxConstants.DIRECTION_SOUTH)
+		{
+			return {left: [[0, 1], [0.5, 1], [0, 0]],
+				right: [[1, 1], [0.5, 1], [1, 0]]};
+		}
+		else if (dir == mxConstants.DIRECTION_WEST)
+		{
+			return {left: [[0.5, 0], [0, 0], [0, 1], [0.5, 1], [0.5, 0.75], [0, 0.5], [0.5, 0.25]],
+				right: [[1, 0], [0.5, 0], [0.5, 0.25], [0.999, 0.001], [0.999, 0.999], [0.5, 0.75], [0.5, 1], [1, 1]]};
+		}
+		else
+		{
+			return {left: [[0, 0], [0.5, 0], [0.5, 0.25], [0.001, 0.001], [0.001, 0.999], [0.5, 0.75], [0.5, 1], [0, 1]],
+				right: [[0.5, 0], [1, 0], [1, 1], [0.5, 1], [0.5, 0.75], [1, 0.5], [0.5, 0.25]]};
+		}
+	},
+	'hexagon': function(style, w, h)
+	{
+		var dir = mxUtils.getValue(style, mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
+		var vertical = dir == mxConstants.DIRECTION_NORTH || dir == mxConstants.DIRECTION_SOUTH;
+		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
+		var side = (vertical) ? h : w;
+		var s = (fixed) ? Math.max(0, Math.min(side * 0.5, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
+			side * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(style, 'size', 0.25))));
+
+		if (s > side / 2)
+		{
+			return null;
+		}
+
+		if (vertical)
+		{
+			var su = s / h;
+
+			return {left: [[0, 0], [0.5, 0], [0, su], [0, 1 - su], [0.5, 1], [0, 1]],
+				right: [[1, 0], [0.5, 0], [1, su], [1, 1 - su], [0.5, 1], [1, 1]]};
+		}
+		else
+		{
+			var su = s / w;
+
+			return {left: [[0, 0], [su, 0], [0, 0.5], [su, 1], [0, 1]],
+				right: [[1, 0], [1 - su, 0], [1, 0.5], [1 - su, 1], [1, 1]]};
+		}
+	},
+	'parallelogram': function(style, w, h)
+	{
+		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
+			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		{
+			return null;
+		}
+
+		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
+		var dx = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
+			w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(style, 'size', 0.2))));
+
+		if (dx > w / 2)
+		{
+			return null;
+		}
+
+		var du = dx / w;
+		var mirrored = (mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1') !=
+			(mxUtils.getValue(style, mxConstants.STYLE_FLIPV, '0') == '1');
+
+		if (mirrored)
+		{
+			return {left: [[0, 0], [0, 1], [du, 1]],
+				right: [[1, 0], [1 - du, 0], [1, 1]]};
+		}
+		else
+		{
+			return {left: [[0, 0], [du, 0], [0, 1]],
+				right: [[1, 0], [1, 1], [1 - du, 1]]};
+		}
+	},
+	'trapezoid': function(style, w, h)
+	{
+		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
+			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		{
+			return null;
+		}
+
+		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
+		var dx = (fixed) ? Math.max(0, Math.min(w * 0.5, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
+			w * Math.max(0, Math.min(0.5, parseFloat(mxUtils.getValue(style, 'size', 0.2))));
+		var du = dx / w;
+
+		if (mxUtils.getValue(style, mxConstants.STYLE_FLIPV, '0') == '1')
+		{
+			return {left: [[0, 1], [du, 1], [0, 0]],
+				right: [[1, 1], [1 - du, 1], [1, 0]]};
+		}
+		else
+		{
+			return {left: [[0, 0], [du, 0], [0, 1]],
+				right: [[1, 0], [1 - du, 0], [1, 1]]};
+		}
+	},
+	'dataStorage': function(style, w, h)
+	{
+		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
+			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		{
+			return null;
+		}
+
+		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
+		var s = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
+			w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(style, 'size', 0.1))));
+
+		if (s > w / 2)
+		{
+			return null;
+		}
+
+		// Samples the quadratic curves of the outline (y is linear in the
+		// curve parameter): left bulge x = s * (1 - 2t)^2, right indent
+		// x = w - 4 * s * t * (1 - t)
+		var su = s / w;
+		var left = [[0, 0], [su, 0]];
+		var right = [[1, 0]];
+		var n = 12;
+
+		for (var i = 1; i < n; i++)
+		{
+			var t = i / n;
+
+			left.push([su * (1 - 2 * t) * (1 - 2 * t), t]);
+			right.push([1 - 4 * su * t * (1 - t), t]);
+		}
+
+		left.push([su, 1], [0, 1]);
+		right.push([1, 1]);
+
+		var result = {left: left, right: right};
+
+		return (mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1') ?
+			Graph.mirrorShapeInsideOutline(result) : result;
+	},
+	'or': function(style, w, h)
+	{
+		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
+			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		{
+			return null;
+		}
+
+		// Samples the D-shaped outline where y is quadratic in the curve
+		// parameter: x = w * (2t - t^2) with t = sqrt(2 * tau) for the
+		// upper half, mirrored below. The flat left edge needs no float.
+		// Smoothstep clusters the samples at the vertical extremes where
+		// the curve is steep (see the ellipse outline).
+		var right = [[0, 0]];
+		var n = 24;
+
+		for (var i = 1; i < n; i++)
+		{
+			var u = i / n;
+			var tau = u * u * (3 - 2 * u);
+			var t = Math.sqrt(2 * ((tau <= 0.5) ? tau : 1 - tau));
+
+			right.push([2 * t - t * t, tau]);
+		}
+
+		right.push([0, 1], [1, 1], [1, 0]);
+
+		var result = {left: null, right: right};
+
+		return (mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1') ?
+			Graph.mirrorShapeInsideOutline(result) : result;
+	},
+	'xor': function(style, w, h)
+	{
+		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
+			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		{
+			return null;
+		}
+
+		// Right side as in the or shape, left indent x = w * tau * (1 - tau)
+		// (y is linear in the curve parameter). Smoothstep clusters the
+		// samples at the vertical extremes where the right curve is steep
+		// (see the ellipse outline).
+		var left = [[0, 0]];
+		var right = [[0, 0]];
+		var n = 24;
+
+		for (var i = 1; i < n; i++)
+		{
+			var u = i / n;
+			var tau = u * u * (3 - 2 * u);
+			var t = Math.sqrt(2 * ((tau <= 0.5) ? tau : 1 - tau));
+
+			left.push([tau * (1 - tau), tau]);
+			right.push([2 * t - t * t, tau]);
+		}
+
+		left.push([0, 1]);
+		right.push([0, 1], [1, 1], [1, 0]);
+
+		var result = {left: left, right: right};
+
+		return (mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1') ?
+			Graph.mirrorShapeInsideOutline(result) : result;
+	},
+	'step': function(style, w, h)
+	{
+		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
+			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		{
+			return null;
+		}
+
+		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
+		var s = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
+			w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(style, 'size', 0.2))));
+
+		if (s > w / 2)
+		{
+			return null;
+		}
+
+		var su = s / w;
+
+		if (mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1')
+		{
+			return {left: [[0, 0], [su, 0], [0, 0.5], [su, 1], [0, 1]],
+				right: [[1, 0], [1 - su, 0.5], [1, 1]]};
+		}
+		else
+		{
+			return {left: [[0, 0], [su, 0.5], [0, 1]],
+				right: [[1, 0], [1 - su, 0], [1, 0.5], [1 - su, 1], [1, 1]]};
+		}
+	}
+};
+
+/**
+ * Text flow boundaries for the SVG label conversion. Maps shape names to
+ * functions that return a band function tau -> [left, right] with the
+ * horizontal extent of the shape interior at the given relative height,
+ * all in relative cell coordinates, or null if unsupported. Mirrors the
+ * geometry of the corresponding shapeInsideOutlines entries.
+ */
+Graph.shapeInsideBands = {
+	'rhombus': function(style, w, h)
+	{
+		return function(tau)
+		{
+			var d = 0.5 * Math.abs(2 * tau - 1);
+
+			return [d, 1 - d];
+		};
+	},
+	'ellipse': function(style, w, h)
+	{
+		return function(tau)
+		{
+			var d = 0.5 * (1 - Math.sqrt(Math.max(0, 1 - Math.pow(2 * tau - 1, 2))));
+
+			return [d, 1 - d];
+		};
+	},
+	'triangle': function(style, w, h)
+	{
+		var dir = mxUtils.getValue(style, mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
+		var flipH = mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1';
+		var flipV = mxUtils.getValue(style, mxConstants.STYLE_FLIPV, '0') == '1';
+
+		if (dir == mxConstants.DIRECTION_NORTH || dir == mxConstants.DIRECTION_SOUTH)
+		{
+			var tmp = flipH;
+			flipH = flipV;
+			flipV = tmp;
+		}
+
+		if (dir == mxConstants.DIRECTION_EAST || dir == mxConstants.DIRECTION_WEST)
+		{
+			if (flipH)
+			{
+				dir = (dir == mxConstants.DIRECTION_EAST) ?
+					mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_EAST;
+			}
+		}
+		else if (flipV)
+		{
+			dir = (dir == mxConstants.DIRECTION_NORTH) ?
+				mxConstants.DIRECTION_SOUTH : mxConstants.DIRECTION_NORTH;
+		}
+
+		if (dir == mxConstants.DIRECTION_NORTH)
+		{
+			return function(tau) { return [0.5 * (1 - tau), 1 - 0.5 * (1 - tau)]; };
+		}
+		else if (dir == mxConstants.DIRECTION_SOUTH)
+		{
+			return function(tau) { return [0.5 * tau, 1 - 0.5 * tau]; };
+		}
+		else if (dir == mxConstants.DIRECTION_WEST)
+		{
+			return function(tau) { return [Math.abs(2 * tau - 1), 1]; };
+		}
+		else
+		{
+			return function(tau) { return [0, 1 - Math.abs(2 * tau - 1)]; };
+		}
+	},
+	'hexagon': function(style, w, h)
+	{
+		var dir = mxUtils.getValue(style, mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
+		var vertical = dir == mxConstants.DIRECTION_NORTH || dir == mxConstants.DIRECTION_SOUTH;
+		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
+		var side = (vertical) ? h : w;
+		var s = (fixed) ? Math.max(0, Math.min(side * 0.5, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
+			side * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(style, 'size', 0.25))));
+
+		if (s > side / 2)
+		{
+			return null;
+		}
+
+		if (vertical)
+		{
+			var sy = s / h;
+
+			return function(tau)
+			{
+				var d = 0.5 * Math.max(0, (sy > 0) ?
+					Math.max(1 - tau / sy, 1 - (1 - tau) / sy) : 0);
+
+				return [d, 1 - d];
+			};
+		}
+		else
+		{
+			var su = s / w;
+
+			return function(tau)
+			{
+				var d = su * Math.abs(2 * tau - 1);
+
+				return [d, 1 - d];
+			};
+		}
+	},
+	'parallelogram': function(style, w, h)
+	{
+		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
+			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		{
+			return null;
+		}
+
+		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
+		var dx = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
+			w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(style, 'size', 0.2))));
+
+		if (dx > w / 2)
+		{
+			return null;
+		}
+
+		var du = dx / w;
+		var mirrored = (mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1') !=
+			(mxUtils.getValue(style, mxConstants.STYLE_FLIPV, '0') == '1');
+
+		return function(tau)
+		{
+			return (mirrored) ? [du * tau, 1 - du * (1 - tau)] :
+				[du * (1 - tau), 1 - du * tau];
+		};
+	},
+	'trapezoid': function(style, w, h)
+	{
+		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
+			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		{
+			return null;
+		}
+
+		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
+		var dx = (fixed) ? Math.max(0, Math.min(w * 0.5, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
+			w * Math.max(0, Math.min(0.5, parseFloat(mxUtils.getValue(style, 'size', 0.2))));
+		var du = dx / w;
+		var flipV = mxUtils.getValue(style, mxConstants.STYLE_FLIPV, '0') == '1';
+
+		return function(tau)
+		{
+			var d = (flipV) ? du * tau : du * (1 - tau);
+
+			return [d, 1 - d];
+		};
+	},
+	'dataStorage': function(style, w, h)
+	{
+		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
+			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		{
+			return null;
+		}
+
+		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
+		var s = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
+			w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(style, 'size', 0.1))));
+
+		if (s > w / 2)
+		{
+			return null;
+		}
+
+		var su = s / w;
+		var flipH = mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1';
+
+		return function(tau)
+		{
+			var xl = su * (1 - 2 * tau) * (1 - 2 * tau);
+			var xr = 1 - 4 * su * tau * (1 - tau);
+
+			return (flipH) ? [1 - xr, 1 - xl] : [xl, xr];
+		};
+	},
+	'or': function(style, w, h)
+	{
+		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
+			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		{
+			return null;
+		}
+
+		var flipH = mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1';
+
+		return function(tau)
+		{
+			var t = Math.sqrt(2 * Math.min(tau, 1 - tau));
+			var xr = 2 * t - t * t;
+
+			return (flipH) ? [1 - xr, 1] : [0, xr];
+		};
+	},
+	'xor': function(style, w, h)
+	{
+		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
+			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		{
+			return null;
+		}
+
+		var flipH = mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1';
+
+		return function(tau)
+		{
+			var t = Math.sqrt(2 * Math.min(tau, 1 - tau));
+			var xl = tau * (1 - tau);
+			var xr = 2 * t - t * t;
+
+			return (flipH) ? [1 - xr, 1 - xl] : [xl, xr];
+		};
+	},
+	'step': function(style, w, h)
+	{
+		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
+			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		{
+			return null;
+		}
+
+		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
+		var s = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
+			w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(style, 'size', 0.2))));
+
+		if (s > w / 2)
+		{
+			return null;
+		}
+
+		var su = s / w;
+		var flipH = mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1';
+
+		return function(tau)
+		{
+			var xl = su * (1 - Math.abs(2 * tau - 1));
+			var xr = 1 - su * Math.abs(2 * tau - 1);
+
+			return (flipH) ? [1 - xr, 1 - xl] : [xl, xr];
+		};
+	}
+};
+
+/**
+ * Returns the text flow band function for the given resolved style and
+ * unscaled cell size, or null if unsupported (see shapeInsideBands).
+ */
+Graph.prototype.getShapeInsideBands = function(style, w, h)
+{
+	var result = null;
+
+	if (style != null && w > 0 && h > 0)
+	{
+		var name = mxUtils.getValue(style, 'shapeInsideShape', null);
+
+		if (name == null || name == '')
+		{
+			name = mxUtils.getValue(style, mxConstants.STYLE_SHAPE, null);
+		}
+
+		// typeof guards against inherited Object.prototype members
+		var fn = Graph.shapeInsideBands[name];
+
+		if (typeof fn === 'function')
+		{
+			result = fn(style, w, h);
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Returns the text flow provider for the SVG label conversion of the
+ * given style and unscaled cell size, or null if unsupported. The
+ * provider maps a line band in label coordinates to the available
+ * horizontal interval, see mxSvgCanvas2D.wrapSvgTextElement.
+ */
+Graph.prototype.createShapeInsideTextFlow = function(style, w, h)
+{
+	var bands = this.getShapeInsideBands(style, w, h);
+	var result = null;
+
+	if (bands != null)
+	{
+		var box = this.getShapeInsideBox(style, w, h);
+		var padding = this.getShapeInsidePadding(style);
+		var boxX = box.x;
+		var boxY = box.y;
+
+		result = {
+			boxWidth: box.width,
+			boxHeight: box.height,
+			valign: mxUtils.getValue(style, mxConstants.STYLE_VERTICAL_ALIGN,
+				mxConstants.ALIGN_MIDDLE),
+			align: mxUtils.getValue(style, mxConstants.STYLE_ALIGN,
+				mxConstants.ALIGN_CENTER),
+			available: function(y0, y1)
+			{
+				function at(y)
+				{
+					var cy = y + boxY;
+
+					// Full width outside of the shape for overflow
+					if (cy < 0 || cy > h)
+					{
+						return [0, 1];
+					}
+
+					return bands(Math.max(0, Math.min(1, cy / h)));
+				}
+
+				var b0 = at(y0);
+				var b1 = at((y0 + y1) / 2);
+				var b2 = at(y1);
+				var left = Math.max(b0[0], b1[0], b2[0]) * w - boxX + padding;
+				var right = Math.min(b0[1], b1[1], b2[1]) * w - boxX - padding;
+
+				return {x: Math.max(0, left),
+					width: Math.max(0, right - Math.max(0, left))};
+			}
+		};
+	}
+
+	return result;
+};
+
+/**
+ * Returns the text flow outline for the given resolved style and unscaled
+ * cell size, or null if the shape or its current parameters (direction,
+ * flips, size) are not supported. This does not check if the feature is
+ * enabled in the style, see isShapeInsideEnabled.
+ */
+Graph.prototype.getShapeInsideOutline = function(style, w, h)
+{
+	var result = null;
+
+	if (style != null && w > 0 && h > 0)
+	{
+		// The shapeInsideShape style overrides the shape for the text flow,
+		// eg. to use the rhombus flow for an unsupported shape
+		var name = mxUtils.getValue(style, 'shapeInsideShape', null);
+
+		if (name == null || name == '')
+		{
+			name = mxUtils.getValue(style, mxConstants.STYLE_SHAPE, null);
+		}
+
+		// typeof guards against inherited Object.prototype members
+		// for crafted shape names such as __proto__
+		var fn = Graph.shapeInsideOutlines[name];
+
+		if (typeof fn === 'function')
+		{
+			result = fn(style, w, h);
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Returns true if shapeInside text flow is enabled and applicable in the
+ * given style. Requires wrapped labels in their default position (plain
+ * text labels with word wrap render in the same HTML pipeline) and is
+ * disabled for SVG label conversion, automatic font sizes, overflow
+ * handling and explicit label widths.
+ */
+Graph.prototype.isShapeInsideEnabled = function(style)
+{
+	return style != null && mxUtils.getValue(style, 'shapeInside', '0') == '1' &&
+		mxUtils.getValue(style, mxConstants.STYLE_WHITE_SPACE, null) == 'wrap' &&
+		mxUtils.getValue(style, mxConstants.STYLE_HORIZONTAL, '1') != '0' &&
+		mxUtils.getValue(style, mxConstants.STYLE_OVERFLOW, 'visible') == 'visible' &&
+		mxUtils.getValue(style, mxConstants.STYLE_LABEL_WIDTH, null) == null &&
+		mxUtils.getValue(style, mxConstants.STYLE_LABEL_POSITION,
+			mxConstants.ALIGN_CENTER) == mxConstants.ALIGN_CENTER &&
+		mxUtils.getValue(style, mxConstants.STYLE_VERTICAL_LABEL_POSITION,
+			mxConstants.ALIGN_MIDDLE) == mxConstants.ALIGN_MIDDLE;
+};
+
+/**
+ * Returns the text flow outline for the given style and unscaled cell size
+ * if shapeInside is enabled and supported, or null otherwise.
+ */
+Graph.prototype.getShapeInsideFloats = function(style, w, h)
+{
+	return (this.isShapeInsideEnabled(style)) ?
+		this.getShapeInsideOutline(style, w, h) : null;
+};
+
+/**
+ * Returns the label content box for shapeInside in unscaled cell coordinates,
+ * ie. the box the wrapped label content is laid out in, derived from the
+ * spacing styles and the foreignObject padding (see mxSvgCanvas2D.createCss
+ * and mxCellRenderer.rotateLabelBounds).
+ */
+Graph.prototype.getShapeInsideBox = function(style, w, h)
+{
+	var spacing = parseFloat(mxUtils.getValue(style, mxConstants.STYLE_SPACING, 2));
+	var top = spacing + parseFloat(mxUtils.getValue(style, mxConstants.STYLE_SPACING_TOP, 0));
+	var bottom = spacing + parseFloat(mxUtils.getValue(style, mxConstants.STYLE_SPACING_BOTTOM, 0));
+	var left = spacing + parseFloat(mxUtils.getValue(style, mxConstants.STYLE_SPACING_LEFT, 0));
+	var right = spacing + parseFloat(mxUtils.getValue(style, mxConstants.STYLE_SPACING_RIGHT, 0));
+	var fop = mxSvgCanvas2D.prototype.foreignObjectPadding;
+
+	// Top-aligned labels are moved down by the base spacing (see
+	// mxText.getSpacing and mxCellRenderer.rotateLabelBounds), so the
+	// box moves down with them to keep the carve on the shape
+	if (mxUtils.getValue(style, mxConstants.STYLE_VERTICAL_ALIGN,
+		mxConstants.ALIGN_MIDDLE) == mxConstants.ALIGN_TOP)
+	{
+		top += mxText.prototype.baseSpacingTop;
+	}
+
+	return new mxRectangle(left - fop / 2, top,
+		Math.max(1, Math.round(w - left - right + fop)),
+		Math.max(1, Math.round(h - top - bottom)));
+};
+
+/**
+ * Returns the markup for the floats that implement the text flow for the
+ * given outline in the given label content box, plus an optional spacer
+ * for the vertical alignment. All values in the markup are numbers that
+ * are generated from the outline above, ie. no user input is used.
+ */
+Graph.prototype.createShapeInsideMarkup = function(outline, box, spacer, w, h, padding, clip)
+{
+	var leftWidth = Math.floor(box.width / 2);
+	var rightWidth = box.width - leftWidth;
+	var margin = (padding != null) ? padding : this.shapeInsideMargin;
+	var result = '';
+
+	// Negative spacers implement centered overflow: the floats grow at the
+	// top by the offset so that the carve stays on the shape within the
+	// grown wrapper while the text flows above and below it (see
+	// createShapeInsideValue). The offset is baked into the polygon as
+	// shape-outside resolves against the margin box, ie. a top margin
+	// would shift the carve up relative to the visible float. The clip
+	// ends the floats below the last fitted line so that trailing words
+	// that fit the outline nowhere continue at the end of the block (see
+	// computeShapeInsideSpacer).
+	var off = (spacer != null && spacer < 0) ? Math.round(-spacer) : 0;
+	var floatHeight = Math.round((clip != null) ?
+		Math.max(0, Math.min(clip, box.height)) : box.height) + off;
+
+	// Keeps the polygon on one side of the given horizontal line,
+	// inserting the intersection points of the clipped edges
+	function clipPolygon(pts, y, below)
+	{
+		var result = [];
+
+		for (var i = 0; i < pts.length; i++)
+		{
+			var p0 = pts[i];
+			var p1 = pts[(i + 1) % pts.length];
+			var in0 = (below) ? p0[1] <= y : p0[1] >= y;
+			var in1 = (below) ? p1[1] <= y : p1[1] >= y;
+
+			if (in0)
+			{
+				result.push(p0);
+			}
+
+			if (in0 != in1 && p1[1] != p0[1])
+			{
+				result.push([p0[0] + (p1[0] - p0[0]) *
+					(y - p0[1]) / (p1[1] - p0[1]), y]);
+			}
+		}
+
+		return result;
+	};
+
+	function createPolygon(points, offset, width)
+	{
+		// The outline spans the shape while the float spans the label box,
+		// so the polygon is clipped at the top and bottom of the float:
+		// clamping the points instead would change the slopes of the
+		// adjacent edges, moving the carve into the shape near steep
+		// curves such as the ends of the or outline
+		var pts = [];
+
+		for (var i = 0; i < points.length; i++)
+		{
+			pts.push([points[i][0] * w - box.x - offset,
+				off + points[i][1] * h - box.y]);
+		}
+
+		pts = clipPolygon(clipPolygon(pts, 0, false), floatHeight, true);
+		var result = [];
+
+		for (var i = 0; i < pts.length; i++)
+		{
+			var x = Math.max(0.05, Math.min(99.95, pts[i][0] / width * 100));
+			var y = Math.max(0.05, Math.min(99.95, pts[i][1] / floatHeight * 100));
+			result.push((Math.round(x * 100) / 100) + '% ' +
+				(Math.round(y * 100) / 100) + '%');
+		}
+
+		return (result.length > 2) ?
+			'polygon(' + result.join(', ') + ')' : null;
+	};
+
+	function createFloat(side, width, polygon)
+	{
+		return '<div data-shape-inside="1" contenteditable="false" style="float:' +
+			side + ';width:' + width + 'px;height:' + floatHeight +
+			'px;shape-outside:' + polygon + ';shape-margin:' + margin +
+			'px;pointer-events:none;"></div>';
+	};
+
+	var leftPolygon = (outline.left != null) ?
+		createPolygon(outline.left, 0, leftWidth) : null;
+	var rightPolygon = (outline.right != null) ?
+		createPolygon(outline.right, leftWidth, rightWidth) : null;
+
+	if (leftPolygon != null)
+	{
+		result += createFloat('left', leftWidth, leftPolygon);
+	}
+
+	if (rightPolygon != null)
+	{
+		result += createFloat('right', rightWidth, rightPolygon);
+	}
+
+	if (spacer != null && spacer > 0)
+	{
+		result += '<div data-shape-inside="1" contenteditable="false" style="height:' +
+			Math.round(spacer) + 'px;pointer-events:none;"></div>';
+	}
+
+	return result;
+};
+
+/**
+ * Returns the wrapper growth for overflow (negative spacers): the wrapper
+ * grows to the flow height so that the flex container aligns the overflow
+ * - above and below the shape for middle, above the shape for bottom -
+ * with the carve kept on the shape by the polygon offset in the grown
+ * floats (see createShapeInsideMarkup). As the grown wrapper is centered
+ * for middle and bottom-anchored for bottom, its top is offset by the
+ * spacer in both cases.
+ */
+Graph.prototype.getShapeInsideGrow = function(spacer, valign)
+{
+	return (spacer != null && spacer < 0) ?
+		((valign == mxConstants.ALIGN_BOTTOM) ? -spacer : -2 * spacer) : 0;
+};
+
+/**
+ * Returns the given sanitized label value wrapped in a floated block with
+ * the size of the given label box, together with the text flow markup for
+ * the given outline. The fixed size keeps the flow aligned with the shape
+ * when the text overflows, as the flex container centers the content (see
+ * mxSvgCanvas2D.createCss), with overflowing lines continuing below the
+ * shape. The wrapper is floated so that the inline-block label content
+ * has no in-flow line boxes and its baseline is the bottom margin edge,
+ * ie. overflowing lines do not stretch the measured label height. The
+ * same block is created in the editor (see updateShapeInsideFloats), as
+ * lines flow differently against the floats when the content is a direct
+ * child of the editing host.
+ */
+Graph.prototype.createShapeInsideValue = function(outline, box, spacer, w, h, value, padding, valign, clip)
+{
+	var height = Math.round(box.height +
+		this.getShapeInsideGrow(spacer, valign));
+
+	return '<div style="float:left;width:' + Math.round(box.width) + 'px;height:' +
+		height + 'px;">' +
+		this.createShapeInsideMarkup(outline, box, spacer, w, h, padding, clip) +
+		value + '</div>';
+};
+
+/**
+ * Measures the text flow for the given sanitized label markup in the given
+ * label content box with the given outline and spacer. Returns the top,
+ * bottom and right edge of the flowed text relative to the box, plus the
+ * merged line bands, or null if no text was rendered. The caller must
+ * pass sanitized markup.
+ */
+Graph.prototype.measureShapeInsideFlow = function(value, style, outline, box, spacer, w, h, fontSize, clip)
+{
+	var result = null;
+
+	if (document.body != null)
+	{
+		var div = Graph.shapeInsideMeasureDiv;
+
+		if (div == null)
+		{
+			div = document.createElement('div');
+			div.style.position = 'absolute';
+			div.style.visibility = 'hidden';
+			div.style.left = '-9999px';
+			div.style.top = '0px';
+			div.style.boxSizing = 'border-box';
+			document.body.appendChild(div);
+			Graph.shapeInsideMeasureDiv = div;
+		}
+
+		fontSize = (fontSize != null) ? fontSize : parseFloat(mxUtils.getValue(style,
+			mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE));
+		var fontStyle = parseInt(mxUtils.getValue(style,
+			mxConstants.STYLE_FONTSTYLE, 0));
+
+		div.style.width = box.width + 'px';
+		div.style.fontFamily = mxUtils.getValue(style,
+			mxConstants.STYLE_FONTFAMILY, mxConstants.DEFAULT_FONTFAMILY);
+		div.style.fontSize = Math.round(fontSize) + 'px';
+		div.style.lineHeight = (mxConstants.ABSOLUTE_LINE_HEIGHT) ?
+			(fontSize * mxConstants.LINE_HEIGHT) + 'px' :
+			(mxConstants.LINE_HEIGHT * mxSvgCanvas2D.prototype.lineHeightCorrection);
+		div.style.fontWeight = ((fontStyle & mxConstants.FONT_BOLD) ==
+			mxConstants.FONT_BOLD) ? 'bold' : 'normal';
+		div.style.fontStyle = ((fontStyle & mxConstants.FONT_ITALIC) ==
+			mxConstants.FONT_ITALIC) ? 'italic' : '';
+		div.style.textAlign = mxUtils.getValue(style,
+			mxConstants.STYLE_ALIGN, mxConstants.ALIGN_CENTER);
+		div.style.whiteSpace = 'normal';
+		div.style.wordWrap = mxConstants.WORD_WRAP;
+		div.innerHTML = this.createShapeInsideMarkup(outline, box, spacer, w, h,
+			this.getShapeInsidePadding(style), clip) + value;
+
+		var base = div.getBoundingClientRect();
+		var walker = document.createTreeWalker(div, NodeFilter.SHOW_TEXT, null);
+		var top = null;
+		var bottom = null;
+		var right = null;
+		var bands = [];
+
+		while (walker.nextNode())
+		{
+			var range = document.createRange();
+			range.selectNodeContents(walker.currentNode);
+			var rects = range.getClientRects();
+
+			for (var i = 0; i < rects.length; i++)
+			{
+				if (rects[i].width > 0 && rects[i].height > 0)
+				{
+					top = (top == null) ? rects[i].top : Math.min(top, rects[i].top);
+					bottom = (bottom == null) ? rects[i].bottom : Math.max(bottom, rects[i].bottom);
+					right = (right == null) ? rects[i].right : Math.max(right, rects[i].right);
+					bands.push([rects[i].top - base.top, rects[i].bottom - base.top]);
+				}
+			}
+		}
+
+		if (top != null)
+		{
+			// Merges the fragment bands into lines
+			bands.sort(function(a, b)
+			{
+				return a[0] - b[0];
+			});
+
+			var lines = [];
+
+			for (var i = 0; i < bands.length; i++)
+			{
+				var last = (lines.length > 0) ? lines[lines.length - 1] : null;
+
+				if (last != null && bands[i][0] < last[1] - 2)
+				{
+					last[1] = Math.max(last[1], bands[i][1]);
+				}
+				else
+				{
+					lines.push(bands[i]);
+				}
+			}
+
+			result = {top: top - base.top, bottom: bottom - base.top,
+				right: right - base.left, lines: lines};
+		}
+
+		div.innerHTML = '';
+	}
+
+	return result;
+};
+
+/**
+ * Computes the vertical alignment of the text flow within the shape for
+ * the given sanitized label markup. Returns the height of the alignment
+ * spacer (negative for the overflow offset) and the optional float clip
+ * for joined trailing lines (see createShapeInsideMarkup).
+ */
+Graph.prototype.computeShapeInsideSpacer = function(value, style, outline, box, w, h)
+{
+	var valign = mxUtils.getValue(style, mxConstants.STYLE_VERTICAL_ALIGN,
+		mxConstants.ALIGN_MIDDLE);
+	var lineHeight = parseFloat(mxUtils.getValue(style,
+		mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE)) *
+		mxConstants.LINE_HEIGHT;
+	var centered = valign != mxConstants.ALIGN_BOTTOM;
+	var self = this;
+	var h0 = null;
+	var spacer = 0;
+
+	if (valign != mxConstants.ALIGN_TOP)
+	{
+
+		// Returns the horizontal extent of the outline boundary at the
+		// given relative height for the flat bottom check below
+		var crossing = function(points, tau, left)
+		{
+			var result = null;
+
+			if (points != null)
+			{
+				for (var i = 0; i < points.length; i++)
+				{
+					var p0 = points[i];
+					var p1 = points[(i + 1) % points.length];
+
+					if (p0[1] != p1[1] && tau >= Math.min(p0[1], p1[1]) &&
+						tau <= Math.max(p0[1], p1[1]))
+					{
+						var x = p0[0] + (p1[0] - p0[0]) *
+							(tau - p0[1]) / (p1[1] - p0[1]);
+						result = (result == null) ? x : ((left) ?
+							Math.max(result, x) : Math.min(result, x));
+					}
+				}
+			}
+
+			return result;
+		};
+
+		var xl = crossing(outline.left, 0.999, true);
+		var xr = crossing(outline.right, 0.999, false);
+		var flat = (((xr == null) ? 1 : xr) -
+			((xl == null) ? 0 : xl)) * w >= 24;
+
+		// Iterates as the available line widths depend on the offset:
+		// positive spacers push the flow down within the box, negative
+		// spacers grow the wrapper for overflow (see the value and
+		// markup functions above), shifting the flow up in box
+		// coordinates. Tracks the best offset as the line-quantized
+		// flow does not always converge: for middle the flow is
+		// balanced (equal margins, or equal overflow above and below
+		// like the centered overflow of labels without a text flow),
+		// for bottom the flow ends as close to the bottom of the box
+		// as the outline allows.
+		var run = function(bottom)
+		{
+			var spacer = 0;
+			var result = null;
+			var feas = null;
+			var infeas = null;
+
+			for (var i = 0; i < ((bottom) ? 8 : 5); i++)
+			{
+				var flow = self.measureShapeInsideFlow(value, style,
+					outline, box, spacer, w, h);
+
+				if (flow == null)
+				{
+					return null;
+				}
+
+				// Flow position in box coordinates (the measurement
+				// contains the offset for positive spacers only)
+				var off = Math.min(0, spacer);
+				var top = flow.top + off;
+				var btm = flow.bottom + off;
+
+				// Height of the natural flow, ie. the flow at zero offset
+				if (h0 == null)
+				{
+					h0 = btm - top;
+				}
+
+				var overflow = h0 > box.height;
+				var fits = btm <= box.height + 0.5 &&
+					(bottom || top >= -0.5);
+				var score = null;
+
+				if (!bottom)
+				{
+					score = (fits) ? Math.abs(top - (box.height - btm)) :
+						Math.abs(top + btm - box.height);
+				}
+				else if (overflow)
+				{
+					score = Math.abs(box.height - btm);
+				}
+				else if (spacer >= 0)
+				{
+					// Within the box the flow is moved as close to the
+					// bottom as the outline allows: for shapes with a
+					// flat bottom a line extending slightly below the
+					// box beats a flow that ends far above it, for
+					// pointed shapes the last line must never fall
+					// below the outline
+					score = (fits) ? box.height - btm :
+						((flat) ? 1.5 * (btm - box.height) : null);
+				}
+
+				// Fitting flows are preferred over the score except for
+				// bottom alignment within the box, where the score
+				// compares both (see above)
+				var pref = !bottom || overflow;
+
+				if (score != null && (result == null ||
+					(pref && fits && !result.fits) ||
+					((!pref || fits == result.fits) &&
+					score < result.score)))
+				{
+					result = {spacer: spacer, score: score, fits: fits};
+
+					if (fits && score <= 1)
+					{
+						break;
+					}
+				}
+
+				var next = (bottom) ? spacer + box.height - btm :
+					spacer + (box.height - top - btm) / 2;
+
+				if (bottom)
+				{
+					// The end of the flow jumps with the offset where the
+					// line wrap changes, so the offset at the jump is
+					// found by bisection between the largest offset where
+					// the flow ends within the box and the smallest
+					// offset above it where it does not
+					if (btm <= box.height + 0.5)
+					{
+						feas = (feas == null) ? spacer :
+							Math.max(feas, spacer);
+					}
+					else if (feas == null || spacer > feas)
+					{
+						infeas = (infeas == null) ? spacer :
+							Math.min(infeas, spacer);
+					}
+
+					if (feas != null && infeas != null &&
+						infeas - feas > 1)
+					{
+						next = (feas + infeas) / 2;
+					}
+
+					if (!overflow)
+					{
+						next = Math.max(0, next);
+					}
+				}
+
+				// Stops if the next offset repeats the measurement
+				if (Math.round(next) == Math.round(spacer))
+				{
+					break;
+				}
+
+				spacer = next;
+			}
+
+			return result;
+		};
+
+		var r = run(valign == mxConstants.ALIGN_BOTTOM);
+
+		// For bottom alignment of overflowing text the narrowing outline
+		// can block all flows that end near the bottom of the box, as the
+		// line wrap above the shape changes with the offset faster than
+		// the end of the flow converges. The centered overflow is used
+		// instead if no flow ends within two lines of the bottom.
+		if (valign == mxConstants.ALIGN_BOTTOM && h0 != null &&
+			h0 > box.height && (r == null || !r.fits ||
+			r.score > 2 * lineHeight))
+		{
+			r = run(false);
+			centered = true;
+		}
+
+		spacer = Math.round((r != null) ? r.spacer : 0);
+	}
+
+	// Trailing lines that fit the outline nowhere are pushed below the
+	// floats by the browser. A short tail is instead joined to the end
+	// of the block by clipping the floats at the last fitted line, as
+	// whole words are expected to extend over a narrowing outline like
+	// in a wrapped label without a text flow. This keeps the block
+	// contiguous instead of rendering the tail detached below the shape.
+	// Returns the clip below the last fitted line in box coordinates,
+	// or null if there is no short detached tail at the given offset.
+	var deriveClip = function(spacer)
+	{
+		var result = null;
+		var flow = self.measureShapeInsideFlow(value, style, outline, box,
+			spacer, w, h);
+
+		if (flow != null && flow.lines.length > 0)
+		{
+			var off = Math.max(0, -spacer);
+			var floatBottom = Math.round(box.height) + off;
+			var k = flow.lines.length;
+
+			while (k > 0 && flow.lines[k - 1][0] >= floatBottom - 1)
+			{
+				k--;
+			}
+
+			if (k < flow.lines.length)
+			{
+				var tail = flow.lines[flow.lines.length - 1][1] -
+					flow.lines[k][0];
+				var gap = (k > 0) ? flow.lines[k][0] -
+					flow.lines[k - 1][1] : 0;
+
+				if (tail <= 2 * lineHeight + 2 && (k == 0 || gap > 2))
+				{
+					result = (k > 0) ? flow.lines[k - 1][1] - off : 0;
+				}
+			}
+		}
+
+		return result;
+	};
+
+	var clip = deriveClip(spacer);
+
+	// Realigns the joined block, rederiving the clip after each shift as
+	// the line wrap can change with the offset. A shift is only kept if
+	// it improves the alignment, as a changed wrap can invalidate the
+	// linear shift model, with one retry at half the shift.
+	if (clip != null && valign != mxConstants.ALIGN_TOP)
+	{
+		var score = function(flow, spacer)
+		{
+			var boff = Math.min(0, spacer);
+
+			return (centered) ?
+				Math.abs(box.height - (flow.top + boff) -
+					(flow.bottom + boff)) :
+				Math.abs(box.height - (flow.bottom + boff));
+		};
+
+		var joined = this.measureShapeInsideFlow(value, style,
+			outline, box, spacer, w, h, null, clip);
+
+		for (var i = 0; i < 3 && joined != null; i++)
+		{
+			var boff = Math.min(0, spacer);
+			var delta = Math.round((centered) ?
+				(box.height - (joined.top + boff) -
+					(joined.bottom + boff)) / 2 :
+				box.height - (joined.bottom + boff));
+			var accepted = false;
+
+			for (var j = 0; j < 2 && delta != 0; j++)
+			{
+				var nextClip = deriveClip(spacer + delta);
+				nextClip = (nextClip != null) ? nextClip : clip + delta;
+				var check = this.measureShapeInsideFlow(value, style,
+					outline, box, spacer + delta, w, h, null, nextClip);
+
+				// Keeps the shift if it improves the alignment, except
+				// if the shifted flow extends below the box for bottom
+				// alignment
+				if (check != null &&
+					score(check, spacer + delta) < score(joined, spacer) &&
+					(centered || check.bottom + Math.min(0, spacer + delta) <=
+						box.height + 0.5))
+				{
+					spacer += delta;
+					clip = nextClip;
+					joined = check;
+					accepted = true;
+					break;
+				}
+
+				delta = Math.round(delta / 2);
+			}
+
+			if (!accepted)
+			{
+				break;
+			}
+		}
+	}
+
+	return {spacer: Math.round(spacer),
+		clip: (clip != null) ? Math.round(clip) : null};
+};
+
+/**
+ * Returns the largest font size (6..84) such that the text flow for the
+ * given sanitized label markup fits the shape outline, or null if the
+ * flow cannot be measured. Used for autosizeText with shapeInside.
+ */
+Graph.prototype.computeShapeInsideFontSize = function(value, style, outline, w, h)
+{
+	var box = this.getShapeInsideBox(style, w, h);
+
+	if (this.measureShapeInsideFlow(value, style, outline, box, 0, w, h, 1) == null)
+	{
+		return null;
+	}
+
+	var lo = 1;
+	var hi = 84;
+
+	while (lo < hi)
+	{
+		var mid = Math.ceil((lo + hi) / 2);
+		var flow = this.measureShapeInsideFlow(value, style, outline, box, 0, w, h, mid);
+		var fits = flow != null && flow.bottom <= box.height + 0.5 &&
+			flow.right <= box.width + 0.5;
+
+		if (fits)
+		{
+			lo = mid;
+		}
+		else
+		{
+			hi = mid - 1;
+		}
+	}
+
+	return Math.max(6, lo);
+};
+
+/**
+ * Returns the vertical alignment spacer and float clip for the given
+ * state and sanitized label markup. The result is cached in the state.
+ */
+Graph.prototype.getShapeInsideSpacer = function(state, value, outline, box, w, h)
+{
+	var key = [box.width, box.height, this.getShapeInsidePadding(state.style),
+		(outline.left || []).join(';'), (outline.right || []).join(';'),
+		mxUtils.getValue(state.style, mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_MIDDLE),
+		mxUtils.getValue(state.style, mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE),
+		mxUtils.getValue(state.style, mxConstants.STYLE_FONTFAMILY, mxConstants.DEFAULT_FONTFAMILY),
+		mxUtils.getValue(state.style, mxConstants.STYLE_FONTSTYLE, 0), value].join('|');
+
+	if (state.shapeInsideSpacerKey != key)
+	{
+		state.shapeInsideSpacerKey = key;
+		state.shapeInsideSpacerValue = this.computeShapeInsideSpacer(
+			value, state.style, outline, box, w, h);
+	}
+
+	return state.shapeInsideSpacerValue;
+};
+
+/**
+ * Implements the text flow for shapeInside labels at the rendering
+ * boundary: for new label DOM (including exports) the floats and the
+ * label are painted wrapped in a block with the height of the label
+ * box (see createShapeInsideValue). The label value itself, ie. the
+ * result of getLabelValue, never contains the generated markup, so
+ * all other consumers (autosize measurement, SVG label conversion
+ * checks, markup editing) see the plain label.
+ */
+var graphMxTextPaint = mxText.prototype.paint;
+
+mxText.prototype.paint = function(c, update)
+{
+	var state = this.state;
+	var graph = (state != null && state.view != null &&
+		state.view.graph instanceof Graph) ? state.view.graph : null;
+	var restore = null;
+	var flowCanvas = null;
+
+	if (!update && graph != null &&
+		typeof graph.getShapeInsideFloats === 'function' &&
+		typeof this.value === 'string' && this.value != '' &&
+		state.cell != null && graph.model.isVertex(state.cell))
+	{
+		var s = state.view.scale;
+		var w = state.width / s;
+		var h = state.height / s;
+		var outline = graph.getShapeInsideFloats(state.style, w, h);
+
+		if (outline != null)
+		{
+			if (mxUtils.getValue(state.style, 'convertToSvg', '0') == '1')
+			{
+				// The flow for converted SVG labels is implemented in
+				// mxSvgCanvas2D.wrapSvgTextElement via this provider
+				c.textFlow = graph.createShapeInsideTextFlow(state.style, w, h);
+				flowCanvas = c;
+			}
+			else
+			{
+				var box = graph.getShapeInsideBox(state.style, w, h);
+				restore = this.value;
+
+				// Trailing newlines are handled here as the wrapper hides
+				// them from the check in the actual paint
+				var value = mxUtils.replaceTrailingNewlines(restore, '<div><br></div>');
+				var align = graph.getShapeInsideSpacer(state, value, outline,
+					box, w, h);
+				this.value = graph.createShapeInsideValue(outline, box,
+					align.spacer, w, h, value,
+					graph.getShapeInsidePadding(state.style),
+					mxUtils.getValue(state.style, mxConstants.STYLE_VERTICAL_ALIGN,
+						mxConstants.ALIGN_MIDDLE), align.clip);
+			}
+		}
+	}
+
+	try
+	{
+		graphMxTextPaint.apply(this, arguments);
+	}
+	finally
+	{
+		if (restore != null)
+		{
+			this.value = restore;
+		}
+
+		if (flowCanvas != null)
+		{
+			flowCanvas.textFlow = null;
+		}
+	}
+};
+
+/**
+ * Forces a repaint of the label if the unscaled cell size or the text
+ * flow outline has changed, as the generated flow markup depends on
+ * both (see mxText.prototype.paint above). The key contains the outline
+ * points so that changes of the shape, direction, flips or size styles
+ * update the flow. Follows the pattern of the wrap width check in
+ * mxText.prototype.redraw.
+ */
+var graphMxTextRedraw = mxText.prototype.redraw;
+
+mxText.prototype.redraw = function()
+{
+	var state = this.state;
+	var graph = (state != null && state.view != null &&
+		state.view.graph instanceof Graph) ? state.view.graph : null;
+
+	if (graph != null && typeof graph.getShapeInsideFloats === 'function' &&
+		typeof this.value === 'string' && this.value != '' &&
+		state.cell != null && graph.model.isVertex(state.cell))
+	{
+		var s = state.view.scale;
+		var w = state.width / s;
+		var h = state.height / s;
+		var outline = graph.getShapeInsideFloats(state.style, w, h);
+		var key = Math.round(w) + ':' + Math.round(h) + ':' +
+			graph.getShapeInsidePadding(state.style) + ':' + ((outline != null) ?
+			(outline.left || []).join(';') + '|' + (outline.right || []).join(';') : '');
+
+		if (this.shapeInsideKey != key)
+		{
+			this.shapeInsideKey = key;
+			this.lastValue = null;
+		}
+	}
+
+	graphMxTextRedraw.apply(this, arguments);
+};
+
 
 /**
  * Returns true if the edge shape in the given style paints the curved style
@@ -7940,7 +9480,7 @@ Graph.prototype.createLayouts = function(list, elkOptions)
 		var layoutName = list[i].layout;
 		var config = list[i].config;
 
-		if (Graph.elkLayoutAlgorithms[layoutName] != null)
+		if (typeof Graph.elkLayoutAlgorithms[layoutName] === 'string')
 		{
 			if (typeof ElkLayout === 'undefined')
 			{
@@ -7988,6 +9528,7 @@ Graph.prototype.createLayouts = function(list, elkOptions)
 					// container's undo history. Also skips the orgchart branch
 					// optimizer (handled above).
 					if (typeof layout[key] !== 'function' &&
+						key != '__proto__' && key != 'constructor' && key != 'prototype' &&
 						(layoutName != 'mxOrgChartLayout' ||
 						key != 'branchOptimizer'))
 					{
@@ -13718,19 +15259,21 @@ TableLayout.prototype.getRowLayout = function(row, width)
 	var cells = this.graph.model.getChildCells(row, true);
 	var off = this.graph.getActualStartSize(row, true);
 	var sw = this.getSize(cells, true);
-	var rw = width - off.x - off.width;
+	var rw = Math.max(0, width - off.x - off.width);
 	var result = [];
 	var x = off.x;
-	
+
 	for (var i = 0; i < cells.length; i++)
 	{
 		var geo = this.graph.getCellGeometry(cells[i]);
-		
+
 		if (geo != null)
 		{
-			x += (geo.alternateBounds != null ?
+			// Distributes evenly if stored widths are unusable
+			x += (sw > 0) ? (geo.alternateBounds != null ?
 				geo.alternateBounds.width :
-				geo.width) * rw / sw;
+				geo.width) * rw / sw :
+				rw / cells.length;
 			result.push(Math.round(x));
 		}
 	}
@@ -13764,29 +15307,29 @@ TableLayout.prototype.layoutRow = function(row, positions, height, tw)
 		if (geo != null)
 		{
 			geo = geo.clone();
-			
+
 			geo.y = off.y;
-			geo.height = height - off.y - off.height;
-			
+			geo.height = Math.max(0, height - off.y - off.height);
+
 			if (positions != null)
 			{
 				geo.x = positions[i];
-				geo.width = positions[i + 1] - geo.x;
+				geo.width = Math.max(0, positions[i + 1] - geo.x);
 
 				// Fills with last geo if not enough cells
 				if (i == cells.length - 1 && i < positions.length - 2)
 				{
-					geo.width = tw - geo.x - off.x - off.width;
+					geo.width = Math.max(0, tw - geo.x - off.x - off.width);
 				}
 			}
 			else
 			{
 				geo.x = x;
 				x += geo.width;
-				
+
 				if (i == cells.length - 1)
 				{
-					geo.width = tw - off.x - off.width - sw;
+					geo.width = Math.max(0, tw - off.x - off.width - sw);
 				}
 				else
 				{	
@@ -13827,8 +15370,6 @@ TableLayout.prototype.execute = function(parent)
 		model.beginUpdate();
 		try
 		{
-			var th = table.height - offset.y - offset.height;
-			var tw = table.width - offset.x - offset.width;
 			var rows = model.getChildCells(parent, true);
 
 			// Updates row visibilities
@@ -13836,7 +15377,34 @@ TableLayout.prototype.execute = function(parent)
 			{
 				model.setVisible(rows[i], true);
 			}
-			
+
+			if (rows.length > 0 && !this.graph.isCellCollapsed(parent))
+			{
+				// Grows the table if the start sizes leave no room for content
+				var start = 0;
+
+				for (var i = 0; i < rows.length; i++)
+				{
+					var rs = this.graph.getActualStartSize(rows[i], true);
+					start = Math.max(start, rs.x + rs.width);
+				}
+
+				var minWidth = offset.x + offset.width + start;
+				var minHeight = offset.y + offset.height;
+				minWidth += (minWidth > 0) ? Graph.minTableColumnWidth : 0;
+				minHeight += (minHeight > 0) ? Graph.minTableRowHeight : 0;
+
+				if (table.width < minWidth || table.height < minHeight)
+				{
+					table = table.clone();
+					table.width = Math.max(table.width, minWidth);
+					table.height = Math.max(table.height, minHeight);
+					model.setGeometry(parent, table);
+				}
+			}
+
+			var th = table.height - offset.y - offset.height;
+			var tw = table.width - offset.x - offset.width;
 			var sh = this.getSize(rows, false);
 			
 			if (th > 0 && tw > 0 && rows.length > 0 && sh > 0)
@@ -16679,23 +18247,171 @@ if (typeof mxVertexHandler !== 'undefined')
 		Graph.prototype.getPreferredSizeForCell = function(cell, w, gridEnabled)
 		{
 			gridEnabled = (gridEnabled != null) ? gridEnabled : this.gridEnabled;
-			var result = mxGraph.prototype.getPreferredSizeForCell.apply(this, arguments);
-			
-			// Adds buffer
-			if (result != null)
+			var result = this.getShapeInsidePreferredSize(cell, w, gridEnabled);
+
+			if (result == null)
 			{
-				result.width += 10;
-				result.height += 4;
-				
-				if (gridEnabled)
+				result = mxGraph.prototype.getPreferredSizeForCell.apply(this, arguments);
+
+				// Adds buffer
+				if (result != null)
 				{
-					result.width = this.snap(result.width);
-					result.height = this.snap(result.height);
+					result.width += 10;
+					result.height += 4;
+
+					if (gridEnabled)
+					{
+						result.width = this.snap(result.width);
+						result.height = this.snap(result.height);
+					}
 				}
 			}
 			
 			return result;
 		}
+
+		/**
+		 * Returns the preferred size for vertices with shapeInside text flow
+		 * by fitting the flowed label into the shape outline, keeping the
+		 * current aspect ratio (or the current width if textWidth is not
+		 * null, ie. for fixedWidth cells). Returns null to fall back to the
+		 * default rectangular autosize if the feature is not enabled, the
+		 * shape is not supported or the label cannot be measured.
+		 */
+		Graph.prototype.getShapeInsidePreferredSize = function(cell, textWidth, gridEnabled)
+		{
+			var result = null;
+
+			var preStyle = (cell != null) ? this.getCurrentCellStyle(cell) : null;
+			var preName = (preStyle != null) ? mxUtils.getValue(preStyle, 'shapeInsideShape', null) : null;
+			preName = (preName == null || preName == '') ? ((preStyle != null) ?
+				mxUtils.getValue(preStyle, mxConstants.STYLE_SHAPE, null) : null) : preName;
+
+			if (cell != null && this.model.isVertex(cell) &&
+				typeof Graph.shapeInsideOutlines[preName] === 'function')
+			{
+				var geo = this.getCellGeometry(cell);
+				var state = this.view.getState(cell);
+				state = (state != null) ? state : this.view.createState(cell);
+
+				if (geo != null && state != null && geo.width > 0 && geo.height > 0 &&
+					this.isShapeInsideEnabled(state.style))
+				{
+					// Sanitized label without flow markup, which is only
+					// added at paint time (see mxText.prototype.paint)
+					var value = this.cellRenderer.getLabelValue(state);
+
+					if (value != null && value != '')
+					{
+						value = value.replace(/\n/g, '<br>');
+						var w0 = geo.width;
+						var h0 = geo.height;
+
+						var fits = mxUtils.bind(this, function(cw, ch)
+						{
+							var outline = this.getShapeInsideOutline(state.style, cw, ch);
+
+							if (outline == null)
+							{
+								return false;
+							}
+
+							var box = this.getShapeInsideBox(state.style, cw, ch);
+							var flow = this.measureShapeInsideFlow(value,
+								state.style, outline, box, 0, cw, ch);
+
+							return flow != null && flow.bottom <= box.height + 0.5 &&
+								flow.right <= box.width + 0.5;
+						});
+
+						// Bails out if the label cannot be measured
+						if (this.measureShapeInsideFlow(value, state.style,
+							this.getShapeInsideOutline(state.style, w0, h0) ||
+							{left: null, right: null},
+							this.getShapeInsideBox(state.style, w0, h0), 0, w0, h0) != null)
+						{
+							// Scales height only for fixed width, else keeps aspect
+							var dims = (textWidth != null) ? function(k)
+							{
+								return [w0, Math.max(1, h0 * k)];
+							} : function(k)
+							{
+								return [Math.max(1, w0 * k), Math.max(1, h0 * k)];
+							};
+
+							var test = function(k)
+							{
+								var d = dims(k);
+
+								return fits(d[0], d[1]);
+							};
+
+							var lo = 1;
+							var hi = 1;
+
+							if (test(1))
+							{
+								// Shrinks to minimal fitting size
+								while (lo > 0.0625 && test(lo * 0.5))
+								{
+									lo *= 0.5;
+								}
+
+								hi = lo;
+								lo = lo * 0.5;
+							}
+							else
+							{
+								// Grows until the label fits
+								var n = 0;
+
+								while (n++ < 7 && !test(hi * 2))
+								{
+									hi *= 2;
+								}
+
+								lo = hi;
+								hi *= 2;
+
+								if (!test(hi))
+								{
+									return null;
+								}
+							}
+
+							// Bisects to the minimal fitting size
+							for (var i = 0; i < 6; i++)
+							{
+								var mid = (lo + hi) / 2;
+
+								if (test(mid))
+								{
+									hi = mid;
+								}
+								else
+								{
+									lo = mid;
+								}
+							}
+
+							var d = dims(hi);
+							var width = Math.ceil(d[0]);
+							var height = Math.ceil(d[1]);
+
+							if (gridEnabled)
+							{
+								width = this.snap(width + this.gridSize / 2);
+								height = this.snap(height + this.gridSize / 2);
+							}
+
+							result = new mxRectangle(0, 0, width, height);
+						}
+					}
+				}
+			}
+
+			return result;
+		};
 
 		/**
 		 * Computes available space for an autosizeText label given style,
@@ -16868,9 +18584,25 @@ if (typeof mxVertexHandler !== 'undefined')
 			var fontFamily = style[mxConstants.STYLE_FONTFAMILY] || mxConstants.DEFAULT_FONTFAMILY;
 			var fontStyle = style[mxConstants.STYLE_FONTSTYLE];
 			var wrap = style[mxConstants.STYLE_WHITE_SPACE] == 'wrap';
+			var fontSize = null;
 
-			var fontSize = this.computeAutosizeTextFontSize(value, space.availW, space.availH,
-				fontFamily, fontStyle, wrap);
+			// Fits the font size to the text flow for shapeInside cells
+			if (wrap)
+			{
+				var outline = this.getShapeInsideFloats(style, geo.width, geo.height);
+
+				if (outline != null)
+				{
+					fontSize = this.computeShapeInsideFontSize(value, style,
+						outline, geo.width, geo.height);
+				}
+			}
+
+			if (fontSize == null)
+			{
+				fontSize = this.computeAutosizeTextFontSize(value, space.availW, space.availH,
+					fontFamily, fontStyle, wrap);
+			}
 
 			this.setCellStyles(mxConstants.STYLE_FONTSIZE, fontSize, [cell]);
 		};
@@ -17812,6 +19544,7 @@ if (typeof mxVertexHandler !== 'undefined')
 					mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_TOP,
 					new mxPoint(8, -8));
 				overlay.isLinkOverlay = true;
+				overlay.cursor = 'pointer';
 
 				var graph = this;
 				overlay.addListener(mxEvent.CLICK, mxUtils.bind(this, function(sender, evt)
@@ -17860,6 +19593,7 @@ if (typeof mxVertexHandler !== 'undefined')
 					mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP,
 					new mxPoint(-8, -8));
 				overlay.isTooltipOverlay = true;
+				overlay.cursor = 'pointer';
 
 				var graph = this;
 				overlay.addListener(mxEvent.CLICK, function(sender, evt)
@@ -17903,9 +19637,10 @@ if (typeof mxVertexHandler !== 'undefined')
 				// tooltip and link icons, bottom right to the comment icon
 				var overlay = new mxCellOverlay(
 					new mxImage(Editor.lightDarkNoteImage, 16, 16),
-					mxResources.get('note', null, 'Note'), mxConstants.ALIGN_LEFT,
+					null, mxConstants.ALIGN_LEFT,
 					mxConstants.ALIGN_BOTTOM, new mxPoint(-8, 8));
 				overlay.isNoteOverlay = true;
+				overlay.cursor = 'pointer';
 
 				var graph = this;
 				overlay.addListener(mxEvent.CLICK, function(sender, evt)
@@ -19298,9 +21033,8 @@ if (typeof mxVertexHandler !== 'undefined')
 
 			// Adds tooltip, link and note icons like the editor overlays. Icons
 			// are drawn through the canvas so they follow the export transform.
-			// Cells whose tooltip is plain text keep the built-in title below
-			// and get no icon. HTML popup content is sanitized here at export
-			// time as the exported file cannot sanitize at display time.
+			// HTML popup content is sanitized here at export time as the
+			// exported file cannot sanitize at display time.
 			if (icons)
 			{
 				var drawCellState = exp.drawCellState;
@@ -19399,7 +21133,7 @@ if (typeof mxVertexHandler !== 'undefined')
 
 						var tip = self.convertValueToTooltip(state.cell);
 
-						if (tip != null && tip != '' && /<\/?[a-zA-Z][^>]*>/.test(tip))
+						if (tip != null && tip != '')
 						{
 							addIcon(Editor.lightDarkTooltipImage, state.x / vs - size,
 								state.y / vs - size, Editor.convertHtmlToText(tip),
@@ -21507,6 +23241,195 @@ if (typeof mxVertexHandler !== 'undefined')
 		 * Overridden to set CSS classes.
 		 */
 		var mxCellEditorStartEditing = mxCellEditor.prototype.startEditing;
+		/**
+		 * Removes the shapeInside text flow helper elements from the editor
+		 * and unwraps the label content from the flow wrapper.
+		 */
+		mxCellEditor.prototype.removeShapeInsideNodes = function()
+		{
+			if (this.textarea != null)
+			{
+				var nodes = this.textarea.querySelectorAll('[data-shape-inside]');
+
+				for (var i = 0; i < nodes.length; i++)
+				{
+					nodes[i].parentNode.removeChild(nodes[i]);
+				}
+
+				var wrappers = this.textarea.querySelectorAll(
+					'[data-shape-inside-wrapper]');
+
+				for (var i = 0; i < wrappers.length; i++)
+				{
+					while (wrappers[i].firstChild != null)
+					{
+						wrappers[i].parentNode.insertBefore(
+							wrappers[i].firstChild, wrappers[i]);
+					}
+
+					wrappers[i].parentNode.removeChild(wrappers[i]);
+				}
+			}
+		};
+
+		/**
+		 * Adds or updates the text flow floats and vertical alignment spacer
+		 * in the editor for shapeInside cells so that the text keeps its
+		 * rendered flow while editing. The label content is kept in a block
+		 * with the geometry of the rendered label wrapper (see
+		 * createShapeInsideValue), as lines flow differently against the
+		 * floats when the content is a direct child of the editing host.
+		 * The helper elements are marked with a data-shape-inside attribute,
+		 * not editable and removed together with the wrapper before the
+		 * value is read in getCurrentValue and toggleViewMode. The wrapper
+		 * persists while editing so that the caret survives the updates.
+		 */
+		mxCellEditor.prototype.updateShapeInsideFloats = function()
+		{
+			var state = this.graph.view.getState(this.editingCell);
+			this.shapeInsideAlign = null;
+
+			// Skips the empty label placeholder (see clearOnChange), but
+			// not a label that starts with typed initial text
+			if (state != null && this.textarea != null && !this.codeViewMode &&
+				this.textarea.innerHTML != '' && (!this.clearOnChange ||
+				this.textarea.innerHTML != this.getEmptyLabelText()))
+			{
+				var s = state.view.scale;
+				var w = state.width / s;
+				var h = state.height / s;
+				var outline = this.graph.getShapeInsideFloats(state.style, w, h);
+
+				if (outline == null)
+				{
+					this.removeShapeInsideNodes();
+				}
+				else
+				{
+					// Removes the floats but keeps the wrapper and the
+					// text nodes in place for a stable caret
+					var nodes = this.textarea.querySelectorAll('[data-shape-inside]');
+
+					for (var i = 0; i < nodes.length; i++)
+					{
+						nodes[i].parentNode.removeChild(nodes[i]);
+					}
+
+					var wrapper = this.textarea.querySelector(
+						'[data-shape-inside-wrapper]');
+					var restore = null;
+					var sel = null;
+
+					if (wrapper == null)
+					{
+						// Moving the label nodes into the wrapper clamps
+						// the selection (a move is a removal), eg. the
+						// caret placed behind the initial text when typing
+						// starts the editing, so it is restored below from
+						// the nodes, which survive the move
+						sel = window.getSelection();
+
+						if (sel != null && sel.rangeCount > 0 &&
+							this.textarea.contains(sel.anchorNode))
+						{
+							restore = {anchorNode: sel.anchorNode,
+								anchorOffset: sel.anchorOffset,
+								focusNode: sel.focusNode,
+								focusOffset: sel.focusOffset,
+								collapsed: sel.isCollapsed,
+								host: sel.anchorNode == this.textarea ||
+									sel.focusNode == this.textarea};
+						}
+
+						wrapper = document.createElement('div');
+						wrapper.setAttribute('data-shape-inside-wrapper', '1');
+
+						while (this.textarea.firstChild != null)
+						{
+							wrapper.appendChild(this.textarea.firstChild);
+						}
+
+						this.textarea.appendChild(wrapper);
+					}
+
+					var box = this.graph.getShapeInsideBox(state.style, w, h);
+					var value = Graph.sanitizeHtml(wrapper.innerHTML, true);
+					var align = this.graph.computeShapeInsideSpacer(value,
+						state.style, outline, box, w, h);
+					this.shapeInsideAlign = align;
+
+					// Wrapper geometry as in createShapeInsideValue
+					wrapper.style.cssText = 'float:left;width:' +
+						Math.round(box.width) + 'px;height:' +
+						Math.round(box.height + this.graph.getShapeInsideGrow(
+							align.spacer, mxUtils.getValue(state.style,
+							mxConstants.STYLE_VERTICAL_ALIGN,
+							mxConstants.ALIGN_MIDDLE))) + 'px;';
+					wrapper.insertAdjacentHTML('afterbegin',
+						this.graph.createShapeInsideMarkup(outline, box, align.spacer, w, h,
+							this.graph.getShapeInsidePadding(state.style), align.clip));
+
+					// Restores the selection after the wrapping. A selection
+					// anchored on the editing host itself is mapped to the
+					// end of the content for a caret and to the wrapper
+					// content otherwise, with the caret placed inside the
+					// last text node as it must survive the float updates
+					// while typing, which invalidate container offsets.
+					if (restore != null)
+					{
+						var range = document.createRange();
+
+						try
+						{
+							if (!restore.host)
+							{
+								range.setStart(restore.anchorNode,
+									restore.anchorOffset);
+								range.setEnd(restore.focusNode,
+									restore.focusOffset);
+							}
+							else
+							{
+								var node = wrapper.lastChild;
+
+								while (node != null && node.lastChild != null)
+								{
+									node = node.lastChild;
+								}
+
+								if (restore.collapsed && node != null &&
+									node.nodeType == 3)
+								{
+									range.setStart(node, node.length);
+									range.collapse(true);
+								}
+								else
+								{
+									range.selectNodeContents(wrapper);
+
+									if (restore.collapsed)
+									{
+										range.collapse(false);
+									}
+								}
+							}
+
+							sel.removeAllRanges();
+							sel.addRange(range);
+						}
+						catch (e)
+						{
+							// ignores an unmappable selection
+						}
+					}
+
+					// Repositions the editor for the changed content height,
+					// eg. for vertical alignments other than top
+					this.resize();
+				}
+			}
+		};
+
 		mxCellEditor.prototype.startEditing = function(cell, trigger)
 		{
 			cell = this.graph.getStartEditingCell(cell, trigger);
@@ -21555,10 +23478,46 @@ if (typeof mxVertexHandler !== 'undefined')
 			{
 				this.resize();
 			}
+
+			// Adds text flow floats for shapeInside cells and keeps them
+			// updated while typing for a stable flow in the editor
+			if (this.textarea != null && state != null &&
+				this.graph.getShapeInsideFloats(state.style,
+					state.width / state.view.scale,
+					state.height / state.view.scale) != null)
+			{
+				this.shapeInsideListener = mxUtils.bind(this, function()
+				{
+					// The first update is deferred as it moves the label
+					// nodes into the flow wrapper, which conflicts with
+					// the selection the browser restores after the input
+					// event (see updateShapeInsideFloats)
+					if (this.textarea != null && this.textarea.querySelector(
+						'[data-shape-inside-wrapper]') == null)
+					{
+						window.setTimeout(mxUtils.bind(this, function()
+						{
+							if (this.textarea != null)
+							{
+								this.updateShapeInsideFloats();
+							}
+						}), 0);
+					}
+					else
+					{
+						this.updateShapeInsideFloats();
+					}
+				});
+
+				mxEvent.addListener(this.textarea, 'input', this.shapeInsideListener);
+				this.updateShapeInsideFloats();
+			}
 		}
 		
 		mxCellEditor.prototype.toggleViewMode = function()
 		{
+			// Removes text flow helpers before the content is read
+			this.removeShapeInsideNodes();
 			var state = this.graph.view.getState(this.editingCell);
 			
 			if (state != null)
@@ -21687,6 +23646,9 @@ if (typeof mxVertexHandler !== 'undefined')
 				
 				this.switchSelectionState = tmp;
 				this.resize();
+
+				// Restores text flow helpers in WYSIWYG mode
+				this.updateShapeInsideFloats();
 			}
 		};
 		
@@ -21742,6 +23704,90 @@ if (typeof mxVertexHandler !== 'undefined')
 					this.textarea.style.top = Math.round(this.bounds.y) + 'px';
 		
 					mxUtils.setPrefixedStyle(this.textarea.style, 'transform', 'scale(' + scale + ',' + scale + ')');	
+				}
+				else if (state != null && this.graph.getShapeInsideFloats(state.style,
+					state.width / state.view.scale, state.height / state.view.scale) != null)
+				{
+					// shapeInside: positions the editor over the label box so
+					// that the injected text flow floats align with the shape
+					// and the text keeps its rendered position (the vertical
+					// alignment is implemented by the injected spacer)
+					var scale = state.view.scale;
+					var sty = state.style;
+					var geo = this.graph.getCellGeometry(this.editingCell);
+
+					if (geo != null)
+					{
+						// The editor is shifted up by the overflow offset and
+						// grown like the flex-aligned label wrapper so that
+						// the carve in the grown floats stays on the shape
+						// (see getShapeInsideGrow)
+						var align = this.shapeInsideAlign;
+						var off = (align != null && align.spacer < 0) ?
+							-align.spacer : 0;
+						var grow = (align != null) ?
+							this.graph.getShapeInsideGrow(align.spacer,
+								mxUtils.getValue(sty, mxConstants.STYLE_VERTICAL_ALIGN,
+								mxConstants.ALIGN_MIDDLE)) : 0;
+
+						this.bounds = mxRectangle.fromRectangle(state);
+						this.textarea.style.left = Math.round(state.x) + 'px';
+						this.textarea.style.top = Math.round(state.y - off * scale) + 'px';
+						mxUtils.setPrefixedStyle(this.textarea.style, 'transformOrigin', '0px 0px');
+						mxUtils.setPrefixedStyle(this.textarea.style, 'transform',
+							'scale(' + scale + ',' + scale + ')');
+						this.textarea.style.borderWidth = '0';
+
+						// Content box matches the label box used for the floats
+						// (see Graph.prototype.getShapeInsideBox)
+						var fop = mxSvgCanvas2D.prototype.foreignObjectPadding;
+						this.textarea.style.width = Math.round(geo.width + fop) + 'px';
+						this.textarea.style.height = Math.round(geo.height + grow) + 'px';
+						this.textarea.style.overflow = 'visible';
+						this.textarea.style.boxSizing = 'border-box';
+						this.textarea.style.wordWrap = mxConstants.WORD_WRAP;
+						this.textarea.style.whiteSpace = 'normal';
+
+						var spacing = parseInt(mxUtils.getValue(sty, mxConstants.STYLE_SPACING, 2));
+						this.textarea.style.paddingLeft = Math.round(spacing +
+							parseInt(mxUtils.getValue(sty, mxConstants.STYLE_SPACING_LEFT, 0))) + 'px';
+						this.textarea.style.paddingRight = Math.round(spacing +
+							parseInt(mxUtils.getValue(sty, mxConstants.STYLE_SPACING_RIGHT, 0))) + 'px';
+
+						// Top-aligned labels are moved down by the base spacing
+						// (see Graph.prototype.getShapeInsideBox)
+						this.textarea.style.paddingTop = Math.round(spacing +
+							parseInt(mxUtils.getValue(sty, mxConstants.STYLE_SPACING_TOP, 0)) +
+							((mxUtils.getValue(sty, mxConstants.STYLE_VERTICAL_ALIGN,
+								mxConstants.ALIGN_MIDDLE) == mxConstants.ALIGN_TOP) ?
+								mxText.prototype.baseSpacingTop : 0)) + 'px';
+						this.textarea.style.paddingBottom = Math.round(spacing +
+							parseInt(mxUtils.getValue(sty, mxConstants.STYLE_SPACING_BOTTOM, 0))) + 'px';
+
+						// Recomputes the font size for autosizeText cells
+						if (this.graph.isAutosizeTextState(state))
+						{
+							var text = mxUtils.trim(this.textarea.innerText || '');
+
+							if (text.length > 0)
+							{
+								var value = mxUtils.htmlEntities(text, false).replace(/\n/g, '<br>');
+								var outline = this.graph.getShapeInsideFloats(sty,
+									geo.width, geo.height);
+								var fontSize = (outline != null) ?
+									this.graph.computeShapeInsideFontSize(value, sty,
+										outline, geo.width, geo.height) : null;
+
+								if (fontSize != null)
+								{
+									this.textarea.style.fontSize = fontSize + 'px';
+									this.textarea.style.lineHeight = (mxConstants.ABSOLUTE_LINE_HEIGHT) ?
+										(fontSize * mxConstants.LINE_HEIGHT) + 'px' :
+										mxConstants.LINE_HEIGHT;
+								}
+							}
+						}
+					}
 				}
 				else if (state != null && this.graph.isAutosizeTextState(state))
 				{
@@ -21912,6 +23958,9 @@ if (typeof mxVertexHandler !== 'undefined')
 		mxCellEditorGetCurrentValue = mxCellEditor.prototype.getCurrentValue;
 		mxCellEditor.prototype.getCurrentValue = function(state)
 		{
+			// Text flow helpers are never part of the value
+			this.removeShapeInsideNodes();
+
 			if (mxUtils.getValue(state.style, 'html', '0') == '0')
 			{
 				return mxCellEditorGetCurrentValue.apply(this, arguments);
@@ -21949,6 +23998,18 @@ if (typeof mxVertexHandler !== 'undefined')
 		var mxCellEditorStopEditing = mxCellEditor.prototype.stopEditing;
 		mxCellEditor.prototype.stopEditing = function(cancel)
 		{
+			if (this.shapeInsideListener != null)
+			{
+				if (this.textarea != null)
+				{
+					mxEvent.removeListener(this.textarea, 'input',
+						this.shapeInsideListener);
+				}
+
+				this.shapeInsideListener = null;
+				this.shapeInsideAlign = null;
+			}
+
 			// Restores default view mode before applying value
 			if (this.codeViewMode)
 			{
@@ -24523,8 +26584,17 @@ if (typeof mxVertexHandler !== 'undefined')
 			}
 			else
 			{
-				return (this.currentTerminalState != null && me.getState() == this.currentTerminalState && timeOnTarget > 2000) ||
-					((this.currentTerminalState == null || mxUtils.getValue(this.currentTerminalState.style, 'outlineConnect', '1') != '0') &&
+				var outlineConnect = (this.currentTerminalState != null) ? mxUtils.getValue(
+					this.currentTerminalState.style, 'outlineConnect', '1') : '1';
+
+				if (outlineConnect == '3')
+				{
+					return false;
+				}
+
+				return (this.currentTerminalState != null && me.getState() == this.currentTerminalState &&
+					(outlineConnect == '2' || timeOnTarget > 2000)) ||
+					((this.currentTerminalState == null || outlineConnect != '0') &&
 					mxEdgeHandlerIsOutlineConnectEvent.apply(this, arguments));
 			}
 		};
@@ -24713,8 +26783,19 @@ if (typeof mxVertexHandler !== 'undefined')
 			if (model.isEdge(parent) && geo != null && geo.relative && state.width < 2 && state.height < 2 && state.text != null && state.text.boundingBox != null)
 			{
 				var bbox = state.text.unrotatedBoundingBox || state.text.boundingBox;
-				
-				return new mxRectangle(Math.round(bbox.x), Math.round(bbox.y), Math.round(bbox.width), Math.round(bbox.height));
+				var x = bbox.x;
+				var y = bbox.y;
+
+				// Rotated labels spin around their alignment anchor but the selection
+				// border spins around its center, so the unrotated bounds are recentered
+				// on the rotated label to compensate for non-centered alignments
+				if (state.text.unrotatedBoundingBox != null)
+				{
+					x = state.text.boundingBox.getCenterX() - bbox.width / 2;
+					y = state.text.boundingBox.getCenterY() - bbox.height / 2;
+				}
+
+				return new mxRectangle(Math.round(x), Math.round(y), Math.round(bbox.width), Math.round(bbox.height));
 			}
 			else
 			{
@@ -24833,9 +26914,25 @@ if (typeof mxVertexHandler !== 'undefined')
 							mxConstants.DEFAULT_FONTFAMILY;
 						var fontStyle = style[mxConstants.STYLE_FONTSTYLE];
 						var wrap = style[mxConstants.STYLE_WHITE_SPACE] == 'wrap';
+						var fontSize = null;
 
-						var fontSize = this.graph.computeAutosizeTextFontSize(value,
-							space.availW, space.availH, fontFamily, fontStyle, wrap);
+						// Fits the font size to the text flow for shapeInside cells
+						if (wrap)
+						{
+							var outline = this.graph.getShapeInsideFloats(style, w, h);
+
+							if (outline != null)
+							{
+								fontSize = this.graph.computeShapeInsideFontSize(
+									value, style, outline, w, h);
+							}
+						}
+
+						if (fontSize == null)
+						{
+							fontSize = this.graph.computeAutosizeTextFontSize(value,
+								space.availW, space.availH, fontFamily, fontStyle, wrap);
+						}
 
 						var origFontSize = style[mxConstants.STYLE_FONTSIZE];
 						style[mxConstants.STYLE_FONTSIZE] = fontSize;

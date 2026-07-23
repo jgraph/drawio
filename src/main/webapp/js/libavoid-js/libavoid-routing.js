@@ -262,7 +262,7 @@
 			return vertices;
 		}
 
-		var terminalIds = {};
+		var terminalIds = Object.create(null);
 		var i;
 
 		for (i = 0; i < edges.length; i++)
@@ -369,7 +369,7 @@
 	 */
 	AvoidRouting.computeRoutes = function(Avoid, vertices, edges, opts)
 	{
-		var out = {};
+		var out = Object.create(null);
 
 		if (Avoid == null || vertices == null || edges == null)
 		{
@@ -394,8 +394,8 @@
 		try { router.setRoutingParameter(Avoid.RoutingParameter.shapeBufferDistance, buffer); } catch (e) {}
 		try { router.setRoutingParameter(Avoid.RoutingParameter.idealNudgingDistance, nudge); } catch (e) {}
 
-		var bounds = {};
-		var shapeRefs = {};
+		var bounds = Object.create(null);
+		var shapeRefs = Object.create(null);
 		var pinClass = 0;
 		var i;
 

@@ -1247,7 +1247,22 @@ Actions.prototype.init = function()
 	action.isEnabled = isGraphEnabled;
 	action = this.addAction('pageView', mxUtils.bind(this, function()
 	{
-		ui.setPageVisible(!graph.pageVisible);
+		var value = !graph.pageVisible;
+
+		// Replaces the preserved original value so that an explicit toggle
+		// is serialized even where a URL parameter or inline embed mode has
+		// forced the loaded state (see Editor.setGraphXml/getGraphXml)
+		if (ui.editor.savedGraphState != null &&
+			ui.editor.savedGraphState.page != null)
+		{
+			ui.editor.savedGraphState.page = (value) ? '1' : '0';
+		}
+
+		// Page view is persisted with the file but does not go through the
+		// model so the editor must be marked as modified explicitly (embed
+		// mode only saves on exit if the editor is modified)
+		ui.editor.setModified(true);
+		ui.setPageVisible(value);
 	}));
 	action.setToggleAction(true);
 	action.setSelectedCallback(function() { return graph.pageVisible; });

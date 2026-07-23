@@ -968,10 +968,31 @@ function render(data)
 	var origXmlDoc = xmlDoc;
 	var diagrams = null;
 	var from = 0;
+	var singlePage = false;
+
+	// Returns an mxfile with only the exported page for explicit single
+	// page exports of multi-page files, so the embedded XML opens on the
+	// page shown in the exported image (draw.io always opens the first
+	// page of the embedded file) [jgraph/drawio-desktop#2365]
+	function getSinglePageNode()
+	{
+		if (singlePage && diagrams != null && diagrams.length > 1 &&
+			diagrams[from] != null)
+		{
+			var fileNode = origXmlDoc.documentElement.cloneNode(false);
+			fileNode.removeAttribute('pages');
+			fileNode.appendChild(diagrams[from].cloneNode(true));
+
+			return fileNode;
+		}
+
+		return null;
+	};
 
 	function getFileXml(uncompressed)
 	{
-		var xml = mxUtils.getXml(origXmlDoc);
+		var pageNode = getSinglePageNode();
+		var xml = mxUtils.getXml((pageNode != null) ? pageNode : origXmlDoc);
 		var editorUi = new HeadlessEditorUi();
 		var tmpFile = new LocalFile(editorUi, xml);
 		editorUi.setCurrentFile(tmpFile);
@@ -1221,11 +1242,15 @@ function render(data)
 						// Include the resolved diagram XML so the main process can embed it
 						// in PNG/PDF output (-e). For Mermaid/CSV/layout inputs the source
 						// file isn't draw.io XML, so the main process has no (or a pre-layout)
-						// args.xml; data.xml here is the real post-conversion model.
+						// args.xml; data.xml here is the real post-conversion model. For
+						// explicit single page exports only that page is embedded
+						// [jgraph/drawio-desktop#2365]
 						var annotRects = collectAnnotRects();
+						var pageNode = getSinglePageNode();
 
 						electron.sendMessage('render-finished', {bounds: JSON.stringify(bounds),
-							pageCount: pageCount, xml: (data.embedXml == '1') ? data.xml : null,
+							pageCount: pageCount, xml: (data.embedXml == '1') ? ((pageNode != null) ?
+								mxUtils.getXml(pageNode) : data.xml) : null,
 							annots: (annotRects.length > 0) ? JSON.stringify(annotRects) : null});
 					}
 					catch(e)
@@ -1986,6 +2011,7 @@ function render(data)
 					{
 						from = i;
 						to = i;
+						singlePage = true;
 						break;
 					}
 				}
@@ -1996,6 +2022,7 @@ function render(data)
 				to = parseInt(data.to);
 				//If to is not defined, use from (so one page), otherwise, to is restricted to the range from "from" to diagrams.length - 1
 				to = isNaN(to)? from : Math.max(from, Math.min(to, diagrams.length - 1));
+				singlePage = !isNaN(parseInt(data.from)) && from == to;
 			}
 		}
 		

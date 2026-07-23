@@ -795,10 +795,37 @@
 
 	/**
 	 * Variable: STYLE_FILL_STYLE
-	 * 
+	 *
 	 * Defines the key for the fill style style.
 	 */
 	STYLE_FILL_STYLE: 'fillStyle',
+
+	/**
+	 * Variable: STYLE_HACHURE_GAP
+	 *
+	 * Defines the key for the hachure gap style. The type of the value is
+	 * numeric and defines the distance between the strokes of fill
+	 * patterns. -1 means automatic. Value is "hachureGap".
+	 */
+	STYLE_HACHURE_GAP: 'hachureGap',
+
+	/**
+	 * Variable: STYLE_HACHURE_ANGLE
+	 *
+	 * Defines the key for the hachure angle style. The type of the value
+	 * is numeric and defines the angle of the strokes of fill patterns in
+	 * degrees. Value is "hachureAngle".
+	 */
+	STYLE_HACHURE_ANGLE: 'hachureAngle',
+
+	/**
+	 * Variable: STYLE_FILL_WEIGHT
+	 *
+	 * Defines the key for the fill weight style. The type of the value is
+	 * numeric and defines the stroke width of fill patterns. -1 means
+	 * automatic. Value is "fillWeight".
+	 */
+	STYLE_FILL_WEIGHT: 'fillWeight',
 
 	/**
 	 * Variable: STYLE_STROKE_OPACITY
@@ -1275,9 +1302,13 @@
 
 	/**
 	 * Variable: STYLE_LABEL_PADDING
-	 * 
+	 *
 	 * Defines the key for the label padding, ie. the space between the label
-	 * border and the label. Value is "labelPadding".
+	 * text and its background box as defined by <STYLE_LABEL_BACKGROUNDCOLOR>
+	 * and <STYLE_LABEL_BORDERCOLOR>. The value is a CSS-style spacing
+	 * shorthand of 1-4 space-separated numbers (top, right, bottom, left).
+	 * For labels with a fixed-size box (fill, width and block <STYLE_OVERFLOW>
+	 * values) the padding insets the text instead. Value is "labelPadding".
 	 */
 	STYLE_LABEL_PADDING: 'labelPadding',
 

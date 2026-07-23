@@ -172,32 +172,56 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 		this.desc = null;
 		this.editable = null;
 	}
-	
+
 	this.title = title;
 
 	// Updates data after changing file name, waits for the fonts to be
 	// loaded into the local cache for saving SVG files with embedded
-	// fonts, keeps the synchronous flow during page unload
-	if (!useCurrentData && !unloading)
+	// fonts and renders the PNG for binary files, keeps the synchronous
+	// flow during page unload
+	var generateData = mxUtils.bind(this, function(fn, fail)
 	{
-		this.loadFonts(mxUtils.bind(this, function()
+		var doGenerate = mxUtils.bind(this, function()
 		{
-			this.updateFileData();
-			this.saveFile(title, revision, success, error,
-				true, unloading, overwrite);
-		}));
+			var binary = Editor.useCanvasForExport && /(\.png)$/i.test(this.getTitle());
+			this.setShadowModified(false);
+			var savedData = this.getData();
 
-		return;
-	}
-	else if (!useCurrentData)
-	{
-		this.updateFileData();
-	}
+			if (binary)
+			{
+				var p = this.ui.getPngFileProperties(this.ui.fileNode);
 
-	var binary = Editor.useCanvasForExport && /(\.png)$/i.test(this.getTitle());
-	this.setShadowModified(false);
-	var savedData = this.getData();
-	
+				this.ui.getEmbeddedPng(mxUtils.bind(this, function(imageData)
+				{
+					fn(imageData, savedData, binary);
+				}), fail, (this.ui.getCurrentFile() != this) ?
+					savedData : null, p.scale, p.border);
+			}
+			else
+			{
+				fn(savedData, savedData, binary);
+			}
+		});
+
+		if (!useCurrentData && !unloading)
+		{
+			this.loadFonts(mxUtils.bind(this, function()
+			{
+				this.updateFileData();
+				doGenerate();
+			}));
+		}
+		else
+		{
+			if (!useCurrentData)
+			{
+				this.updateFileData();
+			}
+
+			doGenerate();
+		}
+	});
+
 	var done = mxUtils.bind(this, function()
 	{
 		this.setModified(this.getShadowModified());
@@ -208,33 +232,44 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 			success();
 		}
 	});
-	
-	var doSave = mxUtils.bind(this, function(data)
+
+	if (this.fileHandle != null)
 	{
-		if (this.fileHandle != null)
+		// Sets shadow modified state during save
+		if (!this.savingFile)
 		{
-			// Sets shadow modified state during save
-			if (!this.savingFile)
+			this.savingFileTime = new Date();
+			this.savingFile = true;
+
+			var errorWrapper = mxUtils.bind(this, function(e, writable)
 			{
-				this.savingFileTime = new Date();
-				this.savingFile = true;
-				
-				var errorWrapper = mxUtils.bind(this, function(e)
+				this.savingFile = false;
+
+				// Discards the swap file for the aborted save
+				if (writable != null)
 				{
-					this.savingFile = false;
-					
-					if (error != null)
-					{
-						// Wraps error object to offer save status option
-						error({error: e});
-					}
-				});
-				
-				// Saves a copy as a draft while saving
-				this.saveDraft(savedData);
-				
-				this.fileHandle.createWritable().then(mxUtils.bind(this, function(writable)
+					writable.abort().then(function() { }, function() { });
+				}
+
+				if (error != null)
 				{
+					// Wraps error object to offer save status option
+					error({error: e});
+				}
+			});
+
+			// Creates the writable before the data is generated so that the
+			// write permission prompt is shown while the transient user
+			// activation of the event that triggered the save is valid, as
+			// generating the data can take longer than the lifespan of the
+			// user activation, in which case the prompt would be blocked
+			this.fileHandle.createWritable().then(mxUtils.bind(this, function(writable)
+			{
+				generateData(mxUtils.bind(this, function(data, savedData, binary)
+				{
+					// Saves a copy as a draft while saving
+					this.saveDraft(savedData);
+
 					this.fileHandle.getFile().then(mxUtils.bind(this, function(newDesc)
 					{
 						this.invalidFileHandle = null;
@@ -243,7 +278,7 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 							'desc', [this.desc], 'newDesc', [newDesc],
 							'conflict', this.desc.lastModified !=
 								newDesc.lastModified);
-						
+
 						if (overwrite || this.desc.lastModified == newDesc.lastModified)
 						{
 							writable.write((binary) ? this.ui.base64ToBlob(data, 'image/png') : data).then(mxUtils.bind(this, function()
@@ -258,7 +293,7 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 											this.savingFile = false;
 											this.desc = desc;
 											this.fileSaved(savedData, lastDesc, done, errorWrapper);
-											
+
 											// Deletes draft after saving
 											this.removeDraft();
 										}
@@ -268,22 +303,31 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 										}
 									}), errorWrapper);
 								}), errorWrapper);
-							}), errorWrapper);
+							}), mxUtils.bind(this, function(e)
+							{
+								errorWrapper(e, writable);
+							}));
 						}
 						else
 						{
 							this.inConflictState = true;
-							errorWrapper();
+							errorWrapper(null, writable);
 						}
 					}), mxUtils.bind(this, function(e)
 					{
 						this.invalidFileHandle = true;
-						errorWrapper(e);
+						errorWrapper(e, writable);
 					}));
-				}), errorWrapper);
-			}
+				}), mxUtils.bind(this, function(e)
+				{
+					errorWrapper(e, writable);
+				}));
+			}), errorWrapper);
 		}
-		else
+	}
+	else
+	{
+		generateData(mxUtils.bind(this, function(data, savedData, binary)
 		{
 			if (this.ui.isOfflineApp() || this.ui.isLocalFileSave())
 			{
@@ -296,7 +340,7 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 				{
 					var dot = title.lastIndexOf('.');
 					var format = (dot > 0) ? title.substring(dot + 1) : 'xml';
-	
+
 					// Do not update modified flag
 					new mxXmlRequest(SAVE_URL, 'format=' + format +
 						'&xml=' + encodeURIComponent(data) +
@@ -312,24 +356,9 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 					}));
 				}
 			}
-			
-			done();
-		}
-	});
-	
-	if (binary)
-	{
-		var p = this.ui.getPngFileProperties(this.ui.fileNode);
 
-		this.ui.getEmbeddedPng(mxUtils.bind(this, function(imageData)
-		{
-			doSave(imageData);
-		}), error, (this.ui.getCurrentFile() != this) ?
-			savedData : null, p.scale, p.border);
-	}
-	else
-	{
-		doSave(savedData);
+			done();
+		}), error);
 	}
 };
 

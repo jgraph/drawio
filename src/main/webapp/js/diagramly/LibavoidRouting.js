@@ -357,7 +357,7 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 			return;
 		}
 
-		var map = {};
+		var map = Object.create(null);
 		var regions = [];
 
 		for (var i = 0; i < cells.length; i++)
@@ -454,7 +454,7 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 			return;
 		}
 
-		var map = {};
+		var map = Object.create(null);
 
 		for (i = 0; i < cells.length; i++)
 		{
@@ -502,7 +502,7 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 
 		var dx = evt.getProperty('dx'), dy = evt.getProperty('dy');   // CELLS_MOVED
 		var previous = evt.getProperty('previous');                   // CELLS_RESIZED
-		var map = {};
+		var map = Object.create(null);
 		var regions = [];
 		var i, j;
 
@@ -1044,8 +1044,8 @@ LibavoidRouting.routeCells = function(graph, Avoid, edgeCells, opts, setStyle)
 	var model = graph.getModel();
 	var vertices = LibavoidRouting.collectVertices(graph);
 	var edges = [];
-	var byId = {};
-	var added = {};
+	var byId = Object.create(null);
+	var added = Object.create(null);
 	var i;
 
 	for (i = 0; i < edgeCells.length; i++)
@@ -1390,7 +1390,7 @@ LibavoidRouting.previewRouteToCell = function(graph, Avoid, sourceCell, targetCe
 	}
 
 	var vertices = LibavoidRouting.collectVertices(graph);
-	var added = {};
+	var added = Object.create(null);
 
 	// transparentBounds terminals are registered ad hoc, like the commit.
 	LibavoidRouting.addTerminalVertex(graph, vertices, added, sourceCell);
@@ -1803,7 +1803,7 @@ LibavoidRouting.buildPreviewSession = function(graph, Avoid, fixedCell, dragging
 
 	vertices = AvoidRouting.filterEnclosing(vertices,
 		[{source: fixedId, target: fixedId}]);
-	var shapeRefs = {};
+	var shapeRefs = Object.create(null);
 	var i;
 
 	for (i = 0; i < vertices.length; i++)
@@ -2213,7 +2213,7 @@ LibavoidRouting.solveMovePreview = function(graph, handler, mdx, mdy)
 {
 	var model = graph.getModel();
 	var id, c, i;
-	var map = {};
+	var map = Object.create(null);
 	var regions = [];
 
 	for (id in model.cells)
@@ -2267,7 +2267,7 @@ LibavoidRouting.solveMovePreview = function(graph, handler, mdx, mdy)
 	// bounds + the drag delta in model coords). Stationary ones are kept aside
 	// for the rigid-translation test below.
 	var vertices = LibavoidRouting.collectVertices(graph);
-	var added = {};
+	var added = Object.create(null);
 
 	// transparentBounds terminals of the affected edges are registered ad hoc,
 	// like the commit — before the preview shift below, so a moving container
@@ -2299,7 +2299,7 @@ LibavoidRouting.solveMovePreview = function(graph, handler, mdx, mdy)
 
 	var buffer = LibavoidRouting.shapeBufferDistance;
 	var edgeArray = [];
-	var byId = {};
+	var byId = Object.create(null);
 
 	for (id in map)
 	{
@@ -2408,8 +2408,8 @@ LibavoidRouting.livePreviewMove = function(handler, dx, dy)
 	var id, c;
 
 	var fr = LibavoidRouting.solveMovePreview(graph, handler, mdx, mdy);
-	var routes = (fr != null) ? fr.routes : {};
-	var byId = (fr != null) ? fr.byId : {};
+	var routes = (fr != null) ? fr.routes : Object.create(null);
+	var byId = (fr != null) ? fr.byId : Object.create(null);
 
 	// Transient-state lifecycle: every edge state this preview mutates is
 	// recorded on the handler until the drag ends (endMovePreview, wired from
@@ -2425,7 +2425,7 @@ LibavoidRouting.livePreviewMove = function(handler, dx, dy)
 
 	if (touched == null)
 	{
-		touched = handler.__libavoidMoveTouched = {};
+		touched = handler.__libavoidMoveTouched = Object.create(null);
 	}
 
 	var stale = false;
@@ -2626,7 +2626,7 @@ LibavoidRouting.computeRoutes = function(Avoid, vertices, edges, opts)
 	// so drawio-mcp's direct core callers inherit it. Applies to every
 	// strategy and to the previews, which route through this wrapper too —
 	// commit and preview stay byte-identical.
-	var byId = {};
+	var byId = Object.create(null);
 	var i;
 
 	if (vertices != null)
@@ -2670,7 +2670,7 @@ LibavoidRouting.computeRoutes = function(Avoid, vertices, edges, opts)
 		(buckets[eff] = buckets[eff] || []).push(e);
 	}
 
-	var out = {};
+	var out = Object.create(null);
 
 	for (var key in buckets)
 	{
@@ -2706,7 +2706,7 @@ LibavoidRouting.computeRoutes = function(Avoid, vertices, edges, opts)
  */
 LibavoidRouting.computeRoutesIndependent = function(Avoid, vertices, edges, opts)
 {
-	var out = {};
+	var out = Object.create(null);
 
 	if (edges == null)
 	{

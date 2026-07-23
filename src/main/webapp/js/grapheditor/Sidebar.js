@@ -241,6 +241,15 @@ Sidebar.prototype.searchClosedLibraries = true;
 Sidebar.prototype.closedLibraryOpacity = null;
 
 /**
+ * Optional map from library ID to a search ranking weight (default
+ * weight is 0). The weight breaks ties between equally scored search
+ * results, eg. to rank shapes from the latest library of a family
+ * above the same shapes from its superseded predecessors. Default
+ * is null (no weights).
+ */
+Sidebar.prototype.librarySearchWeights = null;
+
+/**
  * Whether an image-only search (eg. via an external icon provider) is
  * available. Default is false; subclassers that wire up an image search
  * backend override this to surface the "Search Images" omnibox option.
@@ -1224,6 +1233,28 @@ Sidebar.prototype.isEntryIgnored = function(entry, searchClosedLibraries)
 };
 
 /**
+ * Returns the search ranking weight for the given entry, ie. the
+ * highest librarySearchWeights value of its parent libraries.
+ * Returns 0 for entries without a weighted parent library.
+ */
+Sidebar.prototype.getEntrySearchWeight = function(entry)
+{
+	var weight = 0;
+
+	if (this.librarySearchWeights != null && entry.parentLibraries != null)
+	{
+		for (var i = 0; i < entry.parentLibraries.length; i++)
+		{
+			var temp = this.librarySearchWeights[entry.parentLibraries[i].id];
+			temp = (typeof temp === 'number') ? temp : 0;
+			weight = (i == 0) ? temp : Math.max(weight, temp);
+		}
+	}
+
+	return weight;
+};
+
+/**
  * Splits a token on camelCase and letter-digit boundaries.
  * e.g. "pid2misc" → ["pid", "misc"], "discInst" → ["disc", "inst"]
  */
@@ -1567,17 +1598,20 @@ Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, er
 			}
 		}
 
-		// Collect and sort by score descending
+		// Collect and sort by score descending, using the library search
+		// weights to break ties so that entries from superseded libraries
+		// appear after equally scored entries from their replacements
 		var candidates = [];
 
-		allEntries.visit(function(key, entry)
+		allEntries.visit(mxUtils.bind(this, function(key, entry)
 		{
-			candidates.push({ entry: entry, score: scores.get(entry) || 0 });
-		});
+			candidates.push({ entry: entry, score: scores.get(entry) || 0,
+				weight: this.getEntrySearchWeight(entry) });
+		}));
 
 		candidates.sort(function(a, b)
 		{
-			return b.score - a.score;
+			return (b.score - a.score) || (b.weight - a.weight);
 		});
 
 		var results = [];
@@ -2456,7 +2490,11 @@ Sidebar.prototype.addSearchPalette = function(expand)
 			if (input.value == '')
 			{
 				complete = true;
-				center.style.display = 'none';
+
+				// Deleting the term clears the results like Escape does
+				// (resetSearch also resets searchTerm so that repeating
+				// the previous search runs again)
+				resetSearch();
 			}
 			else if (input.value != searchTerm)
 			{
@@ -2567,29 +2605,29 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 	 	this.createVertexTemplateEntry('text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;', 180, 120,
 			'<h1 style="margin-top: 0px;">Heading</h1><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ' +
 			'ut labore et dolore magna aliqua.</p>', 'Textbox', null, null, 'text textbox textarea'),
- 		this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;', 120, 80, '', 'Ellipse', null, null, 'oval ellipse state'),
+ 		this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;shapeInside=1;', 120, 80, '', 'Ellipse', null, null, 'oval ellipse state'),
 		this.createVertexTemplateEntry('whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Square', null, null, 'square'),
-		this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;aspect=fixed;', 80, 80, '', 'Circle', null, null, 'circle'),
+		this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;', 80, 80, '', 'Circle', null, null, 'circle'),
 	 	this.createVertexTemplateEntry('shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;', 120, 60, '', 'Process', null, null, 'process task'),
-	 	this.createVertexTemplateEntry('rhombus;whiteSpace=wrap;html=1;', 80, 80, '', 'Diamond', null, null, 'diamond rhombus if condition decision conditional question test'),
-	 	this.createVertexTemplateEntry('shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;', 120, 60, '', 'Parallelogram'),
-	 	this.createVertexTemplateEntry('shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;', 120, 80, '', 'Hexagon', null, null, 'hexagon preparation'),
-	 	this.createVertexTemplateEntry('triangle;whiteSpace=wrap;html=1;', 60, 80, '', 'Triangle', null, null, 'triangle logic inverter buffer'),
+	 	this.createVertexTemplateEntry('rhombus;whiteSpace=wrap;html=1;shapeInside=1;', 80, 80, '', 'Diamond', null, null, 'diamond rhombus if condition decision conditional question test'),
+	 	this.createVertexTemplateEntry('shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;', 120, 60, '', 'Parallelogram'),
+	 	this.createVertexTemplateEntry('shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;', 120, 80, '', 'Hexagon', null, null, 'hexagon preparation'),
+	 	this.createVertexTemplateEntry('triangle;whiteSpace=wrap;html=1;shapeInside=1;', 60, 80, '', 'Triangle', null, null, 'triangle logic inverter buffer'),
 	 	this.createVertexTemplateEntry('shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;', 60, 80, '', 'Cylinder', null, null, 'cylinder data database'),
 	 	this.createVertexTemplateEntry('ellipse;shape=cloud;whiteSpace=wrap;html=1;', 120, 80, '', 'Cloud', null, null, 'cloud network'),
 	 	this.createVertexTemplateEntry('shape=document;whiteSpace=wrap;html=1;boundedLbl=1;', 120, 80, '', 'Document'),
 	 	this.createVertexTemplateEntry('shape=internalStorage;whiteSpace=wrap;html=1;backgroundOutline=1;', 80, 80, '', 'Internal Storage'),
 	 	this.createVertexTemplateEntry('shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;', 120, 80, '', 'Cube'),
-	 	this.createVertexTemplateEntry('shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;', 120, 80, '', 'Step'),
-	 	this.createVertexTemplateEntry('shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;fixedSize=1;', 120, 60, '', 'Trapezoid'),
+	 	this.createVertexTemplateEntry('shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;', 120, 80, '', 'Step'),
+	 	this.createVertexTemplateEntry('shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;', 120, 60, '', 'Trapezoid'),
 	 	this.createVertexTemplateEntry('shape=tape;whiteSpace=wrap;html=1;', 120, 100, '', 'Tape'),
 	 	this.createVertexTemplateEntry('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;', 80, 100, '', 'Note'),
 	    this.createVertexTemplateEntry('shape=card;whiteSpace=wrap;html=1;', 80, 100, '', 'Card'),
 	    this.createVertexTemplateEntry('shape=callout;whiteSpace=wrap;html=1;perimeter=calloutPerimeter;', 120, 80, '', 'Callout', null, null, 'bubble chat thought speech message'),
 	 	this.createVertexTemplateEntry('shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;', 30, 60, 'Actor', 'Actor', false, null, 'user person human stickman'),
-	 	this.createVertexTemplateEntry('shape=xor;whiteSpace=wrap;html=1;', 60, 80, '', 'Or', null, null, 'logic or'),
-	 	this.createVertexTemplateEntry('shape=or;whiteSpace=wrap;html=1;', 60, 80, '', 'And', null, null, 'logic and'),
-	 	this.createVertexTemplateEntry('shape=dataStorage;whiteSpace=wrap;html=1;fixedSize=1;', 100, 80, '', 'Data Storage'),
+	 	this.createVertexTemplateEntry('shape=xor;whiteSpace=wrap;html=1;shapeInside=1;', 60, 80, '', 'Or', null, null, 'logic or'),
+	 	this.createVertexTemplateEntry('shape=or;whiteSpace=wrap;html=1;shapeInside=1;', 60, 80, '', 'And', null, null, 'logic and'),
+	 	this.createVertexTemplateEntry('shape=dataStorage;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;', 100, 80, '', 'Data Storage'),
 		this.createVertexTemplateEntry('swimlane;startSize=0;', 200, 200, '', 'Container', null, null, 'container swimlane lane pool group'),
 		this.createVertexTemplateEntry('swimlane;whiteSpace=wrap;html=1;', 200, 200, 'Vertical Container', 'Container', null, null, 'container swimlane lane pool group'),
 		this.createVertexTemplateEntry('swimlane;horizontal=0;whiteSpace=wrap;html=1;', 200, 200, 'Horizontal Container', 'Horizontal Container', null, null, 'container swimlane lane pool group'),

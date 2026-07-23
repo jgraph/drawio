@@ -12,51 +12,54 @@
  * the file's MD5; .html entries append the release version so documents are
  * re-fetched once per release (a cached response pins the HTTP headers it was
  * fetched with, e.g. the CSP, which a header-only change never invalidates).
+ * Cache keys resolve against the registration scope, network fetches against
+ * the script's own directory: registered as stable/service-worker.js with
+ * scope '/', this worker fetches via /stable/ and serves unprefixed.
  */
 'use strict';
 self.skipWaiting();
 
 var MANIFEST = [
-  {"url":"js/bootstrap.js","revision":"98f3075c6094536bd4e22e736a9f5a98"},
+  {"url":"js/bootstrap.js","revision":"4ead21aa3d21115074a854b492b2e7fd"},
   {"url":"js/main.js","revision":"a8d40469d3d72ab4b11059362f3dd825"},
-  {"url":"js/app.min.js","revision":"46c68d0d44082ed75e01daffe7c56e9c"},
-  {"url":"js/extensions.min.js","revision":"beddea49d2bdb9a6e1b016bfa57fd823"},
-  {"url":"js/plantuml/drawio-plantuml.min.js","revision":"64348263302fd084d028d59b2b18525a"},
+  {"url":"js/app.min.js","revision":"803afd1f2854edf00e1b5cdde6b1751a"},
+  {"url":"js/extensions.min.js","revision":"b2c5b538cd4b69fad30580f838f8b89f"},
+  {"url":"js/plantuml/drawio-plantuml.min.js","revision":"2ef6a1f26a9f2425fcc36c012a5134d5"},
   {"url":"js/orgchart.min.js","revision":"619d8c4dab47b81868916df31f55478b"},
   {"url":"js/stencils.min.js","revision":"ffca5e4bdda3e151aab9b88cf26e7404"},
-  {"url":"js/shapes-14-6-5.min.js","revision":"aa5ec1c9cb9bdd04ade903c9ea5224ea"},
+  {"url":"js/shapes-14-6-5.min.js","revision":"b2fa26b82599c707e3e4e6b6b53e02cd"},
   {"url":"js/math-print.js","revision":"ad9cf0f2f2b614eac58ea72499c1017f"},
-  {"url":"index.html","revision":"9de11c65ec13b24c73ace7042bc529cc-30.4.3"},
-  {"url":"open.html","revision":"d71816b3b00e769fc6019fcdd6921662-30.4.3"},
+  {"url":"index.html","revision":"9de11c65ec13b24c73ace7042bc529cc-31.0.2"},
+  {"url":"open.html","revision":"d71816b3b00e769fc6019fcdd6921662-31.0.2"},
   {"url":"shortcuts.svg","revision":"e6e8b6ca4cdf380eb5908925fadda599"},
   {"url":"styles/fonts/ArchitectsDaughter-Regular.ttf","revision":"31c2153c0530e32553b31a49b3d70736"},
   {"url":"styles/grapheditor.css","revision":"b7a9b0ba308f6db1dc9d195531e820ab"},
   {"url":"styles/high-contrast.css","revision":"0c0219b1016c8bd6bbf859cfd53b5058"},
   {"url":"js/dropbox/Dropbox-sdk.min.js","revision":"4b9842892aa37b156db0a8364b7a83b0"},
   {"url":"js/onedrive/OneDrive.js","revision":"e863f5e6833892f22492211663e3efe9"},
-  {"url":"js/viewer-static.min.js","revision":"d7e63a60d2ad0fb409d585de53898c49"},
-  {"url":"connect/jira/editor-1-3-3.html","revision":"41dc8af9576b47f359cff19fff7a41c2-30.4.3"},
-  {"url":"connect/jira/viewerPanel-1-3-12.html","revision":"4836f5e4308abe57830e441518364f23-30.4.3"},
-  {"url":"connect/jira/viewerPanel2.html","revision":"0dd1ee1343a46b5c03aedbc587450b84-30.4.3"},
-  {"url":"connect/jira/fullScreenViewer-1-3-3.html","revision":"abed474e47c0c41a5ad2366b4828f77a-30.4.3"},
+  {"url":"js/viewer-static.min.js","revision":"a6960aafc8fa45f8f6f866ee3a685478"},
+  {"url":"connect/jira/editor-1-3-3.html","revision":"41dc8af9576b47f359cff19fff7a41c2-31.0.2"},
+  {"url":"connect/jira/viewerPanel-1-3-12.html","revision":"4836f5e4308abe57830e441518364f23-31.0.2"},
+  {"url":"connect/jira/viewerPanel2.html","revision":"0dd1ee1343a46b5c03aedbc587450b84-31.0.2"},
+  {"url":"connect/jira/fullScreenViewer-1-3-3.html","revision":"abed474e47c0c41a5ad2366b4828f77a-31.0.2"},
   {"url":"connect/jira/viewerPanel.js","revision":"85011efa68d638da560871ee2ab3a6fe"},
   {"url":"connect/jira/spinner.gif","revision":"7d857ab9d86123e93d74d48e958fe743"},
-  {"url":"connect/jira/editor.js","revision":"3dc56c6566abaa7af151a8359e5bb556"},
+  {"url":"connect/jira/editor.js","revision":"6264f470f244aec4b62035bbad03eb5e"},
   {"url":"connect/jira/fullscreen-viewer-init.js","revision":"07043c1ee868dd425f7876da94bbc307"},
   {"url":"connect/jira/fullscreen-viewer.js","revision":"a6be96b8ddc5a25196925713cf34d571"},
   {"url":"plugins/connectJira.js","revision":"d220cad2edf0d6b161505fe12ae3eaa6"},
   {"url":"plugins/cConf-comments.js","revision":"e4a4b5a0fb22393693d3b62968c50644"},
   {"url":"plugins/cConf-1-4-8.js","revision":"a8ac41b5a827dc6a28e38ffaf0d4c333"},
-  {"url":"connect/confluence/connectUtils-1-4-8.js","revision":"1ece124d9b3523b536e99aeca5c3b8f5"},
+  {"url":"connect/confluence/connectUtils-1-4-8.js","revision":"c93367d5b3c8b5b03b843b995754892c"},
   {"url":"connect/new_common/cac.js","revision":"b52c73de9d22b867a036ad50c6bfdca2"},
   {"url":"connect/gdrive_common/gac.js","revision":"c66fdc50ec87002a502cb0779b73a692"},
   {"url":"connect/onedrive_common/ac.js","revision":"1264ba8705eff0d1337701e5ae962366"},
   {"url":"connect/confluence/viewer-init.js","revision":"c5e51e32ac74414d8d518af83ee2781f"},
   {"url":"connect/confluence/viewer.js","revision":"9128708cd80881dbf6caa06f2c4ebda8"},
-  {"url":"connect/confluence/viewer-1-4-42.html","revision":"69c1bca25fd4889bf832e8441c972268-30.4.3"},
-  {"url":"connect/confluence/macroEditor-1-4-8.html","revision":"4ad77ae3f08c19eddac932b2fa8c7068-30.4.3"},
+  {"url":"connect/confluence/viewer-1-4-42.html","revision":"69c1bca25fd4889bf832e8441c972268-31.0.2"},
+  {"url":"connect/confluence/macroEditor-1-4-8.html","revision":"4ad77ae3f08c19eddac932b2fa8c7068-31.0.2"},
   {"url":"connect/confluence/includeDiagram-1-4-8.js","revision":"c2bf5b089b99006177ca184d65a4a25e"},
-  {"url":"connect/confluence/includeDiagram.html","revision":"01b04b3f54f1e2e63fcf1df033d24519-30.4.3"},
+  {"url":"connect/confluence/includeDiagram.html","revision":"01b04b3f54f1e2e63fcf1df033d24519-31.0.2"},
   {"url":"connect/confluence/macro-editor.js","revision":"b9000d6c20f30e4068f83bd0b56965ca"},
   {"url":"math4/es5/ui/safe.js","revision":"70818a3a0b12f623d08897c6db834920"},
   {"url":"math4/es5/core.js","revision":"dc3ca1e12b086e5ab44e588a7cb6ebb3"},
@@ -97,63 +100,63 @@ var MANIFEST = [
   {"url":"math4/es5/fonts/mathjax-bboldx-font-extension/svg.js","revision":"9a4ce996090d4b84adaec560859c67be"},
   {"url":"math4/es5/fonts/mathjax-dsfont-font-extension/svg.js","revision":"dec2c6790c441e2a6843f6c11f5b47db"},
   {"url":"math4/es5/fonts/mathjax-mhchem-font-extension/svg.js","revision":"3e8dd442c15bc792d3718e93cf2e6e4a"},
-  {"url":"resources/dia.txt","revision":"b369edbf232b8a5b46a9e93ac62a2b2e"},
-  {"url":"resources/dia_am.txt","revision":"99c2af296bb95e607bca412b7f019fc8"},
-  {"url":"resources/dia_ar.txt","revision":"4c9364cde025c78e2108c647809c22f0"},
-  {"url":"resources/dia_bg.txt","revision":"1e83b2c38eff538f3ade9162ce40a20c"},
-  {"url":"resources/dia_bn.txt","revision":"1ead38547e6c89dd235261128ec060f3"},
-  {"url":"resources/dia_bs.txt","revision":"3636a5f73978adac8c08519baabf1369"},
-  {"url":"resources/dia_ca.txt","revision":"f5d399e0db0b7b8c2d6f0e81737252ea"},
-  {"url":"resources/dia_cs.txt","revision":"fd68f7dd576843af613bd915721ae888"},
-  {"url":"resources/dia_da.txt","revision":"a593fb8b315860eac679ad9b0d530ec5"},
-  {"url":"resources/dia_de.txt","revision":"448622a45ba87d389ddef2857d910502"},
-  {"url":"resources/dia_el.txt","revision":"6b8f2b69cf00158c6eec3f18647eff4b"},
-  {"url":"resources/dia_eo.txt","revision":"edd01281db52be3d47b999b5cb6d6b70"},
-  {"url":"resources/dia_es.txt","revision":"d35a3d0bbf3122d726ee00cc007f7f7b"},
-  {"url":"resources/dia_et.txt","revision":"2f1784b37876168e6fb74c86634795dc"},
-  {"url":"resources/dia_eu.txt","revision":"f3f139c45a9831115be89fb081e123c5"},
-  {"url":"resources/dia_fa.txt","revision":"0272ea9511a2746ddcb49f8e52fef887"},
-  {"url":"resources/dia_fi.txt","revision":"1d2a177a803aea7a0e312eee00393bc2"},
-  {"url":"resources/dia_fil.txt","revision":"b0b0a4aac426dccd417823470c877b95"},
-  {"url":"resources/dia_fr.txt","revision":"3fe4e6d65c1d7217020b6f00bd78126b"},
-  {"url":"resources/dia_gl.txt","revision":"0c2c8a0e02d4ed26d006ed459ebb52f7"},
-  {"url":"resources/dia_gu.txt","revision":"4d05197bc242124f66a837c567d7eb99"},
-  {"url":"resources/dia_he.txt","revision":"e8d3703e697188d3d6c2b2b908eef13a"},
-  {"url":"resources/dia_hi.txt","revision":"c2d78efec2b6d7cadc49d9f0e2712f2e"},
-  {"url":"resources/dia_hr.txt","revision":"d431a70ff2fe279e66e035dc8bc14187"},
-  {"url":"resources/dia_hu.txt","revision":"48cb1b9423d2dbc84b8e7bc0960336a8"},
-  {"url":"resources/dia_id.txt","revision":"9fa7d7b645a76959fff9fbfc4091b65b"},
-  {"url":"resources/dia_it.txt","revision":"6ea35bbea16e995748ff752e61a5022f"},
-  {"url":"resources/dia_ja.txt","revision":"eb064b8f191f369126b663b39ad1d446"},
-  {"url":"resources/dia_kn.txt","revision":"4fd6c35beb3cae9df5f5feb427eba935"},
-  {"url":"resources/dia_ko.txt","revision":"d9c54a3ef30a12873278facf880f898c"},
-  {"url":"resources/dia_lt.txt","revision":"9956ddada0458343cf44dc5a4f6d7afb"},
-  {"url":"resources/dia_lv.txt","revision":"6331677bd4352c1b38df46d5a7386b48"},
-  {"url":"resources/dia_ml.txt","revision":"5b2b988fc80848afd391152897ed736b"},
-  {"url":"resources/dia_mr.txt","revision":"ceea2c3eb485440434308133f4a4ac43"},
-  {"url":"resources/dia_ms.txt","revision":"1846b5c95a2969c0352ecd7cb3e001d1"},
-  {"url":"resources/dia_my.txt","revision":"18454758ce94257d176dc1adc490fdef"},
-  {"url":"resources/dia_nl.txt","revision":"d926dfe72a986d56588ec3000e935ec4"},
-  {"url":"resources/dia_no.txt","revision":"b563b6c300634f15f83ad9bfeab9fd06"},
-  {"url":"resources/dia_pl.txt","revision":"294593fd4614c792ed32a8041d08381e"},
-  {"url":"resources/dia_pt-br.txt","revision":"4e9ac2699018127151679735df67ee11"},
-  {"url":"resources/dia_pt.txt","revision":"6430c4ed694530241ef829493873daba"},
-  {"url":"resources/dia_ro.txt","revision":"4b9b8146b1a9412f0a07373187dbf9ab"},
-  {"url":"resources/dia_ru.txt","revision":"742e546ce390d8f0fe488fd210c833f5"},
-  {"url":"resources/dia_si.txt","revision":"0b93644dadc66dab436136a4ff72b4b7"},
-  {"url":"resources/dia_sk.txt","revision":"4c5af4efbe4e545fe04baccb688f2133"},
-  {"url":"resources/dia_sl.txt","revision":"3fe6420911532ef0dff97785ec2b30a7"},
-  {"url":"resources/dia_sr.txt","revision":"fc33934106f3f95ad7d3a9a026dded03"},
-  {"url":"resources/dia_sv.txt","revision":"3072e614c50830307da75b50a1fb3731"},
-  {"url":"resources/dia_sw.txt","revision":"a3af41e2feb5c1b9d6c0d1beeedab968"},
-  {"url":"resources/dia_ta.txt","revision":"c918602d488853bc17b54fccb61df5d1"},
-  {"url":"resources/dia_te.txt","revision":"1693b4b38e0a8d6434b523b3ed3b6ca2"},
-  {"url":"resources/dia_th.txt","revision":"59ad72cdd804c72219ee2062bedc3804"},
-  {"url":"resources/dia_tr.txt","revision":"3bcbcd2d3855a680541314fce7b6ecd8"},
-  {"url":"resources/dia_uk.txt","revision":"9d551915488dd04135ca1664a12b06d4"},
-  {"url":"resources/dia_vi.txt","revision":"b33181200fab17061b787a7efb0575d7"},
-  {"url":"resources/dia_zh-tw.txt","revision":"100a90b6685a1ba79ad19ff9466c163a"},
-  {"url":"resources/dia_zh.txt","revision":"bd3fe8304fd3d8e03c11043e76629e2f"},
+  {"url":"resources/dia.txt","revision":"09e5e48506707c0cb440432eba5ea3d9"},
+  {"url":"resources/dia_am.txt","revision":"dc29161ed91301bb1d1cb710b777a9a7"},
+  {"url":"resources/dia_ar.txt","revision":"97b37dad25efaa2d78f64d22aeadd580"},
+  {"url":"resources/dia_bg.txt","revision":"29d735b0aa48b9b3c6fef4fef852b3e4"},
+  {"url":"resources/dia_bn.txt","revision":"966feb937782f03841b20c0a6669f0c0"},
+  {"url":"resources/dia_bs.txt","revision":"647128da8c81147aa204ce46ad7c779a"},
+  {"url":"resources/dia_ca.txt","revision":"69a1b514131ad8c1328d686d74ff4b9a"},
+  {"url":"resources/dia_cs.txt","revision":"bb80fd8f3a84e0d23f76ffc667f4f2c8"},
+  {"url":"resources/dia_da.txt","revision":"eba868a398c32ce6bf98d62889dd3295"},
+  {"url":"resources/dia_de.txt","revision":"6e7e7eb565b7e2a94325892ef7a80edd"},
+  {"url":"resources/dia_el.txt","revision":"553ac9f00988cc87179e1f76ab712a3c"},
+  {"url":"resources/dia_eo.txt","revision":"82b67c8c8370765994e9bf414d064441"},
+  {"url":"resources/dia_es.txt","revision":"fd907e14b74f2b49503768d4b3d92ccf"},
+  {"url":"resources/dia_et.txt","revision":"1251e2f03f53a1271879c207947acbb5"},
+  {"url":"resources/dia_eu.txt","revision":"274f64982c632e07ca3106e138511de5"},
+  {"url":"resources/dia_fa.txt","revision":"df760a590c7231acff499283488fe654"},
+  {"url":"resources/dia_fi.txt","revision":"bf6728d6f65b29e80b1a18a45d6a1967"},
+  {"url":"resources/dia_fil.txt","revision":"d16dfd5af6b677ffe1ee2a2e11f65ab5"},
+  {"url":"resources/dia_fr.txt","revision":"852db5001a2ddd05638e37f5b87cf44f"},
+  {"url":"resources/dia_gl.txt","revision":"193196063af9fd6f98b3057a982067a7"},
+  {"url":"resources/dia_gu.txt","revision":"68bb5b3f399423433b02899689a967d3"},
+  {"url":"resources/dia_he.txt","revision":"2614e9db22343b925019d8a8fd7812dd"},
+  {"url":"resources/dia_hi.txt","revision":"623d7b1a8485dc37725a91ca0c98e3bc"},
+  {"url":"resources/dia_hr.txt","revision":"229771e19ae959df1a1f19f7b5b08ad0"},
+  {"url":"resources/dia_hu.txt","revision":"885dad10cf91eb414db5ff8a0ea31a93"},
+  {"url":"resources/dia_id.txt","revision":"16926a8a55824a6959bf74e05ff40016"},
+  {"url":"resources/dia_it.txt","revision":"9919ded8c06c97d132f2059a55fc31cf"},
+  {"url":"resources/dia_ja.txt","revision":"d4cf847f9f4bf6441e515f54ce1653c1"},
+  {"url":"resources/dia_kn.txt","revision":"5ab0652817fc28ddd150ae5c7110c7e9"},
+  {"url":"resources/dia_ko.txt","revision":"6549d2b226eb488c8f6ec3a82f06dea6"},
+  {"url":"resources/dia_lt.txt","revision":"e9d6507d4194999007d2c57713f929f5"},
+  {"url":"resources/dia_lv.txt","revision":"b8097b740e386b4ea9ea58002bf82af1"},
+  {"url":"resources/dia_ml.txt","revision":"b92efd343febbbafff2b07b5af9235c3"},
+  {"url":"resources/dia_mr.txt","revision":"0e811c5b0e363f8e5273af18541c2f8b"},
+  {"url":"resources/dia_ms.txt","revision":"9cebaabce176f6c23b73ee05a26025f3"},
+  {"url":"resources/dia_my.txt","revision":"cad488b1b11acc236d639d129653cc54"},
+  {"url":"resources/dia_nl.txt","revision":"ea0f9c364f6f3c1367b59cce75238b4b"},
+  {"url":"resources/dia_no.txt","revision":"324d57165a3de14790b286c555b00ab3"},
+  {"url":"resources/dia_pl.txt","revision":"fff130cdf770bd4dabf38c397567fb09"},
+  {"url":"resources/dia_pt-br.txt","revision":"8553981632718274d9f09cfd9dbfe0dc"},
+  {"url":"resources/dia_pt.txt","revision":"46e7157788568c5f255a36c0d7ee00cf"},
+  {"url":"resources/dia_ro.txt","revision":"a4acf1e4d133926e3f909e32b619a6f0"},
+  {"url":"resources/dia_ru.txt","revision":"dc618019488e4d404c6061cf1aa48d38"},
+  {"url":"resources/dia_si.txt","revision":"3214990f38eddc2456077ec6478643ff"},
+  {"url":"resources/dia_sk.txt","revision":"3ccd0e949886ede798019eb1c42da757"},
+  {"url":"resources/dia_sl.txt","revision":"c84eed09565987f5fd5d7bbcec9fcc69"},
+  {"url":"resources/dia_sr.txt","revision":"db9ea56ed45029734b36db1e2f002366"},
+  {"url":"resources/dia_sv.txt","revision":"a7e8b6b27993be4615725004e4ae2c37"},
+  {"url":"resources/dia_sw.txt","revision":"c6586f462a536b1d6825fe7e72c8aa45"},
+  {"url":"resources/dia_ta.txt","revision":"9fe20671dc971daee2b5dc32985833e3"},
+  {"url":"resources/dia_te.txt","revision":"cd01351a824fe2c8d62bd46231847b12"},
+  {"url":"resources/dia_th.txt","revision":"efb642e02179bbd1f14209ff5d7b2c50"},
+  {"url":"resources/dia_tr.txt","revision":"0efa39e62a6b38739dbca02d32d05e79"},
+  {"url":"resources/dia_uk.txt","revision":"d3c9cbabbeb1c20f7ebdb6888be815d4"},
+  {"url":"resources/dia_vi.txt","revision":"7820363588e7bde0af0c00d204a08160"},
+  {"url":"resources/dia_zh-tw.txt","revision":"244260cf7d8bd954e34e6fa6ea237f80"},
+  {"url":"resources/dia_zh.txt","revision":"7af157b8aeab9b54e2de0586e7198df7"},
   {"url":"favicon.ico","revision":"b2bf17349e4b50ce4ba311f079f8bf7d"},
   {"url":"images/manifest.json","revision":"421b4fae5b46499348d194e1f93558c3"},
   {"url":"images/logo.png","revision":"e4e0d092abdb1e668b5ec41a7fe0713c"},
@@ -198,9 +201,19 @@ var IGNORE_ALL_PARAMS = true;
 var CACHE_NAME = ['workbox', 'precache-v2', self.registration.scope]
   .filter(function(v) { return v && v.length > 0; }).join('-');
 
+// Cache keys and request matching resolve against the registration scope (the
+// URLs the page requests); network fetches resolve against the script's own
+// directory. Identical for root-registered workers - existing caches are
+// adopted unchanged - but a registration like
+// register('stable/service-worker.js', {scope: '/'}) fetches every entry via
+// its /stable/ prefix while serving it for the unprefixed URL.
+var SCOPE_BASE = self.registration.scope;
+var FETCH_BASE = new URL('./', self.location.href).href;
+var PREFIXED = FETCH_BASE !== SCOPE_BASE;
+
 function swCacheKey(entry)
 {
-  var u = new URL(entry.url, self.location.href);
+  var u = new URL(entry.url, SCOPE_BASE);
 
   if (entry.revision)
   {
@@ -210,19 +223,23 @@ function swCacheKey(entry)
   return u.href;
 }
 
-// Maps each precached URL (no revision) to its cache key (with revision).
+// Maps each precached URL (no revision) to its cache key (with revision), and
+// each cache key to the URL it is fetched from (differs when PREFIXED).
 var urlsToCacheKeys = new Map();
+var cacheKeysToNetworkUrls = new Map();
 
 MANIFEST.forEach(function(e)
 {
-  urlsToCacheKeys.set(new URL(e.url, self.location.href).href, swCacheKey(e));
+  var key = swCacheKey(e);
+  urlsToCacheKeys.set(new URL(e.url, SCOPE_BASE).href, key);
+  cacheKeysToNetworkUrls.set(key, new URL(e.url, FETCH_BASE).href);
 });
 
 // Mirrors Workbox generateURLVariations (exact, query-stripped, directoryIndex,
 // cleanURLs) so a request for '/' resolves to the precached 'index.html'.
 function* urlVariations(url)
 {
-  var u = new URL(url, self.location.href);
+  var u = new URL(url, SCOPE_BASE);
   u.hash = '';
   yield u.href;
 
@@ -291,11 +308,24 @@ self.addEventListener('install', function(event)
           return Promise.resolve();
         }
 
-        var req = new Request(entry.url, {cache: 'reload', credentials: 'same-origin'});
+        var req = new Request(new URL(entry.url, FETCH_BASE).href,
+          {cache: 'reload', credentials: 'same-origin'});
 
         return fetch(req).then(function(response)
         {
           if (!response || response.status >= 400)
+          {
+            throw new Error('bad-precaching-response: ' + entry.url);
+          }
+
+          // An HTML body for a non-document entry is an error page with a
+          // 200 status: caching it would poison the shell until the next
+          // release, so fail the (atomic) install instead.
+          var type = response.headers.get('Content-Type') || '';
+          var pathname = new URL(entry.url, SCOPE_BASE).pathname;
+
+          if (type.indexOf('text/html') >= 0 && !pathname.endsWith('.html') &&
+            !pathname.endsWith('.htm'))
           {
             throw new Error('bad-precaching-response: ' + entry.url);
           }
@@ -352,7 +382,38 @@ self.addEventListener('fetch', function(event)
   {
     return cache.match(key).then(function(cached)
     {
-      return cached || fetch(event.request);
+      if (cached)
+      {
+        return cached;
+      }
+
+      // Cache miss on a precached URL: a prefixed worker must refill from its
+      // own fetch base, never from the unprefixed (other-channel) URL.
+      if (!PREFIXED)
+      {
+        return fetch(event.request);
+      }
+
+      return fetch(cacheKeysToNetworkUrls.get(key)).then(function(res)
+      {
+        if (res != null && res.ok)
+        {
+          return res;
+        }
+
+        // The pinned route no longer serves this file: a skewed beta copy
+        // beats a broken page, and a deterministic 404 also drops the
+        // registration so the next start re-registers a coherent channel.
+        if (res != null && res.status == 404)
+        {
+          self.registration.unregister();
+        }
+
+        return fetch(event.request);
+      }, function()
+      {
+        return fetch(event.request);
+      });
     });
   }));
 });
