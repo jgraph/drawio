@@ -567,6 +567,7 @@ move=ย้าย
 moveToFolder=ย้ายไปยังแฟ้ม
 moving=กำลังย้าย
 moveSelectionTo=ย้ายส่วนที่เลือกไปยัง{1}
+multipleValues=หลายค่า
 myDrive=ไดรฟ์ของฉัน
 myFiles=ไฟล์ของฉัน
 name=ชื่อ

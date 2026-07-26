@@ -567,6 +567,7 @@ move=తరలించు
 moveToFolder=ఫోల్డర్‌కు తరలించు
 moving=తరలిస్తోంది
 moveSelectionTo=ఎంపికను {1}కు తరలించు
+multipleValues=బహుళ విలువలు
 myDrive=నా డ్రైవ్
 myFiles=నా ఫైళ్లు
 name=పేరు

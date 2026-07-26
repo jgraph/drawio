@@ -738,8 +738,9 @@ Actions.prototype.init = function()
 	}, null, null, 'F2/Enter');
 	this.addAction('editData...', function()
 	{
-		var cell = graph.getSelectionCell() || graph.getModel().getRoot();
-		ui.showDataDialog(cell);
+		var cells = graph.getSelectionCells();
+		ui.showDataDialog((cells.length > 0) ? cells :
+			graph.getModel().getRoot());
 	}, null, null, Editor.ctrlKey + '+M');
 	this.addAction('editTooltip...', function()
 	{

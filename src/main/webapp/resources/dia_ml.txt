@@ -567,6 +567,7 @@ move=നീക്കുക
 moveToFolder=ഫോൾഡറിലേക്ക് നീക്കുക
 moving=നീക്കുന്നു
 moveSelectionTo=തിരഞ്ഞെടുപ്പ് {1}-ലേക്ക് നീക്കുക
+multipleValues=ഒന്നിലധികം മൂല്യങ്ങൾ
 myDrive=എന്റെ ഡ്രൈവ്
 myFiles=എന്റെ ഫയലുകൾ
 name=പേര്

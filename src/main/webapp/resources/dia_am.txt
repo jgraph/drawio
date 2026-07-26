@@ -567,6 +567,7 @@ move=አንቀሳቅስ
 moveToFolder=ወደ ፎልደር አንቀሳቅስ
 moving=በማንቀሳቀስ ላይ
 moveSelectionTo=ምርጫን ወደ {1} አንቀሳቅስ
+multipleValues=በርካታ ዋጋዎች
 myDrive=የእኔ ድራይቭ
 myFiles=የእኔ ፋይሎች
 name=ስም

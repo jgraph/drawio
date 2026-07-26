@@ -567,6 +567,7 @@ move=সরান
 moveToFolder=ফোল্ডারে সরান
 moving=সরানো হচ্ছে
 moveSelectionTo=নির্বাচন {1}-এ সরান
+multipleValues=একাধিক মান
 myDrive=আমার ড্রাইভ
 myFiles=আমার ফাইলসমূহ
 name=নাম

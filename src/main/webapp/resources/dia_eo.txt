@@ -567,6 +567,7 @@ move=Movi
 moveToFolder=Movi al dosierujo
 moving=Movante
 moveSelectionTo=Movi elektaĵon al {1}
+multipleValues=Pluraj valoroj
 myDrive=Mia disko
 myFiles=Miaj dosieroj
 name=Nomo

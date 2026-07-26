@@ -4324,7 +4324,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		this.createCellColorOption(mxResources.get('backgroundColor'),
 			mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, 'default', null, function(color)
 		{
-			graph.updateLabelElements(ss.cells, function(elt)
+			graph.updateLabelElements(ui.getSelectionState().cells, function(elt)
 			{
 				elt.style.backgroundColor = null;
 			});
@@ -4384,18 +4384,23 @@ TextFormatPanel.prototype.addFont = function(container)
 			borderPanel.style.display = bgPanel.style.display;
 		}, function(color)
 		{
+			// createCellColorOption already applied the color to the current
+			// selection via setCellStyles. Avoid a second setCellStyles call
+			// against the stale ss.cells closure (which leaked font color
+			// changes onto cells the user no longer had selected). The label
+			// visibility and element updates use the fresh selection too.
+			var cells = ui.getSelectionState().cells;
+
 			if (color == mxConstants.NONE)
 			{
-				graph.setCellStyles(mxConstants.STYLE_NOLABEL, '1', ss.cells);
+				graph.setCellStyles(mxConstants.STYLE_NOLABEL, '1', cells);
 			}
 			else
 			{
-				graph.setCellStyles(mxConstants.STYLE_NOLABEL, null, ss.cells);
+				graph.setCellStyles(mxConstants.STYLE_NOLABEL, null, cells);
 			}
-			
-			graph.setCellStyles(mxConstants.STYLE_FONTCOLOR, color, ss.cells);
 
-			graph.updateLabelElements(ss.cells, function(elt)
+			graph.updateLabelElements(cells, function(elt)
 			{
 				elt.removeAttribute('color');
 				elt.style.color = null;

@@ -567,6 +567,7 @@ move=Áthelyezés
 moveToFolder=Áthelyezés mappába
 moving=Áthelyezés
 moveSelectionTo=Kiválasztás áthelyezése ide: {1}
+multipleValues=Több érték
 myDrive=Saját meghajtó
 myFiles=Saját fájlok
 name=Név

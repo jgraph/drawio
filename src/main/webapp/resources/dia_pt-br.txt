@@ -567,6 +567,7 @@ move=Mover
 moveToFolder=Mover para pasta
 moving=Movendo
 moveSelectionTo=Mover seleção para {1}
+multipleValues=Vários valores
 myDrive=Meu Drive
 myFiles=Meus arquivos
 name=Nome

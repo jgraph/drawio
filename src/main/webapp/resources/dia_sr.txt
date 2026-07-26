@@ -567,6 +567,7 @@ move=Pomeri
 moveToFolder=Pomeri u folder
 moving=Pomeranje
 moveSelectionTo=Pomeri selekciju u {1}
+multipleValues=Više vrednosti
 myDrive=Moj disk
 myFiles=Moji fajlovi
 name=Ime

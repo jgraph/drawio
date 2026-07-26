@@ -567,6 +567,7 @@ move=Nuuguk
 moveToFolder=Saarummut nuuguk
 moving=Nuunerpoq
 moveSelectionTo=Toqqagaq {1}-mut nuuguk
+multipleValues=Naleqqussat arlallit
 myDrive=Uanga Drive-ara
 myFiles=Fiilikka
 name=Ateq

@@ -567,6 +567,7 @@ move=Premakni
 moveToFolder=Premakni v mapo
 moving=Premikanje
 moveSelectionTo=Premakni izbor v {1}
+multipleValues=Več vrednosti
 myDrive=Moj Drive
 myFiles=Moje datoteke
 name=Ime

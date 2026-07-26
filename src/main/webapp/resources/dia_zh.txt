@@ -567,6 +567,7 @@ move=移动
 moveToFolder=移动至文件夹
 moving=移动中
 moveSelectionTo=将所选移至 {1}
+multipleValues=多个值
 myDrive=我的云端硬盘
 myFiles=我的文件
 name=名称

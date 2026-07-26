@@ -562,6 +562,7 @@ move=‫הזז‬
 moveToFolder=‫העבר לתיקייה‬
 moving=‫מעביר‬
 moveSelectionTo=‫הזז בחירה אל {1}‬
+multipleValues=ערכים מרובים
 myDrive=My Drive
 myFiles=My Files
 name=‫שם‬

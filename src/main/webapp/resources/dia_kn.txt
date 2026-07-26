@@ -567,6 +567,7 @@ move=ಸರಿಸಿ
 moveToFolder=ಫೋಲ್ಡರ್‌ಗೆ ಸರಿಸಿ
 moving=ಸರಿಸಲಾಗುತ್ತಿದೆ
 moveSelectionTo=ಆಯ್ಕೆಯನ್ನು {1} ಗೆ ಸರಿಸಿ
+multipleValues=ಅನೇಕ ಮೌಲ್ಯಗಳು
 myDrive=ನನ್ನ ಡ್ರೈವ್
 myFiles=ನನ್ನ ಫೈಲ್‌ಗಳು
 name=ಹೆಸರು

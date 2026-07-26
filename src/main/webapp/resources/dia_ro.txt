@@ -567,6 +567,7 @@ move=Mută
 moveToFolder=Mută în dosar
 moving=Se mută
 moveSelectionTo=Mută selecția către {1}
+multipleValues=Valori multiple
 myDrive=Drive-ul meu
 myFiles=Fișierele mele
 name=Nume

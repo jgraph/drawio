@@ -567,6 +567,7 @@ move=Di chuyển
 moveToFolder=Di chuyển đến thư mục
 moving=Đang di chuyển
 moveSelectionTo=Di chuyển lựa chọn đến {1}
+multipleValues=Nhiều giá trị
 myDrive=Drive của tôi
 myFiles=Tệp của tôi
 name=Tên

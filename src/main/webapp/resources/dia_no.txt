@@ -567,6 +567,7 @@ move=Flytt
 moveToFolder=Flytt til mappe
 moving=Flytter
 moveSelectionTo=Flytt utvalg til {1}
+multipleValues=Flere verdier
 myDrive=Min disk
 myFiles=Mine filer
 name=Navn

@@ -567,6 +567,7 @@ move=Flytta
 moveToFolder=Flytta till mapp
 moving=Flyttar
 moveSelectionTo=Flytta markeringen till {1}
+multipleValues=Flera värden
 myDrive=Min Drive
 myFiles=Mina filer
 name=Namn

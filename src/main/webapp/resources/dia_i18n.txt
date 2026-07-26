@@ -566,6 +566,7 @@ move=move
 moveToFolder=moveToFolder
 moving=moving
 moveSelectionTo=moveSelectionTo
+multipleValues=multipleValues
 myDrive=myDrive
 myFiles=myFiles
 name=name

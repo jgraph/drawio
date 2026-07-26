@@ -566,6 +566,7 @@ move=Verplaatsen
 moveToFolder=Naar map verplaatsen
 moving=Verplaatsen
 moveSelectionTo=Selectie naar {1} verplaatsen
+multipleValues=Meerdere waarden
 myDrive=Mijn schijf
 myFiles=Mijn bestanden
 name=Naam

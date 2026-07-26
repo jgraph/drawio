@@ -567,6 +567,7 @@ move=이동
 moveToFolder=폴더로 이동
 moving=이동 중
 moveSelectionTo=선택 항목을 {1}(으)로 이동
+multipleValues=여러 값
 myDrive=내 드라이브
 myFiles=내 파일
 name=이름

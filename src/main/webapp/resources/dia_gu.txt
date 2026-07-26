@@ -567,6 +567,7 @@ move=ખસેડો
 moveToFolder=ફોલ્ડરમાં ખસેડો
 moving=ખસેડી રહ્યું છે
 moveSelectionTo=પસંદગીને {1} માં ખસેડો
+multipleValues=બહુવિધ મૂલ્યો
 myDrive=મારી ડ્રાઇવ
 myFiles=મારી ફાઇલો
 name=નામ

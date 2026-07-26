@@ -567,6 +567,7 @@ move=स्थानांतरित करें
 moveToFolder=फ़ोल्डर में ले जाएं
 moving=स्थानांतरित हो रहा है
 moveSelectionTo=चयन को {1} में ले जाएं
+multipleValues=कई मान
 myDrive=मेरी ड्राइव
 myFiles=मेरी फ़ाइलें
 name=नाम

@@ -176,6 +176,44 @@ DrawioFileSync.PROTOCOL = 6;
  */
 DrawioFileSync.ENABLE_SOCKETS = urlParams['sockets'] != '0';
 
+/**
+ * Specifies if the realtime cache alive check was scheduled.
+ */
+DrawioFileSync.cacheAliveChecked = false;
+
+/**
+ * Disables the realtime cache if the cache endpoint is not reachable,
+ * eg. on domains that serve embed mode but do not route the cache.
+ * Runs at most once per session when the first file starts to sync.
+ */
+DrawioFileSync.checkCacheAlive = function(ui)
+{
+	if (!DrawioFileSync.cacheAliveChecked && !mxClient.IS_CHROMEAPP &&
+		!EditorUi.isElectronApp && DrawioFile.SYNC == 'auto' &&
+		urlParams['local'] != '1' && urlParams['stealth'] != '1' &&
+		!ui.isOffline() && Editor.enableRealtimeCache &&
+		(!ui.editor.chromeless || ui.editor.editable))
+	{
+		DrawioFileSync.cacheAliveChecked = true;
+
+		// Switches to sync via sockets if cache is not reachable
+		var timeoutThread = window.setTimeout(function()
+		{
+			Editor.enableRealtimeCache = false;
+		}, Editor.cacheTimeout);
+
+		mxUtils.get(EditorUi.cacheUrl + '?alive', function(req)
+		{
+			Editor.enableRealtimeCache = req.getStatus() >= 200 && req.getStatus() <= 299;
+			window.clearTimeout(timeoutThread);
+		}, function()
+		{
+			Editor.enableRealtimeCache = false;
+			window.clearTimeout(timeoutThread);
+		});
+	}
+};
+
 //Extends mxEventSource
 mxUtils.extend(DrawioFileSync, mxEventSource);
 
@@ -272,6 +310,8 @@ DrawioFileSync.prototype.lastActivity = null;
  */
 DrawioFileSync.prototype.start = function()
 {
+	DrawioFileSync.checkCacheAlive(this.ui);
+
 	if (this.channelId == null)
 	{
 		this.channelId = this.file.getChannelId();
@@ -1862,8 +1902,8 @@ DrawioFileSync.prototype.reload = function(success, error, abort, shadow, immedi
 DrawioFileSync.prototype.descriptorChanged = function(source)
 {
 	this.lastModified = this.file.getLastModifiedDate();
-	
-	if (this.channelId != null)
+
+	if (this.channelId != null && Editor.enableRealtimeCache)
 	{
 		var msg = this.objectToString(this.createMessage({a: 'desc',
 			m: this.lastModified.getTime()}));

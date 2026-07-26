@@ -18432,6 +18432,7 @@ var FilePropertiesDialog = function(editorUi, publicLink)
 		file.getTitle() : editorUi.defaultFilename;
 	var isPng = /(\.png)$/i.test(filename);
 	var isSvg = /(\.svg)$/i.test(filename);
+	var isPdf = /(\.pdf)$/i.test(filename);
 	var apply = function(success, error)
 	{
 		success();
@@ -18477,6 +18478,37 @@ var FilePropertiesDialog = function(editorUi, publicLink)
 	// specific options above the common options
 	var settingsSection = document.createElement('div');
 	settingsSection.className = 'geDialogSection';
+
+	// Notes are added to saved PDF files as sticky note annotations
+	// by the local export pipeline which only exists in the desktop app
+	if (isPdf && EditorUi.isElectronApp)
+	{
+		var initialNotes = editorUi.getPdfFileProperties(editorUi.fileNode).notes;
+
+		var notesInput = editorUi.addCheckbox(settingsSection, mxResources.get('notes'),
+			initialNotes, null, null, null, null, null, true);
+
+		this.init = this.init || function()
+		{
+			notesInput.focus();
+		};
+
+		addApply(function(success, error)
+		{
+			if (editorUi.fileNode != null && initialNotes != notesInput.checked)
+			{
+				editorUi.fileNode.setAttribute('notes',
+					(notesInput.checked) ? 'true' : 'false');
+
+				if (file != null)
+				{
+					file.fileChanged();
+				}
+			}
+
+			success();
+		});
+	}
 
 	if (isPng || isSvg)
 	{

@@ -567,6 +567,7 @@ move=हलवा
 moveToFolder=फोल्डरमध्ये हलवा
 moving=हलवत आहे
 moveSelectionTo=निवड {1} मध्ये हलवा
+multipleValues=अनेक मूल्ये
 myDrive=माझी ड्राइव्ह
 myFiles=माझ्या फाइल्स
 name=नाव

@@ -7384,9 +7384,27 @@
 	 * export time and the script contains no dynamic parts. The script only
 	 * runs where the SVG is the document, eg. opened in a browser tab or via
 	 * an object tag, not when the SVG is shown with an img tag.
+	 *
+	 * That guarantee only covers the attributes createSvgImageExport writes on
+	 * its own icon wrappers. Labels are copied into the export as markup, so any
+	 * other element carrying the attribute came from the diagram and its value
+	 * was never sanitized for this use. Those are dropped here before the script
+	 * is added, so only the wrappers this export created are ever bound.
 	 */
 	EditorUi.prototype.addSvgIconHandlers = function(svgRoot)
 	{
+		var candidates = svgRoot.querySelectorAll('[data-icon-content]');
+
+		for (var i = 0; i < candidates.length; i++)
+		{
+			// The wrappers are SVG g elements that also carry the icon type
+			if (candidates[i].nodeName != 'g' ||
+				!candidates[i].hasAttribute('data-icon'))
+			{
+				candidates[i].removeAttribute('data-icon-content');
+			}
+		}
+
 		if (svgRoot.querySelector('[data-icon-content]') == null)
 		{
 			return;
@@ -7473,7 +7491,7 @@
 			'fo.setAttribute("height", ph);\n' +
 			'active = icon;\n' +
 			'}\n' +
-			'var icons = document.querySelectorAll("[data-icon-content]");\n' +
+			'var icons = document.querySelectorAll("g[data-icon][data-icon-content]");\n' +
 			'for (var i = 0; i < icons.length; i++) {\n' +
 			'(function(icon) {\n' +
 			'icon.addEventListener("click", function(evt) {\n' +
@@ -10411,6 +10429,14 @@
 		}
 		
 		return {scale: scale, border: border};
+	};
+	
+	/**
+	 * 
+	 */
+	EditorUi.prototype.getPdfFileProperties = function(node)
+	{
+		return {notes: node != null && node.getAttribute('notes') == 'true'};
 	};
 	
 	/**

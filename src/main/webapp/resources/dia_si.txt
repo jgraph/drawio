@@ -567,6 +567,7 @@ move=ගෙනයන්න
 moveToFolder=ෆෝල්ඩරයට ගෙනයන්න
 moving=ගෙනයමින්
 moveSelectionTo=තේරීම {1} වෙත ගෙනයන්න
+multipleValues=බහු අගයන්
 myDrive=මගේ ඩ්‍රයිව්
 myFiles=මගේ ගොනු
 name=නම

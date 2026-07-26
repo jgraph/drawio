@@ -567,6 +567,7 @@ move=Pindah
 moveToFolder=Pindahkan ke Folder
 moving=Memindah
 moveSelectionTo=Pindahkan pilihan ke {1}
+multipleValues=Beberapa nilai
 myDrive=Drive-ku
 myFiles=Berkasku
 name=Nama

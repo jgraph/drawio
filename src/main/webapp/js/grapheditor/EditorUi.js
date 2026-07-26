@@ -7232,6 +7232,12 @@ EditorUi.prototype.showLinkDialog = function(value, btnLabel, fn)
  */
 EditorUi.prototype.showDataDialog = function(cell)
 {
+	// Accepts an array of cells, unwraps arrays with less than two cells
+	if (cell instanceof Array)
+	{
+		cell = (cell.length > 1) ? cell : cell[0];
+	}
+
 	if (cell != null && typeof window.EditDataDialog !== 'undefined')
 	{
 		var dlg = new EditDataDialog(this, cell);

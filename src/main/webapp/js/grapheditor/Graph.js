@@ -8376,6 +8376,40 @@ Graph.prototype.destroy = function()
 	};
 
 	/**
+	 * Returns true if any part of the bounds of the given cell intersects
+	 * the visible area of the container.
+	 */
+	Graph.prototype.isCellVisibleInViewport = function(cell)
+	{
+		var state = this.view.getState(cell);
+		var result = false;
+
+		if (state != null && this.container != null)
+		{
+			var rect = new mxRectangle(state.x, state.y,
+				state.width, state.height);
+
+			if (this.useCssTransforms)
+			{
+				var t = this.currentTranslate;
+				var s = this.currentScale;
+
+				rect = new mxRectangle(
+					(rect.x + t.x) * s, (rect.y + t.y) * s,
+					rect.width * s, rect.height * s);
+			}
+
+			var c = this.container;
+			result = mxUtils.intersects(rect, (mxUtils.hasScrollbars(c)) ?
+				new mxRectangle(c.scrollLeft, c.scrollTop,
+					c.clientWidth, c.clientHeight) :
+				new mxRectangle(0, 0, c.clientWidth, c.clientHeight), true);
+		}
+
+		return result;
+	};
+
+	/**
 	 * Function: repaint
 	 * 
 	 * Updates the highlight after a change of the model or view.
@@ -18127,12 +18161,15 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 	
 		/**
-		 * Overrides createGroupCell to set the group style for new groups to 'group'.
+		 * Overrides createGroupCell to set the group style for new groups to
+		 * 'group', with transparentBounds=1 appended if Editor.defaultTransparentGroups
+		 * is set so the bounds of the group are derived from its children.
 		 */
 		Graph.prototype.createGroupCell = function()
 		{
 			var group = mxGraph.prototype.createGroupCell.apply(this, arguments);
-			group.setStyle('group');
+			group.setStyle((Editor.defaultTransparentGroups) ?
+				'group;transparentBounds=1;' : 'group');
 
 			return group;
 		};
@@ -18169,6 +18206,15 @@ if (typeof mxVertexHandler !== 'undefined')
 		var graphGroupCells = Graph.prototype.groupCells;
 		Graph.prototype.groupCells = function(group, border, cells)
 		{
+			// Creates the group up front if transparentBounds is the configured
+			// default for new groups, so it takes the pinned-geometry branch
+			// below instead of being resized to the children bounds by the
+			// base implementation
+			if (group == null && Editor.defaultTransparentGroups)
+			{
+				group = this.createGroupCell(cells);
+			}
+
 			if (group != null && this.isTransparentBounds(group))
 			{
 				if (cells == null)
@@ -21140,7 +21186,12 @@ if (typeof mxVertexHandler !== 'undefined')
 								'tooltip', toXml(tip));
 						}
 
-						var link = self.getLinkForCell(state.cell);
+						// The icon writes the link into the exported file, where
+						// nothing can check it at display time. The shape link
+						// export only passes it through getAbsoluteUrl, which
+						// returns javascript:// unchanged because it matches the
+						// absolute URL pattern, so the scheme is checked here.
+						var link = Graph.sanitizeLink(self.getLinkForCell(state.cell));
 
 						if (link != null && link != '' && !self.isCustomLink(link))
 						{

@@ -567,6 +567,7 @@ move=Pomjeri
 moveToFolder=Pomjeri u folder
 moving=Pomjeranje
 moveSelectionTo=Pomjeri odabrano u {1}
+multipleValues=Više vrijednosti
 myDrive=Moj Drive
 myFiles=Moji fajlovi
 name=Naziv

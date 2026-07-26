@@ -567,6 +567,7 @@ move=移動
 moveToFolder=フォルダに移動する
 moving=移動中
 moveSelectionTo=選択を {1} に移動する
+multipleValues=複数の値
 myDrive=マイドライブ
 myFiles=マイファイル
 name=名前

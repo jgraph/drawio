@@ -567,6 +567,7 @@ move=நகர்த்து
 moveToFolder=கோப்புறைக்கு நகர்த்து
 moving=நகர்த்துகிறது
 moveSelectionTo=தேர்வை {1} க்கு நகர்த்து
+multipleValues=பல மதிப்புகள்
 myDrive=எனது இயக்கி
 myFiles=எனது கோப்புகள்
 name=பெயர்

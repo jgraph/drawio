@@ -567,6 +567,7 @@ move=Přesunout
 moveToFolder=Přesunout do složky
 moving=Přesouvání
 moveSelectionTo=Přesunout výběr do {1}
+multipleValues=Více hodnot
 myDrive=Můj disk
 myFiles=Moje soubory
 name=Název

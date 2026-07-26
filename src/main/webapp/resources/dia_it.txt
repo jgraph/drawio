@@ -567,6 +567,7 @@ move=Sposta
 moveToFolder=Sposta nella cartella
 moving=Spostamento
 moveSelectionTo=Sposta selezione in {1}
+multipleValues=Valori multipli
 myDrive=Il mio Drive
 myFiles=I miei file
 name=Nome

@@ -567,6 +567,7 @@ move=‫جابجایی‬
 moveToFolder=‫جابجایی به پوشه‬
 moving=‫در حال جابجایی‬
 moveSelectionTo=‫انتخاب را به سمت {1} انتقال دهید‬
+multipleValues=مقادیر متعدد
 myDrive=‫درایو من‬
 myFiles=‫فایل‌های من‬
 name=‫نام‬

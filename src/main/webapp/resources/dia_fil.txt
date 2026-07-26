@@ -567,6 +567,7 @@ move=Ilipat
 moveToFolder=Ilipat papunta sa folder
 moving=Inililipat
 moveSelectionTo=Ilipat ang mga napili papunta sa {1}
+multipleValues=Maramihang halaga
 myDrive=Aking Drive
 myFiles=Aking mga File
 name=Pangalan

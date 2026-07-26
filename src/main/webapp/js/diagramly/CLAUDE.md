@@ -28,6 +28,7 @@ the Visio codec (see `vsdx/CLAUDE.md`).
 | Animations, custom-link actions (`AnimationDialog`) | `docs/claude/animations.md` |
 | Checksum errors, DiffSync | `docs/claude/collab-checksum.md` |
 | Export/print dialogs | `docs/claude/export-dialogs.md` + `docs/dialog-style-guide.md` |
+| Release channels (`checkReleaseChannel`, `?channel=`, SW registration) | `docs/claude/release-channels.md` |
 
 ## Hard invariants (details in the guides)
 
@@ -46,3 +47,9 @@ the Visio codec (see `vsdx/CLAUDE.md`).
 - **Routing tuning** belongs in the canonical core
   `js/libavoid-js/libavoid-routing.js`, not in `LibavoidRouting.js`
   (editor binding only).
+- **Release channel = the SW registration URL** (`service-worker.js` vs
+  `stable/service-worker.js`); channel state in localStorage
+  `.drawio-channel` holds LITERALS only, and the SW cache-key derivation
+  must never change (installed-cache adoption) — see
+  `docs/claude/release-channels.md` before touching App.main's
+  registration block, `checkReleaseChannel` or `GenerateServiceWorker`.

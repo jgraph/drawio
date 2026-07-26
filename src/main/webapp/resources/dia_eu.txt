@@ -567,6 +567,7 @@ move=Mugitu
 moveToFolder=Mugitu karpetara
 moving=Mugitzen
 moveSelectionTo=Mugitu hautapena {1}-era
+multipleValues=Hainbat balio
 myDrive=Nire unitatea
 myFiles=Nire fitxategiak
 name=Izena

@@ -3885,7 +3885,14 @@ Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInse
 	
 					if (select != null && select.length > 0)
 					{
-						graph.scrollCellToVisible(select[0]);
+						// Keeps the scroll position if any part of the
+						// dropped cell is visible, eg. for cells larger
+						// than the viewport or at high zoom levels
+						if (!graph.isCellVisibleInViewport(select[0]))
+						{
+							graph.scrollCellToVisible(select[0]);
+						}
+
 						graph.setSelectionCells(select);
 					}
 

@@ -2996,6 +2996,11 @@
 			{
 				Editor.enableInlineToolbar = config.enableInlineToolbar;
 			}
+
+			if (config.defaultTransparentGroups != null)
+			{
+				Editor.defaultTransparentGroups = config.defaultTransparentGroups;
+			}
 			
 			if (config.oneDriveInlinePicker != null)
 			{
@@ -8562,7 +8567,8 @@
 			
 			if (url != null)
 			{
-				var name = (elts[i].nodeName == 'FONT') ?
+				// Node name is lowercase in XML documents (eg. SVG export)
+				var name = (elts[i].nodeName.toUpperCase() == 'FONT') ?
 					elts[i].getAttribute('face') :
 					elts[i].style.fontFamily;
 	

@@ -567,6 +567,7 @@ move=Hamisha
 moveToFolder=Hamisha hadi Folda
 moving=Inahamisha
 moveSelectionTo=Hamisha Chaguo hadi {1}
+multipleValues=Thamani nyingi
 myDrive=Hifadhi Yangu
 myFiles=Faili Zangu
 name=Jina

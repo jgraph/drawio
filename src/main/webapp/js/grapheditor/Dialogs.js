@@ -3642,16 +3642,32 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 	container.style.height = '100%';
 	var graph = optionalGraph || ui.editor.graph;
 
-	var value = graph.getModel().getValue(cell);
+	// Accepts an array of cells for editing the data of multiple
+	// cells at once, using the first cell as the reference cell
+	var cells = (cell instanceof Array) ? cell : [cell];
+	cell = cells[0];
+	var multi = cells.length > 1;
 
-	// Converts the value to an XML node
-	if (!mxUtils.isNode(value))
+	// Resolves the value of each cell as an XML node
+	var values = [];
+
+	for (var i = 0; i < cells.length; i++)
 	{
-		var doc = mxUtils.createXmlDocument();
-		var obj = doc.createElement('object');
-		obj.setAttribute('label', value || '');
-		value = obj;
+		var cellValue = graph.getModel().getValue(cells[i]);
+
+		// Converts the value to an XML node
+		if (!mxUtils.isNode(cellValue))
+		{
+			var doc = mxUtils.createXmlDocument();
+			var obj = doc.createElement('object');
+			obj.setAttribute('label', cellValue || '');
+			cellValue = obj;
+		}
+
+		values.push(cellValue);
 	}
+
+	var value = values[0];
 
 	var meta = {};
 
@@ -3673,9 +3689,11 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 	var names = [];
 	var texts = [];
 	var rows = [];
+	var mixed = [];
+	var placeholdersTouched = false;
 	var count = 0;
 
-	var id = (EditDataDialog.getDisplayIdForCell != null) ?
+	var id = (!multi && EditDataDialog.getDisplayIdForCell != null) ?
 		EditDataDialog.getDisplayIdForCell(ui, cell, optionalGraph) : null;
 
 	// Properties container for dynamic rows
@@ -3717,7 +3735,7 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 		row.appendChild(removeAttr);
 	};
 
-	var addTextArea = function(index, name, value)
+	var addTextArea = function(index, name, value, isMixed)
 	{
 		names[index] = name;
 
@@ -3735,6 +3753,16 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 		textarea.setAttribute('rows', (value.indexOf('\n') > 0) ? '3' : '2');
 		textarea.value = value;
 		textarea.style.resize = 'vertical';
+
+		// Empty fields for differing values are only applied
+		// to the cells if a value is entered by the user
+		if (isMixed)
+		{
+			mixed[index] = true;
+			textarea.setAttribute('placeholder',
+				mxResources.get('multipleValues'));
+		}
+
 		row.appendChild(textarea);
 
 		texts[index] = textarea;
@@ -3753,13 +3781,51 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 	var isLayer = graph.getModel().getParent(cell) == graph.getModel().getRoot();
 	var style = graph.getCellStyle(cell);
 
-	for (var i = 0; i < attrs.length; i++)
+	if (multi)
 	{
-		if ((attrs[i].nodeName != 'label' || style['metaEdit'] == '1' ||
-			Graph.translateDiagram || isLayer) &&
-			attrs[i].nodeName != 'placeholders')
+		// Shows the union of the attribute names of all cells with
+		// the value shown if it is the same for all cells and an
+		// empty field with a placeholder for differing values
+		var seen = {};
+
+		for (var i = 0; i < values.length; i++)
 		{
-			temp.push({name: attrs[i].nodeName, value: attrs[i].nodeValue});
+			var attrs2 = values[i].attributes;
+
+			for (var j = 0; j < attrs2.length; j++)
+			{
+				var name = attrs2[j].nodeName;
+
+				if (name != 'label' && name != 'placeholders' &&
+					!seen['$' + name])
+				{
+					seen['$' + name] = true;
+					var common = attrs2[j].nodeValue;
+
+					for (var k = 0; k < values.length && common != null; k++)
+					{
+						if (values[k].getAttribute(name) != common)
+						{
+							common = null;
+						}
+					}
+
+					temp.push({name: name, value: (common != null) ?
+						common : '', mixed: common == null});
+				}
+			}
+		}
+	}
+	else
+	{
+		for (var i = 0; i < attrs.length; i++)
+		{
+			if ((attrs[i].nodeName != 'label' || style['metaEdit'] == '1' ||
+				Graph.translateDiagram || isLayer) &&
+				attrs[i].nodeName != 'placeholders')
+			{
+				temp.push({name: attrs[i].nodeName, value: attrs[i].nodeValue});
+			}
 		}
 	}
 
@@ -3870,7 +3936,7 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 
 	for (var i = 0; i < temp.length; i++)
 	{
-		addTextArea(count, temp[i].name, temp[i].value);
+		addTextArea(count, temp[i].name, temp[i].value, temp[i].mixed);
 		count++;
 	}
 
@@ -3923,6 +3989,7 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 						names.splice(idx, 1);
 						texts.splice(idx, 1);
 						rows.splice(idx, 1);
+						mixed.splice(idx, 1);
 					}
 
 					var newIndex = names.length;
@@ -3992,15 +4059,35 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 		var input = document.createElement('input');
 		input.setAttribute('type', 'checkbox');
 
-		if (value.getAttribute('placeholders') == '1')
+		var placeholdersCount = 0;
+
+		for (var i = 0; i < values.length; i++)
+		{
+			if (values[i].getAttribute('placeholders') == '1')
+			{
+				placeholdersCount++;
+			}
+		}
+
+		if (placeholdersCount == values.length)
 		{
 			input.setAttribute('checked', 'checked');
 			input.defaultChecked = true;
 		}
+		else if (placeholdersCount > 0)
+		{
+			input.indeterminate = true;
+		}
 
 		mxEvent.addListener(input, 'click', function()
 		{
-			if (value.getAttribute('placeholders') == '1')
+			if (multi)
+			{
+				// Applied to all cells on apply only if toggled
+				placeholdersTouched = true;
+				input.indeterminate = false;
+			}
+			else if (value.getAttribute('placeholders') == '1')
 			{
 				value.removeAttribute('placeholders');
 			}
@@ -4036,7 +4123,7 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 
 	var exportBtn = mxUtils.button(mxResources.get('export'), mxUtils.bind(this, function(evt)
 	{
-		var result = graph.getDataForCells([cell], true);
+		var result = graph.getDataForCells(cells, true);
 
 		var dlg = new EmbedDialog(ui, JSON.stringify(result, null, 2), null, null, function()
 		{
@@ -4056,33 +4143,59 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 		try
 		{
 			ui.hideDialog.apply(ui, arguments);
+			graph.getModel().beginUpdate();
 
-			// Clones and updates the value
-			value = value.cloneNode(true);
-			var removeLabel = false;
-
-			for (var i = 0; i < names.length; i++)
+			try
 			{
-				if (texts[i] == null)
+				for (var i = 0; i < cells.length; i++)
 				{
-					value.removeAttribute(names[i]);
-				}
-				else
-				{
-					value.setAttribute(names[i], texts[i].value);
-					removeLabel = removeLabel || (names[i] == 'placeholder' &&
-						value.getAttribute('placeholders') == '1');
+					// Clones and updates the value
+					var newValue = values[i].cloneNode(true);
+
+					// Applies the placeholders checkbox to all cells
+					// only if it was toggled by the user
+					if (multi && placeholdersTouched)
+					{
+						if (input.checked)
+						{
+							newValue.setAttribute('placeholders', '1');
+						}
+						else
+						{
+							newValue.removeAttribute('placeholders');
+						}
+					}
+
+					var removeLabel = false;
+
+					for (var j = 0; j < names.length; j++)
+					{
+						if (texts[j] == null)
+						{
+							newValue.removeAttribute(names[j]);
+						}
+						else if (!mixed[j] || texts[j].value != '')
+						{
+							newValue.setAttribute(names[j], texts[j].value);
+							removeLabel = removeLabel || (names[j] == 'placeholder' &&
+								newValue.getAttribute('placeholders') == '1');
+						}
+					}
+
+					// Removes label if placeholder is assigned
+					if (removeLabel)
+					{
+						newValue.removeAttribute('label');
+					}
+
+					// Updates the value of the cell (undoable)
+					graph.getModel().setValue(cells[i], newValue);
 				}
 			}
-
-			// Removes label if placeholder is assigned
-			if (removeLabel)
+			finally
 			{
-				value.removeAttribute('label');
+				graph.getModel().endUpdate();
 			}
-
-			// Updates the value of the cell (undoable)
-			graph.getModel().setValue(cell, value);
 		}
 		catch (e)
 		{

@@ -567,6 +567,7 @@ move=Flyt
 moveToFolder=Flyt til mappe
 moving=Flytter
 moveSelectionTo=Flyt markering til {1}
+multipleValues=Flere værdier
 myDrive=Mit Drev
 myFiles=Mine filer
 name=Navn

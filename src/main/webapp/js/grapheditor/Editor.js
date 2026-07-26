@@ -376,6 +376,13 @@ Editor.showConnectHandle = false;
 Editor.enableInlineToolbar = true;
 
 /**
+ * Whether new groups are created with transparentBounds=1 so that their
+ * bounds are derived from their children (the Automatic option in the
+ * Arrange panel). Default is false. See jgraph/drawio#5688.
+ */
+Editor.defaultTransparentGroups = false;
+
+/**
  * Whether to show the "Automatic" (tangent) label rotation option in the
  * Arrange > Rotation panel. The engine support (labelAutoRotate style) is
  * always active so saved diagrams render correctly; this only gates the UI.

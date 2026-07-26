@@ -136,6 +136,35 @@ and the derived boxes fix the move/resize overlap regions for dragged
 containers. Editor-binding only — the canonical core is untouched (nothing to
 sync to drawio-mcp).
 
+## Auto-routing solves at BEFORE_UNDO, after childLayouts (July 2026)
+
+The auto-routing graph events (CELLS_ADDED / CELL_CONNECTED / CELLS_MOVED /
+CELLS_RESIZED, `installAutoRouting`) only COLLECT affected cells;
+`autoReroute` parks the solve on the graph (`__libavoidPendingReroute`) and
+flushes it from the model's BEFORE_UNDO — lazily registered, so it sits after
+mxLayoutManager's handler and runs once the edit's synchronous childLayouts
+(stack/table/tree, sync-path ELK) have written their geometry. Solving inside
+the event routed a terminal dropped into a stack against the DROP position:
+the layout re-slots the cell and resizes the container afterwards via
+model-level writes that re-fire no graph events, so the stale route stuck
+until the next gesture. BEFORE_UNDO fires before the edit closes (the
+endingUpdate latch swallows the flush's nested dispatch), so the route still
+joins the gesture's single undoable edit; undo/redo replay and remote collab
+edits never park (the pending store is fed only by the forward-gesture
+events). The flush re-expands the affected set against the POST-layout state:
+parked vertices' current bounds plus every childLayout ancestor's bounds —
+ancestors resolved at park time (pre-gesture chain/boxes: a drag OUT of a
+stack records the container before resizeParent shrinks it) and at flush time
+(a drop INTO one reparents after CELLS_MOVED) — feed a second
+`collectOverlappingEdges` pass, so edges over re-flowed siblings or the grown
+container re-route too. Plain-canvas gestures skip parking when the event
+found no flagged edges and no vertex under a layout container. The ASYNC
+layout fallback still applies in its own later edit — edges attached into
+such a container's children from outside stay stale there (pre-existing,
+accepted). Outside any update (cold-start resolve) `solveReroute` runs
+immediately as before, now also skipping edges no longer contained in the
+model.
+
 ## Auto-routing ownership
 
 `libavoidRouting=1` edges are NOT auto-routed inside a live layout container —

@@ -567,6 +567,7 @@ move=Taşı
 moveToFolder=Klasöre taşı
 moving=Taşınıyor
 moveSelectionTo=Seçimi şuna taşı {1}
+multipleValues=Birden çok değer
 myDrive=Drive'ım
 myFiles=Dosyalarım
 name=Ad

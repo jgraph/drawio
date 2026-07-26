@@ -567,6 +567,7 @@ move=Mou
 moveToFolder=Mou a la carpeta
 moving=Movent
 moveSelectionTo=Mou la selecció a {1}
+multipleValues=Valors múltiples
 myDrive=La meva unitat
 myFiles=Els meus fitxers
 name=Nom

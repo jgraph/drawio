@@ -7,8 +7,14 @@
 window.urlParams = window.urlParams || {};
 
 // Public global variables
+// data-icon and data-icon-content are written by the SVG export on the icon
+// wrappers it creates, and the script it injects binds to them to show the
+// tooltip and note popups. DOMPurify allows data attributes by default, so a
+// label could otherwise carry one into the exported file and have its value
+// written to innerHTML when the reader hovers the shape.
 window.DOM_PURIFY_CONFIG = window.DOM_PURIFY_CONFIG ||
     {ADD_TAGS: ['use', 'foreignObject'], FORBID_TAGS: ['form'],
+    FORBID_ATTR: ['data-icon', 'data-icon-content'],
     ALLOWED_URI_REGEXP: /^((?!javascript:).)*$/i,
     HTML_INTEGRATION_POINTS: {'foreignobject': true},
     ADD_ATTR: ['target', 'content', 'pointer-events',

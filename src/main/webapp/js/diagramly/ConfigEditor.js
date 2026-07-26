@@ -101,6 +101,7 @@ DrawioConfigEditor.install = function(container, options)
 			{ key: 'defaultConnectionArrowsEnabled', name: 'Connection Arrows', help: 'Show arrows when hovering connections' },
 			{ key: 'copyOnConnect', name: 'Copy on Connect', help: 'Create a copy of the source shape for connections that end on the canvas' },
 			{ key: 'defaultFoldingEnabled', name: 'Folding Enabled', help: 'Enable shape folding (collapse/expand)' },
+			{ key: 'defaultTransparentGroups', name: 'Automatic Group Size', help: 'New groups automatically resize to fit their children (transparentBounds=1)' },
 			{ key: 'zoomWheel', name: 'Zoom with Mouse Wheel', help: 'Use mouse wheel for zoom without modifiers' },
 			{ key: 'simpleLabels', name: 'Simple Labels', help: 'Disable word wrap and HTML for labels' },
 			{ key: 'optimizeHtmlLabels', name: 'Optimize HTML Labels', help: 'Remove unnecessary spans from HTML labels when editing stops' },

@@ -567,6 +567,7 @@ move=Przenieś
 moveToFolder=Przenieś do folderu
 moving=Przenoszenie
 moveSelectionTo=Przenieś zaznaczone do {1}
+multipleValues=Wiele wartości
 myDrive=Mój dysk
 myFiles=Moje pliki
 name=Nazwa

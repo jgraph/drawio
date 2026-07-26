@@ -567,6 +567,7 @@ move=Perkelti
 moveToFolder=Perkelti į aplanką
 moving=Perkeliama
 moveSelectionTo=Perkelti žymėjimą į {1}
+multipleValues=Kelios reikšmės
 myDrive=Mano diskas
 myFiles=Mano failai
 name=Pavadinimas

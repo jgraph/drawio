@@ -567,6 +567,7 @@ move=Verschieben
 moveToFolder=In Ordner verschieben
 moving=Wird verschoben
 moveSelectionTo=Auswahl einfügen in {1}
+multipleValues=Mehrere Werte
 myDrive=Meine Ablage
 myFiles=Eigene Dateien
 name=Name

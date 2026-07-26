@@ -567,6 +567,7 @@ move=Mover
 moveToFolder=Mover a la carpeta
 moving=Moviendo
 moveSelectionTo=Mover selección a {1}
+multipleValues=Varios valores
 myDrive=Mi unidad
 myFiles=Mis archivos
 name=Nombre

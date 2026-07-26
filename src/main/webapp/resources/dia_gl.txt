@@ -567,6 +567,7 @@ move=Mover
 moveToFolder=Mover ao Cartafol
 moving=Movendo
 moveSelectionTo=Mover a selección cara {1}
+multipleValues=Varios valores
 myDrive=O meu Drive
 myFiles=Os meus ficheiros
 name=Nome

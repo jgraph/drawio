@@ -567,6 +567,7 @@ move=ရွှေ့ပါ
 moveToFolder=ဖိုင်တွဲသို့ရွှေ့ပါ
 moving=ရွှေ့နေသည်
 moveSelectionTo=ရွေးချယ်မှုကို {1} သို့ရွှေ့ပါ
+multipleValues=တန်ဖိုးများစွာ
 myDrive=ကျွန်ုပ်၏ Drive
 myFiles=ကျွန်ုပ်၏ဖိုင်များ
 name=အမည်

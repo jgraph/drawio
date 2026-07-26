@@ -1957,10 +1957,12 @@ mxStencilRegistry.allowEval = false;
 	
 				if (this.isPdfFile())
 				{
+					var p = this.ui.getPdfFileProperties(this.ui.fileNode);
+
 					this.ui.getEmbeddedPdf(function(data)
 					{
 						doSave(data, 'binary');
-					}, error);
+					}, error, p.notes);
 				}
 				else if (!/(\.png)$/i.test(this.fileObject.name))
 				{
@@ -2529,11 +2531,13 @@ mxStencilRegistry.allowEval = false;
 	};
 
 	// Renders all pages to PDF with the diagram XML embedded via the local
-	// export pipeline, mirroring getEmbeddedPng for PNG files
-	EditorUi.prototype.getEmbeddedPdf = function(success, error)
+	// export pipeline, mirroring getEmbeddedPng for PNG files. The optional
+	// icons argument adds notes as sticky note annotations.
+	EditorUi.prototype.getEmbeddedPdf = function(success, error, icons)
 	{
 		var req = this.createDownloadRequest(null, 'pdf', true, '0',
-			null, false, null, null, false, true);
+			null, false, null, null, false, true, null, null, null,
+			null, null, null, null, null, null, icons);
 
 		req.send(function()
 		{
@@ -2743,10 +2747,18 @@ mxStencilRegistry.allowEval = false;
 	{
 		this.readGraphFile(mxUtils.bind(this, function(fileEntry, data, stat)
 		{
-			var library = new DesktopLibrary(this, data, fileEntry);
-			this.loadLibrary(library);
-			this.showSidebar();
-			success(library);
+			try
+			{
+				// Must not load the library here: the caller (App.loadLibraries)
+				// waits for all libraries and loads them in the stored order,
+				// an immediate load here would insert them in the random order
+				// in which the file reads complete
+				success(new DesktopLibrary(this, data, fileEntry));
+			}
+			catch (e)
+			{
+				error(e);
+			}
 		}), error, libPath);
 	};
 

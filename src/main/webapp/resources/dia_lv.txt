@@ -567,6 +567,7 @@ move=Pārvietot
 moveToFolder=Pārvietot uz mapi
 moving=Tiek pārvietots
 moveSelectionTo=Pārvietot atlasi uz {1}
+multipleValues=Vairākas vērtības
 myDrive=Mans disks
 myFiles=Mani faili
 name=Nosaukums

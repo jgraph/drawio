@@ -562,6 +562,7 @@ move=‫تحريك‬
 moveToFolder=‫نقل إلى ملف‬
 moving=‫يتم النقل‬
 moveSelectionTo=‫نقل الاختيار ل {1}‬
+multipleValues=قيم متعددة
 myDrive=‫محركي‬
 myFiles=‫ملفاتي‬
 name=‫الاسم‬

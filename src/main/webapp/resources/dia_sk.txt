@@ -567,6 +567,7 @@ move=Presunúť
 moveToFolder=Presunúť do priečinka
 moving=Presúvanie
 moveSelectionTo=Presunúť výber do {1}
+multipleValues=Viacero hodnôt
 myDrive=Môj disk
 myFiles=Moje súbory
 name=Názov

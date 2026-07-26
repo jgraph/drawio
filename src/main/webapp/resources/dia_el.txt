@@ -567,6 +567,7 @@ move=Μετακίνηση
 moveToFolder=Μετακίνηση σε φάκελο
 moving=Μετακινείται
 moveSelectionTo=Μετακίνηση επιλογής προς {1}
+multipleValues=Πολλαπλές τιμές
 myDrive=Ο δίσκος μου
 myFiles=Τα Αρχεία μου
 name=Όνομα

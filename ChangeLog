@@ -1,3 +1,47 @@
+26-JUL-2026: 31.1.2
+
+- Re-enroll auth-workers: keep_vars protects dashboard variables
+- Moves stable channel to 31.0.2
+
+26-JUL-2026: 31.1.1
+
+- cf-deploy: de-enroll auth-workers pending config reconciliation
+- build-preprod: repoint dashboard links to the custom domain
+- cf-deploy: Node 22 for wrangler 4
+
+26-JUL-2026: 31.1.0
+
+- Fixes font color applying to previously selected cells [jgraph/drawio-desktop#2421]
+- Documents the live release-channel system
+- Fixes sidebar order of restored libraries [jgraph/drawio#5715]
+- Adds multi-cell support to the Edit Data dialog
+- Keeps the scroll position when inserting cells from the sidebar if any part of the inserted cell is visible [jgraph/drawio#263]
+- Adds page size image export to the desktop CLI renderer [jgraph/drawio-desktop#2481]
+- Adds a defaultTransparentGroups configuration option for automatic group sizes [jgraph/drawio#5688]
+- Adds a file properties option to include notes in saved PDF files in the desktop app
+- Fixes detection of label fonts in SVG export [jgraph/drawio#5258]
+- Fixes libavoid auto-routing of terminals dropped into layout containers
+- Stops realtime cache requests on domains without a reachable cache
+- Moves src/main/java to src/main/server/java
+- tooling changes for java folder move
+- Adds cloudflare workers to project
+- Depenency updates
+- New deployment system with cf integrated
+- Minor change to release-monitor compatibiilty date
+- Updates build readme
+- Release pipeline SOC 2 hardening: durable evidence, verified identity, out-of-band change detection
+- Fix bot-push workflow triggering; actor-gate build-commit validation; vendor register
+- Document applied rulesets + preprod PR-only limitation and app-identity upgrade path
+- Set edge-drift monitor targets (account + prod zone ids) in release-monitor vars
+- release-monitor: move to Access-protected custom domain, verify identity in-worker
+- release-monitor: CSRF guard, no-overwrite on attestations, disable preview URLs
+- release-monitor: enable Access JWT verification (team domain + AUD)
+- release-monitor: withhold heartbeat when BetterStack config is missing
+- Binds SVG export popups only to the icons the export created
+- Checks the link scheme on the SVG export link icon
+- Add release-monitor control self-test workflow
+- selftest: widen the incident-wait budget to 10 minutes
+
 23-JUL-2026: 31.0.2
 
 - Applies shapeInside to all insertion paths of the supported shapes [jgraph/drawio#4535]

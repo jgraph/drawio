@@ -461,6 +461,22 @@ public class EmbedServlet2 extends HttpServlet
 		writer.println("<html>");
 		writer.println("<body>");
 		writer.println("Deployed: " + lastModified);
+
+		// The deployed GAE version id (e.g. "31-0-2"), in dots form when it
+		// is a release version - see EmbedServlet.writeStats (the
+		// release-monitor watchdog reads /embed.js?stats, this servlet
+		// mirrors it for /embed2.js)
+		String applicationVersion = SystemProperty.applicationVersion.get();
+		int dot = applicationVersion.lastIndexOf(".");
+		String versionId = dot > 0 ? applicationVersion.substring(0, dot)
+				: applicationVersion;
+		writer.println("GAEVersionId: " + versionId);
+
+		if (versionId.matches("\\d+-\\d+-\\d+"))
+		{
+			writer.println("Version: " + versionId.replace('-', '.'));
+		}
+
 		writer.println("</body>");
 		writer.println("</html>");
 		writer.flush();

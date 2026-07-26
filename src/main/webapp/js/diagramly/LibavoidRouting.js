@@ -23,9 +23,15 @@
  * CELLS_MOVED / CELLS_RESIZED), not the model CHANGE event: those fire only for
  * forward user actions (never on undo/redo replay), and the route is written via
  * model.setGeometry (a model-level change that does NOT re-fire these graph
- * events) — so there is no re-entry and no fighting with undo. When the WASM is
- * already warm the route runs synchronously inside the event, so it merges into
- * the same undoable edit as the move (one Ctrl+Z reverts both).
+ * events) — so there is no re-entry and no fighting with undo. The events only
+ * COLLECT the affected cells; the solve is PARKED until the model's BEFORE_UNDO
+ * (see autoReroute), which fires after the layout manager has run the edit's
+ * synchronous childLayouts — so a terminal dropped into a stack/table/tree
+ * container is routed against its final laid-out slot, not the drop point
+ * (layout writes are model-level and would never re-trigger an event-time
+ * solve). BEFORE_UNDO fires before the edit closes and the endingUpdate latch
+ * folds the handler's writes in, so a warm-WASM route still merges into the
+ * same undoable edit as the move (one Ctrl+Z reverts both).
  *
  * The routing core (AvoidRouting: computeRoutes + the pure geometry helpers)
  * lives in js/libavoid-js/libavoid-routing.js — the canonical shared artifact
@@ -359,6 +365,7 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 
 		var map = Object.create(null);
 		var regions = [];
+		var inserted = [];
 
 		for (var i = 0; i < cells.length; i++)
 		{
@@ -368,6 +375,7 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 			}
 			else if (model.isVertex(cells[i]))
 			{
+				inserted.push(cells[i]);
 				var b = LibavoidRouting.getAbsoluteModelBounds(graph, cells[i]);
 
 				if (b != null)
@@ -378,7 +386,7 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 		}
 
 		LibavoidRouting.collectOverlappingEdges(graph, regions, map);
-		LibavoidRouting.autoReroute(graph, values(map));
+		LibavoidRouting.autoReroute(graph, values(map), inserted);
 	});
 
 	// Edge reconnected to a different terminal.
@@ -489,8 +497,9 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 
 	// A shape moved or resized => re-route flagged edges that are affected: the
 	// ones CONNECTED to it, plus any whose route the shape now overlaps (an
-	// obstacle dropped onto an edge) or just vacated. autoReroute runs inside this
-	// event's update, so the re-route is atomic with the move (one undo).
+	// obstacle dropped onto an edge) or just vacated. autoReroute parks the solve
+	// until this edit's BEFORE_UNDO (after any childLayout of the gesture has
+	// run), still atomic with the move (one undo).
 	var onMoveResize = function(sender, evt)
 	{
 		var cells = evt.getProperty('cells');
@@ -504,6 +513,7 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 		var previous = evt.getProperty('previous');                   // CELLS_RESIZED
 		var map = Object.create(null);
 		var regions = [];
+		var moved = [];
 		var i, j;
 
 		for (i = 0; i < cells.length; i++)
@@ -512,6 +522,8 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 			{
 				continue;
 			}
+
+			moved.push(cells[i]);
 
 			// Connected auto-edges always re-route.
 			var edges = model.getEdges(cells[i]);
@@ -554,8 +566,10 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 		LibavoidRouting.collectOverlappingEdges(graph, regions, map);
 
 		// Re-route the affected edges (routeCells uses the same configured strategy as
-		// the live preview, so the dropped route matches what was previewed).
-		LibavoidRouting.autoReroute(graph, values(map));
+		// the live preview, so the dropped route matches what was previewed). The moved
+		// vertices ride along so the parked flush can re-expand the affected set
+		// against their POST-childLayout positions.
+		LibavoidRouting.autoReroute(graph, values(map), moved);
 	};
 
 	graph.addListener(mxEvent.CELLS_MOVED, onMoveResize);
@@ -610,13 +624,231 @@ LibavoidRouting.collectOverlappingEdges = function(graph, regions, map)
 };
 
 /**
- * Re-route the given flagged edge cells. Runs synchronously when the WASM is
- * already warm (so it merges into the caller's ongoing edit for atomic undo),
- * else defers until the loader resolves (cold start, first use only). Writes
- * only waypoints — the edge already carries orthogonalEdgeStyle (paired with the
- * flag), so no style churn per move.
+ * Re-route the given flagged edge cells, honoring any pending childLayout of
+ * the same edit. Called inside a model update (every auto-routing event fires
+ * within one), the request is PARKED and solved on the model's BEFORE_UNDO
+ * instead of immediately: the layout manager runs the edit's synchronous
+ * childLayouts from its own BEFORE_UNDO handler (registered at Graph
+ * construction, i.e. before the lazily installed flush below), so a terminal
+ * dropped into a stack/table/tree container is routed against its final
+ * laid-out position — an event-time solve would route against the drop point,
+ * and the layout's own writes are model-level, so they re-fire no graph event
+ * that could fix it up. BEFORE_UNDO fires before the edit is closed and the
+ * endingUpdate latch swallows nested dispatches, so the deferred route still
+ * joins the same undoable edit (one undo reverts move + layout + route).
+ * Outside an update the solve runs immediately as before.
+ *
+ * vertexCells (optional) are the gesture's moved/resized/inserted vertices:
+ * the flush re-expands the affected-edge set against their post-layout
+ * positions (see flushReroute). An edge-less park only matters when such a
+ * vertex sits under a live layout container — anywhere else nothing moves
+ * after the event — so plain-canvas gestures skip the parking entirely.
  */
-LibavoidRouting.autoReroute = function(graph, edgeCells)
+LibavoidRouting.autoReroute = function(graph, edgeCells, vertexCells)
+{
+	var hasEdges = (edgeCells != null && edgeCells.length > 0);
+
+	if (graph.getModel().updateLevel > 0)
+	{
+		if (hasEdges || LibavoidRouting.anyInLayoutContainer(graph, vertexCells))
+		{
+			LibavoidRouting.parkReroute(graph, edgeCells, vertexCells);
+		}
+	}
+	else if (hasEdges)
+	{
+		LibavoidRouting.solveReroute(graph, edgeCells);
+	}
+};
+
+/**
+ * True if any of the given cells lives under a childLayout ancestor — the only
+ * case an edge-less gesture park matters (the container's layout re-runs at
+ * BEFORE_UNDO and can move cells over flagged edges).
+ */
+LibavoidRouting.anyInLayoutContainer = function(graph, cells)
+{
+	if (cells != null)
+	{
+		for (var i = 0; i < cells.length; i++)
+		{
+			if (cells[i] != null &&
+				LibavoidRouting.layoutContainerOf(graph, cells[i]) != null)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+};
+
+/**
+ * Parks a reroute request until the current edit's BEFORE_UNDO (see
+ * autoReroute). The flush listener is installed lazily on first use, which
+ * puts it AFTER the layout manager's own BEFORE_UNDO handler in the model's
+ * listener list — so the flush runs once the edit's synchronous childLayouts
+ * have written their geometry. The parked vertices' childLayout ancestors are
+ * resolved and measured NOW as well as at flush time: at park time the chain
+ * and bounds still reflect the pre-layout state (a vertex dragged OUT of a
+ * stack records the container it left before resizeParent shrinks it), the
+ * flush adds the post-layout boxes.
+ */
+LibavoidRouting.parkReroute = function(graph, edgeCells, vertexCells)
+{
+	var pending = graph.__libavoidPendingReroute;
+	var i;
+
+	if (pending == null)
+	{
+		pending = graph.__libavoidPendingReroute = {edges: Object.create(null),
+			vertices: Object.create(null), containers: Object.create(null),
+			regions: []};
+	}
+
+	if (edgeCells != null)
+	{
+		for (i = 0; i < edgeCells.length; i++)
+		{
+			if (edgeCells[i] != null)
+			{
+				pending.edges[edgeCells[i].getId()] = edgeCells[i];
+			}
+		}
+	}
+
+	if (vertexCells != null)
+	{
+		for (i = 0; i < vertexCells.length; i++)
+		{
+			if (vertexCells[i] != null)
+			{
+				pending.vertices[vertexCells[i].getId()] = vertexCells[i];
+				LibavoidRouting.addLayoutContainers(graph, vertexCells[i],
+					pending.containers, pending.regions);
+			}
+		}
+	}
+
+	if (!graph.__libavoidRerouteFlush)
+	{
+		graph.__libavoidRerouteFlush = true;
+
+		// Fires per non-empty edit; a null pending returns immediately. The
+		// theoretical leak — parking into an edit that ends up EMPTY, so its
+		// BEFORE_UNDO never fires — can't happen from the auto-routing events
+		// (they all record model changes), and a leftover would only re-solve
+		// already-routed edges (samePoints skips the writes).
+		graph.getModel().addListener(mxEvent.BEFORE_UNDO, function()
+		{
+			LibavoidRouting.flushReroute(graph);
+		});
+	}
+};
+
+/**
+ * Adds every childLayout ancestor of the cell (nested containers all re-run
+ * under the layout manager) to the containers map; a NEWLY seen container also
+ * pushes its current absolute bounds onto regions (when non-null) as an
+ * affected region.
+ */
+LibavoidRouting.addLayoutContainers = function(graph, cell, containers, regions)
+{
+	var model = graph.getModel();
+	var p = model.getParent(cell);
+
+	while (p != null && model.isVertex(p))
+	{
+		if (containers[p.getId()] == null &&
+			graph.getCurrentCellStyle(p)['childLayout'] != null)
+		{
+			containers[p.getId()] = p;
+
+			if (regions != null)
+			{
+				var b = LibavoidRouting.getAbsoluteModelBounds(graph, p);
+
+				if (b != null)
+				{
+					regions.push({x: b.x, y: b.y, width: b.w, height: b.h});
+				}
+			}
+		}
+
+		p = model.getParent(p);
+	}
+};
+
+/**
+ * Solves a parked reroute request from the model's BEFORE_UNDO, after the
+ * layout manager has run the edit's synchronous childLayouts (see
+ * autoReroute). The affected-edge set is re-expanded against the POST-layout
+ * state: the parked vertices' current bounds plus the current bounds of every
+ * childLayout ancestor — resolved both at park time (the pre-gesture chain and
+ * boxes) and now (a drop INTO a container resolves its new chain only here;
+ * CELLS_MOVED fires before the reparent) — become overlap regions, so edges
+ * whose obstacles the layout shifted (a stack re-flowing its items,
+ * resizeParent growing the container) are caught even though those writes fire
+ * no graph events. Cleared before solving so a listener firing mid-flush
+ * starts a new cycle instead of extending this one.
+ */
+LibavoidRouting.flushReroute = function(graph)
+{
+	var pending = graph.__libavoidPendingReroute;
+
+	if (pending == null)
+	{
+		return;
+	}
+
+	graph.__libavoidPendingReroute = null;
+
+	var regions = pending.regions;
+	var id, b;
+
+	for (id in pending.vertices)
+	{
+		b = LibavoidRouting.getAbsoluteModelBounds(graph, pending.vertices[id]);
+
+		if (b != null)
+		{
+			regions.push({x: b.x, y: b.y, width: b.w, height: b.h});
+		}
+
+		LibavoidRouting.addLayoutContainers(graph, pending.vertices[id],
+			pending.containers, null);
+	}
+
+	for (id in pending.containers)
+	{
+		b = LibavoidRouting.getAbsoluteModelBounds(graph, pending.containers[id]);
+
+		if (b != null)
+		{
+			regions.push({x: b.x, y: b.y, width: b.w, height: b.h});
+		}
+	}
+
+	LibavoidRouting.collectOverlappingEdges(graph, regions, pending.edges);
+
+	var edges = [];
+
+	for (id in pending.edges)
+	{
+		edges.push(pending.edges[id]);
+	}
+
+	LibavoidRouting.solveReroute(graph, edges);
+};
+
+/**
+ * Runs the actual solve for the given flagged edges: synchronously when the
+ * WASM is already warm (so it merges into the caller's ongoing edit for atomic
+ * undo), else deferred until the loader resolves (cold start, first use only).
+ * Writes only waypoints — the edge already carries orthogonalEdgeStyle (paired
+ * with the flag), so no style churn per move.
+ */
+LibavoidRouting.solveReroute = function(graph, edgeCells)
 {
 	if (edgeCells == null || edgeCells.length == 0)
 	{
@@ -630,15 +862,17 @@ LibavoidRouting.autoReroute = function(graph, edgeCells)
 			return;
 		}
 
-		// Re-check the flag at resolve time. On a cold start this runs only after the
-		// __libavoidReady promise resolves, by when the user may have switched the edge
-		// to another routing style, added a manual waypoint, or deleted it (all clear
-		// the flag / drop it from the model via isAutoEdge) — don't overwrite that.
+		// Re-check at solve time. On a cold start this runs only after the
+		// __libavoidReady promise resolves, by when the user may have switched the
+		// edge to another routing style, added a manual waypoint (both clear the
+		// flag via isAutoEdge), or deleted it (contains) — don't overwrite that.
+		var model = graph.getModel();
 		var live = [];
 
 		for (var i = 0; i < edgeCells.length; i++)
 		{
-			if (LibavoidRouting.isAutoEdge(graph, edgeCells[i]))
+			if (model.contains(edgeCells[i]) &&
+				LibavoidRouting.isAutoEdge(graph, edgeCells[i]))
 			{
 				live.push(edgeCells[i]);
 			}
@@ -649,7 +883,6 @@ LibavoidRouting.autoReroute = function(graph, edgeCells)
 			return;
 		}
 
-		var model = graph.getModel();
 		model.beginUpdate();
 
 		try

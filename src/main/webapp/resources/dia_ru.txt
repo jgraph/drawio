@@ -567,6 +567,7 @@ move=Переместить
 moveToFolder=Переместить в папку
 moving=Перемещаю
 moveSelectionTo=Переместить выбранное на {1}
+multipleValues=Несколько значений
 myDrive=Мой диск
 myFiles=Мои файлы
 name=Название

@@ -567,6 +567,7 @@ move=Siirrä
 moveToFolder=Siirrä kansioon
 moving=Siirretään
 moveSelectionTo=Siirrä valinta kohteeseen {1}
+multipleValues=Useita arvoja
 myDrive=Oma Drive
 myFiles=Tiedostoni
 name=Nimi

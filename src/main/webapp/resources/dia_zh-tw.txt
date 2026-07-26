@@ -567,6 +567,7 @@ move=移動
 moveToFolder=移至目錄
 moving=移動中
 moveSelectionTo=將所選移至圖層 {1}
+multipleValues=多個值
 myDrive=我的雲端硬碟
 myFiles=我的檔案
 name=名稱
