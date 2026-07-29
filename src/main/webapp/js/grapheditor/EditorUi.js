@@ -1394,7 +1394,9 @@ EditorUi.prototype.createSelectionState = function()
 
 	if (Editor.enableCustomProperties)
 	{
-		result.customProperties = {};
+		// Null prototype: keyed by property names taken from the customProperties
+		// attribute of a user object, and later deleted from during intersection
+		result.customProperties = Object.create(null);
 		var vertices = result.vertices;
 		var edges = result.edges;
 		
@@ -4606,44 +4608,61 @@ EditorUi.prototype.initCanvas = function()
 		}
 	};
 	
-	graph.lazyZoom = function(zoomIn, ignoreCursorPosition, delay, factor)
+	graph.lazyZoom = function(zoomIn, ignoreCursorPosition, delay, factor, smooth)
 	{
 		factor = (factor != null) ? factor : this.zoomFactor;
 
 		// TODO: Fix ignored cursor position if scrollbars are disabled
 		ignoreCursorPosition = ignoreCursorPosition || !graph.scrollbars;
-		
+
 		if (ignoreCursorPosition)
 		{
 			cursorPosition = new mxPoint(
 				graph.container.offsetLeft + graph.container.clientWidth / 2,
 				graph.container.offsetTop + graph.container.clientHeight / 2);
 		}
-		
-		// Switches to 5% zoom steps below 15%
-		if (zoomIn)
+
+		if (smooth)
 		{
-			if (this.view.scale * this.cumulativeZoomFactor <= 0.15)
+			// Continuous (pinch) zoom accumulates the exact gesture factor
+			// with 1% rounding. Factor 1 keeps an externally assigned
+			// cumulativeZoomFactor unchanged (iOS gesture scale).
+			if (factor != 1)
 			{
-				this.cumulativeZoomFactor *= (this.view.scale + 0.05) / this.view.scale;
-			}
-			else
-			{
-				this.cumulativeZoomFactor *= factor;
-				this.cumulativeZoomFactor = Math.round(this.view.scale * this.cumulativeZoomFactor * 100) / 100 / this.view.scale;
+				// Switches to 5% zoom steps below 15%
+				if (zoomIn)
+				{
+					if (this.view.scale * this.cumulativeZoomFactor <= 0.15)
+					{
+						this.cumulativeZoomFactor *= (this.view.scale + 0.05) / this.view.scale;
+					}
+					else
+					{
+						this.cumulativeZoomFactor *= factor;
+						this.cumulativeZoomFactor = Math.round(this.view.scale * this.cumulativeZoomFactor * 100) / 100 / this.view.scale;
+					}
+				}
+				else
+				{
+					if (this.view.scale * this.cumulativeZoomFactor <= 0.15)
+					{
+						this.cumulativeZoomFactor *= (this.view.scale - 0.05) / this.view.scale;
+					}
+					else
+					{
+						this.cumulativeZoomFactor /= factor;
+						this.cumulativeZoomFactor = Math.round(this.view.scale * this.cumulativeZoomFactor * 100) / 100 / this.view.scale;
+					}
+				}
 			}
 		}
 		else
 		{
-			if (this.view.scale * this.cumulativeZoomFactor <= 0.15)
-			{
-				this.cumulativeZoomFactor *= (this.view.scale - 0.05) / this.view.scale;
-			}
-			else
-			{
-				this.cumulativeZoomFactor /= factor;
-				this.cumulativeZoomFactor = Math.round(this.view.scale * this.cumulativeZoomFactor * 100) / 100 / this.view.scale;
-			}
+			// Discrete zoom steps move to the adjacent stop on the ladder
+			// of getZoomSteps so that repeated steps share the same stops
+			// from any start scale and always land on exactly 100%
+			this.cumulativeZoomFactor = this.getZoomStep(this.view.scale *
+				this.cumulativeZoomFactor, zoomIn) / this.view.scale;
 		}
 
 		this.cumulativeZoomFactor = Math.max(0.05, Math.min(this.view.scale * this.cumulativeZoomFactor, 160)) / this.view.scale;
@@ -4800,6 +4819,7 @@ EditorUi.prototype.initCanvas = function()
 						cursorPosition = mousePos;
 						forcedZoom = force;
 						var factor = graph.zoomFactor;
+						var smooth = false;
 						var delay = null;
 
 						// Slower zoom for pinch gesture on trackpad with max delta to
@@ -4808,15 +4828,17 @@ EditorUi.prototype.initCanvas = function()
 							Math.round(evt.deltaY) != evt.deltaY)
 						{
 							factor = 1 + (Math.abs(evt.deltaY) / 20) * (factor - 1);
+							smooth = true;
 						}
 						// Slower zoom for pinch gesture on touch screens
 						else if (evt.movementY != null && evt.type == 'pointermove')
 						{
 							factor = 1 + (Math.max(1, Math.abs(evt.movementY)) / 20) * (factor - 1);
+							smooth = true;
 							delay = -1;
 						}
 
-						graph.lazyZoom(up, null, delay, factor);
+						graph.lazyZoom(up, null, delay, factor, smooth);
 
 						// Computes combined zoom origin when mouse moves during
 						// a zoom sequence to avoid viewport jump at the final DOM
@@ -4879,11 +4901,12 @@ EditorUi.prototype.initCanvas = function()
 		}
 	}), graph.container);
 	
-	// Uses fast zoom for pinch gestures on iOS
+	// Uses fast zoom for pinch gestures on iOS where evt.scale is the
+	// absolute gesture scale, so no further factor must be applied
 	graph.panningHandler.zoomGraph = function(evt)
 	{
 		graph.cumulativeZoomFactor = evt.scale;
-		graph.lazyZoom(evt.scale > 0, true);
+		graph.lazyZoom(evt.scale > 1, true, null, 1, true);
 		mxEvent.consume(evt);
 	};
 };

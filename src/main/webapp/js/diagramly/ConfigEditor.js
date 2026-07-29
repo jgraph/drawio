@@ -29,7 +29,8 @@ DrawioConfigEditor.installCss = function()
 
 /**
  * Builds a configuration editor in the given container. Returns an API with
- * setConfig, setDarkMode, setHighContrast and getConfig methods.
+ * setConfig, setDarkMode, setHighContrast, getConfig and getInvalidFields
+ * methods.
  *
  * options:
  *   initialConfig    - starting configuration object
@@ -52,6 +53,7 @@ DrawioConfigEditor.install = function(container, options)
 	var colorLists = { presetColors: [], customPresetColors: [], defaultColors: [] };
 	var tagLists = { enabledLibraries: [], defaultCustomLibraries: [], hideMenuItems: [], hideMenus: [], enabledTemplateSections: [] };
 	var schemeData = { defaultColorSchemes: [], customColorSchemes: [] };
+	var invalidFields = {};
 	var editorContext = options.editorContext || {};
 	var isDesktop = (options.isDesktop != null) ? options.isDesktop :
 		(navigator.userAgent.indexOf('Electron') >= 0);
@@ -97,6 +99,9 @@ DrawioConfigEditor.install = function(container, options)
 		'canvas-toggles': [
 			{ key: 'defaultPageVisible', name: 'Page Visible', help: 'Show page outline on canvas' },
 			{ key: 'defaultGridEnabled', name: 'Grid Enabled', help: 'Show grid on canvas' },
+			{ key: 'enablePositionGuides', name: 'Position Guides', help: 'Snap shapes to the edges and centers of the other shapes while moving (default on)' },
+			{ key: 'enableDistanceGuides', name: 'Distance Guides', help: 'Snap shapes to equal distances between the surrounding shapes while moving (default on)' },
+			{ key: 'enableSizeGuides', name: 'Size Guides', help: 'Snap the size of a shape to the sizes of the other shapes while resizing (default on)' },
 			{ key: 'defaultConnectable', name: 'Default Connectable', help: 'Shapes are connectable by default' },
 			{ key: 'defaultConnectionArrowsEnabled', name: 'Connection Arrows', help: 'Show arrows when hovering connections' },
 			{ key: 'copyOnConnect', name: 'Copy on Connect', help: 'Create a copy of the source shape for connections that end on the canvas' },
@@ -248,6 +253,47 @@ DrawioConfigEditor.install = function(container, options)
 	}
 
 	// ============================================
+	// JSON FIELD VALIDATION
+	// ============================================
+	function fieldLabel(el)
+	{
+		var field = el.closest('.field');
+		var label = (field != null) ? field.querySelector('label') : null;
+
+		return (label != null) ? label.textContent : el.getAttribute('data-key');
+	}
+
+	function markFieldInvalid(el)
+	{
+		invalidFields[el.getAttribute('data-key')] = fieldLabel(el);
+		el.classList.add('input--invalid');
+		el.setAttribute('aria-invalid', 'true');
+
+		if (el.nextElementSibling == null ||
+			!el.nextElementSibling.classList.contains('field__error'))
+		{
+			var err = document.createElement('p');
+			err.className = 'field__error';
+			err.textContent = 'Invalid JSON';
+			el.insertAdjacentElement('afterend', err);
+		}
+	}
+
+	function clearFieldInvalid(el)
+	{
+		delete invalidFields[el.getAttribute('data-key')];
+		el.classList.remove('input--invalid');
+		el.removeAttribute('aria-invalid');
+
+		var err = el.nextElementSibling;
+
+		if (err != null && err.classList.contains('field__error'))
+		{
+			err.parentNode.removeChild(err);
+		}
+	}
+
+	// ============================================
 	// TEXT/NUMBER FIELD HANDLERS
 	// ============================================
 	function setupFieldHandlers()
@@ -263,7 +309,11 @@ DrawioConfigEditor.install = function(container, options)
 			{
 				var val = el.value.trim();
 
-				if (val === '') { delete config[key]; }
+				if (val === '')
+				{
+					delete config[key];
+					if (isJson) { clearFieldInvalid(el); }
+				}
 				else if (el.type === 'number')
 				{
 					var num = parseFloat(val);
@@ -271,8 +321,8 @@ DrawioConfigEditor.install = function(container, options)
 				}
 				else if (isJson)
 				{
-					try { config[key] = JSON.parse(val); }
-					catch (e) { /* keep typing */ }
+					try { config[key] = JSON.parse(val); clearFieldInvalid(el); }
+					catch (e) { markFieldInvalid(el); }
 				}
 				else { config[key] = val; }
 
@@ -876,6 +926,9 @@ DrawioConfigEditor.install = function(container, options)
 
 	function populateFields()
 	{
+		qAll('.input--invalid').forEach(clearFieldInvalid);
+		invalidFields = {};
+
 		qAll('[data-key]').forEach(function(el)
 		{
 			if (el.closest('.tri-toggle')) return;
@@ -994,7 +1047,8 @@ DrawioConfigEditor.install = function(container, options)
 			if (el.parentElement.classList.contains('field-row')) return;
 			var section = el.closest('.config-section');
 			var text = el.textContent.toLowerCase();
-			el.querySelectorAll('[data-key]').forEach(function(inp) { text += ' ' + inp.getAttribute('data-key'); });
+			el.querySelectorAll('[data-key]').forEach(function(inp) { text += ' ' + inp.getAttribute('data-key').toLowerCase(); });
+			if (el.hasAttribute('data-search')) { text += ' ' + el.getAttribute('data-search').toLowerCase(); }
 			searchIndex.push({ element: el, section: section, keywords: text, type: 'field' });
 		});
 
@@ -1002,11 +1056,12 @@ DrawioConfigEditor.install = function(container, options)
 		{
 			var section = el.closest('.config-section');
 			var text = el.textContent.toLowerCase();
-			el.querySelectorAll('[data-key]').forEach(function(inp) { text += ' ' + inp.getAttribute('data-key'); });
+			el.querySelectorAll('[data-key]').forEach(function(inp) { text += ' ' + inp.getAttribute('data-key').toLowerCase(); });
 			el.querySelectorAll('input, select, textarea').forEach(function(inp)
 			{
-				if (inp.id) text += ' ' + inp.id.replace('cfg-', '').replace('cfg-dmp-', '');
+				if (inp.id) text += ' ' + inp.id.replace('cfg-', '').replace('cfg-dmp-', '').toLowerCase();
 			});
+			if (el.hasAttribute('data-search')) { text += ' ' + el.getAttribute('data-search').toLowerCase(); }
 			searchIndex.push({ element: el, section: section, keywords: text, type: 'field-row' });
 		});
 
@@ -1153,6 +1208,10 @@ DrawioConfigEditor.install = function(container, options)
 	return {
 		setConfig: function(obj) { importConfig(obj || {}); },
 		getConfig: function() { return JSON.parse(JSON.stringify(config)); },
+		getInvalidFields: function()
+		{
+			return Object.keys(invalidFields).map(function(key) { return invalidFields[key]; });
+		},
 		setDarkMode: function(dark)
 		{
 			container.classList.toggle('dark', !!dark);
@@ -1239,6 +1298,8 @@ DrawioConfigEditor.css = [
 	'  box-shadow: 0 0 0 2px rgba(41, 182, 242, 0.15);',
 	'}',
 	'.geConfigEditor textarea { font-family: var(--font-family-mono); resize: vertical; min-height: 60px; }',
+	'.geConfigEditor input.input--invalid, .geConfigEditor textarea.input--invalid { border-color: var(--color-error); }',
+	'.geConfigEditor input.input--invalid:focus, .geConfigEditor textarea.input--invalid:focus { border-color: var(--color-error); box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.15); }',
 	'.geConfigEditor label { display: block; font-weight: 500; margin-bottom: 2px; font-size: var(--font-size-sm); }',
 	'.geConfigEditor .btn {',
 	'  display: inline-flex; align-items: center; padding: 4px 8px;',
@@ -1261,6 +1322,7 @@ DrawioConfigEditor.css = [
 	'.geConfigEditor .card__body { padding: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-md); }',
 	'.geConfigEditor .field { display: flex; flex-direction: column; gap: 2px; }',
 	'.geConfigEditor .field__help { font-size: var(--font-size-xs); color: light-dark(var(--color-text-secondary), var(--color-text-secondary-dark)); margin: 0; line-height: 1.3; }',
+	'.geConfigEditor .field__error { font-size: var(--font-size-xs); color: var(--color-error); margin: 0; line-height: 1.3; font-weight: 500; }',
 	'.geConfigEditor .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); }',
 	'.geConfigEditor .toggle-field {',
 	'  display: flex; align-items: center; justify-content: space-between;',
@@ -1794,18 +1856,18 @@ DrawioConfigEditor.html = [
 	'  <div class="card">',
 	'    <div class="card__header"><h3 class="card__title">Default Styles</h3></div>',
 	'    <div class="card__body">',
-	'      <div class="field">',
+	'      <div class="field" data-search="font fontFamily fontSize fontColor">',
 	'        <label for="cfg-defaultTextStyle">Default Text Style</label>',
 	'        <input type="text" id="cfg-defaultTextStyle" data-key="defaultTextStyle" placeholder="text;html=1;whiteSpace=wrap;...">',
 	'      </div>',
-	'      <div class="field">',
+	'      <div class="field" data-search="font fontFamily fontSize fontColor fillColor strokeColor rounded shape">',
 	'        <div style="display: flex; align-items: center; justify-content: space-between;">',
 	'          <label for="cfg-defaultVertexStyle" style="margin-bottom: 0;">Default Vertex Style (JSON)</label>',
 	'          <button type="button" class="btn btn--secondary btn--sm" id="useCurrentVertexStyle" style="display: none;">Use Current</button>',
 	'        </div>',
 	'        <textarea id="cfg-defaultVertexStyle" data-key="defaultVertexStyle" data-type="json" placeholder=\'{"fontFamily": "Arial"}\' style="min-height: 60px;"></textarea>',
 	'      </div>',
-	'      <div class="field">',
+	'      <div class="field" data-search="font fontFamily fontSize fontColor edgeStyle orthogonal endArrow connection">',
 	'        <div style="display: flex; align-items: center; justify-content: space-between;">',
 	'          <label for="cfg-defaultEdgeStyle" style="margin-bottom: 0;">Default Edge Style (JSON)</label>',
 	'          <button type="button" class="btn btn--secondary btn--sm" id="useCurrentEdgeStyle" style="display: none;">Use Current</button>',

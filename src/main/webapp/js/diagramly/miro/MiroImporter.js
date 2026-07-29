@@ -23,8 +23,8 @@ function MiroImporter()
         'flowchart-stored-data': 'shape=mxgraph.flowchart.stored_data;',
         'flowchart-merge': 'shape=mxgraph.flowchart.merge_or_storage;',
         'flowchart-connector': 'ellipse;',
-        'flowchart-or': 'shape=mxgraph.flowchart.or;',
-        'flowchart-summing-junction': 'shape=mxgraph.flowchart.summing_function;',
+        'flowchart-or': 'shape=mxgraph.flowchart.or_2;',
+        'flowchart-summing-junction': 'shape=mxgraph.flowchart.summing_junction;',
         'flowchart-display': 'shape=mxgraph.flowchart.display;',
         'flowchart-off-page-link': 'shape=offPageConnector;',
         //'flowchart-note-curly-right': 'shape=mxgraph.flowchart.note_curly_right;',
@@ -108,6 +108,12 @@ function MiroImporter()
         28: 'Spoof',
         29: 'Tiempos Text',
     };
+
+    // These three are looked up with ids and type names taken from the pasted
+    // Miro JSON, so they must not inherit from Object.prototype
+    Object.setPrototypeOf(stencilsMap, null);
+    Object.setPrototypeOf(typeStylesMap, null);
+    Object.setPrototypeOf(fontNameMap, null);
 
     var shapesMap = {
         3: '',
@@ -491,7 +497,8 @@ function MiroImporter()
             }
 
             var objects = data.data.objects;
-            var edges = [], vertexes = {}, tags = [];
+            // Null prototype: keyed by widget indexes from the pasted JSON
+            var edges = [], vertexes = Object.create(null), tags = [];
 
             for (var i = 0; i < objects.length; i++)
             {

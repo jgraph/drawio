@@ -7028,7 +7028,8 @@ LucidImporter = {};
 	{
 		dx = 0;
 		dy = 0;
-		LucidImporter.stencilsMap = {}; //Reset stencils cache
+		//Reset stencils cache. Null prototype: keyed by stencil ids from the file
+		LucidImporter.stencilsMap = Object.create(null);
 		LucidImporter.imgSrcRepl = imgSrcRepl; //Use LucidImporter object to store the map since it is used deep inside
 		LucidImporter.advImpConfig = advImpConfig;
 		LucidImporter.globalProps = {};
@@ -7037,7 +7038,8 @@ LucidImporter = {};
 		LucidImporter.hasOrgChart = false;
 		LucidImporter.hasTimeLine = false;
 		LucidImporter.hasExtImgs = false;
-		LucidImporter.lucidchartObjects = {};
+		// Null prototype: keyed by object ids from the file
+		LucidImporter.lucidchartObjects = Object.create(null);
 		var xml = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?>', '<mxfile type="Lucidchart-Import"' +
 			' host="' + mxUtils.htmlEntities(window.location.hostname) +
 			'" modified="' + mxUtils.htmlEntities(new Date().toISOString()) + '">'];

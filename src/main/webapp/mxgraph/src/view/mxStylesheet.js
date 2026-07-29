@@ -53,6 +53,9 @@
  */
 function mxStylesheet()
 {
+	// Note this must stay a normal object: mxUtils.clone returns null for a
+	// null-prototype object, and Graph.setStylesheet clones this map. Untrusted
+	// style names are handled in putCellStyle and getCellStyle instead.
 	this.styles = new Object();
 
 	this.putDefaultVertexStyle(this.createDefaultVertexStyle());
@@ -189,6 +192,13 @@ mxStylesheet.prototype.getDefaultEdgeStyle = function()
  */
 mxStylesheet.prototype.putCellStyle = function(name, style)
 {
+	// Style names come from the "as" attribute of an untrusted document, so
+	// __proto__ would replace the prototype of the whole styles map
+	if (name == '__proto__' || name == 'constructor' || name == 'prototype')
+	{
+		return;
+	}
+
 	this.styles[name] = style;
 };
 
@@ -248,8 +258,11 @@ mxStylesheet.prototype.getCellStyle = function(name, defaultStyle, resolve)
 			}
 	 		else
 	 		{
-	 			// Merges the entries from a named style
-				var tmpStyle = this.styles[tmp];
+	 			// Merges the entries from a named style. Own property only: the
+	 			// name comes from the cell style, so an inherited member such as
+	 			// constructor must not resolve to a named style.
+				var tmpStyle = Object.prototype.hasOwnProperty.call(
+					this.styles, tmp) ? this.styles[tmp] : null;
 
 				if (tmpStyle != null)
 				{

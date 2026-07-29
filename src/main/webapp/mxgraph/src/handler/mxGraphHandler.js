@@ -69,7 +69,7 @@ function mxGraphHandler(graph)
 				this.currentDx = 0;
 				this.currentDy = 0;
 				this.updatePreview();
-				this.bounds = this.graph.getView().getBounds(this.cells);
+				this.bounds = this.getStateBounds(this.cells);
 				this.pBounds = this.getPreviewBounds(this.cells);
 
 				if (this.pBounds == null && !this.livePreviewUsed)
@@ -654,14 +654,14 @@ mxGraphHandler.prototype.mouseDown = function(sender, me)
 
 /**
  * Function: getGuideStates
- * 
+ *
  * Creates an array of cell states which should be used as guides.
  */
 mxGraphHandler.prototype.getGuideStates = function()
 {
 	var parent = this.graph.getDefaultParent();
 	var model = this.graph.getModel();
-	
+
 	var filter = mxUtils.bind(this, function(cell)
 	{
 		return this.graph.view.getState(cell) != null &&
@@ -669,8 +669,51 @@ mxGraphHandler.prototype.getGuideStates = function()
 			model.getGeometry(cell) != null &&
 			!model.getGeometry(cell).relative;
 	});
-	
-	return this.graph.view.getCellStates(model.filterDescendants(filter, parent));
+
+	var states = this.graph.view.getCellStates(model.filterDescendants(filter, parent));
+
+	for (var i = 0; i < states.length; i++)
+	{
+		states[i] = this.getGuideState(states[i]);
+	}
+
+	return states;
+};
+
+/**
+ * Function: getGuideState
+ *
+ * Returns the state to be used as a guide for the given state. For vertices
+ * with a rotation that is a multiple of 90 degrees this returns a clone of
+ * the state with the extents swapped around the center, so that guides use
+ * the visible bounds of the cell. Other states are returned unchanged.
+ * See also: <getStateBounds>.
+ *
+ * Parameters:
+ *
+ * state - <mxCellState> for which the guide state should be returned.
+ */
+mxGraphHandler.prototype.getGuideState = function(state)
+{
+	if (state != null && this.graph.getModel().isVertex(state.cell))
+	{
+		var rot = mxUtils.mod(mxUtils.getNumber(state.style,
+			mxConstants.STYLE_ROTATION, 0), 360);
+
+		// Swaps the extents around the center for quadrant rotations
+		if (rot % 180 == 90)
+		{
+			var clone = new mxCellState(state.view, state.cell, state.style);
+			clone.x = state.getCenterX() - state.height / 2;
+			clone.y = state.getCenterY() - state.width / 2;
+			clone.width = state.height;
+			clone.height = state.width;
+
+			return clone;
+		}
+	}
+
+	return state;
 };
 
 /**
@@ -781,8 +824,67 @@ mxGraphHandler.prototype.getPreviewBounds = function(cells)
 };
 
 /**
+ * Function: getStateBounds
+ *
+ * Returns the union of the <mxCellStates> for the given array of <mxCells>,
+ * using the bounds of the rotated state for cells with a rotation that is
+ * a multiple of 90 degrees, so that snapping and alignment during a move
+ * use the visible bounds of the cells. See also: <mxGraphView.getBounds>.
+ *
+ * Parameters:
+ *
+ * cells - Array of <mxCells> whose state bounds should be returned.
+ */
+mxGraphHandler.prototype.getStateBounds = function(cells)
+{
+	var result = null;
+
+	if (cells != null && cells.length > 0)
+	{
+		var model = this.graph.getModel();
+
+		for (var i = 0; i < cells.length; i++)
+		{
+			if (model.isVertex(cells[i]) || model.isEdge(cells[i]))
+			{
+				var state = this.graph.view.getState(cells[i]);
+
+				if (state != null)
+				{
+					var bounds = mxRectangle.fromRectangle(state);
+
+					if (model.isVertex(cells[i]))
+					{
+						var rot = mxUtils.mod(mxUtils.getNumber(state.style,
+							mxConstants.STYLE_ROTATION, 0), 360);
+
+						// Swaps the extents around the center for quadrant rotations
+						if (rot % 180 == 90)
+						{
+							bounds = new mxRectangle(state.getCenterX() - state.height / 2,
+								state.getCenterY() - state.width / 2, state.height, state.width);
+						}
+					}
+
+					if (result == null)
+					{
+						result = bounds;
+					}
+					else
+					{
+						result.add(bounds);
+					}
+				}
+			}
+		}
+	}
+
+	return result;
+};
+
+/**
  * Function: getBoundingBox
- * 
+ *
  * Returns the union of the <mxCellStates> for the given array of <mxCells>.
  * For vertices, this method uses the bounding box of the corresponding shape
  * if one exists. The bounding box of the corresponding text label and all
@@ -887,7 +989,7 @@ mxGraphHandler.prototype.start = function(cell, x, y, cells)
 		this.cell = cell;
 		this.first = mxUtils.convertPoint(this.graph.container, x, y);
 		this.cells = (cells != null) ? cells : this.getCells(this.cell);
-		this.bounds = this.graph.getView().getBounds(this.cells);
+		this.bounds = this.getStateBounds(this.cells);
 		this.pBounds = this.getPreviewBounds(this.cells);
 		this.allCells = new mxDictionary();
 		this.cloning = false;
@@ -904,30 +1006,30 @@ mxGraphHandler.prototype.start = function(cell, x, y, cells)
 			var parent = this.graph.model.getParent(cell);
 			var ignore = this.graph.model.getChildCount(parent) < 2;
 			
-			// Uses connected states as guides
+			// Uses connected cells as guides, keyed by cell as the guide
+			// states may be clones of the view states (see getGuideState)
 			var connected = new mxDictionary();
 			var opps = this.graph.getOpposites(this.graph.getEdges(this.cell), this.cell);
-			
+
 			for (var i = 0; i < opps.length; i++)
 			{
-				var state = this.graph.view.getState(opps[i]);
-				
-				if (state != null && !connected.get(state))
+				if (this.graph.view.getState(opps[i]) != null &&
+					!connected.get(opps[i]))
 				{
-					connected.put(state, true);
+					connected.put(opps[i], true);
 				}
 			}
 
 			this.guide.isStateIgnored = mxUtils.bind(this, function(state)
 			{
 				var p = this.graph.model.getParent(state.cell);
-				
+
 				return state.cell != null && ((!this.cloning &&
 					this.isCellMoving(state.cell)) ||
 					(state.cell != (this.target || parent) && !ignore &&
-					!connected.get(state) &&
+					!connected.get(state.cell) &&
 					(this.target == null || this.graph.model.getChildCount(
-					this.target) >= 2) && p != (this.target || parent)));  
+					this.target) >= 2) && p != (this.target || parent)));
 			});
 		}
 	}

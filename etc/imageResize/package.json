@@ -1,17 +1,22 @@
 {
   "name": "drawio-image-resize",
   "version": "1.0.0",
-  "description": "",
+  "description": "Resizes embedded PNG/JPEG images in draw.io files",
   "main": "drawImageResize.js",
+  "type": "module",
+  "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": "^20.19.0 || ^22.12.0 || >=23"
+  },
   "dependencies": {
     "image-size": "^2.0.2",
-    "sharp": "^0.34.0",
-    "yargs": "^17.7.2"
+    "sharp": "^0.35.3",
+    "yargs": "^18.1.0"
   }
 }

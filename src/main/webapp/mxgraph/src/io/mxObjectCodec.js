@@ -221,6 +221,21 @@ function mxObjectCodec(template, exclude, idrefs, mapping)
 mxObjectCodec.allowEval = false;
 
 /**
+ * Function: isPollutionKey
+ *
+ * Returns true if the given field name must never be used to read from or
+ * write to an object. Field names come from the "as" attribute of an
+ * untrusted document, so without this an <Object as="__proto__"/> child
+ * would make <getFieldTemplate> return Object.prototype and <decodeChild>
+ * would then decode attacker-named attributes onto it.
+ */
+mxObjectCodec.isPollutionKey = function(fieldname)
+{
+	return fieldname == '__proto__' || fieldname == 'constructor' ||
+		fieldname == 'prototype';
+};
+
+/**
  * Variable: template
  *
  * Holds the template object associated with this codec.
@@ -1005,6 +1020,11 @@ mxObjectCodec.prototype.decodeChild = function(dec, child, obj)
  */	
 mxObjectCodec.prototype.getFieldTemplate = function(obj, fieldname, child)
 {
+	if (mxObjectCodec.isPollutionKey(fieldname))
+	{
+		return null;
+	}
+
 	var template = obj[fieldname];
 	
 	// Non-empty arrays are replaced completely
@@ -1028,7 +1048,8 @@ mxObjectCodec.prototype.getFieldTemplate = function(obj, fieldname, child)
  */	
 mxObjectCodec.prototype.addObjectValue = function(obj, fieldname, value, template)
 {
-	if (value != null && value != template)
+	if (value != null && value != template &&
+		!mxObjectCodec.isPollutionKey(fieldname))
 	{
 		if (fieldname != null && fieldname.length > 0)
 		{

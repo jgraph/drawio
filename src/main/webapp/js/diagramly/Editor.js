@@ -2997,6 +2997,22 @@
 				Editor.enableInlineToolbar = config.enableInlineToolbar;
 			}
 
+			// Handlers are not defined in the embedded graph
+			if (config.enableSizeGuides != null && typeof mxVertexHandler !== 'undefined')
+			{
+				mxVertexHandler.prototype.sizeGuidesEnabled = config.enableSizeGuides;
+			}
+
+			if (config.enablePositionGuides != null && typeof mxGuide !== 'undefined')
+			{
+				mxGuide.prototype.positionEnabled = config.enablePositionGuides;
+			}
+
+			if (config.enableDistanceGuides != null && typeof mxGuide !== 'undefined')
+			{
+				mxGuide.prototype.distanceEnabled = config.enableDistanceGuides;
+			}
+
 			if (config.defaultTransparentGroups != null)
 			{
 				Editor.defaultTransparentGroups = config.defaultTransparentGroups;
@@ -5740,7 +5756,8 @@
 		
         if (this.cachedFonts == null) 
         {
-        	this.cachedFonts = {};
+        	// Null prototype: keyed by font URLs parsed from the diagram's extFonts
+        	this.cachedFonts = Object.create(null);
         }
 
         var finish = mxUtils.bind(this, function()
@@ -10579,26 +10596,75 @@
 
 					if (action.viewbox != null)
 					{
-						if (action.viewbox.smooth === true && !stop)
+						var vb = action.viewbox;
+
+						// Dynamic cell-bound viewbox: with a cells/tags/layers
+						// selector present, the box derives from the union of
+						// the resolved cells' bounds at execution time — the
+						// link follows the cells as the diagram evolves — and
+						// any static x/y/width/height is ignored. An
+						// unresolvable selector (e.g. only hidden cells, no
+						// state) skips the action, like scroll does.
+						if (vb.cells != null || vb.tags != null || vb.layers != null)
 						{
-							// Block the action chain until the smooth
-							// transition finishes so consecutive viewbox /
-							// scroll steps don't overrun each other. During
-							// stop we fall through to the instant snap below.
-							waitCounter++;
-							this.smoothFitWindow(action.viewbox,
-								action.viewbox.border, waitAndExecute);
+							var vbBounds = this.getBoundingBox(
+								this.getCellsForAction(vb));
+
+							if (vbBounds != null)
+							{
+								// State bounds are screen coords in the editor
+								// but graph coords in useCssTransforms mode
+								// (validate runs at scale 1, translate 0) —
+								// same normalization as fitDiagramToWindow.
+								var vbScale = (this.useCssTransforms) ? 1 : this.view.scale;
+								var vbTrans = (this.useCssTransforms) ?
+									new mxPoint(0, 0) : this.view.translate;
+
+								// Dynamic border is breathing room per side
+								// (screen px, like scroll's border). The fit
+								// implementations reserve the border once
+								// across the axis (clientWidth - border) and
+								// centre, which yields border/2 per side —
+								// invisible for typical values after scale
+								// quantization — so double it here.
+								var vbBorder = (vb.border != null && vb.border !== '' &&
+									!isNaN(parseFloat(vb.border))) ?
+									2 * parseFloat(vb.border) : null;
+
+								vb = {x: vbBounds.x / vbScale - vbTrans.x,
+									y: vbBounds.y / vbScale - vbTrans.y,
+									width: Math.max(1, vbBounds.width / vbScale),
+									height: Math.max(1, vbBounds.height / vbScale),
+									border: vbBorder, smooth: vb.smooth};
+							}
+							else
+							{
+								vb = null;
+							}
 						}
-						else if (this.useCssTransforms)
+
+						if (vb != null)
 						{
-							// Regular fitWindow only zooms in chromeless mode
-							// (no scrollbars to pan), so we recreate the pan
-							// ourselves via fitBoundsCssTransform.
-							this.fitBoundsCssTransform(action.viewbox, action.viewbox.border);
-						}
-						else
-						{
-							this.fitWindow(action.viewbox, action.viewbox.border);
+							if (vb.smooth === true && !stop)
+							{
+								// Block the action chain until the smooth
+								// transition finishes so consecutive viewbox /
+								// scroll steps don't overrun each other. During
+								// stop we fall through to the instant snap below.
+								waitCounter++;
+								this.smoothFitWindow(vb, vb.border, waitAndExecute);
+							}
+							else if (this.useCssTransforms)
+							{
+								// Regular fitWindow only zooms in chromeless mode
+								// (no scrollbars to pan), so we recreate the pan
+								// ourselves via fitBoundsCssTransform.
+								this.fitBoundsCssTransform(vb, vb.border);
+							}
+							else
+							{
+								this.fitWindow(vb, vb.border);
+							}
 						}
 					}
 

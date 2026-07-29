@@ -1696,17 +1696,26 @@ mxVertexHandler.prototype.union = function(bounds, dx, dy, index, gridEnabled, s
 		var right = left + w0;
 		var top = bounds.y - tr.y * scale;
 		var bottom = top + h0;
-		
+
 		var cx = left + w0 / 2;
 		var cy = top + h0 / 2;
-		
+
+		// Snaps the size instead of the absolute position for rotated cells,
+		// as resizeVertex moves the unrotated bounds to keep the fixed
+		// corner of the rotated bounds in place, so the absolute positions
+		// of the unrotated bounds are not on the grid in general
+		var rot = (gridEnabled && this.state != null) ? mxUtils.mod(mxUtils.getNumber(
+			this.state.style, mxConstants.STYLE_ROTATION, 0), 360) : 0;
+		var relative = rot != 0 && !isNaN(rot);
+
 		if (index > 4 /* Bottom Row */)
 		{
 			bottom = bottom + dy;
-			
+
 			if (gridEnabled)
 			{
-				bottom = this.graph.snap(bottom / scale) * scale;
+				bottom = (relative) ? top + this.graph.snap((bottom - top) / scale) * scale :
+					this.graph.snap(bottom / scale) * scale;
 			}
 			else
 			{
@@ -1716,24 +1725,26 @@ mxVertexHandler.prototype.union = function(bounds, dx, dy, index, gridEnabled, s
 		else if (index < 3 /* Top Row */)
 		{
 			top = top + dy;
-			
+
 			if (gridEnabled)
 			{
-				top = this.graph.snap(top / scale) * scale;
+				top = (relative) ? bottom - this.graph.snap((bottom - top) / scale) * scale :
+					this.graph.snap(top / scale) * scale;
 			}
 			else
 			{
 				top = Math.round(top / scale) * scale;
 			}
 		}
-		
+
 		if (index == 0 || index == 3 || index == 5 /* Left */)
 		{
 			left += dx;
-			
+
 			if (gridEnabled)
 			{
-				left = this.graph.snap(left / scale) * scale;
+				left = (relative) ? right - this.graph.snap((right - left) / scale) * scale :
+					this.graph.snap(left / scale) * scale;
 			}
 			else
 			{
@@ -1743,10 +1754,11 @@ mxVertexHandler.prototype.union = function(bounds, dx, dy, index, gridEnabled, s
 		else if (index == 2 || index == 4 || index == 7 /* Right */)
 		{
 			right += dx;
-			
+
 			if (gridEnabled)
 			{
-				right = this.graph.snap(right / scale) * scale;
+				right = (relative) ? left + this.graph.snap((right - left) / scale) * scale :
+					this.graph.snap(right / scale) * scale;
 			}
 			else
 			{
@@ -1786,7 +1798,26 @@ mxVertexHandler.prototype.union = function(bounds, dx, dy, index, gridEnabled, s
 		{
 			width += (width - w0);
 			height += (height - h0);
-			
+
+			// Keeps the size on the grid for rotated cells. Only the extents
+			// that the dragged handle changes are snapped, using the same
+			// index tests as the edges above, as snapping the other extent
+			// would resize the cell along an axis that is not being dragged
+			// [jgraph/drawio#5723]
+			if (relative)
+			{
+				if (index == 0 || index == 3 || index == 5 /* Left */ ||
+					index == 2 || index == 4 || index == 7 /* Right */)
+				{
+					width = this.graph.snap(width / scale) * scale;
+				}
+
+				if (index < 3 /* Top Row */ || index > 4 /* Bottom Row */)
+				{
+					height = this.graph.snap(height / scale) * scale;
+				}
+			}
+
 			var cdx = cx - (left + width / 2);
 			var cdy = cy - (top + height / 2);
 

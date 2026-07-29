@@ -325,8 +325,8 @@ mxWebColaAdaptor.prototype.graphToLayout = function(graph, movableVertices)
   var view = graph.getView();
   var cellSpacing = 20;
   
-  // Ignores cells that have no states
-  var tmp = {};
+  // Ignores cells that have no states (null prototype: keyed by cell ids)
+  var tmp = Object.create(null);
   
   for (var id in cells)
   {
@@ -422,8 +422,9 @@ mxWebColaAdaptor.prototype.graphToLayout = function(graph, movableVertices)
   // mxGraphModel.getChildCount
   // mxGraph.getBoundsForGroup
   // first, get all possible parents and their children
-  var groupParents = {};
-  var directParentChildren = {};
+  // Null prototypes: keyed by cell ids, which come raw from the diagram XML
+  var groupParents = Object.create(null);
+  var directParentChildren = Object.create(null);
   for (var id in cells)
   {
     var cell = cells[id];
@@ -433,9 +434,9 @@ mxWebColaAdaptor.prototype.graphToLayout = function(graph, movableVertices)
     if (parent.isVertex())
     {
       groupParents[parent.id] = parent;
-      if (!(parent.id in directParentChildren))
+      if (directParentChildren[parent.id] == null)
       {
-        directParentChildren[parent.id] = {}
+        directParentChildren[parent.id] = Object.create(null)
       }
       directParentChildren[parent.id][id] = cell;
     }

@@ -2217,7 +2217,8 @@ GraphViewer.prototype.showLightbox = function(editable, closable, target)
 
 				if (this.graphConfig.hiddenTags == null)
 				{
-					this.graphConfig.hiddenTags = {};
+					// Null prototype: keyed by page ids from the diagram XML
+					this.graphConfig.hiddenTags = Object.create(null);
 				}
 
 				this.graphConfig.hiddenTags[curPageId] =
@@ -2340,7 +2341,8 @@ GraphViewer.prototype.showLocalLightbox = function(container)
 
 		if (this.graphConfig.hiddenTags == null)
 		{
-			this.graphConfig.hiddenTags = {};
+			// Null prototype: keyed by page ids from the diagram XML
+			this.graphConfig.hiddenTags = Object.create(null);
 		}
 
 		this.graphConfig.hiddenTags[curPageId] =

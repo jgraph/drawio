@@ -121,12 +121,15 @@ EditorUi.prototype.patchFileNode = function(patches)
  */
 EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updateEdgeParents)
 {
-	var resolverLookup = {};
+	// Null prototypes: all of these are keyed by page ids and cell ids taken
+	// verbatim from the patch or the document, so a plain {} would resolve
+	// __proto__/constructor to an inherited value and treat it as a real entry
+	var resolverLookup = Object.create(null);
 	var newPages = [];
-	var inserted = {};
-	var removed = {};
-	var lookup = {};
-	var moved = {};
+	var inserted = Object.create(null);
+	var removed = Object.create(null);
+	var lookup = Object.create(null);
+	var moved = Object.create(null);
 
   	if (resolver != null && resolver[EditorUi.DIFF_UPDATE] != null)
 	{
@@ -188,7 +191,7 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updat
   	}
   	
   	// FIXME: Workaround for possible duplicate pages
-  	var added = {};
+  	var added = Object.create(null);
 	
 	var addPage = mxUtils.bind(this, function(page)
 	{
@@ -355,15 +358,18 @@ EditorUi.prototype.patchViewStateProperty = function(page, diff, key)
  */
 EditorUi.prototype.createParentLookup = function(model, diff)
 {
-	var parentLookup = {};
-	
+	// Null prototypes: keyed by parent and previous-sibling cell ids from the
+	// patch. Note inserted is enumerated and deleted from, so an inherited hit
+	// here would loop forever (delete cannot remove an inherited key).
+	var parentLookup = Object.create(null);
+
 	function getLookup(id)
 	{
 		var result = parentLookup[id];
-		
+
 		if (result == null)
 		{
-			result = {inserted: [], moved: {}};
+			result = {inserted: Object.create(null), moved: Object.create(null)};
 			parentLookup[id] = result;
 		}
 		
@@ -557,8 +563,8 @@ EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup
 	if (cell != null)
 	{
 		var temp = parentLookup[cell.getId()];
-		var inserted = (temp != null && temp.inserted != null) ? temp.inserted : {};
-		var moved = (temp != null && temp.moved != null) ? temp.moved : {};
+		var inserted = (temp != null && temp.inserted != null) ? temp.inserted : Object.create(null);
+		var moved = (temp != null && temp.moved != null) ? temp.moved : Object.create(null);
 		var index = 0;
 		
 		// Restores existing order
@@ -692,8 +698,11 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
 			}
 		}
 		
-		// Last write wins for style
-		if ((resolve == null || resolve.style == null) && diff.style != null)
+		// Last write wins for style; a null entry removes the style
+		// (diffCell emits style: null when the new cell has none -
+		// ignoring it made style removals unpatchable and left a
+		// rollback to a style-less state silently incomplete)
+		if ((resolve == null || resolve.style == null) && 'style' in diff)
 		{
 			model.setStyle(cell, diff.style);
 		}
@@ -861,9 +870,10 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
 {
 	var inserted = [];
 	var removed = [];
-	var result = {};
-	var lookup = {};
-	var diff = {};
+	// Null prototypes: keyed by page ids from the document
+	var result = Object.create(null);
+	var lookup = Object.create(null);
+	var diff = Object.create(null);
 	var prev = null;
 
 	if (oldPages != null && newPages != null)
@@ -983,7 +993,8 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
  */
 EditorUi.prototype.createCellLookup = function(cell, prev, lookup)
 {
-	lookup = (lookup != null) ? lookup : {};
+	// Null prototype: keyed by cell ids from the document
+	lookup = (lookup != null) ? lookup : Object.create(null);
 
 	if (cell.getId() == null)
 	{
@@ -1377,7 +1388,12 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
 	if (oldCell.style != newCell.style)
 	{
 		// LATER: Split into keys and do fine-grained diff
-		diff.style = newCell.style;
+		// Undefined is normalized to null as for value above, as cells decoded
+		// from XML with no style attribute have an undefined style and
+		// JSON.stringify drops undefined values, which would remove the entry
+		// from the patch on the wire and leave the style removal unapplied in
+		// the receiving client
+		diff.style = (newCell.style != null) ? newCell.style : null;
 	}
 	
 	if (oldCell.visible != newCell.visible)
@@ -1530,7 +1546,8 @@ EditorUi.prototype.adoptTheirCellsFromPage = function(ownPageUpdate, theirDiff, 
 		pageDiff.cells[EditorUi.DIFF_UPDATE] = {};
 
 		// Blocks duplicate inserts, deleted below for result
-		pageDiff.inserted = {};
+		// Null prototype: keyed by cell ids from the document
+		pageDiff.inserted = Object.create(null);
 
 		this.resolveOwnInsertedCells(
 			ownPageUpdate.cells[EditorUi.DIFF_INSERT],

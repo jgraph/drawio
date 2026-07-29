@@ -4480,14 +4480,16 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 		if (outlineWheel)
 		{
 			var factor = graph.zoomFactor;
+			var smooth = false;
 
 			// Slower zoom for pinch gesture on trackpad
 			if (evt.deltaY != null && Math.round(evt.deltaY) != evt.deltaY)
 			{
 				factor = 1 + (Math.abs(evt.deltaY) / 20) * (factor - 1);
+				smooth = true;
 			}
 
-			graph.lazyZoom(up, null, null, factor);
+			graph.lazyZoom(up, null, null, factor, smooth);
 			mxEvent.consume(evt);
 		}
 	});

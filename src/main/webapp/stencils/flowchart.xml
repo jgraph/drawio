@@ -577,6 +577,34 @@
 <stroke/>
 </foreground>
 </shape>
+<shape name="Or 2" h="70" w="70" aspect="variable" strokewidth="inherit">
+<connections>
+<constraint x="0.5" y="0" perimeter="0" name="N"/>
+<constraint x="0.5" y="1" perimeter="0" name="S"/>
+<constraint x="0" y="0.5" perimeter="0" name="W"/>
+<constraint x="1" y="0.5" perimeter="0" name="E"/>
+<constraint x="0.145" y="0.145" perimeter="0" name="NW"/>
+<constraint x="0.145" y="0.855" perimeter="0" name="SW"/>
+<constraint x="0.855" y="0.145" perimeter="0" name="NE"/>
+<constraint x="0.855" y="0.855" perimeter="0" name="SE"/>
+</connections>
+<background>
+<ellipse x="0" y="0" w="70" h="70"/>
+</background>
+<foreground>
+<fillstroke/>
+<path>
+<move x="0" y="35"/>
+<line x="70" y="35"/>
+</path>
+<stroke/>
+<path>
+<move x="35" y="0"/>
+<line x="35" y="70"/>
+</path>
+<stroke/>
+</foreground>
+</shape>
 <shape name="Paper Tape" h="61.81" w="98" aspect="variable" strokewidth="inherit">
 <connections>
 <constraint x="0.5" y="0.09" perimeter="0" name="N"/>
@@ -869,6 +897,34 @@
 <path>
 <move x="35" y="0"/>
 <line x="35" y="70"/>
+</path>
+<stroke/>
+</foreground>
+</shape>
+<shape name="Summing Junction" h="70" w="70" aspect="variable" strokewidth="inherit">
+<connections>
+<constraint x="0.5" y="0" perimeter="0" name="N"/>
+<constraint x="0.5" y="1" perimeter="0" name="S"/>
+<constraint x="0" y="0.5" perimeter="0" name="W"/>
+<constraint x="1" y="0.5" perimeter="0" name="E"/>
+<constraint x="0.145" y="0.145" perimeter="0" name="NW"/>
+<constraint x="0.145" y="0.855" perimeter="0" name="SW"/>
+<constraint x="0.855" y="0.145" perimeter="0" name="NE"/>
+<constraint x="0.855" y="0.855" perimeter="0" name="SE"/>
+</connections>
+<background>
+<ellipse x="0" y="0" w="70" h="70"/>
+</background>
+<foreground>
+<fillstroke/>
+<path>
+<move x="10" y="60"/>
+<line x="60" y="10"/>
+</path>
+<stroke/>
+<path>
+<move x="10" y="10"/>
+<line x="60" y="60"/>
 </path>
 <stroke/>
 </foreground>

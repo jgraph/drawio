@@ -4575,6 +4575,14 @@ var mxUtils =
 				}
 				else
 				{
+					// Skips empty entries after the removed key so that the
+					// remaining style does not start with a semicolon, which
+					// would ignore the default style of the cell
+					while (next >= 0 && style.charAt(next + 1) == ';')
+					{
+						next++;
+					}
+
 					style = (next < 0 || next == style.length - 1) ? '' : style.substring(next + 1);
 				}
 			}

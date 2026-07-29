@@ -1,3 +1,56 @@
+29-JUL-2026: 31.1.5
+
+- Fixes distance guide moving cells onto their neighbours [jgraph/drawio#5722]
+- Fixes centered resize of rotated cells changing the other extent [jgraph/drawio#5723]
+- Ships the Miro importer in extensions.min.js
+- Fixes style removals being dropped from realtime patches
+
+29-JUL-2026: 31.1.4
+
+- Updates to imageResize tool
+- Removes external plugin support from the desktop app
+- Fixes leading semicolon when removing style key followed by empty entries
+- Fixes centered text flow alignment at wrap boundaries
+- Removes dark mode media query listener on destroy
+- Fixes wrapped stand-alone mode and Electron runtime messages
+- Applies style removals in patchCell
+- Adds size guides for the size of shapes while resizing
+- Fixes the naming issue in Flowchart shapes
+- Reorders recent changes in Flowcharts stencil file
+- Fixes swapped Or/Summing junction shapes in Miro import
+- Fixes silent drop of invalid JSON and font search in configuration editor [jgraph/drawio-desktop#2500]
+- Update vendored drawio-plantuml bundle to commit dfc660e
+- Added some translation keys
+- Copy the image in addition to opening it in a new window for lightbox export button (such that if a new window is not allowed, the user can access the image) [DID-19756]
+- Update vendored drawio-plantuml bundle to commit 44ae98b
+- Integrates equal-distance guides into mxGuide, improves position guides
+- Adds edge alignment guides for resizing vertices
+- Adds config options for position and distance guides
+- Snaps the visible bounds of rotated cells to the grid [jgraph/drawio#2385]
+- Adds cell selectors for dynamic viewbox custom actions [jgraph/drawio#4584]
+- Fixes stuck segment handle next to snapped terminal points [jgraph/drawio#1137]
+- Snaps the size instead of the dragged edge for rotated cells [jgraph/drawio#2385]
+- Aligns guides with the visible bounds of rotated cells [jgraph/drawio#2385]
+- Fixes distribute with spacing at zoom levels other than 100% [jgraph/drawio#5721]
+- Fixes wheel zoom skipping 100% by using fixed zoom stops
+- Fixes GraphML import issue
+- Defends against prototype pollution [GHSA-vvpv-f297-2ghp]
+- Fixes GraphML import
+
+27-JUL-2026: 31.1.3
+
+- De-enroll the preprod worker relic; document the Cloudflare Pages path
+- Remove the unused preprod proxy worker
+- Verify the build under test on the monitoring checklist
+- Add cache functionality to preprod
+- Allow preprod.diagrams.net through the convert worker referer gate
+- Exclude .claude and internal docs from the public repo staging
+- Adds host-targeted ac/aj twins for the auth-worker routes [DID-19731]
+- Adds host-targeted ac/aj twins for the auth-worker routes [DID-19731]
+- Adds host-targeted ac/aj twin for the fast-rt websocket route [DID-19733]
+- Moves the production stable channel to 31.1.2
+- Adds the fast-rt ac/aj twin routes and moves production stable to 31.1.2
+
 26-JUL-2026: 31.1.2
 
 - Re-enroll auth-workers: keep_vars protects dashboard variables

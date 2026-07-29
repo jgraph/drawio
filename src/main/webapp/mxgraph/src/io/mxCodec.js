@@ -114,7 +114,7 @@
 function mxCodec(document)
 {
 	this.document = document || mxUtils.createXmlDocument();
-	this.duplicates = [];
+	this.duplicates = Object.create(null);
 	// Uses a null prototype as object IDs are untrusted (cell IDs and idrefs
 	// such as source/target/parent) so that IDs like __proto__ or constructor
 	// are stored and looked up as regular entries instead of resolving to

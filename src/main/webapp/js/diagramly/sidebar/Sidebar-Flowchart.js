@@ -37,7 +37,7 @@
 			this.createVertexTemplateEntry(s + 'multi-document;whiteSpace=wrap;boundedLbl=1;', w * 0.88, h * 0.6, '', 'Multi-Document', null, null, this.getTagsForStencil(gn, 'multi-document', dt).join(' ')),
 			this.createVertexTemplateEntry(s3 + 'offPageConnector;rounded=0;size=0.5;', w * 0.6, h * 0.6, '', 'Off-Page Reference', null, null, this.getTagsForStencil(gn, 'off-page_reference', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'on-page_reference;', w * 0.6, h * 0.6, '', 'On-Page Reference', null, null, this.getTagsForStencil(gn, 'on-page_reference', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'summing_function;', w * 0.7, h * 0.7, '', 'Or', null, null, this.getTagsForStencil(gn, 'summing_function', dt).join(' ')),
+			this.createVertexTemplateEntry(s2 + 'or_2;', w * 0.7, h * 0.7, '', 'Or', null, null, this.getTagsForStencil(gn, 'or_2', dt).join(' ')),
 			this.createVertexTemplateEntry('shape=tape;whiteSpace=wrap;html=1;strokeWidth=2;size=0.19', w, h * 0.65, '', 'Tape', null, null, this.getTagsForStencil(gn, 'tape', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'parallel_mode;accentColor=#ffff00;pointerEvents=1', w * 0.95, h * 0.4, '', 'Parallel Mode', null, null, this.getTagsForStencil(gn, 'parallel_mode', dt).join(' ')),
 			this.createVertexTemplateEntry(s3 + 'process;whiteSpace=wrap;rounded=1;size=0.14;arcSize=6;', w, h * 0.6, '', 'Predefined Process', null, null, this.getTagsForStencil(gn, 'predefined_process', dt).join(' ')),
@@ -48,7 +48,7 @@
 			this.createVertexTemplateEntry(s + 'start_1;whiteSpace=wrap;', w, h * 0.6, '', 'Start', null, null, this.getTagsForStencil(gn, 'start_1', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'start_2;whiteSpace=wrap;', w, h, '', 'Start', null, null, this.getTagsForStencil(gn, 'start_2', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'stored_data;whiteSpace=wrap;', w, h * 0.6, '', 'Stored Data', null, null, this.getTagsForStencil(gn, 'stored_data', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'or;', w * 0.7, h * 0.7, '', 'Summing Junction', null, null, this.getTagsForStencil(gn, 'or', dt).join(' ')),
+			this.createVertexTemplateEntry(s2 + 'summing_junction;', w * 0.7, h * 0.7, '', 'Summing Junction', null, null, this.getTagsForStencil(gn, 'summing_junction', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'terminator;whiteSpace=wrap;', w, h * 0.6, '', 'Terminator', null, null, this.getTagsForStencil(gn, 'terminator', dt).join(' ')),
 			this.createVertexTemplateEntry(mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;html=1;strokeWidth=2;shape=mxgraph.arrows2.arrow;dy=0.6;dx=40;notch=0;', w, h * 0.7, '', 'Transfer', null, null, this.getTagsForStencil(gn, 'transfer', dt).join(' '))
 		]);

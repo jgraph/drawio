@@ -49,8 +49,10 @@ Visibility/Effects/Style/Navigation/Tags/Timing): `toggle`, `show`, `hide`,
 `wipeOut`, `popIn`, `popOut`, `flow`, `style`, `toggleStyle`, `highlight`,
 `scroll`, `viewbox`, `open`, `tags`. `fadeIn`/`fadeOut` are hardcoded 0→1 /
 1→0; `fadeTo` animates from current opacity to `value`. Picker defaults come
-from each field's `def`; `viewbox` pre-fills the current viewport (one-click
-snapshot).
+from each field's `def`; `viewbox` with an empty canvas selection pre-fills
+the current viewport (one-click snapshot, static x/y/w/h — the picker
+deliberately skips the `"*"` wildcard fallback), with cells selected it
+becomes a dynamic cell-bound viewbox instead (see below).
 
 **`loop` / `enabled` (page mode only)**: booleans, default `true`.
 `enabled:false` makes `playAnimationOnGraph` return `null` (script kept, no
@@ -106,7 +108,22 @@ transition is armed for a single transform change only
 `updateCssTransform` consumes it and strips `transition` from all other
 transform updates) so toolbar/wheel/programmatic zoom still snaps instantly.
 `scroll` centers by default; optional `border` (screen px) brings the cell
-into view with minimal scroll (`scrollCellToVisible*`).
+into view with minimal scroll (`scrollCellToVisible*`). `scroll` pans only
+(never changes zoom) and targets `cells[0]`; `viewbox` sets pan + zoom.
+
+**Dynamic viewbox** [jgraph/drawio#4584]: a `viewbox` with a
+`cells`/`tags`/`layers` selector ignores static x/y/w/h and fits the union
+of the resolved cells' bounds at execution time (`getBoundingBox`,
+normalized to graph coords — screen coords in the editor, graph coords in
+`useCssTransforms` mode, same as `fitDiagramToWindow`; uncapped scale like
+Ctrl+Shift+H fit-selection). An unresolvable selector (hidden cells have no
+state) skips the action, like `scroll`. Dynamic `border` is breathing room
+**per side** (screen px, like scroll's border): the fit paths reserve the
+border once per axis (`clientWidth - border`, → border/2 per side, swallowed
+by the 0.05 scale quantization), so the executor doubles it — static viewbox
+border keeps the old weak semantics for compat. Dialog: selector chips gray
+out the `staticOnly` x/y/w/h fields; "Use Current" converts back to static
+by capturing the viewport AND clearing the selector.
 
 ## `immediate` — parallel steps
 

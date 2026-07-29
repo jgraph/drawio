@@ -409,7 +409,6 @@ OUTPUT FILES (in src/main/webapp/js/):
 				<file name="Pages.js" />
 				<file name="Trees.js" />
 				<file name="Minimal.js" />
-				<file name="DistanceGuides.js" />
 				<file name="mxRuler.js" />
 				<file name="mxFreehand.js" />
 				<file name="DrawioUser.js" />
@@ -453,6 +452,9 @@ OUTPUT FILES (in src/main/webapp/js/):
 			</sources>
 			<sources dir="${war.dir}/js/diagramly/graphml">
 				<file name="mxGraphMlCodec.js" />
+			</sources>
+			<sources dir="${war.dir}/js/diagramly/miro">
+				<file name="MiroImporter.js" />
 			</sources>
 		</jscomp>
 
@@ -577,7 +579,6 @@ OUTPUT FILES (in src/main/webapp/js/):
 				<file name="Pages.js" />
 				<file name="Trees.js" />
 				<file name="Minimal.js" />
-				<file name="DistanceGuides.js" />
 				<file name="mxRuler.js" />
 				<file name="mxFreehand.js" />
 				<file name="P2PCollab.js" />

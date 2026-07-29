@@ -2425,7 +2425,7 @@ var com;
                         mxPropertiesManager.__static_initializer_0();
                     } };
                     mxPropertiesManager.defaultColors_$LI$ = function () { mxPropertiesManager.__static_initialize(); if (mxPropertiesManager.defaultColors == null)
-                        mxPropertiesManager.defaultColors = ({}); return mxPropertiesManager.defaultColors; };
+                        mxPropertiesManager.defaultColors = (Object.create(null)); return mxPropertiesManager.defaultColors; };
                     ;
                     mxPropertiesManager.__static_initializer_0 = function () {
                         /* put */ (mxPropertiesManager.defaultColors_$LI$()["0"] = "#000000");
@@ -3316,7 +3316,7 @@ var com;
                          */
                         this.Id = null;
                         this.masterShape = null;
-                        this.childShapes = ({});
+                        this.childShapes = (Object.create(null));
                         this.master = null;
                         this.master = m;
                         this.Id = m.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.ID) || "";
@@ -4255,7 +4255,7 @@ var com;
                         /*private*/ this.themeIndex = -1;
                         /*private*/ this.themeVariantClr = 0;
                         /*private*/ this.themeVariantStl = 0;
-                        /*private*/ this.baseColors = ({});
+                        /*private*/ this.baseColors = (Object.create(null));
                         /*private*/ this.variantsColors = (function (dims) { var allocate = function (dims) { if (dims.length == 0) {
                             return undefined;
                         }
@@ -4339,7 +4339,7 @@ var com;
                         mxVsdxTheme.__static_initializer_1();
                     } };
                     mxVsdxTheme.themesIds_$LI$ = function () { mxVsdxTheme.__static_initialize(); if (mxVsdxTheme.themesIds == null)
-                        mxVsdxTheme.themesIds = ({}); return mxVsdxTheme.themesIds; };
+                        mxVsdxTheme.themesIds = (Object.create(null)); return mxVsdxTheme.themesIds; };
                     ;
                     mxVsdxTheme.__static_initializer_0 = function () {
                         /* put */ (mxVsdxTheme.themesIds_$LI$()["Office"] = 33);

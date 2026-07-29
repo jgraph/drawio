@@ -17,9 +17,13 @@ function P2PCollab(ui, sync, channelId)
 		'#ffe119', '#42d4f4', '#bfef45', '#fabed4', '#dcbeff',
 		'#fffac8', '#aaffc3', '#ffd8b1'
 	];
-	var connectedSessions = {}, messageId = 1, clientLastMsgId = {}, clientsToSessions = {}, 
-		connectedClient = {}, sessionColors = {};
-	var myClientId, newClients = {}, p2pClients = {}, useSocket = true, fileJoined = false, destroyed = false;
+	// Null prototypes: all of these are keyed by session/client ids that come
+	// straight off the wire from other collaborators
+	var connectedSessions = Object.create(null), messageId = 1,
+		clientLastMsgId = Object.create(null), clientsToSessions = Object.create(null),
+		connectedClient = Object.create(null), sessionColors = Object.create(null);
+	var myClientId, newClients = Object.create(null), p2pClients = Object.create(null),
+		useSocket = true, fileJoined = false, destroyed = false;
 	// Roster of other clients connected to the channel, maintained via
 	// clientsList, newClient and clientLeft messages from the socket
 	// server; rosterKnown is false while the roster is unconfirmed

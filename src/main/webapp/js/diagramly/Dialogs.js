@@ -3420,7 +3420,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		
 		if (NewDialog.tagsList[templateFile] == null)
 		{
-			var tagsList = {};
+			// Null prototype: tags come from the template index and from custom
+			// template titles supplied by the embedding page
+			var tagsList = Object.create(null);
 			
 			for (var cat in categories)
 			{
@@ -4058,7 +4060,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	this.container = outer;
 };
 
-NewDialog.tagsList = {};
+// Null prototype: keyed by the configured templateFile URL
+NewDialog.tagsList = Object.create(null);
 
 /**
  * 
@@ -7770,16 +7773,20 @@ CustomActionDialog.SCHEMAS = {
 	// so we don't need to ship a dedicated `viewbox` translation across
 	// every locale — the picker, step list, and link summary all honor
 	// `schema.labelKey` when present.
+	// The selector makes the viewbox dynamic: with cells/tags/layers set,
+	// the box is derived from the resolved cells' bounds at execution time
+	// and the static x/y/width/height (`staticOnly` fields, grayed out
+	// while a selector is active) are ignored [jgraph/drawio#4584].
 	viewbox:     {label: 'View',          labelKey: 'view',
-		icon: '⊞', noSelector: true,
+		icon: '⊞', selector: true, allowLayers: true,
 		fields: [{name: 'x',      type: 'number', placeholder: 'x', width: 36, label: '',
-			title: 'X'},
+			title: 'X', staticOnly: true},
 		         {name: 'y',      type: 'number', placeholder: 'y', width: 36, label: '',
-			title: 'Y'},
+			title: 'Y', staticOnly: true},
 		         {name: 'width',  type: 'number', placeholder: 'w', width: 36, label: '',
-			titleKey: 'width', title: 'Width'},
+			titleKey: 'width', title: 'Width', staticOnly: true},
 		         {name: 'height', type: 'number', placeholder: 'h', width: 36, label: '',
-			titleKey: 'height', title: 'Height'},
+			titleKey: 'height', title: 'Height', staticOnly: true},
 		         {name: 'border', type: 'number', placeholder: 'b', width: 36, label: '',
 			titleKey: 'border', title: 'Border'},
 		         {name: 'smooth', type: 'checkbox',
@@ -13675,7 +13682,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	// Renders one schema field into the step row. Mirrors appendField in
 	// CustomActionDialog but uses the AnimationDialog's inline styling so
 	// the row layout stays tight and consistent with existing step types.
-	var renderStepField = function(row, idx, key, spec, isPrimary)
+	var renderStepField = function(row, idx, key, spec, isPrimary, disabled)
 	{
 		// getter/setter for nested {key: {field: value}} (object actions)
 		// or top-level (primary actions like wait). Uses syncOnly() (not
@@ -13876,6 +13883,14 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 
 		if (title) inp.title = title;
 
+		// Overridden field (see the `staticOnly` handling in makeStepRow) —
+		// same visual treatment as the disabled Reset button.
+		if (disabled)
+		{
+			inp.disabled = true;
+			inp.style.opacity = '0.4';
+		}
+
 		var commit = function()
 		{
 			var v = inp.value;
@@ -14059,9 +14074,19 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 
 			if (schema != null && Array.isArray(schema.fields))
 			{
+				// `staticOnly` fields (viewbox x/y/w/h) are ignored by the
+				// engine while a cells/tags/layers selector is active (the
+				// box then derives from the cells' bounds) — gray them out
+				// so the inputs reflect that they're overridden.
+				var hasSelector = sel != null &&
+					((Array.isArray(sel.cells) && sel.cells.length > 0) ||
+					 (Array.isArray(sel.tags) && sel.tags.length > 0) ||
+					 (Array.isArray(sel.layers) && sel.layers.length > 0));
+
 				for (var f = 0; f < schema.fields.length; f++)
 				{
-					renderStepField(row, idx, key, schema.fields[f], false);
+					renderStepField(row, idx, key, schema.fields[f], false,
+						schema.fields[f].staticOnly === true && hasSelector);
 				}
 			}
 
@@ -14125,6 +14150,15 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 					s.width = vp.width;
 					s.height = vp.height;
 					if (s.border == null) s.border = vp.border;
+					// Converting to static: an active selector would keep
+					// overriding the captured numbers at execution time, so
+					// it is cleared (re-add cells via the chips to go back
+					// to a dynamic viewbox).
+					delete s.cells;
+					delete s.tags;
+					delete s.tagsMatch;
+					delete s.layers;
+					delete s.excludeCells;
 					refresh();  // re-render so inputs reflect the new numbers
 				});
 				row.appendChild(useCurrentBtn);
@@ -14491,8 +14525,11 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 
 			// Viewbox defaults to the current viewport — same UX as the
 			// CustomActionDialog picker, so picking "Viewbox" is a
-			// one-click snapshot of what you see right now.
-			if (key == 'viewbox')
+			// one-click snapshot of what you see right now. With cells
+			// picked (canvas selection) the action is dynamic instead —
+			// the box derives from the cells' bounds at execution time —
+			// so no static numbers are stored.
+			if (key == 'viewbox' && sel.cells == null)
 			{
 				var vp = captureCurrentViewport();
 				if (sel.x == null) sel.x = vp.x;
@@ -14538,7 +14575,9 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		// Cell-targeting actions default to the current canvas selection
 		// if any cells are picked, else to the "*" wildcard (all cells).
 		// No alert when selection is empty — the wildcard fallback makes
-		// the picker always succeed.
+		// the picker always succeed. Exception: viewbox with an empty
+		// selection stays a static snapshot of the current viewport (see
+		// buildStepObject) rather than a fit-everything wildcard.
 		var refs = null;
 
 		if (schema.selector)
@@ -14546,7 +14585,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			var selectionCells = graph.getSelectionCells();
 			refs = (selectionCells.length > 0) ?
 				selectionCells.map(function(c) { return c.id; }) :
-				[Editor.ANIMATION_ALL];
+				((key == 'viewbox') ? null : [Editor.ANIMATION_ALL]);
 		}
 
 		var step = buildStepObject(key, refs);

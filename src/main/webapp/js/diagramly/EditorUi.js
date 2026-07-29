@@ -2229,7 +2229,10 @@
 	 */
 	EditorUi.prototype.anonymizePatch = function(patch)
 	{
-		patch = mxUtils.clone(patch);
+		// Patches are JSON and their id-keyed maps have null prototypes, for which
+		// mxUtils.clone returns null (it needs a callable constructor), so it would
+		// blank this whole report. JSON round-trip is a faithful deep copy here.
+		patch = JSON.parse(JSON.stringify(patch));
 
 		if (patch[EditorUi.DIFF_INSERT] != null)
 		{
@@ -5693,6 +5696,16 @@
 
 			if (activeTab === 'editor')
 			{
+				var invalid = configEditor.getInvalidFields();
+
+				if (invalid.length > 0)
+				{
+					editorUi.handleError({message: mxResources.get('invalidInput') +
+						': ' + invalid.join(', ')});
+
+					return;
+				}
+
 				newValue = (latestEditorConfig != null && Object.keys(latestEditorConfig).length > 0) ?
 					JSON.stringify(latestEditorConfig, null, 2) : '';
 			}
@@ -7159,6 +7172,30 @@
 						mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
 						{
 							this.openInNewWindow(data.substring(data.indexOf(',') + 1), 'image/png', true);
+
+							// Some platforms like Forge don't allow opening a new window, so we also copy the image to the clipboard
+							if (navigator.clipboard != null && typeof ClipboardItem === 'function')
+							{
+								this.writeImageToClipboard(data, canvas.width, canvas.height, 'image/png',
+									mxUtils.bind(this, function()
+									{
+										var msg = mxResources.get('imageClicked');
+
+										// Auto-closing banner notification if available, otherwise modal alert
+										if (this.showBanner != null)
+										{
+											this.showBanner('ImageClicked', msg, null, false, true);
+										}
+										else
+										{
+											this.alert(msg);
+										}
+									}), mxUtils.bind(this, function(e)
+									{
+										this.handleError(e);
+									}));
+							}
+
 							clickHandler.apply(this, arguments);
 						}));
 				   	}), null, this.thumbImageCache, null, mxUtils.bind(this, function(e)
@@ -16410,14 +16447,25 @@
 			try
 			{
 				// Automatically updates theme when system setting changes
-				window.matchMedia('(prefers-color-scheme: dark)')
-					.addEventListener('change', mxUtils.bind(this, function (e)
+				var darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+				var darkModeListener = mxUtils.bind(this, function (e)
+				{
+					if (this.isAutoDarkMode())
 					{
-						if (this.isAutoDarkMode())
-						{
-							this.setDarkMode(e.matches);
-						}
-					}));
+						this.setDarkMode(e.matches);
+					}
+				});
+
+				darkModeMediaQuery.addEventListener('change', darkModeListener);
+
+				// The media query outlives this instance so the listener must
+				// be removed or it fires on destroyed instances (eg. after a
+				// lightbox preview was closed)
+				this.destroyFunctions.push(function()
+				{
+					darkModeMediaQuery.removeEventListener('change', darkModeListener);
+				});
 			}
 			catch (e)
 			{
@@ -19989,8 +20037,23 @@
 					{
 						if (xml.substring(0, 20).replace(/\s/g, '').indexOf('{"isProtected":') == 0)
 						{
+							var unavailable = mxUtils.bind(this, function()
+							{
+								this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
+							});
+
 							var delayed = mxUtils.bind(this, function ()
 							{
+								// The script tag fires onload for any 200 response, so hosts
+								// that answer with an SPA fallback instead of the bundle load
+								// without an error and leave MiroImporter undefined
+								if (typeof MiroImporter === 'undefined')
+								{
+									unavailable();
+
+									return;
+								}
+
 								try
 								{
 									var miro = new MiroImporter();
@@ -20005,7 +20068,10 @@
 
 							if (typeof MiroImporter === 'undefined')
 							{
-								mxscript('js/diagramly/miro/MiroImporter.js', delayed);
+								// MiroImporter ships in extensions.min.js, the raw source
+								// under js/diagramly is not served on all hosts
+								mxscript(window.DRAWIO_SERVER_URL + 'js/extensions.min.js',
+									delayed, null, null, null, unavailable);
 							}
 							else
 							{
@@ -26625,8 +26691,14 @@
 	EditorUi.prototype.handleRemoteInvokeResponse = function(msg)
 	{
 		var msgMarkers = msg.msgMarkers;
-		var callback = this.remoteInvokeCallbacks[msgMarkers.callbackId];
-		
+		// The id comes from the message, so it must be a real array index. A key
+		// such as __proto__ would otherwise read Array.prototype and, on the
+		// write below, replace the array's prototype and break every later push.
+		var callbackId = (msgMarkers != null) ? msgMarkers.callbackId : null;
+		var callback = (typeof callbackId === 'number' && callbackId >= 0 &&
+			callbackId < this.remoteInvokeCallbacks.length) ?
+			this.remoteInvokeCallbacks[callbackId] : null;
+
 		if (callback == null)
 		{
 			throw new Error('No callback for ' + ((msgMarkers != null) ? msgMarkers.callbackId : 'null'));
@@ -26640,7 +26712,7 @@
 			callback.callback.apply(this, msg.resp);
 		}
 			
-		this.remoteInvokeCallbacks[msgMarkers.callbackId] = null; //set it to null only to keep the index
+		this.remoteInvokeCallbacks[callbackId] = null; //set it to null only to keep the index
 	};
 
 	EditorUi.prototype.remoteInvoke = function(remoteFn, remoteFnArgs, msgMarkers, callback, error)
@@ -26710,7 +26782,11 @@
 		{
 			//Remote invoke are allowed to call functions in AC
 			var funtionName = msg.funtionName;
-			var functionInfo = this.remoteInvokableFns[funtionName];
+			// Own property only: the name comes from the message, so an inherited
+			// member such as constructor or toString would otherwise pass as a
+			// whitelist entry and skip the allowedDomains origin check below
+			var functionInfo = (funtionName != null && Object.prototype.hasOwnProperty.call(
+				this.remoteInvokableFns, funtionName)) ? this.remoteInvokableFns[funtionName] : null;
 			
 			if (functionInfo != null && typeof this[funtionName] === 'function')
 			{

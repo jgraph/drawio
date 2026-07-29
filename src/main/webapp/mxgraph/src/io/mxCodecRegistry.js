@@ -42,14 +42,14 @@ var mxCodecRegistry =
 	 *
 	 * Maps from constructor names to codecs.
 	 */
-	codecs: [],
+	codecs: Object.create(null),
 	
 	/**
 	 * Variable: aliases
 	 *
 	 * Maps from classnames to codecnames.
 	 */
-	aliases: [],
+	aliases: Object.create(null),
 
 	/**
 	 * Function: register

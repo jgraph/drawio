@@ -64,13 +64,16 @@ mxEdgeSegmentHandler.prototype.getPreviewPoints = function(point)
 			
 			if (i == this.index)
 			{
-				if (Math.round(last.x - pt.x) == 0)
+				// Tolerance for sub-pixel skew between a snapped or fixed terminal
+				// point and the routing center that waypoints are aligned to,
+				// matching the hint alignment tolerance in the edge styles
+				if (Math.abs(last.x - pt.x) < 1)
 		 		{
 					last.x = point.x;
 					pt.x = point.x;
 		 		}
-		 		
-				if (Math.round(last.y - pt.y) == 0)
+
+				if (Math.abs(last.y - pt.y) < 1)
 		 		{
 		 			last.y = point.y;
 		 			pt.y = point.y;

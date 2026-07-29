@@ -4,12 +4,25 @@
  */
 function mxGraphMlCodec()
 {
-	this.cachedRefObj = {};
+	this.cachedRefObj = Object.create(null);
 };
 
 
 mxGraphMlCodec.prototype.refRegexp = /^\{y\:GraphMLReference\s+(\d+)\}$/;
 mxGraphMlCodec.prototype.staticRegexp = /^\{x\:Static\s+(.+)\.(.+)\}$/;
+
+/**
+ * Returns the value of the given key in the given map, or null if the map has
+ * no such own property. Reference keys come from the imported file (refid and
+ * ResourceKey attributes) so a bare lookup returns inherited values for
+ * __proto__, constructor and the like, which the caller then treats as a
+ * resolved reference and writes into (prototype pollution).
+ */
+mxGraphMlCodec.prototype.getOwnValue = function(map, key)
+{
+	return (map != null && key != null &&
+		Object.prototype.hasOwnProperty.call(map, key)) ? map[key] : null;
+};
 
 mxGraphMlCodec.prototype.decode = function (xml, callback, onError)
 {
@@ -142,7 +155,7 @@ mxGraphMlCodec.prototype.initializeKeys = function (graphmlElement)
 	this.nodesKeys = {};
 	this.edgesKeys = {};
 	this.portsKeys = {};
-	this.sharedData = {};
+	this.sharedData = Object.create(null);
 	
 	this.nodesKeys[mxGraphMlConstants.NODE_GEOMETRY] = {}; 
 	this.nodesKeys[mxGraphMlConstants.USER_TAGS] = {};
@@ -246,17 +259,26 @@ mxGraphMlCodec.prototype.parseAttributes = function (elem, obj)
 			if (ref)
 			{
 				var key = ref[1];
-				var subObj = this.cachedRefObj[key];
-				
+				var subObj = this.getOwnValue(this.cachedRefObj, key);
+
 				//already cached
-				if (!subObj)
+				if (subObj == null)
 				{
-					subObj = {};
-					subObj[this.sharedData[key].nodeName] = this.dataElem2Obj(this.sharedData[key]);
-					this.cachedRefObj[key] = subObj;
+					var sharedElem = this.getOwnValue(this.sharedData, key);
+
+					//unresolved references are dropped
+					if (sharedElem != null)
+					{
+						subObj = {};
+						subObj[sharedElem.nodeName] = this.dataElem2Obj(sharedElem);
+						this.cachedRefObj[key] = subObj;
+					}
 				}
-				
-				obj[atts[i].nodeName] = subObj;
+
+				if (subObj != null)
+				{
+					obj[atts[i].nodeName] = subObj;
+				}
 			}
 			else if (staticMem)
 			{
@@ -282,17 +304,25 @@ mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
 	if (ref) 
 	{
 		var key = (typeof ref === "string")? ref : ref.getAttribute(mxGraphMlConstants.RESOURCE_KEY);
-		var cachedObj = this.cachedRefObj[key];
-		
+		var cachedObj = this.getOwnValue(this.cachedRefObj, key);
+
 		//already cached
-		if (cachedObj)
+		if (cachedObj != null)
 		{
 			//parse all attributes to update the reference
 			this.parseAttributes(elem, cachedObj);
 			return cachedObj;
 		}
-		
-		elem = this.sharedData[key];
+
+		elem = this.getOwnValue(this.sharedData, key);
+
+		//unresolved reference, keeps the attributes of the referencing element
+		if (elem == null)
+		{
+			this.parseAttributes(origElem, obj);
+			return obj;
+		}
+
 		refKey = key;
 	}
 
@@ -363,7 +393,7 @@ mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
 		var tmpObj = {};
 		//parse all attributes before following the reference
 		this.parseAttributes(origElem, tmpObj);
-		tmpObj[this.sharedData[refKey].nodeName] = obj; 
+		tmpObj[elem.nodeName] = obj;
 		this.cachedRefObj[refKey] = tmpObj;
 		return tmpObj;
 	}
