@@ -1860,7 +1860,14 @@ mxStencilRegistry.allowEval = false;
 					}));
 				});
 	
-				if (this.isPdfFile())
+				// Libraries always save their XML data: the PDF and PNG
+				// branches below export the current diagram, which would
+				// replace the library contents
+				if (this instanceof LocalLibrary)
+				{
+					doSave(this.getData());
+				}
+				else if (this.isPdfFile())
 				{
 					var p = this.ui.getPdfFileProperties(this.ui.fileNode);
 
@@ -1889,24 +1896,26 @@ mxStencilRegistry.allowEval = false;
 				if (this.fileObject == null)
 				{
 					var lastDir = localStorage.getItem('.lastSaveDir');
+					var isLibrary = this instanceof LocalLibrary;
 					var name = this.ui.normalizeFilename(this.getTitle(),
-						this.constructor == LocalLibrary ? 'xml' : null);
+						(isLibrary) ? 'xml' : null);
 					var ext = null;
-					
+
 					if (name != null)
 					{
 						var idx = name.lastIndexOf('.');
-						
+
 						if (idx > 0)
 						{
 							ext = name.substring(idx + 1);
 						}
 					}
-					
+
 					var path = await requestSync({
 						action: 'showSaveDialog',
 						defaultPath: (lastDir || (await requestSync('getDocumentsFolder'))) + '/' + name,
-						filters: this.ui.createFileSystemFilters(ext)
+						filters: (isLibrary) ? this.ui.createLibraryFileSystemFilters() :
+							this.ui.createFileSystemFilters(ext)
 					});
 
 					if (path != null)
@@ -1993,24 +2002,26 @@ mxStencilRegistry.allowEval = false;
 			var lastDir = (this.fileObject != null && this.fileObject.path != null) ?
 				await requestSync({action: 'dirname', path: this.fileObject.path}) :
 				localStorage.getItem('.lastSaveDir');
+			var isLibrary = this instanceof LocalLibrary;
 			var name = this.ui.normalizeFilename(this.getTitle(),
-				this.constructor == LocalLibrary ? 'xml' : null);
+				(isLibrary) ? 'xml' : null);
 			var ext = null;
-			
+
 			if (name != null)
 			{
 				var idx = name.lastIndexOf('.');
-				
+
 				if (idx > 0)
 				{
 					ext = name.substring(idx + 1);
 				}
 			}
-			
+
 			var path = await requestSync({
 				action: 'showSaveDialog',
 				defaultPath: (lastDir || (await requestSync('getDocumentsFolder'))) + '/' + name,
-				filters: this.ui.createFileSystemFilters(ext)
+				filters: (isLibrary) ? this.ui.createLibraryFileSystemFilters() :
+					this.ui.createFileSystemFilters(ext)
 			});
 
 			if (path != null)
@@ -2039,7 +2050,12 @@ mxStencilRegistry.allowEval = false;
 			error(e);
 		}
 	};
-	
+
+	// The web LocalLibrary.saveAs calls saveFile with the web signature
+	// (title, revision, ...), which hits the signature safeguard in the
+	// desktop saveFile above, so the desktop saveAs is used instead
+	LocalLibrary.prototype.saveAs = LocalFile.prototype.saveAs;
+
 	LocalFile.prototype.saveDraft = function(data)
 	{
 		// Save draft only if file is not saved (prevents creating draft file after actual file is saved)
@@ -2119,10 +2135,26 @@ mxStencilRegistry.allowEval = false;
 				ext.push(obj);
 			}
 		}
-		
+
 		return ext;
 	};
-	
+
+	/**
+	 * Returns the save dialog filters for library files.
+	 */
+	App.prototype.createLibraryFileSystemFilters = function()
+	{
+		var filters = [];
+
+		for (var i = 0; i < this.editor.libraryFileTypes.length; i++)
+		{
+			filters.push({name: this.editor.libraryFileTypes[i].description,
+				extensions: this.editor.libraryFileTypes[i].extensions});
+		}
+
+		return filters;
+	};
+
 	/**
 	 * Loads the given file handle as a local file.
 	 */

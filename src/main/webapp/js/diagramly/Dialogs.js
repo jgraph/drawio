@@ -1546,7 +1546,8 @@ var ParseDialog = function(editorUi, title, defaultType)
 				{
 					editorUi.parseMermaidDiagram(text, null, mxUtils.bind(this, function(xml)
 					{
-						insertMermaid(mxMermaidToDrawio.wrapGroup(xml, text, null));
+						insertMermaid(mxMermaidToDrawio.wrapGroup(xml, text,
+							EditorUi.getInsertMermaidConfig()));
 					}), onMermaidError);
 				}
 			}
@@ -2133,10 +2134,12 @@ var ParseDialog = function(editorUi, title, defaultType)
 
 				if (defaultType == 'mermaid')
 				{
-					// The image output parses with the legacy config, like
-					// parseMermaidImage, so the preview matches the insert
+					// Matches the insert: the diagram (and a configured image)
+					// render with the default config (null resolves to
+					// EditorUi.defaultMermaidConfig in getMermaidConfig); an
+					// unconfigured image keeps the legacy look, like parseMermaidImage
 					editorUi.parseMermaidDiagram(textarea.value,
-						(typeSelect.value == 'mermaidImage') ?
+						(typeSelect.value == 'mermaidImage' && !EditorUi.isMermaidConfigured()) ?
 							mxUtils.clone(EditorUi.legacyMermaidConfig) : null,
 						showPreview, onError);
 				}
@@ -2492,7 +2495,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		tabs.style.height = '30px';
 		outer.appendChild(tabs);
 		
-		var templatesTab = mxUtils.button(mxResources.get('Templates', null, 'Templates'), function()
+		var templatesTab = mxUtils.button(mxResources.get('templates'), function()
 		{
 			list.style.display = '';
 			searchBox.style.display = '';
@@ -2553,7 +2556,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				}
 				else if (docList.length == 0 && importListsCount == 0)
 				{
-					div.innerText = mxResources.get('noDiagrams', null, 'No Diagrams Found');
+					div.innerText = mxResources.get('noDiagrams');
 				}
 				else
 				{
@@ -2594,7 +2597,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		
 		if (recentDocsCallback)
 		{
-			var recentTab = mxUtils.button(mxResources.get('Recent', null, 'Recent'), function()
+			var recentTab = mxUtils.button(mxResources.get('recent'), function()
 			{
 				getExtTemplates();
 			});
@@ -5930,12 +5933,12 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 			if (actionValue == null)
 			{
 				mxUtils.write(actionSummary,
-					mxResources.get('action', null, 'Action'));
-				editActionBtn.textContent = mxResources.get('insert', null, 'Insert');
+					mxResources.get('action'));
+				editActionBtn.textContent = mxResources.get('insert');
 				return;
 			}
 
-			editActionBtn.textContent = mxResources.get('edit', null, 'Edit');
+			editActionBtn.textContent = mxResources.get('edit');
 
 			try
 			{
@@ -5959,7 +5962,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 					if (first == 'animation' && json.actions[0].animation.steps != null)
 					{
 						var sc = json.actions[0].animation.steps.length;
-						var name = mxResources.get('effects', null, 'Effects');
+						var name = mxResources.get('effects');
 						label = name + ' (' + sc + ')';
 					}
 					else if (first != '')
@@ -5980,7 +5983,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 					}
 					else
 					{
-						label = mxResources.get('action', null, 'Action');
+						label = mxResources.get('action');
 					}
 				}
 
@@ -5989,7 +5992,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 			catch (e)
 			{
 				mxUtils.write(actionSummary, '(' +
-					mxResources.get('invalid', null, 'invalid') + ')');
+					mxResources.get('invalid') + ')');
 			}
 		};
 
@@ -6776,7 +6779,7 @@ SelectorChips.create = function(graph, editorUi)
 			if (isWildcard())
 			{
 				chip.classList.add('geSelChipAll');
-				mxUtils.write(chip, mxResources.get('allCells', null, 'All cells'));
+				mxUtils.write(chip, mxResources.get('allCells'));
 			}
 			else if (count == 0)
 			{
@@ -6813,7 +6816,7 @@ SelectorChips.create = function(graph, editorUi)
 			var items = [];
 
 			items.push({
-				label: mxResources.get('useSelection', null, 'Use selection'),
+				label: mxResources.get('useSelection'),
 				// Function form — re-evaluated when the popover hears a
 				// canvas selection change, so this item enables/disables
 				// live as the user picks cells without closing the menu.
@@ -6830,7 +6833,7 @@ SelectorChips.create = function(graph, editorUi)
 			if (opts.allowWildcard)
 			{
 				items.push({
-					label: mxResources.get('allCells', null, 'All cells'),
+					label: mxResources.get('allCells'),
 					active: isWildcard(),
 					onClick: function()
 					{
@@ -6878,7 +6881,7 @@ SelectorChips.create = function(graph, editorUi)
 				items.push({separator: true});
 
 				items.push({
-					label: mxResources.get('reset', null, 'Reset'),
+					label: mxResources.get('reset'),
 					danger: true,
 					onClick: function()
 					{
@@ -6948,13 +6951,13 @@ SelectorChips.create = function(graph, editorUi)
 			if (count == 0)
 			{
 				chip.classList.add('geSelChipEmpty');
-				mxUtils.write(chip, mxResources.get('tags', null, 'Tags'));
+				mxUtils.write(chip, mxResources.get('tags'));
 			}
 			else
 			{
 				mxUtils.write(chip, count + ' ' + (count == 1 ?
-					mxResources.get('tag', null, 'Tag') :
-					mxResources.get('tags', null, 'Tags')));
+					mxResources.get('tag') :
+					mxResources.get('tags')));
 				chip.title = v.join('\n');
 			}
 		};
@@ -7014,13 +7017,13 @@ SelectorChips.create = function(graph, editorUi)
 			{
 				chip.classList.add('geSelChipEmpty');
 				mxUtils.write(chip,
-					mxResources.get('layers', null, 'Layers'));
+					mxResources.get('layers'));
 			}
 			else
 			{
 				mxUtils.write(chip, count + ' ' + (count == 1 ?
-					mxResources.get('layer', null, 'Layer') :
-					mxResources.get('layers', null, 'Layers')));
+					mxResources.get('layer') :
+					mxResources.get('layers')));
 
 				// Hover title with resolved layer names — same UX as the
 				// tags chip, which lists tag values on hover.
@@ -7104,20 +7107,20 @@ SelectorChips.create = function(graph, editorUi)
 				var modeLabel = document.createElement('span');
 				modeLabel.className = 'geTagPickerModeLabel';
 				mxUtils.write(modeLabel,
-					mxResources.get('match', null, 'Match') + ':');
+					mxResources.get('match') + ':');
 				modeBar.appendChild(modeLabel);
 
 				var modeAnd = document.createElement('button');
 				modeAnd.type = 'button';
 				modeAnd.className = 'geTagPickerModeBtn';
-				mxUtils.write(modeAnd, mxResources.get('matchAll', null, 'All'));
+				mxUtils.write(modeAnd, mxResources.get('matchAll'));
 				modeAnd.title = mxResources.get('matchAllHint', null,
 					'Match cells that have every selected tag (AND)');
 
 				var modeOr = document.createElement('button');
 				modeOr.type = 'button';
 				modeOr.className = 'geTagPickerModeBtn';
-				mxUtils.write(modeOr, mxResources.get('matchAny', null, 'Any'));
+				mxUtils.write(modeOr, mxResources.get('matchAny'));
 				modeOr.title = mxResources.get('matchAnyHint', null,
 					'Match cells that have at least one selected tag (OR)');
 
@@ -7215,7 +7218,7 @@ SelectorChips.create = function(graph, editorUi)
 			var resetBtn = document.createElement('button');
 			resetBtn.type = 'button';
 			resetBtn.className = 'geActionMenuItem geActionMenuItemDanger';
-			mxUtils.write(resetBtn, mxResources.get('reset', null, 'Reset'));
+			mxUtils.write(resetBtn, mxResources.get('reset'));
 			resetBtn.addEventListener('click', function(e)
 			{
 				e.preventDefault();
@@ -7244,7 +7247,7 @@ SelectorChips.create = function(graph, editorUi)
 			refreshFooter();
 		}
 
-		openPopover(anchor, mxResources.get('tags', null, 'Tags'), body);
+		openPopover(anchor, mxResources.get('tags'), body);
 	}
 
 	// Returns the layers (top-level children of the model root) along
@@ -7362,7 +7365,7 @@ SelectorChips.create = function(graph, editorUi)
 		var resetBtn = document.createElement('button');
 		resetBtn.type = 'button';
 		resetBtn.className = 'geActionMenuItem geActionMenuItemDanger';
-		mxUtils.write(resetBtn, mxResources.get('reset', null, 'Reset'));
+		mxUtils.write(resetBtn, mxResources.get('reset'));
 		resetBtn.addEventListener('click', function(e)
 		{
 			e.preventDefault();
@@ -7387,7 +7390,7 @@ SelectorChips.create = function(graph, editorUi)
 		};
 		refreshFooter();
 
-		openPopover(anchor, mxResources.get('selectLayers', null, 'Layers'), body);
+		openPopover(anchor, mxResources.get('selectLayers'), body);
 	}
 
 	// Generic anchored popover. The caller owns the body element; this
@@ -11396,6 +11399,17 @@ var ChatWindow = function(editorUi, x, y, w, h)
 				item.setAttribute('title', opts.infoLabel);
 			}
 
+			// Hints that the response was cut off and the diagram shows
+			// only the part that was received
+			if (opts.partial)
+			{
+				var partialHint = document.createElement('div');
+				partialHint.style.opacity = '0.7';
+				partialHint.style.fontSize = '11px';
+				mxUtils.write(partialHint, mxResources.get('partialResponse'));
+				target.appendChild(partialHint);
+			}
+
 			var buttons = document.createElement('div');
 			buttons.style.display = 'flex';
 
@@ -11522,7 +11536,29 @@ var ChatWindow = function(editorUi, x, y, w, h)
 
 		if (mermaid == null)
 		{
-			renderResponseData(target, Editor.extractGraphModelFromText(text), opts);
+			var data = Editor.extractGraphModelFromText(text);
+
+			// A response cut off mid-model has no closing tag so nothing
+			// was extracted: repair the truncation and re-extract so the
+			// complete prefix of the diagram still renders, with a hint
+			// that the response is partial
+			if (data[1] == '' && text.indexOf('<mxGraphModel') >= 0)
+			{
+				var repaired = Editor.repairTruncatedXml(text);
+
+				if (repaired != null)
+				{
+					var parsed = Editor.extractGraphModelFromText(repaired);
+
+					if (parsed[1] != '')
+					{
+						opts.partial = true;
+						data = parsed;
+					}
+				}
+			}
+
+			renderResponseData(target, data, opts);
 
 			if (opts.recordTurn != null)
 			{
@@ -11538,7 +11574,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 					// Wraps in an editable mermaid group (carries the source
 					// for double-click edit), as the insert dialog does
 					renderResponseData(target, ['', mxMermaidToDrawio.wrapGroup(
-						xml, mermaid, null), ''], opts);
+						xml, mermaid, EditorUi.getInsertMermaidConfig()), ''], opts);
 
 					if (opts.recordTurn != null)
 					{
@@ -12080,14 +12116,14 @@ var ChatWindow = function(editorUi, x, y, w, h)
 				showWaiting();
 
 				editorUi.generateOpenAiMermaidDiagram(full,
-					function(xml)
+					function(xml, partial)
 					{
 						try
 						{
 							var dt = Date.now() - t0;
 							renderResponseData(waiting, ['', xml, ''],
 								{prompt: prompt, applyCtx: applyCtx,
-								retryFn: processMessage,
+								retryFn: processMessage, partial: partial,
 								onInsert: onInsert, onApplied: onApplied,
 								infoLabel: (urlParams['test'] == 1) ?
 									backend.label + ' (' + dt + ' ms)' : null});
@@ -12426,7 +12462,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		// Default title — page-mode opens via Edit > Page Setup > Edit;
 		// the section there is labelled "Animation", so reuse that
 		// resource to keep the wording consistent.
-		return mxResources.get('animation', null, 'Animation');
+		return mxResources.get('animation');
 	};
 
 	var div = document.createElement('div');
@@ -12452,7 +12488,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		{
 			titleLabel.textContent = '';
 			mxUtils.write(titleLabel,
-				mxResources.get('title', null, 'Title') + ':');
+				mxResources.get('title') + ':');
 		};
 		applyTitleLabel();
 		staticRefreshers.push(applyTitleLabel);
@@ -12466,8 +12502,8 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color))';
 		var applyTitlePlaceholder = function()
 		{
-			titleInput.placeholder = mxResources.get('optional', null, 'optional');
-			titleInput.title = mxResources.get('title', null, 'Title');
+			titleInput.placeholder = mxResources.get('optional');
+			titleInput.title = mxResources.get('title');
 		};
 		applyTitlePlaceholder();
 		staticRefreshers.push(applyTitlePlaceholder);
@@ -12514,7 +12550,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		var applyLoopText = function()
 		{
 			loopText.textContent = '';
-			mxUtils.write(loopText, mxResources.get('loop', null, 'Loop'));
+			mxUtils.write(loopText, mxResources.get('loop'));
 		};
 		applyLoopText();
 		staticRefreshers.push(applyLoopText);
@@ -12652,7 +12688,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			}
 		}
 
-		return mxResources.get('error', null, 'Error') + ': ' + msg;
+		return mxResources.get('error') + ': ' + msg;
 	};
 
 	// Validates the current textarea content and updates the inline error.
@@ -12912,7 +12948,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		// still works unless a real cell is literally named "all".
 		if (ref == '*' || (ref == 'all' && graph.getModel().getCell('all') == null))
 		{
-			return mxResources.get('allCells', null, 'All cells');
+			return mxResources.get('allCells');
 		}
 
 		var cell = graph.getModel().getCell(ref);
@@ -12956,7 +12992,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 
 			if (hasWildcard)
 			{
-				parts.push(mxResources.get('allCells', null, 'All cells'));
+				parts.push(mxResources.get('allCells'));
 			}
 
 			if (ids.length > 0)
@@ -12974,7 +13010,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 
 		if (Array.isArray(sel.tags) && sel.tags.length > 0)
 		{
-			parts.push(mxResources.get('tag', null, 'Tag') + ': ' +
+			parts.push(mxResources.get('tag') + ': ' +
 				sel.tags.join(', '));
 		}
 
@@ -12991,7 +13027,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 				}
 				else layerNames.push(sel.layers[i]);
 			}
-			parts.push(mxResources.get('layer', null, 'Layer') + ': ' +
+			parts.push(mxResources.get('layer') + ': ' +
 				layerNames.join(', '));
 		}
 
@@ -13214,7 +13250,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		handle.style.cssText = 'flex:0 0 14px;text-align:center;font-size:14px;' +
 			'line-height:1;color:light-dark(#86868b,#86868b);cursor:grab;' +
 			'user-select:none';
-		handle.title = mxResources.get('reorder', null, 'Drag to reorder');
+		handle.title = mxResources.get('reorder');
 		handle.textContent = '⋮⋮';
 
 		handle.addEventListener('mousedown', function()
@@ -13457,8 +13493,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 				// used elsewhere in drawio. Appended at the call site so
 				// the resource string ("Select layers") can be reused as
 				// a popover title without the ellipsis.
-				label: mxResources.get('selectLayers',
-					null, 'Select layers') + '…',
+				label: mxResources.get('selectLayers') + '…',
 				disabled: function()
 				{
 					return graph.getModel().getChildCount(
@@ -13947,7 +13982,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		selectCb.type = 'checkbox';
 		selectCb.setAttribute('data-step-select', '1');
 		selectCb.checked = selectedSteps.has(idx);
-		selectCb.title = mxResources.get('select', null, 'Select');
+		selectCb.title = mxResources.get('select');
 		selectCb.style.cssText = 'flex:0 0 auto;margin:0;' +
 			'accent-color:light-dark(var(--focus-color), var(--dark-focus-color))';
 		selectCb.addEventListener('click', function(e)
@@ -14103,7 +14138,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 				// (see Graph.prototype.executeAnimations).
 				var durInput = inlineNumberInput(sel.delay,
 					{min: 0, step: 100, width: 55, placeholder: '900'});
-				durInput.title = mxResources.get('duration', null, 'Duration (ms)');
+				durInput.title = mxResources.get('duration');
 				durInput.addEventListener('change', function()
 				{
 					var ms = parseFloat(durInput.value);
@@ -14134,7 +14169,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 				useCurrentBtn.className = 'geBtn';
 				useCurrentBtn.style.cssText = 'flex:0 0 auto;' +
 					'padding:2px 8px;font-size:11px;min-width:0';
-				useCurrentBtn.textContent = mxResources.get('useCurrent', null, 'Use Current');
+				useCurrentBtn.textContent = mxResources.get('useCurrent');
 				useCurrentBtn.title = useCurrentBtn.textContent;
 				useCurrentBtn.addEventListener('click', function(e)
 				{
@@ -14171,7 +14206,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		// inserted between selector chips and fields already pushes
 		// the right side of the row out to the edge.)
 		var previewIconBtn = makeIconButton('▶',
-			mxResources.get('preview', null, 'Preview'),
+			mxResources.get('preview'),
 			true, function()
 			{
 				startPreviewSession();
@@ -14293,7 +14328,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	var applyAddPlaceholder = function()
 	{
 		placeholderOpt.textContent =
-			mxResources.get('add', null, 'Add') + '…';
+			mxResources.get('add') + '…';
 	};
 	applyAddPlaceholder();
 	staticRefreshers.push(applyAddPlaceholder);
@@ -14353,7 +14388,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	var deleteAllOpt = document.createElement('option');
 	deleteAllOpt.value = '__deleteAll__';
 	deleteAllOpt.className = 'geDeleteOpt';
-	deleteAllOpt.textContent = mxResources.get('deleteAll', null, 'Delete All');
+	deleteAllOpt.textContent = mxResources.get('deleteAll');
 	pickerL10n.push({el: deleteAllOpt, prop: 'textContent',
 		key: 'deleteAll', fallback: 'Delete All'});
 	dangerGroup.appendChild(deleteAllOpt);
@@ -14790,7 +14825,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 
 	// Reset — restores the canvas to its pre-preview state and stops
 	// any running playback. Disabled until a preview session is open.
-	var resetBtn = mxUtils.button(mxResources.get('reset', null, 'Reset'),
+	var resetBtn = mxUtils.button(mxResources.get('reset'),
 		function()
 		{
 			stopPlayer();
@@ -14800,11 +14835,11 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	resetBtn.className = 'geBtn';
 	staticRefreshers.push(function()
 	{
-		var t = mxResources.get('reset', null, 'Reset');
+		var t = mxResources.get('reset');
 		resetBtn.textContent = t;
 		resetBtn.title = t;
 	});
-	resetBtn.title = mxResources.get('reset', null, 'Reset');
+	resetBtn.title = mxResources.get('reset');
 	resetBtnRef = resetBtn;
 	updateResetBtn();
 	actions.appendChild(resetBtn);
@@ -17970,7 +18005,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	sysSection.className = 'geDialogSection';
 
 	var sysFontRadio = editorUi.addCheckbox(sysSection,
-		mxResources.get('sysFonts', null, 'System Fonts'),
+		mxResources.get('sysFonts'),
 		false, null, null, null, true, 'current-fontdialog', true);
 
 	var sysFontInput = document.createElement('input');
@@ -18001,7 +18036,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	}
 
 	var sysFontRow = addFormRow(sysSection,
-		mxResources.get('fontname', null, 'Font Name'), sysFontInput);
+		mxResources.get('fontname'), sysFontInput);
 
 	if (datalist != null)
 	{
@@ -18015,7 +18050,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	googleSection.className = 'geDialogSection';
 
 	var googleFontRadio = editorUi.addCheckbox(googleSection,
-		mxResources.get('googleFonts', null, 'Google Fonts'),
+		mxResources.get('googleFonts'),
 		false, null, null, null, true, 'current-fontdialog', true);
 
 	if (!editorUi.isOffline() || EditorUi.isElectronApp)
@@ -18034,7 +18069,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 
 	googleFontInput.className = 'dlg_fontName_g';
 	addFormRow(googleSection,
-		mxResources.get('fontname', null, 'Font Name'), googleFontInput);
+		mxResources.get('fontname'), googleFontInput);
 
 	if (urlParams['isGoogleFontsEnabled'] != '0')
 	{
@@ -18046,7 +18081,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	webSection.className = 'geDialogSection';
 
 	var webFontRadio = editorUi.addCheckbox(webSection,
-		mxResources.get('webfonts', null, 'Web Fonts'),
+		mxResources.get('webfonts'),
 		false, null, null, null, true, 'current-fontdialog', true);
 
 	var webFontInput = document.createElement('input');
@@ -18066,14 +18101,14 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 
 	webFontInput.className = 'dlg_fontName_w';
 	addFormRow(webSection,
-		mxResources.get('fontname', null, 'Font Name'), webFontInput);
+		mxResources.get('fontname'), webFontInput);
 
 	var webFontUrlInput = document.createElement('input');
 	webFontUrlInput.setAttribute('type', 'text');
 	webFontUrlInput.setAttribute('value', curUrl || '');
 	webFontUrlInput.className = 'dlg_fontUrl';
 	addFormRow(webSection,
-		mxResources.get('fontUrl', null, 'Font URL'), webFontUrlInput);
+		mxResources.get('fontUrl'), webFontUrlInput);
 
 	if (Editor.enableWebFonts)
 	{

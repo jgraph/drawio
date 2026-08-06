@@ -99,6 +99,8 @@
 
 	Sidebar.prototype.archimate3 = ['Application', 'Business', 'Generic', 'Implementation and Migration', 'Motivation', 'Relationships', 'Strategy', 'Technology'];
 
+	Sidebar.prototype.archimate4 = ['Common', 'Relationships and Junctions', 'Motivation', 'Strategy', 'Business', 'Application', 'Technology', 'Implementation and Migration'];
+
 	Sidebar.prototype.electrical = ['LogicGates', 'Resistors', 'Capacitors', 'Inductors', 'SwitchesRelays', 'Diodes', 'Sources', 'Transistors', 'Misc', 'Audio', 'PlcLadder', 'Abstract', 'Optical', 'VacuumTubes', 'Waveforms', 'Instruments', 'RotMech', 'Transmission'];
 
 	/**
@@ -176,6 +178,7 @@
            	                           {id: 'atlassian', libs: ['atlassian']},
 	                                   {id: 'fluid_power', libs: ['fluid_power']},
 	                                   {id: 'gmdl', prefix: 'gmdl', libs: Sidebar.prototype.gmdl},
+           	                           {id: 'archimate4', prefix: 'archimate4', libs: Sidebar.prototype.archimate4},
            	                           {id: 'archimate3', prefix: 'archimate3', libs: Sidebar.prototype.archimate3},
            	                           {id: 'archimate', libs: ['archimate']},
            	                           {id: 'webicons', libs: ['webicons', 'weblogos']},
@@ -549,7 +552,8 @@
 								{title: 'Veeam', id: 'veeam2', image: IMAGE_PATH + '/sidebar-veeam.png'},
 								{title: 'VMware', id: 'vvd', image: IMAGE_PATH + '/sidebar-vvd.png'}]},
             			{title: mxResources.get('business'),
-            			entries: [{title: 'ArchiMate 3.2', id: 'archimate3', image: IMAGE_PATH + '/sidebar-archimate3.png'},
+            			entries: [{title: 'ArchiMate 4', id: 'archimate4', image: IMAGE_PATH + '/sidebar-archimate4.png'},
+								{title: 'ArchiMate 3.2', id: 'archimate3', image: IMAGE_PATH + '/sidebar-archimate3.png'},
 								{title: mxResources.get('archiMate21'), id: 'archimate', image: IMAGE_PATH + '/sidebar-archimate.png'},
 								{title: mxResources.get('bpmn') + ' 2.0', id: 'bpmn2', image: IMAGE_PATH + '/sidebar-bpmn.png'},
 								{title: mxResources.get('sysml'), id: 'sysml', image: IMAGE_PATH + '/sidebar-sysml.png'},
@@ -585,7 +589,14 @@
 			var btn = document.createElement('button');
 			btn.style.margin = '0 4px';
 			mxUtils.write(btn, 'Save');
-			
+
+			// Palettes that start expanded never enter the expand branch
+			// below, so the button must be added at install time
+			if (content.style.display != 'none')
+			{
+				title.appendChild(btn);
+			}
+
 			mxEvent.addListener(title, 'click', mxUtils.bind(this, function(evt)
 			{
 				if (mxEvent.getSource(evt).nodeName == 'BUTTON')
@@ -606,12 +617,21 @@
 					canvas.setFontColor('rgb(80, 80, 80)');
 					canvas.setFontSize(14);
 
-					// Extracts title text
+					// Extracts title text from the first span that contains
+					// text, as the first span in the title element is the
+					// invisible collapse/expand hit-area overlay added in
+					// Sidebar.createTitle
 					var spans = title.getElementsByTagName('span');
 
-					if (spans.length > 0)
+					for (var i = 0; i < spans.length; i++)
 					{
-						canvas.text(6, 0, 0, 0, mxUtils.getTextContent(spans[0]));
+						var text = mxUtils.getTextContent(spans[i]);
+
+						if (text != '')
+						{
+							canvas.text(6, 0, 0, 0, text);
+							break;
+						}
 					}
 
 					for (var i = 0; i < svgs.length; i++)
@@ -1606,6 +1626,7 @@
 		this.addVeeamPalette();
 		this.addVeeam2Palette();
 		this.addVVDPalette();
+		this.addArchimate4Palette();
 		this.addArchimate3Palette();
 		this.addArchiMatePalette();
 		this.addBpmn2Palette();
@@ -2192,7 +2213,7 @@
 			(mxUtils.bind(this, function(set)
 			{
 				var chip = this.createSearchResultChip(set.name + ' (' + set.iconCount + ')',
-					mxResources.get('addToLibrary', null, 'Add to Library') + ': ' +
+					mxResources.get('addToLibrary') + ': ' +
 					set.name + ' (' + set.iconCount + ')');
 
 				mxEvent.addListener(chip, 'click', mxUtils.bind(this, function(evt)

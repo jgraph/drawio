@@ -183,6 +183,7 @@ OUTPUT FILES (in src/main/webapp/js/):
 				<file name="Sidebar-Android.js" />
 				<file name="Sidebar-ArchiMate.js" />
 				<file name="Sidebar-ArchiMate3.js" />
+				<file name="Sidebar-ArchiMate4.js" />
 				<file name="Sidebar-Arrows2.js" />
 				<file name="Sidebar-Atlassian.js" />
 				<file name="Sidebar-AWS.js" />

@@ -2096,6 +2096,165 @@
 
 	mxCellRenderer.registerShape('callout', CalloutShape);
 
+	// Wedge callout shape with a freely movable tip
+	function WedgeCalloutShape()
+	{
+		mxActor.call(this);
+	};
+
+	mxUtils.extend(WedgeCalloutShape, mxActor);
+
+	WedgeCalloutShape.prototype.tipX = -0.25;
+
+	WedgeCalloutShape.prototype.tipY = 1;
+
+	WedgeCalloutShape.prototype.base = 20;
+
+	// Limits the tip offset relative to width and height to keep
+	// bounding boxes finite for untrusted styles
+	WedgeCalloutShape.prototype.maxTipOffset = 100;
+
+	WedgeCalloutShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
+
+	// Returns the clamped tip offset relative to width and height
+	// as seen from the center of the bubble
+	WedgeCalloutShape.prototype.getTipOffset = function()
+	{
+		var max = this.maxTipOffset;
+		var tx = parseFloat(mxUtils.getValue(this.style, 'tipX', this.tipX));
+		var ty = parseFloat(mxUtils.getValue(this.style, 'tipY', this.tipY));
+
+		return new mxPoint(Math.max(-max, Math.min(max, (isFinite(tx)) ? tx : this.tipX)),
+			Math.max(-max, Math.min(max, (isFinite(ty)) ? ty : this.tipY)));
+	};
+
+	// Returns the tail as {points: [base1, tip, base2], index: insertion
+	// index in the clockwise bubble path} in local coordinates, or null
+	// if the tip is inside of the bubble
+	WedgeCalloutShape.prototype.getTailPoints = function(w, h)
+	{
+		var tip = this.getTipOffset();
+		var dx = tip.x * w;
+		var dy = tip.y * h;
+
+		if (Math.abs(dx) <= w / 2 && Math.abs(dy) <= h / 2)
+		{
+			return null;
+		}
+
+		var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
+		var base = parseFloat(mxUtils.getValue(this.style, 'base', this.base));
+		base = (isFinite(base)) ? Math.max(0, base) : this.base;
+		var inset = (this.isRounded) ? arcSize : 0;
+		var tp = new mxPoint(w / 2 + dx, h / 2 + dy);
+
+		if (Math.abs(dx) * h >= Math.abs(dy) * w && dx != 0)
+		{
+			// Tail exits through the left or right side
+			inset = Math.min(inset, h / 2);
+			var hb = Math.max(0, Math.min(base, h - 2 * inset)) / 2;
+			var ey = h / 2 + dy * (w / 2) / Math.abs(dx);
+			ey = Math.max(inset + hb, Math.min(h - inset - hb, ey));
+
+			return (dx > 0) ?
+				{points: [new mxPoint(w, ey - hb), tp, new mxPoint(w, ey + hb)], index: 2} :
+				{points: [new mxPoint(0, ey + hb), tp, new mxPoint(0, ey - hb)], index: 4};
+		}
+		else
+		{
+			// Tail exits through the top or bottom side
+			inset = Math.min(inset, w / 2);
+			var hb = Math.max(0, Math.min(base, w - 2 * inset)) / 2;
+			var ex = w / 2 + dx * (h / 2) / Math.abs(dy);
+			ex = Math.max(inset + hb, Math.min(w - inset - hb, ex));
+
+			return (dy > 0) ?
+				{points: [new mxPoint(ex + hb, h), tp, new mxPoint(ex - hb, h)], index: 3} :
+				{points: [new mxPoint(ex - hb, 0), tp, new mxPoint(ex + hb, 0)], index: 1};
+		}
+	};
+
+	WedgeCalloutShape.prototype.redrawPath = function(c, x, y, w, h)
+	{
+		var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
+		var pts = [new mxPoint(0, 0), new mxPoint(w, 0), new mxPoint(w, h), new mxPoint(0, h)];
+		var tail = this.getTailPoints(w, h);
+		var exclude = null;
+
+		if (tail != null)
+		{
+			pts.splice.apply(pts, [tail.index, 0].concat(tail.points));
+			exclude = [tail.index, tail.index + 1, tail.index + 2];
+		}
+
+		this.addPoints(c, pts, this.isRounded, arcSize, true, exclude);
+	};
+
+	// Adds the tail tip to the bounding box so that exports and fit
+	// include the tail. Must apply the same transform as
+	// mxShape.updateTransform: mirror at the center of the unrotated
+	// paint bounds, then rotation by getShapeRotation around that center.
+	WedgeCalloutShape.prototype.getShapeBoundingBox = function()
+	{
+		var bbox = mxShape.prototype.getShapeBoundingBox.apply(this, arguments);
+
+		if (bbox != null && this.bounds != null)
+		{
+			// Tail points use unscaled coordinates like in redrawPath
+			var b = this.createBoundingBox();
+			var s = this.scale;
+			var w = b.width / s;
+			var h = b.height / s;
+			var tail = this.getTailPoints(w, h);
+
+			if (tail != null)
+			{
+				var tp = tail.points[1];
+				var cx = b.x + b.width / 2;
+				var cy = b.y + b.height / 2;
+				var rect = new mxRectangle(
+					cx + (tp.x - w / 2) * s * ((this.flipH) ? -1 : 1),
+					cy + (tp.y - h / 2) * s * ((this.flipV) ? -1 : 1), 0, 0);
+				this.augmentBoundingBox(rect);
+
+				// The miter join at an acute tip extends up to
+				// min(miterlimit, 1 / sin(a / 2)) * strokewidth / 2
+				// beyond the tip where a is the tip angle (the canvas
+				// miterlimit is 10, see mxAbstractCanvas2D.createState)
+				var v1x = tail.points[0].x - tp.x;
+				var v1y = tail.points[0].y - tp.y;
+				var v2x = tail.points[2].x - tp.x;
+				var v2y = tail.points[2].y - tp.y;
+				var n1 = Math.sqrt(v1x * v1x + v1y * v1y);
+				var n2 = Math.sqrt(v2x * v2x + v2y * v2y);
+
+				if (n1 > 0 && n2 > 0)
+				{
+					var cos = Math.max(-1, Math.min(1, (v1x * v2x + v1y * v2y) / (n1 * n2)));
+					var sinHalf = Math.sqrt((1 - cos) / 2);
+					var miter = (sinHalf > 0) ? Math.min(10, 1 / sinHalf) : 10;
+					rect.grow((miter - 1) * this.strokewidth * this.scale / 2);
+				}
+
+				var rot = this.getShapeRotation();
+
+				if (rot != 0)
+				{
+					rect = mxUtils.getBoundingBox(rect, rot, new mxPoint(cx, cy));
+				}
+
+				bbox.add(rect);
+			}
+		}
+
+		return bbox;
+	};
+
+	mxCellRenderer.registerShape('wedgeCallout', WedgeCalloutShape);
+
 	// Step shape
 	function StepShape()
 	{
@@ -8169,7 +8328,32 @@
 				{
 					handles.push(createArcHandle(state));
 				}
-				
+
+				return handles;
+			},
+			'wedgeCallout': function(state)
+			{
+				var handles = [createHandle(state, ['tipX', 'tipY'], function(bounds)
+				{
+					var tip = (this.state.shape != null) ? this.state.shape.getTipOffset() :
+						new mxPoint(WedgeCalloutShape.prototype.tipX, WedgeCalloutShape.prototype.tipY);
+
+					return new mxPoint(bounds.getCenterX() + tip.x * bounds.width,
+						bounds.getCenterY() + tip.y * bounds.height);
+				}, function(bounds, pt)
+				{
+					var max = WedgeCalloutShape.prototype.maxTipOffset;
+					this.state.style['tipX'] = Math.round(1000 * Math.max(-max, Math.min(max,
+						(pt.x - bounds.getCenterX()) / Math.max(1, bounds.width)))) / 1000;
+					this.state.style['tipY'] = Math.round(1000 * Math.max(-max, Math.min(max,
+						(pt.y - bounds.getCenterY()) / Math.max(1, bounds.height)))) / 1000;
+				}, false)];
+
+				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
+				{
+					handles.push(createArcHandle(state));
+				}
+
 				return handles;
 			},
 			'internalStorage': function(state)
@@ -8832,6 +9016,7 @@
 	PlusShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	mxLabel.prototype.constraints = mxRectangleShape.prototype.constraints;
 	GitTagShape.prototype.constraints = mxRectangleShape.prototype.constraints;
+	WedgeCalloutShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	MindmapBangShape.prototype.constraints = mxEllipse.prototype.constraints;
 	OddShape.prototype.constraints = mxEllipse.prototype.constraints;
 	SmileyFaceShape.prototype.constraints = mxEllipse.prototype.constraints;

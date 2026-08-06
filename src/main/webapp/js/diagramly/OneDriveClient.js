@@ -905,7 +905,7 @@ OneDriveClient.prototype.moveFile = function(id, folderId, success, error)
 	
 	if (folderInfo.driveId != fileInfo.driveId)
 	{
-		error({message: mxResources.get('cannotMoveOneDrive', null, 'Moving a file between accounts is not supported yet.')});
+		error({message: mxResources.get('cannotMoveOneDrive')});
 	}
 	else 
 	{
@@ -1478,7 +1478,7 @@ OneDriveClient.prototype.createInlinePicker = function(fn, foldersOnly, acceptAl
 				return;
 			}
 			
-			return mxResources.get('invalidSel', null, 'Invalid selection');
+			return mxResources.get('invalidSel');
 		}), null, mxResources.get(foldersOnly? 'select' :'open'), null, null, null, null, true);
 		
 		this.ui.showDialog(dlg.container, 550, 500, true, true);

@@ -6,6 +6,5 @@ In that repository:
 * draw.io export server image which allow exporting draw.io diagrams to pdf and images
 * docker-compose to run draw.io with the export server
 * docker-compose to run draw.io integrated within nextcloud
-* docker-compose to run draw.io with PlantUML support
-* docker-compose to run draw.io self-contained without any dependency on draw.io website (with the export server, plantUml, Google Drive support, OneDrive support, and EMF conversion support (for VSDX export)
+* docker-compose to run draw.io self-contained without any dependency on draw.io website (with the export server, Google Drive support and OneDrive support)
 * And more...

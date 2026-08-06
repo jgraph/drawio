@@ -339,7 +339,9 @@
 	 *        that terminal has no vertex (an unconnected endpoint): it routes to
 	 *        a plain Point ConnEnd (no shape, no direction), matching the
 	 *        drag-preview, and takes no constraint/pin/mask/jetty. An edge is
-	 *        skipped only when an end is neither a vertex nor a free point.
+	 *        skipped when an end is neither a vertex nor a free point, and
+	 *        when it is a SELF-LOOP (source === target) — loops keep the
+	 *        caller's own loop styling and waypoints.
 	 *        *Constraint = {x,y,dir} (constraintForPoint): a
 	 *        fixed connection point routed via a directed ShapeConnectionPin;
 	 *        absent => the endpoint floats at the shape centre. *Points = an
@@ -554,6 +556,16 @@
 			// endpoint. Skip only when an end is neither.
 			if ((sb == null && e.sourcePoint == null) ||
 				(tb == null && e.targetPoint == null))
+			{
+				continue;
+			}
+
+			// Self-loops are out of scope: obstacle avoidance between identical
+			// endpoints is meaningless and the orthogonal router degenerates to
+			// a buffer-sized hook beside the shape. Skipping leaves the caller's
+			// loop styling and waypoints untouched (an edge with no route entry
+			// is never written), e.g. draw.io's inner-loop-waypoint self-loops.
+			if (e.source != null && e.source === e.target)
 			{
 				continue;
 			}

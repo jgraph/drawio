@@ -51,6 +51,12 @@ window.NOTIFICATIONS_URL = window.NOTIFICATIONS_URL || ((/.*\.draw\.io$/.test(wi
 	window.DRAWIO_SERVER_URL + 'notifications' : null);
 window.RT_WEBSOCKET_URL = window.RT_WEBSOCKET_URL || ('wss://' + ((window.location.hostname == 'test.draw.io') ?
 	'app.diagrams.net' : window.location.hostname) + '/rt');
+// Maximum AI prompt length on the Atlassian deployments (applied to
+// Editor.maxPublicPromptLength on ac.draw.io / aj.draw.io / Forge CDN hosts,
+// 0 disables the limit); must not exceed the generate/v3 worker's
+// MAX_PROMPT_LENGTH_ATLASSIAN, which enforces the server-side cap
+window.DRAWIO_ATLASSIAN_PROMPT_LENGTH = (window.DRAWIO_ATLASSIAN_PROMPT_LENGTH != null) ?
+	window.DRAWIO_ATLASSIAN_PROMPT_LENGTH : 100000;
 
 // Paths and files
 window.SHAPES_PATH = window.SHAPES_PATH || 'shapes';

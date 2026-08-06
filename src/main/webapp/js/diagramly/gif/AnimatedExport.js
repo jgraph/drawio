@@ -40,7 +40,7 @@ AnimatedGifExport.prototype.doExport = function(options, callback, errorCallback
 	var repeat = (options.repeat != null) ? options.repeat : 0;
 	var bg = transparent ? null :
 		((options.background != null && options.background != mxConstants.NONE) ?
-			options.background : 'light-dark(#ffffff,' + Editor.darkColor + ')');
+			options.background : Editor.getDefaultPageBackgroundColor());
 	var theme = options.theme || null;
 
 	try

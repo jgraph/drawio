@@ -735,7 +735,9 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
 			cell.connectable = diff.connectable == 1;
 		}
 		
-		if (diff.geometry != null)
+		// A geometry travels as an XML string; anything else is
+		// malformed input and the parser dereferences it as one
+		if (typeof diff.geometry == 'string')
 		{
 			model.setGeometry(cell, this.codec.decode(mxUtils.parseXml(
 				diff.geometry).documentElement));

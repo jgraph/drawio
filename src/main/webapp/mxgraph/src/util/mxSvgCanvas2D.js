@@ -1675,6 +1675,19 @@ mxSvgCanvas2D.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV, 
 {
 	src = this.converter.convert(src);
 
+	// Image sources come from cell styles, which are untrusted content
+	// (a diagram from a collaborator, an import or an embed): a script
+	// scheme must never reach an href attribute, in the editor or in
+	// an exported file where nothing checks it at display time. Links
+	// are sanitized already (Graph.sanitizeLink); only the script
+	// schemes are rejected here so data, blob and relative sources
+	// keep working.
+	if (src != null && /^\s*(javascript|vbscript|livescript)\s*:/i.test(
+		String(src).replace(/[\x00-\x1F\x7F]/g, '')))
+	{
+		src = '';
+	}
+
 	// LATER: Add option for embedding images as base64.
 	aspect = (aspect != null) ? aspect : true;
 	flipH = (flipH != null) ? flipH : false;

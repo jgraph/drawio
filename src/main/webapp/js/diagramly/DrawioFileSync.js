@@ -1257,6 +1257,51 @@ DrawioFileSync.prototype.isRealtimeConnected = function()
 };
 
 /**
+ * Re-sends every local change that no save has confirmed yet. Called
+ * when the FIRST other client appears in the roster: while no peer was
+ * connected the transport skips outgoing diffs (they have no consumer),
+ * but a client joining right after such a skip never learns about those
+ * changes - the diff is gone and only the next save would carry it.
+ * Two clients loading at the same time hit this reliably, as each
+ * roster is confirmed before the other client registers. The selection
+ * has always been flushed that way; the document content must not be
+ * weaker. The peer has just loaded the saved state, so the unsaved
+ * delta is exactly what it is missing.
+ */
+DrawioFileSync.prototype.sendUnconfirmedChanges = function()
+{
+	try
+	{
+		if (this.file.isRealtime() && this.isRealtimeActive() &&
+			this.file.ownPages != null)
+		{
+			// Pending local changes first: they must be in the own
+			// pages before the delta to the saved state is computed
+			this.sendLocalChanges();
+
+			var patch = this.ui.diffPages(
+				this.file.getShadowPages(), this.file.ownPages);
+
+			if (!this.file.ignorePatches([patch]))
+			{
+				EditorUi.debug('DrawioFileSync.sendUnconfirmedChanges',
+					[this], 'patch', patch);
+
+				this.doSendLocalChanges([{}, patch]);
+			}
+		}
+	}
+	catch (e)
+	{
+		var user = this.file.getCurrentUser();
+		var uid = (user != null) ? user.id : 'unknown';
+
+		EditorUi.logError('Error in sendUnconfirmedChanges', null,
+			this.file.getMode() + '.' + this.file.getId(), uid, e);
+	}
+};
+
+/**
  * Computes and sends the local changes if the file was changed.
  */
 DrawioFileSync.prototype.sendLocalChanges = function()

@@ -346,6 +346,27 @@ Editor.darkColor = '#121212';
 Editor.darkColorVar = '--ge-dark-color';
 
 /**
+ * Default page background color for light mode. Default is '#ffffff'.
+ */
+Editor.pageBackgroundColor = '#ffffff';
+
+/**
+ * Default page background color for dark mode. Editor.darkColor is used
+ * if this is null.
+ */
+Editor.darkPageBackgroundColor = null;
+
+/**
+ * Returns the default page background color as a light-dark expression.
+ */
+Editor.getDefaultPageBackgroundColor = function()
+{
+	return 'light-dark(' + Editor.pageBackgroundColor + ', ' +
+		((Editor.darkPageBackgroundColor != null) ?
+		Editor.darkPageBackgroundColor : Editor.darkColor) + ')';
+};
+
+/**
  * Label for the font size unit. Default is 'px'.
  */
 Editor.fontSizeUnit = 'px';
@@ -678,6 +699,155 @@ Editor.extractGraphModelFromText = function(text)
 	{
 		return [text, '', ''];
 	}
+};
+
+/**
+ * Returns the given XML with an incomplete trailing construct removed
+ * and all open elements closed, or null if the text is not truncated.
+ * Used to render the complete prefix of a diagram from a response that
+ * was cut off mid-stream (eg. by an output token limit).
+ */
+Editor.repairTruncatedXml = function(text)
+{
+	// Anchors the scan at the diagram so a stray < in prose
+	// around the XML does not derail the tag scanner
+	var offset = text.indexOf('<mxfile');
+
+	if (offset < 0)
+	{
+		offset = text.indexOf('<mxGraphModel');
+	}
+
+	if (offset < 0)
+	{
+		offset = 0;
+	}
+
+	var stack = [];
+	var lastGood = offset;
+	var truncated = false;
+	var pos = offset;
+
+	while (pos < text.length)
+	{
+		var lt = text.indexOf('<', pos);
+
+		if (lt < 0)
+		{
+			// Trailing character data is dropped if any element is
+			// still open as it may be cut off mid-entity
+			truncated = stack.length > 0;
+			break;
+		}
+
+		if (text.substring(lt, lt + 4) == '<!--')
+		{
+			var close = text.indexOf('-->', lt + 4);
+
+			if (close < 0)
+			{
+				truncated = true;
+				break;
+			}
+
+			pos = close + 3;
+		}
+		else if (text.substring(lt, lt + 9) == '<![CDATA[')
+		{
+			var close = text.indexOf(']]>', lt + 9);
+
+			if (close < 0)
+			{
+				truncated = true;
+				break;
+			}
+
+			pos = close + 3;
+		}
+		else
+		{
+			// Finds the end of the tag ignoring > in attribute values
+			var quote = null;
+			var gt = -1;
+
+			for (var i = lt + 1; i < text.length; i++)
+			{
+				var c = text.charAt(i);
+
+				if (quote != null)
+				{
+					if (c == quote)
+					{
+						quote = null;
+					}
+				}
+				else if (c == '"' || c == '\'')
+				{
+					quote = c;
+				}
+				else if (c == '>')
+				{
+					gt = i;
+					break;
+				}
+			}
+
+			if (gt < 0)
+			{
+				truncated = true;
+				break;
+			}
+
+			var first = text.charAt(lt + 1);
+
+			if (first == '/')
+			{
+				var match = /^<\/\s*([^\s>]+)/.exec(text.substring(lt, gt));
+
+				if (match != null)
+				{
+					// Tolerates unbalanced content by closing all
+					// elements that were opened after the match
+					for (var j = stack.length - 1; j >= 0; j--)
+					{
+						if (stack[j] == match[1])
+						{
+							stack.splice(j);
+							break;
+						}
+					}
+				}
+			}
+			else if (first != '?' && first != '!' &&
+				text.charAt(gt - 1) != '/')
+			{
+				var match = /^<\s*([^\s\/>]+)/.exec(text.substring(lt, gt));
+
+				if (match != null)
+				{
+					stack.push(match[1]);
+				}
+			}
+
+			pos = gt + 1;
+		}
+
+		lastGood = pos;
+	}
+
+	if ((!truncated && stack.length == 0) || lastGood <= offset)
+	{
+		return null;
+	}
+
+	var result = text.substring(0, lastGood);
+
+	for (var k = stack.length - 1; k >= 0; k--)
+	{
+		result += '</' + stack[k] + '>';
+	}
+
+	return result;
 };
 
 /**
@@ -2675,7 +2845,7 @@ var PageSetupDialog = function(editorUi)
 		var viewLabel = document.createElement('span');
 		viewLabel.className = 'geDialogFormLabel';
 		mxUtils.write(viewLabel,
-			mxResources.get('initialView', null, 'Initial view') + ':');
+			mxResources.get('initialView') + ':');
 		viewRow.appendChild(styleLabel(viewLabel));
 
 		var viewContent = document.createElement('div');
@@ -2779,7 +2949,7 @@ var PageSetupDialog = function(editorUi)
 		animationLabel.className = 'geDialogFormLabel';
 		animationLabel.style.minWidth = '0';
 		mxUtils.write(animationLabel,
-			mxResources.get('animation', null, 'Animation') + ':');
+			mxResources.get('animation') + ':');
 		animationRow.appendChild(animationLabel);
 
 		var animationContent = document.createElement('div');
@@ -2799,7 +2969,7 @@ var PageSetupDialog = function(editorUi)
 		animationContent.appendChild(animationHint);
 
 		var editAnimBtn = mxUtils.button(
-			mxResources.get('edit', null, 'Edit'),
+			mxResources.get('edit'),
 			function()
 			{
 				// Close Page Setup first so the non-modal AnimationDialog

@@ -1519,7 +1519,7 @@ DrawioFile.prototype.share = function()
 						this.ui.actions.get('share').funct();
 					}));
 			}));
-		}), null, mxResources.get('saveToGoogleDrive', null, 'Save to Google Drive'), mxResources.get('cancel'));
+		}), null, mxResources.get('saveToGoogleDrive'), mxResources.get('cancel'));
 	}
 	else
 	{

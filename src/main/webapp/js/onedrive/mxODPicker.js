@@ -658,7 +658,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 				emptyMsg.className = 'odEmptyFolder';
 				emptyMsg.innerHTML = mxUtils.htmlEntities(isSharepointSites == 1 && searchTxt?
 					mxResources.get('noResultsFor', [searchTxt], 'No results for \'' + searchTxt + '\'') :
-					mxResources.get('folderEmpty', null, 'Folder is empty!'));
+					mxResources.get('folderEmpty'));
 				filesList.appendChild(emptyMsg);
 			}
 			else
@@ -687,7 +687,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
         switch(driveId)
         {
         	case 'recent':
-        		breadcrumb = [{name: mxResources.get('recent', null, 'Recent'), driveId: driveId}];
+        		breadcrumb = [{name: mxResources.get('recent'), driveId: driveId}];
         		var recentList = getRecentList() || {};
         		var list = [];
         		
@@ -701,11 +701,11 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
         		return;
         	case 'shared':
         		url = '/me/drive/sharedWithMe';
-        		breadcrumb = [{name: mxResources.get('sharedWithMe', null, 'Shared With Me'), driveId: driveId}];
+        		breadcrumb = [{name: mxResources.get('sharedWithMe'), driveId: driveId}];
         		break;
         	case 'sharepoint':
         		url = '/sites?search=' + (searchTxt != null? encodeURIComponent(searchTxt) : '');
-        		breadcrumb = [{name: mxResources.get('sharepointSites', null, 'Sharepoint Sites'), driveId: driveId}];
+        		breadcrumb = [{name: mxResources.get('sharepointSites'), driveId: driveId}];
         		isSharepointSites = 1;
         		break;
         	case 'site':
@@ -719,7 +719,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
         		break;
         	case 'search': //TODO file search doesn't return any results, find out why then enable the searchBox for file folders also
         		driveId = selectedDriveId;
-        		breadcrumb = [{driveId: driveId, name: mxResources.get('back', null, 'Back')}];
+        		breadcrumb = [{driveId: driveId, name: mxResources.get('back')}];
         		searchTxt = encodeURIComponent(searchTxt.replace(/\'/g, '\\\''));
         		url = selectedSiteId? '/sites/' + selectedSiteId + '/drive/root/search(q=\'' + searchTxt + '\')' : (driveId? '/drives/' + driveId + '/root/search(q=\'' + searchTxt + '\')' : '/me/drive/root/search(q=\'' + searchTxt + '\')');
         		break;
@@ -825,7 +825,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 				}
 				catch(e){} //ignore errors
 				
-				errorFn(mxResources.get('errorFetchingFolder', null, 'Error fetching folder items') +
+				errorFn(mxResources.get('errorFetchingFolder') +
 					(errMsg != null? ' (' + errMsg + ')' : ''));
 
 				requestInProgress = false;

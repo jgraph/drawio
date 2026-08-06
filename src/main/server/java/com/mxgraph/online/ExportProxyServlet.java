@@ -26,7 +26,13 @@ import com.mxgraph.online.Utils.SizeLimitExceededException;
 @SuppressWarnings("serial")
 public class ExportProxyServlet extends HttpServlet
 {
-	private final String[] supportedServices = {"EXPORT_URL", "PLANTUML_URL", "EMF_CONVERT_URL"};
+	// EXPORT_URL is the only remaining backend service. PlantUML is parsed
+	// locally by the native converter (js/plantuml/drawio-plantuml.min.js)
+	// and EMF images are converted locally by js/diagramly/emf/emf-svg.js,
+	// so PLANTUML_URL and EMF_CONVERT_URL were removed. Out-of-range service
+	// ids still clamp to 0 below, so legacy /service/1/* and /service/2/*
+	// callers now reach EXPORT_URL instead of failing.
+	private final String[] supportedServices = {"EXPORT_URL"};
 
 	private void doRequest(String method, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException

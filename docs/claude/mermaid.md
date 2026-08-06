@@ -60,9 +60,9 @@ Shared helpers on `EditorUi.prototype` (diagramly/EditorUi.js):
 `getMermaidImageForXml` (parsed XML → `{data,width,height}`, renders via
 `getSvgForXml` with a border), `createMermaidImageXml` (→ image cell XML,
 mirrors the removed `createMermaidXml`; stores `mermaidData` as
-`{data, config:null}` like legacy image cells), `parseMermaidImage` (parse +
-build, parses with `EditorUi.legacyMermaidConfig` so images match the previous
-default config), and `updateMermaidImage` (re-render a cell in place).
+`{data, config}` with the resolved config), `parseMermaidImage` (parse +
+build; new images use the configured default config — see the config model
+below), and `updateMermaidImage` (re-render a cell in place).
 
 The image padding is the `groupPadding` cell style, stamped on the image
 cell — the same key the editable wrapper groups use, so the margin
@@ -93,14 +93,55 @@ Entry points:
   `ElectronApp.loadArgs` and threads it through `readGraphFile`.
 
 On double-click edit, a cell **keeps its current representation by default**
-but can be switched via the dialog's Diagram/Image dropdown. `editMermaidData`
-reads the dropdown (`asImage`) and picks the parse config by the **target**
-type — image → `legacyMermaidConfig` (so it matches the previous default
-look), diagram → the stored diagram config (null for a cell that was an
-image). Same-type edits update in place (image → `updateMermaidImage`, keeping
-the stored config null and preserving the `border`; diagram →
-`replaceLockedGroupChildren`). A type change calls
-`EditorUi.replaceMermaidCell`, which imports the other representation
+but can be switched via the dialog's Diagram/Image dropdown. A type change
+calls `EditorUi.replaceMermaidCell`, which imports the other representation
 (`createMermaidImageXml` or `mxMermaidToDrawio.wrapGroup`) at the old cell's
 position and removes the old cell — landing in the current layer, like the
-Insert path.
+Insert path; same-type edits update in place (image → `updateMermaidImage`,
+diagram → `replaceLockedGroupChildren`), preserving the `border`.
+
+## Config model — self-describing cells + the `mermaid` config key
+
+The default parse config is `EditorUi.defaultMermaidConfig` (empty by default,
+set as a whole by the `mermaid` **config key** in `Editor.configure`), so a
+deployment can enforce one Mermaid look (`theme`, `themeVariables`, …).
+`getMermaidConfig(data, config)` uses `config` when non-null, else clones
+`defaultMermaidConfig`, then **always** re-stamps the security keys
+(`securityLevel:'strict'`, `startOnLoad:false`, `maxTextSize`) — an admin
+config can never weaken those.
+
+**When no config is set, nothing changes** — this is a hard requirement.
+`EditorUi.getInsertMermaidConfig()` returns `null` unless
+`EditorUi.isMermaidConfigured()` (a non-empty `defaultMermaidConfig`), so an
+unconfigured deployment stores `config:null` in new cells and parses with a null
+config exactly as it did before the config key existed (diagrams still render
+the parser's own default theme, images still use `legacyMermaidConfig`). The new
+self-describing behaviour only switches on once a `mermaid` config is set.
+
+**When a config is set, new diagrams store the resolved config** they were
+created with (`{data, config}` in `mermaidData`, via `getInsertMermaidConfig()`
+at each insert site). This makes diagrams **self-describing**: on re-edit they
+re-parse with their *own* stored config, so a diagram made under one deployment's
+config renders identically when edited under another — it does not adopt the
+local default. The config is cloned for the parse (getMermaidConfig mutates that
+clone with the security keys), so the stored copy stays clean.
+
+**New images** follow the same `isMermaidConfigured()` gate (`parseMermaidImage`).
+Configured → the image stores the resolved config, self-describing like a
+diagram. Unconfigured → it parses with `legacyMermaidConfig` and stores a
+**null** config, exactly like a legacy image, keeping the previous image look
+(neutral theme + sequence/gantt tuning). So an unconfigured diagram and image of
+the same source still differ (parser default vs neutral) — the pre-existing
+behaviour, unchanged.
+
+`editMermaidData` resolves the config as: **legacy image** (an image cell whose
+stored config is `null`) re-edited *as an image* keeps `legacyMermaidConfig` and
+the `null` contract; **every other case** reuses `obj.config`, or
+`getInsertMermaidConfig()` when it is `null` (an old `null` diagram, or a legacy
+image converted to a diagram) — which is itself `null` when unconfigured, so such
+a cell stays `null`. Here **legacy image** means any image with a `null` stored
+config — both pre-existing image cells and new images inserted while unconfigured,
+so they share one code path. `refreshMermaidImage` (the padding re-render) parses
+with the cell's stored config (falling back to `legacyMermaidConfig` when it is
+`null`) and writes the config back **unchanged** — it must never wipe a
+self-describing image's config.

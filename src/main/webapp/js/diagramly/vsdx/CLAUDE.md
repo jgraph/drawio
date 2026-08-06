@@ -337,8 +337,8 @@ mxVsdxCodec.decodeVsdx(file, callback)
   → For each entry in ZIP:
       .xml/.rels  → parseXml() → docData[path]
                     (handles UTF-8 BOM, UTF-16LE fallback, entity fixing)
-      .emf        → POST to EMF_CONVERT_URL → PNG base64 → mediaData[path]
-                    (chunked: window.EMF_CHUNK_SIZE = 10, retries: 3)
+      .emf        → window.emfToSvg() → SVG base64 → mediaData[path]
+                    (client-side, ../emf/emf-svg.js; no server involved)
       .bmp        → BmpDecoder → canvas → JPEG base64 → mediaData[path]
       other media → base64 encode → mediaData[path]
 ```
@@ -580,7 +580,7 @@ Master shapes provide template geometry and styling. Instance shapes inherit fro
 - **Theme interpretation**: Gradient fills, effects, and variant styles are "best efforts" interpretations of the VSDX spec.
 - **Edge groups**: Groups containing edges may produce suboptimal results — hard to detect edges that should be vertices when groups have children.
 - **HTML text**: Complex HTML formatting is only partially preserved.
-- **EMF images**: Require server-side conversion (EMF_CONVERT_URL). Without server, EMF images are lost.
+- **EMF images**: Converted client-side by `window.emfToSvg` (`../emf/emf-svg.js`, bundled in `extensions.min.js`). A conversion failure is logged and that image is dropped from `mediaData`, so unsupported EMF records mean a lost image, not a failed import.
 - **Charset**: Full charset support is incomplete; UTF-16LE has a basic decoder, other encodings may fail.
 - **Extremely large txtPinX/Y values**: Can cause browser hangs during import.
 - **HTML `</li>` tag placement**: May appear after font/formatting tags instead of before them.

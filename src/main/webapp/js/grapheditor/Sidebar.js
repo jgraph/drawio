@@ -14,7 +14,9 @@ function Sidebar(editorUi, container)
 	// and surfaces when the user hovers over empty sidebar space.
 	this.container.setAttribute('title', mxResources.get('sidebarTooltip'));
 	this.palettes = new Object();
-	this.taglist = new Object();
+	// Null prototype as the taglist is looked up with user-typed search
+	// terms, eg. __proto__ must not resolve to inherited members
+	this.taglist = Object.create(null);
 	this.lastCreated = 0;
 	this.showTooltips = true;
 	this.graph = editorUi.createTemporaryGraph(this.editorUi.editor.graph.getStylesheet());
@@ -1434,7 +1436,8 @@ Sidebar.prototype.getResourceReverseMap = function()
 
 	if (this.resourceReverseMap == null || this.resourceReverseLang !== lang)
 	{
-		this.resourceReverseMap = {};
+		// Null prototype as the map is looked up with user-typed search terms
+		this.resourceReverseMap = Object.create(null);
 		this.resourceReverseLang = lang;
 
 		if (lang !== 'en' && mxResources.resources != null)
@@ -1445,9 +1448,12 @@ Sidebar.prototype.getResourceReverseMap = function()
 
 				if (value != null && typeof value === 'string' && value !== key)
 				{
-					var lower = value.toLowerCase();
+					// Strips Unicode directional formatting characters that
+					// wrap the values in the RTL resource files as they never
+					// appear in typed search terms
+					var lower = value.replace(/[\u200e\u200f\u202a-\u202e]/g, '').toLowerCase();
 
-					if (lower !== key && this.resourceReverseMap[lower] == null)
+					if (lower.length > 0 && lower !== key && this.resourceReverseMap[lower] == null)
 					{
 						this.resourceReverseMap[lower] = key;
 					}
@@ -1476,7 +1482,7 @@ Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, er
 		// Normalize: split compound tokens like "pid2misc" → ["pid", "misc"]
 		var rawTerms = searchTerms.toLowerCase().split(' ');
 		var tmp = [];
-		var seenTerms = {};
+		var seenTerms = Object.create(null);
 
 		for (var i = 0; i < rawTerms.length; i++)
 		{
@@ -1499,6 +1505,19 @@ Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, er
 
 		// Builds reverse map for localized search term translation
 		var reverseMap = this.getResourceReverseMap();
+
+		// Translates multi-word localized names as a whole, eg. "balon kata"
+		// (id) resolves to the callout tag while its single tokens do not
+		if (tmp.length > 1)
+		{
+			var english = reverseMap[searchTerms.toLowerCase().replace(/\s+/g, ' ').trim()];
+
+			if (english != null && !seenTerms[english] && this.taglist[english] != null)
+			{
+				seenTerms[english] = true;
+				tmp.push(english);
+			}
+		}
 
 		var max = (page + 1) * count;
 
@@ -2624,6 +2643,7 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 	 	this.createVertexTemplateEntry('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;', 80, 100, '', 'Note'),
 	    this.createVertexTemplateEntry('shape=card;whiteSpace=wrap;html=1;', 80, 100, '', 'Card'),
 	    this.createVertexTemplateEntry('shape=callout;whiteSpace=wrap;html=1;perimeter=calloutPerimeter;', 120, 80, '', 'Callout', null, null, 'bubble chat thought speech message'),
+	    this.createVertexTemplateEntry('shape=wedgeCallout;whiteSpace=wrap;html=1;', 120, 80, '', 'Wedge Callout', null, null, 'bubble chat thought speech message callout annotation pointer wedge'),
 	 	this.createVertexTemplateEntry('shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;', 30, 60, 'Actor', 'Actor', false, null, 'user person human stickman'),
 	 	this.createVertexTemplateEntry('shape=xor;whiteSpace=wrap;html=1;shapeInside=1;', 60, 80, '', 'Or', null, null, 'logic or'),
 	 	this.createVertexTemplateEntry('shape=or;whiteSpace=wrap;html=1;shapeInside=1;', 60, 80, '', 'And', null, null, 'logic and'),
@@ -2689,28 +2709,6 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 			edge.geometry.setTerminalPoint(new mxPoint(160, 0), false);
 			edge.geometry.relative = true;
 			edge.edge = true;
-
-	    	var cell0 = new mxCell('Label', new mxGeometry(0, 0, 0, 0), edgeLabelStyle + ';align=center;verticalAlign=middle;');
-	    	cell0.geometry.relative = true;
-	    	cell0.setConnectable(false);
-	    	cell0.vertex = true;
-	    	edge.insert(cell0);
-	    	
-	    	var cell1 = new mxCell('Source', new mxGeometry(-1, 0, 0, 0), edgeLabelStyle + ';align=left;verticalAlign=bottom;');
-	    	cell1.geometry.relative = true;
-	    	cell1.setConnectable(false);
-	    	cell1.vertex = true;
-	    	edge.insert(cell1);
-			
-			return this.createEdgeTemplateFromCells([edge], 160, 0, 'Connector with 2 Labels');
-		})),
-		this.addEntry(lineTags + 'edge title multiplicity', mxUtils.bind(this, function()
-		{
-			var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'endArrow=classic;html=1;');
-			edge.geometry.setTerminalPoint(new mxPoint(0, 0), true);
-			edge.geometry.setTerminalPoint(new mxPoint(160, 0), false);
-			edge.geometry.relative = true;
-			edge.edge = true;
 			
 	    	var cell0 = new mxCell('Label', new mxGeometry(0, 0, 0, 0), edgeLabelStyle + ';align=center;verticalAlign=middle;');
 	    	cell0.geometry.relative = true;
@@ -2730,7 +2728,7 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 	    	cell2.vertex = true;
 	    	edge.insert(cell2);
 	    	
-			return this.createEdgeTemplateFromCells([edge], 160, 0, 'Connector with 3 Labels');
+			return this.createEdgeTemplateFromCells([edge], 160, 0, 'Connector with Labels');
 		})),
 	 	this.addEntry(lineTags + 'edge shape symbol message mail email', mxUtils.bind(this, function()
 		{
@@ -3453,8 +3451,7 @@ Sidebar.prototype.createTitle = function(label)
 	// Section titles can be dragged to reorder palettes — surface that
 	// affordance via the tooltip. The broader sidebar-tooltip text now
 	// lives on the container background.
-	elt.setAttribute('title', mxResources.get('reorder',
-		null, 'Drag to reorder'));
+	elt.setAttribute('title', mxResources.get('reorder'));
 	elt.className = 'geTitle';
 
 	// Invisible overlay over the left-edge arrow icon (the icon itself
@@ -3662,7 +3659,7 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 		{
 			var ds = this.createDragSource(elt, this.createDropHandler(cells, true, allowCellsInserted,
 				bounds, startEditing, sourceCell, connectEdge), this.createDragPreview(width, height),
-				cells, bounds, startEditing);
+				cells, bounds, startEditing, sourceCell);
 			this.addClickHandler(elt, ds, cells, clickFn, startEditing);
 		
 			// Uses guides for vertices only if enabled in graph
@@ -3922,8 +3919,129 @@ Sidebar.prototype.createDragPreview = function(width, height)
 	elt.className = 'geDragPreview';
 	elt.style.width = width + 'px';
 	elt.style.height = height + 'px';
-	
+
 	return elt;
+};
+
+/**
+ * Creates a live preview of the edge that connects the given source cell
+ * to the dropped cell (see createDropHandler) while dragging from the
+ * hover-icon shape picker. Reuses the connection handler's live preview
+ * (createEdgeState, updateEdgeState and createShape invoked on a minimal
+ * handler stand-in) so the previewed edge matches the edge inserted on
+ * drop, including the current edge style, the source's newEdgeStyle and
+ * preview routing overrides.
+ */
+Sidebar.prototype.createEdgePreview = function(graph, sourceCell, cell)
+{
+	var preview =
+	{
+		handler: null,
+		targetState: null,
+		shape: null
+	};
+
+	// Renders the preview edge from the source cell to the given preview
+	// rectangle (in view coordinates), creating the preview on demand
+	preview.update = function(x, y, w, h)
+	{
+		var sourceState = graph.view.getState(sourceCell);
+
+		if (sourceState == null)
+		{
+			preview.hide();
+			return;
+		}
+
+		if (preview.handler == null)
+		{
+			// Stand-in for the connection handler state read by
+			// createEdgeState, updateEdgeState and convertWaypoint
+			preview.handler = {graph: graph, previous: sourceState,
+				currentState: null, edgeState: null, sourceConstraint: null,
+				constraintHandler: null, waypoints: null,
+				convertWaypoint: mxConnectionHandler.prototype.convertWaypoint};
+			preview.handler.edgeState = mxConnectionHandler.prototype.
+				createEdgeState.call(preview.handler, null);
+
+			var targetCell = graph.cloneCell(cell);
+			preview.targetState = new mxCellState(graph.view, targetCell,
+				graph.getCellStyle(targetCell));
+			preview.handler.currentState = preview.targetState;
+		}
+
+		preview.handler.previous = sourceState;
+		var target = preview.targetState;
+		target.x = x;
+		target.y = y;
+		target.width = w;
+		target.height = h;
+
+		// Keeps the target geometry in model coordinates in sync for
+		// routers that inspect the cell rather than the state
+		var geo = target.cell.geometry;
+
+		if (geo != null)
+		{
+			var s = graph.view.scale;
+			var tr = graph.view.translate;
+			geo.x = x / s - tr.x;
+			geo.y = y / s - tr.y;
+			geo.width = w / s;
+			geo.height = h / s;
+		}
+
+		if (preview.shape == null)
+		{
+			preview.shape = mxConnectionHandler.prototype.createShape.call(
+				{graph: graph, livePreview: true,
+				edgeState: preview.handler.edgeState});
+			preview.shape.apply(preview.handler.edgeState);
+		}
+
+		mxConnectionHandler.prototype.updateEdgeState.call(preview.handler,
+			new mxPoint(x + w / 2, y + h / 2), null);
+
+		var edgeState = preview.handler.edgeState;
+		preview.shape.points = edgeState.absolutePoints;
+		preview.shape.scale = graph.view.scale;
+		edgeState.shape = preview.shape;
+		graph.cellRenderer.postConfigureShape(edgeState);
+		edgeState.shape = null;
+		preview.shape.node.style.display = '';
+		preview.shape.redraw();
+	};
+
+	preview.hide = function()
+	{
+		if (preview.shape != null)
+		{
+			preview.shape.node.style.display = 'none';
+		}
+	};
+
+	// Removes the preview and frees per-drag resources, the next call
+	// to update recreates the preview
+	preview.destroy = function()
+	{
+		if (preview.shape != null)
+		{
+			preview.shape.destroy();
+			preview.shape = null;
+		}
+
+		if (typeof LibavoidRouting !== 'undefined' &&
+			LibavoidRouting.endPreview != null)
+		{
+			// Frees the router of the libavoid connect preview
+			LibavoidRouting.endPreview(preview.handler);
+		}
+
+		preview.handler = null;
+		preview.targetState = null;
+	};
+
+	return preview;
 };
 
 /**
@@ -4545,7 +4663,7 @@ Sidebar.prototype.disablePointerEvents = function(node)
 /**
  * Creates a drag source for the given element.
  */
-Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, bounds, startEditing)
+Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, bounds, startEditing, sourceCell)
 {
 	// Checks if the cells contain any vertices
 	var ui = this.editorUi;
@@ -4555,6 +4673,12 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 	var sidebar = this;
 	var count = 0;
 	var livePreview = this.livePreview;
+
+	// Previews the edge that createDropHandler inserts between the source
+	// cell and the dropped cell (hover-icon shape picker drags)
+	var edgePreview = (sourceCell != null && graph.model.isVertex(sourceCell) &&
+		cells.length == 1 && graph.model.isVertex(cells[0])) ?
+		this.createEdgePreview(graph, sourceCell, cells[0]) : null;
 
 	for (var i = 0; i < cells.length && livePreview; i++)
 	{
@@ -4763,7 +4887,12 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		{
 			ui.hoverIcons.setDisplay('');
 		}
-		
+
+		if (edgePreview != null)
+		{
+			edgePreview.destroy();
+		}
+
 		dragExit.apply(this, arguments);
 	};
 	
@@ -4861,6 +4990,29 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 					this.previewElement.firstChild.style.display = '';
 					mxUtils.setOpacity(this.previewElement, 50);
 					this.previewElement.className = '';
+				}
+			}
+
+			// Shows the connecting edge for drops that insert it: hidden
+			// while an arrow or replace target is active (dropAndConnect
+			// or style replace) and while splitting a highlighted edge
+			if (edgePreview != null)
+			{
+				if (activeArrow == null && currentStyleTarget == null &&
+					this.previewElement.style.display != 'none' &&
+					this.previewElement.style.visibility != 'hidden' &&
+					(dragSource.currentHighlight == null ||
+					dragSource.currentHighlight.state == null ||
+					!graph.model.isEdge(dragSource.currentHighlight.state.cell)))
+				{
+					edgePreview.update(parseFloat(this.previewElement.style.left),
+						parseFloat(this.previewElement.style.top),
+						parseFloat(this.previewElement.style.width),
+						parseFloat(this.previewElement.style.height));
+				}
+				else
+				{
+					edgePreview.hide();
 				}
 			}
 		}

@@ -1168,10 +1168,24 @@ mxGraphHandler.prototype.checkPreview = function()
 	{
 		this.resetLivePreview();
 		this.livePreviewActive = false;
+
+		// The validate in the reset above recreates the handlers of cells
+		// with placeholder styles with visible handles (see
+		// mxCellRenderer.redrawShape), so the hidden state is applied again
+		this.setHandlesVisibleForCells(
+			this.graph.selectionCellsHandler.
+			getHandledSelectionCells(), false, true);
 	}
-	else if (this.maxLivePreview >= this.cellCount && !this.livePreviewActive && this.allowLivePreview)
+	else if (this.maxLivePreview >= this.cellCount && this.allowLivePreview)
 	{
-		if (!this.cloning || !this.livePreviewActive)
+		// While cloning the live preview stays inactive so the cells keep
+		// their location, but marking it used routes the preview through
+		// updateLivePreview, which moves the handler borders with the mouse
+		if (this.cloning)
+		{
+			this.livePreviewUsed = true;
+		}
+		else if (!this.livePreviewActive)
 		{
 			this.livePreviewActive = true;
 			this.livePreviewUsed = true;
@@ -1587,7 +1601,12 @@ mxGraphHandler.prototype.updateLivePreview = function(dx, dy)
 					{
 						if (source == null || !this.isCellMoving(source.cell))
 						{
-							var pt0 = pts[0];
+							// Uses the fixed point from the geometry for a dangling end
+							// so that the delta is not applied on top of a route that a
+							// preview override has left in the state
+							var pt0 = (source == null) ? state.view.getFixedTerminalPoint(
+								state, null, true, null) : null;
+							pt0 = (pt0 != null) ? pt0 : pts[0];
 							state.setAbsoluteTerminalPoint(new mxPoint(pt0.x + dx, pt0.y + dy), true);
 							source = null;
 						}
@@ -1596,10 +1615,12 @@ mxGraphHandler.prototype.updateLivePreview = function(dx, dy)
 							state.view.updateFixedTerminalPoint(state, source, true,
 								this.graph.getConnectionConstraint(state, source, true));
 						}
-						
+
 						if (target == null || !this.isCellMoving(target.cell))
 						{
-							var ptn = pts[pts.length - 1];
+							var ptn = (target == null) ? state.view.getFixedTerminalPoint(
+								state, null, false, null) : null;
+							ptn = (ptn != null) ? ptn : pts[pts.length - 1];
 							state.setAbsoluteTerminalPoint(new mxPoint(ptn.x + dx, ptn.y + dy), false);
 							target = null;
 						}

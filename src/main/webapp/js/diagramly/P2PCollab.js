@@ -394,12 +394,25 @@ function P2PCollab(ui, sync, channelId)
 			socketPeers[id] = true;
 			socketPeerCount++;
 
-			// First other client after being alone
+			// First other client after being alone: everything the
+			// gate skipped while nobody was listening has to be
+			// caught up - the selection AND the document changes,
+			// which would otherwise only arrive with the next save
 			if (socketPeerCount == 1)
 			{
 				flushSelection();
+
+				if (ALONE_GATE && sync != null &&
+					typeof sync.sendUnconfirmedChanges === 'function')
+				{
+					sync.sendUnconfirmedChanges();
+				}
 			}
+
+			return true;
 		}
+
+		return false;
 	};
 
 	// Removes a client from the peer roster
@@ -490,18 +503,20 @@ function P2PCollab(ui, sync, channelId)
 			{
 				msg = sync.stringToObject(msg.bytes);
 			}
-			
+
 			if (NO_P2P && msg.type != 'cursor')
 			{
 				EditorUi.debug('P2PCollab: msg received', [msg]);
 			}
 
 			//Exclude P2P messages from duplicate messages test since p2p can arrive before socket and interrupt delivery
+			var peerAdded = false;
+
 			if (fromCId != null)
 			{
 				// Ensures the sender is in the peer roster in case its
 				// newClient message was not received
-				addPeer(fromCId);
+				peerAdded = addPeer(fromCId);
 
 				//Safeguard from duplicate messages or receiving my own messages
 				if (msg.from == myClientId || clientLastMsgId[msg.from] >= msg.id)
@@ -590,6 +605,18 @@ function P2PCollab(ui, sync, channelId)
 			
 			switch (msg.type)
 			{
+				case 'join':
+					// Answers a previously unknown announcer so that both
+					// rosters heal when the join notifications were lost
+					// in both directions (true simultaneous join). The
+					// reply only goes out when the sender was newly
+					// added, and the sender already knows this client by
+					// then, so the exchange terminates.
+					if (peerAdded)
+					{
+						announceJoin();
+					}
+				break;
 				case 'cursor':
 					createCursor();
 					connectedSessions[sessionId].lastCursor = msgData;
@@ -791,6 +818,20 @@ function P2PCollab(ui, sync, channelId)
 				createPeer(data.list[i], true);
 			}
 		}
+
+		// Tells everyone already in the channel that this client is
+		// here (see announceJoin)
+		announceJoin();
+
+		// A single delayed repeat covers the loss of the first
+		// announce; receivers that already know this client ignore it
+		window.setTimeout(function()
+		{
+			if (!destroyed)
+			{
+				announceJoin();
+			}
+		}, 3000);
 	};
 	
 	function signal(data)
@@ -820,6 +861,26 @@ function P2PCollab(ui, sync, channelId)
 		EditorUi.debug('P2PCollab: signal failed (socket not found on server)', data);
 		delete newClients[data.to];
 		connectedClient[data.to] = false; //TODO Should we call clientLeft?
+	};
+
+	// Broadcasts our presence so every receiver adds this client to its
+	// roster in processMsg. The server's newClient notification is not
+	// reliably delivered to clients whose join overlaps this one
+	// (observed: a client joining 1.4s after another was never announced
+	// to it), and the alone gate then suppresses every message that
+	// could correct the stale roster - the resend hook never fires and
+	// the clients stay mutually invisible until the next save. The
+	// announce passes the gate on purpose (only cursor, selection and
+	// diff are skipped) and needs no server support; clients on older
+	// versions ignore the unknown type but still add the sender.
+	function announceJoin()
+	{
+		// Kill switch, same pattern as alone-gate; checked per call so
+		// tests can toggle it at runtime
+		if (urlParams['join-announce'] != '0')
+		{
+			sendMessage('join', {});
+		}
 	};
 
 	function newClient(clientId)
@@ -872,7 +933,8 @@ function P2PCollab(ui, sync, channelId)
 				EditorUi.debug('P2PCollab: closing socket error', e);
 			} //Ignore
 			
-			var ws = new WebSocket(window.RT_WEBSOCKET_URL + '?id=' + channelId);
+			var ws = P2PCollab.createSocket(
+				window.RT_WEBSOCKET_URL + '?id=' + channelId);
 
 			// Stamped at creation so that close and error events of
 			// sockets that never open are attributed to this attempt
@@ -1100,4 +1162,14 @@ function P2PCollab(ui, sync, channelId)
 
 		sync.file.fireEvent(new mxEventObject('realtimeStateChanged'));
 	};
+};
+
+/**
+ * Creates the websocket for the realtime channel. Overridable hook so
+ * that tests can supply a fake socket and drive the roster and message
+ * protocol deterministically (same pattern as verifyWriteRevoked).
+ */
+P2PCollab.createSocket = function(url)
+{
+	return new WebSocket(url);
 };

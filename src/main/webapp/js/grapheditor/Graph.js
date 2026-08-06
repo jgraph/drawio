@@ -2531,7 +2531,7 @@ Graph.exploreFromCell = function(sourceGraph, selectionCell, config)
 		container.style.background =
 			(sourceGraph.background == mxConstants.NONE ||
 			sourceGraph.background == null) ?
-			'light-dark(#ffffff,' + Editor.darkColor + ')' :
+			Editor.getDefaultPageBackgroundColor() :
 				sourceGraph.background;
 		
 		var deleteImage = document.createElement('img');
@@ -3380,7 +3380,13 @@ DOMPurify.addHook('afterSanitizeAttributes', function(node)
 	}
 	else if (node.nodeName.toLowerCase() == 'style')
 	{
-		if (!Graph.isStyleAllowed(node.textContent))
+		// Checks the CSS in the form it will have in the serialized output.
+		// Nodes whose text changes are removed, not rewritten, as style is a
+		// raw text element where writing back the checked value would add a
+		// literal </style> after the checks for that in DOMPurify have run
+		var css = Graph.zapGremlins(node.textContent);
+
+		if (css != node.textContent || !Graph.isStyleAllowed(css))
 		{
 			node.remove();
 		}
@@ -3390,6 +3396,13 @@ DOMPurify.addHook('afterSanitizeAttributes', function(node)
 // Disallows external URLs in style attributes
 DOMPurify.addHook('uponSanitizeAttribute', function(node, data)
 {
+	// Removes characters that are dropped when the node is serialized to XML
+	// so all checks see the value that will be written to the output. Eg. an
+	// entity for U+FFFF in java&#65535;script: is decoded while parsing the
+	// markup, hides the protocol from the checks and is then dropped by
+	// mxUtils.getXml, which turns the link into javascript: in the export.
+	data.attrValue = Graph.zapGremlins(data.attrValue);
+
 	if (data.attrName == 'style')
 	{
 		if (!Graph.isStyleAllowed(data.attrValue))
@@ -3623,6 +3636,9 @@ Graph.getCssVariables = function(style)
  */
 Graph.setSvgDataUriCssVars = function(dataUri, vars)
 {
+	// Checks the CSS in the form it will have in the serialized output
+	vars = Graph.zapGremlins(vars);
+
 	if (dataUri != null && dataUri.substring(0, 26) == 'data:image/svg+xml;base64,' &&
 		Graph.isStyleAllowed(vars))
 	{
@@ -3687,9 +3703,14 @@ Graph.isSameOrigin = function(url)
 /**
  * Prefixes all IDs, local references and CSS class names in the given
  * SVG element with the given prefix, to avoid collisions when the
- * content is inlined into another document.
+ * content is inlined into another document. The optional scope is a
+ * selector for the inlined container (eg. '#symbol-id'): style elements
+ * apply to the whole document in SVG regardless of their position, so
+ * without it a rule like path {...} from an icon leaks onto every path
+ * in the target document (overriding fill="none" on edges, as author
+ * CSS beats presentation attributes).
  */
-Graph.prefixSvgIds = function(root, prefix)
+Graph.prefixSvgIds = function(root, prefix, scope)
 {
 	var refAttrs = ['fill', 'stroke', 'filter', 'clip-path', 'mask',
 		'marker-start', 'marker-mid', 'marker-end', 'style'];
@@ -3705,8 +3726,45 @@ Graph.prefixSvgIds = function(root, prefix)
 		// that nested rules, eg. in media queries, are not supported.
 		return css.replace(/([^{}]*)(\{[^{}]*\})/g, function(match, sel, body)
 		{
-			return sel.replace(/([.#])(-?[A-Za-z_][\w-]*)/g,
-				'$1' + prefix + '$2') + prefixUrls(body);
+			sel = sel.replace(/([.#])(-?[A-Za-z_][\w-]*)/g,
+				'$1' + prefix + '$2');
+
+			// Scopes each selector to the container. A leading svg type
+			// selector maps to the scope itself (the source root becomes
+			// the container). Matching the originals under the scope in
+			// defs also styles their use-instances, like the prefixed
+			// class selectors above.
+			if (scope != null)
+			{
+				var parts = sel.split(',');
+
+				for (var i = 0; i < parts.length; i++)
+				{
+					var part = mxUtils.trim(parts[i]);
+
+					if (part == 'svg')
+					{
+						parts[i] = scope;
+					}
+					else if (part.substring(0, 4) == 'svg ' || part.substring(0, 4) == 'svg>' ||
+						part.substring(0, 4) == 'svg+' || part.substring(0, 4) == 'svg~')
+					{
+						parts[i] = scope + part.substring(3);
+					}
+					else if (part != '')
+					{
+						parts[i] = scope + ' ' + part;
+					}
+					else
+					{
+						parts[i] = part;
+					}
+				}
+
+				sel = parts.join(', ');
+			}
+
+			return sel + prefixUrls(body);
 		});
 	};
 
@@ -4086,7 +4144,7 @@ Graph.createSvgImageSymbol = function(defs, cache, src, aspect)
 								id += '-1';
 							}
 
-							Graph.prefixSvgIds(svg, id + '-');
+							Graph.prefixSvgIds(svg, id + '-', '#' + id);
 
 							var doc = defs.ownerDocument;
 							var symbol = (doc.createElementNS != null) ?
@@ -4100,13 +4158,51 @@ Graph.createSvgImageSymbol = function(defs, cache, src, aspect)
 								symbol.setAttribute('preserveAspectRatio', 'none');
 							}
 
-							// Keeps color-scheme and other styles of the root
-							var style = svg.getAttribute('style');
+							// Keeps the root's styles and inherited presentation
+							// attributes (eg. a fill="var(...)" consumed by the
+							// per-use CSS variables) on the symbol. Structural
+							// attributes are dropped: the viewport is mapped to
+							// viewBox/preserveAspectRatio above, x/y/width/height
+							// would override the use's sizing, and namespace
+							// declarations do not transfer. Local url(#...) refs
+							// and class names are prefixed like prefixSvgIds does
+							// for descendants (the root itself is not covered by
+							// its getElementsByTagName loop).
+							var skipAttrs = ['width', 'height', 'viewbox',
+								'preserveaspectratio', 'id', 'x', 'y', 'version'];
 
-							if (style != null && style != '')
+							for (var i = 0; i < svg.attributes.length; i++)
 							{
-								symbol.setAttribute('style', style.replace(
-									/url\(\s*(['"]?)#/g, 'url($1#' + id + '-'));
+								var attr = svg.attributes[i];
+								var name = attr.name.toLowerCase();
+
+								if (name.substring(0, 5) != 'xmlns' &&
+									mxUtils.indexOf(skipAttrs, name) < 0)
+								{
+									var value = attr.value;
+
+									if (name == 'class')
+									{
+										var tokens = value.split(/\s+/);
+
+										for (var j = 0; j < tokens.length; j++)
+										{
+											if (tokens[j] != '')
+											{
+												tokens[j] = id + '-' + tokens[j];
+											}
+										}
+
+										value = tokens.join(' ');
+									}
+									else if (value.indexOf('url(') >= 0)
+									{
+										value = value.replace(/url\(\s*(['"]?)#/g,
+											'url($1#' + id + '-');
+									}
+
+									symbol.setAttribute(attr.name, value);
+								}
 							}
 
 							var children = svg.childNodes;
@@ -6128,7 +6224,7 @@ Graph.prototype.enableDiagramBackground = false;
  * 
  */
 Graph.prototype.defaultPageBackgroundColor = (urlParams['embedInline'] == '1') ?
-	'transparent' : 'light-dark(#ffffff, ' + Editor.darkColor + ')';
+	'transparent' : Editor.getDefaultPageBackgroundColor();
 
 /**
  * 
@@ -9210,6 +9306,45 @@ Graph.prototype.initLayoutManager = function()
 			}
 		}
 	};
+};
+
+/**
+ * Returns all cells below the given parent (default: model root) whose style
+ * defines a childLayout, ie. the containers the layout manager runs a layout
+ * for. Returns an empty array if there is no layout manager.
+ */
+Graph.prototype.getChildLayoutCells = function(parent)
+{
+	if (this.layoutManager == null)
+	{
+		return [];
+	}
+
+	var manager = this.layoutManager;
+
+	return this.model.filterDescendants(function(cell)
+	{
+		return manager.hasLayout(cell);
+	}, parent);
+};
+
+/**
+ * Executes the layouts of all cells returned by getChildLayoutCells using the
+ * layout manager's two-phase execution: nested child layouts run before their
+ * parent layout (so the parent sees the final child sizes), then all layouts
+ * run from top to bottom. Used to apply the layouts defined in a diagram
+ * without editing it, e.g. when a file with childLayout styles is opened via
+ * the #create hash — the manager otherwise only runs them when the model
+ * changes.
+ */
+Graph.prototype.executeAllChildLayouts = function(parent)
+{
+	var cells = this.getChildLayoutCells(parent);
+
+	if (cells.length > 0)
+	{
+		this.layoutManager.executeLayoutForCells(cells);
+	}
 };
 
 /**
@@ -19704,24 +19839,29 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 		
 		/**
-		 * Overrides ungroup to check if group should be removed.
+		 * Overrides ungroup to check if group should be removed. Removes
+		 * invisible groups and transparentBounds containers: the latter
+		 * derive their rendered box from their children (the stored
+		 * geometry is a pinned origin), so without children they degrade
+		 * to a zero-sized artifact at the origin.
 		 */
 		Graph.prototype.removeCellsAfterUngroup = function(cells)
 		{
 			var cellsToRemove = [];
-			
+
 			for (var i = 0; i < cells.length; i++)
 			{
 				if (this.isCellDeletable(cells[i]) &&
-					this.isTransparentState(
-						this.view.getState(cells[i])))
+					(this.isTransparentState(
+						this.view.getState(cells[i])) ||
+					this.isTransparentBounds(cells[i])))
 				{
 					cellsToRemove.push(cells[i]);
 				}
 			}
-			
+
 			cells = cellsToRemove;
-			
+
 			mxGraph.prototype.removeCellsAfterUngroup.apply(this, arguments);
 		};
 
@@ -26608,23 +26748,68 @@ if (typeof mxVertexHandler !== 'undefined')
 				{
 					if (this.isSpaceEvent(me))
 					{
+						// Applies the space to the chain of containers under the start
+						// point by moving their children beyond the point and changing
+						// the container size by the drag distance (jgraph/drawio#5544)
+						var parents = [this.graph.getDefaultParent()];
+						var container = this.graph.getCellAt(x0, y0, parents[0],
+							true, false, mxUtils.bind(this, function(state)
+						{
+							return !this.graph.isContainer(state.cell) ||
+								this.graph.isCellLocked(state.cell) ||
+								this.graph.isCellCollapsed(state.cell) ||
+								this.graph.isTable(state.cell) ||
+								this.graph.isTableRow(state.cell) ||
+								this.graph.isTableCell(state.cell);
+						}));
+
+						if (container != null)
+						{
+							var temp = [];
+
+							while (container != parents[0])
+							{
+								temp.unshift(container);
+								container = this.graph.model.getParent(container);
+							}
+
+							parents = parents.concat(temp);
+						}
+
 						this.graph.model.beginUpdate();
 						try
 						{
-							var cells = this.graph.getCellsBeyond(x0, y0, this.graph.getDefaultParent(), true, true);
-	
-							for (var i = 0; i < cells.length; i++)
+							for (var j = 0; j < parents.length; j++)
 							{
-								if (this.graph.isCellMovable(cells[i]))
+								var cells = this.graph.getCellsBeyond(x0, y0, parents[j], true, true);
+
+								for (var i = 0; i < cells.length; i++)
 								{
-									var tmp = this.graph.view.getState(cells[i]);
-									var geo = this.graph.getCellGeometry(cells[i]);
-									
-									if (tmp != null && geo != null)
+									if (this.graph.isCellMovable(cells[i]) &&
+										mxUtils.indexOf(parents, cells[i]) < 0)
+									{
+										var tmp = this.graph.view.getState(cells[i]);
+										var geo = this.graph.getCellGeometry(cells[i]);
+
+										if (tmp != null && geo != null)
+										{
+											geo = geo.clone();
+											geo.translate(dx, dy);
+											this.graph.model.setGeometry(cells[i], geo);
+										}
+									}
+								}
+
+								if (j > 0 && this.graph.isCellResizable(parents[j]))
+								{
+									var geo = this.graph.getCellGeometry(parents[j]);
+
+									if (geo != null)
 									{
 										geo = geo.clone();
-										geo.translate(dx, dy);
-										this.graph.model.setGeometry(cells[i], geo);
+										geo.width = Math.max(0, geo.width + dx);
+										geo.height = Math.max(0, geo.height + dy);
+										this.graph.model.setGeometry(parents[j], geo);
 									}
 								}
 							}

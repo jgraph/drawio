@@ -38,6 +38,31 @@ in the classic toolbar (grapheditor/Toolbar.js) and the sketch/simple picker
 (`Editor.defaultCsvValue`), drawusaurus json-layout-specification.md and
 `../drawio-tools/tools/csv.html`.
 
+## Applying the layouts stored in a diagram (applyLayouts)
+
+The layout manager runs a `childLayout` only when the model CHANGES, so a
+diagram whose cells carry childLayout styles but no meaningful coordinates
+renders at the stored positions (typically all (0,0)) until the first edit —
+[jgraph/drawio#4762]. `Graph.executeAllChildLayouts(parent)`
+(grapheditor/Graph.js) applies them on demand: it collects every cell below
+`parent` (default: the model root) for which the manager's `hasLayout` holds
+and hands them to `mxLayoutManager.executeLayoutForCells`, so the manager's
+own two-phase order applies — nested child layouts run BEFORE their parent
+layout (BEGIN_UPDATE phase, deepest first), then all layouts run top-down.
+That's the same code path a real edit takes, so results are identical to
+"nudge a cell and let the manager run"; a converged diagram produces an empty
+edit per the convergence contract below.
+
+`EditorUi.applyChildLayouts(done)` (diagramly/EditorUi.js) is the UI-level
+wrapper: it waits for the elk bundle via `whenScriptReady` — but ONLY when a
+childLayout actually decodes to an elk* spec, so diagrams with the legacy
+string layouts (flowLayout, treeLayout, …) don't depend on the bundle — and
+runs best-effort after a timeout. Wired into `App.executeCreateObject` as the
+`#create` JSON's `applyLayouts: true` option, running BEFORE the one-shot
+`layout` option so a whole-page layout sees the containers at their final
+size; both options are dropped from the rewritten hash, which then carries
+the laid-out XML.
+
 ## Layout runs retarget a selected layout container
 
 With exactly one vertex selected whose style carries a replaceable

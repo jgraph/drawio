@@ -3884,7 +3884,7 @@ EditorUi.prototype.initCanvas = function()
 					{
 						window.location.href = backUrl;
 						mxEvent.consume(evt);
-					}), Editor.backImage, mxResources.get('back', null, 'Back'));
+					}), Editor.backImage, mxResources.get('back'));
 				}
 			}
 			
@@ -4173,7 +4173,7 @@ EditorUi.prototype.initCanvas = function()
 					}
 					
 					mxEvent.consume(evt);
-				}), Editor.refreshImage, mxResources.get('refresh', null, 'Refresh'));
+				}), Editor.refreshImage, mxResources.get('refresh'));
 			}
 
 			if (toolbarConfig.fullscreenBtn != null && window.self !== window.top)
@@ -4190,7 +4190,7 @@ EditorUi.prototype.initCanvas = function()
 					}
 					
 					mxEvent.consume(evt);
-				}), Editor.fullscreenImage, mxResources.get('openInNewWindow', null, 'Open in New Window'));
+				}), Editor.fullscreenImage, mxResources.get('openInNewWindow'));
 			}
 			
 			if (!toolbarConfig.noCloseBtn && ((toolbarConfig.closeBtn && window.self === window.top) ||

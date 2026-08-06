@@ -1028,8 +1028,7 @@
 			exportImage('webp');
 		}));
 
-		editorUi.actions.put('exportAnimatedGif', new Action(mxResources.get('formatAnimatedGif',
-			null, 'Animated GIF') + '...', function()
+		editorUi.actions.put('exportAnimatedGif', new Action(mxResources.get('formatAnimatedGif') + '...', function()
 		{
 			editorUi.showAnimatedGifExportDialog();
 		}));
@@ -1381,7 +1380,7 @@
 							}]]);
 					}]);
 				}
-				
+
 				editorUi.showConfigurationEditorDialog(mxResources.get('configuration') + ':', Editor.configurationKey,
 					buttons, 'https://www.drawio.com/doc/faq/configure-diagram-editor');
 			});
@@ -1393,8 +1392,14 @@
 		// in older browsers. URL param has precedence over the saved setting.
 		if (mxClient.IS_CHROMEAPP || isLocalStorage)
 		{
+			editorUi.updateOfflineLanguages();
+
 			this.put('language', new Menu(mxUtils.bind(this, function(menu, parent)
 			{
+				// Refreshes the offline availability of the language bundles
+				// for the next time this menu is opened (asynchronous)
+				editorUi.updateOfflineLanguages();
+
 				var currentLanguage = mxLanguage;
 
 				if (urlParams['lang'] == null && isLocalStorage)
@@ -1409,10 +1414,19 @@
 					
 					if (lang != '')
 					{
+						// Language bundles are cached on first use - while
+						// offline, only cached bundles produce a translated UI
+						var enabled = editorUi.isLanguageAvailableOffline(id);
+
 						item = menu.addItem(lang, null, mxUtils.bind(this, function()
 						{
 							editorUi.setAndPersistLanguage(id);
-						}), parent);
+						}), parent, null, enabled);
+
+						if (!enabled)
+						{
+							item.setAttribute('title', mxResources.get('notInOffline'));
+						}
 						
 						if (id == currentLanguage || (id == '' && currentLanguage == null))
 						{
@@ -1427,9 +1441,23 @@
 				menu.addSeparator(parent);
 
 				// LATER: Sort menu by language name
-				for(var langId in mxLanguageMap) 
+				for(var langId in mxLanguageMap)
 				{
 					addLangItem(langId);
+				}
+
+				// Language dialog with the offline bundles - only useful
+				// where a service worker caches them on use
+				if ('serviceWorker' in navigator &&
+					navigator.serviceWorker.controller != null)
+				{
+					menu.addSeparator(parent);
+
+					menu.addItem(mxResources.get('manage') + '...',
+						null, mxUtils.bind(this, function()
+					{
+						editorUi.showLanguageDialog();
+					}), parent);
 				}
 			})));
 		}
@@ -1445,6 +1473,22 @@
 	    	editorUi.showCustomLayoutDialog(JSON.stringify(
 				editorUi.customLayoutConfig, null, 2));
 		});
+
+		// Re-runs the most recent layout with the same options (recorded as
+		// a custom-layout array on lastLayoutSpec by executeLayoutSpec,
+		// ElkLayout.run, LibavoidRouting.run and the custom layout dialog).
+		// retargetSelection: as a user gesture the replay may retarget a
+		// selected layout container's childLayout, like the other Arrange >
+		// Layout items (programmatic executeLayoutSpec callers must not).
+		// Guarded internally because the Ctrl+Alt keymap invokes the action
+		// without checking its enabled state.
+		editorUi.actions.addAction('runLastLayout', function()
+		{
+			if (editorUi.lastLayoutSpec != null)
+			{
+				editorUi.executeLayoutSpec(editorUi.lastLayoutSpec, null, true);
+			}
+		}, null, null, Editor.ctrlKey + '+' + Editor.altKey + '+T');
 
 		// Adds action for removing user-defined colors
 		editorUi.actions.put('adaptiveColors', new Action('adaptiveColors', function(evt)
@@ -1472,6 +1516,7 @@
 			}
 		});
 		
+		var menus = this;
 		var layoutMenu = this.get('layout');
 		var layoutMenuFunct = layoutMenu.funct;
 
@@ -1480,18 +1525,16 @@
 
 		layoutMenu.funct = function(menu, parent)
 		{
-			// Re-runs the most recent layout with the same options (recorded
-			// as a custom-layout array on lastLayoutSpec by executeLayoutSpec,
-			// ElkLayout.run, LibavoidRouting.run and the custom layout
-			// dialog); grayed out until a layout has run in this session.
-			menu.addItem(mxResources.get('runLastLayout'), null, function()
+			// Grayed out until a layout has run in this session; see the
+			// runLastLayout action for the replay semantics.
+			var action = editorUi.actions.get('runLastLayout');
+
+			var item = menu.addItem(mxResources.get('runLastLayout'), null, function()
 			{
-				// retargetSelection: as a menu gesture the replay may retarget
-				// a selected layout container's childLayout, like the other
-				// Arrange > Layout items (programmatic executeLayoutSpec
-				// callers must not).
-				editorUi.executeLayoutSpec(editorUi.lastLayoutSpec, null, true);
+				action.funct();
 			}, parent, null, isGraphEnabled() && editorUi.lastLayoutSpec != null);
+
+			menus.addShortcut(item, action);
 
 			menu.addSeparator(parent);
 
@@ -5097,7 +5140,7 @@
 					(mxUtils.bind(this, function(index)
 					{
 						var item = null;
-
+					
 						if (editorUi.pages[index] == page && !editorUi.editor.graph.isLightboxView() &&
 							editorUi.editor.graph.isEnabled())
 						{
@@ -5227,8 +5270,7 @@
 				Editor.currentTheme == 'sketch' ||
 				Editor.currentTheme == 'min')
 			{
-				if (urlParams['embed'] != '1' && urlParams['extAuth'] != '1' &&
-					editorUi.mode != App.MODE_ATLAS)
+				if (editorUi.isThemeMenuVisible())
 				{
 					editorUi.menus.addSubmenu('theme', menu, parent);
 				}
@@ -5280,8 +5322,7 @@
 			}
 			else
 			{
-				if (urlParams['embed'] != '1' && urlParams['extAuth'] != '1' &&
-					editorUi.mode != App.MODE_ATLAS)
+				if (editorUi.isThemeMenuVisible())
 				{
 					this.addSubmenu('theme', menu, parent);
 				}

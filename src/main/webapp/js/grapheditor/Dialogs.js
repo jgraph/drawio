@@ -1392,7 +1392,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 	// the parent (eg. a table/swimlane cell using its container's color). Shown
 	// only when the caller marks the value as inheritable (allowInherit). Applies
 	// the 'inherit' sentinel and closes the picker like choosing a color.
-	var inheritBtn = mxUtils.button(mxResources.get('inherit', null, 'Inherit'), function()
+	var inheritBtn = mxUtils.button(mxResources.get('inherit'), function()
 	{
 		applyFunction('inherit');
 
@@ -1409,7 +1409,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 		}
 	});
 
-	inheritBtn.setAttribute('title', mxResources.get('inherit', null, 'Inherit'));
+	inheritBtn.setAttribute('title', mxResources.get('inherit'));
 	// allowInherit may be a live predicate (re-evaluated as the selection changes
 	// while the reused color window stays open) or a plain boolean
 	function inheritAllowed(v)
@@ -2650,7 +2650,7 @@ var MarkupDialog = function(editorUi, title, value, fn, cancelFn, helpLink)
 			execCmd('strikeThrough');
 		}
 	});
-	addFormatButton('&lt;/&gt;', mxResources.get('code', null, 'Code'), function()
+	addFormatButton('&lt;/&gt;', mxResources.get('code'), function()
 	{
 		if (sourceVisible)
 		{
@@ -2730,7 +2730,7 @@ var MarkupDialog = function(editorUi, title, value, fn, cancelFn, helpLink)
 	// Source view toggle on the right of the toolbar
 	var sourceBtn = document.createElement('a');
 	sourceBtn.className = 'geMarkupTbBtn geMarkupSourceBtn';
-	mxUtils.write(sourceBtn, mxResources.get('html', null, 'HTML'));
+	mxUtils.write(sourceBtn, mxResources.get('html'));
 
 	mxEvent.addListener(sourceBtn, 'click', function(evt)
 	{

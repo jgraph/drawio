@@ -93,6 +93,46 @@ straight through sibling shapes) and suppressed the terminals' jetty stubs
 core is model-free); the warm endpoint-drag preview session
 (`buildPreviewSession`) applies the same filter against its fixed cell.
 
+The hovered-target side (Aug 2026): EVERY resolved hover target routes
+through the fresh `previewRouteToCell` path — the `pinned` gates in both drag
+previews are simply "target resolved and expressible" (in the session's
+shapeRefs or transparentBounds); the warm session solves only the
+empty-space cursor tracking. Two regressions forced this generalization
+before it settled: (1) a plain hover target INSIDE a container solved WITH
+that container as an obstacle while the commit drops it via
+`filterEnclosing` — the session's obstacle set is filtered once, against the
+FIXED end only (connect preview entered a swimlane's child from the left,
+the drop committed a route through the swimlane's bottom); (2) a CONTAINER
+as the hover target itself: the warm path approximates the target as a free
+point at its centre, which sits inside the target's own obstacle, and the
+warm router's incremental state biases the escape side — a reconnect
+preview entered the swimlane from below while the drop committed a
+left-side entry, even though commit and warm endpoint were identical (the
+fresh solve has no route history). The same bias hits (3) the cursor over
+empty space INSIDE an obstacle — released there as a dangling end, the
+commit runs a fresh dangling solve: such cursor positions route through
+`previewRouteToPoint` (`insideAny` against the session's obstacle list;
+same dangling descriptor as `routeCells`, bare free point, no
+constraint/pins/jetty on the dragged end). Open-space cursor tracking
+stays on the warm session. Cost is bounded by the existing 30ms preview
+throttle, like masked/snap/anchor targets before.
+
+## Self-loops (Aug 2026)
+
+The core `computeRoutes` SKIPS self-loop edges (`source === target`; an edge
+with no route entry is never written) — obstacle avoidance between identical
+endpoints is meaningless, and libavoid's orthogonal router degenerates to a
+buffer-sized hook beside the shape. Self-loops belong to the editor's loop
+styling: creating one stamps `orthogonalEdgeStyle` + `innerLoopWaypoints=1` +
+default east-loop waypoints (`Graph.applyLoopStyle`), which the auto-route at
+BEFORE_UNDO used to clobber right after the stamp (first seen as a connect
+onto the source's own anchor committing a 16x15px hook at the buffer
+distance). Both drag previews already skipped self-loops per-frame (default
+preview while hovering the fixed/source cell), and `isAutoEdge` deliberately
+stays true for flagged loops: an endpoint drag that UN-loops the edge onto
+another shape previews and commits through libavoid as usual — the flag on a
+loop is inert, not cleared.
+
 ## Dangling (unconnected) ends (July 2026)
 
 An edge end with no terminal vertex routes to a free point instead of being
@@ -190,6 +230,22 @@ cancel/escape) restores everything the drag touched — otherwise an edge the
 drag crossed and left kept the preview route on screen with nothing in the
 model (an un-undoable ghost; the committed re-routes themselves join the
 move's single undoable edit via the warm synchronous `autoReroute`).
+CLONE drags (`handler.cloning`) skip the solve — the originals stay in place
+and the clone's edges are routed by the CELLS_MOVED commit on drop — but the
+empty route set keeps that touched cleanup running, so transient routes from
+before a mid-drag switch to cloning revert to the model route. A dangling
+free point rides the drag when its edge is itself in the moving set (the
+commit translates the edge geometry including terminal points) — applied in
+BOTH halves: the solve descriptor (`solveMovePreview`) and the state
+application (`livePreviewMove`, where `updateFixedTerminalPoints` would
+otherwise re-derive the end from the not-yet-translated model geometry); a
+stationary edge's free point stays anchored like the commit's re-route.
+The base `mxGraphHandler.updateLivePreview` must derive a dangling end from
+the GEOMETRY per frame (`getFixedTerminalPoint`), not from the state's last
+points: the application leaves the ridden route in the state across frames,
+so `state-point + delta` double-counts — the dashed handler border (drawn
+inside the base pass, BEFORE the application corrects the state) visibly ran
+away from the edge at twice the drag speed.
 
 A layout run that STAMPS its own edge routing takes the edges over:
 `diagramly/ElkLayout.js` wraps `ElkLayout._applyResult` (both attach paths of

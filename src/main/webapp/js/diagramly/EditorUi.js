@@ -301,6 +301,37 @@
 	};
 
 	/**
+	 * Returns the Mermaid config to store in a newly inserted diagram cell (and
+	 * a configured image): a clone of the configured default
+	 * (EditorUi.defaultMermaidConfig, set via the `mermaid` config key) when one
+	 * is set, else **null**. Storing the config makes the cell self-describing so
+	 * it renders the same across deployments instead of adopting whatever default
+	 * is active where it is next edited. Returning null when unconfigured keeps
+	 * the previous behavior byte-for-byte (cells store config:null, like before
+	 * the config key existed), so a deployment that sets no `mermaid` config sees
+	 * no change at all. The security keys (securityLevel, startOnLoad,
+	 * maxTextSize) are re-applied per parse by getMermaidConfig, so they are not
+	 * stored here; parsing with a null config resolves to the same default.
+	 */
+	EditorUi.getInsertMermaidConfig = function()
+	{
+		return EditorUi.isMermaidConfigured() ?
+			mxUtils.clone(EditorUi.defaultMermaidConfig) : null;
+	};
+
+	/**
+	 * Returns true when a Mermaid config has been set via the `mermaid` config
+	 * key (a non-empty EditorUi.defaultMermaidConfig). Used to decide whether a
+	 * new image follows that config or keeps the previous image look
+	 * (legacyMermaidConfig) - see parseMermaidImage.
+	 */
+	EditorUi.isMermaidConfigured = function()
+	{
+		return EditorUi.defaultMermaidConfig != null &&
+			Object.keys(EditorUi.defaultMermaidConfig).length > 0;
+	};
+
+	/**
 	 * Default padding (px) drawn around mermaid image cells, matching the
 	 * groupPadding of the editable wrapper groups (mxMermaidToDrawio and
 	 * mxPlantUmlToDrawio groupStyle — keep in sync) so both output types
@@ -944,6 +975,12 @@
 	{
 		this.shareCursorPosition = value;
 
+		if (Editor.isSettingsEnabled())
+		{
+			mxSettings.settings.shareCursorPosition = value;
+			mxSettings.save();
+		}
+
 		this.fireEvent(new mxEventObject('shareCursorPositionChanged'));
 	};
 
@@ -961,6 +998,12 @@
 	EditorUi.prototype.setShowRemoteCursors = function(value)
 	{
 		this.showRemoteCursors = value;
+
+		if (Editor.isSettingsEnabled())
+		{
+			mxSettings.settings.showRemoteCursors = value;
+			mxSettings.save();
+		}
 
 		this.fireEvent(new mxEventObject('showRemoteCursorsChanged'));
 	};
@@ -5500,8 +5543,8 @@
 			return tab;
 		}
 
-		var editorTabBtn = createTab(mxResources.get('editor', null, 'Editor'), true);
-		var jsonTabBtn = createTab(mxResources.get('formatJson', null, 'JSON'), false);
+		var editorTabBtn = createTab(mxResources.get('editor'), true);
+		var jsonTabBtn = createTab(mxResources.get('formatJson'), false);
 
 		tabBar.appendChild(editorTabBtn);
 		tabBar.appendChild(jsonTabBtn);
@@ -5587,28 +5630,20 @@
 		div.appendChild(jsonContent);
 
 		// Tab switching
+		function styleTab(btn, active)
+		{
+			btn.style.borderBottomColor = active ? '#29b6f2' : 'transparent';
+			btn.style.fontWeight = active ? 'bold' : 'normal';
+			btn.style.color = active ? '' : '#888';
+		}
+
 		function setActiveTab(tab)
 		{
 			if (tab === activeTab) return;
 
-			if (tab === 'json')
-			{
-				if (latestEditorConfig != null)
-				{
-					textarea.value = JSON.stringify(latestEditorConfig, null, 2);
-				}
-
-				editorContent.style.display = 'none';
-				jsonContent.style.display = '';
-				jsonTabBtn.style.borderBottomColor = '#29b6f2';
-				jsonTabBtn.style.fontWeight = 'bold';
-				jsonTabBtn.style.color = '';
-				editorTabBtn.style.borderBottomColor = 'transparent';
-				editorTabBtn.style.fontWeight = 'normal';
-				editorTabBtn.style.color = '#888';
-				textarea.focus();
-			}
-			else
+			// Leaving the JSON tab adopts its (valid) content, entering it
+			// renders the current config
+			if (activeTab === 'json')
 			{
 				try
 				{
@@ -5617,15 +5652,20 @@
 					configEditor.setConfig(obj);
 				}
 				catch (e) {}
+			}
+			else if (tab === 'json' && latestEditorConfig != null)
+			{
+				textarea.value = JSON.stringify(latestEditorConfig, null, 2);
+			}
 
-				editorContent.style.display = '';
-				jsonContent.style.display = 'none';
-				editorTabBtn.style.borderBottomColor = '#29b6f2';
-				editorTabBtn.style.fontWeight = 'bold';
-				editorTabBtn.style.color = '';
-				jsonTabBtn.style.borderBottomColor = 'transparent';
-				jsonTabBtn.style.fontWeight = 'normal';
-				jsonTabBtn.style.color = '#888';
+			editorContent.style.display = (tab === 'editor') ? '' : 'none';
+			jsonContent.style.display = (tab === 'json') ? '' : 'none';
+			styleTab(editorTabBtn, tab === 'editor');
+			styleTab(jsonTabBtn, tab === 'json');
+
+			if (tab === 'json')
+			{
+				textarea.focus();
 			}
 
 			activeTab = tab;
@@ -5663,7 +5703,7 @@
 					var btn = mxUtils.button(label, function(e)
 					{
 						// Sync textarea from editor before calling button handler
-						if (activeTab === 'editor' && latestEditorConfig != null)
+						if (activeTab !== 'json' && latestEditorConfig != null)
 						{
 							textarea.value = JSON.stringify(latestEditorConfig, null, 2);
 						}
@@ -5692,9 +5732,17 @@
 
 		var applyBtn = mxUtils.button(mxResources.get('apply'), function()
 		{
+			// Nothing edited (eg. only offline languages toggled, which
+			// take effect immediately) - close without the restart notice
+			if (!modified)
+			{
+				closeDialog();
+				return;
+			}
+
 			var newValue;
 
-			if (activeTab === 'editor')
+			if (activeTab !== 'json')
 			{
 				var invalid = configEditor.getInvalidFields();
 
@@ -5782,6 +5830,257 @@
 			}, null, null, new mxRectangle(0, 0, w, 400));
 
 		textarea.scrollTop = 0;
+	};
+
+	/**
+	 * Shows the offline languages dialog: bundles are cached on first use
+	 * by the service worker and can be installed and removed here. The
+	 * checkboxes act immediately; the UI language itself is chosen in the
+	 * language menu.
+	 */
+	EditorUi.prototype.showLanguageDialog = function()
+	{
+		var editorUi = this;
+
+		var div = document.createElement('div');
+		div.style.position = 'absolute';
+		div.style.top = '10px';
+		div.style.bottom = '10px';
+		div.style.left = '16px';
+		div.style.right = '16px';
+
+		var content = document.createElement('div');
+		content.style.position = 'absolute';
+		content.style.left = '0';
+		content.style.right = '0';
+		content.style.top = '0';
+		content.style.bottom = '46px';
+		content.style.overflow = 'auto';
+		div.appendChild(content);
+
+		// Updated in place by the window online/offline listeners while
+		// the dialog is open
+		var languageRows = [];
+
+		// The explicitly selected language as in the language menu -
+		// mxClient.language falls back to the browser locale, which is
+		// not what the UI loaded. With "Automatic" nothing is pinned:
+		// the resolved bundle is re-cached on the next start.
+		function getSelectedLanguage()
+		{
+			var current = mxLanguage;
+
+			if (urlParams['lang'] == null && isLocalStorage)
+			{
+				current = mxSettings.settings.language;
+			}
+
+			return current;
+		}
+
+		function updateLanguageStates()
+		{
+			var current = getSelectedLanguage();
+			var offline = navigator.onLine === false;
+
+			var installed = Object.create(null);
+
+			for (var i = 0; i < languageRows.length; i++)
+			{
+				var entry = languageRows[i];
+				installed[entry.code] = entry.box.checked;
+
+				// English ships precached, the bundle in use would be
+				// re-downloaded on the next start, and installing needs
+				// the network
+				entry.box.disabled = entry.code == 'en' ||
+					(entry.code == current && entry.box.checked) ||
+					(offline && !entry.box.checked);
+				entry.box.style.cursor = entry.box.disabled ? '' : 'pointer';
+				entry.row.style.cursor = entry.box.disabled ? 'default' : 'pointer';
+
+				if (offline && !entry.box.checked)
+				{
+					entry.row.setAttribute('title', mxResources.get('notInOffline'));
+				}
+				else
+				{
+					entry.row.removeAttribute('title');
+				}
+			}
+		}
+
+		editorUi.getOfflineLanguages(function(codes)
+		{
+			var installed = Object.create(null);
+
+			for (var i = 0; i < codes.length; i++)
+			{
+				installed[codes[i]] = true;
+			}
+
+			// All selectable languages sorted by native name
+			var entries = [];
+
+			for (var code in mxLanguageMap)
+			{
+				if (code != 'i18n' && mxLanguageMap[code] != '')
+				{
+					entries.push({code: code, name: mxLanguageMap[code]});
+				}
+			}
+
+			entries.sort(function(a, b)
+			{
+				return a.name.localeCompare(b.name);
+			});
+
+			var help = document.createElement('div');
+			help.style.padding = '8px 4px 0 4px';
+			help.style.color = '#888';
+			mxUtils.write(help, mxResources.get('offlineLanguages',
+				null, 'Languages available offline'));
+			content.appendChild(help);
+
+			var grid = document.createElement('div');
+			grid.style.display = 'grid';
+			grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(170px, 1fr))';
+			grid.style.gap = '2px 16px';
+			grid.style.padding = '8px 4px';
+
+			// The gaps and padding belong to the grid, not the rows - a
+			// uniform pointer keeps the cursor steady across them; the
+			// rows are labels that toggle their install checkbox (rows
+			// that cannot act override it with 'default')
+			grid.style.cursor = 'pointer';
+
+			for (var i = 0; i < entries.length; i++)
+			{
+				(function(code, name)
+				{
+					var row = document.createElement('label');
+					row.style.display = 'flex';
+					row.style.alignItems = 'center';
+					row.style.padding = '4px';
+					row.style.overflow = 'hidden';
+					row.style.whiteSpace = 'nowrap';
+
+					// Fixed-size slot so the checkbox can make way for
+					// the spinner while a bundle is loading
+					var cell = document.createElement('span');
+					cell.style.display = 'inline-flex';
+					cell.style.alignItems = 'center';
+					cell.style.justifyContent = 'center';
+					cell.style.position = 'relative';
+					cell.style.width = '16px';
+					cell.style.height = '16px';
+					cell.style.margin = '0 8px 0 0';
+					cell.style.flexShrink = '0';
+
+					var box = document.createElement('input');
+					box.setAttribute('type', 'checkbox');
+					box.style.margin = '0';
+					box.checked = code == 'en' || installed[code] == true;
+					languageRows.push({code: code, box: box, row: row});
+
+					// The UA checkbox cursor does not inherit the row's
+					// pointer - kept in sync with the disabled state in
+					// updateLanguageStates
+
+					mxEvent.addListener(box, 'change', function()
+					{
+						box.style.display = 'none';
+						var spinner = editorUi.createSpinner(null, null, 4);
+						spinner.spin(cell);
+
+						// Reflects the actual cache state afterwards - a
+						// failed install (eg. connection lost) reverts
+						var done = function()
+						{
+							editorUi.getOfflineLanguages(function(codes)
+							{
+								spinner.stop();
+								box.style.display = '';
+								box.checked = mxUtils.indexOf(codes, code) >= 0;
+								updateLanguageStates();
+							});
+
+							editorUi.updateOfflineLanguages();
+						};
+
+						if (box.checked)
+						{
+							// Fetching through the service worker caches
+							// the bundle as a side effect (lazy route)
+							fetch('resources/dia_' + code + '.txt')
+								.then(done, done);
+						}
+						else
+						{
+							editorUi.removeOfflineLanguage(code, done);
+						}
+					});
+
+					cell.appendChild(box);
+					row.appendChild(cell);
+
+					var label = document.createElement('span');
+					label.style.overflow = 'hidden';
+					label.style.textOverflow = 'ellipsis';
+
+					// The dialog inherits a line-height equal to the font
+					// size - overflow:hidden would clip descenders
+					label.style.lineHeight = 'normal';
+					mxUtils.write(label, name);
+					row.appendChild(label);
+					grid.appendChild(row);
+				})(entries[i].code, entries[i].name);
+			}
+
+			content.appendChild(grid);
+			updateLanguageStates();
+		});
+
+		// Keeps the checkbox and dropdown states in sync with
+		// connectivity changes; removed when the dialog closes
+		var connectivityListener = function()
+		{
+			updateLanguageStates();
+		};
+
+		mxEvent.addListener(window, 'online', connectivityListener);
+		mxEvent.addListener(window, 'offline', connectivityListener);
+
+		// Buttons
+		var buttons = document.createElement('div');
+		buttons.style.position = 'absolute';
+		buttons.style.left = '0';
+		buttons.style.right = '0';
+		buttons.style.bottom = '0';
+		buttons.style.height = '46px';
+		buttons.style.display = 'flex';
+		buttons.style.whiteSpace = 'nowrap';
+		buttons.style.alignItems = 'center';
+		buttons.style.justifyContent = 'end';
+		buttons.style.paddingTop = '10px';
+		buttons.style.paddingBottom = '10px';
+		buttons.style.boxSizing = 'border-box';
+
+		var closeBtn = mxUtils.button(mxResources.get('close'), function()
+		{
+			editorUi.hideDialog();
+		});
+
+		closeBtn.setAttribute('title', 'Escape');
+		closeBtn.className = 'geBtn gePrimaryBtn';
+		buttons.appendChild(closeBtn);
+		div.appendChild(buttons);
+
+		this.showDialog(div, 480, 460, true, true, function()
+		{
+			mxEvent.removeListener(window, 'online', connectivityListener);
+			mxEvent.removeListener(window, 'offline', connectivityListener);
+		});
 	};
 
 	/**
@@ -6394,7 +6693,7 @@
 		div.style.whiteSpace = 'nowrap';
 
 		var hd = document.createElement('h3');
-		mxUtils.write(hd, mxResources.get('formatAnimatedGif', null, 'Animated GIF'));
+		mxUtils.write(hd, mxResources.get('formatAnimatedGif'));
 		div.appendChild(hd);
 
 		// --- Settings section ---
@@ -6406,14 +6705,14 @@
 		formRow.className = 'geDialogFormRow';
 		var lbl = document.createElement('span');
 		lbl.className = 'geDialogFormLabel';
-		mxUtils.write(lbl, mxResources.get('speed', null, 'Speed') + ':');
+		mxUtils.write(lbl, mxResources.get('speed') + ':');
 		formRow.appendChild(lbl);
 		var fpsSelect = document.createElement('select');
 
 		var fpsOptions = [
-			{label: mxResources.get('slow', null, 'Slow'), value: 8},
-			{label: mxResources.get('medium', null, 'Medium'), value: 15},
-			{label: mxResources.get('fast', null, 'Fast'), value: 24}
+			{label: mxResources.get('slow'), value: 8},
+			{label: mxResources.get('medium'), value: 15},
+			{label: mxResources.get('fast'), value: 24}
 		];
 
 		for (var i = 0; i < fpsOptions.length; i++)
@@ -6452,7 +6751,7 @@
 		formRow.className = 'geDialogFormRow';
 		lbl = document.createElement('span');
 		lbl.className = 'geDialogFormLabel';
-		mxUtils.write(lbl, mxResources.get('borderWidth', null, 'Border Width') + ':');
+		mxUtils.write(lbl, mxResources.get('borderWidth') + ':');
 		formRow.appendChild(lbl);
 		var borderInput = document.createElement('input');
 		borderInput.setAttribute('type', 'text');
@@ -6465,12 +6764,12 @@
 		formRow.className = 'geDialogFormRow';
 		lbl = document.createElement('span');
 		lbl.className = 'geDialogFormLabel';
-		mxUtils.write(lbl, mxResources.get('loops', null, 'Loops') + ':');
+		mxUtils.write(lbl, mxResources.get('loops') + ':');
 		formRow.appendChild(lbl);
 		var loopSelect = document.createElement('select');
 
 		var loopOptions = [
-			{label: mxResources.get('forever', null, 'Forever'), value: 0},
+			{label: mxResources.get('forever'), value: 0},
 			{label: '1', value: 1},
 			{label: '3', value: 3},
 			{label: '5', value: 5}
@@ -6570,7 +6869,7 @@
 					((this.editor.graph.background != null &&
 					  this.editor.graph.background != mxConstants.NONE) ?
 						this.editor.graph.background :
-						'light-dark(#ffffff,' + Editor.darkColor + ')')
+						Editor.getDefaultPageBackgroundColor())
 			});
 		}), null, mxResources.get('export'),
 			'https://www.drawio.com/doc/faq/export-diagram');
@@ -6595,26 +6894,24 @@
 
 					if (blob != null)
 					{
-						var filename = this.getBaseFilename() + '.gif';
+						// Routes the result through the standard save dialog
+						// (device/browser/cloud) like the other image exports
+						var reader = new FileReader();
 
-						if (typeof navigator.msSaveBlob === 'function')
+						reader.onload = mxUtils.bind(this, function()
 						{
-							navigator.msSaveBlob(blob, filename);
-						}
-						else
-						{
-							var a = document.createElement('a');
-							a.href = URL.createObjectURL(blob);
-							a.download = filename;
-							document.body.appendChild(a);
-							a.click();
+							var uri = reader.result;
+							this.saveData(this.getBaseFilename() + '.gif', 'gif',
+								uri.substring(uri.lastIndexOf(',') + 1),
+								'image/gif', true);
+						});
 
-							setTimeout(function()
-							{
-								document.body.removeChild(a);
-								URL.revokeObjectURL(a.href);
-							}, 0);
-						}
+						reader.onerror = mxUtils.bind(this, function(e)
+						{
+							this.handleError(e);
+						});
+
+						reader.readAsDataURL(blob);
 					}
 				}), mxUtils.bind(this, function(e)
 				{
@@ -12319,12 +12616,30 @@
 								// draw.io XML into the mermaid parser (surfacing as a
 								// bogus "Unsupported diagram type: <mxfile").
 								var parsed = Editor.extractGraphModelFromText(result);
+								var partial = false;
+
+								// A response cut off mid-model (eg. by an output
+								// limit) has no closing tag so nothing was extracted:
+								// repair the truncation and re-extract so the complete
+								// prefix of the diagram still renders, flagged as
+								// partial for the caller
+								if ((parsed == null || parsed[1] == '') &&
+									result.indexOf('<mxGraphModel') >= 0)
+								{
+									var repaired = Editor.repairTruncatedXml(result);
+
+									if (repaired != null)
+									{
+										parsed = Editor.extractGraphModelFromText(repaired);
+										partial = parsed[1] != '';
+									}
+								}
 
 								if (parsed != null && parsed[1] != '')
 								{
 									if (timeout.clear())
 									{
-										success(parsed[1]);
+										success(parsed[1], partial);
 									}
 								}
 								else if (mxUtils.trim(result).charAt(0) == '<')
@@ -12356,7 +12671,7 @@
 												// Wrap in an editable mermaid group (carries the
 												// source for double-click edit), as the insert dialog does
 												success(mxMermaidToDrawio.wrapGroup(
-													xml, mermaid, null));
+													xml, mermaid, EditorUi.getInsertMermaidConfig()));
 											}
 										}), handleError);
 									}), handleError, retry);
@@ -12960,18 +13275,26 @@
 
 	/**
 	 * Parses the given Mermaid source and returns, via success, the XML for a
-	 * shape=image cell rendering the result (see createMermaidImageXml). Parses
-	 * with EditorUi.legacyMermaidConfig (the config previous versions used for
-	 * Mermaid images) so the image matches the legacy look; the stored config
-	 * stays null, matching legacy image cells (the double-click edit path uses
-	 * legacyMermaidConfig for image cells regardless of the stored config).
+	 * shape=image cell rendering the result (see createMermaidImageXml). When a
+	 * Mermaid config is set (the `mermaid` config key), new images follow it —
+	 * like editable diagrams — and store the resolved config so the cell is
+	 * self-describing and renders the same across deployments. When none is set,
+	 * new images keep the previous image look: they parse with
+	 * EditorUi.legacyMermaidConfig and store a null config, exactly like legacy
+	 * image cells. The parse gets a throwaway clone (getMermaidConfig stamps the
+	 * security keys on it), so the stored config stays clean.
 	 */
 	EditorUi.prototype.parseMermaidImage = function(text, success, error)
 	{
-		this.parseMermaidDiagram(text, mxUtils.clone(EditorUi.legacyMermaidConfig),
+		var configured = EditorUi.isMermaidConfigured();
+		var parseConfig = mxUtils.clone(configured ?
+			EditorUi.defaultMermaidConfig : EditorUi.legacyMermaidConfig);
+		var storeConfig = configured ? parseConfig : null;
+
+		this.parseMermaidDiagram(text, mxUtils.clone(parseConfig),
 			mxUtils.bind(this, function(xml)
 		{
-			success(this.createMermaidImageXml(text, null, xml));
+			success(this.createMermaidImageXml(text, storeConfig, xml));
 		}), error);
 	};
 
@@ -13068,6 +13391,14 @@
 		{
 			var border = this.getMermaidImageBorder(cell, obj.border);
 			var ignore = function() {};
+
+			// Re-render must reproduce the same image, so it re-parses with the
+			// cell's own stored config and writes it back unchanged: a
+			// self-describing image (non-null config) keeps its config, a legacy
+			// image (null config) keeps parsing with legacyMermaidConfig and
+			// stays null. PlantUML keeps its null contract.
+			var storeConfig = (dataAttr == 'plantUmlData' || obj.config == null) ?
+				null : obj.config;
 			var apply = mxUtils.bind(this, function(xml)
 			{
 				// Skips stale applies: if the padding changed again while the
@@ -13078,7 +13409,7 @@
 					graph.model.beginUpdate();
 					try
 					{
-						this.updateMermaidImage(cell, obj.data, null, xml,
+						this.updateMermaidImage(cell, obj.data, storeConfig, xml,
 							border, dataAttr);
 					}
 					finally
@@ -13094,8 +13425,8 @@
 			}
 			else
 			{
-				this.parseMermaidDiagram(obj.data,
-					mxUtils.clone(EditorUi.legacyMermaidConfig), apply, ignore);
+				this.parseMermaidDiagram(obj.data, mxUtils.clone((obj.config != null) ?
+					obj.config : EditorUi.legacyMermaidConfig), apply, ignore);
 			}
 		}
 	};
@@ -14996,6 +15327,14 @@
 			var isImage = mxUtils.getValue(style, mxConstants.STYLE_SHAPE, '') ==
 				mxConstants.SHAPE_IMAGE;
 
+			// A legacy image cell is an image with no stored config (created
+			// before images became self-describing). It keeps the previous look
+			// by re-parsing with legacyMermaidConfig and stays null; every other
+			// case reuses the cell's stored config (or the configured default
+			// when it has none) and persists it - see the config resolution in
+			// the apply and preview handlers below.
+			var legacyImage = isImage && obj.config == null;
+
 			// Diagram (editable group) vs Image (static SVG) output dropdown,
 			// mirroring the Insert > Mermaid dialog and letting the user switch
 			// an existing cell between the two on re-edit. Hidden for embedded
@@ -15041,15 +15380,31 @@
 
 	    		var asImage = typeSelect.value == 'mermaidImage';
 
-	    		// The parse config depends on the TARGET type, not the source:
-	    		// images re-parse with EditorUi.legacyMermaidConfig (so they match
-	    		// the previous default look), the editable diagram uses the
-	    		// diagram's stored config (null for a cell that was an image). The
+	    		// A legacy image re-edited as an image keeps its previous look and
+	    		// the null contract (parse with legacyMermaidConfig, store null).
+	    		// Every other case is self-describing: reuse the cell's stored
+	    		// config, or the configured default when it has none (a legacy
+	    		// cell being converted, or an old null diagram), and persist that
+	    		// same config so the cell renders identically across deployments.
 	    		// config is cloned per parse call so getMermaidConfig's in-place
-	    		// edits (securityLevel, startOnLoad, ...) never mutate the shared
-	    		// template or get saved.
-	    		var config = asImage ? EditorUi.legacyMermaidConfig :
-	    			(isImage ? null : obj.config);
+	    		// edits (securityLevel, startOnLoad, ...) never mutate the stored
+	    		// config or the shared default template.
+	    		var config, storeConfig;
+
+	    		if (asImage && legacyImage)
+	    		{
+	    			config = EditorUi.legacyMermaidConfig;
+	    			storeConfig = null;
+	    		}
+	    		else
+	    		{
+	    			// getInsertMermaidConfig() is null when unconfigured, so an
+	    			// old null diagram re-edited without a config stays null (no
+	    			// change); a configured deployment adopts and persists its config.
+	    			config = (obj.config != null) ? obj.config :
+	    				EditorUi.getInsertMermaidConfig();
+	    			storeConfig = config;
+	    		}
 
 	    		ui.parseMermaidDiagram(text, mxUtils.clone(config), function(xml)
 	    		{
@@ -15067,28 +15422,29 @@
 	    					if (isImage && asImage)
 	    					{
 	    						// Keep image cells as images: re-render the SVG and
-	    						// update the cell in place. Stored config stays null
-	    						// (legacy image-cell format); see parseMermaidImage.
-	    						// The padding follows the groupPadding style (legacy
-	    						// stored border as fallback), see getMermaidImageBorder.
-	    						ui.updateMermaidImage(cell, text, null, xml,
+	    						// update the cell in place. storeConfig is null for a
+	    						// legacy image (keeps that format) and the resolved
+	    						// config for a self-describing one. The padding follows
+	    						// the groupPadding style (legacy stored border as
+	    						// fallback), see getMermaidImageBorder.
+	    						ui.updateMermaidImage(cell, text, storeConfig, xml,
 	    							ui.getMermaidImageBorder(cell, obj.border));
 	    					}
 	    					else if (!isImage && !asImage)
 	    					{
-	    						ui.replaceLockedGroupChildren(cell, xml, text, config);
+	    						ui.replaceLockedGroupChildren(cell, xml, text, storeConfig);
 	    					}
 	    					else
 	    					{
 	    						// Output type changed: swap the cell for the other
 	    						// representation, keeping its position. The padding
 	    						// follows the old cell across the switch (its
-	    						// groupPadding style, or a legacy stored border);
-	    						// the diagram uses a null config.
+	    						// groupPadding style, or a legacy stored border); the
+	    						// new cell stores the resolved config (self-describing).
 	    						var border = ui.getMermaidImageBorder(cell, obj.border);
 	    						var inserted = ui.replaceMermaidCell(cell, asImage ?
-	    							ui.createMermaidImageXml(text, null, xml, null, border) :
-	    							mxMermaidToDrawio.wrapGroup(xml, text, config));
+	    							ui.createMermaidImageXml(text, storeConfig, xml, null, border) :
+	    							mxMermaidToDrawio.wrapGroup(xml, text, storeConfig));
 
 	    						if (!asImage && border != null)
 	    						{
@@ -15112,12 +15468,13 @@
 			{
 				// Previews the parse result the apply would produce, in the
 				// zoomable tooltip, keeping the dialog open. Uses the same
-				// config selection as the apply handler above.
+				// parse-config selection as the apply handler above.
 				if (ui.spinner.spin(document.body, mxResources.get('loading')))
 				{
-					var config = (typeSelect.value == 'mermaidImage') ?
+					var config = (typeSelect.value == 'mermaidImage' && legacyImage) ?
 						EditorUi.legacyMermaidConfig :
-						(isImage ? null : obj.config);
+						((obj.config != null) ? obj.config :
+							EditorUi.getInsertMermaidConfig());
 
 					ui.parseMermaidDiagram(text, mxUtils.clone(config),
 						function(xml)
@@ -15829,6 +16186,7 @@
 			this.altShiftActions[81] = 'copyStyle'; // Alt+Shift+Q
 			this.altShiftActions[87] = 'pasteStyle'; // Alt+Shift+W
 			this.altShiftActions[83] = 'synchronize'; // Alt+Shift+S
+			this.ctrlAltActions[84] = 'runLastLayout'; // Ctrl+Alt+T
 
 			// Applies custom keyboard shortcuts from the configuration
 			// after the default bindings so that they take precedence
@@ -18126,7 +18484,19 @@
 		return this.pages != null && (urlParams['pages'] != '0' ||
 			this.pages.length > 1 || Editor.pagesVisible);
 	};
-	
+
+	/**
+	 * Returns true if the theme menu should be visible.
+	 */
+	EditorUi.prototype.isThemeMenuVisible = function()
+	{
+		// themes=1 shows the menu in embed mode except with a fixed theme,
+		// ie. where the ui or sketch URL parameter overrides the setting
+		return (urlParams['embed'] != '1' || (urlParams['themes'] == '1' &&
+			urlParams['ui'] == null && urlParams['sketch'] != '1')) &&
+			urlParams['extAuth'] != '1' && this.mode != App.MODE_ATLAS;
+	};
+
 	/**
 	 * Overrides image dialog to add image search and Google+.
 	 */
@@ -18734,9 +19104,205 @@
 			mxResources.add(RESOURCE_BASE, null, mxUtils.bind(this, function()
 			{
 				this.spinner.stop();
+				this.updateOfflineLanguages();
+
+				// Dialog texts are static - closes open dialogs so they
+				// reopen in the new language (a dialog with unsaved
+				// changes can veto the close and stops the loop)
+				while (this.dialog != null)
+				{
+					var dlg = this.dialog;
+					this.hideDialog(true);
+
+					if (this.dialog == dlg)
+					{
+						break;
+					}
+				}
+
 				this.fireEvent(new mxEventObject('languageChanged'));
+
+				// The startup flow depends on the splash dialog - reopens
+				// it in the new language instead of leaving no dialog
+				if (this.getCurrentFile() == null &&
+					typeof this.showSplash === 'function')
+				{
+					this.showSplash();
+				}
 			}));
 		}
+	};
+
+	/**
+	 * Scans the service worker precache for language bundles and invokes
+	 * the callback with the sorted language codes and whether the default
+	 * (English) bundle is present.
+	 */
+	EditorUi.prototype.getOfflineLanguages = function(fn)
+	{
+		var done = function(codes, hasDefault)
+		{
+			fn((codes != null) ? codes : [], hasDefault == true);
+		};
+
+		try
+		{
+			if (typeof caches !== 'undefined')
+			{
+				caches.keys().then(function(names)
+				{
+					var scans = [];
+
+					for (var i = 0; i < names.length; i++)
+					{
+						if (names[i].substring(0, 19) == 'workbox-precache-v2')
+						{
+							scans.push(caches.open(names[i]).then(function(cache)
+							{
+								return cache.keys();
+							}));
+						}
+					}
+
+					return Promise.all(scans);
+				}).then(function(results)
+				{
+					var codes = Object.create(null);
+					var hasDefault = false;
+
+					for (var i = 0; i < results.length; i++)
+					{
+						for (var j = 0; j < results[i].length; j++)
+						{
+							var match = /\/resources\/dia(?:_([a-z0-9-]+))?\.txt$/.exec(
+								new URL(results[i][j].url).pathname);
+
+							if (match != null)
+							{
+								if (match[1] != null)
+								{
+									codes[match[1]] = true;
+								}
+								else
+								{
+									hasDefault = true;
+								}
+							}
+						}
+					}
+
+					done(Object.keys(codes).sort(), hasDefault);
+				})['catch'](function()
+				{
+					done(null, false);
+				});
+
+				return;
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+
+		done(null, false);
+	};
+
+	/**
+	 * Scans the service worker precache for language bundles and stores
+	 * which languages are available offline. Asynchronous - the result is
+	 * used by isLanguageAvailableOffline from the next call on.
+	 */
+	EditorUi.prototype.updateOfflineLanguages = function()
+	{
+		this.getOfflineLanguages(mxUtils.bind(this, function(codes, hasDefault)
+		{
+			var available = Object.create(null);
+
+			if (hasDefault)
+			{
+				available['en'] = true;
+			}
+
+			for (var i = 0; i < codes.length; i++)
+			{
+				available[codes[i]] = true;
+			}
+
+			this.offlineLanguages = available;
+		}));
+	};
+
+	/**
+	 * Removes the cached bundle for the given language from the service
+	 * worker precache and invokes the callback when done. The bundle is
+	 * re-downloaded on the next use of that language, and installs stop
+	 * refreshing it (the refresh only covers cached entries).
+	 */
+	EditorUi.prototype.removeOfflineLanguage = function(code, fn)
+	{
+		try
+		{
+			if (typeof caches !== 'undefined' && /^[a-z0-9-]+$/.test(code))
+			{
+				caches.keys().then(function(names)
+				{
+					var deletes = [];
+
+					for (var i = 0; i < names.length; i++)
+					{
+						if (names[i].substring(0, 19) == 'workbox-precache-v2')
+						{
+							deletes.push(caches.open(names[i]).then(function(cache)
+							{
+								return cache.keys().then(function(requests)
+								{
+									return Promise.all(requests.filter(function(req)
+									{
+										return new URL(req.url).pathname.endsWith(
+											'/resources/dia_' + code + '.txt');
+									}).map(function(req)
+									{
+										return cache.delete(req);
+									}));
+								});
+							}));
+						}
+					}
+
+					return Promise.all(deletes);
+				}).then(mxUtils.bind(this, function()
+				{
+					this.updateOfflineLanguages();
+					fn();
+				}))['catch'](function()
+				{
+					fn();
+				});
+
+				return;
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+
+		fn();
+	};
+
+	/**
+	 * Returns true if switching to the given language produces a translated
+	 * UI right now. Bundles are cached by the service worker on first use
+	 * (see GenerateServiceWorker), so while offline only cached bundles -
+	 * and English, which is always precached - are available. Returns true
+	 * when online or without scan results (no service worker, eg. desktop).
+	 */
+	EditorUi.prototype.isLanguageAvailableOffline = function(id)
+	{
+		return navigator.onLine !== false || this.offlineLanguages == null ||
+			this.offlineLanguages['en'] != true || id == '' || id == 'en' ||
+			this.offlineLanguages[id] == true;
 	};
 
 	/**
@@ -19202,6 +19768,12 @@
 	 * and after every theme rebuild (updateDefaultStyles); clearDefaultStyle (the
 	 * method) leaves the persisted value alone — only the explicit "Clear Default
 	 * Style" action clears it.
+	 *
+	 * The persisted keys are applied ON TOP of the current default instead of
+	 * replacing it, so keys that were added to the default after the style was
+	 * persisted are kept. Replacing it dropped the fonts of a defaultEdgeStyle
+	 * added via Editor.configure (or of a theme switched to later) for every new
+	 * edge and edge label, while vertices still used them.
 	 */
 	EditorUi.prototype.restorePersistedEdgeStyle = function()
 	{
@@ -19211,7 +19783,24 @@
 
 		if (persistedEdgeStyle != null)
 		{
-			graph.currentEdgeStyle = mxUtils.clone(persistedEdgeStyle);
+			graph.currentEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
+
+			// Skips prototype keys as the persisted style comes from local storage
+			for (var key in persistedEdgeStyle)
+			{
+				if (key != '__proto__' && key != 'constructor' && key != 'prototype')
+				{
+					graph.currentEdgeStyle[key] = persistedEdgeStyle[key];
+				}
+			}
+
+			// A persisted fontFamily without a fontSource is a system font, so the
+			// default's fontSource must not survive the merge (see pasteCellStyles)
+			if (persistedEdgeStyle['fontFamily'] != null &&
+				persistedEdgeStyle['fontSource'] == null)
+			{
+				delete graph.currentEdgeStyle['fontSource'];
+			}
 
 			if (graph.defaultEdgeStyle['edgeStyle'] != 'orthogonalEdgeStyle')
 			{
@@ -19294,8 +19883,7 @@
 						Array.isArray(link.actions[0].animation.steps))
 					{
 						var sc = link.actions[0].animation.steps.length;
-						result = mxResources.get('effects', null,
-							'Effects') + ' (' + sc + ')';
+						result = mxResources.get('effects') + ' (' + sc + ')';
 					}
 					else if (first != '')
 					{
@@ -22581,6 +23169,94 @@
 	};
 
 	/**
+	 * Runs the layouts defined in the diagram's childLayout styles via
+	 * Graph.executeAllChildLayouts (nested children before their parents) and
+	 * invokes the optional done callback. Used by the #create hash's
+	 * applyLayouts option — the layout manager only runs childLayouts when
+	 * the model changes, so a freshly opened file keeps its stored positions
+	 * unless they are applied explicitly. ELK layouts in JSON childLayout
+	 * specs need the elk bundle, which loads asynchronously — wait for it
+	 * like executeLayoutSpec does, but only when such a spec is present, so
+	 * diagrams with legacy string layouts (flowLayout, treeLayout, …) stay
+	 * independent of the bundle. After the wait times out the layouts still
+	 * run best-effort: the legacy layouts apply and the ELK containers are
+	 * skipped (with a console error from the layout manager).
+	 */
+	EditorUi.prototype.applyChildLayouts = function(done)
+	{
+		var graph = this.editor.graph;
+
+		var run = function()
+		{
+			try
+			{
+				graph.executeAllChildLayouts();
+			}
+			catch (e)
+			{
+				// A broken childLayout (unknown layout name, container-unsafe
+				// layout) must not abort the caller's flow — done still runs,
+				// like the layout manager's own error handling in getLayout.
+				if (window.console != null)
+				{
+					console.error(e);
+				}
+			}
+
+			if (done != null)
+			{
+				done();
+			}
+		};
+
+		var needsElk = function()
+		{
+			if (typeof ElkLayout !== 'undefined')
+			{
+				return false;
+			}
+
+			var cells = graph.getChildLayoutCells();
+
+			for (var i = 0; i < cells.length; i++)
+			{
+				try
+				{
+					var list = Graph.decodeChildLayout(
+						graph.getCellStyle(cells[i])['childLayout']);
+
+					for (var j = 0; list != null && j < list.length; j++)
+					{
+						if (list[j] != null && typeof Graph.elkLayoutAlgorithms[
+							list[j].layout] === 'string')
+						{
+							return true;
+						}
+					}
+				}
+				catch (e)
+				{
+					// Malformed childLayout — the layout manager skips it too
+				}
+			}
+
+			return false;
+		};
+
+		if (needsElk())
+		{
+			this.whenScriptReady(function()
+			{
+				return typeof ElkLayout !== 'undefined';
+			}, run, run);
+		}
+		else
+		{
+			run();
+		}
+	};
+
+	/**
 	 * Adds the buttons for embedded mode.
 	 */
 	/**
@@ -23858,7 +24534,9 @@
 										// Opt in per descriptor with image:true to load the
 										// parsed diagram as a static SVG image cell (carrying
 										// the mermaid source for re-editing), matching the
-										// legacy image insert. Uses the previous mermaid config.
+										// legacy image insert. New images follow the configured
+										// Mermaid config, or the legacy look when unset
+										// (see parseMermaidImage).
 										this.parseMermaidImage(data.data, afterMermaid, onMermaidError);
 									}
 									else
@@ -23879,7 +24557,7 @@
 											if (data.wrap)
 											{
 												xml = mxMermaidToDrawio.wrapGroup(xml, data.data,
-													null, {normalize: true});
+													EditorUi.getInsertMermaidConfig(), {normalize: true});
 											}
 
 											afterMermaid(xml);

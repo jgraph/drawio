@@ -7558,7 +7558,7 @@ StyleFormatPanel.prototype.addEffects = function(div)
 
 		if (ss.edges.length > 0 && ss.vertices.length == 0)
 		{
-			addOption(mxResources.get('flowAnimation', null, 'Flow Animation'), 'flowAnimation', 0);
+			addOption(mxResources.get('flowAnimation'), 'flowAnimation', 0);
 		}
 		
 		// Adds primary custom shape options
@@ -8050,8 +8050,8 @@ DiagramStylePanel.prototype.addGraphStyles = function(div)
 		try
 		{
 			// Scales down the font for translations wider than the preview
-			var shapeLabel = mxResources.get('shape', null, 'Shape');
-			var connectorLabel = mxResources.get('connector', null, 'Connector');
+			var shapeLabel = mxResources.get('shape');
+			var connectorLabel = mxResources.get('connector');
 			var fontSize = mxUtils.getValue(graph.stylesheet.getDefaultVertexStyle(),
 				mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE);
 			var labelWidth = Math.max(mxUtils.getSizeForString(shapeLabel, fontSize,

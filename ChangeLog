@@ -1,3 +1,69 @@
+06-AUG-2026: 31.1.8
+
+- Rejects script schemes in image sources and typed geometry input
+- Matches libavoid drag previews to the drop semantics over containers
+- Removes transparentBounds containers on ungroup
+- Adds config keys for default page background and grid colors
+- Adds ac/aj twin routes for workers shadowed by the channel-router catch-alls
+- Registers installed PWA as file handler for .drawio files [jgraph/drawio#3302]
+- Adds translated basic shape names and multi-word term lookup to shape search [jgraph/drawio#5518]
+- Fixes flickering and inconsistent previews for clone drags
+- Fixes move previews of dangling libavoid edges and handle visibility
+- Adds mermaid config key for default Mermaid settings
+- Fixes desktop shape library saves offering diagram file types
+- Updates stable to 31.1.7
+- Adds removeLibraryConfirm for products that archive libraries
+- Adds space inside containers for modifier drag [jgraph/drawio#5544]
+- Adds themes URL parameter for theme menu in embed mode [jgraph/drawio#5586]
+- Adds wedge callout shape with movable tip [jgraph/drawio#4931]
+
+04-AUG-2026: 31.1.7
+
+- Adds Sidebar-ArchiMate4.js to build
+
+04-AUG-2026: 31.1.6
+
+- Bump actions/checkout from 6.1.0 to 7.0.1
+- Moves stable channel to 31.1.5
+- Adds Archimate v4 shapes
+- Moves text flow options into the common properties section
+- Fixes configured default edge font not applied to new edges and edge labels
+- Fixes missing palette titles in savesidebar screenshots
+- Updates tooling dependencies
+- Tooling build fixes
+- Updates wrangler version
+- Adds a PNG preview to the Archimate 4 library
+- Fixes the Archimate 4 device aspect ratio in element and icon notations
+- Fixes missing save button on expanded palettes in savesidebar mode
+- Removes plantuml and emf references
+- Removal of old lambdas
+- Matches libavoid drag previews to the committed route for targets inside containers
+- Persists cursor sharing and remote cursor settings
+- Excludes self-loops from libavoid routing to keep the loop style
+- Adds Ctrl+Alt+T shortcut for Run Last Layout
+- Adjust toolbar item spacing and zoom input minimum width for better layout
+- Adds connecting edge to shape picker drag previews
+- Adds offline language packs, language dialog and config editor i18n
+- Adds applyLayouts option to run a diagram's child layouts on load
+- Updates DOMPurify from 3.4.12 to 3.4.13
+- Raises the AI prompt limit to 100K characters for Atlassian origins
+- Reads the Atlassian AI prompt limit from a global variable
+- Adds defaultLanguages configuration for preinstalled offline languages
+- Stops the local lightbox rewriting the host page URL and title
+- Keeps root presentation attributes on inlined SVG image symbols [jgraph/drawio#5724]
+- Routes the animated GIF export through the save dialog
+- Heals stale peer rosters so changes are not skipped as alone
+- Adds a kill switch and a socket factory for the join announce
+- Broadcasts newClient to the channel so earlier clients see joiners
+- Checks link and CSS values in their serialized form [bugcrowd aa2c2792-33b0-4770-98aa-86684bec43b9]
+- Repairs truncated AI responses to render the partial diagram with a hint
+- Requires protocol and host to match in App.isSameDomain
+- Accepts the leading slash form of built-in plugins
+- Updates the generate/v3 default models to Opus 5 and Flash Lite
+- Adds OpenAI as the primary budget provider for generate/v3
+- Raises the premium draw.io token cap for Opus 5 adaptive thinking
+- Scopes CSS rules of inlined SVG image symbols in exports [jgraph/drawio#5726]
+
 29-JUL-2026: 31.1.5
 
 - Fixes distance guide moving cells onto their neighbours [jgraph/drawio#5722]
