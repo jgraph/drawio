@@ -1,3 +1,59 @@
+15-AUG-2026: 31.3.1
+
+- Blocks a tab in the URL scheme in the CSS reference check [jgraph/drawio-dev#628]
+
+15-AUG-2026: 31.3.0
+
+- Add support for stable channel being set to release version
+- Conf Cloud: First attempt of the integrity check tool
+- Update vendored drawio-plantuml bundle to commit f751805
+- Conf Cloud: Added progress and estimated remaining time to the integrity check
+- Conf Cloud: Added new strings translations
+- Office add-in: Replace Google Picker with a REST-based file list
+- Update vendored drawio-plantuml bundle to commit 41f039c
+- Fixes comment bypass and over-blocking in the CSS reference check [bugcrowd 31d70940-348e-4d9e-ae26-a20396ef5d69]
+- Conf Cloud: Fixed Gliffy import comparison preview not updating
+- Update vendored drawio-plantuml bundle to commit 01c610a
+- Update vendored drawio-plantuml bundle to commit 919e054
+- Fixes java<TAB>script: bypass and two unsanitized link sinks [jgraph/drawio-dev#624]
+- Denies data attributes by default in the DOMPurify config [jgraph/drawio-dev#625]
+- Build for confluence testing
+- Block javascript: URLs with tab in the scheme in MathJax labels
+
+13-AUG-2026: 31.2.2
+
+- Corrected version format
+- Make editor Gliffy import local-only, drop conversion-service callers [#618]
+- Stop offering Dropbox as a save target [#5740]
+- Add Gliffy migration workspace design document
+- Replace Gliffy mass import with two-tab migration workspace [#620]
+- Add per-diagram operations to migration report, import done state [#620]
+- Carry error details and HTTP stats into migration report, local fullscreen [#620]
+- Fix fullscreen overlay covering the page when hidden [#620]
+- Updates stable to 31.2.2
+
+12-AUG-2026: 31.2.1
+
+- Fix Visio import of shapes with punctuated data labels and noisy image crops
+- Document jgraph_tools_github rotation after Cloud Build clone failure
+- Updates stable channel to 31.2.0
+- Updates to latest gliffy importer
+- Convert Gliffy mass import locally instead of calling the service
+- Pushes stable to 31.2.1 on next release
+
+12-AUG-2026: 31.2.0
+
+- Add Bugcrowd GitHub issue sync worker (#609)
+- Client-side Gliffy import with lazy-loaded converter bundle
+- Rework Gliffy import as per-type importGliffy, restore parseFileData
+
+08-AUG-2026: 31.1.9
+
+- Added Confluence DC configuration to Cloud [jgraph/drawio#5319]
+- Fixes XML extraction from attachment-embedded PDFs
+- Fixed Confluence Cloud default macro parameters in the editor
+- Update vendored drawio-plantuml bundle to commit 7bb048c
+
 06-AUG-2026: 31.1.8
 
 - Rejects script schemes in image sources and typed geometry input

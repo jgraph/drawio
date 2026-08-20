@@ -935,41 +935,38 @@ var com;
 
 							// Add Shape properties
 							var props = shape.getProperties();
-							
+
 							for (var i = 0; i < props.length; i++)
 							{
 								try
 								{
-									graph.setAttributeForCell(v1, props[i].key, props[i].val);
+									// Property keys are arbitrary Visio labels. They must be
+									// reduced to valid XML attribute names here: browsers'
+									// setAttribute accepts names that strict XML parsers
+									// reject (e.g. parentheses), and a single bad attribute
+									// makes the whole encoded model unparseable
+									var sanitizedKey = com.mxgraph.io.mxVsdxCodec.sanitizeAttributeName(props[i].key);
+									var sanitizedVal = props[i].val != null ? props[i].val.trim() : null;
+
+									if (sanitizedKey != null && sanitizedVal != null && sanitizedVal != '')
+									{
+										// Find unused attribute name (append -2, -3, ... if needed)
+										var finalKey = sanitizedKey;
+										var suffix = 2;
+										var valueElem = (v1.value != null && typeof(v1.value) == 'object') ? v1.value : null;
+
+										while (valueElem != null && valueElem.hasAttribute(finalKey))
+										{
+											finalKey = sanitizedKey + '-' + suffix;
+											suffix++;
+										}
+
+										graph.setAttributeForCell(v1, finalKey, sanitizedVal);
+									}
 								}
 								catch(e)
 								{
-									// Sanitize attribute name: trim and replace spaces with dashes
-									try
-									{
-										var sanitizedKey = props[i].key.trim().replace(/\s+/g, '-');
-										var sanitizedVal = props[i].val != null ? props[i].val.trim() : props[i].val;
-
-                                        if (sanitizedVal != '')
-                                        {
-                                            // Find unused attribute name (append -2, -3, ... if needed)
-                                            var finalKey = sanitizedKey;
-                                            var suffix = 2;
-                                            var valueElem = (v1.value != null && typeof(v1.value) == 'object') ? v1.value : null;
-
-                                            while (valueElem != null && valueElem.hasAttribute(finalKey))
-                                            {
-                                                finalKey = sanitizedKey + '-' + suffix;
-                                                suffix++;
-                                            }
-
-                                            graph.setAttributeForCell(v1, finalKey, sanitizedVal);
-                                        }
-									}
-									catch(e2)
-									{
-										console.log('Attribute: "', props[i].key, '" with value "', props[i].val, '" not allowed in HTML');
-									}
+									console.log('Attribute: "', props[i].key, '" with value "', props[i].val, '" not allowed');
 								}
 							}
 							
@@ -1765,6 +1762,42 @@ var com;
                     }
                 };
                 /**
+                 * Reduces an arbitrary string (e.g. a Visio property label like
+                 * "Input Voltage (V)") to a valid XML attribute name, or null if
+                 * nothing usable remains. Do not rely on setAttribute to reject bad
+                 * names: browsers accept names (parentheses etc.) that XMLSerializer
+                 * happily writes but no strict XML parser will read back.
+                 */
+                mxVsdxCodec.sanitizeAttributeName = function (name) {
+                    if (name == null)
+                	{
+                        return null;
+                	}
+
+                    // Whitespace runs become dashes, all other characters outside the
+                    // XML NCName grammar are dropped (colons too: they would create
+                    // undeclared namespace prefixes), repeated dashes collapse, and
+                    // leading/trailing dashes and dots are trimmed
+                    var key = name.trim().replace(/\s+/g, '-')
+                        .replace(/[^A-Za-z0-9._\-]/g, '')
+                        .replace(/-{2,}/g, '-')
+                        .replace(/^[-.]+|[-.]+$/g, '');
+
+                    if (key.length == 0)
+                	{
+                        return null;
+                	}
+
+                    // Names must not start with a digit, dot or dash, and the "xml"
+                    // prefix is reserved by the XML spec
+                    if (/^[0-9.\-]/.test(key) || /^xml/i.test(key))
+                	{
+                        key = '_' + key;
+                	}
+
+                    return key;
+                };
+                /**
                  * Post processes groups to remove leaf vertices that render nothing
                  * @param group
                  * @param {mxGraph} graph
@@ -1921,6 +1954,9 @@ var com;
 	                                        if (shape.isVertex()) {
 	                                            /* clear */ this_1.edgeShapeMap.entries = [];
 	                                            /* clear */ this_1.parentsMap.entries = [];
+	                                            // Cleared per master so applyUncroppedImages below cannot
+	                                            // match a shape ID registered by an earlier master
+	                                            /* clear */ this_1.vertexMap.entries = [];
 	                                            cell = this_1.addShape(shapeGraph, shape, shapeGraph.getDefaultParent(), 0, 1169);
 	                                            {
 	                                                var array131 = (function (m) { if (m.entries == null)
@@ -1941,7 +1977,12 @@ var com;
 	                                        else {
 	                                            cell = this_1.addUnconnectedEdge(shapeGraph, null, shape, 1169);
 	                                        }
-	                                        
+
+	                                        // Masters are encoded synchronously: the async crop pass
+	                                        // pages get (postImportPage) never runs for them, so apply
+	                                        // deferred images uncropped instead of losing them
+	                                        this_1.applyUncroppedImages(shape, 0);
+
 	                                        hasCells |= (cell != null);
                                         }
                                         
@@ -2101,7 +2142,34 @@ var com;
 
                 	return {width: maxX - minX, height: maxY - minY}
                 };
-                
+
+                /**
+                 * Appends deferred (to-be-cropped) images to master cells uncropped.
+                 * Pages resolve toBeCroppedImg asynchronously in postImportPage, but
+                 * masters are encoded synchronously right after being built, so a
+                 * deferred image would otherwise be dropped from the library shape
+                 * (and the imageless cell then pruned by sanitiseGraph).
+                 */
+                mxVssxCodec.prototype.applyUncroppedImages = function (shape, pageId) {
+                    var toCrop = shape.toBeCroppedImg;
+                    if (toCrop != null && toCrop.iType != null && toCrop.iData != null) {
+                        var cell = (function (m, k) { if (m.entries == null)
+                            m.entries = []; for (var i = 0; i < m.entries.length; i++)
+                            if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
+                                return m.entries[i].value;
+                            } return null; })(this.vertexMap, new com.mxgraph.io.vsdx.ShapePageId(pageId, shape.getId()));
+                        if (cell != null && cell.style != null && cell.style.indexOf(';image=') < 0) {
+                            cell.style += ';image=data:image/' + toCrop.iType + ',' + toCrop.iData;
+                        }
+                    }
+                    var children = shape.getChildShapes();
+                    if (children != null && children.entries != null) {
+                        for (var i = 0; i < children.entries.length; i++) {
+                            this.applyUncroppedImages(children.entries[i].value, pageId);
+                        }
+                    }
+                };
+
                 mxVssxCodec.prototype.transPoint = function (p, srcP) {
                     if (p != null) {
                         p.x = (p.x - srcP.x);
@@ -9597,6 +9665,14 @@ var com;
                                 return o1 === o2;
                             } })(iType, "Bitmap")) {
                                 compression = compression.toLowerCase();
+
+                                // CompressionType is file content that ends up inside the
+                                // cell style (image=data:image/<type>,...): only pass
+                                // through known bitmap types so a crafted value cannot
+                                // smuggle style keys or a foreign URL scheme
+                                if (!/^(png|jpg|jpeg|gif|tiff|bmp)$/.test(compression)) {
+                                    compression = "png";
+                                }
                             }
                             else if ((function (o1, o2) { if (o1 && o1.equals) {
                                 return o1.equals(o2);
@@ -10525,6 +10601,17 @@ var com;
                                 if (_this.childShapes.entries.length == 1)
                                 {
                                     var child = _this.childShapes.entries[0].value;
+
+                                    // A shape without any text element cannot be the
+                                    // edge-with-label pattern: keep the group (this is the
+                                    // same outcome the null text produced via the catch
+                                    // below, minus the console noise)
+                                    if ((!_this.fields && _this.text == null) ||
+                                        (!child.fields && child.text == null))
+                                    {
+                                        return hasChildren;
+                                    }
+
                                     var edgeTxt = _this.fields? Object.values(_this.fields).join('') : _this.text.textContent;
                                     var childTxt = child.fields? Object.values(child.fields).join('') : child.text.textContent;
 
@@ -12176,9 +12263,17 @@ var com;
                                     var imgHeight = parseFloat(this.getValue(this.getCellElement$java_lang_String('ImgHeight'), "0"));
                                     var width = parseFloat(this.getValue(this.getCellElement$java_lang_String('Width'), "0"));
                                     var height = parseFloat(this.getValue(this.getCellElement$java_lang_String('Height'), "0"));
-                                    
-                                    if (imgOffsetX != 0 || imgOffsetY != 0 ||
-                                        imgWidth != width || imgHeight != height)
+
+                                    // Values are inches: stencils in the wild carry FP noise (e.g.
+                                    // ImgHeight differing from Height in the 13th decimal), and an
+                                    // exact compare sends those into the async crop path, which
+                                    // degrades the image and never runs at all for library masters.
+                                    // Zero/negative image extents cannot be cropped (div by zero).
+                                    var cropEps = 1e-6;
+
+                                    if (imgWidth > 0 && imgHeight > 0 &&
+                                        (Math.abs(imgOffsetX) > cropEps || Math.abs(imgOffsetY) > cropEps ||
+                                        Math.abs(imgWidth - width) > cropEps || Math.abs(imgHeight - height) > cropEps))
                                 	{
                                     	this.toBeCroppedImg = {
                                 			imgOffsetX: imgOffsetX, 

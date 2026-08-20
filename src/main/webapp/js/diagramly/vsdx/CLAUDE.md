@@ -575,6 +575,23 @@ Master shapes provide template geometry and styling. Instance shapes inherit fro
 
 ### Import Limitations
 - **Layer model mismatch**: VSDX layers are virtual groupings where parts of a group can belong to different layers. draw.io cannot represent this — layers are mapped to tags instead.
+- **Shape-data attribute names are sanitized** (`mxVsdxCodec.sanitizeAttributeName`):
+  Visio property labels are arbitrary text (`Input Voltage (V)`), but they become
+  XML attribute names on the UserObject. Browsers' `setAttribute` accepts names
+  that strict XML parsers reject (parentheses!), and one bad attribute used to
+  make the WHOLE encoded model unparseable — library entries and pages silently
+  came back empty (seen with VisioCafe Dell stencils). Names are reduced to an
+  NCName subset; do not bypass the sanitizer when adding attributes.
+- **Image crop detection uses an epsilon** (`getForm`, `cropEps = 1e-6`): stencil
+  files carry FP noise (ImgHeight vs Height differing in the 13th decimal), and
+  an exact compare used to send those into the async crop path. Cropping is
+  canvas-based (SVG → JPEG), so a false-positive crop also degrades EMF-derived
+  vector images. Zero/negative ImgWidth/ImgHeight must not crop (div by zero).
+- **VSSX masters never get the async crop pass** (`postImportPage` runs for
+  pages only): masters with genuinely cropped images get them appended
+  UNCROPPED by `mxVssxCodec.applyUncroppedImages` instead — losing the crop but
+  keeping the image. `vertexMap` is cleared per master in the VSSX loop so
+  shape-ID lookups cannot match a previous master's cells.
 - **MoveTo inside edge paths**: Not supported. Edge geometry assumes a single continuous path.
 - **Connection constraint rotation**: Incomplete support for rotated connection points (fromPart/toPart).
 - **Theme interpretation**: Gradient fills, effects, and variant styles are "best efforts" interpretations of the VSDX spec.

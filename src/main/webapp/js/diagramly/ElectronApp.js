@@ -409,7 +409,15 @@ mxStencilRegistry.allowEval = false;
 			// KNOWN: Event with gesture handler mouseUp the middle click opens a framed window
 			mxEvent.addListener(a, 'click', mxUtils.bind(this, function(evt)
 			{
-				this.openLink(a.getAttribute('href'), a.getAttribute('target'));
+				// The href is not written for links that did not pass the check
+				// in createLinkForHint, in which case there is nothing to open
+				var url = a.getAttribute('href');
+
+				if (url != null)
+				{
+					this.openLink(url, a.getAttribute('target'));
+				}
+
 				mxEvent.consume(evt);
 			}));
 		}
@@ -541,7 +549,7 @@ mxStencilRegistry.allowEval = false;
 										graph.setSelectionCells(editorUi.importXml(xml));
 									});
 								}
-								else if (editorUi.isRemoteFileFormat(data, path))
+								else if (editorUi.isGliffyData(data, path))
 								{
 									editorUi.spinner.stop();
 									editorUi.showError(mxResources.get('error'), mxResources.get('notInDesktop'));

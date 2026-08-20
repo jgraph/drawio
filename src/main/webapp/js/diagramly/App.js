@@ -5592,24 +5592,19 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename, as
 					onload(xml);
 				}, onerror, filterFn);
 			}
-			else if (new XMLHttpRequest().upload && this.isRemoteFileFormat(data, filterFn))
+			else if (this.isGliffyData(data, filterFn))
 			{
-				if (this.isExternalDataComms())
+				this.importGliffy(data, mxUtils.bind(this, function(xml)
 				{
-					// Asynchronous parsing via server
-					this.parseFileData(data, mxUtils.bind(this, function(xhr)
+					if (xml.substring(0, 13) == '<mxGraphModel')
 					{
-						if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299 &&
-							xhr.responseText.substring(0, 13) == '<mxGraphModel')
-						{
-							onload(xhr.responseText);
-						}
-					}), url);
-				}
-				else
-				{
-					this.showError(mxResources.get('error'), mxResources.get('notInOffline'), null, onerror);
-				}
+						onload(xml);
+					}
+					else
+					{
+						onerror();
+					}
+				}), onerror, url);
 			}
 			else if (this.isLucidChartData(data))
 			{
@@ -7986,20 +7981,16 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 						success(new LocalFile(this, data, filename, true));
 					}
 				}
-				else if (Graph.fileSupport && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, url))
+				else if (Graph.fileSupport && this.isGliffyData(data, url))
 				{
-					this.parseFileData(data, mxUtils.bind(this, function(xhr)
+					this.importGliffy(data, mxUtils.bind(this, function(xml)
 					{
-						if (xhr.readyState == 4)
+						success(new LocalFile(this, xml, name, true));
+					}), mxUtils.bind(this, function(err)
+					{
+						if (error != null)
 						{
-							if (xhr.status >= 200 && xhr.status <= 299)
-							{
-								success(new LocalFile(this, xhr.responseText, name, true));
-							}
-							else if (error != null)
-							{
-								error({message: mxResources.get('errorLoadingFile')});
-							}
+							error({message: mxResources.get('errorLoadingFile')});
 						}
 					}), filename);
 				}

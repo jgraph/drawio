@@ -328,7 +328,8 @@ DrawioConfigEditor.install = function(container, options)
 			{ key: 'inplaceEdits' },
 			{ key: 'lockdown' },
 			{ key: 'translateDiagrams' },
-			{ key: 'generateSVGs' }
+			{ key: 'generateSVGs' },
+			{ key: 'debug' }
 		],
 		'confluence-toggles': [
 			{ key: 'debug' },
@@ -395,8 +396,13 @@ DrawioConfigEditor.install = function(container, options)
 					var key = toggle.getAttribute('data-key');
 					var value = btn.getAttribute('data-value');
 
-					toggle.querySelectorAll('button').forEach(function(b) { b.className = ''; });
-					btn.className = 'active--' + value;
+					// Update every toggle with this key so duplicates in
+					// other sections (e.g. lockdown, debug) stay in sync
+					qAll('.tri-toggle[data-key="' + key + '"]').forEach(function(t)
+					{
+						t.querySelectorAll('button').forEach(function(b) { b.className = ''; });
+						t.querySelector('[data-value="' + value + '"]').className = 'active--' + value;
+					});
 
 					if (value === 'unset') { delete config[key]; }
 					else { config[key] = value === 'true'; }
@@ -974,35 +980,93 @@ DrawioConfigEditor.install = function(container, options)
 	// ============================================
 	// DEFAULT MACRO PARAMETERS
 	// ============================================
-	function setupMacroParams()
+	// A defaultMacroParameters editor appears in both the Confluence Cloud and
+	// Server/DC sections, distinguished by id prefix. The two sections expose
+	// different parameter sets (e.g. Cloud has zoom/center/hiResPreview, DC has
+	// width/border) but both edit the single config.defaultMacroParameters
+	// object. Each editor only touches the keys in its own spec and preserves
+	// the rest, and edits are mirrored into the other section's UI so the two
+	// stay in sync for the keys they share.
+	var macroParamSpecs = {
+		'cfg-dmp': { selects: ['toolbarStyle', 'links'], numbers: ['width'], booleans: ['border', 'lightbox', 'simpleViewer'] },
+		'cfg-cdmp': { selects: ['tbstyle', 'links'], numbers: ['zoom'], booleans: ['lbox', 'simple', 'pCenter', 'hiResPreview'] }
+	};
+	var macroParamPrefixes = ['cfg-cdmp', 'cfg-dmp'];
+
+	function populateMacroParams(prefix)
 	{
-		var toolbarStyle = q('#cfg-dmp-toolbarStyle');
-		var links = q('#cfg-dmp-links');
-		var width = q('#cfg-dmp-width');
-		var border = q('#cfg-dmp-border');
-		var lightbox = q('#cfg-dmp-lightbox');
-		var simpleViewer = q('#cfg-dmp-simpleViewer');
+		var dmp = config.defaultMacroParameters || {};
+		var spec = macroParamSpecs[prefix];
+
+		spec.selects.forEach(function(prop)
+		{
+			q('#' + prefix + '-' + prop).value = dmp[prop] || '';
+		});
+
+		spec.numbers.forEach(function(prop)
+		{
+			q('#' + prefix + '-' + prop).value = (dmp[prop] !== undefined) ? dmp[prop] : '';
+		});
+
+		spec.booleans.forEach(function(prop)
+		{
+			var cb = q('#' + prefix + '-' + prop);
+
+			if (dmp[prop] !== undefined)
+			{
+				cb.checked = dmp[prop]; cb.indeterminate = false;
+				cb.dataset.cycleState = dmp[prop] ? 'checked' : 'unchecked';
+			}
+			else
+			{
+				cb.checked = false; cb.indeterminate = true;
+				cb.dataset.cycleState = 'indeterminate';
+			}
+		});
+	}
+
+	function setupMacroParams(prefix)
+	{
+		var spec = macroParamSpecs[prefix];
 
 		function updateMacroParams()
 		{
-			var params = {};
-			var hasValue = false;
+			// Preserve keys owned by the other section's spec
+			var params = config.defaultMacroParameters ?
+				JSON.parse(JSON.stringify(config.defaultMacroParameters)) : {};
 
-			if (toolbarStyle.value) { params.toolbarStyle = toolbarStyle.value; hasValue = true; }
-			if (links.value) { params.links = links.value; hasValue = true; }
-			if (width.value) { params.width = parseInt(width.value); hasValue = true; }
-			if (border.indeterminate === false) { params.border = border.checked; hasValue = true; }
-			if (lightbox.indeterminate === false) { params.lightbox = lightbox.checked; hasValue = true; }
-			if (simpleViewer.indeterminate === false) { params.simpleViewer = simpleViewer.checked; hasValue = true; }
+			spec.selects.forEach(function(prop)
+			{
+				var el = q('#' + prefix + '-' + prop);
+				if (el.value) { params[prop] = el.value; } else { delete params[prop]; }
+			});
 
-			if (hasValue) { config.defaultMacroParameters = params; }
+			spec.numbers.forEach(function(prop)
+			{
+				var el = q('#' + prefix + '-' + prop);
+				if (el.value) { params[prop] = parseInt(el.value); } else { delete params[prop]; }
+			});
+
+			spec.booleans.forEach(function(prop)
+			{
+				var el = q('#' + prefix + '-' + prop);
+				if (el.indeterminate === false) { params[prop] = el.checked; } else { delete params[prop]; }
+			});
+
+			if (Object.keys(params).length > 0) { config.defaultMacroParameters = params; }
 			else { delete config.defaultMacroParameters; }
+
+			macroParamPrefixes.forEach(function(other)
+			{
+				if (other !== prefix) { populateMacroParams(other); }
+			});
 
 			notifyChange();
 		}
 
-		[border, lightbox, simpleViewer].forEach(function(cb)
+		spec.booleans.forEach(function(prop)
 		{
+			var cb = q('#' + prefix + '-' + prop);
 			cb.indeterminate = true;
 			cb.dataset.cycleState = 'indeterminate';
 
@@ -1026,9 +1090,15 @@ DrawioConfigEditor.install = function(container, options)
 			cb.addEventListener('mousedown', function(e) { e.preventDefault(); });
 		});
 
-		toolbarStyle.addEventListener('change', updateMacroParams);
-		links.addEventListener('change', updateMacroParams);
-		width.addEventListener('input', updateMacroParams);
+		spec.selects.forEach(function(prop)
+		{
+			q('#' + prefix + '-' + prop).addEventListener('change', updateMacroParams);
+		});
+
+		spec.numbers.forEach(function(prop)
+		{
+			q('#' + prefix + '-' + prop).addEventListener('input', updateMacroParams);
+		});
 	}
 
 	// ============================================
@@ -1163,27 +1233,7 @@ DrawioConfigEditor.install = function(container, options)
 		['enabledLibraries', 'defaultCustomLibraries', 'hideMenuItems', 'hideMenus', 'enabledTemplateSections', 'defaultLanguages'].forEach(renderTagList);
 		['defaultColorSchemes', 'customColorSchemes'].forEach(renderSchemeEditor);
 
-		if (config.defaultMacroParameters)
-		{
-			var dmp = config.defaultMacroParameters;
-			if (dmp.toolbarStyle) q('#cfg-dmp-toolbarStyle').value = dmp.toolbarStyle;
-			if (dmp.links) q('#cfg-dmp-links').value = dmp.links;
-			if (dmp.width) q('#cfg-dmp-width').value = dmp.width;
-
-			['border', 'lightbox', 'simpleViewer'].forEach(function(prop)
-			{
-				var cb = q('#cfg-dmp-' + prop);
-				if (dmp[prop] !== undefined)
-				{
-					cb.checked = dmp[prop]; cb.indeterminate = false;
-					cb.dataset.cycleState = dmp[prop] ? 'checked' : 'unchecked';
-				}
-				else
-				{
-					cb.indeterminate = true; cb.dataset.cycleState = 'indeterminate';
-				}
-			});
-		}
+		macroParamPrefixes.forEach(populateMacroParams);
 	}
 
 	// ============================================
@@ -1356,7 +1406,7 @@ DrawioConfigEditor.install = function(container, options)
 	setupTagList('defaultLanguages');
 	setupSchemeEditor('defaultColorSchemes');
 	setupSchemeEditor('customColorSchemes');
-	setupMacroParams();
+	macroParamPrefixes.forEach(setupMacroParams);
 	setupCurrentStyleButtons();
 	buildSearchIndex();
 
@@ -2266,6 +2316,44 @@ DrawioConfigEditor.html = [
 	'        <label for="cfg-viewerTimeout"></label>',
 	'        <input type="number" id="cfg-viewerTimeout" data-key="viewerTimeout" placeholder="e.g. 30000" min="0">',
 	'        <p class="field__help">Timeout in milliseconds before the viewer gives up loading <code>viewerTimeout</code></p>',
+	'      </div>',
+	'      <div class="field">',
+	'        <label>Default Macro Parameters</label>',
+	'        <div class="field-row">',
+	'          <div class="field">',
+	'            <label for="cfg-cdmp-tbstyle" style="font-weight: normal;">Toolbar Style</label>',
+	'            <select id="cfg-cdmp-tbstyle">',
+	'              <option value="">- Not set -</option>',
+	'              <option value="top">top</option>',
+	'              <option value="inline">inline</option>',
+	'              <option value="hidden">hidden</option>',
+	'            </select>',
+	'          </div>',
+	'          <div class="field">',
+	'            <label for="cfg-cdmp-links" style="font-weight: normal;">Links</label>',
+	'            <select id="cfg-cdmp-links">',
+	'              <option value="">- Not set -</option>',
+	'              <option value="auto">auto</option>',
+	'              <option value="blank">blank</option>',
+	'              <option value="self">self</option>',
+	'            </select>',
+	'          </div>',
+	'        </div>',
+	'        <div class="field-row">',
+	'          <div class="field">',
+	'            <label for="cfg-cdmp-zoom" style="font-weight: normal;">Zoom</label>',
+	'            <input type="number" id="cfg-cdmp-zoom" placeholder="e.g. 100" min="1">',
+	'          </div>',
+	'          <div class="field" style="padding-top: 16px;">',
+	'            <div id="cdmp-toggles-container"></div>',
+	'          </div>',
+	'        </div>',
+	'        <div style="display: flex; flex-wrap: wrap; gap: 12px; padding-top: 6px;" id="cdmp-booleans">',
+	'          <label class="checkbox"><input type="checkbox" id="cfg-cdmp-lbox" data-tristate="true"> <span>Lightbox</span></label>',
+	'          <label class="checkbox"><input type="checkbox" id="cfg-cdmp-simple" data-tristate="true"> <span>Simple Viewer</span></label>',
+	'          <label class="checkbox"><input type="checkbox" id="cfg-cdmp-pCenter" data-tristate="true"> <span>Center</span></label>',
+	'          <label class="checkbox"><input type="checkbox" id="cfg-cdmp-hiResPreview" data-tristate="true"> <span>High Resolution Preview</span></label>',
+	'        </div>',
 	'      </div>',
 	'    </div>',
 	'  </div>',

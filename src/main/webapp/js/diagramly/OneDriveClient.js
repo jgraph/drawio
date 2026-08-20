@@ -758,23 +758,13 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 								data = (window.atob && !mxClient.IS_SF) ? atob(temp) : Base64.decode(temp);
 							}
 							
-							if (Graph.fileSupport && new XMLHttpRequest().upload && this.ui.isRemoteFileFormat(data, meta['@microsoft.graph.downloadUrl']))
+							if (Graph.fileSupport && this.ui.isGliffyData(data, meta['@microsoft.graph.downloadUrl']))
 							{
-								this.ui.parseFileData(data, mxUtils.bind(this, function(xhr)
+								this.ui.importGliffy(data, mxUtils.bind(this, function(xml)
 								{
 									try
 									{
-										if (xhr.readyState == 4)
-										{
-											if (xhr.status >= 200 && xhr.status <= 299)
-											{
-												success(new LocalFile(this.ui, xhr.responseText, meta.name + this.extension, true));
-											}
-											else if (error != null)
-											{
-												error({message: mxResources.get('errorLoadingFile')});
-											}
-										}
+										success(new LocalFile(this.ui, xml, meta.name + this.extension, true));
 									}
 									catch (e)
 									{
@@ -786,6 +776,12 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 										{
 											throw e;
 										}
+									}
+								}), mxUtils.bind(this, function(err)
+								{
+									if (error != null)
+									{
+										error({message: mxResources.get('errorLoadingFile')});
 									}
 								}), meta.name);
 							}

@@ -2449,20 +2449,32 @@
 		// Extracts Subject or Embedded file attachment from PDF 1.7
 		if (f.substring(0, 8) == '%PDF-1.7')
 		{
-			var blockStart = f.indexOf('EmbeddedFile'); 
-			
-			if (blockStart > -1)
+			// Checks all occurrences as the first may be the /EmbeddedFiles
+			// name tree entry in the document catalog rather than the
+			// /Type /EmbeddedFile stream object with the attached diagram
+			var blockStart = f.indexOf('EmbeddedFile');
+
+			while (blockStart > -1)
 			{
 				var streamStart = f.indexOf('stream', blockStart) + 9; //the start of the stream [skipping header check]
 				var fileInfo = f.substring(blockStart, streamStart);
-				
+
 				if (fileInfo.indexOf('application#2Fvnd.jgraph.mxfile') > 0)
 				{
 					var streamEnd = f.indexOf('endstream', streamStart - 1);
-				
-					return pako.inflateRaw(Graph.stringToArrayBuffer(
-						f.substring(streamStart, streamEnd)), {to: 'string'});
+
+					try
+					{
+						return pako.inflateRaw(Graph.stringToArrayBuffer(
+							f.substring(streamStart, streamEnd)), {to: 'string'});
+					}
+					catch (e)
+					{
+						// Continue to next occurrence or extraction method
+					}
 				}
+
+				blockStart = f.indexOf('EmbeddedFile', blockStart + 1);
 			}
 
 			var last = f.indexOf('/ObjStm');
@@ -2490,21 +2502,28 @@
 					return str.join('');
 				};
 
-				var text = pako.inflateRaw(Graph.stringToArrayBuffer(
-					f.substring(streamStart, streamEnd)), {to: 'string'});
-				var subj = text.indexOf('/Subject <');
-
-				// Extracts Subject from PDF 1.4
-				if (subj > 0)
+				try
 				{
-					var temp = text.substring(subj + 14, text.indexOf('>', subj));
+					var text = pako.inflateRaw(Graph.stringToArrayBuffer(
+						f.substring(streamStart, streamEnd)), {to: 'string'});
+					var subj = text.indexOf('/Subject <');
 
-					if (temp != null)
+					// Extracts Subject from PDF 1.4
+					if (subj > 0)
 					{
-						result = hex_to_ascii(temp);
-					}
+						var temp = text.substring(subj + 14, text.indexOf('>', subj));
 
-					break;
+						if (temp != null)
+						{
+							result = hex_to_ascii(temp);
+						}
+
+						break;
+					}
+				}
+				catch (e)
+				{
+					// Continue to next object stream
 				}
 
 				last = f.indexOf('/ObjStm', last + 1);
@@ -4397,6 +4416,61 @@
 	};
 	
 	/**
+	 * Hardens the URL filter in MathJax's ui/safe extension, which decides the
+	 * scheme with /^\s*([a-z\n\r]+):/i and strips only newlines. Browsers ignore
+	 * tab, LF and CR inside a URL, so java<TAB>script:... is not recognised as a
+	 * scheme, falls into the "no scheme, treat as relative" branch and is passed
+	 * through unchanged, then reaches the browser as javascript:. This is the
+	 * same bypass as mathjax/MathJax#2885, whose fix covered LF and CR but not
+	 * tab. Patched here rather than in math4 so the vendored MathJax stays
+	 * unmodified and the fix survives the next MathJax update.
+	 */
+	Editor.safeMathJaxFilterUrl = function(safe, url)
+	{
+		// Normalises the way the URL parser does before reading the scheme
+		var normalized = url.replace(/[\t\n\r]/g, '').replace(/^[\u0000-\u0020]+/, '');
+		var protocol = (normalized.match(/^([a-z][a-z0-9+.\-]*):/i) || [null, ''])[1].toLowerCase();
+		var allow = safe.allow.URLs;
+
+		return (allow === 'all' || (allow === 'safe' &&
+			(safe.options.safeProtocols[protocol] || !protocol))) ? url : null;
+	};
+
+	// Marker so the patch can be reapplied without stacking wrappers
+	Editor.safeMathJaxFilterUrl.drawioPatched = true;
+
+	Editor.patchMathJaxUrlFilter = function()
+	{
+		if (typeof MathJax === 'undefined')
+		{
+			return;
+		}
+
+		// Shared method table, used by documents created from here on
+		var methods = (MathJax._ != null && MathJax._.ui != null &&
+			MathJax._.ui.safe != null && MathJax._.ui.safe.SafeMethods != null) ?
+			MathJax._.ui.safe.SafeMethods.SafeMethods : null;
+
+		if (methods != null && methods.filterURL != null &&
+			!methods.filterURL.drawioPatched)
+		{
+			methods.filterURL = Editor.safeMathJaxFilterUrl;
+		}
+
+		// Safe copies the table into filterMethods in its constructor and
+		// sanitizeNode calls that copy, so a document that already exists
+		// still holds the unpatched function and must be updated separately
+		var doc = (MathJax.startup != null) ? MathJax.startup.document : null;
+
+		if (doc != null && doc.safe != null && doc.safe.filterMethods != null &&
+			doc.safe.filterMethods.filterURL != null &&
+			!doc.safe.filterMethods.filterURL.drawioPatched)
+		{
+			doc.safe.filterMethods.filterURL = Editor.safeMathJaxFilterUrl;
+		}
+	};
+
+	/**
 	 * Initializes math typesetting and loads respective code.
 	 */
 	Editor.initMath = function(src, config)
@@ -4428,6 +4502,8 @@
 			
 			Editor.doMathJaxRender = function(container)
 			{
+				Editor.patchMathJaxUrlFilter();
+
 				// Disables automatic line breaking for inline math to
 				// avoid unwanted breaks in narrow label containers
 				if (MathJax.startup != null && MathJax.startup.output != null &&

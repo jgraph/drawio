@@ -3329,7 +3329,10 @@ Graph.sanitizeNode = function(value)
 	return Graph.domPurify(value, true);
 };
 
-// Disallows external URLs in style attributes
+// Disallows external URLs in style attributes. draw.io labels only ever need
+// relative or data: references, so any absolute/external reference is blocked,
+// whichever CSS construct carries it (url(), image-set(), cross-fade(),
+// @import, @font-face src, cursor, mask-image, ...).
 Graph.isStyleAllowed = function(css)
 {
     // Normalize CSS escapes before checking
@@ -3337,37 +3340,118 @@ Graph.isStyleAllowed = function(css)
     var normalized = css.replace(/\\([0-9a-fA-F]{1,6})\s?/g, function(match, hex) {
         return String.fromCharCode(parseInt(hex, 16));
     }).replace(/\\(.)/g, '$1');
-    
-    // Match all url(...) occurrences
-    var urlRegex = /url\s*\(\s*(['"]?)(.*?)\1\s*\)/gi;
-    var match;
-    
-    while ((match = urlRegex.exec(normalized)) !== null)
+
+    // True if the given reference is neither relative nor a data: URL
+    var isExternal = function(url)
     {
-        var url = match[2].trim();
+        url = url.trim();
         var isRelative = !/^([a-z][a-z0-9+.-]*:|\/\/)/i.test(url);
         var isDataUrl = url.toLowerCase().startsWith('data:');
-        
-        if (!isRelative && !isDataUrl)
+
+        return !isRelative && !isDataUrl;
+    };
+
+    // True if the given string would be fetched over the network. Used for
+    // bare quoted strings, where the CSS around them is not known to be a URL
+    // context, so only a reference that can actually load something counts. A
+    // colon alone does not make a string a URL, eg. [style*="color:red"],
+    // [href^="mailto:"] and content: "Note: x" are ordinary text.
+    var isRemoteRef = function(url)
+    {
+        return /^\s*(https?:|\/\/)/i.test(url);
+    };
+
+    // Checks the given form of the CSS for external references
+    var isFormAllowed = function(form)
+    {
+        var match;
+
+        // Matches all url(...) occurrences (covers unquoted and quoted
+        // arguments) and records the ranges of those that are allowed
+        var urlRegex = /url\s*\(\s*(['"]?)(.*?)\1\s*\)/gi;
+        var urlRanges = [];
+
+        while ((match = urlRegex.exec(form)) !== null)
+        {
+            if (isExternal(match[2]))
+            {
+                return false;
+            }
+
+            urlRanges.push([match.index, match.index + match[0].length]);
+        }
+
+        // True if the given range is inside a url(...) that was allowed above.
+        // Its argument has been checked as a whole, so a quoted string within
+        // it is part of that reference and not a reference of its own, eg. the
+        // raw xmlns in an inline SVG image
+        // url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'...")
+        var isInUrl = function(index, length)
+        {
+            for (var i = 0; i < urlRanges.length; i++)
+            {
+                if (index > urlRanges[i][0] && index + length <= urlRanges[i][1])
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+
+        // External references are also passed as bare quoted strings to
+        // functions and at-rules that take a URL without a url() wrapper, eg.
+        // image-set(), -webkit-image-set(), cross-fade() and @import. Rejects
+        // any quoted string that would be fetched over the network and is not
+        // part of a url(...) that was allowed above.
+        var strRegex = /(['"])([^'"]*)\1/g;
+
+        while ((match = strRegex.exec(form)) !== null)
+        {
+            if (isRemoteRef(match[2]) && !isInUrl(match.index, match[0].length))
+            {
+                return false;
+            }
+        }
+
+        // Block @import entirely (can also load relative stylesheets)
+        if (/@import/i.test(form))
         {
             return false;
         }
-    }
-    
-    // Block @import entirely (check normalized version)
-    if (/@import/i.test(normalized))
+
+        return true;
+    };
+
+    // Removes the characters the URL parser removes before parsing. Both scheme
+    // tests above require the colon to follow the scheme characters directly, so
+    // a tab inside the scheme stops the match, the reference is read as relative
+    // and allowed, and the parser then drops the tab and fetches the absolute
+    // URL, eg. url("http<TAB>://..."). Same family as the link check in
+    // mxUtils.removeJavascriptProtocol. No real reference needs them.
+    var stripUrlWhitespace = function(form)
     {
-        return false;
-    }
-    
-    // TODO Consider also blocking:
-    // - @font-face (can load external fonts)
-    // - -webkit-mask-image, mask-image (can reference URLs)
-    // - list-style-image (can reference URLs)
-    // - cursor: url(...) (can reference URLs)
-    // - content: url(...) (can reference URLs)
-    
-    return true;
+        return form.replace(/[\t\n\r]/g, '');
+    };
+
+    var stripComments = function(form)
+    {
+        return form.replace(/\/\*[\s\S]*?\*\//g, '');
+    };
+
+    // Checks the CSS with and without comments, and each of those with and
+    // without the URL whitespace. Stripping comments shows the checks a
+    // reference that is split from its token to hide it, eg.
+    // url(/*x*/"http://...") or image-set(/*x*/"http://..." 1x). But a comment
+    // terminator inside a string is not a comment to the CSS parser, so
+    // stripping alone would delete a live declaration from the checked text,
+    // eg. content:"/*"; background:url(http://...); content:"*/". Every form
+    // must pass, so adding a form can only reject more, never allow more; the
+    // serialized output is not modified here.
+    return isFormAllowed(normalized) &&
+        isFormAllowed(stripComments(normalized)) &&
+        isFormAllowed(stripUrlWhitespace(normalized)) &&
+        isFormAllowed(stripComments(stripUrlWhitespace(normalized)));
 }
 // Allows use tag in SVG with local references only
 DOMPurify.addHook('afterSanitizeAttributes', function(node)
@@ -21902,8 +21986,13 @@ if (typeof mxVertexHandler !== 'undefined')
 				imgExport.getLinkForCellState = function(state, canvas)
 				{
 					var result = state.view.graph.getAbsoluteUrl(imgExportGetLinkForCellState.apply(this, arguments));
-					
-					return (result != null && !state.view.graph.isCustomLink(result)) ? result : null;
+
+					// Checks the link after getAbsoluteUrl as baseUrl is prepended to
+					// relative links and can complete a scheme the link did not contain.
+					// The export writes the link into the file, where nothing can check
+					// it at display time.
+					return (result != null && !state.view.graph.isCustomLink(result)) ?
+						Graph.sanitizeLink(result) : null;
 				};
 				
 				imgExport.getLinkTargetForCellState = function(state, canvas)
@@ -23232,7 +23321,18 @@ if (typeof mxVertexHandler !== 'undefined')
 			
 			var a = document.createElement('a');
 			a.setAttribute('rel', this.linkRelation);
-			a.setAttribute('href', this.getAbsoluteUrl(link));
+
+			// Checks the link after getAbsoluteUrl as baseUrl is prepended to
+			// relative links and can complete a scheme the link did not contain.
+			// The href is not written for unsafe links so the hint is inert, the
+			// click handler for custom links is added below and does not use it.
+			var href = Graph.sanitizeLink(this.getAbsoluteUrl(link));
+
+			if (href != null)
+			{
+				a.setAttribute('href', href);
+			}
+
 			a.setAttribute('title', short((this.isCustomLink(link)) ?
 				this.getLinkTitle(link) : link, 80));
 			

@@ -4244,7 +4244,9 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 	{
 		var option = null;
 
-		if ((disabledModes == null || mxUtils.indexOf(disabledModes, mode) < 0) &&
+		// Dropbox storage is deprecated, no longer offered as a save target
+		if (mode != App.MODE_DROPBOX &&
+			(disabledModes == null || mxUtils.indexOf(disabledModes, mode) < 0) &&
 			(folderPickerMode == null || mode == folderPickerMode) &&
 			(enabledModes == null || mxUtils.indexOf(enabledModes, mode) >= 0))
 		{
@@ -4467,11 +4469,6 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 		if (editorUi.m365 != null)
 		{
 			addStorageEntry(App.MODE_M365, null, null, null, null, 'pick');
-		}
-
-		if (editorUi.dropbox != null)
-		{
-			addStorageEntry(App.MODE_DROPBOX, 'Apps' + editorUi.dropbox.appPath);
 		}
 
 		addStorageEntry(App.MODE_GITHUB, null, null, null, null, 'pick');
@@ -4937,21 +4934,6 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 			}
 
 			addLogo(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('m365'), App.MODE_M365, 'm365');
-		}
-
-		if (typeof window.DropboxClient === 'function')
-		{
-			var dropboxOption = document.createElement('option');
-			dropboxOption.setAttribute('value', App.MODE_DROPBOX);
-			mxUtils.write(dropboxOption, mxResources.get('dropbox'));
-			serviceSelect.appendChild(dropboxOption);
-			
-			if (editorUi.mode == App.MODE_DROPBOX)
-			{
-				dropboxOption.setAttribute('selected', 'selected');
-			}
-			
-			addLogo(IMAGE_PATH + '/dropbox-logo.svg', mxResources.get('dropbox'), App.MODE_DROPBOX, 'dropbox');
 		}
 
 		if (editorUi.gitHub != null)
@@ -17305,31 +17287,20 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 		    			null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
 				}));
 			}
-			else if (file != null && new XMLHttpRequest().upload && editorUi.isRemoteFileFormat(data, file.name))
+			else if (file != null && editorUi.isGliffyData(data, file.name))
 			{
-				if (editorUi.isExternalDataComms())
-				{
-					editorUi.parseFile(file, mxUtils.bind(this, function(xhr)
-					{
-						if (xhr.readyState == 4)
-						{
-							editorUi.spinner.stop();
-							
-							if (xhr.status >= 200 && xhr.status <= 299)
-							{
-								var xml = xhr.responseText;
-								addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
-									null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
-								div.scrollTop = div.scrollHeight;
-							}
-						}
-					}));
-				}
-				else
+				editorUi.importGliffy(data, mxUtils.bind(this, function(xml)
 				{
 					editorUi.spinner.stop();
-					editorUi.showError(mxResources.get('error'), mxResources.get('notInOffline'));
-				}
+					addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
+						null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
+					div.scrollTop = div.scrollHeight;
+				}), mxUtils.bind(this, function(err)
+				{
+					editorUi.spinner.stop();
+					editorUi.showError(mxResources.get('error'), (err != null && err.status == 413) ?
+						mxResources.get('diagramTooLarge') : mxResources.get('unknownError'));
+				}), file.name);
 			}
 			else
 			{

@@ -4653,23 +4653,8 @@
 					}, parent, null, false);
 				}
 
-				if (editorUi.isModeReady(App.MODE_DROPBOX))
-				{
-					menu.addItem(mxResources.get('dropbox') + '...', null, function()
-					{
-						editorUi.showLibraryDialog(null, null, null, null, App.MODE_DROPBOX);
-					}, parent);
-				}
-				else if (editorUi.isModeEnabled(App.MODE_DROPBOX))
-				{
-					menu.addItem(mxResources.get('dropbox') + ' (' + mxResources.get('loading') + '...)', null, function()
-					{
-						// do nothing
-					}, parent, null, false);
-				}
-				
 				menu.addSeparator(parent);
-				
+
 				if (editorUi.isModeReady(App.MODE_GITHUB))
 				{
 					menu.addItem(mxResources.get('github') + '...', null, function()

@@ -43,7 +43,6 @@ window.DRAWIO_GITHUB_API_URL = window.DRAWIO_GITHUB_API_URL || 'https://api.gith
 window.DRAWIO_GITHUB_ID = window.DRAWIO_GITHUB_ID || 'Iv1.98d62f0431e40543';
 window.DRAWIO_DROPBOX_ID = window.DRAWIO_DROPBOX_ID || 'jg02tc0onwmhlgm';
 window.SAVE_URL = window.SAVE_URL || window.DRAWIO_SERVER_URL + 'save';
-window.OPEN_URL = window.OPEN_URL || window.DRAWIO_SERVER_URL + 'import';
 window.PROXY_URL = window.PROXY_URL || window.DRAWIO_SERVER_URL + 'proxy';
 window.DRAWIO_VIEWER_URL = window.DRAWIO_VIEWER_URL || null;
 window.NOTIFICATIONS_URL = window.NOTIFICATIONS_URL || ((/.*\.draw\.io$/.test(window.location.hostname)) ||

@@ -3658,7 +3658,12 @@ var mxUtils =
 	/**
 	 * Function: removeJavascriptProtocol
 	 * 
-	 * Removes leading javascript: protocol from the given link.
+	 * Removes leading javascript: protocol from the given link. TAB, LF and CR
+	 * are removed from the whole link before the check as the URL parser drops
+	 * them before parsing, so java<TAB>script: is read as javascript: by the
+	 * browser but is not matched by the check. They are kept by zapGremlins as
+	 * that is used for general text where they are legitimate content, and no
+	 * real URL can carry them through a parser that removes them.
 	 * 
 	 * Parameters:
 	 * 
@@ -3666,7 +3671,7 @@ var mxUtils =
 	 */
 	removeJavascriptProtocol: function(link)
 	{
-		link = (link != null) ? mxUtils.zapGremlins(link) : null;
+		link = (link != null) ? mxUtils.zapGremlins(link).replace(/[\t\n\r]/g, '') : null;
 
 		while (link != null && mxUtils.ltrim(link.toLowerCase()).substring(0, 11) === 'javascript:')
 		{

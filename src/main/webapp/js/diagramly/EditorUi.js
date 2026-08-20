@@ -257,6 +257,17 @@
 	};
 
 	/**
+	 * Returns true if the native Gliffy converter (drawio-gliffy) is
+	 * loaded with its convert API. Conversion happens locally, so no
+	 * conversion service or network access is needed.
+	 */
+	EditorUi.isNativeGliffySupported = function()
+	{
+		return typeof mxGliffyToDrawio !== 'undefined' &&
+			typeof mxGliffyToDrawio.convert === 'function';
+	};
+
+	/**
 	 * Default Mermaid config without using foreign objects in flowcharts.
 	 */
 	EditorUi.defaultMermaidConfig = {};
@@ -5231,34 +5242,19 @@
 										doImport(xml, 'text/xml');
 									}, null, img);
 								}
-								else if (new XMLHttpRequest().upload && this.isRemoteFileFormat(data, img) && file != null)
+								else if (this.isGliffyData(data, img) && file != null)
 								{
-									if (this.isExternalDataComms())
-									{
-										this.parseFile(file, mxUtils.bind(this, function(xhr)
-										{
-											if (xhr.readyState == 4)
-											{
-												this.spinner.stop();
-												
-												if (xhr.status >= 200 && xhr.status <= 299)
-												{
-													doImport(xhr.responseText, 'text/xml');
-												}
-												else
-												{
-													this.handleError({message: mxResources.get((xhr.status == 413) ?
-														'drawingTooLarge' : 'invalidOrMissingFile')},
-														mxResources.get('errorLoadingFile'));
-												}
-											}
-										}));
-									}
-									else
+									this.importGliffy(data, mxUtils.bind(this, function(xml)
 									{
 										this.spinner.stop();
-										this.showError(mxResources.get('error'), mxResources.get('notInOffline'));
-									}
+										doImport(xml, 'text/xml');
+									}), mxUtils.bind(this, function(err)
+									{
+										this.spinner.stop();
+										this.handleError({message: mxResources.get((err != null && err.status == 413) ?
+											'drawingTooLarge' : 'invalidOrMissingFile')},
+											mxResources.get('errorLoadingFile'));
+									}), img);
 								}
 								else
 								{
@@ -11783,8 +11779,68 @@
 				delayed();
 			}
 		}), onerror);
-	};	
-	
+	};
+
+	/**
+	 * Imports the given Gliffy data with the client-side converter,
+	 * mirroring importVisio/importGraphML: loads the converter bundle on
+	 * demand and returns the diagram XML via done. Conversion is local
+	 * only - the editor never posts diagram data to a conversion service.
+	 * error receives an object whose status is 413 when a converter limit
+	 * was hit, so the existing caller messaging keeps working
+	 * (413 -> diagramTooLarge).
+	 */
+	EditorUi.prototype.importGliffy = function(data, done, error, filename)
+	{
+		var handleError = mxUtils.bind(this, function(e)
+		{
+			if (error != null)
+			{
+				var limitHit = typeof mxGliffyToDrawio !== 'undefined' &&
+					typeof mxGliffyToDrawio.LimitExceededException === 'function' &&
+					e instanceof mxGliffyToDrawio.LimitExceededException;
+
+				error({status: (limitHit) ? 413 : 500,
+					message: (e != null && e.message != null) ? e.message :
+						mxResources.get('serviceUnavailableOrBlocked')});
+			}
+		});
+
+		this.loadGliffy(mxUtils.bind(this, function()
+		{
+			var xml = null;
+
+			try
+			{
+				xml = mxGliffyToDrawio.convert(data);
+			}
+			catch (e)
+			{
+				handleError(e);
+				return;
+			}
+
+			if (xml != null)
+			{
+				try
+				{
+					EditorUi.logEvent({category: 'GLIFFY-IMPORT-FILE',
+						action: 'size_' + data.length});
+				}
+				catch (e)
+				{
+					// ignore
+				}
+
+				done(xml);
+			}
+			else
+			{
+				handleError(null);
+			}
+		}), handleError);
+	};
+
 	/**
 	 * Export the diagram to VSDX
 	 */
@@ -13123,6 +13179,74 @@
 	};
 
 	/**
+	 * Loads the native Gliffy converter extension (mirrors loadPlantUml:
+	 * a self-contained bundle defining mxGliffyToDrawio, NOT part of
+	 * extensions.min.js, fetched only when a Gliffy file is imported).
+	 * Unlike loadPlantUml, concurrent callers queue on the in-flight load
+	 * instead of proceeding before the script arrives — a multi-file drop
+	 * converts several Gliffy files back to back.
+	 */
+	EditorUi.prototype.loadGliffy = function(success, error)
+	{
+		if (EditorUi.isNativeGliffySupported())
+		{
+			window.setTimeout(success, 0);
+		}
+		else
+		{
+			if (this.gliffyLoadQueue == null)
+			{
+				this.gliffyLoadQueue = [];
+			}
+
+			this.gliffyLoadQueue.push({success: success, error: error});
+
+			if (!this.loadingGliffy)
+			{
+				this.loadingGliffy = true;
+
+				var isDev = (typeof urlParams !== 'undefined' && urlParams['dev'] == '1') ||
+					(window.location.search && window.location.search.indexOf('dev=1') >= 0);
+
+				var done = mxUtils.bind(this, function(err)
+				{
+					this.loadingGliffy = false;
+					var queue = this.gliffyLoadQueue;
+					this.gliffyLoadQueue = null;
+
+					for (var i = 0; i < queue.length; i++)
+					{
+						try
+						{
+							if (err == null && EditorUi.isNativeGliffySupported())
+							{
+								queue[i].success();
+							}
+							else if (queue[i].error != null)
+							{
+								queue[i].error(err);
+							}
+						}
+						catch (e)
+						{
+							if (queue[i].error != null)
+							{
+								queue[i].error(e);
+							}
+						}
+					}
+				});
+
+				mxscript((isDev ? '' : window.DRAWIO_SERVER_URL) +
+					'js/gliffy/drawio-gliffy.min.js', function()
+					{
+						done(null);
+					}, null, null, null, done);
+			}
+		}
+	};
+
+	/**
 	 * Parses the given PlantUML source with the native converter and returns
 	 * diagram XML via `success`. Loads the converter bundle on demand.
 	 */
@@ -13522,27 +13646,19 @@
 		crop = (crop != null) ? crop : true;
 		resizeImages = (resizeImages != null) ? resizeImages : true;
 		
-		// Handles special case for Gliffy data which requires async server-side for parsing
+		// Handles special case for Gliffy data which is converted asynchronously
 		if (text != null)
 		{
-			if (Graph.fileSupport && new XMLHttpRequest().upload && this.isRemoteFileFormat(text))
+			if (Graph.fileSupport && this.isGliffyData(text))
 			{
-				if (this.isOffline())
+				// Fixes possible parsing problems with ASCII 160 (non-breaking space).
+				// No error handler: failures stay silent here, as they were
+				// when the XHR callback ignored non-2xx responses.
+				this.importGliffy(text.replace(/\s+/g,' '), mxUtils.bind(this, function(xml)
 				{
-					this.showError(mxResources.get('error'), mxResources.get('notInOffline'));
-				}
-				else
-				{
-					// Fixes possible parsing problems with ASCII 160 (non-breaking space)
-					this.parseFileData(text.replace(/\s+/g,' '), mxUtils.bind(this, function(xhr)
-					{
-						if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299)
-						{
-							this.editor.graph.setSelectionCells(this.insertTextAt(
-								xhr.responseText, dx, dy, true));
-						}
-					}));
-				}
+					this.editor.graph.setSelectionCells(this.insertTextAt(
+						xml, dx, dy, true));
+				}));
 
 				// Returns empty cells array as it is aysynchronous
 				return [];
@@ -13775,11 +13891,21 @@
 	};
 	
 	/**
-	 * Returns true for Gliffy data.
+	 * Returns true for Gliffy data (the modern JSON save format), which is
+	 * converted with the local client-side converter (see importGliffy).
+	 */
+	EditorUi.prototype.isGliffyData = function(data, filename)
+	{
+		return /(\"contentType\":\s*\"application\/gliffy\+json\")/.test(data);
+	};
+
+	/**
+	 * Deprecated alias for isGliffyData, kept for external callers: Gliffy
+	 * conversion is local, no remote conversion service is involved.
 	 */
 	EditorUi.prototype.isRemoteFileFormat = function(data, filename)
 	{
-		return /(\"contentType\":\s*\"application\/gliffy\+json\")/.test(data);
+		return this.isGliffyData(data, filename);
 	};
 	
 	/**
@@ -13960,29 +14086,15 @@
 		            	{
 		                	gliffyLatestVer.zipEntry.async("string").then(function(data)
 		                	{
-		                		if (new XMLHttpRequest().upload && ui.isRemoteFileFormat(data, file.name))
+		                		if (ui.isGliffyData(data, file.name))
 		                		{
-									if (ui.isOffline())
+									ui.importGliffy(data, function(xml)
 									{
-										ui.showError(mxResources.get('error'), mxResources.get('notInOffline'), null, onerror);
-									}
-									else
+										success(xml);
+									}, function()
 									{
-										ui.parseFileData(data, mxUtils.bind(this, function(xhr)
-										{
-											if (xhr.readyState == 4)
-											{
-												if (xhr.status >= 200 && xhr.status <= 299)
-												{
-													success(xhr.responseText);
-												}
-												else
-												{
-													onerror();
-												}
-											}
-										}), file.name);
-									}
+										onerror();
+									}, file.name);
 		                		}
 		                		else
 		            			{
@@ -14107,44 +14219,40 @@
 
 			this.importVisio(file, handleResult);
 		}
-		else if (new XMLHttpRequest().upload && this.isRemoteFileFormat(data, filename))
+		else if (this.isGliffyData(data, filename))
 		{
-			if (this.isOffline())
+			//  LATER: done and async are a hack before making this asynchronous
+			async = true;
+
+			// Returns empty cells array as it is aysynchronous
+			var importData = mxUtils.bind(this, function(data)
 			{
-				this.showError(mxResources.get('error'), mxResources.get('notInOffline'));
+				this.importGliffy(data, handleResult, mxUtils.bind(this, function(err)
+				{
+					if (done != null)
+					{
+						done(null);
+						this.showError(mxResources.get('error'),
+							(err != null && err.status == 413) ? mxResources.get('diagramTooLarge') :
+								mxResources.get('unknownError'));
+					}
+				}), filename);
+			});
+
+			if (data != null)
+			{
+				importData(data);
 			}
 			else
 			{
-				//  LATER: done and async are a hack before making this asynchronous
-				async = true;
+				var reader = new FileReader();
 
-				// Returns empty cells array as it is aysynchronous
-				var parseCallback = mxUtils.bind(this, function(xhr)
+				reader.onload = function()
 				{
-					if (xhr.readyState == 4)
-					{
-						if (xhr.status >= 200 && xhr.status <= 299)
-						{
-							handleResult(xhr.responseText);
-						}
-						else if (done != null)
-						{
-							done(null);
-							this.showError(mxResources.get('error'),
-								xhr.status == 413 ? mxResources.get('diagramTooLarge') :
-									mxResources.get('unknownError'));
-						}
-					}
-				});
+					importData(reader.result);
+				};
 
-				if (data != null)
-				{
-					this.parseFileData(data, parseCallback, filename);
-				}
-				else
-				{
-					this.parseFile(file, parseCallback, filename);
-				}
+				reader.readAsText(file);
 			}
 		}
 		else if (data.indexOf('PK') == 0 && file != null)
@@ -14694,51 +14802,7 @@
 	};
 	
 	/**
-	 * Parses the file using XHR2 via the server. File can be a blob or file object.
-	 * Filename is an optional parameter for blobs (that do not have a filename).
-	 */
-	EditorUi.prototype.parseFile = function(file, fn, filename)
-	{
-		filename = (filename != null) ? filename : file.name;
-
-		var reader = new FileReader();
-
-        reader.onload = mxUtils.bind(this, function()
-		{
-			this.parseFileData(reader.result, fn, filename)
-        });
-
-        reader.readAsText(file);
-	};
-
-	//TODO Use this version of the function instead of creating a Blob then read it again
-	EditorUi.prototype.parseFileData = function(data, fn, filename)
-	{
-
-		var xhr = new XMLHttpRequest();
-		xhr.open('POST', OPEN_URL);
-		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-		xhr.onreadystatechange = function()
-		{
-			fn(xhr);
-		};
-		
-		xhr.send('format=xml&filename=' + encodeURIComponent(filename) + '&data=' + encodeURIComponent(data));
-		
-		try
-		{
-			EditorUi.logEvent({category: 'GLIFFY-IMPORT-FILE',
-				action: 'size_' + file.size});
-		}
-		catch (e)
-		{
-			// ignore
-		}
-	};
-	
-	/**
-	 * 
+	 *
 	 */
 	EditorUi.prototype.isResampleImageSize = function(size, thresh)
 	{
@@ -21936,27 +22000,16 @@
 												this.openLocalFile(xml, null, true);
 											}
 										}
-										else if (this.isRemoteFileFormat(data))
+										else if (this.isGliffyData(data))
 										{
-											if (this.isOffline())
+											this.importGliffy(data, mxUtils.bind(this, function(xml)
 											{
-												this.showError(mxResources.get('error'), mxResources.get('notInOffline'));
-											}
-											else
+												this.openLocalFile(xml, null, true);
+											}), mxUtils.bind(this, function(err)
 											{
-												new mxXmlRequest(OPEN_URL, 'format=xml&data=' + encodeURIComponent(data)).send(mxUtils.bind(this, function(req)
-												{
-													if (req.getStatus() >= 200 && req.getStatus() <= 299)
-													{
-														this.openLocalFile(req.getText(), null, true);
-													}
-													else
-													{
-														this.showError(mxResources.get('error'), req.getStatus() == 413? mxResources.get('diagramTooLarge') :
-																			mxResources.get('unknownError'));
-													}
-												}));
-											}
+												this.showError(mxResources.get('error'), (err != null && err.status == 413) ? mxResources.get('diagramTooLarge') :
+													mxResources.get('unknownError'));
+											}));
 										}
 										else if (/^https?:\/\//.test(data))
 										{
@@ -22143,35 +22196,19 @@
 					handleResult(xml);
 				}));
 			}
-			else if (Graph.fileSupport && new XMLHttpRequest().upload &&
-				this.isRemoteFileFormat(data, name))
+			else if (Graph.fileSupport && this.isGliffyData(data, name))
 			{
-				if (this.isOffline())
+				this.importGliffy(data, mxUtils.bind(this, function(xml)
 				{
 					this.spinner.stop();
-					this.showError(mxResources.get('error'), mxResources.get('notInOffline'));
-				}
-				else
+					handleResult(xml);
+				}), mxUtils.bind(this, function(err)
 				{
-					this.parseFile(file, mxUtils.bind(this, function(xhr)
-					{
-						if (xhr.readyState == 4)
-						{
-							this.spinner.stop();
-							
-							if (xhr.status >= 200 && xhr.status <= 299)
-							{
-								handleResult(xhr.responseText);
-							}
-							else
-							{
-								this.handleError({message: mxResources.get((xhr.status == 413) ?
-									'drawingTooLarge' : 'invalidOrMissingFile')},
-									mxResources.get('errorLoadingFile'));
-							}
-						}
-					}));
-				}
+					this.spinner.stop();
+					this.handleError({message: mxResources.get((err != null && err.status == 413) ?
+						'drawingTooLarge' : 'invalidOrMissingFile')},
+						mxResources.get('errorLoadingFile'));
+				}), name);
 			}
 			else if (this.isLucidChartData(data))
 			{
@@ -24900,32 +24937,23 @@
 					this.handleError(e);
 				}), filename);
 			}
-			else if (data != null && typeof data.substring === 'function' && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, ''))
+			else if (data != null && typeof data.substring === 'function' && this.isGliffyData(data, ''))
 			{
-				if (this.isOffline())
+				this.importGliffy(data, mxUtils.bind(this, function(xml)
 				{
-					this.showError(mxResources.get('error'), mxResources.get('notInOffline'));
-				}
-				else
-				{
-					// Asynchronous parsing via server
-					this.parseFileData(data, mxUtils.bind(this, function(xhr)
+					if (xml.substring(0, 13) == '<mxGraphModel')
 					{
-						if (xhr.readyState == 4)
-						{
-							if (xhr.status >= 200 && xhr.status <= 299 &&
-								xhr.responseText.substring(0, 13) == '<mxGraphModel')
-							{
-								doLoad(xhr.responseText, evt);
-							}
-							else
-							{
-								this.handleError({message: xhr.status == 413? mxResources.get('diagramTooLarge') : 
-										mxResources.get('unknownError')});
-							}
-						}
-					}), '');
-				}
+						doLoad(xml, evt);
+					}
+					else
+					{
+						this.handleError({message: mxResources.get('unknownError')});
+					}
+				}), mxUtils.bind(this, function(err)
+				{
+					this.handleError({message: (err != null && err.status == 413) ? mxResources.get('diagramTooLarge') :
+							mxResources.get('unknownError')});
+				}), '');
 			}
 			else if (data != null && typeof data.substring === 'function' && this.isLucidChartData(data))
 			{
