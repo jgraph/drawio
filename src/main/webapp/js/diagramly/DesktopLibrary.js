@@ -6,6 +6,9 @@ DesktopLibrary = function(ui, data, fileObj)
 {
 	LocalLibrary.call(this, ui, data, fileObj.name);
 	this.fileObj = fileObj;
+	// The desktop saveFile writes to fileObject; without it every save
+	// asks for a new file location [drawio-desktop#2521]
+	this.fileObject = fileObj;
 };
 
 //Extends LocalLibrary

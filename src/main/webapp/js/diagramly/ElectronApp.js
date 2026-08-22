@@ -1025,6 +1025,13 @@ mxStencilRegistry.allowEval = false;
 	// Monitor the given file for changes
 	EditorUi.prototype.watchFile = async function(file)
 	{
+		// Saving a non-current file (eg. a library) must not unwatch
+		// the current file's path
+		if (file != null && file != this.getCurrentFile())
+		{
+			return;
+		}
+
 		var newPath = (file != null && file.fileObject != null &&
 			file == this.getCurrentFile()) ? file.fileObject.path : null;
 		
@@ -2063,6 +2070,13 @@ mxStencilRegistry.allowEval = false;
 	// (title, revision, ...), which hits the signature safeguard in the
 	// desktop saveFile above, so the desktop saveAs is used instead
 	LocalLibrary.prototype.saveAs = LocalFile.prototype.saveAs;
+
+	// LocalLibrary extends the pre-wrapper LocalFile, so without these it
+	// inherits the web save/saveFile: the web save calls saveAs, and the
+	// desktop saveAs above ends with save, which reopens the save dialog
+	// forever without ever writing the file [drawio-desktop#2518]
+	LocalLibrary.prototype.save = LocalFile.prototype.save;
+	LocalLibrary.prototype.saveFile = LocalFile.prototype.saveFile;
 
 	LocalFile.prototype.saveDraft = function(data)
 	{

@@ -11138,6 +11138,15 @@ Graph.prototype.isLockedGroup = function(cell)
 };
 
 /**
+ * Returns true if the given cell has the tooltipCell=1 style.
+ */
+Graph.prototype.isTooltipCell = function(cell)
+{
+	return cell != null && mxUtils.getValue(
+		this.getCurrentCellStyle(cell), 'tooltipCell', '0') == '1';
+};
+
+/**
  * Returns true if the cell has the lockedGroup style key (either '0' or '1').
  * Used to decide whether double-clicks inside the group should route to the
  * mermaid editor.
@@ -11186,11 +11195,11 @@ Graph.prototype.isEditIconVisible = function(cell)
 /**
  * Returns the nearest ancestor (including cell) with lockedGroup=1, or null.
  */
-Graph.prototype.getLockedGroupAncestor = function(cell)
+Graph.prototype.getLockedGroupAncestor = function(cell, checkTooltipCell)
 {
 	while (cell != null)
 	{
-		if (this.isLockedGroup(cell))
+		if (this.isLockedGroup(cell) || (checkTooltipCell && this.isTooltipCell(cell)))
 		{
 			return cell;
 		}
@@ -13579,7 +13588,7 @@ Graph.prototype.getTooltipForCell = function(cell)
 		return null;
 	}
 
-	var lockedAncestor = this.getLockedGroupAncestor(cell);
+	var lockedAncestor = this.getLockedGroupAncestor(cell, true);
 
 	if (lockedAncestor != null)
 	{

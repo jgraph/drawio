@@ -1,3 +1,14 @@
+21-AUG-2026: 31.3.2
+
+- Rebuilds the Gliffy bundle with the validated page background
+- fix: upgrade commons-codec:commons-codec from 1.22.0 to 1.22.1
+- Updates excludes
+- Conf Cloud: Added Atlassian migration mapping support
+- Points the Confluence draft 415 message at Attachment Checker's exception setting
+- Added a marker style tooltipCell=1 to find the cell having the tooltip in a group & updated gliffy importer [DID-19972]
+- Fixes desktop library save dialog loop and spurious save dialog [jgraph/drawio-desktop#2518] [jgraph/drawio-desktop#2521]
+- Updates stable channel to 31.3.2
+
 15-AUG-2026: 31.3.1
 
 - Blocks a tab in the URL scheme in the CSS reference check [jgraph/drawio-dev#628]
