@@ -1369,6 +1369,7 @@ Sidebar.prototype.matchTermEntries = function(term, reverseMap)
 	var prefix = [];
 	var substring = [];
 	var phonetic = [];
+	var english = null;
 
 	var found = this.taglist[term];
 
@@ -1380,7 +1381,7 @@ Sidebar.prototype.matchTermEntries = function(term, reverseMap)
 	// Checks English translation for localized search terms
 	if (reverseMap != null)
 	{
-		var english = reverseMap[term];
+		english = reverseMap[term];
 
 		if (english != null && english !== term)
 		{
@@ -1397,6 +1398,10 @@ Sidebar.prototype.matchTermEntries = function(term, reverseMap)
 				}
 			}
 		}
+		else
+		{
+			english = null;
+		}
 	}
 
 	// Adds partial matches on tags, eg. for searching parts of shape
@@ -1410,6 +1415,14 @@ Sidebar.prototype.matchTermEntries = function(term, reverseMap)
 
 	this.matchPartialEntries(term, seen, prefix, substring);
 
+	// Tags may differ from the resource key in inflection, eg. the
+	// mockups resource key resolves to the singular mockup tag, so
+	// partial and Soundex matching must also run on the translation
+	if (english != null)
+	{
+		this.matchPartialEntries(english, seen, prefix, substring);
+	}
+
 	var normalized = Editor.soundex(term.replace(/\.*\d*$/, ''));
 
 	if (normalized.length > 0 && normalized !== term)
@@ -1419,6 +1432,30 @@ Sidebar.prototype.matchTermEntries = function(term, reverseMap)
 		if (found != null)
 		{
 			phonetic = found.entries.slice();
+		}
+	}
+
+	// Soundex of the raw term cannot match for non-Latin scripts, so
+	// localized terms rely on the Soundex of the translation
+	if (english != null)
+	{
+		var englishNormalized = Editor.soundex(english.replace(/\.*\d*$/, ''));
+
+		if (englishNormalized.length > 0 && englishNormalized !== english &&
+			englishNormalized !== normalized)
+		{
+			found = this.taglist[englishNormalized];
+
+			if (found != null)
+			{
+				for (var i = 0; i < found.entries.length; i++)
+				{
+					if (mxUtils.indexOf(phonetic, found.entries[i]) < 0)
+					{
+						phonetic.push(found.entries[i]);
+					}
+				}
+			}
 		}
 	}
 
@@ -1507,12 +1544,17 @@ Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, er
 		var reverseMap = this.getResourceReverseMap();
 
 		// Translates multi-word localized names as a whole, eg. "balon kata"
-		// (id) resolves to the callout tag while its single tokens do not
+		// (id) resolves to the callout tag while its single tokens do not.
+		// Soundex covers translations that only match a tag phonetically,
+		// eg. "miundo ya majaribio" (sw) resolves to the mockups resource
+		// key while the tag is the singular mockup
 		if (tmp.length > 1)
 		{
 			var english = reverseMap[searchTerms.toLowerCase().replace(/\s+/g, ' ').trim()];
 
-			if (english != null && !seenTerms[english] && this.taglist[english] != null)
+			if (english != null && !seenTerms[english] &&
+				(this.taglist[english] != null ||
+				this.taglist[Editor.soundex(english.replace(/\.*\d*$/, ''))] != null))
 			{
 				seenTerms[english] = true;
 				tmp.push(english);

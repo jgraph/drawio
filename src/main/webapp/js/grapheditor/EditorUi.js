@@ -3791,7 +3791,45 @@ EditorUi.prototype.initCanvas = function()
 	   	{
 	   		mxEvent.removeListener(window, 'resize', autoscaleResize);
 	   	});
-	   	
+
+		// Refits when the container gets its first usable size. The window resize
+		// listener above keeps the current scale, so a viewer that was loaded into
+		// a collapsed or hidden container never fits itself when it is revealed
+		// [jgraph/drawio-dev#647]
+		if (typeof ResizeObserver !== 'undefined' && graph.container != null)
+		{
+			var isEmptyContainer = function()
+			{
+				return graph.container.offsetWidth == 0 || graph.container.offsetHeight == 0;
+			};
+
+			var wasEmpty = isEmptyContainer();
+
+			var containerObserver = new ResizeObserver(mxUtils.bind(this, function()
+			{
+				var empty = isEmptyContainer();
+
+				if (wasEmpty && !empty)
+				{
+					if (graph.isLightboxView())
+					{
+						this.lightboxFit();
+					}
+
+					this.chromelessResize();
+				}
+
+				wasEmpty = empty;
+			}));
+
+			containerObserver.observe(graph.container);
+
+			this.destroyFunctions.push(function()
+			{
+				containerObserver.disconnect();
+			});
+		}
+
 		this.editor.addListener('resetGraphView', mxUtils.bind(this, function()
 		{
 			this.chromelessResize(true);
@@ -7470,9 +7508,11 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		graphFireMouseEvent.apply(this, arguments);
 	};
 
-	// Helper function to center the given cells in the viewport if they are
-	// not fully visible, so that a selection that is moved or resized with
-	// the cursor keys stays in view
+	// Helper function to center the given cells in the viewport if they have
+	// moved completely out of view, so that a selection that is moved or
+	// resized with the cursor keys can be followed. The viewport must not
+	// move while any part of the selection is visible, eg. when a partially
+	// visible shape is aligned with the cursor keys while zoomed in
 	function scrollCellsToVisible(cells)
 	{
 		var handler = graph.graphHandler;
@@ -7496,9 +7536,9 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		}
 
 		if (b != null && c != null &&
-			(b.x < c.scrollLeft || b.y < c.scrollTop ||
-			b.x + b.width > c.scrollLeft + c.clientWidth ||
-			b.y + b.height > c.scrollTop + c.clientHeight))
+			(b.x + b.width < c.scrollLeft || b.y + b.height < c.scrollTop ||
+			b.x > c.scrollLeft + c.clientWidth ||
+			b.y > c.scrollTop + c.clientHeight))
 		{
 			var t = graph.view.translate;
 			var tr = new mxPoint(t.x, t.y);

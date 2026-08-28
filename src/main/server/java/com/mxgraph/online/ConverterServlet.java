@@ -39,6 +39,11 @@ public class ConverterServlet  extends HttpServlet
 			.getLogger(HttpServlet.class.getName());
 	
 	private static final int MAX_DIM = 5000;
+	// CloudConvert converts synchronously and can hold the connection quiet
+	// for far longer than a token exchange, so the shared 29s read timeout
+	// would fail legitimate conversions of large files. Still bounded, so an
+	// unresponsive service cannot pin the thread forever.
+	private static final int CONVERT_READ_TIMEOUT = 120000; // 2 min
 	private static final int MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 	private static final double EMF_10thMM2PXL = 26.458;
 	private static final String API_KEY_FILE_PATH = "/WEB-INF/cloud_convert_api_key"; // Not migrated to new pattern, since will not be used on diagrams.net
@@ -131,6 +136,10 @@ public class ConverterServlet  extends HttpServlet
 			{
 				URL obj = new URL(CONVERT_SERVICE_URL);
 				con = (HttpURLConnection) obj.openConnection();
+
+				Utils.setTimeouts(con);
+				con.setReadTimeout(CONVERT_READ_TIMEOUT);
+
 				con.setUseCaches(false);
 				con.setDoOutput(true);
 				

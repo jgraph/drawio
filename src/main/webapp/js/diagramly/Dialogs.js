@@ -19165,37 +19165,89 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		var addBtn = mxUtils.button(mxResources.get('add'), function()
 		{
 			var count = parseInt(pCount.value);
-			count = count < 1? 1 : (count > 100? 100 : count);
+			count = isNaN(count)? 1 : (count < 1? 1 : (count > 100? 100 : count));
 			pCount.value = count;
 			var side = sideSelect.value;
 			var geo = mainCell.geometry;
-			var cells = [];
+			var horizontal = side == 'top' || side == 'bottom';
+
+			// New points go into the gaps between the existing points on the
+			// edge - an even spread lands exactly on the default constraints
+			// of most shapes where identical points are invisible and then
+			// removed as duplicates on apply
+			var fractions = [0, 1];
+
+			for (var id in editingGraph.model.cells)
+			{
+				var cp = editingGraph.model.cells[id];
+
+				if (!cp.cp) continue;
+
+				var constraint = getConstraintFromCPoint(cp);
+
+				if ((side == 'left' && constraint.x == 0) ||
+					(side == 'right' && constraint.x == 1) ||
+					(side == 'top' && constraint.y == 0) ||
+					(side == 'bottom' && constraint.y == 1))
+				{
+					// Style points can carry non-numeric or out of range
+					// values so invalid fractions are ignored
+					var f = parseFloat(horizontal? constraint.x : constraint.y);
+
+					if (isFinite(f) && f > 0 && f < 1)
+					{
+						fractions.push(f);
+					}
+				}
+			}
+
+			fractions.sort(function(a, b)
+			{
+				return a - b;
+			});
+
+			var gaps = [];
+
+			for (var i = 1; i < fractions.length; i++)
+			{
+				if (fractions[i] > fractions[i - 1])
+				{
+					gaps.push({start: fractions[i - 1],
+						len: fractions[i] - fractions[i - 1], count: 0});
+				}
+			}
 
 			for (var i = 0; i < count; i++)
 			{
-				var x, y;
+				var best = gaps[0];
 
-				switch(side)
+				for (var j = 1; j < gaps.length; j++)
 				{
-					case 'left':
-						x = geo.x;
-						y = geo.y + (i + 1) * geo.height / (count + 1);
-						break;
-					case 'right':
-						x = geo.x + geo.width;
-						y = geo.y + (i + 1) * geo.height / (count + 1);
-						break;
-					case 'top':
-						x = geo.x + (i + 1) * geo.width / (count + 1);
-						y = geo.y;
-						break;
-					case 'bottom':
-						x = geo.x + (i + 1) * geo.width / (count + 1);
-						y = geo.y + geo.height;
-						break;
+					if (gaps[j].len / (gaps[j].count + 1) >
+						best.len / (best.count + 1))
+					{
+						best = gaps[j];
+					}
 				}
 
-				cells.push(createCPoint(x - CP_HLF_SIZE, y - CP_HLF_SIZE));
+				best.count++;
+			}
+
+			var cells = [];
+
+			for (var i = 0; i < gaps.length; i++)
+			{
+				for (var j = 1; j <= gaps[i].count; j++)
+				{
+					var f = parseFloat((gaps[i].start +
+						j * gaps[i].len / (gaps[i].count + 1)).toFixed(6));
+					var fx = horizontal? f : (side == 'left'? 0 : 1);
+					var fy = horizontal? (side == 'top'? 0 : 1) : f;
+
+					cells.push(createCPoint(geo.x + fx * geo.width - CP_HLF_SIZE,
+						geo.y + fy * geo.height - CP_HLF_SIZE,
+						new mxConnectionConstraint(new mxPoint(fx, fy), false)));
+				}
 			}
 
 			editingGraph.setSelectionCells(cells);
@@ -19369,6 +19421,25 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		mxEvent.addListener(dxInput, 'change', applyPointProp);
 		mxEvent.addListener(dyInput, 'change', applyPointProp);
 
+		// Groups and other non-connectable cells never show their own
+		// connection points in the editor so edits are a silent no-op
+		// unless the cell is also made connectable [jgraph/drawio#5733]
+		var initialConnectable = editorUi.editor.graph.isCellConnectable(cell);
+		var connectableCb = document.createElement('input');
+		connectableCb.setAttribute('type', 'checkbox');
+		connectableCb.style.verticalAlign = 'middle';
+		connectableCb.style.marginRight = '6px';
+		connectableCb.checked = initialConnectable;
+
+		function applyConnectable()
+		{
+			if (connectableCb.checked != initialConnectable)
+			{
+				editorUi.editor.graph.setCellStyles('connectable',
+					(connectableCb.checked) ? '1' : '0', [cell]);
+			}
+		};
+
 		var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 		{
 			destroy();
@@ -19376,7 +19447,7 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		});
 
 		cancelBtn.className = 'geBtn';
-		
+
 		var applyBtn = mxUtils.button(mxResources.get('apply'), function()
 		{
 			var cells = editingGraph.model.cells, points = [], constraints = [];
@@ -19409,16 +19480,38 @@ var ConnectionPointsDialog = function(editorUi, cell)
 					constraints[i].dx + ',' + constraints[i].dy + ']');
 			}
 
-			editorUi.editor.graph.setCellStyles('points', '[' + points.join(',') + ']', [cell]);
+			var editorGraph = editorUi.editor.graph;
+			editorGraph.getModel().beginUpdate();
+			try
+			{
+				editorGraph.setCellStyles('points', '[' + points.join(',') + ']', [cell]);
+				applyConnectable();
+			}
+			finally
+			{
+				editorGraph.getModel().endUpdate();
+			}
+
 			destroy();
 			editorUi.hideDialog();
 		});
-		
+
 		applyBtn.className = 'geBtn gePrimaryBtn';
-		
+
 		var resetBtn = mxUtils.button(mxResources.get('reset'), function()
 		{
-			editorUi.editor.graph.setCellStyles('points', null, [cell]);
+			var editorGraph = editorUi.editor.graph;
+			editorGraph.getModel().beginUpdate();
+			try
+			{
+				editorGraph.setCellStyles('points', null, [cell]);
+				applyConnectable();
+			}
+			finally
+			{
+				editorGraph.getModel().endUpdate();
+			}
+
 			destroy();
 			editorUi.hideDialog();
 		});
@@ -19435,6 +19528,13 @@ var ConnectionPointsDialog = function(editorUi, cell)
 			buttons.appendChild(editorUi.createHelpIcon(
 				'https://www.drawio.com/doc/faq/shape-connection-points-customise'));
 		}
+
+		var connectableLabel = document.createElement('label');
+		connectableLabel.style.cssFloat = 'left';
+		connectableLabel.style.marginTop = '8px';
+		connectableLabel.appendChild(connectableCb);
+		mxUtils.write(connectableLabel, mxResources.get('connectable', null, 'Connectable'));
+		buttons.appendChild(connectableLabel);
 
 		if (editorUi.editor.cancelFirst)
 		{

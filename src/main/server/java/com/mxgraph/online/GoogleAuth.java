@@ -71,6 +71,9 @@ abstract public class GoogleAuth extends AbsAuth
 		{
 			URL obj = new URL("https://www.googleapis.com/oauth2/v2/userinfo?alt=json");
 			con = (HttpURLConnection) obj.openConnection();
+
+			Utils.setTimeouts(con);
+
 			con.setRequestProperty("Authorization", "Bearer " + accessToken);
 			con.setRequestProperty("User-Agent", "draw.io");
 			int status = con.getResponseCode();

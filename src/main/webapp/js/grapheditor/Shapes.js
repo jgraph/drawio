@@ -1836,14 +1836,38 @@
 	mxShape.prototype.afterPaint = function(c)
 	{
 		shapeAfterPaint.apply(this, arguments);
-		
+
 		if (c.handJiggle != null)
 		{
 			c.handJiggle.destroy();
 			delete c.handJiggle;
 		}
 	};
-		
+
+	// Adds the painted bounds to the bounding box for hand-drawn styles as
+	// the jiggle overshoots the shape bounds, which would otherwise clip
+	// the shape in image exports and fit [jgraph/drawio#5450]
+	var shapeUpdateBoundingBox = mxShape.prototype.updateBoundingBox;
+	mxShape.prototype.updateBoundingBox = function()
+	{
+		shapeUpdateBoundingBox.apply(this, arguments);
+
+		if (!this.useSvgBoundingBox && this.boundingBox != null && !this.outline &&
+			this.style != null && (mxUtils.getValue(this.style, 'sketch', '0') != '0' ||
+			mxUtils.getValue(this.style, 'comic', '0') != '0'))
+		{
+			var bbox = this.getSvgBoundingBox();
+
+			if (bbox != null)
+			{
+				// Shadows are CSS filters and not part of the measured
+				// bounds (see mxShape.augmentBoundingBox)
+				this.augmentShadowBoundingBox(bbox);
+				this.boundingBox.add(bbox);
+			}
+		}
+	};
+
 	// Returns a new HandJiggle canvas
 	mxShape.prototype.createComicCanvas = function(c)
 	{
@@ -6681,7 +6705,82 @@
 	};
 	
 	mxMarker.addMarker('openAsync', createOpenAsyncArrow(2));
-	
+
+	// Mermaid class-diagram relation markers. The upstream mermaid markers
+	// are 17 units long and 12 wide (extension triangle path
+	// `M 1,7 L18,13 V 1`, composition/aggregation diamond
+	// `M 18,7 L9,13 L1,7 L9,1`) — a 17:6 length to half-width ratio that
+	// no stock marker matches (block/diamond are 1:1, diamondThin 1.7:1).
+	// Both scale with Size, so endSize=17 reproduces mermaid's dimensions
+	// exactly. The tip sits on the raw edge endpoint (no strokewidth
+	// pull-back) so the marker touches the node border like mermaid's
+	// refX=1 marker anchoring does.
+	function createMermaidTriangle()
+	{
+		var wf = 17 / 6;
+
+		return function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
+		{
+			unitX = unitX * (size + sw);
+			unitY = unitY * (size + sw);
+
+			var pt = pe.clone();
+			pe.x -= unitX;
+			pe.y -= unitY;
+
+			return function()
+			{
+				c.begin();
+				c.moveTo(pt.x, pt.y);
+				c.lineTo(pt.x - unitX - unitY / wf, pt.y - unitY + unitX / wf);
+				c.lineTo(pt.x - unitX + unitY / wf, pt.y - unitY - unitX / wf);
+				c.close();
+
+				if (filled)
+				{
+					c.fillAndStroke();
+				}
+				else
+				{
+					c.stroke();
+				}
+			};
+		};
+	};
+
+	mxMarker.addMarker('mermaidExtension', createMermaidTriangle());
+
+	mxMarker.addMarker('mermaidDiamond', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
+	{
+		var wf = 17 / 6;
+
+		unitX = unitX * (size + sw);
+		unitY = unitY * (size + sw);
+
+		var pt = pe.clone();
+		pe.x -= unitX;
+		pe.y -= unitY;
+
+		return function()
+		{
+			c.begin();
+			c.moveTo(pt.x, pt.y);
+			c.lineTo(pt.x - unitX / 2 - unitY / wf, pt.y - unitY / 2 + unitX / wf);
+			c.lineTo(pt.x - unitX, pt.y - unitY);
+			c.lineTo(pt.x - unitX / 2 + unitY / wf, pt.y - unitY / 2 - unitX / wf);
+			c.close();
+
+			if (filled)
+			{
+				c.fillAndStroke();
+			}
+			else
+			{
+				c.stroke();
+			}
+		};
+	});
+
 	function arrow(canvas, shape, type, pe, unitX, unitY, size, source, sw, filled)
 	{
 		// The angle of the forward facing arrow sides against the x axis is

@@ -513,7 +513,7 @@ mxStackLayout.prototype.execute = function(parent)
 				if (horizontal)
 				{
 					last.width = pgeo.width - last.x - this.spacing - this.marginRight -
-						this.marginLeft - startSize.width - footerSize.width;
+						startSize.width - footerSize.width;
 				}
 				else
 				{

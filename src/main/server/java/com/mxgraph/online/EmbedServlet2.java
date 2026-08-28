@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.concurrent.ScheduledFuture;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -404,9 +405,19 @@ public class EmbedServlet2 extends HttpServlet
 		{
 			HashSet<String> completed = new HashSet<String>();
 			int sizeLimit = Utils.MAX_SIZE;
+			// One budget for every fetch= in this request, not one each,
+			// otherwise n urls buy the caller n times the wait.
+			long expiresAt = System.currentTimeMillis() + Utils.HTTP_TOTAL_BUDGET;
 
 			for (int i = 0; i < urls.length; i++)
 			{
+				long remaining = expiresAt - System.currentTimeMillis();
+
+				if (remaining <= 0)
+				{
+					break;
+				}
+
 				InetAddress validatedAddr;
 
 				// Checks if URL already fetched to avoid duplicates. Uses the
@@ -417,27 +428,43 @@ public class EmbedServlet2 extends HttpServlet
 				{
 					completed.add(urls[i]);
 					URL url = new URL(urls[i]);
+					// openPinnedConnection applies Utils.HTTP_TIMEOUT to both the
+					// connect and the read: fetch= is an attacker-supplied URL,
+					// so without it a host that answers slowly on purpose pins
+					// this thread, and several fetch= values pin it for a
+					// multiple of that.
 					URLConnection connection = Utils.openPinnedConnection(url, validatedAddr);
 					((HttpURLConnection) connection).setInstanceFollowRedirects(false);
 					connection.setRequestProperty("User-Agent", "draw.io");
-					ByteArrayOutputStream stream = new ByteArrayOutputStream();
-					String contentLength = connection.getHeaderField("Content-Length");
 
-					// If content length is available, use it to enforce maximum size
-					if (contentLength != null && Long.parseLong(contentLength) > sizeLimit)
+					ScheduledFuture<?> deadline = Utils.setDeadline(
+							(HttpURLConnection) connection, remaining);
+
+					try
 					{
-						break;
-					}
+						ByteArrayOutputStream stream = new ByteArrayOutputStream();
+						String contentLength = connection.getHeaderField("Content-Length");
 
-					sizeLimit -= Utils.copyRestricted(connection.getInputStream(), stream);
-					setCachedUrls += "GraphViewer.cachedUrls['"
-							+ StringEscapeUtils.escapeEcmaScript(urls[i])
-							+ "'] = decodeURIComponent('"
-							+ StringEscapeUtils.escapeEcmaScript(
-									Utils.encodeURIComponent(
-											stream.toString("UTF-8"),
-											Utils.CHARSET_FOR_URL_ENCODING))
-							+ "');";
+						// If content length is available, use it to enforce maximum size
+						if (contentLength != null && Long.parseLong(contentLength) > sizeLimit)
+						{
+							break;
+						}
+
+						sizeLimit -= Utils.copyRestricted(connection.getInputStream(), stream);
+						setCachedUrls += "GraphViewer.cachedUrls['"
+								+ StringEscapeUtils.escapeEcmaScript(urls[i])
+								+ "'] = decodeURIComponent('"
+								+ StringEscapeUtils.escapeEcmaScript(
+										Utils.encodeURIComponent(
+												stream.toString("UTF-8"),
+												Utils.CHARSET_FOR_URL_ENCODING))
+								+ "');";
+					}
+					finally
+					{
+						Utils.clearDeadline(deadline);
+					}
 				}
 			}
 		}

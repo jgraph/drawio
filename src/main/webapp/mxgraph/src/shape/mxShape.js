@@ -1580,6 +1580,22 @@ mxShape.prototype.createBoundingBox = function()
  */
 mxShape.prototype.augmentBoundingBox = function(bbox)
 {
+	this.augmentShadowBoundingBox(bbox);
+
+	// Adds stroke width
+	if (this.stroke != null)
+	{
+		bbox.grow(this.strokewidth * this.scale / 2);
+	}
+};
+
+/**
+ * Function: augmentShadowBoundingBox
+ *
+ * Augments the bounding box with the shadow offsets.
+ */
+mxShape.prototype.augmentShadowBoundingBox = function(bbox)
+{
 	if (this.isShadow)
 	{
 		var ss = this.getShadowStyle();
@@ -1599,12 +1615,6 @@ mxShape.prototype.augmentBoundingBox = function(bbox)
 		bbox.grow(Math.max(ss.blur, 0) * this.scale * 2);
 		bbox.width += Math.ceil(Math.max(ss.dx, 0) * this.scale);
 		bbox.height += Math.ceil(Math.max(ss.dy, 0) * this.scale);
-	}
-	
-	// Adds stroke width
-	if (this.stroke != null)
-	{
-		bbox.grow(this.strokewidth * this.scale / 2);
 	}
 };
 

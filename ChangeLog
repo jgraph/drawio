@@ -1,3 +1,44 @@
+28-AUG-2026: 31.4.1
+
+- Keeps the current scale when fitting into a zero-size container [jgraph/drawio-dev#647]
+- Adds a connectable switch to the connection points dialog [jgraph/drawio#5733]
+- Backfills 219 missing translation keys across all 58 language files [jgraph/drawio-dev#637]
+- Fixes hidden shared folders and folder shortcuts in OneDrive picker [jgraph/drawio#5359]
+- Removes duplicate action, basic and mockups keys from all language files [jgraph/drawio-dev#637]
+- Makes Dropbox files read-only ahead of support ending [jgraph/drawio#5740]
+- Runs partial and Soundex matching on translated shape search terms [jgraph/drawio#5518]
+- Updated translation of Google Drive first time file open message [DID-20062]
+- Keeps placed sibling order in ELK tree layouts [jgraph/drawio#5454]
+- Sets timeouts on all outbound server connections [GHSA-r85c-2h2r-46rw]
+- Downscales embed mode image exports to a maximum canvas area so that huge diagrams cannot crash the renderer [DID-20081]
+- Bounds the whole outbound exchange, not just each read [GHSA-r85c-2h2r-46rw]
+
+26-AUG-2026: 31.4.0
+
+- Bump actions/setup-node from 4.4.0 to 7.0.0
+- Conf Cloud: Resolve Gliffy version pins automatically [jgraph/drawio-dev#637]
+- Fixes convert worker referer gate rejecting Office add-in update requests [jgraph/drawio#5459]
+- Fixes blurry Office add-in diagram updates by sending a numeric export scale [jgraph/drawio#5459]
+- Rebuilds the Gliffy bundle with the value-size charge
+- Removes the Gliffy conversion CF worker (import is fully client-side)
+- Removes text/xml Content-Type from attachment download GETs, Confluence Cloud now rejects such GETs with 415 [#638]
+- Conf Cloud: Restore Gliffy version pinning as opt-in, keep pin diagnostics [jgraph/drawio-dev#637]
+- Update vendored drawio-plantuml bundle to commit ffcd9d7
+- Conf Cloud: Add page IDs import error reporting strings [DID-20037]
+- Follows cursor-key moves and resizes only when the selection is fully out of view, keeps the viewport static while any part is visible [jgraph/drawio-desktop#2525]
+- Restores z-order actions moving table rows within the table [jgraph/drawio#5748]
+- Stops resizeLast double-subtracting marginLeft in horizontal stack layouts [jgraph/drawio#5751]
+- Updates vendored CryptoJS rollup to 4.2.0 for a CSPRNG-backed KDF salt [jgraph/drawio-dev#640]
+- Fails closed when no CSPRNG is reachable for realtime encryption [jgraph/drawio-dev#640]
+- feat(shapes): mermaidExtension + mermaidDiamond relation markers
+- Places added connection points in the gaps between existing points [jgraph/drawio-desktop#2514]
+- Replaces every matched color placeholder in setTextColor [jgraph/drawio-dev#644]
+- Includes hand-drawn overshoot in shape bounding boxes [jgraph/drawio#5450]
+- Matches only elements changed to the color placeholder [jgraph/drawio-dev#643]
+- Stops nested spans accumulating on text color changes in Firefox [jgraph/drawio#5752]
+- Applies text colors at a collapsed cursor to the styled run [jgraph/drawio-dev#642]
+- vendor: update mermaid bundle (dev be7192b — DID-20053 gantt dateFormat/compact/vert fixes; class, architecture icon packs, kanban, radar, sankey, c4, block visual-match passes)
+
 21-AUG-2026: 31.3.2
 
 - Rebuilds the Gliffy bundle with the validated page background

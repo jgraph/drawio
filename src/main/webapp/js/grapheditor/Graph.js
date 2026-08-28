@@ -1773,8 +1773,9 @@ Graph.newColorPlaceholder = 'rgba(0, 0, 0, 0)';
 /**
  * Value to be used to identify new background colors. This value is
  * be a valid CSS background that will never be used in practice.
+ * Black is not used here as black text highlights do occur in labels.
  */
-Graph.newBackgroundPlaceholder = 'rgb(0, 0, 0)';
+Graph.newBackgroundPlaceholder = 'rgb(1, 2, 3)';
 
 /**
  * Default value for adaptiveColors. Default is 'auto'.
@@ -2196,6 +2197,71 @@ Graph.setTextColor = function(node, color, isForeground)
 	var property = (isForeground) ?
 		'color' : 'background-color';
 
+	// A collapsed selection means the command below only changes the
+	// typing style and the placeholder never appears in the DOM. If the
+	// cursor is within an element that carries the property, the
+	// selection is extended to that element, so the color change is
+	// applied to the styled run under the cursor. Otherwise the real
+	// color is used as the typing style and no placeholder is inserted,
+	// as the placeholder would otherwise become the typing style and
+	// appear as an actual color in the content when typing resumes.
+	if (window.getSelection)
+	{
+		var selection = window.getSelection();
+
+		if (selection.rangeCount > 0 && selection.isCollapsed &&
+			mxUtils.isAncestorNode(node, selection.anchorNode))
+		{
+			var elt = (selection.anchorNode.nodeType ==
+				mxConstants.NODETYPE_ELEMENT) ?
+				selection.anchorNode :
+				selection.anchorNode.parentNode;
+			var run = null;
+
+			while (elt != null && elt != node && run == null)
+			{
+				var value = Graph.getGivenColor(elt, property);
+
+				if (value != null && value != '')
+				{
+					run = elt;
+				}
+
+				elt = elt.parentNode;
+			}
+
+			if (run != null)
+			{
+				var range = document.createRange();
+				range.selectNodeContents(run);
+				selection.removeAllRanges();
+				selection.addRange(range);
+			}
+			else
+			{
+				if (color != mxConstants.NONE)
+				{
+					var typingCss = document.queryCommandState('styleWithCSS');
+
+					if (isForeground && !typingCss)
+					{
+						document.execCommand('styleWithCSS', false, true);
+					}
+
+					document.execCommand((isForeground) ?
+						'forecolor' : 'backcolor', false, color);
+
+					if (isForeground && !typingCss)
+					{
+						document.execCommand('styleWithCSS', false, false);
+					}
+				}
+
+				return;
+			}
+		}
+	}
+
 	// Detects changes in other elements
 	var temp = node.getElementsByTagName('*');
 	var previous = [];
@@ -2203,8 +2269,103 @@ Graph.setTextColor = function(node, color, isForeground)
 	for (var i = 0; i < temp.length; i++)
 	{
 		previous.push({node: temp[i],
-			value: temp[i].style[property]});
+			value: temp[i].style[property],
+			attr: (isForeground) ?
+				temp[i].getAttribute('color') : null});
 	}
+
+	// Returns the recorded state for the given element or null
+	// if the element was created by the command below
+	function getPrevious(elt)
+	{
+		for (var i = 0; i < previous.length; i++)
+		{
+			if (previous[i].node == elt)
+			{
+				return previous[i];
+			}
+		}
+
+		return null;
+	};
+
+	// Clears the property from the style and backup style attribute of
+	// the given element so it is not restored after editing stops, and
+	// removes attributes that are left without an effect
+	function clearProperty(elt)
+	{
+		if (elt.style[property] != '')
+		{
+			elt.style[property] = '';
+		}
+
+		try
+		{
+			var temp = elt.getAttribute(Graph.backupStyleAttribute);
+
+			if (temp != null)
+			{
+				var originalStyles = JSON.parse(temp);
+				originalStyles[property] = '';
+				var empty = true;
+
+				for (var key in originalStyles)
+				{
+					empty = empty && originalStyles[key] == '';
+				}
+
+				if (empty && (elt.getAttribute('style') == null ||
+					elt.getAttribute('style') == ''))
+				{
+					elt.removeAttribute(Graph.backupStyleAttribute);
+				}
+				else
+				{
+					elt.setAttribute(Graph.backupStyleAttribute,
+						JSON.stringify(originalStyles));
+				}
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+
+		if (elt.getAttribute('style') == '')
+		{
+			elt.removeAttribute('style');
+		}
+	};
+
+	// Replaces the given element with its child nodes
+	function unwrap(elt)
+	{
+		var parent = elt.parentNode;
+
+		if (parent != null)
+		{
+			while (elt.firstChild != null)
+			{
+				parent.insertBefore(elt.firstChild, elt);
+			}
+
+			parent.removeChild(elt);
+		}
+	};
+
+	// Returns true if the visible content of the given ancestor is fully
+	// covered by the given element, ie. the ancestor renders no text or
+	// replaced content of its own outside of the element
+	function isCovered(ancestor, elt)
+	{
+		return ancestor.textContent == elt.textContent &&
+			ancestor.getElementsByTagName('img').length ==
+				elt.getElementsByTagName('img').length &&
+			ancestor.getElementsByTagName('br').length ==
+				elt.getElementsByTagName('br').length &&
+			ancestor.getElementsByTagName('hr').length ==
+				elt.getElementsByTagName('hr').length;
+	};
 
 	// Forces CSS styling for the foreground placeholder so it is applied as an
 	// inline style instead of a <font color> attribute. The legacy attribute
@@ -2226,90 +2387,145 @@ Graph.setTextColor = function(node, color, isForeground)
 		document.execCommand('styleWithCSS', false, false);
 	}
 
-	// Finds the element and sets the real color
+	// Finds the elements carrying the placeholder. A multi-line selection
+	// yields one element per line block, and the Firefox anchor workaround
+	// below moves elements around, which reorders the live element
+	// collection, so the matches are collected before any changes are made.
 	var elts = node.getElementsByTagName('*');
-	
+	var matches = [];
+
 	for (var i = 0; i < elts.length; i++)
 	{
-		// Removes color from backup style attribute if removed in style
-		// This happens if the color was removed from a parent element
-		if (i < previous.length && previous[i].node == elts[i] &&
-			previous[i].value != elts[i].style[property] &&
-			elts[i].style[property] == '')
-		{
-			// Updates the backup style to apply the change when editing stops
-			try
-			{
-				var temp = elts[i].getAttribute(Graph.backupStyleAttribute);
+		// Matches only elements that the command above created or
+		// changed to the placeholder, so that a genuine color equal
+		// to the placeholder elsewhere in the label is left alone
+		var prev = getPrevious(elts[i]);
 
-				if (temp != null)
-				{
-					var originalStyles = JSON.parse(temp);
-					originalStyles[property] = '';
-					elts[i].setAttribute(Graph.backupStyleAttribute,
-						JSON.stringify(originalStyles));
-				}
-			}
-			catch (e)
+		if ((isForeground && elts[i].getAttribute('color') == placeholder &&
+				(prev == null || prev.attr != placeholder)) ||
+			(elts[i].style[property] == placeholder &&
+				(prev == null || prev.value != placeholder)))
+		{
+			matches.push(elts[i]);
+		}
+	}
+
+	// Sets the real color on all matched elements
+	for (var i = 0; i < matches.length; i++)
+	{
+		var elt = matches[i];
+
+		if (isForeground && elt.getAttribute('color') == placeholder)
+		{
+			elt.removeAttribute('color');
+		}
+
+		elt.style[property] = (color != mxConstants.NONE) ?
+			mxUtils.getLightDarkColor(color).cssText : null;
+
+		// Updates the backup style to apply the change when editing stops
+		try
+		{
+			var temp = elt.getAttribute(Graph.backupStyleAttribute);
+			var originalStyles = (temp != null) ? JSON.parse(temp) : {};
+			originalStyles[property] = (color != mxConstants.NONE) ? color : '';
+			elt.setAttribute(Graph.backupStyleAttribute,
+				JSON.stringify(originalStyles));
+		}
+		catch (e)
+		{
+			// ignore
+		}
+
+		// Workaround for Firefox that adds the new element around
+		// anchor elements which ignore inherited colors is to move
+		// the font element inside anchor elements
+		if (isForeground && mxClient.IS_FF)
+		{
+			var child = elt.firstChild;
+
+			if (child != null &&
+				child.nodeName == 'A' &&
+				child.nextSibling == null &&
+				child.firstChild != null)
 			{
-				// ignore
+				var parent = elt.parentNode;
+				parent.insertBefore(child, elt);
+				var tmp = child.firstChild;
+
+				while (tmp != null)
+				{
+					var next = tmp.nextSibling;
+					elt.appendChild(tmp);
+					tmp = next;
+				}
+
+				child.appendChild(elt);
+			}
+		}
+	}
+
+	// Normalizes the DOM around the matched elements like Chrome does
+	// natively: the property is cleared from descendants, which the new
+	// color overrides, and from ancestors that are fully covered by the
+	// matched element, so their color no longer shows, and spans left
+	// without attributes are unwrapped. Without this, Firefox accumulates
+	// one nested span per color change, as the backup style attribute
+	// stops its native cleanup from removing the previous spans, and the
+	// stale backups restore the previous colors after editing stops.
+	for (var i = 0; i < matches.length; i++)
+	{
+		var elt = matches[i];
+		var desc = elt.getElementsByTagName('*');
+		var stale = [];
+
+		for (var j = 0; j < desc.length; j++)
+		{
+			stale.push(desc[j]);
+		}
+
+		for (var j = 0; j < stale.length; j++)
+		{
+			clearProperty(stale[j]);
+
+			if (stale[j].nodeName == 'SPAN' &&
+				stale[j].attributes.length == 0)
+			{
+				unwrap(stale[j]);
 			}
 		}
 
-		if ((isForeground && elts[i].getAttribute('color') == placeholder) ||
-			elts[i].style[property] == placeholder)
+		var parent = elt.parentNode;
+
+		while (parent != null && parent != node &&
+			isCovered(parent, elt))
 		{
-			if (isForeground && elts[i].getAttribute('color') == placeholder)
+			var next = parent.parentNode;
+			clearProperty(parent);
+
+			if (parent.nodeName == 'SPAN' &&
+				parent.attributes.length == 0)
 			{
-				elts[i].removeAttribute('color');
+				unwrap(parent);
 			}
 
-			elts[i].style[property] = (color != mxConstants.NONE) ?
-				mxUtils.getLightDarkColor(color).cssText : null;
+			parent = next;
+		}
+	}
 
-			// Updates the backup style to apply the change when editing stops
-			try
-			{
-				var temp = elts[i].getAttribute(Graph.backupStyleAttribute);
-				var originalStyles = (temp != null) ? JSON.parse(temp) : {};
-				originalStyles[property] = (color != mxConstants.NONE) ? color : '';
-				elts[i].setAttribute(Graph.backupStyleAttribute,
-					JSON.stringify(originalStyles));
-			}
-			catch (e)
-			{
-				// ignore
-			}
+	// Removes the property from the backup style attribute of elements
+	// where the command removed the style, eg. when Firefox strips the
+	// conflicting style from elements within the selection but keeps the
+	// elements in place, as the stale backup would otherwise restore the
+	// previous color after editing stops
+	for (var i = 0; i < previous.length; i++)
+	{
+		var elt = previous[i].node;
 
-			// Workaround for Firefox that adds the new element around
-			// anchor elements which ignore inherited colors is to move
-			// the font element inside anchor elements
-			if (isForeground && mxClient.IS_FF)
-			{
-				var elt = elts[i];
-				var child = elt.firstChild;
-
-				if (child != null &&
-					child.nodeName == 'A' &&
-					child.nextSibling == null &&
-					child.firstChild != null)
-				{
-					var parent = elt.parentNode;
-					parent.insertBefore(child, elt);
-					var tmp = child.firstChild;
-
-					while (tmp != null)
-					{
-						var next = tmp.nextSibling;
-						elt.appendChild(tmp);
-						tmp = next;
-					}
-
-					child.appendChild(elt);
-				}
-
-				break;
-			}
+		if (previous[i].value != elt.style[property] &&
+			elt.style[property] == '')
+		{
+			clearProperty(elt);
 		}
 	}
 };
@@ -8572,9 +8788,12 @@ Graph.prototype.destroy = function()
 	
 	/**
 	 * Overridden to change the order of the enclosing table for selected
-	 * table cells and rows, whose child order defines their column and row
-	 * position rather than the paint order. Cells passed in explicitly are
-	 * ordered in-place like before.
+	 * table cells, whose child order defines their column position rather
+	 * than the paint order, so ordering them in-place would move them to
+	 * another column and shift merged spans onto the wrong cells. Table
+	 * rows are ordered in-place: their sibling order is the row position,
+	 * so the z-order actions move the row up or down within the table.
+	 * Cells passed in explicitly are ordered in-place like before.
 	 */
 	Graph.prototype.orderCells = function(back, cells, increment)
 	{
@@ -8589,9 +8808,10 @@ Graph.prototype.destroy = function()
 			{
 				var cell = cells[i];
 
-				while (this.isTableCell(cell) || this.isTableRow(cell))
+				if (this.isTableCell(cell))
 				{
-					cell = this.model.getParent(cell);
+					cell = this.model.getParent(
+						this.model.getParent(cell));
 				}
 
 				if (!lookup.get(cell))
@@ -9947,7 +10167,8 @@ Graph.elkConfigToOptions = function(config)
 				key === 'includeEdgeLabels' || key === 'includeVertexLabels' ||
 				key === 'portSpread' || key === 'resizeLayoutRoot' ||
 				key === 'extractIsolated' || key === 'sharedStems' ||
-				key === 'nonTreeEdges' || key === 'groupPadding')
+				key === 'nonTreeEdges' || key === 'siblingOrder' ||
+				key === 'groupPadding')
 			{
 				options[key] = config[key];
 			}
@@ -10021,6 +10242,14 @@ Graph.elkOptionsToConfig = function(layoutOptions, runOptions)
 		if (runOptions.nonTreeEdges === 'elk')
 		{
 			config.nonTreeEdges = 'elk';
+		}
+
+		// Default 'geometry' (mrtree ranks a parent's children by their
+		// current cross-axis position) — only the legacy model-order
+		// opt-out deviates.
+		if (runOptions.siblingOrder === 'model')
+		{
+			config.siblingOrder = 'model';
 		}
 
 		// Container padding base (number or CSS-style 'top right bottom

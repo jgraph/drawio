@@ -54,6 +54,33 @@ DropboxFile.prototype.isAutosaveOptional = function()
 };
 
 /**
+ * Dropbox storage is deprecated, existing files are read-only until
+ * support ends. Use Save As to move files to another storage.
+ */
+DropboxFile.prototype.isEditable = function()
+{
+	return false;
+};
+
+/**
+ * Shows the deprecation notice when the file is opened.
+ */
+DropboxFile.prototype.open = function()
+{
+	DrawioFile.prototype.open.apply(this, arguments);
+
+	if (!this.ui.editor.isChromelessView())
+	{
+		this.ui.showBanner('DropboxDeprecationFooter',
+			'Dropbox support is ending. Click here to move this diagram.',
+			mxUtils.bind(this, function()
+			{
+				this.ui.actions.get('saveAs').funct();
+			}));
+	}
+};
+
+/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.
@@ -65,14 +92,11 @@ DropboxFile.prototype.getTitle = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Renaming is disabled as part of the Dropbox deprecation.
  */
 DropboxFile.prototype.isRenamable = function()
 {
-	return true;
+	return false;
 };
 
 /**

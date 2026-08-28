@@ -834,6 +834,15 @@
 	EditorUi.prototype.maxPrintPageCount = 1000;
 
 	/**
+	 * Maximum canvas area in pixels for image exports in embed mode. If an
+	 * export exceeds this area at the requested scale, the scale is reduced
+	 * until the output fits within the budget, so that generating the image
+	 * cannot crash the browser tab by running out of memory. 67108864 is
+	 * 8192 x 8192 px, ie. 256 MB of RGBA pixel data. Use 0 to disable.
+	 */
+	EditorUi.prototype.maxCanvasExportArea = 67108864;
+
+	/**
 	 * Holds the current file.
 	 */
 	EditorUi.prototype.currentFile = null;
@@ -24027,7 +24036,25 @@
 										{
 											theme = Editor.isDarkMode() ? 'dark' : 'light';
 										}
-										
+
+										// Reduces scale for very large diagrams so that the export
+										// stays within maxCanvasExportArea and generating the
+										// image cannot crash the browser tab by running out
+										// of memory
+										if (data.width == null && this.maxCanvasExportArea > 0)
+										{
+											var b = graph.getGraphBounds();
+											var border = (data.border != null) ? data.border : 0;
+											var w = Math.ceil(b.width / graph.view.scale) + 2 * border;
+											var h = Math.ceil(b.height / graph.view.scale) + 2 * border;
+											var s = (data.scale != null) ? data.scale : 1;
+
+											if (w * h * s * s > this.maxCanvasExportArea)
+											{
+												data.scale = Math.sqrt(this.maxCanvasExportArea / (w * h));
+											}
+										}
+
 										this.editor.exportToCanvas(mxUtils.bind(this, function(canvas)
 										{
 											processUri(canvas.toDataURL('image/png'));

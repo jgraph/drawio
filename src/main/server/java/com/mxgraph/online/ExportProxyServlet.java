@@ -5,6 +5,7 @@
 package com.mxgraph.online;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -12,6 +13,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -34,9 +36,21 @@ public class ExportProxyServlet extends HttpServlet
 	// callers now reach EXPORT_URL instead of failing.
 	private final String[] supportedServices = {"EXPORT_URL"};
 
+	/**
+	 * Ceiling on the size of a proxied export response. Deliberately well
+	 * above any plausible real export (a large diagram rendered to PDF or to
+	 * PNG at high scale) - it exists only so a compromised or misbehaving
+	 * backend cannot stream unbounded data through the proxy, not to police
+	 * legitimate exports. Utils.MAX_SIZE (20 MB) is too low for that here:
+	 * tripping the limit mid-stream truncates the user's download.
+	 */
+	private static final int MAX_EXPORT_SIZE = 100 * 1024 * 1024; // 100 MB
+
 	private void doRequest(String method, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
+		ScheduledFuture<?> deadline = null;
+
 		try
 		{
 			int serviceId = 0;
@@ -106,7 +120,18 @@ public class ExportProxyServlet extends HttpServlet
 
 			URL url = new URL(exportUrl + proxyPath + queryString);
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
-			
+
+			// Without these the JDK waits forever, so a slow or overloaded
+			// export backend pins this thread until the OS-level TCP timeout
+			// fires. Enough concurrent /export requests then exhaust the
+			// container's thread pool and take the whole instance down, not
+			// just exports (CWE-400).
+			Utils.setTimeouts(con);
+
+			// setTimeouts only bounds a single read, so it resets on every
+			// byte. This bounds the exchange as a whole.
+			deadline = Utils.setDeadline(con, Utils.HTTP_TOTAL_BUDGET);
+
 			con.setRequestMethod(method);
 			
 			//Copy request headers to export server
@@ -162,11 +187,20 @@ public class ExportProxyServlet extends HttpServlet
 			//Error
 			if (responseCode >= 400)
 			{
-				Utils.copy(con.getErrorStream(), out);
+				// getErrorStream returns null when the backend sent no body
+				InputStream err = con.getErrorStream();
+
+				if (err != null)
+				{
+					Utils.copyRestricted(err, out);
+				}
 			}
 			else //Success
 			{
-				Utils.copy(con.getInputStream(), out);
+				// Bounded so a misbehaving backend cannot stream unlimited
+				// data through the proxy. The request body is already bounded
+				// above, at the smaller Utils.MAX_SIZE.
+				Utils.copyRestricted(con.getInputStream(), out, MAX_EXPORT_SIZE);
 			}
 			
 			out.flush();
@@ -183,6 +217,10 @@ public class ExportProxyServlet extends HttpServlet
 			response.setStatus(
 					HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			e.printStackTrace();
+		}
+		finally
+		{
+			Utils.clearDeadline(deadline);
 		}
 	}
 

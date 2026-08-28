@@ -294,6 +294,37 @@ side center. Opt out per run with the bare config key `nonTreeEdges:'elk'`
 drawio-elk's verify-bridge-nontree-edges.mjs (classification, fallback
 styling, claimed-path reset skip, convergence, placement parity, opt-out).
 
+## mrtree sibling order follows geometry (August 2026)
+
+mrtree used to order a tree parent's children by the EDGES' model (z-/XML)
+order — `elk.mrtree.weighting: MODEL_ORDER` keeps the treeify encounter
+order, and the adapter emits edges in model child order — so re-creating or
+re-fronting a connector moved its child to the end [jgraph/drawio#5454],
+and the user's on-canvas placement was ignored entirely. The bridge now
+ranks every tree parent's children by their current cross-axis model
+position (x for DOWN/UP runs, y for RIGHT/LEFT; ranks map to ascending
+coordinates in all four directions) and stamps the ranks as per-node
+`elk.mrtree.positionConstraint` values with `weighting=CONSTRAINT` on every
+level container (`ElkLayout.stampSiblingOrderConstraints`, fed by the same
+`_walkTreeStructure` treeify mirror as the non-tree extraction, so it works
+on both `nonTreeEdges` paths). Ranks are LOCAL per sibling group (the
+NodeOrderer resolves constraints per parent recursion — a global rank would
+misplace groups smaller than the rank), centers are model-derived incl. the
+transparentBounds box, and coordinate TIES keep their relative model order —
+so degenerate inputs (fresh imports with everything at one point) reproduce
+the legacy result, converged containers re-run to empty edits, and dragging
+a child to a new slot re-ranks it on the next run (drop-position adoption in
+live tree containers). Opt out per run with the bare config key
+`siblingOrder:'model'` (same plumbing as `sharedStems`, recognized by
+`Graph.elkConfigToOptions`/`elkOptionsToConfig`, documented in drawusaurus
+json-layout-specification.md); an explicit `elk.mrtree.weighting` in the
+spec's config also skips the stamping — the caller owns ordering then. The
+legacy `mxCompactTreeLayout` paths (Legacy Layouts submenu, CSV
+verticaltree/horizontaltree, Trees.js containers) are untouched and keep
+edge-order semantics. Locked by drawio-elk's
+verify-bridge-sibling-order.mjs (four directions, ties, both opt-outs,
+group-local ranks/contiguity, fan-in, convergence, drag re-rank).
+
 ## Per-edge corner picks survive manager re-runs (July 2026)
 
 The manager builds childLayout ELK layouts with `enforceCorners:false`

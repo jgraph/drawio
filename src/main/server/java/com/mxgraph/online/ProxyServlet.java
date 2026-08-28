@@ -37,9 +37,10 @@ public class ProxyServlet extends HttpServlet
 
 	/**
 	 * GAE deadline is 30 secs so timeout before that to avoid
-	 * HardDeadlineExceeded errors.
+	 * HardDeadlineExceeded errors. Shared with every other outbound
+	 * connection, see Utils.HTTP_TIMEOUT.
 	 */
-	private static final int TIMEOUT = 29000;
+	private static final int TIMEOUT = Utils.HTTP_TIMEOUT;
 	
 	/**
 	 * A resuable empty byte array instance.

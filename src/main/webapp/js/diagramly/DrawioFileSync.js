@@ -321,7 +321,14 @@ DrawioFileSync.prototype.start = function()
 	{
 		this.key = this.file.getChannelKey();
 	}
-	
+
+	// Keyed channels must encrypt, so realtime is never started when the
+	// CSPRNG that CryptoJS needs for the KDF salt is unreachable
+	if (!this.isEncryptionAvailable())
+	{
+		return;
+	}
+
 	var updateStatus = false;
 
 	if (this.file.isPolling())
@@ -1969,17 +1976,66 @@ DrawioFileSync.prototype.descriptorChanged = function(source)
 };
 
 /**
+ * Cached result of the CSPRNG probe in isEncryptionAvailable.
+ */
+DrawioFileSync.encryptionAvailable = null;
+
+/**
+ * Returns true if messages for this file can be encrypted.
+ *
+ * CryptoJS takes the KDF salt for a passphrase key from crypto.getRandomValues and
+ * throws when no native CSPRNG is reachable, which an embedding page or a plugin can
+ * cause by redefining the global crypto object. Falling back to plaintext is not an
+ * option: the receiving peer still holds a channel key, so it would try to decrypt and
+ * get garbage, and the payload would reach the cache in the clear. Realtime sync is
+ * left off instead. Probed once per session, the result cannot change without a reload.
+ */
+DrawioFileSync.prototype.isEncryptionAvailable = function()
+{
+	// Nothing is encrypted without a channel key or without the library
+	if (this.key == null || typeof CryptoJS === 'undefined')
+	{
+		return true;
+	}
+
+	if (DrawioFileSync.encryptionAvailable == null)
+	{
+		try
+		{
+			CryptoJS.lib.WordArray.random(8);
+			DrawioFileSync.encryptionAvailable = true;
+		}
+		catch (e)
+		{
+			DrawioFileSync.encryptionAvailable = false;
+
+			EditorUi.logError('Error: No CSPRNG for realtime encryption',
+				null, this.file.getId(), null, e);
+		}
+	}
+
+	return DrawioFileSync.encryptionAvailable;
+};
+
+/**
  * Converts the given object to an encrypted string.
  */
 DrawioFileSync.prototype.objectToString = function(obj)
 {
 	var data = Graph.compress(JSON.stringify(obj));
-	
+
 	if (this.key != null && typeof CryptoJS !== 'undefined')
 	{
+		// Fails closed if the CSPRNG went away after start, rather than
+		// sending a message the peer cannot read and the cache can
+		if (!this.isEncryptionAvailable())
+		{
+			throw new Error('No CSPRNG for realtime encryption');
+		}
+
 		data = CryptoJS.AES.encrypt(data, this.key).toString();
 	}
-	
+
 	return data;
 };
 

@@ -3091,7 +3091,17 @@ mxGraph.prototype.fit = function(border, keepOrigin, margin, enabled, ignoreWidt
 			
 			var s2 = (((ignoreWidth) ? h1 / h2 : (ignoreHeight) ? w1 / w2 :
 				Math.min(w1 / w2, h1 / h2)));
-			
+
+			// A container with no usable size, eg. a viewer in a collapsed or
+			// hidden container, makes the available space negative once the
+			// border is subtracted, which yields a negative or NaN scale that
+			// paints the graph off-screen. That is never a valid fit so the
+			// current scale is kept instead [jgraph/drawio-dev#647]
+			if (!(s2 > 0))
+			{
+				return this.view.scale;
+			}
+
 			if (this.minFitScale != null)
 			{
 				s2 = Math.max(s2, this.minFitScale);

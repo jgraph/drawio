@@ -378,6 +378,8 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 			URL obj = new URL(authSrvUrl);
 			con = (HttpURLConnection) obj.openConnection();
 
+			Utils.setTimeouts(con);
+
 			con.setRequestMethod("POST");
 			
 			boolean jsonResponse = false;
