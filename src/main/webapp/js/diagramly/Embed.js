@@ -39,8 +39,115 @@
 	var mathJaxLoading = typeof MathJax !== 'undefined' && typeof MathJax.typeset === 'function';
 	var mathJaxQueue = [];
 
+	/**
+	 * Stops the TeX \data macro writing arbitrary data attributes into the
+	 * output, which MathJax's ui/safe extension documents but never does for TeX
+	 * input. See the comment on Editor.safeMathJaxDataMacro for the detail and
+	 * for why the filter is scoped to the macro instead of the parsed tree.
+	 * Repeated here because embed.min.js compiles from this file alone.
+	 */
+	var mathJaxDataPattern = /^data-mjx-/;
+
+	function patchMathJaxDataMacro()
+	{
+		var tex = (typeof MathJax !== 'undefined' && MathJax._ != null &&
+			MathJax._.input != null) ? MathJax._.input.tex : null;
+
+		if (tex == null || tex.MapHandler == null || tex.NodeUtil == null)
+		{
+			return;
+		}
+
+		var map = tex.MapHandler.MapHandler.getMap('html_macros');
+		var macro = (map != null && map.lookup != null) ? map.lookup('data') : null;
+
+		if (macro == null || macro._func == null || macro._func.drawioPatched)
+		{
+			return;
+		}
+
+		var nodeUtil = tex.NodeUtil['default'];
+		var original = macro._func;
+
+		var fn = function(parser, name)
+		{
+			var setAttribute = nodeUtil.setAttribute;
+
+			nodeUtil.setAttribute = function(node, attr, value)
+			{
+				if (typeof attr === 'string' && attr.substring(0, 5) === 'data-' &&
+					!attr.match(mathJaxDataPattern))
+				{
+					return;
+				}
+
+				return setAttribute.apply(this, arguments);
+			};
+
+			try
+			{
+				return original.apply(this, [parser, name]);
+			}
+			finally
+			{
+				nodeUtil.setAttribute = setAttribute;
+			}
+		};
+
+		fn.drawioPatched = true;
+		macro._func = fn;
+	};
+
+	/**
+	 * Hardens the URL filter the same way Editor.safeMathJaxFilterUrl does, so
+	 * java<TAB>script: in \href is recognised as a scheme and rejected. Also
+	 * repeated here because this file compiles on its own.
+	 */
+	function safeMathJaxFilterUrl(safe, url)
+	{
+		// Normalises the way the URL parser does before reading the scheme
+		var normalized = url.replace(/[\t\n\r]/g, '').replace(/^[\u0000-\u0020]+/, '');
+		var protocol = (normalized.match(/^([a-z][a-z0-9+.\-]*):/i) || [null, ''])[1].toLowerCase();
+		var allow = safe.allow.URLs;
+
+		return (allow === 'all' || (allow === 'safe' &&
+			(safe.options.safeProtocols[protocol] || !protocol))) ? url : null;
+	};
+
+	// Marker so the patch can be reapplied without stacking wrappers
+	safeMathJaxFilterUrl.drawioPatched = true;
+
+	function patchMathJaxUrlFilter()
+	{
+		var methods = (typeof MathJax !== 'undefined' && MathJax._ != null &&
+			MathJax._.ui != null && MathJax._.ui.safe != null &&
+			MathJax._.ui.safe.SafeMethods != null) ?
+			MathJax._.ui.safe.SafeMethods.SafeMethods : null;
+
+		if (methods != null && methods.filterURL != null &&
+			!methods.filterURL.drawioPatched)
+		{
+			methods.filterURL = safeMathJaxFilterUrl;
+		}
+
+		// Safe copies the table into filterMethods in its constructor, so a
+		// document that already exists must be updated separately
+		var doc = (typeof MathJax !== 'undefined' && MathJax.startup != null) ?
+			MathJax.startup.document : null;
+
+		if (doc != null && doc.safe != null && doc.safe.filterMethods != null &&
+			doc.safe.filterMethods.filterURL != null &&
+			!doc.safe.filterMethods.filterURL.drawioPatched)
+		{
+			doc.safe.filterMethods.filterURL = safeMathJaxFilterUrl;
+		}
+	};
+
 	function renderMath(nodes)
 	{
+		patchMathJaxUrlFilter();
+		patchMathJaxDataMacro();
+
 		try
 		{
 			MathJax.typesetClear(nodes);
@@ -81,7 +188,7 @@
 				{
 					load: [(urlParams['math-output'] == 'html') ?
 						'output/chtml' : 'output/svg', 'input/tex',
-						'input/asciimath', 'ui/safe']
+						'input/asciimath', 'ui/safe', '[tex]/html']
 				},
 				startup:
 				{

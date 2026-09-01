@@ -1,3 +1,9 @@
+31-AUG-2026: 31.4.2
+
+- Keeps the CryptoJS build tooling out of the public repo [jgraph/drawio-dev#640]
+- Stops an attribute value that is markup from reaching the host page [jgraph/drawio-jira#120]
+- Stops the MathJax \data macro writing arbitrary data attributes [jgraph/drawio-dev#653]
+
 28-AUG-2026: 31.4.1
 
 - Keeps the current scale when fitting into a zero-size container [jgraph/drawio-dev#647]

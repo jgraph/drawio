@@ -4439,17 +4439,20 @@
 	// Marker so the patch can be reapplied without stacking wrappers
 	Editor.safeMathJaxFilterUrl.drawioPatched = true;
 
-	Editor.patchMathJaxUrlFilter = function()
+	Editor.patchMathJaxUrlFilter = function(mathJax)
 	{
-		if (typeof MathJax === 'undefined')
+		mathJax = (mathJax != null) ? mathJax :
+			((typeof MathJax !== 'undefined') ? MathJax : null);
+
+		if (mathJax == null)
 		{
 			return;
 		}
 
 		// Shared method table, used by documents created from here on
-		var methods = (MathJax._ != null && MathJax._.ui != null &&
-			MathJax._.ui.safe != null && MathJax._.ui.safe.SafeMethods != null) ?
-			MathJax._.ui.safe.SafeMethods.SafeMethods : null;
+		var methods = (mathJax._ != null && mathJax._.ui != null &&
+			mathJax._.ui.safe != null && mathJax._.ui.safe.SafeMethods != null) ?
+			mathJax._.ui.safe.SafeMethods.SafeMethods : null;
 
 		if (methods != null && methods.filterURL != null &&
 			!methods.filterURL.drawioPatched)
@@ -4460,7 +4463,7 @@
 		// Safe copies the table into filterMethods in its constructor and
 		// sanitizeNode calls that copy, so a document that already exists
 		// still holds the unpatched function and must be updated separately
-		var doc = (MathJax.startup != null) ? MathJax.startup.document : null;
+		var doc = (mathJax.startup != null) ? mathJax.startup.document : null;
 
 		if (doc != null && doc.safe != null && doc.safe.filterMethods != null &&
 			doc.safe.filterMethods.filterURL != null &&
@@ -4468,6 +4471,110 @@
 		{
 			doc.safe.filterMethods.filterURL = Editor.safeMathJaxFilterUrl;
 		}
+	};
+
+	/**
+	 * Stops the TeX \data macro writing arbitrary data attributes into the
+	 * output. MathJax's ui/safe extension is supposed to do this: it documents
+	 * dataPattern, /^data-mjx-/, as the guard on data attribute names. But the
+	 * filter is only wired up for MathML input, where Safe.mmlAttribute maps any
+	 * data-* name onto filterData through an explicit "data-" prefix check. On
+	 * the TeX path Safe.sanitizeNode looks the whole attribute name up in
+	 * filterAttributes, whose only data key is the literal string "data-", so no
+	 * data-* name can ever match and filterData is dead code. \data{name=value}
+	 * therefore writes any attribute it likes, with only the name checked for
+	 * characters that would break the markup, and those attributes are added
+	 * after Graph.sanitizeHtml has run, so DOMPurify never sees them. A host page
+	 * that reads data-* as instructions then executes the value: Confluence AUI
+	 * renders data-aui-notification-info as HTML. Unfixed upstream as of MathJax
+	 * 4.1.3 and reported as GHSA-3cc2-fjw8-2fjq, so it is patched here rather
+	 * than in math4, like the URL filter above.
+	 *
+	 * The filter is applied inside the \data macro rather than in sanitizeNode
+	 * because MathJax puts its own data attributes on the tree for TeX input,
+	 * data-latex on nearly every node plus a long tail (data-latex-item,
+	 * data-break-align, data-vertical-align, data-frame, data-frame-styles,
+	 * data-array-padding, data-padding, data-width-includes-label,
+	 * data-braketbar, data-cramped, ...) that varies by package. Filtering the
+	 * tree would mean maintaining an allowlist of those names and would silently
+	 * drop MathJax's own output whenever the list fell behind. Scoping the swap
+	 * to the macro means only names \data itself supplies are ever tested, so
+	 * normal math cannot be affected however MathJax changes internally.
+	 */
+	Editor.safeMathJaxDataMacro = function(nodeUtil, macro, parser, name)
+	{
+		var setAttribute = nodeUtil.setAttribute;
+
+		// \data parses its content argument before setting any attribute, so the
+		// swap is only live around this one macro and never sees MathJax's own
+		// writes. TeX parsing is synchronous, so restoring in finally is safe.
+		nodeUtil.setAttribute = function(node, attr, value)
+		{
+			if (typeof attr === 'string' && attr.substring(0, 5) === 'data-' &&
+				!attr.match(Editor.safeMathJaxDataPattern))
+			{
+				return;
+			}
+
+			return setAttribute.apply(this, arguments);
+		};
+
+		try
+		{
+			return macro.apply(this, [parser, name]);
+		}
+		finally
+		{
+			nodeUtil.setAttribute = setAttribute;
+		}
+	};
+
+	// Matches the documented ui/safe default for data attribute names
+	Editor.safeMathJaxDataPattern = /^data-mjx-/;
+
+	Editor.patchMathJaxDataMacro = function(mathJax)
+	{
+		mathJax = (mathJax != null) ? mathJax :
+			((typeof MathJax !== 'undefined') ? MathJax : null);
+
+		var tex = (mathJax != null && mathJax._ != null &&
+			mathJax._.input != null) ? mathJax._.input.tex : null;
+
+		if (tex == null || tex.MapHandler == null || tex.NodeUtil == null)
+		{
+			return;
+		}
+
+		// [tex]/html is preloaded in initMath so the macro exists before the
+		// first typeset. With a caller-supplied config it may be autoloaded
+		// later instead, hence the retry on every render from doMathJaxRender
+		var map = tex.MapHandler.MapHandler.getMap('html_macros');
+		var macro = (map != null && map.lookup != null) ? map.lookup('data') : null;
+
+		if (macro == null || macro._func == null || macro._func.drawioPatched)
+		{
+			return;
+		}
+
+		var nodeUtil = tex.NodeUtil['default'];
+		var original = macro._func;
+
+		var fn = function(parser, name)
+		{
+			return Editor.safeMathJaxDataMacro(nodeUtil, original, parser, name);
+		};
+
+		fn.drawioPatched = true;
+		macro._func = fn;
+	};
+
+	/**
+	 * Hardens the ui/safe extension before the first typeset.
+	 */
+	Editor.patchMathJaxSafeFilters = function(mathJax)
+	{
+		Editor.patchMathJaxUrlFilter(mathJax);
+		Editor.patchMathJaxDataMacro(mathJax);
 	};
 
 	/**
@@ -4502,7 +4609,7 @@
 			
 			Editor.doMathJaxRender = function(container)
 			{
-				Editor.patchMathJaxUrlFilter();
+				Editor.patchMathJaxSafeFilters();
 
 				// Disables automatic line breaking for inline math to
 				// avoid unwanted breaks in narrow label containers
@@ -4566,7 +4673,7 @@
 				{
 					load: [(urlParams['math-output'] == 'html') ?
 						'output/chtml' : 'output/svg', 'input/tex',
-						'input/asciimath', 'ui/safe'],
+						'input/asciimath', 'ui/safe', '[tex]/html'],
 					paths: {
 						'fonts': DRAW_MATH_URL + '/fonts'
 					}

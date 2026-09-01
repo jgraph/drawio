@@ -3693,7 +3693,7 @@ DOMPurify.addHook('afterSanitizeAttributes', function(node)
 	}
 });
 
-// Disallows external URLs in style attributes
+// Disallows markup in attribute values and external URLs in style attributes
 DOMPurify.addHook('uponSanitizeAttribute', function(node, data)
 {
 	// Removes characters that are dropped when the node is serialized to XML
@@ -3702,6 +3702,35 @@ DOMPurify.addHook('uponSanitizeAttribute', function(node, data)
 	// markup, hides the protocol from the checks and is then dropped by
 	// mxUtils.getXml, which turns the link into javascript: in the export.
 	data.attrValue = Graph.zapGremlins(data.attrValue);
+
+	// An attribute value that starts with a tag is markup, not a value. The
+	// application the diagram is rendered into may hand one of its own
+	// attributes to a parser: Jira DC upgrades every element with class
+	// shared-item-trigger and expands its href with jQuery, which builds nodes
+	// from a string that starts with < instead of matching a selector, so a
+	// label carrying that class and href ran script in the Jira page.
+	// Denylisting the class cannot work as the host supplies both the class and
+	// the sink, same as the data attributes in Init.js, so the markup is stopped
+	// here. Checked after the normalization above, which is what a hidden
+	// leading character would be dropped by on the way to the output, eg.
+	// \u0001<img src onerror=...>. [jgraph/drawio-jira#120]
+	//
+	// The diagram XML that the SVG export writes to the content attribute of
+	// the root is markup by design and must survive: EditorUi.importFiles reads
+	// it back off the sanitized document (via Graph.clipSvgDataUri) to open an
+	// exported SVG as a diagram instead of an image. It is kept for the same
+	// prefixes the import accepts, so nothing that would be used is removed and
+	// no other markup is kept in that attribute either.
+	var isDiagramData = data.attrName == 'content' &&
+		node.nodeName.toLowerCase() == 'svg' &&
+		(data.attrValue.substring(0, 8) == '<mxfile ' ||
+		data.attrValue.substring(0, 14) == '<mxGraphModel>' ||
+		data.attrValue.substring(0, 14) == '<mxGraphModel ');
+
+	if (!isDiagramData && /^\s*</.test(data.attrValue))
+	{
+		data.keepAttr = false; // remove entire attribute
+	}
 
 	if (data.attrName == 'style')
 	{
