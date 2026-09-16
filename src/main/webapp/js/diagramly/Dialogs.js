@@ -5915,7 +5915,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 				actionValue = newValue;
 				fn(newValue, LinkDialog.selectedDocs,
 					(newWindowCheckbox.checked) ? linkTarget : null);
-			});
+			}, editorUi.editor.graph.getSelectionCells());
 		});
 		editActionBtn.className = 'geBtn';
 
@@ -6355,26 +6355,70 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
  * cancels (closes without saving), nothing happens — the cell keeps
  * whatever link it had before Edit Link was opened.
  */
-LinkDialog.editCustomAction = function(editorUi, currentValue, onSave)
+LinkDialog.editCustomAction = function(editorUi, currentValue, onSave, cells)
 {
 	editorUi.hideDialog();
 
-	// Reuse an already-open action editor instead of stacking a duplicate.
-	// The reference is cleared on close (below), so a fresh Edit later opens
-	// a new dialog bound to the current cell.
-	if (editorUi.actionWindow != null && editorUi.actionWindow.window != null &&
-		editorUi.actionWindow.window.isVisible())
+	var open = function()
 	{
-		editorUi.actionWindow.window.setVisible(true);
-		editorUi.actionWindow.window.activate();
-		return;
+		editorUi.actionWindow = new CustomActionDialog(editorUi, currentValue, onSave);
+		editorUi.actionWindow.cells = cells;
+
+		// The reference is cleared on close, so a fresh Edit later opens a
+		// new dialog bound to the current cell.
+		editorUi.actionWindow.window.addListener('hide', function()
+		{
+			editorUi.actionWindow = null;
+		});
+	};
+
+	var current = editorUi.actionWindow;
+
+	if (current != null && current.window != null && current.window.isVisible())
+	{
+		// Edit… again for the same cells: bring the open editor back instead
+		// of stacking a duplicate.
+		if (LinkDialog.sameCells(current.cells, cells))
+		{
+			current.window.setVisible(true);
+			current.window.activate();
+			return;
+		}
+
+		// Another cell's link: the open editor is bound to the other cell's
+		// save callback, so refocusing it would save the edits onto the wrong
+		// cell (and silently dropped this Insert/Edit). Close it through its
+		// unsaved-changes prompt and open a fresh one for these cells — if the
+		// user keeps the open editor, nothing else happens.
+		if (current.requestClose != null)
+		{
+			current.requestClose(open);
+			return;
+		}
 	}
 
-	editorUi.actionWindow = new CustomActionDialog(editorUi, currentValue, onSave);
-	editorUi.actionWindow.window.addListener('hide', function()
+	open();
+};
+
+/**
+ * Returns true if both arrays hold the same cells in the same order.
+ */
+LinkDialog.sameCells = function(a, b)
+{
+	if (a == null || b == null || a.length != b.length)
 	{
-		editorUi.actionWindow = null;
-	});
+		return false;
+	}
+
+	for (var i = 0; i < a.length; i++)
+	{
+		if (a[i] != b[i])
+		{
+			return false;
+		}
+	}
+
+	return true;
 };
 
 /**
@@ -6765,6 +6809,10 @@ SelectorChips.create = function(graph, editorUi)
 		{
 			var v = getValue();
 			var count = (Array.isArray(v) && !isWildcard()) ? v.length : 0;
+			// Caller-provided suffix (the cells chip appends "+ Descendants"
+			// while the descendants toggle is on) so the state shows on the
+			// chip, not only as a checkmark in its menu.
+			var suffix = (typeof opts.suffix == 'function') ? (opts.suffix() || '') : '';
 			chip.textContent = '';
 			chip.classList.remove('geSelChipEmpty', 'geSelChipAll');
 			chip.title = '';
@@ -6772,7 +6820,7 @@ SelectorChips.create = function(graph, editorUi)
 			if (isWildcard())
 			{
 				chip.classList.add('geSelChipAll');
-				mxUtils.write(chip, mxResources.get('allCells'));
+				mxUtils.write(chip, mxResources.get('allCells') + suffix);
 			}
 			else if (count == 0)
 			{
@@ -6781,13 +6829,13 @@ SelectorChips.create = function(graph, editorUi)
 				// here".
 				chip.classList.add('geSelChipEmpty');
 				mxUtils.write(chip,
-					mxResources.get(emptyKey, null, emptyFallback));
+					mxResources.get(emptyKey, null, emptyFallback) + suffix);
 			}
 			else
 			{
 				mxUtils.write(chip, count + ' ' + (count == 1 ?
 					mxResources.get(singularKey, null, singularFallback) :
-					mxResources.get(pluralKey, null, pluralFallback)));
+					mxResources.get(pluralKey, null, pluralFallback)) + suffix);
 				chip.title = v.join('\n');
 			}
 		};
@@ -7578,6 +7626,8 @@ SelectorChips.create = function(graph, editorUi)
 		// visible chip yet).
 		openTagPicker: openTagPicker,
 		openLayerPicker: openLayerPicker,
+		openPopover: openPopover,
+		openMenuPopover: openMenuPopover,
 		closePopover: function() {
 			if (openPopover._open != null) openPopover._open.close();
 		}
@@ -7744,14 +7794,21 @@ CustomActionDialog.SCHEMAS = {
 		         {name: 'opacity',  type: 'number', min: 0, max: 100, step: 10,
 			placeholder: '100', width: 50, label: '%',
 			titleKey: 'opacity', title: 'Opacity'}]},
+	// `styleKey: true` adds the style-key datalist and the "use selected
+	// cells" picker to the key field (createStyleKeyPicker in AnimationDialog).
 	style:       {label: 'Set Style',     icon: '🎨', selector: true, allowLayers: true,
 		fields: [{name: 'key',   type: 'text', placeholder: 'flowAnimation',
-			width: 90, label: '', title: 'Key'},
+			width: 90, label: '', title: 'Key', styleKey: true},
 		         {name: 'value', type: 'text', placeholder: '1',
 			width: 50, label: '', title: 'Value'}]},
+	// Toggles key between value and defaultValue (an empty default removes
+	// the key so the stylesheet default applies); with value left empty the
+	// legacy 0 ↔ 1 boolean toggle runs (Graph.nextToggleStyleValue).
 	toggleStyle: {label: 'Toggle Style',  icon: '🔀', selector: true, allowLayers: true,
 		fields: [{name: 'key',          type: 'text', placeholder: 'flowAnimation',
-			width: 90, label: '', title: 'Key'},
+			width: 90, label: '', title: 'Key', styleKey: true},
+		         {name: 'value',        type: 'text', placeholder: '1',
+			width: 50, label: '', title: 'Value'},
 		         {name: 'defaultValue', type: 'text', placeholder: '0',
 			width: 50, label: '', title: 'Default value'}]},
 	flow:        {label: 'Flow',          icon: '➡', selector: true, allowLayers: true,
@@ -13024,6 +13081,11 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 				layerNames.join(', '));
 		}
 
+		if (sel.descendants === true)
+		{
+			parts.push(mxResources.get('descendants'));
+		}
+
 		return parts.join(', ') || '—';
 	};
 
@@ -13549,13 +13611,45 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			}
 		});
 
+		// Toggle for `descendants`: the action also targets everything
+		// inside the resolved cells, looked up when it runs (see
+		// Graph.getCellsForAction) — so an effect on a group or container
+		// reaches its contents and follows children added later, which an
+		// explicit list cannot. Off, only the listed cells are affected.
+		var hasDescendants = function()
+		{
+			var s = data.steps[idx][key];
+			return s != null && typeof s == 'object' && s.descendants === true;
+		};
+
+		extraItems.push({
+			label: mxResources.get('descendants'),
+			active: hasDescendants(),
+			onClick: function()
+			{
+				var s = data.steps[idx][key];
+				if (!s || typeof s != 'object')
+				{
+					s = data.steps[idx][key] = {};
+				}
+				if (s.descendants === true) delete s.descendants;
+				else s.descendants = true;
+				refresh();
+			}
+		});
+
 		// Cells chip — hosts "Select layers" (when supported), "Select
-		// by tags", and "Exclude selected cells" so the secondary
-		// chips stay hidden until populated.
+		// by tags", "Exclude selected cells" and the descendants toggle so
+		// the secondary chips stay hidden until populated.
 		var cellsBind = bind('cells');
 		wrap.appendChild(selectorChips.cellListField('',
 			cellsBind.get, cellsBind.set,
-			{allowWildcard: true, extraMenuItems: extraItems}));
+			{allowWildcard: true, extraMenuItems: extraItems,
+			 suffix: function()
+			 {
+				return (hasDescendants()) ?
+					' + ' + mxResources.get('descendants') : '';
+			 }}));
 
 		// Layers chip only when populated.
 		var layersValue = layersBind.get();
@@ -13710,6 +13804,105 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	// Renders one schema field into the step row. Mirrors appendField in
 	// CustomActionDialog but uses the AnimationDialog's inline styling so
 	// the row layout stays tight and consistent with existing step types.
+	// Style-key fields (Set Style / Toggle Style, `styleKey: true` in the
+	// schema): a datalist of the common style keys named by their Format
+	// panel labels, and a "use selected cells" button that lists the
+	// selected cell's own style entries — picking one fills in the key and
+	// the value, so nobody has to look the key up via Edit Style.
+	var styleKeyList = null;
+
+	var fillStyleKeyList = function()
+	{
+		while (styleKeyList.firstChild != null)
+		{
+			styleKeyList.removeChild(styleKeyList.firstChild);
+		}
+
+		for (var i = 0; i < AnimationDialog.STYLE_KEYS.length; i++)
+		{
+			var entry = AnimationDialog.STYLE_KEYS[i];
+			var opt = document.createElement('option');
+			opt.value = entry.key;
+			opt.label = (typeof entry.label == 'function') ? entry.label() :
+				mxResources.get(entry.label, null, entry.fallback);
+			styleKeyList.appendChild(opt);
+		}
+	};
+
+	var getStyleKeyListId = function()
+	{
+		if (styleKeyList == null)
+		{
+			styleKeyList = document.createElement('datalist');
+			styleKeyList.id = 'geStyleKeys' + (++AnimationDialog.styleKeyListCount);
+			fillStyleKeyList();
+			div.appendChild(styleKeyList);
+			staticRefreshers.push(fillStyleKeyList);
+		}
+
+		return styleKeyList.id;
+	};
+
+	var createStyleKeyPicker = function(inp, idx, key)
+	{
+		inp.setAttribute('list', getStyleKeyListId());
+
+		var schema = CustomActionDialog.SCHEMAS[key];
+		var hasValue = false;
+
+		if (schema != null && Array.isArray(schema.fields))
+		{
+			for (var i = 0; i < schema.fields.length; i++)
+			{
+				hasValue = hasValue || schema.fields[i].name == 'value';
+			}
+		}
+
+		var btn = selectorChips.iconButton('arrowDown',
+			mxResources.get('useSelection'), function()
+		{
+			var cell = graph.getSelectionCell();
+			var pairs = (cell != null) ? AnimationDialog.getStylePairs(
+				graph.model.getStyle(cell)) : [];
+			var items = [];
+
+			if (pairs.length == 0)
+			{
+				items.push({label: mxResources.get((cell == null) ?
+					'nothingIsSelected' : 'none'), disabled: true});
+			}
+
+			for (var i = 0; i < pairs.length; i++)
+			{
+				(function(pair)
+				{
+					items.push({label: pair.key + ' = ' + pair.value, onClick: function()
+					{
+						var s = data.steps[idx][key];
+
+						if (s == null || typeof s != 'object')
+						{
+							s = data.steps[idx][key] = {};
+						}
+
+						s.key = pair.key;
+
+						if (hasValue)
+						{
+							s.value = pair.value;
+						}
+
+						refresh();
+					}});
+				})(pairs[i]);
+			}
+
+			selectorChips.openMenuPopover(btn, items);
+		});
+
+		return btn;
+	};
+
 	var renderStepField = function(row, idx, key, spec, isPrimary, disabled)
 	{
 		// getter/setter for nested {key: {field: value}} (object actions)
@@ -13937,6 +14130,11 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		inp.addEventListener('change', commit);
 		inp.addEventListener('input', commit);
 		row.appendChild(inp);
+
+		if (spec.styleKey && !isPrimary)
+		{
+			row.appendChild(createStyleKeyPicker(inp, idx, key));
+		}
 
 		if (spec.label)
 		{
@@ -14643,8 +14841,15 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 
 	var startPreviewSession = function()
 	{
-		if (previewSession != null) return;
-		previewSession = new Editor.AnimationPlayer(graph, data);
+		if (previewSession == null)
+		{
+			previewSession = new Editor.AnimationPlayer(graph, data);
+		}
+
+		// Snapshot on every preview, not only the first: the player keeps
+		// the live steps, and snapshotOpacity only adds cells it has not
+		// recorded yet, so a step added or retargeted after the session
+		// started is restored by Reset and close as well.
 		previewSession.snapshotOpacity();
 		updateResetBtn();
 	};
@@ -14950,6 +15155,36 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		}, mxResources.get('cancel'), mxResources.get('discardChanges'));
 	};
 
+	// Closes the dialog for a caller that wants a fresh one (Edit… on
+	// another cell's link while this action editor is open): the same
+	// discard prompt as the Cancel button when dirty, then `onClosed` once
+	// the window is hidden — never when the user keeps this dialog open.
+	this.requestClose = function(onClosed)
+	{
+		var finish = function()
+		{
+			thisDialog.window.setVisible(false);
+
+			if (onClosed != null)
+			{
+				onClosed();
+			}
+		};
+
+		if (dirty)
+		{
+			editorUi.confirm(mxResources.get('allChangesLost'), null, function()
+			{
+				setDirty(false);
+				finish();
+			}, mxResources.get('cancel'), mxResources.get('discardChanges'));
+		}
+		else
+		{
+			finish();
+		}
+	};
+
 	// Auto-save on close-X. mxWindow's close X calls setVisible(false)
 	// without going through our footer buttons; intercept here so that
 	// path saves first. Save / Cancel buttons drive their own flow
@@ -15060,6 +15295,72 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 // CustomActionDialog instance in this session so sequences can be copied
 // between pages and cell actions. Holds deep clones; pasting clones again.
 AnimationDialog.stepsClipboard = null;
+
+/**
+ * Counter for the ids of the per-dialog style-key datalists.
+ */
+AnimationDialog.styleKeyListCount = 0;
+
+/**
+ * Style keys offered by the Set Style / Toggle Style key fields, labelled
+ * with the Format panel resource (fallback English) so the panel's
+ * natural-language names map to the keys the actions need.
+ */
+AnimationDialog.STYLE_KEYS = [
+	{key: 'strokeWidth', label: 'linewidth', fallback: 'Linewidth'},
+	{key: 'strokeColor', label: 'strokeColor', fallback: 'Line Color'},
+	{key: 'fillColor', label: 'fillColor', fallback: 'Fill Color'},
+	{key: 'gradientColor', label: 'gradient', fallback: 'Gradient'},
+	{key: 'opacity', label: 'opacity', fallback: 'Opacity'},
+	{key: 'fontColor', label: 'fontColor', fallback: 'Font Color'},
+	{key: 'fontSize', label: 'fontSize', fallback: 'Font Size'},
+	{key: 'fontFamily', label: 'fontFamily', fallback: 'Font Family'},
+	{key: 'fontStyle', label: function()
+	{
+		return mxResources.get('font') + ': 1 ' + mxResources.get('bold') +
+			', 2 ' + mxResources.get('italic') + ', 4 ' + mxResources.get('underline');
+	}},
+	{key: 'textOpacity', label: 'textOpacity', fallback: 'Text Opacity'},
+	{key: 'labelBackgroundColor', label: 'backgroundColor', fallback: 'Background Color'},
+	{key: 'labelBorderColor', label: 'borderColor', fallback: 'Border Color'},
+	{key: 'align', label: 'align', fallback: 'Align'},
+	{key: 'spacing', label: 'spacing', fallback: 'Spacing'},
+	{key: 'dashed', label: 'dashed', fallback: 'Dashed'},
+	{key: 'rounded', label: 'rounded', fallback: 'Rounded'},
+	{key: 'curved', label: 'curved', fallback: 'Curved'},
+	{key: 'startArrow', label: 'linestart', fallback: 'Line Start'},
+	{key: 'endArrow', label: 'lineend', fallback: 'Line End'},
+	{key: 'flowAnimation', label: 'flowAnimation', fallback: 'Flow Animation'},
+	{key: 'shadow', label: 'shadow', fallback: 'Shadow'},
+	{key: 'glass', label: 'glass', fallback: 'Glass'},
+	{key: 'sketch', label: 'sketch', fallback: 'Sketch'},
+	{key: 'comic', label: 'comic', fallback: 'Comic'},
+	{key: 'rotation', label: 'rotation', fallback: 'Rotation'},
+	{key: 'perimeterSpacing', label: 'perimeter', fallback: 'Perimeter'}
+];
+
+/**
+ * Returns the key=value entries of a raw cell style string as
+ * [{key, value}], skipping bare tokens such as the shape name.
+ */
+AnimationDialog.getStylePairs = function(style)
+{
+	var pairs = [];
+	var tokens = (style != null) ? String(style).split(';') : [];
+
+	for (var i = 0; i < tokens.length; i++)
+	{
+		var pos = tokens[i].indexOf('=');
+
+		if (pos > 0)
+		{
+			pairs.push({key: tokens[i].substring(0, pos),
+				value: tokens[i].substring(pos + 1)});
+		}
+	}
+
+	return pairs;
+};
 
 /**
  * Warning dialog shown when the GitLab server URL has been overridden via the

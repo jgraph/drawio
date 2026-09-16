@@ -2968,6 +2968,20 @@ EditorUi.prototype.onKeyPress = function(evt)
 };
 
 /**
+ * Returns true if focusing an editable element on this device is expected to
+ * engage the virtual keyboard (Android and iOS tablets, other multi-touch
+ * devices). Hidden editable elements that only exist to capture keystrokes or
+ * clipboard events from a physical keyboard use this to add inputmode="none",
+ * which keeps the soft keyboard and its side effects (viewport resize, scroll
+ * of the focused element into view) out of the way.
+ */
+EditorUi.prototype.isVirtualKeyboardDevice = function()
+{
+	return mxClient.IS_ANDROID || mxClient.IS_IOS ||
+		('ontouchstart' in document.documentElement && navigator.maxTouchPoints > 1);
+};
+
+/**
  * Creates and installs a hidden textarea ("typing shim") that stays focused
  * when a cell is selected but not being edited. Because the OS sees an editable
  * element with focus, it properly engages IME from the very first keystroke.
@@ -2988,8 +3002,7 @@ EditorUi.prototype.installTypingShim = function()
 	// Suppress virtual keyboard on touch devices (Android/iOS tablets).
 	// The shim is for capturing keystrokes from physical keyboards and IME;
 	// on touch-only devices focusing a textarea triggers the soft keyboard.
-	if (mxClient.IS_ANDROID || mxClient.IS_IOS ||
-		('ontouchstart' in document.documentElement && navigator.maxTouchPoints > 1))
+	if (this.isVirtualKeyboardDevice())
 	{
 		shim.setAttribute('inputmode', 'none');
 	}

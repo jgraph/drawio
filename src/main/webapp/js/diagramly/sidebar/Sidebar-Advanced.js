@@ -34,7 +34,11 @@
 			// transparentBounds swimlane: the stored geometry stays pinned at
 			// (0,0,0,0) — the visible box is derived from the children plus
 			// groupPadding and the title bar (see Graph.getTransparentBounds).
-			var container = new mxCell(title,
+			// The label names the container, not its layout: a layout run
+			// with the container selected replaces the live layout (see
+			// EditorUi.applyLayoutToSelectedContainers), so a layout-specific
+			// title would go stale.
+			var container = new mxCell('Layout Container',
 				new mxGeometry(0, 0, 0, 0), def.sidebarStyle);
 			container.vertex = true;
 
@@ -91,14 +95,17 @@
 				'horizontalTree',
 				[['Root', 40, 60], ['Child 1', 180, 20], ['Child 2', 180, 100]],
 				[[0, 1], [0, 2]]),
+			// Flow seeds list the tied siblings in the order ELK's model-order
+			// tie-break places them (first Task on top / left) so a drop
+			// converges without moving anything.
 			addLayoutContainerEntry('vertical flow layout', 'Vertical Flow Layout',
 				'verticalFlow',
-				[['Start', 36.67, 40], ['Task', 150, 130], ['Task', 20, 130],
+				[['Start', 36.67, 40], ['Task', 20, 130], ['Task', 150, 130],
 					['End', 36.67, 220]],
 				[[0, 1], [0, 2], [1, 3], [2, 3]]),
 			addLayoutContainerEntry('horizontal flow layout', 'Horizontal Flow Layout',
 				'horizontalFlow',
-				[['Start', 40, 26.67], ['Task', 190, 90], ['Task', 190, 20],
+				[['Start', 40, 26.67], ['Task', 190, 20], ['Task', 190, 90],
 					['End', 340, 26.67]],
 				[[0, 1], [0, 2], [1, 3], [2, 3]])
 		]);

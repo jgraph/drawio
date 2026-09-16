@@ -1334,11 +1334,7 @@ App.main = function(callback, createUi)
 						if (urlParams['chrome'] != '0' && urlParams['test'] == '1')
 						{
 							EditorUi.debug('App.start', ['v' + EditorUi.VERSION, ui, (new Date().getTime() - t0.getTime()) + 'ms']);
-							
-							if (urlParams['export'] != null)
-							{
-								EditorUi.debug('Export:', EXPORT_URL);
-							}
+							EditorUi.debug('Export:', EXPORT_URL);
 						}
 					}
 					catch (e)
@@ -1896,7 +1892,8 @@ App.prototype.init = function()
 		initOneDriveClient();
 	}
 
-	if (urlParams['ms365'] != '0' && !EditorUi.isElectronApp)
+	if (urlParams['ms365'] != '0' && !EditorUi.isElectronApp &&
+		(urlParams['embed'] != '1' || urlParams['ms365'] == '1'))
 	{
 		try
 		{

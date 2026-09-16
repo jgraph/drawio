@@ -143,14 +143,11 @@ LibavoidRouting.run = function(editorUi, opts, done)
 
 			editorUi.lastLayoutSpec = [spec];
 
-			// A single selected layout container takes the run as its new
+			// Selected layout containers take the run as their new
 			// childLayout — live orthogonal routing of the container's edges —
 			// instead of a one-shot routing pass.
-			var container = editorUi.getSelectedLayoutContainer();
-
-			if (container != null)
+			if (editorUi.applyLayoutToSelectedContainers(editorUi.lastLayoutSpec))
 			{
-				editorUi.setContainerChildLayout(container, editorUi.lastLayoutSpec);
 				finish(true);
 				return;
 			}

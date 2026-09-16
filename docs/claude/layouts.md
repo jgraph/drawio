@@ -65,16 +65,25 @@ the laid-out XML.
 
 ## Layout runs retarget a selected layout container
 
-With exactly one vertex selected whose style carries a replaceable
-`childLayout` (not the structural `tableLayout`/`stackLayout`/`rack`), the
-user-gesture layout runs (`ElkLayout.run`, `LibavoidRouting.run`, the
-Parallels and circle menu items, the custom layout dialog, and
-`executeLayoutSpec` ONLY with its `retargetSelection` flag — passed by Run
-Last Layout; the programmatic callers (embed layout action, `#create`,
-desktop `--layout`) stay whole-page so a transient selection can't hijack a
-host-triggered run) rewrite the container's `childLayout` to that spec instead
-of running one-shot — `EditorUi.getSelectedLayoutContainer` +
-`EditorUi.setContainerChildLayout` (diagramly/EditorUi.js). The style write
+When every selected VERTEX carries a replaceable `childLayout` (not the
+structural `tableLayout`/`stackLayout`/`rack`; selected edges are ignored, any
+other selected vertex keeps the legacy one-shot run — Sept 2026, before that
+exactly one selected cell), the user-gesture layout runs (`ElkLayout.run`,
+`LibavoidRouting.run`, the Parallels and circle menu items, the custom layout
+dialog, and `executeLayoutSpec` ONLY with its `retargetSelection` flag —
+passed by Run Last Layout; the programmatic callers (embed layout action,
+`#create`, desktop `--layout`) stay whole-page so a transient selection can't
+hijack a host-triggered run) rewrite EACH container's `childLayout` to that
+spec in one undoable edit instead of running one-shot —
+`EditorUi.getSelectedLayoutContainers` +
+`EditorUi.applyLayoutToSelectedContainers` (returns false when nothing was
+retargeted so the caller runs its one-shot path) +
+`EditorUi.setContainerChildLayout` (diagramly/EditorUi.js). With several
+containers or Select All the old code ran a one-shot layout INSIDE the first
+selected container, which its own live layout immediately reverted ("it
+rearranges, then snaps back" — Kym, 2026-08-18). Because the layout can be
+swapped this way, the Advanced sidebar containers are all labelled
+"Layout Container" rather than by their initial layout. The style write
 triggers the layout manager, so the new layout runs in the same undoable edit
 (mxStyleChange → `addCellsWithLayout(cell)` includes the cell's own layout);
 an unchanged value produces no model change, so the helper re-runs via
@@ -170,7 +179,42 @@ transparentBounds is toggled off. The sidebar seed cells are authored at the
 exact positions ELK computes — the layout can't run for the palette thumbnail,
 and a drop then converges without moving anything; with the anchor only the
 RELATIVE positions must match ELK's output. When ELK output changes
-(spacing/defaults), re-measure and update those seeds.
+(spacing/defaults), re-measure and update those seeds (headless: a stub-graph
+run of the vendored bundle as in drawio-elk's test/verify-bridge-transparent.mjs).
+The flow seeds list the two tied Task siblings in the order the model-order
+tie-break places them (first on top / left, see below).
+
+## Flow containers keep model order (Sept 2026)
+
+A shape dropped onto a branch used to land in an arbitrary slot: layered
+crossing minimization has no preference between tied siblings, and the
+drawio-elk port picked whichever randomized try came first (the last-added
+node ended on top). The flow containers now set
+`elk.layered.considerModelOrder.strategy=NODES_AND_EDGES`
+(`Menus.flowModelOrder`, in `Menus.layoutContainers` and as an absent-only
+elkLayered default in `setContainerChildLayout`): model order — the mxGraph
+child order, ie. insertion order — breaks ties AFTER crossing minimization and
+never adds crossings, the layered counterpart of the tree containers'
+geometry-based sibling order. Two drawio-elk fixes make the option effective
+(both repos uncommitted as of 2026-09-11): `LayerSweepCrossingMinimizer` now
+sets `FIRST_TRY_WITH_INITIAL_ORDER` and keeps the SortByInputModel order for
+the first try like upstream (before, every try was randomized so the option
+was inert — `elkjs` honoured it, the port did not), and the bridge's
+`applyMermaidElkPolicy` no longer strips an EXPLICIT
+`considerModelOrder`/`forceNodeModelOrder` option (it still drops the
+DEFAULTS' pins). drawio-mermaid's `PREFER_EDGES` for wide fan-outs therefore
+takes effect too — its suite passed unchanged. Rebuild via `ant bundles` after
+committing drawio-elk (the bundle header carries the sibling commit).
+
+**Hover arrows in flow containers add a child.** All Insert > Layout and
+Advanced containers carry `containerType=tree` for the Trees.js subtree
+delete/move semantics, which also brought its arrow rules: arrow along the
+tree direction = child, opposite = insert parent, perpendicular = sibling
+(connected from the hovered cell's parent — Kym read that as "added to the
+previous shape"). `isFlowContainer` in Trees.js' `connectVertex` override
+routes every arrow of an elkLayered (or legacy `flowLayout`) container to
+`addChild`; tree, radial and organic containers keep the tree rules, and the
+keyboard (Tab child / Enter sibling) is unchanged.
 
 ## Sync by default, async fallback
 

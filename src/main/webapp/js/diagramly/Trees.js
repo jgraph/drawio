@@ -192,6 +192,42 @@
 			return (cell != null) ? model.getParent(cell) : null;
 		};
 
+		// True if the given tree container runs a layered (flow) layout:
+		// the JSON childLayout decodes to elkLayered, or the legacy
+		// flowLayout string. Flow containers carry containerType=tree for
+		// the subtree delete/move semantics only — a flowchart has no
+		// siblings or parents to insert, so the hover arrows add a child
+		// connected from the hovered cell instead of following the tree
+		// rules (a perpendicular arrow used to add a sibling, ie. a second
+		// successor of the previous shape).
+		function isFlowContainer(container)
+		{
+			if (container != null)
+			{
+				var style = graph.getCurrentCellStyle(container);
+				var value = (style != null) ? style['childLayout'] : null;
+
+				if (value == 'flowLayout')
+				{
+					return true;
+				}
+
+				try
+				{
+					var list = Graph.decodeChildLayout(value);
+
+					return list != null && list.length > 0 && list[0] != null &&
+						list[0].layout == 'elkLayered';
+				}
+				catch (e)
+				{
+					// Malformed childLayout JSON is not a flow container
+				}
+			}
+
+			return false;
+		};
+
 		function hasLayoutParent(cell)
 		{
 			var result = false;
@@ -1395,7 +1431,8 @@
 				var h2 = direction == mxConstants.DIRECTION_EAST || direction == mxConstants.DIRECTION_WEST;
 				var result = null;
 
-				if (dir == direction || edges.length == 0)
+				if (dir == direction || edges.length == 0 ||
+					isFlowContainer(model.getParent(source)))
 				{
 					result = addChild(source, direction, targetCell);
 				}

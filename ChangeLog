@@ -1,3 +1,35 @@
+16-SEP-2026: 31.4.6
+
+- Updates stable channel to 31.4.4
+- Updates drawio-mermaid bundle to 0.1.0+commit.39bf997
+- Updates drawio-mermaid bundle to 0.1.0+commit.7003579
+- Backfills the six dia.txt keys missing from every language file and checks for it on preprod [jgraph/drawio-dev#671]
+- Stops Chromium on Android from scrolling the diagram when Ctrl is pressed with a physical keyboard [jgraph/drawio#5316]
+- Gives the native clipboard element a real font size so its caret is never empty [jgraph/drawio#5316]
+- Waits for the images and fonts of the math print preview before printing, as in the non-math path
+- Makes the Microsoft 365 client opt-in for embed mode and disables it in lockdown mode [DID-20281]
+- Makes the viewer link tooltip readable on dark host pages [DID-20253]
+- Updates the vendored drawio-plantuml bundle to commit 8f6f23c
+- Updates the vendored drawio-plantuml bundle to commit 14161d9
+- Stops URL parameters setting the AI endpoint and API keys [GHSA-v2pv-rjf8-9w9v]
+- Stops a URL parameter setting the export service [GHSA-ff67-v9r9-6877]
+- Add the migration report strings the Confluence apps need [DID-20276]
+- Add the integrity check summary caveat string [DID-20276]
+- Updates stable channel to 31.4.6
+- Adds a value to the Toggle Style action and repaints removed transient styles
+- Adds a style-key picker to the Set Style and Toggle Style fields
+- Opens a fresh action editor for another cell instead of refocusing the open one
+- Lets a layout run replace the live layout of every selected layout container
+- Updates drawio-elk bundle to 0.1.0+commit.09eed5e
+- Keeps the model order of tied siblings in flow layout containers
+- Adds a child for every hover arrow in flow layout containers
+- Restores the cells a preview faded after the session started
+- Keeps the preview's final state on the canvas until Reset
+- Adds a descendants flag to the cell selector of custom actions
+- Makes the preprod build's AI test plan robust to long replies
+- Starts the GAE Cloud Build from the release push instead of the trigger that never fired
+- Requires the served version id in the release monitor's deploy poll and shows the GAE build on the dashboard
+
 08-SEP-2026: 31.4.5
 
 - Fixes AWS4 arrow templates and stale palette ids

@@ -44,7 +44,27 @@
 				{
 					if (window.IMMEDIATE_PRINT)
 					{
-						window.print();
+						// Waits for the stylesheets, images and fonts of this
+						// window as in the non-math path (PrintDialog.printPreview)
+						try
+						{
+							if (window.opener != null && window.opener.PrintDialog != null &&
+								window.opener.PrintDialog.waitForResources != null)
+							{
+								window.opener.PrintDialog.waitForResources(window, function()
+								{
+									window.print();
+								}, window.opener.PrintDialog.printTimeout);
+							}
+							else
+							{
+								window.print();
+							}
+						}
+						catch (e)
+						{
+							window.print();
+						}
 					}
 				});
 			}

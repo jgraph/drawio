@@ -29,8 +29,18 @@ cells via `cells`/`tags`/`layers`/`excludeCells` selectors (incl. `"*"`
 wildcard). `layers` holds layer cell IDs; all descendants resolve in via
 `getCellsForLayers`, so later-added cells are picked up. Exception: visibility
 actions (`toggle`/`show`/`hide`) with `transient:false` flip the layer cell's
-own `visible` (`getLayerCells`). Multiple keys in one step run in parallel;
-consecutive steps are sequential unless `immediate:true`.
+own `visible` (`getLayerCells`). `descendants: true` (Sept 2026) adds every
+descendant of the resolved cells in `getCellsForAction`, looked up at
+execution time, so an effect on a group or container reaches its contents
+and follows children added later; without it only the listed cells are
+affected (a bare group has no visible shape, so a fade on it shows nothing —
+Kym, 2026-08-28). Gaudenz chose the explicit flag over expanding groups
+implicitly, which would have made a frame-only fade impossible. Dialog: a
+"Descendants" toggle in the Cells chip menu (reuses the `descendants`
+resource), the chip shows "+ Descendants" while on; the preview snapshot
+covers the descendants since it resolves through the same call. Multiple
+keys in one step run in parallel; consecutive steps are sequential unless
+`immediate:true`.
 
 ```json
 {"animation": {"loop": false, "steps": [
@@ -97,7 +107,17 @@ Either default is overridden per action with an explicit
   (`toggleCellsTransient` flips SVG opacity ↔ `toggleCells` flips
   `cell.visible`), `show`/`hide` (`setOpacityForNodes` ↔ + `setCellsVisible`),
   `style` (`setCellStylesTransient` ↔ `setCellStyles`), `toggleStyle`
-  (`toggleCellStylesTransient` ↔ `toggleCellStyles`).
+  (`toggleCellStylesTransient` ↔ `toggleCellStyleValues`).
+
+**`toggleStyle` value semantics** (`Graph.nextToggleStyleValue`, Sept 2026):
+with `value` the key flips between `value` and `defaultValue` — no default
+REMOVES the key so the stylesheet default applies (`strokeWidth 10` toggles
+10 ↔ 1, `fontStyle 2` italic ↔ plain). Without `value` it is the legacy
+boolean toggle ('0' ↔ '1'; `defaultValue` is what a missing key counts as),
+now with the string `'0'` counted as off — the old `truthy ? 0 : 1` test
+made a toggle on a missing key write 0 forever. The dialog shows Key /
+Value / Default value; the model path keeps mxGraph's first-cell-decides
+rule, the transient path toggles per cell.
 
 `scroll`/`viewbox` with `smooth:true` are the only viewport actions that
 **block the chain** (~600 ms): the dispatcher bumps `waitCounter` and resumes
@@ -211,7 +231,11 @@ toggleFlowAnimation bug).
 Transient helpers on `Graph.prototype` (Editor.js): `toggleCellsTransient`,
 `setCellStylesTransient`, `toggleCellStylesTransient` — all reverted by
 `graph.refresh()` (next `view.validate()` re-reads `state.style` from
-`cell.style`). The player only hides `show`/`hide`-referenced cells (records
+`cell.style`). The style helpers repaint through `redrawTransientStyle`
+(resetStyles + `cellRenderer.configureShape` + redraw, the renderer's own
+style-change sequence) — a bare `shape.apply` keeps the previously painted
+field value, so a REMOVED key (toggle-off without default, `style` with an
+empty value) never took effect visually. The player only hides `show`/`hide`-referenced cells (records
 original opacity, `stop()` restores exactly); the model is never mutated.
 
 ## Dialog — `AnimationDialog` (Dialogs.js)
@@ -247,6 +271,27 @@ errors in the text view resolve V8's "at position N" to a line/column suffix
 `immediate` toggle per row: ⏩ + "Immediate" (on) / ⏱ + "Wait" (off); each
 glyph carries U+FE0E to force monochrome. Hidden on row 0.
 
+**Style-key picker** (Sept 2026): the Key field of Set Style / Toggle Style
+(`styleKey: true` in `CustomActionDialog.SCHEMAS`) gets a `<datalist>` of
+common keys labelled with the Format panel resources
+(`AnimationDialog.STYLE_KEYS`, one datalist per dialog inside the dialog
+element so it goes away with it, options rebuilt on language change via
+`staticRefreshers`) and a "use selected
+cells" icon button that lists the selected cell's raw `key=value` pairs
+(`AnimationDialog.getStylePairs`) in a `selectorChips.openMenuPopover`;
+picking one writes the key and — when the schema has a `value` field — the
+value, then `refresh()` re-renders the row. Replaces the idea of appending
+style keys to the Format panel tooltips (many controls map to several keys).
+
+**One action editor at a time**: `LinkDialog.editCustomAction` keeps a single
+`editorUi.actionWindow`. Edit… for the SAME cells (the LinkDialog's
+`graph.getSelectionCells()` at click time, compared by identity) refocuses it;
+for other cells it calls the dialog's `requestClose(onClosed)` — the Cancel
+button's discard prompt when dirty, nothing happens if the user keeps the
+open editor — and opens a fresh one bound to the new cells. Before, the
+reuse guard silently refocused the window bound to the OTHER cell's save
+callback (Kym, 2026-08-28), so edits would have saved onto the wrong cell.
+
 **Preview cleanup (`endPreviewSession`)** — order matters: (1)
 `previewSession.restoreOpacity()` (undoes opacity-only effects:
 `opacity`/`fadeIn`/`fadeOut`/`fadeTo`/`show`/`hide`); (2)
@@ -255,7 +300,21 @@ glyph carries U+FE0E to force monochrome. Hidden on row 0.
 `style`/`toggleStyle`/`toggle`/`show`/`hide` mutations). Opacity restore is
 first because the SVG group's inline `style.opacity` survives
 `shape.clear()`. Page-switch and chromeless replay re-render from scratch and
-skip this.
+skip this. `startPreviewSession` snapshots on EVERY preview (the session
+player keeps the live `data`, and `snapshotOpacity` only adds nodes not yet
+recorded, keeping the first value) — before, only the cells referenced at
+the session's first preview were recorded, so a Set Opacity step added or
+retargeted later left its cell faded after Reset/close with nothing in the
+editor able to clear an inline node opacity (Kym, 2026-09-02). Transient
+effects otherwise stay until another action changes them — by design, no
+model edit resets them. The **Preview button** seeds `player.snapshot = []`
+so the player's restore-on-done is a no-op and the canvas stays at the final
+state until Reset — `play()` therefore only snapshots when `snapshot ==
+null` (the loop restore nulls it, so a looping lightbox player still
+snapshots per pass). Before that guard the loop snapshotted unconditionally
+and undid every opacity effect (a `toggle` on the edited cell) the moment
+the last step finished, while transient style steps stayed visible
+(Gaudenz, 2026-09-16).
 
 **Multi-corner resize** (every resizable mxWindow + every modal `Dialog`, in
 grapheditor/Editor.js): `installDialogEdgeResizeHandles(container, addHandle)`

@@ -11,7 +11,6 @@
  *
  * - dev=1: For developers only
  * - test=1: For developers only
- * - export=URL for export: For developers only
  * - ignoremime=1: For developers only (see DriveClient.js). Use Cmd-S to override mime.
  * - createindex=1: For developers only (see etc/build/README)
  * - filesupport=0: For developers only (see Editor.js in core)

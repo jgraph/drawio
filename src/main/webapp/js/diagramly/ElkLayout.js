@@ -79,16 +79,12 @@ ElkLayoutBindings.run = function(editorUi, algorithm, options, runOptions, done)
 		editorUi.lastLayoutSpec = [{layout: specName,
 			config: Graph.elkOptionsToConfig(options, runOptions)}];
 
-		// A single selected layout container takes the run as its new
-		// childLayout instead of a one-shot layout — the style write
-		// re-runs the layout (setContainerChildLayout strips the dialog's
-		// selection-as-root ids and pins the container defaults).
-		var container = editorUi.getSelectedLayoutContainer();
-
-		if (container != null)
+		// Selected layout containers take the run as their new childLayout
+		// instead of a one-shot layout — the style write re-runs the layout
+		// (setContainerChildLayout strips the dialog's selection-as-root ids
+		// and pins the container defaults).
+		if (editorUi.applyLayoutToSelectedContainers(editorUi.lastLayoutSpec))
 		{
-			editorUi.setContainerChildLayout(container, editorUi.lastLayoutSpec);
-
 			if (done != null)
 			{
 				done();
@@ -282,8 +278,9 @@ ElkLayoutBindings.runWithDialog = function(editorUi, algorithm, baseOptions, dia
 	var sel = graph.getSelectionCells();
 	var maxRoots = ElkLayout.MAX_ROOTS[algorithm] || 0;
 	var rootCandidates = [];
-	var layoutContainer = (typeof onApply === 'function') ?
-		null : editorUi.getSelectedLayoutContainer();
+	var layoutContainers = (typeof onApply === 'function') ?
+		[] : editorUi.getSelectedLayoutContainers();
+	var layoutContainer = (layoutContainers.length > 0) ? layoutContainers[0] : null;
 
 	if (maxRoots > 0 && (typeof onApply === 'function' || layoutContainer == null))
 	{

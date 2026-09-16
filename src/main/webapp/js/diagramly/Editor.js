@@ -397,30 +397,30 @@
 	Editor.aiActions = ['createPublic', 'create', 'update', 'assist'];
 
 	/**
-	 * Specifies the ChatGPT API key. Default is null.
+	 * Specifies the ChatGPT API key. Default is null. The API keys and the
+	 * endpoint below are configuration-only (see Editor.configure) and must
+	 * never be taken from URL parameters: a link could then point a request
+	 * that carries the user's stored key, prompt and diagram at an endpoint
+	 * of the sender's choosing, or make the user's prompts and diagrams go
+	 * to the sender's own account via an injected key.
 	 */
-	Editor.gptApiKey = (urlParams['gpt-api-key'] != null) ?
-		decodeURIComponent(urlParams['gpt-api-key']) : null;
+	Editor.gptApiKey = null;
 
 	/**
 	 * Specifies the Gemini API key. Default is null.
 	 */
-	Editor.geminiApiKey = (urlParams['gemini-api-key'] != null) ?
-		decodeURIComponent(urlParams['gemini-api-key']) : null;
+	Editor.geminiApiKey = null;
 
 	/**
-	 * Specifies the Gemini API key. Default is null.
+	 * Specifies the Claude API key. Default is null.
 	 */
-	Editor.claudeApiKey = (urlParams['claude-api-key'] != null) ?
-		decodeURIComponent(urlParams['claude-api-key']) : null;
+	Editor.claudeApiKey = null;
 
 	/**
 	 * Specifies the ChatGPT endpoint URL. Default is
 	 * 'https://api.openai.com/v1/chat/completions'.
 	 */
-	Editor.gptUrl = (urlParams['gpt-url'] != null) ?
-		decodeURIComponent(urlParams['gpt-url']) :
-		'https://api.openai.com/v1/chat/completions';
+	Editor.gptUrl = 'https://api.openai.com/v1/chat/completions';
 	
 	/**
 	 * Available AI configurations.
@@ -10556,65 +10556,109 @@
 					state.style[key] = value;
 				}
 
-				// `apply` reads styled props into the shape's cached
-				// fields; `redraw` repaints. Same pair the regular
-				// `setCellStyles` path uses inside its endUpdate hook.
-				if (state.shape != null)
-				{
-					state.shape.apply(state);
-					state.shape.redraw();
-				}
-
-				if (state.text != null)
-				{
-					state.text.apply(state);
-					state.text.redraw();
-				}
+				this.redrawTransientStyle(state);
 			}
 		}
 	};
 
 	/**
-	 * Transient style toggle — flips a key between `defaultValue` and its
-	 * opposite (typically '0' ↔ '1') on each cell's state.style without
-	 * model mutation. Same revert-on-refresh semantics as
-	 * setCellStylesTransient.
+	 * Repaints a state after its state.style was mutated transiently — the
+	 * same resetStyles + configure + redraw sequence mxCellRenderer runs for
+	 * a model style change, so a removed key falls back to its default (a
+	 * bare shape.apply keeps the previously painted field value, e.g. a
+	 * toggled-off strokeWidth stayed at 10).
 	 */
-	Graph.prototype.toggleCellStylesTransient = function(key, defaultValue, cells)
+	Graph.prototype.redrawTransientStyle = function(state)
 	{
-		if (defaultValue == null) defaultValue = '0';
+		if (state.shape != null)
+		{
+			state.shape.resetStyles();
+			this.cellRenderer.configureShape(state);
+			state.shape.redraw();
+		}
 
+		if (state.text != null)
+		{
+			state.text.resetStyles();
+			state.text.apply(state);
+			state.text.valign = this.getVerticalAlign(state);
+			state.text.redraw();
+		}
+	};
+
+	/**
+	 * Returns the next style value for a toggleStyle step. With an explicit
+	 * `value` the key flips between `value` and `defaultValue` (null removes
+	 * the key so the stylesheet default applies — "strokeWidth 10" toggles
+	 * 10 ↔ default, "fontStyle 2" italic ↔ plain). Without `value` it is the
+	 * legacy boolean toggle: anything but a missing, empty, zero or 'false'
+	 * value counts as on and flips to '0', otherwise '1'. (The old
+	 * `truthy ? 0 : 1` test treated the string '0' as on, so a toggle on a
+	 * missing key wrote 0 and never turned anything on.)
+	 */
+	Graph.nextToggleStyleValue = function(current, value, defaultValue)
+	{
+		if (value != null && value !== '')
+		{
+			return (current != null && String(current) == String(value)) ?
+				defaultValue : value;
+		}
+
+		return (current != null && current !== '' && current != 0 &&
+			current !== 'false') ? '0' : '1';
+	};
+
+	/**
+	 * Model-mutating toggle for the toggleStyle action — see
+	 * Graph.nextToggleStyleValue for the value semantics. Like
+	 * mxGraph.toggleCellStyles, the first cell decides the target state for
+	 * all cells so a toggle link moves every cell in lockstep; `defaultValue`
+	 * is what a missing key counts as.
+	 */
+	Graph.prototype.toggleCellStyleValues = function(key, value, defaultValue, cells)
+	{
+		if (cells != null && cells.length > 0)
+		{
+			var current = mxUtils.getValue(this.getCurrentCellStyle(cells[0]),
+				key, defaultValue);
+			this.setCellStyles(key, Graph.nextToggleStyleValue(
+				current, value, defaultValue), cells);
+		}
+	};
+
+	/**
+	 * Transient style toggle — flips a key between `value` and
+	 * `defaultValue` (or '0' ↔ '1' without a value, see
+	 * Graph.nextToggleStyleValue) on each cell's state.style without model
+	 * mutation. Same revert-on-refresh semantics as setCellStylesTransient.
+	 */
+	Graph.prototype.toggleCellStylesTransient = function(key, defaultValue, cells, value)
+	{
 		for (var i = 0; i < cells.length; i++)
 		{
 			var state = this.view.getState(cells[i]);
 
 			if (state != null && state.style != null)
 			{
-				// Match the model-mutating mxGraph.toggleCellStyles
-				// semantics: truthy current → 0, falsy → 1 (so the key
-				// flips between '0' and '1' across repeated calls).
 				// Unlike the model path — which reads the first cell's
 				// style and applies the same value to all cells — this
 				// path toggles each cell independently, which matches
 				// what users intuitively expect from a multi-select
 				// toggle. The model path keeps its legacy semantics
 				// when invoked via `transient: false`.
-				var next = (mxUtils.getValue(state.style, key,
-					defaultValue)) ? '0' : '1';
+				var next = Graph.nextToggleStyleValue(mxUtils.getValue(
+					state.style, key, defaultValue), value, defaultValue);
 
-				state.style[key] = next;
-
-				if (state.shape != null)
+				if (next == null || next === '')
 				{
-					state.shape.apply(state);
-					state.shape.redraw();
+					delete state.style[key];
+				}
+				else
+				{
+					state.style[key] = next;
 				}
 
-				if (state.text != null)
-				{
-					state.text.apply(state);
-					state.text.redraw();
-				}
+				this.redrawTransientStyle(state);
 			}
 		}
 	};
@@ -10910,19 +10954,22 @@
 					if (action.toggleStyle != null && action.toggleStyle.key != null)
 					{
 						var toggleStyleCells = this.getCellsForAction(action.toggleStyle, true);
-						var defValue = (action.toggleStyle.defaultValue != null) ?
-							action.toggleStyle.defaultValue : '0';
+						// `value` toggles key ↔ value/defaultValue, without it the
+						// legacy boolean toggle runs (Graph.nextToggleStyleValue).
+						var toggleValue = action.toggleStyle.value;
+						var defValue = (action.toggleStyle.defaultValue !== '') ?
+							action.toggleStyle.defaultValue : null;
 
 						if (!isTransient(action.toggleStyle))
 						{
 							beginUpdate();
-							this.toggleCellStyles(action.toggleStyle.key,
-								defValue, toggleStyleCells);
+							this.toggleCellStyleValues(action.toggleStyle.key,
+								toggleValue, defValue, toggleStyleCells);
 						}
 						else
 						{
 							this.toggleCellStylesTransient(action.toggleStyle.key,
-								defValue, toggleStyleCells);
+								defValue, toggleStyleCells, toggleValue);
 						}
 					}
 
@@ -11400,6 +11447,23 @@
 		// every descendant at render time.
 		merge(layerCells ? this.getLayerCells(action.layers) :
 			this.getCellsForLayers(action.layers));
+
+		// `descendants` adds every descendant of the resolved cells, looked
+		// up at execution time like `layers`, so an effect on a group or
+		// container reaches its contents — a group's own shape is invisible,
+		// so without it the effect shows nothing — including children added
+		// after the action was written, which an explicit list cannot
+		// follow. Without the flag only the listed cells are affected, so a
+		// container's frame can still be faded on its own.
+		if (action.descendants === true)
+		{
+			var listed = union.slice();
+
+			for (var i = 0; i < listed.length; i++)
+			{
+				merge(this.model.getDescendants(listed[i]));
+			}
+		}
 
 		// Final step: subtract every cell in `excludeCells` from the
 		// union. `'*'` in the exclude list means "exclude everything",
@@ -13444,20 +13508,40 @@
 
 	/**
 	 * Snapshots the DOM opacity of every cell referenced by any step so
-	 * stop() and the next loop iteration can restore it exactly.
+	 * stop() and the next loop iteration can restore it exactly. An existing
+	 * snapshot is extended, not replaced: nodes already recorded keep their
+	 * first value, so a dialog preview session that snapshots again for
+	 * steps added or retargeted since it started restores those cells too
+	 * instead of leaving them faded (Kym, 2026-09-02).
 	 */
 	Editor.AnimationPlayer.prototype.snapshotOpacity = function()
 	{
 		var cells = this.collectReferencedCells();
 		var nodes = this.graph.getNodesForCells(cells);
-		this.snapshot = [];
+		var recorded = new Set();
+
+		if (this.snapshot == null)
+		{
+			this.snapshot = [];
+		}
+		else
+		{
+			for (var i = 0; i < this.snapshot.length; i++)
+			{
+				recorded.add(this.snapshot[i].node);
+			}
+		}
 
 		for (var i = 0; i < nodes.length; i++)
 		{
-			this.snapshot.push({
-				node: nodes[i],
-				opacity: nodes[i].style.opacity
-			});
+			if (!recorded.has(nodes[i]))
+			{
+				recorded.add(nodes[i]);
+				this.snapshot.push({
+					node: nodes[i],
+					opacity: nodes[i].style.opacity
+				});
+			}
 		}
 	};
 
@@ -13587,7 +13671,17 @@
 				return;
 			}
 
-			self.snapshotOpacity();
+			// A caller that seeded a snapshot owns the restore: the dialog's
+			// Preview button seeds an empty one so the restore-on-done below
+			// is a no-op and the canvas stays at the final state until Reset
+			// (the session snapshot restores it). Snapshotting here anyway
+			// undid every opacity effect the moment the last step finished.
+			// The loop restore nulls the snapshot, so a looping player still
+			// snapshots afresh on each pass.
+			if (self.snapshot == null)
+			{
+				self.snapshotOpacity();
+			}
 
 			runStep(0, function()
 			{
