@@ -329,7 +329,7 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': 'plugins/explore.js',
 	'ac148': 'plugins/cConf-1-4-8.js', 'ac148cmnt': 'plugins/cConf-comments.js', 
 	'nxtcld': 'plugins/nextcloud.js',
 	'monday': 'plugins/monday.js',
-	'tips': 'plugins/tooltips.js', 'svgdata': 'plugins/svgdata.js',
+	'svgdata': 'plugins/svgdata.js',
 	'number': 'plugins/number.js', 'sql': 'plugins/sql.js',
 	'props': 'plugins/props.js', 'text': 'plugins/text.js',
 	'anim': 'plugins/animation.js', 'update': 'plugins/update.js',
@@ -341,7 +341,6 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': 'plugins/explore.js',
 
 App.publicPlugin = [
 	'ex',
-	'tips',
 	'svgdata',
 	'number',
 	'sql',
@@ -498,11 +497,11 @@ App.getStoredMode = function()
 					}
 				}
 	
-				// Loads dropbox for all browsers but IE8 and below (no CORS) if not disabled or if enabled and in embed mode
+				// Dropbox support is ending, the client is only loaded with an explicit db=1
 				// KNOWN: Picker does not work in IE11 (https://dropbox.zendesk.com/requests/1650781)
 				if (typeof window.DropboxClient === 'function')
 				{
-					if (urlParams['db'] != '0' && isSvgBrowser &&
+					if (urlParams['db'] == '1' && isSvgBrowser &&
 						(document.documentMode == null || document.documentMode > 9))
 					{
 						// Immediately loads client
@@ -626,6 +625,85 @@ App.clearServiceWorker = function(success, error)
 			error();
 		}
 	});
+};
+
+/**
+ * Checks for an updated service worker and invokes done once the new
+ * worker is activated, at once when no update is installing, or after
+ * the timeout (default 15s). Used before a forced reload: the reload is
+ * then served from the new precache in one load instead of the usual
+ * two (a plain reload is served by the old worker and only triggers the
+ * update in the background). Deleting the cache would not help - the
+ * old worker refetches the revisions of its own manifest on a miss.
+ */
+App.updateServiceWorker = function(done, timeout)
+{
+	var finished = false;
+	var thread = null;
+
+	var finish = function()
+	{
+		if (!finished)
+		{
+			finished = true;
+			window.clearTimeout(thread);
+			done();
+		}
+	};
+
+	thread = window.setTimeout(finish, (timeout != null) ? timeout : 15000);
+
+	try
+	{
+		if (Editor.enableServiceWorker && ('serviceWorker' in navigator) &&
+			navigator.serviceWorker.controller != null)
+		{
+			navigator.serviceWorker.getRegistration().then(function(reg)
+			{
+				if (reg == null)
+				{
+					finish();
+				}
+				else
+				{
+					reg.update().then(function(updated)
+					{
+						var current = (updated != null) ? updated : reg;
+						var sw = current.installing || current.waiting;
+
+						if (sw != null)
+						{
+							// The worker calls skipWaiting, so activated
+							// follows the install directly; redundant is a
+							// failed install
+							var check = function()
+							{
+								if (sw.state == 'activated' || sw.state == 'redundant')
+								{
+									finish();
+								}
+							};
+
+							sw.addEventListener('statechange', check);
+							check();
+						}
+						else
+						{
+							finish();
+						}
+					})['catch'](finish);
+				}
+			})['catch'](finish);
+		}
+		else
+		{
+			finish();
+		}
+	}
+	catch (e)
+	{
+		finish();
+	}
 };
 
 /**
@@ -768,6 +846,41 @@ App.isBuiltInPlugin = function(path)
 };
 
 /**
+ * Maps removed plugins to the built-in feature that replaced them. Keys are
+ * the ID for the p URL parameter and the path as stored in the plugins
+ * setting, with and without the leading slash used before the registry was
+ * made relative, so existing URLs and installs keep working.
+ */
+App.retiredPlugins = {'tips': 'tooltipIcons',
+	'plugins/tooltips.js': 'tooltipIcons',
+	'/plugins/tooltips.js': 'tooltipIcons'};
+
+/**
+ * Enables the built-in replacement for the given removed plugin and returns
+ * true if it was retired and must not be loaded. Called before Editor.configure
+ * so an explicit setting for the replacement still takes precedence.
+ */
+App.applyRetiredPlugin = function(idOrPath)
+{
+	// Own property only so an ID like constructor cannot match Object.prototype
+	var replacement = (idOrPath != null && Object.prototype.hasOwnProperty.call(
+		App.retiredPlugins, idOrPath)) ? App.retiredPlugins[idOrPath] : null;
+
+	// plugins/tooltips.js drew its own icon on cells with a tooltip
+	if (replacement == 'tooltipIcons')
+	{
+		Editor.showTooltipIcons = true;
+	}
+
+	if (replacement != null && window.console != null)
+	{
+		console.log('Retired plugin:', idOrPath, 'replaced by', replacement);
+	}
+
+	return replacement != null;
+};
+
+/**
  * 
  */
 App.isSimpleThemePreferred = function()
@@ -825,6 +938,12 @@ App.main = function(callback, createUi)
 		// Handles uncaught errors before the app is loaded
 		window.onerror = function(message, url, linenumber, colno, err)
 		{
+			// Ignores errors of foreign scripts which carry no information
+			if (EditorUi.isOpaqueScriptError(message, linenumber))
+			{
+				return;
+			}
+
 			EditorUi.logError('Global: ' + ((message != null) ? message : ''),
 				url, linenumber, colno, err, null, true);
 			
@@ -1026,6 +1145,11 @@ App.main = function(callback, createUi)
 					{
 						try
 						{
+							if (App.applyRetiredPlugin(plugins[i]))
+							{
+								continue;
+							}
+
 							if (plugins[i].charAt(0) == '/')
 							{
 								plugins[i] = PLUGINS_BASE_PATH + plugins[i];
@@ -1263,13 +1387,12 @@ App.main = function(callback, createUi)
 
 						if (window.mxscript != null)
 						{
-							// Loads dropbox for all browsers but IE8 and below (no CORS) if not disabled or if enabled and in embed mode
+							// Dropbox support is ending, the SDK is only loaded with an explicit db=1
 							// KNOWN: Picker does not work in IE11 (https://dropbox.zendesk.com/requests/1650781)
 							if (typeof window.DropboxClient === 'function' &&
-								(window.Dropbox == null && window.DrawDropboxClientCallback != null &&
-								(((urlParams['embed'] != '1' && urlParams['db'] != '0') ||
-								(urlParams['embed'] == '1' && urlParams['db'] == '1')) &&
-								isSvgBrowser && (document.documentMode == null || document.documentMode > 9))))
+								window.Dropbox == null && window.DrawDropboxClientCallback != null &&
+								urlParams['db'] == '1' && isSvgBrowser &&
+								(document.documentMode == null || document.documentMode > 9))
 							{
 								mxscript(App.DROPBOX_URL, function()
 								{
@@ -1656,7 +1779,11 @@ App.loadPlugins = function(plugins, useInclude)
 		{
 			try
 			{
-				if (App.pluginRegistry[plugins[i]] != null)
+				if (App.applyRetiredPlugin(plugins[i]))
+				{
+					// Removed plugin, built-in replacement enabled above
+				}
+				else if (App.pluginRegistry[plugins[i]] != null)
 				{
 					var url = PLUGINS_BASE_PATH + App.pluginRegistry[plugins[i]];
 					
@@ -2027,7 +2154,7 @@ App.prototype.init = function()
 		initDriveClient();
 	}
 
-	if (urlParams['embed'] != '1' || urlParams['db'] == '1')
+	if (urlParams['db'] == '1')
 	{
 		/**
 		 * Creates dropbox client if all required libraries are available.
@@ -3612,8 +3739,10 @@ App.prototype.start = function()
 
 		window.onerror = function(message, url, linenumber, colno, err)
 		{
-			// Ignores Grammarly error [1344]
-			if (message != 'ResizeObserver loop limit exceeded')
+			// Ignores Grammarly error [1344] and errors of foreign scripts, eg.
+			// in-app browsers, which carry no information (the app keeps working)
+			if (message != 'ResizeObserver loop limit exceeded' &&
+				!EditorUi.isOpaqueScriptError(message, linenumber))
 			{
 				// "Invalid or unexpected token" is a JS engine parse error that can only
 				// come from eval() or new Function(). All eval() calls in the codebase are
@@ -4741,7 +4870,7 @@ App.prototype.loadFileSystemEntry = function(fileHandle, success, error)
 						doSuccess(permission !== 'denied');
 					}));
 				}
-				else
+				else if (typeof fileHandle.createWritable === 'function')
 				{
 					fileHandle.createWritable().then(mxUtils.bind(this, function()
 					{
@@ -4750,6 +4879,11 @@ App.prototype.loadFileSystemEntry = function(fileHandle, success, error)
 					{
 						doSuccess(false);
 					}));
+				}
+				else
+				{
+					// Handle without permission and writable APIs opens read-only
+					doSuccess(false);
 				}
 			});
 			
@@ -5372,7 +5506,8 @@ App.prototype.saveFile = function(forceDialog, success)
 		{
 			this.save(file.getTitle(), done);
 		}
-		else if (file != null && file.constructor == LocalFile && file.fileHandle != null)
+		else if (file != null && file.constructor == LocalFile && file.fileHandle != null &&
+			typeof window.showSaveFilePicker === 'function')
 		{
 			this.showSaveFilePicker(mxUtils.bind(this, function(fileHandle, desc)
 			{
@@ -5687,9 +5822,7 @@ App.prototype.isModeEnabled = function(mode)
 	}
 	else if (mode == App.MODE_DROPBOX)
 	{
-		return typeof window.DropboxClient === 'function' &&
-			((urlParams['embed'] != '1' && urlParams['db'] != '0') ||
-			(urlParams['embed'] == '1' && urlParams['db'] == '1')) &&
+		return typeof window.DropboxClient === 'function' && urlParams['db'] == '1' &&
 			mxClient.IS_SVG && (document.documentMode == null ||
 				document.documentMode > 9);
 	}
@@ -6207,24 +6340,39 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 			{
 				// Raw file encoded into URL
 				this.spinner.stop();
-				var data = decodeURIComponent(id.substring(1));
-				
-				if (data.charAt(0) != '<')
-				{
-					data = Graph.decompress(data);
-				}
-				
-				var tempFile = new LocalFile(this, data, (urlParams['title'] != null) ?
-					decodeURIComponent(urlParams['title']) : this.defaultFilename, true);
-				tempFile.getHash = function()
-				{
-					return id;
-				};
-				this.fileLoaded(tempFile);
 
-				if (success != null)
+				try
 				{
-					success();
+					var data = decodeURIComponent(id.substring(1));
+					
+					if (data.charAt(0) != '<')
+					{
+						data = Graph.decompress(data);
+					}
+					
+					var tempFile = new LocalFile(this, data, (urlParams['title'] != null) ?
+						decodeURIComponent(urlParams['title']) : this.defaultFilename, true);
+					tempFile.getHash = function()
+					{
+						return id;
+					};
+					this.fileLoaded(tempFile);
+
+					if (success != null)
+					{
+						success();
+					}
+				}
+				catch (e)
+				{
+					// Truncated or altered links fail in decodeURIComponent or in
+					// atob inside Graph.decompress; falls back to the current file
+					this.handleError(e, mxResources.get('errorLoadingFile'),
+						mxUtils.bind(this, function()
+					{
+						var tempFile = this.getCurrentFile();
+						window.location.hash = (tempFile != null) ? tempFile.getHash() : '';
+					}));
 				}
 			}
 			else if (id.charAt(0) == 'E') // Embed file
@@ -6495,7 +6643,23 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 					}
 				});
 
-				doLoadFile();
+				// Dropbox support has ended, explains where the files are instead of
+				// showing a generic service error. Opening still works with db=1.
+				if (mode == App.MODE_DROPBOX && this.getServiceForName(mode) == null)
+				{
+					this.spinner.stop();
+
+					this.alert('Dropbox support has ended. Your diagrams are unchanged in ' +
+						'the Apps/drawio folder on dropbox.com.', mxUtils.bind(this, function()
+					{
+						var currentFile = this.getCurrentFile();
+						window.location.hash = (currentFile != null) ? currentFile.getHash() : '';
+					}));
+				}
+				else
+				{
+					doLoadFile();
+				}
 			}
 		}
 	});

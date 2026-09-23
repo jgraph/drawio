@@ -808,25 +808,63 @@ Actions.prototype.init = function()
 	});
 	this.addAction('editLink...', function()
 	{
-		var cell = graph.getSelectionCell();
+		// Writes the link to every editable cell in the selection, so the
+		// same URL, page link or custom action can be attached to a group
+		// of shapes in one go. The cells are captured here rather than
+		// read back on save: the custom-action editor behind the Action
+		// option is non-modal, so the canvas selection has usually moved
+		// on by the time it calls back.
+		var cells = graph.getEditableCells(graph.getSelectionCells());
 		
-		if (graph.isEnabled() && cell != null && graph.isCellEditable(cell))
+		if (graph.isEnabled() && cells.length > 0)
 		{
-			var value = graph.getLinkForCell(cell, true) || '';
+			// Prefills only what the whole selection agrees on — showing
+			// the first cell's link would look like it was shared by all
+			// of them, and pressing OK would then silently spread it.
+			var value = graph.getLinkForCell(cells[0], true) || '';
+			var target = graph.getLinkTargetForCell(cells[0]);
+
+			for (var i = 1; i < cells.length; i++)
+			{
+				if ((graph.getLinkForCell(cells[i], true) || '') != value)
+				{
+					value = '';
+					target = null;
+					break;
+				}
+			}
 			
 			ui.showLinkDialog(value, mxResources.get('ok'), function(link, docs, linkTarget)
 			{
+				var newLink = (link.length > 0) ? link : null;
+
 				graph.getModel().beginUpdate();
 				try
 				{
-					graph.setLinkForCell(cell, (link.length > 0) ? link : null);
-					graph.setAttributeForCell(cell, 'linkTarget', linkTarget);
+					for (var i = 0; i < cells.length; i++)
+					{
+						// Skips cells that have neither value: writing
+						// null through setAttributeForCell would turn a
+						// plain label into a UserObject for nothing.
+						if (newLink != null ||
+							graph.getLinkForCell(cells[i], true) != null)
+						{
+							graph.setLinkForCell(cells[i], newLink);
+						}
+
+						if (linkTarget != null ||
+							graph.getLinkTargetForCell(cells[i]) != null)
+						{
+							graph.setAttributeForCell(cells[i],
+								'linkTarget', linkTarget);
+						}
+					}
 				}
 				finally
 				{
 					graph.getModel().endUpdate();
 				}
-			}, true, graph.getLinkTargetForCell(cell));
+			}, true, target);
 		}
 	}, null, null,  Editor.altKey + '+' + Editor.shiftKey + '+L');
 	this.put('insertImage', new Action('image' + '...', function()

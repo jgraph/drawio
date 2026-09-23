@@ -30,13 +30,9 @@ type"; a supported diagram that fails to parse/lay out/convert **throws** a
 never swallows errors into null, so coverage gaps and parser bugs are
 distinguishable in telemetry. On either failure `parseMermaidDiagram`
 dispatches to `parseErrorHandler`/`error`/`handleError`, which surfaces the
-error dialog — but logs via `EditorUi.logError` (error message + diagram-type
-keyword, never the diagram source) only when the input's first token is a
-recognized mermaid keyword (`EditorUi.mermaidDiagramTypeKeywords`, a
-lowercase mirror of the parser's `TYPE_MAP` — keep in sync). An unknown token
-means the input wasn't mermaid (e.g. prose pasted into the insert dialog):
-logging it would drown telemetry in user input mistakes and leak a fragment
-of the pasted text.
+error dialog. (There is no keyword-gated telemetry logging in
+`parseMermaidDiagram` — an earlier version of this note described an
+`EditorUi.mermaidDiagramTypeKeywords` mirror that no longer exists.)
 
 Deleted along with the bundle: `generateMermaidImage`, `createMermaidXml`,
 `mermaidSvgToDataUri`, `removeMermaidErrors`, `isSupportedMermaidDiagramType`,
@@ -45,6 +41,35 @@ and the `enableParser` parameter of `parseMermaidDiagram` /
 `generateOpenAiMermaidDiagram` (parsing is now always on). `loadMermaid`
 guards on `typeof mxMermaidToDrawio` and loads only drawio-elk +
 drawio-mermaid.
+
+## Swimlane diagrams (`swimlane-beta`)
+
+Mermaid 11.16 swimlanes (`swimlane-beta LR|TB|…`; every top-level
+`subgraph` is a lane) parse through the native bundle's flowchart parser
+with a dedicated lane-aware layout (`drawio-mermaid/src/swimlaneLayout.js`,
+a port of mermaid's node placement). Lanes come back as draw.io `swimlane`
+containers — rotated left title strip for LR/RL pools, title band on top
+for TB/BT, loose nodes in an unlabelled first lane — with the nodes as
+their children, so the result is an editable pool.
+
+The bundle emits the edges UNROUTED (`orthogonalEdgeStyle;rounded=1`, no
+waypoints) but with `sourcePortConstraint`/`targetPortConstraint` derived
+from the lane geometry (hand-offs leave through the side facing the other
+lane and enter along the flow axis, same-lane edges over a sibling loop
+over the top; aligned pairs stay unconstrained so they render as straight
+lines — see `assignPortSides` in the sibling's swimlaneLayout.js).
+Mermaid's own swimlane router is not ported, and a same-lane edge would
+cut straight through the nodes between its terminals. So for
+`EditorUi.isMermaidSwimlane(data)` sources `parseMermaidDiagram` runs
+`EditorUi.applyMermaidSwimlaneRouting` before `success`: decode into an
+offscreen `Graph`, `LibavoidRouting.routeCells` over every edge, encode
+back (the same shape as `applyMermaidElkPostPass`, but synchronous —
+the libavoid bundle initializes on load, see native-bundles.md). It is
+gated on `typeof LibavoidRouting !== 'undefined'` like every libavoid
+entry point and returns the unrouted XML when libavoid is missing or
+throws, so viewers without `extensions.min.js` still get the placed
+diagram. drawio-mermaid's compare pipeline (`test/cli/render-drawio.js`)
+mirrors the post-pass so its `-new.svg` shows what users see.
 
 ## Mermaid as image (restored static-image output)
 

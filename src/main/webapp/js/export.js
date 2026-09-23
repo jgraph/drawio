@@ -732,45 +732,53 @@ function render(data)
 	// remaining pages, then re-enters render() with the laid-out XML. Runs after
 	// PNG/PDF extraction so data.xml is real XML; the isPng/isPdf flags are
 	// cleared so the re-entry doesn't re-extract.
-	if (data.layout != null)
+	// --normalize shares this path: both work on the decoded model of the first
+	// page and hand the re-encoded XML back to render(). Normalization runs
+	// first, so a layout sees edges filed at their nearest common ancestor.
+	if (data.layout != null || data.normalize)
 	{
-		if (typeof ElkLayout === 'undefined')
-		{
-			electron.sendMessage('export-error', 'Layout engine not available');
-			return graph;
-		}
-
-		var layoutIsJson = mxUtils.trim(data.layout).charAt(0) == '[';
+		var layoutIsJson = false;
 		var layoutList = null;
 		var elkPreset = null;
 
-		if (layoutIsJson)
+		if (data.layout != null)
 		{
-			try
+			if (typeof ElkLayout === 'undefined')
 			{
-				layoutList = JSON.parse(data.layout);
-			}
-			catch (e)
-			{
-				electron.sendMessage('export-error', 'Invalid layout JSON: ' + (e.message || e));
+				electron.sendMessage('export-error', 'Layout engine not available');
 				return graph;
 			}
-		}
-		else if (typeof LibavoidRouting !== 'undefined' &&
-			mxUtils.trim(data.layout) === LibavoidRouting.LAYOUT_NAME)
-		{
-			// Bare libavoid shorthand -> JSON list, routed via createLayouts below.
-			layoutList = [{layout: LibavoidRouting.LAYOUT_NAME}];
-			layoutIsJson = true;
-		}
-		else
-		{
-			elkPreset = (ElkLayout.MENU_PRESETS != null) ? ElkLayout.MENU_PRESETS[data.layout] : null;
 
-			if (elkPreset == null)
+			layoutIsJson = mxUtils.trim(data.layout).charAt(0) == '[';
+
+			if (layoutIsJson)
 			{
-				electron.sendMessage('export-error', 'Unknown layout: ' + data.layout);
-				return graph;
+				try
+				{
+					layoutList = JSON.parse(data.layout);
+				}
+				catch (e)
+				{
+					electron.sendMessage('export-error', 'Invalid layout JSON: ' + (e.message || e));
+					return graph;
+				}
+			}
+			else if (typeof LibavoidRouting !== 'undefined' &&
+				mxUtils.trim(data.layout) === LibavoidRouting.LAYOUT_NAME)
+			{
+				// Bare libavoid shorthand -> JSON list, routed via createLayouts below.
+				layoutList = [{layout: LibavoidRouting.LAYOUT_NAME}];
+				layoutIsJson = true;
+			}
+			else
+			{
+				elkPreset = (ElkLayout.MENU_PRESETS != null) ? ElkLayout.MENU_PRESETS[data.layout] : null;
+
+				if (elkPreset == null)
+				{
+					electron.sendMessage('export-error', 'Unknown layout: ' + data.layout);
+					return graph;
+				}
 			}
 		}
 
@@ -784,8 +792,9 @@ function render(data)
 
 		if (modelNode == null)
 		{
-			// Nothing to lay out (e.g. empty file); render as-is.
+			// Nothing to work on (e.g. empty file); render as-is.
 			delete data.layout;
+			delete data.normalize;
 			render(data);
 			return graph;
 		}
@@ -818,17 +827,30 @@ function render(data)
 			return graph;
 		}
 
-		// Build the layout instances bound to the offscreen graph. JSON goes
-		// through createLayouts (same path as the dialog); a preset becomes a
-		// single ElkLayout with the menu's canonical edge treatment.
-		var layouts;
+		// Build the steps bound to the offscreen graph. Normalization is a
+		// plain execute(parent) step, so it rides the same sequence runner as
+		// the layouts. Layout JSON goes through createLayouts (same path as
+		// the dialog); a preset becomes a single ElkLayout with the menu's
+		// canonical edge treatment.
+		var layouts = [];
+
+		if (data.normalize)
+		{
+			layouts.push({execute: function()
+			{
+				layoutGraph.normalizeModel();
+			}});
+		}
 
 		try
 		{
-			layouts = layoutIsJson ?
-				layoutGraph.createLayouts(layoutList) :
-				[new ElkLayout(layoutGraph, elkPreset.algorithm,
-					elkPreset.options, ElkLayout.CANONICAL_EDGE)];
+			if (data.layout != null)
+			{
+				layouts = layouts.concat(layoutIsJson ?
+					layoutGraph.createLayouts(layoutList) :
+					[new ElkLayout(layoutGraph, elkPreset.algorithm,
+						elkPreset.options, ElkLayout.CANONICAL_EDGE)]);
+			}
 		}
 		catch (e)
 		{
@@ -892,6 +914,7 @@ function render(data)
 			}
 
 			delete data.layout;
+			delete data.normalize;
 			render(data);
 		};
 

@@ -31,6 +31,25 @@ skipped (`ignoreTransient`); `mxCell.previous` ignored.
 4. external tools adding non-round-tripping XML
 5. version property drift (props absent from `viewStateProperties`,
    DiffSync.js:34 — hashed, not diffed; check when `latestVersion` differs)
+6. **page root id change** (`diffCells`: `newRoot.id != oldRoot.id` skips
+   the walk and re-inserts EVERY cell under the new root, so `bytes` is
+   about the page size). 31.5.0 (rt-v7) refused every root swap in
+   `patchPage` because the root built from its entry has no children
+   before the walk — nine mergeFile checksum errors in 41 h, all root
+   changes; fixed by swapping first and checking the layer invariant
+   after the walk (`root-change`).
+   The usual SOURCE of a root id change was `mxModelCodec.decodeRoot`
+   taking the LAST parentless cell as the root, so one cell with a
+   missing or dangling `parent` flipped the root and the page's real
+   content was dropped (drawio-dev#696). It now picks `0`, else the
+   first non-vertex/non-edge candidate, else the first, and adopts the
+   others into the default layer (`stray-root`). A file with one
+   parentless cell — every well-formed file — decodes exactly as before.
+   Both engines are exercised side by side against the pinned v6 app in
+   `etc/rt-test/checksum-cases.html`.
+   A checksum *report* (bytes < 1000) carries the anonymized patch as
+   `-json_<Graph.compress>`: `gcloud logging read` the line, restore `+`
+   for spaces, base64 → raw inflate → URL-decode.
 
 Paths already traced correct (don't re-investigate): `moved`-chain reordering,
 cross-parent moves (`createParentLookup`), `backgroundImage`/`extFonts`

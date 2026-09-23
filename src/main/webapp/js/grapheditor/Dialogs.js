@@ -2948,10 +2948,15 @@ var EditDiagramDialog = function(editorUi)
 	mxUtils.write(placeholderOption, mxResources.get('select') + '...');
 	select.appendChild(placeholderOption);
 
-	var copyOption = document.createElement('option');
-	copyOption.setAttribute('value', 'copy');
-	mxUtils.write(copyOption, mxResources.get('copyDiagramToClipboard'));
-	select.appendChild(copyOption);
+	// The clipboard API is missing in insecure contexts, eg. embeds in pages
+	// served over http
+	if (navigator.clipboard != null && navigator.clipboard.writeText != null)
+	{
+		var copyOption = document.createElement('option');
+		copyOption.setAttribute('value', 'copy');
+		mxUtils.write(copyOption, mxResources.get('copyDiagramToClipboard'));
+		select.appendChild(copyOption);
+	}
 
 	var newOption = document.createElement('option');
 	newOption.setAttribute('value', 'new');

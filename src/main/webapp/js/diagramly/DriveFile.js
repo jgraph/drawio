@@ -850,6 +850,41 @@ DriveFile.prototype.loadDescriptor = function(success, error)
 };
 
 /**
+ * A save error is only a write revoke if the freshly loaded descriptor
+ * confirms the file is no longer editable; an unreachable descriptor
+ * stays transient so flaky requests never lock the session read-only.
+ */
+DriveFile.prototype.verifyWriteRevoked = function(callback)
+{
+	this.loadDescriptor(mxUtils.bind(this, function(desc)
+	{
+		if (desc != null)
+		{
+			// Answers from the loaded descriptor WITHOUT adopting it.
+			// A descriptor carries the head revision, the checksum and
+			// the secret, and a peer may have committed a revision
+			// since this file's last merge: adopting it here moved the
+			// known revision PAST content that never reached the
+			// shadow, so the peer's save notification was then skipped
+			// as already seen (source == target in doCatchup) and the
+			// next save committed the stale base over it - a silent
+			// lost update of a committed revision. Those fields belong
+			// to the save and merge chain; a confirmed revocation is
+			// recorded in writeRevoked, which gates isEditable itself.
+			callback(!(DrawioFile.prototype.isEditable.apply(this) &&
+				desc.editable));
+		}
+		else
+		{
+			callback(false);
+		}
+	}), function()
+	{
+		callback(false);
+	});
+};
+
+/**
  * Are comments supported
  */
 DriveFile.prototype.commentsSupported = function()

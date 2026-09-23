@@ -931,7 +931,10 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 	{
 		delayTimer = null;
 
-		if (lastFolderArgs == null || lastFolderArgs[0] != 'sharepoint')
+		// Stops a pending search if the picker was closed in the meantime, as
+		// the elements below are looked up in the document (see _$)
+		if (lastFolderArgs == null || lastFolderArgs[0] != 'sharepoint' ||
+			!document.body.contains(container))
 		{
 			return;
 		}

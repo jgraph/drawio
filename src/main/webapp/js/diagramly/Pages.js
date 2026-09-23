@@ -350,7 +350,216 @@ ChangePage.prototype.execute = function()
 };
 
 /**
- * 
+ * Execute-time repair for replayed page changes, the page-level twin
+ * of the cell change repair in EditorUi.js: the undo history holds
+ * DiagramPage OBJECT references, but patches may have removed the
+ * page or replaced it with a new object of the same id. Every replay
+ * resolves the reference fresh against ui.pages:
+ * - the id is taken by a new object: redirected to the canonical page
+ *   (an insert replay of an already present page becomes a no-op
+ *   instead of a duplicate array entry; a remove replay removes the
+ *   canonical instance instead of hitting indexOf -1, whose
+ *   splice(-1, 1) silently removed the LAST page)
+ * - the id is gone on a remove replay: no-op with the field cycle of
+ *   a real remove, so a later insert replay revives the page
+ * The first execution is transparent (fresh references by
+ * construction).
+ */
+(function()
+{
+	var canonicalPage = function(ui, page)
+	{
+		if (page != null && ui != null && ui.pages != null)
+		{
+			for (var i = 0; i < ui.pages.length; i++)
+			{
+				if (ui.pages[i].getId() == page.getId())
+				{
+					return ui.pages[i];
+				}
+			}
+		}
+
+		return null;
+	};
+
+	// The viewed page must stay part of the document. A remove replay
+	// can take it out while the page-switch that follows stays inert
+	// (its own target was deleted by a peer), leaving ui.currentPage
+	// outside ui.pages: it still renders and accepts edits, but those
+	// belong to no page in any diff, so they reach neither a flush nor
+	// a save and vanish when the next patch heals the reference.
+	// Selected quietly, so the repair stays out of the undo history.
+	// Drained ONCE after the undo or redo (EditorUi.undo/redo), not
+	// per replayed change: the undo of a wholesale replacement passes
+	// through one such state per page, and a select per state was a
+	// full page render each (the undo of a restore took seconds).
+	EditorUi.prototype.healCurrentPage = function()
+	{
+		if (this.pages != null && this.pages.length > 0 &&
+			mxUtils.indexOf(this.pages, this.currentPage) < 0)
+		{
+			this.selectPage(this.pages[0], true);
+		}
+	};
+
+	var changePageExecute = ChangePage.prototype.execute;
+
+	ChangePage.prototype.execute = function()
+	{
+		if (this.repairExecuted && this.relatedPage != null)
+		{
+			var canonical = canonicalPage(this.ui, this.relatedPage);
+
+			if (this.index == null)
+			{
+				// Remove replay
+				if (canonical != null)
+				{
+					this.relatedPage = canonical;
+				}
+				else
+				{
+					// The page is already gone: no-op with the field
+					// cycle of a real remove (a later insert replay
+					// revives the recorded page object)
+					this.ui.editor.fireEvent(new mxEventObject(
+						'beforePageChange', 'change', this));
+					this.previousIndex = null;
+					this.index = this.ui.pages.length;
+
+					if (!this.noSelect && this.page != null)
+					{
+						SelectPage.prototype.execute.apply(this, arguments);
+					}
+
+					this.repairExecuted = true;
+
+					return;
+				}
+			}
+			else if (canonical != null)
+			{
+				// Insert replay of a page that is already present (a
+				// remote patch re-added it): no-op with the field
+				// cycle of a real insert
+				this.relatedPage = canonical;
+				this.ui.editor.fireEvent(new mxEventObject(
+					'beforePageChange', 'change', this));
+				this.previousIndex = this.index;
+				this.index = null;
+
+				// The select replay walks by direction and skips a
+				// self-select itself (see SelectPage.execute below)
+				if (!this.noSelect && this.page != null)
+				{
+					SelectPage.prototype.execute.apply(this, arguments);
+				}
+
+				this.repairExecuted = true;
+
+				return;
+			}
+		}
+
+		changePageExecute.apply(this, arguments);
+		this.repairExecuted = true;
+	};
+
+	var selectPageExecute = SelectPage.prototype.execute;
+
+	// A replay has a direction: the undo returns to the page viewed
+	// before the first execution, the redo to the target, each
+	// resolved by id, and a destination that is not in the document
+	// (deleted by a peer, or not yet back in a composite undo) keeps
+	// the current page. The base toggle - previousPage is the next
+	// destination and is swapped on every executed switch - breaks as
+	// soon as one replay is inert: its destination stays put and the
+	// next replay walks the wrong way. In the undo of a wholesale
+	// replacement the inert step is the rule (the origin returns only
+	// with the last change), so the redo left the target unselected
+	// and the client ended on the last page.
+	SelectPage.prototype.execute = function()
+	{
+		if (this.repairExecuted)
+		{
+			var dest = (this.page != null) ? canonicalPage(this.ui,
+				(this.applied) ? this.origin : this.page) : null;
+			this.applied = !this.applied;
+
+			// A self-select would overwrite the current page's view
+			// state (scroll/zoom) with a stale one
+			if (dest != null && dest != this.ui.currentPage)
+			{
+				this.previousPage = dest;
+				selectPageExecute.apply(this, arguments);
+			}
+		}
+		else
+		{
+			this.origin = this.ui.currentPage;
+			this.applied = true;
+			selectPageExecute.apply(this, arguments);
+			this.repairExecuted = true;
+		}
+	};
+
+	var renamePageExecute = RenamePage.prototype.execute;
+
+	RenamePage.prototype.execute = function()
+	{
+		if (this.repairExecuted)
+		{
+			var canonical = canonicalPage(this.ui, this.page);
+
+			if (canonical != null)
+			{
+				this.page = canonical;
+			}
+		}
+
+		renamePageExecute.apply(this, arguments);
+		this.repairExecuted = true;
+	};
+
+	var changePageViewExecute = ChangePageView.prototype.execute;
+
+	ChangePageView.prototype.execute = function()
+	{
+		if (this.repairExecuted)
+		{
+			var canonical = canonicalPage(this.ui, this.page);
+
+			if (canonical != null)
+			{
+				this.page = canonical;
+			}
+		}
+
+		changePageViewExecute.apply(this, arguments);
+		this.repairExecuted = true;
+	};
+
+	var movePageExecute = MovePage.prototype.execute;
+
+	MovePage.prototype.execute = function()
+	{
+		// Index-based: clamp against the current page count so a
+		// replay after remote inserts/removes stays in bounds
+		if (this.repairExecuted && this.ui != null && this.ui.pages != null)
+		{
+			var max = Math.max(0, this.ui.pages.length - 1);
+			this.oldIndex = Math.min(this.oldIndex, max);
+			this.newIndex = Math.min(this.newIndex, max);
+		}
+
+		movePageExecute.apply(this, arguments);
+		this.repairExecuted = true;
+	};
+})();
+
+/**
+ *
  */
 function ReplaceDiagram(ui, data)
 {
@@ -1517,6 +1726,36 @@ EditorUi.prototype.duplicatePage = function(page, name)
 	}
 	
 	return newPage;
+};
+
+/**
+ * Returns the XML of the given page for serialization into a diff,
+ * encoding the live root when the cached node is stale. The cached node
+ * is only rewritten when a page is switched away from, so a page that
+ * was inserted and drawn on without ever leaving it would ship an EMPTY
+ * insert - and once that insert is out, later diffs compare roots, find
+ * them equal and never resend the cells. The same holds for a page whose
+ * root was patched (needsUpdate, eg. an own page that a save merge
+ * brought cells into): its node is only re-encoded when the file is
+ * saved, so the cleanup's insert of such a page carried the pre-patch
+ * cells and the screen copy was stale until the next full diff. Does
+ * not mutate the page: the caller may be diffing a snapshot clone.
+ */
+EditorUi.prototype.getPageXmlForDiff = function(page)
+{
+	if ((page.isDiagramModified() || page.needsUpdate) && page.root != null)
+	{
+		var enc = new mxCodec(mxUtils.createXmlDocument());
+		var node = enc.encode(new mxGraphModel(page.root));
+		this.editor.graph.saveViewState(page.viewState, node);
+
+		var result = page.node.cloneNode(false);
+		result.appendChild(node);
+
+		return mxUtils.getXml(result);
+	}
+
+	return mxUtils.getXml(page.node);
 };
 
 /**

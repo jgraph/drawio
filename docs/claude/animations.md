@@ -42,6 +42,20 @@ covers the descendants since it resolves through the same call. Multiple
 keys in one step run in parallel; consecutive steps are sequential unless
 `immediate:true`.
 
+`cells`, `tags` and `layers` resolve as a UNION, so a step can target all
+three. In the dialog they read as alternative modes, though: a new step is
+seeded with the canvas selection, and picking layers or tags right after
+that is meant to CHANGE the target, not grow it (Kym, 2026-09-18). The
+dialog therefore tracks the selector objects whose `cells` came from that
+seed (`seededSelectors`, a WeakSet keyed on the selector object) and drops
+the seeded list when the layer or tag picker commits a non-empty
+selection. Any explicit edit of the cells chip clears the mark, so a list
+the user picked themselves is never taken away and unions stay buildable
+(cells first, then layers). The chip menu's clear-the-target item is
+labelled `none` ("None", the counterpart of "All cells") — `reset`
+suggested restoring a default and "Remove" next to "All cells" reads as
+deleting the shapes.
+
 ```json
 {"animation": {"loop": false, "steps": [
   {"opacity": {"cells": ["*"], "value": 0}},
@@ -69,7 +83,12 @@ becomes a dynamic cell-bound viewbox instead (see below).
 autoplay). Both are persisted only when `false` (default implicit, keeps XML
 minimal). Dialog header has **Loop** and **Disabled** (= inverse of `enabled`,
 reuses the `disabled` resource) checkboxes. Custom-link actions have neither —
-they're one-shot user triggers.
+they're one-shot user triggers. Checking **Disabled** dims the step list and
+the raw textarea (`geAnimationDisabledArea`) and disables Loop, so an
+animation that won't autoplay can't be mistaken for one that will — the lone
+checkbox was too easy to overlook (Kym, 2026-09-18). The steps stay editable
+and previewable on purpose: that is what the off-switch is for, so do not
+turn the dimming into `pointer-events:none`.
 
 ## Transient — context-dependent default, `transient` flag overrides
 
@@ -198,6 +217,23 @@ the link format); all UI lives in AnimationDialog.
 `CustomActionDialog.SCHEMAS` defines each action's metadata (icon, label,
 fields, selector flag, `allowLayers`).
 
+**Saving an empty action removes the link**: with no steps left the adapter
+calls `onSave('')` instead of writing `{"actions":[]}`, and every
+`showLinkDialog` callback reads the empty string as "remove the link"
+(`setLinkForCell(cell, null)` / `insertLink('')` / anchor unwrap). Before,
+deleting the last action left a dead link, its title and the link
+decoration on the cell (Kym, 2026-09-18).
+
+**Attaching one action to several cells** (Sept 2026, grapheditor):
+`editLink` resolves `getEditableCells(getSelectionCells())` when it opens
+and writes to all of them in one undo step; `updateActionStates` enables it
+for `cells.length > 0`. The cells are captured at open time, NOT read back
+in the save callback — the action editor is non-modal so the canvas
+selection has usually moved on to the action's target cells by the time it
+saves. The field is prefilled only when every selected cell carries the
+same link. To copy a link to other shapes, use Copy/Paste Data,
+which carries `link` and `linkTarget` along with the other attributes.
+
 ## Engine — `Editor.AnimationPlayer` (diagramly/Editor.js)
 
 `parseAnimationData(value)` → normalized `{steps}`;
@@ -268,6 +304,25 @@ reorder / Delete All / raw-JSON edits / page switch also clear it. JSON parse
 errors in the text view resolve V8's "at position N" to a line/column suffix
 (`describeJsonError`).
 
+**Deleted targets are reported, never pruned** (Sept 2026): the engine
+skips IDs that no longer resolve, so a step whose cells were deleted used
+to sit in the list reading "4 cells" while doing nothing (tester report,
+2026-09-21). The cells and layers chips now count only the entries that
+still exist and call out the rest ("2 cells, 3 deleted" / "0 cells, 4
+deleted" — `nDeleted`; the tester asked for "deleted" over "missing",
+amber `geSelChipWarn`, dead IDs marked `(?)` in the hover
+list); a step whose selector resolves to no cell at all through
+`getCellsForAction` gets a ⚠ marker behind its label (`stepNoEffect`
+tooltip). The dialog re-renders on model changes that add or remove
+cells (`mxChildChange` with a null parent/previous) unless a row input
+has focus, so the non-modal dialog stays truthful during canvas edits
+and undo. Cleanup is explicit — "Remove deleted cells" in the chip menu;
+the layer picker drops IDs it cannot list on the next commit — and
+nothing touches the stored data on its own: deleting a cell must not
+parse every page animation and custom link (cost), and a pruned
+reference cannot come back with the cell via undo or paste (Gaudenz,
+2026-09-21). Do not turn the marker into auto-removal of the step.
+
 `immediate` toggle per row: ⏩ + "Immediate" (on) / ⏱ + "Wait" (off); each
 glyph carries U+FE0E to force monochrome. Hidden on row 0.
 
@@ -282,6 +337,40 @@ cells" icon button that lists the selected cell's raw `key=value` pairs
 picking one writes the key and — when the schema has a `value` field — the
 value, then `refresh()` re-renders the row. Replaces the idea of appending
 style keys to the Format panel tooltips (many controls map to several keys).
+
+Around that field (Sept 2026, all from Kym's 2026-09-18 pass):
+
+- The placeholder is `enterStyleKey` ("Enter style key…"), not an example
+  key — an example reads as a value that is already set. Same reason the
+  Value / Default fields lost their `1` / `0` placeholders, and why
+  `.geAnimationDialog ::placeholder` is pinned to the faint text color and
+  italicized (the browser default was too close to a real value in dark
+  mode).
+- An empty key marks the field (`geAnimationFieldWarn`): such a step does
+  nothing at all and otherwise looked configured.
+- On `change` (not per keystroke) a known key typed in the wrong case is
+  corrected to its canonical spelling — `AnimationDialog.canonicalStyleKey`
+  over a lowercase→canonical map of every `mxConstants.STYLE_*` plus
+  `STYLE_KEYS`, built on `Object.create(null)` since it is keyed by typed
+  input. mxGraph style keys are case sensitive, so `fillcolor` silently
+  painted nothing; that, not `light-dark()`, was why adaptive colors
+  appeared broken.
+- Fields flagged `colorValue` (Set Style's value, Toggle Style's value and
+  default value) get a swatch whenever the step's key names a color
+  (`AnimationDialog.isColorStyleKey`, decided by the `/colou?r$/` name —
+  the per-shape property tables only type the few custom color props).
+  It opens `editorUi.pickColor`, whose dark-color field writes
+  `light-dark(light,dark)`, and previews through the file's
+  `getAdaptiveColors()` mode ('auto' inverts a plain color for dark mode,
+  'simple' keeps it, 'none' pins the diagram to the light color). An
+  explicit pair paints as a diagonal split (`cssText` / the inverted pair,
+  like the Format panel swatches) so both colors show in either theme.
+  **Both parts are validated as colors through the CSSOM first** (`asColor`
+  assigns to a probe's `color`): the value comes from the diagram, and an
+  unchecked string in the `background` shorthand could close the gradient
+  and add a fetched `url()` layer. `mxUtils.isLightDarkColor` is only a
+  prefix test, so a value reaching it is not guaranteed to have passed the
+  strict `lightDarkColorRegex`.
 
 **One action editor at a time**: `LinkDialog.editCustomAction` keeps a single
 `editorUi.actionWindow`. Edit… for the SAME cells (the LinkDialog's
@@ -343,6 +432,8 @@ and a module-scope wrapper on `mxWindow.prototype.setResizable` wire it up
   `createPopAnimations`, `fadeNodes`, `executeAnimations`)
 - `grapheditor/Editor.js` — `PageSetupDialog` "Lightbox animation" entry;
   resize handles
+- `grapheditor/Actions.js` — `editLink` (whole selection); enable state in
+  `grapheditor/EditorUi.js` (`updateActionStates`)
 - `resources/dia.txt` — UI strings (translations in `resources/dia_*.txt`)
 - `plugins/animation.js` — back-compat Extras entry + inline `animation`
   resource key

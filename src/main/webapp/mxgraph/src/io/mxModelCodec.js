@@ -20,6 +20,13 @@ mxCodecRegistry.register(function()
 	codec.enableStyleCompression = false;
 
 	/**
+	 * ID of the cell a model conventionally roots on. Used by
+	 * <decodeRoot> to pick the root of a malformed model that offers
+	 * more than one candidate. Default is '0'.
+	 */
+	codec.defaultRootId = '0';
+
+	/**
 	 * Function: encodeObject
 	 *
 	 * Encodes the given <mxGraphModel> by writing a (flat) XML sequence of
@@ -223,25 +230,127 @@ mxCodecRegistry.register(function()
 	 */
 	codec.decodeRoot = function(dec, root, model)
 	{
-		var rootCell = null;
+		var cells = [];
 		var tmp = root.firstChild;
 		
 		while (tmp != null)
 		{
 			var cell = dec.decodeCell(tmp);
 			
-			if (cell != null && cell.getParent() == null)
+			if (cell != null)
 			{
-				rootCell = cell;
+				cells.push(cell);
 			}
 			
 			tmp = tmp.nextSibling;
 		}
 
+		// A decoded cell has no parent if the file carries no parent
+		// attribute for it, or names one that is nowhere in this model
+		// (see mxCodec.insertIntoGraph). A well-formed model has exactly
+		// ONE such cell - its root - and for those files the selection
+		// below returns that same cell, so nothing changes for them.
+		var candidates = [];
+
+		for (var i = 0; i < cells.length; i++)
+		{
+			if (cells[i].getParent() == null)
+			{
+				candidates.push(cells[i]);
+			}
+		}
+
+		var rootCell = this.selectRoot(candidates);
+
 		// Sets the root on the model if one has been decoded
 		if (rootCell != null)
 		{
+			this.adoptOrphanedCells(candidates, rootCell);
 			model.setRoot(rootCell);
+		}
+	};
+
+	/**
+	 * Function: selectRoot
+	 *
+	 * Returns the cell to root the model on out of the cells that were
+	 * decoded without a parent, or null if there are none.
+	 *
+	 * More than one candidate means malformed input, and taking the LAST
+	 * one - which this did - let a single stray cell hijack the whole
+	 * model: the real root, its layers and all of their content are
+	 * unreachable from a cell that is not their ancestor, so the model
+	 * decodes to just that cell, callers add an empty layer under it and
+	 * the next save writes the emptied page back. No error is reported
+	 * anywhere along that path (jgraph/drawio-dev#696).
+	 *
+	 * The root is therefore the candidate a model actually roots on: the
+	 * conventional <defaultRootId>, else the first candidate that is
+	 * neither a vertex nor an edge, else the first. With a single
+	 * candidate every rule returns it, so files that are not malformed
+	 * decode exactly as before.
+	 */
+	codec.selectRoot = function(candidates)
+	{
+		var rootCell = null;
+
+		for (var i = 0; i < candidates.length && rootCell == null; i++)
+		{
+			if (candidates[i].getId() == this.defaultRootId)
+			{
+				rootCell = candidates[i];
+			}
+		}
+
+		for (var i = 0; i < candidates.length && rootCell == null; i++)
+		{
+			if (!candidates[i].isVertex() && !candidates[i].isEdge())
+			{
+				rootCell = candidates[i];
+			}
+		}
+
+		return (rootCell != null) ? rootCell :
+			((candidates.length > 0) ? candidates[0] : null);
+	};
+
+	/**
+	 * Function: adoptOrphanedCells
+	 *
+	 * Moves the candidates that did not become the root into the default
+	 * layer, in document order. They are content whose parent reference
+	 * is missing or dangling, and they belong to this model, so dropping
+	 * them on the floor - which is what happened to everything but the
+	 * last candidate - loses them on the next save. Appending them to the
+	 * default layer is a repair that every reader of the same file
+	 * derives identically, and it is written back the next time the model
+	 * is saved.
+	 *
+	 * A root without any child has no layer to adopt into, and the root's
+	 * own children ARE the layers, so there the cells are left out as
+	 * before rather than turned into layers.
+	 */
+	codec.adoptOrphanedCells = function(candidates, rootCell)
+	{
+		var layer = (rootCell.getChildCount() > 0) ?
+			rootCell.getChildAt(0) : null;
+
+		for (var i = 0; i < candidates.length; i++)
+		{
+			if (candidates[i] != rootCell)
+			{
+				if (layer != null)
+				{
+					layer.insert(candidates[i]);
+				}
+
+				if (window.console != null)
+				{
+					console.warn('mxModelCodec.decodeRoot: cell without a ' +
+						'parent: ' + candidates[i].getId() + ((layer != null) ?
+						' moved into layer ' + layer.getId() : ' ignored'));
+				}
+			}
 		}
 	};
 

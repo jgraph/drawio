@@ -124,6 +124,82 @@
 	};
 
 	/**
+	 * Returns true if the given cell has an outgoing tree edge in the
+	 * model. Unlike getOutgoingTreeEdges this does not resolve visible
+	 * terminals, which are not yet valid while the terminal states are
+	 * revalidated (eg. for the folding icon after inserting an edge).
+	 */
+	Graph.prototype.hasOutgoingTreeEdge = function(cell)
+	{
+		var count = this.model.getEdgeCount(cell);
+
+		for (var i = 0; i < count; i++)
+		{
+			var edge = this.model.getEdgeAt(cell, i);
+
+			if (this.model.getTerminal(edge, true) == cell &&
+				this.model.getTerminal(edge, false) != cell &&
+				this.isTreeEdge(edge))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	};
+
+	/**
+	 * Hides the folding icon on leaves: expanded tree cells are only
+	 * foldable with outgoing tree edges. Collapsed cells stay foldable
+	 * so they can always be expanded.
+	 */
+	var graphIsTreeCellFoldable = Graph.prototype.isTreeCellFoldable;
+
+	Graph.prototype.isTreeCellFoldable = function(cell, style)
+	{
+		return graphIsTreeCellFoldable.apply(this, arguments) &&
+			(this.isCellCollapsed(cell) ||
+			this.hasOutgoingTreeEdge(cell));
+	};
+
+	/**
+	 * Refreshes the folding icon on the source terminals of added, removed
+	 * or reconnected edges. The base change handling only invalidates the
+	 * edge itself, so the icon would not appear on the first child edge or
+	 * disappear with the last one until an unrelated revalidation.
+	 */
+	var graphProcessChange = Graph.prototype.processChange;
+
+	Graph.prototype.processChange = function(change)
+	{
+		graphProcessChange.apply(this, arguments);
+
+		if (change instanceof mxChildChange && this.model.isEdge(change.child))
+		{
+			this.invalidateTreeFolding(this.model.getTerminal(change.child, true));
+		}
+		else if (change instanceof mxTerminalChange && change.source)
+		{
+			this.invalidateTreeFolding(change.terminal);
+			this.invalidateTreeFolding(change.previous);
+		}
+	};
+
+	/**
+	 * Invalidates the state of the given cell if its folding icon depends
+	 * on outgoing tree edges.
+	 */
+	Graph.prototype.invalidateTreeFolding = function(cell)
+	{
+		if (cell != null && !this.model.isCollapsed(cell) &&
+			mxUtils.getValue(this.getCurrentCellStyle(cell),
+			'treeFolding', '0') == '1')
+		{
+			this.view.invalidate(cell, false, false);
+		}
+	};
+
+	/**
 	 * Overrides functionality in editor.
 	 */
 	var editorUiInit = EditorUi.prototype.init;

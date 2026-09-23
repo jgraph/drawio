@@ -7,7 +7,8 @@ overrides these prototypes; new hooks added here should be override-friendly).
 **Key files**: `Editor.js` (editor core, modal `Dialog` framework, dialog
 resize handles), `EditorUi.js` (chrome/panel wiring), `Graph.js` (mxGraph
 subclass: styles, edge rendering, `initLayoutManager` + async layout
-scheduling, custom-action/animation primitives, `getTransparentBounds`),
+scheduling, custom-action/animation primitives, `getTransparentBounds`,
+`normalizeModel`),
 `Sidebar.js` (shape palette framework), `Format.js` (format panel),
 `Shapes.js` (shape implementations), `Actions.js`, `Menus.js`, `Toolbar.js`,
 `Dialogs.js`.

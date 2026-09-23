@@ -214,7 +214,13 @@ model.
 edit overwrites every libavoid write, so previews showed routes that never
 commit (the flag stays on the style, inert until the edge leaves the
 container, e.g. by copy-paste to the canvas). The endpoint-drag and new-edge
-previews carry the same gate.
+previews carry the same gate; the new-edge preview predicts the committed
+edge's parent as the terminals' nearest COMMON ANCESTOR (what
+`mxGraphModel.maintainEdgeParent` re-parents to) and gates when that sits in
+or under a childLayout container — comparing the two ends' own nearest
+containers misses cross-level connects (nested list → outer list), where
+`connect()` then baked the preview bends as ABSOLUTE `geometry.points` into
+the container parent's frame with no re-route to clean them up (July 2026).
 
 The shape-drag live preview (`solveMovePreview`) additionally skips RIGIDLY
 moving edges (edge + both terminals in the drag's moving set — e.g. a whole

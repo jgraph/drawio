@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>checksum roundtrip v7 vs v6</title>
+<style>
+body { font: 12px monospace; margin: 8px; }
+#log div { white-space: pre-wrap; border-bottom: 1px solid #eee; }
+.bad { background: #fdd; }
+iframe { width: 600px; height: 300px; border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+<div id="frames"></div>
+<div id="log"></div>
+<script>
+// Round-trip property test for the mergeFile checksum invariant:
+//   hash(patchPages(clonePages(shadow), diffPages(shadow, pages))) == hash(pages)
+// Edits are generated in the CURRENT app (frame A) through the real editing
+// APIs; the invariant is then evaluated in frame A and in the pinned v6 app
+// (frame B, served from /rt-v6/) on the same XML pair, so any difference
+// isolates the diff/patch engine.
+//
+// URL: ?fixture=tmp-fixtures/oci.drawio&rounds=20&ops=12&seed=1&chain=1&v6=1
+var params = {};
+location.search.substring(1).split('&').forEach(function(p)
+{
+	var kv = p.split('=');
+	if (kv[0]) params[kv[0]] = decodeURIComponent(kv[1] || '');
+});
+var FIXTURE = params.fixture; // path under etc/rt-test, eg. fixtures/big.drawio (not committed)
+var ROUNDS = parseInt(params.rounds || '10', 10);
+var OPS = parseInt(params.ops || '10', 10);
+var SEED = parseInt(params.seed || '1', 10);
+var CHAIN = params.chain != '0';
+var USE_V6 = params.v6 != '0';
+var ONLY = (params.only || '').split(',').filter(Boolean);
+var SKIP = (params.skip || '').split(',').filter(Boolean);
+
+function mulberry32(a)
+{
+	return function()
+	{
+		a |= 0; a = a + 0x6D2B79F5 | 0;
+		var t = Math.imul(a ^ a >>> 15, 1 | a);
+		t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+		return ((t ^ t >>> 14) >>> 0) / 4294967296;
+	};
+}
+var rnd = mulberry32(SEED);
+var rand = {int: function(n) { return Math.floor(rnd() * n); },
+	pick: function(a) { return a[Math.floor(rnd() * a.length)]; }};
+
+function log(msg, bad)
+{
+	var d = document.createElement('div');
+	d.textContent = msg;
+	if (bad) d.className = 'bad';
+	document.getElementById('log').appendChild(d);
+	window.results = window.results || [];
+	window.results.push({msg: msg, bad: !!bad});
+}
+
+var BOOT = '/index.html?dev=1&test=1&sockets=0&splash=0&local=1&lang=en&chrome=1&gapi=0&db=0&od=0&gh=0&gl=0&tr=0';
+
+function boot(prefix, name)
+{
+	var iframe = document.createElement('iframe');
+	iframe.src = prefix + BOOT;
+	document.getElementById('frames').appendChild(iframe);
+
+	return new Promise(function(resolve, reject)
+	{
+		var deadline = Date.now() + 90000;
+		function poll()
+		{
+			try
+			{
+				var win = iframe.contentWindow;
+				if (win != null && win.EditorUi != null &&
+					win.document.querySelector('.geDiagramContainer') != null)
+				{
+					captureUi(win, name).then(function(ui)
+					{
+						resolve({win: win, ui: ui, name: name});
+					}, reject);
+					return;
+				}
+			}
+			catch (e) { reject(e); return; }
+			if (Date.now() > deadline) reject(new Error(name + ' boot timeout'));
+			else setTimeout(poll, 200);
+		}
+		poll();
+	});
+}
+
+// Same trick as etc/rt-test/harness.js captureUi
+function captureUi(win, name)
+{
+	return new Promise(function(resolve, reject)
+	{
+		var deadline = Date.now() + 30000;
+		function attempt()
+		{
+			var captured = null;
+			var orig = win.EditorUi.prototype.getCurrentFile;
+			win.EditorUi.prototype.getCurrentFile = function()
+			{
+				captured = this;
+				return orig.apply(this, arguments);
+			};
+			try
+			{
+				var c = win.document.querySelector('.geDiagramContainer');
+				var pointer = win.mxClient != null && win.mxClient.IS_POINTER;
+				var evt = (pointer) ? ['pointerdown', 'pointerup'] : ['mousedown', 'mouseup'];
+				for (var i = 0; i < evt.length; i++)
+				{
+					c.dispatchEvent((pointer) ? new win.PointerEvent(evt[i],
+						{bubbles: true, clientX: 400, clientY: 300, button: 0,
+						pointerId: 1, pointerType: 'mouse', isPrimary: true}) :
+						new win.MouseEvent(evt[i], {bubbles: true, clientX: 400,
+						clientY: 300, button: 0}));
+				}
+			}
+			catch (e) {}
+			win.EditorUi.prototype.getCurrentFile = orig;
+			if (captured != null) resolve(captured);
+			else if (Date.now() > deadline) reject(new Error(name + ' ui capture timeout'));
+			else setTimeout(attempt, 300);
+		}
+		attempt();
+	});
+}
+
+// The mergeFile invariant on one XML pair, evaluated with the given ui.
+// shadowPages may be passed to model a shadow that is a patched clone
+// (the production state after sync.merge) instead of a fresh parse.
+function roundTrip(client, xmlA, xmlB, shadowPages)
+{
+	var ui = client.ui;
+	var t0 = performance.now();
+	var shadow = (shadowPages != null) ? shadowPages : ui.getPagesForXml(xmlA, true);
+	var pages = ui.getPagesForXml(xmlB, true);
+	var patch = ui.diffPages(shadow, pages);
+	var bytes = JSON.stringify(patch).length;
+	var patched = ui.patchPages(ui.clonePages(shadow), patch);
+	var h1 = ui.getHashValueForPages(patched);
+	var h2 = ui.getHashValueForPages(pages);
+	var result = {ok: h1 == h2, bytes: bytes, ms: Math.round(performance.now() - t0),
+		patched: patched, pages: pages, patch: patch};
+
+	if (!result.ok)
+	{
+		// Localizes the mismatch: per-page hash and the residual diff
+		var bad = [];
+		var lookup = {};
+		for (var i = 0; i < pages.length; i++) lookup[pages[i].getId()] = pages[i];
+		for (var i = 0; i < patched.length; i++)
+		{
+			var p = lookup[patched[i].getId()];
+			if (p == null) { bad.push(patched[i].getId() + ':extra'); continue; }
+			if (ui.getHashValueForPages([patched[i]]) != ui.getHashValueForPages([p]))
+				bad.push(patched[i].getId() + ':content');
+		}
+		if (patched.length != pages.length) bad.push('count ' + patched.length + ' vs ' + pages.length);
+		var order1 = patched.map(function(p) { return p.getId(); }).join(',');
+		var order2 = pages.map(function(p) { return p.getId(); }).join(',');
+		if (order1 != order2) bad.push('order');
+		result.badPages = bad;
+		result.residual = JSON.stringify(ui.diffPages(patched, pages));
+	}
+
+	return result;
+}
+
+// --- Edit generator (frame A only) --------------------------------------
+var OPS_LIST = ['move', 'moveInto', 'moveOut', 'delete', 'order', 'group',
+	'ungroup', 'insertVertex', 'insertEdge', 'label', 'style', 'resize',
+	'waypoint', 'duplicate', 'undo', 'redo', 'addPage', 'movePage',
+	'removePage', 'dupPage', 'selectPage', 'addLayer', 'toLayer', 'renamePage',
+	'toggleCollapse', 'moveEdgeParent'];
+
+function allCells(model, parent, out)
+{
+	out = out || [];
+	var n = model.getChildCount(parent);
+	for (var i = 0; i < n; i++)
+	{
+		var c = model.getChildAt(parent, i);
+		out.push(c);
+		allCells(model, c, out);
+	}
+	return out;
+}
+
+function applyOp(client, type, record)
+{
+	var win = client.win;
+	var ui = client.ui;
+	var graph = ui.editor.graph;
+	var model = graph.model;
+	var root = model.getRoot();
+	var layers = [];
+	for (var i = 0; i < model.getChildCount(root); i++) layers.push(model.getChildAt(root, i));
+	var cells = allCells(model, root).filter(function(c) { return c.getParent() != root; });
+	var vertices = cells.filter(function(c) { return c.isVertex(); });
+	var edges = cells.filter(function(c) { return c.isEdge(); });
+	var containers = vertices.filter(function(c) { return model.getChildCount(c) > 0; });
+
+	function pickSome(arr, max)
+	{
+		var out = [];
+		var cand = arr.slice();
+		var n = 1 + rand.int(max);
+		while (out.length < n && cand.length > 0) out.push(cand.splice(rand.int(cand.length), 1)[0]);
+		return out;
+	}
+
+	switch (type)
+	{
+		case 'move':
+		{
+			if (cells.length == 0) return false;
+			var sel = pickSome(cells, 5);
+			graph.moveCells(sel, 10 + rand.int(200), 10 + rand.int(200));
+			record(sel.map(function(c) { return c.getId(); }).join(','));
+			return true;
+		}
+		case 'moveInto':
+		{
+			if (vertices.length < 2) return false;
+			var target = rand.pick(containers.length > 0 && rand.int(2) == 0 ? containers : vertices);
+			var sel = pickSome(cells.filter(function(c) { return c != target && !model.isAncestor(c, target); }), 4);
+			if (sel.length == 0) return false;
+			graph.moveCells(sel, 5, 5, false, target);
+			record(sel.map(function(c) { return c.getId(); }).join(',') + ' -> ' + target.getId());
+			return true;
+		}
+		case 'moveOut':
+		{
+			var nested = cells.filter(function(c) { return c.getParent() != null && c.getParent().getParent() != root; });
+			if (nested.length == 0) return false;
+			var sel = pickSome(nested, 4);
+			graph.moveCells(sel, 30, 30, false, rand.pick(layers));
+			record(sel.map(function(c) { return c.getId(); }).join(',') + ' -> layer');
+			return true;
+		}
+		case 'delete':
+		{
+			if (cells.length == 0) return false;
+			var sel = pickSome(cells, 4);
+			graph.removeCells(sel, rand.int(2) == 0);
+			record(sel.map(function(c) { return c.getId(); }).join(','));
+			return true;
+		}
+		case 'order':
+		{
+			if (cells.length == 0) return false;
+			var sel = pickSome(cells, 3);
+			var back = rand.int(2) == 0;
+			graph.orderCells(back, sel);
+			record(sel.map(function(c) { return c.getId(); }).join(',') + (back ? ' back' : ' front'));
+			return true;
+		}
+		case 'group':
+		{
+			if (vertices.length < 2) return false;
+			var sel = pickSome(vertices, 4);
+			if (sel.length < 2) return false;
+			var g = graph.groupCells(null, 20, sel);
+			record(sel.map(function(c) { return c.getId(); }).join(',') + ' => ' + (g != null ? g.getId() : '?'));
+			return true;
+		}
+		case 'ungroup':
+		{
+			if (containers.length == 0) return false;
+			var g = rand.pick(containers);
+			graph.ungroupCells([g]);
+			record(g.getId());
+			return true;
+		}
+		case 'insertVertex':
+		{
+			var parent = (containers.length > 0 && rand.int(3) == 0) ? rand.pick(containers) : rand.pick(layers);
+			var v = graph.insertVertex(parent, null, 'v' + rand.int(100000), rand.int(800), rand.int(800), 80 + rand.int(80), 30 + rand.int(60), rand.int(2) == 0 ? 'rounded=1;whiteSpace=wrap;html=1;' : 'ellipse;whiteSpace=wrap;html=1;');
+			record(v.getId() + ' in ' + parent.getId());
+			return true;
+		}
+		case 'insertEdge':
+		{
+			if (vertices.length < 2) return false;
+			var s = rand.pick(vertices), t = rand.pick(vertices);
+			var e = graph.insertEdge(rand.pick(layers), null, rand.int(2) == 0 ? '' : 'e' + rand.int(1000), s, t, 'edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;');
+			record(e.getId() + ' ' + s.getId() + '->' + t.getId());
+			return true;
+		}
+		case 'label':
+		{
+			if (cells.length == 0) return false;
+			var c = rand.pick(cells);
+			graph.labelChanged(c, rand.int(3) == 0 ? '' : 'L' + rand.int(100000) + (rand.int(2) ? '<b>x</b>' : ''));
+			record(c.getId());
+			return true;
+		}
+		case 'style':
+		{
+			if (cells.length == 0) return false;
+			var sel = pickSome(cells, 5);
+			graph.setCellStyles(rand.pick(['fillColor', 'strokeColor', 'fontColor']), rand.pick(['#ff0000', '#00ff00', 'none', null]), sel);
+			record(sel.map(function(c) { return c.getId(); }).join(','));
+			return true;
+		}
+		case 'resize':
+		{
+			if (vertices.length == 0) return false;
+			var v = rand.pick(vertices);
+			var geo = v.getGeometry();
+			if (geo == null) return false;
+			var b = new win.mxRectangle(geo.x, geo.y, Math.max(10, geo.width + rand.int(100) - 50), Math.max(10, geo.height + rand.int(100) - 50));
+			graph.resizeCells([v], [b], rand.int(2) == 0);
+			record(v.getId());
+			return true;
+		}
+		case 'waypoint':
+		{
+			if (edges.length == 0) return false;
+			var e = rand.pick(edges);
+			var geo = e.getGeometry();
+			if (geo == null) return false;
+			geo = geo.clone();
+			geo.points = [new win.mxPoint(rand.int(500), rand.int(500))];
+			if (rand.int(2) == 0) geo.points.push(new win.mxPoint(rand.int(500) + 0.5, rand.int(500) / 3));
+			model.setGeometry(e, geo);
+			record(e.getId());
+			return true;
+		}
+		case 'duplicate':
+		{
+			if (cells.length == 0) return false;
+			var sel = pickSome(cells, 3);
+			var d = graph.duplicateCells(sel, false);
+			record(sel.map(function(c) { return c.getId(); }).join(',') + ' => ' + d.map(function(c) { return c.getId(); }).join(','));
+			return true;
+		}
+		case 'undo':
+		{
+			if (!ui.editor.undoManager.canUndo()) return false;
+			ui.undo();
+			record('');
+			return true;
+		}
+		case 'redo':
+		{
+			if (!ui.editor.undoManager.canRedo()) return false;
+			ui.redo();
+			record('');
+			return true;
+		}
+		case 'addPage':
+		{
+			ui.insertPage();
+			record(ui.currentPage.getId());
+			return true;
+		}
+		case 'movePage':
+		{
+			if (ui.pages.length < 2) return false;
+			var from = rand.int(ui.pages.length), to = rand.int(ui.pages.length);
+			if (from == to) return false;
+			ui.movePage(from, to);
+			record(from + '->' + to);
+			return true;
+		}
+		case 'removePage':
+		{
+			if (ui.pages.length < 2) return false;
+			var p = rand.pick(ui.pages);
+			ui.removePage(p);
+			record(p.getId());
+			return true;
+		}
+		case 'dupPage':
+		{
+			var p = rand.pick(ui.pages);
+			ui.duplicatePage(p, p.getName() + ' copy');
+			record(p.getId() + ' => ' + ui.currentPage.getId());
+			return true;
+		}
+		case 'selectPage':
+		{
+			var p = rand.pick(ui.pages);
+			ui.selectPage(p);
+			record(p.getId());
+			return true;
+		}
+		case 'renamePage':
+		{
+			var p = rand.pick(ui.pages);
+			model.execute(new win.RenamePage(ui, p, 'P' + rand.int(1000)));
+			record(p.getId());
+			return true;
+		}
+		case 'addLayer':
+		{
+			var layer = new win.mxCell();
+			layer.setValue('Layer ' + rand.int(100));
+			model.add(root, layer, rand.int(model.getChildCount(root) + 1));
+			record(layer.getId());
+			return true;
+		}
+		case 'toLayer':
+		{
+			if (layers.length < 2 || cells.length == 0) return false;
+			var sel = pickSome(cells.filter(function(c) { return layers.indexOf(c.getParent()) >= 0; }), 4);
+			if (sel.length == 0) return false;
+			var layer = rand.pick(layers);
+			graph.moveCells(sel, 0, 0, false, layer);
+			record(sel.map(function(c) { return c.getId(); }).join(',') + ' -> ' + layer.getId());
+			return true;
+		}
+		case 'toggleCollapse':
+		{
+			if (containers.length == 0) return false;
+			var c = rand.pick(containers);
+			graph.foldCells(!c.isCollapsed(), false, [c]);
+			record(c.getId());
+			return true;
+		}
+		case 'moveEdgeParent':
+		{
+			if (edges.length == 0) return false;
+			var e = rand.pick(edges);
+			var target = rand.pick(containers.length > 0 ? containers.concat(layers) : layers);
+			graph.moveCells([e], 0, 0, false, target);
+			record(e.getId() + ' -> ' + target.getId());
+			return true;
+		}
+	}
+	return false;
+}
+
+function fileXml(ui)
+{
+	// Uncompressed XML of all pages like an uncompressed save
+	return ui.getFileData(true, null, null, null, true, false, null, null, null, true);
+}
+
+async function main()
+{
+	log('fixture=' + FIXTURE + ' rounds=' + ROUNDS + ' ops=' + OPS + ' seed=' + SEED + ' chain=' + CHAIN + ' v6=' + USE_V6);
+	if (!FIXTURE) { log('missing ?fixture=<path under etc/rt-test> (a multi-page .drawio, not committed)', true); window.done = true; return; }
+	var xml = await (await fetch('/rt-test/' + FIXTURE)).text();
+	log('fixture bytes=' + xml.length);
+	var A = await boot('', 'v7');
+	log('booted A ' + A.ui.VERSION + ' protocol ' + A.win.DrawioFileSync.PROTOCOL);
+	var B = null;
+	if (USE_V6)
+	{
+		B = await boot('/rt-v6', 'v6');
+		log('booted B ' + B.ui.VERSION + ' protocol ' + B.win.DrawioFileSync.PROTOCOL);
+	}
+
+	// Loads the fixture into frame A as a local file
+	var file = new A.win.LocalFile(A.ui, xml, 'fixture.drawio');
+	A.ui.fileLoaded(file);
+	await new Promise(function(r) { setTimeout(r, 500); });
+	log('loaded: pages=' + A.ui.pages.length);
+
+	var xmlA = fileXml(A.ui);
+	var chainShadowA = null, chainShadowB = null;
+	var fails = 0;
+
+	// Sanity: the initial document round-trips with an empty diff
+	var r0 = roundTrip(A, xmlA, xmlA);
+	log('round 0 (identity) v7 ok=' + r0.ok + ' bytes=' + r0.bytes + ' ms=' + r0.ms, !r0.ok);
+
+	for (var round = 1; round <= ROUNDS; round++)
+	{
+		var opsLog = [];
+		var opTypes = OPS_LIST.filter(function(o) { return (ONLY.length == 0 || ONLY.indexOf(o) >= 0) && SKIP.indexOf(o) < 0; });
+		var count = 0;
+		var guard = 0;
+		while (count < OPS && guard++ < OPS * 4)
+		{
+			var type = rand.pick(opTypes);
+			var detail = '';
+			try
+			{
+				if (applyOp(A, type, function(d) { detail = d; }))
+				{
+					opsLog.push(type + '(' + detail + ')');
+					count++;
+				}
+			}
+			catch (e)
+			{
+				opsLog.push(type + ' THREW ' + e.message);
+			}
+		}
+		var xmlB = fileXml(A.ui);
+		var rA = roundTrip(A, xmlA, xmlB, chainShadowA);
+		var rB = (B != null) ? roundTrip(B, xmlA, xmlB, chainShadowB) : null;
+		var bad = !rA.ok || (rB != null && !rB.ok);
+		log('round ' + round + ' v7 ok=' + rA.ok + ' bytes=' + rA.bytes + ' ms=' + rA.ms +
+			(rB != null ? ' | v6 ok=' + rB.ok + ' bytes=' + rB.bytes + ' ms=' + rB.ms : '') +
+			' | xml=' + xmlB.length + ' pages=' + A.ui.pages.length, bad);
+		if (bad)
+		{
+			fails++;
+			log('  ops: ' + opsLog.join(' '));
+			if (!rA.ok) log('  v7 badPages=' + rA.badPages.join(' ') + ' residual=' + rA.residual.substring(0, 1500), true);
+			if (rB != null && !rB.ok) log('  v6 badPages=' + rB.badPages.join(' ') + ' residual=' + rB.residual.substring(0, 1500), true);
+			window.lastFail = {xmlA: xmlA, xmlB: xmlB, rA: rA, rB: rB, ops: opsLog};
+		}
+		if (CHAIN)
+		{
+			// Production: the shadow advances as the patched clone
+			chainShadowA = rA.patched;
+			if (rB != null) chainShadowB = rB.patched;
+		}
+		xmlA = xmlB;
+	}
+	log('DONE fails=' + fails, fails > 0);
+	window.done = true;
+}
+main().catch(function(e) { log('FATAL ' + e.message + '\n' + e.stack, true); window.done = true; });
+</script>
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Embed save-conflict catchup</title>
+<!--
+	Drives REAL embed editors (/index.html?embed=1&proto=json) over the
+	embed message protocol, loads a real EmbedFile with realtime enabled
+	and replaces its saveFile with the host loop that every EmbedFile
+	integration implements (plugins/cConf-1-4-8.js, monday.js,
+	nextcloud.js): a conflict hands control to sync.fileConflict and the
+	retry re-issues the save.
+
+	The host store is a single document behind a conditional write, so a
+	stale etag is a 409 and nothing else is. Phase 1 is one client saving
+	repeatedly with an injected conflict every few saves; phase 2 is two
+	clients saving concurrently against the same etag.
+
+	Verdict: no save may end in the catchup timeout, and both clients
+	must end on the stored bytes. Serve with
+	`node run.js --serve-only --port 8123` and open
+	http://127.0.0.1:8123/rt-test/embed-conflict.html
+-->
+<style>
+	body { font-family: -apple-system, Helvetica, Arial, sans-serif; margin: 12px; }
+	#verdict { font-size: 18px; font-weight: bold; padding: 8px; }
+	.pass { background: #d7f0d7; } .fail { background: #f6d6d6; }
+	pre { background: #f6f6f6; padding: 8px; max-height: 360px; overflow: auto; }
+	iframe { width: 460px; height: 300px; border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+<div id="verdict">running…</div>
+<pre id="log"></pre>
+<div id="frames"></div>
+<script>
+(function()
+{
+	'use strict';
+
+	var CLIENTS = 2;
+	var START_XML = '<mxfile><diagram id="p1" name="Page-1">' +
+		'<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/>' +
+		'</root></mxGraphModel></diagram></mxfile>';
+	var BOOT = '/index.html?embed=1&proto=json&dev=1&test=1&sockets=0&' +
+		'splash=0&lang=en&chrome=1&gapi=0&db=0&od=0&gh=0&gl=0&tr=0';
+
+	var lines = [], failures = [];
+	function log(s) { lines.push(s); document.getElementById('log').textContent = lines.join('\n'); }
+	function fail(s) { failures.push(s); log('FAIL ' + s); }
+	function delay(ms) { return new Promise(function(r) { window.setTimeout(r, ms); }); }
+
+	// --- Host store: one document behind a conditional write ------------
+	var store = {xml: START_XML, etag: 1, mtime: Date.now(), writes: 0};
+	var forceConflict = 0;
+
+	function hostSave(data, etag, success, error)
+	{
+		window.setTimeout(function()
+		{
+			if (forceConflict > 0)
+			{
+				forceConflict--;
+				error({status: 409, injected: true});
+			}
+			else if (etag !== store.etag)
+			{
+				error({status: 409});
+			}
+			else
+			{
+				store.xml = data;
+				store.etag++;
+				store.mtime = Date.now();
+				store.writes++;
+				success({etag: store.etag, mtime: store.mtime});
+			}
+		}, 15);
+	}
+
+	function hostDescriptor(success)
+	{
+		window.setTimeout(function()
+		{
+			success({id: 'embed-conflict-doc', etag: store.etag, mtime: store.mtime});
+		}, 10);
+	}
+
+	function hostLatest(success)
+	{
+		window.setTimeout(function()
+		{
+			success(store.xml, {id: 'embed-conflict-doc', etag: store.etag, mtime: store.mtime});
+		}, 10);
+	}
+
+	// --- Client: a real embed editor in an iframe -----------------------
+	function Client(idx)
+	{
+		this.idx = idx;
+		this.name = 'client' + idx;
+		this.timeouts = 0;
+		this.conflicts = 0;
+		this.saves = 0;
+	}
+
+	Client.prototype.boot = function()
+	{
+		var self = this;
+		var frame = document.createElement('iframe');
+		frame.src = BOOT;
+		this.frame = frame;
+		document.getElementById('frames').appendChild(frame);
+
+		return new Promise(function(resolve, reject)
+		{
+			var deadline = Date.now() + 90000;
+			self.onInit = resolve;
+			self.onInitError = reject;
+
+			(function poll()
+			{
+				if (self.booted) return;
+				if (Date.now() > deadline) return reject(new Error(self.name + ' boot timeout'));
+				window.setTimeout(poll, 250);
+			})();
+		});
+	};
+
+	// Captures the EditorUi instance the way the sync harness does: no
+	// global reference exists, so a temporary prototype hook is armed and
+	// triggered by a synthetic pointer gesture on the diagram container.
+	Client.prototype.captureUi = function()
+	{
+		var win = this.frame.contentWindow, self = this;
+
+		return new Promise(function(resolve, reject)
+		{
+			var deadline = Date.now() + 30000;
+
+			(function attempt()
+			{
+				var captured = null;
+				var orig = win.EditorUi.prototype.getCurrentFile;
+				win.EditorUi.prototype.getCurrentFile = function() { captured = this; return orig.apply(this, arguments); };
+
+				try
+				{
+					var c = win.document.querySelector('.geDiagramContainer');
+					var pointer = win.mxClient != null && win.mxClient.IS_POINTER;
+					var evts = pointer ? ['pointerdown', 'pointerup'] : ['mousedown', 'mouseup'];
+
+					for (var i = 0; i < evts.length; i++)
+					{
+						c.dispatchEvent(pointer ?
+							new win.PointerEvent(evts[i], {bubbles: true, clientX: 200, clientY: 150,
+								button: 0, pointerId: 1, pointerType: 'mouse', isPrimary: true}) :
+							new win.MouseEvent(evts[i], {bubbles: true, clientX: 200, clientY: 150, button: 0}));
+					}
+				}
+				catch (e) { /* retry */ }
+
+				win.EditorUi.prototype.getCurrentFile = orig;
+
+				if (captured != null) { self.ui = captured; self.win = win; return resolve(captured); }
+				if (Date.now() > deadline) return reject(new Error(self.name + ' captureUi timeout'));
+				window.setTimeout(attempt, 200);
+			})();
+		});
+	};
+
+	// Installs the realtime EmbedFile of a host integration. Shapes taken
+	// from plugins/nextcloud.js and monday.js, including isOptimisticSync.
+	Client.prototype.installFile = function()
+	{
+		var self = this, win = this.win, ui = this.ui, E = win.EmbedFile;
+
+		win.Editor.enableRealtime = true;
+
+		E.prototype.isSyncSupported = function() { return true; };
+		E.prototype.isRealtimeSupported = function() { return true; };
+		E.prototype.isRealtimeEnabled = function() { return true; };
+		E.prototype.isOptimisticSync = function() { return true; };
+		E.prototype.isEditable = function() { return true; };
+		E.prototype.isAutosave = function() { return false; };
+		E.prototype.isAutosaveOptional = function() { return true; };
+		E.prototype.autosave = function() {};
+		E.prototype.getId = function() { return 'embed-conflict-doc'; };
+		E.prototype.getHash = function() { return 'C' + this.getId(); };
+		E.prototype.getChannelId = function() { return 'rt-embed-conflict'; };
+		E.prototype.getChannelKey = function() { return null; };
+		E.prototype.getTitle = function() { return 'embed-conflict'; };
+		E.prototype.getDescriptorEtag = function(desc) { return desc && desc.etag; };
+		E.prototype.setDescriptorEtag = function(desc, etag) { desc.etag = etag; };
+		E.prototype.getLastModifiedDate = function() { return new win.Date(this.desc.mtime || 0); };
+		E.prototype.isConflict = function(err) { return err != null && err.status == 409; };
+
+		E.prototype.loadDescriptor = function(success) { hostDescriptor(success); };
+
+		E.prototype.getLatestVersion = function(success)
+		{
+			hostLatest(function(xml, desc) { success(new E(ui, xml, desc)); });
+		};
+
+		E.prototype.save = function(revision, success, error, unloading, overwrite)
+		{
+			var file = this;
+			win.DrawioFile.prototype.save.apply(this, [revision, function()
+			{
+				file.saveFile(null, revision, success, error, unloading, overwrite);
+			}, error, unloading, overwrite]);
+		};
+
+		// The host save loop of every EmbedFile integration.
+		E.prototype.saveFile = function(title, revision, success, error)
+		{
+			var file = this;
+
+			if (file.savingFile) { if (error) error({message: 'busy'}); return; }
+
+			file.savingFileTime = new win.Date();
+			file.setShadowModified(false);
+			file.savingFile = true;
+
+			function doSave()
+			{
+				var lastDesc = file.desc;
+				var savedData = file.getData();
+				var etag = file.getCurrentEtag();
+
+				if (file.sync != null) file.sync.fileSaving();
+
+				hostSave(savedData, etag, function(resp)
+				{
+					file.setModified(file.getShadowModified());
+					file.savingFile = false;
+					file.desc = Object.assign({}, file.desc);
+					Object.assign(file.desc, resp);
+					self.saves++;
+					file.fileSaved(savedData, lastDesc, function()
+					{
+						file.contentChanged();
+						if (success) success();
+					}, error);
+				},
+				function(err)
+				{
+					file.savingFile = false;
+
+					if (file.isConflict(err))
+					{
+						self.conflicts++;
+						file.inConflictState = true;
+
+						if (file.sync != null)
+						{
+							file.savingFile = true;
+							file.sync.fileConflict(null, function()
+							{
+								window.setTimeout(function()
+								{
+									file.updateFileData();
+									doSave();
+								}, 100 + Math.random() * 300);
+							},
+							function(err2)
+							{
+								file.savingFile = false;
+								self.timeouts++;
+								log(self.name + ' CATCHUP TIMEOUT after ' + self.conflicts +
+									' conflicts, retriesUsed=' + file.sync.catchupRetryCount +
+									', code=' + (err2 && err2.code));
+								if (error) error(err2);
+							});
+						}
+						else if (error) error(err);
+					}
+					else if (error) error(err);
+				});
+			}
+
+			doSave();
+		};
+
+		var file = new E(ui, store.xml, {id: 'embed-conflict-doc', etag: store.etag, mtime: store.mtime});
+		ui.fileLoaded(file);
+		this.file = file;
+		this.sync = file.sync;
+
+		if (this.sync == null) throw new Error(self.name + ': sync not created');
+
+		this.sync.cleanupDelay = 3600000;
+		this.sync.remoteGraceDelay = 0;
+		this.sync.syncSendMessageDelay = 3600000;
+		file.autosaveDelay = 3600000;
+	};
+
+	Client.prototype.edit = function(id)
+	{
+		var graph = this.ui.editor.graph;
+		graph.insertVertex(null, this.name + '-' + id, this.name + '-' + id,
+			40 + 20 * id, 40 + 20 * this.idx, 80, 40);
+	};
+
+	Client.prototype.save = function()
+	{
+		var self = this;
+
+		return new Promise(function(resolve)
+		{
+			self.file.save(false, function() { resolve({status: 'saved'}); },
+				function(err) { resolve({status: 'error', err: err}); });
+		});
+	};
+
+	// --- Embed protocol host side ---------------------------------------
+	var clients = [];
+
+	window.addEventListener('message', function(evt)
+	{
+		var client = null;
+
+		for (var i = 0; i < clients.length; i++)
+		{
+			if (clients[i].frame != null && evt.source === clients[i].frame.contentWindow) client = clients[i];
+		}
+
+		if (client == null) return;
+
+		var msg = null;
+		try { msg = JSON.parse(evt.data); } catch (e) { return; }
+
+		if (msg.event == 'init')
+		{
+			client.frame.contentWindow.postMessage(JSON.stringify(
+				{action: 'load', autosave: 0, xml: store.xml}), '*');
+		}
+		else if (msg.event == 'load' && !client.booted)
+		{
+			client.booted = true;
+			if (client.onInit) client.onInit();
+		}
+	});
+
+	// --- Scenario --------------------------------------------------------
+	async function run()
+	{
+		for (var i = 0; i < CLIENTS; i++) clients.push(new Client(i));
+
+		for (i = 0; i < CLIENTS; i++)
+		{
+			await clients[i].boot();
+			await clients[i].captureUi();
+			clients[i].installFile();
+			log(clients[i].name + ' ready, etag=' + clients[i].file.getCurrentEtag() +
+				', optimistic=' + clients[i].file.isOptimisticSync() +
+				', maxCatchupRetries=' + clients[i].sync.maxCatchupRetries);
+		}
+
+		var A = clients[0], B = clients[1];
+
+		// Phase 1: one client saving repeatedly. Every third save is
+		// rejected once, and the retry after the catchup commits it. Each
+		// conflict episode is isolated: a confirmed save sits between
+		// them, so no episode may ever exhaust the retry budget.
+		var episodes = A.sync.maxCatchupRetries + 2;
+		log('phase 1: ' + episodes + ' isolated conflict episodes on ' + A.name);
+
+		for (i = 0; i < episodes; i++)
+		{
+			A.edit(i);
+			forceConflict = 1;
+			var r = await A.save();
+
+			if (r.status != 'saved') fail('phase1 episode ' + (i + 1) + ' did not commit: ' +
+				JSON.stringify(r.err && (r.err.code || r.err.message)));
+
+			log('phase1 episode ' + (i + 1) + ': ' + r.status +
+				' conflicts=' + A.conflicts + ' retriesUsed=' + A.sync.catchupRetryCount +
+				' timeouts=' + A.timeouts);
+		}
+
+		if (A.timeouts > 0) fail('phase1: ' + A.timeouts + ' catchup timeouts on isolated, ' +
+			'recovered conflicts (budget carried across episodes)');
+
+		if (A.sync.catchupRetryCount != 0) fail('phase1: catchupRetryCount=' +
+			A.sync.catchupRetryCount + ' after a confirmed save');
+
+		// Phase 2: two clients saving concurrently against one etag. The
+		// loser conflicts, catches up through loadDescriptor/getLatestVersion
+		// and re-saves. Neither may reach the catchup timeout.
+		log('phase 2: ' + (A.sync.maxCatchupRetries + 2) + ' concurrent save rounds');
+		B.file.setDescriptor({id: 'embed-conflict-doc', etag: store.etag, mtime: store.mtime});
+
+		for (i = 0; i < A.sync.maxCatchupRetries + 2; i++)
+		{
+			A.edit(100 + i);
+			B.edit(200 + i);
+			var both = await Promise.all([A.save(), B.save()]);
+
+			both.forEach(function(res, k)
+			{
+				if (res.status != 'saved') fail('phase2 round ' + (i + 1) + ' ' +
+					clients[k].name + ' did not commit: ' +
+					JSON.stringify(res.err && (res.err.code || res.err.message)));
+			});
+
+			log('phase2 round ' + (i + 1) + ': A(conf=' + A.conflicts + ',to=' + A.timeouts +
+				',used=' + A.sync.catchupRetryCount + ') B(conf=' + B.conflicts +
+				',to=' + B.timeouts + ',used=' + B.sync.catchupRetryCount + ') etag=' + store.etag);
+		}
+
+		if (A.timeouts + B.timeouts > 0) fail('phase2: ' + (A.timeouts + B.timeouts) +
+			' catchup timeouts while both clients kept saving');
+
+		log('store: etag=' + store.etag + ' writes=' + store.writes +
+			' A.saves=' + A.saves + ' B.saves=' + B.saves +
+			' A.conflicts=' + A.conflicts + ' B.conflicts=' + B.conflicts);
+	}
+
+	run().then(function()
+	{
+		var el = document.getElementById('verdict');
+		el.textContent = failures.length ? 'EMBEDFAIL (' + failures.length + ')' : 'EMBEDPASS';
+		el.className = failures.length ? 'fail' : 'pass';
+		document.title = failures.length ? 'EMBEDFAIL' : 'EMBEDPASS';
+		window.__EMBED_RESULT = {failures: failures, log: lines};
+	},
+	function(e)
+	{
+		fail('exception: ' + (e && (e.stack || e.message)));
+		document.getElementById('verdict').textContent = 'EMBEDFAIL (exception)';
+		document.getElementById('verdict').className = 'fail';
+		document.title = 'EMBEDFAIL';
+		window.__EMBED_RESULT = {failures: failures, log: lines};
+	});
+})();
+</script>
+</body>
+</html>

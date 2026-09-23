@@ -1,0 +1,43 @@
+<mxfile host="Electron">
+  <diagram id="page1" name="Page-1">
+    <mxGraphModel dx="1975" dy="818" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="v1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="A" vertex="1">
+          <mxGeometry height="60" width="120" x="80" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="v2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="B" vertex="1">
+          <mxGeometry height="60" width="120" x="400" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="v1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="v2" value="link">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f1" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="F1" vertex="1">
+          <mxGeometry height="50" width="70" x="170" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="F2" vertex="1">
+          <mxGeometry height="50" width="70" x="260" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="f3" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="F3" vertex="1">
+          <mxGeometry height="50" width="70" x="350" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="f4" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="F4" vertex="1">
+          <mxGeometry height="50" width="70" x="440" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="D3lgqboxEiSgXwwhVrH1-1" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" value="link">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-120" y="820" as="sourcePoint" />
+            <mxPoint x="80" y="820" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="D3lgqboxEiSgXwwhVrH1-2" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" value="link">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="210" y="120" as="sourcePoint" />
+            <mxPoint x="410" y="120" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

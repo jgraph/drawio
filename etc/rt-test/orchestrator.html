@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>draw.io realtime sync test</title>
+<style>
+body { font-family: monospace; margin: 8px; }
+#status { white-space: pre; margin-bottom: 8px; }
+#clients iframe { margin-right: 4px; }
+.pass { color: #090; }
+.fail { color: #c00; }
+</style>
+<script src="harness.js"></script>
+<script src="backend.js"></script>
+<script src="descriptor-backend.js"></script>
+<script src="coverage.js"></script>
+<script src="rollout.js"></script>
+</head>
+<body>
+<div id="status">booting...</div>
+<div id="clients"></div>
+<script>
+(function()
+{
+	'use strict';
+
+	var params = {};
+	window.location.search.substring(1).split('&').forEach(function(pair)
+	{
+		var idx = pair.indexOf('=');
+
+		if (idx > 0)
+		{
+			params[decodeURIComponent(pair.substring(0, idx))] =
+				decodeURIComponent(pair.substring(idx + 1));
+		}
+	});
+
+	// Scenario presets: delivery policy and schedule knobs. "nasty"
+	// combines adversarial delivery with laggy flushes, mid-traffic
+	// saves and frequent conflicts.
+	var SCENARIOS = {
+		'rollout-mixed-source': {
+			clients: 3, rounds: 0, opsPerRound: 0, script: 'rolloutMixedSource',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'vars-before-sync-save-revoke': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'fileVarsLifecycle',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'optimistic-notify-save-success': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'onedrive', reloadBudget: 2, flushSkip: 0, saveEvery: 0
+		},
+		'optimistic-notify-save-failure': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'onedrive', reloadBudget: 2, flushSkip: 0, saveEvery: 0
+		},
+		'metadata-no-cache-vars': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 1,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'metadata-no-cache-format': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 1,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'metadata-no-cache-fold': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 1,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'join-first-peer-resend': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'direct', lateJoin: true, reloadBudget: 0, flushSkip: 0, saveEvery: 0
+		},
+		'descriptor-fast-forward-metadata': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', lateJoin: false, reloadBudget: 1, flushSkip: 0, saveEvery: 0
+		},
+		'cache-fallback-oversize': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', lateJoin: false, reloadBudget: 1, flushSkip: 0, saveEvery: 0
+		},
+
+		'optimistic-notify-after-commit': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'onedrive', reloadBudget: 2, flushSkip: 0, saveEvery: 0
+		},
+		'notify-socket': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 0, flushSkip: 0, saveEvery: 0
+		},
+		'optimistic-notify': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'onedrive', reloadBudget: 2, flushSkip: 0, saveEvery: 0
+		},
+		'conflict-budget-optimistic': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'conflict-budget-cached': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'save-outcomes': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'direct', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'notify-save-success': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'notify-save-failure': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'notify-save-conflict': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'notify-order': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'cache-range-catchup': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'cache-delayed': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'cache-fallback-401': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 1,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'cache-fallback-503': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 1,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'cache-fallback-410': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 1,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'cache-fallback-empty': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 1,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'cache-fallback-malformed': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 1,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'cache-fallback-checksum': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 1,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'cache-fallback-future': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 1,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'cache-fallback-old-app': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 1,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'metadata-name': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'metadata-vars': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'metadata-format': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'metadata-fold': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'descriptor-fast-forward': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'descriptor', reloadBudget: 2,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'crash-commit-no-ack': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'direct', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'join-third-no-replay': {
+			clients: 3, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'direct', reloadBudget: 0,
+			lateJoin: true, flushSkip: 0, saveEvery: 0
+		},
+		'undo-connection-same': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'direct', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'undo-connection-api': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'direct', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+		'undo-connection-tab': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'coverage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			backend: 'direct', reloadBudget: 0,
+			lateJoin: false, flushSkip: 0, saveEvery: 0
+		},
+
+		'instant': {
+			clients: 2, rounds: 12, opsPerRound: 6,
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 4, saveLatency: 0
+		},
+		'jitter': {
+			clients: 3, rounds: 14, opsPerRound: 6,
+			delivery: {maxDelay: 90, reorder: true, duplicates: 0.1},
+			flushSkip: 0.3, conflictEvery: 4, saveEvery: 5, saveLatency: 60
+		},
+		// Cross-sender reorder only: the socket transport is FIFO per
+		// sender, so same-sender reorder across receive-batch windows
+		// would be an unrealistic attack (the msg-id sort only covers
+		// reordering within one batch window)
+		'reorder': {
+			clients: 3, rounds: 12, opsPerRound: 5,
+			delivery: {maxDelay: 40, reorder: true, duplicates: 0.15},
+			flushSkip: 0.2, conflictEvery: 5, saveEvery: 6, saveLatency: 30
+		},
+		'conflict': {
+			clients: 3, rounds: 12, opsPerRound: 4,
+			delivery: {maxDelay: 60, reorder: true, duplicates: 0},
+			flushSkip: 0.25, conflictEvery: 1, saveEvery: 5, saveLatency: 40
+		},
+		'nasty': {
+			clients: 3, rounds: 16, opsPerRound: 7,
+			delivery: {maxDelay: 130, reorder: true, duplicates: 0.2},
+			flushSkip: 0.4, conflictEvery: 2, saveEvery: 3, saveLatency: 150,
+			saveDuringTraffic: true
+		},
+		// Deterministic repro of the stackLayout snapshot incident
+		// (see README); seed-independent scripted scenario
+		'layout-race': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'layoutRace',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Deterministic repro of the ownPages adoption gap: local
+		// edits to a fully UNSAVED remote stackLayout container must
+		// adopt the container chain into ownPages (see README)
+		'adoption-race': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'adoptionRace',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Deterministic repro of the 2026-07-24 stale-layout-in-file
+		// incident: passive client saves last, layout runner never
+		// saves (see README)
+		'layout-passive': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'layoutPassive',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Deterministic repro of the patchPages page-loss class:
+		// entangled crossing page moves drop a page from the rebuilt
+		// pages array pre-rebuild (see README)
+		'page-order-race': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'pageOrderRace',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Deterministic repro of the adopted-page ping-pong: pending
+		// page inserts re-merged the stale local copy of an adopted
+		// page after applying a save (see README)
+		'page-adoption-race': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'pageAdoptionRace',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'page-adoption-edit-race': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'pageAdoptionEditRace',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// A colliding PAGE insert on the live path must stay a skip:
+		// the adopter's resolve re-asserts stale page data that would
+		// revert the creator's freshly flushed cells (see README)
+		'live-page-insert-revert': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'livePageInsertRevert',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Cross-sender delayed adoption must preserve newer cell state.
+		'stale-resolve': {
+			clients: 3, rounds: 0, opsPerRound: 0, script: 'staleResolve',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// A page-switch replay after the peer deleted the page must not
+		// leave the client viewing a page that left the document
+		// (edits there reach no flush and no save, see README)
+		'phantom-current-page': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'phantomCurrentPage',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Replays resolving against a subtree a peer removed: the frozen
+		// parent is not its own root, so the orphan rule misses it and
+		// the dead tree passes for a live foreign page (see README)
+		'detached-subtree-undo': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'detachedSubtreeUndo',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Injected content must not become durable through the edge
+		// repair: the repair is a local change and its flush adopts the
+		// repaired cell and its ancestors into the own pages (see README)
+		'repair-adoption': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'repairAdoption',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// The WebRTC signalling path relays a signal to ONE target and
+		// the receiver keys its peer connection and roster on the
+		// sender, which the payload used to carry itself (see README)
+		'signal-impersonation': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'signalImpersonation',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Malformed but decodable live diffs must not throw out of the
+		// batch timer: the receive latch would stay set and the client
+		// would silently stop applying live traffic (see README)
+		'poison-live-diff': {
+			clients: 3, rounds: 0, opsPerRound: 0, script: 'poisonLiveDiff',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Deterministic repro of the edited-later LWW race: local
+		// edits flushed after an incoming save was computed must win
+		// over the older saved value (see README)
+		'adoption-edit-race': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'adoptionEditRace',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Deterministic repro of the stale-undo class: undo after a
+		// remote delete/replace of the referenced cell objects must
+		// not restore stale objects (dangling terminals, duplicate
+		// ids, ghost cells) - the affected edits are invalidated
+		// (see README)
+		'undo-stale': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'undoStale',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Cyclic replay rejects the whole composite and its opposite.
+		'undo-ancestry-cycle': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'undoAncestryCycle',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'revived-ancestry-cycle': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'revivedAncestryCycle',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Undo to a deleted terminal keeps the attachment in the edge
+		// parent's coordinates, including composite geometry replay.
+		'page-revival-undo': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'pageRevivalUndo',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'nested-undo-endpoint': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'nestedUndoEndpoint',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Base editor semantics: every fundamental op survives the
+		// full op -> undo -> redo -> undo cycle by exact XML compare
+		// (guards production editor behavior; convergence verdicts
+		// cannot catch a consistently inert undo)
+		'editor-semantics': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'editorSemantics',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Mixed protocol versions: a v6 simulant among v7 peers - live
+		// diffs are gated both ways, convergence comes from the save
+		// cycle; plus the minRemoteAppVersion av gate (see README)
+		'mixed-version': {
+			clients: 3, rounds: 0, opsPerRound: 0, script: 'mixedVersion',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Late joiner into a running session: saved base + live-log
+		// catchup, then full participation (see README)
+		'join-mid-session': {
+			clients: 3, rounds: 0, opsPerRound: 0, script: 'joinMidSession',
+			lateJoin: 1,
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Desktop watcher merge (jgraph/drawio-desktop#2382): external
+		// file versions merged on the NON-realtime branch while the
+		// undo history holds edits on replaced cells; replaying them
+		// bred ghost-cell duplicates via the cellAdded rename
+		// skipSavedFile: this scenario merges external file versions
+		// straight into the file (the desktop watcher path), so they
+		// never pass the broker and lastSavedData is not the file
+		'desktop-merge': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'desktopMerge',
+			skipSavedFile: true,
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Client loses the write permission during the session: saves
+		// fail 403 permanently, transient edits are rolled back and
+		// retracted live, the file becomes read-only (see README)
+		'write-revoked': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'writeRevoked',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Minimal single-container case, including the peer's next save.
+		'revoked-child': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'revokedChild',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// A revoked author's containers still support B's unsaved children.
+		'revoked-descendants': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'revokedDescendants',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// File-vars lifecycle: explicit scenarios, independent of seed.
+		'vars-off-revoke': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'fileVarsLifecycle',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'vars-off-reedit-revoke': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'fileVarsLifecycle',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'vars-off-remove-revoke': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'fileVarsLifecycle',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'vars-off-save': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'fileVarsLifecycle',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'vars-before-sync-revoke': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'fileVarsLifecycle',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'vars-reconnect': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'fileVarsLifecycle',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'vars-reconnect-remove': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'fileVarsLifecycle',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'vars-reconnect-unflushed': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'fileVarsLifecycle',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'vars-reconnect-foreign': {
+			clients: 3, rounds: 0, opsPerRound: 0, script: 'fileVarsLifecycle',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'vars-p2p-reconnect': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'fileVarsLifecycle',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'vars-save-interval': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'fileVarsLifecycle',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'revoked-file-vars': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'revokedFileVars',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// A remote peer deletes the page the local client is viewing
+		// (both directions, with crossing edits): the viewer lands on a
+		// surviving page, deletion wins, undo/redo stays inert for the
+		// dead page and the session remains editable (see README)
+		'currentpage-delete': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'currentPageDelete',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Concurrent pastes mint fresh ids on both clients: ids stay
+		// disjoint, each paste replicates exactly once and stays
+		// undoable/redoable through a crossing save merge (see README)
+		'paste-ids': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'pasteIds',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Hard client crash and reload from the last save + live log:
+		// unflushed work is lost everywhere alike, flushed and saved
+		// work survives, the reloaded client rejoins with a fresh
+		// history and full participation (see README)
+		'crash-reload': {
+			clients: 3, rounds: 0, opsPerRound: 0, script: 'crashReload',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Write permission dies mid-storm: rollback and live retraction
+		// race crossing peer edits; the revoked client turns read-only
+		// but keeps receiving, peer edits and histories survive
+		// (see README)
+		'revoke-storm': {
+			clients: 3, rounds: 0, opsPerRound: 0, script: 'revokeStorm',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Order-of-magnitude perf guard on the sync hot paths (diff,
+		// patch, hash, undo/redo, flush pipeline) with a 900-cell page;
+		// generous budgets only trip on complexity regressions
+		// (see README)
+		'perf-gate': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'perfGate',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// The same structural sequence over each delivery path (live,
+		// save+cleanup, resend): the path decides whether a cell keeps
+		// its object identity, which is what the replay repairs reason
+		// about - case 17 was only visible in one of them (see README)
+		'delivery-matrix': {
+			clients: 2, rounds: 0, opsPerRound: 0,
+			script: 'deliveryMatrix',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Labels, user objects, styles and file variables travel over
+		// the collab channel and are PARSED and RENDERED on every
+		// receiver: the stored-XSS threat model of the app, plus XML
+		// entity expansion (see README)
+		'hostile-content': {
+			clients: 2, rounds: 0, opsPerRound: 0,
+			script: 'hostileContent',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Live content is HELD while its sender can still save it, and
+		// dropped once the grace period passed without confirmation
+		'remote-grace': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'remoteGrace',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// The documented transient revert as an assertion: a cleanup
+		// before the sender's save may revert live-delivered content,
+		// but the save must bring it back - the window must never
+		// become permanence (see README)
+		'transient-revert': {
+			clients: 2, rounds: 0, opsPerRound: 0,
+			script: 'transientRevert',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Undo across a wholesale file replacement: the history spans
+		// the restore, so the replays run every repair path at once
+		'restore-undo': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'restoreUndo',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Hostile patches over the collaboration channel: every field
+		// is attacker controlled, so the receiver must stay alive,
+		// unpolluted and converging with the innocent clients
+		'adversarial-patch': {
+			clients: 3, rounds: 0, opsPerRound: 0,
+			script: 'adversarialPatch',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Undo-heavy fuzzing: the manual finds were all replay
+		// interleavings, which the default op weighting reaches only
+		// rarely - here undo and redo make up about half the ops while
+		// peers keep editing, saving and reordering around them
+		'undo-fuzz': {
+			clients: 3, rounds: 14, opsPerRound: 4,
+			boostOps: ['undo', 'redo'],
+			delivery: {maxDelay: 60, reorder: true, duplicates: 0.05},
+			flushSkip: 0.2, conflictEvery: 4, saveEvery: 3, saveLatency: 60
+		},
+		// Exploratory scenarios: invariants first, derived from the
+		// manually found bug patterns (see README); a red here is a new
+		// finding, not a regression
+		'drill-in': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'drillIn',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'collapsed-insert': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'collapsedInsert',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'edge-label': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'edgeLabel',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'page-delete-undo': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'pageDeleteUndo',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'cross-page-undo': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'crossPageUndo',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'group-race': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'groupRace',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'dual-resend': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'dualResend',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'revision-restore': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'revisionRestore',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'web-echo': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'webEcho',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Real P2P layer on the fake socket server: roster, alone gate,
+		// announce and rejoin run unstubbed inside the frames
+		'p2p-join-race': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'p2pJoinRace',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// The protocol/app-version gates on the REAL socket transport
+		// (mixed-version covers the cache channel, which production
+		// live diffs never take)
+		'p2p-version-gate': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'p2pVersionGate',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		'p2p-offline-rejoin': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'p2pOfflineRejoin',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Changes made while no peer was connected are skipped by the
+		// transport; the first peer in the roster must get them
+		// resent, otherwise two clients loading simultaneously end up
+		// with different documents (see README)
+		'solo-resend': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'soloResend',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// A change broadcast while a client is still loading never
+		// reaches it live; the save merge that finally carries it must
+		// reconcile the screen immediately instead of leaving the
+		// joiner blind until the lazy cleanup (see README)
+		'join-visibility': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'joinVisibility',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Offline client edits locally, others edit and save, rejoin
+		// catches up via the real mergeFile path without losing the
+		// offline edits (see README)
+		'offline-rejoin': {
+			clients: 3, rounds: 0, opsPerRound: 0, script: 'offlineRejoin',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// A saved page whose root id changed (external tool rewrite, or
+		// a stray parentless cell the parser selects as the root): the
+		// diff re-inserts the page under the new root and both clients
+		// must adopt it through the real mergeFile - refusing the freshly
+		// built, still empty root failed the checksum on 31.5.0
+		'root-change': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'rootChange',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// A cell with a missing or dangling parent must not take over the
+		// page root: the content has to survive the read, the cell is
+		// adopted into the default layer and the next save repairs the file
+		'stray-root': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'strayRoot',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// Concurrent, contradicting grouping, connecting, delete and add
+		// operations from two active clients with a passive observer,
+		// crossing on the live channel and undone against each other;
+		// convergence is asserted per case (see README)
+		'contradicting-ops': {
+			clients: 3, rounds: 0, opsPerRound: 0, script: 'contradictingOps',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// The same cases under jitter, cross-sender reorder and
+		// duplicate delivery (the seed varies the timing)
+		'contradicting-ops-net': {
+			clients: 3, rounds: 0, opsPerRound: 0, script: 'contradictingOps',
+			delivery: {maxDelay: 90, reorder: true, duplicates: 0.15},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 60
+		},
+		// jitter plus a lossy network: 8% of live diffs vanish, saves
+		// always arrive (fetched, not pushed) - convergence must come
+		// from the save/merge cycle
+		'lossy-net': {
+			clients: 3, rounds: 14, opsPerRound: 6,
+			delivery: {maxDelay: 90, reorder: true, duplicates: 0.1,
+				dropRate: 0.08},
+			flushSkip: 0.3, conflictEvery: 4, saveEvery: 4,
+			saveLatency: 60, saveDuringTraffic: true
+		},
+		// nasty plus injected backend write failures: every 3rd save
+		// of each client fails, the file stays modified and later
+		// cycles retry - the run must still converge
+		'save-fail': {
+			clients: 3, rounds: 16, opsPerRound: 7,
+			delivery: {maxDelay: 130, reorder: true, crossSender: true,
+				duplicates: 0.2},
+			flushSkip: 0.4, conflictEvery: 2, saveEvery: 3,
+			saveLatency: 150, saveDuringTraffic: true, saveFailEvery: 3
+		},
+		// Measurement under production timers (--timing real): how
+		// long the screen stays behind the file while the user keeps
+		// editing (see runSyncLatency); skipped with mock timers
+		'sync-latency': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'syncLatency',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// A live diff sent into a peer's save-conflict window (412 until
+		// the retried save) must reach its screen (see README)
+		'conflict-window-diff': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'conflictWindowDiff',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// A file-changed notification deferred during a save must be
+		// replayed when the save fails, not only when it succeeds
+		'deferred-notify': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'deferredNotify',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		},
+		// A failing message must not take the rest of its receive batch
+		// down (injected failure, see README)
+		'batch-isolation': {
+			clients: 2, rounds: 0, opsPerRound: 0, script: 'batchIsolation',
+			delivery: {maxDelay: 0, reorder: false, duplicates: 0},
+			flushSkip: 0, conflictEvery: 0, saveEvery: 0, saveLatency: 0
+		}
+	};
+
+	var scenarioName = params['scenario'] || 'instant';
+	var scenario = SCENARIOS.hasOwnProperty(scenarioName) ?
+		SCENARIOS[scenarioName] : null;
+
+	if (scenario == null)
+	{
+		document.title = 'RTFAIL';
+		document.getElementById('status').textContent =
+			'unknown scenario: ' + scenarioName;
+
+		return;
+	}
+
+	var config = {
+		seed: parseInt(params['seed'] || '1', 10),
+		scenario: scenarioName,
+		clients: parseInt(params['clients'] || scenario.clients, 10),
+		rounds: parseInt(params['rounds'] || scenario.rounds, 10),
+		opsPerRound: parseInt(params['ops'] || scenario.opsPerRound, 10)
+	};
+
+	// Conflict injection frequency override (1 = every round)
+	if (params['conflicts'] != null)
+	{
+		scenario.conflictEvery = parseInt(params['conflicts'], 10);
+	}
+
+	// Real-timing mode: production timers drive flush, autosave and
+	// cleanup; rounds only perform ops with seeded human think-time
+	var realTiming = params['timing'] == 'real';
+	RtHarness.realTiming = realTiming;
+	RtHarness.realGraceMs = (params['grace'] != null) ?
+		parseInt(params['grace'], 10) : null;
+
+	var statusEl = document.getElementById('status');
+
+	function status(msg)
+	{
+		statusEl.textContent = msg;
+		console.log('[rt-test]', msg);
+	};
+
+	// Initial file: two empty pages with fixed ids shared by all clients
+	function initialXml()
+	{
+		return '<mxfile><diagram id="page-a" name="Page-A">' +
+			'<mxGraphModel><root><mxCell id="0"/>' +
+			'<mxCell id="1" parent="0"/></root></mxGraphModel></diagram>' +
+			'<diagram id="page-b" name="Page-B">' +
+			'<mxGraphModel><root><mxCell id="0"/>' +
+			'<mxCell id="1" parent="0"/></root></mxGraphModel></diagram>' +
+			'</mxfile>';
+	};
+
+	async function main()
+	{
+		var report = new RtHarness.Report(config);
+
+		// Diagnosis: include the trace in passing verdicts too (eg.
+		// checksum reloads under real timing do not fail the run)
+		report.alwaysTrace = params['trace'] == 'always';
+		report.traceTail = params['trace'] == 'tail';
+
+		// Watchdog: a hang must still produce a verdict for the runner
+		window.setTimeout(function()
+		{
+			if (window.__RT_RESULT == null)
+			{
+				report.fail('watchdog', 'no verdict after watchdog, last: ' +
+					statusEl.textContent.split('\n')[0]);
+				finish(report);
+			}
+		}, parseInt(params['watchdog'] || '240', 10) * 1000);
+		var rand = new RtHarness.Rand(config.seed);
+		var container = document.getElementById('clients');
+		var clients = [];
+
+		try
+		{
+			for (var i = 0; i < config.clients; i++)
+			{
+				var c = new RtHarness.Client(i, container, report);
+				if (scenario.script == 'rolloutMixedSource' && i == 1) c.bootUrl = '/rt-v6' + c.bootUrl;
+				c.saveFailEvery = scenario.saveFailEvery || 0;
+				clients.push(c);
+			}
+
+			// Debug access for interactive repros
+			window.__clients = clients;
+
+			status('booting ' + clients.length + ' clients...');
+			await Promise.all(clients.map(function(c) { return c.boot(); }));
+			if (scenario.backend == 'onedrive')
+			{
+				await Promise.all(clients.map(RtDescriptorBackend.loadOneDrive));
+			}
+
+			var broker = new RtHarness.Broker(clients, scenario.delivery,
+				rand, report);
+			broker.backend = scenario.backend || 'direct';
+			var xml = initialXml();
+
+			for (var i = 0; i < clients.length; i++)
+			{
+				// lateJoin: the last client joins from inside the script
+				// via joinLate (saved base + live-log catchup) instead
+				// of starting with the initial file
+				if (scenario.lateJoin && i == clients.length - 1)
+				{
+					clients[i].unjoined = true;
+				}
+				else
+				{
+					clients[i].injectFile(xml, broker);
+				}
+			}
+
+			var generator = new RtHarness.OpGenerator(rand, clients, report);
+
+			generator.skipOps = (params['skipops'] != null) ?
+				params['skipops'].split(',') : (scenario.skipOps || null);
+			generator.boostOps = (params['boostops'] != null) ?
+				params['boostops'].split(',') : (scenario.boostOps || null);
+			var asserter = new RtHarness.Asserter(clients, generator, report);
+
+			// Shared context for scripted scenarios that mix scripted
+			// phases with seed-varied generator ops
+			var ctx = {rand: rand, generator: generator,
+				asserter: asserter, config: config};
+
+			// --- Scripted scenario instead of random rounds ---
+			if (scenario.script == 'rolloutMixedSource')
+			{
+				await RtRollout.run(clients, broker, report, params);
+				finish(report);
+				return;
+			}
+			else if (scenario.script == 'coverage')
+			{
+				status('running ' + scenarioName + '...');
+				await RtCoverage.run(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'layoutRace')
+			{
+				status('running layout-race script...');
+				await RtHarness.runLayoutRace(clients, broker, report);
+			}
+			else if (scenario.script == 'adoptionRace')
+			{
+				status('running adoption-race script...');
+				await RtHarness.runAdoptionRace(clients, broker, report);
+			}
+			else if (scenario.script == 'layoutPassive')
+			{
+				status('running layout-passive script...');
+				await RtHarness.runLayoutPassive(clients, broker, report);
+			}
+			else if (scenario.script == 'pageOrderRace')
+			{
+				status('running page-order-race script...');
+				await RtHarness.runPageOrderRace(clients, broker, report);
+			}
+			else if (scenario.script == 'pageAdoptionRace')
+			{
+				status('running page-adoption-race script...');
+				await RtHarness.runPageAdoptionRace(clients, broker, report);
+			}
+			else if (scenario.script == 'pageAdoptionEditRace')
+			{
+				status('running page-adoption-edit-race script...');
+				await RtHarness.runPageAdoptionEditRace(clients, broker, report);
+			}
+			else if (scenario.script == 'adoptionEditRace')
+			{
+				status('running adoption-edit-race script...');
+				await RtHarness.runAdoptionEditRace(clients, broker, report);
+			}
+			else if (scenario.script == 'offlineRejoin')
+			{
+				status('running offline-rejoin script...');
+				await RtHarness.runOfflineRejoin(clients, broker, report);
+			}
+			else if (scenario.script == 'rootChange')
+			{
+				status('running root-change script...');
+				await RtHarness.runRootChange(clients, broker, report);
+			}
+			else if (scenario.script == 'strayRoot')
+			{
+				status('running stray-root script...');
+				await RtHarness.runStrayRoot(clients, broker, report);
+			}
+			else if (scenario.script == 'undoStale')
+			{
+				status('running undo-stale script...');
+				await RtHarness.runUndoStale(clients, broker, report);
+			}
+			else if (scenario.script == 'undoAncestryCycle')
+			{
+				status('running undo-ancestry-cycle script...');
+				await RtHarness.runUndoAncestryCycle(clients, broker, report);
+			}
+			else if (scenario.script == 'pageRevivalUndo')
+			{
+				status('running page-revival-undo script...');
+				await RtHarness.runPageRevivalUndo(clients, broker, report);
+			}
+			else if (scenario.script == 'revivedAncestryCycle')
+			{
+				status('running revived-ancestry-cycle script...');
+				await RtHarness.runRevivedAncestryCycle(clients, broker, report);
+			}
+			else if (scenario.script == 'nestedUndoEndpoint')
+			{
+				status('running nested-undo-endpoint script...');
+				await RtHarness.runNestedUndoEndpoint(clients, broker, report);
+			}
+			else if (scenario.script == 'writeRevoked')
+			{
+				status('running write-revoked script...');
+				await RtHarness.runWriteRevoked(clients, broker, report);
+			}
+			else if (scenario.script == 'revokedChild')
+			{
+				status('running revoked-child script...');
+				await RtHarness.runRevokedChild(clients, broker, report);
+			}
+			else if (scenario.script == 'revokedDescendants')
+			{
+				status('running revoked-descendants script...');
+				await RtHarness.runRevokedDescendants(clients, broker, report);
+			}
+			else if (scenario.script == 'fileVarsLifecycle')
+			{
+				status('running file vars lifecycle script...');
+				await RtHarness.runFileVarsLifecycle(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'revokedFileVars')
+			{
+				status('running revoked-file-vars script...');
+				await RtHarness.runRevokedFileVars(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'editorSemantics')
+			{
+				status('running editor-semantics script...');
+				await RtHarness.runEditorSemantics(clients, broker, report);
+			}
+			else if (scenario.script == 'mixedVersion')
+			{
+				status('running mixed-version script...');
+				await RtHarness.runMixedVersion(clients, broker, report);
+			}
+			else if (scenario.script == 'joinMidSession')
+			{
+				status('running join-mid-session script...');
+				await RtHarness.runJoinMidSession(clients, broker, report);
+			}
+			else if (scenario.script == 'desktopMerge')
+			{
+				status('running desktop-merge script...');
+				await RtHarness.runDesktopMerge(clients, broker, report);
+			}
+			else if (scenario.script == 'drillIn')
+			{
+				status('running drill-in script...');
+				await RtHarness.runDrillIn(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'collapsedInsert')
+			{
+				status('running collapsed-insert script...');
+				await RtHarness.runCollapsedInsert(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'edgeLabel')
+			{
+				status('running edge-label script...');
+				await RtHarness.runEdgeLabel(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'pageDeleteUndo')
+			{
+				status('running page-delete-undo script...');
+				await RtHarness.runPageDeleteUndo(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'crossPageUndo')
+			{
+				status('running cross-page-undo script...');
+				await RtHarness.runCrossPageUndo(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'groupRace')
+			{
+				status('running group-race script...');
+				await RtHarness.runGroupRace(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'dualResend')
+			{
+				status('running dual-resend script...');
+				await RtHarness.runDualResend(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'revisionRestore')
+			{
+				status('running revision-restore script...');
+				await RtHarness.runRevisionRestore(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'webEcho')
+			{
+				status('running web-echo script...');
+				await RtHarness.runWebEcho(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'p2pJoinRace')
+			{
+				status('running p2p-join-race script...');
+				await RtHarness.runP2pJoinRace(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'phantomCurrentPage')
+			{
+				status('running phantom-current-page script...');
+				await RtHarness.runPhantomCurrentPage(clients, broker, report);
+			}
+			else if (scenario.script == 'detachedSubtreeUndo')
+			{
+				status('running detached-subtree-undo script...');
+				await RtHarness.runDetachedSubtreeUndo(clients, broker, report);
+			}
+			else if (scenario.script == 'repairAdoption')
+			{
+				status('running repair-adoption script...');
+				await RtHarness.runRepairAdoption(clients, broker, report);
+			}
+			else if (scenario.script == 'signalImpersonation')
+			{
+				status('running signal-impersonation script...');
+				await RtHarness.runSignalImpersonation(clients, broker, report);
+			}
+			else if (scenario.script == 'poisonLiveDiff')
+			{
+				status('running poison-live-diff script...');
+				await RtHarness.runPoisonLiveDiff(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'livePageInsertRevert')
+			{
+				status('running live-page-insert-revert script...');
+				await RtHarness.runLivePageInsertRevert(clients, broker, report);
+			}
+			else if (scenario.script == 'staleResolve')
+			{
+				status('running stale-resolve script...');
+				await RtHarness.runStaleResolve(clients, broker, report);
+			}
+			else if (scenario.script == 'p2pVersionGate')
+			{
+				status('running p2p-version-gate script...');
+				await RtHarness.runP2pVersionGate(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'p2pOfflineRejoin')
+			{
+				status('running p2p-offline-rejoin script...');
+				await RtHarness.runP2pOfflineRejoin(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'deliveryMatrix')
+			{
+				status('running delivery-matrix script...');
+				await RtHarness.runDeliveryMatrix(clients, broker,
+					report, ctx);
+			}
+			else if (scenario.script == 'hostileContent')
+			{
+				status('running hostile-content script...');
+				await RtHarness.runHostileContent(clients, broker,
+					report, ctx);
+			}
+			else if (scenario.script == 'remoteGrace')
+			{
+				status('running remote-grace script...');
+				await RtHarness.runRemoteGrace(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'transientRevert')
+			{
+				status('running transient-revert script...');
+				await RtHarness.runTransientRevert(clients, broker,
+					report, ctx);
+			}
+			else if (scenario.script == 'restoreUndo')
+			{
+				status('running restore-undo script...');
+				await RtHarness.runRestoreUndo(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'adversarialPatch')
+			{
+				status('running adversarial-patch script...');
+				await RtHarness.runAdversarialPatch(clients, broker,
+					report, ctx);
+			}
+			else if (scenario.script == 'soloResend')
+			{
+				status('running solo-resend script...');
+				await RtHarness.runSoloResend(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'joinVisibility')
+			{
+				status('running join-visibility script...');
+				await RtHarness.runJoinVisibility(clients, broker,
+					report, ctx);
+			}
+			else if (scenario.script == 'currentPageDelete')
+			{
+				status('running currentpage-delete script...');
+				await RtHarness.runCurrentPageDelete(clients, broker,
+					report, ctx);
+			}
+			else if (scenario.script == 'pasteIds')
+			{
+				status('running paste-ids script...');
+				await RtHarness.runPasteIds(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'crashReload')
+			{
+				status('running crash-reload script...');
+				await RtHarness.runCrashReload(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'revokeStorm')
+			{
+				status('running revoke-storm script...');
+				await RtHarness.runRevokeStorm(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'perfGate')
+			{
+				status('running perf-gate script...');
+				await RtHarness.runPerfGate(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'contradictingOps')
+			{
+				status('running contradicting-ops script...');
+				await RtHarness.runContradictingOps(clients, broker,
+					report, ctx);
+			}
+			else if (scenario.script == 'syncLatency')
+			{
+				status('running sync-latency script...');
+				await RtHarness.runSyncLatency(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'conflictWindowDiff')
+			{
+				status('running conflict-window-diff script...');
+				await RtHarness.runConflictWindowDiff(clients, broker,
+					report, ctx);
+			}
+			else if (scenario.script == 'deferredNotify')
+			{
+				status('running deferred-notify script...');
+				await RtHarness.runDeferredNotify(clients, broker, report, ctx);
+			}
+			else if (scenario.script == 'batchIsolation')
+			{
+				status('running batch-isolation script...');
+				await RtHarness.runBatchIsolation(clients, broker, report, ctx);
+			}
+
+			// --- Edit rounds ---
+			for (var round = 0; round < config.rounds &&
+				report.failures.length < 25; round++)
+			{
+				status('round ' + (round + 1) + '/' + config.rounds +
+					' (seed ' + config.seed + ', ' + scenarioName + ')');
+
+				for (var i = 0; i < clients.length; i++)
+				{
+					for (var op = 0; op < config.opsPerRound; op++)
+					{
+						generator.randomOp(clients[i]);
+
+						// Human think-time between ops: deliveries,
+						// debounced flushes and autosaves interleave
+						// with the editing like in production
+						if (realTiming)
+						{
+							await RtHarness.sleep(40 + rand.int(200));
+						}
+					}
+				}
+
+				if (scenario.conflictEvery > 0 &&
+					round % scenario.conflictEvery == scenario.conflictEvery - 1 &&
+					clients.length > 1)
+				{
+					var a = rand.int(clients.length);
+					var b = (a + 1 + rand.int(clients.length - 1)) %
+						clients.length;
+					generator.conflictOp(clients[a], clients[b]);
+				}
+
+				if (realTiming)
+				{
+					// Production timers drive flush, autosave and
+					// cleanup; the round only paces like a human pause
+					await broker.drain();
+					await RtHarness.sleep(300 + rand.int(1200));
+
+					continue;
+				}
+
+				// Laggy flushes: some clients accumulate changes across
+				// rounds; flush order is seeded
+				var order = clients.slice();
+
+				for (var i = order.length - 1; i > 0; i--)
+				{
+					var j = rand.int(i + 1);
+					var tmp = order[i];
+					order[i] = order[j];
+					order[j] = tmp;
+				}
+
+				for (var i = 0; i < order.length; i++)
+				{
+					if (!rand.chance(scenario.flushSkip))
+					{
+						order[i].flush();
+					}
+				}
+
+				// Mid-traffic save: data generation flushes while remote
+				// messages are still queued for delivery
+				var savePending = scenario.saveEvery > 0 &&
+					round % scenario.saveEvery == scenario.saveEvery - 1;
+				var savePromise = null;
+
+				if (savePending && scenario.saveDuringTraffic)
+				{
+					savePromise = clients[rand.int(clients.length)]
+						.save(scenario.saveLatency);
+				}
+
+				await broker.drain();
+				await RtHarness.sleep(80);
+
+				if (savePending && !scenario.saveDuringTraffic)
+				{
+					savePromise = clients[rand.int(clients.length)]
+						.save(scenario.saveLatency);
+				}
+
+				if (savePromise != null)
+				{
+					await savePromise;
+					await broker.drain();
+					await RtHarness.sleep(60);
+				}
+
+				// Occasional cleanup on an unmodified client
+				if (rand.chance(0.3))
+				{
+					var candidate = clients[rand.int(clients.length)];
+
+					if (!candidate.file.isModified())
+					{
+						candidate.cleanupNow();
+					}
+				}
+			}
+
+			if (realTiming)
+			{
+				// Lets the production timers finish organically before
+				// the final arbitration: flush debounce (300ms),
+				// autosave (1.5s) plus its save, and the 15s cleanup
+				// that adopts the saved order on screen
+				status('settling on production timers...');
+				var settleUntil = Date.now() + 20000;
+
+				while (Date.now() < settleUntil)
+				{
+					await broker.drain();
+					await RtHarness.sleep(500);
+				}
+			}
+
+			// --- Quiescence: iterate flush/save/cleanup cycles to the
+			// convergence fixpoint. The realtime protocol is eventually
+			// consistent: receivers only get remote changes into
+			// ownPages via save merges and onto the screen via cleanup,
+			// so convergence after activity stops can take several
+			// cycles (like production). The number of cycles needed is
+			// itself a regression signal (stats.convergenceRounds).
+			var converged = false;
+			var cycle = 0;
+
+			// The serial save chain arbitrates one client per cycle, so
+			// large fleets (and injected save failures eating cycles)
+			// legitimately need more quiescence cycles than the sharp
+			// default that guards the 2-3 client scenarios
+			var maxCycles = parseInt(params['cycles'] ||
+				String(6 + Math.max(0, config.clients - 3)), 10);
+
+			for (cycle = 1; cycle <= maxCycles && !converged; cycle++)
+			{
+				status('quiescing: cycle ' + cycle + ': flush');
+
+				for (var i = 0; i < 8; i++)
+				{
+					for (var j = 0; j < clients.length; j++)
+					{
+						clients[j].flush();
+					}
+
+					await broker.drain();
+					await RtHarness.sleep(60);
+
+					if (!broker.hasPending())
+					{
+						break;
+					}
+				}
+
+				// Saves serialized and delivered before the next save
+				// starts, as the real providers serialize via etag.
+				// Only modified clients save: production autosave never
+				// fires on unmodified files, so client-local state that
+				// bypasses the modified flag must not converge through
+				// artificial saves here
+				for (var i = 0; i < clients.length; i++)
+				{
+					if (clients[i].file.isModified())
+					{
+						status('quiescing: cycle ' + cycle + ': save client ' + i);
+						var outcome = await clients[i].save(0);
+						if (broker.backend == 'descriptor' && outcome.status == 'committed')
+						{
+							await Promise.all(clients.map(function(c)
+							{
+								return RtDescriptorBackend.revision(c, outcome.committedRevision);
+							}));
+						}
+						await broker.drain();
+						await RtHarness.sleep(60);
+					}
+				}
+
+				for (var i = 0; i < clients.length; i++)
+				{
+					clients[i].cleanupNow();
+				}
+
+				await broker.drain();
+				await RtHarness.sleep(60);
+
+				// Regression lock for the lossy single-pass cleanup
+				// class (dropped updates, lost pages): after the first
+				// cleanup nothing may exist in the own pages that is
+				// missing from the visible pages - applying own to the
+				// screen is exactly the cleanup's job. The OTHER
+				// direction (visible but not in own) is legitimate:
+				// another client's unsaved content lives in ui and
+				// theirPages only until its creator saves (transient
+				// hole, found by the 4-client stress pass). Field
+				// residue converges over further cycles and stays
+				// covered by the fixpoint verdicts.
+				// Checked after the SECOND cycle: within cycle 1 a
+				// merge from the serial save chain can land after the
+				// receiver's own save and before its cleanup, leaving
+				// a one-cycle existence lag that the next cleanup
+				// heals - the lossy class this lock guards against
+				// does NOT heal over cleanup cycles.
+				if (cycle == 2)
+				{
+					// diffPages(ui, own): 'i' entries exist in own and
+					// are missing from ui ('i'/'u' are
+					// EditorUi.DIFF_INSERT/UPDATE - EditorUi only
+					// exists inside the client frames)
+					var existenceResidue = function(residue)
+					{
+						if (residue.i != null)
+						{
+							return true;
+						}
+
+						if (residue.u != null)
+						{
+							for (var pid in residue.u)
+							{
+								var cells = residue.u[pid].cells;
+
+								if (cells != null && cells.i != null)
+								{
+									return true;
+								}
+							}
+						}
+
+						return false;
+					};
+
+					for (var i = 0; i < clients.length; i++)
+					{
+						var residue = clients[i].ui.diffPages(
+							clients[i].ui.pages, clients[i].file.ownPages);
+
+						if (existenceResidue(residue))
+						{
+							report.fail('single-pass-cleanup', 'client' + i +
+								' cell or page existence differs between ui ' +
+								'and own pages after first cleanup: ' +
+								JSON.stringify(residue).substring(0, 300));
+						}
+					}
+				}
+
+				// Fixpoint check: no traffic, no pending debounced flush
+				// (a reactive correction can restore the ownPages state -
+				// empty ui-vs-own diff - while its flush is still armed:
+				// the snapshot holds the raw incoming patch, so the flush
+				// fires into the assertion phase as a late echo), screens
+				// equal across clients, screen == save state everywhere
+				converged = !broker.hasPending();
+
+				for (var i = 0; i < clients.length && converged; i++)
+				{
+					converged = !clients[i].sync.localFileWasChanged &&
+						clients[i].win.mxUtils.isEmptyObject(
+						clients[i].ui.diffPages(clients[i].ui.pages,
+							clients[i].file.ownPages)) &&
+						(i == 0 || clients[i].getPagesHash() ==
+							clients[0].getPagesHash());
+				}
+			}
+
+			report.stats.convergenceRounds = cycle - 1;
+
+			// A scenario that deliberately feeds ONE client content the
+			// others never saw (hostile patches) cannot converge by
+			// construction - it asserts survival and the health of the
+			// innocent clients instead, in its own script
+			var expectDivergence = scenario.expectDivergence == true;
+
+			if (!converged && !expectDivergence)
+			{
+				report.fail('no-fixpoint', 'not converged after ' +
+					(cycle - 1) + ' quiescence cycles');
+			}
+
+			// --- Assertions ---
+			if (!expectDivergence)
+			{
+				status('asserting: convergence...');
+				asserter.assertConvergence('final');
+				status('asserting: snapshot...');
+				asserter.assertSnapshotInvariant('final');
+				status('asserting: alignment...');
+				asserter.assertRealtimeAlignment('final');
+			}
+			if (!expectDivergence)
+			{
+				status('asserting: echo probe...');
+				await asserter.assertNoEcho(broker, 3);
+				status('asserting: markers...');
+				asserter.assertMarkers();
+			}
+
+			// Rendering is asserted even for hostile input: a patched
+			// client may hold different content, but never unrenderable
+			// content
+			status('asserting: render consistency...');
+			asserter.assertRenderConsistency('final');
+
+			// The view-independent half over EVERY page: which page is
+			// current at the end of a random scenario is arbitrary
+			asserter.assertRenderableEdges('final');
+
+			// Same reasoning: whatever a hostile patch does to the
+			// content, the viewed page must still be in the document
+			status('asserting: current page...');
+			asserter.assertCurrentPage('final');
+
+			// A checksum mismatch heals itself, so it is invisible to
+			// every content verdict unless the count is asserted
+			status('asserting: reloads...');
+			asserter.assertNoReloads(scenario.reloadBudget, 'final');
+
+			// And the persisted bytes must hold what the clients agreed
+			// on - they only ever compare themselves to each other
+			if (!expectDivergence && !scenario.skipSavedFile)
+			{
+				status('asserting: saved file...');
+				asserter.assertSavedFile(broker, 'final');
+			}
+
+			if (scenario.script == 'pageAdoptionEditRace')
+			{
+				RtHarness.assertFinalPageAdoptionEdits(clients, broker, report);
+			}
+
+			if (scenario.script == 'layoutPassive')
+			{
+				RtHarness.assertFinalStackConsistent(clients, broker,
+					report, 'lp0');
+			}
+		}
+		catch (e)
+		{
+			report.fail('harness-exception', e.message + '\n' +
+				((e.stack != null) ? e.stack.split('\n')
+					.slice(0, 5).join('\n') : ''));
+		}
+
+		finish(report);
+	};
+
+	function finish(report)
+	{
+		if (window.__RT_RESULT != null)
+		{
+			return;
+		}
+
+		var result = report.finish();
+		window.__RT_RESULT = result;
+		document.title = result.pass ? 'RTPASS' : 'RTFAIL';
+		statusEl.className = result.pass ? 'pass' : 'fail';
+		status((result.pass ? 'PASS' : 'FAIL') + ' seed=' + result.seed +
+			' scenario=' + result.scenario + ' (' + result.durationMs +
+			'ms, ' + result.stats.messages + ' msgs)\n' +
+			JSON.stringify(result, null, 2));
+
+		if (params['report'] == '1')
+		{
+			try
+			{
+				fetch('/rt-result', {method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify(result)});
+			}
+			catch (e)
+			{
+				// Standalone run without runner
+			}
+		}
+	};
+
+	window.addEventListener('load', function()
+	{
+		main();
+	});
+})();
+</script>
+</body>
+</html>

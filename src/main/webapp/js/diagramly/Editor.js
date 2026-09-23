@@ -3456,7 +3456,7 @@
 			if (config.autosaveDelay != null)
 			{
 				var val = parseInt(config.autosaveDelay);
-				
+
 				if (!isNaN(val) && val > 0)
 				{
 					DrawioFile.prototype.autosaveDelay = val;
@@ -4464,23 +4464,34 @@
 	
 	/**
 	 * Hardens the URL filter in MathJax's ui/safe extension, which decides the
-	 * scheme with /^\s*([a-z\n\r]+):/i and strips only newlines. Browsers ignore
-	 * tab, LF and CR inside a URL, so java<TAB>script:... is not recognised as a
-	 * scheme, falls into the "no scheme, treat as relative" branch and is passed
-	 * through unchanged, then reaches the browser as javascript:. This is the
-	 * same bypass as mathjax/MathJax#2885, whose fix covered LF and CR but not
-	 * tab. Patched here rather than in math4 so the vendored MathJax stays
-	 * unmodified and the fix survives the next MathJax update.
+	 * scheme with /^\s*([a-z\n\r]+):/i and strips only newlines. A character
+	 * the regex does not know about defeats the match entirely, so the scheme
+	 * reads as empty and the URL takes the "no scheme, treat as relative"
+	 * branch, which passes it through untouched. Anything that removes that
+	 * character later then re-forms the scheme: browsers ignore tab, LF and CR
+	 * inside a URL, and zapGremlins drops U+FFFF, U+FFFE and unpaired
+	 * surrogates when the SVG is serialized, so java<TAB>script:... and
+	 * java<U+FFFF>script:... both reach the output as javascript:. The tab
+	 * form is mathjax/MathJax#2885, whose fix covered LF and CR but not tab.
+	 *
+	 * The URL is checked in the form it will have in the serialized output and
+	 * that form is what is returned, so no gap is left between the string the
+	 * scheme check approved and the string written to the href for a later
+	 * normalisation to work in. Patched here rather than in math4 so the
+	 * vendored MathJax stays unmodified and the fix survives the next MathJax
+	 * update.
 	 */
 	Editor.safeMathJaxFilterUrl = function(safe, url)
 	{
-		// Normalises the way the URL parser does before reading the scheme
-		var normalized = url.replace(/[\t\n\r]/g, '').replace(/^[\u0000-\u0020]+/, '');
+		// Normalises the way the URL parser and the XML serializer do
+		// before reading the scheme
+		var normalized = Graph.zapGremlins(url).replace(/[\t\n\r]/g, '').
+			replace(/^[\u0000-\u0020]+/, '');
 		var protocol = (normalized.match(/^([a-z][a-z0-9+.\-]*):/i) || [null, ''])[1].toLowerCase();
 		var allow = safe.allow.URLs;
 
 		return (allow === 'all' || (allow === 'safe' &&
-			(safe.options.safeProtocols[protocol] || !protocol))) ? url : null;
+			(safe.options.safeProtocols[protocol] || !protocol))) ? normalized : null;
 	};
 
 	// Marker so the patch can be reapplied without stacking wrappers

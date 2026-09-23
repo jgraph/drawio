@@ -2304,15 +2304,24 @@ LibavoidRouting.connectionPreview = function(handler)
 	var targetState = handler.currentState;
 	var targetCell = (targetState != null && model.isVertex(targetState.cell)) ? targetState.cell : null;
 
-	// Both ends inside the same live layout container => the connect inserts the
-	// edge into that container (common parent) and its childLayout routes it, so
-	// a libavoid preview would show a route that never commits. Cross-boundary
-	// drags (target outside, edge lands in the default parent) keep the preview.
+	// The connect re-parents the edge under the terminals' nearest common
+	// ancestor (mxGraphModel.maintainEdgeParent). If that leaves it inside a
+	// live layout container, the childLayout owns its geometry (isAutoEdge is
+	// false), so the CELLS_ADDED/CONNECT re-route never replaces the preview
+	// bends that connect() bakes into geometry.points — and those are ABSOLUTE
+	// coords, stale garbage in the container parent's frame (e.g. an edge from
+	// a nested list to its outer list: common ancestor = the outer list, whose
+	// nearest layout containers differ per end). No libavoid preview there —
+	// the edge commits without waypoints, like any layout-owned edge. Drags
+	// whose common ancestor is outside every layout container (edge lands in
+	// the default parent or a plain group) keep the preview.
 	if (targetCell != null)
 	{
-		var slc = LibavoidRouting.layoutContainerOf(graph, sourceState.cell);
+		var ca = model.getNearestCommonAncestor(sourceState.cell, targetCell);
 
-		if (slc != null && slc == LibavoidRouting.layoutContainerOf(graph, targetCell))
+		if (ca != null && ((model.isVertex(ca) &&
+			graph.getCurrentCellStyle(ca)['childLayout'] != null) ||
+			LibavoidRouting.layoutContainerOf(graph, ca) != null))
 		{
 			return null;
 		}

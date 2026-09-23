@@ -3017,6 +3017,11 @@ a.geMarkupSourceBtn {
 	z-index: 1;
 }
 
+/* Canvas of a client that follows the view of a collaborator */
+.geDiagramContainer.geFollowingView {
+	box-shadow: inset 0 0 0 2px light-dark(var(--focus-color), var(--dark-focus-color));
+}
+
 /* Pulse marker shown after jumping to a point anchor */
 .geCommentAnchorMarker {
 	position: absolute;

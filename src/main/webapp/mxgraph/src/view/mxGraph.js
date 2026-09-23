@@ -5113,6 +5113,32 @@ mxGraph.prototype.cellsRemoved = function(cells)
 			// Creates hashtable for faster lookup
 			var dict = new mxDictionary();
 
+			// Absolute origin of the given cell from the geometries
+			// alone, for terminal points of edges whose terminal has
+			// no state (see disconnectTerminal below)
+			var geometryOrigin = mxUtils.bind(this, function(cell)
+			{
+				var dx = 0;
+				var dy = 0;
+				var parent = this.model.getParent(cell);
+
+				while (parent != null)
+				{
+					var pgeo = this.model.getGeometry(parent);
+
+					if (pgeo != null && !pgeo.relative &&
+						!this.model.isEdge(parent))
+					{
+						dx += pgeo.x;
+						dy += pgeo.y;
+					}
+
+					parent = this.model.getParent(parent);
+				}
+
+				return new mxPoint(dx, dy);
+			});
+
 			for (var i = 0; i < cells.length; i++)
 			{
 				dict.put(cells[i], true);
@@ -5187,16 +5213,92 @@ mxGraph.prototype.cellsRemoved = function(cells)
 								{
 									// Fallback to center of terminal if routing
 									// points are not available to add new point
-									// KNOWN: Should recurse to find parent offset
-									// of edge for nested groups but invisible edges
-									// should be removed in removeCells step
 									var tstate = this.view.getState(terminal);
 
 									if (tstate != null)
 									{
+										// Terminal points are stored in the edge
+										// parent's coordinate system, so the edge
+										// origin is subtracted here as well - the
+										// branches above and below both do it, and
+										// an edge inside a container disagreed
+										// with them by that offset
+										var eo = geometryOrigin(edge);
+
 										geo.setTerminalPoint(new mxPoint(
-											tstate.getCenterX() / scale - tr.x,
-											tstate.getCenterY() / scale - tr.y), source);
+											tstate.getCenterX() / scale - tr.x - eo.x,
+											tstate.getCenterY() / scale - tr.y - eo.y),
+											source);
+									}
+									else
+									{
+										// No state for the terminal (eg. the page is
+										// not rendered): the center is derived from
+										// the geometries instead, including the parent
+										// offsets of nested groups. Without a point
+										// the end is neither a terminal nor a point,
+										// which cannot be drawn - the edge then
+										// silently disappears from the diagram.
+										var tgeo = this.model.getGeometry(terminal);
+										var eo = geometryOrigin(edge);
+
+										if (tgeo != null && !tgeo.relative &&
+											!this.model.isEdge(terminal))
+										{
+											var to = geometryOrigin(terminal);
+
+											geo.setTerminalPoint(new mxPoint(
+												to.x + tgeo.x + tgeo.width / 2 - eo.x,
+												to.y + tgeo.y + tgeo.height / 2 - eo.y),
+												source);
+										}
+										else
+										{
+											// A relative terminal (a port or label
+											// child) and an edge used as a terminal
+											// have no box of their own. What the edge
+											// visually attached to is the nearest
+											// non-relative, non-edge ancestor; with
+											// none, the end is derived from the edge
+											// itself. Declining to place a point here
+											// is not an option - that is exactly the
+											// undrawable end this fallback exists for.
+											var anchor = this.model.getParent(terminal);
+											var ageo = null;
+
+											while (anchor != null)
+											{
+												ageo = this.model.getGeometry(anchor);
+
+												if (ageo != null && !ageo.relative &&
+													!this.model.isEdge(anchor))
+												{
+													break;
+												}
+
+												ageo = null;
+												anchor = this.model.getParent(anchor);
+											}
+
+											if (ageo != null)
+											{
+												var ao = geometryOrigin(anchor);
+
+												geo.setTerminalPoint(new mxPoint(
+													ao.x + ageo.x + ageo.width / 2 - eo.x,
+													ao.y + ageo.y + ageo.height / 2 - eo.y),
+													source);
+											}
+											else
+											{
+												var egeo = this.model.getGeometry(edge);
+
+												geo.setTerminalPoint(new mxPoint(
+													((egeo != null) ? egeo.x : 0) +
+													((source) ? -60 : 60),
+													(egeo != null) ? egeo.y : 0), source);
+											}
+										}
 									}
 								}
 							}

@@ -1,3 +1,288 @@
+23-SEP-2026: 31.5.2
+
+- Adds support for mermaid swimlane-beta diagrams [jgraph/drawio#5780]
+- Routes mermaid swimlane edges like mermaid does [jgraph/drawio#5780]
+- Keeps text decorations on shapeInside labels [jgraph/drawio#5781]
+- Fits the label background to the text on shapeInside labels [jgraph/drawio#5781]
+- Returns the conflict retry budget on every confirmed save [jgraph/drawio-dev#677]
+- Updates drawio-mermaid bundle to 0.1.0+commit.297ba59 [DID-20220]
+- Reports a broken #R link instead of failing silently
+- Skips stencil color nodes without a color attribute in the format panel
+- Uses the native file pickers only where they are callable
+- Opens file handles without a writable API read-only
+- Skips the shape picker in editors without a sidebar
+- Fixes save and exit of new Confluence Cloud diagrams failing on the missing descriptor
+- Carries all LinkDialog statics over to the Confluence plugin's wrapper
+- Ignores opaque cross-origin script errors instead of showing an error dialog
+- Guards the remaining EmbedFile descriptor getters in the Confluence plugin
+- Stops a pending OneDrive picker search after the picker is closed
+- Offers Copy in the Edit Diagram dialog only where the clipboard API exists
+- Shows an error instead of spinning when the embed macro editor gets a non-diagram file
+- Adds the gae-error-log skill for the weekly error log routine
+- Routes error log API requests through the credential proxy in the cloud
+- Decodes invalid 4-byte UTF-8 sequences as U+FFFD instead of throwing
+- Skips toolbar buttons without an element in GraphViewer.disableButton
+- Records the groups of the 2026-09-23 weekly error log pass
+- Removes Copy Link / Paste Link in favor of Copy / Paste Data
+- Finds cells by ID in the Find window
+- Stops paste writing copied cells into the selected cell's label when a label contains %3E [DID-20192]
+- Shows the edge length in the current unit while connecting
+
+22-SEP-2026: 31.5.1
+
+- Corrects the Logs Explorer field for the rt7 release telemetry
+- Updates drawio-mermaid bundle to 0.1.0+commit.cbd9dfd
+- Pulses paste, duplicate and delete in the animation step toolbar
+- Fixes embed merge, patch and getDiff failing with getData is not a function
+- Skips the realtime cache entry before encrypting oversized save diffs
+- Updates drawio-mermaid bundle to 0.1.0+commit.6695213
+- Decodes dropped image URLs with safeDecodeURIComponent
+- Reports deleted targets in the animation step editor
+- Applies page root changes in patchPage instead of refusing them [jgraph/drawio-dev#677]
+- Says "deleted" instead of "missing" for dead cells in the step editor
+- Stops a single stray cell emptying a page on load [jgraph/drawio-dev#696]
+- Locks that the root id preference only applies to parentless cells [jgraph/drawio-dev#696]
+- Updates stable channel to 31-5-1
+
+19-SEP-2026: 31.5.0
+
+- Fixes wrapped stand-alone mode and Electron runtime messages
+- Fixes stale page nodes and non-realtime state in sync fast-forward
+- Applies available patches in catchup instead of fast-forwarding
+- Sorts received sync messages by numeric message counter
+- Clears the status update interval in sync stop
+- Uses an independent copy for the sync snapshot
+- Removes the redundant file fetch from sync cleanup
+- Retries optimistic sync on errors and missing versions
+- Defers remote descriptor changes while the file is saving
+- Handles save notifications with equal modified timestamps
+- Checks for changes on messages from outdated clients
+- Stores a valid empty patch for descriptor changes
+- Logs error messages from the realtime socket server
+- Applies patches to the sync snapshot incrementally
+- Fixes centered text flow alignment at wrap boundaries
+- Removes dark mode media query listener on destroy
+- Fixes leading semicolon when removing style key followed by empty entries
+- Adds automated multi-client realtime sync test harness
+- Re-enables undo ops after fixing the harness message envelope
+- Hides the folding icon on tree nodes without outgoing tree edges
+- Adds reactive layout ops, alert verdict and layout-race scenario
+- Fixes stale absolute waypoints when connecting across nested lists
+- Adds saved-stack and adoption assertions, updates rt-test findings
+- Fixes dropped local updates to unsaved remote cells in own pages
+- Documents the dirty-page flush in the rt-test README
+- Fixes stale-copy reverts by merging save-patch inserts in own pages
+- Adds layout-passive incident scenario and modified-only quiescence saves
+- Adds per-process results files and configurable watchdog to rt-test
+- Rebuilds child order canonically and damps reactive delta flushes
+- Documents the reactive flush damping in the rt-test README
+- Rebuilds page order canonically from previous chains in patchPages
+- Adds page-order-race scenario for the patchPages page-loss class
+- Merges adopted page content on save merges only
+- Adds page-adoption-race scenario for the adopted-page ping-pong
+- Bumps the sync protocol and gates realtime on app versions
+- Hardens diff patching against crafted ids and cyclic moves
+- Adds the single-pass cleanup existence lock to the rt-test verdicts
+- Keeps newer local edits over colliding save inserts
+- Adds adoption-edit-race scenario for the edited-later LWW race
+- Anchors unconstrained pages on their local predecessor in patchPages
+- Adds reconnect, waypoint, grouping, order and movePage ops to rt-test
+- Documents the realtime sync architecture and invariants
+- Filters missed cells from the visible removes on merge catch-up
+- Adds offline, lossy-network and save-failure injection to rt-test
+- Drops the realtime min-app-version config surface
+- Documents the planned server-side join gate for version gating
+- Adds residue and duplicate-id detail to the dirty-tracking alert
+- Invalidates undoable edits for cells replaced by remote patches
+- Adds undo-stale scenario, redo op and alert detail to the rt harness
+- Gates the quiescence fixpoint on no pending debounced flush
+- Extends undo-stale with redo-stale and cross-page undo cases
+- Deflates sync messages directly without the URI-encoding step
+- Transports the real sync wire encoding through the rt-test broker
+- Adds stress diagnostics and scales quiescence cycles with fleet size
+- Disconnects edges from terminals removed through crossing windows
+- Locks the crossing-window dangling terminal in undo-stale case 5
+- Adds real-timing mode driven by the production timers
+- Completes the etag semantics: commit-time check, catchup chain, reload stub
+- Invalidates undoable edits for pages replaced by remote patches
+- Locks the page redo duplicate in undo-stale case 6
+- Invalidates edits for every id a remove list confirms
+- Disconnects detached terminals after undo and redo in realtime
+- Applies style removals in patchCell
+- Rolls back unconfirmed edits when the write permission is revoked
+- Adds the write-revoked scenario and 403 injection
+- Documents the write-revoke path and scenario
+- Adds a desktop-merge coverage scenario for the watcher path
+- Runs the desktop-merge scenario on the actual non-realtime branch
+- Adds the join-mid-session scenario for late joiners
+- Adds the scenario table rows for join-mid-session and desktop-merge
+- Adds mixed-version scenario and routes receives through changeListener
+- Adds the undo repair pass scaffold before replay
+- Replaces undo history invalidation with execute-time repair
+- Locks the execute-time resolution in undo-stale case 9
+- Keeps cross-page replays on their own page and marks both trees dirty
+- Canonicalizes the replayed child in the target tree
+- WIP: intent-frozen execute-time resolution (redesign in progress)
+- Adds the editor-semantics layer guarding base editor behavior
+- Disconnects dangling terminals from dirty pages before the flush diff
+- Adds provenance and history forensics to the dirty-tracking alert
+- Makes the rt-test runner platform-neutral
+- Fixes rt-test UI capture on pointer-event platforms
+- Adds a deterministic repro for desktop merge edge duplication
+- Asks before merging stale external file rewrites on desktop
+- Keeps undo histories intact across revokes and page deletes
+- Keeps a revoked client converging as a read-only mirror
+- Verifies write revokes against the provider descriptor
+- Documents the intent-frozen repair completion in the README
+- Keeps transient repair points across composite edit replays
+- Renders repaired edges locally and pins the previous attachment
+- Adds the render-consistency verdict to every scenario
+- Adds a revalidate probe to the render-consistency fail details
+- Completes the self-diagnosis in the render-consistency verdict
+- Stops replays from duplicating content into renamed cells
+- Keeps disconnected edges renderable instead of vanishing
+- Moves stable channel to 31.1.5
+- Moves text flow options into the common properties section
+- Fixes configured default edge font not applied to new edges and edge labels
+- Bump actions/checkout from 6.1.0 to 7.0.1
+- Updates tooling dependencies
+- Tooling build fixes
+- Updates wrangler version
+- Removes plantuml and emf references
+- Adds Archimate v4 shapes
+- Fixes missing palette titles in savesidebar screenshots
+- Adds a PNG preview to the Archimate 4 library
+- Fixes the Archimate 4 device aspect ratio in element and icon notations
+- Fixes missing save button on expanded palettes in savesidebar mode
+- Removal of old lambdas
+- Matches libavoid drag previews to the committed route for targets inside containers
+- Persists cursor sharing and remote cursor settings
+- Excludes self-loops from libavoid routing to keep the loop style
+- Adds Ctrl+Alt+T shortcut for Run Last Layout
+- Adjust toolbar item spacing and zoom input minimum width for better layout
+- Adds connecting edge to shape picker drag previews
+- Adds offline language packs, language dialog and config editor i18n
+- Adds applyLayouts option to run a diagram's child layouts on load
+- Updates DOMPurify from 3.4.12 to 3.4.13
+- Raises the AI prompt limit to 100K characters for Atlassian origins
+- Reads the Atlassian AI prompt limit from a global variable
+- Adds defaultLanguages configuration for preinstalled offline languages
+- Stops replays from resolving to removed objects
+- Resends unconfirmed changes when the first peer appears
+- Freezes replay intentions for all property changes
+- Resends unconfirmed changes when the first peer appears
+- Announces joining clients so stale rosters heal
+- Keeps resent content current and restores revisions through sync
+- Adds exploratory scenarios and a real-P2P test layer
+- Keeps immediate cleanups from being postponed by lazy requests
+- Drains the broker while polling in p2p-offline-rejoin
+- Reconnects edges severed by replayed removals
+- Adds undo-heavy fuzzing and a history-shape verdict
+- Refuses patches that would strip a page of its root or layer
+- Treats malformed patch shapes as absent instead of trusting them
+- Keeps a wholesale file replacement out of the undo history
+- Rejects script schemes in image sources and typed geometry input
+- Adds hostile-content, delivery-matrix and a system-edit audit
+- Holds live content until its sender had a chance to save it
+- Cleans up chrome profiles after realtime test runs on Windows
+- Gates realtime payloads on every transport, not just the cache channel
+- Keeps page inserts from losing content on the realtime path
+- Keeps malformed patches and dead page replays from losing work
+- Restricts the current-page heal to replays
+- Records the single gate chokepoint and refreshes the test counts
+- Ends the grace window on confirmation and stops the revoke check from adopting a peer's revision
+- Stops replays from resolving against trees that left the document
+- Names the deepest cell property when a diff overflows the stack
+- Asserts the reload count and the persisted bytes
+- Hardens page inserts, insert identity and the merge veto
+- Repairs the severed-edge bookkeeping and resolves the changed cell
+- Keeps repairs of unconfirmed content out of the flush
+- Repairs unrenderable edges on every patched page
+- Distinguishes a page id from the current-page marker
+- Stamps the authenticated sender on relayed WebRTC signals
+- Scopes the harness error hooks to their own frame
+- Restores children into a still detached parent and validates the view once per replay
+- Normalizes the patch update map once per page
+- Adds the contradicting-ops scenarios to the realtime harness
+- Closes three review leftovers in the realtime hardening
+- Makes a wholesale file replacement one undoable step again
+- Keeps the viewed page across a revision restore
+- Shows why a revision failed to load and stops retrying permission errors
+- Replays page selections by direction and heals the current page once per undo
+- Adds a latency measurement scenario for the realtime sync
+- Arms the lazy cleanup once instead of postponing it on every event
+- Delivers live diffs while a rejected save is being reconciled
+- Replays a file-changed notification deferred during a save that failed
+- Applies every message of a receive batch even if one of them fails
+- Notes the crash-reload real-timing flake next to the adoption-race one
+- Shows the last change in the status bar after a sync without local changes
+- Adds grace and tail-trace knobs to the realtime harness and completes the scenario table
+- Postpones the lazy cleanup on activity again instead of arming it once
+- Preserve pending edits inside adopted pages during save merges
+- Preserve newer cells in realtime resolution patches
+- Preserve peer descendants across write revocation
+- Fix nested edge endpoint coordinates during stale-terminal undo
+- Retract pending file variables after write revocation
+- Resolve undo history in the current owning page after revival
+- Make cyclic undo replays inert as complete operations
+- Add file-variable lifecycle regressions
+- Add realtime persistence and notification regression coverage
+- Fix realtime vars ownership and notification recovery
+- Renames the sync message payload field so deployed v6 clients ignore v7 payloads
+- Reloads the app from the redirect dialog when only the URL fragment differs
+- Waits for the updated service worker before the redirect dialog reloads
+- Stops the redirect dialog spinner once the navigation is triggered
+- Records that the GAE push trigger fired once on 31.4.6 and failed on its log bucket access
+- Add realtime rollout admission and mixed-source regression
+- Updates the release runbook from the 31.4.6 run [jgraph/drawio-dev#690]
+- Compares the release-monitor source against the preprod tip, not the dispatch ref [jgraph/drawio-dev#690]
+- Adds Bring Everyone to Me and groups the collaboration options in every theme
+- Makes the Microsoft 365 client opt-in for embed mode and disables it in lockdown mode [DID-20281]
+- Makes the viewer link tooltip readable on dark host pages [DID-20253]
+- Updates the vendored drawio-plantuml bundle to commit 8f6f23c
+- Updates the vendored drawio-plantuml bundle to commit 14161d9
+- Stops URL parameters setting the AI endpoint and API keys [GHSA-v2pv-rjf8-9w9v]
+- Stops a URL parameter setting the export service [GHSA-ff67-v9r9-6877]
+- Add the migration report strings the Confluence apps need [DID-20276]
+- Add the integrity check summary caveat string [DID-20276]
+- Updates stable channel to 31.4.6
+- Makes the preprod build's AI test plan robust to long replies
+- Adds a value to the Toggle Style action and repaints removed transient styles
+- Adds a style-key picker to the Set Style and Toggle Style fields
+- Opens a fresh action editor for another cell instead of refocusing the open one
+- Lets a layout run replace the live layout of every selected layout container
+- Updates drawio-elk bundle to 0.1.0+commit.09eed5e
+- Keeps the model order of tied siblings in flow layout containers
+- Adds a child for every hover arrow in flow layout containers
+- Restores the cells a preview faded after the session started
+- Keeps the preview's final state on the canvas until Reset
+- Adds a descendants flag to the cell selector of custom actions
+- Starts the GAE Cloud Build from the release push instead of the trigger that never fired
+- Requires the served version id in the release monitor's deploy poll and shows the GAE build on the dashboard
+- Records that the GAE push trigger fired once on 31.4.6 and failed on its log bucket access
+- Updates the release runbook from the 31.4.6 run [jgraph/drawio-dev#690]
+- Compares the release-monitor source against the preprod tip, not the dispatch ref [jgraph/drawio-dev#690]
+- Build of version 31.4.6
+- Adds a follow mode that keeps collaborators on the presenter's view
+- Makes Dropbox opt-in only and stops loading its SDK [jgraph/drawio#5740]
+- Stops offering GitLab as a save target [jgraph/drawio#5773]
+- Retires the tooltips sample plugin for built-in tooltip icons [jgraph/drawio-desktop#2548]
+- Groups Comments with the panel items in the view menu
+- feat(graph): normalizeModel repairs generated diagrams for the desktop --normalize flag
+- Moves Appearance before Language in the Extras menu
+- Stops the fast-rt worker sending exception stacks to clients
+- Hashes user and file ids in checksum error logs, keeps preprod logging
+- Hashes user and file ids in the remaining merge and sync error logs
+- Adds temporary realtime release telemetry for the v7 rollout [jgraph/drawio-dev#677]
+- Adds per-protocol socket counts to the fast-rt stats endpoint [jgraph/drawio-dev#677]
+- Fixes eight animation and custom action dialog issues from testing
+- Applies Edit Link to every editable cell in the selection
+- Adds Copy Link and Paste Link next to Edit Link
+- Adds a color picker and an empty-key marker to the style actions
+- Updates the animations guide for the link and style-field changes
+- Quotes a page title that contains a tab in the page IDs export [DID-20312]
+- Check the MathJax URL in its serialized form and return that form
+
 16-SEP-2026: 31.4.6
 
 - Updates stable channel to 31.4.4

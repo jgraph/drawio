@@ -197,6 +197,7 @@ DrawioFile.prototype.getShadowPages = function()
 			{
 				var doc = mxUtils.parseXml(this.initialData);
 				var root = doc.documentElement;
+				root = this.ui.editor.extractGraphModel(root, true, true) || root;
 
 				if (root != null && root.nodeName == 'mxfile')
 				{
@@ -283,12 +284,12 @@ DrawioFile.prototype.synchronizeFile = function(success, error, latestFile)
 
 		if (this.sync != null)
 		{
-			this.sync.fileChanged(mxUtils.bind(this, function(patched)
+			this.sync.fileChanged(mxUtils.bind(this, function()
 			{
 				if (acceptResponse)
 				{
 					window.clearTimeout(timeoutThread);
-					this.sync.cleanup(success, error, patched);
+					this.sync.cleanup(success, error);
 				}
 			}), errorWrapper, abort);
 		}
@@ -409,6 +410,7 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow, imme
 			{
 				var doc = mxUtils.parseXml(file.initialData);
 				var root = doc.documentElement;
+				root = this.ui.editor.extractGraphModel(root, true, true) || root;
 
 				if (root != null && root.nodeName == 'mxfile')
 				{
@@ -472,10 +474,23 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow, imme
 							var pending = this.sync.patchRealtime(
 								patches, (DrawioFile.LAST_WRITE_WINS) ?
 									changes : null, null, immediate);
-							
+
 							if (pending != null && !mxUtils.isEmptyObject(pending))
 							{
 								patches.push(pending);
+							}
+
+							// A non-editable client has no pending own
+							// changes to protect and no save to heal
+							// residues with: it mirrors the saved state
+							// wholesale. Minimal diffs never repair an
+							// order residue that predates them, and
+							// this client can never push one back into
+							// the file, so it would keep it forever.
+							if (!this.isEditable() && this.ownPages != null)
+							{
+								this.ownPages = this.ui.clonePages(pages);
+								this.theirPages = this.ui.clonePages(pages);
 							}
 						}
 
@@ -513,10 +528,11 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow, imme
 							e.name == 'InvalidCharacterError'))
 						{
 							var user = this.getCurrentUser();
-							var uid = (user != null) ? user.id : 'unknown';
+							// Hashed like sendErrorReport: no raw user or file ids in logs
+							var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
 
 							EditorUi.logError('Error in mergeFile', null,
-								this.getMode() + '.' + this.getId(),
+								this.getMode() + '.' + this.ui.hashValue(this.getId()),
 								uid, e);
 						}
 					}
@@ -632,8 +648,9 @@ DrawioFile.prototype.checksumError = function(fn, patches, details, etag, functi
 	try
 	{
 		var user = this.getCurrentUser();
-		var uid = (user != null) ? user.id : 'unknown';
-		var id = (this.getId() != '') ? this.getId() :
+		// Hashed like sendErrorReport: no raw user or file ids in logs
+		var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
+		var id = (this.getId() != '') ? this.ui.hashValue(this.getId()) :
 			('(' + this.ui.hashValue(this.getTitle()) + ')');
 		var bytes = JSON.stringify(patches).length;
 		var limit = 1000;
@@ -893,10 +910,210 @@ DrawioFile.prototype.ignorePatches = function(patches)
 };
 
 /**
+ * Returns true if the given patches contain changes for the page with
+ * the given ID.
+ */
+DrawioFile.prototype.isPagePatched = function(patches, id)
+{
+	for (var i = 0; i < patches.length; i++)
+	{
+		if (patches[i] != null && patches[i][EditorUi.DIFF_UPDATE] != null &&
+			patches[i][EditorUi.DIFF_UPDATE][id] != null)
+		{
+			return true;
+		}
+	}
+
+	return false;
+};
+
+/**
+ * Gives every edge of the given page whose end is neither a terminal
+ * nor a terminal point such a point back, and returns true if anything
+ * was repaired. Such an end cannot be drawn, so the edge silently
+ * disappears from the diagram while every model copy stays perfectly
+ * consistent - no convergence verdict can see it.
+ *
+ * The exact patch paths must not invent the point themselves (the
+ * shadow is checksummed against the sender, so anything the sender
+ * does not have forces a reload), which is why the repair runs here,
+ * on the VISIBLE page, as a first-class local change: it flushes and
+ * propagates like any other local edit. It is idempotent - once the
+ * point exists the edge is renderable and never repaired again.
+ */
+DrawioFile.prototype.repairUnrenderableEdges = function(page, repairedIds)
+{
+	var repaired = false;
+
+	if (page != null && page.root != null)
+	{
+		var walk = mxUtils.bind(this, function(cell)
+		{
+			if (cell.isEdge())
+			{
+				var geo = cell.getGeometry();
+
+				for (var i = 0; geo != null && i < 2; i++)
+				{
+					var source = (i == 0);
+
+					if (cell.getTerminal(source) == null &&
+						geo.getTerminalPoint(source) == null)
+					{
+						var pt = this.ui.getEdgeEndFallback(cell, source,
+							cell.getTerminal(!source));
+
+						if (pt != null)
+						{
+							geo = geo.clone();
+							geo.setTerminalPoint(pt, source);
+							cell.setGeometry(geo);
+							repaired = true;
+
+							if (repairedIds != null)
+							{
+								repairedIds[cell.getId()] = true;
+							}
+						}
+					}
+				}
+			}
+
+			for (var i = 0; i < cell.getChildCount(); i++)
+			{
+				walk(cell.getChildAt(i));
+			}
+		});
+
+		walk(page.root);
+
+		if (repaired && page == this.ui.currentPage)
+		{
+			// Marking a cell invalid does not create its state: without
+			// the validation pass the repaired edge stays unrendered
+			// until the next unrelated model change
+			this.ui.editor.graph.view.invalidate(page.root, true, true);
+			this.ui.editor.graph.view.validate();
+		}
+	}
+
+	return repaired;
+};
+
+/**
+ * Keeps repairs of cells the own pages do not carry out of the flush,
+ * PER CELL: an edge that arrived as an unconfirmed live diff is not
+ * this client's to adopt. Flushing its repair runs it through the
+ * cross-reference resolution, which pulls the edge AND its ancestor
+ * chain into the own pages, and the next save persists them - that is
+ * exactly the bounded lifetime which lets a cleanup expel content
+ * nobody ever confirmed. Mirroring the repaired geometry into the
+ * snapshot keeps the screen correct while the outgoing diff stays
+ * empty for those cells; the sender's own save carries the real
+ * geometry. Scoped to the page in question, since ids repeat across
+ * pages. Returns true if at least one repair may be flushed.
+ */
+DrawioFile.prototype.absorbUnconfirmedRepairs = function(page, ids, absorbAll)
+{
+	if (page == null || ids == null)
+	{
+		return false;
+	}
+
+	if (this.ownPages == null && !absorbAll)
+	{
+		// No realtime copies: everything on screen is this client's
+		return true;
+	}
+
+	var pageOf = mxUtils.bind(this, function(pages)
+	{
+		if (pages != null)
+		{
+			for (var i = 0; i < pages.length; i++)
+			{
+				if (pages[i].getId() == page.getId())
+				{
+					this.ui.updatePageRoot(pages[i]);
+
+					return (pages[i].root != null) ?
+						new mxGraphModel(pages[i].root) : null;
+				}
+			}
+		}
+
+		return null;
+	});
+
+	var ownModel = (absorbAll) ? null : pageOf(this.ownPages);
+	var snapModel = pageOf((this.sync != null) ? this.sync.snapshot : null);
+	this.ui.updatePageRoot(page);
+	var model = (page.root != null) ? new mxGraphModel(page.root) : null;
+	var flushable = false;
+
+	for (var id in ids)
+	{
+		if (ownModel != null && ownModel.getCell(id) != null)
+		{
+			flushable = true;
+		}
+		else if (model != null && snapModel != null)
+		{
+			var cell = model.getCell(id);
+			var snapCell = snapModel.getCell(id);
+
+			if (cell != null && snapCell != null &&
+				cell.getGeometry() != null)
+			{
+				snapCell.setGeometry(cell.getGeometry().clone());
+			}
+		}
+	}
+
+	return flushable;
+};
+
+/**
+ * Adds the ids of all content cells of the given page to the target
+ * map. The root and the layer ids are excluded: they repeat on every
+ * page, so including them would match edits on surviving pages too.
+ */
+DrawioFile.prototype.collectPageCellIds = function(page, target)
+{
+	this.ui.updatePageRoot(page);
+	var model = new mxGraphModel(page.root);
+	var skip = Object.create(null);
+	var root = model.getRoot();
+
+	if (root.getId() != null)
+	{
+		skip[root.getId()] = true;
+	}
+
+	for (var i = 0; i < model.getChildCount(root); i++)
+	{
+		var layerId = model.getChildAt(root, i).getId();
+
+		if (layerId != null)
+		{
+			skip[layerId] = true;
+		}
+	}
+
+	for (var id in model.cells)
+	{
+		if (!skip[id])
+		{
+			target[id] = true;
+		}
+	}
+};
+
+/**
  * Applies the given patches to the file. If sendChanges is true the snapshot in
  * the sync client is not updated so a diff can be computed and propagated.
  */
-DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges)
+DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges, mergeInserts)
 {
 	if (patches != null)
 	{
@@ -927,6 +1144,11 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges)
 			this.ui.fileNode.getAttribute('vars') : null;
 		this.ui.patchFileNode(patches);
 
+		if (!sendChanges)
+		{
+			this.acceptRemoteFileVars(patches);
+		}
+
 		// Updates text editor if cell changes during validation
 		var redraw = graph.cellRenderer.redraw;
 
@@ -941,6 +1163,11 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges)
 			redraw.apply(this, arguments);
 		};
 		
+		// Captures the modified state so the snapshot below is
+		// patched with the same arguments as the pages
+		var modified = this.isModified();
+		var createdPage = null;
+
 		graph.model.beginUpdate();
 		try
 		{
@@ -949,7 +1176,7 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges)
 				var oldPages = this.ui.pages.slice();
 				var currentPage = this.ui.currentPage;
 				var pages = this.ui.applyPatches(this.ui.pages,
-					patches, true, resolver, this.isModified());
+					patches, true, resolver, modified, mergeInserts);
 				
 				for (var i = 0; i < pages.length; i++)
 				{
@@ -983,13 +1210,14 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges)
 			else
 			{
 				this.ui.pages = this.ui.applyPatches(this.ui.pages,
-					patches, true, resolver, this.isModified());
+					patches, true, resolver, modified, mergeInserts);
 			}
 			
 			// Always needs at least one page
 			if (this.ui.pages.length == 0)
 			{
-				this.ui.pages.push(this.ui.createPage());
+				createdPage = this.ui.createPage();
+				this.ui.pages.push(createdPage);
 			}
 
 			// Checks if current page was removed
@@ -1011,7 +1239,12 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges)
 			graph.cellRenderer.redraw = redraw;
 			this.changeListenerEnabled = prev;
 		
-			// Restores history state
+			// Restores history state: the history stays COMPLETE across
+			// external patches. Edits whose object references the patch
+			// removed or replaced are repaired at execute time (see the
+			// change execute wraps in EditorUi.js and Pages.js), never
+			// dropped - resolution must happen per replay, as a later
+			// remote change can revive the referenced id
 			if (!undoable)
 			{
 				undoMgr.history = history;
@@ -1047,12 +1280,150 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges)
 				graph.sizeDidChange();
 			}
 
-			// Updates snapshot for finding local changes in sync
+			// Updates snapshot for finding local changes in sync by
+			// applying the patches with the same arguments as for the
+			// pages above: the snapshot must converge to the exact
+			// same state or sendLocalChanges echoes remote changes
+			// back to collaborators as local changes
 			if (this.sync != null && this.isRealtime() && !sendChanges)
 			{
-				this.sync.snapshot = this.ui.clonePages(this.ui.pages);
+				if (this.sync.snapshot == null || createdPage != null)
+				{
+					this.sync.snapshot = this.ui.clonePages(this.ui.pages);
+				}
+				else
+				{
+					this.sync.snapshot = this.ui.applyPatches(this.sync.snapshot,
+						patches, false, resolver, modified, mergeInserts);
+
+					// Reactive changes (eg. layouts via the layout manager)
+					// are applied to the current page in the graph but not in
+					// the patched snapshot. They are stateful, first-class
+					// local changes authored by this client and are scheduled
+					// for the next flush and save like any other local edit,
+					// so they reach collaborators and the file explicitly.
+					// Client-local handling is not possible as peers on other
+					// pages never run the layout and the last saver would
+					// persist a state the layout can never produce. The
+					// snapshot keeps the raw patch result so the delta stays
+					// diffable, and fileChanged is called explicitly as the
+					// change listener is disabled during the patch.
+					var current = this.ui.currentPage;
+
+					// Edges the patch left with an undetermined end are
+					// unrenderable and would silently vanish from the
+					// screen (see repairUnrenderableEdges). Repaired on
+					// EVERY patched page, not just the viewed one: a
+					// patch removes terminals wherever it lands, the
+					// exact paths must not invent a point, and an edge
+					// left undetermined on another page is just as
+					// undrawable - it only stays unnoticed longer,
+					// because nobody is looking at it and every model
+					// copy agrees. The flush sanitizer does not cover
+					// it either: it only visits pages the user changed.
+					for (var pi = 0; pi < this.ui.pages.length; pi++)
+					{
+						var patched = this.ui.pages[pi];
+
+						if (!this.isPagePatched(patches, patched.getId()))
+						{
+							continue;
+						}
+
+						var pageIds = Object.create(null);
+
+						// A repair becomes a first-class local change so
+						// it reaches collaborators and the file - but
+						// only if this client may save at all and only
+						// for content the file already knows. On a
+						// non-editable client modified would never clear
+						// again (the revoked split-brain class), and an
+						// edge that arrived as an unconfirmed live diff
+						// is not ours to adopt: the flush would pull it
+						// and its parents into the own pages and the
+						// next save would persist injected content that
+						// must expire with the next cleanup instead.
+						// absorbUnconfirmedRepairs mirrors those into
+						// the snapshot, so the screen keeps the repair
+						// while the outgoing diff stays empty for them.
+						if (this.repairUnrenderableEdges(patched, pageIds) &&
+							this.absorbUnconfirmedRepairs(patched, pageIds,
+								!this.isEditable()))
+						{
+							this.fileChanged(null,
+								{pageId: patched.getId()}, true);
+						}
+					}
+
+					if (current != null &&
+						this.isPagePatched(patches, current.getId()))
+					{
+						for (var i = 0; i < this.sync.snapshot.length; i++)
+						{
+							if (this.sync.snapshot[i].getId() == current.getId())
+							{
+								var delta = this.ui.diffPages(
+									[this.sync.snapshot[i]], [current]);
+
+								if (!this.ignorePatches([delta]))
+								{
+									if (this.isEditable())
+									{
+										this.fileChanged(null,
+											'currentPage', true);
+									}
+									else
+									{
+										// A non-editable client can never
+										// confirm the delta through its
+										// own save, and absorbing it into
+										// the own pages would revert
+										// every incoming save on this
+										// client (the layout recomputes
+										// from the LOCAL child order
+										// after each merge - permanent
+										// split brain). Only the snapshot
+										// adopts the visible result so no
+										// flush echoes it; the next
+										// cleanup aligns the screen with
+										// the own pages and the layout
+										// then agrees with the saved
+										// state.
+										this.sync.snapshot[i] =
+											this.ui.clonePages([current])[0];
+									}
+								}
+
+								break;
+							}
+						}
+					}
+				}
+
 				this.sync.snapshotVars = (this.ui.fileNode != null) ?
 					this.ui.fileNode.getAttribute('vars') : null;
+
+				// Verifies that the snapshot matches the pages while no
+				// local changes are pending, ie. the next outgoing diff
+				// must be empty
+				// Release telemetry: the check also runs in sampled sessions
+				if ((urlParams['test'] == '1' || (EditorUi.realtimeTelemetry &&
+					EditorUi.realtimeTelemetrySampled)) && !this.sync.localFileWasChanged &&
+					this.ui.getHashValueForPages(this.sync.snapshot) !=
+					this.ui.getHashValueForPages(this.ui.pages))
+				{
+					EditorUi.debug('DrawioFile.patch', [this],
+						'snapshot mismatch', this.sync.snapshot,
+						'pages', this.ui.pages, 'diff', this.ui.diffPages(
+							this.sync.snapshot, this.ui.pages));
+					EditorUi.logRealtime('snapshot-drift',
+						{p: this.ui.pages.length}, this, this.getId());
+
+					if (urlParams['test'] == '1')
+					{
+						this.ui.alert('Snapshot out of sync');
+					}
+				}
 			}
 			
 			this.ui.editor.fireEvent(new mxEventObject('pagesPatched', 'patches', patches));
@@ -1119,6 +1490,20 @@ DrawioFile.prototype.loadFonts = function(callback)
  */
 DrawioFile.prototype.save = function(revision, success, error, unloading, overwrite, manual)
 {
+	if (this.appUpgradeRequired)
+	{
+		if (error != null)
+		{
+			error({message: mxResources.get('redirectToNewApp')});
+		}
+		else
+		{
+			this.redirectToNewApp(function() {});
+		}
+
+		return;
+	}
+
 	try
 	{
 		EditorUi.debug('DrawioFile.save', [this], 'revision', revision,
@@ -1156,6 +1541,11 @@ DrawioFile.prototype.save = function(revision, success, error, unloading, overwr
 			{
 				try
 				{
+					if (this.appUpgradeRequired)
+					{
+						throw new Error(mxResources.get('redirectToNewApp'));
+					}
+
 					this.updateFileData();
 
 					if (success != null)
@@ -1254,6 +1644,10 @@ DrawioFile.prototype.updateFileData = function()
 	}
 
 	this.setData(this.createData());
+	// Identify the ownership interval serialized by this write, even
+	// when no realtime sync object exists. A foreign write starts a
+	// new interval, so an old completion cannot confirm a later edit.
+	this.savingFileVars = this.pendingFileVars;
 	
 	if (this.sync != null)
 	{
@@ -1549,7 +1943,289 @@ DrawioFile.prototype.getId = function()
  */
 DrawioFile.prototype.isEditable = function()
 {
-	return !this.ui.editor.isChromelessView() || this.ui.editor.editable;
+	return !this.writeRevoked && (!this.ui.editor.isChromelessView() ||
+		this.ui.editor.editable);
+};
+
+/**
+ * Returns true if the given save error COULD mean the write permission
+ * was revoked. This is only the pre-filter: rate limits and auth
+ * refreshes produce the same status, so the actual revoke decision is
+ * made by verifyWriteRevoked against the provider descriptor.
+ */
+DrawioFile.prototype.isWriteRevokedError = function(err)
+{
+	return err != null && (err.code == 403 || err.status == 403 ||
+		(err.error != null && err.error.code == 403));
+};
+
+/**
+ * Verifies a suspected write revoke against the provider and reports
+ * the result to the callback: true only if the file is effectively
+ * read-only per a freshly loaded descriptor (eg. isEditable on
+ * DriveFile). The default has no descriptor-level editability, so the
+ * error stays transient and a later save retries.
+ */
+DrawioFile.prototype.verifyWriteRevoked = function(callback)
+{
+	callback(false);
+};
+
+/**
+ * Handles losing the write permission DURING a realtime session: the
+ * realtime channel keeps sending, but no save of this client can ever
+ * confirm its changes - by the single-source-of-truth model they are
+ * invalid and must be rolled back. The visible document returns to
+ * the last confirmed file state, the rollback goes out as a final
+ * live diff so collaborators see the retraction immediately (it
+ * carries the file state, so it only aids convergence), the undo
+ * history is cleared (it references retracted objects) and the file
+ * becomes read-only.
+ */
+DrawioFile.prototype.handleWriteRevoked = function(err)
+{
+	// Repeated denied saves (retries, quiescence cycles) must not
+	// repeat the rollback broadcast: the first revoke already did the
+	// retraction, a second pass would diff the meanwhile-received
+	// remote state against the shadow and retract foreign work
+	if (this.writeRevoked)
+	{
+		return;
+	}
+
+	EditorUi.logRealtime('write-revoked', null, this, this.getId());
+
+	try
+	{
+		if (this.isRealtime() && this.sync != null)
+		{
+			// Flushes first, as cleanup and merge do: ownPages only
+			// holds changes up to the last flush, so edits made inside
+			// the debounce window or during the descriptor round trip
+			// would escape the retraction entirely - they would stay on
+			// screen as apparently durable work on a file that can
+			// never save again, and the peers would keep them too.
+			this.sync.sendLocalChanges();
+
+			var shadow = this.ui.clonePages(this.getShadowPages());
+
+			// Only the OWN unconfirmed changes are retracted: the
+			// visible pages also hold unsaved live edits received from
+			// the peers, and diffing them would broadcast removes for
+			// foreign cells - visibly retracting the peers' work and
+			// invalidating their undo histories via the replaced-ids
+			// pass. ownPages holds exactly the confirmed state plus the
+			// own unconfirmed changes, so its delta to the shadow is
+			// the retraction.
+			var patches = [this.ui.diffPages(this.ownPages, shadow)];
+			var patch = patches[0];
+
+			// Vars do not belong to the page diff. Retract only the
+			// current own write, restoring the saved or foreign value
+			// it displaced. A later peer vars write clears this state.
+			if (this.pendingFileVars != null)
+			{
+				patch[EditorUi.DIFF_FILE] =
+					{vars: this.pendingFileVars.before};
+			}
+
+			// An own unconfirmed page can already carry unsaved work
+			// from the peers (visible here, absent from ownPages).
+			// Removing such a page would retract their work and
+			// invalidate their histories as a side effect, so the page
+			// is kept - only the own cells on it are retracted - and
+			// the next saver confirms it. Pages without foreign work
+			// are retracted whole.
+			if (patch[EditorUi.DIFF_REMOVE] != null)
+			{
+				var removes = [];
+
+				for (var i = 0; i < patch[EditorUi.DIFF_REMOVE].length; i++)
+				{
+					var pageId = patch[EditorUi.DIFF_REMOVE][i];
+					var ownPage = null;
+					var uiPage = null;
+
+					for (var j = 0; j < this.ownPages.length; j++)
+					{
+						if (this.ownPages[j].getId() == pageId)
+						{
+							ownPage = this.ownPages[j];
+							break;
+						}
+					}
+
+					for (var j = 0; j < this.ui.pages.length; j++)
+					{
+						if (this.ui.pages[j].getId() == pageId)
+						{
+							uiPage = this.ui.pages[j];
+							break;
+						}
+					}
+
+					var foreign = ownPage != null && uiPage != null &&
+						!mxUtils.isEmptyObject(this.ui.diffPages(
+							[ownPage], [uiPage]));
+
+					if (foreign)
+					{
+						var cellIdMap = Object.create(null);
+						this.collectPageCellIds(ownPage, cellIdMap);
+						var cellIds = [];
+
+						for (var id in cellIdMap)
+						{
+							cellIds.push(id);
+						}
+
+						if (cellIds.length > 0)
+						{
+							if (patch[EditorUi.DIFF_UPDATE] == null)
+							{
+								// Null prototype: keyed by page ids from
+								// the document, like every other id map
+								patch[EditorUi.DIFF_UPDATE] =
+									Object.create(null);
+							}
+
+							patch[EditorUi.DIFF_UPDATE][pageId] =
+								{cells: {}};
+							patch[EditorUi.DIFF_UPDATE][pageId].cells[
+								EditorUi.DIFF_REMOVE] = cellIds;
+						}
+					}
+					else
+					{
+						removes.push(pageId);
+					}
+				}
+
+				if (removes.length > 0)
+				{
+					patch[EditorUi.DIFF_REMOVE] = removes;
+				}
+				else
+				{
+					delete patch[EditorUi.DIFF_REMOVE];
+				}
+			}
+
+			// Removing an own container also removes all its descendants,
+			// including cells the peers inserted inside it. Keep the
+			// ancestor chain required by those foreign cells, on saved
+			// pages AND on new pages retained above. Own-only branches
+			// are still retracted; the remaining structure belongs to the
+			// peer's pending insert and is confirmed by their next save.
+			var updates = patch[EditorUi.DIFF_UPDATE];
+
+			if (updates != null)
+			{
+				for (var pageId in updates)
+				{
+					var cells = updates[pageId].cells;
+					var cellRemoves = (cells != null) ?
+						cells[EditorUi.DIFF_REMOVE] : null;
+					var ownPage = this.ui.getPageById(pageId, this.ownPages);
+					var uiPage = this.ui.getPageById(pageId);
+
+					if (cellRemoves != null && ownPage != null && uiPage != null)
+					{
+						this.ui.updatePageRoot(ownPage);
+						this.ui.updatePageRoot(uiPage);
+						var ownModel = new mxGraphModel(ownPage.root);
+						var uiModel = new mxGraphModel(uiPage.root);
+						var needed = Object.create(null);
+
+						for (var id in uiModel.cells)
+						{
+							if (ownModel.getCell(id) == null)
+							{
+								var parent = uiModel.getCell(id).getParent();
+
+								while (parent != null && !needed[parent.getId()])
+								{
+									needed[parent.getId()] = true;
+									parent = parent.getParent();
+								}
+							}
+						}
+
+						var removes = [];
+
+						for (var i = 0; i < cellRemoves.length; i++)
+						{
+							if (!needed[cellRemoves[i]])
+							{
+								removes.push(cellRemoves[i]);
+							}
+						}
+
+						if (removes.length > 0)
+						{
+							cells[EditorUi.DIFF_REMOVE] = removes;
+						}
+						else
+						{
+							delete cells[EditorUi.DIFF_REMOVE];
+						}
+					}
+				}
+			}
+
+			if (!this.ignorePatches(patches))
+			{
+				// sendChanges keeps the snapshot at the pre-rollback
+				// state so the flush below broadcasts the retraction
+				// and advances ownPages to the confirmed file state.
+				// The patch runs with the change listener disabled, so
+				// no pages are marked dirty - the flush must fall back
+				// to diffing all pages
+				this.patch(patches, null, false, true);
+				this.sync.dirtyPageIds = null;
+				this.sync.localFileWasChanged = true;
+				this.sync.sendLocalChanges();
+			}
+
+			this.pendingFileVars = null;
+			this.savingFileVars = null;
+
+			// The peers' unsaved edits stay visible and remain the last
+			// known remote state (they are not retracted, their senders
+			// still own them)
+			this.theirPages = this.ui.clonePages(this.ui.pages);
+		}
+	}
+	catch (e)
+	{
+		// The rollback must never leave the error path broken, but a
+		// failed retraction diverges this client from its peers for the
+		// rest of the session and must not do so silently
+		try
+		{
+			var user = this.getCurrentUser();
+			// Hashed like sendErrorReport: no raw user or file ids in logs
+			var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
+
+			EditorUi.logError('Error in handleWriteRevoked', null,
+				this.getMode() + '.' + this.ui.hashValue(this.getId()), uid, e);
+		}
+		catch (e2)
+		{
+			// ignore
+		}
+	}
+
+	this.ui.editor.undoManager.clear();
+	this.setModified(false);
+	this.writeRevoked = true;
+	this.descriptorChanged();
+
+	this.ui.updateStatus(mxUtils.bind(this, function()
+	{
+		this.ui.editor.setStatus('<div class="geStatusAlert">' +
+			mxUtils.htmlEntities(mxResources.get('readOnly')) + '</div>');
+	}));
 };
 
 /**
@@ -2050,7 +2726,10 @@ DrawioFile.prototype.installListeners = function()
 
 			if (this.changeListenerEnabled && this.isEditable() && (edit == null || !edit.ignoreEdit))
 			{
-				this.fileChanged();
+				// Non-model events (eg. background changes) affect
+				// the current page only
+				this.fileChanged(null, (edit != null) ?
+					edit : 'currentPage');
 			}
 		});
 		
@@ -2071,6 +2750,35 @@ DrawioFile.prototype.installListeners = function()
 		this.ui.addListener('pageViewChanged', this.changeListener);
 		this.ui.addListener('connectionPointsChanged', this.changeListener);
 		this.ui.addListener('connectionArrowsChanged', this.changeListener);
+	}
+};
+
+/**
+ * Shows when the file was last changed, the status the realtime sync
+ * shows after a remote save. Used after a synchronization that merged
+ * external changes into an unmodified document.
+ */
+DrawioFile.prototype.addLastChangeStatus = function()
+{
+	if (this.ui.statusContainer != null && this.ui.getCurrentFile() == this)
+	{
+		this.ui.updateStatus(mxUtils.bind(this, function()
+		{
+			var date = this.getLastModifiedDate();
+			var str = (date != null) ? this.ui.timeSince(date) : null;
+
+			if (str == null)
+			{
+				str = mxResources.get('lessThanAMinute');
+			}
+
+			var label = mxUtils.htmlEntities(mxResources.get('lastChange', [str]));
+			var rev = (this.isRevisionHistorySupported()) ? 'data-action="revisionHistory" ' : '';
+			var title = label + ((this.isRevisionHistorySupported()) ? ' - ' +
+				mxUtils.htmlEntities(mxResources.get('revisionHistory')) : '');
+
+			this.ui.editor.setStatus('<div ' + rev + 'title="' + title + '">' + label + '</div>');
+		}));
 	}
 };
 
@@ -2380,7 +3088,35 @@ DrawioFile.prototype.showConflictDialog = function(overwrite, synchronize)
 };
 
 /**
- * Checks if the client is authorized and calls the next step.
+ * Stops synchronization and saves while preserving work for local export.
+ */
+DrawioFile.prototype.requireAppUpgrade = function()
+{
+	if (!this.appUpgradeRequired)
+	{
+		this.appUpgradeRequired = true;
+		EditorUi.logRealtime('upgrade-required', {min: (this.sync != null) ?
+			this.sync.minRemoteAppVersion : null}, this, this.getId());
+		this.clearAutosave();
+
+		if (this.sync != null)
+		{
+			this.sync.enabled = false;
+
+			if (this.sync.p2pCollab != null)
+			{
+				this.sync.p2pCollab.destroy();
+			}
+		}
+
+		// Keep the document and modified flag intact. Cancel lets the user
+		// export a local copy before explicitly discarding and reloading.
+		this.redirectToNewApp(function() {});
+	}
+};
+
+/**
+ * Offers an app update without discarding pending edits on cancellation.
  */
 DrawioFile.prototype.redirectToNewApp = function(error, details)
 {
@@ -2404,14 +3140,58 @@ DrawioFile.prototype.redirectToNewApp = function(error, details)
 			var fn = mxUtils.bind(this, function()
 			{
 				this.redirectDialogShowing = false;
-				
-				if (window.location.href == url)
+
+				// Assigning a URL that differs from the current one in its
+				// fragment only does not navigate: the browser changes the
+				// fragment and fires hashchange, so the old app stayed
+				// loaded whenever the file has no hash (getHash returns ''
+				// for local files, so the target ended in a bare #) or a
+				// hash other than the one in the address bar. Compared
+				// without the fragment; a same-base target sets the
+				// fragment and reloads explicitly.
+				var hashIndex = url.indexOf('#');
+				var targetBase = (hashIndex < 0) ? url : url.substring(0, hashIndex);
+				var targetHash = (hashIndex < 0) ? '' : url.substring(hashIndex);
+				var currentBase = window.location.href.split('#')[0];
+
+				var navigate = mxUtils.bind(this, function()
 				{
-					window.location.reload();
+					if (currentBase == targetBase)
+					{
+						if (targetHash.length > 1 &&
+							window.location.hash != targetHash)
+						{
+							window.location.hash = targetHash;
+						}
+
+						window.location.reload();
+					}
+					else
+					{
+						window.location.href = url;
+					}
+
+					// The browser asks before leaving a modified file and
+					// keeps the page when that is declined, so the spinner
+					// shown for the service worker update is stopped once
+					// the navigation is triggered (a page that does unload
+					// is gone right after)
+					this.ui.spinner.stop();
+				});
+
+				// A reload served by the old service worker still runs
+				// the old app and merely installs the update in the
+				// background, so this dialog would show a second time.
+				// Waiting for the updated worker to activate makes the
+				// reload load the new app in one step.
+				if (typeof App !== 'undefined' && App.updateServiceWorker != null)
+				{
+					this.ui.spinner.spin(document.body, mxResources.get('loading'));
+					App.updateServiceWorker(navigate);
 				}
 				else
 				{
-					window.location.href = url;
+					navigate();
 				}
 			});
 			
@@ -2504,7 +3284,14 @@ DrawioFile.prototype.handleFileSuccess = function(saved)
 		}
 		else
 		{
-			this.ui.clearStatus();
+			// A synchronization without local changes, eg. an external
+			// change the desktop watcher merged: nothing was saved, so
+			// the saved status would claim a save that did not happen,
+			// and a cleared status stayed empty until the next save (a
+			// realtime file repaints it from the sync's status thread, a
+			// local file has none). Says when the file changed, like the
+			// realtime status does after a remote save.
+			this.addLastChangeStatus();
 		}
 	}
 };
@@ -2512,7 +3299,7 @@ DrawioFile.prototype.handleFileSuccess = function(saved)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFile.prototype.handleFileError = function(err, manual)
+DrawioFile.prototype.handleFileError = function(err, manual, skipRevokeCheck)
 {
 	// Ignores busy errors for background saves as the file is
 	// saved again when the current save operation completes
@@ -2522,12 +3309,53 @@ DrawioFile.prototype.handleFileError = function(err, manual)
 	}
 
 	this.ui.spinner.stop();
-	
+
+	// The save window is over either way: a descriptor or file-changed
+	// notification deferred during it must not be dropped just because
+	// the save failed (see flushRemoteDescriptor, flushRemoteFileChanged)
+	if (this.sync != null)
+	{
+		this.sync.flushRemoteDescriptor();
+		this.sync.flushRemoteFileChanged();
+	}
+
 	if (this.ui.getCurrentFile() == this)
 	{
 		if (this.inConflictState)
 		{
 			this.handleConflictError(err, manual);
+		}
+		else if (!skipRevokeCheck && this.isRealtime() &&
+			!this.writeRevoked && this.isWriteRevokedError(err))
+		{
+			// The status alone is not the revoke signal: the provider
+			// descriptor decides. Only a confirmed effective read-only
+			// rolls the transient edits back (they can never be
+			// confirmed by a save then); an unconfirmed error stays
+			// transient - the file remains modified and a later save
+			// retries.
+			this.verifyWriteRevoked(mxUtils.bind(this, function(revoked)
+			{
+				// The descriptor round trip is asynchronous: the user
+				// may have closed this file or opened another one
+				// meanwhile, and the revoked branch would then roll
+				// back and clear the undo history of a file that is no
+				// longer on screen (the transient branch re-enters
+				// handleFileError, which checks this itself)
+				if (this.ui.getCurrentFile() != this)
+				{
+					return;
+				}
+
+				if (revoked && !this.writeRevoked)
+				{
+					this.handleWriteRevoked(err);
+				}
+				else if (!this.writeRevoked)
+				{
+					this.handleFileError(err, manual, true);
+				}
+			}));
 		}
 		else
 		{
@@ -2716,6 +3544,11 @@ DrawioFile.prototype.fileReplaced = function(patches)
 		this.patch(patches);
 	}
 	
+	this.pendingFileVars = null;
+	this.savingFileVars = null;
+	this.observedFileVars = (this.ui.fileNode != null) ?
+		this.ui.fileNode.getAttribute('vars') : null;
+
 	if (this.sync != null)
 	{
 		this.sync.initRealtime();
@@ -2725,11 +3558,79 @@ DrawioFile.prototype.fileReplaced = function(patches)
 };
 
 /**
+ * Records local vars before a save or realtime transition can move the
+ * snapshot. File attributes have no ownPages copy, and edits can happen
+ * before a sync object exists or while realtime is disabled.
+ */
+DrawioFile.prototype.trackLocalFileVars = function()
+{
+	var before = (this.observedFileVars !== undefined) ?
+		this.observedFileVars : this.getShadowVars();
+	var value = (this.ui.fileNode != null) ?
+		this.ui.fileNode.getAttribute('vars') : null;
+
+	if (value != before)
+	{
+		if (this.pendingFileVars == null)
+		{
+			this.pendingFileVars = {before: before};
+		}
+
+		this.pendingFileVars.value = value;
+	}
+
+	this.observedFileVars = value;
+};
+
+/**
+ * A foreign vars write supersedes the whole pending own attribute,
+ * even if its serialization is identical. Page-only patches do not.
+ */
+DrawioFile.prototype.acceptRemoteFileVars = function(patches)
+{
+	for (var i = 0; patches != null && i < patches.length; i++)
+	{
+		if (patches[i] != null && patches[i][EditorUi.DIFF_FILE] != null &&
+			patches[i][EditorUi.DIFF_FILE].vars !== undefined)
+		{
+			this.pendingFileVars = null;
+			this.observedFileVars = patches[i][EditorUi.DIFF_FILE].vars;
+		}
+	}
+};
+
+/**
+ * Confirms only vars from the ownership interval included in a
+ * successful write. Used by both cached and optimistic file saves.
+ */
+DrawioFile.prototype.confirmFileVars = function(savedVars)
+{
+	if (this.pendingFileVars != null &&
+		this.pendingFileVars === this.savingFileVars)
+	{
+		this.pendingFileVars.before = savedVars;
+
+		if (this.pendingFileVars.value == savedVars)
+		{
+			this.pendingFileVars = null;
+		}
+	}
+
+	this.savingFileVars = null;
+};
+
+/**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFile.prototype.fileChanged = function(sync)
+DrawioFile.prototype.fileChanged = function(sync, edit, reactive)
 {
 	sync = (sync != null) ? sync : true;
+
+	if (sync && !reactive)
+	{
+		this.trackLocalFileVars();
+	}
+
 	this.lastChanged = new Date();
 	this.setModified(true);
 
@@ -2789,7 +3690,7 @@ DrawioFile.prototype.fileChanged = function(sync)
 
 	if (this.sync != null && sync)
 	{
-		this.sync.localFileChanged();
+		this.sync.localFileChanged(edit, reactive);
 	}
 };
 
@@ -2846,13 +3747,37 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error, t
 		this.inConflictState = false;
 		this.invalidChecksum = false;
 
-		pages = (pages != null) ? pages : this.ui.getPagesForXml(savedData, true);
+		// The conflict retry budget counts the CONSECUTIVE catchup
+		// attempts of ONE conflict episode, so a confirmed save ends
+		// the episode and returns the full budget. The reset used to
+		// live in DrawioFileSync.fileSaved, which the optimistic
+		// branch below never reaches: for every file with
+		// isOptimisticSync (OneDriveFile and the EmbedFile
+		// integrations) the counter was never reset and became a
+		// LIFETIME conflict counter, so the maxCatchupRetries-th
+		// conflict of the session was refused in fileConflict without
+		// attempting a catchup at all - the host saw ERROR_TIMEOUT,
+		// abandoned the save and left the file in conflict state
+		// (embed conflict-timeout reports land on exact multiples of
+		// maxCatchupRetries - 1, `conflict-budget-optimistic`).
+		if (this.sync != null)
+		{
+			this.sync.catchupRetryCount = 0;
+		}
+
+		var savedRoot = mxUtils.parseXml(savedData).documentElement;
+		savedRoot = this.ui.editor.extractGraphModel(savedRoot, true, true) || savedRoot;
+		var savedVars = (savedRoot != null && savedRoot.nodeName == 'mxfile') ?
+			savedRoot.getAttribute('vars') : null;
+		pages = (pages != null) ? pages :
+			this.ui.getPagesForNode(savedRoot, null, true);
 
 		try
 		{
 			if (this.sync == null || this.isOptimisticSync())
 			{
-				this.setShadowPages(pages);
+				this.setShadowPages(pages, savedVars);
+				this.confirmFileVars(savedVars);
 				
 				if (this.sync != null)
 				{
@@ -2873,7 +3798,7 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error, t
 			else
 			{
 				this.sync.fileSaved(pages, lastDesc,
-					success, error, token, checksum);
+					success, error, token, checksum, savedVars);
 			}
 		}
 		catch (e)
@@ -2890,10 +3815,11 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error, t
 			try
 			{
 				var user = this.getCurrentUser();
-				var uid = (user != null) ? user.id : 'unknown';
+				// Hashed like sendErrorReport: no raw user or file ids in logs
+				var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
 				
 				EditorUi.logError('Error in fileSaved', null,
-					this.getMode() + '.' + this.getId(),
+					this.getMode() + '.' + this.ui.hashValue(this.getId()),
 					uid, e);
 			}
 			catch (e2)
@@ -2923,6 +3849,8 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error, t
  */
 DrawioFile.prototype.autosave = function(delay, maxDelay, success, error)
 {
+	if (this.appUpgradeRequired) return;
+
 	if (this.lastAutosave == null)
 	{
 		this.lastAutosave = Date.now();
@@ -3081,6 +4009,21 @@ DrawioFile.prototype.close = function(unloading)
 	}
 	
 	this.stats.closed++;
+
+	// Release telemetry: session summary of sampled and flagged sessions
+	if (this.sync != null && EditorUi.realtimeTelemetry &&
+		(EditorUi.realtimeTelemetrySampled || this.realtimeTelemetryFlagged))
+	{
+		var s = this.stats;
+
+		EditorUi.logRealtime('session', {rt: (this.isRealtime()) ? 1 : 0,
+			min: Math.round((Date.now() - this.created) / 60000), saved: s.saved,
+			merged: s.merged, fm: s.fileMerged, fr: s.fileReloaded,
+			conf: s.conflicts, to: s.timeouts, cs: s.checksumErrors,
+			join: s.joined, ms: s.msgSent, mr: s.msgReceived, ch: s.cacheHits,
+			cm: s.cacheMiss, cf: s.cacheFail}, this, null, unloading);
+	}
+
 	this.destroy();
 };
 

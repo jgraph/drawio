@@ -890,6 +890,10 @@ mxStencilRegistry.allowEval = false;
 	{
 		var paths = argsObj.args;
 		var layoutName = argsObj.layout;
+		// Set by the --normalize command-line flag (parsed in the desktop main
+		// process, like layout): repairs the opened model before anything else
+		// touches it - see Graph.normalizeModel.
+		var normalize = argsObj.normalize;
 		// Set by the --mermaid-image command-line flag (parsed in the desktop
 		// main process, like layout): opens .mmd/.mermaid files as a static
 		// image instead of an editable diagram.
@@ -912,6 +916,13 @@ mxStencilRegistry.allowEval = false;
 					file.stat = stat;
 					file.setModified(isModified? true : false);
 					this.fileLoaded(file);
+
+					// --normalize: repair the model first, so a layout reads
+					// edges in the frame of the cell that contains them.
+					if (normalize)
+					{
+						this.editor.graph.normalizeModel();
+					}
 
 					// --layout: run the requested ELK layout once the diagram
 					// is loaded (applies to any opened file, generated or not).
@@ -1012,6 +1023,12 @@ mxStencilRegistry.allowEval = false;
 
 		this.watchFile(file);
 		origFileLoaded.apply(this, arguments);
+
+		// Baseline for stale external rewrite detection
+		if (file != null && typeof file.recordOwnState === 'function')
+		{
+			file.recordOwnState();
+		}
 	};
 
 	var origSetCurrentFile = EditorUi.prototype.setCurrentFile;
@@ -1561,6 +1578,152 @@ mxStencilRegistry.allowEval = false;
 		}
 	};
 	
+	// Session ring of own content states (load + saves) used to detect a
+	// sync client rewriting the file with an older version of itself
+	// (rollback or delayed echo): silently merging such a state can
+	// duplicate content the user recreated in the meantime, eg. pasted
+	// edges [jgraph/drawio-desktop#2382]
+	// The entries are 32-bit numbers, so the cap costs nothing worth
+	// saving: at 20 a long autosave session evicts the states the guard
+	// needs and the echo window reopens silently
+	LocalFile.prototype.maxOwnStateHashes = 500;
+
+	LocalFile.prototype.recordOwnState = function()
+	{
+		try
+		{
+			var pages = this.getShadowPages();
+
+			if (pages != null && pages.length > 0)
+			{
+				var hash = this.ui.getHashValueForPages(pages);
+
+				if (this.ownStateHashes == null)
+				{
+					this.ownStateHashes = [];
+				}
+
+				// Checked against the WHOLE ring: an edit that toggles
+				// between two states would otherwise burn a slot per
+				// save and evict everything else
+				if (!this.isOwnPastState(hash))
+				{
+					this.ownStateHashes.push(hash);
+
+					if (this.ownStateHashes.length > this.maxOwnStateHashes)
+					{
+						this.ownStateHashes.shift();
+					}
+				}
+			}
+		}
+		catch (e)
+		{
+			// best effort, saving must not fail on detection
+		}
+	};
+
+	LocalFile.prototype.isOwnPastState = function(hash)
+	{
+		return this.ownStateHashes != null &&
+			mxUtils.indexOf(this.ownStateHashes, hash) >= 0;
+	};
+
+	// Asks the user before merging a stale external rewrite instead of
+	// silently adopting it (the conflict status and the save conflict
+	// dialog both end up in synchronizeFile)
+	LocalFile.prototype.synchronizeFile = function(success, error)
+	{
+		this.getLatestVersion(mxUtils.bind(this, function(latestFile)
+		{
+			var stale = false;
+
+			try
+			{
+				var latestHash = this.ui.getHashValueForPages(
+					latestFile.getShadowPages());
+				stale = latestHash != this.ui.getHashValueForPages(
+					this.getShadowPages()) && this.isOwnPastState(latestHash);
+			}
+			catch (e)
+			{
+				// unreadable state falls through to the default merge
+			}
+
+			if (stale)
+			{
+				EditorUi.debug('LocalFile.synchronizeFile', [this],
+					'stale external rewrite detected');
+
+				// Every exit of this dialog must answer the caller. It
+				// was entered from the conflict status or the save
+				// conflict dialog, so a silent dismissal leaves
+				// inConflictState set: further watcher notifications
+				// are suppressed, autosave stops and even the unsaved
+				// status is withheld, while the user keeps editing.
+				// Escape closes the dialog without running either
+				// button, which is exactly that case.
+				var answered = false;
+
+				var answer = mxUtils.bind(this, function(fn)
+				{
+					return mxUtils.bind(this, function()
+					{
+						if (!answered)
+						{
+							answered = true;
+							fn.apply(this, arguments);
+						}
+					});
+				});
+
+				// The dialog closes BEFORE its button callback runs, so
+				// the check is deferred by a tick - otherwise it would
+				// claim the answer on every ordinary click
+				var dismissed = mxUtils.bind(this, function()
+				{
+					window.setTimeout(mxUtils.bind(this, function()
+					{
+						if (!answered)
+						{
+							answered = true;
+
+							// Same semantics as cancelling the conflict
+							// dialog: restores the clickable conflict
+							// status instead of leaving the file in limbo
+							this.handleFileError(null, false);
+						}
+					}), 0);
+				});
+
+				this.ui.confirm(mxResources.get('fileReplacedByOlder'),
+					answer(mxUtils.bind(this, function()
+					{
+						// A save already in flight would drop the
+						// choice silently, so the caller is told
+						this.save(true, success, error, null, true,
+							mxUtils.bind(this, function()
+							{
+								if (error != null)
+								{
+									error({message: mxResources.get('busy')});
+								}
+							}));
+					})), answer(mxUtils.bind(this, function()
+					{
+						DrawioFile.prototype.synchronizeFile.call(
+							this, success, error, latestFile);
+					})), mxResources.get('overwrite'),
+					mxResources.get('synchronize'), null, dismissed);
+			}
+			else
+			{
+				DrawioFile.prototype.synchronizeFile.call(
+					this, success, error, latestFile);
+			}
+		}), error);
+	};
+
 	// Call save as for copy
 	LocalFile.prototype.copyFile = function(success, error)
 	{
@@ -1842,6 +2005,7 @@ mxStencilRegistry.allowEval = false;
 						
 						this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
 						{
+							this.recordOwnState();
 							this.ui.watchFile(this);
 							this.contentChanged();
 							

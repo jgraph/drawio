@@ -38,7 +38,7 @@ function P2PCollab(ui, sync, channelId)
 	// client is connected to the channel (disable via alone-gate=0)
 	var ALONE_GATE = urlParams['alone-gate'] != '0';
 	var joinInProgress = false, joinId = 0;
-	var lastError = null;
+	var lastError = null, lastCloseCode = null;
 	// Linear backoff for rejoin attempts, stops after the maximum
 	// number of consecutive failures (~2 minutes), resumes when a
 	// new file is opened (new P2PCollab) or the window is reactivated
@@ -51,7 +51,7 @@ function P2PCollab(ui, sync, channelId)
 	// counter is reset when a session is established in clientsList
 	var scheduleRejoin = mxUtils.bind(this, function()
 	{
-		if (destroyed || rejoinThread != null) return;
+		if (destroyed || sync.file.appUpgradeRequired || rejoinThread != null) return;
 
 		if (rejoinAttempts >= MAX_REJOIN_ATTEMPTS)
 		{
@@ -61,6 +61,8 @@ function P2PCollab(ui, sync, channelId)
 				lastError = 'rejoinStopped';
 				EditorUi.debug('P2PCollab: rejoin stopped after',
 					rejoinAttempts, 'attempts');
+				EditorUi.logRealtime('rejoin-stopped', {n: rejoinAttempts,
+					code: lastCloseCode}, sync.file);
 				sync.file.fireEvent(new mxEventObject('realtimeStateChanged'));
 			}
 		}
@@ -82,7 +84,7 @@ function P2PCollab(ui, sync, channelId)
 	// Restarts a stopped rejoin when the window is reactivated
 	var activationListener = mxUtils.bind(this, function()
 	{
-		if (!destroyed && rejoinStopped && !document.hidden)
+		if (!destroyed && !sync.file.appUpgradeRequired && rejoinStopped && !document.hidden)
 		{
 			EditorUi.debug('P2PCollab: rejoin restarted on activation');
 			rejoinStopped = false;
@@ -97,7 +99,7 @@ function P2PCollab(ui, sync, channelId)
 	
 	var sendReply = mxUtils.bind(this, function(action, msg)
   	{
-		if (destroyed) return;
+		if (destroyed || sync.file.appUpgradeRequired) return;
 
 		try
 		{
@@ -128,17 +130,23 @@ function P2PCollab(ui, sync, channelId)
 		return Graph.createSvgImage(8, 12, '<path d="M 4 0 L 8 12 L 4 10 L 0 12 Z" stroke="'+ color +'" fill="'+ color +'"/>').src;
 	};
 
+	// Message types that stream continuously and are not logged
+	function isFrequent(type)
+	{
+		return type == 'cursor' || type == 'view';
+	};
+
 	function sendMessage(type, data)
 	{
 		try
 		{
-			if (destroyed) return;
+			if (destroyed || sync.file.appUpgradeRequired) return;
 
 			var user = sync.file.getCurrentUser();
 
 			if (!fileJoined || user == null || user.displayName == null)
 			{
-				if (type != 'cursor')
+				if (!isFrequent(type))
 				{
 					EditorUi.debug('P2PCollab: message dropped, not joined',
 						[type], 'fileJoined', fileJoined);
@@ -147,17 +155,18 @@ function P2PCollab(ui, sync, channelId)
 				return;
 			}
 
-			// Skips cursor, selection and diff messages while the server
-			// roster confirms that no other client is connected as they
-			// are consumed by currently connected clients only (fails
+			// Skips cursor, view, selection and diff messages while the
+			// server roster confirms that no other client is connected as
+			// they are consumed by currently connected clients only (fails
 			// open while the roster is unknown, late joiners converge
 			// via the file and the selection flush). Notify messages
 			// are always sent as they must reach clients that connect
 			// while the message is in-flight.
 			if (ALONE_GATE && rosterKnown && socketPeerCount == 0 &&
-				(type == 'cursor' || type == 'selectionChange' || type == 'diff'))
+				(type == 'cursor' || type == 'view' ||
+				type == 'selectionChange' || type == 'diff'))
 			{
-				if (type != 'cursor')
+				if (!isFrequent(type))
 				{
 					EditorUi.debug('P2PCollab: skipped message while alone', [type]);
 				}
@@ -180,20 +189,21 @@ function P2PCollab(ui, sync, channelId)
 
 			msg = JSON.stringify(msg);
 			
-			if (NO_P2P && type != 'cursor')
+			if (NO_P2P && !isFrequent(type))
 			{
 				EditorUi.debug('P2PCollab: sending to socket server', [msg]);
 			}
 
 			messageId++;
-			var p2pOnlyMsgs = !NO_P2P && (type == 'cursor' || type == 'selectionChange');
+			var p2pOnlyMsgs = !NO_P2P && (type == 'cursor' ||
+				type == 'view' || type == 'selectionChange');
 
 			if (useSocket && !p2pOnlyMsgs)
 			{
 				sendReply('message', msg);
 			}
 			
-			//TODO Currently, we only send cursor & selection messages via P2P
+			//TODO Currently, we only send cursor, view & selection messages via P2P
 			if (p2pOnlyMsgs)
 			{
 				for (p2pId in p2pClients)
@@ -240,6 +250,21 @@ function P2PCollab(ui, sync, channelId)
 	this.isFileJoined = function()
 	{
 		return fileJoined;
+	};
+
+	// Read-only view of the server-confirmed peer roster (diagnostics
+	// and the signal-impersonation lock, which has to see WHICH
+	// identity a relayed signal was attributed to)
+	this.getPeers = function()
+	{
+		var result = [];
+
+		for (var id in socketPeers)
+		{
+			result.push(id);
+		}
+
+		return result;
 	};
 
 	function debounce(func, wait) 
@@ -495,7 +520,7 @@ function P2PCollab(ui, sync, channelId)
 	{
 		try
 		{
-			if (destroyed) return;
+			if (destroyed || sync.file.appUpgradeRequired) return;
 
 			msg = JSON.parse(msg);
 
@@ -504,7 +529,7 @@ function P2PCollab(ui, sync, channelId)
 				msg = sync.stringToObject(msg.bytes);
 			}
 
-			if (NO_P2P && msg.type != 'cursor')
+			if (NO_P2P && !isFrequent(msg.type))
 			{
 				EditorUi.debug('P2PCollab: msg received', [msg]);
 			}
@@ -518,14 +543,28 @@ function P2PCollab(ui, sync, channelId)
 				// newClient message was not received
 				peerAdded = addPeer(fromCId);
 
-				//Safeguard from duplicate messages or receiving my own messages
-				if (msg.from == myClientId || clientLastMsgId[msg.from] >= msg.id)
+				// Safeguard from duplicate messages or receiving my own
+				// messages. Keyed on the SERVER-supplied sender, not on
+				// the payload's own from field: that one is written by
+				// whoever sent the message, so anyone on the channel
+				// could claim a victim's id with a huge counter and
+				// every later genuine message of that victim would look
+				// like a duplicate and be dropped - a silent mute the
+				// victim cannot see. A non-numeric counter skips the
+				// bookkeeping instead of poisoning it.
+				if (fromCId == myClientId ||
+					clientLastMsgId[fromCId] >= msg.id)
 				{
-					EditorUi.debug('P2PCollab: Dropped Message', msg, myClientId, clientLastMsgId[msg.from])
+					EditorUi.debug('P2PCollab: Dropped Message', msg,
+						myClientId, clientLastMsgId[fromCId]);
+
 					return;
 				}
-				
-				clientLastMsgId[msg.from] = msg.id;
+
+				if (typeof msg.id === 'number' && isFinite(msg.id))
+				{
+					clientLastMsgId[fromCId] = msg.id;
+				}
 			}
 			
 			var username = msg.username? msg.username : 'Anonymous';
@@ -622,6 +661,9 @@ function P2PCollab(ui, sync, channelId)
 					connectedSessions[sessionId].lastCursor = msgData;
 					updateCursor(connectedSessions[sessionId], true);
 				break;
+				case 'view':
+					sync.handleViewUpdate(msgData, sessionId);
+				break;
 				case 'diff':
 					try
 					{
@@ -634,7 +676,7 @@ function P2PCollab(ui, sync, channelId)
 							msg = msgData.diff;
 						}
 
-						sync.receiveRemoteChanges(msg.d);
+						sync.handleRemoteMessage(msg);
 					}
 					catch (e)
 					{
@@ -706,7 +748,7 @@ function P2PCollab(ui, sync, channelId)
 						msg = msgData.msg;
 					}
 
-					sync.handleMessageData(msg.d, msg.c);
+					sync.handleRemoteMessage(msg);
 				break;
 			}
 
@@ -836,6 +878,21 @@ function P2PCollab(ui, sync, channelId)
 	
 	function signal(data)
 	{
+		// The sender is stamped by the server (see sendSignal in the
+		// fast-rt worker), which is what closes the impersonation.
+		// This is the local half: a signal without a sender, or one
+		// claiming to come from this client itself, cannot be genuine.
+		// The roster is already safe (addPeer refuses null and self) -
+		// what this protects is the P2P-ENABLED path below, where the
+		// id keys createPeer and newClients, so it is defense in depth
+		// and the harness (which runs with p2p off) cannot lock it
+		if (data == null || data.from == null || data.from == myClientId)
+		{
+			EditorUi.debug('P2PCollab: ignored signal', data);
+
+			return;
+		}
+
 		// Ensures the sender is in the peer roster
 		addPeer(data.from);
 
@@ -903,7 +960,7 @@ function P2PCollab(ui, sync, channelId)
 
 	this.joinFile = function(check)
 	{
-		if (destroyed) return;
+		if (destroyed || sync.file.appUpgradeRequired) return;
 
 		try
 		{
@@ -934,7 +991,9 @@ function P2PCollab(ui, sync, channelId)
 			} //Ignore
 			
 			var ws = P2PCollab.createSocket(
-				window.RT_WEBSOCKET_URL + '?id=' + channelId);
+				window.RT_WEBSOCKET_URL + '?id=' + encodeURIComponent(channelId) +
+				'&pv=' + encodeURIComponent(DrawioFileSync.PROTOCOL) +
+				'&av=' + encodeURIComponent(EditorUi.VERSION));
 
 			// Stamped at creation so that close and error events of
 			// sockets that never open are attributed to this attempt
@@ -948,6 +1007,26 @@ function P2PCollab(ui, sync, channelId)
 
 			ws.addEventListener('open', function(event)
 			{
+				// A handshake from a superseded attempt must not adopt
+				// the connection: destroy() or a newer joinFile would
+				// otherwise leave a second registered socket behind.
+				// Compared against the monotonic attempt counter, like
+				// the close handler below, since joinInProgress is
+				// already cleared once an attempt succeeded
+				if (destroyed || ws.joinId != joinId)
+				{
+					try
+					{
+						ws.close(1000);
+					}
+					catch (e)
+					{
+						// ignore
+					}
+
+					return;
+				}
+
 				socket = ws;
 				joinInProgress = false;
 				sync.file.fireEvent(new mxEventObject('realtimeStateChanged'));
@@ -977,15 +1056,50 @@ function P2PCollab(ui, sync, channelId)
 						EditorUi.debug('P2PCollab: msg received', [event]);
 					}
 
+					if (destroyed || ws.joinId != joinId) return;
+
 					var data = JSON.parse(event.data);
-					
+
 					if (NO_P2P && data.action != 'message')
 					{
 						EditorUi.debug('P2PCollab: msg received', [event]);
 					}
 
+					// Logs error details sent by the socket server, eg. an
+					// exception during session setup before it closes the
+					// socket with code 1011
+					if (data.error != null)
+					{
+						EditorUi.logRealtime('socket-error', {e: data.error}, sync.file);
+
+						if (window.console != null)
+						{
+							console.warn('P2PCollab: server error', data.error);
+						}
+					}
+
 					switch (data.action)
 					{
+						case 'upgradeRequired':
+							// This action is delivered by the server, outside the
+							// relayed peer envelope. Canceling the dialog must not
+							// resume this file's writes or the reconnect loop.
+							fileJoined = false;
+							joinInProgress = false;
+							window.clearTimeout(rejoinThread);
+							rejoinThread = null;
+							lastError = 'upgradeRequired';
+							sync.file.requireAppUpgrade();
+						break;
+						case 'admission':
+							if (data.msg == null || data.msg.minAppVersion == null ||
+							(typeof data.msg.minAppVersion === 'string' &&
+								data.msg.minAppVersion.length <= 32))
+							{
+								sync.minRemoteAppVersion = data.msg == null ? null :
+									data.msg.minAppVersion;
+							}
+						break;
 						case 'message':
 							processMsg(data.msg, data.from);
 						break;
@@ -1023,6 +1137,15 @@ function P2PCollab(ui, sync, channelId)
 			{
 				EditorUi.debug('P2PCollab: WebSocket closed', ws.joinId, 'reconnecting', event.code, event.reason);
 				EditorUi.debug('P2PCollab: closing socket on', ws.joinId);
+				lastCloseCode = event.code;
+
+				if (!destroyed && event.code == 4001 && joinId == ws.joinId)
+				{
+					lastError = 'upgradeRequired';
+					fileJoined = false;
+					joinInProgress = false;
+					sync.file.requireAppUpgrade();
+				}
 
 				if (!destroyed && event.code != 1000 && joinId == ws.joinId) //Sometimes, a delayed even sometimes is received after another socket is established
 				{

@@ -5580,15 +5580,54 @@ Graph.prototype.getShapeInsideGrow = function(spacer, valign)
  * lines flow differently against the floats when the content is a direct
  * child of the editing host.
  */
-Graph.prototype.createShapeInsideValue = function(outline, box, spacer, w, h, value, padding, valign, clip)
+Graph.prototype.createShapeInsideValue = function(outline, box, spacer, w, h, value, padding, valign, clip, background)
 {
 	var height = Math.round(box.height +
 		this.getShapeInsideGrow(spacer, valign));
 
-	return '<div style="float:left;width:' + Math.round(box.width) + 'px;height:' +
-		height + 'px;">' +
+	// Text decorations do not propagate into out-of-flow boxes, so the
+	// wrapper inherits them to keep underline and line-through on the
+	// flowed label (the decoration is set on the label, see getTextCss).
+	// With a label background the wrapper is a stacking context so that
+	// the background box stays behind the text and in front of the shape
+	return '<div style="float:left;text-decoration:inherit;' +
+		((background != null) ? 'position:relative;z-index:0;' : '') +
+		'width:' + Math.round(box.width) + 'px;height:' + height + 'px;">' +
+		((background != null) ? background : '') +
 		this.createShapeInsideMarkup(outline, box, spacer, w, h, padding, clip) +
 		value + '</div>';
+};
+
+/**
+ * Returns the markup for the label background box of a shapeInside label
+ * for the given flow measurement and label padding, or null if there is
+ * no text. The flow wrapper always fills the label box, so the box that
+ * carries the background in mxSvgCanvas2D.createCss would cover the whole
+ * shape. The background is painted here instead, out of flow so that it
+ * does not take part in the text flow, and sized to the flowed text as it
+ * is for a label without a text flow. The colors are not part of the
+ * markup: they are style values and are applied to the returned element
+ * via the CSSOM after painting (see the mxText.paint override).
+ */
+Graph.prototype.createShapeInsideBackground = function(flow, padding, border)
+{
+	if (flow == null)
+	{
+		return null;
+	}
+
+	var pad = (padding != null) ? padding :
+		{top: 0, right: 0, bottom: 0, left: 0};
+
+	return '<div data-shape-inside="1" data-shape-inside-background="1" ' +
+		'contenteditable="false" style="position:absolute;z-index:-1;' +
+		'box-sizing:border-box;pointer-events:none;' +
+		((border) ? 'border-style:solid;border-width:1px;' : '') +
+		'left:' + Math.round(flow.left - pad.left) +
+		'px;top:' + Math.round(flow.top - pad.top) +
+		'px;width:' + Math.round(flow.right - flow.left + pad.left + pad.right) +
+		'px;height:' + Math.round(flow.bottom - flow.top + pad.top + pad.bottom) +
+		'px;"></div>';
 };
 
 /**
@@ -5645,6 +5684,7 @@ Graph.prototype.measureShapeInsideFlow = function(value, style, outline, box, sp
 		var walker = document.createTreeWalker(div, NodeFilter.SHOW_TEXT, null);
 		var top = null;
 		var bottom = null;
+		var left = null;
 		var right = null;
 		var bands = [];
 
@@ -5660,6 +5700,7 @@ Graph.prototype.measureShapeInsideFlow = function(value, style, outline, box, sp
 				{
 					top = (top == null) ? rects[i].top : Math.min(top, rects[i].top);
 					bottom = (bottom == null) ? rects[i].bottom : Math.max(bottom, rects[i].bottom);
+					left = (left == null) ? rects[i].left : Math.min(left, rects[i].left);
 					right = (right == null) ? rects[i].right : Math.max(right, rects[i].right);
 					bands.push([rects[i].top - base.top, rects[i].bottom - base.top]);
 				}
@@ -5691,7 +5732,7 @@ Graph.prototype.measureShapeInsideFlow = function(value, style, outline, box, sp
 			}
 
 			result = {top: top - base.top, bottom: bottom - base.top,
-				right: right - base.left, lines: lines};
+				left: left - base.left, right: right - base.left, lines: lines};
 		}
 
 		div.innerHTML = '';
@@ -6172,6 +6213,19 @@ mxText.prototype.paint = function(c, update)
 		state.view.graph instanceof Graph) ? state.view.graph : null;
 	var restore = null;
 	var flowCanvas = null;
+	var restoreBackground = null;
+	var backgroundColors = null;
+
+	// The label background of the existing DOM is painted in the flow
+	// wrapper, so it must stay out of the CSS that the update rewrites
+	if (update && (this.background != null || this.border != null) &&
+		this.node != null && typeof this.node.querySelector === 'function' &&
+		this.node.querySelector('[data-shape-inside-background]') != null)
+	{
+		restoreBackground = [this.background, this.border];
+		this.background = null;
+		this.border = null;
+	}
 
 	if (!update && graph != null &&
 		typeof graph.getShapeInsideFloats === 'function' &&
@@ -6202,11 +6256,42 @@ mxText.prototype.paint = function(c, update)
 				var value = mxUtils.replaceTrailingNewlines(restore, '<div><br></div>');
 				var align = graph.getShapeInsideSpacer(state, value, outline,
 					box, w, h);
+				var background = null;
+
+				// The label background is painted in the flow wrapper as the
+				// box that carries it in mxSvgCanvas2D.createCss is filled by
+				// the wrapper (see createShapeInsideBackground)
+				var bg = (this.background != mxConstants.NONE) ? this.background : null;
+				var border = (this.border != mxConstants.NONE) ? this.border : null;
+
+				if (bg != null || border != null)
+				{
+					// Memoized on the spacer cache, which is keyed on the
+					// same inputs as the flow (see getShapeInsideSpacer)
+					if (align.flow === undefined)
+					{
+						align.flow = graph.measureShapeInsideFlow(value,
+							state.style, outline, box, align.spacer, w, h,
+							null, align.clip);
+					}
+
+					background = graph.createShapeInsideBackground(align.flow,
+						mxUtils.parseCssSpacing(this.labelPadding), border != null);
+				}
+
+				if (background != null)
+				{
+					restoreBackground = [this.background, this.border];
+					backgroundColors = [bg, border];
+					this.background = null;
+					this.border = null;
+				}
+
 				this.value = graph.createShapeInsideValue(outline, box,
 					align.spacer, w, h, value,
 					graph.getShapeInsidePadding(state.style),
 					mxUtils.getValue(state.style, mxConstants.STYLE_VERTICAL_ALIGN,
-						mxConstants.ALIGN_MIDDLE), align.clip);
+						mxConstants.ALIGN_MIDDLE), align.clip, background);
 			}
 		}
 	}
@@ -6220,6 +6305,33 @@ mxText.prototype.paint = function(c, update)
 		if (restore != null)
 		{
 			this.value = restore;
+		}
+
+		if (restoreBackground != null)
+		{
+			this.background = restoreBackground[0];
+			this.border = restoreBackground[1];
+
+			// Colors are style values and are never written into the markup
+			var node = (backgroundColors != null && this.node != null) ?
+				this.node.querySelector('[data-shape-inside-background]') : null;
+
+			if (node != null)
+			{
+				var getColor = (typeof c.getLightDarkColor === 'function') ?
+					function(color) { return c.getLightDarkColor(color).cssText; } :
+					function(color) { return color; };
+
+				if (backgroundColors[0] != null)
+				{
+					node.style.backgroundColor = getColor(backgroundColors[0]);
+				}
+
+				if (backgroundColors[1] != null)
+				{
+					node.style.borderColor = getColor(backgroundColors[1]);
+				}
+			}
 		}
 
 		if (flowCanvas != null)
@@ -13405,6 +13517,152 @@ Graph.prototype.updateGroupBounds = function(cells, border, moveGroup, topBorder
 };
 
 /**
+ * Repairs the structural mistakes a generated or imported model tends to carry,
+ * without touching what the author expressed. Every step is idempotent, so a
+ * normalized file normalizes to itself, and none of them moves a cell the
+ * author placed.
+ *
+ * 1. **Edge parents.** An edge belongs to the nearest common ancestor of its
+ *    terminals — the editor maintains that on every edit
+ *    (mxGraphModel.updateEdgeParents), generators typically park every edge on
+ *    the layer instead. It renders, but a layout reads an edge's coordinates in
+ *    the frame of the cell that contains it, so an edge filed too far out is
+ *    laid out in the wrong place.
+ * 2. **Missing edge geometry.** An edge cell written without a geometry is
+ *    silently not rendered at all; the standard relative geometry restores it.
+ * 3. **Containers that clip their children.** A child reaching past its
+ *    parent's bounds is drawn outside the container box. The container is grown
+ *    to contain it — never shrunk, and no child is moved, so a container with
+ *    deliberate breathing room keeps it.
+ *
+ * @param {mxCell} [root] - model root to normalize (defaults to the model root)
+ * @returns {Object} counts per step: {edgeParents, edgeGeometries, containers}
+ */
+Graph.prototype.normalizeModel = function(root)
+{
+	var model = this.getModel();
+	root = (root != null) ? root : model.getRoot();
+
+	var result = {edgeParents: 0, edgeGeometries: 0, containers: 0};
+	var graph = this;
+
+	// Pre-images of the edge parents, so the caller can report what moved.
+	var edges = [];
+
+	var collectEdges = function(cell)
+	{
+		var childCount = model.getChildCount(cell);
+
+		for (var i = 0; i < childCount; i++)
+		{
+			var child = model.getChildAt(cell, i);
+
+			if (model.isEdge(child))
+			{
+				edges.push({edge: child, parent: model.getParent(child)});
+			}
+
+			collectEdges(child);
+		}
+	};
+
+	collectEdges(root);
+
+	model.beginUpdate();
+
+	try
+	{
+		model.updateEdgeParents(root);
+
+		for (var i = 0; i < edges.length; i++)
+		{
+			if (model.getParent(edges[i].edge) != edges[i].parent)
+			{
+				result.edgeParents++;
+			}
+
+			if (model.getGeometry(edges[i].edge) == null)
+			{
+				var edgeGeo = new mxGeometry();
+				edgeGeo.relative = true;
+				model.setGeometry(edges[i].edge, edgeGeo);
+				result.edgeGeometries++;
+			}
+		}
+
+		var growContainers = function(cell)
+		{
+			var childCount = model.getChildCount(cell);
+
+			for (var i = 0; i < childCount; i++)
+			{
+				growContainers(model.getChildAt(cell, i));
+			}
+
+			if (!model.isVertex(cell) || childCount == 0 ||
+				graph.isTransparentBounds(cell))
+			{
+				return;
+			}
+
+			var geo = model.getGeometry(cell);
+
+			if (geo == null || geo.relative)
+			{
+				return;
+			}
+
+			// Child geometry is relative to this cell's origin, so the
+			// children's bounding box is directly comparable to its size.
+			var children = [];
+
+			for (var j = 0; j < childCount; j++)
+			{
+				var child = model.getChildAt(cell, j);
+				var childGeo = model.getGeometry(child);
+
+				if (model.isVertex(child) && childGeo != null && !childGeo.relative)
+				{
+					children.push(child);
+				}
+			}
+
+			if (children.length == 0)
+			{
+				return;
+			}
+
+			var bounds = graph.getBoundingBoxFromGeometry(children, false);
+
+			if (bounds == null)
+			{
+				return;
+			}
+
+			var width = Math.max(geo.width, bounds.x + bounds.width);
+			var height = Math.max(geo.height, bounds.y + bounds.height);
+
+			if (width > geo.width || height > geo.height)
+			{
+				geo = geo.clone();
+				geo.width = width;
+				geo.height = height;
+				model.setGeometry(cell, geo);
+				result.containers++;
+			}
+		};
+
+		growContainers(root);
+	}
+	finally
+	{
+		model.endUpdate();
+	}
+
+	return result;
+};
+
+/**
  * Substitutes the visible (child-derived) bounds for transparentBounds cells,
  * whose stored geometry is pinned at (0,0,0,0). The base implementation reads
  * each cell's stored geometry directly with no child recursion, so without this
@@ -13573,6 +13831,14 @@ Graph.prototype.getSwimlaneAt = function (x, y, parent)
 };
 
 /**
+ * Returns true if the given cell is foldable via its treeFolding style.
+ */
+Graph.prototype.isTreeCellFoldable = function(cell, style)
+{
+	return style['treeFolding'] == '1';
+};
+
+/**
  * Disables folding for non-swimlanes.
  */
 Graph.prototype.isCellFoldable = function(cell)
@@ -13587,7 +13853,7 @@ Graph.prototype.isCellFoldable = function(cell)
 	return this.foldingEnabled && !this.isTransparentBounds(cell) &&
 		mxUtils.getValue(style,
 		mxConstants.STYLE_RESIZABLE, '1') != '0' &&
-		(style['treeFolding'] == '1' ||
+		(this.isTreeCellFoldable(cell, style) ||
 		(!this.isCellLocked(cell) &&
 		((this.isContainer(cell) && style['collapsible'] != '0') ||
 		(!this.isContainer(cell) && style['collapsible'] == '1'))));
@@ -24142,7 +24408,7 @@ if (typeof mxVertexHandler !== 'undefined')
 					this.shapeInsideAlign = align;
 
 					// Wrapper geometry as in createShapeInsideValue
-					wrapper.style.cssText = 'float:left;width:' +
+					wrapper.style.cssText = 'float:left;text-decoration:inherit;width:' +
 						Math.round(box.width) + 'px;height:' +
 						Math.round(box.height + this.graph.getShapeInsideGrow(
 							align.spacer, mxUtils.getValue(state.style,
@@ -25080,7 +25346,16 @@ if (typeof mxVertexHandler !== 'undefined')
 		            return (pixels / mxConstants.PIXELS_PER_INCH).toFixed(3);
 		    }
 		};
-		
+
+		/**
+		 * Formats the given unscaled length in the given unit.
+		 */
+		function formatHintLength(length, unit)
+		{
+			return (unit == mxConstants.POINTS) ? Math.round(length) :
+				formatHintText(length, unit);
+		};
+
 		/**
 		 * Format pixels in the given unit
 		 */
@@ -26644,17 +26919,7 @@ if (typeof mxVertexHandler !== 'undefined')
 			var x = this.roundLength(point.x / s - t.x);
 			var y = this.roundLength(point.y / s - t.y);
 			var unit = this.graph.view.unit;
-
-			this.hint.innerHTML = formatHintText(x, unit) + ', ' + formatHintText(y, unit);
-			this.hint.style.visibility = 'visible';
-
-			if (edge != null)
-			{
-				edge.view.updateEdgeBounds(edge);
-				this.hint.innerHTML += ' (' + ((unit == mxConstants.POINTS) ?
-					Math.round(edge.length / s) : formatHintText(
-						edge.length / s, unit)) + ')';
-			}			
+			var text = formatHintText(x, unit) + ', ' + formatHintText(y, unit);
 
 			if (this.isSource || this.isTarget)
 			{
@@ -26663,14 +26928,24 @@ if (typeof mxVertexHandler !== 'undefined')
 					this.constraintHandler.currentFocus != null)
 				{
 					var pt = this.constraintHandler.currentConstraint.point;
-					this.hint.innerHTML = '[' + Math.round(pt.x * 100) + '%, '+ Math.round(pt.y * 100) + '%]';
+					text = '[' + Math.round(pt.x * 100) + '%, '+ Math.round(pt.y * 100) + '%]';
 				}
 				else if (this.marker.hasValidState())
 				{
-					this.hint.style.visibility = 'hidden';
+					text = null;
 				}
 			}
-			
+
+			if (edge != null)
+			{
+				edge.view.updateEdgeBounds(edge);
+				var length = formatHintLength(edge.length / s, unit);
+				text = (text != null) ? text + ' (' + length + ')' : length;
+			}
+
+			this.hint.innerHTML = (text != null) ? text : '';
+			this.hint.style.visibility = (text != null) ? 'visible' : 'hidden';
+
 			this.hint.style.left = Math.round(me.getGraphX() - this.hint.clientWidth / 2) + 'px';
 			this.hint.style.top = (Math.max(me.getGraphY(), point.y) + Editor.hintOffset) + 'px';
 			
@@ -26743,6 +27018,92 @@ if (typeof mxVertexHandler !== 'undefined')
 		 * Updates the hint for the current operation.
 		 */
 		mxEdgeHandler.prototype.removeHint = mxVertexHandler.prototype.removeHint;
+
+		/**
+		 * Shows the length of the preview edge while a new connection is created.
+		 */
+		mxConnectionHandler.prototype.updateHint = function(me)
+		{
+			var pts = (this.shape != null) ? this.shape.points : null;
+
+			if (pts != null && pts.length > 1)
+			{
+				var length = 0;
+
+				for (var i = 1; i < pts.length; i++)
+				{
+					// Last point is moved away from the mouse in mouseMove
+					var p0 = pts[i - 1];
+					var p1 = (i == pts.length - 1 && this.originalPoint != null) ?
+						this.originalPoint : pts[i];
+
+					if (p0 != null && p1 != null)
+					{
+						length += Math.sqrt((p1.x - p0.x) * (p1.x - p0.x) +
+							(p1.y - p0.y) * (p1.y - p0.y));
+					}
+				}
+
+				if (this.hint == null)
+				{
+					this.hint = createHint();
+					this.graph.container.appendChild(this.hint);
+				}
+
+				this.hint.innerHTML = formatHintLength(length /
+					this.graph.view.scale, this.graph.view.unit);
+				this.hint.style.left = Math.round(me.getGraphX() -
+					this.hint.clientWidth / 2) + 'px';
+				this.hint.style.top = (me.getGraphY() + Editor.hintOffset) + 'px';
+			}
+			else
+			{
+				this.removeHint();
+			}
+		};
+
+		/**
+		 * Removes the hint for new connections.
+		 */
+		mxConnectionHandler.prototype.removeHint = mxGraphHandler.prototype.removeHint;
+
+		/**
+		 * Updates the hint while a new connection is created.
+		 */
+		var connectionHandlerHintMouseMove = mxConnectionHandler.prototype.mouseMove;
+		mxConnectionHandler.prototype.mouseMove = function(sender, me)
+		{
+			connectionHandlerHintMouseMove.apply(this, arguments);
+
+			if (this.first != null && this.shape != null)
+			{
+				this.updateHint(me);
+			}
+			else
+			{
+				this.removeHint();
+			}
+		};
+
+		/**
+		 * Removes the hint for new connections.
+		 */
+		var connectionHandlerHintReset = mxConnectionHandler.prototype.reset;
+		mxConnectionHandler.prototype.reset = function()
+		{
+			this.removeHint();
+			connectionHandlerHintReset.apply(this, arguments);
+		};
+
+		/**
+		 * Removes the hint for new connections.
+		 */
+		var connectionHandlerHintDestroy = mxConnectionHandler.prototype.destroy;
+		mxConnectionHandler.prototype.destroy = function()
+		{
+			this.removeHint();
+			connectionHandlerHintDestroy.apply(this, arguments);
+		};
 	
 		/**
 		 * Defines the handles for the UI. Uses data-URIs to speed-up loading time where supported.

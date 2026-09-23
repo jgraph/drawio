@@ -2089,7 +2089,8 @@ GraphViewer.prototype.disableButton = function(token, tooltip)
 {
 	var def = this.graphConfig['toolbar-buttons']? this.graphConfig['toolbar-buttons'][token] : null;
 			
-	if (def != null)
+	// Buttons that are defined but not listed in the toolbar have no element
+	if (def != null && def.elem != null)
 	{
 		mxUtils.setOpacity(def.elem, 30);
 		mxEvent.removeListener(def.elem, 'click', def.handler);

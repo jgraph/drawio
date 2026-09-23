@@ -167,7 +167,8 @@ var Base64 = {
 				c3 = utftext.charCodeAt(i+2);
 				var c4 = utftext.charCodeAt(i+3);
 				var cp = ((c & 7) << 18) | ((c2 & 63) << 12) | ((c3 & 63) << 6) | (c4 & 63);
-				string += String.fromCodePoint(cp);
+				// Lead bytes F4 to F7 can encode values above U+10FFFF in non-UTF-8 input
+				string += (cp <= 0x10FFFF) ? String.fromCodePoint(cp) : '\uFFFD';
 				i += 4;
 			}
 

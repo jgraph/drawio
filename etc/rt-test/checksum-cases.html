@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>checksum targeted cases v7 vs v6</title>
+<style>
+body { font: 12px monospace; margin: 8px; }
+#log div { white-space: pre-wrap; border-bottom: 1px solid #eee; }
+.bad { background: #fdd; }
+iframe { width: 500px; height: 200px; border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+<div id="frames"></div>
+<div id="log"></div>
+<script>
+// Hand-built XML through the two engines that a malformed page reaches,
+// in the current app (frame A) and in the pinned v6 app (frame B,
+// /rt-v6/), side by side:
+//
+// - DECODE_CASES: which cell mxModelCodec.decodeRoot roots the page on
+//   and what happens to cells whose parent is missing or dangling
+//   (jgraph/drawio-dev#696). The v6 column shows the behaviour that
+//   dropped the page.
+// - CASES: the mergeFile checksum round trip
+//   patchPages(clonePages(shadow), diffPages(shadow, pages)) == pages,
+//   including genuine page root changes (jgraph/drawio-dev#677).
+function log(msg, bad)
+{
+	var d = document.createElement('div');
+	d.textContent = msg;
+	if (bad) d.className = 'bad';
+	document.getElementById('log').appendChild(d);
+	window.results = window.results || [];
+	window.results.push({msg: msg, bad: !!bad});
+}
+
+var BOOT = '/index.html?dev=1&test=1&sockets=0&splash=0&local=1&lang=en&chrome=1&gapi=0&db=0&od=0&gh=0&gl=0&tr=0';
+
+function boot(prefix, name)
+{
+	var iframe = document.createElement('iframe');
+	iframe.src = prefix + BOOT;
+	document.getElementById('frames').appendChild(iframe);
+	return new Promise(function(resolve, reject)
+	{
+		var deadline = Date.now() + 90000;
+		function poll()
+		{
+			try
+			{
+				var win = iframe.contentWindow;
+				if (win != null && win.EditorUi != null &&
+					win.document.querySelector('.geDiagramContainer') != null)
+				{
+					captureUi(win, name).then(function(ui) { resolve({win: win, ui: ui, name: name}); }, reject);
+					return;
+				}
+			}
+			catch (e) { reject(e); return; }
+			if (Date.now() > deadline) reject(new Error(name + ' boot timeout'));
+			else setTimeout(poll, 200);
+		}
+		poll();
+	});
+}
+
+function captureUi(win, name)
+{
+	return new Promise(function(resolve, reject)
+	{
+		var deadline = Date.now() + 30000;
+		function attempt()
+		{
+			var captured = null;
+			var orig = win.EditorUi.prototype.getCurrentFile;
+			win.EditorUi.prototype.getCurrentFile = function() { captured = this; return orig.apply(this, arguments); };
+			try
+			{
+				var c = win.document.querySelector('.geDiagramContainer');
+				var pointer = win.mxClient != null && win.mxClient.IS_POINTER;
+				var evt = (pointer) ? ['pointerdown', 'pointerup'] : ['mousedown', 'mouseup'];
+				for (var i = 0; i < evt.length; i++)
+				{
+					c.dispatchEvent((pointer) ? new win.PointerEvent(evt[i], {bubbles: true, clientX: 400, clientY: 300, button: 0, pointerId: 1, pointerType: 'mouse', isPrimary: true}) :
+						new win.MouseEvent(evt[i], {bubbles: true, clientX: 400, clientY: 300, button: 0}));
+				}
+			}
+			catch (e) {}
+			win.EditorUi.prototype.getCurrentFile = orig;
+			if (captured != null) resolve(captured);
+			else if (Date.now() > deadline) reject(new Error(name + ' ui capture timeout'));
+			else setTimeout(attempt, 300);
+		}
+		attempt();
+	});
+}
+
+function roundTrip(client, xmlA, xmlB)
+{
+	var ui = client.ui;
+	var shadow = ui.getPagesForXml(xmlA, true);
+	var pages = ui.getPagesForXml(xmlB, true);
+	var patch = ui.diffPages(shadow, pages);
+	var json = JSON.stringify(patch);
+	var patched = ui.patchPages(ui.clonePages(shadow), patch);
+	var h1 = ui.getHashValueForPages(patched);
+	var h2 = ui.getHashValueForPages(pages);
+	var residual = (h1 == h2) ? '' : JSON.stringify(ui.diffPages(patched, pages));
+	// Root ids seen by the engine
+	var roots = shadow.map(function(p) { return p != null && p.root != null ? p.root.getId() : 'null'; }).join(',') +
+		' -> ' + pages.map(function(p) { return p != null && p.root != null ? p.root.getId() : 'null'; }).join(',');
+	return {ok: h1 == h2, patch: json, residual: residual, roots: roots,
+		patchedXml: ui.getXmlForPages(patched), pagesXml: ui.getXmlForPages(pages)};
+}
+
+// Decodes one page and reports how the parser resolved its root, which
+// cells survived and where the cells with a missing or dangling parent
+// ended up (mxModelCodec.decodeRoot).
+function decodePage(client, xml)
+{
+	var ui = client.ui;
+	var pages = ui.getPagesForXml(xml, true);
+	var page = pages[0];
+	ui.updatePageRoot(page);
+	var root = page.root;
+	var ids = [];
+	var parents = {};
+
+	var walk = function(cell)
+	{
+		for (var i = 0; i < cell.getChildCount(); i++)
+		{
+			var child = cell.getChildAt(i);
+			ids.push(child.getId());
+			parents[child.getId()] = cell.getId();
+			walk(child);
+		}
+	};
+
+	walk(root);
+
+	return {root: root.getId(), rootIsVertex: root.isVertex() == true,
+		ids: ids, parents: parents, pages: pages.length,
+		has: function(id) { return this.ids.indexOf(id) >= 0; }};
+}
+
+function mxfile(diagrams)
+{
+	return '<mxfile host="test" version="31.5.0" type="device">' + diagrams.join('') + '</mxfile>';
+}
+function diagram(id, name, rootXml, attrs)
+{
+	return '<diagram id="' + id + '" name="' + name + '"><mxGraphModel ' + (attrs || '') + '><root>' + rootXml + '</root></mxGraphModel></diagram>';
+}
+var V = 'stray-vertex';
+var normal = '<mxCell id="0"/><mxCell id="1" parent="0"/>' +
+	'<mxCell id="a" value="A" style="rounded=1;" vertex="1" parent="1"><mxGeometry x="10" y="10" width="80" height="40" as="geometry"/></mxCell>' +
+	'<mxCell id="b" value="B" style="ellipse;" vertex="1" parent="1"><mxGeometry x="200" y="10" width="80" height="40" as="geometry"/></mxCell>' +
+	'<mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="a" target="b"><mxGeometry relative="1" as="geometry"/></mxCell>';
+
+// Root selection and orphan adoption. `expect` is checked against the
+// decode of the current app; `v6` is what the pinned v6 app does, so the
+// table also shows which of these change behaviour.
+var DECODE_CASES = [
+	{name: 'well-formed page (single parentless cell)',
+		xml: mxfile([diagram('p1', 'P1', normal)]),
+		expect: {root: '0', present: ['1', 'a', 'b', 'e4'], parentOf: {a: '1'}},
+		v6: 'same'},
+	{name: 'root id is not 0 (single parentless cell)',
+		xml: mxfile([diagram('p1', 'P1', normal.replace(/id="0"/, 'id="R"').replace(/parent="0"/, 'parent="R"'))]),
+		expect: {root: 'R', present: ['1', 'a', 'b', 'e4'], parentOf: {a: '1'}},
+		v6: 'same'},
+	{name: 'only parentless cell is a vertex (single candidate wins)',
+		xml: mxfile([diagram('p1', 'P1', '<mxCell id="lonely" vertex="1"><mxGeometry x="1" y="1" width="8" height="4" as="geometry"/></mxCell>')]),
+		expect: {root: 'lonely', present: ['1'], parentOf: {}},
+		v6: 'same'},
+	{name: 'stray vertex with NO parent after the root',
+		xml: mxfile([diagram('p1', 'P1', normal + '<mxCell id="stray" value="S" style="rounded=1;" vertex="1"><mxGeometry x="1" y="1" width="8" height="4" as="geometry"/></mxCell>')]),
+		expect: {root: '0', present: ['1', 'a', 'b', 'e4', 'stray'], parentOf: {stray: '1'}},
+		v6: 'root becomes stray, the whole page is dropped'},
+	{name: 'stray vertex with a DANGLING parent after the root',
+		xml: mxfile([diagram('p1', 'P1', normal + '<mxCell id="stray" value="S" style="rounded=1;" vertex="1" parent="missing"><mxGeometry x="1" y="1" width="8" height="4" as="geometry"/></mxCell>')]),
+		expect: {root: '0', present: ['1', 'a', 'b', 'e4', 'stray'], parentOf: {stray: '1'}},
+		v6: 'root becomes stray, the whole page is dropped'},
+	{name: 'stray vertex BEFORE the root',
+		xml: mxfile([diagram('p1', 'P1', '<mxCell id="stray" vertex="1" parent="missing"><mxGeometry x="1" y="1" width="8" height="4" as="geometry"/></mxCell>' + normal)]),
+		expect: {root: '0', present: ['1', 'a', 'b', 'e4', 'stray'], parentOf: {stray: '1'}},
+		v6: 'same root, but the stray cell is dropped'},
+	{name: 'stray vertex with a subtree',
+		xml: mxfile([diagram('p1', 'P1', normal + '<mxCell id="stray" vertex="1"><mxGeometry x="1" y="1" width="80" height="40" as="geometry"/></mxCell>' +
+			'<mxCell id="kid" value="K" vertex="1" parent="stray"><mxGeometry x="2" y="2" width="8" height="4" as="geometry"/></mxCell>')]),
+		expect: {root: '0', present: ['1', 'a', 'b', 'e4', 'stray', 'kid'], parentOf: {stray: '1', kid: 'stray'}},
+		v6: 'root becomes stray, only its own subtree survives'},
+	{name: 'second parentless PLAIN cell (id 0 still wins)',
+		xml: mxfile([diagram('p1', 'P1', normal + '<mxCell id="other"/>')]),
+		expect: {root: '0', present: ['1', 'a', 'b', 'e4', 'other'], parentOf: {other: '1'}},
+		v6: 'root becomes other, the whole page is dropped'},
+	{name: 'id 0 exists but is a CHILD: the parentless cell is the root',
+		xml: mxfile([diagram('p1', 'P1', '<mxCell id="R"/><mxCell id="1" parent="R"/>' +
+			'<mxCell id="0" value="Zero" style="rounded=1;" vertex="1" parent="1"><mxGeometry x="10" y="10" width="80" height="40" as="geometry"/></mxCell>')]),
+		expect: {root: 'R', present: ['1', '0'], parentOf: {'0': '1'}},
+		v6: 'same'},
+	{name: 'id 0 is a child AND a stray cell is present',
+		xml: mxfile([diagram('p1', 'P1', '<mxCell id="R"/><mxCell id="1" parent="R"/>' +
+			'<mxCell id="0" value="Zero" style="rounded=1;" vertex="1" parent="1"><mxGeometry x="10" y="10" width="80" height="40" as="geometry"/></mxCell>' +
+			'<mxCell id="stray" vertex="1" parent="missing"><mxGeometry x="1" y="1" width="8" height="4" as="geometry"/></mxCell>')]),
+		expect: {root: 'R', present: ['1', '0', 'stray'], parentOf: {'0': '1', stray: '1'}},
+		v6: 'root becomes stray, the whole page is dropped'},
+	{name: 'no id 0: first plain parentless cell wins over a later vertex',
+		xml: mxfile([diagram('p1', 'P1', normal.replace(/id="0"/, 'id="R"').replace(/parent="0"/, 'parent="R"') +
+			'<mxCell id="stray" vertex="1"><mxGeometry x="1" y="1" width="8" height="4" as="geometry"/></mxCell>')]),
+		expect: {root: 'R', present: ['1', 'a', 'b', 'e4', 'stray'], parentOf: {stray: '1'}},
+		v6: 'root becomes stray, the whole page is dropped'},
+	{name: 'stray vertex on a page with no layer (nowhere to adopt into)',
+		xml: mxfile([diagram('p1', 'P1', '<mxCell id="0"/><mxCell id="stray" vertex="1"><mxGeometry x="1" y="1" width="8" height="4" as="geometry"/></mxCell>')]),
+		expect: {root: '0', present: ['1'], parentOf: {}},
+		v6: 'root becomes stray; either way the page shows nothing'}
+];
+
+function checkDecode(client, c)
+{
+	var d = decodePage(client, c.xml);
+	var bad = [];
+
+	if (d.root != c.expect.root)
+	{
+		bad.push('root=' + d.root + ' want ' + c.expect.root);
+	}
+
+	for (var i = 0; i < c.expect.present.length; i++)
+	{
+		if (!d.has(c.expect.present[i]))
+		{
+			bad.push('missing ' + c.expect.present[i]);
+		}
+	}
+
+	for (var id in c.expect.parentOf)
+	{
+		if (d.parents[id] != c.expect.parentOf[id])
+		{
+			bad.push(id + '.parent=' + d.parents[id] +
+				' want ' + c.expect.parentOf[id]);
+		}
+	}
+
+	return {ok: bad.length == 0, bad: bad.join(' '), d: d};
+}
+
+var CASES = [
+	{name: 'root id renamed 0->root (same content)',
+		a: mxfile([diagram('p1', 'P1', normal)]),
+		b: mxfile([diagram('p1', 'P1', normal.replace(/id="0"/, 'id="root"').replace(/parent="0"/, 'parent="root"'))])},
+	{name: 'root id renamed root->0 (reverse)',
+		a: mxfile([diagram('p1', 'P1', normal.replace(/id="0"/, 'id="root"').replace(/parent="0"/, 'parent="root"'))]),
+		b: mxfile([diagram('p1', 'P1', normal)])},
+	{name: 'stray vertex, layer parented to it (decoder keeps root 0, so this is an ordinary diff)',
+		a: mxfile([diagram('p1', 'P1', normal)]),
+		b: mxfile([diagram('p1', 'P1', '<mxCell id="0"/><mxCell id="1" parent="' + V + '"/>' +
+			'<mxCell id="' + V + '" style="rounded=0;" vertex="1"><mxGeometry x="100" y="1560" width="20" height="20" as="geometry"/></mxCell>')])},
+	{name: 'stray vertex page back to a normal page',
+		a: mxfile([diagram('p1', 'P1', '<mxCell id="0"/><mxCell id="1" parent="' + V + '"/>' +
+			'<mxCell id="' + V + '" style="rounded=0;" vertex="1"><mxGeometry x="100" y="1560" width="20" height="20" as="geometry"/></mxCell>')]),
+		b: mxfile([diagram('p1', 'P1', normal)])},
+	{name: 'dangling parent on a vertex, adopted into the layer by the decoder',
+		a: mxfile([diagram('p1', 'P1', normal)]),
+		b: mxfile([diagram('p1', 'P1', normal + '<mxCell id="x" value="X" style="rounded=1;" vertex="1" parent="missing"><mxGeometry x="1" y="1" width="8" height="4" as="geometry"/></mxCell>')])},
+	{name: 'root change in page 2 of 2 only',
+		a: mxfile([diagram('p1', 'P1', normal), diagram('p2', 'P2', normal)]),
+		b: mxfile([diagram('p1', 'P1', normal), diagram('p2', 'P2', normal.replace(/id="0"/, 'id="R"').replace(/parent="0"/, 'parent="R"'))])},
+	{name: 'duplicate edge ids + geometry update on one',
+		a: mxfile([diagram('p1', 'P1', normal + '<mxCell id="e4" style="x" edge="1" parent="1" source="b" target="a"><mxGeometry relative="1" as="geometry"/></mxCell>')]),
+		b: mxfile([diagram('p1', 'P1', normal + '<mxCell id="e4" style="x" edge="1" parent="1" source="b" target="a"><mxGeometry relative="1" as="geometry"><mxPoint x="730" y="85" as="targetPoint"/></mxGeometry></mxCell>')])},
+	{name: 'edge geometry update only (points + targetPoint)',
+		a: mxfile([diagram('p1', 'P1', normal)]),
+		b: mxfile([diagram('p1', 'P1', normal.replace('<mxGeometry relative="1" as="geometry"/>', '<mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1440" y="325"/></Array><mxPoint x="1390" y="325" as="targetPoint"/></mxGeometry>'))])},
+	{name: 'cell without id gets minted id + geometry update elsewhere',
+		a: mxfile([diagram('p1', 'P1', normal + '<mxCell value="noid" style="rounded=1;" vertex="1" parent="1"><mxGeometry x="1" y="1" width="8" height="4" as="geometry"/></mxCell>')]),
+		b: mxfile([diagram('p1', 'P1', normal.replace('x="200"', 'x="222"') + '<mxCell value="noid" style="rounded=1;" vertex="1" parent="1"><mxGeometry x="1" y="1" width="8" height="4" as="geometry"/></mxCell>')])},
+	{name: 'empty page insert (no model)',
+		a: mxfile([diagram('p1', 'P1', normal)]),
+		b: mxfile([diagram('p1', 'P1', normal), '<diagram id="p2" name="P2"/>'])},
+	{name: 'edge child label (relative) moved + edge geometry',
+		a: mxfile([diagram('p1', 'P1', normal + '<mxCell id="lbl" value="L" style="edgeLabel;" vertex="1" connectable="0" parent="e4"><mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry></mxCell>')]),
+		b: mxfile([diagram('p1', 'P1', normal.replace('<mxGeometry relative="1" as="geometry"/>', '<mxGeometry relative="1" as="geometry"><mxPoint x="730" y="85" as="targetPoint"/></mxGeometry>') + '<mxCell id="lbl" value="L" style="edgeLabel;" vertex="1" connectable="0" parent="e4"><mxGeometry x="0.3" relative="1" as="geometry"><mxPoint x="3" y="4" as="offset"/></mxGeometry></mxCell>')])}
+];
+
+async function main()
+{
+	var A = await boot('', 'v7');
+	var B = await boot('/rt-v6', 'v6');
+	log('booted protocols ' + A.win.DrawioFileSync.PROTOCOL + ' / ' + B.win.DrawioFileSync.PROTOCOL);
+	window.A = A; window.B = B; window.CASES = CASES; window.out = [];
+
+	log('--- decode: root selection and orphan adoption (mxModelCodec) ---');
+
+	for (var i = 0; i < DECODE_CASES.length; i++)
+	{
+		var c = DECODE_CASES[i];
+		var rA = null, rB = null, err = null;
+
+		try { rA = checkDecode(A, c); } catch (e) { err = 'v7 threw ' + e.message; }
+		try { rB = checkDecode(B, c); } catch (e) { err = (err || '') + ' v6 threw ' + e.message; }
+
+		log('decode ' + (i + 1) + ' [' + c.name + '] v7=' + (rA ? rA.ok : '-') +
+			' (root ' + (rA ? rA.d.root : '?') + ', ' + (rA ? rA.d.ids.length : '?') +
+			' cells) | v6 root ' + (rB ? rB.d.root : '?') + ', ' +
+			(rB ? rB.d.ids.length : '?') + ' cells [' + c.v6 + ']' +
+			(err ? ' ' + err : '') + ((rA && !rA.ok) ? ' FAILED: ' + rA.bad : ''),
+			err != null || (rA != null && !rA.ok));
+	}
+
+	log('--- patch: mergeFile checksum round trip ---');
+	for (var i = 0; i < CASES.length; i++)
+	{
+		var c = CASES[i];
+		var rA = null, rB = null, err = null;
+		try { rA = roundTrip(A, c.a, c.b); } catch (e) { err = 'v7 threw ' + e.message; }
+		try { rB = roundTrip(B, c.a, c.b); } catch (e) { err = (err || '') + ' v6 threw ' + e.message; }
+		var bad = err != null || !rA.ok || !rB.ok;
+		log('case ' + (i + 1) + ' [' + c.name + '] v7=' + (rA ? rA.ok : '-') + ' v6=' + (rB ? rB.ok : '-') +
+			(rA ? ' roots ' + rA.roots : '') + (err ? ' ' + err : ''), bad);
+		if (rA) log('   v7 patch: ' + rA.patch.substring(0, 600));
+		if (rA && !rA.ok) log('   v7 residual: ' + rA.residual.substring(0, 600), true);
+		if (rB && !rB.ok) log('   v6 residual: ' + rB.residual.substring(0, 600), true);
+		window.out.push({name: c.name, rA: rA, rB: rB});
+	}
+	log('DONE');
+	window.done = true;
+}
+main().catch(function(e) { log('FATAL ' + e.message + '\n' + e.stack, true); window.done = true; });
+</script>
+</body>
+</html>

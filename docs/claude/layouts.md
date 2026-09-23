@@ -27,6 +27,17 @@ edge mode 'auto', radial/organic straight spokes. The conservative
 CSV-reserved names incl. `organic` and the `CSV_ELK_LAYOUTS` keys keep their
 own branches and never reach the resolver).
 
+The desktop CLI's `--normalize` shares the layout plumbing without being a
+layout: `Graph.normalizeModel` (grapheditor) repairs the model — edges to the
+nearest common ancestor of their terminals (`mxGraphModel.updateEdgeParents`),
+the standard relative geometry for an edge written without one, and a
+grow-only resize for a container that would clip its children. In the export
+path (`export.js`) it is pushed as a plain `execute(parent)` step in front of
+the resolved layouts, so `--normalize --layout <name>` normalizes first and
+lays out second; on open (`ElectronApp.loadArgs`) it runs before
+`executeLayoutSpec`. A layout must never rewrite the cell hierarchy itself —
+that is what this flag is for.
+
 Every user-facing layout run (`executeLayoutSpec`, `ElkLayout.run`,
 `LibavoidRouting.run`, the Parallels menu item, custom layout dialog) records
 a custom-layout array on `ui.lastLayoutSpec`, which Arrange > Layout >

@@ -1489,7 +1489,8 @@ EditorUi.prototype.findCommonProperties = function(cell, properties, addAll, sst
 					{
 						var name = nodes[i].getAttribute('color');
 
-						if (!mxUtils.isValidColor(name) && !handledKeys[name] &&
+						// A node without a color attribute defines no custom property
+						if (name != null && !mxUtils.isValidColor(name) && !handledKeys[name] &&
 							name != 'fill' && name != 'stroke' && name != 'font')
 						{
 							handledKeys[name] = true;
@@ -2486,7 +2487,9 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 			graph.snap(Math.round(y / graph.view.scale) - graph.view.translate.y - h));
 	};
 	
-	if (cells != null && cells.length > 0)
+	// The entries are styled and rendered with the sidebar's scratch graph,
+	// so a chromeless editor without a sidebar has no shape picker
+	if (cells != null && cells.length > 0 && this.sidebar != null)
 	{
 		var ui = this;
 		var graph = this.editor.graph;
@@ -6076,7 +6079,9 @@ EditorUi.prototype.updateActionStates = function()
 		graph.isValidRoot(ss.cells[0]));
 	this.actions.get('copyData').setEnabled(ss.cells.length == 1);
 	this.actions.get('copyAsText').setEnabled(ss.cells.length == 1);
-	this.actions.get('editLink').setEnabled(ss.cells.length == 1);
+	// Edit Link writes to every editable cell in the selection, like
+	// Edit Style — same URL or custom action on a group of shapes.
+	this.actions.get('editLink').setEnabled(ss.cells.length > 0);
 	this.actions.get('editStyle').setEnabled(ss.cells.length > 0);
 	this.actions.get('editTooltip').setEnabled(ss.cells.length == 1);
 	this.actions.get('editNote').setEnabled(ss.cells.length == 1);
