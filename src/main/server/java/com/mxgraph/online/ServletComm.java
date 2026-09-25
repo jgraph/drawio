@@ -77,6 +77,13 @@ public interface ServletComm extends AbsComm
 		return ((HttpServletRequest) request).getRemoteAddr();
 	}
 
+	default String getContextPath(Object request)
+	{
+		//Uses the configured context path since HttpServletRequest.getContextPath
+		//echoes the raw request URI (eg. /draw;Domain=x) into the cookie header
+		return ((HttpServletRequest) request).getServletContext().getContextPath();
+	}
+
 	default void setBody(String body, Object response) throws IOException
 	{
 		OutputStream out = ((HttpServletResponse) response).getOutputStream();

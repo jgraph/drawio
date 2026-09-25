@@ -143,7 +143,7 @@ DropboxClient.prototype.authenticateStep2 = function(state, success, error)
 			
 			if (authRemembered != null)
 			{
-				var req = new mxXmlRequest(this.redirectUri + '?state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.host + '&token=' + state), null, 'GET'); //To identify which app/domain is used
+				var req = new mxXmlRequest(this.redirectUri + '?state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.host + '&token=' + state + this.getRedirectPathState()), null, 'GET'); //To identify which app/domain is used
 				
 				req.send(mxUtils.bind(this, function(req)
 				{
@@ -187,7 +187,7 @@ DropboxClient.prototype.authenticateStep2 = function(state, success, error)
 						this.clientId + (remember? '&token_access_type=offline' : '') +
 						'&redirect_uri=' + encodeURIComponent(this.redirectUri) +
 						'&response_type=code&state=' + encodeURIComponent('cId=' + this.clientId + //To identify which app/domain is used
-							'&domain=' + window.location.host + '&token=' + state), 'dbauth');
+							'&domain=' + window.location.host + '&token=' + state + this.getRedirectPathState()), 'dbauth');
 					
 					if (win != null)
 					{

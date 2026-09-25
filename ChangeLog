@@ -1,3 +1,48 @@
+25-SEP-2026: 31.5.3
+
+- Keeps UML sequence messages at their own y [jgraph/drawio#5706]
+- Attaches sequence messages at the pointer y and to activation bars [jgraph/drawio#5706]
+- Keeps sequence messages out of libavoid auto-routing [jgraph/drawio#5706]
+- Fixes moving sequence messages found in UI testing [jgraph/drawio#5706]
+- Stores new connection waypoints relative to the edge parent
+- Draws sequence self-calls as a loop at the y where they are dropped [jgraph/drawio#5706]
+- Lets both corners of a sequence self-call set its width [jgraph/drawio#5706]
+- Uses the sequence edge style for the Self Call template [jgraph/drawio#5706]
+- Updates drawio-mermaid bundle to 0.1.0+commit.ab57e1e [jgraph/drawio#5706]
+- Updates the vendored drawio-plantuml bundle to commit 300e382 [jgraph/drawio#5706]
+- Adds the sequence edge style to the waypoints menus [jgraph/drawio#5706]
+- Connects hover arrow clicks on lifelines to the next lifeline [jgraph/drawio#5706]
+- Fixes the elbow direction of new edges from the north hover arrow
+- Places messages from hover arrow clicks on the next free row [jgraph/drawio#5706]
+- Switches the generate/v3 premium draw.io model to Opus 5.5
+- Updates drawio-mermaid bundle to 0.1.0+commit.1277371 [DID-20220]
+- Reduces stale duration
+- Updates DOMPurify from 3.4.15 to 3.4.16
+- Adds a smoke test for DOMPurify updates
+- Updates jszip from 3.10.0 to 3.10.1
+- Updates drawio-mermaid bundle to 0.1.0+commit.6a70a2f [jgraph/drawio-confluence#105]
+- Skips elements without a style when changing the text color
+- Records the groups of the 2026-09-24 error log pass
+- Keeps vertex and edge default styles separate [jgraph/drawio#5781]
+- Updates the vendored drawio-plantuml bundle to commit 0326366 [jgraph/drawio#5775]
+- Fixes image limit defaults shown in configuration dialog [jgraph/drawio#1887]
+- Keeps curved style when switching waypoints to straight [jgraph/drawio-desktop#1442]
+- Adds Orthogonal Ends option for non-orthogonal edges [jgraph/drawio#5447]
+- Opens Microsoft 365 publish links on the app host [jgraph/drawio#5663]
+- Updates the vendored drawio-plantuml bundle to commit 156dd4b [jgraph/drawio#5775]
+- Limits PDF attachment and object stream scans [jgraph/drawio-dev#572]
+- Restricts chromeless back and refresh URLs to same origin [jgraph/drawio-confluence#99]
+- Fixes search tag keys for stencil names with several spaces [jgraph/drawio#5738]
+- Reports Mermaid input with nothing to draw instead of dropping it
+- Reports Mermaid input with nothing to draw instead of dropping it
+- Adds drive.file Editor add-ons for Google Docs, Sheets and Slides [jgraph/drawio#5559]
+- Shows plugin menu items in the menubar and menu buttons [hediet/vscode-drawio#532]
+- Searches the text inside diagrams from the Confluence diagram list, with an All Spaces option [DID-20282]
+- Fixes OAuth sign-in failing with 401 on self-hosted deployments under a sub-path [jgraph/drawio#5479]
+- Fixes Google Drive, OneDrive, GitLab and Dropbox sign-in failing with 500 on self-hosted deployments under a sub-path
+- Updates drawio-mermaid bundle to 0.1.0+commit.44f416b
+- Applies retired plugin replacements in the desktop plugin loader [jgraph/drawio-desktop#2548]
+
 23-SEP-2026: 31.5.2
 
 - Adds support for mermaid swimlane-beta diagrams [jgraph/drawio#5780]

@@ -668,6 +668,7 @@ options=વિકલ્પો
 organic=ઓર્ગેનિક
 orgChart=ઓર્ગ ચાર્ટ
 orthogonal=ઓર્થોગોનલ
+orthogonalEnds=ઓર્થોગોનલ છેડા
 orthogonalRouting=ઓર્થોગોનલ રૂટિંગ
 otherViewer=અન્ય દર્શક
 otherViewers=અન્ય દર્શકો

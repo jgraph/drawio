@@ -8934,20 +8934,33 @@ mxGraph.prototype.isCellConnectable = function(cell)
 mxGraph.prototype.isOrthogonal = function(edge)
 {
 	var orthogonal = edge.style[mxConstants.STYLE_ORTHOGONAL];
-	
+
 	if (orthogonal != null)
 	{
 		return orthogonal;
 	}
-	
-	var tmp = this.view.getEdgeStyle(edge);
-	
-	return tmp == mxEdgeStyle.SegmentConnector ||
-		tmp == mxEdgeStyle.ElbowConnector ||
-		tmp == mxEdgeStyle.SideToSide ||
-		tmp == mxEdgeStyle.TopToBottom ||
-		tmp == mxEdgeStyle.EntityRelation ||
-		tmp == mxEdgeStyle.OrthConnector;
+
+	return this.isOrthogonalEdgeStyle(this.view.getEdgeStyle(edge));
+};
+
+/**
+ * Function: isOrthogonalEdgeStyle
+ *
+ * Returns true if the given edge style function routes orthogonally, which
+ * implies <mxConstants.STYLE_ORTHOGONAL> if the style does not define it.
+ *
+ * Parameters:
+ *
+ * edgeStyle - Edge style function, see <mxGraphView.getEdgeStyle>.
+ */
+mxGraph.prototype.isOrthogonalEdgeStyle = function(edgeStyle)
+{
+	return edgeStyle == mxEdgeStyle.SegmentConnector ||
+		edgeStyle == mxEdgeStyle.ElbowConnector ||
+		edgeStyle == mxEdgeStyle.SideToSide ||
+		edgeStyle == mxEdgeStyle.TopToBottom ||
+		edgeStyle == mxEdgeStyle.EntityRelation ||
+		edgeStyle == mxEdgeStyle.OrthConnector;
 };
 
 /**

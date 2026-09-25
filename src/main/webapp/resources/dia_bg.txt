@@ -668,6 +668,7 @@ options=Опции
 organic=Органичен
 orgChart=Организационна диаграма
 orthogonal=Ортогонален
+orthogonalEnds=Ортогонални краища
 orthogonalRouting=Ортогонално трасиране
 otherViewer=Друг потребител
 otherViewers=Други потребители

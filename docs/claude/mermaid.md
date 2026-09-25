@@ -30,9 +30,15 @@ type"; a supported diagram that fails to parse/lay out/convert **throws** a
 never swallows errors into null, so coverage gaps and parser bugs are
 distinguishable in telemetry. On either failure `parseMermaidDiagram`
 dispatches to `parseErrorHandler`/`error`/`handleError`, which surfaces the
-error dialog. (There is no keyword-gated telemetry logging in
-`parseMermaidDiagram` — an earlier version of this note described an
-`EditorUi.mermaidDiagramTypeKeywords` mirror that no longer exists.)
+error dialog. It also fails a result without any vertex or edge ("Nothing to
+draw: …"): the parsers skip statements they do not recognize, so invalid input
+converts to an empty model, which the insert dialog would silently drop (losing
+the input) and a desktop CLI export would fail on without a reason or write as
+an empty file. The check lives here rather than in `parseText`, whose compare
+pipeline locks a valid empty diagram (`docs-gantt-7`). (There is no
+keyword-gated telemetry logging in `parseMermaidDiagram` — an earlier version
+of this note described an `EditorUi.mermaidDiagramTypeKeywords` mirror that
+no longer exists.)
 
 Deleted along with the bundle: `generateMermaidImage`, `createMermaidXml`,
 `mermaidSvgToDataUri`, `removeMermaidErrors`, `isSupportedMermaidDiagramType`,

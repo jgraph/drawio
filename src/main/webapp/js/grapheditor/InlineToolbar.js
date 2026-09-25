@@ -1959,9 +1959,10 @@ InlineToolbar.prototype.showConnStyleMenu = function(evt)
 		// routing clears the flag, keeping the choices mutually exclusive. The
 		// active-item highlight is resolved via getImageForEdgeStyle, which
 		// already distinguishes a libavoid edge from a plain orthogonal one.
+		// Straight keeps curved (see Format for the Line style control)
 		routingItems.push({img: Format.straightImage.src, title: mxResources.get('straight'),
-			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
-			values: [null, null, null, null], reset: true});
+			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+			values: [null, null, null], reset: true});
 		routingItems.push({img: Format.orthogonalImage.src, title: mxResources.get('orthogonal'),
 			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
 			values: ['orthogonalEdgeStyle', null, null, null], reset: true});

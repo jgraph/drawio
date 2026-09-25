@@ -668,6 +668,7 @@ options=Možnosti
 organic=Organsko
 orgChart=Organizacijska shema
 orthogonal=Ortogonalno
+orthogonalEnds=Ortogonalni konci
 orthogonalRouting=Ortogonalno usmerjanje
 otherViewer=drug gledalec
 otherViewers=drugi gledalci

@@ -668,6 +668,7 @@ options=オプション
 organic=オーガニック
 orgChart=組織図
 orthogonal=直角
+orthogonalEnds=直角の端点
 orthogonalRouting=直角ルーティング
 otherViewer=他の閲覧者
 otherViewers=他の閲覧者

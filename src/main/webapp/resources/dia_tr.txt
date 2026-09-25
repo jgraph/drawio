@@ -668,6 +668,7 @@ options=Seçenekler
 organic=Organik
 orgChart=Organizasyon Şeması
 orthogonal=Dikgen
+orthogonalEnds=Dik Uçlar
 orthogonalRouting=Dikgen yönlendirme
 otherViewer=diğer izleyici
 otherViewers=diğer izleyiciler

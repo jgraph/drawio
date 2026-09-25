@@ -668,6 +668,7 @@ options=पर्याय
 organic=ऑर्गॅनिक
 orgChart=ऑर्ग चार्ट
 orthogonal=ऑर्थोगोनल
+orthogonalEnds=ऑर्थोगोनल टोके
 orthogonalRouting=ऑर्थोगोनल राउटिंग
 otherViewer=इतर दर्शक
 otherViewers=इतर दर्शक

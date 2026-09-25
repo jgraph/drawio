@@ -668,6 +668,7 @@ options=Beállítások
 organic=Szerves
 orgChart=Szervezeti ábra
 orthogonal=Merőleges
+orthogonalEnds=Merőleges végek
 orthogonalRouting=Merőleges útvonalvezetés
 otherViewer=másik néző
 otherViewers=további nézők

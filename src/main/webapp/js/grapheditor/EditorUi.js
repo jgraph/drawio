@@ -901,7 +901,8 @@ EditorUi = function(editor, container, lightbox)
 				graph.copyCellStyles(evt.getProperty('cells'),
 					evt.getProperty('keys'), evt.getProperty('values'),
 					graph.currentVertexStyle, graph.currentEdgeStyle,
-					vertexStyleIgnored, edgeStyleIgnored, evt.getProperty('edgeLabel'));
+					vertexStyleIgnored, edgeStyleIgnored, evt.getProperty('edgeLabel'),
+					force);
 			}
 
 			if (this.toolbar != null)
@@ -3516,6 +3517,10 @@ EditorUi.prototype.getImageForEdgeStyle = function(style)
 	{
 		result = Format.entityImage.src;
 	}
+	else if (es == 'sequenceEdgeStyle')
+	{
+		result = Format.sequenceImage.src;
+	}
 	else if (es == 'elbowEdgeStyle')
 	{
 		result = (mxUtils.getValue(style, mxConstants.STYLE_ELBOW, null) == 'vertical') ?
@@ -3932,7 +3937,8 @@ EditorUi.prototype.initCanvas = function()
 			{
 				var backUrl = Graph.sanitizeLink(toolbarConfig.backBtn.url);
 
-				if (backUrl != null)
+				// Same-origin only as the URL comes from a URL parameter
+				if (backUrl != null && Graph.isSameOrigin(backUrl))
 				{
 					addButton(mxUtils.bind(this, function(evt)
 					{
@@ -4214,6 +4220,12 @@ EditorUi.prototype.initCanvas = function()
 			{
 				var refreshUrl = (toolbarConfig.refreshBtn.url == null) ? null :
 					Graph.sanitizeLink(toolbarConfig.refreshBtn.url);
+
+				// Same-origin only as the URL comes from a URL parameter
+				if (refreshUrl != null && !Graph.isSameOrigin(refreshUrl))
+				{
+					refreshUrl = null;
+				}
 
 				addButton(mxUtils.bind(this, function(evt)
 				{

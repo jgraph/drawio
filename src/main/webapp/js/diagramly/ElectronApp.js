@@ -237,6 +237,11 @@ mxStencilRegistry.allowEval = false;
 				{
 					try
 					{
+						if (App.applyRetiredPlugin(plugins[i]))
+						{
+							continue;
+						}
+
 						// Resolved into a local variable as plugins is the live settings
 						// array and rewritten entries would be persisted on the next
 						// settings save, breaking resolution on the following start

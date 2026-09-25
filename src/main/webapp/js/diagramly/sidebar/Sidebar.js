@@ -1292,7 +1292,7 @@
 				
 				if (tags.length > 1)
 				{
-					var key = tags[0].toLowerCase().replace(' ', '_');
+					var key = tags[0].toLowerCase().replace(/ /g, '_');
 					var value = mxUtils.trim(tags.slice(1, tags.length).join(' ').toLowerCase());
 					
 					if (value.length > 0)

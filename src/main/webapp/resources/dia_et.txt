@@ -668,6 +668,7 @@ options=Valikud
 organic=Orgaaniline
 orgChart=Organisatsiooni skeem
 orthogonal=Ortogonaalne
+orthogonalEnds=Ortogonaalsed otsad
 orthogonalRouting=Ortogonaalne marsruutimine
 otherViewer=teine vaataja
 otherViewers=teised vaatajad

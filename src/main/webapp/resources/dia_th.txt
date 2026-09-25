@@ -668,6 +668,7 @@ options=ตัวเลือก
 organic=ออแกนิค
 orgChart=แผนผังองค์กร
 orthogonal=ตั้งฉากกัน
+orthogonalEnds=ปลายตั้งฉาก
 orthogonalRouting=การกำหนดเส้นทางแบบตั้งฉาก
 otherViewer=ผู้ดูอื่นๆ
 otherViewers=ผู้ดูอื่นๆ

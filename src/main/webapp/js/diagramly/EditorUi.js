@@ -9191,9 +9191,12 @@
 			params.push('dark=' + darkMode);
 		}
 
-		// Uses current host for non-public GitLab and GitHub files
+		// Uses current host for non-public GitLab and GitHub files and for
+		// Microsoft 365 files, which sign in with the current host's Azure app.
+		// Copies need no sign-in and keep the viewer, which allows framing.
 		return ((lightbox && (url != null || (file != null &&
-			file.getMode() != App.MODE_GITHUB && file.getMode() != App.MODE_GITLAB))) ?
+			file.getMode() != App.MODE_GITHUB && file.getMode() != App.MODE_GITLAB &&
+			(ignoreFile || file.getMode() != App.MODE_M365)))) ?
 			EditorUi.lightboxHost : (((mxClient.IS_CHROMEAPP || EditorUi.isElectronApp ||
 			!(/.*\.draw\.io$/.test(window.location.hostname))) ?
 			EditorUi.drawHost : 'https://' + window.location.host))) + '/' +
@@ -13594,7 +13597,15 @@
 			{
 				var xml = mxMermaidToDrawio.parseText(data, this.getMermaidConfig(data, config));
 
-				if (xml != null)
+				// The parsers skip statements they do not recognize, so invalid
+				// input can convert to a model without cells. Report it rather
+				// than silently inserting or exporting nothing
+				if (xml != null && !/\s(vertex|edge)="1"/.test(xml))
+				{
+					onParseError(new Error('Nothing to draw: the diagram is empty ' +
+						'or its statements were not recognized'));
+				}
+				else if (xml != null)
 				{
 					// Flowchart-elk diagrams need an ElkLayout post-pass
 					// to match the mermaid-cli reference (the parser's
@@ -20962,7 +20973,11 @@
 	{
 		className = (className != null) ? className : 'geButton';
 		var menu = this.menus.get(key);
-		var elt = this.menubar.addMenu(mxResources.get(key), menu.funct, null, clickFn);
+		var elt = this.menubar.addMenu(mxResources.get(key), mxUtils.bind(this, function(popupMenu, parent)
+		{
+			menu.funct.apply(this, arguments);
+			this.menus.appendPluginMenuItems(key, popupMenu, parent);
+		}), null, clickFn);
 		
 		elt.className = className;
 		elt.setAttribute('title', mxResources.get(key));
@@ -21280,10 +21295,11 @@
 		{
 			var menu = this.menus.get(id);
 			
-			var elt = this.createMenuElement(label, mxUtils.bind(this, function()
+			var elt = this.createMenuElement(label, mxUtils.bind(this, function(popupMenu, parent)
 			{
 				// Allows extensions of menu.functid
 				menu.funct.apply(this, arguments);
+				this.menus.appendPluginMenuItems(id, popupMenu, parent);
 			}));
 			
 			elt.setAttribute('title', label);

@@ -668,6 +668,7 @@ options=Alternativ
 organic=Organisk
 orgChart=Organisationschema
 orthogonal=Vinkelrät
+orthogonalEnds=Vinkelräta ändar
 orthogonalRouting=Vinkelrät dragning
 otherViewer=annan läsare
 otherViewers=andra läsare

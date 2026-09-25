@@ -668,6 +668,7 @@ options=Optionen
 organic=Organisch
 orgChart=Organigramm
 orthogonal=Orthogonal
+orthogonalEnds=Orthogonale Enden
 orthogonalRouting=Orthogonales Routing
 otherViewer=weiterer Betrachter
 otherViewers=weitere Betrachter

@@ -668,6 +668,7 @@ options=Indstillinger
 organic=Organisk
 orgChart=Organisationsdiagram
 orthogonal=Retvinklet
+orthogonalEnds=Retvinklede ender
 orthogonalRouting=Retvinklet ruteføring
 otherViewer=anden bruger
 otherViewers=andre brugere

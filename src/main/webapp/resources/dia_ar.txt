@@ -662,6 +662,7 @@ options=‫الخيارات‬
 organic=‫عضوي‬
 orgChart=‫مخطط المنظمة‬
 orthogonal=‫متعامد‬
+orthogonalEnds=‫نهايات متعامدة‬
 orthogonalRouting=‫توجيه متعامد‬
 otherViewer=‫مشاهد آخر‬
 otherViewers=‫مشاهدون آخرون‬

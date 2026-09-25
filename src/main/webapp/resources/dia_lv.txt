@@ -668,6 +668,7 @@ options=Parametri
 organic=Organiskais
 orgChart=Organizācijas diagramma
 orthogonal=Taisni stūri
+orthogonalEnds=Taisnleņķa gali
 orthogonalRouting=Taisnstūra maršrutēšana
 otherViewer=cits skatītājs
 otherViewers=citi skatītāji

@@ -668,6 +668,7 @@ options=Επιλογές
 organic=Οργανικό
 orgChart=Οργανόγραμμα
 orthogonal=Ορθογώνιο
+orthogonalEnds=Ορθογώνια άκρα
 orthogonalRouting=Ορθογώνια δρομολόγηση
 otherViewer=άλλος χρήστης
 otherViewers=άλλοι χρήστες

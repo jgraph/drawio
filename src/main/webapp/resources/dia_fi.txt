@@ -668,6 +668,7 @@ options=Asetukset
 organic=Orgaaninen
 orgChart=Organisaatiokaavio
 orthogonal=Suorakulmainen
+orthogonalEnds=Suorakulmaiset päät
 orthogonalRouting=Suorakulmainen reititys
 otherViewer=muu katselija
 otherViewers=muut katselijat

@@ -668,6 +668,7 @@ options=ఎంపికలు
 organic=ఆర్గానిక్
 orgChart=సంస్థ చార్ట్
 orthogonal=ఆర్థోగోనల్
+orthogonalEnds=ఆర్థోగోనల్ చివరలు
 orthogonalRouting=ఆర్థోగోనల్ రూటింగ్
 otherViewer=ఇతర వీక్షకుడు
 otherViewers=ఇతర వీక్షకులు

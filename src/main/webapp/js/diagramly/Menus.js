@@ -940,8 +940,7 @@
 				}
 				
 				graph.copyCellStyles([cell], keys, values,
-					editorUi.copiedStyle, editorUi.copiedStyle,
-					null, null, null, true);
+					editorUi.copiedStyle, editorUi.copiedStyle);
 			}
 		}, null, null,  Editor.altKey + '+C');
 

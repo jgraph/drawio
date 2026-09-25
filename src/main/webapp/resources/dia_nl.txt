@@ -667,6 +667,7 @@ options=Opties
 organic=Organisch
 orgChart=Organigram
 orthogonal=Orthogonaal
+orthogonalEnds=Orthogonale uiteinden
 orthogonalRouting=Orthogonale routering
 otherViewer=andere bekijker
 otherViewers=andere bekijkers

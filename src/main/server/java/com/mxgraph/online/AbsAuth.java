@@ -19,6 +19,7 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
@@ -43,6 +44,8 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 	protected static final int TOKEN_COOKIE_AGE = 31536000; //One year
 	public static boolean IS_GAE = (System.getProperty("com.google.appengine.runtime.version") == null) ? false : true;
 	public static boolean USE_HTTP = "1".equals(System.getenv("DRAWIO_USE_HTTP")); // Not secure, use at your own risk
+	//Non-empty segments of unreserved characters that do not start with a dot
+	private static final Pattern REDIRECT_PATH_PATTERN = Pattern.compile("(/[A-Za-z0-9_~-][A-Za-z0-9._~-]*)+");
 	
 	public static final SecureRandom random = new SecureRandom();
 	protected static Cache tokenCache;
@@ -94,9 +97,21 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 			return clientSecretMap.get(cId);
 		}
 		
-		public String getRedirectUrl(String domain)
+		//Clients deployed under a sub-path send the path of their redirect URI
+		//(eg. /drawio/google) since it must match the one used to authorize.
+		//Only a same-origin path to this service with safe characters is used.
+		public String getRedirectUrl(String domain, String path)
 		{
-			return (USE_HTTP? "http://" : "https://") + domain + REDIRECT_PATH;
+			if (path == null)
+			{
+				path = REDIRECT_PATH;
+			}
+			else if (!REDIRECT_PATH_PATTERN.matcher(path).matches() || !path.endsWith(REDIRECT_PATH))
+			{
+				return null;
+			}
+
+			return (USE_HTTP? "http://" : "https://") + domain + path;
 		}
 	}
 	
@@ -157,9 +172,16 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 		return tokenCookieVal;
 	}
 	
+	//Browsers only return cookies to requests under the cookie path so it must
+	//include the context path if deployed under a sub-path (eg. /draw/github2)
+	protected String getCookiePath(Object request)
+	{
+		return getContextPath(request) + cookiePath;
+	}
+
 	protected void logout(String tokenCookieName, String tokenCookieVal, Object request, Object response)
 	{
-		deleteCookie(tokenCookieName, cookiePath, response);
+		deleteCookie(tokenCookieName, getCookiePath(request), response);
 	}
 	
 	//https://stackoverflow.com/questions/4390800/determine-if-a-string-is-absolute-url-or-relative-url-in-java
@@ -192,7 +214,7 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 			putCacheValue(key, state);
 			setStatus(HttpServletResponse.SC_OK, response);
 			//Chrome blocks this cookie when draw.io is running in an iframe. The cookie is added to parent frame. TODO FIXME
-			addCookie(STATE_COOKIE, key, STATE_COOKIE_AGE, cookiePath, response); //10 min to finish auth
+			addCookie(STATE_COOKIE, key, STATE_COOKIE_AGE, getCookiePath(request), response); //10 min to finish auth
 			setHeader("Content-Type", "text/plain", response);
 			setBody(state, response);
 			return;
@@ -201,7 +223,7 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 		String code = getParameter("code", request);
 		String error = getParameter("error", request);
 		HashMap<String, String> stateVars = new HashMap<>();
-		String secret = null, client = null, redirectUri = null, domain = null, stateToken = null, cookieToken = null, version = null, successRedirect = null;
+		String secret = null, client = null, redirectUri = null, domain = null, stateToken = null, cookieToken = null, version = null, successRedirect = null, redirectPath = null;
 		
 		try
 		{
@@ -225,6 +247,7 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 				stateToken = stateVars.get("token");
 				version = stateVars.get("ver");
 				successRedirect = stateVars.get("redirect");
+				redirectPath = stateVars.get("path");
 
 				//Redirect to a page on the same domain only (relative path)
 				if (successRedirect != null && isAbsolute(successRedirect))
@@ -240,7 +263,7 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 					cookieToken = (String) tokenCache.get(cacheKey);
 					//Delete cookie & cache after being used since it is a single use
 					tokenCache.remove(cacheKey);
-					deleteCookie(STATE_COOKIE, cookiePath, response);
+					deleteCookie(STATE_COOKIE, getCookiePath(request), response);
 				}
 			}
 			catch(Exception e)
@@ -250,7 +273,8 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 			}
 
 			Config CONFIG = getConfig();
-			redirectUri = CONFIG.getRedirectUrl(domain != null? domain : getServerName(request));
+			//Null for an invalid path, which is rejected as a bad request below
+			redirectUri = CONFIG.getRedirectUrl(domain != null? domain : getServerName(request), redirectPath);
 			
 			secret = CONFIG.getClientSecret(client);
 			
@@ -301,7 +325,7 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 				
 				if (authResp.refreshToken != null)
 				{
-					addCookie(tokenCookie, getRefreshTokenCookie(authResp.refreshToken, tokenCookieVal, authResp.accessToken), TOKEN_COOKIE_AGE, cookiePath, response);
+					addCookie(tokenCookie, getRefreshTokenCookie(authResp.refreshToken, tokenCookieVal, authResp.accessToken), TOKEN_COOKIE_AGE, getCookiePath(request), response);
 				}
 				
 				if (authResp.content != null)

@@ -342,7 +342,7 @@ OneDriveClient.prototype.authenticateStep2 = function(state, success, error, fai
 			if (authInfo != null)
 			{
 				var req = new mxXmlRequest(this.redirectUri + '?state=' + encodeURIComponent('cId=' + this.clientId +
-					'&domain=' + window.location.host + '&token=' + state) +
+					'&domain=' + window.location.host + '&token=' + state + this.getRedirectPathState()) +
 					'&scopes=' + encodeURIComponent(isSP? this.scopesSP : this.scopes), null, 'GET'); // To identify which app/domain is used
 				
 				req.send(mxUtils.bind(this, function(req)
@@ -399,7 +399,7 @@ OneDriveClient.prototype.authenticateStep2 = function(state, success, error, fai
 						'?client_id=' + this.clientId + '&response_type=code&prompt=select_account' +
 						'&redirect_uri=' + encodeURIComponent(this.redirectUri) +
 						'&scope=' + encodeURIComponent((isSP? this.scopesSP : this.scopes) + (remember? ' offline_access' : '')) +
-						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.host + '&token=' + state); //To identify which app/domain is used
+						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.host + '&token=' + state + this.getRedirectPathState()); //To identify which app/domain is used
 	
 					var width = 525,
 						height = 525,

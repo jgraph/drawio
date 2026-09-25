@@ -668,6 +668,7 @@ options=විකල්ප
 organic=කාබනික
 orgChart=සංවිධාන සටහන
 orthogonal=ලම්බක
+orthogonalEnds=ලම්බක අග්‍ර
 orthogonalRouting=ලම්බක මාර්ගගත කිරීම
 otherViewer=වෙනත් නරඹන්නා
 otherViewers=වෙනත් නරඹන්නන්

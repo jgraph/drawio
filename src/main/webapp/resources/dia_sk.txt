@@ -668,6 +668,7 @@ options=Možnosti
 organic=Organické
 orgChart=Organizačný diagram
 orthogonal=Ortogonálne
+orthogonalEnds=Ortogonálne konce
 orthogonalRouting=Ortogonálne smerovanie
 otherViewer=ďalší používateľ
 otherViewers=ďalší používatelia

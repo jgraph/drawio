@@ -668,6 +668,7 @@ options=አማራጮች
 organic=ኦርጋኒክ
 orgChart=የድርጅት ቻርት
 orthogonal=ኦርተጉናል
+orthogonalEnds=ኦርተጉናል ጫፎች
 orthogonalRouting=ኦርተጉናል መምራት
 otherViewer=ሌላ ተመልካች
 otherViewers=ሌሎች ተመልካቾች

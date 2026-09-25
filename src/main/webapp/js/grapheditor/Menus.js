@@ -65,8 +65,9 @@ Menus.prototype.init = function()
 		{
 			// Each routing entry also clears libavoidRouting so the choices stay
 			// mutually exclusive (picking any plain routing turns auto-routing off).
-			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
-				[null, null, null, null], null, parent, true, Format.straightImage.src)).setAttribute('title', mxResources.get('straight'));
+			// Straight keeps curved (see Format for the Line style control).
+			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				[null, null, null], null, parent, true, Format.straightImage.src)).setAttribute('title', mxResources.get('straight'));
 			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
 				['orthogonalEdgeStyle', null, null, null], null, parent, true, Format.orthogonalImage.src)).setAttribute('title', mxResources.get('orthogonal'));
 
@@ -99,6 +100,7 @@ Menus.prototype.init = function()
 
 			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
 				['entityRelationEdgeStyle', null, null, null], null, parent, true, Format.entityImage.src)).setAttribute('title', mxResources.get('entityRelation'));
+			this.addSequenceEdgeStyleItem(menu, parent);
 		}
 	})));
 	
@@ -671,7 +673,15 @@ Menus.prototype.addMenu = function(name, popupMenu, parent)
 		menu.execute(popupMenu, parent);
 	}
 
-	// Appends plugin-registered items
+	this.appendPluginMenuItems(name, popupMenu, parent);
+};
+
+/**
+ * Appends the items registered with addPluginMenuItems for the
+ * given menu name to the given popup menu and parent.
+ */
+Menus.prototype.appendPluginMenuItems = function(name, popupMenu, parent)
+{
 	var pluginItems = this.pluginMenuItems[name];
 
 	if (pluginItems != null && pluginItems.length > 0)
@@ -1263,6 +1273,34 @@ Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, pa
 			graph.getModel().endUpdate();
 		}
 	}), parent, sprite));
+};
+
+/**
+ * Adds the sequence message routing to the given edge style menu if an edge
+ * in the selection is connected to a lifeline or an activation bar, or is a
+ * sequence message. The messages keep the y where they are routed now (see
+ * Graph.makeSequenceMessages).
+ */
+Menus.prototype.addSequenceEdgeStyleItem = function(menu, parent)
+{
+	var graph = this.editorUi.editor.graph;
+	var cells = graph.getSelectionCells();
+
+	for (var i = 0; i < cells.length; i++)
+	{
+		if (graph.isSequenceMessageCandidate(cells[i]))
+		{
+			Format.processMenuIcon(this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE,
+				mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE,
+				'libavoidRouting'], ['sequenceEdgeStyle', null, null, null, null], null,
+				parent, true, Format.sequenceImage.src, function(graph, edges)
+				{
+					graph.makeSequenceMessages(edges);
+				})).setAttribute('title', mxResources.get('sequenceDiagram'));
+
+			break;
+		}
+	}
 };
 
 /**
@@ -1865,14 +1903,15 @@ Menus.prototype.createMenubar = function(container)
 		
 		for (var i = 0; i < menus.length; i++)
 		{
-			(mxUtils.bind(this, function(menu)
+			(mxUtils.bind(this, function(menu, name)
 			{
-				var elt = menubar.addMenu(mxResources.get(menus[i]), mxUtils.bind(this, function()
+				var elt = menubar.addMenu(mxResources.get(name), mxUtils.bind(this, function(popupMenu, parent)
 				{
 					try
 					{
 						// Allows extensions of menu.funct
 						menu.funct.apply(this, arguments);
+						this.appendPluginMenuItems(name, popupMenu, parent);
 					}
 					catch (e)
 					{
@@ -1881,7 +1920,7 @@ Menus.prototype.createMenubar = function(container)
 				}));
 				
 				this.menuCreated(menu, elt);
-			}))(this.get(menus[i]));
+			}))(this.get(menus[i]), menus[i]);
 		}
 		
 		if (Editor.currentTheme == 'kennedy' ||

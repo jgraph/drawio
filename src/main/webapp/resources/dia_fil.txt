@@ -668,6 +668,7 @@ options=Mga pagpipilian
 organic=Organiko
 orgChart=Org Chart
 orthogonal=Orthogonal
+orthogonalEnds=Orthogonal na Dulo
 orthogonalRouting=Orthogonal na Pagruruta
 otherViewer=ibang tumitingin
 otherViewers=ibang mga tumitingin

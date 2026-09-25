@@ -25,6 +25,12 @@ public interface AbsComm
 
 	String getRemoteAddr(Object request);
 
+	//Path the application is deployed under, "" for the root
+	default String getContextPath(Object request)
+	{
+		return "";
+	}
+
 	void setBody(String body, Object response) throws IOException;
 	
 	void setStatus(int status, Object response);

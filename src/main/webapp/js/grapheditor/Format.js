@@ -64,6 +64,8 @@ Format.horizontalIsometricImage = Graph.createSvgImage(16, 18, '<path transform=
 Format.verticalIsometricImage = Graph.createSvgImage(16, 18, '<path transform="translate(32,4)scale(-1,1)" stroke-width="2.5" d="M 0 26 L 4 26 L 4 30 L 0 30 Z M 4 26 L 19 17 L 10 12 L 26 4 M 26 0 L 30 0 L 30 4 L 26 4 Z" stroke="black" fill="none"/>', 36, 36);
 Format.curvedImage = Graph.createSvgImage(16, 18, '<path transform="translate(3,4)" stroke-width="2.5" d="M 0 26 L 4 26 L 4 30 L 0 30 Z M 2 26 Q 2 14 14 14 Q 28 14 28 4 M 26 0 L 30 0 L 30 4 L 26 4 Z" stroke="black" fill="none"/>', 36, 36);
 Format.entityImage = Graph.createSvgImage(16, 18, '<path transform="translate(3,4)" stroke-width="2.5" d="M 0 26 L 4 26 L 4 30 L 0 30 Z M 4 28 L 10 28 L 20 2 L 26 2 M 26 0 L 30 0 L 30 4 L 26 4 Z" stroke="black" fill="none"/>', 36, 36);
+// UML sequence message: a horizontal message between two lifelines.
+Format.sequenceImage = Graph.createSvgImage(16, 18, '<path transform="translate(3,4)" stroke-width="2.5" d="M 0 0 L 8 0 L 8 5 L 0 5 Z M 22 0 L 30 0 L 30 5 L 22 5 Z M 4 5 L 4 30 M 26 5 L 26 30 M 4 17 L 25 17 M 21 13 L 25 17 L 21 21" stroke="black" fill="none"/>', 36, 36);
 // libavoid obstacle-avoiding routing: an orthogonal connector that detours
 // around an outlined obstacle box (source bottom-left, target top-right).
 Format.libavoidImage = Graph.createSvgImage(16, 18, '<path transform="translate(3,4)" stroke-width="2.5" d="M 0 26 L 4 26 L 4 30 L 0 30 Z M 2 26 L 8 26 L 8 7 L 28 7 L 28 4 M 26 0 L 30 0 L 30 4 L 26 4 Z M 12 11 L 20 11 L 20 19 L 12 19 Z" stroke="black" fill="none"/>', 36, 36);
@@ -6794,8 +6796,10 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		{
 			// Each routing entry also CLEARS libavoidRouting so the choices stay
 			// mutually exclusive (picking any plain routing turns auto-routing off).
-			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
-				[null, null, null, null], null, null, true, Format.straightImage.src)).setAttribute('title', mxResources.get('straight'));
+			// Straight keeps curved, which the Line style (sharp/rounded/curved)
+			// controls independently for straight routing.
+			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+				[null, null, null], null, null, true, Format.straightImage.src)).setAttribute('title', mxResources.get('straight'));
 			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
 				['orthogonalEdgeStyle', null, null, null], null, null, true, Format.orthogonalImage.src)).setAttribute('title', mxResources.get('orthogonal'));
 
@@ -6829,6 +6833,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 			Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
 				['entityRelationEdgeStyle', null, null, null], null, null, true, Format.entityImage.src)).setAttribute('title', mxResources.get('entityRelation'));
+			this.editorUi.menus.addSequenceEdgeStyleItem(menu, null);
 		}
 	})), '', null, stylePanel2);
 
@@ -7559,6 +7564,21 @@ StyleFormatPanel.prototype.addEffects = function(div)
 		if (ss.edges.length > 0 && ss.vertices.length == 0)
 		{
 			addOption(mxResources.get('flowAnimation'), 'flowAnimation', 0);
+
+			// Orthogonal routings already imply orthogonal ends
+			var implied = false;
+
+			for (var i = 0; i < ss.edges.length && !implied; i++)
+			{
+				var state = graph.view.getState(ss.edges[i]);
+				implied = state != null && graph.isOrthogonalEdgeStyle(
+					graph.view.getEdgeStyle(state));
+			}
+
+			if (!implied)
+			{
+				addOption(mxResources.get('orthogonalEnds'), mxConstants.STYLE_ORTHOGONAL, 0);
+			}
 		}
 		
 		// Adds primary custom shape options

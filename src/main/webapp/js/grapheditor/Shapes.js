@@ -3347,6 +3347,234 @@
 	
 	mxStyleRegistry.putValue('orthogonalPerimeter', mxPerimeter.OrthogonalPerimeter);
 
+	/**
+	 * Returns the topmost (top is true) or bottommost y at which the given
+	 * terminal state anchors a connection, by probing its perimeter far above
+	 * or below the shape. Works for any perimeter (lifelinePerimeter clamps to
+	 * the body below the head, orthogonalPerimeter to the shape bounds) and
+	 * returns the shape center for a shape with no perimeter.
+	 */
+	var getSequenceAnchorY = function(view, terminal, top)
+	{
+		var far = terminal.getCenterY() + ((top) ? -1e5 : 1e5);
+		var pt = view.getPerimeterPoint(terminal, new mxPoint(
+			terminal.getCenterX(), far), false);
+
+		return (pt != null) ? pt.y : ((top) ? terminal.y : terminal.y + terminal.height);
+	};
+
+	/**
+	 * Returns the x for the routed point of a sequence message: the middle
+	 * between the two terminals, pushed out of both. A point inside a terminal
+	 * that uses an orthogonal perimeter (the activation bar is only 10px wide,
+	 * so the middle can land inside it) is projected onto that terminal's top
+	 * or bottom edge instead of its side, which would tilt the message.
+	 */
+	var getSequenceMessageX = function(source, target)
+	{
+		var x = (source.getCenterX() + target.getCenterX()) / 2;
+		var dir = (source.getCenterX() <= target.getCenterX()) ? 1 : -1;
+
+		var clear = function(terminal, side)
+		{
+			if (x > terminal.x && x < terminal.x + terminal.width)
+			{
+				x = (side > 0) ? terminal.x + terminal.width + 1 : terminal.x - 1;
+			}
+		};
+
+		clear(source, dir);
+		clear(target, -dir);
+
+		return x;
+	};
+
+	/**
+	 * Routes a UML sequence message as a horizontal line at the message's own y.
+	 *
+	 * A message between two floating terminals has no y of its own: the
+	 * floating endpoints are resolved against the opposite terminal's center
+	 * (see mxGraphView.getNextPoint), so both ends collapse onto that center
+	 * line and the message jumps to the vertical center of its terminals on
+	 * every connect, reconnect and re-route. This style gives the message a y
+	 * and emits it as the single routed point, which both floating endpoints
+	 * then resolve against (lifelinePerimeter and orthogonalPerimeter both keep
+	 * the y of the next point), so the message stays where it was put.
+	 *
+	 * The y is taken from, in order of precedence:
+	 *
+	 * 1. a pinned endpoint (exitX/entryX or a dangling terminal point), since
+	 *    the routed point cannot move it and the message would kink,
+	 * 2. the single waypoint, where Graph.setSequenceMessageY stores the
+	 *    message y (the encoding the mermaid sequence renderer emits),
+	 * 3. the middle between the two terminal centers, so a message with no
+	 *    stored y (older diagram, cleared waypoints) is at least horizontal.
+	 *
+	 * For 2. and 3. the y is clamped to the vertical range both terminals can
+	 * anchor in, so moving or shortening an activation bar keeps the message
+	 * horizontal instead of tilting it towards the clamped end.
+	 */
+	mxEdgeStyle.SequenceMessage = function(state, source, target, points, result)
+	{
+		var view = state.view;
+		var graph = view.graph;
+		var pts = state.absolutePoints;
+		var p0 = pts[0];
+		var pe = pts[pts.length - 1];
+
+		// A self-call (both ends on one lifeline) is a loop that leaves at the
+		// y of the first waypoint (or pinned source) and returns at the y of the
+		// last waypoint (or pinned target), at the x of the first waypoint. A
+		// loop with more waypoints (eg. a curve) keeps them (see below).
+		if (source != null && target != null && graph != null && graph.getSequenceLifeline != null &&
+			(points == null || points.length <= 2) &&
+			graph.getSequenceLifeline(source.cell) == graph.getSequenceLifeline(target.cell))
+		{
+			var size = graph.sequenceSelfCallSize * view.scale;
+			var first = (points != null && points.length > 0 && points[0] != null) ?
+				view.transformControlPoint(state, points[0]) : null;
+			var last = (points != null && points.length > 1 && points[points.length - 1] != null) ?
+				view.transformControlPoint(state, points[points.length - 1]) : null;
+			var y1 = (p0 != null) ? p0.y : ((first != null) ? first.y : source.getCenterY());
+			var y2 = (pe != null) ? pe.y : ((last != null) ? last.y : y1 + size);
+			var x = (first != null) ? first.x : graph.getSequenceSelfCallPoints(source, y1, y2)[0].x;
+
+			if (isFinite(x) && isFinite(y1) && isFinite(y2))
+			{
+				result.push(new mxPoint(x, y1));
+				result.push(new mxPoint(x, y2));
+			}
+
+			return;
+		}
+
+		// Hand-routed message (more than one waypoint) or a self-message keeps
+		// its waypoints, which are not used at all for a routed edge style
+		if ((points != null && points.length > 1) ||
+			source == null || target == null || source == target)
+		{
+			if (points != null)
+			{
+				for (var i = 0; i < points.length; i++)
+				{
+					if (points[i] != null)
+					{
+						result.push(view.transformControlPoint(state, points[i]));
+					}
+				}
+			}
+
+			return;
+		}
+
+		// Both ends pinned: the endpoints define the message, nothing to align
+		if (p0 != null && pe != null)
+		{
+			return;
+		}
+
+		var y = null;
+
+		if (p0 != null || pe != null)
+		{
+			var floating = (p0 != null) ? target : source;
+			y = (p0 != null) ? p0.y : pe.y;
+
+			// A pinned y out of reach of the floating end gives a straight line
+			// (the floating end is clamped towards the pin) instead of a kink
+			if (y < getSequenceAnchorY(view, floating, true) ||
+				y > getSequenceAnchorY(view, floating, false))
+			{
+				return;
+			}
+		}
+		else
+		{
+			var pt = (points != null && points.length > 0 && points[0] != null) ?
+				view.transformControlPoint(state, points[0]) : null;
+
+			// Ignores a stored y that is not a number (invalid input)
+			y = (pt != null && isFinite(pt.y)) ? pt.y :
+				(source.getCenterY() + target.getCenterY()) / 2;
+
+			var top = Math.max(getSequenceAnchorY(view, source, true),
+				getSequenceAnchorY(view, target, true));
+			var bottom = Math.min(getSequenceAnchorY(view, source, false),
+				getSequenceAnchorY(view, target, false));
+
+			// Terminals with no common range give a straight line between them
+			if (!(top <= bottom))
+			{
+				return;
+			}
+
+			y = Math.min(bottom, Math.max(top, y));
+		}
+
+		if (isFinite(y))
+		{
+			result.push(new mxPoint(getSequenceMessageX(source, target), y));
+		}
+	};
+
+	mxStyleRegistry.putValue('sequenceEdgeStyle', mxEdgeStyle.SequenceMessage);
+
+	// The middle handle of a sequence message moves its y, so there are no
+	// virtual bends that would add a second waypoint and bend the message
+	// (the edge style is set in mxEdgeHandler.refresh before this is called)
+	if (typeof mxEdgeHandler !== 'undefined')
+	{
+		var sequenceCreateVirtualBends = mxEdgeHandler.prototype.createVirtualBends;
+
+		mxEdgeHandler.prototype.createVirtualBends = function()
+		{
+			return (this.edgeStyle == mxEdgeStyle.SequenceMessage) ? [] :
+				sequenceCreateVirtualBends.apply(this, arguments);
+		};
+
+		// A message is always straight, so its middle handle is never removed
+		// for straightening it (see straightRemoveEnabled), and both corners of
+		// a self-call take the x of the dragged corner (the loop is drawn at the
+		// x of the first waypoint)
+		var sequenceGetPreviewPoints = mxEdgeHandler.prototype.getPreviewPoints;
+
+		mxEdgeHandler.prototype.getPreviewPoints = function(pt, me)
+		{
+			var straightRemoveEnabled = this.straightRemoveEnabled;
+			var result = null;
+
+			if (this.edgeStyle == mxEdgeStyle.SequenceMessage)
+			{
+				this.straightRemoveEnabled = false;
+			}
+
+			try
+			{
+				result = sequenceGetPreviewPoints.apply(this, arguments);
+			}
+			finally
+			{
+				this.straightRemoveEnabled = straightRemoveEnabled;
+			}
+
+			if (this.edgeStyle == mxEdgeStyle.SequenceMessage && !this.isSource &&
+				!this.isTarget && result != null && result.length == 2 &&
+				this.index > 0 && result[this.index - 1] != null &&
+				this.graph.isSequenceSelfCall(this.state.cell))
+			{
+				var x = result[this.index - 1].x;
+
+				// Copies the points, the unchanged one belongs to the geometry
+				result = result.map(function(p)
+				{
+					return (p != null) ? new mxPoint(x, p.y) : p;
+				});
+			}
+
+			return result;
+		};
+	}
+
 	mxPerimeter.BackbonePerimeter = function (bounds, vertex, next, orthogonal)
 	{
 		var sw = (parseFloat(vertex.style[mxConstants.STYLE_STROKEWIDTH] || 1) * vertex.view.scale / 2) - 1;

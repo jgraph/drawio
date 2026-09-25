@@ -668,6 +668,7 @@ options=Pilihan
 organic=Organik
 orgChart=Carta Organisasi
 orthogonal=Ortogonal
+orthogonalEnds=Hujung Ortogonal
 orthogonalRouting=Penghalaan Ortogonal
 otherViewer=penonton lain
 otherViewers=penonton-penonton lain

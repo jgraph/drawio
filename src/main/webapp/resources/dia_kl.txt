@@ -668,6 +668,7 @@ options=Toqqagassat
 organic=Organisk
 orgChart=Suliffeqarfiup strukturia
 orthogonal=Ortogonal
+orthogonalEnds=Ortogonal isuit
 orthogonalRouting=Ortogonalimik aqqusineq
 otherViewer=takusoq allaq
 otherViewers=takusut allat

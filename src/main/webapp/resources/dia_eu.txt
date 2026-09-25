@@ -668,6 +668,7 @@ options=Aukerak
 organic=Organikoa
 orgChart=Organigrama
 orthogonal=Ortogonala
+orthogonalEnds=Mutur ortogonalak
 orthogonalRouting=Bideratze ortogonala
 otherViewer=beste ikustailua
 otherViewers=beste ikustailuak

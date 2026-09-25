@@ -668,6 +668,7 @@ options=Параметры
 organic=Органическая
 orgChart=Организационная диаграмма
 orthogonal=Прямые углы
+orthogonalEnds=Перпендикулярные концы
 orthogonalRouting=Ортогональная маршрутизация
 otherViewer=другой зритель
 otherViewers=другие зрители

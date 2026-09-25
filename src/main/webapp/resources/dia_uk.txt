@@ -668,6 +668,7 @@ options=Параметри
 organic=Органічний
 orgChart=Організаційна діаграма
 orthogonal=Прямокутний
+orthogonalEnds=Перпендикулярні кінці
 orthogonalRouting=Ортогональна маршрутизація
 otherViewer=інший переглядач
 otherViewers=інші переглядачі

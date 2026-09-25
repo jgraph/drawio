@@ -431,9 +431,10 @@ EditorUi.initMinimalTheme = function()
 		{
 			var menu = ui.menus.get(id);
 
-			var elt = menuObj.addMenu(mxResources.get(id), mxUtils.bind(this, function()
+			var elt = menuObj.addMenu(mxResources.get(id), mxUtils.bind(this, function(popupMenu, parent)
 			{
 				menu.funct.apply(this, arguments);
+				ui.menus.appendPluginMenuItems(id, popupMenu, parent);
 			}));
             
 			elt.className = 'geButton';

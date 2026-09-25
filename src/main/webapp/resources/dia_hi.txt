@@ -668,6 +668,7 @@ options=विकल्प
 organic=ऑर्गेनिक
 orgChart=ऑर्ग चार्ट
 orthogonal=ऑर्थोगोनल
+orthogonalEnds=ऑर्थोगोनल सिरे
 orthogonalRouting=ऑर्थोगोनल रूटिंग
 otherViewer=अन्य दर्शक
 otherViewers=अन्य दर्शक

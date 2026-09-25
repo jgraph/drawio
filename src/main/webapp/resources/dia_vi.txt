@@ -668,6 +668,7 @@ options=Tùy chọn
 organic=Hữu cơ
 orgChart=Sơ đồ tổ chức
 orthogonal=Trực giao
+orthogonalEnds=Đầu mút trực giao
 orthogonalRouting=Định tuyến trực giao
 otherViewer=người xem khác
 otherViewers=những người xem khác

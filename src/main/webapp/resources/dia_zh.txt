@@ -668,6 +668,7 @@ options=选项
 organic=力导向图
 orgChart=组织结构图
 orthogonal=正交
+orthogonalEnds=正交端点
 orthogonalRouting=正交布线
 otherViewer=其他查阅者
 otherViewers=其他查阅者

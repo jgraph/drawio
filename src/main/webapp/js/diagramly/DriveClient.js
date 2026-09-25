@@ -648,7 +648,7 @@ DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error
 			{
 				//state is used to identify which app/domain is used
 				var req = new mxXmlRequest(this.redirectUri + '?state=' + encodeURIComponent('cId=' + this.clientId +
-					'&domain=' + window.location.host + '&token=' + state) + '&userId=' + this.userId, null, 'GET');
+					'&domain=' + window.location.host + '&token=' + state + this.getRedirectPathState()) + '&userId=' + this.userId, null, 'GET');
 				
 				req.send(mxUtils.bind(this, function(req)
 				{
@@ -699,7 +699,7 @@ DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error
 						(remember? '&access_type=offline&prompt=consent%20select_account' : '') + //Ask for consent again to get a new refresh token
 						'&scope=' + encodeURIComponent(this.scopes.join(' ')) +
 						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.host + '&token=' + state + //To identify which app/domain is used
-						(this.sameWinRedirectUrl? '&redirect=' + this.sameWinRedirectUrl : '')); 
+						this.getRedirectPathState() + (this.sameWinRedirectUrl? '&redirect=' + this.sameWinRedirectUrl : ''));
 				
 				if (this.sameWinAuthMode)
 				{

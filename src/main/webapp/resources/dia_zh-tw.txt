@@ -668,6 +668,7 @@ options=選項
 organic=力導向配置圖
 orgChart=組織圖
 orthogonal=正交
+orthogonalEnds=正交端點
 orthogonalRouting=正交佈線
 otherViewer=其他檢視之使用者
 otherViewers=其他檢視之使用者

@@ -668,6 +668,7 @@ options=Opțiuni
 organic=Organic
 orgChart=Organigramă
 orthogonal=Ortogonal
+orthogonalEnds=Capete ortogonale
 orthogonalRouting=Rutare ortogonală
 otherViewer=alt vizualizator
 otherViewers=alți vizualizatori

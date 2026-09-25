@@ -668,6 +668,7 @@ options=Možnosti
 organic=Organický
 orgChart=Organizační graf
 orthogonal=Pravoúhlý
+orthogonalEnds=Pravoúhlé konce
 orthogonalRouting=Pravoúhlé směrování
 otherViewer=další prohlížející
 otherViewers=další prohlížející

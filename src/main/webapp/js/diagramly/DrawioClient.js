@@ -157,3 +157,18 @@ DrawioClient.prototype.setPersistentToken = function(token, sessionOnly)
 		this.ui.handleError(e);
 	}
 };
+
+/**
+ * Returns the path of the redirect URI as an OAuth state parameter if the app
+ * is deployed under a sub-path (eg. '&path=/drawio/google') so that the server
+ * sends the same redirect URI when it exchanges the code. Returns an empty
+ * string at the root, where the server uses the service path.
+ */
+DrawioClient.prototype.getRedirectPathState = function()
+{
+	var path = new URL(this.redirectUri, window.location.href).pathname;
+
+	// Same pattern as AbsAuth so that no other state parameters can be added
+	return (path.lastIndexOf('/') > 0 && /^(\/[A-Za-z0-9_~-][A-Za-z0-9._~-]*)+$/.test(path)) ?
+		'&path=' + path : '';
+};

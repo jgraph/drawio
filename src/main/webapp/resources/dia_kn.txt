@@ -668,6 +668,7 @@ options=ಆಯ್ಕೆಗಳು
 organic=ಆರ್ಗ್ಯಾನಿಕ್
 orgChart=ಸಂಸ್ಥೆ ಚಾರ್ಟ್
 orthogonal=ಲಂಬಕೋನ
+orthogonalEnds=ಲಂಬಕೋನ ತುದಿಗಳು
 orthogonalRouting=ಲಂಬಕೋನ ಮಾರ್ಗನಿರ್ದೇಶನ
 otherViewer=ಇತರ ವೀಕ್ಷಕ
 otherViewers=ಇತರ ವೀಕ್ಷಕರು

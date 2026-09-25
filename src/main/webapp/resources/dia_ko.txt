@@ -668,6 +668,7 @@ options=옵션
 organic=유기적
 orgChart=조직도
 orthogonal=직각
+orthogonalEnds=직각 끝점
 orthogonalRouting=직각 라우팅
 otherViewer=다른 뷰어
 otherViewers=다른 뷰어

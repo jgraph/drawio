@@ -668,6 +668,7 @@ options=Parametrai
 organic=Organinis
 orgChart=Organizacinė schema
 orthogonal=Statūs kampai
+orthogonalEnds=Statmeni galai
 orthogonalRouting=Stačiakampis nukreipimas
 otherViewer=kitas peržiūrintysis
 otherViewers=kiti peržiūrintieji

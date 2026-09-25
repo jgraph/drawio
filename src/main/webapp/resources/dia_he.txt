@@ -662,6 +662,7 @@ options=‫אפשרויות‬
 organic=‫אורגני‬
 orgChart=Org Chart
 orthogonal=‫ניצב‬
+orthogonalEnds=‫קצוות ניצבים‬
 orthogonalRouting=‫ניתוב ניצב‬
 otherViewer=‫צופה אחר‬
 otherViewers=‫צופים אחרים‬

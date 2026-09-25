@@ -668,6 +668,7 @@ options=Opcje
 organic=Organiczny
 orgChart=Schemat organizacji
 orthogonal=Prostopadły
+orthogonalEnds=Prostopadłe końce
 orthogonalRouting=Trasowanie prostopadłe
 otherViewer=inny użytkownik
 otherViewers=inni użytkownicy

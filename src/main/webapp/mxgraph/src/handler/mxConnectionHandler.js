@@ -2034,17 +2034,21 @@ mxConnectionHandler.prototype.connect = function(source, target, evt, dropTarget
 					model.setGeometry(edge, geo);
 				}
 				
-				// Uses scaled waypoints in geometry
+				// Uses scaled waypoints in geometry, relative to the parent of the
+				// edge (eg. a container of both terminals) like the terminal point
 				if (this.waypoints != null && this.waypoints.length > 0)
 				{
 					var s = this.graph.view.scale;
 					var tr = this.graph.view.translate;
+					var pstate = this.graph.getView().getState(model.getParent(edge));
+					var origin = (pstate != null) ? pstate.origin : new mxPoint();
 					geo.points = [];
-					
+
 					for (var i = 0; i < this.waypoints.length; i++)
 					{
 						var pt = this.waypoints[i];
-						geo.points.push(new mxPoint(pt.x / s - tr.x, pt.y / s - tr.y));
+						geo.points.push(new mxPoint(pt.x / s - tr.x - origin.x,
+							pt.y / s - tr.y - origin.y));
 					}
 				}
 

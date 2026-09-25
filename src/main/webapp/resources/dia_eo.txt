@@ -668,6 +668,7 @@ options=Opcioj
 organic=Organika
 orgChart=Organiza diagramo
 orthogonal=Ortogonala
+orthogonalEnds=Ortogonalaj finoj
 orthogonalRouting=Ortogonala enkursigo
 otherViewer=alia spektanto
 otherViewers=aliaj spektantoj

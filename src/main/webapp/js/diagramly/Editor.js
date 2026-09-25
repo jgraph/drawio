@@ -2449,18 +2449,29 @@
 		// Extracts Subject or Embedded file attachment from PDF 1.7
 		if (f.substring(0, 8) == '%PDF-1.7')
 		{
+			// Hostile files may contain many tokens without a stream or
+			// many streams that fail to inflate, so the stream keyword is
+			// only searched within the object's dictionary header and the
+			// number of failing inflate attempts is limited
+			var headerSize = 2048;
+			var maxAttempts = 8;
+
 			// Checks all occurrences as the first may be the /EmbeddedFiles
 			// name tree entry in the document catalog rather than the
 			// /Type /EmbeddedFile stream object with the attached diagram
 			var blockStart = f.indexOf('EmbeddedFile');
+			var attempts = 0;
 
-			while (blockStart > -1)
+			while (blockStart > -1 && attempts < maxAttempts)
 			{
-				var streamStart = f.indexOf('stream', blockStart) + 9; //the start of the stream [skipping header check]
-				var fileInfo = f.substring(blockStart, streamStart);
+				var header = f.substring(blockStart, blockStart + headerSize);
+				var rel = header.indexOf('stream');
+				var mime = header.indexOf('application#2Fvnd.jgraph.mxfile');
 
-				if (fileInfo.indexOf('application#2Fvnd.jgraph.mxfile') > 0)
+				if (rel > -1 && mime > 0 && mime < rel + 9)
 				{
+					attempts++;
+					var streamStart = blockStart + rel + 9; //the start of the stream [skipping header check]
 					var streamEnd = f.indexOf('endstream', streamStart - 1);
 
 					try
@@ -2478,10 +2489,20 @@
 			}
 
 			var last = f.indexOf('/ObjStm');
+			var failures = 0;
 
-			while (last > 0)
+			while (last > 0 && failures < maxAttempts)
 			{
-				var streamStart = f.indexOf('stream', last) + 9; //the start of the stream [skipping header check]
+				var rel = f.substring(last, last + headerSize).indexOf('stream');
+
+				if (rel < 0)
+				{
+					last = f.indexOf('/ObjStm', last + 1);
+
+					continue;
+				}
+
+				var streamStart = last + rel + 9; //the start of the stream [skipping header check]
 				var streamEnd = f.indexOf('endstream', streamStart - 1);
 				
 				function hex_to_ascii(hex)
@@ -2524,6 +2545,7 @@
 				catch (e)
 				{
 					// Continue to next object stream
+					failures++;
 				}
 
 				last = f.indexOf('/ObjStm', last + 1);

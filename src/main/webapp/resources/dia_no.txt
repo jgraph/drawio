@@ -668,6 +668,7 @@ options=Alternativer
 organic=Organisk
 orgChart=Organisasjonskart
 orthogonal=Ortogonal
+orthogonalEnds=Ortogonale ender
 orthogonalRouting=Ortogonal ruting
 otherViewer=annen leser
 otherViewers=andre lesere

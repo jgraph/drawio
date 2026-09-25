@@ -668,6 +668,7 @@ options=ഓപ്ഷനുകൾ
 organic=ഓർഗാനിക്
 orgChart=ഓർഗ് ചാർട്ട്
 orthogonal=ഓർത്തോഗണൽ
+orthogonalEnds=ഓർത്തോഗണൽ അറ്റങ്ങൾ
 orthogonalRouting=ഓർത്തോഗണൽ റൂട്ടിംഗ്
 otherViewer=മറ്റൊരു കാഴ്ചക്കാരൻ
 otherViewers=മറ്റ് കാഴ്ചക്കാർ

@@ -668,6 +668,7 @@ options=‫گزینه ها‬
 organic=‫ارگانیک‬
 orgChart=‫نمودار سازمانی‬
 orthogonal=‫متعامد‬
+orthogonalEnds=‫انتهاهای متعامد‬
 orthogonalRouting=‫مسیریابی متعامد‬
 otherViewer=‫بیننده دیگر‬
 otherViewers=‫بینندگان دیگر‬

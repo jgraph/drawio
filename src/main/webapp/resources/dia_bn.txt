@@ -668,6 +668,7 @@ options=বিকল্প
 organic=অর্গানিক
 orgChart=অর্গ চার্ট
 orthogonal=অর্থোগোনাল
+orthogonalEnds=অর্থোগোনাল প্রান্ত
 orthogonalRouting=অর্থোগোনাল রাউটিং
 otherViewer=অন্য দর্শক
 otherViewers=অন্য দর্শকরা

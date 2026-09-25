@@ -668,6 +668,7 @@ options=Opcions
 organic=Orgànic
 orgChart=Organigrama
 orthogonal=Ortogonal
+orthogonalEnds=Extrems ortogonals
 orthogonalRouting=Encaminament ortogonal
 otherViewer=un altre usuari
 otherViewers=altres usuaris

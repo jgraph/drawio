@@ -668,6 +668,7 @@ options=ရွေးချယ်စရာများ
 organic=သဘာဝပုံစံ
 orgChart=အဖွဲ့အစည်းဇယား
 orthogonal=ထောင့်မှန်
+orthogonalEnds=ထောင့်မှန် အစွန်းများ
 orthogonalRouting=ထောင့်မှန် လမ်းကြောင်းသတ်မှတ်ခြင်း
 otherViewer=အခြားကြည့်ရှုသူ
 otherViewers=အခြားကြည့်ရှုသူများ

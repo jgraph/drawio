@@ -668,6 +668,7 @@ options=Chaguo
 organic=Hai
 orgChart=Chati ya Shirika
 orthogonal=Pembe Mraba
+orthogonalEnds=Ncha za Pembe Mraba
 orthogonalRouting=Uelekezaji wa Pembe Mraba
 otherViewer=mtazamaji mwingine
 otherViewers=watazamaji wengine

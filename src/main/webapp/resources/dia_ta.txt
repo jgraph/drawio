@@ -668,6 +668,7 @@ options=விருப்பங்கள்
 organic=இயற்கையான
 orgChart=நிறுவன விளக்கப்படம்
 orthogonal=செங்கோண
+orthogonalEnds=செங்கோண முனைகள்
 orthogonalRouting=செங்கோண வழியமைப்பு
 otherViewer=மற்ற பார்வையாளர்
 otherViewers=மற்ற பார்வையாளர்கள்
