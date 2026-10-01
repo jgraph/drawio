@@ -137,12 +137,23 @@ DrawioFileSync = function(file)
 				// On an encrypted channel every genuine message decrypts,
 				// the cache relays whatever is posted for the channel ID.
 				// Answering such a message with a catchup let anyone who
-				// knows the ID make every peer refetch the file per post
+				// knows the ID make every peer refetch the file per post.
+				// Only a notification of a client with the legacy key of
+				// the file leads to a (throttled) file check.
 				if (this.isEncrypted())
 				{
-					EditorUi.debug('DrawioFileSync.changeListener: dropped ' +
-						'undecryptable message', [this], (data != null) ?
-						data.length : null, 'bytes', e);
+					var legacy = this.decodeLegacyMessage(data);
+
+					if (legacy != null)
+					{
+						this.handleLegacyMessage(legacy);
+					}
+					else
+					{
+						EditorUi.debug('DrawioFileSync.changeListener: dropped ' +
+							'undecryptable message', [this], (data != null) ?
+							data.length : null, 'bytes', e);
+					}
 				}
 				// Checks if file was changed (not while a conflict is
 				// being reconciled, which runs its own catchup)
@@ -323,6 +334,48 @@ DrawioFileSync.prototype.syncChangeCounter = 0;
 DrawioFileSync.prototype.channelId = null;
 
 /**
+ * Holds the channel key of the file (see updateChannelKey), messages are
+ * encrypted with it. Null means that the channel is not encrypted.
+ */
+DrawioFileSync.prototype.key = null;
+
+/**
+ * Holds the key that was in use before the last change of the channel key.
+ */
+DrawioFileSync.prototype.previousKey = null;
+
+/**
+ * Time of the last change of the channel key.
+ */
+DrawioFileSync.prototype.previousKeyTime = 0;
+
+/**
+ * Milliseconds after a change of the channel key during which messages with
+ * the previous key are still accepted. Peers switch when they read the new
+ * version of the file, until then they still send with the previous key.
+ */
+DrawioFileSync.prototype.previousKeyTimeout = 30000;
+
+/**
+ * Specifies if notifications on a channel with a random key are also sent
+ * with the legacy key of the file (see createLegacyNotification) so that
+ * clients from before random keys still read the saved changes. Can be
+ * removed once those clients are gone.
+ */
+DrawioFileSync.prototype.legacyKeyNotify = true;
+
+/**
+ * Minimum delay between two file checks for notifications from clients
+ * with the legacy channel key (see handleLegacyMessage).
+ */
+DrawioFileSync.prototype.legacyNotifyDelay = 5000;
+
+/**
+ * Time of the last file check for a notification with the legacy key.
+ */
+DrawioFileSync.prototype.lastLegacyNotify = 0;
+
+/**
  * Holds the channel ID for sending and receiving change notifications.
  */
 DrawioFileSync.prototype.channel = null;
@@ -377,11 +430,8 @@ DrawioFileSync.prototype.start = function()
 	{
 		this.channelId = this.file.getChannelId();
 	}
-	
-	if (this.key == null)
-	{
-		this.key = this.file.getChannelKey();
-	}
+
+	this.updateChannelKey();
 
 	// Keyed channels must encrypt, so realtime is never started when the
 	// CSPRNG that CryptoJS needs for the KDF salt is unreachable
@@ -689,14 +739,29 @@ DrawioFileSync.prototype.notify = function(msg)
 	// Skips notifications in polling mode
 	if (!this.file.isPolling())
 	{
+		var legacy = this.createLegacyNotification(msg);
+
 		if (Editor.enableRealtimeCache && !Editor.p2pSyncNotify)
 		{
 			mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() +
 				'&msg=' + encodeURIComponent(this.objectToString(msg)));
+
+			if (legacy != null)
+			{
+				mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() +
+					'&msg=' + encodeURIComponent(this.objectToString(legacy,
+					null, this.file.getLegacyChannelKey())));
+			}
 		}
 		else if (this.p2pCollab != null)
 		{
 			this.p2pCollab.sendNotification(msg);
+
+			if (legacy != null)
+			{
+				this.p2pCollab.sendNotification(legacy,
+					this.file.getLegacyChannelKey());
+			}
 		}
 	}
 
@@ -1414,12 +1479,18 @@ DrawioFileSync.prototype.cleanup = function(success, error)
 			// screen that lacks it, which is the join-visibility
 			// reconciliation and the opposite of what the grace window
 			// protects. Unconfirmed remote content is on the screen but
-			// NOT in the own pages, so it always shows up as a remove
-			// here: an additive-only patch proves there is none, which
-			// is also why clearing the stamp below is then correct.
+			// NOT in the own pages, so it shows up as a remove or an
+			// update here - except an unconfirmed remote DELETE: the own
+			// pages still hold the deleted page or cell, so it shows up
+			// as an insert, for the last child of its parent a purely
+			// additive one. Re-inserting what a live diff removed is
+			// therefore held as well; any other additive-only patch
+			// proves there is no unconfirmed content, which is also why
+			// clearing the stamp below is then correct.
 			if (this.unconfirmedRemoteSince != null &&
 				!this.file.ignorePatches(patches) &&
-				!this.isAdditiveOnly(patches[0]))
+				(!this.isAdditiveOnly(patches[0]) ||
+				this.restoresUnconfirmedRemoves(patches[0])))
 			{
 				var age = new Date().getTime() - this.unconfirmedRemoteSince;
 
@@ -1441,6 +1512,7 @@ DrawioFileSync.prototype.cleanup = function(success, error)
 			}
 
 			this.unconfirmedRemoteSince = null;
+			this.unconfirmedRemoves = null;
 			this.file.theirPages = this.ui.clonePages(
 				this.file.ownPages);
 
@@ -1613,6 +1685,101 @@ DrawioFileSync.prototype.isAdditiveOnly = function(patch)
 	}
 
 	return true;
+};
+
+/**
+ * Records the ids of the pages and cells the given live changes remove.
+ * The own pages keep them until the sender's save confirms the removal,
+ * so until then the cleanup diff puts them back as inserts (see cleanup).
+ */
+DrawioFileSync.prototype.addUnconfirmedRemoves = function(changes)
+{
+	for (var i = 0; changes != null && i < changes.length; i++)
+	{
+		var patch = changes[i];
+
+		if (patch == null || typeof patch != 'object')
+		{
+			continue;
+		}
+
+		// Null prototypes: keyed by ids taken verbatim from the patch
+		if (this.unconfirmedRemoves == null)
+		{
+			this.unconfirmedRemoves = {pages: Object.create(null),
+				cells: Object.create(null)};
+		}
+
+		var removes = EditorUi.patchList(patch[EditorUi.DIFF_REMOVE]);
+
+		for (var j = 0; removes != null && j < removes.length; j++)
+		{
+			this.unconfirmedRemoves.pages[removes[j]] = true;
+		}
+
+		var update = EditorUi.patchMap(patch[EditorUi.DIFF_UPDATE]);
+
+		for (var pageId in update)
+		{
+			var cells = update[pageId].cells;
+			var cellRemoves = (cells != null) ? EditorUi.patchList(
+				cells[EditorUi.DIFF_REMOVE]) : null;
+
+			for (var k = 0; cellRemoves != null && k < cellRemoves.length; k++)
+			{
+				if (this.unconfirmedRemoves.cells[pageId] == null)
+				{
+					this.unconfirmedRemoves.cells[pageId] = Object.create(null);
+				}
+
+				this.unconfirmedRemoves.cells[pageId][cellRemoves[k]] = true;
+			}
+		}
+	}
+};
+
+/**
+ * Returns true if the given pages patch inserts a page or cell that a
+ * live diff removed since the grace period started.
+ */
+DrawioFileSync.prototype.restoresUnconfirmedRemoves = function(patch)
+{
+	var removes = this.unconfirmedRemoves;
+
+	if (removes == null || patch == null)
+	{
+		return false;
+	}
+
+	var inserts = EditorUi.patchList(patch[EditorUi.DIFF_INSERT]);
+
+	for (var i = 0; inserts != null && i < inserts.length; i++)
+	{
+		if (inserts[i] != null && removes.pages[inserts[i].id])
+		{
+			return true;
+		}
+	}
+
+	var update = EditorUi.patchMap(patch[EditorUi.DIFF_UPDATE]);
+
+	for (var pageId in update)
+	{
+		var cells = update[pageId].cells;
+		var removed = removes.cells[pageId];
+		var cellInserts = (cells != null && removed != null) ?
+			EditorUi.patchList(cells[EditorUi.DIFF_INSERT]) : null;
+
+		for (var j = 0; cellInserts != null && j < cellInserts.length; j++)
+		{
+			if (cellInserts[j] != null && removed[cellInserts[j].id])
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 };
 
 /**
@@ -2627,6 +2794,7 @@ DrawioFileSync.prototype.doReceiveRemoteChanges = function(changes)
 			this.unconfirmedRemoteSince = new Date().getTime();
 		}
 
+		this.addUnconfirmedRemoves(changes);
 		this.scheduleCleanup();
 		
 		EditorUi.debug('DrawioFileSync.doReceiveRemoteChanges',
@@ -2811,6 +2979,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 						this.ui.pages, this.file.ownPages)))
 				{
 					this.unconfirmedRemoteSince = null;
+					this.unconfirmedRemoves = null;
 				}
 
 				// Logs successull patch
@@ -3055,7 +3224,7 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort, immedia
 		}
 		else
 		{
-			var checksum = this.file.getDescriptorChecksum(desc);
+			var descChecksum = this.file.getDescriptorChecksum(desc);
 			var secret = this.file.getDescriptorSecret(desc);
 			var noPatches = !Editor.enableRealtimeCache ||
 				secret == null || urlParams['lockdown'] == '1';
@@ -3172,9 +3341,19 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort, immedia
 															break;
 														}
 													}
+
+													// The cache does not authenticate writers, the
+													// descriptor checksum can only be written by
+													// writers of the file
+													if (descChecksum != null && temp.length > 0 &&
+														checksum != descChecksum)
+													{
+														failed = true;
+														temp = [];
+													}
 												}
 
-												EditorUi.debug('DrawioFileSync.doCatchup', [this], 
+												EditorUi.debug('DrawioFileSync.doCatchup', [this],
 													'response', [result], 'status',
 													(failed ? 'failed' : 'ok'),
 													'temp', temp, 'checksum', checksum);
@@ -3264,33 +3443,166 @@ DrawioFileSync.prototype.reload = function(success, error, abort, shadow, immedi
 /**
  * Invokes when the file descriptor was changed.
  */
-DrawioFileSync.prototype.descriptorChanged = function(source)
+DrawioFileSync.prototype.descriptorChanged = function()
 {
 	this.lastModified = this.file.getLastModifiedDate();
 
-	if (this.channelId != null && Editor.enableRealtimeCache)
+	// Only notifies: a metadata change keeps the revision ID, and
+	// receivers reload the descriptor for their current revision
+	if (this.channelId != null)
 	{
-		var msg = this.objectToString(this.createMessage({a: 'desc',
+		this.notify(this.createMessage({a: 'desc',
 			m: this.lastModified.getTime()}));
-		var target = this.file.getCurrentRevisionId();
-
-		// Stores an empty patch with the checksum of the saved state
-		// so that clients catching up over this revision apply it as
-		// a no-op instead of failing and reloading the file
-		var data = this.objectToString(this.createMessage({patch: {},
-			checksum: this.ui.getHashValueForPages(this.file.getShadowPages())}));
-
-		mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() +
-			'&from=' + encodeURIComponent(source) + '&to=' + encodeURIComponent(target) +
-			'&msg=' + encodeURIComponent(msg) + '&data=' + encodeURIComponent(data));
-		this.file.stats.bytesSent += data.length;
-		this.file.stats.msgSent++;
-
-		EditorUi.debug('DrawioFileSync.descriptorChanged',
-			[this], 'from', source, 'to', target);
 	}
-	
+
 	this.updateStatus();
+};
+
+/**
+ * Switches to the current channel key of the file. OneDrive files and
+ * monday.com diagrams get a random key with the first save of a client that
+ * supports it, until then everyone uses the key derived from the file
+ * metadata. Every client in the session switches when it reads the version
+ * of the file with the new key, so the key only changes with a save. The
+ * previous key decodes for previousKeyTimeout so that messages from peers
+ * that have not switched yet are not lost. A random key is never replaced
+ * by a missing or the legacy key: a client from before random keys that had
+ * the file open when the key was written drops it with its next save, and
+ * this client writes it back with its own next save.
+ */
+DrawioFileSync.prototype.updateChannelKey = function()
+{
+	var key = this.file.getChannelKey();
+
+	if (key != this.key && (this.key == null || (key != null &&
+		key != this.file.getLegacyChannelKey())))
+	{
+		if (this.key != null)
+		{
+			this.previousKey = this.key;
+			this.previousKeyTime = Date.now();
+		}
+
+		this.key = key;
+
+		EditorUi.debug('DrawioFileSync.updateChannelKey', [this],
+			'previous', this.previousKey != null);
+	}
+};
+
+/**
+ * Returns a short fingerprint of the channel key. Copies of notifications for
+ * clients with the legacy key carry it so that receivers can ignore the copies
+ * of messages they have already read with the channel key.
+ */
+DrawioFileSync.prototype.getKeyId = function()
+{
+	if (this.keyIdKey !== this.key)
+	{
+		this.keyIdKey = this.key;
+		this.keyId = (this.key != null && typeof CryptoJS !== 'undefined') ?
+			CryptoJS.MD5('channel-key-id:' + this.key).toString().substring(0, 12) : null;
+	}
+
+	return this.keyId;
+};
+
+/**
+ * Returns a copy of the given notification for clients with the legacy
+ * channel key of the file, or null if no copy is needed. Clients from before
+ * random keys cannot read notifications on a channel with a random key, and
+ * for them live changes stop. With the copy they still see when the file was
+ * saved and load the changes from the file, like a client with an outdated
+ * protocol. Only save and descriptor notifications are copied: they contain
+ * the modified time and no content, and anyone who can derive the legacy key
+ * sees that time from the relay anyway.
+ */
+DrawioFileSync.prototype.createLegacyNotification = function(msg)
+{
+	var legacy = (this.legacyKeyNotify) ? this.file.getLegacyChannelKey() : null;
+	var p = (msg != null) ? msg.p : null;
+
+	return (legacy != null && this.key != null && legacy != this.key &&
+		p != null && p.m != null && (p.a == null || p.a == 'desc')) ?
+		{v: msg.v, av: msg.av, p: p, c: msg.c, kid: this.getKeyId()} : null;
+};
+
+/**
+ * Decodes a message that was encrypted with the legacy channel key of the
+ * file while this client uses a random key. Such messages come from clients
+ * from before random keys and are the copies of notifications from
+ * createLegacyNotification. Returns null if the data is not such a message.
+ */
+DrawioFileSync.prototype.decodeLegacyMessage = function(data)
+{
+	var legacy = (typeof data === 'string') ? this.file.getLegacyChannelKey() : null;
+	var msg = null;
+
+	if (legacy != null && this.key != null && legacy != this.key)
+	{
+		try
+		{
+			msg = this.decodeString(data, legacy);
+		}
+		catch (e)
+		{
+			// Not encrypted with the legacy key
+		}
+	}
+
+	return (msg != null && typeof msg === 'object') ? msg : null;
+};
+
+/**
+ * Handles a message from decodeLegacyMessage. Anyone who can derive the
+ * legacy key can send one, so none of its content is used: a save or
+ * descriptor notification only makes this client check the file, which is
+ * where the changes of clients with the legacy key are read from. Copies of
+ * notifications that this client has already read are ignored and the checks
+ * are throttled to one per legacyNotifyDelay.
+ */
+DrawioFileSync.prototype.handleLegacyMessage = function(msg)
+{
+	var p = (msg != null && typeof msg === 'object') ? msg.p : null;
+
+	if (this.enabled && p != null && typeof p === 'object' && p.m != null &&
+		(p.a == null || p.a == 'desc') && (msg.kid == null ||
+		msg.kid !== this.getKeyId()))
+	{
+		this.legacyDescChanged = this.legacyDescChanged || p.a == 'desc';
+		this.legacyOptimistic = this.legacyOptimistic || p.type == 'optimistic';
+
+		if (this.legacyNotifyThread == null)
+		{
+			this.legacyNotifyThread = window.setTimeout(mxUtils.bind(this, function()
+			{
+				var desc = this.legacyDescChanged;
+				var optimistic = this.legacyOptimistic;
+				this.legacyNotifyThread = null;
+				this.legacyDescChanged = false;
+				this.legacyOptimistic = false;
+				this.lastLegacyNotify = Date.now();
+
+				if (!this.file.inConflictState && !this.file.redirectDialogShowing &&
+					(this.isConnected() || this.isRealtimeConnected()))
+				{
+					EditorUi.debug('DrawioFileSync.handleLegacyMessage', [this],
+						'desc', desc, 'optimistic', optimistic);
+
+					if (desc)
+					{
+						this.handleMessageData({a: 'desc'});
+					}
+					else
+					{
+						this.fileChangedNotify((optimistic) ?
+							{type: 'optimistic'} : null);
+					}
+				}
+			}), Math.max(0, this.lastLegacyNotify +
+				this.legacyNotifyDelay - Date.now()));
+		}
+	}
 };
 
 /**
@@ -3351,10 +3663,12 @@ DrawioFileSync.prototype.isEncryptionAvailable = function()
 
 /**
  * Converts the given object to an encrypted string. Returns null if
- * the optional maxLength is exceeded before encryption.
+ * the optional maxLength is exceeded before encryption. The optional
+ * key replaces the channel key (see createLegacyNotification).
  */
-DrawioFileSync.prototype.objectToString = function(obj, maxLength)
+DrawioFileSync.prototype.objectToString = function(obj, maxLength, key)
 {
+	key = (key != null) ? key : this.key;
 	var data = JSON.stringify(obj);
 
 	// Wire encoding (since PROTOCOL 7): the JSON is deflated directly
@@ -3379,7 +3693,7 @@ DrawioFileSync.prototype.objectToString = function(obj, maxLength)
 		return null;
 	}
 
-	if (this.isEncrypted())
+	if (key != null && typeof CryptoJS !== 'undefined')
 	{
 		// Fails closed if the CSPRNG went away after start, rather than
 		// sending a message the peer cannot read and the cache can
@@ -3388,14 +3702,16 @@ DrawioFileSync.prototype.objectToString = function(obj, maxLength)
 			throw new Error('No CSPRNG for realtime encryption');
 		}
 
-		data = CryptoJS.AES.encrypt(data, this.key).toString();
+		data = CryptoJS.AES.encrypt(data, key).toString();
 	}
 
 	return data;
 };
 
 /**
- * Converts the given encrypted string to an object.
+ * Converts the given encrypted string to an object. Messages with the
+ * previous channel key are accepted for previousKeyTimeout after the key
+ * changed (see updateChannelKey).
  */
 DrawioFileSync.prototype.stringToObject = function(data)
 {
@@ -3408,9 +3724,31 @@ DrawioFileSync.prototype.stringToObject = function(data)
 		throw new Error('Invalid message data');
 	}
 
-	if (this.isEncrypted())
+	try
 	{
-		data = CryptoJS.AES.decrypt(data, this.key).toString(CryptoJS.enc.Utf8);
+		return this.decodeString(data, this.key);
+	}
+	catch (e)
+	{
+		if (this.previousKey != null && this.previousKey != this.key &&
+			Date.now() - this.previousKeyTime < this.previousKeyTimeout)
+		{
+			return this.decodeString(data, this.previousKey);
+		}
+
+		throw e;
+	}
+};
+
+/**
+ * Decodes the given string with the given key, or without encryption if
+ * the key is null. Throws an error if the string cannot be decoded.
+ */
+DrawioFileSync.prototype.decodeString = function(data, key)
+{
+	if (key != null && typeof CryptoJS !== 'undefined')
+	{
+		data = CryptoJS.AES.decrypt(data, key).toString(CryptoJS.enc.Utf8);
 	}
 
 	if (typeof pako !== 'undefined')
@@ -3554,11 +3892,42 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 				this.file.stats.msgSent++;
 				
 				var acceptResponse = true;
-							
+
+				// The file is saved at this point. If the cache request fails or
+				// times out, peers miss the patch and reload the file on catchup,
+				// but they must still be notified if the request carried the
+				// notification.
+				var done = mxUtils.bind(this, function(status)
+				{
+					window.clearTimeout(timeoutThread);
+
+					if (acceptResponse)
+					{
+						var stored = status >= 200 && status <= 299;
+						acceptResponse = false;
+
+						if (Editor.p2pSyncNotify)
+						{
+							this.notify(msg);
+						}
+						else if (!stored && this.p2pCollab != null)
+						{
+							this.p2pCollab.sendNotification(msg);
+						}
+
+						EditorUi.debug('DrawioFileSync.fileSaved', [this],
+							'cache', (status != null) ? status : 'timeout');
+
+						if (success != null)
+						{
+							success();
+						}
+					}
+				});
+
 				var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 				{
-					acceptResponse = false;
-					error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
+					done(null);
 				}), this.ui.timeout);
 
 				mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() +
@@ -3570,28 +3939,7 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 					((token != null) ? '&token=' + encodeURIComponent(token) : ''),
 					mxUtils.bind(this, function(req)
 				{
-					window.clearTimeout(timeoutThread);
-					
-					if (acceptResponse)
-					{
-						if (req.getStatus() >= 200 && req.getStatus() <= 299)
-						{
-							if (Editor.p2pSyncNotify)
-							{
-								this.notify(msg);
-							}
-
-							if (success != null)
-							{
-								success();
-							}
-						}
-						else
-						{
-							error({message: mxResources.get('realtimeCollaboration') +
-								((req.getStatus() != 0) ? ': ' + req.getStatus() : '')});
-						}
-					}
+					done(req.getStatus());
 				}));
 				
 				EditorUi.debug('DrawioFileSync.fileSaved', [this],
@@ -3855,6 +4203,12 @@ DrawioFileSync.prototype.destroy = function()
 	{
 		window.clearTimeout(this.commentsChangedThread);
 		this.commentsChangedThread = null;
+	}
+
+	if (this.legacyNotifyThread != null)
+	{
+		window.clearTimeout(this.legacyNotifyThread);
+		this.legacyNotifyThread = null;
 	}
 
 	this.stop();

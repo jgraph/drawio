@@ -651,7 +651,14 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				{
 					if (Graph.isPageLink(href))
 					{
-						var index = self.getIndexById(href.substring(href.indexOf(',') + 1));
+						// Ignores whitespace around the ID like customLinkClicked
+						var id = href.substring(href.indexOf(',') + 1);
+						var index = self.getIndexById(id);
+
+						if (index < 0)
+						{
+							index = self.getIndexById(mxUtils.trim(id));
+						}
 
 						if (index >= 0)
 						{
@@ -1554,43 +1561,16 @@ GraphViewer.prototype.addToolbar = function()
 		}));
 		
 		// Shows/hides toolbar for touch devices
-		var graph = this.graph;
-		var tol = graph.getTolerance();
-
-		graph.addMouseListener(
+		this.graph.addTouchTapListener(function()
 		{
-		    startX: 0,
-		    startY: 0,
-		    scrollLeft: 0,
-		    scrollTop: 0,
-		    mouseDown: function(sender, me)
-		    {
-		    	this.startX = me.getGraphX();
-		    	this.startY = me.getGraphY();
-			    this.scrollLeft = graph.container.scrollLeft;
-			    this.scrollTop = graph.container.scrollTop;
-		    },
-		    mouseMove: function(sender, me) {},
-		    mouseUp: function(sender, me)
-		    {
-		    	if (mxEvent.isTouchEvent(me.getEvent()))
-		    	{
-			    	if ((Math.abs(this.scrollLeft - graph.container.scrollLeft) < tol &&
-			    		Math.abs(this.scrollTop - graph.container.scrollTop) < tol) &&
-			    		(Math.abs(this.startX - me.getGraphX()) < tol &&
-			    		Math.abs(this.startY - me.getGraphY()) < tol))
-			    	{
-			    		if (parseFloat(toolbar.style.opacity || 0) > 0)
-			    		{
-			    			fadeOut();
-			    		}
-			    		else
-			    		{
-			    			fadeIn(30);
-			    		}
-					}
-		    	}
-		    }
+			if (parseFloat(toolbar.style.opacity || 0) > 0)
+			{
+				fadeOut();
+			}
+			else
+			{
+				fadeIn(30);
+			}
 		});
 	}
 	
@@ -1698,39 +1678,7 @@ GraphViewer.prototype.addToolbar = function()
 					{
 						layersDialog = this.graph.createLayersDialog(mxUtils.bind(this, function()
 						{
-							if (this.autoCrop)
-							{
-								this.crop();
-							}
-							else if (this.autoOrigin)
-							{
-								var bounds = this.graph.getGraphBounds();
-								var v = this.graph.view;
-	
-								if (bounds.x < 0 || bounds.y < 0)
-								{
-									this.crop();
-									this.graph.originalViewState = this.graph.initialViewState;
-
-									this.graph.initialViewState = {
-										translate: v.translate.clone(),
-										scale: v.scale
-									};
-								}
-								else if (this.graph.originalViewState != null &&
-									bounds.x / v.scale + this.graph.originalViewState.translate.x - v.translate.x > 0 &&
-									bounds.y / v.scale + this.graph.originalViewState.translate.y - v.translate.y > 0)
-								{
-									v.setTranslate(this.graph.originalViewState.translate.x,
-										this.graph.originalViewState.translate.y);
-									this.graph.originalViewState = null;
-									
-									this.graph.initialViewState = {
-										translate: v.translate.clone(),
-										scale: v.scale
-									};
-								}
-							}
+							this.updateOrigin();
 						}));
 						
 						mxEvent.addListener(layersDialog, 'mouseleave', function()
@@ -1788,39 +1736,7 @@ GraphViewer.prototype.addToolbar = function()
 
 						this.graph.addListener(mxEvent.REFRESH, mxUtils.bind(this, function()
 						{
-							if (this.autoCrop)
-							{
-								this.crop();
-							}
-							else if (this.autoOrigin)
-							{
-								var bounds = this.graph.getGraphBounds();
-								var v = this.graph.view;
-
-								if (bounds.x < 0 || bounds.y < 0)
-								{
-									this.crop();
-									this.graph.originalViewState = this.graph.initialViewState;
-
-									this.graph.initialViewState = {
-										translate: v.translate.clone(),
-										scale: v.scale
-									};
-								}
-								else if (this.graph.originalViewState != null &&
-									bounds.x / v.scale + this.graph.originalViewState.translate.x - v.translate.x > 0 &&
-									bounds.y / v.scale + this.graph.originalViewState.translate.y - v.translate.y > 0)
-								{
-									v.setTranslate(this.graph.originalViewState.translate.x,
-										this.graph.originalViewState.translate.y);
-									this.graph.originalViewState = null;
-
-									this.graph.initialViewState = {
-										translate: v.translate.clone(),
-										scale: v.scale
-									};
-								}
-							}
+							this.updateOrigin();
 						}));
 
 						tagsComponent.div.getElementsByTagName('div')[0].style.position = '';
@@ -2059,6 +1975,47 @@ GraphViewer.prototype.addToolbar = function()
 				enter();
 			}
 		}).observe(container)
+	}
+};
+
+/**
+ * Crops the graph or updates the origin for auto-origin after the visible
+ * cells have changed.
+ */
+GraphViewer.prototype.updateOrigin = function()
+{
+	if (this.autoCrop)
+	{
+		this.crop();
+	}
+	else if (this.autoOrigin)
+	{
+		var bounds = this.graph.getGraphBounds();
+		var v = this.graph.view;
+
+		if (bounds.x < 0 || bounds.y < 0)
+		{
+			this.crop();
+			this.graph.originalViewState = this.graph.initialViewState;
+
+			this.graph.initialViewState = {
+				translate: v.translate.clone(),
+				scale: v.scale
+			};
+		}
+		else if (this.graph.originalViewState != null &&
+			bounds.x / v.scale + this.graph.originalViewState.translate.x - v.translate.x > 0 &&
+			bounds.y / v.scale + this.graph.originalViewState.translate.y - v.translate.y > 0)
+		{
+			v.setTranslate(this.graph.originalViewState.translate.x,
+				this.graph.originalViewState.translate.y);
+			this.graph.originalViewState = null;
+
+			this.graph.initialViewState = {
+				translate: v.translate.clone(),
+				scale: v.scale
+			};
+		}
 	}
 };
 

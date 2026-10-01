@@ -603,7 +603,13 @@ Master shapes provide template geometry and styling. Instance shapes inherit fro
   that strict XML parsers reject (parentheses!), and one bad attribute used to
   make the WHOLE encoded model unparseable — library entries and pages silently
   came back empty (seen with VisioCafe Dell stencils). Names are reduced to an
-  NCName subset; do not bypass the sanitizer when adding attributes.
+  NCName subset; do not bypass the sanitizer when adding attributes. Non-ASCII
+  letters are kept (`名前`, `Größe`), but only those of XML 1.0 4th edition
+  (`Graph.xmlNameStartChars`/`xmlNameChars`, shared with the Edit Data dialog):
+  Firefox parses with expat, which still
+  rejects the characters that only the 5th edition allows (fullwidth letters,
+  Khmer, CJK Extension A), and one such name fails the whole page there.
+  Test: `features/P02`.
 - **Colors from the file are validated** (`mxVsdxUtils.sanitizeColor`): cell
   values and the document color table (`ColorEntry RGB`) are concatenated into
   style strings and label markup, so a value like `#F00;shape=image` or
@@ -661,20 +667,25 @@ Master shapes provide template geometry and styling. Instance shapes inherit fro
   Height 0 and draw around their begin-end line, callout leaders leave the box,
   so the stencil drew outside its cell, where exports cropped it. The cell grows
   to the stencil's extent (curves and arcs sampled, degenerate arcs ignored) and
-  the drawing, label area (spacing), connection points and children keep their
-  positions, with flips and rotation. It runs after scaling because the spacing
+  the drawing, label area (spacing), connection points, the ends of edges
+  glued to it (exitX/Y, entryX/Y: the edges exist by then) and children keep
+  their positions, with flips and rotation. It runs after scaling because the spacing
   it adds is in final pixels. Cells whose own label ignores spacing
   (`overflow=width|fill`, `legacySpacing`) are skipped unless the box only grows
-  evenly around a centered label. Tests: `libraries/arrows_u`, `basic_u`.
+  evenly around a centered label. Tests: `libraries/arrows_u`, `basic_u`,
+  `features/Q01` (Data shape: glued "retry" connector).
 - **Rotated text blocks turn around TxtLocPin** (`createLabelSubShape`): Visio
   rotates the text block by `TxtAngle` around its pin, draw.io rotates the label
   cell around its center, so the label's center is placed where the rotation
   around the pin puts it (callouts pin the block at an edge). Visio never
   mirrors text: one flip (FlipX xor FlipY) mirrors the text angle, two flips
   cancel out, and the block's position is mirrored across the shape because
-  draw.io does not mirror children with a flipped parent. Tests:
+  draw.io does not mirror children with a flipped parent. The label of a group
+  is added after `addGroup` has turned the members, so it is turned once (an
+  off-centre label of a 30deg group was placed at 60deg). Tests:
   `features/F03`, `libraries/calout_u`, `eefund_u`,
-  `external/msdocs-windows-drivers/device-descriptors` (side brackets).
+  `external/msdocs-windows-drivers/device-descriptors` (side brackets),
+  `external/stencils-open/c4model-visio` (Queue).
 - **Edge labels of rotated or flipped 1D shapes use the shape transform**
   (`getLblEdgeOffset`): the text center goes through Pin, LocPin, Angle and
   the flips, relative to the begin point, because a rotated 1D shape turns its
@@ -737,7 +748,28 @@ Master shapes provide template geometry and styling. Instance shapes inherit fro
   with those. Under one flip a member turns the other way, so
   `propagateRotation` negates its own angle (Flip * Rotate(a) = Rotate(-a) *
   Flip). `addGroup` mirrors the vertex members inside the group's box before
-  it turns them with the group, and `rotateChildEdge` mirrors edge points.
+  it turns them with the group, and `rotateChildEdge` mirrors, then turns edge
+  points. Edge label offsets are mirrored and turned with them
+  (`getGroupTransform`, `transformGroupVector`: `getLblEdgeOffset` measures the
+  transformed points in the frame of the members, `addUnconnectedEdge`
+  measures before the transform), otherwise a centred label on a connector in
+  a FlipX group was offset by the connector's length, and the local text
+  position was never turned with a rotated group (a centred label in a 180deg
+  group was off by the connector's length too). Test: `features/C01` p2
+  (connector in a 30deg group, no text). The text turns with the group as
+  well: draw.io never turns an edge's own label (`mxPolyline.getRotation` is
+  0), so a connector with text in a turned group gets a label sub-shape
+  (`isTurnedLabel`; rotation noise such as 359.95deg keeps the edge label),
+  and `addEdgeSublabel` adds the group's rotation to the sub-shape's angle,
+  which one flip of the group mirrors first (Visio never mirrors text, as in
+  `createLabelSubShape`). Tests: the last two items of `features/C04`
+  (labelled connector in a 90deg group, TxtAngle in a FlipX + 30deg group).
+  Glued ends: the importer
+  computes exitX/Y and entryX/Y as fractions of the terminal's box on the page,
+  but `getConnectionPoint` mirrors the constraint of a vertex with flipH/flipV,
+  so `getGlueConstraintPoint` mirrors them for flipped terminals (members of
+  flipped groups and shapes with their own flips); otherwise the connector
+  ended on the other side of the shape. Test: `features/L01` (FlipX shape).
   `getOriginPoint` uses the own flips (the shape's transform inside its
   parent), `createLabelSubShape` the style's absolute flips. Tests:
   `features/F02` (Group FlipX, Group FlipY, Group FlipX + 45deg),

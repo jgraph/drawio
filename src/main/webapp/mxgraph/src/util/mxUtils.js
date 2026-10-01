@@ -3768,8 +3768,25 @@ var mxUtils =
 	rtrim: function(str, chars)
 	{
 		chars = chars || "\\s|\\0";
-		
-		return (str != null) ? str.replace(new RegExp("[" + chars + "]+$", "g"), "") : null;
+
+		if (str != null)
+		{
+			// Scans backwards as [chars]+$ takes quadratic time on a long run
+			// of these characters that is not at the end of the string
+			var exp = new RegExp("[" + chars + "]");
+			var end = str.length;
+
+			while (end > 0 && exp.test(str.charAt(end - 1)))
+			{
+				end--;
+			}
+
+			return str.substring(0, end);
+		}
+		else
+		{
+			return null;
+		}
 	},
 	
 	/**

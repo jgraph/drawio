@@ -1,3 +1,200 @@
+01-OCT-2026: 31.7.0
+
+- Stops loading the Pusher library in lockdown mode
+- Stops fetching notifications in lockdown mode
+- Fixes realtime catchup over several saves in Confluence Cloud
+- Lets the MathJax update and comparison run in a cloud container
+- Updates the vendored drawio-plantuml bundle to commit 7e1e88f
+- Updates drawio-elk bundle to 0.1.0+commit.5c1c970
+- Fixes missing XML escaping in the connectRender snippet
+- Fixes missing XML escaping in the Forge connectRender webtrigger
+- Updates drawio-elk bundle to 0.1.0+commit.cbd81ba
+- Adds a model comparison eval to the generate/v3 worker
+- Removes diagram data, file ids and URL parameter values from client logs
+- Conf Cloud space approval translation keys
+- Fixes find window freezing while typing with all pages
+- Stops the realtime cache from re-issuing tokens for used secrets
+- Limits the length and size of realtime cache catchups
+- Removes exception details from realtime cache error responses
+- Checks cached catchup patches against the descriptor checksum
+- Fixes lost descriptor change notifications in realtime sync
+- Updates vendor bundles
+- Stops reporting failed realtime cache uploads as save errors
+- Keeps base64 padding in compressed style resources
+- Rejects non-numeric def references in compressed styles
+- Keeps all references in compressed styles with multiple resources
+- Removes dead code
+- Updates drawio-elk bundle to 0.1.0+commit.0cfcdc4
+- Updates tooling and worker dev dependencies for Dependabot alerts
+- Re-routes libavoid edges after arrange actions and layouts
+- Adds followTerminals edge style that moves waypoints with terminals
+- Frees libavoid route copies so repeated solves route identically
+- Shares libavoid pins and retries connectors libavoid cannot route
+- Routes libavoid edges around rotated, turned and flipped shapes as drawn
+- Updates drawio-mermaid bundle to 0.1.0+commit.8747059
+- Re-routes libavoid edges when a shape is rotated with its handle
+- Makes the libavoid drag preview enforce the jetty stub like the drop
+- Makes followTerminals edges follow transparentBounds terminals
+- Updates drawio-elk bundle to 0.1.0+commit.c50c120
+- Previews the drop's clearance retry when libavoid finds no warm route
+- Points the libavoid docs at the tool server's current core cache
+- Fixes the Google Drive file not found dialog layout and link
+- Fixes clipped Change User dialog after a Google Drive file not found error
+- Added lucid importer app translation keys + fixed its chrome extension
+- Updates drawio-elk bundle to 0.1.0+commit.c6b8e34
+- Adds zoomEvents load option to notify the embed host of zoom changes
+- Caps the size of diagrams inserted by the Google Sheets add-on [jgraph/drawio#5559]
+- Asks again for permissions users unticked in the Google add-ons [jgraph/drawio#5559]
+- Removed tabs from the Lucid import extension permissions
+- Adds the sequence edge style to the edge inline toolbar [jgraph/drawio#5706]
+- Clears innerLoopWaypoints when the inline toolbar resets edge waypoints
+- Limits the Google Workspace add-on submission to smart chips
+- Covers descriptor change notifications over the realtime socket
+- Uses random realtime channel keys for OneDrive and monday.com
+- Conf Cloud: Added translation keys needed for describing config space creation
+- Blocks escape, backslash and quote desync bypasses in the CSS reference check
+- Fixes checkPlaceholderStyles always returning true
+- Restores own-color references and adds parentFillColor/parentStrokeColor
+- Fixes copy-pasted doc comments of Graph style state helpers
+- Fixes lost URL parameters when a #P hash sets the hash property
+- Fixes lost text before a code fence in AI responses
+- Fixes the shadowColor configuration option having no effect
+- Fixes scrollLeft typo in pageSelected
+- Fixes rowspan typo in visitTableCells
+- Fixes spelling and grammar errors in English UI strings
+- Makes English UI labels consistent in capitalization and wording
+- Uses American "color" in the Configuration dialog texts
+- Spells "Double-click" consistently in English tooltips
+- Uses Key+click notation for modifier hints in English tooltips
+- Spells SharePoint with a capital P in English UI texts
+- Updates drawioForWork to "draw.io for Google Workspace"
+- Uppercases CSV, URL, VSDX and ID in English UI messages
+- Writes "app" in lowercase in two Confluence app messages
+- Spells "Zigzag" as one word in the fill style names
+- Writes "Reopen" without a hyphen in the comment actions
+- Names the hiResPreview option "High Resolution Preview" everywhere
+- Writes "custom content" in the Confluence integrity check messages
+- Fixes punctuation in English UI messages
+- Re-routes libavoid edges after flips and the rotation dialog
+- Fires cellsArranged for Edit Geometry and Paste Size
+- Passes the source perimeter to the libavoid new connection preview
+- Moves followTerminals waypoints when a group is rotated or flipped
+- Adds missing resources for the custom GitLab server warning dialog
+- Adds missing doubleClickToEdit resource for the ID in Edit Data
+- Fixes raw justifyfull tooltip in the text toolbar align menu
+- Fixes raw smartFit tooltip in the presentation mode toolbar
+- Adds authorizedIn resource for the popup auth button dialog
+- Makes the PlantUML issue link in the insert dialog translatable
+- Translates the highlight color and open link fields in action dialogs
+- Fixes flow toggle and opacity step labels in the animation dialogs
+- Cancels the animation export on Escape [jgraph/drawio#5777]
+- Closes the video encoder when the MP4 export is cancelled early [jgraph/drawio#5777]
+- Destroys the custom action editor when it is closed
+- Parses the CSS of SVG image symbols for scoping [jgraph/drawio#5726]
+- Fixes xUtils typo in the grapheditor updateDiagramData
+- Fixes operator precedence in the browser files list striping
+- Removes the unreachable Atlas branch of the diagram menu
+- Removes the unused DrawioFile.isMovable and DriveFile.isMovable
+- Ignores a stored Dropbox or Trello mode when the storage is not enabled
+- Keeps non-ASCII letters in imported Visio shape data names
+- Keeps glued edge ends in place when Visio import fits a stencil cell
+- Mirrors edge label offsets with flipped groups in the Visio import
+- Turns off-centre labels of rotated Visio groups only once
+- Glues Visio connectors to the right side of flipped shapes
+- Fixes actions skipping cells whose ID is an Object.prototype name
+- Fixes "Page not found" tooltips for page links with spaces in the viewer
+- Fixes missing Microsoft 365 name and logo in the authorized dialog
+- Removes duplicate auth retry code in DropboxClient
+- Removes duplicate write request code in OneDriveClient
+- Removes duplicate auto-origin code in GraphViewer toolbar
+- Removes duplicate touch tap listener for viewer toolbars
+- Removes duplicate drag and drop code in image and link dialogs
+- Removes duplicate FolderShape.getLabelMargins in Shapes.js
+- Removes duplicate redraw code of the lock and edit icon handles
+- Removes duplicate shapeInside size and direction code in Graph.js
+- Removes duplicate client scan in App.getMainUser and getCurrentUser
+- Removes duplicate shape code in the Lucidchart importer
+- Fixes normalizeModel growing collapsed containers
+- Fixes Find on all pages stopping at matches that are not rendered
+- Removes the no-op p.Rotatio assignments in the Lucidchart UML import
+- Removes the unreachable Console preview from the Edit Data export
+- Fixes GitLab token sent to GitHub and GitHub token sent to GitLab
+- Fixes Microsoft 365 token used by the personal OneDrive client
+- Fixes literal &hellip; in truncated template category names
+- Fixes missing border around the library dialog image area
+- Fixes light template category headers and borders in dark mode
+- Fixes light draft preview border in dark mode
+- Fixes untitled library entry label color in dark mode
+- Uses the dialog hint style for the shapes dialog empty preview
+- Fixes light separators and Drive warning in the storage dialog dark mode
+- Fixes light separators in the splash dialog dark mode
+- Fixes bright polygon dialog grid in dark mode
+- Uses the themed border for the freehand window color swatch
+- Uses the theme error colors for the find window not-found state
+- Adds Ctrl+Enter to apply in the edit diagram dialog
+- Adds Ctrl+Enter to insert in the text / mermaid / PlantUML dialog
+- Adds Ctrl+Enter to apply in the edit shape dialog
+- Uses app error dialogs instead of native alerts in the edit data dialog
+- Uses the dialog button style for the connection points Add button
+- Uses the standard title and help icon in the create dialog
+- Right-aligns the image dialog buttons
+- Right-aligns the page and layer picker buttons
+- Uses a standard h3 title in the edit shape dialog
+- Removes inline title styles from the markup dialog
+- Uses the standard button spacing in the plugins dialog
+- Uses the standard button spacing in the grapheditor link dialog
+- Uses the 14px button margin in the crop image dialog
+- Uses the standard button margin in the compact shapes dialog
+- Adds a tooltip to the email button in the embed dialog
+- Adds a tooltip to the color dialog dropper button
+- Removes doubled control gaps in the edit data dialog rows
+- Uses the dialog hint style for the embed dialog size label
+- Uses the dialog hint style for the revision dialog file info
+- Fixes missing Cancel in the template dialog when cancelFirst is off
+- Honors cancelFirst in the animation and custom action dialog footer
+- Honors cancelFirst for the Close button in the embed dialog
+- Holds unconfirmed live deletes in the realtime grace window
+- Scopes the realtime merge veto to colliding inserts
+- Keeps the newer-version dialog latched while its reload waits
+- Extracts the shared claimant walk of patchPages and patchCellRecursive
+- Uses CSS whitespace when scoping the CSS of SVG image symbols [jgraph/drawio#5726]
+- Prefixes fonts and keyframes declared in SVG image symbols [jgraph/drawio#5726]
+- Fixes clipped bottom border of the inline OneDrive picker
+- Fixes quadratic trimming of Visio shape data names
+- Fixes quadratic time in mxUtils.rtrim
+- Rejects Edit Data property names that make diagrams unreadable
+- Fixes six dialog borders that the browser dropped as invalid CSS
+- Moves the polygon and connection points actions to diagramly
+- Adds an overridable hook for the Edit Data export
+- Adds a mixed values state to Edit Link for selections with different links
+- Turns edge label offsets with rotated groups in the Visio import
+- Fixes copy-pasted doc comments of the file classes
+- Fixes copy-pasted doc comments of the library classes
+- Fixes copy-pasted doc comments of the storage clients
+- Fixes copy-pasted doc comments in Graph and EditorUi of the grapheditor
+- Fixes copy-pasted doc comments of App, EditorUi and Pages
+- Re-routes libavoid edges after Edit Style and turning a swimlane
+- Re-routes libavoid edges after replacing the shape of a vertex
+- Removes the redundant styleChanged event of the Flip buttons
+- Renames cfgFontCssHelp to cfgCustomPresetColorsHelp
+- Documents the title margin of the revision dialog
+- Shows the cell ID in Edit Data as regular text
+- Fixes a global variable in GitLabClient.insertFile
+- Updates the metadata of OneDrive libraries after saving
+- Removes the unused includeCellId argument of createSvgImageExport
+- Binds SVG export popups only to the icon wrappers of the export
+- Passes the icons option through the svgdata plugin
+- Resolves snapToPoint anchors for the current style of the terminal
+- Re-routes libavoid edges after style edits of their ends
+- Fixes ignored jetty sizes in libavoid routing
+- Routes new edges to the snapToPoint anchors of new terminals
+- Re-routes libavoid edges after style writes outside Edit Style
+- Removes the dead styledev style input
+- Turns edge label text with rotated groups in the Visio import
+- Adds drawio-plantuml to the ant bundles target
+- Updates drawio-mermaid bundle to 0.1.0+commit.00cb88f
+- Updates the Confluence Connect PrismJS copy to 1.30.0
+
 29-SEP-2026: 31.6.1
 
 - Keeps the embed filename before the buttons when the title changes

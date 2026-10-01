@@ -229,7 +229,7 @@ Toolbar.prototype.createTextToolbar = function()
 		{
 			document.execCommand('justifyfull', false, null);
 		}));
-		elt.setAttribute('title', mxResources.get('justifyfull'));
+		elt.setAttribute('title', mxResources.get('block'));
 		
 		elt = menu.addItem('', Editor.orderedListImage, mxUtils.bind(this, function()
 		{

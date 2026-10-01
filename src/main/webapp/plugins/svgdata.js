@@ -20,11 +20,12 @@ Draw.loadPlugin(function(ui)
 {
 	var graphCreateSvgImageExport = Graph.prototype.createSvgImageExport;
 
-	Graph.prototype.createSvgImageExport = function(includeCellId)
+	Graph.prototype.createSvgImageExport = function(addSvgData, icons, iconLinkTarget)
 	{
 		// Don't enable the new core data-meta- mode — emit the legacy unprefixed
 		// data-{attr} so existing consumers of the plugin's output keep working.
-		var exp = graphCreateSvgImageExport.call(this, includeCellId);
+		// The tooltip, link and note icons are passed through.
+		var exp = graphCreateSvgImageExport.call(this, false, icons, iconLinkTarget);
 		var graph = this;
 
 		// Tag root and layer wrappers with id, content, data-{attr}, type

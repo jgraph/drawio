@@ -26,7 +26,7 @@ The core reaches drawio-mcp automatically via the viewer.diagrams.net CDN
 ships this directory): the mcp app server CDN-loads it (ETag-versioned URLs,
 `mcp-app-server/src/libavoid-versions.js`) and the mcp tool server
 revalidates it into a per-user disk cache at runtime
-(`mcp-tool-server/src/routing-core-cache.js`). The only manual step: refresh
+(`ROUTING_CORE` in `mcp-tool-server/src/cdn-cache.js`). The only manual step: refresh
 the tool server's cold-cache/offline/pre-release fallback copy —
 `mcp-tool-server/vendor/libavoid/libavoid-routing.js` — verbatim when the
 canonical file changes here. Never sync loaders (the core takes the `Avoid`

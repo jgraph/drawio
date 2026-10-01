@@ -53,6 +53,20 @@ GitHubClient.prototype.setToken = function(token)
 };
 
 /**
+ * Adds the authorization header with the token of this client to the given
+ * request. Subclassers with their own token must override this.
+ */
+GitHubClient.prototype.authorizeRequest = function(req)
+{
+	var temp = this.authToken + ' ' + _token;
+
+	req.setRequestHeaders = function(request, params)
+	{
+		request.setRequestHeader('Authorization', temp);
+	};
+};
+
+/**
  * Authorizes the client, gets the userId and calls <open>.
  */
 GitHubClient.prototype.updateUser = function(success, error, failOnAuth)
@@ -66,12 +80,7 @@ GitHubClient.prototype.updateUser = function(success, error, failOnAuth)
 	}), this.ui.timeout);
 	
 	var userReq = new mxXmlRequest(this.baseUrl + '/user', null, 'GET');
-	var temp = this.authToken + ' ' +  _token;
-	
-	userReq.setRequestHeaders = function(request, params)
-	{
-		request.setRequestHeader('Authorization', temp);
-	};
+	this.authorizeRequest(userReq);
 	
 	userReq.send(mxUtils.bind(this, function()
 	{
@@ -313,12 +322,7 @@ GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 			error({code: App.ERROR_TIMEOUT, retry: fn});
 		}), this.ui.timeout);
 		
-		var temp = this.authToken + ' ' + _token;
-		
-		req.setRequestHeaders = function(request, params)
-		{
-			request.setRequestHeader('Authorization', temp);
-		};
+		this.authorizeRequest(req);
 		
 		req.send(mxUtils.bind(this, function()
 		{
@@ -486,7 +490,8 @@ GitHubClient.prototype.getSha = function(org, repo, path, ref, success, error, r
 };
 
 /**
- * Checks if the client is authorized and calls the next step.
+ * Loads the file with the given path and passes a GitHubFile, or a
+ * GitHubLibrary if asLibrary is true, to success.
  */
 GitHubClient.prototype.getFile = function(path, success, error, asLibrary, checkExists)
 {
@@ -567,10 +572,9 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary, check
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns a new GitHubFile, or a GitHubLibrary if asLibrary is true, for the
+ * given repository, ref and content object. Base64 content is decoded and
+ * images are converted to data URIs unless a PNG contains a diagram.
  */
 GitHubClient.prototype.createGitHubFile = function(org, repo, ref, data, asLibrary)
 {
@@ -615,10 +619,8 @@ GitHubClient.prototype.createGitHubFile = function(org, repo, ref, data, asLibra
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Inserts a new library with the given filename and data into the folder
+ * with the given ID.
  */
 GitHubClient.prototype.insertLibrary = function(filename, data, success, error, folderId)
 {
@@ -626,10 +628,10 @@ GitHubClient.prototype.insertLibrary = function(filename, data, success, error, 
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Passes a new file with the given filename and data in the folder with the
+ * given ID to success. Asks the user before replacing an existing file.
+ * Libraries are committed immediately while other files are written when
+ * they are saved.
  */
 GitHubClient.prototype.insertFile = function(filename, data, success, error, asLibrary, folderId, base64Encoded)
 {
@@ -758,10 +760,10 @@ GitHubClient.prototype.writeFile = function(org, repo, ref, path, message, data,
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Passes true and the SHA to fn if the user confirms replacing the existing
+ * file with the given path, or true if the file does not exist. If
+ * askReplace is false, an error is shown for existing files and false is
+ * passed to fn.
  */
 GitHubClient.prototype.checkExists = function(path, askReplace, fn)
 {
@@ -803,10 +805,9 @@ GitHubClient.prototype.checkExists = function(path, askReplace, fn)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Commits the data of the given file, as PNG for .png files, with the given
+ * message and passes the new SHA to success. If overwrite is true, the
+ * latest SHA is fetched first.
  */
 GitHubClient.prototype.saveFile = function(file, success, error, overwrite, message)
 {
@@ -861,7 +862,7 @@ GitHubClient.prototype.saveFile = function(file, success, error, overwrite, mess
 };
 
 /**
- * Checks if the client is authorized and calls the next step.
+ * Picks a library using pickFile.
  */
 GitHubClient.prototype.pickLibrary = function(fn)
 {

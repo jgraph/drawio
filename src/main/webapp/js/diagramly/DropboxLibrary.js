@@ -11,10 +11,7 @@ DropboxLibrary = function(ui, data, stat)
 mxUtils.extend(DropboxLibrary, DropboxFile);
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns true to enable autosave for libraries.
  */
 DropboxLibrary.prototype.isAutosave = function()
 {
@@ -30,8 +27,7 @@ DropboxLibrary.prototype.doSave = function(title, success, error)
 };
 
 /**
- * Returns the location as a new object.
- * @type mx.Point
+ * Does nothing since libraries are not opened as diagrams.
  */
 DropboxLibrary.prototype.open = function()
 {

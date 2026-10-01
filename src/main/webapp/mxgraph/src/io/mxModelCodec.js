@@ -87,21 +87,23 @@ mxCodecRegistry.register(function()
 
 			for (var j = 0; j < styles.length; j++)
 			{
-				var parts = styles[j].split('=');
+				// Splits at the first equal sign to keep base64 padding in the value
+				var eq = styles[j].indexOf('=');
+				var name = styles[j].substring(0, eq);
+				var value = styles[j].substring(eq + 1);
 
-				if (parts.length > 1 &&
-					(parts[0] === 'image' && parts[1].startsWith('data:image/') ||
-					parts[0] === 'shape' && parts[1].startsWith('stencil(')))
+				if (name === 'image' && value.startsWith('data:image/') ||
+					name === 'shape' && value.startsWith('stencil('))
 				{
 					(mxUtils.bind(this, function(key, index)
 					{
-						this.addResource(enc, defs, parts[1], lookup, function(id)
+						this.addResource(enc, defs, value, lookup, function(id)
 						{
-							cell.setAttribute('style', styles.slice(0, index).join(';') +
-								(index > 0 ? ';' : '') + key + '=def(' + id + ');' +
-								styles.slice(index + 1).join(';'));
+							// Updates the entry in place to keep other references in the style
+							styles[index] = key + '=def(' + id + ')';
+							cell.setAttribute('style', styles.join(';'));
 						});
-					}))(parts[0], j);
+					}))(name, j);
 				}
 			}
 		}
@@ -192,19 +194,25 @@ mxCodecRegistry.register(function()
 					
 			for (var j = 0; j < styles.length; j++)
 			{
-				var parts = styles[j].split('=');
+				var eq = styles[j].indexOf('=');
+				var name = styles[j].substring(0, eq);
+				var value = styles[j].substring(eq + 1);
 
-				if (parts.length > 1 && parts[1].startsWith('def(') &&
-					(parts[0] === 'image' || parts[0] === 'shape'))
+				if ((name === 'image' || name === 'shape') &&
+					value.startsWith('def('))
 				{
-					var index = parts[1].substring(
-						parts[1].indexOf('(') + 1,
-						parts[1].length - 1);
+					var index = value.substring(
+						value.indexOf('(') + 1,
+						value.length - 1);
 
-					if (defs[index] != null)
+					// Accepts only numeric references so that references
+					// such as def(length) do not resolve collection members
+					var def = (/^\d+$/.test(index)) ? defs[index] : null;
+
+					if (def != null)
 					{
-						newStyles.push(parts[0] + '=' +
-							defs[index].getAttribute('data'));
+						newStyles.push(name + '=' +
+							def.getAttribute('data'));
 					}
 					else if (window.console != null)
 					{

@@ -103,7 +103,7 @@ function main()
 							row.style.color = (darkMode) ? '#cccccc' : '';
 							table.appendChild(row);
 							
-							if (i & 1 == 1)
+							if ((i & 1) == 1)
 							{
 								row.style.backgroundColor = (darkMode) ? '#000' : '#E6E6E6';
 							}

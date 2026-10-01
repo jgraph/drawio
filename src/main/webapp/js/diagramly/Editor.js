@@ -711,7 +711,7 @@
         	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1' &&
 				state.vertices.length > 0;
         }},
-        {name: 'zigzagOffset', dispName: 'ZigZag Offset', type: 'int', defVal: -1, isVisible: function(state, format)
+        {name: 'zigzagOffset', dispName: 'Zigzag Offset', type: 'int', defVal: -1, isVisible: function(state, format)
         {
         	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1' &&
 				state.vertices.length > 0;
@@ -3563,7 +3563,7 @@
 
 			if (config.shadowColor != null)
 			{
-				mxConstants.SHADOW_COLOR = config.shadowColor;
+				mxConstants.SHADOWCOLOR = config.shadowColor;
 			}
 
 			if (config.shadowOpacity != null)
@@ -11777,7 +11777,7 @@
 		// Union of cells from `cells` and `tags`. De-dup by id so a
 		// cell that matches both selectors doesn't get the action
 		// applied twice.
-		var seen = {};
+		var seen = Object.create(null);
 		var union = [];
 		var merge = function(cells)
 		{
@@ -11825,7 +11825,7 @@
 		// semantics on `cells`.
 		if (action.excludeCells != null && action.excludeCells.length > 0)
 		{
-			var excludeIds = {};
+			var excludeIds = Object.create(null);
 			var excludeAll = false;
 
 			for (var i = 0; i < action.excludeCells.length; i++)

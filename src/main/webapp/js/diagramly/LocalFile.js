@@ -1,12 +1,9 @@
 // $Id = LocalFile.js,v 1.12 2010-01-02 09 =45 =14 gaudenz Exp $
 // Copyright (c) 2006-2014, JGraph Holdings Ltd
 /**
- * Constructs a new point for the optional x and y coordinates. If no
- * coordinates are given, then the default values for <x> and <y> are used.
- * @constructor
- * @class Implements a basic 2D point. Known subclassers = {@link mxRectangle}.
- * @param {number} x X-coordinate of the point.
- * @param {number} y Y-coordinate of the point.
+ * Constructs a new file on the local device with the given data and title.
+ * Temporary files have no storage mode. The optional file handle and
+ * descriptor are used with the File System Access API.
  */
 LocalFile = function(ui, data, title, temp, fileHandle, desc, editable)
 {
@@ -23,10 +20,7 @@ LocalFile = function(ui, data, title, temp, fileHandle, desc, editable)
 mxUtils.extend(LocalFile, DrawioFile);
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns true if the file has a valid file handle and autosave is enabled.
  */
 LocalFile.prototype.isAutosave = function()
 {
@@ -43,10 +37,7 @@ LocalFile.prototype.isAutosaveOptional = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the storage mode of the file, which is null for temporary files.
  */
 LocalFile.prototype.getMode = function()
 {
@@ -54,10 +45,7 @@ LocalFile.prototype.getMode = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the title of the file.
  */
 LocalFile.prototype.getTitle = function()
 {
@@ -65,10 +53,7 @@ LocalFile.prototype.getTitle = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns true since local files can be renamed.
  */
 LocalFile.prototype.isRenamable = function()
 {
@@ -76,10 +61,7 @@ LocalFile.prototype.isRenamable = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns true if the file is editable and the editable flag is not false.
  */
 LocalFile.prototype.isEditable = function()
 {
@@ -88,10 +70,7 @@ LocalFile.prototype.isEditable = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Sets the editable flag of the file and fires a descriptorChanged event.
  */
 LocalFile.prototype.setEditable = function(editable)
 {
@@ -100,10 +79,7 @@ LocalFile.prototype.setEditable = function(editable)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Saves the file under its current title.
  */
 LocalFile.prototype.save = function(revision, success, error, unloading, overwrite)
 {
@@ -111,10 +87,7 @@ LocalFile.prototype.save = function(revision, success, error, unloading, overwri
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Saves the file with the given title.
  */
 LocalFile.prototype.saveAs = function(title, success, error, unloading, overwrite)
 {
@@ -122,7 +95,7 @@ LocalFile.prototype.saveAs = function(title, success, error, unloading, overwrit
 };
 
 /**
- * Adds all listeners.
+ * Returns the descriptor of the file.
  */
 LocalFile.prototype.getDescriptor = function()
 {
@@ -138,10 +111,8 @@ LocalFile.prototype.setDescriptor = function(desc)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Loads the latest version of the file from its file handle. Invokes error
+ * if the file has no file handle.
  */
 LocalFile.prototype.getLatestVersion = function(success, error)
 {
@@ -159,10 +130,10 @@ LocalFile.prototype.getLatestVersion = function(success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Saves the file with the given title. If the file has a file handle, the
+ * data is written to the local file unless it was changed on disk and
+ * overwrite is false. Otherwise the file is downloaded. A new title drops
+ * the file handle.
  */
 LocalFile.prototype.saveFile = function(title, revision, success, error, useCurrentData, unloading, overwrite)
 {
@@ -363,10 +334,7 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Sets the title of the file and fires a descriptorChanged event.
  */
 LocalFile.prototype.rename = function(title, success, error)
 {

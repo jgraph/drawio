@@ -1106,50 +1106,6 @@
 
 	mxCellRenderer.registerShape('folder', FolderShape);
 
-	FolderShape.prototype.getLabelMargins = function(rect)
-	{
-		if (mxUtils.getValue(this.style, 'boundedLbl', false))
-		{
-			var sizeY = mxUtils.getValue(this.style, 'tabHeight', 15) * this.scale;
-
-			if (mxUtils.getValue(this.style, 'labelInHeader', false))
-			{
-				var sizeX = mxUtils.getValue(this.style, 'tabWidth', 15) * this.scale;
-				var sizeY = mxUtils.getValue(this.style, 'tabHeight', 15) * this.scale;
-				var rounded = mxUtils.getValue(this.style, 'rounded', false);
-				var absArcSize = mxUtils.getValue(this.style, 'absoluteArcSize', false);
-				var arcSize = parseFloat(mxUtils.getValue(this.style, 'arcSize', this.arcSize));
-				
-				if (!absArcSize)
-				{
-					arcSize = Math.min(rect.width, rect.height) * arcSize;
-				}
-				
-				arcSize = Math.min(arcSize, rect.width * 0.5, (rect.height - sizeY) * 0.5);
-					
-				if (!rounded)
-				{
-					arcSize = 0;
-				}
-
-				if (mxUtils.getValue(this.style, 'tabPosition', this.tabPosition) == 'left')
-				{
-					return new mxRectangle(arcSize, 0, Math.min(rect.width, rect.width - sizeX), Math.min(rect.height, rect.height - sizeY));
-				}
-				else
-				{
-					return new mxRectangle(Math.min(rect.width, rect.width - sizeX), 0, arcSize, Math.min(rect.height, rect.height - sizeY));
-				}
-			}
-			else
-			{
-				return new mxRectangle(0, Math.min(rect.height, sizeY), 0, 0);
-			}
-		}
-		
-		return null;
-	};
-		
 	//**********************************************************************************************************************************************************
 	//UML State shape
 	//**********************************************************************************************************************************************************

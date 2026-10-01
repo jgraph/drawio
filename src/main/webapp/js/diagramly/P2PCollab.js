@@ -134,7 +134,10 @@ function P2PCollab(ui, sync, channelId)
 		return type == 'cursor' || type == 'view';
 	};
 
-	function sendMessage(type, data)
+	// The optional key replaces the channel key (see
+	// DrawioFileSync.createLegacyNotification). Such a message
+	// leaves out the user, who must not be readable with that key
+	function sendMessage(type, data, key)
 	{
 		try
 		{
@@ -174,15 +177,20 @@ function P2PCollab(ui, sync, channelId)
 			
 			//Converting to a string such that webRTC works also
 			var msg = {from: myClientId, id: messageId,
-				type: type, sessionId: sync.clientId, userId: user.id,
-				username: user.displayName, data: data,
+				type: type, sessionId: sync.clientId, data: data,
 				protocol: DrawioFileSync.PROTOCOL,
 				editor: EditorUi.VERSION};
+
+			if (key == null)
+			{
+				msg.userId = user.id;
+				msg.username = user.displayName;
+			}
 
 			if (encrypted)
 			{
 				// data is needed for old server to not drop messages
-				msg = {bytes: sync.objectToString(msg), data: 'aes'};
+				msg = {bytes: sync.objectToString(msg, null, key), data: 'aes'};
 			}
 
 			msg = JSON.stringify(msg);
@@ -228,11 +236,11 @@ function P2PCollab(ui, sync, channelId)
 				sync.objectToString(msg))});
 	};
 
-	this.sendNotification = function(msg)
+	this.sendNotification = function(msg, key)
 	{
 		this.sendMessage('notify', (encrypted) ?
 			{msg: msg} : {data: encodeURIComponent(
-				sync.objectToString(msg))});
+				sync.objectToString(msg, null, key))}, key);
 	};
 
 	this.getState = function()
@@ -536,17 +544,21 @@ function P2PCollab(ui, sync, channelId)
 	// fake content, names and cursors, force the follow mode or the
 	// upgrade prompt, or make every peer refetch the file. Dropping is
 	// expected traffic, not an error, so it is only logged in debug mode.
+	// A notification of a client with the legacy key of the file only
+	// leads to a file check (see DrawioFileSync.handleLegacyMessage).
 	function decodeMsg(data, fromCId)
 	{
 		var msg = null;
+		var env = null;
 
 		try
 		{
-			msg = JSON.parse(data);
+			env = JSON.parse(data);
+			msg = env;
 
-			if (msg != null && msg.bytes != null)
+			if (env != null && env.bytes != null)
 			{
-				msg = sync.stringToObject(msg.bytes);
+				msg = sync.stringToObject(env.bytes);
 			}
 			else if (sync.isEncrypted())
 			{
@@ -558,7 +570,18 @@ function P2PCollab(ui, sync, channelId)
 		}
 		catch (e)
 		{
-			EditorUi.debug('P2PCollab: dropped undecodable message', fromCId, e);
+			var legacy = (env != null && typeof env === 'object') ?
+				sync.decodeLegacyMessage(env.bytes) : null;
+
+			if (legacy != null && legacy.type == 'notify' &&
+				legacy.data != null && typeof legacy.data === 'object')
+			{
+				sync.handleLegacyMessage(legacy.data.msg);
+			}
+			else
+			{
+				EditorUi.debug('P2PCollab: dropped undecodable message', fromCId, e);
+			}
 
 			return null;
 		}

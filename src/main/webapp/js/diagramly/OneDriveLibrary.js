@@ -11,10 +11,7 @@ OneDriveLibrary = function(ui, data, meta, isSP)
 mxUtils.extend(OneDriveLibrary, OneDriveFile);
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns true to enable autosave for libraries.
  */
 OneDriveLibrary.prototype.isAutosave = function()
 {
@@ -22,16 +19,14 @@ OneDriveLibrary.prototype.isAutosave = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Saves the library to OneDrive or SharePoint without updating the library
+ * data from the current diagram.
  */
 OneDriveLibrary.prototype.save = function(revision, success, error)
 {
 	(this.isSP? this.ui.m365 : this.ui.oneDrive).saveFile(this, mxUtils.bind(this, function(resp)
 	{
-		this.desc = resp;
+		this.meta = resp;
 		
 		if (success != null)
 		{
@@ -41,8 +36,7 @@ OneDriveLibrary.prototype.save = function(revision, success, error)
 };
 
 /**
- * Returns the location as a new object.
- * @type mx.Point
+ * Does nothing since libraries are not opened as diagrams.
  */
 OneDriveLibrary.prototype.open = function()
 {

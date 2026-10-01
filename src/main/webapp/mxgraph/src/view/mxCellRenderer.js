@@ -293,7 +293,8 @@ mxCellRenderer.prototype.postConfigureShape = function(state)
  * Function: checkPlaceholderStyles
  * 
  * Checks if the style of the given <mxCellState> contains 'inherit',
- * 'indicated' or 'swimlane' for colors that support those keywords.
+ * 'indicated', 'swimlane', 'parentFillColor' or 'parentStrokeColor' for
+ * colors that support those keywords.
  */
 mxCellRenderer.prototype.checkPlaceholderStyles = function(state)
 {
@@ -305,14 +306,15 @@ mxCellRenderer.prototype.checkPlaceholderStyles = function(state)
 		{
 			return true;
 		}
-		
+
+		var values = ['inherit', 'swimlane', 'indicated',
+			'parentFillColor', 'parentStrokeColor'];
 		var styles = [mxConstants.STYLE_FILLCOLOR, mxConstants.STYLE_STROKECOLOR,
 			mxConstants.STYLE_GRADIENTCOLOR, mxConstants.STYLE_FONTCOLOR];
-		var graph = state.view.graph;
-		
+
 		for (var i = 0; i < styles.length; i++)
 		{
-			if (graph.isSpecialColor(state.style[styles[i]]) >= 0)
+			if (mxUtils.indexOf(values, state.style[styles[i]]) >= 0)
 			{
 				return true;
 			}
@@ -346,7 +348,9 @@ mxCellRenderer.prototype.inheritFontStyle = function(state, field, key)
  * Function: resolveColor
  * 
  * Resolves special keywords 'inherit', 'indicated' and 'swimlane' and sets
- * the respective color on the shape.
+ * the respective color on the shape. 'parentFillColor' and
+ * 'parentStrokeColor' use the fill or stroke color of the parent, and
+ * 'fillColor' and 'strokeColor' the respective color of the cell itself.
  */
 mxCellRenderer.prototype.resolveColor = function(state, field, key)
 {
@@ -358,17 +362,18 @@ mxCellRenderer.prototype.resolveColor = function(state, field, key)
 		var graph = state.view.graph;
 		var value = shape[field];
 		var referenced = null;
+		var rfield = field;
 		
-		if (value == 'inherit' ||
-			value == mxConstants.STYLE_FILLCOLOR ||
-			value == mxConstants.STYLE_STROKECOLOR)
+		if (value == 'inherit')
 		{
 			referenced = graph.model.getParent(state.cell);
-
-			if (value != 'inherit')
-			{
-				key = value;
-			}
+		}
+		else if (value == 'parentFillColor' || value == 'parentStrokeColor')
+		{
+			referenced = graph.model.getParent(state.cell);
+			key = (value == 'parentFillColor') ? mxConstants.STYLE_FILLCOLOR :
+				mxConstants.STYLE_STROKECOLOR;
+			rfield = (value == 'parentFillColor') ? 'fill' : 'stroke';
 		}
 		else if (value == 'swimlane')
 		{
@@ -414,11 +419,9 @@ mxCellRenderer.prototype.resolveColor = function(state, field, key)
 			{
 				var rshape = (key == mxConstants.STYLE_FONTCOLOR) ? rstate.text : rstate.shape;
 				
-				if (rshape != null && field != 'indicatorColor' &&
-					value != mxConstants.STYLE_STROKECOLOR &&
-					value != mxConstants.STYLE_FILLCOLOR)
+				if (rshape != null && field != 'indicatorColor')
 				{
-					shape[field] = rshape[field];
+					shape[field] = rshape[rfield];
 				}
 				else
 				{

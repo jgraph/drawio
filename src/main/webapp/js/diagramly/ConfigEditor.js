@@ -854,7 +854,7 @@ DrawioConfigEditor.install = function(container, options)
 			var addEntry = document.createElement('button');
 			addEntry.className = 'color-scheme-row__btn';
 			addEntry.textContent = '+';
-			addEntry.title = 'Add colour entry';
+			addEntry.title = 'Add color entry';
 			addEntry.addEventListener('click', (function(ri)
 			{
 				return function() { schemeData[listKey][ri].push({ fill: '#dae8fc', stroke: '#6c8ebf' }); syncSchemeData(listKey); renderSchemeEditor(listKey); };
@@ -871,7 +871,7 @@ DrawioConfigEditor.install = function(container, options)
 
 			var addKey = document.createElement('button');
 			addKey.className = 'color-scheme-row__btn';
-			addKey.title = 'Add colour key to last entry';
+			addKey.title = 'Add color key to last entry';
 			addKey.textContent = 'key';
 			addKey.addEventListener('click', (function(ri)
 			{
@@ -2068,7 +2068,7 @@ DrawioConfigEditor.html = [
 	'          <input type="text" id="customPresetColors-input" placeholder="Hex without # (e.g. FF5733)" style="flex: 1;">',
 	'          <button type="button" class="btn btn--secondary btn--sm" id="customPresetColors-add">Add</button>',
 	'        </div>',
-	'        <p class="field__help" data-i18n="cfgFontCssHelp"></p>',
+	'        <p class="field__help" data-i18n="cfgCustomPresetColorsHelp"></p>',
 	'      </div>',
 	'      <div class="field">',
 	'        <label>Default Colors (lower palette)</label>',
@@ -2097,7 +2097,7 @@ DrawioConfigEditor.html = [
 	'        <div class="btn-group mt-sm">',
 	'          <button type="button" class="btn btn--secondary btn--sm" id="defaultColorSchemes-addRow">Add Row</button>',
 	'        </div>',
-	'        <p class="field__help">Colour schemes for the Style section. Each row is a scheme group.</p>',
+	'        <p class="field__help">Color schemes for the Style section. Each row is a scheme group.</p>',
 	'      </div>',
 	'      <div class="field">',
 	'        <label>Custom Color Schemes</label>',
@@ -2105,7 +2105,7 @@ DrawioConfigEditor.html = [
 	'        <div class="btn-group mt-sm">',
 	'          <button type="button" class="btn btn--secondary btn--sm" id="customColorSchemes-addRow">Add Row</button>',
 	'        </div>',
-	'        <p class="field__help">Additional colour schemes added before default schemes</p>',
+	'        <p class="field__help">Additional color schemes added before default schemes</p>',
 	'      </div>',
 	'    </div>',
 	'  </div>',

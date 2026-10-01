@@ -3,12 +3,8 @@
  * Copyright (c) 2006-2017, draw.io AG
  */
 /**
- * Constructs a new point for the optional x and y coordinates. If no
- * coordinates are given, then the default values for <x> and <y> are used.
- * @constructor
- * @class Implements a basic 2D point. Known subclassers = {@link mxRectangle}.
- * @param {number} x X-coordinate of the point.
- * @param {number} y Y-coordinate of the point.
+ * Constructs a new read-only library with the given data. The title is the
+ * URL of the library.
  */
 UrlLibrary = function(ui, data, title)
 {
@@ -29,10 +25,8 @@ UrlLibrary = function(ui, data, title)
 mxUtils.extend(UrlLibrary, StorageFile);
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the hash of the library, which is U followed by the URI-encoded
+ * URL.
  */
 UrlLibrary.prototype.getHash = function()
 {
@@ -40,10 +34,7 @@ UrlLibrary.prototype.getHash = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the filename part of the URL.
  */
 UrlLibrary.prototype.getTitle = function()
 {
@@ -51,10 +42,7 @@ UrlLibrary.prototype.getTitle = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns false since URL libraries are read-only.
  */
 UrlLibrary.prototype.isAutosave = function()
 {
@@ -62,7 +50,7 @@ UrlLibrary.prototype.isAutosave = function()
 };
 
 /**
- * Overridden to avoid updating data with current file.
+ * Returns false since URL libraries are read-only.
  */
 UrlLibrary.prototype.isEditable = function(title, success, error)
 {
@@ -70,7 +58,7 @@ UrlLibrary.prototype.isEditable = function(title, success, error)
 };
 
 /**
- * Overridden to avoid updating data with current file.
+ * Does nothing since URL libraries cannot be saved.
  */
 UrlLibrary.prototype.saveAs = function(title, success, error)
 {
@@ -78,8 +66,7 @@ UrlLibrary.prototype.saveAs = function(title, success, error)
 };
 
 /**
- * Returns the location as a new object.
- * @type mx.Point
+ * Does nothing since libraries are not opened as diagrams.
  */
 UrlLibrary.prototype.open = function()
 {

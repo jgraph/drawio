@@ -1720,6 +1720,12 @@ AnimationExport.prototype.doExport = function(callback, error, onProgress)
 
 		this.prepare(mxUtils.bind(this, function()
 		{
+			// Cancelled while the fonts were loading
+			if (this.cancelled)
+			{
+				return;
+			}
+
 			if (this.options.format == 'mp4')
 			{
 				this.exportMp4(times, callback, error, progress);
@@ -1828,6 +1834,15 @@ AnimationExport.prototype.exportMp4 = function(times, callback, error, progress)
 
 	encoder.init(mxUtils.bind(this, function()
 	{
+		// Cancelled while the codec was being configured, when
+		// cancel found no VideoEncoder to close yet
+		if (this.cancelled)
+		{
+			encoder.cancel();
+
+			return;
+		}
+
 		this.renderFrames(times, function(canvas, index, changed, next, stop)
 		{
 			encoder.addFrame(canvas, function()

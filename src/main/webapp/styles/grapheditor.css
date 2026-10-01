@@ -2169,7 +2169,7 @@ a.geStatus>div {
 .geDialog textarea,
 .geDialog select {
 	border-radius: 6px;
-	border: light-dark(1px solid rgba(0, 0, 0, 0.15), 1px solid rgba(255, 255, 255, 0.15));
+	border: 1px solid light-dark(rgba(0, 0, 0, 0.15), rgba(255, 255, 255, 0.15));
 	background-color: light-dark(var(--field-color), var(--dark-field-color));
 	padding: 4px 8px;
 	font-size: 13px;
@@ -2203,7 +2203,7 @@ a.geStatus>div {
 /* Dialog form sections and layout */
 .geDialogSection {
 	background: light-dark(rgba(0, 0, 0, 0.035), rgba(255, 255, 255, 0.05));
-	border: light-dark(1px solid rgba(0, 0, 0, 0.06), 1px solid rgba(255, 255, 255, 0.06));
+	border: 1px solid light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06));
 	border-radius: 8px;
 	padding: 10px 12px;
 	margin-bottom: 10px;
@@ -2687,7 +2687,7 @@ a.geStatus>div {
 .geDialogTitle {
 	box-sizing: border-box;
 	white-space: nowrap;
-	border-bottom: light-dark(1px solid rgba(0, 0, 0, 0.1), 1px solid rgba(255, 255, 255, 0.1));
+	border-bottom: 1px solid light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
 	font-size: 13px;
 	font-weight: 600;
 	text-align: center;
@@ -2698,7 +2698,7 @@ a.geStatus>div {
 	white-space: nowrap;
 	text-align: right;
 	box-sizing: border-box;
-	border-top: light-dark(1px solid rgba(0, 0, 0, 0.1), 1px solid rgba(255, 255, 255, 0.1));
+	border-top: 1px solid light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
 }
 
 .geMoreShapesSectionHeader {
@@ -2709,7 +2709,7 @@ a.geStatus>div {
 	color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
 	background-color: light-dark(rgba(0, 0, 0, 0.04), rgba(255, 255, 255, 0.04));
 	padding: 8px 12px 8px 16px;
-	border-bottom: light-dark(1px solid rgba(0, 0, 0, 0.06), 1px solid rgba(255, 255, 255, 0.06));
+	border-bottom: 1px solid light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06));
 	user-select: none;
 }
 
@@ -2750,7 +2750,7 @@ a.geStatus>div {
 }
 
 .geMoreShapesPreview {
-	border-left: light-dark(1px solid rgba(0, 0, 0, 0.1), 1px solid rgba(255, 255, 255, 0.1));
+	border-left: 1px solid light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
 }
 
 .geMoreShapesPreview img {

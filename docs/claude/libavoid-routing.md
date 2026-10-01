@@ -44,6 +44,134 @@ mask the next real regression; headless repro harness pattern: load
 `libavoid.min.js` + `libavoid-routing.js` in Node via `vm.runInThisContext`,
 call `AvoidRouting.computeRoutes` directly.
 
+## Route read-back and heap addresses (Sep 2026)
+
+libavoid breaks ties between equal coordinates by object ADDRESS
+(`CmpNodePos` in scanline.cpp, `CmpVertInf` in orthogonal.cpp,
+`CmpVisEdgeRotation` in makepath.cpp, the `ConnRef*`-keyed crossing map in
+router.cpp), so a solve's routes depend on where its objects are allocated —
+identical input routes identically only while every solve starts from the
+same heap. The core therefore must leave the module's heap exactly as it
+found it. `readRoute` (in `computeRoutes`) copies each route into plain
+`{x, y}` points and frees what the binding handed out: draw.io's own binding
+(drawio-libavoid) returns `displayRoute()`/`PolyLine.at()` as UNOWNED
+references (never delete — that destroys the route in place), the upstream
+libavoid-js build the mcp tool server runs returns a fresh OWNED copy per
+call (must delete); two calls alias one object only for references
+(`isAliasOf`), probed once per solve. Before this the core leaked those
+copies on the tool server, every call shifted the next one's allocations,
+and a long-lived process routed the same diagram differently call to call
+(electrical_2 template: one connector alternated between a 4-bend route and
+libavoid's unrouted fallback).
+
+## Shared pins, unrouted connectors, clearance retry (Sep 2026)
+
+**Two pins must never sit at one point.** libavoid's orthogonal visibility
+sweep assumes no two breakpoints coincide (`COLA_ASSERT` in orthogonal.cpp,
+compiled out by `-DNDEBUG`); two pins at the same point in different classes
+leave the connector registered second with NO route. The core used to give
+every edge end its own pin class, so every fan-out/fan-in on one fixed
+connection point, snap-point set or side mask lost all but one connector
+(electrical_2: 3 of 7). `computeRoutes` now registers ONE non-exclusive pin
+class per distinct candidate set on a shape (`endPins` + `pinClassFor`, the
+key is order-free) and every end with that set shares it.
+
+**No route ≠ straight route.** When the search fails, libavoid returns the
+straight segment between the two end vertices — for a pinned end, the pin
+class's dummy vertex at the shape CENTRE. `AvoidRouting.isFallbackRoute`
+recognises it (two points, diagonal or a pinned end off its pins); such a
+connector gets no jetty checkpoints and NO entry in the result, so callers
+leave the edge as authored instead of wiping its waypoints with `[]` and
+tagging it (routeCells, the move preview and both drag previews already
+treat a missing id as "not routed").
+
+**Retry at half the clearance.** Most failures are a pinned end facing a gap
+narrower than `2 × shapeBufferDistance` (a label or marker a few px beside
+the shape — electrical_2's current arrows sit 30 px from the resistors at a
+32 px requirement). The failed connectors ALONE are re-solved at half the
+buffer, down to 2 px; the rest keep the configured clearance and are not
+nudged against the retried ones (same trade-off as the wrapper's per-buffer
+buckets). The retry also clears partial pin overlaps (a fixed anchor inside
+another end's snap set): the other end's pins are not in the retry solve.
+Across 990 template edges this took unrouted connectors from 22 to 1 (a pin
+buried inside another shape — genuinely unroutable) for +16 % solve time;
+routes changed elsewhere only on the one page with shared anchors. The drag
+previews match: the pinned paths already go through `computeRoutes`, and the
+warm session (one clearance, no retry) returns null from
+`solvePreviewSession` when its solve is a fallback (against the fixed end's
+pins, `sess.fixedPins`), so the preview switches to the fresh dangling solve
+(`previewRouteToPoint`) — the drop's own solve, retries included. It used to
+show the fallback's straight line where the drop found a route.
+
+## Rotated, turned and flipped shapes (Sep 2026)
+
+Routing used to take every shape unrotated: obstacles were the model
+geometry and `exitX`/`entryX` pins the unrotated positions, so on a rotated
+terminal (electrical_2: 5 of 6 components at `rotation=-90`) routes attached
+where the unrotated ends would be and cut through the drawn shapes. Now each
+vertex descriptor carries `frame = AvoidRouting.shapeFrame(style, isStencil)`
+(rotation, direction, flipH/V + legacy stencilFlipH/V, anchorPointDirection,
+legacyAnchorPoints) and `computeRoutes` first runs `toWorldFrame`: the
+obstacle becomes `obstacleBounds` (the bounds rotated about their centre;
+direction/flips turn the drawing INSIDE the bounds, so they don't move it)
+and every end's constraint and snap points go through `shapePin`, which
+reproduces the renderer — draw.io's default `Graph.getLegacyConnectionPoint`
+(flips only apply to a point with `exitPerimeter=0`; the perimeter projection
+undoes them), or `mxGraph.getConnectionPoint` under `legacyAnchorPoints=0` —
+and turns the approach direction with the point. Verified against the live
+`graph.getConnectionPoint` over 15,680 point/style combinations (every
+rotation incl. non-90°, direction, flip, anchorPointDirection, legacy mode,
+perimeter on/off): exact, except `legacyAnchorPoints=0` +
+`anchorPointDirection=0` + north/south, where draw.io itself places the
+point outside the shape's box (clamped onto it here). Side masks are taken
+as already turned (`maskSides` resolves `portConstraintRotation`).
+Constraints carry `perimeter` (`constraintForPoint`'s 3rd arg, from
+`exitPerimeter`/`entryPerimeter` or `mxConnectionConstraint.perimeter`).
+
+Editor adapter: `getVertex` (bounds + frame; `getCellStyle`, not the cached
+state style), `getAbsoluteObstacleBounds` (the drawn box — used for every
+changed-shape region and the per-edge clearance cap), `getAbsoluteAnchor`
+(a snapped drag target's drawn anchor). `buildPreviewSession` maps its
+obstacles and fixed pins through the same `toWorldFrame`, but returns
+`fixedPoints`/`fixedSides` unmapped — the fresh path hands them to
+`computeRoutes`, which maps them. A Format-panel rotation/direction/flip
+edit (`styleChanged`) re-routes every connected auto-edge plus those crossing
+the new box; Arrange > Direction flips and the Rotation dialog fire
+`styleChanged` inside their update for this (they fired nothing, leaving the
+route on the old side of a flipped shape); Ctrl+R goes through
+`cellsArranged`. Style writes inside an arrange
+(`Graph.beginArrange` also tracks `mxStyleChange`s: `cellsArranged` carries
+`restyled` + `previousStyles`) are handled like a `styleChanged` edit of the
+routing keys that differ (`getChangedStyles` over `constraintStyles` +
+`frameStyles` + `endStyles`, the keys `maskSides`/`shapeFrame`/
+`fixedConstraint`/`snapPoints`/`jettyFor` read, plus `libavoidRouting` so
+that turning the flag on routes the edge; a `jettySize=auto` end whose arrow
+changes the resolved jetty counts as a `jettySize` change). Edit Style wraps its
+`setCellStyle` in the pair (it fired nothing — a rotation, flip, direction or
+port constraint typed there left the route stale), so does the shape
+replacement `Graph.updateShapes` (Shift+click in the sidebar or shape picker,
+Shift+drop onto a shape: a lost rotation, a new direction, the size of a
+group source), Paste Style (a pasted `libavoidRouting=1` routes the edge),
+Edit Connection Points, Edit Shape, the inline toolbar arrows (the jetty of a
+`jettySize=auto` end), the embed `updates` message (styles and geometries)
+and the identity updates of a CSV import, and the Flip buttons
+(`Graph.flipCells`) and Ctrl+R on a swimlane, which turns only its
+`direction`, are covered by their existing arrange. On the `styleChanged`
+path an arrow edit (`arrowStyles`) re-routes an edge with a `jettySize=auto`
+end (`hasAutoJetty`). Not `styleChanged` for
+Edit Style: that event also feeds the sticky default styles
+(`updateDefaultStyle`, `copyCellStyles`). The rotate HANDLE (drag
+→ `mxVertexHandler.rotateCell`, click → `rotateClick`) writes the style
+directly; the drag's top-level arrange reports the new style, but a click on
+an unfilled shape is a plain `setCellStyles`, and neither gives the drawn box
+BEFORE the rotation, so `installAutoRouting` wraps both on the
+handlers of its graph (`graph.createVertexHandler`, per instance — no
+prototype patch, nothing in Graph.js): the gesture's top-level call records
+the drawn boxes of the shape and its descendants before and after and
+re-routes their connected auto-edges plus those crossing any of the boxes,
+inside the handler's model update (one undo step). A group's children,
+turned by the recursive `rotateCell(child, angle, parent)`, ride along.
+
 ## Port-constraint masks (July 2026)
 
 The same legacy mask vocabulary the ELK bridge honors constrains libavoid
@@ -75,9 +203,15 @@ mirrors the renderer: `*Constraint` (explicit pinned anchor) > `*Points` (the
 render snap branch runs before mask enforcement) > `*Sides`; snapped ends have
 no jetty stubs, like masked ends, and produce no style writes. The editor
 binding resolves the set via `LibavoidRouting.snapPoints`
-(`graph.getAllConnectionConstraints` on the terminal's view STATE — stencil
-constraints need the rendered shape; each constraint's dx/dy folds into the
-fraction over the model size) at the same call sites as the masks:
+(`graph.getAllConnectionConstraints` for the CURRENT terminal style and a
+shape at the routing size — the auto-routing solves at BEFORE_UNDO, before
+the view revalidates, so the view state can still hold the `points` or shape
+from before an Edit Style; the rendered shape serves as the prototype while
+the shape name is unchanged, as `mxgraph.bpmn.shape` declares its
+constraints only when painted; a terminal added in the same edit has no view
+state yet, so "rendered" is `isRendered`, the view's own visibility rule;
+each constraint's dx/dy folds into the fraction over the model size) at the
+same call sites as the masks:
 `routeCells`, `solveMovePreview`, and both drag previews (fixed-end pins once
 per warm session, snap hover-targets through the fresh `previewRouteToCell`
 path).
@@ -179,8 +313,19 @@ sync to drawio-mcp).
 ## Auto-routing solves at BEFORE_UNDO, after childLayouts (July 2026)
 
 The auto-routing graph events (CELLS_ADDED / CELL_CONNECTED / CELLS_MOVED /
-CELLS_RESIZED, `installAutoRouting`) only COLLECT affected cells;
-`autoReroute` parks the solve on the graph (`__libavoidPendingReroute`) and
+CELLS_RESIZED / `cellsArranged`, `installAutoRouting`) only COLLECT affected
+cells. `cellsArranged` (Sept 2026) is fired by `Graph.endArrange` for arrange
+actions that write vertex geometries directly — Arrange panel
+position/size, Edit Geometry, Paste Size, distribute, turn, transparentBounds
+align and every layout run through `EditorUi.executeLayout` — which
+previously re-routed nothing until
+the next gesture touched the edge; it carries `cells` + `previous` geometries
+like CELLS_RESIZED (plus `restyled` + `previousStyles` for the style writes
+of the arrange, see the rotated shapes section) and never fires on undo/redo
+or remote patches. It is a
+separate event on purpose: firing CELLS_MOVED/RESIZED from those paths would
+also trigger every other listener of those events. `autoReroute` parks the
+solve on the graph (`__libavoidPendingReroute`) and
 flushes it from the model's BEFORE_UNDO — lazily registered, so it sits after
 mxLayoutManager's handler and runs once the edit's synchronous childLayouts
 (stack/table/tree, sync-path ELK) have written their geometry. Solving inside
@@ -284,6 +429,12 @@ pinned segment in its channel), which produced lopsided lead-outs like 30/10
 next to a centered 20/20 twin on mermaid-import diamonds (default jetty =
 `orthBuffer` 10 when the style has no `jettySize`; the jetty is a MINIMUM —
 routes center when there is room, they do not bend at exactly jettySize).
+The re-process needs the connector QUEUED: draw.io's own pure-JS build does
+not queue it on `setRoutingCheckpoints` (the libavoid-js WASM build of
+drawio-mcp does), so the core sets the connector's source end again and
+`solvePreviewSession` its dragged end. From the switch to that build
+(462228cc15, July 14) until Oct 2026 the second pass was a no-op: every
+jetty was ignored in the editor, by the commit and the preview alike.
 
 Guards in `jettyStub`/`computeRoutes`: skipped for corner/interior anchors
 (2+ direction bits), for stub tips inside an obstacle, and for edges shorter
@@ -305,7 +456,13 @@ naturally sits ~`shapeBufferDistance` out).
 
 Preview parity: the pinned drag previews route through `computeRoutes`; the
 warm per-drag session precomputes the fixed end's stub in
-`buildPreviewSession` and `updatePreviewCheckpoint` toggles it per frame
-against the too-short guard. Checkpoint direction flags are deliberately NOT
+`buildPreviewSession`, and `solvePreviewSession` enforces it per frame
+exactly as the commit's lazy check does — natural solve first, stub only
+when the dragged end passes the too-short guard, the route is not a fallback
+and its fixed-end lead-out (`AvoidRouting.endSegment`, shared with the core)
+is short of the jetty. The session used to apply the stub whenever the end
+was far enough away, so the preview turned at the stub tip where the drop
+did not (a line jumping ~6px on release; 58% of a 392-case sweep differed,
+now none of 1,568). Checkpoint direction flags are deliberately NOT
 used (vertical-axis convention is inverted in the WASM build; plain point
 checkpoints suffice).

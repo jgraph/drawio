@@ -930,7 +930,8 @@ DriveClient.prototype.checkToken = function(fn)
 };
 
 /**
- * Checks if the client is authorized and calls the next step.
+ * Loads the information about the current user and sets the user of this
+ * client.
  */
 DriveClient.prototype.updateUser = function(success, error)
 {
@@ -991,10 +992,9 @@ DriveClient.prototype.updateUser = function(success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Copies the file with the given ID to a new file with the given title and
+ * passes the descriptor of the copy to success. The copy gets a new sync
+ * channel ID.
  */
 DriveClient.prototype.copyFile = function(id, title, success, error)
 {
@@ -1010,10 +1010,7 @@ DriveClient.prototype.copyFile = function(id, title, success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Renames the file with the given ID to the given title.
  */
 DriveClient.prototype.renameFile = function(id, title, success, error)
 {
@@ -1025,10 +1022,7 @@ DriveClient.prototype.renameFile = function(id, title, success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Moves the file with the given ID to the folder with the given ID.
  */
 DriveClient.prototype.moveFile = function(id, folderId, success, error)
 {
@@ -1040,10 +1034,8 @@ DriveClient.prototype.moveFile = function(id, folderId, success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns a request for updating the metadata of the file with the given ID
+ * with the given body.
  */
 DriveClient.prototype.createDriveRequest = function(id, body)
 {
@@ -1547,9 +1539,11 @@ DriveClient.prototype.getErrorReason = function(req)
 };
 
 /**
- * Checks if the client is authorized and calls the next step. The ignoreMime argument is
- * used for import via getFile. Default is false. The optional
- * readLibrary argument is used for reading libraries. Default is false.
+ * Downloads the data of the file with the given descriptor and passes a
+ * DriveFile, DriveLibrary or LocalFile for imports to success. The
+ * ignoreMime argument is used for import via getFile. Default is false. The
+ * optional readLibrary argument is used for reading libraries. Default is
+ * false.
  */
 DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, readLibrary)
 {
@@ -1752,10 +1746,9 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Saves the data of the given file to Google Drive, including a thumbnail,
+ * and passes the new descriptor to success. The etag of the file is used to
+ * detect conflicts unless overwrite is true. Stale etags are retried.
  */
 DriveClient.prototype.saveFile = function(file, revision, success, errFn, noCheck, unloading, overwrite, properties, secret)
 {
@@ -1975,10 +1968,12 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								// Logs conversion
 								try
 								{
-									EditorUi.logEvent({category: file.convertedFrom + '-CONVERT-FILE-' + file.getHash(),
-										action: 'from_' + prevDesc.id + '.' + prevDesc.headRevisionId +
-										'-to_' + file.desc.id + '.' + file.desc.headRevisionId,
-										label: (this.user != null) ? ('user_' + this.user.id) : 'nouser' +
+									// Hashed like sendErrorReport: no raw user or file ids in logs
+									EditorUi.logEvent({category: file.convertedFrom + '-CONVERT-FILE-' +
+										EditorUi.getLogHash(file.getHash()),
+										action: 'from_' + this.ui.hashValue(prevDesc.id) + '.' + prevDesc.headRevisionId +
+										'-to_' + this.ui.hashValue(file.desc.id) + '.' + file.desc.headRevisionId,
+										label: (this.user != null) ? ('user_' + this.ui.hashValue(this.user.id)) : 'nouser' +
 										((file.sync != null) ? '-client_' + file.sync.clientId : 'nosync')});
 								}
 								catch (e)
@@ -2125,12 +2120,13 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 													// Logs failed save
 													try
 													{
+														// Hashed like sendErrorReport: no raw user or file ids in logs
 														EditorUi.logError('Saving to Google Drive failed',
-															null, 'id-' + file.desc.id +
+															null, 'id-' + this.ui.hashValue(file.desc.id) +
 															'-from-' + head0 + '.' + mod0 + '-' + this.ui.hashValue(etag0) +
 															'-to-' + resp.headRevisionId + '.' + resp.modifiedDate + '-' +
 															this.ui.hashValue(resp.etag) + ((temp.length > 0) ? '-errors-' + temp : ''),
-															'user-' + ((this.user != null) ? this.user.id : 'nouser') +
+															'user-' + ((this.user != null) ? this.ui.hashValue(this.user.id) : 'nouser') +
 															((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync') +
 															'-retries-' + retryCount + '-delay-' + (Date.now() - t0));
 													}
@@ -2194,7 +2190,9 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 																	// Logs overwrite
 																	try
 																	{
-																		EditorUi.logEvent({category: 'STALE-ETAG-SAVE-FILE-' + file.getHash(),
+																		// Hashed like sendErrorReport: no raw user or file ids in logs
+																		EditorUi.logEvent({category: 'STALE-ETAG-SAVE-FILE-' +
+																			EditorUi.getLogHash(file.getHash()),
 																			action: 'rev_' + file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate +
 																				'-size_' + file.getSize() + '-mime_' + file.desc.mimeType +
 																			((this.ui.editor.autosave) ? '' : '-nosave') +
@@ -2202,7 +2200,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 																			((file.changeListenerEnabled) ? '' : '-nolisten') +
 																			((file.inConflictState) ? '-conflict' : '') +
 																			((file.invalidChecksum) ? '-invalid' : ''),
-																			label: ((this.user != null) ? ('user_' + this.user.id) : 'nouser') +
+																			label: ((this.user != null) ? ('user_' + this.ui.hashValue(this.user.id)) : 'nouser') +
 																			((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync')});
 																	}
 																	catch (e)
@@ -2478,10 +2476,9 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Creates a new file with the given title, data and optional MIME type in
+ * the given folder and passes a DriveFile, or a DriveLibrary for the library
+ * MIME type, to success.
  */
 DriveClient.prototype.insertFile = function(title, data, folderId, success, error, mimeType, binary)
 {
@@ -2520,10 +2517,9 @@ DriveClient.prototype.insertFile = function(title, data, folderId, success, erro
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns a multipart upload request for the given metadata and data, which
+ * creates a new file if id is null. No new revision is created if revision
+ * is false. The optional etag is sent in an If-Match header.
  */
 DriveClient.prototype.createUploadRequest = function(id, metadata, data, revision, binary, etag, pinned)
 {
@@ -2566,10 +2562,8 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns a Google Picker builder for selecting files and folders to link
+ * to.
  */
 DriveClient.prototype.createLinkPicker = function()
 {
@@ -2606,10 +2600,9 @@ DriveClient.prototype.createLinkPicker = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Shows the Google Picker for selecting a file and passes the ID and the
+ * document of the picked file to fn. By default, the picked file is loaded.
+ * If acceptAllFiles is true, all file types can be picked.
  */
 DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
 {
@@ -2740,10 +2733,9 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Asks the user to use the root folder or to pick a folder with the Google
+ * Picker and passes the picker data to fn. If force is true, the picker is
+ * shown directly.
  */
 DriveClient.prototype.pickFolder = function(fn, force)
 {
@@ -2886,10 +2878,9 @@ DriveClient.prototype.pickFolder = function(fn, force)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Shows the Google Picker for selecting a library and passes the ID of the
+ * picked file to fn. Shows the splash screen if the picker is cancelled and
+ * no file is open.
  */
 DriveClient.prototype.pickLibrary = function(fn)
 {
@@ -3005,10 +2996,9 @@ DriveClient.prototype.pickLibrary = function(fn)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Shows the Google Drive sharing dialog for the file with the given ID. If
+ * sharing is not available, a dialog offers to open the folder of the file
+ * in Google Drive instead.
  */
 DriveClient.prototype.showPermissions = function(id, file)
 {

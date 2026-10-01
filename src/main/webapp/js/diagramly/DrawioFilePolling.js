@@ -122,10 +122,7 @@ DrawioFilePolling.prototype.poll = function(retry, nextFn)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Invokes the given function after a random delay of 300 to 600 ms.
  */
 DrawioFilePolling.prototype.retryPoll = function(fn)
 {

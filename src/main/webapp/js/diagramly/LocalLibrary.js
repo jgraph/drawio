@@ -1,12 +1,8 @@
 // $Id = DriveFile.js,v 1.12 2010-01-02 09 =45 =14 gaudenz Exp $
 // Copyright (c) 2006-2014, JGraph Holdings Ltd
 /**
- * Constructs a new point for the optional x and y coordinates. If no
- * coordinates are given, then the default values for <x> and <y> are used.
- * @constructor
- * @class Implements a basic 2D point. Known subclassers = {@link mxRectangle}.
- * @param {number} x X-coordinate of the point.
- * @param {number} y Y-coordinate of the point.
+ * Constructs a new library on the local device with the given data and
+ * title.
  */
 LocalLibrary = function(ui, data, title)
 {
@@ -17,10 +13,7 @@ LocalLibrary = function(ui, data, title)
 mxUtils.extend(LocalLibrary, LocalFile);
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the hash of the library, which is F followed by the title.
  */
 LocalLibrary.prototype.getHash = function()
 {
@@ -28,10 +21,7 @@ LocalLibrary.prototype.getHash = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns false to disable autosave for local libraries.
  */
 LocalLibrary.prototype.isAutosave = function()
 {
@@ -39,10 +29,7 @@ LocalLibrary.prototype.isAutosave = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Saves the library with the given title.
  */
 LocalLibrary.prototype.saveAs = function(title, success, error)
 {
@@ -50,10 +37,8 @@ LocalLibrary.prototype.saveAs = function(title, success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Does nothing so that the library data is not replaced with the data of
+ * the current diagram.
  */
 LocalLibrary.prototype.updateFileData = function()
 {
@@ -61,8 +46,7 @@ LocalLibrary.prototype.updateFileData = function()
 };
 
 /**
- * Returns the location as a new object.
- * @type mx.Point
+ * Does nothing since libraries are not opened as diagrams.
  */
 LocalLibrary.prototype.open = function()
 {

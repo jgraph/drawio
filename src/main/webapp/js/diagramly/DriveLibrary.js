@@ -11,10 +11,7 @@ DriveLibrary = function(ui, data, desc)
 mxUtils.extend(DriveLibrary, DriveFile);
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns true to enable autosave for libraries.
  */
 DriveLibrary.prototype.isAutosave = function()
 {
@@ -22,10 +19,8 @@ DriveLibrary.prototype.isAutosave = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Saves the library to Google Drive without updating the library data from
+ * the current diagram.
  */
 DriveLibrary.prototype.save = function(revision, success, error)
 {
@@ -41,8 +36,7 @@ DriveLibrary.prototype.save = function(revision, success, error)
 };
 
 /**
- * Returns the location as a new object.
- * @type mx.Point
+ * Does nothing since libraries are not opened as diagrams.
  */
 DriveLibrary.prototype.open = function()
 {

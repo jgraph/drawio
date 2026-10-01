@@ -50,7 +50,7 @@ if (window.location.hash != null && window.location.hash.substring(0, 2) == '#P'
         if (urlParams.hash != null)
         {
             window.location.hash = urlParams.hash;
-            delete urlparams.hash;
+            delete urlParams.hash;
         }
 
         for (var key in params)

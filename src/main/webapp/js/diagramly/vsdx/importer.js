@@ -1204,6 +1204,19 @@ var com;
                         }
                     }
                     this.addGroupGeometryInFront(graph, shape, group, styleMap);
+                    // Turns the members with the group before the label is added, which
+                    // createLabelSubShape places with the rotation (and flips) itself
+                    var rotation = shape.getRotation();
+                    if (rotation !== 0) {
+                        var pgeo = group.getGeometry();
+                        var hw = pgeo.width / 2;
+                        var hh = pgeo.height / 2;
+                        for (var i = 0; i < group.getChildCount(); i++) {
+                            var child = group.getChildAt(i);
+                            com.mxgraph.online.Utils.rotatedGeometry(child.getGeometry(), rotation, hw, hh);
+                        }
+                        ;
+                    }
                     if (subLabel) {
                         shape.createLabelSubShape(graph, group);
                     }
@@ -1227,17 +1240,6 @@ var com;
                                 child.style = child.style.replace(/points=[^;]*/g, 'points=[]');
                             }
                         }
-                    }
-                    var rotation = shape.getRotation();
-                    if (rotation !== 0) {
-                        var pgeo = group.getGeometry();
-                        var hw = pgeo.width / 2;
-                        var hh = pgeo.height / 2;
-                        for (var i = 0; i < group.getChildCount(); i++) {
-                            var child = group.getChildAt(i);
-                            com.mxgraph.online.Utils.rotatedGeometry(child.getGeometry(), rotation, hw, hh);
-                        }
-                        ;
                     }
                     
                     /* put */ (function (m, k, v) { if (m.entries == null)
@@ -1988,6 +1990,39 @@ var com;
                         model.setGeometry(cell, ngeo);
                         model.setStyle(cell, style);
 
+                        // Glued edge ends (exitX/Y, entryX/Y) are fractions of the unflipped box
+                        // like the connection points, and the edges were added before the fit
+                        function scaleFraction(es, key, size, grow, nsize)
+                        {
+                            var re = new RegExp('(^|;)' + key + '=([-0-9.eE]+)');
+                            var ev = re.exec(es);
+
+                            return (ev != null && isFinite(parseFloat(ev[2]))) ? es.replace(re, '$1' + key + '=' +
+                                Math.round((parseFloat(ev[2]) * size + grow) / nsize * 10000) / 10000) : es;
+                        };
+
+                        for (var e = 0; e < model.getEdgeCount(cell); e++)
+                        {
+                            var edge = model.getEdgeAt(cell, e);
+                            var es = model.getStyle(edge);
+
+                            if (es != null)
+                            {
+                                var ends = [[model.getTerminal(edge, true), 'exit'], [model.getTerminal(edge, false), 'entry']];
+
+                                for (var k = 0; k < ends.length; k++)
+                                {
+                                    if (ends[k][0] == cell)
+                                    {
+                                        es = scaleFraction(es, ends[k][1] + 'X', w, exp.l, nw);
+                                        es = scaleFraction(es, ends[k][1] + 'Y', h, exp.t, nh);
+                                    }
+                                }
+
+                                model.setStyle(edge, es);
+                            }
+                        }
+
                         // Children are placed from the parent's unrotated top left corner
                         // and do not rotate with it: keep their absolute positions
                         var dx = ngeo.x - geo.x, dy = ngeo.y - geo.y;
@@ -2023,6 +2058,21 @@ var com;
                     }
                 };
 
+
+                /**
+                 * Returns the connection constraint point for a glue point at the given
+                 * fractions of the terminal's box on the page. getConnectionPoint mirrors
+                 * the constraint of a flipped vertex (flipH/flipV in its style, which
+                 * include the flips of its parent groups), so the fractions are mirrored
+                 * here for such a terminal to end at that point.
+                 */
+                mxVsdxCodec.getGlueConstraintPoint = function (cell, x, y)
+                {
+                    var style = (cell.style != null) ? cell.style : '';
+
+                    return new mxPoint(/(^|;)flipH=1(;|$)/.test(style) ? 1 - x : x,
+                        /(^|;)flipV=1(;|$)/.test(style) ? 1 - y : y);
+                };
 
                 mxVsdxCodec.calculateAbsolutePoint = function (cell)
                 {
@@ -2112,7 +2162,7 @@ var com;
                     return null;
                 };
 				
-                function addEdgeSublabel(graph, edge, edgeShape, rotation, lblOffset)
+                function addEdgeSublabel(graph, edge, edgeShape, rotation, lblOffset, groupTransform)
                 {
                     var label = edgeShape.createLabelSubShape(graph, edge);
 
@@ -2133,6 +2183,33 @@ var com;
                             }
 
                             label.setStyle(label.getStyle().replace(/;rotation=(\d+\.*\d+)/, '') + ";rotation=" + (rotation > 60 && rotation < 240 ? (rotation + 180) % 360 : rotation));
+                        }
+
+                        // Visio turns the text block with the parent group and never
+                        // mirrors text: one flip of the group mirrors its angle (see
+                        // createLabelSubShape)
+                        if (groupTransform != null && (groupTransform.rotation || groupTransform.h != groupTransform.v))
+                        {
+                            var lblStyle = label.getStyle();
+                            var lblAngle = /(^|;)rotation=([^;]*)/.exec(lblStyle);
+                            var angle = (lblAngle != null) ? parseFloat(lblAngle[2]) : 0;
+                            angle = (isFinite(angle)) ? angle : 0;
+
+                            if (groupTransform.h != groupTransform.v)
+                            {
+                                angle = -angle;
+                            }
+
+                            angle = (angle + (groupTransform.rotation || 0)) % 360;
+                            angle = Math.round(((angle < 0) ? angle + 360 : angle) * 100) / 100;
+                            lblStyle = lblStyle.replace(/(^|;)rotation=[^;]*/, '');
+
+                            if (angle != 0 && angle != 360)
+                            {
+                                lblStyle += ((lblStyle.charAt(lblStyle.length - 1) == ';') ? '' : ';') + 'rotation=' + angle;
+                            }
+
+                            label.setStyle(lblStyle);
                         }
 
                         var geo = label.getGeometry();
@@ -2199,7 +2276,7 @@ var com;
                         var absOriginFrom = mxVsdxCodec.calculateAbsolutePoint(source);
                         var absBeginXY = mxVsdxCodec.calculateAbsolutePoint(parent);
                         var srcGeo = source.geometry;
-                        fromConstraint = new mxPoint(
+                        fromConstraint = mxVsdxCodec.getGlueConstraintPoint(source,
                                 (absBeginXY.x + beginXY.x - absOriginFrom.x)
                                         / srcGeo.width,
                                 (absBeginXY.y + beginXY.y - absOriginFrom.y)
@@ -2230,7 +2307,7 @@ var com;
                         var absOriginTo = mxVsdxCodec.calculateAbsolutePoint(target);
                         var absEndXY = mxVsdxCodec.calculateAbsolutePoint(parent);
                         var trgGeo = target.geometry;
-                        toConstraint = new mxPoint(
+                        toConstraint = mxVsdxCodec.getGlueConstraintPoint(target,
                                 (absEndXY.x + endXY.x - absOriginTo.x)
                                         / trgGeo.width,
                                 (absEndXY.y + endXY.y - absOriginTo.y)
@@ -2247,18 +2324,22 @@ var com;
                     var rotation = edgeShape.getRotation();
                     var textLabel = "";
                     var hasSubLabel = edgeShape.isDisplacedLabel() || edgeShape.isRotatedLabel() || rotation !== 0;
-                    var lblOffset = edgeShape.getLblEdgeOffset(graph.getView(), points);
+                    // The points were mirrored and turned with the parent group above
+                    var groupTransform = mxVsdxCodec.getGroupTransform(graph.getModel(), parent);
+                    var lblOffset = edgeShape.getLblEdgeOffset(graph.getView(), points, groupTransform);
 
                     if (!hasSubLabel) 
                     {
                         textLabel = edgeShape.getTextLabel(true);
+                        hasSubLabel = mxVsdxCodec.isTurnedLabel(textLabel, groupTransform);
+                        textLabel = (hasSubLabel) ? "" : textLabel;
                     }
 
                     edge = graph.insertEdge(parent, null, textLabel, source, target, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
                     
                     if (hasSubLabel) 
                     {
-                        addEdgeSublabel(graph, edge, edgeShape, rotation, lblOffset);
+                        addEdgeSublabel(graph, edge, edgeShape, rotation, lblOffset, groupTransform);
                     }
                     else
                     {
@@ -2336,7 +2417,7 @@ var com;
                         // Re-anchor the label to the converted path (offsets are
                         // relative, so this stays valid across the translation below)
                         var curveLblOffset = edgeShape.getLblEdgeOffset(graph.getView(),
-                            [beginXY].concat(curvePoints, [endXY]));
+                            [beginXY].concat(curvePoints, [endXY]), groupTransform);
 
                         if (curveLblOffset != null)
                         {
@@ -2404,11 +2485,17 @@ var com;
                     var rotation = edgeShape.getRotation();
                     var textLabel = "";
                     var hasSubLabel = edgeShape.isDisplacedLabel() || edgeShape.isRotatedLabel() || rotation !== 0;
-                    var lblOffset = edgeShape.getLblEdgeOffset(graph.getView(), points);
-                    
+                    // Measured before rotateChildEdge mirrors and turns the points with the
+                    // parent group: Visio mirrors and turns the text block with the group
+                    var groupTransform = mxVsdxCodec.getGroupTransform(graph.getModel(), parent);
+                    var lblOffset = mxVsdxCodec.transformGroupVector(
+                        edgeShape.getLblEdgeOffset(graph.getView(), points), groupTransform);
+
                     if (!hasSubLabel) 
                     {
                         textLabel = edgeShape.getTextLabel(true);
+                        hasSubLabel = mxVsdxCodec.isTurnedLabel(textLabel, groupTransform);
+                        textLabel = (hasSubLabel) ? "" : textLabel;
                     }
 
                     if (edgeShape.getShapeIndex() === 0) {
@@ -2421,7 +2508,7 @@ var com;
 
                     if (hasSubLabel) 
                     {
-                        addEdgeSublabel(graph, edge, edgeShape, rotation, lblOffset);
+                        addEdgeSublabel(graph, edge, edgeShape, rotation, lblOffset, groupTransform);
                     }
                     else
                     {
@@ -2448,7 +2535,7 @@ var com;
 
                         // Re-anchor the label to the converted path
                         var curveLblOffset = edgeShape.getLblEdgeOffset(graph.getView(),
-                            [beginXY].concat(curvePoints, [endXY]));
+                            [beginXY].concat(curvePoints, [endXY]), groupTransform);
 
                         if (curveLblOffset != null)
                         {
@@ -2475,14 +2562,67 @@ var com;
 
                     return edge;
                 };
+                /**
+                 * Returns the transform of the given parent group that rotateChildEdge
+                 * applies to the points of its member edges: the flips (h, v), then the
+                 * rotation in degrees (null if the style has none).
+                 */
+                mxVsdxCodec.getGroupTransform = function (model, parent) {
+                    var pStyle = (parent != null && model.getGeometry(parent) != null) ? model.getStyle(parent) : null;
+                    var pos = (pStyle != null) ? pStyle.indexOf("rotation=") : -1;
+                    return {h: pStyle != null && /(^|;)flipH=1(;|$)/.test(pStyle),
+                        v: pStyle != null && /(^|;)flipV=1(;|$)/.test(pStyle),
+                        rotation: (pos > -1) ? parseFloat(pStyle.substring(pos + 9, pStyle.indexOf(';', pos))) : null};
+                };
+                /**
+                 * Applies the given group transform (getGroupTransform) to a vector, such
+                 * as an edge label offset: mirrors it, then turns it. With inverse, turns
+                 * it back, then mirrors it (vectors ignore the center of the rotation).
+                 * Returns null for a null vector.
+                 */
+                mxVsdxCodec.transformGroupVector = function (v, t, inverse) {
+                    if (v == null || t == null) {
+                        return v;
+                    }
+                    var x = v.x;
+                    var y = v.y;
+                    var a = (t.rotation) ? t.rotation * Math.PI / 180 : 0;
+                    var cos = Math.cos(a);
+                    var sin = Math.sin(a);
+                    var tx;
+                    if (inverse && a != 0) {
+                        tx = x * cos + y * sin;
+                        y = y * cos - x * sin;
+                        x = tx;
+                    }
+                    x = (t.h) ? -x : x;
+                    y = (t.v) ? -y : y;
+                    if (!inverse && a != 0) {
+                        tx = x * cos - y * sin;
+                        y = Math.round((y * cos + x * sin) * 100) / 100;
+                        x = Math.round(tx * 100) / 100;
+                    }
+                    return new mxPoint(x, y);
+                };
+                /**
+                 * Returns true if the given text of an edge's own label must be turned
+                 * with the given group transform (getGroupTransform): draw.io does not
+                 * turn the label of an edge, so such text goes into a label sub-shape
+                 * (addEdgeSublabel). Rotation noise (eg. 359.95 degrees) keeps the label.
+                 */
+                mxVsdxCodec.isTurnedLabel = function (text, t) {
+                    var a = (t != null && t.rotation != null) ? Math.abs(t.rotation % 360) : 0;
+                    return text != null && text.length > 0 && Math.min(a, 360 - a) >= 0.5;
+                };
                 mxVsdxCodec.prototype.rotateChildEdge = function (model, parent, beginXY, endXY, points) {
                     if (parent != null) {
                         var pgeo = model.getGeometry(parent);
                         var pStyle = model.getStyle(parent);
                         if (pgeo != null && pStyle != null) {
                             // Visio mirrors the members of a flipped group (see addGroup)
-                            var flipH = /(^|;)flipH=1(;|$)/.test(pStyle);
-                            var flipV = /(^|;)flipV=1(;|$)/.test(pStyle);
+                            var groupTransform = mxVsdxCodec.getGroupTransform(model, parent);
+                            var flipH = groupTransform.h;
+                            var flipV = groupTransform.v;
                             if (flipH || flipV) {
                                 var all = [beginXY, endXY].concat(points);
                                 for (var i = 0; i < all.length; i++) {
@@ -2494,9 +2634,8 @@ var com;
                                     }
                                 }
                             }
-                            var pos = pStyle.indexOf("rotation=");
-                            if (pos > -1) {
-                                var pRotation = parseFloat(pStyle.substring(pos + 9, pStyle.indexOf(';', pos)));
+                            if (groupTransform.rotation != null) {
+                                var pRotation = groupTransform.rotation;
                                 var hw = pgeo.width / 2;
                                 var hh = pgeo.height / 2;
                                 mxVsdxCodec.rotatedEdgePoint(beginXY, pRotation, hw, hh);
@@ -2511,6 +2650,14 @@ var com;
                         }
                     }
                 };
+                /**
+                 * Characters allowed in attribute names (see Graph.xmlNameStartChars and
+                 * Graph.xmlNameChars: XML 1.0 4th edition, which expat accepts).
+                 */
+                mxVsdxCodec.nameStartChars = Graph.xmlNameStartChars;
+                mxVsdxCodec.nameChars = Graph.xmlNameChars;
+                mxVsdxCodec.invalidNameChars = new RegExp('[^' + mxVsdxCodec.nameChars + ']', 'g');
+                mxVsdxCodec.validNameStart = new RegExp('^[' + mxVsdxCodec.nameStartChars + ']');
                 /**
                  * Reduces an arbitrary string (e.g. a Visio property label like
                  * "Input Voltage (V)") to a valid XML attribute name, or null if
@@ -2529,18 +2676,29 @@ var com;
                     // undeclared namespace prefixes), repeated dashes collapse, and
                     // leading/trailing dashes and dots are trimmed
                     var key = name.trim().replace(/\s+/g, '-')
-                        .replace(/[^A-Za-z0-9._\-]/g, '')
+                        .replace(mxVsdxCodec.invalidNameChars, '')
                         .replace(/-{2,}/g, '-')
-                        .replace(/^[-.]+|[-.]+$/g, '');
+                        .replace(/^[-.]+/, '');
+                    var end = key.length;
+
+                    // Scans instead of [-.]+$, which takes quadratic time on a long
+                    // run of dots inside the name
+                    while (end > 0 && (key.charAt(end - 1) == '-' || key.charAt(end - 1) == '.'))
+                    {
+                        end--;
+                    }
+
+                    key = key.substring(0, end);
 
                     if (key.length == 0)
                 	{
                         return null;
                 	}
 
-                    // Names must not start with a digit, dot or dash, and the "xml"
-                    // prefix is reserved by the XML spec
-                    if (/^[0-9.\-]/.test(key) || /^xml/i.test(key))
+                    // Names must start with a letter or underscore (not with a digit,
+                    // dot, dash or combining mark), and the "xml" prefix is reserved
+                    // by the XML spec
+                    if (!mxVsdxCodec.validNameStart.test(key) || /^xml/i.test(key))
                 	{
                         key = '_' + key;
                 	}
@@ -14586,8 +14744,21 @@ var com;
                         }
                         return null;
                     };
-                    VsdxShape.prototype.getLblEdgeOffset = function (view, points) {
+                    /**
+                     * Returns the offset of the edge label from the label position of the
+                     * given points. groupTransform holds the flips and the rotation of the
+                     * parent group that were applied to the points (rotateChildEdge, see
+                     * mxVsdxCodec.getGroupTransform): the label is placed in the frame of
+                     * the group's members and its offset is mirrored and turned with the group.
+                     */
+                    VsdxShape.prototype.getLblEdgeOffset = function (view, points, groupTransform) {
+                        var codec = com.mxgraph.io.mxVsdxCodec;
                         if (points != null && points.length > 1) {
+                            if (groupTransform != null) {
+                                points = points.map(function (p) {
+                                    return codec.transformGroupVector(p, groupTransform, true);
+                                });
+                            }
                 			//find mxGraph label offset
                 			var state = new mxCellState();
                 			state.absolutePoints = (points);
@@ -14640,7 +14811,9 @@ var com;
                             // Written to also reject NaN
                             if (!(Math.abs(x) <= 1.0E11 && Math.abs(y) <= 1.0E11))
                                 return null;
-                            return new mxPoint(Math.floor(Math.round(x * 100) / 100), Math.floor(Math.round(y * 100) / 100));
+                            x = Math.floor(Math.round(x * 100) / 100);
+                            y = Math.floor(Math.round(y * 100) / 100);
+                            return codec.transformGroupVector(new mxPoint(x, y), groupTransform);
                         }
                         else {
                             return null;

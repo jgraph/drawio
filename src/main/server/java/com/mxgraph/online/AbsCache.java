@@ -23,8 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.pusher.rest.Pusher;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
-
 abstract public class AbsCache extends HttpServlet implements AbsComm
 {
 	/**
@@ -46,6 +44,23 @@ abstract public class AbsCache extends HttpServlet implements AbsComm
 	 * Path component under war/ to locate iconfinder_key file.
 	 */
 	protected static final int maxCacheSize = 1000000;
+
+	/**
+	 * Maximum number of patches returned for one catchup.
+	 */
+	protected static final int maxChainLength = 100;
+
+	/**
+	 * Maximum total size of the patches returned for one catchup, below the
+	 * 6 MB response limit of AWS Lambda.
+	 */
+	protected static final int maxPatchesSize = 5000000;
+
+	/**
+	 * Replaces a token after it was used. Not a string so that it never
+	 * matches a token parameter.
+	 */
+	protected static final Boolean USED_TOKEN = Boolean.FALSE;
 
 	/**
 	 * Path component under war/ to locate iconfinder_key file.
@@ -218,7 +233,8 @@ abstract public class AbsCache extends HttpServlet implements AbsComm
 		}
 		catch (Exception e)
 		{
-			respBody = "<error>" + e.getMessage() + ":::" + ExceptionUtils.getStackTrace(e) + "</error>\n";
+			// Exception messages can contain request data and cache keys
+			respBody = "";
 			setStatus(HttpServletResponse.SC_BAD_REQUEST, response);
 
 			if (debugOutput)
@@ -237,12 +253,10 @@ abstract public class AbsCache extends HttpServlet implements AbsComm
 			throws UnauthorizedException
 	{
 		String key = createTokenKey(id, secret);
+		String token = Utils.generateToken(32);
 
-		if (!cache.containsKey(key))
+		if (CacheFacade.putIfAbsent(cache, key, token))
 		{
-			String token = Utils.generateToken(32);
-			cache.put(key, token);
-
 			debug("createToken key=" + key + " token=" + token);
 
 			return token;
@@ -299,6 +313,7 @@ abstract public class AbsCache extends HttpServlet implements AbsComm
 		HashSet<String> seen = new HashSet<String>();
 		String current = from;
 		String data = "[]";
+		int size = 0;
 
 		while (!seen.contains(current))
 		{
@@ -306,8 +321,11 @@ abstract public class AbsCache extends HttpServlet implements AbsComm
 
 			if (entry != null)
 			{
+				// Chains over the limits are incomplete for the client, which
+				// then reloads the file
 				if (entry.getData() == null || entry.getNext() == null
-						|| entry.getSecret() == null)
+						|| entry.getSecret() == null || values.size() >= maxChainLength
+						|| size + entry.getData().length() > maxPatchesSize)
 				{
 					debug("getPatches incomplete chain id=" + id + " from=" + from + " to=" + to);
 
@@ -318,6 +336,7 @@ abstract public class AbsCache extends HttpServlet implements AbsComm
 					seen.add(current);
 					current = entry.getNext();
 					values.add("\"" + entry.getData() + "\"");
+					size += entry.getData().length();
 
 					if (current.equals(to))
 					{
@@ -408,7 +427,11 @@ abstract public class AbsCache extends HttpServlet implements AbsComm
 		catch (Exception e)
 		{
 			setStatus(HttpServletResponse.SC_BAD_REQUEST, response);
-			setBody("<error>" + e.getMessage() + ":::" + ExceptionUtils.getStackTrace(e) + "</error>\n", response);
+
+			if (debugOutput)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -419,7 +442,9 @@ abstract public class AbsCache extends HttpServlet implements AbsComm
 			String from, String to, String lastSecret)
 			throws UnauthorizedException
 	{
-		if (secret != null && cache.remove(createTokenKey(id, secret), token))
+		String tokenKey = createTokenKey(id, secret);
+
+		if (secret != null && cache.remove(tokenKey, token))
 		{
 			if (from != null && to != null && data != null
 					&& data.length() < maxCacheSize)
@@ -439,6 +464,11 @@ abstract public class AbsCache extends HttpServlet implements AbsComm
 						+ " secret=" + secret + " token=" + token + " data="
 						+ data);
 			}
+
+			// Blocks new tokens for this secret until the patch has expired.
+			// The secret is readable by anyone who can read the file, so a
+			// new token would allow them to replace the patch.
+			cache.put(tokenKey, USED_TOKEN);
 		}
 		else if (data != null)
 		{

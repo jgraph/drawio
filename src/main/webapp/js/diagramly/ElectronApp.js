@@ -2358,7 +2358,8 @@ mxStencilRegistry.allowEval = false;
 	};
 
 	/**
-	 * Loads the given file handle as a local file.
+	 * Saves the current file, or saves it with a new name if forceDialog is true
+	 * or the file has no title, and invokes success after saving.
 	 */
 	App.prototype.saveFile = function(forceDialog, success, error, cancel)
 	{
@@ -2426,7 +2427,9 @@ mxStencilRegistry.allowEval = false;
 	};
 	
 	/**
-	 * Translates this point by the given vector.
+	 * Saves the given images as a library with the given name to the given file,
+	 * or to a new local library if file is null. The library is renamed if the
+	 * name has changed. Invokes fn after saving or on error.
 	 */
 	App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload, fn)
 	{

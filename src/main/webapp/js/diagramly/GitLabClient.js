@@ -51,6 +51,29 @@ GitLabClient.prototype.authToken = 'Bearer';
 GitLabClient.prototype.redirectUri = window.DRAWIO_SERVER_URL + 'gitlab';
 
 /**
+ * Sets the token of this client. Overrides GitHubClient.setToken so that the
+ * GitLab token is not stored as the token of the GitHub client.
+ */
+GitLabClient.prototype.setToken = function(token)
+{
+	_token = token;
+};
+
+/**
+ * Adds the authorization header with the GitLab token to the given request
+ * (used in the inherited GitHubClient.updateUser).
+ */
+GitLabClient.prototype.authorizeRequest = function(req)
+{
+	var temp = this.authToken + ' ' + _token;
+
+	req.setRequestHeaders = function(request, params)
+	{
+		request.setRequestHeader('Authorization', temp);
+	};
+};
+
+/**
  * Authorizes the client, gets the userId and calls <open>.
  */
 GitLabClient.prototype.authenticate = function(success, error)
@@ -104,7 +127,6 @@ GitLabClient.prototype.authenticateStep2 = function(state, success, error)
 						try
 						{
 							_token = JSON.parse(req.getText()).access_token;
-							this.setToken(_token);
 							this.setUser(null);
 							success();
 						}
@@ -118,7 +140,6 @@ GitLabClient.prototype.authenticateStep2 = function(state, success, error)
 						this.clearPersistentToken();
 						this.setUser(null);
 						_token = null;
-						this.setToken(null);
 
 						if (req.getStatus() == 401) // (Unauthorized) [e.g, invalid refresh token]
 						{
@@ -162,7 +183,6 @@ GitLabClient.prototype.authenticateStep2 = function(state, success, error)
 									}
 									
 									_token = newAuthInfo.access_token;
-									this.setToken(_token);
 									this.setUser(null);
 									
 									if (remember)
@@ -396,7 +416,8 @@ GitLabClient.prototype.getRefIndex = function(tokens, isFolder, success, error, 
 };
 
 /**
- * Checks if the client is authorized and calls the next step.
+ * Loads the file with the given path and passes a GitLabFile, or a
+ * GitLabLibrary if asLibrary is true, to success.
  */
 GitLabClient.prototype.getFile = function(path, success, error, asLibrary, checkExists, knownRefPos)
 {
@@ -471,10 +492,9 @@ GitLabClient.prototype.getFile = function(path, success, error, asLibrary, check
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the content of the given file object. Base64 content is decoded
+ * and images and PDFs are converted to data URIs unless a PNG contains a
+ * diagram.
  */
 GitLabClient.prototype.getFileContent = function(data)
 {
@@ -521,10 +541,8 @@ GitLabClient.prototype.getFileContent = function(data)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns a new GitLabFile, or a GitLabLibrary if asLibrary is true, for the
+ * given repository, ref and file object.
  */
 GitLabClient.prototype.createGitLabFile = function(org, repo, ref, data, asLibrary, refPos)
 {
@@ -542,10 +560,10 @@ GitLabClient.prototype.createGitLabFile = function(org, repo, ref, data, asLibra
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Passes a new file with the given filename and data in the folder with the
+ * given ID to success. Asks the user before replacing an existing file.
+ * Libraries are committed immediately while other files are written when
+ * they are saved.
  */
 GitLabClient.prototype.insertFile = function(filename, data, success, error, asLibrary, folderId, base64Encoded)
 {
@@ -558,7 +576,7 @@ GitLabClient.prototype.insertFile = function(filename, data, success, error, asL
 		var org = tokens.slice(0, repoPos).join('/');
 		var repo = tokens[repoPos];
 		var ref = tokens[refPos];
-		path = tokens.slice(refPos + 1, tokens.length).join('/');
+		var path = tokens.slice(refPos + 1, tokens.length).join('/');
 	
 		if (path.length > 0)
 		{
@@ -619,10 +637,10 @@ GitLabClient.prototype.insertFile = function(filename, data, success, error, asL
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Passes true and the last commit ID to fn if the user confirms replacing the
+ * existing file with the given path, or true if the file does not exist. If
+ * askReplace is false, an error is shown for existing files and false is
+ * passed to fn.
  */
 GitLabClient.prototype.checkExists = function(path, askReplace, fn)
 {
@@ -697,10 +715,8 @@ GitLabClient.prototype.writeFile = function(org, repo, ref, path, message, data,
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Commits the data of the given file, as PNG for .png files, with the given
+ * message. If overwrite is true, the latest commit ID is fetched first.
  */
 GitLabClient.prototype.saveFile = function(file, success, error, overwrite, message)
 {
@@ -766,7 +782,7 @@ GitLabClient.prototype.saveFile = function(file, success, error, overwrite, mess
 };
 
 /**
- * Checks if the client is authorized and calls the next step.
+ * Shows the GitLab dialog for picking a folder.
  */
 GitLabClient.prototype.pickFolder = function(fn)
 {
@@ -1451,7 +1467,6 @@ GitLabClient.prototype.logout = function()
 	this.clearPersistentToken();
 	this.setUser(null);
 	_token = null;
-	this.setToken(null);
 };
 
 })();

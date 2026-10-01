@@ -20,8 +20,10 @@
  *     from the diagramly EditorUi.init (guarded by `typeof LibavoidRouting`).
  *
  * Auto-routing listens on the GRAPH events (CELLS_ADDED / CELL_CONNECTED /
- * CELLS_MOVED / CELLS_RESIZED), not the model CHANGE event: those fire only for
- * forward user actions (never on undo/redo replay), and the route is written via
+ * CELLS_MOVED / CELLS_RESIZED / cellsArranged, plus the rotation handle of
+ * its vertex handlers), not the model CHANGE event:
+ * those fire only for forward user actions (never on undo/redo replay or for
+ * remote changes), and the route is written via
  * model.setGeometry (a model-level change that does NOT re-fire these graph
  * events) — so there is no re-entry and no fighting with undo. The events only
  * COLLECT the affected cells; the solve is PARKED until the model's BEFORE_UNDO
@@ -64,6 +66,27 @@ var LibavoidRouting =
 	// win. Listed in Graph.edgeStyles + Graph.createCurrentEdgeStyle so it
 	// propagates to new edges and copies as a default like any edge style.
 	STYLE: 'libavoidRouting',
+
+	// Style keys of an edge and its terminals that are routing input besides
+	// the geometry: the port constraints (maskSides) and the transform of a
+	// shape (AvoidRouting.shapeFrame). Style edits of these re-route the
+	// affected edges (see installAutoRouting).
+	constraintStyles: ['portConstraint', 'portConstraintRotation',
+		'sourcePortConstraint', 'targetPortConstraint'],
+	frameStyles: ['rotation', 'direction', 'flipH', 'flipV', 'stencilFlipH',
+		'stencilFlipV', 'anchorPointDirection', 'legacyAnchorPoints'],
+
+	// The other routing input of the edge ends: the fixed connection points
+	// (fixedConstraint), the snapToPoint anchors (snapPoints, from the points
+	// or the shape of the terminal) and the jetty sizes (jettyFor), plus the
+	// routing flag itself, so that turning it on routes the edge.
+	endStyles: ['exitX', 'exitY', 'exitPerimeter', 'entryX', 'entryY',
+		'entryPerimeter', 'snapToPoint', 'points', 'shape', 'jettySize',
+		'sourceJettySize', 'targetJettySize', 'libavoidRouting'],
+
+	// The arrows and their sizes, routing input of an edge only for an end
+	// with jettySize=auto (jettyFor).
+	arrowStyles: ['startArrow', 'endArrow', 'startSize', 'endSize'],
 
 	// JSON layout-spec name / shorthand (see Graph.createLayouts). Routes the page's
 	// edges via libavoid through the generic layout pipeline — custom-layout dialog,
@@ -373,7 +396,7 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 			else if (model.isVertex(cells[i]))
 			{
 				inserted.push(cells[i]);
-				var b = LibavoidRouting.getAbsoluteModelBounds(graph, cells[i]);
+				var b = LibavoidRouting.getAbsoluteObstacleBounds(graph, cells[i]);
 
 				if (b != null)
 				{
@@ -423,58 +446,66 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 	// editor's 'styleChanged' event is the forward-gesture signal for those —
 	// fired by the panel editors only, never on undo/redo replay, so the
 	// no-model-CHANGE-listener rule above holds. A vertex mask affects every
-	// flagged edge at the shape; a rotation edit only matters for terminals
-	// whose mask rotates with the shape (portConstraintRotation=1).
-	editorUi.addListener('styleChanged', function(sender, evt)
+	// flagged edge at the shape. So does a rotation, direction or flip edit:
+	// the shape's transform moves its connection points and turns its drawn
+	// box (AvoidRouting.shapeFrame), so edges crossing the new box re-route
+	// too. The other end styles (endStyles: fixed connection points,
+	// snapToPoint anchors, jetty sizes) re-route like a mask, and turning the
+	// routing flag on routes the edge. An arrow edit re-routes an edge with a
+	// jettySize=auto end (arrowStyles). collectRestyled adds those edges for a
+	// change of the given style keys of the given cells to map, and the new
+	// boxes to regions.
+	var collectRestyled = function(keys, cells, map, regions)
 	{
-		var keys = evt.getProperty('keys');
-		var cells = evt.getProperty('cells');
-
-		if (keys == null || cells == null)
-		{
-			return;
-		}
-
-		var constraintKeys = {portConstraint: true, portConstraintRotation: true,
-			sourcePortConstraint: true, targetPortConstraint: true};
 		var relevant = false;
-		var rotationOnly = true;
+		var frameOnly = true;
+		var framed = false;
+		var arrows = false;
 		var i, j;
 
 		for (i = 0; i < keys.length; i++)
 		{
-			if (constraintKeys[keys[i]])
+			if (mxUtils.indexOf(LibavoidRouting.constraintStyles, keys[i]) >= 0 ||
+				mxUtils.indexOf(LibavoidRouting.endStyles, keys[i]) >= 0)
 			{
 				relevant = true;
-				rotationOnly = false;
+				frameOnly = false;
 			}
-			else if (keys[i] == 'rotation')
+			else if (mxUtils.indexOf(LibavoidRouting.frameStyles, keys[i]) >= 0)
 			{
 				relevant = true;
+				framed = true;
+			}
+			else if (mxUtils.indexOf(LibavoidRouting.arrowStyles, keys[i]) >= 0)
+			{
+				arrows = true;
 			}
 		}
 
-		if (!relevant)
+		if (!relevant && !arrows)
 		{
 			return;
 		}
-
-		var map = Object.create(null);
 
 		for (i = 0; i < cells.length; i++)
 		{
 			var cell = cells[i];
 
-			if (!rotationOnly && LibavoidRouting.isAutoEdge(graph, cell))
+			if ((!frameOnly || arrows) && LibavoidRouting.isAutoEdge(graph, cell) &&
+				(!frameOnly || LibavoidRouting.hasAutoJetty(graph.getCellStyle(cell))))
 			{
 				map[cell.getId()] = cell;
 			}
-			else if (model.isVertex(cell))
+			else if (relevant && model.isVertex(cell))
 			{
-				if (rotationOnly && mxUtils.getValue(graph.getCellStyle(cell),
-					'portConstraintRotation', null) != 1)
+				if (framed)
 				{
-					continue;
+					var fb = LibavoidRouting.getAbsoluteObstacleBounds(graph, cell);
+
+					if (fb != null)
+					{
+						regions.push({x: fb.x, y: fb.y, width: fb.w, height: fb.h});
+					}
 				}
 
 				var edges = model.getEdges(cell);
@@ -488,7 +519,44 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 				}
 			}
 		}
+	};
 
+	editorUi.addListener('styleChanged', function(sender, evt)
+	{
+		var keys = evt.getProperty('keys');
+		var cells = evt.getProperty('cells');
+
+		if (keys != null && cells != null)
+		{
+			var map = Object.create(null);
+			var regions = [];
+
+			collectRestyled(keys, cells, map, regions);
+			LibavoidRouting.collectOverlappingEdges(graph, regions, map);
+			LibavoidRouting.autoReroute(graph, values(map));
+		}
+	});
+
+	// Style writes of arrange actions come with their cellsArranged (see
+	// Graph.beginArrange): eg. Edit Style, or Ctrl+R on a swimlane, which
+	// turns only its direction. The event carries the replaced styles, so each
+	// cell is handled like a styleChanged edit of the routing keys that differ
+	// (getChangedStyles). Forward actions only, like styleChanged — and unlike
+	// styleChanged, the event does not feed the sticky default styles.
+	graph.addListener('cellsArranged', function(sender, evt)
+	{
+		var cells = evt.getProperty('restyled');
+		var previous = evt.getProperty('previousStyles');
+		var map = Object.create(null);
+		var regions = [];
+
+		for (var i = 0; i < cells.length; i++)
+		{
+			collectRestyled(LibavoidRouting.getChangedStyles(graph, cells[i],
+				previous[i]), [cells[i]], map, regions);
+		}
+
+		LibavoidRouting.collectOverlappingEdges(graph, regions, map);
 		LibavoidRouting.autoReroute(graph, values(map));
 	});
 
@@ -507,7 +575,7 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 		}
 
 		var dx = evt.getProperty('dx'), dy = evt.getProperty('dy');   // CELLS_MOVED
-		var previous = evt.getProperty('previous');                   // CELLS_RESIZED
+		var previous = evt.getProperty('previous');   // CELLS_RESIZED, cellsArranged
 		var map = Object.create(null);
 		var regions = [];
 		var moved = [];
@@ -533,21 +601,25 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 				}
 			}
 
-			// Affected region = union of the shape's OLD and NEW model bounds.
-			var nb = LibavoidRouting.getAbsoluteModelBounds(graph, cells[i]);
+			// Affected region = union of the shape's OLD and NEW drawn boxes
+			// (a move or resize keeps its rotation, so both turn the same way).
+			var nv = LibavoidRouting.getVertex(graph, cells[i]);
 
-			if (nb == null)
+			if (nv == null)
 			{
 				continue;
 			}
 
+			var nb = AvoidRouting.obstacleBounds(nv);
 			var ox = nb.x, oy = nb.y, ow = nb.w, oh = nb.h;
 
 			if (previous != null && previous[i] != null)
 			{
 				var off = LibavoidRouting.getAbsoluteParentOffset(graph, cells[i]);
-				ox = previous[i].x + off.x; oy = previous[i].y + off.y;
-				ow = previous[i].width; oh = previous[i].height;
+				var ob = AvoidRouting.obstacleBounds({x: previous[i].x + off.x,
+					y: previous[i].y + off.y, w: previous[i].width,
+					h: previous[i].height, frame: nv.frame});
+				ox = ob.x; oy = ob.y; ow = ob.w; oh = ob.h;
 			}
 			else if (dx != null && dy != null)
 			{
@@ -571,6 +643,118 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 
 	graph.addListener(mxEvent.CELLS_MOVED, onMoveResize);
 	graph.addListener(mxEvent.CELLS_RESIZED, onMoveResize);
+
+	// Arrange actions that write vertex geometries directly (Arrange panel,
+	// distribute, turn, layouts — see Graph.beginArrange) fire neither of the
+	// above, only this dedicated forward-gesture event.
+	graph.addListener('cellsArranged', onMoveResize);
+
+	// The rotation HANDLE (a drag, or a click on it: rotateClick) writes the
+	// rotation style directly and fires none of the events above for the
+	// shape itself (only a group's moved children come as cellsArranged), yet a
+	// rotation moves the shape's connection points and turns its drawn box
+	// (AvoidRouting.shapeFrame). So this graph's vertex handlers are wrapped:
+	// the gesture's top-level rotation collects the affected edges like a
+	// move — the ones connected to the shape or to a group's children (turned
+	// with it), plus those crossing any of their drawn boxes before or after.
+	// It runs inside the handler's model update, so the parked solve lands in
+	// the same undoable edit. (Ctrl+R turns shapes through cellsArranged, the
+	// Format panel's angle through styleChanged — both handled above.)
+	var rotatedBoxes = function(cell)
+	{
+		var boxes = Object.create(null);
+		var cells = model.getDescendants(cell);
+
+		for (var i = 0; i < cells.length; i++)
+		{
+			if (model.isVertex(cells[i]))
+			{
+				var b = LibavoidRouting.getAbsoluteObstacleBounds(graph, cells[i]);
+
+				if (b != null)
+				{
+					boxes[cells[i].getId()] = b;
+				}
+			}
+		}
+
+		return boxes;
+	};
+
+	var rerouteRotated = function(cell, before)
+	{
+		var after = rotatedBoxes(cell);
+		var map = Object.create(null);
+		var regions = [];
+		var rotated = [];
+		var id, j;
+
+		for (id in before)
+		{
+			regions.push({x: before[id].x, y: before[id].y,
+				width: before[id].w, height: before[id].h});
+		}
+
+		for (id in after)
+		{
+			var vertex = model.getCell(id);
+			var edges = model.getEdges(vertex);
+
+			regions.push({x: after[id].x, y: after[id].y,
+				width: after[id].w, height: after[id].h});
+			rotated.push(vertex);
+
+			for (j = 0; j < edges.length; j++)
+			{
+				if (LibavoidRouting.isAutoEdge(graph, edges[j]))
+				{
+					map[edges[j].getId()] = edges[j];
+				}
+			}
+		}
+
+		LibavoidRouting.collectOverlappingEdges(graph, regions, map);
+		LibavoidRouting.autoReroute(graph, values(map), rotated);
+	};
+
+	var createVertexHandler = graph.createVertexHandler;
+
+	graph.createVertexHandler = function(state)
+	{
+		var handler = createVertexHandler.apply(this, arguments);
+
+		if (handler != null)
+		{
+			var rotateCell = handler.rotateCell;
+			var rotateClick = handler.rotateClick;
+
+			handler.rotateCell = function(cell, angle, parent)
+			{
+				// A group's children are turned by the recursion; the
+				// top-level call covers them.
+				if (parent != null)
+				{
+					rotateCell.apply(this, arguments);
+				}
+				else
+				{
+					var before = rotatedBoxes(cell);
+					rotateCell.apply(this, arguments);
+					rerouteRotated(cell, before);
+				}
+			};
+
+			handler.rotateClick = function()
+			{
+				var cell = this.state.cell;
+				var before = rotatedBoxes(cell);
+				rotateClick.apply(this, arguments);
+				rerouteRotated(cell, before);
+			};
+		}
+
+		return handler;
+	};
 };
 
 /**
@@ -763,7 +947,7 @@ LibavoidRouting.addLayoutContainers = function(graph, cell, containers, regions)
 
 			if (regions != null)
 			{
-				var b = LibavoidRouting.getAbsoluteModelBounds(graph, p);
+				var b = LibavoidRouting.getAbsoluteObstacleBounds(graph, p);
 
 				if (b != null)
 				{
@@ -805,7 +989,7 @@ LibavoidRouting.flushReroute = function(graph)
 
 	for (id in pending.vertices)
 	{
-		b = LibavoidRouting.getAbsoluteModelBounds(graph, pending.vertices[id]);
+		b = LibavoidRouting.getAbsoluteObstacleBounds(graph, pending.vertices[id]);
 
 		if (b != null)
 		{
@@ -818,7 +1002,7 @@ LibavoidRouting.flushReroute = function(graph)
 
 	for (id in pending.containers)
 	{
-		b = LibavoidRouting.getAbsoluteModelBounds(graph, pending.containers[id]);
+		b = LibavoidRouting.getAbsoluteObstacleBounds(graph, pending.containers[id]);
 
 		if (b != null)
 		{
@@ -954,6 +1138,41 @@ LibavoidRouting.isAutoEdge = function(graph, edge)
 };
 
 /**
+ * The routing input keys (constraintStyles, frameStyles, endStyles) whose
+ * values differ between the given replaced style of the cell and its current
+ * style. A changed jetty size of an edge is reported as jettySize also if it
+ * comes from the arrow of a jettySize=auto end (jettyFor).
+ */
+LibavoidRouting.getChangedStyles = function(graph, cell, previous)
+{
+	var model = graph.getModel();
+	var defaults = (model.isEdge(cell)) ? graph.stylesheet.getDefaultEdgeStyle() :
+		graph.stylesheet.getDefaultVertexStyle();
+	var before = graph.stylesheet.getCellStyle(previous, defaults);
+	var after = graph.stylesheet.getCellStyle(model.getStyle(cell), defaults);
+	var keys = LibavoidRouting.constraintStyles.concat(LibavoidRouting.frameStyles,
+		LibavoidRouting.endStyles);
+	var changed = [];
+
+	for (var i = 0; i < keys.length; i++)
+	{
+		if (before[keys[i]] != after[keys[i]])
+		{
+			changed.push(keys[i]);
+		}
+	}
+
+	if (model.isEdge(cell) && mxUtils.indexOf(changed, 'jettySize') < 0 &&
+		(LibavoidRouting.jettyFor(before, true) != LibavoidRouting.jettyFor(after, true) ||
+		LibavoidRouting.jettyFor(before, false) != LibavoidRouting.jettyFor(after, false)))
+	{
+		changed.push('jettySize');
+	}
+
+	return changed;
+};
+
+/**
  * Turn libavoid auto-routing OFF (libavoidRouting=0) on every visible edge
  * under parent that carries the flag, honoring the optional cell filter
  * (function(cell) -> boolean, e.g. an ELK run's selection-as-root component
@@ -1051,8 +1270,11 @@ LibavoidRouting.fixedConstraint = function(style, source)
 	var fx = mxUtils.getValue(style, source ? 'exitX' : 'entryX', null);
 	var fy = mxUtils.getValue(style, source ? 'exitY' : 'entryY', null);
 
+	// exitPerimeter/entryPerimeter decide whether flips move the point on a
+	// transformed terminal (AvoidRouting.shapePin).
 	return (fx != null && fy != null) ?
-		AvoidRouting.constraintForPoint(parseFloat(fx), parseFloat(fy)) : null;
+		AvoidRouting.constraintForPoint(parseFloat(fx), parseFloat(fy),
+			mxUtils.getValue(style, source ? 'exitPerimeter' : 'entryPerimeter', 1) != 0) : null;
 };
 
 /**
@@ -1100,9 +1322,11 @@ LibavoidRouting.maskSides = function(edgeStyle, terminalStyle, source)
  * (mxGraphView.updateFloatingTerminalPoint in grapheditor/Graph.js: the
  * terminal OR the edge carries snapToPoint=1) so the committed route attaches
  * where the floating end will snap at render time. The anchors come from
- * graph.getAllConnectionConstraints on the terminal's view STATE (stencil and
- * shape constraints need the rendered shape; no state — e.g. a hidden
- * terminal — means no snap, matching a render that draws nothing). Each
+ * graph.getAllConnectionConstraints for a shape created for the given
+ * terminal style (stencil and shape constraints need a shape). A terminal the
+ * view does not render (hidden, or inside a collapsed cell — isRendered) has
+ * no snap, matching a render that draws nothing; one added in the same edit,
+ * which has no view state yet when the auto-routing solves, does. Each
  * constraint's dx/dy offset (model px) is folded into the fraction over the
  * terminal's routing box (getAbsoluteModelBounds — the same frame the
  * obstacle box uses, incl. the derived hull of transparentBounds cells) and
@@ -1123,22 +1347,49 @@ LibavoidRouting.snapPoints = function(graph, terminal, edgeStyle, terminalStyle)
 		return null;
 	}
 
-	var state = graph.view.getState(terminal);
-
-	if (state == null)
-	{
-		return null;
-	}
-
-	var constraints = graph.getAllConnectionConstraints(state);
 	var b = LibavoidRouting.getAbsoluteModelBounds(graph, terminal);
 
-	if (constraints == null || constraints.length == 0 || b == null ||
+	if (!LibavoidRouting.isRendered(graph, terminal) || b == null ||
 		!(b.w > 0) || !(b.h > 0))
 	{
 		return null;
 	}
 
+	// The auto-routing solves before the view is revalidated (at BEFORE_UNDO),
+	// when the view state can still hold the points and shape from before the
+	// edit (eg. after Edit Style), so the constraints come from the given style
+	// and a shape at the routing size. The rendered shape is the prototype if
+	// the shape name is the same, as some shapes only declare their
+	// constraints when painted (mxgraph.bpmn.shape).
+	var view = graph.view.getState(terminal);
+	var state = new mxCellState(graph.view, terminal, terminalStyle);
+	state.shape = (view != null && view.shape != null && view.style != null &&
+		view.style[mxConstants.STYLE_SHAPE] == terminalStyle[mxConstants.STYLE_SHAPE]) ?
+		Object.create(view.shape) : graph.cellRenderer.createShape(state);
+
+	if (state.shape != null)
+	{
+		state.shape.direction = mxUtils.getValue(terminalStyle,
+			mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
+		state.shape.bounds = new mxRectangle(0, 0, b.w, b.h);
+		state.shape.scale = 1;
+	}
+
+	var constraints = graph.getAllConnectionConstraints(state);
+
+	if (constraints == null || constraints.length == 0)
+	{
+		return null;
+	}
+
+	// Points stay in the shape's own frame (the core maps them to where it
+	// draws them); a pixel offset (dx/dy) scales by the bounds they are placed
+	// in, which direction north/south turn by 90 degrees (shapePin).
+	var f = AvoidRouting.shapeFrame(terminalStyle, state.shape != null && state.shape.stencil != null);
+	var swap = f != null && (f.direction == 'north' || f.direction == 'south') &&
+		(f.anchorPointDirection || !f.legacy);
+	var fw = swap ? b.h : b.w;
+	var fh = swap ? b.w : b.h;
 	var points = [];
 
 	for (var i = 0; i < constraints.length; i++)
@@ -1151,8 +1402,8 @@ LibavoidRouting.snapPoints = function(graph, terminal, edgeStyle, terminalStyle)
 		}
 
 		var p = AvoidRouting.constraintForPoint(
-			c.point.x + ((c.dx || 0) / b.w),
-			c.point.y + ((c.dy || 0) / b.h));
+			c.point.x + ((c.dx || 0) / fw),
+			c.point.y + ((c.dy || 0) / fh), c.perimeter);
 
 		if (p != null)
 		{
@@ -1199,6 +1450,40 @@ LibavoidRouting.jettyFor = function(style, source)
 	value = parseFloat(value);
 
 	return (isNaN(value)) ? 0 : value;
+};
+
+/**
+ * True if the view renders the given cell (mxGraphView.validateCell): the cell
+ * and its ancestors up to the view's root are visible and no ancestor below
+ * that root is collapsed. Unlike a view state, this also holds for a cell
+ * added in the current edit before the view is revalidated.
+ */
+LibavoidRouting.isRendered = function(graph, cell)
+{
+	var model = graph.getModel();
+	var root = (graph.view.currentRoot != null) ? graph.view.currentRoot : model.getRoot();
+
+	for (var c = cell; c != root; c = model.getParent(c))
+	{
+		if (c == null || !graph.isCellVisible(c) || (c != cell && graph.isCellCollapsed(c)))
+		{
+			return false;
+		}
+	}
+
+	return graph.isCellVisible(root);
+};
+
+/**
+ * True if an end of the edge with the given parsed style has jettySize=auto,
+ * whose jetty depends on the arrow (jettyFor).
+ */
+LibavoidRouting.hasAutoJetty = function(style)
+{
+	var jetty = mxUtils.getValue(style, mxConstants.STYLE_JETTY_SIZE, null);
+
+	return mxUtils.getValue(style, mxConstants.STYLE_SOURCE_JETTY_SIZE, jetty) == 'auto' ||
+		mxUtils.getValue(style, mxConstants.STYLE_TARGET_JETTY_SIZE, jetty) == 'auto';
 };
 
 /**
@@ -1415,11 +1700,12 @@ LibavoidRouting.collectVertices = function(graph)
 				continue;
 			}
 
-			var b = LibavoidRouting.getAbsoluteModelBounds(graph, c);
+			// With its frame: the core routes around the drawn (rotated) box.
+			var v = LibavoidRouting.getVertex(graph, c);
 
-			if (b != null && b.w > 0 && b.h > 0)
+			if (v != null && v.w > 0 && v.h > 0)
 			{
-				vertices.push({id: id, x: b.x, y: b.y, w: b.w, h: b.h});
+				vertices.push(v);
 			}
 		}
 	}
@@ -1518,6 +1804,65 @@ LibavoidRouting.getAbsoluteModelBounds = function(graph, cell)
 	}
 
 	return {x: geo.x + off.x, y: geo.y + off.y, w: geo.width, h: geo.height};
+};
+
+/**
+ * A vertex as the routing core takes it: getAbsoluteModelBounds (UNROTATED)
+ * plus the transform its style applies to its connection points
+ * (AvoidRouting.shapeFrame — rotation, direction, flips), from which the
+ * core derives the drawn obstacle box and maps each end's constraint and
+ * snap points. getCellStyle, not the cached state style, like routeCells: a
+ * rotation just written may not be validated yet. null without bounds.
+ */
+LibavoidRouting.getVertex = function(graph, cell)
+{
+	var v = LibavoidRouting.getAbsoluteModelBounds(graph, cell);
+
+	if (v != null)
+	{
+		v.id = cell.getId();
+
+		// A transparentBounds hull is a derived box, not a drawn shape.
+		if (!graph.isTransparentBounds(cell))
+		{
+			var state = graph.view.getState(cell);
+
+			v.frame = AvoidRouting.shapeFrame(graph.getCellStyle(cell),
+				state != null && state.shape != null && state.shape.stencil != null);
+		}
+	}
+
+	return v;
+};
+
+/**
+ * The box a vertex occupies as drawn (its bounds rotated), in ABSOLUTE MODEL
+ * coords: the obstacle the core routes around, and the area a changed shape
+ * affects. null without bounds.
+ */
+LibavoidRouting.getAbsoluteObstacleBounds = function(graph, cell)
+{
+	return AvoidRouting.obstacleBounds(LibavoidRouting.getVertex(graph, cell));
+};
+
+/**
+ * Where a connection point (a constraint in the shape's own frame, as from
+ * AvoidRouting.constraintForPoint) is drawn, in ABSOLUTE MODEL coords — the
+ * position the core pins the route to. null without bounds.
+ */
+LibavoidRouting.getAbsoluteAnchor = function(graph, cell, constraint)
+{
+	var v = LibavoidRouting.getVertex(graph, cell);
+
+	if (v == null)
+	{
+		return null;
+	}
+
+	var b = AvoidRouting.obstacleBounds(v);
+	var p = AvoidRouting.shapePin(v, constraint);
+
+	return {x: b.x + p.x * b.w, y: b.y + p.y * b.h};
 };
 
 /**
@@ -1678,35 +2023,100 @@ LibavoidRouting.previewRouteToPoint = function(graph, Avoid, fixedCell, dragging
 };
 
 /**
- * Toggle the warm preview session's fixed-end jetty checkpoint to match what the
- * commit would do: applied while the dragged endpoint is at least the fixed
- * end's jetty away from its anchor (computeRoutes' too-short guard), cleared
- * when closer. No-op when the fixed end has no stub (sess.fixedCp == null).
- * Called on every re-solve BEFORE the endpoint move; both preview paths share it.
+ * One warm-session solve with the dragged end at dragModel: the route's points
+ * ({x, y}, ABSOLUTE MODEL coords, endpoints included). The fixed end's jetty
+ * stub follows computeRoutes exactly — the natural route is solved first, and
+ * the stub checkpoint is added (and the route re-solved) only when the dragged
+ * end is at least the jetty away (the too-short guard), libavoid found a route
+ * (isFallbackRoute) and its lead-out at the fixed end falls short of the jetty
+ * (AvoidRouting.endSegment). A route meeting the minimum anyway keeps its
+ * nudged shape, as the committed one does; applying the stub whenever the end
+ * was far enough made the preview turn at the stub tip where the drop did not.
+ * Returns null when libavoid found NO route (isFallbackRoute against the fixed
+ * end's pins): the commit retries such a connector at a smaller clearance, so
+ * the callers then preview that exact solve (previewRouteToPoint) instead of
+ * the fallback line. Both preview paths share it.
  */
-LibavoidRouting.updatePreviewCheckpoint = function(sess, Avoid, dragModel)
+LibavoidRouting.solvePreviewSession = function(sess, Avoid, dragModel)
 {
-	if (sess.fixedCp == null)
+	// Start from the natural route: drop the previous frame's checkpoint.
+	if (sess.cpApplied)
 	{
-		return;
+		LibavoidRouting.setPreviewCheckpoint(sess, Avoid, null);
 	}
 
-	var dx = dragModel.x - sess.fixedAnchor.x;
-	var dy = dragModel.y - sess.fixedAnchor.y;
-	var want = dx * dx + dy * dy >= sess.fixedJetty * sess.fixedJetty;
-
-	if (want == sess.cpApplied)
+	// Setting an end also queues the connector for rerouting, which a new
+	// checkpoint does not (see the gotchas in libavoid-routing.js)
+	var setDraggedEnd = function()
 	{
-		return;
+		var p = new Avoid.Point(dragModel.x, dragModel.y);
+		var ce = new Avoid.ConnEnd(p);
+
+		if (sess.draggingSource)
+		{
+			sess.conn.setSourceEndpoint(ce);
+		}
+		else
+		{
+			sess.conn.setDestEndpoint(ce);
+		}
+
+		ce.delete();
+		p.delete();
+	};
+
+	setDraggedEnd();
+	sess.router.processTransaction();
+
+	var fixedAtStart = !sess.draggingSource;
+	var noRoute = function(route)
+	{
+		return AvoidRouting.isFallbackRoute(route, fixedAtStart ? sess.fixedPins : null,
+			fixedAtStart ? null : sess.fixedPins);
+	};
+
+	var route = LibavoidRouting.readPreviewRoute(sess);
+
+	if (noRoute(route))
+	{
+		return null;
 	}
 
-	// An empty vector clears the connector's checkpoints; the vector is copied,
-	// so free the embind wrappers (cf. computeRoutes' addCheckpoint).
+	if (sess.fixedCp != null)
+	{
+		var dx = dragModel.x - sess.fixedAnchor.x;
+		var dy = dragModel.y - sess.fixedAnchor.y;
+
+		if (dx * dx + dy * dy >= sess.fixedJetty * sess.fixedJetty &&
+			AvoidRouting.endSegment(route, fixedAtStart) < sess.fixedJetty - 0.5)
+		{
+			LibavoidRouting.setPreviewCheckpoint(sess, Avoid, sess.fixedCp);
+			setDraggedEnd();
+			sess.router.processTransaction();
+			route = LibavoidRouting.readPreviewRoute(sess);
+
+			if (noRoute(route))
+			{
+				return null;
+			}
+		}
+	}
+
+	return route;
+};
+
+/**
+ * Sets (point) or clears (null) the warm preview session's fixed-end stub
+ * checkpoint. An empty vector clears the connector's checkpoints; the vector
+ * is copied, so free the embind wrappers (cf. computeRoutes' addCheckpoint).
+ */
+LibavoidRouting.setPreviewCheckpoint = function(sess, Avoid, point)
+{
 	var cps = new Avoid.CheckpointVector();
 
-	if (want)
+	if (point != null)
 	{
-		var pt = new Avoid.Point(sess.fixedCp.x, sess.fixedCp.y);
+		var pt = new Avoid.Point(point.x, point.y);
 		var cp = new Avoid.Checkpoint(pt);
 		cps.push_back(cp);
 		cp.delete();
@@ -1715,7 +2125,25 @@ LibavoidRouting.updatePreviewCheckpoint = function(sess, Avoid, dragModel)
 
 	sess.conn.setRoutingCheckpoints(cps);
 	cps.delete();
-	sess.cpApplied = want;
+	sess.cpApplied = point != null;
+};
+
+/**
+ * The warm preview session's current route as plain {x, y} points.
+ */
+LibavoidRouting.readPreviewRoute = function(sess)
+{
+	var route = sess.conn.displayRoute();
+	var n = route.size();
+	var pts = [];
+
+	for (var k = 0; k < n; k++)
+	{
+		var rp = route.at(k);
+		pts.push({x: rp.x, y: rp.y});
+	}
+
+	return pts;
 };
 
 /**
@@ -1829,7 +2257,8 @@ LibavoidRouting.previewEndpointDrag = function(handler, point)
 		ch.currentConstraint.point != null)
 	{
 		var cp = ch.currentConstraint.point;
-		dragConstraint = AvoidRouting.constraintForPoint(cp.x, cp.y);
+		dragConstraint = AvoidRouting.constraintForPoint(cp.x, cp.y,
+			ch.currentConstraint.perimeter);
 	}
 
 	// The dragged endpoint, in ABSOLUTE MODEL coords:
@@ -1848,8 +2277,9 @@ LibavoidRouting.previewEndpointDrag = function(handler, point)
 			return null;
 		}
 
+		// A snapped anchor where the (possibly rotated) target draws it.
 		dragModel = (dragConstraint != null) ?
-			{x: tb.x + dragConstraint.x * tb.w, y: tb.y + dragConstraint.y * tb.h} :
+			LibavoidRouting.getAbsoluteAnchor(graph, targetCell, dragConstraint) :
 			{x: tb.x + tb.w / 2, y: tb.y + tb.h / 2};
 	}
 	else
@@ -1912,6 +2342,12 @@ LibavoidRouting.previewEndpointDrag = function(handler, point)
 	var result = [];
 	var off = LibavoidRouting.getAbsoluteParentOffset(graph, edge);
 
+	// Warm per-drag session over empty space: move the floating dragged endpoint
+	// and re-solve — cheap, and no pins so nothing accumulates. The fixed end's
+	// jetty stub is enforced exactly as the commit does (solvePreviewSession).
+	var raw = (pinned || freePinned) ? null :
+		LibavoidRouting.solvePreviewSession(sess, Avoid, dragModel);
+
 	if (pinned)
 	{
 		// Fresh computeRoutes — byte-identical to the commit (routeCells) and free of
@@ -1932,10 +2368,12 @@ LibavoidRouting.previewEndpointDrag = function(handler, point)
 			result.push(new mxPoint(bendsAbs[bi].x - off.x, bendsAbs[bi].y - off.y));
 		}
 	}
-	else if (freePinned)
+	else if (raw == null)
 	{
 		// Fresh dangling solve — same descriptor as routeCells for an
-		// unconnected end, so a release at this point commits this route.
+		// unconnected end, so a release at this point commits this route: the
+		// cursor is inside an obstacle (freePinned), or the warm session found
+		// no route at its clearance, which the commit retries at a smaller one.
 		var freeBends = LibavoidRouting.previewRouteToPoint(graph, Avoid,
 			fixedCell, handler.isSource, dragModel, sess.fixedConstr,
 			sess.fixedJetty, sess.fixedSides, sess.fixedPoints);
@@ -1947,42 +2385,14 @@ LibavoidRouting.previewEndpointDrag = function(handler, point)
 	}
 	else
 	{
-		// Warm per-drag session: move the floating dragged endpoint and re-solve —
-		// cheap, and no pins so nothing accumulates. The fixed end's jetty
-		// checkpoint follows the commit's too-short guard per frame.
-		LibavoidRouting.updatePreviewCheckpoint(sess, Avoid, dragModel);
-		var p = new Avoid.Point(dragModel.x, dragModel.y);
-		var ce = new Avoid.ConnEnd(p);
-
-		if (sess.draggingSource)
-		{
-			sess.conn.setSourceEndpoint(ce);
-		}
-		else
-		{
-			sess.conn.setDestEndpoint(ce);
-		}
-
-		ce.delete();
-		p.delete();
-		sess.router.processTransaction();
+		var n = raw.length;
 
 		// Convert the absolute-model route to parent-relative control points the SAME
 		// way the commit does: drop endpoints, collinear-filter in MODEL space (1px)
 		// with Math.round, then subtract getAbsoluteParentOffset(edge).
-		var route = sess.conn.displayRoute();
-		var n = route.size();
-
 		if (n >= 2)
 		{
-			var raw = [];
 			var k;
-
-			for (k = 0; k < n; k++)
-			{
-				var rp = route.at(k);
-				raw.push({x: rp.x, y: rp.y});
-			}
 
 			for (k = 1; k < n - 1; k++)
 			{
@@ -2080,7 +2490,7 @@ LibavoidRouting.viewToModelPoint = function(graph, point)
  * ConnEnd moves per frame. Construction wrappers are released; the router (which
  * owns the shapes + connector) is freed in endPreview. fixedJetty is the fixed
  * end's resolved jetty (jettyFor) — its stub checkpoint is precomputed here and
- * toggled per frame by updatePreviewCheckpoint.
+ * applied per frame by solvePreviewSession where the commit would.
  */
 LibavoidRouting.buildPreviewSession = function(graph, Avoid, fixedCell, draggingSource, fixedConstraint, fixedJetty, fixedSides, fixedPoints)
 {
@@ -2104,7 +2514,16 @@ LibavoidRouting.buildPreviewSession = function(graph, Avoid, fixedCell, dragging
 	// commit (filterEnclosing keeps it: terminals are never dropped).
 	LibavoidRouting.addTerminalVertex(graph, vertices, {}, fixedCell);
 
-	vertices = AvoidRouting.filterEnclosing(vertices,
+	// As the commit sees them (computeRoutes' toWorldFrame): obstacles as the
+	// drawn (rotated) boxes, the fixed end's anchor and snap points where the
+	// terminal draws them. The session returns fixedPoints/fixedSides as given
+	// — the fresh path passes them to computeRoutes, which maps them itself.
+	var world = AvoidRouting.toWorldFrame(vertices, [{source: fixedId,
+		sourceConstraint: fixedConstraint, sourcePoints: fixedPoints}]);
+	var pinConstraint = world.edges[0].sourceConstraint;
+	var pinPoints = world.edges[0].sourcePoints;
+
+	vertices = AvoidRouting.filterEnclosing(world.vertices,
 		[{source: fixedId, target: fixedId}]);
 	var shapeRefs = Object.create(null);
 	var i;
@@ -2121,7 +2540,7 @@ LibavoidRouting.buildPreviewSession = function(graph, Avoid, fixedCell, dragging
 		p2.delete();
 	}
 
-	var fb = LibavoidRouting.getAbsoluteModelBounds(graph, fixedCell);
+	var fb = LibavoidRouting.getAbsoluteObstacleBounds(graph, fixedCell);
 
 	if (fb == null)
 	{
@@ -2143,17 +2562,17 @@ LibavoidRouting.buildPreviewSession = function(graph, Avoid, fixedCell, dragging
 	var fixedRef = shapeRefs[fixedCell.getId()];
 	var fixedEnd;
 
-	if (fixedConstraint != null && fixedConstraint.dir != null && fixedRef != null)
+	if (pinConstraint != null && pinConstraint.dir != null && fixedRef != null)
 	{
-		new Avoid.ShapeConnectionPin(fixedRef, 1, fixedConstraint.x, fixedConstraint.y, true, 0, fixedConstraint.dir);
+		new Avoid.ShapeConnectionPin(fixedRef, 1, pinConstraint.x, pinConstraint.y, true, 0, pinConstraint.dir);
 		fixedEnd = new Avoid.ConnEnd(fixedRef, 1);
 	}
-	else if (fixedPoints != null && fixedPoints.length > 0 && fixedRef != null)
+	else if (pinPoints != null && pinPoints.length > 0 && fixedRef != null)
 	{
-		for (var fq = 0; fq < fixedPoints.length; fq++)
+		for (var fq = 0; fq < pinPoints.length; fq++)
 		{
 			var qpin = new Avoid.ShapeConnectionPin(fixedRef, 1,
-				fixedPoints[fq].x, fixedPoints[fq].y, true, 0, fixedPoints[fq].dir);
+				pinPoints[fq].x, pinPoints[fq].y, true, 0, pinPoints[fq].dir);
 			qpin.setExclusive(false);
 		}
 
@@ -2193,26 +2612,44 @@ LibavoidRouting.buildPreviewSession = function(graph, Avoid, fixedCell, dragging
 	draggedEnd.delete();
 
 	// Jetty stub for the pinned fixed end (commit parity — see computeRoutes):
-	// computed once here, applied/cleared per frame by updatePreviewCheckpoint,
-	// because the commit's too-short guard depends on the moving dragged end.
+	// computed once here, applied/cleared per frame by solvePreviewSession,
+	// because whether the commit applies it (too-short guard, lazy lead-out
+	// check) depends on the moving dragged end.
 	var fixedCp = null;
 	var fixedAnchor = null;
 
-	if (fixedConstraint != null && fixedConstraint.dir != null && fixedRef != null)
+	if (pinConstraint != null && pinConstraint.dir != null && fixedRef != null)
 	{
-		fixedAnchor = {x: fb.x + fixedConstraint.x * fb.w,
-			y: fb.y + fixedConstraint.y * fb.h};
+		fixedAnchor = {x: fb.x + pinConstraint.x * fb.w,
+			y: fb.y + pinConstraint.y * fb.h};
 		// No stub when the anchor is buried under another shape — commit
 		// parity with computeRoutes' buried-anchor skip.
 		fixedCp = AvoidRouting.insideAny(fixedAnchor.x, fixedAnchor.y, vertices) ? null :
-			AvoidRouting.jettyStub(fixedConstraint, fixedJetty, fb, vertices,
+			AvoidRouting.jettyStub(pinConstraint, fixedJetty, fb, vertices,
 				LibavoidRouting.shapeBufferDistance);
 	}
 
 	// vertices: the session's obstacle list, for the cursor-inside-obstacle
 	// test that routes such free points through the fresh path.
+	// The fixed end's pins in ABSOLUTE MODEL coords (null when it floats): a
+	// route that does not start on one of them is libavoid's no-route
+	// fallback (solvePreviewSession).
+	var fixedPins = null;
+	var pins = AvoidRouting.endPins(fb, pinConstraint, fixedSides, pinPoints);
+
+	if (pins != null && fixedRef != null)
+	{
+		fixedPins = [];
+
+		for (var pi = 0; pi < pins.length; pi++)
+		{
+			fixedPins.push({x: fb.x + pins[pi].x * fb.w, y: fb.y + pins[pi].y * fb.h});
+		}
+	}
+
 	return {router: router, conn: conn, draggingSource: draggingSource, shapeRefs: shapeRefs,
 		vertices: vertices, fixedCp: fixedCp, fixedAnchor: fixedAnchor, fixedJetty: fixedJetty,
+		fixedPins: fixedPins,
 		fixedSides: fixedSides || null, fixedPoints: fixedPoints || null, cpApplied: false};
 };
 
@@ -2273,7 +2710,8 @@ LibavoidRouting.connectionPreview = function(handler)
 		if (handler.sourceConstraint != null && handler.sourceConstraint.point != null)
 		{
 			var sp = handler.sourceConstraint.point;
-			srcConstr = AvoidRouting.constraintForPoint(sp.x, sp.y);
+			srcConstr = AvoidRouting.constraintForPoint(sp.x, sp.y,
+				handler.sourceConstraint.perimeter);
 		}
 
 		// The source's snapToPoint anchor set and port-constraint mask, unless
@@ -2338,7 +2776,8 @@ LibavoidRouting.connectionPreview = function(handler)
 		ch.currentConstraint.point != null)
 	{
 		var cp = ch.currentConstraint.point;
-		dragConstraint = AvoidRouting.constraintForPoint(cp.x, cp.y);
+		dragConstraint = AvoidRouting.constraintForPoint(cp.x, cp.y,
+			ch.currentConstraint.perimeter);
 	}
 
 	// Dragged (dest) endpoint in model coords: snapped anchor pos, else target centre
@@ -2354,8 +2793,9 @@ LibavoidRouting.connectionPreview = function(handler)
 			return null;
 		}
 
+		// A snapped anchor where the (possibly rotated) target draws it.
 		dragModel = (dragConstraint != null) ?
-			{x: tb.x + dragConstraint.x * tb.w, y: tb.y + dragConstraint.y * tb.h} :
+			LibavoidRouting.getAbsoluteAnchor(graph, targetCell, dragConstraint) :
 			{x: tb.x + tb.w / 2, y: tb.y + tb.h / 2};
 	}
 	else if (handler.currentPoint != null)
@@ -2407,6 +2847,13 @@ LibavoidRouting.connectionPreview = function(handler)
 	var Avoid = window.Avoid;
 	var out = [];
 
+	// Warm per-drag session over empty space: move the floating dest endpoint
+	// (cursor / target centre) and re-solve — cheap, and no pins so nothing
+	// accumulates. The fixed end's jetty stub is enforced exactly as the commit
+	// does (solvePreviewSession).
+	var raw = (pinned || freePinned) ? null :
+		LibavoidRouting.solvePreviewSession(sess, Avoid, dragModel);
+
 	if (pinned)
 	{
 		// Fresh computeRoutes — byte-identical to the commit (routeCells), and free of
@@ -2422,10 +2869,12 @@ LibavoidRouting.connectionPreview = function(handler)
 			out.push(new mxPoint(bendsAbs[bi].x, bendsAbs[bi].y));
 		}
 	}
-	else if (freePinned)
+	else if (raw == null)
 	{
 		// Fresh dangling solve — same descriptor as routeCells for an
-		// unconnected end, so a release at this point commits this route.
+		// unconnected end, so a release at this point commits this route: the
+		// cursor is inside an obstacle (freePinned), or the warm session found
+		// no route at its clearance, which the commit retries at a smaller one.
 		var freeBends = LibavoidRouting.previewRouteToPoint(graph, Avoid,
 			sourceState.cell, false, dragModel, sess.srcConstr,
 			sess.fixedJetty, sess.fixedSides, sess.fixedPoints);
@@ -2437,31 +2886,12 @@ LibavoidRouting.connectionPreview = function(handler)
 	}
 	else
 	{
-		// Warm per-drag session: move the floating dest endpoint (cursor / target
-		// centre) and re-solve — cheap, and no pins so nothing accumulates. The
-		// fixed end's jetty checkpoint follows the commit's too-short guard.
-		LibavoidRouting.updatePreviewCheckpoint(sess, Avoid, dragModel);
-		var p = new Avoid.Point(dragModel.x, dragModel.y);
-		var ce = new Avoid.ConnEnd(p);
-		sess.conn.setDestEndpoint(ce);
-		ce.delete();
-		p.delete();
-		sess.router.processTransaction();
+		var n = raw.length;
 
 		// Interior bends in ABSOLUTE MODEL coords, dropping endpoints + collinear bends.
-		var route = sess.conn.displayRoute();
-		var n = route.size();
-
 		if (n >= 2)
 		{
-			var raw = [];
 			var k;
-
-			for (k = 0; k < n; k++)
-			{
-				var rp = route.at(k);
-				raw.push({x: rp.x, y: rp.y});
-			}
 
 			for (k = 1; k < n - 1; k++)
 			{
@@ -2572,7 +3002,7 @@ LibavoidRouting.solveMovePreview = function(graph, handler, mdx, mdy)
 			}
 		}
 
-		var mb = LibavoidRouting.getAbsoluteModelBounds(graph, c);
+		var mb = LibavoidRouting.getAbsoluteObstacleBounds(graph, c);
 
 		if (mb != null)
 		{
@@ -3034,8 +3464,8 @@ LibavoidRouting.computeRoutes = function(Avoid, vertices, edges, opts)
 		}
 
 		var eff = buffer;
-		var s = byId[e.source];
-		var t = byId[e.target];
+		var s = AvoidRouting.obstacleBounds(byId[e.source]);
+		var t = AvoidRouting.obstacleBounds(byId[e.target]);
 
 		if (s != null && t != null)
 		{

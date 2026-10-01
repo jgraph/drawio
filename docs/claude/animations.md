@@ -282,9 +282,16 @@ and writes to all of them in one undo step; `updateActionStates` enables it
 for `cells.length > 0`. The cells are captured at open time, NOT read back
 in the save callback — the action editor is non-modal so the canvas
 selection has usually moved on to the action's target cells by the time it
-saves. The field is prefilled only when every selected cell carries the
-same link. To copy a link to other shapes, use Copy/Paste Data,
-which carries `link` and `linkTarget` along with the other attributes.
+saves. Values the selection disagrees on are passed to `showLinkDialog` as
+`mixed` (`{link, linkTarget}`, last argument; `LinkDialog` takes it last as
+well): the link field is empty with the `multipleValues` placeholder and the
+new-window checkbox is indeterminate. The callback's fourth argument
+`unchanged` flags the mixed values the user left alone, which keep each
+cell's own value: the link if the result is empty and the field was never
+typed into or reset (so OK, or saving an empty action, keeps all links),
+the target if the checkbox was never clicked. To copy a link to other
+shapes, use Copy/Paste Data, which carries `link` and `linkTarget` along
+with the other attributes.
 
 ## Engine — `Editor.AnimationPlayer` (diagramly/Editor.js)
 

@@ -1,4 +1,4 @@
-# Native bundles: drawio-elk, drawio-mermaid, drawio-libavoid
+# Native bundles: drawio-elk, drawio-mermaid, drawio-plantuml, drawio-libavoid
 
 Three native-JS ports live in **private sibling repos** of `drawio-dev` and
 produce the committed browser bundles that the rest of draw.io consumes via
@@ -11,6 +11,7 @@ with frequent dev-branch merges while the ports are in active development.)
 |---|---|---|---|
 | `../drawio-elk` (`jgraph/drawio-elk`) | `js/elk/drawio-elk.min.js` | `window.ELK` + `ElkLayout`/`ElkAdapter`/`ElkApplier` (incl. `DEFAULTS`/`MENU_PRESETS`/`CANONICAL_EDGE`) | `diagramly/ElkLayout.js` (editor UI statics), `drawio-mermaid` (reads `globalThis.ELK`), drawio-mcp (vendored copy) |
 | `../drawio-mermaid` (`jgraph/drawio-mermaid`) | `js/mermaid/drawio-mermaid.min.js` | `mxMermaidToDrawio` | `EditorUi.parseMermaidDiagram`, `Devel.js`, `export3.html` |
+| `../drawio-plantuml` (`jgraph/drawio-plantuml`) | `js/plantuml/drawio-plantuml.min.js` | `window.PlantUml`, `mxPlantUmlToDrawio` | PlantUML insert dialog's native "Diagram" output, loaded on demand by `EditorUi` via `mxscript` (not in `extensions.min.js`); `Devel.js` |
 | `../drawio-libavoid` (`jgraph/drawio-libavoid`) | `js/libavoid-js/libavoid.min.js` | `globalThis.Avoid` (+ `window.__libavoidReady`) | `js/libavoid-js/libavoid-routing.js` (core) + `diagramly/LibavoidRouting.js` (adapter) |
 | `../drawio-vsd` | `js/vsd/drawio-vsd.min.js` | `globalThis.DrawioVsd` (`convert`, `isBinaryVisio`) | `EditorUi.convertBinaryVisio` → `importVisio`: binary .vsd/.vss/.vst → .vsdx/.vssx/.vstx in the browser, conversion service (`VSS_CONVERT_URL`) only as fallback |
 
@@ -40,9 +41,10 @@ ant bundles
 The `bundles` target lives in the **internal** `build.xml`, not the public
 `github-build.xml` — the sibling repos are private, so public-repo
 contributors rely on the committed artifacts instead. It runs `npm run build`
-in each of `../drawio-elk`, `../drawio-mermaid` and `../drawio-libavoid`
-(the last needs the Emscripten SDK; the other two only Node) and copies each
-output in — e.g. `../drawio-libavoid/dist/libavoid.js` →
+in each of `../drawio-elk`, `../drawio-mermaid`, `../drawio-libavoid` and
+`../drawio-vsd` (libavoid needs the Emscripten SDK; the others only Node),
+and `npm run build:iife` in `../drawio-plantuml` (its plain `build` emits
+ESM), and copies each output in — e.g. `../drawio-libavoid/dist/libavoid.js` →
 `js/libavoid-js/libavoid.min.js`. Standalone — not a dependency of `merge`,
 `app`, `atlas`, or `integrate`. Full build docs: `etc/build/CLAUDE.md`;
 one-time sibling clone instructions are in its `bundles` section.

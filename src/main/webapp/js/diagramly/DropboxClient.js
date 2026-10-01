@@ -282,14 +282,14 @@ DropboxClient.prototype.getErrorMessage = function(err)
  */
 DropboxClient.prototype.executePromise = function(promiseFn, success, error)
 {
-	var doExecute = mxUtils.bind(this, function(failOnAuth)
+	this.executeAuthorized(mxUtils.bind(this, function(failOnAuth, handleError, retry)
 	{
 		var acceptResponse = true;
 		
 		var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 		{
 			acceptResponse = false;
-			error({code: App.ERROR_TIMEOUT, retry: fn});
+			error({code: App.ERROR_TIMEOUT, retry: retry});
 		}), this.ui.timeout);
 		
 		//Dropbox client start executing the promise once created so auth fails, so we send a function instead to delay promise creation
@@ -311,37 +311,53 @@ DropboxClient.prototype.executePromise = function(promiseFn, success, error)
 		    	
 		    	if (acceptResponse)
 		    	{
-		    		if (err != null && (err.status == 500 || err.status == 400 ||
-		    			err.status == 401))
-			    	{
-					this.setUser(null);
-					this.client.setAccessToken(null);
-					_token = null;
-					
-					if (!failOnAuth)
+		    		handleError(err);
+		    	}
+		}));
+	}), error);
+};
+
+/**
+ * Authorizes the client, gets the user and calls doExecute with failOnAuth,
+ * a function to handle a rejected promise, which authorizes the client again
+ * for authentication errors, and a function to retry the request.
+ */
+DropboxClient.prototype.executeAuthorized = function(doExecute, error)
+{
+	var execute = mxUtils.bind(this, function(failOnAuth)
+	{
+		doExecute(failOnAuth, mxUtils.bind(this, function(err)
+		{
+			if (err != null && (err.status == 500 || err.status == 400 ||
+				err.status == 401))
+			{
+				this.setUser(null);
+				this.client.setAccessToken(null);
+				_token = null;
+				
+				if (!failOnAuth)
+				{
+					this.authenticate(function()
+					{
+						execute(true);
+					}, error);
+				}
+				else
+				{
+					error({message: mxResources.get('accessDenied'), retry: mxUtils.bind(this, function()
 					{
 						this.authenticate(function()
 						{
-							doExecute(true);
+							fn(true);
 						}, error);
-					}
-					else
-					{
-						error({message: mxResources.get('accessDenied'), retry: mxUtils.bind(this, function()
-						{
-							this.authenticate(function()
-							{
-								fn(true);
-							}, error);
-						})});
-					}
-			    	}
-		    		else
-		    		{
-		    			error({message: this.getErrorMessage(err)});
-		    		}
-		    	}
-		}));
+					})});
+				}
+			}
+			else
+			{
+				error({message: this.getErrorMessage(err)});
+			}
+		}), fn);
 	});
 	
 	var fn = mxUtils.bind(this, function(failOnAuth)
@@ -355,7 +371,7 @@ DropboxClient.prototype.executePromise = function(promiseFn, success, error)
 		}
 		else
 		{
-			doExecute(failOnAuth);
+			execute(failOnAuth);
 		}
 	});
 
@@ -445,14 +461,12 @@ DropboxClient.prototype.getFile = function(path, success, error, asLibrary)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Downloads the file for the given arguments and passes its contents and
+ * metadata to success. Binary files are read as a data URL.
  */
 DropboxClient.prototype.readFile = function(arg, success, error, binary)
 {
-	var doExecute = mxUtils.bind(this, function(failOnAuth)
+	this.executeAuthorized(mxUtils.bind(this, function(failOnAuth, handleError)
 	{
 		var acceptResponse = true;
 		
@@ -527,73 +541,16 @@ DropboxClient.prototype.readFile = function(arg, success, error, binary)
 		    	if (acceptResponse)
 		    	{
 		    		acceptResponse = false;
-	
-		    		if (err != null && (err.status == 500 || err.status == 400 ||
-		    			err.status == 401))
-			    	{
-					this.client.setAccessToken(null);
-					this.setUser(null);
-					_token = null;
-					
-					if (!failOnAuth)
-					{
-						this.authenticate(function()
-						{
-							doExecute(true);
-						}, error);
-					}
-					else
-					{
-						error({message: mxResources.get('accessDenied'), retry: mxUtils.bind(this, function()
-						{
-							this.authenticate(function()
-							{
-								fn(true);
-							}, error);
-						})});
-					}
-			    	}
-		    		else
-		    		{
-		    			error({message: this.getErrorMessage(err)});
-		    		}
+		    		handleError(err);
 		    	}
 		}));
-	});
-	
-	var fn = mxUtils.bind(this, function(failOnAuth)
-	{
-		if (this.user == null)
-		{
-			this.updateUser(function()
-			{
-				fn(true);
-			}, error, failOnAuth);
-		}
-		else
-		{
-			doExecute(failOnAuth);
-		}
-	});
-
-	if (_token == null)
-	{
-		this.authenticate(function()
-		{
-			fn(true);
-		}, error);
-	}
-	else
-	{
-		fn(false);
-	}
+	}), error);
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Passes true to fn if no file with the given filename exists or if the
+ * user confirms replacing it. The second argument of fn specifies if the
+ * file exists. If noConfirm is true, existing files are not replaced.
  */
 DropboxClient.prototype.checkExists = function(filename, fn, noConfirm)
 {
@@ -625,10 +582,8 @@ DropboxClient.prototype.checkExists = function(filename, fn, noConfirm)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Renames the given file to the given filename in the same folder. Asks the
+ * user before replacing an existing file.
  */
 DropboxClient.prototype.renameFile = function(file, filename, success, error)
 {
@@ -699,10 +654,7 @@ DropboxClient.prototype.renameFile = function(file, filename, success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Inserts a new library with the given filename and data.
  */
 DropboxClient.prototype.insertLibrary = function(filename, data, success, error)
 {
@@ -710,10 +662,9 @@ DropboxClient.prototype.insertLibrary = function(filename, data, success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Saves the given data to a new file with the given filename and passes a
+ * DropboxFile, or a DropboxLibrary if asLibrary is true, to success. Asks
+ * the user before replacing an existing file.
  */
 DropboxClient.prototype.insertFile = function(filename, data, success, error, asLibrary)
 {
@@ -743,10 +694,9 @@ DropboxClient.prototype.insertFile = function(filename, data, success, error, as
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Uploads the given data to the file with the given filename in the
+ * optional folder, replacing an existing file, and passes the metadata to
+ * success.
  */
 DropboxClient.prototype.saveFile = function(filename, data, success, error, folder)
 {
@@ -776,10 +726,9 @@ DropboxClient.prototype.saveFile = function(filename, data, success, error, fold
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Shows the Dropbox chooser for selecting a library and passes its path and
+ * the library to fn. Libraries outside the app folder are copied to the app
+ * folder.
  */
 DropboxClient.prototype.pickLibrary = function(fn)
 {
@@ -841,10 +790,8 @@ DropboxClient.prototype.pickLibrary = function(fn)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Copies the given library from the Dropbox chooser to the app folder after
+ * asking the user and passes its path and the new library to success.
  */
 DropboxClient.prototype.createLibrary = function(file, success, error)
 {
@@ -873,10 +820,9 @@ DropboxClient.prototype.createLibrary = function(file, success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Shows the Dropbox chooser for selecting a file and passes its path and the
+ * file to fn, or its link if readOnly is true. Files outside the app folder
+ * are copied to the app folder. By default, the picked file is loaded.
  */
 DropboxClient.prototype.pickFile = function(fn, readOnly)
 {
@@ -986,10 +932,8 @@ DropboxClient.prototype.pickFile = function(fn, readOnly)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Copies the given file from the Dropbox chooser to the app folder after
+ * asking the user and passes its name and the new file to success.
  */
 DropboxClient.prototype.createFile = function(file, success, error)
 {

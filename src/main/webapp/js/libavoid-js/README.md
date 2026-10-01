@@ -83,7 +83,7 @@ ships this directory
   `mcp-app-server/src/libavoid-versions.js`) — no vendored copy.
 - The **drawio-mcp tool server** (node-side pass) loads the CURRENT core
   through an ETag-revalidated per-user disk cache
-  (`mcp-tool-server/src/routing-core-cache.js`, revalidated against the CDN
+  (`ROUTING_CORE` in `mcp-tool-server/src/cdn-cache.js`, revalidated against the CDN
   once per process), so routing fixes land there automatically too. Its
   vendored `mcp-tool-server/vendor/libavoid/libavoid-routing.js` is a
   verbatim copy kept only as the cold-cache/offline/pre-release fallback —

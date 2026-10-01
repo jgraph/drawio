@@ -19,8 +19,7 @@ GitHubLibrary.prototype.doSave = function(title, success, error)
 };
 
 /**
- * Returns the location as a new object.
- * @type mx.Point
+ * Does nothing since libraries are not opened as diagrams.
  */
 GitHubLibrary.prototype.open = function()
 {

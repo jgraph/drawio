@@ -1814,7 +1814,7 @@ Graph.edgeStyles = ['edgeStyle', 'elbow', 'jumpStyle', 'jumpSize', 'startArrow',
 	'startFill', 'startSize', 'endArrow', 'endFill', 'endSize', 'flowAnimation',
 	'flowAnimationDirection', 'flowAnimationTimingFunction', 'flowAnimationDuration',
 	'sourcePerimeterSpacing', 'targetPerimeterSpacing', 'curved', 'linecap', 'linejoin',
-	'libavoidRouting'];
+	'libavoidRouting', 'followTerminals'];
 
 /**
  * Styles that are ignored together (if one appears all are ignored).
@@ -2686,6 +2686,75 @@ Graph.setTextColor = function(node, color, isForeground)
 		selection.addRange(range);
 	}
 };
+
+/**
+ * Characters allowed as the first character of an XML name: the letters of
+ * XML 1.0 4th edition (Appendix B, BaseChar and Ideographic) and underscore.
+ * The 5th edition allows more characters, but expat (the XML parser of
+ * Firefox) still rejects those, so one such name makes a whole diagram
+ * unreadable there. Colons are excluded as they denote namespace prefixes,
+ * which namespace-aware parsers reject if undeclared. BMP only.
+ */
+Graph.xmlNameStartChars = 'A-Za-z_' +
+	'\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u0131\\u0134-\\u013E\\u0141-\\u0148' +
+	'\\u014A-\\u017E\\u0180-\\u01C3\\u01CD-\\u01F0\\u01F4\\u01F5\\u01FA-\\u0217' +
+	'\\u0250-\\u02A8\\u02BB-\\u02C1\\u0386\\u0388-\\u038A\\u038C\\u038E-\\u03A1' +
+	'\\u03A3-\\u03CE\\u03D0-\\u03D6\\u03DA\\u03DC\\u03DE\\u03E0\\u03E2-\\u03F3' +
+	'\\u0401-\\u040C\\u040E-\\u044F\\u0451-\\u045C\\u045E-\\u0481\\u0490-\\u04C4' +
+	'\\u04C7\\u04C8\\u04CB\\u04CC\\u04D0-\\u04EB\\u04EE-\\u04F5\\u04F8\\u04F9' +
+	'\\u0531-\\u0556\\u0559\\u0561-\\u0586\\u05D0-\\u05EA\\u05F0-\\u05F2\\u0621-\\u063A' +
+	'\\u0641-\\u064A\\u0671-\\u06B7\\u06BA-\\u06BE\\u06C0-\\u06CE\\u06D0-\\u06D3\\u06D5' +
+	'\\u06E5\\u06E6\\u0905-\\u0939\\u093D\\u0958-\\u0961\\u0985-\\u098C\\u098F\\u0990' +
+	'\\u0993-\\u09A8\\u09AA-\\u09B0\\u09B2\\u09B6-\\u09B9\\u09DC\\u09DD\\u09DF-\\u09E1' +
+	'\\u09F0\\u09F1\\u0A05-\\u0A0A\\u0A0F\\u0A10\\u0A13-\\u0A28\\u0A2A-\\u0A30' +
+	'\\u0A32\\u0A33\\u0A35\\u0A36\\u0A38\\u0A39\\u0A59-\\u0A5C\\u0A5E\\u0A72-\\u0A74' +
+	'\\u0A85-\\u0A8B\\u0A8D\\u0A8F-\\u0A91\\u0A93-\\u0AA8\\u0AAA-\\u0AB0\\u0AB2\\u0AB3' +
+	'\\u0AB5-\\u0AB9\\u0ABD\\u0AE0\\u0B05-\\u0B0C\\u0B0F\\u0B10\\u0B13-\\u0B28' +
+	'\\u0B2A-\\u0B30\\u0B32\\u0B33\\u0B36-\\u0B39\\u0B3D\\u0B5C\\u0B5D\\u0B5F-\\u0B61' +
+	'\\u0B85-\\u0B8A\\u0B8E-\\u0B90\\u0B92-\\u0B95\\u0B99\\u0B9A\\u0B9C\\u0B9E\\u0B9F' +
+	'\\u0BA3\\u0BA4\\u0BA8-\\u0BAA\\u0BAE-\\u0BB5\\u0BB7-\\u0BB9\\u0C05-\\u0C0C' +
+	'\\u0C0E-\\u0C10\\u0C12-\\u0C28\\u0C2A-\\u0C33\\u0C35-\\u0C39\\u0C60\\u0C61' +
+	'\\u0C85-\\u0C8C\\u0C8E-\\u0C90\\u0C92-\\u0CA8\\u0CAA-\\u0CB3\\u0CB5-\\u0CB9\\u0CDE' +
+	'\\u0CE0\\u0CE1\\u0D05-\\u0D0C\\u0D0E-\\u0D10\\u0D12-\\u0D28\\u0D2A-\\u0D39' +
+	'\\u0D60\\u0D61\\u0E01-\\u0E2E\\u0E30\\u0E32\\u0E33\\u0E40-\\u0E45\\u0E81\\u0E82' +
+	'\\u0E84\\u0E87\\u0E88\\u0E8A\\u0E8D\\u0E94-\\u0E97\\u0E99-\\u0E9F\\u0EA1-\\u0EA3' +
+	'\\u0EA5\\u0EA7\\u0EAA\\u0EAB\\u0EAD\\u0EAE\\u0EB0\\u0EB2\\u0EB3\\u0EBD' +
+	'\\u0EC0-\\u0EC4\\u0F40-\\u0F47\\u0F49-\\u0F69\\u10A0-\\u10C5\\u10D0-\\u10F6\\u1100' +
+	'\\u1102\\u1103\\u1105-\\u1107\\u1109\\u110B\\u110C\\u110E-\\u1112\\u113C\\u113E' +
+	'\\u1140\\u114C\\u114E\\u1150\\u1154\\u1155\\u1159\\u115F-\\u1161\\u1163\\u1165' +
+	'\\u1167\\u1169\\u116D\\u116E\\u1172\\u1173\\u1175\\u119E\\u11A8\\u11AB\\u11AE\\u11AF' +
+	'\\u11B7\\u11B8\\u11BA\\u11BC-\\u11C2\\u11EB\\u11F0\\u11F9\\u1E00-\\u1E9B' +
+	'\\u1EA0-\\u1EF9\\u1F00-\\u1F15\\u1F18-\\u1F1D\\u1F20-\\u1F45\\u1F48-\\u1F4D' +
+	'\\u1F50-\\u1F57\\u1F59\\u1F5B\\u1F5D\\u1F5F-\\u1F7D\\u1F80-\\u1FB4\\u1FB6-\\u1FBC' +
+	'\\u1FBE\\u1FC2-\\u1FC4\\u1FC6-\\u1FCC\\u1FD0-\\u1FD3\\u1FD6-\\u1FDB\\u1FE0-\\u1FEC' +
+	'\\u1FF2-\\u1FF4\\u1FF6-\\u1FFC\\u2126\\u212A\\u212B\\u212E\\u2180-\\u2182\\u3007' +
+	'\\u3021-\\u3029\\u3041-\\u3094\\u30A1-\\u30FA\\u3105-\\u312C\\u4E00-\\u9FA5' +
+	'\\uAC00-\\uD7A3';
+
+/**
+ * Characters allowed in an XML name after the first character: the above
+ * plus dash, dot, and the Digit, CombiningChar and Extender classes of
+ * XML 1.0 4th edition.
+ */
+Graph.xmlNameChars = Graph.xmlNameStartChars + '0-9.\\-' +
+	'\\u00B7\\u02D0\\u02D1\\u0300-\\u0345\\u0360\\u0361\\u0387\\u0483-\\u0486' +
+	'\\u0591-\\u05A1\\u05A3-\\u05B9\\u05BB-\\u05BD\\u05BF\\u05C1\\u05C2\\u05C4\\u0640' +
+	'\\u064B-\\u0652\\u0660-\\u0669\\u0670\\u06D6-\\u06E4\\u06E7\\u06E8\\u06EA-\\u06ED' +
+	'\\u06F0-\\u06F9\\u0901-\\u0903\\u093C\\u093E-\\u094D\\u0951-\\u0954\\u0962\\u0963' +
+	'\\u0966-\\u096F\\u0981-\\u0983\\u09BC\\u09BE-\\u09C4\\u09C7\\u09C8\\u09CB-\\u09CD' +
+	'\\u09D7\\u09E2\\u09E3\\u09E6-\\u09EF\\u0A02\\u0A3C\\u0A3E-\\u0A42\\u0A47\\u0A48' +
+	'\\u0A4B-\\u0A4D\\u0A66-\\u0A71\\u0A81-\\u0A83\\u0ABC\\u0ABE-\\u0AC5\\u0AC7-\\u0AC9' +
+	'\\u0ACB-\\u0ACD\\u0AE6-\\u0AEF\\u0B01-\\u0B03\\u0B3C\\u0B3E-\\u0B43\\u0B47\\u0B48' +
+	'\\u0B4B-\\u0B4D\\u0B56\\u0B57\\u0B66-\\u0B6F\\u0B82\\u0B83\\u0BBE-\\u0BC2' +
+	'\\u0BC6-\\u0BC8\\u0BCA-\\u0BCD\\u0BD7\\u0BE7-\\u0BEF\\u0C01-\\u0C03\\u0C3E-\\u0C44' +
+	'\\u0C46-\\u0C48\\u0C4A-\\u0C4D\\u0C55\\u0C56\\u0C66-\\u0C6F\\u0C82\\u0C83' +
+	'\\u0CBE-\\u0CC4\\u0CC6-\\u0CC8\\u0CCA-\\u0CCD\\u0CD5\\u0CD6\\u0CE6-\\u0CEF' +
+	'\\u0D02\\u0D03\\u0D3E-\\u0D43\\u0D46-\\u0D48\\u0D4A-\\u0D4D\\u0D57\\u0D66-\\u0D6F' +
+	'\\u0E31\\u0E34-\\u0E3A\\u0E46-\\u0E4E\\u0E50-\\u0E59\\u0EB1\\u0EB4-\\u0EB9' +
+	'\\u0EBB\\u0EBC\\u0EC6\\u0EC8-\\u0ECD\\u0ED0-\\u0ED9\\u0F18\\u0F19\\u0F20-\\u0F29' +
+	'\\u0F35\\u0F37\\u0F39\\u0F3E\\u0F3F\\u0F71-\\u0F84\\u0F86-\\u0F8B\\u0F90-\\u0F95' +
+	'\\u0F97\\u0F99-\\u0FAD\\u0FB1-\\u0FB7\\u0FB9\\u20D0-\\u20DC\\u20E1\\u3005' +
+	'\\u302A-\\u302F\\u3031-\\u3035\\u3099\\u309A\\u309D\\u309E\\u30FC-\\u30FE';
 
 /**
  * Removes all illegal control characters with ASCII code <32 except TAB, LF
@@ -3676,7 +3745,8 @@ Graph.optimizeNode = function(node)
 };
 
 /**
- * Returns the size of the page format scaled with the page size.
+ * Returns the given link if it passes the HTML sanitizer as the href of an
+ * anchor, otherwise null.
  */
  Graph.sanitizeLink = function(href)
  {
@@ -3714,10 +3784,25 @@ Graph.isStyleAllowed = function(css)
         return String.fromCharCode(parseInt(hex, 16));
     }).replace(/\\(.)/g, '$1');
 
+    // Returns the start of the given reference the way the URL parser reads
+    // it: without tab, LF and CR anywhere, without leading C0 controls and
+    // spaces, and with backslashes as slashes. A control character from an
+    // escape such as \1 would otherwise hide the scheme, and the parser loads
+    // /\host and \\host as the protocol-relative //host, eg.
+    // url("\1 https://...") and url("/\\host/..."). Trailing characters are
+    // kept as the checks only look at the start, and a regex anchored at the
+    // end takes quadratic time on a long run of spaces inside the string.
+    var normalizeUrl = function(url)
+    {
+        return url.replace(/[\t\n\r]/g, '').
+            replace(/^[\u0000-\u0020]+/, '').
+            replace(/\\/g, '/');
+    };
+
     // True if the given reference is neither relative nor a data: URL
     var isExternal = function(url)
     {
-        url = url.trim();
+        url = normalizeUrl(url);
         var isRelative = !/^([a-z][a-z0-9+.-]*:|\/\/)/i.test(url);
         var isDataUrl = url.toLowerCase().startsWith('data:');
 
@@ -3731,7 +3816,7 @@ Graph.isStyleAllowed = function(css)
     // [href^="mailto:"] and content: "Note: x" are ordinary text.
     var isRemoteRef = function(url)
     {
-        return /^\s*(https?:|\/\/)/i.test(url);
+        return /^(https?:|\/\/)/i.test(normalizeUrl(url));
     };
 
     // Checks the given form of the CSS for external references
@@ -3812,19 +3897,182 @@ Graph.isStyleAllowed = function(css)
         return form.replace(/\/\*[\s\S]*?\*\//g, '');
     };
 
+    // Returns the decoded value of the CSS escape at the backslash at index i
+    // and the index after it. A backslash before a newline is a line
+    // continuation and decodes to nothing, eg. url("htt\<LF>ps://..."). Code
+    // points outside the BMP are not needed by the checks.
+    var decodeEscape = function(css, i)
+    {
+        var hex = /^[0-9a-fA-F]{1,6}/.exec(css.substring(i + 1, i + 7));
+
+        if (hex != null)
+        {
+            var cp = parseInt(hex[0], 16);
+            var end = i + 1 + hex[0].length;
+            end += (css.substring(end, end + 2) == '\r\n') ? 2 :
+                ((/[ \t\n\r\f]/.test(css.charAt(end))) ? 1 : 0);
+
+            return [(cp == 0 || cp > 0xFFFF || (cp >= 0xD800 && cp <= 0xDFFF)) ?
+                '�' : String.fromCharCode(cp), end];
+        }
+        else if (css.substring(i + 1, i + 3) == '\r\n')
+        {
+            return ['', i + 3];
+        }
+        else
+        {
+            return [(/[\n\r\f]/.test(css.charAt(i + 1))) ? '' :
+                css.charAt(i + 1), Math.min(i + 2, css.length)];
+        }
+    };
+
+    // Returns the decoded value of the token that ends at the first character
+    // matched by the given terminator regex and the index of that character.
+    var readToken = function(css, i, terminator)
+    {
+        var value = '';
+
+        while (i < css.length && !terminator.test(css.charAt(i)))
+        {
+            if (css.charAt(i) == '\\')
+            {
+                var esc = decodeEscape(css, i);
+                value += esc[0];
+                i = esc[1];
+            }
+            else
+            {
+                value += css.charAt(i++);
+            }
+        }
+
+        return [value, i];
+    };
+
+    // Returns the decoded identifier at the given index and the index after
+    // it. A backslash before a newline is not an escape and ends the name.
+    var readName = function(css, i)
+    {
+        var name = '';
+
+        while (i < css.length)
+        {
+            var c = css.charAt(i);
+
+            if (c == '\\' && !/[\n\r\f]/.test(css.charAt(i + 1)))
+            {
+                var esc = decodeEscape(css, i);
+                name += esc[0];
+                i = esc[1];
+            }
+            else if (/[a-zA-Z0-9_\-\u0080-￿]/.test(c))
+            {
+                name += c;
+                i++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return [name, i];
+    };
+
+    // Checks the CSS token by token like the CSS parser reads it, with the
+    // escapes decoded per token. The checks above decode the escapes of the
+    // whole text in one pass and find strings with a regex, so an escaped
+    // quote or an apostrophe in a double-quoted string desyncs their string
+    // scan and hides the following reference, eg. --a:"'";
+    // b:image-set("http://..." 1x) or content:"\""; b:image-set(...).
+    var isTokenAllowed = function(css)
+    {
+        var urlArg = false;
+        var i = 0;
+
+        while (i < css.length)
+        {
+            var c = css.charAt(i);
+
+            if (c == '/' && css.charAt(i + 1) == '*')
+            {
+                var end = css.indexOf('*/', i + 2);
+                i = (end < 0) ? css.length : end + 2;
+            }
+            else if (c == '"' || c == '\'')
+            {
+                // A newline ends a bad string and is not part of it
+                var token = readToken(css, i + 1, (c == '"') ? /["\n\r\f]/ : /['\n\r\f]/);
+                i = (css.charAt(token[1]) == c) ? token[1] + 1 : token[1];
+
+                // The argument of url("...") is checked as a URL, every other
+                // string for references that load something
+                if ((urlArg) ? isExternal(token[0]) : isRemoteRef(token[0]))
+                {
+                    return false;
+                }
+
+                urlArg = false;
+            }
+            else if (c == '@' || /[a-zA-Z0-9_\-\u0080-￿\\]/.test(c))
+            {
+                // Identifiers and at-keywords, which may be escaped, eg. \75rl(
+                var token = readName(css, (c == '@') ? i + 1 : i);
+                var name = token[0].toLowerCase();
+                i = Math.max(token[1], i + 1);
+
+                if (c == '@' && name == 'import')
+                {
+                    return false;
+                }
+                else if (name == 'url' && css.charAt(i) == '(')
+                {
+                    i++;
+
+                    while (/[ \t\n\r\f]/.test(css.charAt(i)))
+                    {
+                        i++;
+                    }
+
+                    urlArg = css.charAt(i) == '"' || css.charAt(i) == '\'';
+
+                    if (!urlArg)
+                    {
+                        // Unquoted reference up to the closing parenthesis
+                        token = readToken(css, i, /\)/);
+                        i = token[1];
+
+                        if (isExternal(token[0]))
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                i++;
+            }
+        }
+
+        return true;
+    };
+
     // Checks the CSS with and without comments, and each of those with and
     // without the URL whitespace. Stripping comments shows the checks a
     // reference that is split from its token to hide it, eg.
     // url(/*x*/"http://...") or image-set(/*x*/"http://..." 1x). But a comment
     // terminator inside a string is not a comment to the CSS parser, so
     // stripping alone would delete a live declaration from the checked text,
-    // eg. content:"/*"; background:url(http://...); content:"*/". Every form
-    // must pass, so adding a form can only reject more, never allow more; the
-    // serialized output is not modified here.
+    // eg. content:"/*"; background:url(http://...); content:"*/". The tokens
+    // are checked last as the CSS parser reads them. Every check must pass, so
+    // adding a check can only reject more, never allow more; the serialized
+    // output is not modified here.
     return isFormAllowed(normalized) &&
         isFormAllowed(stripComments(normalized)) &&
         isFormAllowed(stripUrlWhitespace(normalized)) &&
-        isFormAllowed(stripComments(stripUrlWhitespace(normalized)));
+        isFormAllowed(stripComments(stripUrlWhitespace(normalized))) &&
+        isTokenAllowed(css);
 }
 // Allows use tag in SVG with local references only
 DOMPurify.addHook('afterSanitizeAttributes', function(node)
@@ -4194,7 +4442,12 @@ Graph.isSameOrigin = function(url)
  * apply to the whole document in SVG regardless of their position, so
  * without it a rule like path {...} from an icon leaks onto every path
  * in the target document (overriding fill="none" on edges, as author
- * CSS beats presentation attributes).
+ * CSS beats presentation attributes). With a scope, style elements only
+ * keep style rules, also inside @media, @supports, @container and @layer
+ * blocks, and @font-face and @keyframes rules. The names of the latter
+ * apply to the whole document, so they are prefixed like IDs, along with
+ * the references to them in the style rules and in the style, font-family
+ * and face attributes. Other at-rules are removed.
  */
 Graph.prefixSvgIds = function(root, prefix, scope)
 {
@@ -4206,55 +4459,347 @@ Graph.prefixSvgIds = function(root, prefix, scope)
 		return value.replace(/url\(\s*(['"]?)#/g, 'url($1#' + prefix);
 	};
 
-	var prefixSelectors = function(css)
+	// Only CSS whitespace separates tokens, eg. U+00A0 is part of a name
+	var trim = function(value)
 	{
-		// Prefixes class and ID selectors outside of rule bodies. Note
-		// that nested rules, eg. in media queries, are not supported.
-		return css.replace(/([^{}]*)(\{[^{}]*\})/g, function(match, sel, body)
+		// Scans instead of a regex anchored at the end, which takes quadratic
+		// time on a long run of spaces inside a quoted name or selector
+		var ws = ' \t\n\r\f';
+		var start = 0;
+		var end = value.length;
+
+		while (start < end && ws.indexOf(value.charAt(start)) >= 0)
 		{
-			sel = sel.replace(/([.#])(-?[A-Za-z_][\w-]*)/g,
-				'$1' + prefix + '$2');
+			start++;
+		}
 
-			// Scopes each selector to the container. A leading svg type
-			// selector maps to the scope itself (the source root becomes
-			// the container). Matching the originals under the scope in
-			// defs also styles their use-instances, like the prefixed
-			// class selectors above.
-			if (scope != null)
-			{
-				var parts = sel.split(',');
+		while (end > start && ws.indexOf(value.charAt(end - 1)) >= 0)
+		{
+			end--;
+		}
 
-				for (var i = 0; i < parts.length; i++)
-				{
-					var part = mxUtils.trim(parts[i]);
+		return value.substring(start, end);
+	};
 
-					if (part == 'svg')
-					{
-						parts[i] = scope;
-					}
-					else if (part.substring(0, 4) == 'svg ' || part.substring(0, 4) == 'svg>' ||
-						part.substring(0, 4) == 'svg+' || part.substring(0, 4) == 'svg~')
-					{
-						parts[i] = scope + part.substring(3);
-					}
-					else if (part != '')
-					{
-						parts[i] = scope + ' ' + part;
-					}
-					else
-					{
-						parts[i] = part;
-					}
-				}
+	// Declared font families (lowercase as they match case-insensitively)
+	// and keyframes names, and the keywords that are never renamed
+	var fonts = Object.create(null);
+	var keyframes = Object.create(null);
+	var declared = false;
+	var fontKeywords = /^(serif|sans-serif|monospace|cursive|fantasy|system-ui|ui-serif|ui-sans-serif|ui-monospace|ui-rounded|math|emoji|fangsong|inherit|initial|unset|revert|revert-layer|default)$/i;
+	var animationKeywords = /^(none|inherit|initial|unset|revert|revert-layer|default)$/i;
 
-				sel = parts.join(', ');
-			}
+	// Returns the decoded name in the given item of a serialized font family
+	// or animation name list, or null for a keyword or a value that is not
+	// a name (eg. var()). Only unquoted names can be keywords.
+	var getName = function(item, keywords)
+	{
+		item = trim(item);
 
-			return sel + prefixUrls(body);
+		if (item.length > 1 && (item.charAt(0) == '"' || item.charAt(0) == '\'') &&
+			item.charAt(item.length - 1) == item.charAt(0))
+		{
+			item = item.substring(1, item.length - 1);
+		}
+		else if (keywords.test(item) || /[^\w\-\\ \t\n\r\f\u0080-\uFFFF]/.test(item))
+		{
+			return null;
+		}
+		else
+		{
+			item = item.replace(/[ \t\n\r\f]+/g, ' ');
+		}
+
+		return item.replace(/\\([0-9a-fA-F]{1,6})[ \t\n\r\f]?|\\([\s\S])/g, function(match, hex, chr)
+		{
+			var cp = (hex != null) ? parseInt(hex, 16) : 0;
+
+			return (hex == null) ? chr : ((cp == 0 || cp > 0xFFFF ||
+				(cp >= 0xD800 && cp <= 0xDFFF)) ? '\uFFFD' : String.fromCharCode(cp));
 		});
 	};
 
+	// Returns the given serialized list with the names in the given lookup
+	// prefixed, or null if it contains none of them
+	var renameList = function(value, lookup, keywords, ignoreCase)
+	{
+		var items = value.match(/("(?:[^"\\]|\\[\s\S])*"|'(?:[^'\\]|\\[\s\S])*'|\\[\s\S]|[^,"'\\])+/g);
+		var changed = false;
+
+		if (items != null)
+		{
+			for (var i = 0; i < items.length; i++)
+			{
+				items[i] = trim(items[i]);
+				var name = getName(items[i], keywords);
+
+				if (name != null && lookup[(ignoreCase) ? name.toLowerCase() : name])
+				{
+					items[i] = CSS.escape(prefix + name);
+					changed = true;
+				}
+			}
+		}
+
+		return (changed) ? items.join(', ') : null;
+	};
+
+	// Renames the references to declared names in the given declaration
+	// and returns true if any were renamed
+	var renameStyle = function(style)
+	{
+		var families = renameList(style.fontFamily, fonts, fontKeywords, true);
+		var names = renameList(style.animationName, keyframes, animationKeywords, false);
+
+		if (families != null)
+		{
+			style.fontFamily = families;
+		}
+
+		if (names != null)
+		{
+			style.animationName = names;
+		}
+
+		return families != null || names != null;
+	};
+
+	// Renames the references to declared names in the attributes of the
+	// given element, parsed with the given detached declaration
+	var renameAttributes = function(elt, probe)
+	{
+		var style = elt.getAttribute('style');
+
+		if (style != null)
+		{
+			probe.cssText = style;
+
+			if (renameStyle(probe))
+			{
+				var value = probe.cssText;
+
+				// The serialization decodes escapes (see prefixCss)
+				if (Graph.zapGremlins(value) == value && Graph.isStyleAllowed(value))
+				{
+					elt.setAttribute('style', value);
+				}
+			}
+		}
+
+		var attrs = ['font-family', 'face'];
+
+		for (var i = 0; i < attrs.length; i++)
+		{
+			var value = elt.getAttribute(attrs[i]);
+
+			if (value != null)
+			{
+				probe.cssText = '';
+				probe.fontFamily = value;
+				value = renameList(probe.fontFamily, fonts, fontKeywords, true);
+
+				if (value != null)
+				{
+					elt.setAttribute(attrs[i], value);
+				}
+			}
+		}
+	};
+
+	// Returns true if the rules in the given rule are processed recursively
+	var isBlock = function(rule)
+	{
+		return rule.type == CSSRule.MEDIA_RULE || rule.type == CSSRule.SUPPORTS_RULE ||
+			rule.conditionText != null || (typeof CSSLayerBlockRule !== 'undefined' &&
+			rule instanceof CSSLayerBlockRule);
+	};
+
+	// Adds the font families and keyframes declared in the given rules
+	var declareNames = function(rules)
+	{
+		for (var i = 0; i < rules.length; i++)
+		{
+			var rule = rules[i];
+
+			if (rule.type == CSSRule.FONT_FACE_RULE)
+			{
+				var name = getName(rule.style.getPropertyValue('font-family'), fontKeywords);
+
+				if (name != null)
+				{
+					fonts[name.toLowerCase()] = true;
+					declared = true;
+				}
+			}
+			else if (rule.type == CSSRule.KEYFRAMES_RULE)
+			{
+				keyframes[rule.name] = true;
+				declared = true;
+			}
+			else if (isBlock(rule))
+			{
+				declareNames(rule.cssRules);
+			}
+		}
+	};
+
+	// Scopes each selector in the given list to the container. A leading
+	// svg type selector maps to the scope itself (the source root becomes
+	// the container), except before a sibling combinator, which would
+	// reach the siblings of the container. Matching the originals under
+	// the scope in defs also styles their use-instances, like the
+	// prefixed class selectors. Only CSS whitespace separates tokens, eg.
+	// U+00A0 is part of an identifier and would extend the scope's ID.
+	var scopeSelectors = function(sel)
+	{
+		var parts = sel.split(',');
+
+		for (var i = 0; i < parts.length; i++)
+		{
+			var part = trim(parts[i]);
+
+			if (part == 'svg')
+			{
+				parts[i] = scope;
+			}
+			else if (/^svg([ \t\n\r\f]*>|[ \t\n\r\f]+[^ \t\n\r\f~+])/.test(part))
+			{
+				parts[i] = scope + part.substring(3);
+			}
+			else if (part != '')
+			{
+				parts[i] = scope + ' ' + part;
+			}
+			else
+			{
+				parts[i] = part;
+			}
+		}
+
+		return parts.join(', ');
+	};
+
+	// Prefixes class and ID selectors in the given parsed rule and scopes it
+	// to the container. Returns false if the rule must be removed.
+	var prefixRule = function(rule)
+	{
+		if (rule.type == CSSRule.STYLE_RULE)
+		{
+			var sel = rule.selectorText;
+			var next = sel.replace(/([.#])(-?[A-Za-z_][\w-]*)/g,
+				'$1' + prefix + '$2');
+
+			if (scope != null)
+			{
+				rule.selectorText = scopeSelectors(next);
+
+				// The setter ignores invalid selectors, which would leave
+				// the rule unscoped
+				if (rule.selectorText == sel)
+				{
+					return false;
+				}
+
+				// Removes nested rules as they are relative to this rule,
+				// where a sibling combinator reaches outside of the scope
+				if (rule.cssRules != null)
+				{
+					for (var i = rule.cssRules.length - 1; i >= 0; i--)
+					{
+						rule.deleteRule(i);
+					}
+				}
+			}
+			else if (next != sel)
+			{
+				rule.selectorText = next;
+			}
+
+			renameStyle(rule.style);
+		}
+		else if (rule.type == CSSRule.FONT_FACE_RULE)
+		{
+			var family = rule.style.getPropertyValue('font-family');
+			var name = getName(family, fontKeywords);
+
+			if (name == null)
+			{
+				return false;
+			}
+
+			rule.style.setProperty('font-family', CSS.escape(prefix + name));
+
+			// Removes the rule if its global name could not be changed
+			return rule.style.getPropertyValue('font-family') != family;
+		}
+		else if (rule.type == CSSRule.KEYFRAMES_RULE)
+		{
+			var name = rule.name;
+			rule.name = prefix + name;
+
+			return rule.name != name;
+		}
+		else if (isBlock(rule))
+		{
+			for (var i = rule.cssRules.length - 1; i >= 0; i--)
+			{
+				if (!prefixRule(rule.cssRules[i]))
+				{
+					rule.deleteRule(i);
+				}
+			}
+		}
+		else if (scope != null)
+		{
+			// Eg. @import, whose rules cannot be scoped, or @page
+			return false;
+		}
+
+		return true;
+	};
+
+	// Uses the browser for parsing so that rules are scoped as they are
+	// applied, including comments, strings, escapes and unclosed blocks.
+	var prefixCss = function(rules)
+	{
+		var result = [];
+
+		for (var i = 0; i < rules.length; i++)
+		{
+			if (prefixRule(rules[i]))
+			{
+				result.push(rules[i].cssText);
+			}
+		}
+
+		result = prefixUrls(result.join('\n'));
+
+		// The serialization decodes escapes, so the result must pass the
+		// checks of the sanitizer for style elements (see DOMPurify hooks)
+		if (Graph.zapGremlins(result) != result || !Graph.isStyleAllowed(result) ||
+			/<[\/\w!]/.test(result))
+		{
+			result = '';
+		}
+
+		return result;
+	};
+
 	var elts = root.getElementsByTagName('*');
+	var sheets = [];
+
+	// Parses all style elements first to find the declared names
+	for (var i = 0; i < elts.length; i++)
+	{
+		if (elts[i].nodeName.toLowerCase() == 'style')
+		{
+			var rules = Graph.getCssRules(mxUtils.getTextContent(elts[i]));
+			declareNames(rules);
+			sheets.push(rules);
+		}
+	}
+
+	var probe = (declared) ? document.createElement('div').style : null;
 
 	for (var i = 0; i < elts.length; i++)
 	{
@@ -4285,8 +4830,7 @@ Graph.prefixSvgIds = function(root, prefix, scope)
 
 		if (elt.nodeName.toLowerCase() == 'style')
 		{
-			mxUtils.setTextContent(elt, prefixSelectors(
-				mxUtils.getTextContent(elt)));
+			mxUtils.setTextContent(elt, prefixCss(sheets.shift()));
 		}
 		else
 		{
@@ -4311,7 +4855,18 @@ Graph.prefixSvgIds = function(root, prefix, scope)
 					elt.setAttribute(hrefAttrs[j], '#' + prefix + value.substring(1));
 				}
 			}
+
+			if (declared)
+			{
+				renameAttributes(elt, probe);
+			}
 		}
+	}
+
+	// The attributes of the root are kept by the caller (eg. on a symbol)
+	if (declared)
+	{
+		renameAttributes(root, probe);
 	}
 };
 
@@ -4845,6 +5400,63 @@ Graph.mirrorShapeInsideOutline = function(outline)
 };
 
 /**
+ * Returns the relative horizontal size of the slanted or curved sides of the
+ * given parallelogram, data storage or step style for the text flow outlines
+ * and bands, or null if the direction is not east or the size exceeds half
+ * the width.
+ */
+Graph.getShapeInsideSize = function(style, w, defaultSize)
+{
+	if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
+		mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+	{
+		return null;
+	}
+
+	var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
+	var s = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
+		w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(style, 'size', defaultSize))));
+
+	return (s > w / 2) ? null : s / w;
+};
+
+/**
+ * Returns the effective direction of the apex of the given triangle style
+ * for the text flow outlines and bands with flipH and flipV applied.
+ */
+Graph.getShapeInsideTriangleDirection = function(style)
+{
+	var dir = mxUtils.getValue(style, mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
+	var flipH = mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1';
+	var flipV = mxUtils.getValue(style, mxConstants.STYLE_FLIPV, '0') == '1';
+
+	// Direction north/south swaps the flip axes (see mxShape.updateTransform)
+	if (dir == mxConstants.DIRECTION_NORTH || dir == mxConstants.DIRECTION_SOUTH)
+	{
+		var tmp = flipH;
+		flipH = flipV;
+		flipV = tmp;
+	}
+
+	// Resolves the effective orientation of the apex
+	if (dir == mxConstants.DIRECTION_EAST || dir == mxConstants.DIRECTION_WEST)
+	{
+		if (flipH)
+		{
+			dir = (dir == mxConstants.DIRECTION_EAST) ?
+				mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_EAST;
+		}
+	}
+	else if (flipV)
+	{
+		dir = (dir == mxConstants.DIRECTION_NORTH) ?
+			mxConstants.DIRECTION_SOUTH : mxConstants.DIRECTION_NORTH;
+	}
+
+	return dir;
+};
+
+/**
  * Text flow outlines for wrapped labels with shapeInside=1. Maps shape names
  * to functions that return the label exclusion regions for the left and right
  * half of the label as arrays of relative [x, y] points in cell coordinates,
@@ -4885,32 +5497,7 @@ Graph.shapeInsideOutlines = {
 	},
 	'triangle': function(style, w, h)
 	{
-		var dir = mxUtils.getValue(style, mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
-		var flipH = mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1';
-		var flipV = mxUtils.getValue(style, mxConstants.STYLE_FLIPV, '0') == '1';
-
-		// Direction north/south swaps the flip axes (see mxShape.updateTransform)
-		if (dir == mxConstants.DIRECTION_NORTH || dir == mxConstants.DIRECTION_SOUTH)
-		{
-			var tmp = flipH;
-			flipH = flipV;
-			flipV = tmp;
-		}
-
-		// Resolves the effective orientation of the apex
-		if (dir == mxConstants.DIRECTION_EAST || dir == mxConstants.DIRECTION_WEST)
-		{
-			if (flipH)
-			{
-				dir = (dir == mxConstants.DIRECTION_EAST) ?
-					mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_EAST;
-			}
-		}
-		else if (flipV)
-		{
-			dir = (dir == mxConstants.DIRECTION_NORTH) ?
-				mxConstants.DIRECTION_SOUTH : mxConstants.DIRECTION_NORTH;
-		}
+		var dir = Graph.getShapeInsideTriangleDirection(style);
 
 		if (dir == mxConstants.DIRECTION_NORTH)
 		{
@@ -4964,22 +5551,13 @@ Graph.shapeInsideOutlines = {
 	},
 	'parallelogram': function(style, w, h)
 	{
-		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
-			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		var du = Graph.getShapeInsideSize(style, w, 0.2);
+
+		if (du == null)
 		{
 			return null;
 		}
 
-		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
-		var dx = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
-			w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(style, 'size', 0.2))));
-
-		if (dx > w / 2)
-		{
-			return null;
-		}
-
-		var du = dx / w;
 		var mirrored = (mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1') !=
 			(mxUtils.getValue(style, mxConstants.STYLE_FLIPV, '0') == '1');
 
@@ -5020,17 +5598,9 @@ Graph.shapeInsideOutlines = {
 	},
 	'dataStorage': function(style, w, h)
 	{
-		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
-			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
-		{
-			return null;
-		}
+		var su = Graph.getShapeInsideSize(style, w, 0.1);
 
-		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
-		var s = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
-			w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(style, 'size', 0.1))));
-
-		if (s > w / 2)
+		if (su == null)
 		{
 			return null;
 		}
@@ -5038,7 +5608,6 @@ Graph.shapeInsideOutlines = {
 		// Samples the quadratic curves of the outline (y is linear in the
 		// curve parameter): left bulge x = s * (1 - 2t)^2, right indent
 		// x = w - 4 * s * t * (1 - t)
-		var su = s / w;
 		var left = [[0, 0], [su, 0]];
 		var right = [[1, 0]];
 		var n = 12;
@@ -5127,22 +5696,13 @@ Graph.shapeInsideOutlines = {
 	},
 	'step': function(style, w, h)
 	{
-		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
-			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		var su = Graph.getShapeInsideSize(style, w, 0.2);
+
+		if (su == null)
 		{
 			return null;
 		}
 
-		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
-		var s = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
-			w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(style, 'size', 0.2))));
-
-		if (s > w / 2)
-		{
-			return null;
-		}
-
-		var su = s / w;
 
 		if (mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1')
 		{
@@ -5190,30 +5750,7 @@ Graph.shapeInsideBands = {
 	},
 	'triangle': function(style, w, h)
 	{
-		var dir = mxUtils.getValue(style, mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
-		var flipH = mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1';
-		var flipV = mxUtils.getValue(style, mxConstants.STYLE_FLIPV, '0') == '1';
-
-		if (dir == mxConstants.DIRECTION_NORTH || dir == mxConstants.DIRECTION_SOUTH)
-		{
-			var tmp = flipH;
-			flipH = flipV;
-			flipV = tmp;
-		}
-
-		if (dir == mxConstants.DIRECTION_EAST || dir == mxConstants.DIRECTION_WEST)
-		{
-			if (flipH)
-			{
-				dir = (dir == mxConstants.DIRECTION_EAST) ?
-					mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_EAST;
-			}
-		}
-		else if (flipV)
-		{
-			dir = (dir == mxConstants.DIRECTION_NORTH) ?
-				mxConstants.DIRECTION_SOUTH : mxConstants.DIRECTION_NORTH;
-		}
+		var dir = Graph.getShapeInsideTriangleDirection(style);
 
 		if (dir == mxConstants.DIRECTION_NORTH)
 		{
@@ -5272,22 +5809,13 @@ Graph.shapeInsideBands = {
 	},
 	'parallelogram': function(style, w, h)
 	{
-		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
-			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		var du = Graph.getShapeInsideSize(style, w, 0.2);
+
+		if (du == null)
 		{
 			return null;
 		}
 
-		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
-		var dx = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
-			w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(style, 'size', 0.2))));
-
-		if (dx > w / 2)
-		{
-			return null;
-		}
-
-		var du = dx / w;
 		var mirrored = (mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1') !=
 			(mxUtils.getValue(style, mxConstants.STYLE_FLIPV, '0') == '1');
 
@@ -5320,22 +5848,13 @@ Graph.shapeInsideBands = {
 	},
 	'dataStorage': function(style, w, h)
 	{
-		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
-			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		var su = Graph.getShapeInsideSize(style, w, 0.1);
+
+		if (su == null)
 		{
 			return null;
 		}
 
-		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
-		var s = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
-			w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(style, 'size', 0.1))));
-
-		if (s > w / 2)
-		{
-			return null;
-		}
-
-		var su = s / w;
 		var flipH = mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1';
 
 		return function(tau)
@@ -5385,22 +5904,13 @@ Graph.shapeInsideBands = {
 	},
 	'step': function(style, w, h)
 	{
-		if (mxUtils.getValue(style, mxConstants.STYLE_DIRECTION,
-			mxConstants.DIRECTION_EAST) != mxConstants.DIRECTION_EAST)
+		var su = Graph.getShapeInsideSize(style, w, 0.2);
+
+		if (su == null)
 		{
 			return null;
 		}
 
-		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
-		var s = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(style, 'size', 20)))) :
-			w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(style, 'size', 0.2))));
-
-		if (s > w / 2)
-		{
-			return null;
-		}
-
-		var su = s / w;
 		var flipH = mxUtils.getValue(style, mxConstants.STYLE_FLIPH, '0') == '1';
 
 		return function(tau)
@@ -7087,9 +7597,11 @@ Graph.prototype.init = function(container)
 	// run before the layout manager, so a layout triggered by the same edit
 	// that toggles transparentBounds sees the pinned (0,0,0,0) geometry and
 	// translated children instead of the stale frame (the children would be
-	// shifted by the old origin twice).
+	// shifted by the old origin twice). The followTerminals update must run
+	// after the layout manager to follow terminals to their laid out position.
 	this.initTransparentBoundsStyleSync();
 	this.initLayoutManager();
+	this.initFollowTerminals();
 };
 
 /**
@@ -7789,7 +8301,7 @@ Graph.prototype.destroy = function()
 	Graph.prototype.pasteStylesToText = false;
 
 	/**
-	 * Returns information about the current selection.
+	 * Returns true if the fill color of the given state can be changed.
 	 */
 	Graph.prototype.isFillState = function(state)
 	{
@@ -7807,7 +8319,7 @@ Graph.prototype.destroy = function()
 	};
 	
 	/**
-	 * Returns information about the current selection.
+	 * Returns true if the gradient of the given state can be changed.
 	 */
 	Graph.prototype.isGradientState = function(state)
 	{
@@ -7817,7 +8329,7 @@ Graph.prototype.destroy = function()
 	};
 	
 	/**
-	 * Returns information about the current selection.
+	 * Returns true if the stroke of the given state can be changed.
 	 */
 	Graph.prototype.isStrokeState = function(state)
 	{
@@ -7870,17 +8382,19 @@ Graph.prototype.destroy = function()
 	};
 
 	/**
-	 * Returns information about the current selection.
+	 * Returns true if the given color is a keyword that refers to another
+	 * color, ie. fillColor, strokeColor, parentFillColor, parentStrokeColor,
+	 * inherit, swimlane or indicated.
 	 */
 	Graph.prototype.isSpecialColor = function(color)
 	{
 		return mxUtils.indexOf([mxConstants.STYLE_STROKECOLOR,
-			mxConstants.STYLE_FILLCOLOR, 'inherit', 'swimlane',
-			'indicated'], color) >= 0;
+			mxConstants.STYLE_FILLCOLOR, 'parentFillColor', 'parentStrokeColor',
+			'inherit', 'swimlane', 'indicated'], color) >= 0;
 	};
 	
 	/**
-	 * Returns information about the current selection.
+	 * Returns true if the glass effect can be applied to the given state.
 	 */
 	Graph.prototype.isGlassState = function(state)
 	{
@@ -7892,7 +8406,7 @@ Graph.prototype.destroy = function()
 	};
 	
 	/**
-	 * Returns information about the current selection.
+	 * Returns true if the given state can have rounded corners.
 	 */
 	Graph.prototype.isRoundedState = function(state)
 	{
@@ -7902,7 +8416,7 @@ Graph.prototype.destroy = function()
 	};
 	
 	/**
-	 * Returns information about the current selection.
+	 * Returns true if the given state can have line jumps.
 	 */
 	Graph.prototype.isLineJumpState = function(state)
 	{
@@ -7913,7 +8427,7 @@ Graph.prototype.destroy = function()
 	};
 	
 	/**
-	 * Returns information about the current selection.
+	 * Returns true if the given state has autosize enabled.
 	 */
 	Graph.prototype.isAutoSizeState = function(state)
 	{
@@ -7939,7 +8453,7 @@ Graph.prototype.destroy = function()
 	};
 
 	/**
-	 * Returns information about the current selection.
+	 * Returns true if the given state has an image.
 	 */
 	Graph.prototype.isImageState = function(state)
 	{
@@ -7947,7 +8461,7 @@ Graph.prototype.destroy = function()
 	};
 	
 	/**
-	 * Returns information about the current selection.
+	 * Returns true if the given state can have a shadow.
 	 */
 	Graph.prototype.isShadowState = function(state)
 	{
@@ -7970,7 +8484,7 @@ Graph.prototype.destroy = function()
 	};
 	
 	/**
-	 * Returns information about the current selection.
+	 * Applies the newEdgeStyle of the given source to the given edges.
 	 */
 	Graph.prototype.applyNewEdgeStyle = function(source, edges, dir)
 	{
@@ -8969,7 +9483,7 @@ Graph.prototype.destroy = function()
 	};
 
 	/**
-	 * Returns information about the current selection.
+	 * Returns the style entries that are common to the given cells.
 	 */
 	Graph.prototype.getCommonStyle = function(cells)
 	{
@@ -8989,7 +9503,8 @@ Graph.prototype.destroy = function()
 	};
 	
 	/**
-	 * Returns information about the current selection.
+	 * Keeps the entries of the given common style that have the same value in
+	 * the given style, initializing it from the style if initial is true.
 	 */
 	Graph.prototype.mergeStyle = function(style, into, initial)
 	{
@@ -10057,7 +10572,9 @@ Graph.prototype.labelLinkClicked = function(state, elt, evt)
 };
 
 /**
- * Returns the size of the page format scaled with the page size.
+ * Opens the given link in the given target after sanitizing it. The new
+ * window has no opener unless allowOpener is true. Returns the new window,
+ * or the current window if no new window was opened.
  */
 Graph.prototype.openLink = function(href, target, allowOpener)
 {
@@ -10488,6 +11005,661 @@ Graph.prototype.initLayoutManager = function()
 			}
 		}
 	};
+};
+
+/**
+ * Starts a model update that tracks the vertices whose geometry it changes
+ * and the cells whose style it changes. Pair with endArrange in a finally
+ * block like beginUpdate and endUpdate. Forward actions that write vertex
+ * geometries directly, and hence fire neither CELLS_MOVED nor CELLS_RESIZED
+ * (Arrange panel, distribute, turn, layouts), or that replace whole styles
+ * (Edit Style), use this pair so listeners that react to moved or transformed
+ * shapes (eg. the libavoid auto-routing) see those changes too.
+ */
+Graph.prototype.beginArrange = function()
+{
+	var model = this.getModel();
+	var arrange = {cells: [], previous: [], seen: new mxDictionary(),
+		restyled: [], previousStyles: [], styled: new mxDictionary()};
+
+	arrange.listener = function(sender, evt)
+	{
+		var change = evt.getProperty('change');
+
+		// Changes hold the replaced value in previous once executed
+		if (change instanceof mxGeometryChange &&
+			model.isVertex(change.cell) &&
+			!arrange.seen.get(change.cell))
+		{
+			arrange.seen.put(change.cell, true);
+			arrange.cells.push(change.cell);
+			arrange.previous.push(change.previous);
+		}
+		else if (change instanceof mxStyleChange &&
+			!arrange.styled.get(change.cell))
+		{
+			arrange.styled.put(change.cell, true);
+			arrange.restyled.push(change.cell);
+			arrange.previousStyles.push(change.previous);
+		}
+	};
+
+	model.addListener(mxEvent.EXECUTE, arrange.listener);
+	model.beginUpdate();
+
+	return arrange;
+};
+
+/**
+ * Ends a model update started with beginArrange. Fires 'cellsArranged' with
+ * the tracked vertices and their geometries before the update (cells,
+ * previous) and the tracked cells and their styles before the update
+ * (restyled, previousStyles) inside the update, ie. before the edit's
+ * BEFORE_UNDO. Like CELLS_MOVED, the event is only fired for forward actions,
+ * never on undo/redo or for remote changes.
+ */
+Graph.prototype.endArrange = function(arrange)
+{
+	var model = this.getModel();
+	model.removeListener(arrange.listener);
+
+	try
+	{
+		if (arrange.cells.length > 0 || arrange.restyled.length > 0)
+		{
+			this.fireEvent(new mxEventObject('cellsArranged',
+				'cells', arrange.cells, 'previous', arrange.previous,
+				'restyled', arrange.restyled, 'previousStyles',
+				arrange.previousStyles));
+		}
+	}
+	finally
+	{
+		model.endUpdate();
+	}
+};
+
+/**
+ * Returns the given absolute waypoints of a straight or curved edge after its
+ * terminal anchors moved from s0, t0 to s1, t1: each point keeps its relative
+ * position along the line between the anchors and its absolute distance from
+ * that line, ie. the route rotates and stretches with the line while bends
+ * keep their clearance. Coinciding anchors define no line, the points then
+ * move with the midpoint of the anchors.
+ */
+Graph.getFollowedAxisPoints = function(points, s0, t0, s1, t1)
+{
+	var ax = t0.x - s0.x;
+	var ay = t0.y - s0.y;
+	var bx = t1.x - s1.x;
+	var by = t1.y - s1.y;
+	var la = Math.sqrt(ax * ax + ay * ay);
+	var lb = Math.sqrt(bx * bx + by * by);
+	var result = [];
+
+	for (var i = 0; i < points.length; i++)
+	{
+		if (la >= 1 && lb >= 1)
+		{
+			// Relative position along and absolute distance from the line
+			var px = points[i].x - s0.x;
+			var py = points[i].y - s0.y;
+			var t = (px * ax + py * ay) / (la * la);
+			var d = (py * ax - px * ay) / la;
+
+			result.push(new mxPoint(s1.x + t * bx - d * by / lb,
+				s1.y + t * by + d * bx / lb));
+		}
+		else
+		{
+			result.push(new mxPoint(points[i].x + (s1.x - s0.x + t1.x - t0.x) / 2,
+				points[i].y + (s1.y - s0.y + t1.y - t0.y) / 2));
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Returns the given absolute waypoints of an orthogonal edge after its
+ * terminal anchors moved from s0, t0 to s1, t1. Segments stay axis-parallel:
+ * each run of consecutive points on a vertical (horizontal) segment shares
+ * one x (y) delta, interpolated between the source and the target delta by
+ * the run's position along the route. Runs through the first (last) point
+ * move rigidly with the source (target), so the leading and trailing
+ * segments keep their length.
+ */
+Graph.getFollowedSegmentPoints = function(points, s0, t0, s1, t1)
+{
+	var dist = function(a, b)
+	{
+		return Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
+	};
+
+	// Distance of each point from the source along the route
+	var pos = [];
+	var length = 0;
+	var result = [];
+
+	for (var i = 0; i < points.length; i++)
+	{
+		length += dist((i > 0) ? points[i - 1] : s0, points[i]);
+		pos.push(length);
+		result.push(new mxPoint(points[i].x, points[i].y));
+	}
+
+	length += dist(points[points.length - 1], t0);
+
+	// Weight of the target delta for the run of points from start to end - 1
+	var getWeight = function(start, end)
+	{
+		var w = (start == 0) ? 0 : 1;
+
+		// Runs through both ends or none move by their mean position
+		if ((start == 0) == (end == points.length))
+		{
+			w = 0;
+
+			for (var i = start; i < end; i++)
+			{
+				w += (length > 0) ? pos[i] / length : 0.5;
+			}
+
+			w /= end - start;
+		}
+
+		return w;
+	};
+
+	var moveRuns = function(key, ds, dt)
+	{
+		var start = 0;
+
+		for (var i = 1; i <= points.length; i++)
+		{
+			if (i == points.length || Math.abs(points[i][key] - points[i - 1][key]) >= 1)
+			{
+				var d = ds + getWeight(start, i) * (dt - ds);
+
+				for (var j = start; j < i; j++)
+				{
+					result[j][key] = points[j][key] + d;
+				}
+
+				start = i;
+			}
+		}
+	};
+
+	moveRuns('x', s1.x - s0.x, t1.x - t0.x);
+	moveRuns('y', s1.y - s0.y, t1.y - t0.y);
+
+	return result;
+};
+
+/**
+ * Returns an object whose parent, children and geometry functions resolve
+ * cells in the current model. See getFollowedEdgePoints.
+ */
+Graph.prototype.createFollowModelState = function()
+{
+	var model = this.model;
+
+	return {parent: function(cell)
+	{
+		return model.getParent(cell);
+	}, children: function(cell)
+	{
+		return model.getChildCells(cell);
+	}, geometry: function(cell)
+	{
+		return model.getGeometry(cell);
+	}};
+};
+
+/**
+ * Returns the absolute bounds of the given vertex in the given model state
+ * (see createFollowModelState) or null if it has no geometry or a relative
+ * geometry without a parent vertex. Relative geometries are resolved against
+ * the parent vertex like in the view.
+ */
+Graph.prototype.getFollowBounds = function(cell, state)
+{
+	var geo = state.geometry(cell);
+	var parent = state.parent(cell);
+	var pb = (parent != null && this.model.isVertex(parent)) ?
+		this.getFollowBounds(parent, state) : null;
+	var result = null;
+
+	if (geo != null && (!geo.relative || pb != null))
+	{
+		result = new mxRectangle(geo.x, geo.y, geo.width, geo.height);
+
+		if (geo.relative)
+		{
+			var offset = geo.offset || new mxPoint();
+			result.x = pb.x + geo.x * pb.width + offset.x;
+			result.y = pb.y + geo.y * pb.height + offset.y;
+		}
+		else if (pb != null)
+		{
+			result.x += pb.x;
+			result.y += pb.y;
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Returns the absolute origin of the given cell's coordinates in the given
+ * model state, ie. the position of its parent vertex.
+ */
+Graph.prototype.getFollowOrigin = function(cell, state)
+{
+	var parent = state.parent(cell);
+	var pb = (parent != null && this.model.isVertex(parent)) ?
+		this.getFollowBounds(parent, state) : null;
+
+	return (pb != null) ? new mxPoint(pb.x, pb.y) : new mxPoint();
+};
+
+/**
+ * Returns the absolute waypoints of the given edge in the given model state
+ * or null if it has none.
+ */
+Graph.prototype.getFollowWaypoints = function(edge, state)
+{
+	var geo = state.geometry(edge);
+	var result = null;
+
+	if (geo != null && geo.points != null && geo.points.length > 0)
+	{
+		var origin = this.getFollowOrigin(edge, state);
+		result = [];
+
+		for (var i = 0; i < geo.points.length; i++)
+		{
+			if (geo.points[i] != null)
+			{
+				result.push(new mxPoint(geo.points[i].x + origin.x,
+					geo.points[i].y + origin.y));
+			}
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Returns the absolute anchor of the given end of the edge in the given model
+ * state: the center of the terminal or the terminal point of a dangling end.
+ * The visible bounds of a transparentBounds terminal are derived from its
+ * children in that state, its stored geometry is only their origin.
+ */
+Graph.prototype.getFollowAnchor = function(edge, source, state)
+{
+	var terminal = this.model.getTerminal(edge, source);
+	var result = null;
+
+	if (terminal != null)
+	{
+		var bounds = this.getFollowBounds(terminal, state);
+
+		if (bounds != null && this.isTransparentBounds(terminal))
+		{
+			var local = this.getTransparentBounds(terminal, state);
+			bounds = (local != null) ? new mxRectangle(bounds.x + local.x,
+				bounds.y + local.y, local.width, local.height) : null;
+		}
+
+		if (bounds != null)
+		{
+			result = new mxPoint(bounds.getCenterX(), bounds.getCenterY());
+		}
+	}
+	else
+	{
+		var geo = state.geometry(edge);
+		var pt = (geo != null) ? geo.getTerminalPoint(source) : null;
+
+		if (pt != null)
+		{
+			var origin = this.getFollowOrigin(edge, state);
+			result = new mxPoint(pt.x + origin.x, pt.y + origin.y);
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Returns the edges with followTerminals=1 connected to the given vertices,
+ * or to their descendants if recurse is true, and to their transparentBounds
+ * ancestors, whose derived bounds change with the vertices.
+ */
+Graph.prototype.getFollowingEdges = function(cells, recurse)
+{
+	var seen = new mxDictionary();
+	var result = [];
+
+	for (var i = 0; i < cells.length; i++)
+	{
+		var vertices = (recurse) ? this.model.getDescendants(cells[i]) : [cells[i]];
+		var parent = this.model.getParent(cells[i]);
+
+		while (this.model.isVertex(parent) && this.isTransparentBounds(parent))
+		{
+			vertices.push(parent);
+			parent = this.model.getParent(parent);
+		}
+
+		for (var j = 0; j < vertices.length; j++)
+		{
+			if (this.model.isVertex(vertices[j]) && !seen.get(vertices[j]))
+			{
+				seen.put(vertices[j], true);
+				var edges = this.model.getEdges(vertices[j]);
+
+				for (var k = 0; k < edges.length; k++)
+				{
+					if (!seen.get(edges[k]) && mxUtils.getValue(this.getCurrentCellStyle(
+						edges[k]), 'followTerminals', '0') == '1')
+					{
+						seen.put(edges[k], true);
+						result.push(edges[k]);
+					}
+				}
+			}
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Returns the waypoints of the given edge with followTerminals=1 in its
+ * geometry's coordinates after its terminals moved from the before to the
+ * after model state (see createFollowModelState), or null if no terminal
+ * moved or if the edge's own absolute route differs between the states, ie.
+ * if something else already moved or routed it. Orthogonal edges keep their
+ * segments axis-parallel (getFollowedSegmentPoints), all others rotate and
+ * stretch with the line between the terminals (getFollowedAxisPoints).
+ */
+Graph.prototype.getFollowedEdgePoints = function(edge, before, after)
+{
+	var prev = this.getFollowWaypoints(edge, before);
+	var s0 = this.getFollowAnchor(edge, true, before);
+	var t0 = this.getFollowAnchor(edge, false, before);
+	var s1 = this.getFollowAnchor(edge, true, after);
+	var t1 = this.getFollowAnchor(edge, false, after);
+	var result = null;
+
+	if (prev != null && s0 != null && t0 != null && s1 != null && t1 != null &&
+		(!s0.equals(s1) || !t0.equals(t1)) &&
+		Graph.isSameRoute(prev, this.getFollowWaypoints(edge, after)))
+	{
+		var pts = (this.isOrthogonal(new mxCellState(this.view, edge,
+			this.getCurrentCellStyle(edge)))) ?
+			Graph.getFollowedSegmentPoints(prev, s0, t0, s1, t1) :
+			Graph.getFollowedAxisPoints(prev, s0, t0, s1, t1);
+		var origin = this.getFollowOrigin(edge, after);
+		result = [];
+
+		for (var i = 0; i < pts.length; i++)
+		{
+			result.push(new mxPoint(Math.round((pts[i].x - origin.x) * 100) / 100,
+				Math.round((pts[i].y - origin.y) * 100) / 100));
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Returns true if the given arrays of points match within rounding errors.
+ */
+Graph.isSameRoute = function(a, b)
+{
+	var same = a != null && b != null && a.length == b.length;
+
+	for (var i = 0; same && i < a.length; i++)
+	{
+		same = Math.abs(a[i].x - b[i].x) < 0.01 && Math.abs(a[i].y - b[i].y) < 0.01;
+	}
+
+	return same;
+};
+
+/**
+ * Moves the waypoints of edges with followTerminals=1 along with their
+ * terminals after a move, resize or arrange gesture, in the same undoable
+ * edit. The gesture events only arm the update: they fire for forward
+ * actions only, never on undo/redo or for remote changes. The update runs
+ * from the edit's BEFORE_UNDO after the layout manager's handler (registered
+ * before this), so terminals re-slotted by a childLayout are followed to
+ * their final position. Only a non-empty edit arms the update: an empty edit
+ * fires no BEFORE_UNDO, which would leave it armed for an unrelated edit.
+ */
+Graph.prototype.initFollowTerminals = function()
+{
+	var arm = mxUtils.bind(this, function()
+	{
+		if (this.model.updateLevel > 0 && !this.model.currentEdit.isEmpty())
+		{
+			this.followTerminalsPending = true;
+		}
+	});
+
+	this.addListener(mxEvent.CELLS_MOVED, arm);
+	this.addListener(mxEvent.CELLS_RESIZED, arm);
+	this.addListener('cellsArranged', arm);
+
+	this.model.addListener(mxEvent.BEFORE_UNDO, mxUtils.bind(this, function(sender, evt)
+	{
+		if (this.followTerminalsPending)
+		{
+			this.followTerminalsPending = false;
+			this.updateFollowingEdges(evt.getProperty('edit').changes);
+		}
+	}));
+};
+
+/**
+ * Moves the waypoints of the edges with followTerminals=1 whose terminals the
+ * given executed changes moved (see getFollowedEdgePoints). The model state
+ * before the changes is reconstructed from the changes themselves (after
+ * execute, a change's previous holds the replaced value), so every way the
+ * edit moved a terminal counts: the gesture, a moved ancestor, a layout or,
+ * for a transparentBounds terminal, a moved, added or removed child.
+ * Edges the changes added or reconnected are left alone, as are the edges
+ * inside a rotated or flipped vertex, which rotateCell and flipCells
+ * transform with the children (a mirrored route can be unchanged).
+ */
+Graph.prototype.updateFollowingEdges = function(changes)
+{
+	var model = this.model;
+	var parents = new mxDictionary();
+	var formerChildren = new mxDictionary();
+	var geometries = new mxDictionary();
+	var reconnected = new mxDictionary();
+	var transformed = new mxDictionary();
+	var moved = [];
+
+	for (var i = 0; i < changes.length; i++)
+	{
+		var change = changes[i];
+
+		if (change instanceof mxGeometryChange && geometries.get(change.cell) == null)
+		{
+			geometries.put(change.cell, {value: change.previous});
+			moved.push(change.cell);
+		}
+		else if (change instanceof mxChildChange && parents.get(change.child) == null)
+		{
+			parents.put(change.child, {value: change.previous});
+			moved.push(change.child);
+
+			if (change.previous != null)
+			{
+				var former = formerChildren.get(change.previous) || [];
+				former.push(change.child);
+				formerChildren.put(change.previous, former);
+
+				// Derived bounds of a transparentBounds that lost the child
+				if (this.isTransparentBounds(change.previous))
+				{
+					moved.push(change.previous);
+				}
+			}
+		}
+		else if (change instanceof mxTerminalChange)
+		{
+			reconnected.put(change.cell, true);
+		}
+		else if (change instanceof mxStyleChange && model.isVertex(change.cell) &&
+			this.isTransformStyleChange(change))
+		{
+			transformed.put(change.cell, true);
+		}
+	}
+
+	var before = {parent: function(cell)
+	{
+		var entry = parents.get(cell);
+
+		return (entry != null) ? entry.value : model.getParent(cell);
+	}, children: function(cell)
+	{
+		var current = model.getChildCells(cell);
+		var former = formerChildren.get(cell) || [];
+		var result = [];
+
+		for (var j = 0; j < current.length; j++)
+		{
+			if (before.parent(current[j]) == cell)
+			{
+				result.push(current[j]);
+			}
+		}
+
+		for (j = 0; j < former.length; j++)
+		{
+			if (model.getParent(former[j]) != cell)
+			{
+				result.push(former[j]);
+			}
+		}
+
+		return result;
+	}, geometry: function(cell)
+	{
+		var entry = geometries.get(cell);
+
+		return (entry != null) ? entry.value : model.getGeometry(cell);
+	}};
+
+	var after = this.createFollowModelState();
+	var edges = this.getFollowingEdges(moved, true);
+
+	for (i = 0; i < edges.length; i++)
+	{
+		if (model.contains(edges[i]) && before.parent(edges[i]) != null &&
+			!reconnected.get(edges[i]) && !transformed.get(before.parent(edges[i])))
+		{
+			var points = this.getFollowedEdgePoints(edges[i], before, after);
+
+			if (points != null)
+			{
+				var geo = model.getGeometry(edges[i]).clone();
+				geo.points = points;
+				model.setGeometry(edges[i], geo);
+			}
+		}
+	}
+};
+
+/**
+ * Returns true if the given executed style change changes the rotation or
+ * the flip of its cell.
+ */
+Graph.prototype.isTransformStyleChange = function(change)
+{
+	var previous = this.stylesheet.getCellStyle(change.previous, {});
+	var style = this.stylesheet.getCellStyle(change.style, {});
+	var keys = [mxConstants.STYLE_ROTATION, mxConstants.STYLE_FLIPH, mxConstants.STYLE_FLIPV];
+
+	for (var i = 0; i < keys.length; i++)
+	{
+		if (mxUtils.getValue(previous, keys[i], 0) != mxUtils.getValue(style, keys[i], 0))
+		{
+			return true;
+		}
+	}
+
+	return false;
+};
+
+/**
+ * Returns a dictionary from the given edges with followTerminals=1 to their
+ * waypoints for the live preview of a move or resize, where geometry returns
+ * the previewed geometry of a cell or null if the preview does not change it.
+ * See mxGraphView.updatePoints.
+ */
+Graph.prototype.getFollowedPreviewPoints = function(edges, geometry)
+{
+	var model = this.model;
+	var before = this.createFollowModelState();
+	var after = {parent: before.parent, children: before.children, geometry: function(cell)
+	{
+		return geometry(cell) || model.getGeometry(cell);
+	}};
+	var result = new mxDictionary();
+
+	for (var i = 0; i < edges.length; i++)
+	{
+		var points = this.getFollowedEdgePoints(edges[i], before, after);
+
+		if (points != null)
+		{
+			result.put(edges[i], points);
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Invalidates the given edges of a live preview with followed waypoints (see
+ * getFollowedPreviewPoints) and the edges of the previous preview of the given
+ * handler, which stores the former, so that the next validation redraws them
+ * with or without followed waypoints. The handlers only redraw the edges
+ * connected to the previewed cells, not those of transparentBounds ancestors.
+ */
+Graph.prototype.invalidateFollowedPreview = function(handler, edges)
+{
+	var invalid = (handler.followedEdges != null) ?
+		handler.followedEdges.concat(edges) : edges;
+
+	for (var i = 0; i < invalid.length; i++)
+	{
+		this.view.invalidate(invalid[i], false, false);
+	}
+
+	handler.followedEdges = (edges.length > 0) ? edges : null;
+};
+
+/**
+ * Redraws the edges of the last followed preview of the given handler with
+ * their waypoints in the model. Called when the handler is reset.
+ */
+Graph.prototype.resetFollowedPreview = function(handler)
+{
+	if (handler.followedEdges != null)
+	{
+		this.invalidateFollowedPreview(handler, []);
+		this.view.validate();
+	}
 };
 
 /**
@@ -12518,11 +13690,12 @@ Graph.prototype.removeChildCells = function(cell)
  * source cell. If the source is a vertex with children (eg. a group),
  * vertex targets adopt the size of the source, keeping their center,
  * and their children are replaced with clones of the children of the
- * source.
+ * source. The replaced styles and sizes are reported like an arrange
+ * action (see beginArrange), eg. a lost rotation moves connection points.
  */
 Graph.prototype.updateShapes = function(source, targets, replaceStyles)
 {
-	this.model.beginUpdate();
+	var arrange = this.beginArrange();
 	try
 	{
 		var sourceStyle = this.model.getStyle(source);
@@ -12622,7 +13795,7 @@ Graph.prototype.updateShapes = function(source, targets, replaceStyles)
 	}
 	finally
 	{
-		this.model.endUpdate();
+		this.endArrange(arrange);
 	}
 };
 
@@ -13983,27 +15156,34 @@ Graph.prototype.processChange = function(change)
  * bounds via getTransparentBounds (which is itself in the nested cell's
  * local space) translated by the nested cell's geo.x/y into this cell's
  * local space, so each level's padding accumulates outward and non-zero
- * nested geometry is handled correctly.
+ * nested geometry is handled correctly. The optional state resolves children
+ * and geometries in another model state (see createFollowModelState).
  */
-Graph.prototype.getTransparentChildBounds = function(cell)
+Graph.prototype.getTransparentChildBounds = function(cell, state)
 {
 	var result = null;
-	var count = this.model.getChildCount(cell);
+	var children = (state != null) ? state.children(cell) :
+		this.model.getChildCells(cell);
 
-	for (var i = 0; i < count; i++)
+	var getGeometry = mxUtils.bind(this, function(child)
 	{
-		var child = this.model.getChildAt(cell, i);
+		return (state != null) ? state.geometry(child) : this.getCellGeometry(child);
+	});
+
+	for (var i = 0; i < children.length; i++)
+	{
+		var child = children[i];
 		var rect = null;
 
 		if (this.model.isVertex(child))
 		{
-			var geo = this.getCellGeometry(child);
+			var geo = getGeometry(child);
 
 			if (geo != null && !geo.relative)
 			{
 				if (this.isTransparentBounds(child))
 				{
-					var local = this.getTransparentBounds(child);
+					var local = this.getTransparentBounds(child, state);
 
 					if (local != null)
 					{
@@ -14025,7 +15205,7 @@ Graph.prototype.getTransparentChildBounds = function(cell)
 			// space as vertex geometry) so an edge that bows outside the vertex
 			// union, or a group whose only children are edges, still expands the
 			// derived bounds instead of being ignored.
-			var geo = this.getCellGeometry(child);
+			var geo = getGeometry(child);
 
 			if (geo != null)
 			{
@@ -14087,11 +15267,12 @@ Graph.prototype.getTransparentChildBounds = function(cell)
  * bar start size and the footer region (opposite the title for swimlanes,
  * at the bottom otherwise) — in the cell's own local coordinate space
  * (child geometries are read directly without the cell's geo.x/y offset).
- * Returns null when the group has no children with geometry.
+ * Returns null when the group has no children with geometry. The optional
+ * state is passed to getTransparentChildBounds.
  */
-Graph.prototype.getTransparentBounds = function(cell)
+Graph.prototype.getTransparentBounds = function(cell, state)
 {
-	var bounds = this.getTransparentChildBounds(cell);
+	var bounds = this.getTransparentChildBounds(cell, state);
 
 	if (bounds == null)
 	{
@@ -14253,7 +15434,7 @@ Graph.prototype.updateGroupBounds = function(cells, border, moveGroup, topBorder
  * 3. **Containers that clip their children.** A child reaching past its
  *    parent's bounds is drawn outside the container box. The container is grown
  *    to contain it — never shrunk, and no child is moved, so a container with
- *    deliberate breathing room keeps it.
+ *    deliberate breathing room keeps it. Collapsed containers are left alone.
  *
  * @param {mxCell} [root] - model root to normalize (defaults to the model root)
  * @returns {Object} counts per step: {edgeParents, edgeGeometries, containers}
@@ -14319,8 +15500,10 @@ Graph.prototype.normalizeModel = function(root)
 				growContainers(model.getChildAt(cell, i));
 			}
 
+			// The children of a collapsed container are not drawn and its
+			// geometry is the collapsed size
 			if (!model.isVertex(cell) || childCount == 0 ||
-				graph.isTransparentBounds(cell))
+				graph.isTransparentBounds(cell) || model.isCollapsed(cell))
 			{
 				return;
 			}
@@ -16256,7 +17439,7 @@ Graph.prototype.visitTableCells = function(cell, visitor)
 				continue;
 			}
 
-			var col = {cell: cols[j], rospan: 1, colspan: 1, row: i, col: j, geo: geo};
+			var col = {cell: cols[j], rowspan: 1, colspan: 1, row: i, col: j, geo: geo};
 			geo = (geo.alternateBounds != null) ? geo.alternateBounds : geo;
 			col.point = new mxPoint(geo.width + (lastCol != null ? lastCol.point.x : start.x + rowStart.x),
 				geo.height + (lastRow != null && lastRow[0] != null ? lastRow[0].point.y : start.y + rowStart.y));
@@ -18805,10 +19988,9 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 		
 		/**
-		 * Translates this point by the given vector.
-		 * 
-		 * @param {number} dx X-coordinate of the translation.
-		 * @param {number} dy Y-coordinate of the translation.
+		 * Returns the XML node of a model that contains clones of the given cells.
+		 * Relative children whose parent is not in the given cells are made
+		 * absolute and custom links are updated for the clones.
 		 */
 		Graph.prototype.encodeCells = function(cells)
 		{
@@ -20709,6 +21891,9 @@ if (typeof mxVertexHandler !== 'undefined')
 
 				if (model.isVertex(cell) || model.isEdge(cell))
 				{
+					// The top-level call reports the children it moves (see
+					// beginArrange), eg. for followTerminals edges
+					var arrange = (parent == null) ? this.beginArrange() : null;
 					model.beginUpdate();
 					try
 					{
@@ -20745,6 +21930,11 @@ if (typeof mxVertexHandler !== 'undefined')
 					finally
 					{
 						model.endUpdate();
+
+						if (arrange != null)
+						{
+							this.endArrange(arrange);
+						}
 					}
 				}
 			}
@@ -20942,8 +22132,8 @@ if (typeof mxVertexHandler !== 'undefined')
 		{
 			var model = this.getModel();
 			var select = [];
-			
-			model.beginUpdate();
+
+			var arrange = this.beginArrange();
 			try
 			{
 				for (var i = 0; i < cells.length; i++)
@@ -21085,7 +22275,7 @@ if (typeof mxVertexHandler !== 'undefined')
 									dirs[mxUtils.mod(mxUtils.indexOf(dirs, dir) +
 									((backwards) ? -1 : 1), dirs.length)], [cell]);
 							}
-		
+
 							select.push(cell);
 						}
 					}
@@ -21093,7 +22283,7 @@ if (typeof mxVertexHandler !== 'undefined')
 			}
 			finally
 			{
-				model.endUpdate();
+				this.endArrange(arrange);
 			}
 			
 			return select;
@@ -22216,6 +23406,46 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 
 		/**
+		 * Adds a mouse listener that invokes the given function for touch events
+		 * that end without moving the pointer or scrolling the container by more
+		 * than the tolerance.
+		 */
+		Graph.prototype.addTouchTapListener = function(fn)
+		{
+			var graph = this;
+			var tol = graph.getTolerance();
+
+			graph.addMouseListener(
+			{
+			    startX: 0,
+			    startY: 0,
+			    scrollLeft: 0,
+			    scrollTop: 0,
+			    mouseDown: function(sender, me)
+			    {
+			    	this.startX = me.getGraphX();
+			    	this.startY = me.getGraphY();
+				    this.scrollLeft = graph.container.scrollLeft;
+				    this.scrollTop = graph.container.scrollTop;
+			    },
+			    mouseMove: function(sender, me) {},
+			    mouseUp: function(sender, me)
+			    {
+			    	if (mxEvent.isTouchEvent(me.getEvent()))
+			    	{
+				    	if ((Math.abs(this.scrollLeft - graph.container.scrollLeft) < tol &&
+				    		Math.abs(this.scrollTop - graph.container.scrollTop) < tol) &&
+				    		(Math.abs(this.startX - me.getGraphX()) < tol &&
+				    		Math.abs(this.startY - me.getGraphY()) < tol))
+				    	{
+				    		fn();
+						}
+			    	}
+			    }
+			});
+		};
+
+		/**
 		 * Adds a handler for clicking on shapes with links. This replaces all links in labels.
 		 */
 		Graph.prototype.addClickHandler = function(highlight, beforeClick, onClick)
@@ -22841,7 +24071,9 @@ if (typeof mxVertexHandler !== 'undefined')
 					// Processes from parent to child
 					cells = mxUtils.sortCells(cells);
 
-					this.model.beginUpdate();
+					// Tracks the transparentBounds children translateCell
+					// moves without firing CELLS_MOVED
+					var arrange = this.beginArrange();
 					try
 					{
 						for (var i = 0; i < cells.length; i++)
@@ -22902,7 +24134,7 @@ if (typeof mxVertexHandler !== 'undefined')
 					}
 					finally
 					{
-						this.model.endUpdate();
+						this.endArrange(arrange);
 					}
 				}
 			}
@@ -22975,8 +24207,8 @@ if (typeof mxVertexHandler !== 'undefined')
 					
 					min = min / s - ((horizontal) ? t.x : t.y);
 					max = max / s - ((horizontal) ? t.x : t.y);
-					
-					this.getModel().beginUpdate();
+
+					var arrange = this.beginArrange();
 					try
 					{
 						var dt = (max - min - cellsSize) / (vertices.length - 1);
@@ -23036,7 +24268,7 @@ if (typeof mxVertexHandler !== 'undefined')
 					}
 					finally
 					{
-						this.getModel().endUpdate();
+						this.endArrange(arrange);
 					}
 				}
 			}
@@ -23055,12 +24287,12 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 
 		/**
-		 * Translates this point by the given vector.
-		 * 
-		 * @param {number} dx X-coordinate of the translation.
-		 * @param {number} dy Y-coordinate of the translation.
+		 * Returns an mxImageExport for SVG output that wraps each cell in a group
+		 * with its cell ID and adds links and tooltips. If icons is true, tooltip,
+		 * link and note icons are added. If addSvgData is true, the attributes of
+		 * the cell values are added as data-meta attributes.
 		 */
-		Graph.prototype.createSvgImageExport = function(includeCellId, addSvgData, icons, iconLinkTarget)
+		Graph.prototype.createSvgImageExport = function(addSvgData, icons, iconLinkTarget)
 		{
 			var exp = new mxImageExport();
 			var self = this;
@@ -23071,6 +24303,9 @@ if (typeof mxVertexHandler !== 'undefined')
 			// exported file cannot sanitize at display time.
 			if (icons)
 			{
+				// The icon wrappers this export creates, the only elements whose
+				// data-icon-content may be trusted as sanitized
+				exp.iconWrappers = [];
 				var drawCellState = exp.drawCellState;
 
 				exp.drawCellState = function(state, canvas)
@@ -23114,6 +24349,7 @@ if (typeof mxVertexHandler !== 'undefined')
 									mxConstants.NS_SVG, 'g');
 								wrap.style.cursor = 'pointer';
 								wrap.setAttribute('data-icon', type);
+								exp.iconWrappers.push(wrap);
 
 								if (content != null)
 								{
@@ -23310,10 +24546,8 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 
 		/**
-		 * Translates this point by the given vector.
-		 * 
-		 * @param {number} dx X-coordinate of the translation.
-		 * @param {number} dy Y-coordinate of the translation.
+		 * Returns the SVG root node for the given cells, the selection or the
+		 * complete graph with the given background, scale and border.
 		 */
 		Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp,
 			ignoreSelection, showText, imgExport, linkTarget, hasShadow, incExtFonts,
@@ -24231,7 +25465,8 @@ if (typeof mxVertexHandler !== 'undefined')
 		 */
 		Graph.prototype.flipCells = function(cells, horizontal)
 		{
-			this.model.beginUpdate();
+			// Reports the moved children (see beginArrange)
+			var arrange = this.beginArrange();
 			try
 			{
 				cells = this.model.getTopmostCells(cells);
@@ -24274,7 +25509,7 @@ if (typeof mxVertexHandler !== 'undefined')
 			}
 			finally
 			{
-				this.model.endUpdate();
+				this.endArrange(arrange);
 			}
 		};
 	
@@ -26802,6 +28037,44 @@ if (typeof mxVertexHandler !== 'undefined')
 		var TableLineShape = null;
 
 		/**
+		 * Places the shape of the given icon handle at the top-left corner of
+		 * the handler bounds, moved by dx and dy. Mirrors the rotate handle:
+		 * pads outward for small bounds via getHandlePadding so the icon stays
+		 * clear of the resize sizers. Nested cells sharing this corner stack
+		 * diagonally up-and-left via getNestedCornerIconOffset with the given
+		 * predicate. Rotated around the cell center so the icon tracks the
+		 * rotated corner.
+		 */
+		mxVertexHandler.prototype.redrawCornerIconHandle = function(handle, size, predicate, dx, dy)
+		{
+			var padding = this.getHandlePadding();
+			var offset = this.graph.getNestedCornerIconOffset(this.state.cell,
+				this.bounds.x, this.bounds.y, predicate);
+			var pt = new mxPoint(
+				this.bounds.x - 12 - padding.x / 2 - offset + dx,
+				this.bounds.y - 12 - padding.y / 2 - offset + dy);
+
+			var deg = Number((this.currentAlpha != null) ? this.currentAlpha :
+				(this.state.style[mxConstants.STYLE_ROTATION] || '0'));
+			var alpha = mxUtils.toRadians(deg);
+
+			if (alpha != 0)
+			{
+				var ct = new mxPoint(this.state.getCenterX(),
+					this.state.getCenterY());
+				pt = mxUtils.getRotatedPoint(pt,
+					Math.cos(alpha), Math.sin(alpha), ct);
+			}
+
+			handle.shape.bounds.width = size;
+			handle.shape.bounds.height = size;
+			handle.shape.bounds.x = pt.x - size / 2;
+			handle.shape.bounds.y = pt.y - size / 2;
+			handle.shape.rotation = deg;
+			handle.shape.redraw();
+		};
+
+		/**
 		 * Adds custom handles for table cells.
 		 */
 		var vertexHandlerCreateCustomHandles = mxVertexHandler.prototype.createCustomHandles;
@@ -27117,49 +28390,14 @@ if (typeof mxVertexHandler !== 'undefined')
 				{
 					if (this.shape != null)
 					{
-						// Top-left corner. Mirrors the rotate handle: pads outward
-						// for small bounds via getHandlePadding so the icon stays
-						// clear of the resize sizers. Rotated around the cell center
-						// so the icon tracks the rotated corner. Nested cells
-						// sharing this corner stack diagonally up-and-left via
-						// getNestedCornerIconOffset.
-						var padding = self.getHandlePadding();
-						var offset = graph.getNestedCornerIconOffset(cell,
-							self.bounds.x, self.bounds.y, function(c)
-							{
-								return graph.isLockedGroupIconVisible(c) &&
-									graph.isCellMovable(c);
-							});
-						var pt = new mxPoint(
-							self.bounds.x - 12 - padding.x / 2 - offset,
-							self.bounds.y - 12 - padding.y / 2 - offset);
-
 						// Shifts below the move icon when both are present (the
 						// move icon holds the corner, the edit icon goes right).
-						if (graph.isMoveIconVisible(cell) &&
-							graph.isCellMovable(cell))
+						self.redrawCornerIconHandle(this, size, function(c)
 						{
-							pt.y += 24;
-						}
-
-						var deg = Number((self.currentAlpha != null) ? self.currentAlpha :
-							(self.state.style[mxConstants.STYLE_ROTATION] || '0'));
-						var alpha = mxUtils.toRadians(deg);
-
-						if (alpha != 0)
-						{
-							var ct = new mxPoint(self.state.getCenterX(),
-								self.state.getCenterY());
-							pt = mxUtils.getRotatedPoint(pt,
-								Math.cos(alpha), Math.sin(alpha), ct);
-						}
-
-						this.shape.bounds.width = size;
-						this.shape.bounds.height = size;
-						this.shape.bounds.x = pt.x - size / 2;
-						this.shape.bounds.y = pt.y - size / 2;
-						this.shape.rotation = deg;
-						this.shape.redraw();
+							return graph.isLockedGroupIconVisible(c) &&
+								graph.isCellMovable(c);
+						}, 0, (graph.isMoveIconVisible(cell) &&
+							graph.isCellMovable(cell)) ? 24 : 0);
 					}
 				};
 
@@ -27234,48 +28472,15 @@ if (typeof mxVertexHandler !== 'undefined')
 				{
 					if (this.shape != null)
 					{
-						// Top-left corner. Nested cells sharing this corner
-						// stack diagonally up-and-left via
-						// getNestedCornerIconOffset.
-						var padding = self.getHandlePadding();
-						var offset = graph.getNestedCornerIconOffset(cell,
-							self.bounds.x, self.bounds.y,
-							function(c)
-							{
-								return graph.isEditIconVisible(c);
-							});
-						var pt = new mxPoint(
-							self.bounds.x - 12 - padding.x / 2 - offset,
-							self.bounds.y - 12 - padding.y / 2 - offset);
-
 						// Shifts right along the top edge when the lock and/or
 						// move icon occupies the corner (move above lock), so
 						// the icons form an L: corner column plus this one.
-						if (graph.isCellMovable(cell) &&
+						self.redrawCornerIconHandle(this, size, function(c)
+						{
+							return graph.isEditIconVisible(c);
+						}, (graph.isCellMovable(cell) &&
 							(graph.isLockedGroupIconVisible(cell) ||
-							graph.isMoveIconVisible(cell)))
-						{
-							pt.x += 24;
-						}
-
-						var deg = Number((self.currentAlpha != null) ? self.currentAlpha :
-							(self.state.style[mxConstants.STYLE_ROTATION] || '0'));
-						var alpha = mxUtils.toRadians(deg);
-
-						if (alpha != 0)
-						{
-							var ct = new mxPoint(self.state.getCenterX(),
-								self.state.getCenterY());
-							pt = mxUtils.getRotatedPoint(pt,
-								Math.cos(alpha), Math.sin(alpha), ct);
-						}
-
-						this.shape.bounds.width = size;
-						this.shape.bounds.height = size;
-						this.shape.bounds.x = pt.x - size / 2;
-						this.shape.bounds.y = pt.y - size / 2;
-						this.shape.rotation = deg;
-						this.shape.redraw();
+							graph.isMoveIconVisible(cell))) ? 24 : 0, 0);
 					}
 				};
 
@@ -28420,6 +29625,100 @@ if (typeof mxVertexHandler !== 'undefined')
 			return libavoidConnReset.apply(this, arguments);
 		};
 
+		// Substitutes the waypoints of followTerminals edges while their
+		// terminals are moved or resized (see Graph.getFollowedPreviewPoints).
+		var followViewUpdatePoints = mxGraphView.prototype.updatePoints;
+
+		mxGraphView.prototype.updatePoints = function(edge, points, source, target)
+		{
+			var followed = (this.followedPoints != null && edge != null) ?
+				this.followedPoints.get(edge.cell) : null;
+
+			followViewUpdatePoints.call(this, edge, (followed != null) ?
+				followed : points, source, target);
+		};
+
+		// Live preview of followTerminals edges connected to dragged shapes: the
+		// base re-renders these edges from their model points in its validate
+		// pass, which uses the followed points instead. Must be wrapped by the
+		// libavoid preview below so that its re-routes come last.
+		var followUpdateLivePreview = mxGraphHandler.prototype.updateLivePreview;
+
+		mxGraphHandler.prototype.updateLivePreview = function(dx, dy)
+		{
+			var view = this.graph.view;
+			var points = null;
+			var edges = [];
+
+			if (!this.cloning && this.allCells != null)
+			{
+				var model = this.graph.model;
+				var vertices = [];
+
+				this.allCells.visit(function(key, state)
+				{
+					if (model.isVertex(state.cell))
+					{
+						vertices.push(state.cell);
+					}
+				});
+
+				var following = this.graph.getFollowingEdges(vertices, false);
+
+				for (var i = 0; i < following.length; i++)
+				{
+					if (!this.isCellMoving(following[i]))
+					{
+						edges.push(following[i]);
+					}
+				}
+
+				var handler = this;
+				var mdx = dx / view.scale;
+				var mdy = dy / view.scale;
+
+				// Translates the topmost moving cells, descendants move with them
+				points = this.graph.getFollowedPreviewPoints(edges, function(cell)
+				{
+					var geo = model.getGeometry(cell);
+
+					if (geo != null && handler.isCellMoving(cell) &&
+						!handler.isCellMoving(model.getParent(cell)))
+					{
+						geo = geo.clone();
+						geo.translate(mdx, mdy);
+					}
+					else
+					{
+						geo = null;
+					}
+
+					return geo;
+				});
+			}
+
+			this.graph.invalidateFollowedPreview(this, edges);
+			view.followedPoints = points;
+
+			try
+			{
+				followUpdateLivePreview.apply(this, arguments);
+			}
+			finally
+			{
+				view.followedPoints = null;
+			}
+		};
+
+		// Redraws the edges of the followed preview on drop and cancel
+		var followGraphHandlerReset = mxGraphHandler.prototype.reset;
+
+		mxGraphHandler.prototype.reset = function()
+		{
+			followGraphHandlerReset.apply(this, arguments);
+			this.graph.resetFollowedPreview(this);
+		};
+
 		// Live-route connected libavoidRouting=1 edges while a shape is dragged: the
 		// base moves the cell states and re-renders connected edges (un-routed), then
 		// we re-route them transiently around obstacles at the shape's preview
@@ -29217,6 +30516,26 @@ if (typeof mxVertexHandler !== 'undefined')
 			}
 		};
 
+		// Reports the children a rotation handle gesture moves (see
+		// Graph.beginArrange), eg. for followTerminals edges
+		var vertexHandlerRotateCell = mxVertexHandler.prototype.rotateCell;
+		mxVertexHandler.prototype.rotateCell = function(cell, angle, parent)
+		{
+			var arrange = (parent == null) ? this.graph.beginArrange() : null;
+
+			try
+			{
+				vertexHandlerRotateCell.apply(this, arguments);
+			}
+			finally
+			{
+				if (arrange != null)
+				{
+					this.graph.endArrange(arrange);
+				}
+			}
+		};
+
 		// Updates font size in live preview for autosizeText cells
 		var mxVertexHandlerUpdateLivePreview = mxVertexHandler.prototype.updateLivePreview;
 
@@ -29281,6 +30600,57 @@ if (typeof mxVertexHandler !== 'undefined')
 			}
 
 			mxVertexHandlerUpdateLivePreview.apply(this, arguments);
+		};
+
+		// Live preview of followTerminals edges connected to the resized shape
+		// (see mxGraphHandler.updateLivePreview)
+		var followVertexHandlerUpdateLivePreview = mxVertexHandler.prototype.updateLivePreview;
+
+		mxVertexHandler.prototype.updateLivePreview = function(me)
+		{
+			var graph = this.graph;
+			var view = graph.view;
+			var cell = this.state.cell;
+			var geo = graph.getCellGeometry(cell);
+			var points = null;
+			var edges = [];
+
+			if (geo != null && !geo.relative)
+			{
+				var origin = graph.getFollowOrigin(cell, graph.createFollowModelState());
+				geo = geo.clone();
+				geo.x = this.bounds.x / view.scale - view.translate.x - origin.x;
+				geo.y = this.bounds.y / view.scale - view.translate.y - origin.y;
+				geo.width = this.bounds.width / view.scale;
+				geo.height = this.bounds.height / view.scale;
+
+				edges = graph.getFollowingEdges([cell], false);
+				points = graph.getFollowedPreviewPoints(edges, function(c)
+				{
+					return (c == cell) ? geo : null;
+				});
+			}
+
+			graph.invalidateFollowedPreview(this, edges);
+			view.followedPoints = points;
+
+			try
+			{
+				followVertexHandlerUpdateLivePreview.apply(this, arguments);
+			}
+			finally
+			{
+				view.followedPoints = null;
+			}
+		};
+
+		// Redraws the edges of the followed preview on drop and cancel
+		var followVertexHandlerReset = mxVertexHandler.prototype.reset;
+
+		mxVertexHandler.prototype.reset = function()
+		{
+			followVertexHandlerReset.apply(this, arguments);
+			this.graph.resetFollowedPreview(this);
 		};
 
 		var vertexHandlerMouseMove = mxVertexHandler.prototype.mouseMove;

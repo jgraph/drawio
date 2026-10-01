@@ -13,10 +13,7 @@ DropboxFile = function(ui, data, stat)
 mxUtils.extend(DropboxFile, DrawioFile);
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the path of the file without the leading slash.
  */
 DropboxFile.prototype.getId = function()
 {
@@ -24,10 +21,7 @@ DropboxFile.prototype.getId = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the hash of the file, which is D followed by the URI-encoded ID.
  */
 DropboxFile.prototype.getHash = function()
 {
@@ -35,10 +29,7 @@ DropboxFile.prototype.getHash = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns App.MODE_DROPBOX.
  */
 DropboxFile.prototype.getMode = function()
 {
@@ -81,10 +72,7 @@ DropboxFile.prototype.open = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the name of the file.
  */
 DropboxFile.prototype.getTitle = function()
 {
@@ -116,7 +104,7 @@ DropboxFile.prototype.isRevisionHistorySupported = function()
 };
 
 /**
- * Returns true if copy, export and print are not allowed for this file.
+ * Returns the URL of the file in the Dropbox web interface.
  */
 DropboxFile.prototype.getFileUrl = function()
 {
@@ -124,7 +112,7 @@ DropboxFile.prototype.getFileUrl = function()
 };
 
 /**
- * Returns true if copy, export and print are not allowed for this file.
+ * Returns the URL of the folder of the file in the Dropbox web interface.
  */
 DropboxFile.prototype.getFolderUrl = function()
 {
@@ -196,10 +184,7 @@ DropboxFile.prototype.updateDescriptor = function(newFile)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Saves the file under its current title.
  */
 DropboxFile.prototype.save = function(revision, success, error, unloading, overwrite)
 {
@@ -207,10 +192,7 @@ DropboxFile.prototype.save = function(revision, success, error, unloading, overw
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Saves the file with the given title.
  */
 DropboxFile.prototype.saveAs = function(title, success, error)
 {
@@ -218,10 +200,8 @@ DropboxFile.prototype.saveAs = function(title, success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Updates the file data using the extension of the given title and saves
+ * the file with the given title.
  */
 DropboxFile.prototype.doSave = function(title, revision, success, error, unloading, overwrite)
 {
@@ -237,10 +217,9 @@ DropboxFile.prototype.doSave = function(title, revision, success, error, unloadi
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Writes the file to Dropbox with the given title unless a save is in
+ * progress. Asks the user before replacing an existing file if the title
+ * has changed.
  */
 DropboxFile.prototype.saveFile = function(title, revision, success, error)
 {
@@ -343,10 +322,8 @@ DropboxFile.prototype.saveFile = function(title, revision, success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Renames the file to the given title. The file is saved again if the file
+ * extension has changed.
  */
 DropboxFile.prototype.rename = function(title, success, error)
 {

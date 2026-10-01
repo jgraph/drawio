@@ -7,8 +7,9 @@
 (function ()
 {
 
-var _token = null;
-var _tokenSP = null;
+// Access tokens per client, the personal OneDrive and the Microsoft 365
+// client must not share a token
+var _tokens = new WeakMap();
 var _pickerToken = null;
 let _editorUi = null;
 let _filePickedCallback = null;
@@ -16,6 +17,18 @@ let _pickerPort = null;
 let _pickerWindow = null;
 let _pickerMessageListener = null;
 let _pickerCloseTimer = null;
+
+function getAccessToken(client)
+{
+	var token = _tokens.get(client);
+
+	return (token != null) ? token : null;
+};
+
+function setAccessToken(client, token)
+{
+	_tokens.set(client, token);
+};
 
 window.OneDriveClient = function(editorUi, isExtAuth, inlinePicker, noLogout, sharepointMode)
 {
@@ -157,7 +170,7 @@ OneDriveClient.prototype.get = function(url, onload, onerror)
 	
 	req.setRequestHeaders = mxUtils.bind(this, function(request, params)
 	{
-		request.setRequestHeader('Authorization', 'Bearer ' + _token);
+		request.setRequestHeader('Authorization', 'Bearer ' + getAccessToken(this));
 	});
 	
 	req.send(onload, onerror);
@@ -295,12 +308,7 @@ OneDriveClient.prototype.updateAuthInfo = function(newAuthInfo, remember, forceU
 	}
 	else
 	{
-		_token = newAuthInfo.access_token;
-
-		if (this.sharepointMode)
-		{
-			_tokenSP = newAuthInfo.access_token;
-		}
+		setAccessToken(this, newAuthInfo.access_token);
 	}
 
 	delete newAuthInfo.access_token; //Don't store access token
@@ -372,12 +380,7 @@ OneDriveClient.prototype.authenticateStep2 = function(state, success, error, fai
 					{
 						this.clearPersistentToken();
 						this.setUser(null);
-						_token = null;
-
-						if (this.sharepointMode)
-						{
-							_tokenSP = null;
-						}
+						setAccessToken(this, null);
 
  						// (Unauthorized) [e.g, invalid refresh token] or bad request
 						if ((req.getStatus() == 401 || req.getStatus() == 400) && !failOnAuth)
@@ -541,11 +544,6 @@ OneDriveClient.prototype.getAccountTypeAndEndpoint = function(success, error)
  */
 OneDriveClient.prototype.executeRequest = function(url, success, error)
 {
-	if (this.sharepointMode)
-	{
-		_token = _tokenSP;
-	}
-
 	var doExecute = mxUtils.bind(this, function(failOnAuth)
 	{
 		var acceptResponse = true;
@@ -597,7 +595,7 @@ OneDriveClient.prototype.executeRequest = function(url, success, error)
 		}));
 	});
 	
-	if (_token == null || this.tokenExpiresOn - Date.now() < 60000) //60 sec tolerance window
+	if (getAccessToken(this) == null || this.tokenExpiresOn - Date.now() < 60000) //60 sec tolerance window
 	{
 		this.authenticate(function()
 		{
@@ -615,12 +613,7 @@ OneDriveClient.prototype.executeRequest = function(url, success, error)
  */
 OneDriveClient.prototype.checkToken = function(fn, error)
 {
-	if (this.sharepointMode)
-	{
-		_token = _tokenSP;
-	}
-
-	if (_token == null || this.tokenRefreshThread == null || this.tokenExpiresOn - Date.now() < 60000)
+	if (getAccessToken(this) == null || this.tokenRefreshThread == null || this.tokenExpiresOn - Date.now() < 60000)
 	{
 		this.authenticate(fn, (error != null) ? error : this.emptyFn, null, this.sharepointMode);
 	}
@@ -690,7 +683,9 @@ OneDriveClient.prototype.removeExtraHtmlContent = function(data)
 };
 
 /**
- * Checks if the client is authorized and calls the next step.
+ * Loads the file with the given ID and passes a OneDriveFile, a
+ * OneDriveLibrary if asLibrary is true, or a LocalFile for imports to
+ * success.
  */
 OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asLibrary)
 {
@@ -856,10 +851,8 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Renames the given file to the given filename. Shows an error if a file
+ * with that name exists in the same folder.
  */
 OneDriveClient.prototype.renameFile = function(file, filename, success, error)
 {
@@ -888,10 +881,8 @@ OneDriveClient.prototype.renameFile = function(file, filename, success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Moves the file with the given ID to the folder with the given ID, which
+ * must be on the same drive.
  */
 OneDriveClient.prototype.moveFile = function(id, folderId, success, error)
 {
@@ -910,10 +901,8 @@ OneDriveClient.prototype.moveFile = function(id, folderId, success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Inserts a new library with the given filename and data into the folder
+ * with the given ID.
  */
 OneDriveClient.prototype.insertLibrary = function(filename, data, success, error, folderId)
 {
@@ -921,10 +910,10 @@ OneDriveClient.prototype.insertLibrary = function(filename, data, success, error
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Creates a new file with the given filename and data in the folder with
+ * the given ID, or the root folder, and passes a OneDriveFile, or a
+ * OneDriveLibrary if asLibrary is true, to success. Asks the user before
+ * replacing an existing file.
  */
 OneDriveClient.prototype.insertFile = function(filename, data, success, error, asLibrary, folderId)
 {
@@ -984,10 +973,10 @@ OneDriveClient.prototype.insertFile = function(filename, data, success, error, a
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Passes true to fn if no file with the given filename exists in the folder
+ * with the given ID, or the root folder. For existing files, the user is
+ * asked to replace the file if askReplace is true, otherwise an error is
+ * shown and false is passed to fn.
  */
 OneDriveClient.prototype.checkExists = function(parentId, filename, askReplace, fn)
 {
@@ -1035,10 +1024,9 @@ OneDriveClient.prototype.checkExists = function(parentId, filename, askReplace, 
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Uploads the data of the given file, as PNG for .png files, and passes the
+ * new metadata and the saved data to success. The optional etag is used to
+ * detect conflicts.
  */
 OneDriveClient.prototype.saveFile = function(file, success, error, etag)
 {
@@ -1078,7 +1066,10 @@ OneDriveClient.prototype.saveFile = function(file, success, error, etag)
 		}
 		else
 		{
-			fn(savedData);
+			// The realtime key is only written to the stored file,
+			// savedData is what the document holds
+			fn((typeof file.addRealtimeKey === 'function') ?
+				file.addRealtimeKey(savedData) : savedData);
 		}
 	}
 	catch (e)
@@ -1089,11 +1080,6 @@ OneDriveClient.prototype.saveFile = function(file, success, error, etag)
 
 OneDriveClient.prototype.writeLargeFile = function(url, data, success, error, etag)
 {
-	if (this.sharepointMode)
-	{
-		_token = _tokenSP;
-	}
-
 	try
 	{
 		var chunkSize = 4 * 1024 * 1024; //4MB chunk;
@@ -1172,89 +1158,11 @@ OneDriveClient.prototype.writeLargeFile = function(url, data, success, error, et
 				}
 			});
 			
-			var doExecute = mxUtils.bind(this, function(failOnAuth)
+			this.executeWriteRequest(url + '/createUploadSession', '{}', 'POST', 'application/json', function(req)
 			{
-				try
-				{
-					var acceptResponse = true;
-					var timeoutThread = null;
-					
-					try
-					{
-						timeoutThread = window.setTimeout(mxUtils.bind(this, function()
-						{
-							acceptResponse = false;
-							error({code: App.ERROR_TIMEOUT});
-						}), this.ui.timeout);
-					}
-					catch (e)
-					{
-						// Ignore window closed
-					}
-					
-					var req = new mxXmlRequest(url + '/createUploadSession', '{}', 'POST');
-					
-					req.setRequestHeaders = mxUtils.bind(this, function(request, params)
-					{
-						request.setRequestHeader('Content-Type', 'application/json');
-						request.setRequestHeader('Authorization', 'Bearer ' + _token);
-						
-						if (etag != null)
-						{
-							request.setRequestHeader('If-Match', etag);
-						}
-					});
-					
-					req.send(mxUtils.bind(this, function(req)
-					{
-				    	window.clearTimeout(timeoutThread);
-				    	
-				    	if (acceptResponse)
-				    	{
-					    	if (req.getStatus() >= 200 && req.getStatus() <= 299)
-							{
-								var resp = JSON.parse(req.getText());
-					    		uploadPart(resp.uploadUrl, 0, 0);
-							}
-							else if (!failOnAuth && req.getStatus() === 401)
-							{
-								this.authenticate(function()
-								{
-									doExecute(true);
-								}, error, failOnAuth, this.sharepointMode);
-							}
-							else
-							{
-								error(this.parseRequestText(req), req);
-							}
-				    	}
-					}), mxUtils.bind(this, function(req)
-					{
-				    	window.clearTimeout(timeoutThread);
-				    	
-				    	if (acceptResponse)
-				    	{
-							error(this.parseRequestText(req));
-				    	}
-					}));
-				}
-				catch (e)
-				{
-					error(e);
-				}
-			});
-			
-			if (_token == null || this.tokenExpiresOn - Date.now() < 60000) //60 sec tolerance window
-			{
-				this.authenticate(function()
-				{
-					doExecute(true);
-				}, error, null, this.sharepointMode);
-			}
-			else
-			{
-				doExecute(false);
-			}
+				var resp = JSON.parse(req.getText());
+				uploadPart(resp.uploadUrl, 0, 0);
+			}, error, etag);
 		}
 		else
 		{
@@ -1268,18 +1176,29 @@ OneDriveClient.prototype.writeLargeFile = function(url, data, success, error, et
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Sends the given data to the given URL with the given method and content
+ * type and passes the parsed response to success. Loads the current user if
+ * it is unknown.
  */
 OneDriveClient.prototype.writeFile = function(url, data, method, contentType, success, error, etag)
 {
-	if (this.sharepointMode)
+	this.executeWriteRequest(url, data, method, contentType, mxUtils.bind(this, function(req)
 	{
-		_token = _tokenSP;
-	}
+		if (this.user == null)
+		{
+			this.updateUser(this.emptyFn, this.emptyFn, true);
+		}
+		
+		success(JSON.parse(req.getText()));
+	}), error, etag);
+};
 
+/**
+ * Sends a write request with the given method and content type and calls
+ * success with the request if the response status is 2xx.
+ */
+OneDriveClient.prototype.executeWriteRequest = function(url, data, method, contentType, success, error, etag)
+{
 	try
 	{
 		if (url != null && data != null)
@@ -1314,7 +1233,7 @@ OneDriveClient.prototype.writeFile = function(url, data, method, contentType, su
 						//TODO This header is needed for moving a file between two different drives. 
 						//		Note: the response is empty when this header is used, also the server may take some time to really execute the request (i.e. async) 
 						//request.setRequestHeader('Prefer', 'respond-async');
-						request.setRequestHeader('Authorization', 'Bearer ' + _token);
+						request.setRequestHeader('Authorization', 'Bearer ' + getAccessToken(this));
 						
 						if (etag != null)
 						{
@@ -1330,12 +1249,7 @@ OneDriveClient.prototype.writeFile = function(url, data, method, contentType, su
 				    	{
 					    	if (req.getStatus() >= 200 && req.getStatus() <= 299)
 							{
-					    		if (this.user == null)
-								{
-									this.updateUser(this.emptyFn, this.emptyFn, true);
-								}
-					    		
-								success(JSON.parse(req.getText()));
+								success(req);
 							}
 							else if (!failOnAuth && req.getStatus() === 401)
 							{
@@ -1365,7 +1279,7 @@ OneDriveClient.prototype.writeFile = function(url, data, method, contentType, su
 				}
 			});
 			
-			if (_token == null || this.tokenExpiresOn - Date.now() < 60000) //60 sec tolerance window
+			if (getAccessToken(this) == null || this.tokenExpiresOn - Date.now() < 60000) //60 sec tolerance window
 			{
 				this.authenticate(function()
 				{
@@ -1480,7 +1394,14 @@ OneDriveClient.prototype.createInlinePicker = function(fn, foldersOnly, acceptAl
 		this.ui.showDialog(dlg.container, 550, 500, true, true);
 		//Set width/height of the picker container
 		div.style.width = (parseInt(dlg.container.parentNode.style.width) - 60) + 'px';
-		div.style.height = (parseInt(dlg.container.parentNode.style.height) - 120) + 'px';
+
+		// Fills the dialog above the pinned buttons (measured while the picker
+		// is empty), as a fixed offset from the dialog height no longer matches
+		// the dialog layout and clipped the bottom border of the preview
+		var wnd = dlg.container.parentNode;
+		var wndStyle = window.getComputedStyle(wnd);
+		div.style.height = Math.max(0, wnd.clientHeight - parseFloat(wndStyle.paddingTop) -
+			parseFloat(wndStyle.paddingBottom) - dlg.container.offsetHeight) + 'px';
 		
 		odPicker = new mxODPicker(div, null, mxUtils.bind(this, function(url, success, error, isAbsUrl)
 		{
@@ -1830,7 +1751,7 @@ OneDriveClient.prototype.pickFolderOD = function(fn, direct)
 					'endpointHint': this.endpointHint,
 					'redirectUri': this.pickerRedirectUri,
 					'queryParameters': 'select=id,name,parentReference',
-					'accessToken': _token,
+					'accessToken': getAccessToken(this),
 					isConsumerAccount: false
 				},
 				success: mxUtils.bind(this, function(files)
@@ -1864,7 +1785,7 @@ OneDriveClient.prototype.pickFolderOD = function(fn, direct)
 		}
 	});
 	
-	if (_token == null || this.tokenExpiresOn - Date.now() < 60000) //60 sec tolerance window
+	if (getAccessToken(this) == null || this.tokenExpiresOn - Date.now() < 60000) //60 sec tolerance window
 	{
 		this.authenticate(mxUtils.bind(this, function()
 		{
@@ -1906,7 +1827,7 @@ OneDriveClient.prototype.pickFileOD = function(fn, acceptAllFiles)
 				'endpointHint': this.endpointHint,
 				'redirectUri': this.pickerRedirectUri,
 				'queryParameters': 'select=id,name,parentReference,webUrl', //We can also get @microsoft.graph.downloadUrl within this request but it will break the normal process
-				'accessToken': _token,
+				'accessToken': getAccessToken(this),
 				isConsumerAccount: false
 			},
 			success: mxUtils.bind(this, function(files)
@@ -1929,7 +1850,7 @@ OneDriveClient.prototype.pickFileOD = function(fn, acceptAllFiles)
 		}
 	});
 	
-	if (_token == null || this.tokenExpiresOn - Date.now() < 60000) //60 sec tolerance window
+	if (getAccessToken(this) == null || this.tokenExpiresOn - Date.now() < 60000) //60 sec tolerance window
 	{
 		this.authenticate(mxUtils.bind(this, function()
 		{
@@ -1973,12 +1894,11 @@ OneDriveClient.prototype.logout = function()
 	this.ui.editor.loadUrl(this.redirectUri + '?doLogout=1&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.host));
 	this.clearPersistentToken();
 	this.setUser(null);
-	_token = null;
+	setAccessToken(this, null);
 	
 	if (this.sharepointMode)
 	{
 		_pickerToken = null;
-		_tokenSP = null;
 	}
 };
 

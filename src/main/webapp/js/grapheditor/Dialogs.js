@@ -1336,6 +1336,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 		}
 	});
 
+	dropperBtn.setAttribute('title', mxResources.get('colorPicker', null, 'Color Picker'));
 	dropperBtn.style.cursor = 'pointer';
 
 	var dropper = document.createElement('img');
@@ -2424,7 +2425,6 @@ var MarkupDialog = function(editorUi, title, value, fn, cancelFn, helpLink)
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, title);
-	hd.style.cssText = 'width:100%;text-align:center;margin:0 0 8px 0;flex-shrink:0';
 	div.appendChild(hd);
 
 	// Formatting toolbar
@@ -2983,6 +2983,7 @@ var EditDiagramDialog = function(editorUi)
 		editorUi.hideDialog();
 	});
 
+	cancelBtn.setAttribute('title', 'Escape');
 	cancelBtn.className = 'geBtn';
 
 	if (editorUi.editor.cancelFirst)
@@ -3133,8 +3134,17 @@ var EditDiagramDialog = function(editorUi)
 				editorUi.handleError(error);
 			}
 		});
+		applyBtn.setAttribute('title', 'Ctrl+Enter');
 		applyBtn.className = 'geBtn gePrimaryBtn';
 		buttons.appendChild(applyBtn);
+
+		mxEvent.addListener(textarea, 'keydown', function(e)
+		{
+			if (e.keyCode == 13 && mxEvent.isControlDown(e))
+			{
+				applyBtn.click();
+			}
+		});
 	}
 
 	if (!editorUi.editor.cancelFirst)
@@ -3779,7 +3789,6 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 
 		removeAttr.className = 'geButton';
 		removeAttr.setAttribute('title', mxResources.get('delete'));
-		removeAttr.style.marginLeft = '8px';
 		removeAttr.style.cursor = 'pointer';
 		removeAttr.style.flexShrink = '0';
 		removeAttr.appendChild(img);
@@ -3941,10 +3950,9 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 		idRow.appendChild(idLabel);
 
 		var idText = document.createElement('span');
-		idText.style.fontSize = '12px';
 		idText.style.cursor = 'pointer';
-		idText.style.opacity = '0.6';
-		idText.setAttribute('title', mxResources.get('doubleClickToEdit'));
+		idText.setAttribute('title', mxResources.get('doubleClickToEdit',
+			null, 'Double-click to edit'));
 		mxUtils.write(idText, id);
 		idRow.appendChild(idText);
 
@@ -4077,20 +4085,23 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 			}
 			catch (e)
 			{
-				mxUtils.alert(e);
+				ui.handleError(e);
 			}
 		}
 		else
 		{
-			mxUtils.alert(mxResources.get('invalidName'));
+			ui.showError(mxResources.get('error'), mxResources.get('invalidName'),
+				mxResources.get('ok'));
 		}
 	});
 
 	addBtn.setAttribute('title', mxResources.get('addProperty'));
 	addBtn.setAttribute('disabled', 'disabled');
 	addBtn.style.flexShrink = '0';
-	addBtn.style.marginLeft = '8px';
 	addBtn.className = 'geBtn';
+
+	// The row's column-gap owns the spacing
+	addBtn.style.marginLeft = '0';
 	addRow.appendChild(addBtn);
 
 	addSection.appendChild(addRow);
@@ -4197,16 +4208,7 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 
 	var exportBtn = mxUtils.button(mxResources.get('export'), mxUtils.bind(this, function(evt)
 	{
-		var result = graph.getDataForCells(cells, true);
-
-		var dlg = new EmbedDialog(ui, JSON.stringify(result, null, 2), null, null, function()
-		{
-			console.log(result);
-			ui.alert('Written to Console (Dev Tools)');
-		}, mxResources.get('export'), null, 'Console', 'data.json');
-		ui.showDialog(dlg.container, 450, 270, true, true, null,
-			false, null, new mxRectangle(0, 0, 400, 250));
-		dlg.init();
+		ui.showDataExport(JSON.stringify(graph.getDataForCells(cells, true), null, 2), 'data.json');
 	}));
 
 	exportBtn.setAttribute('title', mxResources.get('export'));
@@ -4273,7 +4275,7 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 		}
 		catch (e)
 		{
-			mxUtils.alert(e);
+			ui.handleError(e);
 		}
 	});
 
@@ -4327,19 +4329,16 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 };
 
 /**
- * Characters allowed as the first character of an XML attribute name
- * (NameStartChar in the XML Name production, restricted to the BMP).
- * See https://www.w3.org/TR/xml/#NT-Name.
+ * Characters allowed as the first character of a data property name. See
+ * Graph.xmlNameStartChars: letters that every browser's XML parser accepts,
+ * without colons, which would be undeclared namespace prefixes.
  */
-EditDataDialog.nameStartChar = ':A-Z_a-z' +
-	'\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF' +
-	'\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD';
+EditDataDialog.nameStartChar = Graph.xmlNameStartChars;
 
 /**
- * Characters allowed in an XML attribute name after the first character
- * (NameChar in the XML Name production, restricted to the BMP).
+ * Characters allowed in a data property name after the first character.
  */
-EditDataDialog.nameChar = '-.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040' + EditDataDialog.nameStartChar;
+EditDataDialog.nameChar = Graph.xmlNameChars;
 
 /**
  * Matches a valid XML attribute name. Browsers' setAttribute does not reliably
@@ -4379,11 +4378,18 @@ EditDataDialog.getDisplayIdForCell = function(ui, cell)
 EditDataDialog.placeholderHelpLink = null;
 
 /**
- * Constructs a new link dialog.
+ * Constructs a new link dialog. mixed is an optional object whose link and
+ * linkTarget flags mark values that differ between the cells being edited.
+ * A mixed link shows an empty field and stays unchanged if the result is
+ * empty and the user neither typed into the field nor reset it. fn is then
+ * called with an object as its fourth argument whose link and linkTarget
+ * flags mark the mixed values the user left unchanged, so the caller keeps
+ * each cell's own value.
  */
-var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
+var LinkDialog = function(editorUi, initialValue, btnLabel, fn, mixed)
 {
 	var div = document.createElement('div');
+	div.style.paddingBottom = '10px';
 	mxUtils.write(div, mxResources.get('editLink') + ':');
 	
 	var inner = document.createElement('div');
@@ -4395,9 +4401,13 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 	inner.style.cursor = 'default';
 	inner.style.paddingRight = '20px';
 	
+	var mixedLink = mixed != null && mixed.link == true;
+	var linkEdited = false;
+
 	var linkInput = document.createElement('input');
 	linkInput.setAttribute('value', initialValue);
-	linkInput.setAttribute('placeholder', 'http://www.example.com/');
+	linkInput.setAttribute('placeholder', (mixedLink) ?
+		mxResources.get('multipleValues') : 'http://www.example.com/');
 	linkInput.setAttribute('type', 'text');
 	linkInput.style.marginTop = '6px';
 	linkInput.style.width = '400px';
@@ -4425,7 +4435,21 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 	{
 		linkInput.value = '';
 		linkInput.focus();
+		linkEdited = true;
 	});
+
+	mxEvent.addListener(linkInput, 'input', function()
+	{
+		linkEdited = true;
+	});
+
+	// There is no target option in this dialog, so a mixed target
+	// is always unchanged
+	var getUnchanged = function()
+	{
+		return {link: mixedLink && !linkEdited && linkInput.value == '',
+			linkTarget: mixed != null && mixed.linkTarget == true};
+	};
 	
 	inner.appendChild(linkInput);
 	inner.appendChild(cross);
@@ -4446,7 +4470,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 	};
 	
 	var btns = document.createElement('div');
-	btns.style.marginTop = '18px';
+	btns.style.marginTop = '34px';
 	btns.style.textAlign = 'right';
 
 	mxEvent.addListener(linkInput, 'keypress', function(e)
@@ -4454,7 +4478,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 		if (e.keyCode == 13)
 		{
 			editorUi.hideDialog();
-			fn(linkInput.value);
+			fn(linkInput.value, null, null, getUnchanged());
 		}
 	});
 
@@ -4472,7 +4496,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn)
 	var mainBtn = mxUtils.button(btnLabel, function()
 	{
 		editorUi.hideDialog();
-		fn(linkInput.value);
+		fn(linkInput.value, null, null, getUnchanged());
 	});
 	mainBtn.className = 'geBtn gePrimaryBtn';
 	btns.appendChild(mainBtn);

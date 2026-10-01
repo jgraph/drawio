@@ -333,8 +333,23 @@ Menus.prototype.init = function()
 	})));
 	this.put('direction', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
-		menu.addItem(mxResources.get('flipH'), null, function() { graph.toggleCellStyles(mxConstants.STYLE_FLIPH, false); }, parent);
-		menu.addItem(mxResources.get('flipV'), null, function() { graph.toggleCellStyles(mxConstants.STYLE_FLIPV, false); }, parent);
+		// Fires styleChanged in the same update as the flip, which moves
+		// connection points (eg. for libavoid auto-routing)
+		var flip = mxUtils.bind(this, function(key)
+		{
+			graph.getModel().beginUpdate();
+			try
+			{
+				this.toggleStyle(key, false);
+			}
+			finally
+			{
+				graph.getModel().endUpdate();
+			}
+		});
+
+		menu.addItem(mxResources.get('flipH'), null, function() { flip(mxConstants.STYLE_FLIPH); }, parent);
+		menu.addItem(mxResources.get('flipV'), null, function() { flip(mxConstants.STYLE_FLIPV); }, parent);
 		this.addMenuItems(menu, ['-', 'rotation'], parent);
 	})));
 	this.put('align', new Menu(mxUtils.bind(this, function(menu, parent)

@@ -966,6 +966,51 @@
 			}
 		}, null, null, Editor.ctrlKey + '+' + Editor.shiftKey + '+M');
 		
+		// Edits the points of a polygon or the connection points of a shape in
+		// the draw.io dialogs. Unlike isGraphEnabled, these actions also check
+		// their own enabled state, which is updated for the selection.
+		var isActionAndGraphEnabled = function()
+		{
+			return Action.prototype.isEnabled.apply(this, arguments) && graph.isEnabled();
+		};
+
+		editorUi.actions.addAction('editPolygon...', function()
+		{
+			var cell = graph.getSelectionCell();
+
+			if (graph.isEnabled() && cell != null)
+			{
+				var state = graph.view.getState(cell);
+
+				if (state != null && mxUtils.getValue(state.style,
+					mxConstants.STYLE_SHAPE) === 'mxgraph.basic.polygon')
+				{
+					var dlg = new PolygonDialog(editorUi, cell);
+					editorUi.showDialog(dlg.container, 680, 540, true, true,
+						function() { dlg.destroy(); },
+						null, null, new mxRectangle(0, 0, 740, 600));
+					dlg.init();
+				}
+			}
+		}).isEnabled = isActionAndGraphEnabled;
+
+		editorUi.actions.addAction('editConnectionPoints...', function()
+		{
+			var cell = graph.getSelectionCell();
+
+			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()) &&
+				cell != null && cell.geometry != null)
+			{
+				var dlg = new ConnectionPointsDialog(editorUi, cell);
+				editorUi.showDialog(dlg.container, 400, 450, true, false, function()
+				{
+					dlg.destroy();
+				}, null, null, new mxRectangle(0, 0, 400 + 50, 450 + 50),
+					null, 'editConnectionPoints');
+				dlg.init();
+			}
+		}, null, null,  Editor.altKey + '+' + Editor.shiftKey + '+Q').isEnabled = isActionAndGraphEnabled;
+		
 		editorUi.actions.addAction('copyStyle', function()
 		{
 			if (graph.isEnabled() && graph.getSelectionCount() == 1)
@@ -991,8 +1036,18 @@
 		{
 			if (graph.isEnabled() && !graph.isSelectionEmpty() && editorUi.copiedStyle != null)
 			{
-				graph.pasteCellStyles(graph.includeDescendantParts(graph.getSelectionCells()),
-					editorUi.copiedStyle, editorUi.copiedStyle, true);
+				// Reports the new styles like Edit Style (see Graph.beginArrange),
+				// eg. a pasted libavoidRouting flag routes the edges
+				var arrange = graph.beginArrange();
+				try
+				{
+					graph.pasteCellStyles(graph.includeDescendantParts(graph.getSelectionCells()),
+						editorUi.copiedStyle, editorUi.copiedStyle, true);
+				}
+				finally
+				{
+					graph.endArrange(arrange);
+				}
 			}
 		}, null, null,  Editor.altKey + '+V');
 
@@ -4024,7 +4079,7 @@
 				}
 
 				ui.chromelessResize(false);
-			}, Editor.zoomFitImage, mxResources.get('smartFit'));
+			}, Editor.zoomFitImage, mxResources.get('fit'));
 
 			addToolbarButton(function()
 			{
@@ -5529,23 +5584,14 @@
 					editorUi.menus.addMenuItems(menu, ['-', 'save'], parent);
 				}
 				
-				if (urlParams['saveAndExit'] == '1' || 
-					(urlParams['noSaveBtn'] == '1' &&
-					urlParams['saveAndExit'] != '0') || editorUi.mode == App.MODE_ATLAS)
+				editorUi.menus.addMenuItems(menu, ['saveAndExit'], parent);
+
+				if (file != null && file.isRevisionHistorySupported())
 				{
-					editorUi.menus.addMenuItems(menu, ['saveAndExit'], parent);
-					
-					if (file != null && file.isRevisionHistorySupported())
-					{
-						editorUi.menus.addMenuItems(menu, ['revisionHistory'], parent);
-					}
+					editorUi.menus.addMenuItems(menu, ['revisionHistory'], parent);
 				}
 				
 				menu.addSeparator(parent);
-			}
-			else if (editorUi.mode == App.MODE_ATLAS)
-			{
-				editorUi.menus.addMenuItems(menu, ['save', 'synchronize', '-'], parent);
 			}
 			else if (urlParams['noFileMenu'] != '1')
 			{

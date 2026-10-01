@@ -1005,7 +1005,9 @@
 	 * Defines the key for the fill color. Possible values are all HTML color
 	 * names or HEX codes, as well as special keywords such as 'swimlane,
 	 * 'inherit' or 'indicated' to use the color code of a related cell or the
-	 * indicator shape. Value is "fillColor".
+	 * indicator shape, 'parentFillColor' or 'parentStrokeColor' to use the
+	 * respective color of the parent and 'strokeColor' to use the stroke color
+	 * of the cell. Value is "fillColor".
 	 */
 	STYLE_FILLCOLOR: 'fillColor',
 
@@ -1043,8 +1045,10 @@
 	 * Defines the key for the gradient color. Possible values are all HTML color
 	 * names or HEX codes, as well as special keywords such as 'swimlane,
 	 * 'inherit' or 'indicated' to use the color code of a related cell or the
-	 * indicator shape. This is ignored if no fill color is defined. Value is
-	 * "gradientColor".
+	 * indicator shape, 'parentFillColor' or 'parentStrokeColor' to use the
+	 * respective color of the parent and 'fillColor' or 'strokeColor' to use
+	 * the respective color of the cell. This is ignored if no fill color is
+	 * defined. Value is "gradientColor".
 	 */
 	STYLE_GRADIENTCOLOR: 'gradientColor',
 
@@ -1068,7 +1072,9 @@
 	 * Defines the key for the strokeColor style. Possible values are all HTML
 	 * color names or HEX codes, as well as special keywords such as 'swimlane,
 	 * 'inherit', 'indicated' to use the color code of a related cell or the
-	 * indicator shape or 'none' for no color. Value is "strokeColor".
+	 * indicator shape, 'parentFillColor' or 'parentStrokeColor' to use the
+	 * respective color of the parent, 'fillColor' to use the fill color of the
+	 * cell or 'none' for no color. Value is "strokeColor".
 	 */
 	STYLE_STROKECOLOR: 'strokeColor',
 

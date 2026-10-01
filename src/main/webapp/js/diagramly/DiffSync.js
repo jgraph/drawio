@@ -488,78 +488,7 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updat
 		}
 	}
 
-	// Emits the claimant chains anchored at the given ID in
-	// depth-first order (a claimant is followed by its own chain
-	// before the next claimant of the same anchor)
-	var emittedIds = Object.create(null);
-	var order = [];
-
-	var emitRun = function(anchor)
-	{
-		var stack = [];
-		var list = claimants[anchor];
-
-		if (list != null)
-		{
-			delete claimants[anchor];
-
-			for (var i = list.length - 1; i >= 0; i--)
-			{
-				stack.push(list[i]);
-			}
-		}
-
-		while (stack.length > 0)
-		{
-			var current = stack.pop();
-
-			if (current.id == null || !emittedIds[current.id])
-			{
-				if (current.id != null)
-				{
-					emittedIds[current.id] = true;
-				}
-
-				order.push(current);
-				var next = (current.id != null) ?
-					claimants[current.id] : null;
-
-				if (next != null)
-				{
-					delete claimants[current.id];
-
-					for (var i = next.length - 1; i >= 0; i--)
-					{
-						stack.push(next[i]);
-					}
-				}
-			}
-		}
-	};
-
-	// The whole order is one anchor graph rooted at the start
-	emitRun('');
-
-	// Orphaned chains (the anchor vanished in the local pages) are
-	// appended in anchor ID order. Collected and sorted ONCE:
-	// emitRun only ever removes anchors, never adds any, so an
-	// anchor a previous run consumed leaves an empty stack and its
-	// call is a no-op. Termination no longer rests on every pass
-	// consuming an anchor, and the drain is linear instead of
-	// rescanning the whole claimant map once per orphan.
-	var orphans = [];
-
-	for (id in claimants)
-	{
-		orphans.push(id);
-	}
-
-	orphans.sort();
-
-	for (var oi = 0; oi < orphans.length; oi++)
-	{
-		emitRun(orphans[oi]);
-	}
+	var order = this.getClaimantOrder(claimants);
 
   	// FIXME: Workaround for possible duplicate pages
   	var added = Object.create(null);
@@ -778,6 +707,90 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updat
 	}
 
 	return newPages;
+};
+
+/**
+ * Returns the canonical order of the given claimants (anchor ID -> list of
+ * claims with the claimant ID and, for inserts, the insert entry) for the
+ * order rebuild in patchPages and patchCellRecursive. The claimant chains
+ * are emitted in depth-first order (a claimant is followed by its own chain
+ * before the next claimant of the same anchor), starting at the empty
+ * anchor. Consumes the given map.
+ */
+EditorUi.prototype.getClaimantOrder = function(claimants)
+{
+	var emittedIds = Object.create(null);
+	var order = [];
+	var id = null;
+
+	var emitRun = function(anchor)
+	{
+		var stack = [];
+		var list = claimants[anchor];
+
+		if (list != null)
+		{
+			delete claimants[anchor];
+
+			for (var i = list.length - 1; i >= 0; i--)
+			{
+				stack.push(list[i]);
+			}
+		}
+
+		while (stack.length > 0)
+		{
+			var current = stack.pop();
+
+			if (current.id == null || !emittedIds[current.id])
+			{
+				if (current.id != null)
+				{
+					emittedIds[current.id] = true;
+				}
+
+				order.push(current);
+				var next = (current.id != null) ?
+					claimants[current.id] : null;
+
+				if (next != null)
+				{
+					delete claimants[current.id];
+
+					for (var i = next.length - 1; i >= 0; i--)
+					{
+						stack.push(next[i]);
+					}
+				}
+			}
+		}
+	};
+
+	// The whole order is one anchor graph rooted at the start
+	emitRun('');
+
+	// Orphaned chains (the anchor vanished in the local pages or model)
+	// are appended in anchor ID order. Collected and sorted ONCE:
+	// emitRun only ever removes anchors, never adds any, so an
+	// anchor a previous run consumed leaves an empty stack and its
+	// call is a no-op. Termination no longer rests on every pass
+	// consuming an anchor, and the drain is linear instead of
+	// rescanning the whole claimant map once per orphan.
+	var orphans = [];
+
+	for (id in claimants)
+	{
+		orphans.push(id);
+	}
+
+	orphans.sort();
+
+	for (var oi = 0; oi < orphans.length; oi++)
+	{
+		emitRun(orphans[oi]);
+	}
+
+	return order;
 };
 
 /**
@@ -1039,6 +1052,24 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents,
 					if (reinserted != null)
 					{
 						reinserted[id] = true;
+
+						// A vetoed cell keeps its LOCAL content: its own
+						// copy is fresher than this entry (edits flushed
+						// after the incoming save was computed). The
+						// content merge honors that in patchCellRecursive,
+						// so applying the entry's terminals below would
+						// reinstate exactly the stale connection the veto
+						// exists to keep out. The veto only protects a
+						// COLLISION: a cell this patch creates (eg. a
+						// pending insert resurrected after the save
+						// patches removed it) gets its terminals from the
+						// entry alone.
+						if (this.realtimeMergeVeto != null &&
+							this.realtimeMergeVeto[id] != null &&
+							model.getCell(id) != null)
+						{
+							ignoredInserts[id] = true;
+						}
 					}
 					else if (model.getCell(id) != null)
 					{
@@ -1217,15 +1248,8 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents,
 
 				var cell = model.getCell(cellDiff.id);
 
-				// A vetoed cell keeps its LOCAL content: its own copy is
-				// fresher than this entry (edits flushed after the
-				// incoming save was computed). The content merge honors
-				// that in patchCellRecursive, so re-applying the entry's
-				// terminals here would reinstate exactly the stale
-				// connection the veto exists to keep out.
-				if (cell != null && !ignoredInserts[cellDiff.id] &&
-					(this.realtimeMergeVeto == null ||
-					this.realtimeMergeVeto[cellDiff.id] == null))
+				// Skips ignored and vetoed collisions (see above)
+				if (cell != null && !ignoredInserts[cellDiff.id])
 				{
 					model.setTerminal(cell, model.getCell(cellDiff.source), true);
 					model.setTerminal(cell, model.getCell(cellDiff.target), false);
@@ -1342,77 +1366,7 @@ EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup
 			prev = cellId;
 		}
 
-		// Emits the claimant chains anchored at the given ID in
-		// depth-first order (a claimant is followed by its own chain
-		// before the next claimant of the same anchor)
-		var emittedIds = Object.create(null);
-		var order = [];
-
-		var emitRun = function(anchor)
-		{
-			var stack = [];
-			var list = claimants[anchor];
-
-			if (list != null)
-			{
-				delete claimants[anchor];
-
-				for (var i = list.length - 1; i >= 0; i--)
-				{
-					stack.push(list[i]);
-				}
-			}
-
-			while (stack.length > 0)
-			{
-				var current = stack.pop();
-
-				if (current.id == null || !emittedIds[current.id])
-				{
-					if (current.id != null)
-					{
-						emittedIds[current.id] = true;
-					}
-
-					order.push(current);
-					var next = (current.id != null) ?
-						claimants[current.id] : null;
-
-					if (next != null)
-					{
-						delete claimants[current.id];
-
-						for (var i = next.length - 1; i >= 0; i--)
-						{
-							stack.push(next[i]);
-						}
-					}
-				}
-			}
-		};
-
-		emitRun('');
-
-		// Orphaned chains (the anchor vanished in the local model) are
-		// appended in anchor ID order. Collected and sorted ONCE:
-		// emitRun only ever removes anchors, never adds any, so an
-		// anchor a previous run consumed leaves an empty stack and its
-		// call is a no-op. Termination no longer rests on every pass
-		// consuming an anchor, and the drain is linear instead of
-		// rescanning the whole claimant map once per orphan.
-		var orphans = [];
-
-		for (id in claimants)
-		{
-			orphans.push(id);
-		}
-
-		orphans.sort();
-
-		for (var oi = 0; oi < orphans.length; oi++)
-		{
-			emitRun(orphans[oi]);
-		}
+		var order = this.getClaimantOrder(claimants);
 
 		var addCell = mxUtils.bind(this, function(child, insert)
 		{

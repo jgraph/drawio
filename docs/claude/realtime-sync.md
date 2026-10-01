@@ -98,6 +98,9 @@ split is load-bearing and must never be collapsed:
   still takes the insert position; skipping entirely would orphan it
   from the claimant walk). Connected-peers-only: without live traffic
   own==ui trivially and the veto would disable the stale-copy merge.
+  The veto protects COLLISIONS only (content and terminals): a pending
+  entry the second pass re-creates after the save patches removed its
+  cell takes both from the entry (`veto-resurrect`).
 - **Pending adopted-page edits**: a whole-page insert hides its cell
   updates from the cell-insert veto. Before merging a save, extract fields
   that differ between remote and own pages and still match the visible
@@ -362,7 +365,8 @@ encrypted (socket `bytes` envelope since 20.2.0, cache messages since
 or one that fails to decrypt/parse BEFORE any field is used (roster,
 dedupe, cursors included), and `changeListener` no longer answers an
 undecryptable cache message with `fileChangedNotify` (that was a
-refetch storm for any poster). `stringToObject` rejects non-strings:
+refetch storm for any poster; the one exception is a notification with
+the derived key of a OneDrive/monday file, throttled, see below). `stringToObject` rejects non-strings:
 CryptoJS takes an object as cipher params and loops over its
 `sigBytes` before any key check. Channels without a key keep the old
 behavior (nothing to authenticate). Captured ciphertext can still be
@@ -370,6 +374,58 @@ replayed from another socket: the envelope does not bind the relay's
 sender id. Locked by `p2p-encrypted-channel`, whose keyless control
 proves the forged messages act without the key. New channel IDs, keys
 and cache secrets come from `Editor.secureGuid` (CSPRNG).
+
+**Random channel keys (OneDrive, monday.com)**. Both used to derive the key
+from metadata: OneDrive `MD5(createdDateTime + creator id)` (readers see
+both, and the timestamp can be brute-forced from a captured message),
+monday `MD5(desc.id)` (the channel ID is a reversible compression of it).
+Those derived keys are now `getLegacyChannelKey()`; `getChannelKey()`
+returns a random key when the file has one.
+- Storage. monday: `desc.key`, created by the host (`connect/monday/js/
+  common.js`, mirrored in jgraph/drawio-monday) for new diagrams and added by
+  `MC.saveDiagram` on the next save. OneDrive: Graph has no custom
+  properties on driveItems (open extensions don't cover them, `description`
+  is personal-only and visible, list columns need admin scopes), so the key
+  is the `rtKey` attribute of the STORED mxfile (`fingerprint(item id).key`).
+  `OneDriveFile` strips it on construction and `OneDriveClient.saveFile`
+  adds it to the written bytes only, so the document, `getData()`, exports
+  and "save as" never carry it, and a copy with another item ID ignores it.
+  SVG/HTML/PNG files keep the derived key (their data is published as images).
+- Switching (`DrawioFileSync.updateChannelKey`, from `start`,
+  `DrawioFile.descriptorChanged` and the optimistic branch of
+  `DrawioFile.fileSaved`). The key only changes with a save: the saver
+  switches on success, peers when they read that version
+  (`OneDriveFile.getLatestVersion` adopts, the monday descriptor carries it).
+  The previous key still decodes for `previousKeyTimeout` (30 s), so a
+  session that witnesses the introduction accepts derived-key messages
+  briefly. A random key is never replaced by none or the derived one.
+- Mixed sessions. Clients from before (31.6.x) keep the derived key; live
+  diffs are split, saves are not, like an outdated protocol: notifications
+  with a `p.m` (save, optimistic, desc) are also sent with the derived key
+  (`createLegacyNotification`, `kid` = fingerprint of the random key, socket
+  copies without the user), and a derived-key message only leads to a
+  throttled file check (`decodeLegacyMessage` → `handleLegacyMessage`, one per
+  `legacyNotifyDelay`), never to applied content. Optimistic-sync files never
+  reach `sync.fileSaved`, so the optimistic notice is their only save notice.
+  An old OneDrive client that was open when the key was written drops it
+  with its next save (merges only carry `vars`); current clients keep the key
+  in memory and write it back. `legacyKeyNotify` can go once 31.6.x is gone.
+- Not covered: rotating the key when sharing changes, and anyone who once
+  read the file (or a downloaded copy of it) keeps the key.
+Locked by `channel-key-onedrive`, `channel-key-mixed` and
+`channel-key-monday` (real 31.6.1 client pinned in `run.js`).
+
+**Cache patches are only as trusted as the descriptor**: the key and
+the per-revision cache secret are file properties, so anyone who can
+READ the file holds both. The cache server (`AbsCache`) issues one
+token per channel and secret and keeps a used token blocked while its
+patch is cached, so a reader cannot re-mint the token after the save
+and replace the patch. Past that window (5 min) nothing on the server
+binds a patch to a writer, so cache catchup rejects patches whose final
+checksum differs from the descriptor checksum (Drive `checksum`
+property, which only writers can change) and reloads the file instead.
+Locked by `cache-fallback-forged`: a self-consistent empty patch that
+the pre-check client applied, silently skipping the saved revision.
 
 Cursor and selection are deliberately NOT gated. They are view state,
 never enter the model, own pages, snapshot or file, so a version

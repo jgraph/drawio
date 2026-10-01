@@ -4,14 +4,216 @@
  */
 OneDriveFile = function(ui, data, meta, isSP)
 {
-	DrawioFile.call(this, ui, data);
-	
+	// The realtime key is removed from the data so that it never
+	// reaches the document, where exports and copies would carry it
+	var rt = OneDriveFile.extractRealtimeKey(data, meta);
+	DrawioFile.call(this, ui, (rt != null) ? rt.data : data);
+
 	this.meta = meta;
 	this.isSP = isSP;
+	this.realtimeKey = (rt != null) ? rt.key : null;
 };
 
 //Extends mxEventSource
 mxUtils.extend(OneDriveFile, DrawioFile);
+
+/**
+ * Name of the mxfile attribute that stores the random channel key of the
+ * file for realtime collaboration (see getChannelKey). Graph has no custom
+ * properties on files in both personal OneDrive and SharePoint, so the key
+ * is stored in the file: everyone who can read the file has it. The value
+ * is a fingerprint of the file ID, a dot and the key, so that a copy of the
+ * file (download, upload, copy in OneDrive) gets its own key.
+ */
+OneDriveFile.REALTIME_KEY_ATTRIBUTE = 'rtKey';
+
+/**
+ * Specifies if a random channel key is added to files without one when
+ * they are saved.
+ */
+OneDriveFile.createRealtimeKeys = true;
+
+/**
+ * Returns the start and end index of the mxfile start tag at the beginning of
+ * the given data, or null if the data is not an mxfile XML document.
+ */
+OneDriveFile.getMxfileTag = function(data)
+{
+	var head = (typeof data === 'string') ? /^\s*(<\?xml[^>]*>\s*)?<mxfile(?=[\s\/>])/.
+		exec(data.substring(0, 512)) : null;
+
+	if (head != null)
+	{
+		var quote = null;
+
+		// Attribute values may contain unescaped '>'
+		for (var i = head[0].length; i < data.length; i++)
+		{
+			var c = data.charAt(i);
+
+			if (quote != null)
+			{
+				if (c == quote)
+				{
+					quote = null;
+				}
+			}
+			else if (c == '"' || c == '\'')
+			{
+				quote = c;
+			}
+			else if (c == '>')
+			{
+				return {start: head[0].length - 7, end: i + 1};
+			}
+		}
+	}
+
+	return null;
+};
+
+/**
+ * Parses the given mxfile start tag and returns the mxfile element without
+ * children, or null if the tag cannot be parsed.
+ */
+OneDriveFile.parseMxfileTag = function(data, tag)
+{
+	var text = data.substring(tag.start, tag.end);
+	var node = mxUtils.parseXml((/\/\s*>$/.test(text)) ?
+		text : text + '</mxfile>').documentElement;
+
+	return (node != null && node.nodeName == 'mxfile' &&
+		node.getElementsByTagName('parsererror').length == 0) ?
+		node : null;
+};
+
+/**
+ * Returns the given data with the start tag replaced by the given mxfile
+ * element without children.
+ */
+OneDriveFile.replaceMxfileTag = function(data, tag, node)
+{
+	var text = mxUtils.getXml(node);
+
+	// The element has no children, the tag in the data may have
+	if (!/\/\s*>$/.test(data.substring(tag.start, tag.end)))
+	{
+		text = text.replace(/\/>$/, '>');
+	}
+
+	return data.substring(0, tag.start) + text + data.substring(tag.end);
+};
+
+/**
+ * Returns the fingerprint of the given file ID that binds the stored
+ * realtime key to the file.
+ */
+OneDriveFile.getRealtimeKeyBinding = function(id)
+{
+	return (id != null && typeof CryptoJS !== 'undefined') ?
+		CryptoJS.MD5('realtime-key:' + String(id).toLowerCase()).
+		toString().substring(0, 8) : null;
+};
+
+/**
+ * Returns a new random realtime key or null if no CSPRNG is available.
+ */
+OneDriveFile.createRealtimeKey = function()
+{
+	try
+	{
+		var bytes = new Uint8Array(32);
+		window.crypto.getRandomValues(bytes);
+		var key = [];
+
+		// Unbiased as the alphabet has 64 characters, a divisor of 256
+		for (var i = 0; i < bytes.length; i++)
+		{
+			key.push(Editor.GUID_ALPHABET.charAt(bytes[i] % Editor.GUID_ALPHABET.length));
+		}
+
+		return key.join('');
+	}
+	catch (e)
+	{
+		return null;
+	}
+};
+
+/**
+ * Removes the realtime key from the given file data. Returns null if the
+ * data has no key, else the data without the key and the key, which is null
+ * if the value is invalid or belongs to another file.
+ */
+OneDriveFile.extractRealtimeKey = function(data, meta)
+{
+	var result = null;
+
+	try
+	{
+		var tag = OneDriveFile.getMxfileTag(data);
+
+		if (tag != null && data.substring(tag.start, tag.end).
+			indexOf(OneDriveFile.REALTIME_KEY_ATTRIBUTE) > 0)
+		{
+			var node = OneDriveFile.parseMxfileTag(data, tag);
+
+			if (node != null && node.hasAttribute(OneDriveFile.REALTIME_KEY_ATTRIBUTE))
+			{
+				var value = node.getAttribute(OneDriveFile.REALTIME_KEY_ATTRIBUTE).split('.');
+				node.removeAttribute(OneDriveFile.REALTIME_KEY_ATTRIBUTE);
+				result = {data: OneDriveFile.replaceMxfileTag(data, tag, node), key: null};
+
+				if (value.length == 2 && /^[0-9a-zA-Z_-]{22,}$/.test(value[1]) &&
+					meta != null && value[0] == OneDriveFile.getRealtimeKeyBinding(
+					OneDriveFile.prototype.getIdOf(meta)))
+				{
+					result.key = value[1];
+				}
+			}
+		}
+	}
+	catch (e)
+	{
+		// Keeps the data
+		result = null;
+	}
+
+	return result;
+};
+
+/**
+ * Returns the given data with the realtime key of this file for saving it.
+ * A file without a key gets a new one, which is used after the save
+ * succeeded. SVG, HTML and PNG files keep the legacy key since their data
+ * is also published as an image or page.
+ */
+OneDriveFile.prototype.addRealtimeKey = function(data)
+{
+	this.savingRealtimeKey = null;
+
+	try
+	{
+		var tag = OneDriveFile.getMxfileTag(data);
+		var binding = (tag != null) ? OneDriveFile.getRealtimeKeyBinding(this.getId()) : null;
+		var key = (binding == null) ? null : ((this.realtimeKey != null) ? this.realtimeKey :
+			((OneDriveFile.createRealtimeKeys) ? OneDriveFile.createRealtimeKey() : null));
+		var node = (key != null) ? OneDriveFile.parseMxfileTag(data, tag) : null;
+
+		if (node != null)
+		{
+			node.setAttribute(OneDriveFile.REALTIME_KEY_ATTRIBUTE, binding + '.' + key);
+			data = OneDriveFile.replaceMxfileTag(data, tag, node);
+			this.savingRealtimeKey = key;
+		}
+	}
+	catch (e)
+	{
+		// Saves without the key
+	}
+
+	return data;
+};
 
 /**
  * Shorter autosave delay for optimistic sync.
@@ -27,7 +229,8 @@ OneDriveFile.prototype.isRealtimeSupported = function()
 };
 
 /**
- * Returns true if copy, export and print are not allowed for this file.
+ * Returns a best effort URL of the file in the OneDrive or SharePoint web
+ * interface.
  */
 OneDriveFile.prototype.getFileUrl = function()
 {
@@ -84,7 +287,7 @@ OneDriveFile.prototype.getFileUrl = function()
 };
 
 /**
- * Returns true if copy, export and print are not allowed for this file.
+ * Returns the web URL of the folder of the file.
  */
 OneDriveFile.prototype.getFolderUrl = function()
 {
@@ -100,10 +303,7 @@ OneDriveFile.prototype.getFolderUrl = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Opens the file in the web interface for sharing.
  */
 OneDriveFile.prototype.share = function()
 {
@@ -111,10 +311,7 @@ OneDriveFile.prototype.share = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the ID of the file, which includes the drive ID if available.
  */
 OneDriveFile.prototype.getId = function()
 {
@@ -122,10 +319,8 @@ OneDriveFile.prototype.getId = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the ID of the parent folder of the file, which includes the drive
+ * ID if available.
  */
 OneDriveFile.prototype.getParentId = function()
 {
@@ -133,10 +328,9 @@ OneDriveFile.prototype.getParentId = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the ID of the given item, prefixed with its drive ID if available.
+ * If parent is not null, the ID of the parent folder of the item is
+ * returned.
  */
 OneDriveFile.prototype.getIdOf = function(itemObj, parent)
 {
@@ -154,10 +348,8 @@ OneDriveFile.prototype.getChannelId = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the hash of the file, which is M for SharePoint or W for OneDrive
+ * followed by the URI-encoded ID.
  */
 OneDriveFile.prototype.getHash = function()
 {
@@ -165,10 +357,8 @@ OneDriveFile.prototype.getHash = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns App.MODE_M365 for SharePoint files and App.MODE_ONEDRIVE
+ * otherwise.
  */
 OneDriveFile.prototype.getMode = function()
 {
@@ -184,10 +374,7 @@ OneDriveFile.prototype.isAutosaveOptional = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the name of the file.
  */
 OneDriveFile.prototype.getTitle = function()
 {
@@ -195,10 +382,7 @@ OneDriveFile.prototype.getTitle = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns true since OneDrive files can be renamed.
  */
 OneDriveFile.prototype.isRenamable = function()
 {
@@ -271,7 +455,19 @@ OneDriveFile.prototype.loadDescriptor = function(success, error)
  */
 OneDriveFile.prototype.getLatestVersion = function(success, error)
 {
-	(this.isSP? this.ui.m365 : this.ui.oneDrive).getFile(this.getId(), success, error);
+	(this.isSP? this.ui.m365 : this.ui.oneDrive).getFile(this.getId(), mxUtils.bind(this, function(file)
+	{
+		// Every client switches to the key of the latest version, a
+		// version without a key keeps the current one (see
+		// DrawioFileSync.updateChannelKey)
+		if (file != null && file.realtimeKey != null &&
+			file.getId() == this.getId())
+		{
+			this.realtimeKey = file.realtimeKey;
+		}
+
+		success(file);
+	}), error);
 };
 
 /**
@@ -328,23 +524,43 @@ OneDriveFile.prototype.loadPatchDescriptor = function(success, error)
 };
 
 /**
- * Using MD5 of create timestamp and user ID as crypto key.
+ * Returns the random key stored in the file (see REALTIME_KEY_ATTRIBUTE), or
+ * the legacy key for a file that has not been saved with one yet.
  */
 OneDriveFile.prototype.getChannelKey = function()
 {
+	return (this.realtimeKey != null) ? this.realtimeKey :
+		this.getLegacyChannelKey();
+};
+
+/**
+ * Using MD5 of create timestamp and user ID as crypto key. Anyone who knows
+ * the file metadata can derive it, and the timestamp can be guessed.
+ */
+OneDriveFile.prototype.getLegacyChannelKey = function()
+{
 	if (typeof CryptoJS !== 'undefined')
 	{
-		return CryptoJS.MD5(this.meta.createdDateTime +
+		var seed = this.meta.createdDateTime +
 			((this.meta.createdBy != null &&
 			this.meta.createdBy.user != null) ?
-			this.meta.createdBy.user.id : '')).toString();
+			this.meta.createdBy.user.id : '');
+
+		// Called for every activity event via DrawioFileSync.start
+		if (this.legacyKeySeed !== seed)
+		{
+			this.legacyKeySeed = seed;
+			this.legacyKey = CryptoJS.MD5(seed).toString();
+		}
+
+		return this.legacyKey;
 	}
-	
+
 	return null;
 };
 
 /**
- * Adds all listeners.
+ * Returns the last modified date of the file.
  */
 OneDriveFile.prototype.getLastModifiedDate = function()
 {
@@ -352,10 +568,7 @@ OneDriveFile.prototype.getLastModifiedDate = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Saves the file under its current title.
  */
 OneDriveFile.prototype.save = function(revision, success, error, unloading, overwrite)
 {
@@ -363,10 +576,7 @@ OneDriveFile.prototype.save = function(revision, success, error, unloading, over
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Saves the file with the given title.
  */
 OneDriveFile.prototype.saveAs = function(title, success, error)
 {
@@ -374,10 +584,8 @@ OneDriveFile.prototype.saveAs = function(title, success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Updates the file data using the extension of the given title and saves
+ * the file with the given title.
  */
 OneDriveFile.prototype.doSave = function(title, revision, success, error, unloading, overwrite)
 {
@@ -393,10 +601,10 @@ OneDriveFile.prototype.doSave = function(title, revision, success, error, unload
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Saves the file unless a save is in progress. On a conflict, the remote
+ * changes are merged via the sync object and the save is retried. If the
+ * title has changed, the data is inserted as a new file, which is then
+ * opened.
  */
 OneDriveFile.prototype.saveFile = function(title, revision, success, error, unloading, overwrite)
 {
@@ -436,7 +644,14 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 						this.setModified(this.getShadowModified());
 						this.savingFile = false;
 						this.meta = meta;
-	
+
+						// A new realtime key is used once it is saved
+						if (this.savingRealtimeKey != null)
+						{
+							this.realtimeKey = this.savingRealtimeKey;
+							this.savingRealtimeKey = null;
+						}
+
 						this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
 						{
 							this.contentChanged();
@@ -553,24 +768,20 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Renames the file to the given title. The file is saved again if the file
+ * extension has changed.
  */
 OneDriveFile.prototype.rename = function(title, success, error)
 {
-	var rev = this.getCurrentRevisionId();
-	
 	(this.isSP? this.ui.m365 : this.ui.oneDrive).renameFile(this, title, mxUtils.bind(this, function(meta)
 	{
 		if (!this.hasSameExtension(title, this.getTitle()))
 		{
 			this.meta = meta;
-			
+
 			if (this.sync != null)
 			{
-				this.sync.descriptorChanged(rev);
+				this.sync.descriptorChanged();
 			}
 			
 			this.save(true, success, error);
@@ -582,7 +793,7 @@ OneDriveFile.prototype.rename = function(title, success, error)
 
 			if (this.sync != null)
 			{
-				this.sync.descriptorChanged(rev);
+				this.sync.descriptorChanged();
 			}
 			
 			if (success != null)
@@ -594,10 +805,7 @@ OneDriveFile.prototype.rename = function(title, success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Moves the file to the folder with the given ID.
  */
 OneDriveFile.prototype.move = function(folderId, success, error)
 {

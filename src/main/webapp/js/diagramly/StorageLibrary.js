@@ -3,12 +3,8 @@
  * Copyright (c) 2006-2017, draw.io AG
  */
 /**
- * Constructs a new point for the optional x and y coordinates. If no
- * coordinates are given, then the default values for <x> and <y> are used.
- * @constructor
- * @class Implements a basic 2D point. Known subclassers = {@link mxRectangle}.
- * @param {number} x X-coordinate of the point.
- * @param {number} y Y-coordinate of the point.
+ * Constructs a new library in the browser storage with the given data and
+ * title.
  */
 StorageLibrary = function(ui, data, title)
 {
@@ -24,10 +20,7 @@ mxUtils.extend(StorageLibrary, StorageFile);
 StorageLibrary.prototype.type = 'L';
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns true to enable autosave for libraries.
  */
 StorageLibrary.prototype.isAutosave = function()
 {
@@ -35,10 +28,7 @@ StorageLibrary.prototype.isAutosave = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Saves the library under its current title.
  */
 StorageLibrary.prototype.save = function(revision, success, error)
 {
@@ -54,10 +44,8 @@ StorageLibrary.prototype.saveAs = function(title, success, error)
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the hash of the library, which is L followed by the URI-encoded
+ * title.
  */
 StorageLibrary.prototype.getHash = function()
 {
@@ -65,10 +53,8 @@ StorageLibrary.prototype.getHash = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns the title of the library, or the localized name of the
+ * scratchpad.
  */
 StorageLibrary.prototype.getTitle = function()
 {
@@ -76,7 +62,7 @@ StorageLibrary.prototype.getTitle = function()
 };
 
 /**
- * Overridden to avoid updating data with current file.
+ * Returns true unless this is the scratchpad library.
  */
 StorageLibrary.prototype.isRenamable = function(title, success, error)
 {
@@ -84,8 +70,7 @@ StorageLibrary.prototype.isRenamable = function(title, success, error)
 };
 
 /**
- * Returns the location as a new object.
- * @type mx.Point
+ * Does nothing since libraries are not opened as diagrams.
  */
 StorageLibrary.prototype.open = function()
 {

@@ -365,6 +365,70 @@
 	};
 
 	/**
+	 * Returns the given file hash for logs: the type character (eg. G for
+	 * Google Drive, U for a URL, R for a diagram encoded in the URL) followed
+	 * by a hash of the rest, so no diagram data, raw file id or URL is logged
+	 * while entries for the same file still correlate.
+	 */
+	EditorUi.getLogHash = function(hash)
+	{
+		return (hash != null && hash.length > 0) ? hash.charAt(0) +
+			((hash.length > 1) ? '.' + EditorUi.prototype.hashValue(
+				hash.substring(1)) : '') : '';
+	};
+
+	/**
+	 * Returns the location of this page for logs: origin and path, the names
+	 * but not the values of the URL parameters and the hash as in getLogHash.
+	 */
+	EditorUi.getLogUrl = function()
+	{
+		var loc = window.location;
+		var result = loc.protocol + '//' + loc.host + loc.pathname;
+
+		if (loc.search.length > 1)
+		{
+			var params = loc.search.substring(1).split('&');
+			var names = [];
+
+			for (var i = 0; i < params.length; i++)
+			{
+				names.push(params[i].split('=')[0]);
+			}
+
+			result += '?' + names.join('&');
+		}
+
+		if (loc.hash.length > 1)
+		{
+			result += '#' + EditorUi.getLogHash(loc.hash.substring(1));
+		}
+
+		return result;
+	};
+
+	/**
+	 * Replaces the location of this page in the given text, eg. a stack
+	 * trace with inline scripts, with the location returned by getLogUrl.
+	 */
+	EditorUi.anonymizeLogText = function(text, logUrl)
+	{
+		if (text != null && text.length > 0)
+		{
+			var loc = window.location;
+			text = text.split(loc.href).join(logUrl);
+
+			if (loc.hash.length > 1)
+			{
+				text = text.split(loc.hash).join('#' +
+					EditorUi.getLogHash(loc.hash.substring(1)));
+			}
+		}
+
+		return text;
+	};
+
+	/**
 	 * Updates action states depending on the selection.
 	 */
 	EditorUi.logError = function(message, url, linenumber, colno, err, severity, quiet)
@@ -388,18 +452,23 @@
 				{
 					EditorUi.lastErrorMessage = message;
 
+					// The hash can hold the diagram (#R) or a file id and the
+					// parameters can hold names, URLs or tokens (see getLogUrl)
+					var logUrl = EditorUi.getLogUrl();
 					var img = new Image();
 					var logDomain = window.DRAWIO_LOG_URL != null ?
 						window.DRAWIO_LOG_URL : '';
 					img.src = logDomain + '/log?severity=' + severity +
 						'&v=' + encodeURIComponent(EditorUi.VERSION) +
-						'&msg=clientError:' + encodeURIComponent(message) +
-						':url:' + encodeURIComponent(window.location.href) +
+						'&msg=clientError:' + encodeURIComponent(
+							EditorUi.anonymizeLogText(message, logUrl)) +
+						':url:' + encodeURIComponent(logUrl) +
 						':lnum:' + encodeURIComponent(linenumber) +
 						((colno != null) ?
 							':colno:' + encodeURIComponent(colno) : '') +
 						((err.stack != '') ?
-							'&stack=' + encodeURIComponent(err.stack) : '');
+							'&stack=' + encodeURIComponent(
+								EditorUi.anonymizeLogText(err.stack, logUrl)) : '');
 				}
 			}
 			catch (e)
@@ -468,7 +537,7 @@
 				}
 				
 				mxUtils.post('/email', 'version=' + encodeURIComponent(EditorUi.VERSION) +
-					'&url=' + encodeURIComponent(window.location.href) +
+					'&url=' + encodeURIComponent(EditorUi.getLogUrl()) +
 					'&data=' + encodeURIComponent(data));
 			}
 			catch (e)
@@ -1402,10 +1471,9 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Creates a spinner of the given size at the given position, or centered on
+	 * the page if no position is given. Its spin method accepts a label, an
+	 * error handler that is invoked on timeout and the timeout.
 	 */
 	EditorUi.prototype.createSpinner = function(x, y, size)
 	{
@@ -2207,10 +2275,10 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 *
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Returns the file data for the given XML node, which is wrapped in an
+	 * mxfile node if needed. The data is written as HTML or SVG with the
+	 * embedded XML if forced or if the title of the given file has that
+	 * extension, otherwise as XML.
 	 */
 	EditorUi.prototype.createFileData = function(node, graph, file, url, forceXml, forceSvg, forceHtml,
 		embeddedCallback, ignoreSelection, compact, uncompressed, scale, border)
@@ -2361,10 +2429,9 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Returns the mxfile node with all pages, or only the current page if
+	 * currentPage is true, compressed unless uncompressed is true. If
+	 * ignoreSelection is false, the graph model of the selection is returned.
 	 */
 	EditorUi.prototype.getXmlFileData = function(ignoreSelection, currentPage, uncompressed, resolveReferences)
 	{
@@ -2472,7 +2539,10 @@
 	};
 	
 	/**
-	 * Removes any values, styles and geometries from the given XML node.
+	 * Returns the given text with letters and digits replaced by random ones, or
+	 * digits replaced by zeros if zeros is true. Whitespace is replaced by a
+	 * space and other characters by a question mark, except for the ignored
+	 * characters.
 	 */
 	EditorUi.prototype.anonymizeString = function(text, zeros)
 	{
@@ -2783,10 +2853,8 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Synchronizes the current file with its latest version, or reloads it if
+	 * forceReload is true.
 	 */
 	EditorUi.prototype.synchronizeCurrentFile = function(forceReload)
 	{
@@ -2834,10 +2902,9 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Returns the data of the current file, or the given node, as XML, SVG or
+	 * HTML depending on the force flags and the title of the given or current
+	 * file. SVG data is created for the first page.
 	 */
 	EditorUi.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback,
 		ignoreSelection, currentPage, node, compact, file, uncompressed, resolveReferences,
@@ -3301,8 +3368,8 @@
 				}
 				
 				EditorUi.logEvent({category: file.getMode().toUpperCase() +
-					'-FILE-STATS-' + file.getHash(), action: 'size_' + file.getSize(),
-					label: JSON.stringify(stats)});
+					'-FILE-STATS-' + EditorUi.getLogHash(file.getHash()),
+					action: 'size_' + file.getSize(), label: JSON.stringify(stats)});
 			}
 		}
 		catch (e)
@@ -3312,10 +3379,9 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Returns the title of the current file without the xml, html, svg, png and
+	 * drawio extensions, followed by the name of the current page if there are
+	 * multiple pages and ignorePageName is false.
 	 */
 	// Note: Remember to adjust ElectronApp override when this function is modified
 	EditorUi.prototype.getBaseFilename = function(ignorePageName)
@@ -3345,10 +3411,8 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Downloads the current file, page or selection in the given format with the
+	 * given export options.
 	 */
 	EditorUi.prototype.downloadFile = function(format, uncompressed, addShadow, ignoreSelection,
 		currentPage, pageVisible, transparent, scale, border, grid, includeXml, pageRange, margin,
@@ -3527,10 +3591,9 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Returns the parameters of the export request for the given filename,
+	 * format and export options with the data of the current file, page or
+	 * selection. Throws an error if the drawing is too large.
 	 */
 	EditorUi.prototype.downloadRequestBuilder = function(filename, format, ignoreSelection, base64,
 		transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop, margin,
@@ -3690,10 +3753,7 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 *
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Sets the current storage mode.
 	 */
 	EditorUi.prototype.setMode = function(mode, remember)
 	{
@@ -3701,10 +3761,8 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Returns the diagram ID from the URL hash without the hash sign and any
+	 * parameters after a second hash sign.
 	 */
 	EditorUi.prototype.getDiagramId = function()
 	{
@@ -3731,10 +3789,8 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Returns the object that is stored as JSON after the last hash sign in the
+	 * URL hash, or an empty object.
 	 */
 	EditorUi.prototype.getHashObject = function()
 	{
@@ -3782,10 +3838,9 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Stores the given object as JSON after the last hash sign in the URL hash,
+	 * or removes it if the object is empty. Does nothing if
+	 * Editor.enableHashObjects is false.
 	 */
 	EditorUi.prototype.setHashObject = function(obj)
 	{
@@ -3953,10 +4008,9 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Applies the updates in the given XML to the graph. An updates node can
+	 * change the values, styles, overlays and geometries of cells, replace the
+	 * model, set the view and fit the diagram.
 	 */
 	EditorUi.prototype.updateDiagram = function(xml)
 	{
@@ -3986,7 +4040,10 @@
 			{
 				var graph = this.editor.graph;
 				var model = graph.getModel();
-				model.beginUpdate();
+
+				// Reports the new styles and geometries like an arrange action
+				// (see Graph.beginArrange), eg. for the auto-routing
+				var arrange = graph.beginArrange();
 				var fit = null;
 
 				try
@@ -4185,7 +4242,7 @@
 				}
 				finally
 				{
-					model.endUpdate();
+					graph.endArrange(arrange);
 				}
 				
 				if (fit != null && this.chromelessResize)
@@ -4242,10 +4299,7 @@
 	};
 		
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Writes a debug message for the given file if it was discarded.
 	 */
 	EditorUi.prototype.logIfModified = function(file, discarded)
 	{
@@ -4289,10 +4343,9 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Closes the current file and opens the given file. If file is null, the
+	 * editor is cleared and the splash screen is shown unless noDialogs is true.
+	 * Returns true if the given file was loaded.
 	 */
 	EditorUi.prototype.fileLoaded = function(file, noDialogs, success)
 	{
@@ -4476,7 +4529,8 @@
 						theme += Editor.isDarkMode() ? '-dark' : '-light';
 					}
 
-					EditorUi.logEvent({category: file.getMode().toUpperCase() + '-OPEN-FILE-' + file.getHash(),
+					EditorUi.logEvent({category: file.getMode().toUpperCase() + '-OPEN-FILE-' +
+						EditorUi.getLogHash(file.getHash()),
 						action: 'size_' + file.getSize(), label: 'autosave_' +
 						((this.editor.autosave) ? 'on' : 'off') + '_theme_' + theme});
 				}
@@ -4868,10 +4922,8 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Returns the XML of an mxlibrary node for the given images. Compressed
+	 * entries are uncompressed unless Editor.defaultCompressed is true.
 	 */
 	EditorUi.prototype.createLibraryDataFromImages = function(images)
 	{
@@ -4896,10 +4948,8 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Removes the given library from the sidebar and from the custom libraries
+	 * in the settings.
 	 */
 	EditorUi.prototype.closeLibrary = function(file)
 	{
@@ -4920,10 +4970,7 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Removes the palette of the library with the given ID from the sidebar.
 	 */
 	EditorUi.prototype.removeLibrarySidebar = function(id)
 	{
@@ -4977,10 +5024,8 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Adds the library in the given file to the sidebar. Throws an error if the
+	 * file is not a library.
 	 */
 	EditorUi.prototype.loadLibrary = function(file, expand)
 	{
@@ -4999,10 +5044,8 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Returns the tooltip for the given library. This implementation returns an
+	 * empty string.
 	 */
 	EditorUi.prototype.getLibraryStorageHint = function(file)
 	{
@@ -5010,10 +5053,7 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Shows the sidebar window or the shapes panel.
 	 */
 	EditorUi.prototype.showSidebar = function()
 	{
@@ -5028,10 +5068,9 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Toggles the find window, or the find and replace window if findReplace is
+	 * true. If searchTerms is given, the window is shown and searches for the
+	 * terms.
 	 */
 	EditorUi.prototype.showSearchWindow = function(findReplace, searchTerms)
 	{
@@ -5085,10 +5124,9 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Adds the given library with the given images to the sidebar, replacing an
+	 * existing palette for the library, and adds it to the custom libraries in
+	 * the settings.
 	 */
 	EditorUi.prototype.libraryLoaded = function(file, images, optionalTitle, expand, defaultTags)
 	{
@@ -6495,10 +6533,10 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Shows the given error or response in an error dialog with the given title.
+	 * Offers a retry for errors with a retry function and changing the Google
+	 * Drive user for files that cannot be found or accessed. If there is no
+	 * error and no title, fn is invoked directly.
 	 */
 	EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose, notFoundMessage, fileHash, disableLogging)
 	{
@@ -6654,7 +6692,7 @@
 							{
 								this.loadFile(window.location.hash.substr(1), true);
 							}));
-							this.showDialog(dlg.container, 300, 100, true, true);
+							this.showDialog(dlg.container, 300, null, true, true);
 						});
 
 						// One click to pick the file and grant it, where the Home screen is on
@@ -6671,9 +6709,14 @@
 						}
 
 						// Special case where the button must have a different label and function
-						this.showError(title, msg, mxResources.get('tryOpeningViaThisPage'), mxUtils.bind(this, function()
+						msg += '<br><br>' + mxUtils.htmlEntities(mxResources.get('openInGoogleDriveHint'), false);
+
+						this.showError(title, msg, mxResources.get('openInGoogleDrive'), mxUtils.bind(this, function()
 						{
-							this.editor.graph.openLink('https://drive.google.com/open?id=' + id);
+							// The file viewer shows Drive's own page for missing or inaccessible
+							// files, where /open?id= shows a generic 404 page
+							this.editor.graph.openLink('https://drive.google.com/file/d/' +
+								encodeURIComponent(id) + '/view');
 
 							if (invokeFnOnClose != null)
 							{
@@ -6687,7 +6730,7 @@
 							{
 								fn();
 							}
-						}), 520, 150);
+						}), 420);
 
 						return;
 					}
@@ -6766,10 +6809,7 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Shows the given message in a dialog with an OK button that invokes fn.
 	 */
 	EditorUi.prototype.alert = function(msg, fn, optionalWidth)
 	{
@@ -6779,12 +6819,9 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
-	 */
-	/**
+	 * Shows a confirmation dialog with the given message and button labels and
+	 * invokes okFn or cancelFn for the buttons.
+	 *
 	 * onClose runs for a dismissal that answered NEITHER button (eg.
 	 * Escape). Callers that leave state behind - a conflict flag, a
 	 * pending callback - must pass it, or a dismissed dialog strands
@@ -6980,10 +7017,7 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Sets the current file and its opened time.
 	 */
 	EditorUi.prototype.setCurrentFile = function(file)
 	{
@@ -6996,10 +7030,7 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Returns the current file.
 	 */
 	EditorUi.prototype.getCurrentFile = function()
 	{
@@ -7345,19 +7376,22 @@
 
 		var cancelBtn = mxUtils.button(mxResources.get('cancel'), mxUtils.bind(this, function()
 		{
-			if (active)
-			{
-				active = false;
-				exp.cancel();
-				this.hideDialog();
-			}
+			this.hideDialog(true, null, div);
 		}));
 
 		cancelBtn.className = 'geBtn';
 		btns.appendChild(cancelBtn);
 		div.appendChild(btns);
 
-		this.showDialog(div, 320, null, true, false);
+		// Every close path (Cancel, Escape) stops the export
+		this.showDialog(div, 320, null, true, false, function()
+		{
+			if (active)
+			{
+				active = false;
+				exp.cancel();
+			}
+		});
 
 		var done = mxUtils.bind(this, function()
 		{
@@ -7366,7 +7400,9 @@
 			if (active)
 			{
 				active = false;
-				this.hideDialog();
+
+				// Closes only the progress dialog, never one on top of it
+				this.hideDialog(null, null, div);
 			}
 
 			return result;
@@ -7469,10 +7505,21 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Shows the exported data in the embed dialog with copy, download and
+	 * export buttons.
+	 */
+	EditorUi.prototype.showDataExport = function(data, filename)
+	{
+		var dlg = new EmbedDialog(this, data, null, null, null,
+			mxResources.get('export'), null, null, filename);
+		this.showDialog(dlg.container, 450, 270, true, true, null,
+			false, null, new mxRectangle(0, 0, 400, 250));
+		dlg.init();
+	};
+
+	/**
+	 * Shows the given text in a dialog with the given title and selects the
+	 * text.
 	 */
 	EditorUi.prototype.showTextDialog = function(title, text)
 	{
@@ -7484,10 +7531,8 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Saves the given data as a local file with the given name and MIME type.
+	 * XML files without a known extension get defaultExtension or drawio.
 	 */
 	EditorUi.prototype.doSaveLocalFile = function(data, filename, mimeType, base64Encoded, format, defaultExtension)
 	{
@@ -7577,10 +7622,8 @@
 	};
 		
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Returns a request that sends the given data to the save URL, which returns
+	 * it as a file with the given filename and MIME type.
 	 */
 	EditorUi.prototype.createEchoRequest = function(data, filename, mimeType, base64Encoded, format, base64Response)
 	{
@@ -7596,10 +7639,9 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Shows the save dialog for the given data and filename and saves the data
+	 * as a download, in a new window or in the chosen storage. The browser
+	 * storage is only offered if allowBrowser is true.
 	 */
 	EditorUi.prototype.saveLocalFile = function(data, filename, mimeType, base64Encoded, format, allowBrowser, allowTab, defaultExtension, defaultMode)
 	{
@@ -7730,7 +7772,8 @@
 	};
 
 	/**
-	 * Creates a temporary graph instance for rendering off-screen content.
+	 * Adds the tags and export buttons to the toolbar of the chromeless viewer
+	 * and applies the hidden tags from the tags URL parameter.
 	 */
 	EditorUi.prototype.addChromelessToolbarItems = function(addButton)
 	{
@@ -8050,10 +8093,9 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Saves the given data with the given filename and format via
+	 * saveLocalFile or an echo request. In embed mode with the JSON protocol,
+	 * the data is sent to the parent window instead.
 	 */
 	EditorUi.prototype.saveData = function(filename, format, data, mime, base64Encoded, defaultMode)
 	{
@@ -8084,13 +8126,12 @@
 	};
 	
 	/**
-	 * Translates this point by the given vector.
-	 * 
+	 * Shows the save dialog for the given filename and saves the response of the
+	 * request that fn creates for the chosen name, either as a download or in
+	 * the chosen storage.
+	 *
 	 * Last 3 argument are optional and must only be used if the data can be stored as is on the client
 	 * side without requiring a server roundtrip.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
 	 */
 	EditorUi.prototype.saveRequest = function(filename, format, fn, data, base64Encoded, mimeType, allowTab)
 	{
@@ -8254,22 +8295,25 @@
 	 * runs where the SVG is the document, eg. opened in a browser tab or via
 	 * an object tag, not when the SVG is shown with an img tag.
 	 *
-	 * That guarantee only covers the attributes createSvgImageExport writes on
-	 * its own icon wrappers. Labels are copied into the export as markup, so any
-	 * other element carrying the attribute came from the diagram and its value
-	 * was never sanitized for this use. Those are dropped here before the script
-	 * is added, so only the wrappers this export created are ever bound.
+	 * That guarantee only covers the given wrappers, which createSvgImageExport
+	 * created (see iconWrappers of its result). Labels are copied into the
+	 * export as markup and plugins may copy cell attributes into data
+	 * attributes (eg. svgdata writes an attribute named icon-content as
+	 * data-icon-content on its own g elements), so any other element carrying
+	 * the attributes came from the diagram and its value was never sanitized
+	 * for this use. Those are dropped here before the script is added, so only
+	 * the wrappers this export created are ever bound.
 	 */
-	EditorUi.prototype.addSvgIconHandlers = function(svgRoot)
+	EditorUi.prototype.addSvgIconHandlers = function(svgRoot, wrappers)
 	{
-		var candidates = svgRoot.querySelectorAll('[data-icon-content]');
+		var trusted = new Set(wrappers);
+		var candidates = svgRoot.querySelectorAll('[data-icon], [data-icon-content]');
 
 		for (var i = 0; i < candidates.length; i++)
 		{
-			// The wrappers are SVG g elements that also carry the icon type
-			if (candidates[i].nodeName != 'g' ||
-				!candidates[i].hasAttribute('data-icon'))
+			if (!trusted.has(candidates[i]))
 			{
+				candidates[i].removeAttribute('data-icon');
 				candidates[i].removeAttribute('data-icon-content');
 			}
 		}
@@ -8451,8 +8495,8 @@
 					border = Math.max((border != null) ? border : 0, Math.ceil(16 * scale));
 				}
 
-				var imgExport = this.editor.graph.createSvgImageExport(editable, addSvgData,
-					icons, (linkTarget == 'self') ? '_top' : '_blank');
+				var imgExport = this.editor.graph.createSvgImageExport(addSvgData, icons,
+					(linkTarget == 'self') ? '_top' : '_blank');
 				var tempFontLookup = Object.create(null);
 
 				// Restricts font embedding to fonts used in rendered cells
@@ -8476,7 +8520,7 @@
 
 				if (icons)
 				{
-					this.addSvgIconHandlers(svgRoot);
+					this.addSvgIconHandlers(svgRoot, imgExport.iconWrappers);
 				}
 
 				var filename = this.getBaseFilename() + ((editable) ? '.drawio' : '') + '.svg';
@@ -11145,10 +11189,8 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Returns the time since the given date as a localized string, or null if
+	 * it is less than a minute.
 	 */
 	EditorUi.prototype.timeSince = function(date)
 	{
@@ -11537,9 +11579,7 @@
 			bg = '#ffffff';
 		}
 
-		// Sets or disables alternate text for foreignObjects. Disabling is needed
-		// because PhantomJS seems to ignore switch statements and paint all text.
-		var imgExport = this.editor.graph.createSvgImageExport(xml != null, addSvgData);
+		var imgExport = this.editor.graph.createSvgImageExport(addSvgData);
 		var tempFontLookup = Object.create(null);
 
 		// Restricts font embedding to fonts used in rendered cells
@@ -18930,59 +18970,6 @@
 			this.refresh();
 		}
 
-		// Adds an element to edit the style in the footer in test mode
-		if (urlParams['styledev'] == '1')
-		{
-			var footer = document.getElementById('geFooter');
-
-			if (footer != null)
-			{
-				this.styleInput = document.createElement('input');
-				this.styleInput.setAttribute('type', 'text');
-				this.styleInput.style.position = 'absolute';
-				this.styleInput.style.top = '14px';
-				this.styleInput.style.left = '2px';
-				// Workaround for ignore right CSS property in FF
-				this.styleInput.style.width = '98%';
-				this.styleInput.style.visibility = 'hidden';
-				this.styleInput.style.opacity = '0.9';
-
-				mxEvent.addListener(this.styleInput, 'change', mxUtils.bind(this, function()
-				{
-					this.editor.graph.getModel().setStyle(this.editor.graph.getSelectionCell(), this.styleInput.value);
-				}));
-
-				footer.appendChild(this.styleInput);
-
-				this.editor.graph.getSelectionModel().addListener(mxEvent.CHANGE, mxUtils.bind(this, function(sender, evt)
-				{
-					if (this.editor.graph.getSelectionCount() > 0)
-					{
-						var cell = this.editor.graph.getSelectionCell();
-						var style = this.editor.graph.getModel().getStyle(cell);
-
-						this.styleInput.value = style || '';
-						this.styleInput.style.visibility = 'visible';
-					}
-					else
-					{
-						this.styleInput.style.visibility = 'hidden';
-					}
-				}));
-			}
-
-			var isSelectionAllowed = this.isSelectionAllowed;
-			this.isSelectionAllowed = function(evt)
-			{
-				if (mxEvent.getSource(evt) == this.styleInput)
-				{
-					return true;
-				}
-
-				return isSelectionAllowed.apply(this, arguments);
-			};
-		}
-
 		// Removes info text in page
 		var info = document.getElementById('geInfo');
 
@@ -24372,6 +24359,51 @@
 	};
 
 	/**
+	 * Highlights the given element while something is dragged over it and
+	 * passes drop events to the given function. Drag events stop there.
+	 */
+	EditorUi.prototype.addDropHandler = function(elt, fn)
+	{
+		var dropElt = null;
+
+		mxEvent.addListener(elt, 'dragleave', function(evt)
+		{
+			if (dropElt != null)
+			{
+				dropElt.parentNode.removeChild(dropElt);
+				dropElt = null;
+			}
+
+			evt.stopPropagation();
+			evt.preventDefault();
+		});
+
+		mxEvent.addListener(elt, 'dragover', mxUtils.bind(this, function(evt)
+		{
+			if (dropElt == null)
+			{
+				dropElt = this.highlightElement(elt);
+			}
+
+			evt.stopPropagation();
+			evt.preventDefault();
+		}));
+
+		mxEvent.addListener(elt, 'drop', function(evt)
+		{
+			if (dropElt != null)
+			{
+				dropElt.parentNode.removeChild(dropElt);
+				dropElt = null;
+			}
+
+			fn(evt);
+			evt.stopPropagation();
+			evt.preventDefault();
+		});
+	};
+
+	/**
 	 * Adds a file drop handler for opening local files.
 	 */
 	EditorUi.prototype.addFileDropHandler = function(elts)
@@ -26112,6 +26144,9 @@
 		var autosave = false;
 		var lastData = null;
 		var embedShadowPages = null;
+		var zoomListener = null;
+		var zoomEvents = false;
+		var lastScale = null;
 
 		// Serializes the current diagram for the host. Defined outside the
 		// message handler because the merge, patch and getDiff actions call
@@ -26158,6 +26193,7 @@
 			var data = evt.data;
 			var afterLoad = null;
 			var pendingLayout = null;
+			var pendingZoomEvents = false;
 
 			var extractDiagramXml = mxUtils.bind(this, function(data)
 			{
@@ -26878,7 +26914,7 @@
 										{
 											this.editor.graph.setEnabled(false);
 											var imgExport = this.editor.graph.createSvgImageExport(
-												false, (data.embedCellMetadata) ? true : false);
+												(data.embedCellMetadata) ? true : false);
 											var tempFontLookup = Object.create(null);
 
 											// Restricts font embedding to fonts used in rendered cells
@@ -26958,6 +26994,11 @@
 						this.embedDiffSyncPatchOnly = (typeof data.diffSync === 'object' &&
 							data.diffSync != null && data.diffSync.patchOnly == true);
 						this.embedExportProtocol = data.exportProtocol == true;
+						// Zoom events are off while loading and turned on with
+						// the baseline scale in afterModel, so the initial view
+						// (including scale, fit and viewbox) is not reported
+						zoomEvents = false;
+						pendingZoomEvents = data.zoomEvents == true;
 						var sourceMetadata = data.sourceMetadata || null;
 						// layout: run the requested layout once the diagram is
 						// loaded (a preset name or custom-layout JSON, the same
@@ -27598,6 +27639,32 @@
 					if (afterLoad != null)
 					{
 						afterLoad();
+					}
+
+					// zoomEvents (load option): sends a zoom message with the
+					// same fields as the load response whenever the scale
+					// changes after the load (mouse wheel, pinch, keyboard or
+					// actions) so the host can keep its zoom controls in sync
+					lastScale = this.editor.graph.view.scale;
+					zoomEvents = pendingZoomEvents;
+
+					if (zoomEvents && zoomListener == null)
+					{
+						zoomListener = mxUtils.bind(this, function()
+						{
+							var scale = this.editor.graph.view.scale;
+
+							if (zoomEvents && scale != lastScale)
+							{
+								lastScale = scale;
+								var msg = this.createLoadMessage('zoom');
+								var parent = this.embedMessageSource || window.opener || window.parent;
+								parent.postMessage(JSON.stringify(msg), '*');
+							}
+						});
+
+						this.editor.graph.view.addListener(mxEvent.SCALE, zoomListener);
+						this.editor.graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, zoomListener);
 					}
 
 					// Sends the bounds of the graph to the host after parsing
@@ -28681,7 +28748,17 @@
 
 						if (cell != null && !ignoreCell)
 						{
-							graph.model.setStyle(cell, newCell.style);
+							// Reports the new style of the updated cell like an
+							// arrange action (see Graph.beginArrange)
+							var arrange = graph.beginArrange();
+							try
+							{
+								graph.model.setStyle(cell, newCell.style);
+							}
+							finally
+							{
+								graph.endArrange(arrange);
+							}
 
 							if (mxUtils.indexOf(cells, cell) < 0)
 							{
@@ -29273,10 +29350,9 @@
 	};
 
 	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
+	 * Returns the search part of the current URL without the given URL
+	 * parameters. The search is returned unchanged if exclude is null or in
+	 * offline or demo mode.
 	 */
 	EditorUi.prototype.getSearch = function(exclude)
 	{
@@ -29349,9 +29425,9 @@
 	/**
 	 * Overrides link dialog.
 	 */
-	EditorUi.prototype.showLinkDialog = function(value, btnLabel, fn, showNewWindowOption, linkTarget)
+	EditorUi.prototype.showLinkDialog = function(value, btnLabel, fn, showNewWindowOption, linkTarget, mixed)
 	{
-		var dlg = new LinkDialog(this, value, btnLabel, fn, true, showNewWindowOption, linkTarget);
+		var dlg = new LinkDialog(this, value, btnLabel, fn, true, showNewWindowOption, linkTarget, mixed);
 		this.showDialog(dlg.container, 440, null, true, true);
 		dlg.init();
 	};

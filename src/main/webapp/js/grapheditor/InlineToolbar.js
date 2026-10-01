@@ -1804,7 +1804,11 @@ InlineToolbar.prototype.showMarkerSubPanel = function(dropdown, prefix, items, c
 			mxEvent.addListener(cellElt, 'click', mxUtils.bind(this, function(e)
 			{
 				graph.stopEditing(false);
-				graph.getModel().beginUpdate();
+
+				// Reports the new styles like an arrange action (see
+				// Graph.beginArrange): the arrow sets the jetty of a
+				// jettySize=auto end
+				var arrange = graph.beginArrange();
 
 				try
 				{
@@ -1813,7 +1817,7 @@ InlineToolbar.prototype.showMarkerSubPanel = function(dropdown, prefix, items, c
 				}
 				finally
 				{
-					graph.getModel().endUpdate();
+					graph.endArrange(arrange);
 				}
 
 				onSelect(item.marker, String(item.fill));
@@ -1914,6 +1918,10 @@ InlineToolbar.prototype.showConnStyleMenu = function(evt)
 							geo.points = null;
 							graph.getModel().setGeometry(selCells[i], geo);
 						}
+
+						// Clears the inner-loop flag along with the waypoints it
+						// describes (mirrors Menus.edgeStyleChange)
+						graph.setCellStyles('innerLoopWaypoints', null, [selCells[i]]);
 					}
 
 					for (var j = 0; j < item.keys.length; j++)
@@ -2000,6 +2008,22 @@ InlineToolbar.prototype.showConnStyleMenu = function(evt)
 		routingItems.push({img: Format.entityImage.src, title: mxResources.get('entityRelation'),
 			keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
 			values: ['entityRelationEdgeStyle', null, null, null], reset: true});
+
+		// Offered only for edges on lifelines (see Menus.addSequenceEdgeStyleItem)
+		var selCells = graph.getSelectionCells();
+
+		for (var i = 0; i < selCells.length; i++)
+		{
+			if (graph.isSequenceMessageCandidate(selCells[i]))
+			{
+				routingItems.push({img: Format.sequenceImage.src, title: mxResources.get('sequenceDiagram'),
+					keys: [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE, 'libavoidRouting'],
+					values: ['sequenceEdgeStyle', null, null, null, null], reset: true,
+					postFn: function(graph, edges) { graph.makeSequenceMessages(edges); }});
+
+				break;
+			}
+		}
 	}
 
 	if (routingItems.length > 0)
