@@ -5,10 +5,17 @@
  * Usage:
  *   var enc = new GifEncoder(width, height);
  *   enc.setRepeat(0);    // 0 = loop forever
- *   enc.setDelay(100);   // ms between frames
+ *   enc.setDelay(100);   // default ms between frames
+ *   enc.setPalette(GifEncoder.createPalette([imageData1.data, ...]));
  *   enc.addFrame(canvas);
- *   enc.addFrame(canvas2);
+ *   enc.addFrame(canvas2, 400); // per-frame delay
  *   var blob = enc.finish();
+ *
+ * Without setPalette the palette is quantized from the first frame. Opaque
+ * frames are written as the changed rectangle of the previous frame (disposal
+ * "do not dispose"), and frames identical to the previous one extend its delay
+ * instead of being written again. Transparent output keeps full frames that
+ * restore to the background, as a pixel cannot turn transparent otherwise.
  */
 function GifEncoder(width, height)
 {
@@ -17,14 +24,20 @@ function GifEncoder(width, height)
 	this.delay = 100;
 	this.repeat = 0;
 	this.transparent = false;
-	this.dispose = 2; // restore to background
-	this.out = [];
+	this.palette = null;
+	this.transparentIndex = -1;
+	this.out = new GifEncoder.ByteArray();
 	this.frameCount = 0;
 	this.started = false;
+	this.pending = null;
+	this.previous = null;
+	this.colorCache = null;
+	this.time = 0;
+	this.written = 0;
 };
 
 /**
- * Sets the delay time between frames in milliseconds.
+ * Sets the default delay between frames in milliseconds.
  */
 GifEncoder.prototype.setDelay = function(ms)
 {
@@ -49,66 +62,140 @@ GifEncoder.prototype.setTransparent = function(enabled)
 };
 
 /**
- * Adds a frame from an HTML5 canvas element.
+ * Sets the global palette as an array of [r, g, b] entries (see
+ * GifEncoder.createPalette). Must be called before the first frame.
  */
-GifEncoder.prototype.addFrame = function(canvas)
+GifEncoder.prototype.setPalette = function(palette)
+{
+	this.palette = palette.slice(0, (this.transparent) ? 255 : 256);
+
+	while (this.palette.length < 2)
+	{
+		this.palette.push([0, 0, 0]);
+	}
+
+	if (this.transparent)
+	{
+		this.transparentIndex = this.palette.length;
+		this.palette.push([0, 0, 0]);
+	}
+};
+
+/**
+ * Adds a frame from an HTML5 canvas element. The optional delay (ms)
+ * overrides the default delay for this frame.
+ */
+GifEncoder.prototype.addFrame = function(canvas, delay)
 {
 	var ctx = canvas.getContext('2d');
-	var imageData = ctx.getImageData(0, 0, this.width, this.height);
-	var pixels = imageData.data;
-	var numPixels = pixels.length / 4;
-	var palette, indexedPixels, transparentIndex;
+	var pixels = ctx.getImageData(0, 0, this.width, this.height).data;
+	delay = (delay != null) ? delay : this.delay;
 
 	if (!this.started)
 	{
-		// Frame 1: quantize to establish the global palette
-		var result = GifEncoder.quantize(pixels, 256, this.transparent);
-		palette = result.palette;
-		indexedPixels = result.indexedPixels;
-		transparentIndex = result.transparentIndex;
-
-		// Store for subsequent frames
-		this.globalPalette = palette;
-		this.globalTransparentIndex = transparentIndex;
+		if (this.palette == null)
+		{
+			this.setPalette(GifEncoder.createPalette([pixels],
+				256, this.transparent));
+		}
 
 		this.started = true;
+		this.colorCache = new Map();
 		this.writeHeader();
-		this.writeLogicalScreenDescriptor(palette);
-		this.writeGlobalColorTable(palette);
+		this.writeLogicalScreenDescriptor(this.palette);
+		this.writeGlobalColorTable(this.palette);
 
 		if (this.repeat >= 0)
 		{
 			this.writeNetscapeExtension();
 		}
 	}
-	else
+
+	var indexed = this.mapPixels(pixels);
+	var rect = {x: 0, y: 0, width: this.width, height: this.height};
+
+	if (this.previous != null)
 	{
-		// Frame 2+: map pixels to the stored global palette
-		palette = this.globalPalette;
-		transparentIndex = this.globalTransparentIndex;
-		indexedPixels = new Uint8Array(numPixels);
+		var changed = GifEncoder.getChangedRect(this.previous,
+			indexed, this.width, this.height);
 
-		for (var i = 0; i < numPixels; i++)
+		if (changed == null)
 		{
-			var off = i * 4;
+			// Same image as the previous frame
+			this.pending.delay += delay;
 
-			if (this.transparent && pixels[off + 3] < 128)
-			{
-				indexedPixels[i] = transparentIndex;
-			}
-			else
-			{
-				indexedPixels[i] = GifEncoder.findClosest(
-					palette, pixels[off], pixels[off + 1], pixels[off + 2],
-					transparentIndex);
-			}
+			return;
+		}
+		else if (!this.transparent)
+		{
+			rect = changed;
 		}
 	}
 
-	this.writeGraphicControlExtension(transparentIndex);
-	this.writeImageDescriptor();
-	this.writeImageData(indexedPixels, palette);
-	this.frameCount++;
+	this.flushPending();
+	this.pending = {rect: rect, delay: delay, pixels:
+		GifEncoder.cropPixels(indexed, this.width, rect)};
+	this.previous = indexed;
+};
+
+/**
+ * Maps the given RGBA pixels to palette indices.
+ */
+GifEncoder.prototype.mapPixels = function(pixels)
+{
+	var numPixels = pixels.length / 4;
+	var indexed = new Uint8Array(numPixels);
+	var palette = this.palette;
+	var cache = this.colorCache;
+	var ti = this.transparentIndex;
+
+	for (var i = 0; i < numPixels; i++)
+	{
+		var off = i * 4;
+
+		if (ti >= 0 && pixels[off + 3] < 128)
+		{
+			indexed[i] = ti;
+		}
+		else
+		{
+			var key = (pixels[off] << 16) | (pixels[off + 1] << 8) | pixels[off + 2];
+			var idx = cache.get(key);
+
+			if (idx === undefined)
+			{
+				idx = GifEncoder.findClosest(palette, pixels[off],
+					pixels[off + 1], pixels[off + 2], ti);
+				cache.set(key, idx);
+			}
+
+			indexed[i] = idx;
+		}
+	}
+
+	return indexed;
+};
+
+/**
+ * Writes the frame waiting for its final delay.
+ */
+GifEncoder.prototype.flushPending = function()
+{
+	if (this.pending != null)
+	{
+		// Distributes the rounding to 1/100 s over the frames so that
+		// the total duration stays exact. Browsers slow down delays
+		// below 2/100 s to 1/10 s so they are clamped at 2/100 s.
+		this.time += this.pending.delay;
+		var cs = Math.max(2, Math.round(this.time / 10) - this.written);
+		this.written += cs;
+
+		this.writeGraphicControlExtension(this.transparentIndex, cs);
+		this.writeImageDescriptor(this.pending.rect);
+		this.writeImageData(this.pending.pixels, this.palette);
+		this.frameCount++;
+		this.pending = null;
+	}
 };
 
 /**
@@ -121,8 +208,10 @@ GifEncoder.prototype.finish = function()
 		return null;
 	}
 
+	this.flushPending();
 	this.out.push(0x3B); // GIF trailer
-	return new Blob([new Uint8Array(this.out)], {type: 'image/gif'});
+
+	return new Blob([this.out.toUint8Array()], {type: 'image/gif'});
 };
 
 /**
@@ -193,36 +282,38 @@ GifEncoder.prototype.writeNetscapeExtension = function()
 };
 
 /**
- * Writes the graphic control extension for the current frame.
+ * Writes the graphic control extension for the current frame with the
+ * given delay in 1/100 seconds.
  */
-GifEncoder.prototype.writeGraphicControlExtension = function(transparentIndex)
+GifEncoder.prototype.writeGraphicControlExtension = function(transparentIndex, delay)
 {
 	this.out.push(0x21); // extension introducer
 	this.out.push(0xF9); // graphic control label
 	this.out.push(4);    // block size
 
 	var hasTransparency = (transparentIndex >= 0);
+	// Disposal 2 restores to background for transparent full frames,
+	// disposal 1 keeps the frame so that the next one can be a subimage
+	var dispose = (this.transparent) ? 2 : 1;
+
 	// Packed: reserved (3) | disposal (3) | user input (1) | transparent (1)
-	var packed = (this.dispose << 2) | (hasTransparency ? 1 : 0);
+	var packed = (dispose << 2) | (hasTransparency ? 1 : 0);
 	this.out.push(packed);
-
-	// Delay in 1/100 seconds
-	this.writeShort(Math.round(this.delay / 10));
-
+	this.writeShort(Math.min(0xFFFF, delay));
 	this.out.push(hasTransparency ? transparentIndex : 0);
 	this.out.push(0); // block terminator
 };
 
 /**
- * Writes the image descriptor for the current frame.
+ * Writes the image descriptor for the given frame rectangle.
  */
-GifEncoder.prototype.writeImageDescriptor = function()
+GifEncoder.prototype.writeImageDescriptor = function(rect)
 {
 	this.out.push(0x2C); // image separator
-	this.writeShort(0);  // left
-	this.writeShort(0);  // top
-	this.writeShort(this.width);
-	this.writeShort(this.height);
+	this.writeShort(rect.x);
+	this.writeShort(rect.y);
+	this.writeShort(rect.width);
+	this.writeShort(rect.height);
 	this.out.push(0);    // no local color table, no interlace
 };
 
@@ -245,12 +336,7 @@ GifEncoder.prototype.writeImageData = function(indexedPixels, palette)
 	{
 		var blockSize = Math.min(255, encoded.length - offset);
 		this.out.push(blockSize);
-
-		for (var i = 0; i < blockSize; i++)
-		{
-			this.out.push(encoded[offset + i]);
-		}
-
+		this.out.pushArray(encoded, offset, blockSize);
 		offset += blockSize;
 	}
 
@@ -278,6 +364,122 @@ GifEncoder.prototype.writeString = function(str)
 };
 
 // --- Static methods ---
+
+/**
+ * Growable byte buffer.
+ */
+GifEncoder.ByteArray = function()
+{
+	this.data = new Uint8Array(65536);
+	this.length = 0;
+};
+
+/**
+ * Makes room for the given number of additional bytes.
+ */
+GifEncoder.ByteArray.prototype.ensure = function(n)
+{
+	if (this.length + n > this.data.length)
+	{
+		var size = this.data.length * 2;
+
+		while (size < this.length + n)
+		{
+			size *= 2;
+		}
+
+		var tmp = new Uint8Array(size);
+		tmp.set(this.data.subarray(0, this.length));
+		this.data = tmp;
+	}
+};
+
+/**
+ * Appends a byte.
+ */
+GifEncoder.ByteArray.prototype.push = function(value)
+{
+	this.ensure(1);
+	this.data[this.length++] = value;
+};
+
+/**
+ * Appends count bytes of the given array starting at offset.
+ */
+GifEncoder.ByteArray.prototype.pushArray = function(arr, offset, count)
+{
+	this.ensure(count);
+	this.data.set(arr.subarray(offset, offset + count), this.length);
+	this.length += count;
+};
+
+/**
+ * Returns the written bytes.
+ */
+GifEncoder.ByteArray.prototype.toUint8Array = function()
+{
+	return this.data.slice(0, this.length);
+};
+
+/**
+ * Returns the bounding rectangle of the pixels that differ between the
+ * given indexed frames or null if the frames are identical.
+ */
+GifEncoder.getChangedRect = function(prev, next, width, height)
+{
+	var minX = width, minY = height, maxX = -1, maxY = -1;
+
+	for (var y = 0; y < height; y++)
+	{
+		var row = y * width;
+		var x0 = 0;
+
+		while (x0 < width && prev[row + x0] == next[row + x0])
+		{
+			x0++;
+		}
+
+		if (x0 < width)
+		{
+			var x1 = width - 1;
+
+			while (x1 > x0 && prev[row + x1] == next[row + x1])
+			{
+				x1--;
+			}
+
+			minX = Math.min(minX, x0);
+			maxX = Math.max(maxX, x1);
+			minY = Math.min(minY, y);
+			maxY = y;
+		}
+	}
+
+	return (maxY < 0) ? null : {x: minX, y: minY,
+		width: maxX - minX + 1, height: maxY - minY + 1};
+};
+
+/**
+ * Returns the indexed pixels inside the given rectangle.
+ */
+GifEncoder.cropPixels = function(indexed, width, rect)
+{
+	if (rect.x == 0 && rect.y == 0 && rect.width == width &&
+		rect.height * width == indexed.length)
+	{
+		return indexed;
+	}
+
+	var result = new Uint8Array(rect.width * rect.height);
+
+	for (var y = 0; y < rect.height; y++)
+	{
+		var start = (rect.y + y) * width + rect.x;
+		result.set(indexed.subarray(start, start + rect.width), y * rect.width);
+	}
+
+	return result;
+};
 
 /**
  * Returns the GIF color table size field value for the given palette length.
@@ -325,52 +527,113 @@ GifEncoder.colorDepthFor = function(paletteLength)
 };
 
 /**
- * Median-cut color quantization.
- * Reduces RGBA pixel data to at most maxColors RGB palette entries.
- * Returns {palette, indexedPixels, transparentIndex}.
+ * Creates a palette of at most maxColors [r, g, b] entries (one less if
+ * useTransparency is true, as setPalette adds the transparent entry) for
+ * the given list of RGBA pixel arrays, eg. a few sampled frames of an
+ * animation. Frequent colors (the flat fills, strokes and text of a
+ * diagram) are kept exactly, the remaining colors (anti-aliasing) are
+ * reduced via median cut.
  */
-GifEncoder.quantize = function(pixels, maxColors, useTransparency)
+GifEncoder.createPalette = function(pixelArrays, maxColors, useTransparency)
 {
-	var numPixels = pixels.length / 4;
-	var transparentIndex = -1;
+	maxColors = ((maxColors != null) ? maxColors : 256) -
+		((useTransparency) ? 1 : 0);
+	var total = 0;
 
-	// Reserve one slot for transparency
-	if (useTransparency)
+	for (var i = 0; i < pixelArrays.length; i++)
 	{
-		maxColors = maxColors - 1;
+		total += pixelArrays[i].length / 4;
 	}
 
-	// Collect unique opaque colors, sample if too many pixels
-	var colors = [];
-	var step = (numPixels > 100000) ? Math.floor(numPixels / 50000) : 1;
+	var step = Math.max(1, Math.floor(total / 500000));
+	var counts = new Map();
+	var samples = 0;
 
-	for (var i = 0; i < numPixels; i += step)
+	for (var i = 0; i < pixelArrays.length; i++)
 	{
-		var off = i * 4;
+		var pixels = pixelArrays[i];
+		var numPixels = pixels.length / 4;
 
-		if (pixels[off + 3] < 128)
+		for (var j = 0; j < numPixels; j += step)
 		{
-			continue; // skip transparent
+			var off = j * 4;
+
+			if (pixels[off + 3] >= 128)
+			{
+				var key = (pixels[off] << 16) | (pixels[off + 1] << 8) | pixels[off + 2];
+				counts.set(key, (counts.get(key) || 0) + 1);
+				samples++;
+			}
 		}
-
-		colors.push([pixels[off], pixels[off + 1], pixels[off + 2]]);
 	}
 
-	// Build palette via median cut
-	var palette;
+	var entries = [];
 
-	if (colors.length <= maxColors)
+	counts.forEach(function(count, key)
 	{
-		palette = GifEncoder.uniqueColors(colors);
+		entries.push([key, count]);
+	});
 
-		if (palette.length > maxColors)
+	var toColor = function(key)
+	{
+		return [(key >> 16) & 0xFF, (key >> 8) & 0xFF, key & 0xFF];
+	};
+
+	var palette = [];
+
+	if (entries.length <= maxColors)
+	{
+		for (var i = 0; i < entries.length; i++)
 		{
-			palette = GifEncoder.medianCut(colors, maxColors);
+			palette.push(toColor(entries[i][0]));
 		}
 	}
 	else
 	{
-		palette = GifEncoder.medianCut(colors, maxColors);
+		entries.sort(function(a, b)
+		{
+			return b[1] - a[1];
+		});
+
+		var maxExact = Math.floor(maxColors * 0.6);
+		var threshold = Math.max(2, samples * 0.0005);
+		var i = 0;
+
+		while (i < entries.length && i < maxExact && entries[i][1] >= threshold)
+		{
+			palette.push(toColor(entries[i][0]));
+			i++;
+		}
+
+		// Weights the remaining colors by their (capped) frequency
+		var rest = [];
+
+		for (; i < entries.length; i++)
+		{
+			var color = toColor(entries[i][0]);
+
+			for (var j = Math.min(8, entries[i][1]); j > 0; j--)
+			{
+				rest.push(color);
+			}
+		}
+
+		// Limits the cost of sorting in the median cut
+		if (rest.length > 100000)
+		{
+			var stride = rest.length / 100000;
+			var sampled = [];
+
+			for (var j = 0; j < rest.length; j += stride)
+			{
+				sampled.push(rest[Math.floor(j)]);
+			}
+
+			rest = sampled;
+		}
+
+		palette = palette.concat(GifEncoder.medianCut(rest,
+			maxColors - palette.length));
 	}
 
 	// Ensure at least 2 colors (GIF minimum)
@@ -379,14 +642,26 @@ GifEncoder.quantize = function(pixels, maxColors, useTransparency)
 		palette.push([0, 0, 0]);
 	}
 
-	// Add transparent color at end if needed
+	return palette;
+};
+
+/**
+ * Median-cut color quantization.
+ * Reduces RGBA pixel data to at most maxColors RGB palette entries.
+ * Returns {palette, indexedPixels, transparentIndex}.
+ */
+GifEncoder.quantize = function(pixels, maxColors, useTransparency)
+{
+	var palette = GifEncoder.createPalette([pixels], maxColors, useTransparency);
+	var transparentIndex = -1;
+
 	if (useTransparency)
 	{
 		transparentIndex = palette.length;
 		palette.push([0, 0, 0]);
 	}
 
-	// Map all pixels to palette indices
+	var numPixels = pixels.length / 4;
 	var indexedPixels = new Uint8Array(numPixels);
 
 	for (var i = 0; i < numPixels; i++)
@@ -439,9 +714,9 @@ GifEncoder.uniqueColors = function(colors)
  */
 GifEncoder.medianCut = function(colors, maxColors)
 {
-	if (colors.length == 0)
+	if (colors.length == 0 || maxColors <= 0)
 	{
-		return [[0, 0, 0]];
+		return [];
 	}
 
 	var buckets = [colors];
@@ -569,6 +844,11 @@ GifEncoder.findClosest = function(palette, r, g, b, skipIndex)
 		{
 			minDist = dist;
 			minIdx = i;
+
+			if (dist == 0)
+			{
+				break;
+			}
 		}
 	}
 
@@ -587,18 +867,11 @@ GifEncoder.lzwEncode = function(indexedPixels, minCodeSize)
 	var nextCode = eoiCode + 1;
 	var maxCode = (1 << codeSize);
 
-	// Use object for code table (string keys for sequences)
-	var codeTable = {};
-
-	// Initialize with single-character codes
-	for (var i = 0; i < clearCode; i++)
-	{
-		codeTable[String(i)] = i;
-	}
-
+	// Maps (prefix code << 8 | pixel) to the code of the sequence
+	var codeTable = new Map();
 	var bitBuffer = 0;
 	var bitsInBuffer = 0;
-	var output = [];
+	var output = new GifEncoder.ByteArray();
 
 	var emitCode = function(code)
 	{
@@ -625,26 +898,29 @@ GifEncoder.lzwEncode = function(indexedPixels, minCodeSize)
 			output.push(bitBuffer & 0xFF);
 		}
 
-		return new Uint8Array(output);
+		return output.toUint8Array();
 	}
 
-	var current = String(indexedPixels[0]);
+	// Single pixel values are their own codes
+	var current = indexedPixels[0];
 
 	for (var i = 1; i < indexedPixels.length; i++)
 	{
-		var next = current + ',' + indexedPixels[i];
+		var pixel = indexedPixels[i];
+		var key = (current << 8) | pixel;
+		var code = codeTable.get(key);
 
-		if (codeTable[next] != null)
+		if (code !== undefined)
 		{
-			current = next;
+			current = code;
 		}
 		else
 		{
-			emitCode(codeTable[current]);
+			emitCode(current);
 
 			if (nextCode < 4096)
 			{
-				codeTable[next] = nextCode;
+				codeTable.set(key, nextCode);
 				nextCode++;
 
 				if (nextCode > maxCode && codeSize < 12)
@@ -657,24 +933,18 @@ GifEncoder.lzwEncode = function(indexedPixels, minCodeSize)
 			{
 				// Reset code table
 				emitCode(clearCode);
-				codeTable = {};
-
-				for (var j = 0; j < clearCode; j++)
-				{
-					codeTable[String(j)] = j;
-				}
-
+				codeTable.clear();
 				codeSize = minCodeSize + 1;
 				nextCode = eoiCode + 1;
 				maxCode = (1 << codeSize);
 			}
 
-			current = String(indexedPixels[i]);
+			current = pixel;
 		}
 	}
 
 	// Emit remaining
-	emitCode(codeTable[current]);
+	emitCode(current);
 	emitCode(eoiCode);
 
 	if (bitsInBuffer > 0)
@@ -682,5 +952,5 @@ GifEncoder.lzwEncode = function(indexedPixels, minCodeSize)
 		output.push(bitBuffer & 0xFF);
 	}
 
-	return new Uint8Array(output);
+	return output.toUint8Array();
 };

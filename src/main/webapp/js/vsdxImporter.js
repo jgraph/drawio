@@ -2,6 +2,10 @@
  * Copyright (c) 2020-2025, JGraph Holdings Ltd
  * Copyright (c) 2020-2025, draw.io AG
  */
+// Standalone importer page (vsdxImporter.html). Nothing in this repo loads it,
+// but drawio-desktop's command-line export does (messages 'import',
+// 'import-success', 'import-error'), and so do headless tools that use the
+// hosted page (file input, #doneDiv, window.importResXML).
 var mxIsElectron = navigator.userAgent != null &&
 	navigator.userAgent.toLowerCase().indexOf(' electron/') > -1 && 
 	navigator.userAgent.indexOf(' draw.io/') > -1;

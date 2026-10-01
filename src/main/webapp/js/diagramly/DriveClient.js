@@ -8,6 +8,7 @@
 {
 
 var _token = null;
+var _idToken = null;
 var pickers = {};
 
 window.DriveClient = function(editorUi, isExtAuth)
@@ -43,8 +44,12 @@ window.DriveClient = function(editorUi, isExtAuth)
 	this.appId = window.DRAWIO_GOOGLE_APP_ID || '671128082532';
 	this.clientId = window.DRAWIO_GOOGLE_CLIENT_ID || '671128082532-jhphbq6d0e1gnsus9mn7vf8a6fjn10mp.apps.googleusercontent.com';
 	
+	// Also lists .drawio files uploaded as octet-stream or XML, .drawio.png and
+	// .drawio.svg files and Visio files, which getFile opens or converts
 	this.mimeTypes = this.xmlMimeType + ',application/mxe,application/mxr,' +
-		'application/vnd.jgraph.mxfile.realtime,application/vnd.jgraph.mxfile.rtlegacy';
+		'application/vnd.jgraph.mxfile.realtime,application/vnd.jgraph.mxfile.rtlegacy,' +
+		'application/octet-stream,application/xml,text/xml,image/png,image/svg+xml,' +
+		'application/vnd.visio,application/vnd.visio2013,application/vnd.ms-visio.drawing';
 	
 	var authInfo = JSON.parse(this.token);
 	
@@ -62,6 +67,7 @@ mxUtils.extend(DriveClient, mxEventSource);
 mxUtils.extend(DriveClient, DrawioClient);
 
 DriveClient.prototype.redirectUri = window.DRAWIO_SERVER_URL + 'google';
+DriveClient.prototype.licenseUrl = '/ws/license';
 DriveClient.prototype.GDriveBaseUrl = 'https://www.googleapis.com/drive/v2';
 DriveClient.prototype.GDriveV3BaseUrl = 'https://www.googleapis.com/drive/v3';
 
@@ -250,17 +256,25 @@ DriveClient.prototype.logout = function()
 	this.clearPersistentToken();
 	this.setUser(null);
 	_token = null;
+	_idToken = null;
+	// Drops the Home screen listings (file names) of the account
+	this.ui.homeCache = null;
 };
 
 /**
- * Authorizes the client, gets the userId and calls <open>.
+ * Authorizes the client, gets the userId and calls <open>. The optional
+ * cancelFn is called if the sign-in dialog closes without a sign-in, and
+ * a sign-in that completes after that only keeps the token.
  */
-DriveClient.prototype.execute = function(fn)
+DriveClient.prototype.execute = function(fn, cancelFn)
 {
 	// Handles error in immediate authorize call via callback that shows a
 	// UI with a button that executes the second non-immediate authorize
 	var fallback = mxUtils.bind(this, function(resp)
 	{
+		var authorized = false;
+		var cancelled = false;
+
 		// Remember is an argument for the callback that executes
 		// when the user clicks the authorize button in the UI and
 		// success executes after successful authorization.
@@ -268,12 +282,17 @@ DriveClient.prototype.execute = function(fn)
 		{
 			this.authorize(false, mxUtils.bind(this, function()
 			{
-				if (success != null)
+				if (!cancelled)
 				{
-					success();
+					authorized = true;
+
+					if (success != null)
+					{
+						success();
+					}
+
+					fn();
 				}
-				
-				fn();
 			}), mxUtils.bind(this, function(resp)
 			{
 				var msg = (resp.message != null) ? resp.message : mxResources.get('cannotLogin');
@@ -296,7 +315,14 @@ DriveClient.prototype.execute = function(fn)
 					this.ui.openLink('https://www.drawio.com/doc/faq/gsuite-authorisation-troubleshoot');
 				}), null, mxResources.get('ok'));
 			}), remember);
-		}));
+		}), (cancelFn != null) ? function()
+		{
+			if (!authorized)
+			{
+				cancelled = true;
+				cancelFn();
+			}
+		} : null);
 	});
 	
 	// First immediate authorize attempt
@@ -313,9 +339,17 @@ DriveClient.prototype.executeRequest = function(reqObj, success, error)
 		var acceptResponse = true;
 		var timeoutThread = null;
 		var retryCount = 0;
+		// Parallel requests (listings) run beside the others: they don't
+		// cancel or replace the pending retry of the current request, and
+		// closing the sign-in dialog calls error instead of leaving them
+		var parallel = reqObj.parallel == true;
+		var authCancelled = (parallel && error != null) ? function()
+		{
+			error({code: 401, message: mxResources.get('cancel')});
+		} : null;
 		
 		// Cancels any pending requests
-		if (this.requestThread != null)
+		if (!parallel && this.requestThread != null)
 		{
 			window.clearTimeout(this.requestThread);
 		}
@@ -324,8 +358,11 @@ DriveClient.prototype.executeRequest = function(reqObj, success, error)
 		{
 			try
 			{
-				this.requestThread = null;
-				this.currentRequest = reqObj;
+				if (!parallel)
+				{
+					this.requestThread = null;
+					this.currentRequest = reqObj;
+				}
 		
 				if (timeoutThread != null)
 				{
@@ -445,18 +482,26 @@ DriveClient.prototype.executeRequest = function(reqObj, success, error)
 									else
 									{
 										this.retryAuth = true;
-										this.execute(fn);
+										this.execute(fn, authCancelled);
 									}
 								}
 								// Schedules a retry if no new request was executed
 								else if (resp != null && resp.error != null && resp.error.code != 412 && resp.error.code != 404 &&
-									resp.error.code != 400 && this.currentRequest == reqObj && retryCount < this.maxRetries)
+									resp.error.code != 400 && (parallel || this.currentRequest == reqObj) &&
+									retryCount < this.maxRetries)
 								{
 									retryCount++;
 									var jitter = 1 + 0.1 * (Math.random() - 0.5);
-									this.requestThread = window.setTimeout(fn,
-										Math.round(Math.pow(2, retryCount) *
-										jitter * this.coolOff));
+									var delay = Math.round(Math.pow(2, retryCount) * jitter * this.coolOff);
+
+									if (parallel)
+									{
+										window.setTimeout(fn, delay);
+									}
+									else
+									{
+										this.requestThread = window.setTimeout(fn, delay);
+									}
 								}
 								else if (error != null)
 								{
@@ -494,7 +539,7 @@ DriveClient.prototype.executeRequest = function(reqObj, success, error)
 		// Must get token before first request in this case
 		if (_token == null || !this.authCalled)
 		{
-			this.execute(fn);
+			this.execute(fn, authCancelled);
 		}
 		else
 		{
@@ -573,6 +618,9 @@ DriveClient.prototype.updateAuthInfo = function (newAuthInfo, remember, forceUse
 {
 	_token = newAuthInfo.access_token;
 	delete newAuthInfo.access_token; //Don't store access token
+	// Only proves who the user is to the licence endpoint (checkLicense)
+	_idToken = (typeof newAuthInfo.id_token === 'string') ? newAuthInfo.id_token : null;
+	delete newAuthInfo.id_token; //Don't store ID token
 	newAuthInfo.expires = Date.now() + parseInt(newAuthInfo.expires_in) * 1000;
 	newAuthInfo.remember = remember;
 	
@@ -603,6 +651,57 @@ DriveClient.prototype.updateAuthInfo = function (newAuthInfo, remember, forceUse
 		this.setPersistentToken(newAuthInfo, !remember);
 		success();
 	}
+};
+
+/**
+ * Posts {edit: edit} to the licence endpoint of the ws worker with the
+ * Google ID token of the current user and passes the parsed answer to
+ * success. The ID token proves who the user is but can't read their Drive.
+ * Returns false without a request if Google sent no ID token.
+ */
+DriveClient.prototype.checkLicense = function(edit, success, error)
+{
+	if (_idToken == null)
+	{
+		return false;
+	}
+
+	var idToken = _idToken;
+	var req = new mxXmlRequest(this.licenseUrl, JSON.stringify({edit: edit}), 'POST');
+
+	req.setRequestHeaders = function(request, params)
+	{
+		request.setRequestHeader('Content-Type', 'application/json');
+		request.setRequestHeader('Authorization', 'Bearer ' + idToken);
+	};
+
+	req.send(function(req)
+	{
+		var lic = null;
+
+		if (req.getStatus() >= 200 && req.getStatus() <= 299)
+		{
+			try
+			{
+				lic = JSON.parse(req.getText());
+			}
+			catch (e)
+			{
+				// Handled below
+			}
+		}
+
+		if (lic != null)
+		{
+			success(lic);
+		}
+		else if (error != null)
+		{
+			error({status: req.getStatus()});
+		}
+	}, error);
+
+	return true;
 };
 
 /**
@@ -905,7 +1004,7 @@ DriveClient.prototype.copyFile = function(id, title, success, error)
 				+ '&supportsAllDrives=true&enforceSingleParent=true', //&alt=json
 				method: 'POST',
 				params: {'title': title, 'properties':
-					[{'key': 'channel', 'value': Editor.guid()}]}
+					[{'key': 'channel', 'value': Editor.secureGuid()}]}
 			}, success, error);
 	}
 };
@@ -983,6 +1082,326 @@ DriveClient.prototype.listFiles = function(searchStr, afterDate, mineOnly, succe
 		(mineOnly? ' and (\'me\' in owners)' : '')) +
 		'&orderBy=modifiedDate desc,title'
 	}, success, error);
+};
+
+/**
+ * MIME types of the diagrams on the Home screen. Files named *.drawio*
+ * (.drawio.png, .drawio.svg) are listed too.
+ */
+DriveClient.prototype.homeMimeTypes = ['application/vnd.jgraph.mxfile',
+	'application/vnd.jgraph.mxfile.realtime', 'application/vnd.jgraph.mxfile.rtlegacy',
+	'application/mxe', 'application/mxr'];
+
+/**
+ * Number of diagrams per page on the Home screen.
+ */
+DriveClient.prototype.homePageSize = 48;
+
+/**
+ * Maximum length of a Home screen search.
+ */
+DriveClient.prototype.maxSearchLength = 100;
+
+/**
+ * Returns true if the given value looks like a Drive file ID. IDs from links,
+ * pickers and responses are checked before they go into URLs or requests.
+ */
+DriveClient.isFileId = function(id)
+{
+	return typeof id === 'string' && /^[A-Za-z0-9_-]{10,256}$/.test(id);
+};
+
+/**
+ * Returns the given search text cut to maxSearchLength characters,
+ * without splitting a surrogate pair (encodeURIComponent throws on half).
+ */
+DriveClient.prototype.getSearchText = function(value)
+{
+	var text = String(value).substring(0, this.maxSearchLength);
+
+	return (/[\uD800-\uDBFF]$/.test(text)) ? text.substring(0, text.length - 1) : text;
+};
+
+/**
+ * Escapes a string for a quoted value in a Drive query (q parameter).
+ */
+DriveClient.escapeQueryValue = function(value)
+{
+	return String(value).replace(/\\/g, '\\\\').replace(/'/g, '\\\'');
+};
+
+/**
+ * Returns the Drive query for listDiagrams: draw.io diagrams that aren't
+ * trashed, filtered by options.filter (recent, starred or shared) and
+ * options.search (part of the name, at most maxSearchLength characters).
+ */
+DriveClient.prototype.getDiagramsQuery = function(options)
+{
+	options = (options != null) ? options : {};
+	var types = [];
+
+	for (var i = 0; i < this.homeMimeTypes.length; i++)
+	{
+		types.push('mimeType = \'' + this.homeMimeTypes[i] + '\'');
+	}
+
+	var q = '(' + types.join(' or ') + ' or name contains \'.drawio\') and trashed = false';
+
+	if (options.filter == 'starred')
+	{
+		q += ' and starred = true';
+	}
+	else if (options.filter == 'shared')
+	{
+		q += ' and sharedWithMe = true';
+	}
+
+	if (typeof options.search === 'string' && options.search.length > 0)
+	{
+		q += ' and name contains \'' + DriveClient.escapeQueryValue(
+			this.getSearchText(options.search)) + '\'';
+	}
+
+	return q;
+};
+
+/**
+ * Lists the diagrams draw.io can open for the Home screen, newest first.
+ * With drive.file these are only the files the user created or opened with
+ * draw.io, including ones in shared drives. Only the fields the Home screen
+ * shows are requested (no emails). options: see getDiagramsQuery, plus
+ * pageToken to continue a listing. success gets {files, nextPageToken}.
+ * Listings run beside other requests, such as saves, and closing the
+ * sign-in dialog calls error.
+ */
+DriveClient.prototype.listDiagrams = function(options, success, error)
+{
+	options = (options != null) ? options : {};
+	var url = null;
+
+	try
+	{
+		url = this.GDriveV3BaseUrl + '/files?supportsAllDrives=true&includeItemsFromAllDrives=true' +
+			'&corpora=allDrives&orderBy=' + encodeURIComponent('recency desc') +
+			'&pageSize=' + this.homePageSize + '&q=' + encodeURIComponent(this.getDiagramsQuery(options)) +
+			'&fields=' + encodeURIComponent('nextPageToken,files(id,name,mimeType,modifiedTime,' +
+				'starred,ownedByMe,owners(displayName,me),thumbnailLink,capabilities(canEdit))');
+
+		if (typeof options.pageToken === 'string' && options.pageToken.length > 0)
+		{
+			url += '&pageToken=' + encodeURIComponent(options.pageToken);
+		}
+	}
+	catch (e)
+	{
+		error(e);
+
+		return;
+	}
+
+	this.executeRequest({fullUrl: url, parallel: true}, mxUtils.bind(this, function(resp)
+	{
+		var files = [];
+
+		if (resp != null && Array.isArray(resp.files))
+		{
+			for (var i = 0; i < resp.files.length; i++)
+			{
+				if (resp.files[i] != null && DriveClient.isFileId(resp.files[i].id))
+				{
+					files.push(resp.files[i]);
+				}
+			}
+		}
+
+		success({files: files, nextPageToken: (resp != null &&
+			typeof resp.nextPageToken === 'string') ? resp.nextPageToken : null});
+	}), error);
+};
+
+/**
+ * Returns a Picker view of My Drive that starts in the root folder and can
+ * navigate into subfolders. It uses ViewId.DOCS because the Picker ignores
+ * setMimeTypes in ViewId.FOLDERS, which listed Google Docs, zips, etc.
+ */
+DriveClient.prototype.createMyDriveView = function()
+{
+	var view = new google.picker.DocsView(google.picker.ViewId.DOCS)
+		.setParent('root')
+		.setIncludeFolders(true);
+
+	// Deprecated but still works, else the tab reads Google Drive like the
+	// flat view next to it
+	if (typeof view.setLabel === 'function')
+	{
+		view.setLabel(mxResources.get('myDrive'));
+	}
+
+	return view;
+};
+
+/**
+ * Shows the Google Picker for diagrams and passes the picked files to fn.
+ * Every pick is granted to this app (setAppId), which is how drive.file
+ * gets access to a file draw.io didn't create. options.fileIds limits the
+ * Picker to those files (one-click access for a known file), options.shared
+ * starts on the files shared with the user, options.search starts with a
+ * search, options.multiple allows several files and options.title sets the
+ * title.
+ */
+DriveClient.prototype.pickDiagrams = function(options, fn, cancelFn)
+{
+	options = (options != null) ? options : {};
+
+	if (typeof google === 'undefined' || google.picker == null)
+	{
+		this.ui.handleError({message: mxResources.get('unknownError')});
+
+		return;
+	}
+
+	if (this.ui.spinner.spin(document.body, mxResources.get('authorizing')))
+	{
+		this.execute(mxUtils.bind(this, function()
+		{
+			this.ui.spinner.stop();
+
+			try
+			{
+				var view = new google.picker.DocsView(google.picker.ViewId.DOCS);
+				var views = [];
+				var ids = [];
+
+				if (Array.isArray(options.fileIds))
+				{
+					for (var i = 0; i < options.fileIds.length; i++)
+					{
+						if (DriveClient.isFileId(options.fileIds[i]))
+						{
+							ids.push(options.fileIds[i]);
+						}
+					}
+
+					// An empty list would show the whole Drive
+					if (ids.length == 0)
+					{
+						if (cancelFn != null)
+						{
+							cancelFn();
+						}
+
+						return;
+					}
+
+					view.setFileIds(ids.join(','));
+					view.setMode(google.picker.DocsViewMode.LIST);
+					views.push(view);
+				}
+				else
+				{
+					// My Drive, shared with me and shared drives, as in pickFile
+					// (setEnableDrives shows only the shared drives)
+					var mine = this.createMyDriveView()
+						.setMimeTypes(this.mimeTypes);
+					var shared = new google.picker.DocsView()
+						.setOwnedByMe(false)
+						.setMimeTypes(this.mimeTypes);
+					var drives = new google.picker.DocsView()
+						.setEnableDrives(true)
+						.setIncludeFolders(true)
+						.setMimeTypes(this.mimeTypes);
+
+					if (typeof options.search === 'string' && options.search.length > 0)
+					{
+						// Search results come first
+						view.setMimeTypes(this.mimeTypes);
+						view.setQuery(this.getSearchText(options.search));
+						views.push(view);
+					}
+
+					views = views.concat((options.shared) ? [shared, mine, drives] : [mine, shared, drives]);
+				}
+
+				var builder = new google.picker.PickerBuilder()
+					.setOAuthToken(_token)
+					.setLocale(mxLanguage)
+					.setAppId(this.appId)
+					.enableFeature(google.picker.Feature.SUPPORT_DRIVES);
+
+				for (var i = 0; i < views.length; i++)
+				{
+					builder.addView(views[i]);
+				}
+
+				if (options.multiple)
+				{
+					builder.enableFeature(google.picker.Feature.MULTISELECT_ENABLED);
+				}
+
+				if (typeof options.title === 'string')
+				{
+					builder.setTitle(options.title);
+				}
+
+				if (urlParams['topBaseUrl'])
+				{
+					builder.setOrigin(decodeURIComponent(urlParams['topBaseUrl']));
+				}
+
+				// The Picker can block the page, e.g. after a 401, so a click
+				// on its background closes it (same as pickFile)
+				var picker = null;
+				var exit = function(evt)
+				{
+					if (mxEvent.getSource(evt).className == 'picker modal-dialog-bg picker-dialog-bg')
+					{
+						mxEvent.removeListener(document, 'click', exit);
+						picker.setVisible(false);
+
+						if (cancelFn != null)
+						{
+							cancelFn();
+						}
+					}
+				};
+
+				picker = builder.setCallback(mxUtils.bind(this, function(data)
+				{
+					if (data.action == google.picker.Action.PICKED)
+					{
+						mxEvent.removeListener(document, 'click', exit);
+						var docs = [];
+
+						for (var i = 0; i < data.docs.length; i++)
+						{
+							if (data.docs[i] != null && DriveClient.isFileId(data.docs[i].id))
+							{
+								docs.push(data.docs[i]);
+							}
+						}
+
+						fn(docs);
+					}
+					else if (data.action == google.picker.Action.CANCEL)
+					{
+						mxEvent.removeListener(document, 'click', exit);
+
+						if (cancelFn != null)
+						{
+							cancelFn();
+						}
+					}
+				})).build();
+
+				mxEvent.addListener(document, 'click', exit);
+				picker.setVisible(true);
+			}
+			catch (e)
+			{
+				this.ui.handleError(e, null, cancelFn);
+			}
+		}), cancelFn);
+	}
 };
 
 /**
@@ -1483,17 +1902,17 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 						// Channel ID appended to file ID for comms
 						if (file.getChannelId() == null)
 						{
-							properties.push({'key': 'channel', 'value': Editor.guid(32)});
+							properties.push({'key': 'channel', 'value': Editor.secureGuid(32)});
 						}
 		
 						// Key for encryption of comms
 						if (file.getChannelKey() == null)
 						{
-							properties.push({'key': 'key', 'value': Editor.guid(32)});
+							properties.push({'key': 'key', 'value': Editor.secureGuid(32)});
 						}
 						
 						// Pass to access cache for each etag
-						secret = (secret != null) ? secret : Editor.guid(32);
+						secret = (secret != null) ? secret : Editor.secureGuid(32);
 						properties.push({'key': 'secret', 'value': secret});
 
 						pages = this.ui.getPagesForXml(savedData, true)
@@ -2112,7 +2531,7 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
 	var bd = '-------314159265358979323846';
 	var delim = '\r\n--' + bd + '\r\n';
 	var close = '\r\n--' + bd + '--';
-	var ctype = 'application/octect-stream';
+	var ctype = 'application/octet-stream';
 	
 	var headers = {'Content-Type' : 'multipart/mixed; boundary="' + bd + '"'};
 	
@@ -2246,11 +2665,7 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
 					
 					pickers[name + 'Token'] = _token;
 	
-					// Pseudo-hierarchical directory view, see
-					// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
-					var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-				        	.setParent('root')
-				        	.setIncludeFolders(true);
+					var view = this.createMyDriveView();
 					
 					var view2 = new google.picker.DocsView()
 						.setIncludeFolders(true);
@@ -2262,17 +2677,12 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
 					var view4 = new google.picker.DocsUploadView()
 						.setIncludeFolders(true);
 	
+					// No filter lists all files ('*/*' matches no files)
 					if (!acceptAllFiles)
 					{
 						view.setMimeTypes(this.mimeTypes);
 						view2.setMimeTypes(this.mimeTypes);
 						view3.setMimeTypes(this.mimeTypes);
-					}
-					else
-					{
-						view.setMimeTypes('*/*');
-						view2.setMimeTypes('*/*');
-						view3.setMimeTypes('*/*');
 					}
 					
 					pickers[name] = new google.picker.PickerBuilder()
@@ -2379,13 +2789,9 @@ DriveClient.prototype.pickFolder = function(fn, force)
 							
 							pickers[name + 'Token'] = _token;
 			
-							// Pseudo-hierarchical directory view, see
-							// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
-							var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-								.setParent('root')
-								.setIncludeFolders(true)
+							var view = this.createMyDriveView()
 								.setSelectFolderEnabled(true)
-					        		.setMimeTypes('application/vnd.google-apps.folder');
+								.setMimeTypes('application/vnd.google-apps.folder');
 							
 							var view2 = new google.picker.DocsView()
 								.setIncludeFolders(true)
@@ -2534,21 +2940,17 @@ DriveClient.prototype.pickLibrary = function(fn)
 					
 					pickers.libraryPickerToken = _token;
 	
-					// Pseudo-hierarchical directory view, see
-					// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
-					var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-				        	.setParent('root')
-				        	.setIncludeFolders(true)
-						.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
+					var view = this.createMyDriveView()
+						.setMimeTypes(this.libraryMimeType + ',application/xml,text/xml,text/plain,application/octet-stream');
 					
 					var view2 = new google.picker.DocsView()
 			        		.setIncludeFolders(true)
-						.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
+						.setMimeTypes(this.libraryMimeType + ',application/xml,text/xml,text/plain,application/octet-stream');
 				
 					var view3 = new google.picker.DocsView()
 						.setEnableDrives(true)
 						.setIncludeFolders(true)
-						.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
+						.setMimeTypes(this.libraryMimeType + ',application/xml,text/xml,text/plain,application/octet-stream');
 					
 					var view4 = new google.picker.DocsUploadView()
 						.setIncludeFolders(true);

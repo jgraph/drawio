@@ -144,7 +144,22 @@
 		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Name%</b></font><div>[%c4Type%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
 			    
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Web Browser Container');
-			}),				
+			}),
+			this.addEntry(dt + 'mobile device app phone container', function()
+		   	{
+			    var bg = new mxCell('',
+			    		new mxGeometry(0, 0, w * 2.4, h * 1.6), 'shape=mxgraph.c4.mobileDeviceContainer;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#23A2D9;strokeColor=#118ACD;strokeColor2=#0E7DAD;fontSize=12;fontColor=#ffffff;align=center;metaEdit=1;points=[[0.5,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.5,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];resizable=0;');
+		    	bg.vertex = true;
+		    	bg.setValue(mxUtils.createXmlDocument().createElement('object'));
+		    	bg.setAttribute('placeholders', '1');
+		        bg.setAttribute('c4Name', 'Container name');
+		        bg.setAttribute('c4Type', 'Container');
+		        bg.setAttribute('c4Technology', 'e.g. Swift, Kotlin etc.');
+		        bg.setAttribute('c4Description', 'Description of mobile app container role/responsibility.');
+		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Name%</b></font><div>[%c4Type%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
+
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Mobile Device Container');
+			}),
 			this.addEntry(dt + 'component', function()
 		   	{
 			    var bg = new mxCell('', 

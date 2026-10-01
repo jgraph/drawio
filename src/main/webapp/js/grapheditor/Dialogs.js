@@ -1949,6 +1949,9 @@ var ColorWindow = function(editorUi, x, y, w)
 	this.currentAllowInherit = null;
 	this.applying = false;
 
+	// Text selection of the in-place editor that colors are applied to
+	this.selState = null;
+
 	var refreshColor = mxUtils.bind(this, function()
 	{
 		if (this.window.isVisible() && this.getColorFn != null &&
@@ -1970,6 +1973,58 @@ var ColorWindow = function(editorUi, x, y, w)
 	graph.getSelectionModel().addListener(mxEvent.CHANGE, refreshColor);
 	graph.getModel().addListener(mxEvent.CHANGE, refreshColor);
 	editorUi.addListener('styleChanged', refreshColor);
+
+	// Saves the text selection if the in-place editor has the focus when the
+	// window is used, so that colors apply to text selected after opening it
+	mxEvent.addGestureListeners(this.window.div, mxUtils.bind(this, function()
+	{
+		if (document.activeElement == graph.cellEditor.textarea)
+		{
+			this.selState = graph.cellEditor.saveSelection();
+		}
+	}));
+
+	// The color dialog focuses its hex input when it opens and after each
+	// color change, and the key handler ignores keys from outside the diagram,
+	// so undo and redo shortcuts are routed here. Native undo is kept while a
+	// value is being typed, and while a label is being edited, where
+	// EditorUi.undo expects the focus in the in-place editor.
+	var typing = false;
+
+	mxEvent.addListener(this.window.div, 'focusin', function()
+	{
+		typing = false;
+	});
+
+	mxEvent.addListener(this.window.div, 'input', function(evt)
+	{
+		var source = mxEvent.getSource(evt);
+		typing = source.nodeName == 'INPUT' && source.type == 'text';
+	});
+
+	mxEvent.addListener(this.window.div, 'keydown', function(evt)
+	{
+		var keyHandler = editorUi.keyHandler;
+
+		// Same shortcuts as in EditorUi.createKeyHandler: Ctrl+Z for undo,
+		// Ctrl+Shift+Z and Ctrl+Y for redo (Cmd on macOS)
+		if (!typing && !graph.isEditing() && keyHandler != null &&
+			keyHandler.isEnabled() && keyHandler.isControlDown(evt) &&
+			!mxEvent.isAltDown(evt) && (evt.keyCode == 90 ||
+			(evt.keyCode == 89 && !mxEvent.isShiftDown(evt))) &&
+			(editorUi.dialogs == null || editorUi.dialogs.length == 0))
+		{
+			var action = editorUi.actions.get((evt.keyCode == 90 &&
+				!mxEvent.isShiftDown(evt)) ? 'undo' : 'redo');
+
+			if (action.isEnabled())
+			{
+				action.funct();
+			}
+
+			mxEvent.consume(evt);
+		}
+	});
 
 	editorUi.installResizeHandler(this, true);
 };
@@ -3703,6 +3758,17 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 
 	// Properties container for dynamic rows
 	var propertiesContainer = document.createElement('div');
+	var propsSection = null;
+
+	// Hides the properties section while it has no rows so that
+	// no empty section box is shown for cells without properties
+	var updatePropsSection = function()
+	{
+		if (propsSection != null)
+		{
+			propsSection.style.display = (propertiesContainer.firstChild != null) ? '' : 'none';
+		}
+	};
 
 	var addRemoveButton = function(row, name)
 	{
@@ -3729,6 +3795,7 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 						texts[j] = null;
 						rows[j] = null;
 						row.parentNode.removeChild(row);
+						updatePropsSection();
 
 						break;
 					}
@@ -3946,13 +4013,14 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 	}
 
 	// --- Properties section ---
-	var propsSection = document.createElement('div');
+	propsSection = document.createElement('div');
 	propsSection.className = 'geDialogSection';
 	propsSection.style.flex = '1';
 	propsSection.style.minHeight = '0';
 	propsSection.style.overflowY = 'auto';
 	propsSection.appendChild(propertiesContainer);
 	container.appendChild(propsSection);
+	updatePropsSection();
 
 	// --- Add Property section ---
 	var addSection = document.createElement('div');
@@ -3999,6 +4067,7 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 
 					var newIndex = names.length;
 					addTextArea(newIndex, name, '');
+					updatePropsSection();
 					texts[newIndex].focus();
 					propsSection.scrollTop = propsSection.scrollHeight;
 				}
@@ -4214,6 +4283,9 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 	var btnRow = document.createElement('div');
 	btnRow.style.textAlign = 'right';
 	btnRow.style.paddingTop = '16px';
+
+	// Keeps the buttons at the bottom if the properties section is hidden
+	btnRow.style.marginTop = 'auto';
 
 	if (ui.editor.cancelFirst)
 	{

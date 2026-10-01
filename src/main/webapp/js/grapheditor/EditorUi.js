@@ -842,7 +842,9 @@ EditorUi = function(editor, container, lightbox)
 			graph.pasteCellStyles(cells);
 		});
 
-		// Shows current edge style and shape in toolbar
+		// Shows current edge style and shape in toolbar. The images are computed
+		// lazily as the first update may come before the first styleChanged event
+		// and Format.js is not available in the viewer (lightbox without toolbar)
 		var edgeStyleImage = null;
 		var edgeShapeImage = null;
 
@@ -876,12 +878,22 @@ EditorUi = function(editor, container, lightbox)
 				{
 					if (this.toolbar.edgeStyleMenu != null)
 					{
+						if (edgeStyleImage == null)
+						{
+							edgeStyleImage = this.getImageForEdgeStyle(graph.currentEdgeStyle);
+						}
+
 						this.toolbar.edgeStyleMenu.style.backgroundImage =
 							'url(' + edgeStyleImage + ')';
 					}
 
 					if (this.toolbar.edgeShapeMenu != null)
 					{
+						if (edgeShapeImage == null)
+						{
+							edgeShapeImage = this.getImageForEdgeShape(graph.currentEdgeStyle);
+						}
+
 						this.toolbar.edgeShapeMenu.style.backgroundImage ='url(' + edgeShapeImage + ')';
 					}
 				}
@@ -3076,6 +3088,13 @@ EditorUi.prototype.installTypingShim = function()
 			return;
 		}
 
+		// Shift+Insert: let through for native paste via the same
+		// clipboard element (shown on the Insert keydown there)
+		if (evt.keyCode == 45 && mxEvent.isShiftDown(evt) && !mxEvent.isAltDown(evt))
+		{
+			return;
+		}
+
 		// Printable character without modifier: let it type into the shim
 		if (evt.key != null && evt.key.length === 1 && !mxEvent.isAltDown(evt))
 		{
@@ -3699,6 +3718,18 @@ EditorUi.prototype.initCanvas = function()
 	var graph = this.editor.graph;
 	graph.timerAutoScroll = true;
 
+	// Enables autoscroll near container edges that touch the window
+	// edge, eg. if the side panels are hidden
+	var graphCreatePanningManager = graph.createPanningManager;
+
+	graph.createPanningManager = function()
+	{
+		var pm = graphCreatePanningManager.apply(this, arguments);
+		pm.windowBorder = 20;
+
+		return pm;
+	};
+
 	/**
 	 * Returns the padding for pages in page view with scrollbars.
 	 */
@@ -4244,9 +4275,36 @@ EditorUi.prototype.initCanvas = function()
 
 			if (toolbarConfig.fullscreenBtn != null && window.self !== window.top)
 			{
-				addButton(mxUtils.bind(this, function(evt)
+				// Uses the Fullscreen API if fullscreen=true is specified and the
+				// iframe allows fullscreen (allowfullscreen or allow="fullscreen")
+				var useFullscreen = toolbarConfig.fullscreenBtn.fullscreen === true &&
+					document.fullscreenEnabled && document.documentElement != null &&
+					typeof document.documentElement.requestFullscreen === 'function';
+
+				var fullscreenBtn = addButton(mxUtils.bind(this, function(evt)
 				{
-					if (toolbarConfig.fullscreenBtn.url)
+					if (useFullscreen)
+					{
+						try
+						{
+							var result = (document.fullscreenElement == null) ?
+								document.documentElement.requestFullscreen() :
+								document.exitFullscreen();
+
+							if (result != null && typeof result.then === 'function')
+							{
+								result['catch'](function()
+								{
+									// ignore
+								});
+							}
+						}
+						catch (e)
+						{
+							// ignore
+						}
+					}
+					else if (toolbarConfig.fullscreenBtn.url)
 					{
 						graph.openLink(toolbarConfig.fullscreenBtn.url);
 					}
@@ -4256,7 +4314,22 @@ EditorUi.prototype.initCanvas = function()
 					}
 					
 					mxEvent.consume(evt);
-				}), Editor.fullscreenImage, mxResources.get('openInNewWindow'));
+				}), Editor.fullscreenImage, mxResources.get((useFullscreen) ?
+					'fullscreen' : 'openInNewWindow'));
+
+				if (useFullscreen)
+				{
+					mxEvent.addListener(document, 'fullscreenchange', function()
+					{
+						var img = fullscreenBtn.getElementsByTagName('img')[0];
+
+						if (img != null)
+						{
+							img.setAttribute('src', (document.fullscreenElement != null) ?
+								Editor.fullscreenExitImage : Editor.fullscreenImage);
+						}
+					});
+				}
 			}
 			
 			if (!toolbarConfig.noCloseBtn && ((toolbarConfig.closeBtn && window.self === window.top) ||
@@ -6816,18 +6889,17 @@ EditorUi.prototype.pickColor = function(color, apply, defaultColor, defaultColor
 
 	var wrappedApply = function(color)
 	{
-		graph.cellEditor.restoreSelection(selState);
-
-		if (self.colorWindow != null)
-		{
-			self.colorWindow.applying = true;
-		}
-
+		var cw = self.colorWindow;
+		graph.cellEditor.restoreSelection(cw.selState);
+		cw.applying = true;
 		apply(color);
+		cw.applying = false;
 
-		if (self.colorWindow != null)
+		// Saves the resulting selection for the next color, as changing
+		// the text color changes the DOM, which moves the saved ranges
+		if (graph.cellEditor.isContentEditing())
 		{
-			self.colorWindow.applying = false;
+			cw.selState = graph.cellEditor.saveSelection();
 		}
 	};
 
@@ -6853,6 +6925,7 @@ EditorUi.prototype.pickColor = function(color, apply, defaultColor, defaultColor
 		}
 	}
 
+	this.colorWindow.selState = selState;
 	this.colorWindow.update(color, wrappedApply,
 		title || mxResources.get('fillColor'),
 		defaultColor, defaultColorValue, singleColorMode,

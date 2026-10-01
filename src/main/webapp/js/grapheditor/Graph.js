@@ -2470,6 +2470,9 @@ Graph.setTextColor = function(node, color, isForeground)
 		}
 	};
 
+	// Moving nodes collapses the live ranges of the selection
+	var moved = false;
+
 	// Replaces the given element with its child nodes
 	function unwrap(elt)
 	{
@@ -2483,6 +2486,7 @@ Graph.setTextColor = function(node, color, isForeground)
 			}
 
 			parent.removeChild(elt);
+			moved = true;
 		}
 	};
 
@@ -2599,6 +2603,7 @@ Graph.setTextColor = function(node, color, isForeground)
 				}
 
 				child.appendChild(elt);
+				moved = true;
 			}
 		}
 	}
@@ -2665,6 +2670,20 @@ Graph.setTextColor = function(node, color, isForeground)
 		{
 			clearProperty(elt);
 		}
+	}
+
+	// Selects the recolored content again if nodes were moved above, so that
+	// the text stays selected and further color changes still apply to it
+	if (moved && matches.length > 0)
+	{
+		var last = matches[matches.length - 1];
+		var range = document.createRange();
+		range.setStart(matches[0], 0);
+		range.setEnd(last, last.childNodes.length);
+
+		var selection = window.getSelection();
+		selection.removeAllRanges();
+		selection.addRange(range);
 	}
 };
 
@@ -7779,6 +7798,7 @@ Graph.prototype.destroy = function()
 		return !this.isSpecialColor(state.style[mxConstants.STYLE_FILLCOLOR]) &&
 			mxUtils.getValue(state.style, 'lineShape', null) != '1' &&
 			shape != 'mxgraph.basic.arc' &&
+			shape != mxConstants.SHAPE_LINE &&
 			(this.model.isVertex(state.cell) ||
 			shape == 'arrow' || shape == 'pipe' || shape == 'wire' ||
 			shape == 'filledEdge' || shape == 'flexArrow' ||
@@ -11290,6 +11310,10 @@ Graph.prototype.createEdgeWipeAnimation = function(state, wipeIn)
 				state.shape.points = pts;
 				state.shape.redraw();
 
+				// Redraw clears the bounding box of an empty shape (first
+				// step), which is used for the graph and viewbox bounds
+				state.shape.updateBoundingBox();
+
 				if (state.text != null && state.text.node != null)
 				{
 					state.text.node.style.opacity = ''
@@ -11340,6 +11364,7 @@ Graph.prototype.createVertexWipeAnimation = function(state, wipeIn)
 			{
 				state.shape.bounds = bds;
 				state.shape.redraw();
+				state.shape.updateBoundingBox();
 			
 				if (state.text != null && state.text.node != null)
 				{
@@ -11403,6 +11428,7 @@ Graph.prototype.createVertexPopAnimation = function(state, popIn)
 			{
 				state.shape.bounds = bds;
 				state.shape.redraw();
+				state.shape.updateBoundingBox();
 
 				if (state.text != null && state.text.node != null)
 				{
@@ -13484,7 +13510,14 @@ Graph.prototype.moveSiblings = function(state, parent, dx, dy)
 				var tmp = this.view.getState(cells[i]);
 				var geo = this.getCellGeometry(cells[i]);
 				
-				if (tmp != null && geo != null)
+				// If the cell changes only in one dimension then only the cells
+				// in the same column (or row) are moved, not the cells that are
+				// diagonally below and to the right of it
+				if (tmp != null && geo != null &&
+					(dx != 0 || (tmp.x < state.x + state.width &&
+						tmp.x + tmp.width > state.x)) &&
+					(dy != 0 || (tmp.y < state.y + state.height &&
+						tmp.y + tmp.height > state.y)))
 				{
 					geo = geo.clone();
 					geo.translate(Math.round(dx * Math.max(0, Math.min(1, (tmp.x - state.x) / state.width))),
@@ -14870,8 +14903,10 @@ Graph.prototype.getTooltipForCell = function(cell)
 			var temp = [];
 			tip = '';
 
-			// Hides links in edit mode
-			if (this.isEnabled())
+			// Hides links in edit mode except for cells in locked layers
+			// where the link is opened on click as in read-only mode
+			if (this.isEnabled() && !this.isCellLocked(
+				this.getLayerForCell(cell)))
 			{
 				ignored.push('linkTarget');
 				ignored.push('link');
@@ -14907,10 +14942,18 @@ Graph.prototype.getTooltipForCell = function(cell)
 
 			for (var i = 0; i < temp.length; i++)
 			{
-				if (temp[i].name != 'link' || !this.isCustomLink(temp[i].value))
+				var value = temp[i].value;
+
+				// Shows the title of custom links instead of the raw data URI
+				if (temp[i].name == 'link' && this.isCustomLink(value))
+				{
+					value = this.getLinkTitle(value);
+				}
+
+				if (value != null && value.length > 0)
 				{
 					tip += ((temp[i].name != 'link') ? '<b>' + mxUtils.htmlEntities(temp[i].name) +
-						':</b> ' : '') + mxUtils.htmlEntities(temp[i].value) + '\n';
+						':</b> ' : '') + mxUtils.htmlEntities(value) + '\n';
 				}
 			}
 			

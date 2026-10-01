@@ -1419,6 +1419,10 @@ td.mxPopupMenuIcon .geStyleMenuItem>div {
 
 .geFullWidthElement {
 	width: 212px;
+	/* Keeps 3px for the focus ring where the scrollbar gutter on
+	   .geFormatContainer is wider than the 10px ::-webkit-scrollbar (eg.
+	   Safari and Firefox), which would otherwise clip it at the right edge */
+	max-width: calc(100% - 3px);
 }
 
 .geBtn[disabled],
@@ -2255,6 +2259,352 @@ a.geStatus>div {
 .geDialogHint {
 	font-size: 12px;
 	color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
+}
+
+/* Home screen (HomeDialog): the Google Drive diagrams draw.io can open */
+.geHome {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+	line-height: normal;
+}
+
+/* Only the nav and the grid scroll: as a scroll container (.geDialog >
+   :first-child), Home would clip the focus rings at its edges */
+.geDialog > div.geHome {
+	overflow: visible;
+}
+
+.geHome .geHomeHeader {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex: 0 0 auto;
+	padding-bottom: 16px;
+}
+
+.geHome .geHomeTitle {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 16px;
+	font-weight: 600;
+	white-space: nowrap;
+	color: light-dark(var(--strong-text-color), var(--dark-strong-text-color));
+}
+
+.geHome .geHomeTitle img {
+	width: 24px;
+	height: 24px;
+}
+
+.geHome input.geHomeSearch {
+	flex: 1 1 auto;
+	min-width: 0;
+	max-width: 420px;
+	height: 32px;
+	margin-left: auto;
+	padding: 0 14px;
+	box-sizing: border-box;
+	border-radius: 16px;
+	border: 1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));
+	background: light-dark(var(--field-color), var(--dark-field-color));
+	color: inherit;
+}
+
+/* Same ring as the cards in every browser (Firefox draws a thick outline) */
+.geHome input.geHomeSearch:focus {
+	outline: 1px solid transparent;
+	border-color: light-dark(var(--focus-color), var(--dark-focus-color));
+	box-shadow: 0 0 0 3px light-dark(color-mix(in srgb, var(--focus-color) 35%, transparent), color-mix(in srgb, var(--dark-focus-color) 35%, transparent));
+}
+
+.geHome .geHomeNewButton {
+	flex: 0 0 auto;
+	margin: 0;
+}
+
+.geHome .geHomeBody {
+	display: flex;
+	flex: 1 1 auto;
+	gap: 16px;
+	min-height: 0;
+}
+
+.geHome .geHomeNav {
+	display: flex;
+	flex-direction: column;
+	flex: 0 0 200px;
+	gap: 2px;
+	min-height: 0;
+	min-width: 0;
+	/* Scrolls in short dialogs, with room for the focus rings */
+	overflow-y: auto;
+	padding: 3px;
+	margin: -3px;
+}
+
+.geHome .geHomeNavItem {
+	flex: 0 0 auto;
+	padding: 7px 12px;
+	border: none;
+	border-radius: 16px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	overflow-wrap: anywhere;
+	cursor: pointer;
+}
+
+.geHome .geHomeNavItem:hover {
+	background: light-dark(var(--soft-hover-color), var(--dark-soft-hover-color));
+}
+
+.geHome .geHomeNavItem[aria-current="true"] {
+	background: light-dark(var(--selected-color), color-mix(in srgb, var(--dark-focus-color) 20%, transparent));
+	font-weight: 600;
+}
+
+.geHome .geHomeNavItem:focus-visible,
+.geHome .geHomeCard:focus-visible {
+	outline: 1px solid transparent;
+	box-shadow: 0 0 0 3px light-dark(color-mix(in srgb, var(--focus-color) 35%, transparent), color-mix(in srgb, var(--dark-focus-color) 35%, transparent));
+}
+
+.geHome .geHomeNavSeparator {
+	margin: 8px 12px;
+	border-top: 1px solid light-dark(var(--border-color), var(--dark-border-color));
+}
+
+.geHome .geHomeNavFooter {
+	margin-top: auto;
+	padding: 12px 12px 0 12px;
+	overflow-wrap: anywhere;
+}
+
+.geHome .geHomeMain {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow-y: auto;
+	padding: 3px;
+}
+
+.geHome .geHomeHint {
+	margin: 0 0 12px 0;
+}
+
+.geHome .geHomeGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+	gap: 16px;
+}
+
+.geHome .geHomeCard {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	padding: 0;
+	overflow: hidden;
+	border: 1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));
+	border-radius: 12px;
+	background: light-dark(var(--card-color), var(--dark-card-color));
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.geHome .geHomeCard:hover {
+	border-color: light-dark(var(--strong-border-color), var(--dark-strong-border-color));
+}
+
+.geHome .geHomeThumb {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 112px;
+	overflow: hidden;
+	background: light-dark(var(--soft-color), var(--dark-soft-color));
+}
+
+.geHome .geHomeThumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.geHome .geHomeThumb img.geHomePlaceholder {
+	width: 40px;
+	height: 40px;
+	opacity: 0.35;
+}
+
+.geHome .geHomeCardText {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	min-width: 0;
+	padding: 8px 10px 10px 10px;
+}
+
+.geHome .geHomeCardTitle,
+.geHome .geHomeCardMeta {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: normal;
+}
+
+.geHome .geHomeCardTitle {
+	font-weight: 600;
+}
+
+.geHome .geHomeCardMeta {
+	font-size: 12px;
+	color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
+}
+
+.geHome .geHomeAddCard {
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	min-height: 160px;
+	padding: 12px;
+	border-style: dashed;
+	text-align: center;
+	color: light-dark(var(--accent-text-color), var(--dark-accent-text-color));
+}
+
+.geHome .geHomeAddIcon {
+	font-size: 28px;
+	line-height: 1;
+}
+
+.geHome .geHomeSkeleton {
+	pointer-events: none;
+}
+
+.geHome .geHomeSkeleton .geHomeThumb,
+.geHome .geHomeSkeleton .geHomeCardTitle,
+.geHome .geHomeSkeleton .geHomeCardMeta {
+	animation: geHomePulse 1.2s ease-in-out infinite;
+}
+
+.geHome .geHomeSkeleton .geHomeCardTitle,
+.geHome .geHomeSkeleton .geHomeCardMeta {
+	height: 12px;
+	border-radius: 4px;
+	background: light-dark(var(--soft-color), var(--dark-soft-color));
+}
+
+.geHome .geHomeSkeleton .geHomeCardTitle {
+	width: 70%;
+}
+
+.geHome .geHomeSkeleton .geHomeCardMeta {
+	width: 40%;
+}
+
+@keyframes geHomePulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.geHome .geHomeSkeleton .geHomeThumb,
+	.geHome .geHomeSkeleton .geHomeCardTitle,
+	.geHome .geHomeSkeleton .geHomeCardMeta {
+		animation: none;
+	}
+}
+
+.geHome .geHomeStatus {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	padding: 48px 16px;
+	text-align: center;
+}
+
+.geHome .geHomeStatusTitle {
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.geHome .geHomeMore {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	padding: 16px 0 4px 0;
+}
+
+/* Narrow dialogs: the nav becomes a scrolling row above the grid */
+.geHome.geHomeNarrow .geHomeHeader {
+	flex-wrap: wrap;
+}
+
+.geHome.geHomeNarrow input.geHomeSearch {
+	order: 3;
+	flex-basis: 100%;
+	max-width: none;
+	margin-left: 0;
+}
+
+.geHome.geHomeNarrow .geHomeBody {
+	flex-direction: column;
+	gap: 8px;
+}
+
+.geHome.geHomeNarrow .geHomeNav {
+	flex: 0 0 auto;
+	flex-direction: row;
+	overflow-x: auto;
+}
+
+.geHome.geHomeNarrow .geHomeNavItem {
+	white-space: nowrap;
+}
+
+.geHome.geHomeNarrow .geHomeNewButton {
+	margin-left: auto;
+}
+
+.geHome.geHomeNarrow .geHomeNavSeparator,
+.geHome.geHomeNarrow .geHomeNavFooter {
+	display: none;
+}
+
+.geHome.geHomeNarrow .geHomeGrid {
+	grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+	gap: 12px;
+}
+
+/* Actions shown as links: the Home hint and the Allow access dialog */
+.geHomeAccess .geHomeLinks {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	margin-top: 16px;
+}
+
+.geHome .geHomeLink,
+.geHomeAccess .geHomeLink {
+	padding: 0;
+	border: none;
+	background: none;
+	color: light-dark(var(--accent-text-color), var(--dark-accent-text-color));
+	font: inherit;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.geHome .geHomeLink:hover,
+.geHomeAccess .geHomeLink:hover {
+	background: none;
 }
 
 .geDialogCheckRow {

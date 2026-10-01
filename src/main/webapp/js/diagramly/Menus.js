@@ -700,6 +700,19 @@
 		{
 			editorUi.pickFile();
 		});
+
+		// Not 'home', which is Navigation > Home (graph.home). Disabled where
+		// Home is off, which also hides it from the action search.
+		editorUi.actions.addAction('myDiagrams...', function()
+		{
+			if (editorUi.showHome != null)
+			{
+				editorUi.showHome();
+			}
+		}).isEnabled = function()
+		{
+			return editorUi.isHomeEnabled != null && editorUi.isHomeEnabled();
+		};
 		
 		editorUi.actions.addAction('close', function()
 		{
@@ -808,16 +821,46 @@
 			}
 		}, null, null, null, navigator.onLine && urlParams['stealth'] != '1' && urlParams['lockdown'] != '1');
 
-		if (typeof(MathJax) !== 'undefined')
+		if (typeof(DrawioMathJax) !== 'undefined')
 		{
 			var action = editorUi.actions.addAction('mathematicalTypesetting', function()
 			{
-				var change = new ChangePageSetup(editorUi);
-				change.ignoreColor = true;
-				change.ignoreImage = true;
-				change.mathEnabled = !editorUi.isMathEnabled();
-				
-				graph.model.execute(change);
+				var enabled = !editorUi.isMathEnabled();
+
+				var apply = function()
+				{
+					// Ignores a repeated click while the bundle was loading
+					if (editorUi.isMathEnabled() != enabled)
+					{
+						graph.model.beginUpdate();
+						try
+						{
+							var change = new ChangePageSetup(editorUi);
+							change.ignoreColor = true;
+							change.ignoreImage = true;
+							change.mathEnabled = enabled;
+							graph.model.execute(change);
+
+							// Autosize cells take the size of the math or its source
+							graph.updateMathCellSizes();
+						}
+						finally
+						{
+							graph.model.endUpdate();
+						}
+					}
+				};
+
+				// Measuring the typeset math needs the bundle, which is only
+				// loaded when math is first typeset
+				if (enabled && Editor.mathOutputSize && typeof Editor.loadMath === 'function')
+				{
+					Editor.loadMath(apply);
+				}
+				else
+				{
+					apply();
+				}
 			});
 			
 			action.setToggleAction(true);
@@ -1065,7 +1108,8 @@
 			exportImage('webp');
 		}));
 
-		editorUi.actions.put('exportAnimatedGif', new Action(mxResources.get('formatAnimatedGif') + '...', function()
+		// Exports flow animations as GIF and page animations as GIF or MP4
+		editorUi.actions.put('exportAnimatedGif', new Action(mxResources.get('animation') + '...', function()
 		{
 			editorUi.showAnimatedGifExportDialog();
 		}));
@@ -1136,8 +1180,31 @@
 
 		editorUi.actions.addAction('keyboardShortcuts...', function()
 		{
-			if (!mxClient.IS_CHROMEAPP &&
-				!EditorUi.isElectronApp &&
+			// Desktop app cannot open local files in a window, so the bundled
+			// shortcuts.svg is shown in a dialog which also works offline
+			if (EditorUi.isElectronApp)
+			{
+				var ratio = 1069 / 1427;
+				var w = Math.max(200, Math.min(1427, window.innerWidth - 120));
+				var h = Math.round(w * ratio);
+				var maxH = Math.max(150, window.innerHeight - 120);
+
+				if (h > maxH)
+				{
+					h = maxH;
+					w = Math.round(h / ratio);
+				}
+
+				var img = document.createElement('img');
+				img.setAttribute('src', 'shortcuts.svg');
+				img.setAttribute('alt', mxResources.get('keyboardShortcuts'));
+				img.style.display = 'block';
+				img.style.width = w + 'px';
+				img.style.height = h + 'px';
+
+				editorUi.showDialog(img, w, h, true, true, null, true);
+			}
+			else if (!mxClient.IS_CHROMEAPP &&
 				!navigator.standalone)
 			{
 				editorUi.openLink('shortcuts.svg');
@@ -5341,7 +5408,7 @@
 
 				menu.addSeparator(parent);
 
-				if (typeof(MathJax) !== 'undefined')
+				if (typeof(DrawioMathJax) !== 'undefined')
 				{
 					var item = this.addMenuItem(menu, 'mathematicalTypesetting', parent);
 
@@ -5680,6 +5747,12 @@
 			{
 				var file = editorUi.getCurrentFile();
 				editorUi.menus.addMenuItems(menu, ['new'], parent);
+
+				if (editorUi.isHomeEnabled != null && editorUi.isHomeEnabled())
+				{
+					editorUi.menus.addMenuItems(menu, ['myDiagrams'], parent);
+				}
+
 				editorUi.menus.addSubmenu('openFrom', menu, parent);
 
 				if (isLocalStorage)
@@ -5808,6 +5881,11 @@
 				else
 				{
 					this.addMenuItems(menu, ['new'], parent);
+				}
+
+				if (editorUi.isHomeEnabled != null && editorUi.isHomeEnabled())
+				{
+					this.addMenuItems(menu, ['myDiagrams'], parent);
 				}
 				
 				this.addSubmenu('openFrom', menu, parent);

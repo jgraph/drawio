@@ -21,6 +21,15 @@ synchronously just after `mxEvent.ROOT` inside `fileLoaded`. `iter()` guards
 on `cancelled` so a `stop()` before the tick is safe. The dialog preview calls
 `play()` *without* `defer` (no initial fit to clobber it) — do not make
 `defer` unconditional.
+*Page switch — do NOT clear `stoppingCustomActions` while a chain runs*:
+`stop()` only raises the flag, so the old page's chain unwinds on its
+pending fade/wait timer. `play()` leaves the flag set while
+`executingCustomActions` is true, and `iter()` polls until that chain has
+ended. Otherwise the new player's first step hits the "already executing"
+branch of `executeCustomActions`, which drops the call without `done`, and
+the new page never animates. The presentation mode (Menus.js
+`presentationMode`, a chromeless EditorUi) and the lightbox share this path
+(Kym, 2026-09-25).
 
 ## JSON format
 
@@ -54,7 +63,9 @@ the user picked themselves is never taken away and unions stay buildable
 (cells first, then layers). The chip menu's clear-the-target item is
 labelled `none` ("None", the counterpart of "All cells") — `reset`
 suggested restoring a default and "Remove" next to "All cells" reads as
-deleting the shapes.
+deleting the shapes. The layer and tag pickers' clear button uses the same
+`none` label (it too just empties the list), so all four selector menus
+match (Kym, 2026-09-25).
 
 ```json
 {"animation": {"loop": false, "steps": [
@@ -111,6 +122,13 @@ reverts them) or **model-mutating** (the legacy path that flips `cell.visible`
   (30.0.4) broke every "click-to-reveal hidden layer/group" diagram — restored
   by the per-context default.
 
+The model path runs inside one `beginUpdate` that stays open until a `wait`
+(or the end), so a cell it reveals has no view state yet. The dispatcher
+therefore ends the transaction before any action that paints on states
+(`needsView`: highlight, select, scroll, viewbox, opacity/fade/wipe/pop,
+flow). Otherwise a highlight right after a click's `show` silently skipped
+the revealed cell while the transient preview painted it (Kym, 2026-09-26).
+
 Either default is overridden per action with an explicit
 `transient: true|false` (NOT surfaced in the picker):
 `{"show":{"cells":["A"],"transient":false}}`.
@@ -127,6 +145,20 @@ Either default is overridden per action with an explicit
   `cell.visible`), `show`/`hide` (`setOpacityForNodes` ↔ + `setCellsVisible`),
   `style` (`setCellStylesTransient` ↔ `setCellStyles`), `toggleStyle`
   (`toggleCellStylesTransient` ↔ `toggleCellStyleValues`).
+
+**Connected edges follow their terminals** (Sept 2026): the model path and
+the `tags` action hide an edge whenever one of its terminals is hidden
+(mxGraphView drops edge states without a visible terminal state), so the
+transient `toggle`/`show`/`hide` path mirrors that in
+`updateTransientTerminalEdges`: every edge connected to the resolved cells
+or their descendants goes to opacity 0 while a terminal's node is at 0, and
+gets its previous opacity back (`node.terminalHiddenOpacity`) once both
+terminals show again. Before, a toggle by tags or layers in a preview or
+animation step left the connectors floating — typically edges in another
+layer than the shapes (Kym, 2026-09-25). `snapshotOpacity` covers these edges
+(`collectReferencedCells(true)`) so stop/Reset restores them; the flow-stop
+callers keep the plain list so a stop never touches flow on edges no step
+named.
 
 **`toggleStyle` value semantics** (`Graph.nextToggleStyleValue`, Sept 2026):
 with `value` the key flips between `value` and `defaultValue` — no default
@@ -217,12 +249,32 @@ the link format); all UI lives in AnimationDialog.
 `CustomActionDialog.SCHEMAS` defines each action's metadata (icon, label,
 fields, selector flag, `allowLayers`).
 
+**Legacy layer links**: links written before the `layers` selector list
+layer IDs under `cells` (`{"toggle":{"cells":["<layerId>"]}}`). A click
+flips the layer's `visible` either way, but the editor showed "1 cell" and
+the transient preview did nothing, because a layer has no shape. On load,
+`CustomActionDialog.liftLegacyLayers` moves layer IDs of `toggle`/`show`/
+`hide` (unless `transient:true`) from `cells` to `layers`. The click result
+is the same for both forms (Kym, 2026-09-26). A model-hidden layer still
+cannot be previewed: transient effects cannot reveal `visible="0"` cells.
+
 **Saving an empty action removes the link**: with no steps left the adapter
 calls `onSave('')` instead of writing `{"actions":[]}`, and every
 `showLinkDialog` callback reads the empty string as "remove the link"
 (`setLinkForCell(cell, null)` / `insertLink('')` / anchor unwrap). Before,
 deleting the last action left a dead link, its title and the link
 decoration on the cell (Kym, 2026-09-18).
+
+**Open step page links**: the syntax is `data:page/id,<pageId>`. Page
+links resolve through `EditorUi.getPageByLink` (and the viewer's
+`customLinkClicked`), which tries the exact ID first and then the trimmed
+one, so `data:page/id, abc` works. `Editor.guid` IDs never contain
+whitespace. The Open field is marked (`geAnimationFieldWarn`, with the
+reason as its tooltip, `AnimationDialog.getPageLinkWarning`) when a
+`data:page` link has no comma or leading whitespace (the runtime ignores
+it or opens it as a URL), when its page does not exist, or when a bare
+page ID, name or number was entered, which opens as a relative URL in a
+new tab (Kym, 2026-09-25). Nothing is rewritten automatically.
 
 **Attaching one action to several cells** (Sept 2026, grapheditor):
 `editLink` resolves `getEditableCells(getSelectionCells())` when it opens
@@ -288,7 +340,11 @@ Fade To / Wait picks; cell-targeting picks default to the current selection
 else `*`. Re-binds per page on `mxEvent.ROOT` (persisting unsaved edits
 first). Dirty state swaps Save/Preview primary styling and prompts on close.
 Footer: Reset / Preview / Cancel / Save (Reset disabled until a preview
-session is active).
+session is active). The footer is two unbreakable groups (help / Preview /
+Reset, Cancel / Save) and wraps between them, and the Copy / Paste /
+Duplicate / Delete buttons are one group next to the Add picker: the
+minimum width (360px) cannot fit one line in every language, and a
+non-wrapping footer cut Save off (Kym, 2026-09-25).
 
 **Step selection operations** ([jgraph/drawio#5672]): row checkboxes select
 steps (shift-click = range from the last toggled row); Copy / Paste /
@@ -304,6 +360,34 @@ reorder / Delete All / raw-JSON edits / page switch also clear it. JSON parse
 errors in the text view resolve V8's "at position N" to a line/column suffix
 (`describeJsonError`).
 
+**Row layout** (Kym, 2026-09-25/28): the step list is a one-column grid
+(`minmax(0,1fr)`), so every row is as wide as the list. A row's fields and
+its ▶ preview button sit in one trailing group (`margin-left:auto`), and
+rows are `flex-wrap:wrap`: a row that doesn't fit (typically Set / Toggle
+Style with key, value and default fields) moves the whole group to a
+second line, right-aligned, so ▶ is at the right edge of every row and no
+field hides behind a horizontal scrollbar. A group wider than the row
+wraps inside itself (`flex-wrap:wrap`, `justify-content:flex-end`), so ▶
+still ends its last line at the right edge: the View step's five number
+fields (`.geNoSpin` pins them at 60px), Transition and Use Current need
+~520px, and before this the row overflowed the default 480px dialog.
+The group is sized from its items' widths, and Safari ignores a flex
+basis there: `makeIconButton` sets `width:22px` next to `flex:0 0 22px`,
+since without it Safari took ▶ as 19px, the group came out too narrow
+and ▶ wrapped onto a line of its own. Fixed-size flex items in these
+rows need an explicit width, not only a basis. ▶ also sits in one
+nowrap pair with the field before it (not after the Open step's growing
+URL field), so a group that wraps (View, Tags) never leaves ▶ alone on
+a line. Do not go back to a
+`max-content` column: it made every row as wide as the Style row and put
+all fields and ▶ buttons behind an easily missed sideways scroll. Nothing
+left of the spacer may shrink (the selector-chip wrap is `flex:0 0 auto`):
+a shrinkable wrap let the color input / ▶ paint over the chips wherever
+the row came out narrower than its content. It wraps its chips instead
+(`flex-wrap:wrap`, `max-width:100%`): a step with cells, layer, tag and
+excluded chips is ~340px and scrolled the list sideways below a 400px
+dialog.
+
 **Deleted targets are reported, never pruned** (Sept 2026): the engine
 skips IDs that no longer resolve, so a step whose cells were deleted used
 to sit in the list reading "4 cells" while doing nothing (tester report,
@@ -313,7 +397,11 @@ deleted" — `nDeleted`; the tester asked for "deleted" over "missing",
 amber `geSelChipWarn`, dead IDs marked `(?)` in the hover
 list); a step whose selector resolves to no cell at all through
 `getCellsForAction` gets a ⚠ marker behind its label (`stepNoEffect`
-tooltip). The dialog re-renders on model changes that add or remove
+tooltip, or `stepExcludesAll` when the cells, tags and layers do match
+and only `excludeCells` removes them all — e.g. the listed cells were
+also excluded; Kym, 2026-09-25). The marker is a plain tooltip with the
+default cursor: `cursor:help` in this app marks clickable help icons. The
+dialog re-renders on model changes that add or remove
 cells (`mxChildChange` with a null parent/previous) unless a row input
 has focus, so the non-modal dialog stays truthful during canvas edits
 and undo. Cleanup is explicit — "Remove deleted cells" in the chip menu;
@@ -324,7 +412,18 @@ reference cannot come back with the cell via undo or paste (Gaudenz,
 2026-09-21). Do not turn the marker into auto-removal of the step.
 
 `immediate` toggle per row: ⏩ + "Immediate" (on) / ⏱ + "Wait" (off); each
-glyph carries U+FE0E to force monochrome. Hidden on row 0.
+glyph carries U+FE0E to force monochrome. Hidden (`visibility:hidden`,
+column stays aligned) wherever it changes nothing: on row 0 and when the
+batch before the row has no blocking effect (`immediateHasEffect` —
+blocking = `wait`, fades, wipes, pops, smooth `scroll`/`viewbox`, the
+effects that bump `waitCounter`). `highlight` does NOT block for its
+duration, so after a highlight the next step starts at once either way
+(Kym, 2026-09-25). Inline edits re-evaluate it via `syncOnly` →
+`updateImmediateToggles`. The row's ▶ preview is hidden on plain `wait`
+steps (a wait alone shows nothing). The symbol
+fonts sit on an inner `line-height:0` span, not on the button: as the
+button's primary font Apple Symbols set the baseline and lifted the glyph
+~3px above the row (Kym, 2026-09-28).
 
 **Style-key picker** (Sept 2026): the Key field of Set Style / Toggle Style
 (`styleKey: true` in `CustomActionDialog.SCHEMAS`) gets a `<datalist>` of
@@ -413,6 +512,72 @@ and a module-scope wrapper on `mxWindow.prototype.setResizable` wire it up
 (the mxWindow callback fires `MOVE_START`/`MOVE_END` first to undock). The
 `RESIZE_*` events feed the persistence listeners.
 
+## Export as GIF / MP4 — `AnimationExport` (diagramly/gif/) [jgraph/drawio#5777]
+
+File > Export as > Animation… (action `exportAnimatedGif`,
+`showAnimatedGifExportDialog`) exports the current page's step animation as
+an animated GIF or an MP4 video at a fixed 1280×720, or — as before — the
+`flowAnimation=1` edges as a GIF of the diagram (`AnimatedGifExport`). The
+Animation/Format rows only appear when the page has steps; MP4 only when
+WebCodecs exists (`Mp4Encoder.isSupported`). Custom-link actions are not
+exported (page animations only). The page's `loop` flag decides whether the
+GIF loops; `enabled:false` does not block the export.
+
+- **Virtual-time replay, not the live engine**: `executeCustomActions` runs
+  on timers and CSS transitions, which cannot be sampled at exact times.
+  `AnimationExport.Player` replays the steps batch by batch on an offscreen
+  copy of the page (`createGraph`: codec round trip, view at scale 1 /
+  translate 0, never the user's graph) and mirrors the dispatcher —
+  **timing changes in `executeCustomActions` (defaults, what blocks,
+  batching) must be mirrored in `Player.executeBatch`**. Discrete effects
+  call the same transient helpers on the copy (`toggleCellsTransient`,
+  `updateTransientTerminalEdges`, `setCellStylesTransient`,
+  `toggleFlowAnimation`, `createWipeAnimations`, …); timed ones are
+  evaluated per frame (fades as per-node tweens with CSS ease-in-out, wipes
+  and pops via `execute(step, 1000)`, highlights stay 1 then fade 1200 ms,
+  smooth scroll/viewbox 600 ms cubic ease-out). `open` and `select` are
+  ignored. The camera follows the lightbox: initial fit with a 60px border
+  (max zoom 2), viewbox via the `fitBoundsCssTransform` math, scroll at the
+  current zoom, clamped to the diagram (axes smaller than the view are
+  centered).
+- **Segments**: a frame is the `getSvg` of the copy with per-frame state
+  applied; `getSvg` only runs again when the copy's shapes changed
+  (`player.dirty`: styles, model path, tags refresh, wipe/pop frames,
+  highlights added/removed). `createSegment` maps each exported shape node
+  to the copy's shape (`doDrawShape` hook), so opacity is copied from the
+  copy's DOM nodes, flow from the `mxEdgeFlow` class (dash offset -16 per
+  500 ms from the step's start), persistent flows via
+  `AnimatedGifExport.findAnimatedPaths`, and the camera becomes the SVG
+  `viewBox` (offset from the export canvas' `dx`/`dy`). Highlights are
+  painted on top via a `drawState` hook. Frames with the same state key
+  reuse the last canvas.
+- **GIF**: palette from ~12 sampled frames (`GifEncoder.createPalette`
+  keeps frequent colors exact, median cut for the rest), changed-rectangle
+  frames with disposal 1, identical frames merged into one delay. Limited
+  to 30 s (`maxGifDuration`) while MP4 is available — the dialog disables
+  Export and says so.
+- **MP4**: WebCodecs `VideoEncoder` with explicit timestamps (not
+  MediaRecorder), H.264 (High → Main → Baseline) with VP9-in-MP4 fallback,
+  muxed by `Mp4Encoder.createMp4` (moov before mdat, one chunk).
+- Exports are capped at 10 minutes (`maxDuration`) so a crafted `wait`
+  cannot exhaust memory. A GIF that does not loop and MP4 include
+  highlights still fading after the last step.
+- Wipe/pop `stop()` restores `shape.boundingBox` (a size-0 first step made
+  `mxShape.redraw` null it), otherwise a later dynamic viewbox fitted only
+  the label — in the lightbox as well as in the export.
+- `createGraph` appends the encoded model to its XML document before
+  decoding. `mxCodec` resolves references to cells later in the document
+  through `document.documentElement`, so with a detached node an edge listed
+  before its terminals lost them and got no state in the copy: its wipe
+  silently did nothing and took no time (Gaudenz, 2026-09-28).
+- `renderFrames` passes exceptions thrown by its `done` continuation (the
+  GIF palette step, `encoder.finish`) to `error`: `fail` ignores errors once
+  the frames are cleaned up, so these used to hang the progress dialog at
+  10 % without a message. In dev mode, a `GifEncoder.js` older than the
+  export can still come from the browser cache (the new `AnimationExport.js`
+  always loads fresh) and fails with `GifEncoder.createPalette is not a
+  function` — MP4 still works there. Hard reload.
+
 ## Naming — two different menu entries
 
 - **View > Flow Animations** (action `'animations'`, key `animations`):
@@ -437,3 +602,5 @@ and a module-scope wrapper on `mxWindow.prototype.setResizable` wire it up
 - `resources/dia.txt` — UI strings (translations in `resources/dia_*.txt`)
 - `plugins/animation.js` — back-compat Extras entry + inline `animation`
   resource key
+- `diagramly/gif/AnimationExport.js`, `GifEncoder.js`, `Mp4Encoder.js` —
+  GIF/MP4 export of page animations (`AnimatedExport.js`: flow GIF)

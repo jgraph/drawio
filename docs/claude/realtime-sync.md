@@ -353,6 +353,24 @@ a peer that was alone (`sendUnconfirmedChanges` on the first peer); the
 socket protocol replays nothing, so a third client waits for the next
 save (bounded, documented in the harness README).
 
+**Channel authenticity on keyed channels**: neither relay (fast-rt,
+/cache → Pusher) authenticates the sender, anyone who knows a channel ID
+can post to it. On a channel with a key (`sync.isEncrypted()`: Drive
+`key` property, Confluence `desc.key`) every genuine message is
+encrypted (socket `bytes` envelope since 20.2.0, cache messages since
+2018), so `P2PCollab.decodeMsg` drops a socket message without `bytes`
+or one that fails to decrypt/parse BEFORE any field is used (roster,
+dedupe, cursors included), and `changeListener` no longer answers an
+undecryptable cache message with `fileChangedNotify` (that was a
+refetch storm for any poster). `stringToObject` rejects non-strings:
+CryptoJS takes an object as cipher params and loops over its
+`sigBytes` before any key check. Channels without a key keep the old
+behavior (nothing to authenticate). Captured ciphertext can still be
+replayed from another socket: the envelope does not bind the relay's
+sender id. Locked by `p2p-encrypted-channel`, whose keyless control
+proves the forged messages act without the key. New channel IDs, keys
+and cache secrets come from `Editor.secureGuid` (CSPRNG).
+
 Cursor and selection are deliberately NOT gated. They are view state,
 never enter the model, own pages, snapshot or file, so a version
 mismatch cannot corrupt anything through them; gating them would make

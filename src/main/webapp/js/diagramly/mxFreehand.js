@@ -393,9 +393,12 @@ function mxFreehand(graph)
 		    {
 				var e = me.getEvent();
 				
+				// Ignores gestures that started forced panning (eg. space+drag)
 				if (!enabled || mxEvent.isPopupTrigger(e) ||
 					mxEvent.isMiddleMouseButton(e) ||
-					mxEvent.isMultiTouchEvent(e))
+					mxEvent.isMultiTouchEvent(e) ||
+					(graph.panningHandler != null &&
+					graph.panningHandler.isActive()))
 				{
 					return;
 				}

@@ -14,6 +14,9 @@ viewer), `Minimal.js` (sketch theme), `Simple.js` (simple toolbar), `Trees.js`
 
 **Cloud storage**: per provider `*Client.js` / `*File.js` / `*Library.js` —
 Drive, Dropbox, OneDrive, GitHub, GitLab (extends GitHub), Trello.
+`HomeDialog.js` is the Google Drive home screen; it is bundled next to
+`DriveClient.js` (app.min.js only), so add it to any new bundle with the Drive
+client.
 `sidebar/` holds the 60+ shape palettes (see `sidebar/CLAUDE.md`), `vsdx/`
 the Visio codec (see `vsdx/CLAUDE.md`).
 

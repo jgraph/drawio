@@ -1099,9 +1099,11 @@ Editor.toUnit = function(pixels, unit)
 };
 
 /**
- * 
+ * Converts the given value in the given unit to pixels. If unrounded is
+ * true then the result is not rounded to 0.1px (eg. for grid sizes, which
+ * must be exact multiples of the unit to snap to whole units).
  */
-Editor.fromUnit = function(value, unit)
+Editor.fromUnit = function(value, unit, unrounded)
 {
 	if (unit == mxConstants.INCHES)
 	{
@@ -1118,7 +1120,7 @@ Editor.fromUnit = function(value, unit)
 
 	// Rounds to 0.1px so unit round-trips are stable and values
 	// entered in one unit convert back exactly (eg. 1/8in = 12.5px)
-	return Math.round(value * 10) / 10;
+	return (unrounded) ? value : Math.round(value * 10) / 10;
 };
 
 /**
@@ -2834,13 +2836,29 @@ var PageSetupDialog = function(editorUi)
 	gridSizeInput.setAttribute('step', 'any');
 	gridSizeInput.style.width = '60px';
 	gridSizeInput.style.flex = '0 0 auto';
-	gridSizeInput.value = graph.getGridSize();
+	// Grid size is shown in the current unit (as in the format panel)
+	var gridUnit = graph.view.unit;
+	gridSizeInput.value = Editor.toUnit(graph.getGridSize(), gridUnit);
+	var initialGridSizeValue = gridSizeInput.value;
 	gridRow.appendChild(styleContent(gridSizeInput));
+
+	var gridUnitText = (gridUnit == mxConstants.MILLIMETERS) ? 'mm' :
+		((gridUnit == mxConstants.INCHES) ? '"' :
+		((gridUnit == mxConstants.METERS) ? 'm' : null));
+
+	if (gridUnitText != null)
+	{
+		var gridUnitLabel = document.createElement('span');
+		gridUnitLabel.style.marginLeft = '4px';
+		mxUtils.write(gridUnitLabel, gridUnitText);
+		gridRow.appendChild(gridUnitLabel);
+	}
 
 	mxEvent.addListener(gridSizeInput, 'change', function()
 	{
 		var value = parseFloat(gridSizeInput.value);
-		gridSizeInput.value = Math.max(1, (isNaN(value)) ? graph.getGridSize() : value);
+		gridSizeInput.value = Math.max(Editor.toUnit(1, gridUnit), (isNaN(value)) ?
+			Editor.toUnit(graph.getGridSize(), gridUnit) : value);
 	});
 
 	gridSection.appendChild(gridRow);
@@ -3118,11 +3136,18 @@ var PageSetupDialog = function(editorUi)
 	// Apply function
 	var applyFn = function()
 	{
-		var gridSize = parseFloat(gridSizeInput.value);
-
-		if (!isNaN(gridSize) && graph.gridSize !== gridSize)
+		// Only applies an edited value so that the rounded display value
+		// does not change the grid size of an unmodified dialog
+		if (gridSizeInput.value != initialGridSizeValue)
 		{
-			graph.setGridSize(gridSize);
+			// Unrounded conversion so that grid sizes in units snap to exact
+			// multiples of the unit (eg. 10 mm = 39.37 px instead of 39.4 px)
+			var gridSize = Editor.fromUnit(parseFloat(gridSizeInput.value), gridUnit, true);
+
+			if (!isNaN(gridSize) && graph.gridSize !== gridSize)
+			{
+				graph.setGridSize(gridSize);
+			}
 		}
 
 		var change = new ChangePageSetup(editorUi, newBackgroundColor,

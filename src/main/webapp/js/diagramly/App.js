@@ -2869,6 +2869,64 @@ App.prototype.handleLicense = function(lic, domain)
 };
 
 /**
+ * Reports the first successful save of a Google Drive diagram each month to
+ * the licence endpoint (DriveClient.checkLicense). It counts the editors of
+ * the user's Workspace domain and says if the user holds one of the domain's
+ * floating seats, which only goes to handleLicense for now. Tried once per
+ * page load until it succeeds, then once a month per user and browser, and
+ * editing never waits for it or depends on it. Preprod only until the ws
+ * worker is deployed for app.diagrams.net (its README): until then the
+ * request would go to the App Engine origin.
+ */
+App.prototype.reportDriveEdit = function()
+{
+	var user = (this.drive != null) ? this.drive.getUser() : null;
+
+	if (user != null && user.id != null && !this.isOffline() && urlParams['dev'] != '1' &&
+		window.location.hostname == 'preprod.diagrams.net')
+	{
+		var month = new Date().toISOString().substring(0, 7);
+		var key = '.drive-edit-' + Editor.crc32(user.id);
+		var reported = null;
+
+		try
+		{
+			reported = (isLocalStorage) ? localStorage.getItem(key) : null;
+		}
+		catch (e)
+		{
+			// ignore
+		}
+
+		this.driveEditsReported = this.driveEditsReported || {};
+
+		if (reported != month && !this.driveEditsReported[user.id] &&
+			this.drive.checkLicense(true, mxUtils.bind(this, function(lic)
+			{
+				try
+				{
+					if (isLocalStorage)
+					{
+						localStorage.setItem(key, month);
+					}
+				}
+				catch (e)
+				{
+					// ignore
+				}
+
+				this.handleLicense(lic, null);
+			}), function()
+			{
+				// Fails open
+			}))
+		{
+			this.driveEditsReported[user.id] = true;
+		}
+	}
+};
+
+/**
  * 
  */
 App.prototype.getEditBlankXml = function()
@@ -4681,6 +4739,138 @@ App.prototype.checkDrafts = function()
 };
 
 /**
+ * Returns true if the Home screen (HomeDialog) replaces the splash dialog:
+ * Google Drive mode in the full app. While it is tested, only on preprod or
+ * with ?home=1, and never with ?home=0. HomeDialog.js is only bundled next
+ * to DriveClient.js (app.min.js).
+ */
+App.prototype.isHomeEnabled = function()
+{
+	return this.mode == App.MODE_GOOGLE && this.drive != null && typeof HomeDialog === 'function' &&
+		urlParams['home'] != '0' &&
+		(urlParams['home'] == '1' || window.location.hostname == 'preprod.diagrams.net') &&
+		!this.editor.chromeless && urlParams['embed'] != '1' && urlParams['noFileMenu'] != '1' &&
+		!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp;
+};
+
+/**
+ * Shows the Home screen. Opened with no file (at startup, or after the new
+ * diagram dialog is cancelled), closing it creates a blank diagram, like the
+ * splash dialog. Background clicks don't close it, since that would create
+ * that diagram by accident.
+ */
+App.prototype.showHome = function()
+{
+	if (!this.isHomeEnabled())
+	{
+		return;
+	}
+
+	var startup = this.getCurrentFile() == null;
+	var dlg = new HomeDialog(this, startup);
+	var w = Math.max(280, Math.min(960, window.innerWidth - 96));
+	var h = Math.max(320, Math.min(640, window.innerHeight - 96));
+
+	this.showDialog(dlg.container, w, h, true, true, mxUtils.bind(this, function(cancel, isEsc)
+	{
+		dlg.destroy();
+
+		if ((cancel || isEsc) && startup && this.getCurrentFile() == null)
+		{
+			var prev = Editor.useLocalStorage;
+			this.createFile(this.defaultFilename, null, null, null, null, null, null,
+				urlParams['local'] != '1');
+			Editor.useLocalStorage = prev;
+		}
+	}), null, null, null, true);
+
+	dlg.init();
+};
+
+/**
+ * Asks for access to a Google Drive file that returned 404 (drive.file only
+ * sees files the user created or picked with draw.io). Allow access opens
+ * the Google Picker limited to that file, and picking it grants the file and
+ * loads it. Returns false if the Picker isn't available.
+ */
+App.prototype.showDriveAccessDialog = function(id, changeUserFn, cancelFn)
+{
+	if (this.drive == null || !DriveClient.isFileId(id) ||
+		typeof google === 'undefined' || google.picker == null)
+	{
+		return false;
+	}
+
+	var div = document.createElement('div');
+	div.className = 'geHomeAccess';
+
+	var hd = document.createElement('h3');
+	mxUtils.write(hd, mxResources.get('allowAccessTitle', null, 'Allow access to this diagram'));
+	div.appendChild(hd);
+
+	var user = this.drive.getUser();
+	var msg = document.createElement('div');
+	msg.style.lineHeight = 'normal';
+	mxUtils.write(msg, mxResources.get('allowAccessMessage', [(user != null && user.email != null) ?
+		user.email : mxResources.get('googleDrive')], 'draw.io can only open the Google Drive files ' +
+		'you choose. Select this diagram in the Google file picker to open it. If it isn\'t listed, ' +
+		'it doesn\'t exist or isn\'t shared with {1}.'));
+	div.appendChild(msg);
+
+	// Secondary actions as links, so the buttons are only Cancel and Allow access
+	var links = document.createElement('div');
+	links.className = 'geHomeLinks';
+
+	var openInDrive = mxUtils.button(mxResources.get('openInGoogleDrive', null,
+		'Open in Google Drive'), mxUtils.bind(this, function()
+	{
+		this.openLink('https://drive.google.com/open?id=' + id);
+	}));
+	openInDrive.className = 'geHomeLink';
+	links.appendChild(openInDrive);
+
+	if (changeUserFn != null)
+	{
+		var changeUser = mxUtils.button(mxResources.get('changeUser'), mxUtils.bind(this, function()
+		{
+			this.hideDialog();
+			changeUserFn();
+		}));
+		changeUser.className = 'geHomeLink';
+		links.appendChild(changeUser);
+	}
+
+	div.appendChild(links);
+
+	var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
+	{
+		this.drive.pickDiagrams({fileIds: [id], title: mxResources.get('allowAccessTitle', null,
+			'Allow access to this diagram')}, mxUtils.bind(this, function(docs)
+		{
+			if (docs.length > 0)
+			{
+				this.loadFile('G' + docs[0].id, true);
+			}
+			else if (cancelFn != null)
+			{
+				cancelFn();
+			}
+		}), cancelFn);
+	}), cancelFn, mxResources.get('allowAccess', null, 'Allow access'));
+
+	// Escape closes the dialog without the Cancel button
+	this.showDialog(dlg.container, 420, null, true, false, function(cancel, isEsc)
+	{
+		if (isEsc && cancelFn != null)
+		{
+			cancelFn();
+		}
+	});
+
+	return true;
+};
+
+/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.
@@ -4698,6 +4888,13 @@ App.prototype.showSplash = function(force)
 	
 	var showSecondDialog = mxUtils.bind(this, function()
 	{
+		if (this.isHomeEnabled())
+		{
+			this.showHome();
+
+			return;
+		}
+
 		var dlg = new SplashDialog(this);
 		
 		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP ||

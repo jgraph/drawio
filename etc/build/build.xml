@@ -424,6 +424,8 @@ OUTPUT FILES (in src/main/webapp/js/):
 			<sources dir="${war.dir}/js/diagramly/gif">
 				<file name="GifEncoder.js" />
 				<file name="AnimatedExport.js" />
+				<file name="Mp4Encoder.js" />
+				<file name="AnimationExport.js" />
 			</sources>
 		</jscomp>
 
@@ -496,6 +498,8 @@ OUTPUT FILES (in src/main/webapp/js/):
 		     the Closure-compiled LibavoidRouting editor binding. -->
 		<concat destfile="${war.dir}/js/extensions.min.js" fixlastline="yes" append="yes">
 			<fileset file="${war.dir}/js/jszip/jszip.min.js"/>
+			<!-- Binary Visio (.vsd/.vss/.vst) converter, defines window.DrawioVsd -->
+			<fileset file="${war.dir}/js/vsd/drawio-vsd.min.js"/>
 			<fileset file="${war.dir}/js/elk/drawio-elk.min.js"/>
 			<filelist dir="${basedir}" files=".tmpelk.js"/>
 			<fileset file="${war.dir}/js/mermaid/drawio-mermaid.min.js"/>
@@ -543,6 +547,8 @@ OUTPUT FILES (in src/main/webapp/js/):
 			<sources dir="${war.dir}/js/diagramly/gif">
 				<file name="GifEncoder.js" />
 				<file name="AnimatedExport.js" />
+				<file name="Mp4Encoder.js" />
+				<file name="AnimationExport.js" />
 			</sources>
 
 			<!-- Cloud storage integrations -->
@@ -552,6 +558,7 @@ OUTPUT FILES (in src/main/webapp/js/):
 				<file name="DriveFile.js" />
 				<file name="DriveLibrary.js" />
 				<file name="DriveClient.js" />
+				<file name="HomeDialog.js" />
 				<file name="DropboxFile.js" />
 				<file name="DropboxLibrary.js" />
 				<file name="DropboxClient.js" />

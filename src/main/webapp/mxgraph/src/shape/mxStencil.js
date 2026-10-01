@@ -164,7 +164,11 @@
  * Optional, default is 0.
  * - "align-shape", 0 or 1, if 0 ignore the rotation of the shape when setting
  * the text rotation. Optional, default is 1.
- * 
+ * - "flip-shape", 0 or 1, if 0 the text is not mirrored if the shape is
+ * flipped. Instead, it is placed at the flipped location with mirrored
+ * alignment (for unrotated text) so that it stays readable. Optional,
+ * default is 1.
+ *
  * If <allowEval> is true, then the text content of the this element can define
  * a function which is invoked with the shape as the only argument and returns
  * the value for the text element (ignored if the str attribute is not null).
@@ -827,16 +831,30 @@ mxStencil.prototype.drawNode = function(canvas, shape, node, aspect, disableShad
 			{
 				var str = this.evaluateTextAttribute(node, 'str', shape);
 				var rotation = node.getAttribute('vertical') == '1' ? -90 : 0;
-				
+				var tx = x0 + Number(node.getAttribute('x')) * sx;
+				var ty = y0 + Number(node.getAttribute('y')) * sy;
+				var align = node.getAttribute('align') || 'left';
+				var valign = node.getAttribute('valign') || 'top';
+
+				// Optionally undoes the flip of the shape for the text so
+				// that it stays readable (not mirrored) in flipped shapes
+				var unflip = node.getAttribute('flip-shape') == '0';
+				var unflipH = unflip && shape.flipH;
+				var unflipV = unflip && shape.flipV;
+
 				if (node.getAttribute('align-shape') == '0')
 				{
 					var dr = shape.rotation;
-		
+
 					// Depends on flipping
 					var flipH = mxUtils.getValue(shape.style, mxConstants.STYLE_FLIPH, 0) == 1;
 					var flipV = mxUtils.getValue(shape.style, mxConstants.STYLE_FLIPV, 0) == 1;
-					
-					if (flipH && flipV)
+
+					if (unflipH || unflipV)
+					{
+						rotation -= dr;
+					}
+					else if (flipH && flipV)
 					{
 						rotation -= dr;
 					}
@@ -849,14 +867,39 @@ mxStencil.prototype.drawNode = function(canvas, shape, node, aspect, disableShad
 						rotation -= dr;
 					}
 				}
-		
+
 				rotation -= node.getAttribute('rotation');
-		
-				canvas.text(x0 + Number(node.getAttribute('x')) * sx,
-						y0 + Number(node.getAttribute('y')) * sy,
-						0, 0, str, node.getAttribute('align') || 'left',
-						node.getAttribute('valign') || 'top', false, '',
-						null, false, rotation);
+
+				if (unflipH || unflipV)
+				{
+					// Mirrors the alignment so that the text occupies the
+					// area of the flipped text (only for unrotated text)
+					if (rotation == 0)
+					{
+						if (unflipH)
+						{
+							align = (align == 'left') ? 'right' :
+								((align == 'right') ? 'left' : align);
+						}
+
+						if (unflipV)
+						{
+							valign = (valign == 'top') ? 'bottom' :
+								((valign == 'bottom') ? 'top' : valign);
+						}
+					}
+
+					canvas.save();
+					canvas.rotate(0, unflipH, unflipV, tx, ty);
+				}
+
+				canvas.text(tx, ty, 0, 0, str, align, valign,
+					false, '', null, false, rotation);
+
+				if (unflipH || unflipV)
+				{
+					canvas.restore();
+				}
 			}
 		}
 		else if (name == 'include-shape')

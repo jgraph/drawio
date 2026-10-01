@@ -364,3 +364,108 @@ mxShapeC4WebBrowserContainer2.prototype.paintVertexShape = function(c, x, y, w, 
 
 mxCellRenderer.registerShape(mxShapeC4WebBrowserContainer2.prototype.cst.WEB_BROWSER_CONTAINER2_SHAPE, mxShapeC4WebBrowserContainer2);
 
+//**********************************************************************************************************************************************************
+// Mobile Device Container
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeC4MobileDeviceContainer(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeC4MobileDeviceContainer, mxShape);
+
+mxShapeC4MobileDeviceContainer.prototype.cst = {MOBILE_DEVICE_CONTAINER_SHAPE : 'mxgraph.c4.mobileDeviceContainer'};
+
+mxShapeC4MobileDeviceContainer.prototype.customProperties = [
+	{name: 'strokeColor2', dispName: 'Outline color', type: 'color', defVal: '#0E7DAD'}
+];
+
+/**
+* Bezel sizes: short sides and long sides (speaker and button side).
+*/
+mxShapeC4MobileDeviceContainer.prototype.bezel = 8;
+mxShapeC4MobileDeviceContainer.prototype.bezel2 = 24;
+
+/**
+* Function: paintVertexShape
+*
+* Paints the vertex shape. The speaker and button are placed on the short
+* sides, so the device is portrait if h > w and landscape otherwise.
+*/
+mxShapeC4MobileDeviceContainer.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var r = 12;
+	var fillColor = mxUtils.getValue(this.state.style, 'fillColor', '#ffffff');
+	var strokeColor = mxUtils.getValue(this.state.style, 'strokeColor', '#000000');
+	var strokeColor2 = mxUtils.getValue(this.state.style, 'strokeColor2', '#0E7DAD');
+
+	c.setStrokeColor(strokeColor2);
+	c.setFillColor(strokeColor);
+	c.roundrect(0, 0, w, h, r, r);
+	c.fillAndStroke();
+
+	c.setShadow(false);
+
+	var b = this.bezel;
+	var b2 = this.bezel2;
+	var portrait = h > w;
+	var bx = (portrait) ? b : b2;
+	var by = (portrait) ? b2 : b;
+
+	if (w > 2 * bx + 2 * r && h > 2 * by + 2 * r)
+	{
+		c.setFillColor(fillColor);
+
+		// Screen
+		c.roundrect(bx, by, w - 2 * bx, h - 2 * by, 4, 4);
+		c.fill();
+
+		// Speaker and button
+		var sl = 24;
+		var sw = 4;
+		var d = 10;
+
+		if (portrait)
+		{
+			c.roundrect((w - sl) / 2, (b2 - sw) / 2, sl, sw, sw / 2, sw / 2);
+			c.fill();
+			c.ellipse((w - d) / 2, h - (b2 + d) / 2, d, d);
+			c.fill();
+		}
+		else
+		{
+			c.roundrect((b2 - sw) / 2, (h - sl) / 2, sw, sl, sw / 2, sw / 2);
+			c.fill();
+			c.ellipse(w - (b2 + d) / 2, (h - d) / 2, d, d);
+			c.fill();
+		}
+	}
+};
+
+mxShapeC4MobileDeviceContainer.prototype.getLabelMargins = function(rect)
+{
+	if (mxUtils.getValue(this.style, 'boundedLbl', false))
+	{
+		var b = this.bezel * this.scale;
+		var b2 = this.bezel2 * this.scale;
+
+		return (rect.height > rect.width) ? new mxRectangle(b, b2, b, b2) :
+			new mxRectangle(b2, b, b2, b);
+	}
+
+	return null;
+};
+
+mxCellRenderer.registerShape(mxShapeC4MobileDeviceContainer.prototype.cst.MOBILE_DEVICE_CONTAINER_SHAPE, mxShapeC4MobileDeviceContainer);
+

@@ -230,6 +230,7 @@ var com;
 	                                    graph_1.getModel().beginUpdate();
 	                                    this_1.importPage(page_1, graph_1, graph_1.getDefaultParent(), true);
 	                                    this_1.scaleGraph(graph_1, page_1.getPageScale() / page_1.getDrawingScale());
+	                                    this_1.fitStencilCells(graph_1);
 	                                    graph_1.getModel().endUpdate();
 
 	                                    this_1.postImportPage(page_1, graph_1, function()
@@ -1109,6 +1110,7 @@ var com;
                                 return o1 === o2;
                             } })(type, com.mxgraph.io.vsdx.mxVsdxConstants.FOREIGN))) {
                                 if (subShape.isVertex()) {
+                                    subShape.propagateFlip(shape);
                                     subShape.propagateRotation(shape.getRotation());
                                     var tmpV;
                                     if (subShape.isGroup()) {
@@ -1182,6 +1184,26 @@ var com;
                             }
                         }
                     }
+                    // Visio mirrors the members of a flipped group, draw.io does not, so
+                    // they are mirrored inside the group (edges in rotateChildEdge, the
+                    // label in createLabelSubShape), before the rotation below
+                    if (shape.isFlippedX() || shape.isFlippedY()) {
+                        var gw = group.geometry.width;
+                        var gh = group.geometry.height;
+                        for (var i = 0; i < group.getChildCount(); i++) {
+                            var child = group.getChildAt(i);
+                            var cgeo = child.getGeometry();
+                            if (cgeo != null && child.isVertex() && !cgeo.relative) {
+                                if (shape.isFlippedX()) {
+                                    cgeo.x = gw - cgeo.x - cgeo.width;
+                                }
+                                if (shape.isFlippedY()) {
+                                    cgeo.y = gh - cgeo.y - cgeo.height;
+                                }
+                            }
+                        }
+                    }
+                    this.addGroupGeometryInFront(graph, shape, group, styleMap);
                     if (subLabel) {
                         shape.createLabelSubShape(graph, group);
                     }
@@ -1226,6 +1248,49 @@ var com;
                     } m.entries.push({ key: k, value: v, getKey: function () { return this.key; }, getValue: function () { return this.value; } }); })(this.vertexMap, new com.mxgraph.io.vsdx.ShapePageId(pageId, shape.getId()), group);
                     
                     return group;
+                };
+                /**
+                 * Visio draws the geometry of a group in front of its members unless the
+                 * group's DisplayMode is 1 (behind) or 0, while draw.io draws a parent
+                 * below its children. For the default DisplayMode 2 the drawing of the
+                 * group moves to a child that is added after the members (and before the
+                 * label), and the group keeps its connection points, label and container
+                 * role without fill and stroke.
+                 * @param {mxGraph} graph
+                 * @param {com.mxgraph.io.vsdx.VsdxShape} shape the group shape
+                 * @param {mxCell} group the group cell with its members
+                 * @param {Object} styleMap the style map of the group
+                 */
+                mxVsdxCodec.prototype.addGroupGeometryInFront = function (graph, shape, group, styleMap) {
+                    var displayMode = shape.getValue(shape.getCellElement$java_lang_String('DisplayMode'), '2');
+                    var shapeName = styleMap[mxConstants.STYLE_SHAPE];
+                    var fill = styleMap[mxConstants.STYLE_FILLCOLOR];
+                    var stroke = styleMap[mxConstants.STYLE_STROKECOLOR];
+
+                    // Image groups are written as a named image style (see getStyleString),
+                    // which setStyle cannot remove from the group
+                    if (displayMode != '2' || group.getChildCount() == 0 ||
+                        (shapeName != null && String(shapeName).indexOf('image') == 0) ||
+                        (shapeName == null && (fill == null || fill == 'none') && (stroke == null || stroke == 'none'))) {
+                        return;
+                    }
+
+                    var geoStyle = mxUtils.clone(styleMap);
+                    delete geoStyle['points'];
+                    geoStyle['connectable'] = '0';
+                    var geo = group.getGeometry();
+                    // Derived ID so the IDs of the following cells do not change
+                    graph.insertVertex(group, group.getId() + '-geo', null, 0, 0, geo.width, geo.height,
+                        com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(geoStyle, '='));
+
+                    var style = group.getStyle();
+                    style = mxUtils.setStyle(style, mxConstants.STYLE_SHAPE, null);
+                    style = mxUtils.setStyle(style, mxConstants.STYLE_IMAGE, null);
+                    style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, 'none');
+                    style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, 'none');
+                    style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, 'none');
+                    style = mxUtils.setStyle(style, mxConstants.STYLE_SHADOW, null);
+                    group.setStyle(style);
                 };
                 mxVsdxCodec.rotatedEdgePoint = function (pt, rotation, cx, cy) {
                     rotation = (function (x) { return x * Math.PI / 180; })(rotation);
@@ -1287,13 +1352,679 @@ var com;
                         if (hasSubLabel) {
                             shape.createLabelSubShape(graph, v1);
                         }
+                        // Fitted after scaleGraph (fitStencilCells): the label spacing it
+                        // adds is in final pixels, which scaleGraph does not scale
+                        (this.stencilCells = this.stencilCells || []).push(v1);
                         return v1;
                     }
                     return null;
                 };
-                
-                
-                mxVsdxCodec.calculateAbsolutePoint = function (cell) 
+
+                /**
+                 * Calls add(x, y) for n - 1 points inside an SVG arc from p0 to p1,
+                 * using the end point to center parameterization of SVG 1.1 (F.6.5).
+                 * SVG omits an arc whose end points coincide (ArcTo rows with a zero
+                 * bow come out like that, with huge radii), so does this.
+                 */
+                mxVsdxCodec.sampleArc = function (p0, rx, ry, deg, large, sweep, p1, n, add)
+                {
+                    rx = Math.abs(rx); ry = Math.abs(ry);
+
+                    if (p0 == null || !(rx > 0) || !(ry > 0) || (Math.abs(p0.x - p1.x) < 1e-6 && Math.abs(p0.y - p1.y) < 1e-6))
+                    {
+                        return;
+                    }
+
+                    var phi = deg * Math.PI / 180, cos = Math.cos(phi), sin = Math.sin(phi);
+                    var dx = (p0.x - p1.x) / 2, dy = (p0.y - p1.y) / 2;
+                    var x1 = cos * dx + sin * dy, y1 = -sin * dx + cos * dy;
+                    var lambda = (x1 * x1) / (rx * rx) + (y1 * y1) / (ry * ry);
+
+                    if (lambda > 1)
+                    {
+                        rx *= Math.sqrt(lambda); ry *= Math.sqrt(lambda);
+                    }
+
+                    var den = rx * rx * y1 * y1 + ry * ry * x1 * x1;
+                    var f = (den > 0) ? Math.sqrt(Math.max(0, (rx * rx * ry * ry - den) / den)) : 0;
+                    f = (large == sweep) ? -f : f;
+                    var cxp = f * rx * y1 / ry, cyp = -f * ry * x1 / rx;
+                    var cx = cos * cxp - sin * cyp + (p0.x + p1.x) / 2;
+                    var cy = sin * cxp + cos * cyp + (p0.y + p1.y) / 2;
+                    var ux = (x1 - cxp) / rx, uy = (y1 - cyp) / ry;
+                    var vx = (-x1 - cxp) / rx, vy = (-y1 - cyp) / ry;
+                    var t1 = Math.atan2(uy, ux);
+                    var dt = Math.atan2(ux * vy - uy * vx, ux * vx + uy * vy);
+
+                    if (!sweep && dt > 0)
+                    {
+                        dt -= 2 * Math.PI;
+                    }
+                    else if (sweep && dt < 0)
+                    {
+                        dt += 2 * Math.PI;
+                    }
+
+                    for (var i = 1; i < n; i++)
+                    {
+                        var t = t1 + dt * i / n;
+                        var ex = rx * Math.cos(t), ey = ry * Math.sin(t);
+                        add(cos * ex - sin * ey + cx, sin * ex + cos * ey + cy);
+                    }
+                };
+
+                /**
+                 * Visio fills the geometry of a shape with the even-odd rule, so a
+                 * section inside another one is a hole, while stencils fill with the
+                 * nonzero rule. Returns the content of a filled stencil path with the
+                 * subpaths reversed that turn the same way as the smallest subpath
+                 * around them, which gives the same fill for nested subpaths (crossing
+                 * subpaths still differ). Returns the content unchanged if nothing is
+                 * nested or it has anything else than move, line, quad, curve, arc and
+                 * close elements.
+                 * @param {string} content the XML inside a stencil path element
+                 */
+                mxVsdxCodec.evenOddPath = function (content)
+                {
+                    var re = /<(move|line|quad|curve|arc|close)\b([^>]*?)\/>/g;
+                    var subpaths = [], sp = null, m, last = 0;
+                    var total = 0;
+
+                    while ((m = re.exec(content)) != null)
+                    {
+                        // Only whitespace between the elements, and bounded work (a path can
+                        // be text converted to curves)
+                        if (content.substring(last, m.index).trim().length > 0 || ++total > 20000)
+                        {
+                            return content;
+                        }
+
+                        last = re.lastIndex;
+                        var attrs = Object.create(null);
+                        m[2].replace(/([a-z0-9-]+)="([^"]*)"/g, function (all, k, v)
+                        {
+                            attrs[k] = v;
+                            return all;
+                        });
+
+                        if (m[1] == 'move' || sp == null)
+                        {
+                            sp = {cmds: []};
+                            subpaths.push(sp);
+                        }
+
+                        sp.cmds.push({name: m[1], attrs: attrs});
+                    }
+
+                    if (content.substring(last).trim().length > 0 || subpaths.length < 2 || subpaths.length > 200)
+                    {
+                        return content;
+                    }
+
+                    var points = 0;
+
+                    function pt(attrs, xk, yk)
+                    {
+                        return {x: parseFloat(attrs[xk]), y: parseFloat(attrs[yk])};
+                    };
+
+                    for (var i = 0; i < subpaths.length; i++)
+                    {
+                        var s = subpaths[i], poly = [], cur = null, start = null, closedAt = -1;
+
+                        for (var j = 0; j < s.cmds.length; j++)
+                        {
+                            var c = s.cmds[j], a = c.attrs, e = null;
+
+                            if (c.name == 'move' || c.name == 'line')
+                            {
+                                e = pt(a, 'x', 'y');
+                                start = (c.name == 'move') ? e : start;
+                            }
+                            else if (c.name == 'quad' || c.name == 'curve')
+                            {
+                                var q = (c.name == 'quad') ? [pt(a, 'x1', 'y1'), pt(a, 'x2', 'y2')] :
+                                    [pt(a, 'x1', 'y1'), pt(a, 'x2', 'y2'), pt(a, 'x3', 'y3')];
+                                e = q[q.length - 1];
+
+                                for (var k = 1; cur != null && k < 12; k++)
+                                {
+                                    var t = k / 12, u = 1 - t;
+                                    poly.push((q.length == 2) ?
+                                        {x: u * u * cur.x + 2 * u * t * q[0].x + t * t * e.x,
+                                            y: u * u * cur.y + 2 * u * t * q[0].y + t * t * e.y} :
+                                        {x: u * u * u * cur.x + 3 * u * u * t * q[0].x + 3 * u * t * t * q[1].x + t * t * t * e.x,
+                                            y: u * u * u * cur.y + 3 * u * u * t * q[0].y + 3 * u * t * t * q[1].y + t * t * t * e.y});
+                                }
+                            }
+                            else if (c.name == 'arc')
+                            {
+                                e = pt(a, 'x', 'y');
+                                mxVsdxCodec.sampleArc(cur, parseFloat(a['rx']), parseFloat(a['ry']),
+                                    parseFloat(a['x-axis-rotation']) || 0, a['large-arc-flag'] == '1',
+                                    a['sweep-flag'] == '1', e, 24, function (x, y)
+                                {
+                                    poly.push({x: x, y: y});
+                                });
+                            }
+                            else if (c.name == 'close')
+                            {
+                                closedAt = j;
+                                cur = start;
+                                continue;
+                            }
+
+                            if (!isFinite(e.x) || !isFinite(e.y))
+                            {
+                                return content;
+                            }
+
+                            poly.push(e);
+                            cur = e;
+                        }
+
+                        // The containment tests below take subpaths x points
+                        points += poly.length;
+
+                        if (points > 20000)
+                        {
+                            return content;
+                        }
+
+                        // Twice the signed area (shoelace) and the bounding box
+                        var area = 0, box = {minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity};
+
+                        for (var j = 0; j < poly.length; j++)
+                        {
+                            var p0 = poly[j], p1 = poly[(j + 1) % poly.length];
+                            area += p0.x * p1.y - p1.x * p0.y;
+                            box.minX = Math.min(box.minX, p0.x); box.maxX = Math.max(box.maxX, p0.x);
+                            box.minY = Math.min(box.minY, p0.y); box.maxY = Math.max(box.maxY, p0.y);
+                        }
+
+                        s.poly = poly;
+                        s.area = area;
+                        s.box = box;
+                        // Only a subpath that starts with a move and has no close before
+                        // its end can be reversed
+                        s.reversible = s.cmds[0].name == 'move' && (closedAt < 0 || closedAt == s.cmds.length - 1);
+                    }
+
+                    function inside(p, poly)
+                    {
+                        var c = false;
+
+                        for (var i = 0, j = poly.length - 1; i < poly.length; j = i++)
+                        {
+                            var a = poly[i], b = poly[j];
+
+                            if (((a.y > p.y) != (b.y > p.y)) && (p.x < (b.x - a.x) * (p.y - a.y) / (b.y - a.y) + a.x))
+                            {
+                                c = !c;
+                            }
+                        }
+
+                        return c;
+                    };
+
+                    // Smallest subpath around each one (3 of its points must be inside)
+                    var changed = false;
+
+                    for (var i = 0; i < subpaths.length; i++)
+                    {
+                        var s = subpaths[i], n = s.poly.length;
+                        s.depth = 0;
+                        s.parent = null;
+
+                        if (Math.abs(s.area) < 1e-6 || n < 3)
+                        {
+                            continue;
+                        }
+
+                        for (var j = 0; j < subpaths.length; j++)
+                        {
+                            var o = subpaths[j];
+
+                            if (j != i && Math.abs(o.area) > Math.abs(s.area) && o.poly.length > 2 &&
+                                o.box.minX <= s.box.minX && o.box.maxX >= s.box.maxX &&
+                                o.box.minY <= s.box.minY && o.box.maxY >= s.box.maxY &&
+                                inside(s.poly[0], o.poly) + inside(s.poly[Math.floor(n / 3)], o.poly) +
+                                inside(s.poly[Math.floor(2 * n / 3)], o.poly) >= 2)
+                            {
+                                s.depth++;
+
+                                if (s.parent == null || Math.abs(o.area) < Math.abs(s.parent.area))
+                                {
+                                    s.parent = o;
+                                }
+                            }
+                        }
+                    }
+
+                    var order = subpaths.slice().sort(function (a, b) { return a.depth - b.depth; });
+
+                    for (var i = 0; i < order.length; i++)
+                    {
+                        var s = order[i];
+                        s.turn = (s.area > 0) ? 1 : -1;
+
+                        if (s.parent != null && s.reversible && s.turn == s.parent.turn)
+                        {
+                            s.reverse = true;
+                            s.turn = -s.turn;
+                            changed = true;
+                        }
+                    }
+
+                    if (!changed)
+                    {
+                        return content;
+                    }
+
+                    function el(name, attrs)
+                    {
+                        var s = '<' + name;
+
+                        for (var k in attrs)
+                        {
+                            s += ' ' + k + '="' + attrs[k] + '"';
+                        }
+
+                        return s + '/>';
+                    };
+
+                    var out = '';
+
+                    for (var i = 0; i < subpaths.length; i++)
+                    {
+                        var s = subpaths[i], cmds = s.cmds;
+
+                        if (!s.reverse)
+                        {
+                            for (var j = 0; j < cmds.length; j++)
+                            {
+                                out += el(cmds[j].name, cmds[j].attrs);
+                            }
+
+                            continue;
+                        }
+
+                        // End point of every command (move first), close dropped
+                        var closed = cmds[cmds.length - 1].name == 'close';
+                        var segs = cmds.slice(1, closed ? cmds.length - 1 : cmds.length);
+                        var ends = [{x: cmds[0].attrs['x'], y: cmds[0].attrs['y']}];
+
+                        for (var j = 0; j < segs.length; j++)
+                        {
+                            var a = segs[j].attrs;
+                            ends.push((segs[j].name == 'quad') ? {x: a['x2'], y: a['y2']} :
+                                ((segs[j].name == 'curve') ? {x: a['x3'], y: a['y3']} : {x: a['x'], y: a['y']}));
+                        }
+
+                        out += el('move', {x: ends[ends.length - 1].x, y: ends[ends.length - 1].y});
+
+                        for (var j = segs.length - 1; j >= 0; j--)
+                        {
+                            var a = segs[j].attrs, p = ends[j];
+
+                            if (segs[j].name == 'line')
+                            {
+                                out += el('line', {x: p.x, y: p.y});
+                            }
+                            else if (segs[j].name == 'quad')
+                            {
+                                out += el('quad', {x1: a['x1'], y1: a['y1'], x2: p.x, y2: p.y});
+                            }
+                            else if (segs[j].name == 'curve')
+                            {
+                                out += el('curve', {x1: a['x2'], y1: a['y2'], x2: a['x1'], y2: a['y1'], x3: p.x, y3: p.y});
+                            }
+                            else
+                            {
+                                out += el('arc', {rx: a['rx'], ry: a['ry'], x: p.x, y: p.y,
+                                    'x-axis-rotation': a['x-axis-rotation'], 'large-arc-flag': a['large-arc-flag'],
+                                    'sweep-flag': (a['sweep-flag'] == '1') ? '0' : '1'});
+                            }
+                        }
+
+                        if (closed)
+                        {
+                            out += '<close/>';
+                        }
+                    }
+
+                    return out;
+                };
+
+                /**
+                 * Returns the extent of a stencil (the XML of shape=stencil(...)) in
+                 * pixels of a w x h box: {minX, minY, maxX, maxY}, or null. Curves
+                 * and arcs are sampled, as they bulge past their end points (an
+                 * Ellipse row is written as two arcs across its diameter).
+                 */
+                mxVsdxCodec.getStencilBounds = function (root, w, h)
+                {
+                    var sx = w / 100, sy = h / 100;
+                    var b = null, cur = null, start = null;
+
+                    function add(x, y)
+                    {
+                        if (isFinite(x) && isFinite(y))
+                        {
+                            if (b == null)
+                            {
+                                b = {minX: x, minY: y, maxX: x, maxY: y};
+                            }
+                            else
+                            {
+                                b.minX = Math.min(b.minX, x); b.maxX = Math.max(b.maxX, x);
+                                b.minY = Math.min(b.minY, y); b.maxY = Math.max(b.maxY, y);
+                            }
+                        }
+                    };
+
+                    function num(node, name)
+                    {
+                        return parseFloat(node.getAttribute(name));
+                    };
+
+                    function arc(p0, rx, ry, deg, large, sweep, p1)
+                    {
+                        mxVsdxCodec.sampleArc(p0, rx, ry, deg, large, sweep, p1, 48, add);
+                    };
+
+                    var nodes = root.getElementsByTagName('*');
+
+                    for (var i = 0; i < nodes.length; i++)
+                    {
+                        var n = nodes[i], name = n.nodeName;
+
+                        if (name == 'path')
+                        {
+                            cur = null;
+                            start = null;
+                        }
+                        else if (name == 'move' || name == 'line')
+                        {
+                            var p = {x: num(n, 'x') * sx, y: num(n, 'y') * sy};
+                            add(p.x, p.y);
+                            cur = p;
+
+                            if (name == 'move')
+                            {
+                                start = p;
+                            }
+                        }
+                        else if (name == 'quad' || name == 'curve')
+                        {
+                            var q = (name == 'quad') ?
+                                [{x: num(n, 'x1') * sx, y: num(n, 'y1') * sy}, {x: num(n, 'x2') * sx, y: num(n, 'y2') * sy}] :
+                                [{x: num(n, 'x1') * sx, y: num(n, 'y1') * sy}, {x: num(n, 'x2') * sx, y: num(n, 'y2') * sy},
+                                    {x: num(n, 'x3') * sx, y: num(n, 'y3') * sy}];
+                            var end = q[q.length - 1];
+
+                            if (cur != null)
+                            {
+                                for (var j = 1; j < 24; j++)
+                                {
+                                    var t = j / 24, u = 1 - t;
+
+                                    if (q.length == 2)
+                                    {
+                                        add(u * u * cur.x + 2 * u * t * q[0].x + t * t * end.x,
+                                            u * u * cur.y + 2 * u * t * q[0].y + t * t * end.y);
+                                    }
+                                    else
+                                    {
+                                        add(u * u * u * cur.x + 3 * u * u * t * q[0].x + 3 * u * t * t * q[1].x + t * t * t * end.x,
+                                            u * u * u * cur.y + 3 * u * u * t * q[0].y + 3 * u * t * t * q[1].y + t * t * t * end.y);
+                                    }
+                                }
+                            }
+
+                            add(end.x, end.y);
+                            cur = end;
+                        }
+                        else if (name == 'arc')
+                        {
+                            var e = {x: num(n, 'x') * sx, y: num(n, 'y') * sy};
+                            arc(cur, num(n, 'rx') * sx, num(n, 'ry') * sy, num(n, 'x-axis-rotation') || 0,
+                                n.getAttribute('large-arc-flag') == '1', n.getAttribute('sweep-flag') == '1', e);
+                            add(e.x, e.y);
+                            cur = e;
+                        }
+                        else if (name == 'close')
+                        {
+                            cur = start;
+                        }
+                        else if (name == 'rect' || name == 'roundrect' || name == 'ellipse')
+                        {
+                            add(num(n, 'x') * sx, num(n, 'y') * sy);
+                            add((num(n, 'x') + num(n, 'w')) * sx, (num(n, 'y') + num(n, 'h')) * sy);
+                        }
+                    }
+
+                    return b;
+                };
+
+                /**
+                 * Visio draws geometry outside a shape's box: 1D block arrows have
+                 * Height 0 and draw their outline around the begin-end line, callout
+                 * leaders leave the box. Such a stencil draws outside its cell, where
+                 * exports crop it and the handles do not reach. This grows the cell to
+                 * the stencil's extent and keeps the drawing, the label area (spacing),
+                 * connection points and child cells where they were, with flips and
+                 * rotation. The stencil XML is the importer's own output (numbers only).
+                 */
+                mxVsdxCodec.prototype.fitStencilCells = function (graph)
+                {
+                    var cells = this.stencilCells || [];
+                    this.stencilCells = [];
+
+                    for (var i = 0; i < cells.length; i++)
+                    {
+                        if (graph.getModel().contains(cells[i]))
+                        {
+                            mxVsdxCodec.fitStencilBounds(graph, cells[i]);
+                        }
+                    }
+                };
+
+                mxVsdxCodec.fitStencilBounds = function (graph, cell)
+                {
+                    var model = graph.getModel();
+                    var geo = model.getGeometry(cell);
+                    var style = model.getStyle(cell);
+                    var m = (style != null) ? /(^|;)shape=stencil\(([^)]*)\)/.exec(style) : null;
+
+                    var value = model.getValue(cell);
+
+                    if (geo == null || m == null || geo.relative || geo.offset != null || !(geo.width > 0) || !(geo.height > 0) ||
+                        /(^|;)labelPosition=(left|right)/.test(style) || /(^|;)verticalLabelPosition=(top|bottom)/.test(style))
+                    {
+                        return;
+                    }
+
+                    try
+                    {
+                        var w = geo.width, h = geo.height;
+                        var root = mxUtils.parseXml(Graph.decompress(m[2])).documentElement;
+                        var b = mxVsdxCodec.getStencilBounds(root, w, h);
+
+                        if (b == null)
+                        {
+                            return;
+                        }
+
+                        var exp = {l: Math.max(0, -b.minX), r: Math.max(0, b.maxX - w), t: Math.max(0, -b.minY), b: Math.max(0, b.maxY - h)};
+
+                        // Ignore overflow from rounding and small decorations
+                        function significant(e, size)
+                        {
+                            return e > 1 && e > 0.02 * size;
+                        };
+
+                        if (!significant(exp.l, w) && !significant(exp.r, w) && !significant(exp.t, h) && !significant(exp.b, h))
+                        {
+                            return;
+                        }
+
+                        // A label with overflow width or fill ignores spacing (mxCellRenderer.legacySpacing):
+                        // it only stays in place if the box keeps its width and grows evenly around
+                        // a vertically centered label (1D arrows grow like that, their placeholder
+                        // box of 1px makes it at most 1px uneven). Markup without text is no label.
+                        var text = (value != null) ? String(value).replace(/<[^>]*>/g, '').replace(/\s+/g, '') : '';
+
+                        if (text.length > 0 && /(^|;)overflow=(width|fill)/.test(style) &&
+                            (exp.l > 0.5 || exp.r > 0.5 || Math.abs(exp.t - exp.b) > 2 ||
+                            /(^|;)verticalAlign=(top|bottom)/.test(style)))
+                        {
+                            return;
+                        }
+
+                        var nw = w + exp.l + exp.r, nh = h + exp.t + exp.b;
+
+                        function round(v)
+                        {
+                            return Math.round(v * 100) / 100;
+                        };
+
+                        // Stencil units are percent of the box
+                        var nodes = root.getElementsByTagName('*');
+
+                        for (var i = 0; i < nodes.length; i++)
+                        {
+                            var n = nodes[i];
+
+                            for (var j = 0; j < n.attributes.length; j++)
+                            {
+                                var a = n.attributes[j], v = parseFloat(a.value);
+
+                                if (!isFinite(v))
+                                {
+                                    continue;
+                                }
+
+                                if (a.name == 'x' || a.name == 'x1' || a.name == 'x2' || a.name == 'x3')
+                                {
+                                    a.value = String(round((v * w / 100 + exp.l) * 100 / nw));
+                                }
+                                else if (a.name == 'y' || a.name == 'y1' || a.name == 'y2' || a.name == 'y3')
+                                {
+                                    a.value = String(round((v * h / 100 + exp.t) * 100 / nh));
+                                }
+                                else if (a.name == 'rx' || (a.name == 'w' && n.nodeName != 'shape'))
+                                {
+                                    a.value = String(round(v * w / nw));
+                                }
+                                else if (a.name == 'ry' || (a.name == 'h' && n.nodeName != 'shape'))
+                                {
+                                    a.value = String(round(v * h / nh));
+                                }
+                            }
+                        }
+
+                        style = style.substring(0, m.index) + m[1] + 'shape=stencil(' + Graph.compress(mxUtils.getXml(root)) + ')' +
+                            style.substring(m.index + m[0].length);
+
+                        // Connection points are relative to the unflipped box
+                        style = style.replace(/(^|;)points=(\[\[[^;]*\]\])/, function(all, pre, pts)
+                        {
+                            try
+                            {
+                                var list = JSON.parse(pts);
+
+                                // Numbers only, so re-serializing cannot turn escaped text into style keys
+                                for (var k = 0; k < list.length; k++)
+                                {
+                                    if (!Array.isArray(list[k]) || list[k].some(function(v) { return typeof v !== 'number' || !isFinite(v); }))
+                                    {
+                                        return all;
+                                    }
+
+                                    list[k][0] = Math.round((list[k][0] * w + exp.l) / nw * 10000) / 10000;
+                                    list[k][1] = Math.round((list[k][1] * h + exp.t) / nh * 10000) / 10000;
+                                }
+
+                                return pre + 'points=' + JSON.stringify(list);
+                            }
+                            catch (e)
+                            {
+                                return all;
+                            }
+                        });
+
+                        // The drawing is mirrored within the box, labels and children are not
+                        var vis = {
+                            l: /(^|;)flipH=1/.test(style) ? exp.r : exp.l, r: /(^|;)flipH=1/.test(style) ? exp.l : exp.r,
+                            t: /(^|;)flipV=1/.test(style) ? exp.b : exp.t, b: /(^|;)flipV=1/.test(style) ? exp.t : exp.b
+                        };
+
+                        var sides = [['Left', vis.l], ['Right', vis.r], ['Top', vis.t], ['Bottom', vis.b]];
+
+                        for (var s = 0; s < sides.length; s++)
+                        {
+                            var side = sides[s][0];
+                            var re = new RegExp('(^|;)spacing' + side + '=([-0-9.eE]+)');
+                            var sp = re.exec(style);
+                            var val = round(((sp != null) ? parseFloat(sp[2]) || 0 : 0) + sides[s][1]);
+
+                            style = (sp != null) ? style.replace(re, '$1spacing' + side + '=' + val) :
+                                style + ((style.charAt(style.length - 1) == ';') ? '' : ';') + 'spacing' + side + '=' + val + ';';
+                        }
+
+                        // Cells rotate about their center, which moves with the box
+                        var rot = /(^|;)rotation=([-0-9.eE]+)/.exec(style);
+                        var rad = ((rot != null) ? parseFloat(rot[2]) || 0 : 0) * Math.PI / 180;
+                        var dcx = (vis.r - vis.l) / 2, dcy = (vis.b - vis.t) / 2;
+                        var cx = geo.x + w / 2 + dcx * Math.cos(rad) - dcy * Math.sin(rad);
+                        var cy = geo.y + h / 2 + dcx * Math.sin(rad) + dcy * Math.cos(rad);
+
+                        var ngeo = geo.clone();
+                        ngeo.x = round(cx - nw / 2);
+                        ngeo.y = round(cy - nh / 2);
+                        ngeo.width = round(nw);
+                        ngeo.height = round(nh);
+                        model.setGeometry(cell, ngeo);
+                        model.setStyle(cell, style);
+
+                        // Children are placed from the parent's unrotated top left corner
+                        // and do not rotate with it: keep their absolute positions
+                        var dx = ngeo.x - geo.x, dy = ngeo.y - geo.y;
+
+                        for (var c = 0; c < model.getChildCount(cell); c++)
+                        {
+                            var child = model.getChildAt(cell, c);
+                            var cgeo = model.getGeometry(child);
+
+                            if (cgeo != null)
+                            {
+                                cgeo = cgeo.clone();
+
+                                // Relative child geometries are fractions of the box
+                                if (cgeo.relative)
+                                {
+                                    cgeo.x = Math.round((cgeo.x * w - dx) / ngeo.width * 10000) / 10000;
+                                    cgeo.y = Math.round((cgeo.y * h - dy) / ngeo.height * 10000) / 10000;
+                                }
+                                else
+                                {
+                                    cgeo.x = round(cgeo.x - dx);
+                                    cgeo.y = round(cgeo.y - dy);
+                                }
+
+                                model.setGeometry(child, cgeo);
+                            }
+                        }
+                    }
+                    catch (e)
+                    {
+                        // Keep the cell as it is
+                    }
+                };
+
+
+                mxVsdxCodec.calculateAbsolutePoint = function (cell)
                 {
                     var x = 0, y = 0;
                     while (cell != null)
@@ -1387,7 +2118,12 @@ var com;
 
                     if (label != null)
                     {
-                        if (rotation !== 0) 
+                        // The rotation that createLabelSubShape gives rotated and
+                        // vertical text blocks already contains the edge rotation
+                        var txtAngle = edgeShape.getValueAsDouble(edgeShape.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_ANGLE), 0);
+
+                        if (rotation !== 0 && !(txtAngle !== 0 && isFinite(txtAngle)) &&
+                            !edgeShape.isVerticalLabel())
                         {
                             var lblRot = label.getStyle().match(/;rotation=(\d+\.*\d+)/);
                             
@@ -1744,6 +2480,20 @@ var com;
                         var pgeo = model.getGeometry(parent);
                         var pStyle = model.getStyle(parent);
                         if (pgeo != null && pStyle != null) {
+                            // Visio mirrors the members of a flipped group (see addGroup)
+                            var flipH = /(^|;)flipH=1(;|$)/.test(pStyle);
+                            var flipV = /(^|;)flipV=1(;|$)/.test(pStyle);
+                            if (flipH || flipV) {
+                                var all = [beginXY, endXY].concat(points);
+                                for (var i = 0; i < all.length; i++) {
+                                    if (flipH) {
+                                        all[i].x = pgeo.width - all[i].x;
+                                    }
+                                    if (flipV) {
+                                        all[i].y = pgeo.height - all[i].y;
+                                    }
+                                }
+                            }
                             var pos = pStyle.indexOf("rotation=");
                             if (pos > -1) {
                                 var pRotation = parseFloat(pStyle.substring(pos + 9, pStyle.indexOf(';', pos)));
@@ -1989,6 +2739,7 @@ var com;
                                         if (hasCells) 
                                         {
                                         	this_1.scaleGraph(shapeGraph, scale);
+                                        	this_1.fitStencilCells(shapeGraph);
                                         	var size = this_1.normalizeGraph(shapeGraph);
                                             this_1.sanitiseGraph(shapeGraph);
                                             if (shapeGraph.getModel().getChildCount(shapeGraph.getDefaultParent()) === 0)
@@ -2537,8 +3288,11 @@ var com;
                                 for (var i = 0; i < colorLength; i++) {
                                     var color = colorList.item(i);
                                     var colorId = color.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.INDEX);
-                                    var colorValue = color.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.RGB);
-                                    /* put */ (this.colorElementMap[colorId] = colorValue);
+                                    // Invalid entries are skipped, so their index falls back to the default palette
+                                    var colorValue = com.mxgraph.io.vsdx.mxVsdxUtils.sanitizeColor(color.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.RGB), null);
+                                    if (colorValue != null) {
+                                        /* put */ (this.colorElementMap[colorId] = colorValue);
+                                    }
                                 }
                                 ;
                             }
@@ -3201,12 +3955,17 @@ var com;
                      * @param {mxPoint} startPoint
                      * @param {number} rotation
                      */
-                    mxVsdxGeometryList.prototype.getRoutingPoints = function (parentHeight, startPoint, rotation) {
+                    mxVsdxGeometryList.prototype.getRoutingPoints = function (parentHeight, startPoint, rotation, xform) {
                         this.sort();
+                        var transformed = (xform != null) ? this.getTransformedRoutingPoints(startPoint, rotation, xform) : null;
+                        if (transformed != null) {
+                            return transformed;
+                        }
                         var points = ([]);
                         /* add */ (points.push(startPoint.clone()));
                         var offsetX = 0;
                         var offsetY = 0;
+                        var rad = (360 - rotation) * Math.PI / 180;
                         for (var index128 = 0; index128 < this.geomList.length; index128++) {
                             var geo = this.geomList[index128];
                             {
@@ -3225,8 +3984,7 @@ var com;
                                                 var y = row.y != null ? row.y : 0;
                                                 var p = new mxPoint(x, y);
                                                 if (rotation !== 0) {
-                                                    rotation = (function (x) { return x * Math.PI / 180; })(360 - rotation);
-                                                    this.rotatedPoint(p, Math.cos(rotation), Math.sin(rotation));
+                                                    this.rotatedPoint(p, Math.cos(rad), Math.sin(rad));
                                                 }
                                                 x = (p.x - offsetX) * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
                                                 x += startPoint.x;
@@ -3242,6 +4000,84 @@ var com;
                                     }
                                 }
                             }
+                        }
+                        return points;
+                    };
+                    /**
+                     * Returns the routing points of a rotated or flipped 1D shape, or of
+                     * a path drawn from the end to the begin point, or null for all other
+                     * shapes (their rows are placed relative to the first MoveTo, which is
+                     * the begin point). The rows go through the shape's transform (Pin,
+                     * LocPin, Angle and flips) relative to the begin point, and a reversed
+                     * path is turned around so that it ends at the end point.
+                     * @param {mxPoint} startPoint the begin point in draw.io coordinates
+                     * @param {number} rotation the rotation of the shape in draw.io degrees
+                     * @param {Object} xform pinX, pinY, locPinX, locPinY, beginX, beginY,
+                     * endX, endY in screen units (y up) and flipX, flipY
+                     */
+                    mxVsdxGeometryList.prototype.getTransformedRoutingPoints = function (startPoint, rotation, xform) {
+                        var conv = com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor_$LI$();
+                        var angle = -rotation * Math.PI / 180;
+                        var cos = Math.cos(angle);
+                        var sin = Math.sin(angle);
+                        var vertices = [];
+                        var first = true;
+
+                        function transform(row) {
+                            var lx = ((row.x != null ? row.x : 0) * conv - xform.locPinX) * (xform.flipX ? -1 : 1);
+                            var ly = ((row.y != null ? row.y : 0) * conv - xform.locPinY) * (xform.flipY ? -1 : 1);
+                            return new mxPoint(xform.pinX + lx * cos - ly * sin, xform.pinY + lx * sin + ly * cos);
+                        };
+
+                        for (var i = 0; i < this.geomList.length; i++) {
+                            var geo = this.geomList[i];
+                            if (!geo.isNoShow()) {
+                                var rows = geo.getRows();
+                                for (var j = 0; j < rows.length; j++) {
+                                    var row = rows[j];
+                                    // Same rows as getRoutingPoints: the first MoveTo starts the path
+                                    if (j == 0 && first && row instanceof com.mxgraph.io.vsdx.geometry.MoveTo) {
+                                        vertices.push(transform(row));
+                                    }
+                                    else if (row instanceof com.mxgraph.io.vsdx.geometry.LineTo) {
+                                        if (vertices.length == 0) {
+                                            vertices.push(null);
+                                        }
+                                        vertices.push(transform(row));
+                                    }
+                                    first = false;
+                                }
+                            }
+                        }
+
+                        if (vertices.length < 2) {
+                            return null;
+                        }
+
+                        var begin = new mxPoint(xform.beginX, xform.beginY);
+                        var end = new mxPoint(xform.endX, xform.endY);
+                        var v0 = vertices[0];
+                        var vn = vertices[vertices.length - 1];
+
+                        function near(a, b) {
+                            return a != null && Math.abs(a.x - b.x) < 1 && Math.abs(a.y - b.y) < 1;
+                        };
+
+                        var reversed = near(v0, end) && near(vn, begin) && !near(v0, begin);
+                        if (!reversed && rotation === 0 && !xform.flipX && !xform.flipY) {
+                            return null;
+                        }
+                        if (reversed) {
+                            vertices.reverse();
+                        }
+                        var points = [startPoint.clone()];
+                        for (var k = 1; k < vertices.length; k++) {
+                            var x = startPoint.x + (vertices[k].x - xform.beginX);
+                            var y = startPoint.y - (vertices[k].y - xform.beginY);
+                            if (!(Math.abs(x) <= 1.0E11 && Math.abs(y) <= 1.0E11)) {
+                                return null;
+                            }
+                            points.push(new mxPoint(Math.round(x * 100.0) / 100.0, Math.round(y * 100.0) / 100.0));
                         }
                         return points;
                     };
@@ -3289,17 +4125,19 @@ var com;
                                 var str_1 = geo.getPathXML(p, shape);
                                 if (!(str_1.length === 0)) {
                                     var geoStyle = this_2.getGeoStyle(geo);
+                                    // The content of the open path is kept apart until closePath
+                                    // (which rewrites it), so the whole string is never sliced
                                     if (lastGeoStyle === -1) {
                                         /* append */ (function (sb) { return sb.str = sb.str.concat("<path" + roundingStr + ">"); })(parsedGeom);
-                                        /* append */ (function (sb) { return sb.str = sb.str.concat(str_1); })(parsedGeom);
+                                        parsedGeom.open = str_1;
                                     }
                                     else if (lastGeoStyle !== geoStyle) {
                                         this_2.closePath(parsedGeom, lastGeoStyle);
                                         /* append */ (function (sb) { return sb.str = sb.str.concat("<path" + roundingStr + ">"); })(parsedGeom);
-                                        /* append */ (function (sb) { return sb.str = sb.str.concat(str_1); })(parsedGeom);
+                                        parsedGeom.open = str_1;
                                     }
                                     else {
-                                        /* append */ (function (sb) { return sb.str = sb.str.concat(str_1); })(parsedGeom);
+                                        parsedGeom.open = (parsedGeom.open || '') + str_1;
                                     }
                                     lastGeoStyle = geoStyle;
                                 }
@@ -3325,7 +4163,13 @@ var com;
                         return geoStyle;
                     };
                     /*private*/ mxVsdxGeometryList.prototype.closePath = function (parsedGeom, geoStyle) {
-                        /* append */ (function (sb) { return sb.str = sb.str.concat("</path>"); })(parsedGeom);
+                        // Filled sections in one path: holes where Visio's even-odd fill has them
+                        var content = parsedGeom.open || '';
+                        parsedGeom.open = '';
+                        if (geoStyle === 1 || geoStyle === 2) {
+                            content = com.mxgraph.io.mxVsdxCodec.evenOddPath(content);
+                        }
+                        /* append */ (function (sb) { return sb.str = sb.str.concat(content + "</path>"); })(parsedGeom);
                         if (geoStyle === 1) {
                             /* append */ (function (sb) { return sb.str = sb.str.concat("<fillstroke/>"); })(parsedGeom);
                         }
@@ -3640,10 +4484,28 @@ var com;
                      * Initialize theme objects from the XML files
                      * @private
                      */
+                    /**
+                     * Returns the theme scheme ID of an a:theme element
+                     * (a:themeElements/a:extLst/a:ext/vt:themeScheme/vt:schemeID), or -1.
+                     */
+                    mxVsdxModel.getThemeSchemeIndex = function (themeElem) {
+                        var schemes = themeElem.getElementsByTagName("vt:themeScheme");
+                        for (var i = 0; i < schemes.length; i++) {
+                            var id = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectFirstChildElement(schemes[i]);
+                            if (id != null && id.nodeName == "vt:schemeID") {
+                                var index = parseInt(id.getAttribute("schemeEnum"));
+                                if (index >= 0) {
+                                    return index;
+                                }
+                            }
+                        }
+                        return -1;
+                    };
                     /*private*/ mxVsdxModel.prototype.initThemes = function () {
                         if (this.xmlDocs != null) {
                             var more = true;
                             var index = 1;
+                            var nameAliases = [];
                             while ((more)) {
                                 var path = com.mxgraph.io.mxVsdxCodec.vsdxPlaceholder + "/theme/theme" + index + ".xml";
                                 var themeDoc = (function (m, k) { return m[k] ? m[k] : null; })(this.xmlDocs, path);
@@ -3657,8 +4519,22 @@ var com;
                                             return o1 === o2;
                                         } })(child.tagName, "a:theme")) {
                                             var theme_1 = new com.mxgraph.io.vsdx.mxVsdxTheme(child);
+                                            // Pages refer to a theme by its theme scheme ID (vt:themeScheme). The
+                                            // index known for the theme's name differs between producers
+                                            // (OfficeIMO's "Office" is 60, the table has 33), and a theme with
+                                            // another theme's colors has that theme's ID in its color scheme,
+                                            // which processTheme reads when neither is known.
+                                            var nameIndex = theme_1.getThemeIndex();
+                                            var schemeIndex = com.mxgraph.io.vsdx.mxVsdxModel.getThemeSchemeIndex(child);
+                                            if (schemeIndex >= 0) {
+                                                theme_1.themeIndex = schemeIndex;
+                                            }
                                             if (theme_1.getThemeIndex() < 0) {
                                                 theme_1.processTheme();
+                                            }
+                                            if (nameIndex >= 0 && nameIndex !== theme_1.getThemeIndex()) {
+                                                // Added after the loop, only where no theme has that scheme ID
+                                                nameAliases.push([nameIndex, theme_1]);
                                             }
                                             var existingTheme = (function (m, k) { if (m.entries == null)
                                                 m.entries = []; for (var i = 0; i < m.entries.length; i++)
@@ -3685,6 +4561,17 @@ var com;
                                 }
                             }
                             ;
+                            for (var a = 0; a < nameAliases.length; a++) {
+                                var taken = false;
+                                var entries = this.themes.entries || [];
+                                for (var i = 0; i < entries.length; i++) {
+                                    taken = taken || entries[i].key === nameAliases[a][0];
+                                }
+                                if (!taken) {
+                                    (this.themes.entries = entries).push({ key: nameAliases[a][0], value: nameAliases[a][1],
+                                        getKey: function () { return this.key; }, getValue: function () { return this.value; } });
+                                }
+                            }
                         }
                     };
                     /**
@@ -4588,7 +5475,47 @@ var com;
                            // console.error(e.message, e);
                         }
                         ;
+                        this.addDefaultVariants();
                         this.isProcessed = true;
+                    };
+                    /**
+                     * Older Visio themes ("Visio Theme Deprecated N") have no variation color
+                     * and style schemes, so the QuickStyle values 100-103 (variation colors
+                     * and styles, used by most themed shapes) found nothing: white fill, line
+                     * and text, and no line width. Visio's deprecated themes that do carry the
+                     * lists use accent1-6 and dk1 as variation colors and fill 2, line 1,
+                     * effect 1, font 1 as variation styles, so those are the defaults.
+                     */
+                    /*private*/ mxVsdxTheme.prototype.addDefaultVariants = function () {
+                        var hasColors = false, hasStyles = false;
+                        for (var v = 0; v < 4; v++) {
+                            for (var i = 0; i < 7; i++) {
+                                hasColors = hasColors || this.variantsColors[v][i] != null;
+                            }
+                            for (var k = 0; k < 4; k++) {
+                                hasStyles = hasStyles || this.variantFillIdx[v][k] > 0 || this.variantLineIdx[v][k] > 0 ||
+                                    this.variantEffectIdx[v][k] > 0 || this.variantFontIdx[v][k] > 0;
+                            }
+                        }
+                        var names = ["accent1", "accent2", "accent3", "accent4", "accent5", "accent6", "dk1"];
+                        // Visio does not enable the gradient of these default fill styles
+                        // (see Style.isFillGradientEnabled)
+                        this.defaultVariantStyles = !hasStyles;
+                        for (var v = 0; v < 4; v++) {
+                            if (!hasColors) {
+                                for (var i = 0; i < 7; i++) {
+                                    this.variantsColors[v][i] = this.baseColors[names[i]] || null;
+                                }
+                            }
+                            if (!hasStyles) {
+                                for (var k = 0; k < 4; k++) {
+                                    this.variantFillIdx[v][k] = 2;
+                                    this.variantLineIdx[v][k] = 1;
+                                    this.variantEffectIdx[v][k] = 1;
+                                    this.variantFontIdx[v][k] = 1;
+                                }
+                            }
+                        }
                     };
                     /*private*/ mxVsdxTheme.prototype.processExtras = function (element) {
                         var exts = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildElements(element);
@@ -4767,12 +5694,23 @@ var com;
                                 else {
                                     return o1 === o2;
                                 } })(nodeName, "a:extLst")) {
-                                    if (children.length === 3) {
-                                        if (this.themeIndex < 0) {
-                                            this.extractThemeIndex(/* get */ children[0]);
+                                    // By element, not position: older ("Deprecated") Visio themes
+                                    // have no variant colors, and used to lose their scheme ID, so
+                                    // pages using them found no theme at all
+                                    for (var e = 0; e < children.length; e++) {
+                                        var vt = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectFirstChildElement(children[e]);
+                                        var vtName = (vt != null) ? vt.nodeName : null;
+                                        if (vtName == "vt:schemeID") {
+                                            if (this.themeIndex < 0) {
+                                                this.extractThemeIndex(children[e]);
+                                            }
                                         }
-                                        this.addBkgndColor(/* get */ children[1]);
-                                        this.addVariantColors(/* get */ children[2]);
+                                        else if (vtName == "vt:bkgnd") {
+                                            this.addBkgndColor(children[e]);
+                                        }
+                                        else if (vtName == "vt:variationClrSchemeLst") {
+                                            this.addVariantColors(children[e]);
+                                        }
                                     }
                                 }
                                 else {
@@ -5199,9 +6137,9 @@ var com;
                             txtColor = this.getStyleColor(fontColorStyle);
                         }
                         var styleVariation = quickStyleVals.getQuickStyleVariation();
-                        
+
                         //TODO This is the best efforts of interpreting the documentation and also this article https://visualsignals.typepad.co.uk/vislog/2013/05/visio-2013-themes-in-the-shapesheet-part-2.html
-                        if ((styleVariation & 2) > 0) 
+                        if ((styleVariation & 2) > 0)
                         {
                         	var bkgHSLClr = this.getStyleColor(8).toHsl();
                         	var txtHSLClr = typeof txtColor == 'object'? txtColor.toHsl() : com.mxgraph.io.vsdx.theme.Color.decodeColorHex(txtColor).toHsl();
@@ -5455,6 +6393,37 @@ var com;
                      */
                     mxVsdxUtils.htmlEntities = function (text) {
                         return text.replace(new RegExp("&", 'g'), "&amp;").replace(new RegExp("\"", 'g'), "&quot;").replace(new RegExp("\'", 'g'), "&prime;").replace(new RegExp("<", 'g'), "&lt;").replace(new RegExp(">", 'g'), "&gt;");
+                    };
+                    /**
+                     * Returns the given color if it is a hexadecimal color (#rgb, #rrggbb or
+                     * #rrggbbaa, surrounding whitespace ignored), or defaultValue otherwise.
+                     * Colors come from the file and are concatenated into style strings and
+                     * label markup, where ";", "=", quotes or CSS would add style keys,
+                     * declarations or attributes.
+                     * @param {string} color Color value from the file.
+                     * @param {string} defaultValue Value to return for anything else.
+                     * @return {string} The trimmed color or defaultValue.
+                     */
+                    mxVsdxUtils.sanitizeColor = function (color, defaultValue) {
+                        color = (color != null) ? String(color).trim() : "";
+                        return /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(color) ? color : defaultValue;
+                    };
+                    /**
+                     * Returns the given font name if it only contains letters, digits, spaces,
+                     * hyphens, underscores, dots and commas (draw.io's VSDX export writes font
+                     * lists), or defaultValue otherwise. Characters from U+00A0 up are allowed
+                     * for localized names: they have no meaning in CSS, HTML or style strings.
+                     * Font names come from the file and are concatenated into label markup
+                     * (font-family:...;), where ";", quotes, "&", "<" or CSS would add
+                     * declarations, attributes or markup. Quotes are not part of real names:
+                     * Visio writes the bare face name and draw.io's export removes them.
+                     * @param {string} name Font name from the file.
+                     * @param {string} defaultValue Value to return for anything else.
+                     * @return {string} The font name or defaultValue.
+                     */
+                    mxVsdxUtils.sanitizeFontName = function (name, defaultValue) {
+                        name = (name != null) ? String(name) : "";
+                        return /^[\w .,\-\u00A0-\uFFFF]*$/.test(name) ? name : defaultValue;
                     };
                     /**
                      * Converts the initial letter  of each word in text to uppercase
@@ -5757,7 +6726,9 @@ var com;
                         ;
                         Color.getHexColor = function(color) {
                             if (typeof color === 'string') {
-                                return color; // assume it's already hex
+                                // Theme colors are parsed into numbers, so strings here are only
+                                // literals, but anything that is not a valid color is dropped
+                                return com.mxgraph.io.vsdx.mxVsdxUtils.sanitizeColor(color, "");
                             }
                             return color.toHexStr();
                         };
@@ -8237,6 +9208,8 @@ var com;
                         /* put */ (Style.styleTypes_$LI$()[com.mxgraph.io.vsdx.mxVsdxConstants.FILL_FOREGND] = com.mxgraph.io.vsdx.mxVsdxConstants.FILL_STYLE);
                         /* put */ (Style.styleTypes_$LI$()[com.mxgraph.io.vsdx.mxVsdxConstants.FILL_FOREGND_TRANS] = com.mxgraph.io.vsdx.mxVsdxConstants.FILL_STYLE);
                         /* put */ (Style.styleTypes_$LI$()[com.mxgraph.io.vsdx.mxVsdxConstants.FILL_PATTERN] = com.mxgraph.io.vsdx.mxVsdxConstants.FILL_STYLE);
+                        // Themed in the Theme style sheet (see isFillGradientEnabled)
+                        /* put */ (Style.styleTypes_$LI$()[com.mxgraph.io.vsdx.mxVsdxConstants.FILL_GRADIENT_ENABLED] = com.mxgraph.io.vsdx.mxVsdxConstants.FILL_STYLE);
                         /* put */ (Style.styleTypes_$LI$()[com.mxgraph.io.vsdx.mxVsdxConstants.SHDW_PATTERN] = com.mxgraph.io.vsdx.mxVsdxConstants.FILL_STYLE);
                         /* put */ (Style.styleTypes_$LI$()[com.mxgraph.io.vsdx.mxVsdxConstants.FILL_STYLE] = com.mxgraph.io.vsdx.mxVsdxConstants.FILL_STYLE);
                         /* put */ (Style.styleTypes_$LI$()["QuickStyleFillColor"] = com.mxgraph.io.vsdx.mxVsdxConstants.FILL_STYLE);
@@ -8581,7 +9554,9 @@ var com;
                                 else {
                                     return o1 === o2;
                                 } })(value, "Themed") && this.style != null) {
-                                    if ((function (o1, o2) { if (o1 && o1.equals) {
+                                    // Themed values that are read from the theme later (the style
+                                    // sheet below a theme cell has literal defaults)
+                                    if (key == com.mxgraph.io.vsdx.mxVsdxConstants.FILL_GRADIENT_ENABLED || (function (o1, o2) { if (o1 && o1.equals) {
                                         return o1.equals(o2);
                                     }
                                     else {
@@ -8685,6 +9660,34 @@ var com;
                      * background color.
                      * @return {string} hexadecimal representation of the color.
                      */
+                    /**
+                     * Returns whether the fill is a gradient: FillGradientEnabled is TRUE, or
+                     * themed (THEMEVAL) and the theme's fill style for the shape is a
+                     * gradient. Visio then draws the gradient whatever FillPattern says.
+                     * @return {boolean}
+                     */
+                    Style.prototype.isFillGradientEnabled = function () {
+                        var enabled = this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FILL_GRADIENT_ENABLED), "0");
+
+                        if (enabled == "1") {
+                            return true;
+                        }
+                        else if (enabled == "Themed") {
+                            var theme = this.getTheme();
+
+                            try {
+                                // The theme is processed lazily: getFillGraientColor sets
+                                // defaultVariantStyles (processTheme), so it goes first
+                                return theme != null && theme.getFillGraientColor(this.getQuickStyleVals()) != null &&
+                                    !theme.defaultVariantStyles;
+                            }
+                            catch (e) {
+                                // Ignores incomplete themes
+                            }
+                        }
+
+                        return false;
+                    };
                     Style.prototype.getFillColor = function () {
                         var fillGradientEnabled = this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FILL_GRADIENT_ENABLED), "0");
                         if ((function (o1, o2) { if (o1 && o1.equals) {
@@ -8717,12 +9720,14 @@ var com;
                             }
                         }
                         var fillPattern = this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FILL_PATTERN), "0");
+                        // A gradient fill is drawn even with FillPattern 0 (a theme's
+                        // gradient over a shape set to no fill)
                         if (fillPattern != null && (function (o1, o2) { if (o1 && o1.equals) {
                             return o1.equals(o2);
                         }
                         else {
                             return o1 === o2;
-                        } })(fillPattern, "0")) {
+                        } })(fillPattern, "0") && !this.isFillGradientEnabled()) {
                             return "none";
                         }
                         else {
@@ -8730,7 +9735,7 @@ var com;
                         }
                     };
                     Style.prototype.getColor = function (elem) {
-                        var color = this.getValue(elem, "");
+                        var color = this.getValue(elem, "").trim();
                         if (!(function (o1, o2) { if (o1 && o1.equals) {
                             return o1.equals(o2);
                         }
@@ -8742,7 +9747,8 @@ var com;
                         })(color, "#")) {
                             color = this.pm.getColor(color);
                         }
-                        return color;
+                        // Invalid colors are treated like a missing value
+                        return (color === "Themed") ? color : com.mxgraph.io.vsdx.mxVsdxUtils.sanitizeColor(color, "");
                     };
                     /**
                      * The TextBkgnd cell can have any value from 0 through 24, or 255. The values 0 and 255 (visTxtBlklOpaque) both indicate a transparent text background.
@@ -8753,7 +9759,7 @@ var com;
                      * @return {string}
                      */
                     Style.prototype.getTextBkgndColor = function (elem) {
-                        var color = this.getValue(elem, "");
+                        var color = this.getValue(elem, "").trim();
                         if (!(function (str, searchString, position) {
                             if (position === void 0) { position = 0; }
                             return str.substr(position, searchString.length) === searchString;
@@ -8771,9 +9777,10 @@ var com;
                             } })(color, "255") || (color.length === 0)) {
                                 return "none";
                             }
-                            return this.pm.getColor(/* valueOf */ new String(/* parseInt */ parseInt(color) - 1).toString());
+                            return com.mxgraph.io.vsdx.mxVsdxUtils.sanitizeColor(this.pm.getColor(/* valueOf */ new String(/* parseInt */ parseInt(color) - 1).toString()), "");
                         }
-                        return color;
+                        // Invalid colors are treated like a missing value
+                        return com.mxgraph.io.vsdx.mxVsdxUtils.sanitizeColor(color, "none");
                     };
                     /**
                      * Returns the line weight of the shape in pixels
@@ -8825,7 +9832,7 @@ var com;
                      */
                     Style.prototype.getTextColor = function (index) {
                         var colorElem = this.getCellElement$java_lang_String$java_lang_String$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.COLOR, index, com.mxgraph.io.vsdx.mxVsdxConstants.CHARACTER);
-                        var color = this.getValue(colorElem, "#000000");
+                        var color = this.getValue(colorElem, "#000000").trim();
                         if ((function (o1, o2) { if (o1 && o1.equals) {
                             return o1.equals(o2);
                         }
@@ -8847,7 +9854,8 @@ var com;
                         })(color, "#")) {
                             color = this.pm.getColor(color);
                         }
-                        return color;
+                        // The color goes into the label markup, invalid colors are treated like a missing value
+                        return com.mxgraph.io.vsdx.mxVsdxUtils.sanitizeColor(color, "#000000");
                     };
                     /**
                      * Returns the top margin of text in pixels.
@@ -8895,7 +9903,8 @@ var com;
                      */
                     Style.prototype.getTextFont = function (index) {
                         var fontElem = this.getCellElement$java_lang_String$java_lang_String$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FONT, index, com.mxgraph.io.vsdx.mxVsdxConstants.CHARACTER);
-                        return this.getValue(fontElem, "");
+                        // The name goes into the label markup, invalid names are treated like a missing value
+                        return com.mxgraph.io.vsdx.mxVsdxUtils.sanitizeFontName(this.getValue(fontElem, ""), "");
                     };
                     /**
                      * Returns the position of one text fragment
@@ -9483,6 +10492,7 @@ var com;
                     	
                         _this.text = null;
                         _this.fields = null;
+                        _this.fieldCells = null;
                         _this.geom = null;
                         _this.imageData = null;
                         _this.theme = null;
@@ -9797,6 +10807,7 @@ var com;
                                     if (!(ix.length === 0)) {
                                         if (this.fields == null) {
                                             this.fields = (Object.create(null));
+                                            this.fieldCells = (Object.create(null));
                                         }
                                         var del = row.getAttribute("Del");
                                         if ((function (o1, o2) { if (o1 && o1.equals) {
@@ -9813,6 +10824,8 @@ var com;
                                         var format = "";
                                         var calendar = "";
                                         var type = "";
+                                        // Cells in this row (an instance row only has the overridden ones)
+                                        var rowCells = (Object.create(null));
                                         for (var index158 = 0; index158 < cells.length; index158++) {
                                             var cell = cells[index158];
                                             {
@@ -9821,9 +10834,12 @@ var com;
                                                 switch ((n)) {
                                                     case "Value":
                                                         value = v;
+                                                        rowCells.value = v;
+                                                        rowCells.unit = cell.getAttribute("U") || "";
                                                         break;
                                                     case "Format":
                                                         format = v;
+                                                        rowCells.format = v;
                                                         break;
                                                     case "Calendar":
                                                         calendar = v;
@@ -9834,54 +10850,13 @@ var com;
                                                 }
                                             }
                                         }
+                                        /* put */ (this.fieldCells[ix] = rowCells);
                                         if (format == 'esc(0)')
                                         {
                                             this.fields[ix] = value;
                                         }
                                         else if (!(value.length === 0)) {
-                                            try {
-                                            	//Date can be in string date format or a number
-                                            	var date = isNaN(value)? new Date(value) : new Date(Shape.VSDX_START_TIME + Math.floor((parseFloat(value) * 24 * 60 * 60 * 1000)));
-
-												if (format == 'c')
-												{
-													if (date.getHours() + date.getMinutes() + date.getSeconds() + date.getMilliseconds() == 0)
-													{
-														format = 'm/d/yyyy';
-													}
-													else
-													{
-														format = 'm/d/yyyy h:MM:ss tt';															
-													}
-												}
-												else if (format == 'ddddd')
-												{
-													format = 'm/d/yyyy';
-												}
-												else if (format == 'dddddd')
-												{
-													format = 'dddd, mmmm dd, yyyy';
-												}
-												else if (format == 'C')
-												{
-													format = 'dddd, mmmm dd, yyyy h:MM:ss tt';
-												}
-												else if (format == 'T')
-												{
-													format = 'h:MM:ss tt';
-												}
-												else
-												{
-                                                	//Our date format function swaps M/m meaning
-                                                	format = format.replace(/am\/pm/g, 'tt').replace(/m/g, '@').replace(/M/g, 'm').replace(/@/g, 'M');
-                                                }
-
-                                               	value = Graph.prototype.formatDate(date, /* replaceAll */ 'UTC:' + format.replace(new RegExp("\\{|\\}", 'g'), ""));
-                                            }
-                                            catch (e) {
-                                            }
-                                            ;
-                                            /* put */ (this.fields[ix] = value);
+                                            /* put */ (this.fields[ix] = this.formatFieldDate(value, format));
                                         }
                                     }
                                 }
@@ -9889,6 +10864,57 @@ var com;
                         }
                         else {
                             _super.prototype.parseSection.call(this, elem);
+                        }
+                    };
+                    /**
+                     * Formats a date value of a Field row with the given Format cell value.
+                     * @param {string} value ISO date or number of days since 1899-12-30
+                     * @param {string} format Visio date format
+                     * @return {string} The formatted date, or the value if it cannot be formatted.
+                     */
+                    Shape.prototype.formatFieldDate = function (value, format) {
+                        try {
+                        	// Visio dates have no time zone: read and format them as UTC
+                        	var date = isNaN(value)? new Date(/^\d{4}-\d\d-\d\dT\d\d:\d\d(:\d\d(\.\d+)?)?$/.test(value) ? value + 'Z' : value) :
+                        		new Date(Shape.VSDX_START_TIME + Math.floor((parseFloat(value) * 24 * 60 * 60 * 1000)));
+
+							if (format == 'c')
+							{
+								if (date.getUTCHours() + date.getUTCMinutes() + date.getUTCSeconds() + date.getUTCMilliseconds() == 0)
+								{
+									format = 'm/d/yyyy';
+								}
+								else
+								{
+									format = 'm/d/yyyy h:MM:ss tt';
+								}
+							}
+							else if (format == 'ddddd')
+							{
+								format = 'm/d/yyyy';
+							}
+							else if (format == 'dddddd')
+							{
+								format = 'dddd, mmmm dd, yyyy';
+							}
+							else if (format == 'C')
+							{
+								format = 'dddd, mmmm dd, yyyy h:MM:ss tt';
+							}
+							else if (format == 'T')
+							{
+								format = 'h:MM:ss tt';
+							}
+							else
+							{
+                            	//Our date format function swaps M/m meaning
+                            	format = format.replace(/am\/pm/g, 'tt').replace(/m/g, '@').replace(/M/g, 'm').replace(/@/g, 'M');
+                            }
+
+                           	return Graph.prototype.formatDate(date, /* replaceAll */ 'UTC:' + format.replace(new RegExp("\\{|\\}", 'g'), ""));
+                        }
+                        catch (e) {
+                        	return value;
                         }
                     };
                     /**
@@ -10092,24 +11118,8 @@ var com;
                      * @return {string} The direction of the text.
                      */
                     Shape.prototype.getTextDirection = function (index) {
-                        var direction = this.getFlags(index);
-                        if ((function (o1, o2) { if (o1 && o1.equals) {
-                            return o1.equals(o2);
-                        }
-                        else {
-                            return o1 === o2;
-                        } })(direction, "0")) {
-                            direction = "ltr";
-                        }
-                        else if ((function (o1, o2) { if (o1 && o1.equals) {
-                            return o1.equals(o2);
-                        }
-                        else {
-                            return o1 === o2;
-                        } })(direction, "1")) {
-                            direction = "rtl";
-                        }
-                        return direction;
+                        // The value goes into the paragraph style, anything but 1 (right to left) is left to right
+                        return (this.getFlags(index) === "1") ? "rtl" : "ltr";
                     };
                     /**
                      * Returns the space between lines in a paragraph.<br/>
@@ -10173,24 +11183,8 @@ var com;
                      */
                     Shape.prototype.getRtlText = function (index) {
                         var rtlElem = this.getCellElement$java_lang_String$java_lang_String$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.RTL_TEXT, index, com.mxgraph.io.vsdx.mxVsdxConstants.PARAGRAPH);
-                        var direction = this.getValue(rtlElem, "ltr");
-                        if ((function (o1, o2) { if (o1 && o1.equals) {
-                            return o1.equals(o2);
-                        }
-                        else {
-                            return o1 === o2;
-                        } })(direction, "0")) {
-                            direction = "ltr";
-                        }
-                        else if ((function (o1, o2) { if (o1 && o1.equals) {
-                            return o1.equals(o2);
-                        }
-                        else {
-                            return o1 === o2;
-                        } })(direction, "1")) {
-                            direction = "rtl";
-                        }
-                        return direction;
+                        // The value goes into the label markup, anything but 1 (right to left) is left to right
+                        return (this.getValue(rtlElem, "0") === "1") ? "rtl" : "ltr";
                     };
                     /**
                      * Checks if the style property of the Char element of index = 'index'
@@ -10997,6 +11991,56 @@ var com;
                         return (ix.length === 0) ? "0" : ix;
                     };
                     /**
+                     * Returns the text of a fld element. Visio writes the formatted display
+                     * text of the field (dates, units, percentages) as the element's content.
+                     * The value computed from the Field row is only used if the element is
+                     * empty, or if the text is inherited from the master while this shape has
+                     * its own Field row (the element then shows the master's value).
+                     * @param {*} elem the fld element
+                     * @return {string} Text of the field or null.
+                     */
+                    VsdxShape.prototype.getFieldText = function (elem) {
+                        var ix = this.getIndex(elem);
+                        var text = elem.textContent;
+                        var own = (this.fieldCells != null) ? this.fieldCells[ix] : null;
+
+                        if (text && (elem.parentNode == this.text || own == null)) {
+                            return text;
+                        }
+
+                        return this.getFieldValue(ix);
+                    };
+                    /**
+                     * Returns the value of the Field row with the given index for display, or
+                     * null if it is empty. Cells that this shape's row does not have come from
+                     * the master's row: an instance that overrides a field only writes the
+                     * Value, and the Format stays inherited. Only dates are formatted, other
+                     * values and unsupported formats (esc(n), MSO formats {<n>}) are returned
+                     * as they are.
+                     * @param {string} ix the index of the Field row
+                     * @return {string} Text of the field or null.
+                     */
+                    VsdxShape.prototype.getFieldValue = function (ix) {
+                        var own = (this.fieldCells != null) ? this.fieldCells[ix] : null;
+                        var inherited = (this.masterShape != null && this.masterShape.fieldCells != null) ?
+                            this.masterShape.fieldCells[ix] : null;
+                        var row = (own != null && own.value != null) ? own : inherited;
+                        var value = (row != null && row.value != null) ? row.value : "";
+                        var format = (own != null && own.format != null) ? own.format :
+                            ((inherited != null && inherited.format != null) ? inherited.format : "");
+
+                        if (value.length == 0) {
+                            return null;
+                        }
+                        // Visio formats are short: a long one would be formatted for every fld element
+                        else if (row.unit == "DATE" && format.length > 0 && format.length <= 256 &&
+                            !/^esc\(\d+\)$/.test(format) && !/^\{<\d+>\}$/.test(format)) {
+                            return this.formatFieldDate(value, format);
+                        }
+
+                        return value;
+                    };
+                    /**
                      * Initialises the text labels
                      * @param {*} children the text Elements
                      */
@@ -11035,12 +12079,15 @@ var com;
                                     {
                                         var elem = node;
                                         fld = this.getIndex(elem);
-                                        break;
+                                        // Added as a text run, empty if the field has no text
+                                        value = this.getFieldText(elem) || "";
                                     }
-                                    ;
+                                    // falls through
                                 case "#text":
                                     {
-                                        value = node.textContent;
+                                        if (value == null) {
+                                            value = node.textContent;
+                                        }
                                         var para = (function (m, k) { return m[k] ? m[k] : null; })(this.paragraphs, pg);
                                         if (para == null) {
                                             para = new com.mxgraph.io.vsdx.Paragraph(value, ch, pg, fld);
@@ -11200,13 +12247,7 @@ var com;
                                 } })(node.nodeName, "fld")) {
                                     var elem = node;
                                     this.fld = this.getIndex(elem);
-                                    var text = null;
-                                    if (this.fields != null) {
-                                        text = (function (m, k) { return m[k] ? m[k] : null; })(this.fields, this.fld);
-                                    }
-                                    if (text == null && this.masterShape != null && this.masterShape.fields != null) {
-                                        text = (function (m, k) { return m[k] ? m[k] : null; })(this.masterShape.fields, this.fld);
-                                    }
+                                    var text = this.getFieldText(elem);
                                     if (text != null)
                                         ret += processLblTxt.call(this, text);
                                 }
@@ -11304,12 +12345,25 @@ var com;
                         var x = px - lpx;
                         var y = parentHeight - ((py) + (h - lpy));
                         if (rotation && (lpy !== h / 2 || lpx !== w / 2)) {
-                            if (this.rotation !== 0) {
-                                var vecX = w / 2 - lpx;
-                                var vecY = lpy - h / 2;
-                                var cos = Math.cos(/* toRadians */ (function (x) { return x * Math.PI / 180; })(360 - this.rotation));
-                                var sin = Math.sin(/* toRadians */ (function (x) { return x * Math.PI / 180; })(360 - this.rotation));
-                                return new mxPoint(x + vecX - (vecX * cos - vecY * sin), (vecX * sin + vecY * cos) + y - vecY);
+                            // Visio turns and flips a shape around its pin, draw.io around the
+                            // center of its box, so the center goes where the shape's own
+                            // transform puts it. Own angle: addGroup turns the members of a
+                            // rotated group itself, while propagateRotation adds the rotation
+                            // of the group to this.rotation.
+                            var own = this.calcRotation() % 360;
+                            own = isFinite(own) ? own : 0;
+                            var flipX = '1' == this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FLIP_X), '0');
+                            var flipY = '1' == this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FLIP_Y), '0');
+                            if (own !== 0 || flipX || flipY) {
+                                // Center relative to the pin (y down), flipped, then turned by
+                                // Visio's angle (counterclockwise)
+                                var vecX = (w / 2 - lpx) * (flipX ? -1 : 1);
+                                var vecY = (lpy - h / 2) * (flipY ? -1 : 1);
+                                var a = (360 - own) * Math.PI / 180;
+                                var cos = Math.cos(a);
+                                var sin = Math.sin(a);
+                                return new mxPoint(px + vecX * cos + vecY * sin - w / 2,
+                                    parentHeight - py - vecX * sin + vecY * cos - h / 2);
                             }
                         }
                         return new mxPoint(x, y);
@@ -11378,18 +12432,15 @@ var com;
                      * @private
                      */
                     /*private*/ VsdxShape.prototype.getGradient = function () {
-                        var fillGradientEnabled = this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FILL_GRADIENT_ENABLED), "0");
-                        if ((function (o1, o2) { if (o1 && o1.equals) {
-                            return o1.equals(o2);
-                        }
-                        else {
-                            return o1 === o2;
-                        } })("1", fillGradientEnabled)) {
+                        // Only explicit gradients: the colors of themed ones (theme stops
+                        // with modifiers) come out too strong (see isFillGradientEnabled)
+                        if (this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FILL_GRADIENT_ENABLED), "0") == "1") {
                             var fillGradient = this.sections["FillGradient"] || (this.masterShape != null ? this.masterShape.sections["FillGradient"] : null);
                             if (fillGradient != null) {
                                 var rows = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildNamedElements(fillGradient.elem, "Row");
-                                var color = this.getColor(fillGradient.getIndexedCell(/* get */ rows[rows.length - 1].getAttribute("IX"), "GradientStopColor"));
-                                if (color != null && !(color.length === 0))
+                                var color = (rows.length > 0) ? this.getColor(fillGradient.getIndexedCell(/* get */ rows[rows.length - 1].getAttribute("IX"), "GradientStopColor")) : null;
+                                // Themed stops take the theme's gradient below
+                                if (color != null && !(color.length === 0) && color != "Themed")
                                     return color;
                             }
                             
@@ -11470,9 +12521,37 @@ var com;
                      * @param {number} parentRotation the rotation of the parent
                      */
                     VsdxShape.prototype.propagateRotation = function (parentRotation) {
+                        // A parent with one flip (a mirror image) turns its members the
+                        // other way: Flip * Rotate(a) = Rotate(-a) * Flip
+                        if (!!this.parentFlipX != !!this.parentFlipY) {
+                            this.rotation = 360 - this.rotation;
+                        }
                         this.rotation += parentRotation;
                         this.rotation %= 360;
                         this.rotation = this.rotation * 100 / 100;
+                    };
+                    /**
+                     * Takes the absolute flips of the parent group, which Visio applies to
+                     * its members (draw.io does not flip the children of a cell). Call
+                     * before propagateRotation.
+                     * @param {com.mxgraph.io.vsdx.VsdxShape} parent the parent group shape
+                     */
+                    VsdxShape.prototype.propagateFlip = function (parent) {
+                        this.parentFlipX = parent.isFlippedX();
+                        this.parentFlipY = parent.isFlippedY();
+                    };
+                    /**
+                     * Returns whether the shape is flipped horizontally on the page: its own
+                     * FlipX combined with the flips of its parent groups.
+                     */
+                    VsdxShape.prototype.isFlippedX = function () {
+                        return (this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FLIP_X), '0') == '1') != !!this.parentFlipX;
+                    };
+                    /**
+                     * Returns whether the shape is flipped vertically on the page (see isFlippedX).
+                     */
+                    VsdxShape.prototype.isFlippedY = function () {
+                        return (this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FLIP_Y), '0') == '1') != !!this.parentFlipY;
                     };
                     /**
                      * Returns the top spacing of the label in pixels.<br/>
@@ -11704,22 +12783,11 @@ var com;
                         if (direction !== mxConstants.DIRECTION_EAST) {
                             /* put */ (this.styleMap[mxConstants.STYLE_DIRECTION] = direction);
                         }
-                        var flibX = this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FLIP_X), "0");
-                        var flibY = this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FLIP_Y), "0");
-                        if ((function (o1, o2) { if (o1 && o1.equals) {
-                            return o1.equals(o2);
-                        }
-                        else {
-                            return o1 === o2;
-                        } })("1", flibX)) {
+                        // Flips on the page (own flips combined with those of the parent groups)
+                        if (this.isFlippedX()) {
                             /* put */ (this.styleMap[mxConstants.STYLE_FLIPH] = "1");
                         }
-                        if ((function (o1, o2) { if (o1 && o1.equals) {
-                            return o1.equals(o2);
-                        }
-                        else {
-                            return o1 === o2;
-                        } })("1", flibY)) {
+                        if (this.isFlippedY()) {
                             /* put */ (this.styleMap[mxConstants.STYLE_FLIPV] = "1");
                         }
 
@@ -11841,7 +12909,22 @@ var com;
                         if (lWeight < 1) {
                             lWeight *= 2;
                         }
+                        // A custom line pattern (USE() of a pattern master, above the 23
+                        // built-in ones) repeats the drawing of the pattern along the line at
+                        // the size of the line weight. draw.io has no such patterns, and a
+                        // line that wide covers everything around it (a flexible duct is
+                        // 24 in wide), so it is drawn thin
+                        if (this.isCustomLinePattern()) {
+                            lWeight = Math.min(lWeight, 1);
+                        }
                         return lWeight;
+                    };
+                    /**
+                     * Returns whether the line uses a custom pattern (a pattern master).
+                     */
+                    VsdxShape.prototype.isCustomLinePattern = function () {
+                        var linePattern = this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.LINE_PATTERN), "0");
+                        return linePattern != "Themed" && parseInt(linePattern) >= 24;
                     };
                     /**
                      * Returns the start arrow size.<br/>
@@ -12595,7 +13678,18 @@ var com;
                      */
                     VsdxShape.prototype.getRoutingPoints = function (parentHeight, startPoint, rotation) {
                         if (this.geomList != null) {
-                            return this.geomList.getRoutingPoints(parentHeight, startPoint, rotation);
+                            var consts = com.mxgraph.io.vsdx.mxVsdxConstants;
+                            var self = this;
+                            var cell = function (name) {
+                                return self.getScreenNumericalValue$org_w3c_dom_Element$double(self.getCellElement$java_lang_String(name), 0);
+                            };
+                            var xform = {pinX: this.getPinX(), pinY: this.getPinY(),
+                                locPinX: this.getLocPinX(), locPinY: this.getLocPinY(),
+                                beginX: cell(consts.BEGIN_X), beginY: cell(consts.BEGIN_Y),
+                                endX: cell(consts.END_X), endY: cell(consts.END_Y),
+                                flipX: '1' == this.getValue(this.getCellElement$java_lang_String(consts.FLIP_X), '0'),
+                                flipY: '1' == this.getValue(this.getCellElement$java_lang_String(consts.FLIP_Y), '0')};
+                            return this.geomList.getRoutingPoints(parentHeight, startPoint, rotation, xform);
                         }
                         return null;
                     };
@@ -13409,6 +14503,10 @@ var com;
                         var txtPinXV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_PIN_X), txtLocPinXV);
                         var txtPinYV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_PIN_Y), txtLocPinYV);
                         var txtAngleV = this.getValueAsDouble(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_ANGLE), 0);
+                        if (!isFinite(txtAngleV)) {
+                            txtAngleV = 0;
+                        }
+                        var pinAngle = txtAngleV;
                         var textLabel = this.getTextLabel(txtWV < 1 || txtHV < 1);
                         if (textLabel != null && !(textLabel.length === 0)) {
                         	var styleMap = mxUtils.clone(this.getStyleMap()) || {};
@@ -13424,7 +14522,16 @@ var com;
                             /* remove */ delete styleMap["shape"];
                             /* remove */ delete styleMap["image"];
                             /* remove */ delete styleMap["points"];
-                            
+                            // Visio never mirrors text: one flip mirrors the text angle, two
+                            // flips cancel out (draw.io ignores the flips of the label cell)
+                            var flipH = styleMap[mxConstants.STYLE_FLIPH] == '1';
+                            var flipV = styleMap[mxConstants.STYLE_FLIPV] == '1';
+
+                            if (flipH != flipV)
+                            {
+                                txtAngleV = -txtAngleV;
+                            }
+
                             if (this.isVerticalLabel())
                         	{
                             	txtAngleV += Math.PI + 0.01; //TODO Added 0.01 since we don't override the parent rotation if labRot is zero. Why?
@@ -13440,14 +14547,31 @@ var com;
                                 }
                             }
                             var style = "text;" + com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "=");
-                            var y = parent.getGeometry().height - (txtPinYV + txtHV - txtLocPinYV);
-                            var x = txtPinXV - txtLocPinXV;
+                            // Visio rotates the text block by TxtAngle around TxtPin (the
+                            // TxtLocPin point), draw.io rotates the label around its center,
+                            // so the center is placed where the rotation around the pin puts it
+                            var pgeo = parent.getGeometry();
+                            var dx = txtWV / 2 - txtLocPinXV;
+                            var dy = txtHV / 2 - txtLocPinYV;
+                            var cos = Math.cos(pinAngle);
+                            var sin = Math.sin(pinAngle);
+                            var cx = txtPinXV + dx * cos - dy * sin;
+                            var cy = pgeo.height - (txtPinYV + dx * sin + dy * cos);
+                            // draw.io does not mirror children with a flipped parent
+                            if (flipH) {
+                                cx = pgeo.width - cx;
+                            }
+                            if (flipV) {
+                                cy = pgeo.height - cy;
+                            }
+                            var x = cx - txtWV / 2;
+                            var y = cy - txtHV / 2;
                 			//FIXME one file has txtPinX/Y values extremely high which cause draw.io to hang (see getLblEdgeOffset)
-                            if (Math.abs(x) > 1.0E11 || Math.abs(y) > 1.0E11)
+                            // Written to also reject NaN (e.g. an infinite pin times a zero sine)
+                            if (!(Math.abs(x) <= 1.0E11 && Math.abs(y) <= 1.0E11))
                                 return null;
                             if (rotation > 0) {
                                 var tmpGeo = new mxGeometry(x, y, txtWV, txtHV);
-                                var pgeo = parent.getGeometry();
                                 var hw = pgeo.width / 2;
                                 var hh = pgeo.height / 2;
                                 com.mxgraph.online.Utils.rotatedGeometry(tmpGeo, rotation, hw, hh);
@@ -13470,19 +14594,51 @@ var com;
                 			view.updateEdgeBounds(state);
                 			var mxOffset = view.getPoint(state);
                             var p0 = points[0];
-                            var pe = points[points.length - 1];
                             var txtWV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_WIDTH), this.getWidth());
                             var txtHV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_HEIGHT), this.getHeight());
                             var txtLocPinXV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_LOC_PIN_X), 0);
                             var txtLocPinYV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_LOC_PIN_Y), 0);
                             var txtPinXV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_PIN_X), 0);
                             var txtPinYV = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_PIN_Y), 0);
-                            var y = (this.getHeight() - (p0.y - pe.y)) / 2 + p0.y - mxOffset.y - (txtPinYV - txtLocPinYV + txtHV / 2);
-                            var x = txtPinXV - txtLocPinXV + txtWV / 2 + (p0.x - mxOffset.x);
+                            var txtAngle = this.getValueAsDouble(this.getShapeNode(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_ANGLE), 0);
+                            // Center of the text block in local coordinates (y up), rotated
+                            // by TxtAngle around its pin (see createLabelSubShape)
+                            var cx = txtPinXV - txtLocPinXV + txtWV / 2;
+                            var cy = txtPinYV - txtLocPinYV + txtHV / 2;
+                            if (txtAngle !== 0 && isFinite(txtAngle)) {
+                                var dx = txtWV / 2 - txtLocPinXV;
+                                var dy = txtHV / 2 - txtLocPinYV;
+                                cx = txtPinXV + dx * Math.cos(txtAngle) - dy * Math.sin(txtAngle);
+                                cy = txtPinYV + dx * Math.sin(txtAngle) + dy * Math.cos(txtAngle);
+                            }
+                            var flipX = '1' == this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FLIP_X), '0');
+                            var flipY = '1' == this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.FLIP_Y), '0');
+                            var rotation = this.getRotation();
+                            var x, y;
+                            if (rotation !== 0 || flipX || flipY) {
+                                // A rotated or flipped 1D shape transforms its local frame, so
+                                // the center is placed with Pin, LocPin, Angle and the flips,
+                                // relative to the begin point (the first routing point)
+                                var lx = (cx - this.getLocPinX()) * (flipX ? -1 : 1);
+                                var ly = (cy - this.getLocPinY()) * (flipY ? -1 : 1);
+                                var angle = -rotation * Math.PI / 180;
+                                var bx = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.BEGIN_X), 0);
+                                var by = this.getScreenNumericalValue$org_w3c_dom_Element$double(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.BEGIN_Y), 0);
+                                x = p0.x + this.getPinX() + lx * Math.cos(angle) - ly * Math.sin(angle) - bx - mxOffset.x;
+                                y = p0.y - (this.getPinY() + lx * Math.sin(angle) + ly * Math.cos(angle) - by) - mxOffset.y;
+                            }
+                            else {
+                                // The local frame starts at the begin point and its box is
+                                // centered between the end points (lines and connectors)
+                                var pe = points[points.length - 1];
+                                y = (this.getHeight() - (p0.y - pe.y)) / 2 + p0.y - mxOffset.y - cy;
+                                x = cx + (p0.x - mxOffset.x);
+                            }
                 			//FIXME one file has txtPinX/Y values extremely high which cause draw.io to hang
                 			//			<Cell N='TxtPinX' V='-1.651384506429589E199' F='SETATREF(Controls.TextPosition)'/>
                 			//			<Cell N='TxtPinY' V='1.183491078740126E185' F='SETATREF(Controls.TextPosition.Y)'/>
-                            if (Math.abs(x) > 1.0E11)
+                            // Written to also reject NaN
+                            if (!(Math.abs(x) <= 1.0E11 && Math.abs(y) <= 1.0E11))
                                 return null;
                             return new mxPoint(Math.floor(Math.round(x * 100) / 100), Math.floor(Math.round(y * 100) / 100));
                         }

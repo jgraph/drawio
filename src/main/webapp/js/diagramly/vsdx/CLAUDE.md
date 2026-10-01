@@ -4,14 +4,37 @@
 
 This folder implements complete **VSDX (Microsoft Visio 2013+ XML)** file format support for draw.io. VSDX files are ZIP archives containing XML documents following the Open Packaging Conventions (OPC) standard.
 
-**4 files, ~893 KB total, ~15,600 lines of code.**
+**4 JavaScript files, ~940 KB total, ~16,500 lines of code.** The import
+also uses code outside this folder (see Related code below).
+
+**Testing — run before and after every importer change:** the regression
+suite in [test/vsdx/import](../../../../../../test/vsdx/import/README.md)
+(drawio-dev only; `test/vsdx/` is not mirrored to the public repo) imports
+~317 files (Visio-authored feature files, stencil sheets, `.vssx` libraries,
+crafted security/robustness files, licensed public samples) with the
+working-copy `importer.js`, diffs against golden snapshots, scores renders
+against Visio's own output and scans for injected active content. The files
+and snapshots live in the private test set repository
+`jgraph/drawio-visio-test` (`vsdx-import/`), cloned next to drawio.
+`cd test/vsdx/import && npm install && node run.js` (then `--view`,
+`--update`). A bug fix comes with a reproducing test (see that folder's
+CLAUDE.md); snapshot changes are committed in drawio-visio-test.
 
 | File | Lines | Size | Purpose |
 |------|-------|------|---------|
-| `importer.js` | 13,208 | 782 KB | VSDX/VSSX → draw.io import (JSweet-generated from Java) |
+| `importer.js` | ~14,000 | ~830 KB | VSDX/VSSX → draw.io import (JSweet-generated from Java) |
 | `VsdxExport.js` | 993 | 73 KB | draw.io → VSDX export |
 | `mxVsdxCanvas2D.js` | 1,153 | 30 KB | Canvas adapter capturing shape rendering as VSDX geometry |
 | `bmpDecoder.js` | 287 | 9 KB | BMP image format decoder for embedded images |
+
+### Related code outside this folder
+
+| Where | Role |
+|-------|------|
+| `EditorUi.importVisio` / `doImportVisio` (`../EditorUi.js`) | App entry points. Binary `.vsd`/`.vss`/`.vst` files are first converted to Visio XML in the browser (`convertBinaryVisio`, `js/vsd/drawio-vsd.min.js`); `.vdx` and files the converter cannot read go to `VSS_CONVERT_URL`. |
+| `../emf/emf-svg.js` | `window.emfToSvg`: EMF → SVG for embedded images (bundled in `extensions.min.js`) |
+| `vsdxImporter.html` + `js/vsdxImporter.js` (webapp root) | Standalone importer page. Nothing in this repo loads it, but drawio-desktop's command-line export does (messages `import` → `import-success` / `import-error`), and so do headless tools that use the hosted page (file input → `#doneDiv`, `window.importResXML`). Keep both contracts. |
+| `connect/vsdx/importer.js` | `convertVSDXtoMX`, a reduced `importVisio` for the Confluence/Jira connector pages; loads `extensions.min.js` on first use |
 
 ---
 
@@ -25,7 +48,7 @@ This folder implements complete **VSDX (Microsoft Visio 2013+ XML)** file format
 │                   ├── JSZip extraction                 │
 │                   ├── XML parsing (docData map)        │
 │                   ├── Media extraction (mediaData map) │
-│                   │     ├── EMF → PNG (server-side)    │
+│                   │     ├── EMF → SVG (client-side)    │
 │                   │     ├── BMP → JPEG (BmpDecoder)    │
 │                   │     └── PNG/JPEG → base64          │
 │                   │                                   │
@@ -563,10 +586,9 @@ Master shapes provide template geometry and styling. Instance shapes inherit fro
 - **DOMPurify**: HTML sanitization (optional, for text processing)
 
 ### Browser APIs
-- Canvas 2D Context (SVG → PNG rendering)
-- XMLHttpRequest (image fetching, EMF conversion)
+- Canvas 2D Context (import: BMP → JPEG, image cropping; export: SVG → PNG)
+- XMLHttpRequest (export only: fetches image URLs to embed)
 - DOMParser / mxUtils.parseXml (XML parsing)
-- FileReader (Blob → base64 for EMF conversion)
 - Typed Arrays (Uint8Array, Uint8ClampedArray, DataView)
 
 ---
@@ -582,6 +604,164 @@ Master shapes provide template geometry and styling. Instance shapes inherit fro
   make the WHOLE encoded model unparseable — library entries and pages silently
   came back empty (seen with VisioCafe Dell stencils). Names are reduced to an
   NCName subset; do not bypass the sanitizer when adding attributes.
+- **Colors from the file are validated** (`mxVsdxUtils.sanitizeColor`): cell
+  values and the document color table (`ColorEntry RGB`) are concatenated into
+  style strings and label markup, so a value like `#F00;shape=image` or
+  `#000" onmouseover="…` used to add style keys, CSS or attributes. Only
+  `#rgb`/`#rrggbb`/`#rrggbbaa` pass; anything else becomes the missing-value
+  default. Read colors through `Style.getColor`/`getTextColor`/`getTextBkgndColor`
+  (or `sanitizeColor`), never `getValue` directly. Theme colors are parsed into
+  numbers and are safe. Tests: `security/X02`, `X10`, `X11`.
+- **Font names and text direction are validated** (`mxVsdxUtils.sanitizeFontName`
+  in `Style.getTextFont`, `getRtlText`, `getTextDirection`): the label HTML is
+  built by concatenation (`<font style="…">` in `getTextCharFormated`,
+  `<p style="…">` via `insertAttributes`), and `Graph.sanitizeHtml` keeps style
+  attributes, so CSS injected there survives rendering (one cell's
+  `position:fixed` covered the whole diagram). Font names may only contain
+  letters, digits, space, `-_.,` and characters from U+00A0 up (localized
+  names); anything else becomes `""`, which leaves the cell's default font.
+  Direction is `rtl` for `1` and `ltr` for anything else. Every other value in
+  these style attributes is a number or an enum; keep new ones that way.
+  (`getRtlText` reads RTLText from the Paragraph section, although Visio writes
+  it in Character rows.) Tests: `security/X01`, `X12`.
+- **Text fields show Visio's display text** (`VsdxShape.getFieldText`): Visio
+  writes the formatted text of each field (dates, units, percentages) as the
+  `<fld>` element's content, while the Field row's Value holds the raw value
+  (ISO date, inches, radians). The label uses the `<fld>` text, escaped like any
+  text run (`processLblTxt`). The Field row is only a fallback
+  (`getFieldValue`): for an empty `<fld>`, and for an instance that inherits the
+  master's text but has its own Field row (that `<fld>` shows the master's
+  value, Visio shows the instance's). Such a row only holds the overridden
+  Value, so missing cells (Format) come from the master's row
+  (`parseSection` keeps the raw cells in `fieldCells`). Only DATE values are
+  formatted, as UTC (Visio dates have no time zone); numbers, strings and
+  formats the fallback does not know (`esc(n)`, `{<n>}`) are shown raw.
+  `initLabels`/`createHybridLabel` (non-HTML labels) have no callers.
+  Tests: `features/E05`, `R02`.
+- **Themes are keyed by their theme scheme ID** (`initThemes`,
+  `mxVsdxModel.getThemeSchemeIndex`: `vt:themeScheme/vt:schemeID` in the
+  theme's extension list), which is what a page's `ThemeIndex` refers to. The
+  `themesIds` name table is only a fallback, registered as an alias where no
+  theme has that ID: producers disagree on it (OfficeIMO's "Office" is 60, the
+  table says 33). The color scheme's ID is not the theme's when a theme uses
+  another theme's colors (Type-C-HW1: "Daybreak" 39 with "Parallel" colors
+  40). Themes are still processed lazily, which the purity tie-break between
+  two copies of a theme depends on. Tests: `external/officeimo/*`,
+  `external/msdocs-windows-drivers/Type-C-HW1.png`, `ConnexC`.
+- **Older themes ("Visio Theme Deprecated N") have no variation schemes**:
+  their color scheme extension list has no `vt:variationClrSchemeLst`, and
+  `processColors` reads the entries by element name (it used to require
+  exactly three, so these themes lost their scheme ID and no page found its
+  theme). `addDefaultVariants` then fills the missing variation colors
+  (accent1-6, dk1) and styles (fill 2, line 1, effect 1, font 1), the values
+  Visio's deprecated themes with lists use, so QuickStyle values 100-103 do
+  not resolve to white. Tests: `features/I01`, `I02`, `Q01`, `Q03`.
+- **Stencils that draw outside the shape's box are fitted** (`fitStencilCells` /
+  `mxVsdxCodec.fitStencilBounds`, after `scaleGraph`): 1D block arrows have
+  Height 0 and draw around their begin-end line, callout leaders leave the box,
+  so the stencil drew outside its cell, where exports cropped it. The cell grows
+  to the stencil's extent (curves and arcs sampled, degenerate arcs ignored) and
+  the drawing, label area (spacing), connection points and children keep their
+  positions, with flips and rotation. It runs after scaling because the spacing
+  it adds is in final pixels. Cells whose own label ignores spacing
+  (`overflow=width|fill`, `legacySpacing`) are skipped unless the box only grows
+  evenly around a centered label. Tests: `libraries/arrows_u`, `basic_u`.
+- **Rotated text blocks turn around TxtLocPin** (`createLabelSubShape`): Visio
+  rotates the text block by `TxtAngle` around its pin, draw.io rotates the label
+  cell around its center, so the label's center is placed where the rotation
+  around the pin puts it (callouts pin the block at an edge). Visio never
+  mirrors text: one flip (FlipX xor FlipY) mirrors the text angle, two flips
+  cancel out, and the block's position is mirrored across the shape because
+  draw.io does not mirror children with a flipped parent. Tests:
+  `features/F03`, `libraries/calout_u`, `eefund_u`,
+  `external/msdocs-windows-drivers/device-descriptors` (side brackets).
+- **Edge labels of rotated or flipped 1D shapes use the shape transform**
+  (`getLblEdgeOffset`): the text center goes through Pin, LocPin, Angle and
+  the flips, relative to the begin point, because a rotated 1D shape turns its
+  local frame (lines drawn at an angle, callouts with Angle 90 whose leader is
+  the edge). Unrotated 1D shapes keep the old mapping (local frame starting at
+  the begin point, box centered between the end points), which is exact for
+  dynamic connectors and keeps their offsets unchanged. `addEdgeSublabel`
+  only adds the edge rotation to labels without TxtAngle or vertical text:
+  `createLabelSubShape` already includes it in theirs. Tests: `features/F03`
+  (1D items), `C04` (diagonal line), `libraries/calout_u` (text callouts),
+  `external/msdocs-windows-drivers/MALT`, `BlockDiagram`.
+- **Routing points of rotated, flipped or reversed 1D shapes use the shape
+  transform** (`getTransformedRoutingPoints`): every row goes through Pin,
+  LocPin, Angle and the flips, relative to the begin point. The old path
+  rotated each row but not the MoveTo it subtracted, and reassigned its
+  rotation variable inside the loop, so only the first segment of a rotated
+  multi-segment 1D shape was right. A path drawn from the end to the begin
+  point (callout leaders) is reversed, so that its last point is the end point
+  that the edge's target replaces and `getLblEdgeOffset` measures the label
+  from the same path the edge draws. Unrotated forward paths keep the
+  MoveTo-relative mapping (dynamic connectors). Tests: `stencils/connec_u`,
+  `libraries/arrows_u` (Multi-Line), `libraries/calout_u`, `stencils/chart_u`,
+  `external/msdocs-windows-drivers/MALT`, `Isoch-app`, `BlockDiagram`.
+- **Holes: Visio fills with the even-odd rule, stencils with nonzero**
+  (`mxVsdxCodec.evenOddPath`, called by `closePath` for filled paths): the
+  filled geometry sections of a shape are written into one stencil path, so an
+  inner section that turns the same way as the one around it was filled
+  instead of being a hole (frames, donuts, the No symbol, embellishment
+  borders). Subpaths are sampled (`mxVsdxCodec.sampleArc`, shared with
+  `getStencilBounds`), nested by containment (bounding box, then 2 of 3 points
+  inside), and a subpath that turns like its smallest container is reversed
+  (curves swap their control points, arcs flip their sweep flag). Crossing
+  subpaths are not emulated, and the work is capped (200 subpaths, 20000
+  points). Tests: `features/A01` (Hole: 2 sections), `stencils/embell_u`,
+  `libraries/calout_u`, `features/B01`.
+- **A theme gradient fills a shape even with FillPattern 0**
+  (`Style.isFillGradientEnabled`): Visio draws the gradient whenever
+  FillGradientEnabled is TRUE, also when it comes from the theme (THEMEVAL in
+  the Theme style sheet), whatever FillPattern says. FillGradientEnabled now
+  inherits from the fill style sheets (`styleTypes`) and, like FillForegnd,
+  keeps its themed value (`getCellElement` would otherwise read the literal 0
+  of the No Style sheet below the Theme sheet); it is on when the theme's fill
+  style for the shape is a gradient, except for themes whose variation styles
+  are defaults (`defaultVariantStyles`, deprecated themes: Visio says FALSE).
+  Such shapes get their solid theme fill; `getGradient` still only draws
+  gradients set in the file, as theme gradient stops come out too strong
+  (BTP-Drawings, azure-canadapubsec dropped 8-18 points with them). Verified
+  per theme in Visio for `features/I01`. Tests: `features/Q08` (background
+  frame, also shown on the foreground pages), `I01`, `I03`.
+- **Custom line patterns are drawn thin** (`isCustomLinePattern`,
+  `getLineWidth`): a LinePattern above the 23 built-in ones is `USE()` of a
+  pattern master, whose drawing Visio repeats along the line at the size of
+  the line weight (HVAC flexible ducts: two duct walls 24 in apart). draw.io
+  has no such patterns, and a stroke that wide covered the page, so the width
+  is capped at 1 (still dashed). Test: `stencils/hvacd_u`.
+- **Members of flipped groups are mirrored** (`propagateFlip`,
+  `isFlippedX`/`isFlippedY`): Visio applies a group's flips to its members,
+  draw.io does not flip the children of a cell. Members take the absolute
+  flips of their parent group, and their style gets their own flips combined
+  with those. Under one flip a member turns the other way, so
+  `propagateRotation` negates its own angle (Flip * Rotate(a) = Rotate(-a) *
+  Flip). `addGroup` mirrors the vertex members inside the group's box before
+  it turns them with the group, and `rotateChildEdge` mirrors edge points.
+  `getOriginPoint` uses the own flips (the shape's transform inside its
+  parent), `createLabelSubShape` the style's absolute flips. Tests:
+  `features/F02` (Group FlipX, Group FlipY, Group FlipX + 45deg),
+  `stencils/block3_u`, `blockp_u`, `hvacd_u` (elbow duct).
+- **Shapes turn and flip around their pin** (`getOriginPoint`): Visio applies
+  Angle and FlipX/FlipY around the pin (LocPin), draw.io around the center of
+  the cell, so a shape whose LocPin is not its center is placed at the center
+  that its own transform gives (center minus LocPin, flipped, then turned by
+  Angle). The old formula was only right for LocPinX = Width/2 and ignored
+  flips. It takes the shape's own Angle (`calcRotation`): `propagateRotation`
+  adds the rotation of the parent group to `this.rotation`, and `addGroup`
+  turns the members of a rotated group itself. Tests: `features/F01` (LocPin
+  bottom-left, 45deg), `libraries/wall_u` (doors: flipped arcs, leaves turned
+  around their hinge), `stencils/cyclediag_u`, `blockp_u`.
+- **Group geometry is drawn in front of the members** (`addGroupGeometryInFront`):
+  Visio's default group `DisplayMode` 2 draws a group's own geometry over its
+  members (1 draws it behind), while draw.io draws a parent below its
+  children. For DisplayMode 2 the group's drawing moves to a child with the
+  ID `<group id>-geo`, added after the members and before the label; the group
+  keeps its connection points, label and container role without fill and
+  stroke. The derived ID keeps the IDs of the following cells unchanged.
+  Tests: `features/G01` (ConvertToGroup item: the member is hidden),
+  `libraries/sdcont_u` (Translucent: two 60% transparent layers),
+  `stencils/sdcont_u`, `libraries/basic_u`.
 - **Image crop detection uses an epsilon** (`getForm`, `cropEps = 1e-6`): stencil
   files carry FP noise (ImgHeight vs Height differing in the 13th decimal), and
   an exact compare used to send those into the async crop path. Cropping is

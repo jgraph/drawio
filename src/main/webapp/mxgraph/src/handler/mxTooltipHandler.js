@@ -65,6 +65,14 @@ mxTooltipHandler.prototype.delay = null;
 mxTooltipHandler.prototype.ignoreTouchEvents = true;
 
 /**
+ * Variable: showOnPenHover
+ *
+ * Specifies if tooltips should be shown for hovering pens (eg. Apple Pencil
+ * hover) if <ignoreTouchEvents> is true. Default is true.
+ */
+mxTooltipHandler.prototype.showOnPenHover = true;
+
+/**
  * Variable: hideOnHover
  * 
  * Specifies if the tooltip should be hidden if the mouse is moved over the
@@ -230,15 +238,32 @@ mxTooltipHandler.prototype.resetTimer = function()
 };
 
 /**
+ * Function: isPenHoverEvent
+ *
+ * Returns true if the given pen event is a move without contact.
+ */
+mxTooltipHandler.prototype.isPenHoverEvent = function(evt)
+{
+	return evt.type == 'pointermove' && evt.buttons == 0;
+};
+
+/**
  * Function: reset
- * 
+ *
  * Resets and/or restarts the timer to trigger the display of the tooltip.
  */
 mxTooltipHandler.prototype.reset = function(me, restart, state)
 {
-	if (!this.ignoreTouchEvents || mxEvent.isMouseEvent(me.getEvent()))
+	var evt = me.getEvent();
+	var pen = this.showOnPenHover && mxEvent.isPenEvent(evt);
+
+	if (!this.ignoreTouchEvents || mxEvent.isMouseEvent(evt) || pen)
 	{
 		this.resetTimer();
+
+		// Pens only start the timer while hovering (no contact)
+		restart = restart && (!this.ignoreTouchEvents || !pen ||
+			this.isPenHoverEvent(evt));
 		state = (state != null) ? state : this.getStateForEvent(me);
 		
 		if (restart && this.isEnabled() && state != null && (this.div == null ||

@@ -118,7 +118,8 @@ if (mxIsElectron)
 }
 
 // TODO Add support for loading math from a local folder
-Editor.initMath((remoteMath? 'https://app.diagrams.net/' : '') + 'math4/es5/startup.js');
+// Same single file as the default in Editor.initMath
+Editor.initMath((remoteMath? 'https://app.diagrams.net/' : '') + 'math4/es5/drawio-mathjax.min.js');
 
 // Marks individual font and CSS URLs as preloaded
 var fontPreload = {};
@@ -158,74 +159,6 @@ function exportUsesMath(xml)
 	}
 };
 
-// Returns the HTML of every cell label in the given diagram XML that contains
-// math delimiters, across all pages, as an array of individual label strings.
-// Used to warm up MathJax (load the TeX packages and font chunks those formulas
-// need) before the crop bounds are measured, so the synchronous typeset in
-// renderPage succeeds rather than throwing MathJax's "retry" for a not-yet-
-// loaded package. Kept per-label (not concatenated) so each label is sanitized
-// and typeset in its own element, mirroring the per-cell render — a bare '<' in
-// one label (e.g. the TeX relation in "$x<y$") cannot merge into the next label
-// and realign its math delimiters. [jgraph/drawio#5564]
-function collectMathLabels(xml)
-{
-	var labels = [];
-
-	try
-	{
-		var node = mxUtils.parseXml(xml).documentElement;
-		var models = [];
-
-		if (node.nodeName == 'mxfile')
-		{
-			var diagrams = node.getElementsByTagName('diagram');
-
-			for (var i = 0; i < diagrams.length; i++)
-			{
-				var model = Editor.parseDiagramNode(diagrams[i]);
-
-				if (model != null)
-				{
-					models.push(model);
-				}
-			}
-		}
-		else
-		{
-			models.push(node);
-		}
-
-		for (var i = 0; i < models.length; i++)
-		{
-			// Reads both mxCell value and object/UserObject label attributes
-			var elts = models[i].getElementsByTagName('*');
-
-			for (var j = 0; j < elts.length; j++)
-			{
-				var value = (elts[j].getAttribute != null) ? elts[j].getAttribute('value') : null;
-				var label = (elts[j].getAttribute != null) ? elts[j].getAttribute('label') : null;
-
-				if (value != null && Editor.containsMath(value))
-				{
-					labels.push(value);
-				}
-
-				if (label != null && Editor.containsMath(label))
-				{
-					labels.push(label);
-				}
-			}
-		}
-	}
-	catch (e)
-	{
-		// Falls back to no warm-up; renderPage's typeset may then miss lazily
-		// loaded packages, but the export still proceeds.
-	}
-
-	return labels;
-};
-
 function render(data)
 {
 	// Fixed-theme exports resolve adaptive light-dark() colors to the
@@ -238,17 +171,12 @@ function render(data)
 		mxUtils.preferDarkColor = data.theme == 'dark';
 	}
 
-	// Math typesetting must be available AND the TeX packages/font chunks that
-	// the diagram's formulas need must be loaded before the diagram is measured
-	// below, so the export crop follows the rendered math size rather than the
-	// raw formula source. MathJax loads asynchronously (see Editor.initMath) and
-	// additionally loads TeX extension packages and font chunks lazily on first
-	// use, so the synchronous MathJax.typeset in renderPage throws a "retry" for
-	// any formula that needs a not-yet-loaded package (e.g. \boldsymbol,
-	// \mathcal, gathered) and the bounds fall back to the wide source size. So
-	// when the diagram uses math, wait for MathJax, then warm it up by typesetting
-	// the diagram's math labels via the promise-based API (which performs the
-	// async loads) and only then render. [jgraph/drawio#5564]
+	// Math typesetting must be available before the diagram is measured below,
+	// so the export crop follows the rendered math size rather than the raw
+	// formula source. MathJax is only loaded when needed (see Editor.initMath),
+	// so when the diagram uses math, load it and wait for it before rendering.
+	// Typesetting is synchronous once it has loaded (see etc/mathjax).
+	// [jgraph/drawio#5564]
 	if (Editor.mathOutputSize && data.xml != null && !data.mathChecked &&
 		exportUsesMath(data.xml))
 	{
@@ -256,86 +184,17 @@ function render(data)
 		data.mathChecked = true;
 		var mathWaitStart = Date.now();
 
-		var warmUpMath = function()
+		if (typeof Editor.loadMath === 'function')
 		{
-			// Typesets the diagram's math labels off-screen so MathJax loads
-			// every TeX package and font chunk they need; the synchronous typeset
-			// in renderPage then succeeds and the crop reflects the rendered math.
-			try
-			{
-				var labels = collectMathLabels(data.xml);
-
-				if (labels.length == 0)
-				{
-					render(data);
-					return;
-				}
-
-				var div = document.createElement('div');
-				div.style.cssText = 'position:absolute;visibility:hidden;' +
-					'left:-10000px;top:-10000px;';
-
-				// One element per label (sanitized individually, mirroring the
-				// per-cell render) so a '<' in one label cannot corrupt the next.
-				for (var i = 0; i < labels.length; i++)
-				{
-					var lbl = document.createElement('div');
-					lbl.innerHTML = Graph.sanitizeHtml(labels[i]);
-					div.appendChild(lbl);
-				}
-
-				document.body.appendChild(div);
-
-				var proceeded = false;
-
-				// Idempotent: guards against being invoked by both the resolve
-				// and reject handlers (e.g. if render below throws synchronously),
-				// which would otherwise start a second render pass on the same data.
-				var done = function()
-				{
-					if (proceeded)
-					{
-						return;
-					}
-
-					proceeded = true;
-
-					if (div.parentNode != null)
-					{
-						div.parentNode.removeChild(div);
-					}
-
-					render(data);
-				};
-
-				MathJax.typesetPromise([div]).then(done)['catch'](function(e)
-				{
-					if (window.console != null)
-					{
-						console.log('Error in MathJax export warm-up: ' + e);
-					}
-
-					done();
-				});
-			}
-			catch (e)
-			{
-				// Any failure just proceeds to render without the warm-up.
-				render(data);
-			}
-		};
+			Editor.loadMath();
+		}
 
 		var waitForMath = function()
 		{
 			// Falls back to rendering without waiting after a timeout so a
 			// missing or broken MathJax never blocks the export indefinitely.
-			if (typeof MathJax !== 'undefined' &&
-				typeof MathJax.typeset === 'function' &&
-				typeof MathJax.typesetPromise === 'function')
-			{
-				warmUpMath();
-			}
-			else if (Date.now() - mathWaitStart > 10000)
+			if ((typeof DrawioMathJax !== 'undefined' && typeof DrawioMathJax.typeset === 'function') ||
+				Date.now() - mathWaitStart > 10000)
 			{
 				render(data);
 			}
@@ -1108,12 +967,20 @@ function render(data)
 	// Waits for all images to finish loading
 	var cache = new Object();
 	var math = false;
+	// True if any rendered page enables math
+	var mathUsed = false;
 	
 	// Decrements waitCounter and invokes callback when finished
 	function decrementWaitCounter()
 	{
 		if (--waitCounter < 1)
 		{
+			// Makes math selectable in PDF output, see Editor.addMathTextLayer
+			if (mathUsed && data.format == 'pdf' && typeof Editor.addMathTextLayer === 'function')
+			{
+				Editor.addMathTextLayer(document.body);
+			}
+
 			//Note: This code targets Chrome as it is the browser used by export server
 			//Ensure that all fonts have been loaded, this promise is never rejected
 			document.fonts.ready.then(function() 
@@ -1480,6 +1347,22 @@ function render(data)
 		// Configures math typesetting
 		math = xmlDoc.documentElement.getAttribute('math') == '1';
 		graph.mathEnabled = math;
+		mathUsed = mathUsed || math;
+
+		// Excludes the graph container from typesetting if the page disables
+		// math as renderMath below typesets the whole document. The container
+		// is reused for all pages and holds the output of image exports (pages
+		// in the print output are handled in addGraphFragment). Otherwise math
+		// delimiters in labels are typeset and escapes such as \\ and \$ are
+		// replaced, unlike in the editor.
+		if (math)
+		{
+			graph.container.classList.remove('geDisableMathJax');
+		}
+		else
+		{
+			graph.container.classList.add('geDisableMathJax');
+		}
 
 		// Sets grid size
 		var gs = xmlDoc.documentElement.getAttribute('gridSize');
@@ -1521,21 +1404,20 @@ function render(data)
 		// labels are only typeset later (see renderMath below), so the bounds
 		// computed in this function would otherwise reflect the much wider source
 		// text and crop the export with excessive margins. render() waits for
-		// MathJax to load and warms up the required TeX packages/fonts before
-		// reaching this point (see the math gate at the top of render), so this
-		// synchronous typeset succeeds; refresh the bounds from it.
-		// [jgraph/drawio#5564]
+		// MathJax to load before reaching this point (see the math gate at the
+		// top of render), and typesetting is synchronous, so refresh the bounds
+		// from this typeset. [jgraph/drawio#5564]
 		if (Editor.mathOutputSize && graph.mathEnabled &&
-			typeof MathJax !== 'undefined' && typeof MathJax.typeset === 'function')
+			typeof DrawioMathJax !== 'undefined' && typeof DrawioMathJax.typeset === 'function')
 		{
 			try
 			{
-				MathJax.typeset([graph.container]);
+				DrawioMathJax.typeset([graph.container]);
 			}
 			catch (e)
 			{
-				// A package/font may still be loading; bounds fall back to source
-				// size and renderMath below typesets the final output correctly.
+				// Bounds fall back to the source size and renderMath below
+				// typesets the final output
 			}
 
 			graph.refreshMathBounds();
@@ -1568,8 +1450,11 @@ function render(data)
 		}
 		else
 		{
-			// Loads background color
-			bg = xmlDoc.documentElement.getAttribute('background');
+			// Loads background color. An explicit transparent background
+			// (data.bg == 'none') overrides the diagram background as in
+			// the SVG and PDF paths [jgraph/drawio-desktop#1905]
+			bg = (data.bg == mxConstants.NONE) ? null :
+				xmlDoc.documentElement.getAttribute('background');
 
 			// Normalizes values for transparent backgrounds
 			if (bg == 'none' || bg == '')
@@ -2172,7 +2057,13 @@ function render(data)
 	// Includes images in SVG and HTML labels
 	waitForImages('image', 'xlink:href');
 	waitForImages('img', 'src');
-	renderMath(document.body);
+
+	// Skips typesetting if no page enables math so that the export does
+	// not process any labels and does not wait for MathJax to load
+	if (mathUsed)
+	{
+		renderMath(document.body);
+	}
 	
 	// Invokes callback
 	decrementWaitCounter();

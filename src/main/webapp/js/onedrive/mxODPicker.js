@@ -771,6 +771,18 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 				if (acceptAllFiles || isSharepointSites)
 				{
 					Array.prototype.push.apply(potentialDrawioFiles, list);
+
+					// Sorts SharePoint sites and site drives by displayed name
+					if (isSharepointSites)
+					{
+						potentialDrawioFiles.sort(function(a, b)
+						{
+							var nameA = (a.displayName || getItemName(a) || '').toLowerCase();
+							var nameB = (b.displayName || getItemName(b) || '').toLowerCase();
+
+							return (nameA < nameB) ? -1 : ((nameA > nameB) ? 1 : 0);
+						});
+					}
 				}
 				else
 				{

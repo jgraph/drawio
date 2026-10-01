@@ -2840,7 +2840,6 @@ ArrangePanel.prototype.addGeometry = function(container)
 	autosizeBtn.style.width = '21px';
 	autosizeBtn.style.height = '21px';
 	autosizeBtn.style.left = '52px';
-	mxUtils.setOpacity(autosizeBtn, 50);
 	autosizeBtn.setAttribute('title', mxResources.get('autosize'));
 
 	mxEvent.addListener(autosizeBtn, 'click', function()
@@ -7938,7 +7937,18 @@ DiagramStylePanel.prototype.addGraphStyles = function(div)
 						}
 					}
 				}
-				
+
+				// Disabling the font color in the Text tab also sets noLabel=1,
+				// which must be removed if the font color is enabled again here.
+				// Uses the unresolved style as resolving removes none values.
+				if (mxUtils.getValue(graph.getCellStyle(cells[i], false),
+					mxConstants.STYLE_FONTCOLOR, null) == mxConstants.NONE &&
+					((ignoreGraphStyle && edge) ? 'default' :
+					current[mxConstants.STYLE_FONTCOLOR]) != mxConstants.NONE)
+				{
+					newStyle = mxUtils.setStyle(newStyle, mxConstants.STYLE_NOLABEL, null);
+				}
+
 				model.setStyle(cells[i], newStyle);
 			}
 		}

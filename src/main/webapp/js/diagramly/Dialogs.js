@@ -3496,24 +3496,26 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			tagsList.__tagsList__ = true;
 		}
 		
-		var results = [], resMap = {}, index = 0;
-		
+		var results = [], resMap = Object.create(null), index = 0;
+
 		for (var i = 0; i < tmp.length; i++)
 		{
 			if (tmp[i].length > 0)
 			{
 				var list = tagsList[tmp[i]];
-				var tmpResMap = {};
+				var tmpResMap = Object.create(null);
 				results = [];
-				
+
 				if (list != null)
 				{
 					for (var j = 0; j < list.length; j++)
 					{
 						var temp = list[j];
-						
-						//ANDing terms
-						if ((index == 0) == (resMap[temp.url] == null))
+
+						// ANDing terms, once per template if a tag
+						// is repeated (eg. Sequence;Diagram;Sequence)
+						if (tmpResMap[temp.url] == null &&
+							(index == 0) == (resMap[temp.url] == null))
 						{
 							tmpResMap[temp.url] = true;
 							results.push(temp);
@@ -7355,7 +7357,8 @@ SelectorChips.create = function(graph, editorUi)
 			body.appendChild(cloud);
 
 			// Footer: "Select cells" (only when any tags are active) and
-			// "Reset" (clears the whole selection).
+			// "None" (clears the whole selection, same label as the cells
+			// and excludes chip menus).
 			var footer = document.createElement('div');
 			footer.className = 'geTagPickerFooter';
 
@@ -7379,7 +7382,7 @@ SelectorChips.create = function(graph, editorUi)
 			var resetBtn = document.createElement('button');
 			resetBtn.type = 'button';
 			resetBtn.className = 'geActionMenuItem geActionMenuItemDanger';
-			mxUtils.write(resetBtn, mxResources.get('reset'));
+			mxUtils.write(resetBtn, mxResources.get('none'));
 			resetBtn.addEventListener('click', function(e)
 			{
 				e.preventDefault();
@@ -7394,7 +7397,7 @@ SelectorChips.create = function(graph, editorUi)
 			footer.appendChild(resetBtn);
 			body.appendChild(footer);
 
-			// Dim Select cells / Reset when nothing's selected — they're
+			// Dim Select cells / None when nothing's selected — they're
 			// no-ops at that point but stay visible so the user can
 			// discover the actions even before toggling any tag.
 			var refreshFooter = function()
@@ -7507,8 +7510,9 @@ SelectorChips.create = function(graph, editorUi)
 
 		body.appendChild(list);
 
-		// Footer: "Select cells in diagram" + "Reset". Layers are model
-		// containers (mxGraph never selects the layer cell itself), so the
+		// Footer: "Select cells in diagram" + "None" (clears the picked
+		// layers, same label as the cells and excludes chip menus).
+		// Layers are model containers (mxGraph never selects the layer cell itself), so the
 		// select button resolves each picked layer to its descendant cells
 		// via getCellsForLayers and selects those — mirroring the tag
 		// picker. Disabled when no layer is picked.
@@ -7535,7 +7539,7 @@ SelectorChips.create = function(graph, editorUi)
 		var resetBtn = document.createElement('button');
 		resetBtn.type = 'button';
 		resetBtn.className = 'geActionMenuItem geActionMenuItemDanger';
-		mxUtils.write(resetBtn, mxResources.get('reset'));
+		mxUtils.write(resetBtn, mxResources.get('none'));
 		resetBtn.addEventListener('click', function(e)
 		{
 			e.preventDefault();
@@ -7806,7 +7810,8 @@ var CustomActionDialog = function(editorUi, currentValue, onSave)
 						flat.push(a);
 					}
 				}
-				initial.steps = flat;
+				initial.steps = CustomActionDialog.liftLegacyLayers(
+					editorUi.editor.graph, flat);
 			}
 
 			if (typeof parsed.title == 'string' && parsed.title !== '')
@@ -7874,6 +7879,72 @@ var CustomActionDialog = function(editorUi, currentValue, onSave)
 	return dialog;
 };
 
+
+/**
+ * Moves layer IDs that legacy links list under `cells` of a toggle/show/hide
+ * action (e.g. {"toggle":{"cells":["<layerId>"]}}, written before the
+ * `layers` selector existed) to `layers`. On click both forms flip the
+ * layer's own `visible` (getCellsForAction with layerCells resolves `layers`
+ * to the layer cell itself), but the dialog listed the layer as a cell and
+ * its transient preview did nothing, since a layer has no shape to fade.
+ * Actions with an explicit `transient: true` are left alone: they never
+ * touched a layer listed as a cell, so moving it would change what the link
+ * does. Mutates and returns the given steps.
+ */
+CustomActionDialog.liftLegacyLayers = function(graph, steps)
+{
+	var model = graph.getModel();
+	var keys = ['toggle', 'show', 'hide'];
+
+	for (var i = 0; i < steps.length; i++)
+	{
+		for (var k = 0; steps[i] != null && k < keys.length; k++)
+		{
+			var sel = steps[i][keys[k]];
+
+			if (sel != null && typeof sel == 'object' && Array.isArray(sel.cells) &&
+				sel.transient !== true)
+			{
+				var cells = [];
+				var layers = Array.isArray(sel.layers) ? sel.layers.slice() : [];
+
+				for (var j = 0; j < sel.cells.length; j++)
+				{
+					var id = sel.cells[j];
+					var cell = (typeof id == 'string') ? model.getCell(id) : null;
+
+					if (cell != null && model.isLayer(cell))
+					{
+						if (mxUtils.indexOf(layers, id) < 0)
+						{
+							layers.push(id);
+						}
+					}
+					else
+					{
+						cells.push(id);
+					}
+				}
+
+				if (cells.length < sel.cells.length)
+				{
+					sel.layers = layers;
+
+					if (cells.length > 0)
+					{
+						sel.cells = cells;
+					}
+					else
+					{
+						delete sel.cells;
+					}
+				}
+			}
+		}
+	}
+
+	return steps;
+};
 
 /**
  * Schema describing the form fields each action type needs in the dialog.
@@ -7971,8 +8042,11 @@ CustomActionDialog.SCHEMAS = {
 	wait:        {label: 'Wait',          icon: '⏱', noSelector: true,
 		primary: {name: 'value', type: 'number', min: 0, step: 100, width: 60,
 			def: '1000', label: 'ms', titleKey: 'wait', title: 'Wait'}},
+	// `grow: true` lets the URL field take the free width of the row
+	// instead of a fixed 80px box at the right edge, which cut the
+	// placeholder and any link down to a few characters (Kym, 2026-09-25).
 	open:        {label: 'Open Link',     icon: '🔗', noSelector: true,
-		primary: {name: 'value', type: 'text',
+		primary: {name: 'value', type: 'text', grow: true,
 			placeholder: 'https://… or data:page/id,…', label: '', title: 'URL'}},
 	// labelKey reroutes the action label to the generic `view` resource
 	// so we don't need to ship a dedicated `viewbox` translation across
@@ -8024,14 +8098,14 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	var list = document.createElement('div');
 	list.style.position = 'absolute';
 	list.style.overflow = 'auto';
-	list.style.width = '170px';
+	list.style.width = '210px';
 	list.style.height = '378px';
 	div.appendChild(list);
 	
 	var container = document.createElement('div');
 	container.style.position = 'absolute';
-	container.style.left = '200px';
-	container.style.width = '470px';
+	container.style.left = '240px';
+	container.style.width = '430px';
 	container.style.height = '376px';
 	container.style.overflow = 'hidden';
 	container.style.borderWidth = '1px';
@@ -8508,7 +8582,6 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 		table.style.borderSpacing = '0px';
 		table.style.width = '100%';
 		var tbody = document.createElement('tbody');
-		var today = new Date().toDateString();
 
 		if (editorUi.currentPage != null && editorUi.pages != null)
 		{
@@ -8542,21 +8615,13 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 					}
 					else
 					{
-						if (ts.toDateString() === today)
-						{
-							mxUtils.write(date, ts.toLocaleTimeString());
-						}
-						else
-						{
-							mxUtils.write(date, ts.toLocaleDateString() + ' ' +
-								ts.toLocaleTimeString());
-						}
+						mxUtils.write(date, editorUi.formatDateTime(ts, true));
 					}
 					
 					row.appendChild(date);
 
-					row.setAttribute('title', ts.toLocaleDateString() + ' ' +
-						ts.toLocaleTimeString() + ((item.fileSize != null)? ' ' +
+					row.setAttribute('title', editorUi.formatDateTime(ts) +
+						((item.fileSize != null)? ' ' +
 						editorUi.formatFileSize(parseInt(item.fileSize)) : '') +
 						((item.lastModifyingUserName != null) ? ' ' +
 						item.lastModifyingUserName : ''));
@@ -8706,8 +8771,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 							
 							fileInfo.innerText = '';
 							mxUtils.write(fileInfo, ((shortUser != null) ?
-								(shortUser + ' ') : '') + ts.toLocaleDateString() +
-								' ' + ts.toLocaleTimeString());
+								(shortUser + ' ') : '') + editorUi.formatDateTime(ts));
 							
 							fileInfo.setAttribute('title', row.getAttribute('title'));
 							zoomInBtn.removeAttribute('disabled');
@@ -9470,7 +9534,39 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		
 		return false;
 	};
-	
+
+	//Returns the collapsed ancestors of the given cell if it is only hidden
+	//because of a collapsed container or null if it is not hidden by one or
+	//if the cell or one of its ancestors is invisible
+	function getCollapsedAncestors(cell)
+	{
+		var model = graph.model;
+		var result = [];
+
+		if (!graph.isCellVisible(cell))
+		{
+			return null;
+		}
+
+		var parent = model.getParent(cell);
+
+		while (parent != null && model.getParent(parent) != null)
+		{
+			if (!graph.isCellVisible(parent))
+			{
+				return null;
+			}
+			else if (graph.isCellCollapsed(parent))
+			{
+				result.push(parent);
+			}
+
+			parent = model.getParent(parent);
+		}
+
+		return (result.length > 0) ? result : null;
+	};
+
 	function updateReplBtns()
 	{
 		if (lastSearchSuccessful)
@@ -9569,11 +9665,25 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			for (i = 0; i < cells.length; i++)
 			{
 				var state = graph.view.getState(cells[i]);
-				
+
+				//Cells inside collapsed containers have no state so a
+				//temporary state is used to check their label (only
+				//if the containers can be expanded to reveal the match)
+				if (state == null && ui.editor.graph.isEnabled() &&
+					(graph.model.isVertex(cells[i]) ||
+					graph.model.isEdge(cells[i])) &&
+					getCollapsedAncestors(cells[i]) != null)
+				{
+					state = {cell: cells[i], style: graph.getCellStyle(cells[i])};
+				}
+
+				var isLastFound = state != null && lastFound != null &&
+					state.cell == lastFound.cell;
+
 				//Try the same cell with replace to find other occurances
 				if (trySameCell)
 				{
-					active = active || state == lastFound;
+					active = active || isLastFound;
 				}
 							
 				if (state != null && state.cell.value != null && (active || firstMatch == null) &&
@@ -9592,7 +9702,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 					label = mxUtils.trim(label.replace(/[\x00-\x1F\x7F-\x9F]|\s+/g, ' ')).toLowerCase();
 					var lblPosShift = 0;
 					
-					if (trySameCell && withReplace && state == lastFound)
+					if (trySameCell && withReplace && isLastFound)
 					{
 						label = label.substr(lblMatchPos);
 						lblPosShift = lblMatchPos;
@@ -9637,7 +9747,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 					}
 				}
 	
-				active = active || state == lastFound;
+				active = active || isLastFound;
 			}
 		}
 					
@@ -9651,12 +9761,29 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			}
 			
 			lastFound = firstMatch;
+
+			//Expands collapsed containers to reveal the match
+			if (graph.view.getState(lastFound.cell) == null)
+			{
+				var collapsed = getCollapsedAncestors(lastFound.cell);
+
+				if (collapsed != null && !stayOnPage && graph.isEnabled())
+				{
+					graph.foldCells(false, false, collapsed);
+					lastFound = graph.view.getState(lastFound.cell) || lastFound;
+				}
+			}
+
 			var c = graph.container;
 
 			//Centers the match unless it is already fully visible, so it
 			//does not end up flush against the viewport edge where it is
 			//easily missed
-			if (c == null || lastFound.x < c.scrollLeft ||
+			if (lastFound.width == null)
+			{
+				// Match is still hidden in a collapsed container
+			}
+			else if (c == null || lastFound.x < c.scrollLeft ||
 				lastFound.y < c.scrollTop ||
 				lastFound.x + lastFound.width > c.scrollLeft + c.clientWidth ||
 				lastFound.y + lastFound.height > c.scrollTop + c.clientHeight)
@@ -12865,6 +12992,14 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		// and the right-aligned inputs both visible instead of letting
 		// the inputs slide into the chip's space.
 		'overflow:auto;padding:4px;box-sizing:border-box;' +
+		// One grid column as wide as the list so every row gets the same
+		// width and the right-hand inputs and the preview button line up
+		// in one column. Rows wrap their fields instead of widening the
+		// column: as wide as the widest row, a row with style fields
+		// pushed its fields and every preview button behind a horizontal
+		// scrollbar that was easy to miss (Kym, 2026-09-28).
+		'display:grid;grid-template-columns:minmax(0,1fr);' +
+		'align-content:start;' +
 		'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));border-radius:6px;' +
 		'background:light-dark(var(--field-color), var(--dark-field-color))';
 	// Contain row-reorder drag events — otherwise dragover bubbles to
@@ -13333,6 +13468,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	{
 		syncTextarea();
 		setDirty(true);
+		updateImmediateToggles();
 	};
 
 	// Convenience: append a step and scroll into view.
@@ -13667,7 +13803,12 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		var b = document.createElement('button');
 		b.type = 'button';
 		b.title = title;
-		b.style.cssText = 'flex:0 0 22px;height:22px;line-height:1;padding:0;' +
+		// The width as well as the flex basis: Safari sizes a flex
+		// container from its items' widths, not their bases, and took
+		// the ▶ button as 19px, so a step row's field group came out
+		// too narrow and wrapped ▶ onto a line of its own.
+		b.style.cssText = 'flex:0 0 22px;width:22px;height:22px;' +
+			'line-height:1;padding:0;box-sizing:border-box;' +
 			'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));border-radius:3px;' +
 			'background:transparent;cursor:pointer;font-size:14px;' +
 			'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color))';
@@ -13738,8 +13879,16 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		if (sel == null) return;
 
 		var wrap = document.createElement('span');
-		wrap.style.cssText = 'display:inline-flex;align-items:center;' +
-			'flex:1 1 auto;min-width:0;gap:6px';
+		// Never shrinks below its chips: with flex-shrink and min-width:0
+		// the chips overflowed a narrowed wrap and the fields and the
+		// preview button after it painted over them (Kym, 2026-09-25).
+		// The spacer after the chips takes the leftover width instead.
+		// Chips wider than the row wrap to more lines inside the group
+		// (max-width:100%): cells, layer, tag and excluded chips take
+		// ~340px and scrolled the list sideways in the minimum-size
+		// dialog.
+		wrap.style.cssText = 'display:inline-flex;flex-wrap:wrap;' +
+			'align-items:center;flex:0 0 auto;gap:4px 6px;max-width:100%';
 
 		// Helper: getter/setter pair for a specific field on this step's
 		// selector object. Mirrors how CustomActionDialog binds chips.
@@ -14011,14 +14160,14 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	var rowBase = function(isLast)
 	{
 		var row = document.createElement('div');
-		// min-width:max-content makes the row as wide as its content
-		// when content exceeds the stepList width — the stepList then
-		// shows a horizontal scrollbar (overflow:auto). When stepList
-		// is wide, the spacer between chips and inputs grows to push
-		// inputs to the right edge. No overflow:hidden so nothing
-		// clips; the scrollbar keeps everything reachable.
-		row.style.cssText = 'display:flex;align-items:center;gap:6px;' +
-			'min-width:max-content;' +
+		// A row that doesn't fit the list wraps: the trailing group with
+		// the fields and the preview button (see makeStepRow) moves to a
+		// second line as one unit, right-aligned, so fields are never
+		// hidden behind the horizontal scrollbar. When the row fits, the
+		// spacer between chips and inputs grows to push the group to the
+		// right edge. No overflow:hidden so nothing clips.
+		row.style.cssText = 'display:flex;flex-wrap:wrap;align-items:center;' +
+			'gap:4px 6px;min-width:0;' +
 			'padding:6px 4px;border-radius:4px;' +
 			'border-bottom:1px solid light-dark(rgba(0,0,0,0.05),rgba(255,255,255,0.05))';
 
@@ -14080,18 +14229,90 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		return hasTarget && graph.getCellsForAction(sel, true).length == 0;
 	};
 
+	// True when a step holds the chain back in executeCustomActions (the
+	// effects that bump its waitCounter). Nested animations and anything
+	// unknown count as blocking so a toggle is never hidden wrongly.
+	var isBlockingStep = function(step)
+	{
+		return step != null && (step.wait != null || step.fadeIn != null ||
+			step.fadeOut != null || step.fadeTo != null || step.wipeIn != null ||
+			step.wipeOut != null || step.popIn != null || step.popOut != null ||
+			step.animation != null || getStepKey(step) == null ||
+			(step.scroll != null && step.scroll.smooth === true) ||
+			(step.viewbox != null && step.viewbox.smooth === true));
+	};
+
+	// The immediate toggle of a step only changes playback when the batch
+	// before it (the previous step plus its immediate predecessors) has a
+	// blocking effect. Otherwise that batch finishes synchronously, so the
+	// step starts at the same moment either way — e.g. after a highlight,
+	// which does not block for its duration.
+	var immediateHasEffect = function(idx)
+	{
+		for (var i = idx - 1; i >= 0; i--)
+		{
+			if (isBlockingStep(data.steps[i]))
+			{
+				return true;
+			}
+			else if (data.steps[i] == null || data.steps[i].immediate !== true)
+			{
+				break;
+			}
+		}
+
+		return false;
+	};
+
+	// Re-evaluates immediateHasEffect for all rows after inline edits: a
+	// toggle or a smooth checkbox changes the batches behind later rows.
+	var updateImmediateToggles = function()
+	{
+		var btns = stepList.querySelectorAll('[data-immediate-toggle]');
+
+		for (var i = 0; i < btns.length; i++)
+		{
+			var btnIdx = parseInt(btns[i].getAttribute('data-immediate-toggle'));
+			btns[i].style.visibility = (immediateHasEffect(btnIdx)) ? '' : 'hidden';
+		}
+	};
+
+	// True when the step's own cells, tags or layers do match cells and
+	// it is only the exclude list that removes all of them (e.g. the
+	// listed cells were also excluded), so the warning can name the
+	// cause instead of claiming nothing matches (Kym, 2026-09-25).
+	var excludesRemoveAll = function(sel)
+	{
+		if (!Array.isArray(sel.excludeCells) ||
+			sel.excludeCells.length == 0)
+		{
+			return false;
+		}
+
+		// Only the keys getCellsForAction reads, rather than a clone of
+		// the parsed JSON.
+		return graph.getCellsForAction({cells: sel.cells, tags: sel.tags,
+			layers: sel.layers, tagsMatch: sel.tagsMatch,
+			descendants: sel.descendants}, true).length > 0;
+	};
+
 	// Warning glyph behind the action label of a step that would run
 	// without any visible effect (see resolvesToNothing). The step stays:
 	// its cells may come back through undo or paste, and its other
 	// settings are worth keeping either way. U+FE0E keeps the glyph
-	// monochrome, like the immediate toggle's icons.
-	var appendNoEffectMarker = function(row)
+	// monochrome, like the immediate toggle's icons. A plain tooltip like
+	// the amber chip and field warnings: no help cursor, which in this app
+	// marks clickable help icons that open a page.
+	var appendNoEffectMarker = function(row, sel)
 	{
 		var mark = document.createElement('span');
 		mark.style.cssText = 'flex:0 0 auto;font-size:13px;line-height:1;' +
-			'color:light-dark(#e6a700,#ffcc4d);cursor:help';
-		mark.title = mxResources.get('stepNoEffect', null,
-			'No effect: this step matches no cells in the diagram');
+			'color:light-dark(#e6a700,#ffcc4d);cursor:default';
+		mark.title = (excludesRemoveAll(sel)) ?
+			mxResources.get('stepExcludesAll', null,
+				'No effect: the excluded cells remove every cell this step targets') :
+			mxResources.get('stepNoEffect', null,
+				'No effect: this step matches no cells in the diagram');
 		mxUtils.write(mark, '⚠︎');
 		row.appendChild(mark);
 	};
@@ -14448,7 +14669,13 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			}
 			else
 			{
-				inp.style.cssText = 'flex:0 0 ' + w + 'px;min-width:0;padding:2px 4px;' +
+				// `grow` fields fill the free width, `w` is their basis.
+				// Others shrink (down to 32px) when their row's field
+				// group is wider than the list, as in the minimum-size
+				// dialog with a Toggle Style step's three text fields.
+				inp.style.cssText = 'flex:' + (spec.grow ? '1 1 ' : '0 1 ') +
+					w + 'px;min-width:' + (spec.grow ? '0' : '32px') +
+					';padding:2px 4px;' +
 					'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));border-radius:3px;' +
 					'background:light-dark(var(--field-color), var(--dark-field-color));' +
 					'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color))';
@@ -14526,6 +14753,27 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			updateKeyWarning();
 
 			row.appendChild(createStyleKeyPicker(inp, idx, key));
+		}
+
+		// A page link typed without the comma is not a page link at all
+		// (it did nothing), a page ID, name or number on its own opens
+		// as a relative URL in a new tab, and a mistyped ID reports
+		// "Page not found" only when the step runs (Kym, 2026-09-25).
+		// Marks the URL field of an Open step in those cases, with the
+		// reason as its tooltip.
+		if (isPrimary && key == 'open' && spec.type == 'text')
+		{
+			var updateLinkWarning = function()
+			{
+				var msg = AnimationDialog.getPageLinkWarning(
+					editorUi, inp.value);
+				inp.classList.toggle('geAnimationFieldWarn', msg != null);
+				inp.title = (msg != null) ? msg : (title || '');
+			};
+
+			inp.addEventListener('input', updateLinkWarning);
+			inp.addEventListener('change', updateLinkWarning);
+			updateLinkWarning();
 		}
 
 		// Color swatch for a style value once the key names a color —
@@ -14693,9 +14941,10 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		// "Immediate" toggle — when active, this step runs in parallel
 		// with the previous step (sets `immediate: true` at the step root).
 		// The default is sequential (this step waits for the previous step's
-		// blocking effects to finish). Hidden on the first step via
-		// visibility:hidden so the row layout stays consistent — there's
-		// nothing to be parallel with at idx 0. The button's icon AND
+		// blocking effects to finish). Hidden via visibility:hidden (keeps
+		// the column aligned) wherever it would change nothing: on the
+		// first step and after non-blocking steps (immediateHasEffect,
+		// kept current by updateImmediateToggles). The button's icon AND
 		// tooltip swap to reflect state: ⏩ + "Immediate" when on (this
 		// step skips the wait), ⏱ + "Wait" when off (this step waits
 		// for the previous one to finish). Both glyphs carry the U+FE0E
@@ -14707,15 +14956,21 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		var applyImmediateIcon = function()
 		{
 			immediateBtn.textContent = '';
+			// See 2. below: the symbol fonts are set on this span only.
+			var glyph = document.createElement('span');
+			glyph.style.cssText = 'line-height:0;' +
+				'font-family:"Segoe UI Symbol","Apple Symbols",sans-serif';
+			immediateBtn.appendChild(glyph);
+
 			if (step.immediate === true)
 			{
-				mxUtils.write(immediateBtn, '⏩︎');
+				mxUtils.write(glyph, '⏩︎');
 				immediateBtn.title = mxResources.get('immediate',
 					null, 'Immediate');
 			}
 			else
 			{
-				mxUtils.write(immediateBtn, '⏱︎');
+				mxUtils.write(glyph, '⏱︎');
 				immediateBtn.title = mxResources.get('wait',
 					null, 'Wait');
 			}
@@ -14724,7 +14979,13 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		//   1. `font-variant-emoji: text` + the U+FE0E text-variation
 		//      selector in the string ask the browser for text rendering.
 		//   2. The "Segoe UI Symbol" / "Apple Symbols" font-family list
-		//      prefers the monochrome symbol fonts on each platform.
+		//      prefers the monochrome symbol fonts on each platform. It
+		//      sits on an inner span with line-height:0 while the button
+		//      keeps the row's font: a symbol font as the button's primary
+		//      font set the baseline from its own ascent/descent, which put
+		//      the glyphs ~3px above the row's icons and text on macOS
+		//      (Apple Symbols). A zero-height inline box can't grow the
+		//      line, so the glyph sits on the row font's baseline.
 		//   3. `filter: grayscale(1)` is the safety net — Windows Chrome
 		//      ignores the variation selector for ⏩ specifically (it
 		//      always pulls Segoe UI Emoji's blue colour-glyph), so we
@@ -14734,10 +14995,10 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			'padding:0;border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));' +
 			'border-radius:3px;background:transparent;cursor:pointer;' +
 			'font-size:14px;color:light-dark(var(--strong-text-color), var(--dark-strong-text-color));' +
-			'font-family:"Segoe UI Symbol","Apple Symbols",sans-serif;' +
-			'font-variant-emoji:text;filter:grayscale(1) contrast(2)';
+			'font-family:inherit;font-variant-emoji:text;filter:grayscale(1) contrast(2)';
 		applyImmediateIcon();
-		if (idx === 0)
+		immediateBtn.setAttribute('data-immediate-toggle', idx);
+		if (!immediateHasEffect(idx))
 		{
 			immediateBtn.style.visibility = 'hidden';
 		}
@@ -14763,16 +15024,44 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 
 		if (schema != null && schema.selector && resolvesToNothing(sel))
 		{
-			appendNoEffectMarker(row);
+			appendNoEffectMarker(row, sel);
 		}
+
+		// Fields and the preview button share one trailing group, so a
+		// row that doesn't fit the list wraps them to a second line as
+		// a unit (right-aligned by margin-left:auto) instead of pushing
+		// them behind the list's horizontal scrollbar, and the preview
+		// button stays at the right edge of every row (Kym, 2026-09-28).
+		var tail = document.createElement('span');
+		// max-width keeps the group inside the row. A group still wider
+		// than the row wraps inside itself, right-aligned so the preview
+		// button ends the last line at the row's right edge: the View
+		// step's five fixed-width number fields, Transition and Use
+		// Current need ~520px and cannot shrink (.geNoSpin), which put
+		// its ▶ behind a horizontal scrollbar in the default 480px
+		// dialog. Text fields also shrink (renderStepField).
+		tail.style.cssText = 'display:inline-flex;flex-wrap:wrap;' +
+			'justify-content:flex-end;align-items:center;gap:4px 6px;' +
+			'flex:0 0 auto;margin-left:auto;max-width:100%;min-width:0';
 
 		if (schema != null && schema.primary != null)
 		{
 			// Primary-value action (wait, open). Spacer pushes the
 			// single input over to the right edge of the row, in line
-			// with the input column of object-shaped actions below.
-			appendSpacer(row);
-			renderStepField(row, idx, key, schema.primary, true);
+			// with the input column of object-shaped actions below. A
+			// `grow` field (open) fills that space itself, so its group
+			// takes the free width instead.
+			if (schema.primary.grow)
+			{
+				tail.style.flex = '1 1 auto';
+				tail.style.minWidth = '0';
+			}
+			else
+			{
+				appendSpacer(row);
+			}
+
+			renderStepField(tail, idx, key, schema.primary, true);
 		}
 		else
 		{
@@ -14800,7 +15089,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 
 				for (var f = 0; f < schema.fields.length; f++)
 				{
-					renderStepField(row, idx, key, schema.fields[f], false,
+					renderStepField(tail, idx, key, schema.fields[f], false,
 						schema.fields[f].staticOnly === true && hasSelector);
 				}
 			}
@@ -14827,13 +15116,13 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 					else data.steps[idx][key].delay = d;
 					syncOnly();
 				});
-				row.appendChild(durInput);
+				tail.appendChild(durInput);
 
 				var msLbl = document.createElement('span');
 				msLbl.className = 'geDialogHint';
 				msLbl.style.cssText = 'flex:0 0 auto';
 				mxUtils.write(msLbl, 'ms');
-				row.appendChild(msLbl);
+				tail.appendChild(msLbl);
 			}
 
 			// "Use Current" affordance for viewbox — re-captures the
@@ -14876,15 +15165,14 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 					delete s.excludeCells;
 					refresh();  // re-render so inputs reflect the new numbers
 				});
-				row.appendChild(useCurrentBtn);
+				tail.appendChild(useCurrentBtn);
 			}
 		}
 
 		// Preview — execute just this one step inside the shared
 		// preview session, so the original opacity stays captured for
-		// Reset to restore. (No margin-left:auto needed — the spacer
-		// inserted between selector chips and fields already pushes
-		// the right side of the row out to the edge.)
+		// Reset to restore. Last item of the trailing group, which the
+		// spacer and its margin-left:auto keep at the row's right edge.
 		var previewIconBtn = makeIconButton('▶',
 			mxResources.get('preview'),
 			true, function()
@@ -14894,7 +15182,31 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 					Graph.flattenAnimationActions([step])));
 				graph.executeCustomActions(single);
 			});
-		row.appendChild(previewIconBtn);
+		// A wait step on its own shows nothing, so its preview is hidden
+		// like the immediate toggle (keeps the column aligned).
+		if (key == 'wait' && Object.keys(step).every(function(k)
+			{ return k == 'wait' || k == 'immediate'; }))
+		{
+			previewIconBtn.style.visibility = 'hidden';
+		}
+
+		// The preview button wraps together with the field before it, so
+		// a group that wraps (View, Tags) never leaves ▶ on a line alone.
+		// Not after a growing field (Open), which fills the group itself.
+		var lastGroup = tail;
+
+		if (tail.lastElementChild != null && !(schema != null &&
+			schema.primary != null && schema.primary.grow))
+		{
+			lastGroup = document.createElement('span');
+			lastGroup.style.cssText = 'display:inline-flex;' +
+				'align-items:center;gap:6px;flex:0 0 auto';
+			lastGroup.appendChild(tail.lastElementChild);
+			tail.appendChild(lastGroup);
+		}
+
+		lastGroup.appendChild(previewIconBtn);
+		row.appendChild(tail);
 
 		return row;
 	};
@@ -14912,7 +15224,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		else
 		{
 			list.style.display = 'none';
-			stepList.style.display = 'block';
+			stepList.style.display = 'grid';
 			// The list view is driven by the (always valid) data, so a
 			// stale textarea parse error is irrelevant while it's hidden.
 			showJsonError(null);
@@ -14987,7 +15299,9 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	addSection.appendChild(pickRow);
 
 	var pickSelect = document.createElement('select');
-	pickSelect.style.cssText = 'flex:1 1 200px;min-width:180px;padding:5px 6px;' +
+	// Zero basis: the picker takes whatever the edit buttons leave, down
+	// to its min-width, before the button group wraps below it.
+	pickSelect.style.cssText = 'flex:1 1 0;min-width:120px;padding:5px 6px;' +
 		'border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));border-radius:4px;' +
 		'background:light-dark(var(--field-color), var(--dark-field-color));' +
 		'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color));font-size:13px';
@@ -15094,11 +15408,19 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	// inserts the copy right behind the selected block.
 	var editBtnL10n = [];
 
+	// One unbreakable group, so a narrow dialog wraps the four buttons
+	// together below the picker instead of leaving Delete alone on the
+	// next line (Kym, 2026-09-25).
+	var editBtnGroup = document.createElement('div');
+	editBtnGroup.style.cssText = 'display:flex;align-items:center;gap:8px;' +
+		'flex:0 0 auto';
+	pickRow.appendChild(editBtnGroup);
+
 	var makeEditButton = function(src, key, fallback, fn)
 	{
 		var b = makeImgButton(src, mxResources.get(key, null, fallback), fn);
 		editBtnL10n.push({el: b, key: key, fallback: fallback});
-		pickRow.appendChild(b);
+		editBtnGroup.appendChild(b);
 		return b;
 	};
 
@@ -15404,11 +15726,22 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 
 	// Bottom action row — generous margin-top per docs/dialog-style-guide.md
 	// (CustomDialog uses 34px; we use 20px because mxWindow already has
-	// its own title-bar chrome above the content). No flex-wrap here —
-	// the spacer's behavior gets undefined when buttons wrap; the
-	// minimum dialog size (360px) keeps all buttons on one line.
+	// its own title-bar chrome above the content). Two unbreakable groups
+	// — help / Preview / Reset on the left, Cancel / Save pushed right by
+	// margin-left:auto — and the row wraps between them: the buttons do
+	// not fit into the minimum dialog width (360px, less still with longer
+	// translations), and without wrapping Save was cut off at the right
+	// edge (Kym, 2026-09-25). A wrapped Cancel / Save stays right-aligned.
 	var actions = document.createElement('div');
-	actions.style.cssText = 'margin-top:20px;display:flex;gap:6px;flex:0 0 auto';
+	actions.style.cssText = 'margin-top:20px;display:flex;flex-wrap:wrap;' +
+		'gap:6px;flex:0 0 auto';
+	var actionsLeft = document.createElement('div');
+	actionsLeft.style.cssText = 'display:flex;gap:6px;flex:0 0 auto';
+	actions.appendChild(actionsLeft);
+	var actionsRight = document.createElement('div');
+	actionsRight.style.cssText = 'display:flex;gap:6px;flex:0 0 auto;' +
+		'margin-left:auto';
+	actions.appendChild(actionsRight);
 
 	// `playingSteps` is hoisted to the top of the function — see comment
 	// there. It tracks the currently-playing step(s) as a Set so a parallel
@@ -15448,7 +15781,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	};
 
 	// Help button — opens the end-user manual in a new window.
-	actions.appendChild(editorUi.createHelpIcon(ANIMATION_HELP_URL));
+	actionsLeft.appendChild(editorUi.createHelpIcon(ANIMATION_HELP_URL));
 
 	var thisDialog = this;
 
@@ -15526,7 +15859,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		previewBtn.title = mxResources.get('preview');
 	});
 	previewBtn.title = mxResources.get('preview');
-	actions.appendChild(previewBtn);
+	actionsLeft.appendChild(previewBtn);
 
 	// Reset — restores the canvas to its pre-preview state and stops
 	// any running playback. Disabled until a preview session is open.
@@ -15547,11 +15880,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	resetBtn.title = mxResources.get('reset');
 	resetBtnRef = resetBtn;
 	updateResetBtn();
-	actions.appendChild(resetBtn);
-
-	var spacer = document.createElement('span');
-	spacer.style.flex = '1 1 auto';
-	actions.appendChild(spacer);
+	actionsLeft.appendChild(resetBtn);
 
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
@@ -15575,7 +15904,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		cancelBtn.title = mxResources.get('cancel');
 	});
 	cancelBtn.title = mxResources.get('cancel');
-	actions.appendChild(cancelBtn);
+	actionsRight.appendChild(cancelBtn);
 
 	applyBtn = mxUtils.button(mxResources.get('save'), function()
 	{
@@ -15599,7 +15928,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		applyBtn.title = mxResources.get('save');
 	});
 	applyBtn.title = mxResources.get('save');
-	actions.appendChild(applyBtn);
+	actionsRight.appendChild(applyBtn);
 
 	div.appendChild(actions);
 
@@ -15895,6 +16224,54 @@ AnimationDialog.STYLE_KEYS = [
 AnimationDialog.isColorStyleKey = function(key)
 {
 	return key != null && /colou?r$/i.test(String(key));
+};
+
+/**
+ * Returns why the given Open step URL won't reach a page of the current
+ * file, or null if it is fine or not meant as a page link: a data:page
+ * link that isn't data:page/id,ID (no comma, leading whitespace — the
+ * runtime ignores it or opens it as a URL), one whose page does not
+ * exist, or a page ID, name or number entered on its own (opened as a
+ * relative URL in a new tab).
+ */
+AnimationDialog.getPageLinkWarning = function(editorUi, value)
+{
+	var pages = editorUi.pages;
+	var text = (value != null) ? mxUtils.trim(String(value)) : '';
+	var format = mxResources.get('pageLinkFormat', null,
+		'Page links use the format data:page/id,ID');
+
+	if (text.toLowerCase().substring(0, 9) == 'data:page')
+	{
+		if (!Graph.isPageLink(value))
+		{
+			return format;
+		}
+		else if (pages != null && editorUi.getPageByLink(value) == null)
+		{
+			return mxResources.get('pageNotFound', null, 'Page not found');
+		}
+	}
+	else if (text != '' && pages != null &&
+		text.substring(0, 5).toLowerCase() != 'data:')
+	{
+		var index = (/^[0-9]+$/.test(text)) ? parseInt(text) - 1 : -1;
+
+		if (pages[index] != null || editorUi.getPageById(text) != null)
+		{
+			return format;
+		}
+
+		for (var i = 0; i < pages.length; i++)
+		{
+			if (pages[i].getName() == text)
+			{
+				return format;
+			}
+		}
+	}
+
+	return null;
 };
 
 /**
@@ -19922,12 +20299,40 @@ var ConnectionPointsDialog = function(editorUi, cell)
 			return editingGraph.addCell(cPoint);
 		};
 	
-		// Add cell and current connection points on it
+		// Add cell and current connection points on it. The cell is shown
+		// unrotated and unflipped because connection points are stored in the
+		// unrotated and unflipped shape and points moved in a rotated or
+		// flipped preview are saved in the wrong (eg. mirrored) place, so they
+		// seem to revert after the dialog is reopened. For the same reason the
+		// cell is shown without its direction (with width and height swapped
+		// for north and south) as points are turned with the direction, unless
+		// anchorPointDirection=0 where points are stored in the bounds turned
+		// by 90 degrees for north and south (see mxGraph.getConnectionPoint)
 		var geo = cell.geometry;
-		var mainCell = new mxCell(cell.value, new mxGeometry(0, 0, geo.width, geo.height),
-			cell.style + ';rotatable=0;resizable=0;connectable=0;editable=0;movable=0;opacity=50;');
+		var cellStyle = editorUi.editor.graph.getCurrentCellStyle(cell);
+		var direction = mxUtils.getValue(cellStyle, mxConstants.STYLE_DIRECTION,
+			mxConstants.DIRECTION_EAST);
+		var vertical = direction == mxConstants.DIRECTION_NORTH ||
+			direction == mxConstants.DIRECTION_SOUTH;
+		var anchorDirection = mxUtils.getValue(cellStyle,
+			mxConstants.STYLE_ANCHOR_POINT_DIRECTION, 1) == 1;
+		var swap = vertical && anchorDirection;
+		var mainCell = new mxCell(cell.value, new mxGeometry(0, 0,
+			(swap) ? geo.height : geo.width, (swap) ? geo.width : geo.height),
+			cell.style + ';rotation=0;flipH=0;flipV=0;stencilFlipH=0;stencilFlipV=0;' +
+			((anchorDirection && direction != mxConstants.DIRECTION_EAST) ? 'direction=east;' : '') +
+			'rotatable=0;resizable=0;connectable=0;editable=0;movable=0;opacity=50;');
 		mainCell.vertex = true;
 		editingGraph.addCell(mainCell);
+
+		// Bounds that connection point fractions are relative to
+		var frame = new mxRectangle(mainCell.geometry.x, mainCell.geometry.y,
+			mainCell.geometry.width, mainCell.geometry.height);
+
+		if (vertical && !anchorDirection)
+		{
+			frame.rotate90();
+		}
 
 		// Adding a point via double click
 		editingGraph.dblClick = function(evt, cell)
@@ -20102,7 +20507,6 @@ var ConnectionPointsDialog = function(editorUi, cell)
 			count = isNaN(count)? 1 : (count < 1? 1 : (count > 100? 100 : count));
 			pCount.value = count;
 			var side = sideSelect.value;
-			var geo = mainCell.geometry;
 			var horizontal = side == 'top' || side == 'bottom';
 
 			// New points go into the gaps between the existing points on the
@@ -20178,8 +20582,8 @@ var ConnectionPointsDialog = function(editorUi, cell)
 					var fx = horizontal? f : (side == 'left'? 0 : 1);
 					var fy = horizontal? (side == 'top'? 0 : 1) : f;
 
-					cells.push(createCPoint(geo.x + fx * geo.width - CP_HLF_SIZE,
-						geo.y + fy * geo.height - CP_HLF_SIZE,
+					cells.push(createCPoint(frame.x + fx * frame.width - CP_HLF_SIZE,
+						frame.y + fy * frame.height - CP_HLF_SIZE,
 						new mxConnectionConstraint(new mxPoint(fx, fy), false)));
 				}
 			}
@@ -20288,33 +20692,33 @@ var ConnectionPointsDialog = function(editorUi, cell)
 
 			// Two decimal places (mxUtils.format) are not enough precision as
 			// points drift off the grid on shapes larger than 100pt
-			var dx = 0, dy = 0, mGeo = mainCell.geometry;
-			var x = parseFloat(((cp.geometry.x + CP_HLF_SIZE - mGeo.x) / mGeo.width).toFixed(6));
-			var y = parseFloat(((cp.geometry.y + CP_HLF_SIZE - mGeo.y) / mGeo.height).toFixed(6));
+			var dx = 0, dy = 0;
+			var x = parseFloat(((cp.geometry.x + CP_HLF_SIZE - frame.x) / frame.width).toFixed(6));
+			var y = parseFloat(((cp.geometry.y + CP_HLF_SIZE - frame.y) / frame.height).toFixed(6));
 
 			if (x < 0)
 			{
-				dx = x * mGeo.width;
+				dx = x * frame.width;
 				x = 0;
 			}
 			else if (x > 1)
 			{
-				dx = (x - 1) * mGeo.width;
+				dx = (x - 1) * frame.width;
 				x = 1;
 			}
 
 			if (y < 0)
 			{
-				dy = y * mGeo.height;
+				dy = y * frame.height;
 				y = 0;
 			}
 			else if (y > 1)
 			{
-				dy = (y - 1) * mGeo.height;
+				dy = (y - 1) * frame.height;
 				y = 1;
 			}
 
-			return {x: x, y: y, perimeter: false, dx: parseInt(dx), dy: parseInt(dy)};
+			return {x: x, y: y, perimeter: false, dx: Math.round(dx), dy: Math.round(dy)};
 		};
 
 		function fillCPointProp(evt)

@@ -252,7 +252,7 @@
 		    
 			this.addEntry(dt + 'message endpoint', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 150, 90), s + 'rect;verticalLabelPosition=bottom;verticalAlign=top;fillColor=#c0f5a9;html=1;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 150, 90), s + 'rect;verticalLabelPosition=bottom;verticalAlign=top;fillColor=#c0f5a9;html=1;dropTarget=0;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('', new mxGeometry(85, 25, 40, 40), s3 + 'rect;');
 				bg2.vertex = true;
@@ -263,7 +263,7 @@
 			    
 			this.addEntry(dt + 'message endpoint', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 150, 90), s + 'rect;verticalLabelPosition=bottom;verticalAlign=top;fillColor=#c0f5a9;html=1;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 150, 90), s + 'rect;verticalLabelPosition=bottom;verticalAlign=top;fillColor=#c0f5a9;html=1;dropTarget=0;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('', new mxGeometry(25, 25, 40, 40), s3 + 'rect');
 				bg2.vertex = true;
@@ -272,7 +272,7 @@
 			   	return sb.createVertexTemplateFromCells([bg1], bg1.geometry.width, bg1.geometry.height, 'Message Endpoint');
 			}),
 			this.addDataEntry(dt + 'message endpoint', 400, 90, 'Message Endpoint',
-				'zVZNb4JAEP013NcFGj0qWi9t0sRDzyuMsHFhyDJ+9dd3F1aFiK0mNhVCMvNmZj/emwU8P8r3cy3K7B0TUJ4/8/xII1Jj5fsIlPI4k4nnTz3OmXk8/nolOqijrBQaCrqlgDcFW6E20CANUNFBOaAijWv4lAllBuCeP0lElYEdgBlHKJkWxo7NjKANsMKCFvLLVg+NW2WitLaGmGxUKhWhQl0P7sdsFYqRTatnaUVYfZnIFjTJWKg3sQT1gZUkiXbCJRJh3koYu5UQlgbNKDdsTgfGdHs0abC/ylMNOZLmgDmQPpiUndu3zQgbLlkGMs1c2chhomr89FR6Zt0Yjvh+Efx7RRg8VoRVfT2DCLxfBFfAw6bi0HVbEgU9CgUPUCh4/mPyoH4/Uc0uyP2z/g+fv//vZTf4kd3hvzXyy+9UQ5LCwrmglribnYHJZZdr3BTJSQgokrHWuLOvBoXxui4Rmo5ggQUcMafPwNW13Y64Le4vBBoye/curNmY3U1HpQo3OobOi9csJgXq9OINJ0WDEiS33dHv0Ma45+98Hev8BnwD'),
+				'zZZNb+IwEIZ/zdyNDSt6bKD0spUqdaU9m2RIrDqZaDJ87a9fOTGQCLoLUlHrXOIZv/54H08UMLNy98y2Ll4oQw/mCcyMiaR7K3cz9B60chmYOWitQGvQiw+yozarastYyTUC3Qk21q+xi3SBRvY+BhphesffLpMCzFyDSTLbFBgmUGAS611egZmnWAkymGRFlby5P0E9BZM0ha3DO2MqIeu8n5Enbic3qVpN7EMY1q7Sy6i2gUk2yOJS63/aJfpXapw4CgsuSYTK3oDHuBOhGkxSSOnBzEdhv0z1L8s5StxzPDSy4O5D49pQdO0ZqUThPWi1jUaEEZPOXFWgy4soe4gx23T9/Cg9YQC9iCQuUzG3Uhl9LpVV2+5M5SoI+jKEKNCTTrEfdnuIxhcIjT+B0Pj71829CuDovTpz+24FMfn+BXHrzR7/093pl93sH/+3GrMc32IX/ZK2T6dAcn7tmdZVdgSBVfbITNvwrfCUvrcSy3IIVlThIRb5jKKu3x3A7Xl/BmiqwnNxY93BwmkGlBpac4qDL7Eciud0F6+oFEZvxW2Gs9/ABvTi9CfQ5gY/Cn8B'),
 			this.addDataEntry(dt + 'message', 28, 48, 'Message',
 				'5ZVNb8IwDIZ/Ta9TaEcFx1E+Tjtx2HaMqNtES5MqNbTs1y9pwkdFu01iY5MGQrJfx8F57DZBlBTNStOSPaoURBAtgijRSqGziiYBIYKQ8DSI5kEYEvMLwuVAdNRGSUk1SPxKQugSdlRswSlOqHAvvABpDmvvKo1M5UpSsTipM622MgW7IzEeNByfz+wXa9+NrSfTB61VbQSppM1MacWOiQwLc/75yJgVavUKiRJKt0VEE2K/x8gTT5GZSGgUV7CtssOgUlu98dLYSUh1Dh7L/SWpNtFjWoEqAPXeLNEgKPJdd3daOTc/rjtBNobn3M88+hfM4z/F/P5z5pen7JCigufS2BtTOxhCs0xJXPM3mz2xkBgtrW3+l5eVBZ1xIYZxHiK+K74+0AjN4LM8QKv2NdsV/lwMeM6wq13Db3wzfho22AdvuYyTvikl7eewny9n1B3tmnGEdUnb2azNy/ZK4IcEP+N7706ce4N2xL/cjiybTsnlLH/Ujr4enLXo+9sRxT/VDuOebug21rnA3wE='),
 	

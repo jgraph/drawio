@@ -111,11 +111,12 @@ function mxPanningManager(graph)
 		h = (h != null) ? h : 0;
 		
 		var c = graph.container;
+		var borders = this.getBorders(c);
 		this.dx = x + w - c.scrollLeft - c.clientWidth;
 		
-		if (this.dx < 0 && Math.abs(this.dx) < this.border)
+		if (this.dx < 0 && Math.abs(this.dx) < borders.right)
 		{
-			this.dx = this.border + this.dx;
+			this.dx = borders.right + this.dx;
 		}
 		else if (this.handleMouseOut)
 		{
@@ -130,9 +131,9 @@ function mxPanningManager(graph)
 		{
 			this.dx = x - c.scrollLeft;
 			
-			if (this.dx > 0 && this.dx < this.border)
+			if (this.dx > 0 && this.dx < borders.left)
 			{
-				this.dx = this.dx - this.border;
+				this.dx = this.dx - borders.left;
 			}
 			else if (this.handleMouseOut)
 			{
@@ -146,9 +147,9 @@ function mxPanningManager(graph)
 		
 		this.dy = y + h - c.scrollTop - c.clientHeight;
 
-		if (this.dy < 0 && Math.abs(this.dy) < this.border)
+		if (this.dy < 0 && Math.abs(this.dy) < borders.bottom)
 		{
-			this.dy = this.border + this.dy;
+			this.dy = borders.bottom + this.dy;
 		}
 		else if (this.handleMouseOut)
 		{
@@ -163,9 +164,9 @@ function mxPanningManager(graph)
 		{
 			this.dy = y - c.scrollTop;
 			
-			if (this.dy > 0 && this.dy < this.border)
+			if (this.dy > 0 && this.dy < borders.top)
 			{
-				this.dy = this.dy - this.border;
+				this.dy = this.dy - borders.top;
 			}
 			else if (this.handleMouseOut)
 			{
@@ -192,6 +193,44 @@ function mxPanningManager(graph)
 			window.clearInterval(this.thread);
 			this.thread = null;
 		}
+	};
+	
+	this.getBorders = function(c)
+	{
+		var result = {left: this.border, top: this.border,
+			right: this.border, bottom: this.border};
+		
+		// Uses windowBorder on the sides where the container touches
+		// the window edge and the mouse cannot leave the container
+		if (this.windowBorder > 0)
+		{
+			var r = c.getBoundingClientRect();
+			var wb = this.windowBorder;
+			var ww = window.innerWidth || document.documentElement.clientWidth;
+			var wh = window.innerHeight || document.documentElement.clientHeight;
+			
+			if (r.left < 1)
+			{
+				result.left = Math.max(result.left, wb);
+			}
+			
+			if (r.top < 1)
+			{
+				result.top = Math.max(result.top, wb);
+			}
+			
+			if (r.left + c.clientLeft + c.clientWidth > ww - 1)
+			{
+				result.right = Math.max(result.right, wb);
+			}
+			
+			if (r.top + c.clientTop + c.clientHeight > wh - 1)
+			{
+				result.bottom = Math.max(result.bottom, wb);
+			}
+		}
+		
+		return result;
 	};
 	
 	this.stop = function()
@@ -263,3 +302,12 @@ mxPanningManager.prototype.handleMouseOut = true;
  * Border to handle automatic panning inside the component. Default is 0 (disabled).
  */
 mxPanningManager.prototype.border = 0;
+
+/**
+ * Variable: windowBorder
+ * 
+ * Border to handle automatic panning inside the component on the sides
+ * where the component touches the edge of the window, where the mouse
+ * cannot leave the component. Default is 0 (disabled).
+ */
+mxPanningManager.prototype.windowBorder = 0;

@@ -5508,6 +5508,30 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 };
 
 /**
+ * Returns true if the given cells are a single unconnected edge and the
+ * selection consists of two connectable vertices.
+ */
+Sidebar.prototype.isConnectSelectedVertices = function(cells)
+{
+	var graph = this.editorUi.editor.graph;
+	var model = graph.model;
+
+	if (cells != null && cells.length == 1 && model.isEdge(cells[0]) &&
+		model.getTerminal(cells[0], true) == null &&
+		model.getTerminal(cells[0], false) == null &&
+		graph.getSelectionCount() == 2)
+	{
+		var sel = graph.getSelectionCells();
+
+		return sel[0] != sel[1] && model.isVertex(sel[0]) &&
+			model.isVertex(sel[1]) && graph.isCellConnectable(sel[0]) &&
+			graph.isCellConnectable(sel[1]);
+	}
+
+	return false;
+};
+
+/**
  * Adds a handler for inserting the cell with a single click.
  */
 Sidebar.prototype.itemClicked = function(cells, ds, evt, elt)
@@ -5546,6 +5570,34 @@ Sidebar.prototype.itemClicked = function(cells, ds, evt, elt)
 			(mxEvent.isShiftDown(evt) ? mxConstants.DIRECTION_EAST : mxConstants.DIRECTION_SOUTH),
 			index, evt, firstVertex, freeSourceEdge));
 		graph.scrollCellToVisible(graph.getSelectionCell());
+	}
+	// Click on edge connects two selected vertices (in selection order)
+	else if (!mxEvent.isAltDown(evt) && !mxEvent.isShiftDown(evt) &&
+		this.isConnectSelectedVertices(cells))
+	{
+		var sel = graph.getSelectionCells();
+		var edge = graph.cloneCell(cells[0]);
+		var geo = edge.geometry;
+
+		if (geo != null)
+		{
+			geo.setTerminalPoint(null, true);
+			geo.setTerminalPoint(null, false);
+			geo.points = null;
+		}
+
+		graph.model.beginUpdate();
+		try
+		{
+			edge = graph.addEdge(edge, null, sel[0], sel[1]);
+			graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [edge]));
+		}
+		finally
+		{
+			graph.model.endUpdate();
+		}
+
+		graph.setSelectionCell(edge);
 	}
 	// Shift+Click updates shape
 	else if (mxEvent.isShiftDown(evt) && !graph.isSelectionEmpty())

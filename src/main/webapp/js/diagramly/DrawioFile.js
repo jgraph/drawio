@@ -1406,9 +1406,7 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges, 
 				// Verifies that the snapshot matches the pages while no
 				// local changes are pending, ie. the next outgoing diff
 				// must be empty
-				// Release telemetry: the check also runs in sampled sessions
-				if ((urlParams['test'] == '1' || (EditorUi.realtimeTelemetry &&
-					EditorUi.realtimeTelemetrySampled)) && !this.sync.localFileWasChanged &&
+				if (urlParams['test'] == '1' && !this.sync.localFileWasChanged &&
 					this.ui.getHashValueForPages(this.sync.snapshot) !=
 					this.ui.getHashValueForPages(this.ui.pages))
 				{
@@ -1416,13 +1414,7 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges, 
 						'snapshot mismatch', this.sync.snapshot,
 						'pages', this.ui.pages, 'diff', this.ui.diffPages(
 							this.sync.snapshot, this.ui.pages));
-					EditorUi.logRealtime('snapshot-drift',
-						{p: this.ui.pages.length}, this, this.getId());
-
-					if (urlParams['test'] == '1')
-					{
-						this.ui.alert('Snapshot out of sync');
-					}
+					this.ui.alert('Snapshot out of sync');
 				}
 			}
 			
@@ -1992,8 +1984,6 @@ DrawioFile.prototype.handleWriteRevoked = function(err)
 	{
 		return;
 	}
-
-	EditorUi.logRealtime('write-revoked', null, this, this.getId());
 
 	try
 	{
@@ -3095,8 +3085,6 @@ DrawioFile.prototype.requireAppUpgrade = function()
 	if (!this.appUpgradeRequired)
 	{
 		this.appUpgradeRequired = true;
-		EditorUi.logRealtime('upgrade-required', {min: (this.sync != null) ?
-			this.sync.minRemoteAppVersion : null}, this, this.getId());
 		this.clearAutosave();
 
 		if (this.sync != null)
@@ -3699,7 +3687,7 @@ DrawioFile.prototype.fileChanged = function(sync, edit, reactive)
  */
 DrawioFile.prototype.createSecret = function(success)
 {
-	var secret = Editor.guid(32);
+	var secret = Editor.secureGuid(32);
 	
 	if (Editor.enableRealtimeCache && this.sync != null &&
 		!this.isOptimisticSync())
@@ -4009,21 +3997,6 @@ DrawioFile.prototype.close = function(unloading)
 	}
 	
 	this.stats.closed++;
-
-	// Release telemetry: session summary of sampled and flagged sessions
-	if (this.sync != null && EditorUi.realtimeTelemetry &&
-		(EditorUi.realtimeTelemetrySampled || this.realtimeTelemetryFlagged))
-	{
-		var s = this.stats;
-
-		EditorUi.logRealtime('session', {rt: (this.isRealtime()) ? 1 : 0,
-			min: Math.round((Date.now() - this.created) / 60000), saved: s.saved,
-			merged: s.merged, fm: s.fileMerged, fr: s.fileReloaded,
-			conf: s.conflicts, to: s.timeouts, cs: s.checksumErrors,
-			join: s.joined, ms: s.msgSent, mr: s.msgReceived, ch: s.cacheHits,
-			cm: s.cacheMiss, cf: s.cacheFail}, this, null, unloading);
-	}
-
 	this.destroy();
 };
 

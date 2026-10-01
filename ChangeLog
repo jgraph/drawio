@@ -1,3 +1,167 @@
+29-SEP-2026: 31.6.1
+
+- Keeps the embed filename before the buttons when the title changes
+- Fixes the noLabel check for disabled font colors [jgraph/drawio#4694]
+- Translation keys for embed macro pinned version
+- Makes the math text layer selectable in macOS Preview
+- Resizes autosize cells with math when math typesetting is turned on or off
+- Fixes the hover state of the autosize button in the Arrange panel
+- Fixes blank edge style toolbar icons after load
+- Fixes autosize of labels with AsciiMath
+- Updates stable to next release
+- Fixes undo shortcuts in the color picker window [jgraph/drawio-desktop#2395]
+- Shows month names in revision history dates [jgraph/drawio#5234]
+- Hardens realtime message decoding on encrypted channels
+- Fixes saving diagrams in the Notion extension [jgraph/drawio#5785]
+- Updates Notion extension to 1.3.4
+- Added Conf Cloud deep scan translation keys
+- Keeps lockdown saves off the realtime cache
+
+28-SEP-2026: 31.6.0
+
+- Limits PDF object stream scans to one pass [jgraph/drawio-dev#572]
+- Makes PDF inline and referenced Subject scans linear [jgraph/drawio-dev#572]
+- Skips math typesetting in exports of pages without math
+- Applies MathJax safe filters at startup
+- Uses the rotated Picker API key and explains the multi-account error in the Google add-ons [jgraph/drawio#5559]
+- Adds a regression suite for the Visio importer
+- Keeps referer paths, file names and client IPs out of the convert worker logs
+- Keeps proxied URLs, referer paths and OAuth state out of the edge logs
+- Adds a Google Workspace add-on worker (smart chips, Docs @-menu, Chat)
+- Removes the temporary realtime release telemetry [jgraph/drawio-dev#677]
+- Puts the fast-rt channel listing behind the admin secret and removes its shard reset
+- Serves the fast-rt socket totals from a 15 s cache instead of reading all 64 shards per request
+- Applies every color from the color window to the selected text [jgraph/drawio#5783]
+- Keeps the text selected after changing its color in Firefox [jgraph/drawio#5783]
+- Uses the sequence edge style for the UML 2.5 lifelines [jgraph/drawio#5706]
+- Adds Visio import tests for color injection into labels and styles
+- Accepts only valid colors in the Visio importer
+- Adds Visio import tests for font name and text direction injection into labels
+- Accepts only safe font names and text directions in the Visio importer
+- Reports CSS injected into labels in the Visio import security scan
+- Adds a Diagrams panel and simpler insert and update to the Google add-ons [jgraph/drawio#5559]
+- Uses the sequence edge style in the sequence templates [jgraph/drawio#5706]
+- Lists each template once in the template search
+- Fixes diagram sizes, empty pages and the My Drive filter in the Google add-ons [jgraph/drawio#5559]
+- Adds an authenticated licence endpoint that counts Workspace editors per domain and month
+- Stops the auth worker redirecting OAuth tokens to another site
+- Applies the security review to the licence endpoint
+- Adds a Google Drive home screen behind a flag
+- Moves HomeDialog out of Dialogs.js into its own file
+- Converts binary Visio files in the browser before the Visio import
+- Stops the Home screen clipping focus rings in Firefox
+- Points Shared with me at the Picker and scopes the Home CSS
+- Removes the old Visio import experiments in etc/vsdx
+- Removes the unused Visio batch converter in etc/vsdx-convert
+- Removes excludes for Visio folders that no longer exist
+- Fixes the Visio codec check in the connectors' importer
+- Keeps the Drive descriptor when the latest version needs an import
+- Records the error log groups of the week of 2026-09-28
+- Adds a synchronous single-file MathJax bundle build
+- Adds a comparison harness for the MathJax bundle
+- Loads MathJax from the single-file bundle for SVG output
+- Adds a Visio import test for the display text of text fields
+- Shows Visio's display text for text fields in the Visio importer
+- Adds the formula source as invisible text to math in PDF export and print
+- Drops the CHTML math output (math-output=html)
+- Sanitizes AsciiMath output with the MathJax safe filters
+- Sanitizes AsciiMath output with the MathJax safe filters
+- Makes MathJax typesetting synchronous in the bundle
+- Removes the asynchronous MathJax retry handling
+- Loads the MathJax bundle in the embed script
+- Replaces MathJax's separate components with the bundle
+- Loads MathJax only when math is first typeset
+- Makes the MathJax safe filters fail closed
+- Hides the empty properties section in the Edit Data dialog
+- Stops the format panel clipping focus rings of full-width controls
+- Centers the wait toggle icon in the animation step list
+- Corrects the VSDX module guide
+- Notes who loads the standalone Visio importer page
+- Removes the unused conf-vsdx-enabled worker
+- Filters the My Drive tab of the Google Drive pickers by file type
+- Hides animation step controls that have no effect
+- Labels the layer and tag pickers' clear button "None" in the action dialog
+- Widens the URL field of the Open step in the action editor
+- Highlights cells revealed earlier in a custom-link click like the preview
+- Lines up the animation step rows and keeps chips from being overlapped
+- Starts the page animation after a page switch in presentation mode
+- Keeps the animation dialog buttons inside a narrow dialog
+- Converts binary Visio files in the browser in the connectors' importer
+- Explains excluded-cell conflicts in the action dialog's no-effect warning
+- Resolves page links with spaces and flags malformed ones in the Open step
+- Hides the connectors of cells hidden by a transient toggle, show or hide
+- Shows the link as tooltip for cells in locked layers and names custom links
+- Shows legacy layer IDs in custom links as layers in the action editor
+- Keeps the sources in Cloudflare Pages branch previews and opens them in dev mode
+- Fixes the misspelled content type in Google Drive uploads
+- Updates the binary Visio converter bundle
+- Moves the Visio import test data to the drawio-visio-test repository
+- Adds number and page number overrides of master text to the field test
+- Moves the MathJax ui/safe hardening into the bundle's source
+- Uses the master's Format for field values that an instance overrides
+- Wraps the fields of wide animation step rows instead of scrolling them away
+- Adds regular hexagon to the Basic palette [jgraph/drawio#4434]
+- Disables drop target on EIP Message Endpoint shapes [jgraph/drawio-desktop#2030]
+- Connects two selected shapes when clicking an edge in the sidebar [jgraph/drawio-desktop#1962]
+- Adds expand option to open custom config libraries expanded [jgraph/drawio#4662]
+- Adds missing viewBox to Azure SVG icons
+- Changes the default border for PDF export to 0 [jgraph/drawio#5682]
+- Adds mobile device container to the C4 palette [jgraph/drawio#4704]
+- Shows the grid size in the current unit in Page Setup [jgraph/drawio#604]
+- Adds autoscroll near window edges when dragging with hidden side panels [jgraph/drawio#5044]
+- Adds math typesetting to tooltips if math is enabled [jgraph/drawio#5041]
+- Adds Shift+Insert paste shortcut [jgraph/drawio#5699]
+- Adds a search filter to the Property panel [jgraph/drawio#5771]
+- Adds fullscreen option to the fullscreen button of embedded lightbox toolbars [jgraph/drawio#5372]
+- Ignores freehand strokes while panning with Space+drag [jgraph/drawio#4595]
+- Adds unflipStencilText style to keep stencil text readable in flipped shapes [jgraph/drawio#5462]
+- Finds and reveals cells inside collapsed containers in Find [jgraph/drawio#4733]
+- Moves only cells in the same column or row when folding with move cells [jgraph/drawio#5414]
+- Shows tooltips while hovering with a pen [jgraph/drawio-desktop#2189]
+- Shows the shape unrotated in the connection points dialog [jgraph/drawio#4108]
+- Hides fill option for line shapes in the format panel [jgraph/drawio#4816]
+- Fixes transparent background for PNG export with a diagram background [jgraph/drawio-desktop#1905]
+- Sorts SharePoint sites alphabetically in the OneDrive picker [jgraph/drawio#2870]
+- Enlarges the hit area of small folding icons [jgraph/drawio#4337]
+- Shows bundled keyboard shortcuts in a dialog in the desktop app [jgraph/drawio-desktop#1130]
+- Makes the MathJax ui/safe filters fail closed
+- Grows Visio shapes to the extent of their drawing in the importer
+- Ignores non-JSON icon search responses in the sidebar search
+- Restores the bounding box when wipe and pop animations stop [jgraph/drawio#5777]
+- Adds palettes, per-frame delays and changed-rectangle frames to the GIF encoder [jgraph/drawio#5777]
+- Adds GIF and MP4 export of page step animations [jgraph/drawio#5777]
+- Renders Visio library references at each master's drawing scale
+- Applies older Visio themes in the importer
+- Finds Visio themes by their theme scheme ID in the importer
+- Pairs only master entries with Visio library references
+- Shares the text edit code of the MathJax source loaders
+- Replaces the unflipStencilText style with a flip-shape stencil text attribute [jgraph/drawio#5462]
+- Gives the MathJax bundle its own global, DrawioMathJax
+- Wraps the View step's fields in narrow animation dialogs
+- Rotates Visio text blocks around their pin and mirrors them with flips
+- Places the text of rotated and flipped Visio lines with their transform
+- Shows flipped shapes unflipped in the connection points dialog [jgraph/drawio#4108]
+- Fixes hidden label after applying a style to a shape with disabled font color [jgraph/drawio#4694]
+- Routes rotated, flipped and reversed Visio lines with their transform
+- Fixes window.open returning a Promise for blank windows in the desktop app
+- Keeps the preview button on its row's field line in Safari animation dialogs
+- Draws Visio group geometry in front of the members
+- Places Visio shapes turned or flipped around an off-center pin
+- Keeps numeric text sizes through the MathJax safe filters
+- Fills Visio geometry with holes like Visio's even-odd rule
+- Keeps the open stencil path apart while the importer writes it
+- Mirrors the members of flipped Visio groups
+- Draws Visio lines with a custom line pattern thin
+- Fills Visio shapes whose theme gradient overrides FillPattern 0
+- Shows the tags button in the Confluence Cloud lightbox [jgraph/drawio#5548]
+- Shows shapes without their direction in the connection points dialog [jgraph/drawio#4108]
+- Rounds connection point offsets in the connection points dialog [jgraph/drawio#4108]
+- Passes target and features for blank windows in the desktop app
+- Updates the vendored drawio-plantuml bundle to commit 050d5db
+- Keeps edge terminals in the offscreen copy of the animation export [jgraph/drawio#5777]
+- Reports errors after the last frame of the animation export [jgraph/drawio#5777]
+- Adds npm run update for new MathJax releases
+
 25-SEP-2026: 31.5.3
 
 - Keeps UML sequence messages at their own y [jgraph/drawio#5706]

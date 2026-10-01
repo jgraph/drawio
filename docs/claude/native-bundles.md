@@ -12,6 +12,7 @@ with frequent dev-branch merges while the ports are in active development.)
 | `../drawio-elk` (`jgraph/drawio-elk`) | `js/elk/drawio-elk.min.js` | `window.ELK` + `ElkLayout`/`ElkAdapter`/`ElkApplier` (incl. `DEFAULTS`/`MENU_PRESETS`/`CANONICAL_EDGE`) | `diagramly/ElkLayout.js` (editor UI statics), `drawio-mermaid` (reads `globalThis.ELK`), drawio-mcp (vendored copy) |
 | `../drawio-mermaid` (`jgraph/drawio-mermaid`) | `js/mermaid/drawio-mermaid.min.js` | `mxMermaidToDrawio` | `EditorUi.parseMermaidDiagram`, `Devel.js`, `export3.html` |
 | `../drawio-libavoid` (`jgraph/drawio-libavoid`) | `js/libavoid-js/libavoid.min.js` | `globalThis.Avoid` (+ `window.__libavoidReady`) | `js/libavoid-js/libavoid-routing.js` (core) + `diagramly/LibavoidRouting.js` (adapter) |
+| `../drawio-vsd` | `js/vsd/drawio-vsd.min.js` | `globalThis.DrawioVsd` (`convert`, `isBinaryVisio`) | `EditorUi.convertBinaryVisio` → `importVisio`: binary .vsd/.vss/.vst → .vsdx/.vssx/.vstx in the browser, conversion service (`VSS_CONVERT_URL`) only as fallback |
 
 ## Load order (fixed)
 

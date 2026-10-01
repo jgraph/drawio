@@ -479,102 +479,6 @@
 	};
 
 	/**
-	 * Temporary telemetry for the realtime v7 rollout, remove after the
-	 * soak (set to false or revert the commit that added it). Sends
-	 * anomaly counters as WARNING entries to the log endpoint so the
-	 * release can be watched per client version in Logs Explorer
-	 * (textPayload:"CLIENT-LOG:rt7:"). A message carries the hashed file
-	 * id, the file mode, the random sync client id and short sanitized
-	 * fields only - no URL, stack, labels or user ids.
-	 */
-	EditorUi.realtimeTelemetry = true;
-
-	/**
-	 * Share of page loads that also run the sampled checks (snapshot drift
-	 * and the session summary) in addition to the anomaly events.
-	 */
-	EditorUi.realtimeTelemetrySampled = Math.random() < 0.02;
-
-	/**
-	 * Events sent per name and page load, keyed events fire once per key.
-	 */
-	EditorUi.realtimeTelemetryMax = 10;
-
-	/**
-	 * Counts sent events per name and key for the caps above.
-	 */
-	EditorUi.realtimeTelemetryCounts = Object.create(null);
-
-	/**
-	 * Sends an rt7 telemetry event. Fields are reduced to a short safe
-	 * charset. A file adds its hashed id, mode and sync client id and is
-	 * flagged so that its session summary is reported on close. Beacon
-	 * sends via sendBeacon for page unloads.
-	 */
-	EditorUi.logRealtime = function(name, fields, file, key, beacon)
-	{
-		try
-		{
-			if (EditorUi.realtimeTelemetry && name != null)
-			{
-				var id = name + ((key != null) ? ':' + key : '');
-				var count = EditorUi.realtimeTelemetryCounts[id] || 0;
-
-				if (count < ((key != null) ? 1 : EditorUi.realtimeTelemetryMax))
-				{
-					EditorUi.realtimeTelemetryCounts[id] = count + 1;
-
-					var clean = function(value)
-					{
-						return String(value).replace(/[^A-Za-z0-9._-]/g, '').substring(0, 32);
-					};
-
-					var msg = 'rt7:' + clean(name);
-
-					if (file != null)
-					{
-						file.realtimeTelemetryFlagged = true;
-						msg += ':f=' + file.ui.hashValue(file.getId()) +
-							((file.getMode() != null) ? ',m=' + clean(file.getMode()) : '') +
-							((file.sync != null) ? ',c=' + clean(file.sync.clientId) : '');
-					}
-
-					if (fields != null)
-					{
-						for (var k in fields)
-						{
-							if (fields[k] != null)
-							{
-								msg += ',' + clean(k) + '=' + clean(fields[k]);
-							}
-						}
-					}
-
-					if (urlParams['dev'] == '1')
-					{
-						EditorUi.debug('logRealtime', msg);
-					}
-					else if (EditorUi.enableLogging)
-					{
-						var url = ((window.DRAWIO_LOG_URL != null) ? window.DRAWIO_LOG_URL : '') +
-							'/log?severity=WARNING&v=' + encodeURIComponent(EditorUi.VERSION) +
-							'&msg=' + encodeURIComponent(msg);
-
-						if (!beacon || navigator.sendBeacon == null || !navigator.sendBeacon(url))
-						{
-							new Image().src = url;
-						}
-					}
-				}
-			}
-		}
-		catch (e)
-		{
-			// ignore
-		}
-	};
-
-	/**
 	 * Adds the listener for automatically saving the diagram for local changes.
 	 */
 	EditorUi.debug = function()
@@ -1740,7 +1644,7 @@
 	 */
 	EditorUi.isVisioFilename = function(filename)
 	{
-		return (/(\.v(dx|sdx?))($|\?)/i.test(filename) ||
+		return (/(\.v(dx|sdx?|stx?))($|\?)/i.test(filename) ||
 			/(\.vs(x|sx?))($|\?)/i.test(filename));
 	};
 
@@ -2165,7 +2069,7 @@
 	{
 		var ts = new Date(modifiedDate);
 
-		return (!isNaN(ts.getTime()) && ts.getTime() >= 0) ? ts.toLocaleString() : null;
+		return (!isNaN(ts.getTime()) && ts.getTime() >= 0) ? this.formatDateTime(ts) : null;
 	};
 
 	/**
@@ -6680,16 +6584,7 @@
 					{
 						id = (id.substring(0, 2) == '#U') ? id.substring(45, id.lastIndexOf('%26ex')) : id.substring(2);
 						
-						// Special case where the button must have a different label and function
-						this.showError(title, msg, mxResources.get('tryOpeningViaThisPage'), mxUtils.bind(this, function()
-						{
-							this.editor.graph.openLink('https://drive.google.com/open?id=' + id);
-
-							if (invokeFnOnClose != null)
-							{
-								invokeFnOnClose();
-							}
-						}), retry, mxResources.get('changeUser'), mxUtils.bind(this, function()
+						var changeUser = mxUtils.bind(this, function()
 						{
 							var driveUsers = this.drive.getUsersList();
 							var div = document.createElement('div');
@@ -6760,7 +6655,31 @@
 								this.loadFile(window.location.hash.substr(1), true);
 							}));
 							this.showDialog(dlg.container, 300, 100, true, true);
-						}), mxResources.get('cancel'), mxUtils.bind(this, function()
+						});
+
+						// One click to pick the file and grant it, where the Home screen is on
+						if (this.isHomeEnabled != null && this.isHomeEnabled() &&
+							this.showDriveAccessDialog(id, changeUser, function()
+							{
+								if (fn != null)
+								{
+									fn();
+								}
+							}))
+						{
+							return;
+						}
+
+						// Special case where the button must have a different label and function
+						this.showError(title, msg, mxResources.get('tryOpeningViaThisPage'), mxUtils.bind(this, function()
+						{
+							this.editor.graph.openLink('https://drive.google.com/open?id=' + id);
+
+							if (invokeFnOnClose != null)
+							{
+								invokeFnOnClose();
+							}
+						}), retry, mxResources.get('changeUser'), changeUser, mxResources.get('cancel'), mxUtils.bind(this, function()
 						{
 							this.hideDialog();
 							
@@ -7129,146 +7048,134 @@
 	};
 
 	/**
-	 * Shows the animated GIF export dialog.
+	 * Shows the animation export dialog. Exports the flow animations as an
+	 * animated GIF and, if the page has a step animation, the step animation
+	 * as an animated GIF or MP4 video.
 	 */
 	EditorUi.prototype.showAnimatedGifExportDialog = function()
 	{
+		var pageAnimation = (typeof AnimationExport !== 'undefined') ?
+			AnimationExport.getAnimationData(this.editor.graph) : null;
+		var videoSupported = typeof Mp4Encoder !== 'undefined' &&
+			Mp4Encoder.isSupported();
+		var duration = (pageAnimation != null) ?
+			AnimationExport.getDuration(this, pageAnimation) : 0;
+
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
 
 		var hd = document.createElement('h3');
-		mxUtils.write(hd, mxResources.get('formatAnimatedGif'));
+		mxUtils.write(hd, mxResources.get((pageAnimation != null) ?
+			'animation' : 'formatAnimatedGif'));
 		div.appendChild(hd);
 
 		// --- Settings section ---
 		var section = document.createElement('div');
 		section.className = 'geDialogSection';
 
-		// Speed (FPS)
-		var formRow = document.createElement('div');
-		formRow.className = 'geDialogFormRow';
-		var lbl = document.createElement('span');
-		lbl.className = 'geDialogFormLabel';
-		mxUtils.write(lbl, mxResources.get('speed') + ':');
-		formRow.appendChild(lbl);
-		var fpsSelect = document.createElement('select');
+		var addRow = function(label, elt)
+		{
+			var formRow = document.createElement('div');
+			formRow.className = 'geDialogFormRow';
+			var lbl = document.createElement('span');
+			lbl.className = 'geDialogFormLabel';
+			mxUtils.write(lbl, label + ':');
+			formRow.appendChild(lbl);
+			formRow.appendChild(elt);
+			section.appendChild(formRow);
 
-		var fpsOptions = [
+			return formRow;
+		};
+
+		var createSelect = function(options, value, defaultValue)
+		{
+			var select = document.createElement('select');
+
+			for (var i = 0; i < options.length; i++)
+			{
+				var opt = document.createElement('option');
+				mxUtils.write(opt, options[i].label);
+				opt.setAttribute('value', options[i].value);
+				select.appendChild(opt);
+			}
+
+			select.value = (value != null) ? value : defaultValue;
+
+			// Stored value may be an option that doesn't exist here
+			if (select.selectedIndex < 0)
+			{
+				select.value = defaultValue;
+			}
+
+			return select;
+		};
+
+		// Source is the step animation of the page or the flow animations
+		var sourceSelect = createSelect([
+			{label: mxResources.get('pageAnimation'), value: 'page'},
+			{label: mxResources.get('animations'), value: 'flow'}],
+			this.lastExportAnimationSource, 'page');
+		var sourceRow = addRow(mxResources.get('animation'), sourceSelect);
+
+		// Format of the page animation
+		var formatSelect = createSelect([
+			{label: mxResources.get('formatAnimatedGif'), value: 'gif'},
+			{label: mxResources.get('formatMp4'), value: 'mp4'}],
+			this.lastExportAnimationFormat, 'gif');
+		var formatRow = addRow(mxResources.get('format'), formatSelect);
+
+		// Speed (FPS)
+		var fpsSelect = createSelect([
 			{label: mxResources.get('slow'), value: 8},
 			{label: mxResources.get('medium'), value: 15},
-			{label: mxResources.get('fast'), value: 24}
-		];
-
-		for (var i = 0; i < fpsOptions.length; i++)
-		{
-			var opt = document.createElement('option');
-			mxUtils.write(opt, fpsOptions[i].label);
-			opt.setAttribute('value', fpsOptions[i].value);
-			fpsSelect.appendChild(opt);
-		}
-
-		fpsSelect.value = (this.lastExportFps != null) ? this.lastExportFps : 15;
-
-		if (fpsSelect.selectedIndex < 0)
-		{
-			fpsSelect.value = 15;
-		}
-
-		formRow.appendChild(fpsSelect);
-		section.appendChild(formRow);
+			{label: mxResources.get('fast'), value: 24}],
+			this.lastExportFps, 15);
+		addRow(mxResources.get('speed'), fpsSelect);
 
 		// Zoom
-		formRow = document.createElement('div');
-		formRow.className = 'geDialogFormRow';
-		lbl = document.createElement('span');
-		lbl.className = 'geDialogFormLabel';
-		mxUtils.write(lbl, mxResources.get('zoom') + ':');
-		formRow.appendChild(lbl);
 		var zoomInput = document.createElement('input');
 		zoomInput.setAttribute('type', 'text');
 		zoomInput.value = this.lastExportZoom || '100%';
-		formRow.appendChild(zoomInput);
-		section.appendChild(formRow);
+		var zoomRow = addRow(mxResources.get('zoom'), zoomInput);
 
 		// Border
-		formRow = document.createElement('div');
-		formRow.className = 'geDialogFormRow';
-		lbl = document.createElement('span');
-		lbl.className = 'geDialogFormLabel';
-		mxUtils.write(lbl, mxResources.get('borderWidth') + ':');
-		formRow.appendChild(lbl);
 		var borderInput = document.createElement('input');
 		borderInput.setAttribute('type', 'text');
 		borderInput.value = this.lastExportBorder || '0';
-		formRow.appendChild(borderInput);
-		section.appendChild(formRow);
+		var borderRow = addRow(mxResources.get('borderWidth'), borderInput);
 
-		// Loop
-		formRow = document.createElement('div');
-		formRow.className = 'geDialogFormRow';
-		lbl = document.createElement('span');
-		lbl.className = 'geDialogFormLabel';
-		mxUtils.write(lbl, mxResources.get('loops') + ':');
-		formRow.appendChild(lbl);
-		var loopSelect = document.createElement('select');
-
-		var loopOptions = [
+		// Loop (the page animation uses its own loop setting)
+		var loopSelect = createSelect([
 			{label: mxResources.get('forever'), value: 0},
 			{label: '1', value: 1},
 			{label: '3', value: 3},
-			{label: '5', value: 5}
-		];
-
-		for (var i = 0; i < loopOptions.length; i++)
-		{
-			var opt = document.createElement('option');
-			mxUtils.write(opt, loopOptions[i].label);
-			opt.setAttribute('value', loopOptions[i].value);
-			loopSelect.appendChild(opt);
-		}
-
-		loopSelect.value = (this.lastExportLoops != null) ? this.lastExportLoops : 0;
-
-		if (loopSelect.selectedIndex < 0)
-		{
-			loopSelect.value = 0;
-		}
-
-		formRow.appendChild(loopSelect);
-		section.appendChild(formRow);
+			{label: '5', value: 5}],
+			this.lastExportLoops, 0);
+		var loopRow = addRow(mxResources.get('loops'), loopSelect);
 
 		// Appearance selects the color scheme that light-dark() colors
 		// resolve to when the frames are rasterized [jgraph/drawio#5619]
-		formRow = document.createElement('div');
-		formRow.className = 'geDialogFormRow';
-		lbl = document.createElement('span');
-		lbl.className = 'geDialogFormLabel';
-		mxUtils.write(lbl, mxResources.get('appearance') + ':');
-		formRow.appendChild(lbl);
-		var themeSelect = document.createElement('select');
-
-		var lightOption = document.createElement('option');
-		lightOption.setAttribute('value', 'light');
-		mxUtils.write(lightOption, mxResources.get('light'));
-		themeSelect.appendChild(lightOption);
-
-		var darkOption = document.createElement('option');
-		darkOption.setAttribute('value', 'dark');
-		mxUtils.write(darkOption, mxResources.get('dark'));
-		themeSelect.appendChild(darkOption);
-
 		var defaultTheme = (Editor.isDarkMode()) ? 'dark' : 'light';
-		themeSelect.value = (this.lastExportTheme != null) ?
-			this.lastExportTheme : defaultTheme;
+		var themeSelect = createSelect([
+			{label: mxResources.get('light'), value: 'light'},
+			{label: mxResources.get('dark'), value: 'dark'}],
+			this.lastExportTheme, defaultTheme);
+		addRow(mxResources.get('appearance'), themeSelect);
 
-		// Stored override may be an option that doesn't exist here (eg. auto)
-		if (themeSelect.selectedIndex < 0)
-		{
-			themeSelect.value = defaultTheme;
-		}
-
-		formRow.appendChild(themeSelect);
-		section.appendChild(formRow);
+		// Length of the page animation and the GIF limit, aligned
+		// with the controls
+		var hintRow = document.createElement('div');
+		hintRow.className = 'geDialogFormRow geDialogFormRowTop';
+		var hintLabel = document.createElement('span');
+		hintLabel.className = 'geDialogFormLabel';
+		hintRow.appendChild(hintLabel);
+		var hint = document.createElement('span');
+		hint.className = 'geDialogHint';
+		hint.style.flex = '1';
+		hint.style.whiteSpace = 'normal';
+		hint.style.lineHeight = 'normal';
+		hintRow.appendChild(hint);
+		section.appendChild(hintRow);
 
 		div.appendChild(section);
 
@@ -7282,43 +7189,223 @@
 
 		div.appendChild(optSection);
 
-		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
-		{
-			var zoomVal = parseInt(zoomInput.value);
+		var maxGif = (typeof AnimationExport !== 'undefined') ?
+			AnimationExport.maxGifDuration : 0;
 
-			if (isNaN(zoomVal) || zoomVal <= 0)
+		// GIF files of long animations are too large if MP4 is available
+		var isGifTooLong = function()
+		{
+			return videoSupported && duration > maxGif;
+		};
+
+		var isPage = function()
+		{
+			return pageAnimation != null && sourceSelect.value == 'page';
+		};
+
+		var dlg = null;
+
+		var update = function()
+		{
+			var page = isPage();
+			var tooLong = page && formatSelect.value == 'gif' && isGifTooLong();
+			sourceRow.style.display = (pageAnimation != null) ? '' : 'none';
+			formatRow.style.display = (page && videoSupported) ? '' : 'none';
+			zoomRow.style.display = (page) ? 'none' : '';
+			borderRow.style.display = (page) ? 'none' : '';
+			loopRow.style.display = (page) ? 'none' : '';
+			optSection.style.display = (page) ? 'none' : '';
+			hint.textContent = '';
+
+			if (page)
 			{
-				zoomVal = 100;
+				mxUtils.write(hint, mxResources.get('animationLength',
+					[Math.round(duration / 100) / 10]));
+
+				if (tooLong)
+				{
+					mxUtils.br(hint);
+					mxUtils.write(hint, mxResources.get('gifTooLong',
+						[Math.round(maxGif / 1000)]));
+				}
 			}
 
+			hintRow.style.display = (page) ? '' : 'none';
+
+			if (dlg != null)
+			{
+				dlg.okButton.disabled = tooLong;
+			}
+		};
+
+		// Suggests MP4 for animations that are too long for GIF
+		if (this.lastExportAnimationFormat == null && isGifTooLong())
+		{
+			formatSelect.value = 'mp4';
+		}
+
+		dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
+		{
+			var page = isPage();
+			var format = (page && videoSupported) ? formatSelect.value : 'gif';
+
 			// Keeps manually changed settings for the session
-			this.lastExportZoom = zoomVal + '%';
-			this.lastExportBorder = borderInput.value;
 			this.lastExportFps = (parseInt(fpsSelect.value) != 15) ?
 				parseInt(fpsSelect.value) : null;
-			this.lastExportLoops = (parseInt(loopSelect.value) != 0) ?
-				parseInt(loopSelect.value) : null;
-			this.lastExportTransparent = (transparent.checked) ? true : null;
 			this.lastExportTheme = (themeSelect.value == defaultTheme) ?
 				null : themeSelect.value;
 
-			this.exportAnimatedGif({
-				fps: parseInt(fpsSelect.value),
-				scale: zoomVal / 100,
-				border: parseInt(borderInput.value) || 0,
-				repeat: parseInt(loopSelect.value),
-				transparent: transparent.checked,
-				theme: themeSelect.value,
-				background: transparent.checked ? null :
-					((this.editor.graph.background != null &&
-					  this.editor.graph.background != mxConstants.NONE) ?
-						this.editor.graph.background :
-						Editor.getDefaultPageBackgroundColor())
-			});
+			if (pageAnimation != null)
+			{
+				this.lastExportAnimationSource = (sourceSelect.value != 'page') ?
+					sourceSelect.value : null;
+			}
+
+			var background = (this.editor.graph.background != null &&
+				this.editor.graph.background != mxConstants.NONE) ?
+				this.editor.graph.background :
+				Editor.getDefaultPageBackgroundColor();
+
+			if (page)
+			{
+				if (videoSupported)
+				{
+					this.lastExportAnimationFormat = (format != 'gif') ? format : null;
+				}
+
+				this.exportPageAnimation({
+					format: format,
+					fps: parseInt(fpsSelect.value),
+					loop: format == 'gif' && pageAnimation.loop,
+					theme: themeSelect.value,
+					background: background
+				});
+			}
+			else
+			{
+				var zoomVal = parseInt(zoomInput.value);
+
+				if (isNaN(zoomVal) || zoomVal <= 0)
+				{
+					zoomVal = 100;
+				}
+
+				this.lastExportZoom = zoomVal + '%';
+				this.lastExportBorder = borderInput.value;
+				this.lastExportLoops = (parseInt(loopSelect.value) != 0) ?
+					parseInt(loopSelect.value) : null;
+				this.lastExportTransparent = (transparent.checked) ? true : null;
+
+				this.exportAnimatedGif({
+					fps: parseInt(fpsSelect.value),
+					scale: zoomVal / 100,
+					border: parseInt(borderInput.value) || 0,
+					repeat: parseInt(loopSelect.value),
+					transparent: transparent.checked,
+					theme: themeSelect.value,
+					background: transparent.checked ? null : background
+				});
+			}
 		}), null, mxResources.get('export'),
 			'https://www.drawio.com/doc/faq/export-diagram');
 
+		mxEvent.addListener(sourceSelect, 'change', update);
+		mxEvent.addListener(formatSelect, 'change', update);
+		update();
+
 		this.showDialog(dlg.container, 360, null, true, true, null, null, null, null, true);
+	};
+
+	/**
+	 * Exports the step animation of the current page as an animated GIF or
+	 * MP4 video (see AnimationExport). Shows the progress with a cancel
+	 * button.
+	 */
+	EditorUi.prototype.exportPageAnimation = function(options)
+	{
+		var exp = new AnimationExport(this, options);
+		var active = true;
+
+		var div = document.createElement('div');
+		div.style.paddingBottom = '10px';
+
+		var hd = document.createElement('h3');
+		mxUtils.write(hd, mxResources.get('exporting') + '...');
+		div.appendChild(hd);
+
+		var bar = document.createElement('progress');
+		bar.setAttribute('max', '100');
+		bar.setAttribute('value', '0');
+		bar.style.width = '100%';
+		div.appendChild(bar);
+
+		var btns = document.createElement('div');
+		btns.style.marginTop = '34px';
+		btns.style.textAlign = 'right';
+
+		var cancelBtn = mxUtils.button(mxResources.get('cancel'), mxUtils.bind(this, function()
+		{
+			if (active)
+			{
+				active = false;
+				exp.cancel();
+				this.hideDialog();
+			}
+		}));
+
+		cancelBtn.className = 'geBtn';
+		btns.appendChild(cancelBtn);
+		div.appendChild(btns);
+
+		this.showDialog(div, 320, null, true, false);
+
+		var done = mxUtils.bind(this, function()
+		{
+			var result = active;
+
+			if (active)
+			{
+				active = false;
+				this.hideDialog();
+			}
+
+			return result;
+		});
+
+		exp.doExport(mxUtils.bind(this, function(blob)
+		{
+			if (done() && blob != null)
+			{
+				var ext = (options.format == 'mp4') ? 'mp4' : 'gif';
+				var reader = new FileReader();
+
+				// Routes the result through the standard save dialog
+				// (device/browser/cloud) like the other image exports
+				reader.onload = mxUtils.bind(this, function()
+				{
+					var uri = reader.result;
+					this.saveData(this.getBaseFilename() + '.' + ext, ext,
+						uri.substring(uri.lastIndexOf(',') + 1),
+						blob.type, true);
+				});
+
+				reader.onerror = mxUtils.bind(this, function(e)
+				{
+					this.handleError(e);
+				});
+
+				reader.readAsDataURL(blob);
+			}
+		}), mxUtils.bind(this, function(e)
+		{
+			if (done())
+			{
+				this.handleError(e);
+			}
+		}), function(value)
+		{
+			bar.setAttribute('value', Math.round(value * 100));
+		});
 	};
 
 	/**
@@ -7517,7 +7604,9 @@
 	EditorUi.prototype.saveLocalFile = function(data, filename, mimeType, base64Encoded, format, allowBrowser, allowTab, defaultExtension, defaultMode)
 	{
 		allowBrowser = (allowBrowser != null) ? allowBrowser : false;
-		allowTab = (allowTab != null) ? allowTab : (format != 'vsdx') && (!mxClient.IS_IOS || !navigator.standalone);
+		// Binary files other than images cannot be shown in a new window
+		allowTab = (allowTab != null) ? allowTab : (format != 'vsdx') && (format != 'mp4') &&
+			(!mxClient.IS_IOS || !navigator.standalone);
 
 		var saveFunction = mxUtils.bind(this, function(newTitle, mode, input, folderId)
 		{
@@ -7678,8 +7767,10 @@
 				{
 					var id = (this.currentPage != null) ?
 						this.currentPage.getId() : 0;
-					var tags = tagsParam[id];
-					graph.hiddenTags = (tags != null && tags.length > 0) ? tags : [];
+					// Own properties only as page IDs come from the diagram (eg. "constructor")
+					var tags = (Object.prototype.hasOwnProperty.call(tagsParam, id)) ?
+						tagsParam[id] : null;
+					graph.hiddenTags = (Array.isArray(tags) && tags.length > 0) ? tags : [];
 					graph.refresh();
 				});
 
@@ -11106,6 +11197,64 @@
 	};
 
 	/**
+	 * Returns the locale for dates and times. This is the default locale of the
+	 * browser, which has the regional formats (eg. 24-hour clock in en-GB), or
+	 * the UI language if that is a different language.
+	 */
+	EditorUi.prototype.getDateLocale = function()
+	{
+		try
+		{
+			if (mxLanguage != null && Intl.DateTimeFormat.supportedLocalesOf(mxLanguage).length > 0)
+			{
+				var locale = new Intl.DateTimeFormat().resolvedOptions().locale;
+
+				if (mxLanguage.split('-')[0].toLowerCase() != locale.split('-')[0])
+				{
+					return mxLanguage;
+				}
+			}
+		}
+		catch (e)
+		{
+			// Uses default locale
+		}
+
+		return undefined;
+	};
+
+	/**
+	 * Returns the given date with the month name, eg. 19 Aug 2025, 17:42:04.
+	 * If short is true then the date is omitted for today and the year is
+	 * omitted for dates in the current year.
+	 */
+	EditorUi.prototype.formatDateTime = function(date, short)
+	{
+		var now = new Date();
+		var opts = {hour: 'numeric', minute: 'numeric', second: 'numeric'};
+
+		if (!short || date.toDateString() != now.toDateString())
+		{
+			opts.day = 'numeric';
+			opts.month = 'short';
+
+			if (!short || date.getFullYear() != now.getFullYear())
+			{
+				opts.year = 'numeric';
+			}
+		}
+
+		try
+		{
+			return date.toLocaleString(this.getDateLocale(), opts);
+		}
+		catch (e)
+		{
+			return date.toLocaleString();
+		}
+	};
+
+	/**
 	 * 
 	 */
 	EditorUi.prototype.decodeNodeIntoGraph = function(node, graph)
@@ -11933,7 +12082,7 @@
 							{
 								action.open = 'data:page/id,' + newId;
 							}
-							else if (this.getPageById(oldId) == null)
+							else if (this.getPageByLink(action.open) == null)
 							{
 								delete action.open;
 							}
@@ -11953,14 +12102,70 @@
 	};
 	
 	/**
-	 * Returns true for VSD, VDX and VSS, VSX files.
+	 * Returns true for VSD, VDX, VST and VSS, VSX files.
 	 */
 	EditorUi.prototype.isRemoteVisioFormat = function(filename)
 	{
-		return (/(\.v(sd|dx))($|\?)/i.test(filename) ||
+		return (/(\.v(sd|dx|st))($|\?)/i.test(filename) ||
 			/(\.vs(s|x))($|\?)/i.test(filename));
 	};
-	
+
+	/**
+	 * Converts a binary Visio file (.vsd, .vss, .vst of any Visio version)
+	 * to Visio XML in the browser using drawio-vsd (window.DrawioVsd). Calls
+	 * success with a Blob of the .vsdx, .vssx or .vstx package and its
+	 * file name, or fallback if the converter is not loaded, the data is not
+	 * a binary Visio file (e.g. .vdx) or the conversion fails.
+	 */
+	EditorUi.prototype.convertBinaryVisio = function(file, filename, success, fallback)
+	{
+		if (typeof DrawioVsd === 'undefined' || typeof FileReader === 'undefined')
+		{
+			fallback();
+		}
+		else
+		{
+			var reader = new FileReader();
+
+			reader.onload = mxUtils.bind(this, function()
+			{
+				var result = null;
+
+				try
+				{
+					var bytes = new Uint8Array(reader.result);
+
+					if (DrawioVsd.isBinaryVisio(bytes))
+					{
+						result = DrawioVsd.convert(bytes, {filename: filename});
+					}
+				}
+				catch (e)
+				{
+					// Malformed or unsupported: the conversion service may still read it
+					result = null;
+				}
+
+				if (result != null)
+				{
+					var name = String(filename || 'drawing').replace(/\.[^.\/\\]*$/, '') + '.' + result.type;
+					success(new Blob([result.bytes()]), name);
+				}
+				else
+				{
+					fallback();
+				}
+			});
+
+			reader.onerror = function()
+			{
+				fallback();
+			};
+
+			reader.readAsArrayBuffer(file);
+		}
+	};
+
 	/**
 	 * Imports the given Visio file
 	 */
@@ -12029,7 +12234,10 @@
 						// ignore
 					}
 					
-					if (remote) 
+					// Binary Visio files (.vsd, .vss, .vst) are converted in the browser
+					// (drawio-vsd); the conversion service remains the fallback for other
+					// formats (.vdx) and for files the converter cannot read
+					var remoteImport = mxUtils.bind(this, function()
 					{
 						if (VSS_CONVERT_URL != null && !this.isOffline())
 						{
@@ -12140,6 +12348,24 @@
 									mxResources.get('serviceUnavailableOrBlocked')});
 							}
 						}
+					});
+
+					if (remote)
+					{
+						this.convertBinaryVisio(file, filename, mxUtils.bind(this, function(blob, name)
+						{
+							if (timeout.clear())
+							{
+								try
+								{
+									this.doImportVisio(blob, done, handleError, name);
+								}
+								catch (e)
+								{
+									handleError(e);
+								}
+							}
+						}), remoteImport);
 					}
 					else if (timeout.clear())
 					{
@@ -17399,8 +17625,7 @@
 		{
 			if (Graph.isPageLink(link) && editorUi.pages != null)
 			{
-				var id = link.substring(link.indexOf(',') + 1);
-				var page = editorUi.getPageById(id);
+				var page = editorUi.getPageByLink(link);
 
 				if (page != null)
 				{
@@ -19482,7 +19707,8 @@
 		this.clipboardElt = textInput;
 
 		var restoreFocus = false;
-		
+		var restoreOnInsertUp = false;
+
 		// Disables built-in cut, copy and paste shortcuts
 		this.keyHandler.bindControlKey(88, null);
 		this.keyHandler.bindControlKey(67, null);
@@ -19499,9 +19725,22 @@
 				(source.nodeName != 'TEXTAREA' || source === this.typingShim) &&
 				source.contentEditable != 'true')
 			{
+				// Shift+Insert is the legacy paste shortcut on Windows and Linux. Unlike
+				// Ctrl, Shift alone does not show the textarea, so it is shown here on
+				// the Insert keydown before the native paste runs and removed on keyup.
+				// (Ctrl+Insert for copy is handled via the Control keydown below.)
+				var shiftInsert = !mxClient.IS_MAC && evt.keyCode == 45 /* Insert */ &&
+					mxEvent.isShiftDown(evt) && !mxEvent.isControlDown(evt) &&
+					!mxEvent.isAltDown(evt) && !mxEvent.isMetaDown(evt);
+
 				if (evt.keyCode == 224 /* FF */ || (!mxClient.IS_MAC && evt.keyCode == 17 /* Control */) ||
-					(mxClient.IS_MAC && (evt.keyCode == 91 || evt.keyCode == 93) /* Left/Right Meta */))
+					(mxClient.IS_MAC && (evt.keyCode == 91 || evt.keyCode == 93) /* Left/Right Meta */) ||
+					shiftInsert)
 				{
+					// Insert keyup removes the textarea only if Shift+Insert showed it,
+					// Ctrl/Meta keydown leaves it to the Ctrl/Meta keyup
+					restoreOnInsertUp = shiftInsert && !restoreFocus;
+
 					// Cannot use parentNode for check in IE
 					if (!restoreFocus)
 					{
@@ -19564,9 +19803,11 @@
 			window.setTimeout(mxUtils.bind(this, function()
 			{
 				if (restoreFocus && (keyCode == 224 /* FF */ || keyCode == 17 /* Control */ ||
-					keyCode == 91 /* MetaLeft */ || keyCode == 93 /* MetaRight */))
+					keyCode == 91 /* MetaLeft */ || keyCode == 93 /* MetaRight */ ||
+					(restoreOnInsertUp && keyCode == 45 /* Insert */)))
 				{
 					restoreFocus = false;
+					restoreOnInsertUp = false;
 
 					// Remove textInput first so the typing shim's
 					// clipboardElt check sees it as no longer present
@@ -22194,7 +22435,7 @@
 	
 			if (comma > 0)
 			{
-				var page = this.getPageById(href.substring(comma + 1));
+				var page = this.getPageByLink(href);
 	
 				if (page != null)
 				{
@@ -22215,64 +22456,12 @@
 	};
 
 	/**
-	 * 
+	 * Delegates to Graph.getCustomLinkTitle so the viewer, which has no
+	 * EditorUi, resolves the same label.
 	 */
 	EditorUi.prototype.getCustomLinkTitle = function(href)
 	{
-		var result = mxResources.get('action');
-
-		if (href.substring(0, 17) == 'data:action/json,')
-		{
-			try
-			{
-				var link = JSON.parse(href.substring(17));
-
-				// Mirrors LinkDialog.updateActionSummary so the link
-				// hint, link-icon tooltip, and Edit Link dialog all
-				// agree on the visible label. Resolution order:
-				//   1. User-supplied `title` on the custom action.
-				//   2. "Effects (N)" for animation-wrapper payloads.
-				//   3. Localized label of the first action key via
-				//      `CustomActionDialog.SCHEMAS[key]`.
-				//   4. Fallback to the generic "Action" string.
-				if (link != null &&
-					typeof link.title == 'string' &&
-					link.title.trim() != '')
-				{
-					result = link.title.trim();
-				}
-				else if (link != null && Array.isArray(link.actions) &&
-					link.actions.length > 0)
-				{
-					var first = Object.keys(link.actions[0])[0] || '';
-
-					if (first == 'animation' &&
-						link.actions[0].animation != null &&
-						Array.isArray(link.actions[0].animation.steps))
-					{
-						var sc = link.actions[0].animation.steps.length;
-						result = mxResources.get('effects') + ' (' + sc + ')';
-					}
-					else if (first != '')
-					{
-						var schema = (typeof CustomActionDialog !=
-							'undefined' && CustomActionDialog != null) ?
-							CustomActionDialog.SCHEMAS[first] : null;
-						var fallback = (schema != null) ?
-							schema.label : first;
-						var resKey = (schema != null && schema.labelKey) ?
-							schema.labelKey : first;
-						result = mxResources.get(resKey, null, fallback);
-					}
-				}
-			}
-			catch (e)
-			{
-				// ignore
-			}
-		}
-
-		return result;
+		return Graph.prototype.getCustomLinkTitle.apply(this, arguments);
 	};
 
 	/**
@@ -22282,8 +22471,7 @@
 	{
 		if (Graph.isPageLink(href))
 		{
-			var comma = href.indexOf(',');
-			var page = this.getPageById(href.substring(comma + 1));
+			var page = this.getPageByLink(href);
 			
 			if (page)
 			{
@@ -27575,25 +27763,29 @@
 	};
 
 	/**
-	 * Adds the buttons for embedded mode.
+	 * Sets the filename for embedded mode. Replaces an existing filename in
+	 * place so that it keeps its position relative to the embed buttons.
 	 */
 	EditorUi.prototype.setEmbedTitle = function(filename)
 	{
 		var tmp = this.createStatusDiv(filename);
 
-		if (this.embedFilenameSpan != null)
+		if (this.embedFilenameSpan != null &&
+			this.embedFilenameSpan.parentNode != null)
 		{
-			this.embedFilenameSpan.parentNode.removeChild(this.embedFilenameSpan);
+			this.embedFilenameSpan.parentNode.replaceChild(
+				tmp, this.embedFilenameSpan);
 		}
-
-		if (Editor.currentTheme == 'kennedy' ||
+		else if (Editor.currentTheme == 'kennedy' ||
 			Editor.currentTheme == 'atlas')
 		{
 			this.menubarContainer.appendChild(tmp);
 		}
 		else
 		{
-			this.buttonContainer.appendChild(tmp);
+			// Filename goes before the buttons as in addEmbedButtons
+			this.buttonContainer.insertBefore(tmp,
+				this.buttonContainer.firstChild);
 		}
 
 		this.embedFilenameSpan = tmp;
@@ -32593,8 +32785,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		}
 		
 		mxUtils.write(dateDiv, mxResources.get('timeAgo', [str], '{1} ago'));
-		dateDiv.setAttribute('title', ts.toLocaleDateString() + ' ' +
-				ts.toLocaleTimeString());
+		dateDiv.setAttribute('title', editorUi.formatDateTime(ts));
 	};
 	
 	function showBusy(commentDiv)

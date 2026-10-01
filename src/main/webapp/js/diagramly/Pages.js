@@ -684,6 +684,20 @@ EditorUi.prototype.getPageById = function(id, pages)
 };
 
 /**
+ * Returns the page for the given data:page/id, link or null. Whitespace
+ * around the ID of a hand-typed link is ignored: "data:page/id, abc" gave
+ * "Page not found" (Kym, 2026-09-25). Page IDs from Editor.guid never
+ * contain whitespace, and an exact match still wins.
+ */
+EditorUi.prototype.getPageByLink = function(href, pages)
+{
+	var id = href.substring(href.indexOf(',') + 1);
+
+	return this.getPageById(id, pages) ||
+		this.getPageById(mxUtils.trim(id), pages);
+};
+
+/**
  * Returns the background image for the given page link.
  */
 EditorUi.prototype.createImageForPageLink = function(src, sourcePage, sourceGraph, addFonts)

@@ -14,7 +14,16 @@ size/exportType from the selection) store the override ONLY while it differs
 from the derived default computed at dialog-open and reset to null when the
 confirmed value matches it again — untouched settings keep tracking page/theme
 changes, and re-picking the derived value resumes tracking (no reset UI
-needed).
+needed). The print dialog's border follows the same pattern
+([jgraph/drawio#5682]): it defaults to 0 for PDF export (`fn != null`) and
+to `mxPrintPreview.prototype.pageMargin` (27) for printing, and the shared
+`lastPrintBorder` is only kept while it differs from that default.
+
+The animation export dialog adds `lastExportAnimationSource` (page/flow,
+saved only when the page has a step animation) and
+`lastExportAnimationFormat` (GIF/MP4, saved only for page animations when
+MP4 is available); without a stored format an animation longer than the GIF
+limit preselects MP4.
 
 Saves are gated on the control being applicable (visible/enabled for the
 format): an unconditional save from a dialog where the control is hidden

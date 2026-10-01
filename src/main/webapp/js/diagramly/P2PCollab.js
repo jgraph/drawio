@@ -38,7 +38,7 @@ function P2PCollab(ui, sync, channelId)
 	// client is connected to the channel (disable via alone-gate=0)
 	var ALONE_GATE = urlParams['alone-gate'] != '0';
 	var joinInProgress = false, joinId = 0;
-	var lastError = null, lastCloseCode = null;
+	var lastError = null;
 	// Linear backoff for rejoin attempts, stops after the maximum
 	// number of consecutive failures (~2 minutes), resumes when a
 	// new file is opened (new P2PCollab) or the window is reactivated
@@ -61,8 +61,6 @@ function P2PCollab(ui, sync, channelId)
 				lastError = 'rejoinStopped';
 				EditorUi.debug('P2PCollab: rejoin stopped after',
 					rejoinAttempts, 'attempts');
-				EditorUi.logRealtime('rejoin-stopped', {n: rejoinAttempts,
-					code: lastCloseCode}, sync.file);
 				sync.file.fireEvent(new mxEventObject('realtimeStateChanged'));
 			}
 		}
@@ -341,6 +339,19 @@ function P2PCollab(ui, sync, channelId)
 
 	// Clears remote selection state for large selections
 	var selectionLimit = mxGraphHandler.prototype.maxCells;
+
+	// Received selection lists longer than this are ignored. Senders never
+	// exceed the selection limit (50), this leaves room for a peer with
+	// a larger one
+	var MAX_SELECTION_IDS = 1000;
+
+	// Cell ids in a received selection are strings (numbers from plugin
+	// code), anything else cannot match a cell
+	function isSelectionId(id)
+	{
+		return typeof id === 'string' || (typeof id === 'number' && isFinite(id));
+	};
+
 	var updateThread = null;
 	var lastSelection = {};
 	
@@ -516,18 +527,61 @@ function P2PCollab(ui, sync, channelId)
 	ui.addListener('showRemoteCursorsChanged', this.cursorHandler);
 	ui.editor.addListener('pageSelected', this.cursorHandler);
 
+	// Returns the message in the given socket or P2P data, or null if it
+	// must be dropped. The relay authenticates nobody: anyone who knows
+	// the channel ID can join and broadcast. On an encrypted channel only
+	// key holders can produce the envelope, and every genuine client sends
+	// it (bytes, since 20.2.0), so a plaintext or undecryptable message
+	// there is forged and none of its fields may be used: it could show
+	// fake content, names and cursors, force the follow mode or the
+	// upgrade prompt, or make every peer refetch the file. Dropping is
+	// expected traffic, not an error, so it is only logged in debug mode.
+	function decodeMsg(data, fromCId)
+	{
+		var msg = null;
+
+		try
+		{
+			msg = JSON.parse(data);
+
+			if (msg != null && msg.bytes != null)
+			{
+				msg = sync.stringToObject(msg.bytes);
+			}
+			else if (sync.isEncrypted())
+			{
+				EditorUi.debug('P2PCollab: dropped plaintext message ' +
+					'on encrypted channel', fromCId);
+
+				return null;
+			}
+		}
+		catch (e)
+		{
+			EditorUi.debug('P2PCollab: dropped undecodable message', fromCId, e);
+
+			return null;
+		}
+
+		if (msg == null || typeof msg !== 'object')
+		{
+			EditorUi.debug('P2PCollab: dropped invalid message', fromCId);
+
+			return null;
+		}
+
+		return msg;
+	};
+
 	function processMsg(msg, fromCId)
 	{
 		try
 		{
 			if (destroyed || sync.file.appUpgradeRequired) return;
 
-			msg = JSON.parse(msg);
+			msg = decodeMsg(msg, fromCId);
 
-			if (msg.bytes != null)
-			{
-				msg = sync.stringToObject(msg.bytes);
-			}
+			if (msg == null) return;
 
 			if (NO_P2P && !isFrequent(msg.type))
 			{
@@ -587,10 +641,11 @@ function P2PCollab(ui, sync, channelId)
 					var clr = colors[clrIndex];
 					var lblClr = clrIndex > 11? 'black' : 'white';
 
+					// Null prototype: keyed by remote cell ids
 					connectedSessions[sessionId] = {
 						cursor: document.createElement('div'),
 						color: clr,
-						selection: {}
+						selection: Object.create(null)
 					};
 					
 					clientsToSessions[fromCId] = sessionId;
@@ -688,18 +743,34 @@ function P2PCollab(ui, sync, channelId)
 					{
 						var pageId = (ui.currentPage != null) ?
 							ui.currentPage.getId() : null;
-						
-						if (pageId == null ||
+
+						// Remote JSON like a patch list (EditorUi.patchList):
+						// an object with a huge length where an array belongs
+						// spun the loops below synchronously in the socket
+						// handler. Senders never exceed the selection limit
+						var removed = (msgData != null) ?
+							EditorUi.patchList(msgData.removed) : null;
+						var added = (msgData != null) ?
+							EditorUi.patchList(msgData.added) : null;
+
+						if (removed == null || added == null ||
+							removed.length > MAX_SELECTION_IDS ||
+							added.length > MAX_SELECTION_IDS)
+						{
+							EditorUi.debug('P2PCollab: ignored invalid selection',
+								fromCId);
+						}
+						else if (pageId == null ||
 							(msgData.pageId != null &&
 							msgData.pageId == pageId))
 						{
 							createCursor();
 
-							for (var i = 0; i < msgData.removed.length; i++)
+							for (var i = 0; i < removed.length; i++)
 							{
-								var id = msgData.removed[i];
+								var id = removed[i];
 
-								if (id != null)
+								if (isSelectionId(id))
 								{
 									var handler = selection[id];
 									delete selection[id];
@@ -711,11 +782,11 @@ function P2PCollab(ui, sync, channelId)
 								}
 							}
 							
-							for (var i = 0; i < msgData.added.length; i++)
+							for (var i = 0; i < added.length; i++)
 							{
-								var id = msgData.added[i];
+								var id = added[i];
 
-								if (id != null)
+								if (isSelectionId(id))
 								{
 									var cell = graph.model.getCell(id);
 
@@ -1068,14 +1139,9 @@ function P2PCollab(ui, sync, channelId)
 					// Logs error details sent by the socket server, eg. an
 					// exception during session setup before it closes the
 					// socket with code 1011
-					if (data.error != null)
+					if (data.error != null && window.console != null)
 					{
-						EditorUi.logRealtime('socket-error', {e: data.error}, sync.file);
-
-						if (window.console != null)
-						{
-							console.warn('P2PCollab: server error', data.error);
-						}
+						console.warn('P2PCollab: server error', data.error);
 					}
 
 					switch (data.action)
@@ -1137,7 +1203,6 @@ function P2PCollab(ui, sync, channelId)
 			{
 				EditorUi.debug('P2PCollab: WebSocket closed', ws.joinId, 'reconnecting', event.code, event.reason);
 				EditorUi.debug('P2PCollab: closing socket on', ws.joinId);
-				lastCloseCode = event.code;
 
 				if (!destroyed && event.code == 4001 && joinId == ws.joinId)
 				{

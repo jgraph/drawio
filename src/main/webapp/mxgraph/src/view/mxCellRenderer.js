@@ -105,6 +105,15 @@ mxCellRenderer.prototype.minSvgStrokeWidth = 1;
 mxCellRenderer.prototype.forceControlClickHandler = false;
 
 /**
+ * Variable: minControlHitSize
+ *
+ * Minimum width and height in screen pixels of the area that handles events
+ * for the control (folding icon). The control is painted unchanged. Use 0 to
+ * disable. Default is 12.
+ */
+mxCellRenderer.prototype.minControlHitSize = 12;
+
+/**
  * Function: registerShape
  * 
  * Registers the given constructor under the specified key in this instance
@@ -729,12 +738,50 @@ mxCellRenderer.prototype.createControl = function(state)
 			state.control.dialect = graph.dialect;
 
 			this.initControl(state, state.control, true, this.createControlClickHandler(state));
+			this.addControlHitArea(state.control);
 		}
 	}
 	else if (state.control != null)
 	{
 		state.control.destroy();
 		state.control = null;
+	}
+};
+
+/**
+ * Function: addControlHitArea
+ *
+ * Adds a transparent rectangle of at least <minControlHitSize> screen pixels
+ * around the given control after each repaint so that small controls, eg.
+ * folding icons at low zoom levels, are easier to hit. The painted control
+ * is not changed.
+ *
+ * Parameters:
+ *
+ * control - <mxShape> that represents the control.
+ */
+mxCellRenderer.prototype.addControlHitArea = function(control)
+{
+	var min = this.minControlHitSize;
+
+	if (min > 0)
+	{
+		control.afterPaint = function(c)
+		{
+			this.constructor.prototype.afterPaint.apply(this, arguments);
+			var b = this.bounds;
+
+			// SVG only as HTML controls have no canvas nodes
+			if (this.node != null && this.node.ownerSVGElement != null &&
+				b != null && (b.width < min || b.height < min))
+			{
+				var w = Math.max(b.width, min);
+				var h = Math.max(b.height, min);
+
+				this.node.appendChild(this.createTransparentSvgRectangle(
+					b.getCenterX() - w / 2, b.getCenterY() - h / 2, w, h));
+			}
+		};
 	}
 };
 

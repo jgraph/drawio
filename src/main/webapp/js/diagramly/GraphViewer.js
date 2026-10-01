@@ -615,9 +615,12 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					{
 						if (Graph.isPageLink(href))
 						{
-							var comma = href.indexOf(',');
+							// Whitespace around the ID of a hand-typed link is
+							// ignored, as in EditorUi.getPageByLink.
+							var id = href.substring(href.indexOf(',') + 1);
 							
-							if (!self.selectPageById(href.substring(comma + 1)))
+							if (!self.selectPageById(id) &&
+								!self.selectPageById(mxUtils.trim(id)))
 							{
 								alert(mxResources.get('pageNotFound') || 'Page not found');
 							}
@@ -639,6 +642,29 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					}
 					
 					return true;
+				};
+
+				// Resolves page links to page names for link tooltips
+				var graphGetLinkTitle = this.graph.getLinkTitle;
+
+				this.graph.getLinkTitle = function(href)
+				{
+					if (Graph.isPageLink(href))
+					{
+						var index = self.getIndexById(href.substring(href.indexOf(',') + 1));
+
+						if (index >= 0)
+						{
+							return self.diagrams[index].getAttribute('name') ||
+								mxResources.get('pageWithNumber', [index + 1], 'Page-' + (index + 1));
+						}
+						else
+						{
+							return mxResources.get('pageNotFound', null, 'Page not found');
+						}
+					}
+
+					return graphGetLinkTitle.apply(this, arguments);
 				};
 				
 				// Updates origin after tree cell folding
@@ -2334,21 +2360,27 @@ GraphViewer.prototype.showLocalLightbox = function(container)
 	urlParams['layers'] = (this.layersEnabled) ? '1' : '0';
 	urlParams['dark'] = (this.isDarkMode()) ? '1' : '0';
 
-	if (this.tagsEnabled && this.diagrams != null &&
-		this.diagrams[this.currentPage] != null)
+	if (this.tagsEnabled)
 	{
-		// Saves current page's hidden tags before passing to lightbox
-		var curPageId = this.diagrams[this.currentPage].getAttribute('id');
-
-		if (this.graphConfig.hiddenTags == null)
+		if (this.diagrams != null && this.diagrams[this.currentPage] != null)
 		{
-			// Null prototype: keyed by page ids from the diagram XML
-			this.graphConfig.hiddenTags = Object.create(null);
+			// Saves current page's hidden tags before passing to lightbox
+			var curPageId = this.diagrams[this.currentPage].getAttribute('id');
+
+			if (this.graphConfig.hiddenTags == null)
+			{
+				// Null prototype: keyed by page ids from the diagram XML
+				this.graphConfig.hiddenTags = Object.create(null);
+			}
+
+			this.graphConfig.hiddenTags[curPageId] =
+				(this.graph.hiddenTags.length > 0) ? this.graph.hiddenTags.slice() : null;
 		}
 
-		this.graphConfig.hiddenTags[curPageId] =
-			(this.graph.hiddenTags.length > 0) ? this.graph.hiddenTags.slice() : null;
-		urlParams['tags'] = JSON.stringify(this.graphConfig.hiddenTags);
+		// Always passed as it also adds the tags button to the lightbox toolbar,
+		// eg. for viewers without a diagram such as the Confluence Cloud lightbox
+		urlParams['tags'] = JSON.stringify((this.graphConfig.hiddenTags != null) ?
+			this.graphConfig.hiddenTags : {});
 	}
 
 	if (container != null)

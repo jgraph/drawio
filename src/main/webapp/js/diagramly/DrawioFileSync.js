@@ -134,9 +134,19 @@ DrawioFileSync = function(file)
 			}
 			catch (e)
 			{
+				// On an encrypted channel every genuine message decrypts,
+				// the cache relays whatever is posted for the channel ID.
+				// Answering such a message with a catchup let anyone who
+				// knows the ID make every peer refetch the file per post
+				if (this.isEncrypted())
+				{
+					EditorUi.debug('DrawioFileSync.changeListener: dropped ' +
+						'undecryptable message', [this], (data != null) ?
+						data.length : null, 'bytes', e);
+				}
 				// Checks if file was changed (not while a conflict is
 				// being reconciled, which runs its own catchup)
-				if (this.isConnected() && !this.file.inConflictState)
+				else if (this.isConnected() && !this.file.inConflictState)
 				{
 					this.fileChangedNotify();
 				}
@@ -748,10 +758,6 @@ DrawioFileSync.prototype.handleRemoteMessage = function(msg)
 			{
 				// Message from an outdated client whose payload
 				// cannot be used so checks the file for changes
-				EditorUi.logRealtime('peer-old', {pv: msg.v, av: msg.av,
-					why: (msg.v !== DrawioFileSync.PROTOCOL) ? 'proto' :
-					((msg.p == null) ? 'payload' : 'app')}, this.file,
-					msg.v + '-' + msg.av);
 				this.fileChangedNotify();
 			}
 		}
@@ -1434,9 +1440,6 @@ DrawioFileSync.prototype.cleanup = function(success, error)
 				}
 			}
 
-			// Release telemetry: remembers whether the patch below can expel
-			// live content that no save has confirmed (see cleanup-expel)
-			var unconfirmed = this.unconfirmedRemoteSince != null;
 			this.unconfirmedRemoteSince = null;
 			this.file.theirPages = this.ui.clonePages(
 				this.file.ownPages);
@@ -1450,14 +1453,6 @@ DrawioFileSync.prototype.cleanup = function(success, error)
 
 			if (!this.file.ignorePatches(patches))
 			{
-				// Release telemetry: a non-additive convergence patch removes or
-				// rewrites screen state, ie. the came/went class when unconfirmed
-				if (!this.isAdditiveOnly(patches[0]))
-				{
-					EditorUi.logRealtime('cleanup-expel',
-						{u: (unconfirmed) ? 1 : 0}, this.file);
-				}
-
 				this.file.patch(patches);
 			}
 
@@ -2696,7 +2691,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 					{
 						error();
 					}
-				}), abort, null, immediate, 'checksum');
+				}), abort, null, immediate);
 
 				// Abnormal termination
 				return;
@@ -3106,7 +3101,7 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort, immedia
 							var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 							{
 								acceptResponse = false;
-								this.reload(success, error, abort, null, immediate, 'timeout');
+								this.reload(success, error, abort, null, immediate);
 							}), this.ui.timeout);
 	
 							mxUtils.get(EditorUi.cacheUrl + '?id=' + encodeURIComponent(this.channelId) +
@@ -3161,8 +3156,6 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort, immedia
 														{
 															failed = true;
 															temp = [];
-															EditorUi.logRealtime('catchup-proto', {pv: value.v,
-																av: value.av}, this.file, this.file.getId());
 															break;
 														}
 														else if (value.v === DrawioFileSync.PROTOCOL &&
@@ -3176,8 +3169,6 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort, immedia
 														{
 															failed = true;
 															temp = [];
-															EditorUi.logRealtime('catchup-proto', {pv: value.v,
-																av: value.av}, this.file, this.file.getId());
 															break;
 														}
 													}
@@ -3220,7 +3211,7 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort, immedia
 											else
 											{
 												this.file.stats.cacheFail++;
-												this.reload(success, error, abort, null, immediate, 'cachefail');
+												this.reload(success, error, abort, null, immediate);
 											}
 										}
 										catch (e)
@@ -3247,16 +3238,9 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort, immedia
  * Adds the listener for automatically saving the diagram for local changes.
  * Immediate is passed through to scheduleCleanup.
  */
-DrawioFileSync.prototype.reload = function(success, error, abort, shadow, immediate, reason)
+DrawioFileSync.prototype.reload = function(success, error, abort, shadow, immediate)
 {
-	EditorUi.debug('DrawioFileSync.reload', [this], 'immediate', immediate, 'reason', reason);
-
-	// Release telemetry: a reload with a reason replaces a failed patch path
-	if (reason != null)
-	{
-		EditorUi.logRealtime('reload', {r: reason, hits: this.file.stats.cacheHits,
-			miss: this.file.stats.cacheMiss, fail: this.file.stats.cacheFail}, this.file);
-	}
+	EditorUi.debug('DrawioFileSync.reload', [this], 'immediate', immediate);
 		
 	this.file.updateFile(mxUtils.bind(this, function()
 	{
@@ -3315,6 +3299,19 @@ DrawioFileSync.prototype.descriptorChanged = function(source)
 DrawioFileSync.encryptionAvailable = null;
 
 /**
+ * Returns true if messages on this channel are encrypted, ie. the file has
+ * a channel key and CryptoJS is loaded. Every genuine message on such a
+ * channel is encrypted: the socket envelope (bytes) since 20.2.0 and the
+ * cache/Pusher messages since the key was introduced in 2018. Neither relay
+ * authenticates the sender, anyone who knows the channel ID can post to it,
+ * so the key is the only proof that a message comes from a collaborator.
+ */
+DrawioFileSync.prototype.isEncrypted = function()
+{
+	return this.key != null && typeof CryptoJS !== 'undefined';
+};
+
+/**
  * Returns true if messages for this file can be encrypted.
  *
  * CryptoJS takes the KDF salt for a passphrase key from crypto.getRandomValues and
@@ -3327,7 +3324,7 @@ DrawioFileSync.encryptionAvailable = null;
 DrawioFileSync.prototype.isEncryptionAvailable = function()
 {
 	// Nothing is encrypted without a channel key or without the library
-	if (this.key == null || typeof CryptoJS === 'undefined')
+	if (!this.isEncrypted())
 	{
 		return true;
 	}
@@ -3382,7 +3379,7 @@ DrawioFileSync.prototype.objectToString = function(obj, maxLength)
 		return null;
 	}
 
-	if (this.key != null && typeof CryptoJS !== 'undefined')
+	if (this.isEncrypted())
 	{
 		// Fails closed if the CSPRNG went away after start, rather than
 		// sending a message the peer cannot read and the cache can
@@ -3402,7 +3399,16 @@ DrawioFileSync.prototype.objectToString = function(obj, maxLength)
  */
 DrawioFileSync.prototype.stringToObject = function(data)
 {
-	if (this.key != null && typeof CryptoJS !== 'undefined')
+	// The data is remote JSON (socket envelope, cache entry) and CryptoJS
+	// takes a non-string argument as parsed cipher parameters: a message
+	// of about 100 bytes with a huge sigBytes blocked the receiver in the
+	// decrypt loop for seconds per message, before any key was checked
+	if (typeof data !== 'string')
+	{
+		throw new Error('Invalid message data');
+	}
+
+	if (this.isEncrypted())
 	{
 		data = CryptoJS.AES.decrypt(data, this.key).toString(CryptoJS.enc.Utf8);
 	}
@@ -3762,8 +3768,6 @@ DrawioFileSync.prototype.fileConflict = function(desc, success, error)
 	{
 		this.file.stats.timeouts++;
 		this.catchupRetryCount = 0;
-		EditorUi.logRealtime('conflict-timeout', {n: this.maxCatchupRetries,
-			conflicts: this.file.stats.conflicts}, this.file);
 		
 		if (error != null)
 		{

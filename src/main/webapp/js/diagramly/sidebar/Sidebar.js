@@ -1666,7 +1666,9 @@
 	};
 
 	/**
-	 * Adds custom entries to the sidebar.
+	 * Adds custom entries to the sidebar. Libraries are collapsed initially
+	 * unless the lib has expand: true. The expanded state that the user
+	 * toggles is persisted per palette ID via getLibraryExpanded.
 	 */
 	Sidebar.prototype.addCustomEntries = function()
 	{
@@ -1732,7 +1734,7 @@
 							if (lib.data == null && lib.url != null && (!lib.preload && preloadCount >= this.maxPreloadCount))
 							{
 								this.addPalette(entry.id + '.' + k, this.editorUi.getResource(lib.title),
-									false, mxUtils.bind(this, function(content, title)
+									lib.expand == true, mxUtils.bind(this, function(content, title)
 								{
 									var dataLoaded = mxUtils.bind(this, function(images, defaultTags)
 									{
@@ -1783,7 +1785,7 @@
 							else
 							{							
 								this.addPalette(entry.id + '.' + k, this.editorUi.getResource(lib.title),
-									false, mxUtils.bind(this, function(c, t)
+									lib.expand == true, mxUtils.bind(this, function(c, t)
 								{
 									content = c;
 									title = t;
@@ -1931,6 +1933,31 @@
 			ICONSEARCH_PATH) + '?q=' + encodeURIComponent(searchTerms) +
 			'&p=' + page + '&c=' + count +
 			((this.isIconServiceEnabled() && Editor.inlineExtIcons) ? '&inline=1' : '');
+	};
+
+	/**
+	 * Returns the parsed response of the given icon search request or null
+	 * if the request failed or the response is not JSON, eg. the index page
+	 * that hosts without an icon service return for unknown paths (Cloudflare
+	 * Pages branch previews). Icon results are optional so such responses
+	 * are ignored.
+	 */
+	Sidebar.prototype.parseIconSearchResponse = function(req)
+	{
+		if (req.getStatus() >= 200 && req.getStatus() <= 299 &&
+			req.getText() != null && req.getText().length > 0)
+		{
+			try
+			{
+				return JSON.parse(req.getText());
+			}
+			catch (e)
+			{
+				// ignore - not an icon service response
+			}
+		}
+
+		return null;
 	};
 
 	/**
@@ -2282,15 +2309,11 @@
 		{
 			try
 			{
-				if (req.getStatus() >= 200 && req.getStatus() <= 299 &&
-					req.getText() != null && req.getText().length > 0)
-				{
-					var res = JSON.parse(req.getText());
+				var res = this.parseIconSearchResponse(req);
 
-					if (res != null && res.sets != null)
-					{
-						this.setIconSearchSets(searchTerms, res.sets);
-					}
+				if (res != null && res.sets != null)
+				{
+					this.setIconSearchSets(searchTerms, res.sets);
 				}
 			}
 			catch (e)
@@ -2320,32 +2343,28 @@
 		{
 			try
 			{
+				var res = this.parseIconSearchResponse(req);
+
 				// Ignores response if nothing or error returned
-				if (req.getStatus() >= 200 && req.getStatus() <= 299 &&
-					req.getText() != null && req.getText().length > 0)
+				if (res == null)
 				{
-					var res = JSON.parse(req.getText());
-
-					if (res == null || res.images == null)
-					{
-						success(results, page * count, false, searchTerms);
-						this.editorUi.handleError(res);
-					}
-					else
-					{
-						if (res.sets != null)
-						{
-							this.setIconSearchSets(searchTerms, res.sets);
-						}
-
-						this.extractIconsFromResponse(res, results);
-						success(results, page * count + results.length,
-							results.length > 0, searchTerms);
-					}
+					success(results, page * count, false, searchTerms);
+				}
+				else if (res.images == null)
+				{
+					success(results, page * count, false, searchTerms);
+					this.editorUi.handleError(res);
 				}
 				else
 				{
-					success(results, page * count, false, searchTerms);
+					if (res.sets != null)
+					{
+						this.setIconSearchSets(searchTerms, res.sets);
+					}
+
+					this.extractIconsFromResponse(res, results);
+					success(results, page * count + results.length,
+						results.length > 0, searchTerms);
 				}
 			}
 			catch (e)
@@ -2428,39 +2447,27 @@
 					{
 						try
 						{
+							var res = this.parseIconSearchResponse(req);
+
 							// Ignore response if nothing or error returned
-							if (req.getStatus() >= 200 && req.getStatus() <= 299 &&
-								req.getText() != null && req.getText().length > 0)
+							if (res == null)
 							{
-								try
-								{
-									var res = JSON.parse(req.getText());
-
-									if (res == null || res.images == null)
-									{
-										succ(results, len, false, terms);
-										this.editorUi.handleError(res);
-									}
-									else
-									{
-										if (res.sets != null)
-										{
-											this.setIconSearchSets(searchTerms, res.sets);
-										}
-
-										this.extractIconsFromResponse(res, results);
-										succ(results, (page - 1) * count + results.length, res.images.length == count, terms);
-									}
-								}
-								catch (e)
-								{
-									succ(results, len, false, terms);
-									this.editorUi.handleError(e);
-								}
+								succ(results, len, false, terms);
+							}
+							else if (res.images == null)
+							{
+								succ(results, len, false, terms);
+								this.editorUi.handleError(res);
 							}
 							else
 							{
-								succ(results, len, false, terms);
+								if (res.sets != null)
+								{
+									this.setIconSearchSets(searchTerms, res.sets);
+								}
+
+								this.extractIconsFromResponse(res, results);
+								succ(results, (page - 1) * count + results.length, res.images.length == count, terms);
 							}
 						}
 						catch (e)

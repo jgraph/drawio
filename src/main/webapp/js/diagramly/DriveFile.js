@@ -245,6 +245,20 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 									{
 										this.contentChanged();
 
+										// Counts the user as an editor of the month. Must
+										// never turn a successful save into an error.
+										if (this.ui.reportDriveEdit != null)
+										{
+											try
+											{
+												this.ui.reportDriveEdit();
+											}
+											catch (e)
+											{
+												// ignore
+											}
+										}
+
 										if (typeof success === 'function')
 										{
 											success(resp);
@@ -702,7 +716,21 @@ DriveFile.prototype.getRevisions = function(success, error)
  */
 DriveFile.prototype.getLatestVersion = function(success, error)
 {
-	this.ui.drive.getFile(this.getId(), success, error, true);
+	this.ui.drive.getFile(this.getId(), mxUtils.bind(this, function(file)
+	{
+		// getFile converts files that need an import (PNG without
+		// diagram data, PDF, VSDX, Gliffy) into a LocalFile whose
+		// descriptor is undefined, which must not replace the
+		// Drive descriptor of this file
+		if (file == null || file instanceof DriveFile)
+		{
+			success(file);
+		}
+		else if (error != null)
+		{
+			error({message: mxResources.get('notADiagramFile')});
+		}
+	}), error, true);
 };
 
 /**
