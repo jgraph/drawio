@@ -615,10 +615,9 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 
 			if (previous != null && previous[i] != null)
 			{
-				var off = LibavoidRouting.getAbsoluteParentOffset(graph, cells[i]);
-				var ob = AvoidRouting.obstacleBounds({x: previous[i].x + off.x,
-					y: previous[i].y + off.y, w: previous[i].width,
-					h: previous[i].height, frame: nv.frame});
+				var pb = LibavoidRouting.getAbsoluteGeometryBounds(graph, cells[i], previous[i]);
+				pb.frame = nv.frame;
+				var ob = AvoidRouting.obstacleBounds(pb);
 				ox = ob.x; oy = ob.y; ow = ob.w; oh = ob.h;
 			}
 			else if (dx != null && dy != null)
@@ -1752,8 +1751,10 @@ LibavoidRouting.addTerminalVertex = function(graph, vertices, added, cell)
 /**
  * Absolute model-coordinate offset of a cell's parent chain. Geometry is stored
  * relative to the parent; for flat diagrams (parent = the default layer) this is
- * {0,0}, but a cell nested in a container needs its ancestors' positions summed.
- * Stops at the layer (non-vertex). Ported from drawio-mcp.
+ * {0,0}, but a cell nested in a container needs its ancestors' origins summed
+ * (getGeometryOrigin). An edge adds nothing: like the view, it places its
+ * absolute children in its parent's frame (relative ones ride the route, see
+ * isOnEdge). Stops at the layer. Ported from drawio-mcp.
  */
 LibavoidRouting.getAbsoluteParentOffset = function(graph, cell)
 {
@@ -1761,14 +1762,15 @@ LibavoidRouting.getAbsoluteParentOffset = function(graph, cell)
 	var x = 0, y = 0;
 	var p = model.getParent(cell);
 
-	while (p != null && model.isVertex(p))
+	while (p != null && (model.isVertex(p) || model.isEdge(p)))
 	{
-		var pg = model.getGeometry(p);
+		var pg = model.isVertex(p) ? model.getGeometry(p) : null;
 
 		if (pg != null)
 		{
-			x += pg.x;
-			y += pg.y;
+			var o = LibavoidRouting.getGeometryOrigin(graph, p, pg);
+			x += o.x;
+			y += o.y;
 		}
 
 		p = model.getParent(p);
@@ -1778,32 +1780,128 @@ LibavoidRouting.getAbsoluteParentOffset = function(graph, cell)
 };
 
 /**
- * A vertex's bounds in absolute model coordinates (geometry + parent offset).
- * For a transparentBounds cell the stored geometry is a pinned origin by
- * design ((0,0,0,0) for layout containers) — its routing box is the DERIVED
- * hull the view renders (children + padding, Graph.getTransparentBounds, in
- * the cell's local space), shifted by that origin. Ported from drawio-mcp.
+ * True when geometry geo positions cell RELATIVE to a vertex parent (a port):
+ * geo.x/geo.y are fractions of the parent's size, not coordinates.
+ */
+LibavoidRouting.isRelativeToVertex = function(graph, cell, geo)
+{
+	var parent = graph.getModel().getParent(cell);
+
+	return geo.relative && parent != null && graph.getModel().isVertex(parent);
+};
+
+/**
+ * Where geometry geo puts cell in its parent's frame, as the view computes
+ * the cell's origin (mxGraphView.updateCellState): geo.x/geo.y, or for a
+ * relative child of a vertex the fraction of the parent's size the view
+ * uses (its geometry, or the derived hull of a transparentBounds parent)
+ * plus geo.offset.
+ */
+LibavoidRouting.getGeometryOrigin = function(graph, cell, geo)
+{
+	if (LibavoidRouting.isRelativeToVertex(graph, cell, geo))
+	{
+		var parent = graph.getModel().getParent(cell);
+		var size = graph.isTransparentBounds(parent) ?
+			graph.getTransparentBounds(parent) : graph.getModel().getGeometry(parent);
+		var offset = (geo.offset != null) ? geo.offset : new mxPoint();
+
+		return {x: geo.x * ((size != null) ? size.width : 0) + offset.x,
+			y: geo.y * ((size != null) ? size.height : 0) + offset.y};
+	}
+
+	return {x: geo.x, y: geo.y};
+};
+
+/**
+ * The box geometry geo gives cell in absolute model coordinates: its origin
+ * (getGeometryOrigin) plus the parent chain's offset. Like
+ * mxGraphView.updateVertexState, a relative child of a ROTATED vertex is
+ * turned with it about the parent's centre (a port stays on its side); the
+ * cell's own rotation is not applied (see getVertex).
+ */
+LibavoidRouting.getAbsoluteGeometryBounds = function(graph, cell, geo)
+{
+	var off = LibavoidRouting.getAbsoluteParentOffset(graph, cell);
+	var o = LibavoidRouting.getGeometryOrigin(graph, cell, geo);
+	var b = {x: o.x + off.x, y: o.y + off.y, w: geo.width, h: geo.height};
+
+	if (LibavoidRouting.isRelativeToVertex(graph, cell, geo))
+	{
+		var parent = graph.getModel().getParent(cell);
+		var alpha = mxUtils.toRadians(mxUtils.getNumber(graph.getCellStyle(parent),
+			mxConstants.STYLE_ROTATION, 0));
+		// A non-numeric rotation is none, as in AvoidRouting.shapeFrame.
+		var pb = (alpha != 0 && isFinite(alpha)) ?
+			LibavoidRouting.getAbsoluteModelBounds(graph, parent) : null;
+
+		if (pb != null)
+		{
+			var ct = mxUtils.getRotatedPoint(new mxPoint(b.x + b.w / 2, b.y + b.h / 2),
+				Math.cos(alpha), Math.sin(alpha), new mxPoint(pb.x + pb.w / 2, pb.y + pb.h / 2));
+			b.x = ct.x - b.w / 2;
+			b.y = ct.y - b.h / 2;
+		}
+	}
+
+	return b;
+};
+
+/**
+ * True when cell rides an edge: it or a vertex ancestor is a RELATIVE child
+ * of an edge (an edge label). The view places such a cell along the edge's
+ * drawn route (mxGraphView.getPoint), which the model does not give and the
+ * routing itself changes.
+ */
+LibavoidRouting.isOnEdge = function(graph, cell)
+{
+	var model = graph.getModel();
+
+	while (cell != null && model.isVertex(cell))
+	{
+		var geo = model.getGeometry(cell);
+		var parent = model.getParent(cell);
+
+		if (geo != null && geo.relative && model.isEdge(parent))
+		{
+			return true;
+		}
+
+		cell = parent;
+	}
+
+	return false;
+};
+
+/**
+ * A vertex's bounds in absolute model coordinates (getAbsoluteGeometryBounds
+ * of its geometry). For a transparentBounds cell the stored geometry is a
+ * pinned origin by design ((0,0,0,0) for layout containers) — its routing box
+ * is the DERIVED hull the view renders (children + padding,
+ * Graph.getTransparentBounds, in the cell's local space), shifted by that
+ * origin. null for a cell on an edge (isOnEdge): it moves with the route, so
+ * it is no obstacle, and an edge connected to it is not routed. Ported from
+ * drawio-mcp.
  */
 LibavoidRouting.getAbsoluteModelBounds = function(graph, cell)
 {
 	var geo = graph.getModel().getGeometry(cell);
 
-	if (geo == null)
+	if (geo == null || LibavoidRouting.isOnEdge(graph, cell))
 	{
 		return null;
 	}
 
-	var off = LibavoidRouting.getAbsoluteParentOffset(graph, cell);
-
 	if (graph.isTransparentBounds(cell))
 	{
+		var off = LibavoidRouting.getAbsoluteParentOffset(graph, cell);
 		var local = graph.getTransparentBounds(cell);
 
 		return (local == null) ? null : {x: geo.x + off.x + local.x,
 			y: geo.y + off.y + local.y, w: local.width, h: local.height};
 	}
 
-	return {x: geo.x + off.x, y: geo.y + off.y, w: geo.width, h: geo.height};
+	return LibavoidRouting.getAbsoluteGeometryBounds(graph, cell, geo);
 };
 
 /**

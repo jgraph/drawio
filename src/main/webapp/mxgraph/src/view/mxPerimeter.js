@@ -168,12 +168,15 @@ var mxPerimeter =
 		var cy = y + b;
 		var px = next.x;
 		var py = next.y;
-		
-		// Calculates straight line equation through
-		// point and ellipse center y = d * x + h
-		var dx = parseInt(px - cx);
-		var dy = parseInt(py - cy);
-		
+
+		// Truncates the direction to whole model units, as the previous code
+		// did with whole pixels at scale 1, so that the result does not
+		// depend on the scale or translate of the view
+		var view = (vertex != null) ? vertex.view : null;
+		var s = (view != null) ? view.scale : 1;
+		var dx = parseInt(mxUtils.unscale(px - cx, s));
+		var dy = parseInt(mxUtils.unscale(py - cy, s));
+
 		if (dx == 0 && dy != 0)
 		{
 			return new mxPoint(cx, cy + b * dy / Math.abs(dy));
@@ -212,42 +215,12 @@ var mxPerimeter =
 			}
 		}
 		
-		// Calculates intersection
-		var d = dy / dx;
-		var h = cy - d * cx;
-		var e = a * a * d * d + b * b;
-		var f = -2 * cx * e;
-		var g = a * a * d * d * cx * cx +
-				b * b * cx * cx -
-				a * a * b * b;
-		var det = Math.sqrt(f * f - 4 * e * g);
-		
-		// Two solutions (perimeter points)
-		var xout1 = (-f + det) / (2 * e);
-		var xout2 = (-f - det) / (2 * e);
-		var yout1 = d * xout1 + h;
-		var yout2 = d * xout2 + h;
-		var dist1 = Math.sqrt(Math.pow((xout1 - px), 2)
-					+ Math.pow((yout1 - py), 2));
-		var dist2 = Math.sqrt(Math.pow((xout2 - px), 2)
-					+ Math.pow((yout2 - py), 2));
-					
-		// Correct solution
-		var xout = 0;
-		var yout = 0;
-		
-		if (dist1 < dist2)
-		{
-			xout = xout1;
-			yout = yout1;
-		}
-		else
-		{
-			xout = xout2;
-			yout = yout2;
-		}
-		
-		return new mxPoint(xout, yout);
+		// Calculates the intersection on the side of the point relative to
+		// the center, which avoids the loss of precision of the line equation
+		// in absolute coordinates for large coordinates or steep directions
+		var t = a * b / Math.sqrt(b * b * dx * dx + a * a * dy * dy);
+
+		return new mxPoint(cx + t * dx, cy + t * dy);
 	},
 
 	/**
@@ -489,6 +462,29 @@ var mxPerimeter =
 	 * for a description of the parameters.
 	 */
 	HexagonPerimeter: function (bounds, vertex, next, orthogonal)
+	{
+		// Computes the point in model units so that the result does
+		// not depend on the scale or translate of the view
+		var view = (vertex != null) ? vertex.view : null;
+		var s = (view != null) ? view.scale : 1;
+		var tr = (view != null) ? view.translate : new mxPoint();
+
+		var pt = mxPerimeter.getHexagonPerimeterPoint(new mxRectangle(
+			mxUtils.unscale(bounds.x, s, tr.x), mxUtils.unscale(bounds.y, s, tr.y),
+			mxUtils.unscale(bounds.width, s), mxUtils.unscale(bounds.height, s)),
+			vertex, new mxPoint(mxUtils.unscale(next.x, s, tr.x),
+			mxUtils.unscale(next.y, s, tr.y)), orthogonal);
+
+		return new mxPoint((pt.x + tr.x) * s, (pt.y + tr.y) * s);
+	},
+
+	/**
+	 * Function: getHexagonPerimeterPoint
+	 *
+	 * Implements <HexagonPerimeter> for the given bounds and next point
+	 * in model units.
+	 */
+	getHexagonPerimeterPoint: function (bounds, vertex, next, orthogonal)
 	{
 		var x = bounds.x;
 		var y = bounds.y;

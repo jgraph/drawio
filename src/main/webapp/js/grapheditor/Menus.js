@@ -106,21 +106,24 @@ Menus.prototype.init = function()
 	
 	this.put('edgeShape', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
-		var keys = [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, mxConstants.STYLE_DASHED, 'width'];
+		var keys = [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, mxConstants.STYLE_DASHED, 'width',
+			'startWidth', 'endWidth', 'defaultFillColor', 'defaultGradientColor'];
 
-		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, [null, null, null, null, null],
+		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, [null, null, null, null, null, null, null, null, null],
 			null, parent, true, Format.connectionImage.src)).setAttribute('title', mxResources.get('line'));
-		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['link', null, null, null, null],
+		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['link', null, null, null, null, null, null, null, null],
 			null, parent, true, Format.linkEdgeImage.src)).setAttribute('title', mxResources.get('link'));
-		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['flexArrow', null, null, null, null],
+		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['flexArrow', null, null, null, null, null, null, null, null],
 			null, parent, true, Format.arrowImage.src)).setAttribute('title', mxResources.get('arrow'));
-		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['arrow', null, null, null, null],
+		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['arrow', null, null, null, null, null, null, null, null],
 			null, parent, true, Format.simpleArrowImage.src)).setAttribute('title', mxResources.get('simpleArrow'));
-		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['filledEdge', null, null, null, null],
+		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['taperedArrow', null, null, null, null, null, null, null, null],
+			null, parent, true, Format.taperedArrowImage.src)).setAttribute('title', mxResources.get('taperedArrow'));
+		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['filledEdge', null, null, null, null, null, null, null, null],
 			null, parent, true, Format.filledEdgeImage.src)).setAttribute('title', 'Filled Edge');
-		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['pipe', null, null, null, null],
+		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['pipe', null, null, null, null, null, null, null, null],
 			null, parent, true, Format.pipeEdgeImage.src)).setAttribute('title', 'Pipe');
-		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['wire', null, null, '1', null],
+		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['wire', null, null, '1', null, null, null, null, null],
 			null, parent, true, Format.wireEdgeImage.src)).setAttribute('title', 'Wire');
 	})));
 
@@ -1223,8 +1226,8 @@ Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, pa
 		var graph = this.editorUi.editor.graph;
 		graph.stopEditing(false);
 		
-		graph.getModel().beginUpdate();
-		try
+		// Keeps edge labels where they were if the new route still passes there
+		graph.keepEdgeLabelPositions(graph.getSelectionCells(), mxUtils.bind(this, function()
 		{
 			var cells = graph.getSelectionCells();
 			var edges = [];
@@ -1282,11 +1285,7 @@ Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, pa
 			{
 				postFn(graph, edges);
 			}
-		}
-		finally
-		{
-			graph.getModel().endUpdate();
-		}
+		}));
 	}), parent, sprite));
 };
 
@@ -1724,13 +1723,41 @@ Menus.prototype.isShowStyleItems = function()
 };
 
 /**
+ * Returns the names of the actions for the newEdgeStyle of the selection:
+ * setAsDefaultForNewConnections for a single edge with an editable source
+ * and clearDefaultForNewConnections for a single vertex with a newEdgeStyle.
+ */
+Menus.prototype.getNewEdgeStyleActions = function()
+{
+	var graph = this.editorUi.editor.graph;
+	var cell = graph.getSelectionCell();
+	var result = [];
+
+	if (graph.isEnabled() && graph.getSelectionCount() == 1)
+	{
+		if (graph.getNewEdgeStyleSource(cell) != null)
+		{
+			result.push('setAsDefaultForNewConnections');
+		}
+		else if (graph.model.isVertex(cell) && graph.isCellEditable(cell) &&
+			graph.getCurrentCellStyle(cell)['newEdgeStyle'] != null)
+		{
+			result.push('clearDefaultForNewConnections');
+		}
+	}
+
+	return result;
+};
+
+/**
  * Creates the keyboard event handler for the current graph and history.
  */
 Menus.prototype.addPopupMenuStyleItems = function(menu, cell, evt)
 {
 	if (this.editorUi.editor.graph.getSelectionCount() == 1)
 	{
-		this.addMenuItems(menu, ['-', 'setAsDefaultStyle'], null, evt);
+		this.addMenuItems(menu, ['-', 'setAsDefaultStyle'].concat(
+			this.getNewEdgeStyleActions()), null, evt);
 	}
 	else if (this.editorUi.editor.graph.isSelectionEmpty())
 	{
@@ -1836,7 +1863,11 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 						}
 					}
 					
-					this.addMenuItems(menu, [(isWaypoint) ? 'removeWaypoint' : 'addWaypoint'], null, evt);
+					// Waypoints are hidden while ignored for a collapsed terminal
+					if (isWaypoint || !graph.view.isCollapsedPointsIgnored(cell, graph.getCurrentCellStyle(cell)))
+					{
+						this.addMenuItems(menu, [(isWaypoint) ? 'removeWaypoint' : 'addWaypoint'], null, evt);
+					}
 				}
 			}
 		}
@@ -1885,6 +1916,15 @@ Menus.prototype.addPopupMenuCellEditItems = function(menu, cell, evt, parent)
 
 	if (graph.getModel().isVertex(cell) && graph.isCellConnectable(cell))
 	{
+		// Adds a connection point at the location of the context menu
+		var pt = graph.popupMenuHandler.getTriggerPoint();
+
+		if (!graph.isCellLocked(cell) && graph.getConnectionConstraintForPoint(
+			state, pt.x, pt.y) != null)
+		{
+			this.addMenuItem(menu, 'addConnectionPoint', parent, evt);
+		}
+
 		this.addMenuItem(menu, 'editConnectionPoints', parent, evt);
 	}
 

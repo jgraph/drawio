@@ -82,7 +82,8 @@ match (Kym, 2026-09-25).
 Visibility/Effects/Style/Navigation/Tags/Timing): `toggle`, `show`, `hide`,
 `select`, `wait`, `opacity`, `fadeIn`, `fadeOut`, `fadeTo`, `wipeIn`,
 `wipeOut`, `popIn`, `popOut`, `flow`, `style`, `toggleStyle`, `highlight`,
-`scroll`, `viewbox`, `open`, `tags`. `fadeIn`/`fadeOut` are hardcoded 0→1 /
+`scroll`, `viewbox`, `open`, `tags` (plus `page`, raw JSON only, see
+Custom-link actions). `fadeIn`/`fadeOut` are hardcoded 0→1 /
 1→0; `fadeTo` animates from current opacity to `value`. Picker defaults come
 from each field's `def`; `viewbox` with an empty canvas selection pre-fills
 the current viewport (one-click snapshot, static x/y/w/h — the picker
@@ -275,6 +276,17 @@ reason as its tooltip, `AnimationDialog.getPageLinkWarning`) when a
 it or opens it as a URL), when its page does not exist, or when a bare
 page ID, name or number was entered, which opens as a relative URL in a
 new tab (Kym, 2026-09-25). Nothing is rewritten automatically.
+
+**Previous / next page**: `{"page":"next"}` and `{"page":"previous"}`
+select the next or previous page and wrap around at either end, like the
+Ctrl+Shift+PageDown/PageUp actions. `executeCustomActions` ends an open
+model transaction and calls the `Graph.selectNextPage(forward)` hook, which
+does nothing in a plain `Graph` and is set by `EditorUi` (to
+`EditorUi.selectNextPage`) and by `GraphViewer` (to its modulo `selectPage`,
+skipped for single-page diagrams). Following steps run on the new page, as
+after an `open` page link. Other values are ignored. There is no picker
+entry (`CustomActionDialog.SCHEMAS`) for it yet, so it is authored in the
+raw JSON; `AnimationExport.Player` ignores it like `open`.
 
 **Attaching one action to several cells** (Sept 2026, grapheditor):
 `editLink` resolves `getEditableCells(getSelectionCells())` when it opens

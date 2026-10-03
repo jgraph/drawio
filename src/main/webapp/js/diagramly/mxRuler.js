@@ -184,6 +184,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
                 tickSize = [3,5,5,5,5,10,5,5,5,5];
                 break;
             case mxConstants.MILLIMETERS:
+            case mxConstants.CENTIMETERS:
                 len = 10;
                 tickStep = mxConstants.PIXELS_PER_MM;
                 tickSize = [5,3,3,3,3,6,3,3,3,3];
@@ -213,7 +214,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     	}
         else if (scale <= 0.5)
     	{
-        	step = tickStep * (Math.floor((1 / scale) / 2) * (ruler.unit == mxConstants.MILLIMETERS? 2 : 1));
+        	step = tickStep * (Math.floor((1 / scale) / 2) * ((ruler.unit == mxConstants.MILLIMETERS || ruler.unit == mxConstants.CENTIMETERS)? 2 : 1));
     	}
 
         var lastTick = null;
@@ -554,6 +555,8 @@ mxRuler.prototype.formatText = function(pixels)
             return (pixels / mxConstants.PIXELS_PER_MM).toFixed(1);
         case mxConstants.METERS:
             return (pixels / (mxConstants.PIXELS_PER_MM * 1000)).toFixed(4);
+        case mxConstants.CENTIMETERS:
+            return parseFloat((pixels / (mxConstants.PIXELS_PER_MM * 10)).toFixed(2));
         case mxConstants.INCHES:
             return (pixels / mxConstants.PIXELS_PER_INCH).toFixed(2);
     }

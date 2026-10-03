@@ -49,7 +49,7 @@
 					w * 1.5, h * 1.1, 'Orange\n\nR: 223\nG: 140\nB: 66\n\n #df8c42', 'Veeam Sapphire', null, null, this.getTagsForStencil(gn, 'orange', dt).join(' ')),
 			this.createVertexTemplateEntry('align=left;verticalAlign=middle;fontFamily=Tahoma;fillColor=#d9d9d9;strokeColor=none;fontColor=#ffffff;strokeWidth=2;html=1;whiteSpace=wrap;spacing=6;fontStyle=0',
 					w * 1.5, h * 1.1, 'Grey 2\n\nR: 217\nG: 217\nB: 217\n\n #d9d9d9', 'Grey 2', null, null, this.getTagsForStencil(gn, 'grey', dt).join(' ')),
-			this.createVertexTemplateEntry('triangle;whiteSpace=wrap;html=1;gradientColor=#D3D3D3;strokeColor=none;gradientDirection=east;',
+			this.createVertexTemplateEntry('triangle;whiteSpace=wrap;html=1;gradientColor=#D3D3D3;strokeColor=none;gradientDirection=east;points=[[0,0],[0,0.25],[0,0.5],[0,0.75],[0,1],[0.5,0.25],[0.5,0.75],[1,0.5]];',
 					w * 0.4, h * 1.6, '', 'Inclusion', null, null, this.getTagsForStencil(gn, 'inclusion', dt).join(' ')),
 			this.createVertexTemplateEntry('rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d3d3d3;strokeWidth=2;',
 					w * 1.5, h * 1.1, '', 'Frame (grey 2)', null, null, this.getTagsForStencil(gn, 'grey frame', dt).join(' ')),

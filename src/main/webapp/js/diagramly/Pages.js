@@ -744,7 +744,9 @@ EditorUi.prototype.pageSelected = function()
 			{
 				this.lightboxFit();
 			}
-			else if (Editor.fitDiagramOnPage)
+			// Skips the fit while a file is opening since resetGraphView
+			// resets the scroll position and fileLoaded fits the diagram
+			else if (Editor.fitDiagramOnPage && !this.openingFile)
 			{
 				this.fitInitialView();
 			}
@@ -1300,27 +1302,15 @@ Graph.prototype.addExtFont = function(fontName, fontUrl, dontRemember)
 	{
 		var fontId = 'extFont_' + fontName;
 
-		if (document.getElementById(fontId) == null)
+		// Font URLs come from the file and are untrusted. Invalid URLs are
+		// not loaded but still remembered so that saving keeps the file as
+		// it is, same as in getCustomFonts which filters them for exports.
+		if (document.getElementById(fontId) == null && Graph.isValidFontUrl(fontUrl))
 		{
-			if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
-			{
-				mxClient.link('stylesheet', fontUrl, null, fontId);
-			}
-			else
-			{
-				var head = document.getElementsByTagName('head')[0];
-				
-				// KNOWN: Should load fonts synchronously
-				var style = document.createElement('style');
-				
-				style.appendChild(document.createTextNode('@font-face {\n' +
-					'\tfont-family: "'+ Graph.escapeCssString(fontName) +'";\n' +
-					'\tsrc: url("'+ Graph.escapeCssString(fontUrl) +'");\n}'));
-				
-				style.setAttribute('id', fontId);
-				var head = document.getElementsByTagName('head')[0];
-		   		head.appendChild(style);
-			}
+			// KNOWN: Should load fonts synchronously
+			var elt = Graph.createFontElement(fontName, fontUrl);
+			elt.setAttribute('id', fontId);
+			document.getElementsByTagName('head')[0].appendChild(elt);
 		}
 		
 		if (!dontRemember)

@@ -1068,15 +1068,55 @@ mxStencilRegistry.allowEval = false;
 		var newPath = (file != null && file.fileObject != null &&
 			file == this.getCurrentFile()) ? file.fileObject.path : null;
 		
+		// Path of the latest request so that registrations that resolve
+		// after a newer request can be detected and undone
+		this.requestedWatchPath = newPath;
+
 		if (this.watchedPath != newPath)
 		{
-			this.unwatchPath(this.watchedPath);
+			var oldPath = this.watchedPath;
+			this.watchedPath = null;
+
+			try
+			{
+				await this.unwatchPath(oldPath);
+			}
+			catch (e)
+			{
+				EditorUi.debug('EditorUi.watchFile', [this],
+					'unwatch failed', [oldPath], 'error', [e]);
+			}
 		}
 
 		if (newPath != null)
 		{
-			this.watchedPath = newPath;
-			this.watchPath(newPath);
+			// Only records the path as watched once the registration
+			// succeeded so that a failed watch is retried on the next
+			// call [jgraph/drawio-dev#676]
+			try
+			{
+				await this.watchPath(newPath);
+
+				if (this.requestedWatchPath == newPath)
+				{
+					this.watchedPath = newPath;
+				}
+				else if (this.watchedPath != newPath)
+				{
+					// Superseded by a newer request while pending
+					await this.unwatchPath(newPath);
+				}
+			}
+			catch (e)
+			{
+				if (this.watchedPath == newPath)
+				{
+					this.watchedPath = null;
+				}
+
+				EditorUi.debug('EditorUi.watchFile', [this],
+					'watch failed', [newPath], 'error', [e]);
+			}
 		}
 	};
 	
@@ -1448,14 +1488,6 @@ mxStencilRegistry.allowEval = false;
 					var onMermaid = mxUtils.bind(this, function(diagramXml)
 					{
 						fn(null, diagramXml, null, name, false);
-
-						// Mermaid files carry no stored view, so the default scroll
-						// can land at an arbitrary edge (e.g. the bottom of a tall
-						// flowchart). Apply the standard fit-on-load once the diagram
-						// is in place.
-						var ui = this;
-						window.setTimeout(function() { ui.fitInitialView(); }, 0);
-
 						checkDrafts();
 					});
 

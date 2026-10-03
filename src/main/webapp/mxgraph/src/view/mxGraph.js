@@ -4910,9 +4910,10 @@ mxGraph.prototype.cellsAdded = function(cells, parent, index, source, target, ab
 	
 							// FIXME: Cells should always be inserted first before any other edit
 							// to avoid forward references in sessions.
+							// Edges only translate their terminal and control points
 							geo = geo.clone();
-							geo.translate(dx, dy);
-							
+							geo.translate(dx, dy, this.model.isEdge(cells[i]));
+
 							if (!geo.relative && this.model.isVertex(cells[i]) &&
 								!this.isAllowNegativeCoordinates())
 							{
@@ -5387,7 +5388,11 @@ mxGraph.prototype.splitEdge = function(edge, cells, newEdge, dx, dy, x, y, paren
 			{
 				var t = this.view.translate;
 				var s = this.view.scale;
-				var idx = mxUtils.findNearestSegment(state, (dx + t.x) * s, (dy + t.y) * s);
+
+				// Uses the drop location if available
+				var idx = (x != null && y != null) ?
+					mxUtils.findNearestSegment(state, x, y) :
+					mxUtils.findNearestSegment(state, (dx + t.x) * s, (dy + t.y) * s);
 				geo.points = geo.points.slice(0, idx);
 								
 				geo = this.getCellGeometry(edge);
@@ -11106,6 +11111,9 @@ mxGraph.prototype.isTerminalPointMovable = function(cell, source)
  * Returns true if the given cell is bendable. This returns <cellsBendable>
  * for all given cells if <isLocked> does not return true for the given
  * cell and its style does not specify <mxConstants.STYLE_BENDABLE> to be 0.
+ * Returns false while the control points of the cell are ignored in the
+ * view (see <mxGraphView.isCollapsedPointsIgnored>) so that the hidden
+ * points cannot be overwritten.
  * 
  * Parameters:
  * 
@@ -11115,7 +11123,8 @@ mxGraph.prototype.isCellBendable = function(cell)
 {
 	var style = this.getCurrentCellStyle(cell);
 	
-	return this.isCellsBendable() && !this.isCellLocked(cell) && style[mxConstants.STYLE_BENDABLE] != 0;
+	return this.isCellsBendable() && !this.isCellLocked(cell) && style[mxConstants.STYLE_BENDABLE] != 0 &&
+		!this.view.isCollapsedPointsIgnored(cell, style);
 };
 
 /**

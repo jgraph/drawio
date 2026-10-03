@@ -973,6 +973,16 @@ mxEdgeHandler.prototype.start = function(x, y, index)
 	this.isSource = (this.bends == null) ? false : index == 0;
 	this.isTarget = (this.bends == null) ? false : index == this.bends.length - 1;
 	this.isLabel = index == mxEvent.LABEL_HANDLE;
+	this.labelOffset = null;
+
+	// Keeps the distance between the mouse and the label so that the label
+	// does not jump to the mouse if the handle was moved away from the label
+	// (see checkLabelHandle) or if the drag starts anywhere on the label
+	if (this.isLabel && this.label != null)
+	{
+		var pt = mxUtils.convertPoint(this.graph.container, x, y);
+		this.labelOffset = new mxPoint(this.label.x - pt.x, this.label.y - pt.y);
+	}
 
 	if (this.isSource || this.isTarget)
 	{
@@ -1499,7 +1509,17 @@ mxEdgeHandler.prototype.mouseMove = function(sender, me)
 	if (this.index != null && this.marker != null)
 	{
 		var constraintHandler = this.getConstraintHandler();
-		this.currentPoint = this.getPointForEvent(me);
+		var pe = me;
+
+		// Snaps the label position instead of the mouse position
+		if (this.isLabel && this.labelOffset != null)
+		{
+			pe = new mxMouseEvent(me.getEvent(), me.getState());
+			pe.graphX = me.getGraphX() + this.labelOffset.x;
+			pe.graphY = me.getGraphY() + this.labelOffset.y;
+		}
+
+		this.currentPoint = this.getPointForEvent(pe);
 		this.error = null;
 		
 		// Uses the current point from the constraint handler if available
@@ -1813,6 +1833,7 @@ mxEdgeHandler.prototype.reset = function()
 	this.mouseDownY = null;
 	this.snapPoint = null;
 	this.isLabel = false;
+	this.labelOffset = null;
 	this.isSource = false;
 	this.isTarget = false;
 	this.active = false;

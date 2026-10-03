@@ -2462,14 +2462,17 @@ var MarkupDialog = function(editorUi, title, value, fn, cancelFn, helpLink)
 
 	var sourceVisible = false;
 
+	// Style elements apply to the whole document while editing
 	function sourceToWysiwyg()
 	{
-		wysiwyg.innerHTML = Graph.sanitizeHtml(textarea.value);
+		wysiwyg.innerHTML = Graph.disableHtmlStyles(Graph.sanitizeHtml(
+			textarea.value), Graph.backupCssAttribute);
 	};
 
 	function wysiwygToSource()
 	{
-		return Graph.sanitizeHtml(wysiwyg.innerHTML);
+		return Graph.sanitizeHtml(Graph.getHtmlWithStyleElements(
+			wysiwyg, Graph.backupCssAttribute));
 	};
 
 	function getValue()
@@ -4046,9 +4049,8 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 	{
 		var name = nameInput.value;
 
-		// Avoid ':' in attribute names which seems to be valid in Chrome
-		if (name.length > 0 && name != 'label' && name != 'id' &&
-			name != 'placeholders' && name.indexOf(':') < 0 &&
+		// Avoids reserved names and ':' in attribute names which seems to be valid in Chrome
+		if (name.length > 0 && !Graph.isReservedDataName(name) &&
 			EditDataDialog.isValidAttributeName(name))
 		{
 			try
@@ -4090,7 +4092,10 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 		}
 		else
 		{
-			ui.showError(mxResources.get('error'), mxResources.get('invalidName'),
+			// Lists the reserved names if a reserved name was entered
+			ui.showError(mxResources.get('error'), mxResources.get('invalidName') +
+				((Graph.isReservedDataName(name)) ? ' (' +
+				Graph.reservedDataNames.join(', ') + ', :)' : ''),
 				mxResources.get('ok'));
 		}
 	});

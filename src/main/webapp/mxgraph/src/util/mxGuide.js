@@ -245,12 +245,38 @@ mxGuide.prototype.move = function(bounds, delta, gridEnabled, clone)
 		var bottom = b.y + b.height;
 		var middle = b.getCenterY();
 
+		// Returns true if the given state is nearer to the moved bounds than
+		// the given current state, used to pick the nearest shape among
+		// candidates with the same snapping distance
+		function isNearer(state, current)
+		{
+			if (current == null || state == current)
+			{
+				return false;
+			}
+			else
+			{
+				var dx1 = state.getCenterX() - center;
+				var dy1 = state.getCenterY() - middle;
+				var dx2 = current.getCenterX() - center;
+				var dy2 = current.getCenterY() - middle;
+
+				return dx1 * dx1 + dy1 * dy1 < dx2 * dx2 + dy2 * dy2;
+			}
+		};
+
+		// Returns true if the given distance replaces the current candidate
+		function isBetter(d, tol, state, current)
+		{
+			return d < tol || (d == tol && isNearer(state, current));
+		};
+
 		// Snaps the left, center and right to the given x-coordinate
 		function snapX(x, state, centerAlign)
 		{
 			var override = false;
 
-			if (centerAlign && Math.abs(x - center) < ttX)
+			if (centerAlign && isBetter(Math.abs(x - center), ttX, state, stateX))
 			{
 				delta.x = x - bounds.getCenterX();
 				ttX = Math.abs(x - center);
@@ -258,13 +284,13 @@ mxGuide.prototype.move = function(bounds, delta, gridEnabled, clone)
 			}
 			else if (!centerAlign)
 			{
-				if (Math.abs(x - left) < ttX)
+				if (isBetter(Math.abs(x - left), ttX, state, stateX))
 				{
 					delta.x = x - bounds.x;
 					ttX = Math.abs(x - left);
 					override = true;
 				}
-				else if (Math.abs(x - right) < ttX)
+				else if (isBetter(Math.abs(x - right), ttX, state, stateX))
 				{
 					delta.x = x - bounds.x - bounds.width;
 					ttX = Math.abs(x - right);
@@ -298,7 +324,7 @@ mxGuide.prototype.move = function(bounds, delta, gridEnabled, clone)
 		{
 			var override = false;
 
-			if (centerAlign && Math.abs(y - middle) < ttY)
+			if (centerAlign && isBetter(Math.abs(y - middle), ttY, state, stateY))
 			{
 				delta.y = y - bounds.getCenterY();
 				ttY = Math.abs(y -  middle);
@@ -306,13 +332,13 @@ mxGuide.prototype.move = function(bounds, delta, gridEnabled, clone)
 			}
 			else if (!centerAlign)
 			{
-				if (Math.abs(y - top) < ttY)
+				if (isBetter(Math.abs(y - top), ttY, state, stateY))
 				{
 					delta.y = y - bounds.y;
 					ttY = Math.abs(y - top);
 					override = true;
 				}
-				else if (Math.abs(y - bottom) < ttY)
+				else if (isBetter(Math.abs(y - bottom), ttY, state, stateY))
 				{
 					delta.y = y - bounds.y - bounds.height;
 					ttY = Math.abs(y - bottom);

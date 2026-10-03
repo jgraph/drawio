@@ -294,21 +294,18 @@ mxCellRenderer.prototype.postConfigureShape = function(state)
  * 
  * Checks if the style of the given <mxCellState> contains 'inherit',
  * 'indicated', 'swimlane', 'parentFillColor' or 'parentStrokeColor' for
- * colors that support those keywords.
+ * colors that support those keywords and if the resolved values differ
+ * from the values of the current shape or label.
  */
 mxCellRenderer.prototype.checkPlaceholderStyles = function(state)
 {
-	// LATER: Check if the color has actually changed
 	if (state.style != null)
 	{
-		if (state.style[mxConstants.STYLE_FONTSIZE] == 'inherit' ||
-			state.style[mxConstants.STYLE_FONTFAMILY] == 'inherit')
-		{
-			return true;
-		}
+		var label = state.style[mxConstants.STYLE_FONTSIZE] == 'inherit' ||
+			state.style[mxConstants.STYLE_FONTFAMILY] == 'inherit';
+		var shape = false;
 
-		var values = ['inherit', 'swimlane', 'indicated',
-			'parentFillColor', 'parentStrokeColor'];
+		var values = this.placeholderValues;
 		var styles = [mxConstants.STYLE_FILLCOLOR, mxConstants.STYLE_STROKECOLOR,
 			mxConstants.STYLE_GRADIENTCOLOR, mxConstants.STYLE_FONTCOLOR];
 
@@ -316,12 +313,132 @@ mxCellRenderer.prototype.checkPlaceholderStyles = function(state)
 		{
 			if (mxUtils.indexOf(values, state.style[styles[i]]) >= 0)
 			{
-				return true;
+				if (styles[i] == mxConstants.STYLE_FONTCOLOR)
+				{
+					label = true;
+				}
+				else
+				{
+					shape = true;
+				}
 			}
 		}
+
+		return (shape && this.isPlaceholderShapeChanged(state)) ||
+			(label && this.isPlaceholderLabelChanged(state));
 	}
 	
 	return false;
+};
+
+/**
+ * Variable: placeholderValues
+ * 
+ * Color values that are resolved in <resolveColor>.
+ */
+mxCellRenderer.prototype.placeholderValues = ['inherit', 'swimlane',
+	'indicated', 'parentFillColor', 'parentStrokeColor'];
+
+/**
+ * Variable: placeholderShapeFields
+ * 
+ * Fields of the shape that are compared in <isPlaceholderShapeChanged>.
+ */
+mxCellRenderer.prototype.placeholderShapeFields = ['fill', 'gradient',
+	'stroke', 'laneFill', 'indicatorColor', 'indicatorGradientColor',
+	'indicatorStrokeColor'];
+
+/**
+ * Function: isPlaceholderShapeChanged
+ * 
+ * Returns true if configuring the shape of the given state for its current
+ * style changes any of the <placeholderShapeFields>. The configuration is
+ * applied to a temporary object so that the shape is not modified.
+ */
+mxCellRenderer.prototype.isPlaceholderShapeChanged = function(state)
+{
+	var shape = state.shape;
+
+	if (shape == null)
+	{
+		return true;
+	}
+
+	try
+	{
+		// Defaults of the fields as after resetStyles
+		var proto = Object.getPrototypeOf(shape);
+		var probe = Object.create(shape);
+
+		for (var i = 0; i < this.placeholderShapeFields.length; i++)
+		{
+			var field = this.placeholderShapeFields[i];
+			probe[field] = proto[field];
+		}
+
+		var tmp = Object.create(state);
+		tmp.shape = probe;
+		this.configureShape(tmp);
+
+		return this.isShapeConfigurationChanged(shape, probe);
+	}
+	catch (e)
+	{
+		return true;
+	}
+};
+
+/**
+ * Function: isShapeConfigurationChanged
+ * 
+ * Returns true if any of the <placeholderShapeFields> differ in the given
+ * shape and the given reconfigured temporary shape.
+ */
+mxCellRenderer.prototype.isShapeConfigurationChanged = function(shape, probe)
+{
+	for (var i = 0; i < this.placeholderShapeFields.length; i++)
+	{
+		var field = this.placeholderShapeFields[i];
+
+		if (shape[field] != probe[field])
+		{
+			return true;
+		}
+	}
+
+	return false;
+};
+
+/**
+ * Function: isPlaceholderLabelChanged
+ * 
+ * Returns true if the resolved font color, size or family of the given
+ * state differ from the values of its current label.
+ */
+mxCellRenderer.prototype.isPlaceholderLabelChanged = function(state)
+{
+	var text = state.text;
+
+	if (text == null)
+	{
+		return false;
+	}
+
+	var probe = {color: state.style[mxConstants.STYLE_FONTCOLOR],
+		size: state.style[mxConstants.STYLE_FONTSIZE],
+		family: state.style[mxConstants.STYLE_FONTFAMILY]};
+	var tmp = Object.create(state);
+	tmp.text = probe;
+
+	this.resolveColor(tmp, 'color', mxConstants.STYLE_FONTCOLOR);
+	this.inheritFontStyle(tmp, 'size', mxConstants.STYLE_FONTSIZE);
+	this.inheritFontStyle(tmp, 'family', mxConstants.STYLE_FONTFAMILY);
+
+	return (mxUtils.indexOf(this.placeholderValues, state.style[
+		mxConstants.STYLE_FONTCOLOR]) >= 0 && probe.color != text.color) ||
+		(state.style[mxConstants.STYLE_FONTSIZE] == 'inherit' &&
+		probe.size != text.size) || (state.style[mxConstants.STYLE_FONTFAMILY] ==
+		'inherit' && probe.family != text.family);
 };
 
 /**

@@ -310,6 +310,44 @@ and the derived boxes fix the move/resize overlap regions for dragged
 containers. Editor-binding only — the canonical core is untouched (nothing to
 sync to drawio-mcp).
 
+## Relative and edge children (Oct 2026)
+
+`getAbsoluteModelBounds` and `getAbsoluteParentOffset` (which also converts
+routes into an edge's parent frame) must place a vertex where the VIEW draws
+it, or the solve routes from and around a box that is not there. The plain
+`geometry + ancestor geometries` sum got three cases wrong. All three fixes
+are in the editor binding only (the core takes absolute boxes, nothing to
+sync to drawio-mcp):
+
+- **Relative children of vertices (ports)**: `geo.x`/`geo.y` are fractions
+  of the parent's size and were read as coordinates. A port at (0.25, 0.5)
+  on a 400x300 shape routed from the shape's top-left corner, so the one
+  bend sat at the corner's height and the route climbed to the parent's top
+  edge and came down onto the target (6030a3ebe5). `getGeometryOrigin`
+  follows `mxGraphView.updateCellState`: the fraction of the parent's size
+  (the derived hull for a transparentBounds parent) plus `geo.offset`.
+  `getAbsoluteGeometryBounds` follows `updateVertexState`: a relative child
+  of a ROTATED parent turns about the parent's centre (a non-numeric
+  rotation counts as none, as in `shapeFrame`). The resize/arrange affected
+  region places the PREVIOUS geometry through the same helper.
+- **Relative children of edges (edge labels)**: the view places them along
+  the edge's drawn route (`mxGraphView.getPoint`), which the model does not
+  give and the routing itself changes. They were obstacles at their
+  geometry's x/y (the position along the edge, -1..1), a stray box at the
+  page origin in every solve, common with sized labels from VSDX and
+  Lucidchart imports. `isOnEdge` (the cell or a vertex ancestor is a
+  relative child of an edge) makes `getAbsoluteModelBounds` return null: no
+  obstacle, and an edge connected to such a label stays as authored
+  (916c8f2922). Every consumer handles the null box.
+- **Absolute children of edges**: the offset walk stopped at the edge and
+  lost the offset of the edge's container. An edge adds nothing (the view
+  places its absolute children in the edge's parent frame), so the walk now
+  passes through it (58758f12c4).
+
+In-page check: for every vertex with a state, `getAbsoluteModelBounds` equals
+the state's unscaled box (`state.x / scale - translate.x`, `state.width /
+scale`); cells on edges are the expected nulls.
+
 ## Auto-routing solves at BEFORE_UNDO, after childLayouts (July 2026)
 
 The auto-routing graph events (CELLS_ADDED / CELL_CONNECTED / CELLS_MOVED /

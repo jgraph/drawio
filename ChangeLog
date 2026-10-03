@@ -1,3 +1,157 @@
+03-OCT-2026: 32.0.1
+
+- Lowers the stencil bundle floor of the release PR integrity check
+
+03-OCT-2026: 32.0.0
+
+- Fixes edge label moving offset in orthogonal edge style
+- Fixes resize of ERD entity shapes via inner rectangle
+- Fixes split curved edge, drops text on edge as label
+- Fixes split on drop for routed edges without waypoints
+- Fixes detection of drop targets under non-drop-targets for sidebar drag
+- Adds drag handles for group padding on transparentBounds groups
+- Adds tapered arrow shape
+- Speeds up loading of the bundled stencil libraries
+- Resolves CSV parent rows before cell IDs and ignores the root and layers as parents
+- Fixes group padding handle error after moving a transparent group
+- Adds curved, rounded and width handles to the tapered arrow
+- Adds live preview of the selection border for group padding handles
+- Adds placement of pasted edge labels at the mouse position
+- Adds fill and gradient to the tapered arrow
+- Adds the tapered arrow to the connection menus
+- Adds a Group Padding section to the Arrange panel
+- Arranges the group padding inputs in two rows below size and position
+- Fixes overhangs at inner rounded corners of the tapered arrow
+- Adds the tapered arrow to the connection popup of the inline toolbar
+- Resizes groups without transparent bounds to new group padding values
+- Matches the text spacing and group padding layouts
+- Paints the dashed preview of custom handle drags below the handles
+- Scales the markers of the tapered arrow and draws its heads in the outline
+- Snaps group padding handles to the grid unless alt is pressed
+- Fixes hardcoded language of print dialog in viewer lightbox
+- Fixes math on page without math after switching pages in viewer
+- Fixes autosize to recurse into nested containers
+- Fixes cut and paste of vertices in trees
+- Fixes Cmd+Shift+V in Safari
+- Fixes diagonal trackpad scrolling without scrollbars
+- Fixes moving of shapes with size 0 or 1
+- Adds click on terminal handles to change arrows
+- Adds row and column striping for tables [4021]
+- Reduces guides for UML classes and tables
+- Uses the same guides for moving cells and inserting from the sidebar
+- Adds Search Templates to the omni search
+- Adds the new window option for links in labels
+- Adds actions for the style of new connections from a shape
+- Waits for the current save before saving again
+- Adds a From Text section to the templates dialog
+- Adds slanted text entries to the Misc palette
+- Halves the stencil bundle and loads bundled stencils about twice as fast
+- Replaces the gae-stub jar in the public build with source
+- Ships the public repository with the stencil bundle instead of the stencil XML
+
+02-OCT-2026: 31.7.1
+
+-  Hyperdisk deliberately deviates from Google's square artwork: the box is cropped to the ink horizontally and the height scaled by sqrt(3)/2 (403.999 x 349.873) for regular flat-top hexagon   proportions; the sidebar entry follows (100 x 86.6).
+- Adds curated connection points to the GCP 2026 stencils and gives Hyperdisk regular hexagon proportions
+- Adds curated connection points to the Network 2025 stencils and exposes them through the icon wrapper shape
+- Adds curated connection points to the Veeam stencils (flat and 3D)
+- Adds curated connection points to the Citrix stencils
+- Connection fix for a Cisco19 stencil
+- Adds the heptagon connection points to the Kubernetes wrapper shapes
+-  Adds curated connection points to the Alibaba Cloud stencils
+- Puts the IBM Cloud actor connection points on the circle
+- Adds curated connection points to the Allied Telesis palette
+- Adds curated connection points to the Cisco Safe palette cells that had none
+- Adds curated connection points to the Dynamics 365 palette
+- Adds curated connection points to the MSCAE image palette entries
+- Adds curated connection points to the SAP palettes
+- Adds curated connection points to the Azure2 palette
+- Adds opt-in anchorsOnOutline style for rounded rectangle connection points
+- Uses anchorsOnOutline for the SAP rounded shapes
+- Resolves perimeter connection points on the rounded outline with roundedPerimeterPoints
+- Renames the SAP rounded shapes' key to roundedPerimeterPoints
+- Stores outline connections on rounded shapes with roundedPerimeterPoints as perimeter points
+- Adds opt-in roundedPerimeterPoints style for connection points on rounded rectangles [jgraph/drawio-dev#701]
+- Removes sanitized style elements with element or CDATA children
+- Scopes nested CSS rules of inlined SVG images
+- Keeps CSS in CDATA sections of inlined SVG images
+- Waits up to 8 hours for the GAE deploy in the release monitor
+- Re-measures the SAP Generic Icons and composite image connection points
+- Scopes style elements in HTML labels to their svg element
+- Re-measures drifted MSCAE and Dynamics 365 connection points
+- Fixes outline connections on flipped rounded rectangles with roundedPerimeterPoints [jgraph/drawio-dev#701]
+- Applies roundedPerimeterPoints with the default and pasted styles [jgraph/drawio-dev#701]
+- Ends floating edges on the rounded outline with roundedPerimeterPoints [jgraph/drawio-dev#701]
+- Adds Rounded Perimeter to the properties of rectangles and labels [jgraph/drawio-dev#701]
+- Renames the roundedPerimeterPoints style to roundedPerimeter [jgraph/drawio-dev#701]
+- Adds github excludes from etc
+- Keeps the math text layer in PDFs of the export server
+- Stops macOS Preview breaking the math text layer into lines
+- Steps inline font sizes with the font size of labels [jgraph/drawio#5786]
+- Fixes the swapped shortcut labels of the font size actions
+- Stores the Mermaid defaults version of new diagrams
+- Keeps Mermaid sankey bands visible in dark mode
+- Adds the Mermaid sankey link to the Basic sidebar
+- Adds the Mermaid person shape
+- Adds the Mermaid person shape to the Basic sidebar
+- Loads the web fonts of Mermaid diagrams before parsing them
+- Adds the lifelineColor style to UML lifelines
+- Adds the Mermaid use case actor shape
+- Adds the Mermaid use case actors to the Basic sidebar
+- Lets the Mermaid bundle decide the ELK post-pass of flowcharts
+- Updates drawio-mermaid bundle to 0.1.0+commit.de4624a
+- Updates drawio-mermaid bundle to 0.1.0+commit.3a7b1c1
+- Updates drawio-mermaid bundle to 0.1.0+commit.db3990e
+- Adds collapsedPoints edge style to ignore waypoints for collapsed terminals [jgraph/drawio#4810]
+- Adds fixedPointSpacing style to apply line end spacing to connection points [jgraph/drawio#4822]
+- Shows the offline languages dialog without a controlling service worker
+- Adds PlantUML descriptors to the embed load action
+- Adds collapsed borders rendering for tables [jgraph/drawio#2714]
+- Uses the side flags for borders of cells in collapsed tables [jgraph/drawio#2714]
+- Uses Lane Color for the fill of tables and rows without a title [jgraph/drawio#2714]
+- Resolves inherited colors in collapsed tables from the saved colors [jgraph/drawio#2714]
+- Uses the side flags of rows and cells as visibility in collapsed tables [jgraph/drawio#2714]
+- Uses the lane color for headerless rounded collapsed tables [jgraph/drawio#2714]
+- Returns null from mxPrintPreview.open when the popup is blocked [jgraph/drawio-dev#673]
+- Records the watched path only after the file watch registration succeeds [jgraph/drawio-dev#676]
+- Exempts the last print page from the forced page break with an inline style [jgraph/drawio-dev#674]
+- Reports failed browser storage writes instead of passing a null error [jgraph/drawio-dev#672]
+- Makes edge routing independent of the zoom level
+- Fixes the start point of edge handles started from the graph handler
+- Fixes the col-resize cursor for right-side table headers at zoom levels other than 100%
+- Fixes the drop and connect position for relative sources at zoom levels other than 100%
+- Fixes edge geometry position changing in mxGraph.cellsAdded
+- Fixes new device files with SVG extension written as XML on first write
+- Fixes stack layout with locked cells
+- Disables dropping lanes into lanes
+- Cancels open AI request when template dialog is closed
+- Does not show image resize dialog for PNG+XML
+- Adds previous and next page custom actions
+- Removes required identity for parent-child CSV import
+- Adds jumpLayers style to limit line jumps to the same layer
+- Fixes the container lookup and insert position for relative sources in drop and connect
+- Fixes move cursor in embedded diagrams if no panning possible
+- Adds start and end arrow stroke colors
+- Fixes middle click on broken page link in label
+- Fixes the end point of dangling edges dropped into another parent in drop and connect
+- Adds match count and find previous to find dialog [jgraph/drawio#2887]
+- Blocks pinch that shows tabs in Safari
+- Fixes the parent of cells dropped and connected from relative sources inside their parent container
+- Adds delete multiple entries in library dialog
+- Adds Graph.reservedDataNames for reserved custom data names
+- Adds scratchpad refresh in other tabs
+- Updates the vendored drawio-plantuml bundle to commit c79b15b [jgraph/drawio#5789]
+- Fixes the libavoid routing box of relative children such as ports
+- Fixes the libavoid obstacle box of edge labels
+- Fixes the libavoid routing box of absolute edge children in containers
+- Prefers the nearest shape among guide candidates with the same distance [#103]
+- Checks inherited colors for changes in checkPlaceholderStyles
+- Updates the scrollbars after a view update of a CSV import descriptor
+- Fixes autosize after cellsInserted for CSV updates and text import
+- Adds pasted edge labels back to their edges if the edges still exist
+- Shows connection points with names in the edit shape preview
+- Adds column move handles to tables
+
 01-OCT-2026: 31.7.0
 
 - Stops loading the Pusher library in lockdown mode

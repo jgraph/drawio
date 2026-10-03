@@ -295,6 +295,12 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 				}));
 			}), errorWrapper);
 		}
+		else if (error != null)
+		{
+			// The file is saved again when the current save operation
+			// completes if it is still modified (see handleFileSuccess)
+			error({code: App.ERROR_BUSY, message: mxResources.get('busy')});
+		}
 	}
 	else
 	{

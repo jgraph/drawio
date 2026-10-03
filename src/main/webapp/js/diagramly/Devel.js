@@ -258,6 +258,11 @@ if (!window.DRAWIO_PUBLIC_BUILD)
 	mxscript(drawDevUrl + 'js/diagramly/Simple.js');
 	mxscript(drawDevUrl + 'js/diagramly/vsdx/VsdxExport.js');
 }
+else
+{
+	// The public repository ships the stencil bundle without the stencil XML
+	mxscript(drawDevUrl + 'js/stencils.min.js');
+}
 
 // ELK layout engine + mxGraph bridge (drawio-elk port, built from
 // ../drawio-elk). Exposes window.ELK (engine), window.ElkLayout (facade

@@ -66,6 +66,7 @@ mxConstants.POINTS = 1;
 mxConstants.MILLIMETERS = 2;
 mxConstants.INCHES = 3;
 mxConstants.METERS = 4;
+mxConstants.CENTIMETERS = 5;
 
 /**
  * This ratio is with page scale 1
@@ -1092,6 +1093,10 @@ Editor.toUnit = function(pixels, unit)
 	{
 		return  Math.round(pixels * 100000 / (mxConstants.PIXELS_PER_MM * 1000)) / 100000;
 	}
+	else if (unit == mxConstants.CENTIMETERS)
+	{
+		return  Math.round(pixels * 10000 / (mxConstants.PIXELS_PER_MM * 10)) / 10000;
+	}
 	else
 	{
 		return Math.round(pixels * 10) / 10;
@@ -1117,6 +1122,10 @@ Editor.fromUnit = function(value, unit, unrounded)
 	{
 		value = value * mxConstants.PIXELS_PER_MM * 1000;
 	}
+	else if (unit == mxConstants.CENTIMETERS)
+	{
+		value = value * mxConstants.PIXELS_PER_MM * 10;
+	}
 
 	// Rounds to 0.1px so unit round-trips are stable and values
 	// entered in one unit convert back exactly (eg. 1/8in = 12.5px)
@@ -1130,7 +1139,7 @@ Editor.fromUnit = function(value, unit, unrounded)
  */
 Editor.getCursorMoveStep = function(unit)
 {
-	if (unit == mxConstants.MILLIMETERS)
+	if (unit == mxConstants.MILLIMETERS || unit == mxConstants.CENTIMETERS)
 	{
 		return 0.1 * mxConstants.PIXELS_PER_MM;
 	}
@@ -2844,7 +2853,8 @@ var PageSetupDialog = function(editorUi)
 
 	var gridUnitText = (gridUnit == mxConstants.MILLIMETERS) ? 'mm' :
 		((gridUnit == mxConstants.INCHES) ? '"' :
-		((gridUnit == mxConstants.METERS) ? 'm' : null));
+		((gridUnit == mxConstants.METERS) ? 'm' :
+		((gridUnit == mxConstants.CENTIMETERS) ? 'cm' : null)));
 
 	if (gridUnitText != null)
 	{
@@ -3282,6 +3292,7 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 	var units = [{label: mxResources.get('points'), unit: mxConstants.POINTS},
 		{label: mxResources.get('inches'), unit: mxConstants.INCHES},
 		{label: mxResources.get('millimeters'), unit: mxConstants.MILLIMETERS},
+		{label: mxResources.get('centimeters'), unit: mxConstants.CENTIMETERS},
 		{label: mxResources.get('meters'), unit: mxConstants.METERS}];
 
 	for (var i = 0; i < units.length; i++)

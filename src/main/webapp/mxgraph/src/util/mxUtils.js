@@ -3872,6 +3872,28 @@ var mxUtils =
 	},
 
 	/**
+	 * Function: unscale
+	 *
+	 * Returns the given scaled coordinate in model units, that is, divided by
+	 * scale minus the optional translate, without the floating point noise of
+	 * the conversion so that rounding the result does not depend on the scale
+	 * or translate of the view.
+	 *
+	 * Parameters:
+	 *
+	 * value - Scaled coordinate to be converted.
+	 * scale - Scale of the view.
+	 * translate - Optional translate along the axis of the coordinate. Default
+	 * is 0.
+	 */
+	unscale: function(value, scale, translate)
+	{
+		translate = (translate != null) ? translate : 0;
+
+		return Math.round((value / scale - translate) * 1e6) / 1e6;
+	},
+
+	/**
 	 * Function: intersection
 	 * 
 	 * Returns the intersection of two lines as an <mxPoint>.

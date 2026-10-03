@@ -141,6 +141,39 @@ mxShapeNetworks2Icon.prototype.longShadow = function(c, x, y, w, h)
 	}
 };
 
+/**
+* Function: getConstraints
+*
+* Returns the fixed connection points. Without a background plate the glyph
+* stencil fills the whole cell, so the glyph's own constraints (curated per
+* icon in networks2.xml) apply 1:1. With a plate the eight points sit on the
+* rounded plate: side midpoints plus the four corners, pulled onto the
+* corner arc (radius 0.03571 of the side, 45-degree point = r * (1 - 1/sqrt(2))).
+*/
+mxShapeNetworks2Icon.prototype.getConstraints = function(style, w, h)
+{
+	var bgColor = mxUtils.getColorValue(style, 'network2bgFillColor', 'none');
+
+	if (bgColor != 'none')
+	{
+		var d = 0.03571 * 0.2929;
+
+		return [new mxConnectionConstraint(new mxPoint(0.5, 0), false, 'N'),
+			new mxConnectionConstraint(new mxPoint(0.5, 1), false, 'S'),
+			new mxConnectionConstraint(new mxPoint(0, 0.5), false, 'W'),
+			new mxConnectionConstraint(new mxPoint(1, 0.5), false, 'E'),
+			new mxConnectionConstraint(new mxPoint(1 - d, d), false, 'NE'),
+			new mxConnectionConstraint(new mxPoint(1 - d, 1 - d), false, 'SE'),
+			new mxConnectionConstraint(new mxPoint(d, 1 - d), false, 'SW'),
+			new mxConnectionConstraint(new mxPoint(d, d), false, 'NW')];
+	}
+
+	var stencilName = mxUtils.getValue(style, 'network2Icon', null);
+	var stencil = (stencilName != null) ? mxStencilRegistry.getStencil(stencilName) : null;
+
+	return (stencil != null) ? stencil.constraints : null;
+};
+
 mxShapeNetworks2Icon.prototype.styleChanged = function(key, value, state)
 {
 	if (key == 'network2bgFillColor' && state.style[key] != value && value == 'none')

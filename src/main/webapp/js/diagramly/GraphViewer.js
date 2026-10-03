@@ -567,7 +567,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					this.graph.panningHandler.isForcePanningEvent = function(me)
 					{
 						return !mxEvent.isPopupTrigger(me.getEvent()) &&
-							this.graph.container.style.overflow == 'auto';
+							this.graph.isContainerPannable();
 					};
 					
 					this.graph.panningHandler.useLeftButtonForPanning = true;					
@@ -609,6 +609,15 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					this.setLayersVisible(visible);
 				}
 				
+				// Selects the next or previous page with wrap around
+				this.graph.selectNextPage = function(forward)
+				{
+					if (self.diagrams != null && self.diagrams.length > 1)
+					{
+						self.selectPage(self.currentPage + ((forward) ? 1 : -1));
+					}
+				};
+
 				this.graph.customLinkClicked = function(href, associatedCell)
 				{
 					try
@@ -2362,9 +2371,29 @@ GraphViewer.prototype.showLocalLightbox = function(container)
 	EditorUi.prototype.addBeforeUnloadListener = function() {};
 	EditorUi.prototype.addChromelessClickHandler = function() {};
 
+	// Starts loading the UI language for the dialogs of the lightbox
+	GraphViewer.loadLanguageResources();
+
 	var ui = new EditorUi(new Editor(true), document.createElement('div'), true);
 	this.addListener('darkModeChanged', updateDarkMode);
 	ui.editor.editBlankUrl = this.editBlankUrl;
+
+	// Waits for the UI language before showing the print dialog
+	var uiShowPrintDialog = ui.showPrintDialog;
+
+	ui.showPrintDialog = function()
+	{
+		var args = arguments;
+
+		GraphViewer.loadLanguageResources(function()
+		{
+			// Ignores lightboxes closed while loading
+			if (ui.editor != null)
+			{
+				uiShowPrintDialog.apply(ui, args);
+			}
+		});
+	};
 
 	// Disables refresh
 	ui.refresh = function() {};
@@ -2952,6 +2981,145 @@ GraphViewer.getUrl = function(url, onload, onerror)
 		
 	    xhr.onerror = onerror;
 	    xhr.send();
+	}
+};
+
+/**
+ * State of the UI language resources: null (not requested), an array of
+ * pending callbacks (loading) or true (done or not needed).
+ */
+GraphViewer.languageResources = null;
+
+/**
+ * Returns the language of the lightbox UI or null for the default language.
+ * Uses the language of the app (lang URL parameter, stored setting or
+ * browser language on known hosts) or the browser language.
+ */
+GraphViewer.getLanguage = function()
+{
+	var lang = (window.mxLanguage != null) ? mxLanguage : mxClient.language;
+
+	if (lang != null)
+	{
+		lang = String(lang).toLowerCase();
+
+		// Uses base language for unsupported regional variants
+		if (mxClient.languages != null && mxUtils.indexOf(mxClient.languages, lang) < 0)
+		{
+			var dash = lang.indexOf('-');
+
+			if (dash > 0)
+			{
+				lang = lang.substring(0, dash);
+			}
+		}
+
+		// Language is used in the resource URL
+		if (!/^[a-z0-9\-]+$/.test(lang) || lang == mxClient.defaultLanguage ||
+			(mxClient.languages != null && mxUtils.indexOf(mxClient.languages, lang) < 0))
+		{
+			lang = null;
+		}
+	}
+
+	return lang;
+};
+
+/**
+ * Returns the base URL of the UI language resources. The viewer bundles
+ * point STYLE_PATH to the viewer host while the default RESOURCES_PATH is
+ * relative to the host page so the resources next to STYLE_PATH are used.
+ */
+GraphViewer.getResourceBase = function()
+{
+	var base = window.RESOURCE_BASE;
+
+	if (window.RESOURCES_PATH == 'resources' && base == 'resources/dia' &&
+		window.STYLE_PATH != null && /(^|\/)styles$/.test(STYLE_PATH))
+	{
+		base = STYLE_PATH.substring(0, STYLE_PATH.length - 6) + 'resources/dia';
+	}
+
+	return base;
+};
+
+/**
+ * Loads the UI language resources once and invokes the optional callback.
+ * The viewer bundles contain the English resources only. Errors (eg. no
+ * CORS for the resources) are ignored and the English resources are used.
+ */
+GraphViewer.loadLanguageResources = function(fn)
+{
+	if (GraphViewer.languageResources == null)
+	{
+		var lang = GraphViewer.getLanguage();
+		var base = GraphViewer.getResourceBase();
+
+		if (lang != null && base != null)
+		{
+			var pending = [];
+			GraphViewer.languageResources = pending;
+
+			var done = function()
+			{
+				GraphViewer.languageResources = true;
+
+				for (var i = 0; i < pending.length; i++)
+				{
+					try
+					{
+						pending[i]();
+					}
+					catch (e)
+					{
+						if (window.console != null)
+						{
+							console.error(e);
+						}
+					}
+				}
+			};
+
+			try
+			{
+				mxUtils.get(base + '_' + lang + mxResources.extension, function(req)
+				{
+					try
+					{
+						if (req.getStatus() >= 200 && req.getStatus() <= 299)
+						{
+							mxResources.parse(req.getText());
+						}
+					}
+					catch (e)
+					{
+						// ignore
+					}
+
+					done();
+				}, done);
+			}
+			catch (e)
+			{
+				done();
+			}
+		}
+		else
+		{
+			GraphViewer.languageResources = true;
+		}
+	}
+
+	if (fn != null)
+	{
+		if (GraphViewer.languageResources === true)
+		{
+			fn();
+		}
+		else
+		{
+			GraphViewer.languageResources.push(fn);
+		}
 	}
 };
 

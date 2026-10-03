@@ -108,7 +108,7 @@
 					w, h, '', 'Router', null, null, this.getTagsForStencil(gn, 'router', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'rect;prIcon=csr_1000v;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'CSR1000v', null, null, this.getTagsForStencil(gn, 'csr1000v', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'rect;prIcon=wireless_router;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry('points=[[0.5,0.17,0],[1,0.585,0],[0.5,1,0],[0,0.585,0],[0.167,0,0],[0.836,0,0],[0.854,0.878,0],[0.146,0.878,0]];' + s3 + 'rect;prIcon=wireless_router;fillColor=#FAFAFA;strokeColor=#005073;',
 					w, h * 1.2, '', 'Wireless Router', null, null, this.getTagsForStencil(gn, 'wireless router', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'rect;prIcon=l3_modular3;fillColor=#FAFAFA;strokeColor=#C1272D;', 
 					w, h, '', 'L3 Modular', null, null, this.getTagsForStencil(gn, 'l3 modular', dt).join(' ')),

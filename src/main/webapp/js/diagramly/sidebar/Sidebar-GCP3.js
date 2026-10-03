@@ -121,7 +121,7 @@
 		    this.createVertexTemplateEntry(n + 'gke;fillColor=#4285f4',
 		    		s * 90.73, s * 100.0, 'GKE', null, null, null, this.getTagsForStencil(gn, '', dt + 'gke google kubernetes engine').join(' ')),
 		    this.createVertexTemplateEntry(n + 'hyperdisk;fillColor=#4285f4',
-		    		s * 100.0, s * 98.92, 'Hyperdisk', null, null, null, this.getTagsForStencil(gn, '', dt + 'hyperdisk hyper disk').join(' ')),
+		    		s * 100.0, s * 86.6, 'Hyperdisk', null, null, null, this.getTagsForStencil(gn, '', dt + 'hyperdisk hyper disk').join(' ')),
 		    this.createVertexTemplateEntry(n + 'looker;fillColor=#4285f4',
 		    		s * 73.24, s * 100.0, 'Looker', null, null, null, this.getTagsForStencil(gn, '', dt + 'looker').join(' ')),
 		    this.createVertexTemplateEntry(n + 'mandiant;fillColor=#4285f4',

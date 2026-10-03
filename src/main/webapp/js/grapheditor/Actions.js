@@ -152,7 +152,7 @@ Actions.prototype.init = function()
 		
 		try
 		{
-			cells = ui.copyXml();
+			cells = ui.copyXml(true);
 
 			if (cells != null)
 			{
@@ -947,6 +947,7 @@ Actions.prototype.init = function()
 				var elt = graph.getSelectedElement();
 				var link = graph.getParentByName(elt, 'A', graph.cellEditor.textarea);
 				var oldValue = '';
+				var oldTarget = null;
 				
 				// Workaround for FF returning the outermost selected element after double
 				// click on a DOM hierarchy with a link inside (but not as topmost element)
@@ -968,20 +969,21 @@ Actions.prototype.init = function()
 				if (link != null && link.nodeName == 'A')
 				{
 					oldValue = link.getAttribute('href') || '';
+					oldTarget = (link.getAttribute('target') == '_blank') ? '_blank' : null;
 					graph.selectNode(link);
 				}
 				
 				var selState = graph.cellEditor.saveSelection();
 				
-				ui.showLinkDialog(oldValue, mxResources.get('ok'), mxUtils.bind(this, function(value)
+				ui.showLinkDialog(oldValue, mxResources.get('ok'), mxUtils.bind(this, function(value, docs, linkTarget)
 				{
 		    		graph.cellEditor.restoreSelection(selState);
 
 		    		if (value != null)
 		    		{
-		    			graph.insertLink(value);
+		    			graph.insertLink(value, linkTarget);
 					}
-				}));
+				}), true, oldTarget);
 			}
 			else if (graph.isSelectionEmpty())
 			{
@@ -996,30 +998,70 @@ Actions.prototype.init = function()
 	this.addAction('autosize', function()
 	{
 		var cells = graph.getSelectionCells();
-		
+		var model = graph.getModel();
+
+		// Keeps the groupPadding style as the per-side gap
+		// between the group bounds and its children
+		function updateGroupBounds(cell)
+		{
+			var pad = graph.getTransparentBoundsPadding(cell);
+			graph.updateGroupBounds([cell], 0, true,
+				pad.n, pad.e, pad.s, pad.w);
+		};
+
+		// Shrinks nested containers bottom-up before their parent. Leaves keep
+		// their size and containers whose bounds are not defined by their
+		// children (tables, collapsed cells and child layouts) are skipped.
+		// The bounds of transparentBounds cells are derived from their
+		// children so only their descendants are updated.
+		function updateNestedGroupBounds(parent)
+		{
+			var childCount = model.getChildCount(parent);
+
+			for (var i = 0; i < childCount; i++)
+			{
+				var child = model.getChildAt(parent, i);
+
+				if (model.isVertex(child) && model.getChildCount(child) > 0 &&
+					!graph.isCellCollapsed(child) && !graph.isTable(child) &&
+					!graph.isTableRow(child) && !graph.isTableCell(child) &&
+					graph.getCurrentCellStyle(child)['childLayout'] == null)
+				{
+					updateNestedGroupBounds(child);
+
+					if (!graph.isTransparentBounds(child))
+					{
+						updateGroupBounds(child);
+					}
+				}
+			}
+		};
+
 		if (cells != null)
 		{
-			graph.getModel().beginUpdate();
+			var arrange = graph.beginArrange();
 			try
 			{
 				for (var i = 0; i < cells.length; i++)
 				{
 					var cell = cells[i];
 
-					if (graph.getModel().isVertex(cell))
+					if (model.isVertex(cell))
 					{
 						if (graph.isAutosizeTextCell(cell))
 						{
 							graph.setCellStyles('autosizeText', null, [cell]);
 						}
 
-						if (graph.getModel().getChildCount(cell) > 0)
+						if (model.getChildCount(cell) > 0)
 						{
-							// Keeps the groupPadding style as the per-side gap
-							// between the group bounds and its children
-							var pad = graph.getTransparentBoundsPadding(cell);
-							graph.updateGroupBounds([cell], 0, true,
-								pad.n, pad.e, pad.s, pad.w);
+							if (!graph.isCellCollapsed(cell) && !graph.isTable(cell) &&
+								graph.getCurrentCellStyle(cell)['childLayout'] == null)
+							{
+								updateNestedGroupBounds(cell);
+							}
+
+							updateGroupBounds(cell);
 						}
 						else
 						{
@@ -1030,7 +1072,7 @@ Actions.prototype.init = function()
 			}
 			finally
 			{
-				graph.getModel().endUpdate();
+				graph.endArrange(arrange);
 			}
 		}
 	}, null, null, Editor.ctrlKey + '+' + Editor.shiftKey + '+Y');
@@ -1598,6 +1640,11 @@ Actions.prototype.init = function()
 	    		
 				graph.setCellStyles(mxConstants.STYLE_ROUNDED, value);
 				graph.setCellStyles(mxConstants.STYLE_CURVED, null);
+				graph.setCellStyles('roundedPerimeter', (value == '1') ? '1' : null,
+					graph.getModel().filterCells(cells, function(cell)
+					{
+						return graph.getModel().isVertex(cell);
+					}));
 				ui.fireEvent(new mxEventObject('styleChanged', 'keys', [mxConstants.STYLE_ROUNDED, mxConstants.STYLE_CURVED],
 						'values', [value, '0'], 'cells', graph.getSelectionCells()));
 			}
@@ -1682,6 +1729,25 @@ Actions.prototype.init = function()
 			ui.clearDefaultStyle();
 		}
 	}, null, null, Editor.ctrlKey + '+' + Editor.shiftKey + '+R');
+	this.addAction('setAsDefaultForNewConnections', function()
+	{
+		var cell = graph.getSelectionCell();
+
+		if (graph.isEnabled() && graph.getSelectionCount() == 1 &&
+			graph.getNewEdgeStyleSource(cell) != null)
+		{
+			graph.setNewEdgeStyleFromEdge(cell);
+		}
+	});
+	this.addAction('clearDefaultForNewConnections', function()
+	{
+		var cells = graph.getEditableCells(graph.getSelectionCells());
+
+		if (graph.isEnabled() && cells.length > 0)
+		{
+			graph.setCellStyles('newEdgeStyle', null, cells);
+		}
+	});
 	this.addAction('addWaypoint', function()
 	{
 		var cell = graph.getSelectionCell();
@@ -1711,6 +1777,22 @@ Actions.prototype.init = function()
 				var x = Math.round(graph.snap(pt.x - dx));
 				var y = Math.round(graph.snap(pt.y - dy));
 				handler.addPointAt(handler.state, x, y);
+			}
+		}
+	});
+	this.addAction('addConnectionPoint', function()
+	{
+		var cell = graph.getSelectionCell();
+
+		if (cell != null && graph.isEnabled() && !graph.isCellLocked(cell))
+		{
+			var pt = graph.popupMenuHandler.getTriggerPoint();
+			var constraint = graph.getConnectionConstraintForPoint(
+				graph.view.getState(cell), pt.x, pt.y);
+
+			if (constraint != null)
+			{
+				graph.addConnectionConstraint(cell, constraint);
 			}
 		}
 	});
@@ -1809,26 +1891,45 @@ Actions.prototype.init = function()
 			document.execCommand('superscript', false, null);
 		}
 	}), null, null, Editor.ctrlKey + '+.');
-	action = this.addAction('decreaseFontSize', mxUtils.bind(this, function()
+
+	// Steps the font size of each selected cell and of the parts of its label
+	function stepFontSize(delta)
 	{
 		if (!graph.isSelectionEmpty())
 		{
-			var style = graph.getCurrentCellStyle(graph.getSelectionCell());
-			var size = mxUtils.getValue(style, mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE);
-			graph.setCellStyles(mxConstants.STYLE_FONTSIZE, Math.max(1, size - 1),
-				graph.getSelectionCells());
+			var arrange = graph.beginArrange();
+			try
+			{
+				var cells = graph.getEditableCells(graph.getSelectionCells());
+
+				graph.changeFontSize(cells, function(size)
+				{
+					return Math.min(999, Math.max(1, size + delta));
+				});
+
+				for (var i = 0; i < cells.length; i++)
+				{
+					if (graph.model.getChildCount(cells[i]) == 0)
+					{
+						graph.autoSizeCell(cells[i], false);
+					}
+				}
+			}
+			finally
+			{
+				graph.endArrange(arrange);
+			}
 		}
-	}), null, null, Editor.ctrlKey + '+' + Editor.shiftKey + ' + (Numpad)');
-	action = this.addAction('increaseFontSize', mxUtils.bind(this, function()
+	};
+
+	action = this.addAction('decreaseFontSize', function()
 	{
-		if (!graph.isSelectionEmpty())
-		{
-			var style = graph.getCurrentCellStyle(graph.getSelectionCell());
-			var size = mxUtils.getValue(style, mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE);
-			graph.setCellStyles(mxConstants.STYLE_FONTSIZE, Math.min(100, size + 1),
-				graph.getSelectionCells());
-		}
-	}), null, null, Editor.ctrlKey + '+' + Editor.shiftKey + ' - (Numpad)');
+		stepFontSize(-1);
+	}, null, null, Editor.ctrlKey + '+' + Editor.shiftKey + ' - (Numpad)');
+	action = this.addAction('increaseFontSize', function()
+	{
+		stepFontSize(1);
+	}, null, null, Editor.ctrlKey + '+' + Editor.shiftKey + ' + (Numpad)');
 
 	function applyClipPath(cell, clipPath, width, height, graph)
 	{

@@ -14,7 +14,8 @@ REQUIREMENTS:
   - Java JDK (for Ant and Closure Compiler)
   - Apache Ant
   - Google Closure Compiler JAR (path configured in build.properties)
-  - Xml2Js.class in etc/build/ (converts stencil XML to JS)
+  - Xml2Js.class in etc/build/ (converts stencil XML to JS). Not needed in the
+    public repository, which ships stencils.min.js without the stencil XML.
 
 OUTPUT FILES (in src/main/webapp/js/):
   - app.min.js          : Full editor application
@@ -27,7 +28,7 @@ OUTPUT FILES (in src/main/webapp/js/):
 
 ================================================================================
 -->
-<project basedir="." default="all">
+<project basedir="." default="all" xmlns:if="ant:if" xmlns:unless="ant:unless">
 	
 	<property file="build.properties.local" />
 	<property file="build.properties" />
@@ -41,6 +42,16 @@ OUTPUT FILES (in src/main/webapp/js/):
 	         ant -Djscomp.warning=default   (or =verbose) -->
 	<property name="jscomp.warning" value="quiet" />
 
+	<!-- Set if the stencil XML sources are present. The public repository
+	     ships js/stencils.min.js without them, so its build keeps that file
+	     instead of running Xml2Js, and adds it to the viewer bundles because
+	     there is no stencil XML for the viewer to load. -->
+	<condition property="stencil.sources">
+		<resourcecount when="greater" count="0">
+			<fileset dir="${war.dir}/stencils" includes="**/*.xml" erroronmissingdir="false"/>
+		</resourcecount>
+	</condition>
+
 	<!--
 	============================================================================
 	TARGET: merge
@@ -49,7 +60,8 @@ OUTPUT FILES (in src/main/webapp/js/):
 	
 	PROCESS:
 	  1. Concatenates all JS from shapes/ and stencils/ directories
-	  2. Runs Xml2Js to convert stencil XML files to JavaScript
+	  2. Runs Xml2Js to convert stencil XML files to JavaScript (only with
+	     stencil.sources, the public repository keeps the shipped file)
 	  3. Minifies combined shapes.js with Closure Compiler
 	
 	OUTPUTS:
@@ -60,10 +72,10 @@ OUTPUT FILES (in src/main/webapp/js/):
 	<target name="merge">
     	<concat destfile="${basedir}/../../build/shapes.js" fixlastline="yes" append="no">
     		<fileset dir="${war.dir}/shapes" includes="**/*.js"/>
-    		<fileset dir="${war.dir}/stencils" includes="**/*.js"/>
+    		<fileset dir="${war.dir}/stencils" includes="**/*.js" erroronmissingdir="false"/>
     	</concat>
-    	
-		<java fork="false" classname="Xml2Js" classpath=".">
+
+		<java if:set="stencil.sources" fork="false" failonerror="true" classname="Xml2Js" classpath=".">
 			<arg value="../../src/main/webapp/stencils"/>
 			<arg value="../../src/main/webapp/js/stencils.min.js"/>
 		</java>
@@ -341,9 +353,12 @@ OUTPUT FILES (in src/main/webapp/js/):
 			</sources>
 		</jscomp>
 		
-		<!-- Step 8: Build viewer.min.js -->
+		<!-- Step 8: Build viewer.min.js. Without stencil.sources (public
+		     repository) it contains stencils.min.js before the viewer starts. -->
 		<concat destfile="${war.dir}/js/viewer.min.js" fixlastline="yes" append="no">
-			<filelist dir="${basedir}" files="base-viewer.min.js,.tmp2.min.js"/>
+			<filelist dir="${basedir}" files="base-viewer.min.js"/>
+			<filelist dir="${war.dir}/js" files="stencils.min.js" unless:set="stencil.sources"/>
+			<filelist dir="${basedir}" files=".tmp2.min.js"/>
     	</concat>
 
 		<!-- Build viewer-static.min.js (with shapes and service worker) -->
@@ -372,6 +387,7 @@ OUTPUT FILES (in src/main/webapp/js/):
 		<concat destfile="${war.dir}/js/viewer-static.min.js" fixlastline="yes" append="no">
 			<filelist dir="${basedir}" files="base-viewer.min.js"/>
 			<filelist dir="${war.dir}/js" files="shapes-14-6-5.min.js"/>
+			<filelist dir="${war.dir}/js" files="stencils.min.js" unless:set="stencil.sources"/>
 			<filelist dir="${basedir}" files=".tmp3.js,.tmp2.min.js"/>
 		</concat>
 

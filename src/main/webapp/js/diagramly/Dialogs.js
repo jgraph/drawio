@@ -1519,11 +1519,15 @@ var ParseDialog = function(editorUi, title, defaultType)
 				}
 				else
 				{
+					// New diagrams use (and store) the current defaults version
+					var version = EditorUi.getInsertMermaidVersion();
+
 					editorUi.parseMermaidDiagram(text, null, mxUtils.bind(this, function(xml)
 					{
 						insertMermaid(mxMermaidToDrawio.wrapGroup(xml, text,
-							EditorUi.getInsertMermaidConfig()));
-					}), onMermaidError);
+							EditorUi.getInsertMermaidConfig(),
+							(version != null) ? {version: version} : null));
+					}), onMermaidError, null, version);
 				}
 			}
 		}
@@ -2121,7 +2125,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 					editorUi.parseMermaidDiagram(textarea.value,
 						(typeSelect.value == 'mermaidImage' && !EditorUi.isMermaidConfigured()) ?
 							mxUtils.clone(EditorUi.legacyMermaidConfig) : null,
-						showPreview, onError);
+						showPreview, onError, null, EditorUi.getInsertMermaidVersion());
 				}
 				else
 				{
@@ -2213,7 +2217,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 var NewDialog = function(editorUi, compact, showName, callback, createOnly, cancelCallback,
 		leftHighlight, rightHighlight, rightHighlightBorder, itemPadding, templateFile,
 		recentDocsCallback, searchDocsCallback, openExtDocCallback, showImport, createButtonLabel,
-		customTempCallback, withoutType, generatePrompt, noBlank)
+		customTempCallback, withoutType, generatePrompt, noBlank, showFromText)
 {
 	var ww = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 	var smallScreen = ww < 500;
@@ -2391,7 +2395,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				var tmp = templates[i0++];
 				var btn = addButton(tmp.url, tmp.libs, tmp.title, tmp.tooltip? tmp.tooltip : tmp.title,
 					tmp.select, tmp.imgUrl, tmp.info, tmp.onClick, tmp.preview, tmp.noImg, tmp.clibs,
-					tmp.type);
+					tmp.type, tmp.action);
 				
 				if (first)
 				{
@@ -2648,8 +2652,21 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	var lastAiXml = editorUi.lastGenerateXml;
 	var lastAiTitle = editorUi.lastGenerateTitle;
 
+	// Runs the action of a From Text entry for the new or current diagram
+	function runFromTextAction(name)
+	{
+		var action = (name != null) ? editorUi.actions.get(name) : null;
+
+		if (action != null && action.isEnabled())
+		{
+			action.funct();
+		}
+	};
+
 	function create()
 	{
+		var fromTextAction = (selectedElt != null) ? selectedElt.fromTextAction : null;
+
 		if (selectedElt == generateElt && templateXml == null &&
 			generateButton != null && generateInput != null &&
 			mxUtils.trim(generateInput.value) != '')
@@ -2688,6 +2705,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				}
 
 				callback(templateXml, nameInput.value, templateRealUrl, templateLibs);
+				runFromTextAction(fromTextAction);
 			}
 			else
 			{
@@ -2704,6 +2722,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 							{
 								editorUi.hideDialog();
 							}
+
+							// Opens the dialog of a From Text entry for the new file
+							runFromTextAction(fromTextAction);
 						}, null, folderId, null, (templateClibs != null &&
 							templateClibs.length > 0) ? templateClibs : null);
 					};
@@ -2791,7 +2812,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 	}));
 	
-	mxEvent.addListener(tmplSearchInput, 'keyup', mxUtils.bind(this, function(evt)
+	function updateSearchIcon()
 	{
 		if (tmplSearchInput.value == '')
 		{
@@ -2803,7 +2824,35 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			cross.setAttribute('src', Editor.crossImage);
 			cross.setAttribute('title', mxResources.get('reset'));
 		}
-	}));
+	};
+
+	mxEvent.addListener(tmplSearchInput, 'keyup', updateSearchIcon);
+
+	// Search terms to be applied after the template index was loaded
+	var pendingSearch = null;
+	var templatesReady = false;
+
+	/**
+	 * Shows the templates that match the given search terms. The search
+	 * is applied after the template index was loaded.
+	 */
+	this.searchTemplates = function(terms)
+	{
+		if (!compact)
+		{
+			tmplSearchInput.value = terms;
+			updateSearchIcon();
+
+			if (templatesReady)
+			{
+				filterTemplates();
+			}
+			else
+			{
+				pendingSearch = terms;
+			}
+		}
+	};
 
 	divTop += 23;
 
@@ -2994,6 +3043,29 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	};
 
 	var generatingDiagram = false;
+	var generateRequest = null;
+
+	// Cancels the pending request when the dialog is closed unless the
+	// dialog was hidden to insert the result after it was generated
+	var hideDialogListener = function(sender, evt)
+	{
+		var dlg = evt.getProperty('dialog');
+
+		if (dlg != null && dlg.container != null &&
+			mxUtils.isAncestorNode(dlg.container, outer))
+		{
+			editorUi.editor.removeListener(hideDialogListener);
+
+			if (generateRequest != null && !insertWasPressed)
+			{
+				generateRequest.abort();
+				generateRequest = null;
+				generatingDiagram = false;
+			}
+		}
+	};
+
+	editorUi.editor.addListener('hideDialog', hideDialogListener);
 
 	function startGenerating()
 	{
@@ -3017,9 +3089,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		{
 			startGenerating();
 
-			editorUi.generateOpenAiMermaidDiagram(desc, function(xml)
+			var request = editorUi.generateOpenAiMermaidDiagram(desc, function(xml)
 			{
 				generatingDiagram = false;
+				generateRequest = null;
 
 				if (selectedElt == generateElt && generateForm.style.display == 'none')
 				{
@@ -3048,6 +3121,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			}, mxUtils.bind(this, function(e)
 			{
 				generatingDiagram = false;
+				generateRequest = null;
 				resetPreview();
 
 				if (selectedElt == generateElt)
@@ -3066,6 +3140,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 						e.retry = function()
 						{
 							startGenerating();
+							generateRequest = request;
 							retry();
 						};
 					}
@@ -3073,6 +3148,12 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					editorUi.handleError(e);
 				}
 			}));
+
+			// Keeps the request if the callbacks were invoked synchronously
+			if (generatingDiagram)
+			{
+				generateRequest = request;
+			}
 		}
 		else if (lastAiTitle != null)
 		{
@@ -3100,7 +3181,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 	});
 
-	function addButton(url, libs, title, tooltip, select, imgUrl, infoObj, onClick, preview, noImg, clibs, templateType)
+	function addButton(url, libs, title, tooltip, select, imgUrl, infoObj, onClick, preview, noImg, clibs, templateType, action)
 	{
 		var elt = null;
 
@@ -3108,6 +3189,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		{
 			elt = document.createElement('div');
 			elt.className = 'geTemplate';
+
+			// Action to run after creating a blank diagram (see create)
+			elt.fromTextAction = action;
 			var xmlData = null, realUrl = url;
 			
 			if (title != null)
@@ -3399,6 +3483,34 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		EditorUi.isMermaidSupported())
 	{
 		categories['basic'].push({title: 'generate', type: 'generative'});
+	}
+
+	// Blank diagrams that open the dialog for creating a diagram from text
+	if (showFromText && !compact)
+	{
+		var fromText = [];
+		var addFromText = function(title, action)
+		{
+			if (editorUi.actions.get(action) != null)
+			{
+				fromText.push({title: title, action: action});
+			}
+		};
+
+		if (EditorUi.isMermaidSupported())
+		{
+			addFromText('mermaid', 'mermaid');
+		}
+
+		addFromText('formatSql', 'formatSql');
+		addFromText('csv', 'csv');
+		addFromText('plantUml', 'plantUml');
+		addFromText('text', 'fromText');
+
+		if (fromText.length > 0)
+		{
+			categories['fromText'] = fromText;
+		}
 	}
 	
 	function resetTemplates()
@@ -3931,6 +4043,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 				spinner.stop();
 					initUi();
+					templatesReady = true;
+
+					if (pendingSearch != null)
+					{
+						pendingSearch = null;
+						filterTemplates();
+					}
 				}
 			});
 		};
@@ -9454,6 +9573,14 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
     
 	mxUtils.br(div);
 
+	// Shows the position of the current match and the number of matches
+	var countLabel = document.createElement('span');
+	countLabel.style.float = 'right';
+	countLabel.style.marginTop = '2px';
+	countLabel.style.fontSize = '12px';
+	countLabel.style.opacity = '0.7';
+	div.appendChild(countLabel);
+
     var allPagesInput = document.createElement('input');
     allPagesInput.setAttribute('id', 'geFindWinAllPagesChck');
     allPagesInput.setAttribute('type', 'checkbox');
@@ -9607,12 +9734,18 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		}
 	}
 				
-	function search(internalCall, trySameCell, stayOnPage)
+	function search(internalCall, trySameCell, stayOnPage, backwards)
 	{
 		//Supersedes a pending search while typing
 		window.clearTimeout(searchThread);
 		replAllNotif.innerText = '';
 		var cells = graph.model.getDescendants(graph.model.getRoot());
+
+		if (backwards)
+		{
+			cells.reverse();
+		}
+
 		var searchStr = searchInput.value.toLowerCase();
 		var re = (regexInput.checked) ? new RegExp(searchStr) : null;
 		var firstMatch = null;
@@ -9645,7 +9778,8 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 					}
 				}
 				
-				var nextPageIndex = (currentPageIndex + 1) % ui.pages.length, nextPage;
+				var step = (backwards) ? ui.pages.length - 1 : 1;
+				var nextPageIndex = (currentPageIndex + step) % ui.pages.length, nextPage;
 				lastFound = null;
 
 				//Other pages are searched in a single offscreen graph with model
@@ -9662,9 +9796,9 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 						nextPage = ui.pages[nextPageIndex];
 						ui.updatePageRoot(nextPage);
 						graph.model.setRoot(nextPage.root);
-						nextPageIndex = (nextPageIndex + 1) % ui.pages.length;
+						nextPageIndex = (nextPageIndex + step) % ui.pages.length;
 					}
-					while(!search(true, trySameCell, stayOnPage) && nextPageIndex != currentPageIndex);
+					while(!search(true, trySameCell, stayOnPage, backwards) && nextPageIndex != currentPageIndex);
 				}
 				finally
 				{
@@ -9689,7 +9823,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 				
 				allChecked = false;
 				
-				return search(true, trySameCell, stayOnPage);
+				return search(true, trySameCell, stayOnPage, backwards);
 			}
 			
 			var i;
@@ -9783,7 +9917,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			{
 				lastFound = null;
 				allChecked = true;
-				return search(true, trySameCell, stayOnPage);
+				return search(true, trySameCell, stayOnPage, backwards);
 			}
 			
 			lastFound = firstMatch;
@@ -9835,7 +9969,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		else if (!internalCall && allPagesInput.checked)
 		{
 			allChecked = true;
-			return search(true, trySameCell, stayOnPage);
+			return search(true, trySameCell, stayOnPage, backwards);
 		}
 		else if (graph.isEnabled() && !stayOnPage)
 		{
@@ -9850,6 +9984,133 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		}
 		
 		return searchStr.length == 0 || firstMatch != null;
+	};
+
+	//Returns true if the given cell is counted as a match in the given graph
+	//using the same conditions as search
+	function isMatch(cell, re, searchStr)
+	{
+		var model = graph.model;
+		var state = graph.view.getState(cell);
+
+		if (state == null && (model.isVertex(cell) || model.isEdge(cell)))
+		{
+			var collapsed = getCollapsedAncestors(cell);
+
+			if (collapsed != null && ((collapsed.length > 0) ?
+				ui.editor.graph.isEnabled() : graph != ui.editor.graph))
+			{
+				state = {cell: cell, style: graph.getCellStyle(cell)};
+			}
+		}
+
+		if (state != null && cell.value != null &&
+			(model.isVertex(cell) || model.isEdge(cell)))
+		{
+			var label = getSearchLabel(state);
+			var checkMeta = replaceInput == null || replaceInput.value == '';
+
+			return (re == null) ? (label.indexOf(searchStr) >= 0 ||
+				(checkMeta && testMeta(re, cell, searchStr))) :
+				(re.test(label) || (checkMeta && testMeta(re, cell, searchStr)));
+		}
+
+		return false;
+	};
+
+	//Updates the label with the position of the current match and the
+	//number of matches in the current page or in all pages
+	function updateCount()
+	{
+		var searchStr = searchInput.value.toLowerCase();
+		var text = '';
+
+		try
+		{
+			if (searchStr.length > 0)
+			{
+				var re = (regexInput.checked) ? new RegExp(searchStr) : null;
+				var pages = (allPagesInput.checked && ui.pages != null &&
+					ui.pages.length > 1) ? ui.pages : [ui.currentPage];
+				var current = 0;
+				var total = 0;
+
+				for (var i = 0; i < pages.length; i++)
+				{
+					var temp = null;
+
+					//Other pages are counted in an offscreen graph as in search
+					if (pages[i] != null && pages[i] != ui.currentPage)
+					{
+						temp = ui.createTemporaryGraph(graph.getStylesheet());
+						temp.model.setEventsEnabled(false);
+						ui.updatePageRoot(pages[i]);
+						temp.model.setRoot(pages[i].root);
+						graph = temp;
+					}
+
+					try
+					{
+						var cells = graph.model.getDescendants(graph.model.getRoot());
+
+						for (var j = 0; j < cells.length; j++)
+						{
+							if (isMatch(cells[j], re, searchStr))
+							{
+								total++;
+
+								if (temp == null && lastFound != null &&
+									lastFound.cell == cells[j])
+								{
+									current = total;
+								}
+							}
+						}
+					}
+					finally
+					{
+						if (temp != null)
+						{
+							temp.destroy();
+							graph = ui.editor.graph;
+						}
+					}
+				}
+
+				if (total > 0)
+				{
+					text = ((current > 0) ? current : '-') + '/' + total;
+				}
+			}
+		}
+		catch (e)
+		{
+			// Ignores invalid regular expressions
+		}
+
+		countLabel.innerText = text;
+	};
+
+	function find(backwards, showError)
+	{
+		try
+		{
+			searchInput.style.backgroundColor = search(false, false,
+				false, backwards) ? '' : notFoundColor;
+		}
+		catch (e)
+		{
+			if (showError)
+			{
+				ui.handleError(e);
+			}
+			else
+			{
+				searchInput.style.backgroundColor = notFoundColor;
+			}
+		}
+
+		updateCount();
 	};
 
 	mxUtils.br(div);
@@ -9877,6 +10138,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		lastFound = null;
 		lastSearch = null;
 		allChecked = false;
+		countLabel.innerText = '';
 		searchInput.focus();
 	});
 	
@@ -9896,14 +10158,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 
 	var btn = mxUtils.button(mxResources.get('find'), function()
 	{
-		try
-		{
-			searchInput.style.backgroundColor = search() ? '' : notFoundColor;
-		}
-		catch (e)
-		{
-			ui.handleError(e);	
-		}
+		find(false, true);
 	});
 	
 	// TODO: Reset state after selection change
@@ -9915,6 +10170,28 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 	btn.style.overflow = 'hidden';
 	btn.style.textOverflow = 'ellipsis';
 	btn.className = 'geBtn gePrimaryBtn';
+
+	if (!withReplace)
+	{
+		var prevBtn = mxUtils.button('', function()
+		{
+			find(true, true);
+		});
+
+		prevBtn.setAttribute('title', mxResources.get('find') + ' (Shift+Enter)');
+		prevBtn.className = 'geBtn';
+		prevBtn.style.minWidth = '0';
+		prevBtn.style.width = '30px';
+		prevBtn.style.padding = '0';
+		prevBtn.style.marginTop = '6px';
+
+		var prevImg = document.createElement('img');
+		prevImg.setAttribute('src', Editor.arrowUpImage);
+		prevImg.className = 'geAdaptiveAsset';
+		prevImg.style.width = '18px';
+		prevBtn.appendChild(prevImg);
+		btnsCont.appendChild(prevBtn);
+	}
 	
 	btnsCont.appendChild(btn);
 
@@ -10008,6 +10285,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 					}
 					
 					searchInput.style.backgroundColor = search(false, true) ? '' : notFoundColor;
+					updateCount();
 				}
 			}
 			catch (e)
@@ -10102,6 +10380,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 				}
 				
 				mxUtils.write(replAllNotif, mxResources.get('matchesRepl', [safeguard]));
+				countLabel.innerText = '';
 			}
 			catch (e)
 			{
@@ -10171,16 +10450,12 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			//can take a while (Enter searches immediately)
 			if (lastSearch != searchInput.value.toLowerCase() || evt.keyCode == 13)
 			{
+				//Shift+Enter finds the previous match
+				var backwards = evt.keyCode == 13 && mxEvent.isShiftDown(evt);
+
 				searchThread = window.setTimeout(function()
 				{
-					try
-					{
-						searchInput.style.backgroundColor = search() ? '' : notFoundColor;
-					}
-					catch (e)
-					{
-						searchInput.style.backgroundColor = notFoundColor;
-					}
+					find(backwards);
 				}, (evt.keyCode == 13) ? 0 : 250);
 			}
 		}
@@ -11976,6 +12251,8 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		}
 		else
 		{
+			var version = EditorUi.getInsertMermaidVersion();
+
 			editorUi.parseMermaidDiagram(mermaid, null, function(xml)
 			{
 				try
@@ -11983,7 +12260,8 @@ var ChatWindow = function(editorUi, x, y, w, h)
 					// Wraps in an editable mermaid group (carries the source
 					// for double-click edit), as the insert dialog does
 					renderResponseData(target, ['', mxMermaidToDrawio.wrapGroup(
-						xml, mermaid, EditorUi.getInsertMermaidConfig()), ''], opts);
+						xml, mermaid, EditorUi.getInsertMermaidConfig(),
+						(version != null) ? {version: version} : null), ''], opts);
 
 					if (opts.recordTurn != null)
 					{
@@ -11996,7 +12274,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 				{
 					onError(e);
 				}
-			}, onError);
+			}, onError, null, version);
 		}
 	};
 
@@ -18172,6 +18450,51 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 	var entries = {};
 	var ew = 100;
 	var eh = 100;
+
+	// Entries selected with Shift/Ctrl/Cmd+Click for deleting multiple entries
+	var selected = [];
+
+	function isMultiSelectEvent(evt)
+	{
+		return mxEvent.isShiftDown(evt) || mxEvent.isControlDown(evt) ||
+			mxEvent.isMetaDown(evt);
+	};
+
+	function setSelected(wrapper, value)
+	{
+		var idx = mxUtils.indexOf(selected, wrapper);
+
+		if (value && idx < 0)
+		{
+			selected.push(wrapper);
+		}
+		else if (!value && idx >= 0)
+		{
+			selected.splice(idx, 1);
+		}
+
+		wrapper.style.backgroundColor = (value) ?
+			'light-dark(rgba(41, 128, 255, 0.15), rgba(41, 128, 255, 0.3))' : '';
+	};
+
+	function clearSelection()
+	{
+		while (selected.length > 0)
+		{
+			setSelected(selected[0], false);
+		}
+	};
+
+	function removeSelected()
+	{
+		var tmp = selected.slice();
+		clearSelection();
+
+		for (var i = 0; i < tmp.length; i++)
+		{
+			tmp[i].removeEntry();
+		}
+	};
 	
 	var dragSourceIndex = null;
 	var dropTargetIndex = null;
@@ -18316,8 +18639,9 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 					
 					(function(wrapperDiv, dataParam, imgParam)
 					{
-						mxEvent.addListener(rem, 'click', function(evt)
+						wrapperDiv.removeEntry = function()
 						{
+							setSelected(wrapperDiv, false);
 							entries[dataParam] = null;
 							
 							for (var i = 0; i < images.length; i++)
@@ -18331,12 +18655,28 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 								}
 							}
 							
-							wrapper.parentNode.removeChild(wrapperDiv);
+							if (wrapperDiv.parentNode != null)
+							{
+								wrapperDiv.parentNode.removeChild(wrapperDiv);
+							}
 							
 							if (images.length == 0)
 							{
 								div.style.backgroundImage = 'url(\'' + IMAGE_PATH + '/droptarget.png\')';
 								bg.style.display = '';
+							}
+						};
+
+						mxEvent.addListener(rem, 'click', function(evt)
+						{
+							// Deletes all selected entries if the entry is selected
+							if (selected.length > 1 && mxUtils.indexOf(selected, wrapperDiv) >= 0)
+							{
+								removeSelected();
+							}
+							else
+							{
+								wrapperDiv.removeEntry();
 							}
 							
 							mxEvent.consume(evt);
@@ -18484,8 +18824,27 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 						}
 					};
 					
-					mxEvent.addListener(label, 'click', startEditing);
+					mxEvent.addListener(label, 'click', function(evt)
+					{
+						// Multi-select clicks are handled in the wrapper
+						if (!isMultiSelectEvent(evt))
+						{
+							startEditing(evt);
+						}
+					});
+
 					mxEvent.addListener(wrapper, 'dblclick', startEditing);
+
+					// Shift/Ctrl/Cmd+Click toggles the selection of the entry
+					mxEvent.addListener(wrapper, 'click', function(evt)
+					{
+						if (isMultiSelectEvent(evt) && stopEditing == null)
+						{
+							setSelected(wrapper, mxUtils.indexOf(selected, wrapper) < 0);
+							div.focus();
+							mxEvent.consume(evt);
+						}
+					});
 					
 					div.appendChild(wrapper);
 	
@@ -18739,6 +19098,31 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 	
 	mxEvent.addListener(div, 'dragover', dragOver);
 	mxEvent.addListener(div, 'drop', dropHandler);
+
+	// Clears the selection on click and deletes selected entries with
+	// Delete or Backspace (Shift/Ctrl/Cmd+Click is consumed in entries)
+	div.setAttribute('tabindex', '-1');
+	div.style.outline = 'none';
+
+	mxEvent.addListener(div, 'click', function(evt)
+	{
+		if (!isMultiSelectEvent(evt))
+		{
+			clearSelection();
+		}
+	});
+
+	mxEvent.addListener(div, 'keydown', function(evt)
+	{
+		var source = mxEvent.getSource(evt);
+
+		if ((evt.keyCode == 46 || evt.keyCode == 8) && selected.length > 0 &&
+			(source == null || source.getAttribute('contentEditable') != 'true'))
+		{
+			removeSelected();
+			mxEvent.consume(evt);
+		}
+	});
 	mxEvent.addListener(bg, 'dragover', dragOver);
 	mxEvent.addListener(bg, 'drop', dropHandler);
 
@@ -18994,7 +19378,65 @@ var EditShapeDialog = function(editorUi, cell, title)
 
 	var clone = editorUi.editor.graph.cloneCell(cell);
 	graph.addCells([clone]);
-	
+
+	// Shows the connection points of the preview with their names as tooltips
+	var constraintShapes = [];
+
+	var updateConstraints = function()
+	{
+		for (var i = 0; i < constraintShapes.length; i++)
+		{
+			constraintShapes[i].destroy();
+		}
+
+		constraintShapes = [];
+		var s = graph.view.getState(clone);
+		var constraints = (s != null && s.shape != null) ?
+			graph.getAllConnectionConstraints(s, true) : null;
+
+		if (constraints != null)
+		{
+			var img = mxConstraintHandler.prototype.pointImage;
+
+			for (var i = 0; i < constraints.length; i++)
+			{
+				var pt = graph.getConnectionPoint(s, constraints[i]);
+
+				if (pt != null)
+				{
+					var shape = new mxImageShape(new mxRectangle(
+						Math.round(pt.x - img.width / 2),
+						Math.round(pt.y - img.height / 2),
+						img.width, img.height), img.src);
+					shape.dialect = mxConstants.DIALECT_SVG;
+					shape.preserveImageAspect = false;
+					shape.init(graph.view.getOverlayPane());
+					shape.redraw();
+
+					// Name is user data so it is only added as text content
+					var name = constraints[i].name;
+
+					if (name != null && name !== '' && shape.node != null)
+					{
+						var tooltip = shape.node.ownerDocument.createElementNS(
+							mxConstants.NS_SVG, 'title');
+						mxUtils.write(tooltip, name);
+						shape.node.appendChild(tooltip);
+						shape.node.style.cursor = 'help';
+					}
+
+					constraintShapes.push(shape);
+				}
+			}
+		}
+	};
+
+	graph.view.addListener(mxEvent.SCALE, updateConstraints);
+	graph.view.addListener(mxEvent.TRANSLATE, updateConstraints);
+	graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, updateConstraints);
+	graph.model.addListener(mxEvent.CHANGE, updateConstraints);
+	updateConstraints();
+
 	var state = graph.view.getState(clone);
 	var stencil = '';
 	
@@ -20393,10 +20835,38 @@ var ConnectionPointsDialog = function(editorUi, cell)
 				mxEvent.consume(evt);
 				var scale = editingGraph.view.scale;
 				var tr = editingGraph.view.translate;
-				editingGraph.setSelectionCell(createCPoint((pt.x - CP_HLF_SIZE * scale) / scale - tr.x,
-					(pt.y - CP_HLF_SIZE * scale) / scale - tr.y));
+
+				// Snaps the center of the new point to the grid
+				editingGraph.setSelectionCell(createCPoint(
+					editingGraph.snap(pt.x / scale - tr.x) - CP_HLF_SIZE,
+					editingGraph.snap(pt.y / scale - tr.y) - CP_HLF_SIZE));
 			}
 		}
+
+		// Snaps the center of moved points to the grid and guides instead
+		// of the top, left corner of their handle
+		var graphHandlerGetStateBounds = editingGraph.graphHandler.getStateBounds;
+
+		editingGraph.graphHandler.getStateBounds = function(cells)
+		{
+			var bounds = graphHandlerGetStateBounds.apply(this, arguments);
+			var points = bounds != null && cells != null && cells.length > 0;
+
+			for (var i = 0; points && i < cells.length; i++)
+			{
+				points = cells[i].cp == true;
+			}
+
+			if (points)
+			{
+				var d = CP_HLF_SIZE * editingGraph.view.scale;
+				bounds = new mxRectangle(bounds.x + d, bounds.y + d,
+					Math.max(0, bounds.width - 2 * d),
+					Math.max(0, bounds.height - 2 * d));
+			}
+
+			return bounds;
+		};
 
 		keyHandler = new mxKeyHandler(editingGraph);
 		

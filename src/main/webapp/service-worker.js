@@ -26,26 +26,25 @@ self.skipWaiting();
 var MANIFEST = [
   {"url":"js/bootstrap.js","revision":"d8ff725e43b7b0f27feb01a2b2242226"},
   {"url":"js/main.js","revision":"a8d40469d3d72ab4b11059362f3dd825"},
-  {"url":"js/app.min.js","revision":"394e033359a11f69d8e045af655f1eab"},
-  {"url":"js/extensions.min.js","revision":"3232cad9c634543d188a41e2098c3826"},
-  {"url":"js/plantuml/drawio-plantuml.min.js","revision":"2295962d058899ed2bb7abc94ba5aa5c"},
+  {"url":"js/extensions.min.js","revision":"aa2f5b1a7cb52c5b08df4fa96106053f"},
+  {"url":"js/plantuml/drawio-plantuml.min.js","revision":"2bb5c7783a7662f8e939d7a5437d5f5d"},
   {"url":"js/orgchart.min.js","revision":"619d8c4dab47b81868916df31f55478b"},
-  {"url":"js/stencils.min.js","revision":"8350bc2dfb9cce00ad8c5cb4137ea3af"},
-  {"url":"js/shapes-14-6-5.min.js","revision":"18eea3a3794a2c0b61dc44dcd9d441ce"},
+  {"url":"js/stencils.min.js","revision":"ed29a54cd418b1888595b2d10c53a1b5"},
+  {"url":"js/shapes-14-6-5.min.js","revision":"e3bdb9e5d79ea32d5a91f5bba73812b5"},
   {"url":"js/math-print.js","revision":"6e1ff765ea66d2447c04b269cbefbb97"},
-  {"url":"index.html","revision":"9de11c65ec13b24c73ace7042bc529cc-31.7.0"},
-  {"url":"open.html","revision":"d71816b3b00e769fc6019fcdd6921662-31.7.0"},
+  {"url":"index.html","revision":"9de11c65ec13b24c73ace7042bc529cc-32.0.1"},
+  {"url":"open.html","revision":"d71816b3b00e769fc6019fcdd6921662-32.0.1"},
   {"url":"shortcuts.svg","revision":"e6e8b6ca4cdf380eb5908925fadda599"},
   {"url":"styles/fonts/ArchitectsDaughter-Regular.ttf","revision":"31c2153c0530e32553b31a49b3d70736"},
   {"url":"styles/grapheditor.css","revision":"0358dfba66eefdc9670c747de3011b7b"},
   {"url":"styles/high-contrast.css","revision":"0c0219b1016c8bd6bbf859cfd53b5058"},
   {"url":"js/dropbox/Dropbox-sdk.min.js","revision":"4b9842892aa37b156db0a8364b7a83b0"},
   {"url":"js/onedrive/OneDrive.js","revision":"e863f5e6833892f22492211663e3efe9"},
-  {"url":"js/viewer-static.min.js","revision":"955173306a30c2909e917d87f7532733"},
-  {"url":"connect/jira/editor-1-3-3.html","revision":"41dc8af9576b47f359cff19fff7a41c2-31.7.0"},
-  {"url":"connect/jira/viewerPanel-1-3-12.html","revision":"4836f5e4308abe57830e441518364f23-31.7.0"},
-  {"url":"connect/jira/viewerPanel2.html","revision":"0dd1ee1343a46b5c03aedbc587450b84-31.7.0"},
-  {"url":"connect/jira/fullScreenViewer-1-3-3.html","revision":"abed474e47c0c41a5ad2366b4828f77a-31.7.0"},
+  {"url":"js/viewer-static.min.js","revision":"bbb3dda21ec176a85ea820171e5088d6"},
+  {"url":"connect/jira/editor-1-3-3.html","revision":"41dc8af9576b47f359cff19fff7a41c2-32.0.1"},
+  {"url":"connect/jira/viewerPanel-1-3-12.html","revision":"4836f5e4308abe57830e441518364f23-32.0.1"},
+  {"url":"connect/jira/viewerPanel2.html","revision":"0dd1ee1343a46b5c03aedbc587450b84-32.0.1"},
+  {"url":"connect/jira/fullScreenViewer-1-3-3.html","revision":"abed474e47c0c41a5ad2366b4828f77a-32.0.1"},
   {"url":"connect/jira/viewerPanel.js","revision":"85011efa68d638da560871ee2ab3a6fe"},
   {"url":"connect/jira/spinner.gif","revision":"7d857ab9d86123e93d74d48e958fe743"},
   {"url":"connect/jira/editor.js","revision":"6264f470f244aec4b62035bbad03eb5e"},
@@ -60,13 +59,13 @@ var MANIFEST = [
   {"url":"connect/onedrive_common/ac.js","revision":"1264ba8705eff0d1337701e5ae962366"},
   {"url":"connect/confluence/viewer-init.js","revision":"c5e51e32ac74414d8d518af83ee2781f"},
   {"url":"connect/confluence/viewer.js","revision":"092c424361f3c34559cafeafd64407a6"},
-  {"url":"connect/confluence/viewer-1-4-42.html","revision":"69c1bca25fd4889bf832e8441c972268-31.7.0"},
-  {"url":"connect/confluence/macroEditor-1-4-8.html","revision":"4ad77ae3f08c19eddac932b2fa8c7068-31.7.0"},
+  {"url":"connect/confluence/viewer-1-4-42.html","revision":"69c1bca25fd4889bf832e8441c972268-32.0.1"},
+  {"url":"connect/confluence/macroEditor-1-4-8.html","revision":"4ad77ae3f08c19eddac932b2fa8c7068-32.0.1"},
   {"url":"connect/confluence/includeDiagram-1-4-8.js","revision":"18b947a8b2ee4e52bec702f4712521e5"},
-  {"url":"connect/confluence/includeDiagram.html","revision":"ea43646d9f24ac0b96171f1ab3fa9f00-31.7.0"},
+  {"url":"connect/confluence/includeDiagram.html","revision":"ea43646d9f24ac0b96171f1ab3fa9f00-32.0.1"},
   {"url":"connect/confluence/macro-editor.js","revision":"b9000d6c20f30e4068f83bd0b56965ca"},
   {"url":"math4/es5/drawio-mathjax.min.js","revision":"a6ac5a84944a345c72b79df99146d038"},
-  {"url":"resources/dia.txt","revision":"179d4f4c2a5a732d82ffe10bc08572a2"},
+  {"url":"resources/dia.txt","revision":"551e18de9b942c583ea685f0b6e0682f"},
   {"url":"favicon.ico","revision":"b2bf17349e4b50ce4ba311f079f8bf7d"},
   {"url":"images/manifest.json","revision":"840dccdf2df72f46a63fb3b32ab6100e"},
   {"url":"images/logo.png","revision":"e4e0d092abdb1e668b5ec41a7fe0713c"},
@@ -109,64 +108,64 @@ var MANIFEST = [
 // are derived exactly like MANIFEST entries, so entries that move between
 // the two lists keep their cached bytes.
 var LAZY_MANIFEST = [
-  {"url":"resources/dia_am.txt","revision":"48b786e3d87889e9f0ac33cf56a75734"},
-  {"url":"resources/dia_ar.txt","revision":"e272be15112340a12681c3718693fe9f"},
-  {"url":"resources/dia_bg.txt","revision":"4a5173c2313a6139e11501656320f621"},
-  {"url":"resources/dia_bn.txt","revision":"02b86368af66562096e61812c645efe7"},
-  {"url":"resources/dia_bs.txt","revision":"19d6ff3b795107661e3c50739fe92efa"},
-  {"url":"resources/dia_ca.txt","revision":"42f5802e88d0b3dc546d4898ecbd8fc1"},
-  {"url":"resources/dia_cs.txt","revision":"7ea040ee94d5018aa55f3195414ddef7"},
-  {"url":"resources/dia_da.txt","revision":"08bff17a2936328a3564e5de964d742e"},
-  {"url":"resources/dia_de.txt","revision":"ef9326cf55bd767d567970bbf15a9af8"},
-  {"url":"resources/dia_el.txt","revision":"fb749d53e943cdeddfba644c81ccb4f8"},
-  {"url":"resources/dia_eo.txt","revision":"5159ae61c937d9babb73f415d1079138"},
-  {"url":"resources/dia_es.txt","revision":"3de9aa08828e640c4aa7e4ff91013414"},
-  {"url":"resources/dia_et.txt","revision":"213c58998dbb24d421a38e1970c3d99f"},
-  {"url":"resources/dia_eu.txt","revision":"15080febf7efb2311565e596d7f4e1d2"},
-  {"url":"resources/dia_fa.txt","revision":"6f0fc5d5e3594e53d4f01a2f63c305e2"},
-  {"url":"resources/dia_fi.txt","revision":"167f73a0b627f3badfb599289c9860f2"},
-  {"url":"resources/dia_fil.txt","revision":"31f0f159261eea50bd4f1c607fa9e527"},
-  {"url":"resources/dia_fr.txt","revision":"820515b2018d51b62caaa234bbf4bbd6"},
-  {"url":"resources/dia_gl.txt","revision":"5d51f5452a764c05f2b4887ccb0e1d17"},
-  {"url":"resources/dia_gu.txt","revision":"8f681c0f3fb7202ff6d92966aaa97e22"},
-  {"url":"resources/dia_he.txt","revision":"afa79f21eaf55502a348ad687ec25afd"},
-  {"url":"resources/dia_hi.txt","revision":"2eef003e8d8bc0e1ff437bc1634634bc"},
-  {"url":"resources/dia_hr.txt","revision":"628a84c1261abd951655514f9a9c6f20"},
-  {"url":"resources/dia_hu.txt","revision":"75d72e713c239e4046a2294d86cb011a"},
-  {"url":"resources/dia_i18n.txt","revision":"19cc4f5a54402b9c381d183b4c3abff2"},
-  {"url":"resources/dia_id.txt","revision":"dc4470464b4e4cfd3454e6360f4470fe"},
-  {"url":"resources/dia_it.txt","revision":"39917aa09c5f8e4959d0afc712439aee"},
-  {"url":"resources/dia_ja.txt","revision":"05c27c7f68eba78cd80cea80d6a67dc5"},
-  {"url":"resources/dia_kl.txt","revision":"089d68f2c359ca1424a4a2e37e508e5c"},
-  {"url":"resources/dia_kn.txt","revision":"2ca9aaf9861df8cfd5cd88b677a21df6"},
-  {"url":"resources/dia_ko.txt","revision":"3558ec3324c55e35531f48c8fe13f5ea"},
-  {"url":"resources/dia_lt.txt","revision":"85b99cd620a450e224b96345d5780183"},
-  {"url":"resources/dia_lv.txt","revision":"ad06bab8c9fc150b27521e777d267c7f"},
-  {"url":"resources/dia_ml.txt","revision":"960b8fa2ed7b8e7f3ef3042b71ca17a6"},
-  {"url":"resources/dia_mr.txt","revision":"9c10361dc09b25708e4d37aa3c832403"},
-  {"url":"resources/dia_ms.txt","revision":"aa8423acdd5864869d1bc209da7ee76d"},
-  {"url":"resources/dia_my.txt","revision":"d4439a8f9f4a494cb8026b5a40b9e497"},
-  {"url":"resources/dia_nl.txt","revision":"2af1b552e8f133c866a3607fce0ba033"},
-  {"url":"resources/dia_no.txt","revision":"53155ab1c21fe4186147b3336869533b"},
-  {"url":"resources/dia_pl.txt","revision":"085938b2b2495423d118baf5e7c0e5a8"},
-  {"url":"resources/dia_pt.txt","revision":"97efcfeace88197d2394850fec80c5cc"},
-  {"url":"resources/dia_pt-br.txt","revision":"72ba14b76383813708eb36e3dc27d0a9"},
-  {"url":"resources/dia_ro.txt","revision":"9de9d99ffd40b1b503f98e22850b7ed8"},
-  {"url":"resources/dia_ru.txt","revision":"4a891d641bfb4d15eb39c9d6572cbaac"},
-  {"url":"resources/dia_si.txt","revision":"2f05a0cb3f3eaaac612c6088f28ed31e"},
-  {"url":"resources/dia_sk.txt","revision":"221f8bacea757da90e87be63a76f008d"},
-  {"url":"resources/dia_sl.txt","revision":"816b102b4a6ae42693645335ccee613e"},
-  {"url":"resources/dia_sr.txt","revision":"eded93c7fb286027eded62221e93a370"},
-  {"url":"resources/dia_sv.txt","revision":"fe41b5af542417e3c456a042cf237dcb"},
-  {"url":"resources/dia_sw.txt","revision":"d2b094d179faac0063b08dadec8c0fb0"},
-  {"url":"resources/dia_ta.txt","revision":"6f1784b59879db4426e63f67573eb023"},
-  {"url":"resources/dia_te.txt","revision":"57d4bf101d867001953b547e7bf0a433"},
-  {"url":"resources/dia_th.txt","revision":"f08111a083139866efe9013eba1492f0"},
-  {"url":"resources/dia_tr.txt","revision":"a473c2d4105fbb4d50327dbb5f960f1b"},
-  {"url":"resources/dia_uk.txt","revision":"a94d4d7fbaa094e20d62bb89afe5830a"},
-  {"url":"resources/dia_vi.txt","revision":"9ac642b65f39e3b34e8e2df5e4094783"},
-  {"url":"resources/dia_zh.txt","revision":"8c68eb44591879adb994ceb5bf1754ca"},
-  {"url":"resources/dia_zh-tw.txt","revision":"98d37f8d1f42ebf5652a25f43fe921a3"}
+  {"url":"resources/dia_am.txt","revision":"57d101c980b03a839928f8dc52048a82"},
+  {"url":"resources/dia_ar.txt","revision":"a3fc6076357487470c5257509638f724"},
+  {"url":"resources/dia_bg.txt","revision":"33bf1f6078cef1605d8f1408bf42adca"},
+  {"url":"resources/dia_bn.txt","revision":"2af58b31c7bc3f26ac772ae948ac0950"},
+  {"url":"resources/dia_bs.txt","revision":"4251ce6877b708949d0b849dbfddd1bf"},
+  {"url":"resources/dia_ca.txt","revision":"798fe122533bda5a485adf0e4cd385fb"},
+  {"url":"resources/dia_cs.txt","revision":"81ceea94f7ead9e8f0865a125b681329"},
+  {"url":"resources/dia_da.txt","revision":"ac97c5256f02c8efea1c4721153885a2"},
+  {"url":"resources/dia_de.txt","revision":"1270116d01bb44e73a74b1f5d914be6f"},
+  {"url":"resources/dia_el.txt","revision":"f6c0a9bfa76bb054da6ac1e69a3c1085"},
+  {"url":"resources/dia_eo.txt","revision":"770d178a0224f4f6581f2a3756a9c545"},
+  {"url":"resources/dia_es.txt","revision":"a5cbc94f42173c2bb822d21d472ac955"},
+  {"url":"resources/dia_et.txt","revision":"ee8b32fb8f152ba4a135459e36648ad3"},
+  {"url":"resources/dia_eu.txt","revision":"e4344f5dca959c799c3488d13d175be9"},
+  {"url":"resources/dia_fa.txt","revision":"d6c4b5ee080d935e3d100e8bd045015e"},
+  {"url":"resources/dia_fi.txt","revision":"2cffb4b3a0a3a2c9c0fded709d7d0742"},
+  {"url":"resources/dia_fil.txt","revision":"311bfa79af9f49c5e9b59448bebd3c15"},
+  {"url":"resources/dia_fr.txt","revision":"77ec823eab48eed5131b9808a42c05c3"},
+  {"url":"resources/dia_gl.txt","revision":"30fe88ef81148069aaac3cffa6127b62"},
+  {"url":"resources/dia_gu.txt","revision":"702f0140e38ec5b6ed1f3d4e86939c51"},
+  {"url":"resources/dia_he.txt","revision":"9971e3fb5cfde5c4a6aca85c414d9478"},
+  {"url":"resources/dia_hi.txt","revision":"dd36acd15b7154b17ddf38431b86dc1b"},
+  {"url":"resources/dia_hr.txt","revision":"ca5fd785f75d2a53ef740b56abed99b6"},
+  {"url":"resources/dia_hu.txt","revision":"30d826f2eaa9e2bae64a3f6e5060475c"},
+  {"url":"resources/dia_i18n.txt","revision":"7325c4d1842b3bb413efd762b8c8750f"},
+  {"url":"resources/dia_id.txt","revision":"be3e88ddef468d02f2d44a7ffce9fba9"},
+  {"url":"resources/dia_it.txt","revision":"d00eb6960954d7fe70e4df67cec1db3d"},
+  {"url":"resources/dia_ja.txt","revision":"9bbba306a96343aa54f02489fe36bfb3"},
+  {"url":"resources/dia_kl.txt","revision":"e18d6ac2d87d57485f550e4178d58859"},
+  {"url":"resources/dia_kn.txt","revision":"663c43188b9255551e40ee84b538e565"},
+  {"url":"resources/dia_ko.txt","revision":"251b50ffd709ef581c80e47344b2e670"},
+  {"url":"resources/dia_lt.txt","revision":"b67924b6755462fecf8939387d0a515c"},
+  {"url":"resources/dia_lv.txt","revision":"0691ad105cc16754b722c589701ee2f9"},
+  {"url":"resources/dia_ml.txt","revision":"0a8aca3f150448c84c54a11f0f51e76f"},
+  {"url":"resources/dia_mr.txt","revision":"acd6e838eddb102ea2975c241a900666"},
+  {"url":"resources/dia_ms.txt","revision":"e4f0f22b97f101949b06fc93669d6b2d"},
+  {"url":"resources/dia_my.txt","revision":"9e8869c181d748df8698ac0891bac571"},
+  {"url":"resources/dia_nl.txt","revision":"bcab174e73b52109bf30d2ff8bd1faa1"},
+  {"url":"resources/dia_no.txt","revision":"d261a88ea4dc3d43c3f452e2d4584da9"},
+  {"url":"resources/dia_pl.txt","revision":"2970be3c45a6ba7c237481293a74457d"},
+  {"url":"resources/dia_pt.txt","revision":"a87b25886edfed8507121014dd8a55f5"},
+  {"url":"resources/dia_pt-br.txt","revision":"95e17bffbfe65670b60c40238469c6fe"},
+  {"url":"resources/dia_ro.txt","revision":"abaa4dadd41b8e764ea282282e10fef9"},
+  {"url":"resources/dia_ru.txt","revision":"56ae67f36421e852b0243748bcc31f7d"},
+  {"url":"resources/dia_si.txt","revision":"f63c973192ea54758131dc997b91539c"},
+  {"url":"resources/dia_sk.txt","revision":"4b8b12c589f0d317c477367a629dfa07"},
+  {"url":"resources/dia_sl.txt","revision":"1f07fccd95bdcba45b10cce871597920"},
+  {"url":"resources/dia_sr.txt","revision":"dd3d64da378122193a3058fd2fea53aa"},
+  {"url":"resources/dia_sv.txt","revision":"f0bf89e762d6766f4653a854d637e19a"},
+  {"url":"resources/dia_sw.txt","revision":"483dcef5b6f7f479ddf6c6951ee1aa91"},
+  {"url":"resources/dia_ta.txt","revision":"d227410d1b6cb0eda173114efd6c6065"},
+  {"url":"resources/dia_te.txt","revision":"a07d2ff5465ae77b4f38927470ab07e7"},
+  {"url":"resources/dia_th.txt","revision":"06f84f1e297461553f639c59605aa35e"},
+  {"url":"resources/dia_tr.txt","revision":"13c3d47b396a58f796fa3a1d48a37deb"},
+  {"url":"resources/dia_uk.txt","revision":"dd3a5fa0a3b89286df744ecd5ec18a4f"},
+  {"url":"resources/dia_vi.txt","revision":"5773a16f555a951d765505bfe6bd4ce2"},
+  {"url":"resources/dia_zh.txt","revision":"27f29872dd6af9b0b5eafd536c416f9a"},
+  {"url":"resources/dia_zh-tw.txt","revision":"041ee36772d1920ed02d365b3f143aef"}
 ];
 
 // Precached URL served when a lazy entry is requested offline before it was
@@ -870,12 +869,26 @@ self.addEventListener('fetch', function(event)
 
 // Warms cache entries for a page. warmLazy caches one lazy entry - the
 // current UI language right after the first install, whose own request was
-// not yet routed through this worker. warmDev fills all missing dev
-// entries so one online dev load yields a complete offline source set.
-// Only URLs in the respective manifests are ever fetched and cached.
+// not yet routed through this worker, or a language installed in the
+// offline languages dialog, which may run in a page this worker does not
+// control. A port transferred with warmLazy is notified when the entry is
+// done (cached or failed). warmDev fills all missing dev entries so one
+// online dev load yields a complete offline source set. Only URLs in the
+// respective manifests are ever fetched and cached.
 self.addEventListener('message', function(event)
 {
   var data = event.data;
+  var port = (event.ports != null && event.ports.length > 0) ?
+    event.ports[0] : null;
+
+  // The sender re-reads the cache for the outcome
+  function reply()
+  {
+    if (port != null)
+    {
+      port.postMessage(true);
+    }
+  }
 
   if (data != null && data.warmDev == true)
   {
@@ -895,7 +908,7 @@ self.addEventListener('message', function(event)
     }
     catch (e)
     {
-      return;
+      // ignore
     }
 
     if (key != null)
@@ -907,7 +920,11 @@ self.addEventListener('message', function(event)
           return (cached != null) ? null :
             fetchLazy(cache, key).then(null, function() { return null; });
         });
-      }));
+      }).then(reply, reply));
+    }
+    else
+    {
+      reply();
     }
   }
 });

@@ -152,7 +152,9 @@ mxEdgeSegmentHandler.prototype.updatePreviewState = function(edge, point, termin
 		if (result.length == 0 && (Math.round(pts[0].x - pts[pts.length - 1].x) == 0 ||
 			Math.round(pts[0].y - pts[pts.length - 1].y) == 0))
 		{
-			result = [point, point];
+			// Removes the waypoints if the edge is routed along the same line
+			// without them, eg. if the segment was moved away and back
+			result = (this.isStraightRoute(edge, point, source, target)) ? [] : [point, point];
 		}
 		// Handles special case of transitions from straight vertical to routed
 		else if (pts.length == 5 && result.length == 2 && source != null && target != null &&
@@ -204,6 +206,82 @@ mxEdgeSegmentHandler.prototype.updatePreviewState = function(edge, point, termin
 		edge.view.updatePoints(edge, this.points, source, target);
 		edge.view.updateFloatingTerminalPoints(edge, source, target);
 	}
+};
+
+/**
+ * Function: isStraightRoute
+ * 
+ * Returns true if the given edge state is routed as a horizontal or
+ * vertical line through the given point without waypoints. The point is
+ * converted using <convertPoint>.
+ */
+mxEdgeSegmentHandler.prototype.isStraightRoute = function(edge, point, source, target)
+{
+	var tmp = edge.clone();
+	tmp.view.updateFixedTerminalPoints(tmp, source, target);
+	tmp.view.updatePoints(tmp, null, source, target);
+	tmp.view.updateFloatingTerminalPoints(tmp, source, target);
+	var pts = tmp.absolutePoints;
+
+	if (pts != null && pts.length > 1)
+	{
+		var horizontal = true;
+		var vertical = true;
+		var p0 = null;
+
+		for (var i = 0; i < pts.length; i++)
+		{
+			if (pts[i] == null)
+			{
+				return false;
+			}
+
+			var pt = this.convertPoint(pts[i].clone(), false);
+
+			if (p0 == null)
+			{
+				p0 = pt;
+			}
+			else
+			{
+				horizontal = horizontal && Math.round(pt.y - p0.y) == 0;
+				vertical = vertical && Math.round(pt.x - p0.x) == 0;
+			}
+		}
+
+		return (horizontal && Math.round(point.y - p0.y) == 0) ||
+			(vertical && Math.round(point.x - p0.x) == 0);
+	}
+
+	return false;
+};
+
+/**
+ * Function: changePoints
+ * 
+ * Overridden to remove the waypoints if there are none and to keep the
+ * geometry if the edge has no waypoints either, eg. if a segment of a
+ * straight edge was moved away and back.
+ */
+mxEdgeSegmentHandler.prototype.changePoints = function(edge, points, clone)
+{
+	var geo = this.graph.getModel().getGeometry(edge);
+
+	if (points != null && points.length == 0)
+	{
+		points = null;
+	}
+
+	if (points == null && !clone && geo != null &&
+		(geo.points == null || geo.points.length == 0))
+	{
+		this.graph.getView().invalidate(edge);
+		this.graph.getView().validate(edge);
+
+		return edge;
+	}
+
+	return mxElbowEdgeHandler.prototype.changePoints.call(this, edge, points, clone);
 };
 
 /**

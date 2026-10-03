@@ -9,7 +9,7 @@
 		var d = 30;
 		var dt = 'alibaba cloud';
 		var sb = this;
-		var s = 'points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;fillColor=#FF6A00;strokeColor=none;shape=mxgraph.alibaba_cloud.';
+		var s = 'aspect=fixed;html=1;align=center;shadow=0;dashed=0;fillColor=#FF6A00;strokeColor=none;shape=mxgraph.alibaba_cloud.';
 
 		// Adds Alibaba Cloud shapes
 		this.setCurrentSearchEntryLibrary('alibaba_cloud', 'alibaba_cloud');

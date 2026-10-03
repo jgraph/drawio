@@ -188,106 +188,6 @@
 
 	mxCellRenderer.registerShape('tableLine', TableLineShape);
 
-	// LATER: Use this to implement striping
-	function paintTableBackground(state, c, x, y, w, h, r)
-	{
-		if (state != null)
-		{
-			var graph = state.view.graph;
-			var start = graph.getActualStartSize(state.cell, true);
-			var rows = graph.model.getChildCells(state.cell, true);
-			
-			if (rows.length > 0)
-			{
-				var events = false;
-				
-				if (this.style != null)
-				{
-					events = mxUtils.getValue(this.style, mxConstants.STYLE_POINTER_EVENTS, '1') == '1';
-				}
-				
-				if (!events)
-				{
-					c.pointerEvents = false;
-				}
-				
-				var evenRowColor = mxUtils.getValue(state.style,
-					'evenRowColor', mxConstants.NONE);
-				var oddRowColor = mxUtils.getValue(state.style,
-					'oddRowColor', mxConstants.NONE);
-				var evenColColor = mxUtils.getValue(state.style,
-					'evenColumnColor', mxConstants.NONE);
-				var oddColColor = mxUtils.getValue(state.style,
-					'oddColumnColor', mxConstants.NONE);
-				var cols = graph.model.getChildCells(rows[0], true);
-				
-				// Paints column backgrounds
-				for (var i = 0; i < cols.length; i++)
-				{
-					var clr = (mxUtils.mod(i, 2) == 1) ? evenColColor : oddColColor;
-					var geo = graph.getCellGeometry(cols[i]);
-					
-					if (geo != null && clr != mxConstants.NONE)
-					{
-						c.setFillColor(clr);
-						c.begin();
-						c.moveTo(x + geo.x, y + start.y);
-						
-						if (r > 0 && i == cols.length - 1)
-						{
-							c.lineTo(x + geo.x + geo.width - r, y);
-							c.quadTo(x + geo.x + geo.width, y, x + geo.x + geo.width, y + r);
-							c.lineTo(x + geo.x + geo.width, y + h - r);
-							c.quadTo(x + geo.x + geo.width, y + h, x + geo.x + geo.width - r, y + h);
-						}
-						else
-						{
-							c.lineTo(x + geo.x + geo.width, y + start.y);
-							c.lineTo(x + geo.x + geo.width, y + h - start.height);
-						}
-						
-						c.lineTo(x + geo.x, y + h);
-						c.close();
-						c.fill();
-					}
-				}
-				
-				// Paints row backgrounds
-				for (var i = 0; i < rows.length; i++)
-				{
-					var clr = (mxUtils.mod(i, 2) == 1) ? evenRowColor : oddRowColor;
-					var geo = graph.getCellGeometry(rows[i]);
-	
-					if (geo != null && clr != mxConstants.NONE)
-					{
-						var b = (i == rows.length - 1) ? y + h : y + geo.y + geo.height;
-						c.setFillColor(clr);
-						
-						c.begin();
-						c.moveTo(x + start.x, y + geo.y);
-						c.lineTo(x + w - start.width, y + geo.y);
-						
-						if (r > 0 && i == rows.length - 1)
-						{
-							c.lineTo(x + w, b - r);
-							c.quadTo(x + w, b, x + w - r, b);
-							c.lineTo(x + r, b);
-							c.quadTo(x, b, x, b - r);
-						}
-						else
-						{
-							c.lineTo(x + w - start.width, b);
-							c.lineTo(x + start.x, b);
-						}
-						
-						c.close();
-						c.fill();
-					}
-				}
-			}
-		}
-	};
-
 	// Table Shape
 	function TableShape()
 	{
@@ -300,10 +200,16 @@
 
 	TableShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
-		// LATER: Split background to add striping, paint rows and cells
-		//paintTableBackground(this.state, c, x, y, w, h);
 		var collapsed = (this.state != null) ? this.state.view.graph.
 			isCellCollapsed(this.state.cell) : false;
+
+		if (!collapsed && this.isCollapsedRender())
+		{
+			this.paintCollapsedTable(c);
+
+			return;
+		}
+
 		var horizontal = this.isHorizontal();
 		var start = this.getTitleSize();
 		var fixedHeader = mxUtils.getValue(this.style,
@@ -360,7 +266,108 @@
 			y = this.bounds.y / s;
 			w = this.bounds.width / s;
 			h = this.bounds.height / s;
+
+			if (this.hasStripes())
+			{
+				var graph = this.state.view.graph;
+				var start = graph.getActualStartSize(this.state.cell, true);
+				var body = graph.getCollapsedTableBands(0, 0, w, h, start).body;
+				var r = (this.isRounded) ? this.getCollapsedArcSize(w, h, start) : 0;
+				var pointerEvents = c.pointerEvents;
+				c.pointerEvents = false;
+				c.setShadow(false);
+				this.paintStripes(c, x, y, w, h, r, body);
+				c.pointerEvents = pointerEvents;
+			}
+
 			this.paintTableForeground(c, x, y, w, h);
+		}
+	};
+
+	/**
+	 * Returns true if the table has a color for the odd or even rows or
+	 * columns (evenRowColor, oddRowColor, evenColumnColor, oddColumnColor).
+	 */
+	TableShape.prototype.hasStripes = function()
+	{
+		var keys = ['evenRowColor', 'oddRowColor', 'evenColumnColor', 'oddColumnColor'];
+
+		for (var i = 0; i < keys.length; i++)
+		{
+			if (mxUtils.getValue(this.style, keys[i], mxConstants.NONE) != mxConstants.NONE)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	};
+
+	/**
+	 * Paints the column and row striping of the table in the given body
+	 * (the area below the table title in table coordinates), below the rows
+	 * and cells so that their own fills cover the striping. Odd and even are
+	 * counted from 1 for the visible rows and the columns of the first visible
+	 * row, so evenRowColor is the color of every second row. Columns use the
+	 * width of a single column for merged cells (alternateBounds).
+	 */
+	TableShape.prototype.paintStripes = function(c, x, y, w, h, r, body)
+	{
+		var graph = this.state.view.graph;
+		var model = graph.model;
+		var evenRowColor = mxUtils.getValue(this.style, 'evenRowColor', mxConstants.NONE);
+		var oddRowColor = mxUtils.getValue(this.style, 'oddRowColor', mxConstants.NONE);
+		var evenColColor = mxUtils.getValue(this.style, 'evenColumnColor', mxConstants.NONE);
+		var oddColColor = mxUtils.getValue(this.style, 'oddColumnColor', mxConstants.NONE);
+		var rows = model.getChildCells(this.state.cell, true);
+		var visible = [];
+
+		for (var i = 0; i < rows.length; i++)
+		{
+			if (model.isVisible(rows[i]) && graph.getCellGeometry(rows[i]) != null)
+			{
+				visible.push(rows[i]);
+			}
+		}
+
+		var fill = mxUtils.bind(this, function(clr, rect)
+		{
+			if (clr != mxConstants.NONE && rect.width > 0 && rect.height > 0)
+			{
+				c.setFillColor(clr);
+				this.addCollapsedRegionPath(c, x, y, w, h, r, rect);
+				c.fill();
+			}
+		});
+
+		if ((evenColColor != mxConstants.NONE || oddColColor != mxConstants.NONE) &&
+			visible.length > 0)
+		{
+			var rowGeo = graph.getCellGeometry(visible[0]);
+			var cols = model.getChildCells(visible[0], true);
+
+			for (var i = 0; i < cols.length; i++)
+			{
+				var geo = graph.getCellGeometry(cols[i]);
+
+				if (geo != null)
+				{
+					var gw = (geo.alternateBounds != null) ?
+						geo.alternateBounds.width : geo.width;
+					fill((mxUtils.mod(i, 2) == 1) ? evenColColor : oddColColor,
+						new mxRectangle(rowGeo.x + geo.x, body.y, gw, body.height));
+				}
+			}
+		}
+
+		if (evenRowColor != mxConstants.NONE || oddRowColor != mxConstants.NONE)
+		{
+			for (var i = 0; i < visible.length; i++)
+			{
+				var geo = graph.getCellGeometry(visible[i]);
+				fill((mxUtils.mod(i, 2) == 1) ? evenRowColor : oddRowColor,
+					new mxRectangle(body.x, geo.y, body.width, geo.height));
+			}
 		}
 	};
 
@@ -376,6 +383,508 @@
 		}
 	}
 	
+	/**
+	 * Returns true if this table paints its rows and cells with collapsed
+	 * borders (tableRender=collapsed, see Graph.isCollapsedTable).
+	 */
+	TableShape.prototype.isCollapsedRender = function()
+	{
+		return this.state != null && !this.outline && this.style != null &&
+			this.style['tableRender'] == 'collapsed' &&
+			this.state.view.graph.isCollapsedTable != null &&
+			this.state.view.graph.isCollapsedTable(this.state.cell);
+	};
+
+	/**
+	 * Disables the shadow filter on the shape node of a collapsed table, which
+	 * would add shadows to all fills and borders of the rows and cells. The
+	 * shadow is added to the table background in paintCollapsedTable.
+	 */
+	TableShape.prototype.isShadowEnabled = function()
+	{
+		return mxSwimlane.prototype.isShadowEnabled.apply(this, arguments) &&
+			(!this.isCollapsedRender() || this.state.view.graph.isCellCollapsed(this.state.cell));
+	};
+
+	/**
+	 * Returns the arc size for the outline of a collapsed table.
+	 */
+	TableShape.prototype.getCollapsedArcSize = function(w, h, start)
+	{
+		var r = 0;
+
+		if (this.isRounded)
+		{
+			var size = Math.max(start.x, start.y, start.width, start.height);
+
+			if (size == 0)
+			{
+				r = mxShape.prototype.getArcSize.call(this, w, h);
+			}
+			else
+			{
+				r = this.getSwimlaneArcSize(w, h, size);
+				r = Math.min(((start.y > 0 || start.height > 0) ? h : w) - size,
+					Math.min(size, r));
+			}
+		}
+
+		return Math.max(0, Math.min(r, w / 2, h / 2));
+	};
+
+	/**
+	 * Adds the path for the given rectangle to the canvas, where the corners
+	 * that are corners of the table with the given size follow the arc of the
+	 * table outline. The canvas has no clipping, so the fills of corner cells
+	 * must be shaped like the outline.
+	 */
+	TableShape.prototype.addCollapsedRegionPath = function(c, x, y, w, h, r, rect)
+	{
+		var eps = 0.01;
+		var x0 = rect.x, y0 = rect.y, x1 = rect.x + rect.width, y1 = rect.y + rect.height;
+		var top = Math.abs(y0) < eps, left = Math.abs(x0) < eps;
+		var bottom = Math.abs(y1 - h) < eps, right = Math.abs(x1 - w) < eps;
+		var tl = r > 0 && top && left, tr = r > 0 && top && right;
+		var br = r > 0 && bottom && right, bl = r > 0 && bottom && left;
+		var rr = Math.min(r, rect.width / (((tl && tr) || (bl && br)) ? 2 : 1),
+			rect.height / (((tl && bl) || (tr && br)) ? 2 : 1));
+		x0 += x;
+		x1 += x;
+		y0 += y;
+		y1 += y;
+
+		c.begin();
+
+		if (tl)
+		{
+			c.moveTo(x0, y0 + rr);
+			c.arcTo(rr, rr, 0, 0, 1, x0 + rr, y0);
+		}
+		else
+		{
+			c.moveTo(x0, y0);
+		}
+
+		if (tr)
+		{
+			c.lineTo(x1 - rr, y0);
+			c.arcTo(rr, rr, 0, 0, 1, x1, y0 + rr);
+		}
+		else
+		{
+			c.lineTo(x1, y0);
+		}
+
+		if (br)
+		{
+			c.lineTo(x1, y1 - rr);
+			c.arcTo(rr, rr, 0, 0, 1, x1 - rr, y1);
+		}
+		else
+		{
+			c.lineTo(x1, y1);
+		}
+
+		if (bl)
+		{
+			c.lineTo(x0 + rr, y1);
+			c.arcTo(rr, rr, 0, 0, 1, x0, y1 - rr);
+		}
+		else
+		{
+			c.lineTo(x0, y1);
+		}
+
+		c.close();
+	};
+
+	/**
+	 * Fills the given region of a row or cell with the given fill info (see
+	 * Graph.getCollapsedTableShapeInfo).
+	 */
+	TableShape.prototype.fillCollapsedRegion = function(c, x, y, w, h, r, rect, fill, info, gradientBounds)
+	{
+		if (fill != null && fill != mxConstants.NONE && rect.width > 0 && rect.height > 0)
+		{
+			c.save();
+			c.setAlpha(info.opacity / 100);
+			c.setFillAlpha(info.fillOpacity / 100);
+
+			if (info.gradient != null && info.gradient != mxConstants.NONE &&
+				gradientBounds != null)
+			{
+				c.setGradient(fill, info.gradient, x + gradientBounds.x,
+					y + gradientBounds.y, gradientBounds.width,
+					gradientBounds.height, info.gradientDirection);
+			}
+			else
+			{
+				c.setFillColor(fill);
+			}
+
+			this.addCollapsedRegionPath(c, x, y, w, h, r, rect);
+			c.fill();
+			c.restore();
+		}
+	};
+
+	/**
+	 * Fills the given row or cell (see Graph.getCollapsedTableRegions).
+	 */
+	TableShape.prototype.fillCollapsedChild = function(c, x, y, w, h, r, child)
+	{
+		if (child.takeover && child.info != null)
+		{
+			if (child.mode == 'full')
+			{
+				this.fillCollapsedRegion(c, x, y, w, h, r, child,
+					child.info.fill, child.info, child);
+			}
+			else if (child.mode == 'lane')
+			{
+				var bands = child.split.bands;
+
+				for (var i = 0; i < bands.length; i++)
+				{
+					this.fillCollapsedRegion(c, x, y, w, h, r, bands[i],
+						child.info.fill, child.info, bands[i]);
+				}
+
+				this.fillCollapsedRegion(c, x, y, w, h, r, child.split.body,
+					child.info.laneFill, child.info, null);
+			}
+		}
+	};
+
+	/**
+	 * Sets the given border (see Graph.createCollapsedTableBorder) as the
+	 * stroke of the canvas.
+	 */
+	TableShape.prototype.setCollapsedBorder = function(c, border)
+	{
+		c.setAlpha(border.opacity / 100);
+		c.setStrokeAlpha(border.strokeOpacity / 100);
+		c.setStrokeColor(border.color);
+		c.setStrokeWidth(border.width);
+		c.setDashed(border.dashed, border.fixDash);
+
+		if (border.dashed)
+		{
+			c.setDashPattern((border.dashPattern != null) ?
+				border.dashPattern : '3 3');
+		}
+	};
+
+	/**
+	 * Paints the table, its rows and cells with collapsed borders. The table
+	 * is painted below its rows and cells, which only paint their labels and
+	 * a transparent area for events (see Graph.isCollapsedTableChildShape).
+	 * The fills are painted in the order table, column and row striping,
+	 * rows and cells, so that the fill of a cell covers the fill of its row,
+	 * which covers the striping and the table fill. All borders are then
+	 * painted on top so that fills never hide them. Each piece of the grid
+	 * is painted once with the stroke of its owner (see
+	 * Graph.getCollapsedTableBorders).
+	 */
+	TableShape.prototype.paintCollapsedTable = function(c)
+	{
+		var graph = this.state.view.graph;
+		var cell = this.state.cell;
+		var flipH = this.flipH;
+		var flipV = this.flipV;
+
+		if (this.direction == mxConstants.DIRECTION_NORTH ||
+			this.direction == mxConstants.DIRECTION_SOUTH)
+		{
+			var tmp = flipH;
+			flipH = flipV;
+			flipV = tmp;
+		}
+
+		var s = this.scale;
+		var x = this.bounds.x / s;
+		var y = this.bounds.y / s;
+		var w = this.bounds.width / s;
+		var h = this.bounds.height / s;
+
+		// Uses unrotated coordinates as rows and cells are not rotated
+		c.rotate(-this.getShapeRotation(), flipH, flipV, x + w / 2, y + h / 2);
+
+		var pointerEvents = c.pointerEvents;
+		var tableBorder = graph.createCollapsedTableBorder(this.stroke, this);
+		var data = graph.getCollapsedTableRegions(cell, w, h);
+		var borders = graph.getCollapsedTableBorders(cell, w, h, tableBorder, data);
+		var r = this.getCollapsedArcSize(w, h, data.start);
+		var full = new mxRectangle(0, 0, w, h);
+		var events = mxUtils.getValue(this.style, mxConstants.STYLE_POINTER_EVENTS, '1') == '1';
+
+		// Table background with shadow in a separate group as the shadow
+		// filter of the shape node is disabled (see isShadowEnabled)
+		var root = c.root;
+		var group = null;
+
+		if (this.isShadow && root != null && c instanceof mxSvgCanvas2D)
+		{
+			group = c.createElement('g');
+			group.style.filter = this.createDropShadow(this.getShadowStyle(), c.state.scale);
+			root.appendChild(group);
+			c.root = group;
+		}
+
+		if (graph.getCollapsedTableFillMode(this.style, data.start) == 'full')
+		{
+			this.addCollapsedRegionPath(c, x, y, w, h, r, full);
+			c.fill();
+		}
+		else
+		{
+			for (var i = 0; i < data.title.bands.length; i++)
+			{
+				this.addCollapsedRegionPath(c, x, y, w, h, r, data.title.bands[i]);
+				c.fill();
+			}
+
+			if (this.laneFill != null && this.laneFill != mxConstants.NONE)
+			{
+				c.pointerEvents = pointerEvents && events;
+				c.setFillColor(this.laneFill);
+				this.addCollapsedRegionPath(c, x, y, w, h, r, data.title.body);
+				c.fill();
+				c.pointerEvents = pointerEvents;
+			}
+		}
+
+		if (this.isShadow && graph.getCollapsedTableBorderKey(tableBorder) != null)
+		{
+			this.addCollapsedRegionPath(c, x, y, w, h, r, full);
+			c.stroke();
+		}
+
+		if (group != null)
+		{
+			c.root = root;
+		}
+
+		c.setShadow(false);
+		c.pointerEvents = false;
+
+		// Striping
+		this.paintStripes(c, x, y, w, h, r, data.title.body);
+
+		// Row and cell fills
+		for (var i = 0; i < data.rows.length; i++)
+		{
+			this.fillCollapsedChild(c, x, y, w, h, r, data.rows[i]);
+		}
+
+		for (var i = 0; i < data.cells.length; i++)
+		{
+			this.fillCollapsedChild(c, x, y, w, h, r, data.cells[i]);
+		}
+
+		// Inner borders grouped by style, thicker borders on top
+		var groups = {};
+		var keys = [];
+
+		for (var i = 0; i < borders.lines.length; i++)
+		{
+			var line = borders.lines[i];
+
+			if (groups[line.key] == null)
+			{
+				groups[line.key] = [];
+				keys.push(line.key);
+			}
+
+			groups[line.key].push(line);
+		}
+
+		keys.sort(function(k1, k2)
+		{
+			return groups[k1][0].border.width - groups[k2][0].border.width;
+		});
+
+		c.setLineCap('square');
+
+		for (var i = 0; i < keys.length; i++)
+		{
+			var lines = groups[keys[i]];
+			c.save();
+			this.setCollapsedBorder(c, lines[0].border);
+			c.begin();
+
+			for (var j = 0; j < lines.length; j++)
+			{
+				c.moveTo(x + lines[j].x1, y + lines[j].y1);
+				c.lineTo(x + lines[j].x2, y + lines[j].y2);
+			}
+
+			c.stroke();
+			c.restore();
+		}
+
+		c.setLineCap('flat');
+		c.pointerEvents = pointerEvents;
+		this.paintCollapsedOutline(c, x, y, w, h, r, borders.outline);
+	};
+
+	/**
+	 * Paints the outline of a collapsed table with the given outline pieces
+	 * (see Graph.getCollapsedTableBorders). Consecutive pieces with the same
+	 * border are painted as one path, including the corner arcs.
+	 */
+	TableShape.prototype.paintCollapsedOutline = function(c, x, y, w, h, r, outline)
+	{
+		var graph = this.state.view.graph;
+		var eps = 0.01;
+		var ops = [];
+		var corners = [];
+
+		// Sides in clockwise order with start point and direction
+		var sides = [{pieces: outline.top, x0: 0, y0: 0, dx: 1, dy: 0, len: w, rev: false},
+			{pieces: outline.right, x0: w, y0: 0, dx: 0, dy: 1, len: h, rev: false},
+			{pieces: outline.bottom, x0: w, y0: h, dx: -1, dy: 0, len: w, rev: true},
+			{pieces: outline.left, x0: 0, y0: h, dx: 0, dy: -1, len: h, rev: true}];
+
+		function getPoint(side, t)
+		{
+			return new mxPoint(side.x0 + side.dx * t, side.y0 + side.dy * t);
+		};
+
+		for (var i = 0; i < sides.length; i++)
+		{
+			var side = sides[i];
+			var pieces = side.pieces.slice();
+
+			if (side.rev)
+			{
+				pieces.reverse();
+			}
+
+			side.first = (pieces.length > 0) ? pieces[0].border : null;
+			side.last = (pieces.length > 0) ? pieces[pieces.length - 1].border : null;
+
+			for (var j = 0; j < pieces.length; j++)
+			{
+				var t0 = Math.max(r, (side.rev) ? side.len - pieces[j].b : pieces[j].a);
+				var t1 = Math.min(side.len - r, (side.rev) ? side.len - pieces[j].a : pieces[j].b);
+
+				if (t1 - t0 > eps)
+				{
+					ops.push({arc: false, from: getPoint(side, t0), to: getPoint(side, t1),
+						border: pieces[j].border});
+				}
+			}
+
+			if (r > 0)
+			{
+				var corner = {arc: true, side: i, from: getPoint(side, side.len - r)};
+				corners.push(corner);
+				ops.push(corner);
+			}
+		}
+
+		// Corner arcs use the border of the incoming or else the outgoing side
+		for (var i = 0; i < corners.length; i++)
+		{
+			var side = sides[corners[i].side];
+			var next = sides[(corners[i].side + 1) % sides.length];
+			var border = side.last;
+
+			if (graph.getCollapsedTableBorderKey(border) == null)
+			{
+				border = next.first;
+			}
+
+			corners[i].to = getPoint(next, r);
+			corners[i].border = border;
+		}
+
+		for (var i = 0; i < ops.length; i++)
+		{
+			ops[i].key = graph.getCollapsedTableBorderKey(ops[i].border);
+		}
+
+		function isJoined(op1, op2)
+		{
+			return op1.key == op2.key && Math.abs(op1.to.x - op2.from.x) < eps &&
+				Math.abs(op1.to.y - op2.from.y) < eps;
+		};
+
+		var paintRun = mxUtils.bind(this, function(run, close)
+		{
+			c.save();
+			this.setCollapsedBorder(c, run[0].border);
+			c.begin();
+			c.moveTo(x + run[0].from.x, y + run[0].from.y);
+
+			for (var k = 0; k < run.length; k++)
+			{
+				if (run[k].arc)
+				{
+					c.arcTo(r, r, 0, 0, 1, x + run[k].to.x, y + run[k].to.y);
+				}
+				else
+				{
+					c.lineTo(x + run[k].to.x, y + run[k].to.y);
+				}
+			}
+
+			if (close)
+			{
+				c.close();
+			}
+
+			c.stroke();
+			c.restore();
+		});
+
+		// Starts at the first break in the outline
+		var start = -1;
+
+		for (var i = 0; i < ops.length && start < 0; i++)
+		{
+			if (!isJoined(ops[(i + ops.length - 1) % ops.length], ops[i]))
+			{
+				start = i;
+			}
+		}
+
+		if (start < 0)
+		{
+			if (ops.length > 0 && ops[0].key != null)
+			{
+				paintRun(ops, true);
+			}
+		}
+		else
+		{
+			var run = null;
+
+			for (var i = 0; i < ops.length; i++)
+			{
+				var op = ops[(start + i) % ops.length];
+
+				if (run != null && !isJoined(run[run.length - 1], op))
+				{
+					paintRun(run, false);
+					run = null;
+				}
+
+				if (op.key != null)
+				{
+					run = (run != null) ? run : [];
+					run.push(op);
+				}
+			}
+
+			if (run != null)
+			{
+				paintRun(run, false);
+			}
+		}
+	};
+
 	TableShape.prototype.configurePointerEvents = function(c)
 	{
 		var start = this.getTitleSize();
@@ -3067,6 +3576,16 @@
 		if (size < lineEnd)
 		{
 			c.setDashed(mxUtils.getValue(this.style, 'lifelineDashed', '1') == '1');
+
+			// Optional color of the line, eg. Mermaid 12's redux themes draw a
+			// palette-colored head over a line in the ink color
+			var lifelineColor = mxUtils.getValue(this.style, 'lifelineColor', null);
+
+			if (lifelineColor != null)
+			{
+				c.setStrokeColor(lifelineColor);
+			}
+
 			c.begin();
 			c.moveTo(x + w / 2, y + size);
 			c.lineTo(x + w / 2, y + lineEnd);
@@ -3150,10 +3669,11 @@
 		// sanitization the normal label path applies in getLabelValue, so a
 		// crafted html=1 label would inject script into the foot copy (XSS).
 		// Sanitize here to match the head label; plain text is escaped by
-		// the canvas and needs no extra handling.
+		// the canvas and needs no extra handling. Style elements are scoped
+		// as in getLabelValue, as they would apply to the whole document.
 		if (format == 'html')
 		{
-			label = Graph.sanitizeHtml(label);
+			label = Graph.scopeHtmlStyles(Graph.sanitizeHtml(label));
 		}
 
 		c.text(tx, ty, wrap ? w - spacingLeft - spacingRight : 0, 0, label,
@@ -6487,6 +7007,529 @@
 	// Registers the filledEdge shape
 	mxCellRenderer.registerShape('filledEdge', FilledEdge);
 
+	// Tapered arrow shape: a band whose width changes linearly from startWidth
+	// at the source to endWidth at the target (before the marker), filled with
+	// fillColor (and gradientColor) and outlined with strokeColor
+	function TaperedArrowShape()
+	{
+		mxConnector.call(this);
+	};
+
+	mxUtils.extend(TaperedArrowShape, mxConnector);
+
+	TaperedArrowShape.prototype.defaultStartWidth = 12;
+
+	TaperedArrowShape.prototype.defaultEndWidth = 2;
+
+	TaperedArrowShape.prototype.getStartWidth = function()
+	{
+		return Math.max(0, mxUtils.getNumber(this.style, 'startWidth', this.defaultStartWidth));
+	};
+
+	TaperedArrowShape.prototype.getEndWidth = function()
+	{
+		return Math.max(0, mxUtils.getNumber(this.style, 'endWidth', this.defaultEndWidth));
+	};
+
+	TaperedArrowShape.prototype.augmentBoundingBox = function(bbox)
+	{
+		mxConnector.prototype.augmentBoundingBox.apply(this, arguments);
+
+		// Allows for the band and the markers that are scaled with the width
+		bbox.grow(Math.max(this.getStartWidth(), this.getEndWidth()) * this.scale);
+	};
+
+	TaperedArrowShape.prototype.paintLine = function(c, pts, rounded)
+	{
+		if (rounded)
+		{
+			var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE,
+				mxConstants.LINE_ARCSIZE) / 2;
+			pts = this.getRoundedPoints(pts, arcSize);
+		}
+
+		this.paintTaperedLine(c, pts);
+	};
+
+	TaperedArrowShape.prototype.paintCurvedLine = function(c, pts)
+	{
+		this.paintTaperedLine(c, Graph.getCurvePoints(pts, false));
+	};
+
+	TaperedArrowShape.prototype.paintBezierLine = function(c, pts)
+	{
+		this.paintTaperedLine(c, Graph.getCurvePoints(pts, true));
+	};
+
+	/**
+	 * Returns a fine polyline for the rounded corners that mxShape.addPoints
+	 * paints for rounded connectors (quadratic curve through each waypoint,
+	 * starting and ending arcSize away from it).
+	 */
+	TaperedArrowShape.prototype.getRoundedPoints = function(pts, arcSize)
+	{
+		var n = pts.length;
+
+		if (n < 3 || pts.indexOf(null) >= 0)
+		{
+			return pts;
+		}
+
+		var steps = 8;
+		var result = [pts[0]];
+		var pt = pts[0];
+
+		for (var i = 1; i < n - 1; i++)
+		{
+			var tmp = pts[i];
+			var dx = pt.x - tmp.x;
+			var dy = pt.y - tmp.y;
+
+			if (dx == 0 && dy == 0)
+			{
+				continue;
+			}
+
+			var dist = Math.sqrt(dx * dx + dy * dy);
+			var p1 = new mxPoint(tmp.x + dx * Math.min(arcSize, dist / 2) / dist,
+				tmp.y + dy * Math.min(arcSize, dist / 2) / dist);
+			result.push(p1);
+
+			// Uses next non-overlapping point
+			var next = pts[i + 1];
+
+			while (i < n - 2 && Math.round(next.x - tmp.x) == 0 &&
+				Math.round(next.y - tmp.y) == 0)
+			{
+				next = pts[i + 2];
+				i++;
+			}
+
+			dx = next.x - tmp.x;
+			dy = next.y - tmp.y;
+			dist = Math.max(1, Math.sqrt(dx * dx + dy * dy));
+			var p2 = new mxPoint(tmp.x + dx * Math.min(arcSize, dist / 2) / dist,
+				tmp.y + dy * Math.min(arcSize, dist / 2) / dist);
+
+			for (var t = 1; t <= steps; t++)
+			{
+				var u = t / steps, iu = 1 - u;
+				result.push(new mxPoint(
+					iu * iu * p1.x + 2 * iu * u * tmp.x + u * u * p2.x,
+					iu * iu * p1.y + 2 * iu * u * tmp.y + u * u * p2.y));
+			}
+
+			pt = p2;
+		}
+
+		result.push(pts[n - 1]);
+
+		return result;
+	};
+
+	/**
+	 * Returns the point, the unit normal (screen coordinates) and the relative
+	 * position (0 at the start, 1 at the end) of the painted center line at a
+	 * short distance from its start or end, where the width handles are placed.
+	 * Returns null if the shape has not been painted.
+	 */
+	TaperedArrowShape.prototype.getWidthHandleFrame = function(start)
+	{
+		var p = this.centerLine;
+
+		if (p == null || p.length < 2 || this.centerLength == null ||
+			!(this.centerLength > 0))
+		{
+			return null;
+		}
+
+		var s = this.scale;
+		var total = this.centerLength;
+		var a = Math.min(total / 4, 24 / s);
+		var n = p.length;
+		var remaining = a;
+		var q = null;
+		var tx = 0, ty = 0;
+
+		for (var i = 0; i < n - 1 && q == null; i++)
+		{
+			var p0 = (start) ? p[i] : p[n - 1 - i];
+			var p1 = (start) ? p[i + 1] : p[n - 2 - i];
+			var dx = p1.x - p0.x;
+			var dy = p1.y - p0.y;
+			var dist = Math.sqrt(dx * dx + dy * dy);
+
+			if (dist > 0 && (dist >= remaining || i == n - 2))
+			{
+				var f = Math.min(1, remaining / dist);
+				q = new mxPoint(p0.x + dx * f, p0.y + dy * f);
+
+				// Tangent in the direction of the edge
+				tx = ((start) ? dx : -dx) / dist;
+				ty = ((start) ? dy : -dy) / dist;
+			}
+			else
+			{
+				remaining -= dist;
+			}
+		}
+
+		if (q == null)
+		{
+			return null;
+		}
+
+		return {x: q.x * s, y: q.y * s, nx: -ty, ny: tx,
+			t: (start) ? a / total : 1 - a / total};
+	};
+
+	TaperedArrowShape.prototype.paintTaperedLine = function(c, pts)
+	{
+		this.centerLine = null;
+		this.centerLength = null;
+
+		// Removes duplicate points
+		var p = [];
+
+		for (var i = 0; i < pts.length; i++)
+		{
+			if (pts[i] != null && (p.length == 0 ||
+				pts[i].x != p[p.length - 1].x ||
+				pts[i].y != p[p.length - 1].y))
+			{
+				p.push(pts[i]);
+			}
+		}
+
+		if (p.length < 2)
+		{
+			return;
+		}
+
+		// Normals and lengths of the segments
+		var normals = [];
+		var lengths = [0];
+
+		for (var i = 1; i < p.length; i++)
+		{
+			var dx = p[i].x - p[i - 1].x;
+			var dy = p[i].y - p[i - 1].y;
+			var dist = Math.sqrt(dx * dx + dy * dy);
+			normals.push(new mxPoint(-dy / dist, dx / dist));
+			lengths.push(lengths[i - 1] + dist);
+		}
+
+		var total = lengths[lengths.length - 1];
+
+		// Painted center line for the width handles
+		this.centerLine = p;
+		this.centerLength = total;
+
+		var sw = this.getStartWidth();
+		var ew = this.getEndWidth();
+		var left = [];
+		var right = [];
+
+		for (var i = 0; i < p.length; i++)
+		{
+			var w = (sw + (ew - sw) * lengths[i] / total) / 2;
+			var n0 = normals[Math.max(0, i - 1)];
+			var n1 = normals[Math.min(normals.length - 1, i)];
+			var nx = n0.x + n1.x;
+			var ny = n0.y + n1.y;
+			var nl = Math.sqrt(nx * nx + ny * ny);
+
+			// Mitered offset limited to twice the width for sharp angles
+			var cos = (nl == 0) ? 0 : nl / 2;
+			var f = w / Math.max(0.5, cos);
+			nx = (nl == 0) ? n1.x : nx / nl;
+			ny = (nl == 0) ? n1.y : ny / nl;
+
+			left.push(new mxPoint(p[i].x + nx * f, p[i].y + ny * f));
+			right.push(new mxPoint(p[i].x - nx * f, p[i].y - ny * f));
+		}
+
+		// The inner side of corners and curves with a radius below the
+		// half width loops back on itself
+		var span = 2 * Math.max(sw, ew);
+		left = this.removeLoops(left, lengths, span);
+		right = this.removeLoops(right, lengths, span);
+
+		// Adds the band to the current path, which is filled and stroked in
+		// paintEdgeShape together with the filled markers
+		c.begin();
+		c.moveTo(left[0].x, left[0].y);
+
+		for (var i = 1; i < left.length; i++)
+		{
+			c.lineTo(left[i].x, left[i].y);
+		}
+
+		// Heads that are part of the outline are added between the sides
+		var endHead = (this.heads != null) ? this.heads[1] : null;
+		var startHead = (this.heads != null) ? this.heads[0] : null;
+
+		if (endHead != null)
+		{
+			c.lineTo(endHead.cl.x, endHead.cl.y);
+			c.lineTo(endHead.tip.x, endHead.tip.y);
+			c.lineTo(endHead.cr.x, endHead.cr.y);
+		}
+
+		for (var i = right.length - 1; i >= 0; i--)
+		{
+			c.lineTo(right[i].x, right[i].y);
+		}
+
+		if (startHead != null)
+		{
+			c.lineTo(startHead.cr.x, startHead.cr.y);
+			c.lineTo(startHead.tip.x, startHead.tip.y);
+			c.lineTo(startHead.cl.x, startHead.cl.y);
+		}
+
+		c.close();
+		this.bandPainted = true;
+	};
+
+	/**
+	 * Width factors of the heads that are painted as part of the outline of
+	 * the band (see mxMarker.createArrow).
+	 */
+	TaperedArrowShape.prototype.outlineHeads = {'classic': 2, 'block': 2,
+		'classicThin': 3, 'blockThin': 3};
+
+	/**
+	 * Markers are scaled with the width of the band at their end so that they
+	 * are always wider than the band. Filled classic and block heads are
+	 * stored in heads and painted as part of the outline of the band, like
+	 * the head of flexArrow, and null is returned for them.
+	 */
+	TaperedArrowShape.prototype.createMarker = function(c, pts, source)
+	{
+		var result = null;
+		var n = pts.length;
+		var type = mxUtils.getValue(this.style, (source) ?
+			mxConstants.STYLE_STARTARROW : mxConstants.STYLE_ENDARROW);
+		var p0 = (source) ? pts[1] : pts[n - 2];
+		var pe = (source) ? pts[0] : pts[n - 1];
+
+		if (type != null && p0 != null && pe != null)
+		{
+			var dx = pe.x - p0.x;
+			var dy = pe.y - p0.y;
+			var dist = Math.sqrt(dx * dx + dy * dy);
+
+			if (dist > 0)
+			{
+				var ux = dx / dist;
+				var uy = dy / dist;
+				var w = (source) ? this.getStartWidth() : this.getEndWidth();
+				var wf = (this.isMergedMarker(source)) ? this.outlineHeads[type] : null;
+				var size = mxUtils.getNumber(this.style, (source) ? mxConstants.STYLE_STARTSIZE :
+					mxConstants.STYLE_ENDSIZE, mxConstants.DEFAULT_MARKERSIZE);
+
+				if (wf != null)
+				{
+					// Same geometry as mxMarker.createArrow with the half width of
+					// the head larger than the half width of the band
+					size += w * wf / 2;
+					var sw = this.strokewidth;
+					var endOffsetX = ux * sw * 1.118;
+					var endOffsetY = uy * sw * 1.118;
+					var unitX = ux * (size + sw);
+					var unitY = uy * (size + sw);
+					var tip = new mxPoint(pe.x - endOffsetX, pe.y - endOffsetY);
+					var f = (type == mxConstants.ARROW_CLASSIC ||
+						type == mxConstants.ARROW_CLASSIC_THIN) ? 3 / 4 : 1;
+					pe.x += -unitX * f - endOffsetX;
+					pe.y += -unitY * f - endOffsetY;
+
+					var c1 = new mxPoint(tip.x - unitX - unitY / wf, tip.y - unitY + unitX / wf);
+					var c2 = new mxPoint(tip.x + unitY / wf - unitX, tip.y - unitY - unitX / wf);
+
+					// Corners on the left and right side of the band (whose direction
+					// is reversed at the start)
+					this.heads[(source) ? 0 : 1] = (source) ? {cl: c2, tip: tip, cr: c1} :
+						{cl: c1, tip: tip, cr: c2};
+				}
+				else
+				{
+					var filled = this.style[(source) ? mxConstants.STYLE_STARTFILL :
+						mxConstants.STYLE_ENDFILL] != 0;
+					result = mxMarker.createMarker(c, this, type, pe, ux, uy,
+						size + w, source, this.strokewidth, filled);
+				}
+			}
+		}
+
+		return result;
+	};
+
+	/**
+	 * Removes the local loops of the given offset polyline by cutting it at
+	 * the self-intersections whose distance along the center line (lengths
+	 * of the corresponding center points) is at most span, so that crossings
+	 * of the edge itself are kept.
+	 */
+	TaperedArrowShape.prototype.removeLoops = function(pts, lengths, span)
+	{
+		var n = pts.length;
+		var cur = pts[0];
+		var result = [cur];
+		var i = 0;
+
+		while (i < n - 1)
+		{
+			var ip = null;
+			var j = i + 2;
+
+			while (j < n - 1 && lengths[j] - lengths[i + 1] <= span)
+			{
+				j++;
+			}
+
+			// Uses the last intersection to remove nested loops
+			for (j--; j >= i + 2 && ip == null; j--)
+			{
+				ip = mxUtils.intersection(cur.x, cur.y, pts[i + 1].x, pts[i + 1].y,
+					pts[j].x, pts[j].y, pts[j + 1].x, pts[j + 1].y);
+			}
+
+			if (ip != null)
+			{
+				cur = ip;
+				i = j + 1;
+			}
+			else
+			{
+				cur = pts[i + 1];
+				i++;
+			}
+
+			result.push(cur);
+		}
+
+		return result;
+	};
+
+	/**
+	 * Markers that are painted as a single closed path and can be added to
+	 * the path of the band.
+	 */
+	TaperedArrowShape.prototype.mergedMarkers = ['classic', 'classicThin', 'block',
+		'blockThin', 'diamond', 'diamondThin', 'doubleBlock', 'box'];
+
+	/**
+	 * Returns true if the given marker is added to the path of the band so it
+	 * is filled and stroked like the band (including gradients, fill styles
+	 * and opacity), as the head of flexArrow.
+	 */
+	TaperedArrowShape.prototype.isMergedMarker = function(source)
+	{
+		return mxUtils.indexOf(this.mergedMarkers, mxUtils.getValue(this.style, (source) ?
+				mxConstants.STYLE_STARTARROW : mxConstants.STYLE_ENDARROW, null)) >= 0 &&
+			mxUtils.getValue(this.style, (source) ? mxConstants.STYLE_STARTFILL :
+				mxConstants.STYLE_ENDFILL, 1) != 0 &&
+			mxUtils.getValue(this.style, (source) ? mxConstants.STYLE_STARTFILLCOLOR :
+				mxConstants.STYLE_ENDFILLCOLOR, null) == null;
+	};
+
+	/**
+	 * Fills the band with the fill color (or gradient) and strokes its outline
+	 * with the stroke color. Filled markers are part of the same path so that
+	 * gradients and fill styles continue into the marker.
+	 */
+	TaperedArrowShape.prototype.paintEdgeShape = function(c, pts)
+	{
+		this.heads = [null, null];
+		var sourceMarker = this.createMarker(c, pts, true);
+		var targetMarker = this.createMarker(c, pts, false);
+		var merged = [];
+		var separate = [];
+
+		if (sourceMarker != null)
+		{
+			((this.isMergedMarker(true)) ? merged : separate).push(
+				{paint: sourceMarker, source: true});
+		}
+
+		if (targetMarker != null)
+		{
+			((this.isMergedMarker(false)) ? merged : separate).push(
+				{paint: targetMarker, source: false});
+		}
+
+		// Makes the filled area clickable
+		var prev = c.pointerEventsValue;
+		c.pointerEventsValue = 'all';
+		this.bandPainted = false;
+		mxPolyline.prototype.paintEdgeShape.apply(this, arguments);
+		c.pointerEventsValue = 'all';
+
+		if (merged.length > 0)
+		{
+			if (!this.bandPainted)
+			{
+				c.begin();
+				this.bandPainted = true;
+			}
+
+			// Collects the paths of the markers in the current path
+			var begin = c.begin;
+			var fill = c.fill;
+			var stroke = c.stroke;
+			var fillAndStroke = c.fillAndStroke;
+			var nop = function() {};
+			c.begin = nop;
+			c.fill = nop;
+			c.stroke = nop;
+			c.fillAndStroke = nop;
+
+			try
+			{
+				for (var i = 0; i < merged.length; i++)
+				{
+					merged[i].paint();
+				}
+			}
+			finally
+			{
+				c.begin = begin;
+				c.fill = fill;
+				c.stroke = stroke;
+				c.fillAndStroke = fillAndStroke;
+			}
+		}
+
+		// Outlines (selection border and the preview of the edge handler)
+		// replace fillAndStroke with stroke
+		if (this.bandPainted)
+		{
+			c.fillAndStroke();
+		}
+
+		c.pointerEventsValue = prev;
+
+		// Other markers use the fill color of the band without gradient
+		if (separate.length > 0)
+		{
+			c.setShadow(false);
+			c.setDashed(false);
+
+			for (var i = 0; i < separate.length; i++)
+			{
+				c.setFillColor(mxUtils.getValue(this.style, (separate[i].source) ?
+					mxConstants.STYLE_STARTFILLCOLOR : mxConstants.STYLE_ENDFILLCOLOR,
+					this.fill));
+				separate[i].paint();
+			}
+		}
+	};
+
+	// Registers the tapered arrow shape
+	mxCellRenderer.registerShape('taperedArrow', TaperedArrowShape);
+
 	// Pipe shape
 	function PipeShape()
 	{
@@ -7629,6 +8672,253 @@
 
 	mxCellRenderer.registerShape('mermaidOdd', OddShape);
 
+	// Person shape of mermaid's C4 diagrams and flowchart `@{shape: person}`
+	// (mermaid 11.17, rendering-elements/shapes/person.ts): a circular head
+	// drawn over a rounded body with the c4model.com proportions. The head
+	// radius is 0.23 of the width, clamped to 16..56 so that a wide body keeps
+	// a person-sized head, the head overlaps the body by 0.27 of its radius,
+	// and the body corners are 0.177 of the width (at most 0.45 of the body
+	// height). The label sits on the body, and edges end on the silhouette
+	// with perimeter=mermaidPersonPerimeter.
+	function MermaidPersonShape()
+	{
+		mxShape.call(this);
+	};
+
+	mxUtils.extend(MermaidPersonShape, mxShape);
+
+	/**
+	 * Returns the head radius, the top and height of the body and the body
+	 * corner radius for the given size.
+	 */
+	MermaidPersonShape.getGeometry = function(w, h)
+	{
+		var headRadius = Math.min(Math.max(w * 0.23, 16), 56);
+		var bodyTop = Math.min(h, 2 * headRadius - headRadius * 0.27);
+		var bodyHeight = h - bodyTop;
+
+		return {headRadius: headRadius, bodyTop: bodyTop, bodyHeight: bodyHeight,
+			bodyRadius: Math.max(0, Math.min(w * 0.177, bodyHeight * 0.45))};
+	};
+
+	MermaidPersonShape.prototype.paintVertexShape = function(c, x, y, w, h)
+	{
+		var g = MermaidPersonShape.getGeometry(w, h);
+		var r = g.headRadius;
+
+		var head = function()
+		{
+			c.ellipse(x + w / 2 - r, y, 2 * r, 2 * r);
+			c.fillAndStroke();
+		};
+
+		// The head is drawn over the body so the full circle stays visible.
+		// With a shadow, the head is painted first as well so its shadow
+		// falls behind the body instead of onto it.
+		if (this.isShadow)
+		{
+			head();
+		}
+
+		c.roundrect(x, y + g.bodyTop, w, g.bodyHeight, g.bodyRadius, g.bodyRadius);
+		c.fillAndStroke();
+		c.setShadow(false);
+		head();
+	};
+
+	MermaidPersonShape.prototype.getLabelBounds = function(rect)
+	{
+		var g = MermaidPersonShape.getGeometry(rect.width / this.scale,
+			rect.height / this.scale);
+
+		return new mxRectangle(rect.x, rect.y + g.bodyTop * this.scale,
+			rect.width, g.bodyHeight * this.scale);
+	};
+
+	mxCellRenderer.registerShape('mermaidPerson', MermaidPersonShape);
+
+	// Actor of Mermaid's use case diagrams (Mermaid 12, shapes/usecaseActor.ts,
+	// usecaseActorHollow.ts and usecaseActorAwesome.ts): the paths of the 56 x 72
+	// figure, scaled to the cell. actorType selects the figure: normal (stick
+	// figure with a filled head), hollow (unfilled head over a block outline
+	// body) or awesome (filled bust). business=1 adds the slash through the
+	// head of a business actor.
+	function MermaidUsecaseActorShape()
+	{
+		mxShape.call(this);
+	};
+
+	mxUtils.extend(MermaidUsecaseActorShape, mxShape);
+
+	/**
+	 * Width and height of the figure the paths are defined in, centered at 0,0.
+	 */
+	MermaidUsecaseActorShape.prototype.figureWidth = 56;
+
+	MermaidUsecaseActorShape.prototype.figureHeight = 72;
+
+	/**
+	 * Head circle (center y and radius) of each figure. The business slash is
+	 * a chord through it.
+	 */
+	MermaidUsecaseActorShape.prototype.heads = {normal: [-24, 12], hollow: [-23, 9], awesome: [-21, 13]};
+
+	MermaidUsecaseActorShape.prototype.paintVertexShape = function(c, x, y, w, h)
+	{
+		var type = mxUtils.getValue(this.style, 'actorType', 'normal');
+		type = (this.heads[type] != null) ? type : 'normal';
+		var sx = w / this.figureWidth;
+		var sy = h / this.figureHeight;
+		var cx = x + w / 2;
+		var cy = y + h / 2;
+
+		var px = function(value)
+		{
+			return cx + value * sx;
+		};
+
+		var py = function(value)
+		{
+			return cy + value * sy;
+		};
+
+		// Closed circle of four cubic arcs, as Mermaid draws the heads
+		var circle = function(ccy, r)
+		{
+			var k = r * 0.55228;
+			c.moveTo(px(0), py(ccy + r));
+			c.curveTo(px(k), py(ccy + r), px(r), py(ccy + k), px(r), py(ccy));
+			c.curveTo(px(r), py(ccy - k), px(k), py(ccy - r), px(0), py(ccy - r));
+			c.curveTo(px(-k), py(ccy - r), px(-r), py(ccy - k), px(-r), py(ccy));
+			c.curveTo(px(-r), py(ccy + k), px(-k), py(ccy + r), px(0), py(ccy + r));
+			c.close();
+		};
+
+		c.begin();
+
+		if (type == 'hollow')
+		{
+			circle(-23, 9);
+			c.moveTo(px(-22), py(-10));
+			c.lineTo(px(22), py(-10));
+			c.lineTo(px(22), py(0));
+			c.lineTo(px(6), py(0));
+			c.lineTo(px(22), py(17));
+			c.lineTo(px(13), py(28));
+			c.lineTo(px(0), py(13));
+			c.lineTo(px(-13), py(28));
+			c.lineTo(px(-22), py(17));
+			c.lineTo(px(-6), py(0));
+			c.lineTo(px(-22), py(0));
+			c.close();
+			c.stroke();
+		}
+		else if (type == 'awesome')
+		{
+			circle(-21, 13);
+			c.moveTo(px(-24), py(25));
+			c.curveTo(px(-24), py(7), px(-14), py(-3), px(0), py(-3));
+			c.curveTo(px(14), py(-3), px(24), py(7), px(24), py(25));
+			c.curveTo(px(24), py(28), px(21), py(30), px(18), py(30));
+			c.lineTo(px(-18), py(30));
+			c.curveTo(px(-21), py(30), px(-24), py(28), px(-24), py(25));
+			c.close();
+			c.fillAndStroke();
+		}
+		else
+		{
+			// The lines enclose no area, so only the head is filled
+			circle(-24, 12);
+			c.moveTo(px(0), py(-12));
+			c.lineTo(px(0), py(8));
+			c.moveTo(px(-17), py(-5));
+			c.lineTo(px(17), py(-5));
+			c.moveTo(px(0), py(8));
+			c.lineTo(px(-15), py(28));
+			c.moveTo(px(0), py(8));
+			c.lineTo(px(15), py(28));
+			c.fillAndStroke();
+		}
+
+		if (mxUtils.getValue(this.style, 'business', '0') == '1')
+		{
+			// Mermaid's businessMarkerPathForCircle: a chord at 60 degrees,
+			// offset from the center of the head by 0.6 of its radius
+			var head = this.heads[type];
+			var r = head[1];
+			var offset = r * 0.6;
+			var half = r * Math.sqrt(1 - 0.36);
+			var dx = Math.cos(Math.PI / 3);
+			var dy = -Math.sin(Math.PI / 3);
+			var mx = offset * -dy;
+			var my = head[0] + offset * dx;
+
+			c.setShadow(false);
+			c.begin();
+			c.moveTo(px(mx - half * dx), py(my - half * dy));
+			c.lineTo(px(mx + half * dx), py(my + half * dy));
+			c.stroke();
+		}
+	};
+
+	mxCellRenderer.registerShape('mermaidUsecaseActor', MermaidUsecaseActorShape);
+
+	// Person perimeter: the head's exposed arc joined to the body's rounded
+	// outline, like the intersection outline of mermaid's person shape
+	mxPerimeter.MermaidPersonPerimeter = function (bounds, vertex, next, orthogonal)
+	{
+		var s = (vertex != null) ? vertex.view.scale : 1;
+		var g = MermaidPersonShape.getGeometry(bounds.width / s, bounds.height / s);
+		var x = bounds.x;
+		var y = bounds.y;
+		var w = bounds.width;
+		var h = bounds.height;
+		var r = g.headRadius * s;
+		var top = y + g.bodyTop * s;
+		var br = g.bodyRadius * s;
+		var cx = x + w / 2;
+		var cy = y + r;
+		var points = [];
+
+		// Angles in degrees, clockwise from the positive x-axis as y points down
+		var arc = function(acx, acy, ar, from, to, n)
+		{
+			for (var i = 0; i <= n; i++)
+			{
+				var a = (from + (to - from) * i / n) * Math.PI / 180;
+				points.push(new mxPoint(acx + ar * Math.cos(a), acy + ar * Math.sin(a)));
+			}
+		};
+
+		// Where the head meets the top of the body
+		var join = Math.asin(Math.max(-1, Math.min(1, (top - cy) / r))) * 180 / Math.PI;
+
+		arc(cx, cy, r, 180 - join, 360 + join, 24);
+		arc(x + w - br, top + br, br, 270, 360, 6);
+		arc(x + w - br, y + h - br, br, 0, 90, 6);
+		arc(x + br, y + h - br, br, 90, 180, 6);
+		arc(x + br, top + br, br, 180, 270, 6);
+		points.push(points[0]);
+
+		var p1 = new mxPoint(bounds.getCenterX(), bounds.getCenterY());
+
+		if (orthogonal)
+		{
+			if (next.x < x || next.x > x + w)
+			{
+				p1.y = next.y;
+			}
+			else
+			{
+				p1.x = next.x;
+			}
+		}
+
+		return mxUtils.getPerimeterPoint(points, p1, next);
+	};
+
+	mxStyleRegistry.putValue('mermaidPersonPerimeter', mxPerimeter.MermaidPersonPerimeter);
+
 	// Block-arrow shape used by the mermaid block diagram. Verbatim port
 	// of mermaid's blockArrowHelper getArrowPoints — every direction
 	// combination renders as one closed polygon.
@@ -7915,6 +9205,22 @@
 			var prevStyle = bandNode.getAttribute('style');
 			bandNode.setAttribute('style', (prevStyle != null && prevStyle != '' ?
 				prevStyle + ';' : '') + 'mix-blend-mode:multiply');
+
+			// Multiply also blends the band with the page behind the
+			// diagram, which turns it black on a dark background (dark
+			// mode, dark exports). Isolating the group of all cells keeps
+			// the page out of the blend, so overlapping bands and the cells
+			// below them still darken. In the editor the canvas writes into
+			// the shape's own node, whose parent is the view's draw pane;
+			// exports write into the group of all cells.
+			var cellsNode = (c.root == this.node) ? ((this.node != null) ?
+				this.node.parentNode : null) : c.root;
+
+			if (cellsNode != null && cellsNode.style != null &&
+				cellsNode.style.isolation != 'isolate')
+			{
+				cellsNode.style.isolation = 'isolate';
+			}
 		}
 	};
 
@@ -8215,7 +9521,61 @@
 			return Math.abs((y2 - y1) * x0 - (x2 - x1) * y0 + x2 * y1 - y2 * x1) / Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
 		}
 
+		// Width handles of the tapered arrow at the painted start and end of the band
+		function createTaperedWidthHandle(state, start, spacing)
+		{
+			var key = (start) ? 'startWidth' : 'endWidth';
+			var getFrame = function()
+			{
+				return (state.shape != null && state.shape.getWidthHandleFrame != null) ?
+					state.shape.getWidthHandleFrame(start) : null;
+			};
+
+			return createHandle(state, [key], function(bounds)
+			{
+				var f = getFrame();
+
+				if (f != null)
+				{
+					var s = state.view.scale;
+					var tr = state.view.translate;
+					var sw = state.shape.getStartWidth();
+					var ew = state.shape.getEndWidth();
+					var w = (sw + (ew - sw) * f.t) * s / 2 + spacing;
+
+					return new mxPoint((f.x + f.nx * w) / s - tr.x,
+						(f.y + f.ny * w) / s - tr.y);
+				}
+
+				return null;
+			}, function(bounds, pt)
+			{
+				var f = getFrame();
+
+				if (f != null)
+				{
+					var s = state.view.scale;
+					var tr = state.view.translate;
+					var d = ((pt.x + tr.x) * s - f.x) * f.nx + ((pt.y + tr.y) * s - f.y) * f.ny;
+
+					// Local width at the handle and the width at the end it controls
+					var w = 2 * Math.max(0, d - spacing) / s;
+					var value = (start) ? (w - state.shape.getEndWidth() * f.t) / (1 - f.t) :
+						(w - state.shape.getStartWidth() * (1 - f.t)) / f.t;
+
+					state.style[key] = Math.min(999, Math.max(0, Math.round(value)));
+				}
+			});
+		};
+
 		var handleFactory = {
+			'taperedArrow': function(state)
+			{
+				var spacing = 5;
+
+				return [createTaperedWidthHandle(state, true, spacing),
+					createTaperedWidthHandle(state, false, spacing)];
+			},
 			'link': function(state)
 			{
 				var spacing = 10;
@@ -9203,6 +10563,14 @@
 	 	}
 	 	
 	 	return graphCreateEdgeHandler.apply(this, arguments);
+	 };
+
+	 // Removes duplicate waypoints of isometric routes as they are computed
+	 var mxGraphViewIsDuplicatePointsRemoved = mxGraphView.prototype.isDuplicatePointsRemoved;
+	 mxGraphView.prototype.isDuplicatePointsRemoved = function(state, edgeStyle, points)
+	 {
+	 	return edgeStyle == mxEdgeStyle.IsometricConnector ||
+	 		mxGraphViewIsDuplicatePointsRemoved.apply(this, arguments);
 	 };
 
 	// Defines connection points for all shapes

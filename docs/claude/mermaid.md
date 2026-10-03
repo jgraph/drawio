@@ -77,6 +77,60 @@ throws, so viewers without `extensions.min.js` still get the placed
 diagram. drawio-mermaid's compare pipeline (`test/cli/render-drawio.js`)
 mirrors the post-pass so its `-new.svg` shows what users see.
 
+## Defaults version — new diagrams follow Mermaid 12, existing ones don't change
+
+Mermaid 12 changed what unconfigured diagrams look like: ELK replaces dagre as
+the default layout, and flowchart, class, state, ER, requirement, sequence,
+swimlane, venn, use case and agent flow diagrams default to the `redux-color`
+theme and `neo` look. Existing cells must keep their look, new ones should get
+the new defaults, so the defaults are **versioned** and stored per cell:
+`mermaidData` is `{data, config, version}`, where `version` is the Mermaid major
+version whose defaults the cell was created with. A cell without `version`
+(everything inserted before this existed) keeps Mermaid 11's defaults (dagre,
+default theme, classic look) forever, also when it is re-edited.
+
+- The version comes from the bundle: `EditorUi.getInsertMermaidVersion()` =
+  `mxMermaidToDrawio.DEFAULTS_VERSION` (`'12'`; null with an older bundle, which
+  stores no version). The converter keeps a per-version defaults table
+  (`VERSION_DEFAULTS` in drawio-mermaid's `mermaid2drawio.js`) that ranks below
+  the host config and the diagram's own config, like Mermaid's own per-type
+  defaults rank below `initialize()` and front matter. When Mermaid changes its
+  defaults again, the bundle adds a version and new cells pick it up, while
+  every stored cell keeps the one it has.
+- `parseMermaidDiagram(data, config, success, error, parseErrorHandler,
+  version)` passes it to `parseText(text, config, {version})` and to
+  `isMermaidElkFlowchart(data, config, version)`, which asks the bundle
+  instead of matching the text. Bundles with
+  `mxMermaidToDrawio.getElkLayoutOptions` lay ELK diagrams (explicit
+  `layout: elk`, the `flowchart-elk` keyword, version 12 defaults) out with
+  Mermaid's own ELK options and return `postPass: false`, so
+  `applyMermaidElkPostPass` (draw.io's ElkLayout run again) is skipped; it
+  takes the bundle's algorithm and options when a bundle asks for it, and
+  keeps its fixed layered preset for older bundles.
+- **New cells store the insert version**: Insert > Mermaid (diagram and image,
+  and its preview), the AI generation paths, `create=` (`value.version`
+  overrides it), via `wrapGroup(xml, text, config, {version})` and
+  `createMermaidImageXml(..., version)` / `EditorUi.createMermaidData`.
+- **Existing cells re-use their stored version** on every path: the edit
+  dialog (apply, preview, and switching between diagram and image),
+  `replaceLockedGroupChildren(..., version)`, `updateMermaidImage(...,
+  version)` and `refreshMermaidImage`.
+- **Embed descriptors and the CLI export keep Mermaid 11's defaults** unless
+  given a version (`descriptor.version`): integrators and `.mmd` files convert
+  the same stored source on every load, so a new default would restyle diagrams
+  their users already have.
+- The `mermaid` config key is unaffected: a configured `theme`/`look`/`layout`
+  outranks the version's defaults, and an unconfigured deployment still stores
+  `config: null` (only the `version` field is new).
+- Version 12's redux themes draw labels in the Recursive web font, and the
+  converter measures labels while parsing, so `parseMermaidDiagram` first
+  loads the fonts the bundle names for the diagram
+  (`mxMermaidToDrawio.getFonts` → `EditorUi.loadMermaidFonts`: `Graph.addFont`
+  plus `document.fonts.load`, at most `EditorUi.mermaidFontTimeout` ms, then
+  it parses with fallback fonts). Diagrams that need no web font still parse
+  synchronously. Their sequence lifelines use the opt-in `lifelineColor`
+  style of `umlLifeline` (line in the ink color under a palette-colored head).
+
 ## Mermaid as image (restored static-image output)
 
 Every mermaid-creation path can produce a static **SVG image** cell instead of

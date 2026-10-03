@@ -100,7 +100,7 @@
 	   			cell.vertex = true;
 	   			
 	   			var cell1 = new mxCell('+Attribute1\n+Attribute2\n+Attribute3', new mxGeometry(0, 30, 160, 90),
-	   				'align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;');
+	   				'align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;rotatable=0;part=1;html=1;whiteSpace=wrap;');
 	   			cell1.vertex = true;
 
 				cell.insert(cell1);

@@ -237,6 +237,45 @@ mxStackLayout.prototype.moveCell = function(cell, x, y)
 };
 
 /**
+ * Function: resizeCell
+ *
+ * Implements <mxGraphLayout.resizeCell>. Resizes the parent along the stack
+ * axis if the last child is resized and <resizeLast> is true and
+ * <resizeParent> is false, since the last child would otherwise be resized
+ * back to fill the parent.
+ */
+mxStackLayout.prototype.resizeCell = function(cell, bounds, prev)
+{
+	if (this.resizeLast && !this.resizeParent && cell != null &&
+		bounds != null && prev != null)
+	{
+		var model = this.graph.getModel();
+		var parent = model.getParent(cell);
+		var pgeo = model.getGeometry(parent);
+		var cells = this.getLayoutCells(parent);
+
+		if (pgeo != null && !pgeo.relative && cells.length > 0 &&
+			cells[cells.length - 1] == cell && this.isVertexMovable(cell) &&
+			!this.graph.isCellCollapsed(parent))
+		{
+			// Uses the previous location in the stack with the new size
+			var last = new mxRectangle(prev.x, prev.y, bounds.width, bounds.height);
+			var max = this.resizeParentMax;
+			this.resizeParentMax = false;
+
+			try
+			{
+				this.updateParentGeometry(parent, pgeo, last);
+			}
+			finally
+			{
+				this.resizeParentMax = max;
+			}
+		}
+	}
+};
+
+/**
  * Function: getParentSize
  * 
  * Returns the size for the parent container or the size of the graph
@@ -276,7 +315,8 @@ mxStackLayout.prototype.getLayoutCells = function(parent)
 	{
 		var child = model.getChildAt(parent, i);
 		
-		if (!this.isVertexIgnored(child) && this.isVertexMovable(child))
+		// Non-movable cells are kept in place in execute
+		if (!this.isVertexIgnored(child))
 		{
 			cells.push(child);
 		}
@@ -388,6 +428,7 @@ mxStackLayout.prototype.execute = function(parent)
 			var last = null;
 			var lastValue = 0;
 			var lastChild = null;
+			var moved = false;
 			var cells = this.getLayoutCells(parent);
 			
 			for (var i = 0; i < cells.length; i++)
@@ -395,9 +436,27 @@ mxStackLayout.prototype.execute = function(parent)
 				var child = cells[i];
 				var geo = model.getGeometry(child);
 				
-				if (geo != null)
+				if (geo != null && !this.isVertexMovable(child))
+				{
+					// Keeps non-movable (eg. locked) cells in place and
+					// continues the stack after them to avoid overlaps
+					var sw = 0;
+
+					if (!this.borderCollapse)
+					{
+						sw = mxUtils.getNumber(this.graph.getCellStyle(child),
+							mxConstants.STYLE_STROKEWIDTH, 1);
+					}
+
+					last = geo;
+					lastChild = null;
+					lastValue = ((horizontal) ? geo.x + geo.width :
+						geo.y + geo.height) + Math.floor(sw / 2);
+				}
+				else if (geo != null)
 				{
 					geo = geo.clone();
+					moved = true;
 					
 					if (this.wrap != null && last != null)
 					{
@@ -502,6 +561,12 @@ mxStackLayout.prototype.execute = function(parent)
 						lastValue = last.y + last.height + Math.floor(sw / 2);
 					}
 				}
+			}
+
+			// Ignores stacks with non-movable cells only as before
+			if (!moved)
+			{
+				last = null;
 			}
 
 			if (this.resizeParent && pgeo != null && last != null && !this.graph.isCellCollapsed(parent))

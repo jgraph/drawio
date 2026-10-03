@@ -107,6 +107,13 @@ var mxEdgeStyle =
 		var p0 = pts[0];
 		var pe = pts[pts.length-1];
 
+		// Compares in model units so that the route does not depend on the scale or translate
+		var isLess = function(a, b)
+		{
+			return mxUtils.unscale(a, view.scale, view.translate.x) <
+				mxUtils.unscale(b, view.scale, view.translate.x);
+		};
+
 	 	var isSourceLeft = false;
 	 	
 	 	if (source != null)
@@ -119,7 +126,7 @@ var mxEdgeStyle =
 		 	}
 		 	else if (target != null)
 		 	{
-		 		isSourceLeft = ((pe != null) ? pe.x : target.x + target.width) < ((p0 != null) ? p0.x : source.x);
+		 		isSourceLeft = isLess((pe != null) ? pe.x : target.x + target.width, (p0 != null) ? p0.x : source.x);
 		 	}
 	 	}
 
@@ -156,7 +163,7 @@ var mxEdgeStyle =
 		 	}
 		 	else if (source != null)
 		 	{
-		 		isTargetLeft = ((p0 != null) ? p0.x : source.x + source.width) < ((pe != null) ? pe.x : target.x);
+		 		isTargetLeft = isLess((p0 != null) ? p0.x : source.x + source.width, (pe != null) ? pe.x : target.x);
 		 	}
 	 	}
 		
@@ -203,7 +210,7 @@ var mxEdgeStyle =
 				result.push(new mxPoint(x, y0));
 				result.push(new mxPoint(x, ye));
 			}
-			else if ((dep.x < arr.x) == isSourceLeft)
+			else if (isLess(dep.x, arr.x) == isSourceLeft)
 			{
 				var midY = y0 + (ye - y0) / 2;
 	
@@ -428,7 +435,8 @@ var mxEdgeStyle =
 			var r = Math.min(source.x + source.width,
 							 target.x + target.width);
 	
-			var x = (pt != null) ? pt.x : Math.round(r + (l - r) / 2);
+			var x = (pt != null) ? pt.x : mxEdgeStyle.roundScaled(
+				r + (l - r) / 2, view.scale, view.translate.x);
 	
 			var y1 = view.getRoutingCenterY(source);
 			var y2 = view.getRoutingCenterY(target);
@@ -528,7 +536,8 @@ var mxEdgeStyle =
 				x = pt.x;
 			}
 			
-			var y = (pt != null) ? pt.y : Math.round(b + (t - b) / 2);
+			var y = (pt != null) ? pt.y : mxEdgeStyle.roundScaled(
+				b + (t - b) / 2, view.scale, view.translate.y);
 			
 			if (!mxUtils.contains(target, x, y) &&
 				!mxUtils.contains(source, x, y))
@@ -590,13 +599,15 @@ var mxEdgeStyle =
 	 */
 	SegmentConnector: function(state, sourceScaled, targetScaled, controlHints, result)
 	{
-		// Creates array of all way- and terminalpoints
-		var pts = mxEdgeStyle.scalePointArray(state.absolutePoints, state.view.scale);
-		var source = mxEdgeStyle.scaleCellState(sourceScaled, state.view.scale);
-		var target = mxEdgeStyle.scaleCellState(targetScaled, state.view.scale);
+		// Creates array of all way- and terminalpoints in model units
+		var s = state.view.scale;
+		var tr = state.view.translate;
+		var pts = mxEdgeStyle.scalePointArray(state.absolutePoints, s, tr);
+		var source = mxEdgeStyle.scaleCellState(sourceScaled, s, tr);
+		var target = mxEdgeStyle.scaleCellState(targetScaled, s, tr);
 		var tol = 1;
 		
-		// Adds translated unscaled points for precise collision checks
+		// Adds points in model units for precise collision checks
 		var tempPoints = []; 
 
 		function addPoint(pt)
@@ -605,19 +616,22 @@ var mxEdgeStyle =
 		};
 		
 		// Whether the first segment outgoing from the source end is horizontal
-		var lastPushed = (result.length > 0) ? result[0] : null;
+		var lastPushed = (result.length > 0 && result[0] != null) ?
+			new mxPoint(mxUtils.unscale(result[0].x, s, tr.x),
+			mxUtils.unscale(result[0].y, s, tr.y)) : null;
 		var horizontal = true;
 		var hint = null;
 		
-		// Adds waypoints only if outside of tolerance
+		// Adds waypoints only if outside of tolerance in model units so
+		// that the result does not depend on the scale or translate
 		function pushPoint(pt)
 		{
-			pt.x = Math.round(pt.x * state.view.scale * 10) / 10;
-			pt.y = Math.round(pt.y * state.view.scale * 10) / 10;
+			pt.x = Math.round(pt.x * 10) / 10;
+			pt.y = Math.round(pt.y * 10) / 10;
 
-			if (lastPushed == null || Math.abs(lastPushed.x - pt.x) >= tol || Math.abs(lastPushed.y - pt.y) >= Math.max(1, state.view.scale))
+			if (lastPushed == null || Math.abs(lastPushed.x - pt.x) >= tol || Math.abs(lastPushed.y - pt.y) >= tol)
 			{
-				result.push(pt);
+				result.push(new mxPoint((pt.x + tr.x) * s, (pt.y + tr.y) * s));
 				lastPushed = pt;
 			}
 			
@@ -650,7 +664,8 @@ var mxEdgeStyle =
 				
 				if (tmp != null)
 				{
-					hints.push(tmp);
+					hints.push(new mxPoint(mxUtils.unscale(tmp.x, 1, tr.x),
+						mxUtils.unscale(tmp.y, 1, tr.y)));
 				}
 			}
 			
@@ -869,23 +884,24 @@ var mxEdgeStyle =
 		}
 		
 		// Removes last point if inside tolerance with end point
+		// using model units as pe is in model units
 		if (pe != null && result[result.length - 1] != null &&
-			Math.abs(pe.x - result[result.length - 1].x) <= tol &&
-			Math.abs(pe.y - result[result.length - 1].y) <= tol)
+			Math.abs(pe.x - mxUtils.unscale(result[result.length - 1].x, s, tr.x)) <= tol &&
+			Math.abs(pe.y - mxUtils.unscale(result[result.length - 1].y, s, tr.y)) <= tol)
 		{
 			result.splice(result.length - 1, 1);
 			
 			// Lines up second last point in result with end point
 			if (result[result.length - 1] != null)
 			{
-				if (Math.abs(result[result.length - 1].x - pe.x) < tol)
+				if (Math.abs(mxUtils.unscale(result[result.length - 1].x, s, tr.x) - pe.x) < tol)
 				{
-					result[result.length - 1].x = pe.x;
+					result[result.length - 1].x = (pe.x + tr.x) * s;
 				}
 				
-				if (Math.abs(result[result.length - 1].y - pe.y) < tol)
+				if (Math.abs(mxUtils.unscale(result[result.length - 1].y, s, tr.y) - pe.y) < tol)
 				{
-					result[result.length - 1].y = pe.y;
+					result[result.length - 1].y = (pe.y + tr.y) * s;
 				}
 			}
 		}
@@ -984,6 +1000,24 @@ var mxEdgeStyle =
 	},
 	
 	/**
+	 * Function: roundScaled
+	 * 
+	 * Rounds the given scaled coordinate to an integer in model units and
+	 * returns the scaled result so that it does not depend on the scale or
+	 * translate of the view.
+	 * 
+	 * Parameters:
+	 * 
+	 * value - Scaled coordinate to be rounded.
+	 * scale - Scale of the view.
+	 * translate - Translate of the view along the axis of the coordinate.
+	 */
+	roundScaled: function(value, scale, translate)
+	{
+		return (Math.round(mxUtils.unscale(value, scale, translate)) + translate) * scale;
+	},
+
+	/**
 	 * Function: scalePointArray
 	 * 
 	 * Scales an array of <mxPoint>
@@ -992,11 +1026,14 @@ var mxEdgeStyle =
 	 * 
 	 * points - array of <mxPoint> to scale
 	 * scale - the scaling to divide by
+	 * translate - optional <mxPoint> to subtract after scaling
 	 * 
 	 */
-	scalePointArray: function(points, scale)
+	scalePointArray: function(points, scale, translate)
 	{
 		var result = [];
+		var tx = (translate != null) ? translate.x : 0;
+		var ty = (translate != null) ? translate.y : 0;
 
 		if (points != null)
 		{
@@ -1004,8 +1041,8 @@ var mxEdgeStyle =
 			{
 				if (points[i] != null)
 				{
-					var pt = new mxPoint(Math.round(points[i].x / scale * 10) / 10,
-										Math.round(points[i].y / scale * 10) / 10);
+					var pt = new mxPoint(Math.round(mxUtils.unscale(points[i].x, scale, tx) * 10) / 10,
+										Math.round(mxUtils.unscale(points[i].y, scale, ty) * 10) / 10);
 					result[i] = pt;
 				}
 				else
@@ -1031,19 +1068,22 @@ var mxEdgeStyle =
 	 * 
 	 * state - <mxCellState> to scale
 	 * scale - the scaling to divide by
+	 * translate - optional <mxPoint> to subtract after scaling
 	 * 
 	 */
-	scaleCellState: function(state, scale)
+	scaleCellState: function(state, scale, translate)
 	{
 		var result = null;
 
 		if (state != null)
 		{
+			var tx = (translate != null) ? translate.x : 0;
+			var ty = (translate != null) ? translate.y : 0;
 			result = state.clone();
-			result.setRect(Math.round(state.x / scale * 10) / 10,
-							Math.round(state.y / scale * 10) / 10,
-							Math.round(state.width / scale * 10) / 10,
-							Math.round(state.height / scale * 10) / 10);
+			result.setRect(Math.round(mxUtils.unscale(state.x, scale, tx) * 10) / 10,
+							Math.round(mxUtils.unscale(state.y, scale, ty) * 10) / 10,
+							Math.round(mxUtils.unscale(state.width, scale) * 10) / 10,
+							Math.round(mxUtils.unscale(state.height, scale) * 10) / 10);
 		}
 		else
 		{
@@ -1073,9 +1113,9 @@ var mxEdgeStyle =
 	{
 		var graph = state.view.graph;
 
-		var pts = mxEdgeStyle.scalePointArray(state.absolutePoints, state.view.scale);
-		var source = mxEdgeStyle.scaleCellState(sourceScaled, state.view.scale);
-		var target = mxEdgeStyle.scaleCellState(targetScaled, state.view.scale);
+		var pts = mxEdgeStyle.scalePointArray(state.absolutePoints, state.view.scale, state.view.translate);
+		var source = mxEdgeStyle.scaleCellState(sourceScaled, state.view.scale, state.view.translate);
+		var target = mxEdgeStyle.scaleCellState(targetScaled, state.view.scale, state.view.translate);
 
 		var p0 = pts[0];
 		var pe = pts[pts.length-1];
@@ -1621,8 +1661,11 @@ var mxEdgeStyle =
 				}
 			}
 			
-			result.push(new mxPoint(Math.round(mxEdgeStyle.wayPoints1[i][0] * state.view.scale * 10) / 10,
-									Math.round(mxEdgeStyle.wayPoints1[i][1] * state.view.scale * 10) / 10));
+			// Rounds in model units so that the result does not depend on the scale or translate
+			result.push(new mxPoint((Math.round(mxEdgeStyle.wayPoints1[i][0] * 10) / 10 +
+				state.view.translate.x) * state.view.scale,
+				(Math.round(mxEdgeStyle.wayPoints1[i][1] * 10) / 10 +
+				state.view.translate.y) * state.view.scale));
 		}
 		
 		//console.log(result);

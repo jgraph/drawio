@@ -400,8 +400,8 @@
 		fns.push(
 			this.addEntry(dt, function()
 			{
-				var bg = new mxCell(label1, new mxGeometry(0, 0, d, d), 
-						'shape=ellipse;fillColor=' + bgFillColor + ';aspect=fixed;resizable=0;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;strokeColor=' + bgStrokeColor + ';fontSize=14;');
+				var bg = new mxCell(label1, new mxGeometry(0, 0, d, d),
+						'shape=ellipse;points=[[0.5,0,0],[1,0.5,0],[0.5,1,0],[0,0.5,0],[0.146,0.146,0],[0.854,0.146,0],[0.854,0.854,0],[0.146,0.854,0]];fillColor=' + bgFillColor + ';aspect=fixed;resizable=0;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;strokeColor=' + bgStrokeColor + ';fontSize=14;');
 				bg.vertex = true;
 				
 				var icon1 = new mxCell('', 

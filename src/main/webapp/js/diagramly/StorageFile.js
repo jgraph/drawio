@@ -398,6 +398,14 @@ StorageFile.prototype.writeFile = function(title, success, error)
 			this.setModified(this.getShadowModified());
 			this.setDescriptor(this.getEtag(data));
 			this.contentChanged();
+
+			// Notifies other tabs to refresh the scratchpad
+			if (this.type == 'L' && this.title == '.scratchpad' &&
+				this.ui.scratchpadSaved != null)
+			{
+				this.ui.scratchpadSaved();
+			}
+
 			this.fileSaved(data, desc, success, error);
 		});
 		
@@ -411,7 +419,7 @@ StorageFile.prototype.writeFile = function(title, success, error)
 		}, {
 			title: this.title,
 			data: data
-		}], saveDone, mxUtils.bind(this, function()
+		}], saveDone, mxUtils.bind(this, function(e)
 		{
 			if (this.ui.database == null) //fallback to localstorage
 			{
@@ -429,7 +437,12 @@ StorageFile.prototype.writeFile = function(title, success, error)
 			}
 			else if (error != null)
 			{
-				error();
+				// Passes on the error so that the failed write is reported
+				// to the user. Transaction errors are events with no message
+				// and a null error is ignored by App.createFile
+				// [jgraph/drawio-dev#672]
+				error((e != null && e.message != null) ? e :
+					{message: mxResources.get('errorSavingFile')});
 			}
 		}), ['filesInfo', 'files']);
 	}
@@ -477,20 +490,6 @@ StorageFile.prototype.getLatestVersion = function(success, error)
 	{
 		success(new StorageFile(this.ui, data, this.title));
 	}), error);
-};
-
-/**
- * Stops any pending autosaves and removes all listeners.
- */
-StorageFile.prototype.destroy = function()
-{
-	DrawioFile.prototype.destroy.apply(this, arguments);
-	
-	if (this.storageListener != null)
-	{
-		mxEvent.removeListener(window, 'storage', this.storageListener);
-		this.storageListener = null;
-	}
 };
 
 /**

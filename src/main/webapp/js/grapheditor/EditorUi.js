@@ -551,6 +551,21 @@ EditorUi = function(editor, container, lightbox)
 		});
 	
 		mxEvent.addListener(document, 'keyup', this.keyupHandler);
+
+		// Blocks pinch gestures outside of the diagram which show
+		// the tab overview in Safari on macOS (pinch gestures in
+		// the diagram are handled in mxEvent.addMouseWheelListener)
+		// if the UI owns the page (eg. not for viewer lightboxes)
+		if (mxClient.IS_SF && !mxClient.IS_TOUCH && container == null)
+		{
+			this.pinchGestureHandler = function(evt)
+			{
+				evt.preventDefault();
+			};
+
+			mxEvent.addListener(document, 'gesturestart', this.pinchGestureHandler);
+			mxEvent.addListener(document, 'gesturechange', this.pinchGestureHandler);
+		}
 	    
 	    // Forces panning for middle and right mouse buttons
 		var panningHandlerIsForcePanningEvent = graph.panningHandler.isForcePanningEvent;
@@ -1257,6 +1272,8 @@ EditorUi.prototype.init = function()
 		{
 			this.installShapePicker();
 		}
+
+		this.installLineMarkerMenu();
 		
 		// Hides tooltips and connection points when scrolling
 		var pageBreaksUpdate = null;
@@ -3487,6 +3504,10 @@ EditorUi.prototype.getImageForEdgeShape = function(style)
 	{
 		result = Format.simpleArrowImage.src;
 	}
+	else if (style.shape == 'taperedArrow')
+	{
+		result = Format.taperedArrowImage.src;
+	}
 	else if (style.shape == 'filledEdge')
 	{
 		result = Format.filledEdgeImage.src;
@@ -3585,7 +3606,7 @@ EditorUi.prototype.initClipboard = function()
 	var ui = this;
 
 	var mxClipboardCut = mxClipboard.cut;
-	mxClipboard.cut = function(graph)
+	mxClipboard.cut = function(graph, cells)
 	{
 		if (graph.cellEditor.isContentEditing())
 		{
@@ -3593,13 +3614,14 @@ EditorUi.prototype.initClipboard = function()
 		}
 		else
 		{
-			mxClipboardCut.apply(this, arguments);
+			mxClipboardCut.call(this, graph, graph.getCutCells(
+				(cells != null) ? cells : graph.getSelectionCells()));
 		}
 		
 		ui.updatePasteActionStates();
 	};
 	
-	mxClipboard.copy = function(graph)
+	mxClipboard.copy = function(graph, cells)
 	{
 		var result = null;
 		
@@ -3609,7 +3631,7 @@ EditorUi.prototype.initClipboard = function()
 		}
 		else
 		{
-			result = result || graph.getSelectionCells();
+			result = (cells != null) ? cells : graph.getSelectionCells();
 			result = graph.getExportableCells(graph.model.getTopmostCells(result));
 			
 			var cloneMap = new Object();
@@ -4905,8 +4927,22 @@ EditorUi.prototype.initCanvas = function()
             {
                 var t = graph.view.getTranslate();
                 var step = 40 / graph.view.scale;
-				
-                if (!mxEvent.isShiftDown(evt))
+				var dx = (evt.deltaX != null) ? evt.deltaX : 0;
+				var dy = (evt.deltaY != null) ? evt.deltaY : 0;
+
+				// Uses the deltas of trackpads (horizontal or small pixel deltas)
+				// for diagonal scrolling and fixed steps for mouse wheels
+				if (!mxEvent.isShiftDown(evt) && (dx != 0 || (evt.deltaMode == 0 &&
+					Math.abs(dy) < 50)))
+				{
+					// Line and page modes
+					var f = (evt.deltaMode == 1) ? 16 : ((evt.deltaMode == 2) ?
+						graph.container.clientHeight : 1);
+
+					graph.view.setTranslate(t.x - dx * f / graph.view.scale,
+						t.y - dy * f / graph.view.scale);
+				}
+                else if (!mxEvent.isShiftDown(evt))
                 {
                     graph.view.setTranslate(t.x, t.y + ((up) ? step : -step));
                 }
@@ -4914,6 +4950,9 @@ EditorUi.prototype.initCanvas = function()
                 {
                     graph.view.setTranslate(t.x + ((up) ? -step : step), t.y);
                 }
+
+				// Avoids navigation gestures for horizontal scrolling
+				mxEvent.consume(evt);
             }
 			else if (force || graph.isZoomWheelEvent(evt))
 			{
@@ -5146,6 +5185,20 @@ EditorUi.prototype.isDiagramEmpty = function()
 };
 
 /**
+ * Hook for searching templates. Returns false in the generic editor.
+ */
+EditorUi.prototype.isTemplateSearchSupported = function()
+{
+	return false;
+};
+
+/**
+ * Hook for opening the templates dialog with the given search terms. Does
+ * nothing in the generic editor (see isTemplateSearchSupported).
+ */
+EditorUi.prototype.searchTemplates = function(terms) { };
+
+/**
  * Hook for allowing selection and context menu for certain events.
  */
 EditorUi.prototype.isSelectionAllowed = function(evt)
@@ -5262,6 +5315,106 @@ EditorUi.prototype.showPopupMenu = function(fn, x, y, evt)
 	
 	// Allows hiding by clicking on document
 	this.setCurrentMenu(menu);	
+};
+
+/**
+ * Shows the line start or end menu for a click on the terminal handle of a
+ * single selected edge instead of selecting the terminal (see the core
+ * mxEdgeHandler.mouseUp). The menu is delayed so that the second click of a
+ * double click (see doubleClickEdgeTerminal) or a long press cancel it.
+ */
+EditorUi.prototype.installLineMarkerMenu = function()
+{
+	var graph = this.editor.graph;
+	var terminalClickDelay = 300;
+	var terminalClickThread = null;
+	var terminalClickTime = 0;
+	var terminalDownTime = 0;
+
+	graph.addListener(mxEvent.FIRE_MOUSE_EVENT, mxUtils.bind(this, function(sender, evt)
+	{
+		var name = evt.getProperty('eventName');
+		var me = evt.getProperty('event');
+
+		if (name == mxEvent.MOUSE_DOWN)
+		{
+			window.clearTimeout(terminalClickThread);
+			terminalDownTime = Date.now();
+		}
+		else if (name == mxEvent.MOUSE_UP && graph.isEnabled() &&
+			graph.getSelectionCount() == 1)
+		{
+			var cell = graph.getSelectionCell();
+			var handler = graph.selectionCellsHandler.getHandler(cell);
+			var now = Date.now();
+
+			if (graph.model.isEdge(cell) && handler != null && handler.bends != null &&
+				handler.handle != null && handler.index == null &&
+				(handler.handle == 0 || handler.handle == handler.bends.length - 1) &&
+				handler.mouseDownX != null && handler.mouseDownY != null &&
+				Math.abs(me.getX() - handler.mouseDownX) <= graph.tolerance &&
+				Math.abs(me.getY() - handler.mouseDownY) <= graph.tolerance &&
+				!mxEvent.isAltDown(me.getEvent()) && !mxEvent.isShiftDown(me.getEvent()) &&
+				!mxEvent.isControlDown(me.getEvent()) && !mxEvent.isMetaDown(me.getEvent()) &&
+				graph.isCellEditable(cell) && !graph.isCellLocked(cell) &&
+				(mxEvent.isMouseEvent(me.getEvent()) ||
+				now - terminalDownTime < graph.tapAndHoldDelay))
+			{
+				var source = handler.handle == 0;
+				var bounds = handler.bends[handler.handle].bounds;
+
+				// Disables selecting the terminal in mxEdgeHandler.mouseUp
+				// and the cell under the mouse in mxGraph.click
+				handler.handle = null;
+				me.consume();
+
+				// Ignores the second click of a double click
+				if (now - terminalClickTime > terminalClickDelay)
+				{
+					terminalClickTime = now;
+
+					terminalClickThread = window.setTimeout(mxUtils.bind(this, function()
+					{
+						if (graph.isEnabled() && !graph.isEditing() &&
+							graph.getSelectionCount() == 1 &&
+							graph.getSelectionCell() == cell &&
+							!graph.popupMenuHandler.isMenuShowing() &&
+							bounds != null)
+						{
+							var off = mxUtils.getOffset(graph.container);
+
+							this.showLineMarkerMenu(cell, source,
+								off.x + bounds.x + bounds.width - graph.container.scrollLeft,
+								off.y + bounds.y + bounds.height - graph.container.scrollTop);
+						}
+					}), terminalClickDelay);
+				}
+				else
+				{
+					terminalClickTime = 0;
+				}
+			}
+		}
+	}));
+};
+
+/**
+ * Shows the menu for the line start (start is true) or line end markers of
+ * the given selected edge at the given page coordinates.
+ */
+EditorUi.prototype.showLineMarkerMenu = function(cell, start, x, y)
+{
+	var graph = this.editor.graph;
+	var style = graph.getCurrentCellStyle(cell);
+
+	// Format is not loaded in the viewer
+	if (typeof Format !== 'undefined')
+	{
+		this.showPopupMenu(mxUtils.bind(this, function(menu)
+		{
+			Format.addLineMarkerItems(this, menu, style, start);
+		}), x, y);
+	}
 };
 
 /**
@@ -5642,9 +5795,11 @@ EditorUi.prototype.resetScrollbars = function()
 		{
 			if (graph.pageVisible)
 			{
+				// Page padding is in unscaled units
 				var pad = graph.getPagePadding();
-				c.scrollTop = Math.floor(pad.y);
-				c.scrollLeft = Math.floor(Math.min(pad.x,
+				var s = graph.view.scale;
+				c.scrollTop = Math.floor(pad.y * s);
+				c.scrollLeft = Math.floor(Math.min(pad.x * s,
 					(c.scrollWidth - c.clientWidth) / 2));
 
 				// Scrolls graph to visible area
@@ -8377,6 +8532,13 @@ EditorUi.prototype.destroy = function()
 	{
 		mxEvent.removeListener(document, 'keyup', this.keyupHandler);
 		this.keyupHandler = null;
+	}
+
+	if (this.pinchGestureHandler != null)
+	{
+		mxEvent.removeListener(document, 'gesturestart', this.pinchGestureHandler);
+		mxEvent.removeListener(document, 'gesturechange', this.pinchGestureHandler);
+		this.pinchGestureHandler = null;
 	}
 	
 	if (this.resizeHandler != null)

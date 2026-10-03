@@ -2035,23 +2035,26 @@ InlineToolbar.prototype.showConnStyleMenu = function(evt)
 
 	// Section 2: Edge shape
 	var shapeKeys = [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE,
-		mxConstants.STYLE_ENDSIZE, mxConstants.STYLE_DASHED, 'width'];
+		mxConstants.STYLE_ENDSIZE, mxConstants.STYLE_DASHED, 'width',
+		'startWidth', 'endWidth', 'defaultFillColor', 'defaultGradientColor'];
 
 	var shapeItems = [];
 	shapeItems.push({img: Format.connectionImage.src, title: mxResources.get('line'),
-		keys: shapeKeys, values: [null, null, null, null, null]});
+		keys: shapeKeys, values: [null, null, null, null, null, null, null, null, null]});
 	shapeItems.push({img: Format.linkEdgeImage.src, title: mxResources.get('link'),
-		keys: shapeKeys, values: ['link', null, null, null, null]});
+		keys: shapeKeys, values: ['link', null, null, null, null, null, null, null, null]});
 	shapeItems.push({img: Format.arrowImage.src, title: mxResources.get('arrow'),
-		keys: shapeKeys, values: ['flexArrow', null, null, null, null]});
+		keys: shapeKeys, values: ['flexArrow', null, null, null, null, null, null, null, null]});
 	shapeItems.push({img: Format.simpleArrowImage.src, title: mxResources.get('simpleArrow'),
-		keys: shapeKeys, values: ['arrow', null, null, null, null]});
+		keys: shapeKeys, values: ['arrow', null, null, null, null, null, null, null, null]});
+	shapeItems.push({img: Format.taperedArrowImage.src, title: mxResources.get('taperedArrow'),
+		keys: shapeKeys, values: ['taperedArrow', null, null, null, null, null, null, null, null]});
 	shapeItems.push({img: Format.filledEdgeImage.src, title: 'Filled Edge',
-		keys: shapeKeys, values: ['filledEdge', null, null, null, null]});
+		keys: shapeKeys, values: ['filledEdge', null, null, null, null, null, null, null, null]});
 	shapeItems.push({img: Format.pipeEdgeImage.src, title: 'Pipe',
-		keys: shapeKeys, values: ['pipe', null, null, null, null]});
+		keys: shapeKeys, values: ['pipe', null, null, null, null, null, null, null, null]});
 	shapeItems.push({img: Format.wireEdgeImage.src, title: 'Wire',
-		keys: shapeKeys, values: ['wire', null, null, '1', null]});
+		keys: shapeKeys, values: ['wire', null, null, '1', null, null, null, null, null]});
 
 	if (routingItems.length > 0)
 	{

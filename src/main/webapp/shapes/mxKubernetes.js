@@ -101,12 +101,25 @@ mxShapeKubernetesIcon.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeKubernetesIcon.prototype.cst.ICON, mxShapeKubernetesIcon);
 
+/**
+ * Function: getConstraints
+ *
+ * The seven vertices of the heptagon frame plus the middle of its bottom edge - the same set the palette
+ * styles carry in their points list, so cells without that list (imports, programmatic styles) get the
+ * same connection points instead of a single point off the left edge.
+ */
 mxShapeKubernetesIcon.prototype.getConstraints = function(style, w, h)
 {
 	var constr = [];
-	var r = Math.min(h * 0.5, w * 0.5);
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.9, 0.2), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.995, 0.63), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.72, 0.99), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.28, 0.99), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.005, 0.63), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.1, 0.2), false));
 
 	return (constr);
 }
@@ -572,13 +585,10 @@ mxShapeKubernetesIcon2.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeKubernetesIcon2.prototype.cst.ICON2, mxShapeKubernetesIcon2);
 
-mxShapeKubernetesIcon2.prototype.getConstraints = function(style, w, h)
-{
-	var constr = [];
-	var r = Math.min(h * 0.5, w * 0.5);
-	
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
-
-	return (constr);
-}
+/**
+ * Function: getConstraints
+ *
+ * Same frame, same points as mxShapeKubernetesIcon.
+ */
+mxShapeKubernetesIcon2.prototype.getConstraints = mxShapeKubernetesIcon.prototype.getConstraints;
 

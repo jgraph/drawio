@@ -338,7 +338,7 @@ function render(data)
 				{
 					electron.sendMessage('export-error',
 						'Error parsing Mermaid: ' + (e.message || e));
-				}, null, true);
+				});
 			}
 			catch (e)
 			{
@@ -1040,8 +1040,13 @@ function render(data)
 							// Page-size export uses the page rectangle as the crop
 							// (see imagePageVisible in renderPage, which installs the
 							// getBackgroundPageBounds override that getSvg uses)
+							// Cell Metadata in the export dialog: adds the properties of
+							// the cells as data-meta-* attributes (see createSvgImageExport)
+							var imgExport = (data.embedCellMetadata == '1') ?
+								graph.createSvgImageExport(true) : null;
+
 							var svgRoot = graph.getSvg(bg, expScale, data.border, false, null,
-								true, null, null, linkTarget, null, null, theme,
+								true, null, imgExport, linkTarget, null, null, theme,
 								(data.exportType == 'page') ? 'page' : null);
 							
 							if (graph.shadowVisible)

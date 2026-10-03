@@ -60,14 +60,23 @@ mxConnector.prototype.paintEdgeShape = function(c, pts)
 	var targetMarker = this.createMarker(c, pts, false);
 	mxPolyline.prototype.paintEdgeShape.apply(this, arguments);
 
-	// Disables shadows, dashed styles and fixes fill color for markers
+	// Disables shadows, dashed styles and fixes fill and stroke color for markers
 	c.setShadow(false);
 	c.setDashed(false);
+	var startStroke = null;
 	
 	if (sourceMarker != null)
 	{
 		c.setFillColor(mxUtils.getValue(this.style,
 			mxConstants.STYLE_STARTFILLCOLOR, this.stroke));
+		startStroke = mxUtils.getValue(this.style,
+			mxConstants.STYLE_STARTSTROKECOLOR, null);
+
+		if (startStroke != null)
+		{
+			c.setStrokeColor(startStroke);
+		}
+
 		sourceMarker();
 	}
 	
@@ -75,6 +84,18 @@ mxConnector.prototype.paintEdgeShape = function(c, pts)
 	{
 		c.setFillColor(mxUtils.getValue(this.style,
 			mxConstants.STYLE_ENDFILLCOLOR, this.stroke));
+		var endStroke = mxUtils.getValue(this.style,
+			mxConstants.STYLE_ENDSTROKECOLOR, null);
+
+		if (endStroke != null)
+		{
+			c.setStrokeColor(endStroke);
+		}
+		else if (startStroke != null)
+		{
+			c.setStrokeColor(this.stroke);
+		}
+
 		targetMarker();
 	}
 };

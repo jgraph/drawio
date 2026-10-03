@@ -661,6 +661,24 @@
 			return wiped;
 		};
 
+		// Returns the result of collectTreeRemoval for the given cells. A
+		// cascade that would delete the whole graph inside a tree container
+		// is more than the gesture intends - falls back to the minimal set
+		// with no dangling edges for those containers: a vertex takes only
+		// its incident edges with it and a selected edge removes just itself
+		function getTreeRemoval(cells)
+		{
+			var result = collectTreeRemoval(cells, null);
+			var wiped = getWipedTreeContainers(result);
+
+			if (wiped != null)
+			{
+				result = collectTreeRemoval(cells, wiped);
+			}
+
+			return result;
+		};
+
 		var graphRemoveCells = graph.removeCells;
 
 		graph.removeCells = function(cells, includeEdges)
@@ -680,22 +698,47 @@
 				cells = this.getDeletableCells(this.addAllEdges(cells));
 			}
 
-			var result = collectTreeRemoval(cells, null);
-			var wiped = getWipedTreeContainers(result);
-
-			// A cascade that would delete the whole graph inside a tree
-			// container is more than the gesture intends - falls back to
-			// the minimal set with no dangling edges for those containers:
-			// a vertex takes only its incident edges with it and a selected
-			// edge removes just itself
-			if (wiped != null)
-			{
-				result = collectTreeRemoval(cells, wiped);
-			}
-
-			cells = result.cells;
+			cells = getTreeRemoval(cells).cells;
 
 			return graphRemoveCells.apply(this, arguments);
+		};
+
+		var graphGetCutCells = graph.getCutCells;
+
+		// Cutting a vertex in a tree removes the branch below it (see
+		// removeCells) so the branch is copied as well to be restored by
+		// pasting. Edges to vertices that are not cut are removed but not
+		// copied unless they were cut explicitly, as they would be dangling.
+		graph.getCutCells = function(cells)
+		{
+			cells = graphGetCutCells.apply(this, arguments);
+			var result = getTreeRemoval(cells);
+
+			if (result.cascaded.length > 0)
+			{
+				var explicit = new mxDictionary();
+
+				for (var i = 0; i < cells.length; i++)
+				{
+					explicit.put(cells[i], true);
+				}
+
+				cells = [];
+
+				for (var i = 0; i < result.cells.length; i++)
+				{
+					var cell = result.cells[i];
+
+					if (explicit.get(cell) || !model.isEdge(cell) ||
+						(result.deleted.get(model.getTerminal(cell, true)) &&
+						result.deleted.get(model.getTerminal(cell, false))))
+					{
+						cells.push(cell);
+					}
+				}
+			}
+
+			return cells;
 		};
 	
 		ui.hoverIcons.getStateAt = function(state, x, y)

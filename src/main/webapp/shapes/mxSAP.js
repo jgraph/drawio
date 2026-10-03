@@ -56,17 +56,17 @@ mxCellRenderer.registerShape(mxSAPIconShape.prototype.cst.ICON, mxSAPIconShape);
 
 mxSAPIconShape.prototype.getConstraints = function(style, w, h)
 {
+	// the background is a circle: four axis points plus four points on the circle at 45 degrees
 	var constr = [];
 
-	constr.push(new mxConnectionConstraint(new mxPoint(0.625, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
 	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.625, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.325), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.675), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.146, 0.146), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.854, 0.146), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.854, 0.854), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.146, 0.854), false));
 
 	return (constr);
 };

@@ -1159,7 +1159,8 @@ mxGraphView.prototype.updateEdgeState = function(state, geo)
 		this.updateFixedTerminalPoints(state, source, target);
 		this.updatePoints(state, geo.points, source, target);
 		this.updateFloatingTerminalPoints(state, source, target);
-		
+		this.removeDuplicatePoints(state, geo.points, source, target);
+
 		var pts = state.absolutePoints;
 		
 		if (state.cell != this.currentRoot && (pts == null || pts.length < 2 ||
@@ -1416,6 +1417,14 @@ mxGraphView.prototype.updatePoints = function(edge, points, source, target)
 	if (edge != null && edge.absolutePoints != null &&
 		edge.absolutePoints.length > 0)
 	{
+		// Control points of the expanded layout are not used while a
+		// terminal is replaced by a collapsed ancestor (collapsedPoints=0)
+		if (points != null && points.length > 0 &&
+			this.isCollapsedPointsIgnored(edge.cell, edge.style))
+		{
+			points = null;
+		}
+
 		var pts = [];
 		pts.push(edge.absolutePoints[0]);
 		var edgeStyle = this.getEdgeStyle(edge, points, source, target);
@@ -1464,6 +1473,45 @@ mxGraphView.prototype.updatePoints = function(edge, points, source, target)
 
 		edge.absolutePoints = pts;
 	}
+};
+
+/**
+ * Function: isCollapsedPointsIgnored
+ *
+ * Returns true if the control points of the given edge are ignored. This
+ * is true if <mxConstants.STYLE_COLLAPSED_POINTS> is 0 in the given style
+ * and a terminal of the edge is replaced by a collapsed ancestor, that is,
+ * if the visible terminal differs from the terminal in the model.
+ *
+ * Parameters:
+ *
+ * edge - <mxCell> that represents the edge.
+ * style - Style of the edge.
+ */
+mxGraphView.prototype.isCollapsedPointsIgnored = function(edge, style)
+{
+	if (edge != null && style != null && mxUtils.getValue(style,
+		mxConstants.STYLE_COLLAPSED_POINTS, '1') == '0')
+	{
+		var model = this.graph.getModel();
+
+		for (var i = 0; i < 2; i++)
+		{
+			var terminal = model.getTerminal(edge, i == 0);
+
+			if (terminal != null)
+			{
+				var visible = this.getVisibleTerminal(edge, i == 0);
+
+				if (visible != null && visible != terminal)
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
 };
 
 /**
@@ -1570,6 +1618,182 @@ mxGraphView.prototype.updateFloatingTerminalPoints = function(state, source, tar
 		if (p0 == null && source != null)
 		{
 			this.updateFloatingTerminalPoint(state, source, target, true);
+		}
+
+		// Connected ends that were already set are fixed connection points
+		if (state.style != null && mxUtils.getValue(state.style,
+			mxConstants.STYLE_FIXED_POINT_SPACING, 0) == 1)
+		{
+			this.updateFixedPointSpacing(state, p0 != null && source != null,
+				pe != null && target != null);
+		}
+	}
+};
+
+/**
+ * Function: removeDuplicatePoints
+ * 
+ * Removes the waypoints of the given edge state that are equal to the point
+ * before or after them. This happens if a route ends inside a terminal, eg.
+ * if the terminals are closer than the jetty size or overlap, or if two
+ * elbows of a route are at the same location. This is only done if
+ * <isDuplicatePointsRemoved> returns true. The terminal points are not
+ * removed.
+ * 
+ * Parameters:
+ * 
+ * state - <mxCellState> that represents the edge.
+ * points - Array of <mxPoints> that constitute the control points.
+ * source - <mxCellState> that represents the source terminal.
+ * target - <mxCellState> that represents the target terminal.
+ */
+mxGraphView.prototype.removeDuplicatePoints = function(state, points, source, target)
+{
+	var pts = state.absolutePoints;
+
+	if (pts != null && pts.length > 2)
+	{
+		var tol = 0.01 * this.scale;
+
+		var equals = function(a, b)
+		{
+			return a != null && b != null && Math.abs(a.x - b.x) < tol &&
+				Math.abs(a.y - b.y) < tol;
+		};
+
+		var duplicates = false;
+
+		for (var i = 1; i < pts.length && !duplicates; i++)
+		{
+			duplicates = equals(pts[i - 1], pts[i]);
+		}
+
+		if (duplicates && this.isDuplicatePointsRemoved(state,
+			this.getEdgeStyle(state, points, source, target), points))
+		{
+			for (var i = pts.length - 2; i > 0 && pts.length > 2; i--)
+			{
+				if (equals(pts[i], pts[i + 1]) || equals(pts[i], pts[i - 1]))
+				{
+					pts.splice(i, 1);
+				}
+			}
+		}
+	}
+};
+
+/**
+ * Function: isDuplicatePointsRemoved
+ * 
+ * Returns true if <removeDuplicatePoints> should remove the duplicate
+ * waypoints of the given edge state. This returns true for edge styles that
+ * compute the waypoints and do not map them to control points, which are
+ * <mxEdgeStyle.OrthConnector> without control points, the elbow styles and
+ * <mxEdgeStyle.EntityRelation>.
+ * 
+ * Parameters:
+ * 
+ * state - <mxCellState> that represents the edge.
+ * edgeStyle - Edge style function that routes the edge.
+ * points - Array of <mxPoints> that constitute the control points.
+ */
+mxGraphView.prototype.isDuplicatePointsRemoved = function(state, edgeStyle, points)
+{
+	return (edgeStyle == mxEdgeStyle.OrthConnector && (points == null || points.length == 0)) ||
+		edgeStyle == mxEdgeStyle.ElbowConnector || edgeStyle == mxEdgeStyle.SideToSide ||
+		edgeStyle == mxEdgeStyle.TopToBottom || edgeStyle == mxEdgeStyle.EntityRelation;
+};
+
+/**
+ * Function: updateFixedPointSpacing
+ *
+ * Moves the source and/or target end of the given edge state, which are
+ * attached to fixed connection points, by <mxConstants.STYLE_SOURCE_PERIMETER_SPACING>
+ * and <mxConstants.STYLE_TARGET_PERIMETER_SPACING> towards the neighbouring
+ * point of the route. Negative values move the end away from that point
+ * along the same line. An end is never moved past its neighbouring point.
+ * This is invoked after routing from <updateFloatingTerminalPoints> if
+ * <mxConstants.STYLE_FIXED_POINT_SPACING> is 1 so that the edge style input
+ * is unchanged.
+ *
+ * Parameters:
+ *
+ * state - <mxCellState> that represents the edge.
+ * source - Boolean that specifies if the source end should be moved.
+ * target - Boolean that specifies if the target end should be moved.
+ */
+mxGraphView.prototype.updateFixedPointSpacing = function(state, source, target)
+{
+	var pts = state.absolutePoints;
+	var n = (pts != null) ? pts.length : 0;
+
+	if (n > 1 && pts[0] != null && pts[n - 1] != null)
+	{
+		var scale = this.scale;
+
+		var getSpacing = function(key)
+		{
+			var value = parseFloat(state.style[key] || 0);
+
+			return (isNaN(value) || !isFinite(value)) ? 0 : value * scale;
+		};
+
+		// Returns the index of the first point that differs from the end
+		var getNeighbour = function(index, step)
+		{
+			var pt = pts[index];
+
+			for (var i = index + step; i >= 0 && i < n; i += step)
+			{
+				if (pts[i] != null && (pts[i].x != pt.x || pts[i].y != pt.y))
+				{
+					return i;
+				}
+			}
+
+			return -1;
+		};
+
+		var p0 = pts[0];
+		var pe = pts[n - 1];
+		var ds = (source) ? getSpacing(mxConstants.STYLE_SOURCE_PERIMETER_SPACING) : 0;
+		var dt = (target) ? getSpacing(mxConstants.STYLE_TARGET_PERIMETER_SPACING) : 0;
+		var ns = (ds != 0) ? getNeighbour(0, 1) : -1;
+		var nt = (dt != 0) ? getNeighbour(n - 1, -1) : -1;
+
+		// Neighbours are taken before any end is moved
+		var qs = (ns >= 0) ? pts[ns] : null;
+		var qt = (nt >= 0) ? pts[nt] : null;
+		var ls = (qs != null) ? Math.sqrt((qs.x - p0.x) * (qs.x - p0.x) +
+			(qs.y - p0.y) * (qs.y - p0.y)) : 0;
+		var lt = (qt != null) ? Math.sqrt((qt.x - pe.x) * (qt.x - pe.x) +
+			(qt.y - pe.y) * (qt.y - pe.y)) : 0;
+
+		// Clamps to the segment and splits a segment that is shared by both ends,
+		// keeping 1px of the segment so that the direction of markers is defined
+		var ms = Math.max(0, ls - 1);
+		ds = Math.min(ds, ms);
+		dt = Math.min(dt, Math.max(0, lt - 1));
+
+		if (ns == n - 1 && nt == 0 && ds > 0 && dt > 0 && ds + dt > ms)
+		{
+			var f = ms / (ds + dt);
+			ds *= f;
+			dt *= f;
+		}
+
+		if (qs != null && ds != 0)
+		{
+			state.setAbsoluteTerminalPoint(new mxPoint(
+				p0.x + (qs.x - p0.x) * ds / ls,
+				p0.y + (qs.y - p0.y) * ds / ls), true);
+		}
+
+		if (qt != null && dt != 0)
+		{
+			state.setAbsoluteTerminalPoint(new mxPoint(
+				pe.x + (qt.x - pe.x) * dt / lt,
+				pe.y + (qt.y - pe.y) * dt / lt), false);
 		}
 	}
 };
@@ -2030,12 +2254,14 @@ mxGraphView.prototype.getPoint = function(state, geometry)
 	{
 		var gx = (geometry != null) ? geometry.x / 2 : 0;
 		var pointCount = state.absolutePoints.length;
-		var dist = Math.round((gx + 0.5) * state.length);
+		// Rounds in model units so that the result does not depend on the scale
+		var dist = Math.round(mxUtils.unscale((gx + 0.5) * state.length, this.scale)) * this.scale;
 		var segment = state.segments[0];
 		var length = 0;				
 		var index = 1;
 
-		while (dist >= Math.round(length + segment) && index < pointCount - 1)
+		while (dist >= Math.round(mxUtils.unscale(length + segment, this.scale)) * this.scale &&
+			index < pointCount - 1)
 		{
 			length += segment;
 			segment = state.segments[index++];

@@ -13,6 +13,13 @@ scheduling, custom-action/animation primitives, `getTransparentBounds`,
 `Shapes.js` (shape implementations), `Actions.js`, `Menus.js`, `Toolbar.js`,
 `Dialogs.js`.
 
+**`stencil.desc` may not be DOM.** Bundled stencils from `stencils.min.js`
+are light `StencilNode` objects. Readers of `mxStencil.desc` (labelBounds in
+`Shapes.js`, stencil colors in `EditorUi.js`, Edit Shape) may only use
+`nodeName`, `getAttribute`, `firstChild`/`nextSibling`,
+`getElementsByTagName` and `attributes`. In drawio-dev `?dev=1` loads the
+XML instead of the bundle, so test with built JS. See `etc/build/CLAUDE.md`.
+
 **Direct vertex geometry writes in forward actions** (not via
 `moveCells`/`resizeCells`, e.g. `model.setGeometry` in a panel, arrange action
 or layout) must run between `graph.beginArrange()` and
@@ -26,6 +33,25 @@ forward action that writes styles outside the Format panel (Edit Style,
 toolbar arrows, the embed `updates` message, CSV import updates) uses it
 too — `styleChanged` there would also feed the sticky default styles
 (`updateDefaultStyle`).
+
+**Collapsed tables** (`tableRender=collapsed` on a `shape=table` cell, the
+default for new tables): `TableShape.paintCollapsedTable` paints all fills and
+borders of the rows and cells (rules in `Graph.getCollapsedTableBorders`:
+the partialRectangle `top`/`left`/`bottom`/`right` flags of rows and cells
+are visibility, missing = 1, and 0 on either side of a shared piece (or on
+the inside of the outline) hides it; a visible piece takes the most specific
+stroke: a cell whose resolved stroke differs from its row's > a row that
+differs from the table > the table, then thicker, then top/left). New rows
+and cells of collapsed tables have no flags (`getDefaultTableSides`), while
+0 in separate tables means "the table paints the grid", so changing
+`tableRender` converts the flags (`convertTableSides`, hooked into
+`Graph.setCellStyles`). Row and cell shapes keep their resolved colors in
+`shape.collapsedTableStyle` and paint only a transparent event area
+(`postConfigureShape` override; `resolveColor` resolves `inherit` from the
+saved colors). A repainted row or cell schedules a repaint
+of its table (`scheduleCollapsedTableRepaint`, flushed in
+`validateCellState`). Tables without the key must keep rendering exactly as
+before (`paintTableCellLines`, `getTableLines`).
 
 Cross-cutting contracts documented in the repo-root guides:
 

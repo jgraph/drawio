@@ -807,11 +807,14 @@
         {name: 'strokeOpacity', dispName: 'Stroke Opacity', type: 'int', min: 0, max: 100, defVal: 100},
         {name: 'startFill', dispName: 'Start Fill', type: 'bool', defVal: true},
 		{name: 'startFillColor', dispName: 'Start Fill Color', type: 'color', defVal: null},
+		{name: 'startStrokeColor', dispName: 'Start Stroke Color', type: 'color', defVal: null},
         {name: 'endFill', dispName: 'End Fill', type: 'bool', defVal: true},
 		{name: 'endFillColor', dispName: 'End Fill Color', type: 'color', defVal: null},
+		{name: 'endStrokeColor', dispName: 'End Stroke Color', type: 'color', defVal: null},
         {name: 'perimeterSpacing', dispName: 'Terminal Spacing', type: 'float', defVal: 0},
         {name: 'anchorPointDirection', dispName: 'Anchor Direction', type: 'bool', defVal: true},
         {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
+        {name: 'fixedPointSpacing', dispName: 'Fixed Point Spacing', type: 'bool', defVal: false},
         {name: 'dashPattern', dispName: 'Dash Pattern', type: 'numbers', defVal: ''},
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
 		{name: 'flowAnimationDuration', dispName: 'Flow Duration', type: 'int', defVal: 500, isVisible: function(state)
@@ -837,14 +840,26 @@
         {name: 'metaEdit', dispName: 'Edit Dialog', type: 'bool', defVal: false},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
         {name: 'bendable', dispName: 'Bendable', type: 'bool', defVal: true},
+        {name: 'collapsedPoints', dispName: 'Collapsed Waypoints', type: 'bool', defVal: true},
         {name: 'movable', dispName: 'Movable', type: 'bool', defVal: true},
         {name: 'cloneable', dispName: 'Cloneable', type: 'bool', defVal: true},
         {name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true},
         {name: 'noJump', dispName: 'No Jumps', type: 'bool', defVal: false},
+        {name: 'jumpLayers', dispName: 'Jump Other Layers', type: 'bool', defVal: true},
 		{name: 'ignoreEdge', dispName: 'Ignore Edge', type: 'bool', defVal: false},
         {name: 'orthogonalLoop', dispName: 'Loop Routing', type: 'bool', defVal: false},
 		{name: 'orthogonal', dispName: 'Orthogonal', type: 'bool', defVal: false}
 	].concat(Editor.commonProperties);
+
+	/**
+	 * Property for the rounded outline of rectangles and labels (connection points
+	 * and floating edges, see Graph.isRoundedPerimeter).
+	 */
+	Editor.roundedPerimeterProperty = {name: 'roundedPerimeter', dispName: 'Rounded Perimeter',
+		type: 'bool', defVal: false, isVisible: function(state, format)
+		{
+			return mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, '0') == '1';
+		}};
 
 	/**
 	 * Common properties for all vertices.
@@ -4736,6 +4751,28 @@
 
 						Editor.MathJaxRender(this.graph.container);
 					}
+					else if (this.graph.container != null &&
+						Editor.mathJaxQueue != null)
+					{
+						// Cancels typesetting that waits for MathJax if math was
+						// disabled in the meantime, eg. after switching to a page
+						// without math, and shows the container again
+						var queued = false;
+
+						for (var i = Editor.mathJaxQueue.length - 1; i >= 0; i--)
+						{
+							if (Editor.mathJaxQueue[i] == this.graph.container)
+							{
+								Editor.mathJaxQueue.splice(i, 1);
+								queued = true;
+							}
+						}
+
+						if (queued && Editor.mathOutputSize)
+						{
+							this.graph.container.style.visibility = '';
+						}
+					}
 				});
 
 				this.graph.model.addListener(mxEvent.CHANGE, renderMath);
@@ -4801,15 +4838,27 @@
 	 * invisible text over the formula, so that math can be selected, searched
 	 * and copied in PDF output. The SVG output draws glyphs as paths, which
 	 * leaves formulas out of the text of a PDF. The text is the formula as typed
-	 * including its delimiters, on the baseline of the formula at the size of the
-	 * surrounding text and stretched to the width of the formula. It is
-	 * transparent rather than hidden: Chrome writes transparent text to the PDF
-	 * with a fill opacity of 0, which keeps it selectable. The role img that
-	 * MathJax puts on the SVG is removed, as Chrome writes tagged PDFs and
-	 * leaves the content of an image out of the text structure, which is
-	 * what macOS Preview selects and searches. Only used for PDF export and
-	 * print, where nothing else needs the formula for selection. The source
-	 * is added as a text node, so it cannot inject markup.
+	 * including its delimiters, on the baseline of the formula and stretched to
+	 * the width of the formula. It is nearly transparent rather than hidden,
+	 * which keeps it selectable. The alpha is not 0 as older Chrome versions
+	 * (eg. 128 in the export server, still 136) leave fully transparent text
+	 * out of the PDF.
+	 *
+	 * The text is HTML in a foreignObject at a font size of 16px, scaled to
+	 * the size of the formula with a transform. Chrome writes SVG text, and
+	 * HTML text at the font size of the viewBox units (1000 per em) under the
+	 * small scale of the viewBox, as one text run per glyph, which macOS
+	 * Preview breaks into lines at glyphs above or below the others (eg. _ and
+	 * `). The foreignObject is painted with the formula, so that the source
+	 * keeps its place in the surrounding text, which it would not as a
+	 * transformed HTML element outside of the SVG.
+	 *
+	 * The role img that MathJax puts on the SVG is removed, as Chrome writes
+	 * tagged PDFs and leaves the content of an image out of the text
+	 * structure, which is what macOS Preview selects and searches. Only used
+	 * for PDF export and print, where nothing else needs the formula for
+	 * selection. The source is added as a text node, so it cannot inject
+	 * markup.
 	 */
 	Editor.addMathTextLayer = function(container, mathJax)
 	{
@@ -4826,6 +4875,7 @@
 		}
 
 		var items = doc.getMathItemsWithin(container);
+		var layers = [];
 
 		for (var i = 0; i < items.length; i++)
 		{
@@ -4840,26 +4890,66 @@
 			if (svg != null && svg.nodeName.toLowerCase() == 'svg' &&
 				svg.viewBox != null && svg.viewBox.baseVal != null &&
 				svg.viewBox.baseVal.width > 0 && source.length > 0 &&
-				!(svg.lastChild != null && svg.lastChild.nodeName.toLowerCase() == 'text' &&
+				!(svg.lastChild != null && svg.lastChild.nodeName.toLowerCase() == 'foreignobject' &&
 				svg.lastChild.getAttribute('class') == 'geMathSource'))
 			{
 				// The viewBox has the baseline at 0 and 1000 units per em of
-				// the math, which is scaled relative to the surrounding text
+				// the math, which is scaled relative to the surrounding text.
+				// Units of the foreignObject are 16px per em of the surrounding
+				// text.
 				var vb = svg.viewBox.baseVal;
 				var scale = (item.metrics != null && item.metrics.scale > 0) ?
 					item.metrics.scale : 1;
+				var units = 1000 / scale / 16;
+				var ownerDoc = svg.ownerDocument;
 
-				var text = svg.ownerDocument.createElementNS(mxConstants.NS_SVG, 'text');
-				text.setAttribute('class', 'geMathSource');
-				text.setAttribute('x', vb.x);
-				text.setAttribute('y', '0');
-				text.setAttribute('font-size', 1000 / scale);
-				text.setAttribute('textLength', vb.width);
-				text.setAttribute('lengthAdjust', 'spacingAndGlyphs');
-				text.setAttribute('fill-opacity', '0');
+				var fo = ownerDoc.createElementNS(mxConstants.NS_SVG, 'foreignObject');
+				fo.setAttribute('class', 'geMathSource');
+				fo.setAttribute('y', vb.y / units);
+				fo.setAttribute('width', vb.width / units);
+				fo.setAttribute('height', vb.height / units);
+				fo.style.overflow = 'visible';
+
+				// Resets the inherited text styles that would show the text
+				// or position each glyph separately
+				var div = ownerDoc.createElement('div');
+				div.style.cssText = 'font-size:16px;line-height:0;white-space:pre;' +
+					'color:rgba(0,0,0,0.002);text-shadow:none;letter-spacing:normal;' +
+					'word-spacing:normal;text-transform:none;text-align:left;direction:ltr;';
+
+				// Empty inline block with its bottom on the baseline of the
+				// text, as high as the formula above its baseline
+				var strut = ownerDoc.createElement('span');
+				strut.style.display = 'inline-block';
+				strut.style.height = Math.max(0, -vb.y / units) + 'px';
+				div.appendChild(strut);
+
+				var text = ownerDoc.createElement('span');
 				mxUtils.write(text, source);
-				svg.appendChild(text);
-				svg.removeAttribute('role');
+				div.appendChild(text);
+				fo.appendChild(div);
+				svg.appendChild(fo);
+
+				layers.push({svg: svg, fo: fo, text: text, vb: vb, units: units});
+			}
+		}
+
+		// Measures after all layers were added for a single layout
+		for (var i = 0; i < layers.length; i++)
+		{
+			var layer = layers[i];
+			var textWidth = layer.text.offsetWidth;
+
+			if (textWidth > 0)
+			{
+				layer.fo.setAttribute('width', textWidth);
+				layer.fo.setAttribute('transform', 'translate(' + layer.vb.x + ',0)' +
+					'scale(' + (layer.vb.width / textWidth) + ',' + layer.units + ')');
+				layer.svg.removeAttribute('role');
+			}
+			else
+			{
+				layer.fo.parentNode.removeChild(layer.fo);
 			}
 		}
 	};
@@ -7247,6 +7337,7 @@
 		mxCellRenderer.prototype.defaultVertexShape.prototype.customProperties = [
 	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
 	        {name: 'absoluteArcSize', dispName: 'Abs. Arc Size', type: 'bool', defVal: false},
+	        Editor.roundedPerimeterProperty,
 	        {name: 'footerSize', dispName: 'Footer Size', type: 'float', min: 0, defVal: 0},
 	        // primary shows the color in the style panel (see getCustomColors)
 	        // for cells that actually have a footer
@@ -7280,6 +7371,13 @@
 	        {name: 'width', dispName: 'Width', type: 'float', min:0, defVal: 10},
 	        {name: 'startWidth', dispName: 'Start Width', type: 'float', min:0, defVal: 20},
 	        {name: 'endWidth', dispName: 'End Width', type: 'float', min:0, defVal: 20}
+		];
+
+		mxCellRenderer.defaultShapes['taperedArrow'].prototype.customProperties = [
+	        {name: 'startWidth', dispName: 'Start Width', type: 'float', min:0,
+	        	defVal: mxCellRenderer.defaultShapes['taperedArrow'].prototype.defaultStartWidth},
+	        {name: 'endWidth', dispName: 'End Width', type: 'float', min:0,
+	        	defVal: mxCellRenderer.defaultShapes['taperedArrow'].prototype.defaultEndWidth}
 		];
 
 		mxCellRenderer.defaultShapes['process'].prototype.customProperties = [
@@ -7433,7 +7531,9 @@
 			{name: 'columnLines', dispName: 'Column Lines', type: 'bool', defVal: true},
 			{name: 'fixedRows', dispName: 'Fixed Rows', type: 'bool', defVal: false},
 			{name: 'resizeLast', dispName: 'Resize Last Column', type: 'bool', defVal: false},
-			{name: 'resizeLastRow', dispName: 'Resize Last Row', type: 'bool', defVal: false}].
+			{name: 'resizeLastRow', dispName: 'Resize Last Row', type: 'bool', defVal: false},
+			{name: 'tableRender', dispName: 'Borders', type: 'enum', defVal: 'separate',
+				enumList: [{val: 'separate', dispName: 'Separate'}, {val: 'collapsed', dispName: 'Collapsed'}]}].
 			concat(mxCellRenderer.defaultShapes['swimlane'].prototype.customProperties).
 			concat(mxCellRenderer.defaultShapes['partialRectangle'].prototype.customProperties);
 
@@ -7474,6 +7574,7 @@
 	        {name: 'imageHeight', dispName: 'Image Height', type: 'float', min:0, defVal: 24},
 	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: 12},
 	        {name: 'absoluteArcSize', dispName: 'Abs. Arc Size', type: 'bool', defVal: false},
+	        Editor.roundedPerimeterProperty,
 	        {name: 'footerSize', dispName: 'Footer Size', type: 'float', min: 0, defVal: 0},
 	        // primary shows the color in the style panel (see getCustomColors)
 	        // for cells that actually have a footer
@@ -8586,8 +8687,9 @@
 										continue;
 									}
 
+									// Tables and rows without a title are filled with the lane color
 									var fillKey = (meta.isLabel) ? mxConstants.STYLE_LABEL_BACKGROUNDCOLOR :
-										mxConstants.STYLE_FILLCOLOR;
+										graph.getFillColorKey(cells[i]);
 									var strokeKey = (meta.isLabel) ? mxConstants.STYLE_LABEL_BORDERCOLOR :
 										mxConstants.STYLE_STROKECOLOR;
 
@@ -8929,12 +9031,23 @@
 	 * Uses CSS2 for Google fonts to support bold font style eg.
 	 * https://fonts.googleapis.com/css?family=IBM+Plex+Sans is rewritten as
 	 * https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500
+	 *
+	 * Only a single plain family name is rewritten. Anything else, such as a
+	 * CSS1 weight list (Roboto:400,700), multiple families (Roboto|Lato) or
+	 * extra parameters (&display=swap), raw or percent-encoded, is returned
+	 * unchanged as the CSS1 API still serves it and appending the CSS2 axis
+	 * to it gives an invalid request (HTTP 400).
 	 */
 	Graph.rewriteGoogleFontUrl = function(url)
 	{
 		if (url != null && url.substring(0, Editor.GOOGLE_FONTS.length) == Editor.GOOGLE_FONTS)
 		{
-			url = Editor.GOOGLE_FONTS_CSS2 + url.substring(Editor.GOOGLE_FONTS.length) + ':wght@400;500';
+			var family = url.substring(Editor.GOOGLE_FONTS.length);
+
+			if (/^(?:[\w+ \-]|%20)+$/.test(family))
+			{
+				url = Editor.GOOGLE_FONTS_CSS2 + family + ':wght@400;500';
+			}
 		}
 
 		return url;
@@ -10975,6 +11088,12 @@
 	 * When adding new actions that reference cell IDs support for updating
 	 * those cell IDs must be handled in Graph.updateCustomLinkActions
 	 */
+	/**
+	 * Hook for selecting the next or previous page with wrap around in the
+	 * page custom action. This implementation does nothing.
+	 */
+	Graph.prototype.selectNextPage = function(forward) { };
+
 	Graph.prototype.executeCustomActions = function(actions, done, cell)
 	{
 		if (!this.executingCustomActions)
@@ -11133,6 +11252,13 @@
 						{
 							this.openLink(action.open);
 						}
+					}
+
+					// Selects the next or previous page with wrap around
+					if (action.page == 'next' || action.page == 'previous')
+					{
+						endUpdate();
+						this.selectNextPage(action.page == 'next');
 					}
 
 					if (action.wait != null && !stop)

@@ -362,6 +362,13 @@ mxPrintPreview.prototype.targetWindow = null;
 mxPrintPreview.prototype.pageCount = 0;
 
 /**
+ * Variable: lastPageDiv
+ * 
+ * Holds the last page DIV that was added to the preview.
+ */
+mxPrintPreview.prototype.lastPageDiv = null;
+
+/**
  * Variable: clipping
  * 
  * Specifies is clipping should be used to avoid creating too many cell states
@@ -585,8 +592,14 @@ mxPrintPreview.prototype.open = function(css, targetWindow, forcePageBreaks, kee
 		{
 			isNewWindow = true;
 			this.wnd = window.open();
+
+			// Popup was blocked, callers check for a null window
+			if (this.wnd == null)
+			{
+				return null;
+			}
 		}
-		
+
 		var doc = this.wnd.document;
 		
 		if (isNewWindow)
@@ -669,6 +682,18 @@ mxPrintPreview.prototype.open = function(css, targetWindow, forcePageBreaks, kee
 				div.style.height = pageFormat.height + 'px';
 			}
 			
+			// Exempts only the last page from the forced page break. The
+			// :last-of-type rule in defaultCss misses the last page if other
+			// DIVs are appended to the body later, eg. the LoadingComplete
+			// marker in the export renderer [jgraph/drawio-dev#674]
+			if (this.lastPageDiv != null)
+			{
+				this.lastPageDiv.style.breakAfter = '';
+			}
+
+			div.style.breakAfter = 'auto';
+			this.lastPageDiv = div;
+
 			doc.body.appendChild(div);
 		});
 		
