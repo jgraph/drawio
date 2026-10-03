@@ -6105,6 +6105,7 @@ EditorUi.prototype.setBackgroundColor = function(value)
 {
 	this.editor.graph.background = value;
 	this.editor.graph.view.validateBackground();
+	this.editor.graph.updatePageBackgroundColors();
 
 	this.fireEvent(new mxEventObject('backgroundColorChanged'));
 };

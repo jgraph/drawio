@@ -4907,6 +4907,18 @@ TextFormatPanel.prototype.addFont = function(container)
 	stylePanel2.appendChild(stepper);
 	var bgColorApply = null;
 	var currentBgColor = graph.shapeBackgroundColor;
+	var pageBgPanel = null;
+	var labelBgColor = ss.style[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR];
+
+	// Shows the page background option for default label backgrounds
+	function updatePageBgPanel()
+	{
+		if (pageBgPanel != null)
+		{
+			pageBgPanel.style.display = (bgPanel.style.display != 'none' &&
+				labelBgColor == 'default') ? '' : 'none';
+		}
+	};
 	
 	var fontColorApply = null;
 	var currentFontColor = graph.shapeForegroundColor;
@@ -4949,13 +4961,19 @@ TextFormatPanel.prototype.addFont = function(container)
 		}, null, null, graph.shapeBackgroundColor) :
 		// Font background color option for shape
 		this.createCellColorOption(mxResources.get('backgroundColor'),
-			mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, 'default', null, function(color)
+			mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, 'default', function(color)
+		{
+			labelBgColor = color;
+			updatePageBgPanel();
+		}, function(color)
 		{
 			graph.updateLabelElements(ui.getSelectionState().cells, function(elt)
 			{
 				elt.style.backgroundColor = null;
 			});
-		}, graph.shapeBackgroundColor);
+		}, (ss.style['defaultLabelBackgroundColor'] == 'page') ?
+			graph.getPageBackgroundColor(graph.shapeBackgroundColor) :
+			graph.shapeBackgroundColor);
 	
 	bgPanel.style.fontWeight = 'bold';
 
@@ -5009,6 +5027,7 @@ TextFormatPanel.prototype.addFont = function(container)
 			}
 			
 			borderPanel.style.display = bgPanel.style.display;
+			updatePageBgPanel();
 		}, function(color)
 		{
 			// createCellColorOption already applied the color to the current
@@ -5050,6 +5069,16 @@ TextFormatPanel.prototype.addFont = function(container)
 	}
 
 	colorPanel.appendChild(bgPanel);
+
+	// Default label background follows the page background color
+	if (!graph.cellEditor.isContentEditing())
+	{
+		pageBgPanel = this.createCellOption(mxResources.get('pageBackground'),
+			'defaultLabelBackgroundColor', null, 'page', 'null');
+		pageBgPanel.style.paddingLeft = '16px';
+		colorPanel.appendChild(pageBgPanel);
+		updatePageBgPanel();
+	}
 	
 	var textShadow = this.createCellOption(mxResources.get('shadow'),
 		mxConstants.STYLE_TEXT_SHADOW, 0);
@@ -7329,11 +7358,11 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		Format.processMenuIcon(this.editorUi.menus.styleChange(menu, '', keys, ['taperedArrow', null, null, null, null, null, null, null, null],
 			'', null, null, null, true, Format.taperedArrowImage.src)).setAttribute('title', mxResources.get('taperedArrow'));
 		Format.processMenuIcon(this.editorUi.menus.styleChange(menu, '', keys, ['filledEdge', null, null, null, null, null, null, null, null], '',
-			null, null, null, true, Format.filledEdgeImage.src)).setAttribute('title', 'Filled Edge');
+			null, null, null, true, Format.filledEdgeImage.src)).setAttribute('title', mxResources.get('filledEdge'));
 		Format.processMenuIcon(this.editorUi.menus.styleChange(menu, '', keys, ['pipe', null, null, null, null, null, null, null, null], '',
-			null, null, null, true, Format.pipeEdgeImage.src)).setAttribute('title', 'Pipe');
+			null, null, null, true, Format.pipeEdgeImage.src)).setAttribute('title', mxResources.get('pipe'));
 		Format.processMenuIcon(this.editorUi.menus.styleChange(menu, '', keys, ['wire', null, null, '1', null, null, null, null, null], '',
-			null, null, null, true, Format.wireEdgeImage.src)).setAttribute('title', 'Wire');
+			null, null, null, true, Format.wireEdgeImage.src)).setAttribute('title', mxResources.get('wire'));
 	})), '', null, altStylePanel);
 
 	edgeShape.setAttribute('title', mxResources.get('connection'));

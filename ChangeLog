@@ -1,3 +1,36 @@
+03-OCT-2026: 32.0.2
+
+- Makes the ellipse perimeter independent of the zoom level
+- Fixes Google font URLs with weights or multiple families
+- Fixes initial scroll position of zoomed-out diagrams in resetScrollbars
+- Updates stable channel to 31.7.1
+- Shortens the Set as Default for New Connections label to fit the Format panel
+- Translates the Tapered Arrow title in the connection menus
+- Makes entity relation routes independent of the zoom level
+- Documents the libavoid routing boxes of relative and edge children
+- Restricts extFonts sources and loads CSS2 Google fonts from extFonts
+- Applies fitDiagramOnLoad in all editors instead of only on own domains
+- Fits the diagram once instead of twice when a file is opened
+- Adds no waypoints when a straight edge segment is moved back
+- Removes waypoints of orthogonal edges that are equal to a terminal point
+- Keeps edge labels in place when the route of an edge is edited
+- Adds x and y inputs for the waypoints of an edge to the Arrange panel
+- Adds Alt+Ctrl (Alt+Cmd) to move edge ends onto the grid without connecting
+- Adds Add Connection Point to the context menu and snaps point centers
+- Adds centimeters as a unit
+- Adds a border width option to the Google Workspace and Office add-ons
+- Adds cell metadata to SVG exports of the export page on request
+- Removes duplicate waypoints of elbow, entity relation and isometric routes
+- Spins the refresh icon of the add-on panel while the list loads
+- Keeps margins and footer when a stack child is resized
+- Adds named presets to the image export dialog
+- Translates the Filled Edge, Pipe and Wire titles in the connection menus
+- Adds a page background option for default label backgrounds
+- Shortens the Clear Default for New Connections label in the Format panel
+- Renames Set Default for New Connections to Set New Connection Default
+- Removes the open source claim from the Trello Power-Up description
+- Fixes containers extended too far by shapes picked from the hover arrows
+
 03-OCT-2026: 32.0.1
 
 - Lowers the stencil bundle floor of the release PR integrity check

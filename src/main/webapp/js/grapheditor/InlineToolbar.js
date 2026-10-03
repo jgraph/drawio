@@ -2049,11 +2049,11 @@ InlineToolbar.prototype.showConnStyleMenu = function(evt)
 		keys: shapeKeys, values: ['arrow', null, null, null, null, null, null, null, null]});
 	shapeItems.push({img: Format.taperedArrowImage.src, title: mxResources.get('taperedArrow'),
 		keys: shapeKeys, values: ['taperedArrow', null, null, null, null, null, null, null, null]});
-	shapeItems.push({img: Format.filledEdgeImage.src, title: 'Filled Edge',
+	shapeItems.push({img: Format.filledEdgeImage.src, title: mxResources.get('filledEdge'),
 		keys: shapeKeys, values: ['filledEdge', null, null, null, null, null, null, null, null]});
-	shapeItems.push({img: Format.pipeEdgeImage.src, title: 'Pipe',
+	shapeItems.push({img: Format.pipeEdgeImage.src, title: mxResources.get('pipe'),
 		keys: shapeKeys, values: ['pipe', null, null, null, null, null, null, null, null]});
-	shapeItems.push({img: Format.wireEdgeImage.src, title: 'Wire',
+	shapeItems.push({img: Format.wireEdgeImage.src, title: mxResources.get('wire'),
 		keys: shapeKeys, values: ['wire', null, null, '1', null, null, null, null, null]});
 
 	if (routingItems.length > 0)

@@ -10281,7 +10281,298 @@
 	};
 	
 	/**
-	 * 
+	 * Formats of the image export dialog that support named presets.
+	 */
+	EditorUi.exportPresetFormats = ['png', 'svg', 'jpeg', 'webp'];
+
+	/**
+	 * Maximum number of export presets per format.
+	 */
+	EditorUi.maxExportPresets = 50;
+
+	/**
+	 * Maximum length of an export preset name.
+	 */
+	EditorUi.maxExportPresetNameLength = 100;
+
+	/**
+	 * Returns a sanitized copy of the given stored export preset or null if
+	 * the preset is invalid. Only known keys with valid types are copied
+	 * into an object without a prototype and numbers are clamped.
+	 */
+	EditorUi.sanitizeExportPreset = function(preset)
+	{
+		var result = null;
+
+		if (preset != null && typeof preset === 'object' && !Array.isArray(preset) &&
+			typeof preset.name === 'string' && preset.values != null &&
+			typeof preset.values === 'object' && !Array.isArray(preset.values))
+		{
+			var name = mxUtils.trim(preset.name).substring(0,
+				EditorUi.maxExportPresetNameLength);
+
+			if (name.length > 0)
+			{
+				var src = preset.values;
+				var values = Object.create(null);
+
+				var has = function(key, type)
+				{
+					return Object.prototype.hasOwnProperty.call(src, key) &&
+						typeof src[key] === type;
+				};
+
+				var addNumber = function(key, min, max, round)
+				{
+					if (has(key, 'number') && isFinite(src[key]))
+					{
+						var value = Math.max(min, Math.min(max, src[key]));
+						values[key] = (round) ? Math.round(value) : value;
+					}
+				};
+
+				var addEnum = function(key, allowed)
+				{
+					if (has(key, 'string') && mxUtils.indexOf(allowed, src[key]) >= 0)
+					{
+						values[key] = src[key];
+					}
+				};
+
+				addNumber('zoom', 1, 10000);
+				addNumber('border', 0, 10000);
+				addNumber('dpi', 1, 10000, true);
+				addEnum('exportType', ['diagram', 'page']);
+				addEnum('includePages', ['allPages', 'currentPage']);
+				addEnum('theme', ['light', 'dark', 'auto']);
+				addEnum('linkTarget', ['auto', 'blank', 'self']);
+
+				var flags = ['transparent', 'include', 'shadow', 'grid', 'embedImages',
+					'embedFonts', 'embedCellMetadata', 'embedIcons'];
+
+				for (var i = 0; i < flags.length; i++)
+				{
+					if (has(flags[i], 'boolean'))
+					{
+						values[flags[i]] = src[flags[i]];
+					}
+				}
+
+				result = {name: name, values: values};
+			}
+		}
+
+		return result;
+	};
+
+	/**
+	 * Returns true if named export presets can be stored.
+	 */
+	EditorUi.prototype.isExportPresetsEnabled = function(format)
+	{
+		return typeof mxSettings !== 'undefined' && mxSettings.settings != null &&
+			isLocalStorage && mxUtils.indexOf(EditorUi.exportPresetFormats, format) >= 0;
+	};
+
+	/**
+	 * Returns the sanitized export presets for the given format.
+	 */
+	EditorUi.prototype.getExportPresets = function(format)
+	{
+		var result = [];
+
+		if (this.isExportPresetsEnabled(format))
+		{
+			var stored = mxSettings.getExportPresets(format);
+			var names = Object.create(null);
+
+			for (var i = 0; i < stored.length &&
+				result.length < EditorUi.maxExportPresets; i++)
+			{
+				var preset = EditorUi.sanitizeExportPreset(stored[i]);
+
+				if (preset != null && !names[preset.name])
+				{
+					names[preset.name] = true;
+					result.push(preset);
+				}
+			}
+		}
+
+		return result;
+	};
+
+	/**
+	 * Stores the given export presets for the given format.
+	 */
+	EditorUi.prototype.setExportPresets = function(format, presets)
+	{
+		if (this.isExportPresetsEnabled(format))
+		{
+			mxSettings.setExportPresets(format,
+				presets.slice(0, EditorUi.maxExportPresets));
+		}
+	};
+
+	/**
+	 * Returns a new form row with a select for the named export presets of
+	 * the given format. getValues returns the current dialog values and
+	 * setValues applies the sanitized values of a preset.
+	 */
+	EditorUi.prototype.createExportPresetsRow = function(format, getValues, setValues)
+	{
+		var row = document.createElement('div');
+		row.className = 'geDialogFormRow';
+		var lbl = document.createElement('span');
+		lbl.className = 'geDialogFormLabel';
+		mxUtils.write(lbl, mxResources.get('presets') + ':');
+		row.appendChild(lbl);
+
+		var select = document.createElement('select');
+		row.appendChild(select);
+
+		var presets = this.getExportPresets(format);
+		var current = null;
+
+		var update = mxUtils.bind(this, function()
+		{
+			while (select.firstChild != null)
+			{
+				select.removeChild(select.firstChild);
+			}
+
+			var noneOption = document.createElement('option');
+			noneOption.setAttribute('value', '');
+			mxUtils.write(noneOption, mxResources.get('none'));
+			select.appendChild(noneOption);
+
+			for (var i = 0; i < presets.length; i++)
+			{
+				var option = document.createElement('option');
+				option.setAttribute('value', 'preset' + i);
+				mxUtils.write(option, presets[i].name);
+				select.appendChild(option);
+			}
+
+			var saveOption = document.createElement('option');
+			saveOption.setAttribute('value', 'save');
+			mxUtils.write(saveOption, mxResources.get('saveAs') + '...');
+			select.appendChild(saveOption);
+
+			if (current != null)
+			{
+				var deleteOption = document.createElement('option');
+				deleteOption.setAttribute('value', 'delete');
+				mxUtils.write(deleteOption, mxResources.get('delete') +
+					' "' + presets[current].name + '"');
+				select.appendChild(deleteOption);
+			}
+
+			select.value = (current != null) ? 'preset' + current : '';
+		});
+
+		var findPreset = function(name)
+		{
+			for (var i = 0; i < presets.length; i++)
+			{
+				if (presets[i].name == name)
+				{
+					return i;
+				}
+			}
+
+			return -1;
+		};
+
+		mxEvent.addListener(select, 'change', mxUtils.bind(this, function()
+		{
+			var value = select.value;
+
+			if (value == 'save')
+			{
+				select.value = (current != null) ? 'preset' + current : '';
+
+				var dlg = new FilenameDialog(this, (current != null) ?
+					presets[current].name : '', mxResources.get('save'),
+					mxUtils.bind(this, function(name)
+				{
+					var preset = EditorUi.sanitizeExportPreset(
+						{name: name, values: getValues()});
+
+					if (preset != null)
+					{
+						presets = this.getExportPresets(format);
+						var index = findPreset(preset.name);
+
+						if (index >= 0)
+						{
+							presets[index] = preset;
+						}
+						else if (presets.length < EditorUi.maxExportPresets)
+						{
+							presets.push(preset);
+							index = presets.length - 1;
+						}
+
+						if (index >= 0)
+						{
+							this.setExportPresets(format, presets);
+							current = index;
+						}
+
+						update();
+					}
+				}), mxResources.get('name'), function(name)
+				{
+					return name != null && mxUtils.trim(name).length > 0;
+				});
+				this.showDialog(dlg.container, 300, 80, true, true);
+				dlg.init();
+			}
+			else if (value == 'delete')
+			{
+				if (current != null)
+				{
+					var name = presets[current].name;
+					presets = this.getExportPresets(format);
+					var index = findPreset(name);
+
+					if (index >= 0)
+					{
+						presets.splice(index, 1);
+						this.setExportPresets(format, presets);
+					}
+				}
+
+				current = null;
+				update();
+			}
+			else if (value.substring(0, 6) == 'preset')
+			{
+				var index = parseInt(value.substring(6));
+
+				if (presets[index] != null)
+				{
+					current = index;
+					setValues(presets[index].values);
+				}
+
+				update();
+			}
+			else
+			{
+				current = null;
+				update();
+			}
+		}));
+
+		update();
+
+		return row;
+	};
+
+	/**
+	 *
 	 */
 	EditorUi.prototype.showExportDialog = function(title, embedOption, btnLabel, helpLink, callback,
 		cropOption, defaultInclude, format, exportOption)
@@ -10858,6 +11149,192 @@
 			lbl.setAttribute('for', cb9.id);
 			iconsRow.appendChild(lbl);
 			advSection.appendChild(iconsRow);
+		}
+
+		// Named presets of the current values (only applicable controls)
+		if (this.isExportPresetsEnabled(format))
+		{
+			var getPresetValues = function()
+			{
+				var values = {};
+				var zoom = parseFloat(zoomInput.value);
+				var border = parseFloat(borderInput.value);
+
+				if (!isNaN(zoom) && zoom > 0)
+				{
+					values.zoom = zoom;
+				}
+
+				if (!isNaN(border) && border >= 0)
+				{
+					values.border = border;
+				}
+
+				if (transparentVisible)
+				{
+					values.transparent = transparent.checked;
+				}
+
+				if (format != 'jpeg' && format != 'webp')
+				{
+					values.include = include.checked;
+				}
+
+				if (format == 'png' || format == 'svg')
+				{
+					values.includePages = includeSelect.value;
+				}
+
+				if (exportOption)
+				{
+					values.exportType = exportSelect.value;
+				}
+
+				if (format == 'png')
+				{
+					var dpi = parseInt(customDpi.value);
+
+					if (!isNaN(dpi) && dpi > 0)
+					{
+						values.dpi = dpi;
+					}
+				}
+
+				if (format == 'svg')
+				{
+					values.linkTarget = linkSelect.value;
+				}
+
+				if (grid != null && !gridDisabled)
+				{
+					values.grid = grid.checked;
+				}
+
+				if (embedOption)
+				{
+					values.embedImages = cb5.checked;
+					values.embedFonts = cb7.checked;
+					values.embedCellMetadata = cb8.checked;
+					values.embedIcons = cb9.checked;
+				}
+
+				values.theme = themeSelect.value;
+				values.shadow = shadow.checked;
+
+				return values;
+			};
+
+			var setSelectValue = function(select, value, defaultValue)
+			{
+				select.value = value;
+
+				if (select.selectedIndex < 0)
+				{
+					select.value = defaultValue;
+				}
+			};
+
+			var setPresetValues = function(values)
+			{
+				if (values.zoom != null)
+				{
+					zoomUserChanged = true;
+					zoomInput.value = parseFloat(values.zoom.toFixed(2)) + '%';
+					updateSizeFromZoom();
+				}
+
+				if (values.border != null)
+				{
+					borderInput.value = String(values.border);
+				}
+
+				if (values.transparent != null && transparentVisible)
+				{
+					transparent.checked = values.transparent;
+				}
+
+				if (values.include != null && format != 'jpeg' && format != 'webp')
+				{
+					include.checked = values.include;
+
+					if (include.checked)
+					{
+						includeSelect.removeAttribute('disabled');
+					}
+					else
+					{
+						includeSelect.setAttribute('disabled', 'disabled');
+					}
+				}
+
+				if (values.includePages != null && (format == 'png' || format == 'svg'))
+				{
+					setSelectValue(includeSelect, values.includePages, 'allPages');
+				}
+
+				if (values.exportType != null && exportOption &&
+					sizesOpt[values.exportType] != null)
+				{
+					exportSelect.value = values.exportType;
+					selection.checked = false;
+				}
+
+				if (values.dpi != null && format == 'png')
+				{
+					customDpi.value = values.dpi;
+					customDpi.style.backgroundColor = '';
+					dpiSelect.value = String(values.dpi);
+
+					if (dpiSelect.selectedIndex < 0)
+					{
+						dpiSelect.value = 'custom';
+						dpiSelect.style.display = 'none';
+						customDpi.style.display = '';
+					}
+					else
+					{
+						dpiSelect.style.display = '';
+						customDpi.style.display = 'none';
+					}
+				}
+
+				if (values.theme != null)
+				{
+					setSelectValue(themeSelect, values.theme, defaultTheme);
+				}
+
+				if (values.linkTarget != null && format == 'svg')
+				{
+					setSelectValue(linkSelect, values.linkTarget, 'auto');
+				}
+
+				if (values.shadow != null)
+				{
+					shadow.checked = values.shadow;
+				}
+
+				if (values.grid != null && grid != null && !gridDisabled)
+				{
+					grid.checked = values.grid;
+				}
+
+				if (embedOption)
+				{
+					var flags = {embedImages: cb5, embedFonts: cb7,
+						embedCellMetadata: cb8, embedIcons: cb9};
+
+					for (var key in flags)
+					{
+						if (values[key] != null)
+						{
+							flags[key].checked = values[key];
+						}
+					}
+				}
+			};
+
+			dimSection.insertBefore(this.createExportPresetsRow(format,
+				getPresetValues, setPresetValues), dimSection.firstChild);
 		}
 
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()

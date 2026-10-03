@@ -120,11 +120,11 @@ Menus.prototype.init = function()
 		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['taperedArrow', null, null, null, null, null, null, null, null],
 			null, parent, true, Format.taperedArrowImage.src)).setAttribute('title', mxResources.get('taperedArrow'));
 		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['filledEdge', null, null, null, null, null, null, null, null],
-			null, parent, true, Format.filledEdgeImage.src)).setAttribute('title', 'Filled Edge');
+			null, parent, true, Format.filledEdgeImage.src)).setAttribute('title', mxResources.get('filledEdge'));
 		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['pipe', null, null, null, null, null, null, null, null],
-			null, parent, true, Format.pipeEdgeImage.src)).setAttribute('title', 'Pipe');
+			null, parent, true, Format.pipeEdgeImage.src)).setAttribute('title', mxResources.get('pipe'));
 		Format.processMenuIcon(this.edgeStyleChange(menu, '', keys, ['wire', null, null, '1', null, null, null, null, null],
-			null, parent, true, Format.wireEdgeImage.src)).setAttribute('title', 'Wire');
+			null, parent, true, Format.wireEdgeImage.src)).setAttribute('title', mxResources.get('wire'));
 	})));
 
 	this.put('line', new Menu(mxUtils.bind(this, function(menu, parent)

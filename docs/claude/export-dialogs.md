@@ -34,3 +34,18 @@ a custom DPI needs the custom input toggled visible).
 
 Dialog look & feel (CustomDialog, CSS classes, spacing, dark mode):
 `docs/dialog-style-guide.md`.
+
+## Named presets (image export dialog)
+
+(Oct 2026, jgraph/drawio-desktop#2339) `showExportDialog` (PNG/SVG/JPEG/WEBP)
+has a Presets select as the first row: "Save as..." stores the values of the
+APPLICABLE controls under a name (`FilenameDialog`), picking a preset applies
+them, "Delete" removes the selected one. Presets persist per format in
+`mxSettings.settings.exportPresets` (`{png: [{name, values}], ...}`, accessors
+`mxSettings.get/setExportPresets`).
+Stored entries are untrusted: `EditorUi.sanitizeExportPreset` copies only
+known keys with the expected type into an `Object.create(null)` object,
+clamps numbers and validates enums; names are trimmed, capped and only
+written via `mxUtils.write`. Applying a preset does not change the
+per-session `lastExport*` memory until the export is confirmed. The print/PDF
+dialog has no presets.

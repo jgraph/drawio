@@ -1847,8 +1847,8 @@ Graph.colorStyles = [mxConstants.STYLE_FONTCOLOR,
  * Styles that are used for text.
  */
 Graph.textStyles = ['fontFamily', 'fontSource', 'fontSize', 'fontColor', 'fontStyle',
-	'textOpacity', 'labelBorderColor', 'labelBackgroundColor', 'autosize', 'resizable',
-	'horizontal', 'textDirection', 'autosizeText'];
+	'textOpacity', 'labelBorderColor', 'labelBackgroundColor', 'defaultLabelBackgroundColor',
+	'autosize', 'resizable', 'horizontal', 'textDirection', 'autosizeText'];
 
 /**
  * Text styles that are shared between the vertex and edge default styles.
@@ -1861,7 +1861,7 @@ Graph.sharedTextStyles = ['fontFamily', 'fontSource', 'fontSize', 'fontColor'];
 Graph.pasteTextStyles = ['fontFamily', 'fontSource', 'fontSize', 'fontColor', 'fontStyle',
 	'textOpacity', 'align', 'verticalAlign', 'spacingLeft', 'spacingRight',
 	'spacingTop', 'spacingBottom', 'spacing', 'labelBorderColor', 'labelBackgroundColor',
-	'horizontal', 'textDirection'];
+	'defaultLabelBackgroundColor', 'horizontal', 'textDirection'];
 
 /**
  * Styles that are used for edges.
@@ -14653,9 +14653,15 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 					cellToClone =  (cloneSource) ? source : this.getCompositeParent(cellToClone);
 					realTarget = (targetCell != null) ? targetCell : this.duplicateCells([cellToClone], false)[0];
 					
+					// Puts the picked cell into the parent of the source like a
+					// duplicate, so that the geometry below is relative to that
+					// parent before the cell is added to the container or the
+					// default parent. The picked cell has no parent yet, so adding
+					// it with its absolute position moved it by the negative origin
+					// of the parent and extended the parent that far.
 					if (targetCell != null)
 					{
-						this.addCells([realTarget], this.model.getParent(source), null, null, null, true);
+						this.model.add(this.model.getParent(source), realTarget);
 					}
 					
 					var geo = this.getCellGeometry(realTarget);
@@ -14981,7 +14987,11 @@ Graph.prototype.replaceDefaultColor = function(style, key, value)
 };
 
 /**
- * Replaces the colors for the given key.
+ * Replaces the colors for the given key. The default color is inverted if
+ * default<Key>=invert and replaced with the page background color if
+ * default<Key>=page (eg. labelBackgroundColor=default;
+ * defaultLabelBackgroundColor=page hides the cells behind a label with the
+ * color of the page, see getPageBackgroundColor).
  */
 Graph.prototype.getDefaultColor = function(style, key, defaultValue)
 {
@@ -14992,8 +15002,57 @@ Graph.prototype.getDefaultColor = function(style, key, defaultValue)
 		var color = mxUtils.getLightDarkColor(defaultValue);
 		defaultValue = 'light-dark(' + color.dark + ', ' + color.light + ')';
 	}
+	else if (style[temp] == 'page')
+	{
+		defaultValue = this.getPageBackgroundColor(defaultValue);
+	}
 
 	return defaultValue;
+};
+
+/**
+ * Returns the background color of the page or the given default color if
+ * the page has no background color.
+ */
+Graph.prototype.getPageBackgroundColor = function(defaultValue)
+{
+	return (this.background != null && this.background != mxConstants.NONE &&
+		this.background != '' && this.background != 'transparent') ?
+		this.background : defaultValue;
+};
+
+/**
+ * Updates the styles of all cells that use the page background color (see
+ * getDefaultColor) after the background color of the page has changed.
+ */
+Graph.prototype.updatePageBackgroundColors = function()
+{
+	var states = this.view.states.getValues();
+	var changed = false;
+
+	for (var i = 0; i < states.length; i++)
+	{
+		var style = states[i].style;
+
+		if (style != null)
+		{
+			for (var key in style)
+			{
+				if (style[key] == 'page' && key.substring(0, 7) == 'default')
+				{
+					this.view.invalidate(states[i].cell, false, false);
+					states[i].invalidStyle = true;
+					changed = true;
+					break;
+				}
+			}
+		}
+	}
+
+	if (changed)
+	{
+		this.view.validate();
+	}
 };
 
 /**
@@ -30147,7 +30206,9 @@ if (typeof mxVertexHandler !== 'undefined')
 				var parent = this.graph.model.getParent(cell);
 				var geo = (parent != null) ? this.graph.getCellGeometry(parent) : null;
 			
-				if (geo != null)
+				// Ignores transparentBounds parents whose geometry is pinned
+				// at (0,0,0,0) and derived from the children
+				if (geo != null && !this.graph.isTransparentBounds(parent))
 				{
 					style = this.graph.getCellStyle(parent);
 					
@@ -30155,19 +30216,33 @@ if (typeof mxVertexHandler !== 'undefined')
 					{
 						var border = parseFloat(mxUtils.getValue(style, 'stackBorder', mxStackLayout.prototype.border));
 						var horizontal = mxUtils.getValue(style, 'horizontalStack', '1') == '1';
-						var start = this.graph.getActualStartSize(parent);
+						var start = this.graph.getActualStartSize(parent, true);
+						var footer = this.graph.getActualFooterSize(parent, true);
+						var prev = geo;
 						geo = geo.clone();
 						
+						// Adds the margins and footer that mxStackLayout.execute
+						// subtracts when it fills the children, otherwise the
+						// resized child shrinks by them in the next layout run
 						if (horizontal)
 						{
-							geo.height = bounds.height + start.y + start.height + 2 * border;
+							geo.height = bounds.height + start.y + start.height +
+								footer.y + footer.height + 2 * border +
+								(parseFloat(style['marginTop']) || 0) +
+								(parseFloat(style['marginBottom']) || 0);
 						}
 						else
 						{
-							geo.width = bounds.width + start.x + start.width + 2 * border;
+							geo.width = bounds.width + start.x + start.width +
+								footer.x + footer.width + 2 * border +
+								(parseFloat(style['marginLeft']) || 0) +
+								(parseFloat(style['marginRight']) || 0);
 						}
 						
-						this.graph.model.setGeometry(parent, geo);			
+						if (geo.width != prev.width || geo.height != prev.height)
+						{
+							this.graph.model.setGeometry(parent, geo);
+						}
 					}
 				}
 			}
