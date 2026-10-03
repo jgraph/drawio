@@ -43,8 +43,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.text.StringEscapeUtils;
 
-import com.google.appengine.api.utils.SystemProperty;
-
 import com.mxgraph.online.Utils.SizeLimitExceededException;
 
 /**
@@ -83,6 +81,17 @@ public class EmbedServlet2 extends HttpServlet
 	protected HashMap<String, String[]> libraries = new HashMap<String, String[]>();
 
 	/**
+	 * Returns the deployed App Engine version, which App Engine sets as a
+	 * system property (the value of SystemProperty.applicationVersion), or
+	 * "1.0.0" outside App Engine.
+	 */
+	protected static String getApplicationVersion()
+	{
+		return System.getProperty("com.google.appengine.application.version",
+				"1.0.0");
+	}
+
+	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
 	public EmbedServlet2()
@@ -90,7 +99,7 @@ public class EmbedServlet2 extends HttpServlet
 		if (lastModified == null)
 		{
 			// Uses deployment date as lastModified header
-			String applicationVersion = SystemProperty.applicationVersion.get();
+			String applicationVersion = getApplicationVersion();
 			Date uploadDate = new Date(Long
 					.parseLong(applicationVersion
 							.substring(applicationVersion.lastIndexOf(".") + 1))
@@ -493,7 +502,7 @@ public class EmbedServlet2 extends HttpServlet
 		// is a release version - see EmbedServlet.writeStats (the
 		// release-monitor watchdog reads /embed.js?stats, this servlet
 		// mirrors it for /embed2.js)
-		String applicationVersion = SystemProperty.applicationVersion.get();
+		String applicationVersion = getApplicationVersion();
 		int dot = applicationVersion.lastIndexOf(".");
 		String versionId = dot > 0 ? applicationVersion.substring(0, dot)
 				: applicationVersion;

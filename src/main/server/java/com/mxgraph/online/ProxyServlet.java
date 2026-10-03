@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.apphosting.api.DeadlineExceededException;
 import com.mxgraph.online.Utils.UnsupportedContentException;
 import com.mxgraph.online.Utils.SizeLimitExceededException;
 
@@ -48,6 +47,12 @@ public class ProxyServlet extends HttpServlet
 	private static byte[] emptyBytes = new byte[0];
 
 	public static boolean IS_GAE = (System.getProperty("com.google.appengine.runtime.version") == null) ? false : true;
+
+	/**
+	 * Thrown by App Engine when a request passes its deadline. Matched by
+	 * name since the public build has no App Engine SDK.
+	 */
+	private static final String DEADLINE_EXCEEDED_EXCEPTION = "com.google.apphosting.api.DeadlineExceededException";
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -180,10 +185,6 @@ public class ProxyServlet extends HttpServlet
 						+ ", referer=" + ((ref != null) ? ref : "[null]")
 						+ ", user agent=" + ((ua != null) ? ua : "[null]"));
 			}
-			catch (DeadlineExceededException e)
-			{
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			}
 			catch (UnknownHostException | FileNotFoundException e)
 			{
 				// do not log 404 and DNS errors
@@ -207,13 +208,18 @@ public class ProxyServlet extends HttpServlet
 			{
 				response.setStatus(
 						HttpServletResponse.SC_BAD_REQUEST);
-				log.log(Level.FINE, "proxy request failed: url="
-						+ ((urlParam != null) ? urlParam : "[null]")
-						+ ", referer=" + ((ref != null) ? ref : "[null]")
-						+ ", user agent=" + ((ua != null) ? ua : "[null]"));
-				e.printStackTrace();
 
-				throw e;
+				// Requests that run past the App Engine deadline end quietly
+				if (!e.getClass().getName().equals(DEADLINE_EXCEEDED_EXCEPTION))
+				{
+					log.log(Level.FINE, "proxy request failed: url="
+							+ ((urlParam != null) ? urlParam : "[null]")
+							+ ", referer=" + ((ref != null) ? ref : "[null]")
+							+ ", user agent=" + ((ua != null) ? ua : "[null]"));
+					e.printStackTrace();
+
+					throw e;
+				}
 			}
 		}
 		else
