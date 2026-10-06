@@ -23,7 +23,7 @@ function P2PCollab(ui, sync, channelId)
 		clientLastMsgId = Object.create(null), clientsToSessions = Object.create(null),
 		connectedClient = Object.create(null), sessionColors = Object.create(null);
 	var myClientId, newClients = Object.create(null), p2pClients = Object.create(null),
-		useSocket = true, fileJoined = false, destroyed = false;
+		useSocket = true, fileJoined = false, destroyed = false, lastServerNotice = null;
 	// Roster of other clients connected to the channel, maintained via
 	// clientsList, newClient and clientLeft messages from the socket
 	// server; rosterKnown is false while the roster is unconfirmed
@@ -134,9 +134,33 @@ function P2PCollab(ui, sync, channelId)
 		return type == 'cursor' || type == 'view';
 	};
 
-	// The optional key replaces the channel key (see
+	// Returns the message with the given type and data as the socket
+	// carries it. The optional key replaces the channel key (see
 	// DrawioFileSync.createLegacyNotification). Such a message
 	// leaves out the user, who must not be readable with that key
+	function encodeMessage(type, data, key, user)
+	{
+		//Converting to a string such that webRTC works also
+		var msg = {from: myClientId, id: messageId++,
+			type: type, sessionId: sync.clientId, data: data,
+			protocol: DrawioFileSync.PROTOCOL,
+			editor: EditorUi.VERSION};
+
+		if (key == null && user != null)
+		{
+			msg.userId = user.id;
+			msg.username = user.displayName;
+		}
+
+		if (encrypted)
+		{
+			// data is needed for old server to not drop messages
+			msg = {bytes: sync.objectToString(msg, null, key), data: 'aes'};
+		}
+
+		return JSON.stringify(msg);
+	};
+
 	function sendMessage(type, data, key)
 	{
 		try
@@ -174,33 +198,14 @@ function P2PCollab(ui, sync, channelId)
 
 				return;
 			}
-			
-			//Converting to a string such that webRTC works also
-			var msg = {from: myClientId, id: messageId,
-				type: type, sessionId: sync.clientId, data: data,
-				protocol: DrawioFileSync.PROTOCOL,
-				editor: EditorUi.VERSION};
 
-			if (key == null)
-			{
-				msg.userId = user.id;
-				msg.username = user.displayName;
-			}
+			var msg = encodeMessage(type, data, key, user);
 
-			if (encrypted)
-			{
-				// data is needed for old server to not drop messages
-				msg = {bytes: sync.objectToString(msg, null, key), data: 'aes'};
-			}
-
-			msg = JSON.stringify(msg);
-			
 			if (NO_P2P && !isFrequent(type))
 			{
 				EditorUi.debug('P2PCollab: sending to socket server', [msg]);
 			}
 
-			messageId++;
 			var p2pOnlyMsgs = !NO_P2P && (type == 'cursor' ||
 				type == 'view' || type == 'selectionChange');
 
@@ -236,11 +241,33 @@ function P2PCollab(ui, sync, channelId)
 				sync.objectToString(msg))});
 	};
 
+	function notification(msg, key)
+	{
+		return (encrypted) ? {msg: msg} : {data: encodeURIComponent(
+			sync.objectToString(msg, null, key))};
+	};
+
 	this.sendNotification = function(msg, key)
 	{
-		this.sendMessage('notify', (encrypted) ?
-			{msg: msg} : {data: encodeURIComponent(
-				sync.objectToString(msg, null, key))}, key);
+		this.sendMessage('notify', notification(msg, key), key);
+	};
+
+	// Returns a notification as the socket carries it, for the realtime
+	// cache to send on to the other clients once the save that it
+	// announces is in the cache (see DrawioFileSync.fileSaved). The cache
+	// sends it, so this needs no socket session.
+	this.createNotification = function(msg, key)
+	{
+		return (destroyed || sync.file.appUpgradeRequired) ? null :
+			encodeMessage('notify', notification(msg, key), key,
+				sync.file.getCurrentUser());
+	};
+
+	// Returns the ID of this client on the socket server, which the
+	// realtime cache leaves out when it sends a notification on
+	this.getClientId = function()
+	{
+		return (fileJoined) ? myClientId : null;
 	};
 
 	this.getState = function()
@@ -596,7 +623,21 @@ function P2PCollab(ui, sync, channelId)
 		return msg;
 	};
 
-	function processMsg(msg, fromCId)
+	// Returns true if the given message is the notification of a save: a
+	// modified time and no action (see DrawioFileSync.fileSaved)
+	function isSaveNotification(msg)
+	{
+		var data = (msg.type == 'notify' && msg.data != null &&
+			typeof msg.data === 'object') ? msg.data.msg : null;
+		var p = (data != null && typeof data === 'object') ? data.p : null;
+
+		return p != null && typeof p === 'object' && p.m != null &&
+			p.a == null && p.type == null;
+	};
+
+	// The fromServer flag marks a message that the socket server sent as its
+	// own (from null) rather than relayed from a client
+	function processMsg(msg, fromCId, fromServer)
 	{
 		try
 		{
@@ -605,6 +646,36 @@ function P2PCollab(ui, sync, channelId)
 			msg = decodeMsg(msg, fromCId);
 
 			if (msg == null) return;
+
+			// The server sends the save notifications of the realtime cache
+			// once their patch is in the cache, and the duplicate check
+			// below cannot apply to them as they come from no client. Anyone
+			// who knows the channel ID can post recorded messages to the
+			// cache as notifications, so nothing else is taken from the
+			// server: a replayed save notification only checks the file.
+			if (fromServer && !isSaveNotification(msg))
+			{
+				EditorUi.debug('P2PCollab: dropped server message', [msg.type]);
+
+				return;
+			}
+			// Each save notification is taken once: the server sends the
+			// newest one again to every socket that joins, and a recorded
+			// one posted over and over would restart the delayed check of
+			// the file each time, so a real save would wait until it stops
+			else if (fromServer)
+			{
+				var notice = msg.data.msg.c + ' ' + msg.data.msg.p.m;
+
+				if (notice == lastServerNotice)
+				{
+					EditorUi.debug('P2PCollab: dropped repeated server notification');
+
+					return;
+				}
+
+				lastServerNotice = notice;
+			}
 
 			if (NO_P2P && !isFrequent(msg.type))
 			{
@@ -1190,7 +1261,7 @@ function P2PCollab(ui, sync, channelId)
 							}
 						break;
 						case 'message':
-							processMsg(data.msg, data.from);
+							processMsg(data.msg, data.from, data.from === null);
 						break;
 						case 'clientsList':
 							clientsList(data.msg);

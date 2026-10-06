@@ -2308,7 +2308,7 @@ mxStencilRegistry.allowEval = false;
 			electron.request({
 				action: 'saveDraft',
 				fileObject: this.fileObject,
-				data: (data != null) ? data : this.ui.getFileData()
+				data: (data != null) ? data : this.getDraftData()
 			}, mxUtils.bind(this, function(draftFileName)
 			{
 				this.fileObject.draftFileName = draftFileName;

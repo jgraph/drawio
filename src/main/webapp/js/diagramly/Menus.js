@@ -409,15 +409,19 @@
 			
 				if (node != null)
 				{
+					// Root class replaces html:has(.geFullscreen) in the CSS, which
+					// restyled the page after every change of the DOM
 					if (document.fullscreenElement == null)
 					{
 						document.body.requestFullscreen();
 						node.classList.add('geFullscreen');
+						document.documentElement.classList.add('geFullscreen');
 					}
 					else
 					{
 						document.exitFullscreen();
 						node.classList.remove('geFullscreen');
+						document.documentElement.classList.remove('geFullscreen');
 					}
 				}
 			}
@@ -5244,8 +5248,12 @@
 		{
 			// Last entry edits cell label
 			this.addMenuItems(menu, ['editLink', 'editShape', 'editImage', 'crop', '-',
-				'editData', 'copyData', 'pasteData', '-', 'editPolygon', 'editConnectionPoints',
-				'editGeometry', '-', 'editTooltip', 'editNote', 'editStyle', '-', 'edit'], parent);
+				'editData', 'copyData', 'pasteData', '-', 'editPolygon'], parent);
+			// This submenu is only opened from the context menu, whose
+			// trigger point is the location of the new connection point
+			this.addConnectionPointMenuItem(menu, graph.getSelectionCell(), parent);
+			this.addMenuItems(menu, ['editConnectionPoints', 'editGeometry', '-',
+				'editTooltip', 'editNote', 'editStyle', '-', 'edit'], parent);
 		})));
 				
 		// Current page menu

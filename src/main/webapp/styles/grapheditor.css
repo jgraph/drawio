@@ -88,7 +88,7 @@
 	grid-template-columns: min-content min-content 1fr min-content;
 }
 
-html:has(.geFullscreen),
+html.geFullscreen,
 .geEditor,
 .mxWindow,
 .geDialogTitle,
@@ -811,7 +811,7 @@ div.geTemplatePreview {
 	margin: 8px;
 }
 
-.geTemplateSelected:has(div) span {
+.geTemplateSelected.geTemplateHasPreview span {
 	display: none;
 }
 
@@ -1089,12 +1089,12 @@ div.geFormatContainer {
 	outline: none;
 }
 
-.geDiagramContainer:has(.geRuler) {
+.geDiagramContainer.geRulerContainer {
 	margin: 14px 0 0 4px;
 }
 
-.geSketch .geDiagramContainer:has(.geRuler),
-.geMinimal .geDiagramContainer:has(.geRuler) {
+.geSketch .geDiagramContainer.geRulerContainer,
+.geMinimal .geDiagramContainer.geRulerContainer {
 	margin-left: 14px;
 }
 
@@ -1486,7 +1486,7 @@ td.mxPopupMenuIcon .geStyleMenuItem>div {
 
 .geEditor .geItem:active:not(.mxDisabled, [disabled]):not(.geStatus),
 .geEditor .geBtn:active:not([disabled]),
-.geEditor .geStatus:has(div[data-action]:not(.mxDisabled, [disabled])):active,
+.geEditor .geStatus.geStatusAction:active,
 .geEditor .geTitle:active,
 .geEditor .geButton:active:not(.mxDisabled, .mxDisabled *, [disabled], .geBtn *),
 .geEditor .geHelpIcon:active,

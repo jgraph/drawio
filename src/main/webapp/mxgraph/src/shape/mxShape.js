@@ -147,6 +147,15 @@ mxShape.prototype.style = null;
 mxShape.prototype.boundingBox = null;
 
 /**
+ * Variable: invalidBoundingBox
+ *
+ * Specifies if the <boundingBox> must be updated in
+ * <mxGraphView.updateBoundingBox>. This is set to true in <redraw>.
+ * Default is true.
+ */
+mxShape.prototype.invalidBoundingBox = true;
+
+/**
  * Variable: stencil
  *
  * Holds the <mxStencil> that defines the shape.
@@ -217,6 +226,14 @@ mxShape.prototype.visible = true;
 mxShape.prototype.useSvgBoundingBox = false;
 
 /**
+ * Variable: inModelUnits
+ *
+ * Internal switch that is true while the bounds, points and scale of this
+ * shape are in model units for painting. See <beginModelUnits>.
+ */
+mxShape.prototype.inModelUnits = false;
+
+/**
  * Function: init
  *
  * Initializes the shape by creaing the DOM node using <create>
@@ -268,14 +285,64 @@ mxShape.prototype.isHtmlAllowed = function()
 
 /**
  * Function: getSvgScreenOffset
- * 
- * Returns 0, or 0.5 if <strokewidth> % 2 == 1.
+ *
+ * Returns 0, or 0.5 if <strokewidth> % 2 == 1 for the given scale.
+ *
+ * Parameters:
+ *
+ * scale - Optional scale. Default is <scale>.
  */
-mxShape.prototype.getSvgScreenOffset = function()
+mxShape.prototype.getSvgScreenOffset = function(scale)
 {
+	scale = (scale != null) ? scale : this.scale;
 	var sw = this.stencil && this.stencil.strokewidth != 'inherit' ? Number(this.stencil.strokewidth) : this.strokewidth;
-	
-	return (mxUtils.mod(Math.max(1, Math.round(sw * this.scale)), 2) == 1) ? 0.5 : 0;
+
+	return (mxUtils.mod(Math.max(1, Math.round(sw * scale)), 2) == 1) ? 0.5 : 0;
+};
+
+/**
+ * Variable: svgScreenOffsetTolerance
+ *
+ * Tolerance in screen pixels for keeping the offset of a shape that is
+ * painted in model units after a change of the scale. Strokes are only
+ * aligned to pixels at integer scales, where the offset is always updated.
+ * Default is 0.25.
+ */
+mxShape.prototype.svgScreenOffsetTolerance = 0.25;
+
+/**
+ * Function: updateSvgScreenOffset
+ *
+ * Applies <getSvgScreenOffset> to the node. If the shape is painted in model
+ * units then the offset is computed for the scale of the view and converted
+ * to model units, so that it stays the same in screen pixels for any zoom.
+ * The current offset is kept at non-integer scales if it is within
+ * <svgScreenOffsetTolerance>.
+ */
+mxShape.prototype.updateSvgScreenOffset = function()
+{
+	var s = (this.isModelCoordinates()) ? this.state.view.scale : null;
+	var off = (s != null) ? this.getSvgScreenOffset(s) / s : this.getSvgScreenOffset();
+
+	if (s != null && s != Math.round(s) && this.svgScreenOffset != null &&
+		Math.abs(this.svgScreenOffset - off) * s <= this.svgScreenOffsetTolerance)
+	{
+		off = this.svgScreenOffset;
+	}
+
+	if (this.svgScreenOffset != off)
+	{
+		this.svgScreenOffset = off;
+
+		if (off != 0)
+		{
+			this.node.setAttribute('transform', 'translate(' + off + ',' + off + ')');
+		}
+		else
+		{
+			this.node.removeAttribute('transform');
+		}
+	}
 };
 
 /**
@@ -342,11 +409,151 @@ mxShape.prototype.reconfigure = function()
 };
 
 /**
+ * Function: isModelCoordinates
+ *
+ * Returns true if this shape is painted in model units, that is, if its
+ * node is in the draw pane of a view with <mxGraphView.modelCoordinates>.
+ */
+mxShape.prototype.isModelCoordinates = function()
+{
+	var view = (this.state != null) ? this.state.view : null;
+
+	return view != null && view.modelCoordinates && this.node != null &&
+		mxUtils.isAncestorNode(view.getDrawPane(), this.node);
+};
+
+/**
+ * Function: getScreenRectangle
+ *
+ * Returns the given rectangle in the coordinates of the node of this shape
+ * in screen coordinates. See <isModelCoordinates>.
+ */
+mxShape.prototype.getScreenRectangle = function(rect)
+{
+	if (this.isModelCoordinates())
+	{
+		var s = this.state.view.scale;
+		var tr = this.state.view.translate;
+		rect = new mxRectangle((rect.x + tr.x) * s, (rect.y + tr.y) * s,
+			rect.width * s, rect.height * s);
+	}
+
+	return rect;
+};
+
+/**
+ * Function: beginModelUnits
+ *
+ * Converts the bounds, points, scale and viewTranslate of this shape to
+ * model units for painting if <isModelCoordinates> returns true and returns
+ * the previous values for <endModelUnits>. Returns null otherwise.
+ */
+mxShape.prototype.beginModelUnits = function()
+{
+	var result = null;
+
+	if (!this.inModelUnits && this.isModelCoordinates())
+	{
+		var s = this.scale;
+		var tr = (this.viewTranslate != null) ? this.viewTranslate :
+			this.state.view.translate;
+		result = {bounds: this.bounds, points: this.points, scale: s,
+			viewTranslate: this.viewTranslate};
+
+		if (this.bounds != null)
+		{
+			this.bounds = new mxRectangle(mxUtils.unscale(this.bounds.x, s, tr.x),
+				mxUtils.unscale(this.bounds.y, s, tr.y),
+				mxUtils.unscale(this.bounds.width, s),
+				mxUtils.unscale(this.bounds.height, s));
+		}
+
+		if (this.points != null)
+		{
+			this.points = [];
+
+			for (var i = 0; i < result.points.length; i++)
+			{
+				var pt = result.points[i];
+				this.points.push((pt != null) ? new mxPoint(mxUtils.unscale(pt.x, s, tr.x),
+					mxUtils.unscale(pt.y, s, tr.y)) : null);
+			}
+		}
+
+		this.scale = 1;
+		this.viewTranslate = new mxPoint();
+		this.inModelUnits = true;
+	}
+
+	return result;
+};
+
+/**
+ * Function: endModelUnits
+ *
+ * Restores the values returned by <beginModelUnits>.
+ */
+mxShape.prototype.endModelUnits = function(screen)
+{
+	if (screen != null)
+	{
+		this.bounds = screen.bounds;
+		this.points = screen.points;
+		this.scale = screen.scale;
+		this.viewTranslate = screen.viewTranslate;
+		this.inModelUnits = false;
+		this.updateBoundsFromPoints();
+	}
+};
+
+/**
+ * Function: invalidateBoundingBox
+ *
+ * Marks the <boundingBox> as invalid (see <invalidBoundingBox>) and reports
+ * the change to the view of the state of this shape, which adds the new
+ * bounding box to the graph bounds (see <mxGraphView.invalidateBoundingBox>).
+ * This is called in <redraw>.
+ */
+mxShape.prototype.invalidateBoundingBox = function()
+{
+	this.invalidBoundingBox = true;
+
+	if (this.state != null && this.state.view != null &&
+		this.state.view.invalidateBoundingBox != null)
+	{
+		this.state.view.invalidateBoundingBox(this.state);
+	}
+};
+
+/**
  * Function: redraw
  *
- * Creates and returns the SVG node(s) to represent this shape.
+ * Creates and returns the SVG node(s) to represent this shape. The shape
+ * is painted in model units if <isModelCoordinates> returns true.
  */
 mxShape.prototype.redraw = function()
+{
+	this.invalidateBoundingBox();
+
+	var screen = this.beginModelUnits();
+
+	try
+	{
+		this.redrawNode();
+	}
+	finally
+	{
+		this.endModelUnits(screen);
+	}
+};
+
+/**
+ * Function: redrawNode
+ *
+ * Updates the SVG node(s) to represent this shape for the current bounds,
+ * points and scale.
+ */
+mxShape.prototype.redrawNode = function()
 {
 	this.updateBoundsFromPoints();
 	
@@ -638,19 +845,12 @@ mxShape.prototype.createSvgCanvas = function()
 {
 	var canvas = new mxSvgCanvas2D(this.node, false);
 	canvas.strokeTolerance = this.svgStrokeTolerance;
+	canvas.nonScalingTolerance = this.inModelUnits;
+	canvas.placeForeignObjects = this.inModelUnits;
 	canvas.pointerEventsValue = this.svgPointerEvents;
 	canvas.viewTranslate = this.viewTranslate;
-	var off = this.getSvgScreenOffset();
-
-	if (off != 0)
-	{
-		this.node.setAttribute('transform', 'translate(' + off + ',' + off + ')');
-	}
-	else
-	{
-		this.node.removeAttribute('transform');
-	}
-
+	this.svgScreenOffset = null;
+	this.updateSvgScreenOffset();
 	canvas.minStrokeWidth = this.minSvgStrokeWidth;
 	
 	if (!this.antiAlias)
@@ -1514,7 +1714,7 @@ mxShape.prototype.getSvgBoundingBox = function()
 
 			if (b.width > 0 && b.height > 0)
 			{
-				result = new mxRectangle(b.x, b.y, b.width, b.height);
+				result = this.getScreenRectangle(new mxRectangle(b.x, b.y, b.width, b.height));
 
 				// Adds stroke width
 				if (this.stroke != null)
@@ -1650,23 +1850,38 @@ mxShape.prototype.augmentShadowBoundingBox = function(bbox)
 	if (this.isShadow)
 	{
 		var ss = this.getShadowStyle();
+		var px = this.getPixelSize();
 
 		if (ss.dx < 0)
 		{
-			bbox.x += ss.dx;
-			bbox.width -= ss.dx;
+			bbox.x += ss.dx * px;
+			bbox.width -= ss.dx * px;
 		}
 
 		if (ss.dy < 0)
 		{
-			bbox.y += ss.dy;
-			bbox.height -= ss.dy;
+			bbox.y += ss.dy * px;
+			bbox.height -= ss.dy * px;
 		}
 
+		// Rounds up to pixels without floating point noise
 		bbox.grow(Math.max(ss.blur, 0) * this.scale * 2);
-		bbox.width += Math.ceil(Math.max(ss.dx, 0) * this.scale);
-		bbox.height += Math.ceil(Math.max(ss.dy, 0) * this.scale);
+		bbox.width += Math.ceil(mxUtils.unscale(Math.max(ss.dx, 0) * this.scale, px)) * px;
+		bbox.height += Math.ceil(mxUtils.unscale(Math.max(ss.dy, 0) * this.scale, px)) * px;
 	}
+};
+
+/**
+ * Function: getPixelSize
+ *
+ * Returns the length of a screen pixel in the units of this shape for
+ * rules that use pixel constants (see <mxGraphView.getPixelSize>), which
+ * is 1 if the shape is in model units.
+ */
+mxShape.prototype.getPixelSize = function()
+{
+	return (!this.inModelUnits && this.state != null && this.state.view != null &&
+		this.state.view.getPixelSize != null) ? this.state.view.getPixelSize() : 1;
 };
 
 /**

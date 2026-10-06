@@ -6736,14 +6736,16 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 
 		if (this.editorUi.sidebar != null)
 		{
-			var keyStyle = this.editorUi.sidebar.getKeyStyle(ss.cells[0].style);
-			libs = this.editorUi.sidebar.getLibsForStyle(keyStyle);
+			var sidebar = this.editorUi.sidebar;
+			var keyStyle = sidebar.getKeyStyle(ss.cells[0].style);
+			libs = sidebar.getLibsForStyle(keyStyle);
 
-			// Adds open library action and updates search index when invoked
-			// if no libs were found but the shape name is likely to be known
-			if (libs == null && !this.editorUi.sidebar.isSearchIndexLoaded() &&
-				ss.style.shape != null && String(ss.style.shape).
-					substring(0, 8) == 'mxgraph.')
+			// Adds open library action and completes the lookup data when
+			// invoked if no libs were found but the shape name is likely to
+			// be known (the style to libraries map is built in idle time)
+			if (libs == null && (!sidebar.isSearchIndexLoaded() ||
+				!sidebar.isStyleToLibsLoaded()) && ss.style.shape != null &&
+				String(ss.style.shape).substring(0, 8) == 'mxgraph.')
 			{
 				libs = [];
 			}
@@ -6783,12 +6785,21 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 			{
 				if (editSelect.value == 'openLibrary')
 				{
-					if (libs != null && libs.length == 0)
+					var sidebar = this.editorUi.sidebar;
+					var keyStyle = sidebar.getKeyStyle(ss.cells[0].style);
+
+					// Completes the style to libraries map and tries again
+					if (!sidebar.isStyleToLibsLoaded())
+					{
+						sidebar.updateStyleToLibs();
+						libs = sidebar.getLibsForStyle(keyStyle) || [];
+					}
+
+					if (libs.length == 0)
 					{
 						// Updates search index and tries again
-						this.editorUi.sidebar.updateSearchIndex();
-						var keyStyle = this.editorUi.sidebar.getKeyStyle(ss.cells[0].style);
-						libs = this.editorUi.sidebar.getLibsForStyle(keyStyle);
+						sidebar.updateSearchIndex();
+						libs = sidebar.getLibsForStyle(keyStyle);
 					}
 
 					if (libs != null && libs.length > 0)

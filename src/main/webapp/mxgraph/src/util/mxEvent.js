@@ -353,7 +353,9 @@ var mxEvent =
 	 * 
 	 * funct - Handler function that takes the event argument, a boolean argument
 	 * for the mousewheel direction and a boolean to specify if the underlying
-	 * event was a pinch gesture on a touch device.
+	 * event was a pinch gesture on a touch device. For a pinch gesture with
+	 * pointer events, the center of the pinch and the ratio of the distance
+	 * between the pointers to the distance at the previous call follow.
 	 * target - Target for installing the listener in Google Chrome. See 
 	 * https://www.chromestatus.com/features/6662647093133312.
 	 */
@@ -377,8 +379,11 @@ var mxEvent =
 					evt.preventDefault();
 				}
 
-				// Handles the event using the given function
-				if (Math.abs(evt.deltaX) > 0.5 || Math.abs(evt.deltaY) > 0.5)
+				// Handles the event using the given function, including small
+				// deltas of pinch gestures on trackpads (ctrl key), which
+				// zoom in proportion to the delta
+				if (Math.abs(evt.deltaX) > 0.5 || Math.abs(evt.deltaY) > 0.5 ||
+					(evt.ctrlKey && evt.deltaY != null && evt.deltaY != 0))
 				{
 					funct(evt, (evt.deltaY == 0) ?  -evt.deltaX > 0 : -evt.deltaY > 0);
 				}
@@ -416,8 +421,13 @@ var mxEvent =
 			else
 			{
 				var evtCache = [];
-				var dx0 = 0;
-				var dy0 = 0;
+				var dist0 = 0;
+
+				var getDistance = function()
+				{
+					return Math.sqrt(Math.pow(evtCache[0].clientX - evtCache[1].clientX, 2) +
+						Math.pow(evtCache[0].clientY - evtCache[1].clientY, 2));
+				};
 				
 				// Adds basic listeners for graph event dispatching
 				mxEvent.addGestureListeners(target, mxUtils.bind(this, function(evt)
@@ -425,6 +435,12 @@ var mxEvent =
 					if (!mxEvent.isMouseEvent(evt) && evt.pointerId != null)
 					{
 						evtCache.push(evt);
+
+						// Starts at the distance of the fingers when the pinch begins
+						if (evtCache.length == 2)
+						{
+							dist0 = getDistance();
+						}
 					}
 				}),
 				mxUtils.bind(this, function(evt)
@@ -442,29 +458,24 @@ var mxEvent =
 						}
 						
 					   	// Calculate the distance between the two pointers
-						var dx = Math.abs(evtCache[0].clientX - evtCache[1].clientX);
-						var dy = Math.abs(evtCache[0].clientY - evtCache[1].clientY);
-						var tx = Math.abs(dx - dx0);
-						var ty = Math.abs(dy - dy0);
+						var dist = getDistance();
 					
-						if (tx > mxEvent.PINCH_THRESHOLD || ty > mxEvent.PINCH_THRESHOLD)
+						if (dist0 > 0 && dist > 0 && Math.abs(dist - dist0) > mxEvent.PINCH_THRESHOLD)
 						{
 							var cx = evtCache[0].clientX + (evtCache[1].clientX - evtCache[0].clientX) / 2;
 							var cy = evtCache[0].clientY + (evtCache[1].clientY - evtCache[0].clientY) / 2;
 							
-							funct(evtCache[0], (tx > ty) ? dx > dx0 : dy > dy0, true, cx, cy);
+							funct(evtCache[0], dist > dist0, true, cx, cy, dist / dist0);
 						
 						   	// Cache the distance for the next move event 
-							dx0 = dx;
-							dy0 = dy;
+							dist0 = dist;
 						}
 					}
 				}),
 				mxUtils.bind(this, function(evt)
 				{
 					evtCache = [];
-					dx0 = 0;
-					dy0 = 0;
+					dist0 = 0;
 				}));
 			}
 			
@@ -1540,9 +1551,9 @@ var mxEvent =
 	/**
 	 * Variable: PINCH_THRESHOLD
 	 *
-	 * Threshold for pinch gestures to fire a mouse wheel event.
-	 * Default value is 10.
+	 * Change of the distance between the fingers in pixels for pinch gestures
+	 * to fire a mouse wheel event. Default value is 4.
 	 */
-	PINCH_THRESHOLD: 10
+	PINCH_THRESHOLD: 4
 
 };

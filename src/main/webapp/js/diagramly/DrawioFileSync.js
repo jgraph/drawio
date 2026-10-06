@@ -233,6 +233,13 @@ DrawioFileSync.compareAppVersions = function(a, b)
 DrawioFileSync.ENABLE_SOCKETS = urlParams['sockets'] != '0';
 
 /**
+ * Sends the notification of a save with its cache entry, for the realtime
+ * cache to send on to the other clients' sockets once the patch is stored,
+ * and all other notifications over the socket as well as to the cache.
+ */
+DrawioFileSync.CACHE_NOTICE = urlParams['cache-notice'] != '0';
+
+/**
  * Specifies if the realtime cache alive check was scheduled.
  */
 DrawioFileSync.cacheAliveChecked = false;
@@ -752,16 +759,19 @@ DrawioFileSync.prototype.notify = function(msg)
 					'&msg=' + encodeURIComponent(this.objectToString(legacy,
 					null, this.file.getLegacyChannelKey())));
 			}
-		}
-		else if (this.p2pCollab != null)
-		{
-			this.p2pCollab.sendNotification(msg);
 
-			if (legacy != null)
+			// The socket takes over from the cache's Pusher relay, which
+			// only sends these on while clients still listen to Pusher.
+			// The cache itself relays save notifications only (see
+			// fileSaved and P2PCollab.processMsg).
+			if (DrawioFileSync.CACHE_NOTICE)
 			{
-				this.p2pCollab.sendNotification(legacy,
-					this.file.getLegacyChannelKey());
+				this.sendSocketNotification(msg, legacy);
 			}
+		}
+		else
+		{
+			this.sendSocketNotification(msg, legacy);
 		}
 	}
 
@@ -769,6 +779,24 @@ DrawioFileSync.prototype.notify = function(msg)
 		'enableRealtimeCache', Editor.enableRealtimeCache,
 		'p2pSyncNotify', Editor.p2pSyncNotify,
 		'msg', msg);
+};
+
+/**
+ * Sends the given notification and its optional copy with the legacy key
+ * (see createLegacyNotification) over the socket.
+ */
+DrawioFileSync.prototype.sendSocketNotification = function(msg, legacy)
+{
+	if (this.p2pCollab != null)
+	{
+		this.p2pCollab.sendNotification(msg);
+
+		if (legacy != null)
+		{
+			this.p2pCollab.sendNotification(legacy,
+				this.file.getLegacyChannelKey());
+		}
+	}
 };
 
 /**
@@ -3842,6 +3870,10 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 
 	this.file.confirmFileVars(savedVars);
 	
+	// The notification branch completes the save itself (the cache
+	// branch once its request is done), every other path below
+	var notifying = false;
+
 	if (!this.ui.isOffline(true) && !this.file.inConflictState &&
 		!this.file.redirectDialogShowing)
 	{
@@ -3849,6 +3881,8 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 
 		if (this.channelId != null)
 		{
+			notifying = true;
+
 			// Computes diff and checksum
 			var secret = this.file.getDescriptorSecret(this.file.getDescriptor());
 			var msg = this.createMessage({m: this.lastModified.getTime()});
@@ -3930,9 +3964,16 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 					done(null);
 				}), this.ui.timeout);
 
+				// The notification in socket format, which the cache sends on
+				// to the other clients' sockets once the patch is stored
+				// (older caches ignore it and send msg through Pusher)
+				var notice = (DrawioFileSync.CACHE_NOTICE && !Editor.p2pSyncNotify &&
+					this.p2pCollab != null) ? this.p2pCollab.createNotification(msg) : null;
+
 				mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() +
 					'&from=' + encodeURIComponent(source) + '&to=' + encodeURIComponent(target) +
 					(!Editor.p2pSyncNotify ? '&msg=' + encodeURIComponent(this.objectToString(msg)) : '') +
+					((notice != null) ? '&notice=' + encodeURIComponent(notice) : '') +
 					((secret != null) ? '&secret=' + encodeURIComponent(secret) : '') +
 					((lastSecret != null) ? '&last-secret=' + encodeURIComponent(lastSecret) : '') +
 					((data != null && data.length < this.maxCacheEntrySize) ? '&data=' + encodeURIComponent(data) : '') +
@@ -3984,6 +4025,16 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 	this.scheduleCleanup();
 
 	this.flushRemoteDescriptor();
+
+	// The file is written at this point, so the save completes without
+	// a notification too (offline, newer-version dialog showing, no
+	// channel). The callers end the save there: status, save spinner,
+	// autosave of edits made during the save, save and exit and the embed
+	// save events. Without it the save never ended (save-ack-offline).
+	if (!notifying && success != null)
+	{
+		success();
+	}
 };
 
 /**
@@ -4036,6 +4087,17 @@ DrawioFileSync.prototype.getIdParameters = function()
 		this.pusher.connection.socket_id != null)
 	{
 		result += '&sid=' + this.pusher.connection.socket_id;
+	}
+
+	// The socket client of this session, which the cache leaves out when
+	// it sends a notification on. Not in sid, which older caches hand to
+	// Pusher, and Pusher refuses anything but its own connection IDs.
+	var cid = (DrawioFileSync.CACHE_NOTICE && this.p2pCollab != null) ?
+		this.p2pCollab.getClientId() : null;
+
+	if (cid != null)
+	{
+		result += '&cid=' + encodeURIComponent(cid);
 	}
 	
 	return result;

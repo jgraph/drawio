@@ -78,6 +78,13 @@ mxShapeUMLBehaviorAction.prototype.paintVertexShape = function(c, x, y, w, h)
 	var rounded = mxUtils.getValue(this.style, 'rounded', false);
 	var absArcSize = mxUtils.getValue(this.style, 'absoluteArcSize', false);
 	var arcSize = parseFloat(mxUtils.getValue(this.style, 'arcSize', this.arcSize));
+
+	// Uses the arc size of the shapes in the sidebar if none is defined
+	if (isNaN(arcSize))
+	{
+		arcSize = 10;
+		absArcSize = true;
+	}
 	
 	if (!absArcSize)
 	{
@@ -168,6 +175,13 @@ mxShapeUMLAction.prototype.paintVertexShape = function(c, x, y, w, h)
 
 	var absArcSize = mxUtils.getValue(this.style, 'absoluteArcSize', false);
 	var arcSize = parseFloat(mxUtils.getValue(this.style, 'arcSize', this.arcSize));
+
+	// Uses the arc size of the shapes in the sidebar if none is defined
+	if (isNaN(arcSize))
+	{
+		arcSize = 10;
+		absArcSize = true;
+	}
 	
 	if (!absArcSize)
 	{
@@ -230,6 +244,13 @@ mxShapeUMLActionParams.prototype.paintVertexShape = function(c, x, y, w, h)
 
 	var absArcSize = mxUtils.getValue(this.style, 'absoluteArcSize', false);
 	var arcSize = parseFloat(mxUtils.getValue(this.style, 'arcSize', this.arcSize));
+
+	// Uses the arc size of the shapes in the sidebar if none is defined
+	if (isNaN(arcSize))
+	{
+		arcSize = 10;
+		absArcSize = true;
+	}
 	
 	if (!absArcSize)
 	{

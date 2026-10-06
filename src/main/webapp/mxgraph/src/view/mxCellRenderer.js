@@ -855,6 +855,7 @@ mxCellRenderer.prototype.createControl = function(state)
 			var b = new mxRectangle(0, 0, image.width, image.height);
 			state.control = new mxImageShape(b, image.src);
 			state.control.preserveImageAspect = false;
+			state.control.state = state;
 			state.control.dialect = graph.dialect;
 
 			this.initControl(state, state.control, true, this.createControlClickHandler(state));
@@ -891,12 +892,15 @@ mxCellRenderer.prototype.addControlHitArea = function(control)
 			this.constructor.prototype.afterPaint.apply(this, arguments);
 			var b = this.bounds;
 
+			// Minimum size is in screen pixels
+			var size = (this.inModelUnits) ? min / this.state.view.scale : min;
+
 			// SVG only as HTML controls have no canvas nodes
 			if (this.node != null && this.node.ownerSVGElement != null &&
-				b != null && (b.width < min || b.height < min))
+				b != null && (b.width < size || b.height < size))
 			{
-				var w = Math.max(b.width, min);
-				var h = Math.max(b.height, min);
+				var w = Math.max(b.width, size);
+				var h = Math.max(b.height, size);
 
 				this.node.appendChild(this.createTransparentSvgRectangle(
 					b.getCenterX() - w / 2, b.getCenterY() - h / 2, w, h));
@@ -959,7 +963,11 @@ mxCellRenderer.prototype.initControl = function(state, control, handleEvents, cl
 	}
 	else
 	{
-		control.init(state.view.getOverlayPane());
+		// In model coordinates the control is painted in model units in the
+		// draw pane, where insertStateAfter moves it after its cell, so that
+		// it is not painted in screen units before it is moved there
+		control.init((state.view.modelCoordinates) ? state.view.getDrawPane() :
+			state.view.getOverlayPane());
 	}
 
 	var node = control.innerNode || control.node;
@@ -1332,10 +1340,13 @@ mxCellRenderer.prototype.getLabelBounds = function(state, text, margin, disableR
 		
 		bounds.x += state.x;
 		bounds.y += state.y;
-		
-		// Minimum of 1 fixes alignment bug in HTML labels
-		bounds.width = Math.max(1, state.width);
-		bounds.height = Math.max(1, state.height);
+
+		// Minimum of 1 fixes alignment bug in HTML labels, which is one
+		// model unit in model coordinates where labels are laid out in
+		// model units, so that the label bounds are linear in the scale
+		var min = (state.view.modelCoordinates) ? scale : 1;
+		bounds.width = Math.max(min, state.width);
+		bounds.height = Math.max(min, state.height);
 	}
 
 	if (text.isPaintBoundsInverted() && !disableRotation)
@@ -1357,7 +1368,7 @@ mxCellRenderer.prototype.getLabelBounds = function(state, text, margin, disableR
 		
 		if (hpos == mxConstants.ALIGN_CENTER && vpos == mxConstants.ALIGN_MIDDLE)
 		{
-			bounds = state.shape.getLabelBounds(bounds);
+			bounds = this.getShapeLabelBounds(state, bounds);
 		}
 	}
 	
@@ -1378,8 +1389,58 @@ mxCellRenderer.prototype.getLabelBounds = function(state, text, margin, disableR
 };
 
 /**
+ * Function: getShapeLabelBounds
+ *
+ * Returns the label bounds of the shape of the given state for the given
+ * bounds. If the shape is painted in model units, the shape computes the
+ * label bounds in model units, where the label is laid out, so that the
+ * result is linear in the scale (eg. if the shape rounds the label margins)
+ * and the label does not have to be laid out again for a new scale (see
+ * <updateScreenBounds>).
+ *
+ * Parameters:
+ *
+ * state - <mxCellState> whose label bounds should be returned.
+ * bounds - <mxRectangle> that contains the label bounds of the cell.
+ */
+mxCellRenderer.prototype.getShapeLabelBounds = function(state, bounds)
+{
+	var shape = state.shape;
+	var screen = shape.beginModelUnits();
+
+	if (screen != null)
+	{
+		var s = screen.scale;
+		var tr = (screen.viewTranslate != null) ?
+			screen.viewTranslate : state.view.translate;
+
+		try
+		{
+			bounds = shape.getLabelBounds(new mxRectangle(
+				mxUtils.unscale(bounds.x, s, tr.x),
+				mxUtils.unscale(bounds.y, s, tr.y),
+				mxUtils.unscale(bounds.width, s),
+				mxUtils.unscale(bounds.height, s)));
+		}
+		finally
+		{
+			shape.endModelUnits(screen);
+		}
+
+		bounds = new mxRectangle((bounds.x + tr.x) * s, (bounds.y + tr.y) * s,
+			bounds.width * s, bounds.height * s);
+	}
+	else
+	{
+		bounds = shape.getLabelBounds(bounds);
+	}
+
+	return bounds;
+};
+
+/**
  * Function: rotateLabelBounds
- * 
+ *
  * Adds the shape rotation to the given label bounds and
  * applies the alignment and offsets.
  * 
@@ -1811,6 +1872,72 @@ mxCellRenderer.prototype.redrawShape = function(state, force, rendering)
 	}
 
 	return shapeChanged;
+};
+
+/**
+ * Function: updateScreenBounds
+ *
+ * Updates the screen fields of the shapes of the given state after the
+ * screen fields of the state have been updated for a new scale and
+ * translate of the view. The given scale and translate are the previous
+ * values. The shapes are not repainted as they are painted in model units,
+ * see <mxGraphView.modelCoordinates>.
+ */
+mxCellRenderer.prototype.updateScreenBounds = function(state, scale, translate)
+{
+	var shape = state.shape;
+	var text = state.text;
+
+	if (shape != null)
+	{
+		shape.scale = state.view.scale;
+		shape.viewTranslate = state.view.translate;
+
+		if (state.absolutePoints != null)
+		{
+			shape.points = state.absolutePoints.slice();
+			shape.updateBoundsFromPoints();
+		}
+		else
+		{
+			shape.bounds = new mxRectangle(state.x, state.y, state.width, state.height);
+		}
+
+		shape.boundingBox = this.getScreenBounds(state, shape.boundingBox, scale, translate);
+		shape.updateSvgScreenOffset();
+	}
+
+	if (text != null && text.bounds != null)
+	{
+		text.bounds = this.getLabelBounds(state);
+		text.scale = this.getTextScale(state);
+		text.boundingBox = this.getScreenBounds(state, text.boundingBox, scale, translate);
+		text.unrotatedBoundingBox = this.getScreenBounds(state,
+			text.unrotatedBoundingBox, scale, translate);
+	}
+
+	this.redrawControl(state);
+	this.redrawCellOverlays(state);
+};
+
+/**
+ * Function: getScreenBounds
+ *
+ * Returns the given rectangle for the given previous scale and translate
+ * for the current scale and translate of the view of the given state.
+ */
+mxCellRenderer.prototype.getScreenBounds = function(state, rect, scale, translate)
+{
+	if (rect != null)
+	{
+		var s = state.view.scale;
+		var tr = state.view.translate;
+		rect = new mxRectangle((rect.x / scale - translate.x + tr.x) * s,
+			(rect.y / scale - translate.y + tr.y) * s,
+			rect.width / scale * s, rect.height / scale * s);
+	}
+
+	return rect;
 };
 
 /**

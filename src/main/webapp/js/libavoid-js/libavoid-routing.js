@@ -698,6 +698,95 @@
 	};
 
 	/**
+	 * Initial distance in px between the ends of the routed edges and the
+	 * border of the region whose obstacles computeRoutes registers. Doubled
+	 * each time a route comes too close to the border.
+	 */
+	AvoidRouting.regionMargin = 100;
+
+	/**
+	 * The given region ({x, y, x2, y2}, null for none) extended by the box
+	 * b ({x, y, w, h}) or the point b ({x, y}). Returns region when b is null.
+	 */
+	AvoidRouting.addToRegion = function(region, b)
+	{
+		if (b == null)
+		{
+			return region;
+		}
+
+		var x2 = b.x + ((b.w > 0) ? b.w : 0);
+		var y2 = b.y + ((b.h > 0) ? b.h : 0);
+
+		return (region == null) ? {x: b.x, y: b.y, x2: x2, y2: y2} :
+			{x: Math.min(region.x, b.x), y: Math.min(region.y, b.y),
+			x2: Math.max(region.x2, x2), y2: Math.max(region.y2, y2)};
+	};
+
+	/**
+	 * The given region grown by margin on all sides, or null if the grown
+	 * region contains the given extent of all obstacles (no region needed).
+	 */
+	AvoidRouting.growRegion = function(region, margin, extent)
+	{
+		if (region == null || extent == null)
+		{
+			return null;
+		}
+
+		region = {x: region.x - margin, y: region.y - margin,
+			x2: region.x2 + margin, y2: region.y2 + margin};
+
+		return (region.x <= extent.x && region.y <= extent.y &&
+			region.x2 >= extent.x2 && region.y2 >= extent.y2) ? null : region;
+	};
+
+	/**
+	 * The obstacles ({x, y, w, h}) that intersect the given region.
+	 */
+	AvoidRouting.obstaclesIn = function(obstacles, region)
+	{
+		var result = [];
+
+		for (var i = 0; i < obstacles.length; i++)
+		{
+			var v = obstacles[i];
+
+			if (v != null && v.x <= region.x2 && v.x + v.w >= region.x &&
+				v.y <= region.y2 && v.y + v.h >= region.y)
+			{
+				result.push(v);
+			}
+		}
+
+		return result;
+	};
+
+	/**
+	 * True if all points of the given routes keep the given clearance from the
+	 * border of the region, ie. the routes keep the clearance from all
+	 * obstacles outside of the region.
+	 */
+	AvoidRouting.routesInside = function(routes, region, clearance)
+	{
+		for (var i = 0; i < routes.length; i++)
+		{
+			for (var k = 0; k < routes[i].length; k++)
+			{
+				var p = routes[i][k];
+
+				if (p.x < region.x + clearance || p.x > region.x2 - clearance ||
+					p.y < region.y + clearance || p.y > region.y2 - clearance)
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
+	};
+
+	/**
 	 * Compute obstacle-avoiding orthogonal routes for a set of edges.
 	 *
 	 * @param {object} Avoid - the libavoid instance (AvoidLib.getInstance()).
@@ -872,10 +961,11 @@
 				{x: b.x + b.w / 2, y: b.y + b.h / 2};
 		}
 
-		// One libavoid solve of batch at the given clearance. Writes the routed
-		// edges into out; returns the edges libavoid found NO route for
-		// (isFallbackRoute), in batch order, for the retry below.
-		function solve(batch, clearance)
+		// One libavoid solve of batch at the given clearance around the given
+		// obstacles. Returns {routes, points, failed}: the routed edges' bends
+		// by edge id, every route's points (endpoints included) and the edges
+		// libavoid found NO route for (isFallbackRoute), in batch order.
+		function solveWith(batch, clearance, obstacles)
 		{
 			var router = new Avoid.Router(Avoid.RouterFlag.OrthogonalRouting.value);
 
@@ -888,9 +978,9 @@
 			var pinClass = 0;
 			var i;
 
-			for (i = 0; i < vertices.length; i++)
+			for (i = 0; i < obstacles.length; i++)
 			{
-				var v = vertices[i];
+				var v = obstacles[i];
 
 				if (v == null || v.id == null || !(v.w > 0) || !(v.h > 0))
 				{
@@ -1098,10 +1188,12 @@
 					sourceEnd: [e.source, sb, sPins, e.sourcePoint]});
 			}
 
+			var result = {routes: Object.create(null), points: [], failed: []};
+
 			if (conns.length === 0)
 			{
 				router.delete();
-				return [];
+				return result;
 			}
 
 			router.processTransaction();
@@ -1160,15 +1252,13 @@
 				router.processTransaction();
 			}
 
-			var failed = [];
-
 			for (i = 0; i < conns.length; i++)
 			{
 				var pts = readRoute(conns[i].conn);
 
 				if (AvoidRouting.isFallbackRoute(pts, conns[i].sourcePins, conns[i].targetPins))
 				{
-					failed.push(conns[i].edge);
+					result.failed.push(conns[i].edge);
 					continue;
 				}
 
@@ -1184,11 +1274,92 @@
 					wps.push({x: Math.round(pts[k].x), y: Math.round(pts[k].y)});
 				}
 
-				out[conns[i].edge.id] = wps;
+				result.routes[conns[i].edge.id] = wps;
+				result.points.push(pts);
 			}
 
 			router.delete();
-			return failed;
+			return result;
+		}
+
+		// Terminal bounds by id for the regions, matching the bounds that
+		// solveWith registers, and the extent of all obstacles
+		var terminals = Object.create(null);
+		var extent = null;
+
+		for (var i = 0; i < vertices.length; i++)
+		{
+			var v = vertices[i];
+
+			if (v != null)
+			{
+				extent = AvoidRouting.addToRegion(extent, v);
+
+				if (v.id != null && v.w > 0 && v.h > 0)
+				{
+					terminals[v.id] = v;
+				}
+			}
+		}
+
+		// One solve of batch at the given clearance. Writes the routed edges
+		// into out; returns the edges libavoid found NO route for, in batch
+		// order, for the retry below. The obstacles are limited to a region
+		// around the batch's ends: the cost of a solve grows with the number
+		// of obstacles (~400ms for one edge among 2600 shapes), not with the
+		// distance the routes cover. A route that keeps the clearance from
+		// the region's border is also valid with all obstacles and, as fewer
+		// obstacles never make the best route worse, also a best route with
+		// all obstacles. Routes closer to the border are solved again in a
+		// larger region. A connector without a route in the region has none
+		// with all obstacles either, as more obstacles never open up a route.
+		function solve(batch, clearance)
+		{
+			var margin = AvoidRouting.regionMargin;
+			var region = null;
+
+			for (var i = 0; i < batch.length; i++)
+			{
+				var e = batch[i];
+
+				if (e != null)
+				{
+					var sb = (e.source != null) ? terminals[e.source] : null;
+					var tb = (e.target != null) ? terminals[e.target] : null;
+					region = AvoidRouting.addToRegion(region, (sb != null) ? sb : e.sourcePoint);
+					region = AvoidRouting.addToRegion(region, (tb != null) ? tb : e.targetPoint);
+				}
+			}
+
+			region = AvoidRouting.growRegion(region, margin, extent);
+
+			while (true)
+			{
+				var result = solveWith(batch, clearance, (region != null) ?
+					AvoidRouting.obstaclesIn(vertices, region) : vertices);
+
+				if (region == null || AvoidRouting.routesInside(
+					result.points, region, clearance))
+				{
+					for (var id in result.routes)
+					{
+						out[id] = result.routes[id];
+					}
+
+					return result.failed;
+				}
+
+				for (i = 0; i < result.points.length; i++)
+				{
+					for (var k = 0; k < result.points[i].length; k++)
+					{
+						region = AvoidRouting.addToRegion(region, result.points[i][k]);
+					}
+				}
+
+				margin *= 2;
+				region = AvoidRouting.growRegion(region, margin, extent);
+			}
 		}
 
 		// A connector libavoid found NO route for is retried on its own with

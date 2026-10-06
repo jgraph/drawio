@@ -111,11 +111,24 @@ GraphViewer.prototype.minWidth = 100;
 
 /**
  * Implements viewBox to keep the contents inside the bounding box
- * of the container. This is currently not supported in Safari (due
- * to clipping in labels with viewBox) and all browsers that do not
- * support foreignObjects (eg. IE11).
+ * of the container. This is not supported in browsers that do not
+ * support foreignObjects (eg. IE11). Safari is supported as labels
+ * in model units place their foreignObjects at the labels (see
+ * mxSvgCanvas2D.placeForeignObjects), which WebKit does not clip.
  */
 GraphViewer.prototype.responsive = false;
+
+/**
+ * Specifies if viewers with auto-fit use the responsive mode, where the
+ * browser scales the diagram to the container, instead of fitting the
+ * diagram after each resize. This applies if the zoom toolbar is disabled,
+ * zooming out is allowed and the container is not resized. The scale is
+ * limited to 1 unless allow-zoom-in is true, and max-height or the height
+ * of the container limit the height as in the fit. Set this to false or
+ * the responsive-auto-fit config to false for the previous fit. Default
+ * is true.
+ */
+GraphViewer.responsiveAutoFit = true;
 
 /**
  * Dark mode can be one of null, "light", "dark" or "auto".
@@ -181,9 +194,14 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 	this.initialWidth = (container != null) ? container.style.width : null;
 	this.widthIsEmpty = (this.initialWidth != null) ? this.initialWidth == '' : true;
 	this.currentPage = parseInt(this.graphConfig.page) || 0;
+	this.responsiveAutoFit = this.graphConfig['responsive'] == null && this.autoFit &&
+		!this.zoomEnabled && this.allowZoomOut && !this.graphConfig.resize &&
+		((this.graphConfig['responsive-auto-fit'] != null) ?
+		this.graphConfig['responsive-auto-fit'] : GraphViewer.responsiveAutoFit);
 	this.responsive = ((this.graphConfig['responsive'] != null) ?
-		this.graphConfig['responsive'] : this.responsive) &&
-		!this.zoomEnabled && !mxClient.NO_FO && !mxClient.IS_SF;
+		this.graphConfig['responsive'] : this.responsive || this.responsiveAutoFit) &&
+		!this.zoomEnabled && !mxClient.NO_FO;
+	this.responsiveAutoFit = this.responsiveAutoFit && this.responsive;
 	this.pageId = this.graphConfig.pageId;
 	this.browserTranslate = mxClient.IS_GC && ((this.graphConfig['browser-translate'] != null) ?
 		this.graphConfig['browser-translate'] : true);
@@ -206,6 +224,10 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 			var render = mxUtils.bind(this, function()
 			{
 				this.graph = new Graph(container);
+
+				// Paints the cells in model units so that zoom and pan do not
+				// repaint
+				this.graph.view.modelCoordinates = true;
 
 				if (this.browserTranslate)
 				{
@@ -251,6 +273,63 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 
 					var maxScale = parseFloat(this.graphConfig['responsive-max-scale']);
 
+					// Adds the scale of the viewBox to the scale for the hit tolerance
+					// of strokes in WebKit (see mxSvgCanvas2D.toleranceScaleVariable),
+					// which changes with the size of the root and the viewBox
+					var updateToleranceScale = null;
+
+					if (mxSvgCanvas2D.prototype.toleranceScaleVariable != null)
+					{
+						var view = this.graph.view;
+
+						view.getToleranceScale = function()
+						{
+							var vb = root.viewBox.baseVal;
+							var r = root.getBoundingClientRect();
+							var vs = (vb != null && vb.width > 0 && vb.height > 0 &&
+								r.width > 0 && r.height > 0) ? Math.min(r.width / vb.width,
+								r.height / vb.height) : 1;
+
+							return this.scale * vs;
+						};
+
+						updateToleranceScale = function()
+						{
+							view.updateToleranceScale();
+						};
+
+						GraphViewer.addResizeListener(root, updateToleranceScale);
+					}
+
+					// Limits the diagram like the fit if auto-fit uses this mode:
+					// the scale to 1 unless zooming in is allowed, applied to the
+					// diagram if the container has a width, which the fit keeps,
+					// and the height to max-height or the height of the container
+					// (the root is 100% high), aligned at the top left unless the
+					// fit centers the diagram (see fitGraph)
+					var limitRoot = false;
+
+					if (this.responsiveAutoFit)
+					{
+						if (isNaN(maxScale) && !this.allowZoomIn)
+						{
+							maxScale = 1;
+						}
+
+						limitRoot = !this.widthIsEmpty;
+
+						if (this.graphConfig['max-height'] != null)
+						{
+							root.style.maxHeight = Math.max(1, this.graphConfig['max-height'] -
+								2 * responsiveBorder) + 'px';
+						}
+
+						var centered = this.center || !(this.graphConfig.resize != false ||
+							container.style.height == '');
+						root.setAttribute('preserveAspectRatio', (!centered) ? 'xMinYMin meet' :
+							((this.hCenterOnly) ? 'xMidYMin meet' : 'xMidYMid meet'));
+					}
+
 					// Capture any pre-existing maxWidth on the container (e.g. set
 					// by the host page to constrain the diagram) so we can honour
 					// it as an upper bound when responsive-max-scale adjusts the width.
@@ -258,7 +337,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 
 					this.graph.sizeDidChange = function()
 					{
-						var bounds = this.view.graphBounds;
+						var bounds = this.view.getModelGraphBounds();
 						var tr = this.view.translate;
 
 						root.setAttribute('viewBox',
@@ -269,13 +348,22 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 						this.container.style.backgroundColor =
 							root.style.backgroundColor;
 
-						if (!isNaN(maxScale))
+						if (limitRoot)
+						{
+							root.style.maxWidth = Math.round((bounds.width + 1) * maxScale) + 'px';
+						}
+						else if (!isNaN(maxScale))
 						{
 							var naturalWidth = Math.round(
 								(bounds.width + 1) * maxScale + 2 * responsiveBorder);
 							var finalMaxWidth = !isNaN(presetMaxWidth) ?
 								Math.min(naturalWidth, presetMaxWidth) : naturalWidth;
 							this.container.style.maxWidth = finalMaxWidth + 'px';
+						}
+
+						if (updateToleranceScale != null)
+						{
+							updateToleranceScale();
 						}
 
 						this.fireEvent(new mxEventObject(mxEvent.SIZE, 'bounds', bounds));
@@ -636,10 +724,12 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 						}
 						else
 						{
-							var bounds = this.getGraphBounds();
+							// Crops only if the diagram changed, not for viewbox or
+							// scroll actions, which change the bounds on the screen
+							var bounds = this.view.getModelGraphBounds();
 							this.handleCustomLink(href, associatedCell);
 							
-							if (!bounds.equals(this.getGraphBounds()))
+							if (!bounds.equals(this.view.getModelGraphBounds()))
 							{
 								self.crop();
 							}
@@ -1099,7 +1189,7 @@ GraphViewer.prototype.addSizeHandler = function()
 			{
 				var r = container.getBoundingClientRect();
 				
-				// Workaround for position:relative set in ResizeSensor
+				// Uses the body as the origin if it is positioned relative
 				var origin = mxUtils.getScrollOrigin(document.body)
 				var b = (document.body.style.position === 'relative') ?
 					document.body.getBoundingClientRect() :
@@ -1196,15 +1286,7 @@ GraphViewer.prototype.addSizeHandler = function()
 
 	if (GraphViewer.useResizeSensor)
 	{
-		if (document.documentMode <= 9)
-		{
-			mxEvent.addListener(window, 'resize', updateOverflow);
-			this.graph.addListener('size', updateOverflow);
-		}
-		else
-		{
-			new ResizeSensor(this.graph.container, updateOverflow);
-		}
+		GraphViewer.addResizeListener(this.graph.container, updateOverflow);
 	}
 	
 	if (this.graphConfig.resize || ((this.zoomEnabled || !this.autoFit) && this.graphConfig.resize != false))
@@ -1228,28 +1310,20 @@ GraphViewer.prototype.addSizeHandler = function()
 		if (!this.zoomEnabled && this.autoFit)
 		{
 			var lastOffsetWidth = null;
-			var scheduledResize = null;
 			
+			// Fits right away as the resize sensor reports at most once per
+			// frame and a fit does not repaint the cells in model coordinates
 			var doResize = mxUtils.bind(this, function()
 			{
-				window.clearTimeout(scheduledResize);
-				
 				if (!this.handlingResize)
 				{
-					scheduledResize = window.setTimeout(mxUtils.bind(this, this.fitGraph), 100);
+					this.fitGraph();
 				}
 			});
 			
 			if (GraphViewer.useResizeSensor)
 			{
-				if (document.documentMode <= 9)
-				{
-					mxEvent.addListener(window, 'resize', doResize);
-				}
-				else
-				{
-					new ResizeSensor(this.graph.container, doResize);
-				}
+				GraphViewer.addResizeListener(this.graph.container, doResize);
 			}
 		}
 		else if (!(document.documentMode <= 9))
@@ -1878,7 +1952,7 @@ GraphViewer.prototype.addToolbar = function()
 		{
 			var r = container.getBoundingClientRect();
 	
-			// Workaround for position:relative set in ResizeSensor
+			// Uses the body as the origin if it is positioned relative
 			var origin = mxUtils.getScrollOrigin(document.body)
 			var b = (document.body.style.position === 'relative') ?
 				document.body.getBoundingClientRect() :
@@ -2519,18 +2593,23 @@ GraphViewer.prototype.showLocalLightbox = function(container)
 				document.body.appendChild(closeImg);
 			}
 			
-			ui.setFileData(this.xml);
-
-			// Applies initial hidden tags for the current page before
-			// lightboxFit so that the view fits the visible cells
-			if (this.tagsEnabled && this.graphConfig.hiddenTags != null &&
-				ui.currentPage != null)
+			// Hides the tags of each page before it is rendered so that
+			// lightboxFit fits the visible cells
+			if (this.tagsEnabled && this.graphConfig.hiddenTags != null)
 			{
-				var pageId = ui.currentPage.getId();
-				var pageTags = this.graphConfig.hiddenTags[pageId];
-				graph.hiddenTags = (pageTags != null && pageTags.length > 0) ? pageTags : [];
-				graph.refresh();
+				var hiddenTags = this.graphConfig.hiddenTags;
+
+				ui.getHiddenTagsForPage = function(page)
+				{
+					// Own properties only as page IDs come from the diagram
+					var pageTags = (Object.prototype.hasOwnProperty.call(hiddenTags,
+						page.getId())) ? hiddenTags[page.getId()] : null;
+
+					return (pageTags != null && pageTags.length > 0) ? pageTags : [];
+				};
 			}
+
+			ui.setFileData(this.xml);
 
 			mxUtils.setPrefixedStyle(lightbox.style, 'transform', 'rotateY(0deg)');
 			ui.chromelessToolbar.style.bottom = 60 + 'px';
@@ -3124,236 +3203,51 @@ GraphViewer.loadLanguageResources = function(fn)
 };
 
 /**
- * Redirects editing to absolue URLs.
+ * Specifies if the listeners for resizing the container are called (see
+ * addResizeListener). This is false while the local lightbox is shown.
+ * Default is true.
  */
 GraphViewer.resizeSensorEnabled = true;
 
 /**
- * Specifies if ResizeObserver should be used instead of ResizeSensor.
- * Default is true.
- */
-GraphViewer.useResizeObserver = true;
-
-/**
- * Redirects editing to absolue URLs.
+ * Specifies if the viewer handles resizing the container (see
+ * addResizeListener). Default is true.
  */
 GraphViewer.useResizeSensor = true;
 
 /**
- * Copyright Marc J. Schmidt. See the LICENSE file at the top-level
- * directory of this distribution and at
- * https://github.com/marcj/css-element-queries/blob/master/LICENSE.
+ * Calls the given function in the frame after the size of the given element
+ * has changed if resizeSensorEnabled is true. Changes are combined for each
+ * frame, which follows a resize and allows the function to change the size
+ * of the element without a loop of resize notifications. Uses the resize
+ * event of the window if ResizeObserver is not supported.
  */
-(function() {
+GraphViewer.addResizeListener = function(element, fn)
+{
+	var frame = null;
 
-    // Only used for the dirty checking, so the event callback count is limted to max 1 call per fps per sensor.
-    // In combination with the event based resize sensor this saves cpu time, because the sensor is too fast and
-    // would generate too many unnecessary events.
-    var requestAnimationFrame = window.requestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        function (fn) {
-            return window.setTimeout(fn, 20);
-        };
-
-    /**
-     * Class for dimension change detection.
-     *
-     * @param {Element|Element[]|Elements|jQuery} element
-     * @param {Function} callback
-     *
-     * @constructor
-     */
-    var ResizeSensor = function(element, fn) {
-    	
-    	var callback = function()
-    	{
-    		if (GraphViewer.resizeSensorEnabled)
-    		{
-    			fn();
-    		}
-    	};
-
-		// Uses ResizeObserver, if available
-		if (GraphViewer.useResizeObserver && typeof ResizeObserver !== 'undefined')
+	var callback = function()
+	{
+		if (frame == null)
 		{
-			var callbackThread = null;
-			var active = false;
-
-			new ResizeObserver(function()
+			frame = window.requestAnimationFrame(function()
 			{
-				if (!active)
+				frame = null;
+
+				if (GraphViewer.resizeSensorEnabled)
 				{
-					if (callbackThread != null)
-					{
-						window.clearTimeout(callbackThread);
-					}
-
-					callbackThread = window.setTimeout(function()
-					{
-						active = true;
-						callback();
-						callbackThread = null;
-						active = false;
-					}, 200);
+					fn();
 				}
-			}).observe(element)
-
-			return
+			});
 		}
-    	/**   *
-         * @constructor
-         */
-        function EventQueue() {
-            this.q = [];
-            this.add = function(ev) {
-                this.q.push(ev);
-            };
+	};
 
-            var i, j;
-            this.call = function() {
-                for (i = 0, j = this.q.length; i < j; i++) {
-                    this.q[i].call();
-                }
-            };
-        }
-/**   * @param {HTMLElement} element
-         * @param {String}      prop
-         * @returns {String|Number}
-         */
-        function getComputedStyle(element, prop) {
-            if (element.currentStyle) {
-                return element.currentStyle[prop];
-            } else if (window.getComputedStyle) {
-                return window.getComputedStyle(element, null).getPropertyValue(prop);
-            } else {
-                return element.style[prop];
-            }
-        }
-/**   *
-         * @param {HTMLElement} element
-         * @param {Function}    resized
-         */
-        function attachResizeEvent(element, resized) {
-            if (!element.resizedAttached) {
-                element.resizedAttached = new EventQueue();
-                element.resizedAttached.add(resized);
-            } else if (element.resizedAttached) {
-                element.resizedAttached.add(resized);
-                return;
-            }
-
-            element.resizeSensor = document.createElement('div');
-            element.resizeSensor.className = 'resize-sensor';
-            var style = 'position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; z-index: -1; visibility: hidden;';
-            var styleChild = 'position: absolute; left: 0; top: 0; transition: 0s;';
-
-            element.resizeSensor.style.cssText = style;
-            element.resizeSensor.innerHTML =
-                '<div class="resize-sensor-expand" style="' + style + '">' +
-                    '<div style="' + styleChild + '"></div>' +
-                '</div>' +
-                '<div class="resize-sensor-shrink" style="' + style + '">' +
-                    '<div style="' + styleChild + ' width: 200%; height: 200%"></div>' +
-                '</div>';
-            element.appendChild(element.resizeSensor);
-
-            // FIXME: Should not change element style
-            if (getComputedStyle(element, 'position') == 'static') {
-                element.style.position = 'relative';
-            }
-
-            var expand = element.resizeSensor.childNodes[0];
-            var expandChild = expand.childNodes[0];
-            var shrink = element.resizeSensor.childNodes[1];
-
-            var reset = function() {
-                expandChild.style.width  = 100000 + 'px';
-                expandChild.style.height = 100000 + 'px';
-
-                expand.scrollLeft = 100000;
-                expand.scrollTop = 100000;
-
-                shrink.scrollLeft = 100000;
-                shrink.scrollTop = 100000;
-            };
-
-            reset();
-            var dirty = false;
-
-            var dirtyChecking = function(){
-                if (!element.resizedAttached) return;
-
-                if (dirty) {
-                    element.resizedAttached.call();
-                    dirty = false;
-                }
-
-                requestAnimationFrame(dirtyChecking);
-            };
-
-            requestAnimationFrame(dirtyChecking);
-            var lastWidth, lastHeight;
-            var cachedWidth, cachedHeight; //useful to not query offsetWidth twice
-
-            var onScroll = function() {
-              if ((cachedWidth = element.offsetWidth) != lastWidth || (cachedHeight = element.offsetHeight) != lastHeight) {
-                  dirty = true;
-
-                  lastWidth = cachedWidth;
-                  lastHeight = cachedHeight;
-              }
-              reset();
-            };
-
-            var addEvent = function(el, name, cb) {
-                if (el.attachEvent) {
-                    el.attachEvent('on' + name, cb);
-                } else {
-                    el.addEventListener(name, cb);
-                }
-            };
-
-            addEvent(expand, 'scroll', onScroll);
-            addEvent(shrink, 'scroll', onScroll);
-        }
-
-        var elementType = Object.prototype.toString.call(element);
-        var isCollectionTyped = ('[object Array]' === elementType
-            || ('[object NodeList]' === elementType)
-            || ('[object HTMLCollection]' === elementType)
-            || ('undefined' !== typeof jQuery && element instanceof jQuery) //jquery
-            || ('undefined' !== typeof Elements && element instanceof Elements) //mootools
-        );
-
-        if (isCollectionTyped) {
-            var i = 0, j = element.length;
-            for (; i < j; i++) {
-                attachResizeEvent(element[i], callback);
-            }
-        } else {
-            attachResizeEvent(element, callback);
-        }
-
-        this.detach = function() {
-            if (isCollectionTyped) {
-                var i = 0, j = element.length;
-                for (; i < j; i++) {
-                    ResizeSensor.detach(element[i]);
-                }
-            } else {
-                ResizeSensor.detach(element);
-            }
-        };
-    };
-
-    ResizeSensor.detach = function(element) {
-        if (element.resizeSensor) {
-            element.removeChild(element.resizeSensor);
-            delete element.resizeSensor;
-            delete element.resizedAttached;
-        }
-    };
-
-    window.ResizeSensor = ResizeSensor;
-})();
+	if (typeof ResizeObserver !== 'undefined')
+	{
+		new ResizeObserver(callback).observe(element);
+	}
+	else
+	{
+		mxEvent.addListener(window, 'resize', callback);
+	}
+};

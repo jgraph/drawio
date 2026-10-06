@@ -6,6 +6,9 @@
  * is used for development mode where the JS is in separate
  * files and the mxClient.js loads other files.
  */
+// CSP-POLICIES-BEGIN - this block is also evaluated on its own (with only
+// mxIsElectron, urlParams, mxmeta and console defined) to deploy the CSP
+// response headers, so it must stay self-contained.
 if (!mxIsElectron)
 {
 	(function()
@@ -73,6 +76,19 @@ if (!mxIsElectron)
 				
 			console.log('teams.diagrams.net:', teams_diagrams_net);
 
+			// Teams app V2 tab pages (app.diagrams.net/connect/teamsV2/*) load the
+			// TeamsJS SDK and Fabric CSS from the Office CDN. Scripts are limited
+			// to the SDK's path: the CDN hosts much more than TeamsJS.
+			var teamsV2_diagrams_net = csp
+				.replace(/%script-src%/g, 'https://res.cdn.office.net/teams-js/')
+				.replace(/%connect-src%/g, 'https://res.cdn.office.net')
+				.replace(/%frame-src%/g, '')
+				.replace(/%style-src%/g, 'https://res-1.cdn.office.net')
+				.replace(/  /g, ' ') +
+				" frame-ancestors 'self' https://teams.microsoft.com https://*.cloud.microsoft;";
+
+			console.log('app.diagrams.net/connect/teamsV2/:', teamsV2_diagrams_net);
+
 			var ac_draw_io = csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net').
 					replace(/%frame-src%/g, 'https://www.lucidchart.com https://app.lucidchart.com https://lucid.app blob:').
 					replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net https://connect-cdn.atl-paas.net').
@@ -97,6 +113,7 @@ if (!mxIsElectron)
 		}
 	})();
 }
+// CSP-POLICIES-END
 
 mxscript(drawDevUrl + 'js/cryptojs/aes.min.js');
 mxscript(drawDevUrl + 'js/spin/spin.min.js');

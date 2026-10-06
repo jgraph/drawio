@@ -236,6 +236,59 @@ mxObjectCodec.isPollutionKey = function(fieldname)
 };
 
 /**
+ * Variable: inheritedNames
+ *
+ * Maps a prototype to the names that <encodeObject> encodes of the members
+ * an object inherits from it (see <getInheritedNames>).
+ */
+mxObjectCodec.inheritedNames = new WeakMap();
+
+/**
+ * Function: isIndex
+ *
+ * Returns true if the given member name is an array index. Indices start
+ * with a digit or minus, which avoids parsing all other names.
+ */
+mxObjectCodec.isIndex = function(name)
+{
+	var c = name.charCodeAt(0);
+
+	return (c == 45 || (c >= 48 && c <= 57)) && mxUtils.isInteger(name);
+};
+
+/**
+ * Function: getInheritedNames
+ *
+ * Returns the names of the enumerable members an object inherits from the
+ * given prototype in the order of a for-in loop, without functions other
+ * than array entries, which are never written (see <writePrimitiveAttribute>)
+ * and which make up most of the members of a cell or geometry. The names are
+ * collected once for each prototype, as the members of a prototype are
+ * defined when its class is set up.
+ */
+mxObjectCodec.getInheritedNames = function(proto)
+{
+	var names = mxObjectCodec.inheritedNames.get(proto);
+
+	if (names == null)
+	{
+		names = [];
+
+		for (var name in proto)
+		{
+			if (typeof(proto[name]) != 'function' || mxObjectCodec.isIndex(name))
+			{
+				names.push(name);
+			}
+		}
+
+		mxObjectCodec.inheritedNames.set(proto, names);
+	}
+
+	return names;
+};
+
+/**
  * Variable: template
  *
  * Holds the template object associated with this codec.
@@ -451,16 +504,21 @@ mxObjectCodec.prototype.encode = function(enc, obj)
 mxObjectCodec.prototype.encodeObject = function(enc, obj, node)
 {
 	enc.setAttribute(node, 'id', enc.getId(obj));
+	var names = this.getMemberNames(enc, obj);
 	var attrs = [];
 	
-    for (var i in obj)
+    for (var i = 0; i < names.length; i++)
     {
-		var name = i;
+		var name = names[i];
 		var value = obj[name];
-		
-    	if (value != null && !this.isExcluded(obj, name, value, true))
+		var index = mxObjectCodec.isIndex(name);
+
+		// Skips functions other than array entries, which are never
+		// written (see writePrimitiveAttribute)
+    	if (value != null && (index || typeof(value) != 'function') &&
+			!this.isExcluded(obj, name, value, true))
     	{
-    		if (mxUtils.isInteger(name))
+    		if (index)
     		{
 				this.encodeValue(enc, obj, null, value, node);
 			}
@@ -492,6 +550,54 @@ mxObjectCodec.prototype.encodeObject = function(enc, obj, node)
 	{
 		this.encodeValue(enc, obj, attrs[i].name, attrs[i].value, node);
 	}
+};
+
+/**
+ * Function: getMemberNames
+ *
+ * Returns the names of the enumerable members of the given object in the
+ * order of a for-in loop, where the inherited members are taken from
+ * <getInheritedNames>. If <mxCodec.encodeDefaults> is true then the names
+ * are enumerated with a for-in loop, as inherited members are only written
+ * if they differ from the template otherwise.
+ *
+ * Parameters:
+ *
+ * enc - <mxCodec> that controls the encoding process.
+ * obj - Object to return the member names for.
+ */
+mxObjectCodec.prototype.getMemberNames = function(enc, obj)
+{
+	var names = [];
+
+	if (enc.encodeDefaults)
+	{
+		for (var name in obj)
+		{
+			names.push(name);
+		}
+	}
+	else
+	{
+		names = Object.keys(obj);
+		var proto = Object.getPrototypeOf(obj);
+
+		if (proto != null)
+		{
+			var inherited = mxObjectCodec.getInheritedNames(proto);
+
+			// Own members hide inherited members, as in a for-in loop
+			for (var i = 0; i < inherited.length; i++)
+			{
+				if (!Object.prototype.hasOwnProperty.call(obj, inherited[i]))
+				{
+					names.push(inherited[i]);
+				}
+			}
+		}
+	}
+
+	return names;
 };
 
 /**

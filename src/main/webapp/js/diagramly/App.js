@@ -7995,7 +7995,9 @@ App.prototype.pickFolder = function(mode, fn, enabled, direct, force, returnPick
 		{
 			resume();
 			
-			if (evt.action == google.picker.Action.PICKED)
+			// Value of google.picker.Action.PICKED, which is not defined if
+			// the root folder was picked without loading the Picker API
+			if (evt.action == 'picked')
 			{
 				var folderId = null;
 				

@@ -2862,7 +2862,9 @@ DriveClient.prototype.pickFolder = function(fn, force)
 
 				this.ui.confirm(mxResources.get('useRootFolder'), mxUtils.bind(this, function()
 				{
-					this.folderPickerCallback({action: google.picker.Action.PICKED,
+					// Value of google.picker.Action.PICKED, the root folder
+					// needs no Picker and its API may not be loaded
+					this.folderPickerCallback({action: 'picked',
 						docs: [{type: 'folder', id: 'root'}]});
 				}), mxUtils.bind(this, function()
 				{

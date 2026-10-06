@@ -1,3 +1,180 @@
+05-OCT-2026: 32.2.0
+
+- Reads the state geometry in each step of wipe and pop animations
+- Scales the stroke width in the hit band of strokes in WebKit
+- Updates the graph bounds for repainted states in live previews
+- Ends pinch zooms at the product of their steps if zooms are committed
+- Uses a model unit for pixel constants of routes in model coordinates
+- Rounds shadow offsets of bounding boxes in model units in model coordinates
+- Converts stroke widths of the outline from model units in model coordinates
+- Samples curved arrows for 400% in model units
+- Hardens the hit-test and folding icon checks of test/fast-rendering
+- Keeps the numbers of enumerated cells in exports
+- Fixes browser files marking edits made during a save or rename as saved
+- Documents the drawio-release Cloudflare token and its CSP permissions
+- Fixes browser file renames that a save in progress undid
+- Chains the :not() selectors of updateStatusAction for older browsers
+- Saves to the Drive root folder without the Google Picker API
+- Records the error log groups of the 2026-10-05 pass
+- Accepts hash objects after an encoded hash sign in URLs from Safari
+- Ignores dash patterns without numbers in SVG output
+- Adds missing defaults to shapes that painted NaN with default styles
+- Computes the page layout without floating point noise
+- Keeps the typing shim in the visible area of the diagram
+- Reads the container metrics before the validation of a zoom
+- Zooms pinch gestures in Safari around the center between the fingers
+- Cancels what the first finger started when a pinch gesture starts
+- Updates the translate when the diagram container is resized without a refresh
+- Rounds the fit of the initial view of a page like other fits
+- Floors the translate of exports at the output scale
+- Zooms pinch gestures in Safari around the center between the fingers in the lightbox
+- Passes diagram coordinates to rough.js so sketch fills do not depend on the view translate
+- Fixes VSDX export of images with URL encoded data URIs
+- Enables fast rendering by default in the editor
+- Skips the custom handles of vertices without a geometry
+- Records the fix of the null paint bounds handle group
+- Routes /cache on preprod to the fast-rt patch cache
+- Stops forwarding preprod's /cache to the AWS Lambda
+- Restores app.min.js in the service worker precache and fails the build on oversized entries
+- Formats the radii of ellipses and the rotation centers of labels in SVG output
+- Replaces the loading text with a pulsing logo
+- Removes wip, cleanup and repeated entries from the ChangeLog since 31.1.8
+- Leaves wip, cleanup, build and repeated commit subjects out of the generated ChangeLog
+- Builds the style-to-library map for Open Library in idle time after startup
+- Shows the pulsing logo while the Teams tabs and the Chrome app load
+- Caches the normalized search tags of sidebar entries
+- Points the Teams app V2 at the draw.io for M365 Entra app
+
+04-OCT-2026: 32.1.0
+
+- Adds the patch cache to the fast-rt shards, switched off until the /cache cutover
+- Adds the design for model coordinates
+- Adds fields in model units to cell states
+- Uses a minimum edge bounds size of 1 in model units
+- Uses the scale of the painted shape for flow animations
+- Stores the routed points of line jumps in model units
+- Makes the ellipse perimeter independent of the zoom level
+- Adds painting in model units for zoom and pan without repaint
+- Adds the mc URL parameter for model coordinates
+- Updates the model coordinates design with the status of phases 1 and 2
+- Shortens the patch cache's wait for an earlier save to 3 s and turns off fast-rt's workers.dev address
+- Keeps the hit tolerance of strokes in screen pixels in model coordinates
+- Keeps the crisp offset of strokes in screen pixels in model coordinates
+- Keeps the global shadow in screen pixels in model coordinates
+- Disables model coordinates in WebKit
+- Updates the model coordinates design with the status of phase 3
+- Paints folding icons in model units in model coordinates
+- Checks only the states updated in a validation for screen fields
+- Adds the folding icon and check fixes to the model coordinates status
+- Uses the fast zoom preview in model coordinates
+- Updates the model coordinates design with the status of phase 4
+- Keeps crisp offsets within a quarter pixel at non-integer scales
+- Enables model coordinates by default in Chromium-based browsers
+- Updates the model coordinates docs for the default in Chromium
+- Places the foreignObjects of labels at the labels in model units
+- Allows model coordinates in WebKit with mc=1
+- Enables model coordinates by default in WebKit
+- Updates the model coordinates docs for WebKit
+- Skips a patch cache notice's sender by its relay client ID in cid
+- Sends realtime save notices with their cache entry and other notifications over the socket too
+- Updates stable channel to 31.7.1
+- Holds autosaves in the rt-test encrypted-channel scenario while it counts notification effects
+- Enables model coordinates by default in Firefox
+- Updates the model coordinates docs for Firefox
+- Corrects the duplicate points note in the model coordinates design
+- Sends the Teams SSO token only to the same-origin /teamsToken worker
+- Names the cause of the duplicate points in the model coordinates design
+- Adds no waypoints when a straight edge segment is moved back
+- Removes waypoints of orthogonal edges that are equal to a terminal point
+- Marks the duplicate points as fixed in the model coordinates design
+- Uses model coordinates in the lightbox and viewer instead of CSS transforms
+- Updates the docs for model coordinates in the lightbox and viewer
+- Keeps the hit tolerance of strokes in screen pixels in WebKit
+- Documents the WebKit hit tolerance in the model coordinates design
+- Removes duplicate waypoints of elbow, entity relation and isometric routes
+- Updates the duplicate points note in the model coordinates design
+- Adds the fastRendering configuration for model coordinates in the editor
+- Documents the fastRendering configuration
+- Corrects the old rendering path note in the model coordinates design
+- Keeps the diagram fitted to the window until the zoom changes
+- Fits the window again when the page view, format or scale changes
+- Stops fitting and keeps the zoom if Fit Window is selected again
+- Keeps the graph bounds in model units in sync with setGraphBounds
+- Adds the teamsV2 CSP to the print-csp output and moves its inline scripts out
+- Keeps the initial view fitted to the window until the zoom changes
+- Ends the fit of the initial view when the user scrolls or pans
+- Fixes the view after fitting the window again on resize
+- Removes the fit of the initial view on resize
+- Resolves the guide container once per move instead of once per guide
+- Limits libavoid obstacles to a region around the routed edges
+- Updates only the bounding boxes of redrawn shapes and labels in validate
+- Updates the model coordinates notes on graph bounds and label boxes
+- Measures labels again after fonts or images in labels have loaded
+- Keeps edits made during an in-flight save pending in the rt-test storage stub
+- Adds Add Connection Point to the Edit submenu of the Simple, Sketch and Min themes
+- Moves the teamsV2 CSP out of this branch into the cf-headers pipeline
+- Deploys the CSP response headers from the repo, widened before each release
+- Updates the Teams app V2 manifest tooling to archiver 7
+- Collects the libavoid move preview inputs once per drag
+- Makes fastRendering opt-in in the editor
+- Finds the cell at a point without walking all cells
+- Keeps the graph bounds if a part of the graph is validated
+- Updates the known gaps in the model coordinates design
+- Fixes rhombus indicator shapes of labels
+- Keeps the diagram fitted to the window only with fast rendering
+- Adds the bounding boxes to one rectangle in getBoundingBox
+- Replaces the :has() selector for pressed status actions with a class
+- Adds regression tests for fast rendering
+- Skips parsing the draft if the current page has cells
+- Saves drafts one second after the last change
+- Keeps the graph bounds if a partial validation changes the translate
+- Updates the insert costs in the model coordinates design
+- Attributes the XML serialization of inserts to drafts in the design
+- Adds only the changed bounding boxes to the graph bounds in validate
+- Adds labels measured after fonts or images loaded to the graph bounds
+- Validates only the invalidated cells in validate
+- Replaces the page-wide :has() rules with classes
+- Updates the label measurement cost in the model coordinates design
+- Collects the descendants in one array in filterDescendants
+- Resolves only the styles that may set routing keys in the libavoid walks
+- Skips the methods of objects in mxObjectCodec.encodeObject
+- Saves drafts as plain XML
+- Updates the insert and draft costs in the model coordinates design
+- Caches the inherited member names of each prototype in mxObjectCodec
+- Updates the encoding cost in the model coordinates design
+- Fixes the uneven border of exports with a scale on the export page [jgraph/drawio#5559]
+- Exchanges Teams app V2 sign-in tokens with the V2 Entra app
+- Enables the responsive viewer in Safari
+- Sanitizes each HTML label once per task in the cell renderer
+- Precompiles the default expressions of mxUtils.ltrim and rtrim
+- Asks for every scope the Teams token exchange uses in the teamsV2 consent window
+- Adds zoom stops below 15% in model coordinates and rounds pinch zooms to 1%
+- Zooms by the change of the finger distance for touch pinch gestures
+- Documents the zoom stops below 15% in the model coordinates design
+- Fixes fast zoom and viewbox links in the minimal theme
+- Fixes the crop after viewbox and scroll links in the viewer
+- Fits on the grid of the zoom stops
+- Updates only the cells whose visibility changed for hidden tags
+- Applies the hidden tags of a page before it is rendered in the lightbox
+- Documents the fits on the zoom grid in the model coordinates design
+- Removes the mapping of the canvas transform from the page breaks
+- Rebuilds the browser translation mirror only after labels were repainted
+- Uses zoom stops on the 1% grid for the mouse wheel in model coordinates
+- Documents the mouse wheel zoom stops in the model coordinates design
+- Fits on the 1% grid in model coordinates
+- Makes the scale of the last fit a zoom stop in model coordinates
+- Documents the fits on the 1% grid and the fit stop in the model coordinates design
+- Refits the auto-fit viewer in the frame after a resize
+- Uses the responsive mode for auto-fit in the viewer
+- Adds a padding for the icons of cells to fitting the diagram to the window
+- Replaces ResizeSensor with ResizeObserver in the viewer
+- Keeps the hit tolerance of strokes in screen pixels in the responsive viewer in WebKit
+- Paints folding icons in model units when they are created in model coordinates
+- Applies the camera to the print draw pane in model coordinates without CSS transforms
+- Computes the label bounds in model units in model coordinates
+- Retries opening the database once and shows its error for browser files
+- Fixes saves that never finished while offline, eg. browser files in the offline app
+
 03-OCT-2026: 32.0.2
 
 - Makes the ellipse perimeter independent of the zoom level
@@ -117,7 +294,6 @@
 - Ends floating edges on the rounded outline with roundedPerimeterPoints [jgraph/drawio-dev#701]
 - Adds Rounded Perimeter to the properties of rectangles and labels [jgraph/drawio-dev#701]
 - Renames the roundedPerimeterPoints style to roundedPerimeter [jgraph/drawio-dev#701]
-- Adds github excludes from etc
 - Keeps the math text layer in PDFs of the export server
 - Stops macOS Preview breaking the math text layer into lines
 - Steps inline font sizes with the font size of labels [jgraph/drawio#5786]
@@ -210,7 +386,6 @@
 - Keeps base64 padding in compressed style resources
 - Rejects non-numeric def references in compressed styles
 - Keeps all references in compressed styles with multiple resources
-- Removes dead code
 - Updates drawio-elk bundle to 0.1.0+commit.0cfcdc4
 - Updates tooling and worker dev dependencies for Dependabot alerts
 - Re-routes libavoid edges after arrange actions and layouts
@@ -449,7 +624,6 @@
 - Adds the formula source as invisible text to math in PDF export and print
 - Drops the CHTML math output (math-output=html)
 - Sanitizes AsciiMath output with the MathJax safe filters
-- Sanitizes AsciiMath output with the MathJax safe filters
 - Makes MathJax typesetting synchronous in the bundle
 - Removes the asynchronous MathJax retry handling
 - Loads the MathJax bundle in the embed script
@@ -564,7 +738,6 @@
 - Places messages from hover arrow clicks on the next free row [jgraph/drawio#5706]
 - Switches the generate/v3 premium draw.io model to Opus 5.5
 - Updates drawio-mermaid bundle to 0.1.0+commit.1277371 [DID-20220]
-- Reduces stale duration
 - Updates DOMPurify from 3.4.15 to 3.4.16
 - Adds a smoke test for DOMPurify updates
 - Updates jszip from 3.10.0 to 3.10.1
@@ -581,7 +754,6 @@
 - Limits PDF attachment and object stream scans [jgraph/drawio-dev#572]
 - Restricts chromeless back and refresh URLs to same origin [jgraph/drawio-confluence#99]
 - Fixes search tag keys for stencil names with several spaces [jgraph/drawio#5738]
-- Reports Mermaid input with nothing to draw instead of dropping it
 - Reports Mermaid input with nothing to draw instead of dropping it
 - Adds drive.file Editor add-ons for Google Docs, Sheets and Slides [jgraph/drawio#5559]
 - Shows plugin menu items in the menubar and menu buttons [hediet/vscode-drawio#532]
@@ -715,7 +887,6 @@
 - Locks the execute-time resolution in undo-stale case 9
 - Keeps cross-page replays on their own page and marks both trees dirty
 - Canonicalizes the replayed child in the target tree
-- WIP: intent-frozen execute-time resolution (redesign in progress)
 - Adds the editor-semantics layer guarding base editor behavior
 - Disconnects dangling terminals from dirty pages before the flush diff
 - Adds provenance and history forensics to the dirty-tracking alert
@@ -739,7 +910,6 @@
 - Fixes configured default edge font not applied to new edges and edge labels
 - Bump actions/checkout from 6.1.0 to 7.0.1
 - Updates tooling dependencies
-- Tooling build fixes
 - Updates wrangler version
 - Removes plantuml and emf references
 - Adds Archimate v4 shapes
@@ -763,7 +933,6 @@
 - Stops replays from resolving to removed objects
 - Resends unconfirmed changes when the first peer appears
 - Freezes replay intentions for all property changes
-- Resends unconfirmed changes when the first peer appears
 - Announces joining clients so stale rosters heal
 - Keeps resent content current and restores revisions through sync
 - Adds exploratory scenarios and a real-P2P test layer
@@ -852,10 +1021,6 @@
 - Adds a descendants flag to the cell selector of custom actions
 - Starts the GAE Cloud Build from the release push instead of the trigger that never fired
 - Requires the served version id in the release monitor's deploy poll and shows the GAE build on the dashboard
-- Records that the GAE push trigger fired once on 31.4.6 and failed on its log bucket access
-- Updates the release runbook from the 31.4.6 run [jgraph/drawio-dev#690]
-- Compares the release-monitor source against the preprod tip, not the dispatch ref [jgraph/drawio-dev#690]
-- Build of version 31.4.6
 - Adds a follow mode that keeps collaborators on the presenter's view
 - Makes Dropbox opt-in only and stops loading its SDK [jgraph/drawio#5740]
 - Stops offering GitLab as a save target [jgraph/drawio#5773]
@@ -962,7 +1127,6 @@
 - Rejects IPv6 transition prefixes in the server SSRF guard [GHSA-xj4f-x55f-699c]
 - Stops stale image callbacks drawing ghost copies of Confluence attachment images after fit-on-load [jgraph/drawio-dev#658]
 - Fixes local print preview head CSS: closes the malformed shadow-suppression rule that swallowed the MathJax print rule and configured font CSS, writes app CSS into the style element unescaped with the style end tag neutralized, rewrites Google font URLs on pages 2+ and suppresses the unnamed @page rule when named page CSS is in use
-- Removes unused code
 - Derives export to PDF via print and server-side image export from EXPORT_URL instead of hand-set flags, treats null, empty and the public build placeholder as no export service and fails the canvas-unavailable fallbacks instead of posting to a dead URL [jgraph/drawio-dev#660]
 - Adds reindexInst3 resource for the Jira re-indexing page note that indexing pauses while the computer is asleep or offline [jgraph/drawio-jira-forge#1]
 - Gives the Google API loader the page's CSP nonce in the Drive editor
@@ -1021,7 +1185,6 @@
 
 - Rebuilds the Gliffy bundle with the validated page background
 - fix: upgrade commons-codec:commons-codec from 1.22.0 to 1.22.1
-- Updates excludes
 - Conf Cloud: Added Atlassian migration mapping support
 - Points the Confluence draft 415 message at Attachment Checker's exception setting
 - Added a marker style tooltipCell=1 to find the cell having the tooltip in a group & updated gliffy importer [DID-19972]
@@ -1047,12 +1210,10 @@
 - Update vendored drawio-plantuml bundle to commit 919e054
 - Fixes java<TAB>script: bypass and two unsanitized link sinks [jgraph/drawio-dev#624]
 - Denies data attributes by default in the DOMPurify config [jgraph/drawio-dev#625]
-- Build for confluence testing
 - Block javascript: URLs with tab in the scheme in MathJax labels
 
 13-AUG-2026: 31.2.2
 
-- Corrected version format
 - Make editor Gliffy import local-only, drop conversion-service callers [#618]
 - Stop offering Dropbox as a save target [#5740]
 - Add Gliffy migration workspace design document

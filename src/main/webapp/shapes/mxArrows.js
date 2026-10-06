@@ -2018,6 +2018,10 @@ function mxShapeArrows2TailedArrow(bounds, fill, stroke, strokewidth)
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dy = 0.5;
 	this.dx = 0.5;
+	this.dx1 = 20;
+	this.dy1 = 10;
+	this.dx2 = 25;
+	this.dy2 = 30;
 	this.notch = 0;
 	this.arrowHead = 0;
 };
@@ -2188,6 +2192,10 @@ function mxShapeArrows2TailedNotchedArrow(bounds, fill, stroke, strokewidth)
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dy = 0.5;
 	this.dx = 0.5;
+	this.dx1 = 20;
+	this.dy1 = 10;
+	this.dx2 = 25;
+	this.dy2 = 30;
 	this.notch = 0;
 	this.arrowHead = 0;
 };
@@ -2588,6 +2596,7 @@ function mxShapeArrows2UTurnArrow(bounds, fill, stroke, strokewidth)
 	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
 	this.dy = 0.5;
 	this.dx = 0.5;
+	this.dx2 = 25;
 	this.arrowHead = 40;
 };
 

@@ -1188,6 +1188,7 @@ Actions.prototype.init = function()
 	// View actions
 	this.addAction('resetView', function()
 	{
+		ui.setFitWindowEnabled(false);
 		graph.zoomTo(1);
 		ui.resetScrollbars();
 	}, null, null, 'Enter/Home');
@@ -1213,12 +1214,27 @@ Actions.prototype.init = function()
 			graph.zoomOut();
 		}
 	}, null, null, Editor.ctrlKey + ' - / Alt+Mousewheel');
-	this.addAction('fitWindow', function()
+	var fitWindowAction = this.addAction('fitWindow', function()
 	{
-		ui.fitDiagramOrPages();
+		// Keeps the diagram or the pages fitted to the window if nothing
+		// is selected, or stops fitting and keeps the zoom if it is already
+		// fitted, and fits once otherwise or without fast rendering
+		if (graph.isSelectionEmpty() && ui.isFitWindowSupported())
+		{
+			ui.setFitWindowEnabled(!ui.fitWindowEnabled);
+		}
+		else
+		{
+			ui.setFitWindowEnabled(false);
+			ui.fitDiagramOrPages();
+		}
 	}, null, null, Editor.ctrlKey + '+' + Editor.shiftKey + '+H');
+	fitWindowAction.setToggleAction(true);
+	fitWindowAction.setSelectedCallback(function() { return ui.fitWindowEnabled; });
 	this.addAction('fitPage', mxUtils.bind(this, function()
 	{
+		ui.setFitWindowEnabled(false);
+
 		if (graph.pageVisible)
 		{
 			graph.fitPages(1);
@@ -1230,6 +1246,8 @@ Actions.prototype.init = function()
 	}), null, null, Editor.ctrlKey + '+J');
 	this.addAction('fitTwoPages', mxUtils.bind(this, function()
 	{
+		ui.setFitWindowEnabled(false);
+
 		if (graph.pageVisible)
 		{
 			graph.fitPages(2);
@@ -1241,6 +1259,8 @@ Actions.prototype.init = function()
 	}), null, null, Editor.ctrlKey + '+' + Editor.shiftKey + '+J');
 	this.addAction('fitPageWidth', mxUtils.bind(this, function()
 	{
+		ui.setFitWindowEnabled(false);
+
 		if (graph.pageVisible)
 		{
 			graph.fitPages(1, true);

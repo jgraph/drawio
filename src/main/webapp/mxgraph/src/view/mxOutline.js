@@ -393,7 +393,8 @@ mxOutline.prototype.updateDrawPane = function()
  */
 mxOutline.prototype.processSvg = function(svg)
 {
-	var s = this.source.view.scale;
+	// Stroke widths are in model units in model coordinates
+	var s = this.source.view.scale / this.source.view.getPixelSize();
 	
 	Array.prototype.slice.call(svg.getElementsByTagName('*')).forEach(
 	  mxUtils.bind(this, function(item) {

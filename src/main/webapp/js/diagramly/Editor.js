@@ -1851,18 +1851,35 @@
 				
 				if (arguments.length > 2)
 				{
-					var s = this.canvas.state;
-		
+					var tr = this.getViewTranslate();
+
 					for (var i = 2; i < arguments.length; i += 2)
 					{
 						this.lastX = arguments[i - 1];
 						this.lastY = arguments[i];
-						
-						this.path.push(this.canvas.format((this.lastX)));
-						this.path.push(this.canvas.format((this.lastY)));
+
+						this.path.push(this.canvas.format(this.lastX - tr.x));
+						this.path.push(this.canvas.format(this.lastY - tr.y));
 					}
 				}
 			}
+		};
+
+		/**
+		 * Returns the view translate in the coordinates of the shape. Rough.js
+		 * rounds hachure lines to whole units, so the coordinates are passed in
+		 * diagram units to keep fills independent of the view translate.
+		 */
+		RoughCanvas.prototype.getViewTranslate = function()
+		{
+			var tr = this.shape.viewTranslate;
+
+			if (tr == null && this.shape.state != null)
+			{
+				tr = this.shape.state.view.translate;
+			}
+
+			return (tr != null) ? tr : new mxPoint();
 		};
 	
 		RoughCanvas.prototype.lineTo = function(endX, endY)
@@ -1967,8 +1984,10 @@
 			}
 			else
 			{
+				var tr = this.getViewTranslate();
 				this.path = [];
-				this.nextShape = this.rc.generator.rectangle(x, y, w, h, this.getStyle(true, true));
+				this.nextShape = this.rc.generator.rectangle(x - tr.x, y - tr.y,
+					w, h, this.getStyle(true, true));
 			}
 		};
 	
@@ -1980,8 +1999,10 @@
 			}
 			else
 			{
+				var tr = this.getViewTranslate();
 				this.path = [];
-				this.nextShape = this.rc.generator.ellipse(x + w / 2, y + h / 2, w, h, this.getStyle(true, true));
+				this.nextShape = this.rc.generator.ellipse(x + w / 2 - tr.x,
+					y + h / 2 - tr.y, w, h, this.getStyle(true, true));
 			}
 		};
 			
@@ -2008,6 +2029,16 @@
 	
 		RoughCanvas.prototype.drawPath = function(style)
 		{
+			// Paints the output in the coordinates of the shape
+			var tr = this.getViewTranslate();
+			var translate = tr.x != 0 || tr.y != 0;
+
+			if (translate)
+			{
+				this.canvas.save();
+				this.canvas.translate(tr.x, tr.y);
+			}
+
 			if (this.path.length > 0)
 			{
 				this.passThrough = true;
@@ -2027,22 +2058,27 @@
 				{
 					this.nextShape.options[key] = style[key];
 				}
-				
+
 				if (style['stroke'] == mxConstants.NONE ||
 					style['stroke'] == null)
 				{
 					delete this.nextShape.options['stroke'];
 				}
-				
+
 				if (!style.filled)
 				{
 					delete this.nextShape.options['fill'];
 				}
-	
+
 				this.passThrough = true;
 				this.rc.draw(this.nextShape);
 				this.passThrough = false;
-			}	
+			}
+
+			if (translate)
+			{
+				this.canvas.restore();
+			}
 		};
 		
 		RoughCanvas.prototype.stroke = function()
@@ -3018,6 +3054,11 @@
 			if (config.optimizeHtmlLabels != null)
 			{
 				Editor.optimizeHtmlLabels = config.optimizeHtmlLabels;
+			}
+
+			if (config.fastRendering != null)
+			{
+				Editor.fastRendering = config.fastRendering;
 			}
 
 			if (config.mathOutputSize != null)
@@ -4376,11 +4417,6 @@
 					this.graph.setBackgroundImage(null);
 				}
 				
-				this.graph.useCssTransforms = !mxClient.NO_FO &&
-					this.isChromelessView() &&
-					this.graph.isCssTransformsSupported();
-				this.graph.updateCssTransform();
-
 				this.graph.setShadowVisible(node.getAttribute('shadow') == '1', false);
 				
 				var extFonts = node.getAttribute('extFonts');
@@ -4529,29 +4565,10 @@
 		this.graph.setAdaptiveColors(null);
 		this.graph.view.x0 = null;
 		this.graph.view.y0 = null;
-		
-		this.graph.useCssTransforms = !mxClient.NO_FO &&
-			this.isChromelessView() &&
-			this.graph.isCssTransformsSupported();
-		this.graph.updateCssTransform();
-		
+
 		editorResetGraph.apply(this, arguments);
 	};
 
-	/**
-	 * Math support.
-	 */
-	var editorUpdateGraphComponents = Editor.prototype.updateGraphComponents;
-	Editor.prototype.updateGraphComponents = function()
-	{
-		editorUpdateGraphComponents.apply(this, arguments);
-		
-		this.graph.useCssTransforms = !mxClient.NO_FO &&
-			this.isChromelessView() &&
-			this.graph.isCssTransformsSupported();
-		this.graph.updateCssTransform();
-	};
-	
 	/**
 	 * Initializes math typesetting. The code is loaded when math is first
 	 * typeset (see Editor.loadMath). It uses its own global, DrawioMathJax,
@@ -9496,7 +9513,7 @@
 		{
 			graph.setHiddenTags(visible ? [] : allTags.slice());
 			removeInvisibleSelectionCells();
-			graph.refresh();
+			graph.refreshHiddenTags();
 		};
 		
 		graph.addListener(mxEvent.ROOT, function()
@@ -9531,7 +9548,7 @@
 								temp.splice(index, 1);
 								graph.setHiddenTags(temp);
 								removeInvisibleSelectionCells();
-								graph.refresh();
+								graph.refreshHiddenTags();
 							};
 
 							function selectCells()
@@ -9608,13 +9625,13 @@
 									}
 
 									removeInvisibleSelectionCells();
-									graph.refresh();
+									graph.refreshHiddenTags();
 								}
 								else
 								{
 									graph.toggleHiddenTag(tag);
 									removeInvisibleSelectionCells();
-									graph.refresh();
+									graph.refreshHiddenTags();
 								}
 
 								mxEvent.consume(evt);
@@ -9845,7 +9862,7 @@
 				}
 	
 				removeInvisibleSelectionCells();
-				graph.refresh();
+				graph.refreshHiddenTags();
 				mxEvent.consume(evt);
 			});
 
@@ -10247,11 +10264,20 @@
 	};
 
 	/**
-	 * Adds drawing and update of the shape number.
+	 * Adds drawing and update of the shape number. If keepValue is true then
+	 * an existing number is kept (eg. in exports, which do not number the
+	 * cells in a validation).
 	 */
-	mxGraphView.prototype.redrawEnumerationState = function(state)
+	mxGraphView.prototype.redrawEnumerationState = function(state, keepValue)
 	{
 		var enumerate = mxUtils.getValue(state.style, 'enumerate', 0) == '1';
+
+		// The numbers depend on the order of the walk over all cells (see
+		// mxGraphView.validateInvalidCells)
+		if (enumerate)
+		{
+			this.fullValidationRequired = true;
+		}
 
 		if (enumerate && state.secondLabel == null)
 		{
@@ -10274,7 +10300,8 @@
 		if (shape != null)
 		{
 			var s = state.view.scale;
-			var value = this.createEnumerationValue(state);
+			var value = (keepValue && shape.value != null) ? shape.value :
+				this.createEnumerationValue(state);
 			var bounds = this.graph.model.isVertex(state.cell) ?
 				new mxRectangle(state.x + state.width - 4 * s, state.y + 4 * s, 0, 0) :
 				mxRectangle.fromPoint(state.view.getPoint(state));
@@ -10502,40 +10529,70 @@
 	};
 
 	/**
-	 * Sets a CSS `transition: transform …` on the SVG group used in
-	 * chromeless mode. The next change to the group's `transform`
-	 * attribute (driven by updateCssTransform) will animate. The
-	 * transition is auto-cleared on `transitionend` and via a
-	 * setTimeout fail-safe (in case the new transform equals the old
-	 * and `transitionend` never fires).
+	 * Animates the view from the given previous scale and translate to the
+	 * current ones in the given duration (default 600 ms). The panes are
+	 * painted for the current view state, and a CSS transform on the canvas
+	 * that maps them to the previous view state transitions to the identity,
+	 * so the background, the cells and the overlays move together. Any
+	 * other change of the view state stops the transition, so user-driven
+	 * zoom and pan snap instantly.
 	 */
-	Graph.applyTransformTransition = function(graph, duration)
+	Graph.prototype.transitionViewState = function(scale, translate, duration)
 	{
-		duration = duration || 600;
-		var pane = graph.view.getDrawPane();
-		var node = (pane != null) ? pane.parentNode : null;
-		if (node == null) return;
+		duration = (duration != null) ? duration : 600;
+		var view = this.view;
+		var node = view.getCanvas();
 
-		var prev = node.style.transition;
-		node.style.transition = 'transform ' + duration +
-			'ms cubic-bezier(0.16, 1, 0.3, 1)';
-
-		// Mark that the *next* transform change (the one this smooth step
-		// is about to make via updateCssTransform) is the intended one to
-		// animate. updateCssTransform consumes this flag; any other
-		// transform update (toolbar zoom/fit, wheel zoom, …) finds it unset
-		// and strips the transition so the viewport snaps instantly — the
-		// easing must not bleed onto user-driven viewport changes.
-		graph.armTransformTransition = true;
-
-		var clear = function()
+		if (this.stopViewStateTransition != null)
 		{
-			node.style.transition = prev || '';
-			graph.armTransformTransition = false;
-			node.removeEventListener('transitionend', clear);
-		};
-		node.addEventListener('transitionend', clear);
-		window.setTimeout(clear, duration + 100);
+			this.stopViewStateTransition();
+		}
+
+		// Maps (m + t) * s for the current view state to the previous one
+		var k = scale / view.scale;
+		var dx = scale * (translate.x - view.translate.x);
+		var dy = scale * (translate.y - view.translate.y);
+
+		if (node != null && (k != 1 || dx != 0 || dy != 0))
+		{
+			var thread = null;
+
+			var stop = mxUtils.bind(this, function()
+			{
+				node.style.transition = '';
+				node.style.transform = '';
+				node.style.transformOrigin = '';
+				node.removeEventListener('transitionend', transitionEnd);
+				view.removeListener(stop);
+				window.clearTimeout(thread);
+				this.stopViewStateTransition = null;
+			});
+
+			// Ignores transitions of descendants, eg. fading highlights
+			var transitionEnd = function(evt)
+			{
+				if (evt.target == node)
+				{
+					stop();
+				}
+			};
+
+			node.style.transition = 'none';
+			node.style.transformOrigin = '0 0';
+			node.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + k + ')';
+
+			// Forces the start state to be applied before the transition
+			node.getBoundingClientRect();
+			node.style.transition = 'transform ' + duration + 'ms cubic-bezier(0.16, 1, 0.3, 1)';
+			node.style.transform = 'translate(0px,0px) scale(1)';
+
+			node.addEventListener('transitionend', transitionEnd);
+			view.addListener(mxEvent.SCALE, stop);
+			view.addListener(mxEvent.TRANSLATE, stop);
+			view.addListener(mxEvent.SCALE_AND_TRANSLATE, stop);
+			thread = window.setTimeout(stop, duration + 100);
+			this.stopViewStateTransition = stop;
+		}
 	};
 
 	/**
@@ -10552,15 +10609,14 @@
 	 *     scrollLeft=0. Users expect the scrollbars' top-left to
 	 *     always show the top-left of the diagram, regardless of
 	 *     where the viewbox is centered.
-	 *   • Scale changes via CSS transform are visually instant and
-	 *     don't require re-rendering cells.
+	 *   • Scale changes with model coordinates are visually instant
+	 *     and don't require re-rendering cells.
 	 *
 	 * `view.setScale` routes through `viewStateChanged → validate +
 	 * sizeDidChange`. The latter resizes the SVG root's
-	 * `minWidth/minHeight` based on `getGraphBounds()` (which, in
-	 * useCssTransforms mode, returns `(graphBounds + currentTranslate)
-	 * * currentScale`). So the container's scrollable area grows /
-	 * shrinks with the scale, and the existing `currentTranslate`
+	 * `minWidth/minHeight` based on `getGraphBounds()`, which is
+	 * `(bounds in model units + translate) * scale`. So the container's
+	 * scrollable area grows / shrinks with the scale, and the translate
 	 * keeps the diagram's top-left anchored to the same SVG point.
 	 */
 	Graph.prototype.fitBoundsCssTransform = function(bounds, border)
@@ -10572,7 +10628,7 @@
 		// scroll into, so they'd just leave the viewbox off-centre at
 		// the edges. Intersecting with the diagram gives a viewbox we
 		// can actually position.
-		var gb = this.view.graphBounds;
+		var gb = this.view.getModelGraphBounds();
 		var areaLeft = gb.x;
 		var areaTop = gb.y;
 		var areaRight = gb.x + gb.width;
@@ -10587,8 +10643,7 @@
 
 		var cw = this.container.clientWidth - b;
 		var ch = this.container.clientHeight - b;
-		var scale = Math.floor(20 * Math.min(
-			cw / vbWidth, ch / vbHeight)) / 20;
+		var scale = this.getFitScale(Math.min(cw / vbWidth, ch / vbHeight));
 
 		// Editor-style layout for the lightbox: translate so the
 		// diagram's top-left maps to SVG (0, 0). After `sizeDidChange`
@@ -10606,6 +10661,7 @@
 		// viewbox clicks at different zoom levels don't shift the
 		// scroll-origin's meaning.
 		this.view.scaleAndTranslate(scale, -gb.x, -gb.y);
+		this.fitScale = this.view.scale;
 
 		// With the new translate, graph (gx, gy) renders at SVG position
 		// `(gx - gb.x) * scale`. Centre the clamped viewbox in the
@@ -10634,11 +10690,11 @@
 	/**
 	 * Smooth variant of `fitWindow`.
 	 *
-	 *   • Chromeless — `fitBoundsCssTransform` changes scale via CSS
-	 *     transform and snaps scrollLeft/scrollTop to centre the
-	 *     bounds. We arm a CSS `transition: transform` so the scale
-	 *     animation is visually smooth, and tween scrollLeft/scrollTop
-	 *     in parallel with `smoothScrollContainer`.
+	 *   • Chromeless — `fitBoundsCssTransform` changes the scale and
+	 *     snaps scrollLeft/scrollTop to centre the bounds.
+	 *     `transitionViewState` animates the canvas from the previous
+	 *     scale, and `smoothScrollContainer` tweens scrollLeft/scrollTop
+	 *     in parallel.
 	 *
 	 *   • Editor — mxGraphView re-renders at each scale change, so we
 	 *     can't tween scale visually. Snap the zoom via fitWindow, then
@@ -10674,10 +10730,12 @@
 		var startLeft = container.scrollLeft;
 		var startTop = container.scrollTop;
 
-		if (this.useCssTransforms)
+		if (this.chromeless)
 		{
-			Graph.applyTransformTransition(this, duration);
+			var scale = this.view.scale;
+			var translate = this.view.translate.clone();
 			this.fitBoundsCssTransform(bounds, border);
+			this.transitionViewState(scale, translate, duration);
 		}
 		else
 		{
@@ -10685,13 +10743,12 @@
 		}
 
 		// Capture target scroll set by fitBoundsCssTransform / fitWindow,
-		// then animate from start → target in parallel with the CSS
-		// transform transition (chromeless) or with the snapped zoom
-		// (editor).
+		// then animate from start → target in parallel with the canvas
+		// transition (chromeless) or with the snapped zoom (editor).
 		Graph.smoothScrollContainer(container, startLeft, startTop,
 			container.scrollLeft, container.scrollTop, duration);
 
-		// The scroll tween and the CSS transform transition both run for
+		// The scroll tween and the canvas transition both run for
 		// `duration` ms, so the transition is complete after `duration`.
 		if (done != null)
 		{
@@ -10721,7 +10778,7 @@
 
 		if (state == null) return;
 
-		var gb = this.view.graphBounds;
+		var gb = this.view.getModelGraphBounds();
 		var s = this.view.scale;
 
 		// Normalize translate (no scale change). `scaleAndTranslate`
@@ -10733,9 +10790,8 @@
 			this.view.scaleAndTranslate(s, -gb.x, -gb.y);
 		}
 
-		// state.x/y/w/h are in graph coords (validate runs at scale=1,
-		// translate=0 in useCssTransforms mode). With translate now
-		// `-gb`, screen position of graph (gx, gy) = `(gx - gb.x) * s`.
+		// With translate now `-gb`, the screen position of the cell state,
+		// `(gx + translate) * s`, is `(gx - gb.x) * s` for graph (gx, gy).
 		var cw = this.container.clientWidth;
 		var ch = this.container.clientHeight;
 
@@ -10750,10 +10806,10 @@
 			// Bring the cell into view with `border` px of breathing room
 			// on every side, scrolling the minimum needed instead of
 			// centring. `border` is in screen px (like the viewbox border).
-			var cellLeft = (state.x - gb.x) * s;
-			var cellTop = (state.y - gb.y) * s;
-			var cellRight = (state.x + state.width - gb.x) * s;
-			var cellBottom = (state.y + state.height - gb.y) * s;
+			var cellLeft = state.x;
+			var cellTop = state.y;
+			var cellRight = state.x + state.width;
+			var cellBottom = state.y + state.height;
 
 			left = this.container.scrollLeft;
 			top = this.container.scrollTop;
@@ -10779,8 +10835,8 @@
 		else
 		{
 			// Centre the cell (default behaviour).
-			left = (state.x + state.width / 2 - gb.x) * s - cw / 2;
-			top = (state.y + state.height / 2 - gb.y) * s - ch / 2;
+			left = state.getCenterX() - cw / 2;
+			top = state.getCenterY() - ch / 2;
 		}
 
 		this.container.scrollLeft = (maxLeft < 0) ? 0 :
@@ -10846,7 +10902,7 @@
 		var startLeft = container.scrollLeft;
 		var startTop = container.scrollTop;
 
-		if (this.useCssTransforms)
+		if (this.chromeless)
 		{
 			this.scrollCellToVisibleCssTransform(cell, border);
 		}
@@ -11510,13 +11566,10 @@
 
 							if (vbBounds != null)
 							{
-								// State bounds are screen coords in the editor
-								// but graph coords in useCssTransforms mode
-								// (validate runs at scale 1, translate 0) —
-								// same normalization as fitDiagramToWindow.
-								var vbScale = (this.useCssTransforms) ? 1 : this.view.scale;
-								var vbTrans = (this.useCssTransforms) ?
-									new mxPoint(0, 0) : this.view.translate;
+								// State bounds are screen coords — same
+								// normalization as fitDiagramToWindow.
+								var vbScale = this.view.scale;
+								var vbTrans = this.view.translate;
 
 								// Dynamic border is breathing room per side
 								// (screen px, like scroll's border). The fit
@@ -11552,7 +11605,7 @@
 								waitCounter++;
 								this.smoothFitWindow(vb, vb.border, waitAndExecute);
 							}
-							else if (this.useCssTransforms)
+							else if (this.chromeless)
 							{
 								// Regular fitWindow only zooms in chromeless mode
 								// (no scrollbars to pan), so we recreate the pan
@@ -11587,14 +11640,13 @@
 							waitCounter++;
 							this.smoothScrollCellToVisible(cells[0], scrollBorder, waitAndExecute);
 						}
-						else if (this.useCssTransforms)
+						else if (this.chromeless)
 						{
-							// Chromeless: use the CSS-transforms-aware
-							// helper that updates view.translate AND
-							// calls sizeDidChange (so the SVG element
-							// resizes to fit the panned region — without
-							// this the cell scrolls off-screen at
-							// high-zoom levels).
+							// Chromeless: use the helper that updates
+							// view.translate AND calls sizeDidChange (so
+							// the SVG element resizes to fit the panned
+							// region — without this the cell scrolls
+							// off-screen at high-zoom levels).
 							this.scrollCellToVisibleCssTransform(cells[0], scrollBorder);
 						}
 						else
@@ -11661,7 +11713,7 @@
 							this.setHiddenTags(hidden);
 						}
 
-						this.refresh();
+						this.refreshHiddenTags();
 					}
 
 					if (animations.length > 0)
@@ -12076,6 +12128,18 @@
 	{
 		this.hiddenTags = tags;
 		this.fireEvent(new mxEventObject('hiddenTagsChanged'));
+	};
+
+	/**
+	 * Updates the view after the hidden tags changed. Unlike <refresh>, this
+	 * only creates and removes the states of the cells whose visibility
+	 * changed instead of repainting all cells.
+	 */
+	Graph.prototype.refreshHiddenTags = function()
+	{
+		this.view.revalidate();
+		this.sizeDidChange();
+		this.fireEvent(new mxEventObject(mxEvent.REFRESH));
 	};
 
 	/**
@@ -12519,18 +12583,36 @@
 		{
 			if (visible)
 			{
+				// Keeps the shadow in screen pixels if the draw pane is scaled
+				var s = (this.view.modelCoordinates &&
+					elt == this.view.getDrawPane()) ? this.view.scale : 1;
 				var cssColor = mxUtils.getLightDarkColor(
 					this.svgShadowColor, this.svgShadowOpacity);
 				elt.style.filter = 'drop-shadow(' +
-					Math.round(this.svgShadowSize * 100) / 100 + 'px ' +
-					Math.round(this.svgShadowSize * 100) / 100 + 'px ' +
-					Math.round(this.svgShadowBlur * 100) / 100 + 'px ' +
+					Math.round(this.svgShadowSize / s * 100) / 100 + 'px ' +
+					Math.round(this.svgShadowSize / s * 100) / 100 + 'px ' +
+					Math.round(this.svgShadowBlur / s * 100) / 100 + 'px ' +
 					cssColor.cssText + ')'
 			}
 			else
 			{
 				elt.style.filter = '';
 			}
+		}
+	};
+
+	/**
+	 * Updates the shadow for the scale of the draw pane in model coordinates.
+	 */
+	var mxGraphViewUpdateDrawPaneTransform = mxGraphView.prototype.updateDrawPaneTransform;
+	mxGraphView.prototype.updateDrawPaneTransform = function()
+	{
+		mxGraphViewUpdateDrawPaneTransform.apply(this, arguments);
+
+		if (this.graph.shadowVisible && this.shadowScale != this.scale)
+		{
+			this.shadowScale = this.scale;
+			this.graph.updateShadowFilter(this.getDrawPane(), true);
 		}
 	};
 

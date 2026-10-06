@@ -461,11 +461,12 @@ mxGraphModel.prototype.getDescendants = function(parent)
  * filter - JavaScript function that takes an <mxCell> as an argument
  * and returns a boolean.
  * parent - Optional <mxCell> that is used as the root of the recursion.
+ * result - Optional array to add the cells to.
  */
-mxGraphModel.prototype.filterDescendants = function(filter, parent)
+mxGraphModel.prototype.filterDescendants = function(filter, parent, result)
 {
 	// Creates a new array for storing the result
-	var result = [];
+	result = (result != null) ? result : [];
 
 	// Recursion starts at the root of the model
 	parent = parent || this.getRoot();
@@ -477,13 +478,13 @@ mxGraphModel.prototype.filterDescendants = function(filter, parent)
 		result.push(parent);
 	}
 	
-	// Visits the children of the cell
+	// Visits the children of the cell and adds them to the same
+	// array, which avoids copying the result for each child
 	var childCount = this.getChildCount(parent);
 	
 	for (var i = 0; i < childCount; i++)
 	{
-		var child = this.getChildAt(parent, i);
-		result = result.concat(this.filterDescendants(filter, child));
+		this.filterDescendants(filter, this.getChildAt(parent, i), result);
 	}
 
 	return result;

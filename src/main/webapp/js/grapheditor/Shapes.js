@@ -2835,7 +2835,7 @@
 	var mxRhombusPaintVertexShape = mxRhombus.prototype.paintVertexShape;
 	mxRhombus.prototype.getLabelBounds = function(rect)
 	{
-		if (this.style['double'] == 1)
+		if (this.style != null && this.style['double'] == 1)
 		{
 			var margin = (Math.max(2, this.strokewidth + 1) * 2 + parseFloat(
 				this.style[mxConstants.STYLE_MARGIN] || 0)) * this.scale;
@@ -2851,9 +2851,10 @@
 		mxRhombusPaintVertexShape.apply(this, arguments);
 
 		// Stash original bounds; double-handling below mutates x, y, w, h.
+		// Indicator shapes of labels have no style.
 		var gx = x, gy = y, gw = w, gh = h;
 
-		if (!this.outline && this.style['double'] == 1)
+		if (!this.outline && this.style != null && this.style['double'] == 1)
 		{
 			var margin = Math.max(2, this.strokewidth + 1) * 2 +
 				parseFloat(this.style[mxConstants.STYLE_MARGIN] || 0);
@@ -3800,11 +3801,12 @@
 			}
 		}
 
-		var sw = (parseFloat(vertex.style[mxConstants.STYLE_STROKEWIDTH] || 1) * vertex.view.scale / 2) - 1;
+		var px = vertex.view.getPixelSize();
+		var sw = (parseFloat(vertex.style[mxConstants.STYLE_STROKEWIDTH] || 1) * vertex.view.scale / 2) - px;
 
 		if (next.x < bounds.getCenterX())
 		{
-			sw += 1;
+			sw += px;
 			sw *= -1;
 		}
 
@@ -3855,7 +3857,8 @@
 		{
 			if (x > terminal.x && x < terminal.x + terminal.width)
 			{
-				x = (side > 0) ? terminal.x + terminal.width + 1 : terminal.x - 1;
+				var px = terminal.view.getPixelSize();
+				x = (side > 0) ? terminal.x + terminal.width + px : terminal.x - px;
 			}
 		};
 
@@ -4053,11 +4056,12 @@
 
 	mxPerimeter.BackbonePerimeter = function (bounds, vertex, next, orthogonal)
 	{
-		var sw = (parseFloat(vertex.style[mxConstants.STYLE_STROKEWIDTH] || 1) * vertex.view.scale / 2) - 1;
+		var px = vertex.view.getPixelSize();
+		var sw = (parseFloat(vertex.style[mxConstants.STYLE_STROKEWIDTH] || 1) * vertex.view.scale / 2) - px;
 		
 		if (vertex.style['backboneSize'] != null)
 		{
-			sw += (parseFloat(vertex.style['backboneSize']) * vertex.view.scale / 2) - 1;
+			sw += (parseFloat(vertex.style['backboneSize']) * vertex.view.scale / 2) - px;
 		}
 		
 		if (vertex.style[mxConstants.STYLE_DIRECTION] == 'south' ||
@@ -4065,7 +4069,7 @@
 		{
 			if (next.x < bounds.getCenterX())
 			{
-				sw += 1;
+				sw += px;
 				sw *= -1;
 			}
 			
@@ -4076,7 +4080,7 @@
 		{
 			if (next.y < bounds.getCenterY())
 			{
-				sw += 1;
+				sw += px;
 				sw *= -1;
 			}
 			
@@ -10281,7 +10285,9 @@
 		{
 			var handles = vertexHandlerCreateCustomHandles.apply(this, arguments);
 			
-			if (this.graph.isCellRotatable(this.state.cell))
+			// Vertices without a geometry have no paint bounds to place the handles
+			if (this.graph.isCellRotatable(this.state.cell) &&
+				this.state.getPaintBounds() != null)
 			// LATER: Make locked state independent of rotatable flag, fix toggle if default is false
 			//if (this.graph.isCellResizable(this.state.cell) || this.graph.isCellMovable(this.state.cell))
 			{

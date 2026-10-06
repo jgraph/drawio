@@ -215,6 +215,13 @@
 	 */
 	EditorUi.enableDrafts = !mxClient.IS_CHROMEAPP &&
 		isLocalStorage && urlParams['drafts'] != '0';
+
+	/**
+	 * Delay in milliseconds without changes before a draft is saved, as
+	 * saving a draft serializes the file. While editing continuously, a
+	 * draft is saved at least every 30 seconds. Default is 1000.
+	 */
+	EditorUi.draftSaveDelay = 1000;
 	
 	/**
 	 * Link for scratchpad help.
@@ -815,6 +822,27 @@
 	 *
 	 */
 	EditorUi.prototype.emptyLibraryXml = '<mxlibrary>[]</mxlibrary>';
+
+	/**
+	 * Returns true if the current page has no cells other than the root and
+	 * a layer, which is cheaper than parsing the file data with
+	 * isDiagramDataEmpty if the current page has cells.
+	 */
+	EditorUi.prototype.isCurrentPageEmpty = function()
+	{
+		var cells = this.editor.graph.model.cells;
+		var count = 0;
+
+		for (var id in cells)
+		{
+			if (++count > 2)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	};
 
 	/**
 	 * Returns true if the given file data contains no user-added cells —
@@ -3171,6 +3199,31 @@
 	/**
 	 *
 	 */
+	/**
+	 * Hook for the hidden tags of the given page, which are applied before
+	 * the page is rendered (see applyHiddenTagsForPage) if they are not null.
+	 * This implementation returns null.
+	 */
+	EditorUi.prototype.getHiddenTagsForPage = function(page)
+	{
+		return null;
+	};
+
+	/**
+	 * Sets the hidden tags of the graph to the hidden tags of the given page
+	 * (see getHiddenTagsForPage) before the page is rendered, which avoids a
+	 * second rendering for the hidden tags.
+	 */
+	EditorUi.prototype.applyHiddenTagsForPage = function(page)
+	{
+		var tags = (page != null) ? this.getHiddenTagsForPage(page) : null;
+
+		if (tags != null)
+		{
+			this.editor.graph.hiddenTags = tags;
+		}
+	};
+
 	EditorUi.prototype.setFileData = function(data, file)
 	{
 		data = this.validateFileData(data);
@@ -3270,6 +3323,7 @@
 			}
 			
 			// Avoids scroll offset when switching page
+			this.applyHiddenTagsForPage(this.currentPage);
 			this.editor.setGraphXml(node);
 			
 			// Avoids duplicate parsing of the XML stored in the node
@@ -3813,6 +3867,11 @@
 		if (id != null && id.length > 1)
 		{
 			var idx = id.indexOf('#');
+
+			if (idx < 0)
+			{
+				idx = EditorUi.getEncodedHashObjectIndex(id);
+			}
 			
 			if (idx >= 0)
 			{
@@ -3821,6 +3880,37 @@
 		}
 		
 		return id;
+	};
+
+	/**
+	 * Returns the index of an encoded hash sign (%23) before a URI encoded
+	 * JSON object at the end of the given hash, or -1. Safari encodes the
+	 * second hash sign of typed or pasted URLs, so #Gabc#%7B...%7D is
+	 * #Gabc%23%7B...%7D in window.location.hash. The remainder must be a
+	 * JSON object, so that encoded hash signs in file names are kept.
+	 */
+	EditorUi.getEncodedHashObjectIndex = function(hash)
+	{
+		var idx = hash.toUpperCase().lastIndexOf('%23%7B');
+
+		if (idx >= 0)
+		{
+			try
+			{
+				var obj = JSON.parse(decodeURIComponent(hash.substring(idx + 3)));
+
+				if (obj != null && typeof obj === 'object' && !Array.isArray(obj))
+				{
+					return idx;
+				}
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		}
+
+		return -1;
 	};
 
 	/**
@@ -3835,10 +3925,18 @@
 		if (id != null && id.length > 0)
 		{
 			var last = id.lastIndexOf('#');
+			var offset = 1;
+
+			// Hash sign encoded by Safari (see getEncodedHashObjectIndex)
+			if (last <= 0)
+			{
+				last = EditorUi.getEncodedHashObjectIndex(id);
+				offset = 3;
+			}
 
 			if (last > 0)
 			{
-				var temp = decodeURIComponent(id.substring(last + 1));
+				var temp = decodeURIComponent(id.substring(last + offset));
 
 				try
 				{
@@ -3889,6 +3987,12 @@
 			}
 
 			var last = id.lastIndexOf('#');
+
+			// Hash sign encoded by Safari (see getEncodedHashObjectIndex)
+			if (last <= 0)
+			{
+				last = EditorUi.getEncodedHashObjectIndex(id);
+			}
 
 			if (last > 0)
 			{
@@ -7946,38 +8050,15 @@
 
 			if (tagsParam != null)
 			{
-				var graph = this.editor.graph;
-
-				var applyHiddenTags = mxUtils.bind(this, function()
+				// Hides the tags of each page before it is rendered
+				this.getHiddenTagsForPage = function(page)
 				{
-					var id = (this.currentPage != null) ?
-						this.currentPage.getId() : 0;
 					// Own properties only as page IDs come from the diagram (eg. "constructor")
-					var tags = (Object.prototype.hasOwnProperty.call(tagsParam, id)) ?
-						tagsParam[id] : null;
-					graph.hiddenTags = (Array.isArray(tags) && tags.length > 0) ? tags : [];
-					graph.refresh();
-				});
+					var tags = (Object.prototype.hasOwnProperty.call(tagsParam, page.getId())) ?
+						tagsParam[page.getId()] : null;
 
-				// Applies after file is loaded and refits since
-				// lightboxFit ran before tags were applied
-				this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
-				{
-					applyHiddenTags();
-
-					if (graph.isLightboxView())
-					{
-						this.lightboxFit();
-					}
-
-					if (this.chromelessResize)
-					{
-						this.chromelessResize();
-					}
-				}));
-
-				// Updates hidden tags on page switch
-				this.editor.addListener('pageSelected', applyHiddenTags);
+					return (Array.isArray(tags) && tags.length > 0) ? tags : [];
+				};
 			}
 
 			this.tagsComponent = null;
@@ -19095,26 +19176,21 @@
 
 			try
 			{
-				// `view.graphBounds` (raw, unscaled) is the only honest
-				// "did the diagram itself change?" signal — the public
-				// `getGraphBounds()` override multiplies by
-				// `currentScale` in useCssTransforms mode, so a viewbox
-				// action that only changes scale would look like an
+				// The graph bounds in model units are the only honest
+				// "did the diagram itself change?" signal — the graph
+				// bounds include the scale and translate, so a viewbox
+				// action that only changes the view would look like an
 				// edit and trigger the chromelessResize fallback,
-				// which would then undo the viewbox. Snapshot the raw
-				// bounds and compare those.
-				var rawBefore = this.view.graphBounds;
-				var snapshot = (rawBefore != null) ? new mxRectangle(
-					rawBefore.x, rawBefore.y,
-					rawBefore.width, rawBefore.height) : null;
+				// which would then undo the viewbox.
+				var snapshot = this.view.getModelGraphBounds();
 
 				ui.handleCustomLink(link, associatedCell);
 				done = true;
 
-				var rawAfter = this.view.graphBounds;
+				var after = this.view.getModelGraphBounds();
 
 				if (ui.chromelessResize && snapshot != null &&
-					rawAfter != null && !snapshot.equals(rawAfter))
+					after != null && !snapshot.equals(after))
 				{
 					ui.chromelessResize();
 					this.scrollCellToVisible(associatedCell);
@@ -21066,6 +21142,7 @@
 					{
 						this.statusContainer.innerHTML = '<div><img title="' + mxUtils.htmlEntities(
 							mxResources.get(key)) + '...' + '"src="' + Editor.tailSpin + '"></div>';
+						this.updateStatusAction();
 						visible = true;
 					}
 				}
@@ -24987,23 +25064,6 @@
 		
 		var printGraph = mxUtils.bind(this, function(thisGraph, pv, forcePageBreaks, pageId)
 		{
-			// Workaround for CSS transforms affecting the print output
-			// is to disable during print output and restore after
-			var prev = thisGraph.useCssTransforms;
-			var prevTranslate = thisGraph.currentTranslate;
-			var prevScale = thisGraph.currentScale;
-			var prevViewTranslate = thisGraph.view.translate;
-			var prevViewScale = thisGraph.view.scale;
-
-			if (thisGraph.useCssTransforms)
-			{
-				thisGraph.useCssTransforms = false;
-				thisGraph.currentTranslate = new mxPoint(0,0);
-				thisGraph.currentScale = 1;
-				thisGraph.view.translate = new mxPoint(0,0);
-				thisGraph.view.scale = 1;
-			}
-
 			// Negative coordinates are cropped or shifted if page visible
 			var gb = thisGraph.getGraphBounds();
 			var border = 0;
@@ -25314,17 +25374,7 @@
 					}
 				}
 			}
-			
-			// Restores state if css transforms are used
-			if (prev)
-			{
-				thisGraph.useCssTransforms = prev;
-				thisGraph.currentTranslate = prevTranslate;
-				thisGraph.currentScale = prevScale;
-				thisGraph.view.translate = prevViewTranslate;
-				thisGraph.view.scale = prevViewScale;
-			}
-			
+
 			return pv;
 		});
 		
@@ -26245,13 +26295,20 @@
 			var cw = container.clientWidth;
 			var ch = container.clientHeight;
 
-			// Scale at which the whole captured region fits. The stored scale
-			// (authored zoom) is preserved and only clamped down to this when
-			// the region is too large for the current window.
-			var fitScale = Math.min(cw / vb.width, ch / vb.height);
+			// Scale at which the whole captured region fits, rounded down to
+			// the zoom grid like other fits. The stored scale (authored zoom)
+			// is preserved and only clamped down to this when the region is
+			// too large for the current window.
+			var fitScale = Math.max(0.01, graph.getFitScale(
+				Math.min(cw / vb.width, ch / vb.height)));
 			var scale = (vb.scale != null) ? Math.min(vb.scale, fitScale) : fitScale;
-
 			graph.zoomTo(scale, null, null, mxUtils.hasScrollbars(container));
+
+			// The scale of a fit is a zoom stop (see Graph.fitScale)
+			if (scale == fitScale)
+			{
+				graph.fitScale = graph.view.scale;
+			}
 
 			if (mxUtils.hasScrollbars(container))
 			{
@@ -26492,7 +26549,7 @@
 	{
 		var graph = this.editor.graph;
 
-		if (graph.useCssTransforms)
+		if (graph.chromeless)
 		{
 			graph.fitBoundsCssTransform(vb, vb.border);
 		}
@@ -31638,9 +31695,12 @@
 	};
 	
 	/**
-	 * Opens the application keystore.
+	 * Opens the application keystore. If opening the database fails, it is
+	 * opened again once (eg. WebKit may lose the connection to its database
+	 * server in a new tab) before the error of the request is passed to the
+	 * error handler. retried is used internally.
 	 */
-	EditorUi.prototype.openDatabase = function(success, error)
+	EditorUi.prototype.openDatabase = function(success, error, retried)
 	{
 		if (this.database == null)
 		{
@@ -31866,7 +31926,17 @@
 						};
 					});
 					
-					req.onerror = error;
+					req.onerror = mxUtils.bind(this, function(e)
+					{
+						if (!retried)
+						{
+							this.openDatabase(success, error, true);
+						}
+						else if (error != null)
+						{
+							error((req.error != null) ? req.error : e);
+						}
+					});
 					
 					req.onblocked = function() 
 					{

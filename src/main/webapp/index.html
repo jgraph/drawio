@@ -24,34 +24,68 @@
 	<link rel="stylesheet" media="(forced-colors: active)" href="styles/high-contrast.css" id="high-contrast-stylesheet">
 	<script src="js/bootstrap.js"></script>
 	<style type="text/css">
-		.geBlock {
-			z-index:-3;
-			margin:100px;
-			margin-top:40px;
-			margin-bottom:30px;
-			padding:20px;
+		#geInfo {
+			display:flex;
+			flex-direction:column;
+			align-items:center;
+			justify-content:center;
+			gap:24px;
+			padding:16px 16px 10vh 16px;
 			text-align:center;
-			min-width:50%;
 		}
-		.geBlock h1, .geBlock h2 {
-			margin-top:0px;
-			padding-top:0px;
+		#geInfo noscript {
+			max-width:600px;
+		}
+		#geStatus:empty {
+			display:none;
+		}
+		#geStatus a {
+			text-decoration:underline;
+			cursor:pointer;
+		}
+		.geSplashLogo {
+			width:72px;
+			height:72px;
+			animation:geSplashPulse 1.2s ease-in-out infinite alternate;
+		}
+		#geInfo:has(#geStatus:not(:empty)) .geSplashLogo {
+			animation:none;
+		}
+		@media (prefers-reduced-motion: reduce), (scripting: none) {
+			.geSplashLogo {
+				animation:none;
+			}
+		}
+		@keyframes geSplashPulse {
+			from {
+				opacity:1;
+				transform:scale(1);
+			}
+			to {
+				opacity:0.55;
+				transform:scale(0.95);
+			}
 		}
 	</style>
 </head>
 <body class="geEditor geClassic">
 <div id="geInfo">
-	<div class="geBlock">
+	<svg class="geSplashLogo" viewBox="0 0 161.6 161.6" role="img" aria-label="draw.io">
+		<path fill="#F08705" d="m 161.6,154.7 c 0,3.9 -3.2,6.9 -6.9,6.9 H 6.9 C 3,161.6 0,158.4 0,154.7 V 6.9 C 0,3 3.2,0 6.9,0 h 147.8 c 3.9,0 6.9,3.2 6.9,6.9 z"/>
+		<path fill="#DF6C0C" d="m 161.6,154.7 c 0,3.9 -3.2,6.9 -6.9,6.9 H 55.3 l -32.2,-32.7 20,-32.7 59.4,-73.8 58.9,60.7 z"/>
+		<path fill="#FFFFFF" d="m 132.7,90.3 h -17 l -18,-30.6 c 4,-0.8 7,-4.4 7,-8.6 V 28 c 0,-4.9 -3.9,-8.8 -8.8,-8.8 h -30 c -4.9,0 -8.8,3.9 -8.8,8.8 v 23.1 c 0,4.3 3,7.8 6.9,8.6 L 46,90.4 H 29 c -4.9,0 -8.8,3.9 -8.8,8.8 v 23.1 c 0,4.9 3.9,8.8 8.8,8.8 h 30 c 4.9,0 8.8,-3.9 8.8,-8.8 V 99.2 c 0,-4.9 -3.9,-8.8 -8.8,-8.8 H 56.1 L 73.9,60 h 13.9 l 17.9,30.4 h -3 c -4.9,0 -8.8,3.9 -8.8,8.8 v 23.1 c 0,4.9 3.9,8.8 8.8,8.8 h 30 c 4.9,0 8.8,-3.9 8.8,-8.8 V 99.2 c 0,-4.9 -3.9,-8.9 -8.8,-8.9 z"/>
+	</svg>
+	<div id="geStatus"></div>
+	<noscript>
 		<h1>Flowchart Maker and Online Diagram Software</h1>
 		<p>
-			draw.io is free online diagram software. You can use it as a flowchart maker, network diagram software, to create UML online, as an ER diagram tool, 
-			to design database schema, to build BPMN online, as a circuit diagram maker, and more. draw.io can import .vsdx, Gliffy&trade; and Lucidchart&trade; files .
+			draw.io is free online diagram software. You can use it as a flowchart maker, network diagram software, to create UML online, as an ER diagram tool,
+			to design database schema, to build BPMN online, as a circuit diagram maker, and more. draw.io can import .vsdx, Gliffy&trade; and Lucidchart&trade; files.
 		</p>
-		<h2 id="geStatus">Loading... <img src="images/spin.gif"/></h2>
 		<p>
 			Please ensure JavaScript is enabled.
 		</p>
-	</div>
+	</noscript>
 </div>
 <script src="js/main.js"></script>
 </body>

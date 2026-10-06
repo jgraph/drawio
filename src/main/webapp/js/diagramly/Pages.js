@@ -288,6 +288,7 @@ SelectPage.prototype.execute = function()
 		page = this.ui.currentPage;
 	
 		// Switches the root cell and sets the view state
+		this.ui.applyHiddenTagsForPage(page);
 		graph.model.prefix = Editor.guid() + '-';
 		graph.model.rootChanged(page.root);
 		graph.setViewState(page.viewState);
@@ -730,6 +731,9 @@ EditorUi.prototype.pageSelected = function()
 
 	if (page != null)
 	{
+		// Keeps the fit window mode and fits the new page below
+		var fitWindow = this.fitWindowEnabled;
+
 		graph.tooltipHandler.hide();
 
 		if (page.viewState == null ||
@@ -764,7 +768,12 @@ EditorUi.prototype.pageSelected = function()
 			graph.setScrollbarPositions(page.viewState,
 				graph.view.translate.x, graph.view.translate.y);
 		}
-		
+
+		if (fitWindow)
+		{
+			this.setFitWindowEnabled(true);
+		}
+
 		this.updateTabContainer();
 	}
 };

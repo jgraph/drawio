@@ -985,6 +985,14 @@ mxPrintPreview.prototype.addGraphFragment = function(dx, dy, scale, pageNumber, 
 			dx = 0;
 			dy = 0;
 		}
+		// Applies the scale and translate to the draw pane in model coordinates,
+		// where the cells are painted in model units (see updateDrawPaneTransform
+		// in mxGraphView, which is not used here as it may have side effects)
+		else if (view.modelCoordinates)
+		{
+			view.getDrawPane().setAttribute('transform', 'translate(' +
+				(dx * scale) + ',' + (dy * scale) + ') scale(' + scale + ')');
+		}
 	}
 	else
 	{

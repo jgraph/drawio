@@ -38,12 +38,6 @@ EditorUi = function(editor, container, lightbox)
 		return bounds;
 	};
 
-	// Faster scrollwheel zoom is possible with CSS transforms
-	if (graph.useCssTransforms)
-	{
-		this.lazyZoomDelay = 0;
-	}
-	
 	// Installs selection state listener
 	this.selectionStateListener = mxUtils.bind(this, function(sender, evt)
 	{
@@ -3238,9 +3232,15 @@ EditorUi.prototype.showTypingShim = function()
 			return;
 		}
 
-		// Position near the cell so IME candidate window appears at the right location
-		shim.style.left = Math.round(state.x) + 'px';
-		shim.style.top = Math.round(state.y) + 'px';
+		// Position near the cell so IME candidate window appears at the right
+		// location, inside the visible area of the container, as Safari scrolls
+		// the container to the focused shim despite preventScroll (eg. to the
+		// top left corner of a large cell or the source of an edge)
+		var c = graph.container;
+		shim.style.left = Math.round(Math.max(c.scrollLeft, Math.min(state.x,
+			c.scrollLeft + c.clientWidth - 8))) + 'px';
+		shim.style.top = Math.round(Math.max(c.scrollTop, Math.min(state.y,
+			c.scrollTop + c.clientHeight - 24))) + 'px';
 
 		if (shim.parentNode !== graph.container)
 		{
@@ -3298,7 +3298,17 @@ EditorUi.prototype.showTypingShim = function()
 		// contentEditable inside the container (e.g. the clipboard element).
 		if (ae == null || ae.contentEditable !== 'true')
 		{
+			var sx = graph.container.scrollLeft;
+			var sy = graph.container.scrollTop;
+
 			shim.focus({preventScroll: true});
+
+			// Restores the scroll position if the browser ignored preventScroll
+			if (graph.container.scrollLeft != sx || graph.container.scrollTop != sy)
+			{
+				graph.container.scrollLeft = sx;
+				graph.container.scrollTop = sy;
+			}
 		}
 	}
 };
@@ -3722,6 +3732,13 @@ EditorUi.prototype.initClipboard = function()
 EditorUi.prototype.lazyZoomDelay = 20;
 
 /**
+ * Specifies if the diagram or the pages are fitted to the window again if
+ * the size of the container changes (see <setFitWindowEnabled>). Default is
+ * false.
+ */
+EditorUi.prototype.fitWindowEnabled = false;
+
+/**
  * Delay before update of DOM when using preview.
  */
 EditorUi.prototype.wheelZoomDelay = 500;
@@ -3740,6 +3757,31 @@ EditorUi.prototype.initCanvas = function()
 	var graph = this.editor.graph;
 	graph.timerAutoScroll = true;
 
+	// Marks chromeless views for the fit, viewbox and scroll paths. The
+	// minimal theme creates a chromeless editor that is no chromeless view.
+	graph.chromeless = this.editor.isChromelessView();
+
+	// Paints the cells in model units so that zoom and pan do not repaint
+	graph.view.modelCoordinates = Editor.fastRendering ||
+		this.editor.isChromelessView();
+
+	// Replaces the zoom preview sooner as zooming does not repaint, and
+	// zooms chromeless views without a preview
+	if (graph.view.modelCoordinates)
+	{
+		this.wheelZoomDelay = 150;
+
+		if (this.editor.isChromelessView())
+		{
+			this.lazyZoomDelay = 0;
+		}
+	}
+
+	if (this.isFitWindowSupported())
+	{
+		this.installFitWindowHandler();
+	}
+
 	// Enables autoscroll near container edges that touch the window
 	// edge, eg. if the side panels are hidden
 	var graphCreatePanningManager = graph.createPanningManager;
@@ -3757,8 +3799,10 @@ EditorUi.prototype.initCanvas = function()
 	 */
 	graph.getPagePadding = function()
 	{
-		return new mxPoint(Math.max(0, Math.round((graph.container.offsetWidth - 34) / graph.view.scale)),
-				Math.max(0, Math.round((graph.container.offsetHeight - 34) / graph.view.scale)));
+		var metrics = graph.getContainerMetrics();
+
+		return new mxPoint(Math.max(0, Math.round((metrics.offsetWidth - 34) / graph.view.scale)),
+				Math.max(0, Math.round((metrics.offsetHeight - 34) / graph.view.scale)));
 	};
 
 	// Fits the number of background pages to the graph
@@ -4502,7 +4546,11 @@ EditorUi.prototype.initCanvas = function()
 					if (tr.x != this.translate.x ||
 						tr.y != this.translate.y)
 					{
-						this.invalidate();
+						if (!this.modelCoordinates)
+						{
+							this.invalidate();
+						}
+
 						this.translate.x = tr.x;
 						this.translate.y = tr.y;
 					}
@@ -4515,7 +4563,11 @@ EditorUi.prototype.initCanvas = function()
 
 				if (this.translate.x != tx || this.translate.y != ty)
 				{
-					this.invalidate();	
+					if (!this.modelCoordinates)
+					{
+						this.invalidate();
+					}
+
 					this.translate.x = tx
 					this.translate.y = ty
 				}
@@ -4534,7 +4586,7 @@ EditorUi.prototype.initCanvas = function()
 				pageChanged = false;
 
 				if (this.container != null &&
-					mxUtils.hasScrollbars(this.container))
+					this.getContainerMetrics().scrollbars)
 				{
 					this.updateMinimumSize();
 
@@ -4575,20 +4627,65 @@ EditorUi.prototype.initCanvas = function()
 						'bounds', this.getGraphBounds()));
 				}
 			};
+
+			// Updates the translate after the container was resized without a
+			// refresh, eg. at the end of an animation of the format panel or
+			// when the footer appears after loading, as the next change of the
+			// model would otherwise apply it without keeping the scroll position
+			// (the translate changes with the page padding, see getPagePadding)
+			if (typeof ResizeObserver !== 'undefined')
+			{
+				var containerWidth = graph.container.offsetWidth;
+				var containerHeight = graph.container.offsetHeight;
+				var resizeThread = null;
+
+				new ResizeObserver(function()
+				{
+					if (graph.container != null && (graph.container.offsetWidth != containerWidth ||
+						graph.container.offsetHeight != containerHeight))
+					{
+						containerWidth = graph.container.offsetWidth;
+						containerHeight = graph.container.offsetHeight;
+						window.clearTimeout(resizeThread);
+
+						resizeThread = window.setTimeout(function()
+						{
+							if (graph.container != null && graph.view.getDrawPane() != null)
+							{
+								graph.sizeDidChange();
+							}
+						}, 100);
+					}
+				}).observe(graph.container, {box: 'border-box'});
+			}
 		}
 	}
 	
 	// Accumulates the zoom factor while the rendering is taking place
-	// so that not the complete sequence of zoom steps must be painted
-	var bgGroup = graph.view.getBackgroundPane();
-	var mainGroup = graph.view.getDrawPane();
+	// so that not the complete sequence of zoom steps must be painted.
+	// In model coordinates the draw pane has the transform of the view,
+	// so the preview is applied to the canvas that contains all panes.
+	var bgGroup = (graph.view.modelCoordinates) ? graph.view.getCanvas() :
+		graph.view.getBackgroundPane();
+	var mainGroup = (graph.view.modelCoordinates) ? graph.view.getCanvas() :
+		graph.view.getDrawPane();
 	graph.cumulativeZoomFactor = 1;
 	var updateZoomTimeout = null;
 	var cursorPosition = null;
 	var scrollPosition = null;
 	var forcedZoom = null;
 	var filter = null;
-	var mult = 20;
+	var smoothZoom = false;
+	var smoothScale = null;
+	var committedScale = null;
+
+	// Returns the multiplier for rounding the zoom: the 5% grid of the zoom
+	// stops, or 1% for continuous (pinch) zooms and if the zoom stops are on
+	// the 1% grid (see Graph.isFineZoom), which includes the 5% grid
+	var getZoomMultiplier = function()
+	{
+		return (smoothZoom || graph.isFineZoom()) ? 100 : 20;
+	};
 	
 	var scheduleZoom = function(delay)
 	{
@@ -4667,7 +4764,7 @@ EditorUi.prototype.initCanvas = function()
 						// The chromeless/no-scrollbar path keeps the legacy behaviour.
 						var exact = resize == null && mxUtils.hasScrollbars(graph.container);
 						graph.zoom(graph.cumulativeZoomFactor, exact ? false : null,
-							graph.isFastZoomEnabled() ? mult : null, exact);
+							graph.isFastZoomEnabled() ? getZoomMultiplier() : null, exact);
 						var s = graph.view.scale;
 
 						if (s != prev)
@@ -4731,6 +4828,12 @@ EditorUi.prototype.initCanvas = function()
 						}
 						
 						graph.fireEvent(new mxEventObject('zoomPreviewComplete'));
+
+						// Keeps the exact scale of a continuous zoom for its next
+						// step so that steps which are committed one by one (eg.
+						// a slow pinch) are not lost in the rounding of the scale
+						smoothScale = (smoothZoom) ? prev * graph.cumulativeZoomFactor : null;
+						committedScale = graph.view.scale;
 						graph.cumulativeZoomFactor = 1;
 						updateZoomTimeout = null;
 						scrollPosition = null;
@@ -4743,8 +4846,9 @@ EditorUi.prototype.initCanvas = function()
 		}
 	};
 	
-	graph.lazyZoom = function(zoomIn, ignoreCursorPosition, delay, factor, smooth)
+	graph.lazyZoom = function(zoomIn, ignoreCursorPosition, delay, factor, smooth, percent)
 	{
+		ui.setFitWindowEnabled(false);
 		factor = (factor != null) ? factor : this.zoomFactor;
 
 		// TODO: Fix ignored cursor position if scrollbars are disabled
@@ -4757,50 +4861,43 @@ EditorUi.prototype.initCanvas = function()
 				graph.container.offsetTop + graph.container.clientHeight / 2);
 		}
 
+		smoothZoom = smooth;
+
 		if (smooth)
 		{
-			// Continuous (pinch) zoom accumulates the exact gesture factor
-			// with 1% rounding. Factor 1 keeps an externally assigned
-			// cumulativeZoomFactor unchanged (iOS gesture scale).
+			// Continuous (pinch) zoom accumulates the exact gesture factor,
+			// which is rounded to 1% for the preview and the zoom, so that
+			// small steps add up at all scales. Factor 1 keeps an externally
+			// assigned cumulativeZoomFactor unchanged (iOS gesture scale).
 			if (factor != 1)
 			{
-				// Switches to 5% zoom steps below 15%
-				if (zoomIn)
+				// Continues from the exact scale of the last committed step
+				// if the scale did not change since
+				if (smoothScale != null && this.cumulativeZoomFactor == 1 &&
+					this.view.scale == committedScale)
 				{
-					if (this.view.scale * this.cumulativeZoomFactor <= 0.15)
-					{
-						this.cumulativeZoomFactor *= (this.view.scale + 0.05) / this.view.scale;
-					}
-					else
-					{
-						this.cumulativeZoomFactor *= factor;
-						this.cumulativeZoomFactor = Math.round(this.view.scale * this.cumulativeZoomFactor * 100) / 100 / this.view.scale;
-					}
+					this.cumulativeZoomFactor = smoothScale / this.view.scale;
 				}
-				else
-				{
-					if (this.view.scale * this.cumulativeZoomFactor <= 0.15)
-					{
-						this.cumulativeZoomFactor *= (this.view.scale - 0.05) / this.view.scale;
-					}
-					else
-					{
-						this.cumulativeZoomFactor /= factor;
-						this.cumulativeZoomFactor = Math.round(this.view.scale * this.cumulativeZoomFactor * 100) / 100 / this.view.scale;
-					}
-				}
+
+				this.cumulativeZoomFactor = (zoomIn) ? this.cumulativeZoomFactor * factor :
+					this.cumulativeZoomFactor / factor;
 			}
+
+			smoothScale = null;
 		}
 		else
 		{
+			smoothScale = null;
+
 			// Discrete zoom steps move to the adjacent stop on the ladder
 			// of getZoomSteps so that repeated steps share the same stops
 			// from any start scale and always land on exactly 100%
 			this.cumulativeZoomFactor = this.getZoomStep(this.view.scale *
-				this.cumulativeZoomFactor, zoomIn) / this.view.scale;
+				this.cumulativeZoomFactor, zoomIn, percent) / this.view.scale;
 		}
 
-		this.cumulativeZoomFactor = Math.max(0.05, Math.min(this.view.scale * this.cumulativeZoomFactor, 160)) / this.view.scale;
+		this.cumulativeZoomFactor = Math.max(this.getZoomSteps(percent)[0], Math.min(this.view.scale *
+			this.cumulativeZoomFactor, 160)) / this.view.scale;
 
 		if (graph.isFastZoomEnabled())
 		{
@@ -4813,6 +4910,7 @@ EditorUi.prototype.initCanvas = function()
 			scrollPosition = new mxPoint(graph.container.scrollLeft, graph.container.scrollTop);
 
 			// Applies final rounding to preview
+			var mult = getZoomMultiplier();
 			var f = Math.round((Math.round(this.view.scale * this.cumulativeZoomFactor *
 				100) / 100) * mult) / (mult * this.view.scale);
 			
@@ -4887,7 +4985,7 @@ EditorUi.prototype.initCanvas = function()
 		}
 	});
 	
-	mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt, up, force, cx, cy)
+	mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt, up, force, cx, cy, pinch)
 	{
 		graph.fireEvent(new mxEventObject('wheel'));
 
@@ -4982,15 +5080,17 @@ EditorUi.prototype.initCanvas = function()
 							factor = 1 + (Math.abs(evt.deltaY) / 20) * (factor - 1);
 							smooth = true;
 						}
-						// Slower zoom for pinch gesture on touch screens
-						else if (evt.movementY != null && evt.type == 'pointermove')
+						// Pinch gesture on touch screens zooms by the change of the
+						// distance between the fingers
+						else if (pinch != null)
 						{
-							factor = 1 + (Math.max(1, Math.abs(evt.movementY)) / 20) * (factor - 1);
+							factor = (pinch > 1) ? pinch : 1 / pinch;
 							smooth = true;
 							delay = -1;
 						}
 
-						graph.lazyZoom(up, null, delay, factor, smooth);
+						// Steps of the mouse wheel are on the 1% grid in model coordinates
+						graph.lazyZoom(up, null, delay, factor, smooth, true);
 
 						// Computes combined zoom origin when mouse moves during
 						// a zoom sequence to avoid viewport jump at the final DOM
@@ -5034,6 +5134,7 @@ EditorUi.prototype.initCanvas = function()
 								}
 								else
 								{
+									var mult = getZoomMultiplier();
 									var f = Math.round((Math.round(graph.view.scale *
 										newFactor * 100) / 100) * mult) / (mult *
 										graph.view.scale);
@@ -5054,12 +5155,223 @@ EditorUi.prototype.initCanvas = function()
 	}), graph.container);
 	
 	// Uses fast zoom for pinch gestures on iOS where evt.scale is the
-	// absolute gesture scale, so no further factor must be applied
+	// absolute gesture scale relative to the scale at the start of the
+	// gesture, including a pending zoom, as zooms are committed during
+	// the gesture if it pauses (see wheelZoomDelay)
+	var gestureScale = null;
+
+	// Center between the fingers of a pinch in client coordinates from the
+	// touch events that come with the gesture events
+	var pinchCenter = null;
+
+	// Selection before the first finger of a touch sequence and if the
+	// sequence was a pinch, see the gesture listener below
+	var touchSelection = null;
+	var pinched = false;
+
+	var updatePinchCenter = function(evt)
+	{
+		pinchCenter = (evt.touches != null && evt.touches.length > 1) ? new mxPoint(
+			(evt.touches[0].clientX + evt.touches[1].clientX) / 2,
+			(evt.touches[0].clientY + evt.touches[1].clientY) / 2) : null;
+
+		if (evt.type == 'touchstart' && evt.touches != null && evt.touches.length == 1)
+		{
+			touchSelection = graph.getSelectionCells();
+			pinched = false;
+		}
+	};
+
+	if (mxClient.IS_TOUCH)
+	{
+		var touchOptions = {passive: true, capture: true};
+		graph.container.addEventListener('touchstart', updatePinchCenter, touchOptions);
+		graph.container.addEventListener('touchmove', updatePinchCenter, touchOptions);
+		graph.container.addEventListener('touchend', updatePinchCenter, touchOptions);
+		graph.container.addEventListener('touchcancel', updatePinchCenter, touchOptions);
+	}
+
+	// Point in the scrollable area that stays under the center between the
+	// fingers of a pinch while the view is zoomed around it and scrolled with
+	// the fingers, and the scale for which it was found
+	var pinchAnchor = null;
+	var pinchAnchorScale = null;
+	var rebasePanning = false;
+
+	// Point in model units that stays under the center between the fingers
+	// in chromeless views (eg. the lightbox), which are positioned with the
+	// translate of the view instead of the scrollbars
+	var pinchModelAnchor = null;
+
 	graph.panningHandler.zoomGraph = function(evt)
 	{
-		graph.cumulativeZoomFactor = evt.scale;
-		graph.lazyZoom(evt.scale > 1, true, null, 1, true);
+		if (evt.type == 'gesturestart' || gestureScale == null)
+		{
+			gestureScale = graph.view.scale * graph.cumulativeZoomFactor;
+			pinchAnchor = null;
+		}
+
+		graph.cumulativeZoomFactor = gestureScale * evt.scale / graph.view.scale;
+		var c = graph.container;
+
+		if (pinchCenter != null && graph.scrollbars && graph.isFastZoomEnabled() &&
+			mxUtils.hasScrollbars(c))
+		{
+			// Same conversion as the zoom preview in lazyZoom
+			var x = pinchCenter.x - c.offsetLeft;
+			var y = pinchCenter.y - c.offsetTop;
+
+			// Finds the point again after a zoom was committed in the gesture
+			if (pinchAnchor == null || pinchAnchorScale != graph.view.scale)
+			{
+				pinchAnchor = new mxPoint(x + c.scrollLeft, y + c.scrollTop);
+				pinchAnchorScale = graph.view.scale;
+			}
+
+			c.scrollLeft = pinchAnchor.x - x;
+			c.scrollTop = pinchAnchor.y - y;
+			cursorPosition = pinchCenter;
+			graph.lazyZoom(evt.scale > 1, false, null, 1, true);
+		}
+		else if (pinchCenter != null && graph.view.modelCoordinates &&
+			ui.editor.isChromelessView())
+		{
+			// Zooms directly as this does not repaint the cells in model
+			// coordinates, lays out the view as after other zooms and moves
+			// the point under the fingers with the scrollbars if the view
+			// has them (eg. the lightbox) or with the translate otherwise
+			var v = graph.view;
+			var scroll = mxUtils.hasScrollbars(c);
+			var x = pinchCenter.x - c.offsetLeft;
+			var y = pinchCenter.y - c.offsetTop;
+
+			if (pinchModelAnchor == null)
+			{
+				// Applies a pan of the first finger before the gesture
+				var ph = graph.panningHandler;
+
+				if (ph.active && ph.dx != null && ph.dy != null &&
+					(!graph.useScrollbarsForPanning || !scroll))
+				{
+					graph.panGraph(0, 0);
+					v.setTranslate(v.translate.x + ph.dx / v.scale,
+						v.translate.y + ph.dy / v.scale);
+				}
+
+				ph.dx = null;
+				ph.dy = null;
+				pinchModelAnchor = new mxPoint(
+					(x + ((scroll) ? c.scrollLeft : 0)) / v.scale - v.translate.x,
+					(y + ((scroll) ? c.scrollTop : 0)) / v.scale - v.translate.y);
+			}
+
+			var scale = Math.max(graph.getZoomSteps(true)[0], Math.min(160,
+				graph.cumulativeZoomFactor * v.scale));
+			graph.cumulativeZoomFactor = 1;
+
+			if (Math.round(scale * 100) / 100 != v.scale)
+			{
+				graph.zoomTo(scale);
+
+				if (ui.chromelessResize != null)
+				{
+					ui.chromelessResize(false);
+				}
+			}
+
+			if (scroll)
+			{
+				c.scrollLeft = Math.round((pinchModelAnchor.x + v.translate.x) * v.scale - x);
+				c.scrollTop = Math.round((pinchModelAnchor.y + v.translate.y) * v.scale - y);
+			}
+			else
+			{
+				v.setTranslate(x / v.scale - pinchModelAnchor.x,
+					y / v.scale - pinchModelAnchor.y);
+			}
+		}
+		else
+		{
+			graph.lazyZoom(evt.scale > 1, true, null, 1, true);
+		}
+
 		mxEvent.consume(evt);
+	};
+
+	// Pinch gestures scroll with the center between the fingers instead of
+	// the first finger, and panning with the remaining finger after a pinch
+	// starts at the current scroll position
+	graph.addListener(mxEvent.GESTURE, function(sender, eo)
+	{
+		var evt = eo.getProperty('event');
+
+		// Cancels what the first finger started (eg. a selection, a move,
+		// a new connection, a rubberband or a tap and hold)
+		if (evt != null && evt.type == 'gesturestart' && !pinched)
+		{
+			pinched = true;
+			graph.tapAndHoldValid = false;
+			graph.graphHandler.reset();
+			graph.connectionHandler.reset();
+			graph.selectionCellsHandler.reset();
+
+			if (graph.getRubberband != null && graph.getRubberband() != null)
+			{
+				graph.getRubberband().reset();
+			}
+
+			if (touchSelection != null && !mxUtils.equalEntries(touchSelection,
+				graph.getSelectionCells()))
+			{
+				graph.setSelectionCells(touchSelection);
+			}
+		}
+		else if (evt != null && evt.type == 'gestureend' && pinchAnchor != null)
+		{
+			pinchAnchor = null;
+			rebasePanning = true;
+		}
+		else if (evt != null && evt.type == 'gestureend' && pinchModelAnchor != null)
+		{
+			pinchModelAnchor = null;
+			rebasePanning = true;
+		}
+	});
+
+	// Ignores the release of the last finger of a pinch as a click
+	var graphFireMouseEvent = graph.fireMouseEvent;
+
+	graph.fireMouseEvent = function(evtName, me, sender)
+	{
+		if (pinched && evtName == mxEvent.MOUSE_UP)
+		{
+			me.consume();
+		}
+
+		graphFireMouseEvent.apply(this, arguments);
+	};
+
+	var panningHandlerMouseMove = graph.panningHandler.mouseMove;
+
+	graph.panningHandler.mouseMove = function(sender, me)
+	{
+		if (pinchAnchor != null || pinchModelAnchor != null)
+		{
+			me.consume();
+		}
+		else
+		{
+			if (rebasePanning)
+			{
+				rebasePanning = false;
+				this.dx0 = -graph.container.scrollLeft;
+				this.dy0 = -graph.container.scrollTop;
+				this.startX = me.getX();
+				this.startY = me.getY();
+			}
+
+			panningHandlerMouseMove.apply(this, arguments);
+		}
 	};
 };
 
@@ -5695,17 +6007,147 @@ EditorUi.prototype.initialFitDiagram = function(maxScale)
  * 
  * Zooms the diagram to fit into the window.
  */
-EditorUi.prototype.fitDiagramOrPages = function(maxScale, borders, ignorePages)
+EditorUi.prototype.fitDiagramOrPages = function(maxScale, borders, ignorePages, ignoreSelection)
 {
 	var graph = this.editor.graph;
 
-	if (graph.pageVisible && graph.isSelectionEmpty() && !ignorePages)
+	if (graph.pageVisible && (ignoreSelection || graph.isSelectionEmpty()) && !ignorePages)
 	{
 		graph.fitPages(maxScale);
 	}
 	else
 	{
-		this.fitDiagramToWindow(maxScale, borders, ignorePages);
+		this.fitDiagramToWindow(maxScale, borders, ignorePages, ignoreSelection);
+	}
+};
+
+/**
+ * Function: setFitWindowEnabled
+ *
+ * Specifies if the diagram or the pages are fitted to the window and fitted
+ * again if the size of the container changes, until the zoom is changed
+ * otherwise. Enabling it fits the diagram or the pages.
+ */
+EditorUi.prototype.setFitWindowEnabled = function(value)
+{
+	value = value && this.isFitWindowSupported();
+
+	if (this.fitWindowEnabled != value)
+	{
+		this.fitWindowEnabled = value;
+		this.fireEvent(new mxEventObject('fitWindowEnabledChanged'));
+	}
+
+	if (value)
+	{
+		this.updateFitWindow();
+	}
+};
+
+/**
+ * Function: isFitWindowSupported
+ * 
+ * Returns true if the diagram can be kept fitted to the window (see
+ * <setFitWindowEnabled>). This requires model coordinates as fitting
+ * again repaints the diagram otherwise, which can block resizing the
+ * window, and is not used in chromeless views.
+ */
+EditorUi.prototype.isFitWindowSupported = function()
+{
+	return this.editor.graph.view.modelCoordinates &&
+		!this.editor.isChromelessView();
+};
+
+/**
+ * Function: updateFitWindow
+ *
+ * Fits the diagram or the pages to the window, ignoring the selection, if
+ * <fitWindowEnabled> is true.
+ */
+EditorUi.prototype.updateFitWindow = function()
+{
+	var graph = this.editor.graph;
+
+	if (this.fitWindowEnabled && graph.container != null)
+	{
+		this.fittingWindow = true;
+
+		try
+		{
+			// Updates the translate for the size of the container, which
+			// is otherwise done after the fit if the window was resized
+			graph.sizeDidChange();
+			this.fitDiagramOrPages(null, null, null, true);
+		}
+		finally
+		{
+			this.fittingWindow = false;
+		}
+
+		this.fitWindowSize = new mxRectangle(0, 0,
+			graph.container.offsetWidth,
+			graph.container.offsetHeight);
+	}
+};
+
+/**
+ * Function: installFitWindowHandler
+ * 
+ * Fits the diagram or the pages to the window again if the size of the
+ * container, the page view, the page format or the page scale changes while
+ * <fitWindowEnabled> is true, and disables it if the zoom is changed
+ * otherwise.
+ */
+EditorUi.prototype.installFitWindowHandler = function()
+{
+	var graph = this.editor.graph;
+
+	var pagesListener = mxUtils.bind(this, function()
+	{
+		this.updateFitWindow();
+	});
+
+	this.addListener('pageViewChanged', pagesListener);
+	this.addListener('pageFormatChanged', pagesListener);
+	this.addListener('pageScaleChanged', pagesListener);
+
+	var scaleListener = mxUtils.bind(this, function(sender, evt)
+	{
+		if (!this.fittingWindow && evt.getProperty('scale') !=
+			evt.getProperty('previousScale'))
+		{
+			this.setFitWindowEnabled(false);
+		}
+	});
+
+	graph.view.addListener(mxEvent.SCALE, scaleListener);
+	graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, scaleListener);
+
+	if (typeof window.ResizeObserver === 'function')
+	{
+		var thread = null;
+
+		// Compares the size of the border box to ignore scrollbars
+		this.fitWindowObserver = new ResizeObserver(mxUtils.bind(this, function()
+		{
+			if (this.fitWindowEnabled && thread == null)
+			{
+				thread = window.requestAnimationFrame(mxUtils.bind(this, function()
+				{
+					var size = this.fitWindowSize;
+					var c = graph.container;
+					thread = null;
+
+					if (c != null && (size == null || size.width != c.offsetWidth ||
+						size.height != c.offsetHeight))
+					{
+						this.updateFitWindow();
+					}
+				}));
+			}
+		}));
+
+		this.fitWindowObserver.observe(graph.container);
 	}
 };
 
@@ -5714,10 +6156,10 @@ EditorUi.prototype.fitDiagramOrPages = function(maxScale, borders, ignorePages)
  * 
  * Zooms the diagram to fit into the window.
  */
-EditorUi.prototype.fitDiagramToWindow = function(maxScale, borders, zoomOutOnly)
+EditorUi.prototype.fitDiagramToWindow = function(maxScale, borders, zoomOutOnly, ignoreSelection)
 {
 	var graph = this.editor.graph;
-	var bounds = (graph.isSelectionEmpty()) ?
+	var bounds = (ignoreSelection || graph.isSelectionEmpty()) ?
 		mxRectangle.fromRectangle(graph.getGraphBounds()) :
 		graph.getBoundingBox(graph.getSelectionCells());
 
@@ -5750,6 +6192,10 @@ EditorUi.prototype.fitDiagramToWindow = function(maxScale, borders, zoomOutOnly)
 	{
 		var b = (borders != null) ? borders :
 			Editor.fitWindowBorders;
+
+		// Leaves room for the icons of the cells that are outside of the
+		// graph bounds, such as link icons, which scales with the zoom
+		bounds.grow(graph.fitPadding);
 		
 		if (b != null)
 		{
@@ -6561,6 +7007,8 @@ EditorUi.prototype.setStatusText = function(value)
 		this.statusContainer.appendChild(div);
 	}
 
+	this.updateStatusAction();
+
 	// Handles data-effect attribute
 	var spans = this.statusContainer.querySelectorAll('[data-effect="fade"]');
 
@@ -6597,6 +7045,21 @@ EditorUi.prototype.setStatusText = function(value)
 			})(spans[i]);
 		}
 	}		
+};
+
+/**
+ * Adds the geStatusAction class to the status container if it contains an
+ * enabled action, which dims the status while it is pressed. A :has()
+ * selector for this made the browser restyle large parts of the page after
+ * every change of the DOM, eg. for every repaint while moving cells.
+ * Uses chained :not() because a selector list inside :not() throws in
+ * older browsers (Chrome before 88, Safari before 9).
+ */
+EditorUi.prototype.updateStatusAction = function()
+{
+	this.statusContainer.classList.toggle('geStatusAction',
+		this.statusContainer.querySelector('div[data-action]' +
+			':not(.mxDisabled):not([disabled])') != null);
 };
 
 /**
@@ -7719,24 +8182,25 @@ EditorUi.prototype.createKeyHandler = function(editor)
 
 	var thread = null;
 
-	// Helper function to commit a pending cursor-key move
+	// Helper function to commit a pending cursor-key move, but not a move
+	// with the mouse or a finger (eg. if another finger starts a pinch)
 	function commitNudge()
 	{
 		if (thread != null)
 		{
 			window.clearTimeout(thread);
 			thread = null;
-		}
 
-		var handler = graph.graphHandler;
+			var handler = graph.graphHandler;
 
-		if (handler != null && handler.first != null)
-		{
-			var scale = graph.getView().scale;
-			var dx = handler.roundLength(handler.currentDx / scale);
-			var dy = handler.roundLength(handler.currentDy / scale);
-			handler.moveCells(handler.cells, dx, dy);
-			handler.reset();
+			if (handler != null && handler.first != null)
+			{
+				var scale = graph.getView().scale;
+				var dx = handler.roundLength(handler.currentDx / scale);
+				var dy = handler.roundLength(handler.currentDy / scale);
+				handler.moveCells(handler.cells, dx, dy);
+				handler.reset();
+			}
 		}
 	};
 
@@ -8546,6 +9010,12 @@ EditorUi.prototype.destroy = function()
 	{
 		mxEvent.removeListener(window, 'resize', this.resizeHandler);
 		this.resizeHandler = null;
+	}
+
+	if (this.fitWindowObserver != null)
+	{
+		this.fitWindowObserver.disconnect();
+		this.fitWindowObserver = null;
 	}
 	
 	if (this.gestureHandler != null)

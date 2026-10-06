@@ -597,21 +597,23 @@ Menus.prototype.init = function()
 	})));
 	this.put('viewZoom', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
-		this.addMenuItems(menu, ['smartFit', '-'], parent);
+		this.addMenuItems(menu, ['resetView', 'fitWindow', '-'], parent);
 		var scales = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4];
-		
+		var ui = this.editorUi;
+
 		for (var i = 0; i < scales.length; i++)
 		{
 			(function(scale)
 			{
 				menu.addItem((scale * 100) + '%', null, function()
 				{
+					ui.setFitWindowEnabled(false);
 					graph.zoomTo(scale);
 				}, parent);
 			})(scales[i]);
 		}
 
-		this.addMenuItems(menu, ['-', 'fitWindow', 'fitPageWidth', 'fitPage', 'fitTwoPages', '-', 'customZoom'], parent);
+		this.addMenuItems(menu, ['-', 'fitPageWidth', 'fitPage', 'fitTwoPages', '-', 'customZoom'], parent);
 	})));
 	this.put('file', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
@@ -1916,21 +1918,37 @@ Menus.prototype.addPopupMenuCellEditItems = function(menu, cell, evt, parent)
 
 	if (graph.getModel().isVertex(cell) && graph.isCellConnectable(cell))
 	{
-		// Adds a connection point at the location of the context menu
-		var pt = graph.popupMenuHandler.getTriggerPoint();
-
-		if (!graph.isCellLocked(cell) && graph.getConnectionConstraintForPoint(
-			state, pt.x, pt.y) != null)
-		{
-			this.addMenuItem(menu, 'addConnectionPoint', parent, evt);
-		}
-
+		this.addConnectionPointMenuItem(menu, cell, parent, evt);
 		this.addMenuItem(menu, 'editConnectionPoints', parent, evt);
 	}
 
 	if (state != null && mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE) === 'mxgraph.basic.polygon')
 	{
 		this.addMenuItem(menu, 'editPolygon', parent, evt);
+	}
+};
+
+/**
+ * Adds addConnectionPoint for the given cell if the location of the context
+ * menu maps to a connection point of the cell (see
+ * Graph.getConnectionConstraintForPoint). Must only be used in menus that
+ * are opened by the popup menu handler.
+ */
+Menus.prototype.addConnectionPointMenuItem = function(menu, cell, parent, evt)
+{
+	var graph = this.editorUi.editor.graph;
+
+	if (cell != null && graph.getModel().isVertex(cell) &&
+		graph.isCellConnectable(cell) && !graph.isCellLocked(cell))
+	{
+		// Adds a connection point at the location of the context menu
+		var pt = graph.popupMenuHandler.getTriggerPoint();
+
+		if (graph.getConnectionConstraintForPoint(
+			graph.view.getState(cell), pt.x, pt.y) != null)
+		{
+			this.addMenuItem(menu, 'addConnectionPoint', parent, evt);
+		}
 	}
 };
 

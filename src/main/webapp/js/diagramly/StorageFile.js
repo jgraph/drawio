@@ -162,7 +162,11 @@ StorageFile.prototype.save = function(revision, success, error)
 {
 	DrawioFile.prototype.save.apply(this, [false, mxUtils.bind(this, function()
 	{
-		this.saveFile(this.getTitle(), false, success, error);
+		// The bytes were just updated: an edit made while the stored copy
+		// is checked before the write is not in them and keeps the file
+		// modified (see writeFile)
+		this.setShadowModified(false);
+		this.saveFile(this.getTitle(), false, success, error, null, true);
 	}), error]);
 };
 
@@ -226,7 +230,8 @@ StorageFile.doInsertFile = function(file, success, error)
 /**
  * Passes the data of the file with the given title in the browser storage
  * to success, or null if it does not exist. Uses localStorage if no
- * database is available.
+ * database is available. If the file is not in localStorage either, the
+ * error of the database is passed to error if it is not null.
  */
 StorageFile.getFileContent = function(ui, title, success, error)
 {
@@ -234,15 +239,25 @@ StorageFile.getFileContent = function(ui, title, success, error)
 	{
 		success(obj != null? obj.data : null);
 	}, 
-	mxUtils.bind(this, function()
+	mxUtils.bind(this, function(e)
 	{
 		if (ui.database == null) //fallback to localstorage
 		{
-			ui.getLocalData(title, success);
+			ui.getLocalData(title, function(data)
+			{
+				if (data == null && error != null)
+				{
+					error(e);
+				}
+				else
+				{
+					success(data);
+				}
+			});
 		}
 		else if (error != null)
 		{
-			error();
+			error(e);
 		}
 	}), 'files');
 };
@@ -275,11 +290,12 @@ StorageFile.getFileInfo = function(ui, title, success, error)
 };
 
 /**
- * Writes the file to the browser storage with the given title. If the stored
- * file has changed, it is merged and the save is retried up to maxRetries
- * times. Asks the user to confirm before replacing another file.
+ * Writes the file to the browser storage with the given title, or with its
+ * title at the time of the write if current is true. If the stored file has
+ * changed, it is merged and the save is retried up to maxRetries times. Asks
+ * the user to confirm before replacing another file.
  */
-StorageFile.prototype.saveFile = function(title, revision, success, error, retry)
+StorageFile.prototype.saveFile = function(title, revision, success, error, retry, current)
 {
 	retry = (retry != null) ? retry : 0;
 
@@ -292,9 +308,12 @@ StorageFile.prototype.saveFile = function(title, revision, success, error, retry
 	}
 	else
 	{
+		// A rename can complete while the stored copy is checked: a save that
+		// wrote the title it started with undid the rename and brought the
+		// old file back next to the renamed one (storage-inflight-edit)
 		var fn = mxUtils.bind(this, function()
 		{
-			this.writeFile(title, success, error);
+			this.writeFile((current) ? this.getTitle() : title, success, error);
 		});
 		
 		// Checks for trailing dots
@@ -304,6 +323,7 @@ StorageFile.prototype.saveFile = function(title, revision, success, error, retry
 		}
 		else if (this instanceof StorageLibrary)
 		{
+			this.setShadowModified(false);
 			fn(); // No need to check for conflicts with libraries			
 		}
 		else
@@ -339,8 +359,9 @@ StorageFile.prototype.saveFile = function(title, revision, success, error, retry
 									this.retrySave(mxUtils.bind(this, function()
 									{
 										this.updateFileData();
-										this.saveFile(title, revision,
-											success, error, retry + 1);
+										this.setShadowModified(false);
+										this.saveFile((current) ? this.getTitle() : title,
+											revision, success, error, retry + 1, current);
 									}));
 								}
 							}), error);
@@ -409,8 +430,11 @@ StorageFile.prototype.writeFile = function(title, success, error)
 			this.fileSaved(data, desc, success, error);
 		});
 		
-		this.setShadowModified(false);
-
+		// The shadow flag is cleared where the bytes are taken (save, its
+		// retry, libraries), not here after the asynchronous check of the
+		// stored copy: an edit made during the check is not in the bytes,
+		// and a rename writes the bytes of the last save, so its unsaved
+		// edits keep the file modified (storage-inflight-edit)
 		this.ui.setDatabaseItem(null, [{
 			title: this.title,
 			size: data.length,

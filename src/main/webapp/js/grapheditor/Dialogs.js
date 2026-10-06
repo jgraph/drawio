@@ -4567,7 +4567,7 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 
 	outline.init(div);
 	
-	mxEvent.addMouseWheelListener(function(evt, up)
+	mxEvent.addMouseWheelListener(function(evt, up, force, cx, cy, pinch)
 	{
 		var outlineWheel = false;
 		var source = mxEvent.getSource(evt);
@@ -4594,8 +4594,15 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 				factor = 1 + (Math.abs(evt.deltaY) / 20) * (factor - 1);
 				smooth = true;
 			}
+			// Pinch gesture on touch screens zooms by the change of the
+			// distance between the fingers
+			else if (pinch != null)
+			{
+				factor = (pinch > 1) ? pinch : 1 / pinch;
+				smooth = true;
+			}
 
-			graph.lazyZoom(up, null, null, factor, smooth);
+			graph.lazyZoom(up, null, null, factor, smooth, true);
 			mxEvent.consume(evt);
 		}
 	});

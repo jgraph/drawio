@@ -3155,6 +3155,68 @@ mxGraph.prototype.fit = function(border, keepOrigin, margin, enabled, ignoreWidt
 };
 
 /**
+ * Variable: containerMetrics
+ *
+ * Holds the metrics of the container while <updateContainerMetrics> runs
+ * its function (see <getContainerMetrics>). Default is null.
+ */
+mxGraph.prototype.containerMetrics = null;
+
+/**
+ * Function: getContainerMetrics
+ *
+ * Returns an object with the offsetWidth, offsetHeight, clientWidth,
+ * clientHeight, scrollLeft and scrollTop of the container and if it has
+ * scrollbars (see <mxUtils.hasScrollbars>). This returns <containerMetrics>
+ * while <updateContainerMetrics> runs its function, so that reading the
+ * metrics after the DOM was changed does not force a layout of the page.
+ */
+mxGraph.prototype.getContainerMetrics = function()
+{
+	var metrics = this.containerMetrics;
+
+	if (metrics == null && this.container != null)
+	{
+		var c = this.container;
+		metrics = {offsetWidth: c.offsetWidth, offsetHeight: c.offsetHeight,
+			clientWidth: c.clientWidth, clientHeight: c.clientHeight,
+			scrollLeft: c.scrollLeft, scrollTop: c.scrollTop,
+			scrollbars: mxUtils.hasScrollbars(c)};
+	}
+
+	return metrics;
+};
+
+/**
+ * Function: updateContainerMetrics
+ *
+ * Reads the metrics of the container before calling the given function,
+ * which changes the DOM but not the size of the container, and returns
+ * them in <getContainerMetrics> until the function returns. The client
+ * size may change if scrollbars appear and the scroll position if it is
+ * clamped, so the metrics are only used where this does not matter (eg.
+ * in <mxGraphView.viewStateChanged> in model coordinates).
+ */
+mxGraph.prototype.updateContainerMetrics = function(funct)
+{
+	var prev = this.containerMetrics;
+
+	if (prev == null)
+	{
+		this.containerMetrics = this.getContainerMetrics();
+	}
+
+	try
+	{
+		funct();
+	}
+	finally
+	{
+		this.containerMetrics = prev;
+	}
+};
+
+/**
  * Function: sizeDidChange
  * 
  * Called when the size of the graph has changed. This implementation fires
@@ -13735,7 +13797,14 @@ mxGraph.prototype.fireMouseEvent = function(evtName, me, sender)
 	{
 		var currentTime = new Date().getTime();
 		
-		if (evtName == mxEvent.MOUSE_DOWN)
+		// Another finger is not a double tap (eg. the start of a pinch, where
+		// the location of a touch event is that of the first finger)
+		if (evtName == mxEvent.MOUSE_DOWN && mxEvent.isMultiTouchEvent(me.getEvent()))
+		{
+			this.lastTouchTime = 0;
+			this.fireDoubleClick = false;
+		}
+		else if (evtName == mxEvent.MOUSE_DOWN)
 		{
 			if (this.lastTouchEvent != null && this.lastTouchEvent != me.getEvent() &&
 				currentTime - this.lastTouchTime < this.doubleTapTimeout &&

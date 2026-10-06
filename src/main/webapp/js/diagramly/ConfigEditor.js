@@ -260,6 +260,7 @@ DrawioConfigEditor.install = function(container, options)
 			{ key: 'zoomWheel' },
 			{ key: 'simpleLabels' },
 			{ key: 'optimizeHtmlLabels' },
+			{ key: 'fastRendering' },
 			{ key: 'stopEditingOnEnter' },
 			{ key: 'pasteAtMousePointer' },
 			{ key: 'fitDiagramOnLoad' },

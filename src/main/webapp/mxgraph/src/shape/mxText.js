@@ -306,6 +306,27 @@ mxText.prototype.paint = function(c, update)
  */
 mxText.prototype.redraw = function()
 {
+	this.invalidateBoundingBox();
+
+	var screen = this.beginModelUnits();
+
+	try
+	{
+		this.redrawText();
+	}
+	finally
+	{
+		this.endModelUnits(screen);
+	}
+};
+
+/**
+ * Function: redrawText
+ *
+ * Updates the DOM nodes of the text for the current bounds and scale.
+ */
+mxText.prototype.redrawText = function()
+{
 	// Forces full repaint when SVG word wrapping is active and width changes
 	if (this.wrap && this.convertToSvg && this.style != null &&
 		this.style['svgWhiteSpace'] == 'wrap' && this.bounds != null)
@@ -538,7 +559,8 @@ mxText.prototype.updateBoundingBox = function()
 					}
 					else
 					{
-						this.boundingBox = new mxRectangle(b.x, b.y, b.width, b.height);
+						this.boundingBox = this.getScreenRectangle(
+							new mxRectangle(b.x, b.y, b.width, b.height));
 					}
 					
 					return;

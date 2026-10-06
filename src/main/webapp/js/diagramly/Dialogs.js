@@ -2892,6 +2892,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			if (selectedElt != null)
 			{
 				selectedElt.classList.remove('geTemplateSelected');
+				selectedElt.classList.remove('geTemplateHasPreview');
 				
 				if (selectedElt == generateElt)
 				{
@@ -2930,6 +2931,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			templateInfoObj = infoObj;
 
 			selectedElt.classList.add('geTemplateSelected');
+
+			// Class replaces :has(div) in the CSS, which restyled the
+			// page after every change of the DOM
+			if (selectedElt.getElementsByTagName('div').length > 0)
+			{
+				selectedElt.classList.add('geTemplateHasPreview');
+			}
 			
 			return true;
 		}

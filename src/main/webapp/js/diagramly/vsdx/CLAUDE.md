@@ -314,7 +314,7 @@ Intercepts mxGraph shape rendering calls and converts them to VSDX geometry XML 
 | `quadTo(x1, y1, x2, y2)` | `(number × 4)` | Quadratic Bezier → RelQuadBezTo |
 | `curveTo(x1, y1, x2, y2, x3, y3)` | `(number × 6)` | Cubic Bezier → RelCubBezTo |
 | `close()` | `()` | Close path (implicit LineTo back to start) |
-| `image(x, y, w, h, src, aspect, flipH, flipV)` | `(number × 4, string, boolean × 3)` | Embed image: handles SVG→PNG, BMP→PNG conversion |
+| `image(x, y, w, h, src, aspect, flipH, flipV)` | `(number × 4, string, boolean × 3)` | Embed image: handles SVG→PNG, BMP→PNG conversion. Data URIs may be base64 or URL encoded (UTF-8 SVGs are rendered as `data:image/svg+xml,%3Csvg…`); undecodable data skips the image. The media file type comes from the untrusted MIME type or URL, so it is reduced to `[\w+.-]` (no path separators in zip entries) |
 | `text(x, y, w, h, str, align, valign, wrap, format, overflow, clip, rotation, dir)` | `(number × 4, string, ...)` | Text with HTML parsing → VSDX Paragraph/Character/Text sections |
 | `convertSvg2Png(svgData, w, h, isBase64, callback)` | `(string, number × 2, boolean, Function)` | Renders SVG on canvas, exports PNG |
 | `addForeignData(type, index)` | `(string, number)` | Creates ForeignData element for embedded images |

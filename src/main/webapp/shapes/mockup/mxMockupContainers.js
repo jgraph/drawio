@@ -55,7 +55,7 @@ mxShapeMockupVideoPlayer.prototype.paintVertexShape = function(c, x, y, w, h)
 	var frameColor = mxUtils.getValue(this.style, mxConstants.STYLE_STROKECOLOR, '#666666');
 	var filledColor = mxUtils.getValue(this.style, mxShapeMockupVideoPlayer.prototype.cst.STROKE_COLOR2, '#008cff');
 	var emptyColor = mxUtils.getValue(this.style, mxShapeMockupVideoPlayer.prototype.cst.STROKE_COLOR3, '#c4c4c4');
-	var barHeight = mxUtils.getValue(this.style, mxShapeMockupVideoPlayer.prototype.cst.BAR_HEIGHT, '30');
+	var barHeight = mxUtils.getNumber(this.style, mxShapeMockupVideoPlayer.prototype.cst.BAR_HEIGHT, 30);
 
 	w = Math.max(w, 5 * barHeight);
 	h = Math.max(h, barHeight + 10);
@@ -81,7 +81,7 @@ mxShapeMockupVideoPlayer.prototype.background = function(c, x, y, w, h, bgColor,
 
 mxShapeMockupVideoPlayer.prototype.otherShapes = function(c, x, y, w, h, buttonColor, frameColor, filledColor, emptyColor, barHeight)
 {
-	var barPos = mxUtils.getValue(this.style, mxShapeMockupVideoPlayer.prototype.cst.BAR_POS, '20');
+	var barPos = mxUtils.getNumber(this.style, mxShapeMockupVideoPlayer.prototype.cst.BAR_POS, 20);
 	barPos = Math.max(0, barPos);
 	barPos = Math.min(100, barPos);
 

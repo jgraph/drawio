@@ -2838,12 +2838,15 @@ DrawioFile.prototype.saveDraft = function(data)
 {
 	try
 	{
-		data = (data != null) ? data : this.ui.getFileData();
+		// Parsing the data of the current diagram to check if it is empty
+		// is only needed if the current page is empty
+		var check = data != null || this.ui.isCurrentPageEmpty();
+		data = (data != null) ? data : this.getDraftData();
 
 		// Empty diagrams are useless as drafts — drop any existing one
 		// instead of writing an empty record, so the post-restart prompt
 		// doesn't surface drafts that contain nothing to recover.
-		if (this.ui.isDiagramDataEmpty(data))
+		if (check && this.ui.isDiagramDataEmpty(data))
 		{
 			this.removeDraft();
 			return;
@@ -2879,6 +2882,18 @@ DrawioFile.prototype.saveDraft = function(data)
 		// Removes any stored draft
 		this.removeDraft();
 	}
+};
+
+/**
+ * Returns the data for a draft of this file: the XML of all pages without
+ * the pretty printing of getFileData, which takes several times longer and
+ * is not needed as drafts are never read or compared by people, and without
+ * the SVG or HTML of files with these extensions, as a draft is loaded as
+ * a diagram.
+ */
+DrawioFile.prototype.getDraftData = function()
+{
+	return mxUtils.getXml(this.ui.getXmlFileData());
 };
 
 /**

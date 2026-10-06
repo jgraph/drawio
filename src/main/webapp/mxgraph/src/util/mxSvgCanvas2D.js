@@ -245,6 +245,24 @@ mxSvgCanvas2D.prototype.foAltText = '[Object]';
 mxSvgCanvas2D.prototype.foOffset = 0;
 
 /**
+ * Variable: placeForeignObjects
+ *
+ * Specifies if the foreignObjects of HTML labels are placed at the labels
+ * with <foreignObjectMargin> on all sides instead of at the origin. This is
+ * used for painting in model units, where labels may have negative
+ * coordinates, as WebKit clips the content of foreignObjects outside of
+ * their bounds. Default is false.
+ */
+mxSvgCanvas2D.prototype.placeForeignObjects = false;
+
+/**
+ * Variable: foreignObjectMargin
+ *
+ * Margin around the labels for <placeForeignObjects>. Default is 10000.
+ */
+mxSvgCanvas2D.prototype.foreignObjectMargin = 10000;
+
+/**
  * Variable: textOffset
  * 
  * Offset to be used for text elements.
@@ -264,6 +282,32 @@ mxSvgCanvas2D.prototype.imageOffset = 0;
  * Adds transparent paths for strokes.
  */
 mxSvgCanvas2D.prototype.strokeTolerance = 0;
+
+/**
+ * Variable: nonScalingTolerance
+ * 
+ * Specifies if the <strokeTolerance> of the transparent paths for strokes
+ * stays in screen pixels if the canvas is transformed, ie. if the canvas
+ * paints in model units. Default is false.
+ */
+mxSvgCanvas2D.prototype.nonScalingTolerance = false;
+
+/**
+ * Variable: toleranceScaleVariable
+ * 
+ * Name of the CSS variable with the scale that the <strokeTolerance> of the
+ * transparent paths for strokes is divided by if <nonScalingTolerance> is
+ * true, so that the paths are as wide as the stroke plus the tolerance in
+ * screen pixels for any scale, or null to use vector-effect:
+ * non-scaling-stroke, which keeps the stroke width in screen pixels too.
+ * Changing the variable restyles all cells (see
+ * <mxGraphView.scheduleToleranceScaleUpdate>). Default is --mx-scale in
+ * WebKit, which hit-tests non-scaling strokes with the transform at the time
+ * of the layout and does not update it if the transform of an ancestor
+ * changes, and null in all other browsers. The variable is set in
+ * <mxGraphView.updateDrawPaneTransform>.
+ */
+mxSvgCanvas2D.prototype.toleranceScaleVariable = (mxClient.IS_SF) ? '--mx-scale' : null;
 
 /**
  * Variable: minStrokeWidth
@@ -1375,8 +1419,13 @@ mxSvgCanvas2D.prototype.updateStroke = function()
 	
 	if (s.dashed)
 	{
-		this.node.setAttribute('stroke-dasharray', this.createDashPattern(
-			((s.fixDash) ? 1 : s.strokeWidth) * s.scale));
+		var pattern = this.createDashPattern(((s.fixDash) ? 1 : s.strokeWidth) * s.scale);
+
+		// Solid line for patterns without numbers
+		if (pattern.length > 0)
+		{
+			this.node.setAttribute('stroke-dasharray', pattern);
+		}
 	}
 };
 
@@ -1436,7 +1485,13 @@ mxSvgCanvas2D.prototype.createDashPattern = function(scale)
 		{
 			for (var i = 0; i < dash.length; i++)
 			{
-				pat[i] = Math.round(Number(dash[i]) * scale * 100) / 100;
+				var value = Number(dash[i]);
+
+				// Ignores values that are not numbers, eg. none in stencils
+				if (isFinite(value))
+				{
+					pat.push(Math.round(value * scale * 100) / 100);
+				}
 			}
 		}
 	}
@@ -1452,12 +1507,26 @@ mxSvgCanvas2D.prototype.createDashPattern = function(scale)
 mxSvgCanvas2D.prototype.createTolerance = function(node)
 {
 	var tol = node.cloneNode(true);
-	var sw = parseFloat(tol.getAttribute('stroke-width') || 1) + this.strokeTolerance;
+	var width = parseFloat(tol.getAttribute('stroke-width') || 1);
+	var sw = width + this.strokeTolerance;
 	tol.setAttribute('pointer-events', 'stroke');
 	tol.setAttribute('visibility', 'hidden');
 	tol.removeAttribute('stroke-dasharray');
 	tol.setAttribute('stroke-width', sw);
 	tol.setAttribute('fill', 'none');
+
+	if (this.nonScalingTolerance)
+	{
+		if (this.toleranceScaleVariable != null)
+		{
+			tol.style.strokeWidth = 'calc(' + width + 'px + ' + this.strokeTolerance +
+				'px / var(' + this.toleranceScaleVariable + ', 1))';
+		}
+		else
+		{
+			tol.setAttribute('vector-effect', 'non-scaling-stroke');
+		}
+	}
 	
 	// Workaround for Opera ignoring the visiblity attribute above while
 	// other browsers need a stroke color to perform the hit-detection but
@@ -1657,8 +1726,8 @@ mxSvgCanvas2D.prototype.ellipse = function(x, y, w, h)
 	// No rounding for consistent output with 1.x
 	n.setAttribute('cx', this.format((x + w / 2 + s.dx) * s.scale));
 	n.setAttribute('cy', this.format((y + h / 2 + s.dy) * s.scale));
-	n.setAttribute('rx', w / 2 * s.scale);
-	n.setAttribute('ry', h / 2 * s.scale);
+	n.setAttribute('rx', this.format(w / 2 * s.scale));
+	n.setAttribute('ry', this.format(h / 2 * s.scale));
 	this.node = n;
 };
 
@@ -2179,32 +2248,51 @@ mxSvgCanvas2D.prototype.updateTextNodes = function(x, y, w, h, align, valign, wr
 		this.setCssText(text, block);
 		this.setCssText(box, item);
 		
-		// Workaround for clipping in Webkit with scrolling and zoom
-		fo.setAttribute('width', Math.ceil(1 / Math.min(1, s) * 100) + '%');
-		fo.setAttribute('height', Math.ceil(1 / Math.min(1, s) * 100) + '%');
+		var xp = Math.round(x + dx);
 		var yp = Math.round(y + dy);
-		
-		// Allows for negative values which are causing problems with
-		// transformed content where the top edge of the foreignObject
-		// limits the text box being moved further up in the diagram.
-		// KNOWN: Possible clipping problems with zoom and scrolling
-		// but this is normally not used with scrollbars as the
-		// coordinates are always positive with scrollbars.
-		// Margin-top is ignored in Safari and no negative values allowed
-		// for padding.
-		if (yp < 0)
+
+		if (this.placeForeignObjects)
 		{
-			fo.setAttribute('y', yp);
-			flex += 'padding-top: 0; '; // To override padding-top in previous calls
+			// Places the foreignObject at the label so that no content is
+			// outside of its bounds, which WebKit clips
+			var m = this.foreignObjectMargin;
+			fo.setAttribute('x', xp - m);
+			fo.setAttribute('y', yp - m);
+			fo.setAttribute('width', Math.ceil(w) + 2 * m);
+			fo.setAttribute('height', Math.ceil(h) + 2 * m);
+			flex += 'padding-top: ' + m + 'px; ';
+			xp = m;
 		}
 		else
 		{
-			fo.removeAttribute('y');
-			flex += 'padding-top: ' + yp + 'px; ';
+			// Workaround for clipping in Webkit with scrolling and zoom
+			fo.setAttribute('width', Math.ceil(1 / Math.min(1, s) * 100) + '%');
+			fo.setAttribute('height', Math.ceil(1 / Math.min(1, s) * 100) + '%');
+			fo.removeAttribute('x');
+
+			// Allows for negative values which are causing problems with
+			// transformed content where the top edge of the foreignObject
+			// limits the text box being moved further up in the diagram.
+			// KNOWN: Possible clipping problems with zoom and scrolling
+			// but this is normally not used with scrollbars as the
+			// coordinates are always positive with scrollbars.
+			// Margin-top is ignored in Safari and no negative values allowed
+			// for padding.
+			if (yp < 0)
+			{
+				fo.setAttribute('y', yp);
+				flex += 'padding-top: 0; '; // To override padding-top in previous calls
+			}
+			else
+			{
+				fo.removeAttribute('y');
+				flex += 'padding-top: ' + yp + 'px; ';
+			}
 		}
-		
-		this.setCssText(div, flex + 'margin-left: ' + Math.round(x + dx) + 'px;');
-		t += ((r != 0) ? ('rotate(' + r + ' ' + x + ' ' + y + ')') : '');
+
+		this.setCssText(div, flex + 'margin-left: ' + xp + 'px;');
+		t += ((r != 0) ? ('rotate(' + r + ' ' + this.format(x) + ' ' +
+			this.format(y) + ')') : '');
 
 		// Output allows for reflow but Safari cannot use absolute position,
 		// transforms or opacity. https://bugs.webkit.org/show_bug.cgi?id=23113

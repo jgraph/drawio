@@ -503,7 +503,7 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		this.tooltip.style.zIndex = mxPopupMenu.prototype.zIndex - 1;
 		document.body.appendChild(this.tooltip);
 
-		mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt, up, pinch, cx, cy)
+		mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt, up, pinch, cx, cy, ratio)
 		{
 			// Zooms tooltips that were scaled down to fit, hides others
 			if (this.tooltipZoomControls.style.display != 'none')
@@ -515,6 +515,12 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 					Math.round(evt.deltaY) != evt.deltaY)
 				{
 					factor = 1 + (Math.abs(evt.deltaY) / 20) * (factor - 1);
+				}
+				// Pinch gesture on touch screens zooms by the change of the
+				// distance between the fingers
+				else if (ratio != null)
+				{
+					factor = (ratio > 1) ? ratio : 1 / ratio;
 				}
 
 				var rect = this.tooltipContent.getBoundingClientRect();
@@ -1118,6 +1124,137 @@ Sidebar.prototype.getLibsForStyle = function(style)
 };
 
 /**
+ * Specifies the maximum time in ms for each slice of the deferred update
+ * of the style to libraries map. Default is 8.
+ */
+Sidebar.prototype.styleToLibsSliceTime = 8;
+
+/**
+ * Returns true if all entries were added to the style to libraries map.
+ */
+Sidebar.prototype.isStyleToLibsLoaded = function()
+{
+	return this.pendingLibEntries == null;
+};
+
+/**
+ * Queues the given entry function for the style to libraries map. The
+ * styles are collected by running the function, which builds the cells
+ * for all shapes in all libraries, so this is done in idle time after
+ * startup (see updateStyleToLibs).
+ */
+Sidebar.prototype.addLibEntry = function(fn, lib)
+{
+	if (this.pendingLibEntries == null)
+	{
+		this.pendingLibEntries = [];
+		this.pendingLibIndex = 0;
+	}
+
+	this.pendingLibEntries.push({fn: fn, lib: lib});
+	this.scheduleStyleToLibsUpdate();
+};
+
+/**
+ * Schedules the next slice of the update of the style to libraries map.
+ */
+Sidebar.prototype.scheduleStyleToLibsUpdate = function()
+{
+	if (!this.styleToLibsScheduled)
+	{
+		this.styleToLibsScheduled = true;
+
+		var update = mxUtils.bind(this, function(deadline)
+		{
+			this.styleToLibsScheduled = false;
+			var t0 = Date.now();
+
+			this.updateStyleToLibs(mxUtils.bind(this, function()
+			{
+				return Date.now() - t0 < this.styleToLibsSliceTime &&
+					(deadline == null || deadline.timeRemaining() > 0);
+			}));
+
+			if (!this.isStyleToLibsLoaded())
+			{
+				this.scheduleStyleToLibsUpdate();
+			}
+		});
+
+		if (typeof window.requestIdleCallback === 'function')
+		{
+			window.requestIdleCallback(update);
+		}
+		else
+		{
+			window.setTimeout(update, 0);
+		}
+	}
+};
+
+/**
+ * Adds the cell styles of the queued entries to the style to libraries
+ * map. If hasTime is given then entries are added until it returns false,
+ * with at least one entry per call. Otherwise all entries are added.
+ */
+Sidebar.prototype.updateStyleToLibs = function(hasTime)
+{
+	var entries = this.pendingLibEntries;
+
+	if (entries != null)
+	{
+		var self = this;
+		var lib = null;
+		var createVertexTemplateFromCells = this.createVertexTemplateFromCells;
+
+		// Collects the styles of the cells instead of creating the template
+		this.createVertexTemplateFromCells = function(cells, width, height, title, allowCellsInserted)
+		{
+			if (cells != null)
+			{
+				for (var i = 0; i < cells.length; i++)
+				{
+					self.addLibForStyle(self.getKeyStyle(cells[i].style), lib);
+				}
+			}
+		};
+
+		try
+		{
+			while (this.pendingLibIndex < entries.length)
+			{
+				var entry = entries[this.pendingLibIndex++];
+				lib = entry.lib;
+
+				try
+				{
+					entry.fn();
+				}
+				catch (e)
+				{
+					// ignore
+				}
+
+				if (hasTime != null && !hasTime())
+				{
+					break;
+				}
+			}
+		}
+		finally
+		{
+			this.createVertexTemplateFromCells = createVertexTemplateFromCells;
+		}
+
+		if (this.pendingLibIndex >= entries.length)
+		{
+			this.pendingLibEntries = null;
+			this.pendingLibIndex = 0;
+		}
+	}
+};
+
+/**
  * Hides the current tooltip.
  */
 Sidebar.prototype.addEntry = function(tags, fn)
@@ -1125,31 +1262,9 @@ Sidebar.prototype.addEntry = function(tags, fn)
 	// Collects shape names for reverse lookup
 	if (this.currentSearchEntryLibrary != null)
 	{
-		var self = this;
-		var createVertexTemplateFromCells = this.createVertexTemplateFromCells;
-		
-		this.createVertexTemplateFromCells = function(cells, width, height, title, allowCellsInserted)
-		{
-			if (cells != null)
-			{
-				for (var i = 0; i < cells.length; i++)
-				{
-					self.addLibForStyle(self.getKeyStyle(cells[i].style),
-						this.currentSearchEntryLibrary);
-				}
-			}
-		};
-
-		try
-		{
-			fn();
-		}
-		finally
-		{
-			this.createVertexTemplateFromCells = createVertexTemplateFromCells;
-		}
+		this.addLibEntry(fn, this.currentSearchEntryLibrary);
 	}
-	
+
 	if (this.taglist != null && typeof tags === 'string' && tags.length > 0)
 	{
 		if (this.currentSearchEntryLibrary != null)
@@ -1159,34 +1274,18 @@ Sidebar.prototype.addEntry = function(tags, fn)
 
 		// Replaces special characters
 		var tmp = tags.toLowerCase().replace(/[\/\,\(\)]/g, ' ').split(' ');
-		var tagList = [];
-		var hash = {};
 
-		// Finds unique tags
 		for (var i = 0; i < tmp.length; i++)
 		{
-			if (hash[tmp[i]] == null)
-			{
-				hash[tmp[i]] = true;
-				tagList.push(tmp[i]);
-			}
-			
+			this.addEntryForTag(tmp[i], fn);
+
 			// Adds additional entry with removed trailing numbers
-			var normalized = Editor.soundex(tmp[i].replace(/\.*\d*$/, ''));
+			var normalized = this.getNormalizedTag(tmp[i]);
 
 			if (normalized != tmp[i])
 			{
-				if (hash[normalized] == null)
-				{
-					hash[normalized] = true;
-					tagList.push(normalized);
-				}
+				this.addEntryForTag(normalized, fn);
 			}
-		}
-		
-		for (var i = 0; i < tagList.length; i++)
-		{
-			this.addEntryForTag(tagList[i], fn);
 		}
 	}
 
@@ -1194,21 +1293,48 @@ Sidebar.prototype.addEntry = function(tags, fn)
 };
 
 /**
- * Hides the current tooltip.
+ * Returns the soundex of the given tag without trailing numbers. The
+ * results are cached since most tags are used by many entries.
+ */
+Sidebar.prototype.getNormalizedTag = function(tag)
+{
+	if (this.normalizedTags == null)
+	{
+		// Null prototype as tags may come from custom libraries
+		this.normalizedTags = Object.create(null);
+	}
+
+	var normalized = this.normalizedTags[tag];
+
+	if (normalized == null)
+	{
+		normalized = Editor.soundex(tag.replace(/\.*\d*$/, ''));
+		this.normalizedTags[tag] = normalized;
+	}
+
+	return normalized;
+};
+
+/**
+ * Adds the given entry function for the given tag. Repeated tags of an
+ * entry add the function only once as it is then the last entry.
  */
 Sidebar.prototype.addEntryForTag = function(tag, fn)
 {
 	if (tag != null && tag.length > 1)
 	{
 		var entry = this.taglist[tag];
-		
+
 		if (typeof entry !== 'object')
 		{
 			entry = {entries: []};
 			this.taglist[tag] = entry;
 		}
 
-		entry.entries.push(fn);
+		if (entry.entries[entry.entries.length - 1] !== fn)
+		{
+			entry.entries.push(fn);
+		}
 	}
 };
 /**

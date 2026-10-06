@@ -472,13 +472,15 @@ mxArrowConnector.prototype.isCurved = function()
  * <mxPolyline.paintCurvedLine> for the given guide points (a quadratic
  * spline through the midpoints between consecutive control points). The
  * number of samples per curve segment is based on its length on the
- * screen.
+ * screen, or at 400% in model units, where the curve is zoomed without
+ * being painted again.
  */
 mxArrowConnector.prototype.getCurvePoints = function(pts)
 {
 	var result = [pts[0]];
 	var n = pts.length;
 	var p0 = pts[0];
+	var s = (this.inModelUnits) ? Math.max(this.scale, 4) : this.scale;
 
 	for (var i = 1; i < n - 1; i++)
 	{
@@ -490,7 +492,7 @@ mxArrowConnector.prototype.getCurvePoints = function(pts)
 		var dx1 = pe.x - pc.x;
 		var dy1 = pe.y - pc.y;
 		var len = (Math.sqrt(dx0 * dx0 + dy0 * dy0) +
-			Math.sqrt(dx1 * dx1 + dy1 * dy1)) * this.scale;
+			Math.sqrt(dx1 * dx1 + dy1 * dy1)) * s;
 		var steps = Math.max(4, Math.min(Math.ceil(len / 8), 64));
 
 		for (var j = 1; j <= steps; j++)

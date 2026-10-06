@@ -81,7 +81,10 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 	
 	this.updateStyle();
 
+	// Class replaces :has(.geRuler) in the CSS, which restyled the
+	// page after every change of the DOM
 	editorUi.diagramContainer.appendChild(container);
+	editorUi.diagramContainer.classList.add('geRulerContainer');
 	mxEvent.disableContextMenu(container);
 
 	this.editorUiRefresh = editorUi.refresh;
@@ -574,7 +577,13 @@ mxRuler.prototype.destroy = function()
     
     if (this.container != null)
     {
-    	this.container.parentNode.removeChild(this.container);
+    	var parent = this.container.parentNode;
+    	parent.removeChild(this.container);
+
+    	if (parent.getElementsByClassName('geRuler').length == 0)
+    	{
+    		parent.classList.remove('geRulerContainer');
+    	}
     }
 };
 

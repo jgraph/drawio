@@ -74,10 +74,27 @@ mxCellState.prototype.invalidStyle = false;
 
 /**
  * Variable: invalid
- * 
+ *
  * Specifies if the state is invalid. Default is true.
  */
 mxCellState.prototype.invalid = true;
+
+/**
+ * Variable: graphBoundingBox
+ *
+ * Holds the bounding box of the shape and label of this state as it was
+ * last added to the graph bounds in <mxGraphView.validate>, or null.
+ */
+mxCellState.prototype.graphBoundingBox = null;
+
+/**
+ * Variable: invalidBoundingBox
+ *
+ * Specifies if the shape or label of this state was repainted since its
+ * bounding box was last added to the graph bounds. See
+ * <mxGraphView.invalidateBoundingBox>. Default is false.
+ */
+mxCellState.prototype.invalidBoundingBox = false;
 
 /**
  * Variable: origin
@@ -168,6 +185,46 @@ mxCellState.prototype.unscaledWidth = null;
  * Holds the unscaled height of the state.
  */
 mxCellState.prototype.unscaledHeight = null;
+
+/**
+ * Variable: cellPoints
+ *
+ * Holds the <absolutePoints> in model units. This is updated in
+ * <updateCachedBounds>. Default is null.
+ */
+mxCellState.prototype.cellPoints = null;
+
+/**
+ * Variable: cellOffset
+ *
+ * Holds the <absoluteOffset> in model units. This is updated in
+ * <updateCachedBounds>. Default is null.
+ */
+mxCellState.prototype.cellOffset = null;
+
+/**
+ * Variable: cellSegments
+ *
+ * Holds the <segments> in model units. This is updated in
+ * <updateCachedBounds>. Default is null.
+ */
+mxCellState.prototype.cellSegments = null;
+
+/**
+ * Variable: cellLength
+ *
+ * Holds the <length> in model units. This is updated in
+ * <updateCachedBounds>. Default is null.
+ */
+mxCellState.prototype.cellLength = null;
+
+/**
+ * Variable: cellTerminalDistance
+ *
+ * Holds the <terminalDistance> in model units. This is updated in
+ * <updateCachedBounds>. Default is null.
+ */
+mxCellState.prototype.cellTerminalDistance = null;
 
 /**
  * Function: getPerimeterBounds
@@ -376,20 +433,147 @@ mxCellState.prototype.getPaintBounds = function()
 
 /**
  * Function: updateCachedBounds
- * 
- * Updates the cellBounds and paintBounds.
+ *
+ * Updates the cellBounds and paintBounds and the other cached fields in
+ * model units, that is, without the scale and translate of the view. The
+ * values are converted with <mxUtils.unscale> so that they do not depend
+ * on the scale or translate. <updateScreenBounds> does the reverse.
  */
 mxCellState.prototype.updateCachedBounds = function()
 {
 	var tr = this.view.translate;
 	var s = this.view.scale;
-	this.cellBounds = new mxRectangle(this.x / s - tr.x, this.y / s - tr.y, this.width / s, this.height / s);
-	this.paintBounds = mxRectangle.fromRectangle(this.cellBounds);
-	
-	if (this.shape != null && this.shape.isPaintBoundsInverted())
+	this.cellBounds = null;
+	this.paintBounds = null;
+
+	// Cells without a geometry and the current root are not positioned
+	if (this.cell != this.view.currentRoot &&
+		this.view.graph.getCellGeometry(this.cell) != null)
 	{
-		this.paintBounds.rotate90();
+		this.cellBounds = new mxRectangle(mxUtils.unscale(this.x, s, tr.x),
+			mxUtils.unscale(this.y, s, tr.y), mxUtils.unscale(this.width, s),
+			mxUtils.unscale(this.height, s));
+		this.paintBounds = mxRectangle.fromRectangle(this.cellBounds);
+
+		if (this.shape != null && this.shape.isPaintBoundsInverted())
+		{
+			this.paintBounds.rotate90();
+		}
 	}
+
+	this.cellPoints = null;
+
+	if (this.absolutePoints != null)
+	{
+		this.cellPoints = [];
+
+		for (var i = 0; i < this.absolutePoints.length; i++)
+		{
+			var pt = this.absolutePoints[i];
+			this.cellPoints.push((pt != null) ? new mxPoint(mxUtils.unscale(pt.x, s, tr.x),
+				mxUtils.unscale(pt.y, s, tr.y)) : null);
+		}
+	}
+
+	this.cellOffset = null;
+
+	if (this.absoluteOffset != null)
+	{
+		var abs = this.isAbsoluteOffset();
+		var dx = (abs) ? tr.x : 0;
+		var dy = (abs) ? tr.y : 0;
+		this.cellOffset = new mxPoint(mxUtils.unscale(this.absoluteOffset.x, s, dx),
+			mxUtils.unscale(this.absoluteOffset.y, s, dy));
+	}
+
+	this.cellSegments = null;
+
+	if (this.segments != null)
+	{
+		this.cellSegments = [];
+
+		for (var i = 0; i < this.segments.length; i++)
+		{
+			this.cellSegments.push(mxUtils.unscale(this.segments[i], s));
+		}
+	}
+
+	this.cellLength = mxUtils.unscale(this.length, s);
+	this.cellTerminalDistance = mxUtils.unscale(this.terminalDistance, s);
+};
+
+/**
+ * Function: updateScreenBounds
+ *
+ * Updates the bounds, <absolutePoints>, <absoluteOffset>, <segments>,
+ * <length> and <terminalDistance> from the cached fields in model units
+ * for the current scale and translate of the view. This is the reverse
+ * of <updateCachedBounds>.
+ */
+mxCellState.prototype.updateScreenBounds = function()
+{
+	var tr = this.view.translate;
+	var s = this.view.scale;
+
+	if (this.cellBounds != null)
+	{
+		this.x = (this.cellBounds.x + tr.x) * s;
+		this.y = (this.cellBounds.y + tr.y) * s;
+		this.width = this.cellBounds.width * s;
+		this.height = this.cellBounds.height * s;
+	}
+
+	if (this.cellPoints != null)
+	{
+		this.absolutePoints = [];
+
+		for (var i = 0; i < this.cellPoints.length; i++)
+		{
+			var pt = this.cellPoints[i];
+			this.absolutePoints.push((pt != null) ? new mxPoint(
+				(pt.x + tr.x) * s, (pt.y + tr.y) * s) : null);
+		}
+	}
+
+	if (this.cellOffset != null)
+	{
+		var abs = this.isAbsoluteOffset();
+		var dx = (abs) ? tr.x : 0;
+		var dy = (abs) ? tr.y : 0;
+		this.absoluteOffset = new mxPoint((this.cellOffset.x + dx) * s,
+			(this.cellOffset.y + dy) * s);
+	}
+
+	if (this.cellSegments != null)
+	{
+		this.segments = [];
+
+		for (var i = 0; i < this.cellSegments.length; i++)
+		{
+			this.segments.push(this.cellSegments[i] * s);
+		}
+	}
+
+	if (this.cellLength != null)
+	{
+		this.length = this.cellLength * s;
+	}
+
+	if (this.cellTerminalDistance != null)
+	{
+		this.terminalDistance = this.cellTerminalDistance * s;
+	}
+};
+
+/**
+ * Function: isAbsoluteOffset
+ *
+ * Returns true if <absoluteOffset> is an absolute position, which is the
+ * case for edges, or false if it is an offset relative to the bounds.
+ */
+mxCellState.prototype.isAbsoluteOffset = function()
+{
+	return this.view.graph.model.isEdge(this.cell);
 };
 
 /**
