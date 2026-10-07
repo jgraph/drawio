@@ -740,8 +740,10 @@ mxGraphModel.prototype.cellAdded = function(cell)
 			}
 		}
 		
-		// Makes sure IDs of deleted cells are not reused
-		if (mxUtils.isNumeric(cell.getId()))
+		// Makes sure IDs of deleted cells are not reused. Ignores IDs from 2^52:
+		// createId can never count up to them, and from 2^53 nextId++ no longer
+		// changes nextId so that the loop above would never find a free ID.
+		if (mxUtils.isNumeric(cell.getId()) && cell.getId() < 4503599627370496)
 		{
 			this.nextId = Math.max(this.nextId, cell.getId());
 		}

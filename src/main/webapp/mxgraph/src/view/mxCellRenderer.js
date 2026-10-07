@@ -1914,6 +1914,7 @@ mxCellRenderer.prototype.updateScreenBounds = function(state, scale, translate)
 		text.boundingBox = this.getScreenBounds(state, text.boundingBox, scale, translate);
 		text.unrotatedBoundingBox = this.getScreenBounds(state,
 			text.unrotatedBoundingBox, scale, translate);
+		text.updateTextBackground();
 	}
 
 	this.redrawControl(state);

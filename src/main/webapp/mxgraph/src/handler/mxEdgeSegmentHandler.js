@@ -152,9 +152,7 @@ mxEdgeSegmentHandler.prototype.updatePreviewState = function(edge, point, termin
 		if (result.length == 0 && (Math.round(pts[0].x - pts[pts.length - 1].x) == 0 ||
 			Math.round(pts[0].y - pts[pts.length - 1].y) == 0))
 		{
-			// Removes the waypoints if the edge is routed along the same line
-			// without them, eg. if the segment was moved away and back
-			result = (this.isStraightRoute(edge, point, source, target)) ? [] : [point, point];
+			result = [point, point];
 		}
 		// Handles special case of transitions from straight vertical to routed
 		else if (pts.length == 5 && result.length == 2 && source != null && target != null &&
@@ -205,55 +203,113 @@ mxEdgeSegmentHandler.prototype.updatePreviewState = function(edge, point, termin
 		edge.view.updateFixedTerminalPoints(edge, source, target);
 		edge.view.updatePoints(edge, this.points, source, target);
 		edge.view.updateFloatingTerminalPoints(edge, source, target);
+
+		// Removes the waypoints if the edge is routed the same way without
+		// them, eg. if a segment was moved away and back
+		if (result.length > 0 && this.isDefaultRoute(edge, source, target))
+		{
+			this.points = [];
+		}
 	}
 };
 
 /**
- * Function: isStraightRoute
+ * Function: isDefaultRoute
  * 
- * Returns true if the given edge state is routed as a horizontal or
- * vertical line through the given point without waypoints. The point is
- * converted using <convertPoint>.
+ * Returns true if the given edge state is routed the same way without
+ * waypoints. Duplicate points and points on a straight segment are ignored.
  */
-mxEdgeSegmentHandler.prototype.isStraightRoute = function(edge, point, source, target)
+mxEdgeSegmentHandler.prototype.isDefaultRoute = function(edge, source, target)
 {
 	var tmp = edge.clone();
 	tmp.view.updateFixedTerminalPoints(tmp, source, target);
 	tmp.view.updatePoints(tmp, null, source, target);
 	tmp.view.updateFloatingTerminalPoints(tmp, source, target);
-	var pts = tmp.absolutePoints;
 
-	if (pts != null && pts.length > 1)
+	var pts = this.getRoutePoints(edge.absolutePoints);
+	var tpts = this.getRoutePoints(tmp.absolutePoints);
+
+	if (pts == null || tpts == null || pts.length != tpts.length)
 	{
-		var horizontal = true;
-		var vertical = true;
-		var p0 = null;
-
-		for (var i = 0; i < pts.length; i++)
-		{
-			if (pts[i] == null)
-			{
-				return false;
-			}
-
-			var pt = this.convertPoint(pts[i].clone(), false);
-
-			if (p0 == null)
-			{
-				p0 = pt;
-			}
-			else
-			{
-				horizontal = horizontal && Math.round(pt.y - p0.y) == 0;
-				vertical = vertical && Math.round(pt.x - p0.x) == 0;
-			}
-		}
-
-		return (horizontal && Math.round(point.y - p0.y) == 0) ||
-			(vertical && Math.round(point.x - p0.x) == 0);
+		return false;
 	}
 
-	return false;
+	for (var i = 0; i < pts.length; i++)
+	{
+		if (!this.isSameRoutePoint(pts[i], tpts[i]))
+		{
+			return false;
+		}
+	}
+
+	return true;
+};
+
+/**
+ * Function: getRoutePoints
+ * 
+ * Returns the given absolute points converted using <convertPoint> without
+ * duplicate points and points on a horizontal or vertical segment, or null
+ * if a point is missing.
+ */
+mxEdgeSegmentHandler.prototype.getRoutePoints = function(pts)
+{
+	if (pts == null || pts.length < 2)
+	{
+		return null;
+	}
+
+	var result = [];
+
+	for (var i = 0; i < pts.length; i++)
+	{
+		if (pts[i] == null)
+		{
+			return null;
+		}
+
+		var pt = this.convertPoint(pts[i].clone(), false);
+
+		if (result.length == 0 || !this.isSameRoutePoint(result[result.length - 1], pt))
+		{
+			// Removes points between two points on a horizontal or vertical segment
+			while (result.length > 1 && this.isSegmentPoint(
+				result[result.length - 2], result[result.length - 1], pt))
+			{
+				result.pop();
+			}
+
+			result.push(pt);
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Function: isSameRoutePoint
+ * 
+ * Returns true if the given points are the same within the tolerance for
+ * sub-pixel skew between snapped or fixed terminal points and the routing
+ * center that waypoints are aligned to in the edge styles.
+ */
+mxEdgeSegmentHandler.prototype.isSameRoutePoint = function(p0, p1)
+{
+	return Math.abs(p0.x - p1.x) < 1 && Math.abs(p0.y - p1.y) < 1;
+};
+
+/**
+ * Function: isSegmentPoint
+ * 
+ * Returns true if pt lies between p0 and p1 on a horizontal or vertical
+ * segment, using the tolerance of <isSameRoutePoint>.
+ */
+mxEdgeSegmentHandler.prototype.isSegmentPoint = function(p0, pt, p1)
+{
+	return (Math.abs(p0.x - pt.x) < 1 && Math.abs(pt.x - p1.x) < 1 &&
+		(pt.y - p0.y) * (p1.y - pt.y) >= 0) ||
+		(Math.abs(p0.y - pt.y) < 1 && Math.abs(pt.y - p1.y) < 1 &&
+		(pt.x - p0.x) * (p1.x - pt.x) >= 0);
 };
 
 /**

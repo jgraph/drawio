@@ -21,10 +21,13 @@ window.urlParams = window.urlParams || {};
 // the SVG export on the icon wrappers it creates, and the script it injects
 // writes their values to innerHTML when the reader hovers the shape. FORBID_ATTR
 // is evaluated first, so they remain excluded even if later added to ADD_ATTR.
+// ALLOWED_URI_REGEXP rejects javascript: anywhere in the value. It must not
+// repeat a group per character, eg. /^((?!javascript:).)*$/i, which needs
+// stack per character and throws for data URIs of a few MB.
 window.DOM_PURIFY_CONFIG = window.DOM_PURIFY_CONFIG ||
     {ADD_TAGS: ['use', 'foreignObject'], FORBID_TAGS: ['form'],
     FORBID_ATTR: ['data-icon', 'data-icon-content'],
-    ALLOWED_URI_REGEXP: /^((?!javascript:).)*$/i,
+    ALLOWED_URI_REGEXP: /^(?!.*javascript:).*$/i,
     HTML_INTEGRATION_POINTS: {'foreignobject': true},
     ALLOW_DATA_ATTR: false,
     ADD_ATTR: ['target', 'content', 'pointer-events',

@@ -119,6 +119,19 @@ var mxStylesheetCodec = mxCodecRegistry.register(function()
 	 */
 	codec.decode = function(dec, node, into)
 	{
+		// Returns null for an object of another type to decode into, see
+		// mxObjectCodec.decode
+		if (into != null && !(into instanceof this.template.constructor))
+		{
+			if (window.console != null)
+			{
+				console.error('mxStylesheetCodec.decode: Cannot decode ' +
+					node.nodeName + ' into ' + typeof into);
+			}
+
+			return null;
+		}
+
 		var obj = into || new this.template.constructor();
 		var id = node.getAttribute('id');
 		

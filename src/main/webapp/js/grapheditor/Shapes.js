@@ -7148,6 +7148,7 @@
 		}
 
 		var s = this.scale;
+		var tr = (this.state != null) ? this.state.view.translate : new mxPoint();
 		var total = this.centerLength;
 		var a = Math.min(total / 4, 24 / s);
 		var n = p.length;
@@ -7183,7 +7184,7 @@
 			return null;
 		}
 
-		return {x: q.x * s, y: q.y * s, nx: -ty, ny: tx,
+		return {x: (q.x + tr.x) * s, y: (q.y + tr.y) * s, nx: -ty, ny: tx,
 			t: (start) ? a / total : 1 - a / total};
 	};
 
@@ -7225,8 +7226,18 @@
 
 		var total = lengths[lengths.length - 1];
 
-		// Painted center line for the width handles
-		this.centerLine = p;
+		// Painted center line for the width handles in model units. The
+		// coordinates of the canvas include the view translate unless the
+		// shape is painted in model units, where viewTranslate is 0.
+		var tr = (this.viewTranslate != null) ? this.viewTranslate :
+			((this.state != null) ? this.state.view.translate : new mxPoint());
+		this.centerLine = [];
+
+		for (var i = 0; i < p.length; i++)
+		{
+			this.centerLine.push(new mxPoint(p[i].x - tr.x, p[i].y - tr.y));
+		}
+
 		this.centerLength = total;
 
 		var sw = this.getStartWidth();

@@ -1988,7 +1988,14 @@ mxSvgCanvas2D.prototype.processClipPath = function(node, clipPath, bounds)
  */
 mxSvgCanvas2D.prototype.convertHtml = function(val)
 {
-	if (this.useDomParser)
+	// Plain text is returned unchanged by parsing and serializing unless it
+	// has markup, characters that are escaped or replaced, or leading
+	// whitespace, which the parser drops before the body
+	if (typeof val === 'string' && !/[<>&\r\0]|^[\t\n\f ]/.test(val))
+	{
+		return val;
+	}
+	else if (this.useDomParser)
 	{
 		var doc = new DOMParser().parseFromString(val, 'text/html');
 
@@ -2228,9 +2235,18 @@ mxSvgCanvas2D.prototype.updateTextNodes = function(x, y, w, h, align, valign, wr
 
 		var fo = g.firstChild;
 
-		if (fo.nodeName == 'title')
+		if (fo != null && fo.nodeName == 'title')
 		{
 			fo = fo.nextSibling;
+		}
+
+		var div = (fo != null) ? fo.firstChild : null;
+		var box = (div != null) ? div.firstChild : null;
+
+		// Skips text nodes that were changed outside of the canvas
+		if (box == null)
+		{
+			return;
 		}
 
 		// Fallback text, background and border color in parent block
@@ -2238,8 +2254,6 @@ mxSvgCanvas2D.prototype.updateTextNodes = function(x, y, w, h, align, valign, wr
 		item += (cssBg != null) ? 'background-color: ' + cssBg.light + '; ' : '';
 		item += (cssBorder != null) ? 'border-color: ' + cssBorder.light + '; ' : '';
 		
-		var div = fo.firstChild;
-		var box = div.firstChild;
 		var text = box.firstChild;
 		var r = ((this.rotateHtml) ? this.state.rotation : 0) + ((rotation != null) ? rotation : 0);
 		var t = ((this.foOffset != 0) ? 'translate(' + this.foOffset + ' ' + this.foOffset + ')' : '') +
@@ -3202,7 +3216,10 @@ mxSvgCanvas2D.prototype.wrapSvgBlockElements = function(group, maxWidth, offset)
 			maxLineWidth = wrapped.maxLineWidth;
 		}
 
-		if (wrapped != null && wrapped.elements != null)
+		// A block with only whitespace has no lines in a text flow and keeps
+		// its single line like an unwrapped block
+		if (wrapped != null && wrapped.elements != null &&
+			wrapped.elements.length > 0)
 		{
 			var origY = parseFloat(textEl.getAttribute('y')) || 0;
 			origY += heightDelta;
@@ -4114,6 +4131,9 @@ mxSvgCanvas2D.prototype.addTextBackground = function(node, str, x, y, w, h, alig
 		s.fontBorderColor != null))
 	{
 		var bbox = null;
+
+		// Vertical offset of the bounding box of the text in screen pixels
+		var dy = 0;
 		
 		if (overflow == 'fill' || overflow == 'width')
 		{
@@ -4143,7 +4163,8 @@ mxSvgCanvas2D.prototype.addTextBackground = function(node, str, x, y, w, h, alig
 			try
 			{
 				bbox = node.getBBox();
-				bbox = new mxRectangle(bbox.x, bbox.y + 1, bbox.width, bbox.height);
+				bbox = new mxRectangle(bbox.x, bbox.y, bbox.width, bbox.height);
+				dy = 1;
 			}
 			catch (e)
 			{
@@ -4154,6 +4175,7 @@ mxSvgCanvas2D.prototype.addTextBackground = function(node, str, x, y, w, h, alig
 		if (bbox == null || bbox.width == 0 || bbox.height == 0)
 		{
 			// Computes size if not in document or no getBBox available
+			dy = 0;
 			var size = mxUtils.getSizeForString(
 				mxUtils.htmlEntities(str, false).replace(/\n/g, '<br/>'),
 				s.fontSize, s.fontFamily, null, s.fontStyle);
@@ -4181,16 +4203,6 @@ mxSvgCanvas2D.prototype.addTextBackground = function(node, str, x, y, w, h, alig
 			bbox = new mxRectangle((x + 1) * s.scale, (y + 2) * s.scale, w * s.scale, (h + 1) * s.scale);
 		}
 
-		// Fixed-size boxes cannot reflow the text so padding is ignored there
-		if (bbox != null && s.labelPadding != null &&
-			overflow != 'fill' && overflow != 'width')
-		{
-			bbox.x -= s.labelPadding.left * s.scale;
-			bbox.y -= s.labelPadding.top * s.scale;
-			bbox.width += (s.labelPadding.left + s.labelPadding.right) * s.scale;
-			bbox.height += (s.labelPadding.top + s.labelPadding.bottom) * s.scale;
-		}
-
 		if (bbox != null)
 		{
 			var n = this.createElement('rect');
@@ -4201,12 +4213,23 @@ mxSvgCanvas2D.prototype.addTextBackground = function(node, str, x, y, w, h, alig
 				s.fontBorderColor != mxConstants.NONE) ?
 				this.getLightDarkColor(s.fontBorderColor) : null;
 
+			// Fixed-size boxes cannot reflow the text so padding is ignored there.
+			// The crisp offset is only required if not exporting.
+			n.textBackground = {x: bbox.x, y: bbox.y, width: bbox.width,
+				height: bbox.height, dy: dy, scale: s.scale,
+				padding: (overflow != 'fill' && overflow != 'width') ?
+					s.labelPadding : null,
+				strokeWidth: (s.fontBorderColor != null) ?
+					this.format(s.scale) : null,
+				crisp: this.root.ownerDocument == document};
+
+			// Keeps the order of the attributes in the output
 			n.setAttribute('fill', (cssBg != null) ? cssBg.light : 'none');
 			n.setAttribute('stroke', (cssBorder != null) ? cssBorder.light : 'none');
-			n.setAttribute('x', Math.floor(bbox.x - 1));
-			n.setAttribute('y', Math.floor(bbox.y - 1));
-			n.setAttribute('width', Math.ceil(bbox.width + 2));
-			n.setAttribute('height', Math.ceil(bbox.height));
+			n.setAttribute('x', 0);
+			n.setAttribute('y', 0);
+			n.setAttribute('width', 0);
+			n.setAttribute('height', 0);
 
 			if (cssBg != null)
 			{
@@ -4218,17 +4241,65 @@ mxSvgCanvas2D.prototype.addTextBackground = function(node, str, x, y, w, h, alig
 				n.style.stroke = cssBorder.cssText;
 			}
 
-			var sw = (s.fontBorderColor != null) ? Math.max(1, this.format(s.scale)) : 0;
-			n.setAttribute('stroke-width', sw);
-			
-			// Workaround for crisp rendering - only required if not exporting
-			if (this.root.ownerDocument == document && mxUtils.mod(sw, 2) == 1)
-			{
-				n.setAttribute('transform', 'translate(0.5, 0.5)');
-			}
-			
+			n.setAttribute('stroke-width', 0);
+			mxSvgCanvas2D.updateTextBackground(n, 1, 0, 0);
 			node.insertBefore(n, node.firstChild);
 		}
+	}
+};
+
+/**
+ * Function: updateTextBackground
+ *
+ * Applies the bounds and the border of the given background node of a text
+ * (see <addTextBackground>) for the given size of a screen pixel and origin
+ * of the pixel grid in the units of the node. The box is the bounding box of
+ * the text plus the label padding, one pixel larger on each side and aligned
+ * to pixels, and the border is at least one pixel wide and offset by half a
+ * pixel if its width in pixels is odd. Texts that are painted in model units
+ * apply the pixels of the view after each change of the scale or translate
+ * (see <mxText.updateTextBackground>).
+ *
+ * Parameters:
+ *
+ * node - SVG rectangle that was created in <addTextBackground>.
+ * px - Size of a screen pixel in the units of the node.
+ * ox - Horizontal origin of the pixel grid in the units of the node.
+ * oy - Vertical origin of the pixel grid in the units of the node.
+ */
+mxSvgCanvas2D.updateTextBackground = function(node, px, ox, oy)
+{
+	var tb = node.textBackground;
+	var x = tb.x;
+	var y = tb.y + tb.dy * px;
+	var w = tb.width;
+	var h = tb.height;
+
+	if (tb.padding != null)
+	{
+		x -= tb.padding.left * tb.scale;
+		y -= tb.padding.top * tb.scale;
+		w += (tb.padding.left + tb.padding.right) * tb.scale;
+		h += (tb.padding.top + tb.padding.bottom) * tb.scale;
+	}
+
+	node.setAttribute('x', Math.floor((x + ox) / px - 1) * px - ox);
+	node.setAttribute('y', Math.floor((y + oy) / px - 1) * px - oy);
+	node.setAttribute('width', Math.ceil(w / px + 2) * px);
+	node.setAttribute('height', Math.ceil(h / px) * px);
+
+	var sw = (tb.strokeWidth != null) ? Math.max(px, tb.strokeWidth) : 0;
+	node.setAttribute('stroke-width', sw);
+
+	// Workaround for crisp rendering
+	if (tb.crisp && mxUtils.mod(sw / px, 2) == 1)
+	{
+		node.setAttribute('transform', 'translate(' + (0.5 * px) +
+			', ' + (0.5 * px) + ')');
+	}
+	else
+	{
+		node.removeAttribute('transform');
 	}
 };
 

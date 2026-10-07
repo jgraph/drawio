@@ -533,7 +533,14 @@ Toolbar.prototype.hideMenu = function()
  */
 Toolbar.prototype.setMenuText = function(menu, text)
 {
-	menu.getElementsByTagName('span')[0].innerText = text
+	var span = menu.getElementsByTagName('span')[0];
+
+	// The label is missing if the DOM was changed outside of the app,
+	// eg. by a browser extension
+	if (span != null)
+	{
+		span.innerText = text;
+	}
 };
 
 /**

@@ -221,6 +221,17 @@ function mxObjectCodec(template, exclude, idrefs, mapping)
 mxObjectCodec.allowEval = false;
 
 /**
+ * Variable: allowInclude
+ *
+ * Static global switch that specifies if include directives load and
+ * decode the document they name in <processInclude>. Default is false.
+ * NOTE: Enabling this carries a possible security risk: a decoded
+ * document may then fire synchronous requests to any URL it names and
+ * decode the responses into the result.
+ */
+mxObjectCodec.allowInclude = false;
+
+/**
  * Function: isPollutionKey
  *
  * Returns true if the given field name must never be used to read from or
@@ -325,6 +336,15 @@ mxObjectCodec.prototype.mapping = null;
  * Maps from from XML attribute names to fieldnames.
  */
 mxObjectCodec.prototype.reverse = null;
+
+/**
+ * Variable: fieldTypes
+ *
+ * Optional map from fieldnames to the constructors of their values. A child
+ * node of another type is decoded with the codec of the given constructor,
+ * see <mxCodec.decodeAs>. Default is null.
+ */
+mxObjectCodec.prototype.fieldTypes = null;
 
 /**
  * Function: getName
@@ -898,33 +918,80 @@ mxObjectCodec.prototype.afterEncode = function(enc, obj, node)
  * using <mxLog.warn>.
  *
  * Returns the resulting object that represents the given XML node
- * or the object given to the method as the into parameter.
+ * or the object given to the method as the into parameter. Returns
+ * null if the node is not decoded because it exceeds <mxCodec.maxDepth>
+ * or because into is not an instance of the constructor of <template>.
  *
  * Parameters:
  *
  * dec - <mxCodec> that controls the decoding process.
  * node - XML node to be decoded.
- * into - Optional objec to encode the node into.
+ * into - Optional object to decode the node into.
  */
 mxObjectCodec.prototype.decode = function(dec, node, into)
 {
 	var id = node.getAttribute('id');
-	var obj = dec.objects[id];
-	
+
+	// A node without an id must not find the object of id="null"
+	var obj = (id != null) ? dec.objects[id] : null;
+
+	// A node with an id is decoded once. Returning the cached object for
+	// later references keeps decoding linear as forward references would
+	// otherwise re-decode whole subtrees (superlinear for nested cells).
 	if (obj == null)
 	{
-		obj = into || this.cloneTemplate();
-		
-		if (id != null)
+		// Returns null for nodes beyond the maximum depth as nested nodes and
+		// forward references are decoded recursively and would otherwise
+		// overflow the call stack for pathologically deep XML
+		if (dec.depth >= dec.maxDepth)
 		{
-			dec.putObject(id, obj);
+			obj = null;
+			
+			if (window.console != null)
+			{
+				console.error('mxObjectCodec.decode: Maximum depth ' +
+					dec.maxDepth + ' exceeded for ' + node.nodeName);
+			}
+		}
+		else if (into != null && !(into instanceof this.template.constructor))
+		{
+			// Returns null for an object of another type to decode into,
+			// eg. the template of a child node for a field that holds the
+			// XML node of a user object or a string, so that the object is
+			// not changed and the field keeps its value
+			obj = null;
+
+			if (window.console != null)
+			{
+				console.error('mxObjectCodec.decode: Cannot decode ' +
+					node.nodeName + ' into ' + typeof into);
+			}
+		}
+		else
+		{
+			obj = into || this.cloneTemplate();
+
+			if (id != null)
+			{
+				dec.putObject(id, obj);
+			}
+			
+			dec.depth++;
+			
+			try
+			{
+				node = this.beforeDecode(dec, node, obj);
+				this.decodeNode(dec, node, obj);
+				obj = this.afterDecode(dec, node, obj);
+			}
+			finally
+			{
+				dec.depth--;
+			}
 		}
 	}
 	
-	node = this.beforeDecode(dec, node, obj);
-	this.decodeNode(dec, node, obj);
-	
-    return this.afterDecode(dec, node, obj);
+    return obj;
 };	
 
 /**
@@ -1096,7 +1163,10 @@ mxObjectCodec.prototype.decodeChild = function(dec, child, obj)
 		}
 		else
 		{
-			value = dec.decode(child, template);
+			var ctor = (this.fieldTypes != null && fieldname != null) ?
+				this.fieldTypes[fieldname] : null;
+			value = (ctor != null) ? dec.decodeAs(child, ctor, template) :
+				dec.decode(child, template);
 		}
 
 		try
@@ -1118,12 +1188,12 @@ mxObjectCodec.prototype.decodeChild = function(dec, child, obj)
  * Function: getFieldTemplate
  * 
  * Returns the template instance for the given field. This returns the
- * value of the field, null if the value is an array or an empty collection
- * if the value is a collection. The value is then used to populate the
- * field for a new instance. For strongly typed languages it may be
- * required to override this to return the correct collection instance
- * based on the encoded child.
- */	
+ * value of the field, null if the value is a non-empty array or a function
+ * or an empty collection if the value is a collection. The value is then
+ * used to populate the field for a new instance. For strongly typed
+ * languages it may be required to override this to return the correct
+ * collection instance based on the encoded child.
+ */
 mxObjectCodec.prototype.getFieldTemplate = function(obj, fieldname, child)
 {
 	if (mxObjectCodec.isPollutionKey(fieldname))
@@ -1132,14 +1202,17 @@ mxObjectCodec.prototype.getFieldTemplate = function(obj, fieldname, child)
 	}
 
 	var template = obj[fieldname];
-	
-	// Non-empty arrays are replaced completely
-    if (template instanceof Array && template.length > 0)
-    {
-        template = null;
-    }
-    
-    return template;
+
+	// Non-empty arrays are replaced completely. Functions are methods
+	// shared by all instances, eg. clone or Array.prototype.push, and
+	// decoding into them would change global state.
+	if ((template instanceof Array && template.length > 0) ||
+		typeof template === 'function')
+	{
+		template = null;
+	}
+
+	return template;
 };
 
 /**
@@ -1151,11 +1224,17 @@ mxObjectCodec.prototype.getFieldTemplate = function(obj, fieldname, child)
  * else, if the object is a collection, the value is added to the
  * collection. For strongly typed languages it may be required to
  * override this with the correct code to add an entry to an object.
- */	
+ *
+ * A function is only replaced with a function, eg. an expression evaluated
+ * with <allowEval>, so that a decoded object or an add value cannot hide
+ * a method such as clone (see <isIgnoredAttribute>).
+ */
 mxObjectCodec.prototype.addObjectValue = function(obj, fieldname, value, template)
 {
 	if (value != null && value != template &&
-		!mxObjectCodec.isPollutionKey(fieldname))
+		!mxObjectCodec.isPollutionKey(fieldname) &&
+		(typeof obj[fieldname] !== 'function' ||
+		typeof value === 'function'))
 	{
 		if (fieldname != null && fieldname.length > 0)
 		{
@@ -1177,8 +1256,9 @@ mxObjectCodec.prototype.addObjectValue = function(obj, fieldname, value, templat
  * Function: processInclude
  *
  * Returns true if the given node is an include directive and
- * executes the include by decoding the XML document. Returns
- * false if the given node is not an include directive.
+ * executes the include by decoding the XML document if
+ * <allowInclude> is true. Returns false if the given node is
+ * not an include directive.
  *
  * Parameters:
  *
@@ -1192,7 +1272,8 @@ mxObjectCodec.prototype.processInclude = function(dec, node, into)
 	{
 		var name = node.getAttribute('name');
 		
-		if (name != null)
+		// Skips the directive rather than decoding it as a child
+		if (name != null && mxObjectCodec.allowInclude)
 		{
 			try
 			{

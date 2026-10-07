@@ -895,6 +895,19 @@ mxStencilRegistry.allowEval = false;
 			this.loadArgs(argsObj)
 		})
 
+		electron.registerMsgListener('updateState', (state) =>
+		{
+			this.setUpdateState(state);
+		});
+
+		electron.request({action: 'getUpdateState'}, (state) =>
+		{
+			this.setUpdateState(state);
+		}, function()
+		{
+			// ignore
+		});
+
 		//We do some async stuff during app loading so we need to know exactly when loading is finished (it is not when onload is finished)
 		electron.sendMessage('app-load-finished', null);
 
@@ -2546,6 +2559,42 @@ mxStencilRegistry.allowEval = false;
 	App.prototype.checkForUpdates = function()
 	{
 		electron.sendMessage('checkForUpdates');
+	};
+
+	/**
+	 * Restarts with a downloaded update, or opens the release page of a new
+	 * version in installs that do not update themselves (MSI, zip, deb, rpm).
+	 */
+	App.prototype.installUpdate = function()
+	{
+		electron.sendMessage('installUpdate');
+	};
+
+	/**
+	 * Shows a banner once per version for an update that is ready to install
+	 * or, in installs that do not update themselves, for a new version.
+	 */
+	App.prototype.setUpdateState = function(state)
+	{
+		this.updateState = state;
+
+		if (state != null && state.version != null &&
+			(state.status == 'downloaded' || state.status == 'available'))
+		{
+			var ready = state.status == 'downloaded';
+
+			this.showBanner((ready ? 'UpdateReady' : 'UpdateAvailable') + state.version,
+				mxResources.get(ready ? 'updateReady' : 'updateAvailable', [state.version]),
+				mxUtils.bind(this, function()
+			{
+				this.installUpdate();
+			}), true);
+		}
+	};
+
+	App.prototype.toggleAutoUpdate = function()
+	{
+		electron.sendMessage('toggleAutoUpdate');
 	};
 	
 	App.prototype.toggleSpellCheck = function()

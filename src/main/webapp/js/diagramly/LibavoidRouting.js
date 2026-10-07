@@ -358,6 +358,12 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 		LibavoidRouting.independentRouting = urlParams['libavoid-independent'] != '0';
 	}
 
+	// Shows solver errors, which are not thrown from the edit (see disable)
+	graph.addListener('libavoidError', function()
+	{
+		editorUi.handleError({message: mxResources.get('libavoidUnavailable')});
+	});
+
 	var values = function(map)
 	{
 		var a = [];
@@ -1701,7 +1707,19 @@ LibavoidRouting.routeCells = function(graph, Avoid, edgeCells, opts, setStyle)
 	// solves route competing edges deterministically (no live-preview oscillation) at
 	// the cost of edge-edge nudging; the multi-edge path nudges but is non-deterministic
 	// for competing edges. Same strategy here as in the preview, so they match.
-	var routes = LibavoidRouting.routeEdgeSet(Avoid, vertices, edges, opts);
+	var routes = null;
+
+	try
+	{
+		routes = LibavoidRouting.routeEdgeSet(Avoid, vertices, edges, opts);
+	}
+	catch (e)
+	{
+		LibavoidRouting.disable(graph, e);
+
+		return false;
+	}
+
 	var routedEdges = [];
 
 	// libavoid waypoints are absolute; convert to each edge's parent frame.
@@ -1751,6 +1769,31 @@ LibavoidRouting.routeCells = function(graph, Avoid, edgeCells, opts, setStyle)
 	}
 
 	return routedEdges.length > 0;
+};
+
+/**
+ * Disables routing for the rest of the session after the solver threw, eg.
+ * Aborted() from the routing module, which leaves the module unusable. All
+ * entry points check window.Avoid, and __libavoidReady resolves null as for
+ * a module that failed to load. The error is logged and fired as a
+ * libavoidError event on the graph, which installAutoRouting shows to the
+ * user, instead of being thrown from the running edit, where it would skip
+ * the end of the edit (see solveReroute).
+ */
+LibavoidRouting.disable = function(graph, e)
+{
+	if (typeof window !== 'undefined')
+	{
+		window.Avoid = null;
+		window.__libavoidReady = Promise.resolve(null);
+	}
+
+	if (typeof EditorUi !== 'undefined' && EditorUi.logError != null)
+	{
+		EditorUi.logError('Error in LibavoidRouting: ' + e.message, null, null, null, e);
+	}
+
+	graph.fireEvent(new mxEventObject('libavoidError', 'error', e));
 };
 
 /**

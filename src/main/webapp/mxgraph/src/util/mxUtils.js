@@ -2283,6 +2283,15 @@ var mxUtils =
 			{
 				return true;
 			}
+			else if (mxUtils.canvasContext == null)
+			{
+				// Uses the CSS parser if the browser provides no 2D context,
+				// without the keywords and functions that the canvas rejects
+				return /^(#[0-9a-f]+|(rgb|hsl)a?\([\w.,%\/+-]*\)|[a-z]+)$/i.test(color) &&
+					!/^(transparent|inherit|initial|unset|revert)$/i.test(color) &&
+					window.CSS != null && typeof CSS.supports === 'function' &&
+					CSS.supports('color', color);
+			}
 			else
 			{
 				mxUtils.canvasContext.fillStyle = mxUtils.validInvalidColor;
@@ -4178,30 +4187,142 @@ var mxUtils =
 	sortCells: function(cells, ascending)
 	{
 		ascending = (ascending != null) ? ascending : true;
-		var lookup = new mxDictionary();
-		cells.sort(function(o1, o2)
+
+		if (cells.length > 1)
 		{
-			var p1 = lookup.get(o1);
-			
-			if (p1 == null)
+			// Ranks the cells in the order of their paths (see mxCellPath.compare)
+			// in a tree of the paths, where the paths of the ancestors are created
+			// once. Creating and comparing the path of each cell is quadratic in
+			// the depth of the hierarchy. As in mxCellPath, cells without a parent
+			// have the empty path and the paths of cells in different trees are
+			// compared as if they were in the same tree.
+			var root = {children: null};
+			var nodes = new mxDictionary();
+			var indices = new mxDictionary();
+
+			// Returns the index of the child in the parent. Creates a lookup for
+			// the children of a parent that is used often as mxCell.getIndex is
+			// linear in the number of children.
+			var getIndex = function(parent, child)
 			{
-				p1 = mxCellPath.create(o1).split(mxCellPath.PATH_SEPARATOR);
-				lookup.put(o1, p1);
-			}
-			
-			var p2 = lookup.get(o2);
-			
-			if (p2 == null)
+				var entry = indices.get(parent);
+
+				if (entry == null)
+				{
+					entry = {count: 0, lookup: null};
+					indices.put(parent, entry);
+				}
+
+				if (entry.lookup == null && ++entry.count > 8)
+				{
+					entry.lookup = new mxDictionary();
+
+					for (var i = parent.getChildCount() - 1; i >= 0; i--)
+					{
+						entry.lookup.put(parent.getChildAt(i), i);
+					}
+				}
+
+				var index = (entry.lookup != null) ? entry.lookup.get(child) :
+					parent.getIndex(child);
+
+				return (index != null) ? index : -1;
+			};
+
+			var getNode = function(cell)
 			{
-				p2 = mxCellPath.create(o2).split(mxCellPath.PATH_SEPARATOR);
-				lookup.put(o2, p2);
+				var node = (cell != null) ? nodes.get(cell) : root;
+				var path = [];
+
+				while (node == null)
+				{
+					var parent = cell.getParent();
+
+					if (parent == null)
+					{
+						node = root;
+					}
+					else
+					{
+						path.push(cell);
+						cell = parent;
+						node = nodes.get(cell);
+					}
+				}
+
+				if (cell != null)
+				{
+					nodes.put(cell, node);
+				}
+
+				for (var i = path.length - 1; i >= 0; i--)
+				{
+					var index = getIndex(path[i].getParent(), path[i]);
+
+					if (node.children == null)
+					{
+						node.children = {};
+					}
+
+					var child = node.children[index];
+
+					if (child == null)
+					{
+						child = {index: index, children: null};
+						node.children[index] = child;
+					}
+
+					node = child;
+					nodes.put(path[i], node);
+				}
+
+				return node;
+			};
+
+			for (var i = 0; i < cells.length; i++)
+			{
+				getNode(cells[i]);
 			}
-			
-			var comp = mxCellPath.compare(p1, p2);
-			
-			return (comp == 0) ? 0 : (((comp > 0) == ascending) ? 1 : -1);
-		});
-		
+
+			// Ranks the paths in preorder with the children ordered by index
+			var stack = [root];
+			var rank = 0;
+
+			while (stack.length > 0)
+			{
+				var node = stack.pop();
+				node.rank = rank++;
+
+				if (node.children != null)
+				{
+					var children = [];
+
+					for (var key in node.children)
+					{
+						children.push(node.children[key]);
+					}
+
+					// Pushes the first child last so that it is visited first
+					children.sort(function(c1, c2)
+					{
+						return c2.index - c1.index;
+					});
+
+					for (var i = 0; i < children.length; i++)
+					{
+						stack.push(children[i]);
+					}
+				}
+			}
+
+			cells.sort(function(o1, o2)
+			{
+				var comp = getNode(o1).rank - getNode(o2).rank;
+
+				return (comp == 0) ? 0 : (((comp > 0) == ascending) ? 1 : -1);
+			});
+		}
+
 		return cells;
 	},
 

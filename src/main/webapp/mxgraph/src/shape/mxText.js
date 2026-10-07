@@ -318,6 +318,47 @@ mxText.prototype.redraw = function()
 	{
 		this.endModelUnits(screen);
 	}
+
+	this.backgroundNodes = null;
+
+	if (screen != null && this.node != null)
+	{
+		var rects = this.node.getElementsByTagName('rect');
+
+		for (var i = 0; i < rects.length; i++)
+		{
+			if (rects[i].textBackground != null)
+			{
+				this.backgroundNodes = this.backgroundNodes || [];
+				this.backgroundNodes.push(rects[i]);
+			}
+		}
+
+		this.updateTextBackground();
+	}
+};
+
+/**
+ * Function: updateTextBackground
+ *
+ * Applies the pixels of the view to the backgrounds of plain text labels
+ * if the text is painted in model units, so that their padding and border
+ * stay in screen pixels for any scale or translate (see
+ * <mxSvgCanvas2D.updateTextBackground>).
+ */
+mxText.prototype.updateTextBackground = function()
+{
+	if (this.backgroundNodes != null && this.state != null)
+	{
+		var s = this.state.view.scale;
+		var tr = this.state.view.translate;
+
+		for (var i = 0; i < this.backgroundNodes.length; i++)
+		{
+			mxSvgCanvas2D.updateTextBackground(this.backgroundNodes[i],
+				1 / s, tr.x, tr.y);
+		}
+	}
 };
 
 /**

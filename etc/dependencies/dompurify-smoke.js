@@ -2,7 +2,8 @@
 // with the DOM_PURIFY_CONFIG from grapheditor/Init.js and hooks shaped like the
 // ones in grapheditor/Graph.js. Attack inputs must not survive (checked after a
 // second parse for mutation XSS), and the html labels of the bundled templates
-// must sanitize to the same output as before.
+// must sanitize to the same output as before. Strings without '<' must come
+// back unchanged, as Graph.domPurify returns them without calling DOMPurify.
 //
 // Usage (jsdom is not a dependency of this repo, install it anywhere):
 //   npm install --prefix /tmp/smoke jsdom
@@ -31,8 +32,23 @@ function load(file)
 	if (!P || typeof P.sanitize != 'function' || !P.isSupported) throw new Error('DOMPurify not usable from ' + file);
 	var config = win.eval('(' + cfgMatch[1] + ')');
 
-	// Same shape as the hooks in grapheditor/Graph.js: a hook that detaches
-	// nodes during the walk and one that rewrites and drops attributes
+	// Same shape as the hooks in grapheditor/Graph.js: one that drops
+	// attributes after DOMPurify has checked them (values that change when
+	// the output is serialized, markup, url() in styles), then one that
+	// detaches nodes during the walk
+	P.addHook('afterSanitizeAttributes', function(node)
+	{
+		var attrs = node.attributes;
+		for (var i = (attrs != null) ? attrs.length - 1 : -1; i >= 0; i--)
+		{
+			var a = attrs[i], name = a.name.toLowerCase(), v = a.value;
+			if (v.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\ufffe\uffff]/g, '') != v ||
+				/^\s*</.test(v) || (name == 'style' && /url\s*\(/i.test(v)))
+			{
+				node.removeAttributeNode(a);
+			}
+		}
+	});
 	P.addHook('afterSanitizeAttributes', function(node)
 	{
 		if (node.nodeName == 'use' && ((node.getAttribute('xlink:href') != null &&
@@ -45,12 +61,6 @@ function load(file)
 		{
 			node.remove();
 		}
-	});
-	P.addHook('uponSanitizeAttribute', function(node, data)
-	{
-		data.attrValue = data.attrValue.replace(/[￾￿]/g, '');
-		if (/^\s*</.test(data.attrValue)) data.keepAttr = false;
-		if (data.attrName == 'style' && /url\s*\(/i.test(data.attrValue)) data.keepAttr = false;
 	});
 
 	return {
@@ -66,6 +76,9 @@ function load(file)
 		}
 	};
 }
+
+// Labels of the bundled templates without markup (see the plain check below)
+var plainLabels = [];
 
 // Real labels: value of every html=1 cell in the bundled templates
 function labels()
@@ -92,6 +105,7 @@ function labels()
 				{
 					var s = c.getAttribute('style') || '', v = c.getAttribute('value');
 					if (/(^|;)html=1/.test(s) && /</.test(v)) out.push(v);
+					else if (v.length > 0 && v.indexOf('<') < 0) plainLabels.push(v);
 				});
 			});
 		});
@@ -194,6 +208,27 @@ var diffs = 0;
 		}
 	});
 });
+
+// Graph.domPurify returns strings without '<' unchanged without calling
+// DOMPurify, which does the same after parsing its config. A version that
+// changes them breaks that shortcut, which must then be removed.
+var plain = plainLabels.concat([' a', 'a & b', '&lt;b&gt;', 'a > b', '\u00a0', 'x\r\ny',
+	'{{x}}', '${x}', 'javascript:alert(1)', '\ufeffa', 'a\u0000b', '&amp;nbsp;']);
+var changed = 0;
+
+plain.forEach(function(v)
+{
+	var out;
+	try { out = n.str(v); } catch (e) { out = 'THROWS ' + e.message; }
+	if (out !== v)
+	{
+		status = 1;
+		if (++changed <= 5) console.log('FAIL [plain] ' + JSON.stringify(v) + ' -> ' + JSON.stringify(out) +
+			' (Graph.domPurify returns plain strings unchanged)');
+	}
+});
+
+console.log(plain.length + ' plain inputs, ' + changed + ' changed');
 
 if (status == 0 && diffs > 0) status = 2;
 console.log(status == 1 ? 'RESULT: FAIL' : (diffs ? 'RESULT: PASS WITH ' + diffs + ' BENIGN OUTPUT DIFFERENCES' : 'RESULT: PASS (no attack survived, benign output identical)'));

@@ -3974,16 +3974,9 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 						{
 							if (ui.getPageById(value) == null)
 							{
-								var index = ui.getPageIndex(page);
-
-								if (index >= 0)
-								{
-									ui.removePage(page);
-									page.node.setAttribute('id', value);
-									id = value;
-									idText.innerHTML = mxUtils.htmlEntities(value);
-									ui.insertPage(page, index);
-								}
+								ui.setPageId(page, value);
+								id = value;
+								idText.innerHTML = mxUtils.htmlEntities(value);
 							}
 							else
 							{
@@ -3996,11 +3989,10 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 					{
 						if (graph.getModel().getCell(value) == null)
 						{
-							graph.getModel().cellRemoved(cell);
-							cell.setId(value);
+							graph.getModel().execute(new ChangeCellId(
+								graph.getModel(), cell, value));
 							id = value;
 							idText.innerHTML = mxUtils.htmlEntities(value);
-							graph.getModel().cellAdded(cell);
 						}
 						else
 						{
@@ -4169,22 +4161,12 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 			input.indeterminate = true;
 		}
 
+		// Applied to the cells on apply only if toggled, as the values
+		// are the values of the cells in the model
 		mxEvent.addListener(input, 'click', function()
 		{
-			if (multi)
-			{
-				// Applied to all cells on apply only if toggled
-				placeholdersTouched = true;
-				input.indeterminate = false;
-			}
-			else if (value.getAttribute('placeholders') == '1')
-			{
-				value.removeAttribute('placeholders');
-			}
-			else
-			{
-				value.setAttribute('placeholders', '1');
-			}
+			placeholdersTouched = true;
+			input.indeterminate = false;
 		});
 
 		checkRow.appendChild(input);
@@ -4235,7 +4217,7 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 
 					// Applies the placeholders checkbox to all cells
 					// only if it was toggled by the user
-					if (multi && placeholdersTouched)
+					if (placeholdersTouched)
 					{
 						if (input.checked)
 						{

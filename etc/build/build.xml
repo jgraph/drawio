@@ -640,7 +640,7 @@ OUTPUT FILES (in src/main/webapp/js/):
 	Builds Atlassian (Confluence/Jira) integration bundles.
 	
 	PROCESS:
-	  1. Creates atlas-viewer.min.js = base-viewer + orgchart
+	  1. Creates atlas-viewer.min.js = base-viewer (org chart loads on demand)
 	  2. Compiles mxReader.js for Atlassian connect
 	  3. Creates atlas.min.js = base + extensions + mxReader
 	
@@ -650,9 +650,11 @@ OUTPUT FILES (in src/main/webapp/js/):
 	============================================================================
 	-->
 	<target name="atlas" depends="app">
+		<!-- No orgchart.min.js: every diagram view parses this bundle, and only
+		     an org chart CSV import needs it (loadOrgChartLayouts, or the
+		     plugin's EmbedUtils.js in its bare embed iframes, loads it then) -->
 		<concat destfile="${war.dir}/js/atlas-viewer.min.js" fixlastline="yes" append="no">
 			<file name="${basedir}/base-viewer.min.js" />
-			<file name="${war.dir}/js/orgchart.min.js" />
 		</concat>
 
 		<jscomp warning="${jscomp.warning}" compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp0.js">

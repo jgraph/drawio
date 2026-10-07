@@ -160,12 +160,35 @@ mxCodec.prototype.elements = null;
 mxCodec.prototype.duplicates = null;
 
 /**
+ * Variable: encoding
+ *
+ * Contains the objects that are being encoded to detect cyclic references.
+ */
+mxCodec.prototype.encoding = null;
+
+/**
  * Variable: encodeDefaults
  *
  * Specifies if default values should be encoded. Default is false.
  */
 mxCodec.prototype.encodeDefaults = false;
 
+/**
+ * Variable: maxDepth
+ *
+ * Maximum number of nested object decodings, see <mxObjectCodec.decode>.
+ * Deeper nodes are not decoded as deeply nested XML or long chains of
+ * forward references would otherwise overflow the call stack. Default
+ * is 256.
+ */
+mxCodec.prototype.maxDepth = 256;
+
+/**
+ * Variable: depth
+ *
+ * Number of nested object decodings in progress.
+ */
+mxCodec.prototype.depth = 0;
 
 /**
  * Function: putObject
@@ -431,7 +454,33 @@ mxCodec.prototype.encode = function(obj)
 		
 		if (enc != null)
 		{
-			node = enc.encode(this, obj);
+			if (this.encoding == null)
+			{
+				this.encoding = [];
+			}
+
+			// Skips cyclic references, which would never terminate
+			if (mxUtils.indexOf(this.encoding, obj) >= 0)
+			{
+				if (window.console != null)
+				{
+					console.error('mxCodec.encode: Cyclic reference to ' +
+						mxUtils.getFunctionName(obj.constructor));
+				}
+			}
+			else
+			{
+				this.encoding.push(obj);
+
+				try
+				{
+					node = enc.encode(this, obj);
+				}
+				finally
+				{
+					this.encoding.pop();
+				}
+			}
 		}
 		else
 		{
@@ -488,6 +537,49 @@ mxCodec.prototype.decode = function(node, into)
 	}
 	
 	return obj;
+};
+
+/**
+ * Function: decodeAs
+ *
+ * Decodes the given XML node and returns an instance of the given
+ * constructor or null. A node of another type, eg. a geometry written as
+ * <mxgeometry>, is decoded with the codec of the given constructor.
+ *
+ * Parameters:
+ *
+ * node - XML node to be decoded.
+ * ctor - Constructor of the expected type.
+ * into - Optional object to be decoded into.
+ */
+mxCodec.prototype.decodeAs = function(node, ctor, into)
+{
+	var obj = null;
+
+	if (node != null && node.nodeType == mxConstants.NODETYPE_ELEMENT)
+	{
+		var nodeCtor = this.getConstructor(node.nodeName);
+
+		// Decodes each node once to keep the decoding linear
+		if (nodeCtor != null && (nodeCtor === ctor ||
+			nodeCtor.prototype instanceof ctor))
+		{
+			obj = this.decode(node, into);
+		}
+		else
+		{
+			if (window.console != null)
+			{
+				console.error('mxCodec.decodeAs: ' + node.nodeName +
+					' decoded as ' + mxUtils.getFunctionName(ctor));
+			}
+
+			this.updateElements();
+			obj = mxCodecRegistry.getCodec(ctor).decode(this, node);
+		}
+	}
+
+	return (obj instanceof ctor) ? obj : null;
 };
 
 /**
@@ -644,7 +736,8 @@ mxCodec.prototype.decodeCell = function(node, restoreStructures)
 
 		cell = decoder.decode(this, node);
 		
-		if (restoreStructures)
+		// Cell is null if the node exceeds the maximum depth
+		if (restoreStructures && cell != null)
 		{
 			this.insertIntoGraph(cell);
 		}

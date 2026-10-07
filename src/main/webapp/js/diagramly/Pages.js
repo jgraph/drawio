@@ -173,6 +173,42 @@ RenamePage.prototype.execute = function()
 };
 
 /**
+ * Undoable change of the ID of a page. The caller checks that the ID is not
+ * used by another page.
+ */
+function ChangePageId(ui, page, id)
+{
+	this.ui = ui;
+	this.page = page;
+	this.previous = id;
+}
+
+/**
+ * Implementation of the undoable page ID change. Keeps the ID if another page
+ * has taken the new ID in the meantime, eg. in a remote change.
+ */
+ChangePageId.prototype.execute = function()
+{
+	var tmp = this.page.getId();
+	var page = this.ui.getPageById(this.previous);
+
+	if (page == null || page == this.page)
+	{
+		this.page.node.setAttribute('id', this.previous);
+	}
+
+	this.previous = tmp;
+
+	// Updates the ID in the tooltip of the tab and in the URL
+	this.ui.updateTabContainer();
+
+	if (this.page == this.ui.currentPage)
+	{
+		this.ui.updateHashObject();
+	}
+};
+
+/**
  * Undoable change of a page's stored initial view (see DiagramPage.getViewBox).
  */
 function ChangePageView(ui, page, viewBox)
@@ -211,7 +247,14 @@ function MovePage(ui, oldIndex, newIndex)
  */
 MovePage.prototype.execute = function()
 {
-	this.ui.pages.splice(this.newIndex, 0, this.ui.pages.splice(this.oldIndex, 1)[0]);
+	var pages = this.ui.pages;
+
+	// Moving a page that does not exist would insert an undefined page
+	if (pages != null && this.oldIndex >= 0 && this.oldIndex < pages.length)
+	{
+		pages.splice(this.newIndex, 0, pages.splice(this.oldIndex, 1)[0]);
+	}
+
 	var tmp = this.oldIndex;
 	this.oldIndex = this.newIndex;
 	this.newIndex = tmp;
@@ -519,6 +562,24 @@ ChangePage.prototype.execute = function()
 		this.repairExecuted = true;
 	};
 
+	var changePageIdExecute = ChangePageId.prototype.execute;
+
+	ChangePageId.prototype.execute = function()
+	{
+		if (this.repairExecuted)
+		{
+			var canonical = canonicalPage(this.ui, this.page);
+
+			if (canonical != null)
+			{
+				this.page = canonical;
+			}
+		}
+
+		changePageIdExecute.apply(this, arguments);
+		this.repairExecuted = true;
+	};
+
 	var changePageViewExecute = ChangePageView.prototype.execute;
 
 	ChangePageView.prototype.execute = function()
@@ -659,6 +720,14 @@ EditorUi.prototype.getSelectedPageIndex = function()
 	 return result;
  };
  
+/**
+ * Changes the ID of the given page with an undoable change.
+ */
+EditorUi.prototype.setPageId = function(page, id)
+{
+	this.editor.graph.model.execute(new ChangePageId(this, page, id));
+};
+
 /**
  * Returns the page with the given ID from the optional array of pages.
  */
@@ -1876,7 +1945,12 @@ EditorUi.prototype.renamePage = function(page)
  */
 EditorUi.prototype.movePage = function(oldIndex, newIndex)
 {
-	this.editor.graph.model.execute(new MovePage(this, oldIndex, newIndex));
+	// Ignores stale indices, eg. from a menu that was opened before a
+	// merge removed pages, so that no change is added to the history
+	if (this.pages != null && oldIndex >= 0 && oldIndex < this.pages.length)
+	{
+		this.editor.graph.model.execute(new MovePage(this, oldIndex, newIndex));
+	}
 }
 
 /**

@@ -1245,6 +1245,51 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges, 
 		var modified = this.isModified();
 		var createdPage = null;
 
+		// Cells changed through the model by the patch and the reactions
+		// to it until the reactive delta below (eg. layouts, also in the
+		// view validation), so that the delta only compares these cells
+		// in full (see diffCells). Null if there are other changes.
+		var changedCells = (this.sync != null && this.isRealtime() &&
+			!sendChanges) ? Object.create(null) : null;
+
+		var cellsListener = mxUtils.bind(this, function(sender, evt)
+		{
+			var edit = evt.getProperty('edit');
+
+			for (var i = 0; changedCells != null && i < ((edit != null &&
+				edit.changes != null) ? edit.changes.length : 0); i++)
+			{
+				var cell = this.sync.getCellForChange(edit.changes[i]);
+
+				if (cell != null && cell.getId() != null)
+				{
+					changedCells[cell.getId()] = true;
+				}
+				else
+				{
+					changedCells = null;
+				}
+			}
+
+			if (edit == null || edit.changes == null)
+			{
+				changedCells = null;
+			}
+		});
+
+		// Removes the listener of a patch that ended with an exception
+		if (this.patchCellsListener != null)
+		{
+			graph.model.removeListener(this.patchCellsListener);
+			this.patchCellsListener = null;
+		}
+
+		if (changedCells != null)
+		{
+			graph.model.addListener(mxEvent.CHANGE, cellsListener);
+			this.patchCellsListener = cellsListener;
+		}
+
 		graph.model.beginUpdate();
 		try
 		{
@@ -1386,6 +1431,7 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges, 
 					// diffable, and fileChanged is called explicitly as the
 					// change listener is disabled during the patch.
 					var current = this.ui.currentPage;
+					var currentRepairs = null;
 
 					// Edges the patch left with an undetermined end are
 					// unrenderable and would silently vanish from the
@@ -1408,6 +1454,11 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges, 
 						}
 
 						var pageIds = Object.create(null);
+
+						if (patched == current)
+						{
+							currentRepairs = pageIds;
+						}
 
 						// A repair becomes a first-class local change so
 						// it reaches collaborators and the file - but
@@ -1439,8 +1490,35 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges, 
 						{
 							if (this.sync.snapshot[i].getId() == current.getId())
 							{
+								// Compares geometries, XML values and custom
+								// properties only for the cells changed by
+								// the patch, the repaired edges, which change
+								// without a model change, and the pending
+								// local changes, which are not in the snapshot
+								// if the flush before the patch was skipped
+								var pending = (this.sync.dirtyPageIds != null) ?
+									this.sync.dirtyPageIds[current.getId()] : true;
+								var changed = null;
+
+								if (changedCells != null && pending !== true)
+								{
+									changed = Object.create(null);
+									changed[current.getId()] = changedCells;
+
+									for (var id in currentRepairs)
+									{
+										changedCells[id] = true;
+									}
+
+									for (var id in pending)
+									{
+										changedCells[id] = true;
+									}
+								}
+
 								var delta = this.ui.diffPages(
-									[this.sync.snapshot[i]], [current]);
+									[this.sync.snapshot[i]], [current],
+									null, changed);
 
 								if (!this.ignorePatches([delta]))
 								{
@@ -1495,6 +1573,10 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges, 
 				}
 			}
 			
+			// Reactions to the patch may change cells until the delta
+			// above was computed (eg. layouts in the view validation)
+			graph.model.removeListener(cellsListener);
+			this.patchCellsListener = null;
 			this.ui.editor.fireEvent(new mxEventObject('pagesPatched', 'patches', patches));
 		}
 

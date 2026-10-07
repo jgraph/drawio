@@ -408,7 +408,10 @@ var mxSettings =
 	{
 		var config = (value != null) ? JSON.parse(value) : null;
 
-		if (config == null || (config.configVersion != Editor.configVersion) ||
+		// A stored value that is not an object, eg. 1, would silently drop all
+		// defaults below, including the page format
+		if (config == null || typeof config !== 'object' ||
+			(config.configVersion != Editor.configVersion) ||
 			(Editor.config != null && Editor.config.override))
 		{
 			mxSettings.settings = null;

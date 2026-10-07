@@ -16270,106 +16270,97 @@
 													}
 													else
 													{
-														// SVG needs special handling to add viewbox if missing and
-														// find initial size from SVG attributes (only for IE11)
-														barrier(index, mxUtils.bind(this, function()
+														// Finds the size from the width and height or the viewBox
+														// of the SVG and adds a viewBox if it is missing
+														var w = svgRoot.getAttribute('width');
+														var h = svgRoot.getAttribute('height');
+
+														if (w != null && w.charAt(w.length - 1) != '%')
 														{
-															try
+															w = parseFloat(w);
+														}
+														else
+														{
+															w = NaN;
+														}
+
+														if (h != null && h.charAt(h.length - 1) != '%')
+														{
+															h = parseFloat(h);
+														}
+														else
+														{
+															h = NaN;
+														}
+
+														var vb = svgRoot.getAttribute('viewBox');
+														var addViewBox = vb == null || vb.length == 0;
+
+														// Uses width and height from viewbox for
+														// missing width and height attributes
+														if (!addViewBox && (isNaN(w) || isNaN(h)))
+														{
+															var tokens = vb.split(' ');
+
+															if (tokens.length > 3)
 															{
-																// Parses SVG and find width and height
-																if (root != null)
+																w = parseFloat(tokens[2]);
+																h = parseFloat(tokens[3]);
+															}
+														}
+
+														var insertSvg = mxUtils.bind(this, function(w, h)
+														{
+															if (addViewBox)
+															{
+																svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+															}
+
+															barrier(index, mxUtils.bind(this, function()
+															{
+																try
 																{
-																	var svgs = root.getElementsByTagName('svg');
-																	
-																	if (svgs.length > 0)
-																	{
-																		var svgRoot = svgs[0];
-																		var w = svgRoot.getAttribute('width');
-																		var h = svgRoot.getAttribute('height');
-																		
-																		if (w != null && w.charAt(w.length - 1) != '%')
-																		{
-																			w = parseFloat(w);
-																		}
-																		else
-																		{
-																			w = NaN;
-																		}
-																		
-																		if (h != null && h.charAt(h.length - 1) != '%')
-																		{
-																			h = parseFloat(h);
-																		}
-																		else
-																		{
-																			h = NaN;
-																		}
-																		
-																		// Check if viewBox attribute already exists
-																		var vb = svgRoot.getAttribute('viewBox');
-																		
-																		if (vb == null || vb.length == 0)
-																		{
-																			svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-																		}
-																		// Uses width and height from viewbox for
-																		// missing width and height attributes
-																		else if (isNaN(w) || isNaN(h))
-																		{
-																			var tokens = vb.split(' ');
-																			
-																			if (tokens.length > 3)
-																			{
-																				w = parseFloat(tokens[2]);
-																				h = parseFloat(tokens[3]);
-																			}
-																		}
-		
-																		data = Editor.createSvgDataUri(mxUtils.getXml(svgRoot));
-																		var s = Math.min(1, Math.min(maxSize / Math.max(1, w)), maxSize / Math.max(1, h));
-																		var cells = fn(data, file.type, x + index * gs, y + index * gs, Math.max(
-																			1, Math.round(w * s)), Math.max(1, Math.round(h * s)), file.name);
-																		
-																		// Hack to fix width and height asynchronously
-																		if (cells != null && (isNaN(w) || isNaN(h)))
-																		{
-																			var img = new Image();
-																			
-																			img.onload = mxUtils.bind(this, function()
-																			{
-																				w = Math.max(1, img.width);
-																				h = Math.max(1, img.height);
-																				
-																				cells[0].geometry.width = w;
-																				cells[0].geometry.height = h;
-																				
-																				svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-																				data = Editor.createSvgDataUri(mxUtils.getXml(svgRoot));
-																				
-																				var semi = data.indexOf(';');
-																				
-																				if (semi > 0)
-																				{
-																					data = data.substring(0, semi) + data.substring(data.indexOf(',', semi + 1));
-																				}
-																				
-																				graph.setCellStyles('image', data, [cells[0]]);
-																			});
-																			
-																			img.src = Editor.createSvgDataUri(mxUtils.getXml(svgRoot));
-																		}
-																		
-																		return cells;
-																	}
+																	var s = Math.min(1, Math.min(maxSize / Math.max(1, w)), maxSize / Math.max(1, h));
+
+																	return fn(Editor.createSvgDataUri(mxUtils.getXml(svgRoot)),
+																		file.type, x + index * gs, y + index * gs, Math.max(
+																		1, Math.round(w * s)), Math.max(1, Math.round(h * s)), file.name);
 																}
-															}
-															catch (e)
+																catch (e)
+																{
+																	// ignores any SVG parsing errors
+																}
+
+																return null;
+															}));
+														});
+
+														// Uses the size of the image if the SVG has no size
+														if (isNaN(w) || isNaN(h))
+														{
+															var img = new Image();
+
+															img.onload = function()
 															{
-																// ignores any SVG parsing errors
-															}
-															
-															return null;
-														}));
+																insertSvg(Math.max(1, img.width), Math.max(1, img.height));
+															};
+
+															img.onerror = mxUtils.bind(this, function()
+															{
+																barrier(index, function()
+																{
+																	return null;
+																});
+
+																this.handleError({message: mxResources.get('invalidOrMissingFile')});
+															});
+
+															img.src = Editor.createSvgDataUri(mxUtils.getXml(svgRoot));
+														}
+														else
+														{
+															insertSvg(w, h);
+														}
 													}
 												}
 												else
@@ -17177,6 +17168,21 @@
 		return model.getCell(id);
 	};
 
+	// A cell outside of every tree at the first execution of a change
+	// (no page and no content root, eg. a cell built through the model
+	// before it is inserted) has no identity in the document, but its id
+	// can be that of a live cell: the CSV import gave the data cell of an
+	// updated row the id of the updated cell, and the undo wrote the data
+	// cell's old value onto it. Replays of such a change use the recorded
+	// objects instead of resolving them by id (undo-stale case 18).
+	var repairIsDetached = function(model, cell, context)
+	{
+		var root = repairRootOf(cell);
+
+		return context == null && root != model.root &&
+			(root == cell || root.isVertex() || root.isEdge());
+	};
+
 	// Transient repair points are re-applied AFTER the whole edit
 	// replay: a sibling geometry replay of the same composite edit
 	// (eg. the drag-disconnect that stored the drop point) restores
@@ -17287,6 +17293,8 @@
 			if (firstRun)
 			{
 				this.repairPage = repairCapturePage(this.model, this.cell);
+				this.repairDetached = repairIsDetached(this.model,
+					this.cell, this.repairPage);
 			}
 			else if (this.repairPage != null &&
 				repairCurrentPage(this.model, this.repairPage) == null)
@@ -17296,7 +17304,7 @@
 				return;
 			}
 
-			if (!firstRun)
+			if (!firstRun && !this.repairDetached)
 			{
 				// The edge itself is resolved fresh too, for the same
 				// reason as its terminal: a save merge can replace the
@@ -17316,7 +17324,11 @@
 				var slot = this.repairIntent.next;
 				var wantId = this.repairIntent.ids[slot];
 
-				if (wantId == null)
+				if (this.repairDetached)
+				{
+					this.previous = this.repairIntent.objs[slot];
+				}
+				else if (wantId == null)
 				{
 					this.previous = null;
 				}
@@ -17467,6 +17479,8 @@
 				if (firstRun)
 				{
 					this.repairPage = repairCapturePage(this.model, this.cell);
+					this.repairDetached = repairIsDetached(this.model,
+						this.cell, this.repairPage);
 				}
 				else if (this.repairPage != null &&
 					repairCurrentPage(this.model, this.repairPage) == null)
@@ -17475,7 +17489,7 @@
 					return;
 				}
 
-				if (!firstRun)
+				if (!firstRun && !this.repairDetached)
 				{
 					// The changed cell itself is resolved fresh, as it
 					// already is for mxChildChange: a save merge can
@@ -23809,7 +23823,8 @@
 	 */
 	EditorUi.prototype.writeTextToClipboard = function(text, error, done)
 	{
-		navigator.clipboard.writeText(text).then(function()
+		// Some browsers return no promise
+		Promise.resolve(navigator.clipboard.writeText(text)).then(function()
 		{
 			if (done != null)
 			{
@@ -26376,19 +26391,54 @@
 							var graph = this.editor.graph;
 							graph.setGridEnabled(false);
 							graph.pageVisible = false;
-							var cells = graph.model.cells;
+							var pages = (this.pages != null) ? this.pages : [null];
 							
-							//Add sketch style and font to all cells
-							for (var id in cells)
+							// Adds sketch style and font to all cells of all pages. Changes the
+							// cells directly as this is part of loading the diagram: the undo
+							// history and modified flag are reset below and the autosave and
+							// diff sync baselines are taken after this handler. Style changes
+							// would also run the layouts of all containers, which is not part
+							// of loading a diagram.
+							for (var i = 0; i < pages.length; i++)
 							{
-								var cell = cells[id];
+								var root = graph.model.root;
 								
-								if (cell != null && cell.style != null)
+								if (pages[i] != null && pages[i] != this.currentPage)
 								{
-									cell.style += ';sketch=1;' + (cell.style.indexOf('fontFamily=') == -1 || cell.style.indexOf('fontFamily=Helvetica;') > -1? 
-											'fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;' : '');
+									this.updatePageRoot(pages[i]);
+									root = pages[i].root;
+									
+									// Encodes the page with its new cells and view state on save
+									pages[i].needsUpdate = true;
+									
+									if (pages[i].viewState != null)
+									{
+										pages[i].viewState.gridEnabled = false;
+										pages[i].viewState.pageVisible = false;
+									}
+								}
+								
+								var stack = [root];
+								
+								while (stack.length > 0)
+								{
+									var cell = stack.pop();
+									
+									if (cell.style != null)
+									{
+										cell.style += ';sketch=1;' + (cell.style.indexOf('fontFamily=') == -1 || cell.style.indexOf('fontFamily=Helvetica;') > -1? 
+													'fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;' : '');
+									}
+									
+									for (var j = 0; j < cell.getChildCount(); j++)
+									{
+										stack.push(cell.getChildAt(j));
+									}
 								}
 							}
+
+							// Repaints the cells with the new styles
+							graph.refresh();
 						}
 						catch(e)
 						{
@@ -29656,14 +29706,74 @@
 	};
 	
 	/**
-	 *
+	 * Returns true if the given CSV needs mxOrgChartLayout: its # layout is
+	 * orgchart, or a layout list or style names mxOrgChartLayout. Reads the
+	 * processing instructions the way doImportCsv does, so a ## comment that
+	 * mentions orgchart (as the default CSV does) does not count.
+	 */
+	EditorUi.isOrgChartCsv = function(text)
+	{
+		if (text == null)
+		{
+			return false;
+		}
+		else if (text.indexOf('mxOrgChartLayout') >= 0)
+		{
+			return true;
+		}
+
+		var lines = text.split('\n');
+		var index = 0;
+
+		while (index < lines.length && lines[index].charAt(0) == '#')
+		{
+			var line = lines[index].replace(/\r$/, '');
+			index++;
+
+			while (index < lines.length && line.charAt(line.length - 1) == '\\' &&
+				lines[index].charAt(0) == '#')
+			{
+				line = line.substring(0, line.length - 1) + mxUtils.trim(lines[index].substring(1));
+				index++;
+			}
+
+			var idx = line.indexOf(':');
+
+			if (line.charAt(1) != '#' && idx > 0 &&
+				mxUtils.trim(line.substring(1, idx)) == 'layout')
+			{
+				var value = mxUtils.trim(line.substring(idx + 1));
+
+				if (value == 'orgchart' || value.indexOf('mxOrgChartLayout') >= 0)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	};
+
+	/**
+	 * Imports the given CSV. Only an org chart CSV loads the org chart layout,
+	 * which is not in the viewer bundles (atlas-viewer.min.js among them).
 	 */
 	EditorUi.prototype.importCsv = function(text, done, graph, noSpinner)
 	{
-		this.loadOrgChartLayouts(mxUtils.bind(this, function()
+		var fn = mxUtils.bind(this, function()
 		{
 			this.doImportCsv(text, done, graph);
-		}), noSpinner);
+		});
+
+		if (EditorUi.isOrgChartCsv(text))
+		{
+			this.loadOrgChartLayouts(fn, noSpinner);
+		}
+		else
+		{
+			// doImportCsv routes its own errors to handleError
+			fn();
+		}
 	};
 
 	/**
@@ -29675,6 +29785,7 @@
 		{
     		var lines = text.split('\n');
     		var allCells = [];
+			var updatedCells = [];
 			var parents = [];
     		var cells = [];
     		var dups = Object.create(null);
@@ -29956,6 +30067,32 @@
         		// Null prototype: keys are untrusted parent column values
         		var rowCells = Object.create(null);
 
+				// Writes the value of a detached data cell without a model change.
+				// The edit of the import must not contain changes of cells outside
+				// of the model: undo and redo resolve changed cells by ID (see
+				// repairResolve), and the data cell of an updated row has the ID
+				// of the updated cell.
+				var doc = mxUtils.createXmlDocument();
+
+				var setAttributeForDataCell = function(dataCell, name, value)
+				{
+					if (dataCell.value == null || typeof dataCell.value != 'object')
+					{
+						var obj = doc.createElement('UserObject');
+						obj.setAttribute('label', dataCell.value || '');
+						dataCell.value = obj;
+					}
+
+					if (value != null)
+					{
+						dataCell.value.setAttribute(name, value);
+					}
+					else
+					{
+						dataCell.value.removeAttribute(name);
+					}
+				};
+
         		graph.model.beginUpdate();
         		try
         		{
@@ -29988,7 +30125,7 @@
 						
 						for (var j = 0; j < values.length; j++)
 				    	{
-							graph.setAttributeForCell(newCell, attribs[j], values[j]);
+							setAttributeForDataCell(newCell, attribs[j], values[j]);
 
 							if (cell != null && !ignoreCell)
 							{
@@ -30002,7 +30139,8 @@
 							
 							if (tempLabel != null)
 							{
-								graph.labelChanged(newCell, tempLabel);
+								setAttributeForDataCell(newCell, 'label',
+									Graph.zapGremlins(tempLabel));
 
 								if (cell != null && !ignoreCell)
 								{
@@ -30021,7 +30159,7 @@
 							}
 						}
 
-						graph.setAttributeForCell(newCell, 'placeholders', '1');
+						setAttributeForDataCell(newCell, 'placeholders', '1');
 						newCell.style = graph.replacePlaceholders(newCell, newCell.style, vars);
 
 						if (cell != null && !ignoreCell)
@@ -30043,7 +30181,21 @@
 								cells.push(cell);
 							}
 
+							if (mxUtils.indexOf(updatedCells, cell) < 0)
+							{
+								updatedCells.push(cell);
+							}
+
 							graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
+
+							// Moves the link column to the link as for new cells below
+							// if the row has a value for it
+							if (link != null && link != 'link' &&
+								newCell.getAttribute(link) != null)
+							{
+								graph.setLinkForCell(cell, newCell.getAttribute(link));
+								graph.setAttributeForCell(cell, link, null);
+							}
 
 							// Updates the auto size of the updated cell after the
 							// styles of the cellsInserted event were applied
@@ -30090,22 +30242,27 @@
 						}
 
     					var exists = cell != null;
-						cell = newCell;
-    					
-						if (!exists)
+
+						// Updated cells are targets of the connections of new rows.
+						// Connections are only created for new rows (see below), so
+						// importing a file again does not duplicate them.
+						if (!exists || !ignoreCell)
 						{
 	    					for (var e = 0; e < edges.length; e++)
 	    					{
-	    						lookups[edges[e].to][cell.getAttribute(edges[e].to)] = cell;
+	    						lookups[edges[e].to][newCell.getAttribute(edges[e].to)] =
+									(exists) ? cell : newCell;
 	    					}
 						}
-						
+
+						cell = newCell;
+
 						if (link != null && link != 'link')
 						{
-							graph.setLinkForCell(cell, cell.getAttribute(link));
+							setAttributeForDataCell(cell, 'link', cell.getAttribute(link));
 							
 							// Removes attribute
-							graph.setAttributeForCell(cell, link, null);
+							setAttributeForDataCell(cell, link, null);
 						}
 						
 						// Sets the geometry
@@ -30189,7 +30346,19 @@
 	    					
 	    					if (parent != null)
 	    					{
-	    						parent.style = graph.replacePlaceholders(parent, parentstyle, vars);
+								// Reports the new style of the parent like an
+								// arrange action (see Graph.beginArrange)
+								var arrange = graph.beginArrange();
+								try
+								{
+									graph.model.setStyle(parent, graph.replacePlaceholders(
+										parent, parentstyle, vars));
+								}
+								finally
+								{
+									graph.endArrange(arrange);
+								}
+
 	    						graph.addCell(cell, parent);
 								parents.push(parent);
 	    					}
@@ -30323,7 +30492,7 @@
 															(def.dy != null) ? def.dy : 0);
 													}
 								
-													edgeCell.insert(el);
+													graph.model.add(edgeCell, el);
 												}
 											}
 
@@ -30359,9 +30528,11 @@
 					// Removes ignored attributes after processing above
 					if (ignore != null)
 					{
-						for (var i = 0; i < allCells.length; i++)
+						var imported = allCells.concat(updatedCells);
+
+						for (var i = 0; i < imported.length; i++)
 						{
-							var cell = allCells[i];
+							var cell = imported[i];
 							
 							for (var j = 0; j < ignore.length; j++)
 					    	{
@@ -30406,7 +30577,7 @@
 
 							for (var i = 0; i < cells.length; i++)
 		    				{
-								var geo = graph.getCellGeometry(cells[i]);
+								var geo = graph.getCellGeometry(cells[i]).clone();
 								geo.x = Math.round(geo.x + snapDx);
 								geo.y = Math.round(geo.y + snapDy);
 
@@ -30419,6 +30590,8 @@
 								{
 									geo.height = Math.round(graph.snap(geo.height));
 								}
+
+								graph.model.setGeometry(cells[i], geo);
 		    				}
 						};
 						
@@ -30459,11 +30632,59 @@
 							var jsonLayouts = graph.createLayouts(resolvedLayouts);
 							this.scopeLayoutsToCells(jsonLayouts, select);
 
-							this.executeLayouts(jsonLayouts, function()
+							var elk = typeof ElkLayout !== 'undefined' &&
+								jsonLayouts.some(function(layout)
 							{
-								postProcess();
-								temp();
+								return layout instanceof ElkLayout;
 							});
+
+							var post = function()
+							{
+								// ELK packs its output near (0,0), so the result is moved
+								// to the free insert point like in the ELK branch below
+								if (elk)
+								{
+									var bbox = graph.getBoundingBoxFromGeometry(select);
+
+									if (bbox != null)
+									{
+										graph.moveCells(select, x0 - bbox.x, y0 - bbox.y);
+									}
+								}
+
+								postProcess();
+							};
+
+							// Runs post with the last layout so that it changes the
+							// model in the update (and undo step) of that layout, as
+							// the callback of executeLayouts runs after that update
+							var last = jsonLayouts.pop();
+							var postLayout = new mxGraphLayout(graph);
+							postLayout.execute = post;
+
+							if (last != null && typeof last.prepare === 'function')
+							{
+								// Asynchronous layouts (eg. ELK) apply their result
+								// in their own update
+								jsonLayouts.push({prepare: function(parent, done)
+								{
+									last.prepare(parent, function(err, apply)
+									{
+										done(err, function()
+										{
+											apply.apply(this, arguments);
+											post();
+										});
+									});
+								}});
+							}
+							else
+							{
+								jsonLayouts.push(new mxCompositeLayout(graph, (last != null) ?
+									[last, postLayout] : [postLayout]));
+							}
+
+							this.executeLayouts(jsonLayouts, temp);
 
 							afterInsert = null;
 						}
@@ -35124,5 +35345,6 @@ mxUtils.extend(HeadlessEditorUi, EditorUi);
  */
 HeadlessEditorUi.prototype.createUi = function() {};
 HeadlessEditorUi.prototype.addTrees = function() {};
+HeadlessEditorUi.prototype.addBeforeUnloadListener = function() {};
 HeadlessEditorUi.prototype.onBeforeUnload = function() {};
 HeadlessEditorUi.prototype.updateActionStates = function() {};

@@ -1387,7 +1387,8 @@ EditorUi.prototype.getSelectionState = function()
 {
 	if (this.selectionState == null)
 	{
-		this.selectionState = this.createSelectionState();
+		this.selectionState = this.editor.graph.cacheLockedStates(
+			mxUtils.bind(this, this.createSelectionState));
 	}
 	
 	return this.selectionState;
@@ -4133,6 +4134,7 @@ EditorUi.prototype.initCanvas = function()
 			
 							var offset = mxUtils.getOffset(pageInfo);
 							menu.popup(offset.x, offset.y + pageInfo.offsetHeight, null, evt);
+							this.setCurrentMenu(menu);
 
 							mxEvent.addListener(menu.div, 'mouseleave', mxUtils.bind(this, function()
 							{
@@ -8941,6 +8943,27 @@ EditorUi.prototype.createHelpIcon = function(href, noCssClass)
 EditorUi.prototype.destroy = function()
 {
 	var graph = this.editor.graph;
+
+	// Closes dialogs and menus outside of the containers, which would call
+	// into the destroyed editor, eg. after Escape closed the lightbox
+	this.hideCurrentMenu();
+
+	if (this.dialogs != null)
+	{
+		var dialogs = this.dialogs;
+		this.dialogs = null;
+		this.dialog = null;
+
+		for (var i = dialogs.length - 1; i >= 0; i--)
+		{
+			// Closes dialogs that refuse to close without their handler
+			if (dialogs[i].close(true) == false)
+			{
+				dialogs[i].onDialogClose = null;
+				dialogs[i].close(true);
+			}
+		}
+	}
 
 	if (graph != null && this.selectionStateListener != null)
 	{

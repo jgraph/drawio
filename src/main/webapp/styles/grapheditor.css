@@ -380,7 +380,7 @@ div[id*="dgeMermaidOutput-"] {
 .geDarkMode .geBtnStepper>div,
 .geDarkMode .geColorDropper,
 .geDarkMode .geStyleMenuItem,
-.geDarkMode .gePropHeader,
+.geDarkMode .gePropHeader>.gePropHeaderCell,
 .geDarkMode .geStyleBtn .geAdaptiveAsset.geArrow,
 .geAtlas .geMenubar .geButtonContainer .geButton:empty,
 .geAtlas .geMenubar .geButtonContainer .geButton:has(> span.geCommentsBadge:only-child),
@@ -1083,6 +1083,17 @@ div.geFormatContainer {
 	width: 240px;
 }
 
+/* WebKit reserves the native scrollbar width for a stable gutter (17px in
+   Safari) until the content overflows and the styled scrollbar exists, which
+   clips the panel content and the tab header. An always present styled
+   scrollbar keeps the gutter at its width and paints nothing while there is
+   nothing to scroll. */
+@supports selector(::-webkit-scrollbar) {
+	div.geFormatContainer {
+		overflow-y: scroll;
+	}
+}
+
 .geDiagramContainer {
 	background-color: light-dark(var(--workspace-color), var(--ge-dark-panel-color));
 	font-size: 0px;
@@ -1421,7 +1432,7 @@ td.mxPopupMenuIcon .geStyleMenuItem>div {
 	width: 212px;
 	/* Keeps 3px for the focus ring where the scrollbar gutter on
 	   .geFormatContainer is wider than the 10px ::-webkit-scrollbar (eg.
-	   Safari and Firefox), which would otherwise clip it at the right edge */
+	   Firefox), which would otherwise clip it at the right edge */
 	max-width: calc(100% - 3px);
 }
 
@@ -2963,8 +2974,11 @@ table.geProperties tr th {
 	border-right: none;
 }
 
+/* The dark mode filter only inverts the text and fold arrow of the header
+   cells. Inverting the row would also invert its collapsed borders in Safari,
+   whose invert also darkens #e5e5e5 to #0d0d0d instead of #1a1a1a. */
 .gePropHeader {
-	background-color: #e5e5e5;
+	background-color: light-dark(#e5e5e5, #1a1a1a);
 	color: black;
 }
 

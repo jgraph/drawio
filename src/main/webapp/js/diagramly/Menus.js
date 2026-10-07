@@ -2069,6 +2069,11 @@
 						editorUi.checkForUpdates();
 					});
 
+					editorUi.actions.addAction('restartToUpdate', function()
+					{
+						editorUi.installUpdate();
+					});
+
 					editorUi.actions.put('desktopZoomIn', new Action('zoomIn', function()
 					{
 						editorUi.desktopZoomIn();
@@ -2089,7 +2094,9 @@
 
 					if (urlParams['disableUpdate'] != '1')
 					{
-						this.addMenuItems(menu, ['check4Updates', '-'], parent);
+						this.addMenuItems(menu, [(editorUi.updateState != null &&
+							editorUi.updateState.status == 'downloaded') ?
+							'restartToUpdate' : 'check4Updates', '-'], parent);
 					}
 
 					this.addMenuItems(menu, ['desktopResetZoom', 'desktopZoomIn',
@@ -5399,6 +5406,25 @@
 			googleFontsAction.setToggleAction(true);
 			googleFontsAction.setSelectedCallback(function() { return enableGoogleFonts; });
 
+			var autoUpdate = urlParams['autoUpdate'] == '1';
+
+			var autoUpdateAction = editorUi.actions.addAction('autoUpdate', function()
+			{
+				editorUi.toggleAutoUpdate();
+				autoUpdate = !autoUpdate;
+			});
+
+			autoUpdateAction.setToggleAction(true);
+			autoUpdateAction.setSelectedCallback(function() { return autoUpdate; });
+
+			// Older desktop builds do not pass autoUpdate and have no handler for it
+			var desktopItems = ['-', 'googleFonts', 'spellCheck', 'autoBkp', 'drafts'];
+
+			if (urlParams['autoUpdate'] != null && urlParams['disableUpdate'] != '1')
+			{
+				desktopItems.push('autoUpdate');
+			}
+
 			editorUi.actions.addAction('openDevTools', function()
 			{
 				editorUi.openDevTools();
@@ -5466,7 +5492,7 @@
 
 				if (EditorUi.isElectronApp)
 				{
-					editorUi.menus.addMenuItems(menu, ['-', 'googleFonts', 'spellCheck', 'autoBkp', 'drafts'], parent);
+					editorUi.menus.addMenuItems(menu, desktopItems, parent);
 				}
 
 				menu.addSeparator(parent);
@@ -5498,7 +5524,7 @@
 
 				if (EditorUi.isElectronApp)
 				{
-					this.addMenuItems(menu, ['-', 'googleFonts', 'spellCheck', 'autoBkp', 'drafts'], parent);
+					this.addMenuItems(menu, desktopItems, parent);
 				}
 
 				menu.addSeparator(parent);

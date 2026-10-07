@@ -7422,12 +7422,14 @@ App.prototype.updateButtonContainer = function(skipNotifications)
 					this.buttonContainer.appendChild(this.userButton);
 				}
 
-				// Workaround for invalid images when page is unloading
-				if (!this.unloading)
+				// Updates user image
+				var userImg = this.userButton.getElementsByClassName('geUserAvatar')[0];
+				var syncImg = this.userButton.getElementsByTagName('img')[0];
+
+				// Workaround for invalid images when page is unloading and for
+				// images that were removed outside of the app
+				if (!this.unloading && userImg != null && syncImg != null)
 				{
-					// Updates user image
-					var userImg = this.userButton.getElementsByClassName('geUserAvatar')[0];
-					var syncImg = this.userButton.getElementsByTagName('img')[0];
 					var title = mxResources.get('changeUser');
 					var user = this.getMainUser();
 

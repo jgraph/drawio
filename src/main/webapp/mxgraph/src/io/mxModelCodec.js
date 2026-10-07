@@ -144,8 +144,12 @@ mxCodecRegistry.register(function()
 	/**
 	 * Function: decodeChild
 	 * 
-	 * Overrides decode child to handle special child nodes.
-	 */	
+	 * Overrides decode child to handle the root and defs child nodes, which
+	 * are the only child nodes that <encodeObject> writes. Other child nodes
+	 * are ignored as they would be decoded into or replace the internal
+	 * fields of the model, which is often the model of a live graph, eg.
+	 * its cells, current edit or event listeners.
+	 */
 	codec.decodeChild = function(dec, child, obj)
 	{
 		if (child.nodeName == 'defs')
@@ -156,10 +160,20 @@ mxCodecRegistry.register(function()
 		{
 			this.decodeRoot(dec, child, obj);
 		}
-		else
-		{
-			mxObjectCodec.prototype.decodeChild.apply(this, arguments);
-		}
+	};
+
+	/**
+	 * Function: decodeAttributes
+	 *
+	 * Ignores the attributes of the model node. <encodeObject> writes none,
+	 * applications read the settings that they write into these attributes
+	 * from the node, and decoding them would replace the internal fields of
+	 * the model, which is often the model of a live graph, eg. its update
+	 * level or the next ID.
+	 */
+	codec.decodeAttributes = function(dec, node, obj)
+	{
+		// ignored
 	};
 
 	/**

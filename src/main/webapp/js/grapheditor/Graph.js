@@ -146,6 +146,47 @@ mxCodec.allowlist = ['mxStylesheet', 'Array', 'mxGraphModel',
 	'mxChildChange', 'mxRootChange', 'mxTerminalChange',
 	'mxValueChange', 'mxStyleChange', 'mxGeometryChange',
 	'mxCollapseChange', 'mxVisibleChange', 'mxCellAttributeChange'];
+
+// Ignores values and styles of cells in child nodes that are objects but not
+// of their type, eg. a point in <mxPoint as="value"/> or an array in <Array
+// as="style"/>, as the value of a cell is a string or an XML node (other
+// objects are treated as XML nodes, which throws) and the style is a string
+(function()
+{
+	var codec = mxCodecRegistry.getCodec(mxCell);
+	var codecAddObjectValue = codec.addObjectValue;
+
+	function isValid(fieldname, value)
+	{
+		if (value == null || typeof value !== 'object')
+		{
+			return true;
+		}
+		else if (fieldname == 'value')
+		{
+			return mxUtils.isNode(value);
+		}
+		else
+		{
+			return fieldname != 'style';
+		}
+	};
+
+	codec.addObjectValue = function(obj, fieldname, value, template)
+	{
+		if (isValid(fieldname, value))
+		{
+			codecAddObjectValue.apply(this, arguments);
+		}
+		else if (window.console != null)
+		{
+			console.error('mxCellCodec.addObjectValue: Ignored ' + fieldname +
+				' ' + mxUtils.getFunctionName(value.constructor) +
+				' for cell ' + obj.getId());
+		}
+	};
+})();
+
 mxGraph.prototype.pageBreakColor = '#c0c0c0';
 mxGraph.prototype.pageScale = 1;
 
@@ -1610,20 +1651,43 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 				!this.isCellLocked(this.getLayerForCell(cell));
 		};
 
-		// Returns true if the given cell is locked
+		// Returns true if the given cell or an ancestor is locked
 		this.isCellLocked = function(cell)
 		{
+			var cache = (this.lockedStatesCache != null) ? this.lockedStatesCache.locked : null;
+			var visited = (cache != null) ? [] : null;
+			var result = false;
+
 			while (cell != null)
 			{
+				var cached = (cache != null) ? cache.get(cell) : null;
+
+				if (cached != null)
+				{
+					result = cached;
+					break;
+				}
+
+				if (visited != null)
+				{
+					visited.push(cell);
+				}
+
 				if (mxUtils.getValue(this.getCurrentCellStyle(cell), 'locked', '0') == '1')
 				{
-					return true;
+					result = true;
+					break;
 				}
 				
 				cell = this.model.getParent(cell);
 			}
+
+			for (var i = 0; visited != null && i < visited.length; i++)
+			{
+				cache.put(visited[i], result);
+			}
 			
-			return false;
+			return result;
 		};
 		
 		var tapAndHoldSelection = null;
@@ -1896,7 +1960,7 @@ Graph.edgeStyles = ['edgeStyle', 'elbow', 'jumpStyle', 'jumpSize', 'startArrow',
 	'startFill', 'startSize', 'endArrow', 'endFill', 'endSize', 'flowAnimation',
 	'flowAnimationDirection', 'flowAnimationTimingFunction', 'flowAnimationDuration',
 	'sourcePerimeterSpacing', 'targetPerimeterSpacing', 'fixedPointSpacing', 'curved',
-	'linecap', 'linejoin', 'libavoidRouting', 'followTerminals'];
+	'curveGeometry', 'linecap', 'linejoin', 'libavoidRouting', 'followTerminals'];
 
 /**
  * Styles that are ignored together (if one appears all are ignored).
@@ -4251,6 +4315,68 @@ Graph.isStyleAllowed = function(css)
         isFormAllowed(stripComments(stripUrlWhitespace(normalized))) &&
         isTokenAllowed(css);
 }
+// Disallows markup in attribute values and external URLs in style attributes.
+// Runs after DOMPurify has checked the attributes instead of as an
+// uponSanitizeAttribute hook, which makes DOMPurify clone its allowed tags
+// and attributes in every call (about 0.1 ms per label). Registered before
+// the hook below, so that the attributes are checked first as before.
+DOMPurify.addHook('afterSanitizeAttributes', function(node)
+{
+	var attrs = node.attributes;
+
+	for (var i = (attrs != null) ? attrs.length - 1 : -1; i >= 0; i--)
+	{
+		var attr = attrs[i];
+		var name = attr.name.toLowerCase();
+		var value = attr.value;
+
+		// Removes values with characters that are dropped when the node is
+		// serialized to XML, as the checks did not see the value that is
+		// written to the output. Eg. an entity for U+FFFF in java&#65535;script:
+		// is decoded while parsing the markup, hides the protocol from the
+		// checks and is then dropped by mxUtils.getXml, which turns the link
+		// into javascript: in the export. The value is removed, not rewritten,
+		// as DOMPurify has checked the written value already.
+		var remove = Graph.zapGremlins(value) != value;
+
+		// An attribute value that starts with a tag is markup, not a value. The
+		// application the diagram is rendered into may hand one of its own
+		// attributes to a parser: Jira DC upgrades every element with class
+		// shared-item-trigger and expands its href with jQuery, which builds nodes
+		// from a string that starts with < instead of matching a selector, so a
+		// label carrying that class and href ran script in the Jira page.
+		// Denylisting the class cannot work as the host supplies both the class and
+		// the sink, same as the data attributes in Init.js, so the markup is stopped
+		// here. A hidden leading character that the serialization would drop,
+		// eg. \u0001<img src onerror=...>, removes the value above.
+		// [jgraph/drawio-jira#120]
+		//
+		// The diagram XML that the SVG export writes to the content attribute of
+		// the root is markup by design and must survive: EditorUi.importFiles reads
+		// it back off the sanitized document (via Graph.clipSvgDataUri) to open an
+		// exported SVG as a diagram instead of an image. It is kept for the same
+		// prefixes the import accepts, so nothing that would be used is removed and
+		// no other markup is kept in that attribute either.
+		if (!remove && /^\s*</.test(value))
+		{
+			remove = !(name == 'content' && node.nodeName.toLowerCase() == 'svg' &&
+				(value.substring(0, 8) == '<mxfile ' ||
+				value.substring(0, 14) == '<mxGraphModel>' ||
+				value.substring(0, 14) == '<mxGraphModel '));
+		}
+
+		if (!remove && name == 'style')
+		{
+			remove = !Graph.isStyleAllowed(value);
+		}
+
+		if (remove)
+		{
+			node.removeAttributeNode(attr);
+		}
+	}
+});
+
 // Allows use tag in SVG with local references only
 DOMPurify.addHook('afterSanitizeAttributes', function(node)
 {
@@ -4301,62 +4427,28 @@ DOMPurify.addHook('afterSanitizeAttributes', function(node)
 	}
 });
 
-// Disallows markup in attribute values and external URLs in style attributes
-DOMPurify.addHook('uponSanitizeAttribute', function(node, data)
-{
-	// Removes characters that are dropped when the node is serialized to XML
-	// so all checks see the value that will be written to the output. Eg. an
-	// entity for U+FFFF in java&#65535;script: is decoded while parsing the
-	// markup, hides the protocol from the checks and is then dropped by
-	// mxUtils.getXml, which turns the link into javascript: in the export.
-	data.attrValue = Graph.zapGremlins(data.attrValue);
-
-	// An attribute value that starts with a tag is markup, not a value. The
-	// application the diagram is rendered into may hand one of its own
-	// attributes to a parser: Jira DC upgrades every element with class
-	// shared-item-trigger and expands its href with jQuery, which builds nodes
-	// from a string that starts with < instead of matching a selector, so a
-	// label carrying that class and href ran script in the Jira page.
-	// Denylisting the class cannot work as the host supplies both the class and
-	// the sink, same as the data attributes in Init.js, so the markup is stopped
-	// here. Checked after the normalization above, which is what a hidden
-	// leading character would be dropped by on the way to the output, eg.
-	// \u0001<img src onerror=...>. [jgraph/drawio-jira#120]
-	//
-	// The diagram XML that the SVG export writes to the content attribute of
-	// the root is markup by design and must survive: EditorUi.importFiles reads
-	// it back off the sanitized document (via Graph.clipSvgDataUri) to open an
-	// exported SVG as a diagram instead of an image. It is kept for the same
-	// prefixes the import accepts, so nothing that would be used is removed and
-	// no other markup is kept in that attribute either.
-	var isDiagramData = data.attrName == 'content' &&
-		node.nodeName.toLowerCase() == 'svg' &&
-		(data.attrValue.substring(0, 8) == '<mxfile ' ||
-		data.attrValue.substring(0, 14) == '<mxGraphModel>' ||
-		data.attrValue.substring(0, 14) == '<mxGraphModel ');
-
-	if (!isDiagramData && /^\s*</.test(data.attrValue))
-	{
-		data.keepAttr = false; // remove entire attribute
-	}
-
-	if (data.attrName == 'style')
-	{
-		if (!Graph.isStyleAllowed(data.attrValue))
-		{
-			data.keepAttr = false; // remove entire style attribute
-		}
-	}
-});
-
 /**
  * Sanitizes the given value.
  */
 Graph.domPurify = function(value, inPlace)
 {
-	window.DOM_PURIFY_CONFIG.IN_PLACE = inPlace;
-	
-	return DOMPurify.sanitize(value, window.DOM_PURIFY_CONFIG);
+	var config = window.DOM_PURIFY_CONFIG;
+
+	// Returns strings without markup unchanged under the same conditions
+	// as DOMPurify. DOMPurify only returns them after parsing the config
+	// and cloning the allowed tags and attributes (for the attribute hook),
+	// which takes about 0.2 ms for each label.
+	if (!inPlace && typeof value === 'string' && value.length > 0 &&
+		value.indexOf('<') < 0 && !config.RETURN_DOM &&
+		!config.RETURN_DOM_FRAGMENT && !config.RETURN_TRUSTED_TYPE &&
+		!config.SAFE_FOR_TEMPLATES && !config.WHOLE_DOCUMENT)
+	{
+		return value;
+	}
+
+	config.IN_PLACE = inPlace;
+
+	return DOMPurify.sanitize(value, config);
 };
 
 /**
@@ -7380,6 +7472,11 @@ Graph.edgeSupportsCurved = function(style)
 };
 
 /**
+ * Number of points per curve segment in Graph.getCurvePoints.
+ */
+Graph.curvePointSteps = 16;
+
+/**
  * Subdivides the given absolute points into a fine polyline that approximates
  * the curve actually drawn for curved/bezier edges, so the tangent is taken
  * from the rendered spline instead of the straight control polygon. Mirrors
@@ -7397,7 +7494,7 @@ Graph.getCurvePoints = function(pts, bezier)
 		return pts;
 	}
 
-	var steps = 16;
+	var steps = Graph.curvePointSteps;
 	var result = [pts[0]];
 
 	var quad = function(p0, pc, p1)
@@ -7441,6 +7538,53 @@ Graph.getCurvePoints = function(pts, bezier)
 		}
 
 		quad(prev, pts[n - 2], pts[n - 1]);
+	}
+
+	return result;
+};
+
+/**
+ * Returns the points of the painted curve of the given edge state (see
+ * Graph.getCurvePoints) or null if the edge is not painted as a curve.
+ */
+Graph.getEdgeCurvePoints = function(state)
+{
+	var pts = state.absolutePoints;
+	var style = state.style;
+
+	return (pts != null && pts.length > 2 && pts.indexOf(null) < 0 &&
+		style != null && (style[mxConstants.STYLE_CURVED] == 1 ||
+		style[mxConstants.STYLE_BEZIER] == 1) && Graph.edgeSupportsCurved(style)) ?
+		Graph.getCurvePoints(pts, style[mxConstants.STYLE_BEZIER] == 1) : null;
+};
+
+/**
+ * Returns the point on the polyline with the given points that is nearest to
+ * the given point.
+ */
+Graph.getNearestPolylinePoint = function(pts, x, y)
+{
+	var result = null;
+	var dist = null;
+
+	for (var i = 1; i < pts.length; i++)
+	{
+		var p0 = pts[i - 1];
+		var pe = pts[i];
+		var dx = pe.x - p0.x;
+		var dy = pe.y - p0.y;
+		var len2 = dx * dx + dy * dy;
+		var t = (len2 == 0) ? 0 : Math.max(0, Math.min(1,
+			((x - p0.x) * dx + (y - p0.y) * dy) / len2));
+		var px = p0.x + t * dx;
+		var py = p0.y + t * dy;
+		var d = (px - x) * (px - x) + (py - y) * (py - y);
+
+		if (dist == null || d < dist)
+		{
+			dist = d;
+			result = new mxPoint(px, py);
+		}
 	}
 
 	return result;
@@ -8780,7 +8924,8 @@ Graph.prototype.destroy = function()
 		var shape = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null);
 		var curved = mxUtils.getValue(state.style, mxConstants.STYLE_CURVED, false);
 		
-		return !curved && (shape == 'connector' || shape == 'filledEdge' || shape == 'wire');
+		return (curved != 1 || mxUtils.getValue(state.style, 'curveGeometry', '0') == '1') &&
+			(shape == 'connector' || shape == 'filledEdge' || shape == 'wire');
 	};
 	
 	/**
@@ -13499,7 +13644,15 @@ Graph.prototype.getGlobalVariable = function(name)
 	else if (name.substring(0, 5) == 'date{')
 	{
 		var fmt = name.substring(5, name.length - 1);
-		val = this.formatDate(new Date(), fmt);
+
+		try
+		{
+			val = this.formatDate(new Date(), fmt);
+		}
+		catch (e)
+		{
+			// Keeps the placeholder if the browser's date is invalid
+		}
 	}
 
 	return val;
@@ -13982,17 +14135,124 @@ Graph.prototype.isEditIconVisible = function(cell)
  */
 Graph.prototype.getLockedGroupAncestor = function(cell, checkTooltipCell)
 {
+	var cache = (!checkTooltipCell && this.lockedStatesCache != null) ?
+		this.lockedStatesCache.groups : null;
+	var visited = (cache != null) ? [] : null;
+	var result = null;
+
 	while (cell != null)
 	{
+		var cached = (cache != null) ? cache.get(cell) : undefined;
+
+		if (cached !== undefined)
+		{
+			result = cached;
+			break;
+		}
+
+		if (visited != null)
+		{
+			visited.push(cell);
+		}
+
 		if (this.isLockedGroup(cell) || (checkTooltipCell && this.isTooltipCell(cell)))
 		{
-			return cell;
+			result = cell;
+			break;
 		}
 
 		cell = this.model.getParent(cell);
 	}
 
-	return null;
+	for (var i = 0; visited != null && i < visited.length; i++)
+	{
+		cache.put(visited[i], result);
+	}
+
+	return result;
+};
+
+/**
+ * Returns the result of the given function with caches for isCellLocked and
+ * getLockedGroupAncestor. Both walk all ancestors of a cell, so checking all
+ * cells of a large selection in a deep hierarchy, eg. for the handlers or the
+ * selection state, is otherwise quadratic in the depth. The caches are reset
+ * when the model changes while the function runs, and before and after the
+ * function if reset is true and the function runs inside another call, eg. if
+ * it changes the styles of the cell states.
+ */
+Graph.prototype.cacheLockedStates = function(fn, reset)
+{
+	var result = null;
+
+	if (this.lockedStatesCache != null)
+	{
+		if (reset)
+		{
+			this.resetLockedStatesCache();
+		}
+
+		try
+		{
+			result = fn();
+		}
+		finally
+		{
+			if (reset)
+			{
+				this.resetLockedStatesCache();
+			}
+		}
+	}
+	else
+	{
+		var resetCache = mxUtils.bind(this, this.resetLockedStatesCache);
+		resetCache();
+		this.model.addListener(mxEvent.EXECUTED, resetCache);
+		this.model.addListener(mxEvent.CHANGE, resetCache);
+
+		try
+		{
+			result = fn();
+		}
+		finally
+		{
+			this.model.removeListener(resetCache);
+			this.lockedStatesCache = null;
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Replaces the caches of cacheLockedStates with empty caches.
+ */
+Graph.prototype.resetLockedStatesCache = function()
+{
+	this.lockedStatesCache = {locked: new mxDictionary(), groups: new mxDictionary()};
+};
+
+/**
+ * Caches the locked states of the cells while the selection changes.
+ */
+Graph.prototype.setSelectionCells = function(cells)
+{
+	this.cacheLockedStates(mxUtils.bind(this, function()
+	{
+		mxGraph.prototype.setSelectionCells.call(this, cells);
+	}));
+};
+
+/**
+ * Caches the locked states of the cells while the selection changes.
+ */
+Graph.prototype.addSelectionCells = function(cells)
+{
+	this.cacheLockedStates(mxUtils.bind(this, function()
+	{
+		mxGraph.prototype.addSelectionCells.call(this, cells);
+	}));
 };
 
 /**
@@ -15759,9 +16019,10 @@ Graph.prototype.fitGroupToChildren = function(cell)
  * local space) translated by the nested cell's geo.x/y into this cell's
  * local space, so each level's padding accumulates outward and non-zero
  * nested geometry is handled correctly. The optional state resolves children
- * and geometries in another model state (see createFollowModelState).
+ * and geometries in another model state (see createFollowModelState). The
+ * optional cache is passed to getTransparentBounds.
  */
-Graph.prototype.getTransparentChildBounds = function(cell, state)
+Graph.prototype.getTransparentChildBounds = function(cell, state, cache)
 {
 	var result = null;
 	var children = (state != null) ? state.children(cell) :
@@ -15785,7 +16046,7 @@ Graph.prototype.getTransparentChildBounds = function(cell, state)
 			{
 				if (this.isTransparentBounds(child))
 				{
-					var local = this.getTransparentBounds(child, state);
+					var local = this.getTransparentBounds(child, state, null, cache);
 
 					if (local != null)
 					{
@@ -15871,27 +16132,46 @@ Graph.prototype.getTransparentChildBounds = function(cell, state)
  * (child geometries are read directly without the cell's geo.x/y offset).
  * Returns null when the group has no children with geometry. The optional
  * state is passed to getTransparentChildBounds. ignoreState is passed to
- * getTransparentBoundsPadding.
+ * getTransparentBoundsPadding. The optional cache is an mxDictionary for the
+ * bounds of nested transparentBounds cells with the given state, so that
+ * repeated calls for the ancestors of deeply nested cells do not walk the
+ * same descendants again. The returned rectangle is cached and must not be
+ * changed if a cache is given.
  */
-Graph.prototype.getTransparentBounds = function(cell, state, ignoreState)
+Graph.prototype.getTransparentBounds = function(cell, state, ignoreState, cache)
 {
-	var bounds = this.getTransparentChildBounds(cell, state);
+	// Bounds of cells whose style is updated later in the validation of
+	// the view are not cached (see mxGraphView.validateCellState)
+	var viewState = (cache != null) ? this.view.getState(cell) : null;
+	var cached = cache != null && (viewState == null || !viewState.invalidStyle);
+	var result = (cached) ? cache.get(cell) : undefined;
 
-	if (bounds == null)
+	if (result === undefined)
 	{
-		return null;
+		var bounds = this.getTransparentChildBounds(cell, state, cache);
+		result = null;
+
+		if (bounds != null)
+		{
+			var pad = this.getTransparentBoundsPadding(cell, ignoreState);
+			var start = this.isSwimlane(cell) ?
+				this.getActualStartSize(cell) : new mxRectangle();
+			var footer = this.getActualFooterSize(cell);
+
+			result = new mxRectangle(
+				bounds.x - pad.w - start.x - footer.x,
+				bounds.y - pad.n - start.y - footer.y,
+				bounds.width + pad.w + pad.e + start.x + start.width + footer.x + footer.width,
+				bounds.height + pad.n + pad.s + start.y + start.height + footer.y + footer.height);
+		}
+
+		if (cached)
+		{
+			cache.put(cell, result);
+		}
 	}
 
-	var pad = this.getTransparentBoundsPadding(cell, ignoreState);
-	var start = this.isSwimlane(cell) ?
-		this.getActualStartSize(cell) : new mxRectangle();
-	var footer = this.getActualFooterSize(cell);
-
-	return new mxRectangle(
-		bounds.x - pad.w - start.x - footer.x,
-		bounds.y - pad.n - start.y - footer.y,
-		bounds.width + pad.w + pad.e + start.x + start.width + footer.x + footer.width,
-		bounds.height + pad.n + pad.s + start.y + start.height + footer.y + footer.height);
+	return result;
 };
 
 /**
@@ -16181,15 +16461,18 @@ Graph.prototype.normalizeModel = function(root)
  * the geometry is pinned but stays correct if that ever changes); everything else
  * falls through to the base. The original cells array is passed as `ancestors` so
  * the base still resolves parent offsets for edge/relative children whose parent
- * is one of the extracted transparentBounds cells.
+ * is one of the extracted transparentBounds cells. The cache of the base also
+ * holds the bounds of the transparentBounds cells (see createBoundingBoxCache).
  */
-Graph.prototype.getBoundingBoxFromGeometry = function(cells, includeEdges, ancestors, includeStrokeWidth)
+Graph.prototype.getBoundingBoxFromGeometry = function(cells, includeEdges, ancestors, includeStrokeWidth, cache)
 {
 	var result = null;
 	var rest = null;
 
 	if (cells != null)
 	{
+		ancestors = (ancestors != null) ? ancestors : cells;
+		cache = (cache != null) ? cache : this.createBoundingBoxCache(ancestors);
 		rest = [];
 
 		for (var i = 0; i < cells.length; i++)
@@ -16199,7 +16482,8 @@ Graph.prototype.getBoundingBoxFromGeometry = function(cells, includeEdges, ances
 
 			if (geo != null && !geo.relative && this.isTransparentBounds(cells[i]))
 			{
-				var local = this.getTransparentBounds(cells[i]);
+				var local = this.getTransparentBounds(cells[i], null,
+					null, cache.transparentBounds);
 
 				if (local != null)
 				{
@@ -16224,7 +16508,7 @@ Graph.prototype.getBoundingBoxFromGeometry = function(cells, includeEdges, ances
 	}
 
 	var base = mxGraph.prototype.getBoundingBoxFromGeometry.call(this, rest,
-		includeEdges, (ancestors != null) ? ancestors : cells, includeStrokeWidth);
+		includeEdges, ancestors, includeStrokeWidth, cache);
 
 	if (base != null)
 	{
@@ -16239,6 +16523,18 @@ Graph.prototype.getBoundingBoxFromGeometry = function(cells, includeEdges, ances
 	}
 
 	return result;
+};
+
+/**
+ * Adds an mxDictionary for the bounds of transparentBounds cells to the
+ * cache of getBoundingBoxFromGeometry.
+ */
+Graph.prototype.createBoundingBoxCache = function(ancestors)
+{
+	var cache = mxGraph.prototype.createBoundingBoxCache.apply(this, arguments);
+	cache.transparentBounds = new mxDictionary();
+
+	return cache;
 };
 
 /**
@@ -16356,13 +16652,15 @@ Graph.prototype.isCellFoldable = function(cell)
 	// alternateBounds (mxGraph.swapBounds), writing a non-zero geometry onto the
 	// group, corrupting the pin and rendering an empty box. They are not
 	// foldable until proper collapse support exists for derived bounds.
+	// isCellLocked is checked last as it walks up all ancestors and this
+	// is called for every cell that is painted.
 	return this.foldingEnabled && !this.isTransparentBounds(cell) &&
 		mxUtils.getValue(style,
 		mxConstants.STYLE_RESIZABLE, '1') != '0' &&
 		(this.isTreeCellFoldable(cell, style) ||
-		(!this.isCellLocked(cell) &&
-		((this.isContainer(cell) && style['collapsible'] != '0') ||
-		(!this.isContainer(cell) && style['collapsible'] == '1'))));
+		(((this.isContainer(cell) && style['collapsible'] != '0') ||
+		(!this.isContainer(cell) && style['collapsible'] == '1')) &&
+		!this.isCellLocked(cell)));
 };
 
 /**
@@ -18609,7 +18907,9 @@ Graph.prototype.convertTableSides = function(tables, collapsed)
 
 /**
  * Converts the side flags of the rows and cells of the tables whose
- * tableRender is changed (see convertTableSides).
+ * tableRender is changed (see convertTableSides) and places the labels of
+ * edges that are made curved along the curve (curveGeometry, which also
+ * makes their line jumps follow the curve).
  */
 Graph.prototype.setCellStyles = function(key, value, cells)
 {
@@ -18622,6 +18922,31 @@ Graph.prototype.setCellStyles = function(key, value, cells)
 		{
 			this.convertTableSides(cells, value == 'collapsed');
 			mxGraph.prototype.setCellStyles.call(this, key, value, cells);
+		}
+		finally
+		{
+			this.model.endUpdate();
+		}
+	}
+	else if (key == mxConstants.STYLE_CURVED)
+	{
+		cells = (cells != null) ? cells : this.getEditableCells(this.getSelectionCells());
+		var edges = [];
+
+		for (var i = 0; i < cells.length; i++)
+		{
+			if (this.model.isEdge(cells[i]))
+			{
+				edges.push(cells[i]);
+			}
+		}
+
+		this.model.beginUpdate();
+		try
+		{
+			mxGraph.prototype.setCellStyles.call(this, key, value, cells);
+			mxGraph.prototype.setCellStyles.call(this, 'curveGeometry',
+				(value == '1') ? '1' : null, edges);
 		}
 		finally
 		{
@@ -19642,6 +19967,43 @@ Graph.prototype.distributeColumns = function(table)
 };
 
 /**
+ * Undoable change of the ID of a cell in the given model. The caller checks
+ * that the ID is not used by another cell.
+ */
+function ChangeCellId(model, cell, id)
+{
+	this.model = model;
+	this.cell = cell;
+	this.previous = id;
+};
+
+/**
+ * Swaps the ID of the cell with previous and updates the lookup of the cell
+ * and its descendants in the model. Does nothing if the cell is no longer the
+ * cell for its ID in the model, eg. if a remote change replaced or removed it
+ * or if it is on another page, or if another cell has taken the new ID, as
+ * adding the cell would then assign it a new ID.
+ */
+ChangeCellId.prototype.execute = function()
+{
+	if (this.cell != null)
+	{
+		var id = this.cell.getId();
+
+		if (this.previous != null && this.previous != id &&
+			this.model.getCell(id) == this.cell &&
+			this.model.getCell(this.previous) == null)
+		{
+			this.model.cellRemoved(this.cell);
+			this.cell.setId(this.previous);
+			this.model.cellAdded(this.cell);
+		}
+
+		this.previous = id;
+	}
+};
+
+/**
  * Special Layout for tables.
  */
 function TableLayout(graph)
@@ -19920,12 +20282,15 @@ TableLayout.prototype.execute = function(parent)
 					model.setGeometry(parent, table);
 				}
 
-				// All geometries cloned at this point so can change in-place below
+				// All geometries of cells in rows with a geometry are cloned
+				// at this point so can change in-place below. The cells of rows
+				// without a geometry are not laid out and keep their geometry.
 				this.graph.visitTableCells(parent, mxUtils.bind(this, function(iter)
 				{
 					model.setVisible(iter.cell, iter.actual.cell == iter.cell);
 
-					if (iter.actual.cell != iter.cell)
+					if (iter.actual.cell != iter.cell && this.graph.getCellGeometry(
+						model.getParent(iter.actual.cell)) != null)
 					{
 						if (iter.actual.row == iter.row)
 						{
@@ -20203,7 +20568,7 @@ TableLayout.prototype.execute = function(parent)
 
 		// Forces repaint if jumps change on a valid edge
 		if (state != null && recurse && this.graph.model.isEdge(state.cell) &&
-			state.style != null && state.style[mxConstants.STYLE_CURVED] != 1 &&
+			state.style != null && this.isLineJumpEdge(state) &&
 			!state.invalid && this.updateLineJumps(state))
 		{
 			this.graph.cellRenderer.redraw(state, false, this.isRendering());
@@ -20417,9 +20782,10 @@ TableLayout.prototype.execute = function(parent)
 
 		// Adds to the list of edges that may intersect with later edges
 		if (state != null && recurse && this.graph.model.isEdge(state.cell) &&
-			state.style != null && state.style[mxConstants.STYLE_CURVED] != 1)
+			state.style != null && this.isLineJumpEdge(state))
 		{
 			// LATER: Reuse jumps for valid edges
+			state.lineJumpCurve = this.getLineJumpCurve(state);
 			this.validEdges.push(state);
 		}
 
@@ -20548,6 +20914,42 @@ TableLayout.prototype.execute = function(parent)
 	};
 
 	/**
+	 * Caches the bounds of transparentBounds cells during the validation so
+	 * that the states of nested transparentBounds cells do not walk the same
+	 * descendants again in updateCellState, which is quadratic in the depth.
+	 * Also caches the locked states of the cells for the handlers of the
+	 * selection cells that are created while the shapes are painted (see
+	 * mxCellRenderer.redrawShape). The check is required as this also runs
+	 * for plain mxGraph instances (eg. in mxGraphMlCodec).
+	 */
+	var mxGraphViewValidate = mxGraphView.prototype.validate;
+	mxGraphView.prototype.validate = function(cell)
+	{
+		var args = arguments;
+		var cache = this.transparentBoundsCache;
+		this.transparentBoundsCache = new mxDictionary();
+
+		try
+		{
+			if (this.graph.cacheLockedStates != null)
+			{
+				this.graph.cacheLockedStates(mxUtils.bind(this, function()
+				{
+					mxGraphViewValidate.apply(this, args);
+				}), true);
+			}
+			else
+			{
+				mxGraphViewValidate.apply(this, args);
+			}
+		}
+		finally
+		{
+			this.transparentBoundsCache = cache;
+		}
+	};
+
+	/**
 	 * Updates jumps for invalid edges.
 	 */
 	var mxGraphViewUpdateCellState = mxGraphView.prototype.updateCellState;
@@ -20570,7 +20972,8 @@ TableLayout.prototype.execute = function(parent)
 			this.graph.isTransparentBounds != null &&
 			this.graph.isTransparentBounds(state.cell))
 		{
-			var bounds = this.graph.getTransparentBounds(state.cell);
+			var bounds = this.graph.getTransparentBounds(state.cell,
+				null, null, this.transparentBoundsCache);
 
 			if (bounds != null)
 			{
@@ -20594,7 +20997,7 @@ TableLayout.prototype.execute = function(parent)
 
 		// Updates jumps on invalid edge before repaint
 		if (this.graph.model.isEdge(state.cell) &&
-			state.style[mxConstants.STYLE_CURVED] != 1)
+			this.isLineJumpEdge(state))
 		{
 			this.updateLineJumps(state);
 		}
@@ -20633,6 +21036,28 @@ TableLayout.prototype.execute = function(parent)
 	};
 
 	/**
+	 * Returns true if the given edge state takes part in line jumps, ie. if it
+	 * is not curved or if its line jumps follow the painted curve
+	 * (curveGeometry).
+	 */
+	mxGraphView.prototype.isLineJumpEdge = function(state)
+	{
+		return state.style[mxConstants.STYLE_CURVED] != 1 ||
+			mxUtils.getValue(state.style, 'curveGeometry', '0') == '1';
+	};
+
+	/**
+	 * Returns the points of the painted curve of the given edge state if its
+	 * line jumps follow the curve (curveGeometry) and it is painted as a
+	 * curve, or null otherwise.
+	 */
+	mxGraphView.prototype.getLineJumpCurve = function(state)
+	{
+		return (mxUtils.getValue(state.style, 'curveGeometry', '0') == '1') ?
+			Graph.getEdgeCurvePoints(state) : null;
+	};
+
+	/**
 	 * Updates the jumps between given state and processed edges.
 	 */
 	mxGraphView.prototype.updateLineJumps = function(state)
@@ -20641,6 +21066,17 @@ TableLayout.prototype.execute = function(parent)
 		var tr = this.translate;
 		var s = this.scale;
 		
+		if (Graph.lineJumpsEnabled && pts != null && this.validEdges != null &&
+			mxUtils.getValue(state.style, 'jumpStyle', 'none') !== 'none')
+		{
+			var curve = this.getLineJumpCurve(state);
+
+			if (curve != null)
+			{
+				return this.updateCurveLineJumps(state, curve);
+			}
+		}
+
 		if (Graph.lineJumpsEnabled)
 		{
 			var changed = state.routedPoints != null;
@@ -20696,7 +21132,8 @@ TableLayout.prototype.execute = function(parent)
 					for (var e = 0; e < this.validEdges.length; e++)
 					{
 						var state2 = this.validEdges[e];
-						var pts2 = state2.absolutePoints;
+						var curve2 = state2.lineJumpCurve;
+						var pts2 = (curve2 != null) ? curve2 : state2.absolutePoints;
 
 						if (pts2 != null && mxUtils.intersects(state, state2) && state2.style['noJump'] != '1' &&
 							(layer == null || this.graph.getLayerForCell(state2.cell) == layer))
@@ -20712,7 +21149,7 @@ TableLayout.prototype.execute = function(parent)
 								// Ignores waypoints on straight segments
 								pn = pts2[j + 2];
 								
-								while (j < pts2.length - 2 &&
+								while (curve2 == null && j < pts2.length - 2 &&
 									mxUtils.ptSegDistSq(p2.x, p2.y, pn.x, pn.y,
 									p3.x, p3.y) < 1 * this.scale * this.scale)
 								{
@@ -20789,6 +21226,422 @@ TableLayout.prototype.execute = function(parent)
 		}
 	};
 	
+	/**
+	 * Updates the jumps of the given edge state whose line jumps follow the
+	 * painted curve with the given points (see getLineJumpCurve) over the
+	 * processed edges. The routed points are the start and end of the curve
+	 * and the intersections in between, ordered along the curve. Returns true
+	 * if the routed points have changed.
+	 */
+	mxGraphView.prototype.updateCurveLineJumps = function(state, curve)
+	{
+		var tr = this.translate;
+		var s = this.scale;
+		var thresh = 0.5 * s;
+		var jumps = [];
+
+		// Only jumps edges in the same layer if jumpLayers is 0
+		var layer = (mxUtils.getValue(state.style, 'jumpLayers', '1') == '0') ?
+			this.graph.getLayerForCell(state.cell) : null;
+
+		for (var e = 0; e < this.validEdges.length; e++)
+		{
+			var state2 = this.validEdges[e];
+			var pts2 = (state2.lineJumpCurve != null) ?
+				state2.lineJumpCurve : state2.absolutePoints;
+
+			if (pts2 != null && mxUtils.intersects(state, state2) &&
+				state2.style['noJump'] != '1' && (layer == null ||
+				this.graph.getLayerForCell(state2.cell) == layer))
+			{
+				for (var i = 0; i < curve.length - 1; i++)
+				{
+					var p0 = curve[i];
+					var p1 = curve[i + 1];
+					var dx = p1.x - p0.x;
+					var dy = p1.y - p0.y;
+					var len2 = dx * dx + dy * dy;
+
+					for (var j = 0; j < pts2.length - 1; j++)
+					{
+						var p2 = pts2[j];
+						var p3 = pts2[j + 1];
+						var pt = mxUtils.intersection(p0.x, p0.y, p1.x, p1.y,
+							p2.x, p2.y, p3.x, p3.y);
+
+						if (pt != null)
+						{
+							jumps.push({pos: i + ((len2 > 0) ? ((pt.x - p0.x) * dx +
+								(pt.y - p0.y) * dy) / len2 : 0), x: pt.x, y: pt.y});
+						}
+					}
+				}
+			}
+		}
+
+		jumps.sort(function(a, b)
+		{
+			return a.pos - b.pos;
+		});
+
+		// Type 0 is the start or end of the curve, 1 is a jump. Routed
+		// points are stored in model units so that they do not change
+		// with the scale or translate of the view.
+		var actual = [];
+		var changed = false;
+		var start = curve[0];
+		var end = curve[curve.length - 1];
+
+		var addPoint = function(type, x, y)
+		{
+			var rpt = new mxPoint(mxUtils.unscale(x, s, tr.x),
+				mxUtils.unscale(y, s, tr.y));
+			rpt.type = type;
+			actual.push(rpt);
+			var curr = (state.routedPoints != null) ?
+				state.routedPoints[actual.length - 1] : null;
+
+			changed = changed || curr == null || curr.type != type ||
+				curr.x != rpt.x || curr.y != rpt.y;
+		};
+
+		var near = function(p, x, y)
+		{
+			return Math.abs(p.x - x) <= thresh && Math.abs(p.y - y) <= thresh;
+		};
+
+		addPoint(0, start.x, start.y);
+		var last = start;
+
+		for (var i = 0; i < jumps.length; i++)
+		{
+			// Ignores intersections at the ends of the curve and at shared
+			// points of the segments of the curve or of the other edges
+			if (!near(last, jumps[i].x, jumps[i].y) &&
+				!near(end, jumps[i].x, jumps[i].y))
+			{
+				addPoint(1, jumps[i].x, jumps[i].y);
+				last = jumps[i];
+
+				// Curve segment of the intersection for painting
+				actual[actual.length - 1].segment =
+					Math.floor(jumps[i].pos / Graph.curvePointSteps);
+			}
+		}
+
+		addPoint(0, end.x, end.y);
+		changed = changed || (state.routedPoints != null &&
+			state.routedPoints.length != actual.length);
+		state.routedPoints = actual;
+
+		return changed;
+	};
+
+	/**
+	 * Paints the jumps of curved edges along the painted curve.
+	 */
+	var mxConnectorPaintCurvedLine = mxConnector.prototype.paintCurvedLine;
+
+	mxConnector.prototype.paintCurvedLine = function(c, pts)
+	{
+		if (!this.paintCurveLineJumps(c, pts, false))
+		{
+			mxConnectorPaintCurvedLine.apply(this, arguments);
+		}
+	};
+
+	/**
+	 * Paints the jumps of bezier edges along the painted curve.
+	 */
+	var mxConnectorPaintBezierLine = mxConnector.prototype.paintBezierLine;
+
+	mxConnector.prototype.paintBezierLine = function(c, pts)
+	{
+		if (!this.paintCurveLineJumps(c, pts, true))
+		{
+			mxConnectorPaintBezierLine.apply(this, arguments);
+		}
+	};
+
+	/**
+	 * Paints the curve with the given points (see mxPolyline.paintCurvedLine
+	 * and paintBezierLine) with the jumps in the routed points of the state
+	 * (see mxGraphView.updateCurveLineJumps). Each jump cuts the curve at
+	 * the given distance before and after the intersection and connects the
+	 * ends with the jump style, the rest of the curve is painted with the
+	 * original curve segments. Returns false if there are no jumps.
+	 */
+	mxConnector.prototype.paintCurveLineJumps = function(c, pts, bezier)
+	{
+		// Required for checking dirty state
+		this.routedPoints = (this.state != null) ? this.state.routedPoints : null;
+		var rpts = this.routedPoints;
+		var style = mxUtils.getValue(this.style, 'jumpStyle', 'none');
+		var hasJumps = false;
+
+		for (var i = 0; rpts != null && i < rpts.length && !hasJumps; i++)
+		{
+			hasJumps = rpts[i].type == 1;
+		}
+
+		if (this.outline || !hasJumps || style == 'none' || pts.length < 2 ||
+			pts.indexOf(null) >= 0)
+		{
+			return false;
+		}
+		else if (pts.length < 3)
+		{
+			// Painted as a straight line with the jumps of a straight line
+			this.paintLine(c, pts, false);
+
+			return true;
+		}
+
+		// Segments of the painted curve (see Graph.getCurvePoints)
+		var segs = [];
+		var n = pts.length;
+
+		if (bezier && (n - 1) % 3 == 0)
+		{
+			for (var i = 1; i + 2 < n; i += 3)
+			{
+				segs.push([pts[i - 1], pts[i], pts[i + 1], pts[i + 2]]);
+			}
+		}
+		else
+		{
+			var prev = pts[0];
+
+			for (var i = 1; i < n - 2; i++)
+			{
+				var mid = new mxPoint((pts[i].x + pts[i + 1].x) / 2,
+					(pts[i].y + pts[i + 1].y) / 2);
+				segs.push([prev, pts[i], mid]);
+				prev = mid;
+			}
+
+			segs.push([prev, pts[n - 2], pts[n - 1]]);
+		}
+
+		// Points of the polar form (blossom) of a segment, where t0 = t1 =
+		// t2 = t is the point on the curve at t and the blossoms of t0 and t1
+		// are the control points of the part of the segment from t0 to t1
+		var blossom = function(seg, t)
+		{
+			var x = 0;
+			var y = 0;
+
+			if (seg.length == 3)
+			{
+				var w = [(1 - t[0]) * (1 - t[1]), (1 - t[0]) * t[1] +
+					t[0] * (1 - t[1]), t[0] * t[1]];
+			}
+			else
+			{
+				var w = [(1 - t[0]) * (1 - t[1]) * (1 - t[2]),
+					(1 - t[0]) * (1 - t[1]) * t[2] + (1 - t[0]) * t[1] * (1 - t[2]) +
+					t[0] * (1 - t[1]) * (1 - t[2]),
+					(1 - t[0]) * t[1] * t[2] + t[0] * (1 - t[1]) * t[2] +
+					t[0] * t[1] * (1 - t[2]),
+					t[0] * t[1] * t[2]];
+			}
+
+			for (var i = 0; i < seg.length; i++)
+			{
+				x += w[i] * seg[i].x;
+				y += w[i] * seg[i].y;
+			}
+
+			return new mxPoint(x, y);
+		};
+
+		// Positions on the curve are the index of the segment plus the
+		// parameter in the segment
+		var getPoint = function(pos)
+		{
+			var i = Math.min(Math.floor(pos), segs.length - 1);
+			var t = pos - i;
+
+			return blossom(segs[i], [t, t, t]);
+		};
+
+		var dist = function(a, b)
+		{
+			return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+		};
+
+		// Position on the curve that is nearest to the given point, searched
+		// in the given segment and its neighbors if a segment is given
+		var getPosition = function(pt, segment)
+		{
+			var steps = 32;
+			var best = 0;
+			var bestDist = null;
+			var first = (segment != null) ? Math.max(0, segment - 1) : 0;
+			var last = (segment != null) ? Math.min(segs.length, segment + 2) : segs.length;
+
+			for (var i = first * steps; i <= last * steps; i++)
+			{
+				var d = dist(getPoint(i / steps), pt);
+
+				if (bestDist == null || d < bestDist)
+				{
+					best = i / steps;
+					bestDist = d;
+				}
+			}
+
+			var lo = Math.max(0, best - 1 / steps);
+			var hi = Math.min(segs.length, best + 1 / steps);
+
+			for (var i = 0; i < 24; i++)
+			{
+				var m1 = lo + (hi - lo) / 3;
+				var m2 = hi - (hi - lo) / 3;
+
+				if (dist(getPoint(m1), pt) < dist(getPoint(m2), pt))
+				{
+					hi = m2;
+				}
+				else
+				{
+					lo = m1;
+				}
+			}
+
+			return (lo + hi) / 2;
+		};
+
+		// Position at the given distance along the curve from the given
+		// position in the given direction, or null at the end of the curve
+		var advance = function(pos, length, dir)
+		{
+			var step = dir / 64;
+			var prev = getPoint(pos);
+
+			while (length > 0)
+			{
+				var next = pos + step;
+
+				if (next < 0 || next > segs.length)
+				{
+					return null;
+				}
+
+				var pt = getPoint(next);
+				var d = dist(prev, pt);
+
+				if (d >= length)
+				{
+					return pos + step * length / d;
+				}
+
+				length -= d;
+				pos = next;
+				prev = pt;
+			}
+
+			return pos;
+		};
+
+		// Adds the curve from the given start to the given end position
+		var addCurve = function(from, to)
+		{
+			for (var i = Math.floor(from); i < segs.length && i < to; i++)
+			{
+				var t0 = Math.max(0, from - i);
+				var t1 = Math.min(1, to - i);
+
+				if (t1 > t0)
+				{
+					var seg = segs[i];
+
+					if (seg.length == 3)
+					{
+						var cp = blossom(seg, [t0, t1]);
+						var pe = blossom(seg, [t1, t1]);
+						c.quadTo(cp.x, cp.y, pe.x, pe.y);
+					}
+					else
+					{
+						var cp1 = blossom(seg, [t0, t0, t1]);
+						var cp2 = blossom(seg, [t0, t1, t1]);
+						var pe = blossom(seg, [t1, t1, t1]);
+						c.curveTo(cp1.x, cp1.y, cp2.x, cp2.y, pe.x, pe.y);
+					}
+				}
+			}
+		};
+
+		var size = (parseInt(mxUtils.getValue(this.style, 'jumpSize',
+			Graph.defaultJumpSize)) - 2) / 2 + this.strokewidth;
+
+		// Routed points are in model units
+		var tr = (this.viewTranslate != null) ? this.viewTranslate :
+			this.state.view.translate;
+		var current = 0;
+
+		c.begin();
+		c.moveTo(pts[0].x, pts[0].y);
+
+		for (var i = 0; i < rpts.length; i++)
+		{
+			if (rpts[i].type == 1)
+			{
+				var pos = getPosition(new mxPoint(rpts[i].x + tr.x,
+					rpts[i].y + tr.y), rpts[i].segment);
+				var from = advance(pos, size, -1);
+				var to = advance(pos, size, 1);
+
+				// Ignores jumps that are too close to the previous jump or
+				// to the ends of the curve
+				if (from != null && to != null && from > current)
+				{
+					addCurve(current, from);
+					var p0 = getPoint(from);
+					var p1 = getPoint(to);
+					var nx = (p1.x - p0.x) / 2;
+					var ny = (p1.y - p0.y) / 2;
+					var f = (Math.round(nx) < 0 || (Math.round(nx) == 0
+						&& Math.round(ny) <= 0)) ? 1 : -1;
+
+					if (style == 'sharp')
+					{
+						c.lineTo(p0.x - ny * f, p0.y + nx * f);
+						c.lineTo(p1.x - ny * f, p1.y + nx * f);
+						c.lineTo(p1.x, p1.y);
+					}
+					else if (style == 'line')
+					{
+						c.moveTo(p0.x + ny * f, p0.y - nx * f);
+						c.lineTo(p0.x - ny * f, p0.y + nx * f);
+						c.moveTo(p1.x - ny * f, p1.y + nx * f);
+						c.lineTo(p1.x + ny * f, p1.y - nx * f);
+						c.moveTo(p1.x, p1.y);
+					}
+					else if (style == 'arc')
+					{
+						f *= 1.3;
+						c.curveTo(p0.x - ny * f, p0.y + nx * f,
+							p1.x - ny * f, p1.y + nx * f,
+							p1.x, p1.y);
+					}
+					else
+					{
+						c.moveTo(p1.x, p1.y);
+					}
+
+					current = to;
+				}
+			}
+		}
+
+		addCurve(current, segs.length);
+		c.stroke();
+
+		return true;
+	};
+
 	/**
 	 * Overrides painting the actual shape for taking into account jump style.
 	 */
@@ -21028,6 +21881,70 @@ TableLayout.prototype.execute = function(parent)
 		}
 		
 		return pt;
+	};
+
+	/**
+	 * Returns a state with the points of the painted curve instead of the
+	 * control points of the given edge state if curveGeometry is 1 and the
+	 * edge is painted as a curve, or null otherwise.
+	 */
+	mxGraphView.prototype.getLabelCurveState = function(state)
+	{
+		var result = null;
+
+		if (state != null && state.style != null &&
+			mxUtils.getValue(state.style, 'curveGeometry', '0') == '1')
+		{
+			var pts = Graph.getEdgeCurvePoints(state);
+
+			if (pts != null)
+			{
+				var segments = [];
+				var length = 0;
+
+				for (var i = 1; i < pts.length; i++)
+				{
+					var dx = pts[i].x - pts[i - 1].x;
+					var dy = pts[i].y - pts[i - 1].y;
+					var seg = Math.sqrt(dx * dx + dy * dy);
+					segments.push(seg);
+					length += seg;
+				}
+
+				result = Object.create(state);
+				result.absolutePoints = pts;
+				result.segments = segments;
+				result.length = length;
+			}
+		}
+
+		return result;
+	};
+
+	/**
+	 * Places edge labels along the painted curve if curveGeometry is 1.
+	 */
+	var mxGraphViewGetPoint = mxGraphView.prototype.getPoint;
+
+	mxGraphView.prototype.getPoint = function(state, geometry)
+	{
+		var curve = this.getLabelCurveState(state);
+
+		return mxGraphViewGetPoint.call(this, (curve != null) ? curve : state, geometry);
+	};
+
+	/**
+	 * Returns the relative label position along the painted curve if
+	 * curveGeometry is 1.
+	 */
+	var mxGraphViewGetRelativePoint = mxGraphView.prototype.getRelativePoint;
+
+	mxGraphView.prototype.getRelativePoint = function(edgeState, x, y)
+	{
+		var curve = this.getLabelCurveState(edgeState);
+
+		return mxGraphViewGetRelativePoint.call(this,
+			(curve != null) ? curve : edgeState, x, y);
 	};
 		
 	/**
@@ -21578,6 +22495,12 @@ if (typeof mxVertexHandler !== 'undefined')
 				}
 			}
 			
+			// Places the labels of new curved edges along the curve
+			if (this.currentEdgeStyle['curved'] == '1')
+			{
+				style += 'curveGeometry=1;';
+			}
+
 			// Overrides the global default to match the default edge style
 			if (this.currentEdgeStyle['orthogonalLoop'] != null)
 			{
@@ -25514,7 +26437,10 @@ if (typeof mxVertexHandler !== 'undefined')
 		/**
 		 * Returns the relative labels of the given edge state (the label of
 		 * the edge and its relative children) with their geometry, the point
-		 * on the route and the point where they are shown.
+		 * on the route and the point where they are shown. For curved edges
+		 * with labels on the control points (no curveGeometry), the point
+		 * without the offset and the nearest point on the painted curve are
+		 * added.
 		 */
 		Graph.prototype.getEdgeLabelPositions = function(state)
 		{
@@ -25524,6 +26450,9 @@ if (typeof mxVertexHandler !== 'undefined')
 
 			if (state.absolutePoints != null && state.segments != null)
 			{
+				var curve = (this.view.getLabelCurveState(state) == null) ?
+					Graph.getEdgeCurvePoints(state) : null;
+
 				for (var i = 0; i < cells.length; i++)
 				{
 					var geo = model.getGeometry(cells[i]);
@@ -25535,10 +26464,57 @@ if (typeof mxVertexHandler !== 'undefined')
 						anchor.y = 0;
 						anchor.offset = null;
 
-						result.push({cell: cells[i], geo: geo,
+						var label = {cell: cells[i], geo: geo,
 							anchor: this.view.getPoint(state, anchor),
-							pt: this.view.getPoint(state, geo)});
+							pt: this.view.getPoint(state, geo)};
+
+						if (curve != null)
+						{
+							var base = geo.clone();
+							base.offset = null;
+
+							label.base = this.view.getPoint(state, base);
+							label.curvePt = Graph.getNearestPolylinePoint(
+								curve, label.pt.x, label.pt.y);
+						}
+
+						result.push(label);
 					}
+				}
+			}
+
+			return result;
+		};
+
+		/**
+		 * Returns the new geometry and point of the given label (see
+		 * getEdgeLabelPositions) of a curved edge with the given new state and
+		 * curve, moved by the distance that the curve under the label moved.
+		 * Returns null if the curve did not move under the label or if the
+		 * label cannot be placed there.
+		 */
+		Graph.prototype.getCurvedEdgeLabelGeometry = function(state, curve, label, geo)
+		{
+			var c0 = label.curvePt;
+			var c1 = Graph.getNearestPolylinePoint(curve, c0.x, c0.y);
+			var dx = c1.x - c0.x;
+			var dy = c1.y - c0.y;
+			var result = null;
+
+			if (dx * dx + dy * dy > 1)
+			{
+				var rel = this.view.getRelativePoint(state,
+					label.base.x + dx, label.base.y + dy);
+				var clone = geo.clone();
+				clone.x = Math.round(rel.x * 10000) / 10000;
+				clone.y = Math.round(rel.y * 100) / 100;
+
+				var pt = new mxPoint(label.pt.x + dx, label.pt.y + dy);
+				var check = this.view.getPoint(state, clone);
+
+				if (Math.abs(check.x - pt.x) <= 1 && Math.abs(check.y - pt.y) <= 1)
+				{
+					result = {geo: clone, pt: pt};
 				}
 			}
 
@@ -25548,7 +26524,9 @@ if (typeof mxVertexHandler !== 'undefined')
 		/**
 		 * Moves the given labels of the given edge (see getEdgeLabelPositions)
 		 * back to the point where they were shown if the new route of the edge
-		 * passes through their previous point on the route.
+		 * passes through their previous point on the route (the painted curve
+		 * if curveGeometry is 1). Labels of other curved edges move by the
+		 * distance that the curve under the label moved.
 		 */
 		Graph.prototype.restoreEdgeLabelPositions = function(edge, labels)
 		{
@@ -25582,6 +26560,10 @@ if (typeof mxVertexHandler !== 'undefined')
 				return;
 			}
 
+			var labelCurve = view.getLabelCurveState(state);
+			var route = (labelCurve != null) ? labelCurve.absolutePoints : pts;
+			var curve = (labelCurve == null) ? Graph.getEdgeCurvePoints(state) : null;
+
 			for (var i = 0; i < labels.length; i++)
 			{
 				var geo = model.getGeometry(labels[i].cell);
@@ -25595,12 +26577,12 @@ if (typeof mxVertexHandler !== 'undefined')
 					var anchor = labels[i].anchor;
 					var dist = null;
 
-					for (var j = 1; j < pts.length; j++)
+					for (var j = 1; j < route.length; j++)
 					{
-						if (pts[j - 1] != null && pts[j] != null)
+						if (route[j - 1] != null && route[j] != null)
 						{
-							var d = mxUtils.ptSegDistSq(pts[j - 1].x, pts[j - 1].y,
-								pts[j].x, pts[j].y, anchor.x, anchor.y);
+							var d = mxUtils.ptSegDistSq(route[j - 1].x, route[j - 1].y,
+								route[j].x, route[j].y, anchor.x, anchor.y);
 							dist = (dist == null) ? d : Math.min(dist, d);
 						}
 					}
@@ -25608,18 +26590,31 @@ if (typeof mxVertexHandler !== 'undefined')
 					if (dist != null && dist <= 1)
 					{
 						var rel = view.getRelativePoint(state, anchor.x, anchor.y);
-						var x = Math.round(rel.x * 10000) / 10000;
+						var clone = geo.clone();
+						clone.x = Math.round(rel.x * 10000) / 10000;
+						var dest = labels[i].pt;
 
-						if (x != geo.x)
+						// Moves labels of curved edges by the distance that the
+						// curve under the label moved
+						if (curve != null && labels[i].curvePt != null)
 						{
-							var clone = geo.clone();
-							clone.x = x;
+							var moved = this.getCurvedEdgeLabelGeometry(state, curve,
+								labels[i], geo);
 
-							// Only changes labels that end up where they were
+							if (moved != null)
+							{
+								clone = moved.geo;
+								dest = moved.pt;
+							}
+						}
+
+						if (clone.x != geo.x || clone.y != geo.y)
+						{
+							// Only changes labels that end up where they should
 							var pt = view.getPoint(state, clone);
 
-							if (Math.abs(pt.x - labels[i].pt.x) <= 1 &&
-								Math.abs(pt.y - labels[i].pt.y) <= 1)
+							if (Math.abs(pt.x - dest.x) <= 1 &&
+								Math.abs(pt.y - dest.y) <= 1)
 							{
 								model.setGeometry(labels[i].cell, clone);
 							}
@@ -30182,6 +31177,29 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 
 		/**
+		 * Caches the locked states of the cells while the handlers are created
+		 * or refreshed. The check is required as this also runs for plain
+		 * mxGraph instances (eg. in mxGraphMlCodec).
+		 */
+		var mxSelectionCellsHandlerRefresh = mxSelectionCellsHandler.prototype.refresh;
+		mxSelectionCellsHandler.prototype.refresh = function()
+		{
+			var args = arguments;
+
+			if (this.graph.cacheLockedStates != null)
+			{
+				this.graph.cacheLockedStates(mxUtils.bind(this, function()
+				{
+					mxSelectionCellsHandlerRefresh.apply(this, args);
+				}));
+			}
+			else
+			{
+				mxSelectionCellsHandlerRefresh.apply(this, args);
+			}
+		};
+
+		/**
 		 * Includes transparentBounds ancestors of selected cells in the handler
 		 * list so that the group's own vertex handler is created (drawing the
 		 * dashed bounds and the move handle) even when only descendants are
@@ -30928,6 +31946,13 @@ if (typeof mxVertexHandler !== 'undefined')
 						{
 							var colState = graph.view.getState(cols[index]);
 							var geo = graph.getCellGeometry(cols[index]);
+
+							// Skips columns without a geometry, eg. from malformed XML
+							if (geo == null)
+							{
+								return;
+							}
+
 							var g = (geo.alternateBounds != null) ? geo.alternateBounds : geo;
 
 							if (colState == null)

@@ -2018,29 +2018,68 @@ mxGraph.prototype.graphModelChanged = function(changes)
  */
 mxGraph.prototype.updateSelection = function()
 {
+	var model = this.model;
+	var root = model.getRoot();
+	var currentRoot = this.view.currentRoot;
 	var cells = this.getSelectionCells();
+	var contained = new mxDictionary();
+	var expanded = new mxDictionary();
 	var removed = [];
+
+	// Returns the first result of fn that is not null for the given cell and
+	// its ancestors and caches it for all visited cells. The ancestors are
+	// shared by the cells, so checking all ancestors of each cell is
+	// otherwise quadratic in the depth of the hierarchy.
+	var getResult = function(cell, cache, fn)
+	{
+		var visited = [];
+		var result = null;
+
+		while (result == null)
+		{
+			result = (cell != null) ? cache.get(cell) : null;
+
+			if (result == null)
+			{
+				result = fn(cell);
+
+				if (cell != null)
+				{
+					visited.push(cell);
+					cell = model.getParent(cell);
+				}
+			}
+		}
+
+		for (var i = 0; i < visited.length; i++)
+		{
+			cache.put(visited[i], result);
+		}
+
+		return result;
+	};
+
+	// Same as mxGraphModel.contains
+	var isContained = function(cell)
+	{
+		return (cell == null || cell == root) ? cell == root : null;
+	};
+
+	// Cells up to the current root must be expanded and visible
+	var isExpanded = mxUtils.bind(this, function(cell)
+	{
+		return (cell == null || cell == currentRoot) ? true :
+			((this.isCellCollapsed(cell) || !this.isCellVisible(cell)) ?
+			false : null);
+	});
 	
 	for (var i = 0; i < cells.length; i++)
 	{
-		if (!this.model.contains(cells[i]) || !this.isCellVisible(cells[i]))
+		if (!getResult(cells[i], contained, isContained) ||
+			!this.isCellVisible(cells[i]) ||
+			!getResult(model.getParent(cells[i]), expanded, isExpanded))
 		{
 			removed.push(cells[i]);
-		}
-		else
-		{
-			var par = this.model.getParent(cells[i]);
-			
-			while (par != null && par != this.view.currentRoot)
-			{
-				if (this.isCellCollapsed(par) || !this.isCellVisible(par))
-				{
-					removed.push(cells[i]);
-					break;
-				}
-				
-				par = this.model.getParent(par);
-			}
 		}
 	}
 	
@@ -8046,15 +8085,20 @@ mxGraph.prototype.getCellBounds = function(cell, includeEdges, includeDescendant
  * when computing the absolute position of child cells.
  * includeStrokeWidth - Optional boolean to indicate if the strokeWidth
  * should be added to the bounding box. Default is false.
+ * cache - Internal cache for the recursive calls. See
+ * <createBoundingBoxCache>.
  */
 mxGraph.prototype.getBoundingBoxFromGeometry = function(cells, includeEdges,
-	ancestors, includeStrokeWidth)
+	ancestors, includeStrokeWidth, cache)
 {
 	includeEdges = (includeEdges != null) ? includeEdges : false;
 	var result = null;
-	
+
 	if (cells != null)
 	{
+		ancestors = (ancestors != null) ? ancestors : cells;
+		cache = (cache != null) ? cache : this.createBoundingBoxCache(ancestors);
+
 		for (var i = 0; i < cells.length; i++)
 		{
 			if (includeEdges || this.model.isVertex(cells[i]))
@@ -8104,12 +8148,11 @@ mxGraph.prototype.getBoundingBoxFromGeometry = function(cells, includeEdges,
 							}
 						}
 						
-						if (bbox != null && this.model.isVertex(parent) && mxUtils.indexOf(
-							(ancestors != null) ? ancestors : cells, parent) >= 0)
+						if (bbox != null && this.model.isVertex(parent) &&
+							cache.ancestors.get(parent))
 						{
-							var tmp = this.getBoundingBoxFromGeometry([parent], false,
-								(ancestors != null) ? ancestors : cells,
-								includeStrokeWidth);
+							var tmp = this.getParentBoundingBoxFromGeometry(parent,
+								ancestors, includeStrokeWidth, cache);
 
 							if (tmp != null)
 							{
@@ -8124,15 +8167,14 @@ mxGraph.prototype.getBoundingBoxFromGeometry = function(cells, includeEdges,
 						{
 							if (this.model.isVertex(parent) && parent != this.view.currentRoot)
 							{
-								var tmp = this.getBoundingBoxFromGeometry([parent], false,
-										(ancestors != null) ? ancestors : cells,
-										includeStrokeWidth);
+								var tmp = this.getParentBoundingBoxFromGeometry(parent,
+									ancestors, includeStrokeWidth, cache);
 								
 								if (tmp != null)
 								{
 									bbox = new mxRectangle(geo.x * tmp.width, geo.y * tmp.height, geo.width, geo.height);
 									
-									if (mxUtils.indexOf((ancestors != null) ? ancestors : cells, parent) >= 0)
+									if (cache.ancestors.get(parent))
 									{
 										bbox.x += tmp.x;
 										bbox.y += tmp.y;
@@ -8144,12 +8186,10 @@ mxGraph.prototype.getBoundingBoxFromGeometry = function(cells, includeEdges,
 						{
 							bbox = mxRectangle.fromRectangle(geo);
 							
-							if (this.model.isVertex(parent) && mxUtils.indexOf(
-								(ancestors != null) ? ancestors : cells, parent) >= 0)
+							if (this.model.isVertex(parent) && cache.ancestors.get(parent))
 							{
-								var tmp = this.getBoundingBoxFromGeometry([parent], false,
-									(ancestors != null) ? ancestors : cells,
-									includeStrokeWidth);
+								var tmp = this.getParentBoundingBoxFromGeometry(parent,
+									ancestors, includeStrokeWidth, cache);
 
 								if (tmp != null)
 								{
@@ -8206,6 +8246,76 @@ mxGraph.prototype.getBoundingBoxFromGeometry = function(cells, includeEdges,
 	}
 	
 	return result;
+};
+
+/**
+ * Function: createBoundingBoxCache
+ * 
+ * Returns a new cache for <getBoundingBoxFromGeometry> with the given
+ * ancestors. The cache contains the ancestors and the bounding boxes of
+ * the parents in <mxDictionaries>.
+ * 
+ * Parameters:
+ * 
+ * ancestors - Array of ancestor cells for <getBoundingBoxFromGeometry>.
+ */
+mxGraph.prototype.createBoundingBoxCache = function(ancestors)
+{
+	var cache = {ancestors: new mxDictionary(), boxes: new mxDictionary()};
+
+	for (var i = 0; i < ancestors.length; i++)
+	{
+		cache.ancestors.put(ancestors[i], true);
+	}
+
+	return cache;
+};
+
+/**
+ * Function: getParentBoundingBoxFromGeometry
+ * 
+ * Returns the bounding box of the given parent for the given cache of
+ * <getBoundingBoxFromGeometry>. The bounding boxes of the ancestors are
+ * cached and computed from the top down so that the time and the depth
+ * of the recursion do not grow with the depth of the hierarchy.
+ * 
+ * Parameters:
+ * 
+ * parent - <mxCell> whose bounding box should be returned.
+ * ancestors - Array of ancestor cells for <getBoundingBoxFromGeometry>.
+ * includeStrokeWidth - Boolean for <getBoundingBoxFromGeometry>.
+ * cache - Cache of <getBoundingBoxFromGeometry>.
+ */
+mxGraph.prototype.getParentBoundingBoxFromGeometry = function(parent,
+	ancestors, includeStrokeWidth, cache)
+{
+	var cells = [];
+	var cell = parent;
+
+	// Collects the uncached ancestors whose bounding box may depend
+	// on their parent. Collected cells are cached as null so that the
+	// loop terminates for cycles in the parents of invalid cells.
+	while (cell != null && cache.boxes.get(cell) === undefined)
+	{
+		var geo = this.getCellGeometry(cell);
+		cache.boxes.put(cell, null);
+		cells.push(cell);
+		cell = this.model.getParent(cell);
+
+		if (!this.model.isVertex(cell) || (!cache.ancestors.get(cell) &&
+			(geo == null || !geo.relative)))
+		{
+			cell = null;
+		}
+	}
+
+	for (var i = cells.length - 1; i >= 0; i--)
+	{
+		cache.boxes.put(cells[i], this.getBoundingBoxFromGeometry([cells[i]],
+			false, ancestors, includeStrokeWidth, cache));
+	}
+
+	return cache.boxes.get(parent);
 };
 
 /**

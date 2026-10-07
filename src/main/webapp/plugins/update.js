@@ -204,6 +204,9 @@ Draw.loadPlugin(function(editorUi)
 			return result;
 		};
 		
+		// Original styles of the cells in the demo roundtrip
+		var prevStyles = new mxDictionary();
+		
 		function createDemoResponse()
 		{
 			var doc = mxUtils.createXmlDocument();
@@ -246,10 +249,12 @@ Draw.loadPlugin(function(editorUi)
 						cell.value.getAttribute('update') == '1')
 					{
 						// Restores original style in demo roundtrip
-						if (cell.prevStyle == null)
+						if (prevStyles.get(cell) == null)
 						{
-							cell.prevStyle = cell.style;
+							prevStyles.put(cell, cell.style);
 						}
+						
+						var prevStyle = prevStyles.get(cell);
 						
 						if (Math.random() > 0.5)
 						{
@@ -257,7 +262,7 @@ Draw.loadPlugin(function(editorUi)
 							update.setAttribute('id', cell.id);
 							update.setAttribute('value', '<object tooltip="%load%% Done" load="' +
 								Math.round(Math.random() * 100) + '" placeholders="1">');
-							update.setAttribute('style', cell.prevStyle + ';fillColor=red;gradientColor=white;');
+							update.setAttribute('style', prevStyle + ';fillColor=red;gradientColor=white;');
 							update.setAttribute('icon', JSON.stringify({tooltip: 'Alert', align: 'right',
 								valign: 'top', image: {src: 'https://app.diagrams.net/mxgraph/images/warning.gif', width: 26, height: 26}}));
 //							update.setAttribute('geometry', JSON.stringify({dx: (Math.random() * 100) - 50,
@@ -278,7 +283,7 @@ Draw.loadPlugin(function(editorUi)
 						{
 							var update = doc.createElement('update');
 							update.setAttribute('id', cell.id);
-							update.setAttribute('style', cell.prevStyle + ';fillColor=#d4e1f5;gradientColor=white;');
+							update.setAttribute('style', prevStyle + ';fillColor=#d4e1f5;gradientColor=white;');
 							update.setAttribute('value',
 								'<object tooltip="Click <a href=\"https://app.diagrams.net\">here</a>">');
 							update.setAttribute('icon', '');

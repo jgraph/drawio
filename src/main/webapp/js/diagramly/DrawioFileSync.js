@@ -2290,7 +2290,9 @@ DrawioFileSync.prototype.isRealtimeConnected = function()
  * Records the pages affected by the given edit for the dirty page
  * tracking in sendLocalChanges. The literal 'currentPage' marks the
  * current page (view state events carry no edit); an unknown source
- * falls back to marking all pages via a null dirtyPageIds.
+ * falls back to marking all pages via a null dirtyPageIds. A page is
+ * mapped to true if all its cells must be diffed, or to the IDs of the
+ * cells that were changed (see markChangedCell).
  */
 DrawioFileSync.prototype.markLocalChanges = function(edit)
 {
@@ -2319,6 +2321,12 @@ DrawioFileSync.prototype.markLocalChanges = function(edit)
 			}
 			else if (edit != null && edit.changes != null)
 			{
+				// Undo and redo replays repair cells that are not part of
+				// the edit without a model change (eg. edges into a removed
+				// subtree, see the change wraps in EditorUi), so all cells
+				// of their pages are diffed
+				var replay = edit.undone || edit.redone;
+
 				for (var i = 0; i < edit.changes.length &&
 					this.dirtyPageIds != null; i++)
 				{
@@ -2326,7 +2334,14 @@ DrawioFileSync.prototype.markLocalChanges = function(edit)
 
 					if (id != null)
 					{
-						this.dirtyPageIds[id] = true;
+						if (replay)
+						{
+							this.dirtyPageIds[id] = true;
+						}
+						else
+						{
+							this.markChangedCell(id, edit.changes[i]);
+						}
 					}
 
 					// A child change moving a cell between pages (eg.
@@ -2371,6 +2386,61 @@ DrawioFileSync.prototype.markLocalChanges = function(edit)
 };
 
 /**
+ * Adds the cell of the given change to the changed cells of the given page
+ * in dirtyPageIds, or marks all cells of the page if the change has no
+ * cell or is not a known cell change. Cells change only through the model,
+ * so the diff of the page in sendLocalChanges only compares the geometries,
+ * XML values and custom properties of these cells (see diffCells).
+ */
+DrawioFileSync.prototype.markChangedCell = function(pageId, change)
+{
+	var cell = this.getCellForChange(change);
+	var cells = this.dirtyPageIds[pageId];
+
+	if (cell == null || cell.getId() == null)
+	{
+		this.dirtyPageIds[pageId] = true;
+	}
+	else if (cells !== true)
+	{
+		if (cells == null)
+		{
+			// Null prototype: keyed by cell ids from the document
+			cells = Object.create(null);
+			this.dirtyPageIds[pageId] = cells;
+		}
+
+		cells[cell.getId()] = true;
+	}
+};
+
+/**
+ * Returns the cell whose properties the given change modifies, or null if
+ * the change is not one of the cell changes of mxGraphModel. These only
+ * change their cell (a child change also inserts, removes or moves the
+ * descendants of its child, which the diff finds by their IDs and order).
+ */
+DrawioFileSync.prototype.getCellForChange = function(change)
+{
+	if (change != null && change.constructor == mxChildChange)
+	{
+		return change.child;
+	}
+	else if (change != null && (change.constructor == mxTerminalChange ||
+		change.constructor == mxValueChange ||
+		change.constructor == mxStyleChange ||
+		change.constructor == mxGeometryChange ||
+		change.constructor == mxCollapseChange ||
+		change.constructor == mxVisibleChange ||
+		change.constructor == mxCellAttributeChange))
+	{
+		return change.cell;
+	}
+
+	return null;
+};
+
+/**
  * Returns the ID of the page affected by the given undoable change,
  * null for changes that need no cell diff (page order and selection),
  * and sets dirtyPageIds to null for changes whose page cannot be
@@ -2399,7 +2469,8 @@ DrawioFileSync.prototype.getPageIdForChange = function(change)
 		// and the selection is not synced
 		return null;
 	}
-	else if (change instanceof RenamePage || change instanceof ChangePageView)
+	else if (change instanceof RenamePage || change instanceof ChangePageView ||
+		change instanceof ChangePageId)
 	{
 		if (change.page != null)
 		{
@@ -2470,15 +2541,17 @@ DrawioFileSync.prototype.getPageForRoot = function(root)
  * that a concurrent remote patch has removed (eg. the connection
  * handler holds the target object across the gesture): the resulting
  * dangling reference cannot be represented in diffs or clones, so it
- * would permanently diverge the model copies.
+ * would permanently diverge the model copies. Returns the IDs of the
+ * repaired edges, which change without a model change.
  */
 DrawioFileSync.prototype.sanitizePageTerminals = function(page)
 {
+	// Null prototype: keyed by cell ids from the document
+	var repairedIds = Object.create(null);
+
 	if (page.root != null)
 	{
 		var lookup = Object.create(null);
-		// Null prototype: keyed by cell ids from the document
-		var repairedIds = Object.create(null);
 		var edges = [];
 
 		var index = function(cell)
@@ -2576,6 +2649,8 @@ DrawioFileSync.prototype.sanitizePageTerminals = function(page)
 		this.file.absorbUnconfirmedRepairs(page, repairedIds,
 			!this.file.isEditable());
 	}
+
+	return repairedIds;
 };
 
 /**
@@ -2664,9 +2739,20 @@ DrawioFileSync.prototype.sendLocalChanges = function()
 
 			for (var i = 0; i < this.ui.pages.length; i++)
 			{
-				if (dirty == null || dirty[this.ui.pages[i].getId()])
+				var id = this.ui.pages[i].getId();
+
+				if (dirty == null || dirty[id])
 				{
-					this.sanitizePageTerminals(this.ui.pages[i]);
+					var repaired = this.sanitizePageTerminals(this.ui.pages[i]);
+
+					// Adds the repaired edges to the changed cells
+					if (dirty != null && dirty[id] !== true)
+					{
+						for (var cellId in repaired)
+						{
+							dirty[id][cellId] = true;
+						}
+					}
 				}
 			}
 
@@ -2680,6 +2766,7 @@ DrawioFileSync.prototype.sendLocalChanges = function()
 				// the flush cost is bounded by the changed pages, not
 				// the file size
 				skip = Object.create(null);
+				var changed = Object.create(null);
 
 				for (var i = 0; i < this.snapshot.length; i++)
 				{
@@ -2689,10 +2776,16 @@ DrawioFileSync.prototype.sendLocalChanges = function()
 					{
 						skip[id] = true;
 					}
+					else if (dirty[id] !== true)
+					{
+						// Compares geometries, XML values and custom
+						// properties only for the changed cells
+						changed[id] = dirty[id];
+					}
 				}
 
 				patch = this.ui.diffPages(this.snapshot,
-					this.ui.pages, skip);
+					this.ui.pages, skip, changed);
 			}
 			else
 			{
@@ -2715,32 +2808,28 @@ DrawioFileSync.prototype.sendLocalChanges = function()
 			this.file.ownPages = this.ui.patchPages(
 				this.file.ownPages, patch, true);
 
-			// Advances the snapshot by cloning the changed pages and
-			// reusing the unchanged ones (or the full clone above)
+			// Advances the snapshot by applying the patch, as for remote
+			// changes, instead of cloning the changed pages (about 30 ms
+			// for 4,000 cells): the patch is the exact diff from the
+			// snapshot, so the result equals the pages (asserted under
+			// test=1 below), and it is decoded into new objects, so the
+			// snapshot shares no cells with the pages or the own pages
 			if (newSnapshot == null)
 			{
-				newSnapshot = [];
-				var lookup = Object.create(null);
-
-				for (var i = 0; i < this.snapshot.length; i++)
-				{
-					lookup[this.snapshot[i].getId()] = this.snapshot[i];
-				}
-
-				for (var i = 0; i < this.ui.pages.length; i++)
-				{
-					var id = this.ui.pages[i].getId();
-					newSnapshot.push((!dirty[id] && lookup[id] != null) ?
-						lookup[id] : this.ui.clonePage(this.ui.pages[i]));
-				}
+				newSnapshot = this.ui.patchPages(this.snapshot, patch, false);
 			}
 
 			this.snapshot = newSnapshot;
 			
-			// Creates patch for cross references
+			// Creates patch for cross references, skipping the cell
+			// diffs that cannot change the result (in particular all
+			// pages if the own pages have all cells of the pages) and
+			// comparing only the cells it uses in full
 			var resolve = this.ui.resolveCrossReferences(
 				patch, this.ui.diffPages(this.file.ownPages,
-					this.ui.pages, skip));
+					this.ui.pages, this.ui.getCrossReferenceSkip(
+						this.file.ownPages, this.ui.pages, patch, skip),
+					this.ui.getCrossReferenceCells(patch)));
 			
 			// Patches own pages to resolve cross references
 			this.file.ownPages = this.ui.patchPages(

@@ -238,7 +238,7 @@ Draw.loadPlugin(function(ui)
 								if (numberA > 0)
 								{
 									var k = Math.floor(Math.random() * numberA);
-									parentA.remove(k);
+									graph.model.remove(parentA.getChildAt(k));
 								}
 							}
 							
@@ -253,7 +253,7 @@ Draw.loadPlugin(function(ui)
 								if (numberB > 0)
 								{
 									var k = Math.floor(Math.random() * numberB);
-									parentB.remove(k);
+									graph.model.remove(parentB.getChildAt(k));
 								}
 							}
 							
@@ -277,7 +277,7 @@ Draw.loadPlugin(function(ui)
 									var y = Math.floor(Math.random() * 50);
 									var number = Math.floor(Math.random() * 9000 + 1000);
 									var child = graph.insertVertex(parentA, null, number.toString(), x, y, 120, 30);
-									parentA.insert(child, k);
+									graph.model.add(parentA, child, k);
 								}
 							}
 							
@@ -295,7 +295,7 @@ Draw.loadPlugin(function(ui)
 									var y = Math.floor(Math.random() * 50);
 									var number = Math.floor(Math.random() * 9000 + 1000);
 									var child = graph.insertVertex(parentB, null, number.toString(), x, y, 120, 30);
-									parentB.insert(child, k);
+									graph.model.add(parentB, child, k);
 								}
 							}
 							
@@ -317,7 +317,7 @@ Draw.loadPlugin(function(ui)
 									var k = Math.floor(Math.random() * numberA);  // from index
 									var l = Math.floor(Math.random() * numberA);  // to index
 									var child = parentA.getChildAt(k);
-									parentA.insert(child, l);
+									graph.model.add(parentA, child, l);
 								}
 							}
 							
@@ -333,7 +333,7 @@ Draw.loadPlugin(function(ui)
 									var k = Math.floor(Math.random() * numberB);  // from index
 									var l = Math.floor(Math.random() * numberB);  // to index
 									var child = parentB.getChildAt(k);
-									parentB.insert(child, l);
+									graph.model.add(parentB, child, l);
 								}
 							}
 							

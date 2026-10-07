@@ -2847,7 +2847,7 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 		}),
 		this.addEntry('curve', mxUtils.bind(this, function()
 	 	{
-			var cell = new mxCell('', new mxGeometry(0, 0, 50, 50), 'curved=1;endArrow=classic;html=1;');
+			var cell = new mxCell('', new mxGeometry(0, 0, 50, 50), 'curved=1;curveGeometry=1;endArrow=classic;html=1;');
 			cell.geometry.setTerminalPoint(new mxPoint(0, 50), true);
 			cell.geometry.setTerminalPoint(new mxPoint(50, 0), false);
 			cell.geometry.points = [new mxPoint(50, 50), new mxPoint(0, 0)];

@@ -345,7 +345,7 @@ mxGraphLayout.prototype.setEdgePoints = function(edge, points)
 		if (geometry == null)
 		{
 			geometry = new mxGeometry();
-			geometry.setRelative(true);
+			geometry.relative = true;
 		}
 		else
 		{

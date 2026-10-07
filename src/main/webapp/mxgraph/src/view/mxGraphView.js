@@ -195,6 +195,33 @@ mxGraphView.prototype.incrementalValidation = true;
 mxGraphView.prototype.maxInvalidCells = 1000;
 
 /**
+ * Variable: maxDependencyDepth
+ *
+ * Maximum number of nested validations of parents and terminals in
+ * <validateCellState>. Deeper dependencies, eg. long chains of edges that
+ * are connected to edges, are validated with a stack in
+ * <validateDependencies> as the recursion would otherwise overflow the
+ * call stack. Default is 100.
+ */
+mxGraphView.prototype.maxDependencyDepth = 100;
+
+/**
+ * Variable: dependencyDepth
+ *
+ * Number of nested validations of parents and terminals in progress.
+ */
+mxGraphView.prototype.dependencyDepth = 0;
+
+/**
+ * Variable: removedDependencies
+ *
+ * Holds the cell whose dependencies are validated and the states of its
+ * dependencies that were removed in their validation in
+ * <validateDependencies>. See <validateDependency>.
+ */
+mxGraphView.prototype.removedDependencies = null;
+
+/**
  * Variable: invalidCells
  *
  * Holds the cells that were invalidated (see <invalidate>) or whose states
@@ -989,43 +1016,48 @@ mxGraphView.prototype.invalidate = function(cell, recurse, includeEdges)
 		recurse = (recurse != null) ? recurse : true;
 		includeEdges = (includeEdges != null) ? includeEdges : true;
 		
-		var state = this.getState(cell);
-		
-		if (state != null)
+		// Walks the descendants and the connected edges in the order of a
+		// recursion and visits each cell once. A recursion would overflow
+		// the call stack for long chains of edges that are connected to
+		// edges and visit cells that are reachable on several paths, eg.
+		// edges between edges, exponentially often.
+		var visited = new mxDictionary();
+		var stack = [cell];
+
+		while (stack.length > 0)
 		{
-			state.invalid = true;
-		}
-		
-		// Avoids infinite loops for invalid graphs
-		if (!cell.invalidating)
-		{
-			cell.invalidating = true;
-			this.addInvalidCell(cell);
-			
-			// Recursively invalidates all descendants
-			if (recurse)
+			var tmp = stack.pop();
+
+			if (!visited.get(tmp))
 			{
-				var childCount = model.getChildCount(cell);
-				
-				for (var i = 0; i < childCount; i++)
+				visited.put(tmp, true);
+				var state = this.getState(tmp);
+
+				if (state != null)
 				{
-					var child = model.getChildAt(cell, i);
-					this.invalidate(child, recurse, includeEdges);
+					state.invalid = true;
+				}
+
+				this.addInvalidCell(tmp);
+
+				// Propagates invalidation to all connected edges
+				if (includeEdges)
+				{
+					for (var i = model.getEdgeCount(tmp) - 1; i >= 0; i--)
+					{
+						stack.push(model.getEdgeAt(tmp, i));
+					}
+				}
+
+				// Invalidates all descendants before the edges
+				if (recurse)
+				{
+					for (var i = model.getChildCount(tmp) - 1; i >= 0; i--)
+					{
+						stack.push(model.getChildAt(tmp, i));
+					}
 				}
 			}
-			
-			// Propagates invalidation to all connected edges
-			if (includeEdges)
-			{
-				var edgeCount = model.getEdgeCount(cell);
-				
-				for (var i = 0; i < edgeCount; i++)
-				{
-					this.invalidate(model.getEdgeAt(cell, i), recurse, includeEdges);
-				}
-			}
-			
-			delete cell.invalidating;
 		}
 	}
 };
@@ -1229,6 +1261,8 @@ mxGraphView.prototype.validateInvalidCells = function(root)
 
 	var cells = this.invalidCells;
 	var visited = new mxDictionary();
+	var visibility = new mxDictionary();
+	var valid = new mxDictionary();
 	var list = [];
 	var i;
 
@@ -1244,7 +1278,7 @@ mxGraphView.prototype.validateInvalidCells = function(root)
 			if (!visited.get(cells[i]))
 			{
 				visited.put(cells[i], true);
-				var visible = this.getValidationVisibility(cells[i], root);
+				var visible = this.getValidationVisibility(cells[i], root, visibility);
 
 				if (visible != null)
 				{
@@ -1269,24 +1303,12 @@ mxGraphView.prototype.validateInvalidCells = function(root)
 	}
 
 	// Validates the states in the order of the walk over all cells
-	var paths = new mxDictionary();
-
-	for (i = 0; i < list.length; i++)
-	{
-		paths.put(list[i], mxCellPath.create(list[i]).split(
-			mxCellPath.PATH_SEPARATOR));
-	}
-
-	list.sort(function(c1, c2)
-	{
-		return mxCellPath.compare(paths.get(c1), paths.get(c2));
-	});
-
+	mxUtils.sortCells(list, true);
 	var states = [];
 
 	for (i = 0; i < list.length; i++)
 	{
-		var state = this.validateInvalidCell(list[i], root);
+		var state = this.validateInvalidCell(list[i], root, valid);
 
 		if (state != null)
 		{
@@ -1310,8 +1332,11 @@ mxGraphView.prototype.validateInvalidCells = function(root)
  *
  * cell - <mxCell> whose visible argument should be returned.
  * root - <mxCell> that is the root of the validation.
+ * cache - Optional <mxDictionary> for the results of the ancestors, which
+ * are shared by the cells, so that checking all ancestors of many cells is
+ * not quadratic in the depth of the hierarchy.
  */
-mxGraphView.prototype.getValidationVisibility = function(cell, root)
+mxGraphView.prototype.getValidationVisibility = function(cell, root, cache)
 {
 	if (cell == root)
 	{
@@ -1321,26 +1346,41 @@ mxGraphView.prototype.getValidationVisibility = function(cell, root)
 	var model = this.graph.getModel();
 	var ancestors = [];
 	var parent = model.getParent(cell);
+	var visible = (cache != null) ? cache.get(parent) : undefined;
 
-	while (parent != null && parent != root)
+	while (visible === undefined && parent != null && parent != root)
 	{
 		ancestors.push(parent);
 		parent = model.getParent(parent);
+		visible = (cache != null) ? cache.get(parent) : undefined;
 	}
 
-	if (parent == null)
+	if (visible === undefined)
 	{
-		return null;
+		if (parent == null)
+		{
+			visible = null;
+		}
+		else
+		{
+			ancestors.push(root);
+			visible = true;
+		}
 	}
-
-	ancestors.push(root);
-	var visible = true;
 
 	for (var i = ancestors.length - 1; i >= 0; i--)
 	{
-		visible = visible && this.graph.isCellVisible(ancestors[i]) &&
-			(!this.isCellCollapsed(ancestors[i]) ||
-			ancestors[i] == this.currentRoot);
+		if (visible != null)
+		{
+			visible = visible && this.graph.isCellVisible(ancestors[i]) &&
+				(!this.isCellCollapsed(ancestors[i]) ||
+				ancestors[i] == this.currentRoot);
+		}
+
+		if (cache != null)
+		{
+			cache.put(ancestors[i], visible);
+		}
 	}
 
 	return visible;
@@ -1357,8 +1397,13 @@ mxGraphView.prototype.getValidationVisibility = function(cell, root)
  *
  * cell - <mxCell> whose state should be validated.
  * root - <mxCell> that is the root of the validation.
+ * cache - Optional <mxDictionary> for the ancestors whose states and the
+ * states of their ancestors up to the root are valid, which are shared by
+ * the cells in <validateInvalidCells>, so that checking all ancestors of
+ * many cells is not quadratic in the depth of the hierarchy. These states
+ * stay valid as the cells are validated in the order of the walk.
  */
-mxGraphView.prototype.validateInvalidCell = function(cell, root)
+mxGraphView.prototype.validateInvalidCell = function(cell, root, cache)
 {
 	var model = this.graph.getModel();
 	var state = this.getState(cell);
@@ -1367,8 +1412,10 @@ mxGraphView.prototype.validateInvalidCell = function(cell, root)
 	{
 		var parent = model.getParent(cell);
 		this.validateCellState(parent, false);
+		var ancestors = [];
 
-		for (var p = parent; p != null && state != null;
+		for (var p = parent; p != null && state != null &&
+			(cache == null || !cache.get(p));
 			p = (p != root) ? model.getParent(p) : null)
 		{
 			var tmp = this.getState(p);
@@ -1377,6 +1424,15 @@ mxGraphView.prototype.validateInvalidCell = function(cell, root)
 			{
 				state = null;
 			}
+			else if (cache != null)
+			{
+				ancestors.push(p);
+			}
+		}
+
+		for (var i = 0; state != null && i < ancestors.length; i++)
+		{
+			cache.put(ancestors[i], true);
 		}
 	}
 
@@ -2133,19 +2189,30 @@ mxGraphView.prototype.validateCellState = function(cell, recurse)
 					this.validatedStates.push(state);
 				}
 				
-				if (state.style == null || state.invalidStyle)
-				{
-					state.style = this.graph.getCellStyle(state.cell);
-					state.invalidStyle = false;
-				}
-				
-				if (cell != this.currentRoot)
-				{
-					this.validateCellState(model.getParent(cell), false);
-				}
+				this.validateCellStyle(state);
+				var removed = this.removedDependencies;
+				this.dependencyDepth++;
 
-				state.setVisibleTerminalState(this.validateCellState(this.getVisibleTerminal(cell, true), false), true);
-				state.setVisibleTerminalState(this.validateCellState(this.getVisibleTerminal(cell, false), false), false);
+				try
+				{
+					if (this.dependencyDepth > this.maxDependencyDepth)
+					{
+						this.validateDependencies(cell);
+					}
+
+					if (cell != this.currentRoot)
+					{
+						this.validateDependency(cell, model.getParent(cell));
+					}
+
+					state.setVisibleTerminalState(this.validateDependency(cell, this.getVisibleTerminal(cell, true)), true);
+					state.setVisibleTerminalState(this.validateDependency(cell, this.getVisibleTerminal(cell, false)), false);
+				}
+				finally
+				{
+					this.dependencyDepth--;
+					this.removedDependencies = removed;
+				}
 				
 				this.updateCellState(state);
 				
@@ -2178,6 +2245,163 @@ mxGraphView.prototype.validateCellState = function(cell, recurse)
 	}
 	
 	return state;
+};
+
+/**
+ * Function: validateCellStyle
+ * 
+ * Updates the style of the given <mxCellState> if it is missing or invalid.
+ * 
+ * Parameters:
+ * 
+ * state - <mxCellState> whose style should be validated.
+ */
+mxGraphView.prototype.validateCellStyle = function(state)
+{
+	if (state.style == null || state.invalidStyle)
+	{
+		state.style = this.graph.getCellStyle(state.cell);
+		state.invalidStyle = false;
+	}
+};
+
+/**
+ * Function: getDependency
+ * 
+ * Returns the parent (index 0), the visible source (index 1) or the visible
+ * target (index 2) of the given cell, which are validated before the cell in
+ * <validateCellState>. Returns null for the parent of <currentRoot>.
+ * 
+ * Parameters:
+ * 
+ * cell - <mxCell> whose dependency should be returned.
+ * index - Integer that specifies the dependency.
+ */
+mxGraphView.prototype.getDependency = function(cell, index)
+{
+	if (index == 0)
+	{
+		return (cell != this.currentRoot) ? this.graph.getModel().getParent(cell) : null;
+	}
+	else
+	{
+		return this.getVisibleTerminal(cell, index == 1);
+	}
+};
+
+/**
+ * Function: validateDependency
+ * 
+ * Validates the given parent or terminal of the given cell in
+ * <validateCellState> and returns its state. If the state of the dependency
+ * was removed in its validation in <validateDependencies>, eg. for an edge
+ * without a visible terminal state, then the removed state is returned for
+ * the first dependency of the cell that is the given cell, as in the
+ * recursion, where the validation of the dependency returns its state.
+ * 
+ * Parameters:
+ * 
+ * cell - <mxCell> whose dependency should be validated.
+ * dependency - <mxCell> that should be validated.
+ */
+mxGraphView.prototype.validateDependency = function(cell, dependency)
+{
+	var result = this.validateCellState(dependency, false);
+	var removed = this.removedDependencies;
+
+	if (result == null && dependency != null && removed != null &&
+		removed.cell == cell)
+	{
+		result = removed.states.remove(dependency) || null;
+	}
+
+	return result;
+};
+
+/**
+ * Function: validateDependencies
+ * 
+ * Validates the invalid parents and terminals that the given cell depends on
+ * with a stack in the order of the recursion in <validateCellState>. This is
+ * used for dependencies that are nested deeper than <maxDependencyDepth>, eg.
+ * long chains of edges that are connected to edges. As in the recursion, the
+ * states are marked as valid and their styles are updated before their own
+ * dependencies are validated, so that cycles use the same states, and each
+ * state is then validated with <validateCellState> after its dependencies.
+ * States that are removed in their validation are kept for the cell that
+ * depends on them in <removedDependencies>, see <validateDependency>.
+ * 
+ * Parameters:
+ * 
+ * cell - <mxCell> whose dependencies should be validated.
+ */
+mxGraphView.prototype.validateDependencies = function(cell)
+{
+	var root = {cell: cell, index: 0, removed: null};
+	var stack = [root];
+	var visited = new mxDictionary();
+
+	while (stack.length > 0)
+	{
+		var entry = stack[stack.length - 1];
+
+		if (entry.index < 3)
+		{
+			var dep = this.getDependency(entry.cell, entry.index++);
+			var state = this.getState(dep);
+
+			// States that stay invalid, eg. if an override of validateCellState
+			// ignores the cell, are not visited again
+			if (state != null && state.invalid && !visited.get(state))
+			{
+				visited.put(state, true);
+				state.invalid = false;
+				this.validateCellStyle(state);
+				stack.push({cell: dep, state: state, index: 0, removed: null});
+			}
+		}
+		else
+		{
+			stack.pop();
+
+			// The given cell is validated by the caller
+			if (entry.state != null)
+			{
+				var previous = this.removedDependencies;
+				this.removedDependencies = (entry.removed != null) ?
+					{cell: entry.cell, states: entry.removed} : null;
+				entry.state.invalid = true;
+				var result = null;
+
+				try
+				{
+					result = this.validateCellState(entry.cell, false);
+				}
+				finally
+				{
+					this.removedDependencies = previous;
+				}
+
+				// Keeps a removed state for the cell that depends on it
+				if (result != null && this.getState(entry.cell) != result)
+				{
+					var parent = stack[stack.length - 1];
+
+					if (parent.removed == null)
+					{
+						parent.removed = new mxDictionary();
+					}
+
+					parent.removed.put(entry.cell, result);
+				}
+			}
+		}
+	}
+
+	if (root.removed != null)
+	{
+		this.removedDependencies = {cell: cell, states: root.removed};
+	}
 };
 
 /**
