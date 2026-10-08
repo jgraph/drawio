@@ -1072,6 +1072,28 @@ mxEdgeHandler.prototype.isSnapToTerminalsEvent = function(me)
 };
 
 /**
+ * Function: snapToGuides
+ *
+ * Hook for subclassers to snap the given point in <getPointForEvent> after
+ * it was snapped to the terminals and before it is snapped to the grid.
+ * Returns true if the point was snapped, in which case it is not snapped
+ * to the grid. This implementation returns false.
+ *
+ * Parameters:
+ *
+ * point - <mxPoint> to be snapped in place.
+ * me - <mxMouseEvent> that contains the current event.
+ * snappedX - Boolean that specifies if the x-coordinate was snapped to a
+ * terminal or point.
+ * snappedY - Boolean that specifies if the y-coordinate was snapped to a
+ * terminal or point.
+ */
+mxEdgeHandler.prototype.snapToGuides = function(point, me, snappedX, snappedY)
+{
+	return false;
+};
+
+/**
  * Function: getPointForEvent
  * 
  * Returns the point for the given event.
@@ -1135,6 +1157,12 @@ mxEdgeHandler.prototype.getPointForEvent = function(me)
 				}
 			}
 		}
+	}
+
+	if (this.snapToGuides(point, me, overrideX, overrideY))
+	{
+		overrideX = true;
+		overrideY = true;
 	}
 
 	if (this.graph.isGridEnabledEvent(me.getEvent()))
@@ -2495,8 +2523,8 @@ mxEdgeHandler.prototype.redrawInnerBends = function(p0, pe)
 				}
 				else if (this.handleImage == null && this.labelShape.visible && mxUtils.intersects(this.bends[i].bounds, this.labelShape.bounds))
 				{
-					w = mxConstants.HANDLE_SIZE + 3;
-					h = mxConstants.HANDLE_SIZE + 3;
+					var w = mxConstants.HANDLE_SIZE + 3;
+					var h = mxConstants.HANDLE_SIZE + 3;
 					this.bends[i].bounds = new mxRectangle(Math.round(x - w / 2), Math.round(y - h / 2), w, h);
 				}
 				

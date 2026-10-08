@@ -236,7 +236,8 @@ mxShapeMockupiPhone.prototype.foreground = function(c, x, y, w, h, rSize)
 		var i = 5;
 		c.begin();
 
-		while (i < w)
+		// Limits the number of stripes for huge widths
+		while (i < w && i <= 5 * 10000)
 		{
 			c.moveTo(i, 0);
 			c.lineTo(i, h);
@@ -785,7 +786,8 @@ mxShapeMockupiBgStriped.prototype.foreground = function(c, x, y, w, h)
 	var i = 5;
 	c.begin();
 
-	while (i < w)
+	// Limits the number of stripes for huge widths
+	while (i < w && i <= 5 * 10000)
 	{
 		c.moveTo(i, 0);
 		c.lineTo(i, h);
@@ -1962,7 +1964,7 @@ mxShapeMockupiButtonBack.prototype.background = function(c, x, y, w, h)
 	var fillColor2 = mxUtils.getValue(this.style, mxMockupC.STYLE_FILLCOLOR2, '').toString();
 	c.setGradient(fillColor, fillColor2, 0, 0, w, h, mxConstants.DIRECTION_SOUTH, 1, 1);
 
-	rSize = 2.5;
+	var rSize = 2.5;
 	c.begin();
 	c.moveTo(w, rSize);
 	c.arcTo(rSize, rSize, 0, 0, 0, w - rSize, 0);
@@ -2028,7 +2030,7 @@ mxShapeMockupiButtonForward.prototype.background = function(c, x, y, w, h)
 	var fillColor2 = mxUtils.getValue(this.style, mxMockupC.STYLE_FILLCOLOR2, '').toString();
 	c.setGradient(fillColor, fillColor2, 0, 0, w, h, mxConstants.DIRECTION_SOUTH, 1, 1);
 
-	rSize = 2.5;
+	var rSize = 2.5;
 	c.begin();
 	c.moveTo(0, rSize);
 	c.arcTo(rSize, rSize, 0, 0, 1, rSize, 0);
@@ -2618,7 +2620,7 @@ mxShapeMockupiAlertBox.prototype.paintVertexShape = function(c, x, y, w, h)
 	w = Math.max(w, 15);
 	h = Math.max(h, 15);
 	c.translate(x, y);
-	rSize = 7.5;
+	var rSize = 7.5;
 	this.background(c, x, y, w, h, rSize);
 	c.setShadow(false);
 	this.foreground(c, x, y, w, h, rSize);
@@ -2705,7 +2707,7 @@ mxShapeMockupiDialogBox.prototype.paintVertexShape = function(c, x, y, w, h)
 	w = Math.max(w, 15);
 	h = Math.max(h, 15);
 	c.translate(x, y);
-	rSize = 7.5;
+	var rSize = 7.5;
 	this.background(c, x, y, w, h, rSize);
 	c.setShadow(false);
 	this.foreground(c, x, y, w, h, rSize);
@@ -3297,8 +3299,8 @@ mxShapeMockupiKeybLetters.prototype.background = function(c, x, y, w, h)
 mxShapeMockupiKeybLetters.prototype.foreground = function(c, x, y, w, h, strokeColor)
 {
 	c.setGradient(mxUtils.getValue(this.style, 'keyGradient', '#EEF3F9'), mxUtils.getValue(this.style, 'keyColor', '#DBE2E9'), w * 0.0086, h * 0.03, w * 0.0776, h * 0.19, mxConstants.DIRECTION_SOUTH, 1, 1);
-	rSizeX = w * 0.0144;
-	rSizeY = h * 0.025;
+	var rSizeX = w * 0.0144;
+	var rSizeY = h * 0.025;
 	c.setFontSize(10.5);
 	c.setFontColor(mxUtils.getValue(this.style, 'textColor', '#000000'));
 
@@ -3524,8 +3526,8 @@ mxShapeMockupiKeybNumbers.prototype.background = function(c, x, y, w, h)
 mxShapeMockupiKeybNumbers.prototype.foreground = function(c, x, y, w, h, strokeColor)
 {
 	c.setGradient(mxUtils.getValue(this.style, 'keyGradient', '#EEF3F9'), mxUtils.getValue(this.style, 'keyColor', '#DBE2E9'), w * 0.0086, h * 0.03, w * 0.0776, h * 0.19, mxConstants.DIRECTION_SOUTH, 1, 1);
-	rSizeX = w * 0.0144;
-	rSizeY = h * 0.025;
+	var rSizeX = w * 0.0144;
+	var rSizeY = h * 0.025;
 	c.setFontSize(10.5);
 	c.setFontColor(mxUtils.getValue(this.style, 'textColor', '#000000'));
 
@@ -3733,8 +3735,8 @@ mxShapeMockupiKeybSymbols.prototype.background = function(c, x, y, w, h)
 mxShapeMockupiKeybSymbols.prototype.foreground = function(c, x, y, w, h, strokeColor)
 {
 	c.setGradient(mxUtils.getValue(this.style, 'keyGradient', '#EEF3F9'), mxUtils.getValue(this.style, 'keyColor', '#DBE2E9'), w * 0.0086, h * 0.03, w * 0.0776, h * 0.19, mxConstants.DIRECTION_SOUTH, 1, 1);
-	rSizeX = w * 0.0144;
-	rSizeY = h * 0.025;
+	var rSizeX = w * 0.0144;
+	var rSizeY = h * 0.025;
 	c.setFontSize(10.5);
 	c.setFontColor(mxUtils.getValue(this.style, 'textColor', '#000000'));
 
@@ -4817,18 +4819,16 @@ mxShapeMockupiHorButtonBar.prototype.background = function(c, w, h, rSize, butto
 	//draw the button separators
 	c.setStrokeColor(separatorColor);
 	c.begin();
+	// Sum of the widths of the buttons before the separator
+	var sumWidth = 0;
+
 	for (var i = 1; i < buttonNum; i++)
 	{
+		sumWidth += buttonWidths[i - 1] + 2 * labelOffset;
+
 		if (i !== selectedButton && i !== (selectedButton + 1))
 		{
-			var currWidth = 0;
-
-			for (var j = 0; j < i; j++)
-			{
-				currWidth += buttonWidths[j] + 2 * labelOffset;
-			}
-
-			currWidth = currWidth * w / minW;
+			var currWidth = sumWidth * w / minW;
 			c.moveTo(currWidth, 0);
 			c.lineTo(currWidth, h);
 		}
@@ -5682,6 +5682,13 @@ mxShapeMockupiIconGrid.prototype.customProperties = [
 ];
 
 /**
+ * Variable: maxIcons
+ *
+ * Maximum number of icons. Default is 1000.
+ */
+mxShapeMockupiIconGrid.prototype.maxIcons = 1000;
+
+/**
  * Function: paintVertexShape
  * 
  * Paints the vertex shape.
@@ -5706,9 +5713,10 @@ mxShapeMockupiIconGrid.prototype.background = function(c, w, h, gridSize)
 	var boxSizeX = w / (parseInt(gridSize[0],10) + (gridSize[0]-1) * 0.5);
 	var boxSizeY = h / (parseInt(gridSize[1],10) + (gridSize[1]-1) * 0.5);
 
-	for (var i = 0; i < gridSize[0]; i++)
+	// Limits the number of rows and icons for huge grid sizes
+	for (var i = 0, n = 0; i < gridSize[0] && i < this.maxIcons; i++)
 	{
-		for (var j = 0; j < gridSize[1]; j++)
+		for (var j = 0; j < gridSize[1] && n < this.maxIcons; j++, n++)
 		{
 			c.rect(boxSizeX * 1.5 * i, boxSizeY * 1.5 * j, boxSizeX, boxSizeY);
 			c.fillAndStroke();
@@ -5721,9 +5729,10 @@ mxShapeMockupiIconGrid.prototype.foreground = function(c, w, h, gridSize)
 	var boxSizeX = w / (parseInt(gridSize[0],10) + (gridSize[0]-1) * 0.5);
 	var boxSizeY = h / (parseInt(gridSize[1],10) + (gridSize[1]-1) * 0.5);
 
-	for (var i = 0; i < gridSize[0]; i++)
+	// Limits the number of rows and icons for huge grid sizes
+	for (var i = 0, n = 0; i < gridSize[0] && i < this.maxIcons; i++)
 	{
-		for (var j = 0; j < gridSize[1]; j++)
+		for (var j = 0; j < gridSize[1] && n < this.maxIcons; j++, n++)
 		{
 			c.begin();
 			c.moveTo(boxSizeX * 1.5 * i, boxSizeY * 1.5 * j);
@@ -6184,7 +6193,8 @@ mxShapeMockupiPad.prototype.foreground = function(c, x, y, w, h, rSize)
 		var i = 7;
 		c.begin();
 
-		while (i < w)
+		// Limits the number of stripes for huge widths
+		while (i < w && i <= 7 * 10000)
 		{
 			c.moveTo(i, 0);
 			c.lineTo(i, h);

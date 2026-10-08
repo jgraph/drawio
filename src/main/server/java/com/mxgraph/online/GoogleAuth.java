@@ -153,6 +153,18 @@ abstract public class GoogleAuth extends AbsAuth
 	
 	protected String processAuthResponse(String authRes, boolean jsonResponse)
 	{
+		return processAuthResponse(authRes, jsonResponse, false);
+	}
+
+	//The same-window sign-in gets its state in this window, so its cookie is
+	//always here and the code relay never needs driveLoader.js
+	protected String processCodeRelay(String relay)
+	{
+		return processAuthResponse(relay, false, true);
+	}
+
+	private String processAuthResponse(String authRes, boolean jsonResponse, boolean openerOnly)
+	{
 		StringBuffer res = new StringBuffer();
 		
 		//In Office Add-in, we don't have access to opened window to attach a function to it, 
@@ -164,7 +176,12 @@ abstract public class GoogleAuth extends AbsAuth
 		if (!jsonResponse)
 		{
 			res.append("<!DOCTYPE html><html><head>");
-			res.append("<script src=\"/connect/office365/js/driveLoader.js\" type=\"text/javascript\"></script>");
+
+			if (!openerOnly)
+			{
+				res.append("<script src=\"/connect/office365/js/driveLoader.js\" type=\"text/javascript\"></script>");
+			}
+
 			res.append("<script type=\"text/javascript\">");
 			res.append("(function() { var authInfo = ");  //The following is a json containing access_token
 		}
@@ -177,8 +194,13 @@ abstract public class GoogleAuth extends AbsAuth
 			res.append("if (window.opener != null && window.opener.onGoogleDriveCallback != null)"); 
 			res.append("{");
 			res.append("	window.opener.onGoogleDriveCallback(authInfo, window);");
-			res.append("} else {");
-			res.append("	onGDriveCallback(authInfo);");
+
+			if (!openerOnly)
+			{
+				res.append("} else {");
+				res.append("	onGDriveCallback(authInfo);");
+			}
+
 			res.append("}");
 			res.append("})();</script>");
 			res.append("</head><body></body></html>");

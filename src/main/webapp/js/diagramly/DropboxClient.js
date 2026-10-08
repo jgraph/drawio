@@ -187,11 +187,11 @@ DropboxClient.prototype.authenticateStep2 = function(state, success, error)
 						this.clientId + (remember? '&token_access_type=offline' : '') +
 						'&redirect_uri=' + encodeURIComponent(this.redirectUri) +
 						'&response_type=code&state=' + encodeURIComponent('cId=' + this.clientId + //To identify which app/domain is used
-							'&domain=' + window.location.host + '&token=' + state + this.getRedirectPathState()), 'dbauth');
+							'&domain=' + window.location.host + '&token=' + state + '&relay=1' + this.getRedirectPathState()), 'dbauth');
 					
 					if (win != null)
 					{
-						window.onDropboxCallback = mxUtils.bind(this, function(newAuthInfo, authWindow)
+						window.onDropboxCallback = this.createAuthCallback(state, mxUtils.bind(this, function(newAuthInfo, authWindow)
 						{
 							if (acceptAuthResponse)
 							{
@@ -239,7 +239,7 @@ DropboxClient.prototype.authenticateStep2 = function(state, success, error)
 							{
 								authWindow.close();
 							}
-						});
+						}));
 					}
 					else
 					{

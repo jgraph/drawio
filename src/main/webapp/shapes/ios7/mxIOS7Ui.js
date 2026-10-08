@@ -537,18 +537,16 @@ mxShapeIOS7horButtonBar.prototype.background = function(c, w, h, rSize, buttonNu
 	//draw the button separators
 	c.setStrokeColor(frameColor);
 	c.begin();
+	// Sum of the widths of the buttons before the separator
+	var sumWidth = 0;
+
 	for (var i = 1; i < buttonNum; i++)
 	{
+		sumWidth += buttonWidths[i - 1] + 2 * labelOffset;
+
 		if (i !== selectedButton && i !== (selectedButton + 1))
 		{
-			var currWidth = 0;
-
-			for (var j = 0; j < i; j++)
-			{
-				currWidth += buttonWidths[j] + 2 * labelOffset;
-			}
-
-			currWidth = currWidth * w / minW;
+			var currWidth = sumWidth * w / minW;
 			c.moveTo(currWidth, 0);
 			c.lineTo(currWidth, h);
 		}
@@ -712,6 +710,13 @@ mxShapeIOS7iconGrid.prototype.customProperties = [
 ];
 
 /**
+ * Variable: maxIcons
+ *
+ * Maximum number of icons. Default is 1000.
+ */
+mxShapeIOS7iconGrid.prototype.maxIcons = 1000;
+
+/**
 * Function: paintVertexShape
 * 
 * Paints the vertex shape.
@@ -724,9 +729,10 @@ mxShapeIOS7iconGrid.prototype.paintVertexShape = function(c, x, y, w, h)
 	var boxSizeX = w / (parseInt(gridSize[0],10) + (gridSize[0]-1) * 0.1);
 	var boxSizeY = h / (parseInt(gridSize[1],10) + (gridSize[1]-1) * 0.1);
 	
-	for (var i = 0; i < gridSize[0]; i++)
+	// Limits the number of rows and icons for huge grid sizes
+	for (var i = 0, n = 0; i < gridSize[0] && i < this.maxIcons; i++)
 	{
-		for (var j = 0; j < gridSize[1]; j++)
+		for (var j = 0; j < gridSize[1] && n < this.maxIcons; j++, n++)
 		{
 			c.rect(boxSizeX * 1.1 * i, boxSizeY * 1.1 * j, boxSizeX, boxSizeY);
 			c.fill();
@@ -1523,6 +1529,13 @@ mxShapeIOS7SelectBar.prototype.customProperties = [
 ];
 
 /**
+ * Variable: maxFields
+ *
+ * Maximum number of fields. Default is 10000.
+ */
+mxShapeIOS7SelectBar.prototype.maxFields = 10000;
+
+/**
 * Function: paintVertexShape
 * 
 * Paints the vertex shape.
@@ -1563,15 +1576,17 @@ mxShapeIOS7SelectBar.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.stroke();
 
 	var currDx = dx2;
+	var n = 0;
 	
 	c.begin();
 	
-	while (currDx < (w - Math.max(20, r)))
+	while (currDx < (w - Math.max(20, r)) && n < this.maxFields)
 	{
 		c.moveTo(currDx, 0);
 		c.lineTo(currDx, h);
 		
 		currDx = currDx + dx2;
+		n++;
 	}
 	
 	c.stroke();

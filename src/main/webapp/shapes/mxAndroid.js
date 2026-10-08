@@ -110,18 +110,16 @@ mxShapeAndroidTabBar.prototype.background = function(c, w, h, buttonNum, buttonW
 	//draw the button separators
 	c.setStrokeColor(separatorColor);
 	c.begin();
+	// Sum of the widths of the buttons before the separator
+	var sumWidth = 0;
+
 	for (var i = 1; i < buttonNum; i++)
 	{
+		sumWidth += buttonWidths[i - 1] + 2 * labelOffset;
+
 		if (i !== selectedButton && i !== (selectedButton + 1))
 		{
-			var currWidth = 0;
-
-			for (var j = 0; j < i; j++)
-			{
-				currWidth += buttonWidths[j] + 2 * labelOffset;
-			}
-
-			currWidth = currWidth * w / minW;
+			var currWidth = sumWidth * w / minW;
 			c.moveTo(currWidth, h * 0.2);
 			c.lineTo(currWidth, h * 0.8);
 		}

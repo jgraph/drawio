@@ -15,9 +15,6 @@ if (window.mxIsElectron == null || urlParams['embed'] == '1')
 // isLocalStorage controls access to local storage
 window.isLocalStorage = window.isLocalStorage || false;
 
-// Disables loading settings in configured mode
-window.mxLoadSettings = window.mxLoadSettings || urlParams['configure'] != '1';
-
 // Checks for SVG support
 window.isSvgBrowser = true;
 
@@ -37,7 +34,6 @@ window.DRAWIO_LIGHTBOX_URL = window.DRAWIO_LIGHTBOX_URL || 'https://viewer.diagr
 window.EXPORT_URL = (typeof window.EXPORT_URL === 'undefined') ?
 	'https://convert.diagrams.net/node/export' : window.EXPORT_URL;
 window.DRAW_MATH_URL = window.DRAW_MATH_URL || 'math4/es5';
-window.VSS_CONVERT_URL = window.VSS_CONVERT_URL || 'https://convert.diagrams.net/VsdConverter/api/converter';
 window.REALTIME_URL = window.REALTIME_URL || window.DRAWIO_SERVER_URL + 'cache';
 window.DRAWIO_GITLAB_URL = window.DRAWIO_GITLAB_URL || 'https://gitlab.com';
 window.DRAWIO_GITLAB_ID = window.DRAWIO_GITLAB_ID || '2b14debc5feeb18ba65358d863ec870e4cc9294b28c3c941cb3014eb4af9a9b4';
@@ -285,6 +281,22 @@ if (urlParams['embedInline'] == '1')
 		urlParams['pv'] = '0';
 	}
 }
+
+// The configuration message (configure=1) is only accepted in embed mode,
+// where the host supplies and receives the diagram anyway. Otherwise any
+// opener could configure the app that has the user's storage and sign-ins.
+if (urlParams['configure'] == '1' && urlParams['embed'] != '1')
+{
+	delete urlParams['configure'];
+
+	if (window.console != null)
+	{
+		console.log('Ignored configure=1 without embed=1');
+	}
+}
+
+// Disables loading settings in configured mode
+window.mxLoadSettings = window.mxLoadSettings || urlParams['configure'] != '1';
 
 /**
  * Global function for loading local files via servlet

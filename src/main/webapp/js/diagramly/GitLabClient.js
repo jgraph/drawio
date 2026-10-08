@@ -160,11 +160,11 @@ GitLabClient.prototype.authenticateStep2 = function(state, success, error)
 						this.clientId + '&scope=' + this.scope + 
 						'&redirect_uri=' + encodeURIComponent(this.redirectUri) +
 						'&response_type=code&state=' + encodeURIComponent('cId=' + this.clientId + //To identify which app/domain is used
-							'&domain=' + window.location.host + '&token=' + state + this.getRedirectPathState()) , 'gitlabauth');
+							'&domain=' + window.location.host + '&token=' + state + '&relay=1' + this.getRedirectPathState()) , 'gitlabauth');
 					
 					if (win != null)
 					{
-						window.onGitLabCallback = mxUtils.bind(this, function(newAuthInfo, authWindow)
+						window.onGitLabCallback = this.createAuthCallback(state, mxUtils.bind(this, function(newAuthInfo, authWindow)
 						{
 							if (acceptAuthResponse)
 							{
@@ -202,7 +202,7 @@ GitLabClient.prototype.authenticateStep2 = function(state, success, error)
 							{
 								authWindow.close();
 							}
-						});
+						}));
 					}
 					else
 					{

@@ -1973,6 +1973,17 @@ Sidebar.prototype.addSearchPalette = function(expand)
 		input.value = null;
 	});
 
+	// Focuses the diagram unless the action moved the focus, eg. into a dialog
+	function focusGraph()
+	{
+		var ae = document.activeElement;
+
+		if (ae == null || ae == input || ae == document.body)
+		{
+			graph.container.focus();
+		}
+	};
+
 	var hiddenActions = ['about', 'deleteAll', 'showBoundingBox',
 		'createSidebarEntry', 'downloadDesktop', 'toggleGoogleFonts'];
 	
@@ -2188,7 +2199,7 @@ Sidebar.prototype.addSearchPalette = function(expand)
 					setEnterAction(item, function()
 					{
 						executeAction(action, arguments);
-						graph.container.focus();
+						focusGraph();
 					});
 				}
 
@@ -2198,7 +2209,7 @@ Sidebar.prototype.addSearchPalette = function(expand)
 					setCtrlEnterAction(item, function()
 					{
 						executeAction(action, arguments);
-						graph.container.focus();
+						focusGraph();
 					});
 				}
 			}

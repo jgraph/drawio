@@ -5605,6 +5605,8 @@ LucidImporter = {};
 		{
 			var last = 0;
 			
+			var match = null;
+
 			while (match = placeholderPattern.exec(str))
 			{
 				var val = match[0];
@@ -5996,7 +5998,7 @@ LucidImporter = {};
 			b.h = b.h - 20;
 		}
 		
-		v = new mxCell('', new mxGeometry(Math.round(b.x * scale + dx), Math.round(b.y * scale + dy),
+		var v = new mxCell('', new mxGeometry(Math.round(b.x * scale + dx), Math.round(b.y * scale + dy),
 				Math.round(b.w * scale), Math.round(b.h * scale)), vertexStyle);
 		v.vertex = true;
 		updateCell(v, obj, graph);
@@ -7483,7 +7485,7 @@ LucidImporter = {};
 			h = h + 20;
 		}
 
-		v = new mxCell('', new mxGeometry(x, y, w, h), vertexStyle);
+		var v = new mxCell('', new mxGeometry(x, y, w, h), vertexStyle);
 	    v.vertex = true;
 
 	    //Store z-order to use it in groups

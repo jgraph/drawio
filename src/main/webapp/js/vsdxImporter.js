@@ -30,7 +30,7 @@ function mxmeta(content, httpEquiv)
 	}
 };
 
-function doImport(vsdxBuff, callback, error, file, customParam)
+function doImport(vsdxBuff, callback, error, file)
 {
 	EditorUi.prototype.createUi = function(){};
 	EditorUi.prototype.addTrees = function(){};
@@ -38,7 +38,7 @@ function doImport(vsdxBuff, callback, error, file, customParam)
 	var editorUi = new EditorUi();
 	var blob = file? file : new Blob([vsdxBuff], {type: 'application/octet-stream'});
 
-	editorUi.importVisio(blob, callback, error, file? file.name : null, customParam);		
+	editorUi.importVisio(blob, callback, error, file? file.name : null);		
 };
 
 
@@ -83,7 +83,7 @@ window.addEventListener('load', function()
 			{
 				console.log(err)
 				createDoneDiv('error');
-			}, curFiles[0], window.customParam);
+			}, curFiles[0]);
 		}
 	});
 });

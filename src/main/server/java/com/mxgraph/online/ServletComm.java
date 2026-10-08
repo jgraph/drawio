@@ -62,6 +62,11 @@ public interface ServletComm extends AbsComm
 		return ((HttpServletRequest) request).getHeader(name);
 	}
 
+	default String getMethod(Object request)
+	{
+		return ((HttpServletRequest) request).getMethod();
+	}
+
 	default String getQueryString(Object request)
 	{
 		return ((HttpServletRequest) request).getQueryString();

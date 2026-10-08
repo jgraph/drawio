@@ -21,6 +21,8 @@ public interface AbsComm
 
 	String getHeader(String name, Object request);
 
+	String getMethod(Object request);
+
 	String getServerName(Object request);
 
 	String getRemoteAddr(Object request);

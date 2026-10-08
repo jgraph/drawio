@@ -485,6 +485,7 @@
 	
 	Sidebar.prototype.addGCP2ServiceCardsPalette = function()
 	{
+		var sb = this;
 		var dt = 'gcp google cloud platform service cards ';
 		var fns = [];
 		

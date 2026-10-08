@@ -39,6 +39,7 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 	public static final int X_WWW_FORM_URLENCODED = 1;
 	public static final int JSON = 2;
 	private static final String STATE_COOKIE = "auth-state";
+	private static final String CODE_EXCHANGE_HEADER = "X-Auth-Code-Exchange";
 	private static final String TOKEN_COOKIE = "auth-token";
 	protected static final int STATE_COOKIE_AGE = 600; //10 min
 	protected static final int TOKEN_COOKIE_AGE = 31536000; //One year
@@ -46,6 +47,8 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 	public static boolean USE_HTTP = "1".equals(System.getenv("DRAWIO_USE_HTTP")); // Not secure, use at your own risk
 	//Non-empty segments of unreserved characters that do not start with a dot
 	private static final Pattern REDIRECT_PATH_PATTERN = Pattern.compile("(/[A-Za-z0-9_~-][A-Za-z0-9._~-]*)+");
+	//A state from getState=1: its cache key and a random part, 256 bits in base 32 each
+	private static final Pattern STATE_PATTERN = Pattern.compile("[0-9a-v]{1,52}\\.[0-9a-v]{1,52}");
 	
 	public static final SecureRandom random = new SecureRandom();
 	protected static Cache tokenCache;
@@ -203,14 +206,65 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 		}
 	}
 
+	//Returns true if getState=1 issued the given state and it was not used yet,
+	//and removes it if remove is true. The state starts with its cache key, which
+	//is checked since it comes from the URL (memcached keys are a text protocol).
+	protected static boolean isCachedState(String state, boolean remove)
+	{
+		if (state != null && STATE_PATTERN.matcher(state).matches())
+		{
+			String key = state.substring(0, state.indexOf('.'));
+
+			if (state.equals(tokenCache.get(key)))
+			{
+				if (remove)
+				{
+					tokenCache.remove(key);
+				}
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	//The app exchanging a code that its sign-in popup handed to it (see codeRelay):
+	//a GET from a page on this origin with a header that only that exchange sends.
+	//Never a navigation, an image or a URL from a diagram that the app loads, which
+	//have no such header, nor a POST to an AI endpoint that a configuration can
+	//point here with any headers, nor a HEAD (doHead calls doGet). Another site
+	//cannot send the header (no CORS), so browsers without Sec-Fetch-Site are accepted.
+	protected boolean isCodeExchange(Object request)
+	{
+		String site = getHeader("Sec-Fetch-Site", request);
+
+		return "GET".equals(getMethod(request)) && "1".equals(getHeader(CODE_EXCHANGE_HEADER, request)) &&
+			(site == null || site.equals("same-origin"));
+	}
+
+	//JSON for an inline script: Gson escapes <, >, &, =, ' and line terminators
+	//so that no value can end the script
+	protected static String toScriptJson(JsonElement value)
+	{
+		return new Gson().toJson(value);
+	}
+
+	//The page that passes the code of a state without its cookie to the opener
+	protected String processCodeRelay(String relay)
+	{
+		return processAuthResponse(relay, false);
+	}
+
 	protected void doGetAbst(Object request, Object response) throws IOException
 	{
 		String stateOnly = getParameter("getState", request);
 		
 		if ("1".equals(stateOnly))
 		{
-			String state = new BigInteger(256, random).toString(32);
 			String key = new BigInteger(256, random).toString(32);
+			//Starts with its key so that it can be checked without the cookie
+			String state = key + "." + new BigInteger(256, random).toString(32);
 			putCacheValue(key, state);
 			setStatus(HttpServletResponse.SC_OK, response);
 			//Chrome blocks this cookie when draw.io is running in an iframe. The cookie is added to parent frame. TODO FIXME
@@ -224,6 +278,7 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 		String error = getParameter("error", request);
 		HashMap<String, String> stateVars = new HashMap<>();
 		String secret = null, client = null, redirectUri = null, domain = null, stateToken = null, cookieToken = null, version = null, successRedirect = null, redirectPath = null;
+		boolean codeRelay = false, codeExchange = false;
 		
 		try
 		{
@@ -255,6 +310,14 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 					successRedirect = null;
 				}
 				
+				//Answered with JSON, also if the app's cookies have the state (Firefox)
+				codeExchange = code != null && isCodeExchange(request);
+
+				if (codeExchange)
+				{
+					successRedirect = null;
+				}
+
 				//Get the cached state based on the cookie key 
 				String cacheKey = getCookieValue(STATE_COOKIE, request);
 				
@@ -264,6 +327,28 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 					//Delete cookie & cache after being used since it is a single use
 					tokenCache.remove(cacheKey);
 					deleteCookie(STATE_COOKIE, getCookiePath(request), response);
+				}
+				else if (stateToken != null && code != null)
+				{
+					//No state cookie: an app in a cross-site iframe calls getState=1 with
+					//another cookie jar than its sign-in popup (Firefox partitions the
+					//iframe's cookies, Safari and Chrome with third-party cookies blocked
+					//drop them). Anyone can get a state from getState=1, so a state without
+					//its cookie does not show that this browser started the sign-in (login
+					//CSRF). The popup hands the code to the window that opened it, which
+					//checks that the state is its own and exchanges the code itself, with
+					//its own cookies.
+					if (codeExchange)
+					{
+						if (isCachedState(stateToken, true))
+						{
+							cookieToken = stateToken;
+						}
+					}
+					else if ("1".equals(stateVars.get("relay")))
+					{
+						codeRelay = isCachedState(stateToken, false);
+					}
 				}
 			}
 			catch(Exception e)
@@ -307,19 +392,28 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 			{
 				setStatus(HttpServletResponse.SC_BAD_REQUEST, response);
 			}
+			else if (codeRelay)
+			{
+				//Writes JavaScript code that only passes the code to the opener
+				JsonObject relay = new JsonObject();
+				relay.addProperty("authCode", code);
+				relay.addProperty("state", state);
+				relay.addProperty("token", stateToken);
+				setStatus(HttpServletResponse.SC_OK, response);
+				setHeader("Content-Type", "text/html", response);
+				setBody(processCodeRelay(toScriptJson(relay)), response);
+			}
 			//Reject OAuth callbacks whose state token does not match the one
 			//issued for this browser session (CSRF protection). Fail closed when
 			//no state was cached - e.g. it expired or the state cookie was not
-			//returned (such as a third-party/iframe context where the browser
-			//strips it; those flows must use a top-level/popup auth or a
-			//partitioned cookie rather than weakening this check).
+			//returned and this is not the app's code exchange (see above).
 			else if (stateToken == null || cookieToken == null || !stateToken.equals(cookieToken))
 			{
 				setStatus(HttpServletResponse.SC_UNAUTHORIZED, response);
 			}
 			else
 			{
-				Response authResp = contactOAuthServer(CONFIG.AUTH_SERVICE_URL, code, refreshToken, secret, client, redirectUri, successRedirect != null, 1);
+				Response authResp = contactOAuthServer(CONFIG.AUTH_SERVICE_URL, code, refreshToken, secret, client, redirectUri, successRedirect != null || codeExchange, 1);
 				
 				setStatus(authResp.status, response);
 				
@@ -337,6 +431,11 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 					}
 					else
 					{
+						if (codeExchange)
+						{
+							setHeader("Content-Type", "application/json", response);
+						}
+
 						setBody(authResp.content, response);
 					}
 				}
@@ -517,7 +616,7 @@ abstract public class AbsAuth extends HttpServlet implements AbsComm
 			else
 			{
 				// Writes JavaScript code
-				response.content = processAuthResponse(respObj.toString(), jsonResponse);
+				response.content = processAuthResponse(toScriptJson(respObj), jsonResponse);
 			}
 		}
 		catch(IOException e)

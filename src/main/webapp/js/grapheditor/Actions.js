@@ -156,6 +156,9 @@ Actions.prototype.init = function()
 
 			if (cells != null)
 			{
+				// Fills the local clipboard as copy does, while the cells still have
+				// their view states, for a system clipboard that refused the write
+				mxClipboard.copy(graph, cells);
 				graph.removeCells(cells, false);
 			}
 		}
@@ -1202,7 +1205,7 @@ Actions.prototype.init = function()
 		{
 			graph.zoomIn();
 		}
-	}, null, null, Editor.ctrlKey + ' + / Alt+Mousewheel');
+	}, null, null, Editor.ctrlKey + ' + / Ctrl+Mousewheel');
 	this.addAction('zoomOut', function(evt)
 	{
 		if (graph.isFastZoomEnabled())
@@ -1213,7 +1216,7 @@ Actions.prototype.init = function()
 		{
 			graph.zoomOut();
 		}
-	}, null, null, Editor.ctrlKey + ' - / Alt+Mousewheel');
+	}, null, null, Editor.ctrlKey + ' - / Ctrl+Mousewheel');
 	var fitWindowAction = this.addAction('fitWindow', function()
 	{
 		// Keeps the diagram or the pages fitted to the window if nothing
@@ -1341,6 +1344,14 @@ Actions.prototype.init = function()
 	});
 	action.setToggleAction(true);
 	action.setSelectedCallback(function() { return graph.tooltipHandler.isEnabled(); });
+	
+	action = this.addAction('zoomWheel', function()
+	{
+		Graph.zoomWheel = !Graph.zoomWheel;
+		ui.fireEvent(new mxEventObject('zoomWheelChanged'));
+	});
+	action.setToggleAction(true);
+	action.setSelectedCallback(function() { return Graph.zoomWheel; });
 	
 	action = this.addAction('collapseExpand', function()
 	{

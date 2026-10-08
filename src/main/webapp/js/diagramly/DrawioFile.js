@@ -3825,14 +3825,15 @@ DrawioFile.prototype.fileChanged = function(sync, edit, reactive)
 };
 
 /**
- * Creates a secret and token pair for writing a patch to the cache.
+ * Creates a secret and token pair for writing a patch to the cache. No token
+ * while alone, as the save then writes no patch (see DrawioFileSync.isAlone).
  */
 DrawioFile.prototype.createSecret = function(success)
 {
 	var secret = Editor.secureGuid(32);
 	
 	if (Editor.enableRealtimeCache && this.sync != null &&
-		!this.isOptimisticSync())
+		!this.isOptimisticSync() && !this.sync.isAlone())
 	{
 		this.sync.createToken(secret,
 			mxUtils.bind(this, function(token)

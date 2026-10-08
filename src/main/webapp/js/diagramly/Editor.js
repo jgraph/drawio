@@ -523,6 +523,27 @@
 	];
 
 	/**
+	 * Returns false for AI endpoints on draw.io and diagrams.net hosts. The
+	 * hosted AI service has its own request path, so a configured endpoint
+	 * there, which an embedding host can set, would only send requests with
+	 * any body and headers to our own servers, with the user's cookies on
+	 * the same origin.
+	 */
+	Editor.isAllowedAiEndpoint = function(url)
+	{
+		try
+		{
+			var host = new URL(url, window.location.href).hostname;
+
+			return !/(^|\.)(draw\.io|diagrams\.net)\.?$/.test(host);
+		}
+		catch (e)
+		{
+			return false;
+		}
+	};
+
+	/**
 	 * Maximum number of characters (prompt, attached context and conversation
 	 * history combined) sent to the hosted AI service, which is free for the
 	 * user and paid for by draw.io. The conversation is truncated to the
@@ -1815,8 +1836,101 @@
 			}
 
 			style['fillStyle'] = fillStyle;
+
+			if (fill)
+			{
+				this.limitFill(style);
+			}
 			
 			return style;
+		};
+
+		/**
+		 * Maximum width plus height of shapes with a sketch fill. Larger shapes
+		 * are filled solid. Default is 200000.
+		 */
+		RoughCanvas.prototype.maxFillSize = 200000;
+
+		/**
+		 * Maximum number of lines of a sketch fill (hachure lines, dashes or
+		 * lines of zigzags). Default is 100000.
+		 */
+		RoughCanvas.prototype.maxFillCount = 100000;
+
+		/**
+		 * Limits the fill in the given style, as rough.js loops over the size of
+		 * the shape (scan lines are mostly one unit apart) and over the size
+		 * divided by the gaps (e.g. forever for dashGap=0;dashOffset=0 or
+		 * zigzagOffset=0). Shapes larger than maxFillSize are filled solid, and
+		 * the gaps are widened so that the fill has at most maxFillCount lines.
+		 * Smaller fills are unchanged.
+		 */
+		RoughCanvas.prototype.limitFill = function(style)
+		{
+			var bounds = this.shape.bounds;
+			var scale = this.shape.scale;
+			var fillStyle = style['fillStyle'];
+
+			if (bounds != null && scale > 0 && fillStyle != 'solid')
+			{
+				var w = bounds.width / scale;
+				var h = bounds.height / scale;
+
+				if (w + h > this.maxFillSize)
+				{
+					style['fillStyle'] = 'solid';
+				}
+				else
+				{
+					var gap = parseFloat(style['hachureGap']);
+					gap = (gap < 0) ? 4 * style.strokeWidth : gap;
+
+					if (gap >= 0)
+					{
+						var max = this.maxFillCount;
+
+						// Hachure lines in both directions for cross-hatch
+						// (rough.js uses a gap of at least 0.1)
+						var g = Math.max(gap, 0.1);
+						var minGap = ((fillStyle == 'cross-hatch') ? 2 : 1) * (w + h) / max;
+
+						if (g < minGap)
+						{
+							g = minGap;
+							style['hachureGap'] = g;
+						}
+
+						if (fillStyle == 'dashed')
+						{
+							var offset = parseFloat(style['dashOffset']);
+							var dashGap = parseFloat(style['dashGap']);
+							offset = (offset < 0) ? gap : offset;
+							dashGap = (dashGap < 0) ? gap : dashGap;
+							var dash = (w * h) / (g * max);
+
+							if (offset + dashGap < dash)
+							{
+								var f = (offset + dashGap > 0) ? dash / (offset + dashGap) : 0;
+								style['dashOffset'] = (f > 0) ? offset * f : dash / 2;
+								style['dashGap'] = (f > 0) ? dashGap * f : dash / 2;
+							}
+						}
+						else if (fillStyle == 'zigzag-line')
+						{
+							// Lines of zigzags (w * h / ((g + zigzag) * zigzag)), which
+							// take twice as long to paint
+							var zigzag = parseFloat(style['zigzagOffset']);
+							zigzag = (zigzag < 0) ? gap : zigzag;
+							var minZigzag = (Math.sqrt(g * g + 8 * w * h / max) - g) / 2;
+
+							if (zigzag < minZigzag)
+							{
+								style['zigzagOffset'] = minZigzag;
+							}
+						}
+					}
+				}
+			}
 		};
 		
 		RoughCanvas.prototype.begin = function()
@@ -2830,6 +2944,9 @@
 			if (config.passiveScroll)
 			{
 				Editor.passiveScroll = true;
+
+				// Mouse wheel scrolls the host page unless zoomWheel is set
+				Graph.zoomWheel = false;
 			}
 
 			if (config.noResizers)
@@ -3783,9 +3900,15 @@
 						value['main'];
 				}
 
-				if (typeof value === 'string')
+				// Configured values are plain text since some resources
+				// are written as HTML, eg. menu items and alert links
+				if (typeof value === 'string' && value.indexOf('<') < 0)
 				{
 					mxResources.resources[key] = value;
+				}
+				else if (value != null)
+				{
+					EditorUi.debug('Configuration Error: Text expected for resource', key);
 				}
 			}
 		}
@@ -5008,7 +5131,7 @@
 
 			var origGetSizeForString = mxUtils.getSizeForString;
 
-			mxUtils.getSizeForString = function(text, fontSize, fontFamily, textWidth)
+			mxUtils.getSizeForString = function(text, fontSize, fontFamily, textWidth, fontStyle)
 			{
 				if (measureDiv == null)
 				{
@@ -5020,6 +5143,10 @@
 
 				measureDiv.style.fontSize = fontSize + 'px';
 				measureDiv.style.fontFamily = fontFamily;
+				measureDiv.style.fontWeight = ((fontStyle & mxConstants.FONT_BOLD) ==
+					mxConstants.FONT_BOLD) ? 'bold' : '';
+				measureDiv.style.fontStyle = ((fontStyle & mxConstants.FONT_ITALIC) ==
+					mxConstants.FONT_ITALIC) ? 'italic' : '';
 
 				if (textWidth != null && textWidth > 0)
 				{
@@ -7927,7 +8054,7 @@
 				
 				updateBackground(pValue);
 
-				btn = mxUtils.button('', mxUtils.bind(that, function(evt)
+				var btn = mxUtils.button('', mxUtils.bind(that, function(evt)
 				{
 					this.editorUi.pickColor(pValue, function(color)
 					{
@@ -7958,7 +8085,7 @@
 						parentRow: myRow, isDeletable: true, flipBkg: flipBkg});
 				}
 				
-				btn = mxUtils.button('+', mxUtils.bind(that, function(evt)
+				var btn = mxUtils.button('+', mxUtils.bind(that, function(evt)
 				{
 					var beforeElem = myRow;
 					var index = 0;
@@ -9397,21 +9524,17 @@
 			// Workaround for possible invalid style after change and before view validation
 			var style = this.graph.getCellStyle(cell);
 			
-			// mxRackContainer may be undefined as it is dynamically loaded at render time
 			if (style != null)
 			{
 				if (style['childLayout'] == 'rack')
 				{
 					var rackLayout = new mxStackLayout(this.graph, false);
-					var unitSize = 20;
 					
+					// Snaps to rack units only with rackUnitSize. Racks without it have not
+					// been snapped since 2021 and keep their device positions and sizes.
 					if (style['rackUnitSize'] != null)
 					{
 						rackLayout.gridSize = parseFloat(style['rackUnitSize']);
-					}
-					else
-					{
-						rackLayout.gridSize = (typeof mxRackContainer !== 'undefined') ? mxRackContainer.unitSize : unitSize;
 					}
 					
 					rackLayout.marginLeft = style['marginLeft'] || 0;
@@ -9675,7 +9798,7 @@
 							td.style.cursor = 'pointer';
 							td.setAttribute('title', tag);
 	
-							a = document.createElement('a');
+							var a = document.createElement('a');
 							mxUtils.write(a, tag);
 							a.style.textOverflow = 'ellipsis';
 							a.style.position = 'relative';
@@ -12560,8 +12683,8 @@
 						
 						if (tokens.length > 3)
 						{
-							w = parseFloat(tokens[2]) + size;
-							h = parseFloat(tokens[3]) + size;
+							var w = parseFloat(tokens[2]) + size;
+							var h = parseFloat(tokens[3]) + size;
 							
 							svgRoot.setAttribute('viewBox', tokens[0] + ' ' + tokens[1] + ' ' + w + ' ' + h);
 						}
@@ -12583,36 +12706,19 @@
 		{
 			if (visible)
 			{
-				// Keeps the shadow in screen pixels if the draw pane is scaled
-				var s = (this.view.modelCoordinates &&
-					elt == this.view.getDrawPane()) ? this.view.scale : 1;
+				// Scales with the zoom if the draw pane is in model coordinates
 				var cssColor = mxUtils.getLightDarkColor(
 					this.svgShadowColor, this.svgShadowOpacity);
 				elt.style.filter = 'drop-shadow(' +
-					Math.round(this.svgShadowSize / s * 100) / 100 + 'px ' +
-					Math.round(this.svgShadowSize / s * 100) / 100 + 'px ' +
-					Math.round(this.svgShadowBlur / s * 100) / 100 + 'px ' +
+					Math.round(this.svgShadowSize * 100) / 100 + 'px ' +
+					Math.round(this.svgShadowSize * 100) / 100 + 'px ' +
+					Math.round(this.svgShadowBlur * 100) / 100 + 'px ' +
 					cssColor.cssText + ')'
 			}
 			else
 			{
 				elt.style.filter = '';
 			}
-		}
-	};
-
-	/**
-	 * Updates the shadow for the scale of the draw pane in model coordinates.
-	 */
-	var mxGraphViewUpdateDrawPaneTransform = mxGraphView.prototype.updateDrawPaneTransform;
-	mxGraphView.prototype.updateDrawPaneTransform = function()
-	{
-		mxGraphViewUpdateDrawPaneTransform.apply(this, arguments);
-
-		if (this.graph.shadowVisible && this.shadowScale != this.scale)
-		{
-			this.shadowScale = this.scale;
-			this.graph.updateShadowFilter(this.getDrawPane(), true);
 		}
 	};
 

@@ -87,16 +87,13 @@ mxShapeMockupBreadcrumb.prototype.separators = function(c, w, h, buttonNum, butt
 	var size = 5;
 	c.begin();
 
+	// Sum of the widths of the buttons before the separator
+	var sumWidth = 0;
+
 	for (var i = 1; i < buttonNum; i++)
 	{
-		var currWidth = 0;
-
-		for (var j = 0; j < i; j++)
-		{
-			currWidth += buttonWidths[j] + 2 * labelOffset;
-		}
-
-		currWidth = currWidth * w / minW;
+		sumWidth += buttonWidths[i - 1] + 2 * labelOffset;
+		var currWidth = sumWidth * w / minW;
 		c.moveTo(currWidth - size * 0.5, midY - size);
 		c.lineTo(currWidth + size * 0.5, midY);
 		c.lineTo(currWidth - size * 0.5, midY + size);
@@ -222,15 +219,13 @@ mxShapeMockupStepBar.prototype.stepLineBg = function(c, w, h, buttonNum, buttonW
 	var startX = 0;
 	var endX = 0;
 
+	// Sum of the widths of the buttons before the step
+	var sumWidth = 0;
+
 	for (var i = 0; i < buttonNum; i++)
 	{
-		var currWidth = 0;
-
-		for (var j = 0; j < i; j++)
-		{
-			currWidth += buttonWidths[j] + 2 * labelOffset;
-		}
-
+		var currWidth = sumWidth;
+		sumWidth += buttonWidths[i] + 2 * labelOffset;
 		currWidth += buttonWidths[i] * 0.5 + labelOffset;
 
 		currWidth = currWidth * w / minW;
@@ -264,15 +259,13 @@ mxShapeMockupStepBar.prototype.stepLineFg = function(c, w, h, buttonNum, buttonW
 	var endX = 0;
 	var strokeWidth = mxUtils.getValue(this.style, mxConstants.STYLE_STROKEWIDTH, '1');
 
+	// Sum of the widths of the buttons before the step
+	var sumWidth = 0;
+
 	for (var i = 0; i <= selectedButton; i++)
 	{
-		var currWidth = 0;
-
-		for (var j = 0; j < i; j++)
-		{
-			currWidth += buttonWidths[j] + 2 * labelOffset;
-		}
-
+		var currWidth = sumWidth;
+		sumWidth += buttonWidths[i] + 2 * labelOffset;
 		currWidth += buttonWidths[i] * 0.5 + labelOffset;
 
 		currWidth = currWidth * w / minW;
@@ -293,15 +286,13 @@ mxShapeMockupStepBar.prototype.stepLineFg = function(c, w, h, buttonNum, buttonW
 	c.fill();
 	c.setFillColor(bgColor);
 
+	// Sum of the widths of the buttons before the step
+	var sumWidth = 0;
+
 	for (var i = 0; i <= selectedButton; i++)
 	{
-		var currWidth = 0;
-
-		for (var j = 0; j < i; j++)
-		{
-			currWidth += buttonWidths[j] + 2 * labelOffset;
-		}
-
+		var currWidth = sumWidth;
+		sumWidth += buttonWidths[i] + 2 * labelOffset;
 		currWidth += buttonWidths[i] * 0.5 + labelOffset;
 
 		currWidth = currWidth * w / minW;

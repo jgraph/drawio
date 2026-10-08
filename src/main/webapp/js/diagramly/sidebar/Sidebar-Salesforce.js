@@ -24,6 +24,7 @@
 	
 	Sidebar.prototype.addSalesforceComponentsPalette = function(w, h)
 	{
+		var sb = this;
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;shape=mxgraph.salesforce.';
 		var gn = 'mxgraph.salesforce';
 		var dt = 'salesforce components ';

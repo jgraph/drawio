@@ -195,7 +195,7 @@ Toolbar.prototype.createTextToolbar = function()
 	// to catch the focus on click in these browsers. NOTE: Workaround in mxPopupMenu for icon items (without text).
 	var alignMenu = this.addMenu(new Menu(mxUtils.bind(this, function(menu)
 	{
-		elt = menu.addItem('', Editor.alignLeftImage, mxUtils.bind(this, function(evt)
+		var elt = menu.addItem('', Editor.alignLeftImage, mxUtils.bind(this, function(evt)
 		{
 			graph.cellEditor.alignText(mxConstants.ALIGN_LEFT, evt);
 			ui.fireEvent(new mxEventObject('styleChanged',
@@ -260,7 +260,7 @@ Toolbar.prototype.createTextToolbar = function()
 	
 	var formatMenu = this.addMenu(new Menu(mxUtils.bind(this, function(menu)
 	{
-		elt = menu.addItem('', Editor.subscriptImage, this.editorUi.actions.get('subscript').funct);
+		var elt = menu.addItem('', Editor.subscriptImage, this.editorUi.actions.get('subscript').funct);
 		elt.setAttribute('title', mxResources.get('subscript') + ' (' + Editor.ctrlKey + '+,)');
 		
 		elt = menu.addItem('', Editor.superscriptImage, this.editorUi.actions.get('superscript').funct);

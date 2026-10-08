@@ -234,6 +234,14 @@ mxShapeEipMessageChannel.prototype.customProperties = [
 ];
 
 /**
+ * Variable: maxPoints
+ *
+ * Maximum number of connection points per side of the channels. Default is
+ * 10000.
+ */
+mxShapeEipMessageChannel.prototype.maxPoints = 10000;
+
+/**
 * Function: paintVertexShape
 *
 * Paints the vertex shape.
@@ -280,7 +288,8 @@ mxShapeEipMessageChannel.prototype.getConstraints = function(style, w, h)
 
 	var currW = 10;
 	
-	while (currW < w)
+	// Limits the number of connection points for huge widths
+	while (currW < w && currW <= 10 * mxShapeEipMessageChannel.prototype.maxPoints)
 	{
 		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, currW, 0));
 		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, currW, 0));
@@ -322,6 +331,13 @@ mxShapeEipDatatypeChannel.prototype.customProperties = [
 ];
 
 /**
+ * Variable: maxMarkers
+ *
+ * Maximum number of markers. Default is 1000.
+ */
+mxShapeEipDatatypeChannel.prototype.maxMarkers = 1000;
+
+/**
 * Function: paintVertexShape
 *
 * Paints the vertex shape.
@@ -358,7 +374,7 @@ mxShapeEipDatatypeChannel.prototype.foreground = function(c, x, y, w, h)
 	c.setFillColor(mxUtils.getValue(this.style, 'markerColor', '#fffbc0'));
 	c.setStrokeWidth("1");
 	
-	for(var i = 1; i * 20 + 10 < w - 14; i++)
+	for(var i = 1; i * 20 + 10 < w - 14 && i <= this.maxMarkers; i++)
 	{
 		c.rect(i * 20, h * 0.5 - 5, 10, 10);
 		c.fillAndStroke();
@@ -376,7 +392,8 @@ mxShapeEipDatatypeChannel.prototype.getConstraints = function(style, w, h)
 
 	var currW = 10;
 	
-	while (currW < w)
+	// Limits the number of connection points for huge widths
+	while (currW < w && currW <= 10 * mxShapeEipMessageChannel.prototype.maxPoints)
 	{
 		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, currW, 0));
 		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, currW, 0));
@@ -485,7 +502,8 @@ mxShapeEipDeadLetterChannel.prototype.getConstraints = function(style, w, h)
 
 	var currW = 10;
 	
-	while (currW < w)
+	// Limits the number of connection points for huge widths
+	while (currW < w && currW <= 10 * mxShapeEipMessageChannel.prototype.maxPoints)
 	{
 		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, currW, 0));
 		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, currW, 0));
@@ -589,7 +607,8 @@ mxShapeEipInvalidMessageChannel.prototype.getConstraints = function(style, w, h)
 
 	var currW = 10;
 	
-	while (currW < w)
+	// Limits the number of connection points for huge widths
+	while (currW < w && currW <= 10 * mxShapeEipMessageChannel.prototype.maxPoints)
 	{
 		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, currW, 0));
 		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, currW, 0));

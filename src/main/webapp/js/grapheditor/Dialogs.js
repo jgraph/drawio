@@ -124,7 +124,7 @@ var ColorPicker = function()
 	colorPanel.appendChild(cross);
 	div.appendChild(colorPanel);
 
-	sliderBox = document.createElement('div');
+	var sliderBox = document.createElement('div');
 	sliderBox.style.position = 'absolute';
 	sliderBox.style.cursor = 'pointer';
 	sliderBox.style.width = '38px';
@@ -3115,15 +3115,12 @@ var EditDiagramDialog = function(editorUi)
 				}
 				else
 				{
-					if (node.nodeName == 'mxfile')
-					{
-						editorUi.editor.setGraphXml(node);
-					}
-					else
-					{
-						editorUi.updateDiagramData(snapshot, node);
-					}
-
+					// Whole files and other wrappers are unwrapped in
+					// updateDiagramData: replacing the model directly
+					// leaves the page pointing at its old root, and
+					// realtime files flush and save the pages, so the
+					// change is lost there (jgraph/drawio#5795)
+					editorUi.updateDiagramData(snapshot, node);
 					editorUi.hideDialog();
 				}
 			}

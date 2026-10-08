@@ -26,6 +26,15 @@ App = function(editor, container, lightbox)
 		}
 	}));
 
+	// Counts this browser for the version dashboard once per day, and
+	// again every hour so tabs that stay open for days are counted too
+	if (!App.versionPingStarted)
+	{
+		App.versionPingStarted = true;
+		App.pingVersion();
+		window.setInterval(App.pingVersion, 3600000);
+	}
+
 	// Reloads this tab when a release channel switch (flagged by
 	// switchReleaseChannel in any tab) activates the other channel's
 	// service worker, so no tab keeps running one channel's shell against
@@ -738,6 +747,84 @@ App.setReleaseChannel = function(channel)
 	catch (e)
 	{
 		// ignore
+	}
+};
+
+/**
+ * Counts this browser once per UTC day for each app version it runs, for
+ * the version dashboard (release-monitor /versions). The stamps stay in
+ * localStorage, so the request carries no cookie or ID: only the version,
+ * the hostname, whether the stable channel's service worker serves the
+ * page, and whether this is the browser's first ping of the day (d), of
+ * the week starting on Monday (w) and of the month (m), which give the
+ * daily, weekly and monthly actives. Without localStorage each page load
+ * counts once a day.
+ */
+App.pingVersion = function()
+{
+	var now = new Date();
+	var day = now.toISOString().substring(0, 10);
+
+	if (EditorUi.enableLogging && urlParams['dev'] != '1' &&
+		App.lastVersionPing != day)
+	{
+		var week = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(),
+			now.getUTCDate() - (now.getUTCDay() + 6) % 7)).toISOString().substring(0, 10);
+		var month = day.substring(0, 7);
+		var key = '.drawio-version-ping';
+		var stamp = null;
+		App.lastVersionPing = day;
+
+		try
+		{
+			stamp = (isLocalStorage) ? JSON.parse(localStorage.getItem(key)) : null;
+		}
+		catch (e)
+		{
+			// ignore
+		}
+
+		stamp = (stamp != null && typeof stamp === 'object') ? stamp : {};
+		var versions = (stamp.d == day && Array.isArray(stamp.v)) ? stamp.v : [];
+
+		if (mxUtils.indexOf(versions, EditorUi.VERSION) < 0)
+		{
+			var stable = false;
+
+			try
+			{
+				var sw = ('serviceWorker' in navigator) ?
+					navigator.serviceWorker.controller : null;
+				stable = sw != null && sw.scriptURL.indexOf('/stable/') >= 0;
+			}
+			catch (e)
+			{
+				// ignore
+			}
+
+			try
+			{
+				var img = new Image();
+				img.src = window.DRAWIO_LOG_URL + '/log?ping=1' +
+					'&v=' + encodeURIComponent(EditorUi.VERSION) +
+					'&host=' + encodeURIComponent(window.location.hostname) +
+					((stable) ? '&channel=stable' : '') +
+					((versions.length == 0) ? '&d=1' : '') +
+					((stamp.w != week) ? '&w=1' : '') +
+					((stamp.m != month) ? '&m=1' : '');
+				versions.push(EditorUi.VERSION);
+
+				if (isLocalStorage)
+				{
+					localStorage.setItem(key, JSON.stringify({d: day,
+						v: versions, w: week, m: month}));
+				}
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		}
 	}
 };
 
@@ -1614,6 +1701,17 @@ App.main = function(callback, createUi)
 						{
 							mxEvent.removeListener(window, 'message', configHandler);
 							Editor.configure(data.config);
+
+							// A popup shares the storage of the app, so the settings of each
+							// opener are kept apart from those of the app (frames have their
+							// own storage per site, see storage partitioning)
+							if (op == window.opener)
+							{
+								Editor.configurationKey += '@' + evt.origin;
+								Editor.settingsKey += '@' + evt.origin;
+								mxSettings.key = Editor.settingsKey;
+							}
+
 							mxSettings.load();
 
 							if (data.config.darkColor != null)

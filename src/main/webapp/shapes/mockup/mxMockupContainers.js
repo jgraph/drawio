@@ -1244,7 +1244,7 @@ mxShapeMockupHorTabBar.prototype.paintVertexShape = function(c, x, y, w, h)
 			selectedTab = i;
 		}
 
-		currW = mxUtils.getSizeForString(currLabel, fontSize, mxConstants.DEFAULT_FONTFAMILY).width;
+		var currW = mxUtils.getSizeForString(currLabel, fontSize, mxConstants.DEFAULT_FONTFAMILY).width;
 
 		if (currW === 0)
 		{

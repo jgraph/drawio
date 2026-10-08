@@ -261,7 +261,7 @@
 			// Negative transform to avoid save/restore
 			c.rotate(-this.getShapeRotation(), flipH, flipV, x + w / 2, y + h / 2);
 			
-			s = this.scale;
+			var s = this.scale;
 			x = this.bounds.x / s;
 			y = this.bounds.y / s;
 			w = this.bounds.width / s;
@@ -2175,6 +2175,9 @@
 		this.canvas.arcTo = mxUtils.bind(this, HandJiggle.prototype.arcTo);
 	};
 	
+	// Maximum number of segments per line
+	HandJiggle.prototype.maxSegments = 10000;
+
 	HandJiggle.prototype.moveTo = function(endX, endY)
 	{
 		this.originalMoveTo.apply(this.canvas, arguments);
@@ -2234,7 +2237,8 @@
 				return;
 			}
 	
-			var segs = Math.round(dist / 10);
+			// Limits the number of segments for huge sizes
+			var segs = Math.min(Math.round(dist / 10), this.maxSegments);
 			var variation = this.defaultVariation;
 			
 			if (segs < 5)
@@ -7385,8 +7389,11 @@
 	 * Removes the local loops of the given offset polyline by cutting it at
 	 * the self-intersections whose distance along the center line (lengths
 	 * of the corresponding center points) is at most span, so that crossings
-	 * of the edge itself are kept.
+	 * of the edge itself are kept. Loops of at most maxLoopPoints points are
+	 * cut, which limits the time for huge widths and many points.
 	 */
+	TaperedArrowShape.prototype.maxLoopPoints = 1000;
+
 	TaperedArrowShape.prototype.removeLoops = function(pts, lengths, span)
 	{
 		var n = pts.length;
@@ -7399,7 +7406,8 @@
 			var ip = null;
 			var j = i + 2;
 
-			while (j < n - 1 && lengths[j] - lengths[i + 1] <= span)
+			while (j < n - 1 && j < i + 2 + this.maxLoopPoints &&
+				lengths[j] - lengths[i + 1] <= span)
 			{
 				j++;
 			}
@@ -7616,6 +7624,9 @@
 
 	ZigzagShape.prototype.size = 10;
 
+	// Maximum number of full segments
+	ZigzagShape.prototype.maxSegments = 10000;
+
 	ZigzagShape.prototype.isRoundable = function()
 	{
 		return true;
@@ -7648,8 +7659,8 @@
 		var topY = inset;
 		var bottomY = h - inset;
 
-		// Number of full peak-to-peak segments, adjusted to fit width
-		var numFull = Math.max(1, Math.round(w / size) - 1);
+		// Number of full peak-to-peak segments, adjusted to fit width and limited for huge widths
+		var numFull = Math.min(Math.max(1, Math.round(w / size) - 1), this.maxSegments);
 		var halfWave = w / (numFull + 1);
 		// End segments are half-width so angle matches middle segments
 		var halfEnd = halfWave / 2;

@@ -1089,18 +1089,16 @@ mxShapeMockupMenuBar.prototype.background = function(c, w, h, rSize, buttonNum, 
 	c.setStrokeColor(separatorColor);
 	c.begin();
 
+	// Sum of the widths of the buttons before the separator
+	var sumWidth = 0;
+
 	for (var i = 1; i < buttonNum; i++)
 	{
+		sumWidth += buttonWidths[i - 1] + 2 * labelOffset;
+
 		if (i !== selectedButton && i !== (selectedButton + 1))
 		{
-			var currWidth = 0;
-
-			for (var j = 0; j < i; j++)
-			{
-				currWidth += buttonWidths[j] + 2 * labelOffset;
-			}
-
-			currWidth = currWidth * w / minW;
+			var currWidth = sumWidth * w / minW;
 			c.moveTo(currWidth, 0);
 			c.lineTo(currWidth, h);
 		}
@@ -2033,6 +2031,13 @@ mxShapeMockupCalendar.prototype.cst = {
 };
 
 /**
+ * Variable: maxDays
+ *
+ * Maximum number of painted days of the month. Default is 1000.
+ */
+mxShapeMockupCalendar.prototype.maxDays = 1000;
+
+/**
  * Function: paintVertexShape
  * 
  * Paints the vertex shape.
@@ -2070,10 +2075,13 @@ mxShapeMockupCalendar.prototype.foreground = function(c, w, h)
 	var dayNames = mxUtils.getValue(this.style, mxShapeMockupCalendar.prototype.cst.DAY_NAMES, 'Mo,Tu,We,Th,Fr,Sa,Su').toString().split(',');
 	var selDay = parseInt(mxUtils.getValue(this.style, mxShapeMockupCalendar.prototype.cst.SELECTED_DAY, '24'), 10);
 
-	fistDay = Math.max(firstDay, 0);
+	firstDay = Math.max(firstDay, 0);
 	startOn = Math.max(startOn, 0);
-	fistDay = Math.min(firstDay, 6);
+	firstDay = Math.min(firstDay, 6);
 	startOn = Math.min(startOn, 6);
+
+	// Limits the number of days for huge values
+	days = Math.min(days, this.maxDays);
 
 	//buttons
 	c.roundrect(w * 0.05, h * 0.0457, w * 0.1438, h * 0.1029, w * 0.025, h * 0.0229);

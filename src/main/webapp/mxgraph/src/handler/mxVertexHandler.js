@@ -973,7 +973,7 @@ mxVertexHandler.prototype.rotateVertex = function(me)
 		
 		if (dist - this.startDist < 2)
 		{
-			raster = 15;
+			var raster = 15;
 		}
 		else if (dist - this.startDist < 25)
 		{

@@ -379,10 +379,15 @@ var mxEvent =
 					evt.preventDefault();
 				}
 
+				// Reads deltaMode before the deltas as Firefox converts the line
+				// deltas of mouse wheels to pixels otherwise, which would make
+				// them look like the pixel deltas of trackpads
+				var min = (evt.deltaMode == 0) ? 0.5 : 0;
+
 				// Handles the event using the given function, including small
 				// deltas of pinch gestures on trackpads (ctrl key), which
 				// zoom in proportion to the delta
-				if (Math.abs(evt.deltaX) > 0.5 || Math.abs(evt.deltaY) > 0.5 ||
+				if (Math.abs(evt.deltaX) > min || Math.abs(evt.deltaY) > min ||
 					(evt.ctrlKey && evt.deltaY != null && evt.deltaY != 0))
 				{
 					funct(evt, (evt.deltaY == 0) ?  -evt.deltaX > 0 : -evt.deltaY > 0);

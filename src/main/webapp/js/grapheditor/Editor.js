@@ -1284,7 +1284,7 @@ Editor.prototype.editAsNew = function(xml, title, lightbox, pageId)
 	
 	if (pageId != null)
 	{
-		p += ((p.length > 0) ? '&' : '?') + 'page-id=' + pageId;
+		p += ((p.length > 0) ? '&' : '?') + 'page-id=' + encodeURIComponent(pageId);
 	}
 	
 	if (!navigator.standalone &&
@@ -1862,6 +1862,11 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	this.onDialogClose = onClose;
 	this.container = div;
 
+	if (modal)
+	{
+		this.installFocusTrap();
+	}
+
 	if (minSize != null)
 	{
 		this.addResizeHandler(minSize);
@@ -2194,6 +2199,126 @@ function installMxWindowEdgeResizeHandles(wnd)
 }
 
 /**
+ * Keeps the focus in the dialog when Tab is pressed. Tab on the last control
+ * focuses the first control, Shift+Tab on the first control focuses the last
+ * control and Tab outside of the dialog (eg. in the diagram behind the dialog)
+ * moves the focus into the dialog.
+ */
+Dialog.prototype.installFocusTrap = function()
+{
+	var isTab = function(evt)
+	{
+		return evt.keyCode == 9 /* Tab */ && !mxEvent.isControlDown(evt) &&
+			!mxEvent.isAltDown(evt) && !mxEvent.isMetaDown(evt);
+	};
+
+	// Radio buttons in a group are a single tab stop
+	var isSameTabStop = function(a, b)
+	{
+		return a == b || (a != null && b != null && a.type == 'radio' &&
+			b.type == 'radio' && a.name != '' && a.name == b.name &&
+			a.form == b.form);
+	};
+
+	// Bubbling so that controls in the dialog can handle Tab
+	mxEvent.addListener(this.container, 'keydown', mxUtils.bind(this, function(evt)
+	{
+		if (isTab(evt) && !mxEvent.isConsumed(evt) && !evt.defaultPrevented)
+		{
+			var stops = this.getTabStops();
+			var shift = mxEvent.isShiftDown(evt);
+
+			if (stops.length == 0 || isSameTabStop(document.activeElement,
+				stops[(shift) ? 0 : stops.length - 1]))
+			{
+				this.focusTabStop(stops, !shift);
+				mxEvent.consume(evt);
+			}
+		}
+	}));
+
+	var isOutside = mxUtils.bind(this, function(elt)
+	{
+		return elt != null && elt != document.body &&
+			!mxUtils.isAncestorNode(this.container, elt);
+	});
+
+	// Capturing so that the diagram and the search box behind the
+	// dialog do not handle Tab
+	this.focusTrapHandler = mxUtils.bind(this, function(evt)
+	{
+		if (isTab(evt) && this.editorUi.dialog == this)
+		{
+			var first = !mxEvent.isShiftDown(evt);
+
+			if (isOutside(document.activeElement))
+			{
+				this.focusTabStop(this.getTabStops(), first);
+				mxEvent.consume(evt);
+			}
+			else if (document.activeElement == document.body)
+			{
+				// Tab continues after the last click, so checks where it went
+				window.setTimeout(mxUtils.bind(this, function()
+				{
+					if (this.editorUi.dialog == this &&
+						isOutside(document.activeElement))
+					{
+						this.focusTabStop(this.getTabStops(), first);
+					}
+				}), 0);
+			}
+		}
+	});
+
+	document.addEventListener('keydown', this.focusTrapHandler, true);
+};
+
+/**
+ * Returns the controls in the dialog that can be focused with Tab in
+ * document order.
+ */
+Dialog.prototype.getTabStops = function()
+{
+	var elts = this.container.querySelectorAll('a[href], button, input, ' +
+		'select, textarea, iframe, summary, [tabindex], [contenteditable]');
+	var stops = [];
+
+	for (var i = 0; i < elts.length; i++)
+	{
+		var elt = elts[i];
+
+		if (elt.tabIndex >= 0 && !elt.disabled && elt.type != 'hidden' &&
+			(elt.parentNode == null || !elt.parentNode.isContentEditable) &&
+			elt.getClientRects().length > 0 &&
+			mxUtils.getCurrentStyle(elt).visibility != 'hidden')
+		{
+			stops.push(elt);
+		}
+	}
+
+	return stops;
+};
+
+/**
+ * Focuses the first or last of the given tab stops.
+ */
+Dialog.prototype.focusTabStop = function(stops, first)
+{
+	if (stops.length > 0)
+	{
+		var elt = stops[(first) ? 0 : stops.length - 1];
+		elt.focus();
+
+		// Selects the text like Tab does
+		if (elt.nodeName == 'INPUT')
+		{
+			elt.select();
+		}
+	}
+};
+
+/**
  * Removes the dialog from the DOM.
  */
 Dialog.prototype.close = function(cancel, isEsc)
@@ -2207,7 +2332,13 @@ Dialog.prototype.close = function(cancel, isEsc)
 		
 		this.onDialogClose = null;
 	}
-	
+
+	if (this.focusTrapHandler != null)
+	{
+		document.removeEventListener('keydown', this.focusTrapHandler, true);
+		this.focusTrapHandler = null;
+	}
+
 	if (this.dialogImg != null && this.dialogImg.parentNode != null)
 	{
 		this.dialogImg.parentNode.removeChild(this.dialogImg);
@@ -3366,7 +3497,7 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 					landscapeCheckBox.removeAttribute('checked');
 					landscapeCheckBox.defaultChecked = false;
 					landscapeCheckBox.checked = false;
-					detected = true;
+					var detected = true;
 				}
 				else if (pageFormat.width == f.format.height && pageFormat.height == f.format.width)
 				{
@@ -3715,7 +3846,7 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label,
 		table.appendChild(content);
 	}
 	
-	row = document.createElement('div');
+	var row = document.createElement('div');
 	row.style.gridColumn = '1 / span 2';
 	row.style.paddingTop = (hints != null) ? '6px' : '14px';
 	row.style.whiteSpace = 'nowrap';

@@ -749,7 +749,7 @@ DriveFile.prototype.getDescriptorChecksum = function(desc)
 
 	if (value != null && secret != null)
 	{
-		tokens = value.split(':');
+		var tokens = value.split(':');
 
 		// Checks if checksum matches current secret
 		if (tokens.length == 2 && tokens[0] == secret)

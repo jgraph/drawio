@@ -7,6 +7,7 @@
 	// Adds Floorplan shapes
 	Sidebar.prototype.addFloorplanPalette = function()
 	{
+		var sb = this;
 		var w = 100;
 		var h = 100;
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;shape=mxgraph.floorplan.';

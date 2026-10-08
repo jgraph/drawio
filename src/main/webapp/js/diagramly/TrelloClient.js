@@ -19,6 +19,16 @@ TrelloClient.prototype.baseUrl = 'https://api.trello.com/1/';
 TrelloClient.prototype.SEPARATOR = '|$|';
 
 /**
+ * Returns true if the given attachment URL is a Trello download URL that may
+ * receive the user's token. Link attachments can point to any host. Uses a
+ * prefix check since URL parsers disagree on https://trello.com\@host/.
+ */
+TrelloClient.prototype.isTrelloUrl = function(url)
+{
+	return typeof url === 'string' && /^https:\/\/(api\.)?trello\.com\//.test(url);
+};
+
+/**
  * Maximum attachment size of Trello.
  */
 TrelloClient.prototype.maxFileSize = 10000000 /*10MB*/;
@@ -122,9 +132,9 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 		    if (acceptResponse)
 		    {
 				var binary = /\.png$/i.test(meta.name);
-				var headers = {
+				var headers = (this.isTrelloUrl(meta.url)) ? {
 					Authorization: 'OAuth oauth_consumer_key="' + Trello.key() + '", oauth_token="' + Trello.token() + '"'
-				};
+				} : null;
 				
 				// TODO Trello doesn't allow CORS requests to load attachments. Confirm that
 				// and make sure that only a proxy technique can work!

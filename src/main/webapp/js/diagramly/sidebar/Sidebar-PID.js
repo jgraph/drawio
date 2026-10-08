@@ -138,6 +138,7 @@
 	
 	Sidebar.prototype.addPidValvesPalette = function()
 	{
+		var sb = this;
 		var s = 'dashed=0;outlineConnect=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2";
 		var sv = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;dashed=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2valves.valve;valveType=";
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;dashed=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2valves.";

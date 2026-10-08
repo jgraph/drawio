@@ -3358,8 +3358,14 @@ mxShapeBasicPolygon.prototype.constraints = null;
             var isPolyline = polyline == 1 || polyline === true || polyline === 'true' || polyline === '1';
             var minPoints = isPolyline ? 2 : 3;
 
+            // Ignores coordinates that are not arrays, e.g. {"length":1e9}
+            if (!Array.isArray(coords))
+            {
+                return handles;
+            }
+
             // Ensure curves array matches coords length
-            while (curves.length < coords.length)
+            while (Array.isArray(curves) && curves.length < coords.length)
             {
                 curves.push([]);
             }
@@ -3536,6 +3542,13 @@ mxShapeBasicPatternFillRect.prototype.customProperties = [
 ];
 
 /**
+ * Variable: maxLines
+ *
+ * Maximum number of lines per direction of the fill. Default is 10000.
+ */
+mxShapeBasicPatternFillRect.prototype.maxLines = 10000;
+
+/**
 * Function: paintVertexShape
 * 
 * Paints the vertex shape.
@@ -3563,10 +3576,11 @@ mxShapeBasicPatternFillRect.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
 		step = step * 1.41;
 		var i = 0;
+		var n = 0;
 		
 		c.begin();
 		
-		while (i < (h + w))
+		while (i < (h + w) && n < this.maxLines)
 		{
 			var cx = 0;
 			var cy = 0;
@@ -3599,6 +3613,7 @@ mxShapeBasicPatternFillRect.prototype.paintVertexShape = function(c, x, y, w, h)
 			}
 			
 			i = i + step;
+			n++;
 		}
 		
 		c.stroke();
@@ -3607,8 +3622,9 @@ mxShapeBasicPatternFillRect.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
 		c.begin();
 		var i = 0;
+		var n = 0;
 		
-		while (i <= w)
+		while (i <= w && n < this.maxLines)
 		{
 			var cx = 0;
 			var cy = 0;
@@ -3617,6 +3633,7 @@ mxShapeBasicPatternFillRect.prototype.paintVertexShape = function(c, x, y, w, h)
 			c.lineTo(i, h);
 			
 			i = i + step;
+			n++;
 		}
 		
 		c.stroke();
@@ -3630,10 +3647,11 @@ mxShapeBasicPatternFillRect.prototype.paintVertexShape = function(c, x, y, w, h)
 		}
 
 		var i = 0;
+		var n = 0;
 		
 		c.begin();
 		
-		while (i < (h + w))
+		while (i < (h + w) && n < this.maxLines)
 		{
 			var cx = 0;
 			var cy = 0;
@@ -3666,6 +3684,7 @@ mxShapeBasicPatternFillRect.prototype.paintVertexShape = function(c, x, y, w, h)
 			}
 			
 			i = i + step;
+			n++;
 		}
 		
 		c.stroke();
@@ -3674,8 +3693,9 @@ mxShapeBasicPatternFillRect.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
 		c.begin();
 		var i = 0;
+		var n = 0;
 		
-		while (i <= h)
+		while (i <= h && n < this.maxLines)
 		{
 			var cx = 0;
 			var cy = 0;
@@ -3684,6 +3704,7 @@ mxShapeBasicPatternFillRect.prototype.paintVertexShape = function(c, x, y, w, h)
 			c.lineTo(w, i);
 			
 			i = i + step;
+			n++;
 		}
 		
 		c.stroke();

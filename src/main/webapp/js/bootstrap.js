@@ -101,6 +101,32 @@ if (urlParams['dev'] != '1')
     })();
 }
 
+// Opens Microsoft 365 files from viewer links in the app. Links from before
+// 31.5.3 use the viewer, whose Azure app has no /ms365 redirect URI, so the
+// sign-in fails with AADSTS50011 [jgraph/drawio#5663]. The target host is
+// fixed and frames are not redirected because the app only allows framing
+// by itself and Microsoft hosts.
+var mxM365Redirect = urlParams['dev'] != '1' &&
+    window.location.hostname == 'viewer.diagrams.net' &&
+    window.location.hash.substring(0, 2) == '#M' &&
+    window.top === window;
+
+if (mxM365Redirect)
+{
+    (function()
+    {
+        var search = window.location.search;
+
+        // The viewer host forces lightbox mode
+        if (!/[?&]lightbox=1(&|$)/.test(search))
+        {
+            search = ((search.length > 1) ? search + '&' : '?') + 'lightbox=1';
+        }
+
+        window.location.replace('https://app.diagrams.net/' + search + window.location.hash);
+    })();
+}
+
 /**
  * Adds meta tag to the page.
  */
@@ -317,7 +343,8 @@ if (urlParams['dev'] == '1')
 
     mxscript(drawDevUrl + 'js/PostConfig.js');
 }
-else
+// Skips the app while the page is redirected
+else if (!mxM365Redirect)
 {
     (function()
     {

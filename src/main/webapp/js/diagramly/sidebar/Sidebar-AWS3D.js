@@ -7,6 +7,7 @@
 	// Adds AWS 3D shapes
 	Sidebar.prototype.addAWS3DPalette = function()
 	{
+		var sb = this;
 		var w = 100;
 		var h = 100;
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_STROKEWIDTH + '=1;align=center;outlineConnect=0;dashed=0;outlineConnect=0;shape=mxgraph.aws3d.';

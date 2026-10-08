@@ -1,3 +1,94 @@
+08-OCT-2026: 32.4.1
+
+- Adds a --var flag to the generate/v3 eval runner
+- Paints the numbers of rack cabinets with numDisp=on again
+- Limits the cells of the battery stack for tiny heights and huge widths
+- Limits the segments of zigzag shapes for huge widths
+- Lets the fast-rt shard-load tool read its token from a private file
+- Shows Ctrl+Mousewheel instead of Alt+Mousewheel in the zoom hints
+- Counts browsers once a day per app version for a version dashboard
+- Lists the version dashboard's analytics token in the secret inventory
+- Removes the conversion service fallback from the Visio import
+- Removes the conversion service fallback from the connectors' Visio importer
+- Retires the Visio conversion route in the convert worker
+- Points the vss.draw.io converter page to the app
+
+08-OCT-2026: 32.4.0
+
+- Adds the Confluence Cloud Gliffy migration key for a missing configuration space
+- Moves the builder image and the CI workflows to Node 24
+- Pins the rebuilt Node 24 builder image in the builds
+- Adds github excludes
+- Removes the doc.*/i18n redirect to the retired translations spreadsheet
+- Skips Cloudflare's managed rulesets in the edge drift watch
+- Adds a live test of the realtime cache and relay in production
+- Sends the client log to the promoted GAE version instead of 23-1-5
+- Reads the client error log in the java17 log shape as well as java8
+- Fetches Google Drive files in the proxy worker instead of GAE 23-1-5
+- Moves the GAE deploy to the java21 runtime
+- Filters the Error Reporting console on the message's VERSION= line
+- Sends the proxy worker's Authorization header only to Trello
+- Adds MCP_REPO_TOKEN to the secret rotation list
+- Sends the Trello token only with Trello attachment URLs
+- Fixed monday.com app
+- Notes that the VERSION= console filter was checked on both log shapes
+- Turns off the log worker's workers.dev and preview URLs in its config
+- Updates stable to 32.3.0
+- Opens Microsoft 365 viewer links in the app [jgraph/drawio#5663]
+- Encodes page IDs in links and escapes the iframe embed snippet
+- Changed monday.com app to be monday.com hosted
+- Keeps the focus in dialogs opened from the search box [jgraph/drawio-desktop#2577]
+- Keeps Tab inside modal dialogs [jgraph/drawio-desktop#2577]
+- Sets the secure flag on the token cookie on HTTPS pages
+- Keeps the focus outline of the page list in the Google add-on dialog
+- Shows a spinner on Google add-on panel buttons while the script runs
+- Moves the border width of the Google add-ons into the insert dialog
+- Fixes lost changes after applying file XML in Edit Diagram [jgraph/drawio#5795]
+- Reports realtime edits on a page whose root is not the model root [jgraph/drawio#5795]
+- Adds 45 degree angle guides for edge waypoints and ends [jgraph/drawio#1668] [jgraph/drawio#5794]
+- Mentions the angle guides in the help text of the position guides option
+- Runs the legacy flow, tree and organic layouts on ELK
+- Removes the Legacy Layouts submenu
+- Removes mxHierarchicalLayout, mxCompactTreeLayout, mxRadialTreeLayout and mxFastOrganicLayout
+- Stops sign-in links from signing the browser in to someone else's account
+- URL-encodes the values of the auth worker's token requests
+- Adds the 45 degree angle guides to new connections [jgraph/drawio#1668]
+- Sends Office dialog results only to the add-in on the dialog's own origin
+- Removes mxPartitionLayout and mxEdgeLabelLayout
+- Switches the generate/v3 Mermaid model to Haiku 5.5
+- Hands the sign-in code to the app when its popup lacks the state cookie
+- Stops /teamsToken from setting a refresh token cookie
+- Stops values that OAuth providers repeat from running as script
+- Only accepts a tenant ID or domain as the tenant of /teamsToken
+- Documents how the auth worker binds the sign-in state to the browser
+- Zooms with the mouse wheel and scrolls with trackpads in Chromium and Firefox on macOS
+- Accepts the sign-in code exchange only as a GET
+- Accepts the sign-in code exchange from browsers without Sec-Fetch-Site
+- Stops a taken-over sign-in popup from handing the app someone else's tokens
+- Marks the mouse wheel shortcuts that Zoom with Mouse Wheel swaps
+- Lets self-hosted sign-in work from apps in cross-site iframes
+- Zooms with the mouse wheel and scrolls with precision touchpads on Windows
+- Accepts the configuration message only in embed mode
+- Refuses AI endpoints on draw.io and diagrams.net hosts
+- Accepts only plain text in the resources configuration
+- Checks the state from the URL before using its key in the auth servlets
+- Accepts the sign-in code exchange of the auth servlets only as a GET
+- Paints the ducts of the horizontal routing bank again
+- Snaps rack layouts to units only with rackUnitSize
+- Keeps the settings of embed popups apart from those of the app
+- Uses the unit size of the parent rack for the ducts of routing banks
+- Scales the global shadow with the zoom in model coordinates
+- Reverts the shadow notes in the model coordinates guide
+- Removes the unused TeamsServlet
+- Hears about saves on the realtime socket without Pusher
+- Limits the numbered units of rack cabinets
+- Limits the ducts of huge cable ducts and routing banks
+- Cuts the realtime relay from 64 to 32 shards
+- Adds an eval-only effort override to the generate/v3 worker
+- Routes generate/v3 connectors around shapes with libavoid
+- Removes the fast-rt shard-count guard now that the 32 shards are live
+- Sends nothing to the realtime cache while no other client is connected
+
 06-OCT-2026: 32.3.0
 
 - Places the width handles of the tapered arrow in model units

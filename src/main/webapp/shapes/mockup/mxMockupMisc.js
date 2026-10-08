@@ -366,6 +366,13 @@ mxShapeMockupRating.prototype.customProperties = [
 ];
 
 /**
+ * Variable: maxIcons
+ *
+ * Maximum number of filled and of empty icons. Default is 1000.
+ */
+mxShapeMockupRating.prototype.maxIcons = 1000;
+
+/**
  * Function: paintVertexShape
  * 
  * Paints the vertex shape.
@@ -380,7 +387,7 @@ mxShapeMockupRating.prototype.paintVertexShape = function(c, x, y, w, h)
 
 	if (ratingStyle === mxShapeMockupRating.prototype.cst.RATING_STAR)
 	{
-		for (var i = 0; i < grade; i++)
+		for (var i = 0; i < grade && i < this.maxIcons; i++)
 		{
 			c.begin();
 			c.moveTo(i * h * 1.5, 0.33 * h);
@@ -399,7 +406,7 @@ mxShapeMockupRating.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 	else if (ratingStyle === mxShapeMockupRating.prototype.cst.RATING_HEART)
 	{
-		for (var i = 0; i < grade; i++)
+		for (var i = 0; i < grade && i < this.maxIcons; i++)
 		{
 			c.begin();
 			c.moveTo(i * h * 1.5 + h * 0.519, h * 0.947);
@@ -418,7 +425,7 @@ mxShapeMockupRating.prototype.paintVertexShape = function(c, x, y, w, h)
 
 	if (ratingStyle === mxShapeMockupRating.prototype.cst.RATING_STAR)
 	{
-		for (var i = grade; i < ratingScale; i++)
+		for (var i = grade, n = 0; i < ratingScale && n < this.maxIcons; i++, n++)
 		{
 			c.begin();
 			c.moveTo(i * h * 1.5, 0.33 * h);
@@ -437,7 +444,7 @@ mxShapeMockupRating.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 	else if (ratingStyle === mxShapeMockupRating.prototype.cst.RATING_HEART)
 	{
-		for (var i = grade; i < ratingScale; i++)
+		for (var i = grade, n = 0; i < ratingScale && n < this.maxIcons; i++, n++)
 		{
 			c.begin();
 			c.moveTo(i * h * 1.5 + h * 0.519, h * 0.947);
@@ -1080,6 +1087,13 @@ mxShapeMockupRuler.prototype.cst = {
 };
 
 /**
+ * Variable: maxTicks
+ *
+ * Maximum number of ticks. Default is 10000.
+ */
+mxShapeMockupRuler.prototype.maxTicks = 10000;
+
+/**
 * Function: paintVertexShape
 * 
 * Paints the vertex shape.
@@ -1113,7 +1127,7 @@ mxShapeMockupRuler.prototype.foreground = function(c, w, h)
 	{
 		c.begin();
 		
-		while (currX < w)
+		while (currX < w && i <= this.maxTicks)
 		{
 			var remainder = i % 10;
 
@@ -1143,7 +1157,7 @@ mxShapeMockupRuler.prototype.foreground = function(c, w, h)
 	{
 		c.begin();
 		
-		while (currX < w)
+		while (currX < w && i <= this.maxTicks)
 		{
 			var remainder = i % 10;
 
@@ -1209,6 +1223,13 @@ mxShapeMockupRuler2.prototype.customProperties = [
 ];
 
 /**
+ * Variable: maxTicks
+ *
+ * Maximum number of ticks. Default is 10000.
+ */
+mxShapeMockupRuler2.prototype.maxTicks = 10000;
+
+/**
 * Function: paintVertexShape
 * 
 * Paints the vertex shape.
@@ -1253,7 +1274,7 @@ mxShapeMockupRuler2.prototype.foreground = function(c, x, y, w, h)
 	{
 		c.begin();
 		
-		while (currX < w)
+		while (currX < w && i <= this.maxTicks)
 		{
 			var remainder = i % 10;
 
@@ -1298,7 +1319,7 @@ mxShapeMockupRuler2.prototype.foreground = function(c, x, y, w, h)
 	{
 		c.begin();
 		
-		while (currX < w)
+		while (currX < w && i <= this.maxTicks)
 		{
 			var remainder = i % 10;
 

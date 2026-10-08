@@ -8,7 +8,7 @@
 	Sidebar.prototype.addIosPalette = function()
 	{
 			// Avoids having to bind all functions to "this"
-			sb = this;
+			var sb = this;
 			
 			//default tags
 			var dt = 'ios icon ';

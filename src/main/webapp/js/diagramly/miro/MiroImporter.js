@@ -77,7 +77,7 @@ function MiroImporter()
                 ('0' + (color & 0xFF).toString(16)).slice(-2);
     };
 
-    fontNameMap = {
+    var fontNameMap = {
         0: 'Arial',
         2: 'Abril Fatface',
         3: 'Bangers',

@@ -302,6 +302,19 @@ is CSS injected by viewer-shared code (e.g. `geNoteBox` in `Graph.js`):
 the viewer runs on third-party pages where the variables don't exist and
 generic names could collide with host CSS, so literals stay there.
 
+## Keyboard Focus
+
+Modal dialogs keep Tab inside the dialog (`Dialog.installFocusTrap`): Tab on
+the last control focuses the first, Shift+Tab on the first focuses the last,
+and Tab while the focus is behind the dialog (diagram, search box) moves it
+into the dialog. The trap uses the visible, enabled controls in document
+order (`Dialog.getTabStops`), so don't use positive `tabindex` values. A
+control that handles Tab itself (eg. an autocomplete) must consume the event
+(`mxEvent.consume`) so the trap leaves it alone. Focus the first input in the
+dialog's `init` — callers that focus something else afterwards must check
+`document.activeElement` first (see `focusGraph` in
+`Sidebar.addSearchPalette`).
+
 ## Testing Dialogs
 
 Use `?dev=1&ui=classic` to keep the menubar visible regardless of window size.

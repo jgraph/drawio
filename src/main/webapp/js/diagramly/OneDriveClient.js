@@ -402,7 +402,7 @@ OneDriveClient.prototype.authenticateStep2 = function(state, success, error, fai
 						'?client_id=' + this.clientId + '&response_type=code&prompt=select_account' +
 						'&redirect_uri=' + encodeURIComponent(this.redirectUri) +
 						'&scope=' + encodeURIComponent((isSP? this.scopesSP : this.scopes) + (remember? ' offline_access' : '')) +
-						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.host + '&token=' + state + this.getRedirectPathState()); //To identify which app/domain is used
+						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.host + '&token=' + state + '&relay=1' + this.getRedirectPathState()); //To identify which app/domain is used
 	
 					var width = 525,
 						height = 525,
@@ -423,7 +423,7 @@ OneDriveClient.prototype.authenticateStep2 = function(state, success, error, fai
 					
 					if (popup != null)
 					{
-						window.onOneDriveCallback = mxUtils.bind(this, function(authInfo, authWindow)
+						window.onOneDriveCallback = this.createAuthCallback(state, mxUtils.bind(this, function(authInfo, authWindow)
 						{
 							if (acceptAuthResponse)
 							{
@@ -472,7 +472,7 @@ OneDriveClient.prototype.authenticateStep2 = function(state, success, error, fai
 							{
 								authWindow.close();
 							}
-						});
+						}));
 					
 						popup.focus();
 					}

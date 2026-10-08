@@ -200,11 +200,11 @@ GitHubClient.prototype.authenticateStep2 = function(state, success, error)
 					var win = window.open(this.baseHostUrl + '/login/oauth/authorize?client_id=' +
 						this.clientId +  
 						'&state=' + encodeURIComponent('cId=' + this.clientId + //To identify which app/domain is used
-							'&domain=' + window.location.host + '&token=' + state), 'ghauth');
+							'&domain=' + window.location.host + '&token=' + state + '&relay=1'), 'ghauth');
 					
 					if (win != null)
 					{
-						window.onGitHubCallback = mxUtils.bind(this, function(newAuthInfo, authWindow)
+						window.onGitHubCallback = this.createAuthCallback(state, mxUtils.bind(this, function(newAuthInfo, authWindow)
 						{
 							if (acceptAuthResponse)
 							{
@@ -242,7 +242,7 @@ GitHubClient.prototype.authenticateStep2 = function(state, success, error)
 							{
 								authWindow.close();
 							}
-						});
+						}));
 					}
 					else
 					{

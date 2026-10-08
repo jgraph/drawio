@@ -70,7 +70,8 @@ abstract public class MSGraphAuth extends AbsAuth
 			res.append("	{");
 			res.append("		var authInfoStr = JSON.stringify(authInfo);");
 			res.append("		localStorage.setItem('.oneDriveAuthInfo', '{}');"); //setting this storage item means we have a refresh token
-			res.append("		Office.onReady(function () { Office.context.ui.messageParent(authInfoStr, { targetOrigin: '*' });});"); //TODO Use specific domain (more secure)
+			//Only to the add-in on this origin, never another add-in that opened this dialog
+			res.append("		Office.onReady(function () { Office.context.ui.messageParent(authInfoStr, { targetOrigin: window.location.origin });});");
 			res.append("	};");
 			res.append("	script.src = 'https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js';");
 			res.append("	head.appendChild(script);");

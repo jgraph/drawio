@@ -1177,7 +1177,7 @@ EditorUi = function(editor, container, lightbox)
 			 }
 		 }
 		 
-		 value = fread(f,n);
+		 var value = fread(f,n);
 		 fread(f,4);
 		 
 		 if (type == 'IEND')
@@ -2126,7 +2126,7 @@ EditorUi.prototype.installShapePicker = function()
 					
 					while (temp != null && graph.model.isVertex(temp) && geo != null && geo.relative)
 					{
-						cell = temp;
+						var cell = temp;
 						temp = graph.model.getParent(cell)
 						geo = graph.getCellGeometry(temp);
 					}
@@ -4152,13 +4152,13 @@ EditorUi.prototype.initCanvas = function()
 			{
 				this.actions.get('zoomOut').funct();
 				mxEvent.consume(evt);
-			}), Editor.zoomOutImage, mxResources.get('zoomOut') + ' (Alt+Mousewheel)');
+			}), Editor.zoomOutImage, mxResources.get('zoomOut') + ' (Ctrl+Mousewheel)');
 			
 			addButton(mxUtils.bind(this, function(evt)
 			{
 				this.actions.get('zoomIn').funct();
 				mxEvent.consume(evt);
-			}), Editor.zoomInImage, mxResources.get('zoomIn') + ' (Alt+Mousewheel)');
+			}), Editor.zoomInImage, mxResources.get('zoomIn') + ' (Ctrl+Mousewheel)');
 			
 			addButton(mxUtils.bind(this, function(evt)
 			{
@@ -5006,9 +5006,12 @@ EditorUi.prototype.initCanvas = function()
 		{
 			if (window.parent != null && window.parent != window)
 			{
-				var deltaY = (evt.deltaY != null) ? evt.deltaY :
+				// Line and page modes
+				var f = (evt.deltaMode == 1) ? 16 : ((evt.deltaMode == 2) ?
+					graph.container.clientHeight : 1);
+				var deltaY = (evt.deltaY != null) ? evt.deltaY * f :
 					((up) ? -60 : 60);
-				var deltaX = (evt.deltaX != null) ? evt.deltaX : 0;
+				var deltaX = (evt.deltaX != null) ? evt.deltaX * f : 0;
 
 				window.parent.postMessage(JSON.stringify({
 					event: 'scrollWheel',
@@ -5054,6 +5057,27 @@ EditorUi.prototype.initCanvas = function()
 				// Avoids navigation gestures for horizontal scrolling
 				mxEvent.consume(evt);
             }
+			// Scrolls with Alt+Wheel as the default action of browsers
+			// differs (eg. history navigation in Firefox)
+			else if (!force && mxEvent.isAltDown(evt) && graph.isScrollWheelEvent(evt))
+			{
+				var dx = (evt.deltaX != null) ? evt.deltaX : 0;
+				var dy = (evt.deltaY != null) ? evt.deltaY : 0;
+
+				// Line and page modes
+				var f = (evt.deltaMode == 1) ? 16 : ((evt.deltaMode == 2) ?
+					graph.container.clientHeight : 1);
+
+				if (mxEvent.isShiftDown(evt) && dx == 0)
+				{
+					dx = dy;
+					dy = 0;
+				}
+
+				graph.container.scrollLeft += dx * f;
+				graph.container.scrollTop += dy * f;
+				mxEvent.consume(evt);
+			}
 			else if (force || graph.isZoomWheelEvent(evt))
 			{
 				var source = mxEvent.getSource(evt);
@@ -8804,7 +8828,7 @@ EditorUi.prototype.createZoomInput = function(readOnly)
 	{
 		zoomInput.setAttribute('title',
 			mxResources.get('zoom') +
-				' (Alt+Mousewheel)');
+				' (Ctrl+Mousewheel)');
 	}));
 
 	if (readOnly || mxClient.IS_TOUCH)

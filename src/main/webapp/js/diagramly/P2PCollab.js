@@ -1,9 +1,16 @@
 /**
  * Copyright (c) 2020-2025, JGraph Holdings Ltd
  * Copyright (c) 2020-2025, draw.io AG
+ *
+ * Session on the realtime relay for the given channel. A notifyOnly session
+ * is for clients without the realtime model (see
+ * DrawioFileSync.updateRealtime): it sends and takes notifications only,
+ * no cursors, selections, views, live diffs or join announcements, and it
+ * ignores the live diffs and presence of the other clients.
  */
-function P2PCollab(ui, sync, channelId)
+function P2PCollab(ui, sync, channelId, notifyOnly)
 {
+	notifyOnly = notifyOnly == true;
 	var graph = ui.editor.graph;
 	var encrypted = true; // global flag to encrypt all messages
 	var sessionCount = 0;
@@ -167,6 +174,9 @@ function P2PCollab(ui, sync, channelId)
 		{
 			if (destroyed || sync.file.appUpgradeRequired) return;
 
+			// A notify-only session sends notifications and nothing else
+			if (notifyOnly && type != 'notify') return;
+
 			var user = sync.file.getCurrentUser();
 
 			if (!fileJoined || user == null || user.displayName == null)
@@ -217,7 +227,7 @@ function P2PCollab(ui, sync, channelId)
 			//TODO Currently, we only send cursor, view & selection messages via P2P
 			if (p2pOnlyMsgs)
 			{
-				for (p2pId in p2pClients)
+				for (var p2pId in p2pClients)
 				{
 					p2pClients[p2pId].send(msg);
 				}
@@ -285,6 +295,11 @@ function P2PCollab(ui, sync, channelId)
 		return fileJoined;
 	};
 
+	this.isNotifyOnly = function()
+	{
+		return notifyOnly;
+	};
+
 	// Read-only view of the server-confirmed peer roster (diagnostics
 	// and the signal-impersonation lock, which has to see WHICH
 	// identity a relayed signal was attributed to)
@@ -298,6 +313,24 @@ function P2PCollab(ui, sync, channelId)
 		}
 
 		return result;
+	};
+
+	// True while the server roster confirms on an open socket that no
+	// other client is connected to the channel, the condition of the
+	// alone gate in sendMessage (false while the roster is unknown)
+	this.isAlone = function()
+	{
+		return ALONE_GATE && fileJoined && rosterKnown && socketPeerCount == 0 &&
+			socket != null && socket.readyState == 1;
+	};
+
+	// Tells the sync that other clients joined (see DrawioFileSync.peerJoined)
+	function peerJoined()
+	{
+		if (sync != null && typeof sync.peerJoined === 'function')
+		{
+			sync.peerJoined();
+		}
 	};
 
 	function debounce(func, wait) 
@@ -360,8 +393,6 @@ function P2PCollab(ui, sync, channelId)
 		}
 	};
 
-	graph.addMouseListener(this.mouseListeners);
-
 	this.shareCursorPositionListener = function()
 	{
 		if (!ui.isShareCursorPosition())
@@ -370,7 +401,12 @@ function P2PCollab(ui, sync, channelId)
 		}
 	};
 
-	ui.addListener('shareCursorPositionChanged', this.shareCursorPositionListener);
+	// A notify-only session has no cursor or selection to send
+	if (!notifyOnly)
+	{
+		graph.addMouseListener(this.mouseListeners);
+		ui.addListener('shareCursorPositionChanged', this.shareCursorPositionListener);
+	}
 
 	// Clears remote selection state for large selections
 	var selectionLimit = mxGraphHandler.prototype.maxCells;
@@ -443,13 +479,16 @@ function P2PCollab(ui, sync, channelId)
 		}, 300);
 	};
 
-	graph.getSelectionModel().addListener(mxEvent.CHANGE, this.selectionChangeListener);
+	if (!notifyOnly)
+	{
+		graph.getSelectionModel().addListener(mxEvent.CHANGE, this.selectionChangeListener);
+	}
 
 	// Sends the full current selection when the first other client
 	// connects so that it sees the selection made while alone
 	var flushSelection = mxUtils.bind(this, function()
 	{
-		if (ALONE_GATE && !graph.isSelectionEmpty())
+		if (ALONE_GATE && !notifyOnly && !graph.isSelectionEmpty())
 		{
 			lastSelection = {};
 			this.selectionChangeListener();
@@ -457,8 +496,9 @@ function P2PCollab(ui, sync, channelId)
 	});
 
 	// Adds a client to the peer roster (via clientsList, newClient,
-	// signal or a received message)
-	function addPeer(id)
+	// signal or a received message). The client list tells the sync
+	// once for all its clients (listed is true).
+	function addPeer(id, listed)
 	{
 		if (id != null && id != myClientId && !socketPeers[id])
 		{
@@ -473,11 +513,16 @@ function P2PCollab(ui, sync, channelId)
 			{
 				flushSelection();
 
-				if (ALONE_GATE && sync != null &&
+				if (ALONE_GATE && !notifyOnly && sync != null &&
 					typeof sync.sendUnconfirmedChanges === 'function')
 				{
 					sync.sendUnconfirmedChanges();
 				}
+			}
+
+			if (!listed)
+			{
+				peerJoined();
 			}
 
 			return true;
@@ -555,12 +600,16 @@ function P2PCollab(ui, sync, channelId)
 		}
 	});
 
-	mxEvent.addListener(graph.container, 'scroll', this.cursorHandler);
-	graph.getView().addListener(mxEvent.SCALE, this.cursorHandler);
-	graph.getView().addListener(mxEvent.TRANSLATE, this.cursorHandler);
-	graph.getView().addListener(mxEvent.SCALE_AND_TRANSLATE, this.cursorHandler);
-	ui.addListener('showRemoteCursorsChanged', this.cursorHandler);
-	ui.editor.addListener('pageSelected', this.cursorHandler);
+	// A notify-only session shows no remote cursors
+	if (!notifyOnly)
+	{
+		mxEvent.addListener(graph.container, 'scroll', this.cursorHandler);
+		graph.getView().addListener(mxEvent.SCALE, this.cursorHandler);
+		graph.getView().addListener(mxEvent.TRANSLATE, this.cursorHandler);
+		graph.getView().addListener(mxEvent.SCALE_AND_TRANSLATE, this.cursorHandler);
+		ui.addListener('showRemoteCursorsChanged', this.cursorHandler);
+		ui.editor.addListener('pageSelected', this.cursorHandler);
+	}
 
 	// Returns the message in the given socket or P2P data, or null if it
 	// must be dropped. The relay authenticates nobody: anyone who knows
@@ -714,7 +763,15 @@ function P2PCollab(ui, sync, channelId)
 					clientLastMsgId[fromCId] = msg.id;
 				}
 			}
-			
+
+			// A notify-only session takes notifications and the view of a
+			// presenter it follows, which a notification starts. Live diffs
+			// and presence are for the clients with the realtime model.
+			if (notifyOnly && msg.type != 'notify' && msg.type != 'view')
+			{
+				return;
+			}
+
 			var username = msg.username? msg.username : 'Anonymous';
 			var sessionId = msg.sessionId;
 			var cursor, selection;
@@ -1021,7 +1078,7 @@ function P2PCollab(ui, sync, channelId)
 		{
 			for (var i = 0; i < data.list.length; i++)
 			{
-				addPeer(data.list[i]);
+				addPeer(data.list[i], true);
 				createPeer(data.list[i], true);
 			}
 		}
@@ -1039,6 +1096,17 @@ function P2PCollab(ui, sync, channelId)
 				announceJoin();
 			}
 		}, 3000);
+
+		// Join notification on the first session, catchup on later ones
+		if (sync != null && typeof sync.socketJoined === 'function')
+		{
+			sync.socketJoined();
+		}
+
+		if (socketPeerCount > 0)
+		{
+			peerJoined();
+		}
 	};
 	
 	function signal(data)
@@ -1197,15 +1265,9 @@ function P2PCollab(ui, sync, channelId)
 				sync.file.fireEvent(new mxEventObject('realtimeStateChanged'));
 				EditorUi.debug('P2PCollab: open socket', socket.joinId);
 
-				// Send join message
-				if (!Editor.enableRealtimeCache)
-				{
-					window.setTimeout(function()
-					{
-						sync.sendJoinMessage();
-					}, 0);
-				}
-
+				// The join notification waits for the session (see
+				// clientsList): sent from here, it was dropped if the
+				// client list had not arrived yet
 				if (check)
 				{
 					sync.scheduleCleanup();
@@ -1397,7 +1459,7 @@ function P2PCollab(ui, sync, channelId)
 		document.removeEventListener('visibilitychange', activationListener);
 		window.removeEventListener('focus', activationListener);
 		//Remove selection and cursor
-		for (sessionId in connectedSessions)
+		for (var sessionId in connectedSessions)
 		{
 			removeConnectedUserUi(sessionId);
 		}

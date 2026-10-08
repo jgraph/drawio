@@ -10,9 +10,9 @@
 	// Sanitizes text for HTML string size measure
 	var getSizeForString = mxUtils.getSizeForString;
 
-	mxUtils.getSizeForString = function(text, fontSize, fontFamily, textWidth)
+	mxUtils.getSizeForString = function(text, fontSize, fontFamily, textWidth, fontStyle)
 	{
-		return getSizeForString(Graph.sanitizeHtml(text), fontSize, fontFamily, textWidth);
+		return getSizeForString(Graph.sanitizeHtml(text), fontSize, fontFamily, textWidth, fontStyle);
 	}
 })();
 
@@ -1871,9 +1871,38 @@ Graph.lineJumpsEnabled = true;
 Graph.defaultJumpSize = 6;
 
 /**
- * Specifies if the mouse wheel is used for zoom without any modifiers.
+ * Specifies if mouse wheels and trackpads can be told apart in
+ * <Graph.isTrackpadWheelEvent>. Browsers do not report the device and
+ * heuristics for the deltas fail as mouse wheels on macOS fire small
+ * accelerated pixel deltas for slow scrolling, the same as trackpads. Only
+ * Chromium-based browsers and Firefox on macOS and Windows fire different
+ * events:
+ *
+ * - Chromium sets the legacy wheelDelta to 120 per notch of a mouse wheel
+ * and to exactly 3 times (macOS) or 1 times (Windows) the pixel delta for
+ * trackpads.
+ * - Firefox fires line deltas for mouse wheels and pixel deltas for
+ * trackpads (if deltaMode is read first, see mxEvent.addMouseWheelListener).
+ *
+ * Safari fires the same deltas for both. On Linux, Chromium fires the same
+ * deltas for both and Firefox fires line deltas for touchpads. Devices with
+ * precise scrolling deltas (eg. Magic Mouse or smooth scrolling mice) are
+ * trackpads, and touchpads without precision touchpad drivers on Windows
+ * fire the events of mouse wheels in all browsers.
  */
-Graph.zoomWheel = false;
+Graph.trackpadDetection = (mxClient.IS_MAC || mxClient.IS_WIN) &&
+	(mxClient.IS_GC || mxClient.IS_FF);
+
+/**
+ * Specifies if the mouse wheel is used for zoom without any modifiers. If
+ * this is true, Alt+Wheel scrolls vertically and Shift+Wheel scrolls
+ * horizontally. If this is false, the mouse wheel scrolls and Alt+Wheel
+ * or Ctrl+Wheel zoom. Pinch gestures on trackpads fire wheel events with
+ * the Control key and always zoom. Trackpads scroll if they can be told
+ * apart from mouse wheels, otherwise they zoom if this is true. Default is
+ * <Graph.trackpadDetection>.
+ */
+Graph.zoomWheel = Graph.trackpadDetection;
 
 /**
  * Specifies if the parent layer should be selected when the selection changes.
@@ -1986,11 +2015,10 @@ Graph.cellStyles = mxUtils.addItems(mxUtils.addItems(mxUtils.addItems(
 	Graph.cellStyleGroups);
 
 /**
- * Whitelist for known layout names.
+ * Whitelist for known layout names. The names of the removed mxGraph layouts
+ * run as their ELK replacements or are skipped, see replaceLegacyLayout.
  */
-Graph.layoutNames = ['mxHierarchicalLayout', 'mxCircleLayout', 'mxCompactTreeLayout',
-	'mxEdgeLabelLayout', 'mxFastOrganicLayout', 'mxParallelEdgeLayout',
-	'mxPartitionLayout', 'mxRadialTreeLayout', 'mxStackLayout',
+Graph.layoutNames = ['mxCircleLayout', 'mxParallelEdgeLayout', 'mxStackLayout',
 	'elkLayered', 'elkTree', 'elkRadial', 'elkOrganic', 'elkStress',
 	'elkDisco', 'elkBox'];
 
@@ -2026,6 +2054,175 @@ Graph.elkLayoutNameForAlgorithm = function(algorithm)
 	}
 
 	return null;
+};
+
+/**
+ * Returns the ELK direction for the given side of the roots of a removed
+ * mxGraph layout (the orientation of mxHierarchicalLayout), ie. DOWN for
+ * north, RIGHT for west, LEFT for east and UP for south. Unknown values
+ * return DOWN.
+ */
+Graph.getElkDirection = function(side)
+{
+	var direction = 'DOWN';
+
+	if (side == mxConstants.DIRECTION_WEST)
+	{
+		direction = 'RIGHT';
+	}
+	else if (side == mxConstants.DIRECTION_EAST)
+	{
+		direction = 'LEFT';
+	}
+	else if (side == mxConstants.DIRECTION_SOUTH)
+	{
+		direction = 'UP';
+	}
+
+	return direction;
+};
+
+/**
+ * Returns the value for the given key in the given object as a number, or
+ * the given default value if the value is missing or not a finite number.
+ */
+Graph.getLegacyLayoutNumber = function(obj, key, defaultValue)
+{
+	var value = parseFloat(mxUtils.getValue(obj, key, defaultValue));
+
+	return (isFinite(value)) ? value : defaultValue;
+};
+
+/**
+ * Returns the ELK replacement of the given {layout, config} entry if it
+ * names one of the removed mxGraph layouts, or the entry itself otherwise.
+ * Keeps the layout specs in CSV files, embed messages, URLs and childLayout
+ * styles that use the old names working: mxHierarchicalLayout runs as
+ * elkLayered, mxCompactTreeLayout as elkTree, mxRadialTreeLayout as
+ * elkRadial and mxFastOrganicLayout as elkOrganic. The orientation and the
+ * spacings of the old layouts are translated (missing values take the
+ * defaults of the old layouts), all other options are dropped. Returns null
+ * for the removed layouts without a replacement (mxPartitionLayout and
+ * mxEdgeLabelLayout), which are skipped.
+ */
+Graph.replaceLegacyLayout = function(entry)
+{
+	var name = (entry != null) ? entry.layout : null;
+	var config = (entry != null && entry.config != null) ? entry.config : {};
+	var getNumber = Graph.getLegacyLayoutNumber;
+	var result = entry;
+
+	if (name == 'mxHierarchicalLayout')
+	{
+		var edgeSpacing = getNumber(config, 'parallelEdgeSpacing', 10);
+
+		result = {layout: 'elkLayered', config: {
+			'elk.direction': Graph.getElkDirection(mxUtils.getValue(
+				config, 'orientation', mxConstants.DIRECTION_NORTH)),
+			'elk.spacing.nodeNode': getNumber(config, 'intraCellSpacing', 30),
+			'elk.layered.spacing.nodeNodeBetweenLayers': getNumber(
+				config, 'interRankCellSpacing', 100),
+			'elk.spacing.componentComponent': getNumber(
+				config, 'interHierarchySpacing', 60),
+			'elk.spacing.edgeEdge': edgeSpacing,
+			'elk.layered.spacing.edgeEdgeBetweenLayers': edgeSpacing,
+			edgeStyle: 'orthogonalEdgeStyle'}};
+	}
+	else if (name == 'mxCompactTreeLayout')
+	{
+		// mrtree has one spacing for the gaps between levels and siblings
+		// and routes the edges between the levels at edgeNode
+		var spacing = Math.max(getNumber(config, 'levelDistance', 10),
+			getNumber(config, 'nodeDistance', 20));
+		var invert = mxUtils.getValue(config, 'invert', false);
+
+		result = {layout: 'elkTree', config: {
+			'elk.direction': (mxUtils.getValue(config, 'horizontal', true)) ?
+				((invert) ? 'LEFT' : 'RIGHT') : ((invert) ? 'UP' : 'DOWN'),
+			'elk.spacing.nodeNode': spacing,
+			'elk.spacing.edgeNode': spacing / 2}};
+	}
+	else if (name == 'mxRadialTreeLayout')
+	{
+		result = {layout: 'elkRadial', config: {}};
+	}
+	else if (name == 'mxFastOrganicLayout')
+	{
+		// An ELK force spacing of 10 matches the default force constant 50
+		result = {layout: 'elkOrganic', config: {
+			'elk.spacing.nodeNode': getNumber(config, 'forceConstant', 50) / 5}};
+	}
+	else if (name == 'mxPartitionLayout' || name == 'mxEdgeLabelLayout')
+	{
+		result = null;
+	}
+
+	return result;
+};
+
+/**
+ * Returns the custom-layout list that replaces the given childLayout style
+ * of a removed mxGraph layout (treeLayout, flowLayout and organicLayout,
+ * written by older sidebar containers and still used in generated
+ * diagrams), or null for all other styles. The layout options in the style
+ * are translated via replaceLegacyLayout. Node sizes are pinned, the
+ * container adds parentPadding around its children and grows with them
+ * unless resizeParent=0, and tree layouts keep the edges as they are (the
+ * old tree layout did not route them).
+ */
+Graph.getLegacyChildLayouts = function(style)
+{
+	var value = style['childLayout'];
+	var entry = null;
+
+	if (value == 'flowLayout')
+	{
+		entry = Graph.replaceLegacyLayout({layout: 'mxHierarchicalLayout', config: {
+			orientation: mxUtils.getValue(style, 'flowOrientation', mxConstants.DIRECTION_EAST),
+			intraCellSpacing: style['intraCellSpacing'],
+			interRankCellSpacing: style['interRankCellSpacing'],
+			interHierarchySpacing: style['interHierarchySpacing'],
+			parallelEdgeSpacing: style['parallelEdgeSpacing']}});
+
+		// Isolated cells must stay in the input under the layout manager and
+		// the model order breaks ties so that inserts don't reshuffle the
+		// branches (same as the Insert > Layout flow containers)
+		entry.config.extractIsolated = false;
+		entry.config['elk.layered.considerModelOrder.strategy'] = 'NODES_AND_EDGES';
+	}
+	else if (value == 'treeLayout')
+	{
+		entry = Graph.replaceLegacyLayout({layout: 'mxCompactTreeLayout', config: {
+			horizontal: mxUtils.getValue(style, 'horizontalTree', '1') == '1',
+			levelDistance: mxUtils.getValue(style, 'treeLevelDistance', 30)}});
+		entry.config.edgeStyle = 'keep';
+	}
+	else if (value == 'organicLayout')
+	{
+		entry = Graph.replaceLegacyLayout({layout: 'mxFastOrganicLayout'});
+	}
+
+	if (entry != null)
+	{
+		entry.config.resizeNodes = false;
+		entry.config.resizeLayoutRoot = mxUtils.getValue(style, 'resizeParent', '1') == '1';
+		entry.config.groupPadding = Graph.getLegacyLayoutNumber(style, 'parentPadding', 20);
+	}
+
+	return (entry != null) ? [entry] : null;
+};
+
+/**
+ * Returns the custom-layout list of the given childLayout style: the ELK
+ * replacement of a removed mxGraph layout (see getLegacyChildLayouts) or
+ * the JSON form (see decodeChildLayout). Returns null for all other values
+ * and throws for malformed JSON.
+ */
+Graph.getChildLayouts = function(style)
+{
+	var list = Graph.getLegacyChildLayouts(style);
+
+	return (list != null) ? list : Graph.decodeChildLayout(style['childLayout']);
 };
 
 /**
@@ -3194,8 +3391,8 @@ Graph.fadeNodes = function(nodes, start, end, done, delay)
  */
 Graph.exploreFromCell = function(sourceGraph, selectionCell, config)
 {
-	pageSize = (config != null && config.pageSize != null) ? config.pageSize : 8;
-	minSize = (config != null && config.minSize != null) ? config.minSize : 180;
+	var pageSize = (config != null && config.pageSize != null) ? config.pageSize : 8;
+	var minSize = (config != null && config.minSize != null) ? config.minSize : 180;
 
 	//
 	// Main function
@@ -10322,7 +10519,7 @@ Graph.prototype.destroy = function()
 				// Applies basic text styles for cells with text class
 				if (cell.style != null && typeof cell.style === 'string')
 				{
-					pairs = cell.style.split(';');
+					var pairs = cell.style.split(';');
 					isText = isText || mxUtils.indexOf(pairs, 'text') >= 0;
 				}
 
@@ -11292,40 +11489,6 @@ Graph.prototype.initLayoutManager = function()
 				
 				return stackLayout;
 			}
-			else if (style['childLayout'] == 'treeLayout')
-			{
-				var treeLayout = new mxCompactTreeLayout(this.graph);
-				treeLayout.horizontal = mxUtils.getValue(style, 'horizontalTree', '1') == '1';
-				treeLayout.resizeParent = !transparentParent && mxUtils.getValue(style, 'resizeParent', '1') == '1';
-				treeLayout.sortEdges = mxUtils.getValue(style, 'sortEdges', '0') == '1';
-				treeLayout.groupPadding = mxUtils.getValue(style, 'parentPadding', 20);
-				treeLayout.levelDistance = mxUtils.getValue(style, 'treeLevelDistance', 30);
-				treeLayout.maintainParentLocation = true;
-				treeLayout.edgeRouting = false;
-				treeLayout.resetEdges = false;
-				
-				return treeLayout;
-			}
-			else if (style['childLayout'] == 'flowLayout')
-			{
-				var flowLayout = new mxHierarchicalLayout(this.graph, mxUtils.getValue(style,
-					'flowOrientation', mxConstants.DIRECTION_EAST));
-				flowLayout.resizeParent = !transparentParent && mxUtils.getValue(style, 'resizeParent', '1') == '1';
-				flowLayout.parentBorder = mxUtils.getValue(style, 'parentPadding', 20);
-				flowLayout.maintainParentLocation = true;
-				
-				// Special undocumented styles for changing the hierarchical
-				flowLayout.intraCellSpacing = mxUtils.getValue(style, 'intraCellSpacing',
-					mxHierarchicalLayout.prototype.intraCellSpacing);
-				flowLayout.interRankCellSpacing = mxUtils.getValue(style, 'interRankCellSpacing',
-					mxHierarchicalLayout.prototype.interRankCellSpacing);
-				flowLayout.interHierarchySpacing = mxUtils.getValue(style, 'interHierarchySpacing',
-					mxHierarchicalLayout.prototype.interHierarchySpacing);
-				flowLayout.parallelEdgeSpacing = mxUtils.getValue(style, 'parallelEdgeSpacing',
-					mxHierarchicalLayout.prototype.parallelEdgeSpacing);
-				
-				return flowLayout;
-			}
 			else if (style['childLayout'] == 'circleLayout')
 			{
 				var circleLayout = new mxCircleLayout(this.graph);
@@ -11442,10 +11605,6 @@ Graph.prototype.initLayoutManager = function()
 
 				return circleLayout;
 			}
-			else if (style['childLayout'] == 'organicLayout')
-			{
-				return new mxFastOrganicLayout(this.graph);
-			}
 			else if (style['childLayout'] == 'tableLayout')
 			{
 				return new TableLayout(this.graph);
@@ -11454,23 +11613,27 @@ Graph.prototype.initLayoutManager = function()
 			{
 				// JSON custom-layout array form, URL-encoded when written
 				// (raw '[' JSON from older files still decodes) — see
-				// Graph.encodeChildLayout / decodeChildLayout. Unknown
-				// plain-string values decode to null and fall through.
+				// Graph.encodeChildLayout / decodeChildLayout — or the ELK
+				// replacement of the treeLayout, flowLayout and organicLayout
+				// values of the removed mxGraph layouts. Unknown plain-string
+				// values decode to null and fall through.
 				try
 				{
-					var list = Graph.decodeChildLayout(style['childLayout']);
+					// Manager re-runs treat the spec's corners as a default
+					// for edges that never had an explicit rounded/curved
+					// choice — a user's sharp/rounded/curved pick on an edge
+					// survives ordinary edits instead of being re-stamped on
+					// every change. Explicit gestures re-theme all edges via
+					// ElkLayout.applyCorners in setContainerChildLayout.
+					var list = Graph.getChildLayouts(style);
+					var layouts = (list != null) ? this.graph.createLayouts(
+						list, {enforceCorners: false}) : [];
 
-					if (list != null)
+					// A list of skipped layouts runs no layout (an empty
+					// composite layout cannot handle moved cells)
+					if (layouts.length > 0)
 					{
-						// Manager re-runs treat the spec's corners as a default
-						// for edges that never had an explicit rounded/curved
-						// choice — a user's sharp/rounded/curved pick on an edge
-						// survives ordinary edits instead of being re-stamped on
-						// every change. Explicit gestures re-theme all edges via
-						// ElkLayout.applyCorners in setContainerChildLayout.
-						return new mxCompositeLayout(this.graph,
-							this.graph.createLayouts(list,
-								{enforceCorners: false}));
+						return new mxCompositeLayout(this.graph, layouts);
 					}
 				}
 				catch (e)
@@ -12623,7 +12786,8 @@ Graph.decodeNewEdgeStyle = function(value)
  * `options` argument. The optional elkOptions argument overrides those
  * options per call site (the layout manager passes enforceCorners=false so
  * childLayout re-runs don't clobber per-edge corner choices) — it never
- * touches non-ELK layouts.
+ * touches non-ELK layouts. The names of the removed mxGraph layouts create
+ * their ELK replacements or are skipped (see replaceLegacyLayout).
  */
 Graph.prototype.createLayouts = function(list, elkOptions)
 {
@@ -12631,8 +12795,16 @@ Graph.prototype.createLayouts = function(list, elkOptions)
 
 	for (var i = 0; i < list.length; i++)
 	{
-		var layoutName = list[i].layout;
-		var config = list[i].config;
+		var entry = Graph.replaceLegacyLayout(list[i]);
+
+		// Removed layouts without a replacement are skipped
+		if (entry == null)
+		{
+			continue;
+		}
+
+		var layoutName = entry.layout;
+		var config = entry.config;
 
 		if (typeof Graph.elkLayoutAlgorithms[layoutName] === 'string')
 		{
@@ -13391,14 +13563,49 @@ Graph.prototype.isReplacePlaceholders = function(cell)
 
 /**
  * Returns true if the given mouse wheel event should be used for zooming. This
- * is invoked if no dialogs are showing and returns true with Alt or Control
- * (or cmd in macOS only) is pressed.
+ * is invoked if no dialogs are showing and returns true if Control is pressed
+ * (pinch gestures on trackpads), if no Shift, Alt or Meta key is pressed and
+ * <zoomWheel> is true for events that are not from trackpads, or if Alt is
+ * pressed and <zoomWheel> is false.
  */
 Graph.prototype.isZoomWheelEvent = function(evt)
 {
-	return (Graph.zoomWheel && !mxEvent.isShiftDown(evt) && !mxEvent.isMetaDown(evt) &&
-		!mxEvent.isAltDown(evt) && (!mxEvent.isControlDown(evt) || mxClient.IS_MAC)) ||
-		(!Graph.zoomWheel && (mxEvent.isAltDown(evt) || mxEvent.isControlDown(evt)));
+	return mxEvent.isControlDown(evt) || ((Graph.zoomWheel) ?
+		!mxEvent.isShiftDown(evt) && !mxEvent.isMetaDown(evt) &&
+		!mxEvent.isAltDown(evt) && !this.isTrackpadWheelEvent(evt) :
+		mxEvent.isAltDown(evt));
+};
+
+/**
+ * Time in milliseconds without wheel events after which the next wheel event
+ * starts a new gesture in <isTrackpadWheelEvent>. Default is 250.
+ */
+Graph.prototype.wheelGestureDelay = 250;
+
+/**
+ * Returns true if the given wheel event is from a trackpad. This returns false
+ * if <Graph.trackpadDetection> is false. The first event of a gesture decides
+ * so that accelerated mouse wheel deltas that match the trackpad ratio of
+ * Chromium do not switch to scrolling.
+ */
+Graph.prototype.isTrackpadWheelEvent = function(evt)
+{
+	if (Graph.trackpadDetection && evt != this.lastWheelEvent)
+	{
+		if (this.lastWheelTime == null || evt.timeStamp -
+			this.lastWheelTime > this.wheelGestureDelay)
+		{
+			var ratio = (mxClient.IS_MAC) ? 3 : 1;
+			this.trackpadWheel = evt.deltaMode == 0 && (mxClient.IS_FF ||
+				(Math.abs(evt.wheelDeltaX + ratio * evt.deltaX) <= 1 &&
+				Math.abs(evt.wheelDeltaY + ratio * evt.deltaY) <= 1));
+		}
+
+		this.lastWheelEvent = evt;
+		this.lastWheelTime = evt.timeStamp;
+	}
+
+	return Graph.trackpadDetection && this.trackpadWheel;
 };
 
 /**
@@ -25383,6 +25590,8 @@ if (typeof mxVertexHandler !== 'undefined')
 			var span = elt.ownerDocument.createElement((tagName != null) ? tagName : 'span');
 			var attributes = Array.prototype.slice.call(elt.attributes);
 			
+			var attr = null;
+
 			while (attr = attributes.pop())
 			{
 				span.setAttribute(attr.nodeName, attr.nodeValue);
@@ -29765,7 +29974,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		            
 		            while ((node = el.firstChild))
 		            {
-		                lastNode = frag.appendChild(node);
+		                var lastNode = frag.appendChild(node);
 		            }
 		            
 		            range.insertNode(frag);
@@ -30114,7 +30323,7 @@ if (typeof mxVertexHandler !== 'undefined')
 				{
 					if (window.getSelection)
 					{
-						sel = window.getSelection();
+						var sel = window.getSelection();
 						sel.removeAllRanges();
 		
 						for (var i = 0, len = savedSel.length; i < len; ++i)
@@ -30867,7 +31076,7 @@ if (typeof mxVertexHandler !== 'undefined')
 			}
 		};
 
-		mxCellEditorGetInitialValue = mxCellEditor.prototype.getInitialValue;
+		var mxCellEditorGetInitialValue = mxCellEditor.prototype.getInitialValue;
 		mxCellEditor.prototype.getInitialValue = function(state, trigger)
 		{
 			if (mxUtils.getValue(state.style, 'html', '0') == '0')
@@ -30887,7 +31096,7 @@ if (typeof mxVertexHandler !== 'undefined')
 			}
 		};
 
-		mxCellEditorSetEditingValue = mxCellEditor.prototype.setEditingValue;
+		var mxCellEditorSetEditingValue = mxCellEditor.prototype.setEditingValue;
 		mxCellEditor.prototype.setEditingValue = function(state, value)
 		{
 			var html = mxUtils.getValue(state.style, 'html', '0') == '1';
@@ -30907,7 +31116,7 @@ if (typeof mxVertexHandler !== 'undefined')
 			}
 		};
 		
-		mxCellEditorGetCurrentValue = mxCellEditor.prototype.getCurrentValue;
+		var mxCellEditorGetCurrentValue = mxCellEditor.prototype.getCurrentValue;
 		mxCellEditor.prototype.getCurrentValue = function(state)
 		{
 			// Text flow helpers are never part of the value
@@ -31055,7 +31264,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		/**
 		 * Hold Alt to ignore drop target.
 		 */
-		mxGraphHandlerIsValidDropTarget = mxGraphHandler.prototype.isValidDropTarget;
+		var mxGraphHandlerIsValidDropTarget = mxGraphHandler.prototype.isValidDropTarget;
 		mxGraphHandler.prototype.isValidDropTarget = function(target, me)
 		{
 			return mxGraphHandlerIsValidDropTarget.apply(this, arguments) &&
@@ -35691,6 +35900,424 @@ if (typeof mxVertexHandler !== 'undefined')
 			vertexHandlerDestroySizeGuides.apply(this, arguments);
 
 			this.destroySizeGuides();
+		};
+
+		/**
+		 * Angle guides. While a waypoint or an end of an edge without an edge
+		 * style or the end of a new connection without an edge style is moved,
+		 * the segments to the neighboring points are snapped to 45 degrees and
+		 * each snapped segment is marked with a guide from the neighboring point
+		 * through the moved point to the edge of the visible area. The functions
+		 * below are shared with mxConnectionHandler, which provides the anchors
+		 * (getAngleGuideAnchors) and the visibility (isAngleGuideVisible). Uses
+		 * the tolerance of the position guides and is disabled together with
+		 * the position guides (see mxGuide), with View, Guides and while Alt is
+		 * pressed.
+		 */
+		mxEdgeHandler.prototype.isAngleGuidesEnabledForEvent = function(me)
+		{
+			return mxGuide.prototype.positionEnabled && !mxEvent.isAltDown(me.getEvent()) &&
+				(this.graph.graphHandler == null || this.graph.graphHandler.guidesEnabled);
+		};
+
+		/**
+		 * Returns the tolerance for the angle guides in unscaled units. Uses the
+		 * same values as mxGuide.getGuideTolerance for the position guides.
+		 */
+		mxEdgeHandler.prototype.getAngleGuideTolerance = function(gridEnabled)
+		{
+			return (gridEnabled && this.graph.gridEnabled) ? this.graph.gridSize / 2 : 2;
+		};
+
+		/**
+		 * Snaps the given point to the 45 degree lines through the given anchors
+		 * that are within the tolerance and stores the snapped point and the
+		 * anchors of the matched lines for redrawAngleGuides. Two lines are
+		 * snapped to their intersection. For one line, a coordinate that was
+		 * snapped to a terminal or point is kept and the other coordinate is
+		 * moved onto the line, else the point is projected onto the line and
+		 * moved along the line to the grid. Points close to an anchor are not
+		 * snapped as the lines in all directions are within the tolerance there.
+		 * Returns true if the point was snapped.
+		 */
+		mxEdgeHandler.prototype.snapToAngles = function(point, anchors, snappedX, snappedY, gridEnabled)
+		{
+			var view = this.graph.view;
+			var s = view.scale;
+			var tol = Math.max(2, this.getAngleGuideTolerance(gridEnabled) * s);
+			var lines = [];
+			this.angleGuideAnchors = null;
+			this.angleGuidePoint = null;
+
+			for (var i = 0; i < anchors.length; i++)
+			{
+				var dx = point.x - anchors[i].x;
+				var dy = point.y - anchors[i].y;
+
+				// Slope of the closer diagonal in screen coordinates
+				var slope = (dx * dy < 0) ? -1 : 1;
+				var dist = Math.abs(dy - slope * dx) / Math.SQRT2;
+
+				if (dist < tol)
+				{
+					lines.push({anchor: anchors[i], m: slope, dist: dist});
+				}
+			}
+
+			// Keeps the closer of two parallel lines
+			if (lines.length == 2 && lines[0].m == lines[1].m)
+			{
+				lines = [(lines[0].dist <= lines[1].dist) ? lines[0] : lines[1]];
+			}
+
+			var result = null;
+
+			if (lines.length == 2)
+			{
+				var a = lines[0].anchor;
+				var b = lines[1].anchor;
+				var m = lines[0].m;
+				var x = (m * (b.y - a.y) + a.x + b.x) / 2;
+				result = new mxPoint(x, a.y + m * (x - a.x));
+			}
+			else if (lines.length == 1)
+			{
+				var a = lines[0].anchor;
+				var m = lines[0].m;
+
+				if (snappedX && snappedY)
+				{
+					result = (Math.abs(point.y - a.y - m * (point.x - a.x)) < 1e-6) ?
+						point.clone() : null;
+				}
+				else if (snappedX)
+				{
+					result = new mxPoint(point.x, a.y + m * (point.x - a.x));
+				}
+				else if (snappedY)
+				{
+					result = new mxPoint(a.x + m * (point.y - a.y), point.y);
+				}
+				else
+				{
+					var x = a.x + (point.x - a.x + m * (point.y - a.y)) / 2;
+
+					if (gridEnabled)
+					{
+						var tr = view.translate;
+						x = (this.graph.snap(x / s - tr.x) + tr.x) * s;
+					}
+
+					result = new mxPoint(x, a.y + m * (x - a.x));
+				}
+			}
+
+			for (var i = 0; i < lines.length && result != null; i++)
+			{
+				var dx = result.x - lines[i].anchor.x;
+				var dy = result.y - lines[i].anchor.y;
+
+				if (dx * dx + dy * dy < 4 * tol * tol)
+				{
+					result = null;
+				}
+			}
+
+			if (result != null)
+			{
+				point.x = result.x;
+				point.y = result.y;
+				this.angleGuidePoint = result;
+				this.angleGuideAnchors = [];
+
+				for (var i = 0; i < lines.length; i++)
+				{
+					this.angleGuideAnchors.push(lines[i].anchor);
+				}
+			}
+
+			return this.angleGuidePoint != null;
+		};
+
+		/**
+		 * Creates or updates the given shape for a guide line between the
+		 * given points.
+		 */
+		mxEdgeHandler.prototype.createAngleGuideShape =
+			mxVertexHandler.prototype.createEdgeGuideShape;
+
+		/**
+		 * Draws the guides for the matched angles from the anchors through the
+		 * snapped point to the edge of the visible area if the guides are
+		 * visible (see isAngleGuideVisible). Shapes are recycled between mouse
+		 * moves.
+		 */
+		mxEdgeHandler.prototype.redrawAngleGuides = function()
+		{
+			this.angleGuideShapes = (this.angleGuideShapes != null) ? this.angleGuideShapes : [];
+			var count = 0;
+
+			if (this.angleGuidePoint != null && this.isAngleGuideVisible())
+			{
+				var c = this.graph.container;
+				var x0 = c.scrollLeft - this.graph.panDx;
+				var y0 = c.scrollTop - this.graph.panDy;
+				var p = this.angleGuidePoint;
+
+				for (var i = 0; i < this.angleGuideAnchors.length; i++)
+				{
+					var a = this.angleGuideAnchors[i];
+					var len = Math.sqrt((p.x - a.x) * (p.x - a.x) + (p.y - a.y) * (p.y - a.y));
+					var dx = (p.x - a.x) / len;
+					var dy = (p.y - a.y) / len;
+
+					// Distance to the edge of the visible area in the direction of the guide
+					var tx = ((dx > 0) ? x0 + c.clientWidth - a.x : x0 - a.x) / dx;
+					var ty = ((dy > 0) ? y0 + c.clientHeight - a.y : y0 - a.y) / dy;
+					var t = Math.max(len, Math.min(tx, ty));
+
+					this.angleGuideShapes[count] = this.createAngleGuideShape(
+						this.angleGuideShapes[count], a.clone(),
+						new mxPoint(a.x + t * dx, a.y + t * dy));
+					count++;
+				}
+			}
+
+			for (var i = count; i < this.angleGuideShapes.length; i++)
+			{
+				if (this.angleGuideShapes[i] != null)
+				{
+					this.angleGuideShapes[i].node.style.visibility = 'hidden';
+				}
+			}
+		};
+
+		/**
+		 * Destroys the shapes and resets the state of the angle guides.
+		 */
+		mxEdgeHandler.prototype.destroyAngleGuides = function()
+		{
+			if (this.angleGuideShapes != null)
+			{
+				for (var i = 0; i < this.angleGuideShapes.length; i++)
+				{
+					if (this.angleGuideShapes[i] != null)
+					{
+						this.angleGuideShapes[i].destroy();
+					}
+				}
+
+				this.angleGuideShapes = null;
+			}
+
+			this.angleGuideAnchors = null;
+			this.angleGuidePoint = null;
+		};
+
+		/**
+		 * Returns the points that are connected to the moved point by a segment,
+		 * that is the previous and next point of a waypoint and the other end of
+		 * the segment of a terminal point, for edges without an edge style.
+		 * Floating terminal points are replaced with the routing center of the
+		 * terminal as they move with the moved point (see getPointForEvent).
+		 */
+		mxEdgeHandler.prototype.getAngleGuideAnchors = function()
+		{
+			var pts = this.state.absolutePoints;
+			var n = pts.length;
+			var indices = [];
+			var result = [];
+
+			if (this.edgeStyle == null && !this.isLabel)
+			{
+				if (this.index <= mxEvent.VIRTUAL_HANDLE)
+				{
+					var k = mxEvent.VIRTUAL_HANDLE - this.index;
+					indices = [k, k + 1];
+				}
+				else if (this.isSource)
+				{
+					indices = [1];
+				}
+				else if (this.isTarget)
+				{
+					indices = [n - 2];
+				}
+				else if (this.index > 0 && this.index < n - 1)
+				{
+					indices = [this.index - 1, this.index + 1];
+				}
+			}
+
+			for (var i = 0; i < indices.length; i++)
+			{
+				var source = indices[i] == 0;
+				var terminal = (source || indices[i] == n - 1) ?
+					this.state.getVisibleTerminalState(source) : null;
+
+				if (terminal != null && this.state.isFloatingTerminalPoint(source))
+				{
+					result.push(new mxPoint(this.graph.view.getRoutingCenterX(terminal),
+						this.graph.view.getRoutingCenterY(terminal)));
+				}
+				else if (pts[indices[i]] != null)
+				{
+					result.push(pts[indices[i]]);
+				}
+			}
+
+			return result;
+		};
+
+		/**
+		 * Returns true if the snapped point is a point of the preview, that is
+		 * if the moved end was not connected to a terminal and the moved
+		 * waypoint was not removed (see getPreviewPoints).
+		 */
+		mxEdgeHandler.prototype.isAngleGuideVisible = function()
+		{
+			var p = this.angleGuidePoint;
+			var result = false;
+
+			for (var i = 0; this.index != null && this.abspoints != null &&
+				i < this.abspoints.length && !result; i++)
+			{
+				var pt = this.abspoints[i];
+				result = pt != null && Math.abs(pt.x - p.x) < 1 &&
+					Math.abs(pt.y - p.y) < 1;
+			}
+
+			return result;
+		};
+
+		/**
+		 * Snaps the point to the angle guides.
+		 */
+		mxEdgeHandler.prototype.snapToGuides = function(point, me, snappedX, snappedY)
+		{
+			var anchors = (this.isAngleGuidesEnabledForEvent(me)) ?
+				this.getAngleGuideAnchors() : [];
+
+			return this.snapToAngles(point, anchors, snappedX, snappedY,
+				this.graph.isGridEnabledEvent(me.getEvent()));
+		};
+
+		// Draws the guides after the preview has been updated
+		var angleGuidesEdgeHandlerMouseMove = mxEdgeHandler.prototype.mouseMove;
+
+		mxEdgeHandler.prototype.mouseMove = function(sender, me)
+		{
+			angleGuidesEdgeHandlerMouseMove.apply(this, arguments);
+			this.redrawAngleGuides();
+		};
+
+		var angleGuidesEdgeHandlerReset = mxEdgeHandler.prototype.reset;
+
+		mxEdgeHandler.prototype.reset = function()
+		{
+			angleGuidesEdgeHandlerReset.apply(this, arguments);
+			this.destroyAngleGuides();
+		};
+
+		var angleGuidesEdgeHandlerDestroy = mxEdgeHandler.prototype.destroy;
+
+		mxEdgeHandler.prototype.destroy = function()
+		{
+			angleGuidesEdgeHandlerDestroy.apply(this, arguments);
+			this.destroyAngleGuides();
+		};
+
+		// Shares the angle guides with new connections
+		mxConnectionHandler.prototype.isAngleGuidesEnabledForEvent =
+			mxEdgeHandler.prototype.isAngleGuidesEnabledForEvent;
+		mxConnectionHandler.prototype.getAngleGuideTolerance =
+			mxEdgeHandler.prototype.getAngleGuideTolerance;
+		mxConnectionHandler.prototype.snapToAngles = mxEdgeHandler.prototype.snapToAngles;
+		mxConnectionHandler.prototype.createAngleGuideShape =
+			mxEdgeHandler.prototype.createAngleGuideShape;
+		mxConnectionHandler.prototype.redrawAngleGuides = mxEdgeHandler.prototype.redrawAngleGuides;
+		mxConnectionHandler.prototype.destroyAngleGuides = mxEdgeHandler.prototype.destroyAngleGuides;
+
+		/**
+		 * Returns the start of a new connection without an edge style, that is
+		 * the connection point of the source or the routing center of the
+		 * source for a floating connection (see snapToPreview).
+		 */
+		mxConnectionHandler.prototype.getAngleGuideAnchors = function()
+		{
+			var result = [];
+
+			if (this.first != null && this.previous != null && (this.edgeState == null ||
+				this.graph.view.getEdgeStyle(this.edgeState, null, this.previous, null) == null))
+			{
+				result.push((this.sourceConstraint != null) ? this.first :
+					new mxPoint(this.graph.view.getRoutingCenterX(this.previous),
+						this.graph.view.getRoutingCenterY(this.previous)));
+			}
+
+			return result;
+		};
+
+		/**
+		 * Returns true if the end of the preview is the snapped point, that is
+		 * if the new connection does not end on a terminal and the snapped point
+		 * was not constrained to the horizontal or vertical (Shift).
+		 */
+		mxConnectionHandler.prototype.isAngleGuideVisible = function()
+		{
+			var p = this.angleGuidePoint;
+			var c = this.currentPoint;
+
+			return this.first != null && this.shape != null && this.currentState == null &&
+				c != null && Math.abs(c.x - p.x) < 1 && Math.abs(c.y - p.y) < 1;
+		};
+
+		// Snaps the end of new connections to the angle guides. Coordinates that
+		// were aligned with the source are kept, the others use the mouse.
+		var angleGuidesConnectionHandlerSnapToPreview = mxConnectionHandler.prototype.snapToPreview;
+
+		mxConnectionHandler.prototype.snapToPreview = function(me, point)
+		{
+			angleGuidesConnectionHandlerSnapToPreview.apply(this, arguments);
+
+			var anchors = (this.isAngleGuidesEnabledForEvent(me)) ?
+				this.getAngleGuideAnchors() : [];
+			var snappedX = anchors.length > 0 && point.x == anchors[0].x;
+			var snappedY = anchors.length > 0 && point.y == anchors[0].y;
+			var pt = new mxPoint((snappedX) ? point.x : me.getGraphX(),
+				(snappedY) ? point.y : me.getGraphY());
+
+			if (this.snapToAngles(pt, anchors, snappedX, snappedY,
+				this.graph.isGridEnabledEvent(me.getEvent())))
+			{
+				point.x = pt.x;
+				point.y = pt.y;
+			}
+		};
+
+		// Draws the guides after the preview has been updated
+		var angleGuidesConnectionHandlerMouseMove = mxConnectionHandler.prototype.mouseMove;
+
+		mxConnectionHandler.prototype.mouseMove = function(sender, me)
+		{
+			angleGuidesConnectionHandlerMouseMove.apply(this, arguments);
+			this.redrawAngleGuides();
+		};
+
+		var angleGuidesConnectionHandlerReset = mxConnectionHandler.prototype.reset;
+
+		mxConnectionHandler.prototype.reset = function()
+		{
+			angleGuidesConnectionHandlerReset.apply(this, arguments);
+			this.destroyAngleGuides();
+		};
+
+		var angleGuidesConnectionHandlerDestroy = mxConnectionHandler.prototype.destroy;
+
+		mxConnectionHandler.prototype.destroy = function()
+		{
+			angleGuidesConnectionHandlerDestroy.apply(this, arguments);
+			this.destroyAngleGuides();
 		};
 
 		mxVertexHandler.prototype.updateLinkHint = function(link, links)

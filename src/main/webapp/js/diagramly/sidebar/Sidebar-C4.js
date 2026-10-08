@@ -6,6 +6,7 @@
 {
 	Sidebar.prototype.addC4Palette = function()
 	{
+		var sb = this;
 		var w = 100;
 		var h = 100;
 		var dt = 'c4 ';

@@ -366,6 +366,9 @@ mxShapeMockupPieChart.prototype.foreground = function(c, x, y, w, h)
 		total = total + parseInt(parts[i], 10);
 	}
 	
+	// Sum of the parts before the current part
+	var sumPerc = 0;
+
 	for (var i = 0; i < partNum; i++)
 	{
 		if (partColors.length > i)
@@ -377,18 +380,14 @@ mxShapeMockupPieChart.prototype.foreground = function(c, x, y, w, h)
 			c.setFillColor('#ff0000');
 		}
 
-		var beginPerc = 0;
+		var beginPerc = sumPerc;
 		var endPerc = 0;
 		var currPerc = parseInt(parts[i], 10) / total;
+		sumPerc = sumPerc + currPerc;
 
 		if (currPerc === 0.5)
 		{
 			currPerc = 0.501;
-		}
-
-		for (var j = 0; j < i; j++)
-		{
-			beginPerc = beginPerc + parseInt(parts[j], 10) / total;
 		}
 
 		endPerc = currPerc + beginPerc;
@@ -444,6 +443,13 @@ mxShapeMockupIconGrid.prototype.cst = {
 };
 
 /**
+ * Variable: maxIcons
+ *
+ * Maximum number of icons. Default is 1000.
+ */
+mxShapeMockupIconGrid.prototype.maxIcons = 1000;
+
+/**
  * Function: paintVertexShape
  * 
  * Paints the vertex shape.
@@ -463,9 +469,10 @@ mxShapeMockupIconGrid.prototype.background = function(c, w, h, gridSize)
 	var boxSizeX = w / (parseInt(gridSize[0],10) + (gridSize[0]-1) * 0.5);
 	var boxSizeY = h / (parseInt(gridSize[1],10) + (gridSize[1]-1) * 0.5);
 
-	for (var i = 0; i < gridSize[0]; i++)
+	// Limits the number of rows and icons for huge grid sizes
+	for (var i = 0, n = 0; i < gridSize[0] && i < this.maxIcons; i++)
 	{
-		for (var j = 0; j < gridSize[1]; j++)
+		for (var j = 0; j < gridSize[1] && n < this.maxIcons; j++, n++)
 		{
 			c.rect(boxSizeX * 1.5 * i, boxSizeY * 1.5 * j, boxSizeX, boxSizeY);
 			c.fillAndStroke();
@@ -478,9 +485,10 @@ mxShapeMockupIconGrid.prototype.foreground = function(c, w, h, gridSize)
 	var boxSizeX = w / (parseInt(gridSize[0],10) + (gridSize[0]-1) * 0.5);
 	var boxSizeY = h / (parseInt(gridSize[1],10) + (gridSize[1]-1) * 0.5);
 
-	for (var i = 0; i < gridSize[0]; i++)
+	// Limits the number of rows and icons for huge grid sizes
+	for (var i = 0, n = 0; i < gridSize[0] && i < this.maxIcons; i++)
 	{
-		for (var j = 0; j < gridSize[1]; j++)
+		for (var j = 0; j < gridSize[1] && n < this.maxIcons; j++, n++)
 		{
 			c.begin();
 			c.moveTo(boxSizeX * 1.5 * i, boxSizeY * 1.5 * j);

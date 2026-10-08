@@ -12,7 +12,7 @@
  * 
  * Example:
  * (code)
- * var first = new mxFastOrganicLayout(graph);
+ * var first = new mxCircleLayout(graph);
  * var second = new mxParallelEdgeLayout(graph);
  * var layout = new mxCompositeLayout(graph, [first, second], first);
  * layout.execute(graph.getDefaultParent());

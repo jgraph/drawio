@@ -365,6 +365,13 @@ function mxLeanSharedProcess(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxLeanSharedProcess, mxShape);
 
 /**
+ * Variable: maxLines
+ *
+ * Maximum number of hatch lines. Default is 10000.
+ */
+mxLeanSharedProcess.prototype.maxLines = 10000;
+
+/**
  * Function: paintVertexShape
  * 
  * Paints the vertex shape.
@@ -395,15 +402,17 @@ mxLeanSharedProcess.prototype.foreground = function(c, w, h, fontSize)
 
 	var start = 0;
 	var i = 0;
+	var n = 0;
 	var s = 10;
 	var offset = 0;
 	c.begin();
 	var strokeWidth = parseFloat(mxUtils.getValue(this.style, mxConstants.STYLE_STROKEWIDTH, '2'));
 	c.setStrokeWidth(strokeWidth * 0.5);
 
-	while (start < h + w)
+	while (start < h + w && n < this.maxLines)
 	{
 		start = start + s;
+		n++;
 		if (start > lineH)
 		{
 			var startX = Math.max(0, start - h); 

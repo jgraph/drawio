@@ -283,6 +283,13 @@ mxShapeBootstrapLeftButtonStriped.prototype.cst = {
 		LEFT_BUTTON_STRIPED : 'mxgraph.bootstrap.leftButtonStriped'
 };
 
+/**
+ * Variable: maxStripes
+ *
+ * Maximum number of stripes. Default is 1000.
+ */
+mxShapeBootstrapLeftButtonStriped.prototype.maxStripes = 1000;
+
 
 
 /**
@@ -294,7 +301,7 @@ mxShapeBootstrapLeftButtonStriped.prototype.paintVertexShape = function(c, x, y,
 {
 	c.translate(x, y);
 
-	rSize = 5;
+	var rSize = 5;
 	c.begin();
 	c.moveTo(w, 0);
 	c.lineTo(w, h);
@@ -321,6 +328,7 @@ mxShapeBootstrapLeftButtonStriped.prototype.paintVertexShape = function(c, x, y,
 	
 	var end = false;
 	var startX = stripeW * 0.5;
+	var n = 0;
 	
 	while (!end)
 	{
@@ -361,8 +369,10 @@ mxShapeBootstrapLeftButtonStriped.prototype.paintVertexShape = function(c, x, y,
 		c.fill();
 		
 		startX = startX + 2 * stripeW;
+		n++;
 		
-		if (startX > w)
+		// Limits the number of stripes for tiny heights and huge widths
+		if (startX > w || n >= this.maxStripes)
 		{
 			end = true;
 		}
@@ -991,6 +1001,13 @@ mxShapeBootstrapRating.prototype.customProperties = [
 ];
 
 /**
+ * Variable: maxIcons
+ *
+ * Maximum number of filled and of empty icons. Default is 1000.
+ */
+mxShapeBootstrapRating.prototype.maxIcons = 1000;
+
+/**
 * Function: paintVertexShape
 * 
 * Paints the vertex shape.
@@ -1005,7 +1022,7 @@ mxShapeBootstrapRating.prototype.paintVertexShape = function(c, x, y, w, h)
 
 	if (ratingStyle === mxShapeBootstrapRating.prototype.cst.RATING_STAR)
 	{
-		for (var i = 0; i < grade; i++)
+		for (var i = 0; i < grade && i < this.maxIcons; i++)
 		{
 			c.begin();
 			c.moveTo(i * h * 1.2, 0.33 * h);
@@ -1024,7 +1041,7 @@ mxShapeBootstrapRating.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 	else if (ratingStyle === mxShapeBootstrapRating.prototype.cst.RATING_HEART)
 	{
-		for (var i = 0; i < grade; i++)
+		for (var i = 0; i < grade && i < this.maxIcons; i++)
 		{
 			c.begin();
 			c.moveTo(i * h * 1.2 + h * 0.519, h * 0.947);
@@ -1053,7 +1070,7 @@ mxShapeBootstrapRating.prototype.paintVertexShape = function(c, x, y, w, h)
 
 	if (ratingStyle === mxShapeBootstrapRating.prototype.cst.RATING_STAR)
 	{
-		for (var i = grade; i < ratingScale; i++)
+		for (var i = grade, n = 0; i < ratingScale && n < this.maxIcons; i++, n++)
 		{
 			c.begin();
 			c.moveTo(i * h * 1.2, 0.33 * h);
@@ -1072,7 +1089,7 @@ mxShapeBootstrapRating.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 	else if (ratingStyle === mxShapeBootstrapRating.prototype.cst.RATING_HEART)
 	{
-		for (var i = grade; i < ratingScale; i++)
+		for (var i = grade, n = 0; i < ratingScale && n < this.maxIcons; i++, n++)
 		{
 			c.begin();
 			c.moveTo(i * h * 1.2 + h * 0.519, h * 0.947);
