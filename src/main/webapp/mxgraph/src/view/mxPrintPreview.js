@@ -969,34 +969,27 @@ mxPrintPreview.prototype.addGraphFragment = function(dx, dy, scale, pageNumber, 
 	var overlayPane = view.getOverlayPane();
 	var realScale = scale;
 
-	if (this.graph.dialect == mxConstants.DIALECT_SVG)
+	view.createSvg();
+	
+	// Uses CSS transform for scaling
+	if (this.useCssTransforms())
 	{
-		view.createSvg();
+		var g = view.getDrawPane().parentNode;
+		g.setAttribute('transformOrigin', '0 0');
+		g.setAttribute('transform', 'scale(' + scale + ',' + scale + ')' +
+			'translate(' + dx + ',' + dy + ')');
 		
-		// Uses CSS transform for scaling
-		if (this.useCssTransforms())
-		{
-			var g = view.getDrawPane().parentNode;
-			g.setAttribute('transformOrigin', '0 0');
-			g.setAttribute('transform', 'scale(' + scale + ',' + scale + ')' +
-				'translate(' + dx + ',' + dy + ')');
-			
-			scale = 1;
-			dx = 0;
-			dy = 0;
-		}
-		// Applies the scale and translate to the draw pane in model coordinates,
-		// where the cells are painted in model units (see updateDrawPaneTransform
-		// in mxGraphView, which is not used here as it may have side effects)
-		else if (view.modelCoordinates)
-		{
-			view.getDrawPane().setAttribute('transform', 'translate(' +
-				(dx * scale) + ',' + (dy * scale) + ') scale(' + scale + ')');
-		}
+		scale = 1;
+		dx = 0;
+		dy = 0;
 	}
-	else
+	// Applies the scale and translate to the draw pane in model coordinates,
+	// where the cells are painted in model units (see updateDrawPaneTransform
+	// in mxGraphView, which is not used here as it may have side effects)
+	else if (view.modelCoordinates)
 	{
-		view.createHtml();
+		view.getDrawPane().setAttribute('transform', 'translate(' +
+			(dx * scale) + ',' + (dy * scale) + ') scale(' + scale + ')');
 	}
 	
 	// Disables events on the view

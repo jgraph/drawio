@@ -9,7 +9,134 @@ function mxGraphMlCodec()
 
 
 mxGraphMlCodec.prototype.refRegexp = /^\{y\:GraphMLReference\s+(\d+)\}$/;
-mxGraphMlCodec.prototype.staticRegexp = /^\{x\:Static\s+(.+)\.(.+)\}$/;
+
+/**
+ * Returns the index of the last line terminator in the given string, which
+ * the dot in a regular expression does not match, or -1.
+ */
+mxGraphMlCodec.prototype.lastLineTerminator = function(str)
+{
+	return Math.max(str.lastIndexOf('\n'), str.lastIndexOf('\r'),
+		str.lastIndexOf('\u2028'), str.lastIndexOf('\u2029'));
+};
+
+/**
+ * Returns [value, type, member] for a {x:Static type.member} value or null,
+ * the same as /^\{x\:Static\s+(.+)\.(.+)\}$/.exec(value). The regular
+ * expression backtracked quadratically on long values in the file.
+ */
+mxGraphMlCodec.prototype.parseStatic = function(val)
+{
+	if (val.substring(0, 9) == '{x:Static' && val.length > 9 &&
+		val.charAt(val.length - 1) == '}')
+	{
+		var content = val.substring(9, val.length - 1);
+		var ws = content.length - content.replace(/^\s+/, '').length;
+		var dot = content.lastIndexOf('.', content.length - 2);
+
+		// Whitespace for \s+, which gives one character back to the type
+		// if the dot follows the whitespace
+		var start = Math.min(ws, dot - 1);
+
+		if (ws > 0 && start >= 1 && start > this.lastLineTerminator(content))
+		{
+			return [val, content.substring(start, dot), content.substring(dot + 1)];
+		}
+	}
+
+	return null;
+};
+
+/**
+ * Returns the [match, expression] pairs of the {name expression} bindings in
+ * the given text, the same as /\{name\s+([^}]+)\}/g. The regular expression
+ * backtracked quadratically on long templates in the file.
+ */
+mxGraphMlCodec.prototype.findBindings = function(text, name)
+{
+	var prefix = '{' + name;
+	var result = [];
+	var close = -1;
+	var i = text.indexOf(prefix);
+
+	while (i >= 0)
+	{
+		var j = i + prefix.length;
+		var ws = 0;
+
+		while (j + ws < text.length && /\s/.test(text.charAt(j + ws)))
+		{
+			ws++;
+		}
+
+		if (close < j)
+		{
+			close = text.indexOf('}', j);
+		}
+
+		if (close < 0)
+		{
+			break;
+		}
+
+		// Whitespace for \s+, the rest for the expression (one or more each)
+		var k = (close > j + ws) ? ws : ws - 1;
+
+		if (k >= 1 && close > j + k)
+		{
+			result.push([text.substring(i, close + 1), text.substring(j + k, close)]);
+			i = text.indexOf(prefix, close + 1);
+		}
+		else
+		{
+			i = text.indexOf(prefix, i + 1);
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Returns the [match, content] pairs for the text elements with a
+ * data-content attribute in the given template, the same as
+ * /\<text.+data-content="([^"]+).+\<\/text\>/g for attribute values without
+ * line breaks: a line has at most one match, from its first <text to its
+ * last </text>, with the last data-content. The regular expression
+ * backtracked cubically on long templates in the file.
+ */
+mxGraphMlCodec.prototype.findTextContents = function(text)
+{
+	var result = [];
+	var lines = text.split(/[\n\r\u2028\u2029]/);
+
+	for (var n = 0; n < lines.length; n++)
+	{
+		var line = lines[n];
+		var s = line.indexOf('<text');
+		var e = line.lastIndexOf('</text>');
+
+		if (s >= 0 && e >= 0)
+		{
+			var p = line.lastIndexOf('data-content="');
+
+			while (p >= s + 6)
+			{
+				if (p + 14 < line.length && line.charAt(p + 14) != '"' && e >= p + 16)
+				{
+					var q = line.indexOf('"', p + 14);
+					q = (q < 0) ? line.length : q;
+					result.push([line.substring(s, e + 7), line.substring(p + 14, Math.min(q, e - 1))]);
+
+					break;
+				}
+
+				p = line.lastIndexOf('data-content="', p - 1);
+			}
+		}
+	}
+
+	return result;
+};
 
 /**
  * Returns the value of the given key in the given map, or null if the map has
@@ -254,7 +381,7 @@ mxGraphMlCodec.prototype.parseAttributes = function (elem, obj)
 		{
 			var val = atts[i].nodeValue;
 			var ref = this.refRegexp.exec(val);
-			var staticMem = this.staticRegexp.exec(val);
+			var staticMem = this.parseStatic(val);
 			
 			if (ref)
 			{
@@ -967,7 +1094,8 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
 //	y:SVGModel.svgBoundsPolicy ??
 	svgNodeStyle["y:SVGModel.y:SVGContent.y:Resource.#text"] = function(val, map)
 	{
-		map["image"] = "data:image/svg+xml," + ((window.btoa) ? btoa(val) : Base64.encode(val)); 
+		// UTF-8, as btoa throws for characters above 0xFF
+		map["image"] = "data:image/svg+xml," + Graph.base64EncodeUnicode(val);
 	};
 	
 	var groupNodeStyle = mxUtils.clone(styleCommonMap);
@@ -1048,13 +1176,13 @@ mxGraphMlCodec.prototype.handleTemplates = function (template, userTags, node, s
 		var footer = '</g></svg>';
 		
 		//TODO optimize this! probably only the text before defs has bindings
-		var matches = null;
 		var bindingPairs = [];
 		//find template bindings
-		var tempBindRegEx = /\{TemplateBinding\s+([^}]+)\}/g;
+		var bindings = this.findBindings(template, 'TemplateBinding');
 		
-		while ((matches = tempBindRegEx.exec(template)) != null) 
+		for (var b = 0; b < bindings.length; b++)
 		{
+			var matches = bindings[b];
 	        var replacement = "";
 	        switch (matches[1])
 	        {
@@ -1073,32 +1201,34 @@ mxGraphMlCodec.prototype.handleTemplates = function (template, userTags, node, s
 		{
 			var json = JSON.parse(userTags["y:Json"]["#text"]);
 			//find user tags bindings
-			var userTagBindRegEx = /\{Binding\s+([^}]+)\}/g;
+			var bindings = this.findBindings(template, 'Binding');
 			
-			while ((matches = userTagBindRegEx.exec(template)) != null) 
+			for (var b = 0; b < bindings.length; b++)
 			{
+				var matches = bindings[b];
 		        var parts = matches[1].split(',');
 		        var val = json[parts[0]];
 		        
 		        if (val)
 	        	{
-		        	if (parts.length > 1)
+		        	// Converter and parameter, eg. {Binding name, Converter=x, Parameter=y}
+		        	var converter = (parts.length > 1) ? parts[1].trim() : '';
+
+		        	if (converter.substring(0, 10) == 'Converter=')
 	        		{
-		        		if (parts[1].indexOf('Converter='))
+		        		var func = this.getOwnValue(mxGraphMlConverters, converter.substring(10));
+
+		        		if (typeof func === 'function')
 	        			{
-		        			var func = mxGraphMlConverters[parts[1].substr(11)]; //11 is the length of Converter=
-		        			
-		        			if (func)
-	        				{
-				        		var args = [val];
-				        		
-				        		if (parts[2])
-				        		{
-				        			args.push(parts[2].substr(11)); //11 is the length of Parameter=
-				        		}
-				        			
-		        				val = func.apply(null, args)
-	        				}
+			        		var args = [val];
+			        		var param = (parts.length > 2) ? parts[2].trim() : '';
+
+			        		if (param.substring(0, 10) == 'Parameter=')
+			        		{
+			        			args.push(param.substring(10));
+			        		}
+
+		        			val = func.apply(null, args);
 	        			}
 	        		}
 		        	
@@ -1114,9 +1244,11 @@ mxGraphMlCodec.prototype.handleTemplates = function (template, userTags, node, s
 		
 		bindingPairs = [];
 		//Fix text elements (TODO can it be merged with the previous step?)
-		var txtRegEx = /\<text.+data-content="([^"]+).+\<\/text\>/g;
-		while ((matches = txtRegEx.exec(template)) != null) 
+		var texts = this.findTextContents(template);
+
+		for (var t = 0; t < texts.length; t++)
 		{
+			var matches = texts[t];
 			var val = matches[0].substr(0, matches[0].length - 7) + matches[1] + "</text>"; //7 is the length of </text> 
 			bindingPairs.push({match: matches[0], repl: val});
 		}
@@ -1128,7 +1260,7 @@ mxGraphMlCodec.prototype.handleTemplates = function (template, userTags, node, s
 
 		var svg = header + template + footer;
 		styleMap["shape"] = "image";
-		styleMap["image"] = "data:image/svg+xml," + ((window.btoa) ? btoa(svg) : Base64.encode(svg));
+		styleMap["image"] = "data:image/svg+xml," + Graph.base64EncodeUnicode(svg);
 	}
 };
 
@@ -3089,17 +3221,17 @@ var mxGraphMlShapesMap =
 	//special edges
 	"com.yworks.edge.framed": "link",
 	
-	//Male/Female icons (FIXME Not similar and unsafe as it refers to remote resources)
-	"usericon_female1.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-128.png",
-	"usericon_female2.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-128.png",
-	"usericon_female3.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-128.png",
-	"usericon_female4.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-128.png",
-	"usericon_female5.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-128.png",
-	"usericon_male1.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/101/malecostume-128.png",
-	"usericon_male2.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/101/malecostume-128.png",
-	"usericon_male3.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/101/malecostume-128.png",
-	"usericon_male4.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/101/malecostume-128.png",
-	"usericon_male5.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/101/malecostume-128.png"
+	//Male/Female icons (FIXME Not similar), the images of Iconfinder in the icon cache of draw.io
+	"usericon_female1.svg": "image;image=https://icons.diagrams.net/icon-cache1/User_Pictures-2256/female1-521.svg",
+	"usericon_female2.svg": "image;image=https://icons.diagrams.net/icon-cache1/User_Pictures-2256/female1-521.svg",
+	"usericon_female3.svg": "image;image=https://icons.diagrams.net/icon-cache1/User_Pictures-2256/female1-521.svg",
+	"usericon_female4.svg": "image;image=https://icons.diagrams.net/icon-cache1/User_Pictures-2256/female1-521.svg",
+	"usericon_female5.svg": "image;image=https://icons.diagrams.net/icon-cache1/User_Pictures-2256/female1-521.svg",
+	"usericon_male1.svg": "image;image=https://icons.diagrams.net/icon-cache1/User_Pictures-2256/malecostume-520.svg",
+	"usericon_male2.svg": "image;image=https://icons.diagrams.net/icon-cache1/User_Pictures-2256/malecostume-520.svg",
+	"usericon_male3.svg": "image;image=https://icons.diagrams.net/icon-cache1/User_Pictures-2256/malecostume-520.svg",
+	"usericon_male4.svg": "image;image=https://icons.diagrams.net/icon-cache1/User_Pictures-2256/malecostume-520.svg",
+	"usericon_male5.svg": "image;image=https://icons.diagrams.net/icon-cache1/User_Pictures-2256/malecostume-520.svg"
 };
 
 var mxGraphMlConstants =

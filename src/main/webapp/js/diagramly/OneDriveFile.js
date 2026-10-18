@@ -623,10 +623,7 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 			{
 				try
 				{
-					// Sets shadow modified state during save
-					this.savingFileTime = new Date();
-					this.setShadowModified(false);
-					this.savingFile = true;
+					this.beginSave();
 					
 					var etag = (!overwrite && this.constructor == OneDriveFile &&
 						(DrawioFile.SYNC == 'manual' || DrawioFile.SYNC == 'auto')) ?
@@ -640,9 +637,7 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 
 					(this.isSP? this.ui.m365 : this.ui.oneDrive).saveFile(this, mxUtils.bind(this, function(meta, savedData)
 					{
-						// Checks for changes during save
-						this.setModified(this.getShadowModified());
-						this.savingFile = false;
+						this.endSave();
 						this.meta = meta;
 
 						// A new realtime key is used once it is saved
@@ -669,34 +664,7 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 							
 							if (this.isConflict(req))
 					    	{
-								this.inConflictState = true;
-		
-								if (this.sync != null)
-								{	
-									this.savingFile = true;
-									
-									this.sync.fileConflict(null, mxUtils.bind(this, function()
-									{
-										// Adds random cool-off
-										window.setTimeout(mxUtils.bind(this, function()
-										{
-											this.updateFileData();
-											doSave();
-										}), 100 + Math.random() * 500);
-									}), mxUtils.bind(this, function()
-									{
-										this.savingFile = false;
-							
-										if (error != null)
-										{
-											error();
-										}
-									}));
-								}
-								else if (error != null)
-								{
-									error();
-								}
+								this.handleSaveConflict(null, doSave, error);
 							}
 							else if (error != null)
 							{
@@ -737,16 +705,11 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 		}
 		else
 		{
-			// Sets shadow modified state during save
-			this.savingFileTime = new Date();
-			this.setShadowModified(false);
-			this.savingFile = true;
+			this.beginSave();
 		
 			(this.isSP? this.ui.m365 : this.ui.oneDrive).insertFile(title, this.getData(), mxUtils.bind(this, function(file)
 			{
-				// Checks for changes during save
-				this.setModified(this.getShadowModified());
-				this.savingFile = false;
+				this.endSave();
 				
 				if (success != null)
 				{

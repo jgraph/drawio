@@ -39,6 +39,9 @@ DrawioConfigEditor.installCss = function()
  *   highContrast     - apply high-contrast appearance
  *   onConfigChanged  - called with the updated config object on every change
  *   isDesktop        - if true, show desktop-only toggles (defaults to Electron UA check)
+ *   allowedKeys      - if set, only these keys can be edited and everything
+ *                      else is hidden and left out of the config (eg. the
+ *                      settings an organization sets for its users)
  */
 DrawioConfigEditor.install = function(container, options)
 {
@@ -58,11 +61,34 @@ DrawioConfigEditor.install = function(container, options)
 	var isDesktop = (options.isDesktop != null) ? options.isDesktop :
 		(navigator.userAgent.indexOf('Electron') >= 0);
 
+	var allowedKeys = Array.isArray(options.allowedKeys) ? options.allowedKeys : null;
+
+	function isAllowed(key)
+	{
+		return allowedKeys == null || allowedKeys.indexOf(key) >= 0;
+	}
+
+	// A copy of the config with the allowed keys only
+	function getAllowedConfig()
+	{
+		var result = JSON.parse(JSON.stringify(config));
+
+		Object.keys(result).forEach(function(key)
+		{
+			if (!isAllowed(key))
+			{
+				delete result[key];
+			}
+		});
+
+		return result;
+	}
+
 	function notifyChange()
 	{
 		if (typeof options.onConfigChanged === 'function')
 		{
-			options.onConfigChanged(JSON.parse(JSON.stringify(config)));
+			options.onConfigChanged(getAllowedConfig());
 		}
 	}
 
@@ -273,11 +299,13 @@ DrawioConfigEditor.install = function(container, options)
 			{ key: 'showNoteIcons' },
 			{ key: 'showConnectHandle' },
 			{ key: 'intersectionSelect' },
-			{ key: 'swimlaneSelectionEnabled' }
+			{ key: 'swimlaneSelectionEnabled' },
+			{ key: 'multiSelectionHandles' }
 		],
 		'appearance-toggles': [
 			{ key: 'enableCssDarkMode' },
 			{ key: 'enableLightDarkColors' },
+			{ key: 'systemColors' },
 			{ key: 'enableAnimations' },
 			{ key: 'insertAnimations' }
 		],
@@ -511,6 +539,7 @@ DrawioConfigEditor.install = function(container, options)
 	{
 		var pairs = [
 			{ picker: 'cfg-darkColorPicker', text: 'cfg-darkColor' },
+			{ picker: 'cfg-lightColorPicker', text: 'cfg-lightColor' },
 			{ picker: 'cfg-shadowColorPicker', text: 'cfg-shadowColor' },
 			{ picker: 'cfg-defaultGridColorPicker', text: 'cfg-defaultGridColor' },
 			{ picker: 'cfg-defaultDarkGridColorPicker', text: 'cfg-defaultDarkGridColor' },
@@ -1118,6 +1147,11 @@ DrawioConfigEditor.install = function(container, options)
 		{
 			var val = obj[key];
 
+			if (!isAllowed(key))
+			{
+				return;
+			}
+
 			if (key === 'defaultFonts' || key === 'customFonts')
 			{
 				if (Array.isArray(val))
@@ -1207,6 +1241,9 @@ DrawioConfigEditor.install = function(container, options)
 		var darkColor = config.darkColor || '';
 		if (/^#[0-9A-Fa-f]{6}$/.test(darkColor)) { q('#cfg-darkColorPicker').value = darkColor; }
 
+		var lightColor = config.lightColor || '';
+		if (/^#[0-9A-Fa-f]{6}$/.test(lightColor)) { q('#cfg-lightColorPicker').value = lightColor; }
+
 		var shadowColor = config.shadowColor || '';
 		if (/^#[0-9A-Fa-f]{6}$/.test(shadowColor)) { q('#cfg-shadowColorPicker').value = shadowColor; }
 
@@ -1250,6 +1287,7 @@ DrawioConfigEditor.install = function(container, options)
 
 		qAll('.toggle-field').forEach(function(el)
 		{
+			if (el.closest('.config-excluded') != null) return;
 			var toggle = el.querySelector('.tri-toggle');
 			var key = toggle ? toggle.getAttribute('data-key') : '';
 			var name = el.querySelector('.toggle-field__name');
@@ -1261,7 +1299,7 @@ DrawioConfigEditor.install = function(container, options)
 
 		qAll('.config-section .field').forEach(function(el)
 		{
-			if (el.parentElement.classList.contains('field-row')) return;
+			if (el.parentElement.classList.contains('field-row') || el.closest('.config-excluded') != null) return;
 			var section = el.closest('.config-section');
 			var text = el.textContent.toLowerCase();
 			el.querySelectorAll('[data-key]').forEach(function(inp) { text += ' ' + inp.getAttribute('data-key').toLowerCase(); });
@@ -1271,6 +1309,7 @@ DrawioConfigEditor.install = function(container, options)
 
 		qAll('.config-section .field-row').forEach(function(el)
 		{
+			if (el.closest('.config-excluded') != null) return;
 			var section = el.closest('.config-section');
 			var text = el.textContent.toLowerCase();
 			el.querySelectorAll('[data-key]').forEach(function(inp) { text += ' ' + inp.getAttribute('data-key').toLowerCase(); });
@@ -1284,6 +1323,7 @@ DrawioConfigEditor.install = function(container, options)
 
 		qAll('.config-section').forEach(function(el)
 		{
+			if (el.classList.contains('config-excluded')) return;
 			var title = el.querySelector('.card__title');
 			if (title) { searchIndex.push({ element: el, section: el, keywords: title.textContent.toLowerCase(), type: 'section-title' }); }
 		});
@@ -1386,6 +1426,76 @@ DrawioConfigEditor.install = function(container, options)
 		});
 	}
 
+	// Hides what allowedKeys doesn't cover: toggles, fields (by the data-key of
+	// their controls or the key in the IDs of their list editors) and the rows
+	// and sections left empty
+	function excludeKeys()
+	{
+		if (allowedKeys == null)
+		{
+			return;
+		}
+
+		qAll('.toggle-field').forEach(function(el)
+		{
+			var toggle = el.querySelector('.tri-toggle');
+
+			if (toggle == null || !isAllowed(toggle.getAttribute('data-key')))
+			{
+				el.classList.add('config-excluded');
+			}
+		});
+
+		qAll('.field').forEach(function(el)
+		{
+			var keys = [];
+
+			el.querySelectorAll('[data-key]').forEach(function(control)
+			{
+				keys.push(control.getAttribute('data-key'));
+			});
+
+			el.querySelectorAll('[id]').forEach(function(control)
+			{
+				var match = /^([A-Za-z]+)-(tags|input|add|list|editor|url|picker)$/.exec(control.id);
+
+				if (match != null)
+				{
+					keys.push(match[1]);
+				}
+			});
+
+			if (!keys.some(function(key) { return allowedKeys.indexOf(key) >= 0; }))
+			{
+				el.classList.add('config-excluded');
+			}
+		});
+
+		function isEmpty(el, selector)
+		{
+			return Array.prototype.every.call(el.querySelectorAll(selector), function(child)
+			{
+				return child.closest('.config-excluded') != null;
+			});
+		}
+
+		qAll('.field-row').forEach(function(el)
+		{
+			if (isEmpty(el, '.field'))
+			{
+				el.classList.add('config-excluded');
+			}
+		});
+
+		qAll('.config-section').forEach(function(el)
+		{
+			if (isEmpty(el, '.field, .toggle-field'))
+			{
+				el.classList.add('config-excluded');
+			}
+		});
+	}
+
 	// ============================================
 	// INIT
 	// ============================================
@@ -1409,6 +1519,7 @@ DrawioConfigEditor.install = function(container, options)
 	setupSchemeEditor('customColorSchemes');
 	macroParamPrefixes.forEach(setupMacroParams);
 	setupCurrentStyleButtons();
+	excludeKeys();
 	buildSearchIndex();
 
 	importConfig(options.initialConfig || {});
@@ -1425,7 +1536,7 @@ DrawioConfigEditor.install = function(container, options)
 
 	return {
 		setConfig: function(obj) { importConfig(obj || {}); },
-		getConfig: function() { return JSON.parse(JSON.stringify(config)); },
+		getConfig: function() { return getAllowedConfig(); },
 		getInvalidFields: function()
 		{
 			return Object.keys(invalidFields).map(function(key) { return invalidFields[key]; });
@@ -1494,6 +1605,7 @@ DrawioConfigEditor.css = [
 	'.geConfigEditor { box-sizing: border-box; margin: 0; }',
 	'.geConfigEditor *, .geConfigEditor *::before, .geConfigEditor *::after { box-sizing: border-box; margin: 0; padding: 0; }',
 	'.geConfigEditor.dark { color-scheme: dark; }',
+	'.geConfigEditor .config-excluded { display: none !important; }',
 	'.geConfigEditor::-webkit-scrollbar, .geConfigEditor ::-webkit-scrollbar { width: 10px; height: 10px; }',
 	'.geConfigEditor::-webkit-scrollbar-track, .geConfigEditor ::-webkit-scrollbar-track { background-clip: padding-box; border: solid transparent; border-width: 1px; }',
 	'.geConfigEditor::-webkit-scrollbar-corner, .geConfigEditor ::-webkit-scrollbar-corner { background-color: transparent; }',
@@ -1897,6 +2009,19 @@ DrawioConfigEditor.html = [
 	'      <div class="field">',
 	'        <label for="cfg-darkColorVar"></label>',
 	'        <input type="text" id="cfg-darkColorVar" data-key="darkColorVar" placeholder="--ge-dark-color">',
+	'      </div>',
+	'      <div class="field-row">',
+	'        <div class="field">',
+	'          <label for="cfg-lightColor"></label>',
+	'          <div style="display: flex; gap: 6px; align-items: center;">',
+	'            <input type="color" id="cfg-lightColorPicker" value="#FFFFFF" style="width: 36px; height: 28px; padding: 2px; border: 1px solid var(--color-border); border-radius: var(--radius-sm);">',
+	'            <input type="text" id="cfg-lightColor" data-key="lightColor" placeholder="#FFFFFF" style="flex: 1;">',
+	'          </div>',
+	'        </div>',
+	'        <div class="field">',
+	'          <label for="cfg-lightColorVar"></label>',
+	'          <input type="text" id="cfg-lightColorVar" data-key="lightColorVar" placeholder="--ge-light-color">',
+	'        </div>',
 	'      </div>',
 	'      <div class="field-row">',
 	'        <div class="field">',

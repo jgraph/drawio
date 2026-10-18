@@ -148,9 +148,12 @@ var mxEvent =
 	 * <mxClient.IS_POINTER> is true then pointer events will be registered,
 	 * else the respective mouse events will be registered. If <mxClient.IS_POINTER>
 	 * is false and <mxClient.IS_TOUCH> is true then the respective touch events
-	 * will be registered as well as the mouse events.
+	 * will be registered as well as the mouse events. The optional cancel
+	 * listener is registered for pointercancel or touchcancel, which end a
+	 * gesture without an end event if the browser or the system takes over
+	 * the pointer (eg. for a system gesture or an alert).
 	 */
-	addGestureListeners: function(node, startListener, moveListener, endListener)
+	addGestureListeners: function(node, startListener, moveListener, endListener, cancelListener)
 	{
 		if (startListener != null)
 		{
@@ -184,15 +187,28 @@ var mxEvent =
 				mxEvent.addListener(node, 'touchend', endListener);
 			}
 		}
+
+		if (cancelListener != null)
+		{
+			if (mxClient.IS_POINTER)
+			{
+				mxEvent.addListener(node, 'pointercancel', cancelListener);
+			}
+			else if (mxClient.IS_TOUCH)
+			{
+				mxEvent.addListener(node, 'touchcancel', cancelListener);
+			}
+		}
 	},
 	
 	/**
 	 * Function: removeGestureListeners
 	 * 
 	 * Removes the given listeners from mousedown, mousemove, mouseup and the
-	 * respective touch events if <mxClient.IS_TOUCH> is true.
+	 * respective touch events if <mxClient.IS_TOUCH> is true, and the optional
+	 * cancel listener (see <addGestureListeners>).
 	 */
-	removeGestureListeners: function(node, startListener, moveListener, endListener)
+	removeGestureListeners: function(node, startListener, moveListener, endListener, cancelListener)
 	{
 		if (startListener != null)
 		{
@@ -224,6 +240,18 @@ var mxEvent =
 			if (endListener != null)
 			{
 				mxEvent.removeListener(node, 'touchend', endListener);
+			}
+		}
+
+		if (cancelListener != null)
+		{
+			if (mxClient.IS_POINTER)
+			{
+				mxEvent.removeListener(node, 'pointercancel', cancelListener);
+			}
+			else if (mxClient.IS_TOUCH)
+			{
+				mxEvent.removeListener(node, 'touchcancel', cancelListener);
 			}
 		}
 	},
@@ -433,6 +461,14 @@ var mxEvent =
 					return Math.sqrt(Math.pow(evtCache[0].clientX - evtCache[1].clientX, 2) +
 						Math.pow(evtCache[0].clientY - evtCache[1].clientY, 2));
 				};
+
+				// Ends a pinch if a finger is lifted or cancelled, as cancelled
+				// pointers would otherwise stay in the cache
+				var resetPinch = function()
+				{
+					evtCache = [];
+					dist0 = 0;
+				};
 				
 				// Adds basic listeners for graph event dispatching
 				mxEvent.addGestureListeners(target, mxUtils.bind(this, function(evt)
@@ -477,11 +513,7 @@ var mxEvent =
 						}
 					}
 				}),
-				mxUtils.bind(this, function(evt)
-				{
-					evtCache = [];
-					dist0 = 0;
-				}));
+				resetPinch, resetPinch);
 			}
 			
 			mxEvent.addListener(target, 'wheel', wheelHandler);
@@ -1055,6 +1087,13 @@ var mxEvent =
 	 * Specifies the event name for gesture.
 	 */
 	GESTURE: 'gesture',
+
+	/**
+	 * Variable: CANCEL_MOUSE_GESTURE
+	 *
+	 * Specifies the event name for cancelMouseGesture.
+	 */
+	CANCEL_MOUSE_GESTURE: 'cancelMouseGesture',
 
 	/**
 	 * Variable: TAP_AND_HOLD

@@ -859,12 +859,36 @@ HomeDialog.prototype.openInNewWindow = function(file)
 
 /**
  * Closes the Home screen and shows the new diagram dialog. Cancelling that
- * dialog with no file open comes back here (App.showSplash).
+ * dialog with no file open comes back here (App.showSplash). The new diagram
+ * goes into Google Drive, also when the current one is stored elsewhere
+ * (File > My Diagrams works whenever the user is signed in to Drive): the
+ * app is in Drive mode while the dialog is open, and back in the mode of
+ * the current diagram if that one stays (the dialog was cancelled, or the
+ * new diagram opened in a new window), so saving it still asks where.
  */
 HomeDialog.prototype.createDiagram = function()
 {
-	this.editorUi.hideDialog();
-	this.editorUi.actions.get('new').funct();
+	var ui = this.editorUi;
+	var file = ui.getCurrentFile();
+	var mode = ui.mode;
+	ui.hideDialog();
+
+	if (mode != App.MODE_GOOGLE && ui.showNewDialog != null)
+	{
+		ui.setMode(App.MODE_GOOGLE);
+
+		ui.showNewDialog(function()
+		{
+			if (file != null && ui.getCurrentFile() == file && ui.mode == App.MODE_GOOGLE)
+			{
+				ui.setMode(mode);
+			}
+		});
+	}
+	else
+	{
+		ui.actions.get('new').funct();
+	}
 };
 
 /**

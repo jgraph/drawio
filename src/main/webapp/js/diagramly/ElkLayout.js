@@ -23,9 +23,8 @@
  * `var ElkLayout = ELK.ElkLayout`; once that's run, the statics below
  * attach to the bundled class.
  *
- * For the full layout pipeline (mxGraph → ELK JSON → layout →
- * mxGraph mutations), see https://github.com/jgraph/drawio-elk —
- * specifically src/mxgraph-bridge/{ElkLayout,ElkAdapter,ElkApplier}.js.
+ * The full layout pipeline (mxGraph → ELK JSON → layout → mxGraph
+ * mutations) is in the bundle's ElkLayout, ElkAdapter and ElkApplier.
  */
 // ─── Static: menu integration ────────────────────────────────────
 

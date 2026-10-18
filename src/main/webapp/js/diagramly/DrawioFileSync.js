@@ -76,110 +76,6 @@ DrawioFileSync = function(file)
 
 	// Listens to fast sync activitiy
 	this.file.addListener('realtimeMessage', this.activityListener);
-
-	// Listens to errors in the pusher API
-	this.pusherErrorListener = mxUtils.bind(this, function(err)
-	{
-		if (err.error != null && err.error.data != null &&
-			err.error.data.code === 4004)
-		{
-			// Hashed: no raw file ids in logs
-			EditorUi.logError('Error: Pusher Limit', null,
-				this.ui.hashValue(this.file.getId()));
-		}
-	});
-
-    // Listens to Pusher's connection state changes. The relay socket
-	// has its own (see socketJoined).
-	this.connectionListener = mxUtils.bind(this, function()
-	{
-		this.updateOnlineState();
-		this.updateStatus();
-
-		if (this.isPusherConnected())
-		{
-			if (this.pusherConnectedOnce)
-			{
-				// Catchup on any lost edits
-				this.fileChangedNotify(null, true);
-			}
-			// The relay socket announces this client once it has joined
-			else if (!this.announced && Editor.enableRealtimeCache &&
-				!Editor.p2pSyncNotify && this.p2pCollab == null)
-			{
-				this.sendJoinMessage();
-			}
-
-			this.pusherConnectedOnce = true;
-		}
-	});
-	
-	// Listens to messages. The conflict state is handled in
-	// handleRemoteMessage (live diffs pass, everything else waits),
-	// which is the single place for the message gates - the cache
-	// path used to drop everything here before it got there
-	this.changeListener = mxUtils.bind(this, function(data)
-	{
-		this.file.stats.msgReceived++;
-		this.lastActivity = Date.now();
-
-		if (this.enabled && !this.file.redirectDialogShowing)
-		{
-			try
-			{
-				var msg = this.stringToObject(data);
-
-				if (msg != null)
-				{
-					EditorUi.debug('DrawioFileSync.message', [this], msg, data.length, 'bytes');
-
-					this.handleRemoteMessage(msg);
-				}
-			}
-			catch (e)
-			{
-				// On an encrypted channel every genuine message decrypts,
-				// the cache relays whatever is posted for the channel ID.
-				// Answering such a message with a catchup let anyone who
-				// knows the ID make every peer refetch the file per post.
-				// Only a notification of a client with the legacy key of
-				// the file leads to a (throttled) file check.
-				if (this.isEncrypted())
-				{
-					var legacy = this.decodeLegacyMessage(data);
-
-					if (legacy != null)
-					{
-						this.handleLegacyMessage(legacy);
-					}
-					else
-					{
-						EditorUi.debug('DrawioFileSync.changeListener: dropped ' +
-							'undecryptable message', [this], (data != null) ?
-							data.length : null, 'bytes', e);
-					}
-				}
-				// Checks if file was changed (not while a conflict is
-				// being reconciled, which runs its own catchup)
-				else if (this.isConnected() && !this.file.inConflictState)
-				{
-					this.fileChangedNotify();
-				}
-				
-				// NOTE: Probably UTF16 in username for join/leave message causing this
-//				var len = (data != null) ? data.length : 'null';
-//				
-//				EditorUi.logError('Protocol Error ' + e.message,
-//					null, 'data_' + len + '_file_' + this.file.getHash() +
-//					'_client_' + this.clientId);
-//				
-//				if (window.console != null)
-//				{
-//					console.log(e);
-//				}
-			}
-		}
-	});
 };
 
 /**
@@ -237,13 +133,6 @@ DrawioFileSync.compareAppVersions = function(a, b)
 DrawioFileSync.ENABLE_SOCKETS = urlParams['sockets'] != '0';
 
 /**
- * Sends the notification of a save with its cache entry, for the realtime
- * cache to send on to the other clients' sockets once the patch is stored,
- * and all other notifications over the socket as well as to the cache.
- */
-DrawioFileSync.CACHE_NOTICE = urlParams['cache-notice'] != '0';
-
-/**
  * Sends nothing to the realtime cache and no notifications while the relay's
  * roster confirms that no other client is on the channel (see isAlone).
  */
@@ -294,12 +183,6 @@ mxUtils.extend(DrawioFileSync, mxEventSource);
  * Maximum size in bytes for cache values.
  */
 DrawioFileSync.prototype.maxCacheEntrySize = 1000000;
-
-/**
- * Maximum size in bytes for fast sync messages via Pusher.
- * Use 0 to disable message size check. Default is 9KB.
- */
-DrawioFileSync.prototype.maxSyncMessageSize = 9000;
 
 /**
  * Delay for fast sync message sending in ms. Larger
@@ -393,15 +276,9 @@ DrawioFileSync.prototype.legacyNotifyDelay = 5000;
 DrawioFileSync.prototype.lastLegacyNotify = 0;
 
 /**
- * Holds the channel ID for sending and receiving change notifications.
+ * Specifies if the sync was started (see start) and not stopped since.
  */
-DrawioFileSync.prototype.channel = null;
-
-/**
- * Specifies if Pusher was connected before, so that a connection after it
- * catches up on what was missed (see connectionListener).
- */
-DrawioFileSync.prototype.pusherConnectedOnce = false;
+DrawioFileSync.prototype.started = false;
 
 /**
  * Specifies if a session on the relay socket was established before, so
@@ -525,44 +402,16 @@ DrawioFileSync.prototype.start = function()
 			updateStatus = true;
 		}
 	}
-	else if (this.pusher == null && this.channelId != null &&
-		document.visibilityState != 'hidden') 
+	// Only once until stop: start runs for every mouse move and key press
+	else if (!this.started && this.channelId != null &&
+		document.visibilityState != 'hidden')
 	{
-		this.pusher = this.ui.getPusher();
-		
-		if (this.pusher != null)
-		{
-			try
-			{
-				// Error listener must be installed before trying to create channel
-				if (this.pusher.connection != null)
-				{
-					this.pusher.connection.bind('error', this.pusherErrorListener);
-				}
-			}
-			catch (e)
-			{
-				// ignore
-			}
-			
-			try
-			{
-				this.pusher.connect();
-				this.channel = this.pusher.subscribe(this.channelId);
-				
-				EditorUi.debug('DrawioFileSync.start', [this],
-					'version', DrawioFileSync.PROTOCOL,
-					'rev', this.file.getCurrentRevisionId());
-			}
-			catch (e)
-			{
-				// ignore
-			}
-
-			this.installListeners();
-		}
-
+		this.started = true;
 		updateStatus = true;
+
+		EditorUi.debug('DrawioFileSync.start', [this],
+			'version', DrawioFileSync.PROTOCOL,
+			'rev', this.file.getCurrentRevisionId());
 	}
 
 	if (updateStatus)
@@ -604,10 +453,9 @@ DrawioFileSync.prototype.updateRealtime = function()
 		if (DrawioFileSync.ENABLE_SOCKETS)
 		{
 			// Clients without the realtime model (autosave off, realtime
-			// disabled for the file or the app, read-only viewers) join
-			// to hear about saves, renames, comments and joins, which
-			// they otherwise only got through Pusher. The mode is fixed
-			// per session, so a switch replaces the session.
+			// disabled for the file or the app) join to hear about saves,
+			// renames, comments and joins. The mode is fixed per session,
+			// so a switch replaces the session.
 			var notifyOnly = !this.file.isRealtime();
 
 			if (this.p2pCollab != null && this.p2pCollab.isNotifyOnly() != notifyOnly)
@@ -616,11 +464,10 @@ DrawioFileSync.prototype.updateRealtime = function()
 				this.p2pCollab = null;
 			}
 
-			// Not while hidden: stop ends the session then, like Pusher's.
-			// No notify-only session in lockdown, which talks to no draw.io
-			// server and never loaded Pusher. No session on a channel that
-			// cannot be encrypted (see start, which the autosave listener
-			// does not pass through).
+			// Not while hidden: stop ends the session then. No notify-only
+			// session in lockdown, which talks to no draw.io server. No
+			// session on a channel that cannot be encrypted (see start,
+			// which the autosave listener does not pass through).
 			if (this.p2pCollab == null && this.channelId != null &&
 				!this.file.isPolling() && document.visibilityState != 'hidden' &&
 				(!notifyOnly || urlParams['lockdown'] != '1') &&
@@ -689,23 +536,12 @@ DrawioFileSync.prototype.resetRealtime = function()
 
 /**
  * Returns true if this client hears about remote changes: its session on the
- * relay socket is established, or Pusher is connected (a fallback while it
- * is still loaded, it can be blocked, eg. by a CSP without pusher.com), or
- * the file is polled.
+ * relay socket is established, or the file is polled.
  */
 DrawioFileSync.prototype.isConnected = function()
 {
-	return this.isSocketConnected() || this.isPusherConnected() ||
+	return this.isSocketConnected() ||
 		(this.polling != null && this.polling.isConnected());
-};
-
-/**
- * Returns true if Pusher is connected.
- */
-DrawioFileSync.prototype.isPusherConnected = function()
-{
-	return this.pusher != null && this.pusher.connection != null &&
-		this.pusher.connection.state == 'connected';
 };
 
 /**
@@ -820,30 +656,13 @@ DrawioFileSync.prototype.resetUpdateStatusThread = function()
 		window.clearInterval(this.updateStatusThread);
 	}
 
-	// Pusher's channel or the relay socket, either can be missing
-	if (this.channel != null || this.p2pCollab != null)
+	if (this.p2pCollab != null)
 	{
 		this.updateStatusThread = window.setInterval(mxUtils.bind(this, function()
 		{
 			this.updateStatus();
 		}), Editor.updateStatusInterval);
 	}
-};
-
-/**
- * Installs all required listeners for syncing the current file.
- */
-DrawioFileSync.prototype.installListeners = function()
-{
-	if (this.pusher != null && this.pusher.connection != null)
-	{
-		this.pusher.connection.bind('state_change', this.connectionListener);
-	}
-    
-	if (this.channel != null)
-    {
-    	this.channel.bind('changed', this.changeListener);
-    }
 };
 
 /**
@@ -878,44 +697,16 @@ DrawioFileSync.prototype.notify = function(msg)
 	}
 
 	EditorUi.debug('DrawioFileSync.notify', [this],
-		'enableRealtimeCache', Editor.enableRealtimeCache,
-		'p2pSyncNotify', Editor.p2pSyncNotify,
 		'alone', alone, 'msg', msg);
 };
 
 /**
- * Sends the given notification to the cache, which relays it through Pusher,
- * and over the socket.
+ * Sends the given notification over the socket. The realtime cache sends
+ * the save notifications that come with a cache entry (see fileSaved).
  */
 DrawioFileSync.prototype.sendNotification = function(msg)
 {
-	var legacy = this.createLegacyNotification(msg);
-
-	if (Editor.enableRealtimeCache && !Editor.p2pSyncNotify)
-	{
-		mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() +
-			'&msg=' + encodeURIComponent(this.objectToString(msg)));
-
-		if (legacy != null)
-		{
-			mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() +
-				'&msg=' + encodeURIComponent(this.objectToString(legacy,
-				null, this.file.getLegacyChannelKey())));
-		}
-
-		// The socket takes over from the cache's Pusher relay, which
-		// only sends these on while clients still listen to Pusher.
-		// The cache itself relays save notifications only (see
-		// fileSaved and P2PCollab.processMsg).
-		if (DrawioFileSync.CACHE_NOTICE)
-		{
-			this.sendSocketNotification(msg, legacy);
-		}
-	}
-	else
-	{
-		this.sendSocketNotification(msg, legacy);
-	}
+	this.sendSocketNotification(msg, this.createLegacyNotification(msg));
 };
 
 /**
@@ -923,9 +714,9 @@ DrawioFileSync.prototype.sendNotification = function(msg)
  * client is on the channel (see P2PCollab.isAlone). Nobody then reads a cache
  * entry or receives a notification, and a client that joins later loads the
  * file, so saves and notifications skip the cache and the socket (one or two
- * requests per save to the relay's shard). Pusher-only clients are not in the
- * roster: clients that open no socket (sockets=0, or no realtime model before
- * the notify-only sessions) miss the notifications of a client that is alone.
+ * requests per save to the relay's shard). Clients that open no socket
+ * (sockets=0, or no realtime model before the notify-only sessions) are not
+ * in the roster and miss the notifications of a client that is alone.
  */
 DrawioFileSync.prototype.isAlone = function()
 {
@@ -1099,10 +890,9 @@ DrawioFileSync.prototype.sendJoinMessage = function()
 
 /**
  * Invoked by P2PCollab when a session on the relay socket is established.
- * The first session of this sync announces the client, which Pusher's
- * connection did before (see connectionListener). A later one catches up
- * on what was missed while the socket was away: a rejoin, or a new session
- * after stop. The relay also sends a joining socket the newest save notice
+ * The first session of this sync announces the client. A later one catches
+ * up on what was missed while the socket was away: a rejoin, or a new
+ * session after stop. The relay also sends a joining socket the newest save notice
  * of the cache, right after the client list, and both end in one catchup:
  * a request replaces the one whose timer has not fired (fileChangedNotify).
  */
@@ -1561,29 +1351,11 @@ DrawioFileSync.prototype.doSendLocalChanges = function(changes)
 		var changeId = this.clientId + '.' + (this.syncChangeCounter++);
 		var msg = this.createMessage({a: 'change', c: changes,
 			id: changeId, t: Date.now()});
-		var skipped = false;
-		
-		if (this.p2pCollab != null)
+		var skipped = this.p2pCollab == null;
+
+		if (!skipped)
 		{
 			this.p2pCollab.sendDiff(msg);
-		}
-		else if (urlParams['dev'] == '1')
-		{
-			var data = encodeURIComponent(this.objectToString(msg));
-
-			if (this.maxSyncMessageSize == 0 ||
-				data.length < this.maxSyncMessageSize)
-			{
-				mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() + '&msg=' + data);
-			}
-			else
-			{
-				skipped = true;
-			}
-		}
-		else
-		{
-			skipped = true;
 		}
 
 		EditorUi.debug('DrawioFileSync.doSendLocalChanges', [this],
@@ -1675,21 +1447,9 @@ DrawioFileSync.prototype.receiveRemoteChanges = function(data)
 								}
 								else
 								{
-									var aCounter = parseInt(aId.substring(aDot), 10);
-									var bCounter = parseInt(bId.substring(bDot), 10);
-
-									if (aCounter < bCounter)
-									{
-										return -1;
-									}
-									else if (aCounter > bCounter)
-									{
-										return 1;
-									}
-									else
-									{
-										return 0;
-									}
+									// Counters that are no numbers are after the others
+									return mxUtils.compareNumbers(parseInt(aId.substring(aDot), 10),
+										parseInt(bId.substring(bDot), 10));
 								}
 							});
 
@@ -3325,7 +3085,6 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 	try
 	{
 		this.file.stats.merged++;
-		this.lastModified = new Date();
 		var target = this.file.getDescriptorRevisionId(desc);
 		var ignored = this.file.ignorePatches(patches);
 		
@@ -3514,9 +3273,12 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 			}
 		}
 
-		this.file.invalidChecksum = false;
-		this.file.inConflictState = false;
+		this.file.clearConflict();
 		this.file.patchDescriptor(this.file.getDescriptor(), desc);
+
+		// The modified date of the merged revision, as after a save or a
+		// reload, instead of the local time of the merge
+		this.lastModified = this.file.getLastModifiedDate();
 		
 		if (success != null)
 		{
@@ -3525,8 +3287,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 	}
 	catch (e)
 	{
-		this.file.inConflictState = true;
-		this.file.invalidChecksum = true;
+		this.file.setConflict(true);
 		this.file.descriptorChanged();
 		
 		if (error != null)
@@ -3615,18 +3376,6 @@ DrawioFileSync.prototype.fastForward = function(desc)
 	{
 		this.file.theirPages = this.ui.clonePages(this.ui.pages);
 		this.file.ownPages = this.ui.clonePages(this.ui.pages);
-
-		// clonePages does not clone the needsUpdate flag so it is
-		// inherited from the source pages: the cloned node is a copy
-		// of the possibly stale source node, so a page with the flag
-		// must be re-encoded from the root when the file is saved
-		for (var i = 0; i < this.file.ownPages.length; i++)
-		{
-			if (this.ui.pages[i].needsUpdate)
-			{
-				this.file.ownPages[i].needsUpdate = true;
-			}
-		}
 	}
 
 	this.snapshotVars = (this.ui.fileNode != null) ?
@@ -3670,12 +3419,12 @@ DrawioFileSync.prototype.reloadDescriptor = function()
 		}
 		else
 		{
-			this.file.inConflictState = true;
+			this.file.setConflict();
 			this.file.handleFileError();
 		}
 	}), mxUtils.bind(this, function(err)
 	{
-		this.file.inConflictState = true;
+		this.file.setConflict();
 		this.file.handleFileError(err);
 	}));
 };
@@ -4128,9 +3877,10 @@ DrawioFileSync.encryptionAvailable = null;
  * Returns true if messages on this channel are encrypted, ie. the file has
  * a channel key and CryptoJS is loaded. Every genuine message on such a
  * channel is encrypted: the socket envelope (bytes) since 20.2.0 and the
- * cache/Pusher messages since the key was introduced in 2018. Neither relay
- * authenticates the sender, anyone who knows the channel ID can post to it,
- * so the key is the only proof that a message comes from a collaborator.
+ * cache messages since the key was introduced in 2018. Neither the relay nor
+ * the cache authenticates the sender, anyone who knows the channel ID can
+ * post to it, so the key is the only proof that a message comes from a
+ * collaborator.
  */
 DrawioFileSync.prototype.isEncrypted = function()
 {
@@ -4395,7 +4145,7 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 			}
 			else
 			{
-				var diff = this.ui.diffPages(this.file.getShadowPages(), pages);
+				var diff = this.ui.diffSavedPages(this.file.getShadowPages(), pages);
 
 				var shadowVars = this.file.getShadowVars();
 				if (savedVars != shadowVars)
@@ -4455,14 +4205,12 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 
 				// The notification in socket format, which the cache sends on
 				// to the other clients' sockets once the patch is stored
-				// (older caches ignore it and send msg through Pusher)
-				var notice = (DrawioFileSync.CACHE_NOTICE && !Editor.p2pSyncNotify &&
-					this.p2pCollab != null) ? this.p2pCollab.createNotification(msg) : null;
+				var notice = (!Editor.p2pSyncNotify && this.p2pCollab != null) ?
+					this.p2pCollab.createNotification(msg) : null;
 				this.notificationSent('save');
 
 				mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() +
 					'&from=' + encodeURIComponent(source) + '&to=' + encodeURIComponent(target) +
-					(!Editor.p2pSyncNotify ? '&msg=' + encodeURIComponent(this.objectToString(msg)) : '') +
 					((notice != null) ? '&notice=' + encodeURIComponent(notice) : '') +
 					((secret != null) ? '&secret=' + encodeURIComponent(secret) : '') +
 					((lastSecret != null) ? '&last-secret=' + encodeURIComponent(lastSecret) : '') +
@@ -4572,18 +4320,10 @@ DrawioFileSync.prototype.flushRemoteFileChanged = function()
 DrawioFileSync.prototype.getIdParameters = function()
 {
 	var result = 'id=' + this.channelId;
-	
-	if (this.pusher != null && this.pusher.connection != null &&
-		this.pusher.connection.socket_id != null)
-	{
-		result += '&sid=' + this.pusher.connection.socket_id;
-	}
 
 	// The socket client of this session, which the cache leaves out when
-	// it sends a notification on. Not in sid, which older caches hand to
-	// Pusher, and Pusher refuses anything but its own connection IDs.
-	var cid = (DrawioFileSync.CACHE_NOTICE && this.p2pCollab != null) ?
-		this.p2pCollab.getClientId() : null;
+	// it sends a save notice on
+	var cid = (this.p2pCollab != null) ? this.p2pCollab.getClientId() : null;
 
 	if (cid != null)
 	{
@@ -4682,7 +4422,7 @@ DrawioFileSync.prototype.fileConflict = function(desc, success, error)
 DrawioFileSync.prototype.stop = function()
 {
 	// Stops the status update interval as it is only restarted
-	// while a channel exists, so it would keep running after
+	// while a session exists, so it would keep running after
 	// the file is closed and repaint a stale status line
 	if (this.updateStatusThread != null)
 	{
@@ -4690,41 +4430,24 @@ DrawioFileSync.prototype.stop = function()
 		this.updateStatusThread = null;
 	}
 
-	if (this.pusher != null)
-	{
-		if (this.pusher.connection != null)
-		{
-			this.pusher.connection.unbind('state_change', this.connectionListener);
-			this.pusher.connection.unbind('error', this.pusherErrorListener);
-		}
-	
-		if (this.channel != null) 
-		{
-			this.channel.unbind('changed', this.changeListener);
-			
-			// See https://github.com/pusher/pusher-js/issues/75
-			// this.pusher.unsubscribe(this.channelId);
-			this.channel = null;
-		}
-		
-		this.pusher.disconnect();
-		this.pusher = null;
-
-		EditorUi.debug('DrawioFileSync.stop', [this]);
-	}
-	else if (this.polling != null)
+	if (this.polling != null)
 	{
 		this.polling.stop();
 		this.polling = null;
 	}
 
-	// The relay socket does not depend on Pusher, which can be blocked
-	// or not loaded: the hidden and the idle stop end it too, and start
+	// The hidden and the idle stop end the session too, and start
 	// joins again (on the new channel after makeCopy)
 	if (this.p2pCollab != null)
 	{
 		this.p2pCollab.destroy();
 		this.p2pCollab = null;
+	}
+
+	if (this.started)
+	{
+		this.started = false;
+		EditorUi.debug('DrawioFileSync.stop', [this]);
 	}
 
 	// The client list of the next session starts it again (see peerJoined)

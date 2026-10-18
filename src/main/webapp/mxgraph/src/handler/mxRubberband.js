@@ -64,6 +64,9 @@ function mxRubberband(graph)
 		
 		this.graph.addListener(mxEvent.GESTURE, this.gestureHandler);
 		
+		// Removes the selection if the gesture was cancelled
+		this.graph.addListener(mxEvent.CANCEL_MOUSE_GESTURE, this.gestureHandler);
+
 	}
 };
 
@@ -417,6 +420,7 @@ mxRubberband.prototype.destroy = function()
 		this.graph.removeMouseListener(this);
 		this.graph.removeListener(this.forceRubberbandHandler);
 		this.graph.removeListener(this.panHandler);
+		this.graph.removeListener(this.gestureHandler);
 		this.reset();
 		
 		if (this.sharedDiv != null)

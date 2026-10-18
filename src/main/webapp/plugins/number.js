@@ -30,21 +30,27 @@ Draw.loadPlugin(function(ui) {
 		this.numberCounter = 0;
 	};
 	
-	var graphViewValidateCellState = graph.view.validateCellState;
+	// Numbers the vertices in the walk over all cells. Incremental validations
+	// call stateValidated for the validated states in the order of that walk
+	// but do not call validateCellState recursively.
+	var graphViewStateValidated = graph.view.stateValidated;
 	
-	graph.view.validateCellState = function(cell, recurse)
+	graph.view.stateValidated = function(state)
 	{
-		var state = graphViewValidateCellState.apply(this, arguments);
-		recurse = (recurse != null) ? recurse : true;
-		
-		if (recurse && state != null && graph.model.isVertex(state.cell) &&
-			mxUtils.getValue(state.style, 'numbered', 1) == 1)
+		if (graph.model.isVertex(state.cell))
 		{
-			this.numberCounter++;
+			if (enabled && mxUtils.getValue(state.style, 'numbered', 1) == 1)
+			{
+				// The numbers depend on the states before this state in the
+				// walk (see mxGraphView.validateInvalidCells)
+				this.fullValidationRequired = true;
+				this.numberCounter++;
+			}
+			
 			this.redrawNumberShape(state);
 		}
 		
-		return state;
+		return graphViewStateValidated.apply(this, arguments);
 	};
 	
 	graph.view.redrawNumberShape = function(state)
@@ -53,34 +59,36 @@ Draw.loadPlugin(function(ui) {
 		var value = '<div style="padding:2px;border:1px solid gray;background:yellow;border-radius:2px;">' +
 			(this.numberCounter) + '</div>';
 
+		// Uses its own label since enumerate (see Editor.js) removes the
+		// secondLabel of states that are not enumerated
 		if (enabled && numbered && graph.model.isVertex(state.cell) &&
-			state.shape != null && state.secondLabel == null)
+			state.shape != null && state.numberLabel == null)
 		{
-			state.secondLabel = new mxText(value, new mxRectangle(),
+			state.numberLabel = new mxText(value, new mxRectangle(),
 					mxConstants.ALIGN_LEFT, mxConstants.ALIGN_BOTTOM);
 
 			// Styles the label
-			state.secondLabel.size = 12;
-			state.secondLabel.dialect = mxConstants.DIALECT_STRICTHTML;
-			graph.cellRenderer.initializeLabel(state, state.secondLabel);
+			state.numberLabel.size = 12;
+			state.numberLabel.dialect = mxConstants.DIALECT_STRICTHTML;
+			graph.cellRenderer.initializeLabel(state, state.numberLabel);
 		}
 		
-		if (state.secondLabel != null)
+		if (state.numberLabel != null)
 		{
 			if (!numbered)
 			{
-				state.secondLabel.destroy();
-				state.secondLabel = null;
+				state.numberLabel.destroy();
+				state.numberLabel = null;
 			}
 			else
 			{
 				var scale = graph.getView().getScale();
 				var bounds = new mxRectangle(state.x + state.width - 4 * scale, state.y + 4 * scale, 0, 0);
-				state.secondLabel.value = value;
-				state.secondLabel.state = state;
-				state.secondLabel.scale = scale;
-				state.secondLabel.bounds = bounds;
-				state.secondLabel.redraw();
+				state.numberLabel.value = value;
+				state.numberLabel.state = state;
+				state.numberLabel.scale = scale;
+				state.numberLabel.bounds = bounds;
+				state.numberLabel.redraw();
 			}
 		}
 	};
@@ -91,16 +99,21 @@ Draw.loadPlugin(function(ui) {
 	{
 		destroy.apply(this, arguments);
 		
-		if (state.secondLabel != null)
+		if (state.numberLabel != null)
 		{
-			state.secondLabel.destroy();
-			state.secondLabel = null;
+			state.numberLabel.destroy();
+			state.numberLabel = null;
 		}
 	};
 	
+	var getShapesForState = graph.cellRenderer.getShapesForState;
+	
 	graph.cellRenderer.getShapesForState = function(state)
 	{
-		return [state.shape, state.text, state.secondLabel, state.control];
+		var shapes = getShapesForState.apply(this, arguments);
+		shapes.push(state.numberLabel);
+		
+		return shapes;
 	};
 	
 	// Extends View menu

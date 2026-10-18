@@ -2,8 +2,14 @@
  * Copyright (c) 2020-2025, JGraph Holdings Ltd
  * Copyright (c) 2020-2025, draw.io AG
  */
+/**
+ * Shows the OneDrive file picker in the given container. If isMobile is true,
+ * a tap on a folder opens it (double clicks do not work on touch devices). If
+ * flowLayout is true, the parts of the picker are laid out in the flow of the
+ * page (Teams configuration page) instead of absolutely in the container.
+ */
 function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRecentList, addToRecent, pickedFileCallback,
-	errorFn, foldersOnly, backFn, withSubmitBtn, withThumbnail, initFolderPath, acceptAllFiles)
+	errorFn, foldersOnly, backFn, withSubmitBtn, withThumbnail, initFolderPath, acceptAllFiles, isMobile, flowLayout)
 {
 	var previewHtml = '';
 	
@@ -75,7 +81,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		return item.file || (item.remoteItem != null? item.remoteItem.file : null);
 	};
 	
-	var html = 
+	var html = ((flowLayout) ? '<div style="display: flex; height: 50%;">' : '') +
 			'<div class="odCatsList">' +
 				'<div class="odCatsListLbl">OneDrive</div>' + 
 				'<div id="odFiles" class="odCatListTitle odCatSelected">' + mxUtils.htmlEntities(mxResources.get('files')) + '</div>' +
@@ -91,6 +97,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 				'</div>' +
 				'<div class="odFilesList"></div>' +
 			'</div>' +
+			((flowLayout) ? '</div>' : '') +
 			previewHtml +
 			(backFn? '<div id="odBackBtn" class="odLinkBtn">&lt; ' + mxUtils.htmlEntities(mxResources.get('back')) + '</div>' : '') +
 			(withSubmitBtn? '<button id="odSubmitBtn" class="odSubmitBtn">' + mxUtils.htmlEntities(mxResources.get(foldersOnly? 'select' : 'open')) + '</button>' : '');
@@ -101,13 +108,14 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		'.odCatsList *, .odFilesSec * { user-select: none; }' +
 		'.odCatsList {' +
 		'	box-sizing: border-box;' + 
+		((flowLayout) ? '	flex: 2;' :
 		'	position:absolute;' + 
 		'	top:0px;' + 
 		'	bottom:50%;' + 
 		'	width:30%;' + 
+		'	display: inline-block;') +
 		'	border: 1px solid #CCCCCC;' + 
 		'	border-bottom:none;' + 
-		'	display: inline-block;' + 
 		'	overflow-x: hidden;' + 
 		'	overflow-y: auto;' + 
 		'}' + 
@@ -121,23 +129,25 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		'}' + 
 		'.odFilesSec {' + 
 		'	box-sizing: border-box;' + 
+		((flowLayout) ? '	flex: 5;' :
 		'	position:absolute;' + 
 		'	left:30%;' + 
 		'	top:0px;' + 
 		'	bottom:50%;' + 
 		'	width: 70%;' + 
+		'	display: inline-block;') +
 		'	border: 1px solid #CCCCCC;' + 
 		'	border-left:none;' + 
 		'	border-bottom:none;' + 
-		'	display: inline-block;' + 
 		'	overflow: hidden;' + 
 		'}' + 
 		'.odFilesBreadcrumb {' + 
 		'	box-sizing: border-box;' + 
+		((flowLayout) ? '' :
 		'	position:absolute;' + 
-		'	min-height: 32px;' + 
 		'	left:0px;' + 
-		'	right:20px;' + 
+		'	right:20px;') +
+		'	min-height: 32px;' + 
 		'	text-overflow:ellipsis;' + 
 		'	overflow:hidden;' + 
 		'	font-size: 13px;' + 
@@ -147,8 +157,11 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		'.odRefreshButton {' + 
 		'	box-sizing: border-box;' + 
 		'	position:absolute;' + 
+		((flowLayout) ?
+		'	right:20px;' + 
+		'	top:20px;' :
 		'	right:0px;' + 
-		'	top:0px;' + 
+		'	top:0px;') + 
 		'	padding: 4px;' + 
 		'	margin: 1px;' + 
 		'	height:24px;' + 
@@ -170,8 +183,11 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		'}' +
 		'.searchBar {' +
 		'	position:absolute;' +
+		((flowLayout) ?
+		'	top:20px;' +
+		'	right:52px;' :
 		'	top:4px;' +
-		'	right:30px;' +
+		'	right:30px;') +
 		'	z-index:1;' +
 		'}' +
 		'.searchBar > input {' +
@@ -181,10 +197,11 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		'}' +
 		'.odFilesList {' +
 		'	box-sizing: border-box;' + 
+		((flowLayout) ? '	height: calc(100% - 32px);' :
 		'	position:absolute;' + 
 		'	top:32px;' + 
 		'	bottom:0px;' + 
-		'	width: 100%;' + 
+		'	width: 100%;') +
 		'	overflow-x: hidden;' + 
 		'	overflow-y: auto;' + 
 		'}' + 
@@ -254,29 +271,41 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		'	transform: translateY(-50%);' + 
 		'	font-size:13px;' + 
 		'	opacity:0.5;' + 
+		((flowLayout) ? '	color: #6D6D6D;' : '') +
 		'}' + 
 		'.odPreview {' + 
-		'    position:absolute;' + 
 		'	 overflow:hidden;' + 
 		'	 border: 1px solid #CCCCCC;' + 
+		((flowLayout) ? '    height: 50%;' :
+		'    position:absolute;' + 
 		'    bottom:0px;' + 
 		'    top: 50%;' + 
 		'    left:0px;' + 
-		'    right:0px;' + 
+		'    right:0px;') +
 		'}' +
 		'.odLinkBtn {' +
-		'   position: absolute;' +
 		'	font-size: 12px;' +
 		'	cursor: pointer;' +
 		'	color: #6D6D6D;' +
+		((flowLayout) ?
+		'	position: relative;' +
+		'	bottom: 20px;' +
+		'	left: 8px;' +
+		'	width: 50px;' +
+		'	white-space: nowrap;' :
+		'   position: absolute;' +
 		'	left: 5px;' +
-		'	bottom: 3px;' +
+		'	bottom: 3px;') +
 		'}' +
 		'.odSubmitBtn {' +
-		'   position: absolute;' +
 		'	color: #333;' +
 		'	right: 5px;' +
-		'	bottom: 5px;' +
+		((flowLayout) ?
+		'   position: relative;' +
+		'	bottom: 40px;' +
+		'	float: right;' :
+		'   position: absolute;' +
+		'	bottom: 5px;') +
 		'}';
 
 	var opts =
@@ -287,7 +316,8 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		width: 3, // The line thickness
 		radius: 5, // The radius of the inner circle
 		rotate: 0, // The rotation offset
-		color: 'light-dark(#000000, #C0C0C0)', // #rgb or #rrggbb
+		// light-dark is not supported in older web views of the Teams app
+		color: (flowLayout) ? '#000' : 'light-dark(#000000, #C0C0C0)', // #rgb or #rrggbb
 		speed: 1, // Rounds per second
 		trail: 60, // Afterglow percentage
 		shadow: false, // Whether to render a shadow
@@ -467,6 +497,11 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 					curViewer = AspectDialog.prototype.createViewer(prevDiv,
 							diagrams.length == 0? doc.documentElement : diagrams[0],
 							null, 'transparent');
+
+					if (flowLayout)
+					{
+						prevDiv.style.position = 'unset';
+					}
 				}
 			}, 
 			function() //If the file is not a draw.io diagram
@@ -572,7 +607,11 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		if (prevDiv != null)
 		{
 			prevDiv.innerText = '';
-			prevDiv.style.top = '50%';
+
+			if (!flowLayout)
+			{
+				prevDiv.style.top = '50%';
+			}
 		}
 
 		requestInProgress = true;
@@ -664,6 +703,12 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 							{
 								previewFn(selectedFile);
 							}
+						}
+
+						// Double click doesn't work on touch devices
+						if (isMobile && getItemFolder(item2) != null)
+						{
+							openFile();
 						}
 					});
 				})(item, row);
@@ -882,14 +927,17 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 	}
 	
 	//Code execution starts here
-	if (_$('#mxODPickerCss') == null)
+	// The CSS of each layout is added once
+	var cssId = (flowLayout) ? 'mxODPickerFlowCss' : 'mxODPickerCss';
+
+	if (_$('#' + cssId) == null)
 	{
 		var head = document.head || document.getElementsByTagName('head')[0],
 		style = document.createElement('style');
 	
 		head.appendChild(style);
 		style.type = 'text/css';
-		style.id = 'mxODPickerCss';
+		style.id = cssId;
 		style.appendChild(document.createTextNode(css));
 	}
 	

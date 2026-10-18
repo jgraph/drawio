@@ -260,16 +260,18 @@
 	Editor.enableRealtime = true;
 
 	/**
-	 * Enables cache for patches and Pusher for messages. Default is true.
+	 * Enables the realtime cache for the patches of saves, which sends their
+	 * notifications on to the other clients' sockets. Default is true.
 	 * The cache is a draw.io server, so lockdown never uses it: saves used to
 	 * send it the channel ID, the cache secret and a notification. Sync works
 	 * without the cache (catchup reloads the file).
 	 */
 	Editor.enableRealtimeCache = urlParams['lockdown'] != '1';
-	
+
 	/**
-	 * Enables P2P instead of Pusher for messages. (Ignored if enableRealtimeCache is false.)
-	 * Default is false.
+	 * Sends the notification of a save over the socket after the cache
+	 * response instead of having the cache send it on with the patch.
+	 * (Ignored if enableRealtimeCache is false.) Default is false.
 	 */
 	Editor.p2pSyncNotify = false;
 	
@@ -869,7 +871,31 @@
         {name: 'jumpLayers', dispName: 'Jump Other Layers', type: 'bool', defVal: true},
 		{name: 'ignoreEdge', dispName: 'Ignore Edge', type: 'bool', defVal: false},
         {name: 'orthogonalLoop', dispName: 'Loop Routing', type: 'bool', defVal: false},
-		{name: 'orthogonal', dispName: 'Orthogonal', type: 'bool', defVal: false}
+		{name: 'orthogonal', dispName: 'Orthogonal Ends', type: 'bool', defVal: false, isVisible: function(state, format)
+		{
+			// Orthogonal routings already imply orthogonal ends and isometric routings
+			// ignore them (see Graph.isOrthogonal and the Orthogonal Ends option in
+			// StyleFormatPanel.addEffects)
+			var graph = format.editorUi.editor.graph;
+
+			for (var i = 0; i < state.edges.length; i++)
+			{
+				var edgeState = graph.view.getState(state.edges[i]);
+
+				if (edgeState != null)
+				{
+					var edgeStyle = graph.view.getEdgeStyle(edgeState);
+
+					if (graph.isOrthogonalEdgeStyle(edgeStyle) ||
+						edgeStyle == mxEdgeStyle.IsometricConnector)
+					{
+						return false;
+					}
+				}
+			}
+
+			return true;
+		}}
 	].concat(Editor.commonProperties);
 
 	/**
@@ -997,7 +1023,7 @@
         			{val: 'orthogonalPerimeter', dispName: 'Orthogonal'}, {val: 'backbonePerimeter', dispName: 'Backbone'},
         			{val: 'calloutPerimeter', dispName: 'Callout'}, {val: 'parallelogramPerimeter', dispName: 'Parallelogram'},
         			{val: 'trapezoidPerimeter', dispName: 'Trapezoid'}, {val: 'stepPerimeter', dispName: 'Step'},
-        			{val: 'centerPerimeter', dispName: 'Center'}]
+        			{val: 'centerPerimeter', dispName: 'Center'}, {val: 'cloudPerimeter', dispName: 'Cloud'}]
         },
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
         {name: 'container', dispName: 'Container', type: 'bool', getDefaultValue: function(state, format)
@@ -1250,6 +1276,15 @@
 		'#          "style": "curved=1;endArrow=blockThin;endFill=1;fontSize=11;"}\n' +
 		'# connect: {"from": "refs", "to": "id", "style": "curved=1;fontSize=11;"}\n' +
 		'#\n' +
+		'## Lists: makes each node a list (like a UML class or an ER table) with one row for each\n' +
+		'## value of the given column. Possible values are a column name, - (no list) or JSON with\n' +
+		'## the column and an optional separator for the values (default |), style and height for\n' +
+		'## the rows (default 26) and parentstyle for the list (default is a UML class). The style\n' +
+		'## of the node is added to the parentstyle. Multiple list entries are allowed, eg.\n' +
+		'## # list: {"column": "fields", "separator": "|", "height": 26}\n' +
+		'#\n' +
+		'# list: -\n' +
+		'#\n' +
 		'## Node x-coordinate. Possible value is a column name. Default is empty. Layouts will\n' +
 		'## override this value.\n' +
 		'#\n' +
@@ -1307,12 +1342,19 @@
 		'#\n' +
 		'# layout: auto\n' +
 		'#\n' +
+		'## Adds the new cells to a layout container that runs the layout again whenever\n' +
+		'## its cells change. Possible values are true, the style of the container or -\n' +
+		'## (no container). Updates add new cells to the container of the updated cells.\n' +
+		'## Not supported for orgchart. Default is -.\n' +
+		'#\n' +
+		'# container: -\n' +
+		'#\n' +
 		'## ---- CSV below this line. First line are column names. ----\n' +
 		'name,position,id,location,manager,email,fill,stroke,refs,url,image\n' +
-		'Tessa Miller,CFO,emi,Office 1,,me@example.com,default,#6c8ebf,,https://app.diagrams.net,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-3-128.png\n' +
-		'Edward Morrison,Brand Manager,emo,Office 2,Tessa Miller,me@example.com,default,#82b366,,https://app.diagrams.net,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-10-3-128.png\n' +
-		'Alison Donovan,System Admin,rdo,Office 3,Tessa Miller,me@example.com,default,#82b366,"emo,tva",https://app.diagrams.net,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-2-128.png\n' +
-		'Evan Valet,HR Director,tva,Office 4,Tessa Miller,me@example.com,default,#82b366,,https://app.diagrams.net,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-9-2-128.png\n';
+		'Tessa Miller,CFO,emi,Office 1,,me@example.com,default,#6c8ebf,,https://app.diagrams.net,https://icons.diagrams.net/icon-cache1/User_Pictures-2256/female1-521.svg\n' +
+		'Edward Morrison,Brand Manager,emo,Office 2,Tessa Miller,me@example.com,default,#82b366,,https://app.diagrams.net,https://icons.diagrams.net/icon-cache1/User_Pictures-2256/matureman1-782.svg\n' +
+		'Alison Donovan,System Admin,rdo,Office 3,Tessa Miller,me@example.com,default,#82b366,"emo,tva",https://app.diagrams.net,https://icons.diagrams.net/icon-cache1/User_Pictures-2256/maturewoman-3-795.svg\n' +
+		'Evan Valet,HR Director,tva,Office 4,Tessa Miller,me@example.com,default,#82b366,,https://app.diagrams.net,https://icons.diagrams.net/icon-cache1/User_Pictures-2256/malecostume-520.svg\n';
 
 	/**
 	 * Capability check for canvas API
@@ -3086,6 +3128,13 @@
 				Graph.prototype.swimlaneSelectionEnabled = config.swimlaneSelectionEnabled;
 			}
 
+			// One box with resize and rotation handles for multiple selected
+			// cells (see Graph.MultiSelectionHandler)
+			if (config.multiSelectionHandles != null)
+			{
+				Graph.prototype.multiSelectionHandlesEnabled = config.multiSelectionHandles === true;
+			}
+
 			if (config.autosaveDelay != null)
 			{
 				DrawioFile.prototype.autosaveDelay = config.autosaveDelay
@@ -3325,6 +3374,18 @@
 				mxUtils.lightDarkColorSupported = config.enableLightDarkColors;
 			}
 			
+			// Uses system colors for the defaults of darkColor, lightColor
+			// and defaultPageBackgroundColor, the default colors of shapes
+			// and the user interface (see :root.geSystemColors in CSS)
+			if (config.systemColors)
+			{
+				Editor.systemColors = true;
+				Editor.darkColor = 'Canvas';
+				Editor.lightColor = 'CanvasText';
+				Editor.pageBackgroundColor = 'Canvas';
+				document.documentElement.classList.add('geSystemColors');
+			}
+
 			if (config.darkColor != null)
 			{
 				Editor.darkColor = config.darkColor;
@@ -3333,6 +3394,16 @@
 			if (config.darkColorVar != null)
 			{
 				Editor.darkColorVar = config.darkColorVar;
+			}
+
+			if (config.lightColor != null)
+			{
+				Editor.lightColor = config.lightColor;
+			}
+
+			if (config.lightColorVar != null)
+			{
+				Editor.lightColorVar = config.lightColorVar;
 			}
 
 			if (config.defaultPageBackgroundColor != null)
@@ -3360,11 +3431,11 @@
 				mxGraphView.prototype.defaultDarkGridColor :
 				mxGraphView.prototype.defaultGridColor;
 
-			// Updates colors that depend on Editor.darkColor
+			// Updates colors that depend on Editor.darkColor and Editor.lightColor
 			// LATER: Add event to update darkColor dependencies
 			Graph.prototype.defaultPageBackgroundColor = Editor.getDefaultPageBackgroundColor();
-			Graph.prototype.shapeBackgroundColor = 'light-dark(#ffffff, var(' +
-				Editor.darkColorVar + ', ' + Editor.darkColor + '))';
+			Graph.prototype.shapeForegroundColor = Editor.getShapeForegroundColor();
+			Graph.prototype.shapeBackgroundColor = Editor.getShapeBackgroundColor();
 			
 			if (config.settingsName != null)
 			{
@@ -6782,6 +6853,15 @@
 									graph.getAdaptiveColors() != 'none') ?
 									cssBg.dark : cssBg.light;
 								ctx.fill();
+
+								// Adds the gradient of the page background
+								var gradient = graph.getBackgroundGradient(bg);
+
+								if (gradient != null)
+								{
+									Graph.fillBackgroundGradient(ctx, gradient, w, h,
+										theme == 'dark' && graph.getAdaptiveColors() != 'none');
+								}
 					   		}
 		
 					   		if (scale != 1)
@@ -7525,11 +7605,13 @@
 		];
 
 		mxCellRenderer.defaultShapes['process'].prototype.customProperties = [
-			{name: 'size', dispName: 'Indent', type: 'float', min: 0, max: 0.5, defVal: 0.1}
+			{name: 'size', dispName: 'Indent', type: 'float', min: 0, max: 0.5, defVal: 0.1},
+			Editor.roundedPerimeterProperty
 		];
 
 		mxCellRenderer.defaultShapes['rhombus'].prototype.customProperties = [
 	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, max: 50, defVal: mxConstants.LINE_ARCSIZE},
+	        Editor.roundedPerimeterProperty,
 	        {name: 'double', dispName: 'Double', type: 'bool', defVal: false}
 		];
 		
@@ -7542,6 +7624,7 @@
 		
 		mxCellRenderer.defaultShapes['parallelogram'].prototype.customProperties = [
 	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
+	        Editor.roundedPerimeterProperty,
 			{name: 'size', dispName: 'Slope Angle', type: 'float', min:0, max: 1, defVal: 0.2, isVisible: function(state)
 			{
 				return mxUtils.getValue(state.style, 'fixedSize', '0') == '0';
@@ -7554,6 +7637,7 @@
 		
 		mxCellRenderer.defaultShapes['hexagon'].prototype.customProperties = [
 	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
+	        Editor.roundedPerimeterProperty,
 			{name: 'size', dispName: 'Slope Angle', type: 'float', min:0, max: 1, defVal: 0.25, isVisible: function(state)
 			{
 				return mxUtils.getValue(state.style, 'fixedSize', '0') == '0';
@@ -7565,7 +7649,8 @@
 		];
 		
 		mxCellRenderer.defaultShapes['triangle'].prototype.customProperties = [
-	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE}
+	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
+	        Editor.roundedPerimeterProperty
 		];
 		
 		mxCellRenderer.defaultShapes['document'].prototype.customProperties = [
@@ -7575,6 +7660,7 @@
 		
 		mxCellRenderer.defaultShapes['internalStorage'].prototype.customProperties = [
 	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
+	        Editor.roundedPerimeterProperty,
 	        {name: 'dx', dispName: 'Left Line', type: 'float', min:0, defVal: 20},
 	        {name: 'dy', dispName: 'Top Line', type: 'float', min:0, defVal: 20}
 		];
@@ -7600,12 +7686,14 @@
 		
 		mxCellRenderer.defaultShapes['step'].prototype.customProperties = [
 			{name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
+			Editor.roundedPerimeterProperty,
 	        {name: 'size', dispName: 'Notch Size', type: 'float', min:0, defVal:20},
 	        {name: 'fixedSize', dispName: 'Fixed Size', type: 'bool', defVal:true}
 		];
 		
 		mxCellRenderer.defaultShapes['trapezoid'].prototype.customProperties = [
 	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
+	        Editor.roundedPerimeterProperty,
 	        {name: 'size', dispName: 'Slope Angle', type: 'float', min:0, max: 1, defVal: 0.2}
 		];
 		
@@ -8047,7 +8135,10 @@
 						}
 						else
 						{
-							clrDiv.style.background = color;
+							// Uses the longhand as the shorthand also loads
+							// images from the style
+							clrDiv.style.background = '';
+							clrDiv.style.backgroundColor = color;
 						}
 					}
 				};
@@ -10273,9 +10364,10 @@
 				style = '';
 			}
 
-			var theme = (theme == 'auto' || this.getAdaptiveColors() == 'none') ?
-				((this.getAdaptiveColors() == 'none') ?
-					'light' : 'light dark') : theme;
+			// Writes only known themes into the style as the theme can come from
+			// the embed protocol or the export request (auto for other values)
+			theme = (this.getAdaptiveColors() == 'none') ? 'light' :
+				((theme == 'light' || theme == 'dark') ? theme : 'light dark');
 			style += ' color-scheme: ' + theme + ';';
 			result.setAttribute('style', style);
 		}
@@ -11165,7 +11257,13 @@
 	 * same resetStyles + configure + redraw sequence mxCellRenderer runs for
 	 * a model style change, so a removed key falls back to its default (a
 	 * bare shape.apply keeps the previously painted field value, e.g. a
-	 * toggled-off strokeWidth stayed at 10).
+	 * toggled-off strokeWidth stayed at 10). The label is repainted with
+	 * mxCellRenderer.redrawLabel, which derives the value again with
+	 * getLabelValue and creates a new text shape if the dialect changed:
+	 * html and whiteSpace decide if the label is HTML, and the escaping and
+	 * sanitizing in getLabelValue depend on it. Repainting the old text
+	 * kept the value of the old style, ie. a step that wrapped a plain
+	 * text label rendered its unescaped label as HTML.
 	 */
 	Graph.prototype.redrawTransientStyle = function(state)
 	{
@@ -11176,12 +11274,31 @@
 			state.shape.redraw();
 		}
 
-		if (state.text != null)
+		var text = state.text;
+		var prev = (text != null) ? text.node : null;
+		this.cellRenderer.redrawLabel(state, true);
+
+		// A new text shape is appended to the pane, so it is moved back
+		// behind the shape and keeps the transient opacity of the old one
+		if (state.text != null && state.text != text && state.text.node != null)
 		{
-			state.text.resetStyles();
-			state.text.apply(state);
-			state.text.valign = this.getVerticalAlign(state);
-			state.text.redraw();
+			var node = state.text.node;
+
+			if (state.shape != null && state.shape.node != null &&
+				state.shape.node.parentNode == node.parentNode)
+			{
+				node.parentNode.insertBefore(node, state.shape.node.nextSibling);
+			}
+
+			if (prev != null)
+			{
+				node.style.opacity = prev.style.opacity;
+
+				if (prev.terminalHiddenOpacity != null)
+				{
+					node.terminalHiddenOpacity = prev.terminalHiddenOpacity;
+				}
+			}
 		}
 	};
 
@@ -13665,6 +13782,26 @@
             	{
             		this.page.viewState.shadowVisible = this.shadowVisible;
             	}
+
+				// Swaps the measure scale for undo like on the current page
+				if (this.measureScale != null)
+				{
+					var tmp = Graph.parseMeasureScale(this.page.viewState.measureScale);
+					this.page.viewState.measureScale = this.measureScale;
+					this.measureScale = tmp;
+				}
+
+				// Swaps the gradient of the background for undo like on the current page
+				if (this.gradient != null)
+				{
+					var gradient = Graph.parseBackgroundGradient(
+						this.gradient.color, this.gradient.direction);
+					var tmp = {color: this.page.viewState.backgroundGradient,
+						direction: this.page.viewState.backgroundGradientDirection};
+					this.page.viewState.backgroundGradient = gradient.color;
+					this.page.viewState.backgroundGradientDirection = gradient.direction;
+					this.gradient = tmp;
+				}
             }   
         }
         else

@@ -1581,7 +1581,20 @@ Actions.prototype.init = function()
 			}
 		}
 	});
-	this.addAction('vertical', function() { ui.menus.toggleStyle(mxConstants.STYLE_HORIZONTAL, true); });
+	this.addAction('vertical', function()
+	{
+		var cells = graph.getEditableCells(graph.getSelectionCells());
+
+		if (cells.length > 0)
+		{
+			// Table rows and cells keep the side of their title region
+			var value = (mxUtils.getValue(graph.getCurrentCellStyle(cells[0]),
+				mxConstants.STYLE_HORIZONTAL, true)) ? 0 : 1;
+			graph.setTitleTextHorizontal(cells, value == 1);
+			ui.fireEvent(new mxEventObject('styleChanged', 'keys', [mxConstants.STYLE_HORIZONTAL],
+				'values', [value], 'cells', graph.getSelectionCells()));
+		}
+	});
 	this.addAction('shadow', function() { ui.menus.toggleStyle(mxConstants.STYLE_SHADOW); });
 	this.addAction('solid', function()
 	{

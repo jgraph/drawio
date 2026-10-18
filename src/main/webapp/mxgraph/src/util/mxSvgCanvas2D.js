@@ -2327,13 +2327,13 @@ mxSvgCanvas2D.prototype.updateTextNodes = function(x, y, w, h, align, valign, wr
 		{
 			g.removeAttribute('opacity');
 		}
-	}));
+	}), this.state.fontBorderWidth);
 };
 
 /**
  * Updates existing DOM nodes for text rendering.
  */
-mxSvgCanvas2D.createCss = function(w, h, align, valign, wrap, overflow, clip, dir, bg, border, padding, flex, block, s, callback)
+mxSvgCanvas2D.createCss = function(w, h, align, valign, wrap, overflow, clip, dir, bg, border, padding, flex, block, s, callback, borderWidth)
 {
 	var vertical = dir != null && dir.substring(0, 9) == 'vertical-';
 	var item = 'box-sizing: border-box; font-size: 0; ';
@@ -2417,23 +2417,34 @@ mxSvgCanvas2D.createCss = function(w, h, align, valign, wrap, overflow, clip, di
 		bgc += 'background-color: ' + bg + '; ';
 	}
 	
+	// Border widths other than 1 grow or shrink the box around the text
+	// like the padding (see margin below)
+	var bw = (border != null && borderWidth != null) ? borderWidth : 1;
+	var grow = (border != null) ? bw - 1 : 0;
+
 	if (border != null)
 	{
 		// Duplicates border properties for inherit color fallback over border CSS
-		bgc += 'border-width: 1px; border-style: solid; border-color: inherit; border: 1px solid ' + border + '; ';
+		bgc += 'border-width: ' + bw + 'px; border-style: solid; border-color: inherit; ' +
+			'border: ' + bw + 'px solid ' + border + '; ';
 	}
 
-	if (bgc != '' && padding != null)
+	if (bgc != '' && (padding != null || grow != 0))
 	{
-		bgc += 'padding: ' + padding.top + 'px ' + padding.right + 'px ' +
-			padding.bottom + 'px ' + padding.left + 'px; ';
+		var p = (padding != null) ? padding : {top: 0, right: 0, bottom: 0, left: 0};
+
+		if (padding != null)
+		{
+			bgc += 'padding: ' + p.top + 'px ' + p.right + 'px ' +
+				p.bottom + 'px ' + p.left + 'px; ';
+		}
 
 		if (ofl == '' || clip)
 		{
 			// Grows the painted background box around the text without moving
 			// the text or changing the wrapping width
-			bgc += 'margin: ' + (-padding.top) + 'px ' + (-padding.right) + 'px ' +
-				(-padding.bottom) + 'px ' + (-padding.left) + 'px; ';
+			bgc += 'margin: ' + (-p.top - grow) + 'px ' + (-p.right - grow) + 'px ' +
+				(-p.bottom - grow) + 'px ' + (-p.left - grow) + 'px; ';
 		}
 	}
 
@@ -4220,7 +4231,7 @@ mxSvgCanvas2D.prototype.addTextBackground = function(node, str, x, y, w, h, alig
 				padding: (overflow != 'fill' && overflow != 'width') ?
 					s.labelPadding : null,
 				strokeWidth: (s.fontBorderColor != null) ?
-					this.format(s.scale) : null,
+					this.format(s.scale * s.fontBorderWidth) : null,
 				crisp: this.root.ownerDocument == document};
 
 			// Keeps the order of the attributes in the output
@@ -4282,6 +4293,13 @@ mxSvgCanvas2D.updateTextBackground = function(node, px, ox, oy)
 		w += (tb.padding.left + tb.padding.right) * tb.scale;
 		h += (tb.padding.top + tb.padding.bottom) * tb.scale;
 	}
+
+	// Borders wider than 1 grow outward so that they do not cover the text
+	var grow = (tb.strokeWidth != null) ? Math.max(0, tb.strokeWidth - tb.scale) / 2 : 0;
+	x -= grow;
+	y -= grow;
+	w += 2 * grow;
+	h += 2 * grow;
 
 	node.setAttribute('x', Math.floor((x + ox) / px - 1) * px - ox);
 	node.setAttribute('y', Math.floor((y + oy) / px - 1) * px - oy);

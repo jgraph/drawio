@@ -235,14 +235,79 @@ DrawioFile.prototype.lastAutosaveRevision = null;
 DrawioFile.prototype.maxAutosaveRevisionDelay = 300000;
 
 /**
- * Specifies if notify events should be ignored.
+ * Specifies if the file is in a conflict state, which stops the autosave and
+ * the realtime sync until it is resolved. See <setConflict>.
  */
 DrawioFile.prototype.inConflictState = false;
 
 /**
- * Specifies if notify events should be ignored.
+ * Specifies if the conflict state was caused by merged pages that did not
+ * match the checksum of the file. See <setConflict>.
  */
 DrawioFile.prototype.invalidChecksum = false;
+
+/**
+ * Puts the file in a conflict state. If invalidChecksum is true then the
+ * conflict was caused by an invalid checksum, which a later conflict without
+ * that flag does not reset.
+ */
+DrawioFile.prototype.setConflict = function(invalidChecksum)
+{
+	this.inConflictState = true;
+
+	if (invalidChecksum)
+	{
+		this.invalidChecksum = true;
+	}
+};
+
+/**
+ * Resolves the conflict state of the file.
+ */
+DrawioFile.prototype.clearConflict = function()
+{
+	this.inConflictState = false;
+	this.invalidChecksum = false;
+};
+
+/**
+ * Handles a save that was rejected because the file was changed by another
+ * client: puts the file in a conflict state and, with a sync, catches up
+ * with the given descriptor (see DrawioFileSync.fileConflict) and calls
+ * retry after a random cool-off, or error if the catchup fails. The file is
+ * saving until then. Without a sync, error is called.
+ */
+DrawioFile.prototype.handleSaveConflict = function(desc, retry, error)
+{
+	this.setConflict();
+
+	if (this.sync != null)
+	{
+		this.savingFile = true;
+
+		this.sync.fileConflict(desc, mxUtils.bind(this, function()
+		{
+			// Adds random cool-off
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				this.updateFileData();
+				retry();
+			}), 100 + Math.random() * 500);
+		}), mxUtils.bind(this, function()
+		{
+			this.savingFile = false;
+
+			if (error != null)
+			{
+				error();
+			}
+		}));
+	}
+	else if (error != null)
+	{
+		error();
+	}
+};
 
 /**
  * Specifies if stats should be sent.
@@ -576,8 +641,7 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow, imme
 							changes : null);
 					}
 				
-					this.invalidChecksum = false;
-					this.inConflictState = false;
+					this.clearConflict();
 					this.setDescriptor(file.getDescriptor());
 					this.descriptorChanged();
 					
@@ -588,8 +652,7 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow, imme
 				}
 				catch (e)
 				{
-					this.inConflictState = true;
-					this.invalidChecksum = true;
+					this.setConflict(true);
 					this.descriptorChanged();
 
 					if (error != null)
@@ -621,8 +684,10 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow, imme
 			}
 			else
 			{
-				this.invalidChecksum = false;
-				this.inConflictState = false;
+				// The file can still differ in what the diff ignores, eg. a
+				// page size that another tool removed (see diffSavedPages)
+				this.setShadowPages(pages, incomingVars);
+				this.clearConflict();
 				this.setDescriptor(file.getDescriptor());
 				this.descriptorChanged();
 
@@ -662,6 +727,7 @@ DrawioFile.prototype.getAnonymizedXmlForPages = function(pages)
 	{
 		for (var i = 0; i < pages.length; i++)
 		{
+			this.ui.updatePageRoot(pages[i]);
 			var temp = enc.encode(new mxGraphModel(pages[i].root));
 			
 			if (urlParams['dev'] != '1')
@@ -708,8 +774,7 @@ DrawioFile.prototype.compressReportData = function(data, limit, max)
 DrawioFile.prototype.checksumError = function(fn, patches, details, etag, functionName, checksum, current, rev)
 {
 	this.stats.checksumErrors++;
-	this.inConflictState = true;
-	this.invalidChecksum = true;
+	this.setConflict(true);
 	this.descriptorChanged();
 	
 	if (this.sync != null)
@@ -1211,9 +1276,10 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges, 
 		var prev = this.changeListenerEnabled;
 		this.changeListenerEnabled = undoable;
 		
-		// Folding and math change require special handling
+		// Folding, math and measure scale change require special handling
 		var fold = graph.foldingEnabled;
 		var math = graph.mathEnabled;
+		var measureScale = graph.measureScale;
 
 		// Applies file-level changes before model update so that
 		// labels using file variables are resolved correctly
@@ -1384,8 +1450,10 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges, 
 				this.ui.editor.updateGraphComponents();
 				graph.refresh();
 			}
-			else if (varsChanged)
+			else if (varsChanged || (needsUpdate &&
+				measureScale != graph.measureScale))
 			{
+				// Updates labels with placeholders
 				graph.refresh();
 			}
 			else if (needsUpdate)
@@ -1637,22 +1705,39 @@ DrawioFile.prototype.loadFonts = function(callback)
 };
 
 /**
- * Updates the file data and invokes success. Subclasses call this before
- * writing the data to their storage. Fails if the file is read-only, or if
- * it has an invalid checksum and overwrite is not true.
+ * Returns the error of a save of this file that is not possible, which is
+ * the case if the app must be upgraded, if the file is read-only, or if it
+ * has an invalid checksum and overwrite is not true. Returns null if the
+ * file can be saved.
  */
-DrawioFile.prototype.save = function(revision, success, error, unloading, overwrite, manual)
+DrawioFile.prototype.getSaveError = function(overwrite)
 {
 	if (this.appUpgradeRequired)
 	{
-		if (error != null)
-		{
-			error({message: mxResources.get('redirectToNewApp')});
-		}
-		else
-		{
-			this.redirectToNewApp(function() {});
-		}
+		return {message: mxResources.get('redirectToNewApp')};
+	}
+	else if (!this.isEditable())
+	{
+		return {message: mxResources.get('readOnly')};
+	}
+	else if (!overwrite && this.invalidChecksum)
+	{
+		return {message: mxResources.get('checksum')};
+	}
+
+	return null;
+};
+
+/**
+ * Updates the file data and invokes success. Subclasses call this before
+ * writing the data to their storage. Fails if the file cannot be saved (see
+ * getSaveError).
+ */
+DrawioFile.prototype.save = function(revision, success, error, unloading, overwrite)
+{
+	if (this.appUpgradeRequired && error == null)
+	{
+		this.redirectToNewApp(function() {});
 
 		return;
 	}
@@ -1660,30 +1745,21 @@ DrawioFile.prototype.save = function(revision, success, error, unloading, overwr
 	try
 	{
 		EditorUi.debug('DrawioFile.save', [this], 'revision', revision,
-			'unloading', unloading, 'overwrite', overwrite, 'manual', manual,
+			'unloading', unloading, 'overwrite', overwrite,
 			'saving', this.savingFile, 'editable', this.isEditable(),
 			'invalidChecksum', this.invalidChecksum);
 
-		if (!this.isEditable())
+		var saveError = this.getSaveError(overwrite);
+
+		if (saveError != null)
 		{
 			if (error != null)
 			{
-				error({message: mxResources.get('readOnly')});
+				error(saveError);
 			}
 			else
 			{
-				throw new Error(mxResources.get('readOnly'));
-			}
-		}
-		else if (!overwrite && this.invalidChecksum)
-		{
-			if (error != null)
-			{
-				error({message: mxResources.get('checksum')});
-			}
-			else
-			{
-				throw new Error(mxResources.get('checksum'));
+				throw new Error(saveError.message);
 			}
 		}
 		else
@@ -1768,16 +1844,21 @@ DrawioFile.prototype.createData = function()
 			if (ownPage != null)
 			{
 				ownPage.viewState = this.ui.editor.graph.getViewState();
-				ownPage.needsUpdate = true;
+				ownPage.invalidateNode();
 			}
 		}
 	}
 
-	var result = this.ui.getFileData(null, null, null, null,
-		null, null, null, null, this, !this.isCompressed());
-	this.ui.pages = actualPages;
-
-	return result;
+	try
+	{
+		return this.ui.getFileData(null, null, null, null,
+			null, null, null, null, this, !this.isCompressed());
+	}
+	finally
+	{
+		// Restores the visible pages if getFileData throws
+		this.ui.pages = actualPages;
+	}
 };
 
 /**
@@ -1941,6 +2022,28 @@ DrawioFile.prototype.setModified = function(value)
 {
 	this.modified = value;
 	this.shadowModified = value;
+};
+
+/**
+ * Starts a write of the data of this file to its storage. An edit during the
+ * write sets the shadow of the modified state, which keeps the file modified
+ * when the write ends (see endSave).
+ */
+DrawioFile.prototype.beginSave = function()
+{
+	this.savingFileTime = new Date();
+	this.setShadowModified(false);
+	this.savingFile = true;
+};
+
+/**
+ * Ends a write that the storage committed. The file stays modified if it was
+ * edited during the write.
+ */
+DrawioFile.prototype.endSave = function()
+{
+	this.setModified(this.getShadowModified());
+	this.savingFile = false;
 };
 
 /**
@@ -2394,10 +2497,11 @@ DrawioFile.prototype.open = function()
 		this.ui.setFileData(data, this);
 		
 		// Updates shadow in case any page IDs have been updated
-		// only if the file has not been modified and reopened
+		// only if the file has not been modified and reopened. Pages
+		// that were not decoded are copied without decoding them.
 		if (!this.isModified())
 		{
-			this.setShadowPages(this.ui.clonePages(this.ui.pages));
+			this.setShadowPages(this.ui.clonePages(this.ui.pages, true));
 		}
 	}
 
@@ -3184,8 +3288,7 @@ DrawioFile.prototype.showRefreshDialog = function(success, error, message)
  */
 DrawioFile.prototype.showCopyDialog = function(success, error, overwrite)
 {
-	this.inConflictState = false;
-	this.invalidChecksum = false;
+	this.clearConflict();
 	this.addUnsavedStatus();
 	
 	this.ui.showError(mxResources.get('externalChanges'),
@@ -3538,9 +3641,7 @@ DrawioFile.prototype.handleConflictError = function(err, manual)
 		if (this.ui.spinner.spin(document.body, mxResources.get(this.savingSpinnerKey)))
 		{
 			this.ui.clearStatus();
-			var isRepoFile = (this.constructor == GitHubFile) || (this.constructor == GitLabFile);
-			this.save(true, success, error, null, true, (isRepoFile &&
-				err != null) ? err.commitMessage : null);
+			this.saveAfterConflict(err, true, success, error);
 		}
 	});
 
@@ -3554,9 +3655,7 @@ DrawioFile.prototype.handleConflictError = function(err, manual)
 				
 				if (this.ui.spinner.spin(document.body, mxResources.get(this.savingSpinnerKey)))
 				{
-					var isRepoFile = (this.constructor == GitHubFile) || (this.constructor == GitLabFile);
-					this.save(true, success, error, null, null, (isRepoFile &&
-						err != null) ? err.commitMessage : null);
+					this.saveAfterConflict(err, false, success, error);
 				}
 			}), error);
 		}
@@ -3586,7 +3685,16 @@ DrawioFile.prototype.handleConflictError = function(err, manual)
 };
 
 /**
- * Adds the listener for automatically saving the diagram for local changes.
+ * Saves the file after the given conflict error was resolved, overwriting
+ * the file in the storage if overwrite is true.
+ */
+DrawioFile.prototype.saveAfterConflict = function(err, overwrite, success, error)
+{
+	this.save(true, success, error, null, overwrite);
+};
+
+/**
+ * Returns the message of the given error.
  */
 DrawioFile.prototype.getErrorMessage = function(err)
 {
@@ -3666,8 +3774,7 @@ DrawioFile.prototype.compressionChanged = function(compressed)
  */
 DrawioFile.prototype.fileReplaced = function(patches)
 {
-	this.invalidChecksum = false;
-	this.inConflictState = false;
+	this.clearConflict();
 
 	if (patches != null)
 	{
@@ -3875,8 +3982,7 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error, t
 
 	try
 	{
-		this.inConflictState = false;
-		this.invalidChecksum = false;
+		this.clearConflict();
 
 		// The conflict retry budget counts the CONSECUTIVE catchup
 		// attempts of ONE conflict episode, so a confirmed save ends
@@ -3938,8 +4044,7 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error, t
 		}
 		catch (e)
 		{
-			this.inConflictState = true;
-			this.invalidChecksum = true;
+			this.setConflict(true);
 			this.descriptorChanged();
 			
 			if (error != null)

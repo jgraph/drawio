@@ -230,7 +230,9 @@
 			});
 		}
 
-		editorUi.actions.addAction('new...', function()
+		// The new diagram dialog. onClose runs when it closes, after the new
+		// file was created (HomeDialog.createDiagram).
+		editorUi.showNewDialog = function(onClose)
 		{
 			var compact = editorUi.isOffline();
 			
@@ -244,6 +246,11 @@
 				{
 					editorUi.sidebar.hideTooltip();
 				}
+
+				if (onClose != null)
+				{
+					onClose(cancel);
+				}
 				
 				if (cancel && editorUi.getCurrentFile() == null)
 				{
@@ -252,6 +259,11 @@
 			});
 			
 			dlg.init();
+		};
+
+		editorUi.actions.addAction('new...', function()
+		{
+			editorUi.showNewDialog();
 		});
 		
 		editorUi.actions.put('insertTemplate', new Action('template' + '...', function()
@@ -507,16 +519,17 @@
 						}
 					}
 					
-					if (graph.freehand.isDrawing())
+					// Draws in the mode of the window (see FreehandWindow)
+					if (editorUi.freehandWindow.isDrawing())
 					{
-						graph.freehand.stopDrawing();
+						editorUi.freehandWindow.stopDrawing();
 					}
 					else
 					{
-						graph.freehand.startDrawing();
+						editorUi.freehandWindow.startDrawing();
 					}
 					
-					editorUi.freehandWindow.window.setVisible(graph.freehand.isDrawing());
+					editorUi.freehandWindow.window.setVisible(editorUi.freehandWindow.isDrawing());
 				}
 			}, null, null, 'X'));
 			
@@ -682,7 +695,7 @@
 							var result = '<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=5,IE=9" ><![endif]-->\n' +
 								'<!DOCTYPE html>\n<html>\n<head>\n<title>' + mxUtils.htmlEntities(basename) + '</title>\n' +
 								'<meta charset="utf-8"/>\n</head>\n<body>' + html + '\n' + scriptTag + '\n</body>\n</html>';
-							editorUi.saveData(basename + ((basename.substring(basename.lenth - 7) ==
+							editorUi.saveData(basename + ((basename.substring(basename.length - 7) ==
 								'.drawio') ? '' : '.drawio') + '.html', 'html', result, 'text/html');
 						}), theme, useTagSettings, linkIcons, tooltipIcons);
 				});
@@ -715,8 +728,9 @@
 			editorUi.pickFile();
 		});
 
-		// Not 'home', which is Navigation > Home (graph.home). Disabled where
-		// Home is off, which also hides it from the action search.
+		// Not 'home', which is Navigation > Home (graph.home). Whenever the
+		// user is signed in to Google Drive (App.isMyDiagramsEnabled), else
+		// disabled, which also hides it from the action search.
 		editorUi.actions.addAction('myDiagrams...', function()
 		{
 			if (editorUi.showHome != null)
@@ -725,7 +739,7 @@
 			}
 		}).isEnabled = function()
 		{
-			return editorUi.isHomeEnabled != null && editorUi.isHomeEnabled();
+			return editorUi.isMyDiagramsEnabled != null && editorUi.isMyDiagramsEnabled();
 		};
 		
 		editorUi.actions.addAction('close', function()
@@ -811,7 +825,7 @@
 		var action = editorUi.actions.addAction('synchronize', function()
 		{
 			editorUi.synchronizeCurrentFile(DrawioFile.SYNC == 'none');
-		}, null, null, Editor.altKey + '+' + Editor.shiftKey + '+S');
+		}, null, null, Editor.altKey + '+' + Editor.shiftKey + '+Y');
 		
 		// Changes the label if synchronization is disabled
 		if (DrawioFile.SYNC == 'none')
@@ -829,9 +843,8 @@
 				// LATER: Change to use message passing to deal with potential cross-domain
 				window.drawdata = editorUi.getFileData();
 				var filename = (file.getTitle() != null) ? file.getTitle() : editorUi.defaultFilename;
-				editorUi.openLink(window.location.protocol + '//' + window.location.host + '/?create=drawdata&' +
-						((editorUi.mode == App.MODE_DROPBOX) ? 'mode=dropbox&' : '') +
-						'title=' + encodeURIComponent(filename), null, true);
+				editorUi.openLink(window.location.protocol + '//' + window.location.host +
+						'/?create=drawdata&title=' + encodeURIComponent(filename), null, true);
 			}
 		}, null, null, null, navigator.onLine && urlParams['stealth'] != '1' && urlParams['lockdown'] != '1');
 
@@ -1023,7 +1036,7 @@
 					null, 'editConnectionPoints');
 				dlg.init();
 			}
-		}, null, null,  Editor.altKey + '+' + Editor.shiftKey + '+Q').isEnabled = isActionAndGraphEnabled;
+		}, null, null,  Editor.altKey + '+' + Editor.shiftKey + '+K').isEnabled = isActionAndGraphEnabled;
 		
 		editorUi.actions.addAction('copyStyle', function()
 		{
@@ -1087,7 +1100,7 @@
 					}
 				}
 			}
-		}, null, null, Editor.altKey + '+' + Editor.shiftKey + '+C');
+		}, null, null, Editor.ctrlKey + '+' + Editor.altKey + '+C');
 
 		editorUi.actions.addAction('pasteTextStyle', function()
 		{
@@ -1096,7 +1109,7 @@
 				graph.pasteTextStyles(graph.includeDescendantParts(graph.getSelectionCells()),
 					editorUi.copiedTextStyle);
 			}
-		}, null, null, Editor.altKey + '+' + Editor.shiftKey + '+V');
+		}, null, null, Editor.ctrlKey + '+' + Editor.altKey + '+V');
 		
 		editorUi.actions.put('exportSvg', new Action('formatSvg' + '...', function()
 		{
@@ -1467,6 +1480,12 @@
 		};
 
 		editorUi.actions.put('exportVsdx', exportVsdxAction);
+
+		// The admin console of the user's organization (admin.html), in a new tab
+		editorUi.actions.addAction('organizationAdmin...', function()
+		{
+			editorUi.openLink(App.getAdminConsoleUrl());
+		});
 
 		if (isLocalStorage && localStorage != null && urlParams['embed'] != '1')
 		{
@@ -3555,21 +3574,6 @@
 				}, parent, null, false);
 			}
 
-			if (editorUi.isModeReady(App.MODE_DROPBOX))
-			{
-				menu.addItem(mxResources.get('dropbox') + '...', null, function()
-				{
-					pickFileFromService(editorUi.dropbox);
-				}, parent);
-			}
-			else if (editorUi.isModeEnabled(App.MODE_DROPBOX))
-			{
-				menu.addItem(mxResources.get('dropbox') + ' (' + mxResources.get('loading') + '...)', null, function()
-				{
-					// do nothing
-				}, parent, null, false);
-			}
-			
 			menu.addSeparator(parent);
 			
 			if (editorUi.isModeReady(App.MODE_GITHUB))
@@ -4703,21 +4707,6 @@
 				}, parent, null, false);
 			}
 
-			if (editorUi.isModeReady(App.MODE_DROPBOX))
-			{
-				menu.addItem(mxResources.get('dropbox') + '...', null, function()
-				{
-					editorUi.pickFile(App.MODE_DROPBOX);
-				}, parent);
-			}
-			else if (editorUi.isModeEnabled(App.MODE_DROPBOX))
-			{
-				menu.addItem(mxResources.get('dropbox') + ' (' + mxResources.get('loading') + '...)', null, function()
-				{
-					// do nothing
-				}, parent, null, false);
-			}
-
 			menu.addSeparator(parent);
 			
 			if (editorUi.isModeReady(App.MODE_GITHUB))
@@ -4923,21 +4912,6 @@
 					}, parent, null, false);
 				}
 
-				if (editorUi.isModeReady(App.MODE_DROPBOX))
-				{
-					menu.addItem(mxResources.get('dropbox') + '...', null, function()
-					{
-						editorUi.pickLibrary(App.MODE_DROPBOX);
-					}, parent);
-				}
-				else if (editorUi.isModeEnabled(App.MODE_DROPBOX))
-				{
-					menu.addItem(mxResources.get('dropbox') + ' (' + mxResources.get('loading') + '...)', null, function()
-					{
-						// do nothing
-					}, parent, null, false);
-				}
-				
 				menu.addSeparator(parent);
 				
 				if (editorUi.isModeReady(App.MODE_GITHUB))
@@ -5224,9 +5198,15 @@
 					editorUi.menus.addMenuItems(menu, ['pageTabs'], parent);
 				}
 
-				this.addMenuItems(menu, ['ruler', '-', 'tooltips', 'animations', 'zoomWheel',
-					'-', 'grid', 'guides', '-', 'connectionArrows', 'connectionPoints', '-',
-					'resetView', 'zoomIn', 'zoomOut'], parent);
+				this.addMenuItems(menu, ['ruler', '-', 'tooltips', 'animations'], parent);
+
+				if (editorUi.isZoomWheelMenuVisible())
+				{
+					this.addMenuItems(menu, ['zoomWheel'], parent);
+				}
+
+				this.addMenuItems(menu, ['-', 'grid', 'guides', '-', 'connectionArrows',
+					'connectionPoints', '-', 'resetView', 'zoomIn', 'zoomOut'], parent);
 
 				if (urlParams['sketch'] != '1')
 				{
@@ -5465,7 +5445,12 @@
 				editorUi.menus.addSubmenu('units', menu, parent);
 				this.addSubmenu('diagramLanguage', menu, parent);
 				editorUi.menus.addMenuItems(menu, ['-', 'collapseExpand',
-					'animations', 'tooltips', 'zoomWheel'], parent);
+					'animations', 'tooltips'], parent);
+
+				if (editorUi.isZoomWheelMenuVisible())
+				{
+					editorUi.menus.addMenuItems(menu, ['zoomWheel'], parent);
+				}
 
 				if (Editor.currentTheme != 'simple')
 				{
@@ -5485,6 +5470,11 @@
 				if (editorUi.mode != App.MODE_ATLAS)
 				{
 					editorUi.menus.addMenuItem(menu, 'configuration', parent);
+				}
+
+				if (editorUi.isOrganizationAdminVisible != null && editorUi.isOrganizationAdminVisible())
+				{
+					editorUi.menus.addMenuItem(menu, 'organizationAdmin', parent);
 				}
 
 				// Adds trailing separator in case new plugin entries are added
@@ -5546,6 +5536,11 @@
 				}
 	
 				this.addMenuItems(menu, ['configuration'], parent);
+
+				if (editorUi.isOrganizationAdminVisible != null && editorUi.isOrganizationAdminVisible())
+				{
+					this.addMenuItems(menu, ['organizationAdmin'], parent);
+				}
 			}
 		})));
 
@@ -5845,7 +5840,7 @@
 				var file = editorUi.getCurrentFile();
 				editorUi.menus.addMenuItems(menu, ['new'], parent);
 
-				if (editorUi.isHomeEnabled != null && editorUi.isHomeEnabled())
+				if (editorUi.isMyDiagramsEnabled != null && editorUi.isMyDiagramsEnabled())
 				{
 					editorUi.menus.addMenuItems(menu, ['myDiagrams'], parent);
 				}
@@ -5980,7 +5975,7 @@
 					this.addMenuItems(menu, ['new'], parent);
 				}
 
-				if (editorUi.isHomeEnabled != null && editorUi.isHomeEnabled())
+				if (editorUi.isMyDiagramsEnabled != null && editorUi.isMyDiagramsEnabled())
 				{
 					this.addMenuItems(menu, ['myDiagrams'], parent);
 				}

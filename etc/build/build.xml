@@ -95,7 +95,94 @@ OUTPUT FILES (in src/main/webapp/js/):
 
 	<!--
 	============================================================================
-	TARGET: app (depends on merge)
+	TARGET: extensions
+	============================================================================
+	Builds extensions.min.js (VSDX import, Mermaid, GraphML, OrgChart). Runs
+	before app, which depends on it, and on its own from github-deploy.xml,
+	which rebuilds the public extensions.min.js from the staged sources (the
+	internal build appends VSDX export to this bundle, see extensions-full in
+	build.xml).
+
+	OUTPUTS:
+	  - js/extensions.min.js    : Import/export extensions
+	  - js/orgchart.min.js      : Org chart layout library
+	============================================================================
+	-->
+	<target name="extensions">
+		<delete file="${war.dir}/js/extensions.min.js"/>
+
+		<jscomp warning="${jscomp.warning}" compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/extensions.min.js">
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="Extensions.js" />
+			</sources>
+			<sources dir="${war.dir}/js/diagramly/vsdx">
+				<file name="bmpDecoder.js" />
+				<file name="importer.js" />
+			</sources>
+			<sources dir="${war.dir}/js/diagramly/emf">
+				<file name="emf-svg.js" />
+			</sources>
+			<sources dir="${war.dir}/js/diagramly/graphml">
+				<file name="mxGraphMlCodec.js" />
+			</sources>
+			<sources dir="${war.dir}/js/diagramly/miro">
+				<file name="MiroImporter.js" />
+			</sources>
+		</jscomp>
+
+		<!-- Build orgchart.min.js -->
+		<delete file="${war.dir}/js/orgchart.min.js"/>
+		<concat destfile="${war.dir}/js/orgchart.min.js" fixlastline="yes" append="no">
+			<filelist dir="${war.dir}/js/orgchart" files="bridge.min.js,bridge.collections.min.js,OrgChart.Layout.min.js"/>
+    	</concat>
+		<jscomp warning="${jscomp.warning}" compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp3.js">
+			<sources dir="${war.dir}/js/orgchart">
+				<file name="mxOrgChartLayout.js" />
+			</sources>
+		</jscomp>
+		<concat destfile="${war.dir}/js/orgchart.min.js" fixlastline="yes" append="yes">
+			<filelist dir="${basedir}" files=".tmp3.js"/>
+    	</concat>
+		<delete file="${basedir}/.tmp3.js"/>
+		<jscomp warning="${jscomp.warning}" compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmpelk.js">
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="ElkLayout.js" />
+			</sources>
+		</jscomp>
+		<jscomp warning="${jscomp.warning}" compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmplibavoid.js">
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="LibavoidRouting.js" />
+			</sources>
+		</jscomp>
+
+		<!-- Append vendor libraries to extensions.min.js.
+		     drawio-elk must come before drawio-mermaid so that window.ELK is
+		     defined when mermaid's layout bridge reads globalThis.ELK, and
+		     before the ElkLayout editor statics so they attach immediately.
+		     The libavoid files are concatenated raw in fixed order: the pure-JS
+		     bundle (self-contained/self-publishing — defines window.Avoid
+		     synchronously on load, like drawio-mermaid) → the shared routing core
+		     (defines AvoidRouting; canonical, vendored verbatim by drawio-mcp) →
+		     the Closure-compiled LibavoidRouting editor binding. -->
+		<concat destfile="${war.dir}/js/extensions.min.js" fixlastline="yes" append="yes">
+			<fileset file="${war.dir}/js/jszip/jszip.min.js"/>
+			<!-- Binary Visio (.vsd/.vss/.vst) converter, defines window.DrawioVsd -->
+			<fileset file="${war.dir}/js/vsd/drawio-vsd.min.js"/>
+			<fileset file="${war.dir}/js/elk/drawio-elk.min.js"/>
+			<filelist dir="${basedir}" files=".tmpelk.js"/>
+			<fileset file="${war.dir}/js/mermaid/drawio-mermaid.min.js"/>
+			<fileset file="${war.dir}/js/orgchart.min.js"/>
+			<fileset file="${war.dir}/js/libavoid-js/libavoid.min.js"/>
+			<fileset file="${war.dir}/js/libavoid-js/libavoid-routing.js"/>
+			<filelist dir="${basedir}" files=".tmplibavoid.js"/>
+    	</concat>
+		<delete file="${basedir}/.tmpelk.js"/>
+		<delete file="${basedir}/.tmplibavoid.js"/>
+	</target>
+
+	<!--
+	============================================================================
+	TARGET: app (depends on merge, extensions)
 	============================================================================
 	Main compilation target - builds all core application JavaScript.
 	
@@ -108,15 +195,13 @@ OUTPUT FILES (in src/main/webapp/js/):
 	  6. Compiles client.min.js (mxGraph core + init)
 	  7. Builds base-viewer.min.js (lightweight viewer)
 	  8. Builds viewer.min.js and viewer-static.min.js
-	  9. Builds extensions.min.js (VSDX import, Mermaid, GraphML, OrgChart)
-	  10. Builds app.min.js (full editor with cloud integrations and Simple.js)
+	  9. Builds app.min.js (full editor with cloud integrations and Simple.js)
+	extensions.min.js and orgchart.min.js come from the extensions target.
 	
 	OUTPUTS:
 	  - js/viewer.min.js        : Standalone viewer
 	  - js/viewer-static.min.js : Viewer with embedded shapes
 	  - js/app.min.js           : Full editor application
-	  - js/extensions.min.js    : Import/export extensions
-	  - js/orgchart.min.js      : Org chart layout library
 	
 	TEMPORARY FILES (created then deleted):
 	  - Graph-Stylesheet.js, Graph-Resources.js
@@ -124,7 +209,7 @@ OUTPUT FILES (in src/main/webapp/js/):
 	  - .tmp0.js, .tmp1.js, .tmp2.js, .tmp3.js, etc.
 	============================================================================
 	-->
-	<target name="app" depends="merge">
+	<target name="app" depends="merge, extensions">
 		<!-- Step 1: Create runtime configuration -->
 		<delete file="${basedir}/.tmp0.js"/>
 		<echo file="${basedir}/.tmp0.js">
@@ -392,7 +477,6 @@ OUTPUT FILES (in src/main/webapp/js/):
 		</concat>
 
 		<!-- Clean up viewer temp files -->
-		<delete file="${war.dir}/js/extensions.min.js"/>
 		<delete file="${basedir}/.tmp0.js"/>
 		<delete file="${basedir}/.tmp0.min.js"/>
 		<delete file="${basedir}/.tmp1.js"/>
@@ -458,78 +542,9 @@ OUTPUT FILES (in src/main/webapp/js/):
 
 		<replace file="${basedir}/base.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
 		
-		<!-- Step 9: Build extensions.min.js (VSDX import, Mermaid, GraphML, OrgChart) -->
-		<jscomp warning="${jscomp.warning}" compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/extensions.min.js">
-			<sources dir="${war.dir}/js/diagramly">
-				<file name="Extensions.js" />
-			</sources>
-			<sources dir="${war.dir}/js/diagramly/vsdx">
-				<file name="bmpDecoder.js" />
-				<file name="importer.js" />
-			</sources>
-			<sources dir="${war.dir}/js/diagramly/emf">
-				<file name="emf-svg.js" />
-			</sources>
-			<sources dir="${war.dir}/js/diagramly/graphml">
-				<file name="mxGraphMlCodec.js" />
-			</sources>
-			<sources dir="${war.dir}/js/diagramly/miro">
-				<file name="MiroImporter.js" />
-			</sources>
-		</jscomp>
-
-		<!-- Build orgchart.min.js -->
-		<delete file="${war.dir}/js/orgchart.min.js"/>
-		<concat destfile="${war.dir}/js/orgchart.min.js" fixlastline="yes" append="no">
-			<filelist dir="${war.dir}/js/orgchart" files="bridge.min.js,bridge.collections.min.js,OrgChart.Layout.min.js"/>
-    	</concat>
-		<jscomp warning="${jscomp.warning}" compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp3.js">
-			<sources dir="${war.dir}/js/orgchart">
-				<file name="mxOrgChartLayout.js" />
-			</sources>
-		</jscomp>
-		<concat destfile="${war.dir}/js/orgchart.min.js" fixlastline="yes" append="yes">
-			<filelist dir="${basedir}" files=".tmp3.js"/>
-    	</concat>
-		<delete file="${basedir}/.tmp3.js"/>
-		<jscomp warning="${jscomp.warning}" compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmpelk.js">
-			<sources dir="${war.dir}/js/diagramly">
-				<file name="ElkLayout.js" />
-			</sources>
-		</jscomp>
-		<jscomp warning="${jscomp.warning}" compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmplibavoid.js">
-			<sources dir="${war.dir}/js/diagramly">
-				<file name="LibavoidRouting.js" />
-			</sources>
-		</jscomp>
-
-		<!-- Append vendor libraries to extensions.min.js.
-		     drawio-elk must come before drawio-mermaid so that window.ELK is
-		     defined when mermaid's layout bridge reads globalThis.ELK, and
-		     before the ElkLayout editor statics so they attach immediately.
-		     The libavoid files are concatenated raw in fixed order: the pure-JS
-		     bundle (self-contained/self-publishing — defines window.Avoid
-		     synchronously on load, like drawio-mermaid) → the shared routing core
-		     (defines AvoidRouting; canonical, vendored verbatim by drawio-mcp) →
-		     the Closure-compiled LibavoidRouting editor binding. -->
-		<concat destfile="${war.dir}/js/extensions.min.js" fixlastline="yes" append="yes">
-			<fileset file="${war.dir}/js/jszip/jszip.min.js"/>
-			<!-- Binary Visio (.vsd/.vss/.vst) converter, defines window.DrawioVsd -->
-			<fileset file="${war.dir}/js/vsd/drawio-vsd.min.js"/>
-			<fileset file="${war.dir}/js/elk/drawio-elk.min.js"/>
-			<filelist dir="${basedir}" files=".tmpelk.js"/>
-			<fileset file="${war.dir}/js/mermaid/drawio-mermaid.min.js"/>
-			<fileset file="${war.dir}/js/orgchart.min.js"/>
-			<fileset file="${war.dir}/js/libavoid-js/libavoid.min.js"/>
-			<fileset file="${war.dir}/js/libavoid-js/libavoid-routing.js"/>
-			<filelist dir="${basedir}" files=".tmplibavoid.js"/>
-    	</concat>
-		<delete file="${basedir}/.tmpelk.js"/>
-		<delete file="${basedir}/.tmplibavoid.js"/>
-
 		<delete file="${basedir}/.tmp1.js"/>
 		
-		<!-- Step 10: Compile full app with cloud integrations -->
+		<!-- Step 9: Compile full app with cloud integrations -->
 		<jscomp warning="${jscomp.warning}" compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp1.js">
 			<sources dir="${war.dir}/js/diagramly">
 				<file name="DrawioFile.js" />
@@ -575,9 +590,6 @@ OUTPUT FILES (in src/main/webapp/js/):
 				<file name="DriveLibrary.js" />
 				<file name="DriveClient.js" />
 				<file name="HomeDialog.js" />
-				<file name="DropboxFile.js" />
-				<file name="DropboxLibrary.js" />
-				<file name="DropboxClient.js" />
 				<file name="OneDriveFile.js" />
 				<file name="OneDriveLibrary.js" />
 				<file name="OneDriveClient.js" />

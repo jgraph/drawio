@@ -182,10 +182,11 @@ mxCell.prototype.edges = null;
  * passed to <mxUtils.clone> and is not made persistent in <mxCellCodec>.
  * This is not a convention for all classes, it is only used in this class
  * to mark transient fields since transient modifiers are not supported by
- * the language.
+ * the language. The overlays belong to the cell in the graph, their
+ * listeners refer to that cell (see <mxGraph.addCellOverlay>).
  */
 mxCell.prototype.mxTransient = ['id', 'value', 'parent', 'source',
-                                'target', 'children', 'edges'];
+                                'target', 'children', 'edges', 'overlays'];
 
 /**
  * Function: getId

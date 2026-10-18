@@ -347,7 +347,7 @@ StorageFile.prototype.saveFile = function(title, revision, success, error, retry
 									this.invalidChecksum ||
 									this.inConflictState)
 								{
-									this.inConflictState = true;
+									this.setConflict();
 
 									if (error != null)
 									{

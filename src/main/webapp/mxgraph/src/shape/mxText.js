@@ -78,6 +78,7 @@ function mxText(value, bounds, align, valign, color,
 	this.horizontal = (horizontal != null) ? horizontal : true;
 	this.background = background;
 	this.border = border;
+	this.borderWidth = 1;
 	this.wrap = (wrap != null) ? wrap : false;
 	this.clipped = (clipped != null) ? clipped : false;
 	this.overflow = (overflow != null) ? overflow : 'visible';
@@ -454,6 +455,7 @@ mxText.prototype.resetStyles = function()
 	this.horizontal = true;
 	delete this.background;
 	delete this.border;
+	this.borderWidth = 1;
 	this.labelPadding = 0;
 	this.textDirection = mxConstants.DEFAULT_TEXT_DIRECTION;
 	delete this.margin;
@@ -489,6 +491,7 @@ mxText.prototype.apply = function(state)
 		this.horizontal = mxUtils.getValue(this.style, mxConstants.STYLE_HORIZONTAL, this.horizontal);
 		this.background = mxUtils.getValue(this.style, mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, this.background);
 		this.border = mxUtils.getValue(this.style, mxConstants.STYLE_LABEL_BORDERCOLOR, this.border);
+		this.borderWidth = mxUtils.getValue(this.style, mxConstants.STYLE_LABEL_BORDER_WIDTH, this.borderWidth);
 		this.labelPadding = mxUtils.getValue(this.style, mxConstants.STYLE_LABEL_PADDING, this.labelPadding);
 		this.textDirection = mxUtils.getValue(this.style, mxConstants.STYLE_TEXT_DIRECTION, mxConstants.DEFAULT_TEXT_DIRECTION);
 		this.opacity = mxUtils.getValue(this.style, mxConstants.STYLE_TEXT_OPACITY, 100);
@@ -705,6 +708,20 @@ mxText.prototype.isPaintBoundsInverted = function()
 };
 
 /**
+ * Function: getBorderWidth
+ *
+ * Returns the width of the label border in pixels (see
+ * <mxConstants.STYLE_LABEL_BORDER_WIDTH>). Values that are not finite
+ * numbers of at least 0 are replaced with 1.
+ */
+mxText.prototype.getBorderWidth = function()
+{
+	var value = parseFloat(this.borderWidth);
+
+	return (isFinite(value) && value >= 0) ? value : 1;
+};
+
+/**
  * Function: configureCanvas
  * 
  * Sets the state of the canvas for drawing the shape.
@@ -715,7 +732,8 @@ mxText.prototype.configureCanvas = function(c, x, y, w, h)
 	
 	c.setFontColor(this.color);
 	c.setFontBackgroundColor(this.background);
-	c.setFontBorderColor(this.border);
+	c.setFontBorderColor((this.getBorderWidth() > 0) ? this.border : null);
+	c.setFontBorderWidth(this.getBorderWidth());
 	c.setLabelPadding(this.labelPadding);
 	c.setFontFamily(this.family);
 	c.setFontSize(this.size);
@@ -851,7 +869,7 @@ mxText.prototype.redrawHtmlShapeWithCss3 = function()
 	
 	mxSvgCanvas2D.createCss(w + 2, h, this.align, this.valign, this.wrap, this.overflow, this.clipped, dir,
 		(this.background != null) ? mxUtils.htmlEntities(this.background) : null,
-		(this.border != null) ? mxUtils.htmlEntities(this.border) : null,
+		(this.border != null && this.getBorderWidth() > 0) ? mxUtils.htmlEntities(this.border) : null,
 		mxUtils.parseCssSpacing(this.labelPadding),
 		flex, block, this.scale, mxUtils.bind(this, function(dx, dy, flex, item, block, ofl)
 	{
@@ -908,7 +926,7 @@ mxText.prototype.redrawHtmlShapeWithCss3 = function()
 
 		this.node.firstChild.firstChild.setAttribute('style', block);
 		this.node.firstChild.setAttribute('style', item);
-	}));
+	}), this.getBorderWidth());
 };
 
 /**
@@ -1005,7 +1023,8 @@ mxText.prototype.updateValue = function()
 		val = mxUtils.replaceTrailingNewlines(val, '<div><br></div>');
 		val = (this.replaceLinefeeds) ? val.replace(/\n/g, '<br/>') : val;
 		var bg = (this.background != null && this.background != mxConstants.NONE) ? this.background : null;
-		var bd = (this.border != null && this.border != mxConstants.NONE) ? this.border : null;
+		var bd = (this.border != null && this.border != mxConstants.NONE &&
+			this.getBorderWidth() > 0) ? this.border : null;
 
 		if (this.overflow == 'fill' || this.overflow == 'width')
 		{
@@ -1016,7 +1035,7 @@ mxText.prototype.updateValue = function()
 			
 			if (bd != null)
 			{
-				this.node.style.border = '1px solid ' + bd;
+				this.node.style.border = this.getBorderWidth() + 'px solid ' + bd;
 			}
 		}
 		else
@@ -1030,7 +1049,7 @@ mxText.prototype.updateValue = function()
 			
 			if (bd != null)
 			{
-				css += 'border:1px solid ' + mxUtils.htmlEntities(bd) + ';';
+				css += 'border:' + this.getBorderWidth() + 'px solid ' + mxUtils.htmlEntities(bd) + ';';
 			}
 			
 			// Wrapper DIV for background, zoom needed for inline in quirks

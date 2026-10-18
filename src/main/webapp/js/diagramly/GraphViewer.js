@@ -110,6 +110,13 @@ GraphViewer.prototype.minHeight = 28;
 GraphViewer.prototype.minWidth = 100;
 
 /**
+ * Specifies if updateContainerHeight adds the CSS border and padding of a
+ * container with box-sizing border-box to the height. This is true for a
+ * border below 1, which is 1 then (see init). Default is false.
+ */
+GraphViewer.prototype.borderBoxHeight = false;
+
+/**
  * Implements viewBox to keep the contents inside the bounding box
  * of the container. This is not supported in browsers that do not
  * support foreignObjects (eg. IE11). Safari is supported as labels
@@ -193,6 +200,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 	this.initialOverflow = document.body.style.overflow;
 	this.initialWidth = (container != null) ? container.style.width : null;
 	this.widthIsEmpty = (this.initialWidth != null) ? this.initialWidth == '' : true;
+	this.heightIsEmpty = (container != null) ? container.style.height == '' : true;
 	this.currentPage = parseInt(this.graphConfig.page) || 0;
 	this.responsiveAutoFit = this.graphConfig['responsive'] == null && this.autoFit &&
 		!this.zoomEnabled && this.allowZoomOut && !this.graphConfig.resize &&
@@ -328,37 +336,78 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 							container.style.height == '');
 						root.setAttribute('preserveAspectRatio', (!centered) ? 'xMinYMin meet' :
 							((this.hCenterOnly) ? 'xMidYMin meet' : 'xMidYMid meet'));
+
+						// Centers the root, which is not wider than the diagram, in the
+						// container (preserveAspectRatio centers it within the root)
+						if (centered && limitRoot)
+						{
+							root.style.marginLeft = 'auto';
+							root.style.marginRight = 'auto';
+						}
 					}
 
 					// Capture any pre-existing maxWidth on the container (e.g. set
 					// by the host page to constrain the diagram) so we can honour
 					// it as an upper bound when responsive-max-scale adjusts the width.
-					var presetMaxWidth = parseFloat(container.style.maxWidth);
+					// Only a length in px is a number of pixels, other lengths such as
+					// 100% (eg. in HTML exports) are kept as a bound with CSS min.
+					var presetMaxWidth = container.style.maxWidth;
+					var presetMaxWidthPx = (/^\d+(\.\d+)?px$/.test(presetMaxWidth)) ?
+						parseFloat(presetMaxWidth) : NaN;
+					var presetMaxWidthCss = (isNaN(presetMaxWidthPx) &&
+						/^\d+(\.\d+)?(%|em|rem|vw|vh|ch)$/.test(presetMaxWidth)) ?
+						presetMaxWidth : null;
 
 					this.graph.sizeDidChange = function()
 					{
 						var bounds = this.view.getModelGraphBounds();
 						var tr = this.view.translate;
 
+						// Rounds the size up to whole units (ignoring rounding errors)
+						// so that the maximum width in whole pixels draws the diagram
+						// at exactly 1:1 unless it is scaled down. The origin is kept
+						// so that crisp strokes stay crisp.
+						var w = Math.ceil(bounds.width + 1 - 1e-6);
+						var h = Math.ceil(bounds.height + 1 - 1e-6);
+
 						root.setAttribute('viewBox',
 							(bounds.x + tr.x - this.panDx) + ' ' +
 							(bounds.y + tr.y - this.panDy) + ' ' +
-							(bounds.width + 1) + ' ' +
-							(bounds.height + 1));
+							w + ' ' + h);
 						this.container.style.backgroundColor =
 							root.style.backgroundColor;
 
 						if (limitRoot)
 						{
-							root.style.maxWidth = Math.round((bounds.width + 1) * maxScale) + 'px';
+							root.style.maxWidth = Math.round(w * maxScale) + 'px';
 						}
 						else if (!isNaN(maxScale))
 						{
-							var naturalWidth = Math.round(
-								(bounds.width + 1) * maxScale + 2 * responsiveBorder);
-							var finalMaxWidth = !isNaN(presetMaxWidth) ?
-								Math.min(naturalWidth, presetMaxWidth) : naturalWidth;
-							this.container.style.maxWidth = finalMaxWidth + 'px';
+							// Rounds the width without the border so that the root
+							// in the padding of the container has the same width
+							// and adds the CSS border of the container (eg. 1px
+							// transparent in HTML exports), which is inside the
+							// maximum width with box-sizing border-box
+							var css = mxUtils.getCurrentStyle(this.container);
+							var cssBorder = (css != null && css.boxSizing == 'border-box') ?
+								mxUtils.parseCssNumber(css.borderLeftWidth) +
+								mxUtils.parseCssNumber(css.borderRightWidth) : 0;
+							var naturalWidth = Math.round(w * maxScale) +
+								2 * responsiveBorder + cssBorder;
+							var finalMaxWidth = !isNaN(presetMaxWidthPx) ?
+								Math.min(naturalWidth, presetMaxWidthPx) : naturalWidth;
+							if (presetMaxWidthCss != null)
+							{
+								this.container.style.maxWidth = 'min(' + finalMaxWidth +
+									'px, ' + presetMaxWidthCss + ')';
+							}
+
+							// Browsers without CSS min ignore the value above
+							if (presetMaxWidthCss == null ||
+								this.container.style.maxWidth.substring(0, 4) != 'min(')
+							{
+								this.container.style.maxWidth = finalMaxWidth + 'px';
+							}
 						}
 
 						if (updateToleranceScale != null)
@@ -638,7 +687,21 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					
 					if (!this.responsive)
 					{
-						this.graph.border = (this.graphConfig.border != null) ? this.graphConfig.border : 8;
+						var border = (this.graphConfig.border != null) ? this.graphConfig.border : 8;
+
+						// The translate is rounded down to whole units, which moves
+						// the diagram up to 1 px to the left and top, so a border
+						// below 1 clips half of the stroke there. Such borders are 1,
+						// and the height of updateContainerHeight includes the CSS
+						// border and padding of a container with box-sizing
+						// border-box, which larger borders leave room for.
+						if (parseFloat(border) < 1)
+						{
+							border = 1;
+							this.borderBoxHeight = true;
+						}
+
+						this.graph.border = border;
 					}
 
 					this.installBackgroundColorHandler();
@@ -1170,8 +1233,12 @@ GraphViewer.prototype.addSizeHandler = function()
 			
 			if (this.graphConfig['toolbar-nohide'] != true)
 			{
-				// Shows scrollbars if graph is larger than available width
-				if (tmp.width + 2 * this.graph.border > container.offsetWidth - 2)
+				// Shows scrollbars if graph is larger than available width or
+				// extends beyond the available height (eg. fixed height)
+				var size = this.getAvailableSize();
+
+				if (Math.round(tmp.width + 2 * this.graph.border) > size.width ||
+					Math.round(tmp.y + tmp.height) > size.height)
 				{
 					container.style.overflow = 'auto';
 				}
@@ -1255,14 +1322,19 @@ GraphViewer.prototype.addSizeHandler = function()
 				((this.allowZoomIn) ? null : 1));
 			this.graph.fit(null, null, null, null, null, true);
 
-			if (this.center || !(this.graphConfig.resize != false || container.style.height == ''))
+			// A height that the viewer set (see updateContainerHeight) is not
+			// a fixed height of the container, which is centered and kept
+			var fixedHeight = container.style.height != '' && !(this.heightIsEmpty &&
+				container.style.height == this.containerHeight);
+
+			if (this.center || !(this.graphConfig.resize != false || !fixedHeight))
 			{
-				this.graph.center(true, this.hCenterOnly? false : true);
+				this.centerGraph(true, this.hCenterOnly? false : true);
 			}	
 			
 			this.graph.maxFitScale = null;
 			
-			if (this.graphConfig.resize != false || container.style.height == '' || this.hCenterOnly)
+			if (this.graphConfig.resize != false || !fixedHeight || this.hCenterOnly)
 			{
 				this.updateContainerHeight(container, Math.max(this.minHeight,
 					this.graph.getGraphBounds().height +
@@ -1293,6 +1365,7 @@ GraphViewer.prototype.addSizeHandler = function()
 	{
 		this.graph.minimumContainerSize = new mxRectangle(0, 0, this.minWidth, this.minHeight);
 		this.graph.resizeContainer = true;
+		this.installContainerSize();
 	}
 	else
 	{
@@ -1345,8 +1418,9 @@ GraphViewer.prototype.addSizeHandler = function()
 		var maxHeight = (this.graphConfig['max-height'] != null) ? this.graphConfig['max-height'] :
 			((container.style.height != '' && this.autoFit) ? container.offsetHeight : undefined);
 		
+		// Uses the same width as the scrollbars (see updateOverflow)
 		if (container.offsetWidth > 0 && origin == null && this.allowZoomOut && (this.allowZoomIn ||
-			bounds.width + 2 * this.graph.border > container.offsetWidth ||
+			Math.round(bounds.width + 2 * this.graph.border) > this.getAvailableSize().width ||
 			bounds.height + 2 * this.graph.border > maxHeight))
 		{
 			var maxScale = null;
@@ -1360,7 +1434,7 @@ GraphViewer.prototype.addSizeHandler = function()
 		}
 		else if (!this.widthIsEmpty && origin == null && !(this.graphConfig.resize != false || container.style.height == ''))
 		{
-			this.graph.center((!this.widthIsEmpty || bounds.width < this.minWidth) && this.graphConfig.resize != true);
+			this.centerGraph((!this.widthIsEmpty || bounds.width < this.minWidth) && this.graphConfig.resize != true, true);
 		}
 		else
 		{
@@ -1372,6 +1446,14 @@ GraphViewer.prototype.addSizeHandler = function()
 		}
 		
 		container.style.minWidth = prev
+
+		// Stores the width after restoring the minimum width so that the
+		// resize listener does not fit the diagram again (2 px narrower and
+		// without the maximum height)
+		if (this.widthIsEmpty && lastOffsetWidth != null)
+		{
+			lastOffsetWidth = container.offsetWidth;
+		}
 	});
 
 	if (document.documentMode == 8)
@@ -1408,6 +1490,121 @@ GraphViewer.prototype.crop = function()
 };
 
 /**
+ * Resizes the container of viewers that resize it (graph.resizeContainer)
+ * so that the border is on the right and bottom of the diagram once, as on
+ * the left and top. mxGraph.sizeDidChange adds the border on both sides to
+ * the size from the origin, but the translate already puts the diagram at
+ * the border, so there was twice the border on the right and bottom. The
+ * size includes the CSS border and padding of a container with box-sizing
+ * border-box, and the SVG root gets the size without them as its minimum
+ * size, which is the area that scrollbars show. Sizes with a border of 0
+ * are unchanged.
+ */
+GraphViewer.prototype.installContainerSize = function()
+{
+	var graphSizeDidChange = this.graph.sizeDidChange;
+	var depth = 0;
+
+	this.graph.sizeDidChange = function()
+	{
+		var border = Number(this.getBorder()) || 0;
+
+		// Nested calls from listeners of the size event during the call
+		// below see resizeContainer false but also resize the container.
+		// A border of 0 is not added twice, so the size stays the same.
+		if ((this.resizeContainer || depth > 0) && border > 0 && !this.pageVisible &&
+			!this.preferPageSize && this.minimumGraphSize == null)
+		{
+			var bounds = this.getGraphBounds();
+			var bs = (mxUtils.getCurrentStyle(this.container).boxSizing == 'border-box') ?
+				this.getBorderSizes() : new mxRectangle();
+			var min = this.minimumContainerSize || new mxRectangle();
+			var width = Math.max(0, bounds.x) + bounds.width + border;
+			var height = Math.max(0, bounds.y) + bounds.height + border;
+
+			this.doResizeContainer(Math.max(min.width, width + bs.x + bs.width),
+				Math.max(min.height, height + bs.y + bs.height));
+			this.resizeContainer = false;
+			depth++;
+
+			try
+			{
+				graphSizeDidChange.apply(this, arguments);
+			}
+			finally
+			{
+				depth--;
+
+				if (depth == 0)
+				{
+					this.resizeContainer = true;
+				}
+			}
+
+			// Uses the bounds after the call, which may have changed in
+			// listeners of the size event
+			var root = this.view.getDrawPane().ownerSVGElement;
+			bounds = this.getGraphBounds();
+
+			if (root != null)
+			{
+				root.style.minWidth = Math.max(1, Math.ceil(Math.max(min.width - bs.x - bs.width,
+					Math.max(0, bounds.x) + bounds.width + border))) + 'px';
+				root.style.minHeight = Math.max(1, Math.ceil(Math.max(min.height - bs.y - bs.height,
+					Math.max(0, bounds.y) + bounds.height + border))) + 'px';
+			}
+		}
+		else
+		{
+			graphSizeDidChange.apply(this, arguments);
+		}
+	};
+};
+
+/**
+ * Centers the graph in the client area of the container. This is used
+ * instead of mxGraph.center, which subtracts the border on both sides from
+ * the free space but does not add it on the left and top, which moves the
+ * diagram by the border to the left and top. A diagram that does not fit
+ * in a direction is placed at the border instead of being clipped on both
+ * sides.
+ */
+GraphViewer.prototype.centerGraph = function(horizontal, vertical)
+{
+	var graph = this.graph;
+	var container = graph.container;
+	var bounds = graph.getGraphBounds();
+	var t = graph.view.translate;
+	var s = graph.view.scale;
+	var border = graph.border;
+	var x = (bounds.width <= container.clientWidth) ?
+		(container.clientWidth - bounds.width) / 2 : border;
+	var y = (bounds.height <= container.clientHeight) ?
+		(container.clientHeight - bounds.height) / 2 : border;
+
+	graph.view.setTranslate((horizontal) ? Math.floor(t.x + (x - bounds.x) / s) : t.x,
+		(vertical) ? Math.floor(t.y + (y - bounds.y) / s) : t.y);
+};
+
+/**
+ * Returns the size of the container in whole pixels without its CSS border
+ * (eg. the transparent border of embeds) and scrollbars, which is the space
+ * for the diagram and its border without scrollbars.
+ */
+GraphViewer.prototype.getAvailableSize = function()
+{
+	var container = this.graph.container;
+	var css = mxUtils.getCurrentStyle(container);
+
+	return new mxRectangle(0, 0, container.offsetWidth -
+		mxUtils.parseCssNumber(css.borderLeftWidth) -
+		mxUtils.parseCssNumber(css.borderRightWidth),
+		container.offsetHeight -
+		mxUtils.parseCssNumber(css.borderTopWidth) -
+		mxUtils.parseCssNumber(css.borderBottomWidth));
+};
+
+/**
  * 
  */
 GraphViewer.prototype.updateContainerWidth = function(container, width)
@@ -1423,7 +1620,21 @@ GraphViewer.prototype.updateContainerHeight = function(container, height)
 	if (this.forceCenter || this.zoomEnabled || !this.autoFit || document.compatMode == 'BackCompat' ||
 		document.documentMode == 8)
 	{
+		if (this.borderBoxHeight)
+		{
+			var css = mxUtils.getCurrentStyle(container);
+
+			if (css != null && css.boxSizing == 'border-box')
+			{
+				height += mxUtils.parseCssNumber(css.borderTopWidth) +
+					mxUtils.parseCssNumber(css.borderBottomWidth) +
+					mxUtils.parseCssNumber(css.paddingTop) +
+					mxUtils.parseCssNumber(css.paddingBottom);
+			}
+		}
+
 		container.style.height = height + 'px';
+		this.containerHeight = container.style.height;
 	}
 };
 
@@ -2765,18 +2976,452 @@ GraphViewer.createViewerForElement = function(element, callback)
 			}
 		};
 
-		if (config.url != null)
+		var load = function()
 		{
-			GraphViewer.getUrl(config.url, function(xml)
+			if (config.url != null)
 			{
-				createViewer(xml);
-			});
+				GraphViewer.getUrl(config.url, function(xml)
+				{
+					createViewer(xml);
+				});
+			}
+			else
+			{
+				createViewer(config.xml);
+			}
+		};
+
+		if (GraphViewer.isLazy(config))
+		{
+			GraphViewer.addLazyViewer(element, config, load);
 		}
 		else
 		{
-			createViewer(config.xml);
+			load();
 		}
 	}
+};
+
+/**
+ * Default of the lazy option of createViewerForElement (data-mxgraph). If
+ * true, the viewer of an element is created when the element comes near the
+ * visible area (see lazyMargin) or before printing, and the approximate
+ * size of the diagram is reserved until then. Default is false.
+ */
+GraphViewer.lazy = false;
+
+/**
+ * Margin around the visible area in which lazy viewers are created, as the
+ * rootMargin of an IntersectionObserver. Default is one viewport height
+ * above and below the visible area.
+ */
+GraphViewer.lazyMargin = '100% 0px';
+
+/**
+ * Lazy viewers that are not created yet, as objects with the element and
+ * the function that creates the viewer.
+ */
+GraphViewer.lazyViewers = [];
+
+/**
+ * IntersectionObserver of the lazy viewers.
+ */
+GraphViewer.lazyObserver = null;
+
+/**
+ * Returns true if the viewer for the given data-mxgraph config is created
+ * lazily (the lazy option or GraphViewer.lazy). This needs
+ * IntersectionObserver.
+ */
+GraphViewer.isLazy = function(config)
+{
+	var lazy = GraphViewer.lazy == true;
+
+	if (config != null && typeof config === 'object' &&
+		Object.prototype.hasOwnProperty.call(config, 'lazy') &&
+		typeof config.lazy === 'boolean')
+	{
+		lazy = config.lazy;
+	}
+
+	return lazy && typeof window.IntersectionObserver === 'function';
+};
+
+/**
+ * Calls the given function, which creates the viewer of the given element,
+ * when the element comes near the visible area or before printing, and
+ * reserves the size of the diagram until then.
+ */
+GraphViewer.addLazyViewer = function(element, config, createViewer)
+{
+	var restore = GraphViewer.reserveSize(element, config);
+	var entry = {element: element};
+
+	entry.create = function()
+	{
+		var index = mxUtils.indexOf(GraphViewer.lazyViewers, entry);
+
+		if (index >= 0)
+		{
+			GraphViewer.lazyViewers.splice(index, 1);
+			GraphViewer.lazyObserver.unobserve(element);
+
+			if (restore != null)
+			{
+				restore();
+			}
+
+			try
+			{
+				createViewer();
+			}
+			catch (e)
+			{
+				// Same as processElements
+				element.innerText = e.message;
+
+				if (window.console != null)
+				{
+					console.error(e);
+				}
+			}
+		}
+	};
+
+	if (GraphViewer.lazyObserver == null)
+	{
+		GraphViewer.lazyObserver = new IntersectionObserver(function(entries)
+		{
+			for (var i = 0; i < entries.length; i++)
+			{
+				if (entries[i].isIntersecting)
+				{
+					GraphViewer.createLazyViewers(entries[i].target);
+				}
+			}
+		}, {rootMargin: GraphViewer.lazyMargin});
+
+		mxEvent.addListener(window, 'beforeprint', function()
+		{
+			GraphViewer.createLazyViewers();
+		});
+	}
+
+	GraphViewer.lazyViewers.push(entry);
+	GraphViewer.lazyObserver.observe(element);
+};
+
+/**
+ * Creates the lazy viewer of the given element now, or all lazy viewers
+ * that are not created yet if no element is given.
+ */
+GraphViewer.createLazyViewers = function(element)
+{
+	var entries = GraphViewer.lazyViewers.slice();
+
+	for (var i = 0; i < entries.length; i++)
+	{
+		if (element == null || entries[i].element == element)
+		{
+			entries[i].create();
+		}
+	}
+};
+
+/**
+ * Reserves the approximate size of the viewer for the given config in the
+ * given element if the element has no height. Returns the function that
+ * restores the style of the element or null.
+ */
+GraphViewer.reserveSize = function(element, config)
+{
+	var css = mxUtils.getCurrentStyle(element);
+
+	if (css != null && element.style.height == '' && element.clientHeight -
+		mxUtils.parseCssNumber(css.paddingTop) -
+		mxUtils.parseCssNumber(css.paddingBottom) <= 0)
+	{
+		var size = GraphViewer.getLazySize(config);
+
+		if (size != null)
+		{
+			var style = element.style;
+			var prev = {aspectRatio: style.aspectRatio, width: style.width,
+				marginTop: style.marginTop, marginBottom: style.marginBottom};
+			style.aspectRatio = size.width + ' / ' + size.height;
+
+			if (style.width == '')
+			{
+				style.width = 'min(100%, ' + size.width + 'px)';
+			}
+
+			if (size.marginTop > 0)
+			{
+				style.marginTop = size.marginTop + 'px';
+			}
+
+			if (size.marginBottom > 0)
+			{
+				style.marginBottom = size.marginBottom + 'px';
+			}
+
+			return function()
+			{
+				for (var key in prev)
+				{
+					style[key] = prev[key];
+				}
+			};
+		}
+	}
+
+	return null;
+};
+
+/**
+ * Returns the approximate size of the viewer for the given data-mxgraph
+ * config as an object with width, height, marginTop and marginBottom, or
+ * null if the config has no XML or the diagram is empty. The size of the
+ * diagram is the union of the geometries of the visible cells of the page,
+ * without labels outside of the shapes and strokes.
+ */
+GraphViewer.getLazySize = function(config)
+{
+	try
+	{
+		if (config != null && typeof config === 'object' && typeof config.xml === 'string')
+		{
+			var node = Editor.extractGraphModel(mxUtils.parseXml(config.xml).documentElement, true);
+
+			if (node != null && node.nodeName == 'mxfile')
+			{
+				var diagrams = node.getElementsByTagName('diagram');
+				var index = parseInt(config.page) || 0;
+
+				if (typeof config.pageId === 'string')
+				{
+					for (var i = 0; i < diagrams.length; i++)
+					{
+						if (diagrams[i].getAttribute('id') == config.pageId)
+						{
+							index = i;
+							break;
+						}
+					}
+				}
+
+				node = (index >= 0 && index < diagrams.length) ?
+					Editor.parseDiagramNode(diagrams[index]) : null;
+			}
+
+			var bounds = (node != null && node.nodeName == 'mxGraphModel') ?
+				GraphViewer.getModelNodeBounds(node) : null;
+
+			if (bounds != null)
+			{
+				var zoom = parseFloat(config.zoom);
+				zoom = (isFinite(zoom) && zoom > 0) ? zoom : 1;
+				var border = parseFloat(config.border);
+				border = (isFinite(border) && border >= 0) ? Math.max(1, border) : 8;
+				var width = Math.ceil(bounds.width * zoom + 2 * border);
+				var height = Math.ceil(bounds.height * zoom + 2 * border);
+				var tb = (config.toolbar != null) ? GraphViewer.prototype.toolbarHeight : 0;
+				var pos = config['toolbar-position'];
+
+				if (width > 0 && height > 0 && width < 1e5 && height < 1e5)
+				{
+					return {width: width, height: height,
+						marginTop: (pos != 'bottom' && pos != 'inline') ? tb : 0,
+						marginBottom: (pos == 'bottom') ? tb : 0};
+				}
+			}
+		}
+	}
+	catch (e)
+	{
+		// ignore
+	}
+
+	return null;
+};
+
+/**
+ * Returns the bounds of the geometries of the visible vertices and the
+ * points of the visible edges in the given mxGraphModel node, or null.
+ * Visits each cell once.
+ */
+GraphViewer.getModelNodeBounds = function(node)
+{
+	var cells = node.getElementsByTagName('mxCell');
+	var byId = Object.create(null);
+	var entries = [];
+
+	var num = function(elt, name)
+	{
+		var value = parseFloat(elt.getAttribute(name));
+
+		return (isFinite(value)) ? value : 0;
+	};
+
+	for (var i = 0; i < cells.length; i++)
+	{
+		var cell = cells[i];
+		var id = cell.getAttribute('id');
+
+		// Cells with properties are wrapped in an element with the ID
+		if (id == null && cell.parentNode != null &&
+			cell.parentNode.nodeType == mxConstants.NODETYPE_ELEMENT)
+		{
+			id = cell.parentNode.getAttribute('id');
+		}
+
+		var geo = null;
+
+		for (var child = cell.firstChild; child != null; child = child.nextSibling)
+		{
+			if (child.nodeName == 'mxGeometry')
+			{
+				geo = child;
+				break;
+			}
+		}
+
+		var entry = {parent: cell.getAttribute('parent'), geo: geo, style: cell.getAttribute('style'),
+			vertex: cell.getAttribute('vertex') == '1', edge: cell.getAttribute('edge') == '1',
+			source: cell.getAttribute('source'), target: cell.getAttribute('target'),
+			invisible: cell.getAttribute('visible') == '0',
+			collapsed: cell.getAttribute('collapsed') == '1',
+			relative: geo != null && geo.getAttribute('relative') == '1'};
+		entries.push(entry);
+
+		if (id != null)
+		{
+			byId[id] = entry;
+		}
+	}
+
+	// Origin of the children of the given entry, null if they are not shown.
+	// The origins are cached in the entries and parents in a cycle are not
+	// shown.
+	var getOrigin = function(entry)
+	{
+		var chain = [];
+
+		while (entry != null && entry.origin === undefined)
+		{
+			if (entry.visiting)
+			{
+				for (var i = 0; i < chain.length; i++)
+				{
+					chain[i].origin = null;
+				}
+
+				return null;
+			}
+
+			entry.visiting = true;
+			chain.push(entry);
+			entry = (entry.parent != null) ? byId[entry.parent] : null;
+		}
+
+		var origin = (entry != null) ? entry.origin : {x: 0, y: 0};
+
+		for (var i = chain.length - 1; i >= 0; i--)
+		{
+			var e = chain[i];
+
+			if (origin != null)
+			{
+				if (e.vertex)
+				{
+					origin = (e.invisible || e.collapsed || e.geo == null || e.relative) ? null :
+						{x: origin.x + num(e.geo, 'x'), y: origin.y + num(e.geo, 'y')};
+				}
+				else if (e.edge || e.invisible)
+				{
+					origin = null;
+				}
+			}
+
+			e.origin = origin;
+		}
+
+		return origin;
+	};
+
+	var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+
+	var add = function(x, y)
+	{
+		x0 = Math.min(x0, x);
+		y0 = Math.min(y0, y);
+		x1 = Math.max(x1, x);
+		y1 = Math.max(y1, y);
+	};
+
+	for (var i = 0; i < entries.length; i++)
+	{
+		var entry = entries[i];
+		var geo = entry.geo;
+
+		if (geo != null && entry.parent != null && !entry.invisible &&
+			((entry.vertex && !entry.relative) || entry.edge))
+		{
+			var o = getOrigin(byId[entry.parent]);
+
+			if (o != null && entry.vertex)
+			{
+				var x = num(geo, 'x') + o.x;
+				var y = num(geo, 'y') + o.y;
+				var w = num(geo, 'width');
+				var h = num(geo, 'height');
+				var rot = /(?:^|;)\s*rotation\s*=\s*([^;]*)/.exec(entry.style || '');
+				var alpha = (rot != null) ? parseFloat(rot[1]) * Math.PI / 180 : 0;
+
+				// Bounding box of a rotated shape
+				if (isFinite(alpha) && alpha != 0)
+				{
+					var cos = Math.abs(Math.cos(alpha)), sin = Math.abs(Math.sin(alpha));
+					var rw = w * cos + h * sin, rh = w * sin + h * cos;
+					x += (w - rw) / 2;
+					y += (h - rh) / 2;
+					w = rw;
+					h = rh;
+				}
+
+				add(x, y);
+				add(x + w, y + h);
+			}
+			else if (o != null)
+			{
+				for (var child = geo.firstChild; child != null; child = child.nextSibling)
+				{
+					if (child.nodeType == mxConstants.NODETYPE_ELEMENT)
+					{
+						var as = child.getAttribute('as');
+
+						if (child.nodeName == 'mxPoint' && ((as == 'sourcePoint' && entry.source == null) ||
+							(as == 'targetPoint' && entry.target == null)))
+						{
+							add(num(child, 'x') + o.x, num(child, 'y') + o.y);
+						}
+						else if (child.nodeName == 'Array' && as == 'points')
+						{
+							for (var pt = child.firstChild; pt != null; pt = pt.nextSibling)
+							{
+								if (pt.nodeName == 'mxPoint')
+								{
+									add(num(pt, 'x') + o.x, num(pt, 'y') + o.y);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return (x0 <= x1 && y0 <= y1) ? new mxRectangle(x0, y0, x1 - x0, y1 - y0) : null;
 };
 
 /**

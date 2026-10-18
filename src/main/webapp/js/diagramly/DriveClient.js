@@ -68,15 +68,33 @@ mxUtils.extend(DriveClient, DrawioClient);
 
 DriveClient.prototype.redirectUri = window.DRAWIO_SERVER_URL + 'google';
 DriveClient.prototype.licenseUrl = '/ws/license';
+
+/**
+ * Endpoint of the ws worker that answers the settings of the user's
+ * organization (getOrgSettings).
+ */
+DriveClient.prototype.orgSettingsUrl = '/ws/settings';
 DriveClient.prototype.GDriveBaseUrl = 'https://www.googleapis.com/drive/v2';
 DriveClient.prototype.GDriveV3BaseUrl = 'https://www.googleapis.com/drive/v3';
 
 /**
- * OAuth 2.0 scopes for installing Drive Apps.
+ * OAuth 2.0 scopes for installing Drive Apps. With userinfo.email, Google
+ * puts the verified email address into the ID token, whose domain the licence
+ * endpoint counts users under (App.reportDriveUse). drive.appdata is draw.io's
+ * hidden folder in the user's Drive, where the usage marker remembers that
+ * the user was counted this month (getUsageMarker). Sign-ins from before
+ * these scopes don't have them until the user grants them.
  */
 DriveClient.prototype.scopes = ['https://www.googleapis.com/auth/drive.file',
 								'https://www.googleapis.com/auth/drive.install',
-								'https://www.googleapis.com/auth/userinfo.profile'];
+								'https://www.googleapis.com/auth/userinfo.profile',
+								'https://www.googleapis.com/auth/userinfo.email',
+								'https://www.googleapis.com/auth/drive.appdata'];
+
+/**
+ * Name of the usage marker in the user's app data folder (getUsageMarker).
+ */
+DriveClient.prototype.usageMarkerName = 'drawio-usage';
 
 /**
  * Contains the hostname of the old app.
@@ -170,16 +188,6 @@ DriveClient.prototype.mimeTypeCheckCoolOff = 60000;
  */
 DriveClient.prototype.user = null;
 
-/**
- * Executes auth in same window (no popups)
- */
-DriveClient.prototype.sameWinAuthMode = false;
-
-/**
- * Redirect URL of samw window mode that will get the token
- */
-DriveClient.prototype.sameWinRedirectUrl = null;
-
 
 /**
  * Authorizes the client, gets the userId and calls <open>.
@@ -259,6 +267,19 @@ DriveClient.prototype.logout = function()
 	_idToken = null;
 	// Drops the Home screen listings (file names) of the account
 	this.ui.homeCache = null;
+
+	// The next user of this browser must not get this account's org settings
+	if (typeof OrgSettings !== 'undefined' && isLocalStorage)
+	{
+		try
+		{
+			localStorage.removeItem(OrgSettings.cacheKey);
+		}
+		catch (e)
+		{
+			// ignore
+		}
+	}
 };
 
 /**
@@ -654,12 +675,23 @@ DriveClient.prototype.updateAuthInfo = function (newAuthInfo, remember, forceUse
 };
 
 /**
- * Posts {edit: edit} to the licence endpoint of the ws worker with the
- * Google ID token of the current user and passes the parsed answer to
- * success. The ID token proves who the user is but can't read their Drive.
- * Returns false without a request if Google sent no ID token.
+ * Returns true if Google sent an ID token for the current user, which the
+ * ws worker's endpoints need (checkLicense, getOrgSettings).
  */
-DriveClient.prototype.checkLicense = function(edit, success, error)
+DriveClient.prototype.hasIdToken = function()
+{
+	return _idToken != null;
+};
+
+/**
+ * Posts {view: true} and/or {edit: true} (as set in usage), else {}, to the
+ * licence endpoint of the ws worker with the Google ID token of the current
+ * user, which adds the user to the viewers and/or editors of their domain
+ * this month, and passes the parsed answer to success. The ID token proves
+ * who the user is but can't read their Drive. Returns false without a
+ * request if Google sent no ID token.
+ */
+DriveClient.prototype.checkLicense = function(usage, success, error)
 {
 	if (_idToken == null)
 	{
@@ -667,7 +699,19 @@ DriveClient.prototype.checkLicense = function(edit, success, error)
 	}
 
 	var idToken = _idToken;
-	var req = new mxXmlRequest(this.licenseUrl, JSON.stringify({edit: edit}), 'POST');
+	var body = {};
+
+	if (usage != null && usage.view === true)
+	{
+		body.view = true;
+	}
+
+	if (usage != null && usage.edit === true)
+	{
+		body.edit = true;
+	}
+
+	var req = new mxXmlRequest(this.licenseUrl, JSON.stringify(body), 'POST');
 
 	req.setRequestHeaders = function(request, params)
 	{
@@ -694,6 +738,191 @@ DriveClient.prototype.checkLicense = function(edit, success, error)
 		if (lic != null)
 		{
 			success(lic);
+		}
+		else if (error != null)
+		{
+			error({status: req.getStatus()});
+		}
+	}, error);
+
+	return true;
+};
+
+/**
+ * Sends a request to the Drive API v3 with the current access token, without
+ * the sign-in, retries and error dialogs of executeRequest: for background
+ * requests that must never interrupt the user. Passes the parsed answer to
+ * success, else {status} to error.
+ */
+DriveClient.prototype.quietRequest = function(method, path, body, success, error)
+{
+	if (_token == null)
+	{
+		error({status: 401});
+
+		return;
+	}
+
+	var token = _token;
+	var req = new mxXmlRequest(this.GDriveV3BaseUrl + path, (body != null) ?
+		JSON.stringify(body) : null, method);
+
+	req.setRequestHeaders = function(request, params)
+	{
+		if (body != null)
+		{
+			request.setRequestHeader('Content-Type', 'application/json');
+		}
+
+		request.setRequestHeader('Authorization', 'Bearer ' + token);
+	};
+
+	req.send(function(req)
+	{
+		var resp = null;
+
+		if (req.getStatus() >= 200 && req.getStatus() <= 299)
+		{
+			try
+			{
+				resp = JSON.parse(req.getText());
+			}
+			catch (e)
+			{
+				// Handled below
+			}
+		}
+
+		if (resp != null)
+		{
+			success(resp);
+		}
+		else
+		{
+			error({status: req.getStatus()});
+		}
+	}, function()
+	{
+		error({status: 0});
+	});
+};
+
+/**
+ * Reads the usage marker: a file in draw.io's hidden app data folder of the
+ * user's Drive (drive.appdata) whose appProperties hold the last month
+ * (YYYY-MM) the licence endpoint counted the user as a viewer (view) and as
+ * an editor (edit). It lets the endpoint count users per domain without
+ * storing anything about them: the user's own Drive remembers that they
+ * were counted, on every device. Passes {id, view, edit} to success (id is
+ * null without a marker, view and edit are null if never counted), or
+ * {status} to error, eg. 403 without the drive.appdata scope.
+ */
+DriveClient.prototype.getUsageMarker = function(success, error)
+{
+	var month = /^\d{4}-\d{2}$/;
+	var keys = ['view', 'edit'];
+
+	this.quietRequest('GET', '/files?spaces=appDataFolder&pageSize=10&q=' +
+		encodeURIComponent('name = \'' + this.usageMarkerName + '\' and trashed = false') +
+		'&fields=' + encodeURIComponent('files(id,appProperties)'), null, function(resp)
+	{
+		var marker = {id: null, view: null, edit: null};
+		var files = (Array.isArray(resp.files)) ? resp.files : [];
+
+		// Two devices can create a marker at the same time: merges them
+		for (var i = 0; i < files.length; i++)
+		{
+			var props = (files[i] != null) ? files[i].appProperties : null;
+
+			if (files[i] != null && DriveClient.isFileId(files[i].id) && marker.id == null)
+			{
+				marker.id = files[i].id;
+			}
+
+			for (var j = 0; j < keys.length && props != null; j++)
+			{
+				var value = props[keys[j]];
+
+				if (typeof value === 'string' && month.test(value) &&
+					(marker[keys[j]] == null || value > marker[keys[j]]))
+				{
+					marker[keys[j]] = value;
+				}
+			}
+		}
+
+		success(marker);
+	}, error);
+};
+
+/**
+ * Writes the view and edit months of the usage marker (getUsageMarker),
+ * creating it if marker.id is null. Passes the marker with its id to
+ * success.
+ */
+DriveClient.prototype.setUsageMarker = function(marker, success, error)
+{
+	var props = {view: marker.view, edit: marker.edit};
+	var done = function(resp)
+	{
+		success({id: (DriveClient.isFileId(resp.id)) ? resp.id : marker.id,
+			view: marker.view, edit: marker.edit});
+	};
+
+	if (DriveClient.isFileId(marker.id))
+	{
+		this.quietRequest('PATCH', '/files/' + marker.id + '?fields=id',
+			{appProperties: props}, done, error);
+	}
+	else
+	{
+		this.quietRequest('POST', '/files?fields=id', {name: this.usageMarkerName,
+			parents: ['appDataFolder'], mimeType: 'application/json',
+			appProperties: props}, done, error);
+	}
+};
+
+/**
+ * Gets the settings an organization sets for its users (admin.html) from the
+ * ws worker with the Google ID token of the current user, which picks the
+ * organization by the user's domain, and passes {settings, rev} to success
+ * (rev is 0 without settings). Returns false without a request if Google
+ * sent no ID token.
+ */
+DriveClient.prototype.getOrgSettings = function(success, error)
+{
+	if (_idToken == null)
+	{
+		return false;
+	}
+
+	var idToken = _idToken;
+	var req = new mxXmlRequest(this.orgSettingsUrl, null, 'GET');
+
+	req.setRequestHeaders = function(request, params)
+	{
+		request.setRequestHeader('Authorization', 'Bearer ' + idToken);
+	};
+
+	req.send(function(req)
+	{
+		var result = null;
+
+		if (req.getStatus() >= 200 && req.getStatus() <= 299)
+		{
+			try
+			{
+				result = JSON.parse(req.getText());
+			}
+			catch (e)
+			{
+				// Handled below
+			}
+		}
+
+		if (result != null && typeof result === 'object' && typeof result.rev === 'number')
+		{
+			success(result);
 		}
 		else if (error != null)
 		{
@@ -798,14 +1027,9 @@ DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error
 						(remember? '&access_type=offline&prompt=consent%20select_account' : '') + //Ask for consent again to get a new refresh token
 						'&scope=' + encodeURIComponent(this.scopes.join(' ')) +
 						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.host + '&token=' + state + //To identify which app/domain is used
-						'&relay=1' + this.getRedirectPathState() + (this.sameWinRedirectUrl? '&redirect=' + this.sameWinRedirectUrl : ''));
+						'&relay=1' + this.getRedirectPathState());
 				
-				if (this.sameWinAuthMode)
-				{
-					window.location.assign(url);
-					popup = null; //Same window doesn't use onGoogleDriveCallback or popups
-				}
-				else if (popup == null)
+				if (popup == null)
 				{
 					popup = this.createAuthWin(url);
 				}
@@ -1233,6 +1457,117 @@ DriveClient.prototype.createMyDriveView = function()
 };
 
 /**
+ * Returns the My Drive, Google Drive and shared drives views of the Picker
+ * for the given MIME types (all files if mimeTypes is null). Folders can be
+ * picked if selectFolder is true.
+ */
+DriveClient.prototype.createPickerViews = function(mimeTypes, selectFolder)
+{
+	var views = [this.createMyDriveView(),
+		new google.picker.DocsView()
+			.setIncludeFolders(true),
+		new google.picker.DocsView()
+			.setEnableDrives(true)
+			.setIncludeFolders(true)];
+
+	for (var i = 0; i < views.length; i++)
+	{
+		if (mimeTypes != null)
+		{
+			views[i].setMimeTypes(mimeTypes);
+		}
+
+		if (selectFolder)
+		{
+			views[i].setSelectFolderEnabled(true);
+		}
+	}
+
+	return views;
+};
+
+/**
+ * Returns a Picker builder with the given views, the token, the locale and
+ * the app ID of this client, shared drives and the size and origin of the
+ * Picker from the URL.
+ */
+DriveClient.prototype.createPickerBuilder = function(views)
+{
+	var builder = new google.picker.PickerBuilder()
+		.setOAuthToken(_token)
+		.setLocale(mxLanguage)
+		.setAppId(this.appId)
+		.enableFeature(google.picker.Feature.SUPPORT_DRIVES);
+
+	for (var i = 0; i < views.length; i++)
+	{
+		builder.addView(views[i]);
+	}
+
+	if (urlParams['gPickerSize'])
+	{
+		var size = urlParams['gPickerSize'].split(',');
+		builder.setSize(size[0], size[1]);
+	}
+
+	if (urlParams['topBaseUrl'])
+	{
+		builder.setOrigin(decodeURIComponent(urlParams['topBaseUrl']));
+	}
+
+	return builder;
+};
+
+/**
+ * Shows the Picker with the given name and passes its events to fn. The
+ * Picker is built from the builder that createBuilder returns and reused as
+ * long as the token does not change. A click on the background closes the
+ * Picker and calls cancelFn, as a workaround for states such as a 401 where
+ * the Picker cannot be closed and blocks the page.
+ */
+DriveClient.prototype.showPicker = function(name, createBuilder, fn, cancelFn)
+{
+	var exit = function(evt)
+	{
+		// Workaround for click from appIcon on second call
+		if (mxEvent.getSource(evt).className == 'picker modal-dialog-bg picker-dialog-bg')
+		{
+			mxEvent.removeListener(document, 'click', exit);
+			pickers[name].setVisible(false);
+
+			if (cancelFn != null)
+			{
+				cancelFn();
+			}
+		}
+	};
+
+	// A reused Picker calls the handler of the last call
+	pickers[name + 'Handler'] = function(data)
+	{
+		if (data.action == google.picker.Action.PICKED ||
+			data.action == google.picker.Action.CANCEL)
+		{
+			mxEvent.removeListener(document, 'click', exit);
+		}
+
+		fn(data);
+	};
+
+	if (pickers[name] == null || pickers[name + 'Token'] != _token)
+	{
+		pickers[name + 'Token'] = _token;
+		pickers[name] = createBuilder().setCallback(function(data)
+		{
+			pickers[name + 'Handler'](data);
+		}).build();
+	}
+
+	mxEvent.addListener(document, 'click', exit);
+	pickers[name].setVisible(true);
+};
+
+/**
  * Shows the Google Picker for diagrams and passes the picked files to fn.
  * Every pick is granted to this app (setAppId), which is how drive.file
  * gets access to a file draw.io didn't create. options.fileIds limits the
@@ -1314,16 +1649,7 @@ DriveClient.prototype.pickDiagrams = function(options, fn, cancelFn)
 					views = views.concat((options.shared) ? [shared, mine, drives] : [mine, shared, drives]);
 				}
 
-				var builder = new google.picker.PickerBuilder()
-					.setOAuthToken(_token)
-					.setLocale(mxLanguage)
-					.setAppId(this.appId)
-					.enableFeature(google.picker.Feature.SUPPORT_DRIVES);
-
-				for (var i = 0; i < views.length; i++)
-				{
-					builder.addView(views[i]);
-				}
+				var builder = this.createPickerBuilder(views);
 
 				if (options.multiple)
 				{
@@ -1333,11 +1659,6 @@ DriveClient.prototype.pickDiagrams = function(options, fn, cancelFn)
 				if (typeof options.title === 'string')
 				{
 					builder.setTitle(options.title);
-				}
-
-				if (urlParams['topBaseUrl'])
-				{
-					builder.setOrigin(decodeURIComponent(urlParams['topBaseUrl']));
 				}
 
 				// The Picker can block the page, e.g. after a 401, so a click
@@ -2567,36 +2888,20 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
  */
 DriveClient.prototype.createLinkPicker = function()
 {
-	var name = 'linkPicker';
-	var picker = pickers[name];
-	
-	if (picker == null || pickers[name + 'Token'] != _token)
-	{
-		pickers[name + 'Token'] = _token;
-
-		var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
+	// Links need no file type filter, so My Drive is a folders view
+	return this.createPickerBuilder([
+		new google.picker.DocsView(google.picker.ViewId.FOLDERS)
 			.setParent('root')
 			.setIncludeFolders(true)
-			.setSelectFolderEnabled(true);
-		var view2 = new google.picker.DocsView()
+			.setSelectFolderEnabled(true),
+		new google.picker.DocsView()
 			.setIncludeFolders(true)
-			.setSelectFolderEnabled(true);
-		var view21 = new google.picker.DocsView()
+			.setSelectFolderEnabled(true),
+		new google.picker.DocsView()
 			.setIncludeFolders(true)
 			.setEnableDrives(true)
-			.setSelectFolderEnabled(true);
-		picker = new google.picker.PickerBuilder()
-			.setAppId(this.appId)	
-			.setLocale(mxLanguage)
-			.setOAuthToken(pickers[name + 'Token'])
-			.enableFeature(google.picker.Feature.SUPPORT_DRIVES)
-			.addView(view)
-			.addView(view2)
-			.addView(view21)
-			.addView(google.picker.ViewId.RECENTLY_PICKED);
-	}
-	
-	return picker;
+			.setSelectFolderEnabled(true),
+		google.picker.ViewId.RECENTLY_PICKED]);
 };
 
 /**
@@ -2606,19 +2911,11 @@ DriveClient.prototype.createLinkPicker = function()
  */
 DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
 {
-	this.filePickerCallback = (fn != null) ? fn : mxUtils.bind(this, function(id)
+	fn = (fn != null) ? fn : mxUtils.bind(this, function(id)
 	{
 		this.ui.loadFile('G' + id);
 	});
-	
-	this.filePicked = mxUtils.bind(this, function(data)
-	{
-		if (data.action == google.picker.Action.PICKED)
-		{
-    		this.filePickerCallback(data.docs[0].id, data.docs[0]);
-		}
-	});
-	
+
 	if (this.ui.spinner.spin(document.body, mxResources.get('authorizing')))
 	{
 		this.execute(mxUtils.bind(this, function()
@@ -2627,101 +2924,25 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
 			{
 				this.ui.spinner.stop();
 
-				// Reuses picker as long as token doesn't change.
-				var name = (acceptAllFiles) ? 'genericPicker' : 'filePicker';
-				
-				// Click on background closes dialog as workaround for blocking dialog
-				// states such as 401 where the dialog cannot be closed and blocks UI
-				var exit = mxUtils.bind(this, function(evt)
+				this.showPicker((acceptAllFiles) ? 'genericPicker' : 'filePicker', mxUtils.bind(this, function()
 				{
-					// Workaround for click from appIcon on second call
-					if (mxEvent.getSource(evt).className == 'picker modal-dialog-bg picker-dialog-bg')
-					{
-						mxEvent.removeListener(document, 'click', exit);
-						this[name].setVisible(false);
-						
-						if (cancelFn)
-						{
-							cancelFn();
-						}
-					}
-				});
-				
-				if (pickers[name] == null || pickers[name + 'Token'] != _token)
-				{
-					// FIXME: Dispose not working
-	//				if (pickers[name] != null)
-	//				{
-	//					console.log(name, pickers[name]);
-	//					pickers[name].dispose();
-	//				}
-					
-					pickers[name + 'Token'] = _token;
-	
-					var view = this.createMyDriveView();
-					
-					var view2 = new google.picker.DocsView()
-						.setIncludeFolders(true);
-					
-					var view3 = new google.picker.DocsView()
-						.setEnableDrives(true)
-						.setIncludeFolders(true);
-					
-					var view4 = new google.picker.DocsUploadView()
-						.setIncludeFolders(true);
-	
 					// No filter lists all files ('*/*' matches no files)
-					if (!acceptAllFiles)
-					{
-						view.setMimeTypes(this.mimeTypes);
-						view2.setMimeTypes(this.mimeTypes);
-						view3.setMimeTypes(this.mimeTypes);
-					}
-					
-					pickers[name] = new google.picker.PickerBuilder()
-				        .setOAuthToken(pickers[name + 'Token'])
-				        .setLocale(mxLanguage)
-				        .setAppId(this.appId)
-				        .enableFeature(google.picker.Feature.SUPPORT_DRIVES)
-				        .addView(view)
-				        .addView(view2)
-				        .addView(view3)
-				        .addView(google.picker.ViewId.RECENTLY_PICKED)
-				        .addView(view4);
-					
-					if (urlParams['gPickerSize'])
-					{
-						var cSize = urlParams['gPickerSize'].split(',');
-						pickers[name] = pickers[name].setSize(cSize[0], cSize[1]);
-					}
-					
-					if (urlParams['topBaseUrl'])
-				    {   
-						pickers[name] = pickers[name].setOrigin(decodeURIComponent(urlParams['topBaseUrl']));
-					} 
-				    
-					pickers[name] = pickers[name].setCallback(mxUtils.bind(this, function(data)
-				        {
-				        	if (data.action == google.picker.Action.PICKED ||
-				        		data.action == google.picker.Action.CANCEL)
-				        	{
-				        		mxEvent.removeListener(document, 'click', exit);
+					var views = this.createPickerViews((acceptAllFiles) ? null : this.mimeTypes);
+					views.push(google.picker.ViewId.RECENTLY_PICKED,
+						new google.picker.DocsUploadView().setIncludeFolders(true));
 
-								if (cancelFn && data.action == google.picker.Action.CANCEL)
-								{
-									cancelFn();
-								}
-				        	}
-			        	
-				        	if (data.action == google.picker.Action.PICKED)
-				    		{
-				        		this.filePicked(data);
-				    		}
-				        })).build();
-				}
-	
-				mxEvent.addListener(document, 'click', exit);
-				pickers[name].setVisible(true);
+					return this.createPickerBuilder(views);
+				}), function(data)
+				{
+					if (data.action == google.picker.Action.PICKED)
+					{
+						fn(data.docs[0].id, data.docs[0]);
+					}
+					else if (data.action == google.picker.Action.CANCEL && cancelFn != null)
+					{
+						cancelFn();
+					}
+				}, cancelFn);
 			}
 			catch (e)
 			{
@@ -2739,10 +2960,6 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
  */
 DriveClient.prototype.pickFolder = function(fn, force)
 {
-	this.folderPickerCallback = fn;
-
-	// Picker is initialized once and points to this function
-	// which is overridden each time to the picker is shown
 	var showPicker = mxUtils.bind(this, function()
 	{
 		try
@@ -2754,85 +2971,16 @@ DriveClient.prototype.pickFolder = function(fn, force)
 					try
 					{
 						this.ui.spinner.stop();
-		
-						// Reuses picker as long as token doesn't change.
-						var name = 'folderPicker';
-						
-						// Click on background closes dialog as workaround for blocking dialog
-						// states such as 401 where the dialog cannot be closed and blocks UI
-						var exit = mxUtils.bind(this, function(evt)
+
+						this.showPicker('folderPicker', mxUtils.bind(this, function()
 						{
-							// Workaround for click from appIcon on second call
-							if (mxEvent.getSource(evt).className == 'picker modal-dialog-bg picker-dialog-bg')
-							{
-								mxEvent.removeListener(document, 'click', exit);
-								pickers[name].setVisible(false);
-							}
-						});
-						
-						if (pickers[name] == null || pickers[name + 'Token'] != _token)
-						{
-							// FIXME: Dispose not working
-			//				if (pickers[name] != null)
-			//				{
-			//					console.log(name, pickers[name]);
-			//					pickers[name].dispose();
-			//				}
-							
-							pickers[name + 'Token'] = _token;
-			
-							var view = this.createMyDriveView()
-								.setSelectFolderEnabled(true)
-								.setMimeTypes('application/vnd.google-apps.folder');
-							
-							var view2 = new google.picker.DocsView()
-								.setIncludeFolders(true)
-								.setSelectFolderEnabled(true)
-								.setMimeTypes('application/vnd.google-apps.folder');
-							
-							var view3 = new google.picker.DocsView()
-								.setIncludeFolders(true)
-								.setEnableDrives(true)
-								.setSelectFolderEnabled(true)
-								.setMimeTypes('application/vnd.google-apps.folder');
-							
-							pickers[name] = new google.picker.PickerBuilder()
+							var views = this.createPickerViews('application/vnd.google-apps.folder', true);
+							views.push(google.picker.ViewId.RECENTLY_PICKED);
+
+							return this.createPickerBuilder(views)
 								.setSelectableMimeTypes('application/vnd.google-apps.folder')
-						        .setOAuthToken(pickers[name + 'Token'])
-						        .setLocale(mxLanguage)
-						        .setAppId(this.appId)
-							    .enableFeature(google.picker.Feature.SUPPORT_DRIVES)
-						        .addView(view)
-						        .addView(view2)
-						        .addView(view3)
-						        .addView(google.picker.ViewId.RECENTLY_PICKED)
-						        .setTitle(mxResources.get('pickFolder'));
-
-							if (urlParams['gPickerSize'])
-							{
-								var cSize = urlParams['gPickerSize'].split(',');
-								pickers[name] = pickers[name].setSize(cSize[0], cSize[1]);
-							}
-
-							if (urlParams['topBaseUrl'])
-						    {   
-								pickers[name] = pickers[name].setOrigin(decodeURIComponent(urlParams['topBaseUrl']));
-							} 
-
-					        pickers[name] = pickers[name].setCallback(mxUtils.bind(this, function(data)
-						        {
-						        	if (data.action == google.picker.Action.PICKED ||
-						        		data.action == google.picker.Action.CANCEL)
-						        	{
-						        		mxEvent.removeListener(document, 'click', exit);
-						        	}
-						        	
-					        		this.folderPickerCallback(data);
-						        })).build();
-						}
-			
-						mxEvent.addListener(document, 'click', exit);
-						pickers[name].setVisible(true);
+								.setTitle(mxResources.get('pickFolder'));
+						}), fn);
 					}
 					catch (e)
 					{
@@ -2864,7 +3012,7 @@ DriveClient.prototype.pickFolder = function(fn, force)
 				{
 					// Value of google.picker.Action.PICKED, the root folder
 					// needs no Picker and its API may not be loaded
-					this.folderPickerCallback({action: 'picked',
+					fn({action: 'picked',
 						docs: [{type: 'folder', id: 'root'}]});
 				}), mxUtils.bind(this, function()
 				{
@@ -2881,25 +3029,10 @@ DriveClient.prototype.pickFolder = function(fn, force)
 
 /**
  * Shows the Google Picker for selecting a library and passes the ID of the
- * picked file to fn. Shows the splash screen if the picker is cancelled and
- * no file is open.
+ * picked file to fn.
  */
 DriveClient.prototype.pickLibrary = function(fn)
 {
-	this.filePickerCallback = fn;
-	
-	this.filePicked = mxUtils.bind(this, function(data)
-	{
-		if (data.action == google.picker.Action.PICKED)
-		{
-    		this.filePickerCallback(data.docs[0].id);
-		}
-    	else if (data.action == google.picker.Action.CANCEL && this.ui.getCurrentFile() == null)
-		{
-    		this.ui.showSplash();
-		}
-	});
-	
 	if (this.ui.spinner.spin(document.body, mxResources.get('authorizing')))
 	{
 		this.execute(mxUtils.bind(this, function()
@@ -2907,86 +3040,22 @@ DriveClient.prototype.pickLibrary = function(fn)
 			try
 			{
 				this.ui.spinner.stop();
-				
-				// Click on background closes dialog as workaround for blocking dialog
-				// states such as 401 where the dialog cannot be closed and blocks UI
-				var exit = mxUtils.bind(this, function(evt)
+
+				this.showPicker('libraryPicker', mxUtils.bind(this, function()
 				{
-					// Workaround for click from appIcon on second call
-					if (mxEvent.getSource(evt).className == 'picker modal-dialog-bg picker-dialog-bg')
+					var views = this.createPickerViews(this.libraryMimeType +
+						',application/xml,text/xml,text/plain,application/octet-stream');
+					views.push(google.picker.ViewId.RECENTLY_PICKED,
+						new google.picker.DocsUploadView().setIncludeFolders(true));
+
+					return this.createPickerBuilder(views);
+				}), function(data)
+				{
+					if (data.action == google.picker.Action.PICKED)
 					{
-						mxEvent.removeListener(document, 'click', exit);
-						pickers.libraryPicker.setVisible(false);
+						fn(data.docs[0].id);
 					}
 				});
-				
-				// Reuses picker as long as token doesn't change
-				
-				if (pickers.libraryPicker == null || pickers.libraryPickerToken != _token)
-				{
-					// FIXME: Dispose not working
-	//				if (pickers[name] != null)
-	//				{
-	//					console.log(name, pickers[name]);
-	//					pickers[name].dispose();
-	//				}
-					
-					pickers.libraryPickerToken = _token;
-	
-					var view = this.createMyDriveView()
-						.setMimeTypes(this.libraryMimeType + ',application/xml,text/xml,text/plain,application/octet-stream');
-					
-					var view2 = new google.picker.DocsView()
-			        		.setIncludeFolders(true)
-						.setMimeTypes(this.libraryMimeType + ',application/xml,text/xml,text/plain,application/octet-stream');
-				
-					var view3 = new google.picker.DocsView()
-						.setEnableDrives(true)
-						.setIncludeFolders(true)
-						.setMimeTypes(this.libraryMimeType + ',application/xml,text/xml,text/plain,application/octet-stream');
-					
-					var view4 = new google.picker.DocsUploadView()
-						.setIncludeFolders(true);
-					
-				    pickers.libraryPicker = new google.picker.PickerBuilder()
-				        .setOAuthToken(pickers.libraryPickerToken)
-				        .setLocale(mxLanguage)
-				        .setAppId(this.appId)
-				        .enableFeature(google.picker.Feature.SUPPORT_DRIVES)
-				        .addView(view)
-				        .addView(view2)
-				        .addView(view3)
-				        .addView(google.picker.ViewId.RECENTLY_PICKED)
-				        .addView(view4);
-					
-					if (urlParams['gPickerSize'])
-					{
-						var cSize = urlParams['gPickerSize'].split(',');
-						pickers.libraryPicker = pickers.libraryPicker.setSize(cSize[0], cSize[1]);
-					}
-
-					if (urlParams['topBaseUrl'])
-				    {   
-						pickers.libraryPicker = pickers.libraryPicker.setOrigin(decodeURIComponent(urlParams['topBaseUrl']));
-					}
-					 
-				    pickers.libraryPicker = pickers.libraryPicker.setCallback(mxUtils.bind(this, function(data)
-				        {
-					        	if (data.action == google.picker.Action.PICKED ||
-					        		data.action == google.picker.Action.CANCEL)
-					        	{
-					        		mxEvent.removeListener(document, 'click', exit);
-					        	}
-					        	
-					        	if (data.action == google.picker.Action.PICKED)
-					    		{
-					        		this.filePicked(data);
-					    		}
-				        })).build();
-				}
-				
-				mxEvent.addListener(document, 'click', exit);
-				pickers.libraryPicker.setVisible(true);
 			}
 			catch (e)
 			{

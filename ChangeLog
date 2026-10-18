@@ -1,3 +1,429 @@
+17-OCT-2026: 32.5.5
+
+- Adds orgs from their first user, teams, named members and seats to ws
+- Makes the admin console's admins named, with teams, seats and merges
+- Documents ws orgs, teams and the member store, with a backup template
+- Shows people in the app the names of team admins, not their addresses
+- Names inviting and merging orgs by their domains, and people by address
+- Fixes what the security review of ws teams found
+- Cancels a removed admin's merges, and checks DNS merges' domain
+- Keeps the day members last used the teams, and shows inactive ones
+- Lets a failed last-used write fail nothing, and steadies its test
+- Stores people plain by their Google ID, and lets staff erase a person
+- Keeps people's IDs out of other orgs, and erases renamed accounts
+- Notes that education domains get teams, and the open COPPA question
+- Makes each team one domain's, so nobody sees another domain's people
+- Takes people out of other domains' teams when their account moves
+- Gives school domains no teams, and tells schools from universities
+- Keeps universities' subdomains and stuck checks right for schools
+- Reads a confirmed university's subdomains, and marks more listed schools
+- Keeps personal data of all schools' pupils under 18 out, not only under 13
+- Makes every ac. zone a school unless the list or the model says university
+- Marks the ws sign-ins live since release 32.5.4 in the ws guide
+- Puts ws teams behind a launch switch, with the Terms on member rows
+- Asks for the Terms of Use at the console's sign-in steps
+- Records David's teams decisions and the launch switch in the ws docs
+- Fixes stuck size hints if the vertex handler is replaced during a resize [jgraph/drawio#5725]
+- Adds systemColors, lightColor and lightColorVar configuration [jgraph/drawio#5807]
+- Uses system colors for the user interface with systemColors [jgraph/drawio#5807]
+
+16-OCT-2026: 32.5.4
+
+- Deploys the ws worker with every release
+- Removes the old Google Drive licence check and its logging
+- Stops logging the old licence check in license-worker
+- Notes the sign-ins schema on both ws databases
+- Sets up orgs in the ws plan from the hd claim, with DNS only for disputes
+- Makes education domains free and uncounted in ws
+- Adds a list of university domains to the ws education domains
+- Notes the education schema on both ws databases
+- Ends orthogonal ends beside rounded polygons on the rounded corner [jgraph/drawio#5447]
+- Adjusts embed domain filtering
+- Replaces the ws plan with orgs, teams and seats
+- Counts per day what the hd of a ws report says against its address
+- Notes the hd_counts schema on both ws databases
+- Removes Zoom with Mouse Wheel from the menus
+- Keeps Zoom with Mouse Wheel in the menus of the Atlassian products
+- Fixes "mxSettings is not defined" after the image export in the viewer lightbox [DID-20655]
+
+15-OCT-2026: 32.5.3
+
+- Adds a CLAUDE.md for the ws worker
+- Drops the deleted branch from the ws guide's open work
+- Counts Drive sign-ins on the app in a third ws usage sketch
+- Brings the ws guide up to date with the sign-ins and the 15 Oct deploys
+- Logs an org settings save only when it is stored
+- Adds the plan for self-serve orgs, buying and a limited mode to the ws guide
+- Updates stable to 32.5.2
+
+15-OCT-2026: 32.5.2
+
+- Blocks headless Chrome on the embed.diagrams.net editor page
+- Ignores a stored or requested mode for a removed storage [jgraph/drawio#5740]
+- Drops the Dropbox secret from the rotation inventory [jgraph/drawio#5740]
+- Ignores a requested mode for a removed storage in the create dialog [jgraph/drawio#5740]
+- Adds CSPs to the embed, export, Teams config and Lucid importer pages
+- Disables Orthogonal Ends for edges whose ends all have fixed connection points [jgraph/drawio#5447]
+- Ends orthogonal edges on the outline of clouds [jgraph/drawio#5447]
+- Closes the CSP gaps of the editor on preprod's extensionless and unknown paths
+- Inserts the initial text of the label editor as plain text
+- Keeps the drawio-mcp edge snippet's rule on the draw.io zone
+- Ends orthogonal edges vertically or horizontally on shapes turned by a quarter [jgraph/drawio#5447]
+- Hides Orthogonal Ends for isometric connectors [jgraph/drawio#5447]
+- Adds regression tests for the text of the typing shim in the label editor
+- Keeps the data, link and tooltip of cells in Replace and Replace All
+- Uses the admin console's actual Google client
+- Unblocks kopperfield.com on embed.diagrams.net
+- Adds the Confluence Cloud Gliffy migration keys for converter vs version pin warnings and shared macros
+- Keeps the placeholders of labels in Replace and Replace All
+- Unblocks ayoa.com on embed.diagrams.net
+- Uses the icon cache of draw.io for the images of five more templates
+- Uses the icon cache of draw.io for the DCS-7316 image of the Arista template
+- Skips the own-state ring for libraries in the desktop saveFile, so saving a library no longer fails with this.recordOwnState is not a function [jgraph/drawio-desktop#2581]
+- Bump actions/setup-node from 7.0.0 to 7.1.0
+- Bump actions/upload-artifact from 7.0.1 to 7.0.2
+- Counts Google Drive users on app.diagrams.net
+- Updates the vendored drawio-plantuml bundle to commit 8407289
+- Deletes Workspace usage counts 24 months after their month
+- Opens the admin console to every company domain
+- Counts Workspace usage in HyperLogLog sketches
+- Makes the auth workers' state cookie a __Host- cookie
+- Sends a cross-origin opener policy on the admin console
+- Declares the ws preprod environment's empty unsafe bindings
+- Applies the ws schema as a command, not through D1's import
+- Passes the ws schema with --command=, as it starts with a comment
+- Notes when Drive offers to delete the ws usage marker
+- Updates the vendored drawio-plantuml bundle to commit 5ce09a1
+- Sends and logs only the domain in the old Google Drive licence check
+- Revert "Sends a cross-origin opener policy on the admin console"
+- Records why the admin console has no opener policy
+- Hands the admin console's sign-in code back without window.opener
+- Sends the cross-origin opener policy on the admin console again
+- Added Conf Cloud translation key
+- Shows Direction and Flip in the Arrange tab like Align
+- Removes the bold font of the Advanced options in the Text tab
+- Ends outline connections on the rounded corners of polygons
+- Keeps orthogonal ends on clouds orthogonal where the line misses the bumps [jgraph/drawio#5447]
+- Updates the vendored drawio-plantuml bundle to commit 67b216b
+- Bends orthogonal edges onto clouds where a waypoint is level with the bounds but not the bumps [jgraph/drawio#5447]
+- Bends orthogonal edges onto rounded polygons where a waypoint is level with a rounded corner
+- Makes the cloud perimeter a style of its own (perimeter=cloudPerimeter) [jgraph/drawio#5447]
+- Ends orthogonal edges on the pointer of callouts
+- Wipes edges with line jumps in along their path
+
+13-OCT-2026: 32.5.1
+
+- Replaces the matches on all pages with Replace All and All Pages
+- Runs Copy as SVG with Ctrl+Alt+Shift+X when cells are selected
+- Binds Ctrl+Alt+C and Ctrl+Alt+V to Copy Text Style and Paste Text Style
+- Parses the drawing scale in linear time
+- Removes the se.diagrams.net mode and its Google client
+- Offers File > My Diagrams whenever the user is signed in to Google Drive
+- Binds Alt+Shift+K to Edit Connection Points
+- Binds Alt+Shift+Y to Synchronize
+- Sets the console's Google client up with its own secret in the runbook
+- Enables Clear Waypoints and Clear Anchors if any selected vertex has connections
+- Moves the gradient of the page background to the Background dialog
+- Checks the enabled state of actions run with Alt shortcuts
+- Types characters with AltGr instead of running Ctrl+Alt shortcuts
+- Adds Edit Connection Points and Synchronize to the keyboard shortcuts
+- Blocks headless Chrome on the embed.diagrams.net editor page
+- Refuses the editor's path variants on embed.diagrams.net to blocked embedders
+- Announces the GitLab end of support when a file is opened [jgraph/drawio#5773]
+- Adds the admin console's own Google client
+- Deploys every CSP from the repo, the stable channel's from its version
+- Removes the Dropbox storage client [jgraph/drawio#5740]
+- Describes the public repository as a test version of draw.io, with a paid production version for production deployments
+
+13-OCT-2026: 32.5.0
+
+- Uses the app's Material icons in the animation and action dialogs
+- Adds an optional layout container for CSV imports
+- Adds a drawing scale for measure placeholders
+- Adds save conflict scenarios for the monday.com and Nextcloud plugins
+- Handles save conflicts of the monday.com and Nextcloud plugins in one place
+- Adds tests for the conflict dialog choices of GitHub files
+- Keeps the commit message of GitHub saves after a conflict in GitHubFile
+- Adds save tests for web local files
+- Checks if web local files can be saved before writing them
+- Adds a gradient to the background color of pages
+- Removes the sign-in path of the auth worker for clients without the code relay
+- Skips the writes of converged circle layout containers
+- Validates the page background before writing it into CSS and HTML
+- Repaints collapsed tables after a change of their rows or cells
+- Writes only known themes into the color scheme of SVG exports
+- Places the titles of table cells and rows without a title region in the cell
+- Fixes the GraphML import of files with edges
+- Imports GraphML files with long values in linear time
+- Imports GraphML SVG nodes and templates with text outside of Latin-1
+- Applies the converters of GraphML template bindings without a space
+- Adds the server traffic to the failure of p2p-offline-rejoin
+- Removes the status bar texts of mxGraphView and mxSelectionChange
+- Allows horizontal text for the titles of table rows
+- Logs every change made by staff in the admin console
+- Limits the clearance of auto-routed connectors against crafted values
+- Sends the admin console on /stable/ and ac/aj to the latest version
+- Ignores cell colors that reference resources
+- Fixes the realtime test harness for sockets without a client
+- Adds lists to the CSV import
+- Starts and ends the writes of files in one place
+- Exchanges only Teams SSO tokens that a Microsoft 365 host requested
+- Keeps tokens out of caches in the auth worker
+- Keeps Teams tokens out of local storage and the browser history
+- Keeps existing files when a Teams tab creates a new diagram
+- Loads further pages in the OneDrive picker of the first Teams app
+- Logs the client of refused Teams tokens
+- Removes OneDrive from the allowed globals of the implicit globals check
+- Stores no personal data of customers' users in the ws worker
+- Counts Drive users once a month with a marker in their own Drive
+- Matches date placeholders in linear time
+- Limits the loops of the Lucidchart import
+- Ignores Lucidchart classes and arrows named like members of prototypes
+- Adds Lucidchart import tests
+- Limits the org chart fields and text style runs of the Lucidchart import
+- Adds passkey names, an audit log per org and true-up licensing
+- Moves the admin console to its own host, admin.diagrams.net
+- Removes the Google Gemini fallback from the generate/v3 worker
+- Blocks embed.diagrams.net for disallowed embedders with a bare 403
+- Centers the gear icon and the color button in the freehand window
+- Adds a polygon mode to the freehand window
+- Adds recursive resize preview with layouts
+- Uses the physical key for unbound keyboard shortcuts
+- Escapes the label in the autosize of curved text
+- Converges pages without a stored size on the format of the first save
+- Shows the modified date of a merged revision in the status
+- Ignores cells that a patch moves to the root
+- Adds tests for stale etags of Drive saves
+- Removes markup from the measuring element after measuring
+- Measures the labels of the Lucidchart import without loading their content
+- Limits the output of the Lucidchart import
+- Encodes the SVG paths of the Lucidchart import as UTF-8
+- Tests the measuring and the output limits of the Lucidchart import
+- Adds a test for page roots that take the id of a cell of the page
+- Uses the avatar of the app for Lucidchart org chart nodes without an image
+- Uses the icon cache of draw.io for the user icons of yEd
+- Rounds the pointer of callout perimeters in model units in model coordinates
+- Uses the icon cache of draw.io for the people of the CSV example
+- Rounds the snap points of snapToPoint edges in model units in model coordinates
+- Converts points to containers without computing styles
+- Centers graphs in containers with scrollbars at all zoom levels
+- Uses the icon cache of draw.io for the images of the mindmap template
+- Keeps the title of new Confluence Cloud diagrams on rename without a descriptor
+- Stops the panning thread of mxPanningManager when the graph is destroyed
+- Opens file ids with malformed escapes in the URL hash without throwing
+- Saves pages whose compressed data cannot be decompressed unchanged
+- Removes the settings storage listener when the UI is destroyed
+- Records the error log groups of the week of 2026-10-12
+- Update vendored drawio-mermaid to the mermaid 12.1 port
+- Reads absolute offsets of stencil connection points
+- Adds the labelBorderWidth style for the width of label borders
+- Converts the rich text of the Lucidchart import in linear time
+- Tests the rich text of the Lucidchart import
+- Sorts the Lucidchart import with consistent comparators
+- Gives duplicate org chart nodes of the Lucidchart import keys without the time
+- Tests that the Lucidchart import is deterministic
+- Rebuild vendored drawio-mermaid from the merge commit
+- Adds an optional box that scales and rotates multiple selected cells
+- Renames Use for New Connections from Source to Set Shape Connector Default
+- Renames Clear Style for New Connections to Clear Shape Connector Default
+- Draws responsive viewers with fractional bounds at exactly 1:1
+- Ends gestures that the browser or the system cancels
+- Points to the drawusaurus style guide for documenting config switches
+- Centers viewers in the container without moving them into the border
+- Sorts numbers with a consistent comparator
+- Tests the consistent comparator of numbers
+- Fits and shows scrollbars in viewers only if the diagram does not fit
+- Imports Lucidchart texts that are no strings
+- Measures the names of Lucidchart BPMN choreographies as text
+- Keeps the fit of auto-fit viewers without a container width
+- Finds wide edges where they are painted in getCellAt
+- Paints arcs with a zero radius as straight lines
+- Takes the file as the shadow when a merge has no changes
+- Puts the border on the right and bottom of resized viewers once
+- Shrinks fitted viewers to the fitted diagram if the viewer set the height
+- Centers responsive viewers with a container width horizontally again
+- Adds the Confluence Cloud keys for choosing where the Gliffy migration state is kept
+- Sends the Teams SSO token in the request body
+- Generates the Teams V2 file picker channel with crypto
+- Documents why the Teams bot worker accepts unauthenticated requests
+- Keeps twice the border of resized viewers in pages that scroll only horizontally
+- Gives each OAuth client of the auth worker its own secret
+- Extends and contracts parents to the bounding box of rotated children
+- Lets the Teams V2 file picker navigate the top window only after a click
+- Marks the connect-image redirect as accepted
+- Quotes the reason for keeping the connect-image redirect
+- Keeps a model unit of segments shortened by fixed point spacing in model coordinates
+- Tests if points of elbow edges are in a terminal in model units
+- Paints edges at their new location while their waypoints, ends or label are moved
+- Gives viewers with a border below 1 a border of 1
+- Leaves room for the page scrollbar in Confluence viewers that may exceed the page width
+- Adds an option to create viewers when they come near the visible area
+- Keeps the maximum width of responsive viewers that is not in px
+- Shows only https previews in the legacy Jira viewer
+- Loads Jira From URL diagrams through the proxy
+- Escapes the search text in the JQL of the Jira diagram search
+- Encodes the parameters of the Jira license check
+- Encodes ids in the REST paths of the Jira add-ons
+- Tests the Jira Cloud add-ons with crafted issue properties
+- Draws responsive viewers with a CSS border on their container at 1:1
+- Tests if the terminals of elbow edges touch in model units
+- Shows only the moved handle of an edge, at the preview, and no dashed preview with the live preview
+- Finds the common ancestor of cells without cell paths
+- Does not clone the overlays of cells
+- Hides the custom handles of an edge while another handle is moved
+- Leaves orthogonal edges from the outline of slanted shapes beside the waypoint
+- Opens #create links without asking to discard the new diagram
+- Rewrites the #create hash only while the created file is open
+- Derives the label again when a transient style step repaints it
+- Measures the shapeInside text flow only for HTML labels
+- Adds the Confluence Cloud Gliffy migration key for diagrams saved on the macro page
+
+11-OCT-2026: 32.4.5
+
+- Lets the connector toolbar move out of view with its edge when panning
+- Keeps the routing of straight edges in Set New Connection Default
+- Shows the Connect retirement banner in English if it has no translation
+- Counts Drive users by the domain of their verified email
+- Translates the Connect retirement and Gliffy migration keys
+- Notes how a blocked licence report could be caught later
+- Shows the Home screen to all Google Drive users
+- Adds an admin console for organizations, open to draw.io only
+- Renames Set New Connection Default to Use for New Connections from Source
+- Makes Paste Text Style override the formatting inside HTML labels
+- Adds a spacing for auto-routed connectors to the Style tab
+- Adds opacityGroup to apply the opacity to a shape as a whole
+- Ends connectors on the rounded corners of polygons with roundedPerimeter
+- Updates stable to 32.4.5
+- Adds Rounded Perimeter to the properties of the rounded polygon shapes
+- Renames Clear New Connection Default to Clear Style for New Connections
+- Copies the custom properties of shapes before adding the common properties
+
+11-OCT-2026: 32.4.4
+
+- Shows the own preview of each template after templates with an image were listed
+- Hides the Orthogonal property of edges whose routing implies orthogonal ends
+- Turns off the workers.dev addresses of auth-worker, generate-v3 and wellknown
+- Leaves headless Chrome out of the version dashboard counts
+- Ignores objects posted to the Confluence Cloud message listeners
+- Shows an error in the Confluence Cloud viewer if the viewer bundle is missing
+- Fetches the notifications again if their cache is invalid
+- Records the GAE error log pass of 10 October 2026
+- Removes the SQL plugin
+- Removes the WebCola layout plugin
+- Removes the animation plugin
+- Calls the export worker through a service binding
+- Updates stable to 32.4.3
+- Restores the page root with the model root on undo [jgraph/drawio-dev#841]
+- Records the fix of the page root groups [jgraph/drawio-dev#841]
+- Moves the line jumps into the Line section of the Style tab
+- Aligns the font of the arrow and line jump selectors in the Style tab
+- Removes the bold font of the Effects options in the Style tab
+- Renames the Spacing of the line start and end to Offset in the Style tab
+- Adds tooltips to the pattern, line start and line end menus in the Style tab
+- Applies the default shape style to symbols on connectors again
+- Updates the link, tooltip and note icons of cells in one function
+- Deprecates mxGraphModel.mergeChildren, mxUtils.getViewXml and mxGraphViewCodec
+- Builds the Google Drive pickers with one builder
+- Merges the Teams copy of the OneDrive picker into mxODPicker.js
+- Loads the OneDrive SDK only for the picker that is not inline
+- Keeps the data of the storages in one table
+- Shows None of the line start and end like the selects in the Style tab
+- Aligns the Opacity row with the sections in the Style tab
+- Uses the full width of the format panel again
+- Counts viewers as well as editors per Workspace domain and month
+- Sets the D1 databases of the ws worker
+
+09-OCT-2026: 32.4.3
+
+- Updates the link and tooltip icons when the link or tooltip changes
+- Uses the page layout of the editor in exports
+- Removes the drawing code for browsers without SVG
+- Removes the unused copy of the OneDrive SDK
+- Removes the old sign-in callback pages of GitHub, GitLab and Dropbox
+- Removes the unmapped Atlassian sign-in servlets
+- Removes the unused same-window sign-in of the Google Drive client
+- Documents the required implicit-globals check on reviewed
+- Checks for reads of global variables that nothing declares
+- Excludes the nested CLAUDE.md files from the public repository
+- Removes internal process details from files published to the public repository
+- Loads Simple.js and skips mxVsdxCanvas2D.js in public dev mode
+- Removes the /embed.js mapping from the public web.xml
+- Rebuilds the public extensions.min.js when deploying the public repository
+- Generates the public service-worker.js from the files the public repository has
+- Adds the Confluence Cloud Gliffy migration keys for white-filled pictures and files found by attachment ID
+- Saves pages that were edited before realtime was turned on
+- Sets and clears the conflict state of files in one place
+- Opens multi-page files without decoding every page
+- Adds Google Drive save and conflict scenarios to the realtime harness
+- Adds save tests for GitHub files
+- Adds a OneDrive save conflict scenario
+- Handles save conflicts of Drive and OneDrive files in one place
+- Updates stable to 32.4.2
+- Speeds up the libavoid drag previews in large diagrams
+- Fixes shapes dropped on the dangling end of an edge splitting the edge
+- Asks Confluence and Jira Connect users to upgrade to the Forge apps
+- Shows the error of a refused image copy when files are saved remotely
+- Retries the conversion of a file from GitHub after a timeout
+- Shows the preview of templates with an image in the template dialog
+- Shows the data of a drawing that is too large to export in the grapheditor
+- Escapes the image URL in the preview XML of templates with an image
+- Refuses page loads of /proxy and keeps proxied URLs out of search indexes
+- Removes the Pusher hook from the realtime cache
+- Removes the Freemind import, F5 rack, flow and edge connection plugins
+
+09-OCT-2026: 32.4.2
+
+- Removes the vss.draw.io stencil converter page
+- Bounds the resend of skipped notifications to clients that join
+- Updates stable to 32.4.1
+- Adds regression tests for shape painters with loops over a size or style
+- Tests labels, edges, selections and connection points in the shape loop tests
+- Limits the loops of mockup shapes for huge sizes and values
+- Limits the inputs and pins of logic gates, ICs and muxes
+- Limits the fills of P&ID columns and the holders of conveyors
+- Limits the lines of pattern fills and guards the handles of polygons
+- Limits the icons of iOS 7 icon grids and the fields of select bars
+- Limits the stripes of striped Bootstrap buttons and the icons of ratings
+- Limits the hatch lines of shared manufacturing processes
+- Limits the steps of floor plan stairs
+- Limits the steps of dashed wedge arrows v2
+- Limits the connection points of EIP channels and the markers of data channels
+- Limits the segments of lines in the comic style
+- Limits the loop search of tapered arrows
+- Limits the sketch fills for huge shapes and tiny gaps
+- Declares the style pairs of pasteCellStyles as a local variable
+- Declares rSize in the Bootstrap and iOS mockup shapes
+- Checks for new global variables in the shape loop tests
+- Sums the label widths of bars and the parts of pie charts in linear time
+- Paints no custom label for negative pin numbers of ICs
+- Measures bold and italic labels with their font style again
+- Declares sb in the palettes that used the global of the iOS palette
+- Fixes misspelled and unused variables that were assigned as globals
+- Declares local variables that were assigned as implicit globals
+- Adds a check for implicit global variables
+- Records that the Visio conversion buckets and vss.draw.io are deleted
+- More documentation regarding publishing monday.com app
+- Applies a changed view link in an open version dashboard tab
+- Logs malformed Confluence Cloud messages again, without their content
+- Keeps cut cells in the local clipboard when the clipboard write is refused
+- Counts daily, weekly and monthly active browsers on the version dashboard
+- Keeps the version dashboard's daily counts in D1 beyond three months
+- Removes the unused tryVssDraw and vsdNoConfig strings
+- Removes the dead AWS forward for the realtime cache
+- Returns the result of fileLoaded in the desktop app
+- Restores the visible pages when creating the file data fails
+- Invalidates a child once in mxGraph.processChange
+- Passes the event to isMultiTouchEvent in mxGraph.fireMouseEvent
+- Resets the validation state before walking all cells after an incremental validation
+- Numbers new and changed shapes in the number plugin
+- Fixes the .drawio check in the HTML export filename
+- Declares the local variables of the Confluence Cloud plugin
+- Keeps the flag of stale page nodes in page clones
+- Runs the implicit globals check in CI
+- Fixes the movable label handle when the connect handle is visible
+- Runs the shape loop tests in CI
+- Removes Pusher from the real-time sync client
+
 08-OCT-2026: 32.4.1
 
 - Adds a --var flag to the generate/v3 eval runner

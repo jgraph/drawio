@@ -32,13 +32,15 @@ For issues or questions about the editor in any draw.io product, the issue track
 
 ## Running
 
-Options for running draw.io:
+This repository is a test version of draw.io, for evaluating draw.io and trying it out. A paid production version is available for production deployments.
 
-- Fork this repository and [publish to GitHub Pages](https://help.github.com/categories/github-pages-basics/) for a [fully functional editor](https://jgraph.github.io/drawio/src/main/webapp/index.html) (without integrations)
-- Use the [official Docker image](https://github.com/jgraph/docker-drawio)
-- Download [draw.io Desktop](https://get.diagrams.net)
+Options for running the test version:
 
-Packaged .war files are available on the [releases page](https://github.com/jgraph/draw.io/releases).
+- Fork this repository and [publish to GitHub Pages](https://help.github.com/categories/github-pages-basics/) for an [editor](https://jgraph.github.io/drawio/src/main/webapp/index.html) without integrations
+- Use the [Docker image](https://github.com/jgraph/docker-drawio)
+- Use the packaged .war files on the [releases page](https://github.com/jgraph/draw.io/releases)
+
+For the desktop app, download [draw.io Desktop](https://get.diagrams.net).
 
 ## Supported Browsers
 

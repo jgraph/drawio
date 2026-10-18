@@ -56,18 +56,16 @@ mxGraphSelectionModel.prototype.constructor = mxGraphSelectionModel;
 /**
  * Variable: doneResource
  * 
- * Specifies the resource key for the status message after a long operation.
- * If the resource for this key does not exist then the value is used as
- * the status message. Default is 'done'.
+ * Not used. Was the resource key for the status bar text (window.status)
+ * after a long operation. Default is 'done'.
  */
 mxGraphSelectionModel.prototype.doneResource = (mxClient.language != 'none') ? 'done' : '';
 
 /**
  * Variable: updatingSelectionResource
  *
- * Specifies the resource key for the status message while the selection is
- * being updated. If the resource for this key does not exist then the
- * value is used as the status message. Default is 'updatingSelection'.
+ * Not used. Was the resource key for the status bar text (window.status)
+ * while the selection is being updated. Default is 'updatingSelection'.
  */
 mxGraphSelectionModel.prototype.updatingSelectionResource = (mxClient.language != 'none') ? 'updatingSelection' : '';
 
@@ -403,9 +401,6 @@ function mxSelectionChange(selectionModel, added, removed)
 mxSelectionChange.prototype.execute = function()
 {
 	var t0 = mxLog.enter('mxSelectionChange.execute');
-	window.status = mxResources.get(
-		this.selectionModel.updatingSelectionResource) ||
-		this.selectionModel.updatingSelectionResource;
 
 	if (this.removed != null)
 	{
@@ -426,9 +421,6 @@ mxSelectionChange.prototype.execute = function()
 	var tmp = this.added;
 	this.added = this.removed;
 	this.removed = tmp;
-
-	window.status = mxResources.get(this.selectionModel.doneResource) ||
-		this.selectionModel.doneResource;
 	mxLog.leave('mxSelectionChange.execute', t0);
 	
 	this.selectionModel.fireEvent(new mxEventObject(mxEvent.CHANGE,

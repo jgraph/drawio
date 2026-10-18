@@ -107,18 +107,13 @@ TrelloFile.prototype.saveFile = function(title, revision, success, error)
 	}
 	else if (!this.savingFile)
 	{
-		// Sets shadow modified state during save
-		this.savingFileTime = new Date();
-		this.setShadowModified(false);
-		this.savingFile = true;
+		this.beginSave();
 		
 		if (this.getTitle() == title)
 		{
 			this.ui.trello.saveFile(this, mxUtils.bind(this, function(meta)
 			{
-				// Checks for changes during save
-				this.setModified(this.getShadowModified());
-				this.savingFile = false;
+				this.endSave();
 				this.meta = meta;
 				this.contentChanged();
 				

@@ -192,6 +192,15 @@ GitHubFile.prototype.save = function(revision, success, error, unloading, overwr
 };
 
 /**
+ * Saves the file after a conflict with the commit message of the save that
+ * had the conflict.
+ */
+GitHubFile.prototype.saveAfterConflict = function(err, overwrite, success, error)
+{
+	this.save(true, success, error, null, overwrite, (err != null) ? err.commitMessage : null);
+};
+
+/**
  * Saves the file with the given title.
  */
 GitHubFile.prototype.saveAs = function(title, success, error)
@@ -238,19 +247,14 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error, unload
 			{
 				try
 				{
-					// Sets shadow modified state during save
-					this.savingFileTime = new Date();
-					this.setShadowModified(false);
-					this.savingFile = true;
+					this.beginSave();
 						
 					var savedEtag = this.getCurrentEtag();
 					var savedData = this.data;
 
 					this.peer.saveFile(this, mxUtils.bind(this, function(etag)
 					{
-						// Checks for changes during save
-						this.setModified(this.getShadowModified());
-						this.savingFile = false;
+						this.endSave();
 						this.setDescriptorEtag(this.meta, etag);
 						
 						this.fileSaved(savedData, savedEtag, mxUtils.bind(this, function()
@@ -269,7 +273,7 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error, unload
 	
 						if (this.isConflict(err))
 						{
-							this.inConflictState = true;
+							this.setConflict();
 							
 							if (error != null)
 							{
@@ -301,18 +305,13 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error, unload
 			}
 			else
 			{
-				// Sets shadow modified state during save
-				this.savingFileTime = new Date();
-				this.setShadowModified(false);
-				this.savingFile = true;
+				this.beginSave();
 				
 				this.ui.pickFolder(this.getMode(), mxUtils.bind(this, function(folderId)
 				{
 					this.peer.insertFile(title, this.getData(), mxUtils.bind(this, function(file)
 					{
-						// Checks for changes during save
-						this.setModified(this.getShadowModified());
-						this.savingFile = false;
+						this.endSave();
 						
 						if (success != null)
 						{

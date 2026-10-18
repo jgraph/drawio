@@ -45,6 +45,13 @@ DiagramPage.prototype.viewState = null;
 DiagramPage.prototype.diagramModified = false;
 
 /**
+ * Specifies if the root of the page was changed without updating the cached
+ * XML data, eg. by a patch while the page is not the current page. See
+ * <invalidateNode>.
+ */
+DiagramPage.prototype.needsUpdate = false;
+
+/**
  * 
  */
 DiagramPage.prototype.getId = function()
@@ -147,6 +154,26 @@ DiagramPage.prototype.isDiagramModified = function()
 };
 
 /**
+ * Marks the cached XML data of the page as older than its root, eg. after
+ * the root was changed while the page is not the current page.
+ */
+DiagramPage.prototype.invalidateNode = function()
+{
+	this.needsUpdate = true;
+};
+
+/**
+ * Returns true if the cached XML data of the page is older than its root:
+ * the root was changed (see <invalidateNode>) or the diagram was edited while
+ * the page was the current page. Copies of pages keep both flags (see
+ * EditorUi.clonePage), so the XML data of a copy is encoded from its root.
+ */
+DiagramPage.prototype.isNodeStale = function()
+{
+	return this.needsUpdate || this.diagramModified;
+};
+
+/**
  * Change types
  */
 function RenamePage(ui, page, name)
@@ -230,6 +257,37 @@ ChangePageView.prototype.execute = function()
 	this.previous = tmp;
 
 	this.ui.editor.fireEvent(new mxEventObject('pageViewChanged'));
+};
+
+/**
+ * Undoable change of the root of a page. An edit that replaces the root of
+ * the model (mxGraphModel.setRoot, Editor.setGraphXml) must replace the
+ * root of the current page with this change in the same edit: the flush
+ * and the save diff the pages, so an undo that restored only the root of
+ * the model left the page with the replaced root, and every later edit on
+ * that page was lost (jgraph/drawio#5795).
+ */
+function ChangePageRoot(ui, page, root)
+{
+	this.ui = ui;
+	this.page = page;
+	this.root = root;
+	this.previous = root;
+}
+
+/**
+ * Implementation of the undoable page root change.
+ */
+ChangePageRoot.prototype.execute = function()
+{
+	var tmp = this.page.root;
+	this.page.root = this.previous;
+	this.root = this.previous;
+	this.previous = tmp;
+
+	// The cached XML of a page that is not viewed is encoded from the
+	// root (see getXmlFileData)
+	this.page.invalidateNode();
 };
 
 /**
@@ -580,6 +638,62 @@ ChangePage.prototype.execute = function()
 		this.repairExecuted = true;
 	};
 
+	var changePageRootExecute = ChangePageRoot.prototype.execute;
+
+	ChangePageRoot.prototype.execute = function()
+	{
+		if (this.repairExecuted)
+		{
+			var canonical = canonicalPage(this.ui, this.page);
+
+			if (canonical != null)
+			{
+				this.page = canonical;
+			}
+		}
+
+		changePageRootExecute.apply(this, arguments);
+		this.repairExecuted = true;
+	};
+
+	// A root change of the main model belongs to the page that was viewed
+	// when it was first executed. The history holds no page switch that
+	// is not the user's (following a collaborator, the select after a
+	// peer removed the viewed page), so a replay on another page put the
+	// old root of the first page behind the viewed page, which the next
+	// page switch then copied into the viewed page. Such a replay leaves
+	// the model as it is; the page of the change gets its root from the
+	// ChangePageRoot in the same edit (jgraph/drawio#5795).
+	var rootChangeExecute = mxRootChange.prototype.execute;
+
+	mxRootChange.prototype.execute = function()
+	{
+		var ui = (this.model != null) ? this.model.repairUi : null;
+
+		if (ui != null)
+		{
+			var pageId = (ui.currentPage != null) ?
+				ui.currentPage.getId() : null;
+
+			if (!this.repairExecuted)
+			{
+				this.repairPageId = pageId;
+				this.repairExecuted = true;
+			}
+			else if (pageId != this.repairPageId)
+			{
+				// Field cycle of an executed change
+				var tmp = this.root;
+				this.root = this.previous;
+				this.previous = tmp;
+
+				return;
+			}
+		}
+
+		rootChangeExecute.apply(this, arguments);
+	};
+
 	var changePageViewExecute = ChangePageView.prototype.execute;
 
 	ChangePageView.prototype.execute = function()
@@ -878,6 +992,7 @@ EditorUi.prototype.getImageForPage = function(page, sourcePage, sourceGraph, add
 	
 	this.updatePageRoot(page);
 	graph.setAdaptiveColors(page.viewState.adaptiveColors);
+	graph.setMeasureScale(page.viewState.measureScale);
 	graph.model.setRoot(page.root);
 
 	var temp = Graph.foreignObjectWarningText;
@@ -1099,6 +1214,11 @@ Graph.prototype.createViewState = function(node)
 		}
 	}
 
+	// Validated gradient of the page background
+	var gradient = Graph.parseBackgroundGradient(
+		node.getAttribute('backgroundGradient'),
+		node.getAttribute('backgroundGradientDirection'));
+
 	return {
 		gridEnabled: node.getAttribute('grid') != '0',
 		//gridColor: node.getAttribute('gridColor') || mxSettings.getGridColor(Editor.isDarkMode()),
@@ -1110,6 +1230,8 @@ Graph.prototype.createViewState = function(node)
 		shadowVisible: node.getAttribute('shadow') == '1',
 		pageVisible: (this.isLightboxView()) ? false : ((pv != null) ? (pv != '0') : this.defaultPageVisible),
 		background: (bg != null && bg.length > 0) ? bg : null,
+		backgroundGradient: gradient.color,
+		backgroundGradientDirection: gradient.direction,
 		backgroundImage: bgImg,
 		pageScale: (!isNaN(ps)) ? ps : mxGraph.prototype.pageScale,
 		pageFormat: (!isNaN(pw) && !isNaN(ph)) ? new mxRectangle(0, 0, pw, ph) :
@@ -1124,6 +1246,7 @@ Graph.prototype.createViewState = function(node)
 			arrows != '0' : Graph.prototype.defaultConnectionArrowsEnabled; })(),
 		mathEnabled: node.getAttribute('math') == '1',
 		adaptiveColors: node.getAttribute('adaptiveColors'),
+		measureScale: Graph.parseMeasureScale(node.getAttribute('measureScale')),
 		selectionCells: null,
 		defaultParent: null,
 		scrollbars: this.defaultScrollbars,
@@ -1172,6 +1295,20 @@ Graph.prototype.saveViewState = function(vs, node, ignoreTransient, resolveRefer
 			node.setAttribute('background', vs.background);
 		}
 
+		// Validated gradient of the page background
+		var gradient = Graph.parseBackgroundGradient(
+			vs.backgroundGradient, vs.backgroundGradientDirection);
+
+		if (gradient.color != null)
+		{
+			node.setAttribute('backgroundGradient', gradient.color);
+
+			if (gradient.direction != null)
+			{
+				node.setAttribute('backgroundGradientDirection', gradient.direction);
+			}
+		}
+
 		var bgImg = this.getBackgroundImageObject(vs.backgroundImage,
 			resolveReferences, sourcePage);
 
@@ -1191,6 +1328,18 @@ Graph.prototype.saveViewState = function(vs, node, ignoreTransient, resolveRefer
 	else
 	{
 		node.setAttribute('adaptiveColors', vs.adaptiveColors);
+	}
+
+	// Only written if it is not the default so that other files are unchanged
+	var measureScale = (vs != null) ? Graph.parseMeasureScale(vs.measureScale) : 1;
+
+	if (measureScale != 1)
+	{
+		node.setAttribute('measureScale', measureScale);
+	}
+	else
+	{
+		node.removeAttribute('measureScale');
 	}
 	
 	if (vs != null && vs.extFonts != null && vs.extFonts.length > 0)
@@ -1218,6 +1367,8 @@ Graph.prototype.getViewState = function()
 		scrollbars: this.scrollbars,
 		pageVisible: this.pageVisible,
 		background: this.background,
+		backgroundGradient: this.backgroundGradient,
+		backgroundGradientDirection: this.backgroundGradientDirection,
 		backgroundImage: this.backgroundImage,
 		pageScale: this.pageScale,
 		pageFormat: this.pageFormat,
@@ -1232,6 +1383,7 @@ Graph.prototype.getViewState = function()
 		pasteCounter: this.pasteCounter,
 		mathEnabled: this.mathEnabled,
 		adaptiveColors: this.adaptiveColors,
+		measureScale: this.measureScale,
 		hiddenTags: this.hiddenTags,
 		extFonts: this.extFonts
 	};
@@ -1248,6 +1400,7 @@ Graph.prototype.setViewState = function(state, removeOldExtFonts)
 		this.pasteCounter = state.pasteCounter || 0;
 		this.mathEnabled = state.mathEnabled;
 		this.adaptiveColors = state.adaptiveColors;
+		this.setMeasureScale(state.measureScale);
 		this.gridEnabled = urlParams['grid'] != null ? urlParams['grid'] != '0' : state.gridEnabled;
 		this.gridSize = state.gridSize;
 		this.graphHandler.guidesEnabled = state.guidesEnabled;
@@ -1256,6 +1409,8 @@ Graph.prototype.setViewState = function(state, removeOldExtFonts)
 		this.scrollbars = state.scrollbars;
 		this.pageVisible = !this.isViewer() && (urlParams['pv'] != null ? urlParams['pv'] != '0' : state.pageVisible);
 		this.background = state.background;
+		this.setBackgroundGradient(state.backgroundGradient,
+			state.backgroundGradientDirection);
 		this.pageScale = state.pageScale;
 		this.pageFormat = state.pageFormat;
 		this.view.currentRoot = state.currentRoot;
@@ -1328,6 +1483,7 @@ Graph.prototype.setViewState = function(state, removeOldExtFonts)
 			mxGraph.prototype.pageFormat : mxSettings.getPageFormat();
 		this.pageVisible = this.defaultPageVisible;
 		this.background = null;
+		this.setBackgroundGradient(null);
 		this.backgroundImage = null;
 		this.scrollbars = this.defaultScrollbars;
 		this.graphHandler.guidesEnabled = true;
@@ -1340,6 +1496,7 @@ Graph.prototype.setViewState = function(state, removeOldExtFonts)
 		this.pasteCounter = 0;
 		this.mathEnabled = this.defaultMathEnabled;
 		this.adaptiveColors = null;
+		this.setMeasureScale(null);
 		this.connectionArrowsEnabled = this.defaultConnectionArrowsEnabled;
 		this.hiddenTags = [];
 		this.extFonts = [];
@@ -1450,7 +1607,7 @@ EditorUi.prototype.updatePageRoot = function(page, checked)
 			page.root.children[0].setId('1');
 
 			// Marks the page as needing an update
-			page.needsUpdate = true;
+			page.invalidateNode();
 		}
 	}
 	else if (page.viewState == null)
@@ -1484,7 +1641,7 @@ EditorUi.prototype.updatePageRoot = function(page, checked)
 		page.root.insert(layer);
 
 		// Marks the page as needing an update
-		page.needsUpdate = true;
+		page.invalidateNode();
 	}
 	
 	return page;
@@ -1952,7 +2109,7 @@ EditorUi.prototype.duplicatePage = function(page, name)
  */
 EditorUi.prototype.getPageXmlForDiff = function(page)
 {
-	if ((page.isDiagramModified() || page.needsUpdate) && page.root != null)
+	if (page.isNodeStale() && page.root != null)
 	{
 		var enc = new mxCodec(mxUtils.createXmlDocument());
 		var node = enc.encode(new mxGraphModel(page.root));
@@ -1986,7 +2143,7 @@ EditorUi.prototype.initDiagramNode = function(page, node)
 /**
  * Duplicates the given page.
  */
-EditorUi.prototype.clonePages = function(pages)
+EditorUi.prototype.clonePages = function(pages, lazy)
 {
 	var errors = [];
 	var result = [];
@@ -1995,7 +2152,7 @@ EditorUi.prototype.clonePages = function(pages)
 	{
 		try
 		{
-			result.push(this.clonePage(pages[i]));
+			result.push(this.clonePage(pages[i], lazy));
 		}
 		catch (e)
 		{
@@ -2028,10 +2185,17 @@ EditorUi.prototype.clonePages = function(pages)
 };
 
 /**
- * Duplicates the given page.
+ * Duplicates the given page. If lazy is true then a page that was not
+ * decoded yet is copied without decoding it, so its copy is decoded when
+ * its root is needed (see <updatePageRoot>).
  */
-EditorUi.prototype.clonePage = function(page)
+EditorUi.prototype.clonePage = function(page, lazy)
 {
+	if (lazy && page.root == null)
+	{
+		return new DiagramPage(page.node.cloneNode(true));
+	}
+
 	this.updatePageRoot(page);
 
 	var result = new DiagramPage(page.node.cloneNode(true));
@@ -2042,7 +2206,11 @@ EditorUi.prototype.clonePage = function(page)
 		EditorUi.transientViewStateProperties)
 	result.root = this.editor.graph.model.cloneCell(
 		page.root, null, true);
+
+	// The cloned node is as stale as the node of the page, so it must be
+	// encoded from the cloned root when the clone is saved
 	result.diagramModified = page.diagramModified;
+	result.needsUpdate = page.needsUpdate;
 	
 	return result;
 };

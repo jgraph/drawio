@@ -1045,9 +1045,23 @@ function render(data)
 							var imgExport = (data.embedCellMetadata == '1') ?
 								graph.createSvgImageExport(true) : null;
 
-							var svgRoot = graph.getSvg(bg, expScale, data.border, false, null,
-								true, null, imgExport, linkTarget, null, null, theme,
-								(data.exportType == 'page') ? 'page' : null);
+							// getSvg adds the gradient of the page background only for
+							// the background color of the page (see
+							// Graph.getBackgroundGradient), which is not set here
+							var graphBackground = graph.background;
+							var svgRoot = null;
+							graph.background = bg;
+
+							try
+							{
+								svgRoot = graph.getSvg(bg, expScale, data.border, false, null,
+									true, null, imgExport, linkTarget, null, null, theme,
+									(data.exportType == 'page') ? 'page' : null);
+							}
+							finally
+							{
+								graph.background = graphBackground;
+							}
 							
 							if (graph.shadowVisible)
 							{
@@ -1345,6 +1359,50 @@ function render(data)
 	};
 	
 	/**
+	 * Returns the CSS image of the gradient of the page background for the
+	 * given background color, or null if the page has no gradient or the
+	 * color is not the background color of the page, eg. for a transparent
+	 * or white background (see Graph.getBackgroundGradient). The colors are
+	 * resolved like the background color for fixed themes. The CSS is only
+	 * created from validated colors (see Graph.createBackgroundGradientCss).
+	 */
+	function getBackgroundGradientCss(bg)
+	{
+		var attr = xmlDoc.documentElement.getAttribute('background');
+		var themed = data.theme == 'dark' || data.theme == 'light';
+
+		if (bg != null && attr != null && typeof Graph.createBackgroundGradient === 'function' &&
+			bg == ((themed) ? mxUtils.getLightDarkColor(attr).cssText : attr))
+		{
+			var gradient = Graph.createBackgroundGradient(attr,
+				graph.backgroundGradient, graph.backgroundGradientDirection);
+
+			return (gradient != null) ? Graph.createBackgroundGradientCss(gradient, themed) : null;
+		}
+
+		return null;
+	};
+
+	/**
+	 * Returns the CSS background of the pages of the print output for the
+	 * given background color (see Graph.getPrintBackground).
+	 */
+	function getPrintBackground(bg)
+	{
+		// The background color comes from the file and is used in the background
+		// shorthand of the pages, which also loads images (see mxPrintPreview)
+		if (bg != null && typeof Graph.isSafeCssColor === 'function' &&
+			!Graph.isSafeCssColor(bg))
+		{
+			return null;
+		}
+
+		var css = getBackgroundGradientCss(bg);
+
+		return (css != null) ? css + ' ' + bg : bg;
+	};
+
+	/**
 	 * Renders the given page or all pages.
 	 */
 	function renderPage(currentPageId)
@@ -1367,6 +1425,21 @@ function render(data)
 		else
 		{
 			graph.container.classList.add('geDisableMathJax');
+		}
+
+		// Sets the drawing scale of the measure placeholders (the model is
+		// decoded directly, without Editor.readGraphState)
+		if (typeof graph.setMeasureScale === 'function')
+		{
+			graph.setMeasureScale(xmlDoc.documentElement.getAttribute('measureScale'));
+		}
+
+		// Sets the validated gradient of the page background (see
+		// getBackgroundGradientCss)
+		if (typeof graph.setBackgroundGradient === 'function')
+		{
+			graph.setBackgroundGradient(xmlDoc.documentElement.getAttribute('backgroundGradient'),
+				xmlDoc.documentElement.getAttribute('backgroundGradientDirection'));
 		}
 
 		// Sets grid size
@@ -1494,6 +1567,18 @@ function render(data)
 			if (bg != null)
 			{
 				document.body.style.backgroundColor = bg;
+
+				// Adds the gradient of the page background over the captured
+				// viewport, which has the size of the output
+				var gradientCss = getBackgroundGradientCss(bg);
+
+				if (gradientCss != null)
+				{
+					document.body.style.backgroundImage = gradientCss;
+					document.body.style.backgroundAttachment = 'fixed';
+					document.body.style.backgroundRepeat = 'no-repeat';
+					document.body.style.backgroundSize = '100% 100%';
+				}
 			}
 		}
 		
@@ -1627,32 +1712,6 @@ function render(data)
 					this.pageFormat.height * this.pageScale);
 			};
 			
-			graph.getPageLayout = function()
-			{
-				var size = this.getPageSize();
-				var bounds = this.getGraphBounds();
-
-				if (bounds.width == 0 || bounds.height == 0)
-				{
-					return new mxRectangle(0, 0, 1, 1);
-				}
-				else
-				{
-					// Computes untransformed graph bounds
-					var x = Math.ceil(bounds.x / this.view.scale - this.view.translate.x);
-					var y = Math.ceil(bounds.y / this.view.scale - this.view.translate.y);
-					var w = Math.floor(bounds.width / this.view.scale);
-					var h = Math.floor(bounds.height / this.view.scale);
-					
-					var x0 = Math.floor(x / size.width);
-					var y0 = Math.floor(y / size.height);
-					var w0 = Math.ceil((x + w) / size.width) - x0;
-					var h0 = Math.ceil((y + h) / size.height) - y0;
-					
-					return new mxRectangle(x0, y0, w0, h0);
-				}
-			};
-
 			// Fits the number of background pages to the graph
 			graph.view.getBackgroundPageBounds = function()
 			{
@@ -1851,7 +1910,7 @@ function render(data)
 				preview = new mxPrintPreview(graph, scale, pf, border, x0, y0);
 				preview.printBackgroundImage = true;
 				preview.autoOrigin = autoOrigin;
-				preview.backgroundColor = bg;
+				preview.backgroundColor = getPrintBackground(bg);
 				preview.pageMargin = (data.pageMargin != null) ?
 					parseInt(data.pageMargin) : ((data.crop == '1') ?
 						0 : preview.pageMargin);
@@ -1912,7 +1971,7 @@ function render(data)
 				preview.gridColor = gridColor;
 				preview.gridSize = graph.gridSize;
 				preview.gridSteps = graph.view.gridSteps;
-				preview.backgroundColor = bg;
+				preview.backgroundColor = getPrintBackground(bg);
 				preview.autoOrigin = autoOrigin; 
 				preview.appendGraph(graph, scale, x0, y0, null, null, anchorId, pf);
 			}

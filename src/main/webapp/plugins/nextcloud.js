@@ -257,38 +257,8 @@ Draw.loadPlugin(function(ui)
                             
                                 if (this.isConflict(err))
                                 {
-                                    this.inConflictState = true;
-                                    
-                                    if (this.sync != null)
-                                    {
-                                        this.savingFile = true;
-                                        
-                                        this.sync.fileConflict(null, mxUtils.bind(this, function()
-                                        {
-                                            // Adds random cool-off
-                                            var delay = 100 + Math.random() * 500;
-                                            window.setTimeout(mxUtils.bind(this, function()
-                                            {
-                                                this.updateFileData();
-                                                doSave();
-                                            }), delay);
-
-                                            EditorUi.debug('EmbedFile.saveFile.conflict',
-                                                [this], 'err', err, 'delay', delay);
-                                        }), mxUtils.bind(this, function()
-                                        {
-                                            this.savingFile = false;
-                                            
-                                            if (error != null)
-                                            {
-                                                error();
-                                            }
-                                        }));
-                                    }
-                                    else if (error != null)
-                                    {
-                                        error();
-                                    }
+                                    EditorUi.debug('EmbedFile.saveFile.conflict', [this], 'err', err);
+                                    this.handleSaveConflict(null, doSave, error);
                                 }
                                 else if (error != null)
                                 {

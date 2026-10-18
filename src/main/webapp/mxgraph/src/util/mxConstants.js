@@ -785,6 +785,16 @@
 	STYLE_OPACITY: 'opacity',
 
 	/**
+	 * Variable: STYLE_OPACITY_GROUP
+	 *
+	 * Defines the key for applying the opacity to the shape as a whole in
+	 * SVG, so that overlapping parts of the shape (eg. the stroke over the
+	 * fill or a marker over its line) do not get darker. Possible values
+	 * are 0 and 1. Default is 0. Value is "opacityGroup".
+	 */
+	STYLE_OPACITY_GROUP: 'opacityGroup',
+
+	/**
 	 * Variable: STYLE_FILL_OPACITY
 	 * 
 	 * Defines the key for the fill opacity style. The type of the value is 
@@ -1305,6 +1315,15 @@
 	 * HTML color names or HEX codes. Value is "labelBorderColor".
 	 */
 	STYLE_LABEL_BORDERCOLOR: 'labelBorderColor',
+
+	/**
+	 * Variable: STYLE_LABEL_BORDER_WIDTH
+	 *
+	 * Defines the key for the width of the label border in pixels (see
+	 * <STYLE_LABEL_BORDERCOLOR>). The border is scaled with the zoom and a
+	 * width of 0 hides it. Default is 1. Value is "labelBorderWidth".
+	 */
+	STYLE_LABEL_BORDER_WIDTH: 'labelBorderWidth',
 
 	/**
 	 * Variable: STYLE_LABEL_PADDING

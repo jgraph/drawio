@@ -74,18 +74,16 @@ mxGraphView.prototype.EMPTY_POINT = new mxPoint();
 /**
  * Variable: doneResource
  * 
- * Specifies the resource key for the status message after a long operation.
- * If the resource for this key does not exist then the value is used as
- * the status message. Default is 'done'.
+ * Not used. Was the resource key for the status bar text (window.status)
+ * after a long operation. Default is 'done'.
  */
 mxGraphView.prototype.doneResource = (mxClient.language != 'none') ? 'done' : '';
 
 /**
  * Function: updatingDocumentResource
  *
- * Specifies the resource key for the status message while the document is
- * being updated. If the resource for this key does not exist then the
- * value is used as the status message. Default is 'updatingDocument'.
+ * Not used. Was the resource key for the status bar text (window.status)
+ * while the document is being updated. Default is 'updatingDocument'.
  */
 mxGraphView.prototype.updatingDocumentResource = (mxClient.language != 'none') ? 'updatingDocument' : '';
 
@@ -1077,9 +1075,6 @@ mxGraphView.prototype.invalidate = function(cell, recurse, includeEdges)
 mxGraphView.prototype.validate = function(cell)
 {
 	var t0 = mxLog.enter('mxGraphView.validate');
-	window.status = mxResources.get(this.updatingDocumentResource) ||
-		this.updatingDocumentResource;
-	
 	this.resetValidationState();
 	this.validatedStates = (this.checkCachedBounds) ? [] : null;
 
@@ -1103,6 +1098,9 @@ mxGraphView.prototype.validate = function(cell)
 		// Collects the cells that are invalidated from now on
 		if (cell == root)
 		{
+			// Discards the state of an incremental validation that found that
+			// all cells must be walked (eg. counters of enumerated cells)
+			this.resetValidationState();
 			this.invalidCells = [];
 			this.invalidCellsRoot = root;
 			this.fullValidationRequired = false;
@@ -1180,9 +1178,6 @@ mxGraphView.prototype.validate = function(cell)
 	}
 
 	this.resetValidationState();
-	
-	window.status = mxResources.get(this.doneResource) ||
-		this.doneResource;
 	mxLog.leave('mxGraphView.validate', t0);
 };
 
@@ -3241,26 +3236,45 @@ mxGraphView.prototype.getFloatingTerminalPoint = function(edge, start, end, sour
 	var next = this.getNextPoint(edge, end, source);
 	
 	var orth = this.graph.isOrthogonal(edge);
-	var alpha = mxUtils.toRadians(Number(start.style[mxConstants.STYLE_ROTATION] || '0'));
+	var rotation = Number(start.style[mxConstants.STYLE_ROTATION] || '0');
+	var alpha = mxUtils.toRadians(rotation);
 	var center = new mxPoint(start.getCenterX(), start.getCenterY());
-	
+
+	// Quarter turns keep vertical and horizontal lines, so orthogonal ends
+	// are projected onto the unrotated shape (with exact sines and cosines)
+	var quarter = rotation % 90 == 0;
+
 	if (alpha != 0)
 	{
 		var cos = Math.cos(-alpha);
 		var sin = Math.sin(-alpha);
+
+		if (quarter)
+		{
+			cos = Math.round(cos);
+			sin = Math.round(sin);
+		}
+
 		next = mxUtils.getRotatedPoint(next, cos, sin, center);
 	}
-	
+
 	var border = parseFloat(edge.style[mxConstants.STYLE_PERIMETER_SPACING] || 0);
 	border += parseFloat(edge.style[(source) ?
 		mxConstants.STYLE_SOURCE_PERIMETER_SPACING :
 		mxConstants.STYLE_TARGET_PERIMETER_SPACING] || 0);
-	var pt = this.getPerimeterPoint(start, next, alpha == 0 && orth, border);
+	var pt = this.getPerimeterPoint(start, next, quarter && orth, border);
 
 	if (alpha != 0)
 	{
 		var cos = Math.cos(alpha);
 		var sin = Math.sin(alpha);
+
+		if (quarter)
+		{
+			cos = Math.round(cos);
+			sin = Math.round(sin);
+		}
+
 		pt = mxUtils.getRotatedPoint(pt, cos, sin, center);
 	}
 
@@ -3406,6 +3420,23 @@ mxGraphView.prototype.getRoutingCenterY = function (state)
 		[mxConstants.STYLE_ROUTING_CENTER_Y]) || 0 : 0;
 
 	return state.getCenterY() + f * state.height;
+};
+
+/**
+ * Function: getChannelBounds
+ *
+ * Returns the bounds of the given terminal in which horizontal and vertical
+ * segments end on the terminal. <mxEdgeStyle.SegmentConnector> uses them to
+ * decide if a waypoint is level with the terminal and if a bend is inside the
+ * terminal. This implementation returns the given state.
+ *
+ * Parameters:
+ *
+ * state - <mxCellState> of the terminal.
+ */
+mxGraphView.prototype.getChannelBounds = function(state)
+{
+	return state;
 };
 
 /**
@@ -4197,18 +4228,7 @@ mxGraphView.prototype.isContainerEvent = function(evt)
 mxGraphView.prototype.init = function()
 {
 	this.installListeners();
-	
-	// Creates the DOM nodes for the respective display dialect
-	var graph = this.graph;
-	
-	if (graph.dialect == mxConstants.DIALECT_SVG)
-	{
-		this.createSvg();
-	}
-	else
-	{
-		this.createHtml();
-	}
+	this.createSvg();
 };
 
 /**
@@ -4347,7 +4367,20 @@ mxGraphView.prototype.installListeners = function()
 			}
 		});
 		
-		mxEvent.addGestureListeners(document, null, this.moveHandler, this.endHandler);
+		// Ends a gesture that the browser or the system cancelled, as there
+		// is no end event for it (eg. for a system gesture or an alert)
+		this.cancelHandler = mxUtils.bind(this, function(evt)
+		{
+			if ((graph.isMouseDown || graph.eventSource != null) &&
+				(graph.currentPointerId == null || evt.pointerId == null ||
+				evt.pointerId == graph.currentPointerId))
+			{
+				graph.cancelMouseGesture(evt);
+			}
+		});
+
+		mxEvent.addGestureListeners(document, null, this.moveHandler,
+			this.endHandler, this.cancelHandler);
 
 		// Measures the labels again when fonts or images in labels have loaded
 		// as this changes their size without a repaint. Load events do not
@@ -4425,96 +4458,6 @@ mxGraphView.prototype.updateLabelBoundingBoxes = function()
 			}
 		}
 	}
-};
-
-/**
- * Function: createHtml
- *
- * Creates the DOM nodes for the HTML display.
- */
-mxGraphView.prototype.createHtml = function()
-{
-	var container = this.graph.container;
-	
-	if (container != null)
-	{
-		this.canvas = this.createHtmlPane('100%', '100%');
-		this.canvas.style.overflow = 'hidden';
-	
-		// Uses minimal size for inner DIVs on Canvas. This is required
-		// for correct event processing in IE. If we have an overlapping
-		// DIV then the events on the cells are only fired for labels.
-		this.backgroundPane = this.createHtmlPane('1px', '1px');
-		this.drawPane = this.createHtmlPane('1px', '1px');
-		this.overlayPane = this.createHtmlPane('1px', '1px');
-		this.decoratorPane = this.createHtmlPane('1px', '1px');
-		
-		this.canvas.appendChild(this.backgroundPane);
-		this.canvas.appendChild(this.drawPane);
-		this.canvas.appendChild(this.overlayPane);
-		this.canvas.appendChild(this.decoratorPane);
-
-		container.appendChild(this.canvas);
-		this.updateContainerStyle(container);
-	}
-};
-
-/**
- * Function: updateHtmlCanvasSize
- * 
- * Updates the size of the HTML canvas.
- */
-mxGraphView.prototype.updateHtmlCanvasSize = function(width, height)
-{
-	if (this.graph.container != null)
-	{
-		var ow = this.graph.container.offsetWidth;
-		var oh = this.graph.container.offsetHeight;
-
-		if (ow < width)
-		{
-			this.canvas.style.width = width + 'px';
-		}
-		else
-		{
-			this.canvas.style.width = '100%';
-		}
-
-		if (oh < height)
-		{
-			this.canvas.style.height = height + 'px';
-		}
-		else
-		{
-			this.canvas.style.height = '100%';
-		}
-	}
-};
-
-/**
- * Function: createHtmlPane
- * 
- * Creates and returns a drawing pane in HTML (DIV).
- */
-mxGraphView.prototype.createHtmlPane = function(width, height)
-{
-	var pane = document.createElement('DIV');
-	
-	if (width != null && height != null)
-	{
-		pane.style.position = 'absolute';
-		pane.style.left = '0px';
-		pane.style.top = '0px';
-
-		pane.style.width = width;
-		pane.style.height = height;
-	}
-	else
-	{
-		pane.style.position = 'relative';
-	}
-	
-	return pane;
 };
 
 /**
@@ -4598,7 +4541,8 @@ mxGraphView.prototype.destroy = function()
 	if (root != null && root.parentNode != null)
 	{
 		this.clear(this.currentRoot, true);
-		mxEvent.removeGestureListeners(document, null, this.moveHandler, this.endHandler);
+		mxEvent.removeGestureListeners(document, null, this.moveHandler,
+			this.endHandler, this.cancelHandler);
 		mxEvent.release(this.graph.container);
 		root.parentNode.removeChild(root);
 
@@ -4623,6 +4567,7 @@ mxGraphView.prototype.destroy = function()
 
 		this.moveHandler = null;
 		this.endHandler = null;
+		this.cancelHandler = null;
 		this.canvas = null;
 		this.backgroundPane = null;
 		this.drawPane = null;

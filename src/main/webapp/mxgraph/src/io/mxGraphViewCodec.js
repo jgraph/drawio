@@ -7,7 +7,7 @@ mxCodecRegistry.register(function()
 	/**
 	 * Class: mxGraphViewCodec
 	 *
-	 * Custom encoder for <mxGraphView>s. This class is created
+	 * Deprecated. Custom encoder for <mxGraphView>s. This class is created
 	 * and registered dynamically at load time and used implicitly via
 	 * <mxCodec> and the <mxCodecRegistry>. This codec only writes views
 	 * into a XML format that can be used to create an image for
@@ -25,6 +25,8 @@ mxCodecRegistry.register(function()
 	 */
 	codec.encode = function(enc, view)
 	{
+		mxUtils.deprecated('mxGraphViewCodec');
+
 		return this.encodeCell(enc, view,
 			view.graph.getModel().getRoot());
 	};

@@ -732,8 +732,16 @@ mxShape.prototype.getShadowStyle = function()
 			mxConstants.STYLE_SHADOW_OFFSET_Y, s.dy);
 		s.blur = mxUtils.getValue(this.style,
 			mxConstants.STYLE_SHADOW_BLUR, s.blur);
-		s.color = mxUtils.getValue(this.style,
+		var color = mxUtils.getValue(this.style,
 			mxConstants.STYLE_SHADOWCOLOR, s.color);
+
+		// The color is used in drop-shadow(), where a closing parenthesis
+		// and url() would add a filter that is loaded (see createDropShadow)
+		if (!mxUtils.hasResourceReference(color))
+		{
+			s.color = color;
+		}
+
 		s.opacity = mxUtils.getValue(this.style,
 			mxConstants.STYLE_SHADOW_OPACITY, s.opacity);
 	}
@@ -1065,8 +1073,22 @@ mxShape.prototype.beforePaint = function(c) { };
 mxShape.prototype.afterPaint = function(c) { };
 
 /**
+ * Function: isOpacityGroup
+ *
+ * Returns true if the shape is painted into a group with its opacity on the
+ * given SVG canvas (<mxConstants.STYLE_OPACITY_GROUP>) so that overlapping
+ * parts of the shape do not get darker. Other canvases keep the opacity of
+ * each element.
+ */
+mxShape.prototype.isOpacityGroup = function(c)
+{
+	return c instanceof mxSvgCanvas2D && this.opacity < 100 && this.style != null &&
+		mxUtils.getValue(this.style, mxConstants.STYLE_OPACITY_GROUP, '0') == '1';
+};
+
+/**
  * Function: paint
- * 
+ *
  * Generic rendering code.
  */
 mxShape.prototype.paint = function(c)
@@ -1130,6 +1152,18 @@ mxShape.prototype.paint = function(c)
 		}
 	}
 
+	// Paints into a group with the opacity of the shape
+	var root = null;
+
+	if (this.isOpacityGroup(c))
+	{
+		root = c.root;
+		c.root = c.createElement('g');
+		c.root.setAttribute('opacity', this.opacity / 100);
+		root.appendChild(c.root);
+		c.setAlpha(1);
+	}
+
 	if (this.stencil != null)
 	{
 		this.stencil.drawShape(c, this, x, y, w, h,
@@ -1141,7 +1175,7 @@ mxShape.prototype.paint = function(c)
 		// Stencils have separate strokewidth
 		c.setStrokeWidth(this.strokewidth);
 		var pts = this.getWaypoints();
-		
+
 		if (pts != null)
 		{
 			// Paints edge shape
@@ -1160,7 +1194,13 @@ mxShape.prototype.paint = function(c)
 			c.state.dy = dy;
 		}
 	}
-	
+
+	if (root != null)
+	{
+		c.root = root;
+		c.setAlpha(this.opacity / 100);
+	}
+
 	if (bg != null && c.state != null && c.state.transform != null)
 	{
 		bg.setAttribute('transform', c.state.transform);

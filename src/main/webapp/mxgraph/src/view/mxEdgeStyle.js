@@ -605,10 +605,12 @@ var mxEdgeStyle =
 		var pts = mxEdgeStyle.scalePointArray(state.absolutePoints, s, tr);
 		var source = mxEdgeStyle.scaleCellState(sourceScaled, s, tr);
 		var target = mxEdgeStyle.scaleCellState(targetScaled, s, tr);
+		var sourceChannel = mxEdgeStyle.getChannelBounds(state.view, sourceScaled, source, s, tr);
+		var targetChannel = mxEdgeStyle.getChannelBounds(state.view, targetScaled, target, s, tr);
 		var tol = 1;
-		
+
 		// Adds points in model units for precise collision checks
-		var tempPoints = []; 
+		var tempPoints = [];
 
 		function addPoint(pt)
 		{
@@ -706,6 +708,7 @@ var mxEdgeStyle =
 			hint = hints[0];
 
 			var currentTerm = source;
+			var currentChannel = sourceChannel;
 			var currentPt = pts[0];
 			var hozChan = false;
 			var vertChan = false;
@@ -723,10 +726,10 @@ var mxEdgeStyle =
 				var fixedVertAlign = currentPt != null && currentPt.x == currentHint.x;
 				var fixedHozAlign = currentPt != null && currentPt.y == currentHint.y;
 				
-				var inHozChan = currentTerm != null && (currentHint.y >= currentTerm.y &&
-						currentHint.y <= currentTerm.y + currentTerm.height);
-				var inVertChan = currentTerm != null && (currentHint.x >= currentTerm.x &&
-						currentHint.x <= currentTerm.x + currentTerm.width);
+				var inHozChan = currentTerm != null && (currentHint.y >= currentChannel.y &&
+						currentHint.y <= currentChannel.y + currentChannel.height);
+				var inVertChan = currentTerm != null && (currentHint.x >= currentChannel.x &&
+						currentHint.x <= currentChannel.x + currentChannel.width);
 
 				hozChan = fixedHozAlign || (currentPt == null && inHozChan);
 				vertChan = fixedVertAlign || (currentPt == null && inVertChan);
@@ -761,6 +764,7 @@ var mxEdgeStyle =
 				}
 				
 				currentTerm = target;
+				currentChannel = targetChannel;
 				currentPt = pts[lastInx];
 				
 				if (currentPt != null)
@@ -778,13 +782,13 @@ var mxEdgeStyle =
 
 			if (horizontal && ((pts[0] != null && pts[0].y != hint.y) ||
 				(pts[0] == null && source != null &&
-				(hint.y < source.y || hint.y > source.y + source.height))))
+				(hint.y < sourceChannel.y || hint.y > sourceChannel.y + sourceChannel.height))))
 			{
 				addPoint(new mxPoint(pt.x, hint.y));
 			}
 			else if (!horizontal && ((pts[0] != null && pts[0].x != hint.x) ||
 					(pts[0] == null && source != null &&
-					(hint.x < source.x || hint.x > source.x + source.width))))
+					(hint.x < sourceChannel.x || hint.x > sourceChannel.x + sourceChannel.width))))
 			{
 				addPoint(new mxPoint(hint.x, pt.y));
 			}
@@ -839,13 +843,13 @@ var mxEdgeStyle =
 			{
 				if (horizontal && ((pts[lastInx] != null && pts[lastInx].y != hint.y) ||
 					(pts[lastInx] == null && target != null &&
-					(hint.y < target.y || hint.y > target.y + target.height))))
+					(hint.y < targetChannel.y || hint.y > targetChannel.y + targetChannel.height))))
 				{
 					addPoint(new mxPoint(pt.x, hint.y));
 				}
 				else if (!horizontal && ((pts[lastInx] != null && pts[lastInx].x != hint.x) ||
 						(pts[lastInx] == null && target != null &&
-						(hint.x < target.x || hint.x > target.x + target.width))))
+						(hint.x < targetChannel.x || hint.x > targetChannel.x + targetChannel.width))))
 				{
 					addPoint(new mxPoint(hint.x, pt.y));
 				}
@@ -860,7 +864,7 @@ var mxEdgeStyle =
 			if (pts[0] == null && source != null)
 			{
 				while (tempPoints.length > 0 && tempPoints[0] != null &&
-					mxUtils.contains(source, tempPoints[0].x, tempPoints[0].y))
+					mxUtils.contains(sourceChannel, tempPoints[0].x, tempPoints[0].y))
 				{
 					tempPoints.splice(0, 1);
 				}
@@ -870,7 +874,7 @@ var mxEdgeStyle =
 			if (pts[lastInx] == null && target != null)
 			{
 				while (tempPoints.length > 0 && tempPoints[tempPoints.length - 1] != null &&
-					mxUtils.contains(target, tempPoints[tempPoints.length - 1].x, tempPoints[tempPoints.length - 1].y))
+					mxUtils.contains(targetChannel, tempPoints[tempPoints.length - 1].x, tempPoints[tempPoints.length - 1].y))
 				{
 					tempPoints.splice(tempPoints.length - 1, 1);
 				}
@@ -1071,6 +1075,31 @@ var mxEdgeStyle =
 	 * translate - optional <mxPoint> to subtract after scaling
 	 * 
 	 */
+	/**
+	 * Function: getChannelBounds
+	 *
+	 * Returns the channel bounds of the given terminal in model units (see
+	 * <mxGraphView.getChannelBounds>), or the given scaled state if they are
+	 * the bounds of the terminal.
+	 */
+	getChannelBounds: function(view, state, scaled, scale, translate)
+	{
+		var bounds = (state != null) ? view.getChannelBounds(state) : null;
+
+		if (bounds != null && bounds != state)
+		{
+			var tx = (translate != null) ? translate.x : 0;
+			var ty = (translate != null) ? translate.y : 0;
+
+			return new mxRectangle(Math.round(mxUtils.unscale(bounds.x, scale, tx) * 10) / 10,
+				Math.round(mxUtils.unscale(bounds.y, scale, ty) * 10) / 10,
+				Math.round(mxUtils.unscale(bounds.width, scale) * 10) / 10,
+				Math.round(mxUtils.unscale(bounds.height, scale) * 10) / 10);
+		}
+
+		return scaled;
+	},
+
 	scaleCellState: function(state, scale, translate)
 	{
 		var result = null;

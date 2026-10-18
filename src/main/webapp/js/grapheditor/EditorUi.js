@@ -100,10 +100,14 @@ EditorUi = function(editor, container, lightbox)
 			{
 				var model = graph.getModel();
 
-				// Edge labels (vertex children of edges) only update the text styles
-				// of the edge default so they stay consistent with the edge's own
-				// label and never touch the vertex default (see pasteCellStyles)
-				var isEdgeLabel = model.isVertex(cell) && model.isEdge(model.getParent(cell));
+				// Edge labels (text or edgeLabel children of edges) only update the
+				// text styles of the edge default so they stay consistent with the
+				// edge's own label and never touch the vertex default (see
+				// pasteCellStyles). Other children of edges, such as symbols, set
+				// the vertex default.
+				var pairs = (typeof cell.style === 'string') ? cell.style.split(';') : [];
+				var isEdgeLabel = model.isVertex(cell) && model.isEdge(model.getParent(cell)) &&
+					(mxUtils.indexOf(pairs, 'text') >= 0 || mxUtils.indexOf(pairs, 'edgeLabel') >= 0);
 
 				if (model.isEdge(cell) || isEdgeLabel)
 				{
@@ -1496,7 +1500,9 @@ EditorUi.prototype.findCommonProperties = function(cell, properties, addAll, sst
 		if (!state.shape.commonCustomPropAdded)
 		{
 			state.shape.commonCustomPropAdded = true;
-			state.shape.customProperties = state.shape.customProperties || [];
+
+			// Copies the array of the shape prototype which is shared by all instances
+			state.shape.customProperties = (state.shape.customProperties || []).slice();
 			
 			// Adds custom colors from stencils
 			if (state.shape != null && state.shape.stencil != null &&
@@ -1883,7 +1889,7 @@ EditorUi.prototype.updateSelectionStateForCell = function(result, cell, cells, i
 	
 	if (graph.getModel().isVertex(cell))
 	{
-		result.connections = graph.model.getEdgeCount(cell) > 0;
+		result.connections = result.connections || graph.model.getEdgeCount(cell) > 0;
 		result.unlocked = result.unlocked && !graph.isCellLocked(cell);
 		result.resizable = result.resizable && graph.isCellResizable(cell);
 		result.rotatable = result.rotatable && graph.isCellRotatable(cell);
@@ -2823,7 +2829,7 @@ EditorUi.prototype.getCellsForShapePicker = function(cell, hovering, showEdges)
 		createVertex('triangle;whiteSpace=wrap;html=1;shapeInside=1;', 60, 80),
 		createVertex('shape=document;whiteSpace=wrap;html=1;boundedLbl=1;', 120, 80),
 		createVertex('shape=tape;whiteSpace=wrap;html=1;', 120, 100),
-		createVertex('ellipse;shape=cloud;whiteSpace=wrap;html=1;', 120, 80),
+		createVertex('ellipse;shape=cloud;whiteSpace=wrap;html=1;perimeter=cloudPerimeter;', 120, 80),
 		createVertex('shape=singleArrow;whiteSpace=wrap;html=1;arrowWidth=0.4;arrowSize=0.4;', 80, 60),
 		createVertex('shape=waypoint;sketch=0;size=6;pointerEvents=1;points=[];fillColor=none;resizable=0;' +
 			'rotatable=0;perimeter=centerPerimeter;snapToPoint=1;', 20, 20)];
@@ -2983,7 +2989,7 @@ EditorUi.prototype.onKeyPress = function(evt)
 		{
 			// Defers to mxKeyHandler if it has a binding for this key
 			// (e.g. "/" for omni search) to avoid intercepting shortcuts
-			if (this.keyHandler != null && this.keyHandler.getFunction(evt) != null)
+			if (this.keyHandler != null && this.keyHandler.resolveFunction(evt) != null)
 			{
 				return;
 			}
@@ -3111,7 +3117,7 @@ EditorUi.prototype.installTypingShim = function()
 		if (evt.key != null && evt.key.length === 1 && !mxEvent.isAltDown(evt))
 		{
 			// But check for keyboard shortcuts bound to this key
-			if (this.keyHandler != null && this.keyHandler.getFunction(evt) != null)
+			if (this.keyHandler != null && this.keyHandler.resolveFunction(evt) != null)
 			{
 				evt.preventDefault();
 			}
@@ -3336,16 +3342,23 @@ EditorUi.prototype.isImmediateEditingEvent = function(evt)
 };
 
 /**
- * Updates the CSS for the given element to match the selection.
+ * Updates the CSS for the given element to match the selection. The optional
+ * label is the element for the text of no marker, which is otherwise written
+ * to the marker element.
  */
-EditorUi.prototype.updateCssForMarker = function(markerDiv, prefix, shape, marker, fill)
+EditorUi.prototype.updateCssForMarker = function(markerDiv, prefix, shape, marker, fill, label)
 {
 	var src = this.getImageForMarker(marker, fill, shape);
 	markerDiv.innerHTML = '';
 
+	if (label != null)
+	{
+		label.innerHTML = '';
+	}
+
 	if (src == null)
 	{
-		markerDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('none'));
+		mxUtils.write((label != null) ? label : markerDiv, mxResources.get('none'));
 	}
 	else
 	{
@@ -6568,6 +6581,24 @@ ChangePageSetup.prototype.execute = function()
 	        this.previousPageScale = currentPageScale;
 	    }
     }
+
+	// Optional measure scale (see Graph.measureScale), swapped for undo
+	if (this.measureScale != null && this.measureScale != graph.measureScale)
+	{
+		var tmp = graph.measureScale;
+		this.ui.setMeasureScale(this.measureScale);
+		this.measureScale = tmp;
+	}
+
+	// Optional gradient of the page background as {color, direction}, where
+	// a null color removes the gradient (see Graph.backgroundGradient)
+	if (this.gradient != null)
+	{
+		var tmp = {color: graph.backgroundGradient,
+			direction: graph.backgroundGradientDirection};
+		this.ui.setBackgroundGradient(this.gradient.color, this.gradient.direction);
+		this.gradient = tmp;
+	}
 };
 
 /**
@@ -6635,6 +6666,30 @@ EditorUi.prototype.setPageScale = function(value)
 	}
 
 	this.fireEvent(new mxEventObject('pageScaleChanged'));
+};
+
+/**
+ * Sets the gradient of the page background (see Graph.setBackgroundGradient).
+ */
+EditorUi.prototype.setBackgroundGradient = function(color, direction)
+{
+	this.editor.graph.setBackgroundGradient(color, direction);
+	this.editor.graph.view.validateBackground();
+
+	this.fireEvent(new mxEventObject('backgroundGradientChanged'));
+};
+
+/**
+ * Sets the measure scale of the graph (see Graph.measureScale) and updates
+ * the labels with measure placeholders.
+ */
+EditorUi.prototype.setMeasureScale = function(value)
+{
+	var graph = this.editor.graph;
+	graph.setMeasureScale(value);
+	graph.refresh();
+
+	this.fireEvent(new mxEventObject('measureScaleChanged'));
 };
 
 /**
@@ -6762,7 +6817,8 @@ EditorUi.prototype.updateActionStates = function()
 	this.actions.get('home').setEnabled(graph.view.currentRoot != null);
 	this.actions.get('enterGroup').setEnabled(ss.cells.length == 1 &&
 		graph.isValidRoot(ss.cells[0]));
-	this.actions.get('copyData').setEnabled(ss.cells.length == 1);
+	// Copies the data of the diagram without a selection
+	this.actions.get('copyData').setEnabled(ss.cells.length == 1 || graph.isSelectionEmpty());
 	this.actions.get('copyAsText').setEnabled(ss.cells.length == 1);
 	// Edit Link writes to every editable cell in the selection, like
 	// Edit Style — same URL or custom action on a group of shapes.
@@ -8131,7 +8187,7 @@ EditorUi.prototype.altShiftActions = {
   82: 'clearWaypoints', // Alt+Shift+R
   76: 'editLink', // Alt+Shift+L
   79: 'connectionPoints', // Alt+Shift+O
-  81: 'editConnectionPoints', // Alt+Shift+Q
+  75: 'editConnectionPoints', // Alt+Shift+K
   84: 'editTooltip', // Alt+Shift+T
   78: 'editNote', // Alt+Shift+N
   86: 'pasteSize', // Alt+Shift+V
@@ -8154,6 +8210,92 @@ EditorUi.prototype.ctrlAltActions = {
 
 // Alt+Keycode mapping to action, empty by default
 EditorUi.prototype.altActions = {};
+
+/**
+ * Key codes of the US layout for the physical keys (KeyboardEvent.code) of
+ * letters, digits, punctuation and the numeric keypad (see
+ * EditorUi.createUsKeyEvent).
+ */
+EditorUi.usKeyCodes = (function()
+{
+	var codes = {Minus: 189, Equal: 187, BracketLeft: 219, BracketRight: 221,
+		Backslash: 220, Semicolon: 186, Quote: 222, Comma: 188, Period: 190,
+		Slash: 191, Backquote: 192, NumpadMultiply: 106, NumpadAdd: 107,
+		NumpadSubtract: 109, NumpadDecimal: 110, NumpadDivide: 111};
+
+	for (var i = 0; i < 26; i++)
+	{
+		codes['Key' + String.fromCharCode(65 + i)] = 65 + i;
+	}
+
+	for (var i = 0; i < 10; i++)
+	{
+		codes['Digit' + i] = 48 + i;
+		codes['Numpad' + i] = 96 + i;
+	}
+
+	return codes;
+})();
+
+/**
+ * Returns true if the given key event is part of an IME composition, where
+ * keystrokes must not run shortcuts.
+ */
+EditorUi.isComposingKeyEvent = function(evt)
+{
+	return evt != null && (evt.isComposing || evt.keyCode == 229);
+};
+
+/**
+ * Returns true if the given key event types a character with AltGr on a
+ * letter key (eg. AltGr+V for @ on Hungarian layouts, which Windows reports
+ * with Ctrl and Alt pressed), where keystrokes must not run shortcuts. AltGr
+ * on a letter without a character on the layout reports the letter and runs
+ * the shortcut. Option on macOS is not checked as it is used for shortcuts.
+ */
+EditorUi.isAltGraphKeyEvent = function(evt)
+{
+	return !mxClient.IS_MAC && evt != null && evt.keyCode >= 65 && evt.keyCode <= 90 &&
+		typeof evt.getModifierState === 'function' && evt.getModifierState('AltGraph') &&
+		evt.key != null && evt.key.length == 1 &&
+		evt.key.toUpperCase() != String.fromCharCode(evt.keyCode);
+};
+
+/**
+ * Returns an object with the properties of the given key event that the key
+ * handler reads, but the key code of the key at the same position on the US
+ * layout (see EditorUi.usKeyCodes), or null if the physical key is not known
+ * or has the same key code. This allows shortcuts to be resolved for key
+ * codes that other layouts do not bind (eg. the punctuation and digits of
+ * other layouts or key codes of 0). Keys with the key code of a letter are
+ * ignored as their letter was already looked up (eg. Ctrl+Q on AZERTY must
+ * not run Ctrl+A).
+ */
+EditorUi.createUsKeyEvent = function(evt)
+{
+	var keyCode = (evt != null && typeof evt.code === 'string' &&
+		!(evt.keyCode >= 65 && evt.keyCode <= 90) &&
+		Object.prototype.hasOwnProperty.call(EditorUi.usKeyCodes, evt.code)) ?
+		EditorUi.usKeyCodes[evt.code] : null;
+
+	if (keyCode != null && keyCode != evt.keyCode)
+	{
+		return {type: evt.type, keyCode: keyCode, which: keyCode, key: evt.key,
+			code: evt.code, shiftKey: evt.shiftKey, ctrlKey: evt.ctrlKey,
+			altKey: evt.altKey, metaKey: evt.metaKey, target: evt.target,
+			srcElement: evt.srcElement, isComposing: false,
+			preventDefault: function()
+			{
+				evt.preventDefault();
+			},
+			stopPropagation: function()
+			{
+				evt.stopPropagation();
+			}};
+	}
+
+	return null;
+};
 
 /**
  * Creates the keyboard event handler for the current graph and history.
@@ -8204,6 +8346,61 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	keyHandler.isControlDown = function(evt)
 	{
 		return mxEvent.isControlDown(evt) || (mxClient.IS_MAC && evt.metaKey);
+	};
+
+	// Returns the function for the given keystroke: the binding of its key
+	// code (getFunction, unchanged), so that layouts such as AZERTY or Dvorak
+	// keep the shortcuts on the printed characters, or if nothing is bound
+	// for the key code, the binding of the key at the same position on the
+	// US layout (KeyboardEvent.code, see EditorUi.createUsKeyEvent), eg. for
+	// the punctuation of other layouts. Never resolves a shortcut during an
+	// IME composition or for a character typed with AltGr. The resolved
+	// function is called with the given event.
+	keyHandler.resolveFunction = function(evt)
+	{
+		var result = null;
+
+		if (!EditorUi.isComposingKeyEvent(evt) && !EditorUi.isAltGraphKeyEvent(evt))
+		{
+			result = this.getFunction(evt);
+
+			if (result == null)
+			{
+				var usEvt = EditorUi.createUsKeyEvent(evt);
+
+				if (usEvt != null && !this.isEventIgnored(usEvt))
+				{
+					result = this.getFunction(usEvt);
+				}
+			}
+		}
+
+		return result;
+	};
+
+	// Same as mxKeyHandler.keyDown with resolveFunction and no shortcuts
+	// (incl. escape) during an IME composition
+	keyHandler.keyDown = function(evt)
+	{
+		if (this.isEnabledForEvent(evt) && !EditorUi.isComposingKeyEvent(evt))
+		{
+			// Cancels the editing if escape is pressed
+			if (evt.keyCode == 27 /* Escape */)
+			{
+				this.escape(evt);
+			}
+			// Invokes the function for the keystroke
+			else if (!this.isEventIgnored(evt))
+			{
+				var boundFunction = this.resolveFunction(evt);
+
+				if (boundFunction != null)
+				{
+					boundFunction(evt);
+					mxEvent.consume(evt);
+				}
+			}
+		}
 	};
 
 	var thread = null;
@@ -8413,7 +8610,15 @@ EditorUi.prototype.createKeyHandler = function(editor)
 
 			if (action != null)
 			{
-				return action.funct;
+				// Checks the enabled state like bindAction but consumes
+				// the event so that the key is not handled without Alt
+				return function()
+				{
+					if (action.isEnabled())
+					{
+						action.funct.apply(this, arguments);
+					}
+				};
 			}
 			else if (evt.key == '/' && !this.isControlDown(evt) && !mxEvent.isAltDown(evt))
 			{

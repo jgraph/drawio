@@ -189,6 +189,12 @@ function mxFreehand(graph)
 	    }
 	});
 
+	// Keeps the stroke so far if the system cancels the gesture
+	graph.addListener(mxEvent.CANCEL_MOUSE_GESTURE, function(sender, evt)
+	{
+		endPath(evt.getProperty('event'));
+	});
+
 	// Used to retrieve default styles
 	var edge = new mxCell();
 	edge.edge = true;

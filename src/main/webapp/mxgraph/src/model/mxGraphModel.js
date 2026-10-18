@@ -933,42 +933,53 @@ mxGraphModel.prototype.getOrigin = function(cell)
 mxGraphModel.prototype.getNearestCommonAncestor = function(cell1, cell2)
 {
 	if (cell1 != null && cell2 != null)
-	{		
-		// Creates the cell path for the second cell
-		var path = mxCellPath.create(cell2);
-
-		if (path != null && path.length > 0)
+	{
+		// Walks up from the same depth instead of comparing cell paths, which
+		// look up the index of each ancestor in its parent (linear in the
+		// number of siblings)
+		var getDepth = mxUtils.bind(this, function(cell)
 		{
-			// Bubbles through the ancestors of the first
-			// cell to find the nearest common ancestor.
-			var cell = cell1;
-			var current = mxCellPath.create(cell);
-			
-			// Inverts arguments
-			if (path.length < current.length)
+			var depth = 0;
+
+			for (var p = this.getParent(cell); p != null; p = this.getParent(p))
 			{
-				cell = cell2;
-				var tmp = current;
-				current = path;
-				path = tmp;
+				depth++;
 			}
-			
-			while (cell != null)
-			{
-				var parent = this.getParent(cell);
-				
-				// Checks if the cell path is equal to the beginning of the given cell path
-				if (path.indexOf(current + mxCellPath.PATH_SEPARATOR) == 0 && parent != null)
-				{
-					return cell;
-				}
-				
-				current = mxCellPath.getParentPath(current);
-				cell = parent;
-			}
+
+			return depth;
+		});
+
+		var depth1 = getDepth(cell1);
+		var depth2 = getDepth(cell2);
+		var deeper = (depth1 > depth2) ? cell1 : cell2;
+		var cell = (depth1 > depth2) ? cell2 : cell1;
+
+		// The result is the shallower cell or one of its ancestors and
+		// must be an ancestor of the deeper cell (not the cell itself)
+		for (var i = Math.abs(depth1 - depth2); i > 0; i--)
+		{
+			deeper = this.getParent(deeper);
+		}
+
+		if (depth1 == depth2)
+		{
+			cell = this.getParent(cell);
+			deeper = this.getParent(deeper);
+		}
+
+		while (cell != null && cell != deeper)
+		{
+			cell = this.getParent(cell);
+			deeper = this.getParent(deeper);
+		}
+
+		// Never returns the root
+		if (cell != null && this.getParent(cell) != null)
+		{
+			return cell;
 		}
 	}
-	
+
 	return null;
 };
 
@@ -2051,8 +2062,8 @@ mxGraphModel.prototype.createUndoableEdit = function(significant)
 
 /**
  * Function: mergeChildren
- * 
- * Merges the children of the given cell into the given target cell inside
+ *
+ * Deprecated. Merges the children of the given cell into the given target cell inside
  * this model. All cells are cloned unless there is a corresponding cell in
  * the model with the same id, in which case the source cell is ignored and
  * all edges are connected to the corresponding cell in this model. Edges
@@ -2063,6 +2074,7 @@ mxGraphModel.prototype.createUndoableEdit = function(significant)
  */
 mxGraphModel.prototype.mergeChildren = function(from, to, cloneAllEdges)
 {
+	mxUtils.deprecated('mxGraphModel.mergeChildren');
 	cloneAllEdges = (cloneAllEdges != null) ? cloneAllEdges : true;
 	
 	this.beginUpdate();
@@ -2101,15 +2113,16 @@ mxGraphModel.prototype.mergeChildren = function(from, to, cloneAllEdges)
 };
 
 /**
- * Function: mergeChildren
- * 
- * Clones the children of the source cell into the given target cell in
+ * Function: mergeChildrenImpl
+ *
+ * Deprecated. Clones the children of the source cell into the given target cell in
  * this model and adds an entry to the mapping that maps from the source
  * cell to the target cell with the same id or the clone of the source cell
  * that was inserted into this model.
  */
 mxGraphModel.prototype.mergeChildrenImpl = function(from, to, cloneAllEdges, mapping)
 {
+	mxUtils.deprecated('mxGraphModel.mergeChildrenImpl');
 	this.beginUpdate();
 	try
 	{

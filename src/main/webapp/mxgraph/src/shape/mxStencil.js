@@ -39,6 +39,10 @@
  * left, (0.5,0.5) the center, (1,0.5) the center of the right hand edge of the
  * bounds, etc. Values may be less than 0 or greater than 1 to be positioned
  * outside of the shape.
+ * - "dx" and "dy", optional numbers. Absolute offsets that are added to the
+ * position given by x and y, in the coordinates of the shape, so they are
+ * scaled with the zoom but not with the size of the shape (eg. x="1" dx="-10"
+ * is always 10 pixels left of the right edge at 100 %). Default is 0.
  * - "name", optional string. A unique identifier for the port on the shape.
  * 
  * background and foreground:
@@ -355,8 +359,11 @@ mxStencil.prototype.parseConstraint = function(node)
 	var y = Number(node.getAttribute('y'));
 	var perimeter = node.getAttribute('perimeter') == '1';
 	var name = node.getAttribute('name');
-	
-	return new mxConnectionConstraint(new mxPoint(x, y), perimeter, name);
+	var dx = Number(node.getAttribute('dx'));
+	var dy = Number(node.getAttribute('dy'));
+
+	return new mxConnectionConstraint(new mxPoint(x, y), perimeter, name,
+		(isFinite(dx)) ? dx : 0, (isFinite(dy)) ? dy : 0);
 };
 
 /**

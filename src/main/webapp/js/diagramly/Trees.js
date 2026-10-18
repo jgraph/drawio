@@ -1385,7 +1385,9 @@
 				
 				targets.sort(function(a, b)
 				{
-					return (horizontal) ? a.x + a.width - b.x - b.width : a.y + a.height - b.y - b.height;
+					// The sums can be infinite for large geometries
+					return (horizontal) ? mxUtils.compareNumbers(a.x + a.width, b.x + b.width) :
+						mxUtils.compareNumbers(a.y + a.height, b.y + b.height);
 				});
 			}
 			
@@ -1457,13 +1459,18 @@
 
 				if (graph.isEnabled() && !graph.isEditing() && cell != null)
 				{
-					var action = (mxEvent.isAltDown(evt) && mxEvent.isShiftDown(evt)) ? 
-						altShiftActions[evt.keyCode] : (mxEvent.isAltDown(evt) ?
-							altActions[evt.keyCode] : null);
+					// Ctrl/Cmd+Alt(+Shift) is left to the key handler (eg. Ctrl+Alt+C)
+					var action = (!mxEvent.isAltDown(evt) || mxEvent.isControlDown(evt) ||
+						mxEvent.isMetaDown(evt)) ? null : ((mxEvent.isShiftDown(evt)) ?
+							altShiftActions[evt.keyCode] : altActions[evt.keyCode]);
 
 					if (action != null)
 					{
-						action.funct(evt);
+						if (action.isEnabled())
+						{
+							action.funct(evt);
+						}
+
 						mxEvent.consume(evt);
 					}
 					else if (isTreeVertex(cell))

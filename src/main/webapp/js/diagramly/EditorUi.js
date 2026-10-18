@@ -140,6 +140,25 @@
 	};
 
 	/**
+	 * Defaults of the # list directive of the CSV import (see
+	 * parseCsvList): the style of the list shape (the UML class of the
+	 * sidebar, a swimlane with a vertical stack layout that resizes it to its
+	 * rows), the style and height of the rows (the fields of the UML class)
+	 * and the separator of the values in the list column.
+	 */
+	EditorUi.CSV_LIST_STYLE = 'swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;' +
+		'startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;' +
+		'collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;';
+
+	EditorUi.CSV_LIST_ITEM_STYLE = 'text;strokeColor=none;fillColor=none;align=left;' +
+		'verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;' +
+		'points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;';
+
+	EditorUi.CSV_LIST_ITEM_HEIGHT = 26;
+
+	EditorUi.CSV_LIST_SEPARATOR = '|';
+
+	/**
 	 * Overrides compact UI setting.
 	 */
 	EditorUi.compactUi = Editor.currentTheme != 'atlas' || window.DRAWIO_PUBLIC_BUILD;
@@ -2335,10 +2354,13 @@
 					// Avoids scroll offset when switching page
 					this.editor.setGraphXml(node);
 					
-					// Avoids duplicate parsing of the XML stored in the node
+					// Avoids duplicate parsing of the XML stored in the node.
+					// The page root is changed in the same edit as the model
+					// root, so the undo restores both (jgraph/drawio#5795).
 					if (this.currentPage != null)
 					{
-						this.currentPage.root = this.editor.graph.model.root;
+						graph.model.execute(new ChangePageRoot(this,
+							this.currentPage, graph.model.root));
 						graph.model.execute(new ChangePage(this, this.currentPage, this.currentPage, 0));
 					}
 				}
@@ -2548,7 +2570,18 @@
 					
 					if (text.length > 0)
 					{
-						var tmp = Graph.decompress(text);
+						var tmp = null;
+
+						try
+						{
+							tmp = Graph.decompress(text);
+						}
+						catch (e)
+						{
+							// Keeps the compressed data of a page that cannot be
+							// decompressed unchanged instead of failing the save
+							clone = pageNode.cloneNode(true);
+						}
 						
 						if (tmp != null && tmp.length > 0)
 						{
@@ -2584,7 +2617,10 @@
 
 					if (page != this.currentPage)
 					{
-						if (page.needsUpdate)
+						// Includes copies of a page that was edited as the
+						// current page, eg. own pages taken while realtime
+						// was turned on after the edits
+						if (page.isNodeStale())
 						{
 							var enc = new mxCodec(mxUtils.createXmlDocument());
 							var temp = enc.encode(new mxGraphModel(page.root));
@@ -2595,6 +2631,7 @@
 
 							// Marks the page as up-to-date
 							delete page.needsUpdate;
+							page.setDiagramModified(false);
 						}
 						else if (resolveReferences)
 						{
@@ -3021,6 +3058,7 @@
 				else if (page.viewState != null && page.viewState != null)
 				{
 					graph.setBackgroundImage(page.viewState.backgroundImage);
+					graph.setMeasureScale(page.viewState.measureScale);
 				}
 
 				graph.getGlobalVariable = function(name)
@@ -3080,8 +3118,11 @@
 			var scale = graph.view.scale;
 			var x0 = Math.floor(bounds.x / scale - graph.view.translate.x);
 			var y0 = Math.floor(bounds.y / scale - graph.view.translate.y);
-			bg = graph.background;
-	
+
+			// The background comes from the file and is written into the
+			// style attribute of the body below
+			bg = (Graph.isSafeCssColor(graph.background)) ? graph.background : null;
+
 			// Embed script only used if no redirect
 			if (redirect == null)
 			{
@@ -6727,20 +6768,34 @@
 	/**
 	 * Hides the current menu.
 	 */
-	EditorUi.prototype.showBackgroundImageDialog = function(apply, img, color, showColor)
+	EditorUi.prototype.showBackgroundImageDialog = function(apply, img, color, showColor, gradient)
 	{
-		apply = (apply != null) ? apply : mxUtils.bind(this, function(image, failed, color)
+		var graph = this.editor.graph;
+
+		apply = (apply != null) ? apply : mxUtils.bind(this, function(image, failed, color, gradient)
 		{
 			if (!failed)
 			{
 				var change = new ChangePageSetup(this, (showColor) ? color : null, image);
 				change.ignoreColor = !showColor;
 
-				this.editor.graph.model.execute(change);
+				// Removing the background color also removes its gradient
+				if (showColor)
+				{
+					change.gradient = (gradient != null && color != null &&
+						color != mxConstants.NONE) ? gradient :
+						{color: null, direction: null};
+				}
+
+				graph.model.execute(change);
 			}
 		});
 
-		var dlg = new BackgroundImageDialog(this, apply, img, color, showColor);
+		// Gradient of the background color (see Graph.backgroundGradient)
+		gradient = (gradient != null) ? gradient : {color: graph.backgroundGradient,
+			direction: graph.backgroundGradientDirection};
+
+		var dlg = new BackgroundImageDialog(this, apply, img, color, showColor, gradient);
 		this.showDialog(dlg.container, 400, null, true, true);
 		dlg.init();
 	};
@@ -6969,8 +7024,9 @@
 							this.showDialog(dlg.container, 300, null, true, true);
 						});
 
-						// One click to pick the file and grant it, where the Home screen is on
-						if (this.isHomeEnabled != null && this.isHomeEnabled() &&
+						// One click to pick the file and grant it, where the Home screen can
+						// show (also when opened from File > My Diagrams in another storage)
+						if (this.isHomeAvailable != null && this.isHomeAvailable() &&
 							this.showDriveAccessDialog(id, changeUser, function()
 							{
 								if (fn != null)
@@ -7143,14 +7199,18 @@
 	};
 	
 	/**
-	 * Creates a popup banner.
+	 * Creates a popup banner. A banner without an ID has no "Don't show
+	 * again" option and is shown again on every call.
 	 */
 	EditorUi.prototype.showBanner = function(id, text, onclick, doNotShowAgainOnClose, small, positionCss, t1, t2, to)
 	{
 		var result = false;
 		
+		// mxSettings is not in the viewer bundles, which show the banner
+		// for the image export in the lightbox
 		if (!this.bannerShowing && !this['hideBanner' + id] &&
-			(!isLocalStorage || mxSettings.settings == null ||
+			(!isLocalStorage || typeof mxSettings === 'undefined' ||
+			mxSettings.settings == null ||
 			mxSettings.settings['close' + id] == null))
 		{
 			positionCss = (positionCss != null) ? positionCss : 'bottom:10px;left:50%;';
@@ -7207,7 +7267,7 @@
 			chk.setAttribute('id', 'geDoNotShowAgainCheckbox');
 			chk.style.marginRight = '6px';
 			
-			if (!doNotShowAgainOnClose)
+			if (!doNotShowAgainOnClose && id != null)
 			{
 				div.appendChild(chk);
 				
@@ -7226,11 +7286,12 @@
 					banner.parentNode.removeChild(banner);
 					this.bannerShowing = false;
 					
-					if (chk.checked || doNotShowAgainOnClose)
+					if (id != null && (chk.checked || doNotShowAgainOnClose))
 					{
 						this['hideBanner' + id] = true;
 	
-						if (isLocalStorage && mxSettings.settings != null)
+						if (isLocalStorage && typeof mxSettings !== 'undefined' &&
+							mxSettings.settings != null)
 						{
 							mxSettings.settings['close' + id] = Date.now();
 							mxSettings.save();
@@ -12192,6 +12253,7 @@
 				else if (page.viewState != null && page.viewState != null)
 				{
 					graph.setBackgroundImage(page.viewState.backgroundImage);
+					graph.setMeasureScale(page.viewState.measureScale);
 				}
 		
 				graph.getGlobalVariable = function(name)
@@ -12747,7 +12809,7 @@
 
 			if (pages[i] != this.currentPage)
 			{
-				pages[i].needsUpdate = true;
+				pages[i].invalidateNode();
 			}
 
 			if (pages[i].viewState != null && this.updateBackgroundPageLink(
@@ -12758,7 +12820,7 @@
 					this.editor.graph.setViewState(pages[i].viewState, true);
 				}
 
-				pages[i].needsUpdate = true;
+				pages[i].invalidateNode();
 			}
 		}
 	};
@@ -17054,7 +17116,7 @@
 		{
 			// CHANGE normally invalidates only the CURRENT page's XML.
 			// A history replay can mutate another page without selecting it.
-			page.needsUpdate = true;
+			page.invalidateNode();
 
 			if (page == model.repairUi.currentPage)
 			{
@@ -17731,7 +17793,17 @@
 			// a page or mutating the document during preflight.
 			if (change instanceof mxRootChange)
 			{
-				roots.set(change.model, change.previous);
+				// A replay on another page than the one of its first
+				// execution leaves the model root as it is (Pages.js)
+				var rootUi = change.model.repairUi;
+				var viewed = (rootUi != null) ? selectedPage(rootUi) : null;
+
+				if (rootUi == null || !change.repairExecuted ||
+					((viewed != null) ? viewed.getId() : null) ==
+					change.repairPageId)
+				{
+					roots.set(change.model, change.previous);
+				}
 			}
 			else if (typeof SelectPage != 'undefined' && change instanceof SelectPage)
 			{
@@ -18499,9 +18571,8 @@
 		this.restorePersistedEdgeStyle();
 
 		// Auto-play any attached animation script when viewing read-only
-		// (chromeless / lightbox / embed mode). Previously this required
-		// loading plugins/animation.js via ?p=anim — now it works on any
-		// diagram that has an animation script attached.
+		// (chromeless / lightbox / embed mode) on any diagram that has an
+		// animation script attached.
 		//
 		// Opt-out via ?animate=0 in the URL — useful for sharing an animated
 		// diagram statically (e.g. as a snapshot for review) without it
@@ -19755,8 +19826,10 @@
 			this.keyHandler.bindAction(54, true, 'adaptiveColors', true); // Ctrl+Shift+6
 			this.altShiftActions[81] = 'copyStyle'; // Alt+Shift+Q
 			this.altShiftActions[87] = 'pasteStyle'; // Alt+Shift+W
-			this.altShiftActions[83] = 'synchronize'; // Alt+Shift+S
+			this.altShiftActions[89] = 'synchronize'; // Alt+Shift+Y
 			this.ctrlAltActions[84] = 'runLastLayout'; // Ctrl+Alt+T
+			this.ctrlAltActions[67] = 'copyTextStyle'; // Ctrl+Alt+C
+			this.ctrlAltActions[86] = 'pasteTextStyle'; // Ctrl+Alt+V
 
 			// Applies custom keyboard shortcuts from the configuration
 			// after the default bindings so that they take precedence
@@ -20650,6 +20723,29 @@
 		var restoreFocus = false;
 		var restoreOnInsertUp = false;
 
+		// Removes the textarea and restores the focus
+		var removeInput = mxUtils.bind(this, function()
+		{
+			restoreFocus = false;
+			restoreOnInsertUp = false;
+
+			// Remove textInput first so the typing shim's
+			// clipboardElt check sees it as no longer present
+			// and can correctly focus the shim instead.
+			textInput.parentNode.removeChild(textInput);
+
+			if (!graph.isEditing() && this.dialog == null && graph.container != null)
+			{
+				graph.container.focus();
+			}
+
+			// Workaround for lost cursor in focused element
+			if (this.dialog == null)
+			{
+				mxUtils.clearSelection();
+			}
+		});
+
 		// Disables built-in cut, copy and paste shortcuts
 		this.keyHandler.bindControlKey(88, null);
 		this.keyHandler.bindControlKey(67, null);
@@ -20658,6 +20754,14 @@
 		// Shows a textare when control/cmd is pressed to handle native clipboard actions
 		mxEvent.addListener(document, 'keydown', mxUtils.bind(this, function(evt)
 		{
+			// AltGr on Windows sends Control before AltGraph. Removes the textarea
+			// that Control showed, so that a character typed with AltGr reaches
+			// the typing shim (see EditorUi.isAltGraphKeyEvent).
+			if (restoreFocus && evt.key == 'AltGraph')
+			{
+				removeInput();
+			}
+
 			// No dialog visible
 			var source = mxEvent.getSource(evt);
 			
@@ -20747,24 +20851,7 @@
 					keyCode == 91 /* MetaLeft */ || keyCode == 93 /* MetaRight */ ||
 					(restoreOnInsertUp && keyCode == 45 /* Insert */)))
 				{
-					restoreFocus = false;
-					restoreOnInsertUp = false;
-
-					// Remove textInput first so the typing shim's
-					// clipboardElt check sees it as no longer present
-					// and can correctly focus the shim instead.
-					textInput.parentNode.removeChild(textInput);
-
-					if (!graph.isEditing() && this.dialog == null && graph.container != null)
-					{
-						graph.container.focus();
-					}
-
-					// Workaround for lost cursor in focused element
-					if (this.dialog == null)
-					{
-						mxUtils.clearSelection();
-					}
+					removeInput();
 				}
 			}), 0);
 		}));
@@ -22113,6 +22200,15 @@
 		return (urlParams['embed'] != '1' || (urlParams['themes'] == '1' &&
 			urlParams['ui'] == null && urlParams['sketch'] != '1')) &&
 			urlParams['extAuth'] != '1' && this.mode != App.MODE_ATLAS;
+	};
+
+	/**
+	 * Returns true if the mouse wheel zoom switch should be in the menus. The
+	 * Atlassian products have no configuration dialog.
+	 */
+	EditorUi.prototype.isZoomWheelMenuVisible = function()
+	{
+		return urlParams['atlas'] == '1' || this.mode == App.MODE_ATLAS;
 	};
 
 	/**
@@ -23576,7 +23672,7 @@
 			{
 				try
 				{
-					window.addEventListener('storage', mxUtils.bind(this, function(evt)
+					var storageHandler = mxUtils.bind(this, function(evt)
 					{
 						if (evt.key == mxSettings.key)
 						{
@@ -23586,7 +23682,15 @@
 							ColorDialog.recentColors = mxSettings.getRecentColors();
 							this.menus.customFonts = mxSettings.getCustomFonts();
 						}
-					}), false);
+					});
+
+					window.addEventListener('storage', storageHandler, false);
+
+					// Removes the listener which would call into the destroyed UI
+					this.destroyFunctions.push(function()
+					{
+						window.removeEventListener('storage', storageHandler, false);
+					});
 				}
 				catch (e)
 				{
@@ -23668,10 +23772,11 @@
 				}));
 
 				/**
-				 * Persists mouse wheel zoom switch except in passive scroll
-				 * mode where the mouse wheel scrolls the host page.
+				 * Persists mouse wheel zoom switch where it is in the menus
+				 * except in passive scroll mode where the mouse wheel
+				 * scrolls the host page.
 				 */
-				if (!Editor.passiveScroll)
+				if (this.isZoomWheelMenuVisible() && !Editor.passiveScroll)
 				{
 					if (mxSettings.settings.zoomWheel != null)
 					{
@@ -23848,7 +23953,7 @@
 							'scale', [scale]);
 
 						this.writeImageToClipboard(dataUrl, w, h, 'image/png', null,
-							mxUtils.bind(this, function()
+							mxUtils.bind(this, function(e)
 							{
 								if (this.isLocalFileSave())
 								{
@@ -25290,7 +25395,7 @@
 					bg = '#ffffff';
 				}
 
-				pv.backgroundColor = bg;
+				pv.backgroundColor = thisGraph.getPrintBackground(bg);
 				pv.autoOrigin = autoOrigin;
 				
 				if (args.grid)
@@ -25423,6 +25528,9 @@
 						tempGraph.pageFormat = page.viewState.pageFormat;
 						tempGraph.gridSize = page.viewState.gridSize;
 						tempGraph.hiddenTags = page.viewState.hiddenTags || [];
+						tempGraph.setMeasureScale(page.viewState.measureScale);
+						tempGraph.setBackgroundGradient(page.viewState.backgroundGradient,
+							page.viewState.backgroundGradientDirection);
 					}
 
 					// Forces update of background page image in offscreen page
@@ -26373,7 +26481,7 @@
 									root = pages[i].root;
 									
 									// Encodes the page with its new cells and view state on save
-									pages[i].needsUpdate = true;
+									pages[i].invalidateNode();
 									
 									if (pages[i].viewState != null)
 									{
@@ -26781,6 +26889,27 @@
 	};
 
 	/**
+	 * Returns true if the given cell is a layout container whose layout can be
+	 * replaced: a vertex with a childLayout other than the structural ones
+	 * (tables, stacks/pools, racks). The optional graph is the graph of the
+	 * cell (default is the graph of the editor).
+	 */
+	EditorUi.prototype.isLayoutContainer = function(cell, graph)
+	{
+		graph = (graph != null) ? graph : this.editor.graph;
+
+		if (cell != null && graph.model.isVertex(cell))
+		{
+			var childLayout = graph.getCellStyle(cell)['childLayout'];
+
+			return childLayout != null && childLayout != 'tableLayout' &&
+				childLayout != 'stackLayout' && childLayout != 'rack';
+		}
+
+		return false;
+	};
+
+	/**
 	 * Returns the layout container to retarget when the user runs a layout,
 	 * or null: the selection must be exactly one vertex whose style carries
 	 * a replaceable childLayout (the Insert > Layout and Advanced-sidebar
@@ -26798,10 +26927,7 @@
 		{
 			if (graph.model.isVertex(cells[i]))
 			{
-				var childLayout = graph.getCellStyle(cells[i])['childLayout'];
-
-				if (childLayout != null && childLayout != 'tableLayout' &&
-					childLayout != 'stackLayout' && childLayout != 'rack')
+				if (this.isLayoutContainer(cells[i], graph))
 				{
 					result.push(cells[i]);
 				}
@@ -26861,11 +26987,74 @@
 	 * an unchanged value produces no model change, so the layout is re-run
 	 * explicitly to keep the gesture from being a no-op. Throws for specs
 	 * that cannot be written (non-arrays, unknown or container-unsafe
-	 * layout names, values that would corrupt the style string).
+	 * layout names, values that would corrupt the style string, see
+	 * createContainerChildLayout). The optional graph is the graph of the
+	 * cell (default is the graph of the editor).
 	 */
-	EditorUi.prototype.setContainerChildLayout = function(cell, spec)
+	EditorUi.prototype.setContainerChildLayout = function(cell, spec, graph)
 	{
-		var graph = this.editor.graph;
+		graph = (graph != null) ? graph : this.editor.graph;
+		var result = this.createContainerChildLayout(spec, graph);
+		var value = result.value;
+		var groupPadding = result.groupPadding;
+		var corners = result.corners;
+
+		graph.model.beginUpdate();
+		try
+		{
+			var style = graph.model.getStyle(cell);
+			graph.setCellStyles('childLayout', value, [cell]);
+
+			if (groupPadding != null)
+			{
+				graph.setCellStyles('groupPadding', groupPadding, [cell]);
+			}
+
+			// One-shot corners re-theme for this explicit gesture, in the
+			// same edit as the spec write (converged edges produce no model
+			// change). The applyCorners guard keeps a stale vendored bundle
+			// from breaking the gesture — the spec still applies, only the
+			// re-theme is skipped.
+			if (corners != null && typeof ElkLayout !== 'undefined' &&
+				typeof ElkLayout.applyCorners === 'function')
+			{
+				ElkLayout.applyCorners(graph, cell, corners);
+			}
+
+			// The style change triggers the layout manager, which runs the new
+			// layout inside this edit (or schedules it if it cannot run sync).
+			// An unchanged value produces no change to react to — re-run the
+			// container's layout explicitly so the action always takes effect.
+			// If that run writes changes (out-of-sync container), the manager
+			// re-runs once more at endUpdate; the second run converges to an
+			// empty write set, while the common converged case stays a clean
+			// no-op (no undo step, no modified flag).
+			if (graph.model.getStyle(cell) == style && graph.layoutManager != null)
+			{
+				graph.layoutManager.executeLayout(cell, false);
+			}
+		}
+		finally
+		{
+			graph.model.endUpdate();
+		}
+	};
+
+	/**
+	 * Returns the childLayout style value of a layout container for the
+	 * given spec (see setContainerChildLayout) as {value, groupPadding,
+	 * corners}, where groupPadding is the groupPadding of the config to be
+	 * mirrored into the style of the container and corners the corners of
+	 * the config for the one-shot re-theme of its edges (both null if the
+	 * config has none). Custom-layout arrays get the container-critical
+	 * defaults of Menus.layoutContainers and are validated with the given
+	 * graph. Throws for specs that cannot be written (non-arrays, unknown or
+	 * container-unsafe layout names, values that would corrupt the style
+	 * string). Changes nothing, so it can also validate a spec up front.
+	 */
+	EditorUi.prototype.createContainerChildLayout = function(spec, graph)
+	{
+		graph = (graph != null) ? graph : this.editor.graph;
 		var value = spec;
 		var groupPadding = null;
 		var corners = null;
@@ -26900,7 +27089,14 @@
 
 					for (var key in entry.config)
 					{
-						config[key] = entry.config[key];
+						// The spec can be untrusted JSON (eg. the # layout of a
+						// CSV import), where a __proto__ key would replace the
+						// prototype of config and hide the defaults below
+						if (key != '__proto__' && key != 'constructor' &&
+							key != 'prototype')
+						{
+							config[key] = entry.config[key];
+						}
 					}
 
 					// The container itself is the layout root, so the dialog's
@@ -27011,45 +27207,7 @@
 			throw new Error('Invalid childLayout: ' + value);
 		}
 
-		graph.model.beginUpdate();
-		try
-		{
-			var style = graph.model.getStyle(cell);
-			graph.setCellStyles('childLayout', value, [cell]);
-
-			if (groupPadding != null)
-			{
-				graph.setCellStyles('groupPadding', groupPadding, [cell]);
-			}
-
-			// One-shot corners re-theme for this explicit gesture, in the
-			// same edit as the spec write (converged edges produce no model
-			// change). The applyCorners guard keeps a stale vendored bundle
-			// from breaking the gesture — the spec still applies, only the
-			// re-theme is skipped.
-			if (corners != null && typeof ElkLayout !== 'undefined' &&
-				typeof ElkLayout.applyCorners === 'function')
-			{
-				ElkLayout.applyCorners(graph, cell, corners);
-			}
-
-			// The style change triggers the layout manager, which runs the new
-			// layout inside this edit (or schedules it if it cannot run sync).
-			// An unchanged value produces no change to react to — re-run the
-			// container's layout explicitly so the action always takes effect.
-			// If that run writes changes (out-of-sync container), the manager
-			// re-runs once more at endUpdate; the second run converges to an
-			// empty write set, while the common converged case stays a clean
-			// no-op (no undo step, no modified flag).
-			if (graph.model.getStyle(cell) == style && graph.layoutManager != null)
-			{
-				graph.layoutManager.executeLayout(cell, false);
-			}
-		}
-		finally
-		{
-			graph.model.endUpdate();
-		}
+		return {value: value, groupPadding: groupPadding, corners: corners};
 	};
 
 	/**
@@ -29743,6 +29901,84 @@
 	};
 
 	/**
+	 * Returns the style of the layout container of a CSV import for the style
+	 * of its # container directive, or for null the borderless group of
+	 * Insert > Layout (see Menus.layoutContainers). The container always
+	 * derives its bounds from its cells (transparentBounds=1, its geometry
+	 * stays at 0,0,0,0 and the cells keep their position in the diagram) and
+	 * has a groupPadding of 20 unless the style defines one. Its childLayout
+	 * is set from the layout of the CSV (see setContainerChildLayout).
+	 */
+	EditorUi.prototype.createCsvContainerStyle = function(style)
+	{
+		if (style == null)
+		{
+			return 'group;connectable=0;transparentBounds=1;groupPadding=20;';
+		}
+		else
+		{
+			style = mxUtils.setStyle(style, 'transparentBounds', '1');
+
+			if (style.substring(0, 13) != 'groupPadding=' &&
+				style.indexOf(';groupPadding=') < 0)
+			{
+				style = mxUtils.setStyle(style, 'groupPadding', '20');
+			}
+
+			return style;
+		}
+	};
+
+	/**
+	 * Returns the definition of a list of a CSV import for the value of its
+	 * # list directive and the given column names, or null if the value is
+	 * empty or - or names no column. The value is a column name or JSON of
+	 * the form {"column": name, "separator": string, "style": style of the
+	 * rows, "height": height of the rows, "parentstyle": style of the list
+	 * shape}, where all keys but the column are optional (see the defaults in
+	 * EditorUi.CSV_LIST_STYLE). Only own properties of the JSON are read, so
+	 * keys such as __proto__ in the untrusted JSON are ignored.
+	 */
+	EditorUi.prototype.parseCsvList = function(value, keys)
+	{
+		var def = null;
+		value = mxUtils.trim(value || '');
+
+		if (value.length > 0 && value != '-')
+		{
+			var obj = (value.charAt(0) == '{') ? JSON.parse(value) : {column: value};
+
+			var get = function(name, type)
+			{
+				return (obj != null && typeof obj == 'object' && Object.prototype.
+					hasOwnProperty.call(obj, name) && typeof obj[name] == type) ?
+					obj[name] : null;
+			};
+
+			var column = get('column', 'string');
+
+			for (var i = 0; i < keys.length && column != null && def == null; i++)
+			{
+				if (keys[i] == column || mxUtils.trim(keys[i]) == column)
+				{
+					var separator = get('separator', 'string');
+					var height = parseFloat(get('height', 'number') || get('height', 'string'));
+
+					def = {column: column, index: i,
+						separator: (separator != null && separator.length > 0) ?
+							separator : EditorUi.CSV_LIST_SEPARATOR,
+						style: get('style', 'string') || EditorUi.CSV_LIST_ITEM_STYLE,
+						height: (isFinite(height) && height > 0) ? height :
+							EditorUi.CSV_LIST_ITEM_HEIGHT,
+						parentStyle: get('parentstyle', 'string')};
+				}
+			}
+		}
+
+		return def;
+	};
+
+	/**
 	 *
 	 */
 	EditorUi.prototype.doImportCsv = function(text, done, graph)
@@ -29786,6 +30022,11 @@
         		var nodespacing = 40;
         		var levelspacing = 100;
         		var padding = 0;
+				var containerStyle = null;
+				var containerCell = null;
+
+				// Values of the # list directives (see parseCsvList)
+				var lists = [];
 
 				// Delayed after optional layout
     			var afterInsert = mxUtils.bind(this, function()
@@ -29961,14 +30202,93 @@
 		    				{
 		    					layout = value;
 		    				}
+		    				else if (key == 'container')
+		    				{
+		    					containerStyle = value;
+		    				}
+		    				else if (key == 'list')
+		    				{
+		    					lists.push(value);
+		    				}
 	    				}
         			}
         		}
-        		
+
         		if (lines[index] == null)
         		{
         			throw new Error(mxResources.get('invalidOrMissingFile'));
         		}
+
+				// Layers the CSV's `# nodespacing` / `# levelspacing` /
+				// `# edgespacing` knobs onto the static ELK config of the given
+				// CSV_ELK_LAYOUTS key so they map to ELK's spacing options the
+				// same way they used to map to mxHierarchicalLayout /
+				// mxCompactTreeLayout's intra / inter / parallel edge spacing.
+				// Done at dispatch time (not in CSV_ELK_LAYOUTS) because the
+				// values come from the per-import CSV header, not from static
+				// defaults.
+				var createCsvElkConfig = function(name)
+				{
+					var elkConfig = mxUtils.clone(EditorUi.CSV_ELK_LAYOUTS[name].config);
+					elkConfig['elk.spacing.nodeNode'] = nodespacing;
+					elkConfig['elk.layered.spacing.nodeNodeBetweenLayers'] = levelspacing;
+					elkConfig['elk.spacing.edgeEdge'] = edgespacing;
+					elkConfig['elk.layered.spacing.edgeEdgeBetweenLayers'] = edgespacing;
+
+					return elkConfig;
+				};
+
+				// Returns the spec of the given layout name for a layout container
+				// (see setContainerChildLayout): the CSV_ELK_LAYOUTS keys with the
+				// spacing of the CSV, the circle as the raw childLayout and the
+				// specs of resolveLayoutList, or null for no layout
+				var getContainerLayout = mxUtils.bind(this, function(name)
+				{
+					if (EditorUi.CSV_ELK_LAYOUTS[name] != null)
+					{
+						return [{layout: EditorUi.CSV_ELK_LAYOUTS[name].layout,
+							config: createCsvElkConfig(name)}];
+					}
+					else if (name == 'circle')
+					{
+						return 'circleLayout';
+					}
+					else
+					{
+						return this.resolveLayoutList(name);
+					}
+				});
+
+				// Optional live layout container for the new cells. The orgchart
+				// layout cannot be the layout of a container (it is loaded on
+				// demand), so its imports keep the loose cells.
+				if (containerStyle != null)
+				{
+					containerStyle = mxUtils.trim(containerStyle);
+
+					if (containerStyle == '' || containerStyle == '-' ||
+						containerStyle == 'false' || layout == 'orgchart')
+					{
+						containerStyle = null;
+					}
+					else
+					{
+						containerStyle = this.createCsvContainerStyle(
+							(containerStyle == 'true') ? null : containerStyle);
+
+						// Validates the layout before the import changes the model,
+						// auto is resolved for the imported cells below
+						if (layout != 'auto')
+						{
+							var tmp = getContainerLayout(layout);
+
+							if (tmp != null)
+							{
+								this.createContainerChildLayout(tmp, graph);
+							}
+						}
+					}
+				}
         		
     			// Converts identity and parent to index and validates XML attribute names
     			var keys = this.editor.csvToArray(lines[index].replace(/\r$/,''));
@@ -29996,7 +30316,31 @@
     			{
     				label = '%' + attribs[0] + '%';
     			}
-    			
+
+				// Resolves the lists before the model changes so that invalid JSON
+				// shows its error without a partial import. Lists of unknown
+				// columns are ignored and each column is a list once, as the IDs
+				// of the rows of a list are derived from its column.
+				var listDefs = [];
+
+				for (var i = 0; i < lists.length; i++)
+				{
+					var def = this.parseCsvList(lists[i], keys);
+
+					for (var j = 0; j < listDefs.length && def != null; j++)
+					{
+						if (listDefs[j].column == def.column)
+						{
+							def = null;
+						}
+					}
+
+					if (def != null)
+					{
+						listDefs.push(def);
+					}
+				}
+
     			if (edges != null)
 				{
 					for (var e = 0; e < edges.length; e++)
@@ -30030,6 +30374,72 @@
 	    			}
 	    		}
     			
+				if (containerStyle != null)
+				{
+					// A re-import adds the new cells to the layout container of the
+					// first updated row without a parent (updated cells stay where
+					// they are), with the CSV layout as its layout
+					for (var i = 0; i < arrays.length && containerCell == null &&
+						identityIndex != null; i++)
+					{
+						var existing = graph.model.getCell(namespace + arrays[i][identityIndex]);
+
+						if (existing != null && (parentIndex == null || !arrays[i][parentIndex]))
+						{
+							var tmp = graph.model.getParent(existing);
+
+							if (this.isLayoutContainer(tmp, graph))
+							{
+								containerCell = tmp;
+							}
+						}
+					}
+
+					// New cells are inserted at the top-left of the cells in the
+					// container so that its layout keeps the position
+					if (containerCell != null)
+					{
+						var childCount = graph.model.getChildCount(containerCell);
+						var min = null;
+
+						for (var i = 0; i < childCount; i++)
+						{
+							var child = graph.model.getChildAt(containerCell, i);
+							var geo = (graph.model.isVertex(child)) ?
+								graph.getCellGeometry(child) : null;
+
+							if (geo != null && !geo.relative)
+							{
+								min = (min == null) ? new mxPoint(geo.x, geo.y) :
+									new mxPoint(Math.min(min.x, geo.x), Math.min(min.y, geo.y));
+							}
+						}
+
+						if (min != null)
+						{
+							x0 = min.x;
+							y0 = min.y;
+							y = y0;
+						}
+					}
+				}
+
+				// Returns the parent of new cells without a parent: the layout
+				// container, which is created with the first new cell, or null
+				// for the default parent without the container directive
+				var getContainer = function()
+				{
+					if (containerCell == null && containerStyle != null)
+					{
+						containerCell = new mxCell('', new mxGeometry(0, 0, 0, 0),
+							containerStyle);
+						containerCell.vertex = true;
+						graph.addCell(containerCell);
+					}
+
+					return containerCell;
+				};
+
         		// Null prototype: keys are untrusted parent column values
         		var rowCells = Object.create(null);
 
@@ -30056,6 +30466,273 @@
 					else
 					{
 						dataCell.value.removeAttribute(name);
+					}
+				};
+
+				// Lists (see parseCsvList): with # list a row is a list shape with
+				// one row per value of the list column, which the stack layout of
+				// the shape lays out. The rows of a list get stable IDs if there is
+				// an identity column (ID of the list, column and index), so that a
+				// re-import updates their labels, adds missing rows and removes
+				// extra rows instead of creating them again.
+				var listCells = [];
+
+				// Returns the trimmed values of the list column of a row, empty
+				// values add no rows
+				var getListValues = function(def, values)
+				{
+					var result = [];
+					var value = values[def.index];
+
+					if (value != null && value.length > 0)
+					{
+						var tokens = value.split(def.separator);
+
+						for (var i = 0; i < tokens.length; i++)
+						{
+							var token = mxUtils.trim(tokens[i]);
+
+							if (token.length > 0)
+							{
+								result.push(token);
+							}
+						}
+					}
+
+					return result;
+				};
+
+				// Returns the style of a list shape: the style of the row if it
+				// has a child layout, otherwise the parent style of the first list
+				// that has one (default is a UML class) with the key=value pairs of
+				// the style of the row, so that # style and # styles apply
+				var getListStyle = function(rowStyle, dataCell)
+				{
+					var tokens = (rowStyle != null) ? rowStyle.split(';') : [];
+					var result = null;
+
+					for (var i = 0; i < tokens.length; i++)
+					{
+						var idx = tokens[i].indexOf('=');
+
+						if (idx > 0 && mxUtils.trim(tokens[i].substring(0, idx)) == 'childLayout')
+						{
+							return rowStyle;
+						}
+					}
+
+					for (var i = 0; i < listDefs.length && result == null; i++)
+					{
+						result = listDefs[i].parentStyle;
+					}
+
+					result = graph.replacePlaceholders(dataCell, (result != null) ?
+						result : EditorUi.CSV_LIST_STYLE, vars);
+
+					for (var i = 0; i < tokens.length; i++)
+					{
+						var idx = tokens[i].indexOf('=');
+
+						if (idx > 0)
+						{
+							result = mxUtils.setStyle(result, mxUtils.trim(tokens[i].
+								substring(0, idx)), tokens[i].substring(idx + 1));
+						}
+					}
+
+					return result;
+				};
+
+				// Returns the label of a row of a list with the given style, which
+				// shows the value literally: escaped for HTML labels, without
+				// placeholders. The style is checked on a temporary cell as the
+				// state of an updated row still has its previous style.
+				var getListItemLabel = function(style, value)
+				{
+					value = Graph.zapGremlins(value);
+
+					return (graph.isHtmlLabel(new mxCell('', null, style))) ?
+						mxUtils.htmlEntities(value, false) : value;
+				};
+
+				var createListItem = function(def, dataCell, value, id)
+				{
+					var style = graph.replacePlaceholders(dataCell, def.style, vars);
+					var item = new mxCell(getListItemLabel(style, value),
+						new mxGeometry(0, 0, 0, def.height), style);
+					item.vertex = true;
+					item.id = id;
+
+					return item;
+				};
+
+				// Returns the ID of a row of a list or null if the list has no ID
+				var getListItemId = function(def, id, index)
+				{
+					return (id != null) ? id + '-' + def.column + '-' + index : null;
+				};
+
+				// Adds the rows to the shape of a new row with a list
+				var addListItems = function(listCell, values, id)
+				{
+					for (var i = 0; i < listDefs.length; i++)
+					{
+						var items = getListValues(listDefs[i], values);
+
+						for (var j = 0; j < items.length; j++)
+						{
+							listCell.insert(createListItem(listDefs[i], listCell, items[j],
+								getListItemId(listDefs[i], id, j)));
+						}
+					}
+				};
+
+				// Updates the rows of an updated list shape by ID: updates the
+				// labels, styles and heights of existing rows, adds missing rows
+				// after the previous row of the list and removes extra rows. Rows
+				// that were moved out of the list and rows without such an ID (eg.
+				// added by the user) are kept.
+				var updateListItems = function(listCell, dataCell, values, id)
+				{
+					var model = graph.model;
+					var start = graph.getActualStartSize(listCell, true);
+					var listGeo = graph.getCellGeometry(listCell);
+					var last = null;
+
+					for (var i = 0; i < listDefs.length; i++)
+					{
+						var def = listDefs[i];
+						var items = getListValues(def, values);
+						var prefix = getListItemId(def, id, '');
+						var style = graph.replacePlaceholders(dataCell, def.style, vars);
+						var extra = [];
+
+						for (var j = 0; j < model.getChildCount(listCell); j++)
+						{
+							var child = model.getChildAt(listCell, j);
+							var suffix = (child.id != null && String(child.id).substring(
+								0, prefix.length) == prefix) ? String(child.id).
+								substring(prefix.length) : null;
+
+							if (suffix != null && /^(0|[1-9][0-9]*)$/.test(suffix) &&
+								parseInt(suffix) >= items.length)
+							{
+								extra.push(child);
+							}
+						}
+
+						if (extra.length > 0)
+						{
+							graph.removeCells(extra, false);
+						}
+
+						for (var j = 0; j < items.length; j++)
+						{
+							var item = model.getCell(getListItemId(def, id, j));
+
+							if (item == null)
+							{
+								var lastGeo = (last != null) ? graph.getCellGeometry(last) : null;
+								item = createListItem(def, dataCell, items[j], getListItemId(def, id, j));
+								item.geometry.x = start.x;
+								item.geometry.y = (lastGeo != null) ? lastGeo.y + lastGeo.height : start.y;
+								item.geometry.width = (listGeo != null) ? Math.max(0,
+									listGeo.width - start.x - start.width) : 0;
+								model.add(listCell, item, (last != null) ?
+									listCell.getIndex(last) + 1 : 0);
+								last = item;
+							}
+							else if (model.getParent(item) == listCell)
+							{
+								var arrange = graph.beginArrange();
+								try
+								{
+									model.setStyle(item, style);
+									var geo = graph.getCellGeometry(item);
+
+									if (geo != null && geo.height != def.height)
+									{
+										geo = geo.clone();
+										geo.height = def.height;
+										model.setGeometry(item, geo);
+									}
+								}
+								finally
+								{
+									graph.endArrange(arrange);
+								}
+
+								var label = getListItemLabel(style, items[j]);
+
+								if (item.value != null && typeof item.value == 'object')
+								{
+									if (item.value.getAttribute('label') != label)
+									{
+										var obj = item.value.cloneNode(true);
+										obj.setAttribute('label', label);
+										model.setValue(item, obj);
+									}
+								}
+								else if (item.value != label)
+								{
+									model.setValue(item, label);
+								}
+
+								last = item;
+							}
+						}
+					}
+				};
+
+				// Returns the size of a list shape: the widest of its title and
+				// rows, and the height of the title and the rows
+				var getListSize = function(listCell)
+				{
+					var start = graph.getActualStartSize(listCell, true);
+					var size = graph.getPreferredSizeForCell(listCell);
+					var width = (size != null) ? size.width : 0;
+					var height = start.y + start.height;
+
+					for (var i = 0; i < graph.model.getChildCount(listCell); i++)
+					{
+						var child = graph.model.getChildAt(listCell, i);
+						var geo = graph.getCellGeometry(child);
+
+						if (graph.model.isVertex(child) && geo != null && !geo.relative)
+						{
+							var tmp = graph.getPreferredSizeForCell(child);
+
+							if (tmp != null)
+							{
+								width = Math.max(width, tmp.width + start.x + start.width);
+							}
+
+							height += geo.height;
+						}
+					}
+
+					return new mxRectangle(0, 0, width, height);
+				};
+
+				// Stacks the rows of a new list shape below its title with the
+				// width of the shape as its stack layout does
+				var layoutListItems = function(listCell)
+				{
+					var start = graph.getActualStartSize(listCell, true);
+					var y = start.y;
+
+					for (var i = 0; i < listCell.getChildCount(); i++)
+					{
+						var geo = listCell.getChildAt(i).geometry;
+
+						if (geo != null && !geo.relative)
+						{
+							geo.x = start.x;
+							geo.y = y;
+							geo.width = Math.max(0, listCell.geometry.width -
+								start.x - start.width);
+							y += geo.height;
+						}
 					}
 				};
 
@@ -30128,6 +30805,19 @@
 						setAttributeForDataCell(newCell, 'placeholders', '1');
 						newCell.style = graph.replacePlaceholders(newCell, newCell.style, vars);
 
+						// Rows of new lists are added before the cellsInserted event
+						// below so that they get the current style like the rows of
+						// updated lists
+						if (listDefs.length > 0)
+						{
+							newCell.style = getListStyle(newCell.style, newCell);
+
+							if (cell == null)
+							{
+								addListItems(newCell, values, id);
+							}
+						}
+
 						if (cell != null && !ignoreCell)
 						{
 							// Reports the new style of the updated cell like an
@@ -30140,6 +30830,11 @@
 							finally
 							{
 								graph.endArrange(arrange);
+							}
+
+							if (listDefs.length > 0)
+							{
+								updateListItems(cell, newCell, values, id);
 							}
 
 							if (mxUtils.indexOf(cells, cell) < 0)
@@ -30171,7 +30866,34 @@
 								cell.getAttribute(height.substring(1)) == 'auto');
 							var geo = graph.getCellGeometry(cell);
 
-							if ((autoWidth || autoHeight) && geo != null && !geo.relative &&
+							// Lists get the height of their title and rows (the result
+							// of their stack layout) and an auto width that fits them
+							if (listDefs.length > 0)
+							{
+								if (geo != null && !geo.relative)
+								{
+									var listSize = getListSize(cell);
+									var listWidth = (autoWidth) ? listSize.width + padding : geo.width;
+
+									if (listWidth != geo.width || listSize.height != geo.height)
+									{
+										geo = geo.clone();
+										geo.width = listWidth;
+										geo.height = listSize.height;
+
+										var arrange = graph.beginArrange();
+										try
+										{
+											graph.model.setGeometry(cell, geo);
+										}
+										finally
+										{
+											graph.endArrange(arrange);
+										}
+									}
+								}
+							}
+							else if ((autoWidth || autoHeight) && geo != null && !geo.relative &&
 								graph.model.isVertex(cell) && graph.model.getChildCount(cell) == 0)
 							{
 								var size = graph.getPreferredSizeForCell(cell);
@@ -30231,8 +30953,9 @@
 							setAttributeForDataCell(cell, link, null);
 						}
 						
-						// Sets the geometry
-						var size = graph.getPreferredSizeForCell(cell);
+						// Sets the geometry, the size of lists fits their title and rows
+						var size = (listDefs.length > 0) ? getListSize(cell) :
+							graph.getPreferredSizeForCell(cell);
 						var parent = null;
 
 						if (parentIndex != null)
@@ -30291,8 +31014,14 @@
 							}
 
 							var heightValue = (height.charAt(0) == '@') ? cell.getAttribute(height.substring(1)) : null;
-							
-							if (heightValue != null && heightValue != 'auto' && height != 'width')
+
+							if (listDefs.length > 0)
+							{
+								// The height of lists is the height of their stack
+								cell.geometry.height = size.height;
+								layoutListItems(cell);
+							}
+							else if (heightValue != null && heightValue != 'auto' && height != 'width')
 							{
 								cell.geometry.height = parseFloat(heightValue);
 							}
@@ -30302,14 +31031,19 @@
 									size.height + padding : (height == 'width' ?
 										cell.geometry.width : parseFloat(height));
 							}
-							
+
 							y += cell.geometry.height + nodespacing;
 						}
 						
 						if (!exists)
 						{
 							allCells.push(cell);
-	    					
+
+							if (listDefs.length > 0)
+							{
+								listCells.push(cell);
+							}
+
 	    					if (parent != null)
 	    					{
 								// Reports the new style of the parent like an
@@ -30330,7 +31064,7 @@
 	    					}
 	    					else
 	    					{
-	    						cells.push(graph.addCell(cell));
+	    						cells.push(graph.addCell(cell, getContainer()));
 	    					}
 						}
 						else
@@ -30390,7 +31124,7 @@
 											lookups[edge.to][refs[j]] = ref;
 											ref.vertex = true;
 											ref.id = refs[j];
-											cells.push(graph.addCell(ref));
+											cells.push(graph.addCell(ref, getContainer()));
 										}
 
 										if (ref != null)
@@ -30507,7 +31241,43 @@
 						}
 					}
 					
-					if (cells.length > 0)
+					// Resolve `auto` to one of the CSV_ELK_LAYOUTS keys so
+					// the dispatch below picks the matching branch.
+					// Tree-shape (1 root + (n-1) edges) → verticaltree.
+					// Otherwise, 1 root → verticalflow (ELK's layered,
+					// tuned to mimic the legacy mxHierarchicalLayout
+					// output — see CSV_ELK_LAYOUTS for the per-key
+					// tuning). Both default to vertical (DOWN) for `auto`.
+					// The default CSV (orgchart with cross-refs) lands on
+					// verticalflow. Several roots with edges → organic,
+					// without edges the cells keep their positions.
+					if (layout == 'auto')
+					{
+						if (roots.length == 1)
+						{
+							layout = (select.length == 2 * cells.length - 1) ?
+								'verticaltree' : 'verticalflow';
+						}
+						else if (select.length > cells.length)
+						{
+							layout = 'organic';
+						}
+					}
+
+					// The layout of the container runs whenever its cells change (in
+					// this edit for the inserted cells) instead of once on loose cells
+					if (containerCell != null)
+					{
+						var containerLayout = getContainerLayout(layout);
+
+						if (containerLayout != null)
+						{
+							this.setContainerChildLayout(containerCell, containerLayout, graph);
+						}
+
+						select = [containerCell];
+					}
+					else if (cells.length > 0)
 					{
 						var edgeLayout = new mxParallelEdgeLayout(graph);
 						edgeLayout.spacing = edgespacing;
@@ -30552,7 +31322,8 @@
 									geo.width = Math.round(graph.snap(geo.width));
 								}
 
-								if (height == 'auto')
+								// The height of lists is the height of their stack
+								if (height == 'auto' && mxUtils.indexOf(listCells, cells[i]) < 0)
 								{
 									geo.height = Math.round(graph.snap(geo.height));
 								}
@@ -30561,29 +31332,6 @@
 		    				}
 						};
 						
-						// Resolve `auto` to one of the CSV_ELK_LAYOUTS keys so
-						// the dispatch below picks the matching branch.
-						// Tree-shape (1 root + (n-1) edges) → verticaltree.
-						// Otherwise, 1 root → verticalflow (ELK's layered,
-						// tuned to mimic the legacy mxHierarchicalLayout
-						// output — see CSV_ELK_LAYOUTS for the per-key
-						// tuning). Both default to vertical (DOWN) for `auto`.
-						// The default CSV (orgchart with cross-refs) lands on
-						// verticalflow. Several roots with edges → organic,
-						// without edges the cells keep their positions.
-						if (layout == 'auto')
-						{
-							if (roots.length == 1)
-							{
-								layout = (select.length == 2 * cells.length - 1) ?
-									'verticaltree' : 'verticalflow';
-							}
-							else if (select.length > cells.length)
-							{
-								layout = 'organic';
-							}
-						}
-
 						// JSON custom-layout arrays, the libavoid shorthand and
 						// the Arrange > Layout preset names all resolve through
 						// the shared spec resolver (see resolveLayoutList). The
@@ -30714,20 +31462,10 @@
 							graph.view.validate();
 							var temp = afterInsert;
 
-							// Layer the CSV's `# nodespacing` / `# levelspacing`
-							// / `# edgespacing` knobs onto the static ELK config
-							// so they map to ELK's spacing options the same way
-							// they used to map to mxHierarchicalLayout /
-							// mxCompactTreeLayout's intra / inter / parallel
-							// edge spacing. Done at dispatch time (not in
-							// CSV_ELK_LAYOUTS) because the values come from the
-							// per-import CSV header, not from static defaults.
+							// Layers the CSV spacing knobs onto the static ELK
+							// config (see createCsvElkConfig)
 							var elkTemplate = EditorUi.CSV_ELK_LAYOUTS[layout];
-							var elkConfig = mxUtils.clone(elkTemplate.config);
-							elkConfig['elk.spacing.nodeNode'] = nodespacing;
-							elkConfig['elk.layered.spacing.nodeNodeBetweenLayers'] = levelspacing;
-							elkConfig['elk.spacing.edgeEdge'] = edgespacing;
-							elkConfig['elk.layered.spacing.edgeEdgeBetweenLayers'] = edgespacing;
+							var elkConfig = createCsvElkConfig(layout);
 
 							var elkLayouts = graph.createLayouts(
 								[{layout: elkTemplate.layout, config: elkConfig}]);
@@ -30934,11 +31672,6 @@
 			serviceCount++
 		}
 		
-		if	(this.dropbox != null || typeof window.DropboxClient === 'function')
-		{
-			serviceCount++
-		}
-
 		if (this.oneDrive != null || typeof window.OneDriveClient === 'function')
 		{
 			serviceCount++
@@ -31157,7 +31890,14 @@
 			this.scratchpadChannel.close();
 			this.scratchpadChannel = null;
 		}
-		
+
+		// Removes the key listeners of a drawing (see PolygonTool)
+		if (this.polygonTool != null)
+		{
+			this.polygonTool.destroy();
+			this.polygonTool = null;
+		}
+
 		editoUiDestroy.apply(this, arguments);
 	};
 				
@@ -32995,9 +33735,8 @@
 	{
 		var file = this.getCurrentFile();
 		
-		return file != null &&
-				((file.constructor == DriveFile && file.isEditable()) ||
-				file.constructor == DropboxFile);
+		return file != null && file.constructor == DriveFile &&
+				file.isEditable();
 	};
 	
 	//===========Adding methods to find the service running draw.io and allowing calling draw.io remote services
@@ -34928,7 +35667,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 				//Sort replies old to new
 				replies.sort(function(r1, r2)
 				{
-					return new Date(r1.modifiedDate) - new Date(r2.modifiedDate);
+					return mxUtils.compareNumbers(new Date(r1.modifiedDate), new Date(r2.modifiedDate));
 				});
 
 				for (var i = 0; i < replies.length; i++)
@@ -34939,9 +35678,10 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		};
 
 		//Sort comments old to new
+		// Invalid dates are after the others
 		list.sort(function(c1, c2)
 		{
-			return new Date(c1.modifiedDate) - new Date(c2.modifiedDate);
+			return mxUtils.compareNumbers(new Date(c1.modifiedDate), new Date(c2.modifiedDate));
 		});
 
 		// Keeps the text of a composer that is still in the list

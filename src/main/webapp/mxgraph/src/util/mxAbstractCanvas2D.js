@@ -159,6 +159,7 @@ mxAbstractCanvas2D.prototype.createState = function()
 		fontColor: '#000000',
 		fontBackgroundColor: null,
 		fontBorderColor: null,
+		fontBorderWidth: 1,
 		labelPadding: null,
 		fontSize: mxConstants.DEFAULT_FONTSIZE,
 		fontFamily: mxConstants.DEFAULT_FONTFAMILY,
@@ -334,11 +335,12 @@ mxAbstractCanvas2D.prototype.setStrokeAlpha = function(value)
 /**
  * Function: setFillColor
  * 
- * Sets the current fill color.
+ * Sets the current fill color. Colors that reference
+ * resources are ignored (see <mxUtils.hasResourceReference>).
  */
 mxAbstractCanvas2D.prototype.setFillColor = function(value)
 {
-	if (value == mxConstants.NONE)
+	if (value == mxConstants.NONE || mxUtils.hasResourceReference(value))
 	{
 		value = null;
 	}
@@ -369,14 +371,15 @@ mxAbstractCanvas2D.prototype.setFillColor = function(value)
 /**
  * Function: setGradient
  * 
- * Sets the current gradient.
+ * Sets the current gradient. Colors that reference resources are
+ * ignored (see <mxUtils.hasResourceReference>).
  */
 mxAbstractCanvas2D.prototype.setGradient = function(color1, color2, x, y, w, h, direction, alpha1, alpha2)
 {
 	var s = this.state;
-	s.fillColor = color1;
+	s.fillColor = (mxUtils.hasResourceReference(color1)) ? null : color1;
 	s.gradientFillAlpha = (alpha1 != null) ? alpha1 : 1;
-	s.gradientColor = color2;
+	s.gradientColor = (mxUtils.hasResourceReference(color2)) ? null : color2;
 	s.gradientAlpha = (alpha2 != null) ? alpha2 : 1;
 	s.gradientDirection = direction;
 };
@@ -384,11 +387,12 @@ mxAbstractCanvas2D.prototype.setGradient = function(color1, color2, x, y, w, h, 
 /**
  * Function: setStrokeColor
  * 
- * Sets the current stroke color.
+ * Sets the current stroke color. Colors that reference
+ * resources are ignored (see <mxUtils.hasResourceReference>).
  */
 mxAbstractCanvas2D.prototype.setStrokeColor = function(value)
 {
-	if (value == mxConstants.NONE)
+	if (value == mxConstants.NONE || mxUtils.hasResourceReference(value))
 	{
 		value = null;
 	}
@@ -462,11 +466,12 @@ mxAbstractCanvas2D.prototype.setMiterLimit = function(value)
 /**
  * Function: setFontColor
  * 
- * Sets the current font color.
+ * Sets the current font color. Colors that reference
+ * resources are ignored (see <mxUtils.hasResourceReference>).
  */
 mxAbstractCanvas2D.prototype.setFontColor = function(value)
 {
-	if (value == mxConstants.NONE)
+	if (value == mxConstants.NONE || mxUtils.hasResourceReference(value))
 	{
 		value = null;
 	}
@@ -477,11 +482,12 @@ mxAbstractCanvas2D.prototype.setFontColor = function(value)
 /**
  * Function: setFontBackgroundColor
  * 
- * Sets the current font background color.
+ * Sets the current font background color. Colors that reference
+ * resources are ignored (see <mxUtils.hasResourceReference>).
  */
 mxAbstractCanvas2D.prototype.setFontBackgroundColor = function(value)
 {
-	if (value == mxConstants.NONE)
+	if (value == mxConstants.NONE || mxUtils.hasResourceReference(value))
 	{
 		value = null;
 	}
@@ -504,16 +510,29 @@ mxAbstractCanvas2D.prototype.setLabelPadding = function(value)
 /**
  * Function: setFontBorderColor
  *
- * Sets the current font border color.
+ * Sets the current font border color. Colors that reference
+ * resources are ignored (see <mxUtils.hasResourceReference>).
  */
 mxAbstractCanvas2D.prototype.setFontBorderColor = function(value)
 {
-	if (value == mxConstants.NONE)
+	if (value == mxConstants.NONE || mxUtils.hasResourceReference(value))
 	{
 		value = null;
 	}
 	
 	this.state.fontBorderColor = value;
+};
+
+/**
+ * Function: setFontBorderWidth
+ *
+ * Sets the width of the font border in pixels. Values that are not finite
+ * numbers of at least 0 are ignored. Default is 1.
+ */
+mxAbstractCanvas2D.prototype.setFontBorderWidth = function(value)
+{
+	value = parseFloat(value);
+	this.state.fontBorderWidth = (isFinite(value) && value >= 0) ? value : 1;
 };
 
 /**

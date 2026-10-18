@@ -9,16 +9,10 @@ script reports, for each dia_<lang>.txt in src/main/webapp/resources:
   - duplicate keys and malformed (no '=') lines
 
 Exits non-zero if any language file is missing a key, and prints a final
-MISSING-KEYS digest line naming the distinct keys in dia.txt order.
-.github/workflows/validate-preprod.yml runs this on every preprod push and
-fails the run on that exit code; since an English key legitimately lands
-before its translations, [i18n-skip] in a pushed commit message downgrades
-that to a warning.
+MISSING-KEYS digest line naming the distinct keys in dia.txt order, so a
+build can fail on missing translations.
 
-Fixes are not applied automatically: new values need actual translations
-(the sortPages backfill in July 2026 and the 31.4.5 backfill in September
-2026 were both done by fanning the missing entries out to
-per-language-family translator subagents).
+Fixes are not applied automatically: new values need actual translations.
 
 Conventions for adding a missing key manually:
   - insert the line at the same position relative to its dia.txt

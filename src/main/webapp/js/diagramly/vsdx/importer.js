@@ -4008,7 +4008,8 @@ var com;
                         	var r1i = r1 != null? r1.getIndex() : 0;
                         	var r2i = r2 != null? r2.getIndex() : 0;
                         	
-                            return r1i - r2i;
+                        	//Indices of the file can be infinite
+                            return mxUtils.compareNumbers(r1i, r2i);
                         };
                         return mxVsdxGeometry$0;
                     }());
@@ -4354,7 +4355,7 @@ var com;
                          * @return {number}
                          */
                         mxVsdxGeometryList$0.prototype.compare = function (g1, g2) {
-                            return g1.getIndex() - g2.getIndex();
+                            return mxUtils.compareNumbers(g1.getIndex(), g2.getIndex());
                         };
                         return mxVsdxGeometryList$0;
                     }());

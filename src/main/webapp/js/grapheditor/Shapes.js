@@ -699,9 +699,11 @@
 			groups[line.key].push(line);
 		}
 
+		// Widths that are no numbers (eg. strokeWidth=abc) paint as thin lines
 		keys.sort(function(k1, k2)
 		{
-			return groups[k1][0].border.width - groups[k2][0].border.width;
+			return mxUtils.compareNumbers(groups[k1][0].border.width || 0,
+				groups[k2][0].border.width || 0);
 		});
 
 		c.setLineCap('square');
@@ -916,12 +918,81 @@
 	
 	mxCellRenderer.registerShape('tableRow', TableRowShape);
 
+	// Places the title of a table cell or row whose title region is pulled to
+	// 0 (startSize=0) in the cell instead of on the border of the empty title
+	// region: a cell's title in the middle of the cell and a row's title in the
+	// middle of the first cell of the row (or of the row if it has no cells).
+	// Tables and other swimlanes keep their title in the title region.
+	var mxSwimlaneGetLabelBounds = mxSwimlane.prototype.getLabelBounds;
+	mxSwimlane.prototype.getLabelBounds = function(rect)
+	{
+		var graph = (this.state != null) ? this.state.view.graph : null;
+
+		if (graph != null && graph.isTableCell != null && this.getTitleSize() == 0 &&
+			mxUtils.getValue(this.style, 'childLayout', null) != 'tableLayout')
+		{
+			var cell = this.state.cell;
+
+			if (graph.isTableCell(cell))
+			{
+				return mxShape.prototype.getLabelBounds.apply(this, arguments);
+			}
+			else if (graph.isTableRow(cell))
+			{
+				var bounds = this.getTableRowTitleBounds(rect);
+
+				return (bounds != null) ? bounds :
+					mxShape.prototype.getLabelBounds.apply(this, arguments);
+			}
+		}
+
+		return mxSwimlaneGetLabelBounds.apply(this, arguments);
+	};
+
+	/**
+	 * Returns the label bounds for the middle of the first cell of the table
+	 * row of this shape (see Graph.getTableRowFirstCellBounds) for the given
+	 * label bounds of the row, or null if the row has no cells. The bounds of
+	 * a vertical label are the bounds of the horizontal label rotated by 90
+	 * degrees around the center of the row (see mxCellRenderer.getLabelBounds).
+	 */
+	mxSwimlane.prototype.getTableRowTitleBounds = function(rect)
+	{
+		var cell = this.state.view.graph.getTableRowFirstCellBounds(this.state.cell);
+		var result = null;
+
+		if (cell != null)
+		{
+			var inverted = this.state.text != null &&
+				this.state.text.isPaintBoundsInverted();
+			var w = (inverted) ? rect.height : rect.width;
+			var h = (inverted) ? rect.width : rect.height;
+			var x = Math.max(0, Math.min(w, cell.x * this.scale));
+			var y = Math.max(0, Math.min(h, cell.y * this.scale));
+			var cw = Math.max(0, Math.min(w - x, cell.width * this.scale));
+			var ch = Math.max(0, Math.min(h - y, cell.height * this.scale));
+
+			// Center of the cell relative to the center of the row
+			var dx = x + (cw - w) / 2;
+			var dy = y + (ch - h) / 2;
+			var cx = rect.getCenterX();
+			var cy = rect.getCenterY();
+
+			result = (inverted) ? new mxRectangle(cx - dy - ch / 2, cy + dx - cw / 2, ch, cw) :
+				new mxRectangle(cx + dx - cw / 2, cy + dy - ch / 2, cw, ch);
+		}
+
+		return result;
+	};
+
 	// Repaints the grid lines a filled swimlane-shaped table cell (table, table
 	// row or lane) would otherwise hide with its fill. The table draws the lines
 	// centered on the cell boundaries and below its child cells, so the fill
 	// covers its half of them (see Graph.paintTableCellLines). mxSwimlane has
 	// translated the canvas to the shape origin, so the cell bounds are 0, 0,
-	// w, h here. TableShape/TableRowShape reach this via the super call.
+	// w, h here. TableShape/TableRowShape reach this via the super call. The
+	// canvas of a shape with a direction (eg. a row title with horizontal text,
+	// direction=north) is rotated, so the lines are mapped to the canvas.
 	var mxSwimlanePaintVertexShape = mxSwimlane.prototype.paintVertexShape;
 	mxSwimlane.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
@@ -936,6 +1007,7 @@
 			if (filled && graph.paintTableCellLines != null)
 			{
 				var cell = this.state.cell;
+				var directed = this.getDirectionMap(w, h);
 
 				// A table row only fills its title strip, so the separators are
 				// only covered there. Restricting the repaint to the strip leaves
@@ -945,7 +1017,22 @@
 				{
 					var start = this.getTitleSize();
 
-					if (this.isHorizontal())
+					if (directed != null)
+					{
+						var dir = graph.getSwimlaneDirection(this.style);
+						var cw = directed.width;
+						var ch = directed.height;
+						var sw = (dir == mxConstants.DIRECTION_WEST ||
+							dir == mxConstants.DIRECTION_EAST) ? Math.min(start, cw) : cw;
+						var sh = (dir == mxConstants.DIRECTION_NORTH ||
+							dir == mxConstants.DIRECTION_SOUTH) ? Math.min(start, ch) : ch;
+
+						graph.paintTableCellLines(c, cell,
+							(dir == mxConstants.DIRECTION_EAST) ? cw - sw : 0,
+							(dir == mxConstants.DIRECTION_SOUTH) ? ch - sh : 0,
+							sw, sh, this.stroke, this.strokewidth, directed.map);
+					}
+					else if (this.isHorizontal())
 					{
 						graph.paintTableCellLines(c, cell, 0, 0, w,
 							Math.min(start, h), this.stroke, this.strokewidth);
@@ -956,6 +1043,11 @@
 							Math.min(start, w), h, this.stroke, this.strokewidth);
 					}
 				}
+				else if (directed != null)
+				{
+					graph.paintTableCellLines(c, cell, 0, 0, directed.width,
+						directed.height, this.stroke, this.strokewidth, directed.map);
+				}
 				else
 				{
 					graph.paintTableCellLines(c, cell, 0, 0, w, h,
@@ -963,6 +1055,58 @@
 				}
 			}
 		}
+	};
+
+	/**
+	 * Returns the size of this swimlane in the coordinates of its cell and a
+	 * function that maps a point of the cell to the canvas in paintVertexShape,
+	 * or null if the shape has no direction. In paintVertexShape the canvas is
+	 * translated to the origin of the paint bounds, which have the given size,
+	 * and rotated for the direction (see mxShape.paint and updateTransform).
+	 * The map inverts the rotation of the direction with the flips of the
+	 * shape (see mxSvgCanvas2D.rotate), so the points keep the rotation of the
+	 * cell.
+	 */
+	mxSwimlane.prototype.getDirectionMap = function(w, h)
+	{
+		var theta = (this.direction == mxConstants.DIRECTION_NORTH) ? 270 :
+			((this.direction == mxConstants.DIRECTION_WEST) ? 180 :
+			((this.direction == mxConstants.DIRECTION_SOUTH) ? 90 : 0));
+		var result = null;
+
+		if (theta != 0)
+		{
+			var flipH = this.flipH;
+			var flipV = this.flipV;
+			var cw = (theta != 180) ? h : w;
+			var ch = (theta != 180) ? w : h;
+			var center = new mxPoint(w / 2, h / 2);
+
+			// The canvas is rotated by theta + 180 for two flips and reflected
+			// after a rotation by -theta for one flip, which is its own inverse
+			var rad = ((flipH && flipV) ? -theta - 180 : -theta) * Math.PI / 180;
+			var cos = Math.cos(rad);
+			var sin = Math.sin(rad);
+
+			result = {width: cw, height: ch, map: function(px, py)
+			{
+				var pt = mxUtils.getRotatedPoint(new mxPoint(center.x - cw / 2 + px,
+					center.y - ch / 2 + py), cos, sin, center);
+
+				if (flipH && !flipV)
+				{
+					pt.x = 2 * center.x - pt.x;
+				}
+				else if (flipV && !flipH)
+				{
+					pt.y = 2 * center.y - pt.y;
+				}
+
+				return pt;
+			}};
+		}
+
+		return result;
 	};
 
 	// Cube Shape, supports size style
@@ -3647,7 +3791,10 @@
 
 		c.setFontColor(mxUtils.getValue(this.style, mxConstants.STYLE_FONTCOLOR, 'black'));
 		c.setFontBackgroundColor(mxUtils.getValue(this.style, mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, null));
-		c.setFontBorderColor(mxUtils.getValue(this.style, mxConstants.STYLE_LABEL_BORDERCOLOR, null));
+		var borderWidth = parseFloat(mxUtils.getValue(this.style, mxConstants.STYLE_LABEL_BORDER_WIDTH, 1));
+		c.setFontBorderColor((isNaN(borderWidth) || borderWidth > 0) ? mxUtils.getValue(this.style,
+			mxConstants.STYLE_LABEL_BORDERCOLOR, null) : null);
+		c.setFontBorderWidth(borderWidth);
 		c.setFontFamily(mxUtils.getValue(this.style, mxConstants.STYLE_FONTFAMILY, mxConstants.DEFAULT_FONTFAMILY));
 		c.setFontSize(parseFloat(mxUtils.getValue(this.style, mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE)));
 		c.setFontStyle(parseInt(mxUtils.getValue(this.style, mxConstants.STYLE_FONTSTYLE, 0)));
@@ -4095,17 +4242,147 @@
 	
 	mxStyleRegistry.putValue('backbonePerimeter', mxPerimeter.BackbonePerimeter);
 
+	/**
+	 * Returns the outline of the given callout in the given bounds with sharp
+	 * corners and the pointer, as painted in CalloutShape.redrawPath and turned
+	 * for the direction of the shape.
+	 */
+	function getCalloutOutline(vertex, bounds)
+	{
+		var s = vertex.view.scale;
+		var direction = mxUtils.getValue(vertex.style, mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
+		var vertical = direction == mxConstants.DIRECTION_NORTH || direction == mxConstants.DIRECTION_SOUTH;
+		var w = (vertical) ? bounds.height : bounds.width;
+		var h = (vertical) ? bounds.width : bounds.height;
+		var size = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(vertex.style, 'size',
+			CalloutShape.prototype.size)) * s));
+		var dx = w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(vertex.style, 'position',
+			CalloutShape.prototype.position))));
+		var dx2 = w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(vertex.style, 'position2',
+			CalloutShape.prototype.position2))));
+		var base = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(vertex.style, 'base',
+			CalloutShape.prototype.base)) * s));
+		var pts = [new mxPoint(0, 0), new mxPoint(w, 0), new mxPoint(w, h - size),
+			new mxPoint(Math.min(w, dx + base), h - size), new mxPoint(dx2, h),
+			new mxPoint(Math.max(0, dx), h - size), new mxPoint(0, h - size), new mxPoint(0, 0)];
+		var rot = (direction == mxConstants.DIRECTION_NORTH) ? 270 :
+			((direction == mxConstants.DIRECTION_WEST) ? 180 :
+			((direction == mxConstants.DIRECTION_SOUTH) ? 90 : 0));
+		var cos = Math.cos(mxUtils.toRadians(rot));
+		var sin = Math.sin(mxUtils.toRadians(rot));
+		var center = new mxPoint(bounds.getCenterX(), bounds.getCenterY());
+
+		for (var i = 0; i < pts.length; i++)
+		{
+			pts[i] = mxUtils.getRotatedPoint(new mxPoint(center.x + pts[i].x - w / 2,
+				center.y + pts[i].y - h / 2), cos, sin, center);
+		}
+
+		return pts;
+	};
+
 	// Callout Perimeter
 	mxPerimeter.CalloutPerimeter = function (bounds, vertex, next, orthogonal)
 	{
-		return mxPerimeter.RectanglePerimeter(mxUtils.getDirectedBounds(bounds, new mxRectangle(0, 0, 0,
-			Math.max(0, Math.min(bounds.height, parseFloat(mxUtils.getValue(vertex.style, 'size',
-			CalloutShape.prototype.size)) * vertex.view.scale))),
-			vertex.style), vertex, next, orthogonal);
+		var outline = bounds;
+		var s = vertex.view.scale;
+		var size = Math.max(0, Math.min(bounds.height, parseFloat(mxUtils.getValue(vertex.style, 'size',
+			CalloutShape.prototype.size)) * s));
+
+		// Routes are kept in model units in model coordinates, so the margin,
+		// which getDirectedBounds rounds, is rounded in model units instead
+		// of screen pixels to not depend on the scale of the validation
+		if (vertex.view.modelCoordinates)
+		{
+			var b = mxUtils.getDirectedBounds(new mxRectangle(0, 0, mxUtils.unscale(bounds.width, s),
+				mxUtils.unscale(bounds.height, s)), new mxRectangle(0, 0, 0, mxUtils.unscale(size, s)),
+				vertex.style);
+			bounds = new mxRectangle(bounds.x + b.x * s, bounds.y + b.y * s, b.width * s, b.height * s);
+		}
+		else
+		{
+			bounds = mxUtils.getDirectedBounds(bounds, new mxRectangle(0, 0, 0, size), vertex.style);
+		}
+
+		var pt = mxPerimeter.RectanglePerimeter(bounds, vertex, next, orthogonal);
+
+		// Orthogonal ends that are not horizontal or vertical on the body (eg.
+		// level with the pointer) or that end in the base of the pointer use the
+		// outline with the pointer. Other ends keep the point on the body. Callouts
+		// whose body getDirectedBounds moves for a flip are not changed, as the next
+		// point is already flipped (see mxGraphView.getPerimeterPoint).
+		var direction = mxUtils.getValue(vertex.style, mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
+		var flipped = mxUtils.getValue(vertex.style, (direction == mxConstants.DIRECTION_NORTH ||
+			direction == mxConstants.DIRECTION_SOUTH) ? mxConstants.STYLE_FLIPH : mxConstants.STYLE_FLIPV, 0) == 1;
+
+		if (orthogonal && pt != null && !flipped)
+		{
+			var p = getOutlinePerimeterPoint(outline, getCalloutOutline(vertex, outline), next, orthogonal);
+
+			if (p != null && Math.min(Math.abs(p.x - next.x), Math.abs(p.y - next.y)) < 0.01 &&
+				Math.max(Math.abs(p.x - pt.x), Math.abs(p.y - pt.y)) > 0.5)
+			{
+				pt = p;
+			}
+		}
+
+		return pt;
 	};
 	
 	mxStyleRegistry.putValue('calloutPerimeter', mxPerimeter.CalloutPerimeter);
 	
+	/**
+	 * Returns the point where an edge to the given next point leaves the given
+	 * outline in the given bounds. For orthogonal edges, the point is on the
+	 * vertical or horizontal line through the next point. If that line does not
+	 * reach the outline between the center and the next point (eg. beside the
+	 * slanted side of a parallelogram), the point of the outline on the line
+	 * that is nearest to the next point is used, and if the line misses the
+	 * outline, the point towards the center (the center was used before, which
+	 * started the edge inside the shape). The optional range is the extent in
+	 * which the vertical and horizontal lines are used (default is the bounds).
+	 */
+	function getOutlinePerimeterPoint(bounds, points, next, orthogonal, range)
+	{
+		range = (range != null) ? range : bounds;
+		var x = range.x;
+		var y = range.y;
+		var w = range.width;
+		var h = range.height;
+		var center = new mxPoint(bounds.getCenterX(), bounds.getCenterY());
+		var result = null;
+
+		if (orthogonal)
+		{
+			var p1 = center.clone();
+
+			if (next.x < x || next.x > x + w)
+			{
+				p1.y = next.y;
+				result = mxUtils.getPerimeterPoint(points, p1, next);
+
+				if (result == null)
+				{
+					p1.x = (next.x > p1.x) ? x - 1 : x + w + 1;
+					result = mxUtils.getPerimeterPoint(points, p1, next);
+				}
+			}
+			else
+			{
+				p1.x = next.x;
+				result = mxUtils.getPerimeterPoint(points, p1, next);
+
+				if (result == null && (next.y < y || next.y > y + h))
+				{
+					p1.y = (next.y > p1.y) ? y - 1 : y + h + 1;
+					result = mxUtils.getPerimeterPoint(points, p1, next);
+				}
+			}
+		}
+
+		return (result != null) ? result : mxUtils.getPerimeterPoint(points, center, next);
+	};
+
 	// Parallelogram Perimeter
 	mxPerimeter.ParallelogramPerimeter = function (bounds, vertex, next, orthogonal)
 	{
@@ -4147,24 +4424,7 @@
 							new mxPoint(x + w - dx, y + h), new mxPoint(x, y + h), new mxPoint(x + dx, y)];
 		}	
 		
-		var cx = bounds.getCenterX();
-		var cy = bounds.getCenterY();
-		
-		var p1 = new mxPoint(cx, cy);
-		
-		if (orthogonal)
-		{
-			if (next.x < x || next.x > x + w)
-			{
-				p1.y = next.y;
-			}
-			else
-			{
-				p1.x = next.x;
-			}
-		}
-		
-		return mxUtils.getPerimeterPoint(points, p1, next);
+		return getOutlinePerimeterPoint(bounds, points, next, orthogonal);
 	};
 	
 	mxStyleRegistry.putValue('parallelogramPerimeter', mxPerimeter.ParallelogramPerimeter);
@@ -4220,24 +4480,7 @@
 						new mxPoint(x + w, y + h - dy), new mxPoint(x, y + h), new mxPoint(x, y)];
 		}		
 
-		var cx = bounds.getCenterX();
-		var cy = bounds.getCenterY();
-		
-		var p1 = new mxPoint(cx, cy);
-		
-		if (orthogonal)
-		{
-			if (next.x < x || next.x > x + w)
-			{
-				p1.y = next.y;
-			}
-			else
-			{
-				p1.x = next.x;
-			}
-		}
-
-		return mxUtils.getPerimeterPoint(points, p1, next);
+		return getOutlinePerimeterPoint(bounds, points, next, orthogonal);
 	};
 	
 	mxStyleRegistry.putValue('trapezoidPerimeter', mxPerimeter.TrapezoidPerimeter);
@@ -4300,21 +4543,7 @@
 							new mxPoint(x, y + h - dy), new mxPoint(x, y)];
 		}		
 		
-		var p1 = new mxPoint(cx, cy);
-		
-		if (orthogonal)
-		{
-			if (next.x < x || next.x > x + w)
-			{
-				p1.y = next.y;
-			}
-			else
-			{
-				p1.x = next.x;
-			}
-		}
-		
-		return mxUtils.getPerimeterPoint(points, p1, next);
+		return getOutlinePerimeterPoint(bounds, points, next, orthogonal);
 	};
 	
 	mxStyleRegistry.putValue('stepPerimeter', mxPerimeter.StepPerimeter);
@@ -4365,25 +4594,28 @@
 						new mxPoint(x, cy), new mxPoint(x + dx, y)];
 		}		
 
-		var p1 = new mxPoint(cx, cy);
-		
-		if (orthogonal)
-		{
-			if (next.x < x || next.x > x + w)
-			{
-				p1.y = next.y;
-			}
-			else
-			{
-				p1.x = next.x;
-			}
-		}
-		
-		return mxUtils.getPerimeterPoint(points, p1, next);
+		return getOutlinePerimeterPoint(bounds, points, next, orthogonal);
 	};
 	
 	mxStyleRegistry.putValue('hexagonPerimeter2', mxPerimeter.HexagonPerimeter2);
-	
+
+	// Cloud Perimeter
+	mxPerimeter.CloudPerimeter = function (bounds, vertex, next, orthogonal)
+	{
+		// Ends on the outline as painted (perimeter=cloudPerimeter), as the ellipse
+		// of ellipse;shape=cloud is far from the bumps of the cloud near its bounds.
+		// The orthogonal ranges are the extent of the bumps (see getChannelBounds).
+		var points = (vertex != null && vertex.shape != null &&
+			vertex.view.graph.getRoundedPolygonOutline != null) ?
+			vertex.view.graph.getRoundedPolygonOutline(vertex, bounds) : null;
+		var pt = (points != null) ? getOutlinePerimeterPoint(bounds, points, next, orthogonal,
+			vertex.view.graph.getOutlineBounds(points)) : null;
+
+		return (pt != null) ? pt : mxPerimeter.EllipsePerimeter.apply(this, arguments);
+	};
+
+	mxStyleRegistry.putValue('cloudPerimeter', mxPerimeter.CloudPerimeter);
+
 	// Provided Interface Shape (aka Lollipop)
 	function LollipopShape()
 	{
@@ -8307,7 +8539,10 @@
 
 			text.setAttribute('font-size', (fontSize * s.scale) + 'px');
 			text.setAttribute('font-family', mxUtils.parseCssFontFamily(fontFamily));
-			text.setAttribute('fill', fontColor);
+
+			// Ignores colors that load resources (see mxAbstractCanvas2D.setFontColor)
+			text.setAttribute('fill', (mxUtils.hasResourceReference(fontColor)) ?
+				'#000000' : fontColor);
 
 			if ((fontStyle & mxConstants.FONT_BOLD) == mxConstants.FONT_BOLD)
 			{
@@ -8926,21 +9161,7 @@
 		arc(x + br, top + br, br, 180, 270, 6);
 		points.push(points[0]);
 
-		var p1 = new mxPoint(bounds.getCenterX(), bounds.getCenterY());
-
-		if (orthogonal)
-		{
-			if (next.x < x || next.x > x + w)
-			{
-				p1.y = next.y;
-			}
-			else
-			{
-				p1.x = next.x;
-			}
-		}
-
-		return mxUtils.getPerimeterPoint(points, p1, next);
+		return getOutlinePerimeterPoint(bounds, points, next, orthogonal);
 	};
 
 	mxStyleRegistry.putValue('mermaidPersonPerimeter', mxPerimeter.MermaidPersonPerimeter);
@@ -10401,8 +10622,10 @@
 				var fontStyle = mxUtils.getValue(style,
 					mxConstants.STYLE_FONTSTYLE, 0);
 
-				var size = mxUtils.getSizeForString(label, fontSize,
-					fontFamily, null, fontStyle);
+				// The label is painted as plain text but getSizeForString
+				// measures HTML (innerHTML of an element in the document)
+				var size = mxUtils.getSizeForString(mxUtils.htmlEntities(label, false),
+					fontSize, fontFamily, null, fontStyle);
 				var width = size.width * 0.85;
 				var geo = this.model.getGeometry(cell);
 				var h = (geo != null) ? geo.height : 60;
@@ -10591,6 +10814,15 @@
 	 	}
 	 	
 	 	return graphCreateEdgeHandler.apply(this, arguments);
+	 };
+
+	 // Isometric routes keep the angle of their segments at the ends, so the
+	 // orthogonal style does not apply to them (see StyleFormatPanel.addEffects)
+	 var graphIsOrthogonal = Graph.prototype.isOrthogonal;
+	 Graph.prototype.isOrthogonal = function(edge)
+	 {
+	 	return graphIsOrthogonal.apply(this, arguments) &&
+	 		this.view.getEdgeStyle(edge) != mxEdgeStyle.IsometricConnector;
 	 };
 
 	 // Removes duplicate waypoints of isometric routes as they are computed

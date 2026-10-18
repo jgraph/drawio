@@ -340,13 +340,16 @@ mxDragSource.prototype.mouseDown = function(evt)
 	{
 		this.startDrag(evt);
 		this.mouseMoveHandler = mxUtils.bind(this, this.mouseMove);
-		this.mouseUpHandler = mxUtils.bind(this, this.mouseUp);		
-		mxEvent.addGestureListeners(document, null, this.mouseMoveHandler, this.mouseUpHandler);
+		this.mouseUpHandler = mxUtils.bind(this, this.mouseUp);
+		this.mouseCancelHandler = mxUtils.bind(this, this.mouseCancel);
+		mxEvent.addGestureListeners(document, null, this.mouseMoveHandler,
+			this.mouseUpHandler, this.mouseCancelHandler);
 		
 		if (mxClient.IS_TOUCH && !mxEvent.isMouseEvent(evt))
 		{
 			this.eventSource = mxEvent.getSource(evt);
-			mxEvent.addGestureListeners(this.eventSource, null, this.mouseMoveHandler, this.mouseUpHandler);
+			mxEvent.addGestureListeners(this.eventSource, null, this.mouseMoveHandler,
+				this.mouseUpHandler, this.mouseCancelHandler);
 		}
 	}
 };
@@ -540,6 +543,17 @@ mxDragSource.prototype.mouseUp = function(evt)
 };
 
 /**
+ * Function: mouseCancel
+ *
+ * Processes a pointercancel or touchcancel event, which ends the drag
+ * without a drop if the browser or the system takes over the pointer.
+ */
+mxDragSource.prototype.mouseCancel = function(evt)
+{
+	this.reset();
+};
+
+/**
  * Function: removeListeners
  * 
  * Actives the given graph as a drop target.
@@ -548,13 +562,16 @@ mxDragSource.prototype.removeListeners = function()
 {
 	if (this.eventSource != null)
 	{
-		mxEvent.removeGestureListeners(this.eventSource, null, this.mouseMoveHandler, this.mouseUpHandler);
+		mxEvent.removeGestureListeners(this.eventSource, null, this.mouseMoveHandler,
+			this.mouseUpHandler, this.mouseCancelHandler);
 		this.eventSource = null;
 	}
 	
-	mxEvent.removeGestureListeners(document, null, this.mouseMoveHandler, this.mouseUpHandler);
+	mxEvent.removeGestureListeners(document, null, this.mouseMoveHandler,
+		this.mouseUpHandler, this.mouseCancelHandler);
 	this.mouseMoveHandler = null;
 	this.mouseUpHandler = null;
+	this.mouseCancelHandler = null;
 };
 
 /**

@@ -278,7 +278,7 @@ var ColorPicker = function()
 		quiet = (quiet != null) ? quiet : false;
 
 		if (color == null || color == '' ||
-			mxUtils.isVarColor(color) ||
+			mxUtils.isVarOrSystemColor(color) ||
 			color == mxConstants.NONE)
 		{
 			color = '#ffffff';
@@ -346,7 +346,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 	if (color != 'default' &&
 		color != 'transparent' &&
 		color != mxConstants.NONE &&
-		!mxUtils.isVarColor(color) &&
+		!mxUtils.isVarOrSystemColor(color) &&
 		!mxUtils.isHexColor(color) &&
 		!mxUtils.isRgbColor(color) &&
 		!mxUtils.isLightDarkColor(color))
@@ -579,7 +579,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 				cssDefaultColor.light;
 		}
 		else if (input.value == '' || input.value == mxConstants.NONE ||
-			mxUtils.isVarColor(input.value))
+			mxUtils.isVarOrSystemColor(input.value))
 		{
 			input.style.background = 'transparent';
 		}
@@ -704,7 +704,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 		else
 		{
 			if (elt.value != mxConstants.NONE &&
-				!mxUtils.isVarColor(elt.value))
+				!mxUtils.isVarOrSystemColor(elt.value))
 			{
 				elt.value = validateColor(elt.value);
 				picker.fromString('#' + elt.value);
@@ -725,7 +725,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 				{
 					darkInput.value = mxConstants.NONE;
 				}
-				else if (mxUtils.isVarColor(input.value))
+				else if (mxUtils.isVarOrSystemColor(input.value))
 				{
 					darkInput.value = input.value;
 				}
@@ -765,8 +765,8 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 
 		// Blocks any non-alphabetic chars in colors
 		if ((useDefault && cssDefaultColor != null) ||
-			((/(^#?[a-zA-Z0-9]*$)/.test(color) || mxUtils.isVarColor(color)) &&
-			(/(^#?[a-zA-Z0-9]*$)/.test(dark) || mxUtils.isVarColor(dark))))
+			((/(^#?[a-zA-Z0-9]*$)/.test(color) || mxUtils.isVarOrSystemColor(color)) &&
+			(/(^#?[a-zA-Z0-9]*$)/.test(dark) || mxUtils.isVarOrSystemColor(dark))))
 		{
 			if (useDefault)
 			{
@@ -785,14 +785,14 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 				}
 
 				if (color != mxConstants.NONE &&
-					!mxUtils.isVarColor(color) &&
+					!mxUtils.isVarOrSystemColor(color) &&
 					color.charAt(0) != '#')
 				{
 					color = '#' + validateColor(color);
 				}
 
 				if (dark != mxConstants.NONE &&
-					!mxUtils.isVarColor(dark) &&
+					!mxUtils.isVarOrSystemColor(dark) &&
 					dark.charAt(0) != '#')
 				{
 					dark = '#' + validateColor(dark);
@@ -828,8 +828,8 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 		var dark = darkInput.value;
 
 		if (!((useDefault && cssDefaultColor != null) ||
-			((/(^#?[a-zA-Z0-9]*$)/.test(color) || mxUtils.isVarColor(color)) &&
-			(/(^#?[a-zA-Z0-9]*$)/.test(dark) || mxUtils.isVarColor(dark)))))
+			((/(^#?[a-zA-Z0-9]*$)/.test(color) || mxUtils.isVarOrSystemColor(color)) &&
+			(/(^#?[a-zA-Z0-9]*$)/.test(dark) || mxUtils.isVarOrSystemColor(dark)))))
 		{
 			return;
 		}
@@ -840,14 +840,14 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 			if (dark == '') dark = mxConstants.NONE;
 
 			if (color != mxConstants.NONE &&
-				!mxUtils.isVarColor(color) &&
+				!mxUtils.isVarOrSystemColor(color) &&
 				color.charAt(0) != '#')
 			{
 				color = '#' + validateColor(color);
 			}
 
 			if (dark != mxConstants.NONE &&
-				!mxUtils.isVarColor(dark) &&
+				!mxUtils.isVarOrSystemColor(dark) &&
 				dark.charAt(0) != '#')
 			{
 				dark = '#' + validateColor(dark);
@@ -1482,7 +1482,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 			}
 			else
 			{
-				if (mxUtils.isVarColor(cssColor.light))
+				if (mxUtils.isVarOrSystemColor(cssColor.light))
 				{
 					input.value = cssColor.light;
 				}
@@ -1508,7 +1508,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 			}
 			else
 			{
-				if (mxUtils.isVarColor(cssColor.dark))
+				if (mxUtils.isVarOrSystemColor(cssColor.dark))
 				{
 					darkInput.value = cssColor.dark;
 				}
@@ -1698,7 +1698,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 			if (newColor != 'default' &&
 				newColor != 'transparent' &&
 				newColor != mxConstants.NONE &&
-				!mxUtils.isVarColor(newColor) &&
+				!mxUtils.isVarOrSystemColor(newColor) &&
 				!mxUtils.isHexColor(newColor) &&
 				!mxUtils.isRgbColor(newColor) &&
 				!mxUtils.isLightDarkColor(newColor))
@@ -1732,7 +1732,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 				}
 				else
 				{
-					if (mxUtils.isVarColor(cssColor.light))
+					if (mxUtils.isVarOrSystemColor(cssColor.light))
 					{
 						input.value = cssColor.light;
 					}
@@ -1758,7 +1758,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 				}
 				else
 				{
-					if (mxUtils.isVarColor(cssColor.dark))
+					if (mxUtils.isVarOrSystemColor(cssColor.dark))
 					{
 						darkInput.value = cssColor.dark;
 					}
@@ -3697,7 +3697,7 @@ ExportDialog.saveLocalFile = function(editorUi, data, filename, format)
 	else
 	{
 		mxUtils.alert(mxResources.get('drawingTooLarge'));
-		mxUtils.popup(xml);
+		mxUtils.popup(data);
 	}
 };
 

@@ -13,6 +13,25 @@ GitLabFile = function(ui, data, meta)
 mxUtils.extend(GitLabFile, GitHubFile);
 
 /**
+ * Shows the deprecation notice when the file is opened. GitLab support ends
+ * on 31 December 2027, files stay editable until then.
+ */
+GitLabFile.prototype.open = function()
+{
+	GitHubFile.prototype.open.apply(this, arguments);
+
+	if (!this.ui.editor.isChromelessView())
+	{
+		this.ui.showBanner('GitLabDeprecationFooter',
+			'GitLab support ends on 31 December 2027. Click here to move this diagram.',
+			mxUtils.bind(this, function()
+			{
+				this.ui.actions.get('saveAs').funct();
+			}));
+	}
+};
+
+/**
  * Returns the URL of the file on GitLab.
  */
 GitLabFile.prototype.getFileUrl = function()

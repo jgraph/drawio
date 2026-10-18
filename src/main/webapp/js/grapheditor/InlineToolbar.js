@@ -600,20 +600,28 @@ InlineToolbar.prototype.repaint = function()
 
 				// Clamp to visible viewport so toolbar stays inside the
 				// diagram container (not clipped behind sidebar/overflow).
+				// Not clamped while the midpoint is outside the viewport so
+				// that the toolbar moves out of view with the edge when the
+				// diagram is panned or scrolled.
 				var container = this.graph.container;
 				var minX = container.scrollLeft + 4;
 				var maxX = container.scrollLeft + container.clientWidth - toolbarWidth - 4;
 				var minY = container.scrollTop + 4;
 				var maxY = container.scrollTop + container.clientHeight - toolbarHeight - 4;
 
-				if (maxX > minX)
+				if (mid.x >= container.scrollLeft && mid.y >= container.scrollTop &&
+					mid.x <= container.scrollLeft + container.clientWidth &&
+					mid.y <= container.scrollTop + container.clientHeight)
 				{
-					x = Math.max(minX, Math.min(x, maxX));
-				}
+					if (maxX > minX)
+					{
+						x = Math.max(minX, Math.min(x, maxX));
+					}
 
-				if (maxY > minY)
-				{
-					y = Math.max(minY, Math.min(y, maxY));
+					if (maxY > minY)
+					{
+						y = Math.max(minY, Math.min(y, maxY));
+					}
 				}
 
 				this.toolbar.style.left = Math.round(x) + 'px';

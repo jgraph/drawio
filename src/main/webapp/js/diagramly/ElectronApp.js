@@ -1011,7 +1011,7 @@ mxStencilRegistry.allowEval = false;
 
 	var origFileLoaded = EditorUi.prototype.fileLoaded;
 	
-	EditorUi.prototype.fileLoaded = async function(file)
+	EditorUi.prototype.fileLoaded = function(file)
 	{
 		var oldFile = this.getCurrentFile();
 
@@ -1051,13 +1051,15 @@ mxStencilRegistry.allowEval = false;
 		}
 
 		this.watchFile(file);
-		origFileLoaded.apply(this, arguments);
+		var result = origFileLoaded.apply(this, arguments);
 
 		// Baseline for stale external rewrite detection
 		if (file != null && typeof file.recordOwnState === 'function')
 		{
 			file.recordOwnState();
 		}
+
+		return result;
 	};
 
 	var origSetCurrentFile = EditorUi.prototype.setCurrentFile;
@@ -1188,7 +1190,7 @@ mxStencilRegistry.allowEval = false;
 
 			var addConflictStatus = mxUtils.bind(this, function(latestFile)
 			{
-				file.inConflictState = true;
+				file.setConflict();
 
 				file.addConflictStatus(null, mxUtils.bind(this, function()
 				{
@@ -2066,7 +2068,13 @@ mxStencilRegistry.allowEval = false;
 						
 						this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
 						{
-							this.recordOwnState();
+							// LocalLibrary extends the pre-wrapper LocalFile, so
+							// libraries have no own-state ring [drawio-desktop#2581]
+							if (typeof this.recordOwnState === 'function')
+							{
+								this.recordOwnState();
+							}
+
 							this.ui.watchFile(this);
 							this.contentChanged();
 							
@@ -2090,7 +2098,7 @@ mxStencilRegistry.allowEval = false;
 						}
 						else if (errMsg == 'conflict')
 						{
-							this.inConflictState = true;
+							this.setConflict();
 							errorWrapper();
 						}
 						else

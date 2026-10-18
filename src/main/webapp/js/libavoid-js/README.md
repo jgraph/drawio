@@ -5,16 +5,14 @@ Obstacle-avoiding **orthogonal edge routing** for the Arrange &gt; Layout &gt;
 libavoid never moves a vertex — it only computes edge paths that route around
 the vertices as obstacles.
 
-The bundle here is **built from source** in the sibling repo
-[`../drawio-libavoid`](https://github.com/jgraph/drawio-libavoid) — the same
-pattern as `drawio-elk` / `drawio-mermaid`, down to the refresh path
-(`ant bundles`) and being a **single, self-contained, self-publishing** bundle
-loaded via one `<script>` tag. That repo compiles the published
-[libavoid](https://www.adaptagrams.org/) C++ (from the Adaptagrams submodule,
-LGPL-2.1) with a small draw.io-authored **embind** binding into one pure-JS file
-(Emscripten wasm2js, `-sWASM=0`). Like `drawio-mermaid` publishes
-`mxMermaidToDrawio`, this bundle publishes `window.Avoid` itself on load — there
-is **no separate loader file** and no bespoke vendor script.
+The bundle here is a prebuilt, committed artifact — the same pattern as the
+ELK and mermaid bundles (`js/elk/`, `js/mermaid/`): a **single,
+self-contained, self-publishing** bundle loaded via one `<script>` tag. It
+compiles the published [libavoid](https://www.adaptagrams.org/) C++
+(Adaptagrams, LGPL-2.1) with a small draw.io-authored **embind** binding into
+one pure-JS file (Emscripten wasm2js, `-sWASM=0`). Like the mermaid bundle
+publishes `mxMermaidToDrawio`, this bundle publishes `window.Avoid` itself on
+load — there is **no separate loader file** and no bespoke vendor script.
 
 **No WebAssembly, no dynamic loading.** Earlier versions shipped a WASM binary
 (base64-inlined, decoded and instantiated asynchronously). That is gone:
@@ -35,7 +33,7 @@ universal CSP compatibility is the goal.
 
 | File | Origin | Purpose |
 |---|---|---|
-| `libavoid.min.js` | **copied** from `../drawio-libavoid/dist/libavoid.js` (by `ant bundles`) | The pure-JS module (wasm2js, embind, `DYNAMIC_EXECUTION=0`, synchronous). Self-publishing: on load it calls its own `initAvoidModule` factory synchronously, sets `window.Avoid` (and `window.__libavoidReady = Promise.resolve(Avoid)` for back-compat), and installs the `printErr` filter (demotes libavoid's non-actionable "skipping checkpoint" stderr to `console.debug`). Compiled **exception-free**: a C++ throw would abort the module and kill routing for the session, so the build patches VPSC's internal throw/catch into explicit control flow and defines `-DNDEBUG` — see `../drawio-libavoid/build/patches/`. |
+| `libavoid.min.js` | **prebuilt** (committed build artifact, never hand-edited) | The pure-JS module (wasm2js, embind, `DYNAMIC_EXECUTION=0`, synchronous). Self-publishing: on load it calls its own `initAvoidModule` factory synchronously, sets `window.Avoid` (and `window.__libavoidReady = Promise.resolve(Avoid)` for back-compat), and installs the `printErr` filter (demotes libavoid's non-actionable "skipping checkpoint" stderr to `console.debug`). Compiled **exception-free**: a C++ throw would abort the module and kill routing for the session, so the build patches VPSC's internal throw/catch into explicit control flow and defines `-DNDEBUG`. |
 | `libavoid-routing.js` | **hand-authored** | The shared routing core, `globalThis.AvoidRouting`: `computeRoutes` (obstacle-avoiding solve incl. fixed-connection-point pins and jettySize stub checkpoints) plus the pure geometry helpers (`constraintForPoint`, `jettyStub`, `filterEnclosing`, `insideAny`, `dirForPoint`, `clamp01`). **Canonical source** — drawio-mcp vendors verbatim copies (see Algorithm sync). |
 | `LICENSE` | upstream | LGPL-2.1 — shipped for attribution (libavoid is LGPL). |
 
@@ -56,20 +54,6 @@ load-order dependency — every entry point takes the `Avoid` namespace as a
 parameter — it is simply kept in the block.) libavoid flows transitively into
 `atlas.min.js`, `integrate.min.js`, and the desktop build because they include
 `extensions.min.js` whole.
-
-## Refreshing
-
-Exactly like `drawio-elk` / `drawio-mermaid` — via the internal `bundles` Ant
-target, which rebuilds all three sibling bundles and copies them in:
-
-```sh
-cd drawio-dev/etc/build
-ant bundles     # runs `npm run build` in each sibling, copies the outputs
-```
-
-libavoid's `npm run build` needs the Emscripten SDK (the other two need only
-Node). `libavoid-routing.js` and this README are hand-authored — not copied. The
-C++ version is pinned by the adaptagrams submodule commit in `../drawio-libavoid`.
 
 ## Algorithm sync
 

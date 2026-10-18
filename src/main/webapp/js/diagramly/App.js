@@ -212,11 +212,6 @@ App.ERROR_UNKNOWN = 'unknown';
 App.MODE_GOOGLE = 'google';
 
 /**
- * Dropbox mode
- */
-App.MODE_DROPBOX = 'dropbox';
-
-/**
  * OneDrive Mode
  */
 App.MODE_ONEDRIVE = 'onedrive';
@@ -262,19 +257,35 @@ App.MODE_EMBED = 'embed';
 App.MODE_ATLAS = 'atlas';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * Storages by mode: the property of the client in the App (client), the
+ * resource key of the name (title), the first character of the hash of
+ * files (char), the logo in IMAGE_PATH (logo), the logo of the app icon
+ * on hover and its size (iconLogo, iconLogoSize) and the start page (url).
+ * Has no prototype, as modes come from URLs and storage.
  */
-App.DROPBOX_APPKEY = window.DRAWIO_DROPBOX_ID;
+App.storages = Object.create(null);
 
-/**
- * Sets URL to load the Dropbox SDK from
- */
-App.DROPBOX_URL = 'js/dropbox/Dropbox-sdk.min.js';
-
-/**
- * Sets URL to load the Dropbox dropins JS from.
- */
-App.DROPINS_URL = 'https://www.dropbox.com/static/api/2/dropins.js';
+App.storages[App.MODE_GOOGLE] = {client: 'drive', title: 'googleDrive', char: 'G',
+	logo: 'google-drive-logo.svg', iconLogo: 'google-drive-logo-white.svg',
+	url: 'https://drive.google.com/?authuser=0'};
+App.storages[App.MODE_ONEDRIVE] = {client: 'oneDrive', title: 'oneDrive', char: 'W',
+	logo: 'onedrive-logo.svg', iconLogo: 'onedrive-logo-white.svg',
+	url: 'https://onedrive.live.com/'};
+App.storages[App.MODE_M365] = {client: 'm365', title: 'm365', char: 'M',
+	logo: 'onedrive-logo.svg'};
+App.storages[App.MODE_GITHUB] = {client: 'gitHub', title: 'github', char: 'H',
+	logo: 'github-logo.svg', iconLogo: 'github-logo-white.svg',
+	url: 'https://github.com/'};
+App.storages[App.MODE_GITLAB] = {client: 'gitLab', title: 'gitlab', char: 'A',
+	logo: 'gitlab-logo.svg', iconLogo: 'gitlab-logo-white.svg', iconLogoSize: '90%',
+	// Configurable (see Init.js)
+	get url() { return window.DRAWIO_GITLAB_URL; }};
+App.storages[App.MODE_TRELLO] = {client: 'trello', title: 'trello', char: 'T',
+	logo: 'trello-logo.svg', iconLogo: 'trello-logo-white-orange.svg',
+	url: 'https://trello.com/'};
+App.storages[App.MODE_DEVICE] = {title: 'device', logo: 'osa_drive-harddisk.png',
+	url: 'https://get.draw.io/'};
+App.storages[App.MODE_BROWSER] = {title: 'browser', logo: 'osa_database.png'};
 
 /**
  * OneDrive Client JS (file/folder picker). This is a slightly modified version to allow using accessTokens.
@@ -290,21 +301,6 @@ App.TRELLO_URL = 'https://api.trello.com/1/client.js';
  * Trello JQuery dependency
  */
 App.TRELLO_JQUERY_URL = 'js/jquery/jquery-3.6.0.min.js';
-
-/**
- * Specifies the key for the pusher project.
- */
-App.PUSHER_KEY = '1e756b07a690c5bdb054';
-
-/**
- * Specifies the key for the pusher project.
- */
-App.PUSHER_CLUSTER = 'eu';
-
-/**
- * Specifies the URL for the pusher API.
- */
-App.PUSHER_URL = window.PUSHER_URL || 'https://js.pusher.com/7.0.3/pusher.min.js';
 
 /**
  * SimplePeer library 
@@ -328,36 +324,31 @@ App.startTime = new Date();
  * Defines plugin IDs for loading via p URL parameter. Update the table at
  * https://www.drawio.com/doc/faq/supported-url-parameters
  */
-App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': 'plugins/explore.js',
-	'ex': 'plugins/explore.js',
+App.pluginRegistry = {'ex': 'plugins/explore.js',
 	'ac': 'plugins/connect.js', 'acj': 'plugins/connectJira.js',
 	'ac148': 'plugins/cConf-1-4-8.js', 'ac148cmnt': 'plugins/cConf-comments.js', 
 	'nxtcld': 'plugins/nextcloud.js',
 	'monday': 'plugins/monday.js',
 	'svgdata': 'plugins/svgdata.js',
-	'number': 'plugins/number.js', 'sql': 'plugins/sql.js',
+	'number': 'plugins/number.js',
 	'props': 'plugins/props.js', 'text': 'plugins/text.js',
-	'anim': 'plugins/animation.js', 'update': 'plugins/update.js',
-	'trees': 'plugins/trees/trees.js', 'import': 'plugins/import.js',
+	'update': 'plugins/update.js',
+	'trees': 'plugins/trees/trees.js',
 	'replay': 'plugins/replay.js', 'anon': 'plugins/anonymize.js',
-	'tr': 'plugins/trello.js', 'f5': 'plugins/rackF5.js',
-	'webcola': 'plugins/webcola/webcola.js', 'rnd': 'plugins/random.js',
+	'tr': 'plugins/trello.js',
+	'rnd': 'plugins/random.js',
 	'page': 'plugins/page.js', 'tags': 'plugins/tags.js'};
 
 App.publicPlugin = [
 	'ex',
 	'svgdata',
 	'number',
-	'sql',
 	'props',
 	'text',
-	'anim',
 	'update',
 	'trees',
-//	'import',
 	'replay',
 	'anon',
-	'webcola',
 //	'rnd', 'page',
 	'tags'
 ];
@@ -444,6 +435,19 @@ App.getStoredMode = function()
 };
 
 /**
+ * Function: isKnownMode
+ *
+ * Returns true if the given mode has a storage or is embed or atlas. Stored
+ * and requested modes may be for a storage that has been removed (eg.
+ * dropbox).
+ */
+App.isKnownMode = function(mode)
+{
+	return App.storages[mode] != null ||
+		mode == App.MODE_EMBED || mode == App.MODE_ATLAS;
+};
+
+/**
  * Static Application initializer executed at load-time.
  */
 (function()
@@ -452,12 +456,6 @@ App.getStoredMode = function()
 	{
 		if (urlParams['offline'] != '1')
 		{
-			// Switches to dropbox mode for db.draw.io
-			if (window.location.hostname == 'db.draw.io' && urlParams['mode'] == null)
-			{
-				urlParams['mode'] = 'dropbox';
-			}
-			
 			App.mode = urlParams['mode'];
 		}
 		
@@ -502,49 +500,16 @@ App.getStoredMode = function()
 					}
 				}
 	
-				// Dropbox support is ending, the client is only loaded with an explicit db=1
-				// KNOWN: Picker does not work in IE11 (https://dropbox.zendesk.com/requests/1650781)
-				if (typeof window.DropboxClient === 'function')
-				{
-					if (urlParams['db'] == '1' && isSvgBrowser &&
-						(document.documentMode == null || document.documentMode > 9))
-					{
-						// Immediately loads client
-						if (App.mode == App.MODE_DROPBOX || (window.location.hash != null &&
-							window.location.hash.substring(0, 2) == '#D'))
-						{
-							mxscript(App.DROPBOX_URL, function()
-							{
-								// Must load this after the dropbox SDK since they use the same namespace
-								mxscript(App.DROPINS_URL, null, 'dropboxjs', App.DROPBOX_APPKEY, true);
-							});							
-						}
-						else if (urlParams['chrome'] == '0')
-						{
-							window.DropboxClient = null;
-						}
-					}
-					else
-					{
-						// Disables loading of client
-						window.DropboxClient = null;
-					}
-				}
-				
-				// Loads OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
+				// Enables OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
 				if (typeof window.OneDriveClient === 'function')
 				{
 					if (urlParams['od'] != '0' && (navigator.userAgent == null ||
 						navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
 					{
-						// Immediately loads client
-						if (App.mode == App.MODE_ONEDRIVE || App.mode == App.MODE_M365 || (window.location.hash != null &&
-							(window.location.hash.substring(0, 2) == '#W' || window.location.hash.substring(0, 2) == '#M')))
-						{
-							//Editor.oneDriveInlinePicker can be set with configuration which is done later, so load it all time
-							mxscript(App.ONEDRIVE_URL);
-						}
-						else if (urlParams['chrome'] == '0')
+						// Disables the client in chromeless mode unless a OneDrive file is opened
+						if (urlParams['chrome'] == '0' && App.mode != App.MODE_ONEDRIVE && App.mode != App.MODE_M365 &&
+							(window.location.hash == null || (window.location.hash.substring(0, 2) != '#W' &&
+							window.location.hash.substring(0, 2) != '#M')))
 						{
 							window.OneDriveClient = null;
 						}
@@ -1170,22 +1135,16 @@ App.main = function(callback, createUi)
 				// ignore
 			}
 			
-			// Loads Pusher API, but not in lockdown where the realtime cache
-			// that sends its messages is off (see Editor.enableRealtimeCache)
-			if (('ArrayBuffer' in window) && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+			// Loads SimplePeer for WebRTC between collaborators (fast-sync=1)
+			if (urlParams['fast-sync'] == '1' && ('ArrayBuffer' in window) &&
+				!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
 				DrawioFile.SYNC == 'auto' && (urlParams['embed'] != '1' ||
 				urlParams['embedRT'] == '1') && urlParams['lockdown'] != '1' &&
 				urlParams['local'] != '1' &&
 				(urlParams['chrome'] != '0' || urlParams['rt'] == '1') &&
 				urlParams['stealth'] != '1' && urlParams['offline'] != '1')
 			{
-				// TODO: Check if async loading is fast enough
-				mxscript(App.PUSHER_URL);
-				
-				if (urlParams['fast-sync'] == '1')
-				{
-					mxscript(App.SIMPLE_PEER_URL);
-				}
+				mxscript(App.SIMPLE_PEER_URL);
 			}
 			
 			// Loads plugins
@@ -1471,40 +1430,8 @@ App.main = function(callback, createUi)
 
 						if (window.mxscript != null)
 						{
-							// Dropbox support is ending, the SDK is only loaded with an explicit db=1
-							// KNOWN: Picker does not work in IE11 (https://dropbox.zendesk.com/requests/1650781)
-							if (typeof window.DropboxClient === 'function' &&
-								window.Dropbox == null && window.DrawDropboxClientCallback != null &&
-								urlParams['db'] == '1' && isSvgBrowser &&
-								(document.documentMode == null || document.documentMode > 9))
-							{
-								mxscript(App.DROPBOX_URL, function()
-								{
-									// Must load this after the dropbox SDK since they use the same namespace
-									mxscript(App.DROPINS_URL, function()
-									{
-										DrawDropboxClientCallback();
-									}, 'dropboxjs', App.DROPBOX_APPKEY);
-								});
-							}
-							// Disables client
-							else if (typeof window.Dropbox === 'undefined')
-							{
-								window.DropboxClient = null;
-							}
-							
-							// Loads OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
-							if (typeof window.OneDriveClient === 'function' &&
-								(typeof OneDrive === 'undefined' && window.DrawOneDriveClientCallback != null &&
-								(((urlParams['embed'] != '1' && urlParams['od'] != '0') || (urlParams['embed'] == '1' &&
-								urlParams['od'] == '1')) && (navigator.userAgent == null ||
-								navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
-							{
-								//Editor.oneDriveInlinePicker can be set with configuration which is done later, so load it all time
-								mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
-							}
-							// Disables client
-							else if (typeof window.OneDrive === 'undefined')
+							// Disables the OneDrive client if the UI did not create one
+							if (ui.oneDrive == null)
 							{
 								window.OneDriveClient = null;
 							}
@@ -1516,7 +1443,7 @@ App.main = function(callback, createUi)
 							{
 								mxscript(App.TRELLO_JQUERY_URL, function()
 								{
-									// Must load this after the dropbox SDK since they use the same namespace
+									// Must load this after jQuery since the Trello client needs it
 									mxscript(App.TRELLO_URL, function()
 									{
 										DrawTrelloClientCallback();
@@ -1770,16 +1697,32 @@ App.main = function(callback, createUi)
 					}
 				}
 		
-				// Loads configuration from local storage
+				// Loads configuration from local storage, on top of the cached
+				// settings of the user's organization (App.updateOrgSettings)
 				if (isLocalStorage && localStorage != null && urlParams['embed'] != '1')
 				{
 					var configData = localStorage.getItem(Editor.configurationKey);
+					var orgData = (typeof OrgSettings !== 'undefined') ?
+						localStorage.getItem(OrgSettings.cacheKey) : null;
 		
-					if (configData != null)
+					if (configData != null || orgData != null)
 					{
 						try
 						{
-							configData = JSON.parse(configData);
+							configData = (configData != null) ? JSON.parse(configData) : null;
+
+							// A broken cache must not stop the user's own configuration
+							try
+							{
+								if (orgData != null)
+								{
+									configData = OrgSettings.merge(JSON.parse(orgData), configData);
+								}
+							}
+							catch (e)
+							{
+								// ignore
+							}
 							
 							if (configData != null)
 							{
@@ -2070,46 +2013,39 @@ App.prototype.init = function()
 	}
 
 	/**
-	 * Lazy-loading for individual backends
+	 * Creates the OneDrive client. The OneDrive SDK is only loaded for the
+	 * picker that is not inline (see Editor.oneDriveInlinePicker).
 	 */
-	if (urlParams['embed'] != '1' || urlParams['od'] == '1')
+	if (typeof window.OneDriveClient === 'function' &&
+		(urlParams['embed'] != '1' || urlParams['od'] == '1'))
 	{
-		/**
-		 * Creates onedrive client if all required libraries are available.
-		 */
-		var initOneDriveClient = mxUtils.bind(this, function()
+		try
 		{
-			if (typeof OneDrive !== 'undefined')
-			{
-				try
-				{
-					this.oneDrive = new OneDriveClient(this);
-					
-					this.oneDrive.addListener('userChanged', mxUtils.bind(this, function()
-					{
-						this.updateButtonContainer();
-						this.restoreLibraries();
-						this.checkReleaseChannel(this.oneDrive);
-					}));
-					
-					// Notifies listeners of new client
-					this.fireEvent(new mxEventObject('clientLoaded', 'client', this.oneDrive));
-				}
-				catch (e)
-				{
-					if (window.console != null)
-					{
-						console.log('OneDriveClient disabled: ' + e.message);
-					}
-				}	
-			}
-			else if (window.DrawOneDriveClientCallback == null)
-			{
-				window.DrawOneDriveClientCallback = initOneDriveClient;
-			}
-		});
+			this.oneDrive = new OneDriveClient(this);
 
-		initOneDriveClient();
+			if (!this.oneDrive.inlinePicker && typeof window.OneDrive === 'undefined' &&
+				window.mxscript != null)
+			{
+				mxscript(App.ONEDRIVE_URL, null, null, null, true);
+			}
+
+			this.oneDrive.addListener('userChanged', mxUtils.bind(this, function()
+			{
+				this.updateButtonContainer();
+				this.restoreLibraries();
+				this.checkReleaseChannel(this.oneDrive);
+			}));
+
+			// Notifies listeners of new client
+			this.fireEvent(new mxEventObject('clientLoaded', 'client', this.oneDrive));
+		}
+		catch (e)
+		{
+			if (window.console != null)
+			{
+				console.log('OneDriveClient disabled: ' + e.message);
+			}
+		}
 	}
 
 	if (urlParams['ms365'] != '0' && !EditorUi.isElectronApp &&
@@ -2203,12 +2139,7 @@ App.prototype.init = function()
 						{
 							this.updateButtonContainer();
 							this.restoreLibraries();
-
-							if (urlParams['dev'] != '1')
-							{
-								this.checkLicense();
-							}
-
+							this.updateOrgSettings();
 							this.checkReleaseChannel(this.drive);
 						}))
 						
@@ -2247,53 +2178,6 @@ App.prototype.init = function()
 		initDriveClient();
 	}
 
-	if (urlParams['db'] == '1')
-	{
-		/**
-		 * Creates dropbox client if all required libraries are available.
-		 */
-		var initDropboxClient = mxUtils.bind(this, function()
-		{
-			if (typeof Dropbox === 'function')
-			{
-				/**
-				 * Clears dropbox client callback.
-				 */
-				window.DrawDropboxClientCallback = null;
-				
-				/**
-				 * Holds the x-coordinate of the point.
-				 */
-				try
-				{
-					this.dropbox = new DropboxClient(this);
-					
-					this.dropbox.addListener('userChanged', mxUtils.bind(this, function()
-					{
-						this.updateButtonContainer();
-						this.restoreLibraries();
-					}));
-					
-					// Notifies listeners of new client
-					this.fireEvent(new mxEventObject('clientLoaded', 'client', this.dropbox));
-				}
-				catch (e)
-				{
-					if (window.console != null)
-					{
-						console.log('DropboxClient disabled: ' + e.message);
-					}
-				}
-			}
-			else if (window.DrawDropboxClientCallback == null)
-			{
-				window.DrawDropboxClientCallback = initDropboxClient;
-			}
-		});
-
-		initDropboxClient();
-	}
-
 	if (urlParams['embed'] != '1')
 	{
 		this.setGraphEnabled(false);
@@ -2307,11 +2191,22 @@ App.prototype.init = function()
 		{
 			this.mode = App.mode;
 
+			// Ignores a stored or requested mode for a storage that has been
+			// removed (eg. dropbox) and forgets it if it was stored, so that
+			// the start shows the storage and draft dialogs as before
+			if (this.mode != null && !App.isKnownMode(this.mode))
+			{
+				if (this.mode == App.getStoredMode())
+				{
+					this.clearMode();
+				}
+
+				this.mode = null;
+			}
 			// Ignores a stored or requested mode for a storage whose support has
-			// ended unless it was enabled explicitly (db=1, tr=1), so that the
+			// ended unless it was enabled explicitly (tr=1), so that the
 			// storage can be changed instead of opening a picker that is missing
-			if ((this.mode == App.MODE_DROPBOX || this.mode == App.MODE_TRELLO) &&
-				!this.isModeEnabled(this.mode))
+			else if (this.mode == App.MODE_TRELLO && !this.isModeEnabled(this.mode))
 			{
 				this.mode = null;
 			}
@@ -2576,23 +2471,6 @@ App.prototype.isOwnGDriveDomain = function()
 App.prototype.isDriveDomain = function()
 {
 	return urlParams['drive'] != '0' && this.isOwnGDriveDomain();
-};
-
-/**
- * Returns the pusher instance for notifications. Creates the instance of none exists.
- */
-App.prototype.getPusher = function()
-{
-	if (this.pusher == null && typeof window.Pusher === 'function')
-	{
-		this.pusher = new Pusher(App.PUSHER_KEY,
-		{
-			cluster: App.PUSHER_CLUSTER,
-			encrypted: true
-		});
-	}
-	
-	return this.pusher;
 };
 
 /**
@@ -2919,58 +2797,8 @@ App.prototype.switchReleaseChannel = function()
 };
 
 /**
- * Checks license in the case of Google Drive storage.
- * IMPORTANT: Do not change this function without consulting
- * the privacy lead. No personal information must be sent.
- */
-App.prototype.checkLicense = function()
-{
-	var driveUser = this.drive.getUser();
-	var email = (driveUser != null) ? driveUser.email : null;
-	
-	if (!this.isOffline() && !this.editor.chromeless && email != null && driveUser.id != null)
-	{
-		// Only the domain and hashed user ID are transmitted. This code was reviewed and deemed
-		// compliant by dbenson 2021-09-01.
-		var at = email.lastIndexOf('@');
-		var domain = (at >= 0) ? email.substring(at + 1) : '';
-		var userId = Editor.crc32(driveUser.id);
-		
-		if (domain.toLowerCase() !== 'gmail.com')
-		{
-			// Timestamp is workaround for cached response in certain environments
-			mxUtils.post('/license', 'domain=' + encodeURIComponent(domain) + '&id=' + encodeURIComponent(userId) + 
-					'&ts=' + new Date().getTime(),
-				mxUtils.bind(this, function(req)
-				{
-					try
-					{
-						if (req.getStatus() >= 200 && req.getStatus() <= 299)
-						{
-							var value = req.getText();
-							
-							if (value.length > 0)
-							{
-								var lic = JSON.parse(value);
-								
-								if (lic != null)
-								{
-									this.handleLicense(lic, domain);
-								}
-							}
-						}
-					}
-					catch (e)
-					{
-						// ignore
-					}
-				}));
-		}
-	}
-};
-
-/**
- * Returns true if the current domain is for the new drive app.
+ * Hook for subclassers to handle the licence of the user's domain, which
+ * App.reportDriveUse gets from the ws worker.
  */
 App.prototype.handleLicense = function(lic, domain)
 {
@@ -2978,61 +2806,315 @@ App.prototype.handleLicense = function(lic, domain)
 };
 
 /**
- * Reports the first successful save of a Google Drive diagram each month to
- * the licence endpoint (DriveClient.checkLicense). It counts the editors of
- * the user's Workspace domain and says if the user holds one of the domain's
- * floating seats, which only goes to handleLicense for now. Tried once per
- * page load until it succeeds, then once a month per user and browser, and
- * editing never waits for it or depends on it. Preprod only until the ws
- * worker is deployed for app.diagrams.net (its README): until then the
- * request would go to the App Engine origin.
+ * Hosts where the app reports Google Drive views and edits to the ws worker
+ * (App.reportDriveUse), and where it reads the organization's settings. Only
+ * hosts whose /ws/* goes to the worker (its README): elsewhere the requests
+ * would go to the App Engine origin.
  */
-App.prototype.reportDriveEdit = function()
+App.driveUsageHosts = ['app.diagrams.net', 'preprod.diagrams.net'];
+
+/**
+ * Mail providers of personal Google accounts, whose users don't see Extras >
+ * Organization Admin. The same list as PERSONAL_DOMAINS in the ws worker's
+ * lib.js (its tests compare them), which never admits or counts them.
+ */
+App.personalMailDomains = ['gmail.com', 'googlemail.com',
+	'outlook.com', 'hotmail.com', 'live.com', 'msn.com', 'hotmail.co.uk',
+	'hotmail.fr', 'hotmail.de', 'hotmail.it', 'hotmail.es', 'live.co.uk',
+	'live.fr', 'live.de', 'live.nl', 'live.it', 'live.ca', 'live.com.au',
+	'outlook.fr', 'outlook.de', 'outlook.es', 'outlook.it', 'outlook.jp',
+	'yahoo.com', 'ymail.com', 'rocketmail.com', 'yahoo.co.uk', 'yahoo.fr',
+	'yahoo.de', 'yahoo.it', 'yahoo.es', 'yahoo.ca', 'yahoo.com.au',
+	'yahoo.co.in', 'yahoo.co.jp', 'yahoo.com.br', 'aol.com', 'icloud.com',
+	'me.com', 'mac.com', 'proton.me', 'protonmail.com', 'pm.me',
+	'tutanota.com', 'gmx.com', 'gmx.de', 'gmx.net', 'gmx.at', 'gmx.ch',
+	'web.de', 't-online.de', 'mail.com', 'yandex.ru', 'yandex.com',
+	'mail.ru', 'qq.com', '163.com', '126.com', 'sina.com', 'naver.com',
+	'daum.net', 'hanmail.net', 'orange.fr', 'free.fr', 'laposte.net',
+	'libero.it', 'comcast.net', 'verizon.net', 'att.net', 'sbcglobal.net',
+	'btinternet.com', 'rediffmail.com'];
+
+/**
+ * The admin console's own host for each app host (AdminPage.js sends the
+ * browser there too). Elsewhere, such as preprod, the console is admin.html
+ * next to the app.
+ */
+App.adminConsoleUrls = {'app.diagrams.net': 'https://admin.diagrams.net/'};
+
+/**
+ * Returns the address of the admin console (Extras > Organization Admin).
+ */
+App.getAdminConsoleUrl = function()
+{
+	return (Object.prototype.hasOwnProperty.call(App.adminConsoleUrls, window.location.hostname)) ?
+		App.adminConsoleUrls[window.location.hostname] : new URL('admin.html', window.location.href).href;
+};
+
+/**
+ * Returns true if Extras > Organization Admin is shown: Google Drive users
+ * with a company address (not App.personalMailDomains) on the hosts of the ws
+ * worker, which checks every request anyway (ADMIN_DOMAINS).
+ */
+App.prototype.isOrganizationAdminVisible = function()
+{
+	var user = (this.drive != null) ? this.drive.getUser() : null;
+	var email = (user != null && typeof user.email === 'string') ? user.email.toLowerCase() : '';
+	var at = email.lastIndexOf('@');
+	var domain = (at > 0) ? email.substring(at + 1) : '';
+
+	return urlParams['embed'] != '1' && !this.isOfflineApp() &&
+		App.driveUsageHosts.indexOf(window.location.hostname) >= 0 &&
+		domain.indexOf('.') > 0 && App.personalMailDomains.indexOf(domain) < 0;
+};
+
+/**
+ * Gets the settings of the Drive user's organization once per page load and
+ * caches them (OrgSettings.cacheKey), or removes the cache if there are none.
+ * The app applies the cache on its next start, below the user's own
+ * configuration (App.main), so start-up never waits for this request.
+ */
+App.prototype.updateOrgSettings = function()
+{
+	if (typeof OrgSettings !== 'undefined' && isLocalStorage && this.drive != null &&
+		!this.orgSettingsRequested && !this.isOffline() && urlParams['embed'] != '1' &&
+		App.driveUsageHosts.indexOf(window.location.hostname) >= 0)
+	{
+		this.orgSettingsRequested = this.drive.getOrgSettings(function(result)
+		{
+			try
+			{
+				var settings = (result.rev > 0) ? OrgSettings.filter(result.settings) : {};
+
+				if (Object.keys(settings).length > 0)
+				{
+					localStorage.setItem(OrgSettings.cacheKey, JSON.stringify(
+						{rev: result.rev, settings: settings}));
+				}
+				else
+				{
+					localStorage.removeItem(OrgSettings.cacheKey);
+				}
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		}, function()
+		{
+			// Keeps the cache
+		});
+	}
+};
+
+/**
+ * Reports to the licence endpoint (DriveClient.checkLicense) the first time
+ * each month that the user opens (usage is 'view') or saves (usage is 'edit')
+ * a Google Drive diagram. The endpoint adds the user to the viewers or
+ * editors of their domain this month and stores nothing about the user (its
+ * sketches ignore a user sent again, but each request is a write), so
+ * the user's own Drive remembers that they were counted: the usage marker in
+ * draw.io's app data folder (DriveClient.getUsageMarker), read before and
+ * written after each count, and cached in this browser. A first edit counts
+ * as a view too if the month has none yet. Users without the email or
+ * drive.appdata scope aren't counted and are asked again the next day.
+ * Reports run one at a time, once per page load and usage at most, and
+ * opening and editing never wait for them or depend on them.
+ */
+App.prototype.reportDriveUse = function(usage)
 {
 	var user = (this.drive != null) ? this.drive.getUser() : null;
 
-	if (user != null && user.id != null && !this.isOffline() && urlParams['dev'] != '1' &&
-		window.location.hostname == 'preprod.diagrams.net')
+	if ((usage == 'view' || usage == 'edit') && user != null && user.id != null &&
+		!this.isOffline() && urlParams['dev'] != '1' && this.drive.hasIdToken() &&
+		App.driveUsageHosts.indexOf(window.location.hostname) >= 0)
 	{
-		var month = new Date().toISOString().substring(0, 7);
-		var key = '.drive-edit-' + Editor.crc32(user.id);
-		var reported = null;
+		var id = usage + '-' + user.id;
+		this.driveUsageReported = this.driveUsageReported || {};
 
-		try
+		if (!this.driveUsageReported[id] && !this.isDriveUseCounted(user, usage))
 		{
-			reported = (isLocalStorage) ? localStorage.getItem(key) : null;
-		}
-		catch (e)
-		{
-			// ignore
-		}
+			this.driveUsageReported[id] = true;
+			this.driveUsageQueue = this.driveUsageQueue || [];
+			this.driveUsageQueue.push({user: user, usage: usage});
 
-		this.driveEditsReported = this.driveEditsReported || {};
-
-		if (reported != month && !this.driveEditsReported[user.id] &&
-			this.drive.checkLicense(true, mxUtils.bind(this, function(lic)
+			if (!this.driveUsageBusy)
 			{
-				try
-				{
-					if (isLocalStorage)
-					{
-						localStorage.setItem(key, month);
-					}
-				}
-				catch (e)
-				{
-					// ignore
-				}
-
-				this.handleLicense(lic, null);
-			}), function()
-			{
-				// Fails open
-			}))
-		{
-			this.driveEditsReported[user.id] = true;
+				this.nextDriveUse();
+			}
 		}
 	}
+};
+
+/**
+ * Returns the key of the browser's cache of the usage marker of the user.
+ */
+App.prototype.getDriveUseKey = function(user)
+{
+	return '.drive-usage-' + Editor.crc32(user.id);
+};
+
+/**
+ * Returns the browser's cache of the usage marker of the user: {view, edit,
+ * wait}, the months the user was counted and the day not to ask before.
+ */
+App.prototype.getDriveUseCache = function(user)
+{
+	var cache = null;
+
+	try
+	{
+		cache = (isLocalStorage) ? JSON.parse(localStorage.getItem(this.getDriveUseKey(user))) : null;
+	}
+	catch (e)
+	{
+		// ignore
+	}
+
+	return {view: (cache != null && typeof cache.view === 'string') ? cache.view : null,
+		edit: (cache != null && typeof cache.edit === 'string') ? cache.edit : null,
+		wait: (cache != null && typeof cache.wait === 'string') ? cache.wait : null};
+};
+
+/**
+ * Stores the browser's cache of the usage marker of the user.
+ */
+App.prototype.setDriveUseCache = function(user, cache)
+{
+	try
+	{
+		if (isLocalStorage)
+		{
+			localStorage.setItem(this.getDriveUseKey(user), JSON.stringify(
+				{view: cache.view, edit: cache.edit, wait: cache.wait}));
+		}
+	}
+	catch (e)
+	{
+		// ignore
+	}
+};
+
+/**
+ * Returns true if this browser knows that the user was counted for the usage
+ * this month, or must not ask before tomorrow.
+ */
+App.prototype.isDriveUseCounted = function(user, usage)
+{
+	var today = new Date().toISOString().substring(0, 10);
+	var cache = this.getDriveUseCache(user);
+
+	return cache[usage] == today.substring(0, 7) || cache.wait == today;
+};
+
+/**
+ * Runs the next report of reportDriveUse: reads the usage marker, sends what
+ * it hasn't counted this month, then writes it. Fails open.
+ */
+App.prototype.nextDriveUse = function()
+{
+	var next = (this.driveUsageQueue != null) ? this.driveUsageQueue.shift() : null;
+	this.driveUsageBusy = next != null;
+
+	if (next == null || this.drive == null || this.isDriveUseCounted(next.user, next.usage))
+	{
+		if (next != null)
+		{
+			this.nextDriveUse();
+		}
+
+		return;
+	}
+
+	var user = next.user;
+	var today = new Date().toISOString().substring(0, 10);
+	var month = today.substring(0, 7);
+	var done = mxUtils.bind(this, function()
+	{
+		this.nextDriveUse();
+	});
+
+	this.drive.getUsageMarker(mxUtils.bind(this, function(marker)
+	{
+		// The drive could be another user's by now
+		if (this.drive == null || this.drive.getUser() == null || this.drive.getUser().id != user.id)
+		{
+			done();
+
+			return;
+		}
+
+		// What this browser knows was counted is, even if the marker missed it
+		var cache = this.getDriveUseCache(user);
+		marker.view = (cache.view == month) ? month : marker.view;
+		marker.edit = (cache.edit == month) ? month : marker.edit;
+
+		var counts = {};
+		counts[next.usage] = marker[next.usage] != month;
+		counts.view = counts.view || (counts.edit && marker.view != month);
+
+		if (!counts.view && !counts.edit)
+		{
+			this.setDriveUseCache(user, {view: marker.view, edit: marker.edit});
+			done();
+		}
+		else if (!this.drive.checkLicense(counts, mxUtils.bind(this, function(lic)
+		{
+			// Not counted without the email scope: asks again tomorrow
+			if (lic.reason == 'unknown')
+			{
+				this.setDriveUseCache(user, {view: marker.view, edit: marker.edit, wait: today});
+				done();
+			}
+			// Personal accounts are never counted: doesn't ask again this month
+			else if (lic.reason == 'personal')
+			{
+				this.setDriveUseCache(user, {view: month, edit: month});
+				done();
+			}
+			else
+			{
+				marker.view = (counts.view) ? month : marker.view;
+				marker.edit = (counts.edit) ? month : marker.edit;
+				this.setDriveUseCache(user, marker);
+
+				// Only into the Drive of the user who was counted
+				if (this.drive != null && this.drive.getUser() != null &&
+					this.drive.getUser().id == user.id)
+				{
+					this.drive.setUsageMarker(marker, done, done);
+					this.handleLicense(lic, null);
+				}
+				else
+				{
+					done();
+				}
+			}
+		}), done))
+		{
+			done();
+		}
+	}), mxUtils.bind(this, function(err)
+	{
+		// Without the drive.appdata scope the user can't be counted only once
+		// a month, so isn't counted, and is asked again tomorrow
+		if (err != null && (err.status == 401 || err.status == 403))
+		{
+			var cache = this.getDriveUseCache(user);
+			cache.wait = today;
+			this.setDriveUseCache(user, cache);
+		}
+
+		done();
+	}));
+};
+
+/**
+ * Reports the user's first save of a Google Drive diagram this month
+ * (App.reportDriveUse), called by DriveFile after each save.
+ */
+App.prototype.reportDriveEdit = function()
+{
+	this.reportDriveUse('edit');
 };
 
 /**
@@ -3271,6 +3353,7 @@ App.prototype.getThumbnail = function(width, fn, border)
 				graph.mathEnabled = page.viewState.mathEnabled;
 				bgImg = page.viewState.backgroundImage;
 				graph.setBackgroundImage(bgImg);
+				graph.setMeasureScale(page.viewState.measureScale);
 			}
 
 			graph.getGlobalVariable = function(name)
@@ -3483,10 +3566,6 @@ App.prototype.getThumbnail = function(width, fn, border)
 					{
 						this.appIcon.setAttribute('title', mxResources.get('openIt', [mxResources.get('googleDrive')]));
 					}
-					else if (mode == App.MODE_DROPBOX)
-					{
-						this.appIcon.setAttribute('title', mxResources.get('openIt', [mxResources.get('dropbox')]));
-					}
 					else if (mode == App.MODE_ONEDRIVE)
 					{
 						this.appIcon.setAttribute('title', mxResources.get('openIt', [mxResources.get('oneDrive')]));
@@ -3540,43 +3619,14 @@ App.prototype.appIconClicked = function(evt)
 	var url = (file != null) ? (mxEvent.isAltDown(evt) ?
 		file.getFolderUrl() : file.getFileUrl()) : null;
 
-	if (url != null)
+	var storage = (mode != null) ? App.storages[mode] : null;
+
+	if (url == null)
 	{
-		this.openLink(url);
+		url = (storage != null && storage.url != null) ? storage.url : 'https://www.drawio.com/';
 	}
-	else if (mode == App.MODE_GOOGLE)
-	{
-		this.openLink('https://drive.google.com/?authuser=0');
-	}
-	else if (mode == App.MODE_ONEDRIVE)
-	{
-		this.openLink('https://onedrive.live.com/');
-	}
-	else if (mode == App.MODE_DROPBOX)
-	{
-		this.openLink('https://www.dropbox.com/');
-	}
-	else if (mode == App.MODE_GITHUB)
-	{
-		this.openLink('https://github.com/');
-	}
-	else if (mode == App.MODE_GITLAB)
-	{
-		this.openLink(DRAWIO_GITLAB_URL);
-	}
-	else if (mode == App.MODE_TRELLO)
-	{
-		this.openLink('https://trello.com/');
-	}
-	else if (mode == App.MODE_DEVICE)
-	{
-		this.openLink('https://get.draw.io/');
-	}
-	else
-	{
-		this.openLink('https://www.drawio.com/');
-	}
-	
+
+	this.openLink(url);
 	mxEvent.consume(evt);
 };
 
@@ -3963,7 +4013,10 @@ App.prototype.start = function()
 						lastId = id;
 						var file = this.getCurrentFile();
 
-						if (file == null || file.getHash() != id)
+						// A file created from a #create link is also the file of
+						// the hash it was rewritten to (see executeCreateObject)
+						if (file == null || (file.getHash() != id &&
+							file.createdHash != id))
 						{
 							this.loadFile(id, true);
 						}
@@ -4214,7 +4267,13 @@ App.prototype.start = function()
 						this.fileLoaded(new LocalFile(this, xml, null));
 						
 						this.editor.graph.setEnabled(false);
-						this.mode = urlParams['mode'];
+						var mode = urlParams['mode'];
+
+						// Ignores a requested mode for a storage that has been removed
+						// or that is not enabled (trello without tr=1), as in init
+						this.mode = (mode != null && App.isKnownMode(mode) &&
+							(mode != App.MODE_TRELLO || this.isModeEnabled(mode))) ?
+							mode : null;
 						var title = urlParams['title'];
 		
 						if (title != null)
@@ -4409,6 +4468,8 @@ App.prototype.executeCreateObject = function(value, done)
 				value.filename : this.defaultFilename,
 				xml, null, null, mxUtils.bind(this, function()
 				{
+					var file = this.getCurrentFile();
+
 					if (urlParams['pv'] != null)
 					{
 						this.setPageVisible(urlParams['pv'] == '1');
@@ -4460,8 +4521,20 @@ App.prototype.executeCreateObject = function(value, done)
 							mxUtils.getXml(this.editor.getGraphXml()) : xml);
 						delete value.layout;
 						delete value.applyLayouts;
-						window.location.hash = 'create=' +
-							encodeURIComponent(JSON.stringify(value));
+						var hash = 'create=' + encodeURIComponent(JSON.stringify(value));
+
+						// fileLoaded has cleared the hash for the new file, and
+						// the hashchange handler compares the result with the
+						// hash from before the load. Any rewrite that differs
+						// from the link (Mermaid, CSV, another encoder, a host
+						// that re-encodes the link) would load the link again
+						// and ask to discard the changes. Skipped if another
+						// file was opened while a layout ran.
+						if (file != null && file == this.getCurrentFile())
+						{
+							file.createdHash = hash;
+							window.location.hash = hash;
+						}
 					});
 
 					// layout: run the requested layout (a preset name or
@@ -4874,18 +4947,36 @@ App.prototype.checkDrafts = function()
 };
 
 /**
- * Returns true if the Home screen (HomeDialog) replaces the splash dialog:
- * Google Drive mode in the full app. While it is tested, only on preprod or
- * with ?home=1, and never with ?home=0. HomeDialog.js is only bundled next
+ * Returns true if the Home screen (HomeDialog) can be shown: the full app
+ * with Google Drive, never with ?home=0. HomeDialog.js is only bundled next
  * to DriveClient.js (app.min.js).
+ */
+App.prototype.isHomeAvailable = function()
+{
+	return this.drive != null && typeof HomeDialog === 'function' &&
+		urlParams['home'] != '0' && !this.editor.chromeless &&
+		urlParams['embed'] != '1' && urlParams['noFileMenu'] != '1' &&
+		!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp;
+};
+
+/**
+ * Returns true if the Home screen replaces the splash dialog: in Google Drive
+ * mode.
  */
 App.prototype.isHomeEnabled = function()
 {
-	return this.mode == App.MODE_GOOGLE && this.drive != null && typeof HomeDialog === 'function' &&
-		urlParams['home'] != '0' &&
-		(urlParams['home'] == '1' || window.location.hostname == 'preprod.diagrams.net') &&
-		!this.editor.chromeless && urlParams['embed'] != '1' && urlParams['noFileMenu'] != '1' &&
-		!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp;
+	return this.mode == App.MODE_GOOGLE && this.isHomeAvailable();
+};
+
+/**
+ * Returns true if File > My Diagrams opens the Home screen: in Google Drive
+ * mode, or whenever the user is signed in to Google Drive, whatever the
+ * storage of the current diagram.
+ */
+App.prototype.isMyDiagramsEnabled = function()
+{
+	return this.isHomeAvailable() && (this.mode == App.MODE_GOOGLE ||
+		this.drive.getUser() != null || this.drive.userId != null);
 };
 
 /**
@@ -4896,7 +4987,7 @@ App.prototype.isHomeEnabled = function()
  */
 App.prototype.showHome = function()
 {
-	if (!this.isHomeEnabled())
+	if (!this.isMyDiagramsEnabled())
 	{
 		return;
 	}
@@ -5504,15 +5595,14 @@ App.prototype.pickLibrary = function(mode)
 		}
 	});
 	
-	if (mode == App.MODE_GOOGLE || mode == App.MODE_DROPBOX || mode == App.MODE_ONEDRIVE ||
+	if (mode == App.MODE_GOOGLE || mode == App.MODE_ONEDRIVE ||
 		mode == App.MODE_GITHUB || mode == App.MODE_GITLAB || mode == App.MODE_TRELLO)
 	{
 		var peer = (mode == App.MODE_GOOGLE) ? this.drive :
 			((mode == App.MODE_ONEDRIVE) ? this.oneDrive :
 			((mode == App.MODE_GITHUB) ? this.gitHub :
 			((mode == App.MODE_GITLAB) ? this.gitLab :
-			((mode == App.MODE_TRELLO) ? this.trello :
-			this.dropbox))));
+			this.trello)));
 		
 		if (peer != null)
 		{
@@ -5693,15 +5783,6 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
 				else if (mode == App.MODE_TRELLO && this.trello != null && this.spinner.spin(document.body, mxResources.get('inserting')))
 				{
 					this.trello.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
-					{
-						this.spinner.stop();
-						this.hideDialog(true);
-						this.libraryLoaded(newFile, images);
-					}), error, folderId);
-				}
-				else if (mode == App.MODE_DROPBOX && this.dropbox != null && this.spinner.spin(document.body, mxResources.get('inserting')))
-				{
-					this.dropbox.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
 					{
 						this.spinner.stop();
 						this.hideDialog(true);
@@ -6093,37 +6174,18 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename, as
  */
 App.prototype.getModeForChar = function(char)
 {
-	if (char == 'G')
+	if (char != null)
 	{
-		return App.MODE_GOOGLE;
+		for (var mode in App.storages)
+		{
+			if (App.storages[mode].char == char)
+			{
+				return mode;
+			}
+		}
 	}
-	else if (char == 'D')
-	{
-		return App.MODE_DROPBOX;
-	}
-	else if (char == 'W')
-	{
-		return App.MODE_ONEDRIVE;
-	}
-	else if (char == 'M') {
-		return App.MODE_M365;
-	}
-	else if (char == 'H')
-	{
-		return App.MODE_GITHUB;
-	}
-	else if (char == 'A')
-	{
-		return App.MODE_GITLAB;
-	}
-	else if (char == 'T')
-	{
-		return App.MODE_TRELLO;
-	}
-	else
-	{
-		return null;
-	}
+
+	return null;
 };
 
 /**
@@ -6146,12 +6208,6 @@ App.prototype.isModeEnabled = function(mode)
 	else if (mode == App.MODE_GITLAB)
 	{
 		return this.gitLab != null;
-	}
-	else if (mode == App.MODE_DROPBOX)
-	{
-		return typeof window.DropboxClient === 'function' && urlParams['db'] == '1' &&
-			mxClient.IS_SVG && (document.documentMode == null ||
-				document.documentMode > 9);
 	}
 	else if (mode == App.MODE_ONEDRIVE)
 	{
@@ -6183,13 +6239,10 @@ App.prototype.isModeEnabled = function(mode)
 
 /**
  * Returns true if the peer for the given mode has been loaded.
- * For Dropbox, the picker must have also been loaded.
  */
 App.prototype.isModeReady = function(mode)
 {
-	return this.getServiceForName(mode) != null &&
-		(mode != App.MODE_DROPBOX ||
-		typeof Dropbox.choose !== 'undefined');
+	return this.getServiceForName(mode) != null;
 };
 
 /**
@@ -6301,10 +6354,6 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 			else if (mode == App.MODE_TRELLO && this.trello != null)
 			{
 				this.trello.insertFile(title, data, fileCreated, error, false, folderId);
-			}
-			else if (mode == App.MODE_DROPBOX && this.dropbox != null)
-			{
-				this.dropbox.insertFile(title, data, fileCreated, error);
 			}
 			else if (mode == App.MODE_ONEDRIVE && this.oneDrive != null)
 			{
@@ -6882,13 +6931,28 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 					else
 					{
 						var peerChar = id.charAt(0);
-						id = decodeURIComponent(id.substring(1));
+						// Malformed hashes are passed on as-is so that the service reports the error
+						id = mxUtils.safeDecodeURIComponent(id.substring(1));
 
 						peer.getFile(id, mxUtils.bind(this, function(file)
 						{
 							this.spinner.stop();
 							this.fileLoaded(file);
 							var currentFile = this.getCurrentFile();
+
+							// Counts the user as a viewer of the month. Must never
+							// stop a diagram from opening.
+							if (mode == App.MODE_GOOGLE && currentFile != null && currentFile == file)
+							{
+								try
+								{
+									this.reportDriveUse('view');
+								}
+								catch (e)
+								{
+									// ignore
+								}
+							}
 							
 							if (currentFile == null)
 							{
@@ -6973,9 +7037,10 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 					}
 				});
 
-				// Dropbox support has ended, explains where the files are instead of
-				// showing a generic service error. Opening still works with db=1.
-				if (mode == App.MODE_DROPBOX && this.getServiceForName(mode) == null)
+				// Dropbox support has ended and there is no mode for its hashes
+				// any more, so explain where the files are instead of showing a
+				// generic service error (old #D links stay around for years).
+				if (id.charAt(0) == 'D')
 				{
 					this.spinner.stop();
 
@@ -7055,10 +7120,6 @@ App.prototype.getLibraryStorageHint = function(file)
 	else if (file.constructor == TrelloLibrary)
 	{
 		tip += ' (' + mxResources.get('trello') + ')';
-	}
-	else if (file.constructor == DropboxLibrary)
-	{
-		tip += ' (' + mxResources.get('dropbox') + ')';
 	}
 	else if (file.constructor == OneDriveLibrary)
 	{
@@ -7327,13 +7388,6 @@ App.prototype.loadLibraries = function(libs, done)
 								if (this.trello != null && this.trello.isAuthorized())
 								{
 									peer = this.trello;
-								}
-							}
-							else if (service == 'D')
-							{
-								if (this.dropbox != null && this.dropbox.getUser() != null)
-								{
-									peer = this.dropbox;
 								}
 							}
 							else if (service == 'W')
@@ -7643,7 +7697,11 @@ App.prototype.fetchAndShowNotification = function(target, subtarget)
 	}
 	catch(e) {} //Ignore
 	
-	if ((cachedNotif == null || cachedNotif.ts + 24 * 60 * 60 * 1000 < Date.now())) //Cache for one day
+	// Cache for one day. A cache without a timestamp or a list of notifications
+	// is fetched again (NaN < Date.now() is false and would use it forever).
+	if (cachedNotif == null || typeof cachedNotif.ts !== 'number' ||
+		!Array.isArray(cachedNotif.notifs) ||
+		cachedNotif.ts + 24 * 60 * 60 * 1000 < Date.now())
 	{
 		this.fetchingNotif = true;
 		//Fetch all notifications and store them, then filter client-side
@@ -7658,7 +7716,7 @@ App.prototype.fetchAndShowNotification = function(target, subtarget)
 					//Process and sort
 					notifs.sort(function(a, b)
 					{
-						return b.timestamp - a.timestamp;
+						return mxUtils.compareNumbers(b.timestamp, a.timestamp);
 					});
 
 					if (isLocalStorage)
@@ -8019,38 +8077,9 @@ App.prototype.getExtensionForService = function(name)
  */
 App.prototype.getServiceForName = function(name)
 {
-	if (name == App.MODE_GOOGLE)
-	{
-		return this.drive;
-	}
-	else if (name == App.MODE_ONEDRIVE)
-	{
-		return this.oneDrive;
-	}
-	else if (name == App.MODE_M365)
-	{
-		return this.m365;
-	}
-	else if (name == App.MODE_DROPBOX)
-	{
-		return this.dropbox;
-	}
-	else if (name == App.MODE_GITHUB)
-	{
-		return this.gitHub;
-	}
-	else if (name == App.MODE_GITLAB)
-	{
-		return this.gitLab;
-	}
-	else if (name == App.MODE_TRELLO)
-	{
-		return this.trello;
-	}
-	else
-	{
-		return null;
-	}
+	var storage = (name != null) ? App.storages[name] : null;
+
+	return (storage != null && storage.client != null) ? this[storage.client] : null;
 };
 
 /**
@@ -8058,17 +8087,11 @@ App.prototype.getServiceForName = function(name)
  */
 App.prototype.getTitleForService = function(name)
 {
-	if (name == App.MODE_GOOGLE)
+	var storage = (name != null) ? App.storages[name] : null;
+
+	if (storage != null)
 	{
-		return mxResources.get('googleDrive');
-	}
-	else if (name == App.MODE_ONEDRIVE)
-	{
-		return mxResources.get('oneDrive');
-	}
-	else if (name == App.MODE_M365)
-	{
-		return mxResources.get('m365');
+		return mxResources.get(storage.title);
 	}
 	else
 	{
@@ -8173,23 +8196,7 @@ App.prototype.pickFolder = function(mode, fn, enabled, direct, force, returnPick
  */
 App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mode, folderId)
 {
-	if (mode == App.MODE_DROPBOX)
-	{
-		if (this.dropbox != null && this.spinner.spin(document.body, mxResources.get('saving')))
-		{
-			// LATER: Add folder picker
-			this.dropbox.insertFile(filename, (base64Encoded) ? this.base64ToBlob(data, mimeType) :
-				data, mxUtils.bind(this, function()
-			{
-				this.spinner.stop();
-			}), mxUtils.bind(this, function(resp)
-			{
-				this.spinner.stop();
-				this.handleError(resp);
-			}));
-		}
-	}
-	else if (mode == App.MODE_GOOGLE)
+	if (mode == App.MODE_GOOGLE)
 	{
 		if (this.drive != null && this.spinner.spin(document.body, mxResources.get('saving')))
 		{
@@ -8581,13 +8588,17 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 		    	{
 		    		error({code: App.ERROR_UNKNOWN});
 		    	}
-			}, false, this.timeout, function()
+			}, false, this.timeout, mxUtils.bind(this, function()
 		    {
 		    	if (error != null)
 				{
-					error({code: App.ERROR_TIMEOUT, retry: fn});
+					error({code: App.ERROR_TIMEOUT, retry: mxUtils.bind(this, function()
+					{
+						this.convertFile(url, filename, mimeType, extension,
+							success, error, executeRequest, headers);
+					})});
 				}
-		    }, headers);
+		    }), headers);
 		}
 		else if (executeRequest != null)
 		{
@@ -8626,36 +8637,12 @@ App.prototype.updateHeader = function()
 			if (file != null)
 			{
 				var mode = file.getMode();
+				var storage = (mode != null) ? App.storages[mode] : null;
 				
-				if (mode == App.MODE_GOOGLE)
+				if (storage != null && storage.iconLogo != null)
 				{
-					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/google-drive-logo-white.svg)';
-					this.appIcon.style.backgroundSize = '70%';
-				}
-				else if (mode == App.MODE_DROPBOX)
-				{
-					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/dropbox-logo-white.svg)';
-					this.appIcon.style.backgroundSize = '70%';
-				}
-				else if (mode == App.MODE_ONEDRIVE)
-				{
-					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/onedrive-logo-white.svg)';
-					this.appIcon.style.backgroundSize = '70%';
-				}
-				else if (mode == App.MODE_GITHUB)
-				{
-					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/github-logo-white.svg)';
-					this.appIcon.style.backgroundSize = '70%';
-				}
-				else if (mode == App.MODE_GITLAB)
-				{
-					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/gitlab-logo-white.svg)';
-					this.appIcon.style.backgroundSize = '90%';
-				}
-				else if (mode == App.MODE_TRELLO)
-				{
-					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/trello-logo-white-orange.svg)';
-					this.appIcon.style.backgroundSize = '70%';
+					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/' + storage.iconLogo + ')';
+					this.appIcon.style.backgroundSize = (storage.iconLogoSize != null) ? storage.iconLogoSize : '70%';
 				}
 			}
 		}));
@@ -8898,7 +8885,7 @@ App.prototype.getMainUser = function()
 {
 	// LATER: Trello no user issue
 	return this.getFirstClientUser([this.drive, this.oneDrive,
-		this.m365, this.dropbox, this.gitHub, this.gitLab]);
+		this.m365, this.gitHub, this.gitLab]);
 };
 
 /**
@@ -9240,37 +9227,6 @@ App.prototype.toggleUserPanel = function()
 			}
 		});
 		
-		if (this.dropbox != null)
-		{
-			addUser(this.dropbox.getUser(), IMAGE_PATH + '/dropbox-logo.svg', mxUtils.bind(this, function()
-			{
-				var file = this.getCurrentFile();
-
-				if (file != null && file.constructor == DropboxFile)
-				{
-					var doLogout = mxUtils.bind(this, function()
-					{
-						this.dropbox.logout();
-						window.location.hash = '';
-					});
-					
-					if (!file.isModified())
-					{
-						doLogout();
-					}
-					else
-					{
-						this.confirm(mxResources.get('allChangesLost'), null, doLogout,
-							mxResources.get('cancel'), mxResources.get('discardChanges'));
-					}
-				}
-				else
-				{
-					this.dropbox.logout();
-				}
-			}), mxResources.get('dropbox'));
-		}
-
 		if (this.oneDrive != null)
 		{
 			addUser(this.oneDrive.getUser(), IMAGE_PATH + '/onedrive-logo.svg', this.oneDrive.noLogout? null : mxUtils.bind(this, function()
@@ -9463,7 +9419,7 @@ App.prototype.getCurrentUser = function()
 {
 	//TODO Trello no user issue
 	return this.getFirstClientUser([this.drive, this.oneDrive,
-		this.m365, this.dropbox, this.gitHub]);
+		this.m365, this.gitHub]);
 };
 
 /**

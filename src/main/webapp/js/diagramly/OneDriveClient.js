@@ -1741,6 +1741,14 @@ OneDriveClient.prototype.pickFolderOD = function(fn, direct)
 			this.createInlinePicker(fn, true) :
 			mxUtils.bind(this, function()
 		{
+			// The SDK is loaded when the client is created (see App)
+			if (typeof OneDrive === 'undefined')
+			{
+				this.ui.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
+
+				return;
+			}
+
 			OneDrive.save(
 			{
 				clientId: this.clientId,
@@ -1817,6 +1825,14 @@ OneDriveClient.prototype.pickFileOD = function(fn, acceptAllFiles)
 	var odOpenDlg = this.inlinePicker? this.createInlinePicker(fn, null, acceptAllFiles) :
 							mxUtils.bind(this, function()
 	{
+		// The SDK is loaded when the client is created (see App)
+		if (typeof OneDrive === 'undefined')
+		{
+			this.ui.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
+
+			return;
+		}
+
 		OneDrive.open(
 		{
 			clientId: this.clientId,

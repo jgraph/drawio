@@ -79,10 +79,11 @@ var LibavoidRouting =
 	// The other routing input of the edge ends: the fixed connection points
 	// (fixedConstraint), the snapToPoint anchors (snapPoints, from the points
 	// or the shape of the terminal) and the jetty sizes (jettyFor), plus the
-	// routing flag itself, so that turning it on routes the edge.
+	// routing flag itself, so that turning it on routes the edge, and the
+	// spacing of the edge (spacingFor).
 	endStyles: ['exitX', 'exitY', 'exitPerimeter', 'entryX', 'entryY',
 		'entryPerimeter', 'snapToPoint', 'points', 'shape', 'jettySize',
-		'sourceJettySize', 'targetJettySize', 'libavoidRouting'],
+		'sourceJettySize', 'targetJettySize', 'libavoidRouting', 'libavoidSpacing'],
 
 	// The arrows and their sizes, routing input of an edge only for an end
 	// with jettySize=auto (jettyFor).
@@ -1536,6 +1537,20 @@ LibavoidRouting.jettyFor = function(style, source)
 };
 
 /**
+ * Clearance between the edge and the shapes (shapeBufferDistance, model px)
+ * from the libavoidSpacing style of the edge, or null to use the clearance of
+ * the routing run. Edges without the style route as before. The value is
+ * limited to the range of the Spacing input of the Style tab (2 to 999), as
+ * the style of a crafted diagram could set any number (eg. Infinity).
+ */
+LibavoidRouting.spacingFor = function(style)
+{
+	var value = parseFloat(mxUtils.getValue(style, 'libavoidSpacing', null));
+
+	return (isFinite(value)) ? Math.min(999, Math.max(2, value)) : null;
+};
+
+/**
  * True if the view renders the given cell (mxGraphView.validateCell): the cell
  * and its ancestors up to the view's root are visible and no ancestor below
  * that root is collapsed. Unlike a view state, this also holds for a cell
@@ -1662,7 +1677,7 @@ LibavoidRouting.routeCells = function(graph, Avoid, edgeCells, opts, setStyle)
 
 		// A DANGLING end (no terminal vertex) routes to its free point, so a
 		// committed edge with one unconnected end matches its drag preview
-		// (which routes source-vertex -> free Point via the warm session).
+		// (previewRouteToPoint, the same descriptor).
 		var sPoint = sVertex ? null : LibavoidRouting.danglingPoint(graph, c, true);
 		var tPoint = tVertex ? null : LibavoidRouting.danglingPoint(graph, c, false);
 
@@ -1693,7 +1708,8 @@ LibavoidRouting.routeCells = function(graph, Avoid, edgeCells, opts, setStyle)
 				sourceSides: sVertex ? LibavoidRouting.maskSides(st, graph.getCellStyle(s), true) : null,
 				targetSides: tVertex ? LibavoidRouting.maskSides(st, graph.getCellStyle(t), false) : null,
 				sourceJetty: sVertex ? LibavoidRouting.jettyFor(st, true) : 0,
-				targetJetty: tVertex ? LibavoidRouting.jettyFor(st, false) : 0});
+				targetJetty: tVertex ? LibavoidRouting.jettyFor(st, false) : 0,
+				shapeBufferDistance: LibavoidRouting.spacingFor(st)});
 			byId[c.getId()] = c;
 		}
 	}
@@ -2170,10 +2186,13 @@ LibavoidRouting.edgeRouteBounds = function(graph, edge)
 // commit builds (fixed center -> target center over the same obstacles + buffer),
 // so the preview route == the committed route.
 //
-// A warm per-drag Router is kept on the handler: obstacles are registered once in
-// MODEL coords; only the dragged ConnEnd is moved each frame (cheap re-solve). A
-// ~30ms throttle bounds the per-frame cost; the warm Router is freed in
-// endPreview (mxEdgeHandler.reset).
+// Every frame is a fresh computeRoutes solve, which registers only the
+// obstacles in a region around the ends (see Obstacle regions in
+// docs/claude/libavoid-routing.md). A per-drag Router with all obstacles
+// registered once was ~20x slower per frame in large diagrams: libavoid
+// rebuilds the orthogonal visibility graph over all its obstacles whenever an
+// end moves. The fixed end's parameters are kept on the handler for the drag
+// (buildPreviewSession) and dropped in endPreview (mxEdgeHandler.reset).
 
 // Min ms between preview re-solves (between them the last result is reused).
 LibavoidRouting.previewThrottleMs = 30;
@@ -2181,12 +2200,10 @@ LibavoidRouting.previewThrottleMs = 30;
 /**
  * Fresh obstacle-avoiding route between two cells — the SAME computeRoutes call the
  * commit (routeCells) makes, so a preview built from it is byte-identical to the
- * dropped route. Used for the PINNED previews: a fixed ShapeConnectionPin can't be
- * moved like a floating endpoint, and re-pinning the warm per-drag session every
- * frame piles stale pins on the shape and corrupts the route (libavoid degenerates
- * to a straight 2-point line). Returns interior bends in ABSOLUTE model coords.
+ * dropped route. Used while the dragged end hovers a target cell. Returns interior
+ * bends in ABSOLUTE model coords.
  */
-LibavoidRouting.previewRouteToCell = function(graph, Avoid, sourceCell, targetCell, srcConstr, dstConstr, srcJetty, dstJetty, srcSides, dstSides, srcPoints, dstPoints)
+LibavoidRouting.previewRouteToCell = function(graph, Avoid, sourceCell, targetCell, srcConstr, dstConstr, srcJetty, dstJetty, srcSides, dstSides, srcPoints, dstPoints, spacing)
 {
 	if (sourceCell == null || targetCell == null || sourceCell == targetCell)
 	{
@@ -2205,21 +2222,21 @@ LibavoidRouting.previewRouteToCell = function(graph, Avoid, sourceCell, targetCe
 		sourceConstraint: srcConstr || null, targetConstraint: dstConstr || null,
 		sourcePoints: srcPoints || null, targetPoints: dstPoints || null,
 		sourceSides: srcSides || null, targetSides: dstSides || null,
-		sourceJetty: srcJetty || 0, targetJetty: dstJetty || 0
+		sourceJetty: srcJetty || 0, targetJetty: dstJetty || 0,
+		shapeBufferDistance: (spacing != null) ? spacing : null
 	}], null);
 
 	return routes['preview'] || [];
 };
 
 /**
- * Fresh commit-parity solve from the fixed cell to a FREE POINT — used when
- * the cursor tracks over empty space INSIDE an obstacle, where the warm
- * session's escape route and incremental state diverge from the fresh solve
- * the commit runs. Mirrors routeCells' dangling-end descriptor exactly, so
- * releasing the endpoint there commits this route: the dragged end is a bare
- * free point with no constraint, pins, mask or jetty.
+ * Fresh commit-parity solve from the fixed cell to a FREE POINT — used while
+ * the cursor tracks over empty space (or a cell that is no target). Mirrors
+ * routeCells' dangling-end descriptor exactly, so releasing the endpoint there
+ * commits this route: the dragged end is a bare free point with no
+ * constraint, pins, mask or jetty.
  */
-LibavoidRouting.previewRouteToPoint = function(graph, Avoid, fixedCell, draggingSource, point, fixedConstr, fixedJetty, fixedSides, fixedPoints)
+LibavoidRouting.previewRouteToPoint = function(graph, Avoid, fixedCell, draggingSource, point, fixedConstr, fixedJetty, fixedSides, fixedPoints, spacing)
 {
 	if (fixedCell == null || point == null)
 	{
@@ -2245,134 +2262,11 @@ LibavoidRouting.previewRouteToPoint = function(graph, Avoid, fixedCell, dragging
 			sourcePoints: fixedPoints || null, targetPoints: null,
 			sourceSides: fixedSides || null, targetSides: null,
 			sourceJetty: fixedJetty || 0, targetJetty: 0};
+	edge.shapeBufferDistance = (spacing != null) ? spacing : null;
 
 	var routes = LibavoidRouting.computeRoutes(Avoid, vertices, [edge], null);
 
 	return routes['preview'] || [];
-};
-
-/**
- * One warm-session solve with the dragged end at dragModel: the route's points
- * ({x, y}, ABSOLUTE MODEL coords, endpoints included). The fixed end's jetty
- * stub follows computeRoutes exactly — the natural route is solved first, and
- * the stub checkpoint is added (and the route re-solved) only when the dragged
- * end is at least the jetty away (the too-short guard), libavoid found a route
- * (isFallbackRoute) and its lead-out at the fixed end falls short of the jetty
- * (AvoidRouting.endSegment). A route meeting the minimum anyway keeps its
- * nudged shape, as the committed one does; applying the stub whenever the end
- * was far enough made the preview turn at the stub tip where the drop did not.
- * Returns null when libavoid found NO route (isFallbackRoute against the fixed
- * end's pins): the commit retries such a connector at a smaller clearance, so
- * the callers then preview that exact solve (previewRouteToPoint) instead of
- * the fallback line. Both preview paths share it.
- */
-LibavoidRouting.solvePreviewSession = function(sess, Avoid, dragModel)
-{
-	// Start from the natural route: drop the previous frame's checkpoint.
-	if (sess.cpApplied)
-	{
-		LibavoidRouting.setPreviewCheckpoint(sess, Avoid, null);
-	}
-
-	// Setting an end also queues the connector for rerouting, which a new
-	// checkpoint does not (see the gotchas in libavoid-routing.js)
-	var setDraggedEnd = function()
-	{
-		var p = new Avoid.Point(dragModel.x, dragModel.y);
-		var ce = new Avoid.ConnEnd(p);
-
-		if (sess.draggingSource)
-		{
-			sess.conn.setSourceEndpoint(ce);
-		}
-		else
-		{
-			sess.conn.setDestEndpoint(ce);
-		}
-
-		ce.delete();
-		p.delete();
-	};
-
-	setDraggedEnd();
-	sess.router.processTransaction();
-
-	var fixedAtStart = !sess.draggingSource;
-	var noRoute = function(route)
-	{
-		return AvoidRouting.isFallbackRoute(route, fixedAtStart ? sess.fixedPins : null,
-			fixedAtStart ? null : sess.fixedPins);
-	};
-
-	var route = LibavoidRouting.readPreviewRoute(sess);
-
-	if (noRoute(route))
-	{
-		return null;
-	}
-
-	if (sess.fixedCp != null)
-	{
-		var dx = dragModel.x - sess.fixedAnchor.x;
-		var dy = dragModel.y - sess.fixedAnchor.y;
-
-		if (dx * dx + dy * dy >= sess.fixedJetty * sess.fixedJetty &&
-			AvoidRouting.endSegment(route, fixedAtStart) < sess.fixedJetty - 0.5)
-		{
-			LibavoidRouting.setPreviewCheckpoint(sess, Avoid, sess.fixedCp);
-			setDraggedEnd();
-			sess.router.processTransaction();
-			route = LibavoidRouting.readPreviewRoute(sess);
-
-			if (noRoute(route))
-			{
-				return null;
-			}
-		}
-	}
-
-	return route;
-};
-
-/**
- * Sets (point) or clears (null) the warm preview session's fixed-end stub
- * checkpoint. An empty vector clears the connector's checkpoints; the vector
- * is copied, so free the embind wrappers (cf. computeRoutes' addCheckpoint).
- */
-LibavoidRouting.setPreviewCheckpoint = function(sess, Avoid, point)
-{
-	var cps = new Avoid.CheckpointVector();
-
-	if (point != null)
-	{
-		var pt = new Avoid.Point(point.x, point.y);
-		var cp = new Avoid.Checkpoint(pt);
-		cps.push_back(cp);
-		cp.delete();
-		pt.delete();
-	}
-
-	sess.conn.setRoutingCheckpoints(cps);
-	cps.delete();
-	sess.cpApplied = point != null;
-};
-
-/**
- * The warm preview session's current route as plain {x, y} points.
- */
-LibavoidRouting.readPreviewRoute = function(sess)
-{
-	var route = sess.conn.displayRoute();
-	var n = route.size();
-	var pts = [];
-
-	for (var k = 0; k < n; k++)
-	{
-		var rp = route.at(k);
-		pts.push({x: rp.x, y: rp.y});
-	}
-
-	return pts;
 };
 
 /**
@@ -2456,13 +2350,12 @@ LibavoidRouting.previewEndpointDrag = function(handler, point)
 		var fixedPoints = (fixedConstr == null) ? LibavoidRouting.snapPoints(
 			graph, fixedCell, handler.state.style, fixedState.style) : null;
 		sess = handler.__libavoidPreview = LibavoidRouting.buildPreviewSession(
-			graph, window.Avoid, fixedCell, handler.isSource, fixedConstr,
+			graph, fixedCell, fixedConstr,
 			LibavoidRouting.jettyFor(handler.state.style, handler.isTarget),
 			fixedSides, fixedPoints);
 
 		if (sess != null)
 		{
-			sess.fixedConstr = fixedConstr; // stable for the drag; reused by the pinned path
 			// The edge's per-end jetty (stable for the drag) for the pinned path.
 			sess.srcJetty = LibavoidRouting.jettyFor(handler.state.style, true);
 			sess.dstJetty = LibavoidRouting.jettyFor(handler.state.style, false);
@@ -2517,10 +2410,8 @@ LibavoidRouting.previewEndpointDrag = function(handler, point)
 	}
 
 	// A snapToPoint anchor set or a port-constraint mask on the hovered target
-	// (dragged end): route through the fresh path with the commit's candidate
-	// pins, like a snapped anchor — the warm session's per-frame endpoint move
-	// can't express pins without accumulating them. An explicit anchor snap
-	// wins over both (computeRoutes' makeEnd precedence).
+	// (dragged end): route with the commit's candidate pins. An explicit anchor
+	// snap wins over both (computeRoutes' makeEnd precedence).
 	var dragSides = null;
 	var dragPoints = null;
 
@@ -2539,30 +2430,17 @@ LibavoidRouting.previewEndpointDrag = function(handler, point)
 	// immediately when the dragged endpoint snaps to/from a target center, so the
 	// commit-matching route appears the instant the cursor enters a shape. The
 	// pinned flag is part of the key so float<->pin transitions always re-solve.
-	// EVERY resolved hover target routes through the fresh path: the warm
-	// session approximates a hovered cell as a free point at its centre, which
-	// sits INSIDE the target's own obstacle — for large targets (a container
-	// as terminal) libavoid's escape route and the warm router's incremental
-	// state pick a different side than the fresh commit solve (first seen as a
-	// reconnect preview entering a swimlane from below while the drop
-	// committed a left-side entry). This also covers targets inside a
-	// container (the commit drops the enclosing container via filterEnclosing,
-	// the once-built session cannot) and transparentBounds targets (never in
-	// the session's shapeRefs — the fresh path registers its derived hull
-	// itself). The warm session remains for empty-space cursor tracking.
-	var pinned = (targetCell != null && sess.shapeRefs != null &&
-		(sess.shapeRefs[targetCell.getId()] != null ||
-			graph.isTransparentBounds(targetCell)));
-	// The cursor over empty space INSIDE an obstacle solves fresh too: the
-	// warm free point escapes the obstacle biased by the router's route
-	// history, the commit's dangling solve does not (previewRouteToPoint).
-	var freePinned = (targetCell == null && sess.vertices != null &&
-		AvoidRouting.insideAny(dragModel.x, dragModel.y, sess.vertices));
+	// A resolved hover target routes to the cell (the commit's solve), anything
+	// else to a free point (the commit's dangling solve). The target must be an
+	// obstacle of the drag (buildPreviewSession) or a transparentBounds cell,
+	// whose derived hull previewRouteToCell registers itself.
+	var pinned = (targetCell != null && (sess.obstacles[targetCell.getId()] ||
+		graph.isTransparentBounds(targetCell)));
 	var now = Date.now();
 
 	if (sess.lastResult !== undefined && (now - sess.lastT) < LibavoidRouting.previewThrottleMs &&
 		sess.lastDragX === dragModel.x && sess.lastDragY === dragModel.y &&
-		sess.lastPinned === (pinned || freePinned))
+		sess.lastPinned === pinned)
 	{
 		return sess.lastResult;
 	}
@@ -2571,79 +2449,30 @@ LibavoidRouting.previewEndpointDrag = function(handler, point)
 	var result = [];
 	var off = LibavoidRouting.getAbsoluteParentOffset(graph, edge);
 
-	// Warm per-drag session over empty space: move the floating dragged endpoint
-	// and re-solve — cheap, and no pins so nothing accumulates. The fixed end's
-	// jetty stub is enforced exactly as the commit does (solvePreviewSession).
-	var raw = (pinned || freePinned) ? null :
-		LibavoidRouting.solvePreviewSession(sess, Avoid, dragModel);
-
-	if (pinned)
-	{
-		// Fresh computeRoutes — byte-identical to the commit (routeCells) and free of
-		// the warm session's pin accumulation (re-pinning every frame piled stale pins
-		// on the target and libavoid collapsed to a straight 2-point route). Keep the
-		// edge's source->target order (dragged end first when dragging the source) so
-		// the preview control points line up with the committed geometry.
-		var bendsAbs = handler.isSource ?
+	// Keep the edge's source->target order (dragged end first when dragging the
+	// source) so the preview control points line up with the committed geometry.
+	var spacing = LibavoidRouting.spacingFor(graph.getCellStyle(edge));
+	var bendsAbs = (!pinned) ?
+		LibavoidRouting.previewRouteToPoint(graph, Avoid,
+			fixedCell, handler.isSource, dragModel, sess.fixedConstr,
+			sess.fixedJetty, sess.fixedSides, sess.fixedPoints, spacing) :
+		((handler.isSource) ?
 			LibavoidRouting.previewRouteToCell(graph, Avoid, targetCell, fixedCell,
 				dragConstraint, sess.fixedConstr, sess.srcJetty, sess.dstJetty,
-				dragSides, sess.fixedSides, dragPoints, sess.fixedPoints) :
+				dragSides, sess.fixedSides, dragPoints, sess.fixedPoints, spacing) :
 			LibavoidRouting.previewRouteToCell(graph, Avoid, fixedCell, targetCell,
 				sess.fixedConstr, dragConstraint, sess.srcJetty, sess.dstJetty,
-				sess.fixedSides, dragSides, sess.fixedPoints, dragPoints);
+				sess.fixedSides, dragSides, sess.fixedPoints, dragPoints, spacing));
 
-		for (var bi = 0; bi < bendsAbs.length; bi++)
-		{
-			result.push(new mxPoint(bendsAbs[bi].x - off.x, bendsAbs[bi].y - off.y));
-		}
-	}
-	else if (raw == null)
+	for (var bi = 0; bi < bendsAbs.length; bi++)
 	{
-		// Fresh dangling solve — same descriptor as routeCells for an
-		// unconnected end, so a release at this point commits this route: the
-		// cursor is inside an obstacle (freePinned), or the warm session found
-		// no route at its clearance, which the commit retries at a smaller one.
-		var freeBends = LibavoidRouting.previewRouteToPoint(graph, Avoid,
-			fixedCell, handler.isSource, dragModel, sess.fixedConstr,
-			sess.fixedJetty, sess.fixedSides, sess.fixedPoints);
-
-		for (var fi = 0; fi < freeBends.length; fi++)
-		{
-			result.push(new mxPoint(freeBends[fi].x - off.x, freeBends[fi].y - off.y));
-		}
-	}
-	else
-	{
-		var n = raw.length;
-
-		// Convert the absolute-model route to parent-relative control points the SAME
-		// way the commit does: drop endpoints, collinear-filter in MODEL space (1px)
-		// with Math.round, then subtract getAbsoluteParentOffset(edge).
-		if (n >= 2)
-		{
-			var k;
-
-			for (k = 1; k < n - 1; k++)
-			{
-				var a = raw[k - 1], b = raw[k], c = raw[k + 1];
-
-				// Collinear (1px, MODEL space) => redundant bend. Identical test to
-				// computeRoutes' collinear().
-				if (Math.abs((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y)) < 1)
-				{
-					continue;
-				}
-
-				result.push(new mxPoint(
-					Math.round(b.x) - off.x, Math.round(b.y) - off.y));
-			}
-		}
+		result.push(new mxPoint(bendsAbs[bi].x - off.x, bendsAbs[bi].y - off.y));
 	}
 
 	sess.lastT = now;
 	sess.lastDragX = dragModel.x;
 	sess.lastDragY = dragModel.y;
-	sess.lastPinned = pinned || freePinned;
+	sess.lastPinned = pinned;
 	// A successful solve is authoritative even when its route is STRAIGHT: keep the
 	// (possibly empty) bend list, never collapse it to null. Empty => "preview with no
 	// waypoints" (a straight line, matching the commit, which writes geo.points=null).
@@ -2712,186 +2541,53 @@ LibavoidRouting.viewToModelPoint = function(graph, point)
 };
 
 /**
- * Build a per-drag Router in ABSOLUTE MODEL coords — IDENTICAL setup to
- * computeRoutes: every model vertex as an obstacle (collectVertices), buffer 16
- * (no scale), plus one connector from the fixed cell's model-coord center to a
- * placeholder dragged endpoint. Obstacles are registered once; only the dragged
- * ConnEnd moves per frame. Construction wrappers are released; the router (which
- * owns the shapes + connector) is freed in endPreview. fixedJetty is the fixed
- * end's resolved jetty (jettyFor) — its stub checkpoint is precomputed here and
- * applied per frame by solvePreviewSession where the commit would.
+ * The per-drag state of a drag preview: the fixed end's parameters (stable for
+ * the drag) and the ids of the drag's OBSTACLES, i.e. the cells a hovered target
+ * routes to as a cell: every model vertex the commit registers (collectVertices),
+ * minus the shapes enclosing the fixed terminal (computeRoutes drops the routed
+ * terminals' containers via filterEnclosing). Collected once per drag, as the
+ * model does not change during it. Returns null if the fixed cell has no bounds.
  */
-LibavoidRouting.buildPreviewSession = function(graph, Avoid, fixedCell, draggingSource, fixedConstraint, fixedJetty, fixedSides, fixedPoints)
+LibavoidRouting.buildPreviewSession = function(graph, fixedCell, fixedConstraint, fixedJetty, fixedSides, fixedPoints)
 {
-	var router = new Avoid.Router(Avoid.RouterFlag.OrthogonalRouting.value);
-	try { router.setRoutingParameter(Avoid.RoutingParameter.shapeBufferDistance, LibavoidRouting.shapeBufferDistance); } catch (e) {}
-	try { router.setRoutingParameter(Avoid.RoutingParameter.idealNudgingDistance, LibavoidRouting.idealNudgingDistance); } catch (e) {}
+	if (LibavoidRouting.getAbsoluteObstacleBounds(graph, fixedCell) == null)
+	{
+		return null;
+	}
 
-	// Same obstacle set as the commit: all model vertices in absolute model
-	// coords, minus shapes enclosing the fixed terminal (computeRoutes drops
-	// the routed terminals' containers via filterEnclosing; the dragged end
-	// is a free point with no bounds to test, and hover TARGETS never solve
-	// here — every resolved target routes through the fresh pinned path, the
-	// warm session only tracks the cursor over empty space). Keep a vertexId
-	// -> ShapeRef map so the fixed terminal can anchor to a directed
-	// connection pin (matching computeRoutes), not merely the shape centre.
 	var fixedId = fixedCell.getId();
 	var vertices = LibavoidRouting.collectVertices(graph);
 
 	// A transparentBounds fixed terminal is not in collectVertices — register
-	// its derived hull so the pin branches below get a ShapeRef, like the
-	// commit (filterEnclosing keeps it: terminals are never dropped).
-	LibavoidRouting.addTerminalVertex(graph, vertices, {}, fixedCell);
+	// its derived hull like the commit (filterEnclosing keeps it: terminals are
+	// never dropped).
+	LibavoidRouting.addTerminalVertex(graph, vertices, Object.create(null), fixedCell);
 
-	// As the commit sees them (computeRoutes' toWorldFrame): obstacles as the
-	// drawn (rotated) boxes, the fixed end's anchor and snap points where the
-	// terminal draws them. The session returns fixedPoints/fixedSides as given
-	// — the fresh path passes them to computeRoutes, which maps them itself.
-	var world = AvoidRouting.toWorldFrame(vertices, [{source: fixedId,
-		sourceConstraint: fixedConstraint, sourcePoints: fixedPoints}]);
-	var pinConstraint = world.edges[0].sourceConstraint;
-	var pinPoints = world.edges[0].sourcePoints;
+	// Containment of the drawn (rotated) boxes, as the commit tests it
+	// (computeRoutes' toWorldFrame).
+	vertices = AvoidRouting.filterEnclosing(AvoidRouting.toWorldFrame(
+		vertices, []).vertices, [{source: fixedId, target: fixedId}]);
+	var obstacles = Object.create(null);
 
-	vertices = AvoidRouting.filterEnclosing(world.vertices,
-		[{source: fixedId, target: fixedId}]);
-	var shapeRefs = Object.create(null);
-	var i;
-
-	for (i = 0; i < vertices.length; i++)
+	for (var i = 0; i < vertices.length; i++)
 	{
-		var v = vertices[i];
-		var p1 = new Avoid.Point(v.x, v.y);
-		var p2 = new Avoid.Point(v.x + v.w, v.y + v.h);
-		var rect = new Avoid.Rectangle(p1, p2);
-		shapeRefs[v.id] = new Avoid.ShapeRef(router, rect); // owned by router (freed on router.delete)
-		rect.delete();
-		p1.delete();
-		p2.delete();
+		obstacles[vertices[i].id] = true;
 	}
 
-	var fb = LibavoidRouting.getAbsoluteObstacleBounds(graph, fixedCell);
-
-	if (fb == null)
-	{
-		router.delete();
-		return null;
-	}
-
-	var fx = fb.x + fb.w / 2, fy = fb.y + fb.h / 2;
-
-	// Fixed terminal (the end NOT being dragged): if it carries a fixed connection
-	// point, route to a directed ShapeConnectionPin (same as computeRoutes) so the
-	// preview leaves/enters the anchor exactly like the dropped route — otherwise the
-	// preview floated to the shape centre and snapped to the anchor only on release.
-	// A snapToPoint anchor set or a port-constraint MASK on the fixed end gets the
-	// commit's candidate pins instead (created once here, so nothing accumulates
-	// over the drag) — the preview then leaves through a declared anchor / an
-	// allowed side like the dropped route. Same precedence as computeRoutes'
-	// makeEnd: constraint > snap points > mask.
-	var fixedRef = shapeRefs[fixedCell.getId()];
-	var fixedEnd;
-
-	if (pinConstraint != null && pinConstraint.dir != null && fixedRef != null)
-	{
-		new Avoid.ShapeConnectionPin(fixedRef, 1, pinConstraint.x, pinConstraint.y, true, 0, pinConstraint.dir);
-		fixedEnd = new Avoid.ConnEnd(fixedRef, 1);
-	}
-	else if (pinPoints != null && pinPoints.length > 0 && fixedRef != null)
-	{
-		for (var fq = 0; fq < pinPoints.length; fq++)
-		{
-			var qpin = new Avoid.ShapeConnectionPin(fixedRef, 1,
-				pinPoints[fq].x, pinPoints[fq].y, true, 0, pinPoints[fq].dir);
-			qpin.setExclusive(false);
-		}
-
-		fixedEnd = new Avoid.ConnEnd(fixedRef, 1);
-	}
-	else if (fixedSides != null && fixedSides.length > 0 && fixedRef != null)
-	{
-		for (var fs = 0; fs < fixedSides.length; fs++)
-		{
-			var fpts = AvoidRouting.maskPinPoints(fixedSides[fs], fb);
-
-			for (var fp = 0; fp < fpts.length; fp++)
-			{
-				var fpin = new Avoid.ShapeConnectionPin(fixedRef, 1,
-					fpts[fp].x, fpts[fp].y, true, 0, fpts[fp].dir);
-				fpin.setExclusive(false);
-			}
-		}
-
-		fixedEnd = new Avoid.ConnEnd(fixedRef, 1);
-	}
-	else
-	{
-		var fc = new Avoid.Point(fx, fy);
-		fixedEnd = new Avoid.ConnEnd(fc);
-		fc.delete();
-	}
-
-	var dp = new Avoid.Point(fx, fy);
-	var draggedEnd = new Avoid.ConnEnd(dp);
-	dp.delete();
-
-	var se = draggingSource ? draggedEnd : fixedEnd;
-	var de = draggingSource ? fixedEnd : draggedEnd;
-	var conn = new Avoid.ConnRef(router, se, de);
-	fixedEnd.delete();
-	draggedEnd.delete();
-
-	// Jetty stub for the pinned fixed end (commit parity — see computeRoutes):
-	// computed once here, applied/cleared per frame by solvePreviewSession,
-	// because whether the commit applies it (too-short guard, lazy lead-out
-	// check) depends on the moving dragged end.
-	var fixedCp = null;
-	var fixedAnchor = null;
-
-	if (pinConstraint != null && pinConstraint.dir != null && fixedRef != null)
-	{
-		fixedAnchor = {x: fb.x + pinConstraint.x * fb.w,
-			y: fb.y + pinConstraint.y * fb.h};
-		// No stub when the anchor is buried under another shape — commit
-		// parity with computeRoutes' buried-anchor skip.
-		fixedCp = AvoidRouting.insideAny(fixedAnchor.x, fixedAnchor.y, vertices) ? null :
-			AvoidRouting.jettyStub(pinConstraint, fixedJetty, fb, vertices,
-				LibavoidRouting.shapeBufferDistance);
-	}
-
-	// vertices: the session's obstacle list, for the cursor-inside-obstacle
-	// test that routes such free points through the fresh path.
-	// The fixed end's pins in ABSOLUTE MODEL coords (null when it floats): a
-	// route that does not start on one of them is libavoid's no-route
-	// fallback (solvePreviewSession).
-	var fixedPins = null;
-	var pins = AvoidRouting.endPins(fb, pinConstraint, fixedSides, pinPoints);
-
-	if (pins != null && fixedRef != null)
-	{
-		fixedPins = [];
-
-		for (var pi = 0; pi < pins.length; pi++)
-		{
-			fixedPins.push({x: fb.x + pins[pi].x * fb.w, y: fb.y + pins[pi].y * fb.h});
-		}
-	}
-
-	return {router: router, conn: conn, draggingSource: draggingSource, shapeRefs: shapeRefs,
-		vertices: vertices, fixedCp: fixedCp, fixedAnchor: fixedAnchor, fixedJetty: fixedJetty,
-		fixedPins: fixedPins,
-		fixedSides: fixedSides || null, fixedPoints: fixedPoints || null, cpApplied: false};
+	return {obstacles: obstacles, fixedConstr: fixedConstraint || null,
+		fixedJetty: fixedJetty, fixedSides: fixedSides || null,
+		fixedPoints: fixedPoints || null};
 };
 
 /**
- * Tear down the per-drag preview Router (frees its WASM shapes + connector).
- * Wired from mxEdgeHandler.reset (endpoint drag) and mxConnectionHandler.reset
- * (new-edge drag).
+ * Drops the per-drag preview state. Wired from mxEdgeHandler.reset (endpoint
+ * drag), mxConnectionHandler.reset (new-edge drag) and the hover-icon shape
+ * picker's preview.
  */
 LibavoidRouting.endPreview = function(handler)
 {
-	if (handler != null && handler.__libavoidPreview != null)
+	if (handler != null)
 	{
-		try { handler.__libavoidPreview.router.delete(); } catch (e) {}
 		handler.__libavoidPreview = null;
 	}
 };
@@ -2901,8 +2597,8 @@ LibavoidRouting.endPreview = function(handler)
  * arrows). When the preview edge carries libavoidRouting=1 (libavoid is the
  * current edge style), routes it source-centre -> target-cell-centre (or cursor)
  * around obstacles — the same model-coord pipeline as the commit. Returns the
- * interior bend points in ABSOLUTE MODEL coords (mxPoint[]) or null. Reuses the
- * warm per-drag session (freed in endPreview on mxConnectionHandler.reset).
+ * interior bend points in ABSOLUTE MODEL coords (mxPoint[]) or null. Keeps the
+ * per-drag session (dropped in endPreview on mxConnectionHandler.reset).
  */
 LibavoidRouting.connectionPreview = function(handler)
 {
@@ -2951,12 +2647,11 @@ LibavoidRouting.connectionPreview = function(handler)
 			graph, sourceState.cell, es.style, sourceState.style) : null;
 
 		sess = handler.__libavoidPreview = LibavoidRouting.buildPreviewSession(
-			graph, window.Avoid, sourceState.cell, false, srcConstr,
+			graph, sourceState.cell, srcConstr,
 			LibavoidRouting.jettyFor(es.style, true), srcSides, srcPoints);
 
 		if (sess != null)
 		{
-			sess.srcConstr = srcConstr; // stable for the drag; reused by the pinned path
 			// The preview edge's per-end jetty (stable for the drag) for the pinned path.
 			sess.srcJetty = LibavoidRouting.jettyFor(es.style, true);
 			sess.dstJetty = LibavoidRouting.jettyFor(es.style, false);
@@ -3050,96 +2745,40 @@ LibavoidRouting.connectionPreview = function(handler)
 		dragPoints = LibavoidRouting.snapPoints(graph, targetCell, es.style, tgStyle);
 	}
 
-	// EVERY resolved hover target routes through the fresh path — the warm
-	// session's free-point-at-centre approximation sits inside the target's
-	// own obstacle and inherits the warm router's incremental state, both of
-	// which can pick a different entry side than the fresh commit solve (see
-	// previewEndpointDrag). The warm session remains for cursor tracking
-	// over empty space. A transparentBounds target is never in the session's
-	// shapeRefs — the fresh path registers its derived hull itself.
-	var pinned = (targetCell != null && sess.shapeRefs != null &&
-		(sess.shapeRefs[targetCell.getId()] != null ||
-			graph.isTransparentBounds(targetCell)));
-	// The cursor over empty space INSIDE an obstacle solves fresh too (see
-	// previewEndpointDrag).
-	var freePinned = (targetCell == null && sess.vertices != null &&
-		AvoidRouting.insideAny(dragModel.x, dragModel.y, sess.vertices));
+	// A resolved hover target routes to the cell (the commit's solve), anything
+	// else to a free point (see previewEndpointDrag).
+	var pinned = (targetCell != null && (sess.obstacles[targetCell.getId()] ||
+		graph.isTransparentBounds(targetCell)));
 	var now = Date.now();
 
 	if (sess.lastResult !== undefined && (now - sess.lastT) < LibavoidRouting.previewThrottleMs &&
 		sess.lastDragX === dragModel.x && sess.lastDragY === dragModel.y &&
-		sess.lastPinned === (pinned || freePinned))
+		sess.lastPinned === pinned)
 	{
 		return sess.lastResult;
 	}
 
 	var Avoid = window.Avoid;
 	var out = [];
-
-	// Warm per-drag session over empty space: move the floating dest endpoint
-	// (cursor / target centre) and re-solve — cheap, and no pins so nothing
-	// accumulates. The fixed end's jetty stub is enforced exactly as the commit
-	// does (solvePreviewSession).
-	var raw = (pinned || freePinned) ? null :
-		LibavoidRouting.solvePreviewSession(sess, Avoid, dragModel);
-
-	if (pinned)
-	{
-		// Fresh computeRoutes — byte-identical to the commit (routeCells), and free of
-		// the warm session's pin accumulation (re-pinning every frame piled stale pins
-		// on the target and libavoid collapsed to a straight 2-point route).
-		var bendsAbs = LibavoidRouting.previewRouteToCell(graph, Avoid,
-			sourceState.cell, targetCell, sess.srcConstr, dragConstraint,
+	var spacing = LibavoidRouting.spacingFor(es.style);
+	var bendsAbs = (pinned) ?
+		LibavoidRouting.previewRouteToCell(graph, Avoid,
+			sourceState.cell, targetCell, sess.fixedConstr, dragConstraint,
 			sess.srcJetty, sess.dstJetty, sess.fixedSides, dragSides,
-			sess.fixedPoints, dragPoints);
+			sess.fixedPoints, dragPoints, spacing) :
+		LibavoidRouting.previewRouteToPoint(graph, Avoid,
+			sourceState.cell, false, dragModel, sess.fixedConstr,
+			sess.fixedJetty, sess.fixedSides, sess.fixedPoints, spacing);
 
-		for (var bi = 0; bi < bendsAbs.length; bi++)
-		{
-			out.push(new mxPoint(bendsAbs[bi].x, bendsAbs[bi].y));
-		}
-	}
-	else if (raw == null)
+	for (var bi = 0; bi < bendsAbs.length; bi++)
 	{
-		// Fresh dangling solve — same descriptor as routeCells for an
-		// unconnected end, so a release at this point commits this route: the
-		// cursor is inside an obstacle (freePinned), or the warm session found
-		// no route at its clearance, which the commit retries at a smaller one.
-		var freeBends = LibavoidRouting.previewRouteToPoint(graph, Avoid,
-			sourceState.cell, false, dragModel, sess.srcConstr,
-			sess.fixedJetty, sess.fixedSides, sess.fixedPoints);
-
-		for (var fi = 0; fi < freeBends.length; fi++)
-		{
-			out.push(new mxPoint(freeBends[fi].x, freeBends[fi].y));
-		}
-	}
-	else
-	{
-		var n = raw.length;
-
-		// Interior bends in ABSOLUTE MODEL coords, dropping endpoints + collinear bends.
-		if (n >= 2)
-		{
-			var k;
-
-			for (k = 1; k < n - 1; k++)
-			{
-				var a = raw[k - 1], b = raw[k], c = raw[k + 1];
-
-				if (Math.abs((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y)) < 1)
-				{
-					continue;
-				}
-
-				out.push(new mxPoint(Math.round(b.x), Math.round(b.y)));
-			}
-		}
+		out.push(new mxPoint(bendsAbs[bi].x, bendsAbs[bi].y));
 	}
 
 	sess.lastT = now;
 	sess.lastDragX = dragModel.x;
 	sess.lastDragY = dragModel.y;
-	sess.lastPinned = pinned || freePinned;
+	sess.lastPinned = pinned;
 	sess.lastResult = (out.length > 0) ? out : null;
 
 	return sess.lastResult;
@@ -3443,13 +3082,15 @@ LibavoidRouting.solveMovePreview = function(graph, handler, mdx, mdy)
 			if (bb != null)
 			{
 				var hit = false;
+				var eb = LibavoidRouting.spacingFor(graph.getCellStyle(c));
+				eb = (eb != null) ? eb : buffer;
 
 				for (i = 0; i < stationary.length; i++)
 				{
 					var o = stationary[i];
 
-					if (bb.x + mdx <= o.x + o.w + buffer && o.x - buffer <= bb.x + mdx + bb.width &&
-						bb.y + mdy <= o.y + o.h + buffer && o.y - buffer <= bb.y + mdy + bb.height)
+					if (bb.x + mdx <= o.x + o.w + eb && o.x - eb <= bb.x + mdx + bb.width &&
+						bb.y + mdy <= o.y + o.h + eb && o.y - eb <= bb.y + mdy + bb.height)
 					{
 						hit = true;
 						break;
@@ -3475,7 +3116,8 @@ LibavoidRouting.solveMovePreview = function(graph, handler, mdx, mdy)
 			sourceSides: sVertex ? LibavoidRouting.maskSides(est, graph.getCellStyle(s), true) : null,
 			targetSides: tVertex ? LibavoidRouting.maskSides(est, graph.getCellStyle(t), false) : null,
 			sourceJetty: sVertex ? LibavoidRouting.jettyFor(est, true) : 0,
-			targetJetty: tVertex ? LibavoidRouting.jettyFor(est, false) : 0});
+			targetJetty: tVertex ? LibavoidRouting.jettyFor(est, false) : 0,
+			shapeBufferDistance: LibavoidRouting.spacingFor(est)});
 		byId[c.getId()] = c;
 	}
 
@@ -3792,7 +3434,9 @@ LibavoidRouting.computeRoutes = function(Avoid, vertices, edges, opts)
 			continue;
 		}
 
-		var eff = buffer;
+		// The spacing of the edge (libavoidSpacing, see spacingFor) replaces
+		// the clearance of the run, so such edges are solved in their own bucket
+		var eff = (e.shapeBufferDistance != null) ? e.shapeBufferDistance : buffer;
 		var s = AvoidRouting.obstacleBounds(byId[e.source]);
 		var t = AvoidRouting.obstacleBounds(byId[e.target]);
 
@@ -3802,7 +3446,7 @@ LibavoidRouting.computeRoutes = function(Avoid, vertices, edges, opts)
 				Math.max(s.x, t.x) - Math.min(s.x + s.w, t.x + t.w),
 				Math.max(s.y, t.y) - Math.min(s.y + s.h, t.y + t.h));
 
-			if (gap > 0 && Math.floor((gap - 4) / 2) < buffer)
+			if (gap > 0 && Math.floor((gap - 4) / 2) < eff)
 			{
 				eff = Math.max(2, Math.floor((gap - 4) / 2));
 			}

@@ -79,11 +79,30 @@ LocalFile.prototype.setEditable = function(editable)
 };
 
 /**
- * Saves the file under its current title.
+ * Saves the file under its current title if it can be saved (see
+ * DrawioFile.getSaveError). The data is updated in saveFile, after the
+ * writable of the file handle was requested.
  */
 LocalFile.prototype.save = function(revision, success, error, unloading, overwrite)
 {
-	this.saveAs(this.title, success, error, unloading, overwrite);
+	var saveError = this.getSaveError(overwrite);
+
+	if (saveError != null)
+	{
+		if (error != null)
+		{
+			error(saveError);
+		}
+		else
+		{
+			throw new Error(saveError.message);
+		}
+	}
+	else
+	{
+		this.clearAutosave();
+		this.saveAs(this.title, success, error, unloading, overwrite);
+	}
 };
 
 /**
@@ -281,7 +300,7 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 						}
 						else
 						{
-							this.inConflictState = true;
+							this.setConflict();
 							errorWrapper(null, writable);
 						}
 					}), mxUtils.bind(this, function(e)

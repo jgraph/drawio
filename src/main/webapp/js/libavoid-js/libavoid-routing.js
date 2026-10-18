@@ -705,6 +705,14 @@
 	AvoidRouting.regionMargin = 100;
 
 	/**
+	 * Largest clearance in px that computeRoutes uses (as the Spacing of an
+	 * edge in the editor). A connector without a route is retried at half the
+	 * clearance down to 2px, so a crafted clearance (eg. 1e300) would retry
+	 * about 1000 times.
+	 */
+	AvoidRouting.maxShapeBufferDistance = 999;
+
+	/**
 	 * The given region ({x, y, x2, y2}, null for none) extended by the box
 	 * b ({x, y, w, h}) or the point b ({x, y}). Returns region when b is null.
 	 */
@@ -830,7 +838,9 @@
 	 *        Ends with the same candidate pins on one shape share them.
 	 * @param {{shapeBufferDistance?:number,idealNudgingDistance?:number}} [opts]
 	 *        Defaults: 16 / 14. A connector libavoid finds no route for is
-	 *        retried alone at half the buffer, down to 2px.
+	 *        retried alone at half the buffer, down to 2px. The buffer is at
+	 *        most maxShapeBufferDistance, and a buffer that is not a finite
+	 *        number uses the default.
 	 * @returns {Object<string, Array<{x:number,y:number}>>} edge id -> interior
 	 *        bend points (ABSOLUTE, collinear-filtered). The first/last route
 	 *        points (endpoints) are dropped — a floating endpoint connects at
@@ -850,6 +860,17 @@
 
 		var buffer = (opts && opts.shapeBufferDistance != null) ? opts.shapeBufferDistance : 16;
 		var nudge = (opts && opts.idealNudgingDistance != null) ? opts.idealNudgingDistance : 14;
+
+		// Half of an infinite clearance is infinite, so the retry of the
+		// connectors without a route below would never end
+		if (!isFinite(buffer))
+		{
+			buffer = 16;
+		}
+		else if (buffer > AvoidRouting.maxShapeBufferDistance)
+		{
+			buffer = AvoidRouting.maxShapeBufferDistance;
+		}
 
 		// Rotated, turned and flipped shapes: route around the box they are
 		// drawn in, from the connection points where they are drawn.

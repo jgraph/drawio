@@ -1876,11 +1876,33 @@ BaseFormatPanel.prototype.createRelativeOption = function(label, key, width, han
 				}
 				
 				var cells = ui.getSelectionState().cells;
-				graph.setCellStyles(key, value, cells);
-				this.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', [key],
-					'values', [value], 'cells', cells));
+				var keys = [key];
+				var values = [value];
+
+				graph.getModel().beginUpdate();
+				try
+				{
+					graph.setCellStyles(key, value, cells);
+
+					// Applies the opacity to each shape as a whole so that its
+					// overlapping parts do not get darker (see mxShape.isOpacityGroup)
+					if (key == mxConstants.STYLE_OPACITY)
+					{
+						var group = (value != null) ? '1' : null;
+						graph.setCellStyles(mxConstants.STYLE_OPACITY_GROUP, group, cells);
+						keys.push(mxConstants.STYLE_OPACITY_GROUP);
+						values.push(group);
+					}
+
+					this.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', keys,
+						'values', values, 'cells', cells));
+				}
+				finally
+				{
+					graph.getModel().endUpdate();
+				}
 			}
-	
+
 			input.value = ((value != null) ? value : '100') + ' %';
 		}
 		
@@ -2092,11 +2114,13 @@ ArrangePanel.prototype.init = function()
 		}
 
 		// Direction of an edge: which side a self-loop sits on (dropdown) plus the
-		// reverse/turn button that inverts the edge direction
+		// reverse/turn button that inverts the edge direction. Not collapsible as
+		// it mostly has a single row (like Flip and Align).
 		if (ss.vertices.length == 0 && ss.edges.length > 0 && !ss.containsLabel)
 		{
-			var dirSec = this.createCollapsibleSection(mxResources.get('direction'), false);
-			var dirPanel = this.createPanel();
+			var dirSec = this.createPanel();
+			dirSec.appendChild(this.createTitle(mxResources.get('direction')));
+			var dirPanel = document.createElement('div');
 
 			// Reverse/turn button on top, then the loop direction dropdown
 			this.addEdgeTurn(dirPanel);
@@ -2113,8 +2137,8 @@ ArrangePanel.prototype.init = function()
 				}
 			}
 
-			dirSec.contentDiv.appendChild(dirPanel);
-			this.container.appendChild(dirSec.wrapper);
+			dirSec.appendChild(dirPanel);
+			this.container.appendChild(dirSec);
 		}
 
 		// Rotation (vertices); the edge reverse/turn lives in the direction section
@@ -2133,9 +2157,7 @@ ArrangePanel.prototype.init = function()
 
 		if (!ss.containsLabel)
 		{
-			var flipSec = this.createCollapsibleSection(mxResources.get('flip'), true);
-			flipSec.contentDiv.appendChild(this.addFlip(this.createPanel()));
-			this.container.appendChild(flipSec.wrapper);
+			this.container.appendChild(this.addFlip(this.createPanel()));
 		}
 
 		this.container.appendChild(this.addAlign(this.createPanel()));
@@ -2615,6 +2637,7 @@ ArrangePanel.prototype.addFlip = function(div)
 	var editor = ui.editor;
 	var graph = editor.graph;
 	var ss = this.editorUi.getSelectionState();
+	div.appendChild(this.createTitle(mxResources.get('flip')));
 
 	var btn = mxUtils.button(mxResources.get('horizontal'), function(evt)
 	{
@@ -5125,7 +5148,6 @@ TextFormatPanel.prototype.addFont = function(container)
 	var wwStyleKey = isSvgMode ? 'svgWhiteSpace' : mxConstants.STYLE_WHITE_SPACE;
 	var wwOpt = this.createCellOption(mxResources.get('wordWrap'), wwStyleKey,
 		null, 'wrap', 'null', null, null, true, wwCells);
-	wwOpt.style.fontWeight = 'bold';
 
 	// Word wrap in edge labels only supported via labelWidth style
 	if (wwCells.length > 0)
@@ -5136,7 +5158,6 @@ TextFormatPanel.prototype.addFont = function(container)
 	// Delegates switch of style to formattedText action as it also convertes newlines
 	var htmlOpt = this.createCellOption(mxResources.get('formattedText'), 'html', 0,
 		null, null, null, ui.actions.get('formattedText'));
-	htmlOpt.style.fontWeight = 'bold';
 	extraPanel.appendChild(htmlOpt);
 
 	var convertToSvg = this.createCellOption(mxResources.get('lblToSvg'), 'convertToSvg', '0',
@@ -5165,7 +5186,6 @@ TextFormatPanel.prototype.addFont = function(container)
 			}
 		}
 	});
-	convertToSvg.style.fontWeight = 'bold';
 	extraPanel.appendChild(convertToSvg);
 
 	// Aligns the label tangentially to its connector (edges and edge labels
@@ -5176,7 +5196,6 @@ TextFormatPanel.prototype.addFont = function(container)
 	{
 		var autoRotate = this.createCellOption(mxResources.get('autoRotateLabel'),
 			'labelAutoRotate', '0', '1', '0');
-		autoRotate.style.fontWeight = 'bold';
 		extraPanel.appendChild(autoRotate);
 	}
 
@@ -5271,7 +5290,6 @@ TextFormatPanel.prototype.addFont = function(container)
 			}
 		}
 	}));
-	autosizeOpt.style.fontWeight = 'bold';
 
 	// Automatic font size scales the font to the cell bounds, so it is only
 	// meaningful when the cell can be resized (hidden for fixed-size labels
@@ -5305,7 +5323,6 @@ TextFormatPanel.prototype.addFont = function(container)
 				graph.refresh(cells[i]);
 			}
 		}));
-		fitOpt.style.fontWeight = 'bold';
 
 		// Requires word wrap
 		if (mxUtils.getValue(ss.style, mxConstants.STYLE_WHITE_SPACE, null) != 'wrap')
@@ -5372,7 +5389,6 @@ TextFormatPanel.prototype.addFont = function(container)
 	// label falls back to wrapping at the cell width.
 	var labelWidthPanel = this.createPanel();
 	labelWidthPanel.className = 'geFormatEntry';
-	labelWidthPanel.style.fontWeight = 'bold';
 	mxUtils.write(labelWidthPanel, mxResources.get('labelWidth'));
 	labelWidthPanel.setAttribute('title', mxResources.get('labelWidth'));
 
@@ -5422,7 +5438,6 @@ TextFormatPanel.prototype.addFont = function(container)
 	// border color is set as the padding is not painted otherwise.
 	var labelPaddingPanel = this.createPanel();
 	labelPaddingPanel.className = 'geFormatEntry';
-	labelPaddingPanel.style.fontWeight = 'bold';
 	labelPaddingPanel.setAttribute('title', mxResources.get('labelPadding'));
 
 	var labelPaddingTitle = document.createElement('span');
@@ -5495,12 +5510,27 @@ TextFormatPanel.prototype.addFont = function(container)
 	mxEvent.addListener(labelPadding, 'change', labelPaddingUpdate);
 	mxEvent.addListener(labelPadding, 'blur', labelPaddingUpdate);
 
+	// Width of the label border (the labelBorderWidth style), only visible
+	// while a label border color is set
+	var labelBorderWidthPanel = this.createPanel();
+	labelBorderWidthPanel.className = 'geFormatEntry';
+	mxUtils.write(labelBorderWidthPanel, mxResources.get('borderWidth'));
+	labelBorderWidthPanel.setAttribute('title', mxResources.get('borderWidth'));
+	var labelBorderWidthUpdate = null;
+
+	var labelBorderWidth = this.addUnitInput(labelBorderWidthPanel, this.getUnit(), 16, 52, function()
+	{
+		labelBorderWidthUpdate.apply(this, arguments);
+	}, this.getUnitStep(), null, null, this.isFloatUnit());
+	labelBorderWidth.setAttribute('title', mxResources.get('borderWidth'));
+
 	if (!graph.cellEditor.isContentEditing())
 	{
 		var advancedSec = this.createCollapsibleSection(mxResources.get('advanced'), true);
 		advancedSec.contentDiv.appendChild(extraPanel);
 		advancedSec.contentDiv.appendChild(labelWidthPanel);
 		advancedSec.contentDiv.appendChild(labelPaddingPanel);
+		advancedSec.contentDiv.appendChild(labelBorderWidthPanel);
 		container.appendChild(advancedSec.wrapper);
 		var opacityPanel = this.createRelativeOption(mxResources.get('opacity'), mxConstants.STYLE_TEXT_OPACITY);
 		opacityPanel.style.borderTopStyle = 'solid';
@@ -6014,8 +6044,19 @@ TextFormatPanel.prototype.addFont = function(container)
 		labelPaddingPanel.style.display = (mxUtils.getValue(ss.style, mxConstants.STYLE_LABEL_BACKGROUNDCOLOR,
 			mxConstants.NONE) != mxConstants.NONE || mxUtils.getValue(ss.style, mxConstants.STYLE_LABEL_BORDERCOLOR,
 			mxConstants.NONE) != mxConstants.NONE) ? '' : 'none';
+
+		if (force || document.activeElement != labelBorderWidth)
+		{
+			var tmp = parseFloat(mxUtils.getValue(ss.style, mxConstants.STYLE_LABEL_BORDER_WIDTH, 1));
+			labelBorderWidth.value = (isNaN(tmp)) ? '' : this.inUnit(tmp) + ' ' + this.getUnit();
+		}
+
+		labelBorderWidthPanel.style.display = (mxUtils.getValue(ss.style,
+			mxConstants.STYLE_LABEL_BORDERCOLOR, mxConstants.NONE) != mxConstants.NONE) ? '' : 'none';
 	});
 
+	labelBorderWidthUpdate = this.installInputHandler(labelBorderWidth, mxConstants.STYLE_LABEL_BORDER_WIDTH,
+		1, 0, 999, this.getUnit(' '), null, this.isFloatUnit(), true);
 	globalUpdate = this.installInputHandler(globalSpacing, mxConstants.STYLE_SPACING, 2, -999, 999, 
 			this.getUnit(' '), null, this.isFloatUnit(), true);
 	topUpdate = this.installInputHandler(topSpacing, mxConstants.STYLE_SPACING_TOP, 0, -999, 999, 
@@ -6385,19 +6426,32 @@ StyleFormatPanel.prototype.init = function()
 		}
 
 		var strokeSec = this.createCollapsibleSection(mxResources.get('line'), false);
-		strokeSec.contentDiv.appendChild(this.addStroke(this.createPanel()));
+		var strokePanel = this.addStroke(this.createPanel());
+		var lineJumpsPanel = this.addLineJumps(this.createPanel());
+		lineJumpsPanel.style.borderTop = 'none';
+		lineJumpsPanel.style.paddingBottom = '2px';
+		strokePanel.appendChild(lineJumpsPanel);
+
+		// Follows the line jumps as close as the rows above
+		var routingPanel = this.addRoutingSpacing(this.createPanel());
+		routingPanel.style.borderTop = 'none';
+		routingPanel.style.paddingBottom = '2px';
+
+		if (lineJumpsPanel.style.display != 'none')
+		{
+			routingPanel.style.paddingTop = '0';
+		}
+
+		strokePanel.appendChild(routingPanel);
+		strokeSec.contentDiv.appendChild(strokePanel);
 		this.container.appendChild(strokeSec.wrapper);
 
-		var lineJumpsPanel = this.addLineJumps(this.createPanel());
-		var jumpsSec = this.createCollapsibleSection(mxResources.get('lineJumps'), true);
-		jumpsSec.contentDiv.appendChild(lineJumpsPanel);
-		this.container.appendChild(jumpsSec.wrapper);
-		this.syncCollapsibleVisibility(jumpsSec.wrapper, lineJumpsPanel);
-
+		// The 28px row is 2px taller than the title of a section, so 5px
+		// puts the label where the titles are
 		var opacityPanel = this.createRelativeOption(mxResources.get('opacity'), mxConstants.STYLE_OPACITY);
 		opacityPanel.style.borderTopStyle = 'solid';
 		opacityPanel.style.borderTopWidth = '1px';
-		opacityPanel.style.padding = '6px 0';
+		opacityPanel.style.padding = '5px 0';
 		this.container.appendChild(opacityPanel);
 
 		var effectsSec = this.createCollapsibleSection(mxResources.get('effects'), true);
@@ -7522,6 +7576,11 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		Format.addLineMarkerItems(ui, menu, ss.style, false);
 	})), '', null, stylePanel2);
 
+	pattern.setAttribute('title', mxResources.get('pattern'));
+	altPattern.setAttribute('title', mxResources.get('pattern'));
+	lineStart.setAttribute('title', mxResources.get('linestart'));
+	lineEnd.setAttribute('title', mxResources.get('lineend'));
+
 	edgeShape.style.width = '67px';
 	edgeShape.style.marginRight = '2px';
 	altPattern.style.width = '67px';
@@ -7599,8 +7658,8 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	
 	var spacingLabel = span.cloneNode(false);
 	span = spacingLabel;
-	mxUtils.write(span, mxResources.get('spacing'));
-	span.setAttribute('title', mxResources.get('spacing'));
+	mxUtils.write(span, mxResources.get('offset', null, 'Offset'));
+	span.setAttribute('title', mxResources.get('offset', null, 'Offset'));
 	arrowPanel.appendChild(span);
 
 	var startSpacing = this.addUnitInput(arrowPanel, this.getUnit(), 82, 52, function()
@@ -7751,7 +7810,10 @@ StyleFormatPanel.prototype.addStroke = function(container)
 			
 			if (markerDiv != null)
 			{
-				ui.updateCssForMarker(markerDiv, prefix, ss.style.shape, marker, fill);
+				// Writes None to the label of the button so that it looks like
+				// the text of the selects, not like the dimmed marker images
+				ui.updateCssForMarker(markerDiv, prefix, ss.style.shape, marker, fill,
+					elt.getElementsByTagName('span')[0]);
 			}
 			
 			return markerDiv;
@@ -7838,7 +7900,7 @@ StyleFormatPanel.prototype.addLineJumps = function(container)
 	var editor = ui.editor;
 	var graph = editor.graph;
 	var ss = ui.getSelectionState();
-	container.style.height = '22px';
+	container.style.height = '24px';
 	
 	if (Graph.lineJumpsEnabled && ss.edges.length > 0 &&
 		ss.vertices.length == 0 && ss.lineJumps)
@@ -7858,6 +7920,7 @@ StyleFormatPanel.prototype.addLineJumps = function(container)
 
 		var styleSelect = document.createElement('select');
 		styleSelect.setAttribute('title', mxResources.get('lineJumps'));
+		styleSelect.style.font = 'inherit';
 		styleSelect.style.left = '72px';
 		styleSelect.style.width = '72px';
 
@@ -7934,6 +7997,81 @@ StyleFormatPanel.prototype.addLineJumps = function(container)
 };
 
 /**
+ * Adds UI for the spacing of auto-routed edges (libavoidSpacing). Only shown
+ * if the routing is loaded and all selected cells are auto-routed edges.
+ */
+StyleFormatPanel.prototype.addRoutingSpacing = function(container)
+{
+	var ui = this.editorUi;
+	var graph = ui.editor.graph;
+	var ss = ui.getSelectionState();
+	var routed = typeof LibavoidRouting !== 'undefined' &&
+		ss.edges.length > 0 && ss.vertices.length == 0;
+
+	for (var i = 0; i < ss.edges.length && routed; i++)
+	{
+		routed = mxUtils.getValue(graph.getCurrentCellStyle(ss.edges[i]),
+			'libavoidRouting', '0') == '1';
+	}
+
+	container.style.height = '24px';
+
+	if (routed)
+	{
+		container.style.display = 'flex';
+		container.style.alignItems = 'center';
+
+		var span = document.createElement('div');
+		span.style.position = 'absolute';
+		span.style.maxWidth = '72px';
+		span.style.overflow = 'hidden';
+		span.style.textOverflow = 'ellipsis';
+		mxUtils.write(span, mxResources.get('spacing'));
+		span.setAttribute('title', mxResources.get('spacing'));
+		container.appendChild(span);
+
+		var spacingUpdate;
+
+		var spacing = this.addUnitInput(container, this.getUnit(), 16, 52, function()
+		{
+			spacingUpdate.apply(this, arguments);
+		}, this.getUnitStep(), null, null, this.isFloatUnit());
+		spacing.setAttribute('title', mxResources.get('spacing'));
+
+		spacingUpdate = this.installInputHandler(spacing, 'libavoidSpacing',
+			LibavoidRouting.shapeBufferDistance, 2, 999, this.getUnit(' '),
+			null, this.isFloatUnit(), true);
+
+		var listener = mxUtils.bind(this, function(sender, evt, force)
+		{
+			ss = ui.getSelectionState();
+
+			if (force || document.activeElement != spacing)
+			{
+				// Shows the spacing that routing uses, which is limited to the
+				// range of this input (eg. 999 for 1e300, the default for Infinity)
+				var tmp = parseFloat(mxUtils.getValue(ss.style, 'libavoidSpacing', null));
+				tmp = (isFinite(tmp)) ? Math.min(999, Math.max(2, tmp)) :
+					LibavoidRouting.shapeBufferDistance;
+				spacing.value = this.inUnit(tmp) + ' ' + this.getUnit();
+			}
+		});
+
+		this.addKeyHandler(spacing, listener);
+
+		graph.getModel().addListener(mxEvent.CHANGE, listener);
+		this.listeners.push({destroy: function() { graph.getModel().removeListener(listener); }});
+		listener();
+	}
+	else
+	{
+		container.style.display = 'none';
+	}
+
+	return container;
+};
+
+/**
  * Adds the label menu items to the given menu and parent.
  */
 StyleFormatPanel.prototype.addEffects = function(div)
@@ -7945,7 +8083,6 @@ StyleFormatPanel.prototype.addEffects = function(div)
 
 	var table = document.createElement('table');
 	table.className = 'geFullWidthElement';
-	table.style.fontWeight = 'bold';
 	table.style.tableLayout = 'fixed';
 	var tbody = document.createElement('tbody');
 	var row = document.createElement('tr');
@@ -8025,10 +8162,12 @@ StyleFormatPanel.prototype.addEffects = function(div)
 		{
 			addOption(mxResources.get('flowAnimation'), 'flowAnimation', 0);
 
-			// Orthogonal routings already imply orthogonal ends and
-			// libavoid re-routes its edges when a terminal moves
+			// Orthogonal routings already imply orthogonal ends, isometric
+			// routings ignore them (see Graph.isOrthogonal) and libavoid
+			// re-routes its edges when a terminal moves
 			var implied = false;
 			var routed = false;
+			var fixed = true;
 
 			for (var i = 0; i < ss.edges.length; i++)
 			{
@@ -8036,16 +8175,26 @@ StyleFormatPanel.prototype.addEffects = function(div)
 
 				if (state != null)
 				{
-					implied = implied || graph.isOrthogonalEdgeStyle(
-						graph.view.getEdgeStyle(state));
+					var edgeStyle = graph.view.getEdgeStyle(state);
+					implied = implied || graph.isOrthogonalEdgeStyle(edgeStyle) ||
+						edgeStyle == mxEdgeStyle.IsometricConnector;
 					routed = routed || mxUtils.getValue(state.style,
 						'libavoidRouting', null) == '1';
+					fixed = fixed && graph.isFixedTerminalPoint(state, true) &&
+						graph.isFixedTerminalPoint(state, false);
 				}
 			}
 
 			if (!implied)
 			{
-				addOption(mxResources.get('orthogonalEnds'), mxConstants.STYLE_ORTHOGONAL, 0);
+				var ends = addOption(mxResources.get('orthogonalEnds'), mxConstants.STYLE_ORTHOGONAL, 0);
+
+				// Ends with a fixed connection point ignore orthogonal ends
+				if (fixed)
+				{
+					ends.getElementsByTagName('input')[0].setAttribute('disabled', 'disabled');
+					mxUtils.setOpacity(ends, 60);
+				}
 			}
 
 			// Moves the waypoints along with the terminals (see Graph.initFollowTerminals)
@@ -8961,7 +9110,11 @@ DiagramFormatPanel.prototype.addView = function(div)
 				}
 				else
 				{
-					graph.model.execute(new ChangePageSetup(ui, null, null));
+					// Also removes the gradient of the background color
+					var change = new ChangePageSetup(ui, null, null);
+					change.gradient = {color: null, direction: null};
+
+					graph.model.execute(change);
 				}
 			},
 			{

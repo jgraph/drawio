@@ -40,7 +40,6 @@ window.DRAWIO_GITLAB_ID = window.DRAWIO_GITLAB_ID || '2b14debc5feeb18ba65358d863
 window.DRAWIO_GITHUB_URL = window.DRAWIO_GITHUB_URL || 'https://github.com';
 window.DRAWIO_GITHUB_API_URL = window.DRAWIO_GITHUB_API_URL || 'https://api.github.com';
 window.DRAWIO_GITHUB_ID = window.DRAWIO_GITHUB_ID || 'Iv1.98d62f0431e40543';
-window.DRAWIO_DROPBOX_ID = window.DRAWIO_DROPBOX_ID || 'jg02tc0onwmhlgm';
 window.SAVE_URL = window.SAVE_URL || window.DRAWIO_SERVER_URL + 'save';
 window.PROXY_URL = window.PROXY_URL || window.DRAWIO_SERVER_URL + 'proxy';
 window.DRAWIO_VIEWER_URL = window.DRAWIO_VIEWER_URL || null;
@@ -477,30 +476,11 @@ if (urlParams['offline'] == '1' || urlParams['demo'] == '1' ||
 {
 	urlParams['picker'] = (urlParams['gapi-stealth'] == '1') ? '1' : '0';
 	urlParams['gapi'] = (urlParams['gapi-stealth'] == '1') ? '1' : '0';
-	urlParams['db'] = '0';
 	urlParams['od'] = '0';
 	urlParams['gh'] = '0';
 	urlParams['gl'] = '0';
 	urlParams['tr'] = '0';
 	urlParams['ms365'] = '0';
-}
-
-// Do not insert code between above and below blocks
-// se mode. Ensure this comes after the block above. 
-if (window.location.hostname == 'se.diagrams.net')
-{
-	urlParams['db'] = '0';
-	urlParams['od'] = '0';
-	urlParams['gh'] = '0';
-	urlParams['gl'] = '0';
-	urlParams['tr'] = '0';
-	urlParams['ms365'] = '0';
-	urlParams['plugins'] = '0';
-	urlParams['mode'] = 'google';
-	urlParams['lockdown'] = '1'; // Do not want to apply lockdown true to above block
-
-	window.DRAWIO_GOOGLE_APP_ID = window.DRAWIO_GOOGLE_APP_ID || '184079235871';
-	window.DRAWIO_GOOGLE_CLIENT_ID = window.DRAWIO_GOOGLE_CLIENT_ID || '184079235871-pjf5nn0lff27lk8qf0770gmffiv9gt61.apps.googleusercontent.com';
 }
 
 // Disables Trello client by default

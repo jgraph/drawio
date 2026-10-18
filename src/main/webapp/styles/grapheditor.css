@@ -70,6 +70,59 @@
 	--prop-accent-text-color: #305496;
 }
 
+/* System colors (systemColors in Editor.configure): derives the grays from
+   the CSS system colors Canvas and CanvasText, which the browser resolves
+   for the color scheme where they are used. With the default Canvas and
+   CanvasText of Chrome, the mixes give the fixed colors above. Accent,
+   selection and status colors are unchanged. Not used with forced colors,
+   where high-contrast.css applies. */
+@media (forced-colors: none) {
+	:root.geSystemColors {
+		--ge-panel-color: color-mix(in srgb, CanvasText 5%, Canvas);
+		--toolbar-color: color-mix(in srgb, CanvasText 5%, Canvas);
+		--workspace-color: color-mix(in srgb, CanvasText 7.5%, Canvas);
+		--inactive-color: color-mix(in srgb, CanvasText 10.5%, Canvas);
+		--active-color: color-mix(in srgb, CanvasText 23%, Canvas);
+		--border-color: color-mix(in srgb, CanvasText 14.5%, Canvas);
+		--highlight-color: color-mix(in srgb, CanvasText 11.5%, Canvas);
+		--scrollbar-hover-color: color-mix(in srgb, CanvasText 41%, Canvas);
+		--text-color: color-mix(in srgb, CanvasText 75%, Canvas);
+		--dialog-color: color-mix(in srgb, CanvasText 6%, Canvas);
+		--strong-text-color: color-mix(in srgb, CanvasText 88.5%, Canvas);
+		--secondary-text-color: color-mix(in srgb, CanvasText 56.5%, Canvas);
+		--faint-text-color: color-mix(in srgb, CanvasText 44%, Canvas);
+		--field-color: Canvas;
+		--field-border-color: color-mix(in srgb, CanvasText 17%, Canvas);
+		--strong-border-color: color-mix(in srgb, CanvasText 27%, Canvas);
+		--card-color: Canvas;
+		--soft-color: color-mix(in srgb, CanvasText 4%, Canvas);
+		--soft-hover-color: color-mix(in srgb, CanvasText 5.5%, Canvas);
+		--active-item-color: color-mix(in srgb, CanvasText 17%, Canvas);
+		--scrollbar-color: color-mix(in srgb, CanvasText 11.5%, Canvas);
+		--prop-stripe-color: color-mix(in srgb, CanvasText 1%, Canvas);
+		--dark-color: Canvas;
+		--dark-toolbar-color: color-mix(in srgb, CanvasText 6%, Canvas);
+		--ge-dark-panel-color: color-mix(in srgb, CanvasText 4.5%, Canvas);
+		--dark-header-color: color-mix(in srgb, CanvasText 4.5%, Canvas);
+		--dark-border-color: color-mix(in srgb, CanvasText 14%, Canvas);
+		--dark-text-color: color-mix(in srgb, CanvasText 73%, Canvas);
+		--dark-inverse-active-color: color-mix(in srgb, CanvasText 75%, Canvas);
+		--dark-dialog-color: color-mix(in srgb, CanvasText 10%, Canvas);
+		--dark-strong-text-color: color-mix(in srgb, CanvasText 89%, Canvas);
+		--dark-secondary-text-color: color-mix(in srgb, CanvasText 60%, Canvas);
+		--dark-faint-text-color: color-mix(in srgb, CanvasText 44%, Canvas);
+		--dark-field-color: color-mix(in srgb, CanvasText 4%, Canvas);
+		--dark-field-border-color: color-mix(in srgb, CanvasText 23%, Canvas);
+		--dark-strong-border-color: color-mix(in srgb, CanvasText 30%, Canvas);
+		--dark-card-color: color-mix(in srgb, CanvasText 11%, Canvas);
+		--dark-soft-color: color-mix(in srgb, CanvasText 17%, Canvas);
+		--dark-soft-hover-color: color-mix(in srgb, CanvasText 17%, Canvas);
+		--dark-active-item-color: color-mix(in srgb, CanvasText 64%, Canvas);
+		--dark-error-color: CanvasText;
+		--dark-scrollbar-color: color-mix(in srgb, CanvasText 11%, Canvas);
+	}
+}
+
 .geEditor * {
 	forced-color-adjust: none;
 }
@@ -367,7 +420,9 @@ div[id*="dgeMermaidOutput-"] {
 }
 
 .geFreehandMode,
-.geFreehandMode * {
+.geFreehandMode *,
+.gePolygonMode,
+.gePolygonMode * {
 	cursor: crosshair !important;
 }
 
@@ -416,11 +471,6 @@ div[id*="dgeMermaidOutput-"] {
 .geFormatTitleContainer {
 	height: 34px;
 	margin-bottom: 12px;
-	/* Bleed back across the scrollbar gutter reserved on .geFormatContainer so
-	   the tabs span the full panel width (the gutter is a right margin for the
-	   inset content panels only, not the full-bleed tab header). Keep in sync
-	   with the ::-webkit-scrollbar width. */
-	margin-right: -10px;
 }
 
 .geFormatTitle {
@@ -474,7 +524,7 @@ div[id*="dgeMermaidOutput-"] {
 
 .geFormatContent {
 	margin-left: 12px;
-	margin-right: 0;
+	margin-right: 8px;
 }
 
 div.geActivePage {
@@ -1073,25 +1123,8 @@ html div.mxWindow.mxWindowDocked {
 
 div.geFormatContainer {
 	overflow-y: auto;
-	/* Reserve the scrollbar gutter so the panel width does not jump (and the
-	   right-anchored color controls do not get squeezed) when the styled
-	   scrollbar appears. The custom ::-webkit-scrollbar makes it a classic,
-	   space-consuming bar, so the gutter is the panel's effective right margin
-	   - hence margin-right: 0 on .geFormatContent below. */
-	scrollbar-gutter: stable;
 	font-size: 12px;
 	width: 240px;
-}
-
-/* WebKit reserves the native scrollbar width for a stable gutter (17px in
-   Safari) until the content overflows and the styled scrollbar exists, which
-   clips the panel content and the tab header. An always present styled
-   scrollbar keeps the gutter at its width and paints nothing while there is
-   nothing to scroll. */
-@supports selector(::-webkit-scrollbar) {
-	div.geFormatContainer {
-		overflow-y: scroll;
-	}
 }
 
 .geDiagramContainer {
@@ -1348,6 +1381,7 @@ html body div.geBtn.geSmallBanner {
 
 .geStyleBtn {
 	display: inline-flex;
+	position: relative;
 	box-sizing: border-box;
 	border-radius: 4px;
 	height: 22px;
@@ -1413,7 +1447,7 @@ td.mxPopupMenuIcon .geStyleMenuItem>div {
 	width: 100%;
 	height: 100%;
 	display: flex;
-	font-size: 13px;
+	font-size: 12px;
 	padding-right: 8px;
 	position: relative;
 	align-items: center;
@@ -1430,9 +1464,8 @@ td.mxPopupMenuIcon .geStyleMenuItem>div {
 
 .geFullWidthElement {
 	width: 212px;
-	/* Keeps 3px for the focus ring where the scrollbar gutter on
-	   .geFormatContainer is wider than the 10px ::-webkit-scrollbar (eg.
-	   Firefox), which would otherwise clip it at the right edge */
+	/* Keeps 3px for the focus ring where the scrollbar of .geFormatContainer
+	   narrows the panel, which would otherwise clip it at the right edge */
 	max-width: calc(100% - 3px);
 }
 

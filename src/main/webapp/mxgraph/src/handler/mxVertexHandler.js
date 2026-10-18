@@ -941,8 +941,7 @@ mxVertexHandler.prototype.moveLabel = function(me)
 		point.y = (this.graph.snap(point.y / scale - tr.y) + tr.y) * scale;
 	}
 
-	var index = (this.rotationShape != null) ? this.sizers.length - 2 : this.sizers.length - 1;
-	this.moveSizerTo(this.sizers[index], point.x, point.y);
+	this.moveSizerTo(this.labelShape, point.x, point.y);
 };
 
 /**

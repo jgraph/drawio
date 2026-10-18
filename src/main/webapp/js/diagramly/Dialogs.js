@@ -315,55 +315,17 @@ var SplashDialog = function(editorUi)
 	buttons.style.margin = '8px 0px 0px 0px';
 	buttons.style.padding = '18px 0px 24px 0px';
 	
-	var service = '';
-	
-	if (editorUi.mode == App.MODE_GOOGLE)
+	var storage = (editorUi.mode != null) ? App.storages[editorUi.mode] : null;
+
+	if (storage == null || editorUi.mode == App.MODE_DEVICE)
 	{
-		logo.src = IMAGE_PATH + '/google-drive-logo.svg';
-		service = mxResources.get('googleDrive');
-	}
-	else if (editorUi.mode == App.MODE_DROPBOX)
-	{
-		logo.src = IMAGE_PATH + '/dropbox-logo.svg';
-		service = mxResources.get('dropbox');
-	}
-	else if (editorUi.mode == App.MODE_ONEDRIVE)
-	{
-		logo.src = IMAGE_PATH + '/onedrive-logo.svg';
-		service = mxResources.get('oneDrive');
-	}
-	else if (editorUi.mode == App.MODE_M365)
-	{
-		logo.src = IMAGE_PATH + '/onedrive-logo.svg';
-		service = mxResources.get('m365');
-	}
-	else if (editorUi.mode == App.MODE_GITHUB)
-	{
-		logo.src = IMAGE_PATH + '/github-logo.svg';
-		service = mxResources.get('github');
-	}
-	else if (editorUi.mode == App.MODE_GITLAB)
-	{
-		logo.src = IMAGE_PATH + '/gitlab-logo.svg';
-		service = mxResources.get('gitlab');
-	}
-	else if (editorUi.mode == App.MODE_BROWSER)
-	{
-		logo.src = IMAGE_PATH + '/osa_database.png';
-		service = mxResources.get('browser');
-	}
-	else if (editorUi.mode == App.MODE_TRELLO)
-	{
-		logo.src = IMAGE_PATH + '/trello-logo.svg';
-		service = mxResources.get('trello');
-	}
-	else
-	{
-		logo.src = IMAGE_PATH + '/osa_drive-harddisk.png';
+		storage = App.storages[App.MODE_DEVICE];
 		buttons.style.paddingBottom = '10px';
 		buttons.style.paddingTop = '30px';
-		service = mxResources.get('device');
 	}
+
+	logo.src = IMAGE_PATH + '/' + storage.logo;
+	var service = mxResources.get(storage.title);
 
 	var btn = document.createElement('button');
 	btn.className = 'geBigButton';
@@ -448,41 +410,6 @@ var SplashDialog = function(editorUi)
 	
 	buttons.appendChild(btn);
 
-	var storage = 'undefined';
-	
-	if (editorUi.mode == App.MODE_GOOGLE)
-	{
-		storage = mxResources.get('googleDrive');
-	}
-	else if (editorUi.mode == App.MODE_DROPBOX)
-	{
-		storage = mxResources.get('dropbox');
-	}
-	else if (editorUi.mode == App.MODE_ONEDRIVE)
-	{
-		storage = mxResources.get('oneDrive');
-	}
-	else if (editorUi.mode == App.MODE_GITHUB)
-	{
-		storage = mxResources.get('github');
-	}
-	else if (editorUi.mode == App.MODE_GITLAB)
-	{
-		storage = mxResources.get('gitlab');
-	}
-	else if (editorUi.mode == App.MODE_TRELLO)
-	{
-		storage = mxResources.get('trello');
-	}
-	else if (editorUi.mode == App.MODE_DEVICE)
-	{
-		storage = mxResources.get('device');
-	}
-	else if (editorUi.mode == App.MODE_BROWSER)
-	{
-		storage = mxResources.get('browser');
-	}
-	
 	if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
 	{
 		function addLogout(logout)
@@ -627,15 +554,6 @@ var SplashDialog = function(editorUi)
 					editorUi.trello.logout();
 				});
 			}
-		}
-		else if (editorUi.mode == App.MODE_DROPBOX && editorUi.dropbox != null)
-		{
-			// NOTE: Dropbox has a logout option in the picker
-			addLogout(function()
-			{
-				editorUi.dropbox.logout();
-				editorUi.openLink('https://www.dropbox.com/logout');
-			});
 		}
 	}
 
@@ -917,9 +835,11 @@ EmbedDialog.showPreviewOption = true;
 EmbedDialog.maxSize = 500000;
 
 /**
- * Constructs a new parse dialog.
+ * Constructs a new background dialog. The optional gradient of the fill color
+ * is given as {color, direction} (see Graph.backgroundGradient) and passed to
+ * applyFn after the color, with a null color if there is no gradient.
  */
-var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor)
+var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor, gradient)
 {
 	var div = document.createElement('div');
 
@@ -1245,6 +1165,23 @@ var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor)
 
 	var newBackgroundColor = color;
 
+	function updateColorButton(button, value)
+	{
+		var cssColor = mxUtils.getLightDarkColor(value);
+
+		if (mxUtils.isLightDarkColor(value) && cssColor.light != cssColor.dark)
+		{
+			button.style.background = 'linear-gradient(to right bottom, ' +
+				cssColor.cssText + ' 50%, ' + mxUtils.invertLightDarkColor(cssColor).
+				cssText + ' 50.3%)';
+		}
+		else
+		{
+			button.style.background = '';
+			button.style.backgroundColor = cssColor.cssText;
+		}
+	};
+
 	function updateBackgroundColor()
 	{
 		if (newBackgroundColor == null || newBackgroundColor == mxConstants.NONE)
@@ -1254,27 +1191,13 @@ var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor)
 		}
 		else
 		{
-			var cssColor = mxUtils.getLightDarkColor(newBackgroundColor);
-
-			if (mxUtils.isLightDarkColor(newBackgroundColor) &&
-				cssColor.light != cssColor.dark)
-			{
-				backgroundButton.style.background = 'linear-gradient(to right bottom, ' +
-					cssColor.cssText + ' 50%, ' + mxUtils.invertLightDarkColor(cssColor).
-					cssText + ' 50.3%)';
-			}
-			else
-			{
-				backgroundButton.style.background = '';
-				backgroundButton.style.backgroundColor = cssColor.cssText;
-			}
-
+			updateColorButton(backgroundButton, newBackgroundColor);
 			backgroundButton.style.display = '';
 			cb.checked = true;
 		}
-	};
 
-	updateBackgroundColor();
+		updateGradient();
+	};
 
 	mxEvent.addListener(bgRow, 'click', function(evt)
 	{
@@ -1308,7 +1231,101 @@ var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor)
 
 	bgRow.appendChild(backgroundButton);
 	optSection.appendChild(bgRow);
+
+	// Gradient of the fill color, which is disabled and removed without a fill
+	// color (see Graph.backgroundGradient)
+	var newGradientColor = (gradient != null) ? gradient.color : null;
+	var gradientRow = document.createElement('div');
+	gradientRow.className = 'geDialogCheckRow';
+	gradientRow.style.cursor = 'default';
+
+	var gradientCb = document.createElement('input');
+	gradientCb.setAttribute('type', 'checkbox');
+	gradientRow.appendChild(gradientCb);
+
+	var gradientLabel = document.createElement('label');
+	mxUtils.write(gradientLabel, mxResources.get('gradient'));
+	gradientRow.appendChild(gradientLabel);
+
+	// Same look as the button of the fill color
+	var gradientButton = backgroundButton.cloneNode(false);
+	gradientButton.setAttribute('title', mxResources.get('gradientColor'));
+	gradientRow.appendChild(gradientButton);
+
+	var gradientSelect = document.createElement('select');
+	gradientSelect.setAttribute('title', mxResources.get('direction'));
+	gradientSelect.style.flex = '0 1 auto';
+
+	for (var i = 0; i < Graph.backgroundGradientDirections.length; i++)
+	{
+		var option = document.createElement('option');
+		option.setAttribute('value', Graph.backgroundGradientDirections[i]);
+		mxUtils.write(option, mxResources.get(Graph.backgroundGradientDirections[i]));
+		gradientSelect.appendChild(option);
+	}
+
+	gradientSelect.value = (gradient != null && gradient.direction != null) ?
+		gradient.direction : mxConstants.DIRECTION_SOUTH;
+	gradientRow.appendChild(gradientSelect);
+
+	function updateGradient()
+	{
+		if (!cb.checked)
+		{
+			newGradientColor = null;
+		}
+
+		gradientCb.disabled = !cb.checked;
+		gradientRow.style.opacity = (cb.checked) ? '' : '0.5';
+
+		if (newGradientColor == null)
+		{
+			gradientButton.style.display = 'none';
+			gradientSelect.style.display = 'none';
+			gradientCb.checked = false;
+		}
+		else
+		{
+			updateColorButton(gradientButton, newGradientColor);
+			gradientButton.style.display = '';
+			gradientSelect.style.display = '';
+			gradientCb.checked = true;
+		}
+	};
+
+	// Listens to the checkbox and label only so that the select and the
+	// color button do not toggle the gradient
+	function gradientToggled()
+	{
+		newGradientColor = (gradientCb.checked) ? '#ffffff' : null;
+		updateGradient();
+	};
+
+	mxEvent.addListener(gradientCb, 'change', gradientToggled);
+
+	mxEvent.addListener(gradientLabel, 'click', function()
+	{
+		if (!gradientCb.disabled)
+		{
+			gradientCb.checked = !gradientCb.checked;
+			gradientToggled();
+		}
+	});
+
+	mxEvent.addListener(gradientButton, 'click', function(evt)
+	{
+		editorUi.pickColor(newGradientColor || 'none', function(color)
+		{
+			newGradientColor = (color != mxConstants.NONE) ? color : null;
+			updateGradient();
+		});
+
+		mxEvent.consume(evt);
+	});
+
+	optSection.appendChild(gradientRow);
 	div.appendChild(optSection);
+	updateBackgroundColor();
 
 	// Buttons
 	var btns = document.createElement('div');
@@ -1384,7 +1401,9 @@ var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor)
 		urlChanged(null, function(url)
 		{
 			applyFn((url != '' && url != null) ? new mxImage(url, widthInput.value,
-				heightInput.value) : null, url == null, newBackgroundColor);
+				heightInput.value) : null, url == null, newBackgroundColor,
+				{color: newGradientColor, direction: (newGradientColor != null) ?
+					gradientSelect.value : null});
 		});
 	});
 
@@ -2256,42 +2275,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	logo.style.marginRight = '10px';
 	logo.style.paddingBottom = '4px';
 	
-	if (editorUi.mode == App.MODE_GOOGLE)
-	{
-		logo.src = IMAGE_PATH + '/google-drive-logo.svg';
-	}
-	else if (editorUi.mode == App.MODE_DROPBOX)
-	{
-		logo.src = IMAGE_PATH + '/dropbox-logo.svg';
-	}
-	else if (editorUi.mode == App.MODE_ONEDRIVE)
-	{
-		logo.src = IMAGE_PATH + '/onedrive-logo.svg';
-	}
-	else if (editorUi.mode == App.MODE_M365)
-	{
-		logo.src = IMAGE_PATH + '/onedrive-logo.svg';
-	}
-	else if (editorUi.mode == App.MODE_GITHUB)
-	{
-		logo.src = IMAGE_PATH + '/github-logo.svg';
-	}
-	else if (editorUi.mode == App.MODE_GITLAB)
-	{
-		logo.src = IMAGE_PATH + '/gitlab-logo.svg';
-	}
-	else if (editorUi.mode == App.MODE_TRELLO)
-	{
-		logo.src = IMAGE_PATH + '/trello-logo.svg';
-	}
-	else if (editorUi.mode == App.MODE_BROWSER)
-	{
-		logo.src = IMAGE_PATH + '/osa_database.png';
-	}
-	else
-	{
-		logo.src = IMAGE_PATH + '/osa_drive-harddisk.png';
-	}
+	var storage = (editorUi.mode != null) ? App.storages[editorUi.mode] : null;
+	logo.src = IMAGE_PATH + '/' + ((storage != null) ? storage.logo :
+		App.storages[App.MODE_DEVICE].logo);
 
 	if (!compact && !smallScreen && showName)
 	{
@@ -2304,32 +2290,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				editorUi.mode == App.MODE_BROWSER) ? mxResources.get('diagramName') : mxResources.get('filename'))) + ':');
 	}
 	
-	var ext = '.drawio';
-	
-	if (editorUi.mode == App.MODE_GOOGLE && editorUi.drive != null)
-	{
-		ext = editorUi.drive.extension;
-	}
-	else if (editorUi.mode == App.MODE_DROPBOX && editorUi.dropbox != null)
-	{
-		ext = editorUi.dropbox.extension;
-	}
-	else if (editorUi.mode == App.MODE_ONEDRIVE && editorUi.oneDrive != null)
-	{
-		ext = editorUi.oneDrive.extension;
-	}
-	else if (editorUi.mode == App.MODE_GITHUB && editorUi.gitHub != null)
-	{
-		ext = editorUi.gitHub.extension;
-	}
-	else if (editorUi.mode == App.MODE_GITLAB && editorUi.gitLab != null)
-	{
-		ext = editorUi.gitLab.extension;
-	}
-	else if (editorUi.mode == App.MODE_TRELLO && editorUi.trello != null)
-	{
-		ext = editorUi.trello.extension;
-	}
+	var peer = editorUi.getServiceForName(editorUi.mode);
+	var ext = (peer != null) ? peer.extension : '.drawio';
 	
 	var nameInput = document.createElement('input');
 	nameInput.setAttribute('value', editorUi.defaultFilename + ext);
@@ -2441,10 +2403,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		
 	// Shows a tooltip with the rendered template
 	var loading = false;
-	var extImg = null;
 	var wasVisible = false;
 	
-	function showTooltip(xml, x, y, elt, title, url)
+	function showTooltip(xml, x, y, elt, title, url, infoObj, clibs)
 	{
 		// Checks if dialog still visible
 		if (xml != null && mxUtils.isAncestorNode(document.body, elt))
@@ -3196,6 +3157,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	{
 		var elt = null;
 
+		// Image of this template, previews of other templates must not use it
+		var extImg = null;
+
 		if (templateType != 'generative' || generateElt == null)
 		{
 			elt = document.createElement('div');
@@ -3265,10 +3229,12 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					// Create a diagram with the image to use the same code
 					// Note: Without compression it doesn't work for some reason. Find out why later
 					var xml = '<mxfile><diagram>' + Graph.compress('<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/>' +
-						'<mxCell id="2" value="" style="shape=image;image=' + extImg.src + ';imageAspect=1;" parent="1" vertex="1">' +
+						'<mxCell id="2" value="" style="shape=image;image=' + mxUtils.htmlEntities(extImg.src) +
+						';imageAspect=1;" parent="1" vertex="1">' +
 						'<mxGeometry width="' + extImg.naturalWidth + '" height="' + extImg.naturalHeight + '" as="geometry" />' +
 						'</mxCell></root></mxGraphModel>') + '</diagram></mxfile>';
-					showTooltip(xml, mxEvent.getClientX(evt), mxEvent.getClientY(evt), title, url);
+					showTooltip(xml, mxEvent.getClientX(evt), mxEvent.getClientY(evt),
+						elt, title, url, infoObj, clibs);
 					return;
 				}
 				
@@ -4376,8 +4342,8 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 	{
 		var option = null;
 
-		// Dropbox and GitLab storage are deprecated, no longer offered as save targets
-		if (mode != App.MODE_DROPBOX && mode != App.MODE_GITLAB &&
+		// GitLab storage is deprecated, no longer offered as a save target
+		if (mode != App.MODE_GITLAB &&
 			(disabledModes == null || mxUtils.indexOf(disabledModes, mode) < 0) &&
 			(folderPickerMode == null || mode == folderPickerMode) &&
 			(enabledModes == null || mxUtils.indexOf(enabledModes, mode) >= 0))
@@ -5146,10 +5112,6 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 				else if (newMode == App.MODE_TRELLO)
 				{
 					ext = editorUi.trello.extension;
-				}
-				else if (newMode == App.MODE_DROPBOX)
-				{
-					ext = editorUi.dropbox.extension;
 				}
 				else if (newMode == App.MODE_ONEDRIVE)
 				{
@@ -6287,29 +6249,6 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages,
 		});
 	}
 
-	if (typeof(Dropbox) != 'undefined' && typeof(Dropbox.choose) != 'undefined')
-	{
-		addButton('dropbox', function()
-		{
-			// Authentication will be carried out on open to make sure the
-			// autosave does not show an auth dialog. Showing it here will
-			// block the second dialog (the file picker) so it's too early.
-			Dropbox.choose(
-			{
-				linkType : 'direct',
-				cancel: function()
-				{
-					// do nothing
-				},
-				success : function(files)
-				{
-					linkInput.value = files[0].link;
-					linkInput.focus();
-				}
-			});
-		});
-	}
-
 	if (editorUi.oneDrive != null)
 	{
 		addButton('oneDrive', function()
@@ -6495,35 +6434,10 @@ LinkDialog.sameCells = function(a, b)
 	return true;
 };
 
-/**
- * Inline SVG icons used by the selector chips. Single-stroke pictograms
- * sized to render at 14×14 px against the chip's hairline border. The
- * `currentColor` fill picks up the surrounding text color, so the same
- * markup works in light and dark mode.
- */
 // End-user manual for the animation / custom-action editors.
 var ANIMATION_HELP_URL =
 	'https://www.drawio.com/docs/manual/links-tooltips-tags/animations-custom-actions/';
 
-var SELECTOR_ICONS = {
-	// Down-arrow into a tray — "use the current canvas selection"
-	arrowDown: '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" ' +
-		'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
-		'stroke-linejoin="round" aria-hidden="true">' +
-		'<path d="M8 2v8M4.5 6.5L8 10l3.5-3.5M3 13h10"/></svg>',
-	// Crosshair / target — "show these cells on canvas"
-	target: '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" ' +
-		'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
-		'stroke-linejoin="round" aria-hidden="true">' +
-		'<circle cx="8" cy="8" r="5"/><circle cx="8" cy="8" r="1.5" ' +
-		'fill="currentColor" stroke="none"/><path d="M8 1.5v2M8 12.5v2M' +
-		'1.5 8h2M12.5 8h2"/></svg>',
-	// Asterisk / wildcard — "match all cells"
-	asterisk: '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" ' +
-		'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
-		'aria-hidden="true">' +
-		'<path d="M8 3.5v9M4 5.5l8 5M4 10.5l8-5"/></svg>'
-};
 
 /**
  * Polished selector styles (cell-list chip, tag pills, tag picker popover).
@@ -6867,7 +6781,7 @@ SelectorChips.create = function(graph, editorUi)
 		b.type = 'button';
 		b.title = title;
 		b.className = 'geSelIconBtn';
-		b.innerHTML = SELECTOR_ICONS[iconKey];
+		b.appendChild(CustomActionDialog.createIcon(iconKey, 16));
 		b.addEventListener('click', function(e)
 		{
 			e.preventDefault();
@@ -8040,6 +7954,244 @@ CustomActionDialog.liftLegacyLayers = function(graph, steps)
  * `primary` is a single value-bearing field used by actions that aren't
  * objects (e.g. `wait: 1000` or `open: "https://..."`).
  */
+/**
+ * Icons of the action and animation dialogs: Material Symbols (outlined,
+ * weight 400, 24px; Apache License 2.0), the set of the app's own icons
+ * (Editor.helpImage, Editor.copyImage, ...). Only the path data is kept:
+ * createIcon draws it with fill=currentColor, so an icon takes the color
+ * of its text (light and dark mode, the amber warning, the gray handle).
+ * The step icons were emoji and text symbols from different fonts, which
+ * looked inconsistent and differed per platform (Kym, 2026-09-25).
+ */
+CustomActionDialog.ICONS = {
+	swap_horiz: 'M280-160 80-360l200-200 56 57-103 103h287v80H233l103 103-56 57Zm' +
+		'400-240-56-57 103-103H440v-80h287L624-743l56-57 200 200-200 200Z',
+	visibility: 'M607.5-372.5Q660-425 660-500t-52.5-127.5Q555-680 480-680t-127.5 ' +
+		'52.5Q300-575 300-500t52.5 127.5Q405-320 480-320t127.5-52.5Zm-204' +
+		'-51Q372-455 372-500t31.5-76.5Q435-608 480-608t76.5 31.5Q588-545 ' +
+		'588-500t-31.5 76.5Q525-392 480-392t-76.5-31.5ZM214-281.5Q94-363 ' +
+		'40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-1' +
+		'74 218.5T480-200q-146 0-266-81.5ZM480-500Zm207.5 160.5Q782-399 8' +
+		'32-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 ' +
+		'101 144.5 160.5T480-280q113 0 207.5-59.5Z',
+	visibility_off: 'm644-428-58-58q9-47-27-88t-93-32l-58-58q17-8 34.5-12t37.5-4q75 0' +
+		' 127.5 52.5T660-500q0 20-4 37.5T644-428Zm128 126-58-56q38-29 67.' +
+		'5-63.5T832-500q-50-101-143.5-160.5T480-720q-29 0-57 4t-55 12l-62' +
+		'-62q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.' +
+		'5T772-302Zm20 246L624-222q-35 11-70.5 16.5T480-200q-151 0-269-83' +
+		'.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM222-' +
+		'624q-29 26-53 57t-41 67q50 101 143.5 160.5T480-280q20 0 39-2.5t3' +
+		'9-5.5l-36-38q-11 3-21 4.5t-21 1.5q-75 0-127.5-52.5T300-500q0-11 ' +
+		'1.5-21t4.5-21l-84-82Zm319 93Zm-151 75Z',
+	select: 'M200-200v80q-33 0-56.5-23.5T120-200h80Zm-80-80v-80h80v80h-80Zm0-' +
+		'160v-80h80v80h-80Zm0-160v-80h80v80h-80Zm80-160h-80q0-33 23.5-56.' +
+		'5T200-840v80Zm80 640v-80h80v80h-80Zm0-640v-80h80v80h-80Zm160 640' +
+		'v-80h80v80h-80Zm0-640v-80h80v80h-80Zm160 640v-80h80v80h-80Zm0-64' +
+		'0v-80h80v80h-80Zm160 560h80q0 33-23.5 56.5T760-120v-80Zm0-80v-80' +
+		'h80v80h-80Zm0-160v-80h80v80h-80Zm0-160v-80h80v80h-80Zm0-160v-80q' +
+		'33 0 56.5 23.5T840-760h-80Z',
+	jump_to_element: 'M440-440v-160h80v80h80v80H440Zm280 0v-80h80v-80h80v160H720ZM440-' +
+		'720v-160h160v80h-80v80h-80Zm360 0v-80h-80v-80h160v160h-80ZM136-8' +
+		'0l-56-56 224-224H120v-80h320v320h-80v-184L136-80Z',
+	opacity: 'M253.5-212Q160-304 160-436q0-65 25-121.5T254-658l226-222 226 222' +
+		'q44 44 69 100.5T800-436q0 132-93.5 224T480-120q-133 0-226.5-92ZM' +
+		'242-400h474q12-72-13.5-123T650-600L480-768 310-600q-27 26-53 77t' +
+		'-15 123Z',
+	transition_fade: 'M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h200' +
+		'v720H200Zm251.5-11.5Q440-143 440-160t11.5-28.5Q463-200 480-200t2' +
+		'8.5 11.5Q520-177 520-160t-11.5 28.5Q497-120 480-120t-28.5-11.5Zm' +
+		'0-160Q440-303 440-320t11.5-28.5Q463-360 480-360t28.5 11.5Q520-33' +
+		'7 520-320t-11.5 28.5Q497-280 480-280t-28.5-11.5Zm0-160Q440-463 4' +
+		'40-480t11.5-28.5Q463-520 480-520t28.5 11.5Q520-497 520-480t-11.5' +
+		' 28.5Q497-440 480-440t-28.5-11.5Zm0-160Q440-623 440-640t11.5-28.' +
+		'5Q463-680 480-680t28.5 11.5Q520-657 520-640t-11.5 28.5Q497-600 4' +
+		'80-600t-28.5-11.5Zm0-160Q440-783 440-800t11.5-28.5Q463-840 480-8' +
+		'40t28.5 11.5Q520-817 520-800t-11.5 28.5Q497-760 480-760t-28.5-11' +
+		'.5Zm80 560Q520-223 520-240t11.5-28.5Q543-280 560-280t28.5 11.5Q6' +
+		'00-257 600-240t-11.5 28.5Q577-200 560-200t-28.5-11.5Zm0-160Q520-' +
+		'383 520-400t11.5-28.5Q543-440 560-440t28.5 11.5Q600-417 600-400t' +
+		'-11.5 28.5Q577-360 560-360t-28.5-11.5Zm0-160Q520-543 520-560t11.' +
+		'5-28.5Q543-600 560-600t28.5 11.5Q600-577 600-560t-11.5 28.5Q577-' +
+		'520 560-520t-28.5-11.5Zm0-160Q520-703 520-720t11.5-28.5Q543-760 ' +
+		'560-760t28.5 11.5Q600-737 600-720t-11.5 28.5Q577-680 560-680t-28' +
+		'.5-11.5Zm80 560Q600-143 600-160t11.5-28.5Q623-200 640-200t28.5 1' +
+		'1.5Q680-177 680-160t-11.5 28.5Q657-120 640-120t-28.5-11.5Zm0-160' +
+		'Q600-303 600-320t11.5-28.5Q623-360 640-360t28.5 11.5Q680-337 680' +
+		'-320t-11.5 28.5Q657-280 640-280t-28.5-11.5Zm0-160Q600-463 600-48' +
+		'0t11.5-28.5Q623-520 640-520t28.5 11.5Q680-497 680-480t-11.5 28.5' +
+		'Q657-440 640-440t-28.5-11.5Zm0-160Q600-623 600-640t11.5-28.5Q623' +
+		'-680 640-680t28.5 11.5Q680-657 680-640t-11.5 28.5Q657-600 640-60' +
+		'0t-28.5-11.5Zm0-160Q600-783 600-800t11.5-28.5Q623-840 640-840t28' +
+		'.5 11.5Q680-817 680-800t-11.5 28.5Q657-760 640-760t-28.5-11.5ZM7' +
+		'20-200q-17 0-28.5-11.5T680-240q0-17 11.5-28.5T720-280q17 0 28.5 ' +
+		'11.5T760-240q0 17-11.5 28.5T720-200Zm0-160q-17 0-28.5-11.5T680-4' +
+		'00q0-17 11.5-28.5T720-440q17 0 28.5 11.5T760-400q0 17-11.5 28.5T' +
+		'720-360Zm0-160q-17 0-28.5-11.5T680-560q0-17 11.5-28.5T720-600q17' +
+		' 0 28.5 11.5T760-560q0 17-11.5 28.5T720-520Zm-28.5-171.5Q680-703' +
+		' 680-720t11.5-28.5Q703-760 720-760t28.5 11.5Q760-737 760-720t-11' +
+		'.5 28.5Q737-680 720-680t-28.5-11.5Zm80 560Q760-143 760-160t11.5-' +
+		'28.5Q783-200 800-200t28.5 11.5Q840-177 840-160t-11.5 28.5Q817-12' +
+		'0 800-120t-28.5-11.5Zm0-160Q760-303 760-320t11.5-28.5Q783-360 80' +
+		'0-360t28.5 11.5Q840-337 840-320t-11.5 28.5Q817-280 800-280t-28.5' +
+		'-11.5Zm0-160Q760-463 760-480t11.5-28.5Q783-520 800-520t28.5 11.5' +
+		'Q840-497 840-480t-11.5 28.5Q817-440 800-440t-28.5-11.5Zm0-160Q76' +
+		'0-623 760-640t11.5-28.5Q783-680 800-680t28.5 11.5Q840-657 840-64' +
+		'0t-11.5 28.5Q817-600 800-600t-28.5-11.5Zm0-160Q760-783 760-800t1' +
+		'1.5-28.5Q783-840 800-840t28.5 11.5Q840-817 840-800t-11.5 28.5Q81' +
+		'7-760 800-760t-28.5-11.5Z',
+	transition_dissolve: 'M220-160q-25 0-42.5-17.5T160-220q0-25 17.5-42.5T220-280q25 0 42.' +
+		'5 17.5T280-220q0 25-17.5 42.5T220-160Zm173 0q-25 0-42.5-17.5T333' +
+		'-220q0-25 17.5-42.5T393-280q25 0 42.5 17.5T453-220q0 25-17.5 42.' +
+		'5T393-160Zm174 0q-25 0-42.5-17.5T507-220q0-25 17.5-42.5T567-280q' +
+		'25 0 42.5 17.5T627-220q0 25-17.5 42.5T567-160Zm173 0q-25 0-42.5-' +
+		'17.5T680-220q0-25 17.5-42.5T740-280q25 0 42.5 17.5T800-220q0 25-' +
+		'17.5 42.5T740-160ZM220-333q-25 0-42.5-17.5T160-393q0-25 17.5-42.' +
+		'5T220-453q25 0 42.5 17.5T280-393q0 25-17.5 42.5T220-333Zm173 0q-' +
+		'25 0-42.5-17.5T333-393q0-25 17.5-42.5T393-453q25 0 42.5 17.5T453' +
+		'-393q0 25-17.5 42.5T393-333Zm174 0q-25 0-42.5-17.5T507-393q0-25 ' +
+		'17.5-42.5T567-453q25 0 42.5 17.5T627-393q0 25-17.5 42.5T567-333Z' +
+		'm173 0q-25 0-42.5-17.5T680-393q0-25 17.5-42.5T740-453q25 0 42.5 ' +
+		'17.5T800-393q0 25-17.5 42.5T740-333ZM220-507q-25 0-42.5-17.5T160' +
+		'-567q0-25 17.5-42.5T220-627q25 0 42.5 17.5T280-567q0 25-17.5 42.' +
+		'5T220-507Zm173 0q-25 0-42.5-17.5T333-567q0-25 17.5-42.5T393-627q' +
+		'25 0 42.5 17.5T453-567q0 25-17.5 42.5T393-507Zm174 0q-25 0-42.5-' +
+		'17.5T507-567q0-25 17.5-42.5T567-627q25 0 42.5 17.5T627-567q0 25-' +
+		'17.5 42.5T567-507Zm173 0q-25 0-42.5-17.5T680-567q0-25 17.5-42.5T' +
+		'740-627q25 0 42.5 17.5T800-567q0 25-17.5 42.5T740-507ZM220-680q-' +
+		'25 0-42.5-17.5T160-740q0-25 17.5-42.5T220-800q25 0 42.5 17.5T280' +
+		'-740q0 25-17.5 42.5T220-680Zm173 0q-25 0-42.5-17.5T333-740q0-25 ' +
+		'17.5-42.5T393-800q25 0 42.5 17.5T453-740q0 25-17.5 42.5T393-680Z' +
+		'm174 0q-25 0-42.5-17.5T507-740q0-25 17.5-42.5T567-800q25 0 42.5 ' +
+		'17.5T627-740q0 25-17.5 42.5T567-680Zm173 0q-25 0-42.5-17.5T680-7' +
+		'40q0-25 17.5-42.5T740-800q25 0 42.5 17.5T800-740q0 25-17.5 42.5T' +
+		'740-680Z',
+	invert_colors: 'M480-120q-133 0-226.5-92.5T160-436q0-66 25-122t69-100l226-222 22' +
+		'6 222q44 44 69 100t25 122q0 131-93.5 223.5T480-120Zm0-80v-568L31' +
+		'0-600q-35 33-52.5 74.5T240-436q0 97 70 166.5T480-200Z',
+	arrow_right_alt: 'm560-240-56-58 142-142H160v-80h486L504-662l56-58 240 240-240 240' +
+		'Z',
+	arrow_left_alt: 'M400-240 160-480l240-240 56 58-142 142h486v80H314l142 142-56 58Z',
+	open_in_full: 'M120-120v-320h80v184l504-504H520v-80h320v320h-80v-184L256-200h18' +
+		'4v80H120Z',
+	close_fullscreen: 'm136-80-56-56 264-264H160v-80h320v320h-80v-184L136-80Zm344-400v-' +
+		'320h80v184l264-264 56 56-264 264h184v80H480Z',
+	highlight: 'm226-640-86-84 56-58 86 86-56 56Zm214-120v-120h80v120h-80Zm296 1' +
+		'20-58-56 86-84 56 56-84 84ZM360-80v-200L240-400v-200h480v200L600' +
+		'-280v200H360Zm80-80h80v-153l120-120v-87H320v87l120 120v153Zm40-1' +
+		'80Z',
+	palette: 'M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 3' +
+		'2.5-156t88-127Q256-817 330-848.5T488-880q80 0 151 27.5t124.5 76q' +
+		'53.5 48.5 85 115T880-518q0 115-70 176.5T640-280h-74q-9 0-12.5 5t' +
+		'-3.5 11q0 12 15 34.5t15 51.5q0 50-27.5 74T480-80Zm0-400Zm-177 23' +
+		'q17-17 17-43t-17-43q-17-17-43-17t-43 17q-17 17-17 43t17 43q17 17' +
+		' 43 17t43-17Zm120-160q17-17 17-43t-17-43q-17-17-43-17t-43 17q-17' +
+		' 17-17 43t17 43q17 17 43 17t43-17Zm200 0q17-17 17-43t-17-43q-17-' +
+		'17-43-17t-43 17q-17 17-17 43t17 43q17 17 43 17t43-17Zm120 160q17' +
+		'-17 17-43t-17-43q-17-17-43-17t-43 17q-17 17-17 43t17 43q17 17 43' +
+		' 17t43-17ZM480-160q9 0 14.5-5t5.5-13q0-14-15-33t-15-57q0-42 29-6' +
+		'7t71-25h70q66 0 113-38.5T800-518q0-121-92.5-201.5T488-800q-136 0' +
+		'-232 93t-96 227q0 133 93.5 226.5T480-160Z',
+	format_paint: 'M440-80q-33 0-56.5-23.5T360-160v-160H240q-33 0-56.5-23.5T160-400' +
+		'v-280q0-66 47-113t113-47h480v440q0 33-23.5 56.5T720-320H600v160q' +
+		'0 33-23.5 56.5T520-80h-80ZM240-560h480v-200h-40v160h-80v-160h-40' +
+		'v80h-80v-80H320q-33 0-56.5 23.5T240-680v120Zm0 160h480v-80H240v8' +
+		'0Zm0 0v-80 80Z',
+	conversion_path: 'M760-120q-39 0-70-22.5T647-200H440q-66 0-113-47t-47-113q0-66 47-' +
+		'113t113-47h80q33 0 56.5-23.5T600-600q0-33-23.5-56.5T520-680H313q' +
+		'-13 35-43.5 57.5T200-600q-50 0-85-35t-35-85q0-50 35-85t85-35q39 ' +
+		'0 69.5 22.5T313-760h207q66 0 113 47t47 113q0 66-47 113t-113 47h-' +
+		'80q-33 0-56.5 23.5T360-360q0 33 23.5 56.5T440-280h207q13-35 43.5' +
+		'-57.5T760-360q50 0 85 35t35 85q0 50-35 85t-85 35ZM228.5-691.5Q24' +
+		'0-703 240-720t-11.5-28.5Q217-760 200-760t-28.5 11.5Q160-737 160-' +
+		'720t11.5 28.5Q183-680 200-680t28.5-11.5Z',
+	conversion_path_off: 'M818-28 26-820l57-57L875-85l-57 57ZM440-200q-66 0-113-47t-47-113' +
+		'q0-66 47-113t113-47l80 80h-80q-33 0-56.5 23.5T360-360q0 33 23.5 ' +
+		'56.5T440-280h240l142 142q-14 8-29.5 13t-32.5 5q-39 0-70-22.5T647' +
+		'-200H440Zm433-1L721-353q9-3 18.5-5t20.5-2q50 0 85 35t35 85q0 11-' +
+		'2 20.5t-5 18.5ZM608-466l-59-59q23-9 37-29t14-46q0-33-23.5-56.5T5' +
+		'20-680H394l-80-80h206q66 0 113 47t47 113q0 42-20 77t-52 57ZM200-' +
+		'600q-50 0-85-35t-35-85q0-32 16-59t42-43l164 164q-16 26-43 42t-59' +
+		' 16Z',
+	timer: 'M360-840v-80h240v80H360Zm80 440h80v-240h-80v240Zm-99.5 291.5Q275' +
+		'-137 226-186t-77.5-114.5Q120-366 120-440t28.5-139.5Q177-645 226-' +
+		'694t114.5-77.5Q406-800 480-800q62 0 119 20t107 58l56-56 56 56-56' +
+		' 56q38 50 58 107t20 119q0 74-28.5 139.5T734-186q-49 49-114.5 77.' +
+		'5T480-80q-74 0-139.5-28.5ZM678-242q82-82 82-198t-82-198q-82-82-1' +
+		'98-82t-198 82q-82 82-82 198t82 198q82 82 198 82t198-82ZM480-440Z',
+	link: 'M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160' +
+		'v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h' +
+		'320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H5' +
+		'20v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z',
+	sell: 'M856-390 570-104q-12 12-27 18t-30 6q-15 0-30-6t-27-18L103-457q-1' +
+		'1-11-17-25.5T80-513v-287q0-33 23.5-56.5T160-880h287q16 0 31 6.5t' +
+		'26 17.5l352 353q12 12 17.5 27t5.5 30q0 15-5.5 29.5T856-390ZM513-' +
+		'160l286-286-353-354H160v286l353 354ZM260-640q25 0 42.5-17.5T320-' +
+		'700q0-25-17.5-42.5T260-760q-25 0-42.5 17.5T200-700q0 25 17.5 42.' +
+		'5T260-640Zm220 160Z',
+	crop_free: 'M200-120q-33 0-56.5-23.5T120-200v-160h80v160h160v80H200Zm400 0v-' +
+		'80h160v-160h80v160q0 33-23.5 56.5T760-120H600ZM120-600v-160q0-33' +
+		' 23.5-56.5T200-840h160v80H200v160h-80Zm640 0v-160H600v-80h160q33' +
+		' 0 56.5 23.5T840-760v160h-80Z',
+	drag_indicator: 'M360-160q-33 0-56.5-23.5T280-240q0-33 23.5-56.5T360-320q33 0 56.' +
+		'5 23.5T440-240q0 33-23.5 56.5T360-160Zm240 0q-33 0-56.5-23.5T520' +
+		'-240q0-33 23.5-56.5T600-320q33 0 56.5 23.5T680-240q0 33-23.5 56.' +
+		'5T600-160ZM360-400q-33 0-56.5-23.5T280-480q0-33 23.5-56.5T360-56' +
+		'0q33 0 56.5 23.5T440-480q0 33-23.5 56.5T360-400Zm240 0q-33 0-56.' +
+		'5-23.5T520-480q0-33 23.5-56.5T600-560q33 0 56.5 23.5T680-480q0 3' +
+		'3-23.5 56.5T600-400ZM360-640q-33 0-56.5-23.5T280-720q0-33 23.5-5' +
+		'6.5T360-800q33 0 56.5 23.5T440-720q0 33-23.5 56.5T360-640Zm240 0' +
+		'q-33 0-56.5-23.5T520-720q0-33 23.5-56.5T600-800q33 0 56.5 23.5T6' +
+		'80-720q0 33-23.5 56.5T600-640Z',
+	warning: 'm40-120 440-760 440 760H40Zm138-80h604L480-720 178-200Zm330.5-51' +
+		'.5Q520-263 520-280t-11.5-28.5Q497-320 480-320t-28.5 11.5Q440-297' +
+		' 440-280t11.5 28.5Q463-240 480-240t28.5-11.5ZM440-360h80v-200h-8' +
+		'0v200Zm40-100Z',
+	hourglass_empty: 'M320-160h320v-120q0-66-47-113t-113-47q-66 0-113 47t-47 113v120Zm' +
+		'273-407q47-47 47-113v-120H320v120q0 66 47 113t113 47q66 0 113-47' +
+		'ZM160-80v-80h80v-120q0-61 28.5-114.5T348-480q-51-32-79.5-85.5T24' +
+		'0-680v-120h-80v-80h640v80h-80v120q0 61-28.5 114.5T612-480q51 32 ' +
+		'79.5 85.5T720-280v120h80v80H160Z',
+	fast_forward: 'M100-240v-480l360 240-360 240Zm400 0v-480l360 240-360 240ZM180-4' +
+		'80Zm400 0Zm-400 90 136-90-136-90v180Zm400 0 136-90-136-90v180Z',
+	play_arrow: 'M320-200v-560l440 280-440 280Zm80-280Zm0 134 210-134-210-134v268' +
+		'Z',
+	download: 'M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200' +
+		'ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 ' +
+		'33-23.5 56.5T720-160H240Z'
+};
+
+/**
+ * Returns true if name is a key of CustomActionDialog.ICONS. Schemas
+ * that a plugin adds may still use a character as their icon.
+ */
+CustomActionDialog.hasIcon = function(name)
+{
+	return typeof name === 'string' && Object.prototype.hasOwnProperty.call(
+		CustomActionDialog.ICONS, name);
+};
+
+/**
+ * Returns an SVG element for the given icon name, size x size pixels.
+ */
+CustomActionDialog.createIcon = function(name, size)
+{
+	var svg = document.createElementNS(mxConstants.NS_SVG, 'svg');
+	svg.setAttribute('viewBox', '0 -960 960 960');
+	svg.setAttribute('width', size);
+	svg.setAttribute('height', size);
+	svg.setAttribute('fill', 'currentColor');
+	svg.setAttribute('aria-hidden', 'true');
+	svg.style.display = 'block';
+	svg.style.flex = '0 0 auto';
+
+	var path = document.createElementNS(mxConstants.NS_SVG, 'path');
+	path.setAttribute('d', (CustomActionDialog.hasIcon(name)) ?
+		CustomActionDialog.ICONS[name] : '');
+	svg.appendChild(path);
+
+	return svg;
+};
+
 // `allowLayers: true` adds the "Select layers" item to the cells-chip
 // popover. It's set on every cell-targeting (selector) action; the layer
 // resolves to the cells *within* it at playback (getCellsForLayers). The
@@ -8047,11 +8199,11 @@ CustomActionDialog.liftLegacyLayers = function(graph, steps)
 // transient:false, where the engine flips the layer cell's own `visible`
 // (cascading) instead — see the layerCells branch in getCellsForAction.
 CustomActionDialog.SCHEMAS = {
-	toggle:      {label: 'Toggle',        icon: '⇄', selector: true, allowLayers: true},
-	show:        {label: 'Show',          icon: '✓', selector: true, allowLayers: true},
-	hide:        {label: 'Hide',          icon: '✗', selector: true, allowLayers: true},
-	select:      {label: 'Select',        icon: '☑', selector: true, allowLayers: true},
-	scroll:      {label: 'Scroll To',     icon: '↓', selector: true, allowLayers: true,
+	toggle:      {label: 'Toggle',        icon: 'swap_horiz', selector: true, allowLayers: true},
+	show:        {label: 'Show',          icon: 'visibility', selector: true, allowLayers: true},
+	hide:        {label: 'Hide',          icon: 'visibility_off', selector: true, allowLayers: true},
+	select:      {label: 'Select',        icon: 'select', selector: true, allowLayers: true},
+	scroll:      {label: 'Scroll To',     icon: 'jump_to_element', selector: true, allowLayers: true,
 		fields: [{name: 'border', type: 'number', placeholder: '0', width: 36, label: '',
 			titleKey: 'border', title: 'Border'},
 		         {name: 'smooth', type: 'checkbox',
@@ -8060,28 +8212,28 @@ CustomActionDialog.SCHEMAS = {
 	// property rather than the action; the picker, step list and link
 	// summary all show "Set Opacity" instead.
 	opacity:     {label: 'Set Opacity',   labelKey: 'setOpacity',
-		icon: '◐', selector: true, allowLayers: true,
+		icon: 'opacity', selector: true, allowLayers: true,
 		fields: [{name: 'value', type: 'number', min: 0, max: 1, step: 0.1, def: '1',
 			width: 50, label: '', titleKey: 'opacity', title: 'Opacity'}]},
-	fadeIn:      {label: 'Fade In',       icon: '↗', selector: true, allowLayers: true,
+	fadeIn:      {label: 'Fade In',       icon: 'transition_fade', selector: true, allowLayers: true,
 		fields: [{name: 'delay', type: 'number', min: 0, step: 100, width: 50,
 			placeholder: '400', label: 'ms',
 			titleKey: 'duration', title: 'Duration (ms)'}]},
-	fadeOut:     {label: 'Fade Out',      icon: '↘', selector: true, allowLayers: true,
+	fadeOut:     {label: 'Fade Out',      icon: 'transition_dissolve', selector: true, allowLayers: true,
 		fields: [{name: 'delay', type: 'number', min: 0, step: 100, width: 50,
 			placeholder: '400', label: 'ms',
 			titleKey: 'duration', title: 'Duration (ms)'}]},
-	fadeTo:      {label: 'Fade To',       icon: '◐', selector: true, allowLayers: true,
+	fadeTo:      {label: 'Fade To',       icon: 'invert_colors', selector: true, allowLayers: true,
 		fields: [{name: 'value', type: 'number', min: 0, max: 1, step: 0.1, def: '0.5',
 			width: 50, label: '', titleKey: 'opacity', title: 'Opacity'},
 		         {name: 'delay', type: 'number', min: 0, step: 100, width: 50,
 			placeholder: '400', label: 'ms',
 			titleKey: 'duration', title: 'Duration (ms)'}]},
-	wipeIn:      {label: 'Wipe In',       icon: '→', selector: true, allowLayers: true},
-	wipeOut:     {label: 'Wipe Out',      icon: '←', selector: true, allowLayers: true},
-	popIn:       {label: 'Pop In',        icon: '✨', selector: true, allowLayers: true},
-	popOut:      {label: 'Pop Out',       icon: '💨', selector: true, allowLayers: true},
-	highlight:   {label: 'Highlight',     icon: '🌟', selector: true, allowLayers: true,
+	wipeIn:      {label: 'Wipe In',       icon: 'arrow_right_alt', selector: true, allowLayers: true},
+	wipeOut:     {label: 'Wipe Out',      icon: 'arrow_left_alt', selector: true, allowLayers: true},
+	popIn:       {label: 'Pop In',        icon: 'open_in_full', selector: true, allowLayers: true},
+	popOut:      {label: 'Pop Out',       icon: 'close_fullscreen', selector: true, allowLayers: true},
+	highlight:   {label: 'Highlight',     icon: 'highlight', selector: true, allowLayers: true,
 		// Native <input type="color"> can't be empty / placeholder, so
 		// we pre-fill with mxGraph's default highlight color
 		// (DEFAULT_VALID_COLOR — lime green). The runtime's
@@ -8102,7 +8254,7 @@ CustomActionDialog.SCHEMAS = {
 	// a value that is already set, so a step with an empty key looked
 	// configured (Kym, 2026-09-18). `colorValue` adds a color swatch to
 	// the field while the key names a color.
-	style:       {label: 'Set Style',     icon: '🎨', selector: true, allowLayers: true,
+	style:       {label: 'Set Style',     icon: 'palette', selector: true, allowLayers: true,
 		fields: [{name: 'key',   type: 'text', placeholderKey: 'enterStyleKey',
 			placeholder: 'Enter style key...', width: 90, label: '',
 			titleKey: 'property', title: 'Key', styleKey: true},
@@ -8112,7 +8264,7 @@ CustomActionDialog.SCHEMAS = {
 	// Toggles key between value and defaultValue (an empty default removes
 	// the key so the stylesheet default applies); with value left empty the
 	// legacy 0 ↔ 1 boolean toggle runs (Graph.nextToggleStyleValue).
-	toggleStyle: {label: 'Toggle Style',  icon: '🔀', selector: true, allowLayers: true,
+	toggleStyle: {label: 'Toggle Style',  icon: 'format_paint', selector: true, allowLayers: true,
 		fields: [{name: 'key',          type: 'text', placeholderKey: 'enterStyleKey',
 			placeholder: 'Enter style key...', width: 90, label: '',
 			titleKey: 'property', title: 'Key', styleKey: true},
@@ -8124,18 +8276,18 @@ CustomActionDialog.SCHEMAS = {
 		         {name: 'defaultValue', type: 'text', placeholderKey: 'default',
 			placeholder: 'Default', width: 50, label: '',
 			titleKey: 'default', title: 'Default value', colorValue: true}]},
-	flow:        {label: 'Flow',          icon: '➡', selector: true, allowLayers: true,
+	flow:        {label: 'Flow',          icon: 'conversion_path', selector: true, allowLayers: true,
 		fields: [{name: 'start', type: 'select', options: [
 			{value: '', labelKey: 'toggle', label: 'Toggle'},
 			{value: 'true', labelKey: 'on', label: 'On'},
 			{value: 'false', labelKey: 'off', label: 'Off'}], label: ''}]},
-	wait:        {label: 'Wait',          icon: '⏱', noSelector: true,
+	wait:        {label: 'Wait',          icon: 'timer', noSelector: true,
 		primary: {name: 'value', type: 'number', min: 0, step: 100, width: 60,
 			def: '1000', label: 'ms', titleKey: 'wait', title: 'Wait'}},
 	// `grow: true` lets the URL field take the free width of the row
 	// instead of a fixed 80px box at the right edge, which cut the
 	// placeholder and any link down to a few characters (Kym, 2026-09-25).
-	open:        {label: 'Open Link',     icon: '🔗', noSelector: true,
+	open:        {label: 'Open Link',     icon: 'link', noSelector: true,
 		primary: {name: 'value', type: 'text', grow: true,
 			placeholderKey: 'openLinkPlaceholder',
 			placeholder: 'https://… or data:page/id,…', label: '',
@@ -8149,7 +8301,7 @@ CustomActionDialog.SCHEMAS = {
 	// and the static x/y/width/height (`staticOnly` fields, grayed out
 	// while a selector is active) are ignored [jgraph/drawio#4584].
 	viewbox:     {label: 'View',          labelKey: 'view',
-		icon: '⊞', selector: true, allowLayers: true,
+		icon: 'crop_free', selector: true, allowLayers: true,
 		fields: [{name: 'x',      type: 'number', placeholder: 'x', width: 36, label: '',
 			title: 'X', staticOnly: true},
 		         {name: 'y',      type: 'number', placeholder: 'y', width: 36, label: '',
@@ -8162,7 +8314,7 @@ CustomActionDialog.SCHEMAS = {
 			titleKey: 'border', title: 'Border'},
 		         {name: 'smooth', type: 'checkbox',
 			labelKey: 'transition', label: 'Transition'}]},
-	tags:        {label: 'Toggle Tags',   icon: '🏷', noSelector: true,
+	tags:        {label: 'Toggle Tags',   icon: 'sell', noSelector: true,
 		fields: [{name: 'toggle',  type: 'tagList',
 			labelKey: 'toggle', label: 'Toggle',
 			modeField: 'toggleMatch'},
@@ -9015,8 +9167,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 		table.appendChild(tbody);
 		list.appendChild(table);
 	}
-	else if (file == null || (editorUi.drive == null && file.constructor == window.DriveFile) ||
-		(editorUi.dropbox == null && file.constructor == window.DropboxFile))
+	else if (file == null || (editorUi.drive == null && file.constructor == window.DriveFile))
 	{
 		container.style.display = 'none';
 		tb.style.display = 'none';
@@ -9520,7 +9671,6 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 	var allChecked = false;
 	var lblMatch = null;
 	var lblMatchPos = 0;
-	var marker = 1;
 	var searchThread = null;
 	var notFoundColor = 'light-dark(var(--error-background-color), ' +
 		'var(--dark-error-background-color))';
@@ -9827,6 +9977,10 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 					else
 					{
 						ui.editor.graph.model.execute(new SelectPage(ui, nextPage));
+
+						//Creates the states of the new page which are otherwise only
+						//created at the end of the open update of Replace All
+						ui.editor.graph.view.validate();
 					}
 				}
 				
@@ -9871,13 +10025,17 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 					var label = getSearchLabel(state);
 					var lblPosShift = 0;
 					
-					if (trySameCell && withReplace && isLastFound)
+					//Continues in the label of the last match after a replace
+					//without matching its data and ID again
+					var sameCell = trySameCell && withReplace && isLastFound;
+
+					if (sameCell)
 					{
 						label = label.substr(lblMatchPos);
 						lblPosShift = lblMatchPos;
 					}
 					
-					var checkMeta = replaceInput == null || replaceInput.value == '';
+					var checkMeta = !sameCell && (replaceInput == null || replaceInput.value == '');
 					
 					if ((re == null && ((label.indexOf(searchStr) >= 0) ||
 						(checkMeta && testMeta(re, state.cell, searchStr)))) ||
@@ -10228,18 +10386,22 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			
 			var origStr = str;
 			substr = mxUtils.htmlEntities(substr, false, false, false);
-			var tagPos = [], p = -1;
+			var tagPos = [];
 			
 			//Original position (startIndex) counts for \n which is removed when tags are removed, so handle <br> separately
 			// The same for block level elements which are replaced by \n
 			str = str.replace(/<br>/ig, '\n').replace(/(\s|\S)(<(BLOCKQUOTE|DIV|H1|H2|H3|H4|H5|H6|OL|P|PRE|TABLE|UL)[^>]*>)/ig, '$1\n$2');
 
-			while((p = str.indexOf('<', p + 1)) > -1)
+			//Positions of the tags only since a < in the text (eg. in the value
+			//of a placeholder) or in an attribute does not start a tag
+			var tags = [], tagRe = /<[^>]*>/g, tag;
+
+			while ((tag = tagRe.exec(str)) != null)
 			{
-				tagPos.push(p);
+				tagPos.push(tag.index);
+				tags.push(tag[0]);
 			}
-			
-			var tags = str.match(/<[^>]*>/g);
+
 			str = str.replace(/<[^>]*>/g, '');
 			var lStr = str.toLowerCase();
 			var replStart = lStr.indexOf(substr, startIndex);
@@ -10279,18 +10441,231 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			return newStr.replace(/\n(<(BLOCKQUOTE|DIV|H1|H2|H3|H4|H5|H6|OL|P|PRE|TABLE|UL)[^>]*>)/ig, '$1').replace(/\n/g, '<br>');
 		};
 		
+		//Returns the cell and the name of the attribute that the placeholder
+		//with the given name shows in the label of the given cell as in
+		//Graph.replacePlaceholders, or null if it shows no attribute (eg.
+		//%id%, %width%, %date{...}%, the page number or the file name)
+		function getPlaceholderAttribute(cell, name)
+		{
+			var model = graph.model;
+
+			if (name == 'id' || name.indexOf('{') >= 0 || name.substring(0, 6) == 'length' ||
+				(model.isVertex(cell) && (name.substring(0, 5) == 'width' ||
+				name.substring(0, 6) == 'height')))
+			{
+				return null;
+			}
+
+			var current = cell;
+
+			while (current != null)
+			{
+				if (current.value != null && typeof(current.value) == 'object')
+				{
+					if (Graph.translateDiagram && Graph.diagramLanguage != null &&
+						current.getAttribute(name + '_' + Graph.diagramLanguage) != null)
+					{
+						return {cell: current, name: name + '_' + Graph.diagramLanguage};
+					}
+					else if (current.hasAttribute(name))
+					{
+						return {cell: current, name: name};
+					}
+				}
+
+				current = model.getParent(current);
+			}
+
+			return null;
+		};
+
+		//Returns the parts of the shown label of the given cell with the given
+		//label template as in Graph.replacePlaceholders: the text of the
+		//template and the value of each placeholder with its attribute
+		function getPlaceholderParts(cell, template)
+		{
+			var re = new RegExp(graph.placeholderPattern.source, 'g');
+			var parts = [];
+			var last = 0;
+			var match;
+
+			while ((match = re.exec(template)) != null)
+			{
+				var val = match[0];
+
+				if (val != '%label%' && val != '%tooltip%')
+				{
+					parts.push({text: template.substring(last, match.index)});
+
+					//Escaped placeholders (%%name%) are shown as text without
+					//the first % but are not replaced like values
+					if (match.index > last && template.charAt(match.index - 1) == '%')
+					{
+						parts.push({text: val.substring(1), placeholder: val});
+					}
+					else
+					{
+						parts.push({text: graph.replacePlaceholders(cell, val), placeholder: val,
+							attr: getPlaceholderAttribute(cell, val.substring(1, val.length - 1))});
+					}
+
+					last = match.index + val.length;
+				}
+			}
+
+			parts.push({text: template.substring(last)});
+
+			return parts;
+		};
+
+		//Replaces the current match in the shown label of the given cell with
+		//placeholders where the text is stored: in the label template for text
+		//of the template and in the attribute that a placeholder shows for text
+		//of its value (like cells with a placeholder attribute). Matches in
+		//other values (eg. %id% or %date{...}%) or across the start or end of
+		//a value are not replaced since the label would lose its placeholders.
+		function replacePlaceholderMatch(cell, lbl, startIndex, style)
+		{
+			var parts = getPlaceholderParts(cell, graph.convertValueToString(cell));
+			var texts = parts.map(function(part) { return part.text; });
+			var index = -1;
+			var text = null;
+
+			//Hidden labels are empty here and dates may have changed
+			if (texts.join('') != lbl)
+			{
+				return;
+			}
+
+			if (style == null || style['html'] != '1')
+			{
+				var replStart = lbl.toLowerCase().indexOf(lblMatch, startIndex);
+				var replEnd = replStart + lblMatch.length;
+
+				for (var i = 0, start = 0; i < texts.length && replStart >= 0; i++)
+				{
+					var end = start + texts[i].length;
+
+					if (replStart >= start && replEnd <= end)
+					{
+						index = i;
+						text = texts[i].substring(0, replStart - start) +
+							replaceInput.value + texts[i].substring(replEnd - start);
+
+						break;
+					}
+
+					start = end;
+				}
+			}
+			else
+			{
+				//Separates the parts with tags, which keep their position in the
+				//text, and compares the parts with the parts after replacing an
+				//empty match, which normalizes the line breaks in the same way,
+				//so that the part with the match is the only one that differs.
+				//A match across the end of a part moves the tag before the new
+				//text and changes two parts.
+				var sep = '<\uE000>';
+				var marked = texts.join(sep);
+				var value = replaceInLabel(marked, lblMatch, replaceInput.value, startIndex, style);
+				var before = replaceInLabel(marked, '', '', 0, style).split(sep);
+				var after = value.split(sep);
+				var changed = [];
+
+				if (value != marked && before.length == texts.length && after.length == texts.length)
+				{
+					for (var i = 0; i < after.length; i++)
+					{
+						if (after[i] != before[i])
+						{
+							changed.push(i);
+						}
+					}
+				}
+
+				if (changed.length == 1)
+				{
+					index = changed[0];
+					text = after[index];
+				}
+			}
+
+			if (index >= 0 && parts[index].placeholder == null)
+			{
+				//Writes the new text into the template if the label then shows
+				//the new text, which is not the case if the replacement adds a
+				//placeholder or the text before a placeholder ends with %
+				var tmp = texts.slice();
+				tmp[index] = text;
+
+				var template = parts.map(function(part, i)
+				{
+					return (i == index) ? text : ((part.placeholder != null) ?
+						part.placeholder : part.text);
+				}).join('');
+
+				if (graph.replacePlaceholders(cell, template) == tmp.join(''))
+				{
+					graph.cellLabelChanged(cell, template);
+				}
+			}
+			else if (index >= 0 && parts[index].attr != null)
+			{
+				var attr = parts[index].attr;
+
+				if (attr.cell.getAttribute(attr.name) == parts[index].text)
+				{
+					graph.setAttributeForCell(attr.cell, attr.name,
+						Graph.zapGremlins(text));
+				}
+			}
+		};
+
+		//Replaces the current match in the label of the given cell. Changes
+		//only the label like an in-place edit so that the data, link and
+		//tooltip of cells with an XML value are kept.
+		function replaceMatch(cell)
+		{
+			//Regular expressions that match only the data have no match
+			if (lblMatch != null)
+			{
+				var lbl = graph.getLabel(cell);
+				var startIndex = lblMatchPos - lblMatch.length;
+				var style = graph.getCurrentCellStyle(cell);
+
+				//Cells with a placeholder attribute show and change an attribute
+				//of an ancestor in cellLabelChanged below
+				if (graph.isReplacePlaceholders(cell) && cell.getAttribute('placeholder') == null)
+				{
+					replacePlaceholderMatch(cell, lbl, startIndex, style);
+				}
+				else
+				{
+					var value = replaceInLabel(lbl, lblMatch, replaceInput.value,
+						startIndex, style);
+
+					//Matches in the data or ID leave the label unchanged, which
+					//is not written back since hidden labels are empty here
+					if (value != lbl)
+					{
+						graph.cellLabelChanged(cell, value);
+					}
+				}
+			}
+		};
+
 		var replaceFindBtn = mxUtils.button(mxResources.get('replFind'), function()
 		{
 			try
 			{
 				if (lblMatch != null && lastFound != null)
 				{
-					var cell = lastFound.cell, lbl = graph.getLabel(cell);
+					var cell = lastFound.cell;
 					
 					if (graph.isCellEditable(cell))
 					{
-						graph.model.setValue(cell, replaceInLabel(lbl, lblMatch, replaceInput.value,
-							lblMatchPos - lblMatch.length, graph.getCurrentCellStyle(cell)));
+						replaceMatch(cell);
 					}
 					
 					searchInput.style.backgroundColor = search(false, true) ? '' : notFoundColor;
@@ -10322,10 +10697,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			{
 				if (lblMatch != null && lastFound != null)
 				{
-					var cell = lastFound.cell, lbl = graph.getLabel(cell);
-					
-					graph.model.setValue(cell, replaceInLabel(lbl, lblMatch, replaceInput.value,
-						lblMatchPos - lblMatch.length, graph.getCurrentCellStyle(cell)));
+					replaceMatch(lastFound.cell);
 					replaceFindBtn.setAttribute('disabled', 'disabled');
 					replaceBtn.setAttribute('disabled', 'disabled');
 				}
@@ -10361,24 +10733,24 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			try
 			{
 				var safeguard = 0;
-				var seen = {};
-				
+
+				//Uses the cells as keys since IDs are only unique in a page
+				var seen = new Map();
+
 				while (search(false, true, true) && safeguard < 100)
 				{
-					var cell = lastFound.cell, lbl = graph.getLabel(cell);
-					var oldSeen = seen[cell.id];
-					
-					if (oldSeen && oldSeen.replAllMrk == marker && oldSeen.replAllPos >= lblMatchPos)
+					var cell = lastFound.cell;
+
+					if (seen.has(cell) && seen.get(cell) >= lblMatchPos)
 					{
 						break;
 					}
-					
-					seen[cell.id] = {replAllMrk: marker, replAllPos: lblMatchPos};
+
+					seen.set(cell, lblMatchPos);
 					
 					if (graph.isCellEditable(cell))
 					{
-						graph.model.setValue(cell, replaceInLabel(lbl, lblMatch, replaceInput.value,
-							lblMatchPos - lblMatch.length, graph.getCurrentCellStyle(cell)));
+						replaceMatch(cell);
 						safeguard++;
 					}
 				}
@@ -10401,8 +10773,6 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 				ui.editor.graph.setSelectionCells(cells);
 				ui.editor.graph.rendering = true;
 			}
-			
-			marker++;
 		});
 		
 		replaceAllBtn.setAttribute('title', mxResources.get('replaceAll'));
@@ -10550,27 +10920,55 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 	div.style.overflow = 'hidden';
 	div.style.height = '100%';
 	
+	// Mode dropdown on the left and the settings and color buttons on the
+	// right, centered vertically on the same row
+	var row = document.createElement('div');
+	row.style.display = 'flex';
+	row.style.alignItems = 'center';
+	row.style.height = '20px';
+	row.style.margin = '7px 8px 0px 10px';
+	div.appendChild(row);
+
+	// Drawing modes: the freehand tool without and with the brush (stored in
+	// the freehand tool as before) and the polygon tool (see PolygonTool).
+	// The polygon mode is stored in the editor so that it is kept if the
+	// window is created again (eg. after a theme change). Without the brush,
+	// the freehand tool is used in the mode it has.
+	var modeSelect = document.createElement('select');
+	modeSelect.style.boxSizing = 'border-box';
+	modeSelect.style.minWidth = '0px';
+	modeSelect.style.height = '20px';
+	modeSelect.style.marginRight = '4px';
+	modeSelect.style.padding = '0px 2px';
+	modeSelect.style.textOverflow = 'ellipsis';
+
+	var addMode = function(value, key)
+	{
+		var option = document.createElement('option');
+		option.setAttribute('value', value);
+		mxUtils.write(option, mxResources.get(key));
+		modeSelect.appendChild(option);
+	};
+
+	addMode('freehand', 'freehand');
+
 	if (withBrush)
 	{
-		var brushInput = document.createElement('input');
-		brushInput.setAttribute('id', 'geFreehandBrush');
-		brushInput.setAttribute('type', 'checkbox');
-		brushInput.checked = graph.freehand.isPerfectFreehandMode();
-		brushInput.style.margin = '10px 5px 0px 10px';
-		brushInput.style.float = 'left';
-		div.appendChild(brushInput);
-		
-		// Used to retrieve default styles
-		graph.freehand.setPerfectFreehandMode(brushInput.checked);
-		
-		var brushLabel = document.createElement('label');
-		brushLabel.setAttribute('for', 'geFreehandBrush');
-		brushLabel.style.float = 'left';
-		brushLabel.style.marginTop = '10px';
-		div.appendChild(brushLabel);
-		mxUtils.write(brushLabel, mxResources.get('brush'));
-		div.appendChild(brushLabel);
+		addMode('brush', 'brush');
+	}
 
+	addMode('polygon', 'polygon');
+	modeSelect.value = (editorUi.freehandPolygonMode) ? 'polygon' :
+		((withBrush && graph.freehand.isPerfectFreehandMode()) ?
+		'brush' : 'freehand');
+	row.appendChild(modeSelect);
+
+	var spacer = document.createElement('div');
+	spacer.style.flexGrow = '1';
+	row.appendChild(spacer);
+
+	if (withBrush)
+	{
 		var tempDiv = document.createElement('tempDiv');
 		tempDiv.style.display = 'block';
 		tempDiv.style.width = '100%';
@@ -10615,6 +11013,19 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 		
 		updateName();
 
+		var settings = document.createElement('img');
+		settings.setAttribute('title', mxResources.get('settings'));
+		settings.setAttribute('src', Editor.gearImage);
+		settings.className = 'geButton';
+		settings.style.boxSizing = 'border-box';
+		settings.style.flexShrink = '0';
+		settings.style.padding = '2px';
+		settings.style.margin = '0px 4px 0px 0px';
+		settings.style.width = '18px';
+		settings.style.height = '18px';
+		settings.style.opacity = '0.6';
+		row.appendChild(settings);
+
 		var btn = mxUtils.button('', mxUtils.bind(this, function(evt)
 		{
 			editorUi.pickColor(graph.freehand.getStrokeColor(true), function(newColor)
@@ -10627,31 +11038,16 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 			mxEvent.consume(evt);
 		}));
 		
-		btn.style.position = 'absolute';
 		btn.style.boxSizing = 'border-box';
+		btn.style.flexShrink = '0';
 		btn.style.padding = '2px';
-		btn.style.top = '8px';
-		btn.style.right = '8px';
+		btn.style.margin = '0px';
 		btn.style.width = '28px';
 		btn.style.height = '18px';
 		btn.className = 'geColorBtn';
 		btn.innerText = '';
 		btn.appendChild(tempDiv);
-		div.appendChild(btn);
-
-		var settings = document.createElement('img');
-		settings.setAttribute('title', mxResources.get('settings'));
-		settings.setAttribute('src', Editor.gearImage);
-		settings.className = 'geButton';
-		settings.style.position = 'absolute';
-		settings.style.boxSizing = 'border-box';
-		settings.style.padding = '2px';
-		settings.style.top = '8px';
-		settings.style.right = '38px';
-		settings.style.width = '18px';
-		settings.style.height = '18px';
-		settings.style.opacity = '0.6';
-		div.appendChild(settings);
+		row.appendChild(btn);
 
 		mxEvent.addListener(settings, 'click', mxUtils.bind(this, function(evt)
 		{
@@ -10666,8 +11062,6 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 			});
 		}));
 
-		mxUtils.br(div);
-
 		var brushSize = document.createElement('input');
 		brushSize.setAttribute('type', 'range');
 		brushSize.setAttribute('min', '2');
@@ -10678,32 +11072,108 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 		div.appendChild(brushSize);
 		mxUtils.br(div);
 
-		var updateBrushState = function()
-		{
-			graph.freehand.setPerfectFreehandMode(brushInput.checked)
-			brushSize.style.visibility = brushInput.checked? 'visible' : 'hidden';
-		};
-
-		mxEvent.addListener(brushInput, 'change', updateBrushState);
-		updateBrushState();
-
 		mxEvent.addListener(brushSize, 'change', function()
 		{
 			graph.freehand.setBrushSize(parseInt(this.value));
 		});
 	}
-	
-	var startBtn = mxUtils.button(mxResources.get('startDrawing'), function()
+	else
 	{
+		mxUtils.br(div);
+	}
+
+	var updateMode = function()
+	{
+		var mode = modeSelect.value;
+		editorUi.freehandPolygonMode = mode == 'polygon';
+
+		if (withBrush)
+		{
+			if (mode != 'polygon')
+			{
+				graph.freehand.setPerfectFreehandMode(mode == 'brush');
+			}
+
+			brushSize.style.visibility = (mode == 'brush') ? 'visible' : 'hidden';
+
+			// Smoothing only applies to the freehand tool
+			settings.style.visibility = (mode == 'polygon') ? 'hidden' : 'visible';
+		}
+	};
+
+	updateMode();
+
+	/**
+	 * Returns true if the freehand or the polygon tool is drawing.
+	 */
+	this.isDrawing = function()
+	{
+		return graph.freehand.isDrawing() || (editorUi.polygonTool != null &&
+			editorUi.polygonTool.isActive());
+	};
+
+	/**
+	 * Starts drawing in the selected mode.
+	 */
+	this.startDrawing = function()
+	{
+		if (modeSelect.value == 'polygon')
+		{
+			if (editorUi.polygonTool == null)
+			{
+				editorUi.polygonTool = new PolygonTool(editorUi);
+			}
+
+			editorUi.polygonTool.start();
+		}
+		else
+		{
+			// Stops the polygon tool (freehandStateChanged)
+			graph.freehand.startDrawing();
+		}
+	};
+
+	/**
+	 * Stops drawing and discards an unfinished polygon.
+	 */
+	this.stopDrawing = function()
+	{
+		if (editorUi.polygonTool != null)
+		{
+			editorUi.polygonTool.cancel();
+		}
+
 		if (graph.freehand.isDrawing())
 		{
 			graph.freehand.stopDrawing();
 		}
+	};
+
+	// Continues drawing in the new mode
+	mxEvent.addListener(modeSelect, 'change', mxUtils.bind(this, function()
+	{
+		var drawing = this.isDrawing();
+		updateMode();
+
+		if (drawing && (modeSelect.value == 'polygon') != (editorUi.polygonTool != null &&
+			editorUi.polygonTool.isActive()))
+		{
+			this.stopDrawing();
+			this.startDrawing();
+		}
+	}));
+
+	var startBtn = mxUtils.button(mxResources.get('startDrawing'), mxUtils.bind(this, function()
+	{
+		if (this.isDrawing())
+		{
+			this.stopDrawing();
+		}
 		else
 		{
-			graph.freehand.startDrawing();
+			this.startDrawing();
 		}
-	});
+	}));
 	
 	startBtn.setAttribute('title', mxResources.get('startDrawing') + ' (X)');
 	startBtn.style.width = '90%';
@@ -10719,10 +11189,11 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 	this.window.setResizable(false);
 	this.window.setClosable(true);
 	
-	graph.addListener('freehandStateChanged', mxUtils.bind(this, function()
+	var updateButton = mxUtils.bind(this, function()
 	{
+		var drawing = this.isDrawing();
 		startBtn.innerText = '';
-		mxUtils.write(startBtn, mxResources.get(graph.freehand.isDrawing() ? 'stopDrawing' : 'startDrawing'));
+		mxUtils.write(startBtn, mxResources.get(drawing ? 'stopDrawing' : 'startDrawing'));
 
 		var shortcut = document.createElement('span');
 		shortcut.className = 'geShortcutKey';
@@ -10730,9 +11201,12 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 		mxUtils.write(shortcut, 'X');
 		startBtn.appendChild(shortcut);
 
-		startBtn.setAttribute('title', mxResources.get(graph.freehand.isDrawing() ? 'stopDrawing' : 'startDrawing') + ' (X)');
-		startBtn.className = 'geBtn' + (graph.freehand.isDrawing() ? ' gePrimaryBtn' : '');
-	}));
+		startBtn.setAttribute('title', mxResources.get(drawing ? 'stopDrawing' : 'startDrawing') + ' (X)');
+		startBtn.className = 'geBtn' + (drawing ? ' gePrimaryBtn' : '');
+	});
+
+	graph.addListener('freehandStateChanged', updateButton);
+	graph.addListener('polygonStateChanged', updateButton);
 	
 	this.window.addListener('show', mxUtils.bind(this, function()
 	{
@@ -10741,13 +11215,18 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 	
 	this.window.addListener('hide', mxUtils.bind(this, function()
 	{
-		if (graph.freehand.isDrawing())
+		if (this.isDrawing())
 		{
-			graph.freehand.stopDrawing();
+			this.stopDrawing();
 		}
 	}));
 	
-	editorUi.installResizeHandler(this, false);
+	// Stops drawing if the window is destroyed (eg. after a theme change)
+	editorUi.installResizeHandler(this, false, mxUtils.bind(this, function()
+	{
+		graph.removeListener(updateButton);
+		this.stopDrawing();
+	}));
 };
 
 /**
@@ -13648,18 +14127,18 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		if (key == 'fadeTo')
 		{
 			var v = step.fadeTo.value;
-			if (v === 1) return {icon: '↗', text: T('fadeIn', 'Fade In')};
-			if (v === 0) return {icon: '↘', text: T('fadeOut', 'Fade Out')};
-			return {icon: '◐', text: T('fadeTo', 'Fade To')};
+			if (v === 1) return {icon: 'transition_fade', text: T('fadeIn', 'Fade In')};
+			if (v === 0) return {icon: 'transition_dissolve', text: T('fadeOut', 'Fade Out')};
+			return {icon: 'invert_colors', text: T('fadeTo', 'Fade To')};
 		}
 
 		// Flow direction surfaces in the label so the row is readable
 		// without inspecting the inline select control.
 		if (key == 'flow')
 		{
-			if (step.flow.start === true) return {icon: '➡', text: T('flowOn', 'Flow On')};
-			if (step.flow.start === false) return {icon: '⏸', text: T('flowOff', 'Flow Off')};
-			return {icon: '➡', text: T('flowToggle', 'Flow Toggle')};
+			if (step.flow.start === true) return {icon: 'conversion_path', text: T('flowOn', 'Flow On')};
+			if (step.flow.start === false) return {icon: 'conversion_path_off', text: T('flowOff', 'Flow Off')};
+			return {icon: 'conversion_path', text: T('flowToggle', 'Flow Toggle')};
 		}
 
 		// Generic fallback: read icon/label from the SCHEMAS catalogue so
@@ -14023,11 +14502,11 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	var makeDragHandle = function(row, index)
 	{
 		var handle = document.createElement('span');
-		handle.style.cssText = 'flex:0 0 14px;text-align:center;font-size:14px;' +
-			'line-height:1;color:light-dark(#86868b,#86868b);cursor:grab;' +
-			'user-select:none';
+		handle.style.cssText = 'flex:0 0 16px;display:inline-flex;' +
+			'justify-content:center;color:light-dark(#86868b,#86868b);' +
+			'cursor:grab;user-select:none';
 		handle.title = mxResources.get('reorder');
-		handle.textContent = '⋮⋮';
+		handle.appendChild(CustomActionDialog.createIcon('drag_indicator', 16));
 
 		handle.addEventListener('mousedown', function()
 		{
@@ -14162,6 +14641,17 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			b.addEventListener('click', fn);
 		}
 
+		return b;
+	};
+
+	// Variant of makeIconButton with a CustomActionDialog.ICONS icon.
+	var makeSvgButton = function(name, title, fn)
+	{
+		var b = makeIconButton('', title, true, fn);
+		b.style.display = 'inline-flex';
+		b.style.alignItems = 'center';
+		b.style.justifyContent = 'center';
+		b.appendChild(CustomActionDialog.createIcon(name, 16));
 		return b;
 	};
 
@@ -14525,11 +15015,25 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		row.appendChild(sp);
 	};
 
-	var appendIcon = function(row, ch)
+	// The action's icon, drawn like the text (not as a button: only the
+	// immediate toggle and the preview are clickable). A plugin schema
+	// may still give a character instead of an icon name.
+	var appendIcon = function(row, name)
 	{
 		var icon = document.createElement('span');
-		icon.style.cssText = 'flex:0 0 18px;text-align:center;font-size:14px';
-		mxUtils.write(icon, ch);
+		icon.style.cssText = 'flex:0 0 18px;display:inline-flex;' +
+			'justify-content:center;font-size:14px;' +
+			'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color))';
+
+		if (CustomActionDialog.hasIcon(name))
+		{
+			icon.appendChild(CustomActionDialog.createIcon(name, 16));
+		}
+		else
+		{
+			mxUtils.write(icon, name);
+		}
+
 		row.appendChild(icon);
 		return icon;
 	};
@@ -14634,21 +15138,20 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	// Warning glyph behind the action label of a step that would run
 	// without any visible effect (see resolvesToNothing). The step stays:
 	// its cells may come back through undo or paste, and its other
-	// settings are worth keeping either way. U+FE0E keeps the glyph
-	// monochrome, like the immediate toggle's icons. A plain tooltip like
+	// settings are worth keeping either way. A plain tooltip like
 	// the amber chip and field warnings: no help cursor, which in this app
 	// marks clickable help icons that open a page.
 	var appendNoEffectMarker = function(row, sel)
 	{
 		var mark = document.createElement('span');
-		mark.style.cssText = 'flex:0 0 auto;font-size:13px;line-height:1;' +
+		mark.style.cssText = 'flex:0 0 auto;display:inline-flex;' +
 			'color:light-dark(#e6a700,#ffcc4d);cursor:default';
 		mark.title = (excludesRemoveAll(sel)) ?
 			mxResources.get('stepExcludesAll', null,
 				'No effect: the excluded cells remove every cell this step targets') :
 			mxResources.get('stepNoEffect', null,
 				'No effect: this step matches no cells in the diagram');
-		mxUtils.write(mark, '⚠︎');
+		mark.appendChild(CustomActionDialog.createIcon('warning', 16));
 		row.appendChild(mark);
 	};
 
@@ -14775,7 +15278,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			}
 		}
 
-		var btn = selectorChips.iconButton('arrowDown',
+		var btn = selectorChips.iconButton('download',
 			mxResources.get('useSelection'), function()
 		{
 			var cell = graph.getSelectionCell();
@@ -15282,64 +15785,12 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		// the column aligned) wherever it would change nothing: on the
 		// first step and after non-blocking steps (immediateHasEffect,
 		// kept current by updateImmediateToggles). The button's icon AND
-		// tooltip swap to reflect state: ⏩ + "Immediate" when on (this
-		// step skips the wait), ⏱ + "Wait" when off (this step waits
-		// for the previous one to finish). Both glyphs carry the U+FE0E
-		// variation selector to force monochrome text presentation —
-		// otherwise the system font renders them as colorful emoji,
-		// which clashes with the surrounding monochrome UI.
-		var immediateBtn = document.createElement('button');
-		immediateBtn.type = 'button';
-		var applyImmediateIcon = function()
-		{
-			immediateBtn.textContent = '';
-			// See 2. below: the symbol fonts are set on this span only.
-			var glyph = document.createElement('span');
-			glyph.style.cssText = 'line-height:0;' +
-				'font-family:"Segoe UI Symbol","Apple Symbols",sans-serif';
-			immediateBtn.appendChild(glyph);
-
-			if (step.immediate === true)
-			{
-				mxUtils.write(glyph, '⏩︎');
-				immediateBtn.title = mxResources.get('immediate',
-					null, 'Immediate');
-			}
-			else
-			{
-				mxUtils.write(glyph, '⏱︎');
-				immediateBtn.title = mxResources.get('wait',
-					null, 'Wait');
-			}
-		};
-		// Force monochrome rendering for the ⏩ / ⏱ glyphs:
-		//   1. `font-variant-emoji: text` + the U+FE0E text-variation
-		//      selector in the string ask the browser for text rendering.
-		//   2. The "Segoe UI Symbol" / "Apple Symbols" font-family list
-		//      prefers the monochrome symbol fonts on each platform. It
-		//      sits on an inner span with line-height:0 while the button
-		//      keeps the row's font: a symbol font as the button's primary
-		//      font set the baseline from its own ascent/descent, which put
-		//      the glyphs ~3px above the row's icons and text on macOS
-		//      (Apple Symbols). A zero-height inline box can't grow the
-		//      line, so the glyph sits on the row font's baseline.
-		//   3. `filter: grayscale(1)` is the safety net — Windows Chrome
-		//      ignores the variation selector for ⏩ specifically (it
-		//      always pulls Segoe UI Emoji's blue colour-glyph), so we
-		//      desaturate the rendered pixels as a last resort. Harmless
-		//      for already-monochrome glyphs.
-		immediateBtn.style.cssText = 'flex:0 0 22px;height:22px;line-height:1;' +
-			'padding:0;border:1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));' +
-			'border-radius:3px;background:transparent;cursor:pointer;' +
-			'font-size:14px;color:light-dark(var(--strong-text-color), var(--dark-strong-text-color));' +
-			'font-family:inherit;font-variant-emoji:text;filter:grayscale(1) contrast(2)';
-		applyImmediateIcon();
-		immediateBtn.setAttribute('data-immediate-toggle', idx);
-		if (!immediateHasEffect(idx))
-		{
-			immediateBtn.style.visibility = 'hidden';
-		}
-		immediateBtn.addEventListener('click', function()
+		// tooltip swap to reflect state: fast_forward + "Immediate" when
+		// on (this step skips the wait), hourglass_empty + "Wait" when off
+		// (this step waits for the previous one to finish). Same bordered
+		// button as the preview, so the two clickable icons of a row look
+		// clickable and the action's icon does not (Kym, 2026-09-25).
+		var immediateBtn = makeIconButton('', '', true, function()
 		{
 			if (step.immediate === true)
 			{
@@ -15354,6 +15805,35 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			applyImmediateIcon();
 			syncOnly();
 		});
+		immediateBtn.style.display = 'inline-flex';
+		immediateBtn.style.alignItems = 'center';
+		immediateBtn.style.justifyContent = 'center';
+
+		var applyImmediateIcon = function()
+		{
+			immediateBtn.textContent = '';
+
+			if (step.immediate === true)
+			{
+				immediateBtn.appendChild(CustomActionDialog.createIcon(
+					'fast_forward', 16));
+				immediateBtn.title = mxResources.get('immediate',
+					null, 'Immediate');
+			}
+			else
+			{
+				immediateBtn.appendChild(CustomActionDialog.createIcon(
+					'hourglass_empty', 16));
+				immediateBtn.title = mxResources.get('wait',
+					null, 'Wait');
+			}
+		};
+		applyImmediateIcon();
+		immediateBtn.setAttribute('data-immediate-toggle', idx);
+		if (!immediateHasEffect(idx))
+		{
+			immediateBtn.style.visibility = 'hidden';
+		}
 		row.appendChild(immediateBtn);
 
 		appendIcon(row, info.icon);
@@ -15510,9 +15990,8 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		// preview session, so the original opacity stays captured for
 		// Reset to restore. Last item of the trailing group, which the
 		// spacer and its margin-left:auto keep at the row's right edge.
-		var previewIconBtn = makeIconButton('▶',
-			mxResources.get('preview'),
-			true, function()
+		var previewIconBtn = makeSvgButton('play_arrow',
+			mxResources.get('preview'), function()
 			{
 				startPreviewSession();
 				var single = JSON.parse(JSON.stringify(
@@ -16830,11 +17309,6 @@ AuthDialog.getServiceInfo = function(editorUi, peer)
 	{
 		service = mxResources.get('googleDrive');
 		img.src = IMAGE_PATH + '/google-drive-logo-white.svg';
-	}
-	else if (peer == editorUi.dropbox)
-	{
-		service = mxResources.get('dropbox');
-		img.src = IMAGE_PATH + '/dropbox-logo-white.svg';
 	}
 	else if (peer == editorUi.oneDrive)
 	{
@@ -21356,11 +21830,12 @@ var ConnectionPointsDialog = function(editorUi, cell)
 
 			// Sorts by x, y, dx, dy and perimeter so identical points are
 			// adjacent with the perimeter point first
+			// (style points can have missing or other values than numbers)
 			constraints.sort(function(a, b)
 			{
-				return (a.x != b.x) ? a.x - b.x : ((a.y != b.y) ? a.y - b.y :
-					((a.dx != b.dx) ? a.dx - b.dx : ((a.dy != b.dy) ? a.dy - b.dy :
-					(b.perimeter ? 1 : 0) - (a.perimeter ? 1 : 0))));
+				return mxUtils.compareNumbers(a.x, b.x) || mxUtils.compareNumbers(a.y, b.y) ||
+					mxUtils.compareNumbers(a.dx, b.dx) || mxUtils.compareNumbers(a.dy, b.dy) ||
+					((b.perimeter ? 1 : 0) - (a.perimeter ? 1 : 0));
 			});
 
 			for (var i = 0; i < constraints.length; i++)
@@ -22980,4 +23455,969 @@ var PolygonDialog = function(editorUi, cell, insertFn)
 	};
 
 	this.container = div;
+};
+
+/**
+ * Draws polygons on the canvas like the freeform tool of PowerPoint (the
+ * Polygon mode of the freehand window, see FreehandWindow). A click adds a
+ * corner, a press and drag draws a freehand stretch (simplified with
+ * Ramer-Douglas-Peucker and a tolerance in screen pixels), a click on the
+ * first point (or a stretch that ends there) closes the shape and a double
+ * click or Enter finishes an open shape. Backspace removes the last point,
+ * Escape discards the shape or stops drawing if there is no point. Shift
+ * constrains the next segment to 45 degree steps and corners snap to the
+ * grid unless Alt is pressed. The result is a mxgraph.basic.polygon cell
+ * with the style of PolygonDialog (polyCoords normalized to its bounds) and
+ * the stroke color of the freehand tool, which is passed to insertCell.
+ * Drawing continues with a new shape until the tool is stopped. Changes of
+ * the drawing state fire a polygonStateChanged event on the graph.
+ *
+ * The points are kept in model units and the preview is painted in screen
+ * units in the overlay pane, which model coordinates (fastRendering) do not
+ * transform, so it follows zoom and scrolling in both renderings. The mouse
+ * events of the drawing are consumed before the handlers of the graph see
+ * them, except for panning gestures (space, right or middle button, pinch).
+ */
+var PolygonTool = function(editorUi)
+{
+	this.editorUi = editorUi;
+	this.graph = editorUi.editor.graph;
+	this.init();
+};
+
+/**
+ * Distance in screen pixels from the first point for closing the shape.
+ */
+PolygonTool.prototype.closeTolerance = 8;
+
+/**
+ * Tolerance in screen pixels for simplifying freehand stretches.
+ */
+PolygonTool.prototype.simplifyTolerance = 1.5;
+
+/**
+ * Time in milliseconds after closing a shape with a click in which the
+ * second click of a double click on the first point does not start a new
+ * shape (see isIgnoredClick).
+ */
+PolygonTool.prototype.dblClickDelay = 500;
+
+/**
+ * Specifies if the tool is drawing.
+ */
+PolygonTool.prototype.active = false;
+
+/**
+ * Installs the listeners of the tool, which do nothing while it is not
+ * drawing.
+ */
+PolygonTool.prototype.init = function()
+{
+	var graph = this.graph;
+	var tool = this;
+
+	this.points = [];
+	this.ignoreDblClickUntil = 0;
+
+	// Consumes the mouse events of the drawing before the other handlers
+	// (selection, rubberband, connections, panning) process them
+	graph.addListener(mxEvent.FIRE_MOUSE_EVENT, mxUtils.bind(this, function(sender, evt)
+	{
+		if (this.active)
+		{
+			var me = evt.getProperty('event');
+
+			if (evt.getProperty('eventName') == mxEvent.MOUSE_DOWN)
+			{
+				this.panning = this.isPanningEvent(me);
+
+				// A panning gesture discards a stretch in progress (eg. a
+				// second finger for a pinch)
+				if (this.panning)
+				{
+					this.down = null;
+					this.stroke = null;
+				}
+			}
+
+			if (!this.panning)
+			{
+				me.consume();
+			}
+		}
+	}));
+
+	graph.addMouseListener(
+	{
+		mouseDown: mxUtils.bind(this, function(sender, me)
+		{
+			if (this.active && !this.panning)
+			{
+				this.mouseDown(me);
+			}
+		}),
+		mouseMove: mxUtils.bind(this, function(sender, me)
+		{
+			if (this.active && !this.panning)
+			{
+				this.mouseMove(me);
+			}
+		}),
+		mouseUp: mxUtils.bind(this, function(sender, me)
+		{
+			if (this.active && !this.panning)
+			{
+				this.mouseUp(me);
+			}
+
+			this.panning = false;
+		})
+	});
+
+	// Double clicks finish an open shape and are ignored right after a click
+	// closed a shape. Wraps the double click handler as it inserts text or
+	// shows the shape picker before firing the double click event.
+	var graphDblClick = graph.dblClick;
+
+	graph.dblClick = function(evt, cell)
+	{
+		if (tool.active)
+		{
+			mxEvent.consume(evt);
+			tool.finish(false);
+		}
+		else if (Date.now() < tool.ignoreDblClickUntil)
+		{
+			mxEvent.consume(evt);
+		}
+		else
+		{
+			graphDblClick.apply(this, arguments);
+		}
+	};
+
+	graph.addListener(mxEvent.ESCAPE, mxUtils.bind(this, function()
+	{
+		this.cancel();
+	}));
+
+	// Stops when the freehand tool starts or the page changes
+	graph.addListener('freehandStateChanged', mxUtils.bind(this, function()
+	{
+		if (graph.freehand != null && graph.freehand.isDrawing())
+		{
+			this.cancel();
+		}
+	}));
+
+	graph.getModel().addListener(mxEvent.CHANGE, mxUtils.bind(this, function(sender, evt)
+	{
+		var changes = (this.active) ? evt.getProperty('edit').changes : [];
+
+		for (var i = 0; i < changes.length; i++)
+		{
+			if (changes[i] instanceof mxRootChange)
+			{
+				this.cancel();
+				break;
+			}
+		}
+	}));
+
+	// Hides the hover icons while drawing
+	var hoverIcons = this.editorUi.hoverIcons;
+
+	if (hoverIcons != null)
+	{
+		var hoverIconsIsResetEvent = hoverIcons.isResetEvent;
+
+		hoverIcons.isResetEvent = function()
+		{
+			return tool.active || hoverIconsIsResetEvent.apply(this, arguments);
+		};
+	}
+
+	this.keyHandler = mxUtils.bind(this, function(evt)
+	{
+		this.keyChanged(evt);
+	});
+
+	this.repaintHandler = mxUtils.bind(this, function()
+	{
+		this.updatePreview();
+	});
+};
+
+/**
+ * Returns true if the tool is drawing.
+ */
+PolygonTool.prototype.isActive = function()
+{
+	return this.active;
+};
+
+/**
+ * Returns true if the graph allows inserting a shape.
+ */
+PolygonTool.prototype.isEnabled = function()
+{
+	return this.graph.isEnabled() && !this.graph.isCellLocked(this.graph.getDefaultParent());
+};
+
+/**
+ * Returns true if the given mouse event starts a panning gesture, which is
+ * not handled by the tool.
+ */
+PolygonTool.prototype.isPanningEvent = function(me)
+{
+	var evt = me.getEvent();
+	var handler = this.graph.panningHandler;
+
+	return mxEvent.isPopupTrigger(evt) || mxEvent.isMultiTouchEvent(evt) ||
+		(handler != null && (handler.isActive() || handler.isForcePanningEvent(me)));
+};
+
+/**
+ * Starts drawing and stops the freehand tool.
+ */
+PolygonTool.prototype.start = function()
+{
+	if (!this.active && this.isEnabled())
+	{
+		var graph = this.graph;
+
+		if (graph.freehand != null && graph.freehand.isDrawing())
+		{
+			graph.freehand.stopDrawing();
+		}
+
+		graph.stopEditing(false);
+		graph.clearSelection();
+
+		if (this.editorUi.hoverIcons != null)
+		{
+			this.editorUi.hoverIcons.reset();
+		}
+
+		this.reset();
+		this.last = null;
+		this.closedAt = null;
+		this.panning = false;
+		this.active = true;
+
+		graph.container.classList.add('gePolygonMode');
+		window.addEventListener('keydown', this.keyHandler, true);
+		window.addEventListener('keyup', this.keyHandler, true);
+		graph.view.addListener(mxEvent.SCALE, this.repaintHandler);
+		graph.view.addListener(mxEvent.TRANSLATE, this.repaintHandler);
+		graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, this.repaintHandler);
+		graph.fireEvent(new mxEventObject('polygonStateChanged'));
+	}
+};
+
+/**
+ * Discards the points of the current shape and keeps drawing.
+ */
+PolygonTool.prototype.reset = function()
+{
+	this.points = [];
+	this.stroke = null;
+	this.down = null;
+	this.current = null;
+	this.closable = false;
+	this.updatePreview();
+};
+
+/**
+ * Stops drawing and discards the current shape.
+ */
+PolygonTool.prototype.cancel = function()
+{
+	if (this.active)
+	{
+		this.stop();
+	}
+};
+
+/**
+ * Removes the preview and the listeners of the drawing.
+ */
+PolygonTool.prototype.stop = function()
+{
+	var graph = this.graph;
+
+	this.active = false;
+	this.points = [];
+	this.stroke = null;
+	this.down = null;
+	this.current = null;
+	this.last = null;
+	this.closable = false;
+
+	if (this.node != null)
+	{
+		if (this.node.parentNode != null)
+		{
+			this.node.parentNode.removeChild(this.node);
+		}
+
+		this.node = null;
+	}
+
+	if (graph.container != null)
+	{
+		graph.container.classList.remove('gePolygonMode');
+	}
+
+	window.removeEventListener('keydown', this.keyHandler, true);
+	window.removeEventListener('keyup', this.keyHandler, true);
+
+	if (graph.view != null)
+	{
+		graph.view.removeListener(this.repaintHandler);
+	}
+
+	graph.fireEvent(new mxEventObject('polygonStateChanged'));
+};
+
+/**
+ * Stops drawing when the editor is destroyed.
+ */
+PolygonTool.prototype.destroy = function()
+{
+	this.cancel();
+};
+
+/**
+ * Handles Escape (discard the shape or stop drawing if there is no point),
+ * Enter (finish an open shape) and Backspace (remove the last point) and
+ * updates the preview for Shift and Alt. Runs in the capture phase so that
+ * the shortcuts of these keys do not run.
+ */
+PolygonTool.prototype.keyChanged = function(evt)
+{
+	var keyHandler = this.editorUi.keyHandler;
+
+	if (!this.active || this.graph.container == null)
+	{
+		this.cancel();
+	}
+	else if (!this.graph.isEditing() && (keyHandler == null || keyHandler.isGraphEvent(evt)))
+	{
+		var modified = mxEvent.isControlDown(evt) || mxEvent.isMetaDown(evt) || mxEvent.isAltDown(evt);
+		var handled = false;
+
+		if (evt.type == 'keydown')
+		{
+			if (evt.keyCode == 27)
+			{
+				if (this.points.length > 0 || this.down != null)
+				{
+					this.reset();
+				}
+				else
+				{
+					this.cancel();
+				}
+
+				handled = true;
+			}
+			else if (evt.keyCode == 13 && !modified)
+			{
+				this.finish(false);
+				handled = true;
+			}
+			else if (evt.keyCode == 8 && !modified)
+			{
+				this.removeLastPoint();
+				handled = true;
+			}
+		}
+
+		if (handled)
+		{
+			mxEvent.consume(evt);
+		}
+		else if ((evt.keyCode == 16 || evt.keyCode == 18) && this.last != null)
+		{
+			this.last.shift = mxEvent.isShiftDown(evt);
+			this.last.alt = mxEvent.isAltDown(evt);
+			this.updateCurrent();
+			this.updatePreview();
+		}
+	}
+};
+
+/**
+ * Returns the distance between the given points.
+ */
+PolygonTool.prototype.getDistance = function(p1, p2)
+{
+	var dx = p2.x - p1.x;
+	var dy = p2.y - p1.y;
+
+	return Math.sqrt(dx * dx + dy * dy);
+};
+
+/**
+ * Returns the given point in graph coordinates in model units.
+ */
+PolygonTool.prototype.getModelPoint = function(x, y)
+{
+	var s = this.graph.view.scale;
+	var tr = this.graph.view.translate;
+
+	return new mxPoint(Math.round((x / s - tr.x) * 100) / 100,
+		Math.round((y / s - tr.y) * 100) / 100);
+};
+
+/**
+ * Returns the given point in model units in graph coordinates.
+ */
+PolygonTool.prototype.getScreenPoint = function(pt)
+{
+	var s = this.graph.view.scale;
+	var tr = this.graph.view.translate;
+
+	return new mxPoint((pt.x + tr.x) * s, (pt.y + tr.y) * s);
+};
+
+/**
+ * Returns the corner for the given point in graph coordinates: snapped to
+ * the grid unless alt is true and constrained to 45 degree steps from the
+ * last point if shift is true.
+ */
+PolygonTool.prototype.getPoint = function(x, y, shift, alt)
+{
+	var graph = this.graph;
+	var pt = this.getModelPoint(x, y);
+	var last = (this.points.length > 0) ? this.points[this.points.length - 1] : null;
+	var snap = function(value)
+	{
+		return (alt) ? value : graph.snap(value);
+	};
+
+	if (shift && last != null)
+	{
+		var dx = pt.x - last.x;
+		var dy = pt.y - last.y;
+		var a = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * Math.PI / 4;
+		var ux = Math.round(Math.cos(a));
+		var uy = Math.round(Math.sin(a));
+
+		// Length along the axis or both axes of the diagonal
+		var d = snap((dx * ux + dy * uy) / (ux * ux + uy * uy));
+
+		return new mxPoint(last.x + ux * d, last.y + uy * d);
+	}
+	else
+	{
+		return new mxPoint(snap(pt.x), snap(pt.y));
+	}
+};
+
+/**
+ * Returns true if a click at the given point in graph coordinates closes
+ * the shape.
+ */
+PolygonTool.prototype.isClosing = function(x, y)
+{
+	if (this.points.length >= 3)
+	{
+		var first = this.getScreenPoint(this.points[0]);
+
+		return this.getDistance(first, new mxPoint(x, y)) <= this.closeTolerance;
+	}
+
+	return false;
+};
+
+/**
+ * Updates the end of the segment to the mouse.
+ */
+PolygonTool.prototype.updateCurrent = function()
+{
+	if (this.last != null && this.down == null)
+	{
+		this.closable = this.isClosing(this.last.x, this.last.y);
+		this.current = (this.closable) ? this.points[0] : this.getPoint(
+			this.last.x, this.last.y, this.last.shift, this.last.alt);
+	}
+};
+
+/**
+ * Adds the given corner unless it is within the tolerance of the last
+ * point (eg. the second click of a double click).
+ */
+PolygonTool.prototype.addPoint = function(pt)
+{
+	var last = (this.points.length > 0) ? this.points[this.points.length - 1] : null;
+
+	if (last == null || this.getDistance(this.getScreenPoint(last),
+		this.getScreenPoint(pt)) > this.graph.tolerance)
+	{
+		this.points.push(pt);
+	}
+};
+
+/**
+ * Removes the last point.
+ */
+PolygonTool.prototype.removeLastPoint = function()
+{
+	if (this.down == null && this.points.length > 0)
+	{
+		this.points.pop();
+		this.updateCurrent();
+		this.updatePreview();
+	}
+};
+
+/**
+ * Handles a mouse down of the drawing.
+ */
+PolygonTool.prototype.mouseDown = function(me)
+{
+	if (!this.isEnabled())
+	{
+		this.cancel();
+	}
+	else
+	{
+		var evt = me.getEvent();
+		var x = me.getGraphX();
+		var y = me.getGraphY();
+
+		this.last = {x: x, y: y, shift: mxEvent.isShiftDown(evt), alt: mxEvent.isAltDown(evt)};
+		this.down = {x: x, y: y, closing: this.isClosing(x, y),
+			point: this.getPoint(x, y, this.last.shift, this.last.alt)};
+		this.stroke = null;
+		this.updatePreview();
+	}
+};
+
+/**
+ * Handles a mouse move of the drawing. Moving the mouse further than the
+ * tolerance with the button pressed starts a freehand stretch at the
+ * corner of the mouse down.
+ */
+PolygonTool.prototype.mouseMove = function(me)
+{
+	var graph = this.graph;
+	var evt = me.getEvent();
+	var x = me.getGraphX();
+	var y = me.getGraphY();
+
+	if (graph.tooltipHandler != null)
+	{
+		graph.tooltipHandler.hide();
+	}
+
+	this.last = {x: x, y: y, shift: mxEvent.isShiftDown(evt), alt: mxEvent.isAltDown(evt)};
+
+	if (this.down != null)
+	{
+		if (this.stroke == null && this.getDistance(new mxPoint(this.down.x, this.down.y),
+			new mxPoint(x, y)) > graph.tolerance)
+		{
+			this.stroke = [this.down.point];
+		}
+
+		if (this.stroke != null)
+		{
+			var pt = this.getModelPoint(x, y);
+			var prev = this.getScreenPoint(this.stroke[this.stroke.length - 1]);
+
+			// Skips points closer than a pixel
+			if (this.getDistance(prev, new mxPoint(x, y)) >= 1)
+			{
+				this.stroke.push(pt);
+			}
+		}
+	}
+	else
+	{
+		this.updateCurrent();
+	}
+
+	this.updatePreview();
+};
+
+/**
+ * Handles a mouse up of the drawing: adds the corner of a click or the
+ * simplified freehand stretch and closes the shape if it ends at the first
+ * point.
+ */
+PolygonTool.prototype.mouseUp = function(me)
+{
+	if (this.down != null)
+	{
+		var down = this.down;
+		var stroke = this.stroke;
+		this.down = null;
+		this.stroke = null;
+
+		if (stroke != null)
+		{
+			stroke = this.simplify(stroke, this.simplifyTolerance / this.graph.view.scale);
+			this.addPoint(stroke[0]);
+
+			for (var i = 1; i < stroke.length; i++)
+			{
+				this.points.push(stroke[i]);
+			}
+
+			// A stretch that ends at the first point closes the shape
+			var end = this.getScreenPoint(this.points[this.points.length - 1]);
+
+			if (this.points.length > 3 && this.getDistance(end,
+				this.getScreenPoint(this.points[0])) <= this.closeTolerance)
+			{
+				this.points.pop();
+
+				if (this.finish(true))
+				{
+					return;
+				}
+			}
+		}
+		else if (down.closing)
+		{
+			if (this.finish(true))
+			{
+				return;
+			}
+		}
+		else if (!this.isIgnoredClick(down))
+		{
+			this.addPoint(down.point);
+		}
+	}
+
+	this.updateCurrent();
+	this.updatePreview();
+};
+
+/**
+ * Returns true if the given mouse down is the second click of a double
+ * click on the first point of the shape that was just closed.
+ */
+PolygonTool.prototype.isIgnoredClick = function(down)
+{
+	return this.points.length == 0 && this.closedAt != null &&
+		Date.now() < this.ignoreDblClickUntil && this.getDistance(
+		this.getScreenPoint(this.closedAt), new mxPoint(down.x, down.y)) <=
+		this.closeTolerance;
+};
+
+/**
+ * Returns the given points simplified with the Ramer-Douglas-Peucker
+ * algorithm for the given tolerance (iterative, as freehand stretches can
+ * have many points).
+ */
+PolygonTool.prototype.simplify = function(pts, tolerance)
+{
+	if (pts.length < 3)
+	{
+		return pts.slice();
+	}
+
+	var keep = [];
+	var stack = [[0, pts.length - 1]];
+	var tol2 = tolerance * tolerance;
+	keep[0] = true;
+	keep[pts.length - 1] = true;
+
+	while (stack.length > 0)
+	{
+		var range = stack.pop();
+		var a = pts[range[0]];
+		var b = pts[range[1]];
+		var max = 0;
+		var index = -1;
+
+		for (var i = range[0] + 1; i < range[1]; i++)
+		{
+			var d = mxUtils.ptSegDistSq(a.x, a.y, b.x, b.y, pts[i].x, pts[i].y);
+
+			if (d > max)
+			{
+				max = d;
+				index = i;
+			}
+		}
+
+		if (index >= 0 && max > tol2)
+		{
+			keep[index] = true;
+			stack.push([range[0], index]);
+			stack.push([index, range[1]]);
+		}
+	}
+
+	var result = [];
+
+	for (var i = 0; i < pts.length; i++)
+	{
+		if (keep[i])
+		{
+			result.push(pts[i]);
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Inserts the shape and starts a new one. Returns false and keeps the shape
+ * if there are not enough points (3 for a closed shape, 2 for an open
+ * shape).
+ */
+PolygonTool.prototype.finish = function(closed)
+{
+	var pts = [];
+
+	for (var i = 0; i < this.points.length; i++)
+	{
+		var p = this.points[i];
+
+		if (pts.length == 0 || p.x != pts[pts.length - 1].x || p.y != pts[pts.length - 1].y)
+		{
+			pts.push(p);
+		}
+	}
+
+	if (closed && pts.length > 1 && pts[0].x == pts[pts.length - 1].x &&
+		pts[0].y == pts[pts.length - 1].y)
+	{
+		pts.pop();
+	}
+
+	this.down = null;
+	this.stroke = null;
+
+	if (pts.length < ((closed) ? 3 : 2))
+	{
+		this.updateCurrent();
+		this.updatePreview();
+
+		return false;
+	}
+	else
+	{
+		var cell = this.createCell(pts, closed);
+		this.closedAt = (closed) ? pts[0] : null;
+		this.reset();
+
+		if (closed)
+		{
+			this.ignoreDblClickUntil = Date.now() + this.dblClickDelay;
+		}
+
+		if (this.isEnabled())
+		{
+			this.insertCell(cell);
+		}
+
+		return true;
+	}
+};
+
+/**
+ * Inserts the given shape in one undoable edit. The current style is
+ * applied via cellsInserted as for freehand shapes, which are also not
+ * selected.
+ */
+PolygonTool.prototype.insertCell = function(cell)
+{
+	var graph = this.graph;
+
+	graph.model.beginUpdate();
+	try
+	{
+		cell = graph.addCell(cell);
+		graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
+	}
+	finally
+	{
+		graph.model.endUpdate();
+	}
+};
+
+/**
+ * Returns a new polygon for the given points in model units with the style
+ * of PolygonDialog and the stroke color for new shapes: the coordinates are
+ * normalized to the bounds of the points, which are the geometry relative
+ * to the default parent.
+ */
+PolygonTool.prototype.createCell = function(pts, closed)
+{
+	var minX = pts[0].x;
+	var minY = pts[0].y;
+	var maxX = minX;
+	var maxY = minY;
+
+	for (var i = 1; i < pts.length; i++)
+	{
+		minX = Math.min(minX, pts[i].x);
+		minY = Math.min(minY, pts[i].y);
+		maxX = Math.max(maxX, pts[i].x);
+		maxY = Math.max(maxY, pts[i].y);
+	}
+
+	var w = maxX - minX;
+	var h = maxY - minY;
+
+	var normalize = function(value, min, range)
+	{
+		return (range > 0) ? Math.round(((value - min) / range) * 100000) / 100000 : 0.5;
+	};
+
+	var coords = [];
+	var curves = [];
+
+	for (var i = 0; i < pts.length; i++)
+	{
+		coords.push([normalize(pts[i].x, minX, w), normalize(pts[i].y, minY, h)]);
+
+		if (i > 0)
+		{
+			curves.push([]);
+		}
+	}
+
+	// Straight lines get a size of 1 with the line in the middle
+	var geo = new mxGeometry(minX - ((w > 0) ? 0 : 0.5), minY - ((h > 0) ? 0 : 0.5),
+		Math.max(w, 1), Math.max(h, 1));
+	var state = this.graph.view.getState(this.graph.getDefaultParent());
+
+	if (state != null && state.origin != null)
+	{
+		geo.x -= state.origin.x;
+		geo.y -= state.origin.y;
+	}
+
+	var style = 'shape=mxgraph.basic.polygon;polyCoords=' + JSON.stringify(coords) +
+		';polyCurves=' + JSON.stringify(curves) + ';polyline=' +
+		((closed) ? '0' : '1') + ';whiteSpace=wrap;html=1;';
+	var color = this.getShapeStrokeColor();
+
+	// Ignores values that would change other keys of the style
+	if (color != null && /^[^;=]+$/.test(color))
+	{
+		style += 'strokeColor=' + color + ';';
+	}
+
+	var cell = new mxCell('', geo, style);
+	cell.vertex = true;
+
+	return cell;
+};
+
+/**
+ * Returns the stroke color for new shapes, which may be default, or null
+ * for the stroke color of the current style. This implementation returns
+ * the color of the freehand tool (see FreehandWindow).
+ */
+PolygonTool.prototype.getShapeStrokeColor = function()
+{
+	return (this.graph.freehand != null) ?
+		this.graph.freehand.getStrokeColor(true) : null;
+};
+
+/**
+ * Returns the stroke color of the preview: the stroke color for new shapes
+ * or of the current style, or the foreground color of the shapes.
+ */
+PolygonTool.prototype.getStrokeColor = function()
+{
+	var color = this.getShapeStrokeColor();
+
+	if (color == null)
+	{
+		color = mxUtils.getValue(this.graph.currentVertexStyle,
+			mxConstants.STYLE_STROKECOLOR, 'default');
+	}
+
+	return (color == 'default' || color == 'none' || color == 'inherit') ?
+		this.graph.shapeForegroundColor : color;
+};
+
+/**
+ * Paints the points, the stretch in progress and the segment to the mouse
+ * in screen units in the overlay pane.
+ */
+PolygonTool.prototype.updatePreview = function()
+{
+	var graph = this.graph;
+
+	if (this.active)
+	{
+		if (this.node == null)
+		{
+			this.node = document.createElementNS(mxConstants.NS_SVG, 'g');
+			this.node.setAttribute('pointer-events', 'none');
+			this.path = document.createElementNS(mxConstants.NS_SVG, 'path');
+			this.path.setAttribute('fill', 'none');
+			this.path.setAttribute('stroke-linejoin', 'round');
+			this.path.setAttribute('stroke-linecap', 'round');
+			this.node.appendChild(this.path);
+			this.marker = document.createElementNS(mxConstants.NS_SVG, 'circle');
+			this.marker.setAttribute('fill', mxConstants.HANDLE_FILLCOLOR);
+			this.marker.setAttribute('stroke', mxConstants.HANDLE_STROKECOLOR);
+			this.node.appendChild(this.marker);
+		}
+
+		if (this.node.parentNode != graph.view.getOverlayPane())
+		{
+			graph.view.getOverlayPane().appendChild(this.node);
+		}
+
+		var pts = this.points.slice();
+
+		if (this.stroke != null)
+		{
+			pts = pts.concat(this.stroke);
+		}
+		else if (this.down != null)
+		{
+			pts.push((this.down.closing) ? this.points[0] : this.down.point);
+		}
+		else if (this.current != null)
+		{
+			pts.push(this.current);
+		}
+
+		var d = [];
+
+		for (var i = 0; i < pts.length; i++)
+		{
+			var pt = this.getScreenPoint(pts[i]);
+			d.push(((i == 0) ? 'M ' : 'L ') + Math.round(pt.x * 100) / 100 +
+				' ' + Math.round(pt.y * 100) / 100);
+		}
+
+		var sw = parseFloat(mxUtils.getValue(graph.currentVertexStyle,
+			mxConstants.STYLE_STROKEWIDTH, 1));
+
+		this.path.setAttribute('d', (d.length > 1) ? d.join(' ') : 'M 0 0');
+		this.path.setAttribute('visibility', (d.length > 1) ? 'visible' : 'hidden');
+		this.path.style.stroke = this.getStrokeColor();
+		this.path.setAttribute('stroke-width', Math.min(20, Math.max(1,
+			((isNaN(sw)) ? 1 : sw) * graph.view.scale)));
+
+		if (this.points.length > 0)
+		{
+			var first = this.getScreenPoint(this.points[0]);
+			var closing = this.closable || (this.down != null && this.down.closing);
+			this.marker.setAttribute('cx', Math.round(first.x * 100) / 100);
+			this.marker.setAttribute('cy', Math.round(first.y * 100) / 100);
+			this.marker.setAttribute('r', (closing) ? 6 : 4);
+			this.marker.setAttribute('visibility', 'visible');
+		}
+		else
+		{
+			this.marker.setAttribute('visibility', 'hidden');
+		}
+	}
 };

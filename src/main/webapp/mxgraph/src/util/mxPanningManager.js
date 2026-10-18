@@ -270,6 +270,14 @@ function mxPanningManager(graph)
 	
 	this.destroy = function()
 	{
+		// Stops the thread which would otherwise access the container of the destroyed graph
+		if (this.thread != null)
+		{
+			window.clearInterval(this.thread);
+			this.thread = null;
+		}
+		
+		this.active = false;
 		graph.removeMouseListener(this.mouseListener);
 		mxEvent.removeListener(document, 'mouseup', this.mouseUpListener);
 	};

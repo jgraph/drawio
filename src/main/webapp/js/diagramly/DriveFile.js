@@ -177,10 +177,7 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 		}
 		else if (!this.savingFile)
 		{
-			// Sets shadow modified state during save
-			this.savingFileTime = new Date();
-			this.setShadowModified(false);
-			this.savingFile = true;
+			this.beginSave();
 
 			this.createSecret(mxUtils.bind(this, function(secret, token)
 			{
@@ -199,14 +196,11 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 						{
 							try
 							{
-								this.savingFile = false;
-								
 								// Handles special case where resp is false eg
 								// if the old file was converted to realtime
 								if (resp != false)
 								{
-									// Checks for changes during save
-									this.setModified(this.getShadowModified());
+									this.endSave();
 									
 									if (revision)
 									{
@@ -243,9 +237,14 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 										}
 									}), error, token, pages, checksum);
 								}
-								else if (error != null)
+								else
 								{
-									error(resp);
+									this.savingFile = false;
+
+									if (error != null)
+									{
+										error(resp);
+									}
 								}
 							}
 							catch (e)
@@ -269,35 +268,11 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 								
 								if (this.isConflict(err))
 								{
-									this.inConflictState = true;
-									
-									if (this.sync != null)
+									this.handleSaveConflict(desc, mxUtils.bind(this, function()
 									{
-										this.savingFile = true;
-										
-										this.sync.fileConflict(desc, mxUtils.bind(this, function()
-										{
-											// Adds random cool-off
-											window.setTimeout(mxUtils.bind(this, function()
-											{
-												this.updateFileData();
-												this.setShadowModified(false);
-												doSave(realOverwrite, true);
-											}), 100 + Math.random() * 500);
-										}), mxUtils.bind(this, function()
-										{
-											this.savingFile = false;
-							
-											if (error != null)
-											{
-												error();
-											}
-										}));
-									}
-									else if (error != null)
-									{
-										error();
-									}
+										this.setShadowModified(false);
+										doSave(realOverwrite, true);
+									}), error);
 								}
 								else if (error != null)
 								{
@@ -424,8 +399,7 @@ DriveFile.prototype.makeCopy = function(success, error, filename)
 
 			this.ui.spinner.stop();
 			this.setModified(false);
-			this.invalidChecksum = false;
-			this.inConflictState = false;
+			this.clearConflict();
 
 			this.descriptorChanged();
 			success();

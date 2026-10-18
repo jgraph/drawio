@@ -33,7 +33,8 @@ EditorUi.transientViewStateProperties = ['defaultParent', 'currentRoot', 'scroll
  */
 EditorUi.prototype.viewStateProperties = {background: true, backgroundImage: true, shadowVisible: true,
 	foldingEnabled: true, pageScale: true, mathEnabled: true, pageFormat: true, extFonts: true,
-	adaptiveColors: true};
+	adaptiveColors: true, measureScale: true, backgroundGradient: true,
+	backgroundGradientDirection: true};
 
 /**
  * Contains all known cell properties that should be ignored for a generic cell diff.
@@ -618,7 +619,7 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updat
 				if (markPages && (pageDiff.cells != null ||
 					pageDiff.view != null))
 				{
-					page.needsUpdate = true;
+					page.invalidateNode();
 				}
 			}
 		}
@@ -743,7 +744,7 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updat
 
 			if (markPages)
 			{
-				page.needsUpdate = true;
+				page.invalidateNode();
 			}
 
 			// Repositions the merged page at the insert position
@@ -1073,16 +1074,16 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents,
 			root = this.getCellForJson(cellDiff);
 		}
 		
-		// Handles cells becoming root
-		if (root == null)
+		// Ignores cells moved to the root: diffCells re-inserts a page
+		// whose root id changed, so only a crafted patch moves a cell
+		// there, and a container with children taken as the root cut
+		// the old root, its layers and all their content out of the
+		// model (adversarial-patch). The cell stays in its parent.
+		if (root == null && temp != null && temp.moved != null &&
+			temp.moved[''] != null)
 		{
-			var id = (temp != null && temp.moved != null &&
-				temp.moved[''] != null) ? temp.moved[''][0] : null;
-			
-			if (id != null)
-			{
-				root = model.getCell(id);
-			}
+			EditorUi.debug('EditorUi.patchPage: Ignoring cell moved to root',
+				temp.moved['']);
 		}
 		
 		var previousRoot = model.getRoot();
@@ -1101,8 +1102,11 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents,
 			// checksum for the whole page (31.5.0, jgraph/drawio-dev#677).
 			// The layer invariant the remove pass enforces is checked
 			// after the walk instead, see below.
+			// The page root is changed in the same edit, as the
+			// undo of an undoable patch (eg. Edit Diagram) must
+			// restore both (jgraph/drawio#5795).
 			model.setRoot(root);
-			page.root = root;
+			model.execute(new ChangePageRoot(this, page, root));
 
 			EditorUi.debug('EditorUi.patchPage: Root changed', root.id);
 		}
@@ -1177,7 +1181,7 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents,
 			model.getChildCount(model.getRoot()) == 0)
 		{
 			model.setRoot(previousRoot);
-			page.root = previousRoot;
+			model.execute(new ChangePageRoot(this, page, previousRoot));
 
 			EditorUi.debug('EditorUi.patchPage: refused root without ' +
 				'a layer', root.id);
@@ -1981,6 +1985,91 @@ EditorUi.prototype.diffPages = function(oldPages, newPages, skipCells, changedCe
 };
 
 /**
+ * Returns the differences between the given shadow pages and the pages of a
+ * save. The page format of a saved page is added for every page whose shadow
+ * has no stored page size: each client shows such a page in its own default
+ * format (see Graph.createViewState) and the checksum ignores the page size,
+ * so the clients that merge the save would keep their format while the file
+ * holds the one of the saver. Live diffs never add it, as clients with
+ * different defaults would swap their formats with every crossing message.
+ */
+EditorUi.prototype.diffSavedPages = function(shadowPages, pages)
+{
+	var result = this.diffPages(shadowPages, pages);
+
+	if (shadowPages != null && pages != null)
+	{
+		var lookup = Object.create(null);
+
+		for (var i = 0; i < pages.length; i++)
+		{
+			if (pages[i] != null)
+			{
+				lookup[pages[i].getId()] = pages[i];
+			}
+		}
+
+		for (var i = 0; i < shadowPages.length; i++)
+		{
+			var page = (shadowPages[i] != null) ?
+				lookup[shadowPages[i].getId()] : null;
+			var pageFormat = (page != null && page.viewState != null) ?
+				JSON.stringify(this.getViewStateProperty(
+					page.viewState, 'pageFormat')) : null;
+
+			if (pageFormat != null && !this.isPageFormatStored(shadowPages[i]))
+			{
+				var update = result[EditorUi.DIFF_UPDATE];
+
+				if (update == null)
+				{
+					update = Object.create(null);
+					result[EditorUi.DIFF_UPDATE] = update;
+				}
+
+				var pageDiff = update[page.getId()];
+
+				if (pageDiff == null)
+				{
+					pageDiff = {};
+					update[page.getId()] = pageDiff;
+				}
+
+				if (pageDiff.view == null)
+				{
+					pageDiff.view = {};
+				}
+
+				pageDiff.view.pageFormat = pageFormat;
+			}
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Returns true if the stored model of the given page has a page size. Pages
+ * of files that were not written by draw.io can have none.
+ */
+EditorUi.prototype.isPageFormatStored = function(page)
+{
+	try
+	{
+		var node = (page.graphModelNode != null) ? page.graphModelNode :
+			this.editor.extractGraphModel(page.node);
+
+		return node != null && node.getAttribute('pageWidth') != null &&
+			node.getAttribute('pageHeight') != null;
+	}
+	catch (e)
+	{
+		// Unreadable pages are not changed
+		return true;
+	}
+};
+
+/**
  * Removes all labels, user objects and styles from the given node in-place.
  */
 EditorUi.prototype.createCellLookup = function(cell, prev, lookup)
@@ -2182,7 +2271,8 @@ EditorUi.prototype.diffViewStateProperty = function(source, target, key, result)
 };
 
 /**
- * Ignores image data for background pages and normalizes extFonts.
+ * Ignores image data for background pages and normalizes extFonts,
+ * measureScale and the gradient of the background.
  */
 EditorUi.prototype.getViewStateProperty = function(viewState, key)
 {
@@ -2196,6 +2286,17 @@ EditorUi.prototype.getViewStateProperty = function(viewState, key)
 	else if (key == 'extFonts' && result == null)
 	{
 		result = [];
+	}
+	else if (key == 'measureScale')
+	{
+		// Missing and invalid values are the default
+		result = Graph.parseMeasureScale(result);
+	}
+	else if ((key == 'backgroundGradient' ||
+		key == 'backgroundGradientDirection') && result == null)
+	{
+		// Missing values are null
+		result = null;
 	}
 
 	return result;
