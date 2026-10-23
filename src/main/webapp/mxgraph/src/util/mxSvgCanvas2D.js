@@ -2265,6 +2265,10 @@ mxSvgCanvas2D.prototype.updateTextNodes = function(x, y, w, h, align, valign, wr
 		var xp = Math.round(x + dx);
 		var yp = Math.round(y + dy);
 
+		// Unrounded position of the text box for finding the rounding of the
+		// painted text in different canvases
+		g.textPosition = new mxPoint(x + dx, y + dy);
+
 		if (this.placeForeignObjects)
 		{
 			// Places the foreignObject at the label so that no content is

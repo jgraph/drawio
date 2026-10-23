@@ -132,14 +132,14 @@ if (!mxIsElectron)
 
 			// The admin console (admin.html) loads only its own files; the
 			// Configuration editor adds a style element. It is never framed,
-			// so no page can make an admin click its buttons. Its own host
-			// admin.diagrams.net sends the same policy from the ws worker
-			// (ADMIN_CSP in site.js, whose tests compare them).
-			var admin_diagrams_net = 'default-src \'self\'; script-src \'self\'; connect-src \'self\'; ' +
+			// so no page can make an admin click its buttons. Its own hosts
+			// (account.diagrams.net, ws ADMIN_HOSTS) send the same policy from
+			// the ws worker (ADMIN_CSP in site.js, whose tests compare them).
+			var admin_console = 'default-src \'self\'; script-src \'self\'; connect-src \'self\'; ' +
 				'img-src \'self\' data:; style-src \'self\' \'unsafe-inline\'; base-uri \'none\'; ' +
 				'object-src \'none\'; form-action \'none\'; frame-ancestors \'none\';';
 
-			console.log('app.diagrams.net/admin.html:', admin_diagrams_net);
+			console.log('app.diagrams.net/admin.html:', admin_console);
 
 			var ac_draw_io = csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net').
 					replace(/%frame-src%/g, 'https://www.lucidchart.com https://app.lucidchart.com https://lucid.app blob:').
@@ -332,6 +332,10 @@ mxscript(drawDevUrl + 'js/diagramly/App.js');
 mxscript(drawDevUrl + 'js/diagramly/Menus.js');
 mxscript(drawDevUrl + 'js/diagramly/Pages.js');
 mxscript(drawDevUrl + 'js/diagramly/Trees.js');
+mxscript(drawDevUrl + 'js/diagramly/ForceExplorer.js');
+mxscript(drawDevUrl + 'js/diagramly/SpringHandle.js');
+// In extensions.min.js
+mxscript(drawDevUrl + 'js/diagramly/SpringMove.js');
 mxscript(drawDevUrl + 'js/diagramly/Minimal.js');
 mxscript(drawDevUrl + 'js/diagramly/mxRuler.js');
 mxscript(drawDevUrl + 'js/diagramly/mxFreehand.js');

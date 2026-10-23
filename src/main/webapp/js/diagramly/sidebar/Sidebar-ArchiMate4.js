@@ -148,13 +148,15 @@
 				edge.geometry.relative = true;
 				edge.edge = true;
 
-				var sourceLabel = new mxCell('1', new mxGeometry(-1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=left;verticalAlign=bottom;');
+				var sourceLabel = new mxCell('1', new mxGeometry(-1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=left;verticalAlign=bottom;' +
+					Graph.createInheritedLabelStyle());
 				sourceLabel.geometry.relative = true;
 				sourceLabel.setConnectable(false);
 				sourceLabel.vertex = true;
 				edge.insert(sourceLabel);
 
-				var targetLabel = new mxCell('0..*', new mxGeometry(1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=right;verticalAlign=bottom;');
+				var targetLabel = new mxCell('0..*', new mxGeometry(1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=right;verticalAlign=bottom;' +
+					Graph.createInheritedLabelStyle());
 				targetLabel.geometry.relative = true;
 				targetLabel.setConnectable(false);
 				targetLabel.vertex = true;
@@ -226,7 +228,7 @@
 					w * 70, h * 45, '', 'Meaning', null, null, this.getTagsForStencil(gn, '', dt + 'meaning').join(' ')),
 			this.createVertexTemplateEntry(am + 'element;appType=amValue;archiType=oct;archiDomain=motivation;',
 					w * 150, h * 75, 'Value', 'Value', null, null, this.getTagsForStencil(gn, '', dt + 'value').join(' ')),
-			this.createVertexTemplateEntry('shape=ellipse;html=1;whiteSpace=wrap;fillColor=#D1BADC;',
+			this.createVertexTemplateEntry('shape=ellipse;perimeter=ellipsePerimeter;html=1;whiteSpace=wrap;fillColor=#D1BADC;',
 					w * 70, h * 35, '', 'Value', null, null, this.getTagsForStencil(gn, '', dt + 'value').join(' '))
 		];
 

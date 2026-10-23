@@ -1197,11 +1197,18 @@ BaseFormatPanel.prototype.createCellOption = function(label, key, defaultValue, 
 };
 
 /**
- * Adds the given color option.
+ * Adds the given color option. The defaultColorValue, which the default color
+ * shows, may be a function that returns it.
  */
 BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setColorFn, defaultColor,
 	listener, callbackFn, hideCheckbox, defaultColorValue, singleColorMode, isDarkModeFn, title, inheritInfo)
 {
+	function getDefaultColorValue()
+	{
+		return (typeof defaultColorValue === 'function') ?
+			defaultColorValue() : defaultColorValue;
+	};
+
 	// Resolves the color an 'inherit' value currently renders as, for previewing
 	// in the swatch and seeding the picker. Falls back to the default color.
 	function getInheritedColorValue()
@@ -1209,7 +1216,7 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 		var col = (inheritInfo != null && inheritInfo.getColor != null) ?
 			inheritInfo.getColor() : null;
 
-		return (col != null && col != 'inherit') ? col : defaultColorValue;
+		return (col != null && col != 'inherit') ? col : getDefaultColorValue();
 	};
 	var darkModeOverridden = isDarkModeFn != null;
 	isDarkModeFn = (isDarkModeFn != null) ? isDarkModeFn : Editor.isDarkMode;
@@ -1251,7 +1258,7 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 	{
 		if (color == 'default' && !allowDefault)
 		{
-			color = defaultColorValue;
+			color = getDefaultColorValue();
 		}
 
 		if (color != 'default' && singleColorMode)
@@ -1308,7 +1315,7 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 				getInheritedColorValue() : value;
 			var cssColor = mxUtils.getLightDarkColor(
 				(swatchValue != 'default') ? swatchValue :
-					defaultColorValue);
+					getDefaultColorValue());
 
 			var div = document.createElement('div');
 			div.style.width = '21px';
@@ -1429,13 +1436,18 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 
 	btn = mxUtils.button('', mxUtils.bind(this, function(evt)
 	{
-		var actualDefaultValue = defaultColorValue;
-
-		if (singleColorMode && isDarkModeFn() &&
-			mxUtils.isLightDarkColor(actualDefaultValue))
+		var getActualDefaultValue = function()
 		{
-			actualDefaultValue = mxUtils.getLightDarkColor(defaultColorValue).dark;
-		}
+			var result = getDefaultColorValue();
+
+			if (singleColorMode && isDarkModeFn() &&
+				mxUtils.isLightDarkColor(result))
+			{
+				result = mxUtils.getLightDarkColor(result).dark;
+			}
+
+			return result;
+		};
 
 		// Seeds the picker with the resolved color for an inherited value so it
 		// shows the inherited color rather than the literal 'inherit' token.
@@ -1446,7 +1458,9 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 		{
 			apply(newColor);
 		}, (defaultColor == 'default') ? 'default' : null,
-			actualDefaultValue, singleColorMode, title || label, function()
+			// The color window updates a default color function
+			(typeof defaultColorValue === 'function') ? getActualDefaultValue :
+			getActualDefaultValue(), singleColorMode, title || label, function()
 		{
 			// Returns NONE rather than null when the new selection has no value
 			// for this key, so the open (non-modal) color window updates to
@@ -1609,10 +1623,11 @@ BaseFormatPanel.prototype.createArrayCellColorOption = function(label, colorKey,
 };
 
 /**
- * 
+ * Adds a color option for the given key of the selection cells. With
+ * hideCheckbox there is no checkbox and the color button is always shown.
  */
 BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defaultColor,
-	callbackFn, setStyleFn, defaultColorValue, undefinedValue, allowArrays, title)
+	callbackFn, setStyleFn, defaultColorValue, undefinedValue, allowArrays, title, hideCheckbox)
 {
 	var ui = this.editorUi;
 	var editor = ui.editor;
@@ -1627,7 +1642,8 @@ BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defa
 	function getValue()
 	{
 		var key = getKey(graph.getSelectionCell());
-		var style = graph.getCellStyle(graph.getSelectionCell(), false);
+		var style = graph.resolveInheritedLabelStyles(graph.getSelectionCell(),
+			graph.getCellStyle(graph.getSelectionCell(), false));
 		var returnValue = (style != null) ? style[key] : null;
 
 		// Handles special case for inherited colors
@@ -1754,7 +1770,7 @@ BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defa
 			{
 				graph.getModel().removeListener(this.listener);
 			}
-		}, callbackFn, null, defaultColorValue, null, null, title, inheritInfo);
+		}, callbackFn, hideCheckbox, defaultColorValue, null, null, title, inheritInfo);
 	}
 };
 
@@ -2535,6 +2551,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 
 	var ops = [{label: mxResources.get('reset') + '...', action: 'reset'},
 		{label: mxResources.get('waypoints'), action: 'clearWaypoints'},
+		{label: mxResources.get('labelPositions'), action: 'resetLabelPositions'},
 		{label: mxResources.get('connectionPoints'), action: 'clearAnchors'}];
 
 	for (var i = 0; i < ops.length; i++)
@@ -4505,6 +4522,26 @@ TextFormatPanel.prototype.addFontOps = function(div)
 
 	var count = this.addActions(div, ['removeFormat']);
 
+	// Only enabled for label cells of edges with own text styles, in its own
+	// row as the labels do not fit next to each other
+	var matchBtn = this.addAction(div, 'matchConnector');
+
+	if (matchBtn != null)
+	{
+		// Lists the text styles that the button changes in the tooltip
+		var changes = this.getMatchConnectorChanges(
+			this.editorUi.editor.graph.getSelectionCells());
+
+		if (changes.length > 0)
+		{
+			matchBtn.setAttribute('title', this.editorUi.actions.get(
+				'matchConnector').getTitle() + ': ' + changes.join(', '));
+		}
+
+		mxUtils.br(div);
+		count++;
+	}
+
 	if (count == 0 && copyBtn == null && pasteBtn == null)
 	{
 		div.style.display = 'none';
@@ -4513,6 +4550,200 @@ TextFormatPanel.prototype.addFontOps = function(div)
 	return div;
 };
 
+/**
+ * Returns the Background row of the Text tab: a list with None, Solid and,
+ * for labels of edges, Transparent, followed by the color of Solid. Solid
+ * paints the label background color, Transparent uses the page as the
+ * background, which paints no background and cuts the label out of the edge
+ * (labelBackgroundColor=default;defaultLabelBackgroundColor=page, the value
+ * gap of earlier releases is shown as Transparent as it is resolved as page,
+ * see Graph.replaceLabelGap). Labels of shapes only show Transparent to
+ * change the value, as their box is often the whole shape, which it would
+ * cut out. The list has the position of the other lists of the Text tab and
+ * moves to the left for Solid to make room for the color.
+ */
+TextFormatPanel.prototype.createLabelBackgroundOption = function()
+{
+	var ui = this.editorUi;
+	var graph = ui.editor.graph;
+	var ss = ui.getSelectionState();
+	var key = mxConstants.STYLE_LABEL_BACKGROUNDCOLOR;
+	var cell = graph.getSelectionCell();
+	var style = graph.resolveInheritedLabelStyles(cell, graph.getCellStyle(cell, false));
+	var color = mxUtils.getValue(style, key, mxConstants.NONE);
+	var page = mxUtils.getValue(style, 'defaultLabelBackgroundColor', null);
+	page = page == 'page' || page == 'gap';
+	var value = (color == mxConstants.NONE) ? 'none' :
+		((color == 'default' && page) ? 'transparent' : 'solid');
+
+	// Removes the page from solid colors, which would otherwise use it if the
+	// color is changed to the default color
+	var div = this.createCellColorOption(mxResources.get('background'), key, 'default',
+		null, function(color)
+	{
+		var cells = ui.getSelectionState().cells;
+		graph.setCellStyles('defaultLabelBackgroundColor', null, cells);
+		graph.updateLabelElements(cells, function(elt)
+		{
+			elt.style.backgroundColor = null;
+		});
+
+		ui.fireEvent(new mxEventObject('styleChanged',
+			'keys', ['defaultLabelBackgroundColor'],
+			'values', [null], 'cells', cells));
+	}, graph.shapeBackgroundColor, null, null, mxResources.get('backgroundColor'), true);
+
+	var edgeLabels = ss.cells.length > 0 && ss.cells.every(function(cell)
+	{
+		return graph.model.isEdge(cell) || graph.isEdgeLabelCell(cell);
+	});
+
+	var values = ['none', 'solid'];
+
+	if (edgeLabels || value == 'transparent')
+	{
+		values.push('transparent');
+	}
+
+	var select = document.createElement('select');
+	select.setAttribute('title', mxResources.get('background'));
+
+	for (var i = 0; i < values.length; i++)
+	{
+		var option = document.createElement('option');
+		option.setAttribute('value', values[i]);
+		mxUtils.write(option, mxResources.get(values[i]));
+		select.appendChild(option);
+	}
+
+	select.value = value;
+	select.style.left = (value == 'solid') ? '76px' : '114px';
+	select.style.width = (value == 'solid') ? '86px' : '98px';
+
+	var btn = div.getElementsByClassName('geColorBtn')[0];
+	div.insertBefore(select, btn);
+
+	if (value != 'solid' && btn != null)
+	{
+		btn.style.visibility = 'hidden';
+	}
+
+	mxEvent.addListener(select, 'change', function(evt)
+	{
+		var cells = ui.getSelectionState().cells;
+		var bg = (select.value == 'none') ? mxConstants.NONE :
+			((select.value == 'solid' && color != mxConstants.NONE) ? color : 'default');
+		var pg = (select.value == 'transparent') ? 'page' : null;
+
+		graph.getModel().beginUpdate();
+		try
+		{
+			graph.setCellStyles(key, bg, cells);
+			graph.setCellStyles('defaultLabelBackgroundColor', pg, cells);
+			graph.updateLabelElements(cells, function(elt)
+			{
+				elt.style.backgroundColor = null;
+			});
+
+			ui.fireEvent(new mxEventObject('styleChanged',
+				'keys', [key, 'defaultLabelBackgroundColor'],
+				'values', [bg, pg], 'cells', cells));
+		}
+		finally
+		{
+			graph.getModel().endUpdate();
+		}
+
+		mxEvent.consume(evt);
+	});
+
+	return div;
+};
+
+/**
+ * Returns the names of the text styles that Use Connector Style changes in the
+ * given cells: the text styles in Graph.inheritedLabelStyles that label cells
+ * of edges do not inherit from their edge and whose value is not the value
+ * of the edge, with the flags of fontStyle that differ. Own values that are
+ * the same as the values of the edge are not listed as they do not change.
+ */
+TextFormatPanel.prototype.getMatchConnectorChanges = function(cells)
+{
+	var graph = this.editorUi.editor.graph;
+	var names = {fontFamily: 'fontFamily', fontSize: 'fontSize', fontColor: 'fontColor',
+		textOpacity: 'textOpacity', labelBorderColor: 'borderColor',
+		labelBorderWidth: 'borderWidth', labelBackgroundColor: 'backgroundColor',
+		defaultLabelBackgroundColor: 'backgroundColor', labelPadding: 'labelPadding'};
+	var flags = [[mxConstants.FONT_BOLD, 'bold'], [mxConstants.FONT_ITALIC, 'italic'],
+		[mxConstants.FONT_UNDERLINE, 'underline'],
+		[mxConstants.FONT_STRIKETHROUGH, 'strikethrough']];
+	var changed = {};
+
+	// The value none paints the same as no value
+	var normalize = function(value)
+	{
+		return (value == null || value == mxConstants.NONE) ? null : String(value);
+	};
+
+	for (var i = 0; cells != null && i < cells.length; i++)
+	{
+		if (graph.isEdgeLabelCell(cells[i]))
+		{
+			var style = graph.getCellStyle(cells[i], false);
+			var inherited = graph.getInheritedLabelKeys(style);
+			var pstyle = graph.getInheritedLabelParentStyle(
+				graph.model.getParent(cells[i]));
+
+			for (var j = 0; j < Graph.inheritedLabelStyles.length; j++)
+			{
+				var key = Graph.inheritedLabelStyles[j];
+
+				if (mxUtils.indexOf(inherited, key) < 0)
+				{
+					if (key == mxConstants.STYLE_FONTSTYLE)
+					{
+						var diff = (parseInt(style[key]) || 0) ^ (parseInt(pstyle[key]) || 0);
+
+						for (var k = 0; k < flags.length; k++)
+						{
+							if ((diff & flags[k][0]) == flags[k][0])
+							{
+								changed[flags[k][1]] = true;
+							}
+						}
+					}
+					else if (normalize(style[key]) != normalize(pstyle[key]))
+					{
+						changed[names[key] || key] = true;
+					}
+				}
+			}
+		}
+	}
+
+	// In the order of Graph.inheritedLabelStyles
+	var result = [];
+
+	for (var i = 0; i < Graph.inheritedLabelStyles.length; i++)
+	{
+		var key = Graph.inheritedLabelStyles[i];
+		var tmp = (key == mxConstants.STYLE_FONTSTYLE) ? flags.map(function(flag)
+		{
+			return flag[1];
+		}) : [names[key] || key];
+
+		for (var j = 0; j < tmp.length; j++)
+		{
+			if (changed[tmp[j]])
+			{
+				result.push(mxResources.get(tmp[j]) || tmp[j]);
+				delete changed[tmp[j]];
+			}
+		}
+	}
+
+	return result;
+};
 
 /**
  * Adds the label menu items to the given menu and parent.
@@ -4840,7 +5071,9 @@ TextFormatPanel.prototype.addFont = function(container)
 		
 		mxEvent.addListener(positionSelect, 'change', function(evt)
 		{
-			graph.getModel().beginUpdate();
+			// Arranged: edges routed around the vertices follow their labels
+			var arrange = graph.beginArrange();
+
 			try
 			{
 				var vals = lset[positionSelect.value];
@@ -4851,11 +5084,31 @@ TextFormatPanel.prototype.addFont = function(container)
 					graph.setCellStyles(mxConstants.STYLE_VERTICAL_LABEL_POSITION, vals[1], ss.cells);
 					graph.setCellStyles(mxConstants.STYLE_ALIGN, vals[2], ss.cells);
 					graph.setCellStyles(mxConstants.STYLE_VERTICAL_ALIGN, vals[3], ss.cells);
+
+					// Edges end at a label outside the shape on one side, except
+					// where Label Perimeter was switched off in the properties
+					var outside = Graph.isLabelOutsideOnSide({labelPosition: vals[0],
+						verticalLabelPosition: vals[1]});
+					var perimeters = [];
+
+					for (var i = 0; i < ss.vertices.length; i++)
+					{
+						var lp = mxUtils.getValue(graph.getCellStyle(ss.vertices[i]),
+							mxConstants.STYLE_LABEL_PERIMETER, null);
+
+						if ((outside) ? lp != '0' && lp != 0 : lp == '1' || lp == 1)
+						{
+							perimeters.push(ss.vertices[i]);
+						}
+					}
+
+					graph.setCellStyles(mxConstants.STYLE_LABEL_PERIMETER,
+						(outside) ? '1' : null, perimeters);
 				}
 			}
 			finally
 			{
-				graph.getModel().endUpdate();
+				graph.endArrange(arrange);
 			}
 			
 			mxEvent.consume(evt);
@@ -4930,19 +5183,6 @@ TextFormatPanel.prototype.addFont = function(container)
 	stylePanel2.appendChild(stepper);
 	var bgColorApply = null;
 	var currentBgColor = graph.shapeBackgroundColor;
-	var pageBgPanel = null;
-	var labelBgColor = ss.style[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR];
-
-	// Shows the page background option for default label backgrounds
-	function updatePageBgPanel()
-	{
-		if (pageBgPanel != null)
-		{
-			pageBgPanel.style.display = (bgPanel.style.display != 'none' &&
-				labelBgColor == 'default') ? '' : 'none';
-		}
-	};
-	
 	var fontColorApply = null;
 	var currentFontColor = graph.shapeForegroundColor;
 
@@ -4982,60 +5222,53 @@ TextFormatPanel.prototype.addFont = function(container)
 			install: function(apply) { bgColorApply = apply; },
 			destroy: function() { bgColorApply = null; }
 		}, null, null, graph.shapeBackgroundColor) :
-		// Font background color option for shape
-		this.createCellColorOption(mxResources.get('backgroundColor'),
-			mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, 'default', function(color)
-		{
-			labelBgColor = color;
-			updatePageBgPanel();
-		}, function(color)
-		{
-			graph.updateLabelElements(ui.getSelectionState().cells, function(elt)
-			{
-				elt.style.backgroundColor = null;
-			});
-		}, (ss.style['defaultLabelBackgroundColor'] == 'page') ?
-			graph.getPageBackgroundColor(graph.shapeBackgroundColor) :
-			graph.shapeBackgroundColor);
-	
-	bgPanel.style.fontWeight = 'bold';
+		// Label background option for shape
+		this.createLabelBackgroundOption();
 
 	var borderPanel = this.createCellColorOption(mxResources.get('borderColor'),
 		mxConstants.STYLE_LABEL_BORDERCOLOR, 'default', null, null,
 		graph.shapeForegroundColor);
-	borderPanel.style.fontWeight = 'bold';
-	
+
 	// Gets default colors for selection
 	var defs = (ss.vertices.length >= 1) ?
 		graph.stylesheet.getDefaultVertexStyle() :
 		graph.stylesheet.getDefaultEdgeStyle();
+	var defaultFontColor = (defs[mxConstants.STYLE_FONTCOLOR] != null &&
+		defs[mxConstants.STYLE_FONTCOLOR] != 'default') ?
+		defs[mxConstants.STYLE_FONTCOLOR] : graph.shapeForegroundColor;
 
 	var panel = (graph.cellEditor.isContentEditing()) ?
-		// Font color option for selection text
+		// Font color option for selection text, which shows the font color
+		// of the label for text without a color of its own. Default sets the
+		// default color for the label if all text is selected, and otherwise
+		// the font color of the label for the selected text.
 		this.createColorOption(mxResources.get('fontColor'), function()
 		{
-			return currentFontColor;
+			return (currentFontColor == 'default') ?
+				graph.getEditingLabelFontColor() : currentFontColor;
 		}, function(color)
 		{
 			if (graph.cellEditor.textarea != null)
 			{
-				if (color == 'default')
-				{
-					color = mxConstants.NONE;
-				}
+				var cell = graph.setEditingFontColor(color);
 
-				Graph.setTextColor(graph.cellEditor.textarea, color, true);
 				ui.fireEvent(new mxEventObject('styleChanged',
 					'keys', [mxConstants.STYLE_FONTCOLOR],
-					'values', [color], 'cells', ss.cells));
+					'values', [(cell == null && color == 'default') ?
+						mxConstants.NONE : color],
+					'cells', (cell != null) ? [cell] : ss.cells));
 			}
 		}, 'default',
 		{
 			install: function(apply) { fontColorApply = apply; },
 			destroy: function() { fontColorApply = null; }
-		}, null, true, (defs[mxConstants.STYLE_FONTCOLOR] != null &&
-			defs[mxConstants.STYLE_FONTCOLOR] != 'default') ?
-			defs[mxConstants.STYLE_FONTCOLOR] : graph.shapeForegroundColor) :
+		}, null, true, function()
+		{
+			var color = graph.getEditingLabelFontColor();
+
+			return (color == 'default' || graph.cellEditor.isAllTextSelected()) ?
+				defaultFontColor : color;
+		}) :
 		// Font color option for shape
 		this.createCellColorOption(mxResources.get('fontColor'),
 			mxConstants.STYLE_FONTCOLOR, 'default', function(color)
@@ -5050,7 +5283,6 @@ TextFormatPanel.prototype.addFont = function(container)
 			}
 			
 			borderPanel.style.display = bgPanel.style.display;
-			updatePageBgPanel();
 		}, function(color)
 		{
 			// createCellColorOption already applied the color to the current
@@ -5080,8 +5312,7 @@ TextFormatPanel.prototype.addFont = function(container)
 	{
 		panel.style.display = 'none';
 	}
-	
-	panel.style.fontWeight = 'bold';
+
 	colorPanel.appendChild(panel);
 	// Hide label background/border options for curvedText shapes
 	// (SVG textPath does not support label backgrounds)
@@ -5091,22 +5322,27 @@ TextFormatPanel.prototype.addFont = function(container)
 		borderPanel.style.display = 'none';
 	}
 
-	colorPanel.appendChild(bgPanel);
-
-	// Default label background follows the page background color
-	if (!graph.cellEditor.isContentEditing())
+	if (graph.cellEditor.isContentEditing())
 	{
-		pageBgPanel = this.createCellOption(mxResources.get('pageBackground'),
-			'defaultLabelBackgroundColor', null, 'page', 'null');
-		pageBgPanel.style.paddingLeft = '16px';
-		colorPanel.appendChild(pageBgPanel);
-		updatePageBgPanel();
+		colorPanel.appendChild(bgPanel);
 	}
-	
+	else
+	{
+		// The label background is a list like the position and the writing
+		// direction, so it is the last row before the color section and
+		// takes the bottom margin of the writing direction
+		container.appendChild(bgPanel);
+
+		if (bgPanel.style.display != 'none')
+		{
+			bgPanel.style.marginBottom = stylePanel5.style.marginBottom;
+			stylePanel5.style.marginBottom = '';
+		}
+	}
+
 	var textShadow = this.createCellOption(mxResources.get('shadow'),
 		mxConstants.STYLE_TEXT_SHADOW, 0);
 	textShadow.style.width = '100%';
-	textShadow.style.fontWeight = 'bold';
 
 	if (!Editor.enableShadowOption)
 	{
@@ -5435,7 +5671,8 @@ TextFormatPanel.prototype.addFont = function(container)
 	// Label padding controls the space between the label text and its
 	// background box (the labelPadding style, 1-4 CSS-style shorthand
 	// values). The panel is only visible while a label background or
-	// border color is set as the padding is not painted otherwise.
+	// border color or a gap is set as the padding is not used otherwise
+	// (see mxCellRenderer.getLabelGap).
 	var labelPaddingPanel = this.createPanel();
 	labelPaddingPanel.className = 'geFormatEntry';
 	labelPaddingPanel.setAttribute('title', mxResources.get('labelPadding'));
@@ -6043,7 +6280,7 @@ TextFormatPanel.prototype.addFont = function(container)
 
 		labelPaddingPanel.style.display = (mxUtils.getValue(ss.style, mxConstants.STYLE_LABEL_BACKGROUNDCOLOR,
 			mxConstants.NONE) != mxConstants.NONE || mxUtils.getValue(ss.style, mxConstants.STYLE_LABEL_BORDERCOLOR,
-			mxConstants.NONE) != mxConstants.NONE) ? '' : 'none';
+			mxConstants.NONE) != mxConstants.NONE || ss.style['defaultLabelBackgroundColor'] == 'page') ? '' : 'none';
 
 		if (force || document.activeElement != labelBorderWidth)
 		{
@@ -6457,6 +6694,13 @@ StyleFormatPanel.prototype.init = function()
 		var effectsSec = this.createCollapsibleSection(mxResources.get('effects'), true);
 		effectsSec.contentDiv.appendChild(this.addEffects(this.createPanel()));
 		this.container.appendChild(effectsSec.wrapper);
+	}
+	else if (ss.cells.length > 0 && this.isEdgeLabelSelection(ss.cells))
+	{
+		// Label cells of edges count as labels (see containsLabel)
+		var labelEffectsSec = this.createCollapsibleSection(mxResources.get('effects'), true);
+		labelEffectsSec.contentDiv.appendChild(this.addEffects(this.createPanel()));
+		this.container.appendChild(labelEffectsSec.wrapper);
 	}
 
 	var opsPanel = this.createPanel();
@@ -8102,9 +8346,9 @@ StyleFormatPanel.prototype.addEffects = function(div)
 
 	var current = left;
 	
-	var addOption = mxUtils.bind(this, function(label, key, defaultValue, fn)
+	var addOption = mxUtils.bind(this, function(label, key, defaultValue, fn, enabledValue, disabledValue)
 	{
-		var opt = this.createCellOption(label, key, defaultValue, null, null, fn);
+		var opt = this.createCellOption(label, key, defaultValue, enabledValue, disabledValue, fn);
 		opt.style.alignItems = 'top';
 		current.appendChild(opt);
 		current = (current == left) ? right : left;
@@ -8119,6 +8363,14 @@ StyleFormatPanel.prototype.addEffects = function(div)
 		left.innerText = '';
 		right.innerText = '';
 		current = left;
+
+		// Label cells of edges only have the placement of their labels
+		if (this.isEdgeLabelSelection(ss.cells) && ss.edges.length == 0)
+		{
+			this.addAutoLabelPlacementOption(addOption);
+
+			return;
+		}
 		
 		if (ss.rounded)
 		{
@@ -8156,6 +8408,12 @@ StyleFormatPanel.prototype.addEffects = function(div)
 		{
 			option.getElementsByTagName('input')[0].setAttribute('disabled', 'disabled');
 			mxUtils.setOpacity(option, 60);
+		}
+
+		// Paints copies behind the vertices (see mxShape.getMultipleCopies)
+		if (ss.vertices.length > 0 && ss.edges.length == 0)
+		{
+			addOption(mxResources.get('multiple', null, 'Multiple'), 'multiple', 0);
 		}
 
 		if (ss.edges.length > 0 && ss.vertices.length == 0)
@@ -8204,6 +8462,11 @@ StyleFormatPanel.prototype.addEffects = function(div)
 					'followTerminals', 0);
 			}
 		}
+
+		if (ss.edges.length > 0 && this.isEdgeLabelSelection(ss.cells))
+		{
+			this.addAutoLabelPlacementOption(addOption);
+		}
 		
 		// Adds primary custom shape options
 		if (ss.customProperties != null)
@@ -8228,6 +8491,40 @@ StyleFormatPanel.prototype.addEffects = function(div)
 
 	return div;
 }
+
+/**
+ * Returns true if the given cells are edges or label cells of edges (see
+ * Graph.isEdgeLabelCell), at least one of them.
+ */
+StyleFormatPanel.prototype.isEdgeLabelSelection = function(cells)
+{
+	var graph = this.editorUi.editor.graph;
+
+	if (cells == null || cells.length == 0)
+	{
+		return false;
+	}
+
+	for (var i = 0; i < cells.length; i++)
+	{
+		if (!graph.model.isEdge(cells[i]) && !graph.isEdgeLabelCell(cells[i]))
+		{
+			return false;
+		}
+	}
+
+	return true;
+};
+
+/**
+ * Adds the option for labels above horizontal segments and on all others
+ * (labelPlacement=auto, see Graph.isAutoLabelPlacement).
+ */
+StyleFormatPanel.prototype.addAutoLabelPlacementOption = function(addOption)
+{
+	return addOption(mxResources.get('autoLabelPlacement', null, 'Auto Label Placement'),
+		'labelPlacement', null, null, 'auto', 'null');
+};
 
 /**
  * Adds the label menu items to the given menu and parent.

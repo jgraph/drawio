@@ -168,12 +168,19 @@ Draw.loadPlugin(function(ui)
 	graph.foldCells = function(collapse, recurse, cells, checkFoldable, evt)
 	{
 		//console.log('cells', cells, collapse);
+		// Uses the foldable selection cells as the default (eg. Ctrl+Home/End)
+		if (cells == null)
+		{
+			cells = this.getFoldableCells(this.getSelectionCells(), collapse);
+		}
+
 		this.stopEditing();
 		
 		this.model.beginUpdate();
 		try
 		{
-			var newCells = cells.splice();
+			// Tree cells are folded here, all other cells by the base fold
+			var otherCells = [];
 			var tmp = [];
 			
 			for (var i = 0; i < cells.length; i++)
@@ -198,6 +205,10 @@ Draw.loadPlugin(function(ui)
 					
 					graph.model.setCollapsed(cells[i], collapse);
 				}
+				else
+				{
+					otherCells.push(cells[i]);
+				}
 			}
 
 			for (var i = 0; i < tmp.length; i++)
@@ -205,8 +216,7 @@ Draw.loadPlugin(function(ui)
 				graph.model.setVisible(tmp[i], !collapse);
 			}
 			
-			cells = newCells;
-			graphFoldCells.apply(this, arguments);
+			graphFoldCells.call(this, collapse, recurse, otherCells, checkFoldable, evt);
 		}
 		finally
 		{

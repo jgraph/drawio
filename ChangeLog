@@ -1,3 +1,173 @@
+21-OCT-2026: 32.6.1
+
+- Adds Explore to the action dialog and a classic option to explore actions
+- Reapply "Lists the text styles that Match Connector changes in its tooltip"
+- Opens the explorer of a #create link without a transition
+- Labels the levels field of the Explore step in the action dialog
+- Opens diagrams with many labels that inherit the text styles of their edge in linear time
+- Renames Match Connector to Use Connector Style
+- Keeps blocked image hosts out of the log worker's DNS lookup URLs
+- Changes many children of a cell with a long style in linear time
+- Uses the default grid size for files with a grid size of 0, a negative size or no number
+- Makes the page names of VSDX exports unique in linear time
+- Removes the listeners of the color window when the editor is destroyed
+- Ignores drag events without dataTransfer in the library, dialog, page tab and layer drag handlers
+- Shows each cell once in the explorer when nested containers are shown
+
+21-OCT-2026: 32.6.0
+
+-  Adds curated connection points to the Atlassian2 Sourcetree logo
+- Adds curated connection points to the P&ID vessels, misc and apparatus element stencils
+- Adds curated connection points to the iOS7 misc stencils
+- Adds connection points to the BPMN choreography participant bands
+- Removes near-duplicate connection points from the Citrix 2 stencils
+- Adds connection points to the SAP AI Agent icons and drops the floating E point of the API icons
+- Adds curated connection points to the Floorplan furniture stencils
+- Fixes auto-routing errors when the core is from an older release
+- Stops service workers from caching two releases or staying on an old one
+- Ignores drops without dataTransfer in the library and dialog drop handlers
+- Keeps service workers working offline after a fallback install and on self-hosted builds
+- Shows line jumps in the selection border of edges
+- Redirects Iconfinder image URLs to the icon cache on icons.diagrams.net
+- Loads Iconfinder images of diagrams from the icon cache of draw.io
+- Keeps links to paths in SVG exports [jgraph/drawio#5809]
+- Maps more Iconfinder icons to the cache and sends the rest back to Iconfinder
+- Sends all Iconfinder images of diagrams through the icon cache route
+- Encodes icon cache URLs in icon search responses
+- Allows local dev servers to embed the editor of embed.diagrams.net
+- Fixes the grid drifting away from shapes at some zoom levels in Firefox [jgraph/drawio#5810]
+- Fixes the selection border of vertical edge labels
+- Fixes merges in embed mode after loading a diagram without page IDs
+- Sends the autosave event in embed mode when a merge adds or removes pages
+- Adds and corrects connection points of the ArchiMate icons
+- Adds connection points to the Basic polygon and stencils and to the UML 2.5 action shapes
+- Fixes keys typed in the inline toolbar triggering diagram shortcuts
+- Adds the inline toolbar for shapes and selections
+- Allows moving the diagram almost out of view in presentation mode and the lightbox [jgraph/drawio#5811]
+- Keeps lightbox and chrome=0 iframes without padding [jgraph/drawio#5811]
+- Fixes memory leaks of closed presentations
+- Transitions the view state on the SVG element
+- Adds the force-directed explorer, spring move and presentation controls
+- Puts the corner connection points of round palette shapes on the ellipse and fixes the UML 2.5 State points
+- Routes connectors live during spring moves
+- Adds a laser pointer and drag panning to presentation mode
+- Keeps connection points of the multiple effect on the front shape [jgraph/drawio#5654]
+- Hides the line and fill options of label cells in the inline toolbar
+- Adds an isGlassable hook to shapes for the glass option
+- Adds the glass option to the title of tables
+- Centers the text button of label cells in the inline toolbar
+- Moves the spring move into extensions.min.js
+- Paints the glass effect on the title of vertical swimlanes
+- Renames the Gap option of labels to Page and writes page again
+- Hides the background color of labels that use the page
+- Makes new labels of edges inherit the text styles of the edge
+- Shows the Page option only for labels of edges
+- Makes the label cells of the edge templates inherit the text styles
+- Adds Match Connector to the Text tab of edge labels
+- Loads the images of the old Arista template from the icon cache
+- Stores the values of the edge in labels that inherit its text styles
+- Shows the inherited color in the color dialogs of edge labels
+- Keeps own web fonts and color schemes of labels that inherit text styles
+- Counts the image and font hosts the CSP of the Confluence Cloud app blocks
+- Updates the stored text styles of labels when their edge changes
+- Fixes taps on the buttons of presentation mode and the explorer on iPhones
+- Shows the glow of the focused cell in presentation mode in Safari and iOS
+- Shows the arrows of the explorer in the colors of the connectors in dark mode
+- Handles double clicks and taps in the explorer as two clicks
+- Fixes VSDX export of images whose URL does not match their type
+- Keeps presentations and explorers that followers open themselves
+- Hides the Explore button of presentation mode for the classic Explore view
+- Keeps the glow of the focused cell in presentation mode after repaints
+- Keeps the original Iconfinder URLs in cell states and falls back to Iconfinder
+- Zooms the explorer around the fingers of a pinch
+- Revert "Keeps the original Iconfinder URLs in cell states and falls back to Iconfinder"
+- Keeps vertical swimlanes and tables with glass upright in VSDX exports
+- Keeps the line spacing of connectors at connection points of shapes with copies
+- Fixes the selection border of vertical edge labels that rotate with the edge or have no formatted text
+- Keeps one offline copy per file for service workers that fall back on install
+- Keeps rotated and flipped tables in place in VSDX exports
+- Keeps the labels of flipped shapes in place in VSDX exports
+- Removes the black outlines of the rows and cells of collapsed tables in VSDX exports
+- Fixes VSDX export of the current page and of pages with the same name
+- Removes the outlines of paths that draw.io does not paint in VSDX exports
+- Keeps labels apart in the explorer and adds levels only if they fit
+- Highlights and explores the shape of a clicked field in presentation mode
+- Replaces Background Color and Page in the Text tab with a Background list
+- Sets the font color of the label if all text is selected while editing
+- Sets the font color of all text in one edit and updates the default in the color window
+- Keeps the connection points of the UML 2.5 actions and the ArchiMate Outcome and Device on the drawing after a resize
+- Keeps the text that flipped shapes paint themselves in place in VSDX exports
+- Highlights the table of a clicked cell and keeps clicks on text in containers on the text in presentation mode
+- Keeps the levels of the explorer when zooming after a pan
+- Lists the text styles that Match Connector changes in its tooltip
+- Revert "Lists the text styles that Match Connector changes in its tooltip"
+
+19-OCT-2026: 32.5.8
+
+- Ends the loops over the label box buckets for far-away cells
+- Ignores drops without dataTransfer on the canvas
+
+19-OCT-2026: 32.5.7
+
+- Keeps edges with their last bend in a label from ending past the bend
+- Folds the selection in the trees plugin when no cells are given
+- Skips typing shim updates after the UI was destroyed
+- Ignores file drops without dataTransfer in the document drop handler
+- Checks the text direction of the label editor with isVerticalTextDirection
+- Records the error log groups of the week of 2026-10-19
+- Checks the text direction of alignText with isVerticalTextDirection
+- Updates DOMPurify from 3.4.16 to 3.4.17
+- Places automatic edge labels in linear time, also in crafted diagrams
+- Update drawio-mermaid bundle (mermaid 12.2.0 port)
+- Folds containers again while the trees plugin is loaded
+
+18-OCT-2026: 32.5.6
+
+- Replaces the page label background with a gap that cuts labels out of edges
+- Adds the multiple effect with copies behind vertices [jgraph/drawio#5654]
+- Fixes custom actions in label links of locked cells, lightbox and viewer [jgraph/drawio#5637]
+- Uses the data of a page in the placeholders of its background page [jgraph/drawio#3104]
+- Adds rounded corners to the document, tape, data storage, or and xor shapes
+- Asks for the Terms of Use at the storage choice and the Authorize dialog
+- Translates the Terms of Use notice into all languages
+- Keeps background page links in the file after exports that resolve them
+- Fixes five console findings from the preprod test of teams
+- Adds labelPerimeter: edges end at labels outside the shape
+- Ends edges on the copies of the multiple effect [jgraph/drawio#5654]
+- Runs each ws cron prune on its own, so one failure can't cut the others short
+- Notes in the ws guide that teams phase 1 and the terms notice are on dev
+- Notes in the ws guide that Terms of Use v1.3 are published
+- Plans the ws teams launch: one release, pilot domains first, two pages
+- Updates wrangler to 4.149.0 in three workers for the sharp librsvg alert
+- Updates CI's wrangler to 4.149.0 for the sharp librsvg alert
+- Adds labelPlacement=auto that puts edge labels above horizontal segments
+- Adds the education endings ac.bd, edu.bd, edu.hu, edu.jm, edu.kh, edu.krd and edu.np to the ws worker
+- Splits Reset > Label Positions from Reset > Waypoints in the Arrange tab
+- Makes new labels of edges cut a gap out of the edge instead of a background
+- Makes Paste Text Style paste the text styles of the last Copy Style
+- Makes labelPlacement=auto choose a free side, a segment that fits and keep clear of bends
+- Notes in the ws guide that drawio-ws has phase 1's schema
+- Syncs the ws worker's education suffixes with the Public Suffix List of 17 Oct 2026
+- Excludes OrgSettings.js and robots.txt from the public repository
+- Records three teams decisions in the ws plan
+- Counts only Google Workspace accounts in the ws worker
+- Runs the MCP search index trigger after the builds instead of on the tag push
+- Takes only release tags in the MCP search index trigger
+- Adds the pilot list and account.diagrams.net to the ws worker
+- Shows the pilot in the admin console
+- Documents the ws pilot and the console's move to account.diagrams.net
+- Keeps the label gap of new edges out of inserted Mermaid and PlantUML diagrams
+- Keeps OrgSettings.js in the internal app.min.js
+- Checks the label gap in the crafted-background codec case
+- Places auto labels where they are handled, after the validation and by their alignment
+- Adds edge label regression tests
+- Routes auto-routed edges around outside labels as they are after the edit
+- Adds url to the #create object to create a diagram from a file at a URL
+- Stops the loading spinner before a #create object with a url is created
+- Keeps the box of an auto-placed label that is moved below or on the line
+- Lets ws org admins invite addresses at secondary domains of a pilot Workspace
+- Shows every domain's real editors in the ws worker, without the pilot cap
+
 17-OCT-2026: 32.5.5
 
 - Adds orgs from their first user, teams, named members and seats to ws

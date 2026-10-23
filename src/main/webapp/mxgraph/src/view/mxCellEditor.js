@@ -298,7 +298,7 @@ mxCellEditor.prototype.setAlign = function (align)
 		var dir = mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_DIRECTION,
 			mxConstants.DEFAULT_TEXT_DIRECTION);
 
-		if (dir == null || dir.substring(0, 9) != 'vertical-')
+		if (!mxUtils.isVerticalTextDirection(dir))
 		{
 			this.textarea.style.textAlign = align;
 		}
@@ -583,7 +583,7 @@ mxCellEditor.prototype.resize = function()
 			{
 				var dir = mxUtils.getValue(state.style, mxConstants.STYLE_TEXT_DIRECTION,
 					mxConstants.DEFAULT_TEXT_DIRECTION);
-				var vertical = dir != null && dir.substring(0, 9) == 'vertical-';
+				var vertical = mxUtils.isVerticalTextDirection(dir);
 				this.textarea.style.wordWrap = mxConstants.WORD_WRAP;
 				this.textarea.style.whiteSpace = 'normal';
 				

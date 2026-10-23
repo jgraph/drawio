@@ -52,7 +52,7 @@
 					w, h, '', 'Representation', null, null, this.getTagsForStencil(gn, '', dt + 'representation').join(' ')),
 			this.createVertexTemplateEntry('fillColor=#ffff99;whiteSpace=wrap;shape=cloud;html=1;', 
 					w, h, '', 'Meaning', null, null, this.getTagsForStencil(gn, '', dt + 'meaning').join(' ')),
-			this.createVertexTemplateEntry('fillColor=#ffff99;whiteSpace=wrap;shape=ellipse;html=1;', 
+			this.createVertexTemplateEntry('fillColor=#ffff99;whiteSpace=wrap;shape=ellipse;perimeter=ellipsePerimeter;html=1;', 
 					w, h * 0.75, '', 'Value', null, null, this.getTagsForStencil(gn, '', dt + 'value').join(' ')),
 			this.createVertexTemplateEntry(am1 + 'product;overflow=fill', w, h, 
 					'<table cellpadding="0" cellspacing="0" style="font-size:1em;width:100%;height:100%;"><tr style="height:20px;"><td align="left"></td></tr><tr><td align="left" valign="top" style="padding:4px;"></td></tr></table>', 
@@ -142,7 +142,7 @@
 			this.createVertexTemplateEntry(am5 + 'motiv;motivType=princ', 
 					w, h, '', 'Principle', null, null, this.getTagsForStencil(gn, '', dt + 'principle').join(' ')),
 			
-			this.createVertexTemplateEntry(am6 + 'rounded=1', 
+			this.createVertexTemplateEntry('html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#ffe0e0;rounded=1;absoluteArcSize=1;arcSize=20;roundedPerimeter=1;',
 					w, h, '', 'Work Package', null, null, this.getTagsForStencil(gn, '', dt + 'work package').join(' ')),
 			this.createVertexTemplateEntry(am6 + 'representation', 
 					w, h, '', 'Deliverable', null, null, this.getTagsForStencil(gn, '', dt + 'deliverable').join(' ')),

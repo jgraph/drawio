@@ -779,6 +779,9 @@ mxArchiMateApplication.prototype.getConstraints = function(style, w, h)
 	return (constr);
 };
 
+// Product is a plain box like Application
+mxArchiMateProduct.prototype.getConstraints = mxArchiMateApplication.prototype.getConstraints;
+
 //**********************************************************************************************************************************************************
 //Tech
 //**********************************************************************************************************************************************************

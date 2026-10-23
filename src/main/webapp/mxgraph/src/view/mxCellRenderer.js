@@ -1189,8 +1189,10 @@ mxCellRenderer.prototype.redrawLabel = function(state, forced)
 			state.text.apply(state);
 			this.configureShape(state);
 			
-			// Special case where value is obtained via hook in graph
+			// Special case where value is obtained via hook in graph, with the
+			// margin of the bounding box for the new value (see apply)
 			state.text.valign = graph.getVerticalAlign(state);
+			state.text.updateMargin();
 		}
 		
 		var bounds = this.getLabelBounds(state);

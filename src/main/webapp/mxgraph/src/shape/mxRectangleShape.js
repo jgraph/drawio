@@ -98,6 +98,16 @@ mxRectangleShape.prototype.isRoundable = function()
 };
 
 /**
+ * Function: isGlassable
+ *
+ * Adds glass support.
+ */
+mxRectangleShape.prototype.isGlassable = function()
+{
+	return true;
+};
+
+/**
  * Function: getFooterSize
  *
  * Returns the size of the footer, the filled and bordered region painted at

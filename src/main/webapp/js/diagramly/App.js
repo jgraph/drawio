@@ -2141,6 +2141,7 @@ App.prototype.init = function()
 							this.restoreLibraries();
 							this.updateOrgSettings();
 							this.checkReleaseChannel(this.drive);
+							this.recordTermsInDrive();
 						}))
 						
 						// Notifies listeners of new client
@@ -2471,6 +2472,19 @@ App.prototype.isOwnGDriveDomain = function()
 App.prototype.isDriveDomain = function()
 {
 	return urlParams['drive'] != '0' && this.isOwnGDriveDomain();
+};
+
+/**
+ * Pads the diagram of the lightbox and chrome=0 only if they are not in a
+ * frame, eg. an iframe of Embed > IFrame, where the padding would always show
+ * scrollbars and the mouse wheel would move the diagram out of view.
+ * Presentation mode and the lightbox of the viewer are padded, as they are
+ * EditorUi instances.
+ */
+App.prototype.isChromelessDiagramPadded = function()
+{
+	return window.self === window.top &&
+		EditorUi.prototype.isChromelessDiagramPadded.apply(this, arguments);
 };
 
 /**
@@ -2814,6 +2828,33 @@ App.prototype.handleLicense = function(lic, domain)
 App.driveUsageHosts = ['app.diagrams.net', 'preprod.diagrams.net'];
 
 /**
+ * Hosts where the steps that start using draw.io (the storage choice, the
+ * authorization of a storage) say that continuing accepts the draw.io Terms
+ * of Use (App.prototype.createTermsNotice): draw.io's own. Never a copy that
+ * someone else hosts, the desktop app, or the apps for Confluence and Jira,
+ * which have a licence agreement of their own.
+ */
+App.termsHosts = ['app.diagrams.net', 'preprod.diagrams.net'];
+
+/**
+ * The version of the Terms of Use, the number at the end of the page
+ * (App.termsUrl), the same as the ws worker's TERMS_VERSION.
+ */
+App.termsVersion = '1.3';
+
+/**
+ * The pages the Terms of Use notice links to.
+ */
+App.termsUrl = 'https://www.drawio.com/trust/terms-of-use';
+App.privacyUrl = 'https://www.drawio.com/trust/';
+
+/**
+ * Key of the record of the Terms of Use accepted in this browser:
+ * {version, accepted}, the version and when.
+ */
+App.termsKey = '.drawio-terms';
+
+/**
  * Mail providers of personal Google accounts, whose users don't see Extras >
  * Organization Admin. The same list as PERSONAL_DOMAINS in the ws worker's
  * lib.js (its tests compare them), which never admits or counts them.
@@ -3115,6 +3156,176 @@ App.prototype.nextDriveUse = function()
 App.prototype.reportDriveEdit = function()
 {
 	this.reportDriveUse('edit');
+};
+
+/**
+ * Returns true if the steps that start using draw.io ask for the Terms of
+ * Use: on draw.io's own hosts (App.termsHosts), not in development mode
+ * (dev=1) or embed mode, which has no such steps.
+ */
+App.prototype.isTermsAsked = function()
+{
+	return urlParams['dev'] != '1' && urlParams['embed'] != '1' &&
+		App.termsHosts.indexOf(window.location.hostname) >= 0;
+};
+
+/**
+ * Returns the line next to the button of a step that starts using draw.io
+ * (StorageDialog, AuthDialog), whose click accepts the Terms of Use
+ * (acceptTerms): "By continuing you agree to the Terms of Use and have read
+ * the Privacy Policy", with links. The Privacy Policy is a notice, never
+ * agreed to. Null where the Terms aren't asked for (isTermsAsked). Text and
+ * links only, written as text.
+ */
+App.prototype.createTermsNotice = function()
+{
+	if (!this.isTermsAsked())
+	{
+		return null;
+	}
+
+	var link = mxUtils.bind(this, function(url, label)
+	{
+		var a = document.createElement('a');
+		a.setAttribute('href', url);
+		a.setAttribute('target', '_blank');
+		a.setAttribute('rel', 'noopener noreferrer');
+		mxUtils.write(a, label);
+
+		mxEvent.addListener(a, 'click', mxUtils.bind(this, function(evt)
+		{
+			this.openLink(url);
+			mxEvent.consume(evt);
+		}));
+
+		return a;
+	});
+
+	var links = {'{1}': link(App.termsUrl, mxResources.get('termsOfUse', null, 'Terms of Use')),
+		'{2}': link(App.privacyUrl, mxResources.get('privacyPolicy', null, 'Privacy Policy'))};
+	var parts = mxResources.get('termsNotice', null, 'By continuing you agree to the {1} and ' +
+		'have read the {2}.').split(/(\{[12]\})/);
+	var notice = document.createElement('p');
+	notice.className = 'geDialogHint';
+	notice.style.whiteSpace = 'normal';
+	notice.style.lineHeight = '1.2em';
+
+	for (var i = 0; i < parts.length; i++)
+	{
+		if (Object.prototype.hasOwnProperty.call(links, parts[i]))
+		{
+			notice.appendChild(links[parts[i]]);
+		}
+		else
+		{
+			mxUtils.write(notice, parts[i]);
+		}
+	}
+
+	return notice;
+};
+
+/**
+ * Records that the user accepted the Terms of Use with the button of a step
+ * that showed the notice (createTermsNotice): the version and when, in this
+ * browser and, if the step was for Google Drive (peer), in the user's own
+ * Drive once they are signed in (recordTermsInDrive). Nothing goes to
+ * draw.io's servers.
+ */
+App.prototype.acceptTerms = function(peer)
+{
+	if (this.isTermsAsked())
+	{
+		var record = this.getTermsRecord();
+
+		if (record == null || record.version !== App.termsVersion)
+		{
+			this.setTermsRecord({version: App.termsVersion, accepted: new Date().toISOString()});
+		}
+
+		if (peer != null && peer == this.drive)
+		{
+			this.termsDrivePending = true;
+			this.recordTermsInDrive();
+		}
+	}
+};
+
+/**
+ * Writes the Terms of Use the user accepted at a step for Google Drive
+ * (acceptTerms) to draw.io's app data folder of their Drive, once they are
+ * signed in, unless it holds the current version. Fails quietly: without
+ * the drive.appdata scope (403) the browser's record stays; an expired
+ * token or no network tries again at the next sign-in.
+ */
+App.prototype.recordTermsInDrive = function()
+{
+	var user = (this.drive != null) ? this.drive.getUser() : null;
+	var record = this.getTermsRecord();
+
+	if (this.termsDrivePending && user != null && !this.isOffline() &&
+		record != null && record.version === App.termsVersion)
+	{
+		this.termsDrivePending = false;
+
+		var retry = mxUtils.bind(this, function(err)
+		{
+			this.termsDrivePending = err == null || err.status != 403;
+		});
+
+		this.drive.getTermsRecord(App.termsVersion, mxUtils.bind(this, function(stored)
+		{
+			if (stored.version !== App.termsVersion && this.drive != null && this.drive.getUser() != null &&
+				this.drive.getUser().id == user.id)
+			{
+				this.drive.setTermsRecord({id: stored.id, version: record.version,
+					accepted: record.accepted}, function()
+				{
+					// Done
+				}, retry);
+			}
+		}), retry);
+	}
+};
+
+/**
+ * Returns the record of the Terms of Use accepted in this browser,
+ * {version, accepted}, or null.
+ */
+App.prototype.getTermsRecord = function()
+{
+	var record = null;
+
+	try
+	{
+		record = (isLocalStorage) ? JSON.parse(localStorage.getItem(App.termsKey)) : null;
+	}
+	catch (e)
+	{
+		// ignore
+	}
+
+	return (record != null && typeof record.version === 'string') ? {version: record.version,
+		accepted: (typeof record.accepted === 'string') ? record.accepted : null} : null;
+};
+
+/**
+ * Stores the record of the Terms of Use accepted in this browser.
+ */
+App.prototype.setTermsRecord = function(record)
+{
+	try
+	{
+		if (isLocalStorage)
+		{
+			localStorage.setItem(App.termsKey, JSON.stringify({version: record.version,
+				accepted: record.accepted}));
+		}
+	}
+	catch (e)
+	{
+		// ignore
+	}
 };
 
 /**
@@ -4450,8 +4661,9 @@ App.prototype.start = function()
 
 /**
  * Creates a new diagram from the given create object, whose data can be
- * XML, CSV, Mermaid or a prompt for generating a diagram, and invokes done.
- * Applies the optional layouts and stores the resulting XML in the URL hash.
+ * XML, CSV, Mermaid or a prompt for generating a diagram, or is loaded from
+ * its url, and invokes done. Applies the optional layouts and stores the
+ * resulting XML in the URL hash.
  */
 App.prototype.executeCreateObject = function(value, done)
 {
@@ -4535,6 +4747,13 @@ App.prototype.executeCreateObject = function(value, done)
 							file.createdHash = hash;
 							window.location.hash = hash;
 						}
+
+						// explore: opens the explorer for a cell of a page with
+						// a number of levels (see EditorUi.openExplorer)
+						if (value.explore != null)
+						{
+							this.openExplorer(value.explore);
+						}
 					});
 
 					// layout: run the requested layout (a preset name or
@@ -4567,6 +4786,60 @@ App.prototype.executeCreateObject = function(value, done)
 					}
 				}), true, null, true);
 		});
+
+		// url: loads the data from the given URL like a template, via the
+		// proxy where CORS isn't enabled. For the xml type (the default) the
+		// diagram is taken from the file: a .drawio or .xml file, an editable
+		// SVG or PNG, or a Visio, Gliffy or Lucidchart file. Other types use
+		// the text of the file. The hash written after the diagram was created
+		// carries the data, so a reload doesn't load the URL again.
+		if (value.url != null && value.data == null)
+		{
+			var url = String(value.url);
+			delete value.url;
+			this.spinner.spin(document.body, mxResources.get('loading'));
+
+			this.loadTemplate(url, mxUtils.bind(this, function(text)
+			{
+				// Each type starts its own spinner as without a URL, and the
+				// generate type only runs if it can start it
+				this.spinner.stop();
+
+				try
+				{
+					if (value.type == null || value.type == 'xml')
+					{
+						var node = (text != null) ? this.editor.extractGraphModel(
+							mxUtils.parseXml(text).documentElement, true) : null;
+
+						if (node == null)
+						{
+							throw new Error(mxResources.get('invalidOrMissingFile'));
+						}
+
+						value.type = 'xml';
+						value.data = mxUtils.getXml(node);
+					}
+					else
+					{
+						value.data = text;
+					}
+
+					delete value.compressed;
+					this.executeCreateObject(value, done);
+				}
+				catch (e)
+				{
+					this.handleError(e, mxResources.get('errorLoadingFile'));
+				}
+			}), mxUtils.bind(this, function(e)
+			{
+				this.spinner.stop();
+				this.handleError(e, mxResources.get('errorLoadingFile'));
+			}));
+
+			return;
+		}
 
 		var data = value.data;
 
@@ -5158,7 +5431,8 @@ App.prototype.showSplash = function(force)
 			showSecondDialog();
 		}), rowLimit);
 		
-		this.showDialog(dlg.container, (rowLimit < 3) ? 200 : 300,
+		// With the Terms of Use notice, the height of the content
+		this.showDialog(dlg.container, (rowLimit < 3) ? 200 : 300, (dlg.notice != null) ? null :
 			((serviceCount > 3) ? 320 : 210), true, false);
 	}
 	else if (urlParams['create'] == null)
@@ -8379,8 +8653,7 @@ App.prototype.descriptorChanged = function()
 App.prototype.showAuthDialog = function(peer, showRememberOption, fn, closeFn)
 {
 	var resume = this.spinner.pause();
-	
-	this.showDialog(new AuthDialog(this, peer, showRememberOption, mxUtils.bind(this, function(remember)
+	var dlg = new AuthDialog(this, peer, showRememberOption, mxUtils.bind(this, function(remember)
 	{
 		try
 		{
@@ -8400,7 +8673,12 @@ App.prototype.showAuthDialog = function(peer, showRememberOption, fn, closeFn)
 				this.editor.setStatus(mxUtils.htmlEntities(e.message));
 			}));
 		}
-	})).container, 300, (showRememberOption) ? 180 : 140, true, true, mxUtils.bind(this, function(cancel)
+	}));
+
+	// Room for three lines of the Terms of Use notice (the logo loads later,
+	// so the content can't be measured)
+	this.showDialog(dlg.container, 300, ((showRememberOption) ? 180 : 140) + ((dlg.notice != null) ? 70 : 0),
+		true, true, mxUtils.bind(this, function(cancel)
 	{
 		if (closeFn != null)
 		{

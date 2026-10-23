@@ -2078,7 +2078,7 @@
 		    {
 			   	var bg = new mxCell('CompositeState1', new mxGeometry(0, 0, 220, 190), s + 'compState;align=left;verticalAlign=top;spacingTop=-3;spacingLeft=18;strokeWidth=1;recursiveResize=0;html=1;');
 			   	bg.vertex = true;
-			   	var cardCell2 = new mxCell('', new mxGeometry(20, 50, 20, 20), 'shape=ellipse;html=1;fillColor=strokeColor;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			   	var cardCell2 = new mxCell('', new mxGeometry(20, 50, 20, 20), 'shape=ellipse;perimeter=ellipsePerimeter;html=1;fillColor=strokeColor;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			   	cardCell2.vertex = true;
 			   	bg.insert(cardCell2);
 			   	var cardCell3 = new mxCell('State1', new mxGeometry(80, 60, 100, 40), inh + 'shape=rect;html=1;rounded=1;whiteSpace=wrap;align=center;');
@@ -2118,13 +2118,13 @@
 		    
 		    this.createVertexTemplateEntry(s + 'actFinal;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;', 
 		    		40, 40, '', 'Final State', null, null, this.getTagsForStencil(gn, 'actFinal', dt + 'final state').join(' ')),
-		    this.createVertexTemplateEntry('shape=ellipse;html=1;fontSize=18;align=center;', 
+		    this.createVertexTemplateEntry('shape=ellipse;perimeter=ellipsePerimeter;html=1;fontSize=18;align=center;', 
 		    		40, 40, 'H*', 'History, Deep Pseudo State', null, null, this.getTagsForStencil(gn, '', dt + 'history deep pseudo state').join(' ')),
-		    this.createVertexTemplateEntry('shape=ellipse;html=1;fontSize=18;align=center;', 
+		    this.createVertexTemplateEntry('shape=ellipse;perimeter=ellipsePerimeter;html=1;fontSize=18;align=center;', 
 		    		40, 40, 'H', 'History, Shallow Pseudo State', null, null, this.getTagsForStencil(gn, '', dt + 'history shallow pseudo state').join(' ')),
-		    this.createVertexTemplateEntry('shape=ellipse;html=1;fillColor=strokeColor;fontSize=18;fontColor=#ffffff;', 
+		    this.createVertexTemplateEntry('shape=ellipse;perimeter=ellipsePerimeter;html=1;fillColor=strokeColor;fontSize=18;fontColor=#ffffff;', 
 		    		40, 40, '', 'Initial Pseudo State', null, null, this.getTagsForStencil(gn, '', dt + 'initial pseudo state').join(' ')),
-		    this.createVertexTemplateEntry('shape=ellipse;html=1;fillColor=strokeColor;fontSize=18;fontColor=#ffffff;', 
+		    this.createVertexTemplateEntry('shape=ellipse;perimeter=ellipsePerimeter;html=1;fillColor=strokeColor;fontSize=18;fontColor=#ffffff;', 
 		    		40, 40, '', 'Junction Pseudo State', null, null, this.getTagsForStencil(gn, '', dt + 'junction pseudo state').join(' ')),
 		    this.createVertexTemplateEntry(s + 'accEvent;flipH=1;whiteSpace=wrap;align=center;html=1;', 
 		    		140, 40, 'Req(Id)', 'Receive Signal Action', null, null, this.getTagsForStencil(gn, 'accEvent', dt + 'receive signal action').join(' ')),

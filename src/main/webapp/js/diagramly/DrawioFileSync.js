@@ -1104,14 +1104,24 @@ DrawioFileSync.prototype.sendSharedViewMessage = function(pageId, bounds, presen
 };
 
 /**
- * Sends the current view to the clients that follow this one. Uses the
+ * Sends the current view, the state of presentation mode and the explorer
+ * (see EditorUi.getSharedViewMode) and the laser pointer (see
+ * EditorUi.getSharedLaser) to the clients that follow this one. Uses the
  * cursor channel as these updates are frequent and may be dropped.
  */
-DrawioFileSync.prototype.sendViewUpdate = function(pageId, bounds)
+DrawioFileSync.prototype.sendViewUpdate = function(pageId, bounds, mode, laser)
 {
 	if (this.p2pCollab != null)
 	{
-		this.p2pCollab.sendMessage('view', this.createViewData(pageId, bounds));
+		var data = this.createViewData(pageId, bounds);
+		data.mode = (mode != null) ? mode : null;
+
+		if (laser !== undefined)
+		{
+			data.laser = laser;
+		}
+
+		this.p2pCollab.sendMessage('view', data);
 	}
 };
 
@@ -1124,7 +1134,18 @@ DrawioFileSync.prototype.handleViewUpdate = function(data, clientId)
 	if (this.enabled && !this.file.inConflictState &&
 		!this.file.redirectDialogShowing && this.ui.isFollowing(clientId))
 	{
-		this.applySharedView(data);
+		// Updates are sent again while presentation mode or the explorer is
+		// open, so an unchanged view is not applied again
+		var key = [data.pageId, data.x, data.y, data.w, data.h].join(',');
+
+		if (key != this.ui.lastSharedView)
+		{
+			this.ui.lastSharedView = key;
+			this.applySharedView(data);
+		}
+
+		this.ui.applySharedViewMode(data.mode);
+		this.ui.applySharedLaser(data.laser);
 	}
 };
 

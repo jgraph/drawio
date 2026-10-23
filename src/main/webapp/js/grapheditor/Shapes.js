@@ -198,6 +198,12 @@
 
 	TableShape.prototype.fixedHeaderDefault = false;
 
+	// Paints the glass effect on the title (see paintCollapsedTable)
+	TableShape.prototype.isGlassable = function()
+	{
+		return this.getTitleSize() > 0;
+	};
+
 	TableShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
 		var collapsed = (this.state != null) ? this.state.view.graph.
@@ -728,6 +734,16 @@
 		c.setLineCap('flat');
 		c.pointerEvents = pointerEvents;
 		this.paintCollapsedOutline(c, x, y, w, h, r, borders.outline);
+
+		if (this.glass && this.fill != null && this.fill != mxConstants.NONE)
+		{
+			for (var i = 0; i < data.title.bands.length; i++)
+			{
+				var band = data.title.bands[i];
+				this.paintTitleGlassEffect(c, x + band.x, y + band.y, band.width,
+					band.height, r, data.title.sides[i]);
+			}
+		}
 	};
 
 	/**
@@ -910,6 +926,11 @@
 	};
 	
 	mxUtils.extend(TableRowShape, TableShape);
+
+	TableRowShape.prototype.isGlassable = function()
+	{
+		return false;
+	};
 
 	TableRowShape.prototype.paintForeground = function()
 	{
@@ -1974,6 +1995,134 @@
 
 	mxCellRenderer.registerShape('card', CardShape);
 
+	/**
+	 * Returns the polar form of the given quadratic curve, which is the point
+	 * at t for u = v = t and the control point of the part of the curve
+	 * between u and v otherwise.
+	 */
+	function getQuadPolar(q, u, v)
+	{
+		var a = (1 - u) * (1 - v);
+		var b = u * (1 - v) + v * (1 - u);
+
+		return new mxPoint(a * q.p0.x + b * q.c.x + u * v * q.p1.x,
+			a * q.p0.y + b * q.c.y + u * v * q.p1.y);
+	};
+
+	/**
+	 * Adds a closed path that starts at x0, y0 to the given canvas. Each
+	 * segment is [x, y] for a line or [cx, cy, x, y] for a quadratic curve to
+	 * x, y, and a line back to x0, y0 closes the path. If rounded is true and
+	 * arcSize is greater than 0 then the corners between segments whose
+	 * tangents are not parallel are rounded with curves that keep the
+	 * tangents of the segments. The arc size is reduced to half of a line
+	 * and to half of the parameter range of a curve.
+	 */
+	function addCurvedPath(c, x0, y0, segs, rounded, arcSize)
+	{
+		if (!rounded || !(arcSize > 0))
+		{
+			c.moveTo(x0, y0);
+
+			for (var i = 0; i < segs.length; i++)
+			{
+				var s = segs[i];
+
+				if (s.length == 2)
+				{
+					c.lineTo(s[0], s[1]);
+				}
+				else
+				{
+					c.quadTo(s[0], s[1], s[2], s[3]);
+				}
+			}
+
+			c.close();
+		}
+		else
+		{
+			var last = segs[segs.length - 1];
+
+			if (last[last.length - 2] != x0 || last[last.length - 1] != y0)
+			{
+				segs = segs.concat([[x0, y0]]);
+			}
+
+			// Quadratic curves where lines have the control point in the middle
+			var curves = [];
+			var p = new mxPoint(x0, y0);
+
+			for (var i = 0; i < segs.length; i++)
+			{
+				var s = segs[i];
+				var pe = new mxPoint(s[s.length - 2], s[s.length - 1]);
+				var line = s.length == 2;
+
+				curves.push({p0: p, p1: pe, line: line, corner: false, t0: 0, t1: 0, c: (line) ?
+					new mxPoint((p.x + pe.x) / 2, (p.y + pe.y) / 2) :
+					new mxPoint(s[0], s[1])});
+				p = pe;
+			}
+
+			// Finds the corners and the parameters where they are cut off
+			for (var i = 0; i < curves.length; i++)
+			{
+				var q0 = curves[i];
+				var q1 = curves[(i + 1) % curves.length];
+				var dx0 = q0.p1.x - q0.c.x;
+				var dy0 = q0.p1.y - q0.c.y;
+				var dx1 = q1.c.x - q1.p0.x;
+				var dy1 = q1.c.y - q1.p0.y;
+				var d0 = Math.sqrt(dx0 * dx0 + dy0 * dy0);
+				var d1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+
+				if (Math.abs(dx0 * dy1 - dy0 * dx1) > 1e-6 * d0 * d1)
+				{
+					q0.corner = true;
+					q0.t1 = Math.min(0.5, arcSize / Math.max(1, 2 * d0));
+					q1.t0 = Math.min(0.5, arcSize / Math.max(1, 2 * d1));
+				}
+			}
+
+			p = getQuadPolar(curves[0], curves[0].t0, curves[0].t0);
+			c.moveTo(p.x, p.y);
+
+			for (var i = 0; i < curves.length; i++)
+			{
+				var q0 = curves[i];
+				var t = 1 - q0.t1;
+				var pe = getQuadPolar(q0, t, t);
+
+				if (q0.line)
+				{
+					c.lineTo(pe.x, pe.y);
+				}
+				else
+				{
+					var pc = getQuadPolar(q0, q0.t0, t);
+					c.quadTo(pc.x, pc.y, pe.x, pe.y);
+				}
+
+				// Replaces the parts that were cut off with a cubic curve
+				// along the tangents of the remaining parts, which is the
+				// quadratic curve to the corner point for two lines
+				if (q0.corner)
+				{
+					var q1 = curves[(i + 1) % curves.length];
+					var pn = getQuadPolar(q1, q1.t0, q1.t0);
+					var c0 = getQuadPolar(q0, t, 1);
+					var c1 = getQuadPolar(q1, 0, q1.t0);
+
+					c.curveTo(pe.x + (c0.x - pe.x) * 4 / 3, pe.y + (c0.y - pe.y) * 4 / 3,
+						pn.x + (c1.x - pn.x) * 4 / 3, pn.y + (c1.y - pn.y) * 4 / 3, pn.x, pn.y);
+				}
+			}
+
+			c.close();
+		}
+	};
+
 	// Tape shape
 	function TapeShape()
 	{
@@ -1984,19 +2133,22 @@
 
 	TapeShape.prototype.size = 0.4;
 
+	TapeShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
+
 	TapeShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var dy = h * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
 		var fy = 1.4;
-		
-		c.moveTo(0, dy / 2);
-		c.quadTo(w / 4, dy * fy, w / 2, dy / 2);
-		c.quadTo(w * 3 / 4, dy * (1 - fy), w, dy / 2);
-		c.lineTo(w, h - dy / 2);
-		c.quadTo(w * 3 / 4, h - dy * fy, w / 2, h - dy / 2);
-		c.quadTo(w / 4, h - dy * (1 - fy), 0, h - dy / 2);
-		c.lineTo(0, dy / 2);
-		c.close();
+		var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
+
+		addCurvedPath(c, 0, dy / 2, [[w / 4, dy * fy, w / 2, dy / 2],
+			[w * 3 / 4, dy * (1 - fy), w, dy / 2], [w, h - dy / 2],
+			[w * 3 / 4, h - dy * fy, w / 2, h - dy / 2],
+			[w / 4, h - dy * (1 - fy), 0, h - dy / 2], [0, dy / 2]],
+			this.isRounded, arcSize);
 		c.end();
 	};
 	
@@ -2039,6 +2191,11 @@
 
 	DocumentShape.prototype.size = 0.3;
 
+	DocumentShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
+
 	DocumentShape.prototype.getLabelMargins = function(rect)
 	{
 		if (mxUtils.getValue(this.style, 'boundedLbl', false))
@@ -2054,14 +2211,14 @@
 	{
 		var dy = h * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
 		var fy = 1.4;
-		
-		c.moveTo(0, 0);
-		c.lineTo(w, 0);
-		c.lineTo(w, h - dy / 2);
-		c.quadTo(w * 3 / 4, h - dy * fy, w / 2, h - dy / 2);
-		c.quadTo(w / 4, h - dy * (1 - fy), 0, h - dy / 2);
-		c.lineTo(0, dy / 2);
-		c.close();
+		var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
+
+		// Left side ends at the corner if rounded and at dy / 2 as before otherwise
+		addCurvedPath(c, 0, 0, [[w, 0], [w, h - dy / 2],
+			[w * 3 / 4, h - dy * fy, w / 2, h - dy / 2],
+			[w / 4, h - dy * (1 - fy), 0, h - dy / 2],
+			[0, (this.isRounded) ? 0 : dy / 2]],
+			this.isRounded, arcSize);
 		c.end();
 	};
 
@@ -2688,6 +2845,11 @@
 
 	TransparentShape.prototype.paintForeground = function(c, x, y, w, h) 	{ };
 
+	TransparentShape.prototype.isGlassable = function()
+	{
+		return false;
+	};
+
 	mxCellRenderer.registerShape('transparent', TransparentShape);
 
 	// Callout shape
@@ -3098,6 +3260,17 @@
 		{
 			this.paintGlassEffect(c, x, y, w, h, 0);
 		}
+	};
+
+	// Adds glass support for the paintVertexShape overrides above
+	mxEllipse.prototype.isGlassable = function()
+	{
+		return true;
+	};
+
+	mxRhombus.prototype.isGlassable = function()
+	{
+		return true;
 	};
 
 	// CompositeShape
@@ -5212,18 +5385,20 @@
 
 	DataStorageShape.prototype.fixedSize = 20;
 
+	DataStorageShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
+
 	DataStorageShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var fixed = mxUtils.getValue(this.style, 'fixedSize', '0') != '0';
 		var s = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'size', this.fixedSize)))) :
 			w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
-		
-		c.moveTo(s, 0);
-		c.lineTo(w, 0);
-		c.quadTo(w - s * 2, h / 2, w, h);
-		c.lineTo(s, h);
-		c.quadTo(s - s * 2, h / 2, s, 0);
-		c.close();
+		var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
+
+		addCurvedPath(c, s, 0, [[w, 0], [w - s * 2, h / 2, w, h], [s, h],
+			[s - s * 2, h / 2, s, 0]], this.isRounded, arcSize);
 		c.end();
 	};
 
@@ -5237,12 +5412,17 @@
 
 	mxUtils.extend(OrShape, mxActor);
 
+	OrShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
+
 	OrShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
-		c.moveTo(0, 0);
-		c.quadTo(w, 0, w, h / 2);
-		c.quadTo(w, h, 0, h);
-		c.close();
+		var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
+
+		addCurvedPath(c, 0, 0, [[w, 0, w, h / 2], [w, h, 0, h]],
+			this.isRounded, arcSize);
 		c.end();
 	};
 
@@ -5256,13 +5436,17 @@
 
 	mxUtils.extend(XorShape, mxActor);
 
+	XorShape.prototype.isRoundable = function()
+	{
+		return true;
+	};
+
 	XorShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
-		c.moveTo(0, 0);
-		c.quadTo(w, 0, w, h / 2);
-		c.quadTo(w, h, 0, h);
-		c.quadTo(w / 2, h / 2, 0, 0);
-		c.close();
+		var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
+
+		addCurvedPath(c, 0, 0, [[w, 0, w, h / 2], [w, h, 0, h],
+			[w / 2, h / 2, 0, 0]], this.isRounded, arcSize);
 		c.end();
 	};
 
@@ -5444,6 +5628,11 @@
 		c.fillAndStroke();
 	};
 
+	CollateShape.prototype.isGlassable = function()
+	{
+		return false;
+	};
+
 	mxCellRenderer.registerShape('collate', CollateShape);
 
 	// DimensionShape
@@ -5482,6 +5671,11 @@
 		c.stroke();
 	};
 
+	DimensionShape.prototype.isGlassable = function()
+	{
+		return false;
+	};
+
 	mxCellRenderer.registerShape('dimension', DimensionShape);
 
 	// PartialRectangleShape
@@ -5493,6 +5687,11 @@
 	mxUtils.extend(PartialRectangleShape, mxEllipse);
 
 	PartialRectangleShape.prototype.drawHidden = true;
+
+	PartialRectangleShape.prototype.isGlassable = function()
+	{
+		return false;
+	};
 
 	PartialRectangleShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
@@ -7952,6 +8151,12 @@
 		}
 
 		c.stroke();
+
+		if (this.glass && !this.outline && this.fill != null && this.fill != mxConstants.NONE)
+		{
+			c.setShadow(false);
+			this.paintGlassEffect(c, 0, 0, w, h, 0);
+		}
 	};
 
 	mxCellRenderer.registerShape('zigzag', ZigzagShape);
@@ -10164,7 +10369,7 @@
 			},
 			'dataStorage': function(state)
 			{
-				return [createHandle(state, ['size'], function(bounds)
+				var handles = [createHandle(state, ['size'], function(bounds)
 				{
 					var fixed = mxUtils.getValue(this.state.style, 'fixedSize', '0') != '0';
 					var size = parseFloat(mxUtils.getValue(this.state.style, 'size', (fixed) ? DataStorageShape.prototype.fixedSize : DataStorageShape.prototype.size));
@@ -10177,6 +10382,13 @@
 					
 					this.state.style['size'] = size;
 				}, false)];
+
+				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
+				{
+					handles.push(createArcHandle(state));
+				}
+
+				return handles;
 			},
 			'callout': function(state)
 			{
@@ -10344,7 +10556,7 @@
 			},
 			'document': function(state)
 			{
-				return [createHandle(state, ['size'], function(bounds)
+				var handles = [createHandle(state, ['size'], function(bounds)
 				{
 					var size = Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'size', DocumentShape.prototype.size))));
 
@@ -10353,10 +10565,17 @@
 				{
 					this.state.style['size'] = Math.max(0, Math.min(1, (bounds.y + bounds.height - pt.y) / bounds.height));
 				}, false)];
+
+				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
+				{
+					handles.push(createArcHandle(state));
+				}
+
+				return handles;
 			},
 			'tape': function(state)
 			{
-				return [createHandle(state, ['size'], function(bounds)
+				var handles = [createHandle(state, ['size'], function(bounds)
 				{
 					var size = Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'size', TapeShape.prototype.size))));
 
@@ -10365,6 +10584,13 @@
 				{
 					this.state.style['size'] = Math.max(0, Math.min(1, ((pt.y - bounds.y) / bounds.height) * 2));
 				}, false)];
+
+				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
+				{
+					handles.push(createArcHandle(state));
+				}
+
+				return handles;
 			},
 			'isoCube2' : function(state)
 			{

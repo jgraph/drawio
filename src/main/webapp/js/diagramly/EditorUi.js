@@ -1149,6 +1149,22 @@
 	EditorUi.prototype.showSplash = function(force) { };
 
 	/**
+	 * Returns the line next to the button of a step that starts using draw.io
+	 * (the storage choice, the authorization of a storage), whose click
+	 * accepts the Terms of Use (App.prototype.createTermsNotice), or null.
+	 */
+	EditorUi.prototype.createTermsNotice = function()
+	{
+		return null;
+	};
+
+	/**
+	 * Records that the button of a step with the Terms of Use notice was
+	 * clicked (App.prototype.acceptTerms), for the given storage client.
+	 */
+	EditorUi.prototype.acceptTerms = function(peer) { };
+
+	/**
 	 * Abstraction for local storage access.
 	 */
 	EditorUi.prototype.getLocalData = function(key, fn)
@@ -1370,13 +1386,7 @@
 			this.presentingThread = window.setTimeout(mxUtils.bind(this, function()
 			{
 				this.presentingThread = null;
-				var file = this.getCurrentFile();
-
-				if (this.presenting && file != null && file.sync != null)
-				{
-					file.sync.sendViewUpdate((this.currentPage != null) ?
-						this.currentPage.getId() : null, this.getViewportBounds());
-				}
+				this.sendPresentingView();
 			}), this.presentingDelay);
 		});
 
@@ -1385,6 +1395,211 @@
 		graph.view.addListener(mxEvent.TRANSLATE, this.presentingListener);
 		graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, this.presentingListener);
 		this.editor.addListener('pageSelected', this.presentingListener);
+
+		// Presentation mode and the explorer are followed as well. Their state
+		// is sent again while they are open, as view updates can be dropped.
+		if (typeof ForceExplorer !== 'undefined')
+		{
+			ForceExplorer.events.addListener('change', this.presentingListener);
+
+			this.presentingHeartbeat = window.setInterval(mxUtils.bind(this, function()
+			{
+				if (this.getSharedViewMode() != null)
+				{
+					this.presentingListener();
+				}
+			}), this.presentingHeartbeatDelay);
+		}
+
+		this.presentingListener();
+	};
+
+	/**
+	 * Delay in milliseconds for sending the state of presentation mode and the
+	 * explorer again while presenting.
+	 */
+	EditorUi.prototype.presentingHeartbeatDelay = 2000;
+
+	/**
+	 * Minimum time in milliseconds between the updates of the laser pointer
+	 * while presenting.
+	 */
+	EditorUi.prototype.laserDelay = 40;
+
+	/**
+	 * Sends the view, the state of presentation mode and the explorer and the
+	 * laser pointer to the collaborators that follow this client.
+	 */
+	EditorUi.prototype.sendPresentingView = function()
+	{
+		var file = this.getCurrentFile();
+
+		if (this.presenting && file != null && file.sync != null)
+		{
+			file.sync.sendViewUpdate((this.currentPage != null) ?
+				this.currentPage.getId() : null, this.getViewportBounds(),
+				this.getSharedViewMode(), this.getSharedLaser());
+		}
+	};
+
+	/**
+	 * Sends the laser pointer of presentation mode at most every laserDelay
+	 * while presenting, the last position always.
+	 */
+	EditorUi.prototype.laserChanged = function()
+	{
+		if (this.presenting && this.laserThread == null)
+		{
+			var delay = (this.laserTime != null) ? this.laserTime +
+				this.laserDelay - Date.now() : 0;
+
+			this.laserThread = window.setTimeout(mxUtils.bind(this, function()
+			{
+				this.laserThread = null;
+				this.laserTime = Date.now();
+				this.sendPresentingView();
+			}), Math.max(0, delay));
+		}
+	};
+
+	/**
+	 * Returns the point of the laser pointer of presentation mode in model
+	 * units for the collaborators that follow this client, or 0 if it is off.
+	 */
+	EditorUi.prototype.getSharedLaser = function()
+	{
+		var p = this.presentation;
+		var pt = (p != null && p.isShown() && p.getLaser != null) ? p.getLaser() : null;
+
+		return (pt != null) ? {x: Math.round(pt.x * 10) / 10,
+			y: Math.round(pt.y * 10) / 10} : 0;
+	};
+
+	/**
+	 * Shows the laser pointer of a followed presenter in presentation mode
+	 * (see getSharedLaser). The point comes from a collaborator, so it is
+	 * checked. Undefined is sent by clients without a laser pointer and is
+	 * ignored.
+	 */
+	EditorUi.prototype.applySharedLaser = function(laser)
+	{
+		var p = this.presentation;
+
+		if (laser !== undefined && p != null && p.setRemoteLaser != null)
+		{
+			var x = (laser != null && typeof laser === 'object') ? parseFloat(laser.x) : NaN;
+			var y = (laser != null && typeof laser === 'object') ? parseFloat(laser.y) : NaN;
+
+			p.setRemoteLaser((Math.abs(x) < 1e6 && Math.abs(y) < 1e6) ?
+				new mxPoint(x, y) : null);
+		}
+	};
+
+	/**
+	 * Returns the state of presentation mode and the explorer for the
+	 * collaborators that follow this client, or null if both are closed.
+	 */
+	EditorUi.prototype.getSharedViewMode = function()
+	{
+		var mode = null;
+		var p = this.presentation;
+
+		if (p != null && p.isShown())
+		{
+			mode = {present: p.getSharedState()};
+		}
+
+		var ex = (typeof ForceExplorer !== 'undefined') ? ForceExplorer.active : null;
+
+		if (ex != null && ex.graph != null && (ex.sourceGraph == this.editor.graph ||
+			(mode != null && ex.sourceGraph == p.graph)))
+		{
+			mode = (mode != null) ? mode : {};
+			mode.explore = ex.getSharedState();
+		}
+
+		return mode;
+	};
+
+	/**
+	 * Opens, updates or closes presentation mode and the explorer for the
+	 * given state of a followed presenter (see getSharedViewMode). The state
+	 * comes from a collaborator, so it is checked. Undefined is sent by
+	 * clients that do not send the state and is ignored.
+	 */
+	EditorUi.prototype.applySharedViewMode = function(mode)
+	{
+		if (mode !== undefined && typeof ForceExplorer !== 'undefined')
+		{
+			mode = (mode != null && typeof mode === 'object') ? mode : {};
+			this.lastSharedViewMode = mode;
+			var present = (mode.present != null && typeof mode.present === 'object') ?
+				mode.present : null;
+			var explore = (mode.explore != null && typeof mode.explore === 'object' &&
+				Editor.forceExplore) ? mode.explore : null;
+			var ex = ForceExplorer.active;
+			var p = this.presentation;
+
+			// Closes an explorer that is not shown or shown on another view
+			if (ex != null && ex.graph != null && (explore == null ||
+				(present != null) != (p != null && ex.sourceGraph == p.graph)))
+			{
+				ex.destroy();
+			}
+
+			if (present != null)
+			{
+				if (p == null)
+				{
+					// Opening presentation mode ends the follow unless it is
+					// opened here (see presentationMode action)
+					this.openingSharedView = true;
+
+					try
+					{
+						this.actions.get('presentationMode').funct();
+					}
+					finally
+					{
+						this.openingSharedView = false;
+					}
+
+					p = this.presentation;
+				}
+
+				if (p != null)
+				{
+					p.setSharedState(present);
+				}
+			}
+			else if (p != null)
+			{
+				p.close();
+				p = null;
+			}
+
+			// Opens the explorer once the presentation is loaded
+			if (explore != null && (present == null || (p != null && p.isShown())))
+			{
+				var graph = (present != null) ? p.graph : this.editor.graph;
+				ex = ForceExplorer.active;
+
+				if (ex == null || ex.graph == null)
+				{
+					var cell = (explore.focus != null) ? graph.model.getCell(String(explore.focus)) : null;
+
+					if (cell instanceof mxCell && ForceExplorer.getConnectionCount(graph, cell) > 0)
+					{
+						ex = new ForceExplorer(graph, cell, {depth: explore.depth});
+					}
+				}
+
+				if (ex != null && ex.graph != null)
+				{
+					ex.applySharedState(explore);
+				}
+			}
+		}
 	};
 
 	/**
@@ -1399,6 +1614,12 @@
 			mxEvent.removeListener(graph.container, 'scroll', this.presentingListener);
 			graph.view.removeListener(this.presentingListener);
 			this.editor.removeListener(this.presentingListener);
+
+			if (typeof ForceExplorer !== 'undefined')
+			{
+				ForceExplorer.events.removeListener(this.presentingListener);
+			}
+
 			this.presentingListener = null;
 		}
 
@@ -1406,6 +1627,12 @@
 		{
 			window.clearTimeout(this.presentingThread);
 			this.presentingThread = null;
+		}
+
+		if (this.presentingHeartbeat != null)
+		{
+			window.clearInterval(this.presentingHeartbeat);
+			this.presentingHeartbeat = null;
 		}
 	};
 
@@ -1436,9 +1663,16 @@
 				this.stopFollowing();
 			});
 
-			// Own input ends the follow, programmatic scrolling does not
+			// Own input ends the follow, programmatic scrolling does not. This
+			// includes input in presentation mode and the explorer.
 			mxEvent.addListener(graph.container, 'wheel', this.stopFollowingListener);
 			mxEvent.addGestureListeners(graph.container, this.stopFollowingListener);
+			this.lastSharedView = null;
+
+			if (typeof ForceExplorer !== 'undefined')
+			{
+				ForceExplorer.events.addListener('input', this.stopFollowingListener);
+			}
 
 			if (this.diagramContainer != null)
 			{
@@ -1460,8 +1694,16 @@
 
 			mxEvent.removeListener(graph.container, 'wheel', this.stopFollowingListener);
 			mxEvent.removeGestureListeners(graph.container, this.stopFollowingListener);
+
+			if (typeof ForceExplorer !== 'undefined')
+			{
+				ForceExplorer.events.removeListener(this.stopFollowingListener);
+			}
+
 			this.stopFollowingListener = null;
+			this.lastSharedViewMode = null;
 			this.followingPresenter = null;
+			this.applySharedLaser(0);
 
 			if (this.diagramContainer != null)
 			{
@@ -2550,10 +2792,22 @@
 		
 		if (ignoreSelection && this.fileNode != null && this.currentPage != null)
 		{
-			// Updates current page XML if selection is ignored
-			EditorUi.removeChildNodes(this.currentPage.node);
-			this.currentPage.node.appendChild(node);
-			
+			// Updates current page XML if selection is ignored. Resolved
+			// references go into a copy so that the cached XML of the
+			// page keeps the link to the background page for saving.
+			var currentNode = this.currentPage.node;
+
+			if (resolveReferences)
+			{
+				currentNode = currentNode.cloneNode(false);
+			}
+			else
+			{
+				EditorUi.removeChildNodes(currentNode);
+			}
+
+			currentNode.appendChild(node);
+
 			// Creates a clone of the file node for processing
 			node = this.fileNode.cloneNode(false);
 
@@ -2605,7 +2859,7 @@
 
 			if (currentPage)
 			{
-				appendPage(this.currentPage.node);
+				appendPage(currentNode);
 			}
 			else
 			{
@@ -2613,7 +2867,7 @@
 				for (var i = 0; i < this.pages.length; i++)
 				{
 					var page = this.pages[i];
-					var currNode = page.node;
+					var currNode = (page == this.currentPage) ? currentNode : page.node;
 
 					if (page != this.currentPage)
 					{
@@ -2624,8 +2878,7 @@
 						{
 							var enc = new mxCodec(mxUtils.createXmlDocument());
 							var temp = enc.encode(new mxGraphModel(page.root));
-							this.editor.graph.saveViewState(page.viewState,
-								temp, null, resolveReferences);
+							this.editor.graph.saveViewState(page.viewState, temp);
 							EditorUi.removeChildNodes(currNode);
 							currNode.appendChild(temp);
 
@@ -2633,11 +2886,12 @@
 							delete page.needsUpdate;
 							page.setDiagramModified(false);
 						}
-						else if (resolveReferences)
+
+						if (resolveReferences)
 						{
 							this.updatePageRoot(page);
-							
-							// Updates the page node and background page
+
+							// Resolves the background page in a copy of the page node
 							if (page.viewState.backgroundImage != null &&
 								page.viewState.backgroundImage.originalSrc != null)
 							{
@@ -5814,7 +6068,13 @@
 				mxEvent.addListener(contentDiv, 'dragover', mxUtils.bind(this, function(evt)
 				{
 					contentDiv.style.backgroundColor = 'light-dark(#fefefe, #000000)';
-					evt.dataTransfer.dropEffect = 'copy';
+
+					// Drag events created by scripts may have no dataTransfer
+					if (evt.dataTransfer != null)
+					{
+						evt.dataTransfer.dropEffect = 'copy';
+					}
+
 					contentDiv.style.cursor = 'copy';
 					this.sidebar.hideTooltip();
 					evt.stopPropagation();
@@ -5826,7 +6086,8 @@
 					contentDiv.style.cursor = '';
 					contentDiv.style.backgroundColor = '';
 					
-				    if (evt.dataTransfer.files.length > 0)
+				    // Drop events created by scripts may have no dataTransfer and no data
+				    if (evt.dataTransfer != null && evt.dataTransfer.files.length > 0)
 				    {	
 				    	this.importFiles(evt.dataTransfer.files, 0, 0, this.maxImageSize, mxUtils.bind(this, function(data, mimeType, x, y, w, h, img, doneFn, file)
 				    	{
@@ -12649,7 +12910,25 @@
 	};
 
 	/**
-	 * Imports the given XML into the existing diagram.
+	 * Returns the default styles for importXml of diagrams converted from
+	 * Mermaid or PlantUML: the default edge style without the label gap of new
+	 * edges (defaultLabelBackgroundColor), so the labels keep the backgrounds
+	 * of the conversion and the inserted cells are the same as in the viewer,
+	 * the CLI and after an edit of the source, which apply no default styles.
+	 */
+	EditorUi.prototype.getConvertedDiagramStyles = function()
+	{
+		var edgeStyle = mxUtils.clone(this.editor.graph.defaultEdgeStyle);
+		delete edgeStyle['defaultLabelBackgroundColor'];
+
+		return {edgeStyle: edgeStyle};
+	};
+
+	/**
+	 * Imports the given XML into the existing diagram. applyDefaultStyles
+	 * applies the default vertex and edge styles to the imported cells, or,
+	 * as an object with an edgeStyle, that style instead of the default edge
+	 * style (see getConvertedDiagramStyles).
 	 */
 	EditorUi.prototype.importXml = function(xml, dx, dy, crop, noErrorHandling, addNewPage, applyDefaultStyles)
 	{
@@ -12768,7 +13047,8 @@
 					if (applyDefaultStyles)
 					{
 						graph.pasteCellStyles(graph.includeDescendants(cells),
-							graph.defaultVertexStyle, graph.defaultEdgeStyle);
+							graph.defaultVertexStyle, (applyDefaultStyles.edgeStyle != null) ?
+								applyDefaultStyles.edgeStyle : graph.defaultEdgeStyle);
 					}
 
 					if (!addNewPage && lastPage != this.currentPage && this.pages != null &&
@@ -15390,7 +15670,8 @@
 			// Import before removing so a parse/import failure can't drop the
 			// original; crop positions the new cells from their own bounds, so
 			// the still-present old cell doesn't affect placement.
-			var inserted = this.importXml(newXml, dx, dy, true, null, null, true);
+			var inserted = this.importXml(newXml, dx, dy, true, null, null,
+				this.getConvertedDiagramStyles());
 			graph.model.remove(cell);
 			graph.setSelectionCells(inserted);
 		}
@@ -19246,6 +19527,7 @@
 			if (img != null && img.originalSrc != null)
 			{
 				img = ui.createImageForPageLink(img.originalSrc, ui.currentPage, this);
+				this.backgroundPageData = this.model.getValue(this.model.getRoot());
 			}
 
 			graphSetBackgroundImage.apply(this, arguments);
@@ -19261,6 +19543,12 @@
 		this.editor.addListener('pageMoved', mxUtils.bind(this, function()
 		{
 			graph.refreshBackgroundImage();
+		}));
+
+		// Updates background to update placeholders for page data
+		graph.model.addListener(mxEvent.CHANGE, mxUtils.bind(this, function()
+		{
+			graph.validateBackgroundPageData();
 		}));
 
 		// Updates background image after remote changes to the referenced page
@@ -19772,7 +20060,9 @@
 				// Active links are moved to the hint
 				else if (!graph.isEnabled() || (state != null && graph.isCellLocked(state.cell)))
 				{
-					graph.customLinkClicked(href);
+					// Passes the cell so that custom actions change the model
+					// like other link clicks and can show hidden layers
+					graph.customLinkClicked(href, (state != null) ? state.cell : null);
 					
 					// Resets rubberband after click on locked cell
 					graph.getRubberband().reset();
@@ -20051,7 +20341,8 @@
 			    	dropElt = null;
 			    }
 			    
-				if (graph.isEnabled())
+				// Drop events created by scripts may have no dataTransfer and no data
+				if (graph.isEnabled() && evt.dataTransfer != null)
 				{
 				    var pt = mxUtils.convertPoint(graph.container, mxEvent.getClientX(evt), mxEvent.getClientY(evt));
 					var files = evt.dataTransfer.files;
@@ -20263,48 +20554,54 @@
 			this.refresh();
 		}));
 
-		// Overrides mxWindow.fit to allow for embedViewport
 		var ui = this;
 
-		mxWindow.prototype.fit = function()
+		// The windows belong to the editor. Read-only views, eg. presentations,
+		// must not change them as they would replace the UI of the editor and
+		// keep all instances.
+		if (!this.editor.chromeless || this.editor.editable)
 		{
-			if (!Editor.inlineFullscreen && ui.embedViewport != null)
+			// Overrides mxWindow.fit to allow for embedViewport
+			mxWindow.prototype.fit = function()
 			{
-				var left = parseInt(this.div.offsetLeft);
-				var width = parseInt(this.div.offsetWidth);
-				var right = ui.embedViewport.x + ui.embedViewport.width;
-				var top = parseInt(this.div.offsetTop);
-				var height = parseInt(this.div.offsetHeight);
-				var bottom = ui.embedViewport.y + ui.embedViewport.height;
+				if (!Editor.inlineFullscreen && ui.embedViewport != null)
+				{
+					var left = parseInt(this.div.offsetLeft);
+					var width = parseInt(this.div.offsetWidth);
+					var right = ui.embedViewport.x + ui.embedViewport.width;
+					var top = parseInt(this.div.offsetTop);
+					var height = parseInt(this.div.offsetHeight);
+					var bottom = ui.embedViewport.y + ui.embedViewport.height;
 
-				this.div.style.left = Math.max(ui.embedViewport.x, Math.min(left, right - width)) + 'px';
-				this.div.style.top = Math.max(ui.embedViewport.y, Math.min(top, bottom - height)) + 'px';
-				this.div.style.height = Math.min(ui.embedViewport.height, parseInt(this.div.style.height)) + 'px';
-				this.div.style.width = Math.min(ui.embedViewport.width, parseInt(this.div.style.width)) + 'px';
-			}
-			else
+					this.div.style.left = Math.max(ui.embedViewport.x, Math.min(left, right - width)) + 'px';
+					this.div.style.top = Math.max(ui.embedViewport.y, Math.min(top, bottom - height)) + 'px';
+					this.div.style.height = Math.min(ui.embedViewport.height, parseInt(this.div.style.height)) + 'px';
+					this.div.style.width = Math.min(ui.embedViewport.width, parseInt(this.div.style.width)) + 'px';
+				}
+				else
+				{
+					mxUtils.fit(this.div);
+				}
+			};
+
+			// Hides current menu when windows are moved or resized
+			var mxWindowSetLocation = mxWindow.prototype.setLocation;
+
+			mxWindow.prototype.setLocation = function(x, y)
 			{
-				mxUtils.fit(this.div);
-			}
-		};
+				mxWindowSetLocation.call(this, x, y);
+				ui.hideCurrentMenu();
+			};
 
-		// Hides current menu when windows are moved or resized
-		var mxWindowSetLocation = mxWindow.prototype.setLocation;
+			var mxWindowSetSize = mxWindow.prototype.setSize;
 
-		mxWindow.prototype.setLocation = function(x, y)
-		{
-			mxWindowSetLocation.call(this, x, y);
-			ui.hideCurrentMenu();
-		};
+			mxWindow.prototype.setSize = function(width, height)
+			{
+				mxWindowSetSize.call(this, width, height);
+				ui.hideCurrentMenu();
+			};
+		}
 
-		var mxWindowSetSize = mxWindow.prototype.setSize;
-
-		mxWindow.prototype.setSize = function(width, height)
-		{
-			mxWindowSetSize.call(this, width, height);
-			ui.hideCurrentMenu();
-		};
-		
 		if (!this.editor.chromeless || this.editor.editable)
 		{
 			var theme = Editor.currentTheme;
@@ -25526,7 +25823,7 @@
 						bg = page.viewState.background;
 						bgImage = page.viewState.backgroundImage;
 						tempGraph.pageFormat = page.viewState.pageFormat;
-						tempGraph.gridSize = page.viewState.gridSize;
+						tempGraph.gridSize = Graph.parseGridSize(page.viewState.gridSize);
 						tempGraph.hiddenTags = page.viewState.hiddenTags || [];
 						tempGraph.setMeasureScale(page.viewState.measureScale);
 						tempGraph.setBackgroundGradient(page.viewState.backgroundGradient,
@@ -25706,7 +26003,12 @@
 				dropElt = null;
 			}
 
-			fn(evt);
+			// Drop events created by scripts may have no dataTransfer and no data
+			if (evt.dataTransfer != null)
+			{
+				fn(evt);
+			}
+
 			evt.stopPropagation();
 			evt.preventDefault();
 		});
@@ -25761,10 +26063,11 @@
 					
 					if (this.editor.graph.isEnabled() || urlParams['embed'] != '1')
 					{
-						if (evt.dataTransfer.files.length > 0)
+						// Drop events created by scripts may have no dataTransfer
+						if (evt.dataTransfer != null && evt.dataTransfer.files.length > 0)
 						{
 							this.hideDialog();
-							
+
 							// Never open files in embed mode
 							if (urlParams['embed'] == '1')
 							{
@@ -26444,9 +26747,17 @@
 					}
 					
 					// Creates temporary file for diff sync in embed mode
-					this.setCurrentFile(new EmbedFile(this, xml, {}));
+					var file = new EmbedFile(this, xml, {});
+					this.setCurrentFile(file);
 					this.mode = App.MODE_EMBED;
 					this.setFileData(xml);
+
+					// Takes the shadow pages from the loaded pages as in
+					// DrawioFile.open: parsing the data again gives a plain
+					// mxGraphModel or a diagram without an ID another page
+					// ID than the page shown here, and merges would then
+					// remove and insert pages instead of patching this one
+					file.setShadowPages(this.clonePages(this.pages, true));
 
 					// Fits diagram to window
 					if (Editor.fitDiagramOnLoad)
@@ -28831,6 +29142,15 @@
 							{
 								file.mergeFile(new LocalFile(this, tmp), mxUtils.bind(this, function()
 								{
+									// Sends the autosave for pages that the merge inserted,
+									// removed or changed in the background, which are no
+									// change of the graph model. The listener sends nothing
+									// if it already sent the data for this page's changes.
+									if (changeListener != null)
+									{
+										changeListener();
+									}
+
 									// Reset shadow after merge when diff sync is enabled
 									if (this.embedDiffSync)
 									{
@@ -31899,6 +32219,20 @@
 		}
 
 		editoUiDestroy.apply(this, arguments);
+
+		// Removes the resize listener of the dock manager, which is created
+		// with the first window (eg. the color window, see createDockManager)
+		if (this.dockManager != null)
+		{
+			this.dockManager.destroy();
+			this.dockManager = null;
+		}
+
+		if (this._dockResizeListener != null)
+		{
+			mxEvent.removeListener(window, 'resize', this._dockResizeListener);
+			this._dockResizeListener = null;
+		}
 	};
 				
 	/**

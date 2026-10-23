@@ -605,27 +605,39 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 		
 				this.graph.setBackgroundImage = function(img)
 				{
-					if (img != null && Graph.isPageLink(img.src))
+					// Uses the page link of a background page to update it
+					var src = (img != null) ? ((img.originalSrc != null) ?
+						img.originalSrc : img.src) : null;
+
+					if (Graph.isPageLink(src))
 					{
-						var src = img.src;
 						var comma = src.indexOf(',');
-							
+
 						if (comma > 0)
 						{
 							var index = self.getIndexById(src.substring(comma + 1));
-					
+
 							if (index >= 0)
 							{
 								img = self.getImageForGraphModel(
 									Editor.parseDiagramNode(
 									self.diagrams[index]));
 								img.originalSrc = src;
+								this.backgroundPageData = this.model.getValue(
+									this.model.getRoot());
 							}
 						}
 					}
 
 					graphSetBackgroundImage.apply(this, arguments);
 				};
+
+				// Updates background to update placeholders for page data
+				// after the cells of the current page were decoded
+				this.graph.model.addListener(mxEvent.CHANGE, function()
+				{
+					self.graph.validateBackgroundPageData();
+				});
 
 				// Overrides graph bounds to include background pages
 				var graphGetGraphBounds = this.graph.getGraphBounds;
@@ -1044,8 +1056,9 @@ GraphViewer.prototype.getImageForGraphModel = function(node)
 
 	var codec = new mxCodec(node.ownerDocument);
 	var root = codec.decode(node).root;
+	graph.addPlaceholderRoot(this.graph.model.getRoot());
 	graph.model.setRoot(root);
-	
+
 	var svgRoot = graph.getSvg();
 	var bounds = graph.getGraphBounds();
 	document.body.removeChild(graph.container);

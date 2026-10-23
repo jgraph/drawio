@@ -1038,12 +1038,35 @@
 			}
 		}, null, null,  Editor.altKey + '+' + Editor.shiftKey + '+K').isEnabled = isActionAndGraphEnabled;
 		
+		// Returns the styles of the given style that Paste Text Style pastes
+		var getTextStyle = function(style)
+		{
+			var result = {};
+
+			for (var i = 0; i < Graph.pasteTextStyles.length; i++)
+			{
+				var key = Graph.pasteTextStyles[i];
+
+				if (style[key] != null)
+				{
+					result[key] = style[key];
+				}
+				else if (key == 'fontStyle')
+				{
+					result[key] = 0;
+				}
+			}
+
+			return result;
+		};
+
 		editorUi.actions.addAction('copyStyle', function()
 		{
 			if (graph.isEnabled() && graph.getSelectionCount() == 1)
 			{
 				var cell = graph.getSelectionCell();
-				var style = graph.getCellStyle(cell, false);
+				var style = graph.resolveInheritedLabelStyles(cell,
+					graph.getCellStyle(cell, false));
 				editorUi.copiedStyle = {};
 				var values = [];
 				var keys = [];
@@ -1053,9 +1076,13 @@
 					values.push(style[key]);
 					keys.push(key);
 				}
-				
+
 				graph.copyCellStyles([cell], keys, values,
 					editorUi.copiedStyle, editorUi.copiedStyle);
+
+				// Paste Text Style pastes the text styles of the last copied style
+				// or text style, eg. the label style of an edge to its label cells
+				editorUi.copiedTextStyle = getTextStyle(style);
 			}
 		}, null, null,  Editor.altKey + '+C');
 
@@ -1083,22 +1110,8 @@
 			if (graph.isEnabled() && graph.getSelectionCount() == 1)
 			{
 				var cell = graph.getSelectionCell();
-				var style = graph.getCellStyle(cell, false);
-				editorUi.copiedTextStyle = {};
-
-				for (var i = 0; i < Graph.pasteTextStyles.length; i++)
-				{
-					var key = Graph.pasteTextStyles[i];
-
-					if (style[key] != null)
-					{
-						editorUi.copiedTextStyle[key] = style[key];
-					}
-					else if (key == 'fontStyle')
-					{
-						editorUi.copiedTextStyle[key] = 0;
-					}
-				}
+				editorUi.copiedTextStyle = getTextStyle(graph.resolveInheritedLabelStyles(
+					cell, graph.getCellStyle(cell, false)));
 			}
 		}, null, null, Editor.ctrlKey + '+' + Editor.altKey + '+C');
 
@@ -3952,16 +3965,64 @@
 		
 		this.put('publish', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ['publishLink', 'presentationMode'], parent);
+			this.addMenuItems(menu, ['publishLink', 'presentationMode', 'exploreMode'], parent);
 		})));
 
 		editorUi.actions.put('presentationMode', new Action('presentationMode' + '...', function()
 		{
+			// Opening presentation mode is own input and ends the follow of a
+			// presenter, unless the follow opens it (see applySharedViewMode)
+			if (!editorUi.openingSharedView)
+			{
+				editorUi.stopFollowing();
+			}
+
 			var dark = Editor.isDarkMode();
+
+			// Contains the presentation, which is shown with a zoom from the
+			// selected cell, or the center of the editor, after it was loaded and
+			// fitted. The labels are measured in the invisible frame.
+			var frame = document.createElement('div');
+			frame.style.cssText = 'position:fixed;inset:0;z-index:999;opacity:0';
+			frame.setAttribute('role', 'dialog');
+			frame.setAttribute('aria-modal', 'true');
+			frame.setAttribute('aria-label', mxResources.get('presentationMode'));
+
+			// Gets the focus back after closing
+			var previousFocus = document.activeElement;
+
+			var getOrigin = function()
+			{
+				var eg = editorUi.editor.graph;
+				var state = eg.view.getState(eg.getSelectionCell());
+				var r = eg.container.getBoundingClientRect();
+				var pt = (state != null) ? new mxPoint(r.left + state.getCenterX() -
+					eg.container.scrollLeft, r.top + state.getCenterY() -
+					eg.container.scrollTop) : new mxPoint(r.left + r.width / 2,
+					r.top + r.height / 2);
+
+				return new mxPoint(Math.max(0, Math.min(window.innerWidth, pt.x)),
+					Math.max(0, Math.min(window.innerHeight, pt.y)));
+			};
+
+			// Tooltips of the editor, also pending ones, would be shown above the
+			// presentation and never hidden as the presentation gets the mouse
+			// events
+			if (editorUi.editor.graph.tooltipHandler != null)
+			{
+				editorUi.editor.graph.tooltipHandler.hide();
+			}
 
 			var backdrop = document.createElement('div');
 			backdrop.style.cssText = 'position:fixed;inset:0;z-index:999;background-color:#000000';
-			document.body.appendChild(backdrop);
+			frame.appendChild(backdrop);
+			document.body.appendChild(frame);
+
+			// Takes the keyboard focus from the editor, whose typing shim would
+			// handle the keys (see handleButtonKeys for the buttons)
+			frame.setAttribute('tabindex', '-1');
+			frame.style.outline = 'none';
+			frame.focus({preventScroll: true});
 
 			// Save and set urlParams for chromeless mode
 			var savedParams = {};
@@ -3997,63 +4058,640 @@
 			ui.refresh = function() {};
 			ui.updateHashObject = function() {};
 
+			// Fits the diagram and its pages at 100% or less when they are shown.
+			// The Fit button uses the limit of other lightboxes.
+			var maxFitScale = ui.lightboxMaxFitScale;
+			ui.lightboxMaxFitScale = 1;
+
 			var graph = ui.editor.graph;
 			var lightbox = graph.container;
 			lightbox.style.cssText = 'position:fixed;inset:0;overflow:hidden;outline:none;z-index:999';
 
+			// The glowing cell in the center
+			var glow = null;
+
+			// The last clicked cell, or the cell selected in the editor, is explored
+			var exploreCell = null;
+
+			// Scrolls with an ease-out timing, stopped by the next gesture or a
+			// change of the view state
+			var scrollThread = null;
+
+			var stopScroll = function()
+			{
+				if (scrollThread != null)
+				{
+					window.cancelAnimationFrame(scrollThread);
+					scrollThread = null;
+				}
+			};
+
+			var scrollTo = function(left, top)
+			{
+				stopScroll();
+				var sx = lightbox.scrollLeft;
+				var sy = lightbox.scrollTop;
+				var t0 = null;
+
+				var step = function(time)
+				{
+					t0 = (t0 != null) ? t0 : time;
+					var k = Math.min(1, (time - t0) / 600);
+					var e = 1 - Math.pow(1 - k, 3);
+					lightbox.scrollLeft = sx + (left - sx) * e;
+					lightbox.scrollTop = sy + (top - sy) * e;
+					scrollThread = (k < 1) ? window.requestAnimationFrame(step) : null;
+				};
+
+				scrollThread = window.requestAnimationFrame(step);
+			};
+
+			mxEvent.addListener(lightbox, 'wheel', function()
+			{
+				ForceExplorer.fireInput();
+				stopScroll();
+			});
+
+			// Changes of the view are sent to collaborators that follow
+			mxEvent.addListener(lightbox, 'scroll', ForceExplorer.fireChange);
+			graph.view.addListener(mxEvent.SCALE, ForceExplorer.fireChange);
+			graph.view.addListener(mxEvent.TRANSLATE, ForceExplorer.fireChange);
+			graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, ForceExplorer.fireChange);
+			graph.view.addListener(mxEvent.SCALE, stopScroll);
+			graph.view.addListener(mxEvent.TRANSLATE, stopScroll);
+			graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, stopScroll);
+
+			// Moves the cell to the center, zooming a little if needed, and makes
+			// it glow
+			// Limits the scroll position so that the diagram stays near the window:
+			// next to a larger diagram at most a quarter of the window is empty and
+			// a smaller diagram stays in the window
+			var clampScroll = function(left, top)
+			{
+				var view = graph.view;
+				var b = view.getModelGraphBounds();
+				var s = view.scale;
+
+				var clamp = function(value, start, size, client)
+				{
+					var lo = start + size + 20 - client;
+					var hi = start - 20;
+
+					if (size > client)
+					{
+						lo = start - client / 4;
+						hi = start + size + client / 4 - client;
+					}
+
+					return (lo > hi) ? (lo + hi) / 2 : Math.max(lo, Math.min(hi, value));
+				};
+
+				return new mxPoint(clamp(left, (b.x + view.translate.x) * s,
+					b.width * s, lightbox.clientWidth), clamp(top,
+					(b.y + view.translate.y) * s, b.height * s, lightbox.clientHeight));
+			};
+
+			// Makes the given cell glow, or none. The glow is an SVG filter, as
+			// WebKit (Safari and all browsers in iOS) ignores the CSS filter
+			// functions on SVG elements. It is referenced in the inline style,
+			// which WebKit applies and which replaces the drop shadow of shapes
+			// with a shadow while they glow, and in the filter attribute.
+			var glowCell = null;
+			var glowFilter = null;
+			var glowRestore = null;
+			var glowCss = null;
+
+			// Updates the glow for the scale of the view: a drop shadow that
+			// blurs 6 px on the screen, as drop-shadow(0 0 6px) in CSS, in a
+			// filter region around the bounding box of the shape, in its user
+			// space, so that a shape without a width or a height keeps it. The
+			// user space is in model units if the view uses model coordinates.
+			var updateGlow = function()
+			{
+				if (glow != null && glowFilter != null)
+				{
+					var state = graph.view.getState(glowCell);
+					var s = (graph.view.modelCoordinates) ? graph.view.scale : 1;
+					var sd = 3 / s;
+					var sw = (state != null && state.shape != null) ?
+						Number(state.shape.strokewidth) || 1 : 1;
+					var m = 4 * sd + sw * graph.view.scale / s;
+					var bbox = null;
+
+					try
+					{
+						bbox = glow.getBBox();
+					}
+					catch (e)
+					{
+						// Not rendered
+					}
+
+					if (bbox != null && isFinite(bbox.x) && isFinite(bbox.y) &&
+						isFinite(bbox.width) && isFinite(bbox.height))
+					{
+						glowFilter.setAttribute('x', bbox.x - m);
+						glowFilter.setAttribute('y', bbox.y - m);
+						glowFilter.setAttribute('width', bbox.width + 2 * m);
+						glowFilter.setAttribute('height', bbox.height + 2 * m);
+					}
+
+					glowFilter.firstChild.setAttribute('stdDeviation', sd);
+				}
+			};
+
+			// Removes the glow from its shape and restores its filter
+			var removeGlow = function()
+			{
+				if (glow != null)
+				{
+					glow.removeAttribute('filter');
+					glow.style.filter = glowRestore;
+					glow = null;
+				}
+			};
+
+			// Applies the glow to the shape of the glowing cell. Shapes are
+			// replaced or painted again, eg. if a container is expanded, and
+			// painting sets the inline filter of shapes with a shadow.
+			var applyGlow = function()
+			{
+				var state = graph.view.getState(glowCell);
+				var node = (state != null && state.shape != null) ? state.shape.node : null;
+
+				if (node != glow)
+				{
+					removeGlow();
+				}
+
+				if (node != null && node.ownerSVGElement != null)
+				{
+					if (glowFilter == null)
+					{
+						var doc = node.ownerDocument;
+						glowFilter = doc.createElementNS(mxConstants.NS_SVG, 'filter');
+						glowFilter.setAttribute('id', 'mx-present-glow-' + Editor.guid());
+						glowFilter.setAttribute('filterUnits', 'userSpaceOnUse');
+						glowFilter.setAttribute('color-interpolation-filters', 'sRGB');
+						var shadow = doc.createElementNS(mxConstants.NS_SVG, 'feDropShadow');
+						shadow.setAttribute('dx', '0');
+						shadow.setAttribute('dy', '0');
+						shadow.setAttribute('flood-color', '#1a73e8');
+						glowFilter.appendChild(shadow);
+					}
+
+					if (glowFilter.parentNode != node.ownerSVGElement)
+					{
+						node.ownerSVGElement.appendChild(glowFilter);
+					}
+
+					if (glow == null || glow.style.filter != glowCss)
+					{
+						// Workaround for references with a base tag in the page
+						var base = (mxSvgCanvas2D.prototype.useAbsoluteIds) ?
+							mxSvgCanvas2D.prototype.getBaseUrl().replace(/([\(\)])/g, '\\$1') : '';
+						var ref = 'url(' + base + '#' + glowFilter.getAttribute('id') + ')';
+						glow = node;
+						glowRestore = glow.style.filter;
+						glow.setAttribute('filter', ref);
+						glow.style.filter = ref;
+						glowCss = glow.style.filter;
+					}
+
+					updateGlow();
+				}
+			};
+
+			var setGlow = function(cell)
+			{
+				removeGlow();
+				glowCell = (graph.view.getState(cell) != null) ? cell : null;
+				applyGlow();
+				ForceExplorer.fireChange();
+			};
+
+			// Keeps the glow at the same size on the screen, also while zooming
+			graph.view.addListener(mxEvent.SCALE, updateGlow);
+			graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, updateGlow);
+
+			// Applies the glow again after the glowing cell was painted
+			var cellRendererRedraw = graph.cellRenderer.redraw;
+
+			graph.cellRenderer.redraw = function(state)
+			{
+				var result = cellRendererRedraw.apply(this, arguments);
+
+				if (glowCell != null && state.cell == glowCell)
+				{
+					applyGlow();
+				}
+
+				return result;
+			};
+
+			// Duration of the zoom transitions of the buttons and double clicks
+			var zoomDuration = (ForceExplorer.isReducedMotion()) ? 0 : 300;
+
+			// The view before a double click zoomed into a cell, which the next
+			// double click restores. Other changes of the scale and the page
+			// clear it.
+			var focusView = null;
+			var internalZoom = false;
+
+			graph.view.addListener(mxEvent.SCALE, function()
+			{
+				if (!internalZoom)
+				{
+					focusView = null;
+				}
+			});
+
+			graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, function()
+			{
+				if (!internalZoom)
+				{
+					focusView = null;
+				}
+			});
+
+			// Returns the scale and the center of the window in model units
+			var getView = function()
+			{
+				var view = graph.view;
+				var s = view.scale;
+
+				return {scale: s, center: new mxPoint(
+					(lightbox.scrollLeft + lightbox.clientWidth / 2) / s - view.translate.x,
+					(lightbox.scrollTop + lightbox.clientHeight / 2) / s - view.translate.y)};
+			};
+
+			// Returns the point in model units for the given client coordinates
+			var getModelPoint = function(x, y)
+			{
+				var view = graph.view;
+				var pt = mxUtils.convertPoint(lightbox, x, y);
+
+				return new mxPoint(pt.x / view.scale - view.translate.x,
+					pt.y / view.scale - view.translate.y);
+			};
+
+			// Applies the given change of the view at once and transitions from
+			// the previous view with an ease-out (see Graph.transitionViewState)
+			var animateViewChange = function(change)
+			{
+				var view = graph.view;
+				var s0 = view.scale;
+				var tr0 = view.translate.clone();
+				var left = lightbox.scrollLeft;
+				var top = lightbox.scrollTop;
+				stopScroll();
+				change();
+
+				// The change of the scroll position is part of the previous translate
+				graph.transitionViewState(s0, new mxPoint(
+					tr0.x + (lightbox.scrollLeft - left) / s0,
+					tr0.y + (lightbox.scrollTop - top) / s0), zoomDuration);
+			};
+
+			graph.focusCell = function(cell)
+			{
+				var state = this.view.getState(cell);
+
+				if (state != null && state.shape != null && state.shape.node != null)
+				{
+					exploreCell = cell;
+
+					if (this.getFocusScale(state) != this.view.scale)
+					{
+						stopScroll();
+						internalZoom = true;
+
+						try
+						{
+							this.animateViewToCell(cell, null, clampScroll);
+						}
+						finally
+						{
+							internalZoom = false;
+						}
+					}
+					else
+					{
+						var pt = clampScroll(state.getCenterX() - lightbox.clientWidth / 2,
+							state.getCenterY() - lightbox.clientHeight / 2);
+						scrollTo(pt.x, pt.y);
+					}
+				}
+
+				setGlow(cell);
+			};
+
+			// Returns true if the shape of the given cell is painted, so that its
+			// glow is visible, which is not the case for text cells without a
+			// fill and stroke, eg. the fields of a class
+			var isPainted = function(cell)
+			{
+				var state = graph.view.getState(cell);
+
+				return state != null && state.shape != null &&
+					(state.shape instanceof mxImageShape ||
+					mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR,
+						mxConstants.NONE) != mxConstants.NONE ||
+					mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR,
+						mxConstants.NONE) != mxConstants.NONE);
+			};
+
+			// Returns the cell that a click on the given cell centers and
+			// highlights: the connector of a label of a connector, the table of
+			// a row or cell, which the table paints, the stack of an unpainted
+			// part, eg. the class of a field, or else the cell, eg. text in a
+			// lane, a frame or a group.
+			var getGlowCell = function(cell)
+			{
+				var model = graph.model;
+				var parent = model.getParent(cell);
+
+				if (model.isEdge(parent))
+				{
+					cell = parent;
+				}
+				else
+				{
+					while (model.isVertex(parent) && (graph.isTableRow(cell) ||
+						graph.isTableCell(cell) || (!isPainted(cell) &&
+						graph.isStack(parent))))
+					{
+						cell = parent;
+						parent = model.getParent(cell);
+					}
+				}
+
+				return cell;
+			};
+
+			// Returns the cell that the explore button explores after a click
+			// on the given cell: the cell or its nearest ancestor with
+			// connections, eg. the class of a field or the table of a cell.
+			var getExploreTarget = function(cell)
+			{
+				var model = graph.model;
+				var result = getGlowCell(cell);
+				var tmp = cell;
+
+				while (model.isVertex(tmp))
+				{
+					if (ForceExplorer.getConnectionCount(graph, tmp) > 0)
+					{
+						result = tmp;
+
+						break;
+					}
+
+					tmp = model.getParent(tmp);
+				}
+
+				return result;
+			};
+
+			// A click centers the cell, or the point on the background. The click
+			// handler of the lightbox ignores graph.click and handles links.
+			var lastClick = null;
+			var down = null;
+			var downView = null;
+			var downPoint = null;
+
+			var clickListener =
+			{
+				mouseDown: function(sender, me)
+				{
+					ForceExplorer.fireInput();
+					stopScroll();
+					down = new mxPoint(me.getX(), me.getY());
+					downView = getView();
+					downPoint = getModelPoint(me.getX(), me.getY());
+				},
+				mouseMove: function() {},
+				mouseUp: function(sender, me)
+				{
+					var evt = me.getEvent();
+					var src = mxEvent.getSource(evt);
+
+					if (down != null && Math.abs(me.getX() - down.x) <= graph.tolerance &&
+						Math.abs(me.getY() - down.y) <= graph.tolerance &&
+						(src == null || src.closest == null || src.closest('a') == null))
+					{
+						var cell = me.getCell();
+						lastClick = {cell: cell, time: Date.now(), view: downView, point: downPoint};
+
+						// A click on the background removes the highlight, or centers
+						// the point if no cell is highlighted
+						if (cell == null && glowCell != null)
+						{
+							graph.focusCell(null);
+							exploreCell = null;
+						}
+						else if (cell == null)
+						{
+							var pt = mxUtils.convertPoint(lightbox, me.getX(), me.getY());
+							pt = clampScroll(pt.x - lightbox.clientWidth / 2,
+								pt.y - lightbox.clientHeight / 2);
+							scrollTo(pt.x, pt.y);
+						}
+						else if (graph.getLinkForCell(cell) == null)
+						{
+							graph.focusCell(getGlowCell(cell));
+							exploreCell = getExploreTarget(cell);
+						}
+					}
+
+					down = null;
+				}
+			};
+
+			graph.addMouseListener(clickListener);
+
+			// A double click on a cell or the background moves the cell or the
+			// point to the center and zooms in to 100%, or twice the scale from
+			// 100%. The next double click goes back to the previous view. The
+			// first click moved the cell or the point away from the mouse and
+			// changed the view.
+			var toggleFocus = function(cell, evt)
+			{
+				var recent = lastClick != null && Date.now() - lastClick.time < 600;
+				cell = (recent) ? lastClick.cell : cell;
+				var prev = (recent && lastClick.view != null) ? lastClick.view : getView();
+				var point = (recent && lastClick.point != null) ? lastClick.point :
+					((evt != null) ? getModelPoint(mxEvent.getClientX(evt),
+					mxEvent.getClientY(evt)) : null);
+				var view = graph.view;
+				stopScroll();
+				internalZoom = true;
+
+				try
+				{
+					if (focusView != null)
+					{
+						graph.animateView(focusView.center, focusView.scale,
+							zoomDuration, clampScroll);
+						focusView = null;
+					}
+					else
+					{
+						var state = view.getState(getGlowCell(cell));
+						var center = null;
+
+						if (state != null && state.shape != null)
+						{
+							if (graph.getLinkForCell(cell) == null)
+							{
+								center = new mxPoint(state.getCenterX() / view.scale -
+									view.translate.x, state.getCenterY() / view.scale -
+									view.translate.y);
+							}
+						}
+						else if (cell == null)
+						{
+							center = point;
+						}
+
+						if (center != null)
+						{
+							var steps = graph.getZoomSteps();
+							var scale = (prev.scale < 1) ? 1 :
+								Math.min(prev.scale * 2, steps[steps.length - 1]);
+							graph.animateView(center, scale, zoomDuration, clampScroll);
+							focusView = prev;
+
+							if (state != null)
+							{
+								exploreCell = getExploreTarget(cell);
+								setGlow(state.cell);
+							}
+						}
+					}
+				}
+				finally
+				{
+					internalZoom = false;
+				}
+			};
+
+			graph.dblClick = function(evt, cell)
+			{
+				toggleFocus(cell, evt);
+			};
+
+			// The browser sends the dblclick event to the document if the first
+			// click scrolled the content under the mouse
+			var dblClickHandler = function(evt)
+			{
+				var src = mxEvent.getSource(evt);
+
+				if (src == document.documentElement || src == document.body)
+				{
+					toggleFocus(null, evt);
+				}
+			};
+
+			mxEvent.addListener(document.documentElement, 'dblclick', dblClickHandler);
+
+			// Double clicks do not select the text of labels
+			mxEvent.addListener(lightbox, 'mousedown', function(evt)
+			{
+				if (evt.detail > 1)
+				{
+					evt.preventDefault();
+				}
+			});
+
+			// Drags always move the diagram, also on labels, whose text cannot be
+			// selected, and a drag is never a click of a link in a label
+			frame.style.userSelect = 'none';
+			frame.style.webkitUserSelect = 'none';
+			lightbox.style.userSelect = 'none';
+			lightbox.style.webkitUserSelect = 'none';
+
+			graph.panningHandler.isForcePanningEvent = function(me)
+			{
+				return !mxEvent.isPopupTrigger(me.getEvent());
+			};
+
+			var pressPoint = null;
+
+			lightbox.addEventListener('pointerdown', function(evt)
+			{
+				pressPoint = new mxPoint(evt.clientX, evt.clientY);
+			}, true);
+
+			lightbox.addEventListener('click', function(evt)
+			{
+				if (evt.detail > 0 && pressPoint != null &&
+					(Math.abs(evt.clientX - pressPoint.x) > graph.tolerance ||
+					Math.abs(evt.clientY - pressPoint.y) > graph.tolerance))
+				{
+					mxEvent.consume(evt);
+				}
+			}, true);
+
 			var overflow = document.body.style.overflow;
 			document.body.style.overflow = 'hidden';
 
-			// Build custom toolbar (top-right, standard dialog style)
-			var toolbar = document.createElement('div');
-			toolbar.style.cssText = 'position:fixed;top:10px;right:10px;z-index:1000;' +
-				'display:inline-flex;align-items:center;gap:2px;' +
-				'padding:4px;white-space:nowrap;cursor:default;' +
-				'border:1px solid;border-radius:6px;' +
-				'background-color:' + (dark ? '#2a2a2a' : '#ffffff') + ';' +
-				'border-color:' + (dark ? '#505050' : '#e0e0e0') + ';' +
-				'box-shadow:0 2px 6px ' + (dark ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.1)');
-
-			var iconColor = dark ? 'invert(80%)' : 'none';
-
-			var addToolbarButton = function(fn, img, tooltip)
+			// Controls in the style of the explorer (see ForceExplorer.createButton):
+			// pages on the top left, explore and close on the top right and zoom
+			// on the bottom right
+			var createPanel = function(css)
 			{
-				var btn = document.createElement('img');
-				btn.setAttribute('src', img);
-				btn.setAttribute('title', tooltip || '');
-				btn.setAttribute('border', '0');
-				btn.style.cssText = 'width:16px;height:16px;cursor:pointer;display:block;' +
-					'padding:2px;opacity:0.6;filter:' + iconColor;
-				btn.className = 'geAdaptiveAsset';
+				var panel = document.createElement('div');
+				panel.style.cssText = 'position:fixed;z-index:1000;display:flex;gap:6px;' +
+					'align-items:center;font-family:Helvetica,Arial,sans-serif;' +
+					'color:' + ((dark) ? '#e6e6e6' : '#333333') + ';' + css;
 
-				mxEvent.addListener(btn, 'mouseenter', function()
-				{
-					btn.style.opacity = '1';
-				});
+				return panel;
+			};
 
-				mxEvent.addListener(btn, 'mouseleave', function()
-				{
-					btn.style.opacity = '0.6';
-				});
+			var topLeft = createPanel('left:14px;top:12px;');
+			var topRight = createPanel('right:14px;top:12px;');
+			var bottomRight = createPanel('right:14px;bottom:14px;flex-direction:column;');
 
-				mxEvent.addListener(btn, 'click', function(evt)
-				{
-					fn(evt);
-					mxEvent.consume(evt);
-				});
+			var createIcon = function(img)
+			{
+				var icon = document.createElement('img');
+				icon.setAttribute('src', img);
+				icon.style.cssText = 'width:20px;height:20px;filter:' +
+					((dark) ? 'invert(90%)' : 'none');
 
-				toolbar.appendChild(btn);
+				return icon;
+			};
+
+			var addButton = function(panel, content, tooltip, fn)
+			{
+				var btn = ForceExplorer.createButton(content, tooltip, fn);
+				panel.appendChild(btn);
 
 				return btn;
 			};
 
-			// Page navigation dropdown (added after data is loaded, when page count is known)
+			// Page navigation and the name of the page (added after data is
+			// loaded, when page count is known)
+			var pageName = document.createElement('div');
+			pageName.style.cssText = 'font-size:16px;font-weight:bold;';
+
+			var updatePageName = function()
+			{
+				pageName.textContent = (ui.currentPage != null) ?
+					ui.getShortPageName(ui.currentPage) : '';
+			};
+
 			var addPageNav = function()
 			{
 				if (ui.pages != null && ui.pages.length > 1)
 				{
-					var pageBtn = addToolbarButton(function(evt)
+					addButton(topLeft, createIcon(Editor.chevronDownImage),
+						mxResources.get('pages'), function(evt)
 					{
+						// Below the button, also for the keyboard
+						var r = evt.currentTarget.getBoundingClientRect();
+
 						ui.showPopupMenu(function(menu, parent)
 						{
 							for (var i = 0; i < ui.pages.length; i++)
@@ -4079,69 +4717,422 @@
 									}
 								})(i);
 							}
-						}, mxEvent.getClientX(evt), mxEvent.getClientY(evt), evt);
-					}, Editor.chevronDownImage, mxResources.get('pages'));
+						}, r.left, r.bottom + 4, evt);
+					});
 
-					toolbar.insertBefore(pageBtn, toolbar.firstChild);
+					topLeft.appendChild(pageName);
+					updatePageName();
 				}
 			};
 
-			// Zoom buttons
-			addToolbarButton(function()
+			// Laser pointer: a red dot instead of the mouse cursor over the diagram,
+			// which the collaborators that follow a presenter see as well (see
+			// EditorUi.getSharedLaser)
+			var createLaserDot = function()
 			{
-				graph.zoomOut();
-				ui.chromelessResize(false);
-			}, Editor.zoomOutImage, mxResources.get('zoomOut'));
+				var dot = document.createElement('div');
+				dot.style.cssText = 'position:absolute;z-index:1001;width:12px;height:12px;' +
+					'margin:-6px 0 0 -6px;border-radius:50%;pointer-events:none;display:none;' +
+					'background:radial-gradient(circle, #ffd6d6 0%, #ff2020 45%, #e00000 100%);' +
+					'box-shadow:0 0 8px 3px rgba(255, 0, 0, 0.55)';
+				frame.appendChild(dot);
 
-			addToolbarButton(function()
-			{
-				graph.zoomIn();
-				ui.chromelessResize(false);
-			}, Editor.zoomInImage, mxResources.get('zoomIn'));
+				return dot;
+			};
 
-			addToolbarButton(function()
+			var laserOn = false;
+			var laserDot = createLaserDot();
+			var laserClient = null;
+			var laserPoint = null;
+			var remoteDot = createLaserDot();
+			var remotePoint = null;
+			var remoteThread = null;
+			var lightboxCursor = null;
+
+			// Moves the laser pointer to the client point, which is a new point
+			// of the diagram after scrolling and zooming
+			var updateLaser = function()
 			{
-				if (graph.view.scale == 1)
+				var pt = (laserOn && laserClient != null) ?
+					getModelPoint(laserClient.x, laserClient.y) : null;
+
+				if (pt != null)
 				{
-					ui.lightboxFit();
+					laserDot.style.left = laserClient.x + 'px';
+					laserDot.style.top = laserClient.y + 'px';
+					laserDot.style.display = '';
 				}
 				else
 				{
-					graph.zoomTo(1);
+					laserDot.style.display = 'none';
 				}
 
-				ui.chromelessResize(false);
-			}, Editor.zoomFitImage, mxResources.get('fit'));
+				if ((pt == null) != (laserPoint == null) || (pt != null &&
+					(pt.x != laserPoint.x || pt.y != laserPoint.y)))
+				{
+					laserPoint = pt;
+					editorUi.laserChanged();
+				}
+			};
 
-			addToolbarButton(function()
+			var updateRemoteLaser = function()
+			{
+				if (remotePoint != null && loaded && !closing)
+				{
+					var view = graph.view;
+					var s = view.scale;
+					var r = lightbox.getBoundingClientRect();
+					remoteDot.style.left = (r.left + (remotePoint.x + view.translate.x) *
+						s - lightbox.scrollLeft) + 'px';
+					remoteDot.style.top = (r.top + (remotePoint.y + view.translate.y) *
+						s - lightbox.scrollTop) + 'px';
+					remoteDot.style.display = '';
+				}
+				else
+				{
+					remoteDot.style.display = 'none';
+				}
+			};
+
+			var updateLasers = function()
+			{
+				updateLaser();
+				updateRemoteLaser();
+			};
+
+			mxEvent.addListener(lightbox, 'scroll', updateLasers);
+			graph.view.addListener(mxEvent.SCALE, updateLasers);
+			graph.view.addListener(mxEvent.TRANSLATE, updateLasers);
+			graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, updateLasers);
+
+			lightbox.addEventListener('pointermove', function(evt)
+			{
+				if (laserOn)
+				{
+					// Link handling sets the cursor of the container
+					if (lightbox.style.cursor != 'none')
+					{
+						lightbox.style.cursor = 'none';
+					}
+
+					laserClient = new mxPoint(evt.clientX, evt.clientY);
+					updateLaser();
+				}
+			});
+
+			lightbox.addEventListener('pointerleave', function()
+			{
+				laserClient = null;
+				updateLaser();
+			});
+
+			// Cells have no cursor while the laser pointer is on
+			var graphGetCursorForCell = graph.getCursorForCell;
+
+			graph.getCursorForCell = function(cell)
+			{
+				return (laserOn) ? 'none' : graphGetCursorForCell.apply(this, arguments);
+			};
+
+			var laserIcon = document.createElement('div');
+			laserIcon.style.cssText = 'width:10px;height:10px;border-radius:50%;' +
+				'background-color:#ff2020;box-shadow:0 0 4px 1px rgba(255, 0, 0, 0.5)';
+
+			var laserButton = addButton(topRight, laserIcon,
+				mxResources.get('laserPointer'), function()
+			{
+				laserOn = !laserOn;
+				laserButton.setAttribute('aria-pressed', (laserOn) ? 'true' : 'false');
+				laserButton.style.backgroundColor = (laserOn) ?
+					'rgba(255, 32, 32, 0.25)' : 'rgba(127, 127, 127, 0.12)';
+
+				if (laserOn)
+				{
+					lightboxCursor = lightbox.style.cursor;
+					lightbox.style.cursor = 'none';
+				}
+				else
+				{
+					lightbox.style.cursor = lightboxCursor;
+				}
+
+				graph.view.states.visit(function(key, state)
+				{
+					state.setCursor(graph.getCursorForCell(state.cell));
+				});
+
+				updateLaser();
+			});
+
+			laserButton.setAttribute('aria-pressed', 'false');
+
+			// Explores the current cell, shown if a cell has connections. Hidden
+			// for the classic Explore view (forceExplore is false), which opens
+			// behind the presentation.
+			var exploreButton = addButton(topRight, createIcon(Editor.exploreImage),
+				mxResources.get('explore'), function()
+			{
+				var cell = ui.getExploreCell(exploreCell, true);
+
+				if (cell != null)
+				{
+					stopScroll();
+					Graph.exploreFromCell(graph, cell);
+				}
+			});
+
+			var updateExploreButton = function()
+			{
+				exploreButton.style.display = (Editor.forceExplore && ui.getExploreCell(
+					exploreCell, true) != null) ? 'flex' : 'none';
+			};
+
+			exploreButton.style.display = 'none';
+
+			ui.editor.addListener('pageSelected', function()
+			{
+				setGlow(null);
+				exploreCell = null;
+				focusView = null;
+				updateExploreButton();
+				updatePageName();
+			});
+
+			var closeButton = addButton(topRight, '\u2715', mxResources.get('close') +
+				' (Escape)', function()
 			{
 				ui.destroy();
-			}, Editor.closeImage, mxResources.get('close') + ' (Escape)');
+			});
 
-			// Cleanup function
+			closeButton.style.fontSize = '14px';
+
+			// Zoom buttons
+			addButton(bottomRight, '+', mxResources.get('zoomIn'), function()
+			{
+				animateViewChange(function()
+				{
+					graph.zoomIn();
+					ui.chromelessResize(false);
+				});
+			});
+
+			addButton(bottomRight, '\u2212', mxResources.get('zoomOut'), function()
+			{
+				animateViewChange(function()
+				{
+					graph.zoomOut();
+					ui.chromelessResize(false);
+				});
+			});
+
+			addButton(bottomRight, createIcon(Editor.zoomFitImage), mxResources.get('fit'), function()
+			{
+				animateViewChange(function()
+				{
+					if (graph.view.scale == 1)
+					{
+						ui.lightboxMaxFitScale = maxFitScale;
+
+						try
+						{
+							ui.lightboxFit();
+						}
+						finally
+						{
+							ui.lightboxMaxFitScale = 1;
+						}
+					}
+					else
+					{
+						graph.zoomTo(1);
+					}
+
+					ui.chromelessResize(false);
+				});
+			});
+
+			// State for the collaborators that follow this client (see
+			// EditorUi.getSharedViewMode): the page, the visible area in model
+			// units and the glowing cell
+			var loaded = false;
+			var closing = false;
+			var pendingState = null;
+			var lastState = null;
+
+			var presentation = {graph: graph, ui: ui};
+
+			presentation.isShown = function()
+			{
+				return loaded && !closing;
+			};
+
+			presentation.getSharedState = function()
+			{
+				var view = graph.view;
+				var s = view.scale;
+
+				return {page: (ui.currentPage != null) ? ui.currentPage.getId() : null,
+					x: Math.round(lightbox.scrollLeft / s - view.translate.x),
+					y: Math.round(lightbox.scrollTop / s - view.translate.y),
+					w: Math.round(lightbox.clientWidth / s),
+					h: Math.round(lightbox.clientHeight / s),
+					cell: (glowCell != null) ? glowCell.id : null};
+			};
+
+			// Shows the state of a presenter, which comes from a collaborator
+			presentation.setSharedState = function(state)
+			{
+				if (!loaded)
+				{
+					pendingState = state;
+				}
+				else if (state != null && typeof state === 'object' && !closing)
+				{
+					if (state.page != null && ui.pages != null && ui.currentPage != null &&
+						String(state.page) != ui.currentPage.getId())
+					{
+						var page = ui.getPageById(String(state.page));
+
+						if (page != null)
+						{
+							ui.selectPage(page);
+							ui.lightboxFit();
+							ui.chromelessResize();
+							lastState = null;
+						}
+					}
+
+					var x = parseFloat(state.x);
+					var y = parseFloat(state.y);
+					var w = parseFloat(state.w);
+					var h = parseFloat(state.h);
+					var key = [x, y, w, h].join(',');
+
+					if (key != lastState && isFinite(x) && isFinite(y) && isFinite(w) &&
+						isFinite(h) && w > 0 && h > 0 && lightbox.clientWidth > 0)
+					{
+						lastState = key;
+						stopScroll();
+						graph.animateView(new mxPoint(x + w / 2, y + h / 2), Math.max(0.05,
+							Math.min(8, Math.min(lightbox.clientWidth / w,
+							lightbox.clientHeight / h))), 300);
+					}
+
+					var cell = (state.cell != null) ? graph.model.getCell(String(state.cell)) : null;
+
+					if (((cell instanceof mxCell) ? cell : null) != glowCell)
+					{
+						setGlow((cell instanceof mxCell) ? cell : null);
+					}
+				}
+			};
+
+			// The point of the laser pointer in model units or null
+			presentation.getLaser = function()
+			{
+				return laserPoint;
+			};
+
+			// Shows the laser pointer of a presenter at the given point in model
+			// units, which comes from a collaborator, or hides it. It is hidden
+			// without updates, which the presenter sends at least every 2 s.
+			presentation.setRemoteLaser = function(pt)
+			{
+				remotePoint = pt;
+				window.clearTimeout(remoteThread);
+				remoteThread = null;
+
+				if (pt != null)
+				{
+					remoteThread = window.setTimeout(function()
+					{
+						remotePoint = null;
+						updateRemoteLaser();
+					}, 3000);
+				}
+
+				updateRemoteLaser();
+			};
+
+			presentation.close = function()
+			{
+				ui.destroy();
+			};
+
+			editorUi.presentation = presentation;
+
+			// Cleanup function: the editor gets the input at once and the frame
+			// zooms out before it is removed
 			var destroy = ui.destroy;
 
 			ui.destroy = function()
 			{
-				mxEvent.removeListener(document.documentElement, 'keydown', keydownHandler);
-				editorUi.keyHandler.setEnabled(keyHandlerEnabled);
-				document.body.removeChild(backdrop);
-				document.body.removeChild(toolbar);
-				document.body.style.overflow = overflow;
-
-				for (var i = 0; i < paramKeys.length; i++)
+				if (!closing)
 				{
-					urlParams[paramKeys[i]] = savedParams[paramKeys[i]];
-				}
+					var args = arguments;
+					closing = true;
 
-				destroy.apply(this, arguments);
+					if (editorUi.presentation == presentation)
+					{
+						editorUi.presentation = null;
+					}
+
+					ForceExplorer.fireChange();
+					window.clearTimeout(remoteThread);
+					laserOn = false;
+					updateLaser();
+					mxEvent.removeListener(document.documentElement, 'keydown', keydownHandler);
+					mxEvent.removeListener(document.documentElement, 'dblclick', dblClickHandler);
+					graph.removeMouseListener(clickListener);
+					graph.dblClick = function() {};
+					stopScroll();
+					editorUi.keyHandler.setEnabled(keyHandlerEnabled);
+					frame.style.pointerEvents = 'none';
+
+					// Gives the focus back if it was in the presentation
+					var active = document.activeElement;
+
+					if (active == null || active == document.body || frame.contains(active))
+					{
+						ForceExplorer.restoreFocus(previousFocus);
+					}
+
+					// Restores the global state at once, as another presentation may
+					// be opened during the animation and would save this state
+					document.body.style.overflow = overflow;
+
+					for (var i = 0; i < paramKeys.length; i++)
+					{
+						urlParams[paramKeys[i]] = savedParams[paramKeys[i]];
+					}
+
+					ForceExplorer.animateFrame(frame, false, getOrigin(), 220, function()
+					{
+						document.body.removeChild(frame);
+						destroy.apply(ui, args);
+					}, ForceExplorer.isReducedMotion() || frame.style.opacity == '0');
+				}
 			};
 
 			var keydownHandler = function(evt)
 			{
-				if (evt.keyCode == 27 /* Escape */)
+				ForceExplorer.fireInput();
+
+				if (ForceExplorer.handleButtonKeys(frame, evt))
 				{
-					ui.destroy();
+					// handled
+				}
+				else if (evt.keyCode == 27 /* Escape */)
+				{
+					// Closes the page menu first
+					if (ui.currentMenu != null)
+					{
+						ui.hideCurrentMenu();
+					}
+					else
+					{
+						ui.destroy();
+					}
 				}
 				else if ((evt.keyCode == 37 || evt.keyCode == 39) && !mxEvent.isShiftDown(evt) &&
 					(mxEvent.isControlDown(evt) || (mxClient.IS_MAC && mxEvent.isMetaDown(evt))) &&
@@ -4167,8 +5158,10 @@
 
 			mxEvent.addListener(document.documentElement, 'keydown', keydownHandler);
 
-			document.body.appendChild(lightbox);
-			document.body.appendChild(toolbar);
+			frame.appendChild(lightbox);
+			frame.appendChild(topLeft);
+			frame.appendChild(topRight);
+			frame.appendChild(bottomRight);
 
 			window.setTimeout(function()
 			{
@@ -4179,8 +5172,32 @@
 					// Add page navigation now that pages are loaded
 					addPageNav();
 
+					// Starts at the cell selected in the editor
+					var selected = editorUi.editor.graph.getSelectionCell();
+					exploreCell = (selected != null) ? graph.model.getCell(selected.id) : null;
+					updateExploreButton();
+
 					ui.lightboxFit();
 					ui.chromelessResize();
+
+					ForceExplorer.animateFrame(frame, true, getOrigin(), 300,
+						null, ForceExplorer.isReducedMotion());
+
+					// Applies the state of a followed presenter that came in while loading
+					loaded = true;
+
+					if (pendingState != null)
+					{
+						presentation.setSharedState(pendingState);
+						pendingState = null;
+					}
+
+					if (editorUi.isFollowing() && editorUi.lastSharedViewMode != null)
+					{
+						editorUi.applySharedViewMode(editorUi.lastSharedViewMode);
+					}
+
+					ForceExplorer.fireChange();
 				}
 				catch (e)
 				{
@@ -5594,6 +6611,8 @@
 				this.addMenuItem(menu, 'presentationMode', parent);
 			}
 
+			this.addMenuItem(menu, 'exploreMode', parent);
+
 			if (editorUi.getMainUser() != null)
 			{
 				this.addMenuItems(menu, ['accounts'], parent);
@@ -5891,6 +6910,11 @@
 						editorUi.getServiceName() == 'draw.io' && !navigator.standalone)
 					{
 						this.addMenuItem(menu, 'presentationMode', parent);
+					}
+
+					if (Editor.currentTheme == 'sketch' || Editor.currentTheme == 'min')
+					{
+						this.addMenuItem(menu, 'exploreMode', parent);
 					}
 				}
 

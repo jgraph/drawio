@@ -24,6 +24,18 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	buttons.appendChild(container);
 	
 	var p3 = document.createElement('p');
+
+	// Choosing a storage, or deciding later, accepts the Terms of Use where
+	// the notice shows
+	var notice = editorUi.createTermsNotice();
+
+	function accept(mode)
+	{
+		if (notice != null)
+		{
+			editorUi.acceptTerms((mode == App.MODE_GOOGLE) ? editorUi.drive : null);
+		}
+	}
 	
 	function addLogo(img, title, mode, clientName, labels, clientFn)
 	{
@@ -102,6 +114,11 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		
 		function initButton()
 		{
+			mxEvent.addListener(button, 'click', function()
+			{
+				accept(mode);
+			});
+
 			mxEvent.addListener(button, 'click', (clientFn != null) ? clientFn : function()
 			{
 				if (mode == App.MODE_GOOGLE && editorUi.spinner.spin(document.body, mxResources.get('authorizing')))
@@ -194,8 +211,9 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		container.appendChild(button);
 	};
 
+	// Long titles wrap (eg. German) instead of overflowing the dialog
 	var hd = document.createElement('p');
-	hd.style.cssText = 'font-size:22px;padding:4px 0 16px 0;margin:0;color:gray;';
+	hd.style.cssText = 'font-size:22px;padding:4px 0 16px 0;margin:0;color:gray;white-space:normal;';
 	mxUtils.write(hd, mxResources.get('saveDiagramsTo') + ':');
 	div.appendChild(hd);
 	
@@ -237,6 +255,12 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	div.appendChild(buttons);
 	addButtons();
 
+	if (notice != null)
+	{
+		notice.style.margin = '12px 8px 0 8px';
+		div.appendChild(notice);
+	}
+
 	var later = document.createElement('span');
 	later.style.position = 'absolute';
 	later.style.cursor = 'pointer';
@@ -249,8 +273,18 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	mxUtils.write(later, mxResources.get('decideLater'));
 	div.appendChild(later);
 
+	// Below the notice, which the dialog's height follows (App.showSplash)
+	if (notice != null)
+	{
+		later.style.position = '';
+		later.style.display = 'inline-block';
+		later.style.marginTop = '14px';
+		mxUtils.setPrefixedStyle(later.style, 'transform', '');
+	}
+
 	mxEvent.addListener(later, 'click', function()
 	{
+		accept(null);
 		editorUi.hideDialog();
 		var prev = Editor.useLocalStorage;
 		editorUi.createFile(editorUi.defaultFilename,
@@ -278,10 +312,18 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 					'<img border="0" src="' + mxGraph.prototype.warningImage.src + '" align="absmiddle" ' +
 					'style="margin-top:-4px"> ' + mxResources.get('googleDriveMissingClickHere') + '</a>';
 				div.appendChild(p3);
+
+				// The dialog's height follows its content with the notice
+				if (notice != null && div.parentNode != null && div.parentNode.className == 'geDialog')
+				{
+					p3.style.marginTop = '14px';
+					div.parentNode.style.height = (div.scrollHeight + 48) + 'px';
+				}
 			}
 		}, 5000);
 	}
 	
+	this.notice = notice;
 	this.container = div;
 };
 
@@ -1455,7 +1497,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 						var inserted = editorUi.importXml(insertXml,
 							Math.max(insertPoint.x, 20),
 							Math.max(insertPoint.y, 20),
-							true, null, null, true);
+							true, null, null, editorUi.getConvertedDiagramStyles());
 						graph.setSelectionCells(inserted);
 					}
 					finally
@@ -1511,7 +1553,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 						var inserted = editorUi.importXml(insertXml,
 							Math.max(insertPoint.x, 20),
 							Math.max(insertPoint.y, 20),
-							true, null, null, true);
+							true, null, null, editorUi.getConvertedDiagramStyles());
 						graph.setSelectionCells(inserted);
 					}
 					finally
@@ -2053,7 +2095,8 @@ var ParseDialog = function(editorUi, title, defaultType)
 		    evt.stopPropagation();
 		    evt.preventDefault();
 		    
-		    if (evt.dataTransfer.files.length > 0)
+		    // Drop events created by scripts may have no dataTransfer and no data
+		    if (evt.dataTransfer != null && evt.dataTransfer.files.length > 0)
 		    {
 		    	var file = evt.dataTransfer.files[0];
     			
@@ -6361,7 +6404,7 @@ LinkDialog.editCustomAction = function(editorUi, currentValue, onSave, cells)
 
 	var open = function()
 	{
-		var dlg = new CustomActionDialog(editorUi, currentValue, onSave);
+		var dlg = new CustomActionDialog(editorUi, currentValue, onSave, cells);
 		dlg.cells = cells;
 		editorUi.actionWindow = dlg;
 
@@ -7774,9 +7817,9 @@ SelectorChips.create = function(graph, editorUi)
  * into / out of AnimationDialog's `{title?, steps}` shape and forwards the
  * save callback. All UI (picker, row rendering, selector chips, preview
  * session, footer buttons) lives in AnimationDialog; the wrapper is just
- * the format adapter.
+ * the format adapter. cells are the cells whose link is edited.
  */
-var CustomActionDialog = function(editorUi, currentValue, onSave)
+var CustomActionDialog = function(editorUi, currentValue, onSave, cells)
 {
 	installCustomActionStyles();
 
@@ -7838,6 +7881,7 @@ var CustomActionDialog = function(editorUi, currentValue, onSave)
 
 	var dialog = new AnimationDialog(editorUi, x, y, w, h, {
 		kind: 'action',
+		cells: cells,
 		showTitle: true,
 		windowTitleKey: 'action',
 		windowTitleFallback: 'Action',
@@ -8157,7 +8201,13 @@ CustomActionDialog.ICONS = {
 		'Z',
 	download: 'M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200' +
 		'ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 ' +
-		'33-23.5 56.5T720-160H240Z'
+		'33-23.5 56.5T720-160H240Z',
+	// Same picture as Editor.exploreImage (the Explore buttons)
+	explore: 'M286.6-718.6L422.6-582.6L377.4-537.4L241.4-673.4ZM718.6-673.4L58' +
+		'2.6-537.4L537.4-582.6L673.4-718.6ZM512-360L512-240L448-240L448-36' +
+		'0ZM360-480a120 120 0 1 1 240 0a120 120 0 1 1-240 0ZM112-760a88 88' +
+		' 0 1 1 176 0a88 88 0 1 1-176 0ZM672-760a88 88 0 1 1 176 0a88 88 0' +
+		' 1 1-176 0ZM392-160a88 88 0 1 1 176 0a88 88 0 1 1-176 0Z'
 };
 
 /**
@@ -8314,6 +8364,15 @@ CustomActionDialog.SCHEMAS = {
 			titleKey: 'border', title: 'Border'},
 		         {name: 'smooth', type: 'checkbox',
 			labelKey: 'transition', label: 'Transition'}]},
+	// Opens the explorer for the shape with the link, so the picker only
+	// offers it for custom links (see AnimationDialog). Classic opens the
+	// classic Explore view, which has no levels (see Graph.exploreFromCell).
+	explore:     {label: 'Explore',       icon: 'explore', noSelector: true,
+		fields: [{name: 'depth', type: 'number', min: 1, max: 6, step: 1,
+			width: 36, placeholder: '1', labelKey: 'levels', label: 'Levels',
+			titleKey: 'levels', title: 'Levels'},
+		         {name: 'classic', type: 'checkbox',
+			labelKey: 'classic', label: 'Classic'}]},
 	tags:        {label: 'Toggle Tags',   icon: 'sell', noSelector: true,
 		fields: [{name: 'toggle',  type: 'tagList',
 			labelKey: 'toggle', label: 'Toggle',
@@ -14091,7 +14150,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	var STEP_KEYS = ['wait', 'fadeIn', 'fadeOut', 'fadeTo', 'opacity',
 		'wipeIn', 'wipeOut', 'popIn', 'popOut', 'flow',
 		'toggle', 'show', 'hide', 'select', 'style', 'toggleStyle',
-		'highlight', 'scroll', 'viewbox', 'open', 'tags'];
+		'highlight', 'scroll', 'viewbox', 'open', 'explore', 'tags'];
 
 	var getStepKey = function(step)
 	{
@@ -14113,6 +14172,33 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		if (key == null || key == 'wait') return null;
 
 		return step[key];
+	};
+
+	// Returns the first cell whose link is edited, or null. Explore runs
+	// for the shape with the link only, which the preview does not pass to
+	// executeCustomActions (cell == null keeps the preview transient).
+	var getLinkCell = function()
+	{
+		var cells = (kind != 'page') ? opts.cells : null;
+
+		return (cells != null && cells.length > 0 &&
+			graph.model.contains(cells[0])) ? cells[0] : null;
+	};
+
+	// Opens the explorer of the first explore step in the given steps for
+	// the cell whose link is edited.
+	var previewExplore = function(steps)
+	{
+		var cell = getLinkCell();
+
+		for (var i = 0; i < steps.length && cell != null; i++)
+		{
+			if (steps[i] != null && steps[i].explore != null)
+			{
+				Graph.exploreFromCell(graph, cell, steps[i].explore);
+				break;
+			}
+		}
 	};
 
 	// Display name + icon for a step. fadeTo with value 1 or 0 is shown as
@@ -14521,8 +14607,14 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		row.addEventListener('dragstart', function(e)
 		{
 			dragState = {sourceIndex: index};
-			e.dataTransfer.effectAllowed = 'move';
-			e.dataTransfer.setData('text/plain', 'animstep');
+
+			// Drag events created by scripts may have no dataTransfer
+			if (e.dataTransfer != null)
+			{
+				e.dataTransfer.effectAllowed = 'move';
+				e.dataTransfer.setData('text/plain', 'animstep');
+			}
+
 			row.style.opacity = '0.4';
 		});
 
@@ -14562,7 +14654,12 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			}
 
 			e.preventDefault();
-			e.dataTransfer.dropEffect = 'move';
+
+			if (e.dataTransfer != null)
+			{
+				e.dataTransfer.dropEffect = 'move';
+			}
+
 			row._dropInsertAt = insertAt;
 
 			var color = 'light-dark(var(--focus-color), var(--dark-focus-color))';
@@ -15713,7 +15810,8 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			var lbl = document.createElement('span');
 			lbl.className = 'geDialogHint';
 			lbl.style.cssText = 'flex:0 0 auto';
-			mxUtils.write(lbl, spec.label);
+			mxUtils.write(lbl, (spec.labelKey != null) ?
+				mxResources.get(spec.labelKey, null, spec.label) : spec.label);
 			row.appendChild(lbl);
 		}
 	};
@@ -15997,11 +16095,14 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 				var single = JSON.parse(JSON.stringify(
 					Graph.flattenAnimationActions([step])));
 				graph.executeCustomActions(single);
+				previewExplore([step]);
 			});
 		// A wait step on its own shows nothing, so its preview is hidden
-		// like the immediate toggle (keeps the column aligned).
-		if (key == 'wait' && Object.keys(step).every(function(k)
-			{ return k == 'wait' || k == 'immediate'; }))
+		// like the immediate toggle (keeps the column aligned). Same for
+		// an explore step without a cell to explore from.
+		if ((key == 'wait' && Object.keys(step).every(function(k)
+			{ return k == 'wait' || k == 'immediate'; })) ||
+			(key == 'explore' && getLinkCell() == null))
 		{
 			previewIconBtn.style.visibility = 'hidden';
 		}
@@ -16157,8 +16258,11 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			       'wipeIn', 'wipeOut', 'popIn', 'popOut']},
 		{labelKey: 'style',             label: 'Style',
 			keys: ['opacity', 'style', 'toggleStyle', 'highlight', 'flow']},
+		// Explore needs the shape with the link, which page animations
+		// do not have
 		{labelKey: 'navigation',        label: 'Navigation',
-			keys: ['select', 'scroll', 'viewbox', 'open']},
+			keys: ['select', 'scroll', 'viewbox', 'open'].concat(
+				(kind == 'page') ? [] : ['explore'])},
 		{labelKey: 'tags',              label: 'Tags',
 			keys: ['tags']},
 		{labelKey: 'timing',            label: 'Timing',
@@ -16665,7 +16769,12 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			// upper bound of the parallel batch, so two-step batches
 			// light up both rows at once. Single-step (sequential)
 			// dispatches have end = start + 1.
-			onStep: function(start, end) { setPlayingStep(start, end); }
+			onStep: function(start, end)
+			{
+				setPlayingStep(start, end);
+				previewExplore(data.steps.slice(start,
+					(end != null) ? end : start + 1));
+			}
 		});
 	});
 	previewBtn.className = 'geBtn';
@@ -17256,8 +17365,16 @@ var AuthDialog = function(editorUi, peer, showRememberOption, fn)
 	var cb = document.createElement('input');
 	cb.setAttribute('type', 'checkbox');
 
+	// The button accepts the Terms of Use where the notice shows
+	var notice = editorUi.createTermsNotice();
+
 	var button = mxUtils.button(mxResources.get('authorize'), function()
 	{
+		if (notice != null)
+		{
+			editorUi.acceptTerms(peer);
+		}
+
 		fn(cb.checked);
 	});
 
@@ -17270,6 +17387,12 @@ var AuthDialog = function(editorUi, peer, showRememberOption, fn)
 	div.appendChild(hd);
 	div.appendChild(p);
 	div.appendChild(button);
+
+	if (notice != null)
+	{
+		notice.style.margin = '14px 0 0 0';
+		div.appendChild(notice);
+	}
 	
 	if (showRememberOption)
 	{
@@ -17290,6 +17413,7 @@ var AuthDialog = function(editorUi, peer, showRememberOption, fn)
 		});
 	}
 	
+	this.notice = notice;
 	this.container = div;
 };
 
@@ -19354,7 +19478,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 						}
 						
 						// Workaround for no DnD on DIV in FF
-						if (mxClient.IS_FF && img.xml != null)
+						if (mxClient.IS_FF && img.xml != null && evt.dataTransfer != null)
 						{
 							evt.dataTransfer.setData('Text', img.xml);
 						}
@@ -19503,7 +19627,13 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 	
 	function dragOver(evt)
 	{
-		evt.dataTransfer.dropEffect = (dragSourceIndex != null) ? 'move' : 'copy';
+		// Drag events created by scripts may have no dataTransfer
+		if (evt.dataTransfer != null)
+		{
+			evt.dataTransfer.dropEffect = (dragSourceIndex != null) ? 'move' : 'copy';
+		}
+
+
 		evt.stopPropagation();
 		evt.preventDefault();
 	};
@@ -19565,11 +19695,11 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 				div.appendChild(div.children[dragSourceIndex]);
 			}
 		}
-		else if (evt.dataTransfer.files.length > 0)
+		else if (evt.dataTransfer != null && evt.dataTransfer.files.length > 0)
 		{
 			editorUi.importFiles(evt.dataTransfer.files, 0, 0, editorUi.maxImageSize, createImportHandler(evt));
 		}
-		else if (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
+		else if (evt.dataTransfer != null && mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
 		{
 			var uri = decodeURIComponent(evt.dataTransfer.getData('text/uri-list'));
 			
@@ -22811,8 +22941,14 @@ var PolygonDialog = function(editorUi, cell, insertFn)
 				{
 					listDragSource = idx;
 					row.style.opacity = '0.4';
-					e.dataTransfer.effectAllowed = 'move';
-					e.dataTransfer.setData('text/plain', '' + idx);
+
+					// Drag events created by scripts may have no dataTransfer
+					if (e.dataTransfer != null)
+					{
+						e.dataTransfer.effectAllowed = 'move';
+						e.dataTransfer.setData('text/plain', '' + idx);
+					}
+
 					e.stopPropagation();
 				});
 
@@ -22820,7 +22956,12 @@ var PolygonDialog = function(editorUi, cell, insertFn)
 				{
 					e.preventDefault();
 					e.stopPropagation();
-					e.dataTransfer.dropEffect = 'move';
+
+					if (e.dataTransfer != null)
+					{
+						e.dataTransfer.dropEffect = 'move';
+					}
+
 					var targetIdx = parseInt(row.getAttribute('data-idx'));
 
 					if (listDragSource !== null && targetIdx !== listDragSource)

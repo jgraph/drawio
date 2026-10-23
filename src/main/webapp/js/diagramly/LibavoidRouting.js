@@ -76,6 +76,17 @@ var LibavoidRouting =
 	frameStyles: ['rotation', 'direction', 'flipH', 'flipV', 'stencilFlipH',
 		'stencilFlipV', 'anchorPointDirection', 'legacyAnchorPoints'],
 
+	// Style keys of a vertex that place a label outside the shape that edges
+	// end at (labelPerimeter, see getOutsideLabel): routing input of the
+	// vertex like its frame.
+	labelStyles: ['labelPerimeter', 'labelPosition', 'verticalLabelPosition'],
+
+	// Style keys of a vertex that change the size or the place of such a
+	// label: routing input of a vertex with a label outside the shape.
+	labelBoxStyles: ['fontSize', 'fontFamily', 'fontStyle', 'whiteSpace', 'html',
+		'labelWidth', 'align', 'verticalAlign', 'spacing', 'spacingTop',
+		'spacingBottom', 'spacingLeft', 'spacingRight'],
+
 	// The other routing input of the edge ends: the fixed connection points
 	// (fixedConstraint), the snapToPoint anchors (snapPoints, from the points
 	// or the shape of the terminal) and the jetty sizes (jettyFor), plus the
@@ -409,11 +420,31 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 				{
 					regions.push({x: b.x, y: b.y, width: b.w, height: b.h});
 				}
+
+				LibavoidRouting.addOutsideLabelRegions(graph, cells[i], regions);
 			}
 		}
 
 		LibavoidRouting.collectOverlappingEdges(graph, regions, map);
 		LibavoidRouting.autoReroute(graph, values(map), inserted);
+	});
+
+	// A new label of a shape with a label outside (getOutsideLabel) changes
+	// the box that its edges end at and that other edges route around. Fired
+	// by the in-place editor inside its update, so the solve joins the edit.
+	graph.addListener(mxEvent.LABEL_CHANGED, function(sender, evt)
+	{
+		var cell = evt.getProperty('cell');
+
+		if (cell != null && model.isVertex(cell))
+		{
+			var map = Object.create(null);
+			var regions = [];
+
+			collectRestyled(['value'], [cell], map, regions);
+			LibavoidRouting.collectOverlappingEdges(graph, regions, map);
+			LibavoidRouting.autoReroute(graph, values(map));
+		}
 	});
 
 	// Edge reconnected to a different terminal.
@@ -459,7 +490,11 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 	// too. The other end styles (endStyles: fixed connection points,
 	// snapToPoint anchors, jetty sizes) re-route like a mask, and turning the
 	// routing flag on routes the edge. An arrow edit re-routes an edge with a
-	// jettySize=auto end (arrowStyles). collectRestyled adds those edges for a
+	// jettySize=auto end (arrowStyles). The size and the place of a label
+	// outside a shape (labelBoxStyles, and its value for a LABEL_CHANGED) are
+	// routing input of a vertex with such a label like its frame. The regions
+	// of a framed vertex include the boxes of its label outside the shape
+	// before and after the edit. collectRestyled adds those edges for a
 	// change of the given style keys of the given cells to map, and the new
 	// boxes to regions.
 	var collectRestyled = function(keys, cells, map, regions)
@@ -467,6 +502,7 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 		var relevant = false;
 		var frameOnly = true;
 		var framed = false;
+		var labelled = false;
 		var arrows = false;
 		var i, j;
 
@@ -478,10 +514,16 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 				relevant = true;
 				frameOnly = false;
 			}
-			else if (mxUtils.indexOf(LibavoidRouting.frameStyles, keys[i]) >= 0)
+			else if (mxUtils.indexOf(LibavoidRouting.frameStyles, keys[i]) >= 0 ||
+				mxUtils.indexOf(LibavoidRouting.labelStyles, keys[i]) >= 0)
 			{
 				relevant = true;
 				framed = true;
+			}
+			else if (keys[i] == 'value' ||
+				mxUtils.indexOf(LibavoidRouting.labelBoxStyles, keys[i]) >= 0)
+			{
+				labelled = true;
 			}
 			else if (mxUtils.indexOf(LibavoidRouting.arrowStyles, keys[i]) >= 0)
 			{
@@ -489,7 +531,7 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 			}
 		}
 
-		if (!relevant && !arrows)
+		if (!relevant && !arrows && !labelled)
 		{
 			return;
 		}
@@ -503,9 +545,10 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 			{
 				map[cell.getId()] = cell;
 			}
-			else if (relevant && model.isVertex(cell))
+			else if (model.isVertex(cell) && (relevant || (labelled &&
+				LibavoidRouting.hasOutsideLabel(graph, cell))))
 			{
-				if (framed)
+				if (framed || labelled)
 				{
 					var fb = LibavoidRouting.getAbsoluteObstacleBounds(graph, cell);
 
@@ -513,6 +556,8 @@ LibavoidRouting.installAutoRouting = function(editorUi)
 					{
 						regions.push({x: fb.x, y: fb.y, width: fb.w, height: fb.h});
 					}
+
+					LibavoidRouting.addOutsideLabelRegions(graph, cell, regions);
 				}
 
 				var edges = model.getEdges(cell);
@@ -1235,6 +1280,7 @@ LibavoidRouting.getChangedStyles = function(graph, cell, previous)
 	var before = graph.stylesheet.getCellStyle(previous, defaults);
 	var after = graph.stylesheet.getCellStyle(model.getStyle(cell), defaults);
 	var keys = LibavoidRouting.constraintStyles.concat(LibavoidRouting.frameStyles,
+		LibavoidRouting.labelStyles, LibavoidRouting.labelBoxStyles,
 		LibavoidRouting.endStyles);
 	var changed = [];
 
@@ -1656,63 +1702,8 @@ LibavoidRouting.routeCells = function(graph, Avoid, edgeCells, opts, setStyle)
 {
 	var model = graph.getModel();
 	var vertices = LibavoidRouting.collectVertices(graph);
-	var edges = [];
 	var byId = Object.create(null);
-	var added = Object.create(null);
-	var i;
-
-	for (i = 0; i < edgeCells.length; i++)
-	{
-		var c = edgeCells[i];
-
-		if (c == null || !model.isEdge(c))
-		{
-			continue;
-		}
-
-		var s = model.getTerminal(c, true);
-		var t = model.getTerminal(c, false);
-		var sVertex = (s != null && model.isVertex(s));
-		var tVertex = (t != null && model.isVertex(t));
-
-		// A DANGLING end (no terminal vertex) routes to its free point, so a
-		// committed edge with one unconnected end matches its drag preview
-		// (previewRouteToPoint, the same descriptor).
-		var sPoint = sVertex ? null : LibavoidRouting.danglingPoint(graph, c, true);
-		var tPoint = tVertex ? null : LibavoidRouting.danglingPoint(graph, c, false);
-
-		// Need at least one real vertex end (like the preview, which routes from a
-		// fixed shape); an edge dangling at BOTH ends is left alone.
-		if ((sVertex || sPoint != null) && (tVertex || tPoint != null) &&
-			(sVertex || tVertex))
-		{
-			// transparentBounds terminals are not in collectVertices —
-			// register their derived hull so the core can route from/to them.
-			if (sVertex) { LibavoidRouting.addTerminalVertex(graph, vertices, added, s); }
-			if (tVertex) { LibavoidRouting.addTerminalVertex(graph, vertices, added, t); }
-
-			// getCellStyle (parses the cell's current style string), NOT
-			// getCurrentCellStyle (the cached state style): on a fresh insert the
-			// state hasn't re-validated yet, so its cached style is missing the
-			// exitX/entryX that setConnectionConstraint just set. A dangling end
-			// takes no constraint/pin/mask/jetty — it's a bare free point.
-			var st = graph.getCellStyle(c);
-			edges.push({id: c.getId(),
-				source: sVertex ? s.getId() : null,
-				target: tVertex ? t.getId() : null,
-				sourcePoint: sPoint, targetPoint: tPoint,
-				sourceConstraint: sVertex ? LibavoidRouting.fixedConstraint(st, true) : null,
-				targetConstraint: tVertex ? LibavoidRouting.fixedConstraint(st, false) : null,
-				sourcePoints: sVertex ? LibavoidRouting.snapPoints(graph, s, st, graph.getCellStyle(s)) : null,
-				targetPoints: tVertex ? LibavoidRouting.snapPoints(graph, t, st, graph.getCellStyle(t)) : null,
-				sourceSides: sVertex ? LibavoidRouting.maskSides(st, graph.getCellStyle(s), true) : null,
-				targetSides: tVertex ? LibavoidRouting.maskSides(st, graph.getCellStyle(t), false) : null,
-				sourceJetty: sVertex ? LibavoidRouting.jettyFor(st, true) : 0,
-				targetJetty: tVertex ? LibavoidRouting.jettyFor(st, false) : 0,
-				shapeBufferDistance: LibavoidRouting.spacingFor(st)});
-			byId[c.getId()] = c;
-		}
-	}
+	var edges = LibavoidRouting.createRouteEdges(graph, vertices, edgeCells, byId);
 
 	if (edges.length == 0)
 	{
@@ -1788,6 +1779,195 @@ LibavoidRouting.routeCells = function(graph, Avoid, edgeCells, opts, setStyle)
 };
 
 /**
+ * Returns the routing input of the given edges (see routeCells) and adds the
+ * edges to byId and their transparentBounds terminals to the given obstacles.
+ * The optional offset function returns the offset of a moved cell, which
+ * moves the free points of dangling ends and the added terminals (see
+ * routeMovedEdges).
+ */
+LibavoidRouting.createRouteEdges = function(graph, vertices, edgeCells, byId, offset)
+{
+	var model = graph.getModel();
+	var edges = [];
+	var added = Object.create(null);
+	var first = vertices.length;
+	var i;
+
+	for (i = 0; i < edgeCells.length; i++)
+	{
+		var c = edgeCells[i];
+
+		if (c == null || !model.isEdge(c))
+		{
+			continue;
+		}
+
+		var s = model.getTerminal(c, true);
+		var t = model.getTerminal(c, false);
+		var sVertex = (s != null && model.isVertex(s));
+		var tVertex = (t != null && model.isVertex(t));
+
+		// A DANGLING end (no terminal vertex) routes to its free point, so a
+		// committed edge with one unconnected end matches its drag preview
+		// (previewRouteToPoint, the same descriptor).
+		var sPoint = sVertex ? null : LibavoidRouting.danglingPoint(graph, c, true);
+		var tPoint = tVertex ? null : LibavoidRouting.danglingPoint(graph, c, false);
+		var o = (offset != null) ? offset(c) : null;
+
+		if (o != null)
+		{
+			sPoint = (sPoint != null) ? {x: sPoint.x + o.x, y: sPoint.y + o.y} : null;
+			tPoint = (tPoint != null) ? {x: tPoint.x + o.x, y: tPoint.y + o.y} : null;
+		}
+
+		// Need at least one real vertex end (like the preview, which routes from a
+		// fixed shape); an edge dangling at BOTH ends is left alone.
+		if ((sVertex || sPoint != null) && (tVertex || tPoint != null) &&
+			(sVertex || tVertex))
+		{
+			// transparentBounds terminals are not in collectVertices —
+			// register their derived hull so the core can route from/to them.
+			if (sVertex) { LibavoidRouting.addTerminalVertex(graph, vertices, added, s); }
+			if (tVertex) { LibavoidRouting.addTerminalVertex(graph, vertices, added, t); }
+
+			// getCellStyle (parses the cell's current style string), NOT
+			// getCurrentCellStyle (the cached state style): on a fresh insert the
+			// state hasn't re-validated yet, so its cached style is missing the
+			// exitX/entryX that setConnectionConstraint just set. A dangling end
+			// takes no constraint/pin/mask/jetty — it's a bare free point.
+			var st = graph.getCellStyle(c);
+			edges.push({id: c.getId(),
+				source: sVertex ? s.getId() : null,
+				target: tVertex ? t.getId() : null,
+				sourcePoint: sPoint, targetPoint: tPoint,
+				sourceConstraint: sVertex ? LibavoidRouting.fixedConstraint(st, true) : null,
+				targetConstraint: tVertex ? LibavoidRouting.fixedConstraint(st, false) : null,
+				sourcePoints: sVertex ? LibavoidRouting.snapPoints(graph, s, st, graph.getCellStyle(s)) : null,
+				targetPoints: tVertex ? LibavoidRouting.snapPoints(graph, t, st, graph.getCellStyle(t)) : null,
+				sourceSides: sVertex ? LibavoidRouting.maskSides(st, graph.getCellStyle(s), true) : null,
+				targetSides: tVertex ? LibavoidRouting.maskSides(st, graph.getCellStyle(t), false) : null,
+				sourceJetty: sVertex ? LibavoidRouting.jettyFor(st, true) : 0,
+				targetJetty: tVertex ? LibavoidRouting.jettyFor(st, false) : 0,
+				shapeBufferDistance: LibavoidRouting.spacingFor(st)});
+			byId[c.getId()] = c;
+		}
+	}
+
+	// Added terminals of moved edges or terminals move with them
+	for (i = first; offset != null && i < vertices.length; i++)
+	{
+		var to = offset(model.getCell(vertices[i].id));
+
+		if (to != null)
+		{
+			vertices[i].x += to.x;
+			vertices[i].y += to.y;
+		}
+	}
+
+	return edges;
+};
+
+/**
+ * Returns the auto-edges that the auto-routing re-routes after the given
+ * vertices moved by the offsets of the given function, without changing the
+ * model, eg. for the preview of a spring move (see routeMovedEdges): the
+ * connected ones and those whose route overlaps the old or new box of a
+ * vertex, like the re-route of a move (installAutoRouting). offset(cell)
+ * returns the offset {x, y} in model units of the given moved cell or null.
+ * edgeBounds is the optional result of getAutoEdgeBounds.
+ */
+LibavoidRouting.getMovedEdges = function(graph, cells, offset, edgeBounds)
+{
+	var model = graph.getModel();
+	var map = Object.create(null);
+	var regions = [];
+
+	for (var i = 0; i < cells.length; i++)
+	{
+		if (model.isVertex(cells[i]))
+		{
+			var edges = model.getEdges(cells[i]);
+
+			for (var j = 0; j < edges.length; j++)
+			{
+				if (LibavoidRouting.isAutoEdge(graph, edges[j]))
+				{
+					map[edges[j].getId()] = edges[j];
+				}
+			}
+
+			var v = LibavoidRouting.getVertex(graph, cells[i]);
+			var o = offset(cells[i]);
+
+			if (v != null && o != null)
+			{
+				var nb = AvoidRouting.obstacleBounds(LibavoidRouting.moveVertex(v, o));
+				var ob = AvoidRouting.obstacleBounds({x: v.x, y: v.y, w: v.w, h: v.h,
+					frame: v.frame});
+				var x = Math.min(ob.x, nb.x), y = Math.min(ob.y, nb.y);
+				regions.push({x: x, y: y,
+					width: Math.max(ob.x + ob.w, nb.x + nb.w) - x,
+					height: Math.max(ob.y + ob.h, nb.y + nb.h) - y});
+			}
+		}
+	}
+
+	LibavoidRouting.collectOverlappingEdges(graph, regions, map, edgeBounds);
+	var result = [];
+
+	for (var id in map)
+	{
+		result.push(map[id]);
+	}
+
+	return result;
+};
+
+/**
+ * Returns a copy of the given obstacle (see getVertex) and its label outside
+ * the shape moved by the given offset.
+ */
+LibavoidRouting.moveVertex = function(vertex, offset)
+{
+	var result = LibavoidRouting.shiftVertex(vertex, offset.x, offset.y);
+
+	if (vertex.label != null)
+	{
+		result.label = LibavoidRouting.shiftVertex(vertex.label, offset.x, offset.y);
+	}
+
+	return result;
+};
+
+/**
+ * Returns the routes of the given auto-edges after the vertices moved by the
+ * offsets of the given function (see getMovedEdges), without changing the
+ * model, eg. for the preview of a spring move. vertices are the obstacles of
+ * collectVertices before the move, ie. with the view states of the moved
+ * cells at their positions in the model. The input is the same as in
+ * routeCells after the move, so the commit routes the same. Returns the
+ * absolute bends by edge ID.
+ */
+LibavoidRouting.routeMovedEdges = function(graph, Avoid, vertices, edgeCells, offset)
+{
+	var model = graph.getModel();
+	var moved = [];
+
+	for (var i = 0; i < vertices.length; i++)
+	{
+		var o = offset(model.getCell(vertices[i].id));
+		moved.push((o != null) ? LibavoidRouting.moveVertex(vertices[i], o) : vertices[i]);
+	}
+
+	var byId = Object.create(null);
+	var edges = LibavoidRouting.createRouteEdges(graph, moved, edgeCells, byId, offset);
+
+	return (edges.length > 0) ? LibavoidRouting.routeEdgeSet(Avoid, moved, edges, null) :
+		Object.create(null);
+};
+
+/**
  * Disables routing for the rest of the session after the solver threw, eg.
  * Aborted() from the routing module, which leaves the module unusable. All
  * entry points check window.Avoid, and __libavoidReady resolves null as for
@@ -1819,6 +1999,7 @@ LibavoidRouting.collectVertices = function(graph)
 {
 	var model = graph.getModel();
 	var framed = LibavoidRouting.createStyleFilter(graph, LibavoidRouting.frameStyles);
+	var labelled = LibavoidRouting.createStyleFilter(graph, ['labelPerimeter']);
 	var vertices = [];
 
 	for (var id in model.cells)
@@ -1838,7 +2019,7 @@ LibavoidRouting.collectVertices = function(graph)
 			}
 
 			// With its frame: the core routes around the drawn (rotated) box.
-			var v = LibavoidRouting.getVertex(graph, c, framed);
+			var v = LibavoidRouting.getVertex(graph, c, framed, labelled);
 
 			if (v != null && v.w > 0 && v.h > 0)
 			{
@@ -2050,9 +2231,11 @@ LibavoidRouting.getAbsoluteModelBounds = function(graph, cell)
  * snap points. getCellStyle, not the cached state style, like routeCells: a
  * rotation just written may not be validated yet. framed is an optional
  * createStyleFilter of the frameStyles: the frame of a cell it returns false
- * for is null without resolving the style. null without bounds.
+ * for is null without resolving the style. labelled is an optional
+ * createStyleFilter of labelPerimeter for the label in the same way. null
+ * without bounds.
  */
-LibavoidRouting.getVertex = function(graph, cell, framed)
+LibavoidRouting.getVertex = function(graph, cell, framed, labelled)
 {
 	var v = LibavoidRouting.getAbsoluteModelBounds(graph, cell);
 
@@ -2063,6 +2246,8 @@ LibavoidRouting.getVertex = function(graph, cell, framed)
 		// A transparentBounds hull is a derived box, not a drawn shape.
 		if (!graph.isTransparentBounds(cell))
 		{
+			var style = null;
+
 			if (framed != null && !framed(cell))
 			{
 				v.frame = null;
@@ -2070,14 +2255,321 @@ LibavoidRouting.getVertex = function(graph, cell, framed)
 			else
 			{
 				var state = graph.view.getState(cell);
+				style = graph.getCellStyle(cell);
 
-				v.frame = AvoidRouting.shapeFrame(graph.getCellStyle(cell),
+				v.frame = AvoidRouting.shapeFrame(style,
 					state != null && state.shape != null && state.shape.stencil != null);
+			}
+
+			var label = (labelled == null || labelled(cell)) ?
+				LibavoidRouting.getOutsideLabel(graph, cell, v, style) : null;
+
+			if (label != null)
+			{
+				v.label = label;
 			}
 		}
 	}
 
 	return v;
+};
+
+/**
+ * The label of a vertex with labelPerimeter=1 that is placed outside the
+ * shape on one side (mxGraphView.getLabelPerimeterSide), as the routing core
+ * takes it (AvoidRouting.withOutsideLabels): {side, x, y, w, h} with side
+ * 'N', 'S', 'E' or 'W' and the box in absolute model coordinates, placed
+ * relative to the vertex bounds b (getAbsoluteModelBounds), which may be
+ * newer than the painted label. null for other vertices. The side comes from
+ * getCellStyle, not the cached state style, and the box is the painted label
+ * only if its style and value are current: a parked solve runs before the
+ * view is validated, eg. after a Position change, an edit of the label or an
+ * insert (getLabelBox). style is the optional current style of the cell.
+ */
+LibavoidRouting.getOutsideLabel = function(graph, cell, b, style)
+{
+	style = (b != null && style == null) ? graph.getCellStyle(cell) : style;
+	var side = (b != null) ? LibavoidRouting.getOutsideLabelSide(graph, cell, style) : null;
+
+	if (side == null)
+	{
+		return null;
+	}
+
+	var view = graph.view;
+	var state = view.getState(cell);
+	var painted = LibavoidRouting.isPaintedLabel(graph, state, style);
+	var box = null;
+
+	if (painted && view.getLabelPerimeterSide(state) == side)
+	{
+		var bb = state.text.boundingBox;
+		var s = view.scale;
+		box = {x: b.x + (bb.x - state.x) / s, y: b.y + (bb.y - state.y) / s,
+			w: bb.width / s, h: bb.height / s};
+	}
+	else
+	{
+		box = LibavoidRouting.getLabelBox(graph, cell, style, side, b,
+			(painted || LibavoidRouting.isPaintedLabel(graph, state, style,
+			LibavoidRouting.labelSizeStyles)) ? state : null);
+	}
+
+	if (box == null)
+	{
+		return null;
+	}
+
+	box.side = (side == mxConstants.DIRECTION_SOUTH) ? 'S' :
+		((side == mxConstants.DIRECTION_NORTH) ? 'N' :
+		((side == mxConstants.DIRECTION_EAST) ? 'E' : 'W'));
+
+	return box;
+};
+
+/**
+ * Style keys of a label outside the shape that change its size (see
+ * getLabelBox).
+ */
+LibavoidRouting.labelSizeStyles = ['fontSize', 'fontFamily', 'fontStyle',
+	'whiteSpace', 'html', 'labelWidth'];
+
+/**
+ * True if the given vertex has a label outside the shape that edges end at
+ * (getOutsideLabelSide of its current style) or if its painted label is
+ * such a label (mxGraphView.getLabelPerimeterSide).
+ */
+LibavoidRouting.hasOutsideLabel = function(graph, cell)
+{
+	return LibavoidRouting.getOutsideLabelSide(graph, cell, graph.getCellStyle(cell)) != null ||
+		LibavoidRouting.getLabelPerimeterSide(graph.view, graph.view.getState(cell)) != null;
+};
+
+/**
+ * True if the core supports labelPerimeter (mxGraphView.isLabelPerimeter and
+ * getLabelPerimeterSide, since 32.5.6). extensions.min.js can run with the
+ * app.min.js of an older release, eg. if a service worker installed right
+ * after a release cached the previous app.min.js from the edge. Routing then
+ * ignores outside labels, as that core paints them.
+ */
+LibavoidRouting.isLabelPerimeterSupported = function(view)
+{
+	return typeof view.isLabelPerimeter === 'function' &&
+		typeof view.getLabelPerimeterSide === 'function';
+};
+
+/**
+ * mxGraphView.getLabelPerimeterSide of the given state, or null if the core
+ * does not support labelPerimeter (isLabelPerimeterSupported).
+ */
+LibavoidRouting.getLabelPerimeterSide = function(view, state)
+{
+	return LibavoidRouting.isLabelPerimeterSupported(view) ?
+		view.getLabelPerimeterSide(state) : null;
+};
+
+/**
+ * The side of the shape where the label of the given vertex with the given
+ * style is placed outside the shape with labelPerimeter=1 (see
+ * mxGraphView.isLabelPerimeter and getLabelPerimeterSide), or null if the
+ * label is empty or not outside the shape on one side, or if the core does
+ * not support labelPerimeter (isLabelPerimeterSupported).
+ */
+LibavoidRouting.getOutsideLabelSide = function(graph, cell, style)
+{
+	var view = graph.view;
+
+	if (!LibavoidRouting.isLabelPerimeterSupported(view))
+	{
+		return null;
+	}
+
+	var value = graph.getLabel(cell);
+
+	if (!view.isLabelPerimeter(new mxCellState(view, cell, style)) || value == null ||
+		(!mxUtils.isNode(value) && value.length == 0))
+	{
+		return null;
+	}
+
+	var lp = mxUtils.getValue(style, mxConstants.STYLE_LABEL_POSITION, mxConstants.ALIGN_CENTER);
+	var vlp = mxUtils.getValue(style, mxConstants.STYLE_VERTICAL_LABEL_POSITION, mxConstants.ALIGN_MIDDLE);
+
+	if (lp == mxConstants.ALIGN_CENTER)
+	{
+		if (vlp == mxConstants.ALIGN_BOTTOM)
+		{
+			return mxConstants.DIRECTION_SOUTH;
+		}
+		else if (vlp == mxConstants.ALIGN_TOP)
+		{
+			return mxConstants.DIRECTION_NORTH;
+		}
+	}
+	else if (vlp == mxConstants.ALIGN_MIDDLE)
+	{
+		if (lp == mxConstants.ALIGN_RIGHT)
+		{
+			return mxConstants.DIRECTION_EAST;
+		}
+		else if (lp == mxConstants.ALIGN_LEFT)
+		{
+			return mxConstants.DIRECTION_WEST;
+		}
+	}
+
+	return null;
+};
+
+/**
+ * True if the painted label of the given state has the value of its cell and
+ * the given style for the given keys (default labelStyles and
+ * labelBoxStyles). Measures a label that was painted but not measured yet.
+ */
+LibavoidRouting.isPaintedLabel = function(graph, state, style, keys)
+{
+	if (state == null || state.text == null)
+	{
+		return false;
+	}
+
+	if (state.text.invalidBoundingBox)
+	{
+		graph.view.updateBoundingBox(state);
+	}
+
+	if (state.text.boundingBox == null || state.style == null)
+	{
+		return false;
+	}
+
+	keys = (keys != null) ? keys : LibavoidRouting.labelStyles.concat(
+		LibavoidRouting.labelBoxStyles);
+
+	for (var i = 0; i < keys.length; i++)
+	{
+		if (state.style[keys[i]] != style[keys[i]])
+		{
+			return false;
+		}
+	}
+
+	return state.text.value == graph.cellRenderer.getLabelValue(state);
+};
+
+/**
+ * The box {x, y, w, h} of the label of a vertex with the given style placed
+ * outside the vertex bounds b on the given side, in absolute model
+ * coordinates, as the view and mxText place it: in the bounds of the vertex
+ * moved to that side (mxGraphView.updateVertexLabelOffset), aligned with its
+ * align, verticalAlign and spacing. The size is the one of the label of the
+ * given state, or the size of the text of the cell if it is null. null if the
+ * label is not outside the shape on that side.
+ */
+LibavoidRouting.getLabelBox = function(graph, cell, style, side, b, state)
+{
+	var lw = mxUtils.getValue(style, mxConstants.STYLE_LABEL_WIDTH, null);
+	var align = mxUtils.getValue(style, mxConstants.STYLE_ALIGN, mxConstants.ALIGN_CENTER);
+	var valign = mxUtils.getValue(style, mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_MIDDLE);
+	var spacing = mxUtils.getNumber(style, mxConstants.STYLE_SPACING, 2);
+	var top = spacing + mxUtils.getNumber(style, mxConstants.STYLE_SPACING_TOP, 0);
+	var bottom = spacing + mxUtils.getNumber(style, mxConstants.STYLE_SPACING_BOTTOM, 0);
+	var left = spacing + mxUtils.getNumber(style, mxConstants.STYLE_SPACING_LEFT, 0);
+	var right = spacing + mxUtils.getNumber(style, mxConstants.STYLE_SPACING_RIGHT, 0);
+	var rw = (lw != null && side != mxConstants.DIRECTION_EAST) ? parseFloat(lw) : b.w;
+	var w = 0;
+	var h = 0;
+
+	if (state != null)
+	{
+		w = state.text.boundingBox.width / graph.view.scale;
+		h = state.text.boundingBox.height / graph.view.scale;
+	}
+	else
+	{
+		var value = graph.getLabel(cell);
+
+		if (mxUtils.isNode(value))
+		{
+			value = value.outerHTML;
+		}
+		else if (mxUtils.getValue(style, 'html', '0') != '1')
+		{
+			value = mxUtils.htmlEntities(value, false).replace(/\n/g, '<br>');
+		}
+
+		// Sanitized in mxUtils.getSizeForString (see Graph.js)
+		var size = mxUtils.getSizeForString(value,
+			mxUtils.getValue(style, mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE),
+			mxUtils.getValue(style, mxConstants.STYLE_FONTFAMILY, mxConstants.DEFAULT_FONTFAMILY),
+			(mxUtils.getValue(style, mxConstants.STYLE_WHITE_SPACE, 'nowrap') == 'wrap') ?
+				Math.max(1, rw - left - right) : null,
+			mxUtils.getValue(style, mxConstants.STYLE_FONTSTYLE, 0));
+		w = size.width;
+		h = size.height;
+	}
+
+	// The bounds of the vertex on the side of the label
+	var rx = b.x - (rw - b.w) * ((align == mxConstants.ALIGN_RIGHT) ? 1 :
+		((align == mxConstants.ALIGN_CENTER) ? 0.5 : 0));
+	var ry = b.y;
+
+	if (side == mxConstants.DIRECTION_SOUTH)
+	{
+		ry = b.y + b.h;
+	}
+	else if (side == mxConstants.DIRECTION_NORTH)
+	{
+		ry = b.y - b.h;
+	}
+	else if (side == mxConstants.DIRECTION_EAST)
+	{
+		rx = b.x + b.w;
+	}
+	else
+	{
+		rx = b.x - rw;
+	}
+
+	var x = (align == mxConstants.ALIGN_LEFT) ? rx + left :
+		((align == mxConstants.ALIGN_RIGHT) ? rx + rw - right - w :
+		rx + (rw - w + left - right) / 2);
+	var y = (valign == mxConstants.ALIGN_TOP) ? ry + top :
+		((valign == mxConstants.ALIGN_BOTTOM) ? ry + b.h - bottom - h :
+		ry + (b.h - h + top - bottom) / 2);
+
+	return ((side == mxConstants.DIRECTION_SOUTH && y + h > b.y + b.h) ||
+		(side == mxConstants.DIRECTION_NORTH && y < b.y) ||
+		(side == mxConstants.DIRECTION_EAST && x + w > b.x + b.w) ||
+		(side == mxConstants.DIRECTION_WEST && x < b.x)) ?
+		{x: x, y: y, w: w, h: h} : null;
+};
+
+/**
+ * Adds the boxes of the label outside the shape of the given vertex to the
+ * given regions: the painted one and the one of its current style and
+ * value (getOutsideLabel).
+ */
+LibavoidRouting.addOutsideLabelRegions = function(graph, cell, regions)
+{
+	var view = graph.view;
+	var state = view.getState(cell);
+
+	if (state != null && LibavoidRouting.getLabelPerimeterSide(view, state) != null)
+	{
+		var bb = state.text.boundingBox;
+		var s = view.scale;
+		regions.push({x: mxUtils.unscale(bb.x, s, view.translate.x),
+			y: mxUtils.unscale(bb.y, s, view.translate.y),
+			width: bb.width / s, height: bb.height / s});
+	}
+
+	var v = LibavoidRouting.getVertex(graph, cell);
+
+	if (v != null && v.label != null)
+	{
+		regions.push({x: v.label.x, y: v.label.y, width: v.label.w, height: v.label.h});
+	}
 };
 
 /**

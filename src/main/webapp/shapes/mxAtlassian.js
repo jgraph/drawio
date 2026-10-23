@@ -56,6 +56,16 @@ mxAtlassianJiraIssue.prototype.customProperties = [
 mxAtlassianJiraIssue.prototype.cst = {ISSUE : 'mxgraph.atlassian.issue'};
 
 /**
+* Function: isGlassable
+*
+* Disables inherited glass support.
+*/
+mxAtlassianJiraIssue.prototype.isGlassable = function()
+{
+	return false;
+};
+
+/**
 * Function: paintVertexShape
 * 
 * Paints the vertex shape.

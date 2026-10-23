@@ -943,6 +943,10 @@ EditorUi.prototype.pageSelected = function()
 				graph.container.scrollLeft = 0;
 				graph.container.scrollTop = 0;
 				this.chromelessResize();
+
+				// Views with scrollbars pad the diagram, so the scroll
+				// position of the origin does not show it
+				this.centerChromelessDiagram();
 			}
 		}
 		else
@@ -993,6 +997,11 @@ EditorUi.prototype.getImageForPage = function(page, sourcePage, sourceGraph, add
 	this.updatePageRoot(page);
 	graph.setAdaptiveColors(page.viewState.adaptiveColors);
 	graph.setMeasureScale(page.viewState.measureScale);
+
+	// Uses the root in the source graph for the current page since the
+	// root of the page is updated after the background image is set
+	graph.addPlaceholderRoot((sourcePage != null && sourcePage != this.currentPage) ?
+		sourcePage.root : sourceGraph.model.getRoot());
 	graph.model.setRoot(page.root);
 
 	var temp = Graph.foreignObjectWarningText;
@@ -1119,10 +1128,17 @@ EditorUi.prototype.initPages = function()
 			this.updateHashObject();
 		}));
 
-		mxEvent.addListener(window, 'resize', mxUtils.bind(this, function()
+		var resizeHandler = mxUtils.bind(this, function()
 		{
 			this.checkTabScrollerOverflow();
-		}));
+		});
+
+		mxEvent.addListener(window, 'resize', resizeHandler);
+
+		this.destroyFunctions.push(function()
+		{
+			mxEvent.removeListener(window, 'resize', resizeHandler);
+		});
 
 		this.addListener('languageChanged', mxUtils.bind(this, function()
 		{
@@ -1222,7 +1238,7 @@ Graph.prototype.createViewState = function(node)
 	return {
 		gridEnabled: node.getAttribute('grid') != '0',
 		//gridColor: node.getAttribute('gridColor') || mxSettings.getGridColor(Editor.isDarkMode()),
-		gridSize: parseFloat(node.getAttribute('gridSize')) || mxGraph.prototype.gridSize,
+		gridSize: Graph.parseGridSize(node.getAttribute('gridSize')),
 		guidesEnabled: node.getAttribute('guides') != '0',
 		foldingEnabled: (function() { var fold = node.getAttribute('fold');
 			return fold != null && (Editor.config == null || Editor.config.defaultFoldingEnabled == null) ?
@@ -1402,7 +1418,7 @@ Graph.prototype.setViewState = function(state, removeOldExtFonts)
 		this.adaptiveColors = state.adaptiveColors;
 		this.setMeasureScale(state.measureScale);
 		this.gridEnabled = urlParams['grid'] != null ? urlParams['grid'] != '0' : state.gridEnabled;
-		this.gridSize = state.gridSize;
+		this.gridSize = Graph.parseGridSize(state.gridSize);
 		this.graphHandler.guidesEnabled = state.guidesEnabled;
 		this.foldingEnabled = state.foldingEnabled;
 		this.setShadowVisible(state.shadowVisible, false);
@@ -2359,7 +2375,8 @@ EditorUi.prototype.updateTabContainer = function()
 				{
 					if (graph.isEnabled())
 					{
-						if (mxClient.IS_FF)
+						// Drag events created by scripts may have no dataTransfer
+						if (mxClient.IS_FF && evt.dataTransfer != null)
 						{
 							evt.dataTransfer.setData('Text', '<diagram/>');
 						}
@@ -2380,7 +2397,11 @@ EditorUi.prototype.updateTabContainer = function()
 						// Suppress default drop highlight on other elements
 						ui._pageTabDragOverHandler = function(e)
 						{
-							e.dataTransfer.dropEffect = 'move';
+							if (e.dataTransfer != null)
+							{
+								e.dataTransfer.dropEffect = 'move';
+							}
+
 							e.preventDefault();
 
 							// Stop propagation for non-tab targets to
@@ -2454,7 +2475,11 @@ EditorUi.prototype.updateTabContainer = function()
 				{
 					if (startIndex != null && dragTab != null)
 					{
-						evt.dataTransfer.dropEffect = 'move';
+						if (evt.dataTransfer != null)
+						{
+							evt.dataTransfer.dropEffect = 'move';
+						}
+
 						var target = evt.currentTarget;
 
 						if (target != dragTab)

@@ -1164,6 +1164,37 @@ mxShape.prototype.paint = function(c)
 		c.setAlpha(1);
 	}
 
+	this.paintShape(c, x, y, w, h);
+
+	if (root != null)
+	{
+		c.root = root;
+		c.setAlpha(this.opacity / 100);
+	}
+
+	if (bg != null && c.state != null && c.state.transform != null)
+	{
+		bg.setAttribute('transform', c.state.transform);
+	}
+	
+	// Draws highlight rectangle if no stroke was used
+	if (c != null && this.outline && !strokeDrawn)
+	{
+		c.rect(x, y, w, h);
+		c.stroke();
+	}
+
+	c.pointerEvents = pointerEvents;
+};
+
+/**
+ * Function: paintShape
+ *
+ * Paints the stencil, the edge or the vertex shape into the configured
+ * canvas, using the unscaled bounds from <paint>.
+ */
+mxShape.prototype.paintShape = function(c, x, y, w, h)
+{
 	if (this.stencil != null)
 	{
 		this.stencil.drawShape(c, this, x, y, w, h,
@@ -1194,26 +1225,6 @@ mxShape.prototype.paint = function(c)
 			c.state.dy = dy;
 		}
 	}
-
-	if (root != null)
-	{
-		c.root = root;
-		c.setAlpha(this.opacity / 100);
-	}
-
-	if (bg != null && c.state != null && c.state.transform != null)
-	{
-		bg.setAttribute('transform', c.state.transform);
-	}
-	
-	// Draws highlight rectangle if no stroke was used
-	if (c != null && this.outline && !strokeDrawn)
-	{
-		c.rect(x, y, w, h);
-		c.stroke();
-	}
-
-	c.pointerEvents = pointerEvents;
 };
 
 /**
@@ -1727,6 +1738,17 @@ mxShape.prototype.getCursor = function()
  * Hook for subclassers.
  */
 mxShape.prototype.isRoundable = function()
+{
+	return false;
+};
+
+/**
+ * Function: isGlassable
+ *
+ * Hook for subclassers. Returns true if the shape paints the glass effect
+ * (see <mxConstants.STYLE_GLASS>).
+ */
+mxShape.prototype.isGlassable = function()
 {
 	return false;
 };

@@ -2796,7 +2796,8 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 
 	var temp = parseInt(this.initialDefaultVertexStyle['fontSize']);
 	var fontSize = !isNaN(temp) ? 'fontSize=' + Math.min(16, temp) + ';' : '';
-	var edgeLabelStyle = graph.appendFontSize('edgeLabel;resizable=0;html=1;', graph.edgeFontSize);
+	// Label cells of edges inherit the text styles of the edge
+	var edgeLabelStyle = 'edgeLabel;resizable=0;html=1;' + Graph.createInheritedLabelStyle();
 	
 	// Reusable cells
 	var field = new mxCell('List Item', new mxGeometry(0, 0, 80, 30),
@@ -3563,7 +3564,8 @@ Sidebar.prototype.addUmlPalette = function(expand)
 			edge.geometry.x = -1;
 			edge.edge = true;
 			
-	    	var cell = new mxCell('1', new mxGeometry(-1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=left;verticalAlign=bottom;');
+	    	var cell = new mxCell('1', new mxGeometry(-1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=left;verticalAlign=bottom;' +
+				Graph.createInheritedLabelStyle());
 	    	cell.geometry.relative = true;
 	    	cell.setConnectable(false);
 	    	cell.vertex = true;
@@ -3579,13 +3581,15 @@ Sidebar.prototype.addUmlPalette = function(expand)
 			edge.geometry.relative = true;
 			edge.edge = true;
 			
-	    	var cell1 = new mxCell('parent', new mxGeometry(-1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=left;verticalAlign=bottom;');
+	    	var cell1 = new mxCell('parent', new mxGeometry(-1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=left;verticalAlign=bottom;' +
+				Graph.createInheritedLabelStyle());
 	    	cell1.geometry.relative = true;
 	    	cell1.setConnectable(false);
 	    	cell1.vertex = true;
 	    	edge.insert(cell1);
 			
-	    	var cell2 = new mxCell('child', new mxGeometry(1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=right;verticalAlign=bottom;');
+	    	var cell2 = new mxCell('child', new mxGeometry(1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=right;verticalAlign=bottom;' +
+				Graph.createInheritedLabelStyle());
 	    	cell2.geometry.relative = true;
 	    	cell2.setConnectable(false);
 	    	cell2.vertex = true;
@@ -3625,13 +3629,15 @@ Sidebar.prototype.addUmlPalette = function(expand)
 			edge.geometry.relative = true;
 			edge.edge = true;
 			
-	    	var cell1 = new mxCell('0..n', new mxGeometry(-1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=left;verticalAlign=top;');
+	    	var cell1 = new mxCell('0..n', new mxGeometry(-1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=left;verticalAlign=top;' +
+				Graph.createInheritedLabelStyle());
 	    	cell1.geometry.relative = true;
 	    	cell1.setConnectable(false);
 	    	cell1.vertex = true;
 	    	edge.insert(cell1);
 			
-	    	var cell2 = new mxCell('1', new mxGeometry(1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=right;verticalAlign=top;');
+	    	var cell2 = new mxCell('1', new mxGeometry(1, 0, 0, 0), 'edgeLabel;resizable=0;html=1;align=right;verticalAlign=top;' +
+				Graph.createInheritedLabelStyle());
 	    	cell2.geometry.relative = true;
 	    	cell2.setConnectable(false);
 	    	cell2.vertex = true;
@@ -6053,6 +6059,10 @@ Sidebar.prototype.createVertexTemplateFromCells = function(cells, width, height,
 {
 	// Use this line to convert calls to this function with lots of boilerplate code for creating cells
 	//console.trace('xml', Graph.compress(mxUtils.getXml(this.graph.encodeCells(cells))), cells);
+
+	// Edges end at the labels of new shapes with a label outside the shape
+	this.graph.addLabelPerimeters(cells);
+
 	return this.createItem(cells, title, showLabel, showTitle, width, height, allowCellsInserted,
 		showTooltip, clickFn, thumbWidth, thumbHeight, icon, startEditing, sourceCell, undefined, connectEdge);
 };

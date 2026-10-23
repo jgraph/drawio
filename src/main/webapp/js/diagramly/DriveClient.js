@@ -883,6 +883,71 @@ DriveClient.prototype.setUsageMarker = function(marker, success, error)
 };
 
 /**
+ * Name of the record of the Terms of Use the user accepted, in their app data
+ * folder (getTermsRecord).
+ */
+DriveClient.prototype.termsRecordName = 'drawio-terms';
+
+/**
+ * Reads the record of the Terms of Use the user accepted from draw.io's app
+ * data folder of their own Drive (App.prototype.recordTermsInDrive), which only
+ * draw.io in their browser sees, never draw.io's servers. Passes {id,
+ * version, accepted} to success (id is null without a record; the given
+ * version if a record has it), or {status} to error, eg. 403 without the
+ * drive.appdata scope.
+ */
+DriveClient.prototype.getTermsRecord = function(version, success, error)
+{
+	this.quietRequest('GET', '/files?spaces=appDataFolder&pageSize=10&q=' +
+		encodeURIComponent('name = \'' + this.termsRecordName + '\' and trashed = false') +
+		'&fields=' + encodeURIComponent('files(id,appProperties)'), null, function(resp)
+	{
+		var record = {id: null, version: null, accepted: null};
+		var files = (Array.isArray(resp.files)) ? resp.files : [];
+
+		// Two devices can create a record at the same time
+		for (var i = 0; i < files.length; i++)
+		{
+			var props = (files[i] != null) ? files[i].appProperties : null;
+
+			if (files[i] != null && DriveClient.isFileId(files[i].id) && record.id == null)
+			{
+				record.id = files[i].id;
+			}
+
+			if (props != null && typeof props.version === 'string' && record.version !== version)
+			{
+				record.version = props.version;
+				record.accepted = (typeof props.accepted === 'string') ? props.accepted : null;
+			}
+		}
+
+		success(record);
+	}, error);
+};
+
+/**
+ * Writes the version and date of the record of the Terms of Use
+ * (getTermsRecord), creating it if record.id is null.
+ */
+DriveClient.prototype.setTermsRecord = function(record, success, error)
+{
+	var props = {version: record.version, accepted: record.accepted};
+
+	if (DriveClient.isFileId(record.id))
+	{
+		this.quietRequest('PATCH', '/files/' + record.id + '?fields=id',
+			{appProperties: props}, success, error);
+	}
+	else
+	{
+		this.quietRequest('POST', '/files?fields=id', {name: this.termsRecordName,
+			parents: ['appDataFolder'], mimeType: 'application/json',
+			appProperties: props}, success, error);
+	}
+};
+
+/**
  * Gets the settings an organization sets for its users (admin.html) from the
  * ws worker with the Google ID token of the current user, which picks the
  * organization by the user's domain, and passes {settings, rev} to success

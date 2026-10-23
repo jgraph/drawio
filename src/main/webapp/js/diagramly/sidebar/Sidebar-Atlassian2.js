@@ -64,7 +64,7 @@
 			this.createVertexTemplateEntry(s + 'rovo-dev;tileColor=#94c748;fillColor=#101214;', 48, 48, '', 'Rovo Dev', null, null, this.getTagsForStencil(gn, 'rovo dev', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rovo-dev-agent;tileColor=#94c748;fillColor=#101214;tileShape=hex;glyphScale=0.98;', 43.1, 48, '', 'Rovo Dev Agent', null, null, this.getTagsForStencil(gn, 'rovo dev agent', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'search;tileColor=#dddee1;fillColor=#101214;', 48, 48, '', 'Search', null, null, this.getTagsForStencil(gn, 'search', dt + ' rovo search').join(' ')),
-			this.createVertexTemplateEntry('image;' + c + 'image=img/lib/atlassian/Sourcetree_Logo.svg;', 38.6, 48, '', 'Sourcetree', null, null, this.getTagsForStencil(gn, 'sourcetree', dt + ' logo').join(' ')),
+			this.createVertexTemplateEntry('image;' + c + 'image=img/lib/atlassian/Sourcetree_Logo.svg;points=[[0.502,0.003,0],[0.5,0.998,0],[0.009,0.396,0],[0.994,0.4,0],[0.882,0.145,0],[0.646,0.987,0],[0.354,0.987,0],[0.115,0.15,0]];', 38.6, 48, '', 'Sourcetree', null, null, this.getTagsForStencil(gn, 'sourcetree', dt + ' logo').join(' ')),
 			this.createVertexTemplateEntry(s + 'statuspage;tileColor=#ffc716;fillColor=#101214;', 48, 48, '', 'Statuspage', null, null, this.getTagsForStencil(gn, 'statuspage', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'studio;tileColor=#dddee1;fillColor=#101214;', 48, 48, '', 'Studio', null, null, this.getTagsForStencil(gn, 'studio', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'talent;tileColor=#fb9700;fillColor=#101214;', 48, 48, '', 'Talent', null, null, this.getTagsForStencil(gn, 'talent', dt).join(' ')),

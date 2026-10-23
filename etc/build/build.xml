@@ -52,6 +52,11 @@ OUTPUT FILES (in src/main/webapp/js/):
 		</resourcecount>
 	</condition>
 
+	<!-- Set if OrgSettings.js is present (settings of the admin console). The
+	     public repository does not have it (github_excludes), so its build
+	     leaves it out of app.min.js; App.js checks that OrgSettings exists. -->
+	<available property="orgsettings.sources" file="${war.dir}/js/diagramly/OrgSettings.js"/>
+
 	<!--
 	============================================================================
 	TARGET: merge
@@ -114,6 +119,7 @@ OUTPUT FILES (in src/main/webapp/js/):
 		<jscomp warning="${jscomp.warning}" compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/extensions.min.js">
 			<sources dir="${war.dir}/js/diagramly">
 				<file name="Extensions.js" />
+				<file name="SpringMove.js" />
 			</sources>
 			<sources dir="${war.dir}/js/diagramly/vsdx">
 				<file name="bmpDecoder.js" />
@@ -387,6 +393,7 @@ OUTPUT FILES (in src/main/webapp/js/):
 				<file name="EditorUi.js" />
 				<file name="Pages.js" />
 				<file name="Trees.js" />
+				<file name="ForceExplorer.js" />
 				<file name="Minimal.js" />
 				<file name="DrawioComment.js" />
 				<file name="DrawioUser.js" />
@@ -510,6 +517,8 @@ OUTPUT FILES (in src/main/webapp/js/):
 				<file name="Menus.js" />
 				<file name="Pages.js" />
 				<file name="Trees.js" />
+				<file name="ForceExplorer.js" />
+				<file name="SpringHandle.js" />
 				<file name="Minimal.js" />
 				<file name="mxRuler.js" />
 				<file name="mxFreehand.js" />
@@ -590,6 +599,7 @@ OUTPUT FILES (in src/main/webapp/js/):
 				<file name="DriveLibrary.js" />
 				<file name="DriveClient.js" />
 				<file name="HomeDialog.js" />
+				<file name="OrgSettings.js" if:set="orgsettings.sources" />
 				<file name="OneDriveFile.js" />
 				<file name="OneDriveLibrary.js" />
 				<file name="OneDriveClient.js" />
@@ -615,6 +625,8 @@ OUTPUT FILES (in src/main/webapp/js/):
 				<file name="Menus.js" />
 				<file name="Pages.js" />
 				<file name="Trees.js" />
+				<file name="ForceExplorer.js" />
+				<file name="SpringHandle.js" />
 				<file name="Minimal.js" />
 				<file name="mxRuler.js" />
 				<file name="mxFreehand.js" />

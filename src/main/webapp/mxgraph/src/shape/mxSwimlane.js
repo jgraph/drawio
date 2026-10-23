@@ -91,6 +91,16 @@ mxSwimlane.prototype.isRoundable = function()
 };
 
 /**
+ * Function: isGlassable
+ *
+ * Adds glass support for the title area.
+ */
+mxSwimlane.prototype.isGlassable = function()
+{
+	return true;
+};
+
+/**
  * Function: getTitleSize
  * 
  * Returns the title size.
@@ -281,9 +291,114 @@ mxSwimlane.prototype.paintVertexShape = function(c, x, y, w, h)
 		if (this.glass)
 		{
 			c.setShadow(false);
-			this.paintGlassEffect(c, 0, 0, w, start, r);
+
+			if (this.isHorizontal())
+			{
+				this.paintGlassEffect(c, 0, 0, w, start, r);
+			}
+			else
+			{
+				this.paintTitleGlassEffect(c, 0, 0, start, h, r,
+					mxConstants.DIRECTION_WEST);
+			}
 		}
 	}
+};
+
+/**
+ * Function: paintTitleGlassEffect
+ *
+ * Paints the glass effect for the title with the given bounds, where the
+ * glass effect starts at the outer side of the title given by side
+ * (<mxConstants.DIRECTION_NORTH>, <mxConstants.DIRECTION_EAST>,
+ * <mxConstants.DIRECTION_SOUTH> or <mxConstants.DIRECTION_WEST>), as for a
+ * rotated horizontal title.
+ *
+ * The glass effect is painted in a frame along the title (u along the title,
+ * v inward from its outer side) and every point is mapped to the given side
+ * instead of rotating the canvas, since some canvases (eg. <mxVsdxCanvas2D>)
+ * can only rotate the whole shape.
+ */
+mxSwimlane.prototype.paintTitleGlassEffect = function(c, x, y, w, h, arc, side)
+{
+	var turns = (side == mxConstants.DIRECTION_EAST) ? 1 :
+		((side == mxConstants.DIRECTION_SOUTH) ? 2 :
+		((side == mxConstants.DIRECTION_WEST) ? 3 : 0));
+
+	c.save();
+
+	if (turns == 0)
+	{
+		this.paintGlassEffect(c, x, y, w, h, arc);
+	}
+	else
+	{
+		var vertical = turns != 2;
+		var tw = (vertical) ? h : w;
+		var th = (vertical) ? w : h;
+		var dirs = [mxConstants.DIRECTION_NORTH, mxConstants.DIRECTION_EAST,
+			mxConstants.DIRECTION_SOUTH, mxConstants.DIRECTION_WEST];
+
+		// Same as rotating (u, v) by 90 degrees times turns around the center
+		var mapX = function(u, v)
+		{
+			return (turns == 1) ? x + w - v : ((turns == 2) ? x + w - u : x + v);
+		};
+
+		var mapY = function(u, v)
+		{
+			return (turns == 1) ? y + u : ((turns == 2) ? y + h - v : y + h - u);
+		};
+
+		var mc = {handJiggle: c.handJiggle,
+			setGradient: function(color1, color2, gx, gy, gw, gh, direction, alpha1, alpha2)
+			{
+				var x1 = mapX(gx, gy);
+				var y1 = mapY(gx, gy);
+				var x2 = mapX(gx + gw, gy + gh);
+				var y2 = mapY(gx + gw, gy + gh);
+				var index = mxUtils.indexOf(dirs, (direction != null) ?
+					direction : mxConstants.DIRECTION_SOUTH);
+
+				c.setGradient(color1, color2, Math.min(x1, x2), Math.min(y1, y2),
+					Math.abs(x2 - x1), Math.abs(y2 - y1), (index >= 0) ?
+					dirs[(index + turns) % 4] : direction, alpha1, alpha2);
+			},
+			begin: function()
+			{
+				c.begin();
+			},
+			moveTo: function(u, v)
+			{
+				c.moveTo(mapX(u, v), mapY(u, v));
+			},
+			lineTo: function(u, v)
+			{
+				c.lineTo(mapX(u, v), mapY(u, v));
+			},
+			quadTo: function(u1, v1, u2, v2)
+			{
+				c.quadTo(mapX(u1, v1), mapY(u1, v1), mapX(u2, v2), mapY(u2, v2));
+			},
+			curveTo: function(u1, v1, u2, v2, u3, v3)
+			{
+				c.curveTo(mapX(u1, v1), mapY(u1, v1), mapX(u2, v2),
+					mapY(u2, v2), mapX(u3, v3), mapY(u3, v3));
+			},
+			close: function()
+			{
+				c.close();
+			},
+			fill: function()
+			{
+				c.fill();
+			}
+		};
+
+		this.paintGlassEffect(mc, 0, 0, tw, th, arc);
+	}
+
+	c.restore();
 };
 
 /**

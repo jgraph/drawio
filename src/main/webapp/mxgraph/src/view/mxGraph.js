@@ -2127,7 +2127,9 @@ mxGraph.prototype.processChange = function(change)
 	// descendants need to be recreated
 	else if (change instanceof mxValueChange)
 	{
-		this.view.invalidate(change.cell, false, false);
+		// Edges that end at the label of the cell follow its new size
+		this.view.invalidate(change.cell, false,
+			this.view.isLabelPerimeter(this.view.getState(change.cell)));
 	}
 	
 	// Requires a new mxShape in JavaScript

@@ -3025,8 +3025,8 @@ mxGraphView.prototype.updateFloatingTerminalPoints = function(state, source, tar
 		if (state.style != null && mxUtils.getValue(state.style,
 			mxConstants.STYLE_FIXED_POINT_SPACING, 0) == 1)
 		{
-			this.updateFixedPointSpacing(state, p0 != null && source != null,
-				pe != null && target != null);
+			this.updateFixedPointSpacing(state, (p0 != null) ? source : null,
+				(pe != null) ? target : null);
 		}
 	}
 };
@@ -3120,8 +3120,10 @@ mxGraphView.prototype.isDuplicatePointsRemoved = function(state, edgeStyle, poin
  * Parameters:
  *
  * state - <mxCellState> that represents the edge.
- * source - Boolean that specifies if the source end should be moved.
- * target - Boolean that specifies if the target end should be moved.
+ * source - <mxCellState> that represents the source terminal if the source
+ * end should be moved, else null.
+ * target - <mxCellState> that represents the target terminal if the target
+ * end should be moved, else null.
  */
 mxGraphView.prototype.updateFixedPointSpacing = function(state, source, target)
 {
@@ -3384,6 +3386,8 @@ mxGraphView.prototype.getPerimeterPoint = function(terminal, next, orthogonal, b
 						point.y = 2 * bounds.getCenterY() - point.y;
 					}
 				}
+
+				point = this.getLabelPerimeterPoint(terminal, next, orthogonal, bounds, point);
 			}
 		}
 		
@@ -3393,6 +3397,184 @@ mxGraphView.prototype.getPerimeterPoint = function(terminal, next, orthogonal, b
 		}
 	}
 	
+	return point;
+};
+
+/**
+ * Function: getLabelPerimeterSide
+ * 
+ * Returns the side of the given vertex where its label is placed outside the
+ * shape and reaches beyond it, if the vertex has
+ * <mxConstants.STYLE_LABEL_PERIMETER>: one of <mxConstants.DIRECTION_NORTH>,
+ * <mxConstants.DIRECTION_SOUTH>, <mxConstants.DIRECTION_EAST> and
+ * <mxConstants.DIRECTION_WEST>, or null. Labels in a corner, rotated and
+ * flipped vertices and vertices without a painted label return null.
+ * 
+ * Parameters:
+ * 
+ * state - <mxCellState> of the vertex.
+ */
+mxGraphView.prototype.getLabelPerimeterSide = function(state)
+{
+	var side = null;
+
+	if (this.isLabelPerimeter(state) && state.text != null)
+	{
+		// The view measures repainted labels after the validation, but the
+		// edges of the vertex need the size of its label now
+		if (state.text.invalidBoundingBox)
+		{
+			this.updateBoundingBox(state);
+		}
+
+		var bb = state.text.boundingBox;
+		var lp = mxUtils.getValue(state.style, mxConstants.STYLE_LABEL_POSITION,
+			mxConstants.ALIGN_CENTER);
+		var vlp = mxUtils.getValue(state.style, mxConstants.STYLE_VERTICAL_LABEL_POSITION,
+			mxConstants.ALIGN_MIDDLE);
+
+		if (bb == null)
+		{
+			// No painted label
+		}
+		else if (lp == mxConstants.ALIGN_CENTER)
+		{
+			if (vlp == mxConstants.ALIGN_BOTTOM && bb.y + bb.height > state.y + state.height)
+			{
+				side = mxConstants.DIRECTION_SOUTH;
+			}
+			else if (vlp == mxConstants.ALIGN_TOP && bb.y < state.y)
+			{
+				side = mxConstants.DIRECTION_NORTH;
+			}
+		}
+		else if (vlp == mxConstants.ALIGN_MIDDLE)
+		{
+			if (lp == mxConstants.ALIGN_RIGHT && bb.x + bb.width > state.x + state.width)
+			{
+				side = mxConstants.DIRECTION_EAST;
+			}
+			else if (lp == mxConstants.ALIGN_LEFT && bb.x < state.x)
+			{
+				side = mxConstants.DIRECTION_WEST;
+			}
+		}
+	}
+
+	return side;
+};
+
+/**
+ * Function: isLabelPerimeter
+ * 
+ * Returns true if the given state is a vertex with
+ * <mxConstants.STYLE_LABEL_PERIMETER> that is neither rotated nor flipped.
+ * 
+ * Parameters:
+ * 
+ * state - <mxCellState> of the vertex.
+ */
+mxGraphView.prototype.isLabelPerimeter = function(state)
+{
+	return state != null && state.style != null &&
+		this.graph.model.isVertex(state.cell) &&
+		mxUtils.getValue(state.style, mxConstants.STYLE_LABEL_PERIMETER, 0) == 1 &&
+		mxUtils.getValue(state.style, mxConstants.STYLE_ROTATION, 0) == 0 &&
+		mxUtils.getValue(state.style, mxConstants.STYLE_FLIPH, 0) != 1 &&
+		mxUtils.getValue(state.style, mxConstants.STYLE_FLIPV, 0) != 1 &&
+		mxUtils.getValue(state.style, 'stencilFlipH', 0) != 1 &&
+		mxUtils.getValue(state.style, 'stencilFlipV', 0) != 1;
+};
+
+/**
+ * Function: getLabelPerimeterPoint
+ * 
+ * Returns the given perimeter point of the given terminal, or the point
+ * where the edge meets the label of the terminal first if the terminal has
+ * <mxConstants.STYLE_LABEL_PERIMETER> and its label is placed outside the
+ * shape (see <getLabelPerimeterSide>): if the segment from the next point to
+ * the perimeter point crosses the label, the edge ends where it enters the
+ * label, so it never crosses it. A fixed connection point on the side of
+ * the label (the next point on that side of the shape, within the label)
+ * ends at the far edge of the label straight out from the shape.
+ * 
+ * Parameters:
+ * 
+ * terminal - <mxCellState> for the source or target terminal.
+ * next - <mxPoint> that lies outside of the given terminal.
+ * orthogonal - Boolean that specifies if the orthogonal projection onto
+ * the perimeter was returned.
+ * bounds - <mxRectangle> that represents the perimeter bounds of the terminal.
+ * point - <mxPoint> that represents the perimeter point of the terminal.
+ */
+mxGraphView.prototype.getLabelPerimeterPoint = function(terminal, next, orthogonal, bounds, point)
+{
+	var side = (point != null && next != null) ? this.getLabelPerimeterSide(terminal) : null;
+
+	if (side != null)
+	{
+		// Keeps the perimeter spacing of the terminal between the edge and the label
+		var spacing = Math.max(0, terminal.x - bounds.x);
+		var bb = terminal.text.boundingBox;
+		var x0 = bb.x - spacing, y0 = bb.y - spacing;
+		var x1 = bb.x + bb.width + spacing, y1 = bb.y + bb.height + spacing;
+		var edges = [[x0, y0, x1, y0], [x1, y0, x1, y1], [x0, y1, x1, y1], [x0, y0, x0, y1]];
+		var hit = null;
+		var dist = null;
+
+		for (var i = 0; i < edges.length; i++)
+		{
+			var e = edges[i];
+			var p = mxUtils.intersection(next.x, next.y, point.x, point.y, e[0], e[1], e[2], e[3]);
+
+			if (p != null)
+			{
+				var d = (p.x - next.x) * (p.x - next.x) + (p.y - next.y) * (p.y - next.y);
+
+				if (dist == null || d < dist)
+				{
+					hit = p;
+					dist = d;
+				}
+			}
+		}
+
+		// A fixed connection point on the side of the label, where the next
+		// point is the point on that side of the perimeter bounds. Other next
+		// points in the label, such as the last bend of a route, keep the
+		// perimeter point, as the end would be past the bend.
+		if (hit == null)
+		{
+			var tol = 1;
+			var right = bounds.x + bounds.width;
+			var bottom = bounds.y + bounds.height;
+			var inX = next.x >= bounds.x - tol && next.x <= right + tol && next.x > x0 && next.x < x1;
+			var inY = next.y >= bounds.y - tol && next.y <= bottom + tol && next.y > y0 && next.y < y1;
+
+			if (side == mxConstants.DIRECTION_SOUTH && inX && Math.abs(next.y - bottom) <= tol)
+			{
+				hit = new mxPoint(next.x, y1);
+			}
+			else if (side == mxConstants.DIRECTION_NORTH && inX && Math.abs(next.y - bounds.y) <= tol)
+			{
+				hit = new mxPoint(next.x, y0);
+			}
+			else if (side == mxConstants.DIRECTION_EAST && inY && Math.abs(next.x - right) <= tol)
+			{
+				hit = new mxPoint(x1, next.y);
+			}
+			else if (side == mxConstants.DIRECTION_WEST && inY && Math.abs(next.x - bounds.x) <= tol)
+			{
+				hit = new mxPoint(x0, next.y);
+			}
+		}
+
+		if (hit != null)
+		{
+			point = hit;
+		}
+	}
+
 	return point;
 };
 
@@ -4435,15 +4617,40 @@ mxGraphView.prototype.updateLabelBoundingBoxes = function()
 {
 	if (this.canvas != null)
 	{
-		this.states.visit(function(key, state)
+		var perimeters = [];
+
+		this.states.visit(mxUtils.bind(this, function(key, state)
 		{
 			if (state.text != null)
 			{
+				// Edges that end at the label follow its new size
+				if (this.isLabelPerimeter(state))
+				{
+					var bbox = (!state.text.invalidBoundingBox) ? state.text.boundingBox : null;
+					perimeters.push([state, (bbox != null) ? [bbox.width, bbox.height] : null]);
+				}
+
 				state.text.invalidateBoundingBox();
 				state.text.offsetWidth = null;
 				state.text.offsetHeight = null;
 			}
-		});
+		}));
+
+		// Only for labels whose size changed, as the edges are painted again,
+		// which loads the images in their labels again, so that an image in
+		// the label of such an edge would measure the labels again forever
+		for (var i = 0; i < perimeters.length; i++)
+		{
+			var state = perimeters[i][0];
+			var size = perimeters[i][1];
+			this.updateBoundingBox(state);
+			var bbox = state.text.boundingBox;
+
+			if (size == null || bbox == null || bbox.width != size[0] || bbox.height != size[1])
+			{
+				this.invalidate(state.cell, false, true);
+			}
+		}
 
 		this.graphBoundsInvalid = true;
 

@@ -1348,25 +1348,67 @@ Menus.prototype.pickColor = function(key, cmd, defaultValue, defaultColor, defau
 			if (node != null && graph.cellEditor.textarea != null)
 			{
 				var color = graph.getTextColor(node, cmd == 'forecolor');
+				var getColorFn = null;
+
+				// Text without a color of its own has the font color of the
+				// label, which default sets unless all text is selected. The
+				// color window updates both if the text selection changes.
+				if (cmd == 'forecolor')
+				{
+					var labelDefaultColorValue = defaultColorValue;
+
+					getColorFn = function()
+					{
+						var elt = (graph.cellEditor.isContentEditing()) ?
+							graph.getSelectedEditingElement() : null;
+						var current = (elt != null) ? graph.getTextColor(elt, true) : null;
+
+						return (current == 'default') ? graph.getEditingLabelFontColor() : current;
+					};
+
+					defaultColorValue = function()
+					{
+						var labelColor = graph.getEditingLabelFontColor();
+
+						return (labelColor != 'default' && !graph.cellEditor.isAllTextSelected()) ?
+							labelColor : labelDefaultColorValue;
+					};
+
+					if (color == 'default')
+					{
+						color = graph.getEditingLabelFontColor();
+					}
+				}
 
 				this.editorUi.pickColor(color, mxUtils.bind(this, function(color)
 				{
 					if (graph.cellEditor.textarea != null)
 					{
-						Graph.setTextColor(graph.cellEditor.textarea, color, cmd == 'forecolor');
+						// Sets the font color for the label if all text is selected
+						if (cmd == 'forecolor')
+						{
+							graph.setEditingFontColor(color);
+						}
+						else
+						{
+							Graph.setTextColor(graph.cellEditor.textarea, color, false);
+						}
+
 						this.editorUi.fireEvent(new mxEventObject('styleChanged',
 							'keys', [(cmd == 'forecolor') ? mxConstants.STYLE_FONTCOLOR :
 								mxConstants.STYLE_LABEL_BACKGROUNDCOLOR], 'values', [color],
 							'cells', [graph.cellEditor.getEditingCell()]));
 					}
-				}), defaultColor, defaultColorValue, singleColorMode, title);
+				}), defaultColor, defaultColorValue, singleColorMode, title, getColorFn);
 			}
 		}
 		else
 		{
 			var getColorFn = function()
 			{
-				var style = graph.getCellStyle(graph.getSelectionCell(), false);
+				var cell = graph.getSelectionCell();
+				var style = graph.resolveInheritedLabelStyles(cell,
+					graph.getCellStyle(cell, false));
 
 				return (style != null) ? (style[key] || mxConstants.NONE) : mxConstants.NONE;
 			};

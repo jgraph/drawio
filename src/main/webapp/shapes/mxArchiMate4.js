@@ -200,6 +200,37 @@ mxArchiMate4Device.prototype.background = function(c, x, y, w, h)
 	c.fillAndStroke();
 };
 
+/**
+* Function: getConstraints
+*
+* The inset body (top, its rounded corners and the middle of its sides) and
+* the pedestal (bottom and its corners).
+*/
+mxArchiMate4Device.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+	// The corner radius follows the smaller side: as fractions of the current
+	// size, so edges follow a resize
+	var k = Math.min(w, h) * 0.15 * (1 - Math.SQRT1_2);
+	var kx = (w > 0) ? k / w : 0;
+	var ky = (h > 0) ? k / h : 0;
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.94 - kx, ky), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.94, 0.425), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.06, 0.425), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.06 + kx, ky), false));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Icon notations (same rendering as ArchiMate 3)
 //**********************************************************************************************************************************************************

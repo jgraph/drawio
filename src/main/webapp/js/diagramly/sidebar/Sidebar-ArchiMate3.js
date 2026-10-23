@@ -335,7 +335,7 @@
 					w * 70, h * 45, '', 'Meaning', null, null, this.getTagsForStencil(gn, '', dt + 'meaning').join(' ')),
 			this.createVertexTemplateEntry(am + 'application;appType=amValue;archiType=oct;', 
 					w * 150, h * 75, 'Value', 'Value', null, null, this.getTagsForStencil(gn, '', dt + 'value').join(' ')),
-			this.createVertexTemplateEntry('shape=ellipse;html=1;whiteSpace=wrap;fillColor=#CCCCFF;', 
+			this.createVertexTemplateEntry('shape=ellipse;perimeter=ellipsePerimeter;html=1;whiteSpace=wrap;fillColor=#CCCCFF;', 
 					w * 70, h * 35, '', 'Value', null, null, this.getTagsForStencil(gn, '', dt + 'value').join(' '))
 		];
 			

@@ -130,6 +130,16 @@ mxImageShape.prototype.isRoundable = function()
 };
 
 /**
+ * Function: isGlassable
+ *
+ * Disables inherited glass support.
+ */
+mxImageShape.prototype.isGlassable = function()
+{
+	return false;
+};
+
+/**
  * Function: getImageDataUri
  * 
  * Returns the image to be rendered.

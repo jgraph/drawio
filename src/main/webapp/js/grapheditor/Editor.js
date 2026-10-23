@@ -447,6 +447,12 @@ Editor.showConnectHandle = false;
 Editor.enableInlineToolbar = true;
 
 /**
+ * Whether the inline toolbar is shown for selected shapes and multiple
+ * selected cells. Needs enableInlineToolbar. Default is false.
+ */
+Editor.enableShapeInlineToolbar = false;
+
+/**
  * Whether new groups are created with transparentBounds=1 so that their
  * bounds are derived from their children (the Automatic option in the
  * Arrange panel). Default is false. See jgraph/drawio#5688.
@@ -1440,7 +1446,7 @@ Editor.prototype.readGraphState = function(node)
 
 	this.graph.gridEnabled = (urlParams['grid'] != null ? urlParams['grid'] != '0' : grid != '0') &&
 		(!this.isChromelessView() || urlParams['grid'] == '1');
-	this.graph.gridSize = parseFloat(node.getAttribute('gridSize')) || mxGraph.prototype.gridSize;
+	this.graph.gridSize = Graph.parseGridSize(node.getAttribute('gridSize'));
 	this.graph.graphHandler.guidesEnabled = node.getAttribute('guides') != '0';
 	this.graph.setTooltips(node.getAttribute('tooltips') != '0' &&
 		(window.urlParams == null || urlParams['tooltips'] != '0'));
@@ -3929,7 +3935,8 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label,
 				    	dropElt = null;
 				    }
 	
-				    if (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
+				    // Drop events created by scripts may have no dataTransfer and no data
+				    if (evt.dataTransfer != null && mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
 				    {
 				    	nameInput.value = decodeURIComponent(evt.dataTransfer.getData('text/uri-list'));
 				    	genericBtn.click();
@@ -4281,6 +4288,7 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn, div)
 			this.gridColor : '#ffffff';
 		var image = 'none';
 		var position = '';
+		var size = '';
 
 		// Uses light custom background with simple adaptive colors
 		if (graph.getAdaptiveColors() == 'simple' &&
@@ -4301,6 +4309,11 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn, div)
 				image = (window.btoa) ? btoa(image) : Base64.encode(image, true);
 				image = 'url(' + 'data:image/svg+xml;base64,' + image + ')'
 				phase = graph.gridSize * this.scale * this.gridSteps * factor;
+
+				// Uses the exact size of the tile as Firefox rounds the
+				// size of SVG images and the error adds up with each tile
+				var tile = this.gridSteps * this.getGridLineDistance(factor);
+				size = tile + 'px ' + tile + 'px';
 			}
 			else
 			{
@@ -4349,16 +4362,19 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn, div)
 			gradient, graph.getAdaptiveColors() != 'simple') : null;
 		var backgroundImage = image;
 		var backgroundPosition = position;
+		var backgroundSize = size;
 
 		if (gradientCss != null)
 		{
 			backgroundImage = (image != 'none') ? image + ', ' + gradientCss : gradientCss;
 			backgroundPosition = (image != 'none') ? position + ', 0px 0px' : '';
+			backgroundSize = (image != 'none' && size != '') ? size + ', auto' : '';
 		}
 		
 		if (graph.view.backgroundPageShape != null)
 		{
 			graph.view.backgroundPageShape.node.style.backgroundPosition = backgroundPosition;
+			graph.view.backgroundPageShape.node.style.backgroundSize = backgroundSize;
 			graph.view.backgroundPageShape.node.style.backgroundImage = backgroundImage;
 			graph.view.backgroundPageShape.node.style.backgroundColor = color;
 			graph.view.backgroundPageShape.node.style.borderColor = pageBorder;
@@ -4379,6 +4395,7 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn, div)
 		else
 		{
 			canvas.style.backgroundPosition = position;
+			canvas.style.backgroundSize = size;
 			canvas.style.backgroundImage = image;
 
 			if (urlParams['transparent'] == '1')
@@ -4394,23 +4411,36 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn, div)
 			else
 			{
 				canvas.style.backgroundPosition = backgroundPosition;
+				canvas.style.backgroundSize = backgroundSize;
 				canvas.style.backgroundImage = backgroundImage;
 				canvas.style.backgroundColor = color;
 			}
 		}
 	};
 	
-	// Returns the SVG required for painting the background grid.
-	mxGraphView.prototype.createSvgGrid = function(color, factor)
+	// Returns the distance between the minor lines of the background grid.
+	mxGraphView.prototype.getGridLineDistance = function(factor)
 	{
-		factor = (factor != null) ? factor : 1;
-		var tmp = this.graph.gridSize * this.scale * factor;
-		
+		var tmp = this.graph.gridSize * this.scale * ((factor != null) ? factor : 1);
+
+		// Doubling 0, a negative or an invalid size never ends
+		if (!(tmp > 0 && isFinite(tmp)))
+		{
+			tmp = this.minGridSize;
+		}
+
 		while (tmp < this.minGridSize)
 		{
 			tmp *= 2;
 		}
-		
+
+		return tmp;
+	};
+
+	// Returns the SVG required for painting the background grid.
+	mxGraphView.prototype.createSvgGrid = function(color, factor)
+	{
+		var tmp = this.getGridLineDistance(factor);
 		var tmp2 = this.gridSteps * tmp;
 		
 		// Small grid lines
@@ -4441,7 +4471,9 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn, div)
 				Editor.isDarkMode() ? 'dark' : 'light');
 		}
 		
-		var svg = '<svg style="' + scheme + '" width="' + size + '" height="' + size + '" xmlns="' + mxConstants.NS_SVG + '">' +
+		// The viewBox scales the pattern to the background size of the tile
+		var svg = '<svg style="' + scheme + '" width="' + size + '" height="' + size +
+			'" viewBox="0 0 ' + size + ' ' + size + '" xmlns="' + mxConstants.NS_SVG + '">' +
 		    '<defs><pattern id="grid" width="' + tmp2 + '" height="' + tmp2 + '" patternUnits="userSpaceOnUse">' +
 		    '<path d="' + d.join(' ') + '" fill="none" style="stroke:' + mxUtils.htmlEntities(cssColor.cssText) +
 			';" stroke="' + cssColor.light + '" opacity="0.2" stroke-width="1"/>' +

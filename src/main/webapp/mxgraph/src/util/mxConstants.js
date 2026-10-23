@@ -1783,6 +1783,22 @@
 	STYLE_PERIMETER_SPACING: 'perimeterSpacing',
 
 	/**
+	 * Variable: STYLE_LABEL_PERIMETER
+	 * 
+	 * Defines the key for the label perimeter style of a vertex. If this is 1
+	 * and the label of the vertex is placed outside the shape on one side (a
+	 * verticalLabelPosition of top or bottom with a labelPosition of center,
+	 * or a labelPosition of left or right with a verticalLabelPosition of
+	 * middle), then edges that meet the vertex on that side end at the far
+	 * edge of the label instead of crossing the label to the shape, as in
+	 * cloud architecture diagrams. Edges on the other sides are unchanged.
+	 * Rotated and flipped vertices are not affected. Possible values are 1
+	 * and 0 (default). See <mxGraphView.getLabelPerimeterSide>. Value is
+	 * "labelPerimeter".
+	 */
+	STYLE_LABEL_PERIMETER: 'labelPerimeter',
+
+	/**
 	 * Variable: STYLE_SPACING
 	 * 
 	 * Defines the key for the spacing. The value represents the spacing, in

@@ -1561,6 +1561,27 @@ Actions.prototype.init = function()
 	});
 	
 	// Format actions
+	this.addAction('matchConnector', function()
+	{
+		if (graph.isEnabled() && !graph.isSelectionEmpty())
+		{
+			if (graph.isEditing())
+			{
+				graph.stopEditing(false);
+			}
+
+			// Reports the new styles like Paste Style (see Graph.beginArrange)
+			var arrange = graph.beginArrange();
+			try
+			{
+				graph.setLabelStyleInherited(graph.getSelectionCells());
+			}
+			finally
+			{
+				graph.endArrange(arrange);
+			}
+		}
+	});
 	this.addAction('removeFormat', function()
 	{
 		if (graph.isEnabled() && !graph.isSelectionEmpty() && !graph.isEditing())
@@ -1900,13 +1921,11 @@ Actions.prototype.init = function()
 					{
 						var geo = graph.getCellGeometry(cell);
 
-						if (geo != null)
+						// Keeps the labels where they are (see resetLabelPositions)
+						if (geo != null && geo.points != null)
 						{
 							geo = geo.clone();
 							geo.points = null;
-							geo.x = 0;
-							geo.y = 0;
-							geo.offset = null;
 							graph.getModel().setGeometry(cell, geo);
 						}
 
@@ -1921,6 +1940,70 @@ Actions.prototype.init = function()
 			}
 		}
 	}, null, null,  Editor.altKey + '+' + Editor.shiftKey + '+R');
+	this.addAction('resetLabelPositions', function()
+	{
+		var cells = graph.getSelectionCells();
+
+		if (cells != null)
+		{
+			var model = graph.getModel();
+			cells = graph.getEditableCells(graph.addAllEdges(cells));
+
+			// Moves the label of an edge to the center of the edge and the label
+			// cells of an edge onto the edge at their position along it, which is
+			// where new labels and the labels of the edge templates are placed.
+			// Sized vertices in edges keep the offset that centers them.
+			var resetLabel = function(cell, center)
+			{
+				var geo = model.getGeometry(cell);
+
+				if (geo != null && (center || geo.relative) &&
+					((center && geo.x != 0) || geo.y != 0 ||
+					(geo.offset != null && (geo.offset.x != 0 ||
+					geo.offset.y != 0))))
+				{
+					geo = geo.clone();
+					geo.x = (center) ? 0 : geo.x;
+					geo.y = 0;
+					geo.offset = null;
+					model.setGeometry(cell, geo);
+				}
+			};
+
+			// Label cells are vertices (see Graph.beginArrange)
+			var arrange = graph.beginArrange();
+			try
+			{
+				for (var i = 0; i < cells.length; i++)
+				{
+					var cell = cells[i];
+
+					if (model.isEdge(cell))
+					{
+						resetLabel(cell, true);
+
+						for (var j = 0; j < model.getChildCount(cell); j++)
+						{
+							var child = model.getChildAt(cell, j);
+
+							if (graph.isEdgeLabelCell(child) && graph.isCellEditable(child))
+							{
+								resetLabel(child, false);
+							}
+						}
+					}
+					else if (graph.isEdgeLabelCell(cell))
+					{
+						resetLabel(cell, false);
+					}
+				}
+			}
+			finally
+			{
+				graph.endArrange(arrange);
+			}
+		}
+	});
 	action = this.addAction('subscript', mxUtils.bind(this, function()
 	{
 	    if (graph.cellEditor.isContentEditing())
