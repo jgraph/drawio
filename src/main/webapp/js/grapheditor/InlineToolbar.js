@@ -969,9 +969,14 @@ InlineToolbar.prototype.addHandleBounds = function(handler, result)
 
 	if (handler.customHandles != null)
 	{
+		// Handlers keep null entries for custom handles that are not
+		// created (see mxVertexHandler)
 		for (var i = 0; i < handler.customHandles.length; i++)
 		{
-			shapes.push(handler.customHandles[i].shape);
+			if (handler.customHandles[i] != null)
+			{
+				shapes.push(handler.customHandles[i].shape);
+			}
 		}
 	}
 

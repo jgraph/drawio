@@ -309,6 +309,19 @@
 
 		var pageAction = mxResources.get('page');
 
+		// Shown in the Pages menu if the tabs show page groups. Added before
+		// insertPage, which the search of the sidebar finds for "insert page"
+		// as it returns the last action that matches (see Sidebar.addSearchPalette).
+		editorUi.actions.put('insertPageGroup', new Action(mxResources.get('insertPageGroup',
+			null, 'Insert Group') + '...', function()
+		{
+			editorUi.insertPageGroup();
+		})).isEnabled = function()
+		{
+			return editorUi.currentPage != null && editorUi.editor.graph.isEnabled() &&
+				editorUi.isPageGroupsEnabled();
+		};
+
 		editorUi.actions.put('insertPage', new Action(mxResources.get('insertPage'), function()
 		{
 			try
@@ -1380,7 +1393,7 @@
 			}
 			else
 			{
-				editorUi.openLink('https://www.youtube.com/watch?v=Z0D96ZikMkc');
+				editorUi.openLink('https://www.youtube.com/watch?v=AwGG115DfGg');
 			}
 		});
 		
@@ -1858,12 +1871,6 @@
 				editorUi.showOutlineDialog(cell);
 			}
 		});
-
-		// Inserts a tree, balloon or mindmap container from an outline
-		editorUi.actions.addAction('fromOutline...', function()
-		{
-			editorUi.showOutlineDialog();
-		}).isEnabled = isGraphEnabled;
 
 		// Adds action for removing user-defined colors
 		editorUi.actions.put('adaptiveColors', new Action('adaptiveColors', function(evt)
@@ -5542,7 +5549,7 @@
 		{
 			this.addMenuItems(menu, ['horizontalFlow', 'verticalFlow', '-',
 				'horizontalTree', 'verticalTree', 'radialTree', 'balloonTree', 'mindmap', '-',
-				'organic', 'circle', '-', 'fromOutline'], parent);
+				'organic', 'circle'], parent);
 		})));
 
 		editorUi.actions.put('csv', new Action(mxResources.get('csv') + '...', function()
@@ -6207,15 +6214,17 @@
 		{
 			var page = editorUi.currentPage;
 
+			// Pages in groups are added to a submenu for each group
+			var groups = editorUi.isPageGroupsEnabled();
+
 			if (!editorUi.editor.graph.isLightboxView())
 			{
-				this.addMenuItems(menu, ['insertPage', '-'], parent);
+				this.addMenuItems(menu, (groups) ? ['insertPage', 'insertPageGroup', '-'] :
+					['insertPage', '-'], parent);
 			}
-			
+
 			if (editorUi.pages != null)
 			{
-				// Pages in groups are added to a submenu for each group
-				var groups = editorUi.isPageGroupsEnabled();
 				var groupItem = null;
 				var lastGroup = null;
 

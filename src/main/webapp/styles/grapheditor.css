@@ -40,6 +40,8 @@
 	--dark-field-border-color: #48484a;
 	--strong-border-color: #b9b9be;
 	--dark-strong-border-color: #5a5a5e;
+	/* Buttons of dialogs and windows in dark mode */
+	--dark-button-border-color: rgba(255, 255, 255, 0.15);
 	--card-color: #ffffff;
 	--dark-card-color: #2c2c2e;
 	--soft-color: whitesmoke;
@@ -114,6 +116,7 @@
 		--dark-field-color: color-mix(in srgb, CanvasText 4%, Canvas);
 		--dark-field-border-color: color-mix(in srgb, CanvasText 23%, Canvas);
 		--dark-strong-border-color: color-mix(in srgb, CanvasText 30%, Canvas);
+		--dark-button-border-color: color-mix(in srgb, CanvasText 15%, transparent);
 		--dark-card-color: color-mix(in srgb, CanvasText 11%, Canvas);
 		--dark-soft-color: color-mix(in srgb, CanvasText 17%, Canvas);
 		--dark-soft-hover-color: color-mix(in srgb, CanvasText 17%, Canvas);
@@ -984,6 +987,15 @@ html body div.mxWindow.geDarkMode {
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* Buttons of dialogs and windows have a border that shows on their color, as
+   the border color of the editor is almost the color of dialogs and windows.
+   Selects with the geBtn class keep the border of fields and its focus color. */
+html body.geDarkMode .geDialog .geBtn:not(.gePrimaryBtn, select),
+html body.geDarkMode div.mxWindow .geBtn:not(.gePrimaryBtn, select),
+html body div.mxWindow.geDarkMode .geBtn:not(.gePrimaryBtn, select) {
+	border-color: var(--dark-button-border-color);
+}
+
 .mxCellEditor {
 	font-family: initial;
 }
@@ -1674,9 +1686,16 @@ table.mxPopupMenu tr.mxPopupMenuItemHover,
 	visibility: hidden;
 }
 
+/* The dragged tabs are empty slots where they are dropped, with the lines of
+   the group that a page joins (see EditorUi.setTabDragGroup) */
+.gePageTab.gePageTabDragPlaceholder>*,
+.gePageGroupTab.gePageTabDragPlaceholder>* {
+	visibility: hidden;
+}
+
 .gePageTab.gePageTabDragPlaceholder,
 .gePageGroupTab.gePageTabDragPlaceholder {
-	visibility: hidden;
+	background-color: light-dark(var(--highlight-color), var(--dark-border-color));
 }
 
 button:hover:not([disabled], .geBigButton, .geShareBtn),
@@ -2156,8 +2175,9 @@ a.geStatus>div {
 }
 
 /* Page groups (see EditorUi.createTabForPageGroup): the tab of a group and
-   the tabs of its pages are underlined, the current page is shown in a
-   collapsed group */
+   the tabs of its pages are underlined and between lines, with a gap to the
+   tabs outside of the group, and the groups without the current page are
+   darker like the inactive tabs of the Format panel */
 .gePageTabGrouped,
 .gePageGroupTab {
 	box-shadow: inset 0 -2px 0 light-dark(var(--strong-border-color), var(--dark-strong-border-color));
@@ -2171,11 +2191,47 @@ a.geStatus>div {
 	vertical-align: top;
 	margin-left: 4px;
 	padding: 0px 2px 0px 4px;
-	font-weight: 500;
+	font-weight: 600;
+	border-left: 1px solid light-dark(var(--strong-border-color), var(--dark-strong-border-color));
+}
+
+.gePageGroupEnd {
+	margin-right: 4px;
+	border-right: 1px solid light-dark(var(--strong-border-color), var(--dark-strong-border-color));
+}
+
+.gePageGroupInactive:not(:hover, .geActivePage) {
+	background-color: light-dark(var(--inactive-color), var(--dark-highlight-color));
 }
 
 .gePageGroupTab>div.geButton {
 	width: 20px !important;
+}
+
+/* Disclosure triangle of a group like in the collapsible sections of dialogs
+   (.geCollapsibleTitle), which is not like the menu button of the tabs */
+.gePageGroupExpandedIcon,
+.gePageGroupCollapsedIcon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.gePageGroupExpandedIcon::before,
+.gePageGroupCollapsedIcon::before {
+	content: '';
+	border-style: solid;
+	border-width: 4px 0 4px 6px;
+	border-color: transparent transparent transparent light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
+}
+
+.gePageGroupExpandedIcon::before {
+	transform: rotate(90deg);
+}
+
+/* The group of the current page cannot be collapsed */
+.gePageGroupCurrent>.gePageGroupExpandedIcon {
+	opacity: 0.4;
 }
 
 .gePageGroupTab:not(:hover, :focus-within)>div.geButton:last-child {
@@ -2867,6 +2923,12 @@ a.geStatus>div {
 
 .geDialog .geCollapsibleTitle {
 	margin-top: 4px;
+}
+
+/* The title of an Advanced section has the space between sections above and
+   below it (see EditorUi.addAdvancedSection) */
+.geDialog .geCollapsibleContent {
+	margin-top: 10px;
 }
 
 .geDialogInlineField label {

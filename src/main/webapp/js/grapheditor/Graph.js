@@ -1881,6 +1881,47 @@ Graph.defaultMultipleCount = 2;
 Graph.maxMultipleCount = 10;
 
 /**
+ * Default size of the rings of flowAnimationType=ring. The default is at
+ * least 4 times the stroke width.
+ */
+Graph.defaultFlowRingSize = 12;
+
+/**
+ * Default size of the dots of flowAnimationType=dot. The default is at least
+ * 3 times the stroke width.
+ */
+Graph.defaultFlowDotSize = 8;
+
+/**
+ * Maximum size of the rings and dots of flowAnimationType=ring and dot.
+ */
+Graph.maxFlowRingSize = 1000;
+
+/**
+ * Maximum number of rings and dots along an edge (flowAnimationCount).
+ */
+Graph.maxFlowRingCount = 100;
+
+/**
+ * Default time in ms that the rings and dots of flowAnimationType=ring and
+ * dot take from the start to the end of an edge.
+ */
+Graph.defaultFlowRingDuration = 1500;
+
+/**
+ * Distance that the dashes of the rings and dots move in one loop for a
+ * pathLength of 100. It is longer than the path so that one ring leaves the
+ * edge before the next one enters it.
+ */
+Graph.flowRingPeriod = 101;
+
+/**
+ * Dash offset of the rings and dots that puts one of them in the middle of
+ * the edge for a pathLength of 100.
+ */
+Graph.flowRingOffset = 51;
+
+/**
  * Default horizontal offset between the copies of multiple=1.
  */
 Graph.defaultMultipleDx = 8;
@@ -2066,6 +2107,7 @@ Graph.pasteTextStyles = ['fontFamily', 'fontSource', 'fontSize', 'fontColor', 'f
 Graph.edgeStyles = ['edgeStyle', 'elbow', 'jumpStyle', 'jumpSize', 'startArrow',
 	'startFill', 'startSize', 'endArrow', 'endFill', 'endSize', 'flowAnimation',
 	'flowAnimationDirection', 'flowAnimationTimingFunction', 'flowAnimationDuration',
+	'flowAnimationType', 'flowAnimationSize', 'flowAnimationCount', 'flowAnimationLoop',
 	'sourcePerimeterSpacing', 'targetPerimeterSpacing', 'fixedPointSpacing', 'curved',
 	'curveGeometry', 'trimCurve', 'linecap', 'linejoin', 'libavoidRouting', 'libavoidSpacing',
 	'followTerminals', 'labelPlacement'];
@@ -5974,7 +6016,10 @@ Graph.maxCssRuleMatchCost = 1e6;
  * and backreferences, which can backtrack for exponential time, are not
  * allowed. The remaining cost grows with the length of the selector to the
  * power of the number of quantifiers, times the number of alternatives of
- * each group, which is limited for all selectors by maxCssRuleMatchCost.
+ * each group, plus the length of the selector times the length of the
+ * expression, as each position of the selector may be compared with all of
+ * the expression (eg. a long expression without quantifiers). The cost of
+ * all selectors is limited by maxCssRuleMatchCost.
  */
 Graph.createCssRuleMatcher = function(exp)
 {
@@ -6062,7 +6107,8 @@ Graph.createCssRuleMatcher = function(exp)
 	return function(selector)
 	{
 		selector = String(selector);
-		budget -= factor * Math.pow(selector.length + 1, quantifiers + 1);
+		budget -= factor * Math.pow(selector.length + 1, quantifiers + 1) +
+			selector.length * exp.length;
 
 		return budget >= 0 && regex.test(selector);
 	};
@@ -16122,10 +16168,13 @@ Graph.prototype.getPlaceholderParent = function(cell)
 Graph.prototype.placeholderCells = null;
 
 /**
- * Maximum number of keys and results that placeholderCells keeps. A
- * label with many placeholders under a deep cell would otherwise keep the
- * number of placeholders times the depth (eg. 100,000 placeholders 1,000
- * levels deep took 3 GB). Above the limit, the ancestors are tested again.
+ * Maximum number of keys and results that placeholderCells keeps for all
+ * tested ancestors. Labels with many placeholders under a deep cell would
+ * otherwise keep the number of placeholders times the depth (eg. 100,000
+ * placeholders 1,000 levels deep took 3 GB). Above the limit, only the
+ * result of the parent is kept, where the lookups of its other children
+ * stop as the view is validated from the top, which is at most one key and
+ * one result per lookup.
  */
 Graph.prototype.maxPlaceholderCells = 100000;
 
@@ -16163,10 +16212,10 @@ Graph.prototype.cachePlaceholderCells = function(fn)
  * Returns the given cell or the first of its ancestors (see
  * getPlaceholderParent) for which the given function returns true, or null.
  * While the view is validated, the result is kept for each ancestor that
- * was tested with the given key (see placeholderCells), so that the labels
- * and styles of many descendants of a deep cell do not test all ancestors
- * for each placeholder, which is the number of cells times the number of
- * placeholders times the depth.
+ * was tested with the given key (see placeholderCells and
+ * maxPlaceholderCells), so that the labels and styles of many descendants
+ * of a deep cell do not test all ancestors for each placeholder, which is
+ * the number of cells times the number of placeholders times the depth.
  */
 Graph.prototype.getPlaceholderCell = function(cell, key, found)
 {
@@ -16183,7 +16232,7 @@ Graph.prototype.getPlaceholderCell = function(cell, key, found)
 		{
 			this.placeholderCells.set(key, null);
 		}
-		else if (results === null && this.placeholderCellCount < this.maxPlaceholderCells)
+		else if (results === null)
 		{
 			results = new mxDictionary();
 			this.placeholderCells.set(key, results);
@@ -16220,10 +16269,13 @@ Graph.prototype.getPlaceholderCell = function(cell, key, found)
 		current = this.getPlaceholderParent(current);
 	}
 
-	if (results != null)
+	if (results != null && path.length > 0)
 	{
-		// Keeps the nearest ancestors up to maxPlaceholderCells
-		var count = Math.min(path.length, this.maxPlaceholderCells - this.placeholderCellCount);
+		// Keeps the nearest ancestors up to maxPlaceholderCells and then
+		// only the parent, so that shared placeholders of many cells under
+		// a deep cell do not test all ancestors again
+		var count = Math.max(1, Math.min(path.length,
+			this.maxPlaceholderCells - this.placeholderCellCount));
 
 		for (var i = 0; i < count; i++)
 		{
@@ -22971,6 +23023,49 @@ Graph.prototype.addTextOutlineButton = function()
 };
 
 /**
+ * Sets the given text alternative of a diagram that is only shown, eg. the
+ * Alt Text of the page in the lightbox, as the first text in the container
+ * for screen readers, or removes it if the given text is null. Screen readers
+ * that move through a page from text to text, like VoiceOver, skip the name
+ * of the container and read its labels. The text is hidden visually in a box
+ * that sticks to the top left of the visible area of the container, like the
+ * Text Outline button, so that screen readers do not scroll the container
+ * when they read it (see addTextOutlineButton).
+ */
+Graph.prototype.setAltTextCaption = function(text)
+{
+	var caption = this.altTextCaption;
+	var box = (caption != null) ? caption.parentNode : null;
+
+	if (text != null)
+	{
+		if (caption == null)
+		{
+			var doc = this.container.ownerDocument;
+			box = doc.createElement('div');
+			box.style.cssText = 'position:sticky;left:0;top:0;width:100%;height:0;';
+			caption = doc.createElement('div');
+			caption.style.cssText = 'position:absolute;left:4px;top:4px;width:1px;height:1px;' +
+				'padding:0;margin:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0;';
+			box.appendChild(caption);
+			this.altTextCaption = caption;
+		}
+
+		// Text only, the Alt Text is author content
+		caption.textContent = text;
+
+		if (box.parentNode != this.container || box != this.container.firstChild)
+		{
+			this.container.insertBefore(box, this.container.firstChild);
+		}
+	}
+	else if (box != null && box.parentNode != null)
+	{
+		box.parentNode.removeChild(box);
+	}
+};
+
+/**
  * Renders the tooltip markup for hovers over the tooltip icon. The base
  * implementation shows overlay tooltips as escaped plain text.
  */
@@ -23001,11 +23096,18 @@ Graph.prototype.getTooltip = function(state, node, x, y)
 };
 
 /**
- * 
+ * Adds the flow animation of the given style to the given line node of an
+ * edge, a moving dash pattern or, with flowAnimationType=ring or dot, rings
+ * or dots that move along the line (see addFlowRingsToNode). Root is the
+ * node of the shape, default is the parent of the line node.
  */
-Graph.prototype.addFlowAnimationToNode = function(node, style, scale, id)
+Graph.prototype.addFlowAnimationToNode = function(node, style, scale, id, root)
 {
-	if (node != null && id != null)
+	if (node != null && id != null && this.getFlowAnimationType(style) != 'dash')
+	{
+		this.addFlowRingsToNode(node, style, scale, id, root);
+	}
+	else if (node != null && id != null)
 	{
 		var dashArray = node.getAttribute('stroke-dasharray');
 		var tokens = [];
@@ -23065,6 +23167,350 @@ Graph.prototype.addFlowAnimationToNode = function(node, style, scale, id)
 };
 
 /**
+ * Returns the type of the flow animation of the given style, dash (moving
+ * dashes, the default), ring (hollow rings that move along the edge, see
+ * addFlowRingsToNode) or dot (filled dots that move along the edge).
+ */
+Graph.prototype.getFlowAnimationType = function(style)
+{
+	var type = mxUtils.getValue(style, 'flowAnimationType', null);
+
+	return (type == 'ring' || type == 'dot') ? type : 'dash';
+};
+
+/**
+ * Adds rings or dots in the color of the given line node of an edge that move
+ * from the start to the end of the line (flowAnimationType=ring or dot).
+ * flowAnimationCount rings are spaced evenly along the edge and
+ * flowAnimationLoop=0 moves them over the edge once. A ring cuts a gap into
+ * the line and its markers with a mask, so that the background shows through
+ * the ring also if it is a gradient or an image.
+ *
+ * The rings and the holes of the masks are dashes of length zero with round
+ * caps on copies of the line. They move with a stroke-dashoffset animation
+ * like the dashed flow (see createFlowAnimationCss), so that no motion path
+ * is needed (SMIL is removed from SVG images, see
+ * EditorUi.isSelfContainedSvg), the reduced motion query stops them and the
+ * animated exports step them like the dashes (see
+ * AnimatedGifExport.findAnimatedPaths). A pathLength of 100 makes the dash
+ * pattern independent of the length of the line, so a ring takes
+ * flowAnimationDuration from the start to the end of every edge.
+ *
+ * A loop moves a pattern with a period of flowRingPeriod divided by the count
+ * by flowRingPeriod. Without the animation (reduced motion, print, renderers
+ * without CSS animations) a ring is in the middle of the edge, where the
+ * animation starts. A single pass moves a train of rings that starts with a
+ * ring at the start of the edge and has the others behind the start by two
+ * times flowRingPeriod in two times the duration (all rings have left the
+ * edge by then) and has no rings without the animation.
+ *
+ * Root is the node of the shape, whose first path is the plain line, default
+ * is the parent of the line node. The rings are added to the parent of the
+ * line node.
+ */
+Graph.prototype.addFlowRingsToNode = function(node, style, scale, id, root)
+{
+	var parent = node.parentNode;
+
+	// Removes the rings of an earlier call for the same paint
+	if (parent != null)
+	{
+		var child = parent.lastChild;
+
+		while (child != null)
+		{
+			var prev = child.previousSibling;
+
+			if (child.nodeType == mxConstants.NODETYPE_ELEMENT)
+			{
+				if ((child.nodeName == 'mask' && String(child.getAttribute('id')).
+					substring(0, 13) == 'ge-flow-ring-') || (child.nodeName == 'path' &&
+					child.getAttribute('pathLength') != null))
+				{
+					parent.removeChild(child);
+				}
+				else if (String(child.getAttribute('mask')).indexOf('#ge-flow-ring-') >= 0)
+				{
+					child.removeAttribute('mask');
+				}
+			}
+
+			child = prev;
+		}
+	}
+
+	// The first path of the shape is the plain geometry of the line, also for
+	// sketch=1, where the line has two rough strokes (see getFlowAnimationPath)
+	// and the sketch paint keeps the plain line in exports without pointer
+	// events. With opacityGroup=1 each pass of the sketch paint is a group of
+	// its own, so the plain line is not in the parent of the rough strokes.
+	root = (root != null) ? root : parent;
+	var first = (root != null) ? root.getElementsByTagName('path')[0] : null;
+	var d = (first != null) ? first.getAttribute('d') : null;
+	var bounds = Graph.getPathDataBounds(d);
+	d = Graph.getContinuousPathData(d);
+
+	if (bounds != null)
+	{
+		var doc = node.ownerDocument;
+		var hollow = this.getFlowAnimationType(style) == 'ring';
+		var sw = parseFloat(node.getAttribute('stroke-width'));
+		sw = (sw > 0 && isFinite(sw)) ? sw : 1;
+		var size = parseFloat(mxUtils.getValue(style, 'flowAnimationSize', null));
+
+		// The hole of a ring is at least as wide as the line
+		size = (isFinite(size)) ? Math.max(((hollow) ? 3 : 2) * sw,
+			Math.min(size, Graph.maxFlowRingSize) * scale) :
+			((hollow) ? Math.max(4 * sw, Graph.defaultFlowRingSize * scale) :
+			Math.max(3 * sw, Graph.defaultFlowDotSize * scale));
+		var count = parseInt(mxUtils.getValue(style, 'flowAnimationCount', 1));
+		count = (count > 1) ? Math.min(count, Graph.maxFlowRingCount) : 1;
+		var loop = mxUtils.getValue(style, 'flowAnimationLoop', '1') != '0';
+		var dur = parseInt(mxUtils.getValue(style,
+			'flowAnimationDuration', Graph.defaultFlowRingDuration));
+		dur = (dur > 0) ? dur : Graph.defaultFlowRingDuration;
+		var tf = mxUtils.getValue(style, 'flowAnimationTimingFunction', 'linear');
+		var ad = mxUtils.getValue(style, 'flowAnimationDirection', 'normal');
+		var spacing = Math.round(Graph.flowRingPeriod / count * 10000) / 10000;
+		var dashArray = '0 ' + spacing;
+		var offset = Graph.flowRingOffset;
+		var delay = -Math.round(dur / 2);
+
+		if (!loop)
+		{
+			dashArray = '0 ' + (3 * Graph.flowRingPeriod);
+			offset = -2 * Graph.flowRingPeriod;
+			delay = 0;
+
+			for (var i = 1; i < count; i++)
+			{
+				dashArray += ' 0 ' + spacing;
+			}
+
+			// A reverse pass starts when the last ring enters the end
+			if (ad == 'reverse' || ad == 'alternate-reverse')
+			{
+				delay = -Math.round(dur * (Graph.flowRingPeriod + 1 -
+					(count - 1) * spacing) / Graph.flowRingPeriod);
+			}
+		}
+
+		var animation = id + ((loop) ? '-ring ' : '-ring-once ') +
+			((loop) ? dur : 2 * dur) + 'ms ' + mxUtils.htmlEntities(tf) +
+			' ' + delay + 'ms ' + ((loop) ? 'infinite' : '1') +
+			' ' + mxUtils.htmlEntities(ad);
+		var masked = [];
+
+		// Masks the painted line and markers under rings and translucent dots
+		if (hollow || node.getAttribute('stroke-opacity') != null)
+		{
+			for (var child = parent.firstChild; child != null; child = child.nextSibling)
+			{
+				if ((child.nodeName == 'path' || child.nodeName == 'ellipse') &&
+					child.getAttribute('visibility') != 'hidden' &&
+					(child.getAttribute('stroke') != 'none' ||
+					child.getAttribute('fill') != 'none'))
+				{
+					if (child.nodeName == 'path')
+					{
+						var b = Graph.getPathDataBounds(child.getAttribute('d'));
+
+						if (b != null)
+						{
+							bounds.add(b);
+						}
+					}
+					else
+					{
+						var rx = parseFloat(child.getAttribute('rx'));
+						var ry = parseFloat(child.getAttribute('ry'));
+						var b = new mxRectangle(parseFloat(child.getAttribute('cx')) - rx,
+							parseFloat(child.getAttribute('cy')) - ry, 2 * rx, 2 * ry);
+
+						if (isFinite(b.x) && isFinite(b.y) && isFinite(b.width) && isFinite(b.height))
+						{
+							bounds.add(b);
+						}
+					}
+
+					masked.push(child);
+				}
+			}
+		}
+
+		// The default mask region is empty for horizontal and vertical lines,
+		// and the stroke can go out by 5 times its width (miter limit)
+		bounds.grow(Math.max(size / 2, 5 * sw) + 1);
+
+		// Workaround for references with a base tag in the page
+		var base = (doc == document && mxSvgCanvas2D.prototype.useAbsoluteIds) ?
+			mxSvgCanvas2D.prototype.getBaseUrl().replace(/([\(\)])/g, '\\$1') : '';
+
+		var createDots = function(width, color)
+		{
+			var dots = doc.createElementNS(mxConstants.NS_SVG, 'path');
+			dots.setAttribute('d', d);
+			dots.setAttribute('fill', 'none');
+			dots.setAttribute('stroke', color);
+			dots.setAttribute('stroke-width', Math.round(width * 100) / 100);
+			dots.setAttribute('stroke-linecap', 'round');
+			dots.setAttribute('stroke-dasharray', dashArray);
+			dots.setAttribute('pathLength', '100');
+			dots.setAttribute('pointer-events', 'none');
+			dots.style.animation = animation;
+			dots.style.strokeDashoffset = offset;
+
+			return dots;
+		};
+
+		// Returns the reference of a mask that hides discs of the given size
+		var createMask = function(width)
+		{
+			var mask = doc.createElementNS(mxConstants.NS_SVG, 'mask');
+			var maskId = 'ge-flow-ring-' + Editor.guid();
+			mask.setAttribute('id', maskId);
+			mask.setAttribute('maskUnits', 'userSpaceOnUse');
+
+			var rect = doc.createElementNS(mxConstants.NS_SVG, 'rect');
+			rect.setAttribute('fill', 'white');
+
+			var attrs = ['x', 'y', 'width', 'height'];
+
+			for (var i = 0; i < attrs.length; i++)
+			{
+				var value = Math.round(bounds[attrs[i]] * 100) / 100;
+				mask.setAttribute(attrs[i], value);
+				rect.setAttribute(attrs[i], value);
+			}
+
+			mask.appendChild(rect);
+			mask.appendChild(createDots(width, 'black'));
+			parent.appendChild(mask);
+
+			return 'url(' + base + '#' + maskId + ')';
+		};
+
+		if (masked.length > 0)
+		{
+			var lineMask = createMask(size);
+
+			for (var i = 0; i < masked.length; i++)
+			{
+				masked[i].setAttribute('mask', lineMask);
+			}
+		}
+
+		// A ring is a dot in the color of the line with a hole
+		var dots = createDots(size, node.getAttribute('stroke'));
+		dots.style.stroke = node.style.stroke;
+
+		if (node.getAttribute('stroke-opacity') != null)
+		{
+			dots.setAttribute('stroke-opacity', node.getAttribute('stroke-opacity'));
+		}
+
+		if (hollow)
+		{
+			dots.setAttribute('mask', createMask(size - 2 * sw));
+		}
+
+		parent.appendChild(dots);
+	}
+};
+
+/**
+ * Returns the given path data of mxSvgCanvas2D as one subpath, as dashes
+ * restart at each subpath, eg. at the line jumps of the rings of
+ * flowAnimationType=ring and dot. Moves without segments and the bars of
+ * jumpStyle=line (two points around the end of the previous or the start of
+ * the next subpath) are removed and the other moves become lines.
+ */
+Graph.getContinuousPathData = function(d)
+{
+	var result = d;
+
+	if (d != null && d.indexOf('M', 1) > 0)
+	{
+		var parts = d.split(/(?=M)/);
+		var subpaths = [];
+
+		for (var i = 0; i < parts.length; i++)
+		{
+			var values = parts[i].match(/-?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?/gi);
+
+			if (values != null && values.length >= 4)
+			{
+				subpaths.push({data: parts[i].replace(/^\s*M/, ''),
+					values: values.map(parseFloat)});
+			}
+		}
+
+		var isNear = function(x, y, values, index)
+		{
+			return Math.abs(x - values[index]) < 0.1 &&
+				Math.abs(y - values[index + 1]) < 0.1;
+		};
+
+		result = '';
+
+		for (var i = 0; i < subpaths.length; i++)
+		{
+			var v = subpaths[i].values;
+			var bar = false;
+
+			if (v.length == 4 && i > 0 && i < subpaths.length - 1 &&
+				/^[\s\d.e+-]*L[\s\d.e+-]*$/i.test(subpaths[i].data))
+			{
+				var cx = (v[0] + v[2]) / 2;
+				var cy = (v[1] + v[3]) / 2;
+				var prev = subpaths[i - 1].values;
+				bar = isNear(cx, cy, prev, prev.length - 2) ||
+					isNear(cx, cy, subpaths[i + 1].values, 0);
+			}
+
+			if (!bar)
+			{
+				result += ((result.length == 0) ? 'M' : ' L') + subpaths[i].data.replace(/\s+$/, '');
+			}
+		}
+
+		result = (result.length > 0) ? result : d;
+	}
+
+	return result;
+};
+
+/**
+ * Returns the bounds of the points of the given path data of mxSvgCanvas2D,
+ * which has absolute commands with points only (M, L, Q, C and Z), or null if
+ * the data has no points.
+ */
+Graph.getPathDataBounds = function(d)
+{
+	var values = (d != null) ? d.match(/-?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?/gi) : null;
+	var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+
+	if (values != null)
+	{
+		for (var i = 0; i < values.length - 1; i += 2)
+		{
+			var x = parseFloat(values[i]);
+			var y = parseFloat(values[i + 1]);
+
+			if (isFinite(x) && isFinite(y))
+			{
+				x0 = Math.min(x0, x);
+				y0 = Math.min(y0, y);
+				x1 = Math.max(x1, x);
+				y1 = Math.max(y1, y);
+			}
+		}
+	}
+
+	return (x0 <= x1) ? new mxRectangle(x0, y0, x1 - x0, y1 - y0) : null;
+};
+
+/**
  * Adds rack child layout style.
  */
 Graph.prototype.addFlowAnimationStyle = function()
@@ -23085,15 +23531,32 @@ Graph.prototype.addFlowAnimationStyle = function()
 
 /**
  * Returns the CSS of the flow animation with the given ID. The animation stops,
- * showing a dashed line, if the operating system asks for reduced motion, also
- * in SVG exports (the nodes have the animation in their style attribute, see
- * addFlowAnimationToNode).
+ * showing a dashed line or a ring in the middle of the edge (no ring for a
+ * single pass), if the operating system asks for reduced motion, also in SVG
+ * exports (the nodes have the animation in their style attribute, see
+ * addFlowAnimationToNode and addFlowRingsToNode).
  */
 Graph.prototype.createFlowAnimationCss = function(id)
 {
 	return '@keyframes ' + id + ' {\n' +
 	'  to {\n' +
 	'    stroke-dashoffset: 0;\n' +
+	'  }\n' +
+	'}\n' +
+	'@keyframes ' + id + '-ring {\n' +
+	'  from {\n' +
+	'    stroke-dashoffset: ' + Graph.flowRingPeriod + ';\n' +
+	'  }\n' +
+	'  to {\n' +
+	'    stroke-dashoffset: 0;\n' +
+	'  }\n' +
+	'}\n' +
+	'@keyframes ' + id + '-ring-once {\n' +
+	'  from {\n' +
+	'    stroke-dashoffset: 0;\n' +
+	'  }\n' +
+	'  to {\n' +
+	'    stroke-dashoffset: ' + (-2 * Graph.flowRingPeriod) + ';\n' +
 	'  }\n' +
 	'}\n' +
 	'@media (prefers-reduced-motion: reduce) {\n' +
@@ -29850,10 +30313,15 @@ Graph.prototype.isEdgeLabelCell = function(cell)
 					}
 				}
 				else if (path.getAttribute('data-rough-fill') == null &&
+					path.getAttribute('pathLength') == null &&
 					(d == null || d == path.getAttribute('d')))
 				{
 					// Skips rough.js hachure fill paths (data-rough-fill),
-					// which are stroked in the fill color.
+					// which are stroked in the fill color, and the copies of
+					// the line for flow rings and dots and their masks
+					// (pathLength, see Graph.addFlowRingsToNode), which have
+					// the d of the line and would win the indexed walk of
+					// hollow pipes.
 					if (index == null || --index == 0)
 					{
 						return path;
@@ -29875,12 +30343,14 @@ Graph.prototype.isEdgeLabelCell = function(cell)
 		{
 			this.state.view.graph.addFlowAnimationToNode(
 				this.getFlowAnimationPath(), this.state.style, this.scale,
-				this.state.view.graph.addFlowAnimationStyle());
+				this.state.view.graph.addFlowAnimationStyle(), this.node);
 		}
 	};
 	
 	/**
-	 * Overrides paint to add flowAnimation style.
+	 * Overrides paint to add flowAnimation style. Only the node that the
+	 * canvas paints into gets the animation, not the node of a shape that is
+	 * painted into another canvas, eg. for a thumbnail.
 	 */
 	var mxShapePaint = mxShape.prototype.paint;
 	
@@ -29888,7 +30358,8 @@ Graph.prototype.isEdgeLabelCell = function(cell)
 	{
 		mxShapePaint.apply(this, arguments);
 
-		if (this.isFlowAnimationEnabled())
+		if (canvas != null && canvas.root == this.node &&
+			this.isFlowAnimationEnabled())
 		{
 			this.addFlowAnimationToShape();
 		}
@@ -40763,7 +41234,7 @@ if (typeof mxVertexHandler !== 'undefined')
 							state.shape.addFlowAnimationToShape = function()
 							{
 								graph.addFlowAnimationToNode(this.getFlowAnimationPath(),
-									state.style, scale, addFlowAnimationStyle());
+									state.style, scale, addFlowAnimationStyle(), this.node);
 							};
 
 							if ((ignoreSelection && lookup == null) || selected)

@@ -505,6 +505,8 @@ AnimationExport.Player.prototype.getDuration = function(trailing)
  */
 AnimationExport.Player.prototype.advanceTo = function(time)
 {
+	this.time = time;
+
 	while (this.endTime == null && this.nextStart <= time)
 	{
 		var start = this.nextStart;
@@ -1262,6 +1264,7 @@ AnimationExport.prototype.createSegment = function(player, callback, error)
 	// Persistent flow animations (flowAnimation=1) of the diagram
 	segment.flows = AnimatedGifExport.findAnimatedPaths(svgRoot);
 	AnimatedGifExport.removeAnimationCss(svgRoot, segment.flows);
+	this.setFlowStartTimes(segment, player);
 
 	// Flow paths of the exported edges for flow steps
 	for (var i = 0; i < parts.length; i++)
@@ -1394,24 +1397,7 @@ AnimationExport.prototype.updateSegment = function(segment, player, time)
 	for (var i = 0; i < segment.flows.length; i++)
 	{
 		var info = segment.flows[i];
-		var t = mxUtils.mod(time, info.duration) / info.duration;
-		var offset;
-
-		if (info.direction === 'alternate' || info.direction === 'alternate-reverse')
-		{
-			var halfT = (t < 0.5) ? t * 2 : (1 - t) * 2;
-			offset = info.dashSum * ((info.direction === 'alternate') ? 1 - halfT : halfT);
-		}
-		else if (info.direction === 'reverse')
-		{
-			offset = info.dashSum * t;
-		}
-		else
-		{
-			offset = info.dashSum * (1 - t);
-		}
-
-		offset = Math.round(offset * 100) / 100;
+		var offset = AnimatedGifExport.getDashOffset(info, time - (info.start || 0));
 		info.node.style.strokeDashoffset = offset;
 		key.push(offset);
 	}
@@ -1430,6 +1416,57 @@ AnimationExport.prototype.updateSegment = function(segment, player, time)
 	key.push(viewBox);
 
 	return key.join(',');
+};
+
+/**
+ * Sets the start time of the single passes of rings and dots (see
+ * Graph.addFlowRingsToNode) in the given segment. A pass starts when its
+ * edge is painted, which is the time of the first segment with that paint
+ * (the first child of the node of the edge's shape in the player's graph is
+ * new after each paint). Loops keep the time of the export.
+ */
+AnimationExport.prototype.setFlowStartTimes = function(segment, player)
+{
+	if (this.flowPaintTimes == null)
+	{
+		this.flowPaintTimes = new WeakMap();
+	}
+
+	var parts = new Map();
+
+	for (var i = 0; i < segment.parts.length; i++)
+	{
+		parts.set(segment.parts[i].node, segment.parts[i]);
+	}
+
+	for (var i = 0; i < segment.flows.length; i++)
+	{
+		var info = segment.flows[i];
+
+		if (info.once)
+		{
+			var node = info.node;
+
+			while (node != null && !parts.has(node))
+			{
+				node = node.parentNode;
+			}
+
+			var shape = (node != null) ? parts.get(node).shape : null;
+			var paint = (shape != null && shape.node != null) ?
+				shape.node.firstChild : null;
+
+			if (paint != null)
+			{
+				if (!this.flowPaintTimes.has(paint))
+				{
+					this.flowPaintTimes.set(paint, player.time || 0);
+				}
+
+				info.start = this.flowPaintTimes.get(paint);
+			}
+		}
+	}
 };
 
 /**

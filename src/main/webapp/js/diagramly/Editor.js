@@ -832,7 +832,19 @@
 			return linejoin == 'miter' || linejoin == 'miter-clip';
 		}}
 	];
-	
+
+	/**
+	 * Returns true if the given selection state has a flow animation with
+	 * rings or dots (see Graph.addFlowRingsToNode).
+	 */
+	Editor.isFlowRingsAnimation = function(state)
+	{
+		var type = mxUtils.getValue(state.style, 'flowAnimationType', null);
+
+		return mxUtils.getValue(state.style, 'flowAnimation', null) == '1' &&
+			(type == 'ring' || type == 'dot');
+	};
+
 	/**
 	 * Common properties for all edges.
 	 */
@@ -882,9 +894,39 @@
         {name: 'fixedPointSpacing', dispName: 'Fixed Point Spacing', type: 'bool', defVal: false},
         {name: 'dashPattern', dispName: 'Dash Pattern', type: 'numbers', defVal: ''},
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
-		{name: 'flowAnimationDuration', dispName: 'Flow Duration', type: 'int', defVal: 500, isVisible: function(state)
+		{name: 'flowAnimationType', dispName: 'Flow Type', type: 'enum', defVal: 'dash',
+			enumList: [{val: 'dash', dispName: 'Dashes'}, {val: 'ring', dispName: 'Ring'},
+			{val: 'dot', dispName: 'Dot'}], isVisible: function(state)
+			{
+				return mxUtils.getValue(state.style, 'flowAnimation', null) == '1';
+			}
+		},
+		{name: 'flowAnimationDuration', dispName: 'Flow Duration', type: 'int', getDefaultValue: function(state)
+		{
+			return (Editor.isFlowRingsAnimation(state)) ? Graph.defaultFlowRingDuration : 500;
+		}, isVisible: function(state)
 		{
 			return mxUtils.getValue(state.style, 'flowAnimation', null) == '1';
+		}},
+		{name: 'flowAnimationSize', dispName: 'Flow Size', type: 'float', min: 0, getDefaultValue: function(state)
+		{
+			var sw = mxUtils.getNumber(state.style, mxConstants.STYLE_STROKEWIDTH, 1);
+
+			return (mxUtils.getValue(state.style, 'flowAnimationType', null) == 'dot') ?
+				Math.max(Graph.defaultFlowDotSize, 3 * sw) :
+				Math.max(Graph.defaultFlowRingSize, 4 * sw);
+		}, isVisible: function(state)
+		{
+			return Editor.isFlowRingsAnimation(state);
+		}},
+		{name: 'flowAnimationCount', dispName: 'Flow Count', type: 'int', min: 1,
+			max: Graph.maxFlowRingCount, defVal: 1, isVisible: function(state)
+		{
+			return Editor.isFlowRingsAnimation(state);
+		}},
+		{name: 'flowAnimationLoop', dispName: 'Flow Loop', type: 'bool', defVal: true, isVisible: function(state)
+		{
+			return Editor.isFlowRingsAnimation(state);
 		}},
 		{name: 'flowAnimationTimingFunction', dispName: 'Flow Timing', type: 'enum', defVal: 'linear',
 			enumList: [{val: 'linear', dispName: 'Linear'}, {val: 'ease', dispName: 'Ease'}, {val: 'ease-in', dispName: 'Ease-in'},
@@ -2451,12 +2493,36 @@
 						// ignore
 					};
 				}
-				
+
+				var addNode = c.addNode;
+
+				// Keeps the plain line of edges with flow rings or dots as the
+				// first path, which canvases without stroke tolerance (exports)
+				// remove without pointer events, as the rings follow it and not
+				// the rough strokes (see Graph.addFlowRingsToNode)
+				if (!events && c.strokeTolerance == 0 && this.isFlowAnimationEnabled() &&
+					this.state.view.graph.getFlowAnimationType(this.state.style) != 'dash')
+				{
+					c.addNode = function()
+					{
+						var node = this.node;
+						addNode.apply(this, arguments);
+
+						if (node != null && node.nodeName == 'path' &&
+							node.parentNode == null && node.getAttribute('d') != null)
+						{
+							this.root.appendChild(node);
+							this.addNode = addNode;
+						}
+					};
+				}
+
 				c.handJiggle.passThrough = true;
 
 				shapePaint.apply(this, arguments);
 
 				c.handJiggle.passThrough = false;
+				c.addNode = addNode;
 				c.setFillColor = setFillColor;
 				c.setStrokeColor = setStrokeColor;
 				this.configurePointerEvents = configurePointerEvents;

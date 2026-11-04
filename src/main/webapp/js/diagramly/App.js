@@ -7503,7 +7503,9 @@ App.prototype.loadLibraries = function(libs, done)
 		{
 			if (waiting == 0)
 			{
-				if (libs != null)
+				// The sidebar is destroyed with the UI, which may happen
+				// while the libraries are read
+				if (libs != null && this.sidebar != null)
 				{
 					// Entries are prepended in the sidebar so they must be
 					// loaded in reverse, or in-order if they are appended

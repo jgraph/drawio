@@ -2700,7 +2700,10 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 		}
 		
 		graph.container.appendChild(div);
-		
+
+		// Items and click handlers of the shapes (see insertShapeForTyping)
+		var items = [];
+
 		var addCell = mxUtils.bind(this, function(cell)
 		{
 			// Wrapper needed to catch events
@@ -2737,15 +2740,16 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 			
 			if (geo != null)
 			{
-				var temp = this.sidebar.createVertexTemplateFromCells([cell],
-					geo.width, geo.height, '', true, false, null, true,
-					mxUtils.bind(this, function(evt)
+				// Typed is true for a keystroke that types the label of the shape,
+				// which inserts it like a click without the modifier keys and lets
+				// the browser type the character (see insertShapeForTyping)
+				var click = mxUtils.bind(this, function(evt, typed)
 				{
-					if (!mxEvent.isAltDown(evt) || graph.getSelectionCount() != 1)
+					if (typed || !mxEvent.isAltDown(evt) || graph.getSelectionCount() != 1)
 					{
 						this.sidebar.addRecentShapes([cell]);
 
-						if (mxEvent.isShiftDown(evt) && (source != null ||
+						if (!typed && mxEvent.isShiftDown(evt) && (source != null ||
 							!graph.isSelectionEmpty()))
 						{
 							var temp = graph.getEditableCells((source != null) ?
@@ -2813,9 +2817,17 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 							afterClick(evt);
 						}
 
-						mxEvent.consume(evt);
+						if (!typed)
+						{
+							mxEvent.consume(evt);
+						}
 					}
-				}), 25, 25, null, null, source, connectEdge);
+				});
+
+				var temp = this.sidebar.createVertexTemplateFromCells([cell],
+					geo.width, geo.height, '', true, false, null, true,
+					click, 25, 25, null, null, source, connectEdge);
+				items.push({elt: temp, click: click});
 
 				// Name for screen readers, eg. Ellipse, or the text of the label, eg. Text
 				var label = graph.getIndexableText([cell]);
@@ -2841,6 +2853,38 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 		{
 			addCell(cells[i]);
 		}
+
+		// Inserts the focused or else the first shape for a keystroke that types
+		// its label (see typeIntoShapePicker). Editing that starts here gets the focus
+		// before the browser types the character (see mxCellEditor.editByTyping),
+		// else the inserted shape is selected and the typing shim gets it.
+		div.insertShapeForTyping = function(evt)
+		{
+			var item = (items.length > 0) ? items[0] : null;
+
+			for (var i = 0; i < items.length; i++)
+			{
+				if (mxUtils.isAncestorNode(items[i].elt, document.activeElement))
+				{
+					item = items[i];
+					break;
+				}
+			}
+
+			if (item != null)
+			{
+				graph.cellEditor.editByTyping = true;
+
+				try
+				{
+					item.click(evt, true);
+				}
+				finally
+				{
+					graph.cellEditor.editByTyping = false;
+				}
+			}
+		};
 
 		// Tab and Shift+Tab move between the shapes and Escape closes the picker
 		// (see Sidebar.addClickHandler for the arrow keys, Enter and Space)
@@ -3406,11 +3450,12 @@ EditorUi.prototype.getPaletteStyle = function(cell, entry, previous)
 };
 
 /**
- * Creates a temporary graph instance for rendering off-screen content.
+ * Returns true if a shape picker is shown. A picker that was removed with the
+ * contents of its container is not (see hideShapePicker).
  */
 EditorUi.prototype.isShapePickerVisible = function(cancel)
 {
-	return this.shapePicker != null;
+	return this.shapePicker != null && this.shapePicker.parentNode != null;
 };
 
 /**
@@ -4639,6 +4684,37 @@ EditorUi.prototype.getDirectionalDistance = function(a, b, dx, dy, row)
 };
 
 /**
+ * Inserts the focused or else the first shape of the shown shape picker for a
+ * keystroke that types a character and returns true if it did. The character
+ * becomes the label, like typing on a selected cell. Space is left for panning
+ * and keys with a binding run their shortcut. Characters typed with AltGr
+ * (which Windows reports with Ctrl and Alt pressed) are typed, keys with Alt
+ * or Ctrl alone are not. Called from onKeyPress for keystrokes in the container
+ * (also in the typing shim of a selected cell) and from the key handler for
+ * keystrokes outside (eg. if the page has the focus).
+ */
+EditorUi.prototype.typeIntoShapePicker = function(evt)
+{
+	var graph = this.editor.graph;
+	var altGraph = !mxClient.IS_MAC && typeof evt.getModifierState === 'function' &&
+		evt.getModifierState('AltGraph');
+
+	if (this.isShapePickerVisible() && this.shapePicker.insertShapeForTyping != null &&
+		this.isImmediateEditingEvent(evt) && graph.isEnabled() && !graph.isEditing() &&
+		evt.key != null && evt.key.length === 1 && evt.key != ' ' &&
+		(altGraph || (!mxEvent.isAltDown(evt) && !mxEvent.isControlDown(evt))) &&
+		!mxEvent.isMetaDown(evt) && !EditorUi.isComposingKeyEvent(evt) &&
+		(this.keyHandler == null || this.keyHandler.resolveFunction(evt) == null))
+	{
+		this.shapePicker.insertShapeForTyping(evt);
+
+		return true;
+	}
+
+	return false;
+};
+
+/**
  * Starts editing on keydown for the selected cell. This is a fallback for
  * when the typing shim is not active. The shim handles IME correctly by
  * keeping an invisible textarea focused so the OS engages IME from the
@@ -4647,6 +4723,13 @@ EditorUi.prototype.getDirectionalDistance = function(a, b, dx, dy, row)
 EditorUi.prototype.onKeyPress = function(evt)
 {
 	var graph = this.editor.graph;
+
+	// Typing while a shape picker is shown inserts one of its shapes, also
+	// if a cell is selected and the typing shim has the focus
+	if (this.typeIntoShapePicker(evt))
+	{
+		return;
+	}
 
 	// Skip if the event came from the typing shim (the shim handles editing start)
 	if (this.typingShim != null && mxEvent.getSource(evt) === this.typingShim)
@@ -9217,14 +9300,34 @@ EditorUi.prototype.installScreenReaderSupport = function()
 
 	// Diagrams that are only shown, eg. in the lightbox, are figures that
 	// screen readers read like the page, with a text outline, named after
-	// the text alternative of the author if there is one
+	// the text alternative of the author if there is one, which is also the
+	// first text in the figure (see Graph.setAltTextCaption). The diagram of
+	// the editor is described by that text.
 	var figure = this.editor.chromeless && !this.editor.editable;
 
 	var updateName = mxUtils.bind(this, function()
 	{
-		var alt = (figure) ? this.getDiagramAltText() : null;
+		var alt = this.getDiagramAltText();
 		container.setAttribute('aria-roledescription', mxResources.get('diagram'));
-		container.setAttribute('aria-label', (alt != null) ? alt : this.getDiagramDescription());
+
+		if (figure)
+		{
+			container.setAttribute('aria-label', (alt != null) ? alt : this.getDiagramDescription());
+			graph.setAltTextCaption(alt);
+		}
+		else
+		{
+			container.setAttribute('aria-label', this.getDiagramDescription());
+
+			if (alt != null)
+			{
+				container.setAttribute('aria-description', alt);
+			}
+			else
+			{
+				container.removeAttribute('aria-description');
+			}
+		}
 	});
 
 	container.setAttribute('role', (figure) ? 'figure' : 'application');
@@ -10759,6 +10862,14 @@ EditorUi.prototype.createKeyHandler = function(editor)
 			// Invokes the function for the keystroke
 			else if (!this.isEventIgnored(evt))
 			{
+				// Keystrokes outside the container (eg. on the page) do not reach
+				// onKeyPress, which types the others into a shape picker
+				if (!mxUtils.isAncestorNode(graph.container, mxEvent.getSource(evt)) &&
+					editorUi.typeIntoShapePicker(evt))
+				{
+					return;
+				}
+
 				var boundFunction = this.resolveFunction(evt);
 
 				if (boundFunction != null)

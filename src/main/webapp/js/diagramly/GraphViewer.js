@@ -895,7 +895,8 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 
 /**
  * Makes the diagram a figure for screen readers, named after the Alt Text of
- * its page (see getDiagramAltText), or else after its title and page with its
+ * its page (see getDiagramAltText), which is also the first text in the figure
+ * (see Graph.setAltTextCaption), or else after its title and page with its
  * numbers of shapes and connectors, which are counted after each change, eg.
  * of the page, and adds the button for its text outline (see
  * Graph.addTextOutlineButton). A role or name that the page gave the
@@ -924,6 +925,7 @@ GraphViewer.prototype.installScreenReaderSupport = function()
 			var alt = this.getDiagramAltText();
 			container.setAttribute('aria-label', (alt != null) ? alt :
 				graph.getDiagramDescription(this.getDiagramName(), graph.getCellCounts()));
+			graph.setAltTextCaption(alt);
 		});
 
 		graph.getModel().addListener(mxEvent.CHANGE, update);

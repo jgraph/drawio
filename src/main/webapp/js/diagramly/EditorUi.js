@@ -2308,8 +2308,10 @@
 					}
 	    		}
 
-				// Ignores normal keystrokes as shortcuts if cells are selected (eg. A/S/D/F)
-				if (evt.keyCode >= 65 && evt.keyCode <= 90 && !graph.isSelectionEmpty() &&
+				// Ignores normal keystrokes as shortcuts if cells are selected or a shape
+				// picker is shown, where they type a label (eg. A/S/D/F, see typeIntoShapePicker)
+				if (evt.keyCode >= 65 && evt.keyCode <= 90 && (!graph.isSelectionEmpty() ||
+					ui.isShapePickerVisible()) &&
 					!mxEvent.isAltDown(evt) && !mxEvent.isShiftDown(evt) &&
 					!mxEvent.isControlDown(evt) && !(mxClient.IS_MAC && mxEvent.isMetaDown(evt)))
 				{
@@ -7679,9 +7681,11 @@
 	
 	/**
 	 * Creates a popup banner. A banner without an ID has no "Don't show
-	 * again" option and is shown again on every call.
+	 * again" option and is shown again on every call. A sticky banner
+	 * stays until it is closed or clicked, wraps its text and is hidden
+	 * while dialogs are shown.
 	 */
-	EditorUi.prototype.showBanner = function(id, text, onclick, doNotShowAgainOnClose, small, positionCss, t1, t2, to)
+	EditorUi.prototype.showBanner = function(id, text, onclick, doNotShowAgainOnClose, small, positionCss, t1, t2, to, sticky)
 	{
 		var result = false;
 		
@@ -7700,6 +7704,17 @@
 			var banner = document.createElement('div');
 			banner.className = 'geBtn gePrimaryBtn geBanner' + ((small) ? ' geSmallBanner' : '');
 			banner.style.zIndex = mxPopupMenu.prototype.zIndex;
+
+			// Wraps at the max-width instead of the half of the page that
+			// left:50% leaves and grows with its lines
+			if (sticky)
+			{
+				banner.style.whiteSpace = 'normal';
+				banner.style.width = 'max-content';
+				banner.style.height = 'auto';
+				banner.style.paddingBottom = '18px';
+			}
+
 			mxUtils.setPrefixedStyle(banner.style, 'transform', t1);
 			mxUtils.setPrefixedStyle(banner.style, 'transition', 'all ' + delay + 'ms ease');
 			
@@ -7759,12 +7774,38 @@
 				banner.appendChild(div);
 			}
 			
+			// A sticky banner would cover the buttons of dialogs until it is
+			// closed. showDialog fires before the new dialog is this.dialog.
+			var dialogListener = null;
+
+			if (sticky)
+			{
+				dialogListener = mxUtils.bind(this, function(sender, evt)
+				{
+					banner.style.display = (evt.getName() == 'showDialog' ||
+						this.dialog != null) ? 'none' : '';
+				});
+
+				this.editor.addListener('showDialog', dialogListener);
+				this.editor.addListener('hideDialog', dialogListener);
+
+				if (this.dialog != null)
+				{
+					banner.style.display = 'none';
+				}
+			}
+
 			var onclose = mxUtils.bind(this, function()
 			{
 				if (banner.parentNode != null)
 				{
 					banner.parentNode.removeChild(banner);
 					this.bannerShowing = false;
+
+					if (dialogListener != null)
+					{
+						this.editor.removeListener(dialogListener);
+					}
 					
 					if (id != null && (chk.checked || doNotShowAgainOnClose))
 					{
@@ -7824,7 +7865,11 @@
 				mxUtils.setPrefixedStyle(banner.style, 'transform', t2);
 			}), delay / 2);
 			
-			window.setTimeout(hide, (small) ? 5000 : 30000);
+			if (!sticky)
+			{
+				window.setTimeout(hide, (small) ? 5000 : 30000);
+			}
+
 			result = true;
 		}
 		
@@ -34200,7 +34245,8 @@
 	EditorUi.OUTLINE_LAYOUTS = ['elkTree', 'elkRadial', 'BalloonTreeLayout', 'MindmapLayout'];
 
 	/**
-	 * Containers that the Outline dialog inserts (see Menus.layoutContainers).
+	 * Containers that the From Text dialog inserts from an outline (see
+	 * ParseDialog and Menus.layoutContainers).
 	 */
 	EditorUi.OUTLINE_TYPES = ['verticalTree', 'horizontalTree', 'radialTree',
 		'balloonTree', 'mindmap'];
@@ -34996,14 +35042,13 @@
 
 	/**
 	 * Opens the Outline dialog for the given layout container (see getOutline
-	 * and applyOutline), or for inserting a container of one of OUTLINE_TYPES
-	 * if no container is given (see insertOutline).
+	 * and applyOutline). New containers are inserted from an outline in the
+	 * From Text dialog (see ParseDialog and insertOutline).
 	 */
 	EditorUi.prototype.showOutlineDialog = function(container)
 	{
 		var editorUi = this;
 		var div = document.createElement('div');
-		var typeSelect = null;
 
 		var textarea = document.createElement('textarea');
 		textarea.setAttribute('spellcheck', 'false');
@@ -35019,31 +35064,13 @@
 
 		try
 		{
-			textarea.value = (container != null) ? this.getOutline(container) :
-				'Root\n  Child 1\n    Child 1.1\n    Child 1.2\n  Child 2\n  Child 3';
+			textarea.value = this.getOutline(container);
 		}
 		catch (e)
 		{
 			this.handleError(e);
 
 			return;
-		}
-
-		if (container == null)
-		{
-			typeSelect = document.createElement('select');
-			typeSelect.className = 'geBtn';
-			typeSelect.setAttribute('aria-label', mxResources.get('layout'));
-
-			for (var i = 0; i < EditorUi.OUTLINE_TYPES.length; i++)
-			{
-				var option = document.createElement('option');
-				option.value = EditorUi.OUTLINE_TYPES[i];
-				mxUtils.write(option, mxResources.get(EditorUi.OUTLINE_TYPES[i]));
-				typeSelect.appendChild(option);
-			}
-
-			typeSelect.value = 'mindmap';
 		}
 
 		var dlg = new CustomDialog(this, div, function()
@@ -35053,19 +35080,15 @@
 				// Lays out containers of any size (see Graph.isLiveLayoutLimited)
 				editorUi.editor.graph.executeWithoutLayoutLimits(function()
 				{
-					if (container == null)
-					{
-						editorUi.insertOutline(textarea.value, typeSelect.value);
-					}
-					else if (editorUi.editor.graph.model.contains(container))
+					if (editorUi.editor.graph.model.contains(container))
 					{
 						editorUi.applyOutline(container, textarea.value, EditorUi.getOutlineDefaults(
 							editorUi.getOutlineLayout(container)));
 					}
 				});
 			});
-		}, null, mxResources.get((container != null) ? 'apply' : 'insert'),
-			'https://www.drawio.com/docs/manual/insert/insert-outline/', typeSelect);
+		}, null, mxResources.get('apply'),
+			'https://www.drawio.com/docs/manual/insert/insert-outline/');
 
 		this.showDialog(dlg.container, 440, null, true, true);
 		textarea.focus();

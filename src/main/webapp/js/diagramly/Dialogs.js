@@ -1794,6 +1794,14 @@ var ParseDialog = function(editorUi, title, defaultType)
 				}
 			}
 		}
+		else if (mxUtils.indexOf(EditorUi.OUTLINE_TYPES, type) >= 0)
+		{
+			// Lays out containers of any size (see Graph.isLiveLayoutLimited)
+			editorUi.editor.graph.executeWithoutLayoutLimits(function()
+			{
+				editorUi.insertOutline(text, type);
+			});
+		}
 		else
 		{
 			var lines = text.split('\n');
@@ -2018,13 +2026,22 @@ var ParseDialog = function(editorUi, title, defaultType)
 	var verticalFlowOption = document.createElement('option');
 	verticalFlowOption.setAttribute('value', 'verticalFlow');
 	mxUtils.write(verticalFlowOption, mxResources.get('verticalFlow'));
-	
+
 	if (defaultType != 'plantUml' && defaultType != 'mermaid')
 	{
 		typeSelect.appendChild(diagramOption);
 		typeSelect.appendChild(circleOption);
 		typeSelect.appendChild(horizontalFlowOption);
 		typeSelect.appendChild(verticalFlowOption);
+
+		// Layout containers from an outline (see EditorUi.insertOutline)
+		for (var i = 0; i < EditorUi.OUTLINE_TYPES.length; i++)
+		{
+			var outlineOption = document.createElement('option');
+			outlineOption.setAttribute('value', EditorUi.OUTLINE_TYPES[i]);
+			mxUtils.write(outlineOption, mxResources.get(EditorUi.OUTLINE_TYPES[i]));
+			typeSelect.appendChild(outlineOption);
+		}
 	}
 
 	if (defaultType == 'plantUml')
@@ -2070,6 +2087,10 @@ var ParseDialog = function(editorUi, title, defaultType)
 			typeSelect.value == 'plantUmlImage')
 		{
 			return plantUmlExample;
+		}
+		else if (mxUtils.indexOf(EditorUi.OUTLINE_TYPES, typeSelect.value) >= 0)
+		{
+			return 'Root\n  Child 1\n    Child 1.1\n    Child 1.2\n  Child 2\n  Child 3';
 		}
 		else
 		{

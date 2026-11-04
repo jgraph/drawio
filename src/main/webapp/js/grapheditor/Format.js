@@ -6848,8 +6848,10 @@ StyleFormatPanel.prototype.init = function()
 {
 	var ui = this.editorUi;
 	var ss = ui.getSelectionState();
-	
-	if (!ss.containsLabel && ss.cells.length > 0)
+
+	// transparentBounds cells store 0x0 geometry, which flags the selection
+	// as a label, but they paint their own shape (see Format.refresh)
+	if ((!ss.containsLabel || ss.transparentBounds) && ss.cells.length > 0)
 	{
 		if (ss.containsImage && ss.vertices.length == 1 && ss.style.shape == 'image' &&
 			ss.style.image != null)

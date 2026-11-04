@@ -2335,7 +2335,8 @@ EditorUi.prototype.createPageId = function()
 };
 
 /**
- * Returns a new DiagramPage instance.
+ * Returns a new DiagramPage instance. A new empty page takes the grid size
+ * of the current page, as the default grid size is not stored in the file.
  */
 EditorUi.prototype.createPage = function(name, id, node)
 {
@@ -2343,6 +2344,11 @@ EditorUi.prototype.createPage = function(name, id, node)
 	var page = new DiagramPage(doc.createElement('diagram'), id);
 	page.setName((name != null) ? name : this.createPageName());
 	this.initDiagramNode(page, node);
+
+	if (node == null && page.node.firstChild != null)
+	{
+		page.node.firstChild.setAttribute('gridSize', this.editor.graph.gridSize);
+	}
 	
 	return page;
 };
@@ -3072,6 +3078,31 @@ EditorUi.prototype.insertPageInGroup = function(group, index)
 };
 
 /**
+ * Inserts a new page into a new group whose name is entered in a dialog after
+ * the last page, or into the group with that name if there is one (see
+ * insertPageInGroup), as groups have at least one page.
+ */
+EditorUi.prototype.insertPageGroup = function()
+{
+	if (this.editor.graph.isEnabled())
+	{
+		var dlg = new FilenameDialog(this, '', mxResources.get('create'),
+			mxUtils.bind(this, function(name)
+		{
+			if (name != null && name.length > 0 &&
+				this.insertPageInGroup(name, 0) == null)
+			{
+				var page = this.createPage(null, this.createPageId());
+				page.setGroup(name);
+				this.insertPage(page, this.pages.length);
+			}
+		}), mxResources.get('name'));
+		this.showDialog(dlg.container, 300, 80, true, true);
+		dlg.init();
+	}
+};
+
+/**
  * Moves the consecutive pages from start to end so that the first of them
  * is at the given index after the move, as one undoable edit.
  */
@@ -3193,10 +3224,23 @@ EditorUi.prototype.updateTabContainer = function()
 			{
 				tab.classList.add('gePageTabGrouped');
 
-				// The current page is shown in a collapsed group
-				if (page != this.currentPage && this.isPageGroupCollapsed(group))
+				if (groupTab.pageGroupCollapsed)
 				{
 					tab.classList.add('gePageTabCollapsed');
+				}
+
+				if (!groupTab.pageGroupCurrent)
+				{
+					tab.classList.add('gePageGroupInactive');
+				}
+
+				// The last visible tab of a group before a page without a
+				// group or at the end has a line (see gePageGroupTab)
+				var next = this.pages[i + 1];
+
+				if (next == null || next.getGroup() == null)
+				{
+					((groupTab.pageGroupCollapsed) ? groupTab : tab).classList.add('gePageGroupEnd');
 				}
 			}
 
@@ -3440,7 +3484,7 @@ EditorUi.prototype.addTabDragListeners = function(tab)
 			}
 
 			var drag = {index: parseInt(tab.getAttribute('data-index'), 10),
-				tabs: tabs, previous: tab.previousSibling};
+				tabs: tabs, className: tab.className};
 			this.tabDrag = drag;
 
 			// Defer hiding so browser captures the drag image first
@@ -3468,6 +3512,21 @@ EditorUi.prototype.addTabDragListeners = function(tab)
 				if (e.target.closest == null ||
 					e.target.closest('.gePageTab, .gePageGroupTab') == null)
 				{
+					// Tabs dragged between other tabs or to the end of the
+					// tabs, eg. between two groups, are in no group. The
+					// buttons and links next to the tabs and the space
+					// around them are no gaps, only the space after the
+					// tabs if the last tab is shown.
+					var scroller = ui.tabScroller;
+
+					if (e.target == scroller || (e.target == ui.tabContainer &&
+						e.clientX >= scroller.getBoundingClientRect().right &&
+						Math.ceil(scroller.scrollLeft) + scroller.offsetWidth >=
+						scroller.scrollWidth))
+					{
+						ui.moveDraggedTabsOutsideGroups(e.clientX);
+					}
+
 					e.stopPropagation();
 				}
 			};
@@ -3512,29 +3571,30 @@ EditorUi.prototype.addTabDragListeners = function(tab)
 			{
 				var page = this.pages[drag.index];
 				var group = (page != null) ? page.getGroup() : null;
-				var prev = tab.previousSibling;
 
-				// A page that is dropped after another tab joins the group
-				// of that tab, which is the tab of a group for the first
-				// page in a group
-				if (prev != drag.previous && this.isPageGroupsEnabled())
+				// A page joins the group of the tab that it was dropped on
+				// (see setTabDragGroup)
+				if (drag.group !== undefined && this.isPageGroupsEnabled())
 				{
-					group = (prev != null) ? prev.pageGroup : null;
-
-					// A page that is dropped after the hidden tabs of a
-					// collapsed group joins it only before a tab of the group
-					if (prev != null && prev.classList.contains('gePageTabCollapsed') &&
-						(tab.nextSibling == null || tab.nextSibling.pageGroup != group))
-					{
-						group = null;
-					}
+					group = drag.group;
 				}
 
-				this.movePageToGroup(drag.index, mxUtils.indexOf(tabs, tab), group);
+				var index = mxUtils.indexOf(tabs, tab);
 
-				// A page that joins a collapsed group expands it to stay visible
-				if (group != null && page != this.currentPage &&
-					this.isPageGroupCollapsed(group))
+				// The tabs are created again after a move, but the tab of a
+				// page dropped in place gets back the classes that it had
+				// before the drag (see setTabDragGroup)
+				if (page != null && index == drag.index && group == page.getGroup())
+				{
+					tab.className = drag.className;
+				}
+
+				this.movePageToGroup(drag.index, index, group);
+
+				// A page that joins a collapsed group expands it. The group of
+				// the current page is shown expanded and keeps its state.
+				if (group != null && this.isPageGroupCollapsed(group) &&
+					!this.isCurrentPageGroup(group, index))
 				{
 					this.setPageGroupCollapsed(group, false);
 				}
@@ -3560,7 +3620,11 @@ EditorUi.prototype.addTabDragListeners = function(tab)
 	{
 		var drag = this.tabDrag;
 
-		if (drag != null && mxUtils.indexOf(drag.tabs, tab) < 0)
+		// The tabs are created again in a new scroller if the tab bar is
+		// updated during the drag, eg. after a change of the file. The
+		// dragged tabs then stay in the old scroller and are not moved.
+		if (drag != null && mxUtils.indexOf(drag.tabs, tab) < 0 &&
+			drag.tabs[0].parentNode == tab.parentNode)
 		{
 			if (evt.dataTransfer != null)
 			{
@@ -3605,13 +3669,20 @@ EditorUi.prototype.addTabDragListeners = function(tab)
 					}
 				}
 			}
-			else if (before)
+			else
 			{
-				parent.insertBefore(dragTab, tab);
-			}
-			else if (tab.nextSibling != dragTab)
-			{
-				parent.insertBefore(dragTab, tab.nextSibling);
+				// A page dropped onto the tab of a group is the first page of
+				// the group, a page dropped onto the tab of a page is before
+				// or after it in the group of that page
+				var ref = (before && !tab.classList.contains('gePageGroupTab')) ?
+					tab : tab.nextSibling;
+
+				if (ref != dragTab && dragTab.nextSibling != ref)
+				{
+					parent.insertBefore(dragTab, ref);
+				}
+
+				this.setTabDragGroup(tab.pageGroup, tab.classList.contains('gePageGroupInactive'));
 			}
 		}
 
@@ -3624,6 +3695,112 @@ EditorUi.prototype.addTabDragListeners = function(tab)
 		evt.stopPropagation();
 		evt.preventDefault();
 	});
+};
+
+/**
+ * Sets the group (null for no group) that the dragged tab of a page joins
+ * when it is dropped, and shows it on the tab like on the tabs of the group:
+ * underlined and inactive if the group is not the group of the current page.
+ * A gap in the group that it joins would be a drop in no group (see
+ * moveDraggedTabsOutsideGroups), so the tab has no line and gap at the end of
+ * a group, and after the tab with the line at the end of the group it takes
+ * the line.
+ */
+EditorUi.prototype.setTabDragGroup = function(group, inactive)
+{
+	var drag = this.tabDrag;
+
+	if (drag != null && !drag.tabs[0].classList.contains('gePageGroupTab'))
+	{
+		var tab = drag.tabs[0];
+		var prev = tab.previousSibling;
+
+		if (drag.groupEnd != null)
+		{
+			drag.groupEnd.classList.add('gePageGroupEnd');
+			drag.groupEnd = null;
+		}
+
+		drag.group = group;
+		tab.classList.toggle('gePageTabGrouped', group != null);
+		tab.classList.toggle('gePageGroupInactive', group != null && inactive);
+		tab.classList.remove('gePageGroupEnd');
+
+		// The tab before the dragged tab in a group is in that group
+		// (see the dragover listener in addTabDragListeners)
+		if (group != null && prev != null && prev.classList.contains('gePageGroupEnd'))
+		{
+			prev.classList.remove('gePageGroupEnd');
+			tab.classList.add('gePageGroupEnd');
+			drag.groupEnd = prev;
+		}
+	}
+};
+
+/**
+ * Moves the dragged tabs to the given position in the tab bar outside of the
+ * tabs, eg. between two groups or after the last tab, where they are in no
+ * group: before the first shown tab whose center is right of x but not
+ * between the tabs of a group, or after the last tab.
+ */
+EditorUi.prototype.moveDraggedTabsOutsideGroups = function(x)
+{
+	var drag = this.tabDrag;
+	var scroller = this.tabScroller;
+
+	if (drag != null && scroller != null && drag.tabs[0].parentNode == scroller)
+	{
+		var first = drag.tabs[0];
+		var last = drag.tabs[drag.tabs.length - 1];
+
+		// Returns the next or previous tab that is not dragged. The dragged
+		// tabs are always next to each other, so they are skipped at once.
+		var sibling = function(elt, next)
+		{
+			elt = (next) ? elt.nextSibling : elt.previousSibling;
+
+			if (elt == first || elt == last)
+			{
+				elt = (next) ? last.nextSibling : first.previousSibling;
+			}
+
+			return elt;
+		};
+
+		var ref = null;
+
+		// Shown tabs have a size, the tabs in collapsed groups are hidden
+		for (var tab = (scroller.firstChild == first) ? last.nextSibling : scroller.firstChild;
+			tab != null && ref == null; tab = sibling(tab, true))
+		{
+			if (tab.offsetWidth > 0)
+			{
+				var rect = tab.getBoundingClientRect();
+
+				if (x < rect.left + rect.width / 2)
+				{
+					ref = tab;
+				}
+			}
+		}
+
+		// Skips the remaining tabs of a group
+		while (ref != null && ref.classList.contains('gePageTab') && ref.pageGroup != null &&
+			sibling(ref, false) != null && sibling(ref, false).pageGroup == ref.pageGroup)
+		{
+			ref = sibling(ref, true);
+		}
+
+		if (last.nextSibling != ref)
+		{
+			for (var i = 0; i < drag.tabs.length; i++)
+			{
+				scroller.insertBefore(drag.tabs[i], ref);
+			}
+		}
+
+		this.setTabDragGroup(null, false);
+	}
 };
 
 /**
@@ -3937,10 +4114,11 @@ EditorUi.prototype.createTabForPage = function(page, pageNumber)
 };
 
 /**
- * Adds the rules for the icons of the tabs of page groups to the document
- * once. Chrome restyles inline background images with data URIs in
+ * Adds the rule for the menu buttons of the tabs of page groups to the
+ * document once. Chrome restyles inline background images with data URIs in
  * quadratic time, so a background image on each tab made opening a file
- * with 16,000 page groups take 9 s and each page switch 12 s.
+ * with 16,000 page groups take 9 s and each page switch 12 s. The disclosure
+ * triangles are in grapheditor.css.
  */
 EditorUi.addPageGroupTabStyles = function()
 {
@@ -3948,27 +4126,50 @@ EditorUi.addPageGroupTabStyles = function()
 	{
 		var style = document.createElement('style');
 		style.setAttribute('data-source', 'pageGroupTabs');
-		style.textContent = '.gePageGroupExpandedIcon{background-image:url(' + Editor.chevronDownImage + ');}' +
-			'.gePageGroupCollapsedIcon{background-image:url(' + Editor.chevronRightImage + ');}' +
-			'.gePageGroupMenuIcon{background-image:url(' + Editor.thinExpandImage + ');}';
+		style.textContent = '.gePageGroupMenuIcon{background-image:url(' + Editor.thinExpandImage + ');}';
 		document.head.appendChild(style);
 		EditorUi.pageGroupTabStyles = style;
 	}
 };
 
 /**
+ * Returns true if the current page is in the consecutive pages of the given
+ * page group around the page at the given index (see getPageGroupRun).
+ */
+EditorUi.prototype.isCurrentPageGroup = function(group, index)
+{
+	var run = this.getPageGroupRun(group, index);
+
+	for (var i = (run != null) ? run.start : 0; run != null && i <= run.end; i++)
+	{
+		if (this.pages[i] == this.currentPage)
+		{
+			return true;
+		}
+	}
+
+	return false;
+};
+
+/**
  * Returns a new tab for the given page group, which starts with the page at
  * the given index. A click on the tab collapses or expands the group and its
  * button or a right click shows the menu of the group (see
- * createPageGroupMenu).
+ * createPageGroupMenu). The group of the current page is always expanded, so
+ * that the tab of the current page is with the other pages of the group, and
+ * the tabs of the other groups are inactive (see updateTabContainer).
  */
 EditorUi.prototype.createTabForPageGroup = function(group, index)
 {
 	var run = this.getPageGroupRun(group, index);
-	var collapsed = this.isPageGroupCollapsed(group);
+	var current = this.isCurrentPageGroup(group, index);
+	var collapsed = !current && this.isPageGroupCollapsed(group);
 	var tab = this.createTab();
-	tab.className = 'geTab gePageGroupTab';
+	tab.className = 'geTab gePageGroupTab' + ((current) ?
+		' gePageGroupCurrent' : ' gePageGroupInactive');
 	tab.setAttribute('title', group + ' (' + (run.end - run.start + 1) + ')');
+	tab.pageGroupCurrent = current;
+	tab.pageGroupCollapsed = collapsed;
 	mxEvent.disableContextMenu(tab);
 	EditorUi.addPageGroupTabStyles();
 
@@ -3984,6 +4185,12 @@ EditorUi.prototype.createTabForPageGroup = function(group, index)
 	label.setAttribute('role', 'button');
 	label.setAttribute('tabindex', '0');
 	label.setAttribute('aria-expanded', (collapsed) ? 'false' : 'true');
+
+	if (current)
+	{
+		label.setAttribute('aria-disabled', 'true');
+	}
+
 	label.tabKey = 'group:' + group;
 	mxUtils.write(label, group);
 	Editor.addFocusRing(label, tab);
@@ -4028,7 +4235,7 @@ EditorUi.prototype.createTabForPageGroup = function(group, index)
 		{
 			showMenu(evt);
 		}
-		else
+		else if (!current)
 		{
 			this.setPageGroupCollapsed(group, !collapsed);
 		}
@@ -4066,13 +4273,15 @@ EditorUi.prototype.createPageGroupMenu = function(group, index)
 {
 	return mxUtils.bind(this, function(menu, parent)
 	{
-		var collapsed = this.isPageGroupCollapsed(group);
+		// The group of the current page cannot be collapsed
+		var current = this.isCurrentPageGroup(group, index);
+		var collapsed = !current && this.isPageGroupCollapsed(group);
 
 		menu.addItem(mxResources.get((collapsed) ? 'expand' : 'collapse'), null,
 			mxUtils.bind(this, function()
 		{
 			this.setPageGroupCollapsed(group, !collapsed);
-		}), parent);
+		}), parent, null, !current);
 
 		if (this.editor.graph.isEnabled())
 		{

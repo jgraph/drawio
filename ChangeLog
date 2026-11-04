@@ -1,3 +1,49 @@
+03-NOV-2026: 32.6.10
+
+- Lines up the Advanced section of Page Setup
+- Reads the Alt Text of the page first in the lightbox and the viewer
+- Makes page groups easier to use in the tabs
+- Adds Insert Group to the Pages menu
+- Keeps the Alt Text of the lightbox from scrolling the diagram
+- Keeps Insert Page as the result of the search for "insert page"
+- Keeps the collapsed state of the group of the current page on drops
+- Keeps the last page of a group in the group that it is dragged into
+- Keeps a dragged page in place over the buttons next to the page tabs
+- Keeps a page dragged after the last tab of a group in that group
+- Keeps a dragged page in place over the space around the page tab buttons
+- Charges the length of editableCssRules for each selector
+- Keeps the placeholder result of the parent above the cache limit
+- Inserts the shape of an open shape picker for typed text instead of running letter shortcuts
+- Tunes embed blocking
+- Types into a shape picker from the page and with AltGr
+- Shows the borders of buttons in dialogs and windows in dark mode again
+- Gives the sections of Page Setup the same spacing
+- Uses a theme variable for the border of dialog buttons in dark mode, keeps the focus border of dialog selects and spaces all Advanced sections alike
+- Uses the grid size of the current page for new pages [jgraph/drawio#604]
+- Adds rings and dots as variants of the flow animation
+- Steps flow rings in exports like the live animation and keeps thumbnails off live edges
+- Restarts single flow passes in animation exports when a step repaints the edge
+- Moves one flow ring over edges with gap and line jumps
+- Keeps flow steps of hollow pipes with flow rings or dots on the pipe
+- Moves flow rings and dots along the line in exports of sketch edges without pointer events
+- Points Help > Quick Start Video to the new getting started video
+- Draws U-turn arrowheads longer than the shape at their stored length again
+- Puts the arrowhead handle of the U-turn arrow on its tip and caps the length at 1e7
+- Moves flow rings and dots along the line of sketch edges with an opacity group
+- Shows the Fill and Line sections of the Style tab for layout containers
+- Merges From Outline into the From Text dialog
+- Skips custom handles that were not created in the inline toolbar
+- Ignores page tab drags over tabs of a rebuilt tab bar
+- Skips loading custom libraries if the sidebar was destroyed
+- Records the groups of the GAE error log pass of 2026-11-02
+- Adds REVIEW.md asking Code Review to post every finding in full
+- Asks Jira Connect users to upgrade in the issue panel and counts down to the end of Connect in the editors
+- Keeps REVIEW.md out of the public repository like the other Claude files
+- Shows the Connect retirement banner of the Jira editor for new diagrams
+- Makes room for the Connect retirement notice in Jira issue panels without diagrams
+- Hides the Connect retirement banner while dialogs are shown and shows all of its lines
+- Inserts the shape of a hover arrow picker for typed text also if the hovered shape is selected
+
 29-OCT-2026: 32.6.9
 
 - Adds connection point resize cases for the palette shapes of #783 and #916

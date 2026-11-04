@@ -3661,8 +3661,6 @@ var PageSetupDialog = function(editorUi)
 	scaleInput.setAttribute('min', '0');
 	scaleInput.setAttribute('step', 'any');
 	scaleInput.setAttribute('title', mxResources.get('drawingScale'));
-	scaleInput.style.width = '80px';
-	scaleInput.style.flex = '0 0 auto';
 	scaleInput.value = Graph.parseMeasureScale(graph.measureScale);
 	scaleRow.appendChild(scaleInput);
 
@@ -3682,6 +3680,63 @@ var PageSetupDialog = function(editorUi)
 	var applyPageOptions = editorUi.addPageSetupOptions(advanced.content,
 		styleLabel, styleContent);
 
+	// Rows whose buttons set a value or open another dialog, each in its own
+	// section card: the buttons are in the column of the controls of the other
+	// rows, with the current value or a hint in the same column. The label is
+	// on the baseline of the first line of that column, which is a value or
+	// the buttons. Returns the column.
+	var addButtonRow = function(name)
+	{
+		var section = document.createElement('div');
+		section.className = 'geDialogSection';
+
+		var row = document.createElement('div');
+		row.className = 'geDialogFormRow';
+		row.style.alignItems = 'baseline';
+
+		var label = document.createElement('span');
+		label.className = 'geDialogFormLabel';
+		mxUtils.write(label, mxResources.get(name) + ':');
+		row.appendChild(styleLabel(label));
+
+		var content = document.createElement('div');
+		content.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;' +
+			'align-items:flex-start;gap:6px;';
+		row.appendChild(styleContent(content));
+
+		section.appendChild(row);
+		advanced.wrapper.appendChild(section);
+
+		return content;
+	};
+
+	// Adds a row of the given buttons to the given column of a button row
+	var addButtons = function(content, buttons)
+	{
+		var div = document.createElement('div');
+		div.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;';
+
+		for (var i = 0; i < buttons.length; i++)
+		{
+			buttons[i].className = 'geBtn';
+			buttons[i].style.margin = '0px';
+			div.appendChild(buttons[i]);
+		}
+
+		content.appendChild(div);
+	};
+
+	// Adds the given hint below the buttons of a button row
+	var addHint = function(content, hint)
+	{
+		var hintElt = document.createElement('div');
+		hintElt.className = 'geDialogHint';
+		mxUtils.write(hintElt, hint);
+		content.appendChild(hintElt);
+
+		return hintElt;
+	};
+
 	// Initial view section — lets the author pin the page's opening viewport
 	// (pan + zoom). Stored on the diagram node via ChangePageView and restored
 	// by EditorUi.fitInitialView on the fitDiagramOnLoad / fitDiagramOnPage
@@ -3694,33 +3749,16 @@ var PageSetupDialog = function(editorUi)
 		pendingViewBox = editorUi.currentPage.getViewBox();
 		viewBoxChanged = false;
 
-		var viewSection = document.createElement('div');
-		viewSection.className = 'geDialogSection';
+		var viewContent = addButtonRow('initialView');
 
-		var viewRow = document.createElement('div');
-		viewRow.className = 'geDialogFormRow';
-
-		var viewLabel = document.createElement('span');
-		viewLabel.className = 'geDialogFormLabel';
-		mxUtils.write(viewLabel,
-			mxResources.get('initialView') + ':');
-		viewRow.appendChild(styleLabel(viewLabel));
-
-		var viewContent = document.createElement('div');
-		viewContent.style.flex = '1';
-		viewContent.style.minWidth = '0';
-		viewContent.style.display = 'flex';
-		viewContent.style.alignItems = 'center';
-
-		var viewStatus = document.createElement('span');
-		viewStatus.style.flex = '1 1 auto';
-		viewStatus.style.minWidth = '0';
-		viewStatus.style.overflow = 'hidden';
-		viewStatus.style.textOverflow = 'ellipsis';
-		viewStatus.style.whiteSpace = 'nowrap';
-		// The dialog's 1em line-height would clip descenders under
-		// overflow:hidden - give the single-line box full glyph height
-		viewStatus.style.lineHeight = 'normal';
+		// The current value is regular text on the line of the label, which is
+		// as high as the buttons so that the label is where it is in the
+		// sections that start with buttons
+		var viewStatus = document.createElement('div');
+		viewStatus.style.cssText = 'display:flex;align-items:center;min-height:30px;';
+		viewStatus.style.maxWidth = '100%';
+		viewStatus.style.overflowWrap = 'anywhere';
+		viewContent.appendChild(viewStatus);
 
 		var updateViewStatus = function()
 		{
@@ -3744,47 +3782,20 @@ var PageSetupDialog = function(editorUi)
 		};
 
 		updateViewStatus();
-		viewContent.appendChild(viewStatus);
 
-		viewRow.appendChild(styleContent(viewContent));
-		viewSection.appendChild(viewRow);
-
-		// Action buttons sit on their own full-width row. geBtn is display:flex,
-		// so its text-overflow:ellipsis never renders; squeezed into the
-		// label-indented content column the long translations (German "Aktuelle
-		// übernehmen" / "Zurücksetzen") would be hard-clipped on both ends. A
-		// dedicated row gives them the full section width, and flexShrink:0 keeps
-		// each label intact (wrapping only as a last resort for longer locales).
-		var viewButtonRow = document.createElement('div');
-		viewButtonRow.className = 'geDialogFormRow';
-		viewButtonRow.style.justifyContent = 'flex-end';
-		viewButtonRow.style.flexWrap = 'wrap';
-		viewButtonRow.style.gap = '8px';
-
-		var useCurrentViewBtn = mxUtils.button(mxResources.get('useCurrent'), function()
+		// Long translations of the buttons (German "Aktuelle übernehmen" /
+		// "Zurücksetzen") wrap to the next line instead of being clipped
+		addButtons(viewContent, [mxUtils.button(mxResources.get('useCurrent'), function()
 		{
 			pendingViewBox = graph.getCurrentViewBox();
 			viewBoxChanged = true;
 			updateViewStatus();
-		});
-		useCurrentViewBtn.className = 'geBtn';
-		useCurrentViewBtn.style.margin = '0px';
-		useCurrentViewBtn.style.flexShrink = '0';
-		viewButtonRow.appendChild(useCurrentViewBtn);
-
-		var resetViewBtn = mxUtils.button(mxResources.get('reset'), function()
+		}), mxUtils.button(mxResources.get('reset'), function()
 		{
 			pendingViewBox = null;
 			viewBoxChanged = true;
 			updateViewStatus();
-		});
-		resetViewBtn.className = 'geBtn';
-		resetViewBtn.style.margin = '0px';
-		resetViewBtn.style.flexShrink = '0';
-		viewButtonRow.appendChild(resetViewBtn);
-
-		viewSection.appendChild(viewButtonRow);
-		advanced.wrapper.appendChild(viewSection);
+		})]);
 	}
 
 	// Animation section — entry point for the page-level animation editor.
@@ -3795,76 +3806,43 @@ var PageSetupDialog = function(editorUi)
 	// bare-bones grapheditor demo) the section is skipped.
 	if (typeof AnimationDialog !== 'undefined')
 	{
-		var animationSection = document.createElement('div');
-		animationSection.className = 'geDialogSection';
+		var animationContent = addButtonRow('animation');
 
-		var animationRow = document.createElement('div');
-		animationRow.className = 'geDialogFormRow geDialogFormRowTop';
+		var editAnimBtn = mxUtils.button(mxResources.get('edit'), function()
+		{
+			// Close Page Setup first so the non-modal AnimationDialog
+			// isn't obscured by the modal backdrop. The user can
+			// reopen Page Setup afterwards.
+			editorUi.hideDialog();
 
-		// The label keeps its natural width (no styleLabel) so the hint
-		// text next to the Edit button gets the remaining row width
-		var animationLabel = document.createElement('span');
-		animationLabel.className = 'geDialogFormLabel';
-		animationLabel.style.minWidth = '0';
-		mxUtils.write(animationLabel,
-			mxResources.get('animation') + ':');
-		animationRow.appendChild(animationLabel);
+			// Reuse the singleton animation window (also opened via the
+			// 'animation' action) instead of stacking a new dialog. The
+			// action's handler creates it on first use and wires up
+			// window-state persistence.
+			var menus = editorUi.menus;
 
-		var animationContent = document.createElement('div');
-		animationContent.style.flex = '1';
-		animationContent.style.minWidth = '0';
-		animationContent.style.display = 'flex';
-		animationContent.style.alignItems = 'center';
-		animationContent.style.gap = '8px';
-
-		var animationHint = document.createElement('span');
-		animationHint.className = 'geDialogHint';
-		animationHint.style.flex = '1 1 auto';
-		animationHint.style.minWidth = '0';
-		mxUtils.write(animationHint,
-			mxResources.get('lightboxAnimationHint', null,
-				'Plays automatically when the page is shown in lightbox mode.'));
-		animationContent.appendChild(animationHint);
-
-		var editAnimBtn = mxUtils.button(
-			mxResources.get('edit'),
-			function()
+			if (menus != null && menus.animationWindow != null)
 			{
-				// Close Page Setup first so the non-modal AnimationDialog
-				// isn't obscured by the modal backdrop. The user can
-				// reopen Page Setup afterwards.
-				editorUi.hideDialog();
+				menus.animationWindow.window.setVisible(true);
+				menus.animationWindow.window.activate();
+			}
+			else if (editorUi.actions.get('animation') != null)
+			{
+				editorUi.actions.get('animation').funct();
+			}
+		});
 
-				// Reuse the singleton animation window (also opened via the
-				// 'animation' action) instead of stacking a new dialog. The
-				// action's handler creates it on first use and wires up
-				// window-state persistence.
-				var menus = editorUi.menus;
-
-				if (menus != null && menus.animationWindow != null)
-				{
-					menus.animationWindow.window.setVisible(true);
-					menus.animationWindow.window.activate();
-				}
-				else if (editorUi.actions.get('animation') != null)
-				{
-					editorUi.actions.get('animation').funct();
-				}
-			});
-		editAnimBtn.className = 'geBtn';
 		editAnimBtn.style.minWidth = '90px';
-		animationContent.appendChild(editAnimBtn);
-
-		animationRow.appendChild(styleContent(animationContent));
-		animationSection.appendChild(animationRow);
-		advanced.wrapper.appendChild(animationSection);
+		addButtons(animationContent, [editAnimBtn]);
+		addHint(animationContent, mxResources.get('lightboxAnimationHint', null,
+			'Plays automatically when the page is shown in lightbox mode.'));
 	}
 
 	// Style rules and data sources of the page, whose actions open their
 	// dialogs on top of this one (added by the diagramly layer). The optional
 	// other action gets a button with the given label while it is visible, and
 	// its function gets a function(text, error, busy) that shows its status
-	// in the hint of the row.
+	// below the hint of the row.
 	// Removed when the dialog is closed (see destroy)
 	var modelListeners = [];
 
@@ -3874,56 +3852,29 @@ var PageSetupDialog = function(editorUi)
 
 		if (action != null)
 		{
-			var section = document.createElement('div');
-			section.className = 'geDialogSection';
-
-			var row = document.createElement('div');
-			row.className = 'geDialogFormRow geDialogFormRowTop';
-
-			var label = document.createElement('span');
-			label.className = 'geDialogFormLabel';
-			label.style.minWidth = '0';
-			mxUtils.write(label, mxResources.get(name) + ':');
-			row.appendChild(label);
-
-			var content = document.createElement('div');
-			content.style.cssText = 'flex:1;min-width:0;display:flex;align-items:flex-start;gap:8px;';
-
-			// Hint and status below each other, top-aligned with the label
-			var texts = document.createElement('div');
-			texts.style.cssText = 'flex:1 1 auto;min-width:0;padding-top:4px;';
-			content.appendChild(texts);
-
-			var hintElt = document.createElement('div');
-			hintElt.className = 'geDialogHint';
-			mxUtils.write(hintElt, hint);
-			texts.appendChild(hintElt);
+			var content = addButtonRow(name);
 
 			var editBtn = mxUtils.button(mxResources.get('edit'), function()
 			{
 				action.funct();
 			});
 
-			editBtn.className = 'geBtn';
 			editBtn.style.minWidth = '90px';
 			editBtn.disabled = !action.isEnabled();
-
-			// The buttons are below each other
-			var buttons = document.createElement('div');
-			buttons.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
-			buttons.appendChild(editBtn);
-			content.appendChild(buttons);
-
+			var buttons = [editBtn];
 			var other = (otherName != null) ? editorUi.actions.get(otherName) : null;
 
 			if (other != null)
 			{
-				// Screen readers announce the status
-				var statusElt = document.createElement('div');
-				statusElt.className = 'geDialogHint';
-				statusElt.setAttribute('aria-live', 'polite');
-				texts.appendChild(statusElt);
 				var statusThread = null;
+				var statusElt = null;
+
+				// The empty status takes no space below the hint
+				var setStatus = function(text)
+				{
+					statusElt.style.marginTop = (text) ? '' : '-6px';
+					statusElt.textContent = text;
+				};
 
 				var otherBtn = mxUtils.button(otherLabel, function()
 				{
@@ -3932,8 +3883,7 @@ var PageSetupDialog = function(editorUi)
 						window.clearTimeout(statusThread);
 						statusElt.style.color = (error) ?
 							'light-dark(var(--error-color), var(--dark-error-color))' : '';
-						statusElt.style.marginTop = '4px';
-						statusElt.textContent = text;
+						setStatus(text);
 						otherBtn.disabled = busy || !other.isEnabled();
 
 						// A result without errors disappears after a while
@@ -3941,17 +3891,15 @@ var PageSetupDialog = function(editorUi)
 						{
 							statusThread = window.setTimeout(function()
 							{
-								statusElt.style.marginTop = '';
-								statusElt.textContent = '';
+								setStatus('');
 							}, PageSetupDialog.statusDelay);
 						}
 					});
 				});
 
-				otherBtn.className = 'geBtn';
 				otherBtn.style.minWidth = '90px';
 				otherBtn.disabled = !other.isEnabled();
-				buttons.appendChild(otherBtn);
+				buttons.push(otherBtn);
 
 				// Changes of the dialogs on top of this one, such as the first
 				// data source, show or hide the button
@@ -3962,12 +3910,21 @@ var PageSetupDialog = function(editorUi)
 
 				graph.getModel().addListener(mxEvent.CHANGE, updateOther);
 				modelListeners.push(updateOther);
-				otherBtn.style.display = (other.isVisible()) ? '' : 'none';
+				updateOther();
 			}
 
-			row.appendChild(styleContent(content));
-			section.appendChild(row);
-			advanced.wrapper.appendChild(section);
+			addButtons(content, buttons);
+			addHint(content, hint);
+
+			if (other != null)
+			{
+				// Screen readers announce the status
+				statusElt = document.createElement('div');
+				statusElt.className = 'geDialogHint';
+				statusElt.setAttribute('aria-live', 'polite');
+				content.appendChild(statusElt);
+				setStatus('');
+			}
 		}
 	};
 
