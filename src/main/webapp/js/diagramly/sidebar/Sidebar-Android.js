@@ -42,25 +42,25 @@
 					320, 30, '', 'Action Bar Landscape', null, null, dt + 'action bar landscape dark'),
 			this.createVertexTemplateEntry(s + 'action_bar_landscape;fillColor=#E6E6E6;strokeColor=none;strokeWidth=2;whiteSpace=wrap;', 
 					320, 30, '', 'Action Bar Landscape (Bright)', null, null, dt + 'action bar bright landscape'),
-			this.createVertexTemplateEntry(s4 + '666666;align=center;strokeColor=#4D4D4D;fontColor=#ffffff;', 
+			this.createVertexTemplateEntry(s4 + '666666;align=center;strokeColor=#4D4D4D;fontColor=#ffffff;roundedPerimeter=1;', 
 					sizeX * 0.5, sizeY * 0.04, 'Normal', 'Button (Normal)', null, null, dt + 'button normal'),
-			this.createVertexTemplateEntry(s4 + '666666;align=center;strokeColor=#999999;fontColor=#ffffff;', 
+			this.createVertexTemplateEntry(s4 + '666666;align=center;strokeColor=#999999;fontColor=#ffffff;roundedPerimeter=1;', 
 					sizeX * 0.5, sizeY * 0.04, 'Focused', 'Button (Focused)', null, null, dt + 'button focused'),
-			this.createVertexTemplateEntry(s4 + '999999;align=center;strokeColor=#666666;fontColor=#ffffff;strokeWidth=2;', 
+			this.createVertexTemplateEntry(s4 + '999999;align=center;strokeColor=#666666;fontColor=#ffffff;strokeWidth=2;roundedPerimeter=1;', 
 					sizeX * 0.5, sizeY * 0.04, 'Pressed', 'Button (Pressed)', null, null, dt + 'button pressed'),
-			this.createVertexTemplateEntry(s4 + '333333;align=center;strokeColor=#4D4D4D;fontColor=#666666;', 
+			this.createVertexTemplateEntry(s4 + '333333;align=center;strokeColor=#4D4D4D;fontColor=#666666;roundedPerimeter=1;', 
 					sizeX * 0.5, sizeY * 0.04, 'Focused disabled', 'Button (Focused, Disabled)', null, null, dt + 'button focused disabled'),
-			this.createVertexTemplateEntry(s4 + '333333;align=center;strokeColor=#333333;fontColor=#666666;', 
+			this.createVertexTemplateEntry(s4 + '333333;align=center;strokeColor=#333333;fontColor=#666666;roundedPerimeter=1;', 
 					sizeX * 0.5, sizeY * 0.04, 'Disabled', 'Button (Disabled)', null, null, dt + 'button disabled'),
-			this.createVertexTemplateEntry(s4 + 'E6E6E6;align=center;strokeColor=#E6E6E6;fontColor=#333333;', 
+			this.createVertexTemplateEntry(s4 + 'E6E6E6;align=center;strokeColor=#E6E6E6;fontColor=#333333;roundedPerimeter=1;', 
 					sizeX * 0.5, sizeY * 0.04, 'Normal', 'Button (Normal, Bright)', null, null, dt + 'button normal bright'),
-			this.createVertexTemplateEntry(s4 + 'E6E6E6;align=center;strokeColor=#B3B3B3;fontColor=#333333;', 
+			this.createVertexTemplateEntry(s4 + 'E6E6E6;align=center;strokeColor=#B3B3B3;fontColor=#333333;roundedPerimeter=1;', 
 					sizeX * 0.5, sizeY * 0.04, 'Focused', 'Button (Focused, Bright)', null, null, dt + 'button focused bright'),
-			this.createVertexTemplateEntry(s4 + 'B3B3B3;align=center;strokeColor=#E6E6E6;fontColor=#333333;strokeWidth=2;', 
+			this.createVertexTemplateEntry(s4 + 'B3B3B3;align=center;strokeColor=#E6E6E6;fontColor=#333333;strokeWidth=2;roundedPerimeter=1;', 
 					sizeX * 0.5, sizeY * 0.04, 'Pressed', 'Button (Pressed, Bright)', null, null, dt + 'button pressed bright'),
-			this.createVertexTemplateEntry(s4 + 'F4F4F4;align=center;strokeColor=#E6E6E6;fontColor=#CCCCCC;', 
+			this.createVertexTemplateEntry(s4 + 'F4F4F4;align=center;strokeColor=#E6E6E6;fontColor=#CCCCCC;roundedPerimeter=1;', 
 					sizeX * 0.5, sizeY * 0.04, 'Focused disabled', 'Button (Focused, Disabled, Bright)', null, null, dt + 'button focused disabled bright'),
-			this.createVertexTemplateEntry(s4 + 'F4F4F4;align=center;strokeColor=#F4F4F4;fontColor=#CCCCCC;', 
+			this.createVertexTemplateEntry(s4 + 'F4F4F4;align=center;strokeColor=#F4F4F4;fontColor=#CCCCCC;roundedPerimeter=1;', 
 					sizeX * 0.5, sizeY * 0.04, 'Disabled', 'Button (Disabled, Bright)', null, null, dt + 'button disabled bright'),
 					
 			this.addEntry(dt + 'checkboxes checkbox', function()
@@ -117,7 +117,7 @@
 			   	var anchor1 = new mxCell('', new mxGeometry(0, 6, 0, 0), inh + 'shape=transparent;');
 			   	anchor1.vertex = true;
 			   	button1.insert(anchor1);
-			   	var radio1 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), inh + 'shape=ellipse;resizable=0;html=1;sketch=0;');
+			   	var radio1 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), inh + 'shape=ellipse;perimeter=ellipsePerimeter;resizable=0;html=1;sketch=0;');
 			   	radio1.vertex = true;
 			   	anchor1.insert(radio1);
 			   	var button2 = new mxCell('Option 2', new mxGeometry(0, 12.5, 165, 12.5), inh + 'shape=transparent;html=1;align=left;spacingLeft=10;fontSize=8;fontColor=#33b5e5;');
@@ -126,7 +126,7 @@
 			   	var anchor2 = new mxCell('', new mxGeometry(0, 6, 0, 0), inh + 'shape=transparent;');
 			   	anchor2.vertex = true;
 			   	button2.insert(anchor2);
-			   	var radio2 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), inh + 'shape=ellipse;resizable=0;html=1;sketch=0;');
+			   	var radio2 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), inh + 'shape=ellipse;perimeter=ellipsePerimeter;resizable=0;html=1;sketch=0;');
 			   	radio2.vertex = true;
 			   	anchor2.insert(radio2);
 			   	var button3 = new mxCell('Option 3', new mxGeometry(0, 25, 165, 12.5), inh + 'shape=transparent;html=1;align=left;spacingLeft=10;fontSize=8;fontColor=#33b5e5;');
@@ -135,7 +135,7 @@
 			   	var anchor3 = new mxCell('', new mxGeometry(0, 6, 0, 0), inh + 'shape=transparent;');
 			   	anchor3.vertex = true;
 			   	button3.insert(anchor3);
-			   	var radio3 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), 'shape=ellipse;strokeColor=inherit;resizable=0;fillColor=#33b5e5;html=1;sketch=0;');
+			   	var radio3 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), 'shape=ellipse;perimeter=ellipsePerimeter;strokeColor=inherit;resizable=0;fillColor=#33b5e5;html=1;sketch=0;');
 			   	radio3.vertex = true;
 			   	anchor3.insert(radio3);
 			   	var button4 = new mxCell('Option 4', new mxGeometry(0, 37.5, 165, 12.5), inh + 'shape=transparent;html=1;align=left;spacingLeft=10;fontSize=8;fontColor=#33b5e5;');
@@ -144,7 +144,7 @@
 			   	var anchor4 = new mxCell('', new mxGeometry(0, 6, 0, 0), inh + 'shape=transparent;');
 			   	anchor4.vertex = true;
 			   	button4.insert(anchor4);
-			   	var radio4 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), inh + 'shape=ellipse;resizable=0;html=1;sketch=0;');
+			   	var radio4 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), inh + 'shape=ellipse;perimeter=ellipsePerimeter;resizable=0;html=1;sketch=0;');
 			   	radio4.vertex = true;
 			   	anchor4.insert(radio4);
 	

@@ -5818,7 +5818,7 @@
 				c.begin();
 				c.moveTo(x, y);
 				
-				if (this.outline || top)
+				if (this.outline || top)
 				{
 					c.lineTo(x + w, y);
 				}
@@ -5827,7 +5827,7 @@
 					c.moveTo(x + w, y);
 				}
 				
-				if (this.outline || right)
+				if (this.outline || right)
 				{
 					c.lineTo(x + w, y + h);
 				}
@@ -5836,7 +5836,7 @@
 					c.moveTo(x + w, y + h);
 				}
 				
-				if (this.outline || bottom)
+				if (this.outline || bottom)
 				{
 					c.lineTo(x, y + h);
 				}
@@ -5845,7 +5845,7 @@
 					c.moveTo(x, y + h);
 				}
 				
-				if (this.outline || left)
+				if (this.outline || left)
 				{
 					c.lineTo(x, y);
 				}

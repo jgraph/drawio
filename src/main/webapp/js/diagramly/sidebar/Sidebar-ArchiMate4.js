@@ -200,7 +200,7 @@
 					w * 60, h * 35, '', 'Stakeholder', null, null, this.getTagsForStencil(gn, '', dt + 'stakeholder').join(' ')),
 			this.createVertexTemplateEntry(am + 'element;appType=driver;archiType=oct;archiDomain=motivation;',
 					w * 150, h * 75, 'Driver', 'Driver', null, null, this.getTagsForStencil(gn, '', dt + 'driver').join(' ')),
-			this.createVertexTemplateEntry(am + 'driver;',
+			this.createVertexTemplateEntry(am + 'driver;perimeter=ellipsePerimeter;',
 					w * 40, h * 40, '', 'Driver', null, null, this.getTagsForStencil(gn, '', dt + 'driver').join(' ')),
 			this.createVertexTemplateEntry(am + 'element;appType=assess;archiType=oct;archiDomain=motivation;',
 					w * 150, h * 75, 'Assessment', 'Assessment', null, null, this.getTagsForStencil(gn, '', dt + 'assessment').join(' ')),

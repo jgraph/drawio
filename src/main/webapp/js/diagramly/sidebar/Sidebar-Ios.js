@@ -200,7 +200,7 @@
 					'text;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;shape=mxgraph.bootstrap.topButton;rSize=3;fillColor=none;fontColor=inherit;fontSize=8;');
 				field1.vertex = true;
 				cell.insert(field1);
-			   	var marker1 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'shape=ellipse;resizable=0;fillColor=#dddddd;html=1;');
+			   	var marker1 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'shape=ellipse;perimeter=ellipsePerimeter;resizable=0;fillColor=#dddddd;html=1;');
 			   	marker1.geometry.relative = true;
 			   	marker1.geometry.offset = new mxPoint(3, -2.5);
 			   	marker1.vertex = true;
@@ -209,7 +209,7 @@
 					'text;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;rSize=5;fillColor=none;fontColor=inherit;fontSize=8;');
 				field2.vertex = true;
 				cell.insert(field2);
-			   	var marker2 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'shape=ellipse;resizable=0;fillColor=#dddddd;html=1;');
+			   	var marker2 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'shape=ellipse;perimeter=ellipsePerimeter;resizable=0;fillColor=#dddddd;html=1;');
 			   	marker2.geometry.relative = true;
 			   	marker2.geometry.offset = new mxPoint(3, -2.5);
 			   	marker2.vertex = true;
@@ -218,7 +218,7 @@
 					'text;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;rSize=5;fillColor=none;fontColor=inherit;fontSize=8;');
 				field3.vertex = true;
 				cell.insert(field3);
-			   	var marker3 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'shape=ellipse;resizable=0;fillColor=#444444;html=1;');
+			   	var marker3 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'shape=ellipse;perimeter=ellipsePerimeter;resizable=0;fillColor=#444444;html=1;');
 			   	marker3.geometry.relative = true;
 			   	marker3.geometry.offset = new mxPoint(3, -2.5);
 			   	marker3.vertex = true;
@@ -227,7 +227,7 @@
 					'text;strokeColor=none;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;shape=mxgraph.bootstrap.bottomButton;rSize=5;fillColor=none;fontColor=inherit;fontSize=8;');
 				field4.vertex = true;
 				cell.insert(field4);
-			   	var marker4 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'shape=ellipse;resizable=0;fillColor=#dddddd;html=1;');
+			   	var marker4 = new mxCell('', new mxGeometry(0, 0.5, 5, 5), 'shape=ellipse;perimeter=ellipsePerimeter;resizable=0;fillColor=#dddddd;html=1;');
 			   	marker4.geometry.relative = true;
 			   	marker4.geometry.offset = new mxPoint(3, -2.5);
 			   	marker4.vertex = true;

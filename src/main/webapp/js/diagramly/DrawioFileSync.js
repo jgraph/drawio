@@ -361,6 +361,19 @@ DrawioFileSync.prototype.lastActivity = null;
 DrawioFileSync.pageRootReported = false;
 
 /**
+ * Specifies if a save that leaves out cells was reported in this session
+ * (see checkOwnPage).
+ */
+DrawioFileSync.ownPageReported = false;
+
+/**
+ * Time in milliseconds that saves must leave out cells of the screen until
+ * this is reported (see checkOwnPage). Longer than the lazy cleanup. Default
+ * is 120000.
+ */
+DrawioFileSync.prototype.ownPageDelay = 120000;
+
+/**
  * Error created by the local edit that left the current page without
  * the root of the model, for the stack of the report in checkPageRoot.
  */
@@ -628,8 +641,7 @@ DrawioFileSync.prototype.updateStatus = function()
 					(!this.file.isEditable() ? '<div class="geStatusBox" title="' +
 						mxUtils.htmlEntities(mxResources.get('readOnly')) + '">' +
 						mxUtils.htmlEntities(mxResources.get('readOnly')) + '</div>' :
-					(this.file.isLocked() ? ' <img class="geToolbarButton geAdaptiveAsset" data-action="properties" ' +
-						'style="margin-left:4px;flex-shrink:0;" src="' + Editor.lockedImage + '"/>' : '')) +
+					this.ui.createLockedStatus()) +
 					(status != null ? '<div class="geStatusBox" title="' + mxUtils.htmlEntities(status) + '">' +
 						mxUtils.htmlEntities(status) + '</div>' : '') +
 					((msg != null) ? ' <div class="geStatusBox" data-effect="fade" title="' + mxUtils.htmlEntities(msg) + '">' +
@@ -2700,6 +2712,95 @@ DrawioFileSync.prototype.checkPageRoot = function()
 			// ignore
 		}
 	}
+};
+
+/**
+ * Reports saves that leave out cells of the visible page for a time, once per
+ * session. Saves write the own pages and the thumbnail shows the screen, so
+ * the file can stop following the screen while saves succeed and nothing else
+ * reports it. Content of collaborators that is not confirmed yet is expected
+ * to be missing, and a cell they removed leaves the own pages first and the
+ * screen with the next cleanup, so a difference must last for ownPageDelay.
+ * Detection only, the numbers show if a route exists that is not the page
+ * root (see checkPageRoot).
+ */
+DrawioFileSync.prototype.checkOwnPage = function()
+{
+	if (!DrawioFileSync.ownPageReported && this.file.isRealtime() &&
+		this.ui.getCurrentFile() == this.file && this.ui.currentPage != null)
+	{
+		// Never stops the save it runs in
+		try
+		{
+			var ownPage = this.ui.getPageById(this.ui.currentPage.getId(),
+				this.file.ownPages);
+			var shown = 0;
+			var saved = 0;
+
+			if (ownPage != null && ownPage.root != null &&
+				this.unconfirmedRemoteSince == null)
+			{
+				shown = this.getCellCount(this.ui.editor.graph.model.root);
+				saved = this.getCellCount(ownPage.root);
+			}
+
+			if (shown <= saved)
+			{
+				this.ownPageBehindSince = null;
+			}
+			else if (this.ownPageBehindSince == null)
+			{
+				this.ownPageBehindSince = Date.now();
+			}
+			else if (Date.now() - this.ownPageBehindSince >= this.ownPageDelay)
+			{
+				DrawioFileSync.ownPageReported = true;
+				var user = this.file.getCurrentUser();
+				// Hashed like sendErrorReport: no raw user or file ids in logs
+				var uid = (user != null) ? this.ui.hashValue(user.id) : 'unknown';
+
+				EditorUi.debug('DrawioFileSync.checkOwnPage', [this],
+					'shown', shown, 'saved', saved);
+				EditorUi.logError('Save leaves out cells: ' + shown + ' shown, ' +
+					saved + ' saved', null, this.file.getMode() + '.' +
+					this.ui.hashValue(this.file.getId()), uid, null, 'WARNING', true);
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+	}
+};
+
+/**
+ * Returns the number of cells under the given root, including the root. Does
+ * not recurse as cells can be nested deeply, and a patch can leave a cycle.
+ */
+DrawioFileSync.prototype.getCellCount = function(root)
+{
+	var seen = new Set();
+	var stack = (root != null) ? [root] : [];
+
+	while (stack.length > 0)
+	{
+		var cell = stack.pop();
+
+		if (!seen.has(cell))
+		{
+			seen.add(cell);
+
+			if (cell.children != null)
+			{
+				for (var i = 0; i < cell.children.length; i++)
+				{
+					stack.push(cell.children[i]);
+				}
+			}
+		}
+	}
+
+	return seen.size;
 };
 
 /**

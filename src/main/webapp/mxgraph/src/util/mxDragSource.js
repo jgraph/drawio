@@ -85,7 +85,10 @@ mxDragSource.prototype.previewElement = null;
 /**
  * Variable: previewOffset
  *
- * Optional <mxPoint> that specifies the offset of the preview in pixels.
+ * Optional <mxPoint> that specifies the offset of the preview from the
+ * pointer in pixels, eg. minus half its size to hold it at its center.
+ * Guides and the grid snap the preview where it is shown, and the drop
+ * location is its top, left corner.
  */
 mxDragSource.prototype.previewOffset = null;
 
@@ -681,6 +684,8 @@ mxDragSource.prototype.dragOver = function(graph, evt)
 		
 		var gridEnabled = this.isGridEnabled() && graph.isGridEnabledEvent(evt);
 		var hideGuide = true;
+		var ox = (this.previewOffset != null) ? this.previewOffset.x : 0;
+		var oy = (this.previewOffset != null) ? this.previewOffset.y : 0;
 
 		// Grid and guides
 		if (this.currentGuide != null && this.currentGuide.isEnabledForEvent(evt))
@@ -690,18 +695,42 @@ mxDragSource.prototype.dragOver = function(graph, evt)
 			var h = parseInt(this.previewElement.style.height);
 			var bounds = new mxRectangle(0, 0, w, h);
 			var delta = new mxPoint(x, y);
+
+			// Moves an offset preview by whole steps of the grid (or of the
+			// model units without the grid) from its place, so that the grid
+			// snaps its corner to the nearest grid point
+			if (this.previewOffset != null)
+			{
+				var step = ((gridEnabled && graph.gridEnabled && graph.gridSize > 0) ?
+					graph.gridSize : 1) * graph.view.scale;
+				delta.x = (Math.round(x / step) || 1) * step;
+				delta.y = (Math.round(y / step) || 1) * step;
+				bounds.x = x + ox - delta.x;
+				bounds.y = y + oy - delta.y;
+			}
+
 			delta = this.currentGuide.move(bounds, delta, gridEnabled, true);
 			hideGuide = false;
-			x = delta.x;
-			y = delta.y;
+			x = bounds.x + delta.x - ox;
+			y = bounds.y + delta.y - oy;
 		}
 		else if (gridEnabled)
 		{
 			var scale = graph.view.scale;
 			var tr = graph.view.translate;
-			var off = graph.gridSize / 2;
-			x = (graph.snap(x / scale - tr.x - off) + tr.x) * scale;
-			y = (graph.snap(y / scale - tr.y - off) + tr.y) * scale;
+
+			// Snaps the corner of an offset preview to the nearest grid point
+			if (this.previewOffset != null)
+			{
+				x = (graph.snap((x + ox) / scale - tr.x) + tr.x) * scale - ox;
+				y = (graph.snap((y + oy) / scale - tr.y) + tr.y) * scale - oy;
+			}
+			else
+			{
+				var off = graph.gridSize / 2;
+				x = (graph.snap(x / scale - tr.x - off) + tr.x) * scale;
+				y = (graph.snap(y / scale - tr.y - off) + tr.y) * scale;
+			}
 		}
 		
 		if (this.currentGuide != null && hideGuide)

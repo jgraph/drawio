@@ -110,7 +110,7 @@
 		   	this.addEntry(dt + 'card', function()
 		   	{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 200, 240), 
-					'rounded=1;whiteSpace=wrap;html=1;strokeColor=#B3B3B3;arcSize=20;absoluteArcSize=1;');
+					'rounded=1;whiteSpace=wrap;html=1;strokeColor=#B3B3B3;arcSize=20;absoluteArcSize=1;roundedPerimeter=1;');
 			   	bg.vertex = true;
 			   	
 			   	var item1 = new mxCell('', new mxGeometry(0, 0, 46, 46), 
@@ -201,7 +201,7 @@
 		   	this.addEntry(dt + 'card', function()
 		   	{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 200, 220), 
-					'rounded=1;whiteSpace=wrap;html=1;strokeColor=#B3B3B3;arcSize=20;absoluteArcSize=1;');
+					'rounded=1;whiteSpace=wrap;html=1;strokeColor=#B3B3B3;arcSize=20;absoluteArcSize=1;roundedPerimeter=1;');
 			   	bg.vertex = true;
 			   	
 			   	var item3 = new mxCell('Card Title', 
@@ -306,7 +306,7 @@
 		   	this.addEntry(dt + 'card', function()
 		   	{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 200, 170), 
-					'rounded=1;whiteSpace=wrap;html=1;strokeColor=#B3B3B3;arcSize=20;absoluteArcSize=1;');
+					'rounded=1;whiteSpace=wrap;html=1;strokeColor=#B3B3B3;arcSize=20;absoluteArcSize=1;roundedPerimeter=1;');
 			   	bg.vertex = true;
 			   	
 			   	var item1 = new mxCell('', new mxGeometry(0, 0, 46, 46), 
@@ -409,7 +409,7 @@
 		   	this.addEntry(dt + 'card', function()
 		   	{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 200, 190), 
-					'rounded=1;whiteSpace=wrap;html=1;strokeColor=#B3B3B3;arcSize=20;absoluteArcSize=1;');
+					'rounded=1;whiteSpace=wrap;html=1;strokeColor=#B3B3B3;arcSize=20;absoluteArcSize=1;roundedPerimeter=1;');
 			   	bg.vertex = true;
 			   	
 			   	var item3 = new mxCell('Card Title', 
@@ -466,7 +466,7 @@
 		   	this.addEntry(dt + 'card', function()
 		   	{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 200, 70), 
-					'rounded=1;whiteSpace=wrap;html=1;strokeColor=#B3B3B3;arcSize=20;absoluteArcSize=1;');
+					'rounded=1;whiteSpace=wrap;html=1;strokeColor=#B3B3B3;arcSize=20;absoluteArcSize=1;roundedPerimeter=1;');
 			   	bg.vertex = true;
 			   	
 			   	var item3 = new mxCell('Card Title', 
@@ -483,7 +483,7 @@
 		   	this.addEntry(dt + 'card', function()
 		   	{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 200, 70), 
-					'rounded=1;whiteSpace=wrap;html=1;strokeColor=#B3B3B3;arcSize=20;absoluteArcSize=1;');
+					'rounded=1;whiteSpace=wrap;html=1;strokeColor=#B3B3B3;arcSize=20;absoluteArcSize=1;roundedPerimeter=1;');
 			   	bg.vertex = true;
 			   	
 			   	var item1 = new mxCell('', new mxGeometry(0, 0, 46, 46), 
@@ -514,7 +514,7 @@
 		   	this.addEntry(dt + 'card', function()
 		   	{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 220, 160), 
-					'rounded=1;whiteSpace=wrap;html=1;strokeColor=#B3B3B3;arcSize=20;absoluteArcSize=1;collapsible=0;recursiveResize=1;');
+					'rounded=1;whiteSpace=wrap;html=1;strokeColor=#B3B3B3;arcSize=20;absoluteArcSize=1;collapsible=0;recursiveResize=1;roundedPerimeter=1;');
 			   	bg.vertex = true;
 			   	
 			   	var item1 = new mxCell('', new mxGeometry(0, 0, 46, 46), 
@@ -558,7 +558,7 @@
 
 			this.addEntry('relationship', function()
 			{
-		    	var cell1 = new mxCell('Relationship', new mxGeometry(50, 0, 80, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=80;whiteSpace=wrap;fontSize=11;');
+		    	var cell1 = new mxCell('Relationship', new mxGeometry(50, 0, 80, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=80;whiteSpace=wrap;fontSize=11;roundedPerimeter=1;');
 		    	cell1.vertex = true;
 
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 50, 0), 'edgeStyle=entityRelationEdgeStyle;html=1;startArrow=manyOptional;startFill=1;endArrow=none;rounded=0;endFill=0;');
@@ -578,7 +578,7 @@
 
 			this.addEntry('relationship', function()
 			{
-		    	var cell1 = new mxCell('Relationship', new mxGeometry(50, 0, 80, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=80;whiteSpace=wrap;fontSize=11;');
+		    	var cell1 = new mxCell('Relationship', new mxGeometry(50, 0, 80, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=80;whiteSpace=wrap;fontSize=11;roundedPerimeter=1;');
 		    	cell1.vertex = true;
 
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 50, 0), 'edgeStyle=entityRelationEdgeStyle;html=1;startArrow=manyOptional;startFill=0;endArrow=none;rounded=0;endFill=0;dashed=1;');
@@ -598,7 +598,7 @@
 
 			this.addEntry('integration', function()
 			{
-		    	var cell1 = new mxCell('Relationship', new mxGeometry(50, 0, 80, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=80;whiteSpace=wrap;fontSize=11;');
+		    	var cell1 = new mxCell('Relationship', new mxGeometry(50, 0, 80, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=80;whiteSpace=wrap;fontSize=11;roundedPerimeter=1;');
 		    	cell1.vertex = true;
 
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 50, 0), 'edgeStyle=entityRelationEdgeStyle;html=1;startArrow=blockThin;startFill=1;endArrow=none;rounded=0;endFill=0;');
@@ -618,7 +618,7 @@
 
 			this.addEntry('integration', function()
 			{
-		    	var cell1 = new mxCell('Relationship', new mxGeometry(50, 0, 80, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=80;whiteSpace=wrap;fontSize=11;');
+		    	var cell1 = new mxCell('Relationship', new mxGeometry(50, 0, 80, 30), 'html=1;rounded=1;absoluteArcSize=1;arcSize=80;whiteSpace=wrap;fontSize=11;roundedPerimeter=1;');
 		    	cell1.vertex = true;
 
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 50, 0), 'edgeStyle=entityRelationEdgeStyle;html=1;startArrow=blockThin;startFill=1;endArrow=none;rounded=0;endFill=0;dashed=1;');

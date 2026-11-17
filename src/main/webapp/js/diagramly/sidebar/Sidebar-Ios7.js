@@ -255,12 +255,12 @@
 			this.addDataEntry(dt + 'status', 164, 25, 'Status',
 				'vZRtb4MgEMc/jS9rnNZ2b1e7NlmyZcnWD8D0VDLkDNDW7tMPhD5qM7cm0xi5/3HA/eDwoqRqloLU5TNmwLzo0YsSgahsq2oSYMwLA5p50dwLw0B/Xri44r1rvUFNBHA1JCC0ARvC1mAVK0i1Y06QJalNU0Cqh5zllLEEGYrWGy0m5tW6VAI/Ye/hyHXMzI0OQkFzdYWt5Ja3BKxAiZ3usqWZKl2PydiGlUCL0oWFsdWItHZxCD3mqxsu5f70o076qzojCjItPq2l0r8X3HaQ6GxaFMjVCYqgfZz+Rr9M51ibJn2aEvbAaMG1prDWKnFWqjmAMABrklJevBvvfBQOpRf+kV5wO71xh54xV1wAyQYy+2ifn5lVNMvMSF1st0DaWa87SP+BLB5eb1VTmGvBpyinPk2RSz/FqkYJnWprD999kAcX9fmbKryC6DzAAQv8HmRxl9heE8CIohs4G6sPo5v/FSlXx8lHe/Ju+tHUv6h9zHMJqrMRhzz69kabx3vWdj+9hr8B'),
 			this.addDataEntry(dt + 'message', 164, 20, 'Message',
-				'xVbbbqMwEP0aHouICUnzSnp52UirdqU+WzDB1toY2W6b9OvX4IGWW5ZVuyoWkn3GM545x4MI4r083WtasYPKQQTxbRDvtVLWz+RpD0IEJOJ5EN8EhETuDcjdjHXVWKOKaijtEgfiHV6oeAaPeMDYs0DAMFrVUw2ZC5keuRB7JZRurPHdth4ON1ar39BaSlU6nxSjg7Zwms2wgTC9e1ASrD67La88twx3bNbejQEvGLphZRE1fl10ru/1ugmWPF1+PCqfH8AYWsCIBmali3Kz6kp9wvwahNFcvbpF5BY5NQxyXLTsyVNRixxyZbbPPJRUF7x88JTqmpu4npzbiTMcmi0/4FjXS5Ie+oA0DOBfqhoFSJW1SiI8FC+tx0g8Z0mbUXuo0k7hVPCidJho8ktNRTNeFm22O/R85G918ddLrwL5vquwXtAJY92HvHXtMGB60zwz9yHkmSpNmFEJmn6SqjN2fZh4l4/UJWPmdh7SIKjlL9A7bYpNPPCn4i4PEmF6GBjPvlq3h7cR1PFowI7U6NJeJFCyVKDBN+hvSrhTeGUWf61meO87XFJh4v622CdluFrt+kJs/4MMm3+VYa4rUJ4LDSF5plXFcN+o+RbJlVyUqxPogmBTekVfoxfpy/UFXeOW7z8PfvvHf4s/'),
+				'xVbbbqMwEP0aHosIhKR5Jd32ZSNV3Up9tmCCrbUxst022a+vjQdSLklZpasNimSfuXjmHA8iSLbi8KBITXeyAB4kP4Jkq6Q0fiUOW+A8iCNWBMldEMeR/Qfx/RnrorFGNVFQmTkBsQ94I/wVPOIBbY4cAU1J7ZYKcpsy2zPOt5JL1ViT+7V7LK6Nkr+htVSysjEZZgdl4HC2wgbC8h5ACjDqaF3eWWEoeqyWPowCKymGYWcR0X5fdqGnfu0CW55uPxm1z3agNSlhRAM1wma5W3StvmB9DUJJId/tJrKbgmgKBW5a9sShdCKHTOr1KwsFUSWrnjylynGTuMWxXVjDrnH5CXvXb5z20CekYQA/y3qUIJPGSIHwULzMPSPxrCVrHhchKzOFE87KymK8qS/TNclZVbbVbjDyF/vjmr+dexXi/3cVljMmYaz7kLduHAZMr5rfmfsQslxWOsyJAEWupOqIUx+mPuQzdemYuY2HFHBi2Bv0TptiEw98lMzWEUdYHibGs2+W7eFtBrnfazAjNbqyZwmUzhVo8A76Sgl7Cqu186xBMVsQqBP6eIKukqUfcEmkievdYleqdLPY9HVa/wOVVn+r0rmhQfUuzItguZI1Rb/RbM6SK70oVyfQBcGm9Iq+R6+4L9c3DJXdnr4tvPvnT48P'),
 			this.addDataEntry(dt + 'action sheet', 164, 115, 'Action Sheet',
 				'7VbBUsIwEP2aHnXSBJAzrXjRGUcOniPdthnTppMGAb/eDUm1UJSOiFyAYWb3ZXez2ffIJGBRsbrTvMofVAIyYLcBi7RSxlnFKgIpA0pEErA4oJTgL6DTb1bDzSqpuIbS9EmgLuGNywU4xAG1WUsP1DmvrKlhjiUneibercvQro1WrxApqTQipSpxYZIKKRsooCymMYuHiGeaJwLb2gnH8olaok/QyU2BI4hDNH1joA2svj3cBvInuwNVgNFrDFmKxOQ+YjRwaTmILG/SwqEDee2A7DP3a1Zo+HHtHx3rjO6evyCDu/NrncnN69l3F+6ePuF1Dol3mrEXq8yq41qo+mYhro2qJgtjVPkjFe25p6o0PnDcpWca2q8Pa+GEjMnU9qGhxuR2z8tcGJhVfG5LLrG5vmzRw2wN97DlJUw0SG7EG2zV38eg3+JRCdyZEt+Qp3y95TXpKk1rMB36P7vspYhBT0Xs/KM6Armw2JfFk9A4vND4zzQOTkHj6Cz384vCy7m4XNF/oIrRKVRx01FFxMv5yWVRcJ2J8sk/oexxLe+2aWfgwsMmxAO/1Uq6+ZxVK+uthENPMXakcvxuV02dY8SC7tfL24W3H+Yf'),
 				
 			this.addDataEntry(dt + 'action sheet', 164, 115, 'Action Sheet',
-				'7VhRb5swEP41PDYCnBDyuEDpS6tV66Q9Ti44YNVgZDtNsl+/czApCdCQJY0qrYkS2ec7Y/v7vjsLCwX5+k7gMnvgCWEWurVQIDhXVStfB4Qxy7VpYqHQcl0bfpYb9Yw621G7xIIUakiAWwW8YrYklaUySLVhxiAzXOqmIDFMORdP9I/uImhLJfgLCTjjAiwFL2BgvqCM1SbLRaEbonAC9lTghMKyDtxh+oSvoG9Dx6yGCEXWvTvamsx27gjPiRIbcFnRRGXGwxtXYRmhaVaHOZPKiGVlSHexbwcEDXNG3eeFjp9XpnKIDp3d+fwyC3MOd5tgmZHEdOpjztepZsOIcjld0pHi5XypFC/ePfrmOS94oYyj34YjcvTXuDXstu3bkV6HIBKCm2seBIp7HJRJByjjip62IAwr+kr25u8CyjzikVN4smubBRlkN3u9OpwvFpKoFsq7VQ4CftwC/oFIiVNyVC98WSRblJ1exbwhNmkj5vnR1EddiOlPh7D02GTuObCPuUaNxph9YzQFCoVAJ7Ay/EzYI5dUUU2sMIZoIhru9wcOzxwomIMDNvPsImSJY1qkP/W84c0YLA3+rzKqyBN46K2tgNZD2YS62WTwtUcG4Qa7aiE2yVXbLkqum8M0chF6TYbn4TpBPGNJ4xGHkN+AGONLNTAjL7afoVCMu6FY79WPzV52bIre70jE3vl52GvLEVP24Vp0Zp59G5ymRScKgyj60uJFtIimVxDj9HQx6mo9ojEv5CjXROwo0K47m0XoXDl678oR7Z2O15aj1yFH+3w5+te+FlUi+LoZnVi8xh8hl1kL/O8lKbSD/vtWlh+elncS6kvLV069055829DAIOr4nyn1XuMaVOeiNpfuafHyX/LoEiX8U/HoKiXccVpECnARk/4r4kGBybFIafHDEGttaot+fNWAgYeti2HSv1adfsr1Vp1Ts0hPAdrsBRx7e4LOLEc12sg+H23ovr0hq9ybL9D+Ag=='),
+				'7VjBbqMwEP0ajo0AJ4QcGyi9tNpqu9IeVy44YNVgZDtNsl+/42ASUqChZdNLmyiRPZ4xZt57MwgLBfn2VuAyu+cJYRa6sVAgOFfVKN8GhDHLtWliodByXRt+lhv1rDr7VbvEghRqSIBbBbxgtiaVpTJItWPGIDNc6qEgMWy5FI/0r54iGEsl+DMJOOMCLAUvYGG5oozVJstFoRuicAb2VOCEwrFeucP2Cd/A3IaJOQ0Rimx772hvMrdzS3hOlNiBy4YmKjMe3rQKywhNszrMmVVGLCtDeog9JggGJkfd+ULn85WpHKJD55Cf3+Zgzuu7TbDMSGImdZrzbarZMKFcztd0oni5XCvFizdT38zzihfKOPptOCJHf41bw27bvh3pcwgiIbh55kGguOdBmXWAMq3oaQvCsKIv5GT/LqDMJR44hSu7tjmQQXZ3MqvD+WoliWqhfDjlIOCnLeDviZQ4JWf1wtdFskfZ6VXMEbFZGzHPj+Y+6kJMfzqEpddmS8+B+1hq1GiM2TWjKVAoBDqBleEnwh64pIpqYoUxRBPRcL975fDEgYI5OGCzzyFCljimRfpL7xteTcHS4P8mo4o8goe+tQ3Q+piPByIopF/vMZxkqJtkBnZ7YoBvkK7WZ5Nzte2/cu7KuQTrZsPLc103nrCk8YRDyB8AkvG1GlioV/vPUCim3VBsT9rK7qRoNmuB31GfvfHl2WurFFN2cYk6C8++Cd4nUScKgyj6luglJYrmn6DR+fs1qnv7hMa8kJNc87OjnbvuYhGhsSr13lQpOsmO11ap16FSe7xK/c9+iKq08f0c9c6eNr2EXBYt8H+UpNAO+u+6LC9erQ8S6qvWn1yR5z1luKGBMRXZ/2oPTXWJalPsjhbPX5JeF2z4/pdr+I7T4leAi5iwQX0f2lGORUqLn4ZvW9OJ9OWrASzc710MwT7ao/qZ2NujGkQZ0652JwHn3sygkc2rRhvZ49GG6fHtW+XefDn3Dw=='),
 
 			this.addEntry('cell list', function()
 			{
@@ -271,7 +271,7 @@
 					'text;strokeColor=inherit;align=left;verticalAlign=middle;overflow=visible;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fillColor=inherit;fontColor=inherit;spacingLeft=25;dropTarget=0;fontSize=10;');
 				field1.vertex = true;
 				cell.insert(field1);
-			   	var marker1 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#FF9501;');
+			   	var marker1 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#FF9501;roundedPerimeter=1;');
 			   	marker1.geometry.relative = true;
 			   	marker1.geometry.offset = new mxPoint(5, -7.5);
 			   	marker1.vertex = true;
@@ -285,7 +285,7 @@
 					'text;strokeColor=inherit;align=left;verticalAlign=middle;overflow=visible;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fillColor=inherit;fontColor=inherit;spacingLeft=25;dropTarget=0;fontSize=10;');
 				field2.vertex = true;
 				cell.insert(field2);
-			   	var marker3 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#FF3B2F;');
+			   	var marker3 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#FF3B2F;roundedPerimeter=1;');
 			   	marker3.geometry.relative = true;
 			   	marker3.geometry.offset = new mxPoint(5, -7.5);
 			   	marker3.vertex = true;
@@ -299,7 +299,7 @@
 					'text;strokeColor=inherit;align=left;verticalAlign=middle;overflow=visible;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fillColor=inherit;fontColor=inherit;spacingLeft=25;dropTarget=0;fontSize=10;');
 				field3.vertex = true;
 				cell.insert(field3);
-			   	var marker5 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#4CDA64;');
+			   	var marker5 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#4CDA64;roundedPerimeter=1;');
 			   	marker5.geometry.relative = true;
 			   	marker5.geometry.offset = new mxPoint(5, -7.5);
 			   	marker5.vertex = true;
@@ -313,7 +313,7 @@
 					'text;strokeColor=inherit;align=left;verticalAlign=middle;overflow=visible;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fillColor=inherit;fontColor=inherit;spacingLeft=25;dropTarget=0;fontSize=10;');
 				field4.vertex = true;
 				cell.insert(field4);
-			   	var marker7 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#007AFF;');
+			   	var marker7 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#007AFF;roundedPerimeter=1;');
 			   	marker7.geometry.relative = true;
 			   	marker7.geometry.offset = new mxPoint(5, -7.5);
 			   	marker7.vertex = true;
@@ -327,7 +327,7 @@
 					'text;strokeColor=inherit;align=left;verticalAlign=middle;overflow=visible;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fillColor=inherit;fontColor=inherit;spacingLeft=25;dropTarget=0;fontSize=10;');
 				field5.vertex = true;
 				cell.insert(field5);
-			   	var marker9 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#5855D6;');
+			   	var marker9 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#5855D6;roundedPerimeter=1;');
 			   	marker9.geometry.relative = true;
 			   	marker9.geometry.offset = new mxPoint(5, -7.5);
 			   	marker9.vertex = true;
@@ -341,7 +341,7 @@
 					'text;strokeColor=inherit;align=left;verticalAlign=middle;overflow=visible;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fillColor=inherit;fontColor=inherit;spacingLeft=25;dropTarget=0;fontSize=10;');
 				field6.vertex = true;
 				cell.insert(field6);
-			   	var marker11 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#8F8E94;');
+			   	var marker11 = new mxCell('', new mxGeometry(0, 0.5, 15, 15), 'shape=rect;rounded=1;rSize=3;strokeColor=none;fillColor=#8F8E94;roundedPerimeter=1;');
 			   	marker11.geometry.relative = true;
 			   	marker11.geometry.offset = new mxPoint(5, -7.5);
 			   	marker11.vertex = true;
@@ -392,14 +392,14 @@
 			}),
 						    
 			this.addDataEntry(dt + 'message', 164, 35, 'Message',
-				'1Zdtb5swEMc/DS+HCISme5mkTTSpk6p1mrSXHhzg1XDINk2yT787cB4IyRqpzbQRxcF/n33H3U828aJ5uV5qURefMQXlRfdeNNeItrsr13NQygsDmXrRnReGAX29cHFmdNSOBrXQUNlLJoTdhBehGuiUTjB2o5xgClHzrYaElpwZq/EZ5qhQk1hhRWOzTCq1lVLIRKPYNNcilRTIkTEtmOKK+gF3nsEmhesUIikaDUtRkzAmoUZZWdD3L7SKcUYZVnYhSqk2JEx1UkhLkRkK+k40eUHmzugJG51w5IW1NY3H0ZQaSgU3bGD8HDFXIGpp/ATLdiAxreki61zQbc9JHM6O3chf7CTk2Fw2QVtYn61IK7lyLAFLsJr8BCuZ2sJZ3Iy7aQVIctWJUdxpwnT9fDd1X1+6cSU+Xe5oUO5H4CcJgyVVEMzZ4tMysjZwSf29MAqCyWJx28/Pttsz44t0oWRekaYgaxGrRSKr/CsyBqO98NAO31HyZkr8APWIRlqJPFN3eZpx6mUi1MPReCnTlJ9pZzB1LncDbwTxG+hUVILn2lK5uC/CIXwdh2BIw1bToISVL9Bb/hQizsMjPwiZuHgcU5tebzsds8yAHfC1C/Ii5MYD5DiY6Tg+y1q5znk/9CWaiV9Kk/jb6vbZI4Ju2usED46kV3HYknfMzwCPI5IdkV9cQcZDuD+21z8IVn/CAWbx1Sj7MLo+Z/GAs0/U/dkYjiNHbgV9K1hRm2k6l9KzBFJWzx51R3vVJcBMBlvYaPKH3bC3/b3DGbknaMXH2BMtz1GtNC9xSNXhLu6e9r12sFMH2lvhcjCNrkHTzYCm79iQ8Fwh88NorQSlPXVYpZj79PMdjOVsb5zNnru6qWtWfd//W9jFF2F3G/DnqtgdIHaKQOd4htbSO1h3vv+fKL7Hxkbd/et/Z3747+A3'),
+				'1Zdtb5swEMc/DS+HCISke5mkTTSpk6J1mtSXHhzg1WDLNnnYp98dOA+EpI3UZtqI4uC/73yH7yc7eNGs3Cw0U8VXmYLwogcvmmkpbXtXbmYghBcGPPWiey8MA/x64fzC6KAZDRTTUNlrHMLWYcVEDa3SCsZuhRNMwRTdakhwyqmxWr7ATAqpUaxkhWPTjAuxk1LIWC3INNcs5ZjIiTFOmMo19gPqvIBNCtcpWFLUGhZMoTBEQUleWdAPK5zFOKNMVnbOSi62KEx0UnCLmRlM+p7VeYHmzuhJ1jqhzAtrFY7H0QQbXApqyMD4uZS5AKa48RNZNgOJaUznWRsCbztB4nB6Gob/piAh5eZWE7SFzcWKNJIrxwJkCVZjnGDNU1s4i9GwdSuAY6hWjOJWY6bt53vXQ33xxpX4fLmjXrmXQE8SBgusIJiLxcdpuDJUPQWal43TXl0epLfx8MIoCMbz+V13+XbdjhldqDPB8wo1AVlDoGIJr/LvkigZHITHZvge13Yq2E8QS2m45ZI8dbuMU6oMT5h4PBkveZrSI+8NJi7kfuCdnP4AnbKKka8thcv7KlrCt2kJ+rDsNA2CWb6CzvTnCHIRlvQgaOLycchtO72du8wyA7aH3z7Jq4gc9oikZCbD+CKK5San7dLn0oz9kpvE31W3yx4SNGquMzw4kt7EYUfeKT89PE5IdkR+cwUZ9uH+3Fz/IFhdhyPM4ptR9mlwe87iHmdfsPurNpRHLqll+K1gjW2m8dhKLxKIq3rxJDzZq64BZtzbwgbjV3bDzvYXfCRBazrlnnB6ymqtaYpjqo53cfe0H7WDnTvv3guXg2lwC5pGPZqeZY3CSyWJH0JrzXDZU4dVKnMff57BWFrtrbM5cKdqpUj1ff9vYRdfhd1dQJ+bYneE2DkCXeCptBb/orXn+/+J4kdsbNg9vB205scvD38A'),
 			this.addDataEntry(dt + 'message', 164, 100, 'Message',
 				'7Zffb9sgEMf/Gj8uwjhJ28f8cvuwSlNbbc/MPhtWbCzATbq/fochrVMnndW1Uh9mKZb5cscd3AdQomRV7S41a/i1ykFGySZKVlop67+q3QqkjCgReZSsI0oJ/iKanuiNu17SMA21HeNAvcMDky14xQvGPsogGM4a96khwyGXxmp1DysllUaxVjX2LQsh5V6KaFJ0D+qlZrnAVF6Y45C52mKbuMY92IxjI8YGZxlvNVyyBoUpCo0StQW9ecBRTPAoVG1TVgn5iMJCZ1xYzM1g2mvWlhzNg9GtanXmcufWNtg/Sxb4wsVwL2dgJqVSpQTWCDPJVNV1ZKYzTQsfAj8Pgszo8mUY8dsFoS63sJ6gLexO1qSTQkEuQVVgNcYhW5FbHizmU+/GQWCoIBJfTMKMF8on3+cS40eo8vGKJ4OK3zLb6py5DGKcwiJ2/YvrkyDgzBwITIqyxmYGtV8KN2mRMbkIHZXIcwmHazQLzR4sF90zhqw9PQ3LRF3eqSbwoMHg6D/C6sV9psibmPoOuB41Q3nryn6LAV3yW+2GWHJbyRBnVLXpW6vtNQ2SWfEAB+MfIyCE+OZm1zNRRWHADhB5ymQUNdMBNVfgJlGxOqLoTUrVxXTEQBYl6YCe3qr5Qh/Uq38g5MxwyPenQ4Cu2pXukJwIZc5aMUHMpGrHnkebs818s+oxK6GwI4mdPxP3tfNax2dDiEn3HIPzGEEfCOw7EXlBhkDSfwQy5DPzDo/BfXbo/y60zoa0CmzficrDqgp8ZXg5GPDCr9a4DEs3K4QaAspo0shOEXVrwd0wVuGrELUwHD9+amD3BTN28ql4J/NzkqZOl6K5CjH/wr51xL4OPh1y/3TTH3D/hZ4AP1jdBKhi+nk3Q3AgkyTQ1D+vyZHtsbd76/YIG2JKPmBDzAcb4gZYjkqqRXfzj7vqtZ/t/5v+c930gZzzdyAHm89/Prx5/7/JHw=='),
 
 			this.addEntry(dt + 'alert', function()
 			{
 				var bg = new mxCell("A dialog text that notifies you of something of which you don't need to make a decision, just to acknowledge it by pressing the close button.", 
-						new mxGeometry(0, 0, 120, 70), 'shape=rect;rounded=1;strokeColor=none;fillColor=#F6F6F8;gradientColor=none;shadow=0;glass=0;dashed=1;fontFamily=Helvetica;fontSize=7;fontColor=#333333;align=center;html=1;verticalAlign=top;whiteSpace=wrap;spacing=8;spacingTop=0;');
+						new mxGeometry(0, 0, 120, 70), 'shape=rect;rounded=1;strokeColor=none;fillColor=#F6F6F8;gradientColor=none;shadow=0;glass=0;dashed=1;fontFamily=Helvetica;fontSize=7;fontColor=#333333;align=center;html=1;verticalAlign=top;whiteSpace=wrap;spacing=8;spacingTop=0;roundedPerimeter=1;');
 				bg.vertex = true;
 				var text1 = new mxCell('Close', new mxGeometry(0, 1, 120, 20), 'shape=text;align=center;verticalAlign=middle;fontSize=8;fontColor=#0680FF;strokeColor=none;fillColor=none;spacingTop=3;resizeWidth=1;whiteSpace=wrap;html=1;');
 				text1.geometry.relative = true;
@@ -410,7 +410,7 @@
 				return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Alert');
 			}),
 			this.addDataEntry(dt + 'dialog', 120, 70, 'Dialog',
-				'7VbbbptAEP0aHhNhSB2/xm5IXypVSqU+r9iBHWXZRbvjC/36zpq1jR1orKipVKlGNjNnruw5lkjyVbN7cqJVX60EneSPSb5y1lJvNbsVaJ1kKcok/5xkWcrfJCsmorN9NG2FA0PXFGR9wUboNfTIA7sShbY1G4SkoU/x1OmY4pVog+mg5CFLZ9dGQmg4Y8+Tsy+wsto6Row1nLmsUOsDlGR5MedrwXjthERe9SKdB0i7ZT8NOVp4H20pvDpOqqyhQjSoOwa+gN4AYSli4Bl/hhUX0R0M7z+MC421YazkBYCDS0WNjr034EIz/RBzyLaMbhUSPLeiDK23TFrYlV00NQPZyfse0vcbx/PldrCb5GgPRYKewDZAruOULUpSMSPymCrAWsWy+4gJ3/v1sfTEOBuR9HEB5G8IAHYUbkqEm7GEFYJns7Nr/rVVUEaYqsIZ8CpGHoMGIDhkQ0MoUUJ4JoWlCokloTWHMIkXuJ3U2X6JEb4uSWpQSg3nArj/jQDelOpBjkNSb+ZB8uC5/Y/Iz2xCGgM9XSWD7H0yyCPmQAvCDZz1H9NGHPHNogmsdnH6hZpsVXmgV1o6LnaVvO5ey+tA/OxD+B75w6fzRVoU7+U7/dt0d2cFA/LnI9xnf4b7mw8h/9M0+dl/8kfJjwXpbTy7f1YM7J7eYvr04UvOLw=='),
+				'7VbbbptAEP0aHhNhaB2/xm5JXypFSqU+r9iBHWXZQbvrC/36zsLaxg5OrKipVKlGNjNnruw5skjyVbN7sKJV30mCTvKvSb6yRH6wmt0KtE6yFGWSf0myLOVvkhUXorM+mrbCgvHXFGRDwUboNQzIPbsShaaaDY9ew5DifKdjilOiDaaFkocsLa2NhNBwxp7zlp5hRZosI4YMZy4r1HoPJVlezPlaMF5bIZFXPUvnAZK27KchRwvnoi2FU4dJFRlfiAZ1x8A30BvwWIoYeMJfYcVFdEfDhw/jQmNtGCt5AeDgUvlGx94bsKGZvo85nlpGtwo9PLWiDK23TFrYlV00NQPZ0fsR0vuN4+E8gsUG+jF9/3jsPAV2F6nrocjbAxDX245Ttii9ihmR3lQB1iqW3UVMuMGvD6VHIbARtTCti/wNXcDOh5sS4WbIY4Xg2Oxozb9UBcGEqSocDa9i5CFoAILjKTSEEiWEZ1JYqpBYeiSzD3vxDLcX5dcvMUHjOXcNSqnhVBd3r+jiTQXvVTrm+mYeyAbH7X9GfmYXFDOS2VUyyN4ngzxiFrTwuIGT/lPaiCMeCU1gtYvTz9REVeXAv9DSYbGr5PXppbz2xM8+hO+J/4F0vkiL4r18p3+b7u6kYET+fIL77M9wf/Mh5H++TH72n/xJ8mNBehvP7p8VA7vHl5shffzu8xs='),
 
 			this.createVertexTemplateEntry(
 		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.bluetooth;fillColor=#007AFF;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;sketch=0;',
@@ -456,10 +456,10 @@
 			{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 164, 60), 'shape=rect;fillColor=#a0a0a0;strokeColor=none;shadow=0;');
 			   	bg.vertex = true;
-			   	var button1 = new mxCell('Action', new mxGeometry(8, 6, 148, 21), 'html=1;strokeWidth=1;shadow=0;dashed=0;rounded=1;absoluteArcSize=1;arcSize=6;fontColor=#0080F0;fontSize=7;fontSize=14;fillColor=#e0e0e0;strokeColor=none;fontStyle=1;');
+			   	var button1 = new mxCell('Action', new mxGeometry(8, 6, 148, 21), 'html=1;strokeWidth=1;shadow=0;dashed=0;rounded=1;absoluteArcSize=1;arcSize=6;fontColor=#0080F0;fontSize=7;fontSize=14;fillColor=#e0e0e0;strokeColor=none;fontStyle=1;roundedPerimeter=1;');
 			   	button1.vertex = true;
 			   	bg.insert(button1);
-			   	var button2 = new mxCell('Cancel', new mxGeometry(8, 33, 148, 21), 'html=1;strokeWidth=1;shadow=0;dashed=0;rounded=1;absoluteArcSize=1;arcSize=6;fontColor=#0080F0;fontSize=7;fontSize=14;fillColor=#e0e0e0;strokeColor=none;fontStyle=1;');
+			   	var button2 = new mxCell('Cancel', new mxGeometry(8, 33, 148, 21), 'html=1;strokeWidth=1;shadow=0;dashed=0;rounded=1;absoluteArcSize=1;arcSize=6;fontColor=#0080F0;fontSize=7;fontSize=14;fillColor=#e0e0e0;strokeColor=none;fontStyle=1;roundedPerimeter=1;');
 			   	button2.vertex = true;
 			   	bg.insert(button2);
 			   	

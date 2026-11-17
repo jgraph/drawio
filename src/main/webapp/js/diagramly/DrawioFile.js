@@ -274,8 +274,9 @@ DrawioFile.prototype.clearConflict = function()
  * Handles a save that was rejected because the file was changed by another
  * client: puts the file in a conflict state and, with a sync, catches up
  * with the given descriptor (see DrawioFileSync.fileConflict) and calls
- * retry after a random cool-off, or error if the catchup fails. The file is
- * saving until then. Without a sync, error is called.
+ * retry after a random cool-off, or error if the catchup fails or the data
+ * cannot be written (see getOutOfSyncError). The file is saving until then.
+ * Without a sync, error is called.
  */
 DrawioFile.prototype.handleSaveConflict = function(desc, retry, error)
 {
@@ -290,8 +291,23 @@ DrawioFile.prototype.handleSaveConflict = function(desc, retry, error)
 			// Adds random cool-off
 			window.setTimeout(mxUtils.bind(this, function()
 			{
-				this.updateFileData();
-				retry();
+				// The catchup can change the page root
+				var outOfSync = this.getOutOfSyncError();
+
+				if (outOfSync == null)
+				{
+					this.updateFileData();
+					retry();
+				}
+				else
+				{
+					this.savingFile = false;
+
+					if (error != null)
+					{
+						error(outOfSync);
+					}
+				}
 			}), 100 + Math.random() * 500);
 		}), mxUtils.bind(this, function()
 		{
@@ -1827,6 +1843,25 @@ DrawioFile.prototype.getSaveError = function(overwrite)
 		return {message: mxResources.get('checksum')};
 	}
 
+	return this.getOutOfSyncError();
+};
+
+/**
+ * Returns the error for writing the file data of a realtime file while it
+ * would not have what the screen shows, or null. The file data comes from
+ * the own pages, which do not have it while the model has another root than
+ * the current page, so the save would report success and lose it, also with
+ * overwrite. The refusal keeps the file modified. Save as reads the model.
+ */
+DrawioFile.prototype.getOutOfSyncError = function()
+{
+	if (this.sync != null && this.isRealtime() &&
+		this.ui.getCurrentFile() == this && !this.sync.isPageRootInSync())
+	{
+		return {message: mxResources.get('saveFileOutOfSync', null,
+			'Cannot save to this file. Use Save as to keep your changes.')};
+	}
+
 	return null;
 };
 
@@ -1875,6 +1910,14 @@ DrawioFile.prototype.save = function(revision, success, error, unloading, overwr
 					if (this.appUpgradeRequired)
 					{
 						throw new Error(mxResources.get('redirectToNewApp'));
+					}
+
+					// The page root can change while the fonts load
+					var outOfSync = this.getOutOfSyncError();
+
+					if (outOfSync != null)
+					{
+						throw new Error(outOfSync.message);
 					}
 
 					this.updateFileData();
@@ -1973,6 +2016,7 @@ DrawioFile.prototype.updateFileData = function()
 	if (this.sync != null)
 	{
 		this.sync.sendLocalChanges();
+		this.sync.checkOwnPage();
 	}
 
 	this.setData(this.createData());
@@ -3113,9 +3157,8 @@ DrawioFile.prototype.addAllSavedStatus = function(status)
 		status = (status != null) ? status : mxUtils.htmlEntities(mxResources.get(this.allChangesSavedKey));
 		var rev = (this.isRevisionHistorySupported() && status != mxUtils.htmlEntities(
 			mxResources.get(this.savingStatusKey)) + '...') ? 'data-action="revisionHistory" ' : '';
-		this.ui.editor.setStatus('<div ' + rev + 'title="'+ status + '">' + status +
-			(this.isLocked() ? ' <img class="geToolbarButton geAdaptiveAsset" data-action="properties" ' +
-			'style="margin-left:4px;flex-shrink:0;" src="' + Editor.lockedImage + '"/>' : '') + '</div>');
+		this.ui.editor.setStatus('<div ' + rev + 'title="'+ status + '">' + status + '</div>' +
+			this.ui.createLockedStatus());
 	}
 };
 

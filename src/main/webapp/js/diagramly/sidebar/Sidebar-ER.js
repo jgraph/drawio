@@ -112,7 +112,7 @@
 				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Entity');
 			}),
 			this.createVertexTemplateEntry('whiteSpace=wrap;html=1;align=center;', 100, 40, 'Entity', 'Entity', null, null, dt),
-			this.createVertexTemplateEntry('rounded=1;arcSize=10;whiteSpace=wrap;html=1;align=center;', 100, 40, 'Entity', 'Entity (Rounded)', null, null, dt + 'chen'),
+			this.createVertexTemplateEntry('rounded=1;arcSize=10;whiteSpace=wrap;html=1;align=center;roundedPerimeter=1;', 100, 40, 'Entity', 'Entity (Rounded)', null, null, dt + 'chen'),
 			this.createVertexTemplateEntry('shape=ext;margin=3;double=1;whiteSpace=wrap;html=1;align=center;', 100, 40, 'Entity', 'Weak Entity', null, null, dt + 'chen'),
 			this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;align=center;',
 				100, 40, 'Attribute', 'Attribute', null, null, dt + 'attribute chen'),
@@ -136,14 +136,14 @@
 			
 	   	 	this.addEntry(dt + 'hierarchy', function()
 	   		{
-			   	var cell = new mxCell('', new mxGeometry(0, 0, 100, 100), 'rounded=1;absoluteArcSize=1;html=1;arcSize=10;');
+			   	var cell = new mxCell('', new mxGeometry(0, 0, 100, 100), 'rounded=1;absoluteArcSize=1;html=1;arcSize=10;roundedPerimeter=1;');
 			   	cell.vertex = true;
 			   	
 			   	var cell1 = new mxCell('main', new mxGeometry(0, 0, 50, 100), 'html=1;shape=mxgraph.er.anchor;whiteSpace=wrap;');
 			   	cell1.vertex = true;
 			   	cell.insert(cell1);
 			   	
-			   	var cell2 = new mxCell('sub', new mxGeometry(50, 5, 45, 90), 'rounded=1;absoluteArcSize=1;html=1;arcSize=10;whiteSpace=wrap;points=[];strokeColor=inherit;fillColor=inherit;');
+			   	var cell2 = new mxCell('sub', new mxGeometry(50, 5, 45, 90), 'rounded=1;absoluteArcSize=1;html=1;arcSize=10;whiteSpace=wrap;points=[];strokeColor=inherit;fillColor=inherit;roundedPerimeter=1;');
 			   	cell2.vertex = true;
 			   	cell.insert(cell2);
 				

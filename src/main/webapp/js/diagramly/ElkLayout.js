@@ -821,6 +821,14 @@ ElkLayoutBindings.runWithDialog = function(editorUi, algorithm, baseOptions, dia
 		resetBtn.className = 'geBtn';
 	}
 
+	// The controls of the dialog (see SimpleLayouts.js)
+	div.layoutControls = {algorithm: algorithm, title: hd, fields: fields, inputs: inputs,
+		methodSelect: (methodSelect != null) ? methodSelect : null,
+		connectorSelect: connectorSelect, edgeStyleSelect: edgeStyleSelect,
+		cornersSelect: cornersSelect, resizeCb: resizeCb, preserveOriginCb: preserveOriginCb,
+		sharedStemsCb: sharedStemsCb, rootCb: rootCb, resetBtn: resetBtn,
+		edit: edit, onApply: onApply, onCancel: onCancel};
+
 	var dlg = new CustomDialog(editorUi, div, applyFn, onCancel || null,
 		mxResources.get('apply'), ElkLayout.HELP_URL +
 		(ElkLayout.HELP_ANCHORS[algorithm] || ''), resetBtn);

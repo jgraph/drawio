@@ -2237,8 +2237,10 @@ mxVertexHandler.prototype.updateParentHighlight = function()
 		{
 			var edge = this.graph.model.isEdge(parent);
 
+			// An edge state without points (not yet or no longer validated)
+			// has nothing to outline
 			if ((edge || this.graph.model.isVertex(parent)) && pstate != null &&
-				pstate.parentHighlight == null)
+				pstate.parentHighlight == null && (!edge || pstate.absolutePoints != null))
 			{
 				this.parentHighlight = (edge) ? this.createEdgeParentHighlightShape(pstate) :
 					this.createParentHighlightShape(pstate);

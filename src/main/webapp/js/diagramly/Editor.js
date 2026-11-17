@@ -46,6 +46,7 @@
 	Editor.thinMenuImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTEzLjUgMjYuMTVxLjkgMCAxLjUyNS0uNjI1LjYyNS0uNjI1LjYyNS0xLjUyNSAwLS45LS42MjUtMS41MjUtLjYyNS0uNjI1LTEuNTI1LS42MjUtLjkgMC0xLjUyNS42MjUtLjYyNS42MjUtLjYyNSAxLjUyNSAwIC45LjYyNSAxLjUyNS42MjUuNjI1IDEuNTI1LjYyNVptMTAuNSAwcS45IDAgMS41MjUtLjYyNS42MjUtLjYyNS42MjUtMS41MjUgMC0uOS0uNjI1LTEuNTI1UTI0LjkgMjEuODUgMjQgMjEuODVxLS45IDAtMS41MjUuNjI1LS42MjUuNjI1LS42MjUgMS41MjUgMCAuOS42MjUgMS41MjUuNjI1LjYyNSAxLjUyNS42MjVabTEwLjUgMHEuODUgMCAxLjQ3NS0uNjI1UTM2LjYgMjQuOSAzNi42IDI0cTAtLjktLjYyNS0xLjUyNS0uNjI1LS42MjUtMS41MjUtLjYyNS0uODUgMC0xLjQ3NS42MjUtLjYyNS42MjUtLjYyNSAxLjUyNSAwIC45LjYyNSAxLjUyNS42MjUuNjI1IDEuNTI1LjYyNVpNMjQgNDNxLTMuOTUgMC03LjQtMS41dC02LjAyNS00LjA3NVE4IDM0Ljg1IDYuNSAzMS40VDUgMjRxMC0zLjk1IDEuNS03LjQyNVE4IDEzLjEgMTAuNTc1IDEwLjU1IDEzLjE1IDggMTYuNiA2LjVUMjQgNXEzLjk1IDAgNy40MjUgMS41UTM0LjkgOCAzNy40NSAxMC41NSA0MCAxMy4xIDQxLjUgMTYuNTc1IDQzIDIwLjA1IDQzIDI0cTAgMy45NS0xLjUgNy40dC00LjA1IDYuMDI1UTM0LjkgNDAgMzEuNDI1IDQxLjUgMjcuOTUgNDMgMjQgNDNabTAtMi4yNXE3IDAgMTEuODc1LTQuOVQ0MC43NSAyNHEwLTctNC44NzUtMTEuODc1VDI0IDcuMjVxLTYuOTUgMC0xMS44NSA0Ljg3NVE3LjI1IDE3IDcuMjUgMjRxMCA2Ljk1IDQuOSAxMS44NSA0LjkgNC45IDExLjg1IDQuOVpNMjQgMjRaIi8+PC9zdmc+';
 	Editor.thinViewImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTUgMzlWOWgzOHYzMFptMjguNTUtMjAuNmg3LjJ2LTcuMTVoLTcuMlptMCA4Ljk1aDcuMnYtNi43aC03LjJabS0yNi4zIDkuNEgzMS4zdi0yNS41SDcuMjVabTI2LjMgMGg3LjJWMjkuNmgtNy4yWiIvPjwvc3ZnPg==';
 	Editor.thinUserAddImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTM2LjYgMjcuNXYtNi4zNWgtNi4zNXYtMi4zaDYuMzVWMTIuNWgyLjN2Ni4zNWg2LjM1djIuM0gzOC45djYuMzVaTTE4IDIzLjM1cS0yLjkgMC00Ljc3NS0xLjg3NVExMS4zNSAxOS42IDExLjM1IDE2LjdxMC0yLjkgMS44NzUtNC43NVQxOCAxMC4xcTIuOSAwIDQuNzc1IDEuODUgMS44NzUgMS44NSAxLjg3NSA0Ljc1dC0xLjg3NSA0Ljc3NVEyMC45IDIzLjM1IDE4IDIzLjM1Wk0zIDM4LjZ2LTMuOHEwLTEuNS44LTIuNzV0Mi4yNS0xLjlxMy40NS0xLjUgNi4yNzUtMi4xNSAyLjgyNS0uNjUgNS42NzUtLjY1IDIuODUgMCA1LjY1LjY1IDIuOC42NSA2LjI1IDIuMTUgMS40NS43IDIuMjc1IDEuOTI1VDMzIDM0Ljh2My44Wm0yLjI1LTIuMjVoMjUuNVYzNC44cTAtLjc1LS41LTEuNDc1LS41LS43MjUtMS4zLTEuMTI1LTMuMi0xLjUtNS42NzUtMi4wNVEyMC44IDI5LjYgMTggMjkuNnEtMi44IDAtNS4zLjU1VDcgMzIuMnEtLjguNC0xLjI3NSAxLjEyNS0uNDc1LjcyNS0uNDc1IDEuNDc1Wk0xOCAyMS4xcTEuODUgMCAzLjEtMS4yNXQxLjI1LTMuMTVxMC0xLjg1LTEuMjUtMy4xVDE4IDEyLjM1cS0xLjg1IDAtMy4xIDEuMjV0LTEuMjUgMy4xcTAgMS45IDEuMjUgMy4xNVQxOCAyMS4xWm0wLTQuNFptMCAxOS42NVoiLz48L3N2Zz4=';
+	Editor.thinSearchImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCIgdmlld0JveD0iMCAwIDQ4IDQ4Ij48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxMi41IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMi4zIi8+PHBhdGggZD0iTTI5LjIgMjkuMkw0MS41IDQxLjUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyLjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==';
 	Editor.thinUserFlashImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTkgMzguNnYtMy44cTAtMS42Ljg1LTIuOC44NS0xLjIgMi4yLTEuODUgMy4yLTEuNCA2LjEyNS0yLjEgMi45MjUtLjcgNS44MjUtLjcgMS40NSAwIDIuOS4xNzV0Mi45LjUyNXYyLjJxLTEuNDUtLjM1LTIuODc1LS41UTI1LjUgMjkuNiAyNCAyOS42cS0yLjc1IDAtNS40LjYtMi42NS42LTUuNiAyLS43NS40LTEuMjUgMS4xMjV0LS41IDEuNDc1djEuNTVIMjkuOHYyLjI1Wm0yLjI1LTIuMjVIMjkuOFptMTIuNzUtMTNxLTIuOSAwLTQuNzc1LTEuODc1UTE3LjM1IDE5LjYgMTcuMzUgMTYuN3EwLTIuOSAxLjg3NS00Ljc1VDI0IDEwLjFxMi45IDAgNC43NzUgMS44NSAxLjg3NSAxLjg1IDEuODc1IDQuNzV0LTEuODc1IDQuNzc1UTI2LjkgMjMuMzUgMjQgMjMuMzVabTAtMi4yNXExLjg1IDAgMy4xLTEuMjV0MS4yNS0zLjE1cTAtMS44NS0xLjI1LTMuMVQyNCAxMi4zNXEtMS44NSAwLTMuMSAxLjI1dC0xLjI1IDMuMXEwIDEuOSAxLjI1IDMuMTVUMjQgMjEuMVptMC00LjRabTEyLjg1IDI4LjA1di03LjhoLTMuNHYtMTAuMWg5LjE1bC0zLjggNy42NWgzLjdaIi8+PC9zdmc+';
 	Editor.thinShareImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTExLjkgNDVxLTEuMiAwLTIuMDUtLjg1UTkgNDMuMyA5IDQyLjFWMTguOHEwLTEuMTUuODUtMiAuODUtLjg1IDIuMDUtLjg1aDYuOXYyLjI1aC02LjlxLS4yNSAwLS40NS4ydC0uMi40djIzLjNxMCAuMjUuMi40NXQuNDUuMmgyNC4ycS4yNSAwIC40NS0uMnQuMi0uNDVWMTguOHEwLS4yLS4yLS40dC0uNDUtLjJoLTYuOTV2LTIuMjVoNi45NXExLjIgMCAyLjA1Ljg1Ljg1Ljg1Ljg1IDJ2MjMuM3EwIDEuMi0uODUgMi4wNS0uODUuODUtMi4wNS44NVptMTAuOTUtMTQuNVY4LjFsLTQuNiA0LjU1LTEuNjUtMS42IDcuMzUtNy4zNSA3LjM1IDcuMzUtMS42IDEuNi00LjYtNC41NXYyMi40WiIvPjwvc3ZnPg==';
 	Editor.thinTextImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTMuNCA0NC42di05LjI1aDMuNTV2LTIyLjdIMy40VjMuNGg5LjI1djMuNTVoMjIuN1YzLjRoOS4yNXY5LjI1aC0zLjU1djIyLjdoMy41NXY5LjI1aC05LjI1di0zLjU1aC0yMi43djMuNTVabTkuMjUtNS44NWgyMi43di0zLjRoMy40di0yMi43aC0zLjR2LTMuNGgtMjIuN3YzLjRoLTMuNHYyMi43aDMuNFptMy4xNS02LjI1IDcuMzUtMTkuMTVoMS42NWw3LjQ1IDE5LjE1aC0yLjFMMjggMjdoLTcuODVsLTIuMSA1LjVabTQuOTUtNy4zNWg2LjVMMjQuMSAxNi44aC0uM1ptLTE1LjEtMTQuOGg0Ljd2LTQuN2gtNC43Wm0zMiAwaDQuN3YtNC43aC00LjdabTAgMzJoNC43di00LjdoLTQuN1ptLTMyIDBoNC43di00LjdoLTQuN1ptMzItMzJabTAgMjcuM1ptLTI3LjMgMFptMC0yNy4zWiIvPjwvc3ZnPg==';
@@ -108,6 +109,92 @@
 			graph: {background: '#182E3E', gridColor: '#4D94C7'}}];
 	
 	/**
+	 * Returns the given entries of the configuration key styles for the themes
+	 * of Format.js: the same array if no entry has styles by kind, else a
+	 * copy in which each entry with styles by kind and without commonStyle,
+	 * vertexStyle and edgeStyle also has the fill, line and font colors of its
+	 * process (over vertex) as vertexStyle and the line and font colors of its
+	 * connectors as edgeStyle (name, background, adaptiveColors and arcSize
+	 * are only for the Diagram tab of Fusion, see Editor.getConfigStyleTheme).
+	 */
+	Editor.getClassicStyleEntries = function(styles)
+	{
+		var result = styles;
+
+		var color = function(value)
+		{
+			return (typeof value === 'string' && /^[#a-zA-Z0-9(), .%-]{1,100}$/.test(value)) ? value : null;
+		};
+
+		var pick = function(keys, names)
+		{
+			var picked = null;
+
+			for (var i = 0; i < names.length; i++)
+			{
+				for (var j = 0; j < keys.length; j++)
+				{
+					var value = (keys[j] != null && typeof keys[j] === 'object' &&
+						Object.prototype.hasOwnProperty.call(keys[j], names[i])) ?
+						color(keys[j][names[i]]) : null;
+
+					if (value != null)
+					{
+						picked = picked || {};
+						picked[names[i]] = value;
+					}
+				}
+			}
+
+			return picked;
+		};
+
+		for (var i = 0; i < styles.length; i++)
+		{
+			var entry = styles[i];
+
+			if (entry != null && typeof entry === 'object' && entry.styles != null &&
+				typeof entry.styles === 'object' && entry.commonStyle == null &&
+				entry.vertexStyle == null && entry.edgeStyle == null)
+			{
+				if (result === styles)
+				{
+					result = styles.slice();
+				}
+
+				var copy = {};
+				var keys = Object.keys(entry);
+
+				for (var j = 0; j < keys.length; j++)
+				{
+					if (keys[j] != '__proto__' && keys[j] != 'constructor' && keys[j] != 'prototype')
+					{
+						copy[keys[j]] = entry[keys[j]];
+					}
+				}
+
+				var s = entry.styles;
+				var vertex = pick([s.vertex, s.process], ['fillColor', 'strokeColor', 'fontColor']);
+				var edge = pick([s.edge], ['strokeColor', 'fontColor']);
+
+				if (vertex != null)
+				{
+					copy.vertexStyle = vertex;
+				}
+
+				if (edge != null)
+				{
+					copy.edgeStyle = edge;
+				}
+
+				result[i] = copy;
+			}
+		}
+
+		return result;
+	};
+
+	/**
 	 * 
 	 */
 	Editor.logoImage = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIKICAgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMzA2LjE4NSAxMjAuMjk2IgogICB2aWV3Qm94PSIyNCAyNiA2OCA2OCIKICAgeT0iMHB4IgogICB4PSIwcHgiCiAgIHZlcnNpb249IjEuMSI+CiAgIAkgPGc+PGxpbmUKICAgICAgIHkyPSI3Mi4zOTQiCiAgICAgICB4Mj0iNDEuMDYxIgogICAgICAgeTE9IjQzLjM4NCIKICAgICAgIHgxPSI1OC4wNjkiCiAgICAgICBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiCiAgICAgICBzdHJva2Utd2lkdGg9IjMuNTUyOCIKICAgICAgIHN0cm9rZT0iI0ZGRkZGRiIKICAgICAgIGZpbGw9Im5vbmUiIC8+PGxpbmUKICAgICAgIHkyPSI3Mi4zOTQiCiAgICAgICB4Mj0iNzUuMDc2IgogICAgICAgeTE9IjQzLjM4NCIKICAgICAgIHgxPSI1OC4wNjgiCiAgICAgICBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiCiAgICAgICBzdHJva2Utd2lkdGg9IjMuNTAwOCIKICAgICAgIHN0cm9rZT0iI0ZGRkZGRiIKICAgICAgIGZpbGw9Im5vbmUiIC8+PGc+PHBhdGgKICAgICAgICAgZD0iTTUyLjc3Myw3Ny4wODRjMCwxLjk1NC0xLjU5OSwzLjU1My0zLjU1MywzLjU1M0gzNi45OTljLTEuOTU0LDAtMy41NTMtMS41OTktMy41NTMtMy41NTN2LTkuMzc5ICAgIGMwLTEuOTU0LDEuNTk5LTMuNTUzLDMuNTUzLTMuNTUzaDEyLjIyMmMxLjk1NCwwLDMuNTUzLDEuNTk5LDMuNTUzLDMuNTUzVjc3LjA4NHoiCiAgICAgICAgIGZpbGw9IiNGRkZGRkYiIC8+PC9nPjxnCiAgICAgICBpZD0iZzM0MTkiPjxwYXRoCiAgICAgICAgIGQ9Ik02Ny43NjIsNDguMDc0YzAsMS45NTQtMS41OTksMy41NTMtMy41NTMsMy41NTNINTEuOTg4Yy0xLjk1NCwwLTMuNTUzLTEuNTk5LTMuNTUzLTMuNTUzdi05LjM3OSAgICBjMC0xLjk1NCwxLjU5OS0zLjU1MywzLjU1My0zLjU1M0g2NC4yMWMxLjk1NCwwLDMuNTUzLDEuNTk5LDMuNTUzLDMuNTUzVjQ4LjA3NHoiCiAgICAgICAgIGZpbGw9IiNGRkZGRkYiIC8+PC9nPjxnPjxwYXRoCiAgICAgICAgIGQ9Ik04Mi43NTIsNzcuMDg0YzAsMS45NTQtMS41OTksMy41NTMtMy41NTMsMy41NTNINjYuOTc3Yy0xLjk1NCwwLTMuNTUzLTEuNTk5LTMuNTUzLTMuNTUzdi05LjM3OSAgICBjMC0xLjk1NCwxLjU5OS0zLjU1MywzLjU1My0zLjU1M2gxMi4yMjJjMS45NTQsMCwzLjU1MywxLjU5OSwzLjU1MywzLjU1M1Y3Ny4wODR6IgogICAgICAgICBmaWxsPSIjRkZGRkZGIiAvPjwvZz48L2c+PC9zdmc+';
@@ -156,7 +243,56 @@
 	 * Error image for not found images
 	 */	
 	Editor.settingsKey = '.drawio-config';
-	
+
+	/**
+	 * Configuration that the embedding host edits in the Configuration dialog
+	 * as {config, excludedKeys}, or null if the host has no Configuration
+	 * dialog. Set with configurationEditor in Editor.configure.
+	 */
+	Editor.configurationEditor = null;
+
+	/**
+	 * Origin of the configure message in embed mode (configure=1), or null.
+	 * The Configuration dialog sends the host's configuration to this origin
+	 * only (see Editor.getConfigurationTargetOrigin).
+	 */
+	Editor.configureOrigin = null;
+
+	/**
+	 * Returns the target origin for the host's configuration in embed mode
+	 * (see Editor.configurationEditor): the origin of the configure message.
+	 * If that origin cannot be a target (opaque origins, which are 'null',
+	 * and file: URLs, which are 'file://'), this returns * for a frame, as its
+	 * parent unloads it when it navigates elsewhere, and null for a popup, as
+	 * its opener can navigate elsewhere and still be its opener.
+	 */
+	Editor.getConfigurationTargetOrigin = function()
+	{
+		var origin = Editor.configureOrigin;
+
+		if (origin == null || origin == 'null' || origin.substring(0, 5) == 'file:')
+		{
+			origin = (window.opener != null) ? null : '*';
+		}
+
+		return origin;
+	};
+
+	/**
+	 * Returns true if the given theme, or the current theme, is the previous
+	 * look of the Simple theme (SimpleClassic.js), not Simple Modern (the
+	 * theme modern, see Editor.isSimpleModern in SimpleUi.js, which builds
+	 * without the theme do not have). Shared code that keeps the behaviour of
+	 * the previous look checks this and has the comment SIMPLE-CLASSIC on the
+	 * same line (the test simple-classic-seam of test/simple-modern), so the
+	 * old branches are found when the previous look is removed.
+	 */
+	Editor.isSimpleClassic = function(theme)
+	{
+		return ((theme != null) ? theme : Editor.currentTheme) == 'simple' &&
+			!(typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern(theme));
+	};
+
 	/**
 	 * Default value for custom libraries in mxSettings.
 	 */
@@ -250,6 +386,20 @@
 	Editor.enableShadowOption = !mxClient.IS_SF;
 
 	/**
+	 * Default of the switch Automatic default style of Simple Modern (new
+	 * shapes get the Calm style, see SimpleCalm.js) for users who have not
+	 * chosen. Set with the configuration key automaticDefaultStyle.
+	 */
+	Editor.automaticDefaultStyle = true;
+
+	/**
+	 * Colors of the automatic default style by kind of shape, light and dark
+	 * (the Calm values if null, see Editor.getCalmColors in SimpleCalm.js).
+	 * Set with the configuration key automaticDefaultStyleColors.
+	 */
+	Editor.automaticDefaultStyleColors = null;
+
+	/**
 	 * Disables the export URL function.
 	 */
 	Editor.enableExportUrl = true;
@@ -326,11 +476,29 @@
 	Editor.forceExplore = true;
 
 	/**
+	 * Specifies if the full-page lightbox (lightbox=1) shows the new
+	 * Lightbox (LightboxModern.js): floating bars in the look of Simple
+	 * Modern instead of the black toolbar. Default is false. The URL
+	 * parameter viewer-ui=modern switches it on, viewer-ui=classic off, and
+	 * without that parameter the configuration key enableModernLightbox
+	 * decides.
+	 */
+	Editor.enableModernLightbox = urlParams['viewer-ui'] == 'modern';
+
+	/**
 	 * Specifies if selected shapes with connections show a handle that moves
 	 * them with their connected shapes on springs (see SpringMove). Default
 	 * is false.
 	 */
 	Editor.springMove = false;
+
+	/**
+	 * Specifies if Tidy up and Style My Diagram are offered (see
+	 * tidy/TidyActions.js). Default is false. enableTidy in the configuration
+	 * or tidy=1 in the URL switch them on, tidy=0 in the URL wins over the
+	 * configuration (other values of tidy leave it to the configuration).
+	 */
+	Editor.enableTidy = urlParams['tidy'] == '1';
 
 	/**
 	 * Specifies if insert animations should be shown. Default is true.
@@ -630,6 +798,13 @@
 	 * Reference to the config object passed to <configure>.
 	 */
 	Editor.config = null;
+
+	/**
+	 * Keys with a value in any config object passed to <configure>. Each call
+	 * replaces <config>, but the values of earlier calls stay in effect, eg.
+	 * those of window.DRAWIO_CONFIG below the local configuration.
+	 */
+	Editor.configuredKeys = {};
 
 	/**
 	 * Reference to the version of the last config object in
@@ -1557,30 +1732,161 @@
 	})();
 
 	/**
-	 * Replaces light-dark color functions with light colors for older browsers.
+	 * Returns the given CSS with each light-dark(light, dark) replaced by its
+	 * light value. The arguments are found by counting the parentheses, so
+	 * values with functions such as rgba(0, 0, 0, 0.5) or var(--a, rgb(1, 2,
+	 * 3)) and light-dark in light values are kept whole (a regular expression
+	 * cut them at the first closing parenthesis). Strings, comments and calls
+	 * that do not close in their declaration are kept as they are.
+	 */
+	Editor.replaceLightDarkFunctions = function(css)
+	{
+		var token = 'light-dark(';
+		var result = [];
+		var last = 0;
+
+		// Returns the index after the string or comment at i, or i
+		function skip(i)
+		{
+			var c = css.charAt(i);
+
+			if (c == '"' || c == '\'')
+			{
+				for (var j = i + 1; j < css.length; j++)
+				{
+					var d = css.charAt(j);
+
+					if (d == '\\')
+					{
+						j++;
+					}
+					else if (d == c || d == '\n')
+					{
+						return j + 1;
+					}
+				}
+
+				return css.length;
+			}
+			else if (c == '/' && css.charAt(i + 1) == '*')
+			{
+				var end = css.indexOf('*/', i + 2);
+
+				return (end < 0) ? css.length : end + 2;
+			}
+
+			return i;
+		};
+
+		for (var i = 0; i < css.length;)
+		{
+			var next = skip(i);
+
+			if (next > i)
+			{
+				i = next;
+			}
+			else if (css.charAt(i) == 'l' && css.substring(i, i + token.length) == token &&
+				(i == 0 || !/[\w-]/.test(css.charAt(i - 1))))
+			{
+				var start = i + token.length;
+				var depth = 1;
+				var comma = -1;
+				var j = start;
+
+				while (j < css.length && depth > 0)
+				{
+					next = skip(j);
+
+					if (next > j)
+					{
+						j = next;
+						continue;
+					}
+
+					var c = css.charAt(j);
+
+					if (c == '(')
+					{
+						depth++;
+					}
+					else if (c == ')')
+					{
+						depth--;
+					}
+					else if (c == ',' && depth == 1 && comma < 0)
+					{
+						comma = j;
+					}
+					else if (c == ';' || c == '{' || c == '}')
+					{
+						break;
+					}
+
+					j++;
+				}
+
+				if (depth == 0 && comma > start)
+				{
+					result.push(css.substring(last, i));
+					result.push(Editor.replaceLightDarkFunctions(
+						mxUtils.trim(css.substring(start, comma))));
+					last = j;
+					i = j;
+				}
+				else
+				{
+					i = start;
+				}
+			}
+			else
+			{
+				i++;
+			}
+		}
+
+		result.push(css.substring(last));
+
+		return result.join('');
+	};
+
+	/**
+	 * Replaces light-dark color functions with light colors for older browsers:
+	 * loads the given stylesheet (default styles/grapheditor.css) and adds the
+	 * copy with the light colors right after the given link, or the link of
+	 * the stylesheet in the page, so that the order of the rules stays (else
+	 * at the end of the head). The copy replaces the selector :has with :not
+	 * in browsers without it, unless keepHas is true (the stylesheet of the
+	 * theme Fusion, whose rules with :has would match where they must not).
 	 * See https://caniuse.com/mdn-css_types_color_light-dark
 	 * TODO: Remove this in January 2027.
 	 */
-	Editor.loadCompatibleCss = function(cssFile)
+	Editor.loadCompatibleCss = function(cssFile, link, keepHas)
 	{
 		if (!mxUtils.lightDarkColorSupported)
 		{
+			var workarounds = cssFile == null;
 			cssFile = cssFile || 'styles/grapheditor.css';
 
 			function replaceLightDarkFunctions(cssString)
 			{
-				var compatCss = cssString.replace(/light-dark\(\s*(var\([^\)]+\)|[^,]+)\s*,\s*(var\([^\)]+\)|[^)]+)\s*\)/g, '$1');
+				var compatCss = Editor.replaceLightDarkFunctions(cssString);
 
 				// Replace :has with :not and adds additional work arounds
 				// see https://caniuse.com/css-has
 				try
 				{
-					if (!CSS.supports('selector(:has(*))'))
+					if (!keepHas && !CSS.supports('selector(:has(*))'))
 					{
-						compatCss = compatCss.replace(/:has\(/g, ':not(') + '\n' +
-							'.geFormatTitleContainer { overflow: hidden !important; }\n' +
-							'.geRuler+.geRuler { margin-top: 14px !important; }\n' +
-							'.geDiagramContainer { margin: 0 !important; }';
+						compatCss = compatCss.replace(/:has\(/g, ':not(');
+
+						if (workarounds)
+						{
+							compatCss += '\n' +
+								'.geFormatTitleContainer { overflow: hidden !important; }\n' +
+								'.geRuler+.geRuler { margin-top: 14px !important; }\n' +
+								'.geDiagramContainer { margin: 0 !important; }';
+						}
 					}
 				}
 				catch (e)
@@ -1591,6 +1897,20 @@
 				return compatCss;
 			};
 
+			if (link == null)
+			{
+				var links = document.getElementsByTagName('link');
+
+				for (var i = 0; i < links.length && link == null; i++)
+				{
+					if (links[i].getAttribute('rel') == 'stylesheet' &&
+						links[i].getAttribute('href') == cssFile)
+					{
+						link = links[i];
+					}
+				}
+			}
+
 			mxUtils.get(cssFile, mxUtils.bind(this, function(req)
 			{
 				if (req.getStatus() >= 200 && req.getStatus() <= 299)
@@ -1599,7 +1919,16 @@
 					style.type = 'text/css';
 					style.appendChild(document.createTextNode(
 						replaceLightDarkFunctions(req.getText())));
-					document.head.appendChild(style);
+
+					if (link != null && link.parentNode != null)
+					{
+						link.parentNode.insertBefore(style, link.nextSibling);
+						link.compatibleStyle = style;
+					}
+					else
+					{
+						document.head.appendChild(style);
+					}
 				}
 			}));
 		}
@@ -3116,6 +3445,16 @@
 			Editor.config = config;
 			Editor.configVersion = config.version;
 
+			for (var key in config)
+			{
+				// JSON.parse makes __proto__ an own key of the config
+				if (Object.prototype.hasOwnProperty.call(config, key) &&
+					key != '__proto__' && config[key] != null)
+				{
+					Editor.configuredKeys[key] = true;
+				}
+			}
+
 			// Enables debug output
 			if (config.debug)
 			{
@@ -3178,6 +3517,18 @@
 			{
 				Editor.suppressNewWindows = true;
 				Editor.popupsAllowed = false;
+			}
+
+			// Shows Extras > Configuration in embed mode (Settings in the simple
+			// themes) for the host's configuration ({config, excludedKeys}).
+			// Apply sends {event: 'configuration', config} to the host instead
+			// of storing the result in the browser, and the host stores it and
+			// sends it with the next configure message. The excluded keys are
+			// hidden and left out as the host controls them.
+			if (config.configurationEditor != null &&
+				typeof config.configurationEditor === 'object')
+			{
+				Editor.configurationEditor = config.configurationEditor;
 			}
 
 			if (config.useInternalClipboard)
@@ -3313,7 +3664,7 @@
 			{
 				if (Array.isArray(config.styles))
 				{
-					Editor.styles = config.styles;
+					Editor.styles = Editor.getClassicStyleEntries(config.styles);
 				}
 				else
 				{
@@ -3372,9 +3723,26 @@
 				Editor.forceExplore = config.forceExplore;
 			}
 
+			if (config.enableModernLightbox != null && urlParams['viewer-ui'] == null)
+			{
+				Editor.enableModernLightbox = config.enableModernLightbox === true;
+			}
+
 			if (config.springMove != null)
 			{
 				Editor.springMove = config.springMove;
+			}
+
+			if (config.enableTidy != null && urlParams['tidy'] != '1' &&
+				urlParams['tidy'] != '0')
+			{
+				Editor.enableTidy = config.enableTidy === true;
+			}
+
+			if (config.experimentalHtmlInCanvasExport != null &&
+				urlParams['htmlInCanvas'] != '1' && urlParams['htmlInCanvas'] != '0')
+			{
+				Editor.experimentalHtmlInCanvasExport = config.experimentalHtmlInCanvasExport === true;
 			}
 
 			if (config.mathOutputSize != null)
@@ -3870,7 +4238,18 @@
 			{
 				EditorUi.prototype.updateDefaultStyle = config.updateDefaultStyle;
 			}
-			
+
+			if (config.automaticDefaultStyle != null)
+			{
+				Editor.automaticDefaultStyle = config.automaticDefaultStyle == true;
+			}
+
+			// Checked where it is used (Editor.getCalmColors)
+			if (config.automaticDefaultStyleColors != null)
+			{
+				Editor.automaticDefaultStyleColors = config.automaticDefaultStyleColors;
+			}
+
 			if (config.sidebarTitles != null)
 			{
 				Sidebar.prototype.sidebarTitles = config.sidebarTitles;
@@ -6602,7 +6981,8 @@
 			    {
 				    if (retry && error != null)
 					{
-						error({code: App.ERROR_TIMEOUT, retry: fn});
+						// Value of App.ERROR_TIMEOUT, App is not defined in the viewer
+						error({code: 'timeout', retry: fn});
 					}
 			    }, headers);
 			});
@@ -7070,6 +7450,556 @@
 	};
 	
 	/**
+	 * Experimental: specifies if canvas exports (PNG, JPEG) of diagrams with
+	 * HTML labels may use the HTML-in-Canvas API of the browser (see
+	 * isHtmlInCanvasExport). Default is false. experimentalHtmlInCanvasExport
+	 * in the configuration or htmlInCanvas=1 in the URL (for testing) switch
+	 * it on, htmlInCanvas=0 in the URL wins over the configuration (other
+	 * values of htmlInCanvas leave it to the configuration).
+	 */
+	Editor.experimentalHtmlInCanvasExport = urlParams['htmlInCanvas'] == '1';
+
+	/**
+	 * Milliseconds to wait for the images, fonts and paint event of the
+	 * HTML-in-Canvas export before it falls back to the SVG image.
+	 */
+	Editor.htmlInCanvasTimeout = 5000;
+
+	/**
+	 * Milliseconds to wait for an animation frame before the HTML-in-Canvas
+	 * export falls back to the SVG image. Documents that are not rendered,
+	 * such as hidden cross-origin frames, report a visible page but have no
+	 * animation frames and paint events.
+	 */
+	Editor.htmlInCanvasFrameTimeout = 250;
+
+	/**
+	 * True if the last HTML-in-Canvas export had no animation frame. Exports
+	 * use the SVG image until the next animation frame (see
+	 * Editor.resetHtmlInCanvasNoFrames).
+	 */
+	Editor.htmlInCanvasNoFrames = false;
+
+	/**
+	 * Animation frame callback that resets Editor.htmlInCanvasNoFrames. It
+	 * holds nothing of the export, as documents that are never rendered keep
+	 * it forever.
+	 */
+	Editor.resetHtmlInCanvasNoFrames = function()
+	{
+		Editor.htmlInCanvasNoFrames = false;
+	};
+
+	/**
+	 * Elements that drawSvgWithHtmlInCanvas removes from the copy of the SVG.
+	 * Scripts created with the DOM run when they are inserted, and iframes
+	 * and objects in a drawable canvas hang the renderer of Chrome 157.
+	 */
+	Editor.htmlInCanvasRemovedTags = {'script': true, 'iframe': true, 'frame': true,
+		'frameset': true, 'object': true, 'embed': true, 'applet': true, 'portal': true,
+		'fencedframe': true, 'link': true, 'meta': true, 'base': true, 'audio': true,
+		'video': true};
+
+	/**
+	 * Returns true if the browser implements the HTML-in-Canvas API as shipped
+	 * in Chrome 157 (https://developer.chrome.com/blog/html-in-canvas): the
+	 * content attribute of canvas elements reflects drawable and maps unknown
+	 * values to fallback, and drawElementImage, requestPaint, the paint event
+	 * and shadow roots exist. Drafts (layoutsubtree, drawElement) and partial
+	 * implementations return false.
+	 */
+	Editor.isHtmlInCanvasSupported = function()
+	{
+		try
+		{
+			var canvas = document.createElement('canvas');
+			canvas.setAttribute('content', 'drawable');
+			var drawable = canvas.content === 'drawable';
+			canvas.setAttribute('content', 'invalid');
+
+			return drawable && canvas.content === 'fallback' &&
+				typeof CanvasRenderingContext2D !== 'undefined' &&
+				typeof CanvasRenderingContext2D.prototype.drawElementImage === 'function' &&
+				typeof HTMLCanvasElement.prototype.requestPaint === 'function' &&
+				'onpaint' in HTMLCanvasElement.prototype &&
+				typeof window.CanvasPaintEvent === 'function' &&
+				typeof Element.prototype.attachShadow === 'function' &&
+				document.fonts != null && document.fonts.ready != null;
+		}
+		catch (e)
+		{
+			return false;
+		}
+	};
+
+	/**
+	 * Writes the arguments to the debug log of the export (EditorUi.debug,
+	 * which logs with test=1 in the URL or debug in the configuration).
+	 */
+	Editor.logHtmlInCanvas = function()
+	{
+		if (typeof EditorUi !== 'undefined' && typeof EditorUi.debug === 'function')
+		{
+			EditorUi.debug.apply(EditorUi, ['HTML-in-Canvas export:'].concat(
+				Array.prototype.slice.call(arguments)));
+		}
+	};
+
+	/**
+	 * Returns true if exportToCanvas paints the given SVG with
+	 * drawSvgWithHtmlInCanvas instead of an SVG image: the experimental switch
+	 * is on (Editor.experimentalHtmlInCanvasExport), the SVG has HTML labels
+	 * (foreignObject), the browser supports the API
+	 * (Editor.isHtmlInCanvasSupported) and the document is rendered (hidden
+	 * pages, frames with display: none, which have no viewport, and documents
+	 * without an animation frame in the last export have no paint events).
+	 * With the switch off nothing is checked or logged. Otherwise the result
+	 * of the capability check is written to the debug log of the export.
+	 */
+	Editor.prototype.isHtmlInCanvasExport = function(svgRoot)
+	{
+		if (!Editor.experimentalHtmlInCanvasExport ||
+			svgRoot.getElementsByTagName('foreignObject').length == 0)
+		{
+			return false;
+		}
+
+		var supported = Editor.isHtmlInCanvasSupported();
+		var rendered = document.visibilityState == 'visible' &&
+			window.innerWidth > 0 && window.innerHeight > 0 &&
+			!Editor.htmlInCanvasNoFrames;
+
+		Editor.logHtmlInCanvas('supported=' + supported, 'rendered=' + rendered);
+
+		return supported && rendered;
+	};
+
+	/**
+	 * Returns the name of the given serialized CSS family name: a string
+	 * without its quotes or identifiers joined by one space, with the escapes
+	 * resolved. Chrome serializes names that are not one identifier, such as
+	 * "Architects Daughter", as strings, and FontFace takes the name as it is.
+	 */
+	Editor.getCssFamilyName = function(value)
+	{
+		var name = String(value).trim();
+		var quote = name.charAt(0);
+		var quoted = (quote == '"' || quote == '\'') && name.length > 1 &&
+			name.charAt(name.length - 1) == quote;
+
+		if (quoted)
+		{
+			name = name.substring(1, name.length - 1);
+		}
+
+		return name.replace(/\\(?:([0-9a-fA-F]{1,6})(?:\r\n|[ \t\r\n\f])?|(\r\n|[\r\n\f])|([\s\S]))|(\s+)/g,
+			function(match, hex, newline, chr, space)
+		{
+			if (hex != null)
+			{
+				var cp = parseInt(hex, 16);
+
+				if (cp == 0 || cp > 0x10ffff || (cp >= 0xd800 && cp <= 0xdfff))
+				{
+					return '�';
+				}
+				else if (cp > 0xffff)
+				{
+					cp -= 0x10000;
+
+					return String.fromCharCode(0xd800 + (cp >> 10), 0xdc00 + (cp & 0x3ff));
+				}
+				else
+				{
+					return String.fromCharCode(cp);
+				}
+			}
+			else if (newline != null)
+			{
+				return '';
+			}
+			else if (chr != null)
+			{
+				return chr;
+			}
+			else
+			{
+				return (quoted) ? space : ' ';
+			}
+		});
+	};
+
+	/**
+	 * Adds the fonts of the @font-face rules in the style elements of the
+	 * given SVG to the page and returns them, as Chrome ignores @font-face
+	 * rules in shadow trees. Families with a loaded font in the page keep the
+	 * fonts of the page, so the fonts of the editor do not change, and fonts
+	 * with sources other than data URIs are ignored, as an SVG image loads
+	 * nothing.
+	 */
+	Editor.addHtmlInCanvasFonts = function(svg)
+	{
+		var getKey = function(family)
+		{
+			return Editor.getCssFamilyName(family).toLowerCase();
+		};
+
+		var descriptors = {style: 'font-style', weight: 'font-weight',
+			stretch: 'font-stretch', unicodeRange: 'unicode-range',
+			featureSettings: 'font-feature-settings', display: 'font-display'};
+		var styles = svg.getElementsByTagName('style');
+		var loaded = null;
+		var faces = [];
+
+		for (var i = 0; i < styles.length; i++)
+		{
+			var css = mxUtils.getTextContent(styles[i]);
+
+			if (css.indexOf('@font-face') < 0)
+			{
+				continue;
+			}
+
+			if (loaded == null)
+			{
+				loaded = Object.create(null);
+
+				document.fonts.forEach(function(face)
+				{
+					if (face.status == 'loaded')
+					{
+						loaded[getKey(face.family)] = true;
+					}
+				});
+			}
+
+			try
+			{
+				// Parses the rules without adding them to the page
+				var sheet = new CSSStyleSheet();
+				sheet.replaceSync(css.replace(/@import[^;]*;?/g, ''));
+
+				for (var j = 0; j < sheet.cssRules.length; j++)
+				{
+					var rule = sheet.cssRules[j];
+
+					if (rule instanceof CSSFontFaceRule)
+					{
+						var family = Editor.getCssFamilyName(rule.style.getPropertyValue('font-family'));
+						var src = rule.style.getPropertyValue('src');
+
+						if (family != '' && src != '' && !loaded[family.toLowerCase()] &&
+							!/url\(\s*(?!["']?data:)/i.test(src))
+						{
+							var desc = {};
+
+							for (var key in descriptors)
+							{
+								var value = rule.style.getPropertyValue(descriptors[key]);
+
+								if (value != '')
+								{
+									desc[key] = value;
+								}
+							}
+
+							var face = new FontFace(family, src, desc);
+							document.fonts.add(face);
+							faces.push(face);
+						}
+					}
+				}
+			}
+			catch (e)
+			{
+				// ignores invalid fonts
+			}
+		}
+
+		return faces;
+	};
+
+	/**
+	 * Paints the given SVG into the given canvas with the HTML-in-Canvas API
+	 * and the current transform of ctx. A copy of the SVG is a drawable child
+	 * of the canvas in a closed shadow root, so its styles stay local and the
+	 * fonts of the page apply, and drawElementImage paints it in the first
+	 * paint event after an animation frame and after its images and fonts
+	 * have loaded. The fonts of the SVG are added to the page for the paint
+	 * (see Editor.addHtmlInCanvasFonts). Calls success after painting or
+	 * fallback if that fails, takes longer than Editor.htmlInCanvasTimeout,
+	 * has no animation frame within Editor.htmlInCanvasFrameTimeout or the
+	 * page is hidden. The canvas is detached in all cases and must be
+	 * discarded after fallback.
+	 */
+	Editor.prototype.drawSvgWithHtmlInCanvas = function(svgRoot, canvas, ctx, success, fallback)
+	{
+		var w = parseFloat(svgRoot.getAttribute('width'));
+		var h = parseFloat(svgRoot.getAttribute('height'));
+		var div = document.createElement('div');
+		var finished = false;
+		var pending = 1;
+		var tries = 0;
+		var thread = null;
+		var frame = null;
+		var frameThread = null;
+		var faces = [];
+
+		var finish = function(painted, reason)
+		{
+			if (!finished)
+			{
+				finished = true;
+				Editor.logHtmlInCanvas(painted ? 'painted' : 'fallback=' + reason);
+				window.clearTimeout(thread);
+				window.clearTimeout(frameThread);
+				window.cancelAnimationFrame(frame);
+				canvas.removeEventListener('paint', paint);
+				document.removeEventListener('visibilitychange', visibilityChanged);
+
+				for (var i = 0; i < faces.length; i++)
+				{
+					document.fonts.delete(faces[i]);
+				}
+
+				if (canvas.parentNode != null)
+				{
+					canvas.parentNode.removeChild(canvas);
+				}
+
+				if (div.parentNode != null)
+				{
+					div.parentNode.removeChild(div);
+				}
+
+				canvas.removeAttribute('content');
+				canvas.removeAttribute('inert');
+				canvas.removeAttribute('aria-hidden');
+				canvas.removeAttribute('style');
+
+				if (painted)
+				{
+					success();
+				}
+				else
+				{
+					fallback();
+				}
+			}
+		};
+
+		var paint = function()
+		{
+			if (pending == 0 && !finished)
+			{
+				var painted = false;
+
+				try
+				{
+					// Throws if there is no snapshot of the element yet
+					ctx.drawElementImage(div, 0, 0, w, h, {preserveElementGeometry: true});
+					painted = true;
+				}
+				catch (e)
+				{
+					if (++tries < 10)
+					{
+						canvas.requestPaint();
+					}
+					else
+					{
+						finish(false, 'paint');
+					}
+				}
+
+				if (painted)
+				{
+					finish(true);
+				}
+			}
+		};
+
+		var loaded = function()
+		{
+			if (--pending == 0 && !finished)
+			{
+				canvas.requestPaint();
+			}
+		};
+
+		// Hidden pages have no paint events
+		var visibilityChanged = function()
+		{
+			if (document.visibilityState != 'visible')
+			{
+				finish(false, 'hidden');
+			}
+		};
+
+		try
+		{
+			if (!(w > 0) || !(h > 0))
+			{
+				throw new Error('Invalid size');
+			}
+
+			thread = window.setTimeout(function()
+			{
+				finish(false, 'timeout');
+			}, Editor.htmlInCanvasTimeout);
+
+			document.addEventListener('visibilitychange', visibilityChanged);
+
+			// Waits for an animation frame, which documents that are not
+			// rendered never get
+			pending++;
+
+			frame = window.requestAnimationFrame(function()
+			{
+				window.clearTimeout(frameThread);
+				loaded();
+			});
+
+			// The copy is inserted into the page, which an SVG image never is,
+			// so scripts, event handlers, embedded documents and media (which
+			// an SVG image does not play) are removed even if the labels in it
+			// were sanitized by Graph.sanitizeHtml. The canvas is hidden and
+			// inert and its children are not hit tested.
+			var svg = document.importNode(svgRoot, true);
+			var elts = [svg].concat(Array.prototype.slice.call(svg.getElementsByTagName('*')));
+			var removed = [];
+
+			for (var i = 0; i < elts.length; i++)
+			{
+				var name = String(elts[i].localName || elts[i].nodeName).toLowerCase();
+
+				if (Editor.htmlInCanvasRemovedTags[name])
+				{
+					removed.push(elts[i]);
+				}
+				else
+				{
+					for (var j = elts[i].attributes.length - 1; j >= 0; j--)
+					{
+						var attr = elts[i].attributes[j];
+
+						if (attr.name.toLowerCase().substring(0, 2) == 'on' ||
+							String(attr.localName).toLowerCase().substring(0, 2) == 'on')
+						{
+							elts[i].removeAttributeNode(attr);
+						}
+					}
+				}
+			}
+
+			for (var i = 0; i < removed.length; i++)
+			{
+				if (removed[i].parentNode != null)
+				{
+					removed[i].parentNode.removeChild(removed[i]);
+				}
+			}
+
+			// Waits for the images, which are data URIs after convertImages
+			var waitForImage = function(img)
+			{
+				var done = false;
+
+				var handler = function()
+				{
+					if (!done)
+					{
+						done = true;
+						loaded();
+					}
+				};
+
+				pending++;
+				img.addEventListener('load', handler);
+				img.addEventListener('error', handler);
+			};
+
+			var images = svg.getElementsByTagName('image');
+
+			for (var i = 0; i < images.length; i++)
+			{
+				if (images[i].getAttribute('href') != null ||
+					images[i].getAttributeNS(mxConstants.NS_XLINK, 'href') != null)
+				{
+					waitForImage(images[i]);
+				}
+			}
+
+			images = svg.getElementsByTagName('img');
+
+			for (var i = 0; i < images.length; i++)
+			{
+				if (!images[i].complete)
+				{
+					waitForImage(images[i]);
+				}
+			}
+
+			// all: initial stops the styles of the page from being inherited,
+			// including the visibility of the hidden canvas, except for the
+			// direction and custom properties, such as the colors of the theme
+			// that the SVG uses with fallbacks, which are reset here
+			var vars = [Editor.darkColorVar, Editor.lightColorVar,
+				Graph.svgBackgroundVar, Graph.svgForegroundVar];
+			svg.style.display = 'block';
+			div.setAttribute('drawable', '');
+			div.style.cssText = 'all:initial;display:block;direction:ltr;unicode-bidi:normal;' +
+				'width:' + w + 'px;height:' + h + 'px;';
+
+			for (var i = 0; i < vars.length; i++)
+			{
+				if (vars[i] != null)
+				{
+					div.style.setProperty(vars[i], 'initial');
+				}
+			}
+
+			div.attachShadow({mode: 'closed'}).appendChild(svg);
+			faces = Editor.addHtmlInCanvasFonts(svg);
+
+			canvas.setAttribute('content', 'drawable');
+			canvas.setAttribute('inert', '');
+			canvas.setAttribute('aria-hidden', 'true');
+			canvas.style.cssText = 'position:fixed;left:0;top:0;width:' + w + 'px;height:' + h +
+				'px;visibility:hidden;pointer-events:none;';
+			canvas.addEventListener('paint', paint);
+			canvas.appendChild(div);
+			document.body.appendChild(canvas);
+
+			// Forces the layout so that the fonts of the labels start loading
+			div.getBoundingClientRect();
+
+			for (var i = 0; i < faces.length; i++)
+			{
+				if (faces[i].status == 'loading')
+				{
+					pending++;
+					faces[i].loaded.then(loaded, loaded);
+				}
+			}
+
+			document.fonts.ready.then(loaded, loaded);
+
+			// Started after the copy so that its time does not count
+			frameThread = window.setTimeout(function()
+			{
+				Editor.htmlInCanvasNoFrames = true;
+				window.requestAnimationFrame(Editor.resetHtmlInCanvasNoFrames);
+				finish(false, 'noFrames');
+			}, Editor.htmlInCanvasFrameTimeout);
+		}
+		catch (e)
+		{
+			finish(false, 'error');
+		}
+	};
+
+	/**
 	 *
 	 */
 	Editor.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
@@ -7124,6 +8054,8 @@
 					svgRoot.style.setProperty('-moz-osx-font-smoothing', 'grayscale');
 					
 					var img = new Image();
+					var htmlInCanvas = false;
+					var editor = this;
 					
 					img.onload = mxUtils.bind(this, function()
 					{
@@ -7174,8 +8106,30 @@
 	
 						    function drawImage()
 						    {
+								// Falls back to the SVG image in a new canvas
+								if (htmlInCanvas)
+								{
+									editor.drawSvgWithHtmlInCanvas(svgRoot, canvas, ctx, function()
+									{
+										try
+										{
+											callback(canvas, svgRoot);
+										}
+										catch (e)
+										{
+											if (error != null)
+											{
+												error(e);
+											}
+										}
+									}, function()
+									{
+										htmlInCanvas = false;
+										img.src = Editor.createSvgDataUri(mxUtils.getXml(svgRoot));
+									});
+								}
 						    	// Workaround for broken data URI images in Safari on first export
-						   		if (mxClient.IS_SF)
+						   		else if (mxClient.IS_SF)
 						   		{			   		
 									window.setTimeout(function()
 									{
@@ -7289,7 +8243,17 @@
 								this.addFontCss(svgRoot, this.resolvedFontCss);
 							}
 							
-							img.src = Editor.createSvgDataUri(mxUtils.getXml(svgRoot));
+							// Paints HTML labels with the HTML-in-Canvas API, which
+							// runs the image handler without loading the SVG image
+							if (this.isHtmlInCanvasExport(svgRoot))
+							{
+								htmlInCanvas = true;
+								img.onload();
+							}
+							else
+							{
+								img.src = Editor.createSvgDataUri(mxUtils.getXml(svgRoot));
+							}
 						}
 						catch (e)
 						{
@@ -7407,8 +8371,8 @@
 		{
 			var bytes = fread(d, 4);
 			
-			return bytes.charCodeAt(3) + (bytes.charCodeAt(2) << 8) +
-				(bytes.charCodeAt(1) << 16) + (bytes.charCodeAt(0) << 24);
+			return (bytes.charCodeAt(3) + (bytes.charCodeAt(2) << 8) +
+				(bytes.charCodeAt(1) << 16) + (bytes.charCodeAt(0) << 24)) >>> 0;
 		};
 		
 		function writeInt(num)
@@ -9243,138 +10207,11 @@
 							try
 							{
 								var cells = ui.getSelectionState().cells;
-								var model = graph.getModel();
-								var cellMeta = [];
-								var labelOnly = cells.length > 0;
+								var styles = this.getColorSchemeStyles(cells, colorset, evt);
 
-								for (var i = 0; i < cells.length; i++)
+								for (var i = 0; i < styles.length; i++)
 								{
-									var isEdgeLabel = model.isVertex(cells[i]) &&
-										model.isEdge(model.getParent(cells[i]));
-									var cellStyle = graph.getCellStyle(cells[i]);
-									var isImage = cellStyle != null && cellStyle.shape == 'image';
-									var geo = graph.getCellGeometry(cells[i]);
-
-									// Edge labels with a size are shapes that use the fill and
-									// stroke colors (see updateEdgeLabelShape) while zero-size
-									// edge labels and images use the label background and
-									// border colors
-									cellMeta.push({isLabel: isImage || (isEdgeLabel &&
-										(geo == null || geo.width <= 0 || geo.height <= 0))});
-
-									if (!isEdgeLabel && !isImage)
-									{
-										labelOnly = false;
-									}
-								}
-
-								for (var i = 0; i < cells.length; i++)
-								{
-									var meta = cellMeta[i];
-
-									if (!labelOnly && meta.isLabel)
-									{
-										continue;
-									}
-
-									// Tables and rows without a title are filled with the lane color
-									var fillKey = (meta.isLabel) ? mxConstants.STYLE_LABEL_BACKGROUNDCOLOR :
-										graph.getFillColorKey(cells[i]);
-									var strokeKey = (meta.isLabel) ? mxConstants.STYLE_LABEL_BORDERCOLOR :
-										mxConstants.STYLE_STROKECOLOR;
-
-									var style = model.getStyle(cells[i]);
-									var fontUpdated = false;
-
-									if (style != null && typeof style !== 'string')
-									{
-										style = String(style);
-									}
-
-									if (colorset != null)
-									{
-										if (!mxEvent.isShiftDown(evt))
-										{
-											if (colorset['fill'] == '' || colorset['fill'] == null)
-											{
-												style = mxUtils.setStyle(style, fillKey, null);
-											}
-											else
-											{
-												style = mxUtils.setStyle(style, fillKey, colorset['fill']);
-											}
-
-											if (!meta.isLabel)
-											{
-												if (colorset['gradient'] == '' || colorset['gradient'] == null)
-												{
-													style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, null);
-												}
-												else
-												{
-													style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, colorset['gradient']);
-												}
-											}
-
-											if (!mxEvent.isControlDown(evt) && (!mxClient.IS_MAC || !mxEvent.isMetaDown(evt)) &&
-												model.isVertex(cells[i]))
-											{
-												fontUpdated = true;
-
-												if (colorset['font'] == '' || colorset['font'] == null)
-												{
-													style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR, null);
-												}
-												else
-												{
-													style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR, colorset['font']);
-												}
-											}
-										}
-
-										if (!mxEvent.isAltDown(evt))
-										{
-											if (colorset['stroke'] == '' || colorset['stroke'] == null)
-											{
-												style = mxUtils.setStyle(style, strokeKey, null);
-											}
-											else
-											{
-												style = mxUtils.setStyle(style, strokeKey, colorset['stroke']);
-											}
-										}
-									}
-									else
-									{
-										style = mxUtils.setStyle(style, fillKey, null);
-										style = mxUtils.setStyle(style, strokeKey, null);
-
-										if (!meta.isLabel)
-										{
-											style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, null);
-										}
-
-										if (model.isVertex(cells[i]))
-										{
-											fontUpdated = true;
-											style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR, null);
-										}
-									}
-
-									// Disabling the font color in the Text tab also sets noLabel=1,
-									// which must be removed if the font color is enabled again here
-									// or the label stays hidden while the font color is checked.
-									// Uses the unresolved style as resolving removes none values.
-									if (fontUpdated && mxUtils.getValue(graph.getCellStyle(cells[i], false),
-										mxConstants.STYLE_FONTCOLOR, null) == mxConstants.NONE &&
-										(colorset == null || colorset['font'] != mxConstants.NONE))
-									{
-										style = mxUtils.setStyle(style, mxConstants.STYLE_NOLABEL, null);
-									}
-
-									// The colors are own values of labels of edges that inherit
-									// the text styles of the edge (see Graph.inheritedLabelStyles)
-									model.setStyle(cells[i], graph.removeChangedInheritedLabelKeys(cells[i], style));
+									graph.getModel().setStyle(styles[i].cell, styles[i].style);
 								}
 
 								graph.updateInheritedLabelValuesOfEdges(cells);
@@ -9459,6 +10296,7 @@
 
 						btn.style.borderRadius = '0';
 						picker.appendChild(btn);
+						this.initColorSchemeButton(btn, colorset);
 
 						if (colorset != null && colorset['gradient'] != null)
 						{
@@ -9476,10 +10314,17 @@
 							picker.appendChild(lightBtn);
 							lightBtn.style.marginLeft = '-42px';
 
-							mxEvent.addListener(lightBtn, 'click', function()
+							// The click of the button has the modifier keys of the
+							// click (getColorSchemeStyles), which btn.click() drops
+							mxEvent.addListener(lightBtn, 'click', function(evt)
 							{
-								btn.click();
+								btn.dispatchEvent(new MouseEvent('click', {bubbles: true,
+									cancelable: true, shiftKey: mxEvent.isShiftDown(evt),
+									ctrlKey: mxEvent.isControlDown(evt), metaKey: mxEvent.isMetaDown(evt),
+									altKey: mxEvent.isAltDown(evt)}));
 							});
+
+							this.initColorSchemeButton(lightBtn, colorset);
 						}
 					});
 					
@@ -9553,6 +10398,162 @@
 			
 			return div;
 		};
+
+		/**
+		 * Returns the styles that the given color set of the predefined styles
+		 * (addStyles, null for Default) gives the given cells as an array of
+		 * {cell, style}, with the modifier keys of the given event: Shift keeps
+		 * the fill, gradient and font colors, Ctrl or Cmd the font color and Alt
+		 * the stroke color. Changes nothing, so it also gives the previews of
+		 * the color sets.
+		 */
+		StyleFormatPanel.prototype.getColorSchemeStyles = function(cells, colorset, evt)
+		{
+			var graph = this.editorUi.editor.graph;
+			var model = graph.getModel();
+			var result = [];
+			var cellMeta = [];
+			var labelOnly = cells.length > 0;
+
+			for (var i = 0; i < cells.length; i++)
+			{
+				var isEdgeLabel = model.isVertex(cells[i]) &&
+					model.isEdge(model.getParent(cells[i]));
+				var cellStyle = graph.getCellStyle(cells[i]);
+				var isImage = cellStyle != null && cellStyle.shape == 'image';
+				var geo = graph.getCellGeometry(cells[i]);
+
+				// Edge labels with a size are shapes that use the fill and
+				// stroke colors (see updateEdgeLabelShape) while zero-size
+				// edge labels and images use the label background and
+				// border colors
+				cellMeta.push({isLabel: isImage || (isEdgeLabel &&
+					(geo == null || geo.width <= 0 || geo.height <= 0))});
+
+				if (!isEdgeLabel && !isImage)
+				{
+					labelOnly = false;
+				}
+			}
+
+			for (var i = 0; i < cells.length; i++)
+			{
+				var meta = cellMeta[i];
+
+				if (!labelOnly && meta.isLabel)
+				{
+					continue;
+				}
+
+				// Tables and rows without a title are filled with the lane color
+				var fillKey = (meta.isLabel) ? mxConstants.STYLE_LABEL_BACKGROUNDCOLOR :
+					graph.getFillColorKey(cells[i]);
+				var strokeKey = (meta.isLabel) ? mxConstants.STYLE_LABEL_BORDERCOLOR :
+					mxConstants.STYLE_STROKECOLOR;
+
+				var style = model.getStyle(cells[i]);
+				var fontUpdated = false;
+
+				if (style != null && typeof style !== 'string')
+				{
+					style = String(style);
+				}
+
+				if (colorset != null)
+				{
+					if (!mxEvent.isShiftDown(evt))
+					{
+						if (colorset['fill'] == '' || colorset['fill'] == null)
+						{
+							style = mxUtils.setStyle(style, fillKey, null);
+						}
+						else
+						{
+							style = mxUtils.setStyle(style, fillKey, colorset['fill']);
+						}
+
+						if (!meta.isLabel)
+						{
+							if (colorset['gradient'] == '' || colorset['gradient'] == null)
+							{
+								style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, null);
+							}
+							else
+							{
+								style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, colorset['gradient']);
+							}
+						}
+
+						if (!mxEvent.isControlDown(evt) && (!mxClient.IS_MAC || !mxEvent.isMetaDown(evt)) &&
+							model.isVertex(cells[i]))
+						{
+							fontUpdated = true;
+
+							if (colorset['font'] == '' || colorset['font'] == null)
+							{
+								style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR, null);
+							}
+							else
+							{
+								style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR, colorset['font']);
+							}
+						}
+					}
+
+					if (!mxEvent.isAltDown(evt))
+					{
+						if (colorset['stroke'] == '' || colorset['stroke'] == null)
+						{
+							style = mxUtils.setStyle(style, strokeKey, null);
+						}
+						else
+						{
+							style = mxUtils.setStyle(style, strokeKey, colorset['stroke']);
+						}
+					}
+				}
+				else
+				{
+					style = mxUtils.setStyle(style, fillKey, null);
+					style = mxUtils.setStyle(style, strokeKey, null);
+
+					if (!meta.isLabel)
+					{
+						style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, null);
+					}
+
+					if (model.isVertex(cells[i]))
+					{
+						fontUpdated = true;
+						style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR, null);
+					}
+				}
+
+				// Disabling the font color in the Text tab also sets noLabel=1,
+				// which must be removed if the font color is enabled again here
+				// or the label stays hidden while the font color is checked.
+				// Uses the unresolved style as resolving removes none values.
+				if (fontUpdated && mxUtils.getValue(graph.getCellStyle(cells[i], false),
+					mxConstants.STYLE_FONTCOLOR, null) == mxConstants.NONE &&
+					(colorset == null || colorset['font'] != mxConstants.NONE))
+				{
+					style = mxUtils.setStyle(style, mxConstants.STYLE_NOLABEL, null);
+				}
+
+				// The colors are own values of labels of edges that inherit
+				// the text styles of the edge (see Graph.inheritedLabelStyles)
+				result.push({cell: cells[i], style: graph.removeChangedInheritedLabelKeys(cells[i], style)});
+			}
+
+			return result;
+		};
+
+		/**
+		 * Hook for the given button of the given color set of the predefined
+		 * styles (addStyles; also the overlay of the light colors of gradients).
+		 * This implementation does nothing.
+		 */
+		StyleFormatPanel.prototype.initColorSchemeButton = function(btn, colorset) { };
 	}
 	
 	/**
@@ -10799,6 +11800,7 @@
 			this.backgroundImage.originalSrc != null)
 		{
 			EditorUi.embedSvgImages(result);
+			this.updateFileBaseLinks(result);
 		}
 
 		// SVG element must be added to DOM for MathJax to work
@@ -10807,6 +11809,7 @@
 			document.body.appendChild(result);
 			Editor.MathJaxRender(result);
 			result.parentNode.removeChild(result);
+			this.updateFileBaseLinks(result);
 
 			// Copies MathJax CSS to output
 			var style = result.ownerDocument.getElementById('MJX-SVG-styles');
@@ -12941,8 +13944,11 @@
 	var graphIsCellVisible = Graph.prototype.isCellVisible;
 	Graph.prototype.isCellVisible = function(cell)
 	{
+		// The tags of the page (on the root) filter nothing, as the root
+		// would hide all cells of the page
 		return graphIsCellVisible.apply(this, arguments) &&
-			!this.isAllTagsHidden(this.getTagsForCell(cell));
+			(cell == this.model.getRoot() ||
+			!this.isAllTagsHidden(this.getTagsForCell(cell)));
 	};
   
 	/**
@@ -13033,7 +14039,9 @@
 			cells = (cells != null) ? cells : this.model.getDescendants(this.model.getRoot());
 
 			var tagCount = 0;
-			var lookup = {};
+
+			// Tags such as constructor or __proto__ are no names of Object.prototype
+			var lookup = Object.create(null);
 
 			for (var i = 0; i < tagList.length; i++)
 			{
@@ -13113,7 +14121,7 @@
 			if (tags.length > 0)
 			{
 				var tokens = tags.split(' ');
-				var temp = {};
+				var temp = Object.create(null);
 				 
 				for (var j = 0; j < tokens.length; j++)
 				{
@@ -13141,7 +14149,7 @@
 	Graph.prototype.getTagsForCells = function(cells)
 	{
 		var tokens = [];
-		var temp = {};
+		var temp = Object.create(null);
 		
 		for (var i = 0; i < cells.length; i++)
 		{

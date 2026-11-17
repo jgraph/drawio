@@ -10,19 +10,21 @@
 		var dt = 'cumulus';
 		var sb = this;
 		var s = 'image;aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;fontSize=12;verticalAlign=top;fontColor=#364149;shadow=0;dashed=0;image=img/lib/cumulus/';
+		// Rectangular icons keep the box as their perimeter
+		var sr = s.replace('perimeter=ellipsePerimeter;', '');
 		this.setCurrentSearchEntryLibrary('cumulus');
 
 		// Adds Cumulus shapes
 		var gn = ' ';
 		
 		var fns = [
-			 this.createVertexTemplateEntry(s + 'switch_bare_metal_empty.svg;',
+			 this.createVertexTemplateEntry(sr + 'switch_bare_metal_empty.svg;',
 					 sc * 48, sc * 12, '', 'Switch - Bare Metal (empty)', false, null, this.getTagsForStencil(gn, 'switch bare metal empty', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'switch_cumulus_linux.svg;',
+			 this.createVertexTemplateEntry(sr + 'switch_cumulus_linux.svg;',
 					 sc * 48, sc * 12, '', 'Switch - Cumulus Linux', false, null, this.getTagsForStencil(gn, 'switch cumulus linux', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'switch_out_of_band.svg;',
+			 this.createVertexTemplateEntry(sr + 'switch_out_of_band.svg;',
 					 sc * 48, sc * 12, '', 'Switch - Out of Band', false, null, this.getTagsForStencil(gn, 'switch_out_of_band', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'switch_voyager.svg;',
+			 this.createVertexTemplateEntry(sr + 'switch_voyager.svg;',
 					 sc * 48, sc * 12, '', 'Switch Voyager', false, null, this.getTagsForStencil(gn, 'switch voyager', dt).join(' ')),
 					 
 			 this.createVertexTemplateEntry(s + 'cumulus_linux_icon.svg;',
@@ -30,22 +32,22 @@
 			 this.createVertexTemplateEntry(s + 'cumulus_netq_icon.svg;',
 					 sc * 48, sc * 48, '', 'NetQ Icon', false, null, this.getTagsForStencil(gn, '', dt).join(' ')),
 
-			 this.createVertexTemplateEntry(s + 'rack_bare_metal.svg;',
+			 this.createVertexTemplateEntry(sr + 'rack_bare_metal.svg;',
 					 sc * 48, sc * 57, '', 'Rack Bare Metal', false, null, this.getTagsForStencil(gn, 'rack bare metal', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'rack_cumulus_linux.svg;',
+			 this.createVertexTemplateEntry(sr + 'rack_cumulus_linux.svg;',
 					 sc * 48, sc * 57, '', 'Rack Cumulus Linux', false, null, this.getTagsForStencil(gn, 'rack linux', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'rack_out_of_band.svg;',
+			 this.createVertexTemplateEntry(sr + 'rack_out_of_band.svg;',
 					 sc * 48, sc * 57, '', 'Rack Out of Band', false, null, this.getTagsForStencil(gn, 'rack out of band', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'rack_voyager.svg;',
+			 this.createVertexTemplateEntry(sr + 'rack_voyager.svg;',
 					 sc * 48, sc * 57, '', 'Rack Voyager', false, null, this.getTagsForStencil(gn, 'rack voyager', dt).join(' ')),
 					 
-			 this.createVertexTemplateEntry(s + 'server_bare_metal.svg;',
+			 this.createVertexTemplateEntry(sr + 'server_bare_metal.svg;',
 					 sc * 48, sc * 10, '', 'Server - Bare Metal', false, null, this.getTagsForStencil(gn, 'server bare metal', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'chassis_bare_metal_empty.svg;',
+			 this.createVertexTemplateEntry(sr + 'chassis_bare_metal_empty.svg;',
 					 sc * 53, sc * 36, '', 'Chassis - Bare Metal Empty', false, null, this.getTagsForStencil(gn, 'chassis bare metal empty', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'chassis_cumulus_linux.svg;',
+			 this.createVertexTemplateEntry(sr + 'chassis_cumulus_linux.svg;',
 					 sc * 53, sc * 36, '', 'Chassis - Cumulus Linux', false, null, this.getTagsForStencil(gn, 'chassis linux', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'netq_chassis.svg;',
+			 this.createVertexTemplateEntry(sr + 'netq_chassis.svg;',
 					 sc * 53, sc * 36, '', 'NetQ Chassis', false, null, this.getTagsForStencil(gn, 'netq chassis', dt).join(' ')),
 					 
 			 this.createEdgeTemplateEntry('endArrow=block;html=1;startArrow=block;startFill=1;endFill=1;', sc * 50, sc * 50, '', 'Unspecified', null, dt + 'unspecified'),
@@ -65,15 +67,15 @@
 
 			 this.createVertexTemplateEntry(s + 'netq_agent.svg;',
 					 sc * 9, sc * 9, '', 'NetQ Agent', false, null, this.getTagsForStencil(gn, 'netq agent', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'netq_telemetry_server.svg;',
+			 this.createVertexTemplateEntry(sr + 'netq_telemetry_server.svg;',
 					 sc * 48, sc * 12, '', 'NetQ Telemetry Server', false, null, this.getTagsForStencil(gn, 'netq telemetry server', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'netq_server.svg;',
+			 this.createVertexTemplateEntry(sr + 'netq_server.svg;',
 					 sc * 48, sc * 10, '', 'NetQ Server', false, null, this.getTagsForStencil(gn, 'netq server', dt).join(' ')),
 
 			 this.createVertexTemplateEntry(
 					 'image;aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;image=img/lib/cumulus/internet.svg;labelPosition=center;verticalLabelPosition=middle;verticalAlign=middle;fontSize=14;fontColor=#36424A;whiteSpace=wrap;',
 					 sc * 137, sc * 49, 'Internet', 'Internet', true, null, this.getTagsForStencil(gn, 'internet', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'container.svg;',
+			 this.createVertexTemplateEntry(s + 'container.svg;points=[[0.178,0.164,0],[0.281,0.05,0],[0.5,0,0],[0.719,0.05,0],[0.816,0.164,0],[0.089,0.327,0],[0,0.5,0],[0.088,0.661,0],[0.908,0.327,0],[1,0.5,0],[0.909,0.661,0],[0.176,0.83,0],[0.281,0.95,0],[0.5,1,0],[0.719,0.95,0],[0.819,0.83,0]];',
 					 sc * 45, sc * 40, '', 'Container', true, null, this.getTagsForStencil(gn, 'container', dt).join(' ')),
 					 
   			 this.addEntry(dt + 'pbr switch', function()
@@ -86,12 +88,12 @@
 			   	return sb.createVertexTemplateFromCells([cell1, cell2], sc * 60, sc * 12, 'Package Diagram');
 		   	 }),				
 
-			 this.createVertexTemplateEntry(s + 'ddos_server.svg;',
+			 this.createVertexTemplateEntry(sr + 'ddos_server.svg;',
 					 sc * 48, sc * 10, '192.168.0.32', 'DDos Server', true, null, this.getTagsForStencil(gn, 'ddos server', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'switch.svg;',
+			 this.createVertexTemplateEntry(sr + 'switch.svg;',
 					 sc * 48, sc * 10, '', 'Switch', true, null, this.getTagsForStencil(gn, 'switch', dt).join(' ')),
 
-			 this.createVertexTemplateEntry(s + 'limed_spruce.svg;',
+			 this.createVertexTemplateEntry(s + 'limed_spruce.svg;points=[];',
 					 sc * 150, sc * 34, '', 'Limed Spruce', false, null, this.getTagsForStencil(gn, 'limed spruce', dt).join(' ')),
 					 
 			 this.createVertexTemplateEntry('fillColor=#36424A;strokeColor=none;whiteSpace=wrap;html=1;',

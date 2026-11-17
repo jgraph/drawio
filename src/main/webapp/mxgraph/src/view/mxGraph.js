@@ -4047,37 +4047,63 @@ mxGraph.prototype.cellsOrdered = function(cells, back, increment)
 		this.model.beginUpdate();
 		try
 		{
-			for (var i = 0; i < cells.length; i++)
-			{
-				var parent = this.model.getParent(cells[i]);
+			// Cells move to the back in the given order and to the front in
+			// reverse order, so that a cell never passes a cell of the same
+			// parent that moved before it. The bound of a parent is the index
+			// next to the last of these cells. Without it, Bring Forward on
+			// two adjacent cells swapped them twice and Send Backward on the
+			// two cells at the back swapped them. Moving by one needs the
+			// cells of a parent in the order of their indices, as callers may
+			// pass them in any order (eg. the order of the selection). To Back
+			// and To Front keep the given order, which is the order after the
+			// change.
+			var bounds = new mxDictionary();
+			var seen = new mxDictionary();
+			var ordered = (increment && cells.length > 1) ?
+				mxUtils.sortCells(cells.slice(), true) : cells;
 
-				if (back)
+			for (var j = 0; j < ordered.length; j++)
+			{
+				var cell = ordered[(back) ? j : ordered.length - 1 - j];
+				var parent = this.model.getParent(cell);
+
+				// A cell given twice moves once, as the bound would move it
+				// back from the front or the back the second time
+				if (parent != null && !seen.get(cell))
 				{
-					if (increment)
+					seen.put(cell, true);
+					var index = parent.getIndex(cell);
+					var bound = bounds.get(parent);
+					var newIndex = index;
+
+					if (back)
 					{
-						this.model.add(parent, cells[i], Math.max(0, parent.getIndex(cells[i]) - 1));
+						bound = (bound != null) ? bound : 0;
+						newIndex = (increment) ? Math.min(index,
+							Math.max(bound, index - 1)) : bound;
+						bounds.put(parent, newIndex + 1);
 					}
 					else
 					{
-						this.model.add(parent, cells[i], i);
+						bound = (bound != null) ? bound :
+							this.model.getChildCount(parent) - 1;
+						newIndex = (increment) ? Math.max(index,
+							Math.min(bound, index + 1)) : bound;
+						bounds.put(parent, newIndex - 1);
 					}
-				}
-				else
-				{
-					if (increment)
+
+					// A cell that is already there adds no change to the edit,
+					// which would be an undo step that changes nothing
+					newIndex = Math.max(0, Math.min(newIndex,
+						this.model.getChildCount(parent) - 1));
+
+					if (newIndex != index)
 					{
-						this.model.add(parent, cells[i], Math.min(
-							this.model.getChildCount(parent) - 1,
-							parent.getIndex(cells[i]) + 1));
-					}
-					else
-					{
-						this.model.add(parent, cells[i],
-							this.model.getChildCount(parent) - 1);
+						this.model.add(parent, cell, newIndex);
 					}
 				}
 			}
-			
+
 			this.fireEvent(new mxEventObject(mxEvent.CELLS_ORDERED,
 				'back', back, 'cells', cells, 'increment', increment));
 		}

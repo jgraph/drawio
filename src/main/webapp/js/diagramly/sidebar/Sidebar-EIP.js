@@ -40,7 +40,7 @@
 		    		150, 90, '', 'Filter', null, null, this.getTagsForStencil(gn, '', dt + 'filter').join(' ')),
 			this.addEntry(dt + 'command message', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;fillColor=#808080;strokeColor=none;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;perimeter=ellipsePerimeter;fillColor=#808080;strokeColor=none;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('C', new mxGeometry(16, 18, 12, 12), s + 'rect;fillColor=#FF8080;fontStyle=1;whiteSpace=wrap;html=1;');
 				bg2.vertex = true;
@@ -53,11 +53,11 @@
 			   	return sb.createVertexTemplateFromCells([edge1, bg1, bg2], 28, 30, 'Command Message');
 			}),
 			this.addDataEntry(dt + 'correlation identifier', 78, 30, 'Correlation Identifier',
-				'7ZZNj9MwEIZ/Ta4oH/SD47a73RMSUg/A0TTT2Fo3EznuNuXXM46naYwpFC0UCUhVaWbsmTjPO3aSFMtd92hEI99iCTopHpJiaRCtt3bdErRO8lSVSXGf5HlK/yRfXRjN+tG0EQZqe01C7hOehd6Dj/hAa4+aA1BWsGYXjZVYYS30wzm6MLivS3AVU/KgU/bDyP7o7FcT59XlnTF4oECNtcssRSuHRGl39Pz3GZmtNfgES9Ro+kUU89T9hpH3qrSSRnKK+AW7VQYMWtybDYemPmSFqYCxTGJSfSJjegTcgTVHmmJAC6uew+qi9W41zDtDJoM5f5t58U8wn8fMZ3+O+esrmJ9JfdK4eQrp0OhK6ZDVmEhEb7V6QwgjpS6Q+5VMOPUdKqqYpx0T4I4/BlvilO+V45TxefFVlWz2vSpe7KhKL87wJFfpNfmxXrEGQWcLraqa7A1xBdJkscXartVnl+1kaaVonE33VU3rNsaW9L3c/qcR3kW8PjAWup9V8sBrdjP4uSSoStow9pJ+n0b87n4XQAMbG9Mb2j/aGGl/nerxcjL2R/O2/UXxg1QW1o3oT5YDvSrDnfkSJU4J06CrMz67bqDT7G/uc06YpDfDOY9wLv63/UVhprdqe3LPn7T+bTD+4v0C'),
+				'7ZZLb9swDMc/ja+FH8tjxyZtehpQIIdtRy1mLKGKZchK4/TTj7Loh6alTdEtPbQOApCUSEu/v2g7ypa75k6zin9TOcgou42ypVbKOGvXLEHKKI1FHmU3UZrG+I/S1YnRpB2NK6ahNOckpC7hkck9uIgL1OYoKQB5AWtylTZcFapk8naILrTalznYijF60AjzY2T/tPbVxHplfq21OmCgVKXNzFnN+0Rudrj/mwTN2mj1AEsllW4Xkc1j++tHvovccBxJMeIWbFfpMajVXm8oNHUhw3QBhGUSkmoTCdMdqB0YfcQpGiQz4tGvzmrnFv28ATIaxPnvzLMPwXweMp+9H/MvZzAfSP2SavPg08HRlZA+qzGRgN5q9RURBkqdIPcvmVDqvRJYMY0bIkAn/ui1RJfvlKOU8fPijyrJ7LkqTuygSitOv5Oz9Jq8rFeogXeymRRFifYGuQJqstiq0qzFk822stScVdbG+4qqto1RgRa4RDu5i94PocUW5T/dHd0INRktH7SB5rVCH2hLdgZtm4MouPFjb2mHaYD3+n/x1bAxIb2+O4K+idurq0fLScgfzdu2F8YPXBhYV6x98BzwTeo37luU6BKm3qFP6NF2AZ1mH7gNKGESX4z2PKC9+OyKk8JML9UV6A4fxO5dMv5e/g0='),
 				
 			this.addEntry(dt + 'document message', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;fillColor=#808080;strokeColor=none;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;perimeter=ellipsePerimeter;fillColor=#808080;strokeColor=none;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('D', new mxGeometry(16, 18, 12, 12), s + 'rect;fillColor=#C7A0FF;fontStyle=1;whiteSpace=wrap;html=1;');
 				bg2.vertex = true;
@@ -71,7 +71,7 @@
 			}),
 			this.addEntry(dt + 'event message', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;fillColor=#808080;strokeColor=none;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;perimeter=ellipsePerimeter;fillColor=#808080;strokeColor=none;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('E', new mxGeometry(16, 18, 12, 12), s + 'rect;fillColor=#83BEFF;fontStyle=1;whiteSpace=wrap;html=1;');
 				bg2.vertex = true;
@@ -83,7 +83,7 @@
 			    
 			   	return sb.createVertexTemplateFromCells([edge1, bg1, bg2], 28, 30, 'Event Message');
 			}),
-		    this.createVertexTemplateEntry(s3 + 'messExp;handsColor=#808080;html=1;verticalLabelPosition=bottom;verticalAlign=top', 
+		    this.createVertexTemplateEntry(s3 + 'messExp;handsColor=#808080;html=1;verticalLabelPosition=bottom;verticalAlign=top;perimeter=ellipsePerimeter;', 
 		    		48, 48, '', 'Message Expiration', null, null, this.getTagsForStencil(gn, '', dt + 'message expiration').join(' ')),
 			this.addDataEntry(dt + 'message sequence', 60, 24, 'Message Sequence',
 				'7ZbPb4MgFMf/Gu4KtvG6urWnJUt62Jnpm5KiGMSq++sHQlsM7bLDsmzZmjThfd8Pee+DRESyetxJ2laPogCOyAMimRRC2VU9ZsA5whErELlHGEf6j/D2hjeevVFLJTTqMwnYJhwp78EqVujUxJ2Q9/IIJjxGZANNcSelGLT5wkV+0FKlau68nZLiAJngQs65JM6ybRSdPc+sUJX2YFtpz97MM4i2pOibYn6KibZ7gKKERVud6GXupJWVFJUluE6TsPk50XW+A1GDkpMOkcCpYsdlddpZszzHuVTdMJ28gFawRnVe5Scj6IDR1Uv9keuFLXCyvJ1cpBnLdUTktyJah4hWPwRRgr8UURIgigNG4XgL2lXneVLOykavcz0Y0Gg2r6JRbvqpoVPR1qwl5Mp4GecexDTabtfZNbzR/DvVc9sxB2GomIJ9S2dag76AlufEdQRSwYhu3S032E3O6w7q4Hr2pApYWamldg2uR+hDAKsAQPiS/CEALuF0Lr+fxzrgQf554CT9Jh7avHxC2PvM/8J4Bw=='),
@@ -274,11 +274,11 @@
 			this.addDataEntry(dt + 'message endpoint', 400, 90, 'Message Endpoint',
 				'zZZNb+IwEIZ/zdyNDSt6bKD0spUqdaU9m2RIrDqZaDJ87a9fOTGQCLoLUlHrXOIZv/54H08UMLNy98y2Ll4oQw/mCcyMiaR7K3cz9B60chmYOWitQGvQiw+yozarastYyTUC3Qk21q+xi3SBRvY+BhphesffLpMCzFyDSTLbFBgmUGAS611egZmnWAkymGRFlby5P0E9BZM0ha3DO2MqIeu8n5Enbic3qVpN7EMY1q7Sy6i2gUk2yOJS63/aJfpXapw4CgsuSYTK3oDHuBOhGkxSSOnBzEdhv0z1L8s5StxzPDSy4O5D49pQdO0ZqUThPWi1jUaEEZPOXFWgy4soe4gx23T9/Cg9YQC9iCQuUzG3Uhl9LpVV2+5M5SoI+jKEKNCTTrEfdnuIxhcIjT+B0Pj71829CuDovTpz+24FMfn+BXHrzR7/093pl93sH/+3GrMc32IX/ZK2T6dAcn7tmdZVdgSBVfbITNvwrfCUvrcSy3IIVlThIRb5jKKu3x3A7Xl/BmiqwnNxY93BwmkGlBpac4qDL7Eciud0F6+oFEZvxW2Gs9/ABvTi9CfQ5gY/Cn8B'),
 			this.addDataEntry(dt + 'message', 28, 48, 'Message',
-				'5ZVNb8IwDIZ/Ta9TaEcFx1E+Tjtx2HaMqNtES5MqNbTs1y9pwkdFu01iY5MGQrJfx8F57DZBlBTNStOSPaoURBAtgijRSqGziiYBIYKQ8DSI5kEYEvMLwuVAdNRGSUk1SPxKQugSdlRswSlOqHAvvABpDmvvKo1M5UpSsTipM622MgW7IzEeNByfz+wXa9+NrSfTB61VbQSppM1MacWOiQwLc/75yJgVavUKiRJKt0VEE2K/x8gTT5GZSGgUV7CtssOgUlu98dLYSUh1Dh7L/SWpNtFjWoEqAPXeLNEgKPJdd3daOTc/rjtBNobn3M88+hfM4z/F/P5z5pen7JCigufS2BtTOxhCs0xJXPM3mz2xkBgtrW3+l5eVBZ1xIYZxHiK+K74+0AjN4LM8QKv2NdsV/lwMeM6wq13Db3wzfho22AdvuYyTvikl7eewny9n1B3tmnGEdUnb2azNy/ZK4IcEP+N7706ce4N2xL/cjiybTsnlLH/Ujr4enLXo+9sRxT/VDuOebug21rnA3wE='),
+				'5ZVNb4MwDIZ/DdcphRa1x5V+nCZN6mHbMSqGRAsJCm6h+/VLIJSiUm1Tt27SQEj26zg4jxPwgiir1prm7EHFILxg6QWRVgobK6siEMLzCY+9YOH5PjGP568uREd1lORUg8TPJPhNwp6KHTRKIxR4EE6AOIWNc5VGplIlqVh26lyrnYzBzkiMBxXH5xP7xdp3E+vJ+F5rVRpBKmkzY1qwYyLDzKx/MTJmgVq9QqSE0nURwZTY+xh54jEyE/GN0hRsq+wxKNROb500aSSkOgWHZXxOqk50mNagMkB9MEM0CIp835+dFo2bHsd1kI3hOA8zD/4F8/BPMR9/zPx8lT1SVPBUGntragdDaJ4oiRv+ZrOnFhKjubXNe3leWNA5aG4KtYNb9bGT5gkX4jLtNuKa5soHjVBdPOoXYJZuSXaEWzYDnjLsa9fgndwMr4YtDsFbrcJoaBOT+mrnc+WM+ju/ZBxhk9N665bmW3wl8DbBHYGDc6eNe4N2hL/cjiSZzQj5UjuGenDSou9vRxD+VDuM2/3A61jv//4O'),
 	
 			this.addEntry(dt + 'message', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;fillColor=#808080;strokeColor=none;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;perimeter=ellipsePerimeter;fillColor=#808080;strokeColor=none;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('', new mxGeometry(16, 18, 12, 12), s + 'rect;fillColor=#80FF6C;fontStyle=1;whiteSpace=wrap;html=1;');
 				bg2.vertex = true;
@@ -292,11 +292,11 @@
 			}),
 	
 			this.addDataEntry(dt + 'message', 28, 48, 'Message',
-				'vZTBboMwDIafhutEoZva40q7nnbqYdsxKoZECzEKbqF7+jkkbYcY2qROAyHZv/MH5yMkSrOq21pRy2fMQUfpJkozi0g+qroMtI6SWOVRuo6SJOYnSp4mqrO+GtfCgqHfGBJvOAp9AK94oaGTDgLkJexCipYklmiE3lzVlcWDycHNGHMGnaLXL/Gbi+/uXWbyR2uxZcGgcc5cNPJilFTx+tczDhuy+A4ZarR9E+kidvel8qJyklxJWPENuy4HDBo82H2Q5l4iYUsIWNIxqd4YMG0BKyB74iEWtCB1HM4uGp+Wl3FXyBwEzt8zT39mPl7lgJTQqjQc77l3YEKrAg3t1IdzLxwkKWoX83tV3TjQhdJ6Gue5Er5K6A8sQTe5ryZotaFnNyKsS4IqJQ21W/jN/42fhT2N4RXFchmP4XEl7q/zfKGd2XBrt1IR7GrR782Wf/wbgZ8ND95xCunCp3//OTi9Hk99bXB6fQI='),
+				'vZTBboMwDIafhuuUQje1x5V2PU2a1MO2Y1QMiRYSZNxC9/RLSChDLdqkTgMh2b/t4HyxEiVp2W6RV+LZZKCiZBMlKRpD3irbFJSKYiazKFlHcczsF8VPE9FZF2UVR9D0m4LYFxy5OoBXvFDTSQUBsgJ2wTVIwhRGc7UZ1BWag87ArcisB62kt2/2u7Pv7p2ns0dE01hBG+0qM16Lc6Gg0u5/PbNmTWg+IDXKYNdEsmDuPUdeZUbCRmKr+IZdlyMGtTngPkhzLxHHAgKW5JJUVxgwbcGUQHiyKQiKkzyOV+e1d4tz3gDZGoHzdebJz8wvdzkixZUstLX3tnewhFa50bSTn6564SAJXjnb/ldWtQNdAUrbqEvu1ZdBWuVSqWnafSQcWmgfkKCdHLsJmE3YkssI2xYgC0Fj7Ra883/Di7CnS3h5vlwydm2IWff064V2ZuPJb4Qk2FW8G93G3gs3Au8LHnzFKbgL7/79cVh3uL262Ohy+wI='),
 	
 			this.addEntry(dt + 'message', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;fillColor=#808080;strokeColor=none;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;perimeter=ellipsePerimeter;fillColor=#808080;strokeColor=none;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('', new mxGeometry(16, 18, 12, 12), s2 + 'message_1;fillColor1=#ffff00;fillColor=#ff5500;fontStyle=1;whiteSpace=wrap;html=1;');
 				bg2.vertex = true;
@@ -311,7 +311,7 @@
 	
 			this.addEntry(dt + 'message', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;fillColor=#808080;strokeColor=none;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 12, 12), s + 'ellipse;perimeter=ellipsePerimeter;fillColor=#808080;strokeColor=none;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('', new mxGeometry(16, 18, 12, 12), s2 + 'message_2;fillColor1=#ffff00;fillColor=#00cc00;fontStyle=1;whiteSpace=wrap;html=1;');
 				bg2.vertex = true;

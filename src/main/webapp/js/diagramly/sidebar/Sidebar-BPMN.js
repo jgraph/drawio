@@ -50,7 +50,7 @@
 			this.createVertexTemplateEntry(s1 + 'bpmnTransferType=output;', 40, 60, '', 'Data Output', null, null, dt + 'data output'),
 			this.createVertexTemplateEntry(s1 + 'bpmnTransferType=output;isCollection=1;', 40, 60, '', 'Data Output Collection', null, null, dt + 'data output collection'),
 			this.createVertexTemplateEntry('shape=datastore;html=1;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;', 100, 100, '', 'Data Store', null, null, dt + 'data store'),
-			this.createVertexTemplateEntry('points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];rounded=1;dashed=1;dashPattern=5 2 1 2;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;fontSize=8;html=1;whiteSpace=wrap;', 140, 80, '', 'Data Object', null, null, dt + 'data object'),
+			this.createVertexTemplateEntry('points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];rounded=1;dashed=1;dashPattern=5 2 1 2;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;fontSize=8;html=1;whiteSpace=wrap;roundedPerimeter=1;', 140, 80, '', 'Data Object', null, null, dt + 'data object'),
 			this.createVertexTemplateEntry('text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;', 80, 30, 'Text', 'Text Annotation', null, null, dt + 'text annotation label'),
 			this.createVertexTemplateEntry(s2 + 'horizontal=0;swimlaneLine=0;fillColor=none;whiteSpace=wrap;', 440, 100, '', 'Horizontal Lane', null, null, dt + 'horizontal lane'),
 			this.createVertexTemplateEntry(s2 + 'horizontal=1;swimlaneLine=0;fillColor=none;whiteSpace=wrap;', 440, 100, '', 'Vertical Lane', null, null, dt + 'vertical lane'),
@@ -77,7 +77,7 @@
 			this.addDataEntry('container swimlane pool vertical', 380, 480, 'Vertical Pool 2',
 				'xZTfboMgFIefhnv+uGbXtVtv2qSJT0D0pJChGKRT+/Q7Cs5trYk3XS9MON/hJ/CFQERadnsna3W0BRgi3ohInbU+jMouBWMIp7ogYkc4p/gR/r7QZWOX1tJB5dcEeAh8SnOBQE7WmgAb35sIm1aXRlZYbZUvcZc7hsNcaVMcZG8vw1qNl/nHVG0dNPoKp2kj7A86yg4pRYox5zNsYM0HoKzTV1t5aeKMGWTDEvFvrdIeslrmQ7BFgcjiYcB56BaFjCja2IMtwbsep7S68CrMEK9BGlWgzyrGkgnKJoDzd3b2i4Oo+L5ucaP7MFjllK1UfmNr1ZH5/SPHQLwiPw0w/igDyZIB/kQDLPlPBS9LCsQzL8HmgQqwnJ+0sffrxfsC'),
 			this.createVertexTemplateEntry('swimlane;startSize=20;whiteSpace=wrap;html=1;', 120, 320, 'Lane', 'Vertical Swimlane', null, null, 'swimlane lane pool'),
-			this.createVertexTemplateEntry('points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];rounded=1;arcSize=10;dashed=1;fillColor=none;gradientColor=none;dashPattern=8 3 1 3;strokeWidth=2;whiteSpace=wrap;html=1;',
+			this.createVertexTemplateEntry('points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];rounded=1;arcSize=10;dashed=1;fillColor=none;gradientColor=none;dashPattern=8 3 1 3;strokeWidth=2;whiteSpace=wrap;html=1;roundedPerimeter=1;',
 				200, 200, '', 'Group', null, null, this.getTagsForStencil('bpmn', 'group', 'bpmn business process model ').join(' ')),
 				
 			this.createEdgeTemplateEntry(s5 + 'none;startArrow=none;', ew, eh, '', 'Association', null, dt + 'association'),
@@ -217,7 +217,7 @@
 			this.addEntry(dt + 'choreography task', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -245,7 +245,7 @@
 			this.addEntry(dt + 'choreography task loop', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -273,7 +273,7 @@
 			this.addEntry(dt + 'choreography task sequential multi instance', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -301,7 +301,7 @@
 			this.addEntry(dt + 'choreography task parallel multi instance', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -329,7 +329,7 @@
 			this.addEntry(dt + 'sub choreography collapsed', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -357,7 +357,7 @@
 			this.addEntry(dt + 'sub choreography loop collapsed', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -385,7 +385,7 @@
 			this.addEntry(dt + 'sub choreography sequential multi instance collapsed', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -413,7 +413,7 @@
 			this.addEntry(dt + 'sub choreography parallel multi instance collapsed', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -441,7 +441,7 @@
 			this.addEntry(dt + 'sub choreography expanded', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 400, 200), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -470,7 +470,7 @@
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
 //				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;');
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'bzzzzt');
@@ -479,7 +479,7 @@
 			this.addEntry(dt + 'call choreography activity calling global task', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -507,7 +507,7 @@
 			this.addEntry(dt + 'call choreography activity calling global task loop', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -535,7 +535,7 @@
 			this.addEntry(dt + 'call choreography activity calling global task sequential multi instance', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -563,7 +563,7 @@
 			this.addEntry(dt + 'call choreography activity calling global task parallel multi instance', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -591,7 +591,7 @@
 			this.addEntry(dt + 'call choreography activity calling', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -619,7 +619,7 @@
 			this.addEntry(dt + 'call choreography activity calling loop', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -647,7 +647,7 @@
 			this.addEntry(dt + 'call choreography activity calling sequential multi instance', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -675,7 +675,7 @@
 			this.addEntry(dt + 'call choreography activity calling parallel multi instance', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -703,7 +703,7 @@
 			this.addEntry(dt + 'choreography task', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -731,7 +731,7 @@
 			this.addEntry(dt + 'choreography task loop', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -759,7 +759,7 @@
 			this.addEntry(dt + 'choreography task sequential multi instance', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -787,7 +787,7 @@
 			this.addEntry(dt + 'choreography task parallel multi instance', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -815,7 +815,7 @@
 			this.addEntry(dt + 'sub choreography collapsed', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -843,7 +843,7 @@
 			this.addEntry(dt + 'sub choreography loop collapsed', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -871,7 +871,7 @@
 			this.addEntry(dt + 'sub choreography sequential multi instance collapsed', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -899,7 +899,7 @@
 			this.addEntry(dt + 'sub choreography parallel multi instance collapsed', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -927,7 +927,7 @@
 			this.addEntry(dt + 'sub choreography expanded', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 400, 200), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -955,7 +955,7 @@
 			this.addEntry(dt + 'call choreography activity calling global task', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -983,7 +983,7 @@
 			this.addEntry(dt + 'call choreography activity calling global task loop', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -1011,7 +1011,7 @@
 			this.addEntry(dt + 'call choreography activity calling global task sequential multi instance', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -1039,7 +1039,7 @@
 			this.addEntry(dt + 'call choreography activity calling global task parallel multi instance', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -1067,7 +1067,7 @@
 			this.addEntry(dt + 'call choreography activity calling', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -1095,7 +1095,7 @@
 			this.addEntry(dt + 'call choreography activity calling loop', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -1123,7 +1123,7 @@
 			this.addEntry(dt + 'call choreography activity calling sequential multi instance', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 
@@ -1151,7 +1151,7 @@
 			this.addEntry(dt + 'call choreography activity calling parallel multi instance', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
-				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;roundedPerimeter=1;');
 		    	bg.vertex = true;
 		    	
 			    var cell1 = new mxCell('', 

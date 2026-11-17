@@ -65,6 +65,7 @@ var ColorPicker = function()
 
 	var currentHsv = [0, 0, 1];
 	var currentAlpha = 1;
+	var padWidth = 180;
 	
 	function hsv2rgb(h, s, v)
 	{
@@ -147,7 +148,7 @@ var ColorPicker = function()
 
 	var update = mxUtils.bind(this, function(quiet)
 	{
-		var x = Math.round((currentHsv[0] / 6) * 180);
+		var x = Math.round((currentHsv[0] / 6) * padWidth);
 		var y = Math.round((1 - currentHsv[1]) * 100);
 
 		cross.style.left = (x - 8) + 'px';
@@ -213,7 +214,7 @@ var ColorPicker = function()
 			cross.style.left = (x - 8) + 'px';
 			cross.style.top = (y - 8) + 'px';
 
-			var temp = fromHSV(x * (6 / 180), 1 - y / 100);
+			var temp = fromHSV(x * (6 / padWidth), 1 - y / 100);
 
 			this.fromString('#' +
 				('0' + Math.floor(temp[0] * 255).toString(16)).slice(-2) +
@@ -301,6 +302,22 @@ var ColorPicker = function()
 		currentHsv[2] = hsv[2];
 		currentAlpha = rgb.a;
 		update(quiet);
+	};
+
+	/**
+	 * Sets the width of the pad (181 by default) and of the picker with the
+	 * slider after it, eg. to fill the width of a dialog. The image of the
+	 * pad is stretched to the width.
+	 */
+	this.setPadWidth = function(width)
+	{
+		width = Math.max(2, Math.round(width));
+		padWidth = width - 1;
+		colorPanel.style.width = width + 'px';
+		colorPanel.style.backgroundSize = '100% 100%';
+		sliderBox.style.left = (width + 12 + x0) + 'px';
+		div.style.width = (width + 49) + 'px';
+		update(true);
 	};
 
 	this.fromString('#ffffff');
@@ -1417,14 +1434,16 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 
 	function refreshRecentColors()
 	{
-		if (recentTable != null && recentTable.parentNode != null)
-		{
-			recentTable.parentNode.removeChild(recentTable);
-		}
-
+		var prev = recentTable;
 		recentTable = createRecentColorTable();
 
-		if (center.firstChild != recentTable)
+		// The new table takes the place of the previous one (layouts that
+		// rearrange the dialog may have moved it, see ColorDialog.controls)
+		if (prev != null && prev.parentNode != null)
+		{
+			prev.parentNode.replaceChild(recentTable, prev);
+		}
+		else if (center.firstChild != recentTable)
 		{
 			center.insertBefore(recentTable, center.firstChild);
 		}
@@ -1596,6 +1615,17 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 
 	this.picker = picker;
 	this.colorInput = input;
+
+	// The parts of the dialog for layouts that rearrange them (see
+	// SimpleColor.js); recent returns the table of the recent colors, which
+	// is replaced when they change
+	this.controls = {picker: picker.div, wrapper: wrapper, inputDiv: inputDiv, input: input,
+		advanced: advancedDiv, dark: darkColorDiv, center: center, inherit: inheritBtn,
+		buttons: buttons, apply: applyBtn, cancel: cancelBtn, dropper: dropperBtn,
+		defaultBtn: defaultBtn, liveApply: liveApply, recent: function()
+		{
+			return recentTable;
+		}};
 
 	function keyPressed(e)
 	{
@@ -3012,7 +3042,18 @@ var MarkupDialog = function(editorUi, title, value, fn, cancelFn, helpLink)
 	}
 
 	div.appendChild(buttons);
+
+	// The parts of the dialog for layouts that rearrange them (the Form
+	// template of Simple Modern, see SimpleMoreForms.js)
+	this.controls = {title: hd, toolbar: toolbar, textarea: textarea, wysiwyg: wysiwyg,
+		source: sourceBtn, buttons: buttons, apply: applyBtn};
 	this.container = div;
+
+	/**
+	 * Returns the value of Apply: the sanitized HTML of the formatted text or
+	 * the HTML of the source as typed.
+	 */
+	this.getValue = getValue;
 };
 
 /**
@@ -3730,6 +3771,11 @@ var ExportDialog = function(editorUi)
 
 	container.appendChild(btnRow);
 	this.container = container;
+
+	// Hook for the layout of the dialog in other looks
+	this.controls = {name: nameInput, format: imageFormatSelect, zoom: zoomInput,
+		width: widthInput, height: heightInput, dpi: dpiSelect, customDpi: customDpi,
+		transparent: transparentCheckbox, grid: gridCheckbox, border: borderInput};
 };
 
 /**
@@ -4440,6 +4486,12 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 		}
 	};
 
+	// The parts of the dialog for layouts that rearrange them (the Form
+	// template of Simple Modern, see SimpleForms.js)
+	this.controls = {cells: cells, graph: graph, id: idText, idSection: idSection,
+		propsSection: propsSection, properties: propertiesContainer, addSection: addSection,
+		nameInput: nameInput, addButton: addBtn, optSection: optSection, placeholders: input,
+		buttons: btnRow, exportButton: exportBtn, applyButton: applyBtn};
 	this.container = container;
 };
 
@@ -5481,7 +5533,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 
 		for (var i = 0; i < layers.length; i++)
 		{
-			if (!model.isVisible(layers[i]))
+			if (!graph.isLayerVisible(layers[i]))
 			{
 				visible = false;
 				break;
@@ -5592,12 +5644,12 @@ var LayersWindow = function(editorUi, x, y, w, h)
 				
 				menu.addItem(mxResources.get('show'), null, mxUtils.bind(this, function()
 				{
-					graph.setCellsVisible(selectedLayers, true);
+					editorUi.setLayersVisible(selectedLayers, true);
 				}), layersSubmenu, null, enabled).setAttribute('title', selectedLayers.length > 0 ?
 						mxResources.get('show') : nothingIsSelected);
 				menu.addItem(mxResources.get('hide'), null, mxUtils.bind(this, function()
 				{
-					graph.setCellsVisible(selectedLayers, false);
+					editorUi.setLayersVisible(selectedLayers, false);
 				}), layersSubmenu, null, enabled).setAttribute('title', selectedLayers.length > 0 ?
 						mxResources.get('hide') : nothingIsSelected);
 
@@ -5999,7 +6051,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 				evt.preventDefault();
 			});
 
-			var visible = model.isVisible(child);
+			var visible = graph.isLayerVisible(child);
 			var inp = document.createElement('img');
 			inp.className = 'geAdaptiveAsset';
 			inp.style.width = '16px';
@@ -6019,7 +6071,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 				mxUtils.setOpacity(div, 40);
 			}
 
-			if (!graph.isEnabled())
+			if (!editorUi.isLayerVisibilityEditable())
 			{
 				mxUtils.setOpacity(inp, 50);
 			}
@@ -6028,16 +6080,16 @@ var LayersWindow = function(editorUi, x, y, w, h)
 
 			mxEvent.addListener(inp, 'click', function(evt)
 			{
-				if (graph.isEnabled())
+				if (editorUi.isLayerVisibilityEditable())
 				{
 					if (mxEvent.isShiftDown(evt))
 					{
 						var others = getSelectedLayers(child, true);
-						graph.setCellsVisible(others, !isLayersVisible(others));
+						editorUi.setLayersVisible(others, !isLayersVisible(others));
 					}
 					else
 					{
-						graph.setCellsVisible([child], !visible);
+						editorUi.setLayersVisible([child], !visible);
 					}
 				}
 
@@ -6190,6 +6242,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	refresh();
 	model.addListener(mxEvent.CHANGE, refresh);
 	graph.addListener('defaultParentChanged', refresh);
+	graph.addListener('layerViewVisibilityChanged', refresh);
 	editorUi.addListener('lockedChanged', refresh);
 
 	graph.selectionModel.addListener(mxEvent.CHANGE, function()

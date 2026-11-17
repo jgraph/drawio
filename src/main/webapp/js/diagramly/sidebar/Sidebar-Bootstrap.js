@@ -79,21 +79,21 @@
 			this.createVertexTemplateEntry(s + 'rrect;rSize=5;strokeColor=none;strokeWidth=1;fillColor=#343A40;fontColor=#FFFFFF;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=5;', 
 					40, 20, 'Dark', 'Badge, dark', null, null, this.getTagsForStencil(gn, 'badge', dt + 'badge dark').join(' ')),
 					
-			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#0085FC;fontColor=#FFFFFF;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;', 
+			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#0085FC;fontColor=#FFFFFF;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;roundedPerimeter=1;', 
 					70, 20, 'Primary', 'Pill badge, primary', null, null, this.getTagsForStencil(gn, 'badge', dt + 'pill badge primary').join(' ')),
-			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#6C767D;fontColor=#FFFFFF;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;', 
+			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#6C767D;fontColor=#FFFFFF;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;roundedPerimeter=1;', 
 					90, 20, 'Secondary', 'Pill badge, secondary', null, null, this.getTagsForStencil(gn, 'badge', dt + 'pill badge secondary').join(' ')),
-			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#33A64C;fontColor=#FFFFFF;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;', 
+			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#33A64C;fontColor=#FFFFFF;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;roundedPerimeter=1;', 
 					75, 20, 'Success', 'Pill badge, success', null, null, this.getTagsForStencil(gn, 'badge', dt + 'pill badge success').join(' ')),
-			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#DB2843;fontColor=#FFFFFF;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;', 
+			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#DB2843;fontColor=#FFFFFF;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;roundedPerimeter=1;', 
 					65, 20, 'Danger', 'Pill badge, danger', null, null, this.getTagsForStencil(gn, 'badge', dt + 'pill badge danger').join(' ')),
-			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#FFBC26;fontColor=#000000;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;', 
+			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#FFBC26;fontColor=#000000;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;roundedPerimeter=1;', 
 					75, 20, 'Warning', 'Pill badge, warning', null, null, this.getTagsForStencil(gn, 'badge', dt + 'pill badge warning').join(' ')),
-			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#1CA5B8;fontColor=#ffffff;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;', 
+			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#1CA5B8;fontColor=#ffffff;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;roundedPerimeter=1;', 
 					45, 20, 'Info', 'Pill badge, info', null, null, this.getTagsForStencil(gn, 'badge', dt + 'pill badge info').join(' ')),
-			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#F8F9FA;fontColor=#000000;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;', 
+			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#F8F9FA;fontColor=#000000;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;roundedPerimeter=1;', 
 					55, 20, 'Light', 'Pill badge, light', null, null, this.getTagsForStencil(gn, 'badge', dt + 'pill badge light').join(' ')),
-			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#343A40;fontColor=#ffffff;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;', 
+			this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeColor=none;strokeWidth=1;fillColor=#343A40;fontColor=#ffffff;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=1;fontSize=14;spacing=10;roundedPerimeter=1;', 
 					50, 20, 'Dark', 'Pill badge, dark', null, null, this.getTagsForStencil(gn, 'badge', dt + 'pill badge dark').join(' ')),
 
 			this.createVertexTemplateEntry(s + 'rrect;rSize=5;strokeColor=none;strokeWidth=1;fillColor=#E9ECEF;fontColor=#6C757D;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=0;fontStyle=0;fontSize=14;spacing=10;', 
@@ -4670,7 +4670,7 @@
 	   		{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 40, 40), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#59AFFD;fontColor=#ffffff;align=right;spacing=10;');
 			   	bg.vertex = true;
-			   	var item1 = new mxCell('', new mxGeometry(0.5, 0.5, 20, 20), 'html=1;shadow=0;dashed=0;shape=ellipse;strokeColor=none;fillColor=#ffffff;');
+			   	var item1 = new mxCell('', new mxGeometry(0.5, 0.5, 20, 20), 'html=1;shadow=0;dashed=0;shape=ellipse;perimeter=ellipsePerimeter;strokeColor=none;fillColor=#ffffff;');
 			   	item1.geometry.relative = true;
 			   	item1.geometry.offset = new mxPoint(-10, -10);
 			   	item1.vertex = true;
@@ -4683,7 +4683,7 @@
 	   		{
 			   	var bg = new mxCell('Loading...', new mxGeometry(0, 0, 110, 40), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#59AFFD;fontColor=#ffffff;align=right;spacing=10;');
 			   	bg.vertex = true;
-			   	var item1 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'html=1;shadow=0;dashed=0;shape=ellipse;strokeColor=none;fillColor=#ffffff;');
+			   	var item1 = new mxCell('', new mxGeometry(0, 0.5, 20, 20), 'html=1;shadow=0;dashed=0;shape=ellipse;perimeter=ellipsePerimeter;strokeColor=none;fillColor=#ffffff;');
 			   	item1.geometry.relative = true;
 			   	item1.geometry.offset = new mxPoint(15, -10);
 			   	item1.vertex = true;

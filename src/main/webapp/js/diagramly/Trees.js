@@ -187,13 +187,17 @@
 
 	/**
 	 * Invalidates the state of the given cell if its folding icon depends
-	 * on outgoing tree edges.
+	 * on outgoing tree edges. A cell without a state has no icon to update
+	 * (its state gets one when it is created), and its style is not resolved
+	 * here, as a source added with many edges (eg. in an import) would be
+	 * resolved once for each edge.
 	 */
 	Graph.prototype.invalidateTreeFolding = function(cell)
 	{
-		if (cell != null && !this.model.isCollapsed(cell) &&
-			mxUtils.getValue(this.getCurrentCellStyle(cell),
-			'treeFolding', '0') == '1')
+		var state = (cell != null) ? this.view.getState(cell) : null;
+
+		if (state != null && !this.model.isCollapsed(cell) &&
+			mxUtils.getValue(state.style, 'treeFolding', '0') == '1')
 		{
 			this.view.invalidate(cell, false, false);
 		}
@@ -324,12 +328,51 @@
 			return result;
 		};
 		
+		// Returns the selection actions of trees for the selected cell (… ›
+		// Edit of Simple Modern, see SimpleMenus.js)
+		ui.getTreeSelectActions = function()
+		{
+			var keys = [];
+
+			if (graph.getSelectionCount() == 1)
+			{
+				var cell = graph.getSelectionCell();
+				var tree = isTreeVertex(cell);
+
+				if (graph.getOutgoingTreeEdges(cell).length > 0)
+				{
+					if (tree)
+					{
+						keys.push('selectChildren');
+					}
+
+					keys.push('selectDescendants');
+				}
+
+				if (tree)
+				{
+					if (graph.getIncomingTreeEdges(cell).length > 0)
+					{
+						keys.push('selectSiblings', 'selectParent');
+					}
+				}
+				else if (graph.model.getEdgeCount(cell) > 0)
+				{
+					keys.push('selectConnections');
+				}
+			}
+
+			return keys;
+		};
+
 		var uiCreatePopupMenu = ui.menus.createPopupMenu;
 		ui.menus.createPopupMenu = function(menu, cell, evt)
 		{
 			uiCreatePopupMenu.apply(this, arguments);
 			
-			if (graph.getSelectionCount() == 1)
+			// The context menu of Simple Modern has no selection items of trees
+			if (graph.getSelectionCount() == 1 && !(typeof this.isSimpleContextMenu === 'function' &&
+				this.isSimpleContextMenu()))
 			{
 				var cell = graph.getSelectionCell();
 				var sib = graph.getOutgoingTreeEdges(cell);
@@ -1653,7 +1696,80 @@
 				return graphConnectVertex.apply(this, arguments);
 			}
 		};
-		
+
+		// True if the given cell is a shape in a tree, balloon or mindmap box
+		// (see EditorUi.getOutlineLayout)
+		function isOutlineTreeVertex(cell)
+		{
+			return isTreeVertex(cell) && typeof ui.getOutlineLayout === 'function' &&
+				ui.getOutlineLayout(model.getParent(cell)) != null;
+		};
+
+		var graphStyleDroppedConnection = graph.styleDroppedConnection;
+
+		// A shape dropped onto a hover arrow of a shape in a tree, balloon or
+		// mindmap box takes the style of that shape, its parent, like the
+		// shapes of the shape picker of the arrows (see createShapePicker and
+		// replaceTargetCell), instead of the current style, and its connector
+		// the style of the connector of a click on the arrow
+		graph.styleDroppedConnection = function(source, target, edge, direction, keepStyle)
+		{
+			if (isOutlineTreeVertex(source))
+			{
+				var result = [];
+				var sourceState = graph.view.getState(source);
+
+				// Like the shape picker, transparent shapes give no style (else
+				// the new shape would be invisible), and copies of the shapes of
+				// the diagram (smUsedCopy, see SimpleUsedShapes.js) keep theirs
+				if (!keepStyle && (target.smUsedCopy == null ||
+					target.smUsedCopy !== EditorUi.simpleUsedShapeCopy) && (sourceState == null ||
+					!graph.isTransparentState(sourceState)))
+				{
+					graph.pasteStyle(graph.copyStyle(source), [target]);
+					result.push(target);
+				}
+
+				var style = graph.getCurrentCellStyle(source);
+				var targetStyle = model.getStyle(target);
+				var keys = ['treeFolding', 'treeMoving', 'newEdgeStyle'];
+
+				for (var i = 0; i < keys.length; i++)
+				{
+					if (style[keys[i]] != null && (targetStyle == null ||
+						targetStyle.indexOf(keys[i] + '=') < 0))
+					{
+						graph.setCellStyles(keys[i], style[keys[i]], [target]);
+					}
+				}
+
+				// The connector of a click on the arrow (see addChild): the style
+				// of the incoming connector of the shape, else for a root the
+				// current style with the newEdgeStyle of the shape (eg. without
+				// arrows in balloon and mindmap boxes)
+				var edges = graph.getIncomingTreeEdges(source);
+
+				if (edges.length > 0)
+				{
+					// Ties belong to the copied connector (see connector-ties.md)
+					model.setStyle(edge, mxUtils.setStyle(
+						model.getStyle(edges[0]), 'ties', null));
+				}
+				else
+				{
+					graph.applyNewEdgeStyle(source, [edge], direction);
+				}
+
+				result.push(edge);
+
+				return result;
+			}
+			else
+			{
+				return graphStyleDroppedConnection.apply(this, arguments);
+			}
+		};
+
 		/**
 		 * Returns the given cell with the vertices and tree edges below it, or
 		 * only with the hidden ones (see Graph.foldTreeCell) if hidden is true.

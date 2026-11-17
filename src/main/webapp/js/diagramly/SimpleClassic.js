@@ -595,6 +595,14 @@ Editor.themes.push('atlas');
 						((urlParams['embed'] != '1') ? 'flex-grow:0.5;overflow:visible;' : '') +
 						'flex-shrink:0;' + css;
 
+					// Opens the omnibox, the search for actions and settings
+					if (this.omniboxElt == null && this.actions.get('searchActions').isEnabled())
+					{
+						this.omniboxElt = this.createMenuItem('searchActions', Editor.thinSearchImage, true);
+						this.omniboxElt.style.backgroundSize = '24px';
+						this.omniboxElt.style.flexShrink = '0';
+					}
+
 					if (this.commentElt == null)
 					{
 						this.commentElt = this.createMenuItem('comments', Editor.thinCommentImage, true);
@@ -673,6 +681,11 @@ Editor.themes.push('atlas');
 							var eo = (urlParams['embed'] == '1' && this.buttonContainer != null) ?
 								(this.buttonContainer.offsetWidth || 300) : 0;
 
+							if (this.omniboxElt != null)
+							{
+								this.omniboxElt.style.display = (iw > 480 + eo) ? '' : 'none';
+							}
+
 							if (this.commentElt != null)
 							{
 								this.commentElt.style.display = (iw > 560 + eo && this.commentsSupported()) ? '' : 'none';
@@ -702,6 +715,13 @@ Editor.themes.push('atlas');
 
 				this.dependsOnLanguage(mxUtils.bind(this, function()
 				{
+					if (this.omniboxElt != null)
+					{
+						var action = this.actions.get('searchActions');
+						this.omniboxElt.setAttribute('title', action.getTitle() +
+							' (' + action.shortcut + ')');
+					}
+
 					if (this.commentElt != null)
 					{
 						this.commentElt.setAttribute('title', mxResources.get('comments'));
@@ -726,6 +746,11 @@ Editor.themes.push('atlas');
 
 			if (value == 'simple')
 			{
+				if (this.omniboxElt != null)
+				{
+					this.sketchMenubarElt.appendChild(this.omniboxElt);
+				}
+
 				if (this.commentElt != null)
 				{
 					this.sketchMenubarElt.appendChild(this.commentElt);

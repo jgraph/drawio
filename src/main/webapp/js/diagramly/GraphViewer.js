@@ -1331,7 +1331,8 @@ GraphViewer.prototype.addSizeHandler = function()
 	
 	var updateOverflow = mxUtils.bind(this, function()
 	{
-		if (!updatingOverflow)
+		// The resize observer can fire after the graph was destroyed
+		if (!updatingOverflow && this.graph.container != null)
 		{
 			updatingOverflow = true;
 			var tmp = this.graph.getGraphBounds();
@@ -1493,7 +1494,8 @@ GraphViewer.prototype.addSizeHandler = function()
 			// frame and a fit does not repaint the cells in model coordinates
 			var doResize = mxUtils.bind(this, function()
 			{
-				if (!this.handlingResize)
+				// The resize observer can fire after the graph was destroyed
+				if (!this.handlingResize && this.graph.container != null)
 				{
 					this.fitGraph();
 				}
@@ -1939,7 +1941,7 @@ GraphViewer.prototype.addToolbar = function()
 			}
 			
 			toolbar.style.display = 'flex';
-			mxUtils.setOpacity(toolbar, opacity || 30);
+			mxUtils.setOpacity(toolbar, opacity || 30);
 		});
 		
 		mxEvent.addListener(this.graph.container, (mxClient.IS_POINTER) ? 'pointermove' : 'mousemove', mxUtils.bind(this, function(evt)
@@ -2607,7 +2609,16 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
  */
 GraphViewer.prototype.showLightbox = function(editable, closable, target)
 {
-	if (this.graphConfig.lightbox == 'open' || window.self !== window.top)
+	// The new viewer opens the new Lightbox in a window, as the in-page
+	// lightbox has the previous look (LightboxModern.js is not in the bundles
+	// of the viewer, see ViewerModern.js), but only if the site sets its own
+	// lightbox URL: with the default host the diagram would go to
+	// viewer.diagrams.net (and offline installs get no window), so the
+	// in-page lightbox stays
+	if (this.graphConfig.lightbox == 'open' || window.self !== window.top ||
+		(this.viewerUi == 'modern' && typeof window.DRAWIO_LIGHTBOX_URL === 'string' &&
+		window.DRAWIO_LIGHTBOX_URL != '' &&
+		window.DRAWIO_LIGHTBOX_URL != 'https://viewer.diagrams.net'))
 	{
 		if (this.lightboxWindow != null && !this.lightboxWindow.closed)
 		{
@@ -2673,6 +2684,12 @@ GraphViewer.prototype.showLightbox = function(editable, closable, target)
 			if (this.currentPage != null && this.currentPage > 0)
 			{
 				param.page = this.currentPage;
+			}
+
+			// The lightbox of the new viewer has the new look (see ViewerModern.js)
+			if (this.viewerUi == 'modern')
+			{
+				param['viewer-ui'] = 'modern';
 			}
 
 			if (typeof window.postMessage !== 'undefined' && (document.documentMode == null || document.documentMode >= 10))
@@ -3382,7 +3399,10 @@ GraphViewer.getLazySize = function(config)
 				border = (isFinite(border) && border >= 0) ? Math.max(1, border) : 8;
 				var width = Math.ceil(bounds.width * zoom + 2 * border);
 				var height = Math.ceil(bounds.height * zoom + 2 * border);
-				var tb = (config.toolbar != null) ? GraphViewer.prototype.toolbarHeight : 0;
+				// The bar of the new look floats in the diagram (ViewerModern.js,
+				// not in all bundles) and adds no margin
+				var tb = (config.toolbar != null && (typeof GraphViewer.getViewerUi !== 'function' ||
+					GraphViewer.getViewerUi(config) != 'modern')) ? GraphViewer.prototype.toolbarHeight : 0;
 				var pos = config['toolbar-position'];
 
 				if (width > 0 && height > 0 && width < 1e5 && height < 1e5)

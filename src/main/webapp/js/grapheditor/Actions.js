@@ -787,13 +787,10 @@ Actions.prototype.init = function()
 				}
 			}
 			
-	    	var dlg = new MarkupDialog(ui, mxResources.get('editTooltip') + ':', tooltip, function(newValue)
+			ui.showMarkupDialog(cell, mxResources.get('editTooltip') + ':', tooltip, function(newValue)
 			{
 				graph.setTooltipForCell(cell, newValue);
-			});
-			ui.showDialog(dlg.container, 420, 300, true, true, null, null, null,
-				new mxRectangle(0, 0, 320, 240), null, 'editTooltip');
-			dlg.init();
+			}, 'editTooltip');
 		}
 	}, null, null,  Editor.altKey + '+' + Editor.shiftKey + '+T');
 	this.addAction('editNote...', function()
@@ -804,13 +801,10 @@ Actions.prototype.init = function()
 		{
 			var note = graph.getNoteForCell(cell) || '';
 
-	    	var dlg = new MarkupDialog(ui, mxResources.get('editNote') + ':', note, function(newValue)
+			ui.showMarkupDialog(cell, mxResources.get('editNote') + ':', note, function(newValue)
 			{
 				graph.setNoteForCell(cell, newValue);
-			});
-			ui.showDialog(dlg.container, 420, 300, true, true, null, null, null,
-				new mxRectangle(0, 0, 320, 240), null, 'editNote');
-			dlg.init();
+			}, 'editNote');
 		}
 	}, null, null,  Editor.altKey + '+' + Editor.shiftKey + '+N');
 	this.addAction('openLink', function()
@@ -2307,6 +2301,16 @@ Actions.prototype.init = function()
 	}), null, null, Editor.ctrlKey + '+' + Editor.shiftKey + '+P');
 	action.setToggleAction(true);
 	action.setSelectedCallback(mxUtils.bind(this, function() { return ui.isFormatPanelVisible(); }));
+	this.addAction('searchActions', function()
+	{
+		if (ui.isOmniboxEnabled())
+		{
+			ui.showOmnibox();
+		}
+	}, null, null, Editor.ctrlKey + '+' + Editor.altKey + '+P').isEnabled = function()
+	{
+		return ui.isOmniboxEnabled();
+	};
 	action = this.addAction('outline', mxUtils.bind(this, function()
 	{
 		if (this.outlineWindow == null)

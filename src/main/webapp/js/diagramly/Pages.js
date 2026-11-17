@@ -2446,6 +2446,30 @@ EditorUi.prototype.removePage = function(page)
 };
 
 /**
+ * Removes all pages in one edit (a new empty page remains).
+ */
+EditorUi.prototype.removeAllPages = function()
+{
+	var graph = this.editor.graph;
+	graph.getModel().beginUpdate();
+	try
+	{
+		for (var i = this.pages.length; i >= 0; i--)
+		{
+			this.removePage(this.pages[i]);
+		}
+	}
+	catch (e)
+	{
+		this.handleError(e);
+	}
+	finally
+	{
+		graph.getModel().endUpdate();
+	}
+};
+
+/**
  * Duplicates the given page.
  */
 EditorUi.prototype.duplicatePage = function(page, name)
@@ -3589,12 +3613,17 @@ EditorUi.prototype.addTabDragListeners = function(tab)
 					tab.className = drag.className;
 				}
 
+				var joins = page != null && group != page.getGroup();
 				this.movePageToGroup(drag.index, index, group);
 
 				// A page that joins a collapsed group expands it. The group of
-				// the current page is shown expanded and keeps its state.
+				// the current page is shown expanded and keeps its state. A
+				// press on a tab selects its page before the drag (see
+				// addTabListeners), so the dragged page does not count as the
+				// current page of a group that it joins.
 				if (group != null && this.isPageGroupCollapsed(group) &&
-					!this.isCurrentPageGroup(group, index))
+					(!this.isCurrentPageGroup(group, index) ||
+					(joins && page == this.currentPage)))
 				{
 					this.setPageGroupCollapsed(group, false);
 				}
@@ -3840,9 +3869,11 @@ EditorUi.prototype.focusTabContainerControl = function(key)
 /**
  * Shows the given menu for the given event at the mouse or, for a keystroke
  * or a click with the keyboard (see Editor.clickWithKeyboard), at the given
- * control with the focus on its first item. The focus returns to the same
- * control of the page tabs if they were created again, eg. after a page was
- * duplicated (see focusTabContainerControl).
+ * control with the focus on its first item. Escape closes the menu and gives
+ * the focus to the control, also if the menu was opened with the mouse, and
+ * a second Escape gives it to the diagram (see keydownHandler). The focus
+ * returns to the same control of the page tabs if they were created again,
+ * eg. after a page was duplicated (see focusTabContainerControl).
  */
 EditorUi.prototype.popupTabMenu = function(menu, elt, evt)
 {
@@ -3872,11 +3903,28 @@ EditorUi.prototype.popupTabMenu = function(menu, elt, evt)
 		}
 	});
 
+	// Escape with the focus outside of the menu, eg. in the diagram after a
+	// click (see addTabMouseFocusListeners), only hides the menu. Set before
+	// the menu is shown, which binds the handler.
+	var menuDocumentKeyDown = menu.documentKeyDown;
+
+	menu.documentKeyDown = function(evt)
+	{
+		var showing = this.isMenuShowing();
+		menuDocumentKeyDown.apply(this, arguments);
+
+		if (showing && evt.keyCode == 27 /* Escape */ &&
+			mxEvent.isConsumed(evt) && !this.isMenuShowing())
+		{
+			this.restoreFocus(this.returnFocus);
+		}
+	};
+
 	menu.popup(x, y, null, evt);
+	menu.returnFocus = elt;
 
 	if (keyboard)
 	{
-		menu.returnFocus = elt;
 		menu.focusFirstItem();
 	}
 };
@@ -4313,25 +4361,73 @@ EditorUi.prototype.createPageGroupMenu = function(group, index)
  */
 EditorUi.prototype.addTabMouseFocusListeners = function(tab)
 {
+	var ui = this;
+	var container = this.editor.graph.container;
+	var upEvent = (mxClient.IS_POINTER) ? 'pointerup' : 'mouseup';
 	var mouseFocus = false;
+	var previous = null;
+
+	var removeListeners = function()
+	{
+		document.removeEventListener(upEvent, restoreFocus, true);
+		document.removeEventListener('pointercancel', removeListeners, true);
+	};
+
+	// Gives the focus back to the diagram if it had it, so that Escape in the
+	// menu of the tab returns there and not to the body. The focus listener
+	// of the container moves it on to the typing shim if cells are selected.
+	// Other elements are not focused again, as a text field with the focus
+	// would take the keys of the menu.
+	var restoreFocus = function()
+	{
+		removeListeners();
+		var active = document.activeElement;
+
+		if (mouseFocus && (active == null || active == document.body ||
+			mxUtils.isAncestorNode(tab, active) ||
+			mxUtils.isAncestorNode(ui.tabContainer, active)))
+		{
+			if (previous != null && (previous == container ||
+				previous.className == 'mxTypingShim'))
+			{
+				container.focus({preventScroll: true});
+			}
+			else if (active != null && active != document.body)
+			{
+				active.blur();
+			}
+		}
+
+		mouseFocus = false;
+		previous = null;
+	};
 
 	tab.addEventListener((mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown', function()
 	{
 		mouseFocus = !mxUtils.isAncestorNode(tab, document.activeElement);
+		previous = (mouseFocus) ? document.activeElement : null;
+
+		// On the document, as a click that selects a page replaces the tab
+		// and the mousedown on the removed tab moves the focus to the body.
+		// A drag of the tab cancels the pointer and ends with dragend.
+		if (mouseFocus)
+		{
+			document.addEventListener(upEvent, restoreFocus, true);
+			document.addEventListener('pointercancel', removeListeners, true);
+		}
 	}, true);
 
-	var restoreFocus = function()
-	{
-		if (mouseFocus && mxUtils.isAncestorNode(tab, document.activeElement))
-		{
-			document.activeElement.blur();
-		}
-
-		mouseFocus = false;
-	};
-
-	tab.addEventListener((mxClient.IS_POINTER) ? 'pointerup' : 'mouseup', restoreFocus, true);
 	tab.addEventListener('dragend', restoreFocus, true);
+};
+
+/**
+ * Returns true if pressing the tab of a page selects the page. Else the
+ * page is selected when the press ends without scrolling the tabs, so that
+ * touches can swipe the tabs (the page bar of Simple Modern, SimplePages.js).
+ */
+EditorUi.prototype.isPageSelectedOnPress = function(evt)
+{
+	return true;
 };
 
 /**
@@ -4412,22 +4508,49 @@ EditorUi.prototype.addTabListeners = function(page, tab)
 		}
 	}));
 
+	// Press that selects the page when it ends (see isPageSelectedOnPress)
+	var press = null;
+
 	var onMouseDown = mxUtils.bind(this, function(evt)
 	{
 		// Do not consume event here to allow for drag and drop of tabs
 		menuWasVisible = this.currentMenu != null;
 		pageWasActive = page == this.currentPage;
-		this.scrollToPage(page);
-		
-		if (!graph.isMouseDown && !pageWasActive)
+		press = null;
+
+		if (this.isPageSelectedOnPress(evt))
 		{
-			this.selectPage(page);
+			this.scrollToPage(page);
+
+			if (!graph.isMouseDown && !pageWasActive)
+			{
+				this.selectPage(page);
+			}
+		}
+		else
+		{
+			press = {x: mxEvent.getClientX(evt), y: mxEvent.getClientY(evt),
+				scrollLeft: (this.tabScroller != null) ? this.tabScroller.scrollLeft : 0};
 		}
 	});
 
 	var onMouseUp = mxUtils.bind(this, function(evt)
 	{
-		if (!graph.isMouseDown && ((pageWasActive &&
+		// A press that scrolled the tabs is a swipe, which neither
+		// selects the page nor shows its menu
+		var swipe = press != null && (this.tabScroller == null ||
+			this.tabScroller.scrollLeft != press.scrollLeft ||
+			Math.abs(mxEvent.getClientX(evt) - press.x) > graph.tolerance ||
+			Math.abs(mxEvent.getClientY(evt) - press.y) > graph.tolerance);
+		var select = press != null && !swipe && !pageWasActive;
+		press = null;
+
+		if (select && !graph.isMouseDown)
+		{
+			this.scrollToPage(page);
+			this.selectPage(page);
+		}
+		else if (!swipe && !graph.isMouseDown && ((pageWasActive &&
 			(mxEvent.isTouchEvent(evt) ||
 				mxEvent.getSource(evt) == elt)) ||
 			mxEvent.isPopupTrigger(evt)))

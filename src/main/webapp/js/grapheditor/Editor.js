@@ -2283,7 +2283,7 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 
 	if (h == null)
 	{
-		div.style.height = (elt.scrollHeight + 48) + 'px';
+		div.style.height = Dialog.getFrameHeight(div, elt.scrollHeight) + 'px';
 	}
 	
 	if (closable)
@@ -2342,6 +2342,17 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
  * Counter for the IDs of dialog titles without an ID.
  */
 Dialog.titleCount = 0;
+
+/**
+ * Returns the height of the given frame of a dialog (.geDialog) for the
+ * given height of its content: the content and the padding of the frame
+ * above and below it (48). Dialogs that fit their height to their content
+ * after a change use this.
+ */
+Dialog.getFrameHeight = function(div, height)
+{
+	return height + 48;
+};
 
 /**
  * Returns the focused control if the focus goes back to it when the dialog
@@ -3436,6 +3447,16 @@ PrintDialog.createPrintPreview = function(graph, scale, pf, border, x0, y0, auto
 			graph.getAbsoluteUrl(link);
 	};
 
+	// The browser resolves the links in the output against the document, which
+	// adds the install path to relative links in printouts saved as PDF
+	var addGraphFragment = preview.addGraphFragment;
+
+	preview.addGraphFragment = function(dx, dy, scale, pageNumber, div, clip)
+	{
+		addGraphFragment.apply(this, arguments);
+		this.graph.updateFileBaseLinks(div, true);
+	};
+
 	return preview;
 };
 
@@ -4028,6 +4049,12 @@ var PageSetupDialog = function(editorUi)
 			dialogButtons[i].setAttribute('title', btnLabel);
 		}
 	}
+
+	// The controls of the dialog for layouts that rearrange them (the Form
+	// template of Simple Modern, see SimpleForms.js)
+	this.controls = {paper: paperContent, gridSize: gridSizeInput, gridUnit: gridUnitLabel,
+		background: changeImageLink, adaptive: adaptiveDropdown, adaptiveHelp: helpLink,
+		scalePrefix: scalePrefix, scale: scaleInput, options: advanced.content, view: viewContent};
 
 	var dlg = new CustomDialog(editorUi, div, applyFn, null,
 		mxResources.get('apply'), 'https://www.drawio.com/docs/manual/pages/page-setup/');

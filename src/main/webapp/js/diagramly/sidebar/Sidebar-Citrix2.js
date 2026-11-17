@@ -112,7 +112,7 @@
 			this.createVertexTemplateEntry(s + 'netscaler_gateway;', w, h * 0.8943, '', 'NetScaler Gateway', null, null, this.getTagsForStencil(gn, 'netscaler gateway', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'storefront;', w, h * 0.8627, '', 'StoreFront', null, null, this.getTagsForStencil(gn, 'storefront', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'workspace_environment_management2;', w * 0.9595, h, '', 'Workspace Environment Management', null, null, this.getTagsForStencil(gn, 'workspace environment management', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'delivery_controller;', w, h, '', 'Delivery Controller', null, null, this.getTagsForStencil(gn, 'delivery controller', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'delivery_controller;perimeter=ellipsePerimeter;', w, h, '', 'Delivery Controller', null, null, this.getTagsForStencil(gn, 'delivery controller', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'director;', w, h * 0.8611, '', 'Director', null, null, this.getTagsForStencil(gn, 'director', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'studio_web_studio;', w, h * 0.8597, '', 'Studio / Web Studio', null, null, this.getTagsForStencil(gn, 'studio web studio', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'vda;', w, h * 0.8237, '', 'VDA', null, null, this.getTagsForStencil(gn, 'vda', dt).join(' ')),
@@ -199,12 +199,12 @@
 			this.createVertexTemplateEntry(s + 'bridge;', w, h * 0.5464, '', 'Bridge', null, null, this.getTagsForStencil(gn, 'bridge', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'switch;', w, h * 0.5464, '', 'Switch', null, null, this.getTagsForStencil(gn, 'switch', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'network;', w * 0.9638, h, '', 'Network', null, null, this.getTagsForStencil(gn, 'network', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'router;', w, h, '', 'Router', null, null, this.getTagsForStencil(gn, 'router', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'router;perimeter=ellipsePerimeter;', w, h, '', 'Router', null, null, this.getTagsForStencil(gn, 'router', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'sd_wan;', w, h * 0.9992, '', 'SD-WAN', null, null, this.getTagsForStencil(gn, 'sd wan wide area network', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'firewall;', w, h * 0.9983, '', 'Firewall', null, null, this.getTagsForStencil(gn, 'firewall', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'wifi_router;', w * 0.998, h, '', 'Wifi Router', null, null, this.getTagsForStencil(gn, 'wifi router', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'dns;', w, h, '', 'DNS', null, null, this.getTagsForStencil(gn, 'dns domain name server', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'internet;', w, h, '', 'Internet', null, null, this.getTagsForStencil(gn, 'internet', dt).join(' '))
+			this.createVertexTemplateEntry(s + 'dns;perimeter=ellipsePerimeter;', w, h, '', 'DNS', null, null, this.getTagsForStencil(gn, 'dns domain name server', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'internet;perimeter=ellipsePerimeter;', w, h, '', 'Internet', null, null, this.getTagsForStencil(gn, 'internet', dt).join(' '))
 		]);
 	};
 
@@ -214,22 +214,22 @@
 		
 		this.addPaletteFunctions('citrix2Authentication', 'Citrix / Authentication', false,
 		[
-			this.createVertexTemplateEntry(s + 'authentication_adaptive;', w, h, '', 'Authentication: Adaptive', null, null, this.getTagsForStencil(gn, 'authentication adaptive', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'authentication_cert;', w, h, '', 'Authentication: Cert', null, null, this.getTagsForStencil(gn, 'authentication cert', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'authentication_totp;', w, h, '', 'Authentication: TOTP', null, null, this.getTagsForStencil(gn, 'authentication totp', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'authentication_selection;', w, h, '', 'Authentication: Selection', null, null, this.getTagsForStencil(gn, 'authentication selection', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'authentication_saml;', w, h, '', 'Authentication: SAML', null, null, this.getTagsForStencil(gn, 'authentication saml', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'authentication_radius;', w, h, '', 'Authentication: RADIUS', null, null, this.getTagsForStencil(gn, 'authentication radius', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'authentication_epa;', w, h, '', 'Authentication: EPA', null, null, this.getTagsForStencil(gn, 'authentication epa', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'authentication_failure;', w, h, '', 'Authentication: Failure', null, null, this.getTagsForStencil(gn, 'authentication failure', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'authentication_fido2;', w, h, '', 'Authentication: FIDO2', null, null, this.getTagsForStencil(gn, 'authentication fido2', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'authentication_mfa;', w, h, '', 'Authentication: MFA', null, null, this.getTagsForStencil(gn, 'authentication mfa', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'authentication_oidc;', w, h, '', 'Authentication: OIDC', null, null, this.getTagsForStencil(gn, 'authentication oidc', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'authentication_push;', w, h, '', 'Authentication: Push', null, null, this.getTagsForStencil(gn, 'authentication push', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'authentication_okta;', w, h, '', 'Authentication: Okta', null, null, this.getTagsForStencil(gn, 'authentication okta', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'authentication_google;', w, h, '', 'Authentication: Google', null, null, this.getTagsForStencil(gn, 'authentication google', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'authentication_ms_entra_id;', w, h, '', 'Authentication: MS Entra ID', null, null, this.getTagsForStencil(gn, 'authentication ms entra id', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'ldap;', w, h, '', 'LDAP', null, null, this.getTagsForStencil(gn, 'ldap', dt).join(' '))
+			this.createVertexTemplateEntry(s + 'authentication_adaptive;perimeter=ellipsePerimeter;', w, h, '', 'Authentication: Adaptive', null, null, this.getTagsForStencil(gn, 'authentication adaptive', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'authentication_cert;perimeter=ellipsePerimeter;', w, h, '', 'Authentication: Cert', null, null, this.getTagsForStencil(gn, 'authentication cert', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'authentication_totp;perimeter=ellipsePerimeter;', w, h, '', 'Authentication: TOTP', null, null, this.getTagsForStencil(gn, 'authentication totp', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'authentication_selection;perimeter=ellipsePerimeter;', w, h, '', 'Authentication: Selection', null, null, this.getTagsForStencil(gn, 'authentication selection', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'authentication_saml;perimeter=ellipsePerimeter;', w, h, '', 'Authentication: SAML', null, null, this.getTagsForStencil(gn, 'authentication saml', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'authentication_radius;perimeter=ellipsePerimeter;', w, h, '', 'Authentication: RADIUS', null, null, this.getTagsForStencil(gn, 'authentication radius', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'authentication_epa;perimeter=ellipsePerimeter;', w, h, '', 'Authentication: EPA', null, null, this.getTagsForStencil(gn, 'authentication epa', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'authentication_failure;perimeter=ellipsePerimeter;', w, h, '', 'Authentication: Failure', null, null, this.getTagsForStencil(gn, 'authentication failure', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'authentication_fido2;perimeter=ellipsePerimeter;', w, h, '', 'Authentication: FIDO2', null, null, this.getTagsForStencil(gn, 'authentication fido2', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'authentication_mfa;perimeter=ellipsePerimeter;', w, h, '', 'Authentication: MFA', null, null, this.getTagsForStencil(gn, 'authentication mfa', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'authentication_oidc;perimeter=ellipsePerimeter;', w, h, '', 'Authentication: OIDC', null, null, this.getTagsForStencil(gn, 'authentication oidc', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'authentication_push;perimeter=ellipsePerimeter;', w, h, '', 'Authentication: Push', null, null, this.getTagsForStencil(gn, 'authentication push', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'authentication_okta;perimeter=ellipsePerimeter;', w, h, '', 'Authentication: Okta', null, null, this.getTagsForStencil(gn, 'authentication okta', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'authentication_google;perimeter=ellipsePerimeter;', w, h, '', 'Authentication: Google', null, null, this.getTagsForStencil(gn, 'authentication google', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'authentication_ms_entra_id;perimeter=ellipsePerimeter;', w, h, '', 'Authentication: MS Entra ID', null, null, this.getTagsForStencil(gn, 'authentication ms entra id', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'ldap;perimeter=ellipsePerimeter;', w, h, '', 'LDAP', null, null, this.getTagsForStencil(gn, 'ldap', dt).join(' '))
 		]);
 	};
 })();

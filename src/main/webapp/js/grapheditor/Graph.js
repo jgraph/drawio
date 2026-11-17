@@ -2051,12 +2051,15 @@ Graph.colorStyles = [mxConstants.STYLE_FONTCOLOR,
 	mxConstants.STYLE_SWIMLANE_FILLCOLOR, mxConstants.STYLE_LABEL_BACKGROUNDCOLOR];
 
 /**
- * Styles that are used for text.
+ * Styles that are used for text. labelPadding is here so that new edges and
+ * their labels get the label padding of the default edge style (see
+ * pasteCellStyles), and so that Copy Style, Paste Style and the default
+ * styles take it.
  */
 Graph.textStyles = ['fontFamily', 'fontSource', 'fontSize', 'fontColor', 'fontStyle',
 	'textOpacity', 'labelBorderColor', 'labelBorderWidth', 'labelBackgroundColor',
-	'defaultLabelBackgroundColor', 'autosize', 'resizable', 'horizontal', 'textDirection',
-	'autosizeText'];
+	'defaultLabelBackgroundColor', 'labelPadding', 'autosize', 'resizable', 'horizontal',
+	'textDirection', 'autosizeText'];
 
 /**
  * Text styles that label cells of edges can inherit from the edge (see
@@ -2093,13 +2096,14 @@ Graph.createInheritedLabelStyle = function()
 Graph.sharedTextStyles = ['fontFamily', 'fontSource', 'fontSize', 'fontColor'];
 
 /**
- * Styles that are used for pasting text styles.
+ * Styles that are used for pasting text styles. labelPadding is pasted with
+ * the label gap (defaultLabelBackgroundColor) of new edges.
  */
 Graph.pasteTextStyles = ['fontFamily', 'fontSource', 'fontSize', 'fontColor', 'fontStyle',
 	'textOpacity', 'align', 'verticalAlign', 'spacingLeft', 'spacingRight',
 	'spacingTop', 'spacingBottom', 'spacing', 'labelBorderColor', 'labelBorderWidth',
-	'labelBackgroundColor', 'defaultLabelBackgroundColor', 'horizontal', 'textDirection',
-	'labelPlacement'];
+	'labelBackgroundColor', 'defaultLabelBackgroundColor', 'labelPadding', 'horizontal',
+	'textDirection', 'labelPlacement'];
 
 /**
  * Styles that are used for edges.
@@ -2755,7 +2759,7 @@ Graph.getSvgViewIds = function(pages)
 		// Trims with a scan, as -+$ takes quadratic time on a long run of
 		// dashes that is not at the end of the name
 		add(result[i], mxUtils.trim((pages[i].name || '').replace(
-			/(?:[^\w¡-퟿-�-]|\s)+/g, '-'), '-'));
+			/(?:[^\w\u00a1-\ud7ff\ue000-\ufffd-]|\s)+/g, '-'), '-'));
 	}
 
 	for (var i = 0; i < pages.length; i++)
@@ -4715,6 +4719,18 @@ Graph.optimizeNode = function(node)
  };
 
 /**
+ * Returns the scheme of the given URL in lower case, or null if it has none.
+ * Ignores what the URL parser removes before parsing (tab, LF and CR anywhere,
+ * leading C0 controls and spaces), which would otherwise hide the scheme.
+ */
+Graph.getUrlScheme = function(url)
+{
+	var match = /^[\x00-\x20]*([a-z][a-z0-9+.\-]*):/i.exec(url.replace(/[\t\n\r]/g, ''));
+
+	return (match != null) ? match[1].toLowerCase() : null;
+};
+
+/**
  * Sanitizes the given DOM node in-place.
  */
 Graph.sanitizeNode = function(value)
@@ -4915,7 +4931,7 @@ Graph.isStyleAllowed = function(css)
                 name += esc[0];
                 i = esc[1];
             }
-            else if (/[a-zA-Z0-9_\-\u0080-￿]/.test(c))
+            else if (/[a-zA-Z0-9_\-\u0080-\uffff]/.test(c))
             {
                 name += c;
                 i++;
@@ -4964,7 +4980,7 @@ Graph.isStyleAllowed = function(css)
 
                 urlArg = false;
             }
-            else if (c == '@' || /[a-zA-Z0-9_\-\u0080-￿\\]/.test(c))
+            else if (c == '@' || /[a-zA-Z0-9_\-\u0080-\uffff\\]/.test(c))
             {
                 // Identifiers and at-keywords, which may be escaped, eg. \75rl(
                 var token = readName(css, (c == '@') ? i + 1 : i);
@@ -6558,7 +6574,12 @@ Graph.rewritePageLinks = function(doc, removeNamespace)
 				newAttrib = 'href';
 			}
 
-			link.setAttribute(newAttrib, href);
+			// Browsers use href if a link has both, and only the href
+			// of a link disables it (see disableSvgLinks)
+			if (newAttrib == attrib || link.getAttribute(newAttrib) == null)
+			{
+				link.setAttribute(newAttrib, href);
+			}
 		}
 	};
 
@@ -8710,6 +8731,16 @@ Graph.prototype.defaultEdgeLength = 80;
 Graph.prototype.multiSelectionHandlesEnabled = false;
 
 /**
+ * Returns true if multiple selected cells get one box with resize and
+ * rotation handles (see multiSelectionHandlesEnabled). Overrides can turn
+ * the box on in a theme.
+ */
+Graph.prototype.isMultiSelectionHandlesEnabled = function()
+{
+	return this.multiSelectionHandlesEnabled;
+};
+
+/**
  * Enables activation of special handles on unselected cells.
  */
 Graph.prototype.immediateHandling = true;
@@ -9742,6 +9773,7 @@ Graph.prototype.destroy = function()
 			mxUtils.getValue(state.style, 'lineShape', null) != '1' &&
 			shape != 'mxgraph.basic.arc' &&
 			shape != mxConstants.SHAPE_LINE &&
+			!this.isTie(state.cell) &&
 			(this.model.isVertex(state.cell) ||
 			shape == 'arrow' || shape == 'pipe' || shape == 'wire' ||
 			shape == 'filledEdge' || shape == 'flexArrow' ||
@@ -10149,6 +10181,55 @@ Graph.prototype.destroy = function()
 		if (result[mxConstants.STYLE_EDGE] == null)
 		{
 			result[mxConstants.STYLE_EDGE] = 'none';
+		}
+
+		return result;
+	};
+
+	/**
+	 * Returns the keys that the newEdgeStyle of the source of the given edge
+	 * removes (null values, see getNewEdgeStyleForEdge), which pasteCellStyles
+	 * does not add to new connections from the source. The optional cache
+	 * (an mxDictionary) keeps the keys of each source, as the style of a
+	 * source is resolved in full if it has no state yet (eg. after an import)
+	 * and a source can have many edges.
+	 */
+	Graph.prototype.getRemovedNewEdgeStyleKeys = function(edge, cache)
+	{
+		var source = this.model.getTerminal(edge, true);
+		var result = [];
+
+		if (source != null && cache != null && cache.get(source) != null)
+		{
+			result = cache.get(source);
+		}
+		else if (source != null)
+		{
+			if (cache != null)
+			{
+				cache.put(source, result);
+			}
+
+			try
+			{
+				var styles = Graph.decodeNewEdgeStyle(
+					this.getCurrentCellStyle(source)['newEdgeStyle']);
+
+				if (styles != null && typeof styles === 'object')
+				{
+					for (var key in styles)
+					{
+						if (styles[key] === null)
+						{
+							result.push(key);
+						}
+					}
+				}
+			}
+			catch (e)
+			{
+				// ignore
+			}
 		}
 
 		return result;
@@ -11366,6 +11447,9 @@ Graph.prototype.destroy = function()
 		pasteEdgeStyle = (pasteEdgeStyle != null) ? pasteEdgeStyle : this.pasteEdgeStyle;
 		pasteStylesToText = (pasteStylesToText != null) ? pasteStylesToText : this.pasteStylesToText;
 
+		// Keys that the newEdgeStyle of each source removes (see below)
+		var removedKeys = new mxDictionary();
+
 		this.model.beginUpdate();
 		try
 		{
@@ -11433,6 +11517,17 @@ Graph.prototype.destroy = function()
 							}
 						}
 					}
+
+					// Keeps the label padding of a label that sets it, like edges keep
+					// their own keys, as the default edge style has one for new edges
+					if (!force && typeof cellStyle === 'string' &&
+						/(^|;)\s*labelPadding\s*=/.test(cellStyle))
+					{
+						appliedStyles = appliedStyles.filter(function(key)
+						{
+							return key != mxConstants.STYLE_LABEL_PADDING;
+						});
+					}
 				}
 				else
 				{
@@ -11476,6 +11571,22 @@ Graph.prototype.destroy = function()
 										}
 									}
 								}
+							}
+						}
+
+						// Keeps out the keys that the newEdgeStyle of the source removes,
+						// so new connections look like the edge it was taken from (eg.
+						// without the label padding of the current edge style)
+						if (this.model.isEdge(cell))
+						{
+							var removed = this.getRemovedNewEdgeStyleKeys(cell, removedKeys);
+
+							if (removed.length > 0)
+							{
+								appliedStyles = appliedStyles.filter(function(key)
+								{
+									return mxUtils.indexOf(removed, key) < 0;
+								});
 							}
 						}
 					}
@@ -12553,6 +12664,92 @@ Graph.prototype.isFileBaseUrl = function()
 {
 	return this.baseUrl != null &&
 		this.baseUrl.substring(0, 5).toLowerCase() == 'file:';
+};
+
+/**
+ * Returns the given link as it can be written into an export if the base URL
+ * is a file: URL, or null if it cannot be written. Links with a scheme must be
+ * what getAbsoluteUrl leaves as it is. Anything else is dropped, not passed to
+ * getAbsoluteUrl, which neuters schemes such as ms-msdt: but adds the install
+ * path (see isFileBaseUrl). The result must replace the link, as sanitizeLink
+ * trims characters that the URL parser keeps, so that the link is what is
+ * checked.
+ * 
+ * link - String that represents the link.
+ * printed - Optional boolean that specifies if the output is a PDF or printout.
+ * The browser resolves links against the document in that case, so that only
+ * links that do not depend on its path can be written.
+ */
+Graph.prototype.getFileBaseLink = function(link, printed)
+{
+	link = Graph.sanitizeLink(link);
+
+	if (link != null)
+	{
+		var scheme = Graph.getUrlScheme(link);
+
+		if (scheme == null)
+		{
+			return (!printed || /^[\/\\#]/.test(link)) ? link : null;
+		}
+
+		return (scheme == 'mailto' || Graph.isPageLink(link) ||
+			(!/^(data|vbscript|livescript)$/.test(scheme) &&
+			this.absoluteUrlPattern.test(link))) ? link : null;
+	}
+
+	return null;
+};
+
+/**
+ * Replaces the links in the given node with the result of getFileBaseLink if
+ * the base URL is a file: URL. Applies to all elements that the sanitizer keeps
+ * and browsers follow. A link that is refused is removed as a whole, as the
+ * browser uses xlink:href if there is no href, and only the href of a link
+ * disables it (see disableSvgLinks). Must run on the final output, as embedded
+ * SVG images and math add links after the cells are rendered.
+ */
+Graph.prototype.updateFileBaseLinks = function(node, printed)
+{
+	if (this.isFileBaseUrl())
+	{
+		var links = node.querySelectorAll('a, area, math[*|href], math [*|href]');
+
+		// Any spelling, as SVG images are parsed as XML: the sanitizer checks
+		// names in lowercase and browsers follow XLINK:href like xlink:href
+		var isLink = function(attrib)
+		{
+			return /(^|:)href$/i.test(attrib.name);
+		};
+
+		for (var i = 0; i < links.length; i++)
+		{
+			var attribs = Array.prototype.filter.call(links[i].attributes, isLink);
+			var refused = false;
+
+			for (var j = 0; j < attribs.length; j++)
+			{
+				var link = this.getFileBaseLink(attribs[j].value, printed);
+
+				if (link == null)
+				{
+					refused = true;
+				}
+				else if (link != attribs[j].value)
+				{
+					attribs[j].value = link;
+				}
+			}
+
+			if (refused)
+			{
+				for (var j = 0; j < attribs.length; j++)
+				{
+					links[i].removeAttributeNode(attribs[j]);
+				}
+			}
+		}
+	}
 };
 
 /**
@@ -16037,6 +16234,111 @@ Graph.prototype.formatDate = function(date, mask, utc)
 };
 
 /**
+ * Visibility of layers in this view that differs from the model, as a map
+ * from layers to booleans, or null. It is not stored in the model, so it does
+ * not change the diagram or the undo history. Default is null.
+ */
+Graph.prototype.layerViewVisibility = null;
+
+/**
+ * Returns true if the given layer is visible in this view. This is the
+ * visibility in <layerViewVisibility> or else in the model.
+ */
+Graph.prototype.isLayerVisible = function(layer)
+{
+	var visible = (this.layerViewVisibility != null) ?
+		this.layerViewVisibility.get(layer) : null;
+
+	return (visible != null) ? visible : this.model.isVisible(layer);
+};
+
+/**
+ * Shows or hides the given layers in this view without changing the model.
+ */
+Graph.prototype.setLayersVisibleInView = function(layers, visible)
+{
+	if (this.layerViewVisibility == null)
+	{
+		this.layerViewVisibility = new mxDictionary();
+	}
+
+	for (var i = 0; i < layers.length; i++)
+	{
+		if (this.model.isVisible(layers[i]) == visible)
+		{
+			this.layerViewVisibility.remove(layers[i]);
+		}
+		else
+		{
+			this.layerViewVisibility.put(layers[i], visible);
+		}
+	}
+
+	this.refreshLayerViewVisibility();
+};
+
+/**
+ * Shows all layers as stored in the model if the visibility of layers in
+ * this view differs. If noRefresh is true then the view is not updated, eg.
+ * if the root is changed and the view is updated anyway.
+ */
+Graph.prototype.resetLayerViewVisibility = function(noRefresh)
+{
+	if (this.layerViewVisibility != null)
+	{
+		this.layerViewVisibility = null;
+
+		if (!noRefresh)
+		{
+			this.refreshLayerViewVisibility();
+		}
+	}
+};
+
+/**
+ * Updates the view after the visibility of layers in this view changed. The
+ * states of hidden layers are removed with their descendants, as for a
+ * change of the visibility in the model. Fires a refresh event, as there is
+ * no model change, so that the listeners that update for the view (eg. math
+ * typesetting, the outline and the text outline) update.
+ */
+Graph.prototype.refreshLayerViewVisibility = function()
+{
+	var root = this.model.getRoot();
+
+	for (var i = 0; i < this.model.getChildCount(root); i++)
+	{
+		var layer = this.model.getChildAt(root, i);
+
+		if (!this.isCellVisible(layer))
+		{
+			this.removeStateForCell(layer);
+		}
+	}
+
+	this.view.revalidate();
+	this.sizeDidChange();
+	this.fireEvent(new mxEventObject(mxEvent.REFRESH));
+	this.fireEvent(new mxEventObject('layerViewVisibilityChanged'));
+};
+
+/**
+ * Uses <isLayerVisible> for layers.
+ */
+Graph.prototype.isCellVisible = function(cell)
+{
+	if (this.layerViewVisibility != null &&
+		this.model.getParent(cell) == this.model.getRoot())
+	{
+		return this.isLayerVisible(cell);
+	}
+	else
+	{
+		return mxGraph.prototype.isCellVisible.apply(this, arguments);
+	}
+};
+
+/**
  * 
  */
 Graph.prototype.getLayerForCell = function(cell)
@@ -16830,17 +17132,19 @@ Graph.prototype.selectTableRange = function(startCell, endCell)
  */
 Graph.prototype.snapCellsToGrid = function(cells, gridSize)
 {
-	this.getModel().beginUpdate();
+	// Fires cellsArranged for the snapped vertices (see beginArrange)
+	var arrange = this.beginArrange();
+
 	try
 	{
 		for (var i = 0; i < cells.length; i++)
 		{
 			var cell = cells[i];
-			var geo = this.getCellGeometry(cell);
+			var prev = this.getCellGeometry(cell);
 
-			if (geo != null)
+			if (prev != null)
 			{
-				geo = geo.clone();
+				var geo = prev.clone();
 
 				if (this.getModel().isVertex(cell))
 				{
@@ -16858,13 +17162,17 @@ Graph.prototype.snapCellsToGrid = function(cells, gridSize)
 					}
 				}
 
-				this.getModel().setGeometry(cell, geo);
+				// Cells on the grid add no undo step that changes nothing
+				if (!geo.equals(prev))
+				{
+					this.getModel().setGeometry(cell, geo);
+				}
 			}
 		}
 	}
 	finally
 	{
-		this.getModel().endUpdate();
+		this.endArrange(arrange);
 	}
 };
 
@@ -17191,6 +17499,19 @@ Graph.prototype.insertEdgeBeforeCell = function(edge, cell)
 		var index = tmp.parent.getIndex(tmp);
 		this.model.add(tmp.parent, edge, index);
 	}
+};
+
+/**
+ * Hook for the styles of a shape that was dropped onto a hover arrow of the
+ * given source and of the new edge that connects it (see
+ * Sidebar.dropAndConnect), inside the model update of the drop. keepStyle is
+ * true if the shape keeps its own style (Shift). Returns the cells that got
+ * their styles here and must not get the current styles (cellsInserted).
+ * This implementation returns an empty array.
+ */
+Graph.prototype.styleDroppedConnection = function(source, target, edge, direction, keepStyle)
+{
+	return [];
 };
 
 /**
@@ -17983,13 +18304,150 @@ Graph.prototype.getStyleRules = function()
 };
 
 /**
- * Returns the value of the given property of the given cell for the rules:
- * the attribute of its data or the label of a cell without data. Returns null
- * if there is no such value.
+ * Returns the value of the given key in the given style string without
+ * resolving the style (named styles and the stylesheet are ignored), or
+ * null if the style has no such key.
  */
-Graph.prototype.getStyleRuleValue = function(cell, property)
+Graph.getOwnStyleValue = function(style, key)
 {
-	if (cell.value != null && typeof cell.value === 'object')
+	if (typeof style === 'string' && typeof key === 'string' && key.length > 0)
+	{
+		var tokens = style.split(';');
+
+		for (var i = tokens.length - 1; i >= 0; i--)
+		{
+			var j = tokens[i].indexOf('=');
+
+			if (j > 0 && tokens[i].substring(0, j) == key)
+			{
+				return tokens[i].substring(j + 1);
+			}
+		}
+	}
+
+	return null;
+};
+
+/**
+ * Returns the value of the given key in the style of the given cell (see
+ * getOwnStyleValue). The optional context keeps the keys of the style, as
+ * the rules of a cell can look up many keys in a long style.
+ */
+Graph.prototype.getStyleRuleOwnValue = function(cell, key, context)
+{
+	var style = this.model.getStyle(cell);
+
+	if (context == null)
+	{
+		return Graph.getOwnStyleValue(style, key);
+	}
+	else if (context.own == null)
+	{
+		var tokens = (typeof style === 'string') ? style.split(';') : [];
+		context.own = Object.create(null);
+
+		for (var i = 0; i < tokens.length; i++)
+		{
+			var j = tokens[i].indexOf('=');
+
+			if (j > 0)
+			{
+				context.own[tokens[i].substring(0, j)] = tokens[i].substring(j + 1);
+			}
+		}
+	}
+
+	return (context.own[key] != null) ? context.own[key] : null;
+};
+
+/**
+ * Returns the values that the writer of the rules of the given property (a
+ * property with an @, a key of the style of the cell, eg. @role of Style My
+ * Diagram) gave the given cell, as an object {key: value} without a
+ * prototype, or null. They are in the style of the cell under the key of the
+ * property with the suffix Base (eg. roleBase), as key:value pairs separated
+ * by commas (see encodeStyleRuleBase). A rule of such a property sets a key
+ * only while the cell still has that value, so a value set on the cell
+ * later, by any part of the app or by a release without these rules, wins
+ * over the rule (see applyStyleRules). With the optional context of the
+ * rules of a cell, only the keys that rules can set are decoded, as each
+ * pair that is not encoded throws an error.
+ */
+Graph.prototype.getStyleRuleBase = function(cell, property, context)
+{
+	var result = null;
+
+	if (typeof property === 'string' && property.charAt(0) == '@' && property.length > 1)
+	{
+		var value = this.getStyleRuleOwnValue(cell, property.substring(1) + 'Base', context);
+
+		if (value != null)
+		{
+			var tokens = value.split(',');
+			result = Object.create(null);
+
+			for (var i = 0; i < tokens.length; i++)
+			{
+				var j = tokens[i].indexOf(':');
+				var key = tokens[i].substring(0, j);
+
+				// Unlike decoding, unescape does not throw for other keys
+				if (j > 0 && (context == null || Object.prototype.hasOwnProperty.call(
+					Graph.dataStyleKeys, unescape(key))))
+				{
+					try
+					{
+						result[decodeURIComponent(key)] =
+							decodeURIComponent(tokens[i].substring(j + 1));
+					}
+					catch (e)
+					{
+						// Ignores pairs that are not encoded
+					}
+				}
+			}
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Returns the given values {key: value} as the value of the base of the
+ * rules of a property with an @ (see getStyleRuleBase): encoded keys and
+ * values as key:value pairs separated by commas. Null values are left out.
+ */
+Graph.encodeStyleRuleBase = function(values)
+{
+	var tokens = [];
+
+	for (var key in values)
+	{
+		if (Object.prototype.hasOwnProperty.call(values, key) && values[key] != null)
+		{
+			tokens.push(encodeURIComponent(key) + ':' + encodeURIComponent(String(values[key])));
+		}
+	}
+
+	return tokens.join(',');
+};
+
+/**
+ * Returns the value of the given property of the given cell for the rules:
+ * the attribute of its data, the label of a cell without data, or for a
+ * property that starts with @ the value of the key after the @ in the style
+ * of the cell (see getStyleRuleOwnValue, which keeps the style in the
+ * optional context). Returns null if there is no such value.
+ */
+Graph.prototype.getStyleRuleValue = function(cell, property, context)
+{
+	// A property with an @ is a key of the style of the cell, which no
+	// attribute can be (eg. @role of Style My Diagram)
+	if (typeof property === 'string' && property.charAt(0) == '@')
+	{
+		return this.getStyleRuleOwnValue(cell, property.substring(1), context);
+	}
+	else if (cell.value != null && typeof cell.value === 'object')
 	{
 		return cell.value.getAttribute(property);
 	}
@@ -18146,7 +18604,7 @@ Graph.prototype.getStyleRuleInput = function(cell, property, context)
 
 	if (input == null)
 	{
-		input = Graph.createStyleRuleInput(this.getStyleRuleValue(cell, property));
+		input = Graph.createStyleRuleInput(this.getStyleRuleValue(cell, property, context));
 		context.inputs[property] = input;
 	}
 
@@ -18218,12 +18676,31 @@ Graph.prototype.applyStyleRules = function(cell, style, rules)
 			}
 			else
 			{
+				// A rule of a key of the style (@) sets only the keys that still
+				// have the value it gave the cell (see getStyleRuleBase), which
+				// is parsed once for all rules of the property
+				var input = this.getStyleRuleInput(cell, rule.property, context);
+
+				if (rule.property.charAt(0) == '@' && input.base === undefined)
+				{
+					input.base = this.getStyleRuleBase(cell, rule.property, context);
+				}
+
+				var base = input.base;
+
 				for (var j = 0; j < rule.style.length; j++)
 				{
-					if (!done[rule.style[j].key])
+					var key = rule.style[j].key;
+
+					if (!done[key])
 					{
-						style[rule.style[j].key] = rule.style[j].value;
-						done[rule.style[j].key] = true;
+						if (base == null || base[key] == null ||
+							this.getStyleRuleOwnValue(cell, key, context) == base[key])
+						{
+							style[key] = rule.style[j].value;
+						}
+
+						done[key] = true;
 					}
 				}
 			}
@@ -24126,6 +24603,15 @@ HoverIcons.prototype.execute = function(state, dir, me)
 };
 
 /**
+ * Returns true if the icons are hidden, eg. while a popover of the inline
+ * toolbar is open (see InlineToolbar). This implementation returns false.
+ */
+HoverIcons.prototype.isSuspended = function()
+{
+	return false;
+};
+
+/**
  * 
  */
 HoverIcons.prototype.reset = function(clearTimeout)
@@ -24420,7 +24906,7 @@ HoverIcons.prototype.getState = function(state, x, y)
  */
 HoverIcons.prototype.update = function(state, x, y)
 {
-	if (!this.graph.connectionArrowsEnabled ||
+	if (!this.graph.connectionArrowsEnabled || this.isSuspended() ||
 		(this.graph.freehand != null && this.graph.freehand.isDrawing()) ||
 		(state != null && mxUtils.getValue(state.style, 'allowArrows', '1') == '0'))
 	{
@@ -34066,11 +34552,15 @@ if (typeof mxVertexHandler !== 'undefined')
 		 * Contains the default style for edges. New edges and their label cells
 		 * get the text styles (see pasteCellStyles), so new labels of edges use
 		 * the page as their background and cut a gap out of the edge instead of
-		 * painting the label background (see replaceLabelGap). Existing edges
-		 * keep their label background as the key is not in the stylesheet.
+		 * painting the label background (see replaceLabelGap). The label
+		 * padding of 4 on the left and right widens the gap or background of
+		 * horizontal labels, which ends at the text, while the line height
+		 * leaves room above and below the text. Existing edges keep their label
+		 * background and no padding as the keys are not in the stylesheet.
 		 */
 		Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'orthogonalEdgeStyle', 'rounded': '0',
-			'jettySize': 'auto', 'orthogonalLoop': '1', 'defaultLabelBackgroundColor': 'page'};
+			'jettySize': 'auto', 'orthogonalLoop': '1', 'defaultLabelBackgroundColor': 'page',
+			'labelPadding': '0 4'};
 
 		/**
 		 * Returns the current edge style as a string.
@@ -37209,7 +37699,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		{
 			var result = null;
 
-			if (this.multiSelectionHandlesEnabled && this.isEnabled() &&
+			if (this.isMultiSelectionHandlesEnabled() && this.isEnabled() &&
 				!this.isEditing() && this.getSelectionCount() > 1)
 			{
 				var model = this.getModel();
@@ -38462,6 +38952,15 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 
 		/**
+		 * Returns true if a click on the tooltip icon of the given cell edits
+		 * the tooltip. If false is returned, the click shows the tooltip.
+		 */
+		Graph.prototype.isTooltipOverlayEditable = function(cell, evt)
+		{
+			return this.isEnabled() && this.isCellEditable(cell);
+		};
+
+		/**
 		 * Creates a tooltip overlay for the given cell.
 		 */
 		Graph.prototype.createTooltipOverlay = function(cell)
@@ -38482,7 +38981,7 @@ if (typeof mxVertexHandler !== 'undefined')
 				{
 					var cell = evt.getProperty('cell');
 
-					if (graph.isEnabled() && graph.isCellEditable(cell))
+					if (graph.isTooltipOverlayEditable(cell, evt.getProperty('event')))
 					{
 						graph.setSelectionCell(cell);
 						graph.editTooltip(cell);
@@ -40705,6 +41204,7 @@ if (typeof mxVertexHandler !== 'undefined')
 							var div = document.createElement('div');
 							div.innerHTML = Graph.sanitizeHtml(html);
 							Graph.scopeStyleElements(div);
+							graph.updateFileBaseLinks(div);
 
 							return (div.firstChild != null) ? mxUtils.getXml(div) : null;
 						};
@@ -41162,7 +41662,8 @@ if (typeof mxVertexHandler !== 'undefined')
 					// Keeps links to paths as they are, as they point to the host
 					// where the file is published, not to the host of the editor,
 					// which is file:// in the desktop app, and all relative links
-					// if the base URL is a file: URL (see isFileBaseUrl)
+					// if the base URL is a file: URL (see isFileBaseUrl), where
+					// updateSvgLinks removes the links with other schemes
 					if (result != null && result.charAt(0) != '/' &&
 						!state.view.graph.isFileBaseUrl())
 					{
@@ -41362,6 +41863,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		 */
 		Graph.prototype.updateSvgLinks = function(node, target, removeCustom)
 		{
+			this.updateFileBaseLinks(node);
 			var links = node.getElementsByTagName('a');
 			
 			for (var i = 0; i < links.length; i++)
@@ -41541,11 +42043,11 @@ if (typeof mxVertexHandler !== 'undefined')
 		 */
 		Graph.prototype.flipEdgePoints = function(cell, horizontal, c)
 		{
-			var geo = this.getCellGeometry(cell);
+			var prev = this.getCellGeometry(cell);
 
-			if (geo != null)
+			if (prev != null)
 			{
-				geo = geo.clone();
+				var geo = prev.clone();
 
 				if (geo.points != null)
 				{
@@ -41580,7 +42082,12 @@ if (typeof mxVertexHandler !== 'undefined')
 				flipTerminalPoint(geo.getTerminalPoint(true));
 				flipTerminalPoint(geo.getTerminalPoint(false));
 
-				this.model.setGeometry(cell, geo);
+				// Connected edges without waypoints do not change, and an
+				// unchanged geometry would be an undo step that changes nothing
+				if (!geo.equals(prev))
+				{
+					this.model.setGeometry(cell, geo);
+				}
 			}
 		};
 		
@@ -50645,30 +51152,6 @@ if (typeof mxVertexHandler !== 'undefined')
 			return mxGraphHandlerGetBoundingBox.apply(this, arguments);
 		};
 
-		// A moved sequence message is snapped to the grid and aligned by guides
-		// with its line: the state of a horizontal edge is one pixel high, so its
-		// center is half a pixel below the line
-		var mxGraphHandlerGetStateBounds = mxGraphHandler.prototype.getStateBounds;
-		mxGraphHandler.prototype.getStateBounds = function(cells)
-		{
-			var bounds = mxGraphHandlerGetStateBounds.apply(this, arguments);
-
-			if (bounds != null && cells.length == 1 && this.graph.isSequenceMessage(cells[0]))
-			{
-				var state = this.graph.view.getState(cells[0]);
-				var pts = (state != null) ? state.absolutePoints : null;
-
-				if (pts != null && pts[0] != null && pts[pts.length - 1] != null &&
-					pts[0].y == pts[pts.length - 1].y)
-				{
-					bounds.y = pts[0].y;
-					bounds.height = 0;
-				}
-			}
-
-			return bounds;
-		};
-
 		// Ignores child cells with part style and cells outside of the
 		// visible area plus half a viewport of margin in each direction
 		// as guides (guides for such cells cannot be seen). Also ignores
@@ -54518,6 +55001,18 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 
 		/**
+		 * Returns true if the given graph has the box of a multi-selection.
+		 * The handlers below are shared with plain mxGraph instances (such as
+		 * the graph of the GraphML importer), which have no
+		 * isMultiSelectionHandlesEnabled and never get the box.
+		 */
+		Graph.hasMultiSelectionHandles = function(graph)
+		{
+			return graph.isMultiSelectionHandlesEnabled != null &&
+				graph.isMultiSelectionHandlesEnabled();
+		};
+
+		/**
 		 * Creates, updates or destroys the box for the cells of a
 		 * multi-selection (see Graph.getMultiSelectionCells). The box of an
 		 * active gesture is kept.
@@ -54563,7 +55058,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		{
 			var args = arguments;
 
-			if (this.graph.multiSelectionHandlesEnabled || this.multiSelectionHandler != null)
+			if (Graph.hasMultiSelectionHandles(this.graph) || this.multiSelectionHandler != null)
 			{
 				var update = mxUtils.bind(this, function()
 				{
@@ -54710,7 +55205,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		var vertexHandlerRefreshMultiSelection = mxVertexHandler.prototype.refresh;
 		mxVertexHandler.prototype.refresh = function()
 		{
-			if (this.graph.multiSelectionHandlesEnabled || this.multiSelectionHandled != null)
+			if (Graph.hasMultiSelectionHandles(this.graph) || this.multiSelectionHandled != null)
 			{
 				this.multiSelectionHandled = this.isMultiSelectionHandled();
 			}
@@ -54752,7 +55247,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		var edgeHandlerRefreshMultiSelection = mxEdgeHandler.prototype.refresh;
 		mxEdgeHandler.prototype.refresh = function()
 		{
-			if (this.graph.multiSelectionHandlesEnabled || this.multiSelectionHandled != null)
+			if (Graph.hasMultiSelectionHandles(this.graph) || this.multiSelectionHandled != null)
 			{
 				this.multiSelectionHandled = this.isMultiSelectionHandled();
 			}

@@ -315,7 +315,7 @@ var com;
                     	{
                     		if (onerror != null)
                     		{
-                    			onerror();
+                    			onerror(new Error(mxResources.get('invalidOrMissingFile')));
                     		}
                     	}
                     	else

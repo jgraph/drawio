@@ -2670,6 +2670,24 @@ mxStencilRegistry.allowEval = false;
 	};
 
 	/**
+	 * Copies an image that is created asynchronously through the main
+	 * process, which needs no click, when the image is ready.
+	 */
+	EditorUi.prototype.writeImageToClipboardAsync = function(createImage, type, success, error)
+	{
+		createImage(mxUtils.bind(this, function(dataUrl, w, h)
+		{
+			this.writeImageToClipboard(dataUrl, w, h, type, success, function(e)
+			{
+				error(e, dataUrl);
+			});
+		}), function()
+		{
+			// createImage handled the error of the image
+		});
+	};
+
+	/**
 	 * Updates action states depending on the selection.
 	 */
 	var editorUiUpdateActionStates = EditorUi.prototype.updateActionStates;
@@ -2815,7 +2833,7 @@ mxStencilRegistry.allowEval = false;
 	//Export Dialog Pdf case
 	var origExportFile = ExportDialog.exportFile;
 	
-	ExportDialog.exportFile = function(editorUi, name, format, bg, s, b, dpi)
+	ExportDialog.exportFile = function(editorUi, name, format, bg, s, b, dpi, grid)
 	{
 		var graph = editorUi.editor.graph;
 		
@@ -2838,12 +2856,12 @@ mxStencilRegistry.allowEval = false;
 				if (format == 'png')
 				{
 					editorUi.exportImage(s, bg == null || bg == 'none', true,
-				   		false, false, b, true, false, null, null, dpi);
+				   		false, false, b, true, false, null, grid, dpi);
 				}
 				else 
 				{
 					editorUi.exportImage(s, false, true, false,
-						false, b, true, false, 'jpeg');
+						false, b, true, false, 'jpeg', grid);
 				}
 			}
 			else 
@@ -2853,6 +2871,17 @@ mxStencilRegistry.allowEval = false;
 				if (Graph.translateDiagram)
 				{
 					extras.diagramLanguage = Graph.diagramLanguage;
+				}
+
+				// Grid of the advanced export as in the web app (export.js
+				// reads extras.grid)
+				if (grid)
+				{
+					extras.grid = {
+						size: graph.gridSize,
+						steps: graph.view.gridSteps,
+						color: graph.view.gridColor
+					};
 				}
 
 				editorUi.saveRequest(name, format,

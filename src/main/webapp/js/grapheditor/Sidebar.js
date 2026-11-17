@@ -297,6 +297,29 @@ Sidebar.prototype.virtualThumbs = typeof IntersectionObserver != 'undefined';
 Sidebar.prototype.virtualPalettes = typeof IntersectionObserver != 'undefined';
 
 /**
+ * Minimum size in bytes of SVG images in thumbnails that are shown as a
+ * bitmap of the size of the thumbnail (see rasterizeThumbImages). The
+ * browser paints all paths of an SVG image again for every tile of the
+ * panel that it enters while scrolling, which makes scrolling libraries of
+ * large SVG images slow (jgraph/drawio#5841). Only the thumbnails change:
+ * the cells, the file, drag and drop, the tooltips, export and print keep
+ * the SVG. Default is 4096. Null keeps every thumbnail as a vector.
+ */
+Sidebar.prototype.thumbRasterMinSize = 4096;
+
+/**
+ * Minimum pixel ratio of the bitmaps of thumbnails, so that they stay sharp
+ * if the window moves to a display with a higher resolution. Higher ratios
+ * of the display are used as they are. Default is 2.
+ */
+Sidebar.prototype.thumbRasterMinRatio = 2;
+
+/**
+ * Maximum number of bitmaps of thumbnails that are kept. Default is 1000.
+ */
+Sidebar.prototype.thumbRasterCacheSize = 1000;
+
+/**
  * Placeholder height (in px) for expanded palettes whose content
  * creation is deferred. Callers that know their entry count refine
  * this via setDeferredPaletteSize so that off-screen palettes occupy
@@ -390,16 +413,61 @@ Sidebar.prototype.refresh = function()
 		return addPalette.apply(this, arguments);
 	};
 
+	// The palettes add new entries for all their shapes
+	this.resetEntries();
 	this.init(temp);
+
+	// Uses the new maps of the libraries at once if no palette added entries
+	if (this.isStyleToLibsLoaded())
+	{
+		this.endLibMapsRebuild();
+	}
 
 	// Restores previous implementation
 	this.addPalette = addPalette;
 
 	// Restores scrollbar position
 	window.setTimeout(mxUtils.bind(this, function()
-	{	
+	{
 		this.wrapper.scrollTop = scrollTop;
 	}), 0);
+};
+
+/**
+ * Removes the entries of the shapes from the search index and the maps of
+ * the libraries before the palettes are built again (see refresh), which
+ * otherwise kept the entries of every refresh before: the names of the
+ * previous language, each shape once more in the results of the palettes
+ * and the memory of all shapes (about 8 MB) for each refresh. The styles of
+ * the libraries are collected again in idle time (see addLibEntry) into new
+ * maps, and the maps of before are used for finding shapes until the new
+ * ones are complete (see endLibMapsRebuild).
+ */
+Sidebar.prototype.resetEntries = function()
+{
+	this.taglist = Object.create(null);
+	this.paletteEntries = null;
+	this.paletteShapes = null;
+	this.pendingLibEntries = null;
+	this.pendingLibIndex = 0;
+	this.newLibMaps = {styleToLibs: null, shapeKeys: null};
+};
+
+/**
+ * Replaces the maps of the libraries with the new ones that were collected
+ * since the last refresh (see resetEntries) once all entries were added.
+ */
+Sidebar.prototype.endLibMapsRebuild = function()
+{
+	if (this.newLibMaps != null)
+	{
+		this.styleToLibs = this.newLibMaps.styleToLibs;
+		this.shapeKeys = this.newLibMaps.shapeKeys;
+		this.newLibMaps = null;
+		this.shapeMatches = null;
+		this.oldShapeMatches = null;
+		this.shapeIndexes = null;
+	}
 };
 
 /**
@@ -489,9 +557,11 @@ Sidebar.prototype.createMoreShapes = function()
 };
 
 /**
- * Adds all palettes to the sidebar.
+ * Shows the given cells in the tooltip. If applyAllStyles is false the cells
+ * get the default styles instead of the current styles, with the given
+ * edgeStyle instead of the default edge style if it is not null.
  */
-Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, off, maxSize, mouseDown, closable, applyAllStyles)
+Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, off, maxSize, mouseDown, closable, applyAllStyles, edgeStyle)
 {
 	applyAllStyles = (applyAllStyles != null) ? applyAllStyles : true;
 	this.tooltipMouseDown = mouseDown;
@@ -725,7 +795,8 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		var temp = this.graph2.cloneCells(cells);
 		this.graph2.pasteCellStyles(graph.includeDescendants(temp),
 			(!applyAllStyles) ? graph.defaultVertexStyle : graph.currentVertexStyle,
-			(!applyAllStyles) ? graph.defaultEdgeStyle : graph.currentEdgeStyle,
+			(!applyAllStyles) ? ((edgeStyle != null) ? edgeStyle :
+				graph.defaultEdgeStyle) : graph.currentEdgeStyle,
 			null, graph.pasteEdgeStyle, (applyAllStyles) ?
 				graph.pasteStylesToText : false);
 		this.graph2.addCells(temp);
@@ -1104,17 +1175,20 @@ Sidebar.prototype.addLibForStyle = function(style, lib)
 {
 	if (style != '')
 	{
-		if (this.styleToLibs == null)
+		// Adds to the new map while the maps are built again (see resetEntries)
+		var maps = (this.newLibMaps != null) ? this.newLibMaps : this;
+
+		if (maps.styleToLibs == null)
 		{
-			this.styleToLibs = {};
+			maps.styleToLibs = {};
 		}
 
-		if (this.styleToLibs[style] == null)
+		if (maps.styleToLibs[style] == null)
 		{
-			this.styleToLibs[style] = [];
+			maps.styleToLibs[style] = [];
 		}
 
-		this.styleToLibs[style].push(lib);
+		maps.styleToLibs[style].push(lib);
 	}
 };
 
@@ -1169,27 +1243,34 @@ Sidebar.prototype.addShapeForStyle = function(name, key, lib)
 {
 	if (name.length > 0 || key.length > 0)
 	{
-		if (this.shapeKeys == null)
+		// Adds to the new map while the maps are built again (see resetEntries)
+		var maps = (this.newLibMaps != null) ? this.newLibMaps : this;
+
+		if (maps.shapeKeys == null)
 		{
-			this.shapeKeys = Object.create(null);
+			maps.shapeKeys = Object.create(null);
 		}
 
-		if (this.shapeKeys[name] == null)
+		if (maps.shapeKeys[name] == null)
 		{
-			this.shapeKeys[name] = Object.create(null);
+			maps.shapeKeys[name] = Object.create(null);
 		}
 
-		if (this.shapeKeys[name][key] == null)
+		if (maps.shapeKeys[name][key] == null)
 		{
-			this.shapeKeys[name][key] = [];
+			maps.shapeKeys[name][key] = [];
 		}
 
-		this.shapeKeys[name][key].push(lib);
-		this.shapeMatches = null;
+		maps.shapeKeys[name][key].push(lib);
 
-		if (this.shapeIndexes != null)
+		if (maps == this)
 		{
-			delete this.shapeIndexes[name];
+			this.shapeMatches = null;
+
+			if (this.shapeIndexes != null)
+			{
+				delete this.shapeIndexes[name];
+			}
 		}
 	}
 };
@@ -1611,9 +1692,10 @@ Sidebar.prototype.getPaletteIdForLibrary = function(lib)
  * Returns the cells of the entries of the palette with the given ID (see
  * getPaletteIdForLibrary) as objects with the cells, the width, the height
  * and the title of each entry, without creating the templates (see
- * updateStyleToLibs). Edges are ignored.
+ * updateStyleToLibs). Edges are ignored. The optional max is the maximum
+ * number of entries (the first ones).
  */
-Sidebar.prototype.getPaletteCells = function(id)
+Sidebar.prototype.getPaletteCells = function(id, max)
 {
 	var fns = (this.paletteEntries != null) ? this.paletteEntries[id] : null;
 	var result = [];
@@ -1638,7 +1720,7 @@ Sidebar.prototype.getPaletteCells = function(id)
 
 		try
 		{
-			for (var i = 0; i < fns.length; i++)
+			for (var i = 0; i < fns.length && (max == null || result.length < max); i++)
 			{
 				try
 				{
@@ -2112,6 +2194,11 @@ Sidebar.prototype.updateStyleToLibs = function(hasTime)
 			this.pendingLibEntries = null;
 			this.pendingLibIndex = 0;
 		}
+	}
+
+	if (this.pendingLibEntries == null)
+	{
+		this.endLibMapsRebuild();
 	}
 };
 
@@ -2734,6 +2821,18 @@ Sidebar.prototype.showPopupMenuForEntry = function(elt, libs, evt)
 };
 
 /**
+ * Returns true if the search of the shapes has a menu for its text with the
+ * searches (shapes, open libraries, images, templates, the diagram), the
+ * actions, the pages and the libraries that match. Without the menu, the
+ * search finds only shapes: Enter searches the shapes and Shift+Enter the
+ * shapes of the open libraries. Checked when the search is built.
+ */
+Sidebar.prototype.isSearchMenuEnabled = function()
+{
+	return true;
+};
+
+/**
  * Adds shape search UI.
  */
 Sidebar.prototype.addSearchPalette = function(expand)
@@ -2779,6 +2878,10 @@ Sidebar.prototype.addSearchPalette = function(expand)
 	cross.setAttribute('tabindex', '-1');
 
 	var find;
+
+	// Checked when the search is built (the sidebar is built again when the
+	// theme changes, see Sidebar.refresh)
+	var searchMenu = this.isSearchMenuEnabled();
 
 	inner.appendChild(cross);
 	div.appendChild(inner);
@@ -2946,7 +3049,7 @@ Sidebar.prototype.addSearchPalette = function(expand)
 		}
 	});
 
-	editorUi.addMenuHandler(input, mxUtils.bind(this, function(menu, parent)
+	var createSearchMenu = mxUtils.bind(this, function(menu, parent)
 	{
 		selectedItem = null;
 
@@ -3208,7 +3311,14 @@ Sidebar.prototype.addSearchPalette = function(expand)
 			}
 		}
 		
-	}), null, true);
+	});
+
+	// The menu with the actions, pages and other searches for the text, which
+	// the search of the shapes only (isSearchMenuEnabled) does not have
+	if (searchMenu)
+	{
+		editorUi.addMenuHandler(input, createSearchMenu, null, true);
+	}
 
 	var center = document.createElement('div');
 	center.style.display = 'none';
@@ -3355,9 +3465,9 @@ Sidebar.prototype.addSearchPalette = function(expand)
 								}
 
 								// Search results dedup and right-click menu key on
-								// elt.innerHTML, which would be empty for every
-								// virtual placeholder. Force synchronous thumbs
-								// for the search render loop.
+								// the markup of elt (getThumbHtml), which would be
+								// empty for every virtual placeholder. Force
+								// synchronous thumbs for the search render loop.
 								var prevVirtualThumbs = this.virtualThumbs;
 								this.virtualThumbs = false;
 
@@ -3378,21 +3488,25 @@ Sidebar.prototype.addSearchPalette = function(expand)
 												}
 											}
 
-											// Avoids duplicates in results
-											if (hash[elt.innerHTML] == null)
+											// Avoids duplicates in results. The key keeps the
+											// SVG of images shown as bitmaps, which replace
+											// the SVG later or at once (see getThumbHtml)
+											var key = this.getThumbHtml(elt);
+
+											if (hash[key] == null)
 											{
-												hash[elt.innerHTML] = (result.parentLibraries != null) ?
+												hash[key] = (result.parentLibraries != null) ?
 													result.parentLibraries.slice() : [];
 												div.appendChild(elt);
 											}
 											else if (result.parentLibraries != null)
 											{
-												hash[elt.innerHTML] = hash[elt.innerHTML].concat(result.parentLibraries);
+												hash[key] = hash[key].concat(result.parentLibraries);
 											}
 
 											mxEvent.addGestureListeners(elt, null, null, mxUtils.bind(this, function(evt)
 											{
-												var libs = hash[elt.innerHTML];
+												var libs = hash[key];
 
 												if (mxEvent.isPopupTrigger(evt))
 												{
@@ -3468,13 +3582,27 @@ Sidebar.prototype.addSearchPalette = function(expand)
 		input.value = value;
 		find(null, false);
 	};
-	
+
+	// Searches only images (isImageSearchSupported), as Search Images of the
+	// menu does, for searches without the menu (isSearchMenuEnabled)
+	this.searchImages = function(value)
+	{
+		input.value = value;
+		find(null, true);
+	};
+
 	mxEvent.addListener(input, 'keydown', mxUtils.bind(this, function(evt)
 	{
 		if (evt.keyCode == 13 /* Enter */ && evt.shiftKey)
 		{
 			consumeNextShiftUp = true;
 			find(false, false);
+			mxEvent.consume(evt);
+		}
+		// Without the menu Enter searches the shapes
+		else if (evt.keyCode == 13 /* Enter */ && !searchMenu)
+		{
+			find(null, false);
 			mxEvent.consume(evt);
 		}
 		else if (evt.keyCode == 13 /* Enter */ && (evt.metaKey || evt.ctrlKey) &&
@@ -4648,6 +4776,12 @@ Sidebar.prototype.createThumb = function(cells, width, height, parent, title, sh
 	node.style.minHeight = '';
 	this.disablePointerEvents(node);
 
+	// Thumbnails that fit the cells, not the drag previews that are scaled
+	if (scale == null)
+	{
+		this.rasterizeThumbImages(node);
+	}
+
 	parent.appendChild(node);
 	
 	// Adds title for sidebar entries
@@ -4670,6 +4804,416 @@ Sidebar.prototype.createThumb = function(cells, width, height, parent, title, sh
 	}
 
 	return bounds;
+};
+
+/**
+ * Shows the large SVG images in the given thumbnail as bitmaps of their size
+ * in the thumbnail (see thumbRasterMinSize). The bitmaps are created one
+ * after the other in the background and kept for each image and size, so
+ * that thumbnails of images that were shown before get their bitmap at once.
+ * The vector stays where no bitmap is created: sources that are no SVG data
+ * URIs (eg. URLs, which may taint the canvas) or smaller than
+ * thumbRasterMinSize, SVGs that a bitmap does not show the same way (see
+ * isThumbRasterSvg, and SVGs without a viewBox), images that fail to load
+ * or to draw and browsers that do not return the pixels of a canvas (see
+ * isThumbRasterReadable).
+ */
+Sidebar.prototype.rasterizeThumbImages = function(node)
+{
+	if (this.thumbRasterMinSize != null && this.thumbRasterReadable !== false &&
+		node.getElementsByTagName != null && typeof Map !== 'undefined')
+	{
+		var images = node.getElementsByTagName('image');
+
+		for (var i = 0; i < images.length; i++)
+		{
+			this.rasterizeThumbImage(images[i]);
+		}
+	}
+};
+
+/**
+ * Shows the given image element of a thumbnail as a bitmap if its source is
+ * a large SVG data URI.
+ */
+Sidebar.prototype.rasterizeThumbImage = function(img)
+{
+	var src = Sidebar.getImageHref(img);
+
+	if (src != null && src.substring(0, 18) == 'data:image/svg+xml' &&
+		Sidebar.getDataUriSize(src) >= this.thumbRasterMinSize)
+	{
+		var w = parseFloat(img.getAttribute('width'));
+		var h = parseFloat(img.getAttribute('height'));
+		var ratio = Math.max(this.thumbRasterMinRatio, window.devicePixelRatio || 1);
+		var pw = Math.ceil(w * ratio);
+		var ph = Math.ceil(h * ratio);
+
+		// Thumbnails only, not shapes of the size of a page
+		if (pw > 0 && ph > 0 && pw * ph <= 1024 * 1024)
+		{
+			var aspect = img.getAttribute('preserveAspectRatio') != 'none';
+			var key = pw + 'x' + ph + ((aspect) ? 'a' : '') + ':' +
+				src.length + ':' + mxUtils.hashCode(src);
+
+			if (this.thumbRasterCache == null)
+			{
+				this.thumbRasterCache = new Map();
+				this.thumbRasterKeys = [];
+				this.thumbRasterQueue = [];
+			}
+
+			var entry = this.thumbRasterCache.get(key);
+
+			if (entry == null)
+			{
+				// Removes the oldest bitmap if the cache is full
+				if (this.thumbRasterKeys.length >= this.thumbRasterCacheSize)
+				{
+					this.thumbRasterCache['delete'](this.thumbRasterKeys.shift());
+				}
+
+				entry = {src: src, width: pw, height: ph, aspect: aspect, images: [img]};
+				this.thumbRasterCache.set(key, entry);
+				this.thumbRasterKeys.push(key);
+				this.thumbRasterQueue.push(entry);
+				this.processThumbRasterQueue();
+			}
+			else if (entry.images != null)
+			{
+				entry.images.push(img);
+			}
+			else if (entry.uri != null)
+			{
+				this.setThumbImageBitmap(img, src, entry.uri);
+			}
+		}
+	}
+};
+
+/**
+ * Shows the given bitmap in the given image element of a thumbnail and keeps
+ * its SVG for getThumbHtml.
+ */
+Sidebar.prototype.setThumbImageBitmap = function(img, src, uri)
+{
+	img.thumbRasterSrc = src;
+	Sidebar.setImageHref(img, uri);
+};
+
+/**
+ * Returns the markup of the given item with the SVG of the images that show
+ * a bitmap (see rasterizeThumbImage), so that it is the same before and after
+ * the bitmaps replace the SVG. The search uses it to find duplicates and the
+ * libraries of its results.
+ */
+Sidebar.prototype.getThumbHtml = function(elt)
+{
+	var images = (elt.getElementsByTagName != null) ?
+		elt.getElementsByTagName('image') : [];
+	var clone = null;
+	var cloneImages = null;
+
+	for (var i = 0; i < images.length; i++)
+	{
+		if (images[i].thumbRasterSrc != null)
+		{
+			if (clone == null)
+			{
+				clone = elt.cloneNode(true);
+				cloneImages = clone.getElementsByTagName('image');
+			}
+
+			Sidebar.setImageHref(cloneImages[i], images[i].thumbRasterSrc);
+		}
+	}
+
+	return ((clone != null) ? clone : elt).innerHTML;
+};
+
+/**
+ * Creates the next bitmap in the queue of rasterizeThumbImage.
+ */
+Sidebar.prototype.processThumbRasterQueue = function()
+{
+	if (!this.thumbRasterBusy && this.thumbRasterQueue != null &&
+		this.thumbRasterQueue.length > 0)
+	{
+		var entry = this.thumbRasterQueue.shift();
+		this.thumbRasterBusy = true;
+
+		this.rasterizeSvgDataUri(entry.src, entry.width, entry.height,
+			entry.aspect, mxUtils.bind(this, function(uri)
+		{
+			// Null keeps the vector for this image and size
+			entry.uri = uri;
+
+			if (uri != null)
+			{
+				for (var i = 0; i < entry.images.length; i++)
+				{
+					this.setThumbImageBitmap(entry.images[i], entry.src, uri);
+				}
+			}
+
+			entry.images = null;
+			entry.src = null;
+			this.thumbRasterBusy = false;
+
+			// Next image in a new task, also after images that keep the vector
+			window.setTimeout(mxUtils.bind(this, this.processThumbRasterQueue), 0);
+		}));
+	}
+};
+
+/**
+ * Returns true if the given SVG looks the same as a bitmap of it. False
+ * for animations (SMIL and CSS), the color scheme (light-dark and
+ * prefers-color-scheme, which a bitmap would keep at the scheme of the time
+ * it was created), web fonts (which may still load when the bitmap is
+ * created) and HTML content (foreignObject, which taints the canvas in some
+ * browsers).
+ */
+Sidebar.prototype.isThumbRasterSvg = function(svg)
+{
+	return !(/<(\w+:)?(animate|animateMotion|animateTransform|animateColor|set|foreignObject)[\s\/>]/i.test(svg) ||
+		/@keyframes|animation(-name)?\s*:|@font-face|@import|color-scheme|light-dark\s*\(/i.test(svg));
+};
+
+/**
+ * Returns true if the pixels of a canvas can be read. Browsers that resist
+ * fingerprinting (eg. Tor Browser, Mullvad Browser, LibreWolf and Firefox
+ * with privacy.resistFingerprinting) return placeholder pixels (white or
+ * random) without an error, which would show as blank bitmaps. This draws a
+ * known pattern on a canvas of the size of a bitmap once and checks the
+ * pixels that are read. Small differences such as the noise that some
+ * browsers add (eg. Brave) are allowed. Called in a task of its own, as some
+ * browsers ask the user for the permission while user input is handled.
+ */
+Sidebar.prototype.isThumbRasterReadable = function()
+{
+	if (this.thumbRasterReadable == null)
+	{
+		var readable = false;
+
+		try
+		{
+			// Red, green, blue and black columns
+			var colors = [[255, 0, 0], [0, 255, 0], [0, 0, 255], [0, 0, 0]];
+			var canvas = document.createElement('canvas');
+			canvas.width = 64;
+			canvas.height = 64;
+			var ctx = canvas.getContext('2d');
+
+			if (ctx != null)
+			{
+				for (var i = 0; i < colors.length; i++)
+				{
+					ctx.fillStyle = 'rgb(' + colors[i].join(',') + ')';
+					ctx.fillRect(i * 16, 0, 16, 64);
+				}
+
+				var data = ctx.getImageData(0, 0, 64, 64).data;
+				readable = data != null && data.length == 64 * 64 * 4;
+
+				// Checks the middle of each column
+				for (var i = 0; i < colors.length && readable; i++)
+				{
+					var offset = (32 * 64 + i * 16 + 8) * 4;
+					readable = data[offset + 3] >= 251;
+
+					for (var c = 0; c < 3 && readable; c++)
+					{
+						readable = Math.abs(data[offset + c] - colors[i][c]) <= 4;
+					}
+				}
+			}
+		}
+		catch (e)
+		{
+			readable = false;
+		}
+
+		this.thumbRasterReadable = readable;
+	}
+
+	return this.thumbRasterReadable;
+};
+
+/**
+ * Creates a PNG data URI of the given SVG data URI with the given size and
+ * passes it to done, or null if the SVG is not shown as a bitmap or if it
+ * cannot be drawn. If aspect is true then the bitmap keeps the aspect of the
+ * SVG within the given size, as the image element of the thumbnail places
+ * it in the middle like the SVG.
+ */
+Sidebar.prototype.rasterizeSvgDataUri = function(src, w, h, aspect, done)
+{
+	var timeout = null;
+	var finished = false;
+
+	var finish = function(uri)
+	{
+		if (!finished)
+		{
+			finished = true;
+			window.clearTimeout(timeout);
+			done(uri);
+		}
+	};
+
+	try
+	{
+		// No bitmaps if the pixels of a canvas cannot be read
+		var svg = (this.thumbRasterReadable !== false) ?
+			Sidebar.decodeDataUri(src) : null;
+
+		// Image elements place SVGs without a viewBox differently from a
+		// bitmap of them, eg. they stretch them where the aspect is kept
+		if (svg == null || !this.isThumbRasterSvg(svg) ||
+			!Sidebar.hasSvgViewBox(svg))
+		{
+			finish(null);
+		}
+		else
+		{
+			var img = new Image();
+
+			img.onload = mxUtils.bind(this, function()
+			{
+				// Draws in a new task (Safari draws data URI images too early)
+				window.setTimeout(mxUtils.bind(this, function()
+				{
+					var uri = null;
+
+					try
+					{
+						var nw = img.naturalWidth || img.width;
+						var nh = img.naturalHeight || img.height;
+						var cw = w;
+						var ch = h;
+
+						if (aspect)
+						{
+							var s = (nw > 0 && nh > 0) ? Math.min(w / nw, h / nh) : 0;
+							cw = Math.round(nw * s);
+							ch = Math.round(nh * s);
+						}
+
+						if (cw > 0 && ch > 0 && this.isThumbRasterReadable())
+						{
+							var canvas = document.createElement('canvas');
+							canvas.width = cw;
+							canvas.height = ch;
+							var ctx = canvas.getContext('2d');
+
+							if (ctx != null)
+							{
+								ctx.drawImage(img, 0, 0, cw, ch);
+								uri = canvas.toDataURL('image/png');
+
+								if (uri.substring(0, 22) != 'data:image/png;base64,')
+								{
+									uri = null;
+								}
+							}
+						}
+					}
+					catch (e)
+					{
+						// Tainted canvas or SVG without a size in Firefox
+						uri = null;
+					}
+
+					finish(uri);
+				}), 0);
+			});
+
+			img.onerror = function()
+			{
+				finish(null);
+			};
+
+			// Keeps the queue going if the image never loads
+			timeout = window.setTimeout(function()
+			{
+				finish(null);
+			}, 10000);
+
+			img.src = src;
+		}
+	}
+	catch (e)
+	{
+		finish(null);
+	}
+};
+
+/**
+ * Returns the size in bytes of the data of the given data URI.
+ */
+Sidebar.getDataUriSize = function(uri)
+{
+	var comma = uri.indexOf(',');
+	var size = uri.length - comma - 1;
+
+	return (uri.substring(0, comma).indexOf(';base64') >= 0) ?
+		Math.floor(size * 3 / 4) : size;
+};
+
+/**
+ * Returns the data of the given data URI as a string with one character per
+ * byte for base64 data. Throws an error for invalid data.
+ */
+Sidebar.decodeDataUri = function(uri)
+{
+	var comma = uri.indexOf(',');
+	var data = uri.substring(comma + 1);
+
+	return (uri.substring(0, comma).indexOf(';base64') >= 0) ?
+		atob(data) : decodeURIComponent(data);
+};
+
+/**
+ * Returns true if the root element of the given SVG has a viewBox.
+ */
+Sidebar.hasSvgViewBox = function(svg)
+{
+	var root = /<(\w+:)?svg[\s>][^>]*/i.exec(svg);
+
+	return root != null && /\sviewBox\s*=/i.test(root[0]);
+};
+
+/**
+ * Returns the source of the given image element.
+ */
+Sidebar.getImageHref = function(img)
+{
+	var href = img.getAttribute('href');
+
+	if (href == null && img.getAttributeNS != null)
+	{
+		href = img.getAttributeNS(mxConstants.NS_XLINK, 'href');
+	}
+
+	return href;
+};
+
+/**
+ * Sets the source of the given image element.
+ */
+Sidebar.setImageHref = function(img, href)
+{
+	if (img.hasAttribute('href'))
+	{
+		img.setAttribute('href', href);
+	}
+
+	if (img.getAttributeNS != null && img.getAttributeNS(
+		mxConstants.NS_XLINK, 'href') != null)
+	{
+		img.setAttributeNS(mxConstants.NS_XLINK, 'xlink:href', href);
+	}
 };
 
 /**
@@ -4913,14 +5457,18 @@ Sidebar.prototype.addEdgeLabel = function(edge, cell, x, y)
 };
 
 /**
- * Creates a drop handler for inserting the given cells.
+ * Creates a drop handler for inserting the given cells. The handler takes the
+ * graph, the event, the drop target, the location of the cells, whether to
+ * ignore the element under the pointer and an optional point under the
+ * pointer if it is not the location of the cells (see previewOffset in
+ * createDragSource), where it splits edges and orders stack layouts.
  */
 Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInserted, bounds, startEditing, sourceCell, connectEdge)
 {
 	allowCellsInserted = (allowCellsInserted != null) ? allowCellsInserted : true;
 	this.prepareCellsForInsert.call(this, cells);
 	
-	return mxUtils.bind(this, function(graph, evt, target, x, y, force)
+	return mxUtils.bind(this, function(graph, evt, target, x, y, force, pointer)
 	{
 		var elt = (force) ? null : ((mxEvent.isTouchEvent(evt) || mxEvent.isPenEvent(evt)) ?
 			document.elementFromPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt)) :
@@ -4967,14 +5515,18 @@ Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInse
 					{
 						x = Math.round(x);
 						y = Math.round(y);
+
+						// Splits edges and orders stack layouts at the pointer
+						var px = (pointer != null) ? pointer.x : x;
+						var py = (pointer != null) ? pointer.y : y;
 						
 						// Splits the target edge or inserts into target group
 						if (allowSplit && graph.isSplitTarget(target, cells, evt))
 						{
 							var s = graph.view.scale;
 							var tr = graph.view.translate;
-							var tx = (x + tr.x) * s;
-							var ty = (y + tr.y) * s;
+							var tx = (px + tr.x) * s;
+							var ty = (py + tr.y) * s;
 							
 							var clones = graph.cloneCells(cells);
 
@@ -4985,8 +5537,10 @@ Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInse
 							}
 							else
 							{
+								// Centers the cells at the pointer if it is at the location
 								graph.splitEdge(target, clones, null,
-									x - bounds.width / 2, y - bounds.height / 2,
+									(pointer != null) ? x : x - bounds.width / 2,
+									(pointer != null) ? y : y - bounds.height / 2,
 									tx, ty);
 							}
 
@@ -5035,8 +5589,8 @@ Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInse
 							{
 								var s = graph.view.scale;
 								var tr = graph.view.translate;
-								var tx = (x + tr.x) * s;
-								var ty = (y + tr.y) * s;
+								var tx = (px + tr.x) * s;
+								var ty = (py + tr.y) * s;
 								
 								for (var i = 0; i < select.length; i++)
 								{
@@ -5263,6 +5817,9 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 	{
 		var editingCell = null;
 
+		// Cells that took their styles from the source (see styleDroppedConnection)
+		var styled = [];
+
 		graph.model.beginUpdate();
 		try
 		{
@@ -5422,14 +5979,26 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 				}
 				else
 				{
-					targets.push(graph.insertEdge(null, null, '', source, targets[dropCellIndex],
-						graph.createCurrentEdgeStyle()));
+					var edge = graph.insertEdge(null, null, '', source, targets[dropCellIndex],
+						graph.createCurrentEdgeStyle());
+					targets.push(edge);
+
+					// A single shape and its edge may take their styles from the source
+					if (targets.length == 2 && graph.model.getChildCount(targets[dropCellIndex]) == 0)
+					{
+						styled = graph.styleDroppedConnection(source, targets[dropCellIndex], edge,
+							direction, evt != null && mxEvent.isShiftDown(evt));
+					}
 				}
 			}
-			
+
 			if (evt == null || !mxEvent.isShiftDown(evt))
 			{
-				graph.fireEvent(new mxEventObject('cellsInserted', 'cells', targets));
+				graph.fireEvent(new mxEventObject('cellsInserted', 'cells', (styled.length > 0) ?
+					targets.filter(function(cell)
+					{
+						return mxUtils.indexOf(styled, cell) < 0;
+					}) : targets));
 			}
 		}
 		catch (e)
@@ -5942,6 +6511,16 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 			var index = (graph.model.isEdge(currentTargetState.cell) || freeSourceEdge == null) ? firstVertex : freeSourceEdge;
 			graph.setSelectionCells(this.dropAndConnect(currentTargetState.cell, cells, direction, index, evt, firstVertex, freeSourceEdge));
 		}
+		else if (dragSource.previewOffset != null)
+		{
+			// Drops the cells at the corner of a preview that is held at an offset
+			// from the pointer (see mxDragSource.previewOffset) and gives the drop
+			// handler the point of the preview under the pointer
+			var s = graph.view.scale;
+			dropHandler.call(this, graph, evt, target, x, y, arguments[5],
+				new mxPoint(x - dragSource.previewOffset.x / s,
+				y - dragSource.previewOffset.y / s));
+		}
 		else
 		{
 			dropHandler.apply(this, arguments);
@@ -5972,10 +6551,9 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 			// Transparency for guides and target highlights
 			mxUtils.setOpacity(elt, 50);
 
+			// The styles that the drop gives the cells (see pasteNewCellStyles)
 			var clones = graph.cloneCells(cells);
-			this.graph.pasteCellStyles(graph.includeDescendants(clones),
-				graph.currentVertexStyle, graph.currentEdgeStyle,
-				null, graph.pasteEdgeStyle, graph.pasteStylesToText);
+			ui.pasteNewCellStyles(graph.includeDescendants(clones), this.graph);
 			
 			sidebar.createThumb(clones, s * Math.max(1, bounds.width),
 				s * Math.max(1, bounds.height), elt, null, null, null,
@@ -6196,11 +6774,16 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 				dragSource.currentHighlight.state != null &&
 				graph.model.isEdge(dragSource.currentHighlight.state.cell))
 			{
-				// Centers drop cells when splitting edges
-				this.previewElement.style.left = Math.round(parseInt(this.previewElement.style.left) -
-					bounds.width * view.scale / 2) + 'px';
-				this.previewElement.style.top = Math.round(parseInt(this.previewElement.style.top) -
-					bounds.height * view.scale / 2) + 'px';
+				// Centers drop cells when splitting edges (a preview with an offset
+				// stays where it is, as the drop handler gets the pointer, which is
+				// where it splits edges, see previewOffset)
+				if (this.previewOffset == null)
+				{
+					this.previewElement.style.left = Math.round(parseInt(this.previewElement.style.left) -
+						bounds.width * view.scale / 2) + 'px';
+					this.previewElement.style.top = Math.round(parseInt(this.previewElement.style.top) -
+						bounds.height * view.scale / 2) + 'px';
+				}
 			}
 			else
 			{
@@ -7531,6 +8114,11 @@ Sidebar.prototype.destroy = function()
 		this.graph.destroy();
 		this.graph = null;
 	}
+
+	// Stops the bitmaps of thumbnails after the current one
+	this.thumbRasterCache = null;
+	this.thumbRasterKeys = null;
+	this.thumbRasterQueue = null;
 
 	if (this.escapeListener != null)
 	{

@@ -33,6 +33,11 @@ App = function(editor, container, lightbox)
 		App.versionPingStarted = true;
 		App.pingVersion();
 		window.setInterval(App.pingVersion, 3600000);
+
+		if (!this.editor.isChromelessView())
+		{
+			EditorUi.startUiLog();
+		}
 	}
 
 	// Reloads this tab when a release channel switch (flagged by
@@ -936,9 +941,61 @@ App.isSimpleThemePreferred = function()
 	var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 	var userAgent = navigator.userAgent || navigator.vendor || window.opera;
 	
-	return (iw <= 1024 ||  /android/i.test(userAgent) || (/iPad|iPhone|iPod/.test(userAgent) &&
+	return (iw <= 1024 ||  /android/i.test(userAgent) || (/iPad|iPhone|iPod/.test(userAgent) &&
 		!window.MSStream) || (navigator.userAgent.match(/Mac/) &&
 		navigator.maxTouchPoints && navigator.maxTouchPoints > 2));
+};
+
+/**
+ * Returns true if the session needs the stylesheet of the theme Fusion
+ * (styles/fusion.css, see SimpleUi.loadCss), which App.main loads before it
+ * creates the UI: a start in the theme or its alias simple=new, not in a
+ * chromeless view (the lightbox, chrome=0), which shows nothing of the theme
+ * (see FusionTheme.js).
+ */
+App.isFusionCssNeeded = function()
+{
+	return typeof SimpleUi !== 'undefined' && typeof SimpleUi.loadCss === 'function' &&
+		Editor.isModernSession() && urlParams['lightbox'] != '1' && urlParams['chrome'] != '0';
+};
+
+/**
+ * Returns true if a start in the theme Fusion has to load the scripts of the
+ * theme (js/fusion.min.js, see SimpleUi.loadScripts) before App.main goes on:
+ * they are not in app.min.js and hook into the start of the app (the bundle
+ * of the desktop app has them).
+ */
+App.isFusionScriptsNeeded = function()
+{
+	return App.isFusionCssNeeded() && typeof SimpleUi.loadScripts === 'function' &&
+		!SimpleUi.scriptsLoaded;
+};
+
+/**
+ * Leaves the theme Fusion at a start whose scripts or stylesheet failed: the
+ * session opens in the previous look of the Simple theme, as a session of
+ * another theme (a switch into the theme tries again), the stored theme
+ * stays, and the restart message is shown once the UI is created. Returns
+ * the given callback of App.main with the message.
+ */
+App.leaveFusion = function(callback)
+{
+	Editor.modernTheme = false;
+	Editor.modernAlias = false;
+	Editor.modernInstalled = false;
+
+	return function(ui)
+	{
+		if (callback != null)
+		{
+			callback(ui);
+		}
+
+		if (ui != null && typeof ui.alert === 'function')
+		{
+			ui.alert(mxResources.get('restartForChangeRequired'));
+		}
+	};
 };
 
 /**
@@ -946,7 +1003,7 @@ App.isSimpleThemePreferred = function()
  * 
  * Optional callback is called with the app instance.
  */
-App.main = function(callback, createUi)
+App.main = function main(callback, createUi)
 {
 	try
 	{
@@ -968,8 +1025,35 @@ App.main = function(callback, createUi)
 			return;
 		}
 
+		// A start in the theme Fusion loads its scripts before it goes on (see
+		// App.isFusionScriptsNeeded), and its stylesheet in the meantime; the
+		// previous look opens if they fail. Goes on with this function, not
+		// App.main, as others may wrap it (eg. SimpleStatesBoard.js).
+		if (App.isFusionScriptsNeeded())
+		{
+			// Ignores calls while the scripts load (see App.isMainCalled)
+			if (SimpleUi.scriptsState == null)
+			{
+				SimpleUi.loadCss();
+
+				SimpleUi.loadScripts(function(loaded)
+				{
+					main((loaded) ? callback : App.leaveFusion(callback), createUi);
+				});
+			}
+
+			return;
+		}
+
 		// Replaces light-dark color functions with light colors for older browsers
 		Editor.loadCompatibleCss();
+
+		// Starts loading the stylesheet of the theme Fusion, which only its
+		// sessions load (see SimpleUi.loadCss); its UI waits for it below
+		if (App.isFusionCssNeeded())
+		{
+			SimpleUi.loadCss();
+		}
 
 		App.isMainCalled = true;
 
@@ -1496,9 +1580,32 @@ App.main = function(callback, createUi)
 					}
 				};
 				
+				// Creates the UI once the stylesheet of the theme Fusion is
+				// loaded, in sessions of the theme; if it failed, the previous
+				// look opens (App.leaveFusion)
+				function startMain()
+				{
+					if (App.isFusionCssNeeded())
+					{
+						SimpleUi.loadCss(function(loaded)
+						{
+							if (!loaded)
+							{
+								callback = App.leaveFusion(callback);
+							}
+
+							realMain();
+						});
+					}
+					else
+					{
+						realMain();
+					}
+				};
+
 				if (urlParams['dev'] == '1' || EditorUi.isElectronApp) //TODO check if we can remove these scripts loading from index.html
 				{
-					realMain();
+					startMain();
 				}
 				else
 				{
@@ -1506,7 +1613,7 @@ App.main = function(callback, createUi)
 					// has no impact as stencils.min.js is pre-cached in PWA
 					mxStencilRegistry.allowEval = false;
 					App.loadScripts(['js/shapes-14-6-5.min.js', 'js/stencils.min.js',
-						'js/extensions.min.js'], realMain, function(e)
+						'js/extensions.min.js'], startMain, function(e)
 						{
 							document.body.innerHTML = '';
 							var pre = document.createElement('pre');
@@ -1633,6 +1740,7 @@ App.main = function(callback, createUi)
 						if (data != null && data.action == 'configure')
 						{
 							mxEvent.removeListener(window, 'message', configHandler);
+							Editor.configureOrigin = evt.origin;
 							Editor.configure(data.config);
 
 							// A popup shares the storage of the app, so the settings of each
@@ -2276,7 +2384,14 @@ App.prototype.init = function()
 		{
 			var insertButtonContainer = mxUtils.bind(this, function()
 			{
-				if (urlParams['embed'] != '1')
+				// The shell of Fusion has the buttons of embeds (Save, Exit)
+				// in its top bar, as the toolbar is hidden there (see
+				// installSimpleShell)
+				if (urlParams['embed'] == '1' && this.isSimpleShell != null && this.isSimpleShell())
+				{
+					return;
+				}
+				else if (urlParams['embed'] != '1')
 				{
 					this.menubar.container.appendChild(this.buttonContainer);
 				}
@@ -2498,14 +2613,15 @@ App.prototype.isChromelessDiagramPadded = function()
 /**
  * Shows a footer to download the desktop version once per session.
  */
-App.prototype.searchHelp = function(prompt)
+App.prototype.searchHelp = function(prompt, noLog)
 {
 	var link = 'https://www.drawio.com/search?src=' +
 		(EditorUi.isElectronApp ? 'DESKTOP' : encodeURIComponent(location.host)) + 
 			'&search=' + encodeURIComponent(prompt);
 	this.openLink(link);
 	
-	if (prompt.length > 0)
+	// Words of the omnibox are not logged (Simple Modern, see SimpleHelp.js)
+	if (prompt.length > 0 && !noLog)
 	{
 		EditorUi.logEvent({category: 'SEARCH-HELP', action: 'search', label: prompt});
 	}
@@ -6910,6 +7026,9 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 		}
 		else if (this.spinner.spin(document.body, mxResources.get('loading')))
 		{
+			// Every kind of load replaces the one before it, see isOutdated
+			var load = this.currentFileLoad = {};
+
 			// Handles files from localStorage
 			if (id.charAt(0) == 'L')
 			{
@@ -7243,8 +7362,32 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 						// Malformed hashes are passed on as-is so that the service reports the error
 						id = mxUtils.safeDecodeURIComponent(id.substring(1));
 
+						// Drive retries a rate limit for about a minute beside other requests,
+						// so the answer can come after another load or file. It must not
+						// replace what the user opened since, or show its error there.
+						var previousFile = this.getCurrentFile();
+
+						var isOutdated = mxUtils.bind(this, function()
+						{
+							var newerLoad = this.currentFileLoad != load;
+							var outdated = newerLoad || this.getCurrentFile() != previousFile;
+
+							// The spinner belongs to the newer load
+							if (outdated && !newerLoad)
+							{
+								this.spinner.stop();
+							}
+
+							return outdated;
+						});
+
 						peer.getFile(id, mxUtils.bind(this, function(file)
 						{
+							if (isOutdated())
+							{
+								return;
+							}
+
 							this.spinner.stop();
 							this.fileLoaded(file);
 							var currentFile = this.getCurrentFile();
@@ -7312,6 +7455,11 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 							}
 						}), mxUtils.bind(this, function(resp)
 						{
+							if (isOutdated())
+							{
+								return;
+							}
+
 							// Makes sure the file does not save the invalid UI model and overwrites anything important
 							if (window.console != null && resp != null)
 							{
@@ -7332,6 +7480,14 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 									window.location.hash = '#' + currentFile.getHash();
 								}
 							});
+
+							// Null is a cancelled load in the other storages. In Drive it is a
+							// request without a JSON answer (eg. offline or blocked), as closing
+							// its sign-in dialog does not get here
+							if (resp == null && mode == App.MODE_GOOGLE)
+							{
+								resp = {message: mxResources.get('serviceUnavailableOrBlocked')};
+							}
 
 							if (resp == null || resp.name != 'AbortError')
 							{

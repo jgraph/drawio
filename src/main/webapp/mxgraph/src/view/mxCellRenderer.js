@@ -258,6 +258,13 @@ mxCellRenderer.prototype.getShapeConstructor = function(state)
  */
 mxCellRenderer.prototype.configureShape = function(state)
 {
+	// States without a shape can get a label, eg. in Graph.redrawTransientStyle,
+	// and createLabel and redrawLabel configure the shape for the label
+	if (state.shape == null)
+	{
+		return;
+	}
+
 	state.shape.apply(state);
 	state.shape.image = state.view.graph.getImage(state);
 	state.shape.indicatorColor = state.view.graph.getIndicatorColor(state);

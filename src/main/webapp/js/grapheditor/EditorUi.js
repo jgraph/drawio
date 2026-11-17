@@ -194,12 +194,12 @@ EditorUi = function(editor, container, lightbox)
 		
 		graph.addListener('cellsInserted', function(sender, evt)
 		{
-			graph.pasteCellStyles(graph.includeDescendants(evt.getProperty('cells')));
+			ui.pasteNewCellStyles(graph.includeDescendants(evt.getProperty('cells')));
 		});
 		
 		graph.addListener('textInserted', function(sender, evt)
 		{
-			graph.pasteCellStyles(evt.getProperty('cells'));
+			ui.pasteNewCellStyles(evt.getProperty('cells'));
 		});
 		
 		this.createDivs();
@@ -953,7 +953,7 @@ EditorUi = function(editor, container, lightbox)
 				}, 0);
 			}
 			
-			graph.pasteCellStyles(cells);
+			ui.pasteNewCellStyles(cells);
 		});
 
 		// Shows current edge style and shape in toolbar. The images are computed
@@ -1239,8 +1239,8 @@ EditorUi = function(editor, container, lightbox)
 	 {
 		 var bytes = fread(d, 4);
 		 
-		 return bytes.charCodeAt(3) + (bytes.charCodeAt(2) << 8) +
-			 (bytes.charCodeAt(1) << 16) + (bytes.charCodeAt(0) << 24);
+		 return (bytes.charCodeAt(3) + (bytes.charCodeAt(2) << 8) +
+			 (bytes.charCodeAt(1) << 16) + (bytes.charCodeAt(0) << 24)) >>> 0;
 	 };
 	 
 	 // Checks signature
@@ -1347,6 +1347,38 @@ EditorUi.prototype.hsplitClickEnabled = false;
  * Whether the default styles should be updated when styles are changed. Default is true.
  */
 EditorUi.prototype.updateDefaultStyle = false;
+
+/**
+ * Applies the current default styles to the given new cells: inserted cells
+ * (cellsInserted), typed text (textInserted) and connections with the cells
+ * they insert. Only the keys the cells do not set are written (see
+ * Graph.pasteCellStyles). The optional target is the graph of the cells if
+ * they are not in the diagram (the clones of a drag preview of the sidebar),
+ * which gets the default styles of the diagram.
+ */
+EditorUi.prototype.pasteNewCellStyles = function(cells, target)
+{
+	var graph = this.editor.graph;
+
+	if (target != null)
+	{
+		target.pasteCellStyles(cells, graph.currentVertexStyle, graph.currentEdgeStyle,
+			null, graph.pasteEdgeStyle, graph.pasteStylesToText);
+	}
+	else
+	{
+		graph.pasteCellStyles(cells);
+	}
+};
+
+/**
+ * Hook for the cell that a shape picker without a callback has just added to
+ * the diagram with addCell (the double-click picker, its search and Insert >
+ * Shape...), inside the model update of the insert. addCell fires no
+ * cellsInserted, so the cell does not get pasteNewCellStyles. This
+ * implementation does nothing.
+ */
+EditorUi.prototype.shapePickerCellAdded = function(cell) { };
 
 /**
  * Whether the default styles should be updated when styles are changed. Default is true.
@@ -2785,6 +2817,7 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 								try
 								{
 									graph.addCell(clone);
+									ui.shapePickerCellAdded(clone);
 
 									if (graph.model.isVertex(clone) &&
 										graph.isAutoSizeCell(clone))
@@ -3688,6 +3721,61 @@ EditorUi.prototype.focusOmniSearch = function()
 	}
 
 	return result;
+};
+
+/**
+ * Shows the omnibox, the search for actions, menus and the format of the
+ * selection, with the given scope (see Omnibox.show).
+ */
+EditorUi.prototype.showOmnibox = function(scope)
+{
+	var omnibox = this.getOmnibox();
+
+	if (omnibox != null)
+	{
+		omnibox.show(scope);
+	}
+};
+
+/**
+ * Returns the omnibox, eg. to add entries with addProvider, or null if it is
+ * not available.
+ */
+EditorUi.prototype.getOmnibox = function()
+{
+	if (this.omnibox == null)
+	{
+		this.omnibox = this.createOmnibox();
+	}
+
+	return this.omnibox;
+};
+
+/**
+ * Creates the omnibox or returns null if it is not available.
+ */
+EditorUi.prototype.createOmnibox = function()
+{
+	return (typeof Omnibox !== 'undefined') ? new Omnibox(this) : null;
+};
+
+/**
+ * Returns true if the omnibox can be shown (the action searchActions, its
+ * keystroke Ctrl+Alt+P and the search buttons). This implementation returns
+ * true if the omnibox is loaded.
+ */
+EditorUi.prototype.isOmniboxEnabled = function()
+{
+	return typeof Omnibox !== 'undefined';
+};
+
+/**
+ * Returns true if the format panel shows a button that searches its controls
+ * in the omnibox. This implementation returns false.
+ */
+EditorUi.prototype.isFormatSearchVisible = function()
+{
+	return false;
 };
 
 /**
@@ -5932,7 +6020,7 @@ EditorUi.prototype.initCanvas = function()
 		
 		// Creates toolbar for viewer - do not use CSS here
 		// as this may be used in a viewer that has no CSS
-		if (urlParams['toolbar'] != '0')
+		if (urlParams['toolbar'] != '0' && !this.installModernChromelessToolbar())
 		{
 			var toolbarConfig = JSON.parse(decodeURIComponent(urlParams['toolbar-config'] || '{}'));
 			
@@ -7423,6 +7511,16 @@ EditorUi.prototype.addChromelessToolbarItems = function(addButton)
 };
 
 /**
+ * Hook for the toolbar of a chromeless view in another look. Returns true
+ * if it installed one, then the default toolbar is not created. This
+ * implementation returns false (see LightboxModern.js).
+ */
+EditorUi.prototype.installModernChromelessToolbar = function()
+{
+	return false;
+};
+
+/**
  * Creates a temporary graph instance for rendering off-screen content.
  */
 EditorUi.prototype.isPagesEnabled = function()
@@ -7980,6 +8078,43 @@ EditorUi.prototype.undo = function()
 EditorUi.prototype.canRedo = function()
 {
 	return this.editor.graph.isEditing() || this.editor.undoManager.canRedo();
+};
+
+/**
+ * Returns true if layers can be shown or hidden in the Layers window. This
+ * is true if the graph is enabled or if layers are shown and hidden only in
+ * this view.
+ */
+EditorUi.prototype.isLayerVisibilityEditable = function()
+{
+	return this.editor.graph.isEnabled() || this.isLayerVisibilityLocal();
+};
+
+/**
+ * Returns true if layers are shown and hidden only in this view, without
+ * changing the diagram (see <Graph.setLayersVisibleInView>). Default is false.
+ */
+EditorUi.prototype.isLayerVisibilityLocal = function()
+{
+	return false;
+};
+
+/**
+ * Shows or hides the given layers in the Layers window: in this view if
+ * <isLayerVisibilityLocal> returns true, else in the diagram.
+ */
+EditorUi.prototype.setLayersVisible = function(layers, visible)
+{
+	var graph = this.editor.graph;
+
+	if (this.isLayerVisibilityLocal())
+	{
+		graph.setLayersVisibleInView(layers, visible);
+	}
+	else if (graph.isEnabled())
+	{
+		graph.setCellsVisible(layers, visible);
+	}
 };
 
 /**
@@ -9271,7 +9406,8 @@ EditorUi.prototype.announce = function(text, repeat)
 
 			window.setTimeout(mxUtils.bind(this, function()
 			{
-				if (this.lastAnnouncement == text)
+				// The UI may have been destroyed in the meantime
+				if (this.liveRegion != null && this.lastAnnouncement == text)
 				{
 					this.liveRegion.textContent = text;
 				}
@@ -10102,13 +10238,13 @@ EditorUi.prototype.pickColorModal = function(color, apply, defaultColor, default
 	this.showDialog(dlg.container, 250, null, true, false);
 
 	// Re-fits the modal dialog to its content when the advanced/dark section
-	// is toggled, mirroring the tool window's fitHeight behavior. The 48px
-	// accounts for the .geDialog padding (same as showDialog's auto-size).
+	// is toggled, mirroring the tool window's fitHeight behavior (plus the
+	// .geDialog padding, as showDialog's auto-size).
 	var dialogContainer = this.dialog.container;
 
 	dlg.resizeFn = function()
 	{
-		dialogContainer.style.height = (dlg.container.scrollHeight + 48) + 'px';
+		dialogContainer.style.height = Dialog.getFrameHeight(dialogContainer, dlg.container.scrollHeight) + 'px';
 	};
 
 	dlg.init();
@@ -10544,6 +10680,19 @@ EditorUi.prototype.showDataDialog = function(cell)
 			false, null, new mxRectangle(0, 0, 440, 340), null, 'editData');
 		dlg.init();
 	}
+};
+
+/**
+ * Shows the dialog that edits the given formatted text of the given cell
+ * (Edit Tooltip, Edit Note) with the given title and calls fn with the new
+ * value after Apply. The id names the stored size of the dialog.
+ */
+EditorUi.prototype.showMarkupDialog = function(cell, title, value, fn, id)
+{
+	var dlg = new MarkupDialog(this, title, value, fn);
+	this.showDialog(dlg.container, 420, 300, true, true, null, null, null,
+		new mxRectangle(0, 0, 320, 240), null, id);
+	dlg.init();
 };
 
 /**
@@ -11352,7 +11501,25 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		keyHandler.bindAction(13, false, 'keyPressEnter'); // Enter
 		keyHandler.bindKey(113, function() { if (graph.isEnabled()) { graph.startEditingAtCell(); }}); // F2
 	}
-	
+
+	// Ctrl+Alt+P shows the omnibox only where it is enabled; elsewhere the
+	// keystroke does what it did before (eg. AltGr+P types a character)
+	var keyHandlerGetOmniboxFunction = keyHandler.getFunction;
+
+	keyHandler.getFunction = function(evt)
+	{
+		if (evt.keyCode == 80 && this.isControlDown(evt) && mxEvent.isAltDown(evt) &&
+			!mxEvent.isShiftDown(evt) && graph.isEnabled() && editorUi.isOmniboxEnabled())
+		{
+			return function()
+			{
+				editorUi.actions.get('searchActions').funct();
+			};
+		}
+
+		return keyHandlerGetOmniboxFunction.apply(this, arguments);
+	};
+
 	return keyHandler;
 };
 

@@ -9,6 +9,31 @@ InlineToolbar = function(editorUi)
 	this.graph = editorUi.editor.graph;
 	this.popoverUpdates = [];
 	this.init();
+
+	// Hides the hover icons while a popover is open, as they would show next
+	// to it or on top of it. Chains the function that was there, an own one
+	// of the hover icons or the one of their prototype at the time of the
+	// call, so that overrides of HoverIcons.isSuspended still apply.
+	var hoverIcons = editorUi.hoverIcons;
+
+	if (hoverIcons != null)
+	{
+		var toolbar = this;
+		var previous = (Object.prototype.hasOwnProperty.call(hoverIcons,
+			'isSuspended')) ? hoverIcons.isSuspended : null;
+		this.previousHoverIconsSuspended = previous;
+
+		this.hoverIconsSuspended = function()
+		{
+			var fn = (previous != null) ? previous :
+				Object.getPrototypeOf(hoverIcons).isSuspended;
+
+			return toolbar.currentPopover != null ||
+				(fn != null && fn.apply(this, arguments));
+		};
+
+		hoverIcons.isSuspended = this.hoverIconsSuspended;
+	}
 };
 
 /**
@@ -463,7 +488,7 @@ InlineToolbar.prototype.updateSelection = function()
 	this.handleBounds = null;
 
 	if (!this.suspended && this.graph.isEnabled() && !this.graph.isEditing() &&
-		this.isToolbarSelection(cells))
+		!this.editorUi.isInlineToolbarSuppressed() && this.isToolbarSelection(cells))
 	{
 		state = this.graph.view.getState(cells[0]);
 	}
@@ -1225,12 +1250,13 @@ InlineToolbar.prototype.getPosition = function(state, area, edge)
 	// viewport so that the toolbar moves out of view with the cells when
 	// the diagram is panned or scrolled
 	var viewport = new mxRectangle(container.scrollLeft, container.scrollTop,
-		container.clientWidth, container.clientHeight);
+		container.clientWidth - this.getRightInset(),
+		container.clientHeight - this.getBottomInset());
 	var clamp = (edge) ? mxUtils.contains(viewport, area.x, area.y) :
 		mxUtils.intersects(viewport, area);
 	var minX = viewport.x + 4;
 	var maxX = viewport.x + viewport.width - w - 4;
-	var minY = viewport.y + 4;
+	var minY = viewport.y + 4 + this.getTopInset();
 	var maxY = viewport.y + viewport.height - h - 4;
 
 	// Only handles in the viewport can be covered
@@ -1360,8 +1386,60 @@ InlineToolbar.prototype.coversEdge = function(state, rect)
 };
 
 /**
+ * Returns the height at the top of the container that other parts of the UI
+ * cover (eg. a top bar that floats over the canvas), which the toolbar and
+ * its popovers keep clear of. Default is 0.
+ */
+InlineToolbar.prototype.getTopInset = function()
+{
+	return 0;
+};
+
+/**
+ * Returns the width at the right of the container that other parts of the UI
+ * cover (eg. a panel that floats over the canvas), which the toolbar and its
+ * popovers keep clear of. Default is 0.
+ */
+InlineToolbar.prototype.getRightInset = function()
+{
+	return 0;
+};
+
+/**
+ * Returns the height at the bottom of the container that other parts of the
+ * UI cover (eg. a sheet that floats over the canvas), which the toolbar and
+ * its popovers keep clear of. Default is 0.
+ */
+InlineToolbar.prototype.getBottomInset = function()
+{
+	return 0;
+};
+
+/**
+ * Limits the height of the given panel to the visible height of the
+ * container between the top and bottom insets (see getTopInset and
+ * getBottomInset), so a taller panel scrolls instead of running past the
+ * bottom. Only with an inset, else the panel is unchanged.
+ */
+InlineToolbar.prototype.limitPanelHeight = function(panel)
+{
+	var inset = this.getTopInset() + this.getBottomInset();
+	var max = this.graph.container.clientHeight - 8 - inset;
+
+	if (inset > 0 && max > 0 && panel.offsetHeight > max)
+	{
+		panel.style.boxSizing = 'border-box';
+		panel.style.maxHeight = max + 'px';
+		panel.style.overflowY = 'auto';
+		panel.style.overscrollBehavior = 'contain';
+	}
+};
+
+/**
  * Clamps a position (in container scroll coordinates) so an element of the
- * given size stays within the container's visible viewport. When the element
+ * given size stays within the container's visible viewport, without the
+ * parts that other UI covers (see getTopInset, getRightInset and
+ * getBottomInset). When the element
  * is larger than the viewport along an axis it is pinned to the top/left edge
  * so its start stays visible. Returns the clamped point.
  */
@@ -1369,9 +1447,9 @@ InlineToolbar.prototype.clampToContainer = function(x, y, w, h)
 {
 	var c = this.graph.container;
 	var minX = c.scrollLeft + 4;
-	var maxX = c.scrollLeft + c.clientWidth - w - 4;
-	var minY = c.scrollTop + 4;
-	var maxY = c.scrollTop + c.clientHeight - h - 4;
+	var maxX = c.scrollLeft + c.clientWidth - this.getRightInset() - w - 4;
+	var minY = c.scrollTop + 4 + this.getTopInset();
+	var maxY = c.scrollTop + c.clientHeight - this.getBottomInset() - h - 4;
 
 	return new mxPoint(
 		(maxX > minX) ? Math.max(minX, Math.min(x, maxX)) : minX,
@@ -1443,6 +1521,11 @@ InlineToolbar.prototype.createPopover = function(anchorBtn, opts)
 
 	// Tooltips would cover the popover
 	this.graph.tooltipHandler.hide();
+
+	if (this.editorUi.hoverIcons != null)
+	{
+		this.editorUi.hoverIcons.reset();
+	}
 
 	var persistOnClick = opts != null && opts.persistOnClick;
 	var container = this.graph.container;
@@ -1537,8 +1620,8 @@ InlineToolbar.prototype.createPopover = function(anchorBtn, opts)
 			scrolls[i].elt.style.overflowX = 'hidden';
 		}
 
-		var maxBodyHeight = container.clientHeight - 8 -
-			(popover.offsetHeight - body.offsetHeight);
+		var maxBodyHeight = container.clientHeight - 8 - this.getTopInset() -
+			this.getBottomInset() - (popover.offsetHeight - body.offsetHeight);
 
 		if (maxBodyHeight > 0 && body.offsetHeight > maxBodyHeight)
 		{
@@ -1567,6 +1650,7 @@ InlineToolbar.prototype.createPopover = function(anchorBtn, opts)
 			body.scrollTop = bodyScrollTop;
 		}
 
+		this.updatePopoverScrollbars(body, scrolls);
 		var toolbarRect = this.toolbar.getBoundingClientRect();
 		var btnRect = anchorBtn.getBoundingClientRect();
 		var containerRect = container.getBoundingClientRect();
@@ -1583,7 +1667,8 @@ InlineToolbar.prototype.createPopover = function(anchorBtn, opts)
 		// container can be shorter than the window). Prefer below; flip above
 		// only when below does not fit and above is the roomier side.
 		var spaceAbove = toolbarRect.top - containerRect.top;
-		var spaceBelow = (containerRect.top + container.clientHeight) - toolbarRect.bottom;
+		var spaceBelow = (containerRect.top + container.clientHeight -
+			this.getBottomInset()) - toolbarRect.bottom;
 		var fitsBelow = spaceBelow >= popoverHeight + 4;
 		var fitsAbove = spaceAbove >= popoverHeight + 4;
 		var showAbove = !fitsBelow && (fitsAbove || spaceAbove > spaceBelow);
@@ -1641,7 +1726,7 @@ InlineToolbar.prototype.createPopover = function(anchorBtn, opts)
 				showAbove = !awayAbove;
 			}
 			else if (sel.x + sel.width + 8 + popoverWidth <=
-				scrollLeft + container.clientWidth - 4)
+				scrollLeft + container.clientWidth - this.getRightInset() - 4)
 			{
 				sideX = sel.x + sel.width + 8;
 			}
@@ -1774,6 +1859,16 @@ InlineToolbar.prototype.createPopover = function(anchorBtn, opts)
 
 	return {body: body, popover: popover, position: positionPopover, animateIn: animateIn,
 		scrolls: scrolls};
+};
+
+/**
+ * Hook for the scrollbars of a popover after createPopover limited the
+ * height of the given body or of its parts that scroll on their own (scrolls)
+ * and before it places the popover. This implementation does nothing.
+ */
+InlineToolbar.prototype.updatePopoverScrollbars = function(body, scrolls)
+{
+	// Hook for subclassers
 };
 
 /**
@@ -2192,6 +2287,7 @@ InlineToolbar.prototype.createDropdown = function(title, items, getActiveIndex,
 			panel._ownerDropdown = dropdown;
 
 			// Position below the dropdown, clamped to the visible viewport.
+			this.limitPanelHeight(panel);
 			var ddRect = dropdown.getBoundingClientRect();
 			var containerRect = container.getBoundingClientRect();
 			var clamped = this.clampToContainer(
@@ -3496,6 +3592,7 @@ InlineToolbar.prototype.showMarkerSubPanel = function(dropdown, prefix, items, c
 
 	// Clamp to the visible viewport (both axes) so a panel near the bottom
 	// edge shifts up to stay visible instead of being clipped.
+	this.limitPanelHeight(panel);
 	var clamped = this.clampToContainer(
 		dropdownRect.left - containerRect.left + scrollLeft,
 		dropdownRect.bottom - containerRect.top + scrollTop + 4,
@@ -5186,6 +5283,19 @@ InlineToolbar.prototype.destroy = function()
 {
 	this.hidePopover(true);
 
+	if (this.editorUi.hoverIcons != null &&
+		this.editorUi.hoverIcons.isSuspended == this.hoverIconsSuspended)
+	{
+		if (this.previousHoverIconsSuspended != null)
+		{
+			this.editorUi.hoverIcons.isSuspended = this.previousHoverIconsSuspended;
+		}
+		else
+		{
+			delete this.editorUi.hoverIcons.isSuspended;
+		}
+	}
+
 	if (this.hideTimeout != null)
 	{
 		window.clearTimeout(this.hideTimeout);
@@ -5213,4 +5323,14 @@ InlineToolbar.prototype.destroy = function()
 EditorUi.prototype.createInlineToolbar = function()
 {
 	return new InlineToolbar(this);
+};
+
+/**
+ * Returns true if the inline toolbar is hidden for the current state of the
+ * UI (eg. while a panel shows the format of the selection). This
+ * implementation returns false.
+ */
+EditorUi.prototype.isInlineToolbarSuppressed = function()
+{
+	return false;
 };

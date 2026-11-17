@@ -250,7 +250,66 @@
 		}
 	};
 
+	/**
+	 * Returns true if the layout picker and the layout form (Choose Layout,
+	 * Layout Settings, see LayoutPicker.js) are in the menus: in the new look
+	 * of the Simple theme (the theme modern) and with the developer switch
+	 * layoutPicker=1, so that the app is as before without them.
+	 */
+	Menus.prototype.isLayoutPickerEnabled = function()
+	{
+		return (typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern()) ||
+			urlParams['layoutPicker'] == '1';
+	};
+
 	var menusInit = Menus.prototype.init;
+	/**
+	 * Adds Comment... for the selected cells to the given context menu for
+	 * files that support anchored comments and returns the item.
+	 */
+	Menus.prototype.addPopupCommentItem = function(menu)
+	{
+		var ui = this.editorUi;
+		var graph = ui.editor.graph;
+		var item = null;
+
+		if (graph.getSelectionCount() > 0 && ui.commentsSupported() &&
+			ui.anchoredCommentsSupported() && ui.canComment() &&
+			this.showCommentsWindow != null)
+		{
+			var selected = graph.getSelectionCells();
+			var menus = this;
+
+			menu.addSeparator();
+			item = menu.addItem(mxResources.get('comment') + '...', null, function()
+			{
+				if (ui.currentPage != null)
+				{
+					var c = null;
+
+					if (selected.length == 1)
+					{
+						c = selected[0].id;
+					}
+					else
+					{
+						c = [];
+
+						for (var i = 0; i < selected.length; i++)
+						{
+							c.push(selected[i].id);
+						}
+					}
+
+					menus.showCommentsWindow(null,
+						{p: ui.currentPage.getId(), c: c});
+				}
+			});
+		}
+
+		return item;
+	};
+
 	Menus.prototype.init = function()
 	{
 		menusInit.apply(this, arguments);
@@ -445,9 +504,9 @@
 		{
 			this.addMenuItems(menu, ['points', 'inches', 'millimeters', 'centimeters', 'meters'], parent);
 		
-			if (Editor.currentTheme == 'min' ||
-				Editor.currentTheme == 'simple' ||	
-				Editor.currentTheme == 'sketch')
+			// Page Scale of Simple Modern is in the page view
+			if (Editor.currentTheme == 'min' || Editor.currentTheme == 'sketch' ||
+				Editor.isSimpleClassic()) // SIMPLE-CLASSIC
 			{
 				editorUi.menus.addMenuItems(menu, ['-', 'pageScale'], parent);
 			}
@@ -555,7 +614,18 @@
 				dlg.init();
 			});
 		}).isEnabled = isGraphEnabled;
-	
+
+		var readOnlyAction = editorUi.actions.addAction('readOnly', function()
+		{
+			editorUi.setReadOnly(!editorUi.readOnly);
+		});
+
+		readOnlyAction.setToggleAction(true);
+		readOnlyAction.setSelectedCallback(function()
+		{
+			return editorUi.readOnly;
+		});
+
 		if (window.mxFreehand)
 		{
 			var freehandAction = editorUi.actions.put('insertFreehand', new Action('freehand', function()
@@ -1195,10 +1265,11 @@
 					linkTarget, grid, theme, exportType, embedFonts, embedCellMetadata,
 					dpi, icons, allPages)
 				{
-					var val = parseInt(scale);
+					// The zoom can have decimals, eg. for a width typed in the dialog
+					var val = parseFloat(scale);
 					editorUi.lastExportSvgEditable = editable;
 
-					if (!isNaN(val) && val > 0)
+					if (isFinite(val) && val > 0)
 					{
 						var exportSvg = function()
 						{
@@ -1230,9 +1301,10 @@
 						embedImages, border, cropImage, currentPage, dummy, grid, theme, exportType, embedFonts,
 						embedCellMetadata, dpi)
 					{
-						var val = parseInt(scale);
+						// The zoom can have decimals, eg. for a width typed in the dialog
+						var val = parseFloat(scale);
 
-						if (!isNaN(val) && val > 0)
+						if (isFinite(val) && val > 0)
 						{
 							editorUi.exportImage(val / 100, transparentBackground && format == 'png',
 								ignoreSelection, addShadow, editable && format == 'png', border,
@@ -1408,52 +1480,59 @@
 			}
 		});
 
-		editorUi.actions.addAction('dataSources...', function()
+		// The policy of the desktop app refuses the requests of data sources, as
+		// it opens untrusted diagrams (see ElectronApp.js). Without the actions
+		// there is no row in Page Setup and no option in the inline toolbar, and
+		// the sources of files stay as they are
+		if (!window.mxIsElectron)
 		{
-			if (editorUi.editor.graph.isEnabled())
+			editorUi.actions.addAction('dataSources...', function()
 			{
-				var dlg = new DataSourcesDialog(editorUi);
-				editorUi.showDialog(dlg.container, 560, null, true, true, function()
+				if (editorUi.editor.graph.isEnabled())
 				{
-					dlg.destroy();
-				});
-				dlg.init();
-			}
-		});
-
-		// Refresh All in the Data Sources row of Page Setup, which passes a
-		// function(text, error, busy) for the status of the refresh
-		var refreshDataSources = editorUi.actions.addAction('refreshDataSources', function(status)
-		{
-			if (editorUi.editor.graph.isEnabled())
-			{
-				status = (typeof status === 'function') ? status : function() { };
-				status(mxResources.get('loading') + '...', false, true);
-
-				editorUi.refreshDataSources(null, function(count, errors)
-				{
-					if (errors.length > 0)
+					var dlg = new DataSourcesDialog(editorUi);
+					editorUi.showDialog(dlg.container, 560, null, true, true, function()
 					{
-						status(errors.map(function(e)
+						dlg.destroy();
+					});
+					dlg.init();
+				}
+			});
+
+			// Refresh All in the Data Sources row of Page Setup, which passes a
+			// function(text, error, busy) for the status of the refresh
+			var refreshDataSources = editorUi.actions.addAction('refreshDataSources', function(status)
+			{
+				if (editorUi.editor.graph.isEnabled())
+				{
+					status = (typeof status === 'function') ? status : function() { };
+					status(mxResources.get('loading') + '...', false, true);
+
+					editorUi.refreshDataSources(null, function(count, errors)
+					{
+						if (errors.length > 0)
 						{
-							return e.source.id + ': ' + ((e.error != null &&
-								e.error.message != null) ? e.error.message : e.error);
-						}).join('; '), true, false);
-					}
-					else
-					{
-						status(mxResources.get('refreshedAt',
-							[new Date().toLocaleTimeString()], 'Refreshed at {1}'), false, false);
-					}
-				});
-			}
-		});
+							status(errors.map(function(e)
+							{
+								return e.source.id + ': ' + ((e.error != null &&
+									e.error.message != null) ? e.error.message : e.error);
+							}).join('; '), true, false);
+						}
+						else
+						{
+							status(mxResources.get('refreshedAt',
+								[new Date().toLocaleTimeString()], 'Refreshed at {1}'), false, false);
+						}
+					});
+				}
+			});
 
-		// Only for pages with data sources
-		refreshDataSources.isVisible = function()
-		{
-			return editorUi.editor.graph.getDataSources().length > 0;
-		};
+			// Only for pages with data sources
+			refreshDataSources.isVisible = function()
+			{
+				return editorUi.editor.graph.getDataSources().length > 0;
+			};
+		}
 
 		action = editorUi.actions.addAction('tags', mxUtils.bind(this, function()
 		{
@@ -1723,6 +1802,34 @@
 					buttons, 'https://www.drawio.com/doc/faq/configure-diagram-editor');
 			});
 		}
+		else if (urlParams['embed'] == '1' && urlParams['proto'] == 'json' &&
+			Editor.configurationEditor != null &&
+			Editor.getConfigurationTargetOrigin() != null)
+		{
+			// The embedding host stores the configuration (see Editor.configurationEditor)
+			editorUi.actions.addAction('configuration...', function()
+			{
+				var host = Editor.configurationEditor;
+
+				editorUi.showConfigurationEditorDialog(mxResources.get('configuration') + ':', null, null,
+					'https://www.drawio.com/doc/faq/configure-diagram-editor',
+					{config: host.config, excludedKeys: host.excludedKeys, save: function(config)
+					{
+						// Shown again if the host keeps the editor open
+						host.config = config;
+
+						// Only to the origin of the configure message, as the config may have
+						// API keys and a popup's opener may have navigated elsewhere
+						var parent = editorUi.embedMessageSource || window.opener || window.parent;
+						var origin = Editor.getConfigurationTargetOrigin();
+
+						if (origin != null)
+						{
+							parent.postMessage(JSON.stringify({event: 'configuration', config: config}), origin);
+						}
+					}});
+			});
+		}
 		
 		// Adds language menu to options only if localStorage is available for
 		// storing the choice. We do not want to use cookies for older browsers.
@@ -1834,6 +1941,32 @@
 				editorUi.customLayoutConfig, null, 2));
 		});
 
+		// Layout picker and layout form (see LayoutPicker.js), disabled where
+		// they are not in the menus (eg. no entries in the action search of
+		// the sidebar)
+		var isLayoutPickerEnabled = function()
+		{
+			// The current isEnabled of the graph (read-only and locked files
+			// replace it after isGraphEnabled was bound)
+			return editorUi.menus.isLayoutPickerEnabled() && editorUi.editor.graph.isEnabled();
+		};
+
+		editorUi.actions.addAction('chooseLayout...', function()
+		{
+			if (isLayoutPickerEnabled())
+			{
+				editorUi.showLayoutPicker();
+			}
+		}).isEnabled = isLayoutPickerEnabled;
+
+		editorUi.actions.addAction('layoutSettings...', function()
+		{
+			if (isLayoutPickerEnabled())
+			{
+				editorUi.showLayoutSettings();
+			}
+		}).isEnabled = isLayoutPickerEnabled;
+
 		// Re-runs the most recent layout with the same options (recorded as
 		// a custom-layout array on lastLayoutSpec by executeLayoutSpec,
 		// ElkLayout.run, LibavoidRouting.run and the custom layout dialog).
@@ -1902,6 +2035,19 @@
 
 		this.get('layout').funct = function(menu, parent)
 		{
+			// The Simple UI has the layout picker and the layout form instead
+			// of the names of the layouts and the custom layout JSON
+			var picker = menus.isLayoutPickerEnabled();
+			var simple = Editor.currentTheme == 'simple' && picker;
+
+			// Choose Layout first, so every menu with this submenu can apply a
+			// layout (… › Arrange of Simple Modern has them above Layout ▸,
+			// see SimpleMenus.js)
+			if (simple && !menus.simpleArrangeLayout)
+			{
+				menus.addMenuItems(menu, ['chooseLayout', 'layoutSettings', '-'], parent);
+			}
+
 			// Grayed out until a layout has run in this session; see the
 			// runLastLayout action for the replay semantics.
 			var action = editorUi.actions.get('runLastLayout');
@@ -1915,7 +2061,7 @@
 			menus.addMenuItems(menu, ['editLayout', 'editOutline'], parent);
 			menu.addSeparator(parent);
 
-			if (typeof ElkLayout !== 'undefined')
+			if (!simple && typeof ElkLayout !== 'undefined')
 			{
 				// Resolve each menu name through ElkLayout.MENU_PRESETS (the single
 				// source shared with drawio-mcp) so the algorithm + direction live
@@ -1940,67 +2086,70 @@
 				addElk('organic');
 			}
 
-			// Selected layout containers get the org chart as their layout
-			menu.addItem(mxResources.get('orgChart') + '...', null, function()
+			if (!simple)
 			{
-				editorUi.showOrgChartConfigDialog(function(entry)
+				// Selected layout containers get the org chart as their layout
+				menu.addItem(mxResources.get('orgChart') + '...', null, function()
 				{
-					editorUi.runOrgChartLayout(entry);
-				});
-			}, parent, null, isGraphEnabled());
-
-			// Circle layout has no ELK equivalent (radial is concentric rings,
-			// not a single ring), so it lives alongside orgChart.
-			menu.addItem(mxResources.get('circle'), null, mxUtils.bind(this, function()
-			{
-				editorUi.tryAndHandle(mxUtils.bind(this, function()
-				{
-					// Selected layout containers take circle as their new
-					// childLayout (same value as Insert > Layout > Circle).
-					if (editorUi.applyLayoutToSelectedContainers('circleLayout'))
+					editorUi.showOrgChartConfigDialog(function(entry)
 					{
-						return;
-					}
-
-					var layout = new mxCircleLayout(graph);
-
-					editorUi.executeLayout(function()
-					{
-						var tmp = graph.getSelectionCell();
-
-						if (tmp == null || graph.getModel().getChildCount(tmp) == 0)
-						{
-							tmp = graph.getDefaultParent();
-						}
-
-						layout.execute(tmp);
-
-						if (graph.getModel().isVertex(tmp))
-						{
-							graph.updateGroupBounds([tmp], graph.gridSize * 2, true);
-						}
-					}, true);
-				}));
-			}), parent);
-
-			// Selected layout containers get these layouts as their layout
-			menu.addSeparator(parent);
-
-			var addLayoutDialog = function(label, name)
-			{
-				menu.addItem(mxResources.get(label) + '...', null, function()
-				{
-					editorUi.showLayoutDialog(name, function(entry)
-					{
-						editorUi.runLayoutEntry(entry);
+						editorUi.runOrgChartLayout(entry);
 					});
 				}, parent, null, isGraphEnabled());
-			};
 
-			addLayoutDialog('balloonTree', 'BalloonTreeLayout');
-			addLayoutDialog('mindmap', 'MindmapLayout');
+				// Circle layout has no ELK equivalent (radial is concentric rings,
+				// not a single ring), so it lives alongside orgChart.
+				menu.addItem(mxResources.get('circle'), null, mxUtils.bind(this, function()
+				{
+					editorUi.tryAndHandle(mxUtils.bind(this, function()
+					{
+						// Selected layout containers take circle as their new
+						// childLayout (same value as Insert > Layout > Circle).
+						if (editorUi.applyLayoutToSelectedContainers('circleLayout'))
+						{
+							return;
+						}
 
-			menu.addSeparator(parent);
+						var layout = new mxCircleLayout(graph);
+
+						editorUi.executeLayout(function()
+						{
+							var tmp = graph.getSelectionCell();
+
+							if (tmp == null || graph.getModel().getChildCount(tmp) == 0)
+							{
+								tmp = graph.getDefaultParent();
+							}
+
+							layout.execute(tmp);
+
+							if (graph.getModel().isVertex(tmp))
+							{
+								graph.updateGroupBounds([tmp], graph.gridSize * 2, true);
+							}
+						}, true);
+					}));
+				}), parent);
+
+				// Selected layout containers get these layouts as their layout
+				menu.addSeparator(parent);
+
+				var addLayoutDialog = function(label, name)
+				{
+					menu.addItem(mxResources.get(label) + '...', null, function()
+					{
+						editorUi.showLayoutDialog(name, function(entry)
+						{
+							editorUi.runLayoutEntry(entry);
+						});
+					}, parent, null, isGraphEnabled());
+				};
+
+				addLayoutDialog('balloonTree', 'BalloonTreeLayout');
+				addLayoutDialog('mindmap', 'MindmapLayout');
+
+				menu.addSeparator(parent);
+			}
 
 			// Shown only when the libavoid extensions bundle is loaded (a no-op
 			// in viewers / configs without extensions.min.js).
@@ -2058,9 +2207,18 @@
 				}));
 			}), parent);
 
-			menu.addSeparator(parent);
+			if (!simple)
+			{
+				menu.addSeparator(parent);
+				editorUi.menus.addMenuItem(menu, 'runLayout', parent, null, null, mxResources.get('custom') + '...');
 
-			editorUi.menus.addMenuItem(menu, 'runLayout', parent, null, null, mxResources.get('custom') + '...');
+				// The layout picker and the layout form after the items of the
+				// Classic UI, which stay where they are
+				if (picker)
+				{
+					menus.addMenuItems(menu, ['-', 'chooseLayout', 'layoutSettings'], parent);
+				}
+			}
 		};
 		
 		this.put('help', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -3805,6 +3963,13 @@
 		this.put('theme', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			var theme = (urlParams['sketch'] == '1') ? 'sketch' : mxSettings.getUi();
+
+			// The theme Fusion shows as chosen while it is shown, a stored Fusion
+			// that opened the previous look of Simple as Simple (FusionTheme.js)
+			if (urlParams['sketch'] != '1' && typeof Editor.getThemeMenuValue === 'function')
+			{
+				theme = Editor.getThemeMenuValue(theme);
+			}
 			
 			var autoItem = menu.addItem(mxResources.get('automatic'), null, function()
 			{
@@ -3842,6 +4007,24 @@
 					
 					if (key == 'simple')
 					{
+						// The theme Fusion (formerly Simple Modern, see FusionTheme.js),
+						// listed as Beta on app.diagrams.net (Editor.fusionThemeOffered),
+						// with test=1 and in its sessions
+						if (typeof Editor.isModernThemeListed === 'function' &&
+							Editor.isModernThemeListed(theme))
+						{
+							item = menu.addItem(Editor.getFusionThemeTitle(), null, function()
+							{
+								editorUi.setCurrentTheme('fusion');
+							}, parent);
+
+							if (Editor.isFusionTheme(theme))
+							{
+								menu.addCheckmark(item, Editor.checkmarkImage);
+								themeFound = true;
+							}
+						}
+
 						menu.addSeparator(parent);
 					}
 				})(Editor.themes[i]));
@@ -5450,9 +5633,15 @@
 		// Shape picker action for passiveScroll mode (shows inline shape picker instead of shapes panel)
 		editorUi.actions.put('showShapePicker', new Action(mxResources.get('shapes') + '...', function()
 		{
+			// The picker is placed in the scrolled content of the container,
+			// so without a point of the context menu it is in the middle of
+			// the visible part (the middle of the container's size was off
+			// screen in a scrolled diagram)
 			var screenPt = graph._contextMenuScreenPoint;
-			var x = (screenPt != null) ? screenPt.x : graph.container.clientWidth / 2;
-			var y = (screenPt != null) ? screenPt.y : graph.container.clientHeight / 2;
+			var x = (screenPt != null) ? screenPt.x : graph.container.scrollLeft +
+				graph.container.clientWidth / 2;
+			var y = (screenPt != null) ? screenPt.y : graph.container.scrollTop +
+				graph.container.clientHeight / 2;
 
 			editorUi.showShapePicker(x, y);
 		}));
@@ -5526,6 +5715,13 @@
 
 				if (uiTheme == 'min' || Editor.currentTheme == 'simple')
 				{
+					// The layout picker instead of the names of the layouts
+					// in the layout menu
+					if (Editor.currentTheme == 'simple' && this.isLayoutPickerEnabled())
+					{
+						this.addMenuItems(menu, ['chooseLayout'], parent);
+					}
+
 					this.addSubmenu('layout', menu, parent);
 					this.addSubmenu('insertLayout', menu, parent, mxResources.get('insert'));
 					menu.addSeparator(parent);
@@ -5982,7 +6178,7 @@
 				'delete', '-', 'duplicate', '-', 'findReplace', '-', 'editData', 'editTooltip', 'editNote', '-',
 				'editStyle',  'editGeometry', 'editPolygon', 'editConnectionPoints', '-', 'edit', '-',
 				'editLink', 'openLink', '-', 'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-',
-				'lockUnlock']);
+				'lockUnlock'], parent);
 		})));
 
 		// Shows the comments window, creating it if needed, and optionally
@@ -6085,9 +6281,57 @@
 		// Overrides view menu to add search and scratchpad
 		this.put('view', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			if (Editor.currentTheme == 'simple')
+			if (Editor.currentTheme == 'simple' && Editor.isSimpleModern != null &&
+				Editor.isSimpleModern() && editorUi.addSimpleMenuHead != null)
+			{
+				// The new look has the toggles of the shell under … › Show, so
+				// View starts with the panels (docs/claude/fusion-panels.md)
+				if (parent != null && parent.div == null)
+				{
+					menu.createSubmenu(parent);
+				}
+
+				// In the order of the rail
+				editorUi.addSimpleMenuHead(menu, parent, mxResources.get('panels'));
+				editorUi.menus.addMenuItems(menu, ['findReplace', 'layers', 'tags'], parent);
+
+				// The data of the selection (the host Data, SimplePageData.js)
+				if (editorUi.isSimpleMenuItemVisible('editData'))
+				{
+					editorUi.menus.addMenuItems(menu, ['dataPanel'], parent);
+				}
+
+				if (editorUi.commentsSupported())
+				{
+					editorUi.menus.addMenuItems(menu, ['comments'], parent);
+				}
+
+				editorUi.menus.addMenuItems(menu, ['textOutline', 'animation', '-', 'outline', 'search'], parent);
+
+				if (isLocalStorage || mxClient.IS_CHROMEAPP)
+				{
+					var item = editorUi.menus.addMenuItem(menu, 'scratchpad', parent);
+
+					if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+					{
+						editorUi.menus.addLinkToItem(item, 'https://www.drawio.com/doc/faq/scratchpad');
+					}
+				}
+
+				this.addCollaborationItems(menu, parent);
+				this.addMenuItems(menu, ['-', 'readOnly', 'fullscreen'], parent);
+			}
+			else if (Editor.currentTheme == 'simple')
 			{
 				editorUi.menus.addMenuItems(menu, ['toggleShapes', 'format'], parent);
+
+				// Rail of the hosts of the right panel in the new look (phones
+				// have no rail)
+				if (Editor.isSimpleModern != null && Editor.isSimpleModern() &&
+					(editorUi.isSimplePhone == null || !editorUi.isSimplePhone()))
+				{
+					editorUi.menus.addMenuItems(menu, ['toolRail'], parent);
+				}
 	
 				if (editorUi.isPageMenuVisible())
 				{
@@ -6116,7 +6360,7 @@
 				}
 				
 				this.addCollaborationItems(menu, parent);
-				this.addMenuItems(menu, ['-', 'fullscreen'], parent);
+				this.addMenuItems(menu, ['-', 'readOnly', 'fullscreen'], parent);
 			}
 			else
 			{
@@ -6153,11 +6397,11 @@
 				}
 
 				this.addMenuItems(menu, ['-', 'grid', 'guides', '-', 'connectionArrows',
-					'connectionPoints', '-', 'resetView', 'zoomIn', 'zoomOut'], parent);
+					'connectionPoints', '-', 'resetView', 'zoomIn', 'zoomOut', '-', 'readOnly'], parent);
 
 				if (urlParams['sketch'] != '1')
 				{
-					this.addMenuItems(menu, ['-', 'fullscreen'], parent);
+					this.addMenuItems(menu, ['fullscreen'], parent);
 				}
 			}
 		})));
@@ -6283,23 +6527,7 @@
 
 					menu.addItem(mxResources.get('deleteAll'), null, mxUtils.bind(this, function()
 					{
-						graph.getModel().beginUpdate();
-						try
-						{
-							for (var i = editorUi.pages.length; i >= 0; i--)
-							{
-								editorUi.removePage(editorUi.pages[i]);
-							}
-						}
-						catch (e)
-						{
-							editorUi.handleError(e);
-						}
-						finally
-						{
-							graph.getModel().endUpdate();
-						}
-
+						editorUi.removeAllPages();
 						editorUi.actions.get('resetView').funct();
 					}), parent, null, editorUi.editor.graph.isEnabled());
 				}
@@ -6664,7 +6892,23 @@
 			}
 			else if (urlParams['noFileMenu'] != '1')
 			{
-				editorUi.menus.addSubmenu('file', menu, parent);
+				// The File button of Simple Modern shows the items of File directly
+				// (addMenu adds the items of plugins), except in embeds, where File
+				// repeats items of this menu
+				if (editorUi.simpleFileMenu && urlParams['embed'] != '1')
+				{
+					// A hidden File stays hidden (hideMenuItems, see addSubmenu)
+					if (editorUi.menus.hiddenMenuItems == null ||
+						!editorUi.menus.hiddenMenuItems['file'])
+					{
+						editorUi.menus.addMenu('file', menu, parent);
+					}
+				}
+				else
+				{
+					editorUi.menus.addSubmenu('file', menu, parent);
+				}
+
 				menu.addSeparator(parent);
 
 				if (Editor.currentTheme == 'min')
@@ -6719,7 +6963,8 @@
 				menu.addSeparator(parent);
 			}
 
-			if (Editor.currentTheme == 'simple' || Editor.currentTheme == 'min')
+			// Page setup of Simple Modern is in the page view (and Print)
+			if (Editor.currentTheme == 'min' || Editor.isSimpleClassic()) // SIMPLE-CLASSIC
 			{
 				editorUi.menus.addMenuItems(menu, ['pageSetup'], parent);
 			}
@@ -6740,14 +6985,18 @@
 	
 			menu.addSeparator(parent);
 			
-			if (Editor.currentTheme == 'simple')
+			// Settings and Help of Simple Modern are in its … menu
+			if (Editor.currentTheme == 'simple' && !editorUi.simpleFileMenu)
 			{
 				editorUi.menus.addSubmenu('extras', menu, parent, mxResources.get('settings'));
 				menu.addSeparator(parent);
 			}
 
-			editorUi.menus.addSubmenu('help', menu, parent);
-			menu.addSeparator(parent);
+			if (!editorUi.simpleFileMenu)
+			{
+				editorUi.menus.addSubmenu('help', menu, parent);
+				menu.addSeparator(parent);
+			}
 
 			if (urlParams['embed'] == '1')
 			{

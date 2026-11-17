@@ -1,3 +1,865 @@
+17-NOV-2026: 32.7.4
+
+- Embed mode: embedLoaded event for plugins and readOnly in the load message [jgraph/drawio#5837]
+- Ignores node_modules of the embed configuration tests
+- Cuts CLAUDE.md to a 23 KB core and moves the details verbatim into topic files
+- Keeps the security rules of vsdx and generate3 in their auto-loaded CLAUDE.md
+- Fixes Kym's read-only and locked mode feedback (12 Nov) (#1307)
+- Fixes Kym's tree and mindmap outline feedback (12 Nov) (#1308)
+- Updates DOMPurify from 3.4.17 to 3.4.18 (#1319)
+- Fixes from the GAE error log, week of 2026-11-16 (#1320)
+- Cuts CLAUDE.md from 23 KB to a 9.5 KB core and moves its sections verbatim into topic files (#1324)
+- Keeps the theme Fusion out of the public repository and its menus
+- Adds Table to Insert > From Text: CSV becomes a table that edits its text (#1338)
+- Data panel: the value of a page setting (styleRules) in the column of the values
+- Shape panel: large SVG images as bitmaps in the thumbnails [jgraph/drawio#5841]
+- Shape panel bitmaps: stable search keys and a canvas readback check [jgraph/drawio#5841]
+- Writes the non-ASCII characters of the omnibox regexes as escapes [DID-21073]
+- Fixes the empty draw.io section on Trello cards and the viewer on pages without a charset [DID-21073]
+- Shape picker search of Fusion: no shape twice when its thumbnail becomes a bitmap [jgraph/drawio#5841]
+
+13-NOV-2026: 32.7.3
+
+- Adds Choose Layout and Layout Settings to the Simple UI
+- Adds the translations of Choose Layout and Layout Settings
+- Adds the screenshots of the pull request (removed in the next commit)
+- Removes the screenshots of the pull request
+- Adds the strings and search keywords of the omnibox in all languages
+- Adds the omnibox, one search for actions, menus and the format of the selection
+- Adds the omnibox regression suite and documents the omnibox
+- Adds the screenshots of the omnibox for the pull request
+- Fixes the review findings of Choose Layout and Layout Settings (#1041)
+- Fixes the review findings of the omnibox: hidden menu items and Search Shapes in windows
+- Shows Choose Layout as Arrange my diagram in the Simple UI
+- Adds the translations of Arrange my diagram
+- Adds the screenshots of Arrange my diagram for the pull request (removed in the next commit)
+- Puts Arrange my diagram in the order of Tab of the Simple UI (#1041)
+- Restyles the omnibox like the concept of the command palette
+- Adds the screenshots of the restyled omnibox for the pull request
+- Keeps the shapes panel open for Search Shapes with View > Search off
+- Creates the shapes window of the sketch and minimal themes for Search Shapes also with a split left from another theme
+- Adds the Format panel in the new look of the Simple theme (developer flag simple=new)
+- Translates the strings of the Format panel of Simple Modern
+- Documents Simple Modern and its regression suite
+- Adds screenshots for the pull request
+- Ignores the node_modules of the Simple Modern tests also as a symlink
+- Fixes the review of the Format panel of Simple Modern
+- Measures the Format panel of Simple Modern against the layout specification and fixes every difference
+- Documents the layout specification of Simple Modern and its test
+- Measures the Format panel of Simple Modern without its scroll thumb
+- Returns the width of the docked shapes of Simple Modern in its own function
+- Checks the scroll thumb of Simple Modern for panels of any height
+- Adds the shell of Simple Modern (developer flag simple=new)
+- Translates the strings of the Simple Modern shell
+- Documents the shell of Simple Modern and its tests
+- Fixes the review of the shell of Simple Modern
+- Defines the danger and success tokens of Simple Modern and keeps a hidden File hidden
+- Shows the real logo of the app in the top bar of Simple Modern
+- Measures the shell of Simple Modern against the layout specification and fixes every difference
+- Documents the layout specification of the shell of Simple Modern
+- Fixes the review of the shell of Simple Modern: menu rows on hover, menu widths and Pan with touch styles
+- Fixes the review of the Shapes card of Simple Modern: no splitter, its width for the panel mode
+- Documents the new checks of the shell tests of Simple Modern
+- Fixes the second review of the shell of Simple Modern: Pan and Draw, the look of reused menus
+- Treats every tool of Draw as drawing for Pan in Simple Modern
+- Adds the phone sheets of Simple Modern: the File sheet, menus as bottom sheets and the grabber of the Shapes sheet
+- Translates the strings of the phone sheets of Simple Modern
+- Documents the phone sheets of Simple Modern and their tests
+- Gives the menus of Simple Modern the look of the mockups: icons, chevrons, submenus and submenu sheets on phones
+- Shows File pressed while the File sheet is open, without chevrons on its rows as in mockup 48, and filters screenshots by name
+- Fixes the review of the phone of Simple Modern
+- Adds the frame of all dialogs of Simple Modern and its Message template
+- Redesigns Print in Simple Modern on the Preview template
+- Documents the dialogs of Simple Modern and their tests
+- Translates the strings of the Print dialog of Simple Modern
+- Documents the Print dialog of Simple Modern and its test
+- Fixes the review of the dialog frame of Simple Modern
+- Fixes the review of the Print dialog of Simple Modern
+- Measures the sheets of phones in Simple Modern against the layout specification and fixes every difference
+- Measures the dialogs of Simple Modern against the layout specification and fixes every difference
+- Documents the layout specification of the sheets of phones
+- Documents the layout specification of the dialogs of Simple Modern
+- Measures Print in Simple Modern against the Preview template of the layout specification and fixes every difference
+- Keeps the switches of toggles in the menus of Simple Modern under the pointer
+- Fits the fields and the height of the dialogs of Simple Modern to the layout specification
+- Adds screenshots for the pull requests
+- Documents the new check of the menu test of Simple Modern
+- Sets the title of headlines in h3 to 16/24 in the bar of phone dialogs of Simple Modern
+- Removes the screenshots of the pull requests
+- Gives new shapes the Calm style in Simple Modern behind the switch Automatic default style
+- Removes a stray brace that hid the switches of toggles in menus of Simple Modern
+- Gives the dialogs of Simple Modern the widths of the sizes S and M of the specification
+- Uses the icons of the shell in Print instead of second copies
+- Translates the strings of the Calm style of Simple Modern
+- Limits the stroke of 1 to the Flowchart palette and keeps one listener for the switch of Calm
+- Fixes the differences of Simple Modern found while writing its style guide, and lints its CSS
+- Fixes the review of the Calm style of Simple Modern
+- Adds the style guide of Simple Modern and the checks that keep the UI on it
+- Fixes the differences found by checking the component chapter of the style guide
+- Fixes the third review: picked connector styles in Calm, closed palettes in the Shapes card
+- Adds the Export dialog of Simple Modern: one dialog for all formats
+- Fixes the review of the Export dialog: the gates of Export as, Share, VSDX
+- Adds the Form template of Simple Modern and Page setup on it
+- Fixes the review of Page setup: the orientation follows the paper size
+- Adds Edit Data and File › Properties of Simple Modern on the Form template
+- Translates the strings of Edit Data and File › Properties of Simple Modern
+- Fixes the review of Edit Data: help, new rows, Ctrl+Enter, layers
+- Adds Edit Link on the Form template and Edit Style on the Code template
+- Translates the string of Edit Style of Simple Modern
+- Fixes the review of Edit Link and Edit Style
+- Adds Save as of Simple Modern on the Place template
+- Fixes the review of Save as: the height, the format, the purpose, the focus
+- Adds New of Simple Modern on the Browser template
+- Adds the translations of New on the Browser template
+- Keeps Blank Diagram chosen in New when Basic is empty, makes Clear always end the search and hides Start from with the categories
+- Adds Open, Create and the start sheet of Simple Modern on the Place template
+- Translates the strings of Open and the start sheet of Simple Modern
+- Adds the page data of Simple Modern on the Form template
+- Adds the parts of the forms of Simple Modern: typed and ordered rows, the style search, Remove link
+- Fixes the browser rows of the Open dialog: the focus follows the chosen row
+- Translates the strings of the page data of Simple Modern
+- Translates the strings of the parts of the forms of Simple Modern
+- Adds Share, Embed and the small forms of Simple Modern on the Form template
+- Adds the code dialogs, Insert Image and the custom font of Simple Modern on their templates
+- Adds Color by Data, Data Sources and the step editors of Simple Modern on the Rules template
+- Translates the keys of the Rules template of Simple Modern
+- Adds the shape editors of Simple Modern on the Preview template
+- Adds the layout dialogs of Simple Modern as the Layout settings form and on the Code template
+- Recognizes Style Rules on the Rules template in the test of the page data
+- Applies Edit Shape with Cmd+Enter, keeps the grid tool of Edit Connection Points in step with the grid and names the side of new points Side
+- Adds More shapes on the Browser template and Revision history and drafts on the Preview template of Simple Modern
+- Adds Recovery, several drafts, the library, the storage browsers and My diagrams of Simple Modern
+- Translates the strings of More shapes, Revision history, drafts and the library of Simple Modern
+- Shows libraries that are on by their switch as in mockup 13 and tests GitLab
+- Fixes the start sheet and the CSV dialog with the frame fixes of the dialogs
+- Keeps the icon of Other in New and More shapes apart from the grid of the shape editors
+- Names the primary actions of Insert Link and Save as with verbs in Simple Modern
+- Adds the Message template, Configuration, Plugins, the offline languages and the developer dialogs of Simple Modern
+- Reorders library entries without an image object in Firefox (Add Images by URL), by mouse and with Alt+arrow keys
+- Translates the strings of the messages and settings of Simple Modern
+- Names the file of Rename in the subtitle of Simple Modern
+- Fits the messages and settings of Simple Modern onto the dialogs below them in the stack
+- Adds the floating windows of Simple Modern as hosts of the right panel and as popovers
+- Adds the states of the components of Simple Modern and their board, a living page of developer mode that shows every component in every state of concept 3.7 (mockup 76).
+- Keeps Make a Copy the default of the copy dialog of external changes and the focus in the list after a plugin is deleted
+- Keeps a connector style saved before Calm as the user's default and lets hosts opened from the rail go back to Format
+- Keeps Share and Remove link in their colors while pressed, shows no pressed state on locked rows and ends the touch density of the states board on Close
+- Adds the Fill and Line rows of mockup 01 to the Format panel of Simple Modern: Color with the hex value and the eyedropper and Type (Solid, Gradient, None) for the fill, one Color row with the width and the pattern and Corners for the line, driving the controls of Format.js so every option keeps its model result, with the test format-fill-line and the rows in the style guide.
+- Gives the controls of Simple Modern hit areas of 44 on touch and fixes the accessibility findings of the UX walkthroughs in the shared components
+- Names the previews of shapes with text as images and gives the Fill and Line rows hit areas of 44 on touch
+- Updates the count of the class tables of the style guide for the Fill and Line rows
+- Picks the dark color with the eyedropper in dark mode and leaves rows replaced by the Fill and Line rows out of the search of the Format panel
+- Shows the placeholder of the hex fields in the secondary text also on touch, where the field is in the label of its hit area
+- Regenerates the English index of the omnibox after dev removed fromOutline
+- Expects the outline types of dev in the type select of From Text in the Simple Modern tests
+- Tests the outline of a container in the layout dialogs of Simple Modern, as new outlines are From Text in dev
+- Shows the shape of a crop that Crop reads from the image (Ellipse) in its toggle group
+- Disables Open and Select of the OneDrive picker while its search hides the selected row
+- Keeps Layers closed when a file with layers is loaded and keeps the close button of the color popover
+- Applies the hex value and the picked color to all selected shapes also when the first one has that color
+- Picks the dark color with the eyedropper only where dark mode shows adapted colors
+- Scans the page for Calm once per import, not once per row (#1063)
+- Keeps the focus in the list of Plugins after a delete also when the observer of the list runs
+- Adds the seven identity rules of Simple Modern to its style guide
+- Keeps the layout of fields with hit areas without Typed OM and in the color dialog, and taps in All properties on their fields (#1069)
+- Searches shapes, templates and the text of all pages in the omnibox
+- Makes the omnibox of the top bar the only search field of Simple Modern
+- Regenerates the index of the omnibox for the strings of the stack
+- Gives the omnibox on phones a close button and no scope button or keys
+- Finishes the eleven partly redesigned dialogs of Simple Modern: verbs, Enter and phone subtitles
+- Applies every pattern to shapes with different patterns, keeps special colors out of picked light-dark colors and the focus in toggle groups whose rows above change
+- Keeps the classic palette first in Quick styles of Simple Modern and makes the colors of new shapes configurable
+- Adds the sections of the color picker and the color dialog on the Message template of Simple Modern
+- Shows the German labels of Type and Corners in the Fill and Line rows: segments that do not fit next to the label take the line below it instead of cutting their texts (#1068)
+- Notes the German check of the Fill and Line rows in the README of the tests (#1068)
+- Opens recent files of the start sheet like Open Recent in the desktop app and records the Terms in Drive for Drive files (#1057)
+- Keeps unfinished rules in Edit as JSON of Color by Data and counts only the rules that the page uses (#1062)
+- Moves a dragged property over several rows, keeps Text in the type menu of values with a line break and skips large undecoded pages in Edit Link before decoding them (#1059)
+- Keeps the page visible when its tags are hidden and adds typed page tags on Apply, Ctrl+Enter and the links (#1058)
+- Keeps the previous Edit Link for subclasses such as the Confluence plugin and Calm for shapes dropped on hover arrows (#1063)
+- Puts Animation and the link actions of Simple Modern on the Rules template as non-modal windows
+- Fades disabled menu items of Simple Modern once, to 0.45 instead of 0.135 (#1067)
+- Loads PlantUML for its live preview, gives the previews of From Text the styles of Insert and limits them, loads only complete font URLs and restores Copy (#1061)
+- Routes Search Shapes to the omnibox and leaves Escape, Ctrl+F and Recent as they were (#1070)
+- Commits the field before Enter applies a form, adds diagram properties with Enter and keeps the Background toggle in sync with Reset and opened images (#1060)
+- Puts the last dialogs of Simple Modern with only the frame on their templates
+- Keeps the subclass check of Edit Link in the description of dialog-link-style
+- Adds the option completeness test of the dialogs of Simple Modern
+- Fixes the remaining target findings of the UX test and the slow first opens of the phone sheets (#1069)
+- Lifts the buttons of the page bar above the tabs it clips, the serious axe finding of the UX test (#1069)
+- Puts Layout settings of Simple Modern on the Form template
+- Lists the settings of the selection while another host fills the right panel and leaves out the settings that Simple Modern replaces (#1070)
+- Names the primary action of the libraries of a host Apply in Simple Modern
+- Lets Insert wait for the PlantUML converter that the live preview is loading (#1061)
+- Scans the page for Calm once per update also for checks without ignored cells, such as the connectors of a refresh (#1063)
+- Builds the Format panel and sheet when they are shown, not 100 ms later, and stops preparing the Shapes card once it was shown (#1069)
+- Builds the Format panel right after the step that gives it its place and skips the duplicate refresh of formatWidthChanged (#1069)
+- Gives each selected shape the chosen fill type when the shapes have different types (#1068)
+- Adds the Viewer in the new look behind viewer-ui modern: one floating bar in the tokens of Simple Modern for GraphViewer (mockups 63 and 64, concept 14.2 and 14.3)
+- Keeps the automatic default style on a page when a configured kind has no fill
+- Offers Gradient and reads the fill type of each shape also for shapes with different fill colors (#1068)
+- Closes the popover of a selector chip with Escape before the step editor of Simple Modern, and checks the outline in the previous look
+- Counts a fill of none for the automatic default style only on its own kind
+- Ends long labels of Simple Modern in an ellipsis with their full text as the tooltip instead of adapting the layout to the language (#1045)
+- Ends the long labels and toggle groups of the form rows in an ellipsis instead of wrapping them (#1049)
+- Adds the rule of the long labels to the style guide of Simple Modern (#1050)
+- Checks the long labels of the Export dialog in German (#1051)
+- Ends a label that does not fit the column of a form in an ellipsis instead of putting it above its control (#1052)
+- Checks the long labels of Edit Data and File › Properties in German (#1053)
+- Checks the long labels of the page data in German and lets the check read texts in scrolled panes (#1058)
+- Gives Add Property its own rows with the labels above the fields now that forms no longer stack long labels (#1059)
+- Ends a label that does not fit the column of Add Source in an ellipsis instead of putting it above its control (#1062)
+- Ends the names of the categories of Configuration in an ellipsis instead of wrapping them (#1065)
+- Ends the names of the views of the Google Drive home in an ellipsis instead of wrapping them (#1064)
+- Keeps the segments of Type and Corners next to their label in every language and ends their texts in an ellipsis (#1068)
+- Checks the long labels of the color dialog in German and measures hints that wrap by design on one line (#1072)
+- Ends a label that does not fit the column of Layout Settings in an ellipsis instead of putting it above its control (#1076)
+- Keeps the automatic default style on a page whose shape has a swatch with a line and no fill (#1050)
+- Keeps the Edit of Confluence and Jira in the new Viewer and shows its bar on touch on devices that can also hover (#1077)
+- Keeps a page in another look when a kind or swatch of the automatic default style has neither fill nor line (#1075)
+- Keeps the segments of 44 on touch also in the toggle groups that keep one line (#1069)
+- Marks a page with a swatch of only a line and applies Ctrl+Enter in Edit as JSON of Layout settings (#1076)
+- Keeps a page in another look when a kind or swatch of the automatic default style has neither fill nor line (#1050)
+- Reserves no toolbar margin for lazy viewers in the new look, whose bar floats in the diagram (#1077)
+- Measures the hints of switch rows on one line in long-labels, as on #1072 (#1050)
+- Keeps the automatic default style for every new shape when a kind or swatch has neither fill nor line (#1050)
+- Leaves Search shapes out of the options that More shapes must keep, as the omnibox searches the shapes (#1077)
+- Runs the source checks on pushes and pull requests of simple-modern
+- Regenerates the English index of the omnibox after the merge of the stack
+- Documents the work model of Simple Modern: one branch, one standing pull request, a daily review
+- Shows the omnibox and the layout picker only in Simple Modern or with their developer switches
+- Adds the pixel comparison of Classic and the Simple theme without the flag (test/no-flag)
+- Documents the batch model of Simple Modern: batch branches, one pull request per batch, review rounds
+- Shows the settings of the automatic default style in Configuration and stores userEdgeStyle only with the flag
+- Compares the content of dialogs and the Format panel without the flag, also out of view
+- Simple Modern: Tab follows the order of the dialogs, radio groups of tiles are one stop
+- Simple Modern: the effect chips of the Format panel get their glyphs (mockup 01)
+- Simple Modern: the subtitle of a dialog describes it for screen readers
+- Simple Modern: documents the driver's decision that the file pickers of GitHub, GitLab and Trello have no Open button
+- Simple Modern: the old-files suite of Calm (calm-old-files)
+- Simple Modern: round hover arrows with a chevron (mockup 71)
+- Simple Modern: the motion catalogue of concept 3.8 is checked and followed
+- Omnibox: checks the "tie" ranking of the concept again (tie-ranking)
+- Simple Modern: shapes dragged from the Shapes card preview the Calm style of the drop
+- Simple Modern: checks that the omnibox finds the switch of the automatic default style
+- Simple Modern: Tab in the Rules windows; on phones they lie over the Format sheet
+- Simple Modern: one compact layout, the hosts as a row at the top of the right panel (redlines 80 to 82)
+- Simple Modern: the identity rules of concept 3.12 are the current rules (accent, lines, type, motion, icons)
+- Simple Modern: the hairline of the right panel stays visible beside its row of hosts, header and tabs
+- Simple Modern: review round 1 of #1080: text cells of drag previews and Shift+arrow keys in radio groups
+- Closes Simple Modern popovers with a tap on their close button on iOS
+- Simple Modern: Tidy up and the new Lightbox go to dev on their own behind flags
+- Simple Modern: File in the top bar is flush like the other buttons of the bar, an icon button on phones
+- Simple Modern: the royal-blue accent with its light blue is rule 1 again
+- Simple Modern: Calm counts the kinds of Quick styles on any shape and gives previews the paste flags
+- Simple Modern: Custom of the color picker in its place in the Tab order and in step in a reused popover
+- Simple Modern: the option completeness check compares the choices of unnamed selects
+- Simple Modern: the Viewer finds translations such as fil and pt-BR and its menus are translated
+- Simple Modern: review round 1 of #1091: the Viewer resolves the case of codes and ignores data named like codes
+- Simple Modern tests: exact lint exceptions, Chrome checks of no-flag, the previous look pinned
+- Simple Modern: one definition each of suggested, moreOptions and editAsJson
+- Simple Modern styles: dark-mode hairlines, the forced-colors knob, Layers locks, chevrons, Choose Layout states
+- Simple Modern shell: the drag of the scroll thumb ends on cancel, Choose Layout in the Layout menu
+- Simple Modern omnibox and Viewer: greyed-out submenus, offline templates, the find bar, SVG background
+- Simple Modern Plugins: asks before a plugin is deleted
+- Simple Modern: the focus after a confirmed Delete of a plugin, the template tests online
+- New Viewer tests: Download SVG has the background of the page (#1095)
+- Review round 1 of #1100: the SVG of the Viewer waits for outlines, Classic geSmall classes, greyed-out menu actions
+- Simple Modern tests: the screenshot mode has no shot of the removed rail
+- Simple Modern: the sign of suggestions instead of the sparkle (identity rules 2 and 4)
+- Simple Modern: the signature morph of Arrange my diagram (identity rule 7)
+- Simple Modern: Arrange my diagram is a host of the right panel (report 3.11.4)
+- Simple Modern: the empty page on the paper (identity rule 5, mockup 73)
+- Simple Modern: plain strings instead of " · " joins and sentence-case captions (identity rule 2)
+- Simple Modern: the start lists its links in the language and cuts long placeholder labels
+- Translates the strings of batch 3 of Simple Modern
+- Simple Modern: fixes of a pre-review of batch 3 (the start, the morph, the joins)
+- Simple Modern: the Shapes chips in one row with More categories (report 3.11.6)
+- Simple Modern: the undo toast after Delete and Apply in Arrange my diagram (report 3.11.4)
+- Translates the strings of the chips row and the undo toast of Simple Modern
+- Simple Modern: Classic removes the whole row of the Shapes chips
+- Simple Modern: review round 1 of #1103 (pinch over the start, morph between tiles, stale picture, suggestion rows)
+- Simple Modern: the preview bar of Arrange my diagram (report 3.11.4, mockups 03 and 75)
+- Translates the strings of the preview bar of Simple Modern
+- Simple Modern: review round 2 of #1103 (the end of a morph back keeps the next picture)
+- Simple Modern: smart paste (mockup 74)
+- Translates the strings of smart paste of Simple Modern
+- Simple Modern: review round 1 of #1104 (toast and realtime, keyboard and Apply, chip overflow)
+- Simple Modern: straight edges stay straight with Calm
+- Adds What comes next to Simple Modern
+- Translates What comes next of Simple Modern
+- Makes branches of an indented outline in smart paste mind maps and uses the configured colors
+- Simple Modern: the Viewer takes the tokens of batch 2 (hit 32, the one shadow, no r-xl) and its captions
+- Simple Modern: Suggested in More of the inline toolbar, the flow animation picker and Bundle from #1044
+- Translates the strings of the suggestions, the flow animation picker and Bundle of Simple Modern
+- Simple Modern: no "null" subtitles and focus rings drawn in full in the dialogs
+- Screenshots of batch 6 for its pull request (removed in the next commit)
+- Removes the screenshots of batch 6 (linked from its pull request)
+- Simple Modern: Suggested, More and Bundle of #1107 as in the original concept
+- Translates the strings of Suggested, More and Bundle of Simple Modern in sentence case
+- Simple Modern: the logo is the file menu and the top bar is 56 (original concept)
+- Translates the name File menu of the logo button of Simple Modern
+- What comes next places the new shape past the next shape and keeps the shape picker in tree containers
+- Simple Modern: review of the rework of #1107 (locked connectors, toast count, New in More, bounded walk)
+- What comes next puts the new shape beside a taken place and finds obstacles in every layer
+- What comes next keeps the shape picker where the place of the new shape is taken
+- Simple Modern: the rail, the cards and the density of the original concept
+- What comes next also counts the shapes between the shape and the place of the new shape
+- Simple Modern: the label column of 72 and the line pattern in the Line row (original concept)
+- Simple Modern: the category chips of the Shapes card wrap again (original concept)
+- Simple Modern: the open logo button in the light blue of the other menu buttons
+- Screenshots of Simple Modern batch 7 for its pull request (removed in the next commit)
+- Removes the screenshots of Simple Modern batch 7 (linked from its pull request)
+- Simple Modern: the top bar handles its arrow keys before the menu buttons (review of #1113)
+- Simple Modern: the context menu of the original concept (clipboard row, Suggested, edit block)
+- Translates More actions of the context menu of Simple Modern
+- Screenshots of Simple Modern batch 8 for its pull request (removed in the next commit)
+- Removes the screenshots of Simple Modern batch 8 (linked from its pull request)
+- Simple Modern: the buttons of the rail name the shortcut of their host
+- Simple Modern: the edge of the right card is a window splitter for the keyboard
+- Simple Modern: the rail and the edge of the card keep their state (review of #1114)
+- Simple Modern: the inline toolbar as a card and the Suggested rows of the context menu aligned
+- Simple Modern: the cards of radius 16 with the original shadow and raised segments (Part D0)
+- Simple Modern: Suggested of the context menu under the sparkle (Part D0)
+- Screenshots of Simple Modern batch 9 for its pull request (removed in the next commit)
+- Removes the screenshots of Simple Modern batch 9 (linked from its pull request)
+- Simple Modern: radii, shadows, states and captions of the original concept (Part D1, 1-4 and 10)
+- Simple Modern: the context menu keeps hidden items, keys, locks and New (review of #1115)
+- Simple Modern: suggestions under the sparkle, the earlier icons and middle dots (Part D1, 5-7)
+- Simple Modern: start tiles, the motion catalogue, the guide without Identity and "N new" (Part D1, 8, 9, 11)
+- Screenshots of Simple Modern batch 10 for its pull request (removed in the next commit)
+- Removes the screenshots of Simple Modern batch 10 (linked from its pull request)
+- Simple Modern batch 10, review round 1: the toast's list, menus at the right edge, new custom libraries
+- Simple Modern: search as in the original concept (Part D2)
+- Simple Modern: Format rows changeable in the omnibox, the unused omnibox code goes (Part D2)
+- Screenshots of Simple Modern batch 11 for its pull request (removed in the next commit)
+- Removes the screenshots of Simple Modern batch 11 (linked from its pull request)
+- Simple Modern: every new connector is right-angled with Calm (Part D3, 3)
+- Simple Modern: Quick styles are the colors of new shapes (Part D3, 1)
+- Simple Modern: Open in the file pickers of GitHub, GitLab and Trello (Part D3, 4)
+- Simple Modern batch 11, review round 1: pins found again, row controls built once, the Format search passes Tab
+- Simple Modern: labels of forms that do not fit stand above their control (Part D3, 2, first step)
+- Simple Modern: labels of property rows that do not fit stand above their control (Part D3, 2, second step)
+- Simple Modern batch 12, review round 1: layout containers keep their connectors, the pickers mark and tell files apart, hidden form rows are fitted, configured color schemes stay
+- Simple Modern: toggle groups wrap and no text ends in an ellipsis (Part D3, 2, the rest)
+- Simple Modern batch 13, review round 1: the names of recent files keep one line
+- Simple Modern: the window of the calm variant (Part E, batch E1)
+- Simple Modern: the Format panel and the page view of the calm variant (Part E, batch E2)
+- Simple Modern batch 14, review round 1: the inline toolbar follows a change of the mode of the panel
+- Simple Modern: quiet, the calm variant (Part E, batch E3)
+- Simple Modern batch 15, review round 1: More options closes for another host and another selection
+- Simple Modern batch 15, review round 2: another host over All properties has its switcher
+- Simple Modern: More shapes without Preview buttons and New badges (Part E, batch E4)
+- Simple Modern: Edit data and page data slimmed (Part E, batch E4)
+- Simple Modern: Export slimmed (Part E, batch E4)
+- Simple Modern: New with Start from as one row of chips (Part E, batch E4)
+- Simple Modern: Print with Range as a choice of Pages (Part E, batch E4)
+- Simple Modern: More of Export a target of 44 on touch, test scopes for the E4 dialogs
+- Simple Modern batch 16, review round 1: the strings in every language, What comes next stays under the pointer
+- Simple Modern: the strings of the slimmed dialogs in every language (Part E, batch E4)
+- Simple Modern batch 17, review round 1: picked suggestions add, More of Export on Enter, no What's new
+- Simple Modern: no What's new in Help either (Part E, batch 18)
+- Simple Modern: the rest of the "null" subtitles and the width of plain messages (batch 18)
+- Simple Modern: the UX walkthroughs for the calm variant, and the fixes they found
+- Simple Modern: Tab order of the remaining dialogs, file pickers without Open (d3qe)
+- Simple Modern: layout-picker checks the names from content and the rest of 100 ms
+- Simple Modern: the page view as Page and Diagram, with the themes as tiles
+- Simple Modern: phones keep today's drawing area, sheets and pictures respond in time
+- Simple Modern: states keep the box, focus rings drawn in full (polish 1)
+- Simple Modern: the padding of the suggestions of the context menu (polish 1)
+- Simple Modern: the spec of the footer counts the bleed at the bottom (polish 1)
+- Simple Modern: the inline toolbar keeps below the floating phone top bar, Calm preview keeps label gaps
+- Simple Modern: popovers of the inline toolbar fit below the floating phone top bar
+- Simple Modern polish 1, review round 1: dark text buttons, one-line Open rows, frame heights
+- Simple Modern: page view Paper size as a full-width field with an Orientation toggle group, Change… of Background in the Grid column
+- Simple Modern: Style tab targets and chips that keep their width, the four contradictions of the style guide settled
+- Simple Modern: focus rings of phone sheets and Configuration drawn in full, Configuration fields 4 from label and help
+- Simple Modern: rings of the Find field, the Shapes search, page tabs and palette titles; the palette triangle of the section heads
+- Simple Modern: the color picker with glyphs of the set, rows 8 apart and the ring of Close drawn
+- Simple Modern: Autosize and Reset of the URL as icon buttons with glyphs of the set
+- Simple Modern: Bold, Italic, Underline and Text Direction in the columns of the alignments
+- Simple Modern: deleting a page shows the undo toast
+- Simple Modern: smart paste offers the lists of pasted HTML from Word and Docs
+- Simple Modern: a layout of Arrange my diagram keeps its result in view
+- Simple Modern: Paper size as a field of its own class, Docs list levels in smart paste
+- Simple Modern: new shapes follow a theme of the Diagram tab, as in the previous look
+- Simple Modern: Quick styles page through every page of the previous look after the colors of new shapes
+- Simple Modern: configurations of the Shapes card, the shape picker, dark mode, system colors, themes and the grid keep working
+- Simple Modern: hideMenus, hideMenuItems, embeds and keyboardShortcuts apply to …, the rail and the controls outside the menus
+- Simple Modern: pages=0 keeps the pages out of the name of the file on phones, config-compat checks the colors of the color picker
+- Simple Modern: the color keys of Calm for light-dark() get a name of their own
+- Simple Modern: the Diagram tab of the page view redesigned, and one appearance button on the rail for light, dark and automatic
+- Simple Modern: the rail test names the appearance button by the current appearance
+- Simple Modern: state-boxes also checks the Style tab and the Diagram tab of the page view
+- Simple Modern batch 20, review round 1: the previews of the code and CSV dialogs follow a theme, markers of Word that smart paste does not read are bullets, the page toast has its own text
+- Simple Modern: the omnibox lists no actions of submenus that hideMenuItems hides in the menus of the new look
+- Simple Modern: the name of the file leaves the Tab order where it does nothing, the omnibox highlight without motion, cut names and hints show their text as the tooltip
+- Simple Modern: enableShapeInlineToolbar shows the toolbar of shapes next to the open panel, darkColor and lightColor make Calm step aside like other configured default styles
+- Simple Modern: systemColors derives the grays of the new look from Canvas and CanvasText, as it does for the previous look
+- Simple Modern: a configured sidebarWidth sets the width of the Shapes card from 248 to 480
+- Simple Modern: the style guide, simple-modern.md and omnibox.md describe the configurations, tooltips of cut data, the inert name of the file and the still highlight of batch 21
+- Simple Modern: shorter paths for W2, W8 and W9, and css/customCss for the menu bar color the top bar
+- Settles the three open questions of batch 22 in the new look
+- Presses Enter on the Grid in the omnibox in the W8 walkthrough of Simple Modern
+- Keeps the ids of menu entries of the omnibox when the label of a submenu changes
+- Fixes the review findings of batch 21
+- Simple Modern: Tags in the tool rail next to Layers
+- Simple Modern: configured top bar fill keeps text readable and skips phones
+- Simple Modern: Layers and Tags as panels, View starts with the panels
+- Simple Modern: crafted tag names in the Tags panel, shortcuts of row menus
+- Simple Modern: All tags as a cloud with All and Any, Select in the bar
+- Simple Modern: Rename in the bar clears a filter that hides the picked tag
+- Simple Modern: Make the Tags panel simpler
+- Simple Modern: Comments and the Text Outline as panels (batch 25)
+- Simple Modern: All properties table fills the panel width
+- Simple Modern: Tags assigns in the selection, the list only finds and hides
+- Simple Modern: Animation and link actions as panels (batch 26)
+- Simple Modern: Format selects, color pad, export cards, Draw modes and layer names use their width
+- Simple Modern: review fixes of batch 25 (Comments back to Open, outline limit, rename)
+- Simple Modern: Versions and Data Sources as panels (batch 27)
+- Simple Modern: review fixes of batch 26 (theme switch, picks, Explore, Paste)
+- Simple Modern: Versions and Data Sources end with the look (batch 27)
+- Opens versions in a new window from the click and keeps the Versions panel to its file
+- Simple Modern batch 28: Page setup and Edit Geometry in the panel, Edit Tooltip and Edit Note as a popover
+- Focuses Paper size after Print's Page setup and lets Choose grow for long translations
+- Adds Page Scale and Background as the Fill row to the page view and records the UI clean-up
+- Updates the shell tests for Page setup out of the File menu
+- Adds the shape picker of the new look, All Pages and renaming pages in place
+- Keeps pastes, drops and the focus of the Link dialog in the tooltip and note popover
+- Opens the Rename page dialog of phones in the tab order test
+- Selects the page of a card before its menu, closes All Pages on a second click of its tab
+- Simple Modern batch 30: the menus by the map
+- Simple Modern batch 31: Draw, the zoom field, the Order row and Find
+- Simple Modern batch 30, review round 1: tree branches, listed actions, Libraries
+- Simple Modern batch 31, review round 1: zoom menu keys, languages, ARIA shortcuts
+- Simple Modern batch 32: one Settings dialog, sentence case, Search help
+- Simple Modern batch 32: sentence case in the Find window, the counts of clicks, the tests
+- Simple Modern batch 32, review round 1: plugin submenus in Settings, sentence case
+- Simple Modern batch 33: Draw a tie, the deferred items and their batches
+- Simple Modern as the theme modern (ui=modern) instead of simple=new
+- Simple Modern tests: the previous look without the hooks of the theme
+- Simple Modern batch 34: cards that move
+- Simple Modern: dark toast in dark mode, toast text from the resources
+- Simple Modern toast PR, review round 1: the language of the resources after a switch
+- Theme modern: real bug fixes of shared code stay active for every theme
+- Simple Modern batch 35: Find as one search and comparing versions
+- Commits a library entry renamed in place before Export
+- Simple Modern batch 35: review round 1
+- Simple Modern batch 36: Generate as a host of the right panel
+- Simple Modern batch 36: docs of Generate as a host
+- Simple Modern batch 36: untitled chats with content differ from New chat
+- Shows the libraries in the Shapes card instead of the More shapes dialog in Simple Modern
+- Simple Modern batch 37: review round 1
+- Simple Modern batch 38: Tidy up and Style my diagram as hosts
+- Simple Modern batch 38: review round 1
+- Shows Edit Data as the host Data of the rail in Simple Modern
+- Keeps the dialog of Edit Data when the host Data is not available
+- Applies typed dates of the host Data when they are left and Escape goes to the diagram
+- Keeps a typed date in its row when the host Data is built again and Escape in an input method
+- Keeps typed text of the host Data out of other rows when its row is deleted
+- Keeps typed text of the host Data for the cells it was typed for
+- Colours Edit Style, indents and previews Edit Outline and lists the connection points in Simple Modern
+- Fixes Tab before a first empty line and points moved together in Edit Connection Points
+- Polishes the dialog frame, chips, phone sheets and My diagrams of Simple Modern (report 3.11)
+- Adds the seam between the previous Simple look and Simple Modern (batch 42)
+- Builds the insights of the UI click log into Simple Modern (batch 43)
+- Scrolls the page tabs of Simple Modern by trackpad and touch swipes
+- Replaces the logo with a File menu and spreads the Shapes grid in Simple Modern (batch 44)
+- Keeps the scroll thumb of the Shapes card in an open library (batch 44, review round 1)
+- Adds About draw.io as the last item of Help in Simple Modern (batch 44)
+- Shows the icon of draw.io in About draw.io also in builds with their own logo (batch 44, review round 2)
+- Adds motion, a movable minimap and pinned rail buttons to Simple Modern and fixes Insert › Shape... (batch 45)
+- Seeds the sketch shapes of calm-old-files and keeps the checked radios of dialogs that fade out (batch 45)
+- Switches to and from Simple Modern without a restart and offers the theme of before in a notice (batch 46)
+- Keeps popovers out of window docking and the minimap at the zoom bar after a click on its title (batch 45)
+- Shows a preview of each library in the list of the Shapes card (batch 46)
+- Offers Simple Modern as Modern (Beta) in the theme menu without test=1 (batch 46)
+- Names the theme Fusion (formerly Simple Modern), with modern as an alias of its value (batch 46)
+- Shows no theme notice after a live switch in embeds or with ui=, and builds the color windows of the session before the first switch again
+- Removes "or paste a list" from the hint of the empty page in Fusion (batch 46)
+- Adds the lightbox and the embedded viewer to test/no-flag and declares the fix of the page tags (#1058) (batch 46)
+- Turns the box of several selected shapes on by default in Fusion (batch 46)
+- Draws the previews of the libraries in the Shapes card from their own shapes in Fusion (batch 46)
+- Removes the hint of the empty page in Fusion (batch 46)
+- Checks the real keys of the removed empty-page strings (batch 46)
+- Finds what the search of the Shapes card finds in the search of the shape picker in Fusion
+- Fusion: the diagram stays in place when the Shapes panel opens or closes
+- Keeps keys, answers and errors of the icon service in step with the field of the shape picker in Fusion
+- Fusion: Enter applies a label, Shift+Enter adds a line
+- Keeps Sketch and Shadow on the first level of the Format panel in Fusion, also for several cells
+- Keeps Effects in the search path of the effects in More options in Fusion
+- Shows in the print and export previews of Fusion what is printed and exported
+- Keeps the selection handlers working in plain mxGraph instances
+- Names the handler fix and the library Export in the changes for all themes
+- Fusion: named themes in the Diagram tab, themes by kind in the configuration
+- Fusion themes: a background alone is no theme, previews and Style follow the themes by kind
+- Fusion: Quick styles are the quick styles of Classic
+- Fusion themes docs: vertex is the base of the shape kinds, not of text and edge
+- Print preview: PDF selection starts at its first page, cropped caption groups digits, phone landscape sheets stay at 200 high
+- Shows the image, name and chevron in the connector menus of Fusion
+- Print and PDF dialogs: preview image key includes the view translate and scale
+- Fusion themes: a reloaded Night page is Night by its background and adaptive colors
+- Fusion: the shape picker of a hover arrow holds its row and stays open
+- Fusion: the shape picker of a hover arrow stays inside the visible container
+- Fusion: Flow animation of connectors on the first level of Effects
+- Puts Line start and Line end side by side with their labels in Fusion
+- Moves the CSS of Fusion into styles/fusion.css, loaded only in the theme
+- Keeps Multiple values in the line end menus of Fusion after Escape
+- Keeps the hover picker of Fusion off its arrow near the canvas edges
+- Fusion themes: a configured theme's page needs its fills after a reload
+- Shows the notice of Fusion after the first switch of a session
+- Fusion: the inline toolbar stays inside the window on tablets and phones
+- Test inline-toolbar-edge: no page errors on every page it opens
+- Fusion: the inline toolbar shows next to the open Format panel, hiding it is a setting (off by default)
+- Ten Format panel UX fixes in Fusion
+- Fusion themes: built-in themes replace configured kind fonts, colors follow the page they give
+- Fusion: the hover picker moves past its arrow when it has no room beside it
+- Fusion: Mixed fields read as before by Format.js, Image section skips cells without a state
+- Fusion: Tidy up and Style my diagram offered by default, next to Arrange my diagram (design for approval)
+- Fusion: Tidy up focuses its first picture, its card and toast count the diagram with the result, it runs on the selection after the engine loads
+- Fusion fix batch 1: the blockers of the final review
+- Fusion: hover previews of themes and Quick styles crossfade, the toast fades out
+- Fusion themes: Style my diagram after Night gives the page back
+- Fusion: shell-structure expects Tidy up and Style my diagram in the rail
+- Fusion: screenshots of the Tidy placement for the pull request (removed in the next commit)
+- Fusion: remove the screenshots of the pull request
+- Fusion: the steppers of the number fields of the Format panel are back
+- Fusion themes: Style my diagram ends any theme of the Diagram tab
+- Fusion tests: queries of the open toast skip its fading copy
+- Fusion fix batch 1, review round 1: connectors in Hold to compare, Preview keeps the paper, full histories, appearance in the omnibox
+- Fusion: one effect in More options joins the first level, one name per function
+- Fusion: page-view-tabs finds the grid size in the label of its stepper
+- Fusion fix batch 4: Omnibox format entries, index and layouts (work in progress)
+- Fusion fix batch 3: before-port B (shell, pages, phone, shapes, live switch, language)
+- Fusion: the preview of a quick style has the modifier keys of the click
+- Fusion fix batch 4: locked shapes, pictures of the page, one entry per action, tests and docs
+- Fusion fix batch 4: the hints of list rows stay searchable in the omnibox (calm-omnibox)
+- Fusion names, review round 1: English index for the renamed actions, Find title follows the docked window
+- Fusion fix batch 4: search-host checks the slider of the pinned opacity (the Format panel of the new look)
+- Fusion: pictures of Tidy up rendered later take the focus only from the panel itself
+- Fusion: keys typed in a label or a text field leave the quick style preview
+- Fusion fix batch 4: the change listener of the layout panel tests Fusion positively (simple-classic-seam)
+- Fusion: a tap into a Mixed number field does not scroll the Format panel (its stepper has no box)
+- Fusion themes: undo gives back the style of new shapes, new text after Teal and Navy, flowchart widths, stale previews
+- Fusion fix batch 3, review round 1: Layers menu uses shown rows, async preview cost counts sync work, focus stays in dialog
+- Fusion fix batch 5 (before-port D): bundles, CSS load, old browsers, the new viewer
+- Fusion fix batch 5: the gate records the theme notice, tests of other looks without fusion.min.js
+- Fusion fix batch 4: the omnibox takes the names of Actions.simpleLabels (merge of simple-modern)
+- Fusion fix batch 4, review round 1: page switches, preview styles, locked layers, shape keys of the layout picker
+- Fusion fix batch 5 review round 1: in-page lightbox with the default host, Export button without the canvas flag, fusion.min.js with the version and precached, complete-bundle marker, release gate checks
+- Release gate: floors of fusion.min.js and fusion.min.css from the measured build (~60%), the end marker of fusion.min.js, a marker for the stylesheet
+- Fusion fix batch 3, review round 1: async preview cost counts the call of fill too, tests for the three fixes
+- Fusion fix batch 2: dialogs, print/export, Format, links, data and versions
+- Fusion fix batch 2: dialog focus before the preview picture, tests follow the new preview timing
+- Fusion fix batch 2: review round 1 (focus returns only after a keyboard open, export frame colour, no render after close, fileLoaded gate)
+- Fusion themes: Default after a theme keeps the keys of Calm, configured arcs below 40
+- Fusion themes test: the case without Tidy passes tidy=0, as Fusion offers Tidy by default since the merge of simple-modern
+- Release gate: the sizes of fusion.min.js and fusion.min.css after the merge of simple-modern in the comment
+- Fusion fix batch 2: review round 2 (the Export preview keeps the border in the picture for a page gradient)
+- Fusion tests: theme-live-switch loads the scripts of the theme before it counts the listeners (hideSimpleToast is in fusion.min.js since this batch)
+- Fusion themes: a click that changes nothing is no edit, one arc size for configured themes, a picture per tile
+- Fusion fix batch 6 (menus and focus): no item twice, Delete all toast, focus returns, glyphs, Share split button
+- Fusion fix batch 6 (menus and focus): tests and docs
+- Fusion fix batch 6 (phone): sheets keep the shape in view, ×, Escape, banner, page bar, hit areas, Done, calm unsaved state
+- Fusion fix batch 6 (phone): banner hides in place, tests for Done and the unsaved state, docs
+- Fusion fix batch 6: the listener of the Share button goes with the shell
+- Fusion fix batch 6 (clicks): Corners of shapes first, Clear waypoints for several connectors, Fill of shapes with connectors, Find first, click budget
+- Fusion fix batch 6 (dialogs): compact New, Advanced export, Polygon hint, Spacing gap
+- Fusion fix batch 6 (wording and dialogs): sentence case, German names, empty pages, close buttons, Recent colours
+- Fusion fix batch 6b: the scroll thumb clamps the scroll position of shorter content
+- Fusion fix batch 6: the English index of the Omnibox has the new key notSaved
+- Fusion fix batch 2: the fileLoaded wrapper of SimpleVersions.js is in fusion.min.js since batch 5 (docs)
+- Fusion after the dev merge: Mixed stays after Tab, older default edge styles are no user default
+- Layout picker: Connectors only keeps the connectors at locked shapes, locked connectors stay in every layout
+- Fusion fix batch 6b: the tests use smt.toSentenceCase, as other looks have no fusion.min.js since batch 5
+- Fusion data host: the commit of a click that typing overtook applies nothing (one edit for the typed text)
+- Fusion fix batch 7, minor A: forms, Format, files, versions, print/export, toast, rules
+- Fusion docs: Mixed after Tab and older default edge styles after the dev merge
+- Layout picker: on a page, locked cells of all layers stay, also the locked ends of connectors in other layers (review of #1243)
+- Fusion: pages are found in the omnibox of the top bar, the search of the Shapes card only searches shapes
+- Omnibox docs and tests: Pages in the omnibox of Fusion, the search of the Shapes card without a menu
+- Fusion behind test=1 again: Theme ▸ Fusion (Beta) only with test=1, ui=fusion keeps working
+- Fusion: the first level fills its room, no section of one control, no flicker on steps
+- Fusion fix batch 7: tests of M3, M13 and M18, dark hex field name in format-ux-pass
+- Fusion tests: # lists the pages in the omnibox, the pages of omnibox-paths are named with RenamePage (renamePage of Fusion renames in place)
+- Fusion fix batch 6b, review round 1: the × of dialogs that were not closable runs their Cancel, empty previews
+- Fusion fix batch 8, minor B: shell, pages, phone, shapes, Omnibox, CSS, live switch
+- Fusion fix batch 6: review round 1 (Share state after a file opens, Share hidden by hideMenuItems, Done on iOS)
+- Fusion fix batch 7, review round 1: stencil preview accepts missing coordinates, SVG preview ignores Shadow room, rule colors keep alpha
+- Fusion behind test=1: keep the saved theme when Fusion is chosen in a ui=fusion session, menu ticks Fusion for the alias, document bootstrap.js next to the switch
+- Fusion fix batch 8 review round 1: smart paste outline excerpts, failing layout without prepare ends the list, Find help icon selector
+- Fusion fix batch 6b, review round 2: Revision history without versions shows its text again
+- Fusion omnibox: Search images for …, the name of the current page stays on it, page groups on phones
+- Fusion: the Hand tool back in the tool pill, as a view that changes nothing
+- Fusion Hand tool review: print/anchor save keeps the graph enabled, no H or Hand on phones
+- Fusion: dark states of the inline toolbar and 20 dark rules that never matched
+- Fusion dark states: the sheet of All Pages keeps its shadow, hovers with system and forced colors
+- Fusion fix batch 6: review round 2 (an Escape that closes a dialog over a phone sheet closes only the dialog)
+- Fusion fix batch 7: Edit shape test follows the preview of round 1
+- Fusion polish, review round 1: the scroll position only for the same cells, not after a host; Snap to grid in the Size row only for rows and cells of tables
+- Fusion omnibox: Ctrl+Enter (Cmd+Enter) opens the first page of the list, as in the search of the Simple theme
+- Fusion: the Hand tool keeps Shape, Connector, Text and Draw of the pill enabled
+- Fusion fix batch 6: the tool pill stays centered on tablets with the Hand tool and the chevron of Share
+- Fusion fix batch 6: Format opens at the top after Layers, which takes the focus
+- Fusion: the title of the panel keeps its arrow and host menu with the tool rail on
+- Fusion: inline toolbar in the look of the tool pill
+- Fusion omnibox: remove Ctrl+Enter (Cmd+Enter) for the first page again
+- Fusion fix batch 6: the help of Find keeps its target of 44 in its focus ring, share-split opens the menu with the focus in it
+- test/simple-modern: keep a test of Ctrl+Enter that this PR does not change
+- Fusion: Tidy up and Style my diagram stay in the rail, disabled when they cannot run
+- Fusion fix batch 6: Escape after Presentation mode throws nothing
+- Fusion: hosts with nothing to do stay clickable and explain why in the panel
+- Fusion: the reasons in the tooltips of the rail follow the diagram with the panel closed
+- Holds shapes dragged from the Fusion shape picker at their center
+- Fusion: the end of a hint of Tidy up or Style my diagram shows Format, not a new run
+- Splits connectors and orders stack layouts at the pointer for centered picker drags
+- Fusion: Tidy up is the first tile of Arrange my diagram
+- Fusion: disabled with a reason instead of hidden in six places
+- Fusion: Style my diagram as the section Automatic of the Diagram tab
+- Fusion: Style my diagram automatically resolves configured themes and checks the engine option
+- Fusion: review round 1 of the disabled hints (PR 1257)
+- Fusion: every popover of the inline toolbar in the frame and sections of More, and more options
+- Fusion: review round 1 of Tidy up as a tile (PR 1259)
+- Fusion: mobile fixes for menus, Pages, Explore, search and the top bar
+- Fusion: the analysis of Tidy up keeps the scope of its key (PR 1259)
+- Fusion: one Share menu, and places of its own for Generate
+- Fusion: Generate in the rail only where it is enabled, Share-moved collaboration items only where Share is reachable (PR 1262 review)
+- Fusion: the rail follows the enabled state of the graph also with the panel closed (PR 1262 review)
+- Fusion: Style my diagram automatically works with the Hand tool
+- Fusion: swipes scroll the Shapes sheet, back closes panels, omnibox suggestions on phones, Fit in landscape, Draw icon
+- Fusion: inline toolbar honours hideMenuItems, hidden rows stay hidden, aria states of actions and marker selects
+- Fusion: Style My Diagram is the section Automatic of the Diagram tab in the notes of the study (PR 1259)
+- Fusion: Follow me shows its eye like the other toggles with an icon (share-menu)
+- Fusion: back closes a popover of the inline toolbar
+- Fusion: Explore keeps the z-index of the view it opened from (at least 6), a second finger on a menu sheet taps nothing
+- Fusion: a change of the hash is no back press, a touch that stops a fling of the shapes taps nothing
+- Fusion: the zoom field is a combobox, the labels of the connector menus come first in the DOM
+- Fusion: the zoom combobox has no menu popup type, line-end names start with the visible label in every language
+- Fusion: the popup of the zoom combobox is a dialog named Zoom that holds its menu
+- Fusion: Share has the standard share glyph, a box with an arrow up
+- Fusion: the handles of the selection are hidden under the previews on the canvas
+- Fusion: all effects in one Effects section on the first level of Style
+- Fusion: the Hand tool is not read-only, only canvas gestures that change the diagram are blocked
+- Fusion: the comment of graph.isSimpleHandTool names its callers
+- Fusion: expanders only with at least three options
+- Fusion: one-value-places expects the zoom combobox with a dialog popup of #1265
+- Fusion: More options of the Format panel counts without the stylesheet
+- Fusion style guide: the page tool paragraph back before the section of expanders
+- Fusion: In this diagram, an optional section of the Shapes card with the shapes of the page
+- Fusion: the bottom sheets of phones follow the finger
+- Fusion: the buttons in the titles of the scratchpad and libraries are icon buttons of the look
+- Fusion: the grids of icons of the inline toolbar fill the width of their popover
+- Fusion: the Export preview shows the grid, the advanced export's preview follows its options, More in the format row is never cut
+- Fusion: ellipsis-titles cuts a long library name on tablets, Scratchpad fits next to the new buttons
+- Fusion leak test and fixes of three leaks of the code of before
+- Fusion: every way in has a way back
+- Fusion: Format has a paint brush instead of the pen crossed with a ruler
+- Label editing tests type AltGr as Windows reports it on every platform
+- Fusion: the effect chips are one column of rows of the same width
+- Fusion: Org Chart is a tile of Arrange my diagram after the trees
+- Fusion: Run Last Layout keeps the origin of the Org Chart tile, the tile keeps its options in memory
+- Fusion: each preview on the canvas hides with a class of its own, the overlays of other cells stay under a layout picture
+- Fusion: the Hand tool hides the move handles of tables, shows tooltips on the tooltip icon, has the text cursor in the label editor and keeps the inline toolbar after a field
+- Fusion: In this diagram rebuilds items whose parts changed, keeps its place after a saved palette order
+- Fusion: room for the scrollbar of a scrolling shape list in inline-toolbar popovers
+- Fusion: the triangle of a library title follows only the fold state of its name, not the … menu
+- Desktop: the advanced export passes Grid to PNG, JPEG and the export of the main process
+- Fusion: Escape goes back after the host's own Escape steps, toggles go back, Back label follows the selection
+- Sidebar refresh adds the open libraries again and keeps the maps of the libraries until new ones are complete
+- Fusion: review round 1 of the sheet drag (held cards, lost releases, moves)
+- Fusion: one grid for the labels of the Format panel and the dialogs
+- Tests: every harness takes a browser slot before it starts Chrome (etc/browser-slot.js)
+- Closed libraries stay closed after a sidebar refresh, dropped shapes stay in the open library entry
+- Fusion: Theme ▸ Fusion (Beta) on app.diagrams.net without test=1
+- Fusion: no preload of the theme for embedInline, Teams and the viewer domain
+- Fusion: a stable gutter for the scrollbar of a part of a popover that scrolls
+- Fusion: the rules for hidden controls of the label column end with a class
+- Fusion: keep the focus in inline page settings of the Data host
+- Revert "Fusion: the rules for hidden controls of the label column end with a class"
+- Fusion: In this diagram skips only the copies of its entries in pasteNewCellStyles
+- Fusion test library-title-buttons: the live switch keeps the libraries of files open
+- Fusion: the preview and Copy of the Export dialog use the zoom with decimals of dev's export size
+- Reports monday's first value created when a diagram is saved or shown
+- Limits the monday user lookup of the editor to one at a time, four in all
+- Shows viewers of the monday app a message instead of failing on storage
+- Fusion: the layout picker of layoutPicker=1 works in bundles without FusionTheme.js, and the preload notes match the code
+- Fusion: scripts of another release fail like a failed load, so only the editor's service workers precache them
+- Shows monday diagrams read-only to viewers instead of hiding them
+- Fusion: the effect chips fill their rows in thirds, halves or one column
+- Fusion: effect chips of a hidden Style view and of a resized bottom sheet get the rows of their width
+- Guides align straight lines with their line, not half a unit next to it [jgraph/drawio#5836]
+- Fusion: the tooltip of Style my diagram automatically says what it does
+- Makes monday members read-only only when monday refuses their test write (403)
+- Retries the monday user lookup with a growing delay instead of giving up after four attempts
+- Finds monday's 403 also in the Error the SDK rejects with
+- Ends the monday user lookup after four failures for a missing scope or session
+
+12-NOV-2026: 32.7.2
+
+- Order cells: a cell given twice moves once
+- Page tab menus: the first Escape focuses the Options button, the second the diagram
+- Resolves the style of the source of edges once per source in pasteCellStyles
+- Exports the size of the Width and Height fields of the export dialog
+- Reads the names of attributes for the languages of the new Lightbox in linear time
+- Counts every entry of the buckets towards the limit of Tidy.Grid queries
+- Rounds the size of SVG exports once in the Width and Height fields
+- Checks the place after the last move of removeOverlaps
+- Adds the translation keys of the draw.io Confluence Cloud app's new list page and four missed ones
+- Keeps a typed width or height in PNG, JPEG and WebP exports of fractional sizes
+- Computes the export size in the export dialog like Graph.getSvg
+
+10-NOV-2026: 32.7.1
+
+- Renames roundedPerimeterPoints to roundedPerimeter in the compressed SAP palette entries
+- Adds the matching perimeter to round built-in shapes in eleven palettes
+- Adds the ellipse perimeter to round icons in twenty palettes
+- Adds roundedPerimeter to the rounded boxes in twelve palettes
+- Moves or removes floating connection points of twenty stencils in five palettes
+- Removes the result cache from the generate/v3 worker
+- Parses the style and base of a cell once for all style rules of its keys
+- Limits the attributes of a cell that the new Lightbox searches for languages
+- Fixes the hang, the unlimited passes and the writes to locked files of Tidy up
+- Hides the Fill section of the Format panel for connector ties
+- Adds enableTidy and enableModernLightbox to the Configuration dialog
+- Keeps the diagram as it is where the limit of Tidy ended a query
+- Adds the missing translation keys of the draw.io Confluence Cloud app
+- Keeps role keys of other writers and the colors of locked shapes in Style My Diagram
+- Keeps all keys of the old role rule on fixed cells and only role values in their base
+- Copies the image in Safari without the save dialog
+- Copies the image through the main process in the desktop app
+- Resolves %pagecount% in CLI exports [jgraph/drawio-desktop#2601]
+- Update drawio-mermaid bundle to mermaid 12.3.0 port
+- Skips the parent highlight of edges without points
+- Keeps image data URIs whose base64 atob cannot decode
+- Applies the table spacing dialog to the table it was opened for
+- Skips the overflow update of viewers whose graph was destroyed
+- Records the groups of the GAE error log pass of 2026-11-09
+- Update drawio-mermaid bundle: id@{...} is edge metadata only for an existing edge id
+- Shows an error for pasted image data URIs that atob cannot decode
+- Skips the auto-fit of viewers whose graph was destroyed
+- Updates the known groups for the review follow-ups
+- Keeps the page number of the app and numbers files without pages
+- Keeps the page variables of requests for files without pages
+- Prototype: paints HTML labels of PNG exports with HTML-in-Canvas
+- HTML-in-Canvas export: fonts of the SVG, hidden frames, page styles
+- HTML-in-Canvas export: experimental switch, off by default
+- HTML-in-Canvas export: fonts of the SVG with family names of several words
+- Image dialog: Open sends the picked files to its own dialog
+- Export dialog: width and height follow the size
+- Export size tests: JPEG and presets saved with Selection Only
+- Moves floating connection points of four entries in the Cisco19, Fluid Power and Cumulus palettes
+- Moves the connection points of five Electrical switches and the SysML conjugated port onto their drawing
+- Edge labels: label padding of 4 on the left and right for new edges
+- Edge labels: label padding and gap stay off for chosen edges, Paste Text Style and Preview
+- UX surface sweeps: hover rows, menus, popovers and sheets with real input
+- UX surface sweeps: Tab out of Format fields, dialogs first, wider gap taps
+- Places the connection points of the 69 Active Directory icons on their drawing
+- Removes the default connection points of the 17 Atlassian logos in the Web Logos palette
+- UX surface sweeps: edit checks of menus, menu item names, timeouts, options
+- UX surface sweeps: stop on combinations with the same ID and on filters of other sizes
+- No empty undo steps from Format fields, order, snap and flip; focus after page tab menus; hover icons hidden under popovers
+- Quiet edits review: no cell passes a selected cell when ordering several, chained isSuspended hook
+- Quiet edits review 2: unsorted cells for Bring Forward, Snap to Grid fires cellsArranged, Relative fields
+- Moves the remaining floating connection points of nine stencils and the SysML port block onto their drawing
+- Keeps the box as the perimeter of the rectangular Cumulus and Active Directory icons
+- Moves the ellipse perimeter of the SAP icons into their shared style
+- Checks that the moved connection points of shapes and stencils are on their drawing
+- Rebuilds the Gliffy bundle with rgb() and rgba() colours
+- Gives the colors of their role back to shapes that Style My Diagram kept while they were locked
+- UX surface sweeps: opens collapsed Format panel sections before each control, Node 22.12
+- Removes the keys that only an edited rule of its role set from a shape whose lock ended in Style My Diagram
+
+06-NOV-2026: 32.7.0
+
+- Adds the features and the forest of Tidy up and their trainer
+- Adds the engine of Tidy up
+- Adds Style My Diagram and style rules that read a key of a cell's style
+- Adds the side panel of Tidy up and Style My Diagram behind enableTidy and tidy=1
+- Adds the new Lightbox behind enableModernLightbox and viewer-ui=modern
+- Adds the language of the diagram and the Export panel to the new Lightbox
+- Decides at render time whether a color of a shape wins over the rule of its role
+- Serves the Tidy up sources offline in dev mode and labels treemaps visual in the trainer
+- Fixes the review findings of the new Lightbox bars
+- Keeps locked connectors, waypoints, other shapes and later edits in the results of Tidy up
+- Fixes the review findings of the language and Export of the new Lightbox
+- Waits for a load of extensions.min.js that runs and applies no result worse than the page in the Tidy up panel
+- Keeps locked links in the structure of layouts, free-standing connectors and the shape count of attached texts in Tidy up
+- Describes the locked links of layouts, the routable connectors of Keep and the shape count of attached texts in the Tidy guide
+- Lays out shapes that hang by locked links with their tree and keeps connectors of other layers in Tidy up
+- Describes the shapes and connectors that the layouts of Tidy up see in the Tidy guide
+- Lays out shapes that hang by locked links only if the other end is laid out in Tidy up
+- Describes which shapes on locked links the layouts of Tidy up move in the Tidy guide
+- Keeps entered groups and the labels of deleted connectors and bounds the crossing count in Tidy up
+- Previews and badges only real suggestions, moves the focus into the panel and reads only tidy=0 and tidy=1 over the configuration in Tidy up
+- Keeps the colors of kept shapes under the new rule of their role in Style My Diagram
+- Shows Close only for close=1 and closeBtn and hides Print and Tags for openInSameWin=1 in the new Lightbox
+- Closes the Tidy up panel when an edit without a change of the model enters the history
+- Accepts language codes in any case and with _, shows the whole language link and announces every copy in the new Lightbox
+- Hides Export for openInSameWin=1 in the new Lightbox
+- Hides the tags of the tags parameter only if the Tags button can show them in the new Lightbox
+- Keeps the grid and the page view of the configuration in the Simple and Sketch themes
+- Keeps configured keys of earlier Editor.configure calls in the Simple and Sketch themes
+- Falls back to the save dialog when Safari blocks Copy as Image in the new Lightbox
+- Adds a release monitor page with the counts of clicks on menus and buttons
+- Counts clicks on menus and buttons in 1% of sessions on app.diagrams.net
+- Keeps custom resource keys out of the click counts and updates labels after a language change
+
+06-NOV-2026: 32.6.11
+
+- Updates stable channel to 32.6.9
+- Expands collapsed page groups on drops with the mouse
+- Bypasses the cache in the release monitor's production check
+- Adds the missing translation keys of the draw.io Confluence Cloud app
+- Reads PNG chunk lengths as unsigned
+- Hides data sources in the desktop app
+- Limits the wait for images in exports to 15 s
+- Removes other schemes and the install path from links in desktop exports
+- Skips images that reached the deadline when embedding images in SVG exports
+- Keeps waiting for images in CLI exports while images load
+- Checks all link elements and attribute spellings in desktop exports
+- Fits PDF exports with a given width or height to that size [jgraph/drawio-desktop#2162]
+- Disables the links of background pages in PDFs
+- Refuses saves of realtime files that would lose what the screen shows
+- Updates stable channel to 32.6.10
+- Refreshes an expired Google Drive token when downloading a file
+- Documents that Drive files imported with convertFile have no token retry
+- Keeps icon search keywords out of Workers Logs
+- Pins Logpush and tail workers off for icon search
+- Adds read-only mode for the current window
+- Translates the Confluence Cloud keys into all languages [jgraph/drawio#5831]
+- Rounds PDF pages with a given size up to whole units
+- Keeps the length of U-turn arrowheads when their handle is dragged
+- Disables Undo, Redo and the selection actions in locked diagrams
+- Shows an error for Google Drive links with more than the ID after #G
+- Removes keepContainer from the export links tests
+- Disables the Replace buttons of an open Find/Replace window in locked diagrams
+- Refreshes every expired Google Drive token, not every other one
+- Limits every Google Drive 401 to one retry with a new token
+- Shows an error when a Google Drive file gets no answer
+- Keeps revisions of Google Drive links in their part of the URL
+- Backs off from every Google Drive rate limit in executeRequest
+- Shows the same error for Drive answers with status 200 that are not JSON
+- Keeps new requests from cancelling Google Drive rate limit retries
+- Refuses writes of realtime files when the page root changes during a save
+- Keeps late Google Drive answers from replacing what was opened since
+- Reloads only the file ID in Change User for Google Drive links
+- Shows an empty Visio file as invalid, not as a blocked service
+- Counts every kind of load as newer for late Google Drive answers
+- Translates values that were still in English in 51 languages
+- Adds editable boxes for the other From Text types
+- Keeps double quotes that are not around a name as text in From Text
+- Keeps Block as the German label of the block arrowhead
+- Saves English attachment comments if their translation has non-ASCII letters
+- Shows the Configuration dialog in embed mode for the host's configuration
+- Keeps the fields without a key in their controls with excludedKeys and sends the host's configuration to the configure origin only
+- Sends the host's configuration to * for hosts from file: URLs
+- Keeps the host's configuration from popups whose opener origin cannot be a target
+- Removes the test host files and popups of the embed configuration tests
+- Adds optional counting of clicks on menus and buttons
+- Keeps shapes with the same label when connections in From Text change
+- Updates drawio-elk bundle to 0.1.0+commit.d2d0c30
+- Adds new shapes for names in From Text instead of renaming locked duplicates
+
 03-NOV-2026: 32.6.10
 
 - Lines up the Advanced section of Page Setup

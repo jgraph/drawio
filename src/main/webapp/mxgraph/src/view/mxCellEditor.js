@@ -484,9 +484,28 @@ mxCellEditor.prototype.installListeners = function(elt)
 	});
 	
 	mxEvent.addListener(elt, evtName, resizeHandler);
-	mxEvent.addListener(window, 'resize', resizeHandler);
 	mxEvent.addListener(elt, 'cut', resizeHandler);
 	mxEvent.addListener(elt, 'paste', resizeHandler);
+
+	// Each edit has a new textarea (see stopEditing), so the listener of
+	// the window for the previous one is removed (it kept that textarea)
+	this.removeWindowResizeHandler();
+	this.windowResizeHandler = resizeHandler;
+	mxEvent.addListener(window, 'resize', resizeHandler);
+};
+
+/**
+ * Function: removeWindowResizeHandler
+ * 
+ * Removes the resize listener of the window that <installListeners> added.
+ */
+mxCellEditor.prototype.removeWindowResizeHandler = function()
+{
+	if (this.windowResizeHandler != null)
+	{
+		mxEvent.removeListener(window, 'resize', this.windowResizeHandler);
+		this.windowResizeHandler = null;
+	}
 };
 
 /**
@@ -891,7 +910,13 @@ mxCellEditor.prototype.startEditing = function(cell, trigger, initialText)
 				this.textarea.scrollIntoView(
 					{block: 'nearest', inline: 'nearest'});
 				this.textarea.focus();
-				
+
+				// A focus or blur handler may have stopped editing
+				if (this.textarea == null)
+				{
+					return;
+				}
+
 				if (initialText != null)
 				{
 					// Initial text is plain text (eg. from an input method,
@@ -1147,4 +1172,6 @@ mxCellEditor.prototype.destroy = function ()
 		this.graph.view.removeListener(this.zoomHandler);
 		this.zoomHandler = null;
 	}
+
+	this.removeWindowResizeHandler();
 };

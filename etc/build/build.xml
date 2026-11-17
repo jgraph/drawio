@@ -57,6 +57,19 @@ OUTPUT FILES (in src/main/webapp/js/):
 	     leaves it out of app.min.js; App.js checks that OrgSettings exists. -->
 	<available property="orgsettings.sources" file="${war.dir}/js/diagramly/OrgSettings.js"/>
 
+	<!-- Set if the sources of the theme Fusion are present (SimpleUi.js and
+	     the other Simple*.js files of fusion.min.js, styles/fusion.css). The
+	     public repository does not have them (github_excludes), so its build
+	     writes neither js/fusion.min.js nor styles/fusion.min.css, and none
+	     into Editor.fusionThemeBuild of app.min.js (FusionTheme.js), which
+	     then neither offers nor starts the theme. -->
+	<condition property="fusion.sources">
+		<and>
+			<available file="${war.dir}/js/diagramly/SimpleUi.js"/>
+			<available file="${war.dir}/styles/fusion.css"/>
+		</and>
+	</condition>
+
 	<!--
 	============================================================================
 	TARGET: merge
@@ -134,6 +147,16 @@ OUTPUT FILES (in src/main/webapp/js/):
 			<sources dir="${war.dir}/js/diagramly/miro">
 				<file name="MiroImporter.js" />
 			</sources>
+			<!-- Tidy up and Style My Diagram: the features and the generated
+			     forest (etc/tidy/train.js), the engine, the styles and the window.
+			     The actions are in app.min.js (TidyActions.js, loadTidy). -->
+			<sources dir="${war.dir}/js/diagramly/tidy">
+				<file name="TidyFeatures.js" />
+				<file name="TidyForest.js" />
+				<file name="Tidy.js" />
+				<file name="TidyStyle.js" />
+				<file name="TidyWindow.js" />
+			</sources>
 		</jscomp>
 
 		<!-- Build orgchart.min.js -->
@@ -201,13 +224,17 @@ OUTPUT FILES (in src/main/webapp/js/):
 	  6. Compiles client.min.js (mxGraph core + init)
 	  7. Builds base-viewer.min.js (lightweight viewer)
 	  8. Builds viewer.min.js and viewer-static.min.js
-	  9. Builds app.min.js (full editor with cloud integrations and Simple.js)
+	  9. Builds app.min.js (full editor with cloud integrations, SimpleClassic.js
+	     and FusionTheme.js) and fusion.min.js (the scripts of the theme Fusion,
+	     only with fusion.sources: the public repository has no theme Fusion)
 	extensions.min.js and orgchart.min.js come from the extensions target.
-	
+
 	OUTPUTS:
 	  - js/viewer.min.js        : Standalone viewer
 	  - js/viewer-static.min.js : Viewer with embedded shapes
 	  - js/app.min.js           : Full editor application
+	  - js/fusion.min.js        : Scripts of the theme Fusion (loaded on demand, not public)
+	  - styles/fusion.min.css   : styles/fusion.css without comments (loaded on demand, not public)
 	
 	TEMPORARY FILES (created then deleted):
 	  - Graph-Stylesheet.js, Graph-Resources.js
@@ -272,6 +299,7 @@ OUTPUT FILES (in src/main/webapp/js/):
 				<file name="Menus.js" />
 				<file name="Toolbar.js" />
 				<file name="Dialogs.js" />
+				<file name="Omnibox.js" />
 			</sources>
 		</jscomp>
 
@@ -406,6 +434,7 @@ OUTPUT FILES (in src/main/webapp/js/):
 
 			<sources dir="${war.dir}/js/diagramly">
 				<file name="GraphViewer.js" />
+				<file name="ViewerModern.js" />
 			</sources>
 		</jscomp>
 		
@@ -515,11 +544,14 @@ OUTPUT FILES (in src/main/webapp/js/):
 				<file name="DrawioFileSync.js" />
 				<file name="App.js" />
 				<file name="Menus.js" />
+				<file name="LayoutPicker.js" />
 				<file name="Pages.js" />
 				<file name="Trees.js" />
 				<file name="ForceExplorer.js" />
 				<file name="SpringHandle.js" />
 				<file name="Minimal.js" />
+				<file name="Omnibox.js" />
+				<file name="OmniboxIndex.js" />
 				<file name="mxRuler.js" />
 				<file name="mxFreehand.js" />
 				<file name="DrawioUser.js" />
@@ -623,15 +655,24 @@ OUTPUT FILES (in src/main/webapp/js/):
 			<sources dir="${war.dir}/js/diagramly">
 				<file name="App.js" />
 				<file name="Menus.js" />
+				<file name="LayoutPicker.js" />
 				<file name="Pages.js" />
 				<file name="Trees.js" />
 				<file name="ForceExplorer.js" />
 				<file name="SpringHandle.js" />
 				<file name="Minimal.js" />
+				<file name="Omnibox.js" />
+				<file name="OmniboxIndex.js" />
 				<file name="mxRuler.js" />
 				<file name="mxFreehand.js" />
 				<file name="P2PCollab.js" />
-				<file name="Simple.js" />
+				<file name="LightboxModern.js" />
+				<file name="SimpleClassic.js" />
+				<!-- The gate of the theme Fusion: its scripts are in fusion.min.js -->
+				<file name="FusionTheme.js" />
+			</sources>
+			<sources dir="${war.dir}/js/diagramly/tidy">
+				<file name="TidyActions.js" />
 			</sources>
 		</jscomp>
 
@@ -647,6 +688,84 @@ OUTPUT FILES (in src/main/webapp/js/):
     	</concat>
 
 		<replace file="${war.dir}/js/app.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
+
+		<!-- Without the sources of the theme Fusion (the public repository) the
+		     build ships none of it: Editor.fusionThemeBuild is none, so the
+		     theme is neither offered nor started (FusionTheme.js) -->
+		<replace file="${war.dir}/js/app.min.js" token="@FUSION-THEME@" value="none" encoding="UTF-8" unless:set="fusion.sources"/>
+
+		<!-- Build fusion.min.js: the scripts of the theme Fusion, which only its
+		     sessions load (SimpleUi.loadScripts in FusionTheme.js, whose list
+		     SimpleUi.scripts must equal this one; the test fusion-scripts of
+		     test/simple-modern compares them), after app.min.js (SimpleTidy.js
+		     needs TidyActions.js). Only with fusion.sources. -->
+		<jscomp if:set="fusion.sources" warning="${jscomp.warning}" compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/fusion.min.js">
+			<sources dir="${war.dir}/js/diagramly">
+				<file name="SimpleUi.js" />
+				<file name="SimpleFormat.js" />
+				<file name="SimpleModern.js" />
+				<file name="SimpleDialogs.js" />
+				<file name="SimpleCalm.js" />
+				<file name="SimpleExport.js" />
+				<file name="SimpleForms.js" />
+				<file name="SimpleBrowser.js" />
+				<file name="SimpleOpen.js" />
+				<file name="SimplePageData.js" />
+				<file name="SimpleFormParts.js" />
+				<file name="SimpleMoreForms.js" />
+				<file name="SimpleCode.js" />
+				<file name="SimpleRules.js" />
+				<file name="SimplePreview.js" />
+				<file name="SimpleLayouts.js" />
+				<file name="SimpleLibraries.js" />
+				<file name="SimpleFiles.js" />
+				<file name="SimpleMessages.js" />
+				<file name="SimpleSettings.js" />
+				<file name="SimpleWindows.js" />
+				<file name="SimpleStates.js" />
+				<file name="SimpleFillLine.js" />
+				<file name="SimpleAccessibility.js" />
+				<file name="SimpleColor.js" />
+				<file name="SimpleFrames.js" />
+				<file name="SimpleOmnibox.js" />
+				<file name="SimpleToast.js" />
+				<file name="SimplePreviewBar.js" />
+				<file name="SimplePaste.js" />
+				<file name="SimpleNextStep.js" />
+				<file name="SimpleSuggestions.js" />
+				<file name="SimpleContextMenu.js" />
+				<file name="SimplePanels.js" />
+				<file name="SimpleAnimation.js" />
+				<file name="SimpleVersions.js" />
+				<file name="SimpleDataSources.js" />
+				<file name="SimplePageSetup.js" />
+				<file name="SimpleMarkup.js" />
+				<file name="SimplePages.js" />
+				<file name="SimpleMenus.js" />
+				<file name="SimpleWording.js" />
+				<file name="SimpleHelp.js" />
+				<file name="SimpleGenerate.js" />
+				<file name="SimpleShapeLibraries.js" />
+				<file name="SimpleUsedShapes.js" />
+				<file name="SimpleInlineToolbar.js" />
+				<file name="SimpleTidy.js" />
+			</sources>
+		</jscomp>
+
+		<!-- The release of the scripts, which must equal EditorUi.VERSION of
+		     app.min.js (SimpleUi.scriptsVersion, SimpleUi.isScriptsVersion) -->
+		<replace if:set="fusion.sources" file="${war.dir}/js/fusion.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
+
+		<!-- styles/fusion.min.css: styles/fusion.css without its comments, blank
+		     lines and indents, which the sessions of the theme load outside
+		     developer mode (SimpleUi.cssFile; fusion.css has no comment markers
+		     in its strings, the test fusion-css checks it). Only with
+		     fusion.sources. -->
+		<copy if:set="fusion.sources" file="${war.dir}/styles/fusion.css" tofile="${war.dir}/styles/fusion.min.css" overwrite="true"/>
+		<replaceregexp if:set="fusion.sources" file="${war.dir}/styles/fusion.min.css" match="/\*.*?\*/" flags="gs" replace=""/>
+		<replaceregexp if:set="fusion.sources" file="${war.dir}/styles/fusion.min.css" match="^[ \t]+" flags="gm" replace=""/>
+		<replaceregexp if:set="fusion.sources" file="${war.dir}/styles/fusion.min.css" match="[ \t]+$" flags="gm" replace=""/>
+		<replaceregexp if:set="fusion.sources" file="${war.dir}/styles/fusion.min.css" match="(\r?\n)\s*\n" flags="g" replace="\1"/>
 
 		<!-- Final cleanup -->
 		<delete file="${basedir}/Graph-Stylesheet.js"/>
@@ -695,7 +814,10 @@ OUTPUT FILES (in src/main/webapp/js/):
 
 		<jscomp warning="${jscomp.warning}" compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp-simple.js">
 			<sources dir="${war.dir}/js/diagramly">
-				<file name="Simple.js" />
+				<file name="SimpleClassic.js" />
+			</sources>
+			<sources dir="${war.dir}/js/diagramly/tidy">
+				<file name="TidyActions.js" />
 			</sources>
 		</jscomp>
 		<concat destfile="${war.dir}/js/atlas.min.js" fixlastline="yes" append="yes">

@@ -24,6 +24,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	buttons.appendChild(container);
 	
 	var p3 = document.createElement('p');
+	var logos = [];
 
 	// Choosing a storage, or deciding later, accepts the Terms of Use where
 	// the notice shows
@@ -216,6 +217,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		}
 
 		container.appendChild(button);
+		logos.push({mode: mode, title: title, button: button});
 	};
 
 	// Long titles wrap (eg. German) instead of overflowing the dialog
@@ -326,12 +328,15 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 				if (notice != null && div.parentNode != null && div.parentNode.className == 'geDialog')
 				{
 					p3.style.marginTop = '14px';
-					div.parentNode.style.height = (div.scrollHeight + 48) + 'px';
+					div.parentNode.style.height = Dialog.getFrameHeight(div.parentNode, div.scrollHeight) + 'px';
 				}
 			}
 		}, 5000);
 	}
 	
+	// The parts of the dialog for layouts that rearrange them (the start
+	// sheet of Simple Modern, see SimpleOpen.js)
+	this.controls = {title: hd, buttons: buttons, logos: logos, later: later, missing: p3};
 	this.notice = notice;
 	this.container = div;
 };
@@ -343,6 +348,10 @@ var SplashDialog = function(editorUi)
 {
 	var div = document.createElement('div');
 	div.style.textAlign = 'center';
+
+	// The parts of the dialog for layouts that rearrange them (the start
+	// sheet of Simple Modern, see SimpleOpen.js)
+	var controls = {};
 	
 	if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 	{
@@ -352,6 +361,8 @@ var SplashDialog = function(editorUi)
 		{
 			elt.style.bottom = '24px';
 		}
+
+		controls.language = elt;
 	}
 	
 	// The name of the storage is next to the logo
@@ -431,6 +442,8 @@ var SplashDialog = function(editorUi)
 		});
 		
 		div.appendChild(change);
+		controls.title = table;
+		controls.change = change;
 	}
 	else
 	{
@@ -447,6 +460,7 @@ var SplashDialog = function(editorUi)
 	});
 	
 	buttons.appendChild(btn);
+	controls.create = btn;
 	mxUtils.br(buttons);
 	
 	var btn = document.createElement('button');
@@ -464,6 +478,7 @@ var SplashDialog = function(editorUi)
 	});
 	
 	buttons.appendChild(btn);
+	controls.open = btn;
 
 	if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
 	{
@@ -492,6 +507,7 @@ var SplashDialog = function(editorUi)
 			});
 			
 			buttons.appendChild(link);
+			controls.logout = link;
 		};
 				
 		if (editorUi.mode == App.MODE_GOOGLE && editorUi.drive != null)
@@ -560,6 +576,8 @@ var SplashDialog = function(editorUi)
 				});
 				
 				buttons.appendChild(usersSelect);
+				controls.users = usersSelect;
+				controls.usersTitle = title;
 			}
 			else
 			{
@@ -615,6 +633,9 @@ var SplashDialog = function(editorUi)
 	}
 
 	div.appendChild(buttons);
+	controls.storage = storage;
+	controls.buttons = buttons;
+	this.controls = controls;
 	this.container = div;
 };
 
@@ -876,8 +897,15 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 	{
 		buttons.appendChild(closeBtn);
 	}
-	
+
 	div.appendChild(buttons);
+
+	// The parts of the dialog for layouts that rearrange them (the Form and
+	// Code templates of Simple Modern, see SimpleMoreForms.js)
+	this.controls = {header: header, size: size, text: text, buttons: buttons,
+		preview: previewBtn, download: downloadBtn, email: emailBtn, close: closeBtn,
+		copy: (copyBtn.parentNode == buttons) ? copyBtn : null, validUrl: validUrl,
+		title: title, tooLarge: result.length >= maxSize};
 	this.container = div;
 };
 
@@ -1469,6 +1497,14 @@ var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor, g
 
 	div.appendChild(btns);
 
+	// The parts of the dialog for layouts that rearrange them (the Form
+	// template of Simple Modern, see SimpleMoreForms.js)
+	this.controls = {title: hd, source: srcSection, url: urlRadio, page: pageRadio, urlInput: urlInput,
+		pageSelect: pageSelect, sizeRow: dimRow, width: widthInput, height: heightInput,
+		pages: urlRadio.style.display != 'none', fill: optSection, fillRow: bgRow, fillCheckbox: cb,
+		fillButton: backgroundButton, gradientRow: gradientRow, gradientCheckbox: gradientCb,
+		gradientButton: gradientButton, gradientSelect: gradientSelect, buttons: btns,
+		reset: resetBtn, open: (Graph.fileSupport) ? btn : null, apply: applyBtn};
 	this.container = div;
 };
 
@@ -1597,6 +1633,17 @@ var ParseDialog = function(editorUi, title, defaultType)
 					}), onMermaidError, null, version);
 				}
 			}
+		}
+		else if (mxUtils.indexOf(EditorUi.OUTLINE_TYPES, type) >= 0 || type == 'csvTable' ||
+			(EditorUi.TEXT_BOX_TYPES[type] != null && editableCheckbox != null &&
+			editableCheckbox.checked))
+		{
+			// Lays out containers of any size (see Graph.isLiveLayoutLimited)
+			editorUi.editor.graph.executeWithoutLayoutLimits(function()
+			{
+				editorUi.insertOutline(text, type, editableCheckbox != null &&
+					!editableCheckbox.checked);
+			});
 		}
 		else if (type == 'table')
 		{
@@ -1727,8 +1774,9 @@ var ParseDialog = function(editorUi, title, defaultType)
 						{
 							if (listCell == null)
 							{
-								listCell = new mxCell(lines[i], new mxGeometry(x0, 0, 160, 26 + 4),
-									'swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;');
+								listCell = new mxCell(lines[i], new mxGeometry(x0, 0,
+									EditorUi.LIST_STYLES.list.width, EditorUi.LIST_STYLES.list.height),
+									EditorUi.LIST_STYLES.list.style);
 								listCell.vertex = true;
 								cells.push(listCell);
 
@@ -1743,14 +1791,16 @@ var ParseDialog = function(editorUi, title, defaultType)
 							}
 							else if (lines[i] == '--')
 							{
-								var divider = new mxCell('', new mxGeometry(0, 0, 40, 8), 'line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;');
+								var divider = new mxCell('', new mxGeometry(0, 0, EditorUi.LIST_STYLES.divider.width,
+									EditorUi.LIST_STYLES.divider.height), EditorUi.LIST_STYLES.divider.style);
 								divider.vertex = true;
 								listCell.geometry.height += divider.geometry.height;
 								listCell.insert(divider);
 							}
 							else if (lines[i].length > 0)
 							{
-								var field = new mxCell(lines[i], new mxGeometry(0, 0, 60, 26), 'text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+								var field = new mxCell(lines[i], new mxGeometry(0, 0, EditorUi.LIST_STYLES.field.width,
+									EditorUi.LIST_STYLES.field.height), EditorUi.LIST_STYLES.field.style);
 								field.vertex = true;
 								
 								var size = graph.getPreferredSizeForCell(field);
@@ -1793,14 +1843,6 @@ var ParseDialog = function(editorUi, title, defaultType)
 					graph.scrollCellToVisible(graph.getSelectionCell());
 				}
 			}
-		}
-		else if (mxUtils.indexOf(EditorUi.OUTLINE_TYPES, type) >= 0)
-		{
-			// Lays out containers of any size (see Graph.isLiveLayoutLimited)
-			editorUi.editor.graph.executeWithoutLayoutLimits(function()
-			{
-				editorUi.insertOutline(text, type);
-			});
 		}
 		else
 		{
@@ -1974,9 +2016,16 @@ var ParseDialog = function(editorUi, title, defaultType)
 	listOption.setAttribute('value', 'list');
 	mxUtils.write(listOption, mxResources.get('list'));
 	
+	// A table from comma, semicolon or tab separated values (see
+	// EditorUi.applyTableText)
+	var csvTableOption = document.createElement('option');
+	csvTableOption.setAttribute('value', 'csvTable');
+	mxUtils.write(csvTableOption, mxResources.get('table'));
+
 	if (defaultType != 'plantUml' && defaultType != 'mermaid')
 	{
 		typeSelect.appendChild(listOption);
+		typeSelect.appendChild(csvTableOption);
 	}
 
 	if (defaultType == null || defaultType == 'fromText')
@@ -2070,6 +2119,11 @@ var ParseDialog = function(editorUi, title, defaultType)
 		{
 			return 'Person\n-name: String\n-birthDate: Date\n--\n+getName(): String\n+setName(String): void\n+isBirthday(): boolean\n\n' +
 				'Address\n-street: String\n-city: String\n-state: String';
+		}
+		else if (typeSelect.value == 'csvTable')
+		{
+			return 'Name,Role,Team\nAlice,Developer,Frontend\nBob,Designer,"UX, Research"\n' +
+				'Carol,Manager,Product';
 		}
 		else if (typeSelect.value == 'mermaid' || typeSelect.value == 'mermaidImage')
 		{
@@ -2172,6 +2226,24 @@ var ParseDialog = function(editorUi, title, defaultType)
 			(defaultType == 'mermaid') ?
 				'https://www.drawio.com/docs/manual/mermaid/' :
 				'https://plantuml.com/'));
+	}
+
+	// Inserts the cells of all types in a box that edits its text (see
+	// EditorUi.insertOutline) or only the cells (remembered in the browser)
+	var editableCheckbox = null;
+
+	if (defaultType == null || defaultType == 'fromText')
+	{
+		var settings = EditorUi.getStoredLayoutSettings(ParseDialog.SETTINGS_KEY);
+		editableCheckbox = editorUi.addCheckbox(buttons, mxResources.get('editable'),
+			settings == null || settings.editable !== false, null, null, null, null, null, true);
+		editableCheckbox.checkRow.style.marginRight = 'auto';
+
+		mxEvent.addListener(editableCheckbox, 'change', function()
+		{
+			EditorUi.setStoredLayoutSettings(ParseDialog.SETTINGS_KEY,
+				(editableCheckbox.checked) ? null : {editable: false});
+		});
 	}
 
 	buttons.appendChild(typeSelect);
@@ -2302,6 +2374,11 @@ var ParseDialog = function(editorUi, title, defaultType)
 	div.appendChild(buttons);
 	this.container = div;
 };
+
+/**
+ * Key of the settings of the From Text dialog in the local storage.
+ */
+ParseDialog.SETTINGS_KEY = '.drawio-from-text-settings';
 
 /**
  * Constructs a new dialog for creating files from templates.
@@ -3563,8 +3640,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			Editor.addFocusRing(control, elt);
 		}
 
-		// Adds preview button
-		if (url != null)
+		// Adds preview button (the preview is a tooltip of the sidebar,
+		// which chromeless and destroyed UIs do not have)
+		if (url != null && editorUi.sidebar != null)
 		{
 			var magnify = magnifyImage.cloneNode(true);
 			elt.appendChild(magnify);
@@ -3816,6 +3894,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				}
 				
 				entry.style.cssText = 'display:block;cursor:pointer;padding:6px;white-space:nowrap;margin-bottom:-1px;overflow:hidden;text-overflow:ellipsis;user-select:none;';
+				entry.templateEntry = {category: cat, templates: templateList, custom: true};
 				entry.setAttribute('title', label + ' (' + templateList.length + ')');
 				mxUtils.write(entry, entry.getAttribute('title'));
 				
@@ -3874,6 +3953,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		function addEntryHandler(cat, entry, subCat)
 		{
 			Editor.initKeyboardButton(entry);
+
+			// The category of the entry for other looks (see SimpleBrowser.js)
+			entry.templateEntry = {category: cat, subCategory: subCat,
+				templates: (categories[cat].content != null) ? null :
+					((subCat) ? subCategories[cat][subCat] : categories[cat])};
 
 			mxEvent.addListener(entry, 'click', function()
 			{
@@ -4306,6 +4390,29 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	outer.appendChild(btns);
 	
 	this.container = outer;
+
+	// The parts of the dialog for other looks (see SimpleBrowser.js)
+	this.controls = {header: header, name: (showName) ? nameInput : null, type: typeSelect,
+		storage: storage, tabs: tabs, searchBox: searchBox, search: tmplSearchInput,
+		cross: cross, list: list, templates: div, buttons: btns, create: createButton,
+		cancel: cancelBtn, fromUrl: fromTmpBtn, importBtn: importBtn, compact: compact,
+		generate: {form: generateForm, preview: generatePreview, input: generateInput,
+			button: generateButton, magnify: magnifyGenerate, edit: editGenerate},
+		getCategories: function()
+		{
+			return categories;
+		},
+		getCurrentEntry: function()
+		{
+			return currentEntry;
+		},
+		// Creates the element of the given template (see addTemplates)
+		addTemplate: function(tmp)
+		{
+			return addButton(tmp.url, tmp.libs, tmp.title, (tmp.tooltip) ? tmp.tooltip : tmp.title,
+				tmp.select, tmp.imgUrl, tmp.info, tmp.onClick, tmp.preview, tmp.noImg, tmp.clibs,
+				tmp.type, tmp.action);
+		}};
 };
 
 // Null prototype: keyed by the configured templateFile URL
@@ -4903,6 +5010,15 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 		Editor.selectFilename(saveAsInput);
 	};
 
+	// The parts of the dialog for layouts that rearrange them (the Place
+	// template of Simple Modern, see SimpleForms.js)
+	this.controls = {table: table, preview: preview, name: saveAsInput, type: typeSelect,
+		storage: storageSelect, buttons: btns, save: saveBtn, reset: resetBtn, copy: copyBtn,
+		folderPicker: folderPickerMode != null, saveLabel: saveBtnLabel, defaultMode: defaultMode, data: data,
+		getEntry: function(value)
+		{
+			return entries[value];
+		}};
 	this.container = div;
 };
 
@@ -4923,10 +5039,11 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	div.style.whiteSpace = 'nowrap';
 	
 	var showButtons = true;
+	var languageElt = null;
 	
 	if (cancelFn == null)
 	{
-		editorUi.addLanguageMenu(div);
+		languageElt = editorUi.addLanguageMenu(div);
 	}
 
 	var h3 = document.createElement('h3');
@@ -5024,6 +5141,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	var buttons = document.createElement('div');
 	buttons.style.textAlign = 'center';
 	var count = 0;
+	var logos = [];
 
 	function addLogo(img, title, mode, clientName)
 	{
@@ -5121,6 +5239,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		}
 
 		buttons.appendChild(button);
+		logos.push({mode: mode, title: title, button: button});
 		
 		if (++count == rowLimit)
 		{
@@ -5416,6 +5535,12 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	});
 
 	div.appendChild(btns);
+
+	// The parts of the dialog for layouts that rearrange them (the Place
+	// template of Simple Modern, see SimpleOpen.js)
+	this.controls = {title: h3, name: nameInput, type: typeSelect, preview: preview, copy: copyBtn,
+		buttons: buttons, logos: logos, footer: btns, cancel: cancelBtn, later: laterBtn, open: openBtn,
+		download: downloadButton, create: createBtn, language: languageElt, label: btnLabel};
 	this.container = div;
 };
 
@@ -5586,7 +5711,11 @@ var PopupDialog = function(editorUi, url, pre, fallback, hideDialog)
 		}
 		else
 		{
-			newValue = editorUi.convertDataUri(newValue);
+			if (convertDataUri)
+			{
+				newValue = editorUi.convertDataUri(newValue);
+			}
+
 			w = (w == null) ? 120 : w;
 			h = (h == null) ? 100 : h;
 			
@@ -5701,6 +5830,32 @@ var PopupDialog = function(editorUi, url, pre, fallback, hideDialog)
 
 	if (Graph.fileSupport)
 	{
+		// Inserts the files picked with the Open button of this dialog.
+		// Like the drop handler, it ignores diagrams in PNG and SVG files.
+		var openFiles = function(files)
+		{
+			editorUi.importFiles(files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h)
+			{
+				apply(data);
+			}, function()
+			{
+				// No post processing
+			}, function(file)
+			{
+				// Handles only images
+				return file.type.substring(0, 6) == 'image/';
+			}, function(queue)
+			{
+				// Invokes elements of queue in order
+				for (var i = 0; i < queue.length; i++)
+				{
+					queue[i]();
+				}
+			}, true, null, null, true);
+		};
+
+		// The file input is shared by all image dialogs, so the dialog
+		// whose Open button was clicked last gets the picked files
 		if (editorUi.imgDlgFileInputElt == null)
 		{
 			var fileInput = document.createElement('input');
@@ -5711,24 +5866,10 @@ var PopupDialog = function(editorUi, url, pre, fallback, hideDialog)
 			{
 				if (fileInput.files != null)
 				{
-					editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h)
-			    	{
-			    		apply(data);
-			    	}, function()
-			    	{
-			    		// No post processing
-			    	}, function(file)
-			    	{
-			    		// Handles only images
-			    		return file.type.substring(0, 6) == 'image/';
-			    	}, function(queue)
-			    	{
-			    		// Invokes elements of queue in order
-			    		for (var i = 0; i < queue.length; i++)
-			    		{
-			    			queue[i]();
-			    		}
-			    	}, true);
+					if (fileInput.openFiles != null)
+					{
+						fileInput.openFiles(fileInput.files);
+					}
 					
 		    		// Resets input to force change event for same file (type reset required for IE)
 					fileInput.type = '';
@@ -5744,6 +5885,7 @@ var PopupDialog = function(editorUi, url, pre, fallback, hideDialog)
 		
 		var btn = mxUtils.button(mxResources.get('open'), function()
 		{
+			editorUi.imgDlgFileInputElt.openFiles = openFiles;
 			editorUi.imgDlgFileInputElt.click();
 		});
 
@@ -6490,6 +6632,13 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages,
 
 	div.appendChild(btns);
 
+	// The parts of the dialog for layouts that rearrange them (the Form
+	// template of Simple Modern, see SimpleForms.js)
+	this.controls = {title: hd, section: linkSection, buttons: btns, url: urlRadio, page: pageRadio,
+		action: actionRadio, link: linkInput, cross: cross, pages: pageSelect,
+		newWindow: (showNewWindowOption) ? newWindowCheckbox : null, actionSummary: actionSummary,
+		actionButton: editActionBtn, kinds: urlRow != null && urlRow.className == 'geDialogCheckRow',
+		mixed: mixed};
 	this.urlInput = linkInput;
 	this.container = div;
 };
@@ -7914,6 +8063,9 @@ SelectorChips.create = function(graph, editorUi)
 		openMenuPopover: openMenuPopover,
 		closePopover: function() {
 			if (openPopover._open != null) openPopover._open.close();
+		},
+		isPopoverOpen: function() {
+			return openPopover._open != null;
 		}
 	};
 };
@@ -8769,104 +8921,11 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	{
 		if (currentDoc != null)
 		{
-			var pages = editorUi.getPagesForNode(currentDoc.documentElement);
-			var patch = editorUi.diffPages(editorUi.pages, pages);
-
-			var dlg = new TextareaDialog(editorUi, mxResources.get('merge') + ':',
-				JSON.stringify(patch, null, 2), function(newValue)
+			// Hides the revision history after the merge
+			editorUi.showRevisionMergeDialog(file, currentDoc, function()
 			{
-				try
-				{
-					if (newValue.length > 0 && editorUi.editor.graph.isEnabled())
-					{
-						var patches = [JSON.parse(newValue)];
-
-						editorUi.confirm(mxResources.get('areYouSure'), function()
-						{
-							try
-							{
-								file.patch(patches, null, true, true);
-
-								// Hides compare dialog
-								editorUi.hideDialog();
-
-								// Hides revision history dialog
-								editorUi.hideDialog();
-							}
-							catch (e)
-							{
-								editorUi.handleError(e);
-							}
-						});
-					}
-					else
-					{
-						// Hides compare dialog
-						editorUi.hideDialog();
-					}
-				}
-				catch (e)
-				{
-					editorUi.handleError(e);
-				}
-			}, null, null, null, null, function(buttons, input)
-			{
-				// Adds a checkbox to only use the current page diff
-				if (patch[EditorUi.DIFF_UPDATE] != null)
-				{
-					var patchSelect = document.createElement('select');
-					var option = document.createElement('option');
-					mxUtils.write(option, mxResources.get('allPages'));
-					option.setAttribute('value', 'allPages');
-					patchSelect.appendChild(option);
-
-					for (var pageId in patch[EditorUi.DIFF_UPDATE])
-					{
-						var option = document.createElement('option');
-						var page = editorUi.getPageById(pageId);
-
-						if (page != null)
-						{
-							mxUtils.write(option, page.getName());
-							option.setAttribute('value', 'page-' + pageId);
-							patchSelect.appendChild(option);
-						}
-					}
-
-					patchSelect.style.marginRight = '8px';
-					patchSelect.style.order = '-1';
-
-					mxEvent.addListener(patchSelect, 'change', function(evt)
-					{
-						var pagePatch = null;
-
-						if (patchSelect.value != 'allPages')
-						{
-							var pageId = patchSelect.value.substring(5);
-
-							if (patch[EditorUi.DIFF_UPDATE][pageId] != null)
-							{
-								pagePatch = new Object();
-								pagePatch[EditorUi.DIFF_UPDATE] = new Object();
-								pagePatch[EditorUi.DIFF_UPDATE][pageId] =
-									patch[EditorUi.DIFF_UPDATE][pageId];
-							}
-						}
-
-						input.value = JSON.stringify((pagePatch == null) ?
-							patch : pagePatch, null, 2);
-					});
-
-					if (patchSelect.children.length > 2)
-					{
-						buttons.appendChild(patchSelect);
-					}
-				}
-			}, true, null, mxResources.get(editorUi.editor.graph.isEnabled() ?
-				'merge' : 'close'));
-			
-			editorUi.showDialog(dlg.container, 620, 460, true, true, null, null, null, new mxRectangle(0, 0, 440, 280));
-			dlg.init();
+				editorUi.hideDialog();
+			});
 		}
 	}));
 
@@ -8876,42 +8935,16 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 		{
 			editorUi.confirm(mxResources.get('areYouSure'), function()
 			{
-				if (restoreFn != null)
+				editorUi.restoreRevision(file, currentXml, restoreFn, function()
 				{
-					restoreFn(currentXml);
-				}
-				else
+					restoreBtn.setAttribute('disabled', 'disabled');
+				}, function()
 				{
-					if (editorUi.spinner.spin(document.body, mxResources.get('restoring')))
-					{
-						restoreBtn.setAttribute('disabled', 'disabled');
-				
-						file.save(true, function(resp)
-						{
-							editorUi.spinner.stop();
-							restoreBtn.removeAttribute('disabled');
-							editorUi.replaceFileData(currentXml);
-
-							// A restore in a realtime session must flow
-							// like a local change or the sync keeps the
-							// pre-restore state (the stale own pages then
-							// made the next cleanup revert legitimate
-							// peer edits from the screen)
-							if (file.sync != null)
-							{
-								file.sync.fileRestored();
-							}
-
-							editorUi.hideDialog();
-						}, function(resp)
-						{
-							editorUi.spinner.stop();
-							restoreBtn.removeAttribute('disabled');
-							editorUi.clearStatus();
-							editorUi.handleError(resp, (resp != null) ? mxResources.get('errorSavingFile') : null);
-						});
-					}
-				}
+					editorUi.hideDialog();
+				}, null, function()
+				{
+					restoreBtn.removeAttribute('disabled');
+				});
 			});
 		}
 	});
@@ -8941,13 +8974,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	{
 		if (currentDoc != null)
 		{
-			window.openFile = new OpenFile(function()
-			{
-				window.openFile = null;
-			});
-			
-			window.openFile.setData(mxUtils.getXml(currentDoc.documentElement));
-			editorUi.openLink(editorUi.getUrl(), null, true);
+			editorUi.openRevisionInNewWindow(currentDoc);
 		}
 	});
 
@@ -8984,7 +9011,8 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	tb.style.top = '442px';
 
 	var currentElt = null;
-	
+	var revRows = [];
+
 	if (revs != null && revs.length > 0)
 	{
 		container.style.cursor = 'move';
@@ -9330,6 +9358,11 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 			{
 				currentElt = elt;
 			}
+
+			if (elt != null)
+			{
+				revRows.push({row: elt, item: revs[i], current: i == revs.length - 1});
+			}
 		}
 		
 		table.appendChild(tbody);
@@ -9392,6 +9425,12 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	div.appendChild(buttons);
 	div.appendChild(tb);
 
+	// The parts of the dialog for other looks (see SimpleFiles.js)
+	this.controls = {title: title, list: list, rows: revRows, container: container,
+		compareContainer: cmpContainer, errorNode: errorNode, toolbar: tb, fileInfo: fileInfo,
+		buttons: buttons, restore: restoreBtn, open: newBtn, create: createBtn, cancel: closeBtn,
+		pageSelect: pageSelect, graph: graph, compareGraph: cmpGraph, file: file};
+
 	this.container = div;
 };
 
@@ -9410,6 +9449,7 @@ var RecoveryDialog = function(editorUi, candidates, okFn, cancelFn)
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, mxResources.get('recoverTitle'));
 	div.appendChild(hd);
+	var rows = [];
 
 	var addCandidate = function(candidate)
 	{
@@ -9440,6 +9480,7 @@ var RecoveryDialog = function(editorUi, candidates, okFn, cancelFn)
 		});
 
 		div.appendChild(row);
+		rows.push({row: row, candidate: candidate});
 	};
 
 	for (var i = 0; i < candidates.length; i++)
@@ -9462,6 +9503,9 @@ var RecoveryDialog = function(editorUi, candidates, okFn, cancelFn)
 	cancelBtn.className = 'geBtn';
 	btns.appendChild(cancelBtn);
 	div.appendChild(btns);
+
+	// The parts of the dialog for other looks (see SimpleFiles.js)
+	this.controls = {title: hd, rows: rows, buttons: btns, cancel: cancelBtn};
 
 	this.container = div;
 };
@@ -9822,11 +9866,16 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	div.appendChild(buttons);
 	div.appendChild(tb);
 
+	// The parts of the dialog for other looks (see SimpleFiles.js)
+	this.controls = {message: titleDiv, select: (drafts != null) ? select : null, container: container,
+		graph: graph, toolbar: tb, buttons: buttons, edit: showBtn, discard: restoreBtn,
+		ignore: ignoreBtn, cancel: cancelBtn};
+
 	this.container = div;
 };
 
 /**
- * 
+ *
  */
 var FindWindow = function(ui, x, y, w, h, withReplace)
 {
@@ -10040,7 +10089,9 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 
 	function updateReplBtns()
 	{
-		if (lastSearchSuccessful)
+		var enabled = graph.isEnabled();
+
+		if (enabled && lastSearchSuccessful)
 		{
 			replaceFindBtn.removeAttribute('disabled');
 			replaceBtn.removeAttribute('disabled');
@@ -10051,7 +10102,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			replaceBtn.setAttribute('disabled', 'disabled');
 		}
 		
-		if (searchInput.value)
+		if (enabled && searchInput.value)
 		{
 			replaceAllBtn.removeAttribute('disabled');
 		}
@@ -10853,7 +10904,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		{
 			try
 			{
-				if (lblMatch != null && lastFound != null)
+				if (graph.isEnabled() && lblMatch != null && lastFound != null)
 				{
 					var cell = lastFound.cell;
 					
@@ -10889,7 +10940,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		{
 			try
 			{
-				if (lblMatch != null && lastFound != null)
+				if (graph.isEnabled() && lblMatch != null && lastFound != null)
 				{
 					replaceMatch(lastFound.cell);
 					replaceFindBtn.setAttribute('disabled', 'disabled');
@@ -10916,6 +10967,14 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		
 		var replaceAllBtn = mxUtils.button(mxResources.get('replaceAll'), function()
 		{
+			// The button can be stale, eg. after a change of the file or a patch that locks it
+			if (!graph.isEnabled())
+			{
+				updateReplBtns();
+
+				return;
+			}
+
 			replAllNotif.innerText = '';
 			
 			lastSearch = null; // Reset last search to check all matches
@@ -11091,13 +11150,28 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		htmlLabelText.clear();
 	});
 	
-	ui.installResizeHandler(this, false);
+	if (withReplace)
+	{
+		ui.addListener('lockedChanged', updateReplBtns);
+	}
+
+	ui.installResizeHandler(this, false, function()
+	{
+		ui.removeListener(updateReplBtns);
+	});
 
 	this.doSearch = function(searchTerms)
 	{
 		searchInput.focus();
 		searchInput.value = searchTerms;
 		btn.click();
+	};
+
+	// Finds the next or previous match as the buttons do (the window of
+	// Find and replace has no button for the previous match)
+	this.findNext = function(backwards)
+	{
+		find(backwards, true);
 	};
 };
 
@@ -11255,14 +11329,22 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 		settings.style.opacity = '0.6';
 		row.appendChild(settings);
 
+		/**
+		 * Sets the color of the strokes and updates the swatch.
+		 */
+		this.setStrokeColor = function(newColor)
+		{
+			graph.freehand.setStrokeColor(newColor);
+			tempDiv.style.backgroundColor = graph.freehand.getStrokeColor();
+			updateName();
+		};
+
 		var btn = mxUtils.button('', mxUtils.bind(this, function(evt)
 		{
-			editorUi.pickColor(graph.freehand.getStrokeColor(true), function(newColor)
+			editorUi.pickColor(graph.freehand.getStrokeColor(true), mxUtils.bind(this, function(newColor)
 			{
-				graph.freehand.setStrokeColor(newColor);
-				tempDiv.style.backgroundColor = graph.freehand.getStrokeColor();
-				updateName();
-			}, 'default');
+				this.setStrokeColor(newColor);
+			}), 'default');
 			
 			mxEvent.consume(evt);
 		}));
@@ -11439,6 +11521,11 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 	
 	div.appendChild(startBtn);
 
+	// The controls, for other looks of the window (see decorateSimpleFreehandWindow)
+	this.controls = {mode: modeSelect, row: row, settings: (withBrush) ? settings : null,
+		color: (withBrush) ? btn : null, brushSize: (withBrush) ? brushSize : null,
+		start: startBtn};
+
 	this.window = new mxWindow(mxResources.get('freehand'), div, x, y, w, h, true, true);
 	this.window.destroyOnClose = false;
 	this.window.setMaximizable(false);
@@ -11597,6 +11684,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		label: mxResources.get('clipboard')});
 
 	var div = document.createElement('div');
+	div.className = 'geChatWindow';
 	div.style.display = 'flex';
 	div.style.overflow = 'hidden';
 	div.style.height = '100%';
@@ -11627,6 +11715,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 
 	// Conversation list on the left, kept in memory only (session-scoped)
 	var convBar = document.createElement('div');
+	convBar.className = 'geChatConversations';
 	convBar.style.display = 'flex';
 	convBar.style.flexDirection = 'column';
 	convBar.style.flexShrink = '0';
@@ -11638,11 +11727,13 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	div.appendChild(convBar);
 
 	var convList = document.createElement('div');
+	convList.className = 'geChatConversationList';
 	convList.style.flexGrow = '1';
 	convList.style.overflow = 'auto';
 	convList.style.marginTop = '6px';
 
 	var main = document.createElement('div');
+	main.className = 'geChatMain';
 	main.style.display = 'flex';
 	main.style.flexDirection = 'column';
 	main.style.flexGrow = '1';
@@ -11652,6 +11743,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	div.appendChild(main);
 
 	var hist = document.createElement('div');
+	hist.className = 'geChatHistory';
 	hist.style.flexGrow = '1';
 	hist.style.overflow = 'auto';
 	hist.style.fontSize = '12px';
@@ -11670,6 +11762,16 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	var conversations = [];
 	var currentConv = null;
 
+	// Tells the look that shows this window (see controls below) that the
+	// conversations, their content, the attachment or the backend changed
+	var notifyChange = mxUtils.bind(this, function()
+	{
+		if (this.controls != null && this.controls.onChange != null)
+		{
+			this.controls.onChange();
+		}
+	});
+
 	var itemActiveBg = 'light-dark(var(--highlight-color), var(--dark-soft-color))';
 	var itemHoverBg = 'light-dark(#ececec, #333333)';
 
@@ -11687,6 +11789,8 @@ var ChatWindow = function(editorUi, x, y, w, h)
 			conv.del.style.display = (conv.el.firstChild != null) ?
 				'' : 'none';
 		}
+
+		notifyChange();
 	};
 
 	var selectConversation = function(conv)
@@ -11762,7 +11866,10 @@ var ChatWindow = function(editorUi, x, y, w, h)
 			lastContext: null
 		};
 
+		conv.el.className = 'geChatThread';
+
 		var item = document.createElement('a');
+		item.className = 'geChatConversation';
 		item.style.display = 'flex';
 		item.style.alignItems = 'center';
 		item.style.gap = '4px';
@@ -11834,6 +11941,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	};
 
 	var newChatBtn = document.createElement('a');
+	newChatBtn.className = 'geChatNewChat';
 	newChatBtn.style.display = 'flex';
 	newChatBtn.style.alignItems = 'center';
 	newChatBtn.style.gap = '5px';
@@ -11869,7 +11977,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		newChatBtn.style.backgroundColor = 'transparent';
 	});
 
-	mxEvent.addListener(newChatBtn, 'click', function()
+	var newConversation = function()
 	{
 		// Reuses the current conversation while it is still empty
 		if (currentConv == null || currentConv.el.firstChild != null)
@@ -11880,7 +11988,9 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		{
 			inp.focus();
 		}
-	});
+	};
+
+	mxEvent.addListener(newChatBtn, 'click', newConversation);
 
 	convBar.appendChild(newChatBtn);
 	convBar.appendChild(convList);
@@ -11888,6 +11998,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	// Composer: attachment chip, growing input and a controls row with the
 	// plus (attach) menu, paste (clipboard transport) and model selector
 	var user = document.createElement('div');
+	user.className = 'geChatComposer';
 	user.style.borderRadius = '12px';
 	user.style.backgroundColor = 'light-dark(var(--highlight-color), var(--dark-soft-color))';
 	user.style.padding = '8px 10px';
@@ -11895,6 +12006,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	user.style.flexShrink = '0';
 
 	var chipRow = document.createElement('div');
+	chipRow.className = 'geChatChips';
 	chipRow.style.display = 'none';
 	chipRow.style.flexWrap = 'wrap';
 	chipRow.style.gap = '4px';
@@ -11910,6 +12022,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		if (pendingChip != null)
 		{
 			var pill = document.createElement('div');
+			pill.className = 'geChatChip';
 			pill.style.display = 'flex';
 			pill.style.alignItems = 'center';
 			pill.style.gap = '5px';
@@ -11920,7 +12033,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 			mxUtils.write(pill, pendingChip.label);
 
 			var close = document.createElement('img');
-			close.className = 'geAdaptiveAsset';
+			close.className = 'geAdaptiveAsset geChatChipRemove';
 			close.setAttribute('src', Editor.closeImage);
 			close.setAttribute('title', mxResources.get('remove'));
 			close.style.width = '10px';
@@ -11944,6 +12057,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		}
 
 		updateCounter();
+		notifyChange();
 	};
 
 	// Captures the given context as the pending attachment. The XML (and
@@ -12003,6 +12117,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	};
 
 	var inp = document.createElement('textarea');
+	inp.className = 'geChatInput';
 	inp.setAttribute('rows', '1');
 	inp.setAttribute('placeholder', mxResources.get('describeYourDiagram'));
 	inp.style.width = '100%';
@@ -12033,6 +12148,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	});
 
 	var controls = document.createElement('div');
+	controls.className = 'geChatControls';
 	controls.style.display = 'flex';
 	controls.style.alignItems = 'center';
 	controls.style.gap = '6px';
@@ -12040,7 +12156,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	user.appendChild(controls);
 
 	var plusBtn = document.createElement('img');
-	plusBtn.className = 'geAdaptiveAsset';
+	plusBtn.className = 'geAdaptiveAsset geChatAttach';
 	plusBtn.setAttribute('src', Editor.thinAddCircleImage);
 	plusBtn.setAttribute('title', mxResources.get('add'));
 	plusBtn.style.width = '18px';
@@ -12055,29 +12171,38 @@ var ChatWindow = function(editorUi, x, y, w, h)
 
 		editorUi.showPopupMenu(function(menu, parent)
 		{
-			menu.addItem(mxResources.get('file'), null, function()
-			{
-				attachContext('file');
-			}, parent, null, (editorUi.pages != null &&
-				editorUi.pages.length > 1) || !editorUi.isDiagramEmpty());
+			var kinds = getAttachments();
 
-			menu.addItem(mxResources.get('page'), null, function()
+			for (var i = 0; i < kinds.length; i++)
 			{
-				attachContext('page');
-			}, parent, null, !editorUi.isDiagramEmpty());
-
-			menu.addItem(mxResources.get('selection'), null, function()
-			{
-				attachContext('selection');
-			}, parent, null, !graph.isSelectionEmpty());
+				(function(entry)
+				{
+					menu.addItem(entry.label, null, function()
+					{
+						attachContext(entry.kind);
+					}, parent, null, entry.enabled);
+				})(kinds[i]);
+			}
 		}, offset.x, offset.y + plusBtn.offsetHeight + 4, evt);
 	});
+
+	// What can be attached and whether it is there now
+	var getAttachments = function()
+	{
+		return [{kind: 'file', label: mxResources.get('file'),
+			enabled: (editorUi.pages != null && editorUi.pages.length > 1) ||
+				!editorUi.isDiagramEmpty()},
+			{kind: 'page', label: mxResources.get('page'),
+			enabled: !editorUi.isDiagramEmpty()},
+			{kind: 'selection', label: mxResources.get('selection'),
+			enabled: !graph.isSelectionEmpty()}];
+	};
 
 	var pasteBtn = mxUtils.button(mxResources.get('paste'), function()
 	{
 		pasteStandalone(currentConv);
 	});
-	pasteBtn.className = 'geBtn';
+	pasteBtn.className = 'geBtn geChatPaste';
 	pasteBtn.setAttribute('title', mxResources.get('pasteResponse'));
 	pasteBtn.style.margin = '0';
 	pasteBtn.style.fontSize = '11px';
@@ -12090,6 +12215,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	controls.appendChild(spacer);
 
 	var modelSelect = document.createElement('select');
+	modelSelect.className = 'geChatBackend';
 	modelSelect.style.borderColor = 'transparent';
 	// An explicit adaptive background (matching the composer) - a transparent
 	// native <select> is painted white by some browsers even under a dark
@@ -12132,6 +12258,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		pasteBtn.style.display = (currentBackend().kind == 'clipboard') ?
 			'' : 'none';
 		updateCounter();
+		notifyChange();
 	};
 
 	mxEvent.addListener(modelSelect, 'change', updateControls);
@@ -12141,11 +12268,13 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	// appended to the prompt. No button is added when unavailable.
 	var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
 	var stopDictation = null;
+	var micBtn = null;
+	var recognition = null;
 
 	if (SpeechRec != null)
 	{
-		var micBtn = document.createElement('img');
-		micBtn.className = 'geAdaptiveAsset';
+		micBtn = document.createElement('img');
+		micBtn.className = 'geAdaptiveAsset geChatDictate';
 		micBtn.setAttribute('src', Editor.micImage);
 		micBtn.setAttribute('title', mxResources.get('dictate'));
 		micBtn.style.width = '18px';
@@ -12154,8 +12283,6 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		micBtn.style.flexShrink = '0';
 		micBtn.style.borderRadius = '50%';
 		controls.appendChild(micBtn);
-
-		var recognition = null;
 
 		stopDictation = function()
 		{
@@ -12176,6 +12303,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 
 			micBtn.style.backgroundColor = '';
 			micBtn.style.opacity = '0.7';
+			notifyChange();
 		};
 
 		mxEvent.addListener(micBtn, 'click', function()
@@ -12239,6 +12367,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 				micBtn.style.backgroundColor = 'light-dark(#fbd2d2, #7a3a3a)';
 				micBtn.style.opacity = '1';
 				rec.start();
+				notifyChange();
 			}
 			catch (e)
 			{
@@ -12284,6 +12413,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	// models and the clipboard transport (not capped).
 	var svgNs = 'http://www.w3.org/2000/svg';
 	var counter = document.createElement('span');
+	counter.className = 'geChatCounter';
 	counter.style.display = 'none';
 	counter.style.alignItems = 'center';
 	counter.style.justifyContent = 'center';
@@ -12338,6 +12468,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	// overflow does not clip it. Toggled by clicking the dial, dismissed
 	// on an outside click.
 	var counterPopover = document.createElement('div');
+	counterPopover.className = 'geChatCounterPopover';
 	counterPopover.style.position = 'fixed';
 	counterPopover.style.display = 'none';
 	counterPopover.style.zIndex = '10000';
@@ -12484,7 +12615,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	var sendImg = document.createElement('img');
 	sendImg.setAttribute('src', Editor.sendImage);
 	sendImg.setAttribute('title', mxResources.get('sendMessage'));
-	sendImg.className = 'geAdaptiveAsset';
+	sendImg.className = 'geAdaptiveAsset geChatSend';
 	sendImg.style.cursor = 'pointer';
 	sendImg.style.opacity = '0.6';
 	sendImg.style.height = '19px';
@@ -12524,6 +12655,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	function createDivForText(text)
 	{
 		var wrapper = document.createElement('div');
+		wrapper.className = 'geChatText';
 		wrapper.style.whiteSpace = 'pre-wrap';
 		wrapper.style.overflow = 'auto';
 		wrapper.innerHTML = Graph.sanitizeHtml(parseAIMarkup(text));
@@ -12534,6 +12666,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	function createRetryButton(fn, title)
 	{
 		var buttons = document.createElement('div');
+		buttons.className = 'geChatActions';
 		buttons.style.display = 'flex';
 
 		var btn = document.createElement('img');
@@ -12551,6 +12684,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	{
 		var title = mxResources.get('error') + ': ';
 		var wrapper = document.createElement('div');
+		wrapper.className = 'geChatError';
 		wrapper.style.whiteSpace = 'pre-wrap';
 
 		// Error can be an Error/object with a message, a plain string
@@ -12814,7 +12948,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 			svg.style.maxHeight = '460px';
 
 			var item = document.createElement('a');
-			item.className = 'geItem';
+			item.className = 'geItem geChatPicture';
 			item.style.padding = '4px';
 			item.style.borderRadius = '10px';
 			item.appendChild(svg);
@@ -12833,6 +12967,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 			if (opts.partial)
 			{
 				var partialHint = document.createElement('div');
+				partialHint.className = 'geChatHint';
 				partialHint.style.opacity = '0.7';
 				partialHint.style.fontSize = '11px';
 				mxUtils.write(partialHint, mxResources.get('partialResponse'));
@@ -12840,6 +12975,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 			}
 
 			var buttons = document.createElement('div');
+			buttons.className = 'geChatActions';
 			buttons.style.display = 'flex';
 
 			// No retry button on a successful response - retry is only
@@ -13145,7 +13281,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	var pasteStandalone = function(conv)
 	{
 		var waiting = createBubble();
-		waiting.className = 'geSidebar';
+		waiting.className = 'geSidebar geChatResponse';
 		conv.el.appendChild(waiting);
 
 		// The conversation may just have received its first content
@@ -13187,6 +13323,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	var addExchange = function(conv, prompt, chip, backend)
 	{
 		var bubble = createBubble();
+		bubble.className = 'geChatPrompt';
 		bubble.style.whiteSpace = 'pre-wrap';
 		bubble.style.marginBottom = '2px';
 		bubble.style.marginLeft = '40%';
@@ -13201,6 +13338,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		if (chip != null && prompt != '')
 		{
 			var chipEcho = document.createElement('div');
+			chipEcho.className = 'geChatPromptChip';
 			chipEcho.style.fontSize = '10px';
 			chipEcho.style.opacity = '0.7';
 			chipEcho.style.marginTop = '4px';
@@ -13213,7 +13351,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		if (prompt != '')
 		{
 			var buttons = document.createElement('div');
-			buttons.className = 'geInlineButtons';
+			buttons.className = 'geInlineButtons geChatPromptActions';
 			buttons.style.display = 'flex';
 			buttons.style.justifyContent = 'end';
 			conv.el.appendChild(buttons);
@@ -13258,7 +13396,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		}
 
 		var waiting = createBubble();
-		waiting.className = 'geSidebar';
+		waiting.className = 'geSidebar geChatResponse';
 		waiting.style.marginTop = '2px';
 		conv.el.appendChild(waiting);
 
@@ -13372,6 +13510,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 			waiting.innerHTML = '';
 
 			var wrapper = document.createElement('div');
+			wrapper.className = 'geChatLoading';
 			wrapper.style.display = 'flex';
 			wrapper.style.alignItems = 'center';
 			mxUtils.write(wrapper, mxResources.get('loading') + '...');
@@ -13632,7 +13771,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 						pasteFailed(e);
 					}
 				});
-				pasteResp.className = 'geBtn';
+				pasteResp.className = 'geBtn geChatPasteResponse';
 				pasteResp.style.margin = '6px 0 0 0';
 				waiting.appendChild(pasteResp);
 			};
@@ -13656,6 +13795,7 @@ var ChatWindow = function(editorUi, x, y, w, h)
 				waiting.innerHTML = '';
 
 				var wrapper = document.createElement('div');
+				wrapper.className = 'geChatHint';
 				mxUtils.write(wrapper, mxResources.get('copiedToClipboard'));
 				waiting.appendChild(wrapper);
 				addPasteButton();
@@ -13729,6 +13869,75 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		updateInputHeight();
 		send();
 	});
+
+	// The parts and functions of this window for other looks that show it
+	// (SimpleGenerate.js): they keep the logic of the window and add their
+	// own parts, which call these functions. onChange is called when the
+	// conversations, their content, the attachment, the backend or the
+	// dictation change.
+	this.controls = {root: div, conversationBar: convBar, main: main,
+		history: hist, composer: user, chips: chipRow, input: inp,
+		controls: controls, attachButton: plusBtn, pasteButton: pasteBtn,
+		backendSelect: modelSelect, dictateButton: micBtn, counter: counter,
+		counterPopover: counterPopover, sendButton: sendImg, onChange: null,
+		getConversations: function()
+		{
+			var result = [];
+
+			for (var i = 0; i < conversations.length; i++)
+			{
+				result.push({conversation: conversations[i],
+					title: conversations[i].title,
+					empty: conversations[i].el.firstChild == null,
+					current: conversations[i] == currentConv});
+			}
+
+			return result;
+		},
+		getCurrentConversation: function()
+		{
+			return currentConv;
+		},
+		isEmpty: function()
+		{
+			return currentConv == null || currentConv.el.firstChild == null;
+		},
+		selectConversation: function(conv)
+		{
+			if (conv != currentConv)
+			{
+				selectConversation(conv);
+			}
+		},
+		newConversation: newConversation,
+		removeConversation: function(conv)
+		{
+			removeConversation(conv);
+		},
+		getAttachments: getAttachments,
+		attach: attachContext,
+		getAttachment: function()
+		{
+			return pendingChip;
+		},
+		removeAttachment: function()
+		{
+			pendingChip = null;
+			renderChip();
+		},
+		getBackend: currentBackend,
+		isDictating: function()
+		{
+			return recognition != null;
+		},
+		send: function()
+		{
+			send();
+		},
+		paste: function()
+		{
+			pasteStandalone(currentConv);
+		}};
 
 	selectConversation(createConversation());
 
@@ -13882,6 +14091,16 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	var kind = opts.kind || 'page';
 	var graph = editorUi.editor.graph;
 	var selectorChips = SelectorChips.create(graph, editorUi);
+
+	// Adds a class to a part of the steps for the panel of Simple Modern
+	// (see SimpleAnimation.js), only in its theme
+	var addStepClass = function(elt, name)
+	{
+		if (typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern())
+		{
+			elt.classList.add(name);
+		}
+	};
 
 	// Initialized up-front so `makeStepRow` — called via the initial
 	// `renderList()` further below — can safely call `.has(idx)` on it.
@@ -14268,6 +14487,10 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	var applyBtn = null;
 	var previewBtn = null;
 
+	// Called with the new state after each change of the dirty flag (the
+	// panel of Simple Modern writes every change at once, see controls)
+	var dirtyListener = null;
+
 	var setDirty = function(value)
 	{
 		dirty = value;
@@ -14280,6 +14503,11 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		if (previewBtn != null)
 		{
 			previewBtn.className = 'geBtn' + (dirty ? '' : ' gePrimaryBtn');
+		}
+
+		if (dirtyListener != null)
+		{
+			dirtyListener(value);
 		}
 	};
 
@@ -14877,6 +15105,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	var makeDragHandle = function(row, index)
 	{
 		var handle = document.createElement('span');
+		addStepClass(handle, 'geAnimationStepHandle');
 		handle.style.cssText = 'flex:0 0 16px;display:inline-flex;' +
 			'justify-content:center;color:light-dark(#86868b,#86868b);' +
 			'cursor:grab;user-select:none';
@@ -15091,6 +15320,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		if (sel == null) return;
 
 		var wrap = document.createElement('span');
+		addStepClass(wrap, 'geAnimationStepTargets');
 		// Never shrinks below its chips: with flex-shrink and min-width:0
 		// the chips overflowed a narrowed wrap and the fields and the
 		// preview button after it painted over them (Kym, 2026-09-25).
@@ -15352,6 +15582,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		if (data.steps.length == 0)
 		{
 			var empty = document.createElement('div');
+			addStepClass(empty, 'geAnimationStepsEmpty');
 			empty.style.cssText = 'padding:12px;text-align:center;' +
 				'color:light-dark(#86868b,#86868b);font-size:12px';
 			mxUtils.write(empty, mxResources.get('noStepsYet', null,
@@ -15373,6 +15604,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	var rowBase = function(isLast)
 	{
 		var row = document.createElement('div');
+		addStepClass(row, 'geAnimationStep');
 		// A row that doesn't fit the list wraps: the trailing group with
 		// the fields and the preview button (see makeStepRow) moves to a
 		// second line as one unit, right-aligned, so fields are never
@@ -15399,6 +15631,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	var appendSpacer = function(row)
 	{
 		var sp = document.createElement('span');
+		addStepClass(sp, 'geAnimationStepSpacer');
 		sp.style.cssText = 'flex:1 1 auto;min-width:0';
 		row.appendChild(sp);
 	};
@@ -15409,6 +15642,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	var appendIcon = function(row, name)
 	{
 		var icon = document.createElement('span');
+		addStepClass(icon, 'geAnimationStepIcon');
 		icon.style.cssText = 'flex:0 0 18px;display:inline-flex;' +
 			'justify-content:center;font-size:14px;' +
 			'color:light-dark(var(--strong-text-color), var(--dark-strong-text-color))';
@@ -15429,6 +15663,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	var appendActionLabel = function(row, text)
 	{
 		var action = document.createElement('span');
+		addStepClass(action, 'geAnimationStepLabel');
 		// Fixed 70px slot — long localized labels get truncated with
 		// an ellipsis instead of wrapping; full text stays in tooltip.
 		action.style.cssText = 'flex:0 0 70px;font-weight:500;font-size:12px;' +
@@ -15532,6 +15767,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	var appendNoEffectMarker = function(row, sel)
 	{
 		var mark = document.createElement('span');
+		addStepClass(mark, 'geAnimationStepWarning');
 		mark.style.cssText = 'flex:0 0 auto;display:inline-flex;' +
 			'color:light-dark(#e6a700,#ffcc4d);cursor:default';
 		mark.title = (excludesRemoveAll(sel)) ?
@@ -16257,6 +16493,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		// them behind the list's horizontal scrollbar, and the preview
 		// button stays at the right edge of every row (Kym, 2026-09-28).
 		var tail = document.createElement('span');
+		addStepClass(tail, 'geAnimationStepFields');
 		// max-width keeps the group inside the row. A group still wider
 		// than the row wraps inside itself, right-aligned so the preview
 		// button ends the last line at the row's right edge: the View
@@ -16437,6 +16674,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 			tail.appendChild(lastGroup);
 		}
 
+		addStepClass(previewIconBtn, 'geAnimationStepPreview');
 		lastGroup.appendChild(previewIconBtn);
 		row.appendChild(tail);
 
@@ -16891,6 +17129,18 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 
 	var player = null;
 
+	// Called with true when the steps start to play and with false when
+	// they end or stop (the panel of Simple Modern, see controls)
+	var playListener = null;
+
+	var notifyPlay = function()
+	{
+		if (playListener != null)
+		{
+			playListener(player != null);
+		}
+	};
+
 	// Preview "session" — captures the pre-preview opacity of every
 	// referenced cell on the first preview click and persists across
 	// follow-up step previews so the user can stack multiple previews
@@ -16963,6 +17213,7 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 		{
 			player.stop();
 			player = null;
+			notifyPlay();
 		}
 	};
 
@@ -17032,29 +17283,37 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	// so the attribute doesn't bloat the file). Action mode calls back
 	// to the host with the full `{title?, steps}` object so the host can
 	// serialize it however it stores the link.
+	// The value of the animation attribute of the page for the current
+	// state, null for no steps.
+	var getPageValue = function()
+	{
+		// Page-level animations don't carry a title — strip it so
+		// the stored JSON stays clean even if the user typed one
+		// before switching to page mode (defensive — page mode
+		// doesn't show the title input).
+		var payload = {steps: data.steps};
+		// Only persist `loop` / `enabled` when they differ from the
+		// default (true). Most diagrams use the defaults; emitting
+		// the field only for opt-outs keeps file size and noise down.
+		if (data.loop === false)
+		{
+			payload.loop = false;
+		}
+		if (data.enabled === false)
+		{
+			payload.enabled = false;
+		}
+
+		return (payload.steps.length > 0) ?
+			JSON.stringify({animation: payload}) : null;
+	};
+
 	var applyChanges = function()
 	{
 		if (kind == 'page')
 		{
 			var root = graph.getModel().getRoot();
-			// Page-level animations don't carry a title — strip it so
-			// the stored JSON stays clean even if the user typed one
-			// before switching to page mode (defensive — page mode
-			// doesn't show the title input).
-			var payload = {steps: data.steps};
-			// Only persist `loop` / `enabled` when they differ from the
-			// default (true). Most diagrams use the defaults; emitting
-			// the field only for opt-outs keeps file size and noise down.
-			if (data.loop === false)
-			{
-				payload.loop = false;
-			}
-			if (data.enabled === false)
-			{
-				payload.enabled = false;
-			}
-			var value = (payload.steps.length > 0) ?
-				JSON.stringify({animation: payload}) : null;
+			var value = getPageValue();
 			graph.setAttributeForCell(root, 'animation', value);
 			// Legacy attribute — cleared since hideInitial is no longer
 			// a runtime concept (the converter prepended explicit
@@ -17076,28 +17335,77 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	// the action you take BEFORE Reset (you preview, then optionally
 	// reset to clear the canvas).
 
-	previewBtn = mxUtils.button(mxResources.get('preview'), function()
+	// Plays the steps from the given index in the preview session. The
+	// steps before it are applied at once in their final state
+	// (AnimationDialog.getFastForwardSteps), so the step starts from the
+	// canvas it would see when the whole animation plays.
+	var playFrom = function(index)
 	{
+		index = Math.max(0, Math.min(index || 0, data.steps.length));
 		stopPlayer();
 		startPreviewSession();
-		player = new Editor.AnimationPlayer(graph, data);
+		var playData = data;
+		var offset = 0;
+
+		if (index > 0)
+		{
+			var before = AnimationDialog.getFastForwardSteps(
+				data.steps.slice(0, index));
+			var rest = clone(data.steps.slice(index));
+
+			// The first step waits for the steps before it
+			if (rest.length > 0)
+			{
+				delete rest[0].immediate;
+			}
+
+			offset = index - before.length;
+			playData = {steps: before.concat(rest)};
+		}
+
+		player = new Editor.AnimationPlayer(graph, playData);
 		// The session owns the snapshot. Suppress the player's own
 		// restore-on-done so the canvas stays at the final state until
 		// the user clicks Reset.
 		player.snapshot = [];
 		player.play({
-			done: function() { player = null; setPlayingStep(-1); },
+			done: function() { player = null; setPlayingStep(-1); notifyPlay(); },
 			// Player calls onStep(start, end) — end is the exclusive
 			// upper bound of the parallel batch, so two-step batches
 			// light up both rows at once. Single-step (sequential)
-			// dispatches have end = start + 1.
+			// dispatches have end = start + 1. The steps before the
+			// index light up nothing.
 			onStep: function(start, end)
 			{
-				setPlayingStep(start, end);
-				previewExplore(data.steps.slice(start,
-					(end != null) ? end : start + 1));
+				end = (end != null) ? end : start + 1;
+
+				if (start >= 0 && start + offset < index)
+				{
+					setPlayingStep(-1);
+				}
+				else
+				{
+					setPlayingStep((start >= 0) ? start + offset : start,
+						end + offset);
+
+					if (start >= 0)
+					{
+						previewExplore(data.steps.slice(start + offset,
+							end + offset));
+					}
+				}
 			}
 		});
+
+		if (player != null)
+		{
+			notifyPlay();
+		}
+	};
+
+	previewBtn = mxUtils.button(mxResources.get('preview'), function()
+	{
+		playFrom(0);
 	});
 	previewBtn.className = 'geBtn';
 	staticRefreshers.push(function()
@@ -17187,6 +17495,96 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 	}
 
 	div.appendChild(actions);
+
+	// The parts of the dialog for layouts that restyle them (the Rules
+	// template of Simple Modern, see SimpleRules.js)
+	this.controls = {kind: kind, cells: (opts.cells != null) ? opts.cells : null,
+		div: div, titleRow: titleRow, title: titleInput,
+		header: listHeader, loop: loopCheckbox, disabled: disabledCheckbox,
+		advanced: advancedCheckbox, advancedLabel: advancedLabel, steps: stepList,
+		text: list, error: jsonError, add: addSection, picker: pickSelect,
+		actions: actions, preview: previewBtn, reset: resetBtn, cancel: cancelBtn,
+		save: applyBtn, chips: selectorChips, edit: editBtnGroup, copy: copyBtnRef,
+		paste: pasteBtnRef, duplicate: duplicateBtnRef, remove: deleteBtnRef,
+		// The state for a panel that writes each change at once: the steps,
+		// the value of the page, the dirty flag and its listener, the picked
+		// steps, and functions that load the page again, move steps, play
+		// from a step and stop
+		getSteps: function()
+		{
+			return data.steps;
+		},
+		getValue: getPageValue,
+		isDirty: function()
+		{
+			return dirty;
+		},
+		setDirty: setDirty,
+		setDirtyListener: function(fn)
+		{
+			dirtyListener = fn;
+		},
+		getPicked: selectionOrder,
+		setPicked: function(indices)
+		{
+			selectedSteps.clear();
+			selectionAnchor = null;
+
+			for (var i = 0; i < indices.length; i++)
+			{
+				if (indices[i] >= 0 && indices[i] < data.steps.length)
+				{
+					selectedSteps.add(indices[i]);
+					selectionAnchor = (selectionAnchor == null) ?
+						indices[i] : selectionAnchor;
+				}
+			}
+
+			renderSelection();
+		},
+		reload: function()
+		{
+			stopPlayer();
+			setPlayingStep(-1);
+			endPreviewSession();
+			loadFromContext();
+			selectedSteps.clear();
+			selectionAnchor = null;
+			setDirty(false);
+			renderList();
+		},
+		moveStep: function(from, to)
+		{
+			if (from >= 0 && from < data.steps.length && to >= 0 &&
+				to < data.steps.length && from != to)
+			{
+				var step = data.steps.splice(from, 1)[0];
+				data.steps.splice(to, 0, step);
+				keepExploreLast();
+				selectedSteps.clear();
+				selectionAnchor = null;
+				refresh();
+			}
+		},
+		playFrom: playFrom,
+		isPlaying: function()
+		{
+			return player != null;
+		},
+		setPlayListener: function(fn)
+		{
+			playListener = fn;
+		},
+		isPreviewing: function()
+		{
+			return previewSession != null;
+		},
+		apply: applyChanges,
+		stop: function()
+		{
+			stopPlayer();
+			setPlayingStep(-1);
+		}};
 
 	this.window = new mxWindow(resolveWindowTitle(),
 		div, x, y, w, h, true, true);
@@ -17421,6 +17819,89 @@ var AnimationDialog = function(editorUi, x, y, w, h, opts)
 // CustomActionDialog instance in this session so sequences can be copied
 // between pages and cell actions. Holds deep clones; pasting clones again.
 AnimationDialog.stepsClipboard = null;
+
+/**
+ * Returns the given steps as one batch that leaves the canvas in their final
+ * state at once (Play from here): fades, wipes and pops become the opacity
+ * they end with, waits, highlights and the steps that leave the page (open,
+ * explore, page) are dropped, viewport steps snap and the rest (visibility,
+ * styles, flow, tags, select) run as they are. The selectors of a step stay,
+ * so the batch affects the same cells. Returns clones.
+ */
+AnimationDialog.getFastForwardSteps = function(steps)
+{
+	var ends = {fadeIn: 1, wipeIn: 1, popIn: 1, fadeOut: 0, wipeOut: 0, popOut: 0};
+	var dropped = {wait: true, highlight: true, open: true, explore: true,
+		page: true, immediate: true};
+	var params = ['cells', 'tags', 'tagsMatch', 'layers', 'excludeCells',
+		'descendants'];
+	var result = [];
+
+	var add = function(key, value)
+	{
+		var out = {};
+		out[key] = value;
+
+		if (result.length > 0)
+		{
+			out.immediate = true;
+		}
+
+		result.push(out);
+	};
+
+	for (var i = 0; i < steps.length; i++)
+	{
+		var step = (steps[i] != null && typeof steps[i] == 'object') ?
+			JSON.parse(JSON.stringify(steps[i])) : null;
+
+		// Each effect of a step is a step of its own in the batch, as
+		// the effects of one step run in parallel
+		for (var key in step)
+		{
+			if (Object.prototype.hasOwnProperty.call(step, key) &&
+				!dropped[key])
+			{
+				var value = step[key];
+
+				if (Object.prototype.hasOwnProperty.call(ends, key) ||
+					key == 'fadeTo')
+				{
+					if (value != null && typeof value == 'object')
+					{
+						var sel = {value: (key == 'fadeTo') ? value.value :
+							ends[key]};
+
+						for (var j = 0; j < params.length; j++)
+						{
+							if (value[params[j]] != null)
+							{
+								sel[params[j]] = value[params[j]];
+							}
+						}
+
+						if (sel.value != null)
+						{
+							add('opacity', sel);
+						}
+					}
+				}
+				else
+				{
+					if ((key == 'scroll' || key == 'viewbox') &&
+						value != null && typeof value == 'object')
+					{
+						delete value.smooth;
+					}
+
+					add(key, value);
+				}
+			}
+		}
+	}
+
+	return result;
+};
 
 /**
  * Counter for the ids of the per-dialog style-key datalists.
@@ -17734,7 +18215,12 @@ var AuthDialog = function(editorUi, peer, showRememberOption, fn)
 			mxEvent.consume(evt);
 		});
 	}
-	
+
+	// The parts of the dialog for layouts that rearrange them (the Message
+	// template of Simple Modern, see SimpleMessages.js)
+	this.controls = {title: hd, text: p, button: button, notice: notice,
+		remember: (showRememberOption) ? cb : null,
+		rememberRow: (showRememberOption) ? p2 : null};
 	this.notice = notice;
 	this.container = div;
 };
@@ -17844,7 +18330,11 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 	}
 	
 	entries = newEntries;
-	
+
+	// The sections with their entries and checkboxes for other looks (see
+	// SimpleLibraries.js)
+	var sections = [];
+
 	if (expanded)
 	{
 		var addEntries = mxUtils.bind(this, function(e)
@@ -17857,7 +18347,9 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 					title.className = 'geMoreShapesSectionHeader';
 					mxUtils.write(title, section.title);
 					list.appendChild(title);
-		
+					var items = [];
+					sections.push({title: section.title, items: items});
+
 					for (var j = 0; j < section.entries.length; j++)
 					{
 						(function(entry)
@@ -17953,7 +18445,9 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 							{
 								return (checkbox.checked) ? entry.id : null;
 							});
-							
+
+							items.push({entry: entry, option: option, checkbox: checkbox});
+
 							// Selects first entry
 							if (i == 0 && j == 0)
 							{
@@ -18134,6 +18628,12 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 		buttons.appendChild(btnsRight);
 
 		div.appendChild(buttons);
+
+		// The parts of the dialog for other looks (see SimpleLibraries.js)
+		this.controls = {expanded: true, sections: sections, title: hd, list: list, preview: preview,
+			buttons: buttons, checks: checksDiv, labels: labels,
+			remember: (isLocalStorage || mxClient.IS_CHROMEAPP) ? cb : null,
+			cancel: cancelBtn, apply: applyBtn, right: btnsRight};
 	}
 	else
 	{
@@ -18148,7 +18648,7 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 		var midDiv = document.createElement('td');
 		var rightDiv = document.createElement('td');
 				
-		var addLibCB = mxUtils.bind(this, function(wrapperDiv, title, key) 
+		var addLibCB = mxUtils.bind(this, function(wrapperDiv, title, key, item)
 		{
 			var libCB = document.createElement('input');
 			libCB.type = 'checkbox';
@@ -18172,7 +18672,13 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 			});
 			
 			wrapperDiv.appendChild(label);
-			
+
+			if (item != null)
+			{
+				item.option = label;
+				item.checkbox = libCB;
+			}
+
 			return function()
 			{
 				return (libCB.checked) ? key : null;
@@ -18206,12 +18712,17 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 		{
 			(function(section)
 			{
+				var items = [];
+				sections.push({title: section.title, items: items});
+
 				for (var j = 0; j < section.entries.length; j++)
 				{
 					(function(entry)
 					{
 						var index = Math.floor(counter / (count / 3));
-						applyFunctions.push(addLibCB(cols[index], entry.title, entry.id));
+						var item = {entry: entry};
+						applyFunctions.push(addLibCB(cols[index], entry.title, entry.id, item));
+						items.push(item);
 						counter++;
 					})(section.entries[j]);
 				}
@@ -18285,8 +18796,13 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 			buttons.appendChild(applyBtn);
 			buttons.appendChild(cancelBtn);
 		}
-	
+
 		div.appendChild(buttons);
+
+		// The parts of the dialog for other looks (see SimpleLibraries.js)
+		this.controls = {expanded: false, sections: sections, table: libFS,
+			remember: (isLocalStorage) ? cb : null, checks: remember, buttons: buttons,
+			cancel: cancelBtn, apply: applyBtn};
 	}
 
 	this.container = div;
@@ -18309,6 +18825,18 @@ var PluginsDialog = function(editorUi, addFn, delFn, closeOnly)
 
 	var plugins = mxSettings.getPlugins().slice();
 	var changed = false;
+
+	// Removes the plugin at the given index from the list
+	function removePlugin(index)
+	{
+		if (delFn != null)
+		{
+			delFn(plugins[index]);
+		}
+
+		plugins.splice(index, 1);
+		refresh();
+	}
 
 	function refresh()
 	{
@@ -18357,13 +18885,7 @@ var PluginsDialog = function(editorUi, addFn, delFn, closeOnly)
 					{
 						editorUi.confirm(mxResources.get('delete') + ' "' + plugins[index] + '"?', function()
 						{
-							if (delFn != null)
-							{
-								delFn(plugins[index]);
-							}
-
-							plugins.splice(index, 1);
-							refresh();
+							removePlugin(index);
 						});
 					};
 				})(i));
@@ -18595,6 +19117,12 @@ var PluginsDialog = function(editorUi, addFn, delFn, closeOnly)
 
 	div.appendChild(buttons);
 
+	// The parts of the dialog for layouts that rearrange them (the Form
+	// template of Simple Modern, see SimpleSettings.js)
+	this.controls = {title: hd, list: inner, plugins: plugins, remove: removePlugin,
+		addRow: addRow, select: pluginsSelect, add: inlineAddBtn, custom: customBtn,
+		addButton: addBtn, buttons: buttons, apply: applyBtn, cancel: cancelBtn,
+		closeOnly: closeOnly == true};
 	this.container = div;
 };
 
@@ -19074,6 +19602,13 @@ var CropImageDialog = function(editorUi, image, clipPath, fn)
 
 	div.appendChild(buttons);
 
+	// The controls of the dialog (see SimplePreview.js)
+	this.controls = {croppingDiv: croppingDiv, zoomBtns: zoomBtns, zoomInBtn: zoomInBtn,
+		zoomOutBtn: zoomOutBtn, zoomFitBtn: zoomFitBtn, xInput: xInput, yInput: yInput,
+		wInput: wInput, hInput: hInput, radioDiv: radioDiv, rectInput: rectInput,
+		roundedInput: roundedInput, ellipseInput: ellipseInput, arcSizeDiv: arcSizeDiv,
+		arcSize: arcSize, buttons: buttons, cancelBtn: cancelBtn, resetBtn: resetBtn,
+		applyBtn: applyBtn, getGraph: function() { return cropGraph; }};
 	this.container = div;
 };
 
@@ -19294,6 +19829,12 @@ var EditGeometryDialog = function(editorUi, vertices)
 	var dlg = new CustomDialog(editorUi, div, applyFn, null,
 		mxResources.get('apply'));
 	this.container = dlg.container;
+
+	// The parts of the dialog for layouts that rearrange them (the Form
+	// template of Simple Modern, see SimpleMoreForms.js)
+	this.controls = {title: hd, cells: vertices, relative: relInput, x: xInput, y: yInput,
+		dx: dxInput, dy: dyInput, width: wInput, height: hInput, rotation: rotInput,
+		sections: [posSection, sizeSection, rotSection], button: dlg.okButton};
 
 	mxEvent.addListener(this.container, 'keypress', function(e)
 	{
@@ -19756,9 +20297,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 					
 					var startEditing = function(evt)
 					{
-						// Workaround for various issues in IE
-						if (!mxClient.IS_IOS && !mxClient.IS_FF &&
-							(document.documentMode == null || document.documentMode > 9))
+						if (LibraryDialog.isRenameInPlace())
 						{
 							if (label.getAttribute('contentEditable') != 'true')
 							{
@@ -19887,7 +20426,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 						}
 						
 						// Workaround for no DnD on DIV in FF
-						if (mxClient.IS_FF && img.xml != null && evt.dataTransfer != null)
+						if (mxClient.IS_FF && img != null && img.xml != null && evt.dataTransfer != null)
 						{
 							evt.dataTransfer.setData('Text', img.xml);
 						}
@@ -20221,6 +20760,13 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 
 	var btn = mxUtils.button(mxResources.get('export'), function()
 	{
+		// Commits a name that is renamed in place
+		if (stopEditing != null)
+		{
+			stopEditing();
+			stopEditing = null;
+		}
+
 		var data = editorUi.createLibraryDataFromImages(images);
 		var filename = nameInput.value;
 
@@ -20246,6 +20792,29 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 
 	if (Graph.fileSupport)
 	{
+		// Adds the files picked with the Import button of this dialog
+		var importFiles = function(fileInput, evt)
+		{
+			errorShowed = false;
+
+			editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, img, doneFn, file)
+			{
+				if (fileInput.files != null)
+				{
+					createImportHandler(evt)(data, mimeType, x, y, w, h, img, doneFn, file);
+
+					// Resets input to force change event for same file (type reset required for IE)
+					fileInput.type = '';
+					fileInput.type = 'file';
+					fileInput.value = '';
+				}
+			});
+
+			div.scrollTop = div.scrollHeight;
+		};
+
+		// The file input is shared by all library dialogs, so the dialog
+		// whose Import button was clicked last gets the picked files
 		if (editorUi.libDlgFileInputElt == null)
 		{
 			var fileInput = document.createElement('input');
@@ -20254,22 +20823,10 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 
 			mxEvent.addListener(fileInput, 'change', function(evt)
 			{
-				errorShowed = false;
-
-				editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, img, doneFn, file)
+				if (fileInput.importFiles != null)
 				{
-					if (fileInput.files != null)
-					{
-						createImportHandler(evt)(data, mimeType, x, y, w, h, img, doneFn, file);
-
-						// Resets input to force change event for same file (type reset required for IE)
-						fileInput.type = '';
-						fileInput.type = 'file';
-						fileInput.value = '';
-					}
-				});
-
-				div.scrollTop = div.scrollHeight;
+					fileInput.importFiles(fileInput, evt);
+				}
 			});
 
 			fileInput.style.display = 'none';
@@ -20285,6 +20842,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 				stopEditing = null;
 			}
 
+			editorUi.libDlgFileInputElt.importFiles = importFiles;
 			editorUi.libDlgFileInputElt.click();
 		});
 		btn.setAttribute('id', 'btnAddImage');
@@ -20357,7 +20915,21 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 
 	outer.appendChild(btns);
 
+	// The parts of the dialog for other looks (see SimpleLibraries.js)
+	this.controls = {nameSection: nameSection, nameInput: nameInput, compressed: (Editor.enableUncompressedLibraries) ?
+		compressedInput : null, grid: div, hint: bg, buttons: btns, cancel: cancelBtn, save: btn};
+
 	this.container = outer;
+};
+
+/**
+ * Returns true if the names of the entries are edited in place, else they
+ * are edited in a prompt (Firefox and iOS, and old versions of IE).
+ */
+LibraryDialog.isRenameInPlace = function()
+{
+	return !mxClient.IS_IOS && !mxClient.IS_FF &&
+		(document.documentMode == null || document.documentMode > 9);
 };
 
 /**
@@ -20614,6 +21186,9 @@ var EditShapeDialog = function(editorUi, cell, title)
 		graph.fit();
 	};
 
+	// The controls of the dialog (see SimplePreview.js)
+	this.controls = {title: hd, contentDiv: contentDiv, textarea: textarea, previewDiv: previewDiv,
+		graph: graph, buttons: btns, previewBtn: previewBtn, applyBtn: applyBtn, cancelBtn: cancelBtn};
 	this.container = div;
 };
 
@@ -20755,6 +21330,9 @@ var StyleRulesDialog = function(editorUi)
 	// which do not change while the dialog is open
 	var contexts = [];
 	var dragIndex = null;
+
+	// The parts of the dialog for layouts that rearrange them (see the end)
+	var controls = {};
 
 	var div = document.createElement('div');
 
@@ -21328,11 +21906,13 @@ var StyleRulesDialog = function(editorUi)
 				isNaN(Graph.parseDataNumber(value.value))));
 		};
 
-		group.appendChild(createIconButton(Editor.trashImage, mxResources.get('delete'), function()
+		var removeBtn = createIconButton(Editor.trashImage, mxResources.get('delete'), function()
 		{
 			rules.splice(index, 1);
 			render();
-		}));
+		});
+
+		group.appendChild(removeBtn);
 
 		mxEvent.addListener(property, 'input', function()
 		{
@@ -21372,6 +21952,15 @@ var StyleRulesDialog = function(editorUi)
 		}
 
 		updateCount();
+
+		// Layouts that rearrange the parts of a card (the Rules template of
+		// Simple Modern, see SimpleRules.js)
+		if (controls.decorateCard != null)
+		{
+			controls.decorateCard(card, {rule: rule, index: index, row: row, handle: handle,
+				property: property, op: op, value: value, tags: tags, count: count,
+				remove: removeBtn, valueList: valueList, updateCount: updateCount});
+		}
 
 		return card;
 	};
@@ -21641,6 +22230,23 @@ var StyleRulesDialog = function(editorUi)
 	// Fills the dialog, which can be resized, so that the rules scroll and the
 	// buttons stay at the bottom
 	dlg.container.style.height = '100%';
+
+	// The parts of the dialog for layouts that rearrange them (the Rules
+	// template of Simple Modern, see SimpleRules.js): the rules are edited in
+	// place, render shows them again and decorateCard is called for each card
+	controls.title = hd;
+	controls.hint = hint;
+	controls.list = list;
+	controls.limitHint = limitHint;
+	controls.add = addBtn;
+	controls.legend = legendBtn;
+	controls.rules = rules;
+	controls.cells = cells;
+	controls.render = render;
+	controls.validate = validate;
+	controls.ok = dlg.okButton;
+	controls.cancel = dlg.cancelBtn;
+	this.controls = controls;
 
 	this.container = dlg.container;
 	this.okButton = dlg.okButton;
@@ -22220,6 +22826,9 @@ var DataSourcesDialog = function(editorUi)
 	var graph = editorUi.editor.graph;
 	var createIconButton = StyleRulesDialog.createIconButton;
 
+	// The parts of the dialog for layouts that rearrange them (see the end)
+	var controls = {};
+
 	var div = document.createElement('div');
 
 	var hd = document.createElement('h3');
@@ -22277,21 +22886,27 @@ var DataSourcesDialog = function(editorUi)
 		mxUtils.write(url, source.url);
 		row.appendChild(url);
 
-		row.appendChild(createIconButton(Editor.refreshImage, mxResources.get('refresh'), function()
+		var refreshBtn = createIconButton(Editor.refreshImage, mxResources.get('refresh'), function()
 		{
 			refresh([source.id]);
-		}));
+		});
 
-		row.appendChild(createIconButton(Editor.editImage, mxResources.get('edit'), function()
+		row.appendChild(refreshBtn);
+
+		var editBtn = createIconButton(Editor.editImage, mxResources.get('edit'), function()
 		{
 			showSourceDialog(source);
-		}));
+		});
 
-		row.appendChild(createIconButton(Editor.trashImage, mxResources.get('delete'), function()
+		row.appendChild(editBtn);
+
+		var removeBtn = createIconButton(Editor.trashImage, mxResources.get('delete'), function()
 		{
 			graph.removeDataSource(source.id);
 			render();
-		}));
+		});
+
+		row.appendChild(removeBtn);
 
 		var info = document.createElement('div');
 		info.className = 'geDialogHint';
@@ -22302,10 +22917,11 @@ var DataSourcesDialog = function(editorUi)
 		card.appendChild(info);
 
 		var status = editorUi.getDataSourceStatus(source.id);
+		var line = null;
 
 		if (status != null)
 		{
-			var line = document.createElement('div');
+			line = document.createElement('div');
 			line.className = 'geDialogHint';
 			line.style.marginTop = '4px';
 
@@ -22325,6 +22941,15 @@ var DataSourcesDialog = function(editorUi)
 			}
 
 			card.appendChild(line);
+		}
+
+		// Layouts that rearrange the parts of a card (the Rules template of
+		// Simple Modern, see SimpleRules.js)
+		if (controls.decorateCard != null)
+		{
+			controls.decorateCard(card, {source: source, linked: linked, row: row, name: name,
+				url: url, refresh: refreshBtn, edit: editBtn, remove: removeBtn, info: info,
+				status: line, state: status});
 		}
 
 		return card;
@@ -22396,6 +23021,19 @@ var DataSourcesDialog = function(editorUi)
 	};
 
 	var dlg = new CustomDialog(editorUi, div, null, null, mxResources.get('close'), null, null, true);
+
+	// The parts of the dialog for layouts that rearrange them (the Rules
+	// template of Simple Modern, see SimpleRules.js): render shows the
+	// sources again and decorateCard is called for each card
+	controls.title = hd;
+	controls.hint = hint;
+	controls.list = list;
+	controls.add = addBtn;
+	controls.refreshAll = refreshBtn;
+	controls.render = render;
+	controls.ok = dlg.okButton;
+	this.controls = controls;
+
 	this.container = dlg.container;
 };
 
@@ -22411,7 +23049,7 @@ DataSourcesDialog.fit = function(content)
 	if (dlg != null && dlg.firstElementChild != null)
 	{
 		dlg.style.height = '';
-		dlg.style.height = (dlg.firstElementChild.scrollHeight + 48) + 'px';
+		dlg.style.height = Dialog.getFrameHeight(dlg, dlg.firstElementChild.scrollHeight) + 'px';
 	}
 };
 
@@ -23152,6 +23790,16 @@ var DataSourceDialog = function(editorUi, source, done)
 		}
 	}, null, null, null, null, null, null, true);
 
+	// The parts of the dialog for layouts that rearrange them (the Rules
+	// template of Simple Modern, see SimpleRules.js)
+	this.controls = {title: hd, section: section, name: nameInput, url: urlInput,
+		preview: previewBtn, urlHint: urlHint, status: status, options: options,
+		key: keySelect, columns: columnsDiv, missing: missingSelect, shapes: shapesSelect,
+		property: propertySelect, linkCount: linkCount, templateRow: templateRow,
+		template: templateInput, templateHint: templateHint, apply: applyLabel,
+		table: tableDiv, consent: consent, ok: dlg.okButton, cancel: dlg.cancelBtn,
+		isNew: source == null};
+
 	this.container = dlg.container;
 };
 
@@ -23588,6 +24236,12 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 
 	div.appendChild(btns);
 
+	// The parts of the dialog for layouts that rearrange them (the Form
+	// template of Simple Modern, see SimpleCode.js)
+	this.controls = {title: hd, sections: [sysSection, googleSection, webSection],
+		system: sysFontRadio, systemName: sysFontInput, google: googleFontRadio,
+		googleName: googleFontInput, web: webFontRadio, webName: webFontInput,
+		webUrl: webFontUrlInput, buttons: btns, apply: okBtn, cancel: cancelBtn};
 	this.container = div;
 };
 
@@ -24176,86 +24830,7 @@ var FilePropertiesDialog = function(editorUi, publicLink)
 		varsBtn = mxUtils.button(mxResources.get('editData') + '...', function()
 		{
 			editorUi.hideDialog();
-
-			// Parse current vars from fileNode
-			var vars = {};
-
-			try
-			{
-				var varsStr = editorUi.fileNode.getAttribute('vars');
-
-				if (varsStr != null && varsStr.length > 0)
-				{
-					vars = JSON.parse(varsStr);
-				}
-			}
-			catch (e) {}
-
-			// Create temp XML node with vars as attributes
-			var doc = mxUtils.createXmlDocument();
-			var obj = doc.createElement('object');
-			obj.setAttribute('label', '');
-
-			for (var key in vars)
-			{
-				obj.setAttribute(key, vars[key]);
-			}
-
-			// Use a temporary graph so EditDataDialog operates on
-			// its own model instead of overriding setValue on the
-			// real graph model.
-			var tempGraph = editorUi.createTemporaryGraph(
-				editorUi.editor.graph.getStylesheet());
-			var tempCell = new mxCell(obj);
-			tempGraph.getModel().add(tempGraph.getDefaultParent(), tempCell);
-
-			tempGraph.getModel().addListener(mxEvent.CHANGE, function(sender, evt)
-			{
-				var changes = evt.getProperty('edit').changes;
-
-				for (var i = 0; i < changes.length; i++)
-				{
-					if (changes[i] instanceof mxValueChange &&
-						changes[i].cell === tempCell)
-					{
-						var value = changes[i].value;
-						var newVars = {};
-						var attrs = value.attributes;
-
-						for (var j = 0; j < attrs.length; j++)
-						{
-							if (attrs[j].nodeName != 'label')
-							{
-								newVars[attrs[j].nodeName] = attrs[j].nodeValue;
-							}
-						}
-
-						var json = JSON.stringify(newVars);
-
-						if (json == '{}')
-						{
-							editorUi.fileNode.removeAttribute('vars');
-						}
-						else
-						{
-							editorUi.fileNode.setAttribute('vars', json);
-						}
-
-						editorUi.updateFileVars();
-						editorUi.editor.graph.refresh();
-
-						var currentFile = editorUi.getCurrentFile();
-
-						if (currentFile != null)
-						{
-							currentFile.fileChanged();
-						}
-					}
-				}
-			});
-
-			// Open EditDataDialog with temp graph
-			var dlg = new EditDataDialog(editorUi, tempCell, tempGraph);
+			var dlg = FilePropertiesDialog.createDataDialog(editorUi);
 			editorUi.showDialog(dlg.container, 480, 420, true, false, null,
 				false, null, new mxRectangle(0, 0, 440, 220));
 			dlg.init();
@@ -24288,7 +24863,99 @@ var FilePropertiesDialog = function(editorUi, publicLink)
 
 	div.appendChild(btns);
 
+	// The parts of the dialog for layouts that rearrange them (the Form
+	// template of Simple Modern, see SimpleForms.js)
+	this.controls = {title: hd, settings: settingsSection, info: (infoSectionUsed) ? infoSection : null,
+		size: sizeInput, path: pathInput, publicLink: a, buttons: btns, data: varsBtn};
 	this.container = div;
+};
+
+/**
+ * Returns an Edit Data dialog for the data of the diagram (the vars of the
+ * file node), which are written to the file when the dialog applies. The
+ * dialog edits a cell of a temporary graph, so it does not change the model
+ * of the page.
+ */
+FilePropertiesDialog.createDataDialog = function(editorUi)
+{
+	// Parses the vars of the file node
+	var vars = {};
+
+	try
+	{
+		var varsStr = editorUi.fileNode.getAttribute('vars');
+
+		if (varsStr != null && varsStr.length > 0)
+		{
+			vars = JSON.parse(varsStr);
+		}
+	}
+	catch (e) {}
+
+	// A temporary XML node with the vars as attributes
+	var doc = mxUtils.createXmlDocument();
+	var obj = doc.createElement('object');
+	obj.setAttribute('label', '');
+
+	for (var key in vars)
+	{
+		obj.setAttribute(key, vars[key]);
+	}
+
+	// Uses a temporary graph so EditDataDialog operates on
+	// its own model instead of overriding setValue on the
+	// real graph model.
+	var tempGraph = editorUi.createTemporaryGraph(
+		editorUi.editor.graph.getStylesheet());
+	var tempCell = new mxCell(obj);
+	tempGraph.getModel().add(tempGraph.getDefaultParent(), tempCell);
+
+	tempGraph.getModel().addListener(mxEvent.CHANGE, function(sender, evt)
+	{
+		var changes = evt.getProperty('edit').changes;
+
+		for (var i = 0; i < changes.length; i++)
+		{
+			if (changes[i] instanceof mxValueChange &&
+				changes[i].cell === tempCell)
+			{
+				var value = changes[i].value;
+				var newVars = {};
+				var attrs = value.attributes;
+
+				for (var j = 0; j < attrs.length; j++)
+				{
+					if (attrs[j].nodeName != 'label')
+					{
+						newVars[attrs[j].nodeName] = attrs[j].nodeValue;
+					}
+				}
+
+				var json = JSON.stringify(newVars);
+
+				if (json == '{}')
+				{
+					editorUi.fileNode.removeAttribute('vars');
+				}
+				else
+				{
+					editorUi.fileNode.setAttribute('vars', json);
+				}
+
+				editorUi.updateFileVars();
+				editorUi.editor.graph.refresh();
+
+				var currentFile = editorUi.getCurrentFile();
+
+				if (currentFile != null)
+				{
+					currentFile.fileChanged();
+				}
+			}
+		}
+	});
+
+	return new EditDataDialog(editorUi, tempCell, tempGraph);
 };
 
 var ConnectionPointsDialog = function(editorUi, cell)
@@ -24831,7 +25498,19 @@ var ConnectionPointsDialog = function(editorUi, cell)
 
 			fillCPointProp();
 		}); 
-		editingGraph.addListener(mxEvent.CELLS_MOVED, fillCPointProp);
+		editingGraph.addListener(mxEvent.CELLS_MOVED, function(sender, evt)
+		{
+			// Moved points lose their exact constraints, also if several
+			// points are moved at once
+			var cells = evt.getProperty('cells');
+
+			for (var i = 0; cells != null && i < cells.length; i++)
+			{
+				cells[i].constObj = null;
+			}
+
+			fillCPointProp(evt);
+		});
 
 		mxEvent.addListener(xInput, 'change', applyPointProp);
 		mxEvent.addListener(yInput, 'change', applyPointProp);
@@ -24990,6 +25669,15 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		}
 
 		div.appendChild(buttons);
+
+		// The controls of the dialog (see SimplePreview.js)
+		this.controls = {graph: editingGraph, graphDiv: graphDiv, zoomBtns: zoomBtns,
+			zoomInBtn: zoomInBtn, zoomOutBtn: zoomOutBtn, zoomFitBtn: zoomFitBtn,
+			gridBtn: gridBtn, deleteBtn: deleteBtn, addBtn: addBtn, pCount: pCount,
+			sideSelect: sideSelect, pointPropsDiv: pointPropsDiv, xInput: xInput,
+			dxInput: dxInput, yInput: yInput, dyInput: dyInput, connectableCb: connectableCb,
+			connectableLabel: connectableLabel, buttons: buttons, cancelBtn: cancelBtn,
+			resetBtn: resetBtn, applyBtn: applyBtn, getConstraint: getConstraintFromCPoint};
 
 		editingGraph.fit(8);
 		editingGraph.center();
@@ -26526,6 +27214,12 @@ var PolygonDialog = function(editorUi, cell, insertFn)
 		mxEvent.removeListener(document, 'mouseup', panUpHandler);
 	};
 
+	// The controls of the dialog (see SimplePreview.js)
+	this.controls = {contentDiv: contentDiv, svgContainer: svgContainer, listPanel: listPanel,
+		bottomBar: bottomBar, undoBtn: undoBtn, redoBtn: redoBtn, zoomInBtn: zoomInBtn,
+		zoomOutBtn: zoomOutBtn, zoomFitBtn: zoomFitBtn, deleteAllBtn: deleteAllBtn,
+		snapCb: snapCb, snapLabel: snapLabel, closeCb: closeCb, closeLabel: closeLabel,
+		cancelBtn: cancelBtn, applyBtn: applyBtn};
 	this.container = div;
 };
 
@@ -27495,11 +28189,11 @@ PolygonTool.prototype.updatePreview = function()
 };
 
 /**
- * Tie mode of the freehand window (see FreehandWindow). Dragging a line
- * across connectors ties them where the line crosses them (see
- * Graph.bundleEdgesAcross) and selects the new tie. The tool keeps drawing
- * until it is stopped. Changes of the drawing state fire a
- * tieToolStateChanged event on the graph.
+ * Tie mode of the freehand window (see FreehandWindow) and Draw a tie of
+ * Simple Modern (see start). Dragging a line across connectors ties them
+ * where the line crosses them (see Graph.bundleEdgesAcross) and selects the
+ * new tie. The tool keeps drawing until it is stopped. Changes of the
+ * drawing state fire a tieToolStateChanged event on the graph.
  *
  * The line is painted in screen units in the overlay pane. The mouse events
  * of the drawing are consumed before the handlers of the graph see them,
@@ -27588,6 +28282,12 @@ TieTool.prototype.init = function()
 					if (tie != null)
 					{
 						graph.setSelectionCell(tie);
+
+						// Draws one tie (see start)
+						if (this.once)
+						{
+							this.cancel();
+						}
 					}
 				}
 			}
@@ -27610,6 +28310,18 @@ TieTool.prototype.init = function()
 		else
 		{
 			graphDblClick.apply(this, arguments);
+		}
+	};
+
+	// A touch that rests before it moves draws (tap and hold would start a
+	// rubberband or change the selection)
+	var graphTapAndHold = graph.tapAndHold;
+
+	graph.tapAndHold = function(me)
+	{
+		if (!tool.active)
+		{
+			graphTapAndHold.apply(this, arguments);
 		}
 	};
 
@@ -27668,14 +28380,23 @@ TieTool.prototype.isActive = function()
 TieTool.prototype.isPanningEvent = PolygonTool.prototype.isPanningEvent;
 
 /**
- * Starts drawing and stops the freehand and the polygon tool.
+ * Specifies if the tool stops after the first tie (see start).
  */
-TieTool.prototype.start = function()
+TieTool.prototype.once = false;
+
+/**
+ * Starts drawing and stops the freehand and the polygon tool. If once is
+ * true, the tool stops after the first line that ties connectors (a line
+ * that ties none keeps it drawing).
+ */
+TieTool.prototype.start = function(once)
 {
 	var graph = this.graph;
 
 	if (!this.active && graph.isEnabled())
 	{
+		this.once = once == true;
+
 		if (graph.freehand != null && graph.freehand.isDrawing())
 		{
 			graph.freehand.stopDrawing();

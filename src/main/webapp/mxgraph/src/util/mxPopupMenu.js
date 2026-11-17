@@ -298,9 +298,14 @@ mxPopupMenu.prototype.addItem = function(title, image, funct, parent, iconCls, e
 		{
 			var items = this.getItems(parent);
 
+			// Only the highlighted item changes its class, so items with other
+			// content keep theirs
 			for (var i = 0; i < items.length; i++)
 			{
-				items[i].className = 'mxPopupMenuItem';
+				if (items[i].className == 'mxPopupMenuItemHover')
+				{
+					items[i].className = 'mxPopupMenuItem';
+				}
 			}
 
 			tr.className = 'mxPopupMenuItemHover';

@@ -202,6 +202,7 @@ mxscript(geBasePath +'/Actions.js');
 mxscript(geBasePath +'/Menus.js');
 mxscript(geBasePath +'/Toolbar.js');
 mxscript(geBasePath +'/Dialogs.js');
+mxscript(geBasePath +'/Omnibox.js');
 // Loads main classes
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-ActiveDirectory.js');
@@ -333,6 +334,7 @@ mxscript(drawDevUrl + 'js/diagramly/GitLabClient.js');
 
 mxscript(drawDevUrl + 'js/diagramly/App.js');
 mxscript(drawDevUrl + 'js/diagramly/Menus.js');
+mxscript(drawDevUrl + 'js/diagramly/LayoutPicker.js');
 mxscript(drawDevUrl + 'js/diagramly/Pages.js');
 mxscript(drawDevUrl + 'js/diagramly/Trees.js');
 mxscript(drawDevUrl + 'js/diagramly/ForceExplorer.js');
@@ -340,11 +342,31 @@ mxscript(drawDevUrl + 'js/diagramly/SpringHandle.js');
 // In extensions.min.js
 mxscript(drawDevUrl + 'js/diagramly/SpringMove.js');
 mxscript(drawDevUrl + 'js/diagramly/Minimal.js');
+mxscript(drawDevUrl + 'js/diagramly/Omnibox.js');
+mxscript(drawDevUrl + 'js/diagramly/OmniboxIndex.js');
 mxscript(drawDevUrl + 'js/diagramly/mxRuler.js');
 mxscript(drawDevUrl + 'js/diagramly/mxFreehand.js');
 mxscript(drawDevUrl + 'js/diagramly/P2PCollab.js');
+// The new Lightbox, behind viewer-ui=modern or enableModernLightbox (app.min.js)
+mxscript(drawDevUrl + 'js/diagramly/LightboxModern.js');
 mxscript(drawDevUrl + 'js/diagramly/DevTools.js');
-mxscript(drawDevUrl + 'js/diagramly/Simple.js');
+mxscript(drawDevUrl + 'js/diagramly/SimpleClassic.js');
+// The gate of the theme Fusion (app.min.js): its switches, its offer, the
+// switch without a restart and the loader of its scripts (SimpleUi.scripts,
+// which only sessions of the theme load, also in this mode: a start in the
+// theme loads them in App.main, the first switch into it before it installs
+// the theme)
+mxscript(drawDevUrl + 'js/diagramly/FusionTheme.js');
+
+// The board of the states of Fusion (developer mode only, never in
+// app.min.js): index.html?dev=1&ui=fusion&smStates=1. The public repository
+// has no files of the theme but FusionTheme.js and SimpleClassic.js
+if (urlParams['smStates'] == '1' && !window.DRAWIO_PUBLIC_BUILD)
+{
+	mxscript(drawDevUrl + 'js/diagramly/SimpleStatesBoard.js');
+}
+// Actions and menu items of Tidy up and Style (app.min.js, see EditorUi.loadTidy)
+mxscript(drawDevUrl + 'js/diagramly/tidy/TidyActions.js');
 
 if (!window.DRAWIO_PUBLIC_BUILD)
 {
@@ -389,6 +411,14 @@ mxscript(drawDevUrl + 'js/plantuml/drawio-plantuml.min.js');
 mxscript(drawDevUrl + 'js/libavoid-js/libavoid.min.js');
 mxscript(drawDevUrl + 'js/libavoid-js/libavoid-routing.js');
 mxscript(drawDevUrl + 'js/diagramly/LibavoidRouting.js');
+
+// Tidy up and Style My Diagram (in extensions.min.js): the features and the
+// generated forest, the engine, the styles and the window of the results
+mxscript(drawDevUrl + 'js/diagramly/tidy/TidyFeatures.js');
+mxscript(drawDevUrl + 'js/diagramly/tidy/TidyForest.js');
+mxscript(drawDevUrl + 'js/diagramly/tidy/Tidy.js');
+mxscript(drawDevUrl + 'js/diagramly/tidy/TidyStyle.js');
+mxscript(drawDevUrl + 'js/diagramly/tidy/TidyWindow.js');
 
 // Vsdx/vssx support
 mxscript(drawDevUrl + 'js/diagramly/emf/emf-svg.js');

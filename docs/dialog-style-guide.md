@@ -3,6 +3,15 @@
 All new dialogs using `CustomDialog` should follow these patterns for consistent
 appearance. CSS classes are defined in `/src/main/webapp/styles/grapheditor.css`.
 
+**Which guide applies.** This guide covers the markup of dialogs and their
+look in Classic, Sketch, Minimal and the previous look of Simple. In Fusion
+(the theme Fusion, `ui=fusion`, `Editor.isSimpleModern()`) the same dialogs
+are shown in the frame of `SimpleDialogs.js`, and their look (sizes S to XL,
+insets, headline, footer, phone sheets, templates) follows
+[claude/fusion-style-guide.md](claude/fusion-style-guide.md).
+Build a dialog to this guide; check how it looks in Fusion against that
+one.
+
 ## Auto-Height
 
 Pass `null` for the height parameter in `showDialog()`. The `Dialog` constructor
@@ -227,6 +236,8 @@ central rule:
 | Buttons | 14px / weight 550 | `.geBtn` — buttons only, never text |
 | Hint / muted secondary text | 12px muted | `.geDialogHint` |
 | Collapsible section header | 13px | `addAdvancedSection` (`.geCollapsibleTitle`) |
+| Toggle buttons (choices in a row) | 13px normal | `createLayoutSegments` (`.geLayoutSegments`, `aria-pressed`) |
+| Name of a picture tile | 14px / weight 600 | `.geLayoutTileName` (Choose Layout) |
 
 `geDialogHint` covers all muted secondary text: explanatory hints
 describing what an option does (e.g. the lightbox-animation note in Page

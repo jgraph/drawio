@@ -48,7 +48,7 @@
 			this.createVertexTemplateEntry(s2 + 'inventory_box;', w, h * 0.9, '', 'Inventory Box', null, null, this.getTagsForStencil(gn, 'inventory_box', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'push_arrow;', w, h * 0.3,'', 'Push Arrow', null, null, this.getTagsForStencil(gn, 'push_arrow', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'supermarket;', w * 0.6, h,'', 'Supermarket', null, null, this.getTagsForStencil(gn, 'supermarket', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'physical_pull;pointerEvents=1;', w, h,'', 'Material Pull', null, null, this.getTagsForStencil(gn, 'physical_pull', dt + 'circular arrow').join(' ')),
+			this.createVertexTemplateEntry(s2 + 'physical_pull;pointerEvents=1;perimeter=ellipsePerimeter;', w, h,'', 'Material Pull', null, null, this.getTagsForStencil(gn, 'physical_pull', dt + 'circular arrow').join(' ')),
 			this.createVertexTemplateEntry(s + 'fifo_lane;overflow=fill;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;', w, h * 0.5, 
 					'<table cellpadding="0" cellspacing="0" style="font-size:1em;width:100%;height:100%;">' +
 					'<tr><td height="0%">MAX=XX</td></tr>' +
@@ -99,7 +99,7 @@
 			this.createVertexTemplateEntry(s + 'signal_kanban;overflow=fill;', w, h * 0.9, 
 					'<p style="font-size:2em;margin-right:35px;margin-top:4px;text-align:right">S</p>',
 					'Signal Kanban', null, null, this.getTagsForStencil(gn, 'signal_kanban', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'sequenced_pull_ball;', w * 0.6, h * 0.6, '', 'Sequenced Pull Ball', null, null, this.getTagsForStencil(gn, 'sequenced_pull_ball', dt).join(' ')),
+			this.createVertexTemplateEntry(s2 + 'sequenced_pull_ball;perimeter=ellipsePerimeter;', w * 0.6, h * 0.6, '', 'Sequenced Pull Ball', null, null, this.getTagsForStencil(gn, 'sequenced_pull_ball', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'rail_shipment;', w, h * 0.3, '', 'Rail Shipment', null, null, this.getTagsForStencil(gn, 'rail_shipment', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'airplane_7;', 100, 45, '', 'Air Freight', null, null, this.getTagsForStencil(gn, 'airplane_7', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'warehouse;', w, h * 0.6, '', 'Warehouse', null, null, this.getTagsForStencil(gn, 'warehouse', dt).join(' ')),

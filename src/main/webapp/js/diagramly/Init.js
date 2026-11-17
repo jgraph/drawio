@@ -337,6 +337,14 @@ window.uiTheme = window.uiTheme || (function()
 			{
 				ui = JSON.parse(value).ui || null;
 			}
+
+			// The stored theme Fusion (Beta, ui=fusion or its alias modern)
+			// does not apply in embeds, which offer no way back to another
+			// theme without themes=1; hosts choose it with ui=fusion
+			if (urlParams['embed'] == '1' && (ui == 'fusion' || ui == 'modern'))
+			{
+				ui = null;
+			}
 		}
 		catch (e)
 		{

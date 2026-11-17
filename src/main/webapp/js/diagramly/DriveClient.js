@@ -360,6 +360,10 @@ DriveClient.prototype.executeRequest = function(reqObj, success, error)
 		var acceptResponse = true;
 		var timeoutThread = null;
 		var retryCount = 0;
+		// True after this request got a new token, so the next authentication
+		// error is final. It belongs to the request as requests overlap, and
+		// the success or failure of another one says nothing about this token
+		var retryAuth = false;
 		// Parallel requests (listings) run beside the others: they don't
 		// cancel or replace the pending retry of the current request, and
 		// closing the sign-in dialog calls error instead of leaving them
@@ -475,6 +479,7 @@ DriveClient.prototype.executeRequest = function(reqObj, success, error)
 								var data = (resp != null && resp.error != null) ? ((resp.error.data != null) ?
 									resp.error.data : resp.error.errors) : null;
 								var reason = (data != null && data.length > 0) ? data[0].reason : null; 
+								var rateLimit = /ratelimit/i.test(reason);
 								
 								// Handles special error for saving old file where mime was changed to new
 								// LATER: Check if 403 is never auth error, for now we check the message for a specific
@@ -487,22 +492,19 @@ DriveClient.prototype.executeRequest = function(reqObj, success, error)
 								}
 								// Handles authentication error
 								else if (resp != null && resp.error != null && (resp.error.code == 401 ||
-									(resp.error.code == 403 && reason != 'rateLimitExceeded')))
+									(resp.error.code == 403 && !rateLimit)))
 								{
 									// Shows an error if re-authenticated but the server still doesn't allow it
-									if ((resp.error.code == 403 && this.retryAuth) ||
-										(resp.error.code == 401 && this.retryAuth && reason == 'authError'))
+									if (retryAuth)
 									{
 										if (error != null)
 										{
 											error(resp);
 										}
-										
-										this.retryAuth = false;
 									}
 									else
 									{
-										this.retryAuth = true;
+										retryAuth = true;
 										this.execute(fn, authCancelled);
 									}
 								}
@@ -514,6 +516,10 @@ DriveClient.prototype.executeRequest = function(reqObj, success, error)
 									retryCount++;
 									var jitter = 1 + 0.1 * (Math.random() - 0.5);
 									var delay = Math.round(Math.pow(2, retryCount) * jitter * this.coolOff);
+
+									// A new request cancels the retry in requestThread without calling
+									// back, so a request with a rate limit runs beside the others from here on
+									parallel = parallel || rateLimit;
 
 									if (parallel)
 									{
@@ -1350,7 +1356,7 @@ DriveClient.prototype.getLibrary = function(id, success, error)
 DriveClient.prototype.loadDescriptor = function(id, success, error, fields)
 {
 	this.executeRequest({
-		url: '/files/' + id + '?supportsAllDrives=true&fields=' + (fields != null ? fields : this.allFields)
+		url: '/files/' + encodeURIComponent(id) + '?supportsAllDrives=true&fields=' + (fields != null ? fields : this.allFields)
 	}, success, error);
 };
 
@@ -1815,14 +1821,36 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 {
 	readXml = (readXml != null) ? readXml : false;
 	readLibrary = (readLibrary != null) ? readLibrary : false;
-	
-	if (urlParams['rev'] != null)
+
+	// Is encoded in ?rev= and decoded in #P links
+	var rev = (urlParams['rev'] != null) ? mxUtils.safeDecodeURIComponent(urlParams['rev']) : null;
+	var dots = /^\.{0,2}$/;
+
+	// A 2xx answer that is not JSON (eg. the page of a network filter) is null.
+	// Both callers below pass what is thrown to error.
+	var checkAnswer = function(resp)
+	{
+		if (resp == null)
+		{
+			throw new Error(mxResources.get('serviceUnavailableOrBlocked'));
+		}
+	};
+
+	// The URL parser removes dot segments from paths, even if they are encoded,
+	// so these would request something else. No file or revision has such an ID.
+	if (dots.test(id) || (rev != null && dots.test(rev)))
+	{
+		error({code: 404});
+	}
+	else if (rev != null)
 	{
 		this.executeRequest({
-				url: '/files/' + id + '/revisions/' + urlParams['rev'] + '?supportsAllDrives=true'
+				url: '/files/' + encodeURIComponent(id) + '/revisions/' + encodeURIComponent(rev) + '?supportsAllDrives=true'
 			},
 			mxUtils.bind(this, function(resp)
 			{
+				checkAnswer(resp);
+
 				// Redirects title to originalFilename to
 				// match expected descriptor interface
 				resp.title = resp.originalFilename;
@@ -1843,6 +1871,7 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 			{
 				if (this.user != null)
 				{
+					checkAnswer(resp);
 					var binary = /\.png$/i.test(resp.title);
 					
 					// Handles .vsdx, .vsd, .vdx, Gliffy and PNG+XML files by creating a temporary file
@@ -1929,13 +1958,13 @@ DriveClient.prototype.getErrorReason = function(req)
  * DriveFile, DriveLibrary or LocalFile for imports to success. The
  * ignoreMime argument is used for import via getFile. Default is false. The
  * optional readLibrary argument is used for reading libraries. Default is
- * false.
+ * false. A 401 gets a new access token and one more attempt, and each attempt
+ * sends the current token.
  */
 DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, readLibrary)
 {
 	try
 	{
-		var headers = {'Authorization': 'Bearer ' + _token};
 		var url = resp.downloadUrl;
 		
 		// Download URL is null if no option to download for viewers
@@ -1949,6 +1978,7 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 		else
 		{
 			var retryCount = 0;
+			var authRetried = false;
 
 			var fn = mxUtils.bind(this, function()
 			{
@@ -2081,6 +2111,18 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 					}
 				}), mxUtils.bind(this, function(e, req)
 				{
+					var fail = function()
+					{
+						if (error != null)
+						{
+							error(e);
+						}
+						else
+						{
+							throw e;
+						}
+					};
+
 					// A 403 is retried for rate limits only. One that names
 					// another reason (eg. cannotDownloadRevision for a revision
 					// the user may not download) is final and reaches the
@@ -2089,7 +2131,16 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 					var reason = (req != null && req.getStatus() == 403) ?
 						this.getErrorReason(req) : null;
 
-					if (retryCount < this.maxRetries && req != null && req.getStatus() == 403 &&
+					// A 401 gets a new token and one more attempt, so a second
+					// 401 is final. This uses execute and not checkToken as the
+					// server rejected the token whatever its age says, and
+					// closing the sign-in dialog must end the download
+					if (!authRetried && req != null && req.getStatus() == 401)
+					{
+						authRetried = true;
+						this.execute(fn, fail);
+					}
+					else if (retryCount < this.maxRetries && req != null && req.getStatus() == 403 &&
 						(reason == null || /ratelimit/i.test(reason)))
 					{
 						retryCount++;
@@ -2100,19 +2151,12 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 					}
 					else
 					{
-						if (error != null)
-						{
-							error(e);
-						}
-						else
-						{
-							throw e;
-						}
+						fail();
 					}
 				}), ((resp.mimeType != null && resp.mimeType.substring(0, 6) == 'image/' &&
 					resp.mimeType.substring(0, 9) != 'image/svg')) || /\.png$/i.test(resp.title) ||
 					/\.jpe?g$/i.test(resp.title) || /\.pdf$/i.test(resp.title),
-					null, null, null, headers);
+					null, null, null, {'Authorization': 'Bearer ' + _token});
 			});
 
 			fn();

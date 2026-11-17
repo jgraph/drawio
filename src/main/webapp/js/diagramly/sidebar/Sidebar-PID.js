@@ -56,16 +56,16 @@
 
 		this.addPaletteFunctions('pidInstruments', 'Process Engineering / Instruments', false,
 		[
-			this.createVertexTemplateEntry(s + 'inst.discInst;mounting=room',
+			this.createVertexTemplateEntry(s + 'inst.discInst;mounting=room;perimeter=ellipsePerimeter;',
 					50, 50, '<table cellpadding="4" cellspacing="0" border="0" style="font-size:1em;width:100%;height:100%;">' +
 		    		'<tr><td>TI</td></tr><tr><td>##</td></table> ', 'Discrete Instrument (control room)', null, null, this.getTagsForStencil(gn, 'discInst', dt + 'discrete control room').join(' ')),
-			this.createVertexTemplateEntry(s + 'inst.discInst;mounting=field',
+			this.createVertexTemplateEntry(s + 'inst.discInst;mounting=field;perimeter=ellipsePerimeter;',
 					50, 50, '<table cellpadding="4" cellspacing="0" border="0" style="font-size:1em;width:100%;height:100%;">' +
 		    		'<tr><td>TI</td></tr><tr><td>##</td></table> ', 'Discrete Instrument (field)', null, null, this.getTagsForStencil(gn, 'discInst', dt + 'discrete field').join(' ')),
-			this.createVertexTemplateEntry(s + 'inst.discInst;mounting=inaccessible',
+			this.createVertexTemplateEntry(s + 'inst.discInst;mounting=inaccessible;perimeter=ellipsePerimeter;',
 					50, 50, '<table cellpadding="4" cellspacing="0" border="0" style="font-size:1em;width:100%;height:100%;">' +
 		    		'<tr><td>TI</td></tr><tr><td>##</td></table> ', 'Discrete Instrument (inaccessible)', null, null, this.getTagsForStencil(gn, 'discInst', dt + 'discrete inaccessible').join(' ')),
-			this.createVertexTemplateEntry(s + 'inst.discInst;mounting=local',
+			this.createVertexTemplateEntry(s + 'inst.discInst;mounting=local;perimeter=ellipsePerimeter;',
 					50, 50, '<table cellpadding="4" cellspacing="0" border="0" style="font-size:1em;width:100%;height:100%;">' +
 		    		'<tr><td>TI</td></tr><tr><td>##</td></table> ', 'Discrete Instrument (local panel)', null, null, this.getTagsForStencil(gn, 'discInst', dt + 'discrete local panel').join(' ')),
 
@@ -218,7 +218,7 @@
 					'Centrifugal Compressor - Turbine Driven', null, null, this.getTagsForStencil(gn, 'centrifugal_compressor_-_turbine_driven', dt + '').join(' ')),
 			this.createVertexTemplateEntry(s + 'compressor', 100, 100, '', 'Compressor', null, null, this.getTagsForStencil(gn, 'compressor', dt + '').join(' ')),
 			this.createVertexTemplateEntry(s + 'compressor_and_silencers;pointerEvents=1', 90, 80, '', 'Compressor and Silencers', null, null, this.getTagsForStencil(gn, 'compressor_and_silencers', dt + 'silencer').join(' ')),
-			this.createVertexTemplateEntry(s + 'liquid_ring_compressor', 90, 90, '', 'Liquid Ring Compressor', null, null, this.getTagsForStencil(gn, 'liquid_ring_compressor', dt + '').join(' ')),
+			this.createVertexTemplateEntry(s + 'liquid_ring_compressor;perimeter=ellipsePerimeter;', 90, 90, '', 'Liquid Ring Compressor', null, null, this.getTagsForStencil(gn, 'liquid_ring_compressor', dt + '').join(' ')),
 			this.createVertexTemplateEntry(s + 'reciprocating_compressor', 100, 40, '', 'Reciprocating Compressor', null, null, this.getTagsForStencil(gn, 'reciprocating_compressor', dt + '').join(' ')),
 			this.createVertexTemplateEntry(s + 'reciprocating_compressor_2', 50, 65, '', 'Reciprocating Compressor 2', null, null, this.getTagsForStencil(gn, 'reciprocating_compressor_2', dt + '').join(' ')),
 			this.createVertexTemplateEntry(s + 'rotary_compressor', 42, 91, '', 'Rotary Compressor', null, null, this.getTagsForStencil(gn, 'rotary_compressor', dt + '').join(' '))
@@ -581,7 +581,7 @@
 					160, 250, '', 'Elevator (Bucket)', null, null, this.getTagsForStencil(gn, 'elevator_(bucket)', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'elevator_(bucket,_z-form);', 
 					430, 250, '', 'Elevator (Bucket, Z-Form)', null, null, this.getTagsForStencil(gn, 'elevator_(bucket,_z-form)', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'fan;', 
+			this.createVertexTemplateEntry(s2 + 'fan;perimeter=ellipsePerimeter;', 
 					100, 100, '', 'Fan', null, null, this.getTagsForStencil(gn, 'fan', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'fan_2;', 
 					58, 8, '', 'Fan 2', null, null, this.getTagsForStencil(gn, 'fan_2', dt).join(' ')),

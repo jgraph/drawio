@@ -205,7 +205,8 @@
 	};
 
 	/**
-	 * Refreshes scratchpad.
+	 * Refreshes scratchpad and the open libraries, whose palettes and search
+	 * entries the refresh removed (see resetEntries).
 	 */
 	var sidebarRefresh = Sidebar.prototype.refresh;
 	Sidebar.prototype.refresh = function()
@@ -219,6 +220,8 @@
 				ui.scratchpad.getData(),
 				'.scratchpad'));
 		}
+
+		ui.restoreOpenLibraries();
 	};
 	
 	/**
@@ -465,8 +468,12 @@
 		// Uses search.xml index file instead (faster load times)
 		this.addStencilsToIndex = false;
 
-		// Contains additional tags for shapes
-		this.shapetags = {};
+		// Contains additional tags for shapes, kept when a refresh runs init
+		// again as the index below is only added once (see resetEntries)
+		if (this.shapetags == null || this.tagIndex != null)
+		{
+			this.shapetags = {};
+		}
 
 		// Adds tags from compressed text file for improved searches
 		if (this.tagIndex != null)
@@ -2404,11 +2411,29 @@
 	};
 
 	/**
-	 * Adds server icon results to local search results
+	 * A refresh removes the entries of the search index too, so they are
+	 * added again with the next search (see updateSearchIndex).
+	 */
+	var sidebarResetEntries = Sidebar.prototype.resetEntries;
+
+	Sidebar.prototype.resetEntries = function()
+	{
+		sidebarResetEntries.apply(this, arguments);
+
+		if (Object.prototype.hasOwnProperty.call(this, 'searchIndexData'))
+		{
+			delete this.searchIndexData;
+		}
+	};
+
+	/**
+	 * Adds server icon results to local search results. If quiet is true, an
+	 * error of the icon service shows no dialog (the search as you type of the
+	 * shape picker in Fusion, searchShapePickerEntries).
 	 */
 	var sidebarSearchEntries = Sidebar.prototype.searchEntries;
 	
-	Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, error, searchClosedLibraries, imagesOnly)
+	Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, error, searchClosedLibraries, imagesOnly, quiet)
 	{
 		var succ = success;
 		this.updateSearchIndex();
@@ -2452,7 +2477,11 @@
 							else if (res.images == null)
 							{
 								succ(results, len, false, terms);
-								this.editorUi.handleError(res);
+
+								if (!quiet)
+								{
+									this.editorUi.handleError(res);
+								}
 							}
 							else
 							{
@@ -2468,7 +2497,11 @@
 						catch (e)
 						{
 							succ(results, len, false, terms);
-							this.editorUi.handleError(e);
+
+							if (!quiet)
+							{
+								this.editorUi.handleError(e);
+							}
 						}
 					},
 					function()

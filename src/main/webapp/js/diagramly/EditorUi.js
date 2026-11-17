@@ -689,6 +689,205 @@
 	};
 
 	/**
+	 * Share of the sessions on app.diagrams.net that count clicks on menus and
+	 * buttons: 0 is off, 0.01 is 1% and 1 is all. Sessions outside the share
+	 * install nothing. To test, the URL parameter uilog=1 turns it on for one
+	 * session on preprod and, with dev=1&test=1, shows the batches in the
+	 * console without sending them. It does nothing anywhere else, so a link
+	 * cannot turn it on. Deploy log-worker before raising this.
+	 */
+	EditorUi.uiLogRate = 0.01;
+
+	/**
+	 * Clicks after which a batch is sent. Must not exceed UI_MAX_CLICKS in
+	 * log-worker.
+	 */
+	EditorUi.uiLogMaxClicks = 100;
+
+	/**
+	 * Milliseconds between the first click of a batch and sending it.
+	 */
+	EditorUi.uiLogInterval = 600000;
+
+	/**
+	 * Clicks of the current batch by name, null while UI logging is off.
+	 */
+	EditorUi.uiLog = null;
+
+	/**
+	 * Number of clicks in the current batch.
+	 */
+	EditorUi.uiLogClicks = 0;
+
+	/**
+	 * Counts a click on a menu item or button. Does nothing while UI logging is
+	 * off. The name must be fixed, such as button.ok, and never contain a label
+	 * or other user data (see getUiLogKey).
+	 */
+	EditorUi.logUiClick = function(name)
+	{
+		if (EditorUi.uiLog != null)
+		{
+			EditorUi.uiLog[name] = (EditorUi.uiLog[name] || 0) + 1;
+			EditorUi.uiLogClicks++;
+
+			if (EditorUi.uiLogClicks >= EditorUi.uiLogMaxClicks)
+			{
+				EditorUi.flushUiLog();
+			}
+			else if (EditorUi.uiLogTimer == null)
+			{
+				EditorUi.uiLogTimer = window.setTimeout(
+					EditorUi.flushUiLog, EditorUi.uiLogInterval);
+			}
+		}
+	};
+
+	/**
+	 * Sends the current batch. It holds counts by name and the version, nothing
+	 * that identifies a user or session.
+	 */
+	EditorUi.flushUiLog = function()
+	{
+		window.clearTimeout(EditorUi.uiLogTimer);
+		EditorUi.uiLogTimer = null;
+
+		if (EditorUi.uiLogClicks > 0)
+		{
+			var data = JSON.stringify({v: EditorUi.VERSION, c: EditorUi.uiLog});
+			EditorUi.uiLog = Object.create(null);
+			EditorUi.uiLogClicks = 0;
+
+			if (urlParams['dev'] == '1')
+			{
+				EditorUi.debug('flushUiLog', data);
+			}
+			else
+			{
+				try
+				{
+					navigator.sendBeacon(window.DRAWIO_LOG_URL + '/log?ui=1', data);
+				}
+				catch (e)
+				{
+					// ignore
+				}
+			}
+		}
+	};
+
+	/**
+	 * Returns the given label without a trailing ellipsis or shortcut in
+	 * brackets. Labels can be page names of any length, so no regular
+	 * expressions here.
+	 */
+	EditorUi.normalizeUiLabel = function(label)
+	{
+		label = String(label).trim();
+		var index = label.indexOf(' (');
+
+		if (index > 0 && label.charAt(label.length - 1) == ')')
+		{
+			label = label.substring(0, index);
+		}
+
+		return (label.slice(-3) == '...') ? label.slice(0, -3) : label;
+	};
+
+	/**
+	 * Returns the resource key of the given label in the current language, so
+	 * that counts do not depend on the language, or 'other' for all labels that
+	 * are not resources. File, page and layer names are therefore never logged.
+	 * Of the keys with the same text, the shortest is used (close, not
+	 * confAGMClose). The keys and texts of Editor.customResources are the
+	 * user's, so labels with these texts are 'other', too.
+	 */
+	EditorUi.getUiLogKey = function(label)
+	{
+		if (EditorUi.uiLogKeys == null)
+		{
+			EditorUi.uiLogKeys = Object.create(null);
+
+			for (var key in mxResources.resources)
+			{
+				var text = EditorUi.normalizeUiLabel(mxResources.resources[key]);
+				var current = EditorUi.uiLogKeys[text];
+
+				if (text != '' && (current == null || key.length < current.length) &&
+					(Editor.customResources == null || Editor.customResources[key] == null))
+				{
+					EditorUi.uiLogKeys[text] = key;
+				}
+			}
+		}
+
+		return EditorUi.uiLogKeys[EditorUi.normalizeUiLabel(label)] || 'other';
+	};
+
+	/**
+	 * Starts counting clicks on all menu items and on the buttons of toolbars,
+	 * dialogs and the format panel if this session is in the sample (see
+	 * uiLogRate). The menu items are wrapped when they are created and the
+	 * buttons share one listener, so no other code changes to be counted.
+	 */
+	EditorUi.startUiLog = function()
+	{
+		var forced = urlParams['uilog'] == '1' && (urlParams['dev'] == '1' ||
+			(EditorUi.enableLogging && window.location.hostname == 'preprod.diagrams.net'));
+
+		if (EditorUi.uiLog == null && urlParams['embed'] != '1' && (forced ||
+			(EditorUi.enableLogging && urlParams['dev'] != '1' &&
+			window.location.hostname == 'app.diagrams.net' &&
+			Math.random() < EditorUi.uiLogRate)))
+		{
+			EditorUi.uiLog = Object.create(null);
+			var mxPopupMenuAddItem = mxPopupMenu.prototype.addItem;
+
+			mxPopupMenu.prototype.addItem = function(title, image, funct, parent,
+				iconCls, enabled, active, noHover)
+			{
+				return mxPopupMenuAddItem.call(this, title, image, (funct != null) ? function()
+				{
+					EditorUi.logUiClick('menu.' + EditorUi.getUiLogKey(title));
+
+					return funct.apply(this, arguments);
+				} : funct, parent, iconCls, enabled, active, noHover);
+			};
+
+			// Capture phase as many buttons consume their clicks
+			document.addEventListener('click', function(evt)
+			{
+				var elt = (evt.target.closest != null) ? evt.target.closest(
+					'button, [role="button"], a.geButton, input.geButton, ' +
+					'div.geAdaptiveAsset[title]') : null;
+
+				// Shapes in the sidebar and anything in labels are not buttons of the app
+				if (elt != null && !elt.hasAttribute('disabled') &&
+					!elt.classList.contains('mxDisabled') &&
+					!elt.matches('.geSidebar a.geItem, .geDiagramContainer svg *'))
+				{
+					// Titles of dialog buttons are shortcuts (Escape), and the text
+					// of toolbar buttons can be a value (100%) or nothing (icons)
+					var key = EditorUi.getUiLogKey(elt.textContent);
+
+					EditorUi.logUiClick('button.' + ((key != 'other') ? key : EditorUi.getUiLogKey(
+						elt.getAttribute('title') || elt.getAttribute('aria-label'))));
+				}
+			}, true);
+
+			window.addEventListener('pagehide', EditorUi.flushUiLog);
+
+			document.addEventListener('visibilitychange', function()
+			{
+				if (document.visibilityState == 'hidden')
+				{
+					EditorUi.flushUiLog();
+				}
+			});
+		}
+	};
+
+	/**
 	 * Sending error reports.
 	 */
 	EditorUi.sendReport = function(data, maxLength)
@@ -1290,13 +1489,81 @@
 	};
 	
 	/**
-	 * Abstraction for local storage access.
+	 * Specifies if the diagram is read-only in this window. Unlike the locked
+	 * state of a file, this is not stored in the file. Default is false.
+	 */
+	EditorUi.prototype.readOnly = false;
+
+	/**
+	 * Returns true if the diagram is read-only in this window or if the
+	 * current file is locked.
 	 */
 	EditorUi.prototype.isLocked = function()
 	{
 		var file = this.getCurrentFile();
 
-		return file != null && file.isLocked()
+		return this.readOnly || (file != null && file.isLocked());
+	};
+
+	/**
+	 * Makes the diagram read-only in this window without changing the file.
+	 */
+	EditorUi.prototype.setReadOnly = function(value)
+	{
+		this.readOnly = value;
+
+		if (value)
+		{
+			this.editor.graph.clearSelection();
+		}
+
+		this.fireEvent(new mxEventObject('lockedChanged'));
+		this.updateStatusAgain();
+	};
+
+	/**
+	 * Returns the HTML of the icons for the status bar if the diagram is
+	 * read-only in this window or the file is locked, or an empty string. The
+	 * eye of the read-only mode ends that mode, the lock of a locked file
+	 * opens the properties of the file.
+	 */
+	EditorUi.prototype.createLockedStatus = function()
+	{
+		var html = '';
+
+		var addIcon = function(action, title, image)
+		{
+			html += '<div data-action="' + action + '" title="' +
+				mxUtils.htmlEntities(mxResources.get(title)) +
+				'" style="display:inline-flex;flex-shrink:0;">' +
+				'<img class="geToolbarButton geAdaptiveAsset" src="' +
+				image + '"/></div>';
+		};
+
+		if (this.readOnly)
+		{
+			addIcon('readOnly', 'readOnly', Editor.visibleImage);
+		}
+
+		var file = this.getCurrentFile();
+
+		if (file != null && file.isLocked())
+		{
+			addIcon('properties', 'locked', Editor.lockedImage);
+		}
+
+		return html;
+	};
+
+	/**
+	 * Shows the lock icon in the cleared status if the diagram is locked.
+	 */
+	EditorUi.prototype.clearStatus = function()
+	{
+		this.updateStatus(mxUtils.bind(this, function()
+		{
+			this.editor.setStatus(this.createLockedStatus());
+		}));
 	};
 	
 	/**
@@ -5695,6 +5962,19 @@
 		{
 			this.removeLibrarySidebar(file.getHash());
 			
+			// Forgets the library so that a refresh of the sidebar does not reopen it
+			if (this.openLibraries != null)
+			{
+				for (var i = 0; i < this.openLibraries.length; i++)
+				{
+					if (this.openLibraries[i].file.getHash() == file.getHash())
+					{
+						this.openLibraries.splice(i, 1);
+						break;
+					}
+				}
+			}
+			
 			if (file.constructor != LocalLibrary)
 			{
 				mxSettings.removeCustomLibrary(file.getHash());
@@ -5900,7 +6180,8 @@
 			// Adds new entry to the array of open libraries
 			library = {file: file, images: images,
 				title: optionalTitle,
-				expand: expand};
+				expand: expand,
+				tags: defaultTags};
 			this.openLibraries.push(library);
 		}
 		else
@@ -6332,7 +6613,8 @@
 											{
 												var temp = JSON.parse(mxUtils.getTextContent(doc.documentElement));
 												addImages(temp, contentDiv);
-												images = images.concat(temp);
+												// Keeps the array of the open library entry current
+												Array.prototype.push.apply(images, temp);
 												saveLibrary(evt);
 												this.spinner.stop();
 												done = true;
@@ -6627,12 +6909,52 @@
 	};
 
 	/**
-	 * Shows a tabbed configuration dialog with visual editor and JSON tabs.
+	 * Shows a tabbed configuration dialog with visual editor and JSON tabs for
+	 * the configuration that is stored in the browser under the given key, or
+	 * for the configuration of the embedding host if host is given as
+	 * {config, excludedKeys, save}. Apply then calls save with the new
+	 * configuration, without the excluded keys, instead of storing it.
 	 */
-	EditorUi.prototype.showConfigurationEditorDialog = function(title, key, customButtons, helpLink)
+	EditorUi.prototype.showConfigurationEditorDialog = function(title, key, customButtons, helpLink, host)
 	{
 		var editorUi = this;
-		var value = localStorage.getItem(key);
+		var excludedKeys = (host != null && Array.isArray(host.excludedKeys)) ?
+			host.excludedKeys : null;
+
+		function removeExcludedKeys(obj)
+		{
+			if (excludedKeys != null)
+			{
+				for (var i = 0; i < excludedKeys.length; i++)
+				{
+					delete obj[excludedKeys[i]];
+				}
+			}
+
+			return obj;
+		}
+
+		function isConfigObject(obj)
+		{
+			return obj != null && typeof obj === 'object' && !Array.isArray(obj);
+		}
+
+		var value = null;
+
+		if (host == null)
+		{
+			value = localStorage.getItem(key);
+		}
+		else if (isConfigObject(host.config))
+		{
+			var hostConfig = removeExcludedKeys(JSON.parse(JSON.stringify(host.config)));
+
+			if (Object.keys(hostConfig).length > 0)
+			{
+				value = JSON.stringify(hostConfig);
+			}
+		}
+
 		var configObj = {};
 
 		try
@@ -6756,6 +7078,9 @@
 			editorContext: editorContext,
 			darkMode: Editor.isDarkMode != null && Editor.isDarkMode(),
 			highContrast: editorUi.isHighContrast(),
+			// Hosts such as VS Code are Electron apps without the desktop switches
+			isDesktop: EditorUi.isElectronApp,
+			excludedKeys: excludedKeys,
 			onConfigChanged: function(obj)
 			{
 				latestEditorConfig = obj;
@@ -6934,6 +7259,21 @@
 					modified = false;
 					closeDialog();
 				}
+				else if (host != null)
+				{
+					var obj = (newValue.length > 0) ? JSON.parse(newValue) : {};
+
+					if (!isConfigObject(obj))
+					{
+						editorUi.handleError({message: mxResources.get('invalidInput')});
+
+						return;
+					}
+
+					modified = false;
+					closeDialog();
+					host.save(removeExcludedKeys(obj));
+				}
 				else
 				{
 					if (newValue.length > 0)
@@ -6980,6 +7320,12 @@
 				applyBtn.click();
 			}
 		});
+
+		// The parts of the dialog for layouts that rearrange them (the Browser
+		// template of Simple Modern, see SimpleSettings.js)
+		div.configControls = {tabBar: tabBar, editorTab: editorTabBtn, jsonTab: jsonTabBtn,
+			editor: editorContent, json: jsonContent, textarea: textarea, buttons: buttons,
+			close: closeBtn, apply: applyBtn};
 
 		var w = (customButtons != null && customButtons.length > 2) ? 500 : 440;
 		editorUi.showDialog(div, 800, 600, true, false,
@@ -7238,6 +7584,11 @@
 		buttons.appendChild(closeBtn);
 		div.appendChild(buttons);
 
+		// The parts of the dialog for layouts that rearrange them (the rows are
+		// added when the languages are known, see SimpleSettings.js)
+		div.languageControls = {content: content, rows: languageRows, buttons: buttons,
+			close: closeBtn};
+
 		this.showDialog(div, 480, 460, true, true, function()
 		{
 			mxEvent.removeListener(window, 'online', connectivityListener);
@@ -7430,6 +7781,9 @@
 						e.code == 404 || e.status == 404))
 					{
 						id = (id.substring(0, 2) == '#U') ? id.substring(45, id.lastIndexOf('%26ex')) : id.substring(2);
+
+						// Hand-made links can have the rest of a Drive URL after the ID
+						id = /^[\w-]*/.exec(id)[0];
 						
 						var changeUser = mxUtils.bind(this, function()
 						{
@@ -7499,7 +7853,7 @@
 							
 							var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 							{
-								this.loadFile(window.location.hash.substr(1), true);
+								this.loadFile('G' + id, true);
 							}));
 							this.showDialog(dlg.container, 300, null, true, true);
 						});
@@ -8174,9 +8528,9 @@
 			}
 			else
 			{
-				var zoomVal = parseInt(zoomInput.value);
+				var zoomVal = parseFloat(zoomInput.value);
 
-				if (isNaN(zoomVal) || zoomVal <= 0)
+				if (!isFinite(zoomVal) || zoomVal <= 0)
 				{
 					zoomVal = 100;
 				}
@@ -9516,6 +9870,7 @@
 					if (Editor.replaceSvgDataUris && embedImages)
 					{
 						EditorUi.embedSvgImages(svgRoot);
+						this.editor.graph.updateFileBaseLinks(svgRoot);
 					}
 
 					// Improves foreignObject fallback for Office/Inkscape
@@ -9907,7 +10262,7 @@
 				if (wrapper != null)
 				{
 					dlg.style.height = '';
-					dlg.style.height = (wrapper.scrollHeight + 48) + 'px';
+					dlg.style.height = Dialog.getFrameHeight(dlg, wrapper.scrollHeight) + 'px';
 				}
 			}
 		};
@@ -10145,8 +10500,13 @@
 		linkButton.className = 'geColorBtn';
 		linkRow.appendChild(linkButton);
 		div.appendChild(linkRow);
-		
+
 		return {
+			// The parts of the row for layouts that rearrange them (the Form
+			// template of Simple Modern, see SimpleMoreForms.js)
+			row: linkRow,
+			select: linkSelect,
+			colorButton: linkButton,
 			getColor: function()
 			{
 				return linkColor;
@@ -10239,8 +10599,12 @@
 			}
 			else
 			{
-				data = '#R' + encodeURIComponent((allPages) ?
-					this.getFileData(true, null, null, null, null, null, null, true, null, false) :
+				// A copy of the current page of a locked file is an mxfile with
+				// that page so that the copy keeps the locked state of the file
+				data = '#R' + encodeURIComponent((allPages ||
+					(file != null && file.isLocked())) ?
+					this.getFileData(true, null, null, null, null, !allPages,
+						null, true, null, false) :
 					Graph.compress(mxUtils.getXml(this.editor.getGraphXml())))
 			}
 		}
@@ -10674,6 +11038,14 @@
 				tags.checked && useTagSettings.checked,
 				linkIcons.checked, tooltipIcons.checked);
 		}), null, btnLabel, helpLink);
+
+		// The parts of the dialog for layouts that rearrange them (the Form
+		// template of Simple Modern, see SimpleMoreForms.js)
+		div.htmlControls = {title: hd, link: linkSelect, share: (shareRow != null) ? testLink : null,
+			options: optSection, linkSection: linkSection, pages: pages, zoom: zoom, zoomInput: zoomInput,
+			fit: fit, lightbox: lightbox, advanced: advanced, theme: themeSelect, edit: editSection,
+			layers: layers, tags: tags, useTagSettings: useTagSettings, linkIcons: linkIcons,
+			tooltipIcons: tooltipIcons, button: dlg.okButton};
 		this.showDialog(dlg.container, 360, null, true, true);
 		linkSelect.focus();
 	};
@@ -10988,6 +11360,15 @@
 				tags.checked && useTagSettings.checked,
 				linkIcons.checked, tooltipIcons.checked);
 		}), null, mxResources.get('create'), helpLink, footer);
+
+		// The parts of the dialog for layouts that rearrange them (the Form
+		// template of Simple Modern, see SimpleMoreForms.js)
+		div.publishControls = {title: hd, link: linkSelect, options: optSection,
+			width: widthInput, height: heightInput, linkSection: linkSection,
+			transparent: transparent, pages: pages, initialPage: initialPageSelect,
+			lightbox: lightbox, advanced: advanced, theme: (showDarkModeOption) ? themeSelect : null,
+			edit: editSection, layers: layers, tags: tags, useTagSettings: useTagSettings,
+			linkIcons: linkIcons, tooltipIcons: tooltipIcons, footer: footer, button: dlg.okButton};
 		this.showDialog(dlg.container, 360, null, true, true);
 		
 		if (widthInput != null)
@@ -11092,12 +11473,19 @@
 					null : transparent.checked;
 			}
 
-			var scale = parseInt(zoomInput.value) / 100 || 1;
+			var scale = parseFloat(zoomInput.value) / 100;
+			scale = (isFinite(scale) && scale > 0) ? scale : 1;
 			var border = parseInt(borderInput.value) || 0;
 
 			callback(!selection.checked, (include != null) ? include.checked : false,
 				(transparent != null) ? transparent.checked : false, scale, border);
 		}), null, btnLabel, helpLink);
+
+		// The parts of the dialog for layouts that rearrange them (the Export
+		// dialog of Simple Modern, see SimpleMoreForms.js)
+		div.remoteExportControls = {title: hd, selection: selection, include: include,
+			transparent: transparent, zoom: (showZoomBorder) ? zoomInput : null,
+			border: (showZoomBorder) ? borderInput : null, button: dlg.okButton};
 		this.showDialog(dlg.container, 340, null, true, true);
 	};
 	
@@ -11730,11 +12118,53 @@
 		var advanced = this.addAdvancedSection(div);
 		var advSection = advanced.content;
 
-		// Base (unscaled) export dimensions used to keep zoom <-> width/height in sync.
-		var expBounds = graph.getGraphBounds();
-		var expScale = graph.view.scale;
-		var baseWidth = Math.max(1, Math.ceil(expBounds.width / expScale));
-		var baseHeight = Math.max(1, Math.ceil(expBounds.height / expScale));
+		// Base export dimensions used to keep zoom <-> width/height in sync: the
+		// bounds of what is exported, which is the page, the diagram or the
+		// selection, in units of the view, and the scale of the view (the bounds
+		// of Graph.getSvg for the values that the callback gets)
+		var baseWidth = 0;
+		var baseHeight = 0;
+		var baseScale = 1;
+
+		function updateBaseSize()
+		{
+			var expScale = graph.view.scale;
+			var expBounds = null;
+
+			if (exportSelect.value == 'page')
+			{
+				expBounds = graph.view.getBackgroundPageBounds();
+			}
+			else if (selection.checked && cb6.checked && exportSelect.value != 'diagram')
+			{
+				expBounds = graph.getBoundingBox(graph.getSelectionCells());
+			}
+
+			if (expBounds == null)
+			{
+				expBounds = graph.getGraphBounds();
+				var bgImg = graph.backgroundImage;
+
+				// The diagram includes the background image
+				if (exportSelect.value == 'diagram' && bgImg != null &&
+					bgImg.width != null && bgImg.height != null)
+				{
+					var tr = graph.view.translate;
+					expBounds = mxRectangle.fromRectangle(expBounds);
+					expBounds.add(new mxRectangle((tr.x + bgImg.x) * expScale,
+						(tr.y + bgImg.y) * expScale, bgImg.width * expScale,
+						bgImg.height * expScale));
+				}
+			}
+
+			// Not unscaled here, as the export scales the bounds of the view and
+			// rounds the result (see getExportSize)
+			baseWidth = expBounds.width;
+			baseHeight = expBounds.height;
+			baseScale = expScale;
+		};
+
+		updateBaseSize();
 
 		// True once the user edits the zoom directly, after which a DPI pick no
 		// longer overrides the zoom (mirrors the legacy Advanced export dialog).
@@ -11743,6 +12173,56 @@
 		function getExportScale()
 		{
 			return Math.max(0, parseFloat(zoomInput.value) || 100) / 100;
+		};
+
+		// The size that the export scales for the given base size, computed like
+		// Graph.getSvg, which multiplies the bounds of the view by 1 / the scale
+		// of the view: a division can be on the other side of a whole number
+		// (an A4 page divided at 73% is just above 827, which rounds up to 828,
+		// where the export has 827, and at 86% the export has 828 and a
+		// division 827). The SVG export scales the bounds, and the canvas
+		// exports (PNG, JPEG, WebP) scale the SVG at 100%, whose size is rounded
+		// up first (exportToCanvas).
+		function getScaledBase(base)
+		{
+			var size = base * (1 / baseScale);
+
+			return Math.max(1, (format == 'svg') ? size : Math.ceil(size));
+		};
+
+		// The size of the export for the given base size and scale, rounded up
+		// like the export, so the fields show the size of the file: the SVG
+		// export multiplies the bounds of the view by the scale / the scale of
+		// the view (Graph.getSvg). Strokes can add a pixel.
+		function getExportSize(base, scale)
+		{
+			return Math.max(1, Math.ceil((format == 'svg') ?
+				base * (scale / baseScale) : getScaledBase(base) * scale));
+		};
+
+		// Sets the zoom for the given width or height: the largest zoom with
+		// two decimals whose export has that size (a rounded zoom can export
+		// one pixel more, eg. 49.94% of 827 is 413.004, which is 414), and the
+		// fields to the size of that zoom
+		function setZoomForSize(size, base)
+		{
+			if (size > 0)
+			{
+				// Zoom in hundredths of a percent of the size that the export
+				// scales (a zoom for the unrounded base of a canvas export gives
+				// more pixels: 5000 / 100.9 is 49.554, and 101 * 49.554 is 5005),
+				// checked with the scale that the export parses from the field
+				// (see getExportScale)
+				var zoom = Math.max(1, Math.floor(size / getScaledBase(base) * 10000 + 1e-6));
+				zoomInput.value = parseFloat((zoom / 100).toFixed(2)) + '%';
+
+				if (zoom > 1 && getExportSize(base, getExportScale()) > size)
+				{
+					zoomInput.value = parseFloat(((zoom - 1) / 100).toFixed(2)) + '%';
+				}
+
+				updateSizeFromZoom();
+			}
 		};
 
 		var sizeRow = document.createElement('div');
@@ -11755,7 +12235,7 @@
 		widthField.appendChild(widthLbl);
 		var widthInput = document.createElement('input');
 		widthInput.setAttribute('type', 'number');
-		widthInput.value = Math.floor(baseWidth * getExportScale());
+		widthInput.value = getExportSize(baseWidth, getExportScale());
 		widthField.appendChild(widthInput);
 		sizeRow.appendChild(widthField);
 
@@ -11766,7 +12246,7 @@
 		heightField.appendChild(heightLbl);
 		var heightInput = document.createElement('input');
 		heightInput.setAttribute('type', 'number');
-		heightInput.value = Math.floor(baseHeight * getExportScale());
+		heightInput.value = getExportSize(baseHeight, getExportScale());
 		heightField.appendChild(heightInput);
 		sizeRow.appendChild(heightField);
 		advSection.appendChild(sizeRow);
@@ -11787,9 +12267,21 @@
 		function updateSizeFromZoom()
 		{
 			var s = getExportScale();
-			widthInput.value = Math.floor(baseWidth * s);
-			heightInput.value = Math.floor(baseHeight * s);
+			widthInput.value = getExportSize(baseWidth, s);
+			heightInput.value = getExportSize(baseHeight, s);
 		};
+
+		// The width and height follow the size (these listeners run after
+		// those above, which keep the size and the selection in sync)
+		function updateExportSize()
+		{
+			updateBaseSize();
+			updateSizeFromZoom();
+		};
+
+		mxEvent.addListener(exportSelect, 'change', updateExportSize);
+		mxEvent.addListener(selection, 'change', updateExportSize);
+		mxEvent.addListener(cb6, 'change', updateExportSize);
 
 		mxEvent.addListener(zoomInput, 'change', function()
 		{
@@ -11800,24 +12292,12 @@
 
 		mxEvent.addListener(widthInput, 'change', function()
 		{
-			var s = parseInt(widthInput.value) / baseWidth;
-
-			if (s > 0)
-			{
-				zoomInput.value = parseFloat((s * 100).toFixed(2)) + '%';
-				heightInput.value = Math.floor(baseHeight * s);
-			}
+			setZoomForSize(parseInt(widthInput.value), baseWidth);
 		});
 
 		mxEvent.addListener(heightInput, 'change', function()
 		{
-			var s = parseInt(heightInput.value) / baseHeight;
-
-			if (s > 0)
-			{
-				zoomInput.value = parseFloat((s * 100).toFixed(2)) + '%';
-				widthInput.value = Math.floor(baseWidth * s);
-			}
+			setZoomForSize(parseInt(heightInput.value), baseHeight);
 		});
 
 		// DPI (PNG only): drives the zoom/scale and is written to the PNG pHYs chunk.
@@ -12182,6 +12662,7 @@
 				{
 					exportSelect.value = values.exportType;
 					selection.checked = false;
+					updateExportSize();
 				}
 
 				if (pagesVisible)
@@ -12251,6 +12732,14 @@
 			dimSection.insertBefore(this.createExportPresetsRow(format,
 				getPresetValues, setPresetValues), dimSection.firstChild);
 		}
+
+		// The main controls for the Export dialog of Simple Modern, which drives
+		// them (see SimpleExport.js)
+		div.exportControls = {format: format, zoom: zoomInput, selection: selection,
+			pages: (pagesVisible) ? pagesSelect : null, theme: themeSelect, border: borderInput,
+			transparent: (transparentVisible) ? transparent : null,
+			include: (format != 'jpeg' && format != 'webp') ? include : null,
+			size: exportSelect, crop: cb6, shadow: shadow, grid: grid};
 
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
@@ -12478,6 +12967,12 @@
 				(pages != null) ? (pages.row != null &&
 					pages.select.value == 'allPages') : null);
 		}), null, mxResources.get('embed'), helpLink);
+
+		// The parts of the dialog for layouts that rearrange them (the Form
+		// template of Simple Modern, see SimpleMoreForms.js)
+		div.embedImageControls = {title: hd, options: optSection, pages: pages, fit: fit, shadow: shadow,
+			image: image, lightbox: lightbox, advanced: advanced, theme: themeSelect, edit: editSection,
+			layers: layers, linkIcons: linkIcons, tooltipIcons: tooltipIcons, button: dlg.okButton};
 		this.showDialog(dlg.container, 280, null, true, true);
 	};
 
@@ -13480,15 +13975,17 @@
 
 	/**
 	 * Returns the default styles for importXml of diagrams converted from
-	 * Mermaid or PlantUML: the default edge style without the label gap of new
-	 * edges (defaultLabelBackgroundColor), so the labels keep the backgrounds
-	 * of the conversion and the inserted cells are the same as in the viewer,
-	 * the CLI and after an edit of the source, which apply no default styles.
+	 * Mermaid or PlantUML: the default edge style without the label gap and
+	 * the label padding of new edges (defaultLabelBackgroundColor,
+	 * labelPadding), so the labels keep the backgrounds of the conversion and
+	 * the inserted cells are the same as in the viewer, the CLI and after an
+	 * edit of the source, which apply no default styles.
 	 */
 	EditorUi.prototype.getConvertedDiagramStyles = function()
 	{
 		var edgeStyle = mxUtils.clone(this.editor.graph.defaultEdgeStyle);
 		delete edgeStyle['defaultLabelBackgroundColor'];
+		delete edgeStyle[mxConstants.STYLE_LABEL_PADDING];
 
 		return {edgeStyle: edgeStyle};
 	};
@@ -14805,7 +15302,9 @@
 	 * (as used for generated diagrams in ChatWindow), anchored at the given
 	 * event's pointer position. Content larger than the viewport is scaled
 	 * down to fit and gets zoom controls. Used by the Mermaid and PlantUML
-	 * insert/edit dialogs to preview the parse result without inserting it.
+	 * insert/edit dialogs to preview the parse result without inserting it,
+	 * so the cells get the edge style of the insert, without the label gap
+	 * and label padding of new edges (see getConvertedDiagramStyles).
 	 */
 	EditorUi.prototype.showPreviewTooltip = function(xml, evt)
 	{
@@ -14823,7 +15322,8 @@
 				this.sidebar.createTooltip(mxEvent.getSource(evt), cells,
 					Math.min(ww - 120, 1600), Math.min(wh - 120, 1200), null,
 					true, new mxPoint(mxEvent.getClientX(evt),
-					mxEvent.getClientY(evt)), true, null, true, false);
+					mxEvent.getClientY(evt)), true, null, true, false,
+					this.getConvertedDiagramStyles().edgeStyle);
 
 				// The document's pointer handlers hide the closable tooltip on
 				// any pointer event outside of it; Escape and Ctrl+Enter close
@@ -15708,52 +16208,88 @@
 
 	/**
 	 * Loads the native PlantUML converter extension (mirrors loadMermaid).
+	 * Callers during a load wait for it (like loadGliffy), so a parse that
+	 * starts while another one loads the converter does not run before the
+	 * script (eg. Insert while the live preview of the dialog loads it).
 	 */
 	EditorUi.prototype.loadPlantUml = function(success, error)
 	{
-		var onerror = mxUtils.bind(this, function(e)
-		{
-			this.loadingPlantUml = false;
-			error(e);
-		});
-
-		var onsuccess = mxUtils.bind(this, function()
+		var call = function(entry)
 		{
 			try
 			{
-				this.loadingPlantUml = false;
-				success();
+				entry.success();
 			}
 			catch (e)
 			{
-				onerror(e);
+				if (entry.error != null)
+				{
+					entry.error(e);
+				}
 			}
-		});
+		};
 
 		// No offline guard, unlike loadMermaid: the bundle is same-origin
 		// (desktop preloads it in bootstrap.js, the PWA precaches it), so
 		// the load is attempted regardless and a failure surfaces via
 		// onerror instead of a misleading "parser not available"
-		if (typeof mxPlantUmlToDrawio === 'undefined' && !this.loadingPlantUml)
+		if (typeof mxPlantUmlToDrawio === 'undefined')
 		{
-			this.loadingPlantUml = true;
+			if (this.plantUmlLoadQueue == null)
+			{
+				this.plantUmlLoadQueue = [];
+			}
 
-			var isDev = (typeof urlParams !== 'undefined' && urlParams['dev'] == '1') ||
-				(window.location.search && window.location.search.indexOf('dev=1') >= 0);
+			this.plantUmlLoadQueue.push({success: success, error: error});
 
-			// The PlantUML converter ships as a self-contained vendored
-			// bundle and is NOT part of extensions.min.js — loading that
-			// here re-executed the Bridge.NET orgchart assembly when it
-			// was already present ("Class 'OrgChart.Annotations.
-			// CanBeNullAttribute' is already defined") and still didn't
-			// define mxPlantUmlToDrawio.
-			mxscript((isDev ? '' : window.DRAWIO_SERVER_URL) +
-				'js/plantuml/drawio-plantuml.min.js', onsuccess,
-				null, null, null, onerror);
+			if (!this.loadingPlantUml)
+			{
+				this.loadingPlantUml = true;
+
+				var isDev = (typeof urlParams !== 'undefined' && urlParams['dev'] == '1') ||
+					(window.location.search && window.location.search.indexOf('dev=1') >= 0);
+
+				var done = mxUtils.bind(this, function(loaded, e)
+				{
+					this.loadingPlantUml = false;
+					var queue = this.plantUmlLoadQueue;
+					this.plantUmlLoadQueue = null;
+
+					for (var i = 0; i < queue.length; i++)
+					{
+						if (loaded)
+						{
+							call(queue[i]);
+						}
+						else if (queue[i].error != null)
+						{
+							queue[i].error(e);
+						}
+					}
+				});
+
+				// The PlantUML converter ships as a self-contained vendored
+				// bundle and is NOT part of extensions.min.js — loading that
+				// here re-executed the Bridge.NET orgchart assembly when it
+				// was already present ("Class 'OrgChart.Annotations.
+				// CanBeNullAttribute' is already defined") and still didn't
+				// define mxPlantUmlToDrawio.
+				mxscript((isDev ? '' : window.DRAWIO_SERVER_URL) +
+					'js/plantuml/drawio-plantuml.min.js', function()
+					{
+						done(true);
+					}, null, null, null, function(e)
+					{
+						done(false, e);
+					});
+			}
 		}
 		else
 		{
-			window.setTimeout(onsuccess, 0);
+			window.setTimeout(function()
+			{
+				call({success: success, error: error});
+			}, 0);
 		}
 	};
 
@@ -15761,9 +16297,9 @@
 	 * Loads the native Gliffy converter extension (mirrors loadPlantUml:
 	 * a self-contained bundle defining mxGliffyToDrawio, NOT part of
 	 * extensions.min.js, fetched only when a Gliffy file is imported).
-	 * Unlike loadPlantUml, concurrent callers queue on the in-flight load
-	 * instead of proceeding before the script arrives — a multi-file drop
-	 * converts several Gliffy files back to back.
+	 * Concurrent callers queue on the in-flight load instead of proceeding
+	 * before the script arrives — a multi-file drop converts several Gliffy
+	 * files back to back.
 	 */
 	EditorUi.prototype.loadGliffy = function(success, error)
 	{
@@ -16510,7 +17046,23 @@
 				{
 					if (text.substring(0, 5) == 'data:')
 					{
-						this.resizeImage(img, Editor.stripImageMetadata(text, Editor.removeImageMetadata),
+						var data = null;
+
+						// Pasted data URIs that the browser loads can have a body that
+						// atob rejects (eg. percent-encoded), so the metadata cannot be
+						// removed and the image is not inserted
+						try
+						{
+							data = Editor.stripImageMetadata(text, Editor.removeImageMetadata);
+						}
+						catch (e)
+						{
+							this.handleError(e);
+
+							return;
+						}
+
+						this.resizeImage(img, data,
 							mxUtils.bind(this, function(data2, w2, h2)
 							{
 								graph.setSelectionCell(graph.insertVertex(null, null, '', graph.snap(dx), graph.snap(dy),
@@ -22190,6 +22742,28 @@
 	 * Initializes the UI.
 	 */
 	var editorUiInit = EditorUi.prototype.init;
+	/**
+	 * Stores the location of the given event of a context menu for the
+	 * insert actions of its Insert submenu (see getCenterInsertPoint and the
+	 * shape picker of the insert menu). It is cleared after the menu is
+	 * hidden.
+	 */
+	EditorUi.prototype.setContextMenuPoint = function(evt)
+	{
+		var graph = this.editor.graph;
+
+		if (evt != null)
+		{
+			var pt = mxUtils.convertPoint(graph.container,
+				mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+			graph._contextMenuPoint = new mxPoint(
+				graph.snap(pt.x / graph.view.scale - graph.view.translate.x),
+				graph.snap(pt.y / graph.view.scale - graph.view.translate.y));
+			graph._contextMenuScreenPoint = mxUtils.convertPoint(graph.container,
+				mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+		}
+	};
+
 	EditorUi.prototype.init = function()
 	{
 		mxStencilRegistry.allowEval = mxStencilRegistry.allowEval && !this.isOfflineApp();
@@ -22224,7 +22798,7 @@
 			if (evt.getProperty('force') && typeof mxSettings !== 'undefined' &&
 				mxSettings.setCurrentEdgeStyle != null && mxSettings.settings != null)
 			{
-				mxSettings.setCurrentEdgeStyle(mxUtils.clone(this.editor.graph.currentEdgeStyle));
+				mxSettings.setCurrentEdgeStyle(this.getPersistedEdgeStyle());
 			}
 		}));
 
@@ -22302,6 +22876,36 @@
 			return graphIsEnabled.apply(this, arguments) && !ui.isLocked();
 		};
 
+		// Layers can be shown and hidden in read-only windows and locked files,
+		// like the tags, but only in this window: showing a layer is a model
+		// change, which would change the file (autosave, realtime and eg. the
+		// autosave messages of embed hosts that load with readOnly). Not if the
+		// graph is disabled for other reasons (eg. no permission to edit).
+		this.isLayerVisibilityLocal = function()
+		{
+			return this.isLocked() && graphIsEnabled.apply(graph, arguments);
+		};
+
+		// Actions depend on the enabled state of the graph, and an empty
+		// selection fires no change when the diagram is locked. Shows the
+		// layers as stored in the file at the end of the lock.
+		this.addListener('lockedChanged', function()
+		{
+			if (!ui.isLayerVisibilityLocal())
+			{
+				graph.resetLayerViewVisibility();
+			}
+
+			ui.updateActionStates();
+		});
+
+		// Layers shown or hidden in this window apply to the current page and
+		// file only. The view is updated for the new root anyway.
+		graph.addListener(mxEvent.ROOT, function()
+		{
+			graph.resetLayerViewVisibility(true);
+		});
+
 		// Shows link icons in main graph
 		graph.showLinkIcons = Editor.showLinkIcons || urlParams['link-icons'] == '1';
 		graph.showTooltipIcons = Editor.showTooltipIcons || urlParams['tooltip-icons'] == '1';
@@ -22366,7 +22970,17 @@
 			 		mxEvent.isControlDown(evt) || mxEvent.isShiftDown(evt)));
 			};
 		}
-		
+
+		// Pans with the left mouse button on the background while locked
+		var panningHandlerIsPanningTrigger = graph.panningHandler.isPanningTrigger;
+
+		graph.panningHandler.isPanningTrigger = function(me)
+		{
+			return panningHandlerIsPanningTrigger.apply(this, arguments) ||
+				(ui.isLocked() && me.getState() == null &&
+				mxEvent.isLeftMouseButton(me.getEvent()));
+		};
+
 		// Re-renders Mermaid/PlantUML image cells when their groupPadding
 		// style changes (Arrange panel padding input, Edit Style, ...), so
 		// the image margin follows the style immediately. Runs from
@@ -22483,6 +23097,13 @@
 
 			typeSelect.value = isImage ? 'plantUmlImage' : 'plantUmlDiagram';
 
+			// Parses the text as the preview does (also for the live preview of
+			// other looks, see SimpleCode.js)
+			var parsePreview = function(text, fn, onError)
+			{
+				ui.parsePlantUmlDiagram(text, isGroup ? obj.config : null, fn, onError);
+			};
+
 	    	var dlg = new SimpleTextareaDialog(ui, obj.data, function(text)
 			{
 	    		if (text == null)
@@ -22586,8 +23207,7 @@
 				// zoomable tooltip, keeping the dialog open
 				if (ui.spinner.spin(document.body, mxResources.get('loading')))
 				{
-					ui.parsePlantUmlDiagram(text, isGroup ? obj.config : null,
-						function(xml, warnings)
+					parsePreview(text, function(xml, warnings)
 					{
 						ui.spinner.stop();
 						ui.showPreviewTooltip(xml, evt);
@@ -22602,6 +23222,7 @@
 					});
 				}
 			});
+			dlg.parsePreview = parsePreview;
 			showGuardedTextareaDialog(dlg);
 		};
 
@@ -22650,6 +23271,19 @@
 			typeSelect.appendChild(imageOption);
 
 			typeSelect.value = isImage ? 'mermaidImage' : 'mermaid';
+
+			// Parses the text as the preview does (also for the live preview of
+			// other looks, see SimpleCode.js). Uses the same parse-config
+			// selection as the apply handler below.
+			var parsePreview = function(text, fn, onError)
+			{
+				var config = (typeSelect.value == 'mermaidImage' && legacyImage) ?
+					EditorUi.legacyMermaidConfig :
+					((obj.config != null) ? obj.config :
+						EditorUi.getInsertMermaidConfig());
+
+				ui.parseMermaidDiagram(text, mxUtils.clone(config), fn, onError, null, version);
+			};
 
 	    	var dlg = new SimpleTextareaDialog(ui, obj.data, function(text)
 			{
@@ -22774,17 +23408,10 @@
 				(ui.sidebar == null) ? null : function(text, evt)
 			{
 				// Previews the parse result the apply would produce, in the
-				// zoomable tooltip, keeping the dialog open. Uses the same
-				// parse-config selection as the apply handler above.
+				// zoomable tooltip, keeping the dialog open
 				if (ui.spinner.spin(document.body, mxResources.get('loading')))
 				{
-					var config = (typeSelect.value == 'mermaidImage' && legacyImage) ?
-						EditorUi.legacyMermaidConfig :
-						((obj.config != null) ? obj.config :
-							EditorUi.getInsertMermaidConfig());
-
-					ui.parseMermaidDiagram(text, mxUtils.clone(config),
-						function(xml)
+					parsePreview(text, function(xml)
 					{
 						ui.spinner.stop();
 						ui.showPreviewTooltip(xml, evt);
@@ -22792,9 +23419,10 @@
 					{
 						ui.spinner.stop();
 						ui.handleError(e);
-					}, null, version);
+					});
 				}
 			});
+			dlg.parsePreview = parsePreview;
 			showGuardedTextareaDialog(dlg);
 		};
 
@@ -22836,10 +23464,9 @@
 						{
 							ui.showDataDialog(cell);
 						}
-						else if (mxUtils.getValue(style, 'outlineEdit', '0') == '1' &&
-							ui.getOutlineLayout(cell) != null)
+						else if (ui.getBoxTextFormat(cell) != null)
 						{
-							// Boxes from an outline edit their outline (see insertOutline)
+							// Boxes from a text edit their text (see insertOutline)
 							ui.showOutlineDialog(cell);
 						}
 						else
@@ -23099,15 +23726,9 @@
 				var insert = Editor.passiveScroll || (Editor.enableInlineToolbar &&
 					Editor.isShapeInlineToolbarEnabled() && graph.isSelectionEmpty());
 
-				if (insert && evt != null)
+				if (insert)
 				{
-					var pt = mxUtils.convertPoint(graph.container,
-						mxEvent.getClientX(evt), mxEvent.getClientY(evt));
-					graph._contextMenuPoint = new mxPoint(
-						graph.snap(pt.x / graph.view.scale - graph.view.translate.x),
-						graph.snap(pt.y / graph.view.scale - graph.view.translate.y));
-					graph._contextMenuScreenPoint = mxUtils.convertPoint(graph.container,
-						mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+					ui.setContextMenuPoint(evt);
 				}
 
 				if (graph.isSelectionEmpty() && insert)
@@ -23133,39 +23754,7 @@
 
 				// Adds a comment on the selected cells for files that
 				// support anchored comments
-				if (graph.getSelectionCount() > 0 && ui.commentsSupported() &&
-					ui.anchoredCommentsSupported() && ui.canComment() &&
-					this.showCommentsWindow != null)
-				{
-					var selected = graph.getSelectionCells();
-					var menus = this;
-
-					menu.addSeparator();
-					menu.addItem(mxResources.get('comment') + '...', null, function()
-					{
-						if (ui.currentPage != null)
-						{
-							var c = null;
-
-							if (selected.length == 1)
-							{
-								c = selected[0].id;
-							}
-							else
-							{
-								c = [];
-
-								for (var i = 0; i < selected.length; i++)
-								{
-									c.push(selected[i].id);
-								}
-							}
-
-							menus.showCommentsWindow(null,
-								{p: ui.currentPage.getId(), c: c});
-						}
-					});
-				}
+				this.addPopupCommentItem(menu);
 
 				if (graph.isSelectionEmpty() && !this.isShowStyleItems())
 				{
@@ -24637,7 +25226,15 @@
 	 */
 	EditorUi.prototype.setCurrentTheme = function(value, quiet)
 	{
-		mxSettings.setUi(value);
+		// A Fusion that would not apply at the next start (opened by ui=fusion
+		// without test=1 where the theme is not offered, which it is only on
+		// app.diagrams.net, see Editor.fusionThemeOffered) keeps the saved theme
+		if (!(Editor.isFusionTheme != null && Editor.isFusionTheme(value) &&
+			!Editor.fusionThemeOffered && urlParams['test'] != '1'))
+		{
+			mxSettings.setUi(value);
+		}
+
 		quiet = this.doSetCurrentTheme(value) || quiet;
 
 		if (!quiet)
@@ -25852,17 +26449,21 @@
 		{
 			Editor.fitWindowBorders = new mxRectangle(60, 30, 30, 30);
 
-			if (Editor.config == null || Editor.config.defaultEdgeLength == null)
+			// The configuration wins over the defaults of the theme, also if
+			// a later call of Editor.configure did not set the key
+			var keys = Editor.configuredKeys;
+
+			if (keys.defaultEdgeLength != true)
 			{
 				graph.defaultEdgeLength = 120;
 			}
 
-			if (urlParams['grid'] == null)
+			if (urlParams['grid'] == null && keys.defaultGridEnabled != true)
 			{
 				graph.defaultGridEnabled = false;
 			}
 
-			if (urlParams['pv'] == null)
+			if (urlParams['pv'] == null && keys.defaultPageVisible != true)
 			{
 				graph.defaultPageVisible = false;
 			}
@@ -26516,6 +27117,7 @@
 			{
 				this.spinner.stop();
 				this.updateOfflineLanguages();
+				EditorUi.uiLogKeys = null;
 
 				// Dialog texts are static - closes open dialogs so they
 				// reopen in the new language (a dialog with unsaved
@@ -27223,6 +27825,37 @@
 	};
 
 	/**
+	 * Keys of the default edge style that only new edges get, so an edge that
+	 * is chosen as the default style can only lack them (the label gap and
+	 * the label padding). The saved style stores them as null if the current
+	 * edge style lacks them, so restorePersistedEdgeStyle removes them from
+	 * the default again. Saved styles without them keep the default.
+	 */
+	EditorUi.prototype.persistedRemovedEdgeStyleKeys = ['defaultLabelBackgroundColor',
+		mxConstants.STYLE_LABEL_PADDING];
+
+	/**
+	 * Returns the current edge style to be saved (see restorePersistedEdgeStyle).
+	 */
+	EditorUi.prototype.getPersistedEdgeStyle = function()
+	{
+		var graph = this.editor.graph;
+		var result = mxUtils.clone(graph.currentEdgeStyle);
+
+		for (var i = 0; i < this.persistedRemovedEdgeStyleKeys.length; i++)
+		{
+			var key = this.persistedRemovedEdgeStyleKeys[i];
+
+			if (graph.defaultEdgeStyle[key] != null && result[key] == null)
+			{
+				result[key] = null;
+			}
+		}
+
+		return result;
+	};
+
+	/**
 	 * Applies the persisted global current edge style (the toolbar dropdown choice for
 	 * new edges) over the theme default, so it survives reloads and theme changes —
 	 * a user who switches new edges to libavoid auto-routing keeps that choice. A theme
@@ -27248,12 +27881,20 @@
 		{
 			graph.currentEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
 
-			// Skips prototype keys as the persisted style comes from local storage
+			// Skips prototype keys as the persisted style comes from local storage.
+			// Null values remove keys of the default (see getPersistedEdgeStyle).
 			for (var key in persistedEdgeStyle)
 			{
 				if (key != '__proto__' && key != 'constructor' && key != 'prototype')
 				{
-					graph.currentEdgeStyle[key] = persistedEdgeStyle[key];
+					if (persistedEdgeStyle[key] == null)
+					{
+						delete graph.currentEdgeStyle[key];
+					}
+					else
+					{
+						graph.currentEdgeStyle[key] = persistedEdgeStyle[key];
+					}
 				}
 			}
 
@@ -27565,28 +28206,151 @@
 	};
 
 	/**
+	 * Returns the clipboard types of an image of the given type.
+	 */
+	EditorUi.prototype.getImageClipboardTypes = function(type)
+	{
+		// Firefox does not support image/svg+xml in ClipboardItem
+		return (ClipboardItem.supports != null &&
+			ClipboardItem.supports(type)) ?
+			['text/html', type] : ['text/html'];
+	};
+
+	/**
+	 * Returns the clipboard data of the given image as a Blob for each type.
+	 */
+	EditorUi.prototype.createImageClipboardData = function(dataUrl, w, h, types)
+	{
+		var html = (w == null || h == null) ? '<img src="' + dataUrl + '">' :
+			'<img src="' + dataUrl + '" width="' + w + '" height="' + h + '">';
+		var data = {};
+
+		for (var i = 0; i < types.length; i++)
+		{
+			data[types[i]] = (types[i] == 'text/html') ?
+				new Blob([html], {type: 'text/html'}) :
+				this.base64ToBlob(dataUrl.substring(
+					dataUrl.indexOf(',') + 1), types[i]);
+		}
+
+		return data;
+	};
+
+	/**
 	 * Copies the given cells and XML to the clipboard as an embedded image.
 	 */
 	EditorUi.prototype.writeImageToClipboard = function(dataUrl, w, h, type, success, error)
 	{
 		type = (type != null) ? type : 'image/png';
-		var html = (w == null || h == null) ? '<img src="' + dataUrl + '">' :
-			'<img src="' + dataUrl + '" width="' + w + '" height="' + h + '">';
-		var data = {'text/html': new Blob([html], {type: 'text/html'})};
-
-		// Firefox does not support image/svg+xml in ClipbaordItem
-		if (ClipboardItem.supports != null &&
-			ClipboardItem.supports(type))
-		{
-			data[type] = this.base64ToBlob(dataUrl.substring(
-				dataUrl.indexOf(',') + 1), type);
-		}
-
+		var data = this.createImageClipboardData(dataUrl, w, h,
+			this.getImageClipboardTypes(type));
 		var cbi = new ClipboardItem(data);
 		navigator.clipboard.write([cbi]).then(success)['catch'](error);
 		EditorUi.debug('EditorUi.writeImageToClipboard', [this],
 			'dataUrl', [dataUrl], 'w', w, 'h', h, 'type', type,
-			'html', [html], 'data', [data], 'item', [cbi]);
+			'data', [data], 'item', [cbi]);
+	};
+
+	/**
+	 * Copies an image that is created asynchronously. Call this in the click:
+	 * the write starts at once and waits for the image, as Safari refuses a
+	 * write that starts after the click. createImage is called with resolve
+	 * and reject. It passes the data URI, width and height of the image to
+	 * resolve, or an error to reject after handling it. error is called with
+	 * the error and the data URI if the clipboard refuses the image. Browsers
+	 * whose ClipboardItem takes no promises write the image when it is ready.
+	 */
+	EditorUi.prototype.writeImageToClipboardAsync = function(createImage, type, success, error)
+	{
+		type = (type != null) ? type : 'image/png';
+		var resolveImage = null;
+		var rejectImage = null;
+		var started = false;
+
+		var image = new Promise(function(resolve, reject)
+		{
+			resolveImage = resolve;
+			rejectImage = reject;
+		});
+
+		var handled = function()
+		{
+			// createImage handled the error of the image
+		};
+
+		try
+		{
+			var types = this.getImageClipboardTypes(type);
+			var blobs = image.then(mxUtils.bind(this, function(img)
+			{
+				return this.createImageClipboardData(img.dataUrl, img.w, img.h, types);
+			}));
+
+			var data = {};
+
+			types.forEach(function(t)
+			{
+				data[t] = blobs.then(function(result)
+				{
+					return result[t];
+				});
+
+				// The write gets the error, the browser may read the data later
+				data[t]['catch'](handled);
+			});
+
+			var cbi = new ClipboardItem(data);
+			navigator.clipboard.write([cbi]).then(success, function(e)
+			{
+				// Waits for the image, a refusal can come before it
+				image.then(function(img)
+				{
+					error(e, img.dataUrl);
+				}, handled);
+			});
+			started = true;
+			EditorUi.debug('EditorUi.writeImageToClipboardAsync', [this],
+				'type', type, 'data', [data], 'item', [cbi]);
+		}
+		catch (e)
+		{
+			// Older browsers take no promises in ClipboardItem
+			EditorUi.debug('EditorUi.writeImageToClipboardAsync', [this],
+				'type', type, 'error', [e]);
+		}
+
+		if (!started)
+		{
+			image.then(mxUtils.bind(this, function(img)
+			{
+				try
+				{
+					this.writeImageToClipboard(img.dataUrl, img.w, img.h,
+						type, success, function(e)
+					{
+						error(e, img.dataUrl);
+					});
+				}
+				catch (e)
+				{
+					error(e, img.dataUrl);
+				}
+			}), handled);
+		}
+
+		try
+		{
+			createImage(function(dataUrl, w, h)
+			{
+				resolveImage({dataUrl: dataUrl, w: w, h: h});
+			}, rejectImage);
+		}
+		catch (e)
+		{
+			rejectImage(e);
+
+			throw e;
+		}
 	};
 
 	/**
@@ -27656,59 +28420,67 @@
 	/**
 	 * Copies the given cells to the clipboard as a PNG image.
 	 */
-	EditorUi.prototype.copyImage = function(cells, xml, scale)
+	EditorUi.prototype.copyImage = function(cells, xml, scale, border, transparent, theme)
 	{
 		try
 		{
 			scale = (scale != null) ? scale : 4;
+			border = (border != null) ? border : 10;
+			transparent = (transparent != null) ? transparent :
+				(this.editor.graph.background == null ||
+				this.editor.graph.background == mxConstants.NONE);
+			theme = (theme != null) ? theme : ((Editor.isDarkMode()) ? 'dark' : 'light');
 
 			if (navigator.clipboard != null && typeof window.ClipboardItem === 'function' &&
 				this.spinner.spin(document.body, mxResources.get('exporting')))
 			{
-				this.editor.exportToCanvas(mxUtils.bind(this, function(canvas, svgRoot)
+				this.writeImageToClipboardAsync(mxUtils.bind(this, function(resolve, reject)
 				{
-					try
+					this.editor.exportToCanvas(mxUtils.bind(this, function(canvas, svgRoot)
+					{
+						try
+						{
+							this.spinner.stop();
+							var dataUrl = this.createImageDataUri(canvas, xml, 'png');
+							var w = Math.round(parseInt(svgRoot.getAttribute('width')) / scale);
+							var h = Math.round(parseInt(svgRoot.getAttribute('height')) / scale);
+
+							EditorUi.debug('EditorUi.copyImage', [this],
+								'cells', [cells], 'xml', [xml],
+								'scale', [scale], 'border', [border],
+								'transparent', [transparent], 'theme', [theme]);
+
+							resolve(dataUrl, w, h);
+						}
+						catch (e)
+						{
+							this.handleError(e);
+							reject(e);
+						}
+					}), null, null, null, mxUtils.bind(this, function(e)
 					{
 						this.spinner.stop();
-						var dataUrl = this.createImageDataUri(canvas, xml, 'png');
-						var w = Math.round(parseInt(svgRoot.getAttribute('width')) / scale);
-						var h = Math.round(parseInt(svgRoot.getAttribute('height')) / scale);
-
-						EditorUi.debug('EditorUi.copyImage', [this],
-							'cells', [cells], 'xml', [xml],
-							'scale', [scale]);
-
-						this.writeImageToClipboard(dataUrl, w, h, 'image/png', null,
-							mxUtils.bind(this, function(e)
-							{
-								if (this.isLocalFileSave())
-								{
-									// Fallback to save dialog with sync write to clipboard
-									// handles blocked async clipboard write in Safari
-									var filename = this.getBaseFilename(false) +
-										((xml != null) ? '.drawio' : '') + '.png';
-									this.saveLocalFile(dataUrl.substring(dataUrl.lastIndexOf(',') + 1),
-										filename, 'image/png', true, 'png', null, null, null, 'copy');
-								}
-								else
-								{
-									this.handleError(e);
-								}
-							}));
+						this.handleError(e);
+						reject(e);
+					}), null, null, scale, transparent,
+						null, null, null, border, null, null,
+						theme, null, (cells.length > 0) ? cells : null);
+				}), 'image/png', null, mxUtils.bind(this, function(e, dataUrl)
+				{
+					if (this.isLocalFileSave())
+					{
+						// Fallback to save dialog with sync write to clipboard
+						// if the clipboard refuses the image
+						var filename = this.getBaseFilename(false) +
+							((xml != null) ? '.drawio' : '') + '.png';
+						this.saveLocalFile(dataUrl.substring(dataUrl.lastIndexOf(',') + 1),
+							filename, 'image/png', true, 'png', null, null, null, 'copy');
 					}
-					catch (e)
+					else
 					{
 						this.handleError(e);
 					}
-				}), null, null, null, mxUtils.bind(this, function(e)
-				{
-					this.spinner.stop();
-					this.handleError(e);
-				}), null, null, scale, this.editor.graph.background == null ||
-					this.editor.graph.background == mxConstants.NONE,
-					null, null, null, 10, null, null,
-					(Editor.isDarkMode()) ? 'dark' : 'light', null,
-					(cells.length > 0) ? cells : null);
+				}));
 			}
 		}
 		catch (e)
@@ -29320,7 +30092,9 @@
 
 							graph.disableSvgLinks(img.node, function(link)
 							{
-								link.setAttribute('href', 'javascript:void(0)');		
+								// An invalid URL adds no link annotation to PDFs, unlike javascript:
+								// and empty links, and keeps the style of the link, unlike no href
+								link.setAttribute('href', 'https://');
 							});
 						}
 					};
@@ -31313,7 +32087,8 @@
 					{
 						// Same path as the custom layout dialog's Apply (sequence +
 						// options), minus the selection scoping (lay out the whole page).
-						editorUi.executeLayouts(editorUi.editor.graph.createLayouts(list), done);
+						editorUi.executeLayouts(EditorUi.createLayoutRuns(
+							editorUi.editor.graph, Array.isArray(list) ? list : [list]).layouts, done);
 					}
 				}
 				else
@@ -31581,6 +32356,27 @@
 		{
 			return (urlParams['pages'] != '0' || (this.pages != null && this.pages.length > 1)) ?
 				this.getFileData(true) : mxUtils.getXml(this.editor.getGraphXml());
+		});
+
+		// Tells plugins that the data of a load, merge, patch or resetDiff
+		// message of the host is in the model. Fired after the response to
+		// the host and after the autosave baseline, so that changes in a
+		// listener are sent as changes. Errors in listeners are logged like
+		// errors in plugins, as merges would otherwise report a conflict.
+		var fireEmbedLoaded = mxUtils.bind(this, function(action, message)
+		{
+			try
+			{
+				this.fireEvent(new mxEventObject('embedLoaded', 'action', action,
+					'message', (message != null) ? message : null));
+			}
+			catch (e)
+			{
+				if (window.console != null)
+				{
+					console.log('Plugin Error:', e);
+				}
+			}
 		});
 
 		// Forward host-claimed keyboard chords (e.g. Ctrl+P) to the embedding app
@@ -32457,6 +33253,15 @@
 						// (including scale, fit and viewbox) is not reported
 						zoomEvents = false;
 						pendingZoomEvents = data.zoomEvents == true;
+
+						// readOnly: switches View > Read-only on or off for this
+						// window, which does not change the file. Without it, the
+						// state stays as it is (eg. set by a plugin).
+						if (data.readOnly != null)
+						{
+							this.setReadOnly(data.readOnly == true);
+						}
+
 						var sourceMetadata = data.sourceMetadata || null;
 						// layout: run the requested layout once the diagram is
 						// loaded (a preset name or custom-layout JSON, the same
@@ -32769,6 +33574,8 @@
 											}
 										}
 									}
+
+									fireEmbedLoaded('load', message);
 								});
 
 								// Shows the error and tells the parent the conversion failed
@@ -32902,6 +33709,7 @@
 									}
 
 									parent.postMessage(JSON.stringify({event: 'merge', message: data}), '*');
+									fireEmbedLoaded('merge', data);
 								}), function(err)
 								{
 									parent.postMessage(JSON.stringify({event: 'merge', message: data, error: err}), '*');
@@ -32943,6 +33751,7 @@
 								}
 
 								parent.postMessage(JSON.stringify(resp), '*');
+								fireEmbedLoaded('patch', data);
 							}
 							catch (e)
 							{
@@ -32991,6 +33800,7 @@
 										parent.postMessage(JSON.stringify({event: 'resetDiff',
 											message: data, checksum: this.getHashValueForPages(
 											this.pages)}), '*');
+										fireEmbedLoaded('resetDiff', data);
 									}), function(err)
 									{
 										parent.postMessage(JSON.stringify({event: 'resetDiff',
@@ -33005,6 +33815,7 @@
 								parent.postMessage(JSON.stringify({event: 'resetDiff',
 									message: data, checksum: this.getHashValueForPages(
 									this.pages)}), '*');
+								fireEmbedLoaded('resetDiff', data);
 							}
 						}
 
@@ -33196,6 +34007,8 @@
 
 						parent.postMessage(JSON.stringify(resp), '*');
 					}
+
+					fireEmbedLoaded('load', message);
 				});
 
 				// layout (load option): apply before the baseline so it is
@@ -33514,6 +34327,9 @@
 				copyBtn.setAttribute('title', 'copy');
 				copyBtn.className = 'geBtn';
 				buttons.appendChild(copyBtn);
+
+				// The controls of the dialog (see SimpleLayouts.js)
+				input.layoutControls = {addSelect: addSelect, copyBtn: copyBtn};
 			}), true, null, null, EditorUi.APPLY_LAYOUTS_SPEC_URL);
 
 			this.showDialog(dlg.container, 620, 460, true, true, null, null, null, new mxRectangle(0, 0, 440, 280));
@@ -33540,13 +34356,17 @@
 	 *
 	 * Used by `importCsv` so a CSV import's layout pass only moves the
 	 * cells the import just created, leaving the rest of the page alone.
+	 * If edges is true, mxGraph layouts also get their `isEdgeIgnored`
+	 * wrapped, so they don't change the connectors outside the subset
+	 * either (mxCircleLayout resets all connectors of the parent), as the
+	 * layout picker does for a selection (#1210).
 	 *
 	 * The IIFE wrap around the isVertexIgnored swap is required because
 	 * `var original = ...` inside the `for` loop has function scope —
 	 * without it, every wrapped function would close over the last
 	 * iteration's value.
 	 */
-	EditorUi.prototype.scopeLayoutsToCells = function(layouts, subset)
+	EditorUi.prototype.scopeLayoutsToCells = function(layouts, subset, edges)
 	{
 		var cellSet = {};
 
@@ -33578,6 +34398,15 @@
 					{
 						return original.apply(this, arguments) || !cellFilter(vertex);
 					};
+
+					if (edges && typeof l.isEdgeIgnored === 'function')
+					{
+						var originalEdge = l.isEdgeIgnored;
+						l.isEdgeIgnored = function(edge)
+						{
+							return originalEdge.apply(this, arguments) || !cellFilter(edge);
+						};
+					}
 				})(layout);
 			}
 		}
@@ -33987,6 +34816,11 @@
 			resetBtn.className = 'geBtn';
 		}
 
+		// The controls of the dialog (see SimpleLayouts.js)
+		div.layoutControls = {typeSelect: typeSelect, parentChildSpacing: parentChildSpacing,
+			siblingSpacing: siblingSpacing, stackLevel: stackLevel, resetBtn: resetBtn,
+			values: values, onCancel: onCancel};
+
 		var dlg = new CustomDialog(editorUi, div, function()
 		{
 			var config = EditorUi.getOrgChartConfig({
@@ -34177,6 +35011,10 @@
 			});
 			resetBtn.className = 'geBtn';
 		}
+
+		// The controls of the dialog (see SimpleLayouts.js)
+		div.layoutControls = {name: name, dialog: dialog, inputs: inputs, resetBtn: resetBtn,
+			values: values, onCancel: onCancel};
 
 		var dlg = new CustomDialog(editorUi, div, function()
 		{
@@ -34574,18 +35412,10 @@
 		// Reports the moved vertices like an arrange action (see
 		// Graph.beginArrange), eg. for the auto-routing
 		var arrange = graph.beginArrange();
+		var getValue = mxUtils.bind(this, this.getBoxLabelValue);
 
 		try
 		{
-			// Changed labels (HTML labels are escaped, wrapped labels without
-			// html=1 are text, see getPlainLabel)
-			var getValue = function(cell, label)
-			{
-				return Graph.zapGremlins((graph.isHtmlLabel(cell) && mxUtils.getValue(
-					graph.getCurrentCellStyle(cell), 'html', '0') != '0') ?
-					mxUtils.htmlEntities(label, false) : label);
-			};
-
 			var stack = roots.slice();
 
 			while (stack.length > 0)
@@ -34612,11 +35442,12 @@
 			}
 
 			// New vertices (parents before their children) as copies of a
-			// sibling or a vertex on the same level, with the connector of
-			// the copied vertex, found once for the siblings
+			// sibling, else of the parent unless it is a root (eg. the central
+			// idea of a mindmap), else of a vertex on the same level, with the
+			// connector of the copied vertex, found once for the siblings
 			var templates = new mxDictionary();
 
-			var getTemplate = function(siblings, depth)
+			var getTemplate = function(siblings, depth, parentLine)
 			{
 				var result = templates.get(siblings);
 
@@ -34629,10 +35460,16 @@
 						cell = (siblings[j].old != null) ? siblings[j].old.cell : null;
 					}
 
+					if (cell == null && parentLine != null && parentLine.parentLine != null)
+					{
+						cell = parentLine.cell;
+					}
+
 					cell = (cell != null) ? cell : ((levels[depth] != null) ? levels[depth].cell : null);
 					var edges = (cell != null) ? graph.getIncomingTreeEdges(cell) : [];
-					result = {cell: cell, edgeStyle: (edges.length > 0) ? model.getStyle(edges[0]) :
-						defaults.edgeStyle};
+					// Ties belong to the copied connector (see connector-ties.md)
+					result = {cell: cell, edgeStyle: (edges.length > 0) ? mxUtils.setStyle(
+						model.getStyle(edges[0]), 'ties', null) : defaults.edgeStyle};
 					templates.put(siblings, result);
 				}
 
@@ -34643,14 +35480,16 @@
 			{
 				var line = created[i];
 				var group = getTemplate((line.parentLine != null) ?
-					line.parentLine.children : roots, line.depth);
+					line.parentLine.children : roots, line.depth, line.parentLine);
 				var template = group.cell;
 				var cell = null;
 
 				if (template != null)
 				{
-					// The layout places new vertices, which must not be locked
+					// The layout places new vertices, which must not be locked,
+					// and new vertices have no hidden children to expand
 					cell = graph.cloneCell(template);
+					cell.collapsed = false;
 					cell.style = mxUtils.setStyle(mxUtils.setStyle(cell.style,
 						'locked', null), mxConstants.STYLE_MOVABLE, null);
 				}
@@ -34758,8 +35597,7 @@
 	 */
 	EditorUi.prototype.getOutlineOrigin = function(container)
 	{
-		var graph = this.editor.graph;
-		var model = graph.model;
+		var model = this.editor.graph.model;
 		var result = null;
 
 		for (var i = 0; i < model.getChildCount(container); i++)
@@ -34767,8 +35605,7 @@
 			var child = model.getChildAt(container, i);
 			var geo = model.getGeometry(child);
 
-			if (model.isVertex(child) && model.isVisible(child) && geo != null &&
-				!geo.relative && !graph.isTransparentBounds(child) && !graph.isTie(child))
+			if (this.isBoxVertex(child))
 			{
 				result = (result == null) ? new mxPoint(geo.x, geo.y) :
 					new mxPoint(Math.min(result.x, geo.x), Math.min(result.y, geo.y));
@@ -34776,6 +35613,34 @@
 		}
 
 		return result;
+	};
+
+	/**
+	 * Returns true if the given cell is a vertex in a box that the layout
+	 * places: visible, not relative, not transparent and not a tie.
+	 */
+	EditorUi.prototype.isBoxVertex = function(cell)
+	{
+		var graph = this.editor.graph;
+		var model = graph.model;
+		var geo = model.getGeometry(cell);
+
+		return model.isVertex(cell) && model.isVisible(cell) && geo != null &&
+			!geo.relative && !graph.isTransparentBounds(cell) && !graph.isTie(cell);
+	};
+
+	/**
+	 * Returns the value for the given label of the given cell in a box from
+	 * a text: escaped for HTML labels, as text for wrapped labels without
+	 * html=1 (see getPlainLabel).
+	 */
+	EditorUi.prototype.getBoxLabelValue = function(cell, label)
+	{
+		var graph = this.editor.graph;
+
+		return Graph.zapGremlins((graph.isHtmlLabel(cell) && mxUtils.getValue(
+			graph.getCurrentCellStyle(cell), 'html', '0') != '0') ?
+			mxUtils.htmlEntities(label, false) : label);
 	};
 
 	/**
@@ -35001,70 +35866,96 @@
 	};
 
 	/**
-	 * Inserts a layout container of the given type (see OUTLINE_TYPES) with
-	 * the given outline at the free insert point and selects it. Like Mermaid
-	 * diagrams, the container has an edit icon and editing it opens its
-	 * outline (outlineEdit, see cellEditor.startEditing).
+	 * Inserts a layout container of the given From Text type (see
+	 * OUTLINE_TYPES and TEXT_BOX_TYPES) with the given text at the free
+	 * insert point and selects it. Like Mermaid diagrams, the container has an
+	 * edit icon and editing it opens its text (outlineEdit, see
+	 * cellEditor.startEditing and showOutlineDialog). If cellsOnly is true,
+	 * the cells are laid out and inserted without the container. The table
+	 * type inserts a table that is its own box (see applyTableText), which
+	 * is a plain table if cellsOnly is true.
 	 */
-	EditorUi.prototype.insertOutline = function(text, type)
+	EditorUi.prototype.insertOutline = function(text, type, cellsOnly)
 	{
 		var graph = this.editor.graph;
-		var def = Menus.layoutContainers[type];
+		var box = EditorUi.TEXT_BOX_TYPES[type];
+		var format = (box != null) ? box.format : 'outline';
+		var table = format == 'table';
+		var style = (table) ? this.getTableTextStyles().table :
+			((box != null && box.style != null) ? box.style :
+			Menus.layoutContainers[(box != null) ? box.container : type].style);
 		var pt = graph.getFreeInsertPoint();
 
 		// transparentBounds container: the geometry stays pinned at (0, 0, 0, 0)
-		var container = new mxCell('', new mxGeometry(0, 0, 0, 0),
-			def.style + 'editIcon=1;outlineEdit=1;');
+		var container = new mxCell('', new mxGeometry(0, 0, 0, 0), style + ((cellsOnly) ? '' :
+			'editIcon=1;outlineEdit=' + ((box != null) ? format : '1') + ';'));
 		container.vertex = true;
 
-		if (EditorUi.parseOutline(text).length > 0)
+		if (EditorUi.parseBoxText(text, format).length > 0)
 		{
+			var cells = [container];
+
 			graph.model.beginUpdate();
 			try
 			{
-				container = graph.addCell(container);
-				this.applyOutline(container, text, {rootStyle: def.rootStyle,
-					vertexStyle: def.vertexStyle, vertexSize: def.vertexSize,
-					edgeStyle: (def.edgeStyle != null) ? def.edgeStyle :
-						Menus.layoutContainerEdgeStyle},
+				cells = [graph.addCell(container)];
+				this.applyBoxText(container, text, format, (table) ? pt :
 					new mxPoint(pt.x + 20, pt.y + 20));
-				graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [container]));
+
+				if (cellsOnly && !table)
+				{
+					graph.layoutManager.executeLayout(container, false);
+					cells = graph.ungroupCells(cells);
+				}
+
+				graph.fireEvent(new mxEventObject('cellsInserted', 'cells', cells));
 			}
 			finally
 			{
 				graph.model.endUpdate();
 			}
 
-			graph.scrollCellToVisible(container);
-			graph.setSelectionCell(container);
+			graph.setSelectionCells(cells);
+			graph.scrollCellToVisible(graph.getSelectionCell());
 		}
 	};
 
 	/**
-	 * Opens the Outline dialog for the given layout container (see getOutline
-	 * and applyOutline). New containers are inserted from an outline in the
-	 * From Text dialog (see ParseDialog and insertOutline).
+	 * Opens the text of the given box (see getBoxText) or the outline of the
+	 * given layout container in a dialog that applies the changed text (see
+	 * applyBoxText). New boxes are inserted in the From Text dialog (see
+	 * ParseDialog and insertOutline).
 	 */
 	EditorUi.prototype.showOutlineDialog = function(container)
 	{
 		var editorUi = this;
+		var format = this.getBoxTextFormat(container);
+		format = (format != null) ? format : 'outline';
 		var div = document.createElement('div');
 
 		var textarea = document.createElement('textarea');
 		textarea.setAttribute('spellcheck', 'false');
 		textarea.setAttribute('autocorrect', 'off');
 		textarea.setAttribute('autocapitalize', 'off');
-		textarea.setAttribute('aria-label', mxResources.get('editOutline'));
+		textarea.setAttribute('aria-label', mxResources.get(
+			(format == 'outline') ? 'editOutline' : 'editText'));
 		textarea.style.boxSizing = 'border-box';
 		textarea.style.width = '100%';
 		textarea.style.height = '300px';
 		textarea.style.resize = 'none';
 		textarea.style.fontFamily = 'monospace';
+
+		// Rows of a table are lines (see getTableText)
+		if (format == 'table')
+		{
+			textarea.setAttribute('wrap', 'off');
+		}
+
 		div.appendChild(textarea);
 
 		try
 		{
-			textarea.value = this.getOutline(container);
+			textarea.value = this.getBoxText(container, format);
 		}
 		catch (e)
 		{
@@ -35072,6 +35963,9 @@
 
 			return;
 		}
+
+		// The controls of the dialog (see SimpleLayouts.js)
+		div.layoutControls = {outline: textarea, typeSelect: null, container: container, format: format};
 
 		var dlg = new CustomDialog(this, div, function()
 		{
@@ -35082,16 +35976,1728 @@
 				{
 					if (editorUi.editor.graph.model.contains(container))
 					{
-						editorUi.applyOutline(container, textarea.value, EditorUi.getOutlineDefaults(
-							editorUi.getOutlineLayout(container)));
+						editorUi.applyBoxText(container, textarea.value, format);
 					}
 				});
 			});
-		}, null, mxResources.get('apply'),
-			'https://www.drawio.com/docs/manual/insert/insert-outline/');
+		}, null, mxResources.get('apply'), 'https://www.drawio.com/docs/manual/insert/' +
+			((format == 'outline') ? 'insert-outline/' : 'insert-from-text/'));
 
 		this.showDialog(dlg.container, 440, null, true, true);
 		textarea.focus();
+	};
+
+	/**
+	 * Boxes that the From Text dialog inserts for its other types (see
+	 * ParseDialog and insertOutline): the format of their text (see
+	 * getBoxText) and their container in Menus.layoutContainers or their
+	 * style. The lists are where they are put, as their layouts (the order
+	 * of the ELK containers) put lists of different heights in the middle
+	 * of a row. The box of a table is the table (see getTableTextStyles).
+	 */
+	EditorUi.TEXT_BOX_TYPES = {list: {format: 'list',
+			style: 'group;connectable=0;transparentBounds=1;groupPadding=20;'},
+		csvTable: {format: 'table'},
+		diagram: {format: 'edges', container: 'organic'},
+		circle: {format: 'edges', container: 'circle'},
+		horizontalFlow: {format: 'edges', container: 'horizontalFlow'},
+		verticalFlow: {format: 'edges', container: 'verticalFlow'}};
+
+	/**
+	 * Styles and sizes of the lists, fields and dividers of the List type of
+	 * From Text (see ParseDialog and applyListText).
+	 */
+	EditorUi.LIST_STYLES = {
+		list: {width: 160, height: 30, style: 'swimlane;fontStyle=1;childLayout=stackLayout;' +
+			'horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;' +
+			'resizeLast=0;collapsible=1;marginBottom=0;'},
+		field: {width: 60, height: 26, style: 'text;strokeColor=none;fillColor=none;align=left;' +
+			'verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;' +
+			'points=[[0,0.5],[1,0.5]];portConstraint=eastwest;'},
+		divider: {width: 40, height: 8, style: 'line;strokeWidth=1;fillColor=none;align=left;' +
+			'verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;' +
+			'labelPosition=right;points=[];portConstraint=eastwest;'}};
+
+	/**
+	 * Returns the format of the text of the given box: outline for layout
+	 * containers with an outline (see getOutlineLayout), list, edges or
+	 * table for tables (see TEXT_BOX_TYPES) or null if it isn't edited as a
+	 * text (outlineEdit).
+	 */
+	EditorUi.prototype.getBoxTextFormat = function(cell)
+	{
+		var graph = this.editor.graph;
+		var value = (graph.model.isVertex(cell)) ? mxUtils.getValue(
+			graph.getCellStyle(cell), 'outlineEdit', '0') : '0';
+
+		return (value == '1') ? ((this.getOutlineLayout(cell) != null) ? 'outline' : null) :
+			((value == 'list' || value == 'edges' || (value == 'table' &&
+			graph.isTable(cell))) ? value : null);
+	};
+
+	/**
+	 * Returns the text of the given box in the given format (see
+	 * getBoxTextFormat, getOutline, getListText, getEdgesText and
+	 * getTableText).
+	 */
+	EditorUi.prototype.getBoxText = function(container, format)
+	{
+		return (format == 'list') ? this.getListText(container) : ((format == 'edges') ?
+			this.getEdgesText(container) : ((format == 'table') ?
+			this.getTableText(container) : this.getOutline(container)));
+	};
+
+	/**
+	 * Returns the parsed lines of the given text of a box in the given format
+	 * (see parseOutline, parseListText, parseEdgesText and parseTableText).
+	 */
+	EditorUi.parseBoxText = function(text, format)
+	{
+		return (format == 'list') ? EditorUi.parseListText(text) : ((format == 'edges') ?
+			EditorUi.parseEdgesText(text) : ((format == 'table') ?
+			EditorUi.parseTableText(text).rows : EditorUi.parseOutline(text)));
+	};
+
+	/**
+	 * Changes the cells of the given box to the given text in the given format
+	 * in one undoable edit (see applyOutline, applyListText, applyEdgesText
+	 * and applyTableText). New shapes are at the given point if the box is
+	 * empty.
+	 */
+	EditorUi.prototype.applyBoxText = function(container, text, format, pt)
+	{
+		if (format == 'list')
+		{
+			this.applyListText(container, text, pt);
+		}
+		else if (format == 'edges')
+		{
+			this.applyEdgesText(container, text, pt);
+		}
+		else if (format == 'table')
+		{
+			this.applyTableText(container, text, pt);
+		}
+		else
+		{
+			this.applyOutline(container, text, EditorUi.getOutlineDefaults(
+				this.getOutlineLayout(container)), pt);
+		}
+	};
+
+	/**
+	 * Returns the given name for the text of a box (see getListText and
+	 * getEdgesText): in double quotes, with doubled double quotes in it, if it
+	 * is empty, starts with ; (a comment) or a double quote, is -- (a
+	 * divider), contains the given separator or has spaces around it, else
+	 * unchanged (see parseBoxNames).
+	 */
+	EditorUi.quoteBoxName = function(name, separator)
+	{
+		return (name.length == 0 || name.charAt(0) == ';' || name.charAt(0) == '"' ||
+			name == '--' || mxUtils.trim(name) != name ||
+			(separator != null && name.indexOf(separator) >= 0)) ?
+			'"' + name.replace(/"/g, '""') + '"' : name;
+	};
+
+	/**
+	 * Returns the name of the given text in a box (see parseBoxNames).
+	 */
+	EditorUi.unquoteBoxName = function(text)
+	{
+		return EditorUi.parseBoxNames(text, null)[0];
+	};
+
+	/**
+	 * Returns the names in the given line of the text of a box that are
+	 * separated by the given separator (or the name of the line if it is
+	 * null) without the spaces around them. A name in double quotes (see
+	 * quoteBoxName) starts with a double quote and ends with a double quote
+	 * that is not doubled and only followed by spaces before the separator or
+	 * the end of the line. Other double quotes are text, eg. 12" pipe->valve.
+	 */
+	EditorUi.parseBoxNames = function(line, separator)
+	{
+		var isSpace = function(i)
+		{
+			return i < line.length && mxUtils.trim(line.charAt(i)).length == 0;
+		};
+
+		var names = [];
+		var i = 0;
+		var end = 0;
+
+		do
+		{
+			var start = i;
+			var name = null;
+			end = (separator != null) ? line.indexOf(separator, i) : -1;
+			end = (end >= 0) ? end : line.length;
+
+			while (start < end && isSpace(start))
+			{
+				start++;
+			}
+
+			if (line.charAt(start) == '"')
+			{
+				var text = '';
+				var j = start + 1;
+
+				while (j < line.length && (line.charAt(j) != '"' || line.charAt(j + 1) == '"'))
+				{
+					text += line.charAt(j);
+					j += (line.charAt(j) == '"') ? 2 : 1;
+				}
+
+				var k = j + 1;
+
+				while (isSpace(k))
+				{
+					k++;
+				}
+
+				if (j < line.length && (k >= line.length || (separator != null &&
+					line.substring(k, k + separator.length) == separator)))
+				{
+					name = text;
+					end = Math.min(k, line.length);
+				}
+			}
+
+			names.push((name != null) ? name : mxUtils.trim(line.substring(start, end)));
+			i = end + ((separator != null) ? separator.length : 0);
+		}
+		while (separator != null && end < line.length);
+
+		return names;
+	};
+
+	/**
+	 * Returns the lines of the given text with connections (the format of
+	 * the Diagram, Circle and Flow types of From Text, see ParseDialog) as
+	 * {names, key}, where names are the source, the label and the target of
+	 * a connection (a->b or a->label->b) or the name of a shape without
+	 * connections, and key is the text of the names. Empty lines and lines
+	 * that start with ; (comments) are ignored.
+	 */
+	EditorUi.parseEdgesText = function(text)
+	{
+		var lines = String(text).split(/\r\n|\r|\n/);
+		var result = [];
+
+		for (var i = 0; i < lines.length; i++)
+		{
+			var line = mxUtils.trim(lines[i]);
+
+			if (line.length > 0 && line.charAt(0) != ';')
+			{
+				var names = EditorUi.parseBoxNames(line, '->');
+
+				if (names.length > 1)
+				{
+					names = [names[0], (names.length > 2) ? names[1] : '', names[names.length - 1]];
+				}
+
+				result.push({names: names, key: JSON.stringify(names)});
+			}
+		}
+
+		return result;
+	};
+
+	/**
+	 * Returns the shapes and connections of the given box with connections
+	 * (see getEdgesText) as {vertices, names, items}, where names maps the
+	 * vertices to their plain labels and items are in the order of the
+	 * children: {cell, source, target, names, key} for a visible connector
+	 * between two shapes of the box and {cell, names, key} for a shape
+	 * without such connectors (see parseEdgesText).
+	 */
+	EditorUi.prototype.getEdgesItems = function(container)
+	{
+		var graph = this.editor.graph;
+		var model = graph.model;
+		var result = {vertices: [], names: new mxDictionary(), items: []};
+		var connectors = new mxDictionary();
+		var connected = new mxDictionary();
+		var count = model.getChildCount(container);
+
+		for (var i = 0; i < count; i++)
+		{
+			var child = model.getChildAt(container, i);
+
+			if (this.isBoxVertex(child))
+			{
+				result.vertices.push(child);
+				result.names.put(child, graph.getPlainLabel(child, null, true));
+			}
+		}
+
+		for (var i = 0; i < count; i++)
+		{
+			var child = model.getChildAt(container, i);
+			var source = model.getTerminal(child, true);
+			var target = model.getTerminal(child, false);
+
+			if (model.isEdge(child) && model.isVisible(child) &&
+				result.names.get(source) != null && result.names.get(target) != null)
+			{
+				var names = [result.names.get(source), graph.getPlainLabel(child, null, true),
+					result.names.get(target)];
+				connectors.put(child, {cell: child, source: source, target: target,
+					names: names, key: JSON.stringify(names)});
+				connected.put(source, true);
+				connected.put(target, true);
+			}
+		}
+
+		for (var i = 0; i < count; i++)
+		{
+			var child = model.getChildAt(container, i);
+			var item = connectors.get(child);
+
+			if (item == null && result.names.get(child) != null && !connected.get(child))
+			{
+				var names = [result.names.get(child)];
+				item = {cell: child, names: names, key: JSON.stringify(names)};
+			}
+
+			if (item != null)
+			{
+				result.items.push(item);
+			}
+		}
+
+		return result;
+	};
+
+	/**
+	 * Returns the text of the given box with connections: a line for each
+	 * connector between two shapes of the box (a->b or a->label->b) and a
+	 * line for each shape without such connectors in the order of the
+	 * children, with the plain labels in quotes if needed (see quoteBoxName).
+	 */
+	EditorUi.prototype.getEdgesText = function(container)
+	{
+		var items = this.getEdgesItems(container).items;
+		var lines = [];
+
+		for (var i = 0; i < items.length; i++)
+		{
+			var names = items[i].names;
+			lines.push((names.length > 1) ? EditorUi.quoteBoxName(names[0], '->') + '->' +
+				((names[1].length > 0) ? EditorUi.quoteBoxName(names[1], '->') + '->' : '') +
+				EditorUi.quoteBoxName(names[2], '->') : EditorUi.quoteBoxName(names[0], '->'));
+		}
+
+		return lines.join('\n');
+	};
+
+	/**
+	 * Changes the cells of the given box with connections to the given text
+	 * (see parseEdgesText) in one undoable edit. Unchanged lines keep their
+	 * cells, lines with the names of the ends of a connector keep it with its
+	 * shapes, which may have duplicate labels, and lines with one of these
+	 * names and a new name keep it and rename the shape at its other end if
+	 * the label of that shape is not in the text. Other lines take the free
+	 * shapes with their names, then the shapes whose labels are not in the
+	 * text and the other free shapes (renamed in order) or new shapes at the
+	 * origin of the box (or the given point if it is empty) as copies of the
+	 * style of its first shape, connections between the same shapes take the
+	 * label of the line and other connections are new connectors with the
+	 * style of the first connector. The shapes and connectors without a line
+	 * are removed. The layout of the box places the new shapes.
+	 */
+	EditorUi.prototype.applyEdgesText = function(container, text, pt)
+	{
+		var graph = this.editor.graph;
+		var model = graph.model;
+		var old = this.getEdgesItems(container);
+		var lines = EditorUi.parseEdgesText(text);
+		var used = new mxDictionary();
+		var vertices = Object.create(null);
+		var free = Object.create(null);
+		var seen = Object.create(null);
+		var names = [];
+
+		var add = function(map, key, value)
+		{
+			map[key] = map[key] || [];
+			map[key].push(value);
+		};
+
+		var keep = function(line, item)
+		{
+			var cells = (item.source != null) ? [item.source, item.target] : [item.cell];
+			line.old = item;
+			used.put(item.cell, true);
+
+			for (var j = 0; j < cells.length; j++)
+			{
+				used.put(cells[j], true);
+				vertices[line.ends[j]] = vertices[line.ends[j]] || cells[j];
+			}
+		};
+
+		// Unchanged lines keep their cells (the first items are popped first)
+		for (var i = old.items.length - 1; i >= 0; i--)
+		{
+			add(free, old.items[i].key, old.items[i]);
+		}
+
+		for (var i = 0; i < lines.length; i++)
+		{
+			var line = lines[i];
+			var list = free[line.key];
+			line.ends = (line.names.length > 1) ? [line.names[0], line.names[2]] : line.names;
+			line.cells = [];
+
+			if (list != null && list.length > 0)
+			{
+				keep(line, list.pop());
+			}
+
+			for (var j = 0; j < line.ends.length; j++)
+			{
+				if (!seen[line.ends[j]])
+				{
+					seen[line.ends[j]] = true;
+					names.push(line.ends[j]);
+				}
+			}
+		}
+
+		// Lines with the names of the ends of a connector keep it with its
+		// shapes, which are not the shapes of the names if labels are duplicates
+		var connectors = Object.create(null);
+
+		for (var i = old.items.length - 1; i >= 0; i--)
+		{
+			var item = old.items[i];
+
+			if (item.source != null && !used.get(item.cell))
+			{
+				add(connectors, JSON.stringify([item.names[0], item.names[2]]), item);
+			}
+		}
+
+		for (var i = 0; i < lines.length; i++)
+		{
+			var list = connectors[JSON.stringify(lines[i].ends)];
+
+			if (lines[i].old == null && list != null && list.length > 0)
+			{
+				keep(lines[i], list.pop());
+			}
+		}
+
+		// Lines with one name of a connector and a new name keep it and rename
+		// the shape at its other end if the label of that shape is not in the text
+		var known = Object.create(null);
+		var sources = Object.create(null);
+		var targets = Object.create(null);
+		var renames = [];
+
+		for (var i = 0; i < old.vertices.length; i++)
+		{
+			known[old.names.get(old.vertices[i])] = true;
+		}
+
+		for (var i = old.items.length - 1; i >= 0; i--)
+		{
+			var item = old.items[i];
+
+			if (item.source != null && !used.get(item.cell))
+			{
+				if (!seen[item.names[2]])
+				{
+					add(sources, item.names[0], item);
+				}
+
+				if (!seen[item.names[0]])
+				{
+					add(targets, item.names[2], item);
+				}
+			}
+		}
+
+		var rename = function(line, list, end, terminal)
+		{
+			while (line.old == null && list != null && list.length > 0)
+			{
+				var item = list.pop();
+
+				if (!used.get(item.cell) && !used.get(item[terminal]) &&
+					graph.isCellEditable(item[terminal]))
+				{
+					keep(line, item);
+					renames.push(line.ends[end]);
+				}
+			}
+		};
+
+		for (var i = 0; i < lines.length; i++)
+		{
+			var line = lines[i];
+
+			if (line.old == null && line.ends.length > 1)
+			{
+				if (!known[line.ends[1]] && vertices[line.ends[1]] == null)
+				{
+					rename(line, sources[line.ends[0]], 1, 'target');
+				}
+
+				if (!known[line.ends[0]] && vertices[line.ends[0]] == null)
+				{
+					rename(line, targets[line.ends[1]], 0, 'source');
+				}
+			}
+		}
+
+		// Each other line takes the free shapes with its names, so that
+		// duplicates stay, then the shapes whose labels are not in the text
+		// and the other free shapes that can be edited are renamed in order,
+		// else new shapes
+		var labels = Object.create(null);
+		var others = [];
+		var spare = [];
+
+		for (var i = old.vertices.length - 1; i >= 0; i--)
+		{
+			if (!used.get(old.vertices[i]) && seen[old.names.get(old.vertices[i])])
+			{
+				add(labels, old.names.get(old.vertices[i]), old.vertices[i]);
+			}
+		}
+
+		for (var i = 0; i < lines.length; i++)
+		{
+			var line = lines[i];
+
+			for (var j = 0; j < line.ends.length && line.old == null; j++)
+			{
+				var list = labels[line.ends[j]];
+
+				if (list != null && list.length > 0)
+				{
+					line.cells[j] = list.pop();
+					used.put(line.cells[j], true);
+					vertices[line.ends[j]] = vertices[line.ends[j]] || line.cells[j];
+				}
+			}
+		}
+
+		for (var i = 0; i < old.vertices.length; i++)
+		{
+			var cell = old.vertices[i];
+
+			if (!used.get(cell))
+			{
+				if (!seen[old.names.get(cell)])
+				{
+					others.push(cell);
+				}
+				else if (graph.isCellEditable(cell))
+				{
+					spare.push(cell);
+				}
+			}
+		}
+
+		others = others.concat(spare);
+
+		for (var i = 0, j = 0; i < names.length && j < others.length; i++)
+		{
+			if (vertices[names[i]] == null)
+			{
+				vertices[names[i]] = others[j++];
+				used.put(vertices[names[i]], true);
+				renames.push(names[i]);
+			}
+		}
+
+		// Connectors between the same shapes for the other lines
+		var between = Object.create(null);
+
+		for (var i = old.items.length - 1; i >= 0; i--)
+		{
+			var item = old.items[i];
+
+			if (item.source != null && !used.get(item.cell))
+			{
+				add(between, JSON.stringify([item.source.id, item.target.id]), item);
+			}
+		}
+
+		var template = (old.vertices.length > 0) ? old.vertices[0] : null;
+		var vertexStyle = (template != null) ? mxUtils.setStyle(mxUtils.setStyle(
+			model.getStyle(template), 'locked', null), mxConstants.STYLE_MOVABLE, null) :
+			'whiteSpace=wrap;html=1;';
+		var geo = (template != null) ? model.getGeometry(template) : null;
+		var size = (geo != null) ? [geo.width, geo.height] : [80, 30];
+		var edgeStyle = Menus.layoutContainerEdgeStyle;
+
+		for (var i = 0; i < old.items.length; i++)
+		{
+			if (old.items[i].source != null)
+			{
+				edgeStyle = model.getStyle(old.items[i].cell);
+				break;
+			}
+		}
+
+		pt = this.getOutlineOrigin(container) || pt || graph.getFreeInsertPoint();
+		var arrange = graph.beginArrange();
+
+		try
+		{
+			for (var i = 0; i < renames.length; i++)
+			{
+				var cell = vertices[renames[i]];
+
+				if (graph.isCellEditable(cell))
+				{
+					graph.cellLabelChanged(cell, this.getBoxLabelValue(cell, renames[i]),
+						graph.isAutoSizeCell(cell));
+				}
+			}
+
+			// New cells in the order of the lines
+			for (var i = 0; i < lines.length; i++)
+			{
+				var line = lines[i];
+
+				for (var j = 0; j < line.ends.length; j++)
+				{
+					if (vertices[line.ends[j]] == null)
+					{
+						var cell = new mxCell('', new mxGeometry(pt.x, pt.y, size[0], size[1]), vertexStyle);
+						cell.vertex = true;
+						cell.value = this.getBoxLabelValue(cell, line.ends[j]);
+						var pref = graph.getPreferredSizeForCell(cell);
+
+						if (pref != null)
+						{
+							cell.geometry.width = Math.max(cell.geometry.width, pref.width);
+							cell.geometry.height = Math.max(cell.geometry.height, pref.height);
+						}
+
+						vertices[line.ends[j]] = graph.addCell(cell, container);
+					}
+				}
+
+				if (line.names.length > 1)
+				{
+					var source = line.cells[0] || vertices[line.names[0]];
+					var target = line.cells[1] || vertices[line.names[2]];
+					var list = between[JSON.stringify([source.id, target.id])];
+					var item = line.old || ((list != null && list.length > 0) ? list.pop() : null);
+
+					if (item != null)
+					{
+						used.put(item.cell, true);
+
+						if (item.names[1] != line.names[1] && graph.isCellEditable(item.cell))
+						{
+							graph.cellLabelChanged(item.cell, this.getBoxLabelValue(
+								item.cell, line.names[1]), false);
+						}
+					}
+					else
+					{
+						var edge = graph.insertEdge(container, null, '', source, target, edgeStyle);
+
+						if (line.names[1].length > 0)
+						{
+							model.setValue(edge, this.getBoxLabelValue(edge, line.names[1]));
+						}
+					}
+				}
+			}
+
+			// Shapes and connectors without a line
+			var removed = [];
+
+			for (var i = 0; i < old.vertices.length; i++)
+			{
+				if (!used.get(old.vertices[i]))
+				{
+					removed.push(old.vertices[i]);
+				}
+			}
+
+			for (var i = 0; i < old.items.length; i++)
+			{
+				if (old.items[i].source != null && !used.get(old.items[i].cell))
+				{
+					removed.push(old.items[i].cell);
+				}
+			}
+
+			this.removeBoxCells(removed);
+		}
+		finally
+		{
+			graph.endArrange(arrange);
+		}
+	};
+
+	/**
+	 * Removes the given cells of a box with their connectors. The connectors
+	 * are removed first, so that removing a shape in a tree container (see
+	 * Trees.js) does not remove the shapes below it, which may still be in
+	 * the text of the box.
+	 */
+	EditorUi.prototype.removeBoxCells = function(cells)
+	{
+		var graph = this.editor.graph;
+		var model = graph.model;
+		var vertices = [];
+		var edges = [];
+		var seen = new mxDictionary();
+
+		for (var i = 0; i < cells.length; i++)
+		{
+			(model.isEdge(cells[i]) ? edges : vertices).push(cells[i]);
+		}
+
+		edges = edges.concat(graph.getAllEdges(vertices)).filter(function(edge)
+		{
+			var result = !seen.get(edge);
+			seen.put(edge, true);
+
+			return result;
+		});
+
+		if (edges.length > 0)
+		{
+			graph.removeCells(edges, false);
+		}
+
+		if (vertices.length > 0)
+		{
+			graph.removeCells(vertices, true);
+		}
+	};
+
+	/**
+	 * Moves the given children of the given parent to its end in the given
+	 * order if they are not in that order.
+	 */
+	EditorUi.prototype.orderBoxCells = function(parent, cells)
+	{
+		var model = this.editor.graph.model;
+		var index = new mxDictionary();
+		var sorted = true;
+
+		for (var i = 0; i < model.getChildCount(parent); i++)
+		{
+			index.put(model.getChildAt(parent, i), i);
+		}
+
+		for (var i = 1; i < cells.length && sorted; i++)
+		{
+			sorted = index.get(cells[i - 1]) < index.get(cells[i]);
+		}
+
+		for (var i = 0; i < cells.length && !sorted; i++)
+		{
+			model.add(parent, cells[i]);
+		}
+	};
+
+	/**
+	 * Sets old of the given lines of a text (see parseListText) to the given
+	 * old item with the same key, else to the next unused old item of the
+	 * same kind (row or divider) in order, or to null.
+	 */
+	EditorUi.matchBoxItems = function(items, lines)
+	{
+		var free = Object.create(null);
+		var used = [];
+		var next = [0, 0];
+
+		for (var j = items.length - 1; j >= 0; j--)
+		{
+			free[items[j].key] = free[items[j].key] || [];
+			free[items[j].key].push(j);
+		}
+
+		for (var i = 0; i < lines.length; i++)
+		{
+			var list = free[lines[i].key];
+			lines[i].old = null;
+
+			if (list != null && list.length > 0)
+			{
+				var j = list.pop();
+				lines[i].old = items[j];
+				used[j] = true;
+			}
+		}
+
+		for (var i = 0; i < lines.length; i++)
+		{
+			var kind = (lines[i].divider) ? 1 : 0;
+			var j = next[kind];
+
+			while (lines[i].old == null && j < items.length &&
+				(used[j] || ((items[j].divider) ? 1 : 0) != kind))
+			{
+				j++;
+			}
+
+			if (lines[i].old == null && j < items.length)
+			{
+				lines[i].old = items[j];
+				used[j] = true;
+			}
+
+			next[kind] = j;
+		}
+	};
+
+	/**
+	 * Returns the key of a list or row of the text of a list box (see
+	 * parseListText). Labels have no newlines (see getPlainLabel).
+	 */
+	EditorUi.getListKey = function(name, divider)
+	{
+		return (divider) ? '\n--' : name;
+	};
+
+	/**
+	 * Returns the lists of the given text (the format of the List type of From
+	 * Text, see ParseDialog) as {name, key, rows}, where the rows are {name,
+	 * divider, key}: a list is a line and the lines after it up to an empty
+	 * line, where -- is a divider. Lines that start with ; (comments) are
+	 * ignored.
+	 */
+	EditorUi.parseListText = function(text)
+	{
+		var lines = String(text).split(/\r\n|\r|\n/);
+		var result = [];
+		var list = null;
+
+		for (var i = 0; i < lines.length; i++)
+		{
+			var line = mxUtils.trim(lines[i]);
+
+			if (line.length == 0)
+			{
+				list = null;
+			}
+			else if (line.charAt(0) != ';')
+			{
+				var divider = list != null && line == '--';
+				var name = (divider) ? '' : EditorUi.unquoteBoxName(line);
+				var item = {name: name, divider: divider, key: EditorUi.getListKey(name, divider)};
+
+				if (list == null)
+				{
+					item.rows = [];
+					list = item;
+					result.push(list);
+				}
+				else
+				{
+					list.rows.push(item);
+				}
+			}
+		}
+
+		return result;
+	};
+
+	/**
+	 * Returns the lists in the given list box as {cell, name, key, rows} in
+	 * the order of the children (see isBoxVertex), where rows are the vertex
+	 * children that are not relative as {cell, name, divider, key} and
+	 * dividers are lines (see parseListText).
+	 */
+	EditorUi.prototype.getListItems = function(container)
+	{
+		var graph = this.editor.graph;
+		var model = graph.model;
+		var result = [];
+
+		for (var i = 0; i < model.getChildCount(container); i++)
+		{
+			var child = model.getChildAt(container, i);
+
+			if (this.isBoxVertex(child))
+			{
+				var name = graph.getPlainLabel(child, null, true);
+				var list = {cell: child, name: name, key: EditorUi.getListKey(name, false), rows: []};
+
+				for (var j = 0; j < model.getChildCount(child); j++)
+				{
+					var row = model.getChildAt(child, j);
+					var geo = model.getGeometry(row);
+
+					if (model.isVertex(row) && geo != null && !geo.relative)
+					{
+						var divider = graph.getCurrentCellStyle(row)[mxConstants.STYLE_SHAPE] == 'line';
+						name = (divider) ? '' : graph.getPlainLabel(row, null, true);
+						list.rows.push({cell: row, name: name, divider: divider,
+							key: EditorUi.getListKey(name, divider)});
+					}
+				}
+
+				result.push(list);
+			}
+		}
+
+		return result;
+	};
+
+	/**
+	 * Returns the text of the given list box: the label of each list and a
+	 * line for each row (-- for a divider) with empty lines between the lists,
+	 * with the plain labels in quotes if needed (see quoteBoxName).
+	 */
+	EditorUi.prototype.getListText = function(container)
+	{
+		var lists = this.getListItems(container);
+		var result = [];
+
+		for (var i = 0; i < lists.length; i++)
+		{
+			var lines = [EditorUi.quoteBoxName(lists[i].name)];
+
+			for (var j = 0; j < lists[i].rows.length; j++)
+			{
+				var row = lists[i].rows[j];
+				lines.push((row.divider) ? '--' : EditorUi.quoteBoxName(row.name));
+			}
+
+			result.push(lines.join('\n'));
+		}
+
+		return result.join('\n\n');
+	};
+
+	/**
+	 * Changes the lists of the given list box to the given text (see
+	 * parseListText) in one undoable edit. The lists and rows are matched
+	 * with the lists of the box and their rows with the same label first and
+	 * then in order (see matchBoxItems): matched labels are changed, new
+	 * lists and rows copy the style of the first list, field and divider
+	 * (else EditorUi.LIST_STYLES), lists are as wide as their labels, new
+	 * lists are right of the others (or at the given point if the box is
+	 * empty), lists and rows without a line are removed and the lists and
+	 * rows are in the order of the lines.
+	 */
+	EditorUi.prototype.applyListText = function(container, text, pt)
+	{
+		var graph = this.editor.graph;
+		var model = graph.model;
+		var old = this.getListItems(container);
+		var lists = EditorUi.parseListText(text);
+		var used = new mxDictionary();
+		var templates = {};
+		var right = null;
+
+		for (var i = 0; i < old.length; i++)
+		{
+			var geo = model.getGeometry(old[i].cell);
+			right = Math.max((right != null) ? right : geo.x + geo.width, geo.x + geo.width);
+			templates.list = templates.list || old[i].cell;
+
+			for (var j = 0; j < old[i].rows.length; j++)
+			{
+				var kind = (old[i].rows[j].divider) ? 'divider' : 'field';
+				templates[kind] = templates[kind] || old[i].rows[j].cell;
+			}
+		}
+
+		var create = mxUtils.bind(this, function(kind, name)
+		{
+			var def = EditorUi.LIST_STYLES[kind];
+			var template = templates[kind];
+			var cell = new mxCell('', new mxGeometry(0, 0, def.width, (template != null &&
+				kind != 'list') ? model.getGeometry(template).height : def.height),
+				(template != null) ? mxUtils.setStyle(mxUtils.setStyle(model.getStyle(template),
+				'locked', null), mxConstants.STYLE_MOVABLE, null) : def.style);
+			cell.vertex = true;
+			cell.value = (kind != 'divider') ? this.getBoxLabelValue(cell, name) : '';
+
+			return cell;
+		});
+
+		var getWidth = function(cell, min, spacing)
+		{
+			var size = graph.getPreferredSizeForCell(cell);
+
+			return (size != null) ? Math.max(min, size.width + spacing) : min;
+		};
+
+		var origin = this.getOutlineOrigin(container);
+		pt = pt || graph.getFreeInsertPoint();
+		var x = (right != null) ? right + 40 : pt.x;
+		var y = (origin != null) ? origin.y : pt.y;
+		var removed = [];
+		EditorUi.matchBoxItems(old, lists);
+		var arrange = graph.beginArrange();
+
+		try
+		{
+			for (var i = 0; i < lists.length; i++)
+			{
+				var list = lists[i];
+				var rows = list.rows;
+				list.cell = (list.old != null) ? list.old.cell : create('list', list.name);
+				var geo = model.getGeometry(list.cell);
+				var width = geo.width;
+				var height = geo.height;
+
+				if (list.old != null)
+				{
+					used.put(list.cell, true);
+					EditorUi.matchBoxItems(list.old.rows, rows);
+
+					if (list.old.key != list.key && graph.isCellEditable(list.cell))
+					{
+						graph.cellLabelChanged(list.cell, this.getBoxLabelValue(
+							list.cell, list.name), false);
+						width = Math.max(width, getWidth(list.cell, 0, 10));
+					}
+				}
+				else
+				{
+					width = Math.max(width, getWidth(list.cell, 0, 10));
+				}
+
+				for (var j = 0; j < rows.length; j++)
+				{
+					var row = rows[j];
+
+					if (row.old != null)
+					{
+						row.cell = row.old.cell;
+						used.put(row.cell, true);
+
+						if (row.old.key != row.key && graph.isCellEditable(row.cell))
+						{
+							graph.cellLabelChanged(row.cell, this.getBoxLabelValue(
+								row.cell, row.name), false);
+							width = Math.max(width, getWidth(row.cell,
+								EditorUi.LIST_STYLES.field.width, 0));
+						}
+					}
+					else
+					{
+						row.cell = create((row.divider) ? 'divider' : 'field', row.name);
+						height += row.cell.geometry.height;
+
+						if (!row.divider)
+						{
+							width = Math.max(width, getWidth(row.cell,
+								EditorUi.LIST_STYLES.field.width, 0));
+						}
+
+						if (list.old != null)
+						{
+							graph.addCell(row.cell, list.cell);
+						}
+						else
+						{
+							list.cell.insert(row.cell);
+						}
+					}
+				}
+
+				if (list.old != null)
+				{
+					for (var j = 0; j < list.old.rows.length; j++)
+					{
+						if (!used.get(list.old.rows[j].cell))
+						{
+							removed.push(list.old.rows[j].cell);
+						}
+					}
+
+					if (width > geo.width)
+					{
+						geo = geo.clone();
+						geo.width = width;
+						model.setGeometry(list.cell, geo);
+					}
+
+					this.orderBoxCells(list.cell, rows.map(function(row)
+					{
+						return row.cell;
+					}));
+				}
+				else
+				{
+					list.cell.geometry = new mxGeometry(x, y, width, height);
+					graph.addCell(list.cell, container);
+					x += width + 40;
+				}
+			}
+
+			for (var i = 0; i < old.length; i++)
+			{
+				if (!used.get(old[i].cell))
+				{
+					removed.push(old[i].cell);
+				}
+			}
+
+			this.removeBoxCells(removed);
+			this.orderBoxCells(container, lists.map(function(list)
+			{
+				return list.cell;
+			}));
+		}
+		finally
+		{
+			graph.endArrange(arrange);
+		}
+	};
+
+	/**
+	 * Separators of the text of a table (see parseTableText) by their names,
+	 * which are the values of csvSeparator in the style of a table (no value
+	 * is comma). Detection prefers them in this order (see
+	 * detectTableSeparator): semicolon before comma, because commas are
+	 * more often in fields (decimal commas, "Doe, John") than semicolons.
+	 */
+	EditorUi.TABLE_SEPARATORS = {tab: '\t', semicolon: ';', comma: ','};
+
+	/**
+	 * Smallest and largest width of a new column and smallest height of a
+	 * new row of a table from a text (see applyTableText). Longer labels
+	 * wrap in the largest width.
+	 */
+	EditorUi.TABLE_TEXT_SIZES = {minWidth: 40, maxWidth: 240, minHeight: 30};
+
+	/**
+	 * Returns the rows of the given text of a table (CSV) with the given
+	 * separator as arrays of fields, at most limit rows if limit is not
+	 * null. Rows end at a newline (\r\n, \r or \n) outside of quotes. A
+	 * field that starts with a double quote (after spaces) is quoted: it
+	 * ends at the next double quote that is not doubled and may contain
+	 * separators and newlines, doubled quotes are a quote, and text after
+	 * the quote up to the separator is added to it (as spreadsheets do).
+	 * Other fields are trimmed, so their quotes are text. Empty lines and
+	 * lines with only spaces are no rows, a line with "" is a row with an
+	 * empty field. A byte order mark at the start is ignored.
+	 */
+	EditorUi.parseTableRows = function(text, separator, limit)
+	{
+		text = String(text);
+		text = (text.charAt(0) == '\uFEFF') ? text.substring(1) : text;
+		var n = text.length;
+		var rows = [];
+		var row = [];
+		var quoted = false;
+		var i = 0;
+
+		var isEnd = function(j)
+		{
+			var c = text.charAt(j);
+
+			return j >= n || c == separator || c == '\n' || c == '\r';
+		};
+
+		while (limit == null || rows.length < limit)
+		{
+			var j = i;
+			var field = null;
+
+			// Spaces before a quote
+			while (j < n && (text.charAt(j) == ' ' || (text.charAt(j) == '\t' && separator != '\t')))
+			{
+				j++;
+			}
+
+			if (j < n && text.charAt(j) == '"')
+			{
+				var value = [];
+				j++;
+
+				while (j < n && (text.charAt(j) != '"' || text.charAt(j + 1) == '"'))
+				{
+					value.push(text.charAt(j));
+					j += (text.charAt(j) == '"') ? 2 : 1;
+				}
+
+				var k = Math.min(j + 1, n);
+
+				while (!isEnd(k))
+				{
+					k++;
+				}
+
+				field = value.join('') + text.substring(Math.min(j + 1, n), k).replace(/\s+$/, '');
+				quoted = true;
+				j = k;
+			}
+			else
+			{
+				j = i;
+
+				while (!isEnd(j))
+				{
+					j++;
+				}
+
+				field = mxUtils.trim(text.substring(i, j));
+			}
+
+			row.push(field);
+
+			if (j < n && text.charAt(j) == separator)
+			{
+				i = j + 1;
+			}
+			else
+			{
+				if (row.length > 1 || row[0].length > 0 || quoted)
+				{
+					rows.push(row);
+				}
+
+				row = [];
+				quoted = false;
+				i = j + ((text.charAt(j) == '\r' && text.charAt(j + 1) == '\n') ? 2 : 1);
+
+				if (j >= n)
+				{
+					break;
+				}
+			}
+		}
+
+		return rows;
+	};
+
+	/**
+	 * Returns the name of the separator of the given text of a table (see
+	 * TABLE_SEPARATORS): the one that splits the first rows into the most
+	 * rows with the number of fields of the first row, then into the most
+	 * fields, then the first of TABLE_SEPARATORS. Tabs are cells copied
+	 * from a spreadsheet. If no separator splits the first row (a table
+	 * with one column), it is the optional preferred name (the separator
+	 * of the table that is edited, see applyTableText), else comma. The
+	 * preferred name never wins over a separator that splits the first
+	 * row, so pasted cells are read as they are: the text of a table is
+	 * written so that it is read with its own separator (see getTableText).
+	 */
+	EditorUi.detectTableSeparator = function(text, preferred)
+	{
+		var result = null;
+		var best = 0;
+
+		for (var name in EditorUi.TABLE_SEPARATORS)
+		{
+			var rows = EditorUi.parseTableRows(text, EditorUi.TABLE_SEPARATORS[name], 10);
+
+			if (rows.length > 0 && rows[0].length > 1)
+			{
+				var same = 0;
+
+				for (var i = 0; i < rows.length; i++)
+				{
+					same += (rows[i].length == rows[0].length) ? 1 : 0;
+				}
+
+				var score = 1000 * same / rows.length + rows[0].length;
+
+				if (score > best)
+				{
+					best = score;
+					result = name;
+				}
+			}
+		}
+
+		if (result == null && preferred != null && Object.prototype.hasOwnProperty.call(
+			EditorUi.TABLE_SEPARATORS, preferred))
+		{
+			result = preferred;
+		}
+
+		return (result != null) ? result : 'comma';
+	};
+
+	/**
+	 * Returns the given text of a table (the Table type of From Text, see
+	 * ParseDialog) as {separator, rows}, where separator is the name of the
+	 * separator (see detectTableSeparator with the optional preferred name)
+	 * and rows are the arrays of the fields of the rows (see parseTableRows).
+	 * The first row is the header.
+	 */
+	EditorUi.parseTableText = function(text, preferred)
+	{
+		var separator = EditorUi.detectTableSeparator(text, preferred);
+
+		return {separator: separator, rows: EditorUi.parseTableRows(text,
+			EditorUi.TABLE_SEPARATORS[separator])};
+	};
+
+	/**
+	 * Returns the given fields as a line of the text of a table with the
+	 * given separator: in double quotes with doubled double quotes if they
+	 * contain the separator, a quote or a newline, have spaces around them
+	 * or are the only field and empty (see parseTableRows). If all is true,
+	 * fields with any of the TABLE_SEPARATORS are quoted.
+	 */
+	EditorUi.formatTableRow = function(fields, separator, all)
+	{
+		return fields.map(function(field)
+		{
+			return (field.indexOf(separator) >= 0 || /["\r\n]/.test(field) ||
+				(all && /[\t,;]/.test(field)) || mxUtils.trim(field) != field ||
+				(fields.length == 1 && field.length == 0)) ?
+				'"' + field.replace(/"/g, '""') + '"' : field;
+		}).join(separator);
+	};
+
+	/**
+	 * Returns the styles of a new table from a text (see applyTableText) as
+	 * {table, row, cell, header}: the styles of the tables of Insert > Table
+	 * (see Graph.createTable) with bold labels in the header.
+	 */
+	EditorUi.prototype.getTableTextStyles = function()
+	{
+		var table = this.editor.graph.createTable(1, 1);
+		var row = table.getChildAt(0);
+		var cell = row.getChildAt(0);
+
+		return {table: table.style, row: row.style, cell: cell.style,
+			header: mxUtils.setStyle(cell.style, mxConstants.STYLE_FONTSTYLE, 1)};
+	};
+
+	/**
+	 * Returns the rows of the given table as {row, cells} in the order of
+	 * the children, where cells are the vertex children of the row.
+	 */
+	EditorUi.prototype.getTableItems = function(table)
+	{
+		var model = this.editor.graph.model;
+
+		return model.getChildCells(table, true, false).map(function(row)
+		{
+			return {row: row, cells: model.getChildCells(row, true, false)};
+		});
+	};
+
+	/**
+	 * Returns the text of the label of the given cell of a table with its
+	 * line breaks (see getBoxLabelValue).
+	 */
+	EditorUi.prototype.getTableCellText = function(cell)
+	{
+		var graph = this.editor.graph;
+		var label = graph.convertValueToString(cell);
+		label = (label != null) ? String(label) : '';
+
+		if (graph.isHtmlLabel(cell) && mxUtils.getValue(
+			graph.getCurrentCellStyle(cell), 'html', '0') != '0')
+		{
+			// Inert document: nothing in the label is loaded or run
+			var doc = new DOMParser().parseFromString(label, 'text/html');
+			label = mxUtils.extractTextWithWhitespace(doc.body.childNodes);
+		}
+
+		return label.replace(/\u00a0/g, ' ').replace(/(\r\n|\r|\n)+$/, '');
+	};
+
+	/**
+	 * Returns the name of the separator of the given table (csvSeparator in
+	 * its style, see TABLE_SEPARATORS), comma if it has none or an unknown
+	 * name.
+	 */
+	EditorUi.prototype.getTableSeparator = function(table)
+	{
+		var name = mxUtils.getValue(this.editor.graph.getCellStyle(table), 'csvSeparator', 'comma');
+
+		return (Object.prototype.hasOwnProperty.call(EditorUi.TABLE_SEPARATORS, name)) ?
+			name : 'comma';
+	};
+
+	/**
+	 * Returns the text of the given table (see parseTableText): a line for
+	 * each row with the labels of its cells (see getTableCellText) with the
+	 * separator of the table (see getTableSeparator and formatTableRow).
+	 * Rows with fewer cells end with empty fields. The text is always read
+	 * back with the separator it is written with (see detectTableSeparator
+	 * and applyTableText): if labels with other separators would make it
+	 * read with another one, fields with any separator are quoted, and if
+	 * that is not enough (another separator in a later field of every row),
+	 * the text is written with the first separator of TABLE_SEPARATORS that
+	 * it is read with.
+	 */
+	EditorUi.prototype.getTableText = function(table)
+	{
+		var name = this.getTableSeparator(table);
+		var items = this.getTableItems(table);
+		var count = 0;
+		var rows = [];
+
+		for (var i = 0; i < items.length; i++)
+		{
+			count = Math.max(count, items[i].cells.length);
+		}
+
+		for (var i = 0; i < items.length; i++)
+		{
+			var fields = [];
+
+			for (var j = 0; j < count; j++)
+			{
+				fields.push((j < items[i].cells.length) ? this.getTableCellText(items[i].cells[j]) : '');
+			}
+
+			rows.push(fields);
+		}
+
+		var format = function(sep, all)
+		{
+			return rows.map(function(fields)
+			{
+				return EditorUi.formatTableRow(fields, EditorUi.TABLE_SEPARATORS[sep], all);
+			}).join('\n');
+		};
+
+		var text = format(name, false);
+
+		if (EditorUi.detectTableSeparator(text, name) != name)
+		{
+			// Quotes all separators, then tries the other separators
+			var names = [name];
+
+			for (var sep in EditorUi.TABLE_SEPARATORS)
+			{
+				if (sep != name)
+				{
+					names.push(sep);
+				}
+			}
+
+			text = null;
+
+			for (var i = 0; i < names.length && text == null; i++)
+			{
+				var candidate = format(names[i], true);
+
+				if (EditorUi.detectTableSeparator(candidate, name) == names[i])
+				{
+					text = candidate;
+				}
+			}
+
+			text = (text != null) ? text : format(name, true);
+		}
+
+		return text;
+	};
+
+	/**
+	 * Changes the given table to the given text (see parseTableText) in one
+	 * undoable edit. Rows and columns are matched by their position: the
+	 * cells keep their styles and geometries and changed labels are set
+	 * (not of cells that cannot be edited), the rows and columns without a
+	 * line or field are removed and new rows and columns are added at the
+	 * end. New rows copy the last row below the header and new columns the
+	 * last cell of their row, else the styles of getTableTextStyles (the
+	 * first row is the header). Columns and rows grow to their new labels
+	 * (see TABLE_TEXT_SIZES). An empty table is placed at the given point
+	 * and the separator of the text is stored in csvSeparator if the table
+	 * is edited as a text (see getBoxTextFormat). The separator of the text
+	 * is detected (see detectTableSeparator), a table with one column keeps
+	 * its separator (see getTableSeparator). The text of the table (see
+	 * getTableText) and an empty text change nothing.
+	 */
+	EditorUi.prototype.applyTableText = function(table, text, pt)
+	{
+		var graph = this.editor.graph;
+		var model = graph.model;
+		var items = this.getTableItems(table);
+
+		if (items.length > 0 && text == this.getTableText(table))
+		{
+			return;
+		}
+
+		// Separator of a table with one column if no separator splits the text
+		var parsed = EditorUi.parseTableText(text, (items.length > 0) ?
+			this.getTableSeparator(table) : null);
+		var lines = parsed.rows;
+
+		if (lines.length == 0)
+		{
+			return;
+		}
+
+		var styles = this.getTableTextStyles();
+		var sizes = EditorUi.TABLE_TEXT_SIZES;
+		var template = (items.length > 1) ? items[items.length - 1] : null;
+		var count = 0;
+		var widths = [];
+		var heights = [];
+		var measured = [];
+		var removed = [];
+
+		for (var i = 0; i < lines.length; i++)
+		{
+			count = Math.max(count, lines[i].length);
+		}
+
+		// Widths of the columns of the first row
+		if (items.length > 0)
+		{
+			for (var j = 0; j < items[0].cells.length; j++)
+			{
+				var geo = model.getGeometry(items[0].cells[j]);
+				widths.push((geo == null) ? sizes.minWidth : ((geo.alternateBounds != null) ?
+					geo.alternateBounds.width : geo.width));
+			}
+		}
+
+		var create = function(source, style)
+		{
+			var cell = (source != null) ? model.cloneCell(source, false) :
+				new mxCell('', new mxGeometry(), style);
+			cell.vertex = true;
+			cell.value = '';
+			cell.style = mxUtils.setStyle(mxUtils.setStyle(cell.style,
+				'rowspan', null), 'colspan', null);
+
+			if (cell.geometry == null)
+			{
+				cell.geometry = new mxGeometry();
+			}
+
+			return cell;
+		};
+
+		var getLabelWidth = function(cell)
+		{
+			var style = graph.getCurrentCellStyle(cell);
+			var spacing = parseFloat(mxUtils.getValue(style, mxConstants.STYLE_SPACING, 2));
+
+			return 2 * spacing + parseFloat(mxUtils.getValue(style, mxConstants.STYLE_SPACING_LEFT, 2)) +
+				parseFloat(mxUtils.getValue(style, mxConstants.STYLE_SPACING_RIGHT, 2));
+		};
+
+		var origin = model.getGeometry(table);
+		var offset = graph.getActualStartSize(table, true);
+		var arrange = graph.beginArrange();
+
+		try
+		{
+			var rows = [];
+
+			for (var i = 0; i < lines.length; i++)
+			{
+				var item = items[i];
+				var source = (item != null) ? item : ((i > 0) ? template : null);
+				var row = (item != null) ? item.row : create((source != null) ? source.row : null,
+					styles.row);
+				var cells = (item != null) ? item.cells.slice() : [];
+				var height = (source != null && model.getGeometry(source.row) != null) ?
+					model.getGeometry(source.row).height : sizes.minHeight;
+				measured[i] = [];
+
+				for (var j = 0; j < count; j++)
+				{
+					var field = (j < lines[i].length) ? lines[i][j] : '';
+					var cell = cells[j];
+
+					if (cell == null)
+					{
+						// New columns copy the last cell of their row
+						var last = (j > 0) ? cells[j - 1] : ((source != null && source.cells.length > 0) ?
+							source.cells[Math.min(j, source.cells.length - 1)] : null);
+						cell = create((item != null || (source != null && j >= source.cells.length)) ? last :
+							((source != null) ? source.cells[j] : null),
+							(i == 0) ? styles.header : styles.cell);
+						cells[j] = cell;
+
+						if (item != null)
+						{
+							model.add(row, cell);
+						}
+						else
+						{
+							row.insert(cell);
+						}
+
+						cell.value = this.getBoxLabelValue(cell, field);
+						measured[i][j] = field.length > 0;
+					}
+					else if (this.getTableCellText(cell) != field && graph.isCellEditable(cell))
+					{
+						graph.cellLabelChanged(cell, this.getBoxLabelValue(cell, field), false);
+						measured[i][j] = field.length > 0;
+					}
+				}
+
+				removed = removed.concat(cells.slice(count));
+				rows.push({row: row, cells: cells, item: item});
+				heights.push(height);
+			}
+
+			for (var i = lines.length; i < items.length; i++)
+			{
+				removed.push(items[i].row);
+			}
+
+			// Removes the cells and rows (Graph.removeCells only clears the
+			// labels of table cells) and the ties of the removed cells
+			if (removed.length > 0)
+			{
+				graph.removeTieReferences(mxGraph.prototype.removeCells.call(graph, removed, true));
+			}
+
+			// New columns fit their labels, others grow to their changed labels
+			var preferred = [];
+
+			for (var i = 0; i < rows.length; i++)
+			{
+				preferred[i] = [];
+
+				for (var j = 0; j < count; j++)
+				{
+					if (measured[i][j])
+					{
+						preferred[i][j] = graph.getPreferredSizeForCell(rows[i].cells[j], null, false);
+					}
+				}
+			}
+
+			for (var j = 0; j < count; j++)
+			{
+				var width = 0;
+
+				for (var i = 0; i < rows.length; i++)
+				{
+					if (preferred[i][j] != null)
+					{
+						width = Math.max(width, Math.ceil(preferred[i][j].width));
+					}
+				}
+
+				widths[j] = (j < widths.length) ? Math.max(widths[j], Math.min(width, sizes.maxWidth)) :
+					Math.max(sizes.minWidth, Math.min(width, sizes.maxWidth));
+			}
+
+			widths.length = count;
+
+			// Rows grow to their new labels, which wrap in the width of their column
+			for (var i = 0; i < rows.length; i++)
+			{
+				for (var j = 0; j < count; j++)
+				{
+					var size = preferred[i][j];
+
+					if (size != null && size.width > widths[j])
+					{
+						size = graph.getPreferredSizeForCell(rows[i].cells[j], Math.max(1,
+							widths[j] - getLabelWidth(rows[i].cells[j]) - 10), false);
+					}
+
+					if (size != null)
+					{
+						heights[i] = Math.max(heights[i], Math.ceil(size.height));
+					}
+				}
+			}
+
+			// Geometries as the table layout places them
+			var rowStart = (rows.length > 0) ? graph.getActualStartSize(rows[0].row, true) :
+				new mxRectangle();
+			var tw = rowStart.x + rowStart.width;
+			var y = offset.y;
+
+			for (var j = 0; j < count; j++)
+			{
+				tw += widths[j];
+			}
+
+			for (var i = 0; i < rows.length; i++)
+			{
+				var row = rows[i].row;
+				var geo = model.getGeometry(row);
+				geo = (geo != null) ? geo.clone() : new mxGeometry();
+				geo.x = offset.x;
+				geo.y = y;
+				geo.width = tw;
+				geo.height = heights[i];
+				var x = graph.getActualStartSize(row, true).x;
+
+				for (var j = 0; j < count; j++)
+				{
+					var cell = rows[i].cells[j];
+					var cellGeo = model.getGeometry(cell).clone();
+					cellGeo.x = x;
+					cellGeo.y = 0;
+					cellGeo.width = widths[j];
+					cellGeo.height = heights[i];
+					cellGeo.alternateBounds = new mxRectangle(0, 0, cellGeo.width, cellGeo.height);
+					x += widths[j];
+
+					if (!model.contains(cell))
+					{
+						cell.geometry = cellGeo;
+					}
+					else if (!cellGeo.equals(model.getGeometry(cell)))
+					{
+						model.setGeometry(cell, cellGeo);
+					}
+				}
+
+				if (rows[i].item != null)
+				{
+					if (!geo.equals(model.getGeometry(row)))
+					{
+						model.setGeometry(row, geo);
+					}
+				}
+				else
+				{
+					row.geometry = geo;
+					model.add(table, row);
+				}
+
+				y += heights[i];
+			}
+
+			var tableGeo = (origin != null) ? origin.clone() : new mxGeometry();
+			pt = (items.length == 0) ? (pt || graph.getFreeInsertPoint()) : null;
+
+			if (pt != null)
+			{
+				tableGeo.x = pt.x;
+				tableGeo.y = pt.y;
+			}
+
+			tableGeo.width = tw + offset.x + offset.width;
+			tableGeo.height = y + offset.height;
+
+			if (origin == null || !tableGeo.equals(origin))
+			{
+				model.setGeometry(table, tableGeo);
+			}
+
+			// Stores the separator of the text in a table that is edited as a text
+			var name = (parsed.separator != 'comma') ? parsed.separator : null;
+
+			if (this.getBoxTextFormat(table) == 'table' &&
+				graph.getCellStyle(table)['csvSeparator'] != name)
+			{
+				model.setStyle(table, mxUtils.setStyle(model.getStyle(table), 'csvSeparator', name));
+			}
+		}
+		finally
+		{
+			graph.endArrange(arrange);
+		}
 	};
 
 	/**
@@ -39238,7 +41844,9 @@
 	};
 
 	/**
-	 * Extends sidebar construction to add listeners for theme changes.
+	 * Adds the palettes and the search entries of the open libraries again,
+	 * in the same order and expanded or collapsed as before, after the
+	 * sidebar was built again (see Sidebar.refresh), which removes both.
 	 */
 	EditorUi.prototype.restoreOpenLibraries = function()
 	{
@@ -39249,10 +41857,23 @@
 		{
 			for (var i = 0; i < temp.length; i++)
 			{
-				this.libraryLoaded(temp[i].file, temp[i].images,
-					temp[i].title, (temp[i].div != null) ?
-						temp[i].div.style.display != 'none' :
-						temp[i].expand);
+				try
+				{
+					this.libraryLoaded(temp[i].file, temp[i].images,
+						temp[i].title, (temp[i].div != null) ?
+							temp[i].div.style.display != 'none' :
+							temp[i].expand, temp[i].tags);
+				}
+				catch (e)
+				{
+					// Keeps the library open for the next refresh
+					if (this.openLibraries == null)
+					{
+						this.openLibraries = [];
+					}
+
+					this.openLibraries.push(temp[i]);
+				}
 			}
 		}
 	};
@@ -39269,9 +41890,9 @@
 		var file = this.getCurrentFile();
 		var ss = this.getSelectionState();
 		var active = this.isDiagramActive();
-		var editable = (urlParams['embed'] == '1' &&
+		var editable = !this.isLocked() && ((urlParams['embed'] == '1' &&
 			this.editor.graph.isEnabled()) ||
-			(file != null && file.isEditable());
+			(file != null && file.isEditable()));
 		this.actions.get('undo').setEnabled(this.canUndo() && editable);
 		this.actions.get('redo').setEnabled(this.canRedo() && editable);
 		this.actions.get('autosave').setEnabled(file != null && file.isEditable() && file.isAutosaveOptional());
@@ -39833,6 +42454,15 @@
 		}));
 
 		div.appendChild(libsSection);
+
+		// The parts of the dialog for layouts that rearrange them (the
+		// Browser template of Simple Modern, see SimpleFrames.js)
+		if (typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern())
+		{
+			div.className = 'geRemoteLibraries';
+		}
+
+		div.remoteLibraryControls = {title: hd, list: libsSection};
 		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
@@ -41221,6 +43851,197 @@
 		{
 			error({message: mxResources.get('unknownError')});
 		}
+	};
+
+	/**
+	 * Restores the given XML of a revision of the given file: with the
+	 * restoreFn of getRevisions if there is one, else the file is saved, its
+	 * data is replaced with the XML and the realtime sync is told. start is
+	 * called before the save, stopped right after the save ends (also if it
+	 * failed), success after the restore and error after a failed save
+	 * (RevisionDialog and Versions in Simple Modern).
+	 */
+	EditorUi.prototype.restoreRevision = function(file, xml, restoreFn, start, success, error, stopped)
+	{
+		if (restoreFn != null)
+		{
+			restoreFn(xml);
+		}
+		else if (this.spinner.spin(document.body, mxResources.get('restoring')))
+		{
+			if (start != null)
+			{
+				start();
+			}
+
+			file.save(true, mxUtils.bind(this, function(resp)
+			{
+				this.spinner.stop();
+
+				if (stopped != null)
+				{
+					stopped();
+				}
+
+				this.replaceFileData(xml);
+
+				// A restore in a realtime session must flow
+				// like a local change or the sync keeps the
+				// pre-restore state (the stale own pages then
+				// made the next cleanup revert legitimate
+				// peer edits from the screen)
+				if (file.sync != null)
+				{
+					file.sync.fileRestored();
+				}
+
+				if (success != null)
+				{
+					success();
+				}
+			}), mxUtils.bind(this, function(resp)
+			{
+				this.spinner.stop();
+
+				if (stopped != null)
+				{
+					stopped();
+				}
+
+				this.clearStatus();
+				this.handleError(resp, (resp != null) ? mxResources.get('errorSavingFile') : null);
+
+				if (error != null)
+				{
+					error();
+				}
+			}));
+		}
+	};
+
+	/**
+	 * Shows the changes from the current pages to the pages of the given
+	 * document of a revision of the given file as a patch that can be edited
+	 * and merged into the file. done is called after the merge (RevisionDialog
+	 * and Versions in Simple Modern).
+	 */
+	EditorUi.prototype.showRevisionMergeDialog = function(file, doc, done)
+	{
+		var editorUi = this;
+		var pages = editorUi.getPagesForNode(doc.documentElement);
+		var patch = editorUi.diffPages(editorUi.pages, pages);
+
+		var dlg = new TextareaDialog(editorUi, mxResources.get('merge') + ':',
+			JSON.stringify(patch, null, 2), function(newValue)
+		{
+			try
+			{
+				if (newValue.length > 0 && editorUi.editor.graph.isEnabled())
+				{
+					var patches = [JSON.parse(newValue)];
+
+					editorUi.confirm(mxResources.get('areYouSure'), function()
+					{
+						try
+						{
+							file.patch(patches, null, true, true);
+
+							// Hides the merge dialog
+							editorUi.hideDialog();
+
+							if (done != null)
+							{
+								done();
+							}
+						}
+						catch (e)
+						{
+							editorUi.handleError(e);
+						}
+					});
+				}
+				else
+				{
+					// Hides the merge dialog
+					editorUi.hideDialog();
+				}
+			}
+			catch (e)
+			{
+				editorUi.handleError(e);
+			}
+		}, null, null, null, null, function(buttons, input)
+		{
+			// Adds a checkbox to only use the current page diff
+			if (patch[EditorUi.DIFF_UPDATE] != null)
+			{
+				var patchSelect = document.createElement('select');
+				var option = document.createElement('option');
+				mxUtils.write(option, mxResources.get('allPages'));
+				option.setAttribute('value', 'allPages');
+				patchSelect.appendChild(option);
+
+				for (var pageId in patch[EditorUi.DIFF_UPDATE])
+				{
+					var option = document.createElement('option');
+					var page = editorUi.getPageById(pageId);
+
+					if (page != null)
+					{
+						mxUtils.write(option, page.getName());
+						option.setAttribute('value', 'page-' + pageId);
+						patchSelect.appendChild(option);
+					}
+				}
+
+				patchSelect.style.marginRight = '8px';
+				patchSelect.style.order = '-1';
+
+				mxEvent.addListener(patchSelect, 'change', function(evt)
+				{
+					var pagePatch = null;
+
+					if (patchSelect.value != 'allPages')
+					{
+						var pageId = patchSelect.value.substring(5);
+
+						if (patch[EditorUi.DIFF_UPDATE][pageId] != null)
+						{
+							pagePatch = new Object();
+							pagePatch[EditorUi.DIFF_UPDATE] = new Object();
+							pagePatch[EditorUi.DIFF_UPDATE][pageId] =
+								patch[EditorUi.DIFF_UPDATE][pageId];
+						}
+					}
+
+					input.value = JSON.stringify((pagePatch == null) ?
+						patch : pagePatch, null, 2);
+				});
+
+				if (patchSelect.children.length > 2)
+				{
+					buttons.appendChild(patchSelect);
+				}
+			}
+		}, true, null, mxResources.get(editorUi.editor.graph.isEnabled() ?
+			'merge' : 'close'));
+		
+		editorUi.showDialog(dlg.container, 620, 460, true, true, null, null, null, new mxRectangle(0, 0, 440, 280));
+		dlg.init();
+	};
+
+	/**
+	 * Opens the given document of a revision in a new window.
+	 */
+	EditorUi.prototype.openRevisionInNewWindow = function(doc)
+	{
+		window.openFile = new OpenFile(function()
+		{
+			window.openFile = null;
+		});
+
+		window.openFile.setData(mxUtils.getXml(doc.documentElement));
+		this.openLink(this.getUrl(), null, true);
 	};
 	
 	/**

@@ -42,6 +42,8 @@ DrawioConfigEditor.installCss = function()
  *   allowedKeys      - if set, only these keys can be edited and everything
  *                      else is hidden and left out of the config (eg. the
  *                      settings an organization sets for its users)
+ *   excludedKeys     - if set, these keys are hidden and left out of the
+ *                      config (eg. the settings an embedding host controls)
  */
 DrawioConfigEditor.install = function(container, options)
 {
@@ -61,11 +63,33 @@ DrawioConfigEditor.install = function(container, options)
 	var isDesktop = (options.isDesktop != null) ? options.isDesktop :
 		(navigator.userAgent.indexOf('Electron') >= 0);
 
+	// The settings of the new look of the Simple theme (the colors of the
+	// Automatic default style) only in its theme (modern), so that the editor
+	// is as before without it
+	var simpleModern = (options.simpleModern != null) ? options.simpleModern :
+		(typeof Editor !== 'undefined' && typeof Editor.isSimpleModern === 'function' &&
+		Editor.isSimpleModern());
+
+	if (!simpleModern)
+	{
+		['#cfg-automaticDefaultStyleColors'].forEach(function(id)
+		{
+			var field = container.querySelector(id);
+
+			if (field != null && field.parentNode != null)
+			{
+				field.parentNode.parentNode.removeChild(field.parentNode);
+			}
+		});
+	}
+
 	var allowedKeys = Array.isArray(options.allowedKeys) ? options.allowedKeys : null;
+	var excludedKeys = Array.isArray(options.excludedKeys) ? options.excludedKeys : null;
 
 	function isAllowed(key)
 	{
-		return allowedKeys == null || allowedKeys.indexOf(key) >= 0;
+		return (allowedKeys == null || allowedKeys.indexOf(key) >= 0) &&
+			(excludedKeys == null || excludedKeys.indexOf(key) < 0);
 	}
 
 	// A copy of the config with the allowed keys only
@@ -269,6 +293,7 @@ DrawioConfigEditor.install = function(container, options)
 			{ key: 'noAutoFocus' },
 			{ key: 'showSplashOnStart' },
 			{ key: 'updateDefaultStyle' },
+			{ key: 'automaticDefaultStyle', i18n: 'automaticDefaultStyle', simpleModern: true },
 			{ key: 'mathOutputSize' },
 			{ key: 'browserTranslate' }
 		],
@@ -289,6 +314,7 @@ DrawioConfigEditor.install = function(container, options)
 			{ key: 'fastRendering' },
 			{ key: 'forceExplore' },
 			{ key: 'springMove' },
+			{ key: 'enableTidy' },
 			{ key: 'stopEditingOnEnter' },
 			{ key: 'shiftArrowSelect' },
 			{ key: 'pasteAtMousePointer' },
@@ -311,6 +337,7 @@ DrawioConfigEditor.install = function(container, options)
 			{ key: 'enableCssDarkMode' },
 			{ key: 'enableLightDarkColors' },
 			{ key: 'systemColors' },
+			{ key: 'enableModernLightbox' },
 			{ key: 'enableAnimations' },
 			{ key: 'insertAnimations' }
 		],
@@ -335,7 +362,8 @@ DrawioConfigEditor.install = function(container, options)
 			{ key: 'foreignObjectImages' },
 			{ key: 'embedSvgFonts' },
 			{ key: 'removeImageMetadata' },
-			{ key: 'expandPatternsForPrint' }
+			{ key: 'expandPatternsForPrint' },
+			{ key: 'experimentalHtmlInCanvasExport', experimental: true }
 		],
 		'advanced-toggles': [
 			{ key: 'shareCursorPosition' },
@@ -380,6 +408,14 @@ DrawioConfigEditor.install = function(container, options)
 		toggleGroups['desktop-toggles'] = [
 			{ key: 'desktopAutoSync' }
 		];
+	}
+
+	if (!simpleModern)
+	{
+		toggleGroups['general-toggles'] = toggleGroups['general-toggles'].filter(function(toggle)
+		{
+			return !toggle.simpleModern;
+		});
 	}
 
 	// ============================================
@@ -1431,12 +1467,14 @@ DrawioConfigEditor.install = function(container, options)
 		});
 	}
 
-	// Hides what allowedKeys doesn't cover: toggles, fields (by the data-key of
-	// their controls or the key in the IDs of their list editors) and the rows
-	// and sections left empty
+	// Hides what allowedKeys doesn't cover and what excludedKeys has: toggles,
+	// fields (by the data-config-key of the field or of the field it is in,
+	// the data-key of their controls or the key in the IDs of their list
+	// editors) and the rows and sections left empty. Fields without a key,
+	// such as spacers, are only hidden by allowedKeys.
 	function excludeKeys()
 	{
-		if (allowedKeys == null)
+		if (allowedKeys == null && excludedKeys == null)
 		{
 			return;
 		}
@@ -1454,6 +1492,12 @@ DrawioConfigEditor.install = function(container, options)
 		qAll('.field').forEach(function(el)
 		{
 			var keys = [];
+			var owner = el.closest('[data-config-key]');
+
+			if (owner != null)
+			{
+				keys.push(owner.getAttribute('data-config-key'));
+			}
 
 			el.querySelectorAll('[data-key]').forEach(function(control)
 			{
@@ -1470,17 +1514,19 @@ DrawioConfigEditor.install = function(container, options)
 				}
 			});
 
-			if (!keys.some(function(key) { return allowedKeys.indexOf(key) >= 0; }))
+			if ((keys.length > 0) ? !keys.some(isAllowed) : allowedKeys != null)
 			{
 				el.classList.add('config-excluded');
 			}
 		});
 
+		// Fields without controls (spacers) do not count
 		function isEmpty(el, selector)
 		{
 			return Array.prototype.every.call(el.querySelectorAll(selector), function(child)
 			{
-				return child.closest('.config-excluded') != null;
+				return child.closest('.config-excluded') != null ||
+					child.querySelector('input, select, textarea, button') == null;
 			});
 		}
 
@@ -1950,7 +1996,7 @@ DrawioConfigEditor.html = [
 	'          <label for="cfg-tooltipFontSize"></label>',
 	'          <input type="number" id="cfg-tooltipFontSize" data-key="tooltipFontSize" placeholder="11" min="1">',
 	'        </div>',
-	'        <div class="field">',
+	'        <div class="field" data-config-key="tooltipMaxWidth">',
 	'          <label for="cfg-tooltipMaxWidth"></label>',
 	'          <div style="display: flex; gap: 6px; align-items: center;">',
 	'            <input type="number" id="cfg-tooltipMaxWidth" placeholder="360" min="1" style="flex: 1;">',
@@ -1959,11 +2005,11 @@ DrawioConfigEditor.html = [
 	'        </div>',
 	'      </div>',
 	'      <div class="field-row">',
-	'        <div class="field">',
+	'        <div class="field" data-config-key="pageFormat">',
 	'          <label for="cfg-pageFormatWidth"></label>',
 	'          <input type="number" id="cfg-pageFormatWidth" placeholder="850" min="1">',
 	'        </div>',
-	'        <div class="field">',
+	'        <div class="field" data-config-key="pageFormat">',
 	'          <label for="cfg-pageFormatHeight"></label>',
 	'          <input type="number" id="cfg-pageFormatHeight" placeholder="1100" min="1">',
 	'        </div>',
@@ -2263,6 +2309,11 @@ DrawioConfigEditor.html = [
 	'        </div>',
 	'        <textarea id="cfg-defaultEdgeStyle" data-key="defaultEdgeStyle" data-type="json" placeholder=\'{"edgeStyle": "orthogonalEdgeStyle"}\' style="min-height: 60px;"></textarea>',
 	'      </div>',
+	'      <div class="field" data-search="automatic default style calm colors new shapes fill stroke font dark palette quick styles">',
+	'        <label for="cfg-automaticDefaultStyleColors"></label>',
+	'        <textarea id="cfg-automaticDefaultStyleColors" data-key="automaticDefaultStyleColors" data-type="json" placeholder=\'{"process": {"fill": "#EEF4FF", "stroke": "#9DB8F2", "dark": {"fill": "#171C25"}}}\' style="min-height: 60px;"></textarea>',
+	'        <p class="field__help"></p>',
+	'      </div>',
 	'      <div class="field">',
 	'        <label for="cfg-styles"></label>',
 	'        <textarea id="cfg-styles" data-key="styles" data-type="json" placeholder=\'[{}, {"commonStyle": {"fontColor": "#5C5C5C"}}]\' style="min-height: 60px;"></textarea>',
@@ -2448,7 +2499,7 @@ DrawioConfigEditor.html = [
 	'        <input type="number" id="cfg-viewerTimeout" data-key="viewerTimeout" placeholder="e.g. 30000" min="0">',
 	'        <p class="field__help">Timeout in milliseconds before the viewer gives up loading <code>viewerTimeout</code></p>',
 	'      </div>',
-	'      <div class="field">',
+	'      <div class="field" data-config-key="defaultMacroParameters">',
 	'        <label>Default Macro Parameters</label>',
 	'        <div class="field-row">',
 	'          <div class="field">',
@@ -2495,7 +2546,7 @@ DrawioConfigEditor.html = [
 	'    <div class="card__body">',
 	'      <p class="field__help mb-sm">These options only apply to <strong>Confluence Server / Data Center</strong>.</p>',
 	'      <div id="confluence-toggles"></div>',
-	'      <div class="field">',
+	'      <div class="field" data-config-key="defaultMacroParameters">',
 	'        <label>Default Macro Parameters</label>',
 	'        <div class="field-row">',
 	'          <div class="field">',

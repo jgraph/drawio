@@ -1132,70 +1132,80 @@ Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, pa
 {
 	return this.showIconOnly(menu.addItem(label, image, mxUtils.bind(this, function()
 	{
-		var graph = this.editorUi.editor.graph;
-		graph.stopEditing(false);
-		
-		// Keeps edge labels where they were if the new route still passes there
-		graph.keepEdgeLabelPositions(graph.getSelectionCells(), mxUtils.bind(this, function()
-		{
-			var cells = graph.getSelectionCells();
-			var edges = [];
-			
-			for (var i = 0; i < cells.length; i++)
-			{
-				var cell = cells[i];
-
-				if (graph.getModel().isEdge(cell))
-				{
-					if (reset)
-					{
-						var geo = graph.getCellGeometry(cell);
-
-						// Resets all edge points
-						if (geo != null)
-						{
-							geo = geo.clone();
-							geo.points = null;
-							graph.getModel().setGeometry(cell, geo);
-						}
-
-						// Clears the inner-loop flag along with the waypoints it
-						// describes (mirrors Graph.resetEdge and Clear Waypoints)
-						graph.setCellStyles('innerLoopWaypoints', null, [cell]);
-					}
-
-					for (var j = 0; j < keys.length; j++)
-					{
-						graph.setCellStyles(keys[j], values[j], [cell]);
-					}
-
-					edges.push(cell);
-				}
-				else if (mxUtils.getValue(graph.getCurrentCellStyle(cell),
-					mxConstants.STYLE_SHAPE) == 'mxgraph.basic.arc')
-				{
-					for (var j = 0; j < keys.length; j++)
-					{
-						graph.setCellStyles(keys[j], values[j], [cell]);
-					}
-
-					edges.push(cell);
-				}
-			}
-			
-			this.editorUi.fireEvent(new mxEventObject(
-				'styleChanged', 'cells', edges,
-				'keys', keys, 'values', values,
-				'force', edges.length == 0));
-
-			// Optional follow-up inside the same update (e.g. libavoid routing the
-			// edges immediately after the style is applied, atomically with it).
-			if (postFn != null)
-			{
-				postFn(graph, edges);
-			}
-		}));
+		this.applyEdgeStyleChange(keys, values, reset, postFn);
 	}), parent, sprite));
+};
+
+/**
+ * Applies the given keys and values of an edge style to the selected edges
+ * (and arcs) as the items of edgeStyleChange do: reset removes the waypoints
+ * and postFn runs after the change inside the same update.
+ */
+Menus.prototype.applyEdgeStyleChange = function(keys, values, reset, postFn)
+{
+	var graph = this.editorUi.editor.graph;
+	graph.stopEditing(false);
+
+	// Keeps edge labels where they were if the new route still passes there
+	graph.keepEdgeLabelPositions(graph.getSelectionCells(), mxUtils.bind(this, function()
+	{
+		var cells = graph.getSelectionCells();
+		var edges = [];
+		
+		for (var i = 0; i < cells.length; i++)
+		{
+			var cell = cells[i];
+
+			if (graph.getModel().isEdge(cell))
+			{
+				if (reset)
+				{
+					var geo = graph.getCellGeometry(cell);
+
+					// Resets all edge points
+					if (geo != null)
+					{
+						geo = geo.clone();
+						geo.points = null;
+						graph.getModel().setGeometry(cell, geo);
+					}
+
+					// Clears the inner-loop flag along with the waypoints it
+					// describes (mirrors Graph.resetEdge and Clear Waypoints)
+					graph.setCellStyles('innerLoopWaypoints', null, [cell]);
+				}
+
+				for (var j = 0; j < keys.length; j++)
+				{
+					graph.setCellStyles(keys[j], values[j], [cell]);
+				}
+
+				edges.push(cell);
+			}
+			else if (mxUtils.getValue(graph.getCurrentCellStyle(cell),
+				mxConstants.STYLE_SHAPE) == 'mxgraph.basic.arc')
+			{
+				for (var j = 0; j < keys.length; j++)
+				{
+					graph.setCellStyles(keys[j], values[j], [cell]);
+				}
+
+				edges.push(cell);
+			}
+		}
+		
+		this.editorUi.fireEvent(new mxEventObject(
+			'styleChanged', 'cells', edges,
+			'keys', keys, 'values', values,
+			'force', edges.length == 0));
+
+		// Optional follow-up inside the same update (e.g. libavoid routing the
+		// edges immediately after the style is applied, atomically with it).
+		if (postFn != null)
+		{
+			postFn(graph, edges);
+		}
+	}));
 };
 
 /**
@@ -1491,6 +1501,12 @@ Menus.prototype.toggleStyle = function(key, defaultValue)
 	this.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', [key], 'values', [value],
 			'cells', graph.getSelectionCells()));
 };
+
+/**
+ * Called for an action that a menu shows without addMenuItem (eg. a button in
+ * a row of a menu), so that the probes of the menus (Omnibox) see it.
+ */
+Menus.prototype.recordMenuAction = function(menu, key) { };
 
 /**
  * Creates the keyboard event handler for the current graph and history.
@@ -1978,7 +1994,11 @@ Menus.prototype.createMenubar = function(container)
 };
 
 /**
- * Creates the keyboard event handler for the current graph and history.
+ * Makes the given element follow the enabled state of the given menu. The
+ * menus live as long as the editor while the elements of the Format panel
+ * (Font and Style of the Text tab) and of the menu bar (after a change of
+ * the theme or the language) are created again, so the listener holds the
+ * element weakly (addElementListener) and does not keep removed panels alive.
  */
 Menus.prototype.menuCreated = function(menu, elt, className)
 {
@@ -1986,32 +2006,94 @@ Menus.prototype.menuCreated = function(menu, elt, className)
 	{
 		className = (className != null) ? className : 'geItem';
 		elt.className = className;
-		
-		menu.addListener('stateChanged', function()
+
+		Menus.addElementListener(menu, 'stateChanged', elt, function(item)
 		{
-			elt.enabled = menu.enabled;
-			elt.setAttribute('aria-disabled', (menu.enabled) ? 'false' : 'true');
+			item.enabled = menu.enabled;
+			item.setAttribute('aria-disabled', (menu.enabled) ? 'false' : 'true');
 
 			if (!menu.enabled)
 			{
-				elt.className = className + ' mxDisabled';
-				
+				item.className = className + ' mxDisabled';
+
 				if (document.documentMode == 8)
 				{
-					elt.style.color = '#c3c3c3';
+					item.style.color = '#c3c3c3';
 				}
 			}
 			else
 			{
-				elt.className = className;
-				
+				item.className = className;
+
 				if (document.documentMode == 8)
 				{
-					elt.style.color = '';
+					item.style.color = '';
 				}
 			}
 		});
 	}
+};
+
+/**
+ * Adds a listener for the given event of the given mxEventSource that calls
+ * fn with the given element, the sender and the event while the element
+ * exists. The element is held by a WeakRef (where the browser has one), so
+ * the source, which lives longer, does not keep it alive: fn must not hold
+ * the element itself. The listeners of collected elements are removed when
+ * the next element listener is added to the source (not while an event is
+ * fired, which would skip the next listener).
+ */
+Menus.addElementListener = function(source, name, elt, fn)
+{
+	if (typeof WeakRef !== 'function')
+	{
+		source.addListener(name, function(sender, evt)
+		{
+			fn(elt, sender, evt);
+		});
+	}
+	else
+	{
+		var entries = source.elementListeners;
+
+		if (entries == null)
+		{
+			entries = [];
+			source.elementListeners = entries;
+		}
+		else
+		{
+			for (var i = entries.length - 1; i >= 0; i--)
+			{
+				if (entries[i].ref.deref() == null)
+				{
+					source.removeListener(entries[i].listener);
+					entries.splice(i, 1);
+				}
+			}
+		}
+
+		var entry = Menus.createElementListener(new WeakRef(elt), fn);
+		entries.push(entry);
+		source.addListener(name, entry.listener);
+	}
+};
+
+/**
+ * Returns {ref, listener} for addElementListener. A function of its own, so
+ * the listener holds only the WeakRef and fn.
+ */
+Menus.createElementListener = function(ref, fn)
+{
+	return {ref: ref, listener: function(sender, evt)
+	{
+		var elt = ref.deref();
+
+		if (elt != null)
+		{
+			fn(elt, sender, evt);
+		}
+	}};
 };
 
 /**

@@ -13,6 +13,16 @@ var MAX_PRINT_PAGE_COUNT = 1000;
 // Time in ms that the export waits for the traces of the outlines of images
 // (see Graph.waitForOutlines)
 var OUTLINE_TIMEOUT = 10000;
+// Time in ms that the export waits for the images of the pages (see
+// waitForImage). The CLI has no limit of its own by default and waits this long
+// after the last image that loaded or failed, as images queue for the
+// connections of the browser. The export service waits this long for all images,
+// as this limit and OUTLINE_TIMEOUT, which add up, must stay below the 30 s that
+// it waits for a page.
+var IMAGE_TIMEOUT = 15000;
+// Time in ms that the CLI waits for all images, as a server that answers each
+// image just before IMAGE_TIMEOUT could hold it for hours
+var MAX_IMAGE_TIMEOUT = 300000;
 var shadowBlocker = null;
 
 /**
@@ -1056,7 +1066,13 @@ function render(data)
 			for (var i = 0; i < links.length; i++)
 			{
 				var href = links[i].getAttribute('href');
-				
+
+				// The href added here replaces the link in rewritePageLinks
+				if (href == null)
+				{
+					href = links[i].getAttribute('xlink:href');
+				}
+
 				if (isLinkIgnored(graph, href))
 				{
 					links[i].setAttribute('href', '#');
@@ -1073,6 +1089,10 @@ function render(data)
 	var expScale;
 	// Waits for all images to finish loading
 	var cache = new Object();
+	// Sources of the images that reached the deadline of the images
+	var stalledImages = [];
+	// Functions that end the waits of the images that have not finished
+	var pendingImages = new Set();
 	var math = false;
 	// True if any rendered page enables math
 	var mathUsed = false;
@@ -1172,7 +1192,15 @@ function render(data)
 			{
 				// Rewrite page links
 				Graph.rewritePageLinks(document);
-				
+
+				// The browser resolves the links in PDFs against this page. Runs
+				// after the math is typeset, as \href adds links to the output.
+				if ((data.format == 'pdf' || data.print) &&
+					typeof graph.updateFileBaseLinks === 'function')
+				{
+					graph.updateFileBaseLinks(document, true);
+				}
+
 				var doneDiv = document.createElement("div");
 				var pageCount = diagrams != null? diagrams.length : 1;
 				doneDiv.id = 'LoadingComplete';
@@ -1223,7 +1251,19 @@ function render(data)
 								if (data.embedImages == '1')
 								{
 									var tmpEditor = new Editor();
-									tmpEditor.convertImages(svgRoot, doSend);
+									var converter = tmpEditor.createImageUrlConverter();
+									var imageCache = Object.create(null);
+
+									// Images that reached the deadline keep their URLs like
+									// images that fail, as each would wait for the timeout
+									// of the conversion, one after the other
+									for (var i = 0; i < stalledImages.length; i++)
+									{
+										var url = converter.convert(stalledImages[i]);
+										imageCache[url] = url;
+									}
+
+									tmpEditor.convertImages(svgRoot, doSend, imageCache, converter);
 								}
 								else
 								{
@@ -1301,9 +1341,64 @@ function render(data)
 		}
 	};
 	
-	function waitForImages(tagName, attributeName)
+	// Returns an image for the given source that decrements the wait counter
+	// once when it loads, fails or reaches the deadline of the images, as an
+	// image that never answers would hold the export forever. The export then
+	// shows it like an image that failed to load.
+	function waitForImage(src)
 	{
-		var imgs = document.body.getElementsByTagName(tagName);
+		var img = new Image();
+
+		var done = function()
+		{
+			pendingImages.delete(stop);
+			img.onload = null;
+			img.onerror = null;
+			decrementWaitCounter();
+		};
+
+		var stop = function()
+		{
+			stalledImages.push(src);
+			done();
+		};
+
+		var finished = function()
+		{
+			imageDeadline = Math.min(Date.now() + IMAGE_TIMEOUT, lastImageDeadline);
+			done();
+		};
+
+		img.onload = finished;
+		img.onerror = finished;
+		pendingImages.add(stop);
+		img.src = src;
+
+		return img;
+	};
+
+	// Ends the waits of the images that have not finished at the deadline of
+	// the images, which moves while images finish in the CLI
+	function checkImageDeadline()
+	{
+		var wait = imageDeadline - Date.now();
+
+		if (wait <= 0)
+		{
+			pendingImages.forEach(function(stop)
+			{
+				stop();
+			});
+		}
+		else if (pendingImages.size > 0)
+		{
+			window.setTimeout(checkImageDeadline, wait);
+		}
+	};
+
+	function waitForImages(tagName, attributeName, root)
+	{
+		var imgs = (root || document.body).getElementsByTagName(tagName);
 		waitCounter += imgs.length;
 
 		for (var i = 0; i < imgs.length; i++)
@@ -1313,10 +1408,7 @@ function render(data)
 			
 			if (src != null && src.length > 0 && cache[src] == null)
 			{
-				cache[src] = new Image();
-				cache[src].onload = decrementWaitCounter;
-				cache[src].onerror = decrementWaitCounter;
-				cache[src].src = src;
+				cache[src] = waitForImage(src);
 			}
 			else
 			{
@@ -1827,6 +1919,15 @@ function render(data)
 					scale = !isNaN(temp) ? temp : 1;
 				}
 
+				// Fits the diagram to the given size, in the units of the page
+				// format. The page is cropped to it below, with the 1 pixel
+				// that crop adds, so that the page has the given size.
+				if (data.w > 0 || data.h > 0)
+				{
+					scale = Math.min((data.w > 0) ? data.w / (gb.width + 1) : Infinity,
+						(data.h > 0) ? data.h / (gb.height + 1) : Infinity);
+				}
+
 				// Applies print scale
 				data.scale = scale * printScale;
 				printPageFormat = pf;
@@ -1850,13 +1951,6 @@ function render(data)
 					this.scale * layout.width * page.width,
 					this.scale * layout.height * page.height);
 			};
-		}
-
-		// Disables page-based layout when width/height is specified
-		// to scale diagram to fit the given dimensions
-		if (graph.pdfPageVisible && (data.w > 0 || data.h > 0))
-		{
-			graph.pdfPageVisible = false;
 		}
 
 		if (!graph.pdfPageVisible)
@@ -1980,18 +2074,29 @@ function render(data)
 			var pf = (printPageFormat != null) ? printPageFormat : mxRectangle.fromRectangle(
 				graph.pageFormat || mxConstants.PAGE_FORMAT_A4_PORTRAIT);
 			var scale = (data.print || data.format == 'pdf') ? data.scale : 1 / graph.pageScale;
+			var sized = data.w > 0 || data.h > 0;
+			var crop = data.crop == '1' || sized;
 			var autoOrigin = ((data.print || data.format == 'pdf') && data.fit == '1') ||
-				data.crop == '1' || xmlDoc.documentElement.getAttribute('page') != '1';
+				crop || xmlDoc.documentElement.getAttribute('page') != '1';
 			var border = 0;
 
 			// Negative coordinates are cropped or shifted if page visible
 			var x0 = 0;
 			var y0 = 0;
 	
-			if (data.crop == '1')
+			if (crop)
 			{
 				pf.width = (gb.width + 1) * scale;
 				pf.height = (gb.height + 1) * scale;
+
+				// The CSS of a page has whole units (0.01 in), and a side that
+				// is rounded down shrinks the diagram on thin pages. The given
+				// side is a whole unit up to the error of the division above.
+				if (sized)
+				{
+					pf.width = Math.ceil(pf.width - 1e-6);
+					pf.height = Math.ceil(pf.height - 1e-6);
+				}
 			}
 
 			// Starts at first visible page
@@ -2037,8 +2142,12 @@ function render(data)
 				preview.printBackgroundImage = true;
 				preview.autoOrigin = autoOrigin;
 				preview.backgroundColor = getPrintBackground(bg);
+
+				// Each page has one output page, and the clip ends 0.5 / scale
+				// before its end, which loses cells at small scales
+				preview.clipping = !sized;
 				preview.pageMargin = (data.pageMargin != null) ?
-					parseInt(data.pageMargin) : ((data.crop == '1') ?
+					parseInt(data.pageMargin) : ((crop) ?
 						0 : preview.pageMargin);
 				
 				// Replaces background images with SVG subtrees
@@ -2054,7 +2163,9 @@ function render(data)
 
 						graph.disableSvgLinks(img.node, function(link)
 						{
-							link.setAttribute('href', 'javascript:void(0)');		
+							// An invalid URL adds no link annotation to PDFs, unlike javascript:
+							// and empty links, and keeps the style of the link, unlike no href
+							link.setAttribute('href', 'https://');
 						});
 					}
 				};
@@ -2065,6 +2176,15 @@ function render(data)
 				preview.addGraphFragment = function(dx, dy, scale, pageNumber, div, clip)
 				{
 					previewAddGraphFragment.apply(this, arguments);
+
+					// The diagram fills the page of the given size. The viewBox of
+					// the preview is 2 units larger than the page for the pages
+					// that follow, which would shrink the diagram on thin pages.
+					if (sized)
+					{
+						div.getElementsByTagName('svg')[0].setAttribute('viewBox',
+							'0 0 ' + (clip.width - 1) + ' ' + (clip.height - 1));
+					}
 
 					// Disables math rendering in graph
 					if (!graph.mathEnabled)
@@ -2140,6 +2260,44 @@ function render(data)
 		}
 	};
 	
+	/**
+	 * Implements %page%, %pagenumber% and %pagecount% placeholders, also for
+	 * files without pages. Exports from the app send the name, number and
+	 * count of the current page in the file, the CLI sends none
+	 * [jgraph/drawio-desktop#2601]
+	 */
+	var graphGetGlobalVariable = graph.getGlobalVariable;
+	
+	graph.getGlobalVariable = function(name)
+	{
+		if (name == 'page' || name == 'pagenumber' || name == 'pagecount')
+		{
+			var pages = (diagrams != null) ? diagrams.length : 0;
+			var val = graphGetGlobalVariable.apply(this, arguments);
+
+			// Files without pages and the page count use the variables of the
+			// request, as does the page number of an export of the current
+			// page from the app, which has only that page
+			if (val != null && (pages == 0 || name == 'pagecount' ||
+				(name == 'pagenumber' && pages == 1 &&
+				graphGetGlobalVariable.call(this, 'pagecount') > 1)))
+			{
+				return val;
+			}
+			else if (name == 'page')
+			{
+				return (pages == 0) ? 'Page-1' :
+					(diagrams[from].getAttribute('name') || ('Page-' + (from + 1)));
+			}
+			else
+			{
+				return (name == 'pagenumber') ? from + 1 : Math.max(1, pages);
+			}
+		}
+		
+		return graphGetGlobalVariable.apply(this, arguments);
+	};
+
 	if (diagrams != null && diagrams.length > 0)
 	{
 		var to = diagrams.length - 1;
@@ -2170,26 +2328,6 @@ function render(data)
 			}
 		}
 		
-		/**
-		 * Implements %page% and %pagenumber% placeholders
-		 */
-		var graphGetGlobalVariable = graph.getGlobalVariable;
-		
-		graph.getGlobalVariable = function(name)
-		{
-			if (name == 'page')
-			{
-				return (diagrams == null) ? 'Page-1' :
-					(diagrams[from].getAttribute('name') || ('Page-' + (from + 1)));
-			}
-			else if (name == 'pagenumber')
-			{
-				return from + 1;
-			}
-			
-			return graphGetGlobalVariable.apply(this, arguments);
-		};
-
 		waitCounter += to - from + 1;
 
 		// Exports all pages into one SVG with a view for each page. Checks the
@@ -2340,9 +2478,26 @@ function render(data)
 		graph.container.parentNode.removeChild(graph.container);
 	}
 
-	// Includes images in SVG and HTML labels
+	// Includes images in SVG and HTML labels. All images share one deadline, so
+	// that a page with many images that do not answer waits only once (see
+	// IMAGE_TIMEOUT).
+	var imageDeadline = Date.now() + IMAGE_TIMEOUT;
+	var lastImageDeadline = (mxIsElectron) ? Date.now() + MAX_IMAGE_TIMEOUT : imageDeadline;
 	waitForImages('image', 'xlink:href');
 	waitForImages('img', 'src');
+
+	// The document has only the last page of an SVG of all pages, and the images
+	// of the other pages are only needed if they are embedded
+	if (svgPages != null && data.embedImages == '1')
+	{
+		for (var i = 0; i < svgPages.length; i++)
+		{
+			waitForImages('image', 'xlink:href', svgPages[i].svg);
+			waitForImages('img', 'src', svgPages[i].svg);
+		}
+	}
+
+	checkImageDeadline();
 
 	// Skips typesetting if no page enables math so that the export does
 	// not process any labels and does not wait for MathJax to load

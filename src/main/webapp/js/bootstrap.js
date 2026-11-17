@@ -17,6 +17,7 @@
  * - savesidebar=1: For developers only (see Sidebar.js)
  * - pages=1: For developers only (see Pages.js)
  * - lic=email: For developers only (see LicenseServlet.java)
+ * - htmlInCanvas=0|1: Image exports use no HTML-in-Canvas (0) or use it for testing (1), experimental (see Editor.experimentalHtmlInCanvasExport)
  * --
  * - networkshapes=1: For testing network shapes (temporary)
  */
@@ -286,6 +287,89 @@ if (isLocalStorage && urlParams['channel'] != null)
         // ignored
     }
 }
+
+// Preloads the stylesheet of the theme Fusion if the URL or the stored theme
+// starts a session of it, so that it loads next to app.min.js instead of
+// after it ran. The scripts of the theme (js/fusion.min.js) are not
+// preloaded: SimpleUi.getScriptsUrl requests them with the version of
+// app.min.js (?v=EditorUi.VERSION), which is not known here, and a preload
+// of another URL would download them twice; the service workers of the
+// editor precache them (workbox-config.js, workbox-config-app-diagrams-net.js).
+// The URL and conditions are those of SimpleUi.loadCss and
+// Editor.modernTheme in FusionTheme.js and of uiTheme in Init.js (a stored
+// theme does not apply in embeds, the lightbox and Teams; chromeless views
+// and browsers without light-dark get no session of the theme). A stored
+// Fusion applies only with test=1 or where Editor.fusionThemeOffered is true,
+// the web app on the hosts of Editor.fusionThemeHosts (app.diagrams.net)
+// outside embeds, Teams and chromeless views; the list of hosts here must
+// equal Editor.fusionThemeHosts in FusionTheme.js. Init.js runs after this
+// and changes the URL parameters before uiTheme reads them: embedInline=1
+// sets ui=sketch and embed=1, extAuth=1 (Teams) chooses sketch and the
+// viewer domain sets lightbox=1, so these are checked here as well. Builds
+// without the theme preload nothing: fusionBuild is Editor.fusionThemeBuild
+// of FusionTheme.js, which the public repository sets to none in both files
+// (github-deploy.xml).
+(function()
+{
+    try
+    {
+        var ui = (urlParams['embedInline'] == '1' || urlParams['extAuth'] == '1') ?
+            'sketch' : urlParams['ui'];
+        var lightbox = urlParams['lightbox'] == '1' ||
+            window.location.hostname == 'viewer.diagrams.net';
+        var fusionBuild = 'none';
+
+        if (ui == null && (urlParams['test'] == '1' || window.location.hostname == 'app.diagrams.net') &&
+            isLocalStorage && urlParams['embed'] != '1' && !lightbox)
+        {
+            var value = localStorage.getItem('.drawio-config');
+
+            if (value != null)
+            {
+                ui = JSON.parse(value).ui;
+            }
+        }
+
+        if (fusionBuild != 'none' && (ui == 'fusion' || ui == 'modern' || (ui == 'simple' &&
+            urlParams['simple'] == 'new')) && !lightbox &&
+            urlParams['chrome'] != '0' && window.CSS != null &&
+            CSS.supports('color', 'light-dark(white, black)'))
+        {
+            var dev = urlParams['dev'] == '1';
+            var links = document.getElementsByTagName('link');
+            var head = document.getElementsByTagName('head')[0];
+            var css = 'styles/' + ((dev) ? 'fusion.css' : 'fusion.min.css');
+
+            for (var i = 0; i < links.length; i++)
+            {
+                var href = links[i].getAttribute('href');
+
+                if (links[i].getAttribute('rel') == 'stylesheet' && href != null &&
+                    /(^|\/)grapheditor\.css([?#]|$)/.test(href))
+                {
+                    css = href.replace(/grapheditor\.css(?=[?#]|$)/,
+                        (dev) ? 'fusion.css' : 'fusion.min.css');
+                    break;
+                }
+            }
+
+            var preload = function(url, type)
+            {
+                var link = document.createElement('link');
+                link.setAttribute('rel', 'preload');
+                link.setAttribute('as', type);
+                link.setAttribute('href', url);
+                head.appendChild(link);
+            };
+
+            preload(css, 'style');
+        }
+    }
+    catch (e)
+    {
+        // ignore
+    }
+})();
 
 var mxScriptsLoaded = false, mxWinLoaded = false;
 

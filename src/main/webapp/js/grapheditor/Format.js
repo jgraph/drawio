@@ -282,8 +282,22 @@ Format.prototype.refresh = function()
 
 	this.pendingRefresh = window.setTimeout(mxUtils.bind(this, function()
 	{
+		this.pendingRefresh = null;
 		this.immediateRefresh();
 	}));
+};
+
+/**
+ * Runs a pending refresh now, eg. before the panel is searched.
+ */
+Format.prototype.flushRefresh = function()
+{
+	if (this.pendingRefresh != null)
+	{
+		window.clearTimeout(this.pendingRefresh);
+		this.pendingRefresh = null;
+		this.immediateRefresh();
+	}
 };
 
 /**
@@ -486,8 +500,46 @@ Format.prototype.immediateRefresh = function()
 	div.className = 'geFormatTitleContainer';
 	div.setAttribute('role', 'tablist');
 
+	// Searches the controls in the omnibox, after the panels to keep their order
+	if (ui.isFormatSearchVisible())
+	{
+		div.classList.add('geFormatTitleContainerWithSearch');
+		this.container.appendChild(this.createSearchButton());
+	}
+
 	// Restores focus and selection on the rebuilt input
 	this.restoreFocus(focusState);
+};
+
+/**
+ * Creates the button that searches the controls of the panel in the omnibox
+ * (see EditorUi.showOmnibox).
+ */
+Format.prototype.createSearchButton = function()
+{
+	var ui = this.editorUi;
+	var title = mxResources.get('searchFormat');
+	var btn = document.createElement('div');
+	btn.className = 'geFormatSearchButton';
+	btn.setAttribute('title', title);
+	btn.setAttribute('aria-label', title);
+	btn.setAttribute('role', 'button');
+
+	var img = document.createElement('img');
+	img.className = 'geAdaptiveAsset';
+	img.setAttribute('src', Editor.magnifyImage);
+	img.setAttribute('alt', '');
+	btn.appendChild(img);
+
+	mxEvent.addListener(btn, 'click', function(evt)
+	{
+		ui.showOmnibox('format');
+		mxEvent.consume(evt);
+	});
+
+	ui.initKeyboardButton(btn);
+
+	return btn;
 };
 
 /**
@@ -2015,10 +2067,16 @@ BaseFormatPanel.prototype.addUnitInput = function(container, unit, right, width,
 BaseFormatPanel.prototype.addGenericInput = function(container, unit, left, width, readFn, writeFn)
 {
 	var graph = this.editorUi.editor.graph;
+	var shown = null;
 
+	// Text that is still the shown value is not written, as Tab or Escape
+	// would add an undo step that changes nothing or round the value
 	var update = function()
 	{
-		writeFn(input.value);
+		if (input.value != shown)
+		{
+			writeFn(input.value);
+		}
 	};
 
 	var input = this.addUnitInput(container, unit, left, width, update);
@@ -2028,6 +2086,7 @@ BaseFormatPanel.prototype.addGenericInput = function(container, unit, left, widt
 		if (force || input != document.activeElement)
 		{
 			input.value = readFn() + unit;
+			shown = input.value;
 		}
 	});
 	
@@ -3557,20 +3616,22 @@ ArrangePanel.prototype.addGeometry = function(container)
 					return (Math.round(geo.x * 1000) / 10);
 				}, function(value)
 				{
-					value = parseFloat(value);
-					
-					if (!isNaN(value))
+					value = parseFloat(value) / 100;
+					var current = graph.getCellGeometry(rect.vertices[0]);
+
+					// The same value adds no undo step, eg. on blur after change
+					if (!isNaN(value) && current != null && value != current.x)
 					{
-						model.beginUpdate();
+						var arrange = graph.beginArrange();
 						try
 						{
-							geo = geo.clone();
-							geo.x = parseFloat(value) / 100;
+							geo = current.clone();
+							geo.x = value;
 							model.setGeometry(rect.vertices[0], geo);
 						}
 						finally
 						{
-							model.endUpdate();
+							graph.endArrange(arrange);
 						}
 					}
 				});
@@ -3599,20 +3660,22 @@ ArrangePanel.prototype.addGeometry = function(container)
 						return (Math.round(geo.y * 1000) / 10);
 					}, function(value)
 					{
-						value = parseFloat(value);
-						
-						if (!isNaN(value))
+						value = parseFloat(value) / 100;
+						var current = graph.getCellGeometry(rect.vertices[0]);
+
+						// The same value adds no undo step, eg. on blur after change
+						if (!isNaN(value) && current != null && value != current.y)
 						{
-							model.beginUpdate();
+							var arrange = graph.beginArrange();
 							try
 							{
-								geo = geo.clone();
-								geo.y = parseFloat(value) / 100;
+								geo = current.clone();
+								geo.y = value;
 								model.setGeometry(rect.vertices[0], geo);
 							}
 							finally
 							{
-								model.endUpdate();
+								graph.endArrange(arrange);
 							}
 						}
 					});
@@ -4082,7 +4145,9 @@ ArrangePanel.prototype.addGeometryHandler = function(input, fn)
 
 			if (isNaN(value))
 			{
-				input.value = initialValue + ' ' + panel.getUnit();
+				// Empty if it was empty, eg. for different values
+				input.value = (initialValue == null || isNaN(initialValue)) ? '' :
+					initialValue + ' ' + panel.getUnit();
 			}
 			else if (value != initialValue)
 			{
@@ -4135,9 +4200,14 @@ ArrangePanel.prototype.addGeometryHandler = function(input, fn)
 	mxEvent.addListener(input, 'change', update);
 	mxEvent.addListener(input, 'focus', function()
 	{
-		initialValue = input.value;
+		// The number, not the string with the unit, so that update sees an
+		// unchanged value (see addEdgeGeometryHandler). A string was always
+		// a change: Tab out of Width wrote the same geometry up to 44 times,
+		// as each write refreshed the panel and the blur of the removed
+		// input ran update again.
+		initialValue = parseFloat(input.value);
 	});
-	
+
 	return update;
 };
 
@@ -6282,18 +6352,20 @@ TextFormatPanel.prototype.addFont = function(container)
 		{
 			if (currentTable != null)
 			{
-				var value = currentTable.getAttribute('cellPadding') || 0;
+				// The dialog takes the focus, which resets currentTable
+				var table = currentTable;
+				var value = table.getAttribute('cellPadding') || 0;
 				
 				var dlg = new FilenameDialog(ui, value, mxResources.get('apply'),
 					mxUtils.bind(this, function(newValue)
 				{
 					if (newValue != null && newValue.length > 0)
 					{
-						currentTable.setAttribute('cellPadding', newValue);
+						table.setAttribute('cellPadding', newValue);
 					}
 					else
 					{
-						currentTable.removeAttribute('cellPadding');
+						table.removeAttribute('cellPadding');
 					}
 				}), mxResources.get('spacing'));
 				ui.showDialog(dlg.container, 300, 80, true, true);
@@ -9044,6 +9116,15 @@ DiagramStylePanel.prototype.addView = function(div)
 
 
 /**
+ * Returns true if the themes of Editor.styles are shown as the grid of
+ * previews with pages (see addGraphStyles). Default is true.
+ */
+DiagramStylePanel.prototype.isGraphStyleGrid = function()
+{
+	return true;
+};
+
+/**
  * Adds the label menu items to the given menu and parent.
  */
 DiagramStylePanel.prototype.addGraphStyles = function(div)
@@ -9309,6 +9390,139 @@ DiagramStylePanel.prototype.addGraphStyles = function(div)
 		}
 	});
 	
+	// Applies the given styles to all cells and as the current styles
+	var applyGraphStyle = mxUtils.bind(this, function(commonStyle, vertexStyle, edgeStyle, graphStyle)
+	{
+		graph.currentVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
+		graph.currentEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
+
+		applyStyle(commonStyle, graph.currentVertexStyle);
+		applyStyle(commonStyle, graph.currentEdgeStyle);
+		applyStyle(vertexStyle, graph.currentVertexStyle);
+		applyStyle(edgeStyle, graph.currentEdgeStyle);
+
+		model.beginUpdate();
+		try
+		{
+			updateCells(addKeys(commonStyle, defaultStyles.slice()), graphStyle);
+
+			if (!ignoreGraphStyle)
+			{
+				var change = new ChangePageSetup(ui, (graphStyle != null) ? graphStyle.background : null);
+				change.ignoreImage = true;
+				model.execute(change);
+
+				model.execute(new ChangeGridColor(ui,
+					(graphStyle != null && graphStyle.gridColor != null) ?
+					graphStyle.gridColor : gridColor));
+			}
+		}
+		finally
+		{
+			model.endUpdate();
+		}
+	});
+
+	// Shows the diagram with the given styles until the next refresh
+	var previewGraphStyle = mxUtils.bind(this, function(commonStyle, vertexStyle, edgeStyle, graphStyle)
+	{
+		var prev = graph.getCellStyle;
+		var prevBg = graph.background;
+		var prevGrid = graph.view.gridColor;
+
+		if (!ignoreGraphStyle)
+		{
+			graph.background = (graphStyle != null) ? graphStyle.background : null;
+			graph.view.gridColor = (graphStyle != null && graphStyle.gridColor != null) ?
+				graphStyle.gridColor : gridColor;
+		}
+
+		graph.getCellStyle = function(cell, resolve)
+		{
+			resolve = (resolve != null) ? resolve : true;
+			var result = mxUtils.clone(prev.apply(this, arguments));
+
+			// Label gaps of resolved styles are unresolved for applyStyle
+			// and resolved again below (see Graph.replaceLabelGap)
+			if (resolve && result['defaultLabelBackgroundColor'] == 'page')
+			{
+				result['labelBackgroundColor'] = 'default';
+			}
+
+			var defaultStyle = graph.stylesheet.getDefaultVertexStyle();
+			var appliedStyle = vertexStyle;
+
+			if (model.isEdge(cell))
+			{
+				defaultStyle = graph.stylesheet.getDefaultEdgeStyle();
+				appliedStyle = edgeStyle;
+			}
+
+			removeStyles(result, defaultStyles, defaultStyle);
+			applyStyle(commonStyle, result, cell, graphStyle);
+			applyStyle(appliedStyle, result, cell, graphStyle);
+
+			if (resolve)
+			{
+				result = this.postProcessCellStyle(cell, result);
+			}
+
+			return result;
+		};
+
+		graph.refresh();
+		graph.getCellStyle = prev;
+		graph.background = prevBg;
+		graph.view.gridColor = prevGrid;
+	});
+
+	// The entry of Editor.styles with the given index (or the given entry),
+	// applied or previewed (also by other presentations of the themes, see
+	// isGraphStyleGrid)
+	this.applyGraphStyle = function(index, entry)
+	{
+		var s = (entry != null) ? entry : Editor.styles[index];
+
+		if (s != null)
+		{
+			applyGraphStyle(s.commonStyle, s.vertexStyle, s.edgeStyle, s.graph);
+		}
+	};
+
+	this.previewGraphStyle = function(index, entry)
+	{
+		var s = (entry != null) ? entry : Editor.styles[index];
+
+		if (s != null)
+		{
+			previewGraphStyle(s.commonStyle, s.vertexStyle, s.edgeStyle, s.graph);
+		}
+	};
+
+	// The given resolved style of a cell of a picture of the entry with the
+	// given index (or the given entry) in the given graph, as the previews of
+	// the grid show it
+	this.getGraphStylePreviewStyle = function(index, cell, result, previewGraph, entry)
+	{
+		var s = (entry != null) ? entry : Editor.styles[index];
+
+		if (s != null && result != null)
+		{
+			var edge = cell != null && cell.edge;
+			removeStyles(result, defaultStyles, (edge) ? graph.stylesheet.getDefaultEdgeStyle() :
+				graph.stylesheet.getDefaultVertexStyle());
+			applyStyle(s.commonStyle, result, cell, s.graph, previewGraph);
+			applyStyle((edge) ? s.edgeStyle : s.vertexStyle, result, cell, s.graph, previewGraph);
+		}
+
+		return result;
+	};
+
+	if (!this.isGraphStyleGrid())
+	{
+		return div;
+	}
+
 	// Entries
 	var entries = document.createElement('div');
 	entries.style.whiteSpace = 'normal';
@@ -9348,34 +9562,7 @@ DiagramStylePanel.prototype.addGraphStyles = function(div)
 
 			var applyEntry = mxUtils.bind(this, function()
 			{
-				graph.currentVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
-				graph.currentEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
-				
-				applyStyle(commonStyle, graph.currentVertexStyle);
-				applyStyle(commonStyle, graph.currentEdgeStyle);
-				applyStyle(vertexStyle, graph.currentVertexStyle);
-				applyStyle(edgeStyle, graph.currentEdgeStyle);
-
-				model.beginUpdate();
-				try
-				{
-					updateCells(addKeys(commonStyle, defaultStyles.slice()), graphStyle);
-					
-					if (!ignoreGraphStyle)
-					{
-						var change = new ChangePageSetup(ui, (graphStyle != null) ? graphStyle.background : null);
-						change.ignoreImage = true;
-						model.execute(change);
-							
-						model.execute(new ChangeGridColor(ui,
-							(graphStyle != null && graphStyle.gridColor != null) ?
-							graphStyle.gridColor : gridColor));
-					}
-				}
-				finally
-				{
-					model.endUpdate();
-				}
+				applyGraphStyle(commonStyle, vertexStyle, edgeStyle, graphStyle);
 			});
 
 			mxEvent.addGestureListeners(panel, mxUtils.bind(this, function(evt)
@@ -9394,54 +9581,7 @@ DiagramStylePanel.prototype.addGraphStyles = function(div)
 			{
 				mxEvent.addListener(panel, 'mouseenter', mxUtils.bind(this, function(evt)
 				{
-					var prev = graph.getCellStyle;
-					var prevBg = graph.background;
-					var prevGrid = graph.view.gridColor;
-		
-					if (!ignoreGraphStyle)
-					{
-						graph.background = (graphStyle != null) ? graphStyle.background : null;
-						graph.view.gridColor = (graphStyle != null && graphStyle.gridColor != null) ?
-							graphStyle.gridColor : gridColor;
-					}
-					
-					graph.getCellStyle = function(cell, resolve)
-					{
-						resolve = (resolve != null) ? resolve : true;
-						var result = mxUtils.clone(prev.apply(this, arguments));
-						
-						// Label gaps of resolved styles are unresolved for applyStyle
-						// and resolved again below (see Graph.replaceLabelGap)
-						if (resolve && result['defaultLabelBackgroundColor'] == 'page')
-						{
-							result['labelBackgroundColor'] = 'default';
-						}
-
-						var defaultStyle = graph.stylesheet.getDefaultVertexStyle();
-						var appliedStyle = vertexStyle;
-						
-						if (model.isEdge(cell))
-						{
-							defaultStyle = graph.stylesheet.getDefaultEdgeStyle();
-							appliedStyle = edgeStyle;	
-						}
-						
-						removeStyles(result, defaultStyles, defaultStyle);
-						applyStyle(commonStyle, result, cell, graphStyle);
-						applyStyle(appliedStyle, result, cell, graphStyle);
-						
-						if (resolve)
-						{
-							result = this.postProcessCellStyle(cell, result);
-						}
-						
-						return result;
-					};
-					
-					graph.refresh();
-					graph.getCellStyle = prev;
-					graph.background = prevBg;
-					graph.view.gridColor = prevGrid;
+					previewGraphStyle(commonStyle, vertexStyle, edgeStyle, graphStyle);
 				}));
 				
 				mxEvent.addListener(panel, 'mouseleave', mxUtils.bind(this, function(evt)

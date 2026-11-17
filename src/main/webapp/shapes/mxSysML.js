@@ -479,10 +479,10 @@ mxShapeSysMLPortTwo.prototype.getConstraints = function(style, w, h)
 	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
 	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
 	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.95, 0), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.95, 0.25), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.95, 0.75), false));
-	constr.push(new mxConnectionConstraint(new mxPoint(0.95, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.85, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.85, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.85, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.85, 1), false));
 	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
 	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
 	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
@@ -612,7 +612,7 @@ mxCellRenderer.registerShape(mxShapeSysMLPortFour.prototype.cst.PORT4, mxShapeSy
 
 mxShapeSysMLPortFour.prototype.constraints = [
                                                    new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-                                                   new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+                                                   new mxConnectionConstraint(new mxPoint(0.05, 0.5), false),
                                                    new mxConnectionConstraint(new mxPoint(0.5, 1), true),
                                                    new mxConnectionConstraint(new mxPoint(1, 0.5), true)
                                                    ];

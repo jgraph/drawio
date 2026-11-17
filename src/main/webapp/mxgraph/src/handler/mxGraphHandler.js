@@ -828,8 +828,9 @@ mxGraphHandler.prototype.getPreviewBounds = function(cells)
  *
  * Returns the union of the <mxCellStates> for the given array of <mxCells>,
  * using the bounds of the rotated state for cells with a rotation that is
- * a multiple of 90 degrees, so that snapping and alignment during a move
- * use the visible bounds of the cells. See also: <mxGraphView.getBounds>.
+ * a multiple of 90 degrees and the extent of the points for edges, so
+ * that snapping and alignment during a move use the visible bounds of the
+ * cells. See also: <mxGraphView.getBounds>.
  *
  * Parameters:
  *
@@ -863,6 +864,36 @@ mxGraphHandler.prototype.getStateBounds = function(cells)
 						{
 							bounds = new mxRectangle(state.getCenterX() - state.height / 2,
 								state.getCenterY() - state.width / 2, state.height, state.width);
+						}
+					}
+					else if (state.absolutePoints != null)
+					{
+						// Uses the extent of the points as the state of a straight
+						// edge is at least one unit wide or high, which would put
+						// its center half a unit next to the line
+						var pts = state.absolutePoints;
+						var edgeBounds = null;
+
+						for (var j = 0; j < pts.length; j++)
+						{
+							if (pts[j] != null)
+							{
+								var pt = new mxRectangle(pts[j].x, pts[j].y, 0, 0);
+
+								if (edgeBounds == null)
+								{
+									edgeBounds = pt;
+								}
+								else
+								{
+									edgeBounds.add(pt);
+								}
+							}
+						}
+
+						if (edgeBounds != null)
+						{
+							bounds = edgeBounds;
 						}
 					}
 

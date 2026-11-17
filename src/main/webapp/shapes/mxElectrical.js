@@ -2896,8 +2896,8 @@ mxShapeElectricalFlowActuatedSwitch.prototype.paintVertexShape = function(c, x, 
 mxCellRenderer.registerShape(mxShapeElectricalFlowActuatedSwitch.prototype.cst.SHAPE_FLOW_ACTUATED_SWITCH, mxShapeElectricalFlowActuatedSwitch);
 
 mxShapeElectricalFlowActuatedSwitch.prototype.constraints = [
-	new mxConnectionConstraint(new mxPoint(0, 0.27), true),
-  	new mxConnectionConstraint(new mxPoint(1, 0.27), true)
+	new mxConnectionConstraint(new mxPoint(0, 0.1), true),
+  	new mxConnectionConstraint(new mxPoint(1, 0.1), true)
 	];
 
 //**********************************************************************************************************************************************************
@@ -3557,8 +3557,10 @@ mxShapeElectricalSelectorSwitch3Position2.prototype.paintVertexShape = function(
 mxCellRenderer.registerShape(mxShapeElectricalSelectorSwitch3Position2.prototype.cst.SHAPE_SELECTOR_SWITCH_3_POSITION, mxShapeElectricalSelectorSwitch3Position2);
 
 mxShapeElectricalSelectorSwitch3Position2.prototype.constraints = [
-	new mxConnectionConstraint(new mxPoint(0, 0.8), true),
-	new mxConnectionConstraint(new mxPoint(1, 0.8), true)
+	new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.06), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.94), true)
 	];
 
 //**********************************************************************************************************************************************************
@@ -3681,8 +3683,11 @@ mxShapeElectricalSelectorSwitch4Position2.prototype.paintVertexShape = function(
 mxCellRenderer.registerShape(mxShapeElectricalSelectorSwitch4Position2.prototype.cst.SHAPE_SELECTOR_SWITCH_4_POSITION, mxShapeElectricalSelectorSwitch4Position2);
 
 mxShapeElectricalSelectorSwitch4Position2.prototype.constraints = [
-	new mxConnectionConstraint(new mxPoint(0, 0.8), true),
-	new mxConnectionConstraint(new mxPoint(1, 0.8), true)
+	new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.045), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.35), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.65), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.955), true)
 	];
 
 //**********************************************************************************************************************************************************
@@ -4295,8 +4300,8 @@ mxShapeElectricalManualSwitch2.prototype.paintVertexShape = function(c, x, y, w,
 mxCellRenderer.registerShape(mxShapeElectricalManualSwitch2.prototype.cst.SHAPE_MANUAL_SWITCH_2, mxShapeElectricalManualSwitch2);
 
 mxShapeElectricalManualSwitch2.prototype.constraints = [
-	new mxConnectionConstraint(new mxPoint(0, 0.8), true),
-	new mxConnectionConstraint(new mxPoint(1, 0.8), true)
+	new mxConnectionConstraint(new mxPoint(0, 1), true),
+	new mxConnectionConstraint(new mxPoint(1, 1), true)
 	];
 
 //**********************************************************************************************************************************************************
@@ -5658,9 +5663,9 @@ mxShapeElectricalChangeoverContactSwitch2.prototype.paintVertexShape = function(
 mxCellRenderer.registerShape(mxShapeElectricalChangeoverContactSwitch2.prototype.cst.SHAPE_CHANGEOVER_CONTACT_SWITCH2, mxShapeElectricalChangeoverContactSwitch2);
 
 mxShapeElectricalChangeoverContactSwitch2.prototype.constraints = [
-	new mxConnectionConstraint(new mxPoint(0, 0.8), true),
-	new mxConnectionConstraint(new mxPoint(0, 0.8), true),
-	new mxConnectionConstraint(new mxPoint(1, 0.8), true)
+	new mxConnectionConstraint(new mxPoint(0, 1), true),
+	new mxConnectionConstraint(new mxPoint(1, 0), true),
+	new mxConnectionConstraint(new mxPoint(1, 1), true)
 	];
 
 //**********************************************************************************************************************************************************

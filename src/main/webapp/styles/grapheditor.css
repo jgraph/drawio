@@ -777,7 +777,17 @@ html body td.mxWindowTitle {
 	padding-right: 14px;
 }
 
-html body.geEditor.geDarkMode *,
+/* Dark mode drops the shadows of the editor. Simple Modern keeps the
+   hairlines and elevations of its components, which are made for dark mode
+   (light-dark tokens): elements with a class of the look (geSm and a capital;
+   geSmallBanner and geSmallAppIcon are Classic) and the surfaces it styles
+   without one (the selector matches as before without the look) */
+html body.geEditor.geDarkMode :where(:not(.geSimpleModern :is([class*="geSm"]:not(.geSmallBanner, .geSmallAppIcon),
+	.geFormatContainer, .geSmShell>.geTabContainer, .geSmShell>.geSidebarContainer,
+	.geSmFormat .geFormatTitle, .geSmFormat .geColorBtn>div, .geSmFormat .geSmCalmPreview>span,
+	.geSmBrowser .geTemplate, .geSmBrowser .geTemplate>img, .geSmAspect .geAspectDlgListItem,
+	.geSmLibraryItem>.geFocusLabel, .geSmHome .geHomeThumb, .geSmConfig .tri-toggle button,
+	.geSmHostWindow .geToolbarContainer, .geOmnibox))),
 html body .mxWindow.geDarkMode {
 	box-shadow: none !important;
 }
@@ -2523,6 +2533,462 @@ a.geStatus>div {
 	color: light-dark(#5f5f63, var(--dark-secondary-text-color));
 }
 
+/* Choose Layout and Layout Settings (LayoutPicker.js): tiles with pictures
+   of the layouts, toggle buttons and a preview */
+.geLayoutPickerTop {
+	display: flex;
+	align-items: center;
+	column-gap: 16px;
+	margin-bottom: 12px;
+	line-height: normal;
+}
+
+.geLayoutPickerSpacing {
+	display: flex;
+	align-items: center;
+	column-gap: 8px;
+	flex-shrink: 0;
+	margin-left: auto;
+}
+
+.geLayoutPickerGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+	gap: 10px;
+}
+
+.geLayoutTile {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	padding: 6px 6px 8px;
+	border: 1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));
+	border-radius: 8px;
+	background: light-dark(var(--card-color), var(--dark-card-color));
+	color: light-dark(var(--strong-text-color), var(--dark-strong-text-color));
+	font: inherit;
+	line-height: normal;
+	text-align: left;
+	cursor: pointer;
+}
+
+.geLayoutTile:hover {
+	border-color: light-dark(var(--focus-color), var(--dark-focus-color));
+}
+
+/* Layouts that fail for the diagram show the example */
+.geLayoutTile:disabled {
+	border-color: light-dark(var(--field-border-color), var(--dark-field-border-color));
+	opacity: 0.5;
+	cursor: default;
+}
+
+.geLayoutTile:focus-visible, .geLayoutSegment:focus-visible {
+	outline: 2px solid light-dark(var(--focus-color), var(--dark-focus-color));
+	outline-offset: -2px;
+}
+
+/* button. wins over the generic hover of buttons, which would hide the tint */
+button.geLayoutTile.geLayoutTileSuggested {
+	border-color: light-dark(var(--focus-color), var(--dark-focus-color));
+	background: light-dark(color-mix(in srgb, var(--focus-color) 6%, var(--card-color)),
+		color-mix(in srgb, var(--dark-focus-color) 12%, var(--dark-card-color)));
+}
+
+.geLayoutTileThumb, .geLayoutFormPreview {
+	position: relative;
+	overflow: hidden;
+	height: 100px;
+	border-radius: 6px;
+	background: light-dark(#ffffff, var(--dark-color));
+	pointer-events: none;
+}
+
+.geLayoutTileName {
+	margin-top: 6px;
+	font-weight: 600;
+}
+
+.geLayoutTile .geDialogHint {
+	margin-top: 2px;
+}
+
+/* On the border, so the name keeps its line */
+.geLayoutTileBadge {
+	position: absolute;
+	top: -9px;
+	right: 10px;
+	padding: 1px 6px;
+	border-radius: 8px;
+	/* The light focus color in both modes: white text needs 4.5:1 (4.7:1;
+	   the dark focus color gives 3.6:1) */
+	background: var(--focus-color);
+	color: #ffffff;
+	font-size: 11px;
+	font-weight: normal;
+	white-space: nowrap;
+}
+
+.geLayoutPickerExample {
+	margin-top: 10px;
+	line-height: normal;
+}
+
+.geLayoutSegments {
+	display: inline-flex;
+	border: 1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));
+	border-radius: 6px;
+	overflow: hidden;
+}
+
+.geLayoutSegment {
+	min-height: 26px;
+	padding: 3px 10px;
+	border: none;
+	background: light-dark(var(--field-color), var(--dark-field-color));
+	color: light-dark(var(--strong-text-color), var(--dark-strong-text-color));
+	font: inherit;
+	font-size: 13px;
+	line-height: normal;
+	cursor: pointer;
+}
+
+.geLayoutSegments > .geLayoutSegment + .geLayoutSegment {
+	border-left: 1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));
+}
+
+.geLayoutSegment[aria-pressed="true"],
+button.geLayoutSegment[aria-pressed="true"]:hover {
+	background: light-dark(color-mix(in srgb, var(--focus-color) 14%, var(--field-color)),
+		color-mix(in srgb, var(--dark-focus-color) 30%, var(--dark-field-color)));
+	color: light-dark(var(--focus-color), #ffffff);
+}
+
+/* Types of layouts wrap as separate buttons */
+.geLayoutSegments.geLayoutTypes {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	border: none;
+	overflow: visible;
+}
+
+.geLayoutSegments.geLayoutTypes > .geLayoutSegment {
+	border: 1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));
+	border-radius: 6px;
+}
+
+.geLayoutDirections > .geLayoutSegment {
+	min-width: 34px;
+	font-size: 15px;
+}
+
+/* One column for the long labels of the form */
+.geLayoutForm .geDialogFormLabel {
+	min-width: 130px;
+}
+
+.geLayoutFormNumber {
+	display: flex;
+	align-items: center;
+	column-gap: 6px;
+}
+
+.geDialogFormRow .geLayoutFormNumber input[type="number"] {
+	flex: 0 0 72px;
+}
+
+.geLayoutFormScope, .geLayoutFormJsonHint {
+	margin-bottom: 10px;
+	line-height: normal;
+}
+
+.geLayoutFormPreview {
+	height: 200px;
+	margin-bottom: 10px;
+	border: 1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));
+}
+
+.geLayoutFormJson {
+	width: 100%;
+	height: 160px;
+	box-sizing: border-box;
+	font-family: monospace;
+	font-size: 12px;
+	resize: vertical;
+}
+
+.geLayoutFormJsonError {
+	margin-top: 4px;
+	line-height: normal;
+}
+
+/* Arrange my diagram (LayoutPanel in LayoutPicker.js): the layout picker of
+   the Simple UI in the place of the Format panel, after the concept mockup,
+   so it has its own look */
+.geEditor>.geLayoutPanel {
+	grid-column: 4;
+	grid-row: 3;
+	min-height: 0;
+	width: min(500px, 50vw);
+	box-sizing: border-box;
+	display: flex;
+	padding: 6px 12px 8px 4px;
+}
+
+.geLayoutPanelCard {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	padding: 14px 14px 12px;
+	border: 1px solid light-dark(#d0d0d0, #3c4043);
+	border-radius: 12px;
+	background: light-dark(#ffffff, #202124);
+	box-shadow: 0 6px 22px rgba(0, 0, 0, 0.18);
+	color: light-dark(#222222, #e8eaed);
+	font-size: 13px;
+	line-height: normal;
+}
+
+.geLayoutPanelHeader {
+	display: flex;
+	align-items: center;
+	column-gap: 8px;
+	margin-bottom: 4px;
+}
+
+.geLayoutPanelTitle {
+	font-size: 15px;
+	font-weight: 700;
+}
+
+.geLayoutPanelCount {
+	margin-left: auto;
+	color: light-dark(#5f6368, #9aa0a6);
+	font-size: 11px;
+	white-space: nowrap;
+}
+
+.geLayoutPanelClose {
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: none;
+	border-radius: 6px;
+	background: none;
+	color: light-dark(#5f6368, #9aa0a6);
+	font-size: 18px;
+	line-height: 24px;
+	cursor: pointer;
+}
+
+.geLayoutPanel .geLayoutPanelClose:hover {
+	background: light-dark(#f1f3f4, #303134);
+}
+
+.geLayoutPanelHint {
+	margin-bottom: 10px;
+	color: light-dark(#5f6368, #9aa0a6);
+	font-size: 11.5px;
+	line-height: 1.25;
+}
+
+.geLayoutPanelExample {
+	margin: 8px 0 0;
+}
+
+.geLayoutPanelGrid {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	align-content: start;
+	gap: 8px 10px;
+	padding: 2px;
+}
+
+.geLayoutPanelTile {
+	display: flex;
+	flex-direction: column;
+	padding: 6px;
+	border: 1.5px solid light-dark(#dadce0, #5f6368);
+	border-radius: 10px;
+	background: light-dark(#ffffff, #202124);
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+/* Wins over the generic hover of buttons */
+.geLayoutPanel .geLayoutPanelTile:hover:not(:disabled) {
+	border-color: #8ab4f8;
+	background: light-dark(#ffffff, #202124);
+}
+
+.geLayoutPanel .geLayoutPanelTile[aria-pressed="true"] {
+	border-color: #1a73e8;
+	background: light-dark(#f3f7ff, #1f2a3d);
+}
+
+.geLayoutPanelTile:disabled {
+	border-color: light-dark(#dadce0, #5f6368);
+	opacity: 0.5;
+	cursor: default;
+}
+
+.geLayoutPanel button:focus-visible {
+	outline: 2px solid #1a73e8;
+	outline-offset: -2px;
+}
+
+.geLayoutPanelThumb {
+	position: relative;
+	overflow: hidden;
+	height: 100px;
+	border-radius: 6px;
+	background: light-dark(#fafafa, #171717);
+	pointer-events: none;
+}
+
+.geLayoutPanelName {
+	margin-top: 5px;
+	font-weight: 500;
+}
+
+.geLayoutPanelBadge {
+	display: inline-block;
+	margin-left: 6px;
+	padding: 1px 6px;
+	border-radius: 8px;
+	background: #1a73e8;
+	color: #ffffff;
+	font-size: 10px;
+	font-weight: 700;
+	vertical-align: middle;
+}
+
+.geLayoutPanelDesc {
+	margin-top: 1px;
+	color: light-dark(#5f6368, #9aa0a6);
+	font-size: 11.5px;
+	line-height: 1.25;
+}
+
+.geLayoutPanelFooter {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 6px;
+	margin-top: 10px;
+	padding-top: 10px;
+	border-top: 1px solid light-dark(#e6e6e6, #3c4043);
+}
+
+.geLayoutPanelLabel {
+	color: light-dark(#5f6368, #9aa0a6);
+	font-size: 11.5px;
+}
+
+.geLayoutSegments.geLayoutPanelSegments {
+	border: 1px solid light-dark(#dadce0, #5f6368);
+	border-radius: 8px;
+}
+
+.geLayoutSegments.geLayoutPanelSegments > .geLayoutSegment {
+	min-height: 0;
+	padding: 4px 8px;
+	background: transparent;
+	color: inherit;
+	font-size: 12px;
+}
+
+.geLayoutSegments.geLayoutPanelSegments > .geLayoutSegment + .geLayoutSegment {
+	border-left: 1px solid light-dark(#dadce0, #5f6368);
+}
+
+.geLayoutPanel .geLayoutPanelSegments > .geLayoutSegment:hover {
+	background: light-dark(#f1f3f4, #303134);
+}
+
+.geLayoutPanel .geLayoutSegments.geLayoutPanelSegments > .geLayoutSegment[aria-pressed="true"] {
+	background: light-dark(#e8f0fe, #1f2a3d);
+	color: light-dark(#1a56c4, #8ab4f8);
+	font-weight: 600;
+}
+
+.geLayoutPanelButton {
+	padding: 5px 9px;
+	border: 1px solid light-dark(#dadce0, #5f6368);
+	border-radius: 8px;
+	background: light-dark(#ffffff, #202124);
+	color: inherit;
+	font: inherit;
+	font-size: 12px;
+	cursor: pointer;
+}
+
+/* More options and Apply wrap together */
+.geLayoutPanelActions {
+	display: flex;
+	column-gap: 6px;
+	margin-left: auto;
+}
+
+.geLayoutPanel .geLayoutPanelButton:hover:not(:disabled) {
+	background: light-dark(#f1f3f4, #303134);
+}
+
+.geLayoutPanel .geLayoutPanelButton.geLayoutPanelPrimary {
+	border-color: #1a73e8;
+	background: #1a73e8;
+	color: #ffffff;
+}
+
+.geLayoutPanel .geLayoutPanelButton.geLayoutPanelPrimary:hover:not(:disabled) {
+	border-color: #1765cc;
+	background: #1765cc;
+}
+
+.geLayoutPanelButton:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
+/* Picture of a layout on the canvas, over the diagram, which gets all
+   events (shapes and labels set their own pointer events) */
+.geLayoutPanelOverlay {
+	position: absolute;
+	left: 0;
+	top: 0;
+	overflow: hidden;
+}
+
+.geLayoutPanelOverlay, .geLayoutPanelOverlay * {
+	pointer-events: none !important;
+}
+
+/* Nodes that the picture of a layout on the canvas hides (the cells it
+   replaces, the decorator pane, the inline toolbar), with everything in them:
+   shapes set visibility: visible on their own node when they are painted
+   (mxShape.redrawNode), which a hidden parent does not override. Each preview
+   on the canvas has its own class (geSmCompareHidden, geSmVersionHidden in
+   fusion.css), as they can overlap and end in any order */
+.geLayoutPreviewHidden, .geLayoutPreviewHidden * {
+	visibility: hidden !important;
+}
+
+/* The overlay pane under the picture: the handles of the selection are
+   hidden, the overlays and folding icons of the cells outside the picture
+   (geLayoutPreviewKept) are not */
+.geLayoutPreviewPane > :not(.geLayoutPreviewKept),
+.geLayoutPreviewPane > :not(.geLayoutPreviewKept) * {
+	visibility: hidden !important;
+}
+
 /* Home screen (HomeDialog): the Google Drive diagrams draw.io can open */
 .geHome {
 	display: flex;
@@ -3150,6 +3616,312 @@ html div.mxRubberband {
 	width: 100%;
 	outline: none;
 	padding: 6px 20px 6px 10px
+}
+
+/* Side panel of Tidy up and Style My Diagram (diagramly/tidy/TidyWindow.js),
+   a sibling of the Choose Layout panel: a card at the right of the diagram,
+   pictures in two columns, toggles and buttons at the bottom */
+.geTidyPanel {
+	position: fixed;
+	z-index: 4;
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	padding: 14px 14px 12px;
+	border: 1px solid light-dark(var(--border-color), var(--dark-border-color));
+	border-radius: 12px;
+	background: light-dark(var(--card-color), var(--dark-card-color));
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.16);
+	color: light-dark(var(--strong-text-color), var(--dark-strong-text-color));
+	font-family: inherit;
+	font-size: 13px;
+	line-height: normal;
+	white-space: normal;
+}
+
+/* The panel takes the focus when it opens, its controls show theirs */
+.geTidyPanel:focus {
+	outline: none;
+}
+
+.geTidyPanelHeader {
+	display: flex;
+	align-items: baseline;
+	column-gap: 8px;
+}
+
+.geTidyPanelTitle {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.geTidyPanelCount, .geTidyPanelHint, .geTidyTileHint {
+	color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
+	font-size: 12px;
+}
+
+.geTidyPanelCount {
+	flex-shrink: 0;
+	white-space: nowrap;
+}
+
+.geTidyPanelClose {
+	align-self: center;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
+	font-size: 18px;
+	line-height: 24px;
+	cursor: pointer;
+}
+
+.geTidyPanelClose:hover {
+	background: light-dark(var(--soft-hover-color), var(--dark-soft-hover-color));
+}
+
+.geTidyPanelHint {
+	margin-top: 4px;
+}
+
+.geTidyPanelStatus {
+	min-height: 16px;
+	margin: 8px 0 10px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.geTidyPanelTiles {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-auto-rows: min-content;
+	gap: 10px;
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	padding: 2px;
+}
+
+.geTidyPanelBusy .geTidyPanelTiles {
+	opacity: 0.5;
+}
+
+.geTidyTile {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	min-width: 0;
+	padding: 6px 6px 8px;
+	border: 1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));
+	border-radius: 8px;
+	background: light-dark(var(--card-color), var(--dark-card-color));
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.geTidyPanel .geTidyTile:hover {
+	border-color: light-dark(var(--focus-color), var(--dark-focus-color));
+	background: light-dark(var(--card-color), var(--dark-card-color));
+}
+
+.geTidyPanel .geTidyTile.geTidyTileSelected {
+	border-color: light-dark(var(--focus-color), var(--dark-focus-color));
+	background: light-dark(color-mix(in srgb, var(--focus-color) 6%, var(--card-color)),
+		color-mix(in srgb, var(--dark-focus-color) 12%, var(--dark-card-color)));
+}
+
+.geTidyTile:focus-visible, .geTidySegment:focus-visible, .geTidyPanelClose:focus-visible {
+	outline: 2px solid light-dark(var(--focus-color), var(--dark-focus-color));
+	outline-offset: -2px;
+}
+
+.geTidyTileThumb {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	width: 100%;
+	height: 112px;
+	overflow: hidden;
+	border-radius: 6px;
+	background: light-dark(#f7f7f8, #ffffff);
+	pointer-events: none;
+}
+
+.geTidyTileThumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.geTidyTileName {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 4px 6px;
+	margin-top: 6px;
+	font-size: 13px;
+}
+
+.geTidyTileBadge {
+	padding: 1px 7px;
+	border-radius: 8px;
+	background: light-dark(var(--focus-color), var(--dark-focus-color));
+	color: #ffffff;
+	font-size: 11px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.geTidyTileHint {
+	margin-top: 2px;
+}
+
+.geTidyPanelFooter {
+	display: flex;
+	flex-direction: column;
+	row-gap: 8px;
+	margin-top: 10px;
+	padding-top: 10px;
+	border-top: 1px solid light-dark(var(--border-color), var(--dark-border-color));
+}
+
+.geTidyPanelRow {
+	display: flex;
+	align-items: center;
+	column-gap: 8px;
+}
+
+.geTidyPanelLabel {
+	min-width: 64px;
+	color: light-dark(var(--secondary-text-color), var(--dark-secondary-text-color));
+	font-size: 12px;
+}
+
+.geTidySegments {
+	display: inline-flex;
+	border: 1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));
+	border-radius: 6px;
+	overflow: hidden;
+}
+
+.geTidySegment {
+	min-height: 26px;
+	padding: 3px 10px;
+	border: none;
+	background: light-dark(var(--field-color), var(--dark-field-color));
+	color: inherit;
+	font: inherit;
+	font-size: 13px;
+	cursor: pointer;
+}
+
+.geTidySegments > .geTidySegment + .geTidySegment {
+	border-left: 1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));
+}
+
+.geTidySegment[aria-pressed="true"] {
+	background: light-dark(color-mix(in srgb, var(--focus-color) 14%, var(--field-color)),
+		color-mix(in srgb, var(--dark-focus-color) 30%, var(--dark-field-color)));
+	color: light-dark(var(--focus-color), #ffffff);
+	font-weight: 600;
+}
+
+/* A switch: the checkbox stays the control for keyboards and screen readers */
+.geTidyToggle {
+	display: inline-flex;
+	align-items: center;
+	align-self: flex-start;
+	column-gap: 8px;
+	cursor: pointer;
+}
+
+.geTidyPanel .geTidyToggle input[type="checkbox"] {
+	position: relative;
+	flex-shrink: 0;
+	width: 30px;
+	height: 18px;
+	margin: 0;
+	border: none;
+	border-radius: 9px;
+	background-color: light-dark(#c7c7cc, #5a5a5e);
+	-webkit-appearance: none;
+	appearance: none;
+	cursor: pointer;
+	transition: background-color 0.15s;
+}
+
+.geTidyPanel .geTidyToggle input[type="checkbox"]::after {
+	content: '';
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: #ffffff;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+	transition: left 0.15s;
+}
+
+.geTidyPanel .geTidyToggle input[type="checkbox"]:checked {
+	background-color: light-dark(var(--focus-color), var(--dark-focus-color));
+}
+
+.geTidyPanel .geTidyToggle input[type="checkbox"]:checked::after {
+	left: 14px;
+}
+
+.geTidyPanel .geTidyToggle input[type="checkbox"]:focus-visible {
+	outline: 2px solid light-dark(var(--focus-color), var(--dark-focus-color));
+	outline-offset: 2px;
+}
+
+.geTidyPanelButtons {
+	display: flex;
+	justify-content: flex-end;
+	column-gap: 8px;
+	margin-top: 2px;
+}
+
+.geTidyButton {
+	min-height: 30px;
+	padding: 4px 14px;
+	border: 1px solid light-dark(var(--field-border-color), var(--dark-field-border-color));
+	border-radius: 6px;
+	background: light-dark(var(--field-color), var(--dark-field-color));
+	color: light-dark(var(--strong-text-color), var(--dark-strong-text-color));
+	font: inherit;
+	font-size: 13px;
+	cursor: pointer;
+}
+
+.geTidyButton:hover {
+	background: light-dark(var(--soft-hover-color), var(--dark-soft-hover-color));
+}
+
+.geTidyButton.geTidyPrimary {
+	border-color: light-dark(var(--focus-color), var(--dark-focus-color));
+	background: light-dark(var(--focus-color), var(--dark-focus-color));
+	color: #ffffff;
+	font-weight: 600;
+}
+
+.geTidyButton.geTidyPrimary:hover {
+	background: light-dark(color-mix(in srgb, var(--focus-color) 88%, black),
+		color-mix(in srgb, var(--dark-focus-color) 88%, white));
+}
+
+.geTidyButton:focus-visible {
+	outline: 2px solid light-dark(var(--focus-color), var(--dark-focus-color));
+	outline-offset: 2px;
 }
 
 /* Status messages for screen readers that are not shown (see EditorUi.announce) */
@@ -4498,4 +5270,422 @@ span.geCommentsBadge {
 [draggable="true"] {
 	transform: translate(0, 0);
 	z-index: 0;
+}
+
+/* Omnibox: one search for actions, menus and the format of the selection
+   (see Omnibox.js), in the style of the concept of the command palette
+   rather than the toolbars of the themes. Above the menus and the windows,
+   below the dialogs that its entries open after it is hidden. */
+.geOmniboxBackdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 10007;
+	background: light-dark(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.45));
+}
+
+.geOmnibox {
+	--omnibox-accent: light-dark(#1a73e8, #8ab4f8);
+	--omnibox-accent-text: light-dark(#1a56c4, #aecbfa);
+	--omnibox-ring: light-dark(rgba(26, 115, 232, 0.15), rgba(138, 180, 248, 0.25));
+	--omnibox-active: light-dark(#e8f0fe, rgba(138, 180, 248, 0.16));
+	--omnibox-text: light-dark(#222222, #e8eaed);
+	--omnibox-heading: light-dark(#7a7a7a, #9aa0a6);
+	--omnibox-detail: light-dark(#777777, #9aa0a6);
+	--omnibox-faint: light-dark(#999999, #80868b);
+	--omnibox-tile: light-dark(#f2f3f5, #3c4043);
+	--omnibox-line: light-dark(#e6e6e6, #3c4043);
+	--omnibox-row-line: light-dark(#f0f0f0, #35363a);
+	position: fixed;
+	z-index: 10008;
+	top: 90px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 600px;
+	max-width: calc(100% - 32px);
+	max-height: calc(100% - 120px);
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	padding: 14px;
+	border-radius: 12px;
+	border: 1px solid light-dark(#d0d0d0, #4a4b4f);
+	background: light-dark(#ffffff, #292a2d);
+	color: var(--omnibox-text);
+	box-shadow: 0 6px 22px rgba(0, 0, 0, 0.18);
+	font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	line-height: normal;
+	text-align: left;
+	user-select: none;
+}
+
+.geOmniboxBar {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 0 0 auto;
+	padding: 9px 12px;
+	box-sizing: border-box;
+	border-radius: 10px;
+	border: 1.5px solid var(--omnibox-accent);
+	box-shadow: 0 0 0 3px var(--omnibox-ring);
+	background: transparent;
+}
+
+.geOmniboxSearchIcon {
+	flex: none;
+	width: 18px;
+	height: 18px;
+}
+
+/* Above the fields of the editor (.geEditor input) */
+.geOmnibox .geOmniboxBar input:not(.geButton) {
+	flex: 1;
+	min-width: 0;
+	padding: 0;
+	border: none;
+	outline: none;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	font-size: 15px;
+	line-height: 20px;
+	user-select: text;
+}
+
+.geOmnibox .geOmniboxBar input::placeholder {
+	color: var(--omnibox-faint);
+}
+
+.geOmniboxKey {
+	flex: none;
+	color: var(--omnibox-faint);
+	font-size: 11px;
+	cursor: pointer;
+}
+
+.geOmniboxScope {
+	flex: none;
+	padding: 2px 9px;
+	border: none;
+	border-radius: 10px;
+	background: var(--omnibox-active);
+	color: var(--omnibox-accent-text);
+	font: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.geOmniboxScope::after {
+	content: '\00d7';
+	margin-left: 6px;
+	font-weight: normal;
+}
+
+/* Under the search field of a toolbar (see Omnibox.getAnchor): the input
+   lies over the field and the list drops below it, no dimming */
+.geOmniboxBackdropClear {
+	background: transparent;
+}
+
+.geOmnibox.geOmniboxAnchored {
+	transform: none;
+	padding: 4px;
+}
+
+.geOmnibox.geOmniboxAnchored .geOmniboxFooter {
+	display: none;
+}
+
+/* The whole window (phones) */
+.geOmnibox.geOmniboxFull {
+	inset: 0;
+	top: 0;
+	left: 0;
+	width: auto;
+	max-width: none;
+	max-height: none;
+	transform: none;
+	border-radius: 0;
+	border: none;
+}
+
+/* No keys on phones; the bar has a close button */
+.geOmnibox.geOmniboxFull .geOmniboxFooter {
+	display: none;
+}
+
+.geOmniboxClose {
+	flex: none;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	border: none;
+	border-radius: 8px;
+	background: transparent;
+	color: var(--omnibox-detail);
+	font: inherit;
+	font-size: 20px;
+	cursor: pointer;
+}
+
+.geOmniboxHeading {
+	display: flex;
+	align-items: baseline;
+}
+
+.geOmniboxHeadingTitle {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.geOmniboxMatch {
+	background: transparent;
+	color: inherit;
+	font-weight: 700;
+}
+
+.geOmniboxList {
+	flex: 1 1 auto;
+	min-height: 0;
+	margin-top: 4px;
+	overflow-y: auto;
+}
+
+.geOmniboxHeading {
+	margin: 12px 4px 6px 4px;
+	color: var(--omnibox-heading);
+	font-size: 10.5px;
+	font-weight: 700;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.geOmniboxItem {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 6px 8px;
+	border-radius: 8px;
+	cursor: pointer;
+}
+
+.geOmniboxItem.geOmniboxActive {
+	background: var(--omnibox-active);
+}
+
+.geOmniboxItem.geOmniboxDisabled {
+	cursor: default;
+}
+
+.geOmniboxItem.geOmniboxDisabled .geOmniboxLabel,
+.geOmniboxItem.geOmniboxDisabled .geOmniboxTile {
+	opacity: 0.5;
+}
+
+.geOmniboxTile {
+	flex: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 7px;
+	background: var(--omnibox-tile);
+}
+
+.geOmniboxTile img {
+	width: 18px;
+	height: 18px;
+}
+
+.geOmniboxText {
+	flex: 1;
+	min-width: 0;
+}
+
+.geOmniboxLabel,
+.geOmniboxDetail,
+.geOmniboxShortcut {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.geOmniboxLabel {
+	font-weight: 500;
+}
+
+.geOmniboxDetail {
+	margin-top: 1px;
+	color: var(--omnibox-detail);
+	font-size: 11.5px;
+	line-height: 1.25;
+}
+
+.geOmniboxSide {
+	flex: none;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	max-width: 40%;
+	color: var(--omnibox-faint);
+	font-size: 11px;
+}
+
+.geOmniboxShortcut {
+	min-width: 0;
+}
+
+.geOmniboxEnter {
+	display: none;
+	width: 10px;
+	text-align: center;
+}
+
+.geOmniboxActive:not(.geOmniboxDisabled) .geOmniboxEnter {
+	display: block;
+}
+
+/* State of an entry that is on or off */
+.geOmniboxSwitch {
+	position: relative;
+	flex: none;
+	width: 30px;
+	height: 16px;
+	box-sizing: border-box;
+	border-radius: 8px;
+	background: light-dark(#cccccc, #5f6368);
+}
+
+.geOmniboxSwitch::after {
+	content: '';
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background: #ffffff;
+}
+
+.geOmniboxSwitch.geOmniboxOn {
+	background: var(--omnibox-accent);
+}
+
+.geOmniboxSwitch.geOmniboxOn::after {
+	left: auto;
+	right: 2px;
+	background: light-dark(#ffffff, #202124);
+}
+
+.geOmniboxEmpty {
+	padding: 12px 8px 4px 8px;
+	color: var(--omnibox-detail);
+}
+
+.geOmniboxFooter {
+	display: flex;
+	gap: 14px;
+	flex: 0 0 auto;
+	margin: 6px 2px 0 2px;
+	padding: 8px 6px 0 6px;
+	border-top: 1px solid var(--omnibox-line);
+	color: var(--omnibox-detail);
+	font-size: 11.5px;
+}
+
+.geOmniboxHintKey {
+	margin-right: 4px;
+}
+
+/* Settings of the format scope: rows with lines and no icons */
+.geOmniboxScopeFormat .geOmniboxTile {
+	display: none;
+}
+
+.geOmniboxScopeFormat .geOmniboxItem {
+	padding: 7px 6px;
+	border-radius: 6px;
+	box-shadow: 0 1px 0 var(--omnibox-row-line);
+}
+
+@media (forced-colors: active) {
+	.geOmniboxItem.geOmniboxActive {
+		outline: 2px solid Highlight;
+	}
+
+	.geOmniboxSwitch {
+		border: 1px solid CanvasText;
+	}
+
+	.geOmniboxSwitch.geOmniboxOn::after {
+		background: CanvasText;
+	}
+}
+
+/* Control of the format panel that the omnibox shows */
+.geOmniboxHighlight {
+	border-radius: 4px;
+	animation: geOmniboxHighlight 2.4s ease-out;
+}
+
+@keyframes geOmniboxHighlight {
+	0%, 50% {
+		background-color: light-dark(#fde293, #5c4a00);
+		box-shadow: 0 0 0 3px light-dark(#fde293, #5c4a00);
+	}
+	100% {
+		background-color: transparent;
+		box-shadow: 0 0 0 3px transparent;
+	}
+}
+
+/* Without motion the control is marked while the highlight lasts
+   (Omnibox.highlightDelay), without the fade */
+@media (prefers-reduced-motion: reduce) {
+	.geOmniboxHighlight {
+		animation: none;
+		background-color: light-dark(#fde293, #5c4a00);
+		box-shadow: 0 0 0 3px light-dark(#fde293, #5c4a00);
+	}
+}
+
+/* Search button of the format panel (see Format.createSearchButton) */
+.geFormatTitleContainerWithSearch {
+	margin-right: 34px;
+}
+
+.geFormatSearchButton {
+	position: absolute;
+	top: 0;
+	right: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	box-sizing: border-box;
+	border-left: 1px solid;
+	border-bottom: 1px solid;
+	border-color: light-dark(var(--border-color), var(--dark-border-color));
+	background: light-dark(var(--inactive-color), var(--dark-highlight-color));
+	cursor: pointer;
+}
+
+.geFormatSearchButton img {
+	width: 18px;
+	height: 18px;
+	opacity: 0.7;
+}
+
+.geFormatSearchButton:hover img {
+	opacity: 1;
+}
+
+.geFormatSearchButton:focus-visible {
+	outline: 2px solid light-dark(var(--focus-color), var(--dark-focus-color));
+	outline-offset: -2px;
 }
