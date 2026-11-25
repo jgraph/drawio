@@ -30,24 +30,79 @@ DrawioFilePolling.prototype.start = function(delay)
     {
         this.maxDelay = delay;
         this.delay = delay;
-
-        var threadFn = mxUtils.bind(this, function()
-        {
-            this.poll(0, nextFn);
-        });
-
-        var nextFn = mxUtils.bind(this, function()
-        {
-            // To get adaptive polling, we use timeout instead of interval
-            this.thread = setTimeout(threadFn, this.delay);
-            this.delay = Math.min(this.maxDelay, this.delay + 2000); // TODO this or this.delay * 2
-        });
-
-        nextFn();
+        this.thread = setTimeout(mxUtils.bind(this, this.run), this.nextDelay());
 
         EditorUi.debug('DrawioFilePolling.start', [this],
             'thread', this.thread, 'delay', delay,
             'rev', this.file.getCurrentRevisionId());
+    }
+};
+
+/**
+ * Returns the delay for the next poll and increases it for the poll after
+ * that, up to the delay of start. A detected change resets it (see poll).
+ */
+DrawioFilePolling.prototype.nextDelay = function()
+{
+    var delay = this.delay;
+    this.delay = Math.min(this.maxDelay, this.delay + 2000); // TODO this or this.delay * 2
+
+    return delay;
+};
+
+/**
+ * Runs a poll and schedules the next one when it is done. A poll that is
+ * asked for while one is in progress runs right after it, as the poll in
+ * progress may have read the file before the change.
+ */
+DrawioFilePolling.prototype.run = function()
+{
+    if (this.pending)
+    {
+        this.pollAgain = true;
+    }
+    else if (this.isConnected())
+    {
+        this.pending = true;
+        this.pollAgain = false;
+
+        this.poll(0, mxUtils.bind(this, function()
+        {
+            this.pending = false;
+
+            if (this.pollAgain)
+            {
+                this.run();
+            }
+            // To get adaptive polling, we use timeout instead of interval.
+            // Nothing is scheduled after stop.
+            else if (this.isConnected())
+            {
+                clearTimeout(this.thread);
+                this.thread = setTimeout(mxUtils.bind(this, this.run), this.nextDelay());
+            }
+        }));
+    }
+};
+
+/**
+ * Polls at once instead of waiting for the next poll, eg. when the window
+ * is shown or another tab wrote the file. Does nothing if the polling is
+ * not active.
+ */
+DrawioFilePolling.prototype.pollNow = function()
+{
+    if (this.isConnected())
+    {
+        EditorUi.debug('DrawioFilePolling.pollNow', [this],
+            'pending', this.pending);
+
+        if (!this.pending)
+        {
+            clearTimeout(this.thread);
+        }
+
+        this.run();
     }
 };
 
@@ -72,13 +127,22 @@ DrawioFilePolling.prototype.poll = function(retry, nextFn)
 {
     retry = (retry != null) ? retry : 0;
 
+    // Retries nothing after stop, also if it stops during the delay of
+    // the retry: the retry would read the file before it checks
     var handleError = mxUtils.bind(this, function(e)
     {
-        if (retry < this.maxRetries)
+        if (retry < this.maxRetries && this.isConnected())
         {
             this.retryPoll(mxUtils.bind(this, function()
             {
-                this.poll(retry + 1, nextFn);
+                if (this.isConnected())
+                {
+                    this.poll(retry + 1, nextFn);
+                }
+                else
+                {
+                    nextFn();
+                }
             }));
         }
         else
@@ -89,7 +153,8 @@ DrawioFilePolling.prototype.poll = function(retry, nextFn)
 
     this.file.getLatestVersionId(mxUtils.bind(this, function(latestVersionId)
     {
-        if (latestVersionId != -1)
+        // Merges nothing after stop, eg. into a file that was closed
+        if (latestVersionId != -1 && this.isConnected())
         {
             var currentVersionId = this.file.getCurrentRevisionId();
 
@@ -97,6 +162,13 @@ DrawioFilePolling.prototype.poll = function(retry, nextFn)
             {
                 this.file.getLatestVersion(mxUtils.bind(this, function(latestFile)
                 {
+                    if (!this.isConnected())
+                    {
+                        nextFn();
+
+                        return;
+                    }
+
                     this.file.mergeFile(latestFile, mxUtils.bind(this, function()
                     {
                         // An update is detected, so start adaptive polling
@@ -142,6 +214,7 @@ DrawioFilePolling.prototype.stop = function()
     
     clearTimeout(this.thread);
     this.thread = null;
+    this.pollAgain = false;
 };
 
 /**

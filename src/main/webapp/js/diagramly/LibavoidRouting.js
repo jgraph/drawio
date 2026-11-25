@@ -1635,7 +1635,8 @@ LibavoidRouting.maskSides = function(edgeStyle, terminalStyle, source)
  * (mxGraphView.updateFloatingTerminalPoint in grapheditor/Graph.js: the
  * terminal OR the edge carries snapToPoint=1) so the committed route attaches
  * where the floating end will snap at render time. The anchors come from
- * graph.getAllConnectionConstraints for a shape created for the given
+ * graph.getSnapConstraints (the connection points, or the points that a shape
+ * had before it got new ones) for a shape created for the given
  * terminal style (stencil and shape constraints need a shape). A terminal the
  * view does not render (hidden, or inside a collapsed cell — isRendered) has
  * no snap, matching a render that draws nothing; one added in the same edit,
@@ -1707,7 +1708,10 @@ LibavoidRouting.snapPoints = function(graph, terminal, edgeStyle, terminalStyle)
 		state.shape.scale = 1;
 	}
 
-	var constraints = graph.getAllConnectionConstraints(state);
+	// The points that the renderer snaps to (Graph.getSnapConstraints, which an
+	// older app.min.js does not have)
+	var constraints = (graph.getSnapConstraints != null) ?
+		graph.getSnapConstraints(state) : graph.getAllConnectionConstraints(state);
 
 	if (constraints == null || constraints.length == 0)
 	{

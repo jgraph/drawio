@@ -1,3 +1,574 @@
+24-NOV-2026: 32.7.7
+
+- Embed mode: embedLoaded event for plugins and readOnly in the load message [jgraph/drawio#5837]
+- Ignores node_modules of the embed configuration tests
+- Adds the configuration key undoToast for the toast with Undo of Simple Modern
+- Moves the configuration key undoToast to simple-modern
+- Azure icons V25: 7 new icons, MS Discovery switched to its redrawn artwork
+- Savesidebar: Save renders the pending thumbnails of its palette before compositing
+- Switches the working branch from simple-modern to dev-ga (#1550)
+- Open findings of the review of #1545: GitLab name check shows its cause, OneDrive closed dialog shows no error, Classic Share without shareMenu (#1551)
+- Guides name dev-ga as the working branch, Source Checks stop running for simple-modern (#1553)
+- New Lightbox: page menu and Export/Print in the bottom bar, no title top left (#1552)
+- Print and Export preview: the diagram can no longer be dragged (#1554)
+- New Lightbox: no logo card top left (#1555)
+- New Lightbox: the diagram title for screen readers again (Codex finding on #1555) (#1556)
+- Fixes the app bundle on pages that declare no charset
+- Declares UTF-8 on the Teams pages that load the app bundle
+- Removes a byte order mark inside a script of the Outlook add-in
+- Adds a check that the scripts parse as windows-1252
+- Inline toolbar: shapes with a style value that is no number can be edited again [jgraph/drawio-dev#1560]
+- Inline toolbar: selecting a connector with a far coordinate no longer blocks the page
+- Inline toolbar: placed faster over connectors with many waypoints
+- Test docs: --list-changed and the sweep examples name origin/dev-ga, not the deleted simple-modern
+- Azure shapes: the search finds MS Discovery as Microsoft Discovery again
+- Shows Operation in progress instead of Error in GitLab if another sign-in is open
+- New Lightbox: the arrow keys change pages after a page was chosen in the menu
+- New Lightbox: the accessible name of the page button has the page on phones too
+- test-map.json: the GitLab sign-in runs the checks of the name of a new file
+- In This Diagram: linear work after the open of a file
+- Tests for the work of In This Diagram after the open of a file
+- In This Diagram: the list follows cells that are hidden, shown or folded
+
+24-NOV-2026: 32.7.6
+
+- The Preview template of dialogs in every theme (PreviewDialog.js)
+- Simple: File as the first button of the top bar; omnibox: the key / in a square, no placeholder
+- Classic and Simple: search in the shape picker, picker shapes held at their center
+- test/no-flag: the declared change of a look is checked in the editor states
+- Classic and Simple batch 2: Editor.featureDefaults, Simple with Arrange my diagram, search and Tidy up
+- Batch 2: keep the label of chooseLayout, Fusion tidy tests follow the new defaults
+- Preview template: omnibox index reads PreviewDialog.js, hints describe checkboxes, spinner stops with reduced motion
+- Classic and Simple batch 6: Arrange my diagram and Tidy Up in Classic
+- test/no-flag: a declared state differs only by its declared lines
+- Batch 2, review round 1: Choose Layout keeps its name with its dialog, translations, platforms in the app layer
+- In This Diagram in Classic and Simple, rename in place in every browser (batch 9)
+- More Shapes offline turns In This Diagram on and off too; Fusion tests know its row
+- Batch 6: the Fusion test tidy-default follows the Classic default
+- In This Diagram: More Shapes changes it only with its row, session choices store nothing
+- Simple: Import from, Export as, Page setup and Print in the menu of the File button
+- Classic and Simple batch 18: undo toast, disabled with a reason, Enter and focus of dialogs, focus returns
+- test/no-flag: declares the changes of batch 18 for Classic and Simple
+- Classic and Simple: no focus ring around a dialog that takes the focus after a tap
+- Classic and Simple: isHelperEnabled tests Fusion positively (simple-classic-seam)
+- Classic and Simple batch 18: the undo toast in Classic only with enableUndoToast (default false)
+- Classic and Simple batch 18: Edit Layout, Edit Outline and the other items of Layout and Arrange say why they are disabled
+- Batch 2: the search of the shape picker is the row pickerSearch of Editor.featureDefaults
+- test/no-flag: batch 18 declared in the format of declared/, states of several batches and fixes of pixels only
+- Fusion Beta ready: Help > Back to the previous theme, Feedback on Fusion behind its address, the Beta badge, counts of the switches, the three UX findings of 12 November
+- Classic and Simple batch 18: icons say their reason once, tooltips of Simple follow the language, the toast follows the mode
+- Classic and Simple batch 18: the reasons and the switch enableUndoToast in all languages
+- Classic and Simple batch 18: the switch is the driver's configuration key undoToast (Undo Notifications)
+- test/simple-modern: code-previews reads the transparent fill of the code field, which keeps its colour
+- Simple: Share as a labelled button with the menu of Fusion (batch 10)
+- Fusion: Theme ▸ Fusion (Beta) also on preprod.diagrams.net without test=1
+- Print with a preview in Classic and Simple (batch 5)
+- Classic and Simple batch 18: the switch undoToast is a row of Editor.featureDefaults
+- Simple: the Hand tool of Fusion instead of Read-only (batch 11)
+- Batch 11: tests of the Hand tool in Classic and Simple, no-flag declaration, docs
+- Batch 11: H on a selected shape types its label in the Hand tool (test)
+- Simple: the switch shareMenu of Editor.featureDefaults for Share (batch 10)
+- No-flag: any pixel of the print dialog may differ, as the wider dialog moves its shadow
+- Batch 11: label-editing checks H of the Hand tool in Simple
+- Batch 7: the popovers and entries of the inline toolbar of Fusion in Classic and Simple
+- log-worker stores the counts of the switches to and from Fusion (theme.*)
+- Batch 4: one Export dialog with a row of the formats in Classic, Simple and Fusion
+- Regenerates the omnibox index for Portrait and Landscape of the print preview
+- Batch 4: PDF keeps taking back its paper, tests for the new row of formats
+- Batch 9: In This Diagram is the row usedShapes of Editor.featureDefaults
+- In This Diagram: the entry of a hidden cell is shown
+- Batch 4: Fusion tested positively in addExportEntry, File button test expects the export entry
+- Inline toolbar: Copy Style disabled without a single cell, titles of Corners
+- Print: Enter in the width or height of a custom paper prints the typed size
+- Simple: Share stays an icon in standalone apps at every width
+- Classic and Simple batch 12: Mixed, focus and scroll in the Format panel, Start and End in Simple
+- Batch 12: line-menus allows the labels of Format.js in the previous look
+- Batch 12: CLAUDE.md and the README of no-flag describe the batch
+- no-flag: escape the labels of the sample diagram
+- Batch 4 review round 1: Embed after Export... in Simple, Sketch and Minimal, hidden with Export as, listeners of hideDialog, texts of the toggles, no Export... in the search without the dialog
+- Adds inlineToolbar to every language file (batch 7, review round 3)
+- Batch 7 review round 4: hideMenuItems hides the actions of the inline toolbar in Classic and Simple
+- Batch 11: Simple's Hand tool selects nothing, for panning and zooming
+- Fusion: Change after the place of the new file in New diagram
+- Export dialog: Back from Advanced to the format and its settings
+- Export dialog: Back keeps every field of More options and of XML, HTML, JSON, VSDX
+- Takes dev's 23 KB CLAUDE.md core and keeps simple-modern's own rules in the topic files
+- Keeps the security rules of vsdx and generate3 in their auto-loaded CLAUDE.md
+- Classic keeps File › Export as ▸, its items open the new Export dialog
+- Tidy up is the first tile of Arrange my diagram in Classic and Simple
+- Tidy up window keeps the selection it was opened with
+- Arrange my diagram and Style my diagram first in the layout menu of Classic and Simple
+- Style my diagram: the Configuration toggle and the Automatic row use the menu's words
+- In This Diagram: one entry per kind of shape and connector, at most 24
+- Style my diagram: Keep my colors off by default and what it does at the top of the panel in Classic and Simple
+- In This Diagram: at most 40 entries by default, the configuration usedShapesMax
+- In This Diagram: arrows that only stroke ignore their fill, ties go to the first look
+- Share of Simple names Present to Everyone Follow me, as Fusion does
+- View of Simple names Present to Everyone Follow me as Share does
+- The search finds Follow me of Share and shows the name of the menus
+- Arrange my diagram in Classic as the panel with the preview of Simple and Fusion
+- Arrange my diagram: the panel closes on a theme switch, in narrow windows and when the Tidy window opens
+- Arrange my diagram: a line on Tidy up versus the layouts and a Help button
+- Arrange my diagram in Fusion: More options keeps its gap after Help
+- Simple: the File button's menu ends with Close, as the … menu does
+- Print with a preview in Sketch, Minimal and Atlas
+- Print preview of another page embeds the fonts of its own file
+- Style my diagram: tiles in the colors of dark mode, one tile per distinct palette, the status as the tiles
+- Style my diagram: dark pictures only with the dark tiles of the CSS, connectors styled count, Tidy up status without a layout name
+- Export... with the last format and settings before Export as (off by default)
+- Hand tool: its search keywords in every language
+- Export...: the label without a format, directly above Export as (tests)
+- Export...: the PDF stores the settings it was printed with, desktop File, no-flag
+- Export... with the last settings on by default in Classic, Simple and Fusion
+- fusion-css: the size budget of grapheditor.css is 150,000
+- Simple: Share with the share glyph and the menu of Fusion
+- Fusion: the page bar gets back the scroll arrows of the other themes
+- Fusion page bar: the tab stops in the order on the screen, the observer with every shell
+- page-groups: the submenus open with pointermove where the menus use pointer events
+- Fusion: Export... with the last settings gets a glyph of its own
+- Simple: Export... with the last settings in Share gets the glyph of Fusion
+- Simple: the page menu in the page tabs instead of the Pages button while the tabs are shown
+- Page overview: list or tiles, in the page tabs of every theme
+- Fusion suite: drops the byte limit of grapheditor.css in fusion-css
+- Export...: one entry in Simple, Fusion and Share, no Export as next to it
+- Fusion suite: fusion-css flags a rule of grapheditor.css with any selector of the look
+- Simple: File in the top bar shows the label File instead of the document icon
+- Simple: File is measured also while it is hidden in a narrow window
+- Export...: hiding simpleExport brings back Export as ▸ in Share and the short menus
+- Simple: New and Insert › Template on the Browser template of Fusion
+- Export dialog: the saved presets as a quick select after More, Simple has Export... alone
+- Simple: the top bar keeps its widths of before with the label File
+- Export presets: Enter on the quick select refreshes the dialog, Simple's search drops Export as...
+- Inline toolbar: Fusion's toolbar in every theme, one switch for shapes and connectors
+- Inline toolbar: the Configuration dialog folds enableShapeInlineToolbar into its one toggle, the old choice only in Classic, no tooltip Tie in More
+- Inline toolbar: Fusion's toolbar and look in every theme, the switch in the Configuration dialog, a search of the shapes
+- Inline toolbar: a click or a tap focuses the search of the shapes
+- Inline toolbar: a scroll keeps the popover while a field in it has the focus
+- Inline toolbar: More with labelled tiles, every dropdown in the frame of the context menu
+- Inline toolbar: regenerates the omnibox index without Order
+- Fusion: list rows of the Format panel grow with their text
+- Fusion: hiding Export... brings back Export as ▸ in File and Share
+- Fixes Kym's read-only and locked mode feedback (12 Nov) (#1307)
+- Fusion Layers panel: the eye shows and hides layers in read-only and locked files, only in the window
+- Layers hidden only in the window: file images keep the stored layers, backend exports get the window's layers
+- Desktop .drawio.pdf files keep the stored layers in their pages, the desktop print gets the window's layers
+- pages-in-tabs: the menu pages with pageOverview=0, the overview in Simple by default
+- Page overview: Sketch's footer page button anchors it, no-flag declares the toggle
+- File images keep the styles that custom links set only in the window
+- Omnibox: one Export... in Simple, the advanced export only where a menu shows it
+- New dialog of Fusion in every theme
+- Export: remove the advanced export from the UI, grid and DPI on the server
+- Inline toolbar: the old toolbars of connectors and shapes carry over to the one switch
+- Inline toolbar: on by default in every theme, enableInlineToolbar: false switches it off
+- Inline toolbar: the old View > Inline Toolbar choice in the browser is no longer read
+- A custom link clicked while a file image renders updates all of the window
+- Export: no DPI at 100 on the server, Publish link in its own group in Minimal
+- New dialog in the desktop app and the embed mode
+- Simple: the Hand tool in the top bar like in Fusion
+- Simple: Select next to the Hand tool in the top bar, as in Fusion
+- Simple: a disabled tool of the top bar keeps the Hand tool
+- Simple: the widths of the top bar checked again with Select, Hand and Search
+- Export... and the Export dialog in every theme, like Print
+- Export as: export-dialog-themes checks the separator before Link... in Minimal
+- The pages of a .drawio.pdf file keep the cells as stored after #1380
+- Adds test-map.json: the suites each changed file and function runs, for the voice gateway's affected-tests
+- test-map.json: the shared test helpers are broad
+- test-map.json: export page, translations and missing words of the testing docs
+- test-map.json: the page helpers of fast-rendering and simple-modern are broad
+- test-map.json: addExportViewState and applyCellViewState run locked-diagram
+- Removes the laser pointer from presentation mode
+- Export dialog: Animation and URL are formats of the row, More only while a format has no room
+- Export dialog: a focused More that goes away leaves the focus on the chosen format
+- New dialog: choose the storage of the new file in the footer
+- simple-modern states-board: accept the public-build guard of Devel.js
+- Fusion start sheet: scroll only where needed, never sideways
+- In This Diagram shows texts with their label and leaves out shapes that show nothing
+- In This Diagram: shapes that show only their label are decided by style, not by the first cell's data
+- Build the panels again after a change of the language
+- Keep the selected tile of Arrange my diagram in Fusion after a language change
+- Simple: the start screen of Fusion for the storage and the splash dialog
+- New dialog: inverts the pictures of templates in dark mode as the dialog of before
+- New dialog: the large preview inverts with the picture in dark mode
+- Inline toolbar: the shape search finds the shapes of all libraries like the shape picker
+- Inline toolbar shape search: a palette shape changes back without the other library's styles, the applied result is marked
+- Page overview: the previews follow dark mode
+- Page overview: the search changes only the tiles that appear or disappear
+- Page overview: one card stays in the order of Tab when the search changes only Insert Page
+- Tests: fast-rendering passes on Linux (pinch tests with touch events, label-background with hinted fonts)
+- Tests: label-background caps the hinting tolerance at one pixel and checks each measured width
+- Edit Style on the Code template in Classic and Simple (editStyleDialog)
+- Edit Diagram and Mermaid with the code field of Edit Style (editDiagramDialog, mermaidDialog)
+- Shard simple-modern and classic-simple, choose tests by name, wait for browser slots in line
+- library-previews: wait for the drawn previews instead of a fixed time
+- arrange-org-chart: wait for the computed picture of Org Chart
+- Shards of simple-modern: the timings and order checks of 18 November
+- Browser slots and the choice of tests: the review of PR 1411
+- simple-modern: a coverage map that chooses the tests of a change
+- Coverage map: the review of PR 1417
+- Coverage map: overrides by V8's names, hunks of a function and the top
+- No-flag: green again on simple-modern (shadows and blur of regions, stable viewer screenshots, three declarations)
+- No-flag: a viewer state that makes the page taller grows the viewport before its capture
+- Inline toolbar: the dropdowns and the menus close each other
+- Code field: a long line with wide characters is coloured from its start past its last character; the numbers of Edit Style scroll to the end with a horizontal scroll bar
+- Code field: a long line with an accent before the columns in view keeps its spacer instead of being coloured from its start on every key
+- Code field: a long line with right-to-left text is never cut inside a run of it, so its letters stay in the columns of the text area
+- Code field: a long line with a Hebrew label before the columns in view keeps its spacer, and a closed isolate no longer colours the rest of the line
+- Simple: From Text, SQL, PlantUML, CSV, Publish link and Embed on the templates of Fusion (dialogs package 1)
+- Code field: a long line is coloured past the columns in view as measured and never cut inside Hebrew or Arabic; Fusion's Edit Style check allows for the last line of the gutter
+- Classic and Simple: the Authorize dialog on Fusion's layout in the Classic skin (authDialog)
+- Simple: Rename on Fusion's Message template in the Classic skin (renameDialog)
+- storage-files: the Authorize button of the layout (AuthLayout.js) in the sign-in checks
+- Rename page: no file subtitle when the page or group has the name of the file
+- Authorize: off in Confluence and Jira, and no colon left at the end of the text in Chinese, Hebrew and Persian
+- Simple: Insert › Image and Edit Image on the image dialog of Fusion
+- Simple: Crop on the crop dialog of Fusion
+- Simple: the tools of Crop in a strip under the picture
+- no-flag: declare the toggle of imageDialog in the Configuration dialog
+- option-completeness: the previous look opens Insert Image of before too (imageDialog=0)
+- no-flag: declare the toggle of cropDialog in the Configuration dialog
+- Translations run the dia*.txt tests of 19-21; the declaration of cropDialog is that of #1410
+- Simple: Edit Link and Save as on Fusion's Form template in the Classic skin
+- simple-modern-ux: W10 links to a page in Simple's Edit Link on the Form template
+- test-map.json: the CSS of the Form template runs classic-simple
+- Form template: a page or action link of the link hint stays Edit Link
+- simple-modern: dialog-link-style checks the link hint of a page and an action link
+- Simple: the switches of Revision History, More Shapes, Edit Shape and the background image on the layouts of Fusion
+- Simple: the texts of the four new dialog switches in the other languages
+- Simple: the background image of the page on the layout of Fusion
+- Simple: the tests and the guide of the background image on the layout of Fusion
+- Simple: Create Shape and Edit Shape on the shape editor of Fusion
+- Simple: the tests of Create Shape and Edit Shape on the shape editor of Fusion
+- Simple, package 5: the switches of the dialogs of Fusion (scaffold)
+- Simple: Revision History on the Preview template of Fusion
+- Simple, package 5: Drafts and Recovery on the layout of Fusion
+- Simple: the tests and the guides of Revision History
+- Simple, package 5: the tests and the guide of Drafts and Recovery
+- Simple: More Shapes on the Browser template of Fusion
+- Simple, package 5: Keyboard Shortcuts as the sheet of Fusion in the Classic skin
+- Simple: the tests and the guides of More Shapes on the Browser template
+- Simple, package 5: My diagrams of Google Drive on the layout of Fusion in the Classic skin
+- Simple: the tests of Fusion compare with the four dialogs of before
+- Simple, package 5: tests and guide of Keyboard Shortcuts and My diagrams
+- Simple: More Shapes of Confluence Cloud at its size, Enter in Background Image loads the image once
+- Simple, package 5: Data Sources on the layout of Fusion in the Classic skin
+- Fusion: Enter in Background loads the image once
+- Simple, package 5: tests and guide of Data Sources in the Classic skin
+- Simple dialogs package 4: the rows, toggles and files of the shared layouts
+- Simple, package 5: Layout Settings and the options of the layouts on one layout
+- Simple dialogs package 4: the new files and tests in the guides
+- Simple, package 5: tests and guide of Layout Settings and the layout options
+- File › Properties: one layout for Fusion and Simple (PropertiesLayout.js)
+- Simple: the custom layout and Edit Outline on the Code template of Fusion (LayoutCode.js)
+- File › Properties of Simple: tests, no-flag declaration and guide
+- Simple: tests and docs of the custom layout and Edit Outline on the Code template
+- Style Rules: the Rules template of Fusion as the shared layout of RulesLayout.js
+- Simple, package 5: one subtitle of the layout dialogs, test-map and the docs
+- Style Rules of Simple on the Rules template of Fusion in the Classic skin
+- Simple, package 5: Drafts of the desktop app sized as in the web app, no Classic Data Sources in a chromeless view
+- Simple: the library editor of Fusion in the Classic skin (libraryDialog)
+- Simple, package 5: Recovery keeps to the budget of the live previews, no Shift+Enter for a new line in Safari
+- Simple: tests and guides of the library editor in the Classic skin
+- Configuration: the layout of Fusion as createConfigLayout of SettingsLayouts.js with skins
+- Configuration of Fusion in Simple in the Classic skin (configDialog)
+- Plugins and the offline languages: one layout with skins in SettingsLayouts.js
+- Plugins: the URL of Custom... no longer closes Plugins
+- Plugins and the offline languages of Simple in the Classic skin
+- Simple: Edit Geometry, Connection Points, Polygon, color and font dialogs on Fusion's layouts
+- Simple: Page Setup, Edit Data and Edit Tooltip on the forms of Fusion
+- Simple dialogs package 4: the shared layouts in fusion.md and test-map.json
+- Simple: the color window drops its sections after a live switch to Classic
+- Simple forms: saved sizes without the head, custom size fields of Page Setup
+- simple-modern: platform-proof tests for the Mac node (20 of the 21 red tests of bugu on sky)
+- Fusion: the edge of the panel card holds the pointer during a drag, also on macOS
+- ux-surfaces: shards by combination for the batch, split by surface opt-in
+- Fusion: a press of the panel edge closes the popups again, a removed edge ends its drag
+- Code field: an embedding or isolate that is never closed colours a long line at most CodeField.longLine characters on, not to its end
+- ux-surfaces: --merge refuses stale, changed and incomplete shards, the split stops at the longest surface
+- Fusion: a cancelled panel-edge drag stores nothing; platform labels and touch keys in the tests
+- Code field: a > in a value no longer ends a tag over many lines and a large value is scanned once per paint; the colour layers stay out of the browser's Find; the Copy test asserts the success message
+- ux-surfaces: the last shard merges the report, shards clear old results
+- Code field: a long line with an embedding or isolate that is not closed is coloured at most CodeField.longLine characters past the columns in view
+- Code field: a long line with an embedding or isolate that is not closed is laid out to its end in the layer, coloured at most CodeField.longLine characters past the columns in view
+- perf-budget: start Chrome once more when it does not print its endpoint in time
+- More: a disabled effect says why, as in the Format panel
+- Export dialog: one height for all formats; nothing moves under the pointer
+- More: the reason of a disabled effect also in Fusion
+- Dialogs keep their top only after a click or key; Layout settings columns
+- Export dialog height: screenshots of the pull request
+- Export dialog height: remove the screenshots of the pull request (linked from it)
+- Keeps the caret in the omnibox after Ctrl+Alt+P and names / in its tooltip
+- Runs omnibox and label-editing for the lines of the clipboard field in test-map.json
+- Ties and the inline toolbar of Fusion in every theme
+- dialog-tab-order: a move from the content into the footer is in order
+- Fusion segments in dialogs: the bold width is the ::before
+- Ties: the undo toast of Bundle in Minimal; Draw a tie in Arrange of every theme
+- Omnibox tests keep the keys of their configuration on a Mac host, the map runs them for the caret guard and the tooltip
+- toolbar-bundle: Arrange of the previous look ends with the ties
+- Ties: the hint of Draw a tie stays while the tool draws
+- Ties in ☰ of Simple, Sketch and Minimal
+- Ties: the Bundle button, Draw a tie and the Spacing after Codex's review
+- simple-modern dialog-frame: accept flow-end as the footer's justify-content
+- Ties in ☰: mark the guard of the previous look with // SIMPLE-CLASSIC
+- test-map: the translations' new classic-simple tests in an entry of their own
+- Code dialogs: the Classic skin with a positive check of Fusion (simple-classic-seam)
+- Embed layout: the Classic skin with a positive check of Fusion (simple-classic-seam)
+- layout-picker form-container: the scope in the subtitle of Layout Settings
+- Page Setup in Simple: on touch the dialog takes the focus (classic-simple-dialog-enter)
+- test-map: the translations' new classic-simple tests after the other classic-simple entries
+- ux-surfaces: each surface on a page of its own, the batch in 4 shards by surface (#1432)
+- Fusion: the note of a locked or read-only diagram wraps instead of being cut
+- disabled-reasons: the whole note of a read-only diagram is visible, not only its first line
+- test-map: the translations run link-save-table of 19-link-save-forms.js
+- Inline toolbar: the checks of the selected cells resolve the style of their parent once
+- inline-toolbar-ties on the chain: the effects of connectors of Fusion stay Fusion's, a tap of a finger on a Mac host
+- Invalidates each cell once when custom links show, hide or style cells in locked and read-only diagrams
+- Keeps the Cloudflare shape generator and test-map.json out of the public repository
+- Looks up a missing icon of the Cloudflare card once instead of on every paint
+- Dialogs of the packages keep their top after a click (Dialog.setFrameHeight)
+- Export dialog: HTML keeps the height of the previous format; closed dialogs drop the resize listener
+- Sets each key of the window-only style once when custom links style cells in locked and read-only diagrams, and caps the styles of export requests
+- Tests: long-labels-dialogs and simple-dialogs-1-look wait for their dialog and focus ring (flaky in bundle bnbt)
+- Updates stable channel to 32.7.4
+- Keeps the window-only style of a cell equal to computing it again from its keys, and sets at most 256 keys of a cell in the window as exports do
+- Inline toolbar: shows on the mouse up of the gesture that selects, no flicker on the press (#1431)
+- arrange-org-chart: wait for the computed picture of Org Chart (#1443)
+- simple-modern dialog-frame and alignment: accept flow-end as justify-content (#1449)
+- Inline toolbar: enableInlineToolbar: false wins over the alias true
+- Exports read the last 256 style pairs of each cell, with no limit for all cells, so they draw every state that the window can hold
+- New dialog: From a template in Start from replaces From Template URL
+- Fix From Text, Mermaid and Sheet in New when the file opens in a new tab
+- New dialog, From a template: fixes of Codex's review
+- New dialog, From a template: PNG and PDF of the storages by their content
+- Fix the review of New from text with a file open: cancel, busy, picker, subtitle
+- Fusion: Edit Link as the suggestion, pages scroll on their own, all previews load
+- New from Mermaid with a file open: the Language toggle stays on the new file
+- Edit Link of Fusion: a whole row of pages in low windows, the picked page stays in view, the observer ends with the dialog
+- New from Mermaid, Language: no error message as the dialog, test the typed code
+- New from Mermaid, Language: the typed SQL unchanged after the switch, its table in the new file
+- Hand tool of Simple: the steps of custom links change only the view
+- Hand tool of Simple: a link chain that starts in the tool stays in the view
+- Hand tool of Simple: file images show the stored state, edits of the file win over the view
+- Revision History of Simple: compare two versions as in Fusion
+- Revision History of Simple: screenshots of the pull request
+- Revision History of Simple: remove the screenshots of the pull request (linked from it)
+- Text Outline of Simple on the layout of Fusion's panel
+- Simple: Layers, Tags and Text Outline as panels, resizable right panel
+- Simple: select the shapes of a data source and the page data in Edit Data, as in Fusion
+- Text Outline of Simple: the skin by the theme as in the other layouts
+- dialog-page-data: the previous look is Simple with editDataDialog=0 (Simple has the page data now)
+- test-map: TextOutlineLayout.js selects simple-modern-leaks for listener code
+- Revision History of Simple: fixes of the comparison after review
+- Selecting a source and the page data of Simple: screenshots of the pull request
+- Selecting a source and the page data of Simple: remove the screenshots of the pull request (they stay in its text)
+- Simple panels: Escape on the divider, hide listeners, editor resizes, the note after Add, translations
+- Revision History of Simple: load a version that failed again
+- Selecting a source and the page data of Simple: the findings of Codex's review
+- Text Outline: clicks during an edit, the tab stop, focus, contrast and the filter (review of Codex)
+- All settings... of Simple: Fusion's Settings dialog in the Classic skin
+- Simple panels: the Format panel refreshes after a panel, window resizes keep the panel, Escape in the Text Outline tree
+- dialog-style-guide: the page data and Select of a source after the fixes of Codex's review
+- Page data and Select of a source in Simple: the findings of Claude's review
+- Simple panels: the host wraps the windows at the start of the editor, after every file
+- Simple panels: Escape in a field in the tree of the Text Outline ends its edit
+- Text Outline test: the sticky filter test sizes the outline, not the window
+- All settings...: Diagram Language can be turned off, plugin submenus and items, Automatic hidden
+- All settings...: isAllSettingsShown with the guard of Simple without Fusion
+- All settings...: not offered where hideMenuItems hides the Settings menu
+- Small helpers of Simple: F10 to the top bar, the wheel over the page tabs, tooltips of cut-off text
+- Small helpers of Simple: the wheel at the ends of the page tabs, F10 with passiveScroll and an open context menu, newer tooltips around cut text
+- Small helpers of Simple: F10 keeps the focus in a presentation, Small Helpers translated
+- Text Outline of Simple: its notes in testing-fusion.md and the README of classic-simple apart from those of the pull requests before it
+- Simple panels: panelWidth and the paragraph of testing-fusion.md apart from the pull requests before it
+- Text Outline of Simple: its words in test-map.json in an entry of their own
+- All settings of Simple: its words in test-map.json in an entry of their own
+- Simple panels: the note in feature-switches.md before the row inlineToolbars
+- Simple: the named themes of Fusion in the Style tab, a hover preview, no undo step for no change
+- Tests: Simple's grid of the Style tab with namedThemes=0 in calm-themes and page-view-tabs, a picture of the preview
+- Simple named themes: the shape picker's text, undo of the current styles, the preview after a click that changes nothing
+- Small helpers of Simple: the page tabs consume the wheel and swipes at either end
+- Simple named themes: a font color picked after Teal or Navy with updateDefaultStyle stays on new text
+- Simple: touch as Fusion has it (batch 20), behind touchSupport
+- Fusion: a font color picked after Teal or Navy with updateDefaultStyle stays on new text
+- Simple touch: the findings of Codex's review of #1472
+- Simple touch: stop the click after a sheet drag in the capture phase
+- Fusion: any picked font color ends the default font color of new text after Teal or Navy
+- Simple named themes: any picked font color ends the default font color of new text after Teal or Navy
+- Simple panels: window-hosts and text-outline-panel expect Layers and Text Outline in Simple's side panel
+- Panels from Fusion take the look of the theme; even gaps around Fusion's docked cards
+- Browser storage files: changes of another tab arrive at once on activation (#1458)
+- Libraries in the Shapes card: sections fold, Enabled follows the switches
+- Libraries in the Shapes card: fixes of Codex's review of #1476
+- Fusion: the Action panel in … › View like the other panels
+- Fusion: View › Action keeps newer links and locks, honors hidden Edit Link
+- Fusion: the ruler and the right panel keep their room next to the gap after the Shapes card; the page overview has the border of the theme
+- Fusion: View › Action keeps the links of a mixed selection on Save
+- Tidy up: drawings of the brush are no panels behind the shapes in their box
+- Arrange my diagram in Fusion: one rule for the end of the preview bar
+- Arrange my diagram in Fusion: the canvas keeps the preview that the pointer took there
+- Ignores the notices of ResizeObserver loops in the error handler of the app
+- Removes the resize listener of a window that is destroyed directly
+- Keeps the ResizeObserver probe of the resize tests looping next to an observer of the body
+- Matches only the full notices of ResizeObserver loops and checks the resize tests before the size is restored
+- Arrange my diagram keeps 4.5:1 for the text on its accents, empty page tiles stand out, inline-toolbar-edge expects the gap after the Shapes card
+- Tidy up and the preview bar: fixes of Codex's review of #1478
+- Fusion: View › Action saves its steps after a page switch
+- Browser storage files: fix rename after a merge, failed saves and stopped polls (Codex review of #1480)
+- Tidy up: imported stencils stay boxes, only the freehand tool's are drawings
+- Browser storage files: a dismissed replace confirm and an exception end the save (Claude review of #1480)
+- Browser storage files: a new file keeps its template (Claude review of #1480)
+- Tidy up: shapes in a loop of the brush stay there, only lines over a shape overlap it
+- Browser storage files: a rename writes the merged stored copy, also onto another file, and an autosave that fails before it merges runs the deferred check (Codex review of #1481)
+- i18n: translate the Configuration rows Named Themes, Text Outline with Filter and Settings Dialog
+- Test feature-config-dialog: every switch has its texts in every language file
+- Review fixes of #1483: the language test needs every file and real texts, Amharic and Greenlandic help
+- Shapes card: closing it undoes opening it to the pixel (test shapes-toggle-position)
+- no-flag: batch 9 is in dev, batch 13 declares the named tiles of Simple (night's check bsjj)
+- Review fix of #1484: closing the Shapes card brings the diagram back also at the ends of the scroll
+- no-flag: the named tiles count only where the Format panel has the themes, the libraries of the sidebar are content (Codex review of #1485)
+- Arrange my diagram and Style my diagram: a click on a picture applies it at once
+- Arrange my diagram: a second tile replaces only the layout of the first on the same scope, never the user's edits (Codex review of #1487)
+- Tidy up: the tile Tidy up of Arrange my diagram says Nothing to tidy up when no result is better than the page (review of #1487)
+- Arrange my diagram: the page and a selection of exactly its cells are one scope, so a second tile replaces the first also after redo (bundle b87y of #1487)
+- Arrange my diagram: the tests and docs of simple-modern follow the tiles that apply at once (#1487 on simple-modern)
+- Embed ▸ of Fusion has Microsoft Office, Google Docs, Sheets and Slides and Notion in one section
+- Configuration in Simple: the sections keep the gray of the editor as in Classic
+- Embed ▸ has Microsoft Office, Google Docs, Sheets and Slides and Notion in one section in every theme
+- Ruler: configurable font size and colors of its labels [jgraph/drawio#5855]
+- Ruler: larger labels no longer overlap along the ruler, and rulerFontSize takes finite numbers up to 32 only (Codex review of #1494) [jgraph/drawio#5855]
+- Dialogs: Export formats switch in place in Fusion; Print centres its Fit to radio and re-centres on Advanced (#1491)
+- Inline toolbar: the Shape search fills its room and has More Results (#1492)
+- Inline toolbar popovers stay put on updates; Fusion's close button no longer covers a message without a headline (#1499)
+- Simple in embeds: the host title shrinks with an ellipsis, so every button stays in the window (#1500)
+- Simple: View has Hand Tool only where the top bar has no Hand button (#1503)
+- Page menus: Remove Page is the last item, after a separator and in red [jgraph/drawio#5856] (#1496)
+- Classic's features in every theme: Edit Style, Edit Diagram, Mermaid, Arrange/Style my diagram, In This Diagram, PlantUML, background, Edit Outline, Share menu (#1502)
+- Fusion: the type of the Code template follows its select, also where code sets it (#1498)
+- Inline toolbar: a popover that closes for a change made in it shrinks where it was, and the toolbar moves after that (#1501)
+- Embed ▸: Google Docs, Sheets and Slides in one section, then Microsoft Office and Notion (#1497)
+- Inline toolbar: the two keys of release 32.7.5 with new defaults per theme (shapes off in Classic, Sketch and Atlas), the conditions of dev otherwise (#1490)
+- Inline toolbar: placed where it covers no other cell, never under the pointer (#1495)
+- New diagram: check the name before From Text, keep the text if the file is not created (#1493)
+- Public build: one check whether the build has Fusion, features that need it off without it (#1504)
+- Simple in narrow embeds: the host's buttons fold into one menu where the bar has no room for them (#1505)
+- Embeds: Save and Exit stay after a switch from Fusion or Simple to Classic (dev, fix of #1510) (#1511)
+- Public build: the dialogs and menus of before, the new ones of the Fusion work stay in the internal builds (#1508)
+- Merge dev into simple-modern (inline toolbar keys and placement, ruler font, Remove Page last, Simple embed bar and Hand Tool, From Text name check) (#1506)
+- Fusion in narrow embeds: the host's buttons fold into one menu where the bar has no room for them (#1507)
+- Print: one scrollbar in a low window, only the column of the fields scrolls (#1509)
+- Test classic-picker-search: Sketch has the search field since #1502 (#1512)
+- Embeds: Save and Exit stay after a switch from Fusion or Simple to Classic (#1510)
+- Classic after a switch to dark or default is kennedy; review of #1511 (#1513)
+- Tests: green again on dev (night's check bgdu at 1b1ccbdd33) (#1515)
+- Test code-previews: follows the line rule of Edit Style and Edit Outline in Classic of #1502 (#1514)
+- Merge dev into simple-modern (public build, Simple's narrow embed fold, embed buttons after a theme switch, no-flag green again) (#1516)
+- Updates DOMPurify from 3.4.18 to 3.5.0 (#1518)
+- Fixes from the GAE error log, week of 2026-11-23 (#1519)
+- Simple gets the box of several selected shapes by default, as Fusion (row multiSelectionHandles) (#1517)
+- Clears the diff sync shadow of embeds after a failed load, answers resetDiff without pages
+- Browser storage files: a rename whose delete of the old file fails calls its error handler (#1523)
+- Fusion: Insert ▸ Table shows a table with a header row, Spreadsheet (CSV) a page with rows (Kym F9) (#1520)
+- Fusion: examples above the live previews of the code dialogs and an error state that keeps the last good preview (tc4r)
+- Device files that open in a new window keep their file handle (DID-21151)
+- Code examples: a tap loads at once, the hover preview only for a mouse or a hovering pen
+- Code previews: the labels in the fonts of the inserted diagram, Preview stays as the full-size view
+- Code examples: Language carries only changed code, the error stays on the code under an example, errors are about the parsed code (review of #1530)
+- Selects a page when there is no current page (merge after a failed load) (#1528)
+- Code dialogs: Fusion's live preview, examples and error state in Classic, Simple, Sketch, Minimal and Atlas
+- Code previews: a font that is still loading after the first wait is not waited for again (review of #1530)
+- Fusion: a click on the live preview of Mermaid and PlantUML shows it large, in place of the Preview button
+- New window of a device file: no file handle with the identity structuredClone
+- Code previews: no other font host through url( in a font, the language suggestion only for code of that language, short windows scroll, Edit Diagram previews whole files (Codex's review of #1532)
+- Desktop: the export request has the DPI of a PNG, at most 10000 [jgraph/drawio-dev#1448]
+- New dialog: From Template URL creates the file of its URL, also with a From Text entry selected [jgraph/drawio-dev#1448]
+- Fusion: Animation and Action always in the tool rail, with a page and a link with play (Kym F12) (#1521)
+- Fusion shows link and tooltip icons by default (rows showLinkIcons, showTooltipIcons), Simple stays off (#1522)
+- test/classic-simple/README.md: the section of 33-code-previews.js after the one of 20-code-dialogs.js, not at the end of the file, where #1525 adds its section (no conflict in the merge candidate)
+- Updates the vendored drawio-plantuml bundle to commit 7c68edf
+- Simple: Classic's style tiles with the pager, Arrange My Diagram... and Style My Diagram... in the Diagram tab (#1525)
+- Arrange my diagram: Back from the Tidy up window to the tiles (Classic, Simple, Sketch, Minimal) (#1526)
+- Fusion: three levels of gray in light mode (white page and canvas, panels #F8F9FA, one ground #F1F3F4), white fields (#1527)
+- Shape picker search: 24 results and More Results as the Shape popover, AWS shapes before slanted texts, legible free text (#1529)
+- Export on the server: a custom DPI above 10000 is 10000 in the field, the zoom and the request [jgraph/drawio-dev#1533]
+- Edit Style: the color swatches of the code open the color dialog and replace their value (#1537)
+- Named themes: the crossfades of the previews show one diagram at their start and end in the page view (Classic, Simple, Sketch, Minimal, Atlas)
+- Named themes: what the crossfades of the previews do not change keeps its color during the fade in the page view (Classic, Simple, Sketch, Minimal, Atlas)
+- Edit Style swatches: no tap on the next swatch, Undo after a tap, buttons in place after Fusion's pop-in (#1537) (#1539)
+- Device files: a PNG that opens as .drawio without canvas export keeps no file handle of the PNG
+- Browser storage rename: an aborted delete of the old file shows one message and succeeds once
+- Edit Style swatches: a tap and Apply keep the scrolling of the code (Codex finding on #1539) (#1542)
+- Test small-helpers-f10: waits for the focus return of the closed dialog before the presentation
+- Test harness: frt.ready waits for the file of the start of the app
+- Generate on the branch previews (drawio-dev.pages.dev): AI on in the editor, generate3 allows the origin (#1546)
+- no-flag: declare the Diagram tab buttons of Simple outside format-page and the swatch buttons of Edit Style
+- no-flag README: describe 17-edit-style.js with the swatch buttons of #1537
+- Adds the new messages of the Confluence Cloud configuration page in all languages
+- Adds the message of a finished page ID job with pages left in all languages
+- Keeps fonts and images of code previews out of the diagram until the code is applied
+- Checks the CSS of labels for references to other hosts in linear time
+
+19-NOV-2026: 32.7.5
+
+- Adds Cloudflare shapes with a generated style guide
+- Makes the drawing tolerance of the connection point suite relative to the shape size
+- Adds connection points to the 94 VVD stencils
+- Adds connection points to the 96 Salesforce stencils
+- Adds connection points to the 18 OpenStack stencils
+- Adds connection points to the AWS 3D shapes
+- Counts the edges that close filled paths in the on the drawing test of the connection point suite
+- Adds connection points to the P&ID valves, column, fan, conveyor and 12 stencils
+- Adds connection points to the Basic donut, drop, buttons, pie, arc and rings and the Infographic bending arch
+- Rewords the advice about restrictions on the DRAWIOCONFIG pages [DID-20332]
+- Tells admins who can't see the Libraries page to get access first [DID-20332]
+- Fixes the review findings for the new connection points of the arc, the arcs with equal angles and the angle blowdown valve
+- Limits the arrow padding of the arc connection points per axis, as the painter clamps each radius
+- Moves the connection points of 12 core shapes onto their drawing
+- Puts the side points of the Infographic Hex Loop and the C4 Microservice Container on their hexagons
+- Hides the cells inside of containers that hidden tags hide [jgraph/drawio#5839]
+- Looks up no ancestors for each cell whose tags change its visibility [jgraph/drawio#5839]
+- Keeps the points of table cells in Edit Connection Points and the outline points of the moved core shapes
+- Keeps the ends of snapToPoint edges where they are when shapes get new or moved connection points
+- Keeps snapToPoint edges off the new connection points and fixes the review findings
+- Documents the snap point check of the connection point suite in the testing guide
+- Mirrors the points of flipped core shapes, keeps snapToPoint edges in place and fixes the review findings
+- Puts the corner points of rounded core shapes on their curves
+- Keeps snapToPoint edges in place in the reader and the embed script too
+- Fixes the first click on the eye and the lock in the status bar; the lock unlocks after a confirmation (#1356)
+- Dropped connectors take the newEdgeStyle, first mind map topics in Edit Outline take the root's style (#1358)
+- Safe zone for tooltips with links so they stay open on the way to them [jgraph/drawio#5840] (#1360)
+- Fixes open groups of the GAE error log: Confluence getDefaultBundle, null root in clonePages (#1363)
+- Keeps the locked state in exports of the selection of a locked file (#1359)
+- Link actions: the layer and tag pickers stay open while their list scrolls (#1366)
+- Shows, hides and styles cells only in the window for custom links in locked and read-only diagrams (#1361)
+- Shows no error if focusing the label editor ends editing started by typing
+- Keeps the browser slots, the Tidy trainer and the omnibox index script out of the public repository
+- Keeps tooltips open when the mouse enters them on a link, hides them when it leaves them for a toolbar [jgraph/drawio#5840]
+- Exports through the export service and the desktop app draw what custom links showed, hid or styled in locked and read-only diagrams (#1380)
+- Hides tooltips when the mouse reaches markup placed outside of them [jgraph/drawio#5840]
+- Adds test-map.json: the suites a change runs, for the voice gateway's affected-tests (#1384)
+- Fixes the hang when the text of a table with many line breaks or spaces in a label is opened
+- Release skill: lessons from the 32.7.1 and 32.7.4 releases
+- Release skill: lessons from the 32.7.4 deep checks
+- Moves the template generator worker to Claude Opus 5.5
+- Replaces the Workers AI models of generate/v3: Llama 4 Scout for triage, Mistral Small 3.1 for the keyless fallback
+- Switches the anonymous tier of generate/v3 from gpt-5.6-luna to gpt-6-luna
+- Fixes the links that generate a diagram from a prompt (smart-template, create and the create hash)
+- generate/v3: caps the Workers AI fallback at the deadline, keeps only known triage types, leaves single-shot variants out of the default eval
+- Generate links use the hosted service only where the Generate window offers it; create links survive a percent sign
+- Nests the cards and inner groups of the style guide examples in their groups
+- More of the inline toolbar: every effect of connectors of the Format panel, flow rows under Flow animation (#1393)
+- From Text: <br> in the text of an editable box is a line break again (#1426)
+- Makes the bottom-right connection point of the Cisco19 Data Center fixed, so it follows the shape when flipped
+- Runs the drift check of the Cloudflare shapes in Source Checks
+- Keeps the Cloudflare shapes out of the sidebar until Cloudflare has given permission
+- Wraps links and words that are wider than a tooltip inside of it [jgraph/drawio#5840]
+- Tests that the connection points of the Cisco19 Data Center stay on its drawing when it is flipped
+- Keeps images and tables that are wider than a tooltip inside of it [jgraph/drawio#5840]
+- Limits a tooltip that an image or a table makes wider to twice its maximum width [jgraph/drawio#5840]
+- DRAWIO_APP_ICON_URL: the page of the app icon for self-hosted instances (jgraph/drawio#5846) (#1440)
+- Keeps short words in a table of a tooltip in one piece [jgraph/drawio#5840]
+- Wraps words in a table of a tooltip that are wider than its limit [jgraph/drawio#5840]
+- Simplifies how the width of a tooltip is measured [jgraph/drawio#5840]
+
 17-NOV-2026: 32.7.4
 
 - Embed mode: embedLoaded event for plugins and readOnly in the load message [jgraph/drawio#5837]

@@ -371,7 +371,8 @@ GitLabClient.prototype.getRefIndex = function(tokens, isFolder, success, error, 
 		{
 			if (refPos < 2)
 			{
-				error({message: mxResources.get('fileNotFound')});
+				// No URL was found (for checkExists, the other errors are failures)
+				error({message: mxResources.get('fileNotFound'), notFound: true});
 			}
 			else
 			{
@@ -396,7 +397,7 @@ GitLabClient.prototype.getRefIndex = function(tokens, isFolder, success, error, 
 					{
 						error({message: mxResources.get('fileNotFound')});
 					}
-				}), mxUtils.bind(this, function()
+				}), mxUtils.bind(this, function(err)
 				{
 					if (req.getStatus() == 404)
 					{
@@ -405,7 +406,14 @@ GitLabClient.prototype.getRefIndex = function(tokens, isFolder, success, error, 
 					}
 					else
 					{
-						error({message: mxResources.get('fileNotFound')});
+						// Passes on the cause of other failures (eg. 5xx, 429, a network
+						// error or a timeout), so that checkExists does not take them for
+						// a missing file (notFound is set only after all guesses gave 404).
+						// Some have only a code (eg. App.ERROR_BUSY of the sign-in), while
+						// the request of a network error has neither a message nor a code
+						error((err != null && (err.message != null || err.code != null)) ? err :
+							{status: req.getStatus(), message: mxResources.get('error') +
+							((req.getStatus() > 0) ? ' ' + req.getStatus() : '')});
 					}
 				}));
 			}
@@ -561,11 +569,14 @@ GitLabClient.prototype.createGitLabFile = function(org, repo, ref, data, asLibra
 
 /**
  * Passes a new file with the given filename and data in the folder with the
- * given ID to success. Asks the user before replacing an existing file.
- * Libraries are committed immediately while other files are written when
- * they are saved.
+ * given ID to success. Asks the user before replacing an existing file
+ * unless overwrite is its last commit ID (the user has confirmed to replace
+ * this version, see App.checkNewFile and checkExists). Libraries are
+ * committed immediately while other files are written when they are saved.
+ * A check of the name that fails goes to error. If active is given and
+ * returns false when the check answers, nothing is asked (see checkExists).
  */
-GitLabClient.prototype.insertFile = function(filename, data, success, error, asLibrary, folderId, base64Encoded)
+GitLabClient.prototype.insertFile = function(filename, data, success, error, asLibrary, folderId, base64Encoded, overwrite, active)
 {
 	asLibrary = (asLibrary != null) ? asLibrary : false;
 	var tok = folderId.split('/');
@@ -632,25 +643,40 @@ GitLabClient.prototype.insertFile = function(filename, data, success, error, asL
 				// create if it does not exists
 				error();
 			}
-		}))
+		}), overwrite, error, active)
 	}), error, null, tok.length <= 4);
 };
 
 /**
  * Passes true and the last commit ID to fn if the user confirms replacing the
- * existing file with the given path, or true if the file does not exist. If
- * askReplace is false, an error is shown for existing files and false is
- * passed to fn.
+ * existing file with the given path (or without asking if overwrite is its
+ * last commit ID, the version that the user has confirmed to replace
+ * before), or true if the file does not exist. Cancel and a dismissal of the
+ * question (eg. Escape) pass false. If askReplace is false, an error is
+ * shown for existing files and false is passed to fn. If error is given, a
+ * check that fails for another reason than a file that is not found goes
+ * to error (else true is passed to fn). If active is given and returns
+ * false when the answer comes (eg. the dialog that asked was closed),
+ * nothing is asked and false is passed to fn.
  */
-GitLabClient.prototype.checkExists = function(path, askReplace, fn)
+GitLabClient.prototype.checkExists = function(path, askReplace, fn, overwrite, error, active)
 {
 	this.getFile(path, mxUtils.bind(this, function(file)
 	{
-		if (askReplace)
+		if (active != null && !active())
+		{
+			this.ui.spinner.stop();
+			fn(false);
+		}
+		else if (askReplace && overwrite != null && file.getCurrentEtag() == overwrite)
+		{
+			fn(true, file.getCurrentEtag());
+		}
+		else if (askReplace)
 		{
 			var resume = this.ui.spinner.pause();
 			
-			this.ui.confirm(mxResources.get('replaceIt', [path]), function()
+			this.ui.confirmOrCancel(mxResources.get('replaceIt', [path]), function()
 			{
 				resume();
 				fn(true, file.getCurrentEtag());
@@ -671,7 +697,19 @@ GitLabClient.prototype.checkExists = function(path, askReplace, fn)
 		}
 	}), mxUtils.bind(this, function(err)
 	{
-		fn(true);
+		if (active != null && !active())
+		{
+			this.ui.spinner.stop();
+			fn(false);
+		}
+		else if (error != null && (err == null || !err.notFound))
+		{
+			error(err);
+		}
+		else
+		{
+			fn(true);
+		}
 	}), null, true);
 };
 

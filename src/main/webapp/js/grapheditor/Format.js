@@ -314,6 +314,7 @@ Format.prototype.immediateRefresh = function()
 	// Snapshots the focused input so it can be restored after the
 	// rebuild (eg. while tabbing through inputs, see issue #5368)
 	var focusState = this.captureFocus();
+	var scrollState = this.getScrollState();
 	this.clear();
 	var ui = this.editorUi;
 	var graph = ui.editor.graph;
@@ -509,6 +510,10 @@ Format.prototype.immediateRefresh = function()
 
 	// Restores focus and selection on the rebuilt input
 	this.restoreFocus(focusState);
+
+	// Keeps the scroll position for the same selection (see getScrollState)
+	this.restoreScroll(scrollState);
+	this.scrollSelection = this.getSelectionIds();
 };
 
 /**
@@ -544,13 +549,18 @@ Format.prototype.createSearchButton = function()
 
 /**
  * Records the currently focused format input so it can be restored
- * after the panel DOM is rebuilt in immediateRefresh. The input is
- * identified by its index among the focusable controls in the panel
- * (the rebuild is deterministic for a given selection, so the order
- * is stable). Other controls that were focused with the keyboard, eg.
- * To Front or the tabs of the panel, are identified by their index among
- * the visible controls. Returns null if focus is not on a panel control,
- * in which case restoreFocus is a no-op (eg. focus is in the canvas).
+ * after the panel DOM is rebuilt in immediateRefresh. A field is recorded
+ * by its name (aria-label or title) and its index among the visible fields
+ * with that name, as a change may show or hide rows above it (Tab from Width
+ * is restored on Height, the Position of the Text tab after a change of its
+ * value with the keyboard), and by its index among the focusable controls in
+ * the panel for fields without a name. Other controls that were focused with
+ * the keyboard, eg. To Front or the tabs of the panel, are identified by their
+ * index among the visible controls, a segment of a toggle group (role radio
+ * in a radiogroup with an aria-label) also by the name of its group and the
+ * index among the groups with that name. Returns null if focus is not on a
+ * panel control, in which case restoreFocus is a no-op (eg. focus is in the
+ * canvas).
  */
 Format.prototype.captureFocus = function()
 {
@@ -573,6 +583,14 @@ Format.prototype.captureFocus = function()
 			{
 				state = {stop: index, nodeName: active.nodeName,
 					role: active.getAttribute('role')};
+				var group = (state.role == 'radio') ?
+					active.closest('[role="radiogroup"][aria-label]') : null;
+
+				if (group != null)
+				{
+					state.group = group.getAttribute('aria-label');
+					state.groupIndex = mxUtils.indexOf(this.getToggleGroups(state.group), group);
+				}
 			}
 		}
 		catch (e)
@@ -592,6 +610,13 @@ Format.prototype.captureFocus = function()
 	}
 
 	var state = {index: index, nodeName: active.nodeName, type: active.type};
+	var name = Format.getFieldName(active);
+
+	if (name != null)
+	{
+		state.field = name;
+		state.fieldIndex = mxUtils.indexOf(this.getFields(name), active);
+	}
 
 	// Caret/selection is only available on text inputs (number, select,
 	// color throw on access, so this is guarded)
@@ -610,9 +635,45 @@ Format.prototype.captureFocus = function()
 };
 
 /**
+ * Returns the name of the given field of the panel (aria-label or title).
+ */
+Format.getFieldName = function(elt)
+{
+	var name = (elt != null) ? (elt.getAttribute('aria-label') || elt.getAttribute('title')) : null;
+
+	return (name != null && name.length > 0) ? name : null;
+};
+
+/**
+ * Returns the visible fields of the panel with the given name.
+ */
+Format.prototype.getFields = function(name)
+{
+	return Array.prototype.filter.call(this.container.querySelectorAll('input, select, textarea'), function(elt)
+	{
+		return Format.getFieldName(elt) == name && elt.getClientRects().length > 0;
+	});
+};
+
+/**
+ * Returns the toggle groups in the panel with the given name.
+ */
+Format.prototype.getToggleGroups = function(name)
+{
+	return Array.prototype.filter.call(this.container.querySelectorAll(
+		'[role="radiogroup"][aria-label]'), function(group)
+	{
+		return group.getAttribute('aria-label') == name;
+	});
+};
+
+/**
  * Restores focus and selection captured by captureFocus on the rebuilt
- * panel. Skips if the control at the recorded index no longer matches
- * (eg. a conditional field changed the layout) or is not visible.
+ * panel: a segment of a toggle group on the checked segment of the same
+ * group, a field on the field with the same name and index among the
+ * visible fields with that name, else the control at the recorded index.
+ * Skips if that control no longer matches (eg. a conditional field changed
+ * the layout) or is not visible.
  */
 Format.prototype.restoreFocus = function(state)
 {
@@ -622,19 +683,35 @@ Format.prototype.restoreFocus = function(state)
 	}
 	else if (state.stop != null)
 	{
-		var stop = Dialog.getTabStops(this.container)[state.stop];
+		var group = (state.group != null) ? this.getToggleGroups(state.group)[state.groupIndex] : null;
+		var btn = (group != null) ? (group.querySelector('[role="radio"][aria-checked="true"]') ||
+			group.querySelector('[role="radio"][tabindex="0"]')) : null;
 
-		if (stop != null && stop.nodeName == state.nodeName &&
-			stop.getAttribute('role') == state.role)
+		if (btn != null && btn.getClientRects().length > 0)
 		{
-			stop.focus({preventScroll: true});
+			btn.focus({preventScroll: true});
+		}
+		else
+		{
+			var stop = Dialog.getTabStops(this.container)[state.stop];
+
+			if (stop != null && stop.nodeName == state.nodeName &&
+				stop.getAttribute('role') == state.role)
+			{
+				stop.focus({preventScroll: true});
+			}
 		}
 
 		return;
 	}
 
-	var focusables = this.container.querySelectorAll('input, select, textarea');
-	var el = focusables[state.index];
+	var el = (state.field != null && state.fieldIndex >= 0) ?
+		this.getFields(state.field)[state.fieldIndex] : null;
+
+	if (el == null || el.nodeName != state.nodeName || el.type != state.type)
+	{
+		el = this.container.querySelectorAll('input, select, textarea')[state.index];
+	}
 
 	if (el == null || el.nodeName != state.nodeName || el.type != state.type ||
 		el.offsetParent == null)
@@ -658,6 +735,104 @@ Format.prototype.restoreFocus = function(state)
 			// ignore
 		}
 	}
+};
+
+/**
+ * The selection of the last build of the panel (see getSelectionIds and
+ * getScrollState), null before the first build.
+ */
+Format.prototype.scrollSelection = null;
+
+/**
+ * Returns the IDs of the selected cells and their count (see isSelection).
+ */
+Format.prototype.getSelectionIds = function()
+{
+	var cells = this.editorUi.editor.graph.getSelectionCells();
+	var ids = Object.create(null);
+
+	for (var i = 0; i < cells.length; i++)
+	{
+		ids[cells[i].id] = true;
+	}
+
+	return {ids: ids, count: cells.length};
+};
+
+/**
+ * Returns true if the given result of getSelectionIds has the selected
+ * cells of now. Linear in the number of selected cells.
+ */
+Format.prototype.isSelection = function(sel)
+{
+	var cells = this.editorUi.editor.graph.getSelectionCells();
+
+	if (sel == null || sel.count != cells.length)
+	{
+		return false;
+	}
+
+	for (var i = 0; i < cells.length; i++)
+	{
+		if (sel.ids[cells[i].id] !== true)
+		{
+			return false;
+		}
+	}
+
+	return true;
+};
+
+/**
+ * Returns the index of the active tab of the panel or -1.
+ */
+Format.prototype.getActiveTabIndex = function()
+{
+	var tabs = this.container.querySelector('.geFormatTitleContainer');
+	var titles = (tabs != null) ? tabs.querySelectorAll('.geFormatTitle') : [];
+
+	for (var i = 0; i < titles.length; i++)
+	{
+		if (titles[i].classList.contains('geActiveFormatTitle'))
+		{
+			return i;
+		}
+	}
+
+	return -1;
+};
+
+/**
+ * Returns the scroll position of the panel and its active tab if the panel
+ * shows the selection of now, or null (see restoreScroll). The selection of
+ * the last build is compared, as the selection has changed already when the
+ * panel is built again (Format.refresh runs in a timeout).
+ */
+Format.prototype.getScrollState = function()
+{
+	return (this.isSelection(this.scrollSelection)) ? {top: this.container.scrollTop,
+		tab: this.getActiveTabIndex()} : null;
+};
+
+/**
+ * Keeps the scroll position of the panel when it is built again for the
+ * same selection and tab, as after each change of a value: the panel is
+ * emptied and built again, and the position could be clamped to the
+ * shorter content in between or moved by the scroll anchoring of the
+ * browser. Another selection or tab keeps the position of the browser as
+ * before. Returns true if the position was changed.
+ */
+Format.prototype.restoreScroll = function(state)
+{
+	if (state != null && state.top > 0 && state.tab == this.getActiveTabIndex() &&
+		this.container.scrollTop != state.top)
+	{
+		this.container.scrollTop = state.top;
+
+		return true;
+	}
+
+	return false;
 };
 
 /**
@@ -1195,6 +1370,14 @@ BaseFormatPanel.prototype.createStepper = function(input, update, step, disableF
 
 		if (input.value == '')
 		{
+			// A field of different values (Mixed, see Format.addMixedValue)
+			// that was emptied is not stepped from the default, which set
+			// every selected cell to the same value
+			if (input.formatMixed)
+			{
+				return;
+			}
+
 			input.value = (defaultValue != null) ? defaultValue : localDefaultValue;
 		}
 
@@ -2041,6 +2224,26 @@ BaseFormatPanel.prototype.addArrow = function(elt)
 };
 
 /**
+ * Adds the given label first in the given menu button of the panel (see
+ * StyleFormatPanel.addStroke, where the button has the class
+ * geLabelledMenu for the layout of the label) and returns it. The label is a bdi, neither a
+ * div nor a span, as the panel finds the image of the value by the first div
+ * and the text of the value by the first span of the button, and a space
+ * separates it from the value, so the name of the button starts with the
+ * visible label (Start None) as speech input expects.
+ */
+BaseFormatPanel.prototype.addMenuLabel = function(menu, text)
+{
+	var label = document.createElement('bdi');
+	label.className = 'geMenuLabel';
+	mxUtils.write(label, (text != null) ? text : '');
+	menu.insertBefore(document.createTextNode(' '), menu.firstChild);
+	menu.insertBefore(label, menu.firstChild);
+
+	return label;
+};
+
+/**
  * 
  */
 BaseFormatPanel.prototype.addUnitInput = function(container, unit, right, width, update, step, marginTop, disableFocus, isFloat)
@@ -2057,8 +2260,136 @@ BaseFormatPanel.prototype.addUnitInput = function(container, unit, right, width,
 	var stepper = this.createStepper(input, update, step, disableFocus, null, isFloat);
 	stepper.style.left = (216 - right) + 'px';
 	container.appendChild(stepper);
+	Format.addMixedValue(input, unit);
 
 	return input;
+};
+
+/**
+ * Returns true if the given value of a field of the given unit has the
+ * unit without a number (different values; NaN and null where the handlers
+ * restore such a value).
+ */
+Format.isMixedValue = function(value, unit)
+{
+	var text = mxUtils.trim((value != null) ? String(value) : '');
+	unit = mxUtils.trim((unit != null) ? String(unit) : '');
+
+	if (unit.length > 0 && text.length >= unit.length &&
+		text.substring(text.length - unit.length) == unit)
+	{
+		text = mxUtils.trim(text.substring(0, text.length - unit.length));
+
+		return text == '' || text == 'NaN' || text == 'null';
+	}
+
+	return false;
+};
+
+/**
+ * The fields of a unit (sizes, positions, spacings) say Mixed as their
+ * placeholder where the selected cells have different values: the panel
+ * writes the unit without a number then (the selection state has an empty
+ * value), which showed a bare "pt". The field is empty, and a value typed
+ * into it applies to all cells as before. Until the user edits the field,
+ * its value is still the unit without a number for the handlers of the
+ * panel, so they do what they did with the bare "pt": the arrow keys and the
+ * stepper change nothing (an empty value would be stepped from 0, which set
+ * every cell to 1) and a typed 0 differs from the value on focus. The
+ * listeners of the panel set the value on changes of the model and on
+ * Escape, without a refresh of the panel, so the setter of the value of the
+ * field does it. A field that was mixed when it got the focus stays mixed
+ * when a handler empties it, as Tab restores a field without a number with
+ * an empty value (ArrangePanel.addGeometryHandler). The field has
+ * formatMixed while it is mixed.
+ */
+Format.addMixedValue = function(input, unit)
+{
+	var desc = (typeof HTMLInputElement !== 'undefined' && Object.getOwnPropertyDescriptor != null) ?
+		Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value') : null;
+
+	if (desc != null && typeof desc.get === 'function' && typeof desc.set === 'function')
+	{
+		// The placeholder of the field before it was mixed
+		var placeholder = null;
+
+		// The value that the panel set while the field is mixed and the user
+		// has not edited it, which the getter returns for the empty field
+		var mixedValue = null;
+
+		// The last value of the panel that was mixed, and if the field was
+		// mixed when it got the focus: Tab, Enter and Escape restore a field
+		// that had no number with an empty value, which keeps it mixed until
+		// the focus has left it
+		var lastMixedValue = null;
+		var focusedMixed = false;
+
+		mxEvent.addListener(input, 'input', function()
+		{
+			mixedValue = null;
+		});
+
+		mxEvent.addListener(input, 'focus', function()
+		{
+			focusedMixed = input.formatMixed == true;
+		});
+
+		// After the blur listeners of the panel, which are added later
+		mxEvent.addListener(input, 'blur', function()
+		{
+			window.setTimeout(function()
+			{
+				if (document.activeElement != input)
+				{
+					focusedMixed = false;
+				}
+			}, 0);
+		});
+
+		Object.defineProperty(input, 'value', {configurable: true, enumerable: true,
+			get: function()
+			{
+				var value = desc.get.call(this);
+
+				return (value == '' && mixedValue != null) ? mixedValue : value;
+			},
+			set: function(value)
+			{
+				var restore = focusedMixed && this.formatMixed && lastMixedValue != null &&
+					(value == null || String(value) == '');
+				var mixed = restore || Format.isMixedValue(value, unit);
+				mixedValue = (restore) ? lastMixedValue : ((mixed) ? String(value) : null);
+				lastMixedValue = (mixed) ? mixedValue : lastMixedValue;
+				desc.set.call(this, (mixed) ? '' : value);
+
+				if (mixed && !this.formatMixed)
+				{
+					placeholder = this.getAttribute('placeholder');
+					var text = mxResources.get('mixed');
+
+					if (text != null)
+					{
+						this.setAttribute('placeholder', text);
+					}
+
+					this.formatMixed = true;
+				}
+				else if (!mixed && this.formatMixed)
+				{
+					if (placeholder != null)
+					{
+						this.setAttribute('placeholder', placeholder);
+					}
+					else
+					{
+						this.removeAttribute('placeholder');
+					}
+
+					this.formatMixed = false;
+				}
+			}
+		});
+	}
 };
 
 /**
@@ -5726,6 +6057,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		{
 			convertToSvg.style.opacity = '0.5';
 			convertInput.setAttribute('disabled', 'disabled');
+			ui.addFormatDisabledReason(convertToSvg, 'requiresFormattedTextOrWordWrap');
 		}
 	}
 	else
@@ -5842,6 +6174,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		{
 			fitOpt.getElementsByTagName('input')[0].setAttribute('disabled', 'disabled');
 			fitOpt.style.opacity = '0.5';
+			ui.addFormatDisabledReason(fitOpt, 'requiresWordWrap');
 		}
 
 		extraPanel.appendChild(fitOpt);
@@ -7777,6 +8110,15 @@ StyleFormatPanel.prototype.addDashPattern = function(elt, pattern)
 };
 
 /**
+ * Returns true if the menus of the line ends of addStroke start with their
+ * label (Start, End): the feature formatHints of Editor.featureDefaults.
+ */
+StyleFormatPanel.prototype.isLineEndLabels = function()
+{
+	return Editor.isFeatureEnabled('formatHints');
+};
+
+/**
  * Adds the label menu items to the given menu and parent.
  */
 StyleFormatPanel.prototype.addStroke = function(container)
@@ -8131,6 +8473,20 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	this.addArrow(edgeStyle).appendChild(document.createElement('div'));
 	this.addArrow(lineStart);
 	this.addArrow(lineEnd);
+
+	// The menus of the line ends start with their label (Start, End), so the
+	// two menus are told apart without their tooltips; Waypoints, which shows
+	// only an image, gives them some of its width (see isLineEndLabels)
+	if (this.isLineEndLabels())
+	{
+		edgeStyle.style.width = '41px';
+		lineStart.style.width = '80px';
+		lineEnd.style.width = '80px';
+		lineStart.classList.add('geLabelledMenu');
+		lineEnd.classList.add('geLabelledMenu');
+		this.addMenuLabel(lineStart, mxResources.get('lineStartShort'));
+		this.addMenuLabel(lineEnd, mxResources.get('lineEndShort'));
+	}
 	
 	pattern.style.width = '142px';
 	var symbol = this.addArrow(pattern);
@@ -8346,9 +8702,12 @@ StyleFormatPanel.prototype.addStroke = function(container)
 			if (markerDiv != null)
 			{
 				// Writes None to the label of the button so that it looks like
-				// the text of the selects, not like the dimmed marker images
+				// the text of the selects, not like the dimmed marker images;
+				// the buttons with a label (Start, End, see isLineEndLabels)
+				// show the image of None in the menu, the line without a
+				// marker, as the label takes the width of the text
 				ui.updateCssForMarker(markerDiv, prefix, ss.style.shape, marker, fill,
-					elt.getElementsByTagName('span')[0]);
+					elt.getElementsByTagName('span')[0], elt.classList.contains('geLabelledMenu'));
 			}
 			
 			return markerDiv;
@@ -8637,12 +8996,26 @@ StyleFormatPanel.prototype.addEffects = function(div)
 
 	var current = left;
 	
-	var addOption = mxUtils.bind(this, function(label, key, defaultValue, fn, enabledValue, disabledValue)
+	// Options that do not apply to the selection are disabled, with the
+	// resource key of the reason in their tooltip (see
+	// StyleFormatPanel.addEdgeRoutingEffects)
+	var addOption = mxUtils.bind(this, function(label, key, defaultValue, fn, enabledValue, disabledValue, disabled, reason)
 	{
 		var opt = this.createCellOption(label, key, defaultValue, enabledValue, disabledValue, fn);
 		opt.style.alignItems = 'top';
 		current.appendChild(opt);
 		current = (current == left) ? right : left;
+
+		if (disabled)
+		{
+			opt.getElementsByTagName('input')[0].setAttribute('disabled', 'disabled');
+			mxUtils.setOpacity(opt, 60);
+
+			if (reason != null)
+			{
+				ui.addFormatDisabledReason(opt, reason);
+			}
+		}
 
 		return opt;
 	});
@@ -8710,48 +9083,7 @@ StyleFormatPanel.prototype.addEffects = function(div)
 		if (ss.edges.length > 0 && ss.vertices.length == 0)
 		{
 			addOption(mxResources.get('flowAnimation'), 'flowAnimation', 0);
-
-			// Orthogonal routings already imply orthogonal ends, isometric
-			// routings ignore them (see Graph.isOrthogonal) and libavoid
-			// re-routes its edges when a terminal moves
-			var implied = false;
-			var routed = false;
-			var fixed = true;
-
-			for (var i = 0; i < ss.edges.length; i++)
-			{
-				var state = graph.view.getState(ss.edges[i]);
-
-				if (state != null)
-				{
-					var edgeStyle = graph.view.getEdgeStyle(state);
-					implied = implied || graph.isOrthogonalEdgeStyle(edgeStyle) ||
-						edgeStyle == mxEdgeStyle.IsometricConnector;
-					routed = routed || mxUtils.getValue(state.style,
-						'libavoidRouting', null) == '1';
-					fixed = fixed && graph.isFixedTerminalPoint(state, true) &&
-						graph.isFixedTerminalPoint(state, false);
-				}
-			}
-
-			if (!implied)
-			{
-				var ends = addOption(mxResources.get('orthogonalEnds'), mxConstants.STYLE_ORTHOGONAL, 0);
-
-				// Ends with a fixed connection point ignore orthogonal ends
-				if (fixed)
-				{
-					ends.getElementsByTagName('input')[0].setAttribute('disabled', 'disabled');
-					mxUtils.setOpacity(ends, 60);
-				}
-			}
-
-			// Moves the waypoints along with the terminals (see Graph.initFollowTerminals)
-			if (!routed)
-			{
-				addOption(mxResources.get('followTerminals', null, 'Follow Terminals'),
-					'followTerminals', 0);
-			}
+			StyleFormatPanel.addEdgeRoutingEffects(graph, ss.edges, addOption);
 		}
 
 		if (ss.edges.length > 0 && this.isEdgeLabelSelection(ss.cells))
@@ -8782,6 +9114,55 @@ StyleFormatPanel.prototype.addEffects = function(div)
 
 	return div;
 }
+
+/**
+ * Adds Orthogonal ends and Follow terminals for the given edges with the given
+ * function, which takes the arguments of addOption in addEffects: the label,
+ * the style key, its default value, a function after the change, the values
+ * when on and off (null for 1 and 0), true if the option is disabled and the
+ * resource key of the reason why it is disabled. The inline toolbar can offer
+ * the effects of edges with this function, so it offers them for the same
+ * edges as the Format panel.
+ */
+StyleFormatPanel.addEdgeRoutingEffects = function(graph, edges, addOption)
+{
+	// Orthogonal routings already imply orthogonal ends, isometric
+	// routings ignore them (see Graph.isOrthogonal) and libavoid
+	// re-routes its edges when a terminal moves
+	var implied = false;
+	var routed = false;
+	var fixed = true;
+
+	for (var i = 0; i < edges.length; i++)
+	{
+		var state = graph.view.getState(edges[i]);
+
+		if (state != null)
+		{
+			var edgeStyle = graph.view.getEdgeStyle(state);
+			implied = implied || graph.isOrthogonalEdgeStyle(edgeStyle) ||
+				edgeStyle == mxEdgeStyle.IsometricConnector;
+			routed = routed || mxUtils.getValue(state.style,
+				'libavoidRouting', null) == '1';
+			fixed = fixed && graph.isFixedTerminalPoint(state, true) &&
+				graph.isFixedTerminalPoint(state, false);
+		}
+	}
+
+	// Ends with a fixed connection point ignore orthogonal ends
+	if (!implied)
+	{
+		addOption(mxResources.get('orthogonalEnds'), mxConstants.STYLE_ORTHOGONAL,
+			0, null, null, null, fixed, (fixed) ? 'notUsedWithFixedPoints' : null);
+	}
+
+	// Moves the waypoints along with the terminals (see Graph.initFollowTerminals)
+	if (!routed)
+	{
+		addOption(mxResources.get('followTerminals', null, 'Follow Terminals'),
+			'followTerminals', 0);
+	}
+};
 
 /**
  * Returns true if the given cells are edges or label cells of edges (see
@@ -8977,6 +9358,8 @@ DiagramStylePanel.prototype.getGlobalStyleButtons = function()
 					inp[0].setAttribute('disabled', 'disabled');
 				}
 			}
+
+			ui.addFormatDisabledReason(buttons[i], null);
 		}
 	}
 
@@ -9518,8 +9901,28 @@ DiagramStylePanel.prototype.addGraphStyles = function(div)
 		return result;
 	};
 
+	// Adds the picture of the entry with the given index (or the given
+	// entry) to the given container as the grid draws it
+	this.createGraphStylePreview = function(index, container, entry)
+	{
+		var s = (entry != null) ? entry : Editor.styles[index];
+
+		if (s != null)
+		{
+			createPreview(s.commonStyle, s.vertexStyle, s.edgeStyle, s.graph, container);
+		}
+	};
+
 	if (!this.isGraphStyleGrid())
 	{
+		return div;
+	}
+
+	// Named tiles without pages instead of the grid (Simple)
+	if (this.isNamedGraphStyles())
+	{
+		this.addNamedGraphStyles(div);
+
 		return div;
 	}
 
@@ -9544,7 +9947,7 @@ DiagramStylePanel.prototype.addGraphStyles = function(div)
 		return result;
 	};
 
-	var addEntry = mxUtils.bind(this, function(commonStyle, vertexStyle, edgeStyle, graphStyle, index)
+	var addEntry = mxUtils.bind(this, function(commonStyle, vertexStyle, edgeStyle, graphStyle, index, entry)
 	{
 		var panel = this.format.cachedStyleEntries[index];
 		
@@ -9560,9 +9963,20 @@ DiagramStylePanel.prototype.addGraphStyles = function(div)
 			
 			createPreview(commonStyle, vertexStyle, edgeStyle, graphStyle, panel);
 
+			// A theme of getGraphStyleGridTheme is applied in one edit with
+			// the current styles of new cells (applyNamedGraphStyle)
 			var applyEntry = mxUtils.bind(this, function()
 			{
-				applyGraphStyle(commonStyle, vertexStyle, edgeStyle, graphStyle);
+				var theme = this.getGraphStyleGridTheme(index, entry);
+
+				if (theme != null)
+				{
+					this.applyNamedGraphStyle(theme);
+				}
+				else
+				{
+					applyGraphStyle(commonStyle, vertexStyle, edgeStyle, graphStyle);
+				}
 			});
 
 			mxEvent.addGestureListeners(panel, mxUtils.bind(this, function(evt)
@@ -9581,7 +9995,16 @@ DiagramStylePanel.prototype.addGraphStyles = function(div)
 			{
 				mxEvent.addListener(panel, 'mouseenter', mxUtils.bind(this, function(evt)
 				{
-					previewGraphStyle(commonStyle, vertexStyle, edgeStyle, graphStyle);
+					var theme = this.getGraphStyleGridTheme(index, entry);
+
+					if (theme != null)
+					{
+						this.previewNamedGraphStyle(theme);
+					}
+					else
+					{
+						previewGraphStyle(commonStyle, vertexStyle, edgeStyle, graphStyle);
+					}
 				}));
 				
 				mxEvent.addListener(panel, 'mouseleave', mxUtils.bind(this, function(evt)
@@ -9613,8 +10036,9 @@ DiagramStylePanel.prototype.addGraphStyles = function(div)
 			i < Math.min((this.format.currentStylePage + 1) * maxEntries,
 			Editor.styles.length); i++)
 		{
-			var s = Editor.styles[i];
-			addEntry(s.commonStyle, s.vertexStyle, s.edgeStyle, s.graph, i);
+			// An entry of the configuration that is null is empty (Default)
+			var s = Editor.styles[i] || {};
+			addEntry(s.commonStyle, s.vertexStyle, s.edgeStyle, s.graph, i, s);
 		}
 	});
 	
@@ -9692,6 +10116,873 @@ DiagramStylePanel.prototype.addGraphStyles = function(div)
 	}
 
 	return div;
+};
+
+/**
+ * Returns the theme ({index, entry, textDefault}, as getNamedGraphStyles
+ * returns them) that a click on the preview of the given entry of the grid
+ * applies with applyNamedGraphStyle, in one edit with the current styles of
+ * new cells, and that the pointer on the preview shows on the diagram with
+ * previewNamedGraphStyle; null if the grid applies the entry with the current
+ * styles outside the edit and shows it as before (index is the entry of
+ * Editor.styles, entry the entry itself). This implementation returns null,
+ * the application returns a theme in Simple (see diagramly/Editor.js).
+ */
+DiagramStylePanel.prototype.getGraphStyleGridTheme = function(index, entry)
+{
+	return null;
+};
+
+/**
+ * Returns true if the themes of Editor.styles are shown as named tiles in a
+ * grid of two columns without pages (addNamedGraphStyles) instead of the
+ * grid of previews with pages: the feature namedThemes of
+ * Editor.featureDefaults, off by default in Classic and Simple (the URL or
+ * the configuration turns it on). Fusion has its own tiles in the Diagram
+ * tab, where isGraphStyleGrid is false.
+ */
+DiagramStylePanel.prototype.isNamedGraphStyles = function()
+{
+	return Editor.isFeatureEnabled('namedThemes');
+};
+
+/**
+ * Returns the themes of the named tiles as {name, index, entry,
+ * textDefault}: index is the entry of Editor.styles, the optional entry
+ * replaces it and textDefault gives free text the default font color. This
+ * implementation returns one Default and the other entries of Editor.styles
+ * as Theme n, where n counts the entries but Default (the application adds
+ * the names, see diagramly/Editor.js).
+ */
+DiagramStylePanel.prototype.getNamedGraphStyles = function()
+{
+	var result = [];
+	var hasDefault = false;
+	var n = 1;
+
+	for (var i = 0; Editor.styles != null && i < Editor.styles.length; i++)
+	{
+		var s = Editor.styles[i] || {};
+		var empty = s.commonStyle == null && s.vertexStyle == null && s.edgeStyle == null;
+
+		// The grid starts its second page with Default again
+		if (!empty || !hasDefault)
+		{
+			hasDefault = hasDefault || empty;
+			result.push({name: (empty) ? mxResources.get('default') :
+				mxResources.get('theme') + ' ' + (n++), index: i});
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Adds the themes of getNamedGraphStyles as named tiles in a grid of two
+ * columns that scrolls with the panel. A click applies a theme in one edit
+ * (applyNamedGraphStyle), resting the pointer on a tile shows it on the
+ * diagram (previewNamedGraphStyle, Format.HoverPreview), which ends when the
+ * panel is taken out, as a tile removed under the pointer gets no
+ * mouseleave. The pictures are drawn when first in view and kept for the
+ * next refresh of the panel (addNamedGraphStylePreview).
+ */
+DiagramStylePanel.prototype.addNamedGraphStyles = function(div)
+{
+	var themes = this.getNamedGraphStyles();
+	var preview = new Format.HoverPreview(this.editorUi);
+	var grid = document.createElement('div');
+	grid.className = 'geGraphStyleGrid';
+	grid.setAttribute('role', 'group');
+	grid.setAttribute('aria-label', mxResources.get('style'));
+	div.appendChild(grid);
+
+	for (var i = 0; i < themes.length; i++)
+	{
+		grid.appendChild(this.createNamedGraphStyleTile(themes[i], preview));
+	}
+
+	this.listeners.push({destroy: mxUtils.bind(this, function()
+	{
+		preview.destroy();
+
+		if (this.namedStyleObserver != null)
+		{
+			this.namedStyleObserver.disconnect();
+			this.namedStyleObserver = null;
+		}
+	})});
+};
+
+/**
+ * Returns the tile of the given theme of getNamedGraphStyles: its picture
+ * and its name in a button. The given Format.HoverPreview shows the theme
+ * on the diagram while the pointer rests on the tile (not on touch devices).
+ */
+DiagramStylePanel.prototype.createNamedGraphStyleTile = function(theme, preview)
+{
+	var graph = this.editorUi.editor.graph;
+	var tile = document.createElement('button');
+	tile.setAttribute('type', 'button');
+	tile.className = 'geGraphStyleTile';
+
+	var thumb = document.createElement('span');
+	thumb.className = 'geGraphStyleThumb';
+	thumb.setAttribute('aria-hidden', 'true');
+	tile.appendChild(thumb);
+	this.addNamedGraphStylePreview(theme, thumb);
+
+	// Names of the configuration are text
+	var name = document.createElement('span');
+	name.className = 'geGraphStyleName';
+	mxUtils.write(name, theme.name);
+	tile.appendChild(name);
+
+	mxEvent.addListener(tile, 'click', mxUtils.bind(this, function()
+	{
+		if (graph.isEnabled())
+		{
+			this.applyNamedGraphStyle(theme);
+
+			// A click that changes nothing fires no change of the model, which
+			// ends the preview of another tile (Enter on a tile with the focus)
+			preview.end();
+		}
+	}));
+
+	if (!mxClient.IS_TOUCH)
+	{
+		mxEvent.addListener(tile, 'mouseenter', mxUtils.bind(this, function()
+		{
+			if (graph.isEnabled())
+			{
+				preview.enter('index ' + theme.index, mxUtils.bind(this, function()
+				{
+					this.previewNamedGraphStyle(theme);
+				}));
+			}
+		}));
+
+		mxEvent.addListener(tile, 'mouseleave', function()
+		{
+			preview.leave();
+		});
+	}
+
+	return tile;
+};
+
+/**
+ * Adds the picture of the given theme to the given thumb of its tile when
+ * the thumb is first in view (the Style tab may be hidden and the grid
+ * scrolls): the pictures are graphs, so they are drawn on demand and kept in
+ * the Format panel by the entry and the default styles.
+ */
+DiagramStylePanel.prototype.addNamedGraphStylePreview = function(theme, thumb)
+{
+	var graph = this.editorUi.editor.graph;
+	var format = this.format;
+	var key = theme.index + ' ' + JSON.stringify((theme.entry != null) ? theme.entry :
+		Editor.styles[theme.index]) + ' ' + JSON.stringify([graph.stylesheet.getDefaultVertexStyle(),
+		graph.stylesheet.getDefaultEdgeStyle()]);
+
+	if (format.namedStylePreviews == null)
+	{
+		format.namedStylePreviews = Object.create(null);
+	}
+
+	var add = mxUtils.bind(this, function()
+	{
+		var picture = format.namedStylePreviews[key];
+
+		if (picture == null)
+		{
+			picture = document.createElement('span');
+			picture.className = 'geGraphStylePicture';
+			this.createGraphStylePreview(theme.index, picture, theme.entry);
+			format.namedStylePreviews[key] = picture;
+		}
+
+		thumb.appendChild(picture);
+	});
+
+	if (format.namedStylePreviews[key] != null || typeof window.IntersectionObserver !== 'function')
+	{
+		add();
+	}
+	else
+	{
+		// One observer for the tiles of this panel
+		if (this.namedStyleObserver == null)
+		{
+			var pending = new Map();
+
+			this.namedStyleObserver = new IntersectionObserver(function(entries, observer)
+			{
+				for (var i = 0; i < entries.length; i++)
+				{
+					var fn = pending.get(entries[i].target);
+
+					if (entries[i].isIntersecting && fn != null)
+					{
+						pending['delete'](entries[i].target);
+						observer.unobserve(entries[i].target);
+						fn();
+					}
+				}
+			});
+			this.namedStyleObserver.pending = pending;
+		}
+
+		this.namedStyleObserver.pending.set(thumb, add);
+		this.namedStyleObserver.observe(thumb);
+	}
+};
+
+/**
+ * Applies the given theme of getNamedGraphStyles in one edit
+ * (applyGraphStyle). With textDefault free text gets the default font color,
+ * also new free text while the current vertex style is the one of the theme
+ * (graph.textDefaultVertexStyle, see EditorUi.pasteNewCellStyles). The
+ * current styles of new cells are in the edit (Format.CurrentStyleChange),
+ * so undo and redo also give new cells the theme they had. A click that
+ * changes no cell and not the current styles leaves an empty edit, which is
+ * no undo step (Format.removeUnchangedStyles), and one that changes only
+ * the current styles (an empty page) is an undo step that does not modify
+ * the file, as in Fusion.
+ */
+DiagramStylePanel.prototype.applyNamedGraphStyle = function(theme)
+{
+	var graph = this.editorUi.editor.graph;
+	var model = graph.getModel();
+	var before = Format.getCurrentStyles(graph);
+
+	model.beginUpdate();
+	try
+	{
+		this.applyGraphStyle(theme.index, theme.entry);
+
+		if (theme.textDefault)
+		{
+			var cells = graph.getVerticesAndEdges();
+
+			for (var i = 0; i < cells.length; i++)
+			{
+				if (graph.isFreeTextCell(cells[i]) && graph.getCellStyle(cells[i])
+					[mxConstants.STYLE_FONTCOLOR] != mxConstants.NONE)
+				{
+					model.setStyle(cells[i], mxUtils.setStyle(model.getStyle(cells[i]),
+						mxConstants.STYLE_FONTCOLOR, 'default'));
+				}
+			}
+		}
+
+		// Kept by identity: a new current style ends it, and so does another
+		// font color in it (updateDefaultStyle changes it in place, see
+		// Graph.copyCellStyles) or a font color picked since, also the one of
+		// the theme (the listener of styleChanged in EditorUi). The current
+		// styles that applyGraphStyle set go into the edit.
+		graph.textDefaultVertexStyle = (theme.textDefault) ? graph.currentVertexStyle : null;
+		graph.textDefaultFontColor = (theme.textDefault && graph.currentVertexStyle != null) ?
+			graph.currentVertexStyle[mxConstants.STYLE_FONTCOLOR] : null;
+		var current = Format.getCurrentStyles(graph);
+		Format.setCurrentStyles(graph, before);
+		Format.removeUnchangedStyles(model);
+
+		if (!Format.isSameCurrentStyles(before, current))
+		{
+			model.execute(new Format.CurrentStyleChange(graph, current));
+		}
+
+		// An edit of its own with only the current styles does not modify the file
+		var edit = model.currentEdit;
+		var only = model.updateLevel == 1 && edit != null && edit.changes.length > 0;
+
+		for (var i = 0; only && i < edit.changes.length; i++)
+		{
+			only = edit.changes[i] instanceof Format.CurrentStyleChange;
+		}
+
+		if (only)
+		{
+			edit.ignoreEdit = true;
+		}
+	}
+	finally
+	{
+		model.endUpdate();
+	}
+};
+
+/**
+ * Returns the current styles of new cells of the given graph:
+ * currentVertexStyle, currentEdgeStyle, textDefaultVertexStyle and
+ * textDefaultFontColor (see DiagramStylePanel.applyNamedGraphStyle).
+ */
+Format.getCurrentStyles = function(graph)
+{
+	return {vertex: graph.currentVertexStyle, edge: graph.currentEdgeStyle,
+		text: graph.textDefaultVertexStyle, textFontColor: graph.textDefaultFontColor};
+};
+
+/**
+ * Sets the current styles of Format.getCurrentStyles.
+ */
+Format.setCurrentStyles = function(graph, current)
+{
+	graph.currentVertexStyle = current.vertex;
+	graph.currentEdgeStyle = current.edge;
+	graph.textDefaultVertexStyle = current.text;
+	graph.textDefaultFontColor = current.textFontColor;
+};
+
+/**
+ * Returns true if new free text of the given current styles
+ * (Format.getCurrentStyles) gets the default font color: the vertex style is
+ * still the one of a named theme with textDefault and has its font color (see
+ * EditorUi.pasteTextDefaultFontColor).
+ */
+Format.isTextDefault = function(current)
+{
+	return current.vertex != null && current.text === current.vertex &&
+		current.vertex[mxConstants.STYLE_FONTCOLOR] != null &&
+		current.vertex[mxConstants.STYLE_FONTCOLOR] == current.textFontColor;
+};
+
+/**
+ * Returns true if the given current styles (Format.getCurrentStyles) give
+ * new cells the same: the same values, the marker of text in both or in
+ * neither and new text the default font color in both or in neither
+ * (Format.isTextDefault). The marker counts even if the font color changed
+ * since, so a theme without it replaces the marker, which the font color of
+ * the theme written in place again would make active.
+ */
+Format.isSameCurrentStyles = function(a, b)
+{
+	var marked = function(current)
+	{
+		return current.text != null && current.text === current.vertex;
+	};
+
+	return mxUtils.equalEntries(a.vertex, b.vertex) && mxUtils.equalEntries(a.edge, b.edge) &&
+		marked(a) == marked(b) && Format.isTextDefault(a) == Format.isTextDefault(b);
+};
+
+/**
+ * Undoable change of the current styles of new cells of the given graph
+ * (Format.getCurrentStyles), in the edit of a named theme
+ * (DiagramStylePanel.applyNamedGraphStyle): undo and redo give new cells the
+ * theme they had, unless the current styles were set since the last execute
+ * (Set as Default Style): those stay, and the next execute sets the current
+ * styles of the change again. Fusion has its own (StyleThemeChange in
+ * SimpleCalm.js).
+ */
+Format.CurrentStyleChange = function(graph, current)
+{
+	this.graph = graph;
+	this.current = current;
+	this.applied = null;
+};
+
+/**
+ * Swaps the current styles of the change with those of the graph.
+ */
+Format.CurrentStyleChange.prototype.execute = function()
+{
+	var graph = this.graph;
+
+	if (this.applied == null || (graph.currentVertexStyle === this.applied.vertex &&
+		graph.currentEdgeStyle === this.applied.edge))
+	{
+		var tmp = Format.getCurrentStyles(graph);
+		Format.setCurrentStyles(graph, this.current);
+		this.applied = this.current;
+		this.current = tmp;
+	}
+	else
+	{
+		this.current = this.applied;
+		this.applied = null;
+	}
+};
+
+/**
+ * Shows the given theme of getNamedGraphStyles on the diagram as
+ * applyNamedGraphStyle gives it (with textDefault free text in the default
+ * font color) until the next refresh of the graph. The model is unchanged.
+ */
+DiagramStylePanel.prototype.previewNamedGraphStyle = function(theme)
+{
+	var graph = this.editorUi.editor.graph;
+	var own = Object.prototype.hasOwnProperty.call(graph, 'postProcessCellStyle');
+	var prev = graph.postProcessCellStyle;
+
+	// The styles of previewGraphStyle are resolved after the keys of the
+	// entry, so free text gets the default font color there
+	if (theme.textDefault)
+	{
+		graph.postProcessCellStyle = function(cell, style)
+		{
+			if (style != null && style[mxConstants.STYLE_FONTCOLOR] != mxConstants.NONE &&
+				graph.isFreeTextCell(cell))
+			{
+				style[mxConstants.STYLE_FONTCOLOR] = 'default';
+			}
+
+			return prev.apply(this, arguments);
+		};
+	}
+
+	try
+	{
+		this.previewGraphStyle(theme.index, theme.entry);
+	}
+	finally
+	{
+		if (own)
+		{
+			graph.postProcessCellStyle = prev;
+		}
+		else
+		{
+			delete graph.postProcessCellStyle;
+		}
+	}
+};
+
+/**
+ * Removes the style changes of the current edit of an update of its own (not
+ * inside another) from the cells that end with the style they had before
+ * the edit (textDefault writes the font color of a theme and then default
+ * on text that has it already), so a click that changes nothing leaves an
+ * empty edit. The changes are executed, so only those that give a cell its
+ * style back may go. Fusion has its own in SimpleCalm.js.
+ */
+Format.removeUnchangedStyles = function(model)
+{
+	var edit = model.currentEdit;
+
+	if (model.updateLevel == 1 && edit != null && edit.changes.length > 0)
+	{
+		var first = new Map();
+
+		for (var i = 0; i < edit.changes.length; i++)
+		{
+			var change = edit.changes[i];
+
+			// The style of the cell before the edit (execute swaps them)
+			if (change instanceof mxStyleChange && !first.has(change.cell))
+			{
+				first.set(change.cell, change.previous);
+			}
+		}
+
+		edit.changes = edit.changes.filter(function(change)
+		{
+			return !(change instanceof mxStyleChange) ||
+				model.getStyle(change.cell) != first.get(change.cell);
+		});
+	}
+};
+
+/**
+ * Time in ms that the pointer rests on an option before the diagram shows
+ * its preview, and after it left the options before the diagram is shown
+ * again (Format.HoverPreview).
+ */
+Format.hoverPreviewDelay = 100;
+
+/**
+ * Duration in ms of the crossfade of Format.HoverPreview.
+ */
+Format.hoverPreviewDuration = 150;
+
+/**
+ * Diagrams whose SVG has more elements change without the crossfade, as
+ * their copy would take longer than the reaction may.
+ */
+Format.hoverPreviewMaxElements = 5000;
+
+/**
+ * Shows the previews on the diagram of the options under the pointer (the
+ * named themes of the Style tab, see DiagramStylePanel.addNamedGraphStyles)
+ * after the pointer rested on an option for Format.hoverPreviewDelay, and
+ * the diagram again the same time after it left the options, so passing
+ * over options does not flicker and the next option shows its preview
+ * without the diagram in between; both with a crossfade (isAnimated). A
+ * change of the model or the selection, a change of the width of the panel
+ * and destroy end a preview at once. Fusion has its own with its motion
+ * tokens (SimpleUi.HoverPreview).
+ */
+Format.HoverPreview = function(ui)
+{
+	this.ui = ui;
+	this.graph = ui.editor.graph;
+	this.key = null;
+	this.thread = null;
+	this.copies = [];
+	this.fades = [];
+
+	this.endHandler = mxUtils.bind(this, function()
+	{
+		this.end();
+	});
+
+	this.graph.getModel().addListener(mxEvent.CHANGE, this.endHandler);
+	this.graph.getSelectionModel().addListener(mxEvent.CHANGE, this.endHandler);
+	ui.addListener('formatWidthChanged', this.endHandler);
+};
+
+/**
+ * Shows the preview of the option with the given key after the rest (fn
+ * shows it on the diagram until the next refresh of the graph).
+ */
+Format.HoverPreview.prototype.enter = function(key, fn)
+{
+	window.clearTimeout(this.thread);
+	this.thread = null;
+
+	if (key != this.key)
+	{
+		this.thread = window.setTimeout(mxUtils.bind(this, function()
+		{
+			this.thread = null;
+			this.key = key;
+			this.crossfade(fn);
+		}), Format.hoverPreviewDelay);
+	}
+};
+
+/**
+ * Shows the diagram again after the rest unless the pointer enters an
+ * option.
+ */
+Format.HoverPreview.prototype.leave = function()
+{
+	window.clearTimeout(this.thread);
+	this.thread = null;
+
+	if (this.key != null)
+	{
+		this.thread = window.setTimeout(mxUtils.bind(this, function()
+		{
+			this.thread = null;
+			this.key = null;
+			this.crossfade(mxUtils.bind(this, this.restore));
+		}), Format.hoverPreviewDelay);
+	}
+};
+
+/**
+ * Ends the preview at once, also the copies of a crossfade that are still
+ * fading out (removeCopies).
+ */
+Format.HoverPreview.prototype.end = function()
+{
+	window.clearTimeout(this.thread);
+	this.thread = null;
+	this.removeCopies();
+
+	if (this.key != null)
+	{
+		this.key = null;
+		this.restore();
+	}
+};
+
+/**
+ * Removes the copies of the diagram that crossfade fades out and shows the
+ * diagram at once where it still fades in under a copy (fadeIn).
+ */
+Format.HoverPreview.prototype.removeCopies = function()
+{
+	var copies = this.copies;
+	var fades = this.fades;
+	this.copies = [];
+	this.fades = [];
+
+	for (var i = 0; i < fades.length; i++)
+	{
+		fades[i].cancel();
+	}
+
+	for (var i = 0; i < copies.length; i++)
+	{
+		if (copies[i].parentNode != null)
+		{
+			copies[i].parentNode.removeChild(copies[i]);
+		}
+	}
+};
+
+/**
+ * Shows the diagram as it is.
+ */
+Format.HoverPreview.prototype.restore = function()
+{
+	this.graph.refresh();
+};
+
+/**
+ * Ends the preview and removes the listeners.
+ */
+Format.HoverPreview.prototype.destroy = function()
+{
+	this.end();
+
+	if (this.endHandler != null)
+	{
+		this.graph.getModel().removeListener(this.endHandler);
+		this.graph.getSelectionModel().removeListener(this.endHandler);
+		this.ui.removeListener(this.endHandler);
+		this.endHandler = null;
+	}
+};
+
+/**
+ * Returns true if the previews change with a crossfade: animations are
+ * allowed and the user does not prefer reduced motion.
+ */
+Format.HoverPreview.prototype.isAnimated = function()
+{
+	return this.ui.allowAnimation && !(typeof window.matchMedia === 'function' &&
+		window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+};
+
+/**
+ * Runs fn, which changes the diagram, and fades out a copy of the diagram
+ * of before over it if isAnimated and the diagram is small enough. The copy
+ * goes over what fn added to the container and covers the canvas, so the
+ * diagram after the change stays opaque under it: a true crossfade, where
+ * what fn does not change keeps its color and the diagrams before and after
+ * are never both seen. An SVG without an opaque background (the page view
+ * paints the page under the SVG, or a transparent page) is copied with what
+ * is seen under it (createCanvasCopy). Without an opaque ground under the
+ * diagram the diagram after the change fades in under the copy instead
+ * (fadeIn with what fn added), as in the crossfades of Fusion.
+ */
+Format.HoverPreview.prototype.crossfade = function(fn)
+{
+	var graph = this.graph;
+	var svg = (graph.view.canvas != null) ? graph.view.canvas.ownerSVGElement : null;
+	var c = graph.container;
+	var copy = null;
+	var cover = false;
+	var children = null;
+
+	if (svg != null && svg.parentNode == c && typeof svg.animate === 'function' &&
+		this.isAnimated() && svg.getElementsByTagName('*').length <= Format.hoverPreviewMaxElements)
+	{
+		var cr = c.getBoundingClientRect();
+		var sr = svg.getBoundingClientRect();
+		children = Array.prototype.slice.call(c.children);
+		copy = svg.cloneNode(true);
+		copy.removeAttribute('id');
+		copy.style.position = 'absolute';
+		copy.style.left = (sr.left - cr.left - c.clientLeft + c.scrollLeft) + 'px';
+		copy.style.top = (sr.top - cr.top - c.clientTop + c.scrollTop) + 'px';
+		copy.style.width = sr.width + 'px';
+		copy.style.height = sr.height + 'px';
+		cover = this.isOpaqueCanvas();
+
+		if (!cover)
+		{
+			var ground = this.getGroundColor();
+
+			if (ground != null)
+			{
+				copy = this.createCanvasCopy(copy, ground);
+				cover = true;
+			}
+		}
+
+		copy.setAttribute('aria-hidden', 'true');
+		copy.style.pointerEvents = 'none';
+	}
+
+	try
+	{
+		fn();
+	}
+	finally
+	{
+		if (copy != null)
+		{
+			var added = Array.prototype.filter.call(c.children, function(elt)
+			{
+				return mxUtils.indexOf(children, elt) < 0;
+			});
+
+			// The copy goes over what fn added and is removed when it has faded
+			// out or at once by end
+			c.appendChild(copy);
+			this.copies.push(copy);
+
+			var remove = mxUtils.bind(this, function()
+			{
+				var index = mxUtils.indexOf(this.copies, copy);
+
+				if (index >= 0)
+				{
+					this.copies.splice(index, 1);
+				}
+
+				if (copy.parentNode != null)
+				{
+					copy.parentNode.removeChild(copy);
+				}
+			});
+
+			var anim = copy.animate([{opacity: 1}, {opacity: 0}],
+				{duration: Format.hoverPreviewDuration, easing: 'ease-out', fill: 'forwards'});
+			anim.onfinish = remove;
+			anim.oncancel = remove;
+			window.setTimeout(remove, Format.hoverPreviewDuration + 250);
+
+			if (!cover)
+			{
+				this.fadeIn(added);
+			}
+		}
+	}
+};
+
+/**
+ * Returns true if the SVG of the diagram has an opaque background, so a copy
+ * of it covers the canvas: not in the page view, where the page is an
+ * element under the SVG, and not with a transparent page.
+ */
+Format.HoverPreview.prototype.isOpaqueCanvas = function()
+{
+	var graph = this.graph;
+	var svg = (graph.view.canvas != null) ? graph.view.canvas.ownerSVGElement : null;
+
+	// Computed colors with alpha are rgba(...) or color(...), opaque ones rgb(...)
+	return svg != null && graph.view.backgroundPageShape == null &&
+		/^rgb\(/.test(window.getComputedStyle(svg).backgroundColor);
+};
+
+/**
+ * Returns the opaque background color that is seen under the page and a
+ * transparent SVG of the diagram: the first one of the container of the
+ * graph or of its parents. Returns null if there is none or if one of them
+ * has a background image or a translucent color on the way (a copy could
+ * not show the same, as in an embedded frame without a background).
+ */
+Format.HoverPreview.prototype.getGroundColor = function()
+{
+	var elt = this.graph.container;
+
+	while (elt != null && elt.nodeType == mxConstants.NODETYPE_ELEMENT)
+	{
+		var style = window.getComputedStyle(elt);
+		var color = style.backgroundColor;
+
+		if (style.backgroundImage != null && style.backgroundImage != 'none')
+		{
+			return null;
+		}
+		else if (/^rgb\(/.test(color))
+		{
+			return color;
+		}
+		// Transparent is rgba(0, 0, 0, 0), other colors with alpha are rgba(...)
+		// or color(...)
+		else if (color != null && color != '' && !/^rgba\(.*,\s*0\)$/.test(color) &&
+			color != 'transparent')
+		{
+			return null;
+		}
+
+		elt = elt.parentNode;
+	}
+
+	return null;
+};
+
+/**
+ * Returns a copy of the canvas as it is seen for the given copy of the SVG
+ * of the diagram: the visible part of the container with the given opaque
+ * ground color (getGroundColor), a copy of the page in the page view and
+ * the given copy, each where its original is. As the copy is opaque, the
+ * diagram after the change stays opaque under it while it fades out.
+ */
+Format.HoverPreview.prototype.createCanvasCopy = function(svgCopy, ground)
+{
+	var graph = this.graph;
+	var c = graph.container;
+	var cr = c.getBoundingClientRect();
+	var dx = cr.left + c.clientLeft;
+	var dy = cr.top + c.clientTop;
+	var copy = document.createElement('div');
+	copy.style.position = 'absolute';
+	copy.style.left = c.scrollLeft + 'px';
+	copy.style.top = c.scrollTop + 'px';
+	copy.style.width = c.clientWidth + 'px';
+	copy.style.height = c.clientHeight + 'px';
+	copy.style.overflow = 'hidden';
+	copy.style.backgroundColor = ground;
+
+	var page = (graph.view.backgroundPageShape != null) ?
+		graph.view.backgroundPageShape.node : null;
+
+	if (page != null && page.parentNode == c)
+	{
+		var pr = page.getBoundingClientRect();
+		var pageCopy = page.cloneNode(true);
+		pageCopy.removeAttribute('id');
+		pageCopy.style.position = 'absolute';
+		pageCopy.style.margin = '0px';
+		pageCopy.style.left = (pr.left - dx) + 'px';
+		pageCopy.style.top = (pr.top - dy) + 'px';
+		copy.appendChild(pageCopy);
+	}
+
+	// Moves the copy of the SVG from the content of the container to the
+	// visible part of it that the copy of the canvas covers
+	svgCopy.style.left = (parseFloat(svgCopy.style.left) - c.scrollLeft) + 'px';
+	svgCopy.style.top = (parseFloat(svgCopy.style.top) - c.scrollTop) + 'px';
+	copy.appendChild(svgCopy);
+
+	return copy;
+};
+
+/**
+ * Fades the diagram in (its shapes, connectors and handles, not the page,
+ * the grid and the background image under them) and the given elements
+ * over Format.hoverPreviewDuration: the other half of a crossfade from a
+ * copy that does not cover the canvas (without an opaque ground, see
+ * getGroundColor). removeCopies ends these fades.
+ */
+Format.HoverPreview.prototype.fadeIn = function(elts)
+{
+	var view = this.graph.view;
+	var nodes = [view.getDrawPane(), view.getOverlayPane(), view.getDecoratorPane()].concat(elts || []);
+
+	var track = mxUtils.bind(this, function(anim)
+	{
+		var remove = mxUtils.bind(this, function()
+		{
+			var index = mxUtils.indexOf(this.fades, anim);
+
+			if (index >= 0)
+			{
+				this.fades.splice(index, 1);
+			}
+		});
+
+		anim.onfinish = remove;
+		anim.oncancel = remove;
+		this.fades.push(anim);
+	});
+
+	for (var i = 0; i < nodes.length; i++)
+	{
+		if (nodes[i] != null && typeof nodes[i].animate === 'function')
+		{
+			track(nodes[i].animate([{opacity: 0}, {opacity: 1}],
+				{duration: Format.hoverPreviewDuration, easing: 'ease-out'}));
+		}
+	}
 };
 
 /**

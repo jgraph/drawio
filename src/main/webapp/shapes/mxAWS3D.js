@@ -982,6 +982,15 @@ mxShapeAws3dAMI.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeAws3dAMI.prototype.cst.AMI, mxShapeAws3dAMI);
 
+mxShapeAws3dAMI.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.601, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.4, 1), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.465), false),
+	new mxConnectionConstraint(new mxPoint(0.931, 0.232), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.648), false),
+	new mxConnectionConstraint(new mxPoint(0.07, 0.412), false)
+];
+
 //**********************************************************************************************************************************************************
 //Snapshot
 //**********************************************************************************************************************************************************
@@ -1125,6 +1134,15 @@ mxShapeAws3dSnapshot.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dSnapshot.prototype.cst.SNAPSHOT, mxShapeAws3dSnapshot);
+
+mxShapeAws3dSnapshot.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.399, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.6, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.465), false),
+	new mxConnectionConstraint(new mxPoint(0.93, 0.412), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.648), false),
+	new mxConnectionConstraint(new mxPoint(0.069, 0.232), false)
+];
 
 //**********************************************************************************************************************************************************
 //Application
@@ -1274,6 +1292,17 @@ mxShapeAws3dApplication.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeAws3dApplication.prototype.cst.APPLICATION, mxShapeAws3dApplication);
 
+mxShapeAws3dApplication.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.501, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.501, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.501), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.501), false),
+	new mxConnectionConstraint(new mxPoint(0.991, 0.25), false),
+	new mxConnectionConstraint(new mxPoint(0.991, 0.753), false),
+	new mxConnectionConstraint(new mxPoint(0.009, 0.753), false),
+	new mxConnectionConstraint(new mxPoint(0.009, 0.25), false)
+];
+
 //**********************************************************************************************************************************************************
 //Application Server
 //**********************************************************************************************************************************************************
@@ -1421,6 +1450,17 @@ mxShapeAws3dApplicationServer.prototype.foreground = function(c, x, y, w, h, str
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dApplicationServer.prototype.cst.APPLICATION_SERVER, mxShapeAws3dApplicationServer);
+
+mxShapeAws3dApplicationServer.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.505), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.505), false),
+	new mxConnectionConstraint(new mxPoint(0.995, 0.283), false),
+	new mxConnectionConstraint(new mxPoint(0.995, 0.726), false),
+	new mxConnectionConstraint(new mxPoint(0.005, 0.726), false),
+	new mxConnectionConstraint(new mxPoint(0.005, 0.283), false)
+];
 
 //**********************************************************************************************************************************************************
 //CloudFront
@@ -1686,6 +1726,17 @@ mxShapeAws3dCloudFront.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeAws3dCloudFront.prototype.cst.CLOUDFRONT, mxShapeAws3dCloudFront);
 
+mxShapeAws3dCloudFront.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.495, 0.05), false),
+	new mxConnectionConstraint(new mxPoint(0.506, 0.971), false),
+	new mxConnectionConstraint(new mxPoint(0.059, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(0.942, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(0.942, 0.207), false),
+	new mxConnectionConstraint(new mxPoint(0.994, 0.896), false),
+	new mxConnectionConstraint(new mxPoint(0.007, 0.794), false),
+	new mxConnectionConstraint(new mxPoint(0.059, 0.104), false)
+];
+
 //**********************************************************************************************************************************************************
 //Data Center
 //**********************************************************************************************************************************************************
@@ -1831,6 +1882,17 @@ mxShapeAws3dDataCenter.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeAws3dDataCenter.prototype.cst.DATA_CENTER, mxShapeAws3dDataCenter);
 
+mxShapeAws3dDataCenter.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.501, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.499), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.499), false),
+	new mxConnectionConstraint(new mxPoint(0.995, 0.248), false),
+	new mxConnectionConstraint(new mxPoint(0.995, 0.749), false),
+	new mxConnectionConstraint(new mxPoint(0.005, 0.749), false),
+	new mxConnectionConstraint(new mxPoint(0.005, 0.248), false)
+];
+
 //**********************************************************************************************************************************************************
 //Data Server
 //**********************************************************************************************************************************************************
@@ -1967,6 +2029,17 @@ mxShapeAws3dDataServer.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dDataServer.prototype.cst.DATA_SERVER, mxShapeAws3dDataServer);
+
+mxShapeAws3dDataServer.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(0.992, 0.329), false),
+	new mxConnectionConstraint(new mxPoint(0.995, 0.668), false),
+	new mxConnectionConstraint(new mxPoint(0.005, 0.668), false),
+	new mxConnectionConstraint(new mxPoint(0.008, 0.329), false)
+];
 
 //**********************************************************************************************************************************************************
 //Elastic Load Balancing
@@ -2167,6 +2240,17 @@ mxShapeAws3dElasticLoadBalancing.prototype.paintVertexShape = function(c, x, y, 
 
 mxCellRenderer.registerShape(mxShapeAws3dElasticLoadBalancing.prototype.cst.ELASTIC_LOAD_BALANCING, mxShapeAws3dElasticLoadBalancing);
 
+mxShapeAws3dElasticLoadBalancing.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.499), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.499), false),
+	new mxConnectionConstraint(new mxPoint(0.994, 0.195), false),
+	new mxConnectionConstraint(new mxPoint(0.991, 0.805), false),
+	new mxConnectionConstraint(new mxPoint(0.009, 0.805), false),
+	new mxConnectionConstraint(new mxPoint(0.006, 0.195), false)
+];
+
 //**********************************************************************************************************************************************************
 //Instance
 //**********************************************************************************************************************************************************
@@ -2315,6 +2399,17 @@ mxShapeAws3dInstance.prototype.foreground = function(c, x, y, w, h, strokeWidth,
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dInstance.prototype.cst.INSTANCE, mxShapeAws3dInstance);
+
+mxShapeAws3dInstance.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.497, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.456), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.456), false),
+	new mxConnectionConstraint(new mxPoint(0.993, 0.268), false),
+	new mxConnectionConstraint(new mxPoint(0.996, 0.642), false),
+	new mxConnectionConstraint(new mxPoint(0.005, 0.638), false),
+	new mxConnectionConstraint(new mxPoint(0.007, 0.268), false)
+];
 
 //**********************************************************************************************************************************************************
 //Internet Gateway
@@ -2543,6 +2638,17 @@ mxShapeAws3dInternetGateway.prototype.foreground = function(c, x, y, w, h, strok
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dInternetGateway.prototype.cst.INTERNET_GATEWAY, mxShapeAws3dInternetGateway);
+
+mxShapeAws3dInternetGateway.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.501, 0.029), false),
+	new mxConnectionConstraint(new mxPoint(0.11, 1), false),
+	new mxConnectionConstraint(new mxPoint(0.053, 0.506), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.241), false),
+	new mxConnectionConstraint(new mxPoint(0.992, 0.064), false),
+	new mxConnectionConstraint(new mxPoint(0.98, 0.433), false),
+	new mxConnectionConstraint(new mxPoint(0.009, 0.935), false),
+	new mxConnectionConstraint(new mxPoint(0.317, 0.103), false)
+];
 
 //**********************************************************************************************************************************************************
 //Oracle Data Center
@@ -2899,6 +3005,8 @@ mxShapeAws3dOracleDataCenter.prototype.foreground = function(c, x, y, w, h, stro
 
 mxCellRenderer.registerShape(mxShapeAws3dOracleDataCenter.prototype.cst.ORACLE_DATA_CENTER, mxShapeAws3dOracleDataCenter);
 
+mxShapeAws3dOracleDataCenter.prototype.constraints = mxShapeAws3dDataCenter.prototype.constraints;
+
 //**********************************************************************************************************************************************************
 //Oracle Database Server
 //**********************************************************************************************************************************************************
@@ -3249,6 +3357,17 @@ mxShapeAws3dOracleDatabaseServer.prototype.foreground = function(c, x, y, w, h, 
 
 mxCellRenderer.registerShape(mxShapeAws3dOracleDatabaseServer.prototype.cst.ORACLE_DB_SERVER, mxShapeAws3dOracleDatabaseServer);//zzz
 
+mxShapeAws3dOracleDatabaseServer.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.53), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.53), false),
+	new mxConnectionConstraint(new mxPoint(0.874, 0.132), false),
+	new mxConnectionConstraint(new mxPoint(0.996, 0.735), false),
+	new mxConnectionConstraint(new mxPoint(0.004, 0.735), false),
+	new mxConnectionConstraint(new mxPoint(0.126, 0.132), false)
+];
+
 //**********************************************************************************************************************************************************
 //RDS Master
 //**********************************************************************************************************************************************************
@@ -3418,6 +3537,17 @@ mxShapeAws3dRdsMaster.prototype.foreground = function(c, x, y, w, h, strokeWidth
 
 mxCellRenderer.registerShape(mxShapeAws3dRdsMaster.prototype.cst.RDS_MASTER, mxShapeAws3dRdsMaster);
 
+mxShapeAws3dRdsMaster.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.53), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.53), false),
+	new mxConnectionConstraint(new mxPoint(0.875, 0.133), false),
+	new mxConnectionConstraint(new mxPoint(0.994, 0.736), false),
+	new mxConnectionConstraint(new mxPoint(0.006, 0.736), false),
+	new mxConnectionConstraint(new mxPoint(0.125, 0.132), false)
+];
+
 //**********************************************************************************************************************************************************
 //RDS
 //**********************************************************************************************************************************************************
@@ -3581,6 +3711,8 @@ mxShapeAws3dRds.prototype.foreground = function(c, x, y, w, h, strokeWidth, stro
 
 mxCellRenderer.registerShape(mxShapeAws3dRds.prototype.cst.RDS, mxShapeAws3dRds);
 
+mxShapeAws3dRds.prototype.constraints = mxShapeAws3dRdsMaster.prototype.constraints;
+
 //**********************************************************************************************************************************************************
 //Route 53
 //**********************************************************************************************************************************************************
@@ -3738,6 +3870,17 @@ mxShapeAws3dRoute53.prototype.foreground = function(c, x, y, w, h, strokeWidth, 
 
 mxCellRenderer.registerShape(mxShapeAws3dRoute53.prototype.cst.ROUTE_53, mxShapeAws3dRoute53);
 
+mxShapeAws3dRoute53.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.501, 0.031), false),
+	new mxConnectionConstraint(new mxPoint(0.504, 0.953), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.439), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(0.995, 0.098), false),
+	new mxConnectionConstraint(new mxPoint(0.838, 0.978), false),
+	new mxConnectionConstraint(new mxPoint(0.005, 0.702), false),
+	new mxConnectionConstraint(new mxPoint(0.043, 0.078), false)
+];
+
 //**********************************************************************************************************************************************************
 //S3 Bucket
 //**********************************************************************************************************************************************************
@@ -3860,6 +4003,17 @@ mxShapeAws3dS3Bucket.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dS3Bucket.prototype.cst.S3_BUCKET, mxShapeAws3dS3Bucket);
+
+mxShapeAws3dS3Bucket.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0.076, 0.494), false),
+	new mxConnectionConstraint(new mxPoint(0.92, 0.495), false),
+	new mxConnectionConstraint(new mxPoint(0.991, 0.273), false),
+	new mxConnectionConstraint(new mxPoint(0.797, 0.831), false),
+	new mxConnectionConstraint(new mxPoint(0.195, 0.831), false),
+	new mxConnectionConstraint(new mxPoint(0.009, 0.273), false)
+];
 
 //**********************************************************************************************************************************************************
 //S3
@@ -4021,6 +4175,17 @@ mxShapeAws3dS3.prototype.foreground = function(c, x, y, w, h, strokeWidth, strok
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dS3.prototype.cst.S3, mxShapeAws3dS3);
+
+mxShapeAws3dS3.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.599, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.401, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.559), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.445), false),
+	new mxConnectionConstraint(new mxPoint(0.997, 0.22), false),
+	new mxConnectionConstraint(new mxPoint(0.997, 0.669), false),
+	new mxConnectionConstraint(new mxPoint(0.003, 0.78), false),
+	new mxConnectionConstraint(new mxPoint(0.003, 0.339), false)
+];
 
 //**********************************************************************************************************************************************************
 //SimpleDB
@@ -4202,6 +4367,8 @@ mxShapeAws3dSimpleDB.prototype.foreground = function(c, x, y, w, h, strokeWidth,
 
 mxCellRenderer.registerShape(mxShapeAws3dSimpleDB.prototype.cst.SIMPLE_DB, mxShapeAws3dSimpleDB);
 
+mxShapeAws3dSimpleDB.prototype.constraints = mxShapeAws3dRdsMaster.prototype.constraints;
+
 //**********************************************************************************************************************************************************
 //SQS
 //**********************************************************************************************************************************************************
@@ -4375,6 +4542,17 @@ mxShapeAws3dSqs.prototype.foreground = function(c, x, y, w, h, strokeWidth, stro
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dSqs.prototype.cst.SQS, mxShapeAws3dSqs);
+
+mxShapeAws3dSqs.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0.033, 0.502), false),
+	new mxConnectionConstraint(new mxPoint(0.967, 0.502), false),
+	new mxConnectionConstraint(new mxPoint(0.834, 0.167), false),
+	new mxConnectionConstraint(new mxPoint(0.998, 0.752), false),
+	new mxConnectionConstraint(new mxPoint(0.003, 0.75), false),
+	new mxConnectionConstraint(new mxPoint(0.166, 0.167), false)
+];
 
 //**********************************************************************************************************************************************************
 //VPC Gateway
@@ -4609,6 +4787,17 @@ mxShapeAws3dVpcGateway.prototype.foreground = function(c, x, y, w, h, strokeWidt
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dVpcGateway.prototype.cst.VPC_GATEWAY, mxShapeAws3dVpcGateway);
+
+mxShapeAws3dVpcGateway.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.499, 0.029), false),
+	new mxConnectionConstraint(new mxPoint(0.89, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.241), false),
+	new mxConnectionConstraint(new mxPoint(0.947, 0.506), false),
+	new mxConnectionConstraint(new mxPoint(0.683, 0.103), false),
+	new mxConnectionConstraint(new mxPoint(0.991, 0.935), false),
+	new mxConnectionConstraint(new mxPoint(0.02, 0.433), false),
+	new mxConnectionConstraint(new mxPoint(0.008, 0.064), false)
+];
 
 //**********************************************************************************************************************************************************
 //Web Server
@@ -5000,6 +5189,17 @@ mxShapeAws3dDynamoDB.prototype.foreground = function(c, x, y, w, h, strokeWidth,
 
 mxCellRenderer.registerShape(mxShapeAws3dDynamoDB.prototype.cst.DYNAMO_DB, mxShapeAws3dDynamoDB);
 
+mxShapeAws3dDynamoDB.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.506, 0.159), false),
+	new mxConnectionConstraint(new mxPoint(0.496, 0.919), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.501), false),
+	new mxConnectionConstraint(new mxPoint(0.997, 0.167), false),
+	new mxConnectionConstraint(new mxPoint(0.997, 0.835), false),
+	new mxConnectionConstraint(new mxPoint(0.003, 0.835), false),
+	new mxConnectionConstraint(new mxPoint(0.003, 0.165), false)
+];
+
 //**********************************************************************************************************************************************************
 //Elastic MapReduce
 //**********************************************************************************************************************************************************
@@ -5213,6 +5413,8 @@ mxShapeAws3dElasticMapReduce.prototype.foreground = function(c, x, y, w, h, stro
 
 mxCellRenderer.registerShape(mxShapeAws3dElasticMapReduce.prototype.cst.ELASTIC_MAP_REDUCE, mxShapeAws3dElasticMapReduce);
 
+mxShapeAws3dElasticMapReduce.prototype.constraints = mxShapeAws3dRdsMaster.prototype.constraints;
+
 //**********************************************************************************************************************************************************
 //RDS Slave
 //**********************************************************************************************************************************************************
@@ -5390,6 +5592,8 @@ mxShapeAws3dRdsSlave.prototype.foreground = function(c, x, y, w, h, strokeWidth,
 
 mxCellRenderer.registerShape(mxShapeAws3dRdsSlave.prototype.cst.RDS_SLAVE, mxShapeAws3dRdsSlave);
 
+mxShapeAws3dRdsSlave.prototype.constraints = mxShapeAws3dRdsMaster.prototype.constraints;
+
 //**********************************************************************************************************************************************************
 //AMI
 //**********************************************************************************************************************************************************
@@ -5548,6 +5752,15 @@ mxShapeAws3dAMI2.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeAws3dAMI2.prototype.cst.AMI_2, mxShapeAws3dAMI2);
 
+mxShapeAws3dAMI2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.504, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.502, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.572), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.566), false),
+	new mxConnectionConstraint(new mxPoint(0.916, 0.283), false),
+	new mxConnectionConstraint(new mxPoint(0.087, 0.284), false)
+];
+
 //**********************************************************************************************************************************************************
 //EBS
 //**********************************************************************************************************************************************************
@@ -5687,6 +5900,15 @@ mxShapeAws3dEbs.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dEbs.prototype.cst.EBS, mxShapeAws3dEbs);
+
+mxShapeAws3dEbs.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.403, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.601, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.473), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.645), false),
+	new mxConnectionConstraint(new mxPoint(0.93, 0.464), false),
+	new mxConnectionConstraint(new mxPoint(0.071, 0.29), false)
+];
 
 //**********************************************************************************************************************************************************
 //Oracle  Server
@@ -6036,6 +6258,8 @@ mxShapeAws3dOracleServer.prototype.foreground = function(c, x, y, w, h, strokeWi
 
 mxCellRenderer.registerShape(mxShapeAws3dOracleServer.prototype.cst.ORACLE_SERVER, mxShapeAws3dOracleServer);
 
+mxShapeAws3dOracleServer.prototype.constraints = mxShapeAws3dDataCenter.prototype.constraints;
+
 //**********************************************************************************************************************************************************
 //Secure Connection
 //**********************************************************************************************************************************************************
@@ -6128,6 +6352,17 @@ mxShapeAws3dSecureConnection.prototype.foreground = function(c, x, y, w, h, stro
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dSecureConnection.prototype.cst.SECURE_CONNECTION, mxShapeAws3dSecureConnection);
+
+mxShapeAws3dSecureConnection.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.429, 0.008), false),
+	new mxConnectionConstraint(new mxPoint(0.573, 0.983), false),
+	new mxConnectionConstraint(new mxPoint(0.005, 0.425), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.561), false),
+	new mxConnectionConstraint(new mxPoint(0.817, 0.168), false),
+	new mxConnectionConstraint(new mxPoint(0.872, 0.874), false),
+	new mxConnectionConstraint(new mxPoint(0.185, 0.824), false),
+	new mxConnectionConstraint(new mxPoint(0.108, 0.147), false)
+];
 
 //**********************************************************************************************************************************************************
 //Email Service
@@ -6345,6 +6580,17 @@ mxShapeAws3dEmailService.prototype.foreground = function(c, x, y, w, h, strokeWi
 
 mxCellRenderer.registerShape(mxShapeAws3dEmailService.prototype.cst.EMAIL_SERVICE, mxShapeAws3dEmailService);
 
+mxShapeAws3dEmailService.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.502, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.498, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.499), false),
+	new mxConnectionConstraint(new mxPoint(0.997, 0.178), false),
+	new mxConnectionConstraint(new mxPoint(0.996, 0.82), false),
+	new mxConnectionConstraint(new mxPoint(0.005, 0.82), false),
+	new mxConnectionConstraint(new mxPoint(0.005, 0.18), false)
+];
+
 //**********************************************************************************************************************************************************
 //Worker
 //**********************************************************************************************************************************************************
@@ -6544,6 +6790,15 @@ mxShapeAws3dWorker.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeAws3dWorker.prototype.cst.WORKER, mxShapeAws3dWorker);
 
+mxShapeAws3dWorker.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.504, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.502, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.572), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.566), false),
+	new mxConnectionConstraint(new mxPoint(0.919, 0.286), false),
+	new mxConnectionConstraint(new mxPoint(0.087, 0.283), false)
+];
+
 //**********************************************************************************************************************************************************
 //Application
 //**********************************************************************************************************************************************************
@@ -6691,6 +6946,17 @@ mxShapeAws3dApplication2.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dApplication2.prototype.cst.APPLICATION2, mxShapeAws3dApplication2);
+
+mxShapeAws3dApplication2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.501), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.501), false),
+	new mxConnectionConstraint(new mxPoint(0.989, 0.32), false),
+	new mxConnectionConstraint(new mxPoint(0.986, 0.685), false),
+	new mxConnectionConstraint(new mxPoint(0.014, 0.685), false),
+	new mxConnectionConstraint(new mxPoint(0.011, 0.32), false)
+];
 
 //**********************************************************************************************************************************************************
 //Elastic Beanstalk
@@ -6918,6 +7184,17 @@ mxShapeAws3dElasticBeanstalk.prototype.paintVertexShape = function(c, x, y, w, h
 
 mxCellRenderer.registerShape(mxShapeAws3dElasticBeanstalk.prototype.cst.ELASTIC_BEANSTALK, mxShapeAws3dElasticBeanstalk);
 
+mxShapeAws3dElasticBeanstalk.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.498), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.498), false),
+	new mxConnectionConstraint(new mxPoint(0.996, 0.373), false),
+	new mxConnectionConstraint(new mxPoint(0.994, 0.629), false),
+	new mxConnectionConstraint(new mxPoint(0.006, 0.629), false),
+	new mxConnectionConstraint(new mxPoint(0.004, 0.373), false)
+];
+
 //**********************************************************************************************************************************************************
 //SimpleDB 2
 //**********************************************************************************************************************************************************
@@ -7117,6 +7394,17 @@ mxShapeAws3dSimpleDB2.prototype.foreground = function(c, x, y, w, h, strokeWidth
 
 mxCellRenderer.registerShape(mxShapeAws3dSimpleDB2.prototype.cst.SIMPLE_DB_2, mxShapeAws3dSimpleDB2);
 
+mxShapeAws3dSimpleDB2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.481, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.504, 0.912), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.501), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.501), false),
+	new mxConnectionConstraint(new mxPoint(0.998, 0.182), false),
+	new mxConnectionConstraint(new mxPoint(0.997, 0.82), false),
+	new mxConnectionConstraint(new mxPoint(0.003, 0.82), false),
+	new mxConnectionConstraint(new mxPoint(0.003, 0.183), false)
+];
+
 //**********************************************************************************************************************************************************
 //Workflow Service
 //**********************************************************************************************************************************************************
@@ -7300,6 +7588,17 @@ mxShapeAws3dWorkflowService.prototype.foreground = function(c, x, y, w, h, strok
 
 mxCellRenderer.registerShape(mxShapeAws3dWorkflowService.prototype.cst.WORKFLOW_SERVICE, mxShapeAws3dWorkflowService);
 
+mxShapeAws3dWorkflowService.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.499, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.499, 1), false),
+	new mxConnectionConstraint(new mxPoint(0.055, 0.503), false),
+	new mxConnectionConstraint(new mxPoint(0.945, 0.504), false),
+	new mxConnectionConstraint(new mxPoint(0.751, 0.003), false),
+	new mxConnectionConstraint(new mxPoint(0.997, 0.647), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.649), false),
+	new mxConnectionConstraint(new mxPoint(0.247, 0.002), false)
+];
+
 //**********************************************************************************************************************************************************
 //Decider
 //**********************************************************************************************************************************************************
@@ -7466,6 +7765,8 @@ mxShapeAws3dDecider.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dDecider.prototype.cst.DECIDER, mxShapeAws3dDecider);
+
+mxShapeAws3dDecider.prototype.constraints = mxShapeAws3dWorker.prototype.constraints;
 
 //**********************************************************************************************************************************************************
 //Search Engine
@@ -7679,6 +7980,17 @@ mxShapeAws3dSearchEngine.prototype.foreground = function(c, x, y, w, h, strokeWi
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dSearchEngine.prototype.cst.SEARCH_ENGINE, mxShapeAws3dSearchEngine);
+
+mxShapeAws3dSearchEngine.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.501, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.501, 1), false),
+	new mxConnectionConstraint(new mxPoint(0.166, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(0.833, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(0.833, 0.183), false),
+	new mxConnectionConstraint(new mxPoint(0.999, 0.728), false),
+	new mxConnectionConstraint(new mxPoint(0.001, 0.728), false),
+	new mxConnectionConstraint(new mxPoint(0.167, 0.183), false)
+];
 
 //**********************************************************************************************************************************************************
 //Security Token Service
@@ -7923,6 +8235,8 @@ mxShapeAws3dSecurityTokenService.prototype.foreground = function(c, x, y, w, h, 
 
 mxCellRenderer.registerShape(mxShapeAws3dSecurityTokenService.prototype.cst.SECURITY_TOKEN_SERVICE, mxShapeAws3dSecurityTokenService);
 
+mxShapeAws3dSecurityTokenService.prototype.constraints = mxShapeAws3dSearchEngine.prototype.constraints;
+
 //**********************************************************************************************************************************************************
 //Glacier
 //**********************************************************************************************************************************************************
@@ -8076,6 +8390,17 @@ mxShapeAws3dGlacier.prototype.foreground = function(c, x, y, w, h, strokeWidth, 
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dGlacier.prototype.cst.GLACIER, mxShapeAws3dGlacier);
+
+mxShapeAws3dGlacier.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.501, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0.019, 0.502), false),
+	new mxConnectionConstraint(new mxPoint(0.98, 0.503), false),
+	new mxConnectionConstraint(new mxPoint(0.831, 0.181), false),
+	new mxConnectionConstraint(new mxPoint(0.996, 0.821), false),
+	new mxConnectionConstraint(new mxPoint(0.003, 0.82), false),
+	new mxConnectionConstraint(new mxPoint(0.166, 0.18), false)
+];
 
 //**********************************************************************************************************************************************************
 //Customer Gateway
@@ -8332,6 +8657,8 @@ mxShapeAws3dCustomerGateway.prototype.foreground = function(c, x, y, w, h, strok
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dCustomerGateway.prototype.cst.CUSTOMER_GATEWAY, mxShapeAws3dCustomerGateway);
+
+mxShapeAws3dCustomerGateway.prototype.constraints = mxShapeAws3dInternetGateway.prototype.constraints;
 
 //**********************************************************************************************************************************************************
 //Redshift
@@ -8617,6 +8944,17 @@ mxShapeAws3dRedshift.prototype.foreground = function(c, x, y, w, h, strokeWidth,
 
 mxCellRenderer.registerShape(mxShapeAws3dRedshift.prototype.cst.REDSHIFT, mxShapeAws3dRedshift);
 
+mxShapeAws3dRedshift.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.5, 0.069), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 0.932), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(0.85, 0.178), false),
+	new mxConnectionConstraint(new mxPoint(0.969, 0.986), false),
+	new mxConnectionConstraint(new mxPoint(0.148, 0.822), false),
+	new mxConnectionConstraint(new mxPoint(0.037, 0.016), false)
+];
+
 //**********************************************************************************************************************************************************
 //Lambda
 //**********************************************************************************************************************************************************
@@ -8805,6 +9143,17 @@ mxShapeAws3dLambda.prototype.foreground = function(c, x, y, w, h, strokeWidth, s
 
 mxCellRenderer.registerShape(mxShapeAws3dLambda.prototype.cst.LAMBDA, mxShapeAws3dLambda);
 
+mxShapeAws3dLambda.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.503, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.503, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.501), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.502), false),
+	new mxConnectionConstraint(new mxPoint(0.994, 0.164), false),
+	new mxConnectionConstraint(new mxPoint(0.993, 0.84), false),
+	new mxConnectionConstraint(new mxPoint(0.005, 0.839), false),
+	new mxConnectionConstraint(new mxPoint(0.006, 0.164), false)
+];
+
 //**********************************************************************************************************************************************************
 //EBS 2
 //**********************************************************************************************************************************************************
@@ -8975,6 +9324,8 @@ mxShapeAws3dEbs2.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dEbs2.prototype.cst.EBS2, mxShapeAws3dEbs2);
+
+mxShapeAws3dEbs2.prototype.constraints = mxShapeAws3dEbs.prototype.constraints;
 
 //**********************************************************************************************************************************************************
 //Elasticache
@@ -9656,3 +10007,20 @@ mxCellRenderer.registerShape(mxShapeAws3dEbs2.prototype.cst.EBS2, mxShapeAws3dEb
 //
 //mxCellRenderer.registerShape(mxShapeAws3dSqs2.prototype.cst.SQS2, mxShapeAws3dSqs2);
 
+
+//**********************************************************************************************************************************************************
+//Snap points
+//**********************************************************************************************************************************************************
+// The AWS 3D shapes had no connection points when floating ends could first snap to
+// connection points (snapToPoint=1), so these ends do not snap to the points
+// above (see mxShape.getSnapConstraints in js/grapheditor/Graph.js)
+mxUtils.forEach(Object.keys(mxCellRenderer.defaultShapes), function(name)
+{
+	if (name.indexOf('mxgraph.aws3d.') == 0)
+	{
+		mxCellRenderer.defaultShapes[name].prototype.getSnapConstraints = function(style, w, h)
+		{
+			return [];
+		};
+	}
+});

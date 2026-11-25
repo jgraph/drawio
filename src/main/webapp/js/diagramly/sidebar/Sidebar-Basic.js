@@ -39,7 +39,7 @@
 			this.createVertexTemplateEntry(s2 + 'cone', w, h, '', 'Cone', null, null, this.getTagsForStencil(gn, 'cone', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'cone2;dx=0.5;dy=0.9;', w, h, '', 'Cone (adjustable)', null, null, this.getTagsForStencil(gn, 'cone', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'document', w, h, '', 'Document', null, null, this.getTagsForStencil(gn, 'document', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'donut;dx=25;', w, h, '', 'Donut', null, null, this.getTagsForStencil(gn, 'donut', dt).join(' ')),
+			this.createVertexTemplateEntry(s2 + 'donut;dx=25;perimeter=ellipsePerimeter;', w, h, '', 'Donut', null, null, this.getTagsForStencil(gn, 'donut', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'drop', w * 0.7, h, '', 'Drop', null, null, this.getTagsForStencil(gn, 'drop', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'flash', w * 0.6, h, '', 'Flash', null, null, this.getTagsForStencil(gn, 'flash', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'half_circle', w, h * 0.5, '', 'Half Circle', null, null, this.getTagsForStencil(gn, 'half_circle', dt + ' semicircle').join(' ')),

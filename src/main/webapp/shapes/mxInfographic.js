@@ -181,7 +181,56 @@ mxShapeInfographicBendingArch.prototype.paintVertexShape = function(c, x, y, w, 
 
 mxCellRenderer.registerShape(mxShapeInfographicBendingArch.prototype.cst.BENDING_ARCH, mxShapeInfographicBendingArch);
 
-mxShapeInfographicBendingArch.prototype.constraints = null;
+/**
+ * The ends and the middle of the outer arc, the ends of the inner arc on bands at least a fifth
+ * of the radius wide and the centre, from the angles and the width of the style (handles).
+ */
+mxShapeInfographicBendingArch.prototype.getConstraints = function(style, w, h)
+{
+	var fraction = function(key, defaultValue)
+	{
+		var value = parseFloat(mxUtils.getValue(style, key, defaultValue));
+
+		return (isNaN(value)) ? defaultValue : Math.max(0, Math.min(1, value));
+	};
+
+	var point = function(turn, k)
+	{
+		var a = 2 * Math.PI * turn;
+
+		return new mxConnectionConstraint(new mxPoint(0.5 + Math.sin(a) * 0.5 * k, 0.5 - Math.cos(a) * 0.5 * k), false);
+	};
+
+	var start = fraction('startAngle', this.startAngle);
+	var end = fraction('endAngle', this.endAngle);
+	var arcWidth = fraction('arcWidth', this.arcWidth);
+	var d = end - start;
+	var constr = [point(start, 1), point(end, 1)];
+
+	// No middle if both ends are at the same place, where no arc is painted
+	if (d != 0 && Math.abs(d) != 1)
+	{
+		constr.push(point(start + ((d < 0) ? d + 1 : d) / 2, 1));
+	}
+
+	if (arcWidth >= 0.2)
+	{
+		constr.push(point(start, 1 - arcWidth));
+		constr.push(point(end, 1 - arcWidth));
+	}
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0.5), false));
+
+	return constr;
+};
+
+// The bending arch had no connection points when floating ends could first snap to
+// connection points (snapToPoint=1), so these ends do not snap to the points
+// above (see mxShape.getSnapConstraints in js/grapheditor/Graph.js)
+mxShapeInfographicBendingArch.prototype.getSnapConstraints = function(style, w, h)
+{
+	return [];
+};
 
 Graph.handleFactory[mxShapeInfographicBendingArch.prototype.cst.BENDING_ARCH] = function(state)
 {

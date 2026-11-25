@@ -2,6 +2,21 @@
  * Copyright (c) 2020-2025, JGraph Holdings Ltd
  * Copyright (c) 2020-2025, draw.io AG
  */
+// The bundle for third parties is a public build, in the public repository
+// and in the internal builds alike, as it is one file for both (the driver,
+// 22 November 2026): the dialogs and menus of before, the rows of
+// Editor.featureDefaults without publicBuild are off (Editor.isPublicBuild).
+// The other public builds are marked with none in Editor.fusionThemeBuild of
+// FusionTheme.js, which this bundle does not have (atlas.min.js), so it sets
+// the mark and its check here
+Editor.fusionThemeBuild = 'none';
+Editor.fusionThemeAvailable = false;
+
+Editor.isPublicBuild = function()
+{
+	return !Editor.fusionThemeAvailable;
+};
+
 // Disables eval for JS (uses shapes.min.js)
 mxStencilRegistry.allowEval = false;
 

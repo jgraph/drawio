@@ -18,9 +18,9 @@
  *
  * The theme is called Fusion (the driver, 9 November 2026). Its value is
  * fusion: the URL parameter ui=fusion or the stored theme (Theme ▸ Fusion
- * (Beta), listed on app.diagrams.net and elsewhere with test=1, see
- * Editor.fusionThemeOffered below, and a stored Fusion applies only there);
- * modern, its value
+ * (Beta), listed on app.diagrams.net and preprod.diagrams.net and elsewhere
+ * with test=1, see Editor.fusionThemeOffered below, and a stored Fusion
+ * applies only there); modern, its value
  * before the name, is an alias (see Editor.isFusionTheme). The code keeps
  * the names of before (Simple*.js, Editor.modernTheme, isSimpleModern,
  * .geSimpleModern, --sm-). Inside the app
@@ -70,6 +70,20 @@ Editor.fusionThemeBuild = 'none';
 Editor.fusionThemeAvailable = Editor.fusionThemeBuild != 'none';
 
 /**
+ * True in the public build, where the build wrote none into
+ * Editor.fusionThemeBuild (see Editor.isPublicBuild in grapheditor/Editor.js):
+ * it has neither the theme nor the new dialogs and menus of its work in the
+ * other themes, whose rows in Editor.featureDefaults are off there, so that
+ * it shows the dialogs and menus of before (the driver, 22 November 2026:
+ * "auf die bisherigen. fusion theme mit dialogen bleibt in den internen
+ * builds").
+ */
+Editor.isPublicBuild = function()
+{
+	return !Editor.fusionThemeAvailable;
+};
+
+/**
  * False in browsers without the CSS function light-dark, which the colors of
  * the theme need (its tokens are light-dark values; see
  * Editor.loadCompatibleCss), and in builds without the theme
@@ -90,11 +104,15 @@ Editor.modernAlias = urlParams['simple'] == 'new';
  * our own web app (the driver, 12 November 2026: "Das Fusion-Theme soll nicht
  * angezeigt werden im Menü. Ausser bei test=1. Ausser bei app.diagrams.net,
  * unserer eigenen Web-App-Domäne. Dort soll sie angezeigt werden. Als Beta
- * markiert im Menü, wie vorher."). Exact host names, no other subdomains of
+ * markiert im Menü, wie vorher."), and preprod.diagrams.net, where each
+ * release is tested before it goes to app.diagrams.net (the driver, 13
+ * November 2026: "die Theme-Option im Menü für Fusion Beta sollte auch im
+ * Preprod angezeigt werden"; the host name of App.termsHosts and
+ * App.driveUsageHosts). Exact host names, no other subdomains of
  * diagrams.net. The preload of the stored theme in bootstrap.js has the same
  * list and must be changed together with it.
  */
-Editor.fusionThemeHosts = ['app.diagrams.net'];
+Editor.fusionThemeHosts = ['app.diagrams.net', 'preprod.diagrams.net'];
 
 /**
  * Returns true if the given host name (window.location.hostname) is one of
@@ -108,8 +126,9 @@ Editor.isFusionThemeHost = function(hostname)
 /**
  * THE OFFER OF THE THEME, the one switch that decides whether the theme
  * Fusion is offered without a URL parameter. True only in the web app on
- * Editor.fusionThemeHosts (app.diagrams.net) outside embeds, Teams
- * (extAuth=1) and chromeless views (the driver, 12 November 2026), so the
+ * Editor.fusionThemeHosts (app.diagrams.net and preprod.diagrams.net) outside
+ * embeds, Teams (extAuth=1) and chromeless views (the driver, 12 and 13
+ * November 2026), so the
  * desktop app, the embeds (Confluence, Jira and the hosts of the embed
  * protocol), the viewer and every other host are not offered the theme
  * (the driver, 11 November 2026: "der direkte Link mit ?ui=fusion soll
@@ -136,9 +155,9 @@ if (Editor.modernTheme)
 
 // A stored Fusion (not ui=fusion or ui=modern in the URL) applies only with
 // test=1 where the theme is not offered (Editor.fusionThemeOffered, every
-// host but app.diagrams.net): else it opens the previous look of the Simple
-// theme and the stored value is kept, so that test=1 shows it again (as in
-// browsers without light-dark below)
+// host but app.diagrams.net and preprod.diagrams.net): else it opens the
+// previous look of the Simple theme and the stored value is kept, so that
+// test=1 shows it again (as in browsers without light-dark below)
 if (Editor.modernTheme && !Editor.fusionThemeOffered && urlParams['test'] != '1' &&
 	!Editor.isFusionTheme(urlParams['ui']))
 {
@@ -193,7 +212,8 @@ Editor.isModernSession = function()
  * in the URL without test=1, or a switch into it), so that it shows as
  * chosen and a switch back to it after a switch to another theme needs no
  * restart, and where it is offered (Editor.fusionThemeOffered, the web app
- * on app.diagrams.net). A stored Fusion does not list it: without test=1 it
+ * on app.diagrams.net and preprod.diagrams.net). A stored Fusion does not
+ * list it: without test=1 it
  * opens the previous look of the Simple theme, which the menu then shows as
  * chosen (see getThemeMenuValue), unless the theme is offered. Embeds (embed=1 with
  * themes=1) list it only with test=1 or in a session of the theme: a stored
@@ -554,7 +574,7 @@ SimpleUi.scripts = ['SimpleUi.js', 'SimpleFormat.js', 'SimpleModern.js', 'Simple
 	'SimplePanels.js', 'SimpleAnimation.js', 'SimpleVersions.js', 'SimpleDataSources.js',
 	'SimplePageSetup.js', 'SimpleMarkup.js', 'SimplePages.js', 'SimpleMenus.js',
 	'SimpleWording.js', 'SimpleHelp.js', 'SimpleGenerate.js', 'SimpleShapeLibraries.js',
-	'SimpleUsedShapes.js', 'SimpleInlineToolbar.js', 'SimpleTidy.js'];
+	'SimpleUsedShapes.js', 'SimpleTidy.js'];
 
 /**
  * The bundle of the scripts of the theme. Its URL is the one of the script
@@ -894,17 +914,80 @@ SimpleUi.setThemeNotice = function(value)
 };
 
 /**
- * Stores the given theme of before a switch to the theme Fusion for the
- * notice of the theme, unless the notice was closed.
+ * Stores the given theme of before a switch to the theme Fusion and the time
+ * of the switch for the notice of the theme, Help ▸ Back to the previous
+ * theme (SimpleHelp.js) and the count of the days in the theme
+ * (logThemeSwitch). A notice that was closed stays closed: only the theme
+ * and the time change, so it is not shown again.
  */
 SimpleUi.recordThemeNotice = function(before)
 {
 	var state = SimpleUi.getThemeNotice();
+	var closed = state != null && state.closed;
 
-	if (state == null || !state.closed)
+	SimpleUi.setThemeNotice({previous: (mxUtils.indexOf(SimpleUi.themeNoticeThemes,
+		before) >= 0) ? before : '', shown: (closed) ? state.shown : 0,
+		since: Date.now(), closed: closed});
+};
+
+/**
+ * The names of the themes (the values of the theme menu) in the counts of
+ * the switches (logThemeSwitch). Other values count as other.
+ */
+SimpleUi.themeLogNames = {'': 'auto', kennedy: 'classic', dark: 'classic', 'default': 'classic',
+	simple: 'simple', sketch: 'sketch', min: 'minimal', atlas: 'atlas'};
+
+/**
+ * Returns the name of the given theme in the counts of the switches.
+ */
+SimpleUi.getThemeLogName = function(theme)
+{
+	theme = (theme != null) ? theme : '';
+
+	return (Object.prototype.hasOwnProperty.call(SimpleUi.themeLogNames, theme)) ?
+		SimpleUi.themeLogNames[theme] : 'other';
+};
+
+/**
+ * Returns the name of the days since the last switch to the theme Fusion in
+ * the counts of the switches back: 0, 1, 2 to 6, 7 to 27 and 28 or more, or
+ * unknown without a recorded switch (a start with ui=fusion, or a stored
+ * Fusion of before the notice).
+ */
+SimpleUi.getThemeDaysLogName = function(since, now)
+{
+	var days = (since > 0) ? Math.floor((now - since) / (24 * 60 * 60 * 1000)) : -1;
+
+	return (days < 0) ? 'daysUnknown' : ((days <= 1) ? 'days' + days : ((days < 7) ? 'days2to6' :
+		((days < 28) ? 'days7to27' : 'days28plus')));
+};
+
+/**
+ * Counts a switch to or from the theme Fusion with the given value of the
+ * theme menu in the counts of clicks (EditorUi.logUiClick, which counts only
+ * in the sample of sessions, see EditorUi.uiLogRate): theme.toFusion.<the
+ * theme of before>, theme.fromFusion.<the new theme> and
+ * theme.fromFusion.<days since the switch to Fusion>. Only these fixed names
+ * and their counts are sent: no names of files or pages and nothing that
+ * identifies the user or the session (concept "Fusion-Ideen in Simple" 4.6).
+ */
+SimpleUi.logThemeSwitch = function(value)
+{
+	if (typeof EditorUi.logUiClick !== 'function')
 	{
-		SimpleUi.setThemeNotice({previous: (mxUtils.indexOf(SimpleUi.themeNoticeThemes,
-			before) >= 0) ? before : '', shown: 0, since: Date.now(), closed: false});
+		return;
+	}
+
+	if (Editor.isFusionTheme(value) && !Editor.modernTheme)
+	{
+		EditorUi.logUiClick('theme.toFusion.' + SimpleUi.getThemeLogName(Editor.currentTheme));
+	}
+	else if (!Editor.isFusionTheme(value) && Editor.modernTheme)
+	{
+		var state = SimpleUi.getThemeNotice();
+		EditorUi.logUiClick('theme.fromFusion.' + SimpleUi.getThemeLogName(value));
+		EditorUi.logUiClick('theme.fromFusion.' + SimpleUi.getThemeDaysLogName(
+			(state != null) ? state.since : 0, Date.now()));
 	}
 };
 
@@ -925,6 +1008,10 @@ SimpleUi.recordThemeNotice = function(before)
 	EditorUi.prototype.setCurrentTheme = function(value)
 	{
 		var before = null;
+
+		// Counts the switches to and from the theme (before the switch, which
+		// changes the theme)
+		SimpleUi.logThemeSwitch(value);
 
 		// Any switch drops a notice that waits (as in SimpleToast.js)
 		if (typeof this.recordSimpleThemeSwitch !== 'function')

@@ -392,6 +392,8 @@ Sidebar.prototype.expandLibraries = true;
 Sidebar.prototype.refresh = function()
 {
 	var graph = this.editorUi.editor.graph;
+	// The title of the language (refresh runs on languageChanged)
+	this.container.setAttribute('title', mxResources.get('sidebarTooltip'));
 	this.graph.stylesheet.styles = mxUtils.clone(
 		graph.getStylesheet().styles);
 	var scrollTop = this.wrapper.scrollTop;
@@ -2331,6 +2333,43 @@ Sidebar.prototype.getEntrySearchWeight = function(entry)
 };
 
 /**
+ * Returns 1 if one of the given search terms names a parent library of the
+ * given entry (the ID of the library starts with the term, eg. aws for aws4
+ * and aws3d), else 0. It breaks ties after the search weights: of the
+ * shapes with the same score and weight, the shapes of the libraries that
+ * the search names come first. Eg. the slanted texts of the Misc palette
+ * have the tag aws (for the faces of AWS 3D diagrams), as every shape of
+ * AWS has, and Misc is in the search index before the AWS libraries, so
+ * three texts were the first shapes found for aws.
+ */
+Sidebar.prototype.getEntryLibraryMatch = function(entry, terms)
+{
+	if (terms != null && entry.parentLibraries != null)
+	{
+		for (var i = 0; i < entry.parentLibraries.length; i++)
+		{
+			var id = entry.parentLibraries[i].id;
+
+			if (typeof id === 'string')
+			{
+				id = id.toLowerCase();
+
+				for (var j = 0; j < terms.length; j++)
+				{
+					if (terms[j] != null && terms[j].length > 1 &&
+						id.substring(0, terms[j].length) == terms[j])
+					{
+						return 1;
+					}
+				}
+			}
+		}
+	}
+
+	return 0;
+};
+
+/**
  * Splits a token on camelCase and letter-digit boundaries.
  * e.g. "pid2misc" → ["pid", "misc"], "discInst" → ["disc", "inst"]
  */
@@ -2741,12 +2780,16 @@ Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, er
 		allEntries.visit(mxUtils.bind(this, function(key, entry)
 		{
 			candidates.push({ entry: entry, score: scores.get(entry) || 0,
-				weight: this.getEntrySearchWeight(entry) });
+				weight: this.getEntrySearchWeight(entry),
+				library: this.getEntryLibraryMatch(entry, tmp) });
 		}));
 
+		// Then the shapes of the libraries that the terms name come first
+		// (see getEntryLibraryMatch)
 		candidates.sort(function(a, b)
 		{
-			return (b.score - a.score) || (b.weight - a.weight);
+			return (b.score - a.score) || (b.weight - a.weight) ||
+				(b.library - a.library);
 		});
 
 		var results = [];
@@ -2861,8 +2904,10 @@ Sidebar.prototype.addSearchPalette = function(expand)
 	// Reuse the placeholder text as the hover tooltip so the "Type /
 	// to search" hint is also discoverable while the input is focused
 	// (placeholders disappear once the user starts typing) and so the
-	// sidebar container's broader tooltip doesn't surface here.
-	var omniHint = mxResources.get('typeSlashToSearch');
+	// sidebar container's broader tooltip doesn't surface here. Where
+	// the omnibox is enabled, / opens it (see EditorUi.openSearch).
+	var omniHint = mxResources.get((editorUi.isOmniboxEnabled()) ?
+		'searchShapes' : 'typeSlashToSearch');
 	input.setAttribute('placeholder', omniHint);
 	input.setAttribute('title', omniHint);
 	input.setAttribute('type', 'text');
@@ -4724,6 +4769,123 @@ Sidebar.prototype.setTitleText = function(title, text)
 };
 
 /**
+ * The cells whose thumbnails fit their label (see fitThumbToLabel), a
+ * WeakSet or null. The cells are neither kept nor changed (a property of a
+ * cell would be copied to the shape that it inserts and saved with it).
+ */
+Sidebar.prototype.labelThumbCells = null;
+
+/**
+ * The thumbnail of the given cell fits its label instead of its bounds if
+ * the cell shows only its label (see getThumbFitBounds). The text of free
+ * text is small in the bounds of its cell: Text of 12 in a text of 100 x 60
+ * is 3 high in a tile of 25 and hardly recognisable. The search of the shape
+ * picker and of the Shape popover of the inline toolbar fit the free text
+ * that they find (EditorUi.getShapePickerSearchCells); the thumbnails of
+ * the sidebar are as before.
+ */
+Sidebar.prototype.fitThumbToLabel = function(cell)
+{
+	if (cell != null && typeof WeakSet !== 'undefined')
+	{
+		if (this.labelThumbCells == null)
+		{
+			this.labelThumbCells = new WeakSet();
+		}
+
+		this.labelThumbCells.add(cell);
+	}
+};
+
+/**
+ * Returns true if the thumbnail of the given cell fits its label (see
+ * fitThumbToLabel).
+ */
+Sidebar.prototype.isThumbFitToLabel = function(cell)
+{
+	return cell != null && this.labelThumbCells != null && this.labelThumbCells.has(cell);
+};
+
+/**
+ * Returns the bounds that the thumbnail of the given size of the given cells
+ * in the graph of the sidebar fits (see createThumb): the given bounds of
+ * the cells, or for one cell whose thumbnail fits its label (see
+ * fitThumbToLabel) and that shows only its label (no fill, no line, no
+ * image) the bounds of its text in its alignment, so that the text is as
+ * large as the thumbnail allows, but not larger than in the diagram.
+ */
+Sidebar.prototype.getThumbFitBounds = function(cells, bounds, width, height)
+{
+	var state = (cells != null && cells.length == 1 && this.isThumbFitToLabel(cells[0])) ?
+		this.graph.view.getState(cells[0]) : null;
+
+	if (state != null && state.width > 0 && state.height > 0 &&
+		mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE) == mxConstants.NONE &&
+		mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE) == mxConstants.NONE &&
+		mxUtils.getValue(state.style, mxConstants.STYLE_IMAGE, null) == null)
+	{
+		var size = this.getThumbLabelSize(state);
+
+		if (size != null && size.width > 0 && size.height > 0)
+		{
+			var w = Math.min(size.width, state.width);
+			var h = Math.min(size.height, state.height);
+			var align = mxUtils.getValue(state.style, mxConstants.STYLE_ALIGN, mxConstants.ALIGN_CENTER);
+			var valign = mxUtils.getValue(state.style, mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_MIDDLE);
+			var x = (align == mxConstants.ALIGN_LEFT) ? state.x : ((align == mxConstants.ALIGN_RIGHT) ?
+				state.x + state.width - w : state.getCenterX() - w / 2);
+			var y = (valign == mxConstants.ALIGN_TOP) ? state.y : ((valign == mxConstants.ALIGN_BOTTOM) ?
+				state.y + state.height - h : state.getCenterY() - h / 2);
+
+			// The text is at most as large as in the diagram (scale 1)
+			var mw = Math.max(w, width - 2 * this.thumbBorder);
+			var mh = Math.max(h, height - 2 * this.thumbBorder);
+
+			return new mxRectangle(x - (mw - w) / 2, y - (mh - h) / 2, mw, mh);
+		}
+	}
+
+	return bounds;
+};
+
+/**
+ * Returns the size of the text of the label of the given state of the graph
+ * of the sidebar at scale 1 (see getThumbFitBounds), as the size of a cell
+ * for its label (Graph.getPreferredSizeForCell) without its spacing, on one
+ * line where it fits the cell, else wrapped in the width of the cell where
+ * the label wraps. Returns null for an empty label.
+ */
+Sidebar.prototype.getThumbLabelSize = function(state)
+{
+	// The label as it is rendered (cellRenderer.getLabelValue sanitizes HTML)
+	var value = this.graph.cellRenderer.getLabelValue(state);
+	var size = null;
+
+	if (value != null && value.length > 0)
+	{
+		var html = this.graph.isHtmlLabel(state.cell);
+		value = ((html) ? value : mxUtils.htmlEntities(value, false)).replace(/\n/g, '<br>');
+		var style = state.style;
+		var fontSize = style[mxConstants.STYLE_FONTSIZE] || mxConstants.DEFAULT_FONTSIZE;
+		size = mxUtils.getSizeForString(value, fontSize, style[mxConstants.STYLE_FONTFAMILY],
+			null, style[mxConstants.STYLE_FONTSTYLE]);
+
+		if (size.width > state.width && html && style[mxConstants.STYLE_WHITE_SPACE] == 'wrap')
+		{
+			size = mxUtils.getSizeForString(value, fontSize, style[mxConstants.STYLE_FONTFAMILY],
+				state.width, style[mxConstants.STYLE_FONTSTYLE]);
+		}
+
+		if (!mxUtils.getValue(style, mxConstants.STYLE_HORIZONTAL, true))
+		{
+			size = new mxRectangle(0, 0, size.height, size.width);
+		}
+	}
+
+	return size;
+};
+
+/**
  * Creates a thumbnail for the given cells.
  */
 Sidebar.prototype.createThumb = function(cells, width, height, parent, title, showLabel, showTitle, w, h, bg, border, scale)
@@ -4740,11 +4902,12 @@ Sidebar.prototype.createThumb = function(cells, width, height, parent, title, sh
 
 	if (scale == null)
 	{
-		var s = Math.floor(Math.min((width - 2 * this.thumbBorder) / bounds.width,
-			(height - 2 * this.thumbBorder) / bounds.height) * 100) / 100;
+		var fit = this.getThumbFitBounds(cells, bounds, width, height);
+		var s = Math.floor(Math.min((width - 2 * this.thumbBorder) / fit.width,
+			(height - 2 * this.thumbBorder) / fit.height) * 100) / 100;
 		this.graph.view.scaleAndTranslate(s,
-			(width - bounds.width * s) / 2 / s - bounds.x,
-			(height - bounds.height * s) / 2 / s - bounds.y);
+			(width - fit.width * s) / 2 / s - fit.x,
+			(height - fit.height * s) / 2 / s - fit.y);
 	}
 
 	var node = null;
@@ -5989,6 +6152,14 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 						styled = graph.styleDroppedConnection(source, targets[dropCellIndex], edge,
 							direction, evt != null && mxEvent.isShiftDown(evt));
 					}
+
+					// Else the edge gets the newEdgeStyle of the source like the
+					// edge of a click on the arrow (see connectVertex) and of the
+					// preview of the drop (see createEdgePreview)
+					if (mxUtils.indexOf(styled, edge) < 0)
+					{
+						graph.applyNewEdgeStyle(source, [edge], direction);
+					}
 				}
 			}
 
@@ -6565,6 +6736,16 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 	
 	// Overrides mouseDown to ignore popup triggers
 	var mouseDown = dragSource.mouseDown;
+	var dragOffset = dragSource.dragOffset;
+
+	// Minus half the size of the given element
+	function getCenterOffset(node)
+	{
+		var w = parseFloat(node.style.width);
+		var h = parseFloat(node.style.height);
+
+		return new mxPoint((isNaN(w)) ? 0 : -w / 2, (isNaN(h)) ? 0 : -h / 2);
+	};
 	
 	dragSource.mouseDown = function(evt)
 	{
@@ -6572,7 +6753,16 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 			!graph.isCellLocked(graph.getDefaultParent()))
 		{
 			graph.stopEditing();
+
+			// Shapes of a shape picker are held at their center, so guides align
+			// them with the shape of the arrow (see previewOffset in dragEnter).
+			// The press decides, as the first move over the diagram hides the picker
+			this.centerPreview = ui.shapePicker != null &&
+				mxUtils.isAncestorNode(ui.shapePicker, elt);
+			this.previewOffset = null;
 			mouseDown.apply(this, arguments);
+			this.dragOffset = (this.centerPreview && this.dragElement != null) ?
+				getCenterOffset(this.dragElement) : dragOffset;
 		}
 	};
 
@@ -6669,6 +6859,8 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		}
 		
 		dragEnter.apply(this, arguments);
+		this.previewOffset = (this.centerPreview && this.previewElement != null) ?
+			getCenterOffset(this.previewElement) : null;
 
 		// Uses the descendants of the drop target or the default parent as
 		// guides, like moving cells (see mxGraphHandler.getGuideContainer)
@@ -6695,6 +6887,16 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		}
 
 		dragExit.apply(this, arguments);
+
+		// The drop selects the new cells while the drag holds the pointer
+		// down (see dragEnter and InlineToolbar.isPointerDown), and a finger
+		// ends the drag in the pointerup or touchend of the shape in the
+		// sidebar, which the drag source consumes before the graph gets it,
+		// so the toolbar shows here once the pointer is up
+		if (ui.inlineToolbar != null && graph == ui.editor.graph)
+		{
+			ui.inlineToolbar.updateSelection();
+		}
 	};
 	
 	dragSource.dragOver = function(graph, evt)

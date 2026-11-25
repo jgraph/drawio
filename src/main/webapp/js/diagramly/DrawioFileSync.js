@@ -66,7 +66,16 @@ DrawioFileSync = function(file)
 
 	mxEvent.addListener(document, (mxClient.IS_POINTER) ? 'pointermove' : 'mousemove', this.activityListener);
 	mxEvent.addListener(document, 'keypress', this.activityListener);
-	mxEvent.addListener(window, 'focus', this.activityListener);
+
+	// A polled file is checked when the window gets the focus, as changes
+	// of other tabs or windows would only arrive with the next poll
+	this.focusListener = mxUtils.bind(this, function(evt)
+	{
+		this.activityListener(evt);
+		this.pollSoon();
+	});
+
+	mxEvent.addListener(window, 'focus', this.focusListener);
 	
 	if (!mxClient.IS_POINTER && mxClient.IS_TOUCH)
 	{
@@ -409,10 +418,26 @@ DrawioFileSync.prototype.start = function()
 			if (this.polling == null)
 			{
 				this.polling = new DrawioFilePolling(this.file, this);
+
+				// Checks at once after the hidden or idle stop, and the
+				// first time a file that was opened in a hidden tab is
+				// shown, as the file may have changed meanwhile (see
+				// pollSoon)
+				if (this.pollOnStart)
+				{
+					this.pollOnStart = false;
+					this.pollSoon();
+				}
 			}
 
 			this.polling.start(this.file.getPollingInterval());
 			updateStatus = true;
+		}
+		// Opened in a hidden tab: the polling starts when the tab is shown,
+		// which may be without the focus that would check the file too
+		else if (this.polling == null)
+		{
+			this.pollOnStart = true;
 		}
 	}
 	// Only once until stop: start runs for every mouse move and key press
@@ -557,6 +582,86 @@ DrawioFileSync.prototype.isConnected = function()
 {
 	return this.isSocketConnected() ||
 		(this.polling != null && this.polling.isConnected());
+};
+
+/**
+ * Delay in milliseconds of the check of a polled file when the window is
+ * shown or gets the focus (see pollSoon). Both events of a switch of the
+ * tab or window then check once. Default is 50.
+ */
+DrawioFileSync.prototype.activationPollDelay = 50;
+
+/**
+ * Specifies if the next start of the polling checks the file at once (see
+ * start), as it may have changed while the polling was stopped (hidden or
+ * idle) or before it ran for the first time (the file was opened in a hidden
+ * tab). Default is false.
+ */
+DrawioFileSync.prototype.pollOnStart = false;
+
+/**
+ * Specifies if a check of the file was asked for while the file was saving,
+ * so that it runs when the save ends (see pollNow). Default is false.
+ */
+DrawioFileSync.prototype.pollDeferred = false;
+
+/**
+ * Checks a polled file for changes at once (see DrawioFilePolling.pollNow)
+ * instead of waiting for the next poll, eg. when another tab wrote the
+ * file. While the file is saving, also with autosave off, the check runs
+ * when the save ends (see runDeferredPoll): a merge between the bytes of
+ * the save and its write is not in the bytes
+ * (browser-tab-manual-save-channel). While the file waits for its autosave
+ * the check also runs when that save ends: the save reads the stored copy
+ * and merges it before it writes (see StorageFile.saveFile), but a save
+ * that fails before it merges would drop the check
+ * (browser-tab-autosave-fails-before-merge). A modified file with no
+ * autosave scheduled, eg. after a failed save, is checked at once
+ * (browser-tab-failed-autosave).
+ */
+DrawioFileSync.prototype.pollNow = function()
+{
+	if (this.polling != null && this.polling.isConnected())
+	{
+		if (this.file.isSaving() || (this.file.isModified() &&
+			this.file.isAutosave() && this.file.autosaveThread != null))
+		{
+			this.pollDeferred = true;
+		}
+		else
+		{
+			this.polling.pollNow();
+		}
+	}
+};
+
+/**
+ * Runs the check of the file that was asked for during the save that ended
+ * (see pollNow).
+ */
+DrawioFileSync.prototype.runDeferredPoll = function()
+{
+	if (this.pollDeferred)
+	{
+		this.pollDeferred = false;
+		this.pollNow();
+	}
+};
+
+/**
+ * Checks a polled file for changes after activationPollDelay, once for the
+ * events of an activation of the window (visibilitychange and focus).
+ */
+DrawioFileSync.prototype.pollSoon = function()
+{
+	if (this.file.isPolling() && this.pollSoonThread == null)
+	{
+		this.pollSoonThread = window.setTimeout(mxUtils.bind(this, function()
+		{
+			this.pollSoonThread = null;
+			this.pollNow();
+		}), this.activationPollDelay);
+	}
 };
 
 /**
@@ -1118,23 +1223,16 @@ DrawioFileSync.prototype.sendSharedViewMessage = function(pageId, bounds, presen
 };
 
 /**
- * Sends the current view, the state of presentation mode and the explorer
- * (see EditorUi.getSharedViewMode) and the laser pointer (see
- * EditorUi.getSharedLaser) to the clients that follow this one. Uses the
- * cursor channel as these updates are frequent and may be dropped.
+ * Sends the current view and the state of presentation mode and the explorer
+ * (see EditorUi.getSharedViewMode) to the clients that follow this one. Uses
+ * the cursor channel as these updates are frequent and may be dropped.
  */
-DrawioFileSync.prototype.sendViewUpdate = function(pageId, bounds, mode, laser)
+DrawioFileSync.prototype.sendViewUpdate = function(pageId, bounds, mode)
 {
 	if (this.p2pCollab != null)
 	{
 		var data = this.createViewData(pageId, bounds);
 		data.mode = (mode != null) ? mode : null;
-
-		if (laser !== undefined)
-		{
-			data.laser = laser;
-		}
-
 		this.p2pCollab.sendMessage('view', data);
 	}
 };
@@ -1159,7 +1257,6 @@ DrawioFileSync.prototype.handleViewUpdate = function(data, clientId)
 		}
 
 		this.ui.applySharedViewMode(data.mode);
-		this.ui.applySharedLaser(data.laser);
 	}
 };
 
@@ -4611,6 +4708,14 @@ DrawioFileSync.prototype.stop = function()
 	{
 		this.polling.stop();
 		this.polling = null;
+		this.pollOnStart = true;
+		this.pollDeferred = false;
+	}
+
+	if (this.pollSoonThread != null)
+	{
+		window.clearTimeout(this.pollSoonThread);
+		this.pollSoonThread = null;
 	}
 
 	// The hidden and the idle stop end the session too, and start
@@ -4698,7 +4803,6 @@ DrawioFileSync.prototype.destroy = function()
 	{
 		mxEvent.removeListener(document, (mxClient.IS_POINTER) ? 'pointermove' : 'mousemove', this.activityListener);
 		mxEvent.removeListener(document, 'keypress', this.activityListener);
-		mxEvent.removeListener(window, 'focus', this.activityListener);
 		
 		if (!mxClient.IS_POINTER && mxClient.IS_TOUCH)
 		{
@@ -4707,6 +4811,12 @@ DrawioFileSync.prototype.destroy = function()
 		}
 		
 		this.activityListener = null;
+	}
+
+	if (this.focusListener != null)
+	{
+		mxEvent.removeListener(window, 'focus', this.focusListener);
+		this.focusListener = null;
 	}
 	
 	// This is not needed now as stop already destroyed it

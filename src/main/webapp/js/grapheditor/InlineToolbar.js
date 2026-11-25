@@ -1,7 +1,14 @@
 /**
- * Floating toolbar that appears when a single edge or, if
- * Editor.isShapeInlineToolbarEnabled returns true, any cells are
- * selected, providing quick access to style changes.
+ * Floating toolbar that appears when cells are selected, providing quick
+ * access to style changes, if Editor.isInlineToolbarEnabled returns true, for
+ * selections with shapes only if Editor.isShapeInlineToolbarEnabled returns
+ * true as well (see isToolbarSelection). It is the toolbar of Fusion in
+ * every theme: this file has its buttons, its popovers and their controls,
+ * InlineToolbarLook.js (needed, loaded after it) their look, the tool pill
+ * with the outline glyphs, popovers in sections with heads and More with the
+ * effects, the order and the actions. The colors are the variables of the
+ * theme (geInlineToolbarUi in grapheditor.css), Fusion has its tokens
+ * (fusion.css).
  */
 InlineToolbar = function(editorUi)
 {
@@ -68,6 +75,11 @@ InlineToolbar.prototype.currentCells = null;
 InlineToolbar.prototype.popoverKind = null;
 
 /**
+ * True while the popover shows a menu of its own (see showPopoverMenu).
+ */
+InlineToolbar.prototype.showingPopoverMenu = false;
+
+/**
  * Bounds of the selected cells in the last repaint (see getSelectionBounds).
  */
 InlineToolbar.prototype.selectionBounds = null;
@@ -76,6 +88,32 @@ InlineToolbar.prototype.selectionBounds = null;
  * Bounds of the handles in the last repaint (see getHandleBounds).
  */
 InlineToolbar.prototype.handleBounds = null;
+
+/**
+ * Positions of the toolbar and other cells near the selection in the last
+ * repaint (see getPlacement).
+ */
+InlineToolbar.prototype.placement = null;
+
+/**
+ * Position of the pointer over the diagram in client coordinates, or null
+ * if it left the diagram (see getPointerPoint).
+ */
+InlineToolbar.prototype.pointerPoint = null;
+
+/**
+ * Bounds of the toolbar where it was placed for the selected cells, or null
+ * while it is hidden (see getPosition).
+ */
+InlineToolbar.prototype.placedBounds = null;
+
+/**
+ * The pointerPoint with which the toolbar was placed where it is while it
+ * avoided the pointer, or null (see getPosition). The pointer is on its way
+ * to the toolbar or on it only if it moved since, as the diagram may move
+ * under the pointer.
+ */
+InlineToolbar.prototype.placedPointer = null;
 
 /**
  * Side of the edge midpoint or the selected cells where the toolbar was
@@ -177,6 +215,16 @@ InlineToolbar.clearWaypointsImage = Graph.createSvgImage(24, 24,
 	'<circle cx="10" cy="6" r="3" stroke="black" stroke-width="2" fill="white"/>' +
 	'<path d="M 8.5 4.5 L 11.5 7.5 M 11.5 4.5 L 8.5 7.5" stroke="black" stroke-width="1.5"/>',
 	24, 24).src;
+
+InlineToolbar.bringForwardImage = Graph.createSvgImage(24, 24,
+	'<rect x="3" y="9" width="12" height="12" rx="1.5" stroke="black" stroke-width="2" fill="none"/>' +
+	'<path d="M 19 15 V 4 M 15.5 7.5 L 19 4 L 22.5 7.5" stroke="black" stroke-width="2" ' +
+	'stroke-linejoin="round" stroke-linecap="round" fill="none"/>', 24, 24).src;
+
+InlineToolbar.sendBackwardImage = Graph.createSvgImage(24, 24,
+	'<rect x="3" y="3" width="12" height="12" rx="1.5" stroke="black" stroke-width="2" fill="none"/>' +
+	'<path d="M 19 9 V 20 M 15.5 16.5 L 19 20 L 22.5 16.5" stroke="black" stroke-width="2" ' +
+	'stroke-linejoin="round" stroke-linecap="round" fill="none"/>', 24, 24).src;
 
 InlineToolbar.resetLabelImage = Graph.createSvgImage(24, 24,
 	'<path d="M 2 12 H 7 M 17 12 H 22" stroke="black" stroke-width="2"/>' +
@@ -390,19 +438,20 @@ InlineToolbar.prototype.init = function()
 	{
 		this.selectionBounds = null;
 		this.handleBounds = null;
-		this.repaint();
+		this.placement = null;
+		this.callFromListener(this.repaint);
 	});
 
 	// Scrolling does not change the bounds of the selection
 	this.scrollHandler = mxUtils.bind(this, function()
 	{
-		this.repaint();
+		this.callFromListener(this.repaint);
 	});
 
 	this.modelHandler = mxUtils.bind(this, function()
 	{
 		this.updateSelection();
-		this.updatePopover();
+		this.callFromListener(this.updatePopover);
 	});
 
 	this.hideHandler = mxUtils.bind(this, function()
@@ -410,6 +459,15 @@ InlineToolbar.prototype.init = function()
 		this.hide();
 	});
 
+	// The context menu closes the dropdown, also where no mousedown reaches
+	// popoverCloseHandler (Shift+F10, the Menu key, a tap on touch devices or
+	// a right click whose pointerdown the diagram consumes)
+	this.contextMenuHandler = mxUtils.bind(this, function()
+	{
+		this.hidePopover();
+	});
+
+	this.graph.popupMenuHandler.addListener(mxEvent.SHOW, this.contextMenuHandler);
 	this.graph.selectionModel.addListener(mxEvent.CHANGE, this.selectionHandler);
 	this.graph.model.addListener(mxEvent.CHANGE, this.modelHandler);
 	this.graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, this.repaintHandler);
@@ -421,22 +479,55 @@ InlineToolbar.prototype.init = function()
 	this.graph.addListener(mxEvent.ESCAPE, this.selectionHandler);
 	this.graph.addListener(mxEvent.START_EDITING, this.hideHandler);
 	this.graph.addListener(mxEvent.EDITING_STOPPED, this.selectionHandler);
+
+	// A gesture cancelled by the system has no mouse up (see isPointerDown)
+	this.graph.addListener(mxEvent.CANCEL_MOUSE_GESTURE, this.selectionHandler);
 	mxEvent.addListener(this.graph.container, 'scroll', this.scrollHandler);
 
-	// The default for shapes depends on the theme
+	// The toolbar is not placed under the pointer (see getPointerPoint). In
+	// the capture phase, as the handlers of the diagram may stop the events
+	// and show the toolbar on the mouse up.
+	this.pointerHandler = mxUtils.bind(this, function(evt)
+	{
+		this.pointerPoint = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+	});
+
+	this.pointerLeaveHandler = mxUtils.bind(this, function()
+	{
+		this.pointerPoint = null;
+	});
+
+	var pointer = window.PointerEvent != null;
+	this.pointerEvents = (pointer) ? ['pointerdown', 'pointermove', 'pointerup'] :
+		['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
+	this.pointerLeaveEvent = (pointer) ? 'pointerleave' : 'mouseleave';
+
+	for (var i = 0; i < this.pointerEvents.length; i++)
+	{
+		this.graph.container.addEventListener(this.pointerEvents[i], this.pointerHandler, true);
+	}
+
+	this.graph.container.addEventListener(this.pointerLeaveEvent, this.pointerLeaveHandler);
+
+	// The default of the switch depends on the theme
 	this.editorUi.addListener('currentThemeChanged', this.selectionHandler);
 };
 
 /**
- * Returns true if the toolbar is shown for the given selection cells: a
- * single edge or, if Editor.isShapeInlineToolbarEnabled returns true, any
- * selection without locked cells or a single cell that can be unlocked
- * (see isUnlockable).
+ * Returns true if the toolbar is shown for the given selection cells: if
+ * Editor.isInlineToolbarEnabled returns true, any selection without locked
+ * cells or a single cell that can be unlocked (see isUnlockable), as before
+ * the two switches were split again on 22 November 2026; a selection with a
+ * shape also needs Editor.isShapeInlineToolbarEnabled, which a selection of
+ * connectors does not (see isConnectorSelection), so that connectors, also
+ * several with Bundle and Draw a tie, their labels and their ties keep the
+ * toolbar in every theme (the driver, 22 November 2026: "nichts wegnehmen und nichts
+ * hinzu bei der inline toolbar bedingungen").
  */
 InlineToolbar.prototype.isToolbarSelection = function(cells)
 {
-	var result = cells.length > 0 && (Editor.isShapeInlineToolbarEnabled() ||
-		(cells.length == 1 && this.graph.model.isEdge(cells[0])));
+	var result = cells.length > 0 && Editor.isInlineToolbarEnabled() &&
+		(this.isConnectorSelection(cells) || Editor.isShapeInlineToolbarEnabled());
 
 	if (result && cells.length == 1 && this.isUnlockable(cells[0]))
 	{
@@ -446,6 +537,26 @@ InlineToolbar.prototype.isToolbarSelection = function(cells)
 	for (var i = 0; i < cells.length && result; i++)
 	{
 		result = !this.graph.isCellLocked(cells[i]);
+	}
+
+	return result;
+};
+
+/**
+ * Returns true if the given cells are connectors, labels of connectors (see
+ * Graph.isEdgeLabelCell) and ties of connectors (see Graph.isTie) only,
+ * without a shape: the selections that Editor.isInlineToolbarEnabled switches
+ * alone (see isToolbarSelection).
+ */
+InlineToolbar.prototype.isConnectorSelection = function(cells)
+{
+	var result = cells.length > 0;
+
+	for (var i = 0; i < cells.length && result; i++)
+	{
+		result = this.graph.model.isEdge(cells[i]) ||
+			this.graph.isEdgeLabelCell(cells[i]) ||
+			this.graph.isTie(cells[i]);
 	}
 
 	return result;
@@ -478,7 +589,32 @@ InlineToolbar.prototype.setSuspended = function(suspended)
 };
 
 /**
- * Updates visibility based on the current selection.
+ * Returns true while a mouse button, a finger or a pen is down in the
+ * diagram (mxGraph.isMouseDown). A press on a shape selects it on the mouse
+ * down and then starts a move, which hides the toolbar until the mouse up
+ * (see EditorUi), and a tap and hold of touch and pen changes the selection
+ * while the finger is down (Graph), so the toolbar shows a new selection only
+ * once the gesture ends: the mouse up of the graph handler and of the
+ * handlers of the selection calls updateSelection, as does a cancelled
+ * gesture.
+ */
+InlineToolbar.prototype.isPointerDown = function()
+{
+	return this.graph.isMouseDown;
+};
+
+/**
+ * Returns true if the toolbar is shown or fading in.
+ */
+InlineToolbar.prototype.isShowing = function()
+{
+	return this.toolbar.style.display != 'none' && this.toolbar.style.opacity != '0';
+};
+
+/**
+ * Updates visibility based on the current selection. While the pointer is
+ * down, a new selection is not shown before the gesture ends (see
+ * isPointerDown).
  */
 InlineToolbar.prototype.updateSelection = function()
 {
@@ -486,6 +622,7 @@ InlineToolbar.prototype.updateSelection = function()
 	var state = null;
 	this.selectionBounds = null;
 	this.handleBounds = null;
+	this.placement = null;
 
 	if (!this.suspended && this.graph.isEnabled() && !this.graph.isEditing() &&
 		!this.editorUi.isInlineToolbarSuppressed() && this.isToolbarSelection(cells))
@@ -505,18 +642,72 @@ InlineToolbar.prototype.updateSelection = function()
 
 		if (!same)
 		{
+			// The toolbar of other cells does not wait for a popover that
+			// shrinks (see show)
+			this.closingPopover = null;
+			this.repaintAfterClose = false;
 			this.hidePopover(true);
+			this.placedBounds = null;
 		}
 
 		this.currentState = state;
 		this.currentCells = cells;
-		this.show();
+
+		// A selection made while the pointer is down shows once the gesture
+		// ends (see isPointerDown), so that a press does not show the toolbar
+		// before the move it starts hides it. A toolbar that is shown for the
+		// same cells stays, eg. while the diagram is panned.
+		if (this.isPointerDown() && (!same || !this.isShowing()))
+		{
+			this.hide();
+		}
+		else
+		{
+			this.callFromListener(this.show);
+		}
 	}
 	else
 	{
 		this.currentState = null;
 		this.currentCells = null;
 		this.hide();
+	}
+};
+
+/**
+ * Thread that throws the first error of the current event (see
+ * callFromListener).
+ */
+InlineToolbar.prototype.errorThread = null;
+
+/**
+ * Calls the given function of this toolbar for a listener of the selection,
+ * the model or the view or for the mouse up of a handler. If it fails, the
+ * toolbar is hidden and the error is thrown after the event: an error in a
+ * listener skips the listeners after it (see mxEventSource.fireEvent), so
+ * that the change would not be marked as modified, saved, shared or undone,
+ * and the move or resize that ends with the mouse up would be lost.
+ */
+InlineToolbar.prototype.callFromListener = function(fn)
+{
+	try
+	{
+		fn.call(this);
+	}
+	catch (e)
+	{
+		this.hide();
+
+		// One for all listeners of an event, as each shows a dialog
+		if (this.errorThread == null)
+		{
+			this.errorThread = window.setTimeout(mxUtils.bind(this, function()
+			{
+				this.errorThread = null;
+
+				throw e;
+			}), 0);
+		}
 	}
 };
 
@@ -534,15 +725,21 @@ InlineToolbar.prototype.getTargetCells = function(kind, cells)
 	cells = (cells != null) ? cells : this.currentCells;
 	var result = [];
 
-	for (var i = 0; cells != null && i < cells.length; i++)
+	// Keeps the styles of the parents while the cells are checked: isTableRow
+	// and isTableCell resolve the style of the parent of each cell, once per
+	// child for many children of a cell with a long style
+	this.graph.cacheChildLayoutStyles(mxUtils.bind(this, function()
 	{
-		var state = this.graph.view.getState(cells[i]);
-
-		if (state != null && this.isTargetState(kind, state))
+		for (var i = 0; cells != null && i < cells.length; i++)
 		{
-			result.push(cells[i]);
+			var state = this.graph.view.getState(cells[i]);
+
+			if (state != null && this.isTargetState(kind, state))
+			{
+				result.push(cells[i]);
+			}
 		}
-	}
+	}));
 
 	return result;
 };
@@ -737,7 +934,9 @@ InlineToolbar.prototype.updateButtons = function()
 	this.textBtn.style.display = display(unlocked);
 	this.tableBtn.style.display = display(unlocked && this.getTableRange() != null);
 	this.arrangeBtn.style.display = display(unlocked && arrange);
-	this.moreBtn.style.display = display(options.length > 0);
+	// More has the order and the actions (see showSimpleMoreMenu)
+	this.moreBtn.style.display = display(options.length > 0 || (unlocked &&
+		this.currentCells.length > 0));
 
 	// Spacing to the previous visible button
 	var first = true;
@@ -755,7 +954,29 @@ InlineToolbar.prototype.updateButtons = function()
 };
 
 /**
- * Computes the midpoint along the edge path.
+ * Returns true if the given point has coordinates. The points of an edge have
+ * none for a style value that is no number, eg. exitX=abc.
+ */
+InlineToolbar.prototype.isFinitePoint = function(pt)
+{
+	return pt != null && isFinite(pt.x) && isFinite(pt.y);
+};
+
+/**
+ * Returns true if the given rectangle has a place and a size. The bounds of
+ * a shape and its handles have none for a style value that is no number (eg.
+ * strokeWidth=2px or rotation=abc), or if the style has no value for a custom
+ * handle, as mxRectangle calculates with what it gets.
+ */
+InlineToolbar.prototype.isFiniteBounds = function(rect)
+{
+	return rect != null && isFinite(rect.x) && isFinite(rect.y) &&
+		isFinite(rect.width) && isFinite(rect.height);
+};
+
+/**
+ * Computes the midpoint along the edge path, without the points that have no
+ * coordinates (see isFinitePoint). Returns null if there is none.
  */
 InlineToolbar.prototype.getEdgeMidpoint = function(state)
 {
@@ -772,7 +993,7 @@ InlineToolbar.prototype.getEdgeMidpoint = function(state)
 
 	for (var i = 1; i < pts.length; i++)
 	{
-		if (pts[i] != null && pts[i - 1] != null)
+		if (this.isFinitePoint(pts[i]) && this.isFinitePoint(pts[i - 1]))
 		{
 			var dx = pts[i].x - pts[i - 1].x;
 			var dy = pts[i].y - pts[i - 1].y;
@@ -799,7 +1020,7 @@ InlineToolbar.prototype.getEdgeMidpoint = function(state)
 			var p1 = pts[i];
 			var p2 = pts[i + 1];
 
-			if (p1 != null && p2 != null)
+			if (this.isFinitePoint(p1) && this.isFinitePoint(p2))
 			{
 				return new mxPoint(
 					p1.x + (p2.x - p1.x) * ratio,
@@ -817,7 +1038,7 @@ InlineToolbar.prototype.getEdgeMidpoint = function(state)
 	var first = pts[0];
 	var last = pts[pts.length - 1];
 
-	if (first != null && last != null)
+	if (this.isFinitePoint(first) && this.isFinitePoint(last))
 	{
 		return new mxPoint((first.x + last.x) / 2, (first.y + last.y) / 2);
 	}
@@ -826,17 +1047,31 @@ InlineToolbar.prototype.getEdgeMidpoint = function(state)
 };
 
 /**
- * Toolbar fade animation duration in ms.
+ * Toolbar fade animation duration in ms. Default is 0: the toolbar appears
+ * and disappears at once in every theme, as in Fusion (motion catalogue,
+ * concept 3.8: no entrance effects; the driver, 19 November 2026: Fusion is
+ * the reference of the toolbar). It faded in and out in 150 ms before.
  */
-InlineToolbar.prototype.toolbarAnimDuration = 150;
+InlineToolbar.prototype.toolbarAnimDuration = 0;
 
 /**
  * Shows the toolbar with a fade-in.
  */
 InlineToolbar.prototype.show = function()
 {
-	// Label cells without a label have no options
-	if (!this.updateButtons())
+	// While a popover shrinks towards its button after a change made in it,
+	// the toolbar keeps its buttons and its place: both change after that
+	// (see popoverClosed), so that the button stays where the popover goes
+	if (this.closingPopover != null && this.isShowing())
+	{
+		this.repaintAfterClose = true;
+
+		return;
+	}
+
+	// Label cells without a label have no options. The checks of all buttons
+	// share the styles of the parents (see getTargetCells).
+	if (!this.graph.cacheChildLayoutStyles(mxUtils.bind(this, this.updateButtons)))
 	{
 		this.hide();
 
@@ -859,10 +1094,13 @@ InlineToolbar.prototype.show = function()
 		this.toolbar.style.display = 'block';
 		this.repaint();
 
-		// Force layout then fade in
-		this.toolbar.offsetHeight;
-		this.toolbar.style.transition = 'opacity ' + this.toolbarAnimDuration + 'ms ease-out';
-		this.toolbar.style.opacity = '0.9';
+		// Force layout then fade in, unless there is no place for it
+		if (this.placedBounds != null)
+		{
+			this.toolbar.offsetHeight;
+			this.toolbar.style.transition = 'opacity ' + this.toolbarAnimDuration + 'ms ease-out';
+			this.toolbar.style.opacity = '0.9';
+		}
 	}
 	else
 	{
@@ -875,7 +1113,10 @@ InlineToolbar.prototype.show = function()
  */
 InlineToolbar.prototype.hide = function()
 {
+	this.closingPopover = null;
+	this.repaintAfterClose = false;
 	this.hidePopover(true);
+	this.placedBounds = null;
 
 	if (this.hideTimeout != null)
 	{
@@ -962,11 +1203,12 @@ InlineToolbar.prototype.segmentIntersectsRect = function(x1, y1, x2, y2, rx, ry,
 };
 
 /**
- * Returns true if the given handle shape is shown.
+ * Returns true if the given handle shape is shown. A handle without a place
+ * (see isFiniteBounds) is not.
  */
 InlineToolbar.prototype.isHandleVisible = function(shape)
 {
-	return shape != null && shape.node != null && shape.bounds != null &&
+	return shape != null && shape.node != null && this.isFiniteBounds(shape.bounds) &&
 		shape.node.style.visibility != 'hidden' &&
 		shape.node.style.display != 'none';
 };
@@ -1076,18 +1318,27 @@ InlineToolbar.prototype.getHandleBounds = function()
 /**
  * Returns the area of the given cell that the toolbar does not cover: the
  * shape, its label, the visible handles and, for vertices, the space of the
- * connection arrows around the shape (see HoverIcons.repaint).
+ * connection arrows around the shape (see HoverIcons.repaint). Takes the
+ * bounds of the state if those of the shape are no numbers and returns null
+ * if those of the state are none either (see isFiniteBounds).
  */
 InlineToolbar.prototype.getCellBounds = function(state)
 {
 	var graph = this.graph;
 	var hoverIcons = this.editorUi.hoverIcons;
 	var handler = graph.selectionCellsHandler.getHandler(state.cell);
-	var shape = mxRectangle.fromRectangle((state.shape != null &&
-		state.shape.boundingBox != null) ? state.shape.boundingBox : state);
+	var bounds = (state.shape != null && this.isFiniteBounds(
+		state.shape.boundingBox)) ? state.shape.boundingBox : state;
+
+	if (!this.isFiniteBounds(bounds))
+	{
+		return null;
+	}
+
+	var shape = mxRectangle.fromRectangle(bounds);
 	var result = shape.clone();
 
-	if (state.text != null && state.text.boundingBox != null)
+	if (state.text != null && this.isFiniteBounds(state.text.boundingBox))
 	{
 		result.add(state.text.boundingBox);
 	}
@@ -1132,7 +1383,7 @@ InlineToolbar.prototype.getCellBounds = function(state)
 /**
  * Returns the area of the selected cells that the toolbar does not cover
  * (see getCellBounds) with the handles of the box around multiple
- * selected cells.
+ * selected cells, or null if none of the cells has an area.
  */
 InlineToolbar.prototype.getSelectionBounds = function()
 {
@@ -1151,7 +1402,7 @@ InlineToolbar.prototype.getSelectionBounds = function()
 			{
 				result = bounds;
 			}
-			else
+			else if (bounds != null)
 			{
 				result.add(bounds);
 			}
@@ -1173,9 +1424,10 @@ InlineToolbar.prototype.getSelectionBounds = function()
 };
 
 /**
- * Repositions the toolbar above the selected vertex or at the edge midpoint,
- * avoiding overlap with handles, connection arrows and edge segments (see
- * getPosition).
+ * Repositions the toolbar next to the selected vertex or along the edge,
+ * avoiding overlap with the pointer, handles, connection arrows, edge
+ * segments and other cells (see getPosition). Hides it if the selected cells
+ * have no place, eg. if their geometry is no number.
  */
 InlineToolbar.prototype.repaint = function()
 {
@@ -1208,11 +1460,15 @@ InlineToolbar.prototype.repaint = function()
 			var area = (edge) ? ((mid != null) ? new mxRectangle(mid.x, mid.y, 0, 0) :
 				null) : this.selectionBounds;
 
-			if (area != null)
+			var pt = (this.isFiniteBounds(area)) ?
+				this.getPosition(state, area, edge) : null;
+
+			if (pt != null)
 			{
-				var pt = this.getPosition(state, area, edge);
 				this.toolbar.style.left = Math.round(pt.x) + 'px';
 				this.toolbar.style.top = Math.round(pt.y) + 'px';
+				this.placedBounds = new mxRectangle(Math.round(pt.x), Math.round(pt.y),
+					this.toolbar.offsetWidth, this.toolbar.offsetHeight);
 
 				// Keeps the popover at its button
 				if (this.positionPopover != null)
@@ -1220,20 +1476,33 @@ InlineToolbar.prototype.repaint = function()
 					this.positionPopover();
 				}
 			}
+			else
+			{
+				this.hide();
+			}
 		}
 	}
 };
 
 /**
  * Returns the position of the toolbar for the given area, which is the
- * midpoint of the given edge or the area of the selected cells: the first
- * position above, below, left and right of the area, at growing distances,
- * that covers no handles, the area of the selected cells or the segments
- * and labels of the edge, else the position that covers the fewest
- * handles. The positions are clamped to the viewport before they are
- * checked, so the toolbar is never moved onto a handle afterwards. This
- * checks a fixed number of positions against the handles in the viewport,
- * which is linear in the number of handles.
+ * midpoint of the given edge or the area of the selected cells: the nearest
+ * of the positions of getCandidates, which are along the whole edge and
+ * around the label for an edge and around the area for other selections,
+ * that is not under the pointer and covers no handles, no area of the
+ * selected cells, no segments and labels of the edge and no other cells
+ * (see getObstacles). Without such a position, the one that is not under
+ * the pointer, covers the fewest handles, then not the selection and then
+ * the least of the other cells (see getCoverage). A toolbar that is shown
+ * for the selected cells stays where it is while that is one of these
+ * positions and covers nothing but the pointer on its way to the toolbar
+ * (see pointerSpacing); a pointer on the toolbar is not avoided where it
+ * moves. The positions are clamped
+ * to the viewport before they are checked, so the toolbar is never moved
+ * onto a handle or a cell afterwards. This checks a fixed number of
+ * positions against the handles and the cells in the viewport, which is
+ * linear in their number. Returns null if there is no position and the area
+ * is outside the viewport.
  */
 InlineToolbar.prototype.getPosition = function(state, area, edge)
 {
@@ -1270,14 +1539,42 @@ InlineToolbar.prototype.getPosition = function(state, area, edge)
 		}
 	}
 
+	// The positions and the other cells are kept while the diagram is
+	// scrolled, as the handles
+	var placement = this.getPlacement(state, area, edge, w, h, gap, pad);
+	var candidates = placement.candidates;
+
+	// The pointer, but not for the place of the toolbar while the pointer is
+	// on it or on the way to it, so that the toolbar does not move away from
+	// it, and not while it is on the toolbar, which may then move under it
+	// (eg. while the selected cells are moved with the keyboard). Only if
+	// the pointer moved since the toolbar was placed, as the toolbar moves
+	// to the pointer if the diagram moves before it is scrolled back.
+	var pointer = this.getPointerPoint();
+	var near = false;
+
+	if (pointer != null && this.placedBounds != null &&
+		this.pointerPoint !== this.placedPointer)
+	{
+		var placed = mxRectangle.fromRectangle(this.placedBounds);
+
+		if (mxUtils.contains(placed, pointer.x, pointer.y))
+		{
+			pointer = null;
+		}
+		else
+		{
+			placed.grow(this.pointerSpacing);
+			near = mxUtils.contains(placed, pointer.x, pointer.y);
+		}
+	}
+
 	var best = null;
-	var bestHandles = 0;
-	var bestCovers = false;
+	var bestCost = null;
 	var bestSide = null;
 
-	// Keeps the best position and its side of the area and returns true if
-	// it covers nothing
-	var check = mxUtils.bind(this, function(x, y, side)
+	// Returns the given position, clamped to the viewport
+	var clampPoint = function(x, y)
 	{
 		if (clamp)
 		{
@@ -1285,57 +1582,942 @@ InlineToolbar.prototype.getPosition = function(state, area, edge)
 			y = (maxY > minY) ? Math.max(minY, Math.min(y, maxY)) : y;
 		}
 
-		var rect = new mxRectangle(x - pad, y - pad, w + 2 * pad, h + 2 * pad);
-		var covered = 0;
+		return new mxPoint(x, y);
+	};
+
+	// Returns the cost of the given position: the pointer, unless it is
+	// ignored, the number of handles, the selection and the other cells that
+	// it covers. Stops adding the other cells once it costs more than the
+	// given cost.
+	var getCost = mxUtils.bind(this, function(pt, limit, ignorePointer)
+	{
+		var rect = new mxRectangle(pt.x - pad, pt.y - pad, w + 2 * pad, h + 2 * pad);
+		var cost = [(!ignorePointer && pointer != null && mxUtils.contains(rect,
+			pointer.x, pointer.y)) ? 1 : 0, 0, 0, 0];
 
 		for (var i = 0; i < handles.length; i++)
 		{
 			if (mxUtils.intersects(rect, handles[i]))
 			{
-				covered++;
+				cost[1]++;
 			}
 		}
 
-		var covers = (edge) ? this.coversEdge(state, rect) :
-			mxUtils.intersects(rect, area);
+		cost[2] = (((edge) ? this.coversEdge(state, rect) :
+			mxUtils.intersects(rect, area))) ? 1 : 0;
 
-		if (best == null || covered < bestHandles ||
-			(covered == bestHandles && bestCovers && !covers))
+		var c = 0;
+
+		for (var i = 0; i < 3 && limit != null && c == 0; i++)
 		{
-			best = new mxPoint(x, y);
-			bestHandles = covered;
-			bestCovers = covers;
+			c = cost[i] - limit[i];
+		}
+
+		if (c <= 0)
+		{
+			cost[3] = this.getObstacleCost(rect, placement,
+				(limit != null && c == 0) ? limit[3] : null);
+		}
+
+		return cost;
+	});
+
+	var isFree = function(cost)
+	{
+		return cost[0] == 0 && cost[1] == 0 && cost[2] == 0 && cost[3] == 0;
+	};
+
+	// Keeps the best position and its side of the area and returns true if
+	// it covers nothing
+	var check = mxUtils.bind(this, function(x, y, side)
+	{
+		var pt = clampPoint(x, y);
+		var cost = getCost(pt, bestCost);
+
+		if (best == null || this.compareCosts(cost, bestCost) < 0)
+		{
+			best = pt;
+			bestCost = cost;
 			bestSide = (side != null) ? side : null;
 		}
 
-		return covered == 0 && !covers;
+		return isFree(cost);
 	});
 
-	var cx = area.getCenterX();
-	var cy = area.getCenterY();
-
-	for (var d = gap; d < 100; d += 8)
+	// The toolbar stays where it is for the selected cells while that is
+	// one of their positions and covers nothing, eg. while their style
+	// changes, a popover is open or the pointer is on the toolbar
+	if (this.placedBounds != null)
 	{
-		if (check(cx - w / 2, area.y - h - d, 'above') ||
-			check(cx - w / 2, area.y + area.height + d, 'below') ||
-			check(area.x - w - d, cy - h / 2, 'left') ||
-			check(area.x + area.width + d, cy - h / 2, 'right'))
+		for (var i = 0; i < candidates.length; i++)
+		{
+			var pt = clampPoint(candidates[i].x, candidates[i].y);
+
+			if (Math.abs(Math.round(pt.x) - this.placedBounds.x) < 1 &&
+				Math.abs(Math.round(pt.y) - this.placedBounds.y) < 1)
+			{
+				if (isFree(getCost(pt, null, near)))
+				{
+					this.toolbarSide = candidates[i].side;
+
+					return pt;
+				}
+
+				break;
+			}
+		}
+	}
+
+	for (var i = 0; i < candidates.length; i++)
+	{
+		if (check(candidates[i].x, candidates[i].y, candidates[i].side))
 		{
 			break;
 		}
 	}
 
 	// The clamped positions are on handles, eg. if the selection is larger
-	// than the viewport, so the corners of the viewport are checked
-	if (clamp && bestHandles > 0)
+	// than the viewport, or there are none, so the corners of the viewport
+	// are checked
+	if (clamp && (best == null || bestCost[1] > 0))
 	{
 		check(minX, minY) || check(maxX, minY) ||
 			check(minX, maxY) || check(maxX, maxY);
 	}
 
 	this.toolbarSide = bestSide;
+	this.placedPointer = (pointer != null) ? this.pointerPoint : null;
 
 	return best;
+};
+
+/**
+ * Distance in pixels around the placed toolbar in which the pointer is on
+ * its way to the toolbar, so that the toolbar does not move away from it
+ * while it can stay where it is (see getPosition).
+ */
+InlineToolbar.prototype.pointerSpacing = 16;
+
+/**
+ * Returns a negative number if the first of the given costs of a position
+ * (see getPosition) is lower than the second, a positive number if it is
+ * higher and 0 if both are equal: the pointer, then the handles, then the
+ * selection and then the other cells.
+ */
+InlineToolbar.prototype.compareCosts = function(a, b)
+{
+	for (var i = 0; i < a.length; i++)
+	{
+		if (Math.abs(a[i] - b[i]) > 1e-6)
+		{
+			return a[i] - b[i];
+		}
+	}
+
+	return 0;
+};
+
+/**
+ * Size in pixels of the cells of the grid of the other cells near the
+ * selection (see getPlacement).
+ */
+InlineToolbar.prototype.placementGridSize = 64;
+
+/**
+ * Number of cells of the grid of the other cells (see getPlacement) above
+ * which another cell is not added to the grid but checked for every
+ * position, so that the grid does not grow with the area of the selection
+ * and the other cells, eg. of a long connector next to a large selection.
+ */
+InlineToolbar.prototype.placementGridLimit = 64;
+
+/**
+ * Distance in pixels from the origin of the view up to which the toolbar
+ * checks other cells (see getPlacement). Browsers place elements and scroll
+ * up to 2^25 device pixels, which are 2^27 pixels at a zoom of the browser
+ * of 25 %, so no position further away is on the screen. The coordinates are
+ * those of the file and can be any number, but the columns and rows of the
+ * grid must be exact integers: from 2^53 on, adding 1 may not change a number
+ * and a loop over them may not end.
+ */
+InlineToolbar.prototype.placementLimit = 134217728;
+
+/**
+ * Returns the positions of the toolbar of the given size for the given
+ * selection (see getCandidates) and the other cells that they may cover
+ * (see getObstacles) with a grid of these cells and the large cells (see
+ * placementGridLimit and getObstacleCost), in the part of the diagram that
+ * can be on the screen (see placementLimit). It is kept until the selection,
+ * the view or the size of the toolbar change.
+ */
+InlineToolbar.prototype.getPlacement = function(state, area, edge, w, h, gap, pad)
+{
+	var placement = this.placement;
+
+	if (placement == null || placement.w != w || placement.h != h)
+	{
+		var candidates = this.getCandidates(state, area, edge, w, h, gap);
+		var max = this.placementLimit;
+		var region = null;
+
+		var limit = function(value)
+		{
+			return Math.max(-max, Math.min(max, value));
+		};
+
+		// Each position is limited before it is added, as adding one that is
+		// far away to the region would lose the digits of the near ones
+		for (var i = 0; i < candidates.length; i++)
+		{
+			var x = candidates[i].x - pad;
+			var y = candidates[i].y - pad;
+
+			if (!isNaN(x) && !isNaN(y))
+			{
+				var rect = new mxRectangle(limit(x), limit(y), 0, 0);
+				rect.width = limit(x + w + 2 * pad) - rect.x;
+				rect.height = limit(y + h + 2 * pad) - rect.y;
+
+				if (region == null)
+				{
+					region = rect;
+				}
+				else
+				{
+					region.add(rect);
+				}
+			}
+		}
+
+		var obstacles = (region != null) ? this.getObstacles(new mxPoint(
+			area.getCenterX(), area.getCenterY()), region) : [];
+		var size = this.placementGridSize;
+		var x0 = (region != null) ? Math.floor(region.x / size) : 0;
+		var y0 = (region != null) ? Math.floor(region.y / size) : 0;
+		var cols = (region != null) ? Math.floor((region.x + region.width) / size) - x0 + 1 : 0;
+		var rows = (region != null) ? Math.floor((region.y + region.height) / size) - y0 + 1 : 0;
+		var grid = [];
+		var large = [];
+
+		// The cells of the grid that each other cell intersects in the region,
+		// or the large cells
+		for (var i = 0; i < obstacles.length; i++)
+		{
+			var b = obstacles[i].bounds;
+			var c0 = Math.max(0, Math.floor(b.x / size) - x0);
+			var c1 = Math.min(cols - 1, Math.floor((b.x + b.width) / size) - x0);
+			var r0 = Math.max(0, Math.floor(b.y / size) - y0);
+			var r1 = Math.min(rows - 1, Math.floor((b.y + b.height) / size) - y0);
+
+			// Outside of the grid, eg. a rotated cell whose state is in the region
+			if (!(c0 <= c1 && r0 <= r1))
+			{
+				continue;
+			}
+
+			if ((c1 - c0 + 1) * (r1 - r0 + 1) > this.placementGridLimit)
+			{
+				large.push(i);
+				continue;
+			}
+
+			for (var c = c0; c <= c1; c++)
+			{
+				for (var r = r0; r <= r1; r++)
+				{
+					var key = c * rows + r;
+
+					if (grid[key] == null)
+					{
+						grid[key] = [];
+					}
+
+					grid[key].push(i);
+				}
+			}
+		}
+
+		placement = {w: w, h: h, candidates: candidates, obstacles: obstacles,
+			grid: grid, large: large, size: size, x0: x0, y0: y0, cols: cols,
+			rows: rows, seen: [], stamp: 0};
+		this.placement = placement;
+	}
+
+	return placement;
+};
+
+/**
+ * Returns how much the given rectangle covers the other cells of the given
+ * placement (see getPlacement and getCoverage), the large cells and the
+ * cells in the cells of its grid that the rectangle intersects. Stops once
+ * it is more than the given limit, if any.
+ */
+InlineToolbar.prototype.getObstacleCost = function(rect, placement, limit)
+{
+	var size = placement.size;
+	var stamp = ++placement.stamp;
+	var c0 = Math.max(0, Math.floor(rect.x / size) - placement.x0);
+	var c1 = Math.min(placement.cols - 1, Math.floor((rect.x + rect.width) / size) - placement.x0);
+	var r0 = Math.max(0, Math.floor(rect.y / size) - placement.y0);
+	var r1 = Math.min(placement.rows - 1, Math.floor((rect.y + rect.height) / size) - placement.y0);
+	var cost = 0;
+
+	for (var i = 0; i < placement.large.length; i++)
+	{
+		cost += this.getCoverage(rect, placement.obstacles[placement.large[i]]);
+
+		if (limit != null && cost > limit + 1e-6)
+		{
+			return cost;
+		}
+	}
+
+	for (var c = c0; c <= c1; c++)
+	{
+		for (var r = r0; r <= r1; r++)
+		{
+			var cell = placement.grid[c * placement.rows + r];
+
+			for (var i = 0; cell != null && i < cell.length; i++)
+			{
+				if (placement.seen[cell[i]] != stamp)
+				{
+					placement.seen[cell[i]] = stamp;
+					cost += this.getCoverage(rect, placement.obstacles[cell[i]]);
+
+					if (limit != null && cost > limit + 1e-6)
+					{
+						return cost;
+					}
+				}
+			}
+		}
+	}
+
+	return cost;
+};
+
+/**
+ * Returns the positions of the toolbar of the given size to check (see
+ * getPosition), sorted by their rank: for an edge above, below, left and
+ * right of its midpoint (the given area) at growing distances, of points
+ * every 24 pixels along the edge up to 240 pixels from the midpoint and
+ * every 96 pixels further away, of the middle of each segment further away
+ * and of the label (see getEdgeAnchors), so that there are positions on
+ * both sides of every segment and along long segments; for other selections above,
+ * below, left and right of the given area, centered and moved along its
+ * side in steps of 16 pixels. Each position is an object with x, y, the
+ * side of the point or the area and the rank: the distance from the point
+ * or the area and half the distance of the point from the midpoint along
+ * the edge or half the distance it is moved along the side. Positions of
+ * the same rank keep their order: above, below, left, right. Positions that
+ * are no numbers are left out, as they can be neither checked nor sorted.
+ */
+InlineToolbar.prototype.getCandidates = function(state, area, edge, w, h, gap)
+{
+	var result = [];
+
+	var add = function(x, y, side, rank)
+	{
+		if (isFinite(x) && isFinite(y) && isFinite(rank))
+		{
+			result.push({x: x, y: y, side: side, rank: rank, index: result.length});
+		}
+	};
+
+	if (edge)
+	{
+		var anchors = this.getEdgeAnchors(state, area);
+
+		for (var i = 0; i < anchors.length; i++)
+		{
+			var r = anchors[i].bounds;
+			var cx = r.getCenterX();
+			var cy = r.getCenterY();
+
+			// Farther from the midpoint than from points along the edge
+			var max = (anchors[i].along == 0) ? 100 : gap + 32;
+
+			for (var d = gap; d < max; d += 8)
+			{
+				var rank = d + anchors[i].along / 2;
+				add(cx - w / 2, r.y - h - d, 'above', rank);
+				add(cx - w / 2, r.y + r.height + d, 'below', rank);
+				add(r.x - w - d, cy - h / 2, 'left', rank);
+				add(r.x + r.width + d, cy - h / 2, 'right', rank);
+			}
+		}
+	}
+	else
+	{
+		var cx = area.getCenterX();
+		var cy = area.getCenterY();
+		var maxDx = Math.min(192, (w + area.width) / 2);
+		var maxDy = Math.min(192, (h + area.height) / 2);
+
+		for (var d = gap; d < 100; d += 8)
+		{
+			for (var s = 0; s <= Math.max(maxDx, maxDy); s += 16)
+			{
+				for (var sign = (s == 0) ? 1 : -1; sign <= 1; sign += 2)
+				{
+					var rank = d + s / 2;
+
+					if (s <= maxDx)
+					{
+						add(cx - w / 2 + sign * s, area.y - h - d, 'above', rank);
+						add(cx - w / 2 + sign * s, area.y + area.height + d, 'below', rank);
+					}
+
+					if (s <= maxDy)
+					{
+						add(area.x - w - d, cy - h / 2 + sign * s, 'left', rank);
+						add(area.x + area.width + d, cy - h / 2 + sign * s, 'right', rank);
+					}
+				}
+			}
+		}
+	}
+
+	result.sort(function(a, b)
+	{
+		return (a.rank - b.rank) || (a.index - b.index);
+	});
+
+	return result;
+};
+
+/**
+ * Returns the places of the given edge with the given midpoint that the
+ * toolbar is placed around (see getCandidates), as objects with the
+ * bounds of the place and its distance from the midpoint along the edge
+ * (along): the midpoint, points every 24 pixels up to 240 pixels on both
+ * sides of it, then every 96 pixels up to 2544 pixels, the middle of the
+ * 16 nearest segments that are further away and the label of the edge.
+ */
+InlineToolbar.prototype.getEdgeAnchors = function(state, mid)
+{
+	var result = [{bounds: mxRectangle.fromRectangle(mid), along: 0}];
+	var pts = state.absolutePoints;
+
+	if (pts != null && pts.length > 1)
+	{
+		var lengths = [];
+		var total = 0;
+
+		for (var i = 1; i < pts.length; i++)
+		{
+			var len = (this.isFinitePoint(pts[i]) && this.isFinitePoint(pts[i - 1])) ?
+				Math.sqrt(Math.pow(pts[i].x - pts[i - 1].x, 2) +
+				Math.pow(pts[i].y - pts[i - 1].y, 2)) : 0;
+			lengths.push(len);
+			total += len;
+		}
+
+		// The point at the given distance from the start of the edge
+		var pointAt = function(dist)
+		{
+			for (var i = 0; i < lengths.length; i++)
+			{
+				if (lengths[i] > 0 && (dist <= lengths[i] || i == lengths.length - 1))
+				{
+					var f = Math.max(0, Math.min(1, dist / lengths[i]));
+
+					return new mxPoint(pts[i].x + (pts[i + 1].x - pts[i].x) * f,
+						pts[i].y + (pts[i + 1].y - pts[i].y) * f);
+				}
+
+				dist -= lengths[i];
+			}
+
+			return null;
+		};
+
+		var addPoint = function(dist, along)
+		{
+			var pt = pointAt(dist);
+
+			if (pt != null)
+			{
+				result.push({bounds: new mxRectangle(pt.x, pt.y, 0, 0), along: along});
+			}
+		};
+
+		var half = total / 2;
+
+		for (var along = 24; along <= 240 && along <= half; along += 24)
+		{
+			addPoint(half - along, along);
+			addPoint(half + along, along);
+		}
+
+		// Points further away for the free parts of long segments
+		for (var along = 336, n = 0; along <= half && n < 24; along += 96, n++)
+		{
+			addPoint(half - along, along);
+			addPoint(half + along, along);
+		}
+
+		// The middle of the segments that are further away, nearest first
+		var middles = [];
+		var start = 0;
+
+		for (var i = 0; i < lengths.length; i++)
+		{
+			var along = Math.abs(start + lengths[i] / 2 - half);
+
+			if (lengths[i] > 0 && along > 240)
+			{
+				middles.push({dist: start + lengths[i] / 2, along: along});
+			}
+
+			start += lengths[i];
+		}
+
+		middles.sort(function(a, b)
+		{
+			return a.along - b.along;
+		});
+
+		for (var i = 0; i < middles.length && i < 16; i++)
+		{
+			addPoint(middles[i].dist, middles[i].along);
+		}
+	}
+
+	if (state.text != null && state.text.boundingBox != null)
+	{
+		var label = mxRectangle.fromRectangle(state.text.boundingBox);
+		result.push({bounds: label, along: Math.sqrt(Math.pow(label.getCenterX() -
+			mid.getCenterX(), 2) + Math.pow(label.getCenterY() - mid.getCenterY(), 2))});
+	}
+
+	return result;
+};
+
+/**
+ * Returns the other cells that the toolbar should not cover (see
+ * getPosition) as objects with the bounds of the cell and its label
+ * (bounds), of its shape (shape) and its label (text), which are those of
+ * the view and are kept until the view changes (see getPlacement), and, for
+ * edges, its points (pts), the half width of its line (spacing), the bounds
+ * of its arrows (markers, see getEdgeMarkers) and their length: the cells
+ * with a shape or a label but the selected cells, their descendants, which
+ * include the labels of edges, and their ancestors, whose shape or label
+ * is in the given region. Shapes behind the selected cells that contain
+ * the given point of the selection are covered by every position near the
+ * selection and are left out.
+ */
+InlineToolbar.prototype.getObstacles = function(pt, region)
+{
+	var model = this.graph.model;
+	var scale = this.graph.view.scale;
+
+	// By the ids of the cells, which come from the diagram, without a
+	// prototype so that ids such as constructor are not found there
+	var selected = Object.create(null);
+	var ancestors = Object.create(null);
+	var result = [];
+
+	var getPath = function(cell)
+	{
+		return mxCellPath.create(cell).split(mxCellPath.PATH_SEPARATOR);
+	};
+
+	// Returns true if the given cell is painted before the selected cells,
+	// which are sorted once if there is such a cell (see mxUtils.sortCells)
+	var first = null;
+
+	var isBehind = mxUtils.bind(this, function(cell)
+	{
+		if (first == null)
+		{
+			first = getPath(mxUtils.sortCells(this.currentCells.slice(), true)[0]);
+		}
+
+		return mxCellPath.compare(getPath(cell), first) < 0;
+	});
+
+	for (var i = 0; i < this.currentCells.length; i++)
+	{
+		selected[this.currentCells[i].id] = true;
+		var parent = model.getParent(this.currentCells[i]);
+
+		while (parent != null)
+		{
+			ancestors[parent.id] = true;
+			parent = model.getParent(parent);
+		}
+	}
+
+	// The region grown by the strokes and markers of the shapes, whose
+	// bounds can be larger than those of their states
+	var x0 = region.x - 10;
+	var y0 = region.y - 10;
+	var x1 = region.x + region.width + 10;
+	var y1 = region.y + region.height + 10;
+
+	var inRegion = function(b)
+	{
+		return b != null && b.x < x1 && b.x + b.width > x0 && b.y < y1 && b.y + b.height > y0;
+	};
+
+	this.graph.view.states.visit(mxUtils.bind(this, function(key, state)
+	{
+		var cell = state.cell;
+		var text = (state.text != null) ? state.text.boundingBox : null;
+
+		// The bounds of the state first, which are the most common, then
+		// those of the shape, which can be rotated
+		if ((state.shape == null && text == null) || !((state.shape != null &&
+			(inRegion(state) || inRegion(state.shape.boundingBox))) ||
+			inRegion(text)) || selected[cell.id] || ancestors[cell.id])
+		{
+			return;
+		}
+
+		for (var parent = model.getParent(cell); parent != null;
+			parent = model.getParent(parent))
+		{
+			if (selected[parent.id])
+			{
+				return;
+			}
+		}
+
+		var edge = model.isEdge(cell);
+		var shape = (state.shape != null) ? ((state.shape.boundingBox != null) ?
+			state.shape.boundingBox : state) : null;
+
+		if (!edge && shape != null && mxUtils.contains(shape, pt.x, pt.y) &&
+			isBehind(cell))
+		{
+			return;
+		}
+
+		var bounds = mxRectangle.fromRectangle((shape != null) ? shape : text);
+
+		if (shape != null && text != null)
+		{
+			bounds.add(text);
+		}
+
+		var obstacle = {bounds: bounds, shape: shape, text: text};
+
+		if (edge && state.absolutePoints != null)
+		{
+			var pts = this.getPaintedPoints(state);
+			var sw = (state.shape != null && !isNaN(state.shape.strokewidth)) ?
+				Math.max(0, state.shape.strokewidth) : 1;
+			var width = (state.shape != null && typeof state.shape.getEdgeWidth ===
+				'function') ? state.shape.getEdgeWidth() + sw : sw;
+			obstacle.pts = pts;
+			obstacle.spacing = (isNaN(width)) ? sw * scale / 2 : width * scale / 2;
+			obstacle.markers = this.getEdgeMarkers(state, sw);
+			obstacle.length = 0;
+
+			for (var i = 1; i < pts.length; i++)
+			{
+				if (pts[i] != null && pts[i - 1] != null)
+				{
+					obstacle.length += Math.sqrt(Math.pow(pts[i].x - pts[i - 1].x, 2) +
+						Math.pow(pts[i].y - pts[i - 1].y, 2));
+				}
+			}
+
+			for (var i = 0; i < obstacle.markers.length; i++)
+			{
+				obstacle.length += obstacle.markers[i].length;
+			}
+		}
+
+		result.push(obstacle);
+	}));
+
+	return result;
+};
+
+/**
+ * Returns the points of the line that the given edge state paints: its
+ * absolute points, or points along the curve of a curved or bezier
+ * connector (see mxPolyline.paintCurvedLine and paintBezierLine), whose
+ * curve leaves the straight lines between its points.
+ */
+InlineToolbar.prototype.getPaintedPoints = function(state)
+{
+	var pts = state.absolutePoints;
+	var style = state.style;
+	var n = (pts != null) ? pts.length : 0;
+
+	if (n < 3 || style == null || !(state.shape instanceof mxPolyline))
+	{
+		return pts;
+	}
+
+	var bezier = style[mxConstants.STYLE_BEZIER] == 1;
+
+	if (!bezier && style[mxConstants.STYLE_CURVED] != 1)
+	{
+		return pts;
+	}
+
+	for (var i = 0; i < n; i++)
+	{
+		if (pts[i] == null)
+		{
+			return pts;
+		}
+	}
+
+	var steps = 16;
+	var result = [pts[0]];
+
+	// Adds the points of the curve from p0 with the given control points
+	// to p3 (a quadratic curve with one control point if c2 is null)
+	var addCurve = function(p0, c1, c2, p3)
+	{
+		for (var j = 1; j <= steps; j++)
+		{
+			var t = j / steps;
+			var u = 1 - t;
+
+			if (c2 == null)
+			{
+				result.push(new mxPoint(u * u * p0.x + 2 * u * t * c1.x + t * t * p3.x,
+					u * u * p0.y + 2 * u * t * c1.y + t * t * p3.y));
+			}
+			else
+			{
+				result.push(new mxPoint(u * u * u * p0.x + 3 * u * u * t * c1.x +
+					3 * u * t * t * c2.x + t * t * t * p3.x, u * u * u * p0.y +
+					3 * u * u * t * c1.y + 3 * u * t * t * c2.y + t * t * t * p3.y));
+			}
+		}
+	};
+
+	if (bezier && (n - 1) % 3 == 0)
+	{
+		for (var i = 1; i + 2 < n; i += 3)
+		{
+			addCurve(pts[i - 1], pts[i], pts[i + 1], pts[i + 2]);
+		}
+	}
+	else
+	{
+		var start = pts[0];
+
+		for (var i = 1; i < n - 2; i++)
+		{
+			var mid = new mxPoint((pts[i].x + pts[i + 1].x) / 2,
+				(pts[i].y + pts[i + 1].y) / 2);
+			addCurve(start, pts[i], null, mid);
+			start = mid;
+		}
+
+		addCurve(start, pts[n - 2], null, pts[n - 1]);
+	}
+
+	return result;
+};
+
+/**
+ * Returns the arrows at the ends of the given edge state with the given
+ * stroke width as objects with the bounds of the arrow (bounds), which
+ * contain the arrow in every direction around the end of the edge, and its
+ * length (length).
+ */
+InlineToolbar.prototype.getEdgeMarkers = function(state, sw)
+{
+	var pts = state.absolutePoints;
+	var shape = state.shape;
+	var scale = this.graph.view.scale;
+	var result = [];
+	var ends = [[pts[0], mxConstants.STYLE_STARTARROW, mxConstants.STYLE_STARTSIZE,
+		'getStartArrowWidth'], [pts[pts.length - 1], mxConstants.STYLE_ENDARROW,
+		mxConstants.STYLE_ENDSIZE, 'getEndArrowWidth']];
+
+	for (var i = 0; i < ends.length; i++)
+	{
+		var pt = ends[i][0];
+
+		if (pt != null && mxUtils.getValue(state.style, ends[i][1],
+			mxConstants.NONE) != mxConstants.NONE)
+		{
+			// The size of the arrow along the edge or the width of the arrow
+			// of an arrow connector, with the stroke
+			var size = mxUtils.getNumber(state.style, ends[i][2],
+				mxConstants.DEFAULT_MARKERSIZE);
+
+			if (shape != null && typeof shape[ends[i][3]] === 'function')
+			{
+				size = Math.max(size, shape[ends[i][3]]());
+			}
+
+			var d = (isNaN(size)) ? 0 : Math.max(0, size + sw) * scale;
+
+			if (d > 0)
+			{
+				result.push({bounds: new mxRectangle(pt.x - d, pt.y - d, 2 * d, 2 * d),
+					length: d});
+			}
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Returns how much the given rectangle covers the given other cell (see
+ * getObstacles): 0 if it misses it, else 0.25 and the part of the cell
+ * that it covers (of the area of a shape or a label, of the length of an
+ * edge with its arrows, whose line is as wide as it is painted), so that a
+ * position that covers a small cell completely costs more than one that
+ * touches large cells.
+ */
+InlineToolbar.prototype.getCoverage = function(rect, obstacle)
+{
+	if (!mxUtils.intersects(rect, obstacle.bounds))
+	{
+		return 0;
+	}
+
+	var part = 0;
+
+	if (obstacle.pts != null)
+	{
+		var pts = obstacle.pts;
+		var t = obstacle.spacing || 0;
+		var covered = 0;
+
+		for (var i = 1; i < pts.length; i++)
+		{
+			if (pts[i] != null && pts[i - 1] != null)
+			{
+				var inside = this.getSegmentCoverage(pts[i - 1].x, pts[i - 1].y,
+					pts[i].x, pts[i].y, rect.x - t, rect.y - t, rect.width + 2 * t,
+					rect.height + 2 * t);
+
+				if (inside > 0)
+				{
+					covered += inside * Math.sqrt(Math.pow(pts[i].x - pts[i - 1].x, 2) +
+						Math.pow(pts[i].y - pts[i - 1].y, 2));
+				}
+			}
+		}
+
+		for (var i = 0; obstacle.markers != null && i < obstacle.markers.length; i++)
+		{
+			covered += this.getAreaCoverage(rect, obstacle.markers[i].bounds) *
+				obstacle.markers[i].length;
+		}
+
+		part = (obstacle.length > 0) ? covered / obstacle.length : 0;
+	}
+	else if (obstacle.shape != null)
+	{
+		part = this.getAreaCoverage(rect, obstacle.shape);
+	}
+
+	if (obstacle.text != null)
+	{
+		part = Math.max(part, this.getAreaCoverage(rect, obstacle.text));
+	}
+
+	return (part > 0) ? 0.25 + part : 0;
+};
+
+/**
+ * Returns the part of the area of the second given rectangle that the
+ * first covers, between 0 and 1 (1 for an empty rectangle inside it).
+ */
+InlineToolbar.prototype.getAreaCoverage = function(rect, bounds)
+{
+	var w = Math.min(rect.x + rect.width, bounds.x + bounds.width) - Math.max(rect.x, bounds.x);
+	var h = Math.min(rect.y + rect.height, bounds.y + bounds.height) - Math.max(rect.y, bounds.y);
+	var area = bounds.width * bounds.height;
+
+	if (w < 0 || h < 0)
+	{
+		return 0;
+	}
+
+	return (area > 0) ? (w * h) / area : 1;
+};
+
+/**
+ * Returns the part of the line segment from (x1,y1) to (x2,y2) inside the
+ * axis-aligned rectangle at (rx, ry) with size (rw, rh), between 0 and 1.
+ * Uses the Liang-Barsky clipping algorithm (see segmentIntersectsRect).
+ */
+InlineToolbar.prototype.getSegmentCoverage = function(x1, y1, x2, y2, rx, ry, rw, rh)
+{
+	// Most of the segments of a connector with many waypoints
+	if (Math.max(x1, x2) < rx || Math.min(x1, x2) > rx + rw ||
+		Math.max(y1, y2) < ry || Math.min(y1, y2) > ry + rh)
+	{
+		return 0;
+	}
+
+	var dx = x2 - x1;
+	var dy = y2 - y1;
+	var p = [-dx, dx, -dy, dy];
+	var q = [x1 - rx, rx + rw - x1, y1 - ry, ry + rh - y1];
+	var tMin = 0;
+	var tMax = 1;
+
+	for (var i = 0; i < 4; i++)
+	{
+		if (p[i] == 0)
+		{
+			if (q[i] < 0)
+			{
+				return 0;
+			}
+		}
+		else
+		{
+			var t = q[i] / p[i];
+
+			if (p[i] < 0)
+			{
+				tMin = Math.max(tMin, t);
+			}
+			else
+			{
+				tMax = Math.min(tMax, t);
+			}
+
+			if (tMin > tMax)
+			{
+				return 0;
+			}
+		}
+	}
+
+	return tMax - tMin;
+};
+
+/**
+ * Returns the position of the pointer over the diagram in the coordinates
+ * of the toolbar (see getPosition), or null if the pointer is not over the
+ * diagram or a popover is open, as the pointer is then in the popover or on
+ * the way to it (see pointerHandler in init).
+ */
+InlineToolbar.prototype.getPointerPoint = function()
+{
+	var pt = this.pointerPoint;
+
+	if (pt == null || this.currentPopover != null)
+	{
+		return null;
+	}
+
+	var container = this.graph.container;
+	var origin = container.getBoundingClientRect();
+
+	return new mxPoint(pt.x - origin.left - container.clientLeft +
+		container.scrollLeft, pt.y - origin.top - container.clientTop +
+		container.scrollTop);
 };
 
 /**
@@ -1350,7 +2532,7 @@ InlineToolbar.prototype.coversEdge = function(state, rect)
 	{
 		for (var i = 1; i < pts.length; i++)
 		{
-			if (pts[i] != null && pts[i - 1] != null &&
+			if (this.isFinitePoint(pts[i]) && this.isFinitePoint(pts[i - 1]) &&
 				this.segmentIntersectsRect(pts[i - 1].x, pts[i - 1].y,
 					pts[i].x, pts[i].y, rect.x, rect.y, rect.width, rect.height))
 			{
@@ -1491,6 +2673,20 @@ InlineToolbar.prototype.popoverColumns = 4;
 InlineToolbar.prototype.popoverAnimDuration = 220;
 
 /**
+ * The popover that shrinks after it was closed, or null (see hidePopover).
+ * Until it is gone, a change does not move the toolbar of the same cells or
+ * change its buttons, so that the popover shrinks towards its button (see
+ * show and popoverClosed).
+ */
+InlineToolbar.prototype.closingPopover = null;
+
+/**
+ * True if a change came in while the popover shrank (see closingPopover),
+ * so that the toolbar is placed again after that.
+ */
+InlineToolbar.prototype.repaintAfterClose = false;
+
+/**
  * Scrolls the scrollable content of the given element of the toolbar with
  * the mouse wheel instead of zooming or panning the diagram behind it (see
  * mxEvent.addMouseWheelListener in EditorUi, which listens to the window).
@@ -1517,6 +2713,14 @@ InlineToolbar.prototype.installWheelHandler = function(elt)
 InlineToolbar.prototype.createPopover = function(anchorBtn, opts)
 {
 	this.hidePopover(true);
+	this.hidePopupMenus();
+
+	// A new popover opens at the place of the toolbar for the last change
+	if (this.closingPopover != null)
+	{
+		this.popoverClosed();
+	}
+
 	this.popoverKind = (opts != null) ? opts.kind : null;
 
 	// Tooltips would cover the popover
@@ -1613,6 +2817,21 @@ InlineToolbar.prototype.createPopover = function(anchorBtn, opts)
 		body.style.overflowX = '';
 		body.style.paddingRight = '8px';
 
+		// Measures with the room of the arrow, whatever the last place was:
+		// next to the shapes (no arrow) the popover was 8 px lower, so one
+		// that fit below the toolbar only without that room changed its place
+		// at every update (eg. in a Classic window 600 px high)
+		body.style.marginTop = arrowOffset + 'px';
+		body.style.marginBottom = '0';
+
+		// Measures at the left of the container, whatever the last place was:
+		// further right, the width of the popover was limited to the room to
+		// the right of it in the container, so it was narrower after its
+		// first place and moved at the first update. It keeps that width
+		// (minWidth) at its place.
+		popover.style.minWidth = '';
+		popover.style.left = '0px';
+
 		for (var i = 0; i < scrolls.length; i++)
 		{
 			scrolls[i].elt.style.maxHeight = scrolls[i].maxHeight;
@@ -1659,18 +2878,23 @@ InlineToolbar.prototype.createPopover = function(anchorBtn, opts)
 
 		var popoverWidth = popover.offsetWidth;
 		var popoverHeight = popover.offsetHeight;
+		popover.style.minWidth = popoverWidth + 'px';
 		var btnCenterX = btnRect.left + btnRect.width / 2 - containerRect.left + scrollLeft;
 		var popX = btnCenterX - popoverWidth / 2;
 
 		// Decide above/below from the room available on each side WITHIN the
 		// container's visible viewport (not the window — the inline editor's
 		// container can be shorter than the window). Prefer below; flip above
-		// only when below does not fit and above is the roomier side.
-		var spaceAbove = toolbarRect.top - containerRect.top;
+		// only when below does not fit and above is the roomier side. It fits
+		// with its gap of 2 to the toolbar and the margin of 4 of
+		// clampToContainer, which would else move it and hide its arrow. The
+		// room on each side leaves out the parts that other UI covers, which
+		// the clamp keeps it out of (getTopInset, getBottomInset).
+		var spaceAbove = toolbarRect.top - containerRect.top - this.getTopInset();
 		var spaceBelow = (containerRect.top + container.clientHeight -
 			this.getBottomInset()) - toolbarRect.bottom;
-		var fitsBelow = spaceBelow >= popoverHeight + 4;
-		var fitsAbove = spaceAbove >= popoverHeight + 4;
+		var fitsBelow = spaceBelow >= popoverHeight + 6;
+		var fitsAbove = spaceAbove >= popoverHeight + 6;
 		var showAbove = !fitsBelow && (fitsAbove || spaceAbove > spaceBelow);
 		var popY;
 
@@ -1771,6 +2995,7 @@ InlineToolbar.prototype.createPopover = function(anchorBtn, opts)
 			popY = (sideY != null) ? sideY : sel.y;
 			body.style.marginTop = '0';
 			body.style.marginBottom = '0';
+			popoverHeight = popover.offsetHeight;
 		}
 
 		// Clamp to the visible viewport so the popover is never clipped by a
@@ -1836,9 +3061,19 @@ InlineToolbar.prototype.createPopover = function(anchorBtn, opts)
 		}
 	});
 
+	// A scroll of the container closes the popover, except while a text field
+	// in it has the focus (the search of the shapes, the steppers): on phones
+	// the browser scrolls the container to show a field that the on-screen
+	// keyboard would cover, and the popover moves with the container
 	this.popoverScrollHandler = mxUtils.bind(this, function()
 	{
-		this.hidePopover();
+		var active = document.activeElement;
+
+		if (active == null || !popover.contains(active) ||
+			!this.editorUi.isTextInputElement(active))
+		{
+			this.hidePopover();
+		}
 	});
 
 	this.popoverKeyHandler = mxUtils.bind(this, function(e)
@@ -2282,6 +3517,7 @@ InlineToolbar.prototype.createDropdown = function(title, items, getActiveIndex,
 			});
 
 			this.installWheelHandler(panel);
+			this.hidePopupMenus();
 			container.appendChild(panel);
 			this.currentSubPanel = panel;
 			panel._ownerDropdown = dropdown;
@@ -2553,8 +3789,287 @@ InlineToolbar.prototype.setCellStyles = function(keys, values, cells)
 };
 
 /**
- * Shows the line style popover: dash pattern, stroke width, stroke color
- * and, for edge shapes that support them, fill and gradient color.
+ * Names the given element of a popover as the given part (a property of the
+ * element), so the sections and the look of a theme find it (see findPart).
+ * Returns the element.
+ */
+InlineToolbar.prototype.setPart = function(elt, name)
+{
+	if (elt != null)
+	{
+		elt.toolbarPart = name;
+	}
+
+	return elt;
+};
+
+/**
+ * Returns the first of the given elements that is the part of the given
+ * name (see setPart) or null.
+ */
+InlineToolbar.prototype.findPart = function(parts, name)
+{
+	for (var i = 0; i < parts.length; i++)
+	{
+		if (parts[i] != null && parts[i].toolbarPart == name)
+		{
+			return parts[i];
+		}
+	}
+
+	return null;
+};
+
+/**
+ * Returns the opacity (0 to 100) of the cells of the given kind of popover
+ * (see getTargetCells).
+ */
+InlineToolbar.prototype.getOpacity = function(kind)
+{
+	var value = parseFloat(mxUtils.getValue(this.getCurrentStyle(
+		this.getTargetCells(kind)), mxConstants.STYLE_OPACITY, 100));
+
+	return (isFinite(value)) ? Math.max(0, Math.min(100, value)) : 100;
+};
+
+/**
+ * Sets the opacity of the cells of the given kind of popover in one edit.
+ */
+InlineToolbar.prototype.setOpacity = function(kind, value)
+{
+	this.setCellStyles([mxConstants.STYLE_OPACITY], [value], this.getTargetCells(kind));
+};
+
+/**
+ * Returns the option rounded of the selected cells (see getOptions) or null
+ * if they cannot have rounded corners.
+ */
+InlineToolbar.prototype.getCornersOption = function()
+{
+	var options = this.getOptions();
+
+	for (var i = 0; i < options.length; i++)
+	{
+		if (options[i].styleKey == mxConstants.STYLE_ROUNDED)
+		{
+			return options[i];
+		}
+	}
+
+	return null;
+};
+
+/**
+ * Returns true if the selected cells have rounded corners.
+ */
+InlineToolbar.prototype.isRoundedCorners = function(option)
+{
+	option = (option != null) ? option : this.getCornersOption();
+
+	return option != null && option.isSelected(this.getCurrentStyle(this.currentCells));
+};
+
+/**
+ * Sets sharp or rounded corners for the selected cells in one edit with the
+ * keys of the option rounded (see getOptions).
+ */
+InlineToolbar.prototype.setRoundedCorners = function(rounded)
+{
+	this.setCellStyles([mxConstants.STYLE_ROUNDED, 'roundedPerimeter'],
+		(rounded) ? ['1', '1'] : ['0', null], this.currentCells);
+};
+
+/**
+ * Returns true if the given style has the font style strikethrough.
+ */
+InlineToolbar.prototype.isStrikethrough = function(style)
+{
+	var fontStyle = parseInt(mxUtils.getValue(style, mxConstants.STYLE_FONTSTYLE, 0));
+
+	return (fontStyle & mxConstants.FONT_STRIKETHROUGH) == mxConstants.FONT_STRIKETHROUGH;
+};
+
+/**
+ * Toggles strikethrough of the selected text while a label is edited, else
+ * the flag of the font style of the selected cells in one edit, like bold.
+ */
+InlineToolbar.prototype.toggleStrikethrough = function()
+{
+	var graph = this.graph;
+
+	if (graph.cellEditor.isContentEditing())
+	{
+		document.execCommand('strikeThrough', false, null);
+	}
+	else
+	{
+		graph.stopEditing(false);
+		graph.getModel().beginUpdate();
+
+		try
+		{
+			graph.toggleCellStyleFlags(mxConstants.STYLE_FONTSTYLE,
+				mxConstants.FONT_STRIKETHROUGH,
+				graph.getEditableCells(graph.getSelectionCells()));
+		}
+		finally
+		{
+			graph.getModel().endUpdate();
+		}
+	}
+};
+
+/**
+ * The vertical alignments of the text popover: the name, the image and the
+ * value of verticalAlign.
+ */
+InlineToolbar.prototype.verticalAlignments = [['top', 'alignTopImage', 'top'],
+	['middle', 'alignMiddleImage', 'middle'], ['bottom', 'alignBottomImage', 'bottom']];
+
+/**
+ * Sets the vertical alignment of the selected cells in one edit.
+ */
+InlineToolbar.prototype.setVerticalAlign = function(value)
+{
+	this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_VERTICAL_ALIGN], [value])();
+};
+
+/**
+ * Returns the action Clear Waypoints if a connector of the connection
+ * popover has waypoints that it can remove, else null.
+ */
+InlineToolbar.prototype.getClearWaypointsAction = function()
+{
+	var action = this.editorUi.actions.get('clearWaypoints');
+	var edges = this.getTargetCells('edge');
+	var points = false;
+
+	for (var i = 0; i < edges.length && !points; i++)
+	{
+		var geo = this.graph.getCellGeometry(edges[i]);
+		points = geo != null && geo.points != null && geo.points.length > 0;
+	}
+
+	return (points && action != null && action.isEnabled() &&
+		this.isActionVisible('clearWaypoints')) ? action : null;
+};
+
+/**
+ * The actions of the section Order in More, which keep the popover open.
+ */
+InlineToolbar.prototype.orderActions = ['toFront', 'bringForward', 'sendBackward', 'toBack'];
+
+/**
+ * The actions of the section Actions in More, which close the popover.
+ */
+InlineToolbar.prototype.moreActions = ['duplicate', 'copyStyle', 'pasteStyle',
+	'editLink', 'lockUnlock', 'delete'];
+
+/**
+ * The images of the actions of the sections of More.
+ */
+InlineToolbar.prototype.actionImages = {'toFront': 'toFrontImage',
+	'bringForward': 'bringForwardImage', 'sendBackward': 'sendBackwardImage',
+	'toBack': 'toBackImage', 'duplicate': 'duplicateImage',
+	'copyStyle': 'copyStyleImage', 'pasteStyle': 'pasteStyleImage',
+	'editLink': 'linkImage', 'lock': 'lockedImage', 'unlock': 'unlockedImage',
+	'delete': 'trashImage'};
+
+/**
+ * Returns true if the action of the given name may be shown in the
+ * toolbar: it exists, is visible and is not hidden by the configuration
+ * (hideMenuItems, the rule of Menus.addMenuItem). This is a hook for themes.
+ */
+InlineToolbar.prototype.isActionVisible = function(name)
+{
+	var action = this.editorUi.actions.get(name);
+	var hidden = (this.editorUi.menus != null) ?
+		this.editorUi.menus.hiddenMenuItems : null;
+
+	return action != null && action.visible !== false &&
+		(hidden == null || !hidden[name]);
+};
+
+/**
+ * Returns true if the action of the given name can run for the selection.
+ * Copy Style is enabled for any selection but copies only the style of a
+ * single cell.
+ */
+InlineToolbar.prototype.isActionEnabled = function(name, action)
+{
+	return action.isEnabled() && (name != 'copyStyle' ||
+		this.graph.getSelectionCount() == 1);
+};
+
+/**
+ * Returns the entry of the action of the given name for the sections of
+ * More, or null if there is no such action or it is hidden: the action, the
+ * key of its resource and image (lock or unlock as lockUnlock does), its
+ * label, its title with its key, its key, its image and if it is enabled
+ * (see isActionEnabled).
+ */
+InlineToolbar.prototype.getActionEntry = function(name)
+{
+	var action = this.editorUi.actions.get(name);
+
+	if (action == null || !this.isActionVisible(name))
+	{
+		return null;
+	}
+
+	var key = name;
+
+	// Lock or unlock as the action does (see lockUnlock)
+	if (key == 'lockUnlock')
+	{
+		var cell = this.graph.getSelectionCell();
+		key = (cell == null || mxUtils.getValue(this.graph.getCurrentCellStyle(cell),
+			mxConstants.STYLE_EDITABLE, 1) == 1) ? 'lock' : 'unlock';
+	}
+
+	var label = mxResources.get(key);
+
+	if (label == null || label == '')
+	{
+		label = action.label;
+	}
+
+	var image = this.actionImages[key];
+
+	return {name: name, key: key, action: action, label: label, shortcut: action.shortcut,
+		title: label + ((action.shortcut != null) ? ' (' + action.shortcut + ')' : ''),
+		image: (image != null) ? (InlineToolbar[image] || Editor[image]) : null,
+		enabled: this.isActionEnabled(name, action)};
+};
+
+/**
+ * Runs the given action from a popover: ends editing and closes the popover
+ * unless keepOpen is true.
+ */
+InlineToolbar.prototype.runAction = function(action, keepOpen)
+{
+	this.graph.stopEditing(false);
+
+	if (!keepOpen)
+	{
+		this.hidePopover();
+	}
+
+	try
+	{
+		action.funct();
+	}
+	catch (e)
+	{
+		this.editorUi.handleError(e);
+	}
+};
+
+/**
+ * Shows the line style popover: dash pattern, stroke width, stroke color,
+ * Corners for shapes and Opacity for connectors and, for edge shapes that
+ * support them, fill and gradient color, in the sections Line and Fill (see
+ * decorateSimplePopover).
  */
 InlineToolbar.prototype.showLineStyleMenu = function(evt)
 {
@@ -2638,10 +4153,10 @@ InlineToolbar.prototype.showLineStyleMenu = function(evt)
 		});
 
 	dashDropdown.style.marginBottom = '8px';
-	body.appendChild(dashDropdown);
+	body.appendChild(this.setPart(dashDropdown, 'pattern'));
 
 	// Row 2: Stroke width + color
-	var row2 = document.createElement('div');
+	var row2 = this.setPart(document.createElement('div'), 'stroke');
 	row2.style.display = 'flex';
 	row2.style.alignItems = 'center';
 	row2.style.gap = '8px';
@@ -2663,13 +4178,30 @@ InlineToolbar.prototype.showLineStyleMenu = function(evt)
 		graph.shapeForegroundColor));
 	body.appendChild(row2);
 
+	// Corners for shapes and Opacity for connectors in Line
+	var corners = this.createCornersRow();
+	var opacity = (this.isEdgeSelection(cells)) ?
+		this.createOpacityRow('line') : null;
+
+	if (corners != null)
+	{
+		body.appendChild(corners);
+	}
+
+	if (opacity != null)
+	{
+		body.appendChild(opacity);
+	}
+
 	// Row 3: Fill and gradient color, shown only for edge shapes that
 	// support them (filled edge, flex arrow, arrow, pipe, wire, …).
 	// Vertices have a fill popover.
+	var row3 = null;
+
 	if (this.isEdgeSelection(cells) && this.isFillSelection(false, cells))
 	{
 		var fillColor = mxUtils.getValue(style, mxConstants.STYLE_FILLCOLOR, null);
-		var row3 = document.createElement('div');
+		row3 = this.setPart(document.createElement('div'), 'fill');
 		row3.style.display = 'flex';
 		row3.style.alignItems = 'center';
 		row3.style.gap = '14px';
@@ -2699,7 +4231,8 @@ InlineToolbar.prototype.showLineStyleMenu = function(evt)
 
 /**
  * Shows the fill popover of vertices: fill and gradient color, gradient
- * direction and fill pattern (see StyleFormatPanel.addFill).
+ * direction, fill pattern (see StyleFormatPanel.addFill) and Opacity, in
+ * the section Fill (see decorateSimplePopover).
  */
 InlineToolbar.prototype.showFillMenu = function(evt)
 {
@@ -2729,7 +4262,7 @@ InlineToolbar.prototype.showFillMenu = function(evt)
 	var body = p.body;
 
 	// Row 1: Fill and gradient color
-	var colorRow = document.createElement('div');
+	var colorRow = this.setPart(document.createElement('div'), 'colors');
 	colorRow.style.display = 'flex';
 	colorRow.style.alignItems = 'center';
 	colorRow.style.gap = '14px';
@@ -2756,7 +4289,7 @@ InlineToolbar.prototype.showFillMenu = function(evt)
 	});
 
 	// Rows 2 and 3 with aligned labels
-	var grid = document.createElement('div');
+	var grid = this.setPart(document.createElement('div'), 'grid');
 	grid.style.display = 'grid';
 	grid.style.gridTemplateColumns = 'auto 1fr';
 	grid.style.alignItems = 'center';
@@ -2851,14 +4384,19 @@ InlineToolbar.prototype.showFillMenu = function(evt)
 	update(style);
 	this.addPopoverUpdate(update);
 
+	// Opacity, last in Fill
+	body.appendChild(this.createOpacityRow('fill'));
+
 	// Position and animate
 	p.position();
 	p.animateIn();
 };
 
 /**
- * Shows the text popover: font family, size and color, font style and
- * horizontal alignment of the label (see TextFormatPanel.addFont).
+ * Shows the text popover: font family, size and color, font style with
+ * strikethrough and the horizontal and vertical alignment of the label (see
+ * TextFormatPanel.addFont), in the sections Font, Alignment and Background
+ * (see decorateSimplePopover).
  */
 InlineToolbar.prototype.showTextMenu = function(evt)
 {
@@ -2875,11 +4413,13 @@ InlineToolbar.prototype.showTextMenu = function(evt)
 
 	var p = this.createPopover(this.textBtn, {persistOnClick: true, kind: 'text'});
 	var body = p.body;
+	var fontDropdown = null;
 
 	// Row 1: Font family, opens the font menu
 	if (style[mxConstants.STYLE_FONTFAMILY] != 'inherit')
 	{
-		var fontDropdown = this.createDropdownButton(mxResources.get('fontFamily'));
+		fontDropdown = this.setPart(this.createDropdownButton(
+			mxResources.get('fontFamily')), 'font');
 		fontDropdown.style.marginBottom = '8px';
 
 		var updateFont = mxUtils.bind(this, function(style)
@@ -2903,7 +4443,7 @@ InlineToolbar.prototype.showTextMenu = function(evt)
 			var origin = mxUtils.getDocumentScrollOrigin(document);
 			this.hideSubPanel();
 
-			ui.showPopupMenu(function(menu, parent)
+			this.showPopoverMenu(function(menu, parent)
 			{
 				ui.menus.get('fontFamily').funct(menu, parent);
 			}, rect.left + origin.x, rect.bottom + origin.y + 4, e);
@@ -2915,7 +4455,7 @@ InlineToolbar.prototype.showTextMenu = function(evt)
 	}
 
 	// Row 2: Font size and color
-	var row2 = document.createElement('div');
+	var row2 = this.setPart(document.createElement('div'), 'fields');
 	row2.style.display = 'flex';
 	row2.style.alignItems = 'center';
 	row2.style.gap = '8px';
@@ -2992,11 +4532,17 @@ InlineToolbar.prototype.showTextMenu = function(evt)
 			}));
 	}
 
-	// Row 3: Bold, italic, underline and alignment
-	var row3 = document.createElement('div');
+	// Row 3: Bold, italic, underline and strikethrough, and the alignments
+	// in a row of their own
+	var row3 = this.setPart(document.createElement('div'), 'styles');
 	row3.style.display = 'flex';
 	row3.style.alignItems = 'center';
 	row3.style.gap = '2px';
+
+	var alignRow = this.setPart(document.createElement('div'), 'align');
+	alignRow.style.display = 'flex';
+	alignRow.style.alignItems = 'center';
+	alignRow.style.gap = '2px';
 
 	if (row2.firstChild != null)
 	{
@@ -3023,7 +4569,7 @@ InlineToolbar.prototype.showTextMenu = function(evt)
 
 	var addAlign = mxUtils.bind(this, function(name, image, align)
 	{
-		row3.appendChild(this.createToggleButton(mxResources.get(name), image,
+		alignRow.appendChild(this.createToggleButton(mxResources.get(name), image,
 			function(style)
 			{
 				return mxUtils.getValue(style, mxConstants.STYLE_ALIGN,
@@ -3037,19 +4583,49 @@ InlineToolbar.prototype.showTextMenu = function(evt)
 	addFontStyle('bold', Editor.boldImage, mxConstants.FONT_BOLD);
 	addFontStyle('italic', Editor.italicImage, mxConstants.FONT_ITALIC);
 	addFontStyle('underline', Editor.underlineImage, mxConstants.FONT_UNDERLINE);
+
+	// Strikethrough after underline (the flag of the font style, or the
+	// selected text while it is edited, like bold)
+	row3.appendChild(this.createToggleButton(mxResources.get('strikethrough'),
+		Editor.strikethroughImage, mxUtils.bind(this, function(style)
+		{
+			return this.isStrikethrough(style);
+		}), mxUtils.bind(this, function()
+		{
+			this.toggleStrikethrough();
+		})));
+
 	addAlign('left', Editor.alignLeftImage, mxConstants.ALIGN_LEFT);
 	addAlign('center', Editor.alignCenterImage, mxConstants.ALIGN_CENTER);
 	addAlign('right', Editor.alignRightImage, mxConstants.ALIGN_RIGHT);
 
-	// Separates the font style from the alignment
-	row3.childNodes[3].style.marginLeft = '8px';
+	// The vertical alignment after the horizontal one, as in the Format
+	// panel, which has both
+	for (var i = 0; i < this.verticalAlignments.length; i++)
+	{
+		(mxUtils.bind(this, function(name, image, value)
+		{
+			alignRow.appendChild(this.createToggleButton(mxResources.get(name), Editor[image],
+				function(style)
+				{
+					return mxUtils.getValue(style, mxConstants.STYLE_VERTICAL_ALIGN,
+						mxConstants.ALIGN_MIDDLE) == value;
+				}, mxUtils.bind(this, function()
+				{
+					this.setVerticalAlign(value);
+				})));
+		})).apply(this, this.verticalAlignments[i]);
+	}
+
 	body.appendChild(row3);
+	body.appendChild(alignRow);
 
 	// Row 4: Background of the labels of edges and of their label cells (see
 	// createLabelBackgroundOption in TextFormatPanel): none, solid with the
 	// color of the swatch or transparent, which cuts the label out of the edge
 	var cells = this.getTargetCells('text');
 	var edgeLabels = cells.length > 0;
+	var row4 = null;
 
 	for (var i = 0; i < cells.length && edgeLabels; i++)
 	{
@@ -3131,12 +4707,13 @@ InlineToolbar.prototype.showTextMenu = function(evt)
 		updateSwatch();
 		this.addPopoverUpdate(updateSwatch);
 
-		var row4 = document.createElement('div');
+		row4 = this.setPart(document.createElement('div'), 'background');
 		row4.style.display = 'flex';
 		row4.style.alignItems = 'center';
 		row4.style.gap = '8px';
 		row4.style.marginTop = '8px';
-		row4.appendChild(this.createLabel(mxResources.get('background')));
+
+		// The head of the section names the background
 		row4.appendChild(dropdown);
 		row4.appendChild(swatch);
 		body.appendChild(row4);
@@ -3147,6 +4724,7 @@ InlineToolbar.prototype.showTextMenu = function(evt)
 	// inherit the text styles of their edge
 	var matchConnector = ui.actions.get('matchConnector');
 	var labelCells = [];
+	var row5 = null;
 
 	for (var i = 0; i < cells.length; i++)
 	{
@@ -3158,7 +4736,7 @@ InlineToolbar.prototype.showTextMenu = function(evt)
 
 	if (matchConnector != null && labelCells.length > 0)
 	{
-		var row5 = document.createElement('div');
+		row5 = this.setPart(document.createElement('div'), 'match');
 		row5.style.display = 'flex';
 		row5.style.marginTop = '8px';
 		row5.appendChild(this.createTextButton(mxResources.get('matchConnector'),
@@ -3580,6 +5158,7 @@ InlineToolbar.prototype.showMarkerSubPanel = function(dropdown, prefix, items, c
 	});
 
 	this.installWheelHandler(panel);
+	this.hidePopupMenus();
 	container.appendChild(panel);
 	this.currentSubPanel = panel;
 	panel._ownerDropdown = dropdown;
@@ -3603,7 +5182,10 @@ InlineToolbar.prototype.showMarkerSubPanel = function(dropdown, prefix, items, c
 };
 
 /**
- * Shows the connection style popover: routing style grid.
+ * Shows the connection style popover: the grids of the routing, the shape
+ * and the corners of connectors in the sections Waypoints, with Clear
+ * Waypoints for connectors with waypoints, Connection and Corners (see
+ * decorateSimplePopover).
  */
 InlineToolbar.prototype.showConnStyleMenu = function(evt)
 {
@@ -3622,19 +5204,14 @@ InlineToolbar.prototype.showConnStyleMenu = function(evt)
 	var p = this.createPopover(this.connStyleBtn, {kind: 'edge'});
 	var body = p.body;
 
-	// Title
-	var titleDiv = document.createElement('div');
-	titleDiv.style.fontWeight = 'bold';
-	titleDiv.style.fontSize = '12px';
-	titleDiv.style.marginBottom = '8px';
-	titleDiv.style.color = 'light-dark(#333, #ccc)';
-	mxUtils.write(titleDiv, mxResources.get('connection'));
-	body.appendChild(titleDiv);
-
 	// Shared callback for applying style items
 	var applyItem = mxUtils.bind(this, function(item)
 	{
 		graph.stopEditing(false);
+
+		// Closes first, so that the popover shrinks where it is, towards its
+		// button, as a new route moves the toolbar (after that, see show)
+		this.hidePopover();
 		graph.getModel().beginUpdate();
 
 		try
@@ -3676,17 +5253,7 @@ InlineToolbar.prototype.showConnStyleMenu = function(evt)
 		}
 
 		this.updateIcons();
-		this.hidePopover();
 	});
-
-	var addDivider = function()
-	{
-		var div = document.createElement('div');
-		div.style.height = '1px';
-		div.style.backgroundColor = 'light-dark(#d0d0d0, #505050)';
-		div.style.margin = '6px 0';
-		body.appendChild(div);
-	};
 
 	// Section 1: Routing styles
 	var routingItems = [];
@@ -3761,6 +5328,14 @@ InlineToolbar.prototype.showConnStyleMenu = function(evt)
 				this.editorUi.getImageForEdgeStyle(style)), applyItem);
 	}
 
+	// Clear Waypoints for connectors with waypoints
+	var clearRow = this.createClearWaypointsRow();
+
+	if (clearRow != null)
+	{
+		body.appendChild(clearRow);
+	}
+
 	// Section 2: Edge shape
 	var shapeKeys = [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE,
 		mxConstants.STYLE_ENDSIZE, mxConstants.STYLE_DASHED, 'width',
@@ -3783,11 +5358,6 @@ InlineToolbar.prototype.showConnStyleMenu = function(evt)
 		keys: shapeKeys, values: ['pipe', null, null, null, null, null, null, null, null]});
 	shapeItems.push({img: Format.wireEdgeImage.src, title: mxResources.get('wire'),
 		keys: shapeKeys, values: ['wire', null, null, '1', null, null, null, null, null]});
-
-	if (routingItems.length > 0)
-	{
-		addDivider();
-	}
 
 	this.buildIconGrid(body, shapeItems,
 		this.getActiveIndexForImage(shapeItems,
@@ -3831,7 +5401,6 @@ InlineToolbar.prototype.showConnStyleMenu = function(evt)
 
 	if (showBend)
 	{
-		addDivider();
 		this.buildIconGrid(body, bendItems, activeBend, applyItem);
 	}
 
@@ -4312,7 +5881,8 @@ InlineToolbar.prototype.showTableMenu = function(evt)
  * Adds an option for the action with the given name to the given options if
  * the action is defined (eg. not in the viewer). The label is the given
  * title or the label of the action, and the title has the shortcut. An
- * option without an image is a text button.
+ * option without an image is a text button. The option keeps the name of
+ * the action and its shortcut.
  */
 InlineToolbar.prototype.addActionOption = function(options, name, image, group, title)
 {
@@ -4325,7 +5895,7 @@ InlineToolbar.prototype.addActionOption = function(options, name, image, group, 
 
 		options.push({label: label, title: label + ((action.shortcut != null) ?
 			' (' + action.shortcut + ')' : ''), image: image, group: group,
-			fn: function()
+			action: name, shortcut: action.shortcut, fn: function()
 			{
 				action.funct();
 			}});
@@ -4625,33 +6195,38 @@ InlineToolbar.prototype.getShapeSelection = function(cells)
 	var basic = result;
 	var keys = null;
 
-	for (var i = 0; result && i < cells.length; i++)
+	// Keeps the styles of the parents while the cells are checked (see
+	// getTargetCells)
+	graph.cacheChildLayoutStyles(mxUtils.bind(this, function()
 	{
-		var state = graph.view.getState(cells[i]);
-		result = state != null && model.isVertex(cells[i]) &&
-			model.getChildCount(cells[i]) == 0 && !this.isLabelCell(cells[i]) &&
-			!graph.isSwimlane(cells[i]) && !graph.isContainer(cells[i]) &&
-			!graph.isTable(cells[i]) && !graph.isTableRow(cells[i]) &&
-			!graph.isTableCell(cells[i]) && !graph.isTransparentState(state);
-
-		if (result && basic)
+		for (var i = 0; result && i < cells.length; i++)
 		{
-			// Shape names of the entries, without rounded corners
-			if (keys == null)
+			var state = graph.view.getState(cells[i]);
+			result = state != null && model.isVertex(cells[i]) &&
+				model.getChildCount(cells[i]) == 0 && !this.isLabelCell(cells[i]) &&
+				!graph.isSwimlane(cells[i]) && !graph.isContainer(cells[i]) &&
+				!graph.isTable(cells[i]) && !graph.isTableRow(cells[i]) &&
+				!graph.isTableCell(cells[i]) && !graph.isTransparentState(state);
+
+			if (result && basic)
 			{
-				var entries = this.getShapeEntries();
-				keys = {};
-
-				for (var j = 0; j < entries.length; j++)
+				// Shape names of the entries, without rounded corners
+				if (keys == null)
 				{
-					keys[entries[j].key.split(':')[0]] = true;
-				}
-			}
+					var entries = this.getShapeEntries();
+					keys = {};
 
-			basic = !graph.isImageState(state) &&
-				keys[this.getShapeKey(state.style).split(':')[0]] == true;
+					for (var j = 0; j < entries.length; j++)
+					{
+						keys[entries[j].key.split(':')[0]] = true;
+					}
+				}
+
+				basic = !graph.isImageState(state) &&
+					keys[this.getShapeKey(state.style).split(':')[0]] == true;
+			}
 		}
-	}
+	}));
 
 	var palette = null;
 
@@ -4728,7 +6303,10 @@ InlineToolbar.prototype.getPaletteEntries = function(id)
  * the shapes of the palette under its title (see getPaletteEntries) with
  * their style, as if they were inserted from the sidebar, and the formatting
  * of the shapes (see EditorUi.getPaletteStyle). Both keep the labels, sizes
- * and connections. The popover stays open.
+ * and connections. The search above the shapes finds the shapes of all
+ * libraries like the search of the shape picker (see
+ * EditorUi.searchShapePickerCells), or filters the shapes of the popover
+ * where the app has no such search. The popover stays open.
  */
 InlineToolbar.prototype.showShapeMenu = function(evt)
 {
@@ -4749,6 +6327,13 @@ InlineToolbar.prototype.showShapeMenu = function(evt)
 	var p = this.createPopover(this.shapeBtn, {kind: 'shape'});
 	var itemSize = this.iconSize + 8;
 	var items = [];
+
+	// The tiles of the shapes that the search found (see find)
+	var foundItems = [];
+
+	// The tile of the search that was applied last with the cells and the
+	// styles that it gave them (see update)
+	var applied = null;
 
 	var grid = document.createElement('div');
 	grid.style.display = 'grid';
@@ -4798,13 +6383,47 @@ InlineToolbar.prototype.showShapeMenu = function(evt)
 			key = next;
 		}
 
-		for (var i = 0; i < items.length; i++)
+		// The tile of the search that was applied is marked while the selected
+		// shapes keep the styles that it gave them, which marks a shape of
+		// another library in a palette and one of several tiles of the same
+		// basic shape. Else the first tile of the search with the key.
+		var last = (applied != null && applied.cells.length == this.currentCells.length) ?
+			applied.item : null;
+
+		for (var i = 0; i < this.currentCells.length && last != null; i++)
 		{
-			var active = items[i].entry.key == key;
-			items[i].elt.style.backgroundColor = (active) ? 'light-dark(#e8f0fe, #3c4043)' : '';
-			items[i].elt.style.border = (active) ? '2px solid light-dark(#1a73e8, #8ab4f8)' :
+			if (applied.cells[i] != this.currentCells[i] ||
+				graph.model.getStyle(this.currentCells[i]) != applied.styles[i])
+			{
+				last = null;
+			}
+		}
+
+		var all = items.concat(foundItems);
+		var marked = false;
+
+		for (var i = 0; i < all.length; i++)
+		{
+			var active = false;
+
+			if (i < items.length)
+			{
+				active = key != null && all[i].key == key;
+			}
+			else if (last != null)
+			{
+				active = all[i] == last;
+			}
+			else
+			{
+				active = !marked && key != null && all[i].key == key;
+				marked = marked || active;
+			}
+
+			all[i].elt.style.backgroundColor = (active) ? 'light-dark(#e8f0fe, #3c4043)' : '';
+			all[i].elt.style.border = (active) ? '2px solid light-dark(#1a73e8, #8ab4f8)' :
 				'2px solid transparent';
-			items[i].active = active;
+			all[i].active = active;
 		}
 	});
 
@@ -4823,14 +6442,17 @@ InlineToolbar.prototype.showShapeMenu = function(evt)
 			}
 		}, {root: null}) : null;
 
-	var addEntry = mxUtils.bind(this, function(entry)
+	// Adds the tile of the given entry to the given grid and list. Shapes that
+	// change like basic shapes are shown in the style of the selected shape,
+	// the others with the style of their palette.
+	var addEntry = mxUtils.bind(this, function(entry, parent, list, asBasic)
 	{
 		// Shows a basic shape in the style of the selected shape (see showShapePicker).
 		// Rectangles keep their corners, which are the difference of the shapes.
-		var rect = basic && entry.key.split(':')[0] == mxConstants.SHAPE_RECTANGLE;
+		var rect = asBasic && entry.key.split(':')[0] == mxConstants.SHAPE_RECTANGLE;
 		var cell = graph.model.cloneCell(entry.cell);
 
-		if (basic)
+		if (asBasic)
 		{
 			var temp = mxUtils.clone(style);
 
@@ -4852,6 +6474,7 @@ InlineToolbar.prototype.showShapeMenu = function(evt)
 		elt.style.alignItems = 'center';
 		elt.style.justifyContent = 'center';
 		elt.setAttribute('title', entry.title);
+		elt.setAttribute('tabindex', '-1');
 
 		var thumb = document.createElement('div');
 		thumb.style.width = '24px';
@@ -4860,11 +6483,24 @@ InlineToolbar.prototype.showShapeMenu = function(evt)
 
 		var render = function()
 		{
-			sidebar.createThumb([graph.model.cloneCell(cell)], 24, 24,
-				thumb, null, false, false, null, null, null, 0);
+			var temp = graph.model.cloneCell(cell);
+
+			// Free text found by the search shows its text in the size of
+			// the tile, as in the shape picker (see Sidebar.fitThumbToLabel);
+			// the other thumbnails have no labels
+			var label = sidebar.isThumbFitToLabel(entry.cell);
+
+			if (label)
+			{
+				sidebar.fitThumbToLabel(temp);
+			}
+
+			sidebar.createThumb([temp], 24, 24, thumb, null, label, false,
+				null, null, null, 0);
 		};
 
-		if (observer != null)
+		// The shapes found are few and shown at once
+		if (observer != null && list == items)
 		{
 			thumb.render = render;
 			observer.observe(thumb);
@@ -4874,8 +6510,12 @@ InlineToolbar.prototype.showShapeMenu = function(evt)
 			render();
 		}
 
-		var item = {entry: entry, elt: elt, active: false};
-		items.push(item);
+		// The text that the filter finds: the title and the name of the shape
+		var name = (basic) ? entry.key.split(':')[0].split('.').pop() :
+			((entry.name != null) ? entry.name.split('.').pop() : '');
+		var item = {entry: entry, key: entry.key, elt: elt, active: false,
+			text: (entry.title + ' ' + name).toLowerCase()};
+		list.push(item);
 
 		mxEvent.addListener(elt, 'mouseenter', function()
 		{
@@ -4903,7 +6543,7 @@ InlineToolbar.prototype.showShapeMenu = function(evt)
 			var cells = graph.getEditableCells(this.currentCells);
 			graph.stopEditing(false);
 
-			if (basic)
+			if (asBasic)
 			{
 				graph.updateShapes(graph.model.cloneCell(entry.cell), cells, false,
 					(rect) ? [mxConstants.STYLE_ROUNDED] : null);
@@ -4916,15 +6556,29 @@ InlineToolbar.prototype.showShapeMenu = function(evt)
 				{
 					for (var i = 0; i < cells.length; i++)
 					{
-						var key = getKey(cells[i]);
 						var previous = null;
 
-						for (var j = 0; j < entries.length && previous == null; j++)
+						if (!basic)
 						{
-							if (entries[j].key == key)
+							var key = getKey(cells[i]);
+
+							for (var j = 0; j < entries.length && previous == null; j++)
 							{
-								previous = entries[j];
+								if (entries[j].key == key)
+								{
+									previous = entries[j];
+								}
 							}
+						}
+
+						// A shape that is in no entry of the palette, such as a
+						// shape of another library that the search found and that
+						// a tile of the palette changes back, changes from the
+						// closest shape of the sidebar, so that it gets no styles
+						// of the other library
+						if (previous == null)
+						{
+							previous = sidebar.getPaletteShape(graph.model.getStyle(cells[i]));
 						}
 
 						graph.model.setStyle(cells[i], ui.getPaletteStyle(
@@ -4939,45 +6593,789 @@ InlineToolbar.prototype.showShapeMenu = function(evt)
 				sidebar.addRecentShapes([entry.cell]);
 			}
 
+			// The result of the search that was applied is marked (see update)
+			applied = null;
+
+			if (list != items)
+			{
+				var styles = [];
+
+				for (var i = 0; i < cells.length; i++)
+				{
+					styles.push(graph.model.getStyle(cells[i]));
+				}
+
+				applied = {item: item, cells: cells, styles: styles};
+			}
+
+			this.updatePopover();
 			mxEvent.consume(e);
 		}));
 
-		grid.appendChild(elt);
+		parent.appendChild(elt);
 	});
 
 	for (var i = 0; i < entries.length; i++)
 	{
-		addEntry(entries[i]);
+		addEntry(entries[i], grid, items, basic);
 	}
 
 	update();
 	this.addPopoverUpdate(update);
 
-	if (basic)
+	// The search of the shapes (the driver, 17 November 2026: "Hat die beim
+	// Shape Dropdown eine Suche, das wäre noch cool") searches all libraries
+	// like the shape picker (the driver, 18 November 2026: "ich will eine
+	// echte Suche")
+	var search = this.setPart(document.createElement('input'), 'search');
+	search.setAttribute('type', 'search');
+	search.setAttribute('placeholder', mxResources.get('searchShapes'));
+	search.setAttribute('aria-label', mxResources.get('searchShapes'));
+	search.setAttribute('autocomplete', 'off');
+	search.setAttribute('spellcheck', 'false');
+	search.style.display = 'block';
+	search.style.boxSizing = 'border-box';
+	search.style.width = '100%';
+	search.style.marginBottom = '6px';
+	p.body.appendChild(search);
+
+	// The popover consumes the mouse down (so the cells stay selected), which
+	// would keep a click or a tap from focusing the search and placing the
+	// caret: it stops at the search without preventing the default
+	mxEvent.addListener(search, 'mousedown', function(evt)
 	{
-		p.body.appendChild(grid);
-	}
-	else
+		evt.stopPropagation();
+	});
+
+	// The shapes, the shapes found and the note if the search finds none or
+	// waits for the icon service; the shapes of a palette scroll after 5 rows
+	// under the title of the palette
+	var results = document.createElement('div');
+	results.style.boxSizing = 'border-box';
+	results.appendChild(grid);
+
+	var foundGrid = this.setPart(document.createElement('div'), 'found');
+	foundGrid.style.setProperty('display', 'none', 'important');
+	foundGrid.style.gridTemplateColumns = grid.style.gridTemplateColumns;
+	foundGrid.style.gap = grid.style.gap;
+	results.appendChild(foundGrid);
+
+	var empty = this.setPart(document.createElement('div'), 'empty');
+	empty.style.display = 'none';
+	empty.style.padding = '8px 4px';
+	empty.style.fontSize = '12px';
+	empty.style.overflowWrap = 'anywhere';
+	empty.setAttribute('role', 'status');
+	results.appendChild(empty);
+
+	var title = null;
+
+	if (!basic)
 	{
-		// Title of the palette and its shapes, which scroll after 5 rows
-		var title = this.createLabel(sidebar.getPaletteTitle(palette));
+		title = this.setPart(this.createLabel(sidebar.getPaletteTitle(palette)), 'title');
 		title.style.display = 'block';
 		title.style.marginBottom = '6px';
 		p.body.appendChild(title);
 
-		var scroll = document.createElement('div');
-
-		// The end of the list does not scroll the diagram
-		scroll.style.overscrollBehavior = 'contain';
-		scroll.appendChild(grid);
-		p.body.appendChild(scroll);
-
 		// Scrolls unless the popover scrolls (see createPopover)
-		p.scrolls.push({elt: scroll, maxHeight: (5 * (itemSize + 2)) + 'px'});
+		p.scrolls.push({elt: results, maxHeight: (5 * (itemSize + 2)) + 'px'});
 	}
+
+	// The end of the list does not scroll the diagram (the list of the
+	// basic shapes scrolls after More Results, see prepare), which would
+	// close the popover
+	results.style.overscrollBehavior = 'contain';
+
+	p.body.appendChild(results);
+
+	// More Results below the shapes found, as in the search of the sidebar
+	// (the driver, 22 November 2026: "würde hier ein "more results" noch sinn
+	// machen? damit nicht nur 12 results"): it adds the next shapes below them
+	// and the list scrolls to the first new row; hidden without more shapes.
+	// It stays below the list that scrolls, so it stays under the mouse.
+	var more = this.setPart(document.createElement('div'), 'more');
+	more.style.display = 'none';
+	more.style.paddingTop = '6px';
+
+	var moreButton = this.createTextButton(mxResources.get('moreResults'),
+		mxResources.get('moreResults'), function()
+	{
+		loadMore();
+	});
+
+	moreButton.setAttribute('role', 'button');
+	moreButton.setAttribute('tabindex', '0');
+	more.appendChild(moreButton);
+	p.body.appendChild(more);
+
+	// The popover keeps its size while the search changes the shapes, so it
+	// stays at its place
+	var keepSize = function()
+	{
+		if (results.style.minHeight == '')
+		{
+			results.style.minHeight = results.offsetHeight + 'px';
+		}
+	};
+
+	// The room of the shapes found (see prepare): the height of the shapes of
+	// the popover and of the name of a palette, which hides while searching,
+	// and how the shapes found fill it (columns, the height of a shape, the
+	// gap between the rows, the padding of the list and the height of More
+	// Results), the entry of the list in the parts that scroll (see
+	// createPopover) and its height without the search
+	var room = null;
+	var layout = null;
+	var scroll = null;
+	var scrollMax = null;
+	var minHeight = null;
+
+	// The result of the last search for More Results (null if there are no
+	// more shapes), its words and true while More Results waits for the icon
+	// service
+	var next = null;
+	var lastTerm = null;
+	var loadingMore = false;
+
+	// Shows the given note (none if null)
+	var showNote = function(text)
+	{
+		empty.textContent = '';
+
+		if (text != null)
+		{
+			mxUtils.write(empty, text);
+		}
+
+		empty.style.display = (text != null) ? '' : 'none';
+		results.scrollTop = 0;
+	};
+
+	// True while the shapes found (or the note of the search) are shown in
+	// place of the shapes of the popover
+	var searching = false;
+	var real = ui.canSearchShapePickerCells();
+
+	// True while the search waits for the icon service, and the key (Enter or
+	// Arrow Down) pressed in the search meanwhile, which goes to the shapes
+	// found when they come
+	var loading = false;
+	var pending = null;
+	var counter = 0;
+	var thread = null;
+
+	// Returns the tiles of the shapes that are shown
+	var getShown = function()
+	{
+		var list = (searching) ? foundItems : items;
+		var result = [];
+
+		for (var i = 0; i < list.length; i++)
+		{
+			if (list[i].elt.style.display != 'none')
+			{
+				result.push(list[i].elt);
+			}
+		}
+
+		return result;
+	};
+
+	// Enter applies the first shape shown, Arrow Down moves to it
+	var goToShapes = function(keyCode)
+	{
+		var shown = getShown();
+
+		if (shown.length > 0)
+		{
+			if (keyCode == 13)
+			{
+				shown[0].click();
+			}
+			else
+			{
+				shown[0].focus();
+			}
+		}
+
+		return shown.length > 0;
+	};
+
+	// Shows the shapes of the popover (searching is false) or the shapes
+	// found and hides the title of the palette, as they are of all libraries.
+	// The look of a theme may give the grids a display with priority.
+	var setSearching = mxUtils.bind(this, function(value)
+	{
+		searching = value;
+		grid.style.setProperty('display', (value) ? 'none' : 'grid', 'important');
+		foundGrid.style.setProperty('display', (value && foundItems.length > 0) ?
+			'grid' : 'none', 'important');
+
+		if (title != null)
+		{
+			title.style.display = (value) ? 'none' : 'block';
+		}
+
+		updateMore();
+	});
+
+	// Shows More Results while the search shows shapes and has more of them
+	// (see find). The shapes found and their note take the room of the shapes
+	// of the popover and of the name of a palette, less More Results while
+	// it is shown, so the popover keeps its height (the driver, 19 November
+	// 2026: nothing slides away under the mouse); the shapes found scroll
+	// in it. The popover applies the height (see createPopover).
+	var updateMore = function()
+	{
+		var shown = searching && next != null && foundItems.length > 0;
+		more.style.display = (shown) ? '' : 'none';
+
+		if (room != null)
+		{
+			var height = (searching) ? (room - ((shown) ? layout.more : 0)) + 'px' : null;
+			results.style.minHeight = (height != null) ? height : minHeight;
+			scroll.maxHeight = (height != null) ? height : scrollMax;
+		}
+	};
+
+	// Shows the given label on More Results and the busy state while it
+	// waits for the icon service
+	var setMoreLabel = function(label, busy)
+	{
+		var elt = (moreButton.firstChild != null && moreButton.firstChild.nodeType ==
+			mxConstants.NODETYPE_ELEMENT) ? moreButton.firstChild : moreButton;
+		elt.textContent = '';
+		mxUtils.write(elt, label);
+		moreButton.setAttribute('aria-label', label);
+		moreButton.style.cursor = (busy) ? 'wait' : '';
+
+		if (busy)
+		{
+			moreButton.setAttribute('aria-disabled', 'true');
+		}
+		else
+		{
+			moreButton.removeAttribute('aria-disabled');
+		}
+	};
+
+	// Measures the room of the shapes found when the first search starts,
+	// while the shapes of the popover are shown: their columns and rows, and
+	// the name of a palette, which the search hides (the look of a theme
+	// hides its head when the popover updates). It has at least two rows of
+	// shapes and More Results, as a small palette has less room.
+	var prepare = mxUtils.bind(this, function()
+	{
+		if (room == null)
+		{
+			keepSize();
+			minHeight = results.style.minHeight;
+			var cs = mxUtils.getCurrentStyle(grid);
+			var rs = mxUtils.getCurrentStyle(results);
+			var cols = 0;
+
+			if (cs != null && typeof cs.gridTemplateColumns === 'string')
+			{
+				var tracks = cs.gridTemplateColumns.split(/\s+/);
+
+				for (var i = 0; i < tracks.length; i++)
+				{
+					cols += (/^[\d.]+px$/.test(tracks[i])) ? 1 : 0;
+				}
+			}
+
+			// The shapes in the first row where the columns cannot be read
+			for (var i = 0; cols == 0 && i < items.length; i++)
+			{
+				if (i > 0 && items[i].elt.offsetTop != items[0].elt.offsetTop)
+				{
+					cols = i;
+				}
+			}
+
+			more.style.display = '';
+			layout = {cols: Math.max(1, (cols > 0) ? cols : items.length),
+				tile: (items.length > 0 && items[0].elt.offsetHeight > 0) ?
+					items[0].elt.offsetHeight : itemSize,
+				gap: (cs != null) ? (parseFloat(cs.rowGap) || 0) : 0,
+				pad: (rs != null) ? ((parseFloat(rs.paddingTop) || 0) +
+					(parseFloat(rs.paddingBottom) || 0)) : 0,
+				more: more.offsetHeight};
+			more.style.display = 'none';
+
+			for (var i = 0; i < p.scrolls.length && scroll == null; i++)
+			{
+				if (p.scrolls[i].elt == results)
+				{
+					scroll = p.scrolls[i];
+				}
+			}
+
+			// The shapes of the popover do not scroll, the shapes found do
+			if (scroll == null)
+			{
+				scroll = {elt: results, maxHeight: ''};
+				p.scrolls.push(scroll);
+			}
+
+			// The height of the list where it scrolls on its own (a popover
+			// higher than the diagram shows all of it, see createPopover),
+			// without the height that it keeps (see keepSize), which is the
+			// height of all its shapes there
+			scrollMax = scroll.maxHeight;
+			var maxHeight = results.style.maxHeight;
+			var full = results.offsetHeight;
+			results.style.minHeight = '';
+
+			if (scrollMax != null && scrollMax !== '')
+			{
+				results.style.maxHeight = scrollMax;
+			}
+
+			room = results.offsetHeight;
+			results.style.maxHeight = maxHeight;
+			results.style.minHeight = minHeight;
+
+			// A popover that scrolls as a whole keeps its height: the list
+			// keeps at least the part of it that the popover shows
+			var overflow = p.body.scrollHeight - p.body.clientHeight;
+
+			if (overflow > 0)
+			{
+				room = Math.max(room, full - overflow);
+			}
+
+			// The room of the name of a palette: the list moves up to the search
+			var getGap = function()
+			{
+				return results.getBoundingClientRect().top - search.getBoundingClientRect().bottom;
+			};
+
+			var gap = getGap();
+			setSearching(true);
+			this.updatePopover();
+			room = Math.max(room + Math.max(0, Math.round(gap - getGap())),
+				2 * layout.tile + layout.gap + layout.pad + layout.more);
+			updateMore();
+		}
+	});
+
+	// Returns the number of shapes found that fill the room above More
+	// Results in whole rows
+	var getPageSize = function()
+	{
+		var rows = Math.floor((room - layout.more - layout.pad + layout.gap) /
+			(layout.tile + layout.gap));
+
+		return Math.max(2, rows) * layout.cols;
+	};
+
+	// Shows the shapes that have all words of the search in their title or
+	// name where the app cannot search all libraries
+	var filter = function()
+	{
+		var words = search.value.toLowerCase().split(/\s+/);
+		var found = 0;
+		keepSize();
+
+		for (var i = 0; i < items.length; i++)
+		{
+			var match = true;
+
+			for (var j = 0; j < words.length && match; j++)
+			{
+				match = items[i].text.indexOf(words[j]) >= 0;
+			}
+
+			items[i].elt.style.display = (match) ? 'flex' : 'none';
+			found += (match) ? 1 : 0;
+		}
+
+		showNote((found == 0) ? mxResources.get('noResultsFor', [search.value]) : null);
+	};
+
+	// Basic shapes of the popover that the search found change like the
+	// basic shapes of the popover, in the style of the selected shape
+	var isBasic = mxUtils.bind(this, function(cell, key)
+	{
+		var cellStyle = graph.getCellStyle(cell);
+		var result = basic && cellStyle[mxConstants.STYLE_IMAGE] == null &&
+			mxUtils.getValue(cellStyle, mxConstants.STYLE_RESIZABLE, '1') != '0' &&
+			(mxUtils.getValue(cellStyle, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE) != mxConstants.NONE ||
+			mxUtils.getValue(cellStyle, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE) != mxConstants.NONE);
+
+		for (var i = 0; result && i < entries.length; i++)
+		{
+			if (entries[i].key == key)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	});
+
+	// The popover changes shapes, so it takes no shapes with children
+	var accept = function(cell)
+	{
+		return graph.model.getChildCount(cell) == 0;
+	};
+
+	// Searches the shapes for the given words that fill the room of the list
+	// (see getPageSize), after the given result of the search before (null
+	// for the first shapes), and calls the given function with them, as More
+	// Results of the shape picker does (EditorUi.searchShapePickerPage: the
+	// search goes on after pages with no shapes for the popover while there
+	// are more). Returns true if the function is called later.
+	var searchCells = function(term, fn, isCurrent, from)
+	{
+		return ui.searchShapePickerPage(term, fn, isCurrent, accept, getPageSize(), from);
+	};
+
+	// Adds the tiles of the given shapes found by the search
+	var addFound = mxUtils.bind(this, function(found)
+	{
+		for (var i = 0; i < found.cells.length; i++)
+		{
+			var cell = found.cells[i];
+			var key = (basic) ? this.getShapeKey(graph.getCellStyle(cell)) :
+				sidebar.getKeyStyle(graph.model.getStyle(cell));
+			var name = sidebar.getShapeName(graph.model.getStyle(cell));
+			var text = (found.titles[i] != null && found.titles[i] != '') ?
+				found.titles[i] : name.split('.').pop();
+
+			addEntry({cell: cell, key: key, name: name, title: text},
+				foundGrid, foundItems, isBasic(cell, key));
+		}
+
+		next = (found.more) ? found : null;
+	});
+
+	// Adds the next shapes of the last search below the shapes found (More
+	// Results), as many as fill the room of the list, and scrolls the list
+	// so that their first row is at its top (as far as it scrolls). The
+	// button says that it is loading while the icon service is asked. If it
+	// has the focus when it hides, as there are no more shapes, the focus
+	// goes to the first new shape (not if the focus moved meanwhile).
+	var loadMore = mxUtils.bind(this, function()
+	{
+		if (next != null && !loadingMore && searching)
+		{
+			var from = next;
+			var term = lastTerm;
+			var current = counter;
+			loadingMore = true;
+
+			var isCurrent = mxUtils.bind(this, function()
+			{
+				return current == counter && this.currentPopover == p.popover &&
+					term == mxUtils.trim(search.value);
+			});
+
+			var waiting = searchCells(term, mxUtils.bind(this, function(found)
+			{
+				if (isCurrent())
+				{
+					var first = foundItems.length;
+					var focused = document.activeElement == moreButton;
+					loadingMore = false;
+					setMoreLabel(mxResources.get('moreResults'), false);
+					addFound(found);
+					updateMore();
+					update();
+					this.updatePopover();
+
+					if (first < foundItems.length)
+					{
+						var elt = foundItems[first].elt;
+						var scroller = (results.scrollHeight > results.clientHeight) ? results : p.body;
+						var offset = (scroller == results) ? (parseFloat(mxUtils.getCurrentStyle(
+							results).paddingTop) || 0) : 0;
+						scroller.scrollTop += elt.getBoundingClientRect().top -
+							scroller.getBoundingClientRect().top - offset;
+
+						if (focused && next == null)
+						{
+							elt.focus({preventScroll: true});
+						}
+					}
+					else if (focused && next == null && foundItems.length > 0)
+					{
+						foundItems[foundItems.length - 1].elt.focus({preventScroll: true});
+					}
+				}
+			}), isCurrent, from);
+
+			if (waiting && isCurrent())
+			{
+				setMoreLabel(mxResources.get('loading') + '...', true);
+			}
+		}
+	});
+
+	// Shows the shapes of all libraries that the search of the shape picker
+	// finds for the words of the search: the same shapes in the same order
+	// (EditorUi.searchShapePickerCells) as tiles of the popover, as many as
+	// fill its room (see prepare), a note while the icon service is asked
+	// and if none is found, and More Results if there are more shapes
+	var find = mxUtils.bind(this, function(value)
+	{
+		var term = mxUtils.trim(value);
+		var current = ++counter;
+		pending = null;
+		loading = false;
+		keepSize();
+
+		for (var i = 0; i < foundItems.length; i++)
+		{
+			foundGrid.removeChild(foundItems[i].elt);
+		}
+
+		foundItems = [];
+		applied = null;
+		next = null;
+		lastTerm = term;
+
+		if (loadingMore)
+		{
+			loadingMore = false;
+			setMoreLabel(mxResources.get('moreResults'), false);
+		}
+
+		if (term.length == 0)
+		{
+			setSearching(false);
+			showNote(null);
+			this.updatePopover();
+		}
+		else
+		{
+			prepare();
+
+			// An answer for words that are no longer in the search or for a
+			// popover that closed changes nothing
+			var isCurrent = mxUtils.bind(this, function()
+			{
+				return current == counter && this.currentPopover == p.popover &&
+					term == mxUtils.trim(search.value);
+			});
+
+			var waiting = searchCells(term, mxUtils.bind(this, function(found)
+			{
+				if (isCurrent())
+				{
+					var last = pending;
+					pending = null;
+					loading = false;
+					addFound(found);
+					setSearching(true);
+					showNote((foundItems.length == 0) ? mxResources.get('noResultsFor', [term]) : null);
+					update();
+					this.updatePopover();
+
+					// A key pressed in the search while the icon service was
+					// asked goes to the shapes now
+					if (last != null && document.activeElement == search)
+					{
+						goToShapes(last);
+					}
+				}
+			}), isCurrent, null);
+
+			if (waiting && isCurrent())
+			{
+				setSearching(true);
+				showNote(mxResources.get('loading') + '...');
+				loading = true;
+
+				// The look hides the head of the palette with the title
+				this.updatePopover();
+			}
+		}
+	});
+
+	// Searches now if the last keystroke is still waiting
+	var flush = function()
+	{
+		if (thread != null)
+		{
+			window.clearTimeout(thread);
+			thread = null;
+			find(search.value);
+		}
+	};
+
+	// Searches 200 ms after the last keystroke, like the shape picker, at
+	// once for an empty search
+	var changed = mxUtils.bind(this, function()
+	{
+		if (real)
+		{
+			window.clearTimeout(thread);
+			thread = null;
+
+			if (search.value == '')
+			{
+				find('');
+			}
+			else
+			{
+				thread = window.setTimeout(mxUtils.bind(this, function()
+				{
+					thread = null;
+
+					if (this.currentPopover == p.popover)
+					{
+						find(search.value);
+					}
+				}), 200);
+			}
+		}
+		else
+		{
+			filter();
+		}
+	});
+
+	mxEvent.addListener(search, 'input', changed);
+
+	// Arrow Down moves to the shapes, Enter applies the first one (when they
+	// come if the icon service is asked) and Escape clears the search before
+	// it closes the popover
+	mxEvent.addListener(search, 'keydown', function(evt)
+	{
+		if (evt.isComposing)
+		{
+			return;
+		}
+		else if (evt.keyCode == 40 || evt.keyCode == 13)
+		{
+			flush();
+
+			if (!goToShapes(evt.keyCode) && loading)
+			{
+				pending = evt.keyCode;
+			}
+
+			mxEvent.consume(evt);
+		}
+		else if (evt.keyCode == 27 && search.value != '')
+		{
+			search.value = '';
+			changed();
+			mxEvent.consume(evt);
+		}
+	});
+
+	// The arrow keys move between the shapes (up and down by the columns of
+	// the grid, up from the first row to the search, down from the last row
+	// to More Results), Enter and Space apply the focused shape, other keys
+	// do not reach the diagram
+	mxEvent.addListener(results, 'keydown', function(evt)
+	{
+		var shown = getShown();
+		var index = mxUtils.indexOf(shown, document.activeElement);
+
+		if (index >= 0)
+		{
+			if (evt.keyCode == 13 || evt.keyCode == 32)
+			{
+				// A key held down applies no shape: the focus comes to the
+				// first new shape while Enter or Space on More Results repeats
+				if (!evt.repeat)
+				{
+					shown[index].click();
+				}
+
+				mxEvent.consume(evt);
+			}
+			else if (evt.keyCode >= 37 && evt.keyCode <= 40)
+			{
+				var cols = 1;
+
+				while (cols < shown.length && shown[cols].offsetTop == shown[0].offsetTop)
+				{
+					cols++;
+				}
+
+				var row = Math.floor(index / cols);
+				var last = row >= Math.floor((shown.length - 1) / cols);
+				var target = (evt.keyCode == 37) ? Math.max(0, index - 1) :
+					((evt.keyCode == 39) ? Math.min(shown.length - 1, index + 1) :
+					((evt.keyCode == 38) ? index - cols :
+					((!last) ? Math.min(shown.length - 1, index + cols) : index)));
+
+				if (target < 0)
+				{
+					search.focus();
+				}
+				else if (evt.keyCode == 40 && last && more.style.display != 'none')
+				{
+					moreButton.focus();
+				}
+				else
+				{
+					shown[target].focus();
+				}
+
+				mxEvent.consume(evt);
+			}
+			else if (evt.key != null && evt.key.length == 1 && !evt.ctrlKey &&
+				!evt.metaKey && !evt.altKey)
+			{
+				// Typing goes on in the search
+				search.focus();
+				evt.stopPropagation();
+			}
+			else if (evt.keyCode != 27 && evt.keyCode != 9)
+			{
+				evt.stopPropagation();
+			}
+		}
+	});
+
+	// Enter and Space on More Results add the next shapes, Arrow Up moves to
+	// the last shape, typing goes on in the search, other keys but Escape and
+	// Tab do not reach the diagram
+	mxEvent.addListener(moreButton, 'keydown', function(evt)
+	{
+		if (evt.keyCode == 13 || evt.keyCode == 32)
+		{
+			loadMore();
+			mxEvent.consume(evt);
+		}
+		else if (evt.keyCode == 38)
+		{
+			var shown = getShown();
+
+			if (shown.length > 0)
+			{
+				shown[shown.length - 1].focus();
+			}
+
+			mxEvent.consume(evt);
+		}
+		else if (evt.key != null && evt.key.length == 1 && !evt.ctrlKey &&
+			!evt.metaKey && !evt.altKey)
+		{
+			search.focus();
+			evt.stopPropagation();
+		}
+		else if (evt.keyCode != 27 && evt.keyCode != 9)
+		{
+			evt.stopPropagation();
+		}
+	});
 
 	p.position();
 	p.animateIn();
+
+	// The focus is in the search, except on touch devices, where the keyboard
+	// would cover the shapes
+	if (!(window.matchMedia != null && window.matchMedia('(pointer: coarse)').matches))
+	{
+		search.focus({preventScroll: true});
+	}
 };
 
 /**
@@ -4985,12 +7383,13 @@ InlineToolbar.prototype.showShapeMenu = function(evt)
  * or off (0, which overrides named styles such as label or fancy, see
  * createCellOption in Format) and that is marked if it is on for all of
  * them. The optional keys and values are set with the key and removed with
- * it, eg. the curve fitting of sketch. The popover stays open.
+ * it, eg. the curve fitting of sketch. The popover stays open. The option
+ * keeps the style key (styleKey).
  */
 InlineToolbar.prototype.addToggleOption = function(options, name, image, group, key, keys, values)
 {
 	options.push({title: mxResources.get(name), image: image, group: group, keepOpen: true,
-		isSelected: function(style)
+		styleKey: key, isSelected: function(style)
 		{
 			return mxUtils.getValue(style, key, '0') == '1';
 		},
@@ -5078,93 +7477,49 @@ InlineToolbar.prototype.getOptions = function(cells)
 };
 
 /**
- * Shows the options of the selected cells (see getOptions): the options with
- * an image as buttons and the other options as text buttons below them,
- * like Group and Ungroup in the arrange popover. The options that open
- * dialogs or change the options close the popover.
+ * Hides the context menu and the current menu of the user interface (eg. a
+ * menu of the menubar or the font menu of Text) when a dropdown or one of its
+ * lists opens: the dropdowns and the menus are mutually exclusive. The
+ * gesture listeners of the document that hide the menus miss a click of the
+ * toolbar where they listen to the mousedown that the toolbar and the
+ * popover consume (mouse events on the Mac) and a dropdown that the keyboard
+ * opens.
  */
-InlineToolbar.prototype.showMoreMenu = function(evt)
+InlineToolbar.prototype.hidePopupMenus = function()
 {
+	this.graph.popupMenuHandler.hideMenu();
 	this.editorUi.hideCurrentMenu();
+};
 
-	if (this.currentState == null)
+/**
+ * Hides the popover when a menu of the user interface is shown (see
+ * EditorUi.setCurrentMenu), except a menu of the popover itself (see
+ * showPopoverMenu).
+ */
+InlineToolbar.prototype.currentMenuShown = function(menu)
+{
+	if (!this.showingPopoverMenu)
 	{
-		return;
+		this.hidePopover();
 	}
+};
 
-	var graph = this.graph;
-	var options = this.getOptions();
+/**
+ * Shows the popup menu of the given function as a menu of the popover, eg.
+ * the fonts of Text, which keeps the popover open (see currentMenuShown).
+ */
+InlineToolbar.prototype.showPopoverMenu = function(fn, x, y, evt)
+{
+	this.showingPopoverMenu = true;
 
-	// Toggles are marked for all selected cells (see getCurrentStyle)
-	var p = this.createPopover(this.moreBtn, {kind: null});
-
-	var row = document.createElement('div');
-	row.style.display = 'flex';
-	row.style.alignItems = 'center';
-	row.style.gap = '2px';
-
-	var textRow = document.createElement('div');
-	textRow.style.display = 'flex';
-	textRow.style.alignItems = 'center';
-	textRow.style.gap = '8px';
-
-	var addOption = mxUtils.bind(this, function(option)
+	try
 	{
-		var fn = mxUtils.bind(this, function()
-		{
-			graph.stopEditing(false);
-
-			if (!option.keepOpen)
-			{
-				this.hidePopover();
-			}
-
-			option.fn();
-		});
-
-		if (option.image != null)
-		{
-			var btn = this.createToggleButton(option.title, option.image, function(style)
-			{
-				return option.isSelected != null && option.isSelected(style);
-			}, fn);
-
-			// Separates the groups of buttons
-			if (row.lastChild != null && row.lastChild.group != option.group)
-			{
-				btn.style.marginLeft = '8px';
-			}
-
-			btn.group = option.group;
-			row.appendChild(btn);
-		}
-		else
-		{
-			textRow.appendChild(this.createTextButton(option.label, option.title, fn));
-		}
-	});
-
-	for (var i = 0; i < options.length; i++)
-	{
-		addOption(options[i]);
+		this.editorUi.showPopupMenu(fn, x, y, evt);
 	}
-
-	if (row.firstChild != null)
+	finally
 	{
-		p.body.appendChild(row);
+		this.showingPopoverMenu = false;
 	}
-
-	if (textRow.firstChild != null)
-	{
-		if (row.firstChild != null)
-		{
-			textRow.style.marginTop = '8px';
-		}
-
-		p.body.appendChild(textRow);
-	}
-	p.position();
-	p.animateIn();
 };
 
 /**
@@ -5265,14 +7620,39 @@ InlineToolbar.prototype.hidePopover = function(immediate)
 			popover.style.transform = 'scale(0.3)';
 			popover.style.pointerEvents = 'none';
 
-			window.setTimeout(function()
+			// It shrinks where it is, towards its button, and a change in the
+			// meantime moves the toolbar after that (see show)
+			this.closingPopover = popover;
+
+			window.setTimeout(mxUtils.bind(this, function()
 			{
 				if (popover.parentNode != null)
 				{
 					popover.parentNode.removeChild(popover);
 				}
-			}, duration);
+
+				if (this.closingPopover == popover)
+				{
+					this.popoverClosed();
+				}
+			}), duration);
 		}
+	}
+};
+
+/**
+ * Called when the popover that shrank after it was closed is gone or
+ * another popover opens: shows the buttons and the place of the toolbar for
+ * a change that came in while it shrank (see closingPopover).
+ */
+InlineToolbar.prototype.popoverClosed = function()
+{
+	this.closingPopover = null;
+
+	if (this.repaintAfterClose)
+	{
+		this.repaintAfterClose = false;
+		this.show();
 	}
 };
 
@@ -5282,6 +7662,8 @@ InlineToolbar.prototype.hidePopover = function(immediate)
 InlineToolbar.prototype.destroy = function()
 {
 	this.hidePopover(true);
+	this.closingPopover = null;
+	this.repaintAfterClose = false;
 
 	if (this.editorUi.hoverIcons != null &&
 		this.editorUi.hoverIcons.isSuspended == this.hoverIconsSuspended)
@@ -5302,6 +7684,7 @@ InlineToolbar.prototype.destroy = function()
 		this.hideTimeout = null;
 	}
 
+	this.graph.popupMenuHandler.removeListener(this.contextMenuHandler);
 	this.graph.selectionModel.removeListener(this.selectionHandler);
 	this.graph.model.removeListener(this.modelHandler);
 	this.graph.view.removeListener(this.repaintHandler);
@@ -5310,6 +7693,13 @@ InlineToolbar.prototype.destroy = function()
 	this.graph.removeListener(this.hideHandler);
 	this.editorUi.removeListener(this.selectionHandler);
 	mxEvent.removeListener(this.graph.container, 'scroll', this.scrollHandler);
+
+	for (var i = 0; i < this.pointerEvents.length; i++)
+	{
+		this.graph.container.removeEventListener(this.pointerEvents[i], this.pointerHandler, true);
+	}
+
+	this.graph.container.removeEventListener(this.pointerLeaveEvent, this.pointerLeaveHandler);
 
 	if (this.toolbar.parentNode != null)
 	{

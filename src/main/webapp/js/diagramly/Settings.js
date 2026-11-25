@@ -114,6 +114,31 @@ var mxSettings =
 			mxSettings.save();
 		}
 	},
+	/**
+	 * Returns the stored format and settings of the last export
+	 * ({format, values}) or null. The value is unvalidated and must be
+	 * sanitized by the caller (see EditorUi.sanitizeLastExport).
+	 */
+	getLastExport: function()
+	{
+		var value = (mxSettings.settings != null) ?
+			mxSettings.settings.lastExport : null;
+
+		return (value != null && typeof value === 'object' &&
+			!Array.isArray(value)) ? value : null;
+	},
+	/**
+	 * Stores the given format and settings of the last export
+	 * (see EditorUi.storeLastExport).
+	 */
+	setLastExport: function(value)
+	{
+		if (mxSettings.settings != null)
+		{
+			mxSettings.settings.lastExport = value;
+			mxSettings.save();
+		}
+	},
 	getGridColor: function(darkMode)
 	{
 		var result = (darkMode) ? mxSettings.settings.darkGridColor :
@@ -258,6 +283,25 @@ var mxSettings =
 	{
 		mxSettings.settings.formatWidth = formatWidth;
 	},
+	// The width of the right panel in px that the user dragged (panelResize,
+	// see EditorUi.updatePanelResizer in PanelHost.js) or null for the default
+	getPanelWidth: function()
+	{
+		var value = parseInt(mxSettings.settings.panelWidth);
+
+		return (isNaN(value) || value <= 0) ? null : value;
+	},
+	setPanelWidth: function(value)
+	{
+		if (value == null)
+		{
+			delete mxSettings.settings.panelWidth;
+		}
+		else
+		{
+			mxSettings.settings.panelWidth = value;
+		}
+	},
 	getSidebarWidth: function()
 	{
 		return mxSettings.settings.sidebarWidth;
@@ -328,6 +372,18 @@ var mxSettings =
 	setRulerOn: function(value)
 	{
 		mxSettings.settings.isRulerOn = value;
+	},
+	// The view of the page overview (PageOverview.js): tiles, list or null
+	// for the default of the theme
+	getPageOverviewView: function()
+	{
+		var value = mxSettings.settings.pageOverviewView;
+
+		return (value == 'tiles' || value == 'list') ? value : null;
+	},
+	setPageOverviewView: function(value)
+	{
+		mxSettings.settings.pageOverviewView = value;
 	},
 	getDraftSaveDelay: function()
 	{

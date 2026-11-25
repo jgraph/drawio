@@ -1876,6 +1876,12 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 			self.resizeFn();
 		}
 	};
+
+	// The application may lay out the dialog (decorateColorDialog)
+	if (editorUi != null && typeof editorUi.decorateColorDialog === 'function')
+	{
+		editorUi.decorateColorDialog(this);
+	}
 };
 
 /**
@@ -2052,6 +2058,25 @@ var ColorWindow = function(editorUi, x, y, w)
 	this.window.addListener(mxEvent.SHOW, mxUtils.bind(this, function()
 	{
 		this.fitHeight();
+	}));
+
+	// Returns the focus to the control that opened the window with the
+	// keyboard (see EditorUi.pickColor) or to the diagram if it was removed,
+	// if the focus was in the window
+	this.returnFocus = null;
+
+	this.window.addListener(mxEvent.HIDE, mxUtils.bind(this, function()
+	{
+		var elt = this.returnFocus;
+		var active = document.activeElement;
+		this.returnFocus = null;
+
+		if (elt != null && (active == null || active == document.body ||
+			mxUtils.isAncestorNode(this.window.div, active)) &&
+			!editorUi.restoreFocus(elt) && graph.container != null)
+		{
+			graph.container.focus();
+		}
 	}));
 
 	// State for auto-refresh
@@ -3044,7 +3069,7 @@ var MarkupDialog = function(editorUi, title, value, fn, cancelFn, helpLink)
 	div.appendChild(buttons);
 
 	// The parts of the dialog for layouts that rearrange them (the Form
-	// template of Simple Modern, see SimpleMoreForms.js)
+	// template of the app, see installFormLayout)
 	this.controls = {title: hd, toolbar: toolbar, textarea: textarea, wysiwyg: wysiwyg,
 		source: sourceBtn, buttons: buttons, apply: applyBtn};
 	this.container = div;
@@ -3054,6 +3079,12 @@ var MarkupDialog = function(editorUi, title, value, fn, cancelFn, helpLink)
 	 * the HTML of the source as typed.
 	 */
 	this.getValue = getValue;
+
+	// Hook for the layout of the dialog in the look of the app
+	if (typeof editorUi.installFormLayout === 'function')
+	{
+		editorUi.installFormLayout(this, 'markup');
+	}
 };
 
 /**
@@ -4487,12 +4518,18 @@ var EditDataDialog = function(ui, cell, optionalGraph)
 	};
 
 	// The parts of the dialog for layouts that rearrange them (the Form
-	// template of Simple Modern, see SimpleForms.js)
+	// template of the app, see installFormLayout)
 	this.controls = {cells: cells, graph: graph, id: idText, idSection: idSection,
 		propsSection: propsSection, properties: propertiesContainer, addSection: addSection,
 		nameInput: nameInput, addButton: addBtn, optSection: optSection, placeholders: input,
 		buttons: btnRow, exportButton: exportBtn, applyButton: applyBtn};
 	this.container = container;
+
+	// Hook for the layout of the dialog in the look of the app
+	if (typeof ui.installFormLayout === 'function')
+	{
+		ui.installFormLayout(this, 'editData');
+	}
 };
 
 /**

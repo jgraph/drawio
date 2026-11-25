@@ -5,18 +5,29 @@
 /**
  * Side panel of Tidy up and Style My Diagram, a sibling of the Choose
  * Layout panel of the concept study: a card in the place of the Format panel
- * with the title and the counts of the scope, a hint, the alternatives as
- * large pictures of the user's diagram in two columns (the best one is
- * Suggested), and at the bottom Direction (Automatic, Down, Right), Spacing
- * (Compact, Normal, Airy) and Keep my arrangement for Tidy up, Keep my
- * colors for Style, Undo and Apply. No text input.
+ * with the title and the counts of the scope, what Style does (Classic and
+ * Simple), a hint, the alternatives as large pictures of the user's diagram
+ * in two columns (the best one is Suggested; in the colors of dark mode in
+ * dark mode; palettes that change the page like another one have no tile),
+ * and at the bottom Direction
+ * (Automatic, Down, Right), Spacing (Compact, Normal, Airy) and Keep my
+ * arrangement for Tidy up, Keep my colors for Style, Undo and Done. No text
+ * input.
  *
- * The best result is applied at once (one undoable edit). Hovering a
- * picture of Tidy up previews it on the canvas without changing the model
- * (Graph.previewGeometries), a click uses it instead (still one edit), a
- * choice runs it again, Apply keeps the result and Undo reverts it. The
- * panel closes when the diagram changes otherwise, as the alternatives were
- * computed for the diagram before the result.
+ * The tiles follow the one model of the tiles (driver, 21 November 2026, as
+ * the theme tiles of Fusion and Arrange my diagram): opening applies
+ * nothing (only a click on the tile Tidy up of Arrange my diagram, which
+ * opens the panel with applyBest, applies the best result, and gives it
+ * Back before the title, see back), hovering a
+ * picture or focusing it with the keyboard previews it on the canvas
+ * without changing the model (Graph.previewGeometries), a click, Enter or
+ * Space applies it at once as one undoable edit with the undo toast, and
+ * another tile replaces it while it is the last edit. There is no chosen
+ * tile. A choice of the options runs again and applies again what was
+ * applied, Done closes and keeps the result and Undo reverts it. On touch
+ * each tile has an eye that previews. The panel closes when the diagram
+ * changes otherwise, as the alternatives were computed for the diagram
+ * before the result.
  *
  * In Simple Modern Style shows the themes (Calm, Bold, Mono, Sketch) as
  * swatches with the Current badge and applies one only when it is picked,
@@ -25,17 +36,47 @@
  *
  * In extensions.min.js (see EditorUi.loadTidy).
  */
-var TidyWindow = function(ui, mode, cells)
+var TidyWindow = function(ui, mode, cells, options)
 {
 	this.ui = ui;
 	this.mode = mode;
 	this.cells = cells;
+
+	// The selection when the panel opens, which may differ from the cells
+	// (eg. the scope of Arrange my diagram: a group selects its children,
+	// one shape is the page), see restoreSelection
+	this.selection = ui.editor.graph.getSelectionCells();
 	this.themes = mode == 'style' && Tidy.getThemes() != null;
 
 	this.options = TidyWindow.getDefaultOptions(mode, this.themes);
+
+	// The click on the tile Tidy up of Arrange my diagram applies the best
+	// result when the panel opens (see getInitialIndex)
+	this.applyBest = options != null && options.applyBest === true;
+
+	// The way back to the tiles of Arrange my diagram, whose tile Tidy up
+	// opens the panel in their place ({label, fn}, see createTidyLayoutEntry
+	// in TidyActions.js): Back before the title and Escape (see goBack)
+	this.back = (options != null && options.back != null &&
+		typeof options.back.fn === 'function') ? options.back : null;
+	this.touch =typeof ui.isCoarsePointer === 'function' && ui.isCoarsePointer();
+
+	// The given options replace the defaults of the same keys (eg. the
+	// spacing of Arrange my diagram), other keys are ignored
+	if (options != null)
+	{
+		for (var key in this.options)
+		{
+			if (Object.prototype.hasOwnProperty.call(options, key) && options[key] != null)
+			{
+				this.options[key] = options[key];
+			}
+		}
+	}
 	this.analysis = null;
 	this.current = -1;
 	this.edit = null;
+	this.bestNothing = false;
 	this.applying = false;
 	this.base = null;
 	this.styleBase = null;
@@ -307,16 +348,21 @@ TidyWindow.takePrefetch = function(ui, mode, cells, options)
  */
 TidyWindow.getDefaultOptions = function(mode, themes)
 {
-	// A theme is a choice of a look, so it colors every shape by default
-	return (mode == 'style') ? {keepColors: !themes} :
+	// Style colors every shape by default, with the palettes of Classic and
+	// Simple as with the themes of Fusion and its section Automatic (the
+	// driver, 17 November 2026: "das sollte defaultmäßig aus sein")
+	return (mode == 'style') ? {keepColors: false} :
 		{direction: 'auto', spacing: 'normal', keep: false};
 };
 
 /**
- * Shows the panel for the given mode (tidy or style) on the selection or
- * the page of the given editor UI and applies the best result.
+ * Shows the panel for the given mode (tidy or style) on the given cells (null
+ * for the page) or, if cells is undefined, the selection or the page of the
+ * given editor UI with the given options (see the constructor). Nothing is
+ * applied unless the options have applyBest (the tile Tidy up of Arrange my
+ * diagram), which applies the best result.
  */
-TidyWindow.show = function(ui, mode)
+TidyWindow.show = function(ui, mode, cells, options)
 {
 	var graph = ui.editor.graph;
 
@@ -325,8 +371,12 @@ TidyWindow.show = function(ui, mode)
 		ui.tidyWindow.destroy();
 	}
 
-	var cells = (graph.isSelectionEmpty()) ? null : graph.getSelectionCells();
-	ui.tidyWindow = new TidyWindow(ui, mode, cells);
+	if (cells === undefined)
+	{
+		cells = (graph.isSelectionEmpty()) ? null : graph.getSelectionCells();
+	}
+
+	ui.tidyWindow = new TidyWindow(ui, mode, cells, options);
 	ui.tidyWindow.run();
 };
 
@@ -344,12 +394,22 @@ TidyWindow.prototype.init = function()
 	this.container = panel;
 
 	// The panel is in the document, not in the editor, so it follows the
-	// color scheme of the editor explicitly
-	this.updateColorScheme = function()
+	// color scheme of the editor explicitly, and so do the pictures of the
+	// tiles (see updateThumbnail)
+	this.updateColorScheme = mxUtils.bind(this, function()
 	{
-		panel.style.colorScheme = (Editor.isDarkMode != null &&
-			Editor.isDarkMode()) ? 'dark' : 'light';
-	};
+		panel.style.colorScheme = (this.isDarkMode()) ? 'dark' : 'light';
+
+		if (this.thumbs != null)
+		{
+			var thumbs = this.thumbs.querySelectorAll('.geTidyTileThumb');
+
+			for (var i = 0; i < thumbs.length; i++)
+			{
+				this.updateThumbnail(thumbs[i]);
+			}
+		}
+	});
 
 	this.updateColorScheme();
 	ui.addListener('darkModeChanged', this.updateColorScheme);
@@ -357,6 +417,27 @@ TidyWindow.prototype.init = function()
 	var header = document.createElement('div');
 	header.className = 'geTidyPanelHeader';
 	panel.appendChild(header);
+
+	// Back to the tiles of Arrange my diagram before the title, named after
+	// the place it returns to, as Back of the hosts of Fusion that another
+	// host showed (driver, 23 November 2026: "wenn geklickt gibt es kein
+	// Back zum vorherigen screen")
+	if (this.back != null)
+	{
+		var backLabel = this.back.label || mxResources.get('back');
+		var back = document.createElement('button');
+		back.setAttribute('type', 'button');
+		back.className = 'geTidyPanelBack';
+		back.setAttribute('title', backLabel);
+		back.setAttribute('aria-label', backLabel);
+		back.appendChild(TidyWindow.createBackIcon());
+		header.appendChild(back);
+
+		mxEvent.addListener(back, 'click', mxUtils.bind(this, function()
+		{
+			this.goBack();
+		}));
+	}
 
 	var title = document.createElement('div');
 	title.className = 'geTidyPanelTitle';
@@ -378,14 +459,34 @@ TidyWindow.prototype.init = function()
 
 	mxEvent.addListener(close, 'click', mxUtils.bind(this, function()
 	{
-		this.destroy();
+		this.closeKeepingResult();
 	}));
+
+	// Style with the palettes of Classic and Simple says at the top what it
+	// does, in the words of the tooltip of Style my diagram automatically in
+	// Fusion (getSimpleAutoStyleTooltip in SimpleFormat.js), which is also
+	// the description of the dialog (the driver, 17 November 2026: "bei den
+	// Panels im Classic und Simple Theme könnte man das ja oben reinschreiben,
+	// dass klar ist, was das macht")
+	if (style && !this.themes)
+	{
+		var about = document.createElement('div');
+		about.className = 'geTidyPanelAbout';
+		about.setAttribute('id', 'geTidyPanelAbout' + TidyWindow.counter);
+		mxUtils.write(about, mxResources.get('styleMyDiagramTip', null,
+			'Styles the shapes: colors and one size per role (start, step, decision, ' +
+			'data, note), rounded steps, one font. Also styles connectors, gives their ' +
+			'labels a gap and fixes overlaps and crossings.'));
+		panel.appendChild(about);
+		panel.setAttribute('aria-describedby', about.getAttribute('id'));
+	}
 
 	var hint = document.createElement('div');
 	hint.className = 'geTidyPanelHint';
 	mxUtils.write(hint, mxResources.get((this.themes) ? 'styleThemesHint' :
 		((style) ? 'styleHint' : 'tidyHint')));
 	panel.appendChild(hint);
+	this.hint = hint;
 
 	this.status = document.createElement('div');
 	this.status.className = 'geTidyPanelStatus';
@@ -437,19 +538,30 @@ TidyWindow.prototype.init = function()
 	this.undoButton.className = 'geTidyButton';
 	buttons.appendChild(this.undoButton);
 
-	this.applyButton = mxUtils.button(mxResources.get('apply'), mxUtils.bind(this, function()
+	// Done closes the panel and keeps the result (the tiles apply at once)
+	this.doneButton = mxUtils.button(mxResources.get('done'), mxUtils.bind(this, function()
 	{
-		this.destroy();
+		this.closeKeepingResult();
 	}));
-	this.applyButton.className = 'geTidyButton geTidyPrimary';
-	buttons.appendChild(this.applyButton);
+	this.doneButton.className = 'geTidyButton geTidyPrimary';
+	buttons.appendChild(this.doneButton);
 
-	// Escape closes the panel and keeps the result, like Apply
+	// Escape closes the panel and keeps the result, like Done, and goes back
+	// to the tiles of Arrange my diagram, like Back, if the panel has a way
+	// back (as Escape in the hosts of Fusion)
 	mxEvent.addListener(panel, 'keydown', mxUtils.bind(this, function(evt)
 	{
 		if (evt.key == 'Escape')
 		{
-			this.destroy();
+			if (this.back != null)
+			{
+				this.goBack();
+			}
+			else
+			{
+				this.closeKeepingResult();
+			}
+
 			mxEvent.consume(evt);
 		}
 	}));
@@ -650,21 +762,21 @@ TidyWindow.prototype.undo = function()
 };
 
 /**
- * Selects the cells that were selected when the panel was opened (undo
- * selects the cells it changes).
+ * Selects the cells that were selected when the panel was opened, not the
+ * analysed cells (undo selects the cells it changes).
  */
 TidyWindow.prototype.restoreSelection = function()
 {
 	var graph = this.ui.editor.graph;
 	var cells = [];
 
-	if (this.cells != null)
+	if (this.selection != null)
 	{
-		for (var i = 0; i < this.cells.length; i++)
+		for (var i = 0; i < this.selection.length; i++)
 		{
-			if (graph.model.contains(this.cells[i]))
+			if (graph.model.contains(this.selection[i]))
 			{
-				cells.push(this.cells[i]);
+				cells.push(this.selection[i]);
 			}
 		}
 	}
@@ -888,17 +1000,23 @@ TidyWindow.prototype.stopAnalysis = function()
 };
 
 /**
- * Returns the index of the result to apply after a run: the one with the ID
- * of the result before a rerun, else the best result, which is -1 if every
- * result of Tidy up scores worse than the page as it is (see Tidy.analyze).
- * Themes are applied only when they are picked, so they show the page as it
- * is (-1).
+ * Returns the index of the result to apply after a run: nothing (-1) when the
+ * panel opens, unless it opens with applyBest; after a rerun with other
+ * options that follows an applied result, the one with the ID of that result,
+ * else the best result, which is -1 if every result of Tidy up scores worse
+ * than the page as it is (see Tidy.analyze) or the results are themes. If the
+ * best result was to be applied and there is none, bestNothing is set, so the
+ * status says that there is nothing to do (see getStatus).
  */
 TidyWindow.prototype.getInitialIndex = function()
 {
 	var results = this.analysis.results;
 	var id = this.reapply;
+	var best = this.applyBest || this.reapplyBest;
 	this.reapply = null;
+	this.reapplyBest = false;
+	this.applyBest = false;
+	this.bestNothing = false;
 
 	for (var i = 0; i < results.length && id != null; i++)
 	{
@@ -908,7 +1026,10 @@ TidyWindow.prototype.getInitialIndex = function()
 		}
 	}
 
-	return this.getBestIndex();
+	var index = (best) ? this.getBestIndex() : -1;
+	this.bestNothing = best && index < 0;
+
+	return index;
 };
 
 /**
@@ -996,19 +1117,57 @@ TidyWindow.prototype.rerun = function()
 	}
 	else
 	{
-		// The theme that was used is used again with the new options
-		var results = (this.analysis != null) ? this.analysis.results : [];
-		this.reapply = (this.themes && this.edit != null && results[this.current] != null) ?
-			results[this.current].id : null;
+		// The result that was applied is applied again with the new options,
+		// the same theme or the best result (nothing if nothing was applied).
+		// A change while the run of the change before still analyzes keeps
+		// what that run is to apply again: its result was undone, it is not
+		// gone (Codex review of #1487). The best result that was to be
+		// applied and was not there (bestNothing) is looked for again.
+		if (this.edit != null)
+		{
+			var results = (this.analysis != null) ? this.analysis.results : [];
+			this.reapply = (results[this.current] != null) ? results[this.current].id : null;
+			this.reapplyBest = !this.themes;
+		}
+		else if (this.bestNothing)
+		{
+			this.reapplyBest = true;
+		}
+
 		this.undo();
 		this.run();
 	}
 };
 
 /**
- * Applies the result with the given index instead of the current one.
+ * Applies the result with the given index instead of the current one, with
+ * the undo toast of Classic and Simple (see showUndoToast; Fusion shows its
+ * own with Hold to compare, SimpleTidy.js).
  */
 TidyWindow.prototype.select = function(index)
+{
+	var edit = this.edit;
+	var result = this.doSelect(index);
+
+	if (this.edit != null && this.edit !== edit && !this.destroyed &&
+		typeof this.ui.showUndoToast === 'function' &&
+		!(typeof this.ui.isSimpleToastEnabled === 'function' && this.ui.isSimpleToastEnabled()))
+	{
+		var applied = this.analysis.results[this.current];
+
+		this.ui.showUndoToast((this.mode == 'style') ? mxResources.get('toastStyleAppliedName',
+			[this.getName(applied)], 'Style applied: {1}') : mxResources.get('toastTidiedUp',
+			null, 'Diagram tidied up'), {edits: [this.edit], selection: this.selection});
+	}
+
+	return result;
+};
+
+/**
+ * Applies the result with the given index instead of the current one (see
+ * select).
+ */
+TidyWindow.prototype.doSelect = function(index)
 {
 	if (index >= 0 && !this.completeAnalysis())
 	{
@@ -1029,6 +1188,7 @@ TidyWindow.prototype.select = function(index)
 
 	if (index >= 0 && index < results.length)
 	{
+		this.bestNothing = false;
 		this.applying = true;
 		try
 		{
@@ -1158,11 +1318,19 @@ TidyWindow.prototype.updatePreviewBadge = function()
 
 	for (var i = 0; i < tiles.length; i++)
 	{
+		// The index of the result of the tile (the shown results may skip some)
+		var index = (tiles[i].tidyIndex != null) ? tiles[i].tidyIndex : i;
 		var badge = tiles[i].querySelector('.geTidyTilePreviewing');
+		var eye = tiles[i].querySelector('.geTidyTileEye');
 
 		if (badge != null)
 		{
-			badge.style.display = (i == this.previewIndex) ? '' : 'none';
+			badge.style.display = (index == this.previewIndex) ? '' : 'none';
+		}
+
+		if (eye != null)
+		{
+			eye.setAttribute('aria-pressed', (index == this.previewIndex) ? 'true' : 'false');
 		}
 	}
 };
@@ -1209,9 +1377,10 @@ TidyWindow.prototype.previewStyles = function(index)
 	var model = graph.model;
 	var results = (this.analysis != null) ? this.analysis.results : [];
 
-	// Themes are previewed before one is applied (no edit yet)
+	// Tiles are previewed before one is applied (no edit yet), and after it
+	// while its edit is the last one
 	if (this.styleBase == null || index == this.current || results[index] == null ||
-		(this.edit != null && !this.isLastEdit()) || (this.edit == null && !this.themes))
+		(this.edit != null && !this.isLastEdit()))
 	{
 		return;
 	}
@@ -1406,14 +1575,26 @@ TidyWindow.prototype.getStatus = function()
 	var results = (this.analysis != null) ? this.analysis.results : [];
 	var result = results[this.current];
 
-	// Nothing is applied until a theme is picked
-	if (this.themes && results.length > 0 && (result == null || this.edit == null))
+	// Nothing is applied until a tile is clicked: the status stays empty while
+	// there are tiles to pick from (driver, 21 November 2026), but not after
+	// the tile Tidy up of Arrange my diagram found no result better than the
+	// page (applyBest), which says there is nothing to tidy up (review of #1487)
+	if (results.length > 0 && ((this.themes && (result == null || this.edit == null)) ||
+		(result == null && !this.bestNothing && this.getShownResults().length > 0)))
 	{
 		return '';
 	}
 	else if (result == null || this.edit == null)
 	{
-		return mxResources.get((this.mode == 'style') ? 'styleNothing' : 'tidyNothing');
+		var nothing = mxResources.get((this.mode == 'style') ? 'styleNothing' : 'tidyNothing');
+
+		// The palette that is used changes nothing, eg. the one that the page
+		// has already, while other tiles change the page: the status names
+		// its tile. Without tiles there is nothing to style at all. Tidy up
+		// shows every result, so it says only that there is nothing to do.
+		return (result != null && this.mode == 'style' && !this.themes &&
+			this.getShownResults().length > 0) ?
+			this.getName(result) + ': ' + nothing : nothing;
 	}
 
 	var stats = this.getStats(result);
@@ -1458,6 +1639,13 @@ TidyWindow.prototype.getStats = function(result)
 		parts.push(this.getStatText('styledShapes', stats.styled));
 	}
 
+	// The resources of an older release do not have the text (get returns
+	// the key of a missing text)
+	if (stats.styledEdges > 0 && mxResources.resources['styledConnectors'] != null)
+	{
+		parts.push(this.getStatText('styledConnectors', stats.styledEdges));
+	}
+
 	if (stats.moved > 0)
 	{
 		parts.push(this.getStatText('tidyMoved', stats.moved));
@@ -1481,8 +1669,99 @@ TidyWindow.prototype.getStats = function(result)
  */
 TidyWindow.prototype.getName = function(result)
 {
-	return (result.index != null) ? mxResources.get(result.name) + ' ' + result.index :
+	var index = result.index;
+
+	// Palettes are numbered as they are shown (see getShownResults)
+	if (index != null && this.analysis != null)
+	{
+		var shown = mxUtils.indexOf(this.getShownResults(),
+			mxUtils.indexOf(this.analysis.results, result));
+		index = (shown >= 0) ? shown + 1 : index;
+	}
+
+	return (index != null) ? mxResources.get(result.name) + ' ' + index :
 		mxResources.get(result.name);
+};
+
+/**
+ * Returns the indices of the results that have a tile. Palettes of Style
+ * that change the page like an earlier palette are no alternatives and have
+ * no tile (eg. with Keep my colors on a page whose shapes all have colors of
+ * the user, no palette reaches a shape, so all palettes are the same), and
+ * none has a tile if no palette changes the page (Nothing to style). Tidy up
+ * and themes show all results. The indices are kept for each analysis.
+ */
+TidyWindow.prototype.getShownResults = function()
+{
+	var analysis = this.analysis;
+	var results = (analysis != null) ? analysis.results : [];
+
+	if (this.shown == null || this.shown.analysis !== analysis ||
+		this.shown.count != results.length)
+	{
+		var indices = [];
+
+		if (this.mode != 'style' || this.themes)
+		{
+			for (var i = 0; i < results.length; i++)
+			{
+				indices.push(i);
+			}
+		}
+		else
+		{
+			var keys = Object.create(null);
+			var changes = false;
+
+			for (var i = 0; i < results.length; i++)
+			{
+				var key = (Array.isArray(results[i].changes)) ?
+					TidyWindow.getChangesKey(results[i].changes) : null;
+				changes = changes || key == null || results[i].changes.length > 0;
+
+				if (key == null || keys[key] !== true)
+				{
+					if (key != null)
+					{
+						keys[key] = true;
+					}
+
+					indices.push(i);
+				}
+			}
+
+			if (!changes)
+			{
+				indices = [];
+			}
+		}
+
+		this.shown = {analysis: analysis, count: results.length, indices: indices};
+	}
+
+	return this.shown.indices;
+};
+
+/**
+ * Returns a string that is equal for equal changes of results (see
+ * Tidy.Trial.getChanges): the cells with their new style, geometry and
+ * parent, and the rules of the page.
+ */
+TidyWindow.getChangesKey = function(changes)
+{
+	var parts = [];
+
+	for (var i = 0; i < changes.length; i++)
+	{
+		var change = changes[i];
+		parts.push(JSON.stringify([change.id,
+			(change.style !== undefined) ? [change.style] : 0,
+			(change.geometry !== undefined) ? [Tidy.Trial.getGeometryKey(change.geometry)] : 0,
+			(change.parent !== undefined) ? [change.parent, change.index] : 0,
+			(change.rules !== undefined) ? [change.rules] : 0]));
+	}
+
+	return parts.join('\n');
 };
 
 /**
@@ -1491,24 +1770,36 @@ TidyWindow.prototype.getName = function(result)
 TidyWindow.prototype.render = function()
 {
 	var results = (this.analysis != null) ? this.analysis.results : [];
-	var focused = Array.prototype.indexOf.call(this.thumbs.childNodes, document.activeElement);
+	var focused = -1;
+
+	// The tile, or its wrapper with the eye on touch, has the focus
+	for (var i = 0; i < this.thumbs.childNodes.length; i++)
+	{
+		if (this.thumbs.childNodes[i].contains(document.activeElement))
+		{
+			focused = i;
+		}
+	}
+
 	this.status.innerText = '';
 	mxUtils.write(this.status, this.getStatus());
 	this.thumbs.innerText = '';
 	this.undoButton.style.display = (this.edit != null) ? '' : 'none';
+	var shown = this.getShownResults();
 
-	// Apply keeps the theme that was picked
-	this.applyButton.disabled = this.themes && this.edit == null;
+	// The hint is about the pictures, which Nothing to style does not have
+	this.hint.style.display = (shown.length == 0 && results.length > 0) ? 'none' : '';
 
-	for (var i = 0; i < results.length; i++)
+	for (var i = 0; i < shown.length; i++)
 	{
-		this.thumbs.appendChild(this.createThumbnail(results[i], i, results.length));
+		this.thumbs.appendChild(this.createThumbnail(results[shown[i]], shown[i], shown.length));
 	}
 
 	// Keeps the focus of the keyboard on the tile that was used
 	if (focused >= 0 && focused < this.thumbs.childNodes.length)
 	{
-		this.thumbs.childNodes[focused].focus();
+		var tile = this.thumbs.childNodes[focused];
+		(tile.querySelector('.geTidyTile') || tile).focus();
 	}
 };
 
@@ -1517,16 +1808,15 @@ TidyWindow.prototype.render = function()
  */
 TidyWindow.prototype.createThumbnail = function(result, index, count)
 {
-	var selected = index == this.current;
 	var name = this.getName(result);
 	var stats = this.getStats(result);
 
+	// No chosen tile: the tiles apply at once (Undo and the toast say what
+	// was applied)
 	var current = this.analysis != null && this.analysis.current != null &&
 		this.analysis.current == result.id;
 	var elt = document.createElement('button');
-	elt.className = 'geTidyTile' + ((selected) ? ' geTidyTileSelected' : '') +
-		((result.swatch != null) ? ' geTidyThemeTile' : '');
-	elt.setAttribute('aria-pressed', (selected) ? 'true' : 'false');
+	elt.className = 'geTidyTile' + ((result.swatch != null) ? ' geTidyThemeTile' : '');
 	elt.setAttribute('title', name);
 
 	if (current)
@@ -1555,9 +1845,10 @@ TidyWindow.prototype.createThumbnail = function(result, index, count)
 	else if (result.thumbnail != null)
 	{
 		var img = document.createElement('img');
-		img.setAttribute('src', result.thumbnail);
 		img.setAttribute('alt', '');
 		thumb.appendChild(img);
+		thumb.tidyResult = result;
+		this.updateThumbnail(thumb);
 	}
 
 	elt.appendChild(thumb);
@@ -1598,18 +1889,38 @@ TidyWindow.prototype.createThumbnail = function(result, index, count)
 		elt.appendChild(hint);
 	}
 
-	mxEvent.addListener(elt, 'click', mxUtils.bind(this, function(evt)
+	// In the capture phase, as the picture may stop events (see click)
+	elt.addEventListener('pointerdown', mxUtils.bind(this, function()
 	{
-		if (index != this.current)
+		this.downIndex = index;
+	}), true);
+
+	// A click of the pointer that did not go down on the tile is the click of
+	// a tap that opened the panel under the finger, which applies nothing. In
+	// the capture phase: the labels of a picture stop the clicks on them.
+	elt.addEventListener('click', mxUtils.bind(this, function(evt)
+	{
+		var down = this.downIndex;
+		this.downIndex = null;
+
+		if (index != this.current && (evt.detail == 0 || down == index))
 		{
 			this.select(index);
 		}
 
 		mxEvent.consume(evt);
-	}));
+	}), true);
 
+	elt.tidyIndex = index;
+
+	// A touch emulates mouseenter before its click: only the eye previews
 	mxEvent.addListener(elt, 'mouseenter', mxUtils.bind(this, function()
 	{
+		if (this.touch)
+		{
+			return;
+		}
+
 		var show = mxUtils.bind(this, function()
 		{
 			this.preview(index);
@@ -1631,6 +1942,11 @@ TidyWindow.prototype.createThumbnail = function(result, index, count)
 	// The pointer may be on its way to Apply in the preview bar
 	mxEvent.addListener(elt, 'mouseleave', mxUtils.bind(this, function(evt)
 	{
+		if (this.touch)
+		{
+			return;
+		}
+
 		if (typeof this.ui.holdSimplePreview !== 'function' ||
 			!this.ui.holdSimplePreview(this, evt))
 		{
@@ -1641,7 +1957,7 @@ TidyWindow.prototype.createThumbnail = function(result, index, count)
 	// Only the focus of the keyboard previews (a click also focuses)
 	mxEvent.addListener(elt, 'focus', mxUtils.bind(this, function()
 	{
-		if (!this.ignoreFocus && this.isFocusVisible(elt))
+		if (!this.ignoreFocus && !this.touch && this.isFocusVisible(elt))
 		{
 			this.preview(index);
 		}
@@ -1649,13 +1965,120 @@ TidyWindow.prototype.createThumbnail = function(result, index, count)
 
 	mxEvent.addListener(elt, 'blur', mxUtils.bind(this, function()
 	{
-		if (this.previewIndex == index)
+		if (this.previewIndex == index && !this.touch)
 		{
 			this.clearPreview();
 		}
 	}));
 
+	// Touch has no hover: a small eye on the tile, which is always shown,
+	// previews (in Fusion with the preview bar, Apply and Cancel), the eye
+	// again ends it (an element of its own, as a button holds no button)
+	if (this.touch)
+	{
+		var wrap = document.createElement('div');
+		wrap.className = 'geTidyTileWrap';
+		wrap.tidyIndex = index;
+		wrap.appendChild(elt);
+
+		var eye = document.createElement('button');
+		eye.setAttribute('type', 'button');
+		eye.className = 'geTidyTileEye';
+		eye.setAttribute('aria-pressed', (index == this.previewIndex) ? 'true' : 'false');
+		eye.setAttribute('title', mxResources.get('preview'));
+		eye.setAttribute('aria-label', mxResources.get('preview') + ': ' + name);
+		var icon = document.createElement('span');
+		icon.className = 'geTidyTileEyeIcon';
+		icon.setAttribute('aria-hidden', 'true');
+		icon.style.setProperty('--ge-tidy-eye', 'url(\'' + Editor.visibleImage + '\')');
+		eye.appendChild(icon);
+		wrap.appendChild(eye);
+
+		mxEvent.addListener(eye, 'click', mxUtils.bind(this, function(evt)
+		{
+			if (this.previewIndex == index)
+			{
+				this.clearPreview();
+			}
+			else
+			{
+				this.preview(index);
+			}
+
+			mxEvent.consume(evt);
+		}));
+
+		return wrap;
+	}
+
 	return elt;
+};
+
+/**
+ * Returns true if the editor is in dark mode.
+ */
+TidyWindow.prototype.isDarkMode = function()
+{
+	return typeof Editor.isDarkMode === 'function' && Editor.isDarkMode();
+};
+
+/**
+ * Returns true if the CSS gives the pictures of the tiles a dark background
+ * in dark mode (.geTidyTileThumb in grapheditor.css since 17 November
+ * 2026). This file is in extensions.min.js, which can run next to the
+ * app.min.js and CSS of an older release (see js/diagramly/CLAUDE.md),
+ * whose tiles are white in dark mode: there the tiles keep the pictures in
+ * the colors of light mode, as before. Fusion has its own background of the
+ * tiles (fusion.css), so the panel does not set one. Checked once.
+ */
+TidyWindow.hasDarkTiles = function()
+{
+	if (TidyWindow.darkTiles == null)
+	{
+		var probe = document.createElement('div');
+		probe.className = 'geTidyTileThumb';
+		probe.style.position = 'absolute';
+		probe.style.visibility = 'hidden';
+		probe.style.colorScheme = 'dark';
+		document.body.appendChild(probe);
+		var rgba = String(window.getComputedStyle(probe).backgroundColor).match(/[0-9.]+/g);
+		probe.parentNode.removeChild(probe);
+
+		// No background shows the dark panel
+		TidyWindow.darkTiles = rgba == null || rgba.length < 3 ||
+			(rgba.length > 3 && parseFloat(rgba[3]) == 0) ||
+			(0.2126 * rgba[0] + 0.7152 * rgba[1] + 0.0722 * rgba[2]) / 255 < 0.5;
+	}
+
+	return TidyWindow.darkTiles;
+};
+
+/**
+ * Shows the picture of the result of the given tile picture in the colors
+ * of the editor: the picture of dark mode in dark mode (see
+ * Tidy.Trial.getThumbnails) on the dark background of the tile, and a
+ * picture in the colors of light mode (light mode, a page that does not
+ * adapt its colors, an engine without dark pictures, a CSS without the dark
+ * background, see hasDarkTiles) on a light one.
+ */
+TidyWindow.prototype.updateThumbnail = function(thumb)
+{
+	var result = thumb.tidyResult;
+	var img = thumb.getElementsByTagName('img')[0];
+
+	if (result != null && img != null)
+	{
+		var dark = this.isDarkMode() && result.darkThumbnail != null &&
+			result.darkThumbnail != result.thumbnail && TidyWindow.hasDarkTiles();
+		var src = (dark) ? result.darkThumbnail : result.thumbnail;
+
+		if (img.getAttribute('src') != src)
+		{
+			img.setAttribute('src', src);
+		}
+
+		thumb.style.colorScheme = (dark) ? '' : 'light';
+	}
 };
 
 /**
@@ -1701,6 +2124,109 @@ TidyWindow.prototype.getPreviewName = function(result)
 	}
 
 	return name;
+};
+
+/**
+ * Returns the arrow of Back (the outline of the back icon of Fusion, in the
+ * color of the text of the button), built without markup.
+ */
+TidyWindow.createBackIcon = function()
+{
+	var ns = 'http://www.w3.org/2000/svg';
+	var svg = document.createElementNS(ns, 'svg');
+	svg.setAttribute('viewBox', '0 0 24 24');
+	svg.setAttribute('width', '16');
+	svg.setAttribute('height', '16');
+	svg.setAttribute('aria-hidden', 'true');
+	svg.setAttribute('focusable', 'false');
+
+	var path = document.createElementNS(ns, 'path');
+	path.setAttribute('d', 'M19 12H5M11 6l-6 6 6 6');
+	path.setAttribute('fill', 'none');
+	path.setAttribute('stroke', 'currentColor');
+	path.setAttribute('stroke-width', '1.8');
+	path.setAttribute('stroke-linecap', 'round');
+	path.setAttribute('stroke-linejoin', 'round');
+	svg.appendChild(path);
+
+	return svg;
+};
+
+/**
+ * Applies again at once the result that a change of the options undid and
+ * that its run is still to apply again (see rerun, reapply): the run
+ * analyses in steps, and closing the panel meanwhile stopped it, which gave
+ * back the diagram of before without an edit to undo (Codex's review of pull
+ * request 1526). Nothing happens if no such run waits.
+ */
+TidyWindow.prototype.finishRun = function()
+{
+	if (!this.destroyed && this.reapply != null)
+	{
+		// The run that waits for its start or its next step starts nothing
+		var analysis = this.analyzer;
+		this.runs++;
+		this.analyzer = null;
+
+		if (this.analysisHandle != null)
+		{
+			this.analysisHandle.cancel();
+			this.analysisHandle = null;
+		}
+
+		try
+		{
+			if (analysis == null)
+			{
+				analysis = TidyWindow.takePrefetch(this.ui, this.mode, this.cells, this.options);
+			}
+
+			if (analysis == null)
+			{
+				analysis = new Tidy.Analysis(this.ui, this.cells, this.options, this.mode == 'style');
+			}
+
+			analysis.complete();
+			this.showAnalysis(analysis.result);
+		}
+		catch (e)
+		{
+			if (analysis != null)
+			{
+				analysis.destroy();
+			}
+
+			this.destroy();
+			this.ui.handleError(e);
+		}
+	}
+};
+
+/**
+ * Closes the panel and keeps the result (Done, the close button, Escape and
+ * Back), also the one that a change of the options is still to apply again
+ * (see finishRun).
+ */
+TidyWindow.prototype.closeKeepingResult = function()
+{
+	this.finishRun();
+	this.destroy();
+};
+
+/**
+ * Goes back to the place that opened the panel (Back and Escape of a panel
+ * with a way back, see back): removes the panel, whose result stays as with
+ * Done, and shows that place again (the tiles of Arrange my diagram).
+ */
+TidyWindow.prototype.goBack = function()
+{
+	var back = this.back;
+	this.closeKeepingResult();
+
+	if (back != null)
+	{
+		back.fn();
+	}
 };
 
 /**

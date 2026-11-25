@@ -48,6 +48,16 @@
 	Sidebar.prototype.gcp2 = ['Paths', 'Zones', 'Service Cards', 'Compute', 'API Management', 'Security', 'Data Analytics', 'Data Transfer', 'Cloud AI', 'Internet of Things', 'Databases', 'Storage', 'Management Tools', 'Networking', 'Developer Tools', 'Expanded Product Cards', 'User Device Cards', 'Product Cards', 'General Icons', 'Icons AI and Machine Learning', 'Icons Compute', 'Icons Serverless', 'Icons Data Analytics', 'Icons Operations', 'Icons Networking', 'Icons CI CD', 'Icons Integration Services', 'Icons API Management', 'Icons Internet of Things', 'Icons Databases', 'Icons Storage', 'Icons Security', 'Icons Migration', 'Icons Hybrid and Multi Cloud', 'Icons Open Source Icons'];
 
 	Sidebar.prototype.gcp3 = ['Categories', 'Core Products'];
+	Sidebar.prototype.cloudflare = ['Groups', 'General', 'Elements', 'Connectors', 'Compute', 'Storage', 'Integration', 'AI', 'Media', 'Application Performance', 'Application Security', 'Cloudflare One', 'Network Services', 'Observability', 'Platform', 'Product Icons'];
+
+	/**
+	 * The Cloudflare shapes stay hidden until Cloudflare has given permission
+	 * to use its icons: no palettes, no entry in More Shapes or in the
+	 * configuration of the libraries, nothing in the search. cloudflare=1 in
+	 * the URL shows them. Their stencils stay registered (Editor.js), so
+	 * diagrams that use them still render.
+	 */
+	Sidebar.prototype.cloudflareEnabled = urlParams['cloudflare'] == '1';
 	
 	Sidebar.prototype.gcpicons = ['AI and Machine Learning', 'API Management', 'Compute', 'Data Analytics', 'Databases', 'Developer Tools', 'Expanded Product Card Icons', 'Generic', 'Hybrid and Multi Cloud', 'Security', 'Internet of Things', 'Management Tools', 'Migration', 'Networking', 'Open Source Icons', 'Storage'];
 	
@@ -185,7 +195,13 @@
            	                           {id: 'archimate', libs: ['archimate']},
            	                           {id: 'webicons', libs: ['webicons', 'weblogos']},
            	                           {id: 'sysml', prefix: 'sysml', libs: Sidebar.prototype.sysml}];
-	
+
+	// Hidden until Cloudflare has given permission (see cloudflareEnabled)
+	if (Sidebar.prototype.cloudflareEnabled)
+	{
+		Sidebar.prototype.configuration.push({id: 'cloudflare', prefix: 'cloudflare', libs: Sidebar.prototype.cloudflare});
+	}
+
 	/**
 	 * Removes disabled libraries from search results.
 	 */
@@ -547,6 +563,7 @@
 								{title: 'Cumulus', id: 'cumulus', image: IMAGE_PATH + '/sidebar-cumulus.png'},
 								{title: 'Citrix', id: 'citrix2', image: IMAGE_PATH + '/sidebar-citrix2.png'},
 								{title: 'Citrix (legacy)', id: 'citrix', image: IMAGE_PATH + '/sidebar-citrix.png'},
+								{title: 'Cloudflare', id: 'cloudflare', image: IMAGE_PATH + '/sidebar-cloudflare.png'},
 								{title: 'Dynamics365', id: 'dynamics365', image: IMAGE_PATH + '/sidebar-dynamics365.png'},
 								{title: 'Google Cloud Platform', id: 'gcp2', image: IMAGE_PATH + '/sidebar-gcp2.png'},
 								{title: 'Google Cloud Platform 2026', id: 'gcp3', image: IMAGE_PATH + '/sidebar-gcp3.png'},
@@ -582,6 +599,17 @@
 								{title: 'Web Icons', id: 'webicons', image: IMAGE_PATH + '/sidebar-webIcons.png'},
 								{title: mxResources.get('signs'), id: 'signs', image: IMAGE_PATH + '/sidebar-signs.png'}]}];
 
+		// Hidden until Cloudflare has given permission (see cloudflareEnabled)
+		if (!this.cloudflareEnabled)
+		{
+			for (var i = 0; i < this.entries.length; i++)
+			{
+				this.entries[i].entries = this.entries[i].entries.filter(function(entry)
+				{
+					return entry.id != 'cloudflare';
+				});
+			}
+		}
 	};
 
 	/**
@@ -612,6 +640,38 @@
 			{
 				if (mxEvent.getSource(evt).nodeName == 'BUTTON')
 				{
+					// Renders what the lazy paths (virtualPalettes, virtualThumbs)
+					// have not rendered yet, so the strip has every entry of the
+					// palette, also the ones that were never scrolled into view
+					if (content.initPaletteFn != null)
+					{
+						if (this.paletteObserver != null)
+						{
+							this.paletteObserver.unobserve(content);
+						}
+
+						content.initPaletteFn();
+					}
+
+					var items = content.querySelectorAll('a.geItem');
+
+					for (var i = 0; i < items.length; i++)
+					{
+						var fn = items[i].renderThumbFn;
+
+						if (fn != null)
+						{
+							items[i].renderThumbFn = null;
+
+							if (this.thumbObserver != null)
+							{
+								this.thumbObserver.unobserve(items[i]);
+							}
+
+							fn();
+						}
+					}
+
 					var svgs = content.getElementsByTagName('svg');
 					var w = 6 * 68 + 2 * 12;
 					var h = Math.ceil(svgs.length / 6) * 68 + 24 + 12;
@@ -1624,6 +1684,13 @@
 		this.addCumulusPalette();
 		this.addCitrix2Palette();
 		this.addCitrixPalette();
+
+		// Hidden until Cloudflare has given permission (see cloudflareEnabled)
+		if (this.cloudflareEnabled)
+		{
+			this.addCloudflarePalette();
+		}
+
 		this.addDynamics365Palette();
 		this.addGCP3Palette();
 		this.addGCP2Palette();

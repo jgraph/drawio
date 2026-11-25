@@ -106,7 +106,7 @@
 					w * 0.615, h * 0.638, '', 'S3 Bucket', null, null, this.getTagsForStencil(gn, 's3 bucket', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'searchEngine;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;strokeColor2=#292929;', 
 					w * 1.80, h * 1.92, '', 'Search Engine', null, null, this.getTagsForStencil(gn, 'search engine', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'secureConnection;fillColor=#000000;strokeColor=#ffffff;aspect=fixed;', 
+			this.createVertexTemplateEntry(s + 'secureConnection;fillColor=#000000;strokeColor=#ffffff;aspect=fixed;perimeter=ellipsePerimeter;', 
 					w * 0.57, h * 0.34, '', 'Secure Connection', null, null, this.getTagsForStencil(gn, 'secure connection', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'securityTokenService;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;strokeColor2=#292929;', 
 					w * 1.80, h * 1.92, '', 'Security Token Service', null, null, this.getTagsForStencil(gn, 'security token service', dt).join(' ')),

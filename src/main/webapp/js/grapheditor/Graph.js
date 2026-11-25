@@ -248,6 +248,17 @@ mxShape.prototype.getConstraints = function(style, w, h)
 	return null;
 };
 
+// Hook for the connection points that floating ends of edges snap to
+// (snapToPoint=1), if they are not the connection points of the shape. The
+// ends of edges in existing diagrams must stay where they are, so a shape
+// that gets new connection points, or whose points are moved, returns the
+// points it had before here (an empty array if it had none). Null means the
+// connection points of the shape (see Graph.getSnapConstraints).
+mxShape.prototype.getSnapConstraints = function(style, w, h)
+{
+	return null;
+};
+
 // Override for clipSvg and cssVars styles, where theming is left to the
 // given canvas via getImageCssVars if it inlines SVG images as symbols
 mxImageShape.prototype.getImageDataUri = function(c)
@@ -4738,6 +4749,92 @@ Graph.sanitizeNode = function(value)
 	return Graph.domPurify(value, true);
 };
 
+/**
+ * Returns the references in the url(...) of the given CSS as {start, end,
+ * url}, as /url\s*\(\s*(['"]?)(.*?)\1\s*\)/gi finds them, but in linear time.
+ * That regex tries every split of a run of spaces and reads the rest of the
+ * text again for each url( that is not closed: the style of a label with
+ * url( and 2,000 spaces took 6 s.
+ */
+Graph.getCssUrls = function(css)
+{
+	// Returns a function that returns the first match of the given regex from
+	// the given index on, or null. The index must not decrease between calls.
+	var createFinder = function(regex)
+	{
+		var match = {index: -1};
+
+		return function(index)
+		{
+			if (match != null && match.index < index)
+			{
+				regex.lastIndex = index;
+				match = regex.exec(css);
+			}
+
+			return match;
+		};
+	};
+
+	var findEnd = createFinder(/\)/g);
+	var findLine = createFinder(/[\n\r\u2028\u2029]/g);
+	var findQuoteEnd = {'"': createFinder(/"\s*\)/g), '\'': createFinder(/'\s*\)/g)};
+	var regex = /url\s*\(\s*/gi;
+	var result = [];
+	var match = null;
+	var last = null;
+	var trimmed = 0;
+
+	while ((match = regex.exec(css)) != null)
+	{
+		// The reference cannot contain a line break (. in the regex above)
+		var start = regex.lastIndex;
+		var line = findLine(start);
+		var limit = (line != null) ? line.index : css.length;
+		var quote = css.charAt(start);
+		var end = (quote == '"' || quote == '\'') ? findQuoteEnd[quote](start + 1) : null;
+		var stop = 0;
+
+		if (end != null && end.index <= limit)
+		{
+			start++;
+			stop = end.index;
+		}
+		else
+		{
+			// Up to the next parenthesis without the spaces before it
+			end = findEnd(start);
+
+			if (end == null)
+			{
+				break;
+			}
+			else if (end != last)
+			{
+				last = end;
+				trimmed = end.index;
+
+				while (trimmed > 0 && /\s/.test(css.charAt(trimmed - 1)))
+				{
+					trimmed--;
+				}
+			}
+
+			stop = Math.max(start, trimmed);
+
+			if (stop > limit)
+			{
+				continue;
+			}
+		}
+
+		regex.lastIndex = end.index + end[0].length;
+		result.push({start: match.index, end: regex.lastIndex, url: css.substring(start, stop)});
+	}
+
+	return result;
+};
+
 // Disallows external URLs in style attributes. draw.io labels only ever need
 // relative or data: references, so any absolute/external reference is blocked,
 // whichever CSS construct carries it (url(), image-set(), cross-fade(),
@@ -4790,19 +4887,19 @@ Graph.isStyleAllowed = function(css)
     {
         var match;
 
-        // Matches all url(...) occurrences (covers unquoted and quoted
+        // Checks all url(...) occurrences (covers unquoted and quoted
         // arguments) and records the ranges of those that are allowed
-        var urlRegex = /url\s*\(\s*(['"]?)(.*?)\1\s*\)/gi;
+        var urls = Graph.getCssUrls(form);
         var urlRanges = [];
 
-        while ((match = urlRegex.exec(form)) !== null)
+        for (var j = 0; j < urls.length; j++)
         {
-            if (isExternal(match[2]))
+            if (isExternal(urls[j].url))
             {
                 return false;
             }
 
-            urlRanges.push([match.index, match.index + match[0].length]);
+            urlRanges.push([urls[j].start, urls[j].end]);
         }
 
         // True if the given range is inside a url(...) that was allowed above.
@@ -4810,17 +4907,17 @@ Graph.isStyleAllowed = function(css)
         // it is part of that reference and not a reference of its own, eg. the
         // raw xmlns in an inline SVG image
         // url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'...")
+        // The strings below are checked in their order, as the ranges are.
+        var urlIndex = 0;
+
         var isInUrl = function(index, length)
         {
-            for (var i = 0; i < urlRanges.length; i++)
+            while (urlIndex < urlRanges.length && urlRanges[urlIndex][1] < index + length)
             {
-                if (index > urlRanges[i][0] && index + length <= urlRanges[i][1])
-                {
-                    return true;
-                }
+                urlIndex++;
             }
 
-            return false;
+            return urlIndex < urlRanges.length && index > urlRanges[urlIndex][0];
         };
 
         // External references are also passed as bare quoted strings to
@@ -4858,9 +4955,28 @@ Graph.isStyleAllowed = function(css)
         return form.replace(/[\t\n\r]/g, '');
     };
 
+    // Removes all comments that are closed, as /\/\*[\s\S]*?\*\//g does, which
+    // reads the rest of the text again for each comment if none is closed
     var stripComments = function(form)
     {
-        return form.replace(/\/\*[\s\S]*?\*\//g, '');
+        var result = '';
+        var i = 0;
+
+        while (i < form.length)
+        {
+            var start = form.indexOf('/*', i);
+            var end = (start >= 0) ? form.indexOf('*/', start + 2) : -1;
+
+            if (end < 0)
+            {
+                break;
+            }
+
+            result += form.substring(i, start);
+            i = end + 2;
+        }
+
+        return result + form.substring(i);
     };
 
     // Returns the decoded value of the CSS escape at the backslash at index i
@@ -8723,6 +8839,27 @@ Graph.prototype.selectParentAfterDelete = false;
 Graph.prototype.defaultEdgeLength = 80;
 
 /**
+ * Returns true if a drag pans and the mouse changes nothing on this graph:
+ * the Hand tool of the editor (EditorUi.setPanMode, which replaces this
+ * function in EditorUi.installHandTool). This implementation returns false.
+ */
+Graph.prototype.isHandTool = function()
+{
+	return false;
+};
+
+/**
+ * Returns true if the Hand tool of the editor is on and selects nothing
+ * (EditorUi.isHandToolViewOnly, which replaces this function in
+ * EditorUi.installHandTool): links in labels open as in a read-only graph
+ * (labelLinkClicked). This implementation returns false.
+ */
+Graph.prototype.isHandToolViewOnly = function()
+{
+	return false;
+};
+
+/**
  * Specifies if multiple selected cells get one box with resize and rotation
  * handles that scales and rotates all of them (see getMultiSelectionCells and
  * Graph.MultiSelectionHandler). Set via the multiSelectionHandles option of
@@ -9005,6 +9142,65 @@ Graph.prototype.init = function(container)
 	// Handles custom links in tooltips
 	if (this.tooltipHandler != null)
 	{
+		// Makes the given tooltip as wide as content that cannot wrap and is
+		// wider than its maximum width (eg. an image or a table with a width).
+		// Such content is painted beside the tooltip otherwise, where the
+		// mouse hides the tooltip (see mxTooltipHandler.isInTooltip). The
+		// width of the content is measured and set as a fixed minimum width,
+		// which wins over the maximum width, if it is at most twice the
+		// maximum width and half of the width of the window: the markup of a
+		// tooltip comes from the diagram and must not make the tooltip, which
+		// stays open under the mouse and takes the clicks on its links, as
+		// wide as the window. Wider content, and content that grows after
+		// this, stays beside the tooltip. Markup that is placed outside of
+		// the tooltip (eg. with position:absolute) does not count for the
+		// width. The width of the window is the smaller one of the window and
+		// of the body, which is wider than the window in a page that scrolls
+		// (eg. with a viewer). In a window that is not wider than twice the
+		// maximum width, no content makes the tooltip wider.
+		var updateTooltipWidth = function(div)
+		{
+			if (div != null && Editor.tooltipMaxWidth > 0 && div.style.visibility != 'hidden')
+			{
+				div.style.minWidth = '';
+				var before = parseFloat(mxUtils.getCurrentStyle(div).width);
+
+				// Words do not count for the measured width, as they wrap
+				// inside the tooltip (anywhere). This is only set for the
+				// measuring: as the style of the tooltip it also breaks short
+				// words in the columns of tables, which have no minimum width
+				// with it.
+				div.style.overflowWrap = 'anywhere';
+				div.style.minWidth = 'min-content';
+				var width = parseFloat(mxUtils.getCurrentStyle(div).width);
+				div.style.overflowWrap = 'break-word';
+				var limit = Math.min(2 * Editor.tooltipMaxWidth, Math.min(
+					mxUtils.getDocumentSize().width, window.innerWidth) / 2);
+				div.style.minWidth = (width > before && width <= limit) ? width + 'px' : '';
+
+				// Also moves a tooltip into the window that an image has made
+				// wider or higher after it was shown
+				mxUtils.fit(div);
+			}
+		};
+
+		var tooltipHandlerShow = this.tooltipHandler.show;
+
+		this.tooltipHandler.show = function(tip, x, y)
+		{
+			// Removes the minimum width of the last tooltip
+			if (this.div != null)
+			{
+				this.div.style.minWidth = '';
+			}
+
+			tooltipHandlerShow.apply(this, arguments);
+
+			// Math in the tooltip of an editor is typeset at this point (this
+			// function is added after the one in Editor.js and calls it)
+			updateTooltipWidth(this.div);
+		};
+
 		var tooltipHandlerInit = this.tooltipHandler.init;
 
 		this.tooltipHandler.init = function()
@@ -9020,22 +9216,83 @@ Graph.prototype.init = function(container)
 
 				if (Editor.tooltipMaxWidth > 0)
 				{
+					// Keeps the content of the tooltip in its box, as only the
+					// box keeps the tooltip open and takes clicks on links (see
+					// mxTooltipHandler.isInTooltip): words that are wider than
+					// the tooltip wrap (eg. a link with a long URL as its
+					// text), and content that cannot wrap (eg. an image) makes
+					// the tooltip wider (see updateTooltipWidth). The width of
+					// the tooltip is that of its content (max-content), up to
+					// the maximum width or the width of a narrower window, and
+					// mxUtils.fit moves it into the window. Without it the
+					// tooltip is as narrow as the space right of the mouse
+					// near the right edge of the window.
 					this.div.style.maxWidth = Editor.tooltipMaxWidth + 'px';
+					this.div.style.maxWidth = 'min(' + Editor.tooltipMaxWidth + 'px, calc(100vw - 24px))';
+					this.div.style.overflowWrap = 'break-word';
+					this.div.style.width = 'max-content';
+
+					// Images that are loaded after the tooltip was shown can
+					// make it wider (capture as load events do not bubble).
+					// The tooltip is measured once per frame, before it is
+					// painted, and not for each image of a tooltip.
+					var measuring = false;
+
+					this.div.addEventListener('load', mxUtils.bind(this, function()
+					{
+						if (!measuring)
+						{
+							measuring = true;
+
+							window.requestAnimationFrame(mxUtils.bind(this, function()
+							{
+								measuring = false;
+								updateTooltipWidth(this.div);
+							}));
+						}
+					}), true);
 				}
 
 				mxEvent.addListener(this.div, 'click', mxUtils.bind(this, function(evt)
 				{
+					// Also handles clicks on markup inside links and on SVG
+					// links (lowercase, eg. typeset math with \href)
 					var source = mxEvent.getSource(evt);
+
+					while (source != null && source != this.div &&
+						source.nodeName.toLowerCase() != 'a')
+					{
+						source = source.parentNode;
+					}
 					
-					if (source.nodeName == 'A')
+					if (source != null && source.nodeName.toLowerCase() == 'a')
 					{
 						var href = source.getAttribute('href');
-						
+
+						// SVG links may use xlink:href
+						if (href == null && source.getAttributeNS != null)
+						{
+							href = source.getAttributeNS(mxConstants.NS_XLINK, 'href');
+						}
+
 						if (href != null && this.graph.isCustomLink(href) &&
 							(mxEvent.isTouchEvent(evt) || !mxEvent.isPopupTrigger(evt)) &&
 							this.graph.customLinkClicked(href, (this.state != null) ?
 								this.state.cell : null))
 						{
+							mxEvent.consume(evt);
+						}
+						else if (href != null && source.getAttribute('target') == null)
+						{
+							// Links without a target, eg. SVG links of typeset math with
+							// \href, which MathJax creates after show has set the target
+							// of the links, open in a new window via the sanitized link
+							// handling instead of replacing the page or the embed iframe
+							if (mxEvent.isTouchEvent(evt) || !mxEvent.isPopupTrigger(evt))
+							{
+								this.graph.openLink(this.graph.getAbsoluteUrl(href), '_blank');
+							}
+
 							mxEvent.consume(evt);
 						}
 					}
@@ -12462,7 +12719,8 @@ Graph.prototype.labelLinkClicked = function(state, elt, evt)
 	if (href != null && !this.isCustomLink(href) && ((mxEvent.isLeftMouseButton(evt) &&
 		!mxEvent.isPopupTrigger(evt)) || mxEvent.isTouchEvent(evt)))
 	{
-		if (!this.isEnabled() || this.isCellLocked(state.cell))
+		if (!this.isEnabled() || this.isCellLocked(state.cell) ||
+			this.isHandToolViewOnly())
 		{
 			// Uses the target of the link if it is a safe keyword target
 			// or the default target for the link otherwise
@@ -16234,22 +16492,164 @@ Graph.prototype.formatDate = function(date, mask, utc)
 };
 
 /**
- * Visibility of layers in this view that differs from the model, as a map
- * from layers to booleans, or null. It is not stored in the model, so it does
- * not change the diagram or the undo history. Default is null.
+ * Visibility of cells and layers in this view that differs from the model, as
+ * a map from cells to objects with the cell and its visibility in this view,
+ * or null. It is not stored in the model, so it does not change the diagram or
+ * the undo history. Default is null.
  */
-Graph.prototype.layerViewVisibility = null;
+Graph.prototype.cellViewVisibility = null;
 
 /**
- * Returns true if the given layer is visible in this view. This is the
- * visibility in <layerViewVisibility> or else in the model.
+ * Hook that returns true if cells and layers are shown, hidden and styled only
+ * in this view, eg. by custom links in a diagram that cannot be edited (see
+ * <setCellsVisibleInView> and <setCellStylesInView>). Default is false.
+ */
+Graph.prototype.isCellViewLocal = function()
+{
+	return false;
+};
+
+/**
+ * Returns true if the given cell is visible in this view. This is the
+ * visibility in <cellViewVisibility> or else in the model. The ancestors of
+ * the cell are not checked.
+ */
+Graph.prototype.isVisibleInView = function(cell)
+{
+	var entry = (this.cellViewVisibility != null) ?
+		this.cellViewVisibility.get(cell) : null;
+
+	return (entry != null) ? entry.visible : this.model.isVisible(cell);
+};
+
+/**
+ * Returns true if the given layer is visible in this view (see
+ * <isVisibleInView>).
  */
 Graph.prototype.isLayerVisible = function(layer)
 {
-	var visible = (this.layerViewVisibility != null) ?
-		this.layerViewVisibility.get(layer) : null;
+	return this.isVisibleInView(layer);
+};
 
-	return (visible != null) ? visible : this.model.isVisible(layer);
+/**
+ * Shows or hides the given cells in this view without changing the model. If
+ * visible is null then each cell is shown if it is hidden in this view and
+ * hidden otherwise. Rows and cells of tables are ignored: the layout of the
+ * table sets their visibility (hidden cells are merged cells) and shows them
+ * again after a change in the model, and the table would still paint their
+ * fills and borders. They are drawn again as after that change, so that a
+ * hide step that faded them out first shows them as in the model.
+ */
+Graph.prototype.setCellsVisibleInView = function(cells, visible)
+{
+	var ignored = [];
+
+	cells = (cells != null) ? cells.filter(mxUtils.bind(this, function(cell)
+	{
+		if (this.isTableRow(cell) || this.isTableCell(cell))
+		{
+			ignored.push(cell);
+
+			return false;
+		}
+
+		return true;
+	})) : null;
+
+	if (ignored.length > 0)
+	{
+		this.invalidateCellsOnce(mxUtils.bind(this, function()
+		{
+			for (var i = 0; i < ignored.length; i++)
+			{
+				this.removeStateForCell(ignored[i]);
+			}
+		}));
+
+		// Fires a refresh event for the new states, as there is no model
+		// change (eg. for math typesetting, see refreshCellViewVisibility)
+		if (cells.length == 0)
+		{
+			this.view.validate();
+			this.sizeDidChange();
+			this.fireEvent(new mxEventObject(mxEvent.REFRESH));
+		}
+	}
+
+	if (cells != null && cells.length > 0)
+	{
+		var resumed = this.resumeCellViewVisibility();
+
+		if (this.cellViewVisibility == null)
+		{
+			this.cellViewVisibility = new mxDictionary();
+		}
+
+		for (var i = 0; i < cells.length; i++)
+		{
+			var value = (visible != null) ? visible :
+				!this.isVisibleInView(cells[i]);
+
+			if (this.model.isVisible(cells[i]) == value)
+			{
+				this.cellViewVisibility.remove(cells[i]);
+			}
+			else
+			{
+				this.cellViewVisibility.put(cells[i],
+					{cell: cells[i], visible: value});
+			}
+		}
+
+		this.refreshCellViewVisibility(cells.concat(resumed));
+	}
+};
+
+/**
+ * Continues with the visibility of the cells in this view if they are shown
+ * as stored in the model for a rendering (see showLayersAsStored), eg. after
+ * a click on a custom link while the image of a .drawio.png file waits for
+ * the outlines of images. Returns the cells whose visibility in this view is
+ * used again, which the caller updates, or an empty array.
+ */
+Graph.prototype.resumeCellViewVisibility = function()
+{
+	var cells = [];
+
+	if (this.suspendedCellViewVisibility != null)
+	{
+		this.cellViewVisibility = this.suspendedCellViewVisibility;
+		this.suspendedCellViewVisibility = null;
+		cells = this.getCellViewCells(this.cellViewVisibility);
+	}
+
+	return cells;
+};
+
+/**
+ * Returns the cells of the given map of <cellViewVisibility> or
+ * <cellViewStyles>, or an empty array if the map is null.
+ */
+Graph.prototype.getCellViewCells = function(map)
+{
+	var entries = (map != null) ? map.getValues() : [];
+	var cells = [];
+
+	for (var i = 0; i < entries.length; i++)
+	{
+		cells.push(entries[i].cell);
+	}
+
+	return cells;
+};
+
+/**
+ * Shows each of the given cells that is hidden in this view and hides the
+ * others without changing the model.
+ */
+Graph.prototype.toggleCellsInView = function(cells)
+{
+	this.setCellsVisibleInView(cells, null);
 };
 
 /**
@@ -16257,89 +16657,524 @@ Graph.prototype.isLayerVisible = function(layer)
  */
 Graph.prototype.setLayersVisibleInView = function(layers, visible)
 {
-	if (this.layerViewVisibility == null)
-	{
-		this.layerViewVisibility = new mxDictionary();
-	}
-
-	for (var i = 0; i < layers.length; i++)
-	{
-		if (this.model.isVisible(layers[i]) == visible)
-		{
-			this.layerViewVisibility.remove(layers[i]);
-		}
-		else
-		{
-			this.layerViewVisibility.put(layers[i], visible);
-		}
-	}
-
-	this.refreshLayerViewVisibility();
+	this.setCellsVisibleInView(layers, visible);
 };
 
 /**
- * Shows all layers as stored in the model if the visibility of layers in
- * this view differs. If noRefresh is true then the view is not updated, eg.
- * if the root is changed and the view is updated anyway.
+ * Shows all cells and layers as stored in the model if the visibility of
+ * cells in this view differs. If noRefresh is true then the view is not
+ * updated, eg. if the root is changed and the view is updated anyway.
  */
-Graph.prototype.resetLayerViewVisibility = function(noRefresh)
+Graph.prototype.resetCellViewVisibility = function(noRefresh)
 {
-	if (this.layerViewVisibility != null)
+	if (this.cellViewVisibility != null || this.suspendedCellViewVisibility != null)
 	{
-		this.layerViewVisibility = null;
+		var entries = ((this.cellViewVisibility != null) ? this.cellViewVisibility :
+			this.suspendedCellViewVisibility).getValues();
+		this.cellViewVisibility = null;
+		this.suspendedCellViewVisibility = null;
 
 		if (!noRefresh)
 		{
-			this.refreshLayerViewVisibility();
+			var cells = [];
+
+			for (var i = 0; i < entries.length; i++)
+			{
+				cells.push(entries[i].cell);
+			}
+
+			this.refreshCellViewVisibility(cells);
 		}
 	}
 };
 
 /**
- * Updates the view after the visibility of layers in this view changed. The
- * states of hidden layers are removed with their descendants, as for a
- * change of the visibility in the model. Fires a refresh event, as there is
- * no model change, so that the listeners that update for the view (eg. math
- * typesetting, the outline and the text outline) update.
+ * Updates the view after the visibility of the given cells in this view
+ * changed. The states of hidden cells are removed with their descendants, as
+ * for a change of the visibility in the model, and the connected edges are
+ * updated. Fires a refresh event, as there is no model change, so that the
+ * listeners that update for the view (eg. math typesetting, the outline and
+ * the text outline) update, and a layerViewVisibilityChanged event for the
+ * Layers window (the name of the event is kept for its listeners).
  */
-Graph.prototype.refreshLayerViewVisibility = function()
+Graph.prototype.refreshCellViewVisibility = function(cells)
 {
-	var root = this.model.getRoot();
-
-	for (var i = 0; i < this.model.getChildCount(root); i++)
-	{
-		var layer = this.model.getChildAt(root, i);
-
-		if (!this.isCellVisible(layer))
-		{
-			this.removeStateForCell(layer);
-		}
-	}
-
-	this.view.revalidate();
+	this.validateCellViewVisibility(cells);
 	this.sizeDidChange();
 	this.fireEvent(new mxEventObject(mxEvent.REFRESH));
 	this.fireEvent(new mxEventObject('layerViewVisibilityChanged'));
 };
 
 /**
- * Uses <isLayerVisible> for layers.
+ * Creates and removes the states of the given cells and their descendants
+ * after their visibility in this view changed, without events.
+ */
+Graph.prototype.validateCellViewVisibility = function(cells)
+{
+	this.invalidateCellsOnce(mxUtils.bind(this, function()
+	{
+		for (var i = 0; i < cells.length; i++)
+		{
+			if (!this.isCellVisible(cells[i]) && this.model.contains(cells[i]))
+			{
+				this.removeStateForCell(cells[i]);
+			}
+		}
+	}));
+
+	this.view.revalidate();
+};
+
+/**
+ * Visibility of cells and layers in this view while they are shown as stored
+ * in the model (see <showLayersAsStored>), or null. Default is null.
+ */
+Graph.prototype.suspendedCellViewVisibility = null;
+
+/**
+ * Styles of cells in this view while the cells are shown as stored in the
+ * model (see <showLayersAsStored>), or null. Default is null.
+ */
+Graph.prototype.suspendedCellViewStyles = null;
+
+/**
+ * Shows the cells and layers as stored in the model if their visibility or
+ * style in this view differs, for renderings that are written into the file
+ * (eg. the image of a .drawio.svg or .drawio.png file, whose XML has the
+ * cells and layers as stored). Returns a function that shows them as in this
+ * view again, or null if their visibility and styles do not differ. The view
+ * is updated without events, as the caller restores it right after the
+ * rendering. The function does not restore the visibility or the styles of
+ * this view if they were changed or reset in the meantime.
+ */
+Graph.prototype.showLayersAsStored = function()
+{
+	var suspended = this.cellViewVisibility;
+	var suspendedStyles = this.cellViewStyles;
+	var restore = null;
+
+	if (suspended != null || suspendedStyles != null)
+	{
+		var cells = this.getCellViewCells(suspended);
+		var styled = this.getCellViewCells(suspendedStyles);
+
+		this.cellViewVisibility = null;
+		this.suspendedCellViewVisibility = suspended;
+		this.cellViewStyles = null;
+		this.suspendedCellViewStyles = suspendedStyles;
+		this.validateCellViewStyles(styled);
+		this.validateCellViewVisibility(cells);
+
+		restore = mxUtils.bind(this, function()
+		{
+			if (suspendedStyles != null && this.suspendedCellViewStyles == suspendedStyles)
+			{
+				this.suspendedCellViewStyles = null;
+				this.cellViewStyles = suspendedStyles;
+				this.validateCellViewStyles(styled);
+			}
+
+			if (suspended != null && this.suspendedCellViewVisibility == suspended)
+			{
+				this.suspendedCellViewVisibility = null;
+				this.cellViewVisibility = suspended;
+				this.validateCellViewVisibility(cells);
+			}
+		});
+	}
+
+	return restore;
+};
+
+/**
+ * Uses the visibility in <cellViewVisibility> for the cells in it.
  */
 Graph.prototype.isCellVisible = function(cell)
 {
-	if (this.layerViewVisibility != null &&
-		this.model.getParent(cell) == this.model.getRoot())
+	var entry = (this.cellViewVisibility != null) ?
+		this.cellViewVisibility.get(cell) : null;
+
+	return (entry != null) ? entry.visible :
+		mxGraph.prototype.isCellVisible.apply(this, arguments);
+};
+
+/**
+ * Styles of cells in this view that differ from the model, as a map from cells
+ * to objects with the cell and the list of the keys and values that are set
+ * in this view, one for each key in the order in which the keys were last
+ * changed (a null value removes the key), or null. The objects also keep the
+ * style in this view once it is computed (see <getStyleInView>). Like
+ * <cellViewVisibility> it is not stored in the model, so it does not change
+ * the diagram or the undo history. Default is null.
+ */
+Graph.prototype.cellViewStyles = null;
+
+/**
+ * Returns the style string of the given cell in this view: the style in the
+ * model with the keys and values of <cellViewStyles>, set in the order in
+ * which they were set in this view. It is kept in the entry of the cell
+ * (view), as each update of the cell uses it (see getCellStyle) and each key
+ * is a pass over the whole style: N steps of custom links that set different
+ * keys on a cell took O(N^3). A new key is set in it (see
+ * putCellStylesInView), and it is computed again if a key of the cell changes
+ * or if the style in the model changes.
+ */
+Graph.prototype.getStyleInView = function(cell)
+{
+	var style = this.model.getStyle(cell);
+	var entry = (this.cellViewStyles != null) ?
+		this.cellViewStyles.get(cell) : null;
+
+	if (entry != null)
 	{
-		return this.isLayerVisible(cell);
+		if (entry.view == null || entry.view.base !== style)
+		{
+			var view = style;
+
+			for (var i = 0; i < entry.styles.length; i++)
+			{
+				view = mxUtils.setStyle(view, entry.styles[i].key,
+					entry.styles[i].value);
+			}
+
+			entry.view = {base: style, style: view};
+		}
+
+		style = entry.view.style;
 	}
-	else
+
+	return style;
+};
+
+/**
+ * Sets the given key of the style of the given cells to the given value in
+ * this view without changing the model, as <setCellStyles> sets it in the
+ * model with the keys that change with it (see setDependentCellStyles). A
+ * null or empty value removes the key, so that the default applies.
+ */
+Graph.prototype.setCellStylesInView = function(key, value, cells)
+{
+	if (key != null && cells != null && cells.length > 0)
 	{
-		return mxGraph.prototype.isCellVisible.apply(this, arguments);
+		// Before the dependent styles, which may read the style in this view
+		var resumed = this.resumeCellViewStyles();
+		var changed = this.setDependentCellStyles(key, value, cells, true);
+		this.putCellStylesInView(key, value, cells);
+		this.refreshCellViewStyles(cells.concat(changed, resumed));
 	}
 };
 
 /**
- * 
+ * Continues with the styles of the cells in this view if the cells are shown
+ * as stored in the model for a rendering (see showLayersAsStored and
+ * <resumeCellViewVisibility>). Returns the cells whose style in this view is
+ * used again, which the caller updates, or an empty array.
+ */
+Graph.prototype.resumeCellViewStyles = function()
+{
+	var cells = [];
+
+	if (this.suspendedCellViewStyles != null)
+	{
+		this.cellViewStyles = this.suspendedCellViewStyles;
+		this.suspendedCellViewStyles = null;
+		cells = this.getCellViewCells(this.cellViewStyles);
+	}
+
+	return cells;
+};
+
+/**
+ * Most keys of the style of a cell that are set in this view (see
+ * <putCellStylesInView>). Exports apply as many for each cell, with no
+ * limit for all cells (maxStyleKeys of applyCellViewState in export.js), so
+ * they draw every state of this view. Default is 256.
+ */
+Graph.prototype.maxCellViewStyleKeys = 256;
+
+/**
+ * Sets the given key of the style of the given cells to the given value in
+ * <cellViewStyles> without updating the view (see setCellStylesInView). A
+ * suspended map is used again (see <resumeCellViewStyles>), so the caller
+ * also updates its cells. A cell keeps its keys if the value is the value in
+ * this view, and gets no new keys once it has <maxCellViewStyleKeys> keys.
+ */
+Graph.prototype.putCellStylesInView = function(key, value, cells)
+{
+	// A value of mxUtils.setStyle, else it removes the key
+	var isValue = function(v)
+	{
+		return v != null && (typeof v.length === 'undefined' || v.length > 0);
+	};
+
+	if (key != null && cells != null && cells.length > 0)
+	{
+		this.resumeCellViewStyles();
+
+		if (this.cellViewStyles == null)
+		{
+			this.cellViewStyles = new mxDictionary();
+		}
+
+		for (var i = 0; i < cells.length; i++)
+		{
+			var base = this.model.getStyle(cells[i]);
+			var entry = this.cellViewStyles.get(cells[i]);
+			var styles = [];
+			var previous = null;
+
+			if (entry != null)
+			{
+				for (var j = 0; j < entry.styles.length; j++)
+				{
+					if (entry.styles[j].key != key)
+					{
+						styles.push(entry.styles[j]);
+					}
+					else
+					{
+						previous = entry.styles[j];
+					}
+				}
+			}
+
+			if ((previous != null && ((!isValue(previous.value) && !isValue(value)) ||
+				(isValue(previous.value) && isValue(value) &&
+				String(previous.value) === String(value)))) ||
+				(previous == null && styles.length >= this.maxCellViewStyleKeys))
+			{
+				continue;
+			}
+
+			styles.push({key: key, value: value});
+
+			// A new key is set last, so setting it in the style in this view
+			// gives the string that computing it again from all keys gives
+			// (see getStyleInView). A key that is set again is set after the
+			// others, which can change its place in the string (eg. after a
+			// step that removed it), so its style is computed again.
+			var view = (previous == null && entry != null && entry.view != null &&
+				entry.view.base === base) ? {base: base,
+				style: mxUtils.setStyle(entry.view.style, key, value)} : null;
+			this.cellViewStyles.put(cells[i], {cell: cells[i], styles: styles, view: view});
+
+			// Removes the entry if the style in this view is the style in the
+			// model again, eg. after a second click on a toggle link
+			if ((this.getStyleInView(cells[i]) || '') == (base || ''))
+			{
+				this.cellViewStyles.remove(cells[i]);
+			}
+		}
+	}
+};
+
+/**
+ * Shows all cells with the style in the model if their style in this view
+ * differs. If noRefresh is true then the view is not updated, eg. if the root
+ * is changed and the view is updated anyway.
+ */
+Graph.prototype.resetCellViewStyles = function(noRefresh)
+{
+	if (this.cellViewStyles != null || this.suspendedCellViewStyles != null)
+	{
+		var entries = ((this.cellViewStyles != null) ? this.cellViewStyles :
+			this.suspendedCellViewStyles).getValues();
+		this.cellViewStyles = null;
+		this.suspendedCellViewStyles = null;
+
+		if (!noRefresh && entries.length > 0)
+		{
+			var cells = [];
+
+			for (var i = 0; i < entries.length; i++)
+			{
+				cells.push(entries[i].cell);
+			}
+
+			this.refreshCellViewStyles(cells);
+		}
+	}
+};
+
+/**
+ * Shows the given cells as stored in the model, eg. after an edit of the
+ * model that changed them: removes the visibility in this view of the cells
+ * in visible and the style in this view of the cells in styled, also while
+ * the cells are shown as stored for a rendering (see showLayersAsStored),
+ * and updates the view of the cells whose entry was used.
+ */
+Graph.prototype.removeCellViewEntries = function(visible, styled)
+{
+	var remove = function(map, cells)
+	{
+		var removed = [];
+
+		for (var i = 0; map != null && cells != null && i < cells.length; i++)
+		{
+			if (map.get(cells[i]) != null)
+			{
+				map.remove(cells[i]);
+				removed.push(cells[i]);
+			}
+		}
+
+		return removed;
+	};
+
+	var hidden = remove(this.cellViewVisibility, visible);
+	var restyled = remove(this.cellViewStyles, styled);
+	remove(this.suspendedCellViewVisibility, visible);
+	remove(this.suspendedCellViewStyles, styled);
+
+	if (restyled.length > 0)
+	{
+		this.refreshCellViewStyles(restyled);
+	}
+
+	if (hidden.length > 0)
+	{
+		this.refreshCellViewVisibility(hidden);
+	}
+};
+
+/**
+ * Updates the view after the style of the given cells in this view changed,
+ * as for a change of the style in the model (see mxGraph.processChange), and
+ * fires a refresh event for the listeners that update for the view, as there
+ * is no model change (see <refreshCellViewVisibility>).
+ */
+Graph.prototype.refreshCellViewStyles = function(cells)
+{
+	this.validateCellViewStyles(cells);
+	this.sizeDidChange();
+	this.fireEvent(new mxEventObject(mxEvent.REFRESH));
+};
+
+/**
+ * Updates the states of the given cells and of the cells that depend on their
+ * style after their style in this view changed, without events.
+ */
+Graph.prototype.validateCellViewStyles = function(cells)
+{
+	this.invalidateCellsOnce(mxUtils.bind(this, function()
+	{
+		for (var i = 0; i < cells.length; i++)
+		{
+			this.view.invalidate(cells[i], true, true);
+			var state = this.view.getState(cells[i]);
+
+			if (state != null)
+			{
+				state.invalidStyle = true;
+			}
+
+			this.invalidateStyleDependents(cells[i]);
+		}
+	}));
+
+	this.view.validate();
+};
+
+/**
+ * Calls the given function, which invalidates cells in the view and must not
+ * validate it, with a new map of the walks of mxGraphView.invalidate (see
+ * mxGraphView.invalidatedCells), so that all its invalidations walk each cell
+ * once, as the changes of an edit do (see mxGraph.graphModelChanged). Each
+ * walk would walk the cells again, which is quadratic for chains of edges
+ * that are connected to edges. The previous map is restored afterwards, before
+ * the view is validated.
+ */
+Graph.prototype.invalidateCellsOnce = function(funct)
+{
+	var invalidated = this.view.invalidatedCells;
+	this.view.invalidatedCells = new mxDictionary();
+
+	try
+	{
+		funct();
+	}
+	finally
+	{
+		this.view.invalidatedCells = invalidated;
+	}
+};
+
+/**
+ * Invalidates the cells whose style or label depends on the style of the given
+ * cell after it changed in the model or in this view: the row of a table
+ * cell, as the title of a row without a title region depends on the title
+ * region of its first cell (see getTableRowFirstCellBounds), and the label
+ * cells of an edge, which may inherit its text styles (see
+ * resolveInheritedLabelStyles).
+ */
+Graph.prototype.invalidateStyleDependents = function(cell)
+{
+	if (this.isTableCell(cell))
+	{
+		this.view.invalidate(this.model.getParent(cell), false, false);
+	}
+	else if (this.model.isEdge(cell))
+	{
+		var childCount = this.model.getChildCount(cell);
+
+		for (var i = 0; i < childCount; i++)
+		{
+			var state = this.view.getState(this.model.getChildAt(cell, i));
+
+			if (state != null)
+			{
+				state.invalidStyle = true;
+			}
+		}
+	}
+};
+
+/**
+ * Uses the style in this view for the cells in <cellViewStyles> (see
+ * <getStyleInView>), resolved as mxGraph.getCellStyle resolves the style in
+ * the model.
+ */
+Graph.prototype.getCellStyle = function(cell, resolve)
+{
+	var entry = (this.cellViewStyles != null) ?
+		this.cellViewStyles.get(cell) : null;
+
+	if (entry != null)
+	{
+		resolve = (resolve != null) ? resolve : true;
+		var name = this.getStyleInView(cell);
+		var style = (this.model.isEdge(cell)) ?
+			this.stylesheet.getDefaultEdgeStyle() :
+			this.stylesheet.getDefaultVertexStyle();
+
+		if (name != null && name.length > 0)
+		{
+			style = this.stylesheet.getCellStyle(name, style, resolve);
+		}
+		else if (style != null)
+		{
+			style = mxUtils.clone(style);
+		}
+
+		if (style == null)
+		{
+			style = new Object();
+		}
+		else if (resolve)
+		{
+			style = this.postProcessCellStyle(cell, style);
+		}
+
+		return style;
+	}
+	else
+	{
+		return mxGraph.prototype.getCellStyle.apply(this, arguments);
+	}
+};
+
+/**
+ *
  */
 Graph.prototype.getLayerForCell = function(cell)
 {
@@ -17507,6 +18342,7 @@ Graph.prototype.insertEdgeBeforeCell = function(edge, cell)
  * Sidebar.dropAndConnect), inside the model update of the drop. keepStyle is
  * true if the shape keeps its own style (Shift). Returns the cells that got
  * their styles here and must not get the current styles (cellsInserted).
+ * An edge that is not returned gets the newEdgeStyle of the source.
  * This implementation returns an empty array.
  */
 Graph.prototype.styleDroppedConnection = function(source, target, edge, direction, keepStyle)
@@ -18329,20 +19165,21 @@ Graph.getOwnStyleValue = function(style, key)
 };
 
 /**
- * Returns the value of the given key in the style of the given cell (see
- * getOwnStyleValue). The optional context keeps the keys of the style, as
- * the rules of a cell can look up many keys in a long style.
+ * Returns the value of the given key in the style of the given cell in this
+ * view (see getStyleInView and getOwnStyleValue), so that a value set only in
+ * this view is a value set on the cell, as in the model. The optional context
+ * keeps the keys of the style, as the rules of a cell can look up many keys
+ * in a long style.
  */
 Graph.prototype.getStyleRuleOwnValue = function(cell, key, context)
 {
-	var style = this.model.getStyle(cell);
-
 	if (context == null)
 	{
-		return Graph.getOwnStyleValue(style, key);
+		return Graph.getOwnStyleValue(this.getStyleInView(cell), key);
 	}
 	else if (context.own == null)
 	{
+		var style = this.getStyleInView(cell);
 		var tokens = (typeof style === 'string') ? style.split(';') : [];
 		context.own = Object.create(null);
 
@@ -19078,8 +19915,17 @@ Graph.prototype.getInheritedLabelKeys = function(style, listedOnly)
 Graph.prototype.setInheritedLabelKeys = function(style, keys)
 {
 	return mxUtils.setStyle(style, Graph.inheritLabelStyleKey,
-		(keys.length == 0) ? null : ((keys.length ==
-		Graph.inheritedLabelStyles.length) ? '1' : keys.join(',')));
+		this.getInheritedLabelKeysValue(keys));
+};
+
+/**
+ * Returns the value of Graph.inheritLabelStyleKey for the given inherited
+ * keys: null for none, 1 for all and else the keys separated by commas.
+ */
+Graph.prototype.getInheritedLabelKeysValue = function(keys)
+{
+	return (keys.length == 0) ? null : ((keys.length ==
+		Graph.inheritedLabelStyles.length) ? '1' : keys.join(','));
 };
 
 /**
@@ -19216,10 +20062,13 @@ Graph.prototype.removeChangedInheritedLabelKeys = function(cell, style)
  * Removes the given keys from the text styles that the given cells inherit
  * from their edge, as they get own values. If materialize is true then the
  * values that are shown are written to the removed keys first, eg. before a
- * flag is toggled in the value.
+ * flag is toggled in the value. If inView is true then the keys are changed
+ * only in this view (see setCellStylesInView). Returns the changed cells.
  */
-Graph.prototype.removeInheritedLabelKeys = function(cells, keys, materialize)
+Graph.prototype.removeInheritedLabelKeys = function(cells, keys, materialize, inView)
 {
+	var changed = [];
+
 	if (cells != null && mxUtils.indexOf(keys, 'fontSource') >= 0)
 	{
 		keys = keys.concat(['fontFamily']);
@@ -19230,9 +20079,11 @@ Graph.prototype.removeInheritedLabelKeys = function(cells, keys, materialize)
 		// All vertices in edges resolve inherited keys (see resolveInheritedLabelStyles)
 		if (this.model.isVertex(cells[i]) && this.model.isEdge(this.model.getParent(cells[i])))
 		{
-			var style = this.model.getStyle(cells[i]) || '';
+			var style = ((inView) ? this.getStyleInView(cells[i]) :
+				this.model.getStyle(cells[i])) || '';
 			var inherited = this.getInheritedLabelKeys(this.stylesheet.getCellStyle(style, {}, false));
 			var remaining = [];
+			var values = [];
 
 			for (var j = 0; j < inherited.length; j++)
 			{
@@ -19242,21 +20093,43 @@ Graph.prototype.removeInheritedLabelKeys = function(cells, keys, materialize)
 				}
 				else if (materialize)
 				{
-					style = mxUtils.setStyle(style, inherited[j],
-						this.getCurrentCellStyle(cells[i])[inherited[j]]);
+					values.push({key: inherited[j], value:
+						this.getCurrentCellStyle(cells[i])[inherited[j]]});
 				}
 				else if (style.indexOf(inherited[j] + '=inherit') >= 0)
 				{
-					style = mxUtils.setStyle(style, inherited[j], null);
+					values.push({key: inherited[j], value: null});
 				}
 			}
 
 			if (remaining.length < inherited.length)
 			{
-				this.model.setStyle(cells[i], this.setInheritedLabelKeys(style, remaining));
+				values.push({key: Graph.inheritLabelStyleKey,
+					value: this.getInheritedLabelKeysValue(remaining)});
+
+				for (var j = 0; j < values.length; j++)
+				{
+					if (inView)
+					{
+						this.putCellStylesInView(values[j].key, values[j].value, [cells[i]]);
+					}
+					else
+					{
+						style = mxUtils.setStyle(style, values[j].key, values[j].value);
+					}
+				}
+
+				if (!inView)
+				{
+					this.model.setStyle(cells[i], style);
+				}
+
+				changed.push(cells[i]);
 			}
 		}
 	}
+
+	return changed;
 };
 
 /**
@@ -20439,6 +21312,44 @@ Graph.prototype.tieSize = 10;
 Graph.prototype.defaultTieSpacing = 6;
 
 /**
+ * Largest spacing of the slider of ties (the Spacing of More in the inline
+ * toolbar and of the Format panel of Fusion) for spacings up to it. The
+ * Properties of a tie go up to maxTieSpacing.
+ */
+Graph.prototype.tieSpacingSliderMax = 30;
+
+/**
+ * Largest tieSpacing of the Properties of a tie (see customProperties of
+ * the tie shape).
+ */
+Graph.prototype.maxTieSpacing = 100;
+
+/**
+ * Returns the largest value of the slider of ties for the given spacing:
+ * tieSpacingSliderMax, or the spacing up to maxTieSpacing if it is larger,
+ * so the slider shows a larger spacing and the arrow keys change it by one
+ * step.
+ */
+Graph.prototype.getTieSpacingSliderMax = function(spacing)
+{
+	return Math.max(this.tieSpacingSliderMax, Math.min(this.maxTieSpacing,
+		(isFinite(spacing)) ? Math.ceil(spacing) : 0));
+};
+
+/**
+ * Returns true if Bundle ties the given cell (see bundleEdges): an unlocked
+ * connector with a route.
+ */
+Graph.prototype.canBundleEdge = function(cell)
+{
+	var state = (this.model.isEdge(cell) && !this.isCellLocked(cell)) ?
+		this.view.getState(cell) : null;
+
+	return state != null && state.absolutePoints != null &&
+		mxUtils.indexOf(state.absolutePoints, null) < 0;
+};
+
+/**
  * Returns true if the given cell is a tie.
  */
 Graph.prototype.isTie = function(cell)
@@ -20857,13 +21768,9 @@ Graph.prototype.bundleEdges = function(edges, pt)
 
 	for (var i = 0; i < edges.length; i++)
 	{
-		var state = this.view.getState(edges[i]);
-
-		if (this.model.isEdge(edges[i]) && !this.isCellLocked(edges[i]) &&
-			state != null && state.absolutePoints != null &&
-			mxUtils.indexOf(state.absolutePoints, null) < 0)
+		if (this.canBundleEdge(edges[i]))
 		{
-			states.push(state);
+			states.push(this.view.getState(edges[i]));
 		}
 	}
 
@@ -22587,14 +23494,51 @@ Graph.lineElements = {'br': true, 'div': true, 'p': true, 'hr': true,
  * lineElements) and if more text follows as {text, more}. Table cells are
  * separated by spaces. If breaks is true, new line characters in the text
  * end the line as well (see nl2Br). If all is true, the text of all lines
- * is returned with spaces between the lines.
+ * is returned with spaces between the lines, and lines are the texts of the
+ * lines as they are shown (null if all is false): each br (and new line
+ * character if breaks is true) ends a line, so breaks that follow each other
+ * give empty lines, other line elements end a line with text, spaces start
+ * no line (see addPart), one break at the end adds no line and more breaks
+ * at the end add an empty line for each break. Lines may contain only
+ * spaces.
  */
 Graph.getFirstLine = function(elt, breaks, all)
 {
 	var text = '';
+	var parts = (all) ? [''] : null;
+	var pending = 0;
+	var filled = false;
 	var hasText = false;
 	var ended = false;
 	var more = false;
+
+	// Adds the given text to the lines: text with more than spaces first
+	// starts a line for each pending line break, so the line breaks that
+	// follow each other add empty lines, spaces are only added to a line
+	// with text (eg. between words, not between divs)
+	var addPart = function(value)
+	{
+		if (/\S|\u00a0/.test(value))
+		{
+			for (; pending > 0; pending--)
+			{
+				parts.push('');
+			}
+
+			filled = true;
+		}
+
+		if (pending == 0)
+		{
+			parts[parts.length - 1] += value;
+		}
+	};
+
+	// A line element other than br ends a line with text
+	var endPart = function()
+	{
+		pending = (pending == 0 && filled) ? 1 : pending;
+	};
 
 	// Visits the nodes after the first line until more text is found
 	var visit = function(node)
@@ -22615,6 +23559,12 @@ Graph.getFirstLine = function(elt, breaks, all)
 					}
 					else
 					{
+						if (parts != null)
+						{
+							pending += (i > 0) ? 1 : 0;
+							addPart(lines[i]);
+						}
+
 						text += ((i > 0 || ended) ? ' ' : '') + lines[i];
 						hasText = hasText || /\S/.test(lines[i]);
 						ended = false;
@@ -22631,8 +23581,40 @@ Graph.getFirstLine = function(elt, breaks, all)
 				if (name != 'script' && name != 'style')
 				{
 					text += (space) ? ' ' : '';
+
+					if (parts != null)
+					{
+						if (name == 'br')
+						{
+							pending++;
+						}
+						else if (line)
+						{
+							endPart();
+						}
+
+						if (space)
+						{
+							addPart(' ');
+						}
+					}
+
 					visit(child);
 					text += (space && !ended) ? ' ' : '';
+
+					if (parts != null)
+					{
+						if (space && !ended)
+						{
+							addPart(' ');
+						}
+
+						if (line && name != 'br')
+						{
+							endPart();
+						}
+					}
+
 					ended = ended || (line && hasText);
 				}
 			}
@@ -22641,7 +23623,15 @@ Graph.getFirstLine = function(elt, breaks, all)
 
 	visit(elt);
 
-	return {text: text, more: more};
+	// One break at the end shows no line and adds none, more breaks at the
+	// end add an empty line for each break, so the lines joined with breaks
+	// end with all of them and show the same empty lines
+	for (pending = (pending > 1) ? pending : 0; parts != null && pending > 0; pending--)
+	{
+		parts.push('');
+	}
+
+	return {text: text, more: more, lines: parts};
 };
 
 /**
@@ -22649,13 +23639,16 @@ Graph.getFirstLine = function(elt, breaks, all)
  * ellipsis if more lines follow, or all lines if all is true, shortened to
  * maxLength characters. HTML labels are parsed into an inert document, which
  * runs no scripts and loads nothing, so the result never contains markup
- * and must only be used as text (eg. textContent). The result is kept for
- * each cell and arguments in cachePlainLabels.
+ * and must only be used as text (eg. textContent). If all is true and
+ * lineBreak is not null, the lines are separated by lineBreak instead of a
+ * space, where empty lines are the empty lines of the label (see
+ * getFirstLine). The result is kept for each cell and arguments in
+ * cachePlainLabels.
  */
-Graph.prototype.getPlainLabel = function(cell, maxLength, all)
+Graph.prototype.getPlainLabel = function(cell, maxLength, all, lineBreak)
 {
 	var cached = (this.plainLabels != null) ? this.plainLabels.get(cell) : null;
-	var key = maxLength + ' ' + (all == true);
+	var key = maxLength + ' ' + (all == true) + ((lineBreak != null) ? ' ' + lineBreak : '');
 
 	if (cached != null && cached[key] != null)
 	{
@@ -22682,7 +23675,19 @@ Graph.prototype.getPlainLabel = function(cell, maxLength, all)
 		line = Graph.getFirstLine(doc.body, true, all);
 	}
 
-	var result = (line != null) ? mxUtils.trim(line.text.replace(/\s+/g, ' ')) : '';
+	var result = '';
+
+	if (line != null && all && lineBreak != null)
+	{
+		result = line.lines.map(function(text)
+		{
+			return mxUtils.trim(text.replace(/\s+/g, ' '));
+		}).join(lineBreak);
+	}
+	else if (line != null)
+	{
+		result = mxUtils.trim(line.text.replace(/\s+/g, ' '));
+	}
 
 	if (maxLength != null && result.length > maxLength)
 	{
@@ -22777,9 +23782,18 @@ Graph.prototype.getCellTypeName = function(cell)
 	{
 		return mxResources.get('image');
 	}
+	// An explicit none in the style of a cell removes the key from its
+	// resolved style (mxStylesheet.getCellStyle), so rectangles without a key
+	// for the fill and the stroke are a text, too (eg. strokeColor=none;
+	// fillColor=none of the Text of the palettes). Other shapes without the
+	// keys may paint colors of their own, such as stencils.
 	else if (mxUtils.getValue(style, 'text', null) != null ||
 		(style[mxConstants.STYLE_FILLCOLOR] == mxConstants.NONE &&
-		style[mxConstants.STYLE_STROKECOLOR] == mxConstants.NONE))
+		style[mxConstants.STYLE_STROKECOLOR] == mxConstants.NONE) ||
+		((shape == null || shape == 'label' || shape == mxConstants.SHAPE_RECTANGLE) &&
+		mxUtils.getValue(style, mxConstants.STYLE_IMAGE, null) == null &&
+		mxUtils.getValue(style, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE) == mxConstants.NONE &&
+		mxUtils.getValue(style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE) == mxConstants.NONE))
 	{
 		return mxResources.get('text');
 	}
@@ -24604,11 +25618,14 @@ HoverIcons.prototype.execute = function(state, dir, me)
 
 /**
  * Returns true if the icons are hidden, eg. while a popover of the inline
- * toolbar is open (see InlineToolbar). This implementation returns false.
+ * toolbar is open (see InlineToolbar). This implementation returns true in
+ * the Hand tool (Graph.isHandTool).
  */
 HoverIcons.prototype.isSuspended = function()
 {
-	return false;
+	// No hover arrows in the Hand tool, as they would add shapes
+	return this.graph != null && this.graph.isHandTool != null &&
+		this.graph.isHandTool();
 };
 
 /**
@@ -25631,6 +26648,40 @@ Graph.prototype.isTableLaneFillStyle = function(style)
 };
 
 /**
+ * Returns true if the given cell is free text: a vertex with the style name
+ * text that is not the label of a connector, an image or a sketch. The
+ * named themes with textDefault give it the default font color (see
+ * DiagramStylePanel.applyNamedGraphStyle).
+ */
+Graph.prototype.isFreeTextCell = function(cell)
+{
+	var model = this.getModel();
+	var style = model.getStyle(cell);
+
+	if (model.isVertex(cell) && !model.isEdge(model.getParent(cell)) &&
+		typeof style === 'string')
+	{
+		var pairs = style.split(';');
+
+		if (mxUtils.indexOf(pairs, 'text') >= 0 && mxUtils.indexOf(pairs, 'edgeLabel') < 0)
+		{
+			for (var i = 0; i < pairs.length; i++)
+			{
+				if (pairs[i] == 'sketch=1' || pairs[i] == 'shape=image' ||
+					pairs[i].substring(0, 6) == 'image=')
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+};
+
+/**
  * Returns the key of the color that fills the given cell in the Format panel
  * and color schemes, which is swimlaneFillColor for tables and table rows
  * without a title (see isTableLaneFillStyle) and fillColor otherwise.
@@ -25732,9 +26783,11 @@ Graph.prototype.isCollapsedTableChildShape = function(state)
  * collapsed tables 0 hides a side and missing flags are 1 (see
  * getCollapsedTableBorders), while in separate tables 0 means that the
  * table paints the grid, so the flags are removed or set to 0. Uses the
- * styles in the model so it must be called before tableRender is changed.
+ * styles of the cells so it must be called before tableRender is changed. If
+ * inView is true then the flags are changed only in this view (see
+ * setCellStylesInView). Returns the rows and cells whose flags are changed.
  */
-Graph.prototype.convertTableSides = function(tables, collapsed)
+Graph.prototype.convertTableSides = function(tables, collapsed, inView)
 {
 	var keys = ['top', 'left', 'bottom', 'right'];
 	var cells = [];
@@ -25775,52 +26828,100 @@ Graph.prototype.convertTableSides = function(tables, collapsed)
 
 	for (var i = 0; i < keys.length && cells.length > 0; i++)
 	{
-		this.setCellStyles(keys[i], (collapsed) ? null : '0', cells);
+		if (inView)
+		{
+			this.putCellStylesInView(keys[i], (collapsed) ? null : '0', cells);
+		}
+		else
+		{
+			this.setCellStyles(keys[i], (collapsed) ? null : '0', cells);
+		}
 	}
+
+	return cells;
 };
 
 /**
- * Converts the side flags of the rows and cells of the tables whose
- * tableRender is changed (see convertTableSides) and places the labels of
- * edges that are made curved along the curve (curveGeometry, which also
- * makes their line jumps follow the curve).
+ * Sets the keys of the styles of the given cells that change with the given
+ * key and value, before the key is set: the side flags of the rows and cells
+ * of the tables whose tableRender is changed (see convertTableSides),
+ * curveGeometry of the edges that are made curved, which places their labels
+ * along the curve and makes their line jumps follow it, and the text styles
+ * that label cells of edges no longer inherit from the edge as they get own
+ * values (see removeInheritedLabelKeys). If inView is true then the keys are
+ * set only in this view (see setCellStylesInView), else in the model (see
+ * setCellStyles). Returns the cells whose style is changed.
  */
-Graph.prototype.setCellStyles = function(key, value, cells)
+Graph.prototype.setDependentCellStyles = function(key, value, cells, inView)
 {
+	var changed = [];
+
 	if (key == 'tableRender')
 	{
-		cells = (cells != null) ? cells : this.getEditableCells(this.getSelectionCells());
-
-		this.model.beginUpdate();
-		try
-		{
-			this.convertTableSides(cells, value == 'collapsed');
-			mxGraph.prototype.setCellStyles.call(this, key, value, cells);
-		}
-		finally
-		{
-			this.model.endUpdate();
-		}
+		changed = this.convertTableSides(cells, value == 'collapsed', inView);
 	}
 	else if (key == mxConstants.STYLE_CURVED)
 	{
-		cells = (cells != null) ? cells : this.getEditableCells(this.getSelectionCells());
-		var edges = [];
+		var curve = (value == '1') ? '1' : null;
 
 		for (var i = 0; i < cells.length; i++)
 		{
 			if (this.model.isEdge(cells[i]))
 			{
-				edges.push(cells[i]);
+				changed.push(cells[i]);
 			}
 		}
+
+		if (inView)
+		{
+			this.putCellStylesInView('curveGeometry', curve, changed);
+		}
+		else
+		{
+			mxGraph.prototype.setCellStyles.call(this, 'curveGeometry', curve, changed);
+		}
+	}
+	else if (this.isInheritedLabelStyleKey(key))
+	{
+		changed = this.removeInheritedLabelKeys(cells, [key], null, inView);
+	}
+
+	return changed;
+};
+
+/**
+ * Returns true if the given style key is a text style that label cells of
+ * edges may inherit from the edge (see Graph.inheritedLabelStyles), or
+ * fontSource, which belongs to fontFamily.
+ */
+Graph.prototype.isInheritedLabelStyleKey = function(key)
+{
+	return mxUtils.indexOf(Graph.inheritedLabelStyles, key) >= 0 || key == 'fontSource';
+};
+
+/**
+ * Sets the keys that change with the given key (see setDependentCellStyles)
+ * and stores the values of the text styles of edges in their label cells for
+ * releases that do not inherit (see updateInheritedLabelValuesOfEdges).
+ */
+Graph.prototype.setCellStyles = function(key, value, cells)
+{
+	var labels = this.isInheritedLabelStyleKey(key);
+
+	if (key == 'tableRender' || key == mxConstants.STYLE_CURVED || labels)
+	{
+		cells = (cells != null) ? cells : this.getEditableCells(this.getSelectionCells());
 
 		this.model.beginUpdate();
 		try
 		{
+			this.setDependentCellStyles(key, value, cells);
 			mxGraph.prototype.setCellStyles.call(this, key, value, cells);
-			mxGraph.prototype.setCellStyles.call(this, 'curveGeometry',
-				(value == '1') ? '1' : null, edges);
+
+			if (labels)
+			{
+				this.updateInheritedLabelValuesOfEdges(cells);
+			}
 		}
 		finally
 		{
@@ -25835,39 +26936,15 @@ Graph.prototype.setCellStyles = function(key, value, cells)
 
 /**
  * Text styles that are set for label cells of edges are own values that are
- * no longer inherited from the edge (see Graph.inheritedLabelStyles). Flags
- * are set in the value that is shown, and keys whose value is changed in a
- * new style (Edit Style) while the list of inherited keys is the same are own
- * values. The new style is compared with the style of the first cell, which
- * Edit Style shows, as all cells get its style.
+ * no longer inherited from the edge (see Graph.inheritedLabelStyles, and
+ * setDependentCellStyles for setCellStyles). Flags are set in the value that
+ * is shown, and keys whose value is changed in a new style (Edit Style) while
+ * the list of inherited keys is the same are own values. The new style is
+ * compared with the style of the first cell, which Edit Style shows, as all
+ * cells get its style.
  */
 (function()
 {
-	var graphSetCellStyles = Graph.prototype.setCellStyles;
-	Graph.prototype.setCellStyles = function(key, value, cells)
-	{
-		if (mxUtils.indexOf(Graph.inheritedLabelStyles, key) >= 0 || key == 'fontSource')
-		{
-			cells = (cells != null) ? cells : this.getEditableCells(this.getSelectionCells());
-
-			this.model.beginUpdate();
-			try
-			{
-				this.removeInheritedLabelKeys(cells, [key]);
-				graphSetCellStyles.call(this, key, value, cells);
-				this.updateInheritedLabelValuesOfEdges(cells);
-			}
-			finally
-			{
-				this.model.endUpdate();
-			}
-		}
-		else
-		{
-			graphSetCellStyles.apply(this, arguments);
-		}
-	};
-
 	var graphSetCellStyleFlags = Graph.prototype.setCellStyleFlags;
 	Graph.prototype.setCellStyleFlags = function(key, flag, value, cells)
 	{
@@ -32486,6 +33563,85 @@ Graph.prototype.isEdgeLabelCell = function(cell)
 	};
 
 	/**
+	 * Returns the connection points that floating ends of edges snap to
+	 * (snapToPoint=1 on the edge or the terminal) for the given terminal.
+	 * These are its connection points, but the ends of edges in existing
+	 * diagrams must stay where they are when a shape gets new connection
+	 * points or its points are moved. Such shapes return the points they
+	 * had before in mxShape.getSnapConstraints (an empty array if they
+	 * had none), and stencils that had none have snap="0" in their
+	 * connections node. The points of the style (points=...) are used as
+	 * they are.
+	 *
+	 * This is not in the block for mxVertexHandler below, as the reader and
+	 * the embed script (reader.min.js, embed-static.min.js) snap too. They
+	 * have no override of getAllConnectionConstraints but the function of
+	 * mxGraph, which returns the points of stencils only.
+	 */
+	Graph.prototype.getSnapConstraints = function(terminal)
+	{
+		var shape = (terminal != null) ? terminal.shape : null;
+
+		// Only the override of getAllConnectionConstraints uses the points of
+		// the style and of shapes, so only there shapes had other points before
+		if (shape != null && shape.stencil == null && shape.bounds != null &&
+			this.getAllConnectionConstraints != mxGraph.prototype.getAllConnectionConstraints &&
+			mxUtils.getValue(terminal.style, 'points', null) == null)
+		{
+			var w = shape.bounds.width / shape.scale;
+			var h = shape.bounds.height / shape.scale;
+
+			if (shape.direction == mxConstants.DIRECTION_NORTH ||
+				shape.direction == mxConstants.DIRECTION_SOUTH)
+			{
+				var tmp = w;
+				w = h;
+				h = tmp;
+			}
+
+			var constraints = shape.getSnapConstraints(terminal.style, w, h);
+
+			if (constraints != null)
+			{
+				// As for the connection points of rectangles, the points
+				// along the outline replace them for an outline perimeter
+				var outline = (constraints == mxRectangleShape.prototype.constraints) ?
+					this.getOutlineConstraints(terminal) : null;
+
+				return (outline != null) ? outline : constraints;
+			}
+		}
+
+		var result = this.getAllConnectionConstraints(terminal);
+
+		// The points of a stencil that had none are not used
+		if (result != null && shape != null && shape.stencil != null &&
+			result == shape.stencil.constraints && !this.isStencilSnapEnabled(shape.stencil))
+		{
+			return [];
+		}
+
+		return result;
+	};
+
+	/**
+	 * Returns false if floating ends do not snap to the connection points
+	 * of the given stencil (snap="0" in its connections node, for stencils
+	 * that got their points after diagrams could use snapToPoint).
+	 */
+	Graph.prototype.isStencilSnapEnabled = function(stencil)
+	{
+		if (stencil.snapEnabled == null)
+		{
+			var conns = (stencil.desc != null) ?
+				stencil.desc.getElementsByTagName('connections')[0] : null;
+			stencil.snapEnabled = conns == null || conns.getAttribute('snap') != '0';
+		}
+
+		return stencil.snapEnabled;
+	};
+
+	/**
 	 * Adds support for snapToPoint style.
 	 */
 	var mxGraphViewUpdateFloatingTerminalPoint = mxGraphView.prototype.updateFloatingTerminalPoint;
@@ -32510,7 +33666,10 @@ Graph.prototype.isEdgeLabelCell = function(cell)
 	{
 		if (start != null && edge != null)
 		{
-	        var constraints = this.graph.getAllConnectionConstraints(start)
+	        // The points that existing diagrams snap to (see getSnapConstraints)
+	        var constraints = (this.graph.getSnapConstraints != null) ?
+	            this.graph.getSnapConstraints(start) :
+	            this.graph.getAllConnectionConstraints(start);
 	        var nearest = null;
 	        var dist = null;
 
@@ -38263,27 +39422,10 @@ if (typeof mxVertexHandler !== 'undefined')
 			{
 				this.invalidateDescendantsWithPlaceholders(change.cell);
 			}
-			else if (change instanceof mxStyleChange && this.isTableCell(change.cell))
+			else if (change instanceof mxStyleChange)
 			{
-				// The title of a row without a title region depends on the title
-				// region of its first cell (see getTableRowFirstCellBounds)
-				this.view.invalidate(this.model.getParent(change.cell), false, false);
-			}
-			else if (change instanceof mxStyleChange && this.model.isEdge(change.cell))
-			{
-				// Label cells of the edge may inherit its text styles (see
-				// resolveInheritedLabelStyles), the edge invalidates them
-				var childCount = this.model.getChildCount(change.cell);
-
-				for (var i = 0; i < childCount; i++)
-				{
-					var state = this.view.getState(this.model.getChildAt(change.cell, i));
-
-					if (state != null)
-					{
-						state.invalidStyle = true;
-					}
-				}
+				// Rows of table cells and label cells of edges
+				this.invalidateStyleDependents(change.cell);
 			}
 		};
 		
@@ -40382,7 +41524,15 @@ if (typeof mxVertexHandler !== 'undefined')
 			    	
 			    	if (graph.tooltipHandler != null)
 		    		{
-		    			graph.tooltipHandler.hide();
+		    			// The tooltip handler hides a tooltip with links outside its safe zone
+		    			if (graph.tooltipHandler.isTooltipKept())
+		    			{
+		    				graph.tooltipHandler.resetTimer();
+		    			}
+		    			else
+		    			{
+		    				graph.tooltipHandler.hide();
+		    			}
 		    		}
 			    }
 			};
@@ -40394,6 +41544,12 @@ if (typeof mxVertexHandler !== 'undefined')
 			mxEvent.addListener(document, 'mouseleave', function(evt)
 			{
 				mouseListener.clear();
+
+				// Also hides a tooltip with links that clear keeps
+				if (graph.tooltipHandler != null)
+				{
+					graph.tooltipHandler.hide();
+				}
 			});
 		};
 		
@@ -46580,6 +47736,14 @@ if (typeof mxVertexHandler !== 'undefined')
 
 			mxCellEditorStartEditing.apply(this, arguments);
 
+			// A focus or blur handler may have stopped editing where the
+			// text area gets the focus at once (typing on a selected cell
+			// and on iOS, see mxCellEditor.startEditing)
+			if (this.textarea == null)
+			{
+				return;
+			}
+
 			// Overrides class in case of HTML content to add
 			// dashed borders for divs and table cells
 			var state = this.graph.view.getState(cell);
@@ -48944,8 +50108,24 @@ if (typeof mxVertexHandler !== 'undefined')
 		 */
 		mxVertexHandler.prototype.isMoveHandlesVisible = function()
 		{
+			// Not in the Hand tool: their own listeners start moves, which the
+			// mask of the mouse down does not see (EditorUi.setPanMode
+			// refreshes them when the tool changes)
 			return this.graph.isTable(this.state.cell) &&
-				this.graph.isCellMovable(this.state.cell);
+				this.graph.isCellMovable(this.state.cell) &&
+				(this.graph.isHandTool == null || !this.graph.isHandTool());
+		};
+
+		/**
+		 * Shapes of the sidebar and the pickers are not dropped on the canvas
+		 * in the Hand tool: it is not a target for their drags.
+		 */
+		var dragSourceGraphContainsEvent = mxDragSource.prototype.graphContainsEvent;
+
+		mxDragSource.prototype.graphContainsEvent = function(graph)
+		{
+			return (graph == null || graph.isHandTool == null || !graph.isHandTool()) &&
+				dragSourceGraphContainsEvent.apply(this, arguments);
 		};
 
 		/**

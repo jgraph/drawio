@@ -300,15 +300,15 @@ if (isLocalStorage && urlParams['channel'] != null)
 // theme does not apply in embeds, the lightbox and Teams; chromeless views
 // and browsers without light-dark get no session of the theme). A stored
 // Fusion applies only with test=1 or where Editor.fusionThemeOffered is true,
-// the web app on the hosts of Editor.fusionThemeHosts (app.diagrams.net)
-// outside embeds, Teams and chromeless views; the list of hosts here must
-// equal Editor.fusionThemeHosts in FusionTheme.js. Init.js runs after this
-// and changes the URL parameters before uiTheme reads them: embedInline=1
-// sets ui=sketch and embed=1, extAuth=1 (Teams) chooses sketch and the
-// viewer domain sets lightbox=1, so these are checked here as well. Builds
-// without the theme preload nothing: fusionBuild is Editor.fusionThemeBuild
-// of FusionTheme.js, which the public repository sets to none in both files
-// (github-deploy.xml).
+// the web app on the hosts of Editor.fusionThemeHosts (app.diagrams.net and
+// preprod.diagrams.net) outside embeds, Teams and chromeless views; the list
+// of hosts here (fusionHosts) must equal Editor.fusionThemeHosts in
+// FusionTheme.js. Init.js runs after this and changes the URL parameters
+// before uiTheme reads them: embedInline=1 sets ui=sketch and embed=1,
+// extAuth=1 (Teams) chooses sketch and the viewer domain sets lightbox=1, so
+// these are checked here as well. Builds without the theme preload nothing:
+// fusionBuild is Editor.fusionThemeBuild of FusionTheme.js, which the public
+// repository sets to none in both files (github-deploy.xml).
 (function()
 {
     try
@@ -317,9 +317,11 @@ if (isLocalStorage && urlParams['channel'] != null)
             'sketch' : urlParams['ui'];
         var lightbox = urlParams['lightbox'] == '1' ||
             window.location.hostname == 'viewer.diagrams.net';
+        var fusionHosts = ['app.diagrams.net', 'preprod.diagrams.net'];
         var fusionBuild = 'none';
 
-        if (ui == null && (urlParams['test'] == '1' || window.location.hostname == 'app.diagrams.net') &&
+        if (ui == null && (urlParams['test'] == '1' ||
+            fusionHosts.indexOf(window.location.hostname) >= 0) &&
             isLocalStorage && urlParams['embed'] != '1' && !lightbox)
         {
             var value = localStorage.getItem('.drawio-config');

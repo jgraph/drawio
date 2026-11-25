@@ -937,8 +937,13 @@
 	 * Run Last Layout. Selected layout containers get the layout as their
 	 * child layout. Each layout of the list is an undoable edit. If animate is
 	 * false the cells move at once, else with the morph of executeLayout.
+	 * The optional run ({depth, cancelled, failed}, see LayoutPanel.apply)
+	 * tells the caller the edits of the list from the user's: its depth is
+	 * above 0 while a layout of the list runs. A layout that prepared
+	 * asynchronously (ELK) for a run that was cancelled meanwhile applies
+	 * nothing, nor do the layouts after it, and an error sets failed.
 	 */
-	EditorUi.prototype.applyLayoutList = function(list, scope, done, animate)
+	EditorUi.prototype.applyLayoutList = function(list, scope, done, animate, run)
 	{
 		var graph = this.editor.graph;
 		scope = (scope != null) ? scope : this.getLayoutScope();
@@ -1030,9 +1035,48 @@
 			}
 		};
 
+		var fail = mxUtils.bind(this, function(e)
+		{
+			if (run != null)
+			{
+				run.failed = true;
+			}
+
+			this.handleError(e);
+			finish();
+		});
+
+		// The edit of the layout is added before post (see executeLayout),
+		// which runs also if the layout throws
+		var execute = mxUtils.bind(this, function(exec, routing, post)
+		{
+			var ended = false;
+
+			if (run != null)
+			{
+				run.depth++;
+			}
+
+			this.executeLayout(EditorUi.keepLockedGeometries(graph, lockedCells,
+				exec, null, routing), animate, function()
+			{
+				if (!ended)
+				{
+					ended = true;
+
+					if (run != null)
+					{
+						run.depth--;
+					}
+				}
+
+				post();
+			});
+		});
+
 		var next = mxUtils.bind(this, function()
 		{
-			if (idx >= layouts.length)
+			if (idx >= layouts.length || (run != null && run.cancelled))
 			{
 				finish();
 
@@ -1055,10 +1099,9 @@
 
 					if (err != null)
 					{
-						this.handleError(err);
-						finish();
+						fail(err);
 					}
-					else if (graph.model.contains(parent))
+					else if (graph.model.contains(parent) && (run == null || !run.cancelled))
 					{
 						// executeLayout runs its callback also if the layout
 						// throws, the layouts after it must not run then
@@ -1066,24 +1109,19 @@
 
 						this.tryAndHandle(mxUtils.bind(this, function()
 						{
-							this.executeLayout(EditorUi.keepLockedGeometries(graph,
-								lockedCells, function()
+							execute(function()
 							{
 								failed = true;
 								apply();
 								failed = false;
-							}, null, routing), animate, function()
+							}, routing, function()
 							{
 								if (!failed)
 								{
 									next();
 								}
 							});
-						}), mxUtils.bind(this, function(e)
-						{
-							this.handleError(e);
-							finish();
-						}));
+						}), fail);
 					}
 					else
 					{
@@ -1099,7 +1137,7 @@
 
 				this.tryAndHandle(mxUtils.bind(this, function()
 				{
-					this.executeLayout(EditorUi.keepLockedGeometries(graph, lockedCells, function()
+					execute(function()
 					{
 						failed = true;
 						layout.execute(parent);
@@ -1111,18 +1149,14 @@
 						}
 
 						failed = false;
-					}, null, routing), animate, function()
+					}, routing, function()
 					{
 						if (!failed)
 						{
 							next();
 						}
 					});
-				}), mxUtils.bind(this, function(e)
-				{
-					this.handleError(e);
-					finish();
-				}));
+				}), fail);
 			}
 		});
 
@@ -1862,8 +1896,10 @@
 
 		if (dlg != null && dlg.firstElementChild != null)
 		{
+			// The top stays where it is (see addAdvancedSection)
+			var top = dlg.getBoundingClientRect().top;
 			dlg.style.height = '';
-			dlg.style.height = Dialog.getFrameHeight(dlg, dlg.firstElementChild.scrollHeight) + 'px';
+			Dialog.setFrameHeight(dlg, Dialog.getFrameHeight(dlg, dlg.firstElementChild.scrollHeight), top);
 		}
 	};
 
@@ -1888,6 +1924,22 @@
 	];
 
 	/**
+	 * Tiles that Arrange my diagram has in Classic only (see
+	 * LayoutPanel.getEntries), after the tile with the ID in after: the tiles
+	 * of its dialog that the concept of the panel left out.
+	 */
+	EditorUi.layoutPanelClassicEntries = [
+		{id: 'mindmap', type: 'mindmap', name: 'mindmap', hint: 'layoutMindmapHint', after: 'radialTree'}
+	];
+
+	/**
+	 * Page of the help of Arrange my diagram: its tiles, Tidy up, the spacing
+	 * and Layout settings. The Help button of the panel and the help icon of
+	 * the dialog open it (openLink), not offline.
+	 */
+	EditorUi.arrangeMyDiagramHelpUrl = 'https://www.drawio.com/doc/faq/arrange-my-diagram';
+
+	/**
 	 * Returns the name of a layout for the given resource key, in sentence
 	 * case in the theme Fusion as the tiles of Arrange my diagram (the tiles
 	 * of Choose Layout and the types of Layout Settings).
@@ -1901,15 +1953,21 @@
 	};
 
 	/**
-	 * Arrange my diagram, the layout picker of the Simple UI: a panel in the
-	 * place of the Format panel with a tile per layout of the selection or
-	 * the page. Resting on a tile (or focusing it with the keyboard) for
-	 * previewDelay ms shows the picture of the tile on the canvas in a graph
-	 * over the diagram, which changes nothing in the model: the user's own
-	 * diagram morphs into it, and back when the tile is left (motion
-	 * catalogue 3.8). A click selects the tile and a double click or
-	 * Apply runs its layout at once as one undoable edit. The pictures follow
-	 * the changes of the diagram and of the selection.
+	 * Arrange my diagram, the layout picker of the Simple UI and of Classic: a
+	 * panel in the place of the Format panel with a tile per layout of the
+	 * selection or the page. Resting on a tile (or focusing it with the
+	 * keyboard) for previewDelay ms shows the picture of the tile on the
+	 * canvas in a graph over the diagram, which changes nothing in the model:
+	 * the user's own diagram morphs into it, and back when the tile is left
+	 * (motion catalogue 3.8). A click, Enter or Space or a tap runs its layout
+	 * at once as one undoable edit, as the theme tiles of Fusion apply their
+	 * theme, with the undo toast (Undo, and Hold to compare in Fusion); a
+	 * second tile while the panel is open replaces the layout of the first
+	 * while that is the last edit (see applyTile). There is no chosen tile and
+	 * no Apply (driver, 21 November 2026). Coarse pointers (touch) have no
+	 * hover: each tile has an eye that shows its picture on the canvas, in
+	 * Fusion with the preview bar (Apply, Cancel). The pictures follow the
+	 * changes of the diagram and of the selection.
 	 */
 	var LayoutPanel = function(editorUi)
 	{
@@ -1931,11 +1989,17 @@
 	/**
 	 * Style keys whose changes change the pictures or the suggestion: the
 	 * layout of a container, the shapes that the layouts keep in place, the
-	 * shape (decisions, see getSuggestedLayout) and ties, which the layouts
-	 * skip (see Graph.createTieFilter). Changes of the names in a style count
-	 * too, as they can change the shape (eg. rhombus).
+	 * shape (decisions, see getSuggestedLayout), ties, which the layouts
+	 * skip (see Graph.createTieFilter), and containers and the lines of the
+	 * brush (lineShape), which Tidy up tells from panels behind shapes
+	 * (Tidy.isFrame and Tidy.isDrawing), and the direction, flips and
+	 * rotation, which move the lines of such a drawing over the shapes in its
+	 * box (Tidy.getDrawingLines). Changes of the names in a style count
+	 * too, as they can change the shape (eg. rhombus), and a fill that is
+	 * added or removed (see isLayoutStyleChange).
 	 */
-	LayoutPanel.layoutStyleKeys = ['childLayout', 'locked', 'movable', 'shape', 'tie'];
+	LayoutPanel.layoutStyleKeys = ['childLayout', 'container', 'direction', 'flipH', 'flipV', 'lineShape',
+		'locked', 'movable', 'rotation', 'shape', 'tie'];
 
 	/**
 	 * Returns true if the given edit of the model changes the pictures: every
@@ -1998,11 +2062,19 @@
 	};
 
 	/**
-	 * Returns true if the given styles differ in their names or in a key of
-	 * layoutStyleKeys.
+	 * Returns true if the given styles differ in their names, in a key of
+	 * layoutStyleKeys or in having a fill: a shape without a fill is a frame
+	 * or a drawing of the brush for Tidy up, which counts the shapes in its
+	 * box as in a frame or as overlaps (Tidy.isFrame and Tidy.isDrawing),
+	 * while another colour of a fill changes nothing.
 	 */
 	LayoutPanel.isLayoutStyleChange = function(style, previous)
 	{
+		var noFill = function(value)
+		{
+			return Graph.getOwnStyleValue(value, mxConstants.STYLE_FILLCOLOR) == mxConstants.NONE;
+		};
+
 		var names = function(value)
 		{
 			return (typeof value === 'string') ? value.split(';').filter(function(token)
@@ -2011,7 +2083,7 @@
 			}).join(';') : '';
 		};
 
-		if (names(style) != names(previous))
+		if (names(style) != names(previous) || noFill(style) != noFill(previous))
 		{
 			return true;
 		}
@@ -2087,9 +2159,26 @@
 	LayoutPanel.count = 0;
 
 	/**
-	 * Selected tile.
+	 * The last layout that the panel applied: {tile, preset, scope, edits,
+	 * selection, open, depth, cancelled, failed}, where edits are the
+	 * undoable edits of the layout, selection the selection before it and
+	 * open is true while the layout runs, depth above 0 while it changes the
+	 * diagram, cancelled is set if a new tile stopped it and failed after an
+	 * error (see apply). A second tile undoes it while it is the last edit
+	 * (see applyTile).
 	 */
-	LayoutPanel.prototype.selected = null;
+	LayoutPanel.prototype.applied = null;
+
+	/**
+	 * Set if the pointer is coarse (touch) when the panel is created: the
+	 * tiles have an eye that previews, as there is no hover (see addTile).
+	 */
+	LayoutPanel.prototype.touch = false;
+
+	/**
+	 * Tile whose picture the eye of a tile shows on the canvas (touch).
+	 */
+	LayoutPanel.prototype.eyeTile = null;
 
 	/**
 	 * Tile under the mouse.
@@ -2112,11 +2201,6 @@
 	LayoutPanel.prototype.morphUpdate = false;
 
 	/**
-	 * Set when the user selected a tile, so the suggestion no longer selects.
-	 */
-	LayoutPanel.prototype.userSelected = false;
-
-	/**
 	 * Set if the panel is in a host of the right panel of Simple Modern
 	 * (SimpleLayouts.js) instead of in the place of the Format panel.
 	 */
@@ -2132,6 +2216,12 @@
 		div.className = 'geLayoutPanel';
 		div.setAttribute('role', 'region');
 		this.container = div;
+		this.touch = typeof editorUi.isCoarsePointer === 'function' && editorUi.isCoarsePointer();
+
+		if (this.touch)
+		{
+			div.classList.add('geLayoutPanelTouch');
+		}
 
 		var card = document.createElement('div');
 		card.className = 'geLayoutPanelCard';
@@ -2175,12 +2265,36 @@
 		this.grid.className = 'geLayoutPanelGrid';
 		card.appendChild(this.grid);
 
-		for (var i = 0; i < EditorUi.layoutPanelEntries.length; i++)
+		var entries = this.getEntries();
+
+		for (var i = 0; i < entries.length; i++)
 		{
-			if (EditorUi.isLayoutTypeAvailable(EditorUi.layoutPanelEntries[i].type))
+			if (EditorUi.isLayoutTypeAvailable(entries[i].type))
 			{
-				this.addTile(EditorUi.layoutPanelEntries[i]);
+				this.addTile(entries[i]);
 			}
+		}
+
+		// Tidy up is the first tile where the tools are on (see
+		// createTidyLayoutEntry in TidyActions.js, not in Fusion, which adds
+		// its own with addSimpleTidyTile in SimpleTidy.js)
+		var tidy = (typeof editorUi.createTidyLayoutEntry === 'function') ?
+			editorUi.createTidyLayoutEntry(mxUtils.bind(this, function()
+			{
+				return this.scope;
+			}), mxUtils.bind(this, function()
+			{
+				return this.preset;
+			})) : null;
+
+		if (tidy != null)
+		{
+			this.addTile(tidy);
+			var tile = this.tiles.pop();
+			this.tiles.unshift(tile);
+			this.grid.insertBefore(tile.elt, this.grid.firstChild);
+			tile.button.setAttribute('data-tile', tidy.id);
+			this.addTidyNote();
 		}
 
 		this.example = document.createElement('div');
@@ -2205,7 +2319,7 @@
 		{
 			this.preset = value;
 			editorUi.layoutPickerSpacing = value;
-			this.hidePreview();
+			this.endPreview();
 			this.render();
 		}), mxResources.get('spacing'), 'geLayoutPanelSegments'));
 
@@ -2213,16 +2327,34 @@
 		actions.className = 'geLayoutPanelActions';
 		footer.appendChild(actions);
 
+		// Help opens the page of Arrange my diagram, like the help icons of
+		// the dialogs (not offline)
+		if (!editorUi.isOffline())
+		{
+			var help = document.createElement('button');
+			help.setAttribute('type', 'button');
+			help.className = 'geLayoutPanelButton geLayoutPanelHelp';
+			mxUtils.write(help, mxResources.get('help'));
+			actions.appendChild(help);
+
+			mxEvent.addListener(help, 'click', mxUtils.bind(this, function()
+			{
+				this.endPreview();
+				editorUi.openLink(EditorUi.arrangeMyDiagramHelpUrl);
+			}));
+		}
+
 		var more = document.createElement('button');
 		more.setAttribute('type', 'button');
 		more.className = 'geLayoutPanelButton';
 		mxUtils.write(more, mxResources.get('moreOptions') + '...');
 		actions.appendChild(more);
 
+		// The options of the tile that was applied last, else of the suggestion
 		mxEvent.addListener(more, 'click', mxUtils.bind(this, function()
 		{
-			var tile = this.selected;
-			this.hidePreview();
+			var tile = (this.applied != null) ? this.applied.tile : this.getSuggestedTile();
+			this.endPreview();
 
 			// A tile with options of its own shows them (Org chart in Fusion)
 			if (tile != null && typeof tile.entry.showOptions === 'function')
@@ -2234,17 +2366,6 @@
 				editorUi.showLayoutSettings((tile != null && typeof tile.entry.layout !== 'function') ?
 					this.getEntryList(tile.entry) : null, this.scope);
 			}
-		}));
-
-		this.applyButton = document.createElement('button');
-		this.applyButton.setAttribute('type', 'button');
-		this.applyButton.className = 'geLayoutPanelButton geLayoutPanelPrimary';
-		mxUtils.write(this.applyButton, mxResources.get('apply'));
-		actions.appendChild(this.applyButton);
-
-		mxEvent.addListener(this.applyButton, 'click', mxUtils.bind(this, function()
-		{
-			this.apply();
 		}));
 
 		mxEvent.addListener(div, 'keydown', function(evt)
@@ -2263,7 +2384,7 @@
 		// a change of a style or of a label renders nothing (vmyn U3)
 		this.changeListener = mxUtils.bind(this, function(sender, evt)
 		{
-			this.hidePreview();
+			this.endPreview();
 
 			if (sender == this.graph.model && isFusion() &&
 				!LayoutPanel.isLayoutEdit(evt.getProperty('edit')))
@@ -2302,14 +2423,73 @@
 	};
 
 	/**
-	 * Adds the tile for the given entry of layoutPanelEntries.
+	 * Adds the line below the hint that says how Tidy up differs from the
+	 * other tiles (arrangeTidyNote): it keeps the arrangement and fixes it,
+	 * the others apply a new layout. For panels with the tile Tidy up (init,
+	 * and addSimpleTidyTile in Fusion, which adds its own tile). Returns the
+	 * line.
+	 */
+	LayoutPanel.prototype.addTidyNote = function()
+	{
+		if (this.tidyNote == null)
+		{
+			this.tidyNote = document.createElement('div');
+			this.tidyNote.className = 'geLayoutPanelHint geLayoutPanelTidyNote';
+			mxUtils.write(this.tidyNote, mxResources.get('arrangeTidyNote'));
+			this.hint.parentNode.insertBefore(this.tidyNote, this.hint.nextSibling);
+		}
+
+		return this.tidyNote;
+	};
+
+	/**
+	 * Returns the entries of the tiles of the layouts: layoutPanelEntries, in
+	 * Classic (outside of the theme simple, see isLayoutPanelSupported) with
+	 * the entries of layoutPanelClassicEntries after the tile in their after,
+	 * so that Classic keeps every tile of its dialog of before.
+	 */
+	LayoutPanel.prototype.getEntries = function()
+	{
+		var entries = EditorUi.layoutPanelEntries.slice();
+
+		if (Editor.currentTheme != 'simple')
+		{
+			for (var i = 0; i < EditorUi.layoutPanelClassicEntries.length; i++)
+			{
+				var entry = EditorUi.layoutPanelClassicEntries[i];
+				var index = entries.length;
+
+				for (var j = 0; j < entries.length; j++)
+				{
+					if (entries[j].id == entry.after)
+					{
+						index = j + 1;
+					}
+				}
+
+				entries.splice(index, 0, entry);
+			}
+		}
+
+		return entries;
+	};
+
+	/**
+	 * Adds the tile for the given entry of layoutPanelEntries: a button, on
+	 * touch in a wrapper with the eye (elt of the tile is the child of the
+	 * grid, the button or its wrapper).
 	 */
 	LayoutPanel.prototype.addTile = function(entry)
 	{
 		var button = document.createElement('button');
 		button.setAttribute('type', 'button');
 		button.className = 'geLayoutPanelTile';
-		button.setAttribute('aria-pressed', 'false');
+
+		// The ID of the layout, as the tiles of the dialog
+		if (entry.id != null)
+		{
+			button.setAttribute('data-tile', entry.id);
+		}
 
 		var thumb = document.createElement('div');
 		thumb.className = 'geLayoutPanelThumb';
@@ -2332,14 +2512,49 @@
 		mxUtils.write(desc, mxResources.get(entry.hint));
 		button.appendChild(desc);
 
-		var tile = {entry: entry, button: button, thumb: thumb, badge: badge};
+		var tile = {entry: entry, button: button, thumb: thumb, badge: badge, desc: desc, elt: button};
 		this.tiles.push(tile);
-		this.grid.appendChild(button);
 
+		// Touch has no hover: a small eye on the tile, which is always shown,
+		// previews (an element of its own, as a button holds no button)
+		if (this.touch)
+		{
+			var wrap = document.createElement('div');
+			wrap.className = 'geLayoutPanelTileWrap';
+			wrap.appendChild(button);
+
+			var eye = document.createElement('button');
+			eye.setAttribute('type', 'button');
+			eye.className = 'geLayoutPanelEye';
+			eye.setAttribute('aria-pressed', 'false');
+			eye.setAttribute('title', mxResources.get('preview'));
+			eye.setAttribute('aria-label', mxResources.get('preview') + ': ' + mxResources.get(entry.name));
+			var icon = document.createElement('span');
+			icon.className = 'geLayoutPanelEyeIcon';
+			icon.setAttribute('aria-hidden', 'true');
+			icon.style.setProperty('--ge-layout-eye', 'url(\'' + Editor.visibleImage + '\')');
+			eye.appendChild(icon);
+			wrap.appendChild(eye);
+			tile.eye = eye;
+			tile.elt = wrap;
+
+			mxEvent.addListener(eye, 'click', mxUtils.bind(this, function(evt)
+			{
+				this.toggleEyePreview(tile);
+				mxEvent.consume(evt);
+			}));
+		}
+
+		this.grid.appendChild(tile.elt);
+
+		// A touch emulates mouseenter before its click: only the eye previews
 		mxEvent.addListener(button, 'mouseenter', mxUtils.bind(this, function()
 		{
-			this.hover = tile;
-			this.updatePreview();
+			if (!this.touch)
+			{
+				this.hover = tile;
+				this.updatePreview();
+			}
 		}));
 
 		mxEvent.addListener(button, 'mouseleave', mxUtils.bind(this, function()
@@ -2347,14 +2562,14 @@
 			if (this.hover == tile)
 			{
 				this.hover = null;
-				this.updatePreview();
+				this.updatePreview(true);
 			}
 		}));
 
 		// Only the focus of the keyboard previews, a click also focuses
 		mxEvent.addListener(button, 'focus', mxUtils.bind(this, function()
 		{
-			if (!this.ignoreFocus && button.matches(':focus-visible'))
+			if (!this.ignoreFocus && !this.touch && button.matches(':focus-visible'))
 			{
 				this.focus = tile;
 				this.updatePreview();
@@ -2370,52 +2585,274 @@
 			}
 		}));
 
-		// A click selects, Enter or Space on the selected tile applies it
-		mxEvent.addListener(button, 'click', mxUtils.bind(this, function(evt)
+		// In the capture phase, as the picture may stop events (see click)
+		button.addEventListener('pointerdown', mxUtils.bind(this, function()
 		{
-			if (evt.detail == 0 && this.selected == tile)
-			{
-				this.apply();
-			}
-			else
-			{
-				this.userSelected = true;
-				this.select(tile);
-			}
-		}));
+			this.downTile = tile;
+		}), true);
 
-		mxEvent.addListener(button, 'dblclick', mxUtils.bind(this, function()
+		// A click, Enter or Space and a tap apply at once (the second click of
+		// a double click does nothing, see applyTile). A click of the pointer
+		// that did not go down on the tile is the click of a tap that opened
+		// the panel under the finger, which applies nothing. In the capture
+		// phase: the labels of the picture stop the clicks on them (links).
+		button.addEventListener('click', mxUtils.bind(this, function(evt)
 		{
-			this.userSelected = true;
-			this.select(tile);
-			this.apply();
-		}));
+			var down = this.downTile;
+			this.downTile = null;
+
+			if (evt.detail == 0 || down == tile)
+			{
+				this.applyTile(tile);
+			}
+		}), true);
 	};
 
 	/**
-	 * Selects the given tile.
+	 * Returns the tile with the badge Suggested or null.
 	 */
-	LayoutPanel.prototype.select = function(tile)
+	LayoutPanel.prototype.getSuggestedTile = function()
 	{
-		this.selected = tile;
+		var suggested = (this.scope != null) ? this.getSuggestion() : null;
 
-		// Only changes are written: the pictures call this when they are done
-		for (var i = 0; i < this.tiles.length; i++)
+		for (var i = 0; suggested != null && i < this.tiles.length; i++)
 		{
-			var pressed = (this.tiles[i] == tile) ? 'true' : 'false';
-
-			if (this.tiles[i].button.getAttribute('aria-pressed') != pressed)
+			if (this.tiles[i].entry.id == suggested)
 			{
-				this.tiles[i].button.setAttribute('aria-pressed', pressed);
+				return this.tiles[i];
 			}
 		}
 
-		var disabled = tile == null || tile.button.disabled;
+		return null;
+	};
 
-		if (this.applyButton.disabled != disabled)
+	/**
+	 * Shows the picture of the given tile on the canvas or ends it if it is
+	 * shown (the eye of a tile on touch). In Fusion the preview bar has Apply
+	 * and Cancel (SimplePreviewBar.js); elsewhere the eye again, the eye of
+	 * another tile or the tile itself, which applies, ends it.
+	 */
+	LayoutPanel.prototype.toggleEyePreview = function(tile)
+	{
+		var shown = this.eyeTile == tile && this.previewTile == tile;
+		this.hover = null;
+		this.focus = null;
+		this.hidePreview();
+
+		if (!shown && !tile.button.disabled)
 		{
-			this.applyButton.disabled = disabled;
+			this.showPreview(tile);
+
+			if (this.previewTile == tile)
+			{
+				this.eyeTile = tile;
+				this.updateEyes();
+			}
 		}
+	};
+
+	/**
+	 * Marks the eye of the tile whose picture is on the canvas (aria-pressed).
+	 */
+	LayoutPanel.prototype.updateEyes = function()
+	{
+		if (this.eyeTile != null && this.previewTile != this.eyeTile)
+		{
+			this.eyeTile = null;
+		}
+
+		for (var i = 0; i < this.tiles.length; i++)
+		{
+			var eye = this.tiles[i].eye;
+			var pressed = (this.tiles[i] == this.eyeTile) ? 'true' : 'false';
+
+			if (eye != null && eye.getAttribute('aria-pressed') != pressed)
+			{
+				eye.setAttribute('aria-pressed', pressed);
+			}
+		}
+	};
+
+	/**
+	 * Returns true if the edits of the given layout of the panel (see applied)
+	 * are the last edits of the history and its layout is done.
+	 */
+	LayoutPanel.prototype.isAppliedLast = function(applied)
+	{
+		var um = this.editorUi.editor.undoManager;
+		var n = (applied != null) ? applied.edits.length : 0;
+
+		if (applied == null || applied.open || n == 0 || um.indexOfNextAdd < n)
+		{
+			return false;
+		}
+
+		for (var i = 0; i < n; i++)
+		{
+			if (um.history[um.indexOfNextAdd - n + i] !== applied.edits[i])
+			{
+				return false;
+			}
+		}
+
+		return true;
+	};
+
+	/**
+	 * Returns true if the given scopes (see getLayoutScope) lay out the same
+	 * cells: a scope without cells lays out the children of its parent (see
+	 * getLayoutScopeCells), so a selection of exactly these cells is the same
+	 * scope, eg. the cells that redo of a layout of the page selects (the
+	 * undoHandler of Editor) or Select All.
+	 */
+	LayoutPanel.isSameScope = function(a, b)
+	{
+		var same = function(c1, c2)
+		{
+			if (c1 == null || c2 == null)
+			{
+				return c1 == c2;
+			}
+			else if (c1.length != c2.length)
+			{
+				return false;
+			}
+
+			var lookup = new mxDictionary();
+
+			for (var i = 0; i < c2.length; i++)
+			{
+				lookup.put(c2[i], true);
+			}
+
+			for (var i = 0; i < c1.length; i++)
+			{
+				if (!lookup.get(c1[i]))
+				{
+					return false;
+				}
+			}
+
+			return true;
+		};
+
+		var cells = function(scope)
+		{
+			return (scope.cells != null || scope.containers != null) ? scope.cells :
+				(scope.parent.children || []);
+		};
+
+		return a != null && b != null && a.parent == b.parent &&
+			same(cells(a), cells(b)) && same(a.containers, b.containers);
+	};
+
+	/**
+	 * Returns true if the layout of the given tile replaces the layout that
+	 * the panel applied before (see applyTile). Connectors only and Tidy up
+	 * (the tiles with a function apply of their own) keep the shapes where
+	 * they are, as their pictures show them: they go on top of the layout
+	 * before.
+	 */
+	LayoutPanel.prototype.isReplacing = function(tile)
+	{
+		return tile.entry.type != 'connectors' && typeof tile.entry.apply !== 'function';
+	};
+
+	/**
+	 * Applies the layout of the given tile (see apply). The layout that the
+	 * panel applied before is undone first while it is the last edit and the
+	 * scope is the same, and the selection before it comes back, so the
+	 * second tile replaces it, as the tiles of Tidy up replace their result
+	 * (TidyWindow.select), except for the tiles that keep the shapes where
+	 * they are (isReplacing). A new selection of other shapes is a new scope
+	 * whose layout keeps the one before. The same tile with the same spacing
+	 * on the same scope while its layout is the last edit or still runs does
+	 * nothing (eg. the second click of a double click). The picture of the
+	 * tile on the canvas ends (eg. Apply of the preview bar or a tap while
+	 * the eye shows it), and the pointer that rests on the tile shows no
+	 * preview of the result.
+	 */
+	LayoutPanel.prototype.applyTile = function(tile)
+	{
+		var last = this.applied;
+
+		if (tile == null || tile.button.disabled || !this.graph.isEnabled())
+		{
+			return;
+		}
+
+		this.hover = null;
+		this.focus = null;
+		this.hidePreview();
+
+		var same = last != null && LayoutPanel.isSameScope(last.scope, this.editorUi.getLayoutScope());
+		var isLast = same && this.isAppliedLast(last);
+
+		if (same && last.tile == tile && last.preset == this.preset && (last.open || isLast))
+		{
+			return;
+		}
+
+		var replaced = (isLast && this.isReplacing(tile)) ? last : null;
+
+		if (replaced != null)
+		{
+			var um = this.editorUi.editor.undoManager;
+
+			for (var i = 0; i < replaced.edits.length; i++)
+			{
+				um.undo();
+			}
+
+			this.restoreSelection(replaced.selection);
+		}
+
+		this.apply(tile, replaced);
+	};
+
+	/**
+	 * Selects the given cells that are still in the model.
+	 */
+	LayoutPanel.prototype.restoreSelection = function(selection)
+	{
+		var cells = [];
+
+		for (var i = 0; i < selection.length; i++)
+		{
+			if (this.graph.model.contains(selection[i]))
+			{
+				cells.push(selection[i]);
+			}
+		}
+
+		this.graph.setSelectionCells(cells);
+	};
+
+	/**
+	 * Brings back the given layout that the panel replaced (see applyTile)
+	 * after the layout that replaced it failed without an edit: its edits
+	 * are redone while they are the next edits of the history.
+	 */
+	LayoutPanel.prototype.restoreReplaced = function(replaced, selection)
+	{
+		var um = this.editorUi.editor.undoManager;
+		var n = replaced.edits.length;
+
+		for (var i = 0; i < n; i++)
+		{
+			if (um.history[um.indexOfNextAdd + i] !== replaced.edits[i])
+			{
+				return;
+			}
+		}
+
+		for (var i = 0; i < n; i++)
+		{
+			um.redo();
+		}
+
+		this.restoreSelection(selection);
+		this.applied = replaced;
 	};
 
 	/**
@@ -2433,34 +2870,23 @@
 	};
 
 	/**
-	 * Updates the hint and the label of Apply for the scope and the selection.
+	 * Updates the hint for the scope and the pointer. A selection of shapes
+	 * with different parents arranges the whole page (getLayoutScope), which
+	 * the hint of the diagram says (w94m M2).
 	 */
 	LayoutPanel.prototype.updateHint = function()
 	{
-		var editorUi = this.editorUi;
 		var page = this.scope.containers == null && this.scope.parent ==
 			this.graph.getDefaultParent() && this.scope.cells == null;
 
-		// Touch has no hover and double click (Fusion)
-		var touch = isFusion() && typeof editorUi.isCoarsePointer === 'function' &&
-			editorUi.isCoarsePointer();
+		// Touch has no hover: the eye of a tile previews
 		var hint = mxResources.get(((page) ? 'arrangeDiagramHint' :
-			'arrangeSelectionHint') + ((touch) ? 'Touch' : ''));
+			'arrangeSelectionHint') + ((this.touch) ? 'Touch' : ''));
 
 		if (this.hint.textContent != hint)
 		{
 			this.hint.innerHTML = '';
 			mxUtils.write(this.hint, hint);
-		}
-
-		// A selection of shapes with different parents arranges the whole page
-		// (getLayoutScope), the button says so in Fusion (w94m M2)
-		var label = mxResources.get((isFusion() && page &&
-			this.graph.getSelectionCount() > 1) ? 'applyToWholePage' : 'apply');
-
-		if (this.applyButton.textContent != label)
-		{
-			this.applyButton.textContent = label;
 		}
 	};
 
@@ -2530,11 +2956,6 @@
 			// an aria-label would differ from the labels of the picture, which
 			// are visible text too (WCAG 2.5.3)
 			tile.badge.style.display = (isSuggested) ? '' : 'none';
-
-			if (isSuggested && !this.userSelected)
-			{
-				this.select(tile);
-			}
 		}
 
 		this.render();
@@ -2562,8 +2983,6 @@
 		{
 			this.renderTile(this.tiles[i]);
 		}
-
-		this.select(this.selected);
 	};
 
 	/**
@@ -2591,12 +3010,57 @@
 
 	/**
 	 * Renders the picture of the given tile. A tile whose entry has an
-	 * isExample function that returns true shows the example.
+	 * isExample function that returns true shows the example. A tile whose
+	 * entry has a whenReady function (Tidy up in Classic and Simple, see
+	 * createTidyLayoutEntry) renders when it calls back, an isEnabled function
+	 * disables the tile and a getHint function gives its description.
 	 */
 	LayoutPanel.prototype.renderTile = function(tile)
 	{
+		var entry = tile.entry;
 		tile.button.disabled = false;
-		var example = typeof tile.entry.isExample === 'function' && tile.entry.isExample() === true;
+		var example = typeof entry.isExample === 'function' && entry.isExample() === true;
+
+		if (typeof entry.getHint === 'function' && tile.desc != null)
+		{
+			tile.desc.textContent = entry.getHint();
+		}
+
+		if (typeof entry.whenReady === 'function' && !example && this.previews.sources != null)
+		{
+			var previews = this.previews;
+			var pass = previews.pass;
+
+			// The picture of the previous result is not shown on the canvas
+			// while the new one is computed (see LayoutPreviews.getResult)
+			for (var i = 0; i < previews.graphs.length; i++)
+			{
+				if (previews.graphs[i].container == tile.thumb)
+				{
+					previews.graphs[i].layoutPreviewStale = true;
+				}
+			}
+
+			entry.whenReady(mxUtils.bind(this, function()
+			{
+				if (this.previews == previews && previews.pass == pass)
+				{
+					this.renderTilePicture(tile, false);
+				}
+			}));
+		}
+		else
+		{
+			this.renderTilePicture(tile, example);
+		}
+	};
+
+	/**
+	 * Renders the picture of the given tile, or the example (see renderTile).
+	 */
+	LayoutPanel.prototype.renderTilePicture = function(tile, example)
+	{
+		var entry = tile.entry;
 
 		// Layouts that fail for the diagram (eg. a radial tree without a
 		// root) show the example and can't be chosen
@@ -2604,11 +3068,17 @@
 			tile.thumb.clientWidth || 196, tile.thumb.clientHeight || 100,
 			mxUtils.bind(this, function(isExample, failed)
 		{
-			tile.button.disabled = failed;
+			tile.button.disabled = failed || (typeof entry.isEnabled === 'function' &&
+				!entry.isEnabled());
 
-			if (this.selected == tile)
+			if (typeof entry.getHint === 'function' && tile.desc != null)
 			{
-				this.select(tile);
+				tile.desc.textContent = entry.getHint();
+			}
+
+			if (tile.eye != null && tile.eye.disabled != tile.button.disabled)
+			{
+				tile.eye.disabled = tile.button.disabled;
 			}
 
 			if (isExample && !failed)
@@ -2628,9 +3098,11 @@
 	/**
 	 * Shows the picture of the hovered or focused tile on the canvas once the
 	 * pointer or the focus rested on it for previewDelay ms, or morphs back to
-	 * the cells as they are.
+	 * the cells as they are. Pointer is true if the pointer left a tile (the
+	 * preview bar of Fusion keeps the picture on its way to the bar, see
+	 * SimplePreviewBar.js).
 	 */
-	LayoutPanel.prototype.updatePreview = function()
+	LayoutPanel.prototype.updatePreview = function(pointer)
 	{
 		var tile = this.hover || this.focus;
 		window.clearTimeout(this.previewThread);
@@ -3142,6 +3614,31 @@
 		window.clearTimeout(this.previewThread);
 		this.previewThread = null;
 		this.removePreview(animate);
+
+		if (this.eyeTile != null)
+		{
+			this.updateEyes();
+		}
+	};
+
+	/**
+	 * Ends the preview: Apply, a change of the diagram (also Undo) or of the
+	 * selection, another spacing, Help and More options (Escape in Fusion, see
+	 * SimplePreviewBar.js). In Fusion the picture and the preview bar do not
+	 * come back by themselves (eg. when the pictures are drawn again after the
+	 * change that ended them, renderTilePicture): only when the pointer
+	 * enters a tile or the focus of the keyboard moves to one (Kym's report of
+	 * 20 November 2026, see *Preview bar* in docs/claude/fusion-style-guide.md).
+	 */
+	LayoutPanel.prototype.endPreview = function()
+	{
+		if (isFusion())
+		{
+			this.hover = null;
+			this.focus = null;
+		}
+
+		this.hidePreview();
 	};
 
 	/**
@@ -3177,17 +3674,29 @@
 	};
 
 	/**
-	 * Runs the layout of the selected tile at once as one undoable edit: the
-	 * picture already showed the way there.
+	 * Runs the layout of the given tile at once as one undoable edit: the
+	 * picture already showed the way there. The edits of the layout are kept
+	 * in applied (see applyTile): only the edits that are added while the
+	 * layout itself runs, synchronously or in an asynchronous step that ends
+	 * the wait of a layout (see the run of applyLayoutList), and not those
+	 * of the user while it waits (eg. a shape moved while ELK or the analysis
+	 * of Tidy up in Fusion is loading). A new tile cancels the layout that
+	 * still waits, so it never lands on top of the newer one. A tile with a
+	 * function apply of its own gets the panel, the tile, a function that it
+	 * calls when it is done and the run; outside of Fusion, whose functions
+	 * show the toast with Hold to compare (SimpleToast.js), the layout shows
+	 * the undo toast of the theme with Undo (EditorUi.showUndoToast). The
+	 * given layout that the tile replaces (see applyTile) comes back if the
+	 * layout fails without an edit.
 	 */
-	LayoutPanel.prototype.apply = function()
+	LayoutPanel.prototype.apply = function(tile, replaced)
 	{
 		var editorUi = this.editorUi;
-		var tile = this.selected;
+		var um = editorUi.editor.undoManager;
 
 		if (tile != null && !tile.button.disabled && this.graph.isEnabled())
 		{
-			this.hidePreview();
+			this.endPreview();
 
 			// A refresh that waits for its delay runs first, so the layout gets
 			// the scope of the diagram as it is (eg. after a new page)
@@ -3198,18 +3707,92 @@
 				this.refresh();
 			}
 
+			var applied = {tile: tile, preset: this.preset, scope: this.scope, edits: [],
+				open: true, depth: 0, cancelled: false, failed: false,
+				selection: this.graph.getSelectionCells()};
+			this.closeApplied(null, true);
+			this.applied = applied;
+
+			applied.listener = function(sender, evt)
+			{
+				if (applied.depth > 0)
+				{
+					applied.edits.push(evt.getProperty('edit'));
+				}
+			};
+
+			um.addListener(mxEvent.ADD, applied.listener);
+
+			var done = mxUtils.bind(this, function()
+			{
+				if (applied.open)
+				{
+					this.closeApplied(applied);
+
+					if (applied.failed && applied.edits.length == 0 && replaced != null &&
+						this.applied == applied)
+					{
+						this.restoreReplaced(replaced, applied.selection);
+					}
+					// The toast of Classic and Simple (Fusion shows its own)
+					else if (applied.edits.length > 0 && typeof tile.entry.apply !== 'function' &&
+						typeof editorUi.showUndoToast === 'function' &&
+						!(typeof editorUi.isSimpleToastEnabled === 'function' &&
+						editorUi.isSimpleToastEnabled()))
+					{
+						editorUi.showUndoToast(mxResources.get('toastLayoutAppliedName',
+							[mxResources.get(tile.entry.name)], 'Layout applied: {1}'),
+							{edits: applied.edits, selection: applied.selection});
+					}
+				}
+			});
+
 			editorUi.tryAndHandle(mxUtils.bind(this, function()
 			{
-				// A tile with a function of its own applies itself (Tidy up in Fusion)
-				if (typeof tile.entry.apply === 'function')
+				applied.depth++;
+
+				try
 				{
-					tile.entry.apply(this, tile);
+					// A tile with a function of its own applies itself (Tidy up)
+					if (typeof tile.entry.apply === 'function')
+					{
+						tile.entry.apply(this, tile, done, applied);
+					}
+					else
+					{
+						editorUi.applyLayoutList(this.getEntryList(tile.entry),
+							this.scope, done, false, applied);
+					}
 				}
-				else
+				catch (e)
 				{
-					editorUi.applyLayoutList(this.getEntryList(tile.entry), this.scope, null, false);
+					applied.failed = true;
+					done();
+
+					throw e;
+				}
+				finally
+				{
+					applied.depth--;
 				}
 			}));
+		}
+	};
+
+	/**
+	 * Stops collecting the edits of the given layout of the panel, or of the
+	 * one that runs (see apply). If cancel is true a layout that still waits
+	 * applies nothing (see applyLayoutList).
+	 */
+	LayoutPanel.prototype.closeApplied = function(applied, cancel)
+	{
+		applied = (applied != null) ? applied : this.applied;
+
+		if (applied != null && applied.open)
+		{
+			applied.open = false;
+			applied.cancelled = cancel == true;
+			this.editorUi.editor.undoManager.removeListener(applied.listener);
 		}
 	};
 
@@ -3221,6 +3804,16 @@
 		window.clearTimeout(this.refreshThread);
 		window.clearTimeout(this.previewThread);
 		this.hidePreview();
+		this.closeApplied();
+
+		// Tiles with work of their own stop it (Tidy up, see renderTile)
+		for (var i = 0; i < this.tiles.length; i++)
+		{
+			if (typeof this.tiles[i].entry.destroy === 'function')
+			{
+				this.tiles[i].entry.destroy();
+			}
+		}
 		this.graph.model.removeListener(this.changeListener);
 		this.graph.getSelectionModel().removeListener(this.changeListener);
 		this.graph.view.removeListener(this.viewListener);
@@ -3249,13 +3842,28 @@
 	EditorUi.LayoutPanel = LayoutPanel;
 
 	/**
+	 * Least width of the editor in which Arrange my diagram of Classic is the
+	 * panel: the panel takes half of the width (see .geLayoutPanel in
+	 * grapheditor.css), which leaves no room for its tiles and the canvas in
+	 * narrower windows (phones), which show the dialog.
+	 */
+	EditorUi.layoutPanelMinWidth = 600;
+
+	/**
 	 * Returns true if the layout picker is a panel in the place of the
-	 * Format panel (Simple UI) instead of a dialog.
+	 * Format panel instead of a dialog: in the Simple UI, and in Classic
+	 * (every theme whose Format panel is the last column of the editor, not
+	 * the window of Sketch and Minimal) in editors that are at least
+	 * layoutPanelMinWidth wide, so that Classic has the preview of the
+	 * pictures on the canvas as Simple and Fusion (driver, 17 November 2026:
+	 * "das normale Panel nehmen wie bei Fusion, also auch das Side Panel mit
+	 * dem Preview").
 	 */
 	EditorUi.prototype.isLayoutPanelSupported = function()
 	{
-		return Editor.currentTheme == 'simple' && this.formatContainer != null &&
-			this.formatContainer.parentNode == this.container;
+		return this.formatContainer != null && this.formatContainer.parentNode == this.container &&
+			(Editor.currentTheme == 'simple' || (Editor.currentTheme != 'sketch' &&
+			Editor.currentTheme != 'min' && this.container.clientWidth >= EditorUi.layoutPanelMinWidth));
 	};
 
 	/**
@@ -3264,8 +3872,18 @@
 	 */
 	EditorUi.prototype.showLayoutPanel = function()
 	{
-		if (this.layoutPanel == null)
+		var opened = this.layoutPanel == null;
+
+		if (opened)
 		{
+			// The window of Tidy up and Style my diagram is in the same place:
+			// it closes and keeps its result, as with Escape (see runTidy in
+			// TidyActions.js for the other way)
+			if (this.tidyWindow != null && typeof this.tidyWindow.destroy === 'function')
+			{
+				this.tidyWindow.destroy();
+			}
+
 			var panel = new LayoutPanel(this);
 			this.layoutPanel = panel;
 			this.layoutPanelFormatDisplay = this.formatContainer.style.display;
@@ -3275,13 +3893,15 @@
 			panel.refresh();
 		}
 
-		var tile = this.layoutPanel.selected || this.layoutPanel.tiles[0];
+		var tile = this.layoutPanel.getSuggestedTile() || this.layoutPanel.tiles[0];
 
-		// Opening shows no preview
+		// Opening shows no preview, and the tiles from the top (Tidy up first,
+		// as in the host of Fusion) also if the focused tile (the suggestion)
+		// is further down
 		if (tile != null)
 		{
 			this.layoutPanel.ignoreFocus = true;
-			tile.button.focus();
+			tile.button.focus({preventScroll: opened});
 			this.layoutPanel.ignoreFocus = false;
 		}
 	};
@@ -3307,6 +3927,103 @@
 	};
 
 	/**
+	 * Shows Arrange my diagram again with the focus on the tile with the given
+	 * ID and no picture on the canvas: the way back of a tool that the tile
+	 * opened in the place of the panel or after the dialog (Back and Escape
+	 * of the window of Tidy up, see createTidyLayoutEntry in TidyActions.js),
+	 * as Back of the hosts of Fusion focuses the control that showed the
+	 * host. The panel where it is supported, else the dialog (see
+	 * showLayoutPicker).
+	 */
+	EditorUi.prototype.showLayoutPickerTile = function(id)
+	{
+		if (this.layoutPanel == null)
+		{
+			this.showLayoutPicker();
+		}
+
+		var panel = this.layoutPanel;
+
+		if (panel != null)
+		{
+			for (var i = 0; i < panel.tiles.length; i++)
+			{
+				if (panel.tiles[i].entry.id == id)
+				{
+					panel.ignoreFocus = true;
+					panel.tiles[i].button.focus({preventScroll: true});
+					panel.ignoreFocus = false;
+				}
+			}
+		}
+		else
+		{
+			var tiles = document.querySelectorAll('.geDialog .geLayoutPicker .geLayoutTile');
+
+			for (var i = 0; i < tiles.length; i++)
+			{
+				if (tiles[i].getAttribute('data-tile') == id)
+				{
+					tiles[i].focus();
+				}
+			}
+		}
+	};
+
+	/**
+	 * Builds Arrange my diagram in the place of the Format panel again, eg. in
+	 * the new language (see EditorUi.rebuildPanels), with the scroll position
+	 * of the tiles and the focus as they were. The spacing stays
+	 * (layoutPickerSpacing). The host of Fusion is built again with its host
+	 * (rebuildPanelHost).
+	 */
+	EditorUi.prototype.rebuildLayoutPanel = function()
+	{
+		var panel = this.layoutPanel;
+
+		if (panel != null && !panel.hosted)
+		{
+			var active = document.activeElement;
+			var selector = 'button, input, select, textarea, a[href], [tabindex]';
+			var elts = panel.container.querySelectorAll(selector);
+			var focus = mxUtils.indexOf(elts, active);
+			var scroll = (panel.grid != null) ? panel.grid.scrollTop : 0;
+
+			this.hideLayoutPanel();
+			this.showLayoutPanel();
+			panel = this.layoutPanel;
+
+			if (panel != null)
+			{
+				// Opening focuses a tile (showLayoutPanel): the focus goes back
+				// to where it was, also outside of the panel
+				var elt = (focus >= 0) ? panel.container.querySelectorAll(selector)[focus] :
+					((active != null && active != document.body && document.body.contains(active)) ?
+						active : null);
+
+				if (elt != null)
+				{
+					panel.ignoreFocus = true;
+
+					try
+					{
+						elt.focus({preventScroll: true});
+					}
+					finally
+					{
+						panel.ignoreFocus = false;
+					}
+				}
+
+				if (panel.grid != null)
+				{
+					panel.grid.scrollTop = scroll;
+				}
+			}
+		}
+	};
+
+	/**
 	 * Arrange my diagram is the format region of the keyboard while it is
 	 * open (see getTabRegions).
 	 */
@@ -3319,8 +4036,8 @@
 	};
 
 	/**
-	 * Focusing the Format panel (Shift+Enter) focuses the selected tile of
-	 * Arrange my diagram while it is open.
+	 * Focusing the Format panel (Shift+Enter) focuses the suggested tile (or
+	 * the first) of Arrange my diagram while it is open.
 	 */
 	var editorUiFocusFormatPanel = EditorUi.prototype.focusFormatPanel;
 
@@ -3328,7 +4045,7 @@
 	{
 		if (this.layoutPanel != null)
 		{
-			var tile = this.layoutPanel.selected || this.layoutPanel.tiles[0];
+			var tile = this.layoutPanel.getSuggestedTile() || this.layoutPanel.tiles[0];
 
 			if (tile != null)
 			{
@@ -3364,21 +4081,46 @@
 	};
 
 	/**
-	 * Shows the layout picker (Choose Layout): Arrange my diagram in the
-	 * Simple UI (see LayoutPanel), where it is toggled, a dialog otherwise.
+	 * A change of the theme without a restart closes Arrange my diagram in the
+	 * place of the Format panel and shows the Format panel again: its tiles
+	 * and its place are those of the theme that opened it (Mindmap in
+	 * Classic), and Fusion shows Arrange my diagram in a host of its panel
+	 * (createSimpleArrangeHost), which resets itself.
+	 */
+	var editorUiSwitchTheme = EditorUi.prototype.switchTheme;
+
+	EditorUi.prototype.switchTheme = function(value)
+	{
+		if (this.layoutPanel != null && !this.layoutPanel.hosted)
+		{
+			this.hideLayoutPanel();
+		}
+
+		editorUiSwitchTheme.apply(this, arguments);
+	};
+
+	/**
+	 * Shows the layout picker (Choose Layout): the panel Arrange my diagram
+	 * in the Simple UI and in Classic (see LayoutPanel and
+	 * isLayoutPanelSupported), where it is toggled, the dialog Arrange my
+	 * diagram otherwise (Sketch and Minimal with the switch layoutPicker,
+	 * Classic on phones). An open panel closes also where it would not open
+	 * now (Classic in a window that has become narrower than
+	 * layoutPanelMinWidth since it opened), instead of a dialog over it.
 	 */
 	EditorUi.prototype.showLayoutPicker = function()
 	{
-		if (this.isLayoutPanelSupported())
+		var supported = this.isLayoutPanelSupported();
+
+		if (this.layoutPanel != null && (supported || !this.layoutPanel.hosted))
 		{
-			if (this.layoutPanel != null)
-			{
-				this.hideLayoutPanel();
-			}
-			else
-			{
-				this.showLayoutPanel();
-			}
+			this.hideLayoutPanel();
+
+			return;
+		}
+		else if (supported)
+		{
+			this.showLayoutPanel();
 
 			return;
 		}
@@ -3400,11 +4142,28 @@
 			}
 		}
 
+		// Tidy up is the first tile where the tools are on (see
+		// createTidyLayoutEntry in TidyActions.js)
+		var tidy = (typeof this.createTidyLayoutEntry === 'function') ?
+			this.createTidyLayoutEntry(function()
+			{
+				return scope;
+			}, function()
+			{
+				return preset;
+			}) : null;
+
+		if (tidy != null)
+		{
+			entries.unshift(tidy);
+		}
+
 		var div = document.createElement('div');
 		div.className = 'geLayoutPicker';
 
+		// Named after the menu item that opens it (see the chooseLayout action)
 		var hd = document.createElement('h3');
-		mxUtils.write(hd, mxResources.get('chooseLayout'));
+		mxUtils.write(hd, mxResources.get('arrangeMyDiagram'));
 		div.appendChild(hd);
 
 		var top = document.createElement('div');
@@ -3428,22 +4187,59 @@
 			{
 				(function(tile)
 				{
+					var entry = tile.entry;
 					tile.button.disabled = false;
 
 					// Layouts that fail for the diagram (eg. a radial tree
 					// without a root) can't be chosen
-					previews.render(tile.thumb, EditorUi.getLayoutPickerList(tile.entry, preset),
-						tile.thumb.clientWidth || 176, tile.thumb.clientHeight || 100,
-						function(isExample, failed)
+					var show = function(isExample)
 					{
-						tile.button.disabled = failed;
-
-						if (isExample && !failed && !example)
+						previews.render(tile.thumb, (typeof entry.layout === 'function') ? entry.layout :
+							EditorUi.getLayoutPickerList(entry, preset),
+							tile.thumb.clientWidth || 176, tile.thumb.clientHeight || 100,
+							function(isExample, failed)
 						{
-							example = true;
-							exampleHint.style.display = '';
+							tile.button.disabled = failed || (typeof entry.isEnabled === 'function' &&
+								!entry.isEnabled());
+
+							if (typeof entry.getHint === 'function')
+							{
+								tile.desc.textContent = entry.getHint();
+							}
+
+							if (isExample && !failed && !example)
+							{
+								example = true;
+								exampleHint.style.display = '';
+							}
+						}, true, isExample);
+					};
+
+					// A tile with a picture of its own (Tidy up) shows it when it is
+					// ready, the example on large pages and for large scopes
+					var isExample = typeof entry.isExample === 'function' && entry.isExample() === true;
+
+					if (typeof entry.whenReady === 'function' && !isExample && previews.sources != null)
+					{
+						var pass = previews.pass;
+
+						if (typeof entry.getHint === 'function')
+						{
+							tile.desc.textContent = entry.getHint();
 						}
-					}, true);
+
+						entry.whenReady(function()
+						{
+							if (!previews.destroyed && previews.pass == pass)
+							{
+								show(false);
+							}
+						});
+					}
+					else
+					{
+						show(isExample);
+					}
 				})(tiles[i]);
 			}
 		};
@@ -3466,6 +4262,15 @@
 		spacingRow.appendChild(spacing);
 		top.appendChild(spacingRow);
 
+		// How Tidy up differs from the layouts, above the tiles (as in the panel)
+		if (tidy != null)
+		{
+			var note = document.createElement('div');
+			note.className = 'geDialogHint geLayoutPickerTidyNote';
+			mxUtils.write(note, mxResources.get('arrangeTidyNote'));
+			div.appendChild(note);
+		}
+
 		var grid = document.createElement('div');
 		grid.className = 'geLayoutPickerGrid';
 		div.appendChild(grid);
@@ -3476,7 +4281,15 @@
 
 			editorUi.tryAndHandle(function()
 			{
-				editorUi.applyLayoutList(EditorUi.getLayoutPickerList(entry, preset), scope);
+				// A tile with a function of its own applies itself (Tidy up)
+				if (typeof entry.apply === 'function')
+				{
+					entry.apply();
+				}
+				else
+				{
+					editorUi.applyLayoutList(EditorUi.getLayoutPickerList(entry, preset), scope);
+				}
 			});
 		};
 
@@ -3487,6 +4300,7 @@
 				var tile = document.createElement('button');
 				tile.setAttribute('type', 'button');
 				tile.className = 'geLayoutTile';
+				tile.setAttribute('data-tile', entry.id);
 
 				// The name is the visible text of the tile, as in the panel
 
@@ -3529,7 +4343,7 @@
 				});
 
 				grid.appendChild(tile);
-				tiles.push({entry: entry, thumb: thumb, button: tile});
+				tiles.push({entry: entry, thumb: thumb, button: tile, desc: desc});
 			})(entries[i]);
 		}
 
@@ -3554,17 +4368,23 @@
 				}
 			}
 
+			// Tidy up has no layout of its own: the form without a layout
 			editorUi.hideDialog();
-			editorUi.showLayoutSettings((entry != null) ?
+			editorUi.showLayoutSettings((entry != null && typeof entry.layout !== 'function') ?
 				EditorUi.getLayoutPickerList(entry, preset) : null, scope);
 		});
 		settingsBtn.className = 'geBtn';
 
 		var dlg = new CustomDialog(this, div, null, null, mxResources.get('close'),
-			null, settingsBtn, true);
+			EditorUi.arrangeMyDiagramHelpUrl, settingsBtn, true);
 		this.showDialog(dlg.container, 600, null, true, true, function()
 		{
 			previews.destroy();
+
+			if (tidy != null)
+			{
+				tidy.destroy();
+			}
 		});
 
 		render();

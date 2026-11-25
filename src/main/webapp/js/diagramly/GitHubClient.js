@@ -629,11 +629,14 @@ GitHubClient.prototype.insertLibrary = function(filename, data, success, error, 
 
 /**
  * Passes a new file with the given filename and data in the folder with the
- * given ID to success. Asks the user before replacing an existing file.
- * Libraries are committed immediately while other files are written when
- * they are saved.
+ * given ID to success. Asks the user before replacing an existing file
+ * unless overwrite is its SHA (the user has confirmed to replace this
+ * version, see App.checkNewFile and checkExists). Libraries are committed
+ * immediately while other files are written when they are saved. A check
+ * of the name that fails goes to error. If active is given and returns
+ * false when the check answers, nothing is asked (see checkExists).
  */
-GitHubClient.prototype.insertFile = function(filename, data, success, error, asLibrary, folderId, base64Encoded)
+GitHubClient.prototype.insertFile = function(filename, data, success, error, asLibrary, folderId, base64Encoded, overwrite, active)
 {
 	asLibrary = (asLibrary != null) ? asLibrary : false;
 
@@ -688,30 +691,52 @@ GitHubClient.prototype.insertFile = function(filename, data, success, error, asL
 		{
 			error();
 		}
-	}))
+	}), overwrite, error, active)
 };
 
 /**
- * 
+ * Asks for the commit message of the given file and passes it to success.
+ * Cancel and a dismissal of the dialog (eg. Escape) call cancel, so the
+ * caller can go back to what the user has entered (see App.fileCreated).
  */
 GitHubClient.prototype.showCommitDialog = function(filename, isNew, success, cancel)
 {
 	// Pauses spinner while commit message dialog is shown
 	var resume = this.ui.spinner.pause();
+	var answered = false;
 	
 	var dlg = new FilenameDialog(this.ui, mxResources.get((isNew) ? 'addedFile' : 'updateFile',
 		[filename]), mxResources.get('ok'), mxUtils.bind(this, function(message)
 	{
+		answered = true;
+
 		resume(function()
 		{
 			success(message);
 		});
 	}), mxResources.get('commitMessage'), null, null, null, null, mxUtils.bind(this, function()
 	{
+		answered = true;
 		cancel();
 	}));
 
-	this.ui.showDialog(dlg.container, 400, 80, true, false);
+	// Escape runs no button: cancel after the close (the buttons close the
+	// dialog before they run)
+	this.ui.showDialog(dlg.container, 400, 80, true, false, function()
+	{
+		window.setTimeout(function()
+		{
+			if (!answered)
+			{
+				answered = true;
+
+				if (cancel != null)
+				{
+					cancel();
+				}
+			}
+		}, 0);
+	});
 	dlg.init();
 };
 
@@ -761,11 +786,17 @@ GitHubClient.prototype.writeFile = function(org, repo, ref, path, message, data,
 
 /**
  * Passes true and the SHA to fn if the user confirms replacing the existing
- * file with the given path, or true if the file does not exist. If
- * askReplace is false, an error is shown for existing files and false is
- * passed to fn.
+ * file with the given path (or without asking if overwrite is its SHA, the
+ * version that the user has confirmed to replace before), or true if the
+ * file does not exist. Cancel and a dismissal of the question (eg. Escape)
+ * pass false. If askReplace is false, an error is shown for existing files
+ * and false is passed to fn. If error is given, a check that fails for
+ * another reason than a file that is not found goes to error (else true is
+ * passed to fn). If active is given and returns false when the answer
+ * comes (eg. the dialog that asked was closed), nothing is asked and false
+ * is passed to fn.
  */
-GitHubClient.prototype.checkExists = function(path, askReplace, fn)
+GitHubClient.prototype.checkExists = function(path, askReplace, fn, overwrite, error, active)
 {
 	var tokens = path.split('/');
 	var org = tokens[0];
@@ -775,11 +806,20 @@ GitHubClient.prototype.checkExists = function(path, askReplace, fn)
 	
 	this.getSha(org, repo, path, ref, mxUtils.bind(this, function(sha)
 	{
-		if (askReplace)
+		if (active != null && !active())
+		{
+			this.ui.spinner.stop();
+			fn(false);
+		}
+		else if (askReplace && overwrite != null && sha == overwrite)
+		{
+			fn(true, sha);
+		}
+		else if (askReplace)
 		{
 			var resume = this.ui.spinner.pause();
 			
-			this.ui.confirm(mxResources.get('replaceIt', [path]), function()
+			this.ui.confirmOrCancel(mxResources.get('replaceIt', [path]), function()
 			{
 				resume();
 				fn(true, sha);
@@ -800,7 +840,19 @@ GitHubClient.prototype.checkExists = function(path, askReplace, fn)
 		}
 	}), mxUtils.bind(this, function(err)
 	{
-		fn(true);
+		if (active != null && !active())
+		{
+			this.ui.spinner.stop();
+			fn(false);
+		}
+		else if (error != null && (err == null || err.code != 404))
+		{
+			error(err);
+		}
+		else
+		{
+			fn(true);
+		}
 	}), true);
 };
 

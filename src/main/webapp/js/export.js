@@ -231,6 +231,151 @@ function getMermaidPageXml(editorUi, xml)
 		editorUi.createMermaidPageXml(xml) : xml;
 };
 
+/**
+ * Shows, hides and styles the cells of the page with the given ID in the given
+ * graph as the window that sent the export showed them (the steps of custom
+ * links in locked files and read-only windows, see EditorUi.getCellViewState),
+ * in the view of the graph only (Graph.cellViewVisibility and
+ * Graph.cellViewStyles). The model is not changed, so a copy of the diagram in
+ * the output keeps the file's state. The state maps the ID of a page (0 for a
+ * diagram without pages) to the visibility (cell ID to true or false) and the
+ * styles (cell ID to a list of [key, value], a null value removes the key) of
+ * its cells. Of the styles of a cell only the last maxStyleKeys pairs are read
+ * and the last value of each key is used. Anything else in it is ignored, as
+ * is the state if the graph has no view of its own for cells (this file can be
+ * newer than app.min.js after a release). Returns true if the view changed.
+ */
+function applyCellViewState(graph, state, pageId)
+{
+	var has = function(obj, key)
+	{
+		return obj != null && typeof obj === 'object' &&
+			Object.prototype.hasOwnProperty.call(obj, key);
+	};
+
+	var page = (pageId != null) ? (has(state, pageId) ? state[pageId] : null) :
+		(has(state, '0') ? state['0'] : null);
+
+	if (page == null || typeof page !== 'object' || typeof mxDictionary !== 'function' ||
+		typeof graph.refreshCellViewVisibility !== 'function' ||
+		typeof graph.refreshCellViewStyles !== 'function' ||
+		typeof graph.getStyleInView !== 'function')
+	{
+		return false;
+	}
+
+	var model = graph.getModel();
+
+	// Only cells of the model with the given ID (no table rows or cells, whose
+	// visibility the window does not change either)
+	var getCell = function(id)
+	{
+		var cell = model.getCell(id);
+
+		return (cell instanceof mxCell && cell.getId() == id && model.contains(cell)) ? cell : null;
+	};
+
+	var hidden = [];
+	var styled = [];
+
+	if (page.visible != null && typeof page.visible === 'object')
+	{
+		for (var id in page.visible)
+		{
+			var cell = has(page.visible, id) ? getCell(id) : null;
+			var visible = page.visible[id];
+
+			if (cell != null && typeof visible === 'boolean' && !graph.isTableRow(cell) &&
+				!graph.isTableCell(cell) && model.isVisible(cell) != visible)
+			{
+				if (graph.cellViewVisibility == null)
+				{
+					graph.cellViewVisibility = new mxDictionary();
+				}
+
+				graph.cellViewVisibility.put(cell, {cell: cell, visible: visible});
+				hidden.push(cell);
+			}
+		}
+	}
+
+	if (page.styles != null && typeof page.styles === 'object')
+	{
+		for (var id in page.styles)
+		{
+			var cell = has(page.styles, id) ? getCell(id) : null;
+			var list = page.styles[id];
+			var styles = [];
+
+			if (cell != null && Array.isArray(list))
+			{
+				// One value for each key, the last, in the order in which the
+				// keys were last set, as the window keeps them (see
+				// Graph.putCellStylesInView). Only the last maxStyleKeys pairs
+				// of each cell are read: the window sends each key of a cell
+				// once and keeps at most as many keys (maxCellViewStyleKeys),
+				// so every state that it can hold is drawn, and as each key is
+				// a pass over the style of the cell (see Graph.getStyleInView)
+				// a request cannot make the styles of its cells take more than
+				// linear time. No limit for all cells, which would draw cells
+				// of a page with many styled cells as in the file (the cells
+				// are those of the diagram of the request).
+				var keys = Object.create(null);
+				var first = Math.max(0, list.length - applyCellViewState.maxStyleKeys);
+
+				for (var i = list.length - 1; i >= first; i--)
+				{
+					var key = (Array.isArray(list[i])) ? list[i][0] : null;
+					var value = (Array.isArray(list[i])) ? list[i][1] : null;
+
+					// Keys of the prototype are not styles (the parsed style is
+					// an object)
+					if (typeof key === 'string' && key.length > 0 && key != '__proto__' &&
+						key != 'constructor' && key != 'prototype' && (value == null ||
+						typeof value === 'string' || typeof value === 'number' ||
+						typeof value === 'boolean') && keys[key] !== true)
+					{
+						keys[key] = true;
+						styles.push({key: key, value: value});
+					}
+				}
+
+				styles.reverse();
+			}
+
+			if (styles.length > 0)
+			{
+				if (graph.cellViewStyles == null)
+				{
+					graph.cellViewStyles = new mxDictionary();
+				}
+
+				graph.cellViewStyles.put(cell, {cell: cell, styles: styles});
+				styled.push(cell);
+			}
+		}
+	}
+
+	if (hidden.length > 0)
+	{
+		graph.refreshCellViewVisibility(hidden);
+	}
+
+	if (styled.length > 0)
+	{
+		graph.refreshCellViewStyles(styled);
+	}
+
+	return hidden.length > 0 || styled.length > 0;
+};
+
+/**
+ * Most [key, value] pairs that applyCellViewState reads for the styles of a
+ * cell (the last ones), as many keys as the window sets on a cell
+ * (Graph.maxCellViewStyleKeys), each once.
+ */
+applyCellViewState.maxStyleKeys = 256;
+
 function render(data)
 {
 	// Fixed-theme exports resolve adaptive light-dark() colors to the
@@ -1833,6 +1978,34 @@ function render(data)
 			}
 		}
 
+		// Handle layers shown or hidden only in the window of the export
+		// (see EditorUi.getLayerVisibilityMap). Only booleans of own keys are
+		// used, as the IDs come from the request.
+		if (extras != null && extras.layerVisibility != null &&
+			typeof extras.layerVisibility === 'object')
+		{
+			var ownValue = function(obj, key)
+			{
+				return (obj != null && typeof obj === 'object' &&
+					Object.prototype.hasOwnProperty.call(obj, key)) ? obj[key] : null;
+			};
+
+			var pageLayers = ownValue(extras.layerVisibility, currentPageId) ||
+				ownValue(extras.layerVisibility, 0);
+			var layerCount = model.getChildCount(model.root);
+
+			for (var i = 0; i < layerCount && pageLayers != null; i++)
+			{
+				var layer = model.getChildAt(model.root, i);
+				var visible = ownValue(pageLayers, layer.getId());
+
+				if (typeof visible === 'boolean')
+				{
+					model.setVisible(layer, visible);
+				}
+			}
+		}
+
 		// Handle hidden tags
 		if (extras != null && extras.hiddenTags != null)
 		{
@@ -1848,6 +2021,13 @@ function render(data)
 				graph.hiddenTags = [];
 			}
 		}
+
+		// Shows, hides and styles the cells of this page as the window of the
+		// export showed them, in the view only (the graph is reused for all
+		// pages, and the decoded page has new cells)
+		graph.cellViewVisibility = null;
+		graph.cellViewStyles = null;
+		applyCellViewState(graph, (extras != null) ? extras.cellViewState : null, currentPageId);
 
 		// Sets initial value for PDF page background
 		var gb = graph.getGraphBounds();

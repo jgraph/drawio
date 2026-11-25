@@ -1104,7 +1104,19 @@ mxPopupMenu.prototype.keyDown = function(evt, row)
 			if (row.activate != null)
 			{
 				var focus = (this.actionFocus != null) ? this.actionFocus : this.returnFocus;
-				row.activate(evt);
+
+				// The control that gets the focus after the action, eg. for a dialog
+				// that the action shows (see mxPopupMenu.activationFocus)
+				mxPopupMenu.activationFocus = focus;
+
+				try
+				{
+					row.activate(evt);
+				}
+				finally
+				{
+					mxPopupMenu.activationFocus = null;
+				}
 
 				// Restores the focus unless the action moved it, eg. into a dialog
 				if (document.activeElement == null || document.activeElement == document.body)
@@ -1155,6 +1167,15 @@ mxPopupMenu.prototype.keyDown = function(evt, row)
 
 	return handled;
 };
+
+/**
+ * Variable: activationFocus
+ *
+ * The element that gets the focus after the item that is activated with the
+ * keyboard runs its function (actionFocus or returnFocus of its menu), only
+ * while it runs, eg. so that a dialog that it shows returns the focus there.
+ */
+mxPopupMenu.activationFocus = null;
 
 /**
  * Function: restoreFocus

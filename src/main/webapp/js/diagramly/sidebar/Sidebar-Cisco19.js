@@ -459,7 +459,7 @@
 					w, h * 0.8, '', 'Secure Endpoint (PC)', null, null, this.getTagsForStencil(gn, 'secure endpoints pc', dt).join(' ')),
 			this.createVertexTemplateEntry('points=[[0.13,0.02,0],[0.5,0,0],[0.87,0.02,0],[0.885,0.4,0],[0.985,0.985,0],[0.5,1,0],[0.015,0.985,0],[0.115,0.4,0]];' + s3 + 'secure_endpoints2;fillColor=#fafafa;strokeColor=#005073;', 
 					w, h * 0.7, '', 'Secure Endpoint (laptop)', null, null, this.getTagsForStencil(gn, 'secure endpoints laptop', dt).join(' ')),
-			this.createVertexTemplateEntry('points=[[0.5,0,0],[1,0.34,0],[1,1],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,1,0],[0,0.34,0],[1,0.67,0],[0,0.67,0],[0.325,0,0],[0.675,0,0]];' + s3 + 'data_center2;fillColor=#fafafa;strokeColor=#005073;', 
+			this.createVertexTemplateEntry('points=[[0.5,0,0],[1,0.34,0],[1,1,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,1,0],[0,0.34,0],[1,0.67,0],[0,0.67,0],[0.325,0,0],[0.675,0,0]];' + s3 + 'data_center2;fillColor=#fafafa;strokeColor=#005073;', 
 					w * 2, h * 1.4, '', 'Data Center', null, null, this.getTagsForStencil(gn, 'data center', dt).join(' ')),
 			this.createVertexTemplateEntry('points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[1,1,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];' + s3 + 'branch2;fillColor=#fafafa;strokeColor=#005073;', 
 					w, h, '', 'Branch', null, null, this.getTagsForStencil(gn, 'branch', dt).join(' '))

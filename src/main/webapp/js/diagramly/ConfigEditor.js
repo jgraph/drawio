@@ -292,8 +292,53 @@ DrawioConfigEditor.install = function(container, options)
 			{ key: 'compact' },
 			{ key: 'noAutoFocus' },
 			{ key: 'showSplashOnStart' },
+			{ key: 'newDialog' },
+			{ key: 'startScreen' },
+			{ key: 'editStyleDialog' },
+			{ key: 'editDiagramDialog' },
+			{ key: 'mermaidDialog' },
+			{ key: 'fromTextDialog' },
+			{ key: 'sqlDialog' },
+			{ key: 'plantUmlDialog' },
+			{ key: 'csvDialog' },
+			{ key: 'publishLinkDialog' },
+			{ key: 'embedDialog' },
+			{ key: 'renameDialog' },
+			{ key: 'authDialog' },
+			{ key: 'imageDialog' },
+			{ key: 'cropDialog' },
+			{ key: 'linkDialog' },
+			{ key: 'saveDialog' },
+			{ key: 'revisionDialog' },
+			{ key: 'moreShapesDialog' },
+			{ key: 'editShapeDialog' },
+			{ key: 'backgroundDialog' },
+			{ key: 'dataSourcesDialog' },
+			{ key: 'layoutSettingsDialog' },
+			{ key: 'layoutDialogs' },
+			{ key: 'outlineDialog' },
+			{ key: 'shortcutsDialog' },
+			{ key: 'draftDialog' },
+			{ key: 'homeDialog' },
+			{ key: 'textOutlineWindow' },
+			{ key: 'libraryDialog' },
+			{ key: 'pluginsDialog' },
+			{ key: 'configDialog' },
+			{ key: 'languageDialog' },
+			{ key: 'settingsDialog' },
+			{ key: 'propertiesDialog' },
+			{ key: 'styleRulesDialog' },
+			{ key: 'geometryDialog' },
+			{ key: 'connectionPointsDialog' },
+			{ key: 'polygonDialog' },
+			{ key: 'colorDialog' },
+			{ key: 'fontDialog' },
+			{ key: 'pageSetupDialog' },
+			{ key: 'editDataDialog' },
+			{ key: 'markupDialog' },
 			{ key: 'updateDefaultStyle' },
 			{ key: 'automaticDefaultStyle', i18n: 'automaticDefaultStyle', simpleModern: true },
+			{ key: 'undoToast' },
 			{ key: 'mathOutputSize' },
 			{ key: 'browserTranslate' }
 		],
@@ -315,6 +360,11 @@ DrawioConfigEditor.install = function(container, options)
 			{ key: 'forceExplore' },
 			{ key: 'springMove' },
 			{ key: 'enableTidy' },
+			{ key: 'enableLayoutPicker' },
+			{ key: 'enableOmnibox' },
+			{ key: 'enableShareMenu' },
+			{ key: 'pageOverview' },
+			{ key: 'smallHelpers' },
 			{ key: 'stopEditingOnEnter' },
 			{ key: 'shiftArrowSelect' },
 			{ key: 'pasteAtMousePointer' },
@@ -323,8 +373,16 @@ DrawioConfigEditor.install = function(container, options)
 			{ key: 'selectParentLayer' },
 			{ key: 'enableInlineToolbar' },
 			{ key: 'enableShapeInlineToolbar' },
+			{ key: 'shapePickerSearch' },
+			{ key: 'enableFormatHints' },
+			{ key: 'namedThemes' },
 			{ key: 'enableWindowDocking' },
 			{ key: 'restoreVisibleWindows' },
+			{ key: 'layersPanel' },
+			{ key: 'tagsPanel' },
+			{ key: 'textOutlinePanel' },
+			{ key: 'panelResize' },
+			{ key: 'touchSupport' },
 			{ key: 'showLinkIcons' },
 			{ key: 'showTooltipIcons' },
 			{ key: 'showNoteIcons' },
@@ -343,7 +401,8 @@ DrawioConfigEditor.install = function(container, options)
 		],
 		'sidebar-toggles': [
 			{ key: 'sidebarTitles' },
-			{ key: 'expandLibraries' }
+			{ key: 'expandLibraries' },
+			{ key: 'usedShapes' }
 		],
 		'library-toggles': [
 			{ key: 'enableCustomLibraries' },
@@ -363,6 +422,10 @@ DrawioConfigEditor.install = function(container, options)
 			{ key: 'embedSvgFonts' },
 			{ key: 'removeImageMetadata' },
 			{ key: 'expandPatternsForPrint' },
+			{ key: 'printPreview' },
+			{ key: 'exportDialog' },
+			{ key: 'shortMenus' },
+			{ key: 'enableLastExport' },
 			{ key: 'experimentalHtmlInCanvasExport', experimental: true }
 		],
 		'advanced-toggles': [
@@ -415,6 +478,35 @@ DrawioConfigEditor.install = function(container, options)
 		toggleGroups['general-toggles'] = toggleGroups['general-toggles'].filter(function(toggle)
 		{
 			return !toggle.simpleModern;
+		});
+	}
+
+	// The public build leaves out the features of the work on the theme Fusion
+	// whatever the configuration says (the driver, 22 November 2026: "auf die
+	// bisherigen. fusion theme mit dialogen bleibt in den internen builds"):
+	// their keys have no toggle there (Editor.isFeatureInBuild)
+	if (typeof Editor !== 'undefined' && typeof Editor.isFeatureInBuild === 'function' &&
+		Editor.featureDefaults != null)
+	{
+		var leftOut = {};
+
+		for (var feature in Editor.featureDefaults)
+		{
+			var featureRow = Editor.featureDefaults[feature];
+
+			if (Object.prototype.hasOwnProperty.call(Editor.featureDefaults, feature) &&
+				featureRow != null && featureRow.config != null && !Editor.isFeatureInBuild(feature))
+			{
+				leftOut[featureRow.config] = true;
+			}
+		}
+
+		Object.keys(toggleGroups).forEach(function(containerId)
+		{
+			toggleGroups[containerId] = toggleGroups[containerId].filter(function(toggle)
+			{
+				return !Object.prototype.hasOwnProperty.call(leftOut, toggle.key);
+			});
 		});
 	}
 
@@ -584,6 +676,8 @@ DrawioConfigEditor.install = function(container, options)
 			{ picker: 'cfg-shadowColorPicker', text: 'cfg-shadowColor' },
 			{ picker: 'cfg-defaultGridColorPicker', text: 'cfg-defaultGridColor' },
 			{ picker: 'cfg-defaultDarkGridColorPicker', text: 'cfg-defaultDarkGridColor' },
+			{ picker: 'cfg-rulerFontColorPicker', text: 'cfg-rulerFontColor' },
+			{ picker: 'cfg-rulerDarkFontColorPicker', text: 'cfg-rulerDarkFontColor' },
 			{ picker: 'cfg-defaultPageBackgroundColorPicker', text: 'cfg-defaultPageBackgroundColor' },
 			{ picker: 'cfg-defaultDarkPageBackgroundColorPicker', text: 'cfg-defaultDarkPageBackgroundColor' }
 		];
@@ -1289,7 +1383,7 @@ DrawioConfigEditor.install = function(container, options)
 		if (/^#[0-9A-Fa-f]{6}$/.test(shadowColor)) { q('#cfg-shadowColorPicker').value = shadowColor; }
 
 		['defaultGridColor', 'defaultDarkGridColor', 'defaultPageBackgroundColor',
-			'defaultDarkPageBackgroundColor'].forEach(function(key)
+			'defaultDarkPageBackgroundColor', 'rulerFontColor', 'rulerDarkFontColor'].forEach(function(key)
 		{
 			var color = config[key] || '';
 			if (/^#[0-9A-Fa-f]{6}$/.test(color)) { q('#cfg-' + key + 'Picker').value = color; }
@@ -1989,7 +2083,26 @@ DrawioConfigEditor.html = [
 	'          <label for="cfg-foldingIconSize"></label>',
 	'          <input type="number" id="cfg-foldingIconSize" data-key="foldingIconSize" placeholder="9" min="1">',
 	'        </div>',
-	'        <div class="field"></div>',
+	'        <div class="field">',
+	'          <label for="cfg-rulerFontSize"></label>',
+	'          <input type="number" id="cfg-rulerFontSize" data-key="rulerFontSize" placeholder="9" min="1" max="32">',
+	'        </div>',
+	'      </div>',
+	'      <div class="field-row">',
+	'        <div class="field">',
+	'          <label for="cfg-rulerFontColor"></label>',
+	'          <div style="display: flex; gap: 6px; align-items: center;">',
+	'            <input type="color" id="cfg-rulerFontColorPicker" value="#BBBBBB" style="width: 36px; height: 28px; padding: 2px; border: 1px solid var(--color-border); border-radius: var(--radius-sm);">',
+	'            <input type="text" id="cfg-rulerFontColor" data-key="rulerFontColor" placeholder="#BBBBBB" style="flex: 1;">',
+	'          </div>',
+	'        </div>',
+	'        <div class="field">',
+	'          <label for="cfg-rulerDarkFontColor"></label>',
+	'          <div style="display: flex; gap: 6px; align-items: center;">',
+	'            <input type="color" id="cfg-rulerDarkFontColorPicker" value="#BBBBBB" style="width: 36px; height: 28px; padding: 2px; border: 1px solid var(--color-border); border-radius: var(--radius-sm);">',
+	'            <input type="text" id="cfg-rulerDarkFontColor" data-key="rulerDarkFontColor" placeholder="#BBBBBB" style="flex: 1;">',
+	'          </div>',
+	'        </div>',
 	'      </div>',
 	'      <div class="field-row">',
 	'        <div class="field">',
@@ -2128,6 +2241,11 @@ DrawioConfigEditor.html = [
 	'          <label for="cfg-sidebarTitleSize"></label>',
 	'          <input type="number" id="cfg-sidebarTitleSize" data-key="sidebarTitleSize" placeholder="8" min="1">',
 	'        </div>',
+	'      </div>',
+	'      <div class="field">',
+	'        <label for="cfg-usedShapesMax"></label>',
+	'        <input type="number" id="cfg-usedShapesMax" data-key="usedShapesMax" placeholder="40" min="0" step="1">',
+	'        <p class="field__help"></p>',
 	'      </div>',
 	'      <div class="field">',
 	'        <label for="cfg-shapePicker"></label>',

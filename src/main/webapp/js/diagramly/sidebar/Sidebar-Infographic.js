@@ -549,19 +549,19 @@
 
 			this.addEntry(dt + 'hex loop', function()
 			{
-			   	var part1 = new mxCell('Lorem ipsum<br> dolor sit amet, consectetur adipisicing elit', new mxGeometry(0, 51, 112, 102), 'shape=hexagon;strokeWidth=4;html=1;fillColor=#F5AB50;strokeColor=#ffffff;shadow=0;fontSize=10;fontColor=#FFFFFF;align=center;fontStyle=0;whiteSpace=wrap;spacing=10;rounded=0;');
+			   	var part1 = new mxCell('Lorem ipsum<br> dolor sit amet, consectetur adipisicing elit', new mxGeometry(0, 51, 112, 102), 'shape=hexagon;perimeter=hexagonPerimeter2;strokeWidth=4;html=1;fillColor=#F5AB50;strokeColor=#ffffff;shadow=0;fontSize=10;fontColor=#FFFFFF;align=center;fontStyle=0;whiteSpace=wrap;spacing=10;rounded=0;');
 			   	part1.vertex = true;
-			   	var part2 = new mxCell('Lorem ipsum<br> dolor sit amet, consectetur adipisicing elit', new mxGeometry(0, 153, 112, 102), 'shape=hexagon;strokeWidth=4;html=1;fillColor=#E85642;strokeColor=#ffffff;shadow=0;fontSize=10;fontColor=#FFFFFF;align=center;fontStyle=0;whiteSpace=wrap;spacing=10;rounded=0;');
+			   	var part2 = new mxCell('Lorem ipsum<br> dolor sit amet, consectetur adipisicing elit', new mxGeometry(0, 153, 112, 102), 'shape=hexagon;perimeter=hexagonPerimeter2;strokeWidth=4;html=1;fillColor=#E85642;strokeColor=#ffffff;shadow=0;fontSize=10;fontColor=#FFFFFF;align=center;fontStyle=0;whiteSpace=wrap;spacing=10;rounded=0;');
 			   	part2.vertex = true;
-			   	var part3 = new mxCell('Lorem ipsum<br> dolor sit amet, consectetur adipisicing elit', new mxGeometry(84, 102, 112, 102), 'shape=hexagon;strokeWidth=4;html=1;fillColor=#12AAB5;strokeColor=#ffffff;shadow=0;fontSize=10;fontColor=#FFFFFF;align=center;fontStyle=0;whiteSpace=wrap;spacing=10;rounded=0;');
+			   	var part3 = new mxCell('Lorem ipsum<br> dolor sit amet, consectetur adipisicing elit', new mxGeometry(84, 102, 112, 102), 'shape=hexagon;perimeter=hexagonPerimeter2;strokeWidth=4;html=1;fillColor=#12AAB5;strokeColor=#ffffff;shadow=0;fontSize=10;fontColor=#FFFFFF;align=center;fontStyle=0;whiteSpace=wrap;spacing=10;rounded=0;');
 			   	part3.vertex = true;
-			   	var part4 = new mxCell('Lorem ipsum<br> dolor sit amet, consectetur adipisicing elit', new mxGeometry(84, 0, 112, 102), 'shape=hexagon;strokeWidth=4;html=1;fillColor=#1699D3;strokeColor=#ffffff;shadow=0;fontSize=10;fontColor=#FFFFFF;align=center;fontStyle=0;whiteSpace=wrap;spacing=10;rounded=0;');
+			   	var part4 = new mxCell('Lorem ipsum<br> dolor sit amet, consectetur adipisicing elit', new mxGeometry(84, 0, 112, 102), 'shape=hexagon;perimeter=hexagonPerimeter2;strokeWidth=4;html=1;fillColor=#1699D3;strokeColor=#ffffff;shadow=0;fontSize=10;fontColor=#FFFFFF;align=center;fontStyle=0;whiteSpace=wrap;spacing=10;rounded=0;');
 			   	part4.vertex = true;
-			   	var part5 = new mxCell('Lorem ipsum<br> dolor sit amet, consectetur adipisicing elit', new mxGeometry(168, 51, 112, 102), 'shape=hexagon;strokeWidth=4;html=1;fillColor=#736CA8;strokeColor=#ffffff;shadow=0;fontSize=10;fontColor=#FFFFFF;align=center;fontStyle=0;whiteSpace=wrap;spacing=10;rounded=0;');
+			   	var part5 = new mxCell('Lorem ipsum<br> dolor sit amet, consectetur adipisicing elit', new mxGeometry(168, 51, 112, 102), 'shape=hexagon;perimeter=hexagonPerimeter2;strokeWidth=4;html=1;fillColor=#736CA8;strokeColor=#ffffff;shadow=0;fontSize=10;fontColor=#FFFFFF;align=center;fontStyle=0;whiteSpace=wrap;spacing=10;rounded=0;');
 			   	part5.vertex = true;
-			   	var part6 = new mxCell('Lorem ipsum<br> dolor sit amet, consectetur adipisicing elit', new mxGeometry(168, 153, 112, 102), 'shape=hexagon;strokeWidth=4;html=1;fillColor=#2F5B7C;strokeColor=#ffffff;shadow=0;fontSize=10;fontColor=#FFFFFF;align=center;fontStyle=0;whiteSpace=wrap;spacing=10;rounded=0;');
+			   	var part6 = new mxCell('Lorem ipsum<br> dolor sit amet, consectetur adipisicing elit', new mxGeometry(168, 153, 112, 102), 'shape=hexagon;perimeter=hexagonPerimeter2;strokeWidth=4;html=1;fillColor=#2F5B7C;strokeColor=#ffffff;shadow=0;fontSize=10;fontColor=#FFFFFF;align=center;fontStyle=0;whiteSpace=wrap;spacing=10;rounded=0;');
 			   	part6.vertex = true;
-			   	var part7 = new mxCell('Lorem ipsum<br> dolor sit amet, consectetur adipisicing elit', new mxGeometry(84, 204, 112, 102), 'shape=hexagon;strokeWidth=4;html=1;fillColor=#777777;strokeColor=#ffffff;shadow=0;fontSize=10;fontColor=#FFFFFF;align=center;fontStyle=0;whiteSpace=wrap;spacing=10;rounded=0;');
+			   	var part7 = new mxCell('Lorem ipsum<br> dolor sit amet, consectetur adipisicing elit', new mxGeometry(84, 204, 112, 102), 'shape=hexagon;perimeter=hexagonPerimeter2;strokeWidth=4;html=1;fillColor=#777777;strokeColor=#ffffff;shadow=0;fontSize=10;fontColor=#FFFFFF;align=center;fontStyle=0;whiteSpace=wrap;spacing=10;rounded=0;');
 			   	part7.vertex = true;
 
 			   	return sb.createVertexTemplateFromCells([part1, part2, part3, part4, part5, part6, part7], 284, 312, 'Hex Loop');

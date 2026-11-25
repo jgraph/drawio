@@ -200,6 +200,14 @@ var HomeDialog = function(editorUi, startup)
 	div.appendChild(body);
 
 	this.container = div;
+
+	// The layout of Fusion in the Classic skin where the feature homeDialog
+	// is on (Simple); Fusion adds its skin (SimpleFiles.js)
+	if (typeof Editor.isHomeDialogEnabled === 'function' && Editor.isHomeDialogEnabled() &&
+		HomeDialog.getSkin() == HomeDialog.skins.classic)
+	{
+		this.createLayout(HomeDialog.skins.classic);
+	}
 };
 
 /**
@@ -912,4 +920,244 @@ HomeDialog.prototype.pick = function(options)
 			}
 		}
 	}));
+};
+
+/**
+ * My diagrams on the layout of Fusion in every look that has it (Fusion
+ * ideas in Simple, package 5): the headline with the storage, the search
+ * with its glyph, Grid or List after it (kept in the settings,
+ * simpleHomeView), the views as categories and a footer with who is signed
+ * in and New Diagram. The parts of the dialog are moved, so the listings,
+ * the search and the actions are the same (createLayout). The Classic skin
+ * (HomeDialog.skins.classic, docs/dialog-style-guide.md, its CSS in
+ * grapheditor.css under .geHomeLayout) is the layout in Simple behind the
+ * feature homeDialog of Editor.featureDefaults (Editor.isHomeDialogEnabled);
+ * SimpleFiles.js adds the skin of Fusion (HomeDialog.skins.fusion), so the
+ * code exists once.
+ */
+HomeDialog.skins = {};
+
+/**
+ * The Classic skin (docs/dialog-style-guide.md), for Simple: the headline of
+ * the dialogs with the storage below it, a search field with a glyph, Grid
+ * or List as a list (a select), the colors of the dialogs light and dark and
+ * the focus rings as outlines. The CSS is in grapheditor.css under
+ * .geHomeLayout.
+ */
+HomeDialog.skins.classic = {
+	name: 'classic',
+	classes: {root: 'geHomeLayout', list: 'geHomeLayoutList', head: 'geHomeLayoutHead',
+		replaced: 'geHomeLayoutReplaced', search: 'geHomeLayoutSearch', view: null,
+		footer: 'geHomeLayoutFooter'},
+	/**
+	 * Sets the size of the dialog in the look (the Classic skin keeps the size
+	 * of App.showHome).
+	 */
+	setSize: function(div)
+	{
+		// keeps the size of App.showHome
+	},
+	/**
+	 * Returns the storage below the headline for the given text.
+	 */
+	createSubtitle: function(text)
+	{
+		var sub = document.createElement('div');
+		sub.className = 'geHomeLayoutSub';
+		mxUtils.write(sub, text);
+
+		return sub;
+	},
+	/**
+	 * Returns the glyph of the search (a picture of the CSS, hidden from
+	 * screen readers).
+	 */
+	createGlyph: function()
+	{
+		var glyph = document.createElement('span');
+		glyph.className = 'geHomeLayoutGlyph';
+		glyph.setAttribute('aria-hidden', 'true');
+
+		// A mask in the color of the text (a constant picture of the editor)
+		glyph.style.setProperty('--ge-home-glyph', 'url(\'' + Editor.magnifyImage + '\')');
+
+		return glyph;
+	},
+	/**
+	 * Returns Grid or List for the given dialog container (see
+	 * HomeDialog.createViewSwitch).
+	 */
+	createViewSwitch: function(div)
+	{
+		return HomeDialog.createViewSwitch(div, this);
+	},
+	/**
+	 * Returns Grid or List as a list for the given items ({value, label})
+	 * with the given value that calls fn with the chosen value.
+	 */
+	createSwitch: function(items, value, fn, label)
+	{
+		var select = document.createElement('select');
+		select.className = 'geHomeLayoutSelect';
+		select.setAttribute('aria-label', label);
+		select.setAttribute('title', label);
+
+		for (var i = 0; i < items.length; i++)
+		{
+			var option = document.createElement('option');
+			option.value = items[i].value;
+			mxUtils.write(option, items[i].label);
+			select.appendChild(option);
+		}
+
+		select.value = value;
+
+		mxEvent.addListener(select, 'change', function()
+		{
+			fn(select.value);
+		});
+
+		return select;
+	}
+};
+
+/**
+ * Returns the skin of My diagrams for the current theme: the skin of Fusion
+ * in Fusion (if its scripts are loaded), else the Classic skin.
+ */
+HomeDialog.getSkin = function()
+{
+	return (typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern() &&
+		HomeDialog.skins.fusion != null) ? HomeDialog.skins.fusion : HomeDialog.skins.classic;
+};
+
+/**
+ * Returns true if My diagrams has the layout of Fusion: the feature
+ * homeDialog of Editor.featureDefaults (homeDialog in the configuration and
+ * the URL), on in Simple (the driver, 18 November 2026: the dialogs of
+ * Fusion for Simple), off in Classic, Sketch, Minimal and Atlas. The theme
+ * Fusion always has it.
+ */
+Editor.isHomeDialogEnabled = function()
+{
+	return Editor.isFeatureEnabled('homeDialog');
+};
+
+/**
+ * Returns the view of the diagrams in the settings, 'grid' (default) or
+ * 'list'.
+ */
+HomeDialog.getView = function()
+{
+	return (typeof mxSettings !== 'undefined' && mxSettings.settings != null &&
+		mxSettings.settings.simpleHomeView == 'list') ? 'list' : 'grid';
+};
+
+/**
+ * Shows the diagrams of the given dialog container as a grid or a list in
+ * the given skin and stores the choice in the settings (simpleHomeView).
+ */
+HomeDialog.setView = function(div, skin, value)
+{
+	div.classList.toggle(skin.classes.list, value == 'list');
+
+	if (typeof mxSettings !== 'undefined' && mxSettings.settings != null)
+	{
+		mxSettings.settings.simpleHomeView = value;
+		mxSettings.save();
+	}
+};
+
+/**
+ * Returns Grid or List in the given skin for the given dialog container
+ * (the class of the list on the container, the choice in the settings).
+ */
+HomeDialog.createViewSwitch = function(div, skin)
+{
+	var items = [{value: 'grid', label: mxResources.get('gridView')},
+		{value: 'list', label: mxResources.get('listView')}];
+	var value = HomeDialog.getView();
+	div.classList.toggle(skin.classes.list, value == 'list');
+
+	return skin.createSwitch(items, value, function(v)
+	{
+		HomeDialog.setView(div, skin, v);
+	}, mxResources.get('view'));
+};
+
+/**
+ * Moves the parts of the dialog into the layout of Fusion in the given skin
+ * (see HomeDialog.skins): the headline and the storage, the search with its
+ * glyph, Grid or List, the views as categories and the footer with who is
+ * signed in and New Diagram. Returns false if the parts are missing (eg. in
+ * chromeless views).
+ */
+HomeDialog.prototype.createLayout = function(skin)
+{
+	var div = this.container;
+	var header = div.querySelector('.geHomeHeader');
+	var title = div.querySelector('.geHomeTitle');
+	var newBtn = div.querySelector('.geHomeNewButton');
+	var nav = div.querySelector('.geHomeNav');
+	var search = this.searchInput;
+	var cls = skin.classes;
+
+	if (this.editorUi.editor.isChromelessView() || header == null || title == null || newBtn == null ||
+		nav == null || search == null || search.parentNode != header)
+	{
+		return false;
+	}
+
+	div.classList.add(cls.root);
+	skin.setSize(div);
+
+	// The headline and the storage (the title of the dialog)
+	var head = document.createElement('div');
+	head.className = cls.head;
+	var h3 = document.createElement('h3');
+	mxUtils.write(h3, mxResources.get('myDiagrams'));
+	head.appendChild(h3);
+	var sub = skin.createSubtitle(title.textContent);
+
+	if (sub != null)
+	{
+		head.appendChild(sub);
+	}
+
+	title.classList.add(cls.replaced);
+	div.insertBefore(head, div.firstChild);
+
+	// The search as a field with its glyph
+	var field = document.createElement('div');
+	field.className = cls.search;
+	field.appendChild(skin.createGlyph());
+	header.insertBefore(field, search);
+	field.appendChild(search);
+
+	// The diagrams as a grid or a list after the search (concept: grid or
+	// list), kept in the settings
+	header.insertBefore(skin.createViewSwitch(div), field.nextSibling);
+
+	// The views are categories (one list for the keyboard)
+	var items = nav.querySelectorAll('.geHomeNavItem');
+
+	for (var i = 0; cls.view != null && i < items.length; i++)
+	{
+		items[i].classList.add(cls.view);
+	}
+
+	// The footer: who is signed in on the left, New Diagram on the right
+	var footer = document.createElement('div');
+	footer.className = cls.footer;
+	var signedIn = nav.querySelector('.geHomeNavFooter');
+
+	if (signedIn != null)
+	{
+		footer.appendChild(signedIn);
+	}
+
+	footer.appendChild(newBtn);
+	div.appendChild(footer);
+
+	return true;
 };

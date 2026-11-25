@@ -102,6 +102,15 @@ Object.defineProperty(DrawioFile.prototype, 'savingFile',
 });
 
 /**
+ * Returns true while a save of this file is in progress. Default returns
+ * savingFile.
+ */
+DrawioFile.prototype.isSaving = function()
+{
+	return this.savingFile == true;
+};
+
+/**
  * Invokes the given function after the current save operation has ended,
  * or asynchronously if no save is in progress. Use this to wait for a save
  * before saving again instead of failing with App.ERROR_BUSY.

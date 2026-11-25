@@ -442,14 +442,25 @@ Editor.removeImageMetadata = true;
 Editor.showConnectHandle = false;
 
 /**
- * Whether to enable the inline toolbar. Default is true.
+ * Whether the inline toolbar is enabled: the toolbar itself, its toolbar
+ * for selected connectors with their labels and ties (one or more) and
+ * Insert at the top of the context menu of the background (see
+ * isInlineToolbarEnabled), the toggle Inline Toolbar of the Configuration
+ * dialog. Default is null,
+ * which uses the default of the theme (the feature inlineToolbars: on in
+ * every theme). False leaves out the toolbar, also for shapes with
+ * enableShapeInlineToolbar true.
  */
-Editor.enableInlineToolbar = true;
+Editor.enableInlineToolbar = null;
 
 /**
- * Whether the inline toolbar is shown for selected shapes and multiple
- * selected cells. Needs enableInlineToolbar. Default is null, which shows
- * it in the simple theme only (see isShapeInlineToolbarEnabled).
+ * Whether the inline toolbar is shown for selections with a shape, also
+ * shapes with connectors (see isShapeInlineToolbarEnabled and
+ * InlineToolbar.isToolbarSelection), the toggle Inline Toolbar for Shapes of
+ * the Configuration dialog. Needs enableInlineToolbar. Default
+ * is null, which uses the default of the theme (the feature
+ * shapeInlineToolbars: off in Classic, Sketch and Atlas, on in Simple,
+ * Minimal and Fusion).
  */
 Editor.enableShapeInlineToolbar = null;
 
@@ -477,15 +488,282 @@ Editor.isDarkMode = function()
 };
 
 /**
- * Returns true if the inline toolbar is shown for selected shapes and
- * multiple selected cells. This is enableShapeInlineToolbar if it is set
- * or true in the simple theme.
+ * Returns the value of enableInlineToolbar in the configuration: true if it
+ * is explicitly on, false if it is explicitly off, or null if the
+ * configuration does not set it (the default of the theme applies, see
+ * isInlineToolbarEnabled). The two keys are separate switches again as in
+ * release 32.7.5 (the driver, 22 November 2026: "Schlüssel wieder getrennt
+ * wie im Release"), see getShapeInlineToolbarConfig.
+ */
+Editor.getInlineToolbarConfig = function()
+{
+	var value = Editor.enableInlineToolbar;
+
+	return (value != null) ? !!value : null;
+};
+
+/**
+ * Returns the value of enableShapeInlineToolbar in the configuration: true
+ * if it is explicitly on, false if it is explicitly off, or null if the
+ * configuration does not set it (the default of the theme applies, see
+ * isShapeInlineToolbarEnabled).
+ */
+Editor.getShapeInlineToolbarConfig = function()
+{
+	var value = Editor.enableShapeInlineToolbar;
+
+	return (value != null) ? !!value : null;
+};
+
+/**
+ * Returns true if the inline toolbar is enabled, the toolbar itself, its
+ * toolbar for selected connectors with their labels and ties and Insert at
+ * the top of the context menu of the background: the URL parameter
+ * inlineToolbar (1 or 0,
+ * which switches the toolbar of shapes too), else enableInlineToolbar of the
+ * configuration (getInlineToolbarConfig, the toggle Inline Toolbar of the
+ * Configuration dialog) if it sets it, else the default of the theme (the
+ * feature inlineToolbars of Editor.featureDefaults: on in every theme).
+ */
+Editor.isInlineToolbarEnabled = function()
+{
+	var param = urlParams['inlineToolbar'];
+	var config = Editor.getInlineToolbarConfig();
+
+	return (param == '1' || param == '0') ? param == '1' :
+		((config != null) ? config : Editor.isFeatureEnabled('inlineToolbars'));
+};
+
+/**
+ * Returns true if the inline toolbar is shown for selections with a shape
+ * (see InlineToolbar.isToolbarSelection): the URL parameter inlineToolbar (1 or 0, which
+ * switches the whole toolbar), else false if the toolbar is not enabled
+ * (isInlineToolbarEnabled, so enableInlineToolbar: false with
+ * enableShapeInlineToolbar: true is off, as in release 32.7.5), else
+ * enableShapeInlineToolbar of the configuration (getShapeInlineToolbarConfig,
+ * the toggle Inline Toolbar for Shapes of the Configuration dialog) if it
+ * sets it, else the default of the theme (the feature shapeInlineToolbars of
+ * Editor.featureDefaults: off in Classic, Sketch and Atlas, on in Simple,
+ * Minimal and Fusion).
  */
 Editor.isShapeInlineToolbarEnabled = function()
 {
-	return (Editor.enableShapeInlineToolbar != null) ?
-		Editor.enableShapeInlineToolbar :
-		Editor.currentTheme == 'simple';
+	var param = urlParams['inlineToolbar'];
+	var config = Editor.getShapeInlineToolbarConfig();
+
+	return (param == '1' || param == '0') ? param == '1' :
+		(Editor.isInlineToolbarEnabled() && ((config != null) ? config :
+			Editor.isFeatureEnabled('shapeInlineToolbars')));
+};
+
+/**
+ * The switches of features and their defaults by theme and platform, one row
+ * per feature (see Editor.isFeatureEnabled). A row has:
+ * - url: the URL parameter, where 1 turns the feature on and 0 off in every
+ *   theme (other values are ignored).
+ * - config: the key of the configuration, where true turns the feature on
+ *   and false off in every theme (Editor.featureConfig).
+ * - the default of each theme (the values of Editor.getFeatureTheme), which
+ *   is true, false or an object with the default of each platform (the values
+ *   of Editor.getFeaturePlatform: online, desktop, atlassian, embed). A theme
+ *   or a platform that the row does not list has the feature off.
+ * - fixed: the themes whose default the URL and the configuration do not
+ *   change, as their UI is built on the feature or has a switch of its own.
+ * - publicBuild: what the public build (Editor.isPublicBuild) does with the
+ *   feature. The public build has the dialogs and menus of before, and the
+ *   new ones of the work on the theme Fusion stay in the internal builds (the
+ *   driver, 22 November 2026: "auf die bisherigen. fusion theme mit dialogen
+ *   bleibt in den internen builds"): a row without the key is off there,
+ *   whatever the theme, the URL and the configuration say. true keeps the
+ *   feature as in the other builds (the inline toolbars, which release
+ *   32.7.5 had with their keys); optIn has it off by default in every theme,
+ *   and the URL and the configuration may switch it on (Tidy up, which
+ *   release 32.7.5 had behind enableTidy and tidy=1).
+ * The URL wins over the configuration, which wins over the default of the
+ * theme. The application adds its rows (see diagramly/Editor.js).
+ */
+Editor.featureDefaults = {
+	// The inline toolbar, its toolbar for selected connectors with their
+	// labels and ties and Insert in the context menu of the background
+	// (Editor.isInlineToolbarEnabled): on in every theme
+	inlineToolbars: {url: 'inlineToolbar', config: 'enableInlineToolbar',
+		kennedy: true, simple: true, fusion: true, sketch: true, min: true, atlas: true,
+		publicBuild: true},
+	// The inline toolbar for selections with a shape
+	// (Editor.isShapeInlineToolbarEnabled, needs inlineToolbars): off by
+	// default in Classic, Sketch and Atlas, on in Simple, Minimal and Fusion
+	// (the driver, 22 November 2026)
+	shapeInlineToolbars: {url: 'inlineToolbar', config: 'enableShapeInlineToolbar',
+		kennedy: false, simple: true, fusion: true, sketch: false, min: true, atlas: false,
+		publicBuild: true}
+};
+
+/**
+ * The values of the keys of the configuration of the features (the config
+ * of the rows in Editor.featureDefaults) that a configuration has set.
+ */
+Editor.featureConfig = {};
+
+/**
+ * Returns true in the public build (jgraph/drawio and what is built from it:
+ * the desktop app, the Docker image), which ships neither the theme Fusion
+ * nor the new dialogs and menus of its work in the other themes (the driver,
+ * 22 November 2026: "auf die bisherigen. fusion theme mit dialogen bleibt in
+ * den internen builds"): the rows of Editor.featureDefaults without
+ * publicBuild are off there, so that it shows the dialogs and menus of
+ * before. The generic editor returns false; the application returns true
+ * where the build wrote none into Editor.fusionThemeBuild
+ * (diagramly/FusionTheme.js). It checks the build, not the host or the
+ * loaded scripts, and the internal builds (also atlas.min.js, which has no
+ * FusionTheme.js) are not changed by it.
+ */
+Editor.isPublicBuild = function()
+{
+	return false;
+};
+
+/**
+ * Returns false if this build leaves out the given feature of
+ * Editor.featureDefaults: the public build (Editor.isPublicBuild) leaves out
+ * the rows without publicBuild. For a feature that also has a choice of its
+ * own (eg. the library In This Diagram, which the user may switch on), so
+ * that the public build does not offer it. Unknown features are left out.
+ */
+Editor.isFeatureInBuild = function(name)
+{
+	var row = (Object.prototype.hasOwnProperty.call(Editor.featureDefaults, name)) ?
+		Editor.featureDefaults[name] : null;
+
+	return row != null && (row.publicBuild === true || row.publicBuild == 'optIn' ||
+		!Editor.isPublicBuild());
+};
+
+/**
+ * Returns the theme of the current UI as named in Editor.featureDefaults:
+ * kennedy for the default theme (also '', dark and default), else
+ * Editor.currentTheme.
+ */
+Editor.getFeatureTheme = function()
+{
+	var theme = Editor.currentTheme;
+
+	return (theme == null || theme == '' || theme == 'dark' ||
+		theme == 'default') ? 'kennedy' : theme;
+};
+
+/**
+ * Returns the platform of this session as named in Editor.featureDefaults.
+ * This returns online, the application detects its other platforms (see
+ * diagramly/Editor.js).
+ */
+Editor.getFeaturePlatform = function()
+{
+	return 'online';
+};
+
+/**
+ * Returns the default of the given row of Editor.featureDefaults for the
+ * given theme and platform.
+ */
+Editor.getFeatureDefault = function(row, theme, platform)
+{
+	var value = (Object.prototype.hasOwnProperty.call(row, theme)) ? row[theme] : null;
+
+	if (value != null && typeof value === 'object')
+	{
+		value = (Object.prototype.hasOwnProperty.call(value, platform)) ? value[platform] : null;
+	}
+
+	return value === true;
+};
+
+/**
+ * Returns true if the given feature of Editor.featureDefaults is on: the URL
+ * parameter of the feature, else its key in the configuration, else the
+ * default of the given theme (default is the current theme) on the given
+ * platform (default is the platform of this session). Unknown features are
+ * off, and so are the features that the build leaves out (the public build,
+ * see Editor.isPublicBuild and publicBuild in Editor.featureDefaults); a
+ * feature with publicBuild optIn is off by default there, and its URL and
+ * its configuration may switch it on.
+ */
+Editor.isFeatureEnabled = function(name, theme, platform)
+{
+	var row = (Object.prototype.hasOwnProperty.call(Editor.featureDefaults, name)) ?
+		Editor.featureDefaults[name] : null;
+	var result = false;
+
+	// The public build has the dialogs and menus of before (see
+	// Editor.isPublicBuild): a feature that it leaves out is off, and one with
+	// publicBuild optIn is off by default there
+	if (row != null && Editor.isFeatureInBuild(name))
+	{
+		theme = (theme != null) ? theme : Editor.getFeatureTheme();
+		platform = (platform != null) ? platform : Editor.getFeaturePlatform();
+		result = (row.publicBuild != 'optIn' || !Editor.isPublicBuild()) &&
+			Editor.getFeatureDefault(row, theme, platform);
+
+		if (row.fixed == null || mxUtils.indexOf(row.fixed, theme) < 0)
+		{
+			var param = (row.url != null) ? urlParams[row.url] : null;
+
+			if (param == '1' || param == '0')
+			{
+				result = param == '1';
+			}
+			else if (row.config != null && Editor.featureConfig[row.config] != null)
+			{
+				result = Editor.featureConfig[row.config] === true;
+			}
+		}
+	}
+
+	return result;
+};
+
+/**
+ * The themes of Editor.featureDefaults (the values of Editor.getFeatureTheme).
+ */
+Editor.featureThemes = ['kennedy', 'simple', 'fusion', 'sketch', 'min', 'atlas'];
+
+/**
+ * Returns true if the given feature is on in any theme on the platform of this
+ * session, so that a switch of the theme without a restart may show it: the
+ * themes of its row in Editor.featureDefaults, the themes of
+ * Editor.featureThemes and the current theme, as the URL and the
+ * configuration also switch a feature on in the themes that its row does not
+ * list (Editor.isFeatureEnabled). It is true wherever Editor.isFeatureEnabled
+ * is, also where the row lists only themes whose default they do not change
+ * (fixed).
+ */
+Editor.isFeatureAvailable = function(name)
+{
+	var row = (Object.prototype.hasOwnProperty.call(Editor.featureDefaults, name)) ?
+		Editor.featureDefaults[name] : null;
+
+	if (row != null)
+	{
+		var themes = Editor.featureThemes.concat([Editor.getFeatureTheme()]);
+
+		for (var key in row)
+		{
+			if (key != 'url' && key != 'config' && key != 'fixed' && key != 'publicBuild' &&
+				Object.prototype.hasOwnProperty.call(row, key))
+			{
+				themes.push(key);
+			}
+		}
+
+		for (var i = 0; i < themes.length; i++)
+		{
+			if (Editor.isFeatureEnabled(name, themes[i]))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 };
 
 /**
@@ -2237,6 +2515,16 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	var div = editorUi.createDiv(transparent? 'geTransDialog' : 'geDialog');
 	div.style.width = (w + 48) + 'px';
 
+	// The time of the last click or key in the dialog: a change of its height
+	// that follows it keeps the top of the frame (Dialog.setFrameHeight)
+	var input = function()
+	{
+		div.frameInputTime = Date.now();
+	};
+
+	div.addEventListener('click', input, true);
+	div.addEventListener('keydown', input, true);
+
 	if (h != null)
 	{
 		div.style.height = (h + 48) + 'px';
@@ -2355,6 +2643,94 @@ Dialog.getFrameHeight = function(div, height)
 };
 
 /**
+ * Milliseconds after a click or key in a dialog in which a change of its
+ * height keeps the top of its frame (Dialog.setFrameHeight).
+ */
+Dialog.frameInputDelay = 1000;
+
+/**
+ * Gives the given frame of a shown dialog (.geDialog) the given height. After
+ * a click or key in the dialog it keeps its top edge where it was (top, the
+ * top of the frame before the change, for callers that clear the height to
+ * measure the content first): the frame grows and shrinks at its bottom, so
+ * the control that changed the content (eg. a section that opens) stays
+ * under the pointer instead of moving with the center of the frame (the
+ * driver, 19 November 2026: no button may move away under the pointer).
+ * Where the window has no room below the top for the given height, the
+ * frame ends at the bottom of the room that max-height leaves it and its
+ * content scrolls, as it does where max-height cuts a frame. Other changes
+ * (eg. content that loads while the dialog opens) center the frame as
+ * before. Frames without a transform (eg. sheets of phones) only get the
+ * height, and a change of the size of the window centers the frame again
+ * with the given height. With center the frame is centered again also after
+ * a click or key: the exception of the driver, 22 November 2026, for the
+ * Print dialog, which centers again when its Advanced section opens or
+ * closes (see addAdvancedSection); every other dialog keeps its top, the
+ * Export dialog included.
+ */
+Dialog.setFrameHeight = function(div, height, top, center)
+{
+	top = (top != null) ? top : div.getBoundingClientRect().top;
+	var style = mxUtils.getCurrentStyle(div);
+	var keepTop = !center && div.frameInputTime != null &&
+		Date.now() - div.frameInputTime < Dialog.frameInputDelay;
+
+	// The frame is centered again
+	if (!keepTop && div.frameResizeListener != null)
+	{
+		div.frameResizeListener();
+	}
+
+	div.style.height = height + 'px';
+
+	if (keepTop && div.parentNode != null && style != null && style.transform != null && style.transform != 'none')
+	{
+		// The room of the frame in the window (max-height) and its margin
+		div.style.height = '100000px';
+		var room = div.getBoundingClientRect().height;
+		var bottom = window.innerHeight - Math.max(0, (window.innerHeight - room) / 2);
+
+		// Centered frames always have at least half of the room below their top
+		var h = Math.max(Math.min(height, bottom - top), Math.min(height, room / 2));
+		top = Math.max(0, Math.min(top, bottom - h));
+		div.style.height = h + 'px';
+
+		var rect = div.getBoundingClientRect();
+		var current = parseFloat(style.top);
+		var moved = !isNaN(current) && Math.abs(top - rect.top) >= 0.5;
+
+		if ((moved || h < height) && div.frameResizeListener == null)
+		{
+			var value = div.style.top;
+
+			div.frameResizeListener = function()
+			{
+				mxEvent.removeListener(window, 'resize', div.frameResizeListener);
+				div.frameResizeListener = null;
+				div.style.top = value;
+
+				// The frame gets the height of its content back unless it was
+				// resized since (Dialog.prototype.addResizeHandler)
+				if (div.frameHeight != null && div.style.height == div.frameCutHeight)
+				{
+					div.style.height = div.frameHeight;
+				}
+			};
+
+			mxEvent.addListener(window, 'resize', div.frameResizeListener);
+		}
+
+		div.frameHeight = height + 'px';
+		div.frameCutHeight = h + 'px';
+
+		if (moved)
+		{
+			div.style.top = (current + top - rect.top) + 'px';
+		}
+	}
+};
+
+/**
  * Returns the focused control if the focus goes back to it when the dialog
  * closes. This is a control outside of the diagram that was focused with the
  * keyboard, eg. a button in the format panel or in another dialog. Text
@@ -2377,6 +2753,20 @@ Dialog.prototype.getReturnFocus = function()
 	catch (e)
 	{
 		// ignores unsupported :focus-visible
+	}
+
+	// The item of a menu that was activated with the keyboard was removed, so
+	// the focus returns to the control of the menu, eg. the tab of a page
+	// (not the diagram, which gets it anyway)
+	var focus = (typeof mxPopupMenu !== 'undefined') ? mxPopupMenu.activationFocus : null;
+
+	if (result == null && focus != null && (elt == null || elt == document.body) &&
+		typeof this.editorUi.isHelperEnabled === 'function' &&
+		this.editorUi.isHelperEnabled('focusReturn') && focus != document.body &&
+		!this.editorUi.isTextInputElement(focus) &&
+		!mxUtils.isAncestorNode(this.editorUi.editor.graph.container, focus))
+	{
+		result = focus;
 	}
 
 	return result;
@@ -2904,6 +3294,14 @@ Dialog.prototype.close = function(cancel, isEsc)
 	else
 	{
 		mxEvent.removeListener(window, 'resize', this.resizeListener);
+	}
+
+	// A frame that kept its top listens to the window until it is resized
+	// (Dialog.setFrameHeight), which a closed dialog no longer needs
+	if (this.container.frameResizeListener != null)
+	{
+		mxEvent.removeListener(window, 'resize', this.container.frameResizeListener);
+		this.container.frameResizeListener = null;
 	}
 
 	if (this.container.parentNode != null)
@@ -3701,6 +4099,10 @@ var PageSetupDialog = function(editorUi)
 	var applyPageOptions = editorUi.addPageSetupOptions(advanced.content,
 		styleLabel, styleContent);
 
+	// The rows of buttons below ({name, section, content}) for layouts that
+	// rearrange them (see controls)
+	var actionRows = [];
+
 	// Rows whose buttons set a value or open another dialog, each in its own
 	// section card: the buttons are in the column of the controls of the other
 	// rows, with the current value or a hint in the same column. The label is
@@ -3727,6 +4129,7 @@ var PageSetupDialog = function(editorUi)
 
 		section.appendChild(row);
 		advanced.wrapper.appendChild(section);
+		actionRows.push({name: name, section: section, content: content});
 
 		return content;
 	};
@@ -4051,10 +4454,11 @@ var PageSetupDialog = function(editorUi)
 	}
 
 	// The controls of the dialog for layouts that rearrange them (the Form
-	// template of Simple Modern, see SimpleForms.js)
+	// template of the app, see installFormLayout)
 	this.controls = {paper: paperContent, gridSize: gridSizeInput, gridUnit: gridUnitLabel,
 		background: changeImageLink, adaptive: adaptiveDropdown, adaptiveHelp: helpLink,
-		scalePrefix: scalePrefix, scale: scaleInput, options: advanced.content, view: viewContent};
+		scalePrefix: scalePrefix, scale: scaleInput, options: advanced.content, view: viewContent,
+		actions: actionRows};
 
 	var dlg = new CustomDialog(editorUi, div, applyFn, null,
 		mxResources.get('apply'), 'https://www.drawio.com/docs/manual/pages/page-setup/');
@@ -4074,6 +4478,12 @@ var PageSetupDialog = function(editorUi)
 
 		modelListeners = [];
 	};
+
+	// Hook for the layout of the dialog in the look of the app
+	if (typeof editorUi.installFormLayout === 'function')
+	{
+		editorUi.installFormLayout(this, 'pageSetup');
+	}
 };
 
 /**
@@ -4362,6 +4772,8 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 
 	update(null, true);
 	
+	// update applies the custom width and height, which the fields do only
+	// when they lose the focus or are clicked
 	return {set: function(value)
 	{
 		pageFormat = value;
@@ -4370,7 +4782,8 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 	{
 		return pageFormat;
 	}, widthInput: widthInput,
-		heightInput: heightInput};
+		heightInput: heightInput,
+		update: update};
 };
 
 /**
@@ -4534,7 +4947,9 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label,
 				    // Drop events created by scripts may have no dataTransfer and no data
 				    if (evt.dataTransfer != null && mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
 				    {
-				    	nameInput.value = decodeURIComponent(evt.dataTransfer.getData('text/uri-list'));
+				    	// Keeps the raw text of URIs with a % that is not an escape
+				    	nameInput.value = mxUtils.safeDecodeURIComponent(
+				    		evt.dataTransfer.getData('text/uri-list'));
 				    	genericBtn.click();
 				    }
 	
@@ -4634,6 +5049,12 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label,
 	container.appendChild(table);
 	
 	this.container = container;
+
+	// Hook for the layout of the prompt in the look of the app
+	if (editorUi != null && typeof editorUi.installPromptLayout === 'function')
+	{
+		editorUi.installPromptLayout(this, arguments);
+	}
 };
 
 /**

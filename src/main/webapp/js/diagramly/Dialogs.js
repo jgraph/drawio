@@ -335,10 +335,16 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	}
 	
 	// The parts of the dialog for layouts that rearrange them (the start
-	// sheet of Simple Modern, see SimpleOpen.js)
+	// screen of Fusion and Simple, see StartScreen.js)
 	this.controls = {title: hd, buttons: buttons, logos: logos, later: later, missing: p3};
 	this.notice = notice;
 	this.container = div;
+
+	// The start screen of Fusion in the Classic skin (StartScreen.js)
+	if (typeof editorUi.installStartScreen === 'function')
+	{
+		editorUi.installStartScreen(this, 'storage');
+	}
 };
 
 /**
@@ -350,7 +356,7 @@ var SplashDialog = function(editorUi)
 	div.style.textAlign = 'center';
 
 	// The parts of the dialog for layouts that rearrange them (the start
-	// sheet of Simple Modern, see SimpleOpen.js)
+	// screen of Fusion and Simple, see StartScreen.js)
 	var controls = {};
 	
 	if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
@@ -637,6 +643,12 @@ var SplashDialog = function(editorUi)
 	controls.buttons = buttons;
 	this.controls = controls;
 	this.container = div;
+
+	// The start screen of Fusion in the Classic skin (StartScreen.js)
+	if (typeof editorUi.installStartScreen === 'function')
+	{
+		editorUi.installStartScreen(this, 'splash');
+	}
 };
 
 /**
@@ -907,6 +919,12 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 		copy: (copyBtn.parentNode == buttons) ? copyBtn : null, validUrl: validUrl,
 		title: title, tooLarge: result.length >= maxSize};
 	this.container = div;
+
+	// The layout of the templates (EmbedLayout.js)
+	if (typeof this.installLayout === 'function')
+	{
+		this.installLayout(editorUi, filename);
+	}
 };
 
 /**
@@ -1504,8 +1522,473 @@ var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor, g
 		pages: urlRadio.style.display != 'none', fill: optSection, fillRow: bgRow, fillCheckbox: cb,
 		fillButton: backgroundButton, gradientRow: gradientRow, gradientCheckbox: gradientCb,
 		gradientButton: gradientButton, gradientSelect: gradientSelect, buttons: btns,
-		reset: resetBtn, open: (Graph.fileSupport) ? btn : null, apply: applyBtn};
+		reset: resetBtn, open: (Graph.fileSupport) ? btn : null, apply: applyBtn,
+		// Apply loads the URL itself: skips the change of the field when Enter
+		// commits it before Apply (as the pointer down on Apply above)
+		ignoreChange: function()
+		{
+			ignoreEvt = true;
+		}};
 	this.container = div;
+
+	// The layout of Fusion in the Classic skin where the feature
+	// backgroundDialog is on (Fusion lays the dialog out with its skin in
+	// SimpleMoreForms.js)
+	BackgroundImageDialog.install(editorUi, this);
+};
+
+/**
+ * The layout of the background of the page of Fusion (the Form template) in
+ * every look: the headline, Image (a URL with Open and its size, or another
+ * page of the file, chosen with URL and Page where the file has more than one
+ * page) and Fill (the color and its gradient, where the dialog shows them),
+ * Reset on the left of the footer and Enter for Apply. The controls of the
+ * dialog (BackgroundImageDialog.controls) move into the new layout with their
+ * listeners, so the URL, the files of the device, drag and drop, the pages,
+ * the size, the fill, the gradient and Reset apply as before.
+ *
+ * The layout (BackgroundImageDialog.createLayout) takes a skin: the Classic
+ * skin (BackgroundImageDialog.skins.classic, docs/dialog-style-guide.md, its
+ * CSS in grapheditor.css under .geBackgroundDlg, which takes the colors, the
+ * font and the corners of the other dialogs of the theme) behind the feature
+ * backgroundDialog of Editor.featureDefaults
+ * (Editor.isBackgroundDialogEnabled), or the skin of Fusion, which
+ * SimpleMoreForms.js adds (BackgroundImageDialog.skins.fusion), so the code
+ * exists once. Where the feature is off the dialog keeps its layout of
+ * before.
+ */
+BackgroundImageDialog.skins = {};
+
+/**
+ * Counter of the IDs of the fields of the Classic skin (the labels name them).
+ */
+BackgroundImageDialog.idCount = 0;
+
+/**
+ * The Classic skin (docs/dialog-style-guide.md): the headline of the
+ * dialogs without a subtitle, the sections as geDialogSection cards with a
+ * title, the fields as geDialogFormRow with labels that name them, URL and
+ * Page as a list (not a toggle group), the fill and its gradient as the
+ * check rows of the dialog (checkboxes, not switches) and the buttons of the
+ * dialog in their order (Editor.cancelFirst) with Reset on the left. A skin
+ * has the classes of the parts and the builders prepare (before the layout),
+ * createSubtitle (null for none), createSection, createRow, createChoice,
+ * initOpen, addFillRow, fit (after rows are shown or hidden), arrangeFooter
+ * and addEnter.
+ */
+BackgroundImageDialog.skins.classic = {
+	name: 'classic',
+	classes: {dialog: 'geBackgroundDlg', head: 'geBackgroundDlgHead', body: 'geBackgroundDlgBody',
+		replaced: 'geBackgroundDlgReplaced', url: 'geBackgroundDlgUrl', unit: 'geDialogHint geBackgroundDlgUnit',
+		footer: 'geBackgroundDlgFooter', reset: 'geBackgroundDlgReset'},
+	/**
+	 * Prepares the given content of the dialog (the class of the skin).
+	 */
+	prepare: function(ui, elt)
+	{
+		elt.classList.add(this.classes.dialog);
+	},
+	/**
+	 * Returns the subtitle of the dialog (none, as the other dialogs of the
+	 * theme).
+	 */
+	createSubtitle: function(ui)
+	{
+		return null;
+	},
+	/**
+	 * Adds a section with the given title to the given body and returns the
+	 * card that takes its rows.
+	 */
+	createSection: function(title, body)
+	{
+		var head = document.createElement('div');
+		head.className = 'gePreviewSectionTitle';
+		head.setAttribute('role', 'heading');
+		head.setAttribute('aria-level', '3');
+		mxUtils.write(head, title);
+		body.appendChild(head);
+
+		var card = document.createElement('div');
+		card.className = 'geDialogSection';
+		body.appendChild(card);
+
+		return card;
+	},
+	/**
+	 * Adds a row with the given label and control to the given parent and
+	 * returns the element that holds the control. The label names the control.
+	 */
+	createRow: function(label, control, className, parent)
+	{
+		var r = document.createElement('div');
+		r.className = 'geDialogFormRow' + ((className != null) ? ' ' + className : '');
+		var l = document.createElement('label');
+		l.className = 'geDialogFormLabel';
+		mxUtils.write(l, label + ':');
+		r.appendChild(l);
+		var ctl = document.createElement('div');
+		ctl.className = 'geBackgroundDlgControl';
+		r.appendChild(ctl);
+		ctl.appendChild(control);
+
+		if (control.id == null || control.id == '')
+		{
+			control.id = 'geBackgroundDlgField' + (BackgroundImageDialog.idCount++);
+		}
+
+		l.setAttribute('for', control.id);
+		parent.appendChild(r);
+
+		return ctl;
+	},
+	/**
+	 * Adds a row with a list of the given items ({value, label}) with the
+	 * given value and label to the given parent and returns the list, which
+	 * calls fn with the chosen value. setValue changes the value without fn.
+	 */
+	createChoice: function(items, value, fn, label, parent)
+	{
+		var select = document.createElement('select');
+
+		for (var i = 0; i < items.length; i++)
+		{
+			var option = document.createElement('option');
+			option.value = items[i].value;
+			mxUtils.write(option, items[i].label);
+			select.appendChild(option);
+		}
+
+		select.value = value;
+
+		select.setValue = function(v)
+		{
+			select.value = v;
+		};
+
+		mxEvent.addListener(select, 'change', function()
+		{
+			fn(select.value);
+		});
+
+		this.createRow(mxResources.get('type'), select, 'geBackgroundDlgKinds', parent);
+
+		return select;
+	},
+	/**
+	 * Prepares Open (Choose a File) next to the URL (its label stays).
+	 */
+	initOpen: function(btn)
+	{
+		// The button keeps its label and its look
+	},
+	/**
+	 * Moves the given check row of the fill (the checkbox, its label, the
+	 * color button with the given title and the given list) into the given
+	 * card. The rows of the dialog toggle their checkbox, so the checkbox is
+	 * named by aria-label instead of a label with for.
+	 */
+	addFillRow: function(ui, parent, input, button, title, select)
+	{
+		var row = input.parentNode;
+		var label = row.querySelector('label');
+
+		if (label != null && !input.hasAttribute('aria-label'))
+		{
+			input.setAttribute('aria-label', mxUtils.trim(label.textContent));
+		}
+
+		button.setAttribute('title', title);
+		button.setAttribute('aria-label', title);
+		row.style.marginTop = '';
+		parent.appendChild(row);
+	},
+	/**
+	 * Fits the height of the dialog to its content after rows were shown or
+	 * hidden (the dialog measures its height once when it is shown).
+	 */
+	fit: function(ui, elt)
+	{
+		var dlg = elt.parentNode;
+
+		if (dlg != null && dlg.classList != null && dlg.classList.contains('geDialog'))
+		{
+			// The top stays where it is (Dialog.setFrameHeight)
+			var top = dlg.getBoundingClientRect().top;
+			dlg.style.height = '';
+			Dialog.setFrameHeight(dlg, Dialog.getFrameHeight(dlg, elt.scrollHeight), top);
+		}
+	},
+	/**
+	 * Puts Reset on the left of the footer and keeps the order of Cancel and
+	 * Apply (Editor.cancelFirst).
+	 */
+	arrangeFooter: function(ui, btns, reset)
+	{
+		btns.classList.add(this.classes.footer);
+		btns.style.textAlign = '';
+
+		if (reset != null)
+		{
+			reset.classList.add(this.classes.reset);
+		}
+
+		// Removes the text between the buttons (the gap of the footer spaces them)
+		for (var i = btns.childNodes.length - 1; i >= 0; i--)
+		{
+			if (btns.childNodes[i].nodeType != mxConstants.NODETYPE_ELEMENT)
+			{
+				btns.removeChild(btns.childNodes[i]);
+			}
+		}
+	},
+	/**
+	 * Enter applies (BackgroundImageDialog.addEnter).
+	 */
+	addEnter: function(ui, elt, primary, before)
+	{
+		BackgroundImageDialog.addEnter(elt, primary, before);
+	}
+};
+
+/**
+ * Enter runs the given primary button of the given content in fields, lists
+ * and checkboxes; not in text areas, buttons and links, not with a modifier
+ * key and not while an input method composes. The field is committed first,
+ * so its change and blur listeners run before the primary button (as
+ * addSimpleFormEnter of the forms of Fusion). The optional function before
+ * runs first: the dialog skips the change of the URL there, as Apply loads
+ * the image and its size itself (else Enter loads it twice and an image that
+ * is not found shows its error twice).
+ */
+BackgroundImageDialog.addEnter = function(elt, primary, before)
+{
+	var buttons = ['button', 'submit', 'reset', 'file', 'image'];
+
+	mxEvent.addListener(elt, 'keydown', function(evt)
+	{
+		var source = mxEvent.getSource(evt);
+		var type = (source.nodeName == 'INPUT') ? String(source.getAttribute('type') || 'text').toLowerCase() : null;
+
+		if (evt.keyCode == 13 && !evt.isComposing && !evt.defaultPrevented && !mxEvent.isConsumed(evt) &&
+			!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt) && !mxEvent.isAltDown(evt) &&
+			!mxEvent.isShiftDown(evt) && primary != null && !primary.disabled &&
+			(source.nodeName == 'SELECT' || (type != null && mxUtils.indexOf(buttons, type) < 0)))
+		{
+			if (before != null)
+			{
+				before();
+			}
+
+			if (document.activeElement == source && typeof source.blur === 'function')
+			{
+				source.blur();
+			}
+
+			if (!primary.disabled)
+			{
+				primary.click();
+			}
+
+			mxEvent.consume(evt);
+		}
+	});
+};
+
+/**
+ * Returns the skin of the background dialog for the current theme: the skin
+ * of Fusion in Fusion (if its scripts are loaded), else the Classic skin.
+ */
+BackgroundImageDialog.getSkin = function()
+{
+	return (typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern() &&
+		BackgroundImageDialog.skins.fusion != null) ? BackgroundImageDialog.skins.fusion :
+		BackgroundImageDialog.skins.classic;
+};
+
+/**
+ * Lays out the given background dialog in the Classic skin where the feature
+ * backgroundDialog is on (Editor.isBackgroundDialogEnabled; Fusion lays it
+ * out in SimpleMoreForms.js). Called at the end of the constructor of
+ * BackgroundImageDialog.
+ */
+BackgroundImageDialog.install = function(ui, dlg)
+{
+	if (ui != null && ui.editor != null && !ui.editor.isChromelessView() &&
+		typeof Editor.isBackgroundDialogEnabled === 'function' && Editor.isBackgroundDialogEnabled() &&
+		BackgroundImageDialog.getSkin() == BackgroundImageDialog.skins.classic)
+	{
+		try
+		{
+			BackgroundImageDialog.createLayout(ui, dlg, BackgroundImageDialog.skins.classic);
+		}
+		catch (e)
+		{
+			EditorUi.debug('BackgroundImageDialog.install', [ui], 'error', [e]);
+		}
+	}
+};
+
+/**
+ * Replaces the layout of the given background dialog with the layout in the
+ * given skin. Returns the skin, or null if the dialog keeps its layout (if
+ * its content has changed). The skin is also dlg.layoutSkin.
+ */
+BackgroundImageDialog.createLayout = function(ui, dlg, skin)
+{
+	var c = dlg.controls;
+	var elt = dlg.container;
+	var classes = skin.classes;
+
+	// Keeps the previous layout if the dialog has changed
+	if (c == null || c.title == null || c.source == null || c.fill == null || c.buttons == null ||
+		c.apply == null || c.urlInput == null || c.pageSelect == null || c.width == null ||
+		c.height == null || c.title.parentNode != elt)
+	{
+		return null;
+	}
+
+	skin.prepare(ui, elt);
+
+	var head = document.createElement('div');
+	head.className = classes.head;
+	elt.replaceChild(head, c.title);
+	head.appendChild(c.title);
+	var sub = skin.createSubtitle(ui);
+
+	if (sub != null)
+	{
+		head.appendChild(sub);
+	}
+
+	var body = document.createElement('div');
+	body.className = classes.body;
+	elt.insertBefore(body, c.source);
+	c.source.classList.add(classes.replaced);
+
+	// Image: a URL (with Open and the size) or another page
+	var parent = skin.createSection(mxResources.get('image'), body);
+
+	var getKind = function()
+	{
+		return (c.page.checked) ? 'page' : 'url';
+	};
+
+	var kinds = null;
+
+	var fit = function()
+	{
+		skin.fit(ui, elt);
+	};
+
+	if (c.pages)
+	{
+		kinds = skin.createChoice([{value: 'url', label: mxResources.get('url')},
+			{value: 'page', label: mxResources.get('page')}], getKind(), function(v)
+			{
+				var radio = (v == 'page') ? c.page : c.url;
+				radio.checked = true;
+				show(v);
+				fit();
+			}, mxResources.get('image'), parent);
+	}
+
+	c.urlInput.style.flex = '';
+	c.urlInput.style.minWidth = '';
+	var urlCtl = skin.createRow(mxResources.get('url'), c.urlInput, classes.url, parent);
+
+	if (c.open != null)
+	{
+		skin.initOpen(c.open);
+		c.open.setAttribute('title', mxResources.get('chooseFile'));
+		urlCtl.appendChild(c.open);
+	}
+
+	var unit = function(ctl)
+	{
+		var hint = document.createElement('span');
+		hint.className = classes.unit;
+		hint.setAttribute('aria-hidden', 'true');
+		mxUtils.write(hint, 'px');
+		ctl.appendChild(hint);
+
+		return ctl;
+	};
+
+	var widthRow = unit(skin.createRow(mxResources.get('width'), c.width, null, parent)).parentNode;
+	var heightRow = unit(skin.createRow(mxResources.get('height'), c.height, null, parent)).parentNode;
+	c.pageSelect.style.flex = '';
+	c.pageSelect.style.minWidth = '';
+	c.pageSelect.style.marginLeft = '';
+	var pageRow = skin.createRow(mxResources.get('page'), c.pageSelect, null, parent).parentNode;
+
+	var shown = null;
+
+	var show = function(kind)
+	{
+		shown = kind;
+		urlCtl.parentNode.style.display = (kind == 'url') ? '' : 'none';
+		widthRow.style.display = (kind == 'url') ? '' : 'none';
+		heightRow.style.display = (kind == 'url') ? '' : 'none';
+		pageRow.style.display = (kind == 'page' && c.pages) ? '' : 'none';
+	};
+
+	show(getKind());
+
+	// Typing a URL or picking a page checks its radio (see
+	// Dialog.checkRadioOnInput), Reset and an opened or dropped image check
+	// the radio of the URL in code
+	if (kinds != null)
+	{
+		var sync = function()
+		{
+			var kind = getKind();
+			kinds.setValue(kind);
+
+			if (kind != shown)
+			{
+				show(kind);
+				fit();
+			}
+		};
+
+		mxEvent.addListener(c.urlInput, 'input', sync);
+		mxEvent.addListener(c.pageSelect, 'change', sync);
+
+		if (c.reset != null)
+		{
+			mxEvent.addListener(c.reset, 'click', sync);
+		}
+
+		if (window.MutationObserver != null)
+		{
+			var observer = new MutationObserver(sync);
+			observer.observe(c.url, {attributes: true, attributeFilter: ['checked']});
+			observer.observe(c.page, {attributes: true, attributeFilter: ['checked']});
+		}
+	}
+
+	// Fill: the color and its gradient (only where the dialog shows them)
+	if (c.fill.style.display != 'none' && c.fillCheckbox != null && c.gradientCheckbox != null)
+	{
+		c.fill.classList.add(classes.replaced);
+		parent = skin.createSection(mxResources.get('fill'), body);
+		skin.addFillRow(ui, parent, c.fillCheckbox, c.fillButton, mxResources.get('fillColor'));
+		skin.addFillRow(ui, parent, c.gradientCheckbox, c.gradientButton,
+			mxResources.get('gradientColor'), c.gradientSelect);
+	}
+
+	// Reset as the tertiary action, Enter applies
+	if (c.reset != null)
+	{
+		c.buttons.insertBefore(c.reset, c.buttons.firstChild);
+	}
+
+	skin.arrangeFooter(ui, c.buttons, c.reset);
+	skin.addEnter(ui, elt, c.apply, c.ignoreChange);
+	dlg.layoutSkin = skin;
+
+	return skin;
 };
 
 /**
@@ -2400,6 +2883,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 	// Handles click on insert while entering generate prompt
 	var insertWasPressed = false;
+
+	// True while the name of a new file of a From Text entry is checked
+	// (see App.checkNewFile)
+	var checkingName = false;
 	
 	var outer = document.createElement('div');
 	outer.style.userSelect = 'none';
@@ -2427,6 +2914,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	storage = (storage != null) ? storage : App.storages[App.MODE_DEVICE];
 	logo.src = IMAGE_PATH + '/' + storage.logo;
 	logo.setAttribute('alt', mxResources.get(storage.title));
+
+	// Where the new file is created: the storage of the app, or the one that
+	// the place of the Browser template sets (controls.setMode)
+	var createMode = editorUi.mode;
 
 	if (!compact && !smallScreen && showName)
 	{
@@ -2597,6 +3088,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		var setActiveTab = function(index)
 		{
 			createButton.setAttribute('disabled', 'disabled');
+			enableAfterLoad = false;
 			
 			for (var i = 0; i < tabsEl.length; i++)
 			{
@@ -2766,6 +3258,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	var templateExtUrl = null;
 	var templateRealUrl = null;
 	var templateInfoObj = null;
+	// While a file of From a template loads (templateFile, setLoading):
+	// nothing creates, and Create is enabled again after the load if it was
+	// enabled before or an entry was chosen meanwhile
+	var templateFileLoading = false;
+	var enableAfterLoad = false;
 	var lastAiXml = editorUi.lastGenerateXml;
 	var lastAiTitle = editorUi.lastGenerateTitle;
 
@@ -2780,11 +3277,28 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 	};
 
-	function create()
+	// cancel is called if the new file is not created (see App.createFile).
+	// template is the file of From Template URL ({xml, realUrl}): it is
+	// created as it is, whatever entry is selected (without the From Text
+	// action, the libraries and the external document of that entry), and it
+	// is not kept in the dialog, which still creates the selected entry after
+	// it (eg. if the file of the URL is not created)
+	function create(cancel, template)
 	{
-		var fromTextAction = (selectedElt != null) ? selectedElt.fromTextAction : null;
+		if (templateFileLoading)
+		{
+			return;
+		}
 
-		if (selectedElt == generateElt && templateXml == null &&
+		var fromUrl = template != null;
+		var xml = (fromUrl) ? template.xml : templateXml;
+		var realUrl = (fromUrl) ? template.realUrl : templateRealUrl;
+		var libs = (fromUrl) ? null : templateLibs;
+		var clibs = (fromUrl) ? null : templateClibs;
+		var extUrl = (fromUrl) ? null : templateExtUrl;
+		var fromTextAction = (!fromUrl && selectedElt != null) ? selectedElt.fromTextAction : null;
+
+		if (selectedElt == generateElt && xml == null &&
 			generateButton != null && generateInput != null &&
 			mxUtils.trim(generateInput.value) != '')
 		{
@@ -2805,14 +3319,14 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				editorUi.spinner.stop();
 			}
 
-			if (templateExtUrl && openExtDocCallback != null)
+			if (extUrl && openExtDocCallback != null)
 			{
 				if (!showName && !insertWasPressed)
 				{
 					editorUi.hideDialog();
 				}
 				
-				openExtDocCallback(templateExtUrl, templateInfoObj, nameInput.value);
+				openExtDocCallback(extUrl, templateInfoObj, nameInput.value);
 			}
 			else if (callback)
 			{
@@ -2821,7 +3335,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					editorUi.hideDialog();
 				}
 
-				callback(templateXml, nameInput.value, templateRealUrl, templateLibs);
+				callback(xml, nameInput.value, realUrl, libs);
 				runFromTextAction(fromTextAction);
 			}
 			else
@@ -2830,10 +3344,44 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					
 				if (title != null && title.length > 0)
 				{
-					function doSave(mode, folderId, filename)
+					var target = createMode;
+
+					// Chooses where the file is created and passes the storage,
+					// the folder and the name to fn: Google Drive and OneDrive
+					// ask in SaveDialog (which stays open below what comes
+					// next), other storages pick a folder if they have one
+					var choose = function(fn)
 					{
-						editorUi.createFile(filename, templateXml, (templateLibs != null &&
-							templateLibs.length > 0) ? templateLibs : null, mode, function()
+						if (target == App.MODE_GOOGLE || target == App.MODE_ONEDRIVE)
+						{
+							var dlg = new SaveDialog(editorUi, title, mxUtils.bind(this, function(input, mode, folderId)
+							{
+								fn(mode, folderId, input.value);
+							}), null, null, null, null, target);
+
+							editorUi.showDialog(dlg.container, 420, 162, true, false);
+							dlg.init();
+						}
+						else
+						{
+							editorUi.pickFolder(target, function(folderId)
+							{
+								fn(target, folderId, title);
+							}, target != App.MODE_GOOGLE ||
+								editorUi.stateArg == null ||
+								editorUi.stateArg.folderId == null);
+						}
+					};
+
+					// Creates the file with the given data and runs the given
+					// action of a From Text entry for it. cancel is called if
+					// the file is not created (see App.createFile), overwrite
+					// is the version of a file that the user has confirmed to
+					// replace (see App.checkNewFile).
+					var save = function(mode, folderId, filename, data, action, cancel, overwrite)
+					{
+						editorUi.createFile(filename, data, (libs != null &&
+							libs.length > 0) ? libs : null, mode, function()
 						{
 							if (!insertWasPressed)
 							{
@@ -2841,30 +3389,119 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 							}
 
 							// Opens the dialog of a From Text entry for the new file
-							runFromTextAction(fromTextAction);
-						}, null, folderId, null, (templateClibs != null &&
-							templateClibs.length > 0) ? templateClibs : null);
+							runFromTextAction(action);
+						}, null, folderId, null, (clibs != null &&
+							clibs.length > 0) ? clibs : null,
+							null, cancel, overwrite);
 					};
 
-					if (editorUi.mode == App.MODE_GOOGLE || editorUi.mode == App.MODE_ONEDRIVE)
+					// New is still open (to go back to it)
+					var isOpen = function()
 					{
-						var dlg = new SaveDialog(editorUi, title, mxUtils.bind(this, function(input, mode, folderId)
-						{
-							doSave(mode, folderId, input.value);
-						}), null, null, null, null, editorUi.mode);
+						return mxUtils.isAncestorNode(document.body, outer);
+					};
 
-						editorUi.showDialog(dlg.container, 420, 162, true, false);
-						dlg.init();
-					}
-					else
+					// With a file open, the new file may open in a new window (see
+					// App.fileCreated), which would not run the action, so the
+					// dialog of a From Text entry is shown here first and the
+					// file is created with the diagram that it inserts
+					// (showNewFileFromTextDialog). The storage, the folder and
+					// the name are chosen and checked before (checkNewFile): a
+					// file of the same name is replaced or the name is changed
+					// before anything is entered, and if the file is not created
+					// after all (eg. a question of the storage is cancelled),
+					// the dialog is shown again with what was entered.
+					var fromText = function(mode, folderId, filename, overwrite)
 					{
-						editorUi.pickFolder(editorUi.mode, function(folderId)
+						var show = function(input)
 						{
-							doSave(editorUi.mode, folderId, title);
-						}, editorUi.mode != App.MODE_GOOGLE ||
-							editorUi.stateArg == null ||
-							editorUi.stateArg.folderId == null);
-					}
+							return editorUi.showNewFileFromTextDialog(fromTextAction, function(xml, back)
+							{
+								var cancel = function()
+								{
+									if (isOpen())
+									{
+										back();
+									}
+								};
+
+								// The file picker of the device needs a click, and the
+								// click in the dialog has expired after a few seconds
+								// (eg. after a parse or a layout), so Create asks for
+								// one again (Google Drive and OneDrive ask in SaveDialog)
+								// (Escape goes back to the dialog as Cancel)
+								if (mode == App.MODE_DEVICE && EditorUi.nativeFileSupport &&
+									(navigator.userActivation == null || !navigator.userActivation.isActive))
+								{
+									editorUi.confirmOrCancel(mxResources.get('createNewDiagram') + ': ' + filename, function()
+									{
+										save(mode, folderId, filename, xml, null, cancel, overwrite);
+									}, cancel, mxResources.get('create'), mxResources.get('cancel'));
+								}
+								else
+								{
+									save(mode, folderId, filename, xml, null, cancel, overwrite);
+								}
+							}, filename, input);
+						};
+
+						if (!show(null))
+						{
+							save(mode, folderId, filename, xml, fromTextAction, null, overwrite);
+						}
+					};
+
+					choose(function(mode, folderId, filename)
+					{
+						if (fromTextAction != null && editorUi.getCurrentFile() != null &&
+							mxUtils.indexOf(EditorUi.newFileFromTextActions, fromTextAction) >= 0 &&
+							typeof editorUi.checkNewFile === 'function')
+						{
+							// One check at a time: Create clicked again while the
+							// name is checked does nothing (each check opens a dialog)
+							if (checkingName)
+							{
+								return;
+							}
+
+							// The answer can come after New or the dialog of the
+							// check (SaveDialog) is closed (eg. the storage is slow):
+							// nothing asks or opens for it then
+							var dialog = editorUi.dialog;
+							var active = function()
+							{
+								return isOpen() && editorUi.dialog == dialog;
+							};
+
+							checkingName = true;
+
+							editorUi.checkNewFile(mode, folderId, filename, function(overwrite)
+							{
+								checkingName = false;
+
+								if (active())
+								{
+									fromText(mode, folderId, filename, overwrite);
+								}
+							}, function()
+							{
+								checkingName = false;
+
+								// Back to the name (in SaveDialog if it is open)
+								if (isOpen() && editorUi.dialog != null &&
+									editorUi.dialog.container != null &&
+									mxUtils.isAncestorNode(editorUi.dialog.container, outer))
+								{
+									nameInput.focus();
+									Editor.selectFilename(nameInput);
+								}
+							}, active);
+						}
+						else
+						{
+							save(mode, folderId, filename, xml, fromTextAction, cancel);
+						}
+					});
 				}
 			}
 		}
@@ -3048,8 +3685,16 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					magnifyGenerate.style.visibility = 'hidden';
 				}
 			}
-			
-			createButton.removeAttribute('disabled');
+
+			if (templateFileLoading)
+			{
+				enableAfterLoad = true;
+			}
+			else
+			{
+				createButton.removeAttribute('disabled');
+			}
+
 			templateXml = xml;
 			templateLibs = libs;
 			templateClibs = clibs;
@@ -4321,23 +4966,36 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		btns.appendChild(cancelBtn);
 	}
 
-	if (!compact && urlParams['embed'] != '1' && !createOnly && !mxClient.IS_ANDROID &&
-		!mxClient.IS_IOS && urlParams['noDevice'] != '1')
+	// A file as the template: From Template URL here, From a template in
+	// Start from of the Browser template (TemplateBrowser.js), which shows it
+	// also with noDevice=1 (it only leaves out the device)
+	var fromFile = !compact && urlParams['embed'] != '1' && !createOnly &&
+		!mxClient.IS_ANDROID && !mxClient.IS_IOS;
+
+	if (fromFile && urlParams['noDevice'] != '1')
 	{
-		var fromTmpBtn = mxUtils.button(mxResources.get('fromTemplateUrl'), function()
+		// Shows the dialog of the URL with the given URL
+		var showTemplateUrl = function(value)
 		{
-			var dlg = new FilenameDialog(editorUi, '', mxResources.get('create'), function(fileUrl)
+			var dlg = new FilenameDialog(editorUi, value, mxResources.get('create'), function(fileUrl)
 			{
 				if (fileUrl != null && fileUrl.length > 0)
 				{
 					editorUi.editor.loadUrl(editorUi.editor.getProxiedUrl(fileUrl), function(data)
 					{
-						templateXml = data;
-						templateLibs = null;
-						templateRealUrl = fileUrl;
-
 						editorUi.hideDialog();
-						create();
+
+						// The file of the URL is the template of this file only: the
+						// selected entry and its template stay as they are (see
+						// create). Back to the URL if the file is not created (eg. a
+						// file of the same name is not replaced) while New is open
+						create(function()
+						{
+							if (mxUtils.isAncestorNode(document.body, outer))
+							{
+								showTemplateUrl(fileUrl);
+							}
+						}, {xml: data, realUrl: fileUrl});
 					}, function(err)
 					{
 						editorUi.handleError(err);
@@ -4346,6 +5004,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			}, mxResources.get('url'), null, null, null, false);
 			editorUi.showDialog(dlg.container, 300, 80, true, true);
 			dlg.init();
+		};
+
+		var fromTmpBtn = mxUtils.button(mxResources.get('fromTemplateUrl'), function()
+		{
+			showTemplateUrl('');
 		});
 		
 		fromTmpBtn.className = 'geBtn';
@@ -4398,6 +5061,37 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		cancel: cancelBtn, fromUrl: fromTmpBtn, importBtn: importBtn, compact: compact,
 		generate: {form: generateForm, preview: generatePreview, input: generateInput,
 			button: generateButton, magnify: magnifyGenerate, edit: editGenerate},
+		// From a template of the Browser template (createNewDialogTemplateFile):
+		// chooses the given element with the diagram of a file as the
+		// template, and creates (or inserts) the chosen template
+		templateFile: (fromFile) ? {
+			select: function(elt, xml, realUrl)
+			{
+				selectElement(elt, xml, null, null, null, null, realUrl);
+			},
+			create: function()
+			{
+				create();
+			},
+			// Disables Create (and creating) while a file loads
+			setLoading: function(loading)
+			{
+				if (loading != templateFileLoading)
+				{
+					if (loading)
+					{
+						enableAfterLoad = !createButton.hasAttribute('disabled');
+						createButton.setAttribute('disabled', 'disabled');
+					}
+
+					templateFileLoading = loading;
+
+					if (!loading && enableAfterLoad)
+					{
+						createButton.removeAttribute('disabled');
+					}
+				}
+			}} : null,
 		getCategories: function()
 		{
 			return categories;
@@ -4406,6 +5100,15 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		{
 			return currentEntry;
 		},
+		// The storage of the new file (App.MODE_*, null to decide later)
+		getMode: function()
+		{
+			return createMode;
+		},
+		setMode: function(mode)
+		{
+			createMode = mode;
+		},
 		// Creates the element of the given template (see addTemplates)
 		addTemplate: function(tmp)
 		{
@@ -4413,6 +5116,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				tmp.select, tmp.imgUrl, tmp.info, tmp.onClick, tmp.preview, tmp.noImg, tmp.clibs,
 				tmp.type, tmp.action);
 		}};
+
+	// The Browser template in Classic, Simple, Sketch, Minimal and Atlas
+	// (TemplateBrowser.js); Fusion lays the dialog out in SimpleBrowser.js
+	if (typeof editorUi.installTemplateBrowser === 'function')
+	{
+		editorUi.installTemplateBrowser(this, callback);
+	}
 };
 
 // Null prototype: keyed by the configured templateFile URL
@@ -5020,6 +5730,13 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 			return entries[value];
 		}};
 	this.container = div;
+
+	// The Form template in Classic and Simple (FormTemplate.js); Fusion lays
+	// the dialog out in SimpleForms.js
+	if (typeof editorUi.installSaveLayout === 'function')
+	{
+		editorUi.installSaveLayout(this);
+	}
 };
 
 /**
@@ -5911,8 +6628,9 @@ var PopupDialog = function(editorUi, url, pre, fallback, hideDialog)
 				cH = height;
 			});
 	   
-		editorUi.showDialog(dlg.container, 380, 390, true, true,
-			null, null, null, new mxRectangle(0, 0, 440, 450));
+		// The dialog has its size (CropImageDialog.install)
+		editorUi.showDialog(dlg.container, dlg.width, dlg.height, true, true,
+			null, null, null, dlg.minSize);
 	});
 	
 	if (withCrop)
@@ -6036,7 +6754,466 @@ var PopupDialog = function(editorUi, url, pre, fallback, hideDialog)
 	div.appendChild(btns);
 
 	this.container = div;
+
+	// The layout of Fusion in the Classic skin where the feature imageDialog
+	// is on (Fusion lays the dialog out with its skin in SimpleCode.js)
+	ImageDialog.install(editorUi, this, title, initialValue, ignoreExisting);
 };
+
+/**
+ * The layout of Insert › Image and Edit Image of Fusion (the Place template)
+ * in every look: the headline, a drop zone with Choose a File, the URL with
+ * Reset, a preview of the image, Crop and Embed on the left of the footer
+ * and Insert (Apply for the image of the selection) on the right. The
+ * controls of the dialog move into the new layout with their listeners, so
+ * the URL, the files of the device, drag and drop, paste into the field,
+ * Crop, Embed (with the question to resize large images, maxImageSize and
+ * maxImageBytes), the size of the selected shapes and data URIs work as
+ * before.
+ *
+ * The layout (ImageDialog.createLayout) takes a skin: the Classic skin
+ * (ImageDialog.skins.classic, docs/dialog-style-guide.md, its CSS in
+ * grapheditor.css under .geImageDlg, which takes the colors, the font and
+ * the corners of the other dialogs of the theme) behind the feature
+ * imageDialog of Editor.featureDefaults (Editor.isImageDialogEnabled), or
+ * the skin of Fusion, which SimpleCode.js adds (ImageDialog.skins.fusion),
+ * so the code exists once. Where the feature is off the dialog keeps its
+ * layout of before.
+ */
+ImageDialog.skins = {};
+
+/**
+ * The outline glyphs of the Classic skin (on a 24 grid, stroke 1.8, round
+ * caps), the icons image and close of Fusion (SimpleUi.icons).
+ */
+ImageDialog.glyphs = {
+	image: '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/>' +
+		'<circle cx="9" cy="10" r="1.8"/><path d="M20.5 15.5l-5-5L5 19.5"/>',
+	close: '<path d="M6 6l12 12M18 6L6 18"/>'
+};
+
+/**
+ * The Classic skin (docs/dialog-style-guide.md): the headline of the
+ * dialogs, the URL as a geDialogFormRow, the glyphs as masks in the color of
+ * the text, so that they follow dark mode, the preview with its place kept
+ * (No preview while there is no image, so the dialog keeps its size) and
+ * the buttons of the dialog in their order (Editor.cancelFirst). A skin has
+ * the classes of the parts, idPrefix and labelSuffix, and the builders
+ * createIcon, createIconButton, createSubtitle (null for none), prepare
+ * (before the layout), fit (after the preview changed), arrangeFooter and
+ * optionally getPreviewDelay (default ImageDialog.previewDelay).
+ */
+ImageDialog.skins.classic = {
+	name: 'classic',
+	classes: {dialog: 'geImageDlg', head: 'geImageDlgHead', body: 'geImageDlgBody',
+		zone: 'geImageDlgDrop', zoneIcon: 'geImageDlgDropIcon', zoneText: 'geImageDlgDropText',
+		row: 'geDialogFormRow geImageDlgUrl', label: 'geDialogFormLabel', control: 'geImageDlgControl',
+		preview: 'geImageDlgPreview', previewEmpty: 'geImageDlgIsEmpty', empty: 'geImageDlgEmpty',
+		replaced: 'geImageDlgReplaced', footer: 'geImageDlgFooter', tools: 'geImageDlgTools'},
+	idPrefix: 'geImageDlgUrl-',
+	labelSuffix: ':',
+	/**
+	 * Returns a new glyph of the given name (ImageDialog.glyphs): a mask in
+	 * the color of the text.
+	 */
+	createIcon: function(name)
+	{
+		var icon = document.createElement('span');
+		icon.className = 'geImageDlgGlyph';
+		icon.setAttribute('aria-hidden', 'true');
+
+		if (Object.prototype.hasOwnProperty.call(ImageDialog.glyphs, name))
+		{
+			icon.style.setProperty('--ge-image-glyph', 'url(\'' + Editor.createSvgDataUri(
+				'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" ' +
+				'stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+				ImageDialog.glyphs[name] + '</svg>') + '\')');
+		}
+
+		return icon;
+	},
+	/**
+	 * Returns a button with the given glyph, title and click handler.
+	 */
+	createIconButton: function(name, title, fn)
+	{
+		var btn = document.createElement('button');
+		btn.setAttribute('type', 'button');
+		btn.className = 'geImageDlgClear';
+		btn.setAttribute('title', title);
+		btn.setAttribute('aria-label', title);
+		btn.appendChild(this.createIcon(name));
+
+		mxEvent.addListener(btn, 'click', function(evt)
+		{
+			fn(evt);
+			mxEvent.consume(evt);
+		});
+
+		return btn;
+	},
+	/**
+	 * Returns the subtitle of the dialog (none, as the other dialogs of the
+	 * theme).
+	 */
+	createSubtitle: function(ui, graph, cells)
+	{
+		return null;
+	},
+	/**
+	 * Prepares the given content of the dialog (nothing to do).
+	 */
+	prepare: function(ui, elt)
+	{
+		// The size of the dialog is set when it is shown (showImageDialog)
+	},
+	/**
+	 * Called after the preview of the given content changed (nothing to do:
+	 * the preview keeps its place).
+	 */
+	fit: function(ui, elt)
+	{
+		// The dialog keeps its size
+	},
+	/**
+	 * Puts the buttons of the dialog other than Cancel and the primary button
+	 * (Crop and Embed) on the left of the footer and keeps the order of
+	 * Cancel and the primary button (Editor.cancelFirst).
+	 */
+	arrangeFooter: function(ui, btns, primary, cancel)
+	{
+		var tools = document.createElement('div');
+		tools.className = this.classes.tools;
+		var children = Array.prototype.slice.call(btns.childNodes);
+
+		for (var i = 0; i < children.length; i++)
+		{
+			var child = children[i];
+
+			if (child != primary && child != cancel)
+			{
+				if (child.nodeType == mxConstants.NODETYPE_ELEMENT)
+				{
+					tools.appendChild(child);
+				}
+				else
+				{
+					btns.removeChild(child);
+				}
+			}
+		}
+
+		btns.classList.add(this.classes.footer);
+		btns.insertBefore(tools, btns.firstChild);
+		btns.style.marginTop = '';
+		btns.style.textAlign = '';
+	}
+};
+
+/**
+ * Returns the skin of the image dialog for the current theme: the skin of
+ * Fusion in Fusion (if its scripts are loaded), else the Classic skin.
+ */
+ImageDialog.getSkin = function()
+{
+	return (typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern() &&
+		ImageDialog.skins.fusion != null) ? ImageDialog.skins.fusion :
+		ImageDialog.skins.classic;
+};
+
+/**
+ * Lays out the given image dialog in the Classic skin where the feature
+ * imageDialog is on (Editor.isImageDialogEnabled; Fusion lays it out in
+ * SimpleCode.js). Called at the end of the constructor of ImageDialog.
+ */
+ImageDialog.install = function(ui, dlg, title, initialValue, ignoreExisting)
+{
+	if (ui != null && ui.editor != null && !ui.editor.isChromelessView() &&
+		typeof Editor.isImageDialogEnabled === 'function' && Editor.isImageDialogEnabled() &&
+		ImageDialog.getSkin() == ImageDialog.skins.classic)
+	{
+		try
+		{
+			ImageDialog.createLayout(ui, dlg, title, initialValue, ignoreExisting, ImageDialog.skins.classic);
+		}
+		catch (e)
+		{
+			EditorUi.debug('ImageDialog.install', [ui], 'error', [e]);
+		}
+	}
+};
+
+/**
+ * Replaces the layout of the given image dialog with the layout in the given
+ * skin. Returns the skin, or null if the dialog keeps its layout (if its
+ * content has changed). The skin is also dlg.layoutSkin.
+ */
+ImageDialog.createLayout = function(ui, dlg, title, initialValue, ignoreExisting, skin)
+{
+	var classes = skin.classes;
+	var graph = ui.editor.graph;
+	var elt = dlg.container;
+	var input = elt.querySelector('input[type="text"]');
+	var inner = (input != null) ? input.parentNode : null;
+	var cross = (input != null) ? input.nextSibling : null;
+	var btns = elt.lastChild;
+	var primary = (btns != null) ? btns.querySelector('.gePrimaryBtn') : null;
+
+	// Keeps the previous layout if the dialog has changed
+	if (input == null || inner == null || inner.parentNode != elt || cross == null ||
+		primary == null || btns.nodeName != 'DIV' || primary.parentNode != btns)
+	{
+		return null;
+	}
+
+	// The buttons of the dialog by their labels
+	var find = function(key)
+	{
+		for (var i = 0; i < btns.children.length; i++)
+		{
+			if (btns.children[i].nodeName == 'BUTTON' &&
+				mxUtils.trim(btns.children[i].textContent) == mxResources.get(key))
+			{
+				return btns.children[i];
+			}
+		}
+
+		return null;
+	};
+
+	var cancel = find('cancel');
+	var open = find('open');
+	var name = mxUtils.trim(String(title || '').replace(/:\s*$/, ''));
+	var cells = (ignoreExisting) ? [] : graph.getSelectionCells();
+	var action = title == mxResources.get('image') + ' (' + mxResources.get('url') + '):';
+	var insert = action && cells.length == 0;
+
+	elt.classList.add.apply(elt.classList, classes.dialog.split(' '));
+	skin.prepare(ui, elt);
+	elt.style.backgroundImage = '';
+
+	// The title (text) and the caption of the drop target are replaced
+	for (var i = elt.childNodes.length - 1; i >= 0; i--)
+	{
+		var child = elt.childNodes[i];
+
+		if (child.nodeType == mxConstants.NODETYPE_TEXT)
+		{
+			elt.removeChild(child);
+		}
+		else if (child != inner && child != btns && child.style != null &&
+			child.style.position == 'absolute')
+		{
+			child.classList.add(classes.replaced);
+		}
+	}
+
+	var head = document.createElement('div');
+	head.className = classes.head;
+	var h3 = document.createElement('h3');
+	mxUtils.write(h3, (action) ? mxResources.get((initialValue != null && initialValue != '') ?
+		'editImage' : 'insertImage') : name);
+	head.appendChild(h3);
+	var sub = skin.createSubtitle(ui, graph, cells);
+
+	if (sub != null)
+	{
+		head.appendChild(sub);
+	}
+
+	elt.insertBefore(head, elt.firstChild);
+
+	var body = document.createElement('div');
+	body.className = classes.body;
+	elt.insertBefore(body, inner);
+	inner.classList.add(classes.replaced);
+
+	// The drop zone (the whole dialog takes drops, see ImageDialog.init)
+	if (open != null)
+	{
+		var zone = document.createElement('div');
+		zone.className = classes.zone;
+		var icon = document.createElement('span');
+		icon.className = classes.zoneIcon;
+		icon.appendChild(skin.createIcon('image'));
+		zone.appendChild(icon);
+		var hint = document.createElement('span');
+		hint.className = classes.zoneText;
+		mxUtils.write(hint, mxResources.get('dragImagesHere'));
+		zone.appendChild(hint);
+		open.textContent = mxResources.get('chooseFile');
+		zone.appendChild(open);
+		body.appendChild(zone);
+	}
+
+	// The URL with Reset
+	var row = document.createElement('div');
+	row.className = classes.row;
+	var label = document.createElement('label');
+
+	if (classes.label != null)
+	{
+		label.className = classes.label;
+	}
+
+	mxUtils.write(label, mxResources.get('url') + (skin.labelSuffix || ''));
+	row.appendChild(label);
+	var control = document.createElement('div');
+	control.className = classes.control;
+	row.appendChild(control);
+	input.id = skin.idPrefix + Editor.guid();
+	label.setAttribute('for', input.id);
+	input.setAttribute('aria-label', mxResources.get('url'));
+	input.style.width = '';
+	input.style.marginTop = '';
+	input.style.paddingRight = '';
+	input.style.backgroundImage = '';
+	control.appendChild(input);
+	control.appendChild(skin.createIconButton('close', mxResources.get('reset'), function()
+	{
+		cross.click();
+		update();
+	}));
+	body.appendChild(row);
+
+	// The preview of the image (data URIs, and links where requests to
+	// other hosts are allowed). An img never runs scripts of an SVG.
+	var preview = document.createElement('div');
+	preview.className = classes.preview;
+	preview.setAttribute('aria-hidden', 'true');
+	var img = document.createElement('img');
+	img.setAttribute('alt', '');
+	preview.appendChild(img);
+
+	if (classes.empty != null)
+	{
+		var empty = document.createElement('span');
+		empty.className = classes.empty;
+		mxUtils.write(empty, mxResources.get('noPreview'));
+		preview.appendChild(empty);
+	}
+
+	body.appendChild(preview);
+
+	// Shows or hides the preview, or keeps its place (previewEmpty)
+	var show = function(visible)
+	{
+		if (classes.previewEmpty != null)
+		{
+			if (visible)
+			{
+				preview.classList.remove(classes.previewEmpty);
+			}
+			else
+			{
+				preview.classList.add(classes.previewEmpty);
+			}
+		}
+		else
+		{
+			preview.style.display = (visible) ? '' : 'none';
+		}
+	};
+
+	var shown = null;
+
+	var fit = function()
+	{
+		skin.fit(ui, elt);
+	};
+
+	var update = function()
+	{
+		var value = mxUtils.trim(input.value);
+		var ok = /^data:image\//i.test(value) || (urlParams['lockdown'] != '1' &&
+			/^https?:\/\/[^\s]+$/i.test(value));
+
+		if (!ok)
+		{
+			shown = null;
+			img.removeAttribute('src');
+			show(false);
+		}
+		else if (value != shown)
+		{
+			shown = value;
+			show(false);
+			img.setAttribute('src', value);
+		}
+
+		fit();
+	};
+
+	mxEvent.addListener(img, 'load', function()
+	{
+		show(true);
+		fit();
+	});
+
+	mxEvent.addListener(img, 'error', function()
+	{
+		show(false);
+		fit();
+	});
+
+	var thread = null;
+
+	mxEvent.addListener(input, 'input', function()
+	{
+		window.clearTimeout(thread);
+		thread = window.setTimeout(update, (skin.getPreviewDelay != null) ?
+			skin.getPreviewDelay() : ImageDialog.previewDelay);
+	});
+
+	mxEvent.addListener(input, 'change', update);
+
+	// Embed and the picker set the field without an event
+	var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+
+	if (desc != null && desc.get != null && desc.set != null)
+	{
+		Object.defineProperty(input, 'value', {configurable: true,
+			get: function()
+			{
+				return desc.get.call(this);
+			},
+			set: function(value)
+			{
+				desc.set.call(this, value);
+				window.setTimeout(update, 0);
+			}});
+	}
+
+	show(false);
+	window.setTimeout(update, 0);
+
+	// The drop zone names what can be dropped, the field needs no
+	// placeholder (init sets it)
+	var init = dlg.init;
+
+	dlg.init = function()
+	{
+		init.apply(this, arguments);
+		input.removeAttribute('placeholder');
+	};
+
+	// Insert for a new image, Apply for the image of the selection
+	if (insert)
+	{
+		primary.textContent = mxResources.get('insert');
+	}
+
+	skin.arrangeFooter(ui, btns, primary, cancel);
+	dlg.layoutSkin = skin;
+
+	return skin;
+};
+
+/**
+ * Delay of the preview after typing in the URL (ms; a skin may have its own,
+ * getPreviewDelay).
+ */
+ImageDialog.previewDelay = 300;
 
 /**
  * Overrides link dialog to add Google Picker. mixed is an optional object
@@ -6641,6 +7818,13 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages,
 		mixed: mixed};
 	this.urlInput = linkInput;
 	this.container = div;
+
+	// The Form template in Classic and Simple (FormTemplate.js); Fusion lays
+	// the dialog out in SimpleForms.js
+	if (typeof editorUi.installLinkLayout === 'function')
+	{
+		editorUi.installLinkLayout(this);
+	}
 };
 
 /**
@@ -7935,8 +9119,8 @@ SelectorChips.create = function(graph, editorUi)
 		function close()
 		{
 			document.removeEventListener('mousedown', onDocDown, true);
-			window.removeEventListener('resize', close);
-			window.removeEventListener('scroll', close, true);
+			window.removeEventListener('resize', dismiss);
+			window.removeEventListener('scroll', onScroll, true);
 			if (pop.parentNode) pop.parentNode.removeChild(pop);
 			if (openPopover._open === api) openPopover._open = null;
 		}
@@ -7951,12 +9135,32 @@ SelectorChips.create = function(graph, editorUi)
 			// containment check covers them consistently.
 			if (graph.container != null &&
 				graph.container.contains(e.target)) return;
-			close();
+			dismiss();
+		}
+
+		// A scroll moves the anchor away from the popover, except a scroll
+		// inside the popover: the capture listener on window also gets the
+		// scroll of its own lists (the layer list and the tag cloud), which
+		// closed the pickers as soon as their list scrolled, so the layers
+		// after the 12th could not be picked (jgraph/drawio-desktop#2602)
+		function onScroll(e)
+		{
+			if (e.target instanceof Node && pop.contains(e.target)) return;
+			dismiss();
+		}
+
+		// The listeners close through api.close, not the inner close, so
+		// that wrappers of callers run too: openMenuPopover removes its
+		// selection listener in its wrapper, which stayed on the graph for
+		// good when a scroll, an outside click or a resize closed the menu
+		function dismiss()
+		{
+			api.close();
 		}
 
 		document.addEventListener('mousedown', onDocDown, true);
-		window.addEventListener('resize', close);
-		window.addEventListener('scroll', close, true);
+		window.addEventListener('resize', dismiss);
+		window.addEventListener('scroll', onScroll, true);
 
 		// Expose the anchor so chip click handlers can detect "popover
 		// is already open for this chip" and toggle it closed instead
@@ -8859,31 +10063,87 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	});
 
 	var prevFileInfo = null;
+	var dlg = this;
+	// Compare is pressed (with the pointer, or held with the keyboard in the
+	// layout of Simple, see RevisionDialog.createCompare)
+	var comparing = false;
 
-	mxEvent.addGestureListeners(compareBtn, function(e)
+	// Shows the preview again instead of the page that Compare shows
+	var restorePreview = function()
 	{
-		// Gets current state of page with given ID
+		if (container.style.display == 'none')
+		{
+			container.style.display = '';
+			fileInfo.innerHTML = prevFileInfo;
+			cmpContainer.style.display = 'none';
+		}
+	};
+
+	// Shows the current state of the page with the ID of the shown page
+	// (update is true where it is shown again while Compare stays pressed)
+	var showCompare = function(evt, update)
+	{
+		comparing = true;
+
 		try
 		{
-			var curr = (diagrams[currentPage] != null) ? currentDiagrams[
-				diagrams[currentPage].getAttribute('id')] : null;
+			// The layout of Simple shows what it compares with instead
+			// (controls.getCompare of RevisionDialog.createLayout: {node,
+			// label, error}, the node of the page of that version or of the
+			// current diagram, the same page as its count of the differences;
+			// pressed, a version that could not be downloaded loads again)
+			var other = (dlg.controls != null && dlg.controls.getCompare != null) ?
+				dlg.controls.getCompare(update != true) : null;
+			var curr = (other != null) ? other.node : ((diagrams[currentPage] != null) ?
+				currentDiagrams[diagrams[currentPage].getAttribute('id')] : null);
 			mxUtils.setOpacity(compareBtn, 20);
 			errorNode.innerText = '';
 
 			if (curr == null)
 			{
+				// The preview with the message (eg. Loading while the version
+				// that it compares with loads, see controls.updateCompare)
+				restorePreview();
 				errorNode.style.display = 'inline-block';
-				mxUtils.write(errorNode, mxResources.get('pageNotFound'));
+				mxUtils.write(errorNode, (other != null && other.error != null) ?
+					other.error : mxResources.get('pageNotFound'));
 			}
 			else
 			{
-				prevFileInfo = fileInfo.innerHTML;
-				fileInfo.innerHTML = mxResources.get('current');
+				// Shown again after the version that it compares with loaded
+				// (instead of Loading)
+				errorNode.style.display = 'none';
+
+				if (container.style.display != 'none')
+				{
+					prevFileInfo = fileInfo.innerHTML;
+				}
+
+				var tempNode = (other != null) ? curr : Editor.parseDiagramNode(curr);
+
+				if (other != null)
+				{
+					fileInfo.innerText = '';
+					mxUtils.write(fileInfo, other.label);
+				}
+				else
+				{
+					fileInfo.innerHTML = mxResources.get('current');
+				}
+
+				// The background of its own page (as the preview)
+				var bg = tempNode.getAttribute('background');
+
+				if (bg == null || bg == '' || bg == mxConstants.NONE)
+				{
+					bg = graph.defaultPageBackgroundColor;
+				}
+
+				cmpContainer.style.backgroundColor = mxUtils.getLightDarkColor(bg).cssText;
+
 				container.style.display = 'none';
 				cmpContainer.style.display = '';
-				cmpContainer.style.backgroundColor = container.style.backgroundColor;
 
-				var tempNode = Editor.parseDiagramNode(curr);
 				var codec = new mxCodec(tempNode.ownerDocument);
 				codec.decode(tempNode, cmpGraph.getModel());
 				cmpGraph.view.scaleAndTranslate(graph.view.scale,
@@ -8899,23 +10159,24 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 		}
 		catch (e)
 		{
+			// The error on the preview, not below the page that failed
+			restorePreview();
 			errorNode.style.display = 'inline-block';
 			errorNode.innerText = '';
 			mxUtils.write(errorNode, mxResources.get('pageNotFound') + ': ' + e.message);
 		}
-	}, null, function()
+	};
+
+	var hideCompare = function()
 	{
+		comparing = false;
 		mxUtils.setOpacity(compareBtn, 60);
 		errorNode.style.display = 'none';
 		errorNode.innerText = '';
+		restorePreview();
+	};
 
-		if (container.style.display == 'none')
-		{
-			container.style.display = '';
-			fileInfo.innerHTML = prevFileInfo;
-			cmpContainer.style.display = 'none';
-		}
-	});
+	mxEvent.addGestureListeners(compareBtn, showCompare, null, hideCompare);
 
 	mxEvent.addListener(mergeBtn, 'click', mxUtils.bind(this, function(e)
 	{
@@ -9094,7 +10355,8 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 									bg = graph.defaultPageBackgroundColor;
 								}
 								
-								container.style.backgroundColor = mxUtils.getLightDarkColor(bg);
+								// The CSS of the color (the object was ignored)
+								container.style.backgroundColor = mxUtils.getLightDarkColor(bg).cssText;
 								
 								var codec = new mxCodec(dataNode.ownerDocument);
 								codec.decode(dataNode, graph.getModel());
@@ -9425,13 +10687,1278 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	div.appendChild(buttons);
 	div.appendChild(tb);
 
-	// The parts of the dialog for other looks (see SimpleFiles.js)
+	// The parts of the dialog for other looks (see SimpleFiles.js), the shown
+	// version (getDoc, null while it loads), its shown page (getPage, the
+	// diagram node or null for a file of one page without pages, and its
+	// index, getPageIndex), the pages of the current diagram by ID
+	// (currentDiagrams) and Compare (showCompare and hideCompare as pressed
+	// and released, isComparing, updateCompare shows it again while it is
+	// pressed) for the comparison of the layout of Simple
+	// (RevisionDialog.createLayout)
 	this.controls = {title: title, list: list, rows: revRows, container: container,
 		compareContainer: cmpContainer, errorNode: errorNode, toolbar: tb, fileInfo: fileInfo,
 		buttons: buttons, restore: restoreBtn, open: newBtn, create: createBtn, cancel: closeBtn,
-		pageSelect: pageSelect, graph: graph, compareGraph: cmpGraph, file: file};
+		pageSelect: pageSelect, graph: graph, compareGraph: cmpGraph, file: file,
+		compareButton: compareBtn, currentDiagrams: currentDiagrams,
+		getDoc: function()
+		{
+			return currentDoc;
+		},
+		getPage: function()
+		{
+			return (diagrams != null && diagrams[realPage] != null) ? diagrams[realPage] : null;
+		},
+		getPageIndex: function()
+		{
+			return realPage;
+		},
+		showCompare: showCompare,
+		hideCompare: hideCompare,
+		isComparing: function()
+		{
+			return comparing;
+		},
+		updateCompare: function()
+		{
+			if (comparing)
+			{
+				showCompare(null, true);
+			}
+		}};
 
 	this.container = div;
+
+	// The layout of Fusion in the Classic skin where the feature
+	// revisionDialog is on (Fusion lays the dialog out with its skin in
+	// SimpleFiles.js)
+	RevisionDialog.install(editorUi, this);
+};
+
+/**
+ * Revision History on the Preview template of Fusion in every look: the
+ * headline with the file and its storage, the versions as a list on the left
+ * (its rows click the rows of the dialog, which load the revisions), the
+ * preview of the dialog with its tools (compare, zoom, the pages, merge) on
+ * the right, Open in New Window and Create Revision on the left of the
+ * footer, Cancel and Restore on the right. The controls of the dialog
+ * (RevisionDialog.controls) move into the new layout with their listeners or
+ * stay hidden, so Restore, Open in New Window, Create Revision, compare and
+ * merge work as before.
+ *
+ * The layout (RevisionDialog.createLayout) takes a skin: the Classic skin
+ * (RevisionDialog.skins.classic, docs/dialog-style-guide.md, its CSS in
+ * grapheditor.css under .geRevisionDlg, which takes the colors, the font and
+ * the corners of the other dialogs of the theme) behind the feature
+ * revisionDialog of Editor.featureDefaults (Editor.isRevisionDialogEnabled),
+ * or the skin of Fusion, which SimpleFiles.js adds
+ * (RevisionDialog.skins.fusion), so the code exists once. Where the feature
+ * is off the dialog keeps its layout of before.
+ */
+RevisionDialog.skins = {};
+
+/**
+ * Size of the content of the dialog in the Classic skin (the frame adds 48),
+ * limited to the window (RevisionDialog.getSize): the size of Fusion
+ * (EditorUi.simpleRevisionSize).
+ */
+RevisionDialog.size = {width: 912, height: 632};
+
+/**
+ * Space between the frame of the dialog and the window in the Classic skin.
+ */
+RevisionDialog.windowMargin = 32;
+
+/**
+ * The Classic skin (docs/dialog-style-guide.md): the headline of the
+ * dialogs with the file and its storage as the hint below it, the title of
+ * the sections of the Preview template above the list, the date and who
+ * changed the version with its size in the rows, the information of the
+ * shown version on the left of the tools (as in the dialog of before) and
+ * the buttons of the dialog in their order (Editor.cancelFirst). A skin has
+ * the classes of the parts (badge, info and dot are optional) and the
+ * builders createIcon (null for none), createSubtitle (null for none),
+ * createSectionHead, createBadge, joinList, isCancelFirst and prepare (before
+ * the layout). With the optional classes of the comparison (compare, day,
+ * group, count, marks, mark; Simple only, Fusion compares in its panel
+ * Versions) the versions are grouped by day below their captions with their
+ * time, and a version can be compared with another one or with the current
+ * diagram (Compare with below the preview): the shapes and connectors that
+ * differ are framed in the preview, the row counts them (Differences: n)
+ * and Compare shows the other version while it is pressed.
+ */
+RevisionDialog.skins.classic = {
+	name: 'classic',
+	classes: {template: 'geRevisionDlg', head: 'gePreviewHead', body: 'geRevisionDlgBody',
+		side: 'geRevisionDlgSide', list: 'geRevisionDlgList', replaced: 'geRevisionDlgReplaced',
+		main: 'geRevisionDlgMain', pane: 'gePreviewPane geRevisionDlgPane', graph: 'geRevisionDlgGraph',
+		badge: null, info: null, tools: 'geRevisionDlgTools', empty: 'geRevisionDlgEmpty',
+		row: 'geRevisionDlgRow', on: 'geRevisionDlgOn', dot: null, text: 'geRevisionDlgText',
+		date: 'geRevisionDlgDate', hint: 'geRevisionDlgHint', footer: 'geRevisionDlgFooter',
+		footerStart: 'geRevisionDlgFooterStart', compare: 'geRevisionDlgCompare',
+		day: 'geRevisionDlgDay', group: 'geRevisionDlgGroup', count: 'geRevisionDlgCount',
+		marks: 'geRevisionDlgMarks', mark: 'geRevisionDlgMark'},
+	/**
+	 * Returns the glyph of the given name (none in this skin).
+	 */
+	createIcon: function(name)
+	{
+		return null;
+	},
+	/**
+	 * Returns the hint below the headline: the name of the given file and the
+	 * name of the given storage (as text, the name is untrusted).
+	 */
+	createSubtitle: function(ui, file, storage)
+	{
+		var parts = [];
+		var name = file.getTitle();
+
+		if (name != null && name != '')
+		{
+			parts.push(String(name));
+		}
+
+		if (storage != null && storage.title != null)
+		{
+			parts.push(mxResources.get(storage.title));
+		}
+
+		var sub = null;
+
+		if (parts.length > 0)
+		{
+			sub = document.createElement('div');
+			sub.className = 'geDialogHint gePreviewSubtitle';
+			mxUtils.write(sub, this.joinList(parts));
+		}
+
+		return sub;
+	},
+	/**
+	 * Returns the title of the list (the title of the sections of the
+	 * Preview template).
+	 */
+	createSectionHead: function(label)
+	{
+		var head = document.createElement('div');
+		head.className = 'gePreviewSectionTitle';
+		head.setAttribute('role', 'heading');
+		head.setAttribute('aria-level', '3');
+		mxUtils.write(head, label);
+
+		return head;
+	},
+	/**
+	 * Returns the badge with the given label (Current on the newest version).
+	 */
+	createBadge: function(label)
+	{
+		var badge = document.createElement('span');
+		badge.className = 'geRevisionDlgBadge';
+		mxUtils.write(badge, label);
+
+		return badge;
+	},
+	/**
+	 * Returns the given texts as one.
+	 */
+	joinList: function(items)
+	{
+		return items.join(' · ');
+	},
+	/**
+	 * Cancel is before Restore where the dialogs have Cancel first.
+	 */
+	isCancelFirst: function(ui)
+	{
+		return ui.editor.cancelFirst;
+	},
+	/**
+	 * Prepares the given content of the dialog (nothing to do: the size is set
+	 * when it is shown, see RevisionDialog.getSize).
+	 */
+	prepare: function(ui, div)
+	{
+		// Sized by the caller
+	}
+};
+
+/**
+ * Returns the skin of the revision dialog for the current theme: the skin of
+ * Fusion in Fusion (if its scripts are loaded), else the Classic skin.
+ */
+RevisionDialog.getSkin = function()
+{
+	return (typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern() &&
+		RevisionDialog.skins.fusion != null) ? RevisionDialog.skins.fusion :
+		RevisionDialog.skins.classic;
+};
+
+/**
+ * Lays out the given revision dialog in the Classic skin where the feature
+ * revisionDialog is on (Editor.isRevisionDialogEnabled; Fusion lays it out in
+ * SimpleFiles.js). Called at the end of the constructor of RevisionDialog.
+ */
+RevisionDialog.install = function(ui, dlg)
+{
+	if (ui != null && ui.editor != null && !ui.editor.isChromelessView() &&
+		typeof Editor.isRevisionDialogEnabled === 'function' && Editor.isRevisionDialogEnabled() &&
+		RevisionDialog.getSkin() == RevisionDialog.skins.classic)
+	{
+		try
+		{
+			RevisionDialog.createLayout(ui, dlg, RevisionDialog.skins.classic);
+		}
+		catch (e)
+		{
+			EditorUi.debug('RevisionDialog.install', [ui], 'error', [e]);
+		}
+	}
+};
+
+/**
+ * Returns the size of the content of the given revision dialog: the size of
+ * the layout (RevisionDialog.size) limited to the window if the dialog is in
+ * the Classic skin, else the given size. Fusion sizes its frame itself.
+ */
+RevisionDialog.getSize = function(dlg, width, height)
+{
+	if (dlg != null && dlg.layoutSkin == RevisionDialog.skins.classic)
+	{
+		var ww = window.innerWidth || document.documentElement.clientWidth;
+		var wh = window.innerHeight || document.documentElement.clientHeight;
+		var margin = 48 + ((ww < 640) ? 0 : RevisionDialog.windowMargin);
+
+		width = Math.max(Math.min(RevisionDialog.size.width, ww - margin), 240);
+		height = Math.max(Math.min(RevisionDialog.size.height, wh - margin), 240);
+	}
+
+	return {width: width, height: height};
+};
+
+/**
+ * Returns the cells of the given model for RevisionDialog.getChanges: the XML
+ * of each cell (without its children) by its ID (xml) and the IDs of the
+ * children of each cell in their order (order, the stacking order) by the ID
+ * of the cell, in objects without a prototype (the IDs come from the file).
+ * The comparison of two versions in Revision History of Simple
+ * (RevisionDialog.createLayout) and in the panel Versions of Fusion
+ * (SimpleVersions.js).
+ */
+RevisionDialog.getCellXml = function(model)
+{
+	var xml = Object.create(null);
+	var order = Object.create(null);
+	var codec = new mxCodec();
+	var cells = model.getDescendants(model.getRoot());
+
+	for (var i = 0; i < cells.length; i++)
+	{
+		var id = cells[i].getId();
+
+		if (id != null)
+		{
+			xml[id] = mxUtils.getXml(codec.encode(cells[i]));
+			var parent = model.getParent(cells[i]);
+			var parentId = (parent != null) ? parent.getId() : null;
+
+			// The descendants are in the order of the children
+			if (parentId != null)
+			{
+				if (order[parentId] == null)
+				{
+					order[parentId] = [];
+				}
+
+				order[parentId].push(id);
+			}
+		}
+	}
+
+	return {xml: xml, order: order};
+};
+
+/**
+ * Returns the IDs of the cells that are added, removed, changed or moved in
+ * the order of their siblings (eg. To Front) between the given cells
+ * (RevisionDialog.getCellXml of two versions) as {ids: an object without a
+ * prototype with true for each ID, count}. Of the siblings in both, the
+ * fewest that keep the others in their order count as moved.
+ */
+RevisionDialog.getChanges = function(a, b)
+{
+	var ids = Object.create(null);
+	var count = 0;
+
+	var add = function(id)
+	{
+		if (ids[id] !== true)
+		{
+			ids[id] = true;
+			count++;
+		}
+	};
+
+	for (var id in a.xml)
+	{
+		if (a.xml[id] !== b.xml[id])
+		{
+			add(id);
+		}
+	}
+
+	for (var other in b.xml)
+	{
+		if (a.xml[other] === undefined)
+		{
+			add(other);
+		}
+	}
+
+	for (var parentId in b.order)
+	{
+		var before = a.order[parentId];
+
+		if (before != null)
+		{
+			var index = Object.create(null);
+
+			for (var i = 0; i < before.length; i++)
+			{
+				index[before[i]] = i;
+			}
+
+			// The siblings in both in their order in b by their index in a
+			var after = b.order[parentId];
+			var seq = [];
+			var seqIds = [];
+
+			for (var j = 0; j < after.length; j++)
+			{
+				if (index[after[j]] !== undefined)
+				{
+					seq.push(index[after[j]]);
+					seqIds.push(after[j]);
+				}
+			}
+
+			// A longest increasing subsequence of the indices stays, the
+			// others moved: tails[n] is the position of the smallest last
+			// index of an increasing subsequence of the length n + 1
+			var tails = [];
+			var prev = [];
+
+			for (var k = 0; k < seq.length; k++)
+			{
+				var lo = 0;
+				var hi = tails.length;
+
+				while (lo < hi)
+				{
+					var mid = (lo + hi) >> 1;
+
+					if (seq[tails[mid]] < seq[k])
+					{
+						lo = mid + 1;
+					}
+					else
+					{
+						hi = mid;
+					}
+				}
+
+				prev[k] = (lo > 0) ? tails[lo - 1] : -1;
+				tails[lo] = k;
+			}
+
+			var stays = [];
+			var last = (tails.length > 0) ? tails[tails.length - 1] : -1;
+
+			while (last >= 0)
+			{
+				stays[last] = true;
+				last = prev[last];
+			}
+
+			for (var m = 0; m < seq.length; m++)
+			{
+				if (stays[m] !== true)
+				{
+					add(seqIds[m]);
+				}
+			}
+		}
+	}
+
+	return {ids: ids, count: count};
+};
+
+/**
+ * Adds a frame with the given class to the given element for each shape and
+ * connector of the given graph whose ID is in the given IDs (the ids of
+ * RevisionDialog.getChanges): the bounds of its state in the container of
+ * the graph, 4 outside.
+ */
+RevisionDialog.addChangeMarks = function(elt, graph, ids, className)
+{
+	var model = graph.getModel();
+	var cells = model.getDescendants(model.getRoot());
+
+	for (var i = 0; i < cells.length; i++)
+	{
+		var state = (ids[cells[i].getId()] === true && (model.isVertex(cells[i]) ||
+			model.isEdge(cells[i]))) ? graph.view.getState(cells[i]) : null;
+
+		if (state != null && isFinite(state.x) && isFinite(state.y) &&
+			isFinite(state.width) && isFinite(state.height))
+		{
+			var mark = document.createElement('div');
+			mark.className = className;
+			mark.style.left = Math.round(state.x - 4) + 'px';
+			mark.style.top = Math.round(state.y - 4) + 'px';
+			mark.style.width = Math.round(state.width + 8) + 'px';
+			mark.style.height = Math.round(state.height + 8) + 'px';
+			elt.appendChild(mark);
+		}
+	}
+};
+
+/**
+ * Replaces the layout of the given revision dialog with the layout in the
+ * given skin. Returns the skin, or null if the dialog keeps its layout (if
+ * its content has changed). The skin is also dlg.layoutSkin.
+ */
+RevisionDialog.createLayout = function(ui, dlg, skin)
+{
+	var classes = skin.classes;
+	var c = dlg.controls;
+	var div = dlg.container;
+
+	// Keeps the previous layout if the dialog has changed
+	if (c == null || c.title == null || c.list == null || c.rows == null || c.container == null ||
+		c.compareContainer == null || c.toolbar == null || c.buttons == null || c.restore == null ||
+		c.cancel == null || c.fileInfo == null || c.title.parentNode != div ||
+		c.buttons.parentNode != div || c.toolbar.parentNode != div)
+	{
+		return null;
+	}
+
+	div.classList.add.apply(div.classList, classes.template.split(' '));
+	skin.prepare(ui, div);
+
+	// The headline and the file with its storage
+	var head = document.createElement('div');
+	head.className = classes.head;
+	c.title.style.marginTop = '';
+	head.appendChild(c.title);
+	var file = (c.file != null) ? c.file : ui.getCurrentFile();
+
+	if (file != null)
+	{
+		// The file in its place, the place of a new file without a title
+		var mode = file.getMode();
+		var storage = (typeof App !== 'undefined' && App.storages != null && mode != null) ?
+			App.storages[mode] : null;
+		var sub = skin.createSubtitle(ui, file, storage);
+
+		if (sub != null)
+		{
+			head.appendChild(sub);
+		}
+	}
+
+	div.insertBefore(head, div.firstChild);
+
+	var body = document.createElement('div');
+	body.className = classes.body;
+	div.insertBefore(body, c.buttons);
+
+	// The versions: rows that click the rows of the dialog
+	var side = document.createElement('div');
+	side.className = classes.side;
+	side.appendChild(skin.createSectionHead(mxResources.get('versions')));
+	var list = document.createElement('div');
+	list.className = classes.list;
+	list.setAttribute('role', 'listbox');
+	list.setAttribute('aria-label', mxResources.get('versions'));
+	side.appendChild(list);
+	body.appendChild(side);
+	c.list.classList.add(classes.replaced);
+
+	// The preview of the dialog and its tools
+	var main = document.createElement('div');
+	main.className = classes.main;
+	var pane = document.createElement('div');
+	pane.className = classes.pane;
+	main.appendChild(pane);
+
+	// Moves the given graph container of the dialog into the pane, which it
+	// fills (below the badge)
+	var setGraph = function(container)
+	{
+		container.style.position = 'absolute';
+		container.style.left = '';
+		container.style.right = '';
+		container.style.top = '';
+		container.style.bottom = '';
+		container.style.width = '';
+		container.style.height = '';
+		container.style.marginTop = '';
+		container.style.borderStyle = 'none';
+		container.style.borderWidth = '';
+		container.classList.add(classes.graph);
+		pane.appendChild(container);
+	};
+
+	setGraph(c.container);
+	setGraph(c.compareContainer);
+
+	// The compare graph is shown while Compare is pressed
+	c.compareContainer.style.display = 'none';
+
+	// The information of the shown version as a badge in the pane, else it
+	// stays on the left of the tools
+	var badge = null;
+
+	if (classes.badge != null)
+	{
+		badge = document.createElement('div');
+		badge.className = classes.badge;
+		var eye = skin.createIcon('eye');
+
+		if (eye != null)
+		{
+			badge.appendChild(eye);
+		}
+
+		c.fileInfo.style.cssText = '';
+		c.fileInfo.className = classes.info;
+		badge.appendChild(c.fileInfo);
+		pane.appendChild(badge);
+	}
+
+	// The tools of the dialog (zoom buttons and selects) as a row
+	var tb = c.toolbar;
+	tb.style.cssText = '';
+	tb.className = classes.tools;
+	var selects = tb.querySelectorAll('select');
+
+	for (var i = 0; i < selects.length; i++)
+	{
+		selects[i].style.position = '';
+		selects[i].style.top = '';
+		selects[i].style.verticalAlign = '';
+		selects[i].style.marginLeft = '';
+		selects[i].style.marginRight = '';
+		selects[i].style.maxWidth = '';
+	}
+
+	// The comparison of the versions between the preview and the tools
+	// (Simple, see RevisionDialog.createCompare)
+	var compare = (classes.compare != null && c.rows.length > 1) ?
+		RevisionDialog.createCompare(ui, dlg, skin) : null;
+
+	if (compare != null)
+	{
+		main.appendChild(compare.elt);
+	}
+
+	main.appendChild(tb);
+	body.appendChild(main);
+
+	var rows = [];
+	// The versions by day below their captions (with the classes of the
+	// comparison)
+	var grouped = classes.day != null && classes.group != null;
+	var day = null;
+	var group = null;
+
+	if (c.rows.length == 0)
+	{
+		// Not available or no revisions: the text of the dialog
+		var empty = document.createElement('div');
+		empty.className = classes.empty;
+		mxUtils.write(empty, mxUtils.trim(c.list.textContent));
+		pane.appendChild(empty);
+
+		if (badge != null)
+		{
+			badge.style.display = 'none';
+		}
+	}
+
+	var update = function(selected)
+	{
+		for (var i = 0; i < rows.length; i++)
+		{
+			var on = c.rows[i].row == selected;
+			rows[i].classList.toggle(classes.on, on);
+			rows[i].setAttribute('aria-selected', (on) ? 'true' : 'false');
+			rows[i].setAttribute('tabindex', (on) ? '0' : '-1');
+
+			if (on && compare != null)
+			{
+				compare.setShown(i);
+			}
+		}
+	};
+
+	var moveTo = function(index)
+	{
+		if (rows[index] != null)
+		{
+			rows[index].focus();
+			c.rows[index].row.click();
+		}
+	};
+
+	for (var i = 0; i < c.rows.length; i++)
+	{
+		(function(index, r)
+		{
+			var item = r.item;
+			var row = document.createElement('div');
+			row.className = classes.row;
+			row.setAttribute('role', 'option');
+			row.setAttribute('tabindex', (index == 0) ? '0' : '-1');
+			row.setAttribute('title', r.row.getAttribute('title') || '');
+
+			if (classes.dot != null)
+			{
+				var dot = document.createElement('span');
+				dot.className = classes.dot;
+				row.appendChild(dot);
+			}
+
+			var text = document.createElement('span');
+			text.className = classes.text;
+			var date = document.createElement('span');
+			date.className = classes.date;
+			var ts = new Date(item.modifiedDate);
+			var valid = !isNaN(ts.getTime());
+
+			// The time below the caption of its day, else the date
+			mxUtils.write(date, (!valid) ? mxUtils.trim(r.row.textContent) :
+				((grouped) ? ui.getSimpleTimeTitle(ts) : ui.formatDateTime(ts, true)));
+			text.appendChild(date);
+
+			// Who changed it and the size, as text
+			var who = [];
+
+			if (item.lastModifyingUserName != null && item.lastModifyingUserName != '')
+			{
+				who.push(String(item.lastModifyingUserName));
+			}
+
+			if (item.fileSize != null && !isNaN(parseInt(item.fileSize)))
+			{
+				who.push(ui.formatFileSize(parseInt(item.fileSize)));
+			}
+
+			if (who.length > 0)
+			{
+				var hint = document.createElement('span');
+				hint.className = classes.hint;
+				mxUtils.write(hint, skin.joinList(who));
+				text.appendChild(hint);
+			}
+
+			row.appendChild(text);
+
+			if (r.current)
+			{
+				row.appendChild(skin.createBadge(mxResources.get('current')));
+			}
+
+			// The badge of the version that the shown one is compared with
+			if (compare != null)
+			{
+				compare.addRow(index, row);
+			}
+
+			mxEvent.addListener(row, 'click', function()
+			{
+				r.row.click();
+			});
+
+			// Double click opens the version in a new window (the dialog's)
+			mxEvent.addListener(row, 'dblclick', function(evt)
+			{
+				r.row.dispatchEvent(new MouseEvent('dblclick', {bubbles: true, cancelable: true}));
+				mxEvent.consume(evt);
+			});
+
+			mxEvent.addListener(row, 'keydown', function(evt)
+			{
+				var next = (evt.keyCode == 38) ? index - 1 : ((evt.keyCode == 40) ? index + 1 :
+					((evt.keyCode == 36) ? 0 : ((evt.keyCode == 35) ? rows.length - 1 : null)));
+
+				if (next != null)
+				{
+					moveTo(next);
+					mxEvent.consume(evt);
+				}
+				else if (evt.keyCode == 13 && !c.restore.disabled && c.restore.style.display != 'none')
+				{
+					c.restore.click();
+					mxEvent.consume(evt);
+				}
+				else if (evt.keyCode == 32)
+				{
+					r.row.click();
+					mxEvent.consume(evt);
+				}
+			});
+
+			// Follows the rows of the dialog (also the first one of init)
+			mxEvent.addListener(r.row, 'click', function()
+			{
+				update(r.row);
+			});
+
+			rows.push(row);
+
+			// A group below the caption of the day for each day (Today,
+			// Yesterday, the date), named after it for screen readers
+			if (grouped && valid && ts.toDateString() != day)
+			{
+				day = ts.toDateString();
+				var title = ui.getSimpleDayTitle(ts);
+				group = document.createElement('div');
+				group.className = classes.group;
+				group.setAttribute('role', 'group');
+				group.setAttribute('aria-label', title);
+				var caption = document.createElement('div');
+				caption.className = classes.day;
+				caption.setAttribute('aria-hidden', 'true');
+				mxUtils.write(caption, title);
+				group.appendChild(caption);
+				list.appendChild(group);
+			}
+
+			((grouped && group != null) ? group : list).appendChild(row);
+		})(i, c.rows[i]);
+	}
+
+	// The footer: Open in New Window and Create Revision on the left,
+	// Cancel and Restore on the right
+	var btns = c.buttons;
+	btns.style.cssText = '';
+
+	if (classes.footer != null)
+	{
+		btns.classList.add(classes.footer);
+	}
+
+	var start = document.createElement('div');
+	start.className = classes.footerStart;
+
+	if (c.open != null && c.open.parentNode == btns)
+	{
+		c.open.textContent = '';
+		var open = skin.createIcon('open');
+
+		if (open != null)
+		{
+			c.open.appendChild(open);
+		}
+
+		mxUtils.write(c.open, mxResources.get('openInNewWindow'));
+		start.appendChild(c.open);
+	}
+
+	if (c.create != null && c.create.parentNode == btns)
+	{
+		start.appendChild(c.create);
+	}
+
+	btns.insertBefore(start, btns.firstChild);
+
+	if (skin.isCancelFirst(ui))
+	{
+		btns.appendChild(c.cancel);
+		btns.appendChild(c.restore);
+	}
+	else
+	{
+		btns.appendChild(c.restore);
+		btns.appendChild(c.cancel);
+	}
+
+	var clock = skin.createIcon('clock');
+
+	if (clock != null)
+	{
+		c.restore.insertBefore(clock, c.restore.firstChild);
+	}
+
+	// The chosen version has the focus
+	window.setTimeout(function()
+	{
+		if (div.parentNode != null && rows.length > 0)
+		{
+			(list.querySelector('[aria-selected="true"]') || rows[0]).focus();
+		}
+	}, 0);
+
+	dlg.layoutSkin = skin;
+
+	return skin;
+};
+
+/**
+ * Returns the comparison of the given revision dialog in the given skin
+ * (the classes compare, count, marks and mark; Simple): Compare with (the
+ * current diagram or another version) and the count of the differences
+ * (Differences: n) in a row below the preview, the frames of the shapes
+ * and connectors that differ in the preview and in the compare graph of the
+ * dialog, and what Compare of the dialog shows while it is pressed with the
+ * pointer or Space or Enter is held on it (controls.getCompare, the page of
+ * the count). The current diagram is the one of the dialog
+ * (controls.currentDiagrams), its pages and those of the versions are
+ * compared by ID (as Compare of the dialog), a version without pages is the
+ * first page. Returns {elt, setShown(index of the shown row), addRow(index,
+ * row of the layout)}.
+ */
+RevisionDialog.createCompare = function(ui, dlg, skin)
+{
+	var classes = skin.classes;
+	var c = dlg.controls;
+	// The index of the shown row and of the row compared with (null for the
+	// current diagram), the versions loaded for the comparison by index,
+	// the cells of the pages by version and page, the changes
+	var shown = null;
+	var picked = null;
+	var versions = [];
+	var cells = [];
+	var changes = null;
+	var badges = [];
+
+	var elt = document.createElement('div');
+	elt.className = classes.compare;
+
+	// Compare with: the current diagram, then the other versions
+	var label = document.createElement('label');
+	label.setAttribute('for', 'geRevisionDlgCompareWith');
+	mxUtils.write(label, mxResources.get('compareWith'));
+	elt.appendChild(label);
+
+	var select = document.createElement('select');
+	select.id = 'geRevisionDlgCompareWith';
+	var option = document.createElement('option');
+	option.value = '';
+	mxUtils.write(option, mxResources.get('current'));
+	select.appendChild(option);
+
+	// The day and the time of the given row
+	var getName = function(index)
+	{
+		var ts = new Date(c.rows[index].item.modifiedDate);
+
+		return (isNaN(ts.getTime())) ? mxUtils.trim(c.rows[index].row.textContent) :
+			skin.joinList([ui.getSimpleDayTitle(ts), ui.getSimpleTimeTitle(ts)]);
+	};
+
+	for (var i = 0; i < c.rows.length; i++)
+	{
+		if (!c.rows[i].current)
+		{
+			option = document.createElement('option');
+			option.value = String(i);
+			mxUtils.write(option, getName(i));
+			select.appendChild(option);
+		}
+	}
+
+	elt.appendChild(select);
+
+	// The count of the differences, or why there is none
+	var count = document.createElement('div');
+	count.className = classes.count;
+	count.setAttribute('role', 'status');
+	elt.appendChild(count);
+
+	// The frames of the differences, above each graph (as children of the
+	// container they move with the graph while it is panned)
+	var marks = [c.graph, c.compareGraph].map(function(graph)
+	{
+		var layer = document.createElement('div');
+		layer.className = classes.marks;
+		layer.setAttribute('aria-hidden', 'true');
+
+		return {graph: graph, layer: layer};
+	});
+
+	// The given version, loaded once ({loading, error, node, failed where it
+	// could not be downloaded, see retry})
+	var getVersion = function(index)
+	{
+		var version = versions[index];
+
+		if (version == null)
+		{
+			version = {loading: true, error: null, node: null, failed: false};
+			versions[index] = version;
+
+			c.rows[index].item.getXml(function(xml)
+			{
+				try
+				{
+					var doc = mxUtils.parseXml(xml);
+					version.node = ui.editor.extractGraphModel(doc.documentElement, true);
+				}
+				catch (e)
+				{
+					version.node = null;
+				}
+
+				version.loading = false;
+				version.error = (version.node == null) ? mxResources.get('errorLoadingFile') : null;
+				loaded();
+			}, function(err)
+			{
+				version.loading = false;
+				version.failed = true;
+				version.error = mxResources.get('errorLoadingFile') + ((err != null &&
+					typeof err.message == 'string') ? ': ' + err.message : '');
+				loaded();
+			});
+		}
+
+		return version;
+	};
+
+	// The picked version loads again where it could not be downloaded (picked
+	// again or Compare pressed, not while it is shown again), as Fusion's
+	// Versions panel keeps only the versions that loaded (load in
+	// SimpleVersions.js). Returns true where it is loaded again.
+	var retry = function()
+	{
+		var failed = picked != null && versions[picked] != null && versions[picked].failed;
+
+		if (failed)
+		{
+			versions[picked] = null;
+		}
+
+		return failed;
+	};
+
+	// After a version loaded: its count, and Compare shows it if it is
+	// pressed (instead of Loading)
+	var loaded = function()
+	{
+		refresh();
+		c.updateCompare();
+	};
+
+	// The model of the page with the given ID in the given file or model
+	// (the first page for no ID). The model of a file without pages is its
+	// first page (first, the shown page is the first page of its version).
+	var getPageNode = function(node, id, first)
+	{
+		if (node.nodeName != 'mxfile')
+		{
+			return (first) ? node : null;
+		}
+
+		var diagrams = node.getElementsByTagName('diagram');
+
+		for (var i = 0; i < diagrams.length; i++)
+		{
+			if ((id == null && i == 0) || diagrams[i].getAttribute('id') == id)
+			{
+				return Editor.parseDiagramNode(diagrams[i]);
+			}
+		}
+
+		return null;
+	};
+
+	// The model of the page with the given ID in the current diagram (its
+	// first page for no ID, as the version is a file without pages)
+	var getCurrentNode = function(id)
+	{
+		id = (id != null) ? id : ((ui.pages != null && ui.pages.length > 0) ? ui.pages[0].getId() :
+			((ui.currentPage != null) ? ui.currentPage.getId() : null));
+
+		return (id != null && Object.prototype.hasOwnProperty.call(c.currentDiagrams, id)) ?
+			Editor.parseDiagramNode(c.currentDiagrams[id]) : null;
+	};
+
+	// The cells of the given page of the given version ('current' for the
+	// diagram), decoded once, or null if it has no such page
+	var getCells = function(key, id, first, getNode)
+	{
+		for (var i = 0; i < cells.length; i++)
+		{
+			if (cells[i].key === key && cells[i].id === id && cells[i].first === first)
+			{
+				return cells[i].cells;
+			}
+		}
+
+		var node = getNode();
+		var result = null;
+
+		if (node != null)
+		{
+			var model = new mxGraphModel();
+			new mxCodec(node.ownerDocument).decode(node, model);
+			result = RevisionDialog.getCellXml(model);
+		}
+
+		cells.push({key: key, id: id, first: first, cells: result});
+
+		return result;
+	};
+
+	var paint = function()
+	{
+		for (var i = 0; i < marks.length; i++)
+		{
+			var layer = marks[i].layer;
+			layer.textContent = '';
+
+			if (changes != null && changes.count > 0)
+			{
+				RevisionDialog.addChangeMarks(layer, marks[i].graph, changes.ids, classes.mark);
+			}
+
+			// Above the graph
+			if (layer.parentNode != marks[i].graph.container ||
+				layer.nextSibling != null)
+			{
+				marks[i].graph.container.appendChild(layer);
+			}
+		}
+	};
+
+	// Compares the shown version with the current diagram or the picked
+	// version, counts and frames the differences
+	var refresh = function()
+	{
+		var text = null;
+		var error = false;
+		changes = null;
+
+		// Not the current version with the current diagram
+		if (shown != null && c.getDoc() != null && (picked != null || !c.rows[shown].current))
+		{
+			try
+			{
+				var page = c.getPage();
+				var id = (page != null) ? page.getAttribute('id') : null;
+				var first = c.getPageIndex() == 0;
+				var other = null;
+
+				if (picked == null)
+				{
+					other = getCells('current', id, null, function()
+					{
+						return getCurrentNode(id);
+					});
+
+					if (other == null)
+					{
+						text = mxResources.get('pageNotFound');
+					}
+				}
+				else
+				{
+					var version = getVersion(picked);
+
+					if (version.loading)
+					{
+						text = mxResources.get('loading') + '...';
+					}
+					else if (version.error != null)
+					{
+						text = version.error;
+						error = true;
+					}
+					else
+					{
+						other = getCells(picked, id, first, function()
+						{
+							return getPageNode(version.node, id, first);
+						});
+
+						if (other == null)
+						{
+							text = mxResources.get('notInThisVersion');
+						}
+					}
+				}
+
+				if (other != null)
+				{
+					changes = RevisionDialog.getChanges(RevisionDialog.getCellXml(
+						c.graph.getModel()), other);
+					text = mxResources.get('versionDifferences', [changes.count]);
+				}
+			}
+			catch (e)
+			{
+				changes = null;
+				text = mxResources.get('errorLoadingFile');
+				error = true;
+			}
+		}
+
+		count.textContent = '';
+		count.classList.toggle('geRevisionDlgError', error);
+
+		if (text != null)
+		{
+			mxUtils.write(count, text);
+		}
+
+		paint();
+	};
+
+	// The badge Compare on the row compared with, the shown version cannot be
+	// picked
+	var updatePicked = function()
+	{
+		select.value = (picked != null) ? String(picked) : '';
+
+		for (var i = 0; i < select.options.length; i++)
+		{
+			select.options[i].disabled = select.options[i].value !== '' &&
+				parseInt(select.options[i].value) === shown;
+		}
+
+		for (var j = 0; j < badges.length; j++)
+		{
+			if (badges[j] != null)
+			{
+				badges[j].style.display = (j === picked) ? '' : 'none';
+			}
+		}
+	};
+
+	mxEvent.addListener(select, 'change', function()
+	{
+		var index = (select.value !== '') ? parseInt(select.value) : null;
+		picked = (index != null && c.rows[index] != null && index !== shown) ? index : null;
+		retry();
+		updatePicked();
+		refresh();
+	});
+
+	// The shown version and its page in the preview, the compare graph of
+	// the dialog and the view of both
+	c.graph.getModel().addListener(mxEvent.CHANGE, refresh);
+	c.compareGraph.getModel().addListener(mxEvent.CHANGE, paint);
+
+	for (var i = 0; i < marks.length; i++)
+	{
+		marks[i].graph.view.addListener(mxEvent.SCALE, paint);
+		marks[i].graph.view.addListener(mxEvent.TRANSLATE, paint);
+		marks[i].graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, paint);
+	}
+
+	// Compare of the dialog shows what the shown version is compared with
+	// while it is pressed (the current diagram or the picked version): the
+	// page of the count, or why there is none. Pressed is false where it is
+	// shown again while Compare stays pressed (updateCompare after the
+	// version loaded), so a version that cannot be downloaded loads once per
+	// press.
+	c.getCompare = function(pressed)
+	{
+		var page = c.getPage();
+		var id = (page != null) ? page.getAttribute('id') : null;
+
+		if (picked == null)
+		{
+			var current = getCurrentNode(id);
+
+			return {label: mxResources.get('current'), node: current,
+				error: (current == null) ? mxResources.get('pageNotFound') : null};
+		}
+
+		// The count says Loading... while it loads again
+		if (pressed && retry())
+		{
+			refresh();
+		}
+
+		var version = getVersion(picked);
+		var node = (version.loading || version.error != null) ? null :
+			getPageNode(version.node, id, c.getPageIndex() == 0);
+
+		return {label: getName(picked), node: node, error: (version.loading) ?
+			mxResources.get('loading') + '...' : ((version.error != null) ? version.error :
+			((node == null) ? mxResources.get('notInThisVersion') : null))};
+	};
+
+	// Space or Enter held on Compare shows it as the pointer does (Fusion:
+	// Space held on the row of the shown version)
+	var isHoldKey = function(evt)
+	{
+		return (evt.keyCode == 13 /* Enter */ || evt.keyCode == 32 /* Space */) &&
+			!mxEvent.isAltDown(evt) && !mxEvent.isControlDown(evt) &&
+			!mxEvent.isMetaDown(evt);
+	};
+
+	mxEvent.addListener(c.compareButton, 'keydown', function(evt)
+	{
+		if (isHoldKey(evt))
+		{
+			if (!c.isComparing() && c.compareButton.getAttribute('disabled') != 'disabled')
+			{
+				c.showCompare();
+			}
+
+			mxEvent.consume(evt);
+		}
+	});
+
+	mxEvent.addListener(c.compareButton, 'keyup', function(evt)
+	{
+		if ((evt.keyCode == 13 || evt.keyCode == 32) && c.isComparing())
+		{
+			c.hideCompare();
+			mxEvent.consume(evt);
+		}
+	});
+
+	mxEvent.addListener(c.compareButton, 'blur', function()
+	{
+		if (c.isComparing())
+		{
+			c.hideCompare();
+		}
+	});
+
+	return {elt: elt,
+		setShown: function(index)
+		{
+			if (index !== shown)
+			{
+				shown = index;
+
+				// A version is not compared with itself
+				if (picked === index)
+				{
+					picked = null;
+				}
+
+				updatePicked();
+				refresh();
+			}
+		},
+		addRow: function(index, row)
+		{
+			if (!c.rows[index].current)
+			{
+				var badge = skin.createBadge(mxResources.get('compare'));
+				badge.style.display = 'none';
+				badges[index] = badge;
+				row.appendChild(badge);
+			}
+		}};
 };
 
 /**
@@ -9504,10 +12031,17 @@ var RecoveryDialog = function(editorUi, candidates, okFn, cancelFn)
 	btns.appendChild(cancelBtn);
 	div.appendChild(btns);
 
-	// The parts of the dialog for other looks (see SimpleFiles.js)
+	// The parts of the dialog for other looks (see DraftLayout.js)
 	this.controls = {title: hd, rows: rows, buttons: btns, cancel: cancelBtn};
 
 	this.container = div;
+
+	// The layout of Fusion in the Classic skin where the feature draftDialog
+	// is on (DraftLayout.js, not in every bundle)
+	if (typeof editorUi.installRecoveryLayout === 'function')
+	{
+		editorUi.installRecoveryLayout(this);
+	}
 };
 
 /**
@@ -9866,12 +12400,19 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	div.appendChild(buttons);
 	div.appendChild(tb);
 
-	// The parts of the dialog for other looks (see SimpleFiles.js)
+	// The parts of the dialog for other looks (see DraftLayout.js)
 	this.controls = {message: titleDiv, select: (drafts != null) ? select : null, container: container,
 		graph: graph, toolbar: tb, buttons: buttons, edit: showBtn, discard: restoreBtn,
 		ignore: ignoreBtn, cancel: cancelBtn};
 
 	this.container = div;
+
+	// The layout of Fusion in the Classic skin where the feature draftDialog
+	// is on (DraftLayout.js, not in every bundle)
+	if (typeof editorUi.installDraftLayout === 'function')
+	{
+		editorUi.installDraftLayout(this, drafts);
+	}
 };
 
 /**
@@ -11651,30 +14192,19 @@ var ChatWindow = function(editorUi, x, y, w, h)
 	// response back. There is no mode dropdown - the action is derived
 	// from the attachment (context attached -> update, otherwise create).
 	var backends = [];
+	var models = editorUi.getAiModels();
 
-	if (mxUtils.indexOf(Editor.aiActions, 'create') >= 0 ||
-		mxUtils.indexOf(Editor.aiActions, 'update') >= 0 ||
-		mxUtils.indexOf(Editor.aiActions, 'assist') >= 0)
+	for (var i = 0; i < models.length; i++)
 	{
-		for (var i = 0; i < Editor.aiModels.length; i++)
-		{
-			var temp = Editor.aiModels[i];
-
-			if (Editor.aiConfigs[temp.config] != null && Editor.aiGlobals[
-				Editor.aiConfigs[temp.config].apiKey] != null)
-			{
-				backends.push({id: 'model-' + temp.name, kind: 'model',
-					label: temp.name, model: temp});
-			}
-		}
+		backends.push({id: 'model-' + models[i].name, kind: 'model',
+			label: models[i].name, model: models[i]});
 	}
 
 	// The hosted service pays draw.io's API bill so it is only listed when
-	// no BYO model is configured (or in test mode) and its requests are
-	// capped at Editor.maxPublicPromptLength characters
-	if (editorUi.isExternalDataComms() && EditorUi.isMermaidSupported() &&
-		mxUtils.indexOf(Editor.aiActions, 'createPublic') >= 0 &&
-		(backends.length == 0 || urlParams['test'] == 1))
+	// no BYO model is configured (or in test mode, see
+	// isPublicGenerateEnabled) and its requests are capped at
+	// Editor.maxPublicPromptLength characters
+	if (editorUi.isPublicGenerateEnabled())
 	{
 		backends.push({id: 'public', kind: 'public',
 			label: mxResources.get('draw.io')});
@@ -18223,6 +20753,14 @@ var AuthDialog = function(editorUi, peer, showRememberOption, fn)
 		rememberRow: (showRememberOption) ? p2 : null};
 	this.notice = notice;
 	this.container = div;
+
+	// The layout of the sign-in in the Classic skin where the feature
+	// authDialog is on (AuthLayout.js); Fusion lays the dialog out in
+	// SimpleMessages.js
+	if (typeof editorUi.installAuthLayout === 'function')
+	{
+		editorUi.installAuthLayout(this, 'auth');
+	}
 };
 
 /**
@@ -18334,6 +20872,33 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 	// The sections with their entries and checkboxes for other looks (see
 	// SimpleLibraries.js)
 	var sections = [];
+
+	// The library In This Diagram has a row if it is in the entries after
+	// enabledLibraries (UsedShapes.js)
+	var usedShapesRow = false;
+
+	for (var i = 0; i < entries.length && !usedShapesRow; i++)
+	{
+		for (var j = 0; j < entries[i].entries.length && !usedShapesRow; j++)
+		{
+			usedShapesRow = entries[i].entries[j].id == EditorUi.usedShapesId;
+		}
+	}
+
+	// Takes the library In This Diagram out of the given libraries and turns
+	// it on or off if the dialog has its row, for this session only if the
+	// choice is not remembered (UsedShapes.js)
+	var applyUsedShapes = function(libs, remember)
+	{
+		var idx = mxUtils.indexOf(libs, EditorUi.usedShapesId);
+		var on = idx >= 0 && libs.splice(idx, 1).length > 0;
+
+		if (usedShapesRow && editorUi.isUsedShapesListed != null && editorUi.isUsedShapesListed() &&
+			on != editorUi.sidebar.isEntryVisible(EditorUi.usedShapesId))
+		{
+			editorUi.setUsedShapesOn(on, !remember);
+		}
+	};
 
 	if (expanded)
 	{
@@ -18604,7 +21169,8 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 					mxSettings.save();
 				}
 			}
-			
+
+			applyUsedShapes(libs, cb.checked);
 			editorUi.sidebar.showEntries(libs.join(';'), cb.checked, true);
 			editorUi.setSidebarTitles(labels.checked, cb.checked);
 		});
@@ -18776,7 +21342,8 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 					libs.push(lib);
 				}
 			}
-			
+
+			applyUsedShapes(libs, cb.checked);
 			editorUi.sidebar.showEntries((libs.length > 0) ? libs.join(';') : '', cb.checked);
 	    	editorUi.hideDialog();
 		});
@@ -18806,6 +21373,919 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 	}
 
 	this.container = div;
+
+	// The layout of the Browser template in Simple (Fusion lays it out in
+	// SimpleLibraries.js)
+	MoreShapesDialog.install(editorUi, this);
+};
+
+/**
+ * More Shapes on the Browser template of Fusion in every look: the
+ * headline and how many libraries are on, the sections of the libraries
+ * (and Enabled, the libraries that are on) as categories, a search of the
+ * libraries, the libraries as tiles with a picture of their first shapes
+ * and the checkbox of the dialog (a click on the tile, not on its checkbox,
+ * shows its shapes: the preview of the dialog), Labels and Remember this
+ * setting in the footer. The checkboxes and the buttons are those of the
+ * dialog (MoreShapesDialog.controls), so Apply shows the same libraries,
+ * labels and scratchpad as before.
+ *
+ * The layout (MoreShapesDialog.createLayout) takes a skin: the Classic skin
+ * (MoreShapesDialog.skins.classic, docs/dialog-style-guide.md, the classes
+ * of the Browser template of TemplateBrowser.js and its CSS in
+ * grapheditor.css under .geBrowser and .geShapesDlg, which take the colors,
+ * the font and the corners of the other dialogs of the theme) behind the
+ * feature moreShapesDialog of Editor.featureDefaults
+ * (Editor.isMoreShapesDialogEnabled), or the skin of Fusion, which
+ * SimpleLibraries.js adds (MoreShapesDialog.skins.fusion), so the code
+ * exists once. Where the feature is off the dialog keeps its layout of
+ * before.
+ */
+MoreShapesDialog.skins = (MoreShapesDialog.skins != null) ? MoreShapesDialog.skins : {};
+
+/**
+ * The glyphs of the categories by the resource of the title of the section
+ * (names of TemplateBrowser.glyphs and of SimpleUi.icons).
+ */
+MoreShapesDialog.sectionGlyphs = {standard: 'shapes', software: 'code', networking: 'network',
+	business: 'briefcase', other: 'grid'};
+
+/**
+ * The outline glyphs of the Classic skin that the Browser template has not
+ * (on a 24 grid, stroke 1.8, round caps, as TemplateBrowser.glyphs): the
+ * icons check, note and back of Fusion.
+ */
+MoreShapesDialog.glyphs = {
+	check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+	note: '<path d="M5 4.5h14v10l-5 5H5z"/><path d="M19 14.5h-5v5"/>',
+	back: '<path d="M19 12H5M11 6l-6 6 6 6"/>'
+};
+
+/**
+ * Returns the image of the given glyph (MoreShapesDialog.glyphs, else
+ * TemplateBrowser.glyphs) as a data URI, or null if there is no such glyph.
+ */
+MoreShapesDialog.getGlyphImage = function(name)
+{
+	if (name != null && Object.prototype.hasOwnProperty.call(MoreShapesDialog.glyphs, name))
+	{
+		return Editor.createSvgDataUri('<svg xmlns="http://www.w3.org/2000/svg" ' +
+			'viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.8" ' +
+			'stroke-linecap="round" stroke-linejoin="round">' +
+			MoreShapesDialog.glyphs[name] + '</svg>');
+	}
+	else
+	{
+		return (typeof TemplateBrowser !== 'undefined') ? TemplateBrowser.getGlyphImage(name) : null;
+	}
+};
+
+/**
+ * Normalizes the given text for the search: lower case without accents
+ * (as SimpleUi.normalize).
+ */
+MoreShapesDialog.normalize = function(text)
+{
+	text = String((text != null) ? text : '').toLowerCase();
+
+	try
+	{
+		text = text.normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+	}
+	catch (e)
+	{
+		// ignores missing normalize
+	}
+
+	return text;
+};
+
+/**
+ * The Classic skin (docs/dialog-style-guide.md): the Browser template of
+ * New (the classes of TemplateBrowser.skins.classic for the head, the
+ * categories, the search and the footer), the tiles and the preview of
+ * .geShapesDlg, the glyphs as masks in the color of the text, so that they
+ * follow dark mode, the pictures on white paper as in the dialog of before,
+ * checkboxes (no switches) and the buttons of the dialog in their order
+ * (Editor.cancelFirst). A skin has the classes of the parts (footer is
+ * optional), switches (the checkboxes are switches) and the builders
+ * formatTitle, createIcon (with a fallback), createIconButton,
+ * createSectionHead, nameWithDetail, normalize, prepare (before the layout),
+ * isSearchFocused (if the search takes the focus) and isCancelFirst (the
+ * order of the buttons).
+ */
+MoreShapesDialog.skins.classic = {
+	name: 'classic',
+	classes: {dialog: 'geBrowser geShapesDlg', replaced: 'geBrowserReplaced', head: 'geBrowserHead',
+		subtitle: 'geDialogHint geBrowserSubtitle', body: 'geBrowserBody', cats: 'geBrowserCats',
+		cat: 'geBrowserCat', catName: 'geBrowserCatName', count: 'geBrowserCount', on: 'geBrowserOn',
+		main: 'geBrowserMain', search: 'geBrowserSearch', gridHead: 'geBrowserGridHead',
+		grid: 'geShapesDlgGrid', inSection: 'geShapesDlgInSection', tile: 'geShapesDlgTile',
+		tileOn: 'geShapesDlgOn', thumb: 'geShapesDlgThumb', open: 'geShapesDlgOpen',
+		text: 'geShapesDlgText', name: 'geShapesDlgName', hint: 'geShapesDlgHint',
+		sectionHint: 'geShapesDlgSectionHint', detail: 'geShapesDlgDetail',
+		detailHead: 'geShapesDlgDetailHead', detailName: 'geShapesDlgName geShapesDlgDetailName',
+		options: 'geShapesDlgOptions', option: 'geShapesDlgOption',
+		footer: 'geBrowserFooter geShapesDlgFooter'},
+	switches: false,
+	/**
+	 * Returns the given title as it is.
+	 */
+	formatTitle: function(title)
+	{
+		return title;
+	},
+	/**
+	 * Returns a new glyph of the given name (TemplateBrowser.glyphs or
+	 * MoreShapesDialog.glyphs), else of the fallback: a mask in the color of
+	 * the text.
+	 */
+	createIcon: function(name, fallback)
+	{
+		var image = MoreShapesDialog.getGlyphImage(name);
+		image = (image != null) ? image : MoreShapesDialog.getGlyphImage(fallback);
+		var icon = document.createElement('span');
+		icon.className = 'geBrowserGlyph';
+		icon.setAttribute('aria-hidden', 'true');
+
+		if (image != null)
+		{
+			icon.style.setProperty('--ge-browser-glyph', 'url(\'' + image + '\')');
+		}
+
+		return icon;
+	},
+	/**
+	 * Returns a button with the glyph of the given name, the given title and
+	 * click handler (the clear button of the search of the Browser template;
+	 * back is a bit larger).
+	 */
+	createIconButton: function(name, title, fn)
+	{
+		var btn = document.createElement('button');
+		btn.setAttribute('type', 'button');
+		btn.className = 'geBrowserClear' + ((name != 'close') ? ' geShapesDlgIconBtn' : '');
+		btn.setAttribute('title', title);
+		btn.setAttribute('aria-label', title);
+		btn.appendChild(this.createIcon(name));
+
+		mxEvent.addListener(btn, 'click', function(evt)
+		{
+			fn(evt);
+			mxEvent.consume(evt);
+		});
+
+		return btn;
+	},
+	/**
+	 * Returns a heading with the given title (the titles of the sections of
+	 * the Preview template).
+	 */
+	createSectionHead: function(title)
+	{
+		var head = document.createElement('div');
+		head.className = 'gePreviewSectionTitle';
+		head.setAttribute('role', 'heading');
+		head.setAttribute('aria-level', '3');
+		mxUtils.write(head, title);
+
+		return head;
+	},
+	/**
+	 * Returns the given name with the given detail in brackets, as the
+	 * dialogs of the theme show them.
+	 */
+	nameWithDetail: function(name, detail)
+	{
+		return name + ' (' + detail + ')';
+	},
+	/**
+	 * Normalizes the given text for the search.
+	 */
+	normalize: function(text)
+	{
+		return MoreShapesDialog.normalize(text);
+	},
+	/**
+	 * Prepares the given content of the dialog (its size is set where it is
+	 * shown, see MoreShapesDialog.getSize).
+	 */
+	prepare: function(ui, elt)
+	{
+		// The browser fills the dialog
+	},
+	/**
+	 * Returns true if the search takes the focus when the dialog opens (not
+	 * on touch devices, where the keyboard would cover the dialog).
+	 */
+	isSearchFocused: function(ui)
+	{
+		return !mxClient.IS_IOS && !mxClient.IS_ANDROID;
+	},
+	/**
+	 * Returns true if Cancel comes before Apply (the order of the buttons of
+	 * the dialogs of the theme).
+	 */
+	isCancelFirst: function(ui)
+	{
+		return ui.editor.cancelFirst;
+	}
+};
+
+/**
+ * Size of the content of More Shapes in the Classic skin (the frame adds
+ * 48), limited to the window (MoreShapesDialog.getSize): the size of the
+ * Browser template of New.
+ */
+MoreShapesDialog.size = {width: 1132, height: 692};
+
+/**
+ * Returns the skin of More Shapes for the current theme: the skin of Fusion
+ * in Fusion (if its scripts are loaded), else the Classic skin.
+ */
+MoreShapesDialog.getSkin = function()
+{
+	return (typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern() &&
+		MoreShapesDialog.skins.fusion != null) ? MoreShapesDialog.skins.fusion :
+		MoreShapesDialog.skins.classic;
+};
+
+/**
+ * Lays out the given More Shapes dialog in the Classic skin where the
+ * feature moreShapesDialog is on (Editor.isMoreShapesDialogEnabled; Fusion
+ * lays it out in SimpleLibraries.js). Called at the end of the constructor
+ * of MoreShapesDialog.
+ */
+MoreShapesDialog.install = function(ui, dlg)
+{
+	if (ui != null && ui.editor != null && !ui.editor.isChromelessView() &&
+		typeof Editor.isMoreShapesDialogEnabled === 'function' && Editor.isMoreShapesDialogEnabled() &&
+		MoreShapesDialog.getSkin() == MoreShapesDialog.skins.classic)
+	{
+		try
+		{
+			MoreShapesDialog.createLayout(ui, dlg, MoreShapesDialog.skins.classic);
+		}
+		catch (e)
+		{
+			EditorUi.debug('MoreShapesDialog.install', [ui], 'error', [e]);
+		}
+	}
+};
+
+/**
+ * Returns the size of the content of the given More Shapes dialog: the size
+ * of the browser (MoreShapesDialog.size) limited to the window if the
+ * dialog is laid out in the Classic skin, else the given size. Fusion sizes
+ * its frame itself.
+ */
+MoreShapesDialog.getSize = function(dlg, width, height)
+{
+	if (dlg != null && dlg.layoutSkin != null && dlg.layoutSkin == MoreShapesDialog.skins.classic)
+	{
+		var ww = window.innerWidth || document.documentElement.clientWidth;
+		var wh = window.innerHeight || document.documentElement.clientHeight;
+		var margin = 48 + ((ww < 640) ? 0 : 32);
+
+		width = Math.max(Math.min(MoreShapesDialog.size.width, ww - margin), 240);
+		height = Math.max(Math.min(MoreShapesDialog.size.height, wh - margin), 240);
+	}
+
+	return {width: width, height: height};
+};
+
+/**
+ * Returns the categories of the Browser template in the given skin: a
+ * vertical tab list of rows with a glyph, a name and a count. Arrows, Home
+ * and End move the focus and choose.
+ */
+MoreShapesDialog.createCats = function(skin, label)
+{
+	var classes = skin.classes;
+	var cats = document.createElement('div');
+	cats.className = classes.cats;
+	cats.setAttribute('role', 'tablist');
+	cats.setAttribute('aria-orientation', 'vertical');
+	cats.setAttribute('aria-label', label);
+	cats.rows = [];
+
+	cats.addRow = function(name, iconName, count, fn)
+	{
+		var row = document.createElement('button');
+		row.setAttribute('type', 'button');
+		row.setAttribute('role', 'tab');
+		row.className = classes.cat;
+		row.appendChild(skin.createIcon(iconName, 'folder'));
+		var text = document.createElement('span');
+		text.className = classes.catName;
+		mxUtils.write(text, name);
+		row.appendChild(text);
+		row.setAttribute('title', name);
+
+		if (count != null)
+		{
+			var cnt = document.createElement('span');
+			cnt.className = classes.count;
+			mxUtils.write(cnt, String(count));
+			row.appendChild(cnt);
+			row.countNode = cnt;
+		}
+
+		row.smName = name;
+		row.smShow = fn;
+
+		mxEvent.addListener(row, 'keydown', function(evt)
+		{
+			var i = mxUtils.indexOf(cats.rows, row);
+			var next = (evt.keyCode == 38) ? cats.rows[i - 1] : ((evt.keyCode == 40) ? cats.rows[i + 1] :
+				((evt.keyCode == 36) ? cats.rows[0] : ((evt.keyCode == 35) ?
+				cats.rows[cats.rows.length - 1] : null)));
+
+			if (next != null)
+			{
+				next.focus();
+				next.click();
+				mxEvent.consume(evt);
+			}
+		});
+
+		cats.appendChild(row);
+		cats.rows.push(row);
+
+		return row;
+	};
+
+	// Marks the given row as chosen (null for none, eg. a search)
+	cats.setCurrent = function(row)
+	{
+		for (var i = 0; i < cats.rows.length; i++)
+		{
+			var on = cats.rows[i] == row;
+			cats.rows[i].classList.toggle(classes.on, on);
+			cats.rows[i].setAttribute('aria-selected', (on) ? 'true' : 'false');
+			cats.rows[i].setAttribute('tabindex', (on || (row == null && i == 0)) ? '0' : '-1');
+		}
+	};
+
+	return cats;
+};
+
+/**
+ * Returns the search field of the Browser template in the given skin with a
+ * button that clears it (the field calls fn 150 ms after typing).
+ */
+MoreShapesDialog.createSearch = function(skin, placeholder, fn)
+{
+	var search = document.createElement('div');
+	search.className = skin.classes.search;
+	search.appendChild(skin.createIcon('search'));
+	var input = document.createElement('input');
+	input.setAttribute('type', 'text');
+	input.setAttribute('placeholder', placeholder);
+	input.setAttribute('aria-label', placeholder);
+	input.setAttribute('autocomplete', 'off');
+	input.setAttribute('spellcheck', 'false');
+	search.appendChild(input);
+	var thread = null;
+
+	mxEvent.addListener(input, 'input', function()
+	{
+		window.clearTimeout(thread);
+		thread = window.setTimeout(function()
+		{
+			thread = null;
+			fn(mxUtils.trim(input.value));
+		}, 150);
+	});
+
+	// Escape clears the search before it closes the dialog
+	mxEvent.addListener(input, 'keydown', function(evt)
+	{
+		if (evt.keyCode == 27 && input.value != '')
+		{
+			input.value = '';
+			fn('');
+			mxEvent.consume(evt);
+		}
+	});
+
+	search.appendChild(skin.createIconButton('close', mxResources.get('reset'), function()
+	{
+		input.value = '';
+		fn('');
+		input.focus();
+	}));
+
+	search.input = input;
+
+	return search;
+};
+
+/**
+ * Replaces the layout of the given More Shapes dialog with the Browser
+ * template in the given skin. Returns the skin, or null if the dialog keeps
+ * its layout (if its content has changed). The skin is also dlg.layoutSkin.
+ */
+MoreShapesDialog.createLayout = function(ui, dlg, skin)
+{
+	var classes = skin.classes;
+	var c = dlg.controls;
+	var elt = dlg.container;
+
+	// Keeps the previous layout if the dialog has changed
+	if (c == null || c.sections == null || c.apply == null || c.cancel == null ||
+		c.buttons == null || c.buttons.parentNode != elt)
+	{
+		return null;
+	}
+
+	var items = [];
+
+	for (var i = 0; i < c.sections.length; i++)
+	{
+		for (var j = 0; j < c.sections[i].items.length; j++)
+		{
+			var item = c.sections[i].items[j];
+
+			if (item.checkbox == null || item.entry == null)
+			{
+				return null;
+			}
+
+			item.section = c.sections[i];
+			items.push(item);
+		}
+	}
+
+	elt.classList.add.apply(elt.classList, classes.dialog.split(' '));
+	elt.style.height = '';
+	elt.style.overflow = '';
+	skin.prepare(ui, elt);
+
+	// The previous parts stay in the DOM, hidden (the list keeps the
+	// entries that show the preview)
+	for (var i = 0; i < elt.children.length; i++)
+	{
+		if (elt.children[i] != c.buttons)
+		{
+			elt.children[i].classList.add(classes.replaced);
+		}
+	}
+
+	// The title of the dialog is not the headline of the template
+	if (c.title != null && c.title.parentNode != null)
+	{
+		c.title.parentNode.removeChild(c.title);
+	}
+
+	// The headline and how many libraries are on
+	var head = document.createElement('div');
+	head.className = classes.head;
+	var h3 = document.createElement('h3');
+	mxUtils.write(h3, skin.formatTitle(mxResources.get('moreShapes')));
+	head.appendChild(h3);
+	var sub = document.createElement('div');
+	sub.className = classes.subtitle;
+	head.appendChild(sub);
+	elt.insertBefore(head, elt.firstChild);
+
+	var body = document.createElement('div');
+	body.className = classes.body;
+	elt.insertBefore(body, c.buttons);
+
+	var cats = MoreShapesDialog.createCats(skin, mxResources.get('libraries'));
+	body.appendChild(cats);
+
+	var main = document.createElement('div');
+	main.className = classes.main;
+	body.appendChild(main);
+
+	// The search filters the libraries of all sections as the user types
+	var search = MoreShapesDialog.createSearch(skin, mxResources.get('searchLibraries'), function(value)
+	{
+		show((value == '') ? first : null);
+	});
+	var input = search.input;
+	main.appendChild(search);
+
+	var gridHead = skin.createSectionHead('');
+	gridHead.classList.add(classes.gridHead);
+	main.appendChild(gridHead);
+
+	var grid = document.createElement('div');
+	grid.className = classes.grid;
+	grid.setAttribute('role', 'tabpanel');
+	main.appendChild(grid);
+
+	// The preview of a library: the preview of the dialog with its name and
+	// checkbox, back returns to the tiles
+	var detail = null;
+	var detailHead = null;
+	var detailName = null;
+	var detailItem = null;
+	var back = null;
+
+	var closePreview = function(focus)
+	{
+		if (detailItem != null)
+		{
+			var item = detailItem;
+			detailItem = null;
+			item.tile.appendChild(item.checkbox);
+			detail.style.display = 'none';
+			grid.style.display = '';
+			gridHead.style.display = '';
+
+			if (focus && item.openBtn != null)
+			{
+				item.openBtn.focus();
+			}
+		}
+	};
+
+	var showPreview = function(item)
+	{
+		closePreview();
+		detailItem = item;
+		detailName.textContent = '';
+		mxUtils.write(detailName, item.entry.title);
+		detailHead.appendChild(item.checkbox);
+		grid.style.display = 'none';
+		gridHead.style.display = 'none';
+		detail.style.display = '';
+
+		// The entry of the dialog shows its preview
+		item.option.click();
+		c.preview.scrollTop = 0;
+		back.focus();
+	};
+
+	if (c.preview != null && c.list != null)
+	{
+		detail = document.createElement('div');
+		detail.className = classes.detail;
+		detail.style.display = 'none';
+		detailHead = document.createElement('div');
+		detailHead.className = classes.detailHead;
+		back = skin.createIconButton('back', mxResources.get('back'), function()
+		{
+			closePreview(true);
+		});
+		detailHead.appendChild(back);
+		detailName = document.createElement('div');
+		detailName.className = classes.detailName;
+		detailName.setAttribute('role', 'heading');
+		detailName.setAttribute('aria-level', '3');
+		detailHead.appendChild(detailName);
+		detail.appendChild(detailHead);
+
+		var preview = c.preview;
+		preview.classList.remove(classes.replaced);
+		preview.style.position = '';
+		preview.style.left = '';
+		preview.style.right = '';
+		preview.style.top = '';
+		preview.style.bottom = '';
+		detail.appendChild(preview);
+		main.appendChild(detail);
+
+		// Shift+Arrow Left in the preview goes back (the checkbox is no
+		// longer in its entry of the list)
+		detail.addEventListener('keydown', function(evt)
+		{
+			if (evt.keyCode == 37 && mxEvent.isShiftDown(evt) && !mxEvent.isAltDown(evt) &&
+				!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt))
+			{
+				closePreview(true);
+				mxEvent.consume(evt);
+			}
+		}, true);
+	}
+
+	var enabledRow = null;
+
+	// The number of libraries that are on in the subtitle and in Enabled
+	var updateCounts = function()
+	{
+		var n = 0;
+
+		for (var i = 0; i < items.length; i++)
+		{
+			var on = items[i].checkbox.checked;
+			items[i].tile.classList.toggle(classes.tileOn, on);
+
+			if (on)
+			{
+				n++;
+			}
+		}
+
+		sub.textContent = '';
+		mxUtils.write(sub, mxResources.get('librariesOnOf', [n, items.length]));
+
+		if (enabledRow != null)
+		{
+			enabledRow.countNode.textContent = String(n);
+		}
+	};
+
+	// The tiles: the picture of the first shapes of the library (the top of
+	// its preview) and the name with its section or description in a button
+	// that shows its shapes, and the checkbox of the dialog (a switch in
+	// Fusion)
+	for (var i = 0; i < items.length; i++)
+	{
+		(function(item)
+		{
+			var entry = item.entry;
+			var tile = document.createElement('div');
+			tile.className = classes.tile;
+			tile.setAttribute('title', entry.title + ((entry.id != null) ? ' (' + entry.id + ')' : ''));
+			item.tile = tile;
+
+			var thumb = document.createElement('span');
+			thumb.className = classes.thumb;
+			thumb.setAttribute('aria-hidden', 'true');
+
+			// Previews of custom libraries are only shown if they are images
+			// (data or http(s) URLs)
+			if (entry.image != null && /^(data:image\/|https?:\/\/|[^:]*$)/i.test(String(entry.image)))
+			{
+				var img = document.createElement('img');
+				img.setAttribute('loading', 'lazy');
+				img.setAttribute('alt', '');
+				img.setAttribute('src', entry.image);
+				thumb.appendChild(img);
+			}
+			else
+			{
+				thumb.appendChild(skin.createIcon((entry.id == 'search') ? 'search' :
+					((entry.id == '.scratchpad') ? 'note' : 'shapes')));
+			}
+
+			// Shows the shapes where the dialog has a preview, else the tile
+			// switches the library
+			var open = null;
+
+			if (detail != null && item.option != null)
+			{
+				open = document.createElement('button');
+				open.setAttribute('type', 'button');
+				open.className = classes.open;
+				open.setAttribute('aria-label', skin.nameWithDetail(entry.title, mxResources.get('preview')));
+				item.openBtn = open;
+				tile.appendChild(open);
+			}
+
+			var parent = (open != null) ? open : tile;
+			parent.appendChild(thumb);
+
+			var text = document.createElement('span');
+			text.className = classes.text;
+			var name = document.createElement('span');
+			name.className = classes.name;
+			mxUtils.write(name, entry.title);
+			text.appendChild(name);
+			var hint = document.createElement('span');
+			hint.className = classes.hint + ((entry.desc == null) ? ' ' + classes.sectionHint : '');
+			mxUtils.write(hint, (entry.desc != null) ? entry.desc : item.section.title);
+			text.appendChild(hint);
+			parent.appendChild(text);
+
+			var cb = item.checkbox;
+
+			if (skin.switches)
+			{
+				cb.setAttribute('role', 'switch');
+			}
+
+			cb.setAttribute('aria-label', entry.title);
+			tile.appendChild(cb);
+
+			mxEvent.addListener(cb, 'change', updateCounts);
+			grid.appendChild(tile);
+
+			// A click on the tile (not on its checkbox) shows its shapes, or
+			// switches the library if the dialog has no preview
+			mxEvent.addListener(tile, 'click', function(evt)
+			{
+				if (mxEvent.getSource(evt) != cb)
+				{
+					if (open != null)
+					{
+						showPreview(item);
+					}
+					else
+					{
+						cb.click();
+					}
+				}
+			});
+		})(items[i]);
+	}
+
+	// Shows the tiles of the given category (or of the search if row is null)
+	var show = function(row)
+	{
+		closePreview();
+		var list = (row != null) ? row.smShow() : [];
+
+		if (row == null)
+		{
+			var terms = skin.normalize(mxUtils.trim(input.value)).split(/\s+/);
+
+			list = items.filter(function(item)
+			{
+				var text = skin.normalize(item.entry.title + ' ' + (item.entry.id || '') +
+					' ' + item.section.title);
+
+				return terms.every(function(t)
+				{
+					return text.indexOf(t) >= 0;
+				});
+			});
+		}
+
+		// The tiles stay in the grid (in the order of the sections), the
+		// others are hidden
+		grid.classList.toggle(classes.inSection, row != null && row.smSection != null);
+
+		for (var i = 0; i < items.length; i++)
+		{
+			items[i].tile.style.display = (mxUtils.indexOf(list, items[i]) >= 0) ? '' : 'none';
+		}
+
+		cats.setCurrent(row);
+		gridHead.textContent = '';
+
+		if (row != null)
+		{
+			mxUtils.write(gridHead, skin.nameWithDetail(row.smName, list.length));
+			grid.setAttribute('aria-label', row.smName);
+		}
+		else
+		{
+			mxUtils.write(gridHead, mxResources.get((list.length > 0) ? 'resultsFor' : 'noResultsFor',
+				[mxUtils.trim(input.value)]));
+			grid.setAttribute('aria-label', mxResources.get('search'));
+		}
+
+		grid.scrollTop = 0;
+	};
+
+	// The categories: Enabled and the sections of the dialog; a category
+	// ends the search
+	var addCat = function(name, iconName, count, fn)
+	{
+		var row = cats.addRow(name, iconName, count, fn);
+
+		mxEvent.addListener(row, 'click', function()
+		{
+			input.value = '';
+			show(row);
+		});
+
+		return row;
+	};
+
+	enabledRow = addCat(mxResources.get('enabled'), 'check', 0, function()
+	{
+		return items.filter(function(item)
+		{
+			return item.checkbox.checked;
+		});
+	});
+
+	var first = null;
+
+	for (var i = 0; i < c.sections.length; i++)
+	{
+		(function(section)
+		{
+			var sectionItems = section.items.filter(function(item)
+			{
+				return mxUtils.indexOf(items, item) >= 0;
+			});
+
+			if (sectionItems.length > 0)
+			{
+				var iconName = null;
+
+				for (var k in MoreShapesDialog.sectionGlyphs)
+				{
+					if (section.title == mxResources.get(k))
+					{
+						iconName = MoreShapesDialog.sectionGlyphs[k];
+					}
+				}
+
+				var row = addCat(section.title, iconName, sectionItems.length, function()
+				{
+					return sectionItems;
+				});
+
+				row.smSection = section;
+
+				if (first == null)
+				{
+					first = row;
+				}
+			}
+		})(c.sections[i]);
+	}
+
+	if (first == null)
+	{
+		first = enabledRow;
+	}
+
+	// The footer: Labels and Remember this setting on the left, Cancel and
+	// Apply on the right
+	var btns = c.buttons;
+	btns.style.cssText = '';
+	btns.className = (classes.footer != null) ? classes.footer : '';
+	var options = document.createElement('div');
+	options.className = classes.options;
+
+	if (c.checks != null)
+	{
+		if (c.expanded)
+		{
+			c.checks.className = classes.options;
+			options = c.checks;
+
+			for (var i = 0; i < options.children.length; i++)
+			{
+				options.children[i].className = classes.option;
+			}
+		}
+		else if (c.remember != null)
+		{
+			c.checks.style.cssText = '';
+			c.checks.className = classes.option;
+			c.checks.classList.remove(classes.replaced);
+			options.appendChild(c.checks);
+		}
+	}
+
+	if (skin.switches)
+	{
+		var switches = [c.labels, c.remember];
+
+		for (var i = 0; i < switches.length; i++)
+		{
+			if (switches[i] != null)
+			{
+				switches[i].setAttribute('role', 'switch');
+			}
+		}
+	}
+
+	btns.textContent = '';
+	btns.appendChild(options);
+
+	// The order of the buttons of the theme
+	if (skin.isCancelFirst(ui))
+	{
+		btns.appendChild(c.cancel);
+		btns.appendChild(c.apply);
+	}
+	else
+	{
+		btns.appendChild(c.apply);
+		btns.appendChild(c.cancel);
+	}
+
+	// Enter applies (also in the search field, which searches as the user
+	// types); buttons keep their own Enter
+	mxEvent.addListener(elt, 'keydown', function(evt)
+	{
+		var src = mxEvent.getSource(evt);
+
+		if (evt.keyCode == 13 && !mxEvent.isAltDown(evt) && !mxEvent.isShiftDown(evt) &&
+			src != null && src.nodeName != 'BUTTON' && src.nodeName != 'TEXTAREA' &&
+			src.nodeName != 'SELECT' && src.nodeName != 'A' && !c.apply.disabled)
+		{
+			c.apply.click();
+			mxEvent.consume(evt);
+		}
+	});
+
+	updateCounts();
+	show(first);
+
+	// The search has the focus where the keyboard does not cover the dialog
+	window.setTimeout(function()
+	{
+		if (elt.parentNode != null && skin.isSearchFocused(ui))
+		{
+			input.focus();
+		}
+	}, 0);
+
+	dlg.layoutSkin = skin;
+
+	return skin;
 };
 
 var PluginsDialog = function(editorUi, addFn, delFn, closeOnly)
@@ -18946,10 +22426,10 @@ var PluginsDialog = function(editorUi, addFn, delFn, closeOnly)
 		{
 			var customBtn = mxUtils.button(mxResources.get('custom') + '...', function()
 			{
+				// The prompt closes itself (a second hideDialog closed Plugins
+				// too since the inline row replaced the dialog of Add)
 				var dlg = new FilenameDialog(editorUi, '', mxResources.get('add'), function(newValue)
 				{
-					editorUi.hideDialog();
-
 					if (newValue != null && newValue.length > 0)
 					{
 						var tokens = newValue.split(';');
@@ -19124,6 +22604,12 @@ var PluginsDialog = function(editorUi, addFn, delFn, closeOnly)
 		addButton: addBtn, buttons: buttons, apply: applyBtn, cancel: cancelBtn,
 		closeOnly: closeOnly == true};
 	this.container = div;
+
+	// The layout of Fusion in the Classic skin (SettingsLayouts.js)
+	if (typeof editorUi.installPluginsLayout === 'function')
+	{
+		editorUi.installPluginsLayout(this);
+	}
 };
 
 var CropImageDialog = function(editorUi, image, clipPath, fn)
@@ -19610,6 +23096,548 @@ var CropImageDialog = function(editorUi, image, clipPath, fn)
 		arcSize: arcSize, buttons: buttons, cancelBtn: cancelBtn, resetBtn: resetBtn,
 		applyBtn: applyBtn, getGraph: function() { return cropGraph; }};
 	this.container = div;
+
+	// The size of the dialog (showDialog), the layout in the Classic skin has
+	// its own
+	this.width = 380;
+	this.height = 390;
+	this.minSize = new mxRectangle(0, 0, 440, 450);
+
+	// The layout of Fusion in the Classic skin where the feature cropDialog
+	// is on (Fusion lays the dialog out with its skin in SimplePreview.js)
+	CropImageDialog.install(editorUi, this);
+};
+
+/**
+ * The layout of Crop of Fusion (the Preview template of the shape editors)
+ * in every look: the headline, the picture with the crop handles and a bar
+ * with its zoom next to the shape of the crop (with the corners of a rounded
+ * crop), the aspect ratio, the position and the size, and the footer with
+ * Reset on the left and Cancel and Crop on the right. The controls of the
+ * dialog move into the new layout with their listeners (or stay hidden and
+ * are driven), so the crop handles, the shapes, the corners, Reset, the
+ * fields and the clip path that the dialog returns (the style clipPath of
+ * the image, one undoable edit of its caller) work as before. The aspect
+ * ratio (CropImageDialog.ratios) makes the crop the largest rectangle with
+ * the ratio in the current crop and keeps the ratio while it is resized.
+ *
+ * The layout (CropImageDialog.createLayout) takes a skin: the Classic skin
+ * (CropImageDialog.skins.classic, docs/dialog-style-guide.md, the Preview
+ * template of PreviewDialog.js in its Classic skin and its CSS in
+ * grapheditor.css under .geCropDlg) behind the feature cropDialog of
+ * Editor.featureDefaults (Editor.isCropDialogEnabled), or the skin of
+ * Fusion, which SimplePreview.js adds (CropImageDialog.skins.fusion), so the
+ * code exists once. Where the feature is off the dialog keeps its layout of
+ * before.
+ */
+CropImageDialog.skins = {};
+
+/**
+ * Aspect ratios of the crop (width / height, null is free).
+ */
+CropImageDialog.ratios = [{value: 'free', ratio: null}, {value: '1:1', ratio: 1},
+	{value: '4:3', ratio: 4 / 3}, {value: '16:9', ratio: 16 / 9}];
+
+/**
+ * Width of the content of the layout in the Classic skin (the height is the
+ * height of its content).
+ */
+CropImageDialog.width = 720;
+
+/**
+ * The outline glyphs of the tools of the Classic skin (on a 24 grid, stroke
+ * 1.8, round caps), the icons minus, plus and fit of Fusion (SimpleUi.icons).
+ */
+CropImageDialog.glyphs = {
+	minus: '<path d="M6 12h12"/>',
+	plus: '<path d="M12 6v12M6 12h12"/>',
+	fit: '<path d="M4.5 9V4.5H9M15 4.5h4.5V9M19.5 15v4.5H15M9 19.5H4.5V15"/>'
+};
+
+/**
+ * The Classic skin (docs/dialog-style-guide.md): the Preview template in the
+ * Classic skin of PreviewDialog.js (sections are geDialogSection cards, rows
+ * geDialogFormRow with a label that names the field), the shape and the
+ * aspect ratio as lists (select), the corners as a slider in the accent
+ * color, the tools as buttons with glyphs (masks in the color of the text,
+ * so that they follow dark mode) over the picture and the buttons of the
+ * dialog in their order (Editor.cancelFirst) with Reset on the left. The
+ * shape, its corners and the aspect ratio share a card without a title, as
+ * their labels name them, and the corners are disabled unless the crop is
+ * rounded (the dialog keeps its size). A skin has the classes replaced,
+ * shapeRow, ratioRow, slider and unit and the builders createLayout (the
+ * head, the body and the functions canvas, tool, section(name, named) and
+ * row), getSubtitle, createChoice (with setValue), updateSlider, showRow,
+ * arrangeFooter, focus and fit.
+ */
+CropImageDialog.skins.classic = {
+	name: 'classic',
+	classes: {replaced: 'geCropDlgReplaced', shapeRow: 'geCropDlgShape', ratioRow: 'geCropDlgRatio',
+		slider: 'geCropDlgSlider', unit: 'geDialogHint geCropDlgUnit'},
+	/**
+	 * Returns the parts of the layout for the given content of the dialog:
+	 * the head, the body and the functions that add the canvas, the tools,
+	 * the sections and the rows.
+	 */
+	createLayout: function(ui, elt, title, subtitle)
+	{
+		var skin = this;
+		var preview = PreviewDialog.createLayout(PreviewDialog.skins.classic, {title: title,
+			subtitle: subtitle, paneClass: 'geCropDlgPane', paneHidden: false});
+		var pane = preview.pane;
+		elt.classList.add(PreviewDialog.skins.classic.classes.template, 'geCropDlg');
+
+		var tools = document.createElement('div');
+		tools.className = 'geCropDlgTools';
+		tools.setAttribute('role', 'toolbar');
+		tools.setAttribute('aria-label', title);
+		var untitled = false;
+
+		return {head: preview.head, body: preview.body, pane: pane,
+			// The canvas of the dialog fills the pane, the tools float over it
+			canvas: function(canvas)
+			{
+				canvas.classList.add('geCropDlgCanvas');
+				pane.appendChild(canvas);
+			},
+			// A tool that clicks the given control of the dialog
+			tool: function(name, label, control)
+			{
+				var btn = skin.createIconButton(name, label, function(evt)
+				{
+					control.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+				});
+
+				tools.appendChild(btn);
+				pane.appendChild(tools);
+
+				return btn;
+			},
+			// A section whose rows name it (named) has no title and goes into
+			// the card of the section before if that has no title either
+			section: function(name, named)
+			{
+				if (named && untitled)
+				{
+					return null;
+				}
+
+				untitled = named == true;
+
+				return preview.section((named) ? null : name).head;
+			},
+			row: function(label, control, className)
+			{
+				return preview.row(label, control, className);
+			}};
+	},
+	/**
+	 * Returns a new glyph of the given name (CropImageDialog.glyphs): a mask
+	 * in the color of the text.
+	 */
+	createIcon: function(name)
+	{
+		var icon = document.createElement('span');
+		icon.className = 'geCropDlgGlyph';
+		icon.setAttribute('aria-hidden', 'true');
+
+		if (Object.prototype.hasOwnProperty.call(CropImageDialog.glyphs, name))
+		{
+			icon.style.setProperty('--ge-crop-glyph', 'url(\'' + Editor.createSvgDataUri(
+				'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" ' +
+				'stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+				CropImageDialog.glyphs[name] + '</svg>') + '\')');
+		}
+
+		return icon;
+	},
+	/**
+	 * Returns a button with the given glyph, title and click handler.
+	 */
+	createIconButton: function(name, title, fn)
+	{
+		var btn = document.createElement('button');
+		btn.setAttribute('type', 'button');
+		btn.className = 'geCropDlgTool';
+		btn.setAttribute('title', title);
+		btn.setAttribute('aria-label', title);
+		btn.appendChild(this.createIcon(name));
+
+		mxEvent.addListener(btn, 'click', function(evt)
+		{
+			fn(evt);
+			mxEvent.consume(evt);
+		});
+
+		return btn;
+	},
+	/**
+	 * Returns the subtitle of the dialog (none, as the other dialogs of the
+	 * theme).
+	 */
+	getSubtitle: function(ui, graph, cells)
+	{
+		return null;
+	},
+	/**
+	 * Returns a list for the given items ({value, label}) with the given
+	 * value, which calls fn with the value of a change.
+	 */
+	createChoice: function(items, value, fn, label)
+	{
+		return PreviewDialog.skins.classic.createChoice(items, value, function(v)
+		{
+			fn(v);
+		}, label);
+	},
+	/**
+	 * Updates the given slider after its value changed (nothing to do: the
+	 * slider of the browser shows its value).
+	 */
+	updateSlider: function(input)
+	{
+		// The slider shows its value
+	},
+	/**
+	 * Shows the given row of the given control if visible is true, else
+	 * disables it: the row keeps its place, so the dialog keeps its size.
+	 */
+	showRow: function(row, input, visible)
+	{
+		input.disabled = !visible;
+		row.classList.toggle('geCropDlgDisabled', !visible);
+	},
+	/**
+	 * Puts Reset on the left of the footer and keeps the order of Cancel and
+	 * Crop (Editor.cancelFirst), and makes Enter crop on the picture and in
+	 * the fields.
+	 */
+	arrangeFooter: function(ui, dlg, c)
+	{
+		var footer = c.buttons;
+		footer.style.cssText = '';
+		footer.classList.add('geCropDlgFooter');
+		c.resetBtn.classList.add('geCropDlgReset');
+		footer.insertBefore(c.resetBtn, footer.firstChild);
+		c.applyBtn.innerHTML = '';
+		mxUtils.write(c.applyBtn, mxResources.get('crop'));
+
+		mxEvent.addListener(dlg.container, 'keydown', function(evt)
+		{
+			var target = mxEvent.getSource(evt);
+
+			if (evt.keyCode == 13 && !evt.shiftKey && !evt.altKey && !evt.defaultPrevented &&
+				target != null && (target == c.croppingDiv || (target.nodeName == 'INPUT' &&
+				target.getAttribute('type') == 'text')))
+			{
+				// Fields apply their value before (their change listeners)
+				if (target.nodeName == 'INPUT')
+				{
+					target.dispatchEvent(new Event('change', {bubbles: true}));
+				}
+
+				c.applyBtn.click();
+				mxEvent.consume(evt);
+			}
+		});
+	},
+	/**
+	 * Moves the focus to the picture once the dialog is shown, unless the
+	 * focus is already in the dialog (Enter crops).
+	 */
+	focus: function(ui, dlg, c)
+	{
+		c.croppingDiv.setAttribute('tabindex', '0');
+		c.croppingDiv.setAttribute('role', 'img');
+		c.croppingDiv.setAttribute('aria-label', mxResources.get('crop'));
+
+		window.setTimeout(function()
+		{
+			var div = dlg.container.parentNode;
+
+			if (div != null && div.parentNode != null && !div.contains(document.activeElement) &&
+				c.croppingDiv.offsetParent != null)
+			{
+				c.croppingDiv.focus();
+			}
+		}, 0);
+	},
+	/**
+	 * Fits the picture into the pane.
+	 */
+	fit: function(ui, dlg, c)
+	{
+		c.zoomFitBtn.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+	}
+};
+
+/**
+ * Returns the skin of the crop dialog for the current theme: the skin of
+ * Fusion in Fusion (if its scripts are loaded), else the Classic skin.
+ */
+CropImageDialog.getSkin = function()
+{
+	return (typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern() &&
+		CropImageDialog.skins.fusion != null) ? CropImageDialog.skins.fusion :
+		CropImageDialog.skins.classic;
+};
+
+/**
+ * Lays out the given crop dialog in the Classic skin where the feature
+ * cropDialog is on (Editor.isCropDialogEnabled; Fusion lays it out in
+ * SimplePreview.js). Called at the end of the constructor of
+ * CropImageDialog.
+ */
+CropImageDialog.install = function(ui, dlg)
+{
+	if (ui != null && ui.editor != null && !ui.editor.isChromelessView() &&
+		typeof Editor.isCropDialogEnabled === 'function' && Editor.isCropDialogEnabled() &&
+		CropImageDialog.getSkin() == CropImageDialog.skins.classic)
+	{
+		try
+		{
+			if (CropImageDialog.createLayout(ui, dlg, CropImageDialog.skins.classic) != null)
+			{
+				// The width of the template, the height of its content
+				dlg.width = CropImageDialog.width;
+				dlg.height = null;
+				dlg.minSize = new mxRectangle(0, 0, 560, 400);
+			}
+		}
+		catch (e)
+		{
+			EditorUi.debug('CropImageDialog.install', [ui], 'error', [e]);
+		}
+	}
+};
+
+/**
+ * Replaces the layout of the given crop dialog with the layout in the given
+ * skin. Returns the skin, or null if the dialog keeps its layout (if its
+ * controls are missing). The skin is also dlg.layoutSkin.
+ */
+CropImageDialog.createLayout = function(ui, dlg, skin)
+{
+	var c = dlg.controls;
+	var elt = dlg.container;
+	var classes = skin.classes;
+	var graph = ui.editor.graph;
+	var cells = graph.getSelectionCells();
+
+	if (c == null || c.croppingDiv == null || c.buttons == null || c.applyBtn == null)
+	{
+		return null;
+	}
+
+	var layout = skin.createLayout(ui, elt, mxResources.get('crop'), (cells.length == 1) ?
+		skin.getSubtitle(ui, graph, cells) : null);
+
+	// The picture and its tools
+	c.croppingDiv.style.border = '';
+	c.croppingDiv.style.flex = '';
+	layout.canvas(c.croppingDiv);
+	layout.tool('minus', mxResources.get('zoomOut'), c.zoomOutBtn);
+	layout.tool('plus', mxResources.get('zoomIn'), c.zoomInBtn);
+	layout.tool('fit', mxResources.get('fit'), c.zoomFitBtn);
+
+	// The shape of the crop drives the radios (its rows name the section)
+	layout.section(mxResources.get('shape'), true);
+	var radios = [c.rectInput, c.roundedInput, c.ellipseInput];
+	var getShape = function()
+	{
+		return (c.ellipseInput.checked) ? 'ellipse' : ((c.roundedInput.checked) ? 'rounded' : 'rectangle');
+	};
+
+	var shapeGroup = skin.createChoice([{value: 'rectangle', label: mxResources.get('rectangle')},
+		{value: 'rounded', label: mxResources.get('rounded')}, {value: 'ellipse', label: mxResources.get('ellipse')}],
+		getShape(), function(value)
+	{
+		var radio = (value == 'ellipse') ? c.ellipseInput : ((value == 'rounded') ? c.roundedInput : c.rectInput);
+		radio.checked = true;
+		radio.dispatchEvent(new Event('change'));
+	}, mxResources.get('shape'));
+	layout.row(mxResources.get('shape'), shapeGroup, classes.shapeRow);
+	c.radioDiv.classList.add(classes.replaced);
+
+	// The corners of a rounded crop (the slider is 1 to 49)
+	c.arcSize.classList.add(classes.slider);
+	c.arcSize.style.cssText = '';
+	var arcRow = layout.row(mxResources.get('arcSize'), c.arcSize).parentNode;
+	c.arcSizeDiv.classList.add(classes.replaced);
+
+	var updateArc = function()
+	{
+		skin.updateSlider(c.arcSize);
+	};
+
+	mxEvent.addListener(c.arcSize, 'input', updateArc);
+
+	// The aspect ratio: makes the crop the largest rectangle with the ratio in
+	// the current crop and keeps the ratio while resizing it (the stored
+	// crop is computed from the rectangle as before)
+	var ratio = null;
+	var installed = null;
+
+	var constrain = function(handler)
+	{
+		if (handler != null && handler.isConstrainedEvent != null && !handler.simpleRatio)
+		{
+			var isConstrainedEvent = handler.isConstrainedEvent;
+			handler.simpleRatio = true;
+
+			handler.isConstrainedEvent = function()
+			{
+				return ratio != null || isConstrainedEvent.apply(this, arguments);
+			};
+		}
+
+		return handler;
+	};
+
+	var applyRatio = function()
+	{
+		var g = c.getGraph();
+
+		if (g != null && installed != g)
+		{
+			installed = g;
+			var createVertexHandler = g.createVertexHandler;
+
+			g.createVertexHandler = function()
+			{
+				return constrain(createVertexHandler.apply(this, arguments));
+			};
+
+			constrain(g.selectionCellsHandler.getHandler(g.getSelectionCell()));
+		}
+
+		var x = parseFloat(c.xInput.value), y = parseFloat(c.yInput.value);
+		var w = parseFloat(c.wInput.value), h = parseFloat(c.hInput.value);
+
+		if (ratio != null && w > 0 && h > 0 && Math.abs(w / h - ratio) > 0.01)
+		{
+			var nw = Math.min(w, h * ratio);
+			var nh = nw / ratio;
+			c.xInput.value = Math.round(x + (w - nw) / 2);
+			c.yInput.value = Math.round(y + (h - nh) / 2);
+			c.wInput.value = Math.round(nw);
+			c.hInput.value = Math.round(nh);
+			c.hInput.dispatchEvent(new Event('change'));
+		}
+	};
+
+	var updateShape = function()
+	{
+		shapeGroup.setValue(getShape());
+		skin.showRow(arcRow, c.arcSize, c.arcSizeDiv.style.visibility == 'visible');
+		updateArc();
+	};
+
+	CropImageDialog.observe(c.arcSizeDiv, updateShape);
+
+	// A new shape resets the crop, which gets the ratio again
+	for (var i = 0; i < radios.length; i++)
+	{
+		mxEvent.addListener(radios[i], 'change', function()
+		{
+			updateShape();
+			applyRatio();
+		});
+	}
+
+	// The image sets the radios after it is loaded (the checked attribute,
+	// which a crop of an ellipse sets alone)
+	for (var i = 0; i < radios.length; i++)
+	{
+		CropImageDialog.observe(radios[i], updateShape, {attributes: true, attributeFilter: ['checked']});
+	}
+
+	window.setTimeout(updateShape, 0);
+	updateShape();
+
+	layout.section(mxResources.get('aspectRatio'), true);
+	var ratios = [];
+
+	for (var i = 0; i < CropImageDialog.ratios.length; i++)
+	{
+		var r = CropImageDialog.ratios[i];
+		ratios.push({value: r.value, label: (r.ratio == null) ? mxResources.get('none') : r.value});
+	}
+
+	var ratioGroup = skin.createChoice(ratios, 'free', function(value)
+	{
+		ratio = null;
+
+		for (var i = 0; i < CropImageDialog.ratios.length; i++)
+		{
+			if (CropImageDialog.ratios[i].value == value)
+			{
+				ratio = CropImageDialog.ratios[i].ratio;
+			}
+		}
+
+		applyRatio();
+	}, mxResources.get('aspectRatio'));
+	layout.row(mxResources.get('aspectRatio'), ratioGroup, classes.ratioRow);
+
+	// Position and size of the crop in pixels of the image
+	layout.section(mxResources.get('area'));
+
+	var pair = function(label, a, b, la, lb)
+	{
+		a.style.cssText = '';
+		b.style.cssText = '';
+		a.setAttribute('aria-label', la);
+		b.setAttribute('aria-label', lb);
+		var ctl = layout.row(label, a);
+		ctl.appendChild(b);
+		var u = document.createElement('span');
+		u.className = classes.unit;
+		mxUtils.write(u, 'px');
+		ctl.appendChild(u);
+	};
+
+	pair(mxResources.get('position'), c.xInput, c.yInput, 'X', 'Y');
+	pair(mxResources.get('size'), c.wInput, c.hInput, mxResources.get('width'), mxResources.get('height'));
+
+	// Head, body and footer
+	c.zoomBtns.classList.add(classes.replaced);
+	elt.insertBefore(layout.head, elt.firstChild);
+	elt.insertBefore(layout.body, c.buttons);
+	skin.arrangeFooter(ui, dlg, c);
+
+	// The focus starts on the picture (Enter crops)
+	skin.focus(ui, dlg, c);
+
+	// The picture fits the pane once it is shown
+	window.setTimeout(function()
+	{
+		var g = c.getGraph();
+
+		if (g != null)
+		{
+			g.sizeDidChange();
+			skin.fit(ui, dlg, c);
+		}
+	}, 0);
+
+	dlg.layoutSkin = skin;
+
+	return skin;
+};
+
+/**
+ * Calls the given function when the attributes of the given element change
+ * (the state of a control that the dialog sets on its old controls; the
+ * style and the class by default).
+ */
+CropImageDialog.observe = function(elt, fn, options)
+{
+	if (elt != null && window.MutationObserver != null)
+	{
+		new MutationObserver(fn).observe(elt, (options != null) ? options :
+			{attributes: true, attributeFilter: ['style', 'disabled', 'class']});
+	}
 };
 
 var EditGeometryDialog = function(editorUi, vertices)
@@ -19844,6 +23872,12 @@ var EditGeometryDialog = function(editorUi, vertices)
 			editorUi.hideDialog();
 		}
 	});
+
+	// The layout of Fusion in the Classic skin where it is on (FormTemplate.js)
+	if (typeof editorUi.installFormTemplate === 'function')
+	{
+		editorUi.installFormTemplate('geometry', this, [vertices]);
+	}
 };
 
 /**
@@ -20280,7 +24314,19 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 							mxEvent.consume(evt);
 						}
 					});
-					
+
+					// A name that is renamed in place takes pasted text only, never
+					// the elements of pasted HTML
+					mxEvent.addListener(label, 'paste', function(evt)
+					{
+						if (label.getAttribute('contentEditable') == 'true' && evt.clipboardData != null)
+						{
+							document.execCommand('insertText', false, String(
+								evt.clipboardData.getData('text/plain') || '').replace(/[\r\n]+/g, ' '));
+							mxEvent.consume(evt);
+						}
+					});
+
 					updateLabel();
 
 					// Before the delete button in the order of Tab (both are absolute)
@@ -20318,6 +24364,9 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 								label.style.color = '';
 								label.setAttribute('contentEditable', 'true');
 								mxUtils.setPrefixedStyle(label.style, 'user-select', 'text');
+
+								// Firefox places no caret in a name in a draggable entry
+								wrapper.setAttribute('draggable', 'false');
 								label.focus();
 
 								// Selects the name with a range as selectAll selects the
@@ -20331,6 +24380,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 								stopEditing = function()
 								{
 									label.removeAttribute('contentEditable');
+									wrapper.setAttribute('draggable', 'true');
 									label.style.cursor = 'pointer';
 									entry.title = mxUtils.getTextContent(label);
 									updateLabel();
@@ -20915,21 +24965,27 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode,
 
 	outer.appendChild(btns);
 
-	// The parts of the dialog for other looks (see SimpleLibraries.js)
+	// The parts of the dialog for other looks (see LibraryLayout.js)
 	this.controls = {nameSection: nameSection, nameInput: nameInput, compressed: (Editor.enableUncompressedLibraries) ?
 		compressedInput : null, grid: div, hint: bg, buttons: btns, cancel: cancelBtn, save: btn};
 
 	this.container = outer;
+
+	// The library editor of Fusion in the Classic skin (LibraryLayout.js)
+	if (typeof editorUi.installLibraryLayout === 'function')
+	{
+		editorUi.installLibraryLayout(this, file, mode);
+	}
 };
 
 /**
  * Returns true if the names of the entries are edited in place, else they
- * are edited in a prompt (Firefox and iOS, and old versions of IE).
+ * are edited in a prompt (old versions of IE). Firefox and iOS rename in
+ * place too: the entry is not draggable while its name is edited.
  */
 LibraryDialog.isRenameInPlace = function()
 {
-	return !mxClient.IS_IOS && !mxClient.IS_FF &&
-		(document.documentMode == null || document.documentMode > 9);
+	return document.documentMode == null || document.documentMode > 9;
 };
 
 /**
@@ -21186,10 +25242,334 @@ var EditShapeDialog = function(editorUi, cell, title)
 		graph.fit();
 	};
 
-	// The controls of the dialog (see SimplePreview.js)
+	// The controls of the dialog (see EditShapeDialog.createLayout)
 	this.controls = {title: hd, contentDiv: contentDiv, textarea: textarea, previewDiv: previewDiv,
 		graph: graph, buttons: btns, previewBtn: previewBtn, applyBtn: applyBtn, cancelBtn: cancelBtn};
 	this.container = div;
+
+	// The size of the dialog (showDialog), the layout in the Classic skin has
+	// its own
+	this.width = 640;
+	this.height = 480;
+	this.minSize = new mxRectangle(0, 0, 300, 200);
+
+	// The layout of Fusion in the Classic skin where the feature
+	// editShapeDialog is on (Fusion lays the dialog out with its skin in
+	// SimplePreview.js)
+	EditShapeDialog.install(editorUi, this, cell);
+};
+
+/**
+ * The layout of Create Shape and Edit Shape of Fusion (the Preview template
+ * of the shape editors) in every look: the headline, the XML of the stencil
+ * as code on the left with the errors of the XML below it, a live preview of
+ * the shape with its connection points on the right and the footer with
+ * Cancel and Apply (Insert for new shapes). The controls of the dialog move
+ * into the new layout with their listeners, Preview stays hidden and is
+ * driven: the preview follows the code 400 ms after typing while the XML is
+ * valid and every coordinate of a drawing command is a number, and Apply,
+ * Ctrl+Enter and the errors of invalid XML work as before.
+ *
+ * The layout (EditShapeDialog.createLayout) takes a skin: the Classic skin
+ * (EditShapeDialog.skins.classic, docs/dialog-style-guide.md, the Preview
+ * template of PreviewDialog.js in its Classic skin and its CSS in
+ * grapheditor.css under .geEditShapeDlg) behind the feature editShapeDialog
+ * of Editor.featureDefaults (Editor.isEditShapeDialogEnabled), or the skin of
+ * Fusion, which SimplePreview.js adds (EditShapeDialog.skins.fusion), so the
+ * code exists once. Where the feature is off the dialog keeps its layout of
+ * before.
+ */
+EditShapeDialog.skins = {};
+
+/**
+ * Size of the content of the layout in the Classic skin (the frame adds 48),
+ * limited to the window (EditShapeDialog.install).
+ */
+EditShapeDialog.size = {width: 800, height: 520};
+
+/**
+ * Smallest size of the content of the layout in the Classic skin when the
+ * dialog is resized.
+ */
+EditShapeDialog.minSize = {width: 480, height: 360};
+
+/**
+ * Delay of the live preview after typing in ms.
+ */
+EditShapeDialog.previewDelay = 400;
+
+/**
+ * The coordinates of the drawing commands of stencils (see isComplete in
+ * EditShapeDialog.createLayout).
+ */
+EditShapeDialog.coordinates = {move: ['x', 'y'], line: ['x', 'y'], quad: ['x1', 'y1', 'x2', 'y2'],
+	curve: ['x1', 'y1', 'x2', 'y2', 'x3', 'y3'], arc: ['rx', 'ry', 'x', 'y'],
+	rect: ['x', 'y', 'w', 'h'], roundrect: ['x', 'y', 'w', 'h'], ellipse: ['x', 'y', 'w', 'h'],
+	image: ['x', 'y', 'w', 'h'], text: ['x', 'y']};
+
+/**
+ * The Classic skin (docs/dialog-style-guide.md): the Preview template in the
+ * Classic skin of PreviewDialog.js with the colors, the font and the corners
+ * of the other dialogs of the theme, the code in a monospace field of the
+ * dialogs, the preview in the pane of the template and the buttons of the
+ * dialog in their order (Editor.cancelFirst) with help on the left. A skin
+ * has the classes code (the column of the code), status (the errors) and
+ * replaced (hidden parts of the dialog) and the builders createLayout (the
+ * head, the body, the pane, the options and the function canvas),
+ * getSubtitle (null for none), createCodeField (the field around the text
+ * area with its function update) and arrangeFooter.
+ */
+EditShapeDialog.skins.classic = {
+	name: 'classic',
+	classes: {code: 'geEditShapeDlgCode', status: 'geEditShapeDlgStatus',
+		replaced: 'geEditShapeDlgReplaced'},
+	/**
+	 * Returns the parts of the layout for the given content of the dialog:
+	 * the head, the body, the pane, the options and the function that puts
+	 * the canvas into the pane.
+	 */
+	createLayout: function(ui, elt, title, subtitle)
+	{
+		var preview = PreviewDialog.createLayout(PreviewDialog.skins.classic, {title: title,
+			subtitle: subtitle, paneClass: 'geEditShapeDlgPane', paneHidden: false});
+		var pane = preview.pane;
+		elt.classList.add(PreviewDialog.skins.classic.classes.template, 'geEditShapeDlg');
+
+		// The dialog places its content absolutely, the CSS fills the frame
+		elt.style.position = '';
+		elt.style.left = '';
+		elt.style.right = '';
+		elt.style.top = '';
+		elt.style.bottom = '';
+
+		return {head: preview.head, body: preview.body, pane: pane, options: preview.options,
+			// The canvas of the dialog fills the pane
+			canvas: function(canvas)
+			{
+				canvas.classList.add('geEditShapeDlgCanvas');
+				pane.appendChild(canvas);
+			}};
+	},
+	/**
+	 * Returns the subtitle of the dialog (none, as the other dialogs of the
+	 * theme).
+	 */
+	getSubtitle: function(ui, graph, cell, isNew)
+	{
+		return null;
+	},
+	/**
+	 * Returns the field of the code around the given text area, a field of
+	 * the dialogs in a monospace font without wrapping.
+	 */
+	createCodeField: function(textarea)
+	{
+		var field = document.createElement('div');
+		field.className = 'geEditShapeDlgField';
+
+		if (textarea.parentNode != null)
+		{
+			textarea.parentNode.replaceChild(field, textarea);
+		}
+
+		field.appendChild(textarea);
+		textarea.style.cssText = '';
+		textarea.setAttribute('wrap', 'off');
+		textarea.setAttribute('spellcheck', 'false');
+
+		field.update = function()
+		{
+			// Nothing to update
+		};
+
+		return field;
+	},
+	/**
+	 * Puts help on the left of the footer and keeps the order of Cancel and
+	 * the primary button (Editor.cancelFirst); Preview is hidden.
+	 */
+	arrangeFooter: function(ui, dlg, c, help, isNew)
+	{
+		c.buttons.style.cssText = '';
+		c.buttons.className = 'geEditShapeDlgFooter';
+
+		if (help != null)
+		{
+			help.classList.add('geEditShapeDlgHelp');
+		}
+
+		if (isNew)
+		{
+			c.applyBtn.innerHTML = '';
+			mxUtils.write(c.applyBtn, mxResources.get('insert'));
+		}
+	}
+};
+
+/**
+ * Returns the skin of the Edit Shape dialog for the current theme: the skin
+ * of Fusion in Fusion (if its scripts are loaded), else the Classic skin.
+ */
+EditShapeDialog.getSkin = function()
+{
+	return (typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern() &&
+		EditShapeDialog.skins.fusion != null) ? EditShapeDialog.skins.fusion :
+		EditShapeDialog.skins.classic;
+};
+
+/**
+ * Lays out the given Edit Shape dialog in the Classic skin where the feature
+ * editShapeDialog is on (Editor.isEditShapeDialogEnabled; Fusion lays it out
+ * in SimplePreview.js) and sets its size (EditShapeDialog.size, limited to
+ * the window). Called at the end of the constructor of EditShapeDialog.
+ */
+EditShapeDialog.install = function(ui, dlg, cell)
+{
+	if (ui != null && ui.editor != null && !ui.editor.isChromelessView() &&
+		typeof Editor.isEditShapeDialogEnabled === 'function' && Editor.isEditShapeDialogEnabled() &&
+		EditShapeDialog.getSkin() == EditShapeDialog.skins.classic)
+	{
+		try
+		{
+			if (EditShapeDialog.createLayout(ui, dlg, cell, EditShapeDialog.skins.classic) != null)
+			{
+				var ww = window.innerWidth || document.documentElement.clientWidth;
+				var wh = window.innerHeight || document.documentElement.clientHeight;
+				var margin = 48 + ((ww < 700) ? 0 : 32);
+
+				dlg.width = Math.max(Math.min(EditShapeDialog.size.width, ww - margin), 240);
+				dlg.height = Math.max(Math.min(EditShapeDialog.size.height, wh - margin), 240);
+				dlg.minSize = new mxRectangle(0, 0, Math.min(EditShapeDialog.minSize.width, dlg.width),
+					Math.min(EditShapeDialog.minSize.height, dlg.height));
+			}
+		}
+		catch (e)
+		{
+			EditorUi.debug('EditShapeDialog.install', [ui], 'error', [e]);
+		}
+	}
+};
+
+/**
+ * Replaces the layout of the given Edit Shape dialog for the given cell with
+ * the layout in the given skin. Returns the skin, or null if the dialog keeps
+ * its layout (if its controls are missing). The skin is also
+ * dlg.layoutSkin.
+ */
+EditShapeDialog.createLayout = function(ui, dlg, cell, skin)
+{
+	var c = dlg.controls;
+	var elt = dlg.container;
+	var classes = skin.classes;
+	var graph = ui.editor.graph;
+	var isNew = !graph.model.contains(cell);
+
+	if (c == null || c.textarea == null || c.previewDiv == null || c.title == null ||
+		c.buttons == null)
+	{
+		return null;
+	}
+
+	var help = c.buttons.querySelector('.geHelpIcon');
+	var layout = skin.createLayout(ui, elt, mxResources.get((isNew) ? 'createShape' : 'editShape'),
+		skin.getSubtitle(ui, graph, cell, isNew));
+
+	// The code on the left, the preview on the right
+	var code = document.createElement('div');
+	code.className = classes.code;
+	var field = skin.createCodeField(c.textarea);
+	c.textarea.setAttribute('aria-label', mxResources.get('code'));
+	code.appendChild(field);
+	layout.body.insertBefore(code, layout.pane);
+	layout.options.parentNode.removeChild(layout.options);
+	c.previewDiv.style.cssText = '';
+	layout.canvas(c.previewDiv);
+
+	// Errors of the XML below the code
+	var status = document.createElement('div');
+	status.className = classes.status;
+	status.setAttribute('role', 'status');
+	code.appendChild(status);
+
+	// The shape in the middle of the pane with a border of 32
+	var fit = function()
+	{
+		c.graph.fit(32);
+		c.graph.center();
+	};
+
+	// Updates the preview while typing if the XML is valid (Preview shows
+	// an error for invalid XML) and no coordinate of a drawing command is
+	// a value that is not a number (a command that is being typed would
+	// paint NaN); missing coordinates are drawn as 0
+	var thread = null;
+	var coordinates = EditShapeDialog.coordinates;
+
+	var isComplete = function(doc)
+	{
+		for (var name in coordinates)
+		{
+			var nodes = doc.getElementsByTagName(name);
+
+			for (var i = 0; i < nodes.length; i++)
+			{
+				for (var j = 0; j < coordinates[name].length; j++)
+				{
+					// Missing attributes are drawn as 0 by mxStencil
+					var value = nodes[i].getAttribute(coordinates[name][j]);
+
+					if (value != null && !isFinite(Number(value)))
+					{
+						return false;
+					}
+				}
+			}
+		}
+
+		return true;
+	};
+
+	mxEvent.addListener(c.textarea, 'input', function()
+	{
+		window.clearTimeout(thread);
+
+		thread = window.setTimeout(function()
+		{
+			var doc = mxUtils.parseXml(c.textarea.value);
+			var errors = (doc != null && doc.documentElement != null) ?
+				doc.getElementsByTagName('parsererror') : null;
+			var valid = errors != null && errors.length == 0;
+			status.textContent = (valid) ? '' : mxResources.get('containsValidationErrors');
+
+			if (valid && isComplete(doc))
+			{
+				c.previewBtn.click();
+				fit();
+			}
+		}, EditShapeDialog.previewDelay);
+	});
+
+	c.contentDiv.classList.add(classes.replaced);
+	c.title.classList.add(classes.replaced);
+	c.previewBtn.classList.add(classes.replaced);
+	elt.insertBefore(layout.head, elt.firstChild);
+	elt.insertBefore(layout.body, c.buttons);
+	skin.arrangeFooter(ui, dlg, c, help, isNew);
+
+	// The preview fits its pane after the dialog is shown
+	var init = dlg.init;
+
+	dlg.init = function()
+	{
+		init.apply(this, arguments);
+		field.update();
+		c.previewDiv.style.overflow = 'hidden';
+		fit();
+	};
+
+	dlg.layoutSkin = skin;
+
+	return skin;
 };
 
 var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, helpLink,
@@ -22250,6 +26630,13 @@ var StyleRulesDialog = function(editorUi)
 
 	this.container = dlg.container;
 	this.okButton = dlg.okButton;
+
+	// The Rules template of Fusion in the Classic skin where the feature
+	// styleRulesDialog is on (RulesLayout.js)
+	if (typeof editorUi.installStyleRulesLayout === 'function')
+	{
+		editorUi.installStyleRulesLayout(this);
+	}
 };
 
 /**
@@ -23035,6 +27422,12 @@ var DataSourcesDialog = function(editorUi)
 	this.controls = controls;
 
 	this.container = dlg.container;
+
+	// The layout of Fusion in the Classic skin (DataSourcesLayout.js)
+	if (typeof editorUi.installDataSourcesLayout === 'function')
+	{
+		editorUi.installDataSourcesLayout(this);
+	}
 };
 
 /**
@@ -23048,8 +27441,11 @@ DataSourcesDialog.fit = function(content)
 
 	if (dlg != null && dlg.firstElementChild != null)
 	{
+		// The top stays where it is, so the control that changed the content
+		// stays under the pointer (Dialog.setFrameHeight)
+		var top = dlg.getBoundingClientRect().top;
 		dlg.style.height = '';
-		dlg.style.height = Dialog.getFrameHeight(dlg, dlg.firstElementChild.scrollHeight) + 'px';
+		Dialog.setFrameHeight(dlg, Dialog.getFrameHeight(dlg, dlg.firstElementChild.scrollHeight), top);
 	}
 };
 
@@ -23801,6 +28197,12 @@ var DataSourceDialog = function(editorUi, source, done)
 		isNew: source == null};
 
 	this.container = dlg.container;
+
+	// The layout of Fusion in the Classic skin (DataSourcesLayout.js)
+	if (typeof editorUi.installDataSourceLayout === 'function')
+	{
+		editorUi.installDataSourceLayout(this);
+	}
 };
 
 /**
@@ -23955,6 +28357,14 @@ var BtnDialog = function(editorUi, peer, btnLbl, fn)
 	div.appendChild(button);
 	
 	this.container = div;
+
+	// The layout of the sign-in in the Classic skin where the feature
+	// authDialog is on (AuthLayout.js); Fusion lays the dialog out in
+	// SimpleFiles.js
+	if (typeof editorUi.installAuthLayout === 'function')
+	{
+		editorUi.installAuthLayout(this, 'signedIn');
+	}
 };
 
 /**
@@ -24243,6 +28653,12 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 		googleName: googleFontInput, web: webFontRadio, webName: webFontInput,
 		webUrl: webFontUrlInput, buttons: btns, apply: okBtn, cancel: cancelBtn};
 	this.container = div;
+
+	// The layout of Fusion in the Classic skin where it is on (FormTemplate.js)
+	if (typeof editorUi.installFormTemplate === 'function')
+	{
+		editorUi.installFormTemplate('font', this, [curFontname, curUrl, curType, fn]);
+	}
 };
 
 /* Aspect Dialog
@@ -24868,6 +29284,12 @@ var FilePropertiesDialog = function(editorUi, publicLink)
 	this.controls = {title: hd, settings: settingsSection, info: (infoSectionUsed) ? infoSection : null,
 		size: sizeInput, path: pathInput, publicLink: a, buttons: btns, data: varsBtn};
 	this.container = div;
+
+	// The layout of Fusion in the Classic skin (PropertiesLayout.js)
+	if (typeof editorUi.installPropertiesLayout === 'function')
+	{
+		editorUi.installPropertiesLayout(this);
+	}
 };
 
 /**
@@ -25133,8 +29555,17 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		};
 
 		var state = editingGraph.view.getState(mainCell);
-		var constraints = editingGraph.getAllConnectionConstraints(state);
-		
+
+		// The cells of tables keep the points of the sides that the table
+		// paints (see PartialRectangleShape.getConstraints), but the copy has
+		// no table, so their points come from the cell in the diagram
+		var editorGraph = editorUi.editor.graph;
+		var editorState = (editorGraph.isTableCell(cell)) ?
+			editorGraph.view.getState(cell) : null;
+		var constraints = (editorState != null && editorState.shape != null) ?
+			editorGraph.getAllConnectionConstraints(editorState) :
+			editingGraph.getAllConnectionConstraints(state);
+
 		for (var i = 0; constraints != null && i < constraints.length; i++)
 		{
 			var cp = editingGraph.getConnectionPoint(state, constraints[i]);
@@ -25694,6 +30125,13 @@ var ConnectionPointsDialog = function(editorUi, cell)
 	this.destroy = destroy;
 
 	this.container = div;
+
+	// The layout of Fusion in the Classic skin where it is on (FormTemplate.js,
+	// laid out in init, which builds the content)
+	if (typeof editorUi.installFormTemplate === 'function')
+	{
+		editorUi.installFormTemplate('connectionPoints', this, [cell]);
+	}
 };
 
 /**
@@ -27221,6 +31659,12 @@ var PolygonDialog = function(editorUi, cell, insertFn)
 		snapCb: snapCb, snapLabel: snapLabel, closeCb: closeCb, closeLabel: closeLabel,
 		cancelBtn: cancelBtn, applyBtn: applyBtn};
 	this.container = div;
+
+	// The layout of Fusion in the Classic skin where it is on (FormTemplate.js)
+	if (typeof editorUi.installFormTemplate === 'function')
+	{
+		editorUi.installFormTemplate('polygon', this, [cell, insertFn]);
+	}
 };
 
 /**

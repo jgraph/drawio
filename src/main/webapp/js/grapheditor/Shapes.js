@@ -11239,12 +11239,10 @@
 	                                   new mxConnectionConstraint(new mxPoint(0, 1), true), new mxConnectionConstraint(new mxPoint(1, 1), true),
 	                                   new mxConnectionConstraint(new mxPoint(0.5, 0), true), new mxConnectionConstraint(new mxPoint(0.5, 1), true),
 	          	              		   new mxConnectionConstraint(new mxPoint(0, 0.5), true), new mxConnectionConstraint(new mxPoint(1, 0.5))];
-	PartialRectangleShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	mxImageShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	mxSwimlane.prototype.constraints = mxRectangleShape.prototype.constraints;
 	PlusShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	mxLabel.prototype.constraints = mxRectangleShape.prototype.constraints;
-	GitTagShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	WedgeCalloutShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	MindmapBangShape.prototype.constraints = mxEllipse.prototype.constraints;
 	OddShape.prototype.constraints = mxEllipse.prototype.constraints;
@@ -11326,27 +11324,54 @@
 	
 	CylinderShape3.prototype.getConstraints = function(style, w, h)
 	{
+		// The painter limits the size to half the height
+		var s = Math.max(0, Math.min(h * 0.5, parseFloat(mxUtils.getValue(style, 'size', this.size))));
+
+		return this.createConstraints(s, mxUtils.getValue(style, 'lid', true));
+	};
+
+	/**
+	 * The points that the cylinder had before its points followed the lid and
+	 * the limit of the painter (the size limited to the height, with a lid), so
+	 * the ends of edges in existing diagrams stay where they are.
+	 */
+	CylinderShape3.prototype.getSnapConstraints = function(style, w, h)
+	{
+		var s = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(style, 'size', this.size))));
+
+		return this.createConstraints(s, true);
+	};
+
+	/**
+	 * Returns the points of a cylinder with the given size and lid.
+	 */
+	CylinderShape3.prototype.createConstraints = function(s, lid)
+	{
 		var constr = [];
-		var s = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
-		
-		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
-		constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+
+		// Without a lid, the top is the lower arc of the top ellipse and the sides
+		// start at the top (as painted), else they start in the middle of the lid
+		var t = (lid) ? s : 0;
+
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false, null, 0, (lid) ? 0 : s));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false, null, 0, (t - s) * 0.5));
 		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
-		constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false, null, 0, (t - s) * 0.5));
 		
-		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, s));
-		constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, 0, s));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, t));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, 0, t));
 		constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false, null, 0, -s));
 		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, 0, -s));
 		
 		// Relative points with the fixed size as offset, so edges follow a resize
-		constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false, null, 0, s * 0.5));
-		constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false, null, 0, s * 0.5));
-		constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false, null, 0, -s * 0.5));
-		constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false, null, 0, -s * 0.5));
+		// (quarters of the sides from t to h - s)
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false, null, 0, t * 0.75 - s * 0.25));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false, null, 0, t * 0.75 - s * 0.25));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false, null, 0, t * 0.25 - s * 0.75));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false, null, 0, t * 0.25 - s * 0.75));
 
-		constr.push(new mxConnectionConstraint(new mxPoint(0.145, 0), false, null, 0, s * 0.29));
-		constr.push(new mxConnectionConstraint(new mxPoint(0.855, 0), false, null, 0, s * 0.29));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.145, 0), false, null, 0, s * ((lid) ? 0.29 : 0.704)));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.855, 0), false, null, 0, s * ((lid) ? 0.29 : 0.704)));
 		constr.push(new mxConnectionConstraint(new mxPoint(0.855, 1), false, null, 0, -s * 0.29));
 		constr.push(new mxConnectionConstraint(new mxPoint(0.145, 1), false, null, 0, -s * 0.29));
 		
@@ -11396,14 +11421,555 @@
 		return (constr);
 	}
 
+	/**
+	 * The points of a rectangle (mxRectangleShape.prototype.constraints) without
+	 * the perimeter flag.
+	 */
+	var rectanglePoints = null;
+
+	/**
+	 * Returns the points of a rectangle (mxRectangleShape.prototype.constraints) with
+	 * the given replacements: the key is the index of the point in that list, the
+	 * value a constraint, or null to leave the point out. The points that are kept
+	 * are returned without the perimeter flag, like the replacements: points with
+	 * the flag are not mirrored in flipped shapes (Graph.getLegacyConnectionPoint),
+	 * so the points that were moved or left out would be on the other side than the
+	 * points that were kept. On the bounds they are in the same place.
+	 */
+	function replaceRectangleConstraints(replace)
+	{
+		if (rectanglePoints == null)
+		{
+			rectanglePoints = mxRectangleShape.prototype.constraints.map(function(c)
+			{
+				return new mxConnectionConstraint(c.point, false, c.name, c.dx, c.dy);
+			});
+		}
+
+		var rect = rectanglePoints;
+		var constr = [];
+
+		for (var i = 0; i < rect.length; i++)
+		{
+			if (replace[i] === undefined)
+			{
+				constr.push(rect[i]);
+			}
+			else if (replace[i] != null)
+			{
+				constr.push(replace[i]);
+			}
+		}
+
+		return constr;
+	};
+
+	/**
+	 * Returns the middles of the curves that replace the corners of a rounded
+	 * path ({points, tolerance}), or null if the given style is not rounded. The
+	 * given function paints the rounded path into the given canvas with the given
+	 * arc size, with the code that paints the shape, so the points are on what it
+	 * paints: mxShape.addPoints replaces a corner with a quadratic curve via the
+	 * corner, and addCurvedPath, whose quadratic curves are sides of the path,
+	 * with a cubic curve (cubic is true).
+	 */
+	function getRoundedCorners(style, paint, cubic)
+	{
+		if (mxUtils.getValue(style, mxConstants.STYLE_ROUNDED, 0) != 1)
+		{
+			return null;
+		}
+
+		var arcSize = mxUtils.getValue(style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
+		var points = [];
+		var x0 = 0;
+		var y0 = 0;
+
+		var add = function(x, y)
+		{
+			if (isFinite(x) && isFinite(y))
+			{
+				points.push(new mxPoint(x, y));
+			}
+		};
+
+		paint({
+			moveTo: function(x, y)
+			{
+				x0 = x;
+				y0 = y;
+			},
+			lineTo: function(x, y)
+			{
+				x0 = x;
+				y0 = y;
+			},
+			quadTo: function(x1, y1, x2, y2)
+			{
+				if (!cubic)
+				{
+					add(x0 / 4 + x1 / 2 + x2 / 4, y0 / 4 + y1 / 2 + y2 / 4);
+				}
+
+				x0 = x2;
+				y0 = y2;
+			},
+			curveTo: function(x1, y1, x2, y2, x3, y3)
+			{
+				add((x0 + 3 * x1 + 3 * x2 + x3) / 8, (y0 + 3 * y1 + 3 * y2 + y3) / 8);
+				x0 = x3;
+				y0 = y3;
+			},
+			close: function() {}
+		}, arcSize);
+
+		// The middle of a curve is at most half the arc size away from its corner
+		return {points: points, tolerance: Math.max(1, Math.abs(arcSize))};
+	};
+
+	/**
+	 * Returns the constraint for a corner of the path of a shape with the given
+	 * size, at the relative point x, y with the offset dx, dy. If the path is
+	 * rounded (see getRoundedCorners), the constraint is on the middle of the
+	 * curve that replaces the corner. The way from the corner to it is added to
+	 * the offset: it is fixed while the sides of the corner are longer than three
+	 * arcs and keep their direction, so the point follows such resizes, and it is
+	 * on the curve at the given size otherwise.
+	 */
+	function createCornerConstraint(rounded, w, h, x, y, dx, dy)
+	{
+		dx = (dx != null) ? dx : 0;
+		dy = (dy != null) ? dy : 0;
+
+		if (rounded != null)
+		{
+			var px = x * w + dx;
+			var py = y * h + dy;
+			var nearest = null;
+			var min = rounded.tolerance;
+
+			for (var i = 0; i < rounded.points.length; i++)
+			{
+				var pt = rounded.points[i];
+				var d = Math.sqrt((pt.x - px) * (pt.x - px) + (pt.y - py) * (pt.y - py));
+
+				if (d <= min)
+				{
+					nearest = pt;
+					min = d;
+				}
+			}
+
+			if (nearest != null)
+			{
+				dx += nearest.x - px;
+				dy += nearest.y - py;
+			}
+		}
+
+		return new mxConnectionConstraint(new mxPoint(x, y), false, null, dx, dy);
+	};
+
+	/**
+	 * Returns the numeric value of the given key of the style, or the default.
+	 */
+	function getConstraintNumber(style, key, defaultValue)
+	{
+		var value = parseFloat(mxUtils.getValue(style, key, defaultValue));
+
+		return (isNaN(value)) ? defaultValue : value;
+	};
+
+	/**
+	 * Returns true if the given style has an outline perimeter (as
+	 * Graph.isOutlinePerimeter for a state).
+	 */
+	function isOutlinePerimeterStyle(style)
+	{
+		var perimeter = (style != null) ? style[mxConstants.STYLE_PERIMETER] : null;
+
+		return perimeter === 'outlinePerimeter' || perimeter === mxPerimeter.OutlinePerimeter;
+	};
+
+	/**
+	 * Returns true if the given style has a fill color (as the painters read it).
+	 */
+	function isFilledStyle(style)
+	{
+		var fill = mxUtils.getValue(style, mxConstants.STYLE_FILLCOLOR, null);
+
+		return fill != null && fill != mxConstants.NONE;
+	};
+
+	/**
+	 * The top points on the slanted top, with the fixed size as offset, and the
+	 * points of the left side only below it. The corners are on their curves if
+	 * the shape is rounded.
+	 */
+	ManualInputShape.prototype.getConstraints = function(style, w, h)
+	{
+		var s = Math.max(0, Math.min(h, getConstraintNumber(style, 'size', this.size)));
+		var rounded = getRoundedCorners(style, function(c, arcSize)
+		{
+			mxShape.prototype.addPoints(c, [new mxPoint(0, h), new mxPoint(0, s), new mxPoint(w, 0),
+				new mxPoint(w, h)], true, arcSize, true);
+		});
+		var replace = {0: createCornerConstraint(rounded, w, h, 0, 0, 0, s)};
+
+		for (var i = 1; i < 4; i++)
+		{
+			replace[i] = new mxConnectionConstraint(new mxPoint(i * 0.25, 0), false, null, 0, s * (1 - i * 0.25));
+		}
+
+		if (rounded != null)
+		{
+			replace[4] = createCornerConstraint(rounded, w, h, 1, 0);
+			replace[11] = createCornerConstraint(rounded, w, h, 0, 1);
+			replace[15] = createCornerConstraint(rounded, w, h, 1, 1);
+		}
+
+		for (var i = 1; i <= 3; i++)
+		{
+			if (h * i * 0.25 < s)
+			{
+				replace[4 + i] = null;
+			}
+		}
+
+		return replaceRectangleConstraints(replace);
+	};
+
+	/**
+	 * The corner points in the middle of the cut corners, the points of the top and
+	 * the sides only beside them (the size is fixed). The bottom corners are on
+	 * their curves if the shape is rounded.
+	 */
+	LoopLimitShape.prototype.getConstraints = function(style, w, h)
+	{
+		var s = Math.max(0, Math.min(w / 2, Math.min(h, getConstraintNumber(style, 'size', this.size))));
+		var rounded = getRoundedCorners(style, function(c, arcSize)
+		{
+			mxShape.prototype.addPoints(c, [new mxPoint(s, 0), new mxPoint(w - s, 0), new mxPoint(w, s * 0.8),
+				new mxPoint(w, h), new mxPoint(0, h), new mxPoint(0, s * 0.8)], true, arcSize, true);
+		});
+		var replace = {0: new mxConnectionConstraint(new mxPoint(0, 0), false, null, s * 0.5, s * 0.4),
+			4: new mxConnectionConstraint(new mxPoint(1, 0), false, null, -s * 0.5, s * 0.4)};
+
+		if (rounded != null)
+		{
+			replace[11] = createCornerConstraint(rounded, w, h, 0, 1);
+			replace[15] = createCornerConstraint(rounded, w, h, 1, 1);
+		}
+
+		if (w * 0.25 < s)
+		{
+			replace[1] = null;
+			replace[3] = null;
+		}
+
+		for (var i = 1; i <= 3; i++)
+		{
+			if (h * i * 0.25 < s * 0.8)
+			{
+				replace[4 + i] = null;
+				replace[7 + i] = null;
+			}
+		}
+
+		return replaceRectangleConstraints(replace);
+	};
+
+	/**
+	 * The bottom points on the pointed bottom (the size is a fraction of the height),
+	 * the points of the sides only above it. The corners and the tip are on their
+	 * curves if the shape is rounded.
+	 */
+	OffPageConnectorShape.prototype.getConstraints = function(style, w, h)
+	{
+		var s = Math.max(0, Math.min(1, getConstraintNumber(style, 'size', this.size)));
+		var rounded = getRoundedCorners(style, function(c, arcSize)
+		{
+			mxShape.prototype.addPoints(c, [new mxPoint(0, 0), new mxPoint(w, 0), new mxPoint(w, h - s * h),
+				new mxPoint(w / 2, h), new mxPoint(0, h - s * h)], true, arcSize, true);
+		});
+		var replace = {11: createCornerConstraint(rounded, w, h, 0, 1 - s),
+			12: new mxConnectionConstraint(new mxPoint(0.25, 1 - s * 0.5), false),
+			14: new mxConnectionConstraint(new mxPoint(0.75, 1 - s * 0.5), false),
+			15: createCornerConstraint(rounded, w, h, 1, 1 - s)};
+
+		if (rounded != null)
+		{
+			replace[0] = createCornerConstraint(rounded, w, h, 0, 0);
+			replace[4] = createCornerConstraint(rounded, w, h, 1, 0);
+			replace[13] = createCornerConstraint(rounded, w, h, 0.5, 1);
+		}
+
+		for (var i = 1; i <= 3; i++)
+		{
+			if (i * 0.25 >= 1 - s)
+			{
+				replace[4 + i] = null;
+				replace[7 + i] = null;
+			}
+		}
+
+		return replaceRectangleConstraints(replace);
+	};
+
+	/**
+	 * No points on the right corners, as the right end is round (min(w, h / 2)
+	 * wide), the points of the right side on it and the points of the top and
+	 * bottom only on the straight part. The round end is drawn from the height, so
+	 * the points follow resizes that keep the height.
+	 */
+	DelayShape.prototype.getConstraints = function(style, w, h)
+	{
+		var dx = Math.min(w, h / 2);
+
+		// The quadratic curve at a quarter of the height: x = w - dx * (1 - sqrt(0.5))^2
+		var c = -dx * Math.pow(1 - Math.SQRT1_2, 2);
+		var replace = {4: null, 15: null,
+			8: new mxConnectionConstraint(new mxPoint(1, 0.25), false, null, c, 0),
+			10: new mxConnectionConstraint(new mxPoint(1, 0.75), false, null, c, 0)};
+
+		for (var i = 1; i <= 3; i++)
+		{
+			if (w * i * 0.25 > w - dx)
+			{
+				replace[i] = null;
+				replace[11 + i] = null;
+			}
+		}
+
+		return replaceRectangleConstraints(replace);
+	};
+
+	/**
+	 * The ends of the curved left side and the points of both sides on the curves,
+	 * with the size as offset if it is fixed, else as a fraction of the width. The
+	 * points of the top and bottom only right of the left side.
+	 */
+	DataStorageShape.prototype.getConstraints = function(style, w, h)
+	{
+		var fixed = mxUtils.getValue(style, 'fixedSize', '0') != '0';
+		var size = getConstraintNumber(style, 'size', (fixed) ? this.fixedSize : this.size);
+		var s = (fixed) ? Math.max(0, Math.min(w, size)) : 0;
+		var f = (fixed) ? 0 : Math.max(0, Math.min(1, size));
+		var point = function(x, y, dx)
+		{
+			return new mxConnectionConstraint(new mxPoint(x, y), false, null, dx, 0);
+		};
+
+		// The corners are on their curves if the shape is rounded
+		var sx = s + f * w;
+		var rounded = getRoundedCorners(style, function(c, arcSize)
+		{
+			addCurvedPath(c, sx, 0, [[w, 0], [w - sx * 2, h / 2, w, h], [sx, h],
+				[sx - sx * 2, h / 2, sx, 0]], true, arcSize);
+		}, true);
+
+		var replace = {0: createCornerConstraint(rounded, w, h, f, 0, s, 0),
+			11: createCornerConstraint(rounded, w, h, f, 1, s, 0),
+			5: point(f * 0.25, 0.25, s * 0.25),
+			7: point(f * 0.25, 0.75, s * 0.25),
+			8: point(1 - f * 0.75, 0.25, -s * 0.75),
+			9: point(1 - f, 0.5, -s),
+			10: point(1 - f * 0.75, 0.75, -s * 0.75)};
+
+		if (rounded != null)
+		{
+			replace[4] = createCornerConstraint(rounded, w, h, 1, 0);
+			replace[15] = createCornerConstraint(rounded, w, h, 1, 1);
+		}
+
+		for (var i = 1; i <= 3; i++)
+		{
+			if (i * 0.25 * w < s + f * w)
+			{
+				replace[i] = null;
+				replace[11 + i] = null;
+			}
+		}
+
+		return replaceRectangleConstraints(replace);
+	};
+
+	/**
+	 * The ends, the corners and the tip of the bracket and the middles of its halves.
+	 * The corners and the tip are on their curves if the bracket is rounded.
+	 */
+	CurlyBracketShape.prototype.getConstraints = function(style, w, h)
+	{
+		var s = Math.max(0, Math.min(1, getConstraintNumber(style, 'size', this.size)));
+		var rounded = getRoundedCorners(style, function(c, arcSize)
+		{
+			mxShape.prototype.addPoints(c, [new mxPoint(w, 0), new mxPoint(s * w, 0), new mxPoint(s * w, h / 2),
+				new mxPoint(0, h / 2), new mxPoint(s * w, h / 2), new mxPoint(s * w, h),
+				new mxPoint(w, h)], true, arcSize, false);
+		});
+
+		return [new mxConnectionConstraint(new mxPoint(1, 0), false),
+			createCornerConstraint(rounded, w, h, s, 0),
+			new mxConnectionConstraint(new mxPoint(s, 0.25), false),
+			createCornerConstraint(rounded, w, h, 0, 0.5),
+			new mxConnectionConstraint(new mxPoint(s, 0.75), false),
+			createCornerConstraint(rounded, w, h, s, 1),
+			new mxConnectionConstraint(new mxPoint(1, 1), false)];
+	};
+
+	/**
+	 * Only the points on the sides that are drawn. Filled shapes, outlines and the
+	 * cells of tables (the table paints their sides) keep all points, and so do
+	 * shapes without a cell (eg. a shape that the routing creates for a style),
+	 * as they can be the cells of tables, and shapes without a side, which are
+	 * invisible boxes with a label, like text. The fill comes from the given
+	 * style, as shapes that are not painted have none.
+	 */
+	PartialRectangleShape.prototype.getConstraints = function(style, w, h)
+	{
+		var graph = (this.state != null) ? this.state.view.graph : null;
+
+		if (isFilledStyle(style) || this.outline || graph == null ||
+			(graph.isTableCell != null && graph.isTableCell(this.state.cell)))
+		{
+			return mxRectangleShape.prototype.constraints;
+		}
+
+		var top = mxUtils.getValue(style, 'top', '1') == '1';
+		var left = mxUtils.getValue(style, 'left', '1') == '1';
+		var right = mxUtils.getValue(style, 'right', '1') == '1';
+		var bottom = mxUtils.getValue(style, 'bottom', '1') == '1';
+
+		if (!top && !left && !right && !bottom)
+		{
+			return mxRectangleShape.prototype.constraints;
+		}
+
+		// Sides of the points in the order of the rectangle
+		var drawn = [top || left, top, top, top, top || right, left, left, left,
+			right, right, right, bottom || left, bottom, bottom, bottom, bottom || right];
+		var replace = {};
+
+		for (var i = 0; i < drawn.length; i++)
+		{
+			if (!drawn[i])
+			{
+				replace[i] = null;
+			}
+		}
+
+		return replaceRectangleConstraints(replace);
+	};
+
+	/**
+	 * The left corners on the corners of the tab and the points of the left side on
+	 * the middles of its slopes, the points of the top and bottom only right of it
+	 * (the tab size and inset are fixed).
+	 */
+	GitTagShape.prototype.getConstraints = function(style, w, h)
+	{
+		var tab = Math.max(0, Math.min(w, getConstraintNumber(style, 'tabSize', this.tabSize)));
+		var inset = Math.max(0, Math.min(h, getConstraintNumber(style, 'tabInset', this.tabInset)));
+		var replace = {0: new mxConnectionConstraint(new mxPoint(0, 0), false, null, tab, 0),
+			5: new mxConnectionConstraint(new mxPoint(0, 0.25), false, null, tab * 0.5, -inset * 0.25),
+			7: new mxConnectionConstraint(new mxPoint(0, 0.75), false, null, tab * 0.5, inset * 0.25),
+			11: new mxConnectionConstraint(new mxPoint(0, 1), false, null, tab, 0)};
+
+		for (var i = 1; i <= 3; i++)
+		{
+			if (w * i * 0.25 < tab)
+			{
+				replace[i] = null;
+				replace[11 + i] = null;
+			}
+		}
+
+		return replaceRectangleConstraints(replace);
+	};
+
+	/**
+	 * The points of the ellipse on the circle, which is drawn inside the bounds
+	 * (StateShape, a fixed inset of 4 while the circle is at least 20 wide and high).
+	 */
+	StartStateShape.prototype.getConstraints = function(style, w, h)
+	{
+		var inset = Math.max(0, Math.min(4, Math.min(w / 5, h / 5)));
+		var d = inset * Math.SQRT1_2;
+		var e = 0.5 - 0.5 * Math.SQRT1_2;
+
+		return [new mxConnectionConstraint(new mxPoint(e, e), false, null, d, d),
+			new mxConnectionConstraint(new mxPoint(1 - e, e), false, null, -d, d),
+			new mxConnectionConstraint(new mxPoint(e, 1 - e), false, null, d, -d),
+			new mxConnectionConstraint(new mxPoint(1 - e, 1 - e), false, null, -d, -d),
+			new mxConnectionConstraint(new mxPoint(0.5, 0), false, null, 0, inset),
+			new mxConnectionConstraint(new mxPoint(0.5, 1), false, null, 0, -inset),
+			new mxConnectionConstraint(new mxPoint(0, 0.5), false, null, inset, 0),
+			new mxConnectionConstraint(new mxPoint(1, 0.5), false, null, -inset, 0)];
+	};
+
+	// The waist instead of the empty middles of the sides
+	CollateShape.prototype.constraints = mxEllipse.prototype.constraints.slice(0, 6).concat(
+		[new mxConnectionConstraint(new mxPoint(0.5, 0.5), false)]);
+
+	/**
+	 * The line starts and ends in the middle of the sides, so the corners and the
+	 * other points of the sides are not on it, unless the shape is filled (the
+	 * painter fills the bounds).
+	 */
+	ZigzagShape.prototype.lineConstraints = replaceRectangleConstraints({0: null, 4: null, 5: null,
+		7: null, 8: null, 10: null, 11: null, 15: null});
+
+	ZigzagShape.prototype.getConstraints = function(style, w, h)
+	{
+		return (isFilledStyle(style)) ? mxRectangleShape.prototype.constraints : this.lineConstraints;
+	};
+
+	// The points along the outline replace the points of these shapes under an
+	// outline perimeter, as for rectangles (Graph.getAllConnectionConstraints
+	// replaces the constraints of rectangles, which is why getConstraints must
+	// return null there)
+	[ManualInputShape, LoopLimitShape, OffPageConnectorShape, DelayShape,
+		DataStorageShape, PartialRectangleShape, GitTagShape, ZigzagShape].forEach(function(shape)
+	{
+		var getConstraints = shape.prototype.getConstraints;
+		shape.prototype.constraints = mxRectangleShape.prototype.constraints;
+
+		shape.prototype.getConstraints = function(style, w, h)
+		{
+			return (isOutlinePerimeterStyle(style)) ? null : getConstraints.apply(this, arguments);
+		};
+
+		// Floating ends with snapToPoint=1 snap to the points of a rectangle, which
+		// these shapes had before, so the ends of edges in existing diagrams stay
+		// where they are (see mxShape.getSnapConstraints in Graph.js)
+		shape.prototype.getSnapConstraints = function(style, w, h)
+		{
+			return mxRectangleShape.prototype.constraints;
+		};
+	});
+
+	// As above: the curly bracket had the points of an actor, the start state and
+	// the collate shape the points of an ellipse
+	CurlyBracketShape.prototype.getSnapConstraints = function(style, w, h)
+	{
+		return mxActor.prototype.constraints;
+	};
+
+	StartStateShape.prototype.getSnapConstraints = function(style, w, h)
+	{
+		return mxEllipse.prototype.constraints;
+	};
+
+	CollateShape.prototype.getSnapConstraints = function(style, w, h)
+	{
+		return mxEllipse.prototype.constraints;
+	};
+
 	InternalStorageShape.prototype.constraints = mxRectangleShape.prototype.constraints;
-	DataStorageShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	TapeDataShape.prototype.constraints = mxEllipse.prototype.constraints;
 	OrEllipseShape.prototype.constraints = mxEllipse.prototype.constraints;
 	SumEllipseShape.prototype.constraints = mxEllipse.prototype.constraints;
 	LineEllipseShape.prototype.constraints = mxEllipse.prototype.constraints;
-	ManualInputShape.prototype.constraints = mxRectangleShape.prototype.constraints;
-	DelayShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 
 	DisplayShape.prototype.getConstraints = function(style, w, h)
 	{
@@ -11471,8 +12037,6 @@
 		return constr;
 	};
 	
-	LoopLimitShape.prototype.constraints = mxRectangleShape.prototype.constraints;
-	OffPageConnectorShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	mxCylinder.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0.15, 0.05), false),
                                         new mxConnectionConstraint(new mxPoint(0.5, 0), true),
                                         new mxConnectionConstraint(new mxPoint(0.85, 0.05), false),

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="13.36" height="17.46" viewBox="2.32 0.26 13.36 17.46">
+	<defs>
+		<mask id="m1" x="-.93" y="-2.97" width="19.87" height="27.26" maskUnits="userSpaceOnUse">
+			<path d="M9,.26c3.69,0,6.68,1.03,6.68,2.38v12.7c0,1.36-2.99,2.38-6.68,2.38h-.09c-3.65-.02-6.58-1.08-6.58-2.38V2.59c.09-1.33,3.05-2.32,6.68-2.32Z" fill="#e8e8e8" fill-rule="evenodd"/>
+		</mask>
+		<radialGradient id="g1" cx="-324.84" cy="419.68" fx="-324.84" fy="419.68" r="1" gradientTransform="translate(11805.8322 -3650.023) rotate(-90.1205) scale(11.2007 -28.1265)" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#003067"/>
+			<stop offset="1" stop-color="#0078d4"/>
+		</radialGradient>
+		<radialGradient id="g2" cx="0" cy="0" r="1" gradientTransform="translate(9.548603 16.4684) rotate(-90) scale(7.25 25.1379)" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#0064b1"/>
+			<stop offset=".5" stop-color="#0078d4"/>
+			<stop offset="1" stop-color="#5ea0ef"/>
+		</radialGradient>
+		<radialGradient id="g3" cx="0" cy="0" r="1" gradientTransform="translate(9.016745 19.33965) rotate(-90) scale(5.875 12.8465)" gradientUnits="userSpaceOnUse">
+			<stop offset=".09" stop-color="#0699ba"/>
+			<stop offset=".55" stop-color="#32bedd"/>
+			<stop offset="1" stop-color="#50e6ff"/>
+		</radialGradient>
+		<radialGradient id="g4" cx="-193.25" cy="434.7" fx="-193.25" fy="434.7" r="1" gradientTransform="translate(-13233.7309 5027.5639) rotate(73.1562) scale(5.0423 -32.4988)" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#0667c3" stop-opacity="0"/>
+			<stop offset=".36" stop-color="#044c90" stop-opacity="0"/>
+			<stop offset="1" stop-color="#03315d"/>
+		</radialGradient>
+	</defs>
+	<g mask="url(#m1)">
+		<path d="M6.17-1.8c1.56-1.56,4.1-1.56,5.66,0l5.94,5.93c1.39,1.39,1.56,3.59.41,5.18l-2.13,2.93-5.98-5.98c-.59-.59-1.54-.59-2.12,0L1.96,12.25-.17,9.32c-1.16-1.59-.98-3.79.41-5.18L6.17-1.8Z" fill="url(#g1)"/>
+		<path d="M8.29,6.63c.39-.39,1.02-.39,1.41,0l7.25,7.25c.39.39.39,2.27,0,2.66l-7.46,7.46c-.39.39-1.02.39-1.41,0L.84,16.75c-.39-.39-.39-2.27,0-2.66l7.45-7.45ZM10.06,12.17c-.59-.59-1.54-.59-2.12,0l-4.3,4.3c-.59.59-.59,1.54,0,2.12l4.3,4.3c.59.59,1.54.59,2.12,0l4.3-4.3c.59-.59.59-1.54,0-2.12l-4.3-4.3Z" fill="url(#g2)"/>
+		<path d="M3.99,18.24c-.39-.39-.39-1.02,0-1.41l4.3-4.3c.39-.39,1.02-.39,1.41,0l4.3,4.3c.39.39.39,1.02,0,1.41l-4.3,4.3c-.39.39-1.02.39-1.41,0l-4.3-4.3Z" fill="url(#g3)"/>
+	</g>
+	<ellipse cx="9" cy="2.65" rx="6.68" ry="2.38" fill="#0667c3" fill-opacity=".6"/>
+	<ellipse cx="9" cy="2.65" rx="6.68" ry="2.38" fill="url(#g4)"/>
+</svg>

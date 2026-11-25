@@ -78,6 +78,114 @@ StorageFile.prototype.getPollingInterval = function()
 };
 
 /**
+ * Name of the BroadcastChannel on which tabs tell each other that they wrote
+ * a file in the browser storage, so that the tabs that have the file open
+ * check it at once instead of waiting for the next poll.
+ */
+StorageFile.channelName = 'drawio-storage-files';
+
+/**
+ * Overridden to listen to the writes of other tabs while the file is synced.
+ */
+StorageFile.prototype.startSync = function()
+{
+	DrawioFile.prototype.startSync.apply(this, arguments);
+
+	if (this.sync != null && this.channel == null &&
+		typeof window.BroadcastChannel === 'function')
+	{
+		try
+		{
+			this.channel = new BroadcastChannel(StorageFile.channelName);
+			this.channel.onmessage = mxUtils.bind(this, function(evt)
+			{
+				this.handleChannelMessage(evt.data);
+			});
+		}
+		catch (e)
+		{
+			this.channel = null;
+		}
+	}
+};
+
+/**
+ * Checks the file at once if another tab wrote a version of it that this
+ * tab does not have. Hidden and idle tabs poll nothing: they check the file
+ * when they are shown or used again (see DrawioFileSync.start). The message
+ * is only compared, never rendered.
+ */
+StorageFile.prototype.handleChannelMessage = function(msg)
+{
+	if (msg != null && msg.type == 'fileWritten' && this.sync != null &&
+		typeof msg.title === 'string' && msg.title == this.getTitle() &&
+		msg.etag != this.getCurrentRevisionId())
+	{
+		this.sync.pollNow();
+	}
+};
+
+/**
+ * Tells the other tabs that this file was written with the given etag.
+ */
+StorageFile.prototype.notifyWritten = function(etag)
+{
+	if (typeof window.BroadcastChannel === 'function')
+	{
+		try
+		{
+			// A channel of its own, as files without a sync have none. The
+			// message is queued for the other channels when it is posted.
+			var channel = new BroadcastChannel(StorageFile.channelName);
+			channel.postMessage({type: 'fileWritten', title: this.getTitle(), etag: etag});
+			channel.close();
+		}
+		catch (e)
+		{
+			// ignore
+		}
+	}
+};
+
+/**
+ * Number of saves of this file in progress, from the bytes of the save to
+ * the end of its write, with its retries (see saveFile). Default is 0.
+ */
+StorageFile.prototype.savesInProgress = 0;
+
+/**
+ * Overridden to return true while a save of this file is in progress (see
+ * savesInProgress), as the file does not set savingFile.
+ */
+StorageFile.prototype.isSaving = function()
+{
+	return this.savesInProgress > 0 ||
+		DrawioFile.prototype.isSaving.apply(this, arguments);
+};
+
+/**
+ * Overridden to close the channel.
+ */
+StorageFile.prototype.destroy = function()
+{
+	if (this.channel != null)
+	{
+		try
+		{
+			this.channel.close();
+		}
+		catch (e)
+		{
+			// ignore
+		}
+
+		this.channel = null;
+	}
+
+	DrawioFile.prototype.destroy.apply(this, arguments);
+};
+
+/**
  * Hook for subclassers to get the latest descriptor of this file
  * and return it in the success handler.
  */
@@ -180,25 +288,28 @@ StorageFile.prototype.saveAs = function(title, success, error)
 
 /**
  * Inserts the given file, or a new file with the given title and data, into
- * the browser storage.
+ * the browser storage (see doInsertFile for overwrite).
  */
-StorageFile.insertFile = function(ui, title, data, success, error, file)
+StorageFile.insertFile = function(ui, title, data, success, error, file, overwrite)
 {
 	StorageFile.doInsertFile((file != null) ? file :
-		new StorageFile(ui, data, title), success, error);
+		new StorageFile(ui, data, title), success, error, overwrite);
 };
 
 /**
  * Writes the given file to the browser storage and passes it to success.
  * Asks the user to confirm before replacing an existing file with the same
- * title.
+ * title unless overwrite is the data of that file (the user has confirmed
+ * to replace it as it was, see App.checkNewFile, so a file that has changed
+ * since is asked for again). Cancel and a dismissal of the question (eg.
+ * Escape) call error without an argument.
  */
-StorageFile.doInsertFile = function(file, success, error)
+StorageFile.doInsertFile = function(file, success, error, overwrite)
 {
 	var title = file.getTitle();
 	var ui = file.getUi();
 
-	var createStorageFile = mxUtils.bind(this, function(exists)
+	var createStorageFile = mxUtils.bind(this, function(data)
 	{
 		var fn = function()
 		{
@@ -208,9 +319,12 @@ StorageFile.doInsertFile = function(file, success, error)
 			}, error);
 		};
 
-		if (exists)
+		if (data != null && (overwrite == null || overwrite !== data))
 		{
-			ui.confirm(mxResources.get('replaceIt', [title]), fn, error);
+			ui.confirmOrCancel(mxResources.get('replaceIt', [title]), fn, function()
+			{
+				error();
+			});
 		}
 		else
 		{
@@ -220,10 +334,10 @@ StorageFile.doInsertFile = function(file, success, error)
 	
 	StorageFile.getFileContent(ui, title, function(data)
 	{
-		createStorageFile(data != null);
+		createStorageFile(data);
 	}, function()
 	{
-		createStorageFile(false);
+		createStorageFile(null);
 	});
 };
 
@@ -293,53 +407,149 @@ StorageFile.getFileInfo = function(ui, title, success, error)
  * Writes the file to the browser storage with the given title, or with its
  * title at the time of the write if current is true. If the stored file has
  * changed, it is merged and the save is retried up to maxRetries times. Asks
- * the user to confirm before replacing another file.
+ * the user to confirm before replacing another file. lastBytes is true if the
+ * bytes are those of the last save or load and were not taken for this save
+ * (rename).
  */
-StorageFile.prototype.saveFile = function(title, revision, success, error, retry, current)
+StorageFile.prototype.saveFile = function(title, revision, success, error, retry, current, lastBytes)
 {
+	// The save is in progress until its callbacks, with its retries, which
+	// get the wrapped callbacks. A check of the file that is asked for
+	// meanwhile runs after it, also with autosave off: a merge between the
+	// bytes and the write is not in the bytes (see DrawioFileSync.pollNow).
+	// The error handler is wrapped also if the caller has none (eg. close):
+	// a failed save would stay in progress otherwise, and every check of the
+	// file that is asked for after it would wait for its end. For the same
+	// reason a dismissed confirm and an exception end the save too.
+	var end = null;
+
+	if (retry == null)
+	{
+		var ended = false;
+		this.savesInProgress++;
+
+		end = mxUtils.bind(this, function(fn, args)
+		{
+			if (!ended)
+			{
+				ended = true;
+				this.savesInProgress--;
+			}
+
+			try
+			{
+				if (fn != null)
+				{
+					fn.apply(null, args);
+				}
+			}
+			finally
+			{
+				if (!this.isSaving() && this.sync != null)
+				{
+					this.sync.runDeferredPoll();
+				}
+			}
+		});
+
+		var done = success;
+		var failed = error;
+
+		success = function()
+		{
+			end(done, arguments);
+		};
+
+		error = function()
+		{
+			end(failed, arguments);
+		};
+	}
+
 	retry = (retry != null) ? retry : 0;
 
-	if (!this.isEditable())
+	try
 	{
-		if (success != null)
+		if (!this.isEditable())
 		{
-			success();
-		}
-	}
-	else
-	{
-		// A rename can complete while the stored copy is checked: a save that
-		// wrote the title it started with undid the rename and brought the
-		// old file back next to the renamed one (storage-inflight-edit)
-		var fn = mxUtils.bind(this, function()
-		{
-			this.writeFile((current) ? this.getTitle() : title, success, error);
-		});
-		
-		// Checks for trailing dots
-		if (this.isRenamable() && title.charAt(0) == '.' && error != null)
-		{
-			error({message: mxResources.get('invalidName')});
-		}
-		else if (this instanceof StorageLibrary)
-		{
-			this.setShadowModified(false);
-			fn(); // No need to check for conflicts with libraries			
+			if (success != null)
+			{
+				success();
+			}
 		}
 		else
 		{
-			StorageFile.getFileInfo(this.ui, title, mxUtils.bind(this, function(data)
+			// A rename can complete while the stored copy is checked: a save that
+			// wrote the title it started with undid the rename and brought the
+			// old file back next to the renamed one (storage-inflight-edit)
+			var fn = mxUtils.bind(this, function()
 			{
-				if (!this.isRenamable() || this.getTitle() == title || data == null)
+				this.writeFile((current) ? this.getTitle() : title, success, error);
+			});
+		
+			// Checks for trailing dots
+			if (this.isRenamable() && title.charAt(0) == '.' && error != null)
+			{
+				error({message: mxResources.get('invalidName')});
+			}
+			else if (this instanceof StorageLibrary)
+			{
+				this.setShadowModified(false);
+				fn(); // No need to check for conflicts with libraries			
+			}
+			else
+			{
+				// The version the bytes are based on: save and its retry take
+				// them right before this call. A poll can merge another tab's
+				// change, also while the stored copy is checked, which moves the
+				// descriptor to the stored copy, but the bytes lack the change.
+				// Writing them would drop it from the storage, so the save
+				// starts again with new bytes (browser-tab-save-poll-race).
+				// A rename writes the bytes of the last save or load, so that
+				// unsaved edits stay unsaved. After a merge or a failed save
+				// they are not those of the descriptor, and writing them would
+				// drop the change, as the rename deletes the old file. It writes
+				// the stored copy that the editor has merged in their place, and
+				// is never retried, as a retry takes the bytes of the diagram in
+				// the editor with its unsaved edits (browser-tab-rename-after-merge,
+				// browser-tab-rename-unsaved-merge). Only a rename hashes its
+				// bytes: a new file has the bytes of its template, which are not
+				// those of the descriptor, and a retry would take the bytes of
+				// the diagram in the editor (browser-tab-create-from-template).
+				var etag = (lastBytes) ? this.getEtag(this.getData()) :
+					this.getDescriptor();
+
+				// Writes the stored copy for a rename. The file stays modified
+				// if it was, also after a failed save, which took its edits
+				// into the bytes but cleared the shadow of the modified state.
+				var writeStored = mxUtils.bind(this, function(file)
+				{
+					if (file.getData() != null && file.getDescriptor() != etag)
+					{
+						if (this.isModified())
+						{
+							this.setShadowModified(true);
+						}
+
+						this.setData(file.getData());
+					}
+
+					fn();
+				});
+
+				// Checks the stored copy of the file, which has its title until
+				// the write, and merges a change of another tab before the write
+				var check = mxUtils.bind(this, function()
 				{
 					this.getLatestVersion(mxUtils.bind(this, function(file)
 					{
 						EditorUi.debug('StorageFile.saveFile', [this], 'title', title,
-							'data', data, 'latestVersion', [file], 'descriptor',
-							this.getDescriptor(), 'latestVersionDescriptor',
-							file.getDescriptor());
-						
-						if (file.getDescriptor() != this.getDescriptor())
+							'latestVersion', [file], 'descriptor', this.getDescriptor(),
+							'latestVersionDescriptor', file.getDescriptor(),
+							'bytesDescriptor', etag);
+
+						if (file.getDescriptor() != this.getDescriptor() ||
+							(!lastBytes && this.getDescriptor() != etag))
 						{
 							this.mergeFile(file, mxUtils.bind(this, function()
 							{
@@ -354,30 +564,97 @@ StorageFile.prototype.saveFile = function(title, revision, success, error, retry
 										error();
 									}
 								}
+								else if (lastBytes)
+								{
+									writeStored(file);
+								}
 								else
 								{
 									this.retrySave(mxUtils.bind(this, function()
 									{
-										this.updateFileData();
-										this.setShadowModified(false);
-										this.saveFile((current) ? this.getTitle() : title,
-											revision, success, error, retry + 1, current);
+										// Runs in a timeout, where an exception
+										// would reach no one and the save would
+										// never end
+										try
+										{
+											this.updateFileData();
+											this.setShadowModified(false);
+											this.saveFile((current) ? this.getTitle() : title,
+												revision, success, error, retry + 1, current);
+										}
+										catch (e)
+										{
+											if (error != null)
+											{
+												error(e);
+											}
+										}
 									}));
 								}
 							}), error);
+						}
+						else if (lastBytes)
+						{
+							writeStored(file);
 						}
 						else
 						{
 							fn();
 						}
 					}), error);
-				}
-				else
+				});
+
+				StorageFile.getFileInfo(this.ui, title, mxUtils.bind(this, function(data)
 				{
-					this.ui.confirm(mxResources.get('replaceIt', [title]), fn, error);
-				}
-			}), error);
+					EditorUi.debug('StorageFile.saveFile', [this], 'title', title,
+						'data', data);
+
+					if (!this.isRenamable() || this.getTitle() == title || data == null)
+					{
+						check();
+					}
+					else
+					{
+						// Replacing another file checks the stored copy too
+						// (browser-tab-rename-replace-after-merge). A dismissal
+						// (eg. Escape) runs neither button and ends the save
+						// like Cancel. It closes the dialog before the buttons
+						// run, so it waits for their answer.
+						var answered = false;
+
+						this.ui.confirm(mxResources.get('replaceIt', [title]), function()
+						{
+							answered = true;
+							check();
+						}, function()
+						{
+							answered = true;
+							error.apply(null, arguments);
+						}, null, null, null, function()
+						{
+							window.setTimeout(function()
+							{
+								if (!answered)
+								{
+									error();
+								}
+							}, 0);
+						});
+					}
+				}), error);
+			}
 		}
+	}
+	catch (e)
+	{
+		// The caller gets the exception as before (DrawioFile.save passes
+		// it to its error handler), so the save only ends here
+		if (end != null)
+		{
+			end(null);
+		}
+
+		throw e;
 	}
 
 	EditorUi.debug('StorageFile.saveFile', [this], 'title', title,
@@ -419,6 +696,12 @@ StorageFile.prototype.writeFile = function(title, success, error)
 			this.setModified(this.getShadowModified());
 			this.setDescriptor(this.getEtag(data));
 			this.contentChanged();
+
+			// Tells the other tabs that have the file open to check it
+			if (this.type == 'F')
+			{
+				this.notifyWritten(this.getDescriptor());
+			}
 
 			// Notifies other tabs to refresh the scratchpad
 			if (this.type == 'L' && this.title == '.scratchpad' &&
@@ -481,7 +764,11 @@ StorageFile.prototype.writeFile = function(title, success, error)
 
 /**
  * Renames the file by saving it with the given title and deleting the file
- * with the old title.
+ * with the old title. Writes the bytes of the last save, so that unsaved
+ * edits keep the file modified. Bytes that are not those of the descriptor,
+ * eg. after a change of another tab was merged, are replaced with the stored
+ * copy that the editor has merged, also when the rename replaces another
+ * file (see saveFile).
  */
 StorageFile.prototype.rename = function(title, success, error)
 {
@@ -493,11 +780,46 @@ StorageFile.prototype.rename = function(title, success, error)
 
 		this.saveFile(title, false, mxUtils.bind(this, function()
 		{
+			// The delete of the old file ends once: its transaction calls the
+			// error handler once for each of its deletes (files and
+			// filesInfo) when it aborts, eg. after the first delete failed
+			var ended = false;
+
 			StorageFile.deleteFile(this.ui, oldTitle, mxUtils.bind(this, function()
 			{
-				this.ui.removeLocalData(oldTitle, success);
-			}, error));
-		}), error);
+				if (!ended)
+				{
+					ended = true;
+					this.ui.removeLocalData(oldTitle, success);
+				}
+			}), mxUtils.bind(this, function(e)
+			{
+				// The file is saved under the new title, so the rename took
+				// effect and only the old copy is left: a message says so and
+				// the rename completes after it, as the callers update the
+				// file on success only (eg. the hash of a library in the
+				// settings and its sidebar in saveLibrary, which closes the
+				// library dialog after the message is closed)
+				if (!ended)
+				{
+					ended = true;
+					var done = false;
+
+					this.ui.handleError(e, null, function()
+					{
+						if (!done)
+						{
+							done = true;
+
+							if (success != null)
+							{
+								success();
+							}
+						}
+					}, true);
+				}
+			}));
+		}), error, null, null, true);
 	}
 	else
 	{
@@ -615,7 +937,7 @@ StorageFile.listFiles = function(ui, type, success, error)
  */
 StorageFile.deleteFile = function(ui, title, success, error)
 {
-	ui.removeDatabaseItem([title, title], success, function()
+	ui.removeDatabaseItem([title, title], success, function(e)
 	{
 		if (ui.database == null) //fallback to localstorage
 		{
@@ -624,7 +946,12 @@ StorageFile.deleteFile = function(ui, title, success, error)
 		}
 		else if (error != null)
 		{
-			error();
+			// Passes on the error so that the failed delete is reported
+			// (eg. after a rename has saved the new file). Transaction
+			// errors are events with no message and a null error is taken
+			// as a cancel by handleError (as in saveFile)
+			error((e != null && e.message != null) ? e :
+				{message: mxResources.get('errorDeletingFile')});
 		}
 	}, ['files', 'filesInfo']);
 };

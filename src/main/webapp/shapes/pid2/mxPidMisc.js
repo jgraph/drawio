@@ -104,6 +104,17 @@ mxShapePidFan.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapePidFan.prototype.cst.SHAPE_FAN, mxShapePidFan);
 
+mxShapePidFan.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(0.854, 0.146), false),
+	new mxConnectionConstraint(new mxPoint(0.854, 0.854), false),
+	new mxConnectionConstraint(new mxPoint(0.146, 0.854), false),
+	new mxConnectionConstraint(new mxPoint(0.146, 0.146), false)
+];
+
 //**********************************************************************************************************************************************************
 //Column
 //**********************************************************************************************************************************************************
@@ -430,6 +441,38 @@ mxShapePidColumn.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapePidColumn.prototype.cst.SHAPE_COLUMN, mxShapePidColumn);
 
+/**
+ * Apex of the heads, middle of the sides and the places where the heads (15 px) meet the sides.
+ */
+mxShapePidColumn.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(1, 0), false, null, 0, 15),
+	new mxConnectionConstraint(new mxPoint(1, 1), false, null, 0, -15),
+	new mxConnectionConstraint(new mxPoint(0, 1), false, null, 0, -15),
+	new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, 15)
+];
+
+/**
+ * The painter draws the column at least 30 high (its two heads), so below that
+ * height the points are the apexes and the places where the heads meet, as
+ * offsets from the top.
+ */
+mxShapePidColumn.prototype.getConstraints = function(style, w, h)
+{
+	if (h >= 30)
+	{
+		return this.constraints;
+	}
+
+	return [new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+		new mxConnectionConstraint(new mxPoint(0.5, 0), false, null, 0, 30),
+		new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, 15),
+		new mxConnectionConstraint(new mxPoint(1, 0), false, null, 0, 15)];
+};
+
 //**********************************************************************************************************************************************************
 //Conveyor
 //**********************************************************************************************************************************************************
@@ -509,3 +552,36 @@ mxShapePidConveyor.prototype.background = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapePidConveyor.prototype.cst.SHAPE_CONVEYOR, mxShapePidConveyor);
+
+/**
+ * Top and bottom of the belt and the outer sides of the wheels. The wheels are min(h, w / 2)
+ * high, so the points follow resizes that keep the height at most half the width.
+ */
+mxShapePidConveyor.prototype.getConstraints = function(style, w, h)
+{
+	var r = (h > 0) ? Math.min(1, w * 0.5 / h) : 1;
+
+	if (!isFinite(r) || r < 0)
+	{
+		r = 1;
+	}
+
+	return [new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+		new mxConnectionConstraint(new mxPoint(0.5, r), false),
+		new mxConnectionConstraint(new mxPoint(0, r * 0.5), false),
+		new mxConnectionConstraint(new mxPoint(1, r * 0.5), false)];
+};
+
+//**********************************************************************************************************************************************************
+//Snap points
+//**********************************************************************************************************************************************************
+// The fan, the column and the conveyor had no connection points when floating ends could first snap to
+// connection points (snapToPoint=1), so these ends do not snap to the points
+// above (see mxShape.getSnapConstraints in js/grapheditor/Graph.js)
+mxUtils.forEach([mxShapePidFan, mxShapePidColumn, mxShapePidConveyor], function(shape)
+{
+	shape.prototype.getSnapConstraints = function(style, w, h)
+	{
+		return [];
+	};
+});

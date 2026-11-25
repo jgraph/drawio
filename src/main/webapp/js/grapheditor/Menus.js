@@ -359,13 +359,26 @@ Menus.prototype.init = function()
 	{
 		var ss = this.editorUi.getSelectionState();
 		var enabled = ss.vertices.length > 1;
-		menu.addItem(mxResources.get('leftAlign'), null, function() { graph.alignCells(mxConstants.ALIGN_LEFT); }, parent, null, enabled);
-		menu.addItem(mxResources.get('center'), null, function() { graph.alignCells(mxConstants.ALIGN_CENTER); }, parent, null, enabled);
-		menu.addItem(mxResources.get('rightAlign'), null, function() { graph.alignCells(mxConstants.ALIGN_RIGHT); }, parent, null, enabled);
+
+		// Disabled items say why (see getDisabledReason)
+		var addAlign = mxUtils.bind(this, function(key, align)
+		{
+			var item = menu.addItem(mxResources.get(key), null, function() { graph.alignCells(align); }, parent, null, enabled);
+
+			if (!enabled && item != null)
+			{
+				this.editorUi.updateDisabledReason(item, 'alignCellsLeft',
+					item.getAttribute('title'), false, true);
+			}
+		});
+
+		addAlign('leftAlign', mxConstants.ALIGN_LEFT);
+		addAlign('center', mxConstants.ALIGN_CENTER);
+		addAlign('rightAlign', mxConstants.ALIGN_RIGHT);
 		menu.addSeparator(parent);
-		menu.addItem(mxResources.get('topAlign'), null, function() { graph.alignCells(mxConstants.ALIGN_TOP); }, parent, null, enabled);
-		menu.addItem(mxResources.get('middle'), null, function() { graph.alignCells(mxConstants.ALIGN_MIDDLE); }, parent, null, enabled);
-		menu.addItem(mxResources.get('bottomAlign'), null, function() { graph.alignCells(mxConstants.ALIGN_BOTTOM); }, parent, null, enabled);
+		addAlign('topAlign', mxConstants.ALIGN_TOP);
+		addAlign('middle', mxConstants.ALIGN_MIDDLE);
+		addAlign('bottomAlign', mxConstants.ALIGN_BOTTOM);
 		this.addMenuItems(menu, ['-', 'snapToGrid'], parent);
 	})));
 	this.put('distribute', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -397,6 +410,7 @@ Menus.prototype.init = function()
 		this.addSubmenu('navigation', menu, parent);
 		this.addSubmenu('insert', menu, parent);
 		this.addSubmenu('layout', menu, parent);
+		this.addArrangeLayoutItems(menu, parent);
 		this.addMenuItems(menu, ['-'], parent);
 
 		var groupItem = this.addMenuItem(menu, 'group', parent);
@@ -419,6 +433,10 @@ Menus.prototype.init = function()
 		}
 
 		this.addMenuItems(menu, ['ungroup', 'removeFromGroup', '-', 'clearWaypoints', 'autosize'], parent);
+
+		// The ties at the end in every theme, as in … › Arrange of Fusion (the
+		// driver, 19 November 2026); the actions that do not exist are left out
+		this.addMenuItems(menu, ['-', 'bundle', 'drawTie', 'unbundle', 'selectTiedEdges'], parent);
 	}))).isEnabled = isGraphEnabled;
 	this.put('insert', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
@@ -521,6 +539,13 @@ Menus.prototype.addSubmenu = function(name, menu, parent, label)
 			submenu = menu.addItem(label || mxResources.get(name),
 				null, null, parent, null, enabled);
 			this.addMenu(name, menu, submenu);
+
+			// Disabled submenus say why (see getDisabledReason)
+			if (!enabled && submenu != null)
+			{
+				this.editorUi.updateDisabledReason(submenu, name,
+					submenu.getAttribute('title'), false, true);
+			}
 		}
 	}
 
@@ -1509,6 +1534,12 @@ Menus.prototype.toggleStyle = function(key, defaultValue)
 Menus.prototype.recordMenuAction = function(menu, key) { };
 
 /**
+ * Adds the items after Layout in the arrange menu. This implementation does
+ * nothing.
+ */
+Menus.prototype.addArrangeLayoutItems = function(menu, parent) { };
+
+/**
  * Creates the keyboard event handler for the current graph and history.
  */
 Menus.prototype.addMenuItem = function(menu, key, parent, trigger, sprite, label)
@@ -1541,6 +1572,13 @@ Menus.prototype.addMenuItem = function(menu, key, parent, trigger, sprite, label
 		}
 
 		this.addShortcut(item, action, menu.hideShortcuts);
+
+		// Disabled items say why in their tooltip (see getDisabledReason)
+		if (!action.isEnabled() && item != null)
+		{
+			this.editorUi.updateDisabledReason(item, key,
+				item.getAttribute('title'), false, true);
+		}
 		
 		return item;
 	}
@@ -1644,16 +1682,30 @@ Menus.prototype.addPopupMenuHistoryItems = function(menu, cell, evt)
 };
 
 /**
+ * Paints the label of the given menu item in the color of destructive
+ * actions: red, as Delete in the context menu (Fusion paints it in its
+ * danger color, fusion.css).
+ */
+Menus.prototype.setDangerItem = function(item)
+{
+	if (item != null && item.firstChild != null &&
+		item.firstChild.nextSibling != null)
+	{
+		item.firstChild.nextSibling.style.color = 'red';
+	}
+};
+
+/**
  * Creates the keyboard event handler for the current graph and history.
  */
 Menus.prototype.addPopupDeleteItem = function(menu, cell, evt)
 {
 	var item = this.addMenuItem(menu, 'delete');
+	this.setDangerItem(item);
 
 	if (item != null && item.firstChild != null &&
 		item.firstChild.nextSibling != null)
 	{
-		item.firstChild.nextSibling.style.color = 'red';
 		var graph = this.editorUi.editor.graph;
 
 		if (graph.getSelectionCount() > 1)
@@ -1847,21 +1899,67 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 			this.addMenuItems(menu, ['clearWaypoints'], null, evt);
 		}
 
-		if (this.isShowCellEditItems() && ss.vertices.length == 0 && ss.edges.length > 1)
-		{
-			this.addMenuItems(menu, ['bundle'], null, evt);
-		}
+		this.addPopupMenuTieItems(menu, evt);
 
-		if (this.isShowCellEditItems() && graph.hasTies(graph.getSelectionCells()))
-		{
-			this.addMenuItems(menu, ['unbundle'], null, evt);
-		}
-		
 		if (this.isShowCellEditItems() &&
 			graph.getSelectionCount() == 1 &&
 			graph.isCellEditable(cell))
 		{
 			this.addPopupMenuCellEditItems(menu, cell, evt);
+		}
+	}
+};
+
+/**
+ * Adds the items of ties in every theme, as the context menu of Fusion (the
+ * driver, 19 November 2026: "Tie muss in Simple und Classic direkt
+ * erreichbar sein, in der Inline Toolbar bei mehreren markierten Kanten und
+ * auch im Kontextmenü"): Bundle for two or more connectors without shapes,
+ * with what it does as its tooltip, Draw a tie after it on coarse pointers
+ * and for touches, which have no Alt+Shift+drag, and Select tied connectors
+ * and Unbundle for ties and connectors with ties. The menus without the edit
+ * items of cells (Simple, Sketch and Minimal) have them in a group of their
+ * own.
+ */
+Menus.prototype.addPopupMenuTieItems = function(menu, evt)
+{
+	var ui = this.editorUi;
+	var graph = ui.editor.graph;
+	var ss = ui.getSelectionState();
+	var bundle = ss.vertices.length == 0 && ss.edges.length > 1;
+	var ties = graph.hasTies(graph.getSelectionCells());
+
+	if (bundle || ties)
+	{
+		if (!this.isShowCellEditItems())
+		{
+			menu.addSeparator();
+		}
+
+		if (bundle)
+		{
+			var item = this.addMenuItem(menu, 'bundle', null, evt);
+
+			if (item != null)
+			{
+				item.setAttribute('title', mxResources.get('bundleHint'));
+			}
+
+			// Also for a touch on a touchscreen laptop (see isCoarseEvent)
+			if (ui.isCoarseEvent(evt))
+			{
+				item = this.addMenuItem(menu, 'drawTie', null, evt);
+
+				if (item != null)
+				{
+					item.setAttribute('title', mxResources.get('drawTieHint'));
+				}
+			}
+		}
+
+		if (ties)
+		{
+			this.addMenuItems(menu, ['selectTiedEdges', 'unbundle'], null, evt);
 		}
 	}
 };

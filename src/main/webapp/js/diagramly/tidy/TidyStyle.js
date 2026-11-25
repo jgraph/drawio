@@ -19,11 +19,12 @@
  *   below, one color and width for the connectors. The colors of the icons
  *   are never changed.
  *
- * Keep my colors (on by default) keeps every color the user chose. Without
- * it, the colors the user chose are mapped to the palette (each color to
- * one color of the palette), so shapes that had the same color still have
- * the same color. Style never rearranges the diagram: it removes the
- * overlaps that new sizes cause and routes connectors that cross shapes.
+ * Keep my colors (off by default in the panels, an option keepColors that is
+ * not given is on) keeps every color the user chose. Without it, the colors
+ * the user chose are mapped to the palette (each color to one color of the
+ * palette), so shapes that had the same color still have the same color.
+ * Style never rearranges the diagram: it removes the overlaps that new sizes
+ * cause and routes connectors that cross shapes.
  * Locked cells, cells with tidy=0, containers and the inside of layout
  * containers keep their styles, and their looks if they have a role whose
  * rule changes (see keepFixedRoleColors) until Style styles them again (see
@@ -2005,10 +2006,64 @@ Tidy.style = function(ui, cells, options)
 };
 
 /**
+ * Returns the number of shapes of the given collection (see collect) whose
+ * style or geometry the given changes of a result change: the shapes that
+ * the result styles, not all the shapes it looked at, so a palette that the
+ * page has already (or that Keep my colors keeps from every shape) styles
+ * none and its tile does not contradict the status (Nothing to style).
+ */
+Tidy.countStyledShapes = function(col, changes)
+{
+	return Tidy.countChangedCells(col.vertices.concat(col.texts), changes, true);
+};
+
+/**
+ * Returns the number of connectors of the given collection (see collect)
+ * whose style the given changes of a result change, eg. of a sequence, ER
+ * or swimlane diagram, whose Style changes only the connectors (see
+ * applyStyle). A connector that only moves with its shapes is not styled.
+ */
+Tidy.countStyledConnectors = function(col, changes)
+{
+	return Tidy.countChangedCells(col.edges, changes, false);
+};
+
+/**
+ * Returns the number of the given cells whose style, or also their
+ * geometry if geometry is true, the given changes (see
+ * Tidy.Trial.getChanges) change. Each cell counts once.
+ */
+Tidy.countChangedCells = function(cells, changes, geometry)
+{
+	var ids = Object.create(null);
+	var count = 0;
+
+	for (var i = 0; i < cells.length; i++)
+	{
+		ids[cells[i].id] = true;
+	}
+
+	for (var i = 0; i < changes.length; i++)
+	{
+		if (ids[changes[i].id] === true && (changes[i].style !== undefined ||
+			(geometry && changes[i].geometry !== undefined)))
+		{
+			ids[changes[i].id] = false;
+			count++;
+		}
+	}
+
+	return count;
+};
+
+/**
  * Plans the palettes of Style My Diagram for the given analysis (see
  * Tidy.style and Tidy.Analysis): the results are the entries of the
  * palettes from the start (id, name, index, theme, swatch), and the step of
- * each palette adds its metrics, changes, stats, thumbnail and score.
+ * each palette adds its metrics, changes, stats (styled: the shapes it
+ * changes, see countStyledShapes, styledEdges: the connectors whose style
+ * it changes, see countStyledConnectors), thumbnail, darkThumbnail and
+ * score.
  */
 Tidy.prepareStyle = function(analysis, cells)
 {
@@ -2083,8 +2138,10 @@ Tidy.prepareStyle = function(analysis, cells)
 			var after = Tidy.collect(graph, trial.cells);
 			result.metrics = Tidy.measure(graph, after);
 			result.changes = trial.getChanges();
-			result.stats = {styled: applied.count};
-			result.thumbnail = (options.thumbnails !== false && theme == null) ? trial.getThumbnail() : null;
+			result.stats = {styled: Tidy.countStyledShapes(col, result.changes),
+				styledEdges: Tidy.countStyledConnectors(col, result.changes)};
+			Tidy.setThumbnails(result, (options.thumbnails !== false && theme == null) ?
+				trial.getThumbnails() : null);
 			result.score = Tidy.score(result.metrics, 1);
 
 			for (var j = applied.edits.length - 1; j >= 0; j--)

@@ -509,27 +509,33 @@ SelectPage.prototype.execute = function()
 		var page = this.ui.currentPage;
 		var editor = this.ui.editor;
 		var graph = editor.graph;
-		
-		if (page.isDiagramModified())
-		{
-			page.setDiagramModified(false);
 
-			// Updates cached diagram data
-			EditorUi.removeChildNodes(page.node);
-			page.node.appendChild(editor.getGraphXml(true));
+		// The current page is null after setFileData threw for data that is
+		// not a diagram (eg. a failed load in embed mode) and a merge made
+		// the pages again: there is no state of a page to save
+		if (page != null)
+		{
+			if (page.isDiagramModified())
+			{
+				page.setDiagramModified(false);
+
+				// Updates cached diagram data
+				EditorUi.removeChildNodes(page.node);
+				page.node.appendChild(editor.getGraphXml(true));
+			}
+
+			page.viewState = graph.getViewState();
+			page.root = graph.model.root;
+
+			if (page.model != null)
+			{
+				// Updates internal structures of offpage model
+				page.model.rootChanged(page.root);
+			}
 		}
 
-		page.viewState = graph.getViewState();
-		page.root = graph.model.root;
-		
-		if (page.model != null)
-		{
-			// Updates internal structures of offpage model
-			page.model.rootChanged(page.root);
-		}
-		
 		// Removes the previous cells and clears selection
-		graph.view.clear(page.root, true);
+		graph.view.clear((page != null) ? page.root : graph.model.root, true);
 		graph.clearSelection();
 			
 		// Switches the current page
@@ -966,7 +972,9 @@ ReplaceDiagram.prototype.execute = function()
 EditorUi.prototype.tabContainerVisible = true;
 
 /**
- * Returns the index of the selected page.
+ * Shows or hides the tabs of the pages (View > Page Tabs, stored in the
+ * settings if remember is true) and fires tabContainerVisibleChanged, which
+ * the toolbar of Simple follows (its Pages button, SimpleClassic.js).
  */
 EditorUi.prototype.setTabContainerVisible = function(visible, remember)
 {
@@ -978,6 +986,7 @@ EditorUi.prototype.setTabContainerVisible = function(visible, remember)
 	
 	this.tabContainerVisible = visible;
 	this.updateTabContainer();
+	this.fireEvent(new mxEventObject('tabContainerVisibleChanged'));
 };
 
 /**
@@ -1241,6 +1250,10 @@ EditorUi.prototype.createPageGraph = function(page, index)
 			state.backgroundGradientDirection);
 		temp.setMeasureScale(state.measureScale);
 		temp.setAdaptiveColors(state.adaptiveColors);
+
+		// The fonts of the file in the page (getCustomFonts), which are
+		// only read here and not added to the document (see addExtFont)
+		temp.extFonts = state.extFonts;
 	}
 
 	// Resolves the other placeholders like in the current page
@@ -2581,7 +2594,9 @@ EditorUi.prototype.initDiagramNode = function(page, node)
 };
 
 /**
- * Duplicates the given page.
+ * Duplicates the given pages. Null entries, which stand for pages whose data
+ * cannot be decoded in the shadow pages of a file (see getPagesForNode), are
+ * skipped, as in diffPages and getHashValueForPages.
  */
 EditorUi.prototype.clonePages = function(pages, lazy)
 {
@@ -2590,6 +2605,11 @@ EditorUi.prototype.clonePages = function(pages, lazy)
 	
 	for (var i = 0; i < pages.length; i++)
 	{
+		if (pages[i] == null)
+		{
+			continue;
+		}
+
 		try
 		{
 			result.push(this.clonePage(pages[i], lazy));
@@ -3171,6 +3191,61 @@ EditorUi.prototype.createTabContainer = function()
 };
 
 /**
+ * Returns true if the wheel scrolls the page tabs: the helper tabWheel (see
+ * isHelperEnabled).
+ */
+EditorUi.prototype.isTabWheelEnabled = function()
+{
+	return this.isHelperEnabled('tabWheel');
+};
+
+/**
+ * The wheel scrolls the page tabs while they overflow (the vertical wheel of
+ * a mouse as the horizontal one, and horizontal swipes of a trackpad), not
+ * with Ctrl or Cmd, which zoom, and only while isTabWheelEnabled returns
+ * true. The wheel is consumed while the tabs overflow, also at either end,
+ * where horizontal swipes would navigate back or forward in the browser and
+ * the wheel would pan the diagram without scrollbars. Only with
+ * Editor.passiveScroll a vertical wheel that does not move the tabs (at either
+ * end) goes on to the editor, which forwards it to the page of the embed.
+ * Installed once per scroller of the tabs (updateTabContainer creates a new
+ * one). Touch swipes scroll the scroller natively.
+ */
+EditorUi.prototype.installTabWheel = function()
+{
+	var scroller = this.tabScroller;
+
+	if (scroller != null && !scroller.tabWheel)
+	{
+		scroller.tabWheel = true;
+
+		mxEvent.addListener(scroller, 'wheel', mxUtils.bind(this, function(evt)
+		{
+			var vertical = Math.abs(evt.deltaY) > Math.abs(evt.deltaX);
+			var delta = (vertical) ? evt.deltaY : evt.deltaX;
+
+			if (!evt.ctrlKey && !evt.metaKey && delta != 0 &&
+				scroller.scrollWidth > scroller.clientWidth &&
+				this.isTabWheelEnabled())
+			{
+				var last = scroller.scrollLeft;
+
+				// Lines (Firefox) as 16 px, pages as the width of the tabs
+				scroller.scrollLeft += delta * ((evt.deltaMode == 1) ? 16 :
+					((evt.deltaMode == 2) ? scroller.clientWidth : 1));
+
+				// Horizontal swipes are always consumed (history navigation)
+				if (!vertical || !Editor.passiveScroll ||
+					scroller.scrollLeft != last)
+				{
+					mxEvent.consume(evt);
+				}
+			}
+		}));
+	}
+};
+
+/**
  * Returns true if the given string contains an mxfile.
  */
 EditorUi.prototype.updateTabContainer = function()
@@ -3304,7 +3379,10 @@ EditorUi.prototype.updateTabContainer = function()
 			this.tabContainer.appendChild(insertTab);
 		}
 	
-		if (Editor.currentTheme != 'simple')
+		// The menu of the pages after the insert tab, also in the previous look of
+		// Simple, where it replaces the Pages button of the toolbar while the tabs
+		// are shown (SimpleClassic.js); Fusion has All Pages (SimplePages.js)
+		if (Editor.currentTheme != 'simple' || Editor.isSimpleClassic()) // SIMPLE-CLASSIC
 		{
 			this.pageMenuTab = this.createPageMenuTab();
 			this.pageMenuTab.tabKey = 'pages';
@@ -3342,6 +3420,7 @@ EditorUi.prototype.updateTabContainer = function()
 
 		this.tabScroller = wrapper;
 		this.pageTabs = pageTabs;
+		this.installTabWheel();
 
 		mxEvent.addListener(this.tabScroller, 'scroll', mxUtils.bind(this, function(evt)
 		{
@@ -3867,6 +3946,29 @@ EditorUi.prototype.focusTabContainerControl = function(key)
 };
 
 /**
+ * Returns the focus to the control of the page tabs that a dialog or a
+ * window was opened from if the tabs were created again since, eg. after
+ * Rename of the menu of a tab (see focusTabContainerControl).
+ */
+(function()
+{
+	var editorUiRestoreFocus = EditorUi.prototype.restoreFocus;
+
+	EditorUi.prototype.restoreFocus = function(elt)
+	{
+		if (elt != null && elt.tabKey != null && this.tabContainer != null &&
+			!mxUtils.isAncestorNode(document.body, elt))
+		{
+			this.focusTabContainerControl(elt.tabKey);
+
+			return true;
+		}
+
+		return editorUiRestoreFocus.apply(this, arguments);
+	};
+})();
+
+/**
  * Shows the given menu for the given event at the mouse or, for a keystroke
  * or a click with the keyboard (see Editor.clickWithKeyboard), at the given
  * control with the focus on its first item. Escape closes the menu and gives
@@ -4104,7 +4206,8 @@ EditorUi.prototype.createRightScrollTab = function()
 };
 
 /**
- * Returns true if the given string contains an mxfile.
+ * Returns the menu tab of the page tabs: the page overview where it is on
+ * (PageOverview.js, isPageOverviewEnabled), else the menu Pages.
  */
 EditorUi.prototype.createPageMenuTab = function()
 {
@@ -4112,6 +4215,14 @@ EditorUi.prototype.createPageMenuTab = function()
 		Editor.menuImage, mxUtils.bind(this, function(evt)
 	{
 		this.editor.graph.popupMenuHandler.hideMenu();
+
+		if (typeof this.isPageOverviewEnabled === 'function' && this.isPageOverviewEnabled())
+		{
+			this.togglePageOverview(evt.currentTarget);
+			mxEvent.consume(evt);
+
+			return;
+		}
 
 		var menu = new mxPopupMenu(mxUtils.bind(this, function(menu, parent)
 		{
@@ -4604,7 +4715,26 @@ EditorUi.prototype.createPageMenu = function(page, label)
 				this.menus.addSubmenu('pageGroup', menu, parent, mxResources.get('group'));
 			}
 
-			this.menus.addMenuItems(menu, ['removePage', 'renamePage'], parent);
+			this.menus.addMenuItems(menu, ['renamePage'], parent);
+			this.addRemovePageMenuItem(menu, parent);
 		}
 	});
+};
+
+/**
+ * Adds Remove Page as the last item of a menu of the page, after a
+ * separator and in the color of destructive actions, so that it is not
+ * clicked instead of Rename Page, which it was next to (it removes the
+ * page at once, without a dialog; jgraph/drawio#5856).
+ */
+EditorUi.prototype.addRemovePageMenuItem = function(menu, parent)
+{
+	var action = this.actions.get('removePage');
+
+	if (action != null && action.visible && (menu.showDisabled || action.isEnabled()) &&
+		(this.menus.hiddenMenuItems == null || !this.menus.hiddenMenuItems['removePage']))
+	{
+		menu.addSeparator(parent);
+		this.menus.setDangerItem(this.menus.addMenuItem(menu, 'removePage', parent));
+	}
 };

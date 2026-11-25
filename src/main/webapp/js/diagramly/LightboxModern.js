@@ -3,21 +3,24 @@
  * Copyright (c) 2026, draw.io AG
  */
 /**
- * The new Lightbox (concept report 14.2, mockups 60 to 62): three floating
+ * The new Lightbox (concept report 14.2, mockups 60 to 62): floating
  * bars in the tokens of Simple Modern instead of the black toolbar of the
  * chromeless view, light or dark following the system (never black).
  *
- * - Top left: the logo of the app, the title and the page menu.
+ * - Top left: Back (toolbar-config), hidden without it (no logo, the title
+ *   only names the bar).
+ * - The title is not shown: a heading that only screen readers see names
+ *   the diagram before it (titleNode, also on phones and without Back).
  * - Top right: the language of the diagram (only if a page has translated
- *   labels, label_<code>), Layers, Tags (tags URL parameter), Export (or
- *   Print), the buttons of lightboxToolbarActions, Refresh, Edit and Close.
- * - Bottom centre: previous and next page, zoom, Fit, Full screen and Open
- *   in New Window (fullscreenBtn of toolbar-config in a frame). It hides
- *   after 3 s without movement and comes back on movement, focus or touch
- *   (toolbar-nohide=1 keeps it).
- * - Phones (narrower than 600): a top bar with Close, the title and the
- *   page, Export and More (with the other items of the top right bar);
- *   pages, Fit and the language at the bottom.
+ *   labels, label_<code>), Layers, Tags (tags URL parameter), the buttons of
+ *   lightboxToolbarActions, Refresh, Edit and Close; hidden without them.
+ * - Bottom centre: the page menu (only with more than one page), zoom,
+ *   Fit, Full screen, Open in New Window (fullscreenBtn of toolbar-config in
+ *   a frame) and Export (or Print). It hides after 3 s without movement and
+ *   comes back on movement, focus or touch (toolbar-nohide=1 keeps it).
+ * - Phones (narrower than 600): Back and Close top left, More (with the
+ *   other items of the top right bar) top right; the page menu, Fit, the
+ *   language and Export (or Print) at the bottom.
  * - Keys: left and right change pages, + and - zoom, F fits, Escape closes
  *   a menu or the lightbox (not the Escape that closes a dialog). Tab goes
  *   through the top bars, the diagram and the bottom bar.
@@ -370,7 +373,6 @@ LightboxModern.getCss = function()
 		'	--sm-on-accent: light-dark(#FFFFFF, #0B1630);',
 		'	--sm-thumb: light-dark(#FFFFFF, #0B1630);',
 		'	--sm-knob: #FFFFFF;',
-		'	--sm-logo: #F08705;',
 		'	--sm-focus-color: light-dark(rgba(31, 95, 219, 0.35), rgba(106, 155, 255, 0.45));',
 		'	--sm-focus: 0 0 0 3px var(--sm-focus-color);',
 		'	--sm-hairline: light-dark(transparent, rgba(255, 255, 255, 0.06));',
@@ -389,8 +391,6 @@ LightboxModern.getCss = function()
 		'	--sm-fs-hint: 12px;',
 		'	--sm-fs-control: 13px;',
 		'	--sm-fs-body: 14px;',
-		'	--sm-fs-title: 16px;',
-		'	--sm-r-xs: 4px;',
 		'	--sm-r-s: 6px;',
 		'	--sm-r-m: 8px;',
 		'	--sm-r-l: 12px;',
@@ -501,7 +501,7 @@ LightboxModern.getCss = function()
 		'/* Dark mode of the editor removes all shadows (html body.geEditor.geDarkMode',
 		'   *), the focus rings come back */',
 		'html body.geEditor.geDarkMode :is(.geSmLightbox .geSmIconBtn, .geSmLightbox .geSmSeg>button,',
-		'	.geSmLightbox .geSmLbTextBtn, .geSmLightbox .geSmLbTitleBtn, .geSmLightbox .geSmLbItem,',
+		'	.geSmLightbox .geSmLbTextBtn, .geSmLightbox .geSmLbItem,',
 		'	.geSmLightbox .geSmLbFormat, .geSmLightbox input.geSmLbSwitch[role="switch"],',
 		'	.geSmLightbox .geSmLbPrimary):focus-visible {',
 		'	box-shadow: var(--sm-focus) !important;',
@@ -602,6 +602,18 @@ LightboxModern.getCss = function()
 		'	}',
 		'}',
 		'',
+		'/* The title of the diagram for screen readers, not shown (see init) */',
+		'.geSmLbTitle {',
+		'	position: absolute;',
+		'	width: 1px;',
+		'	height: 1px;',
+		'	margin: 0;',
+		'	padding: 0;',
+		'	overflow: hidden;',
+		'	clip-path: inset(50%);',
+		'	white-space: nowrap;',
+		'}',
+		'',
 		'/* The bars (report 14.2, mockups 60-62) */',
 		'.geSmLightbox {',
 		'	position: fixed;',
@@ -658,31 +670,6 @@ LightboxModern.getCss = function()
 		'.geSmLightbox .geSmLbBottom.geSmLbIdle {',
 		'	opacity: 0;',
 		'	pointer-events: none;',
-		'}',
-		'',
-		'.geSmLightbox .geSmLbLogo {',
-		'	box-sizing: border-box;',
-		'	flex: 0 0 auto;',
-		'	width: 28px;',
-		'	height: 28px;',
-		'	margin: 0 4px;',
-		'	border-radius: var(--sm-r-xs);',
-		'	background-color: var(--sm-logo);',
-		'	object-fit: contain;',
-		'}',
-		'',
-		'.geSmLightbox .geSmLbTitle {',
-		'	flex: 0 1 auto;',
-		'	min-width: 0;',
-		'	max-width: 320px;',
-		'	padding: 0 8px;',
-		'	overflow: hidden;',
-		'	color: var(--sm-text);',
-		'	font-size: var(--sm-fs-title);',
-		'	line-height: 24px;',
-		'	font-weight: 650;',
-		'	white-space: nowrap;',
-		'	text-overflow: ellipsis;',
 		'}',
 		'',
 		'.geSmLightbox .geSmLbSep {',
@@ -757,7 +744,6 @@ LightboxModern.getCss = function()
 		'}',
 		'',
 		'.geSmLightbox .geSmLbTextBtn:focus-visible,',
-		'.geSmLightbox .geSmLbTitleBtn:focus-visible,',
 		'.geSmLightbox .geSmLbItem:focus-visible,',
 		'.geSmLightbox .geSmLbFormat:focus-visible,',
 		'.geSmLightbox input.geSmLbSwitch[role="switch"]:focus-visible,',
@@ -784,61 +770,44 @@ LightboxModern.getCss = function()
 		'	height: 20px;',
 		'}',
 		'',
-		'/* Phones: a top bar of 56 with Close, the title and the page, Export and',
-		'   More; the bottom bar at thumb height */',
+		'/* The page menu of the bottom bar: the name is shortened before the',
+		'   number of the page */',
+		'.geSmLightbox .geSmLbPageBtn {',
+		'	max-width: 360px;',
+		'}',
+		'',
+		'.geSmLightbox .geSmLbPageCount {',
+		'	flex: 0 0 auto;',
+		'	margin-left: -8px;',
+		'	white-space: pre;',
+		'}',
+		'',
+		'/* Phones: Back and Close top left, More top right, the bottom bar at',
+		'   thumb height; the page menu with the number of the page only */',
 		'.geSmLightbox .geSmLbPhoneTop {',
-		'	left: 0;',
-		'	right: 0;',
-		'	top: 0;',
-		'	max-width: none;',
-		'	height: 56px;',
-		'	padding: 0 8px;',
-		'	border: none;',
-		'	border-radius: 0;',
-		'	box-shadow: inset 0 -1px 0 var(--sm-border);',
+		'	left: 12px;',
+		'	top: 12px;',
+		'	max-width: calc(50% - 18px);',
+		'}',
+		'',
+		'.geSmLightbox .geSmLbPhoneTopRight {',
+		'	right: 12px;',
+		'	top: 12px;',
+		'	max-width: calc(50% - 18px);',
 		'}',
 		'',
 		'.geSmLightbox .geSmLbMobile .geSmLbBottom {',
 		'	bottom: 24px;',
 		'}',
 		'',
-		'.geSmLightbox .geSmLbTitleBtn {',
-		'	display: flex;',
-		'	flex-direction: column;',
-		'	align-items: flex-start;',
-		'	justify-content: center;',
-		'	flex: 1 1 auto;',
-		'	box-sizing: border-box;',
-		'	min-width: 0;',
-		'	height: 48px;',
-		'	margin: 0;',
-		'	padding: 0 8px;',
-		'	border: none;',
-		'	border-radius: var(--sm-r-m);',
-		'	background: transparent;',
-		'	color: var(--sm-text);',
-		'	font-family: var(--sm-font);',
-		'	text-align: left;',
-		'	cursor: pointer;',
+		'.geSmLightbox .geSmLbMobile .geSmLbPageBtn>.geSmIcon:first-child,',
+		'.geSmLightbox .geSmLbMobile .geSmLbPageBtn .geSmLbBtnText,',
+		'.geSmLightbox .geSmLbMobile .geSmLbPageDot {',
+		'	display: none;',
 		'}',
 		'',
-		'.geSmLightbox .geSmLbTitleBtn[disabled] {',
-		'	cursor: default;',
-		'}',
-		'',
-		'.geSmLightbox .geSmLbTitleBtn .geSmLbTitle {',
-		'	max-width: 100%;',
-		'	padding: 0;',
-		'}',
-		'',
-		'.geSmLightbox .geSmLbSubtitle {',
-		'	max-width: 100%;',
-		'	overflow: hidden;',
-		'	color: var(--sm-text-2);',
-		'	font-size: var(--sm-fs-hint);',
-		'	line-height: 16px;',
-		'	white-space: nowrap;',
-		'	text-overflow: ellipsis;',
+		'.geSmLightbox .geSmLbMobile .geSmLbPageCount {',
+		'	margin-left: 0;',
 		'}',
 		'',
 		'/* Popovers: menus (inset 4, items 32 (44) with their text at 46) and the',
@@ -1274,6 +1243,25 @@ LightboxModern.prototype.init = function()
 	this.root.appendChild(this.desk);
 	this.root.appendChild(this.mobile);
 	ui.container.appendChild(this.root);
+
+	// The title for screen readers, which is not shown: a heading before
+	// the diagram (the first child of the container, so it is read first),
+	// as the bars show no title and the top left bar is hidden without Back
+	// (see update)
+	this.titleNode = document.createElement('h1');
+	this.titleNode.className = 'geSmLbTitle';
+	ui.container.insertBefore(this.titleNode, ui.container.firstChild);
+
+	// EditorUi.destroy removes the bars (chromelessToolbar), not the
+	// heading beside them in the container (the body), which stays
+	ui.destroyFunctions.push(mxUtils.bind(this, function()
+	{
+		if (this.titleNode.parentNode != null)
+		{
+			this.titleNode.parentNode.removeChild(this.titleNode);
+		}
+	}));
+
 	this.installTabOrder();
 
 	var update = mxUtils.bind(this, function()
@@ -1410,7 +1398,7 @@ LightboxModern.prototype.getTabRegions = function(regions)
 	var index = mxUtils.indexOf(result, this.graph.container);
 	index = (index >= 0) ? index : result.length;
 	result.splice(index + 1, 0, this.bottom, this.phoneBottom);
-	result.splice(index, 0, this.topLeft, this.topRight, this.phoneTop);
+	result.splice(index, 0, this.topLeft, this.topRight, this.phoneTop, this.phoneTopRight);
 
 	return result;
 };
@@ -1603,38 +1591,14 @@ LightboxModern.prototype.createDesktopBars = function()
 	this.desk = document.createElement('div');
 	this.desk.className = 'geSmLbDesk';
 
-	// Top left: Back, the logo, the title and the page menu
+	// Top left: Back only, hidden without it (no logo since 24 November
+	// 2026; the title is the name of the bar only)
 	var left = this.createBar('geSmLbTopLeft', mxResources.get('diagram'));
 	this.topLeft = left;
 	this.addBackButton(left);
-
-	if (Editor.logoImage != null)
-	{
-		// Editor.logoImage is set by code, not by diagrams or URL parameters
-		var logo = document.createElement('img');
-		logo.className = 'geSmLbLogo';
-		logo.setAttribute('src', Editor.logoImage);
-		logo.setAttribute('alt', '');
-		logo.setAttribute('aria-hidden', 'true');
-		left.appendChild(logo);
-	}
-
-	this.title = document.createElement('span');
-	this.title.className = 'geSmLbTitle';
-	left.appendChild(this.title);
-
-	this.pageSep = this.createSeparator();
-	left.appendChild(this.pageSep);
-
-	this.pageBtn = this.addChevron(this.createButton(LightboxModern.icons.pages, mxResources.get('pages'),
-		mxUtils.bind(this, function()
-	{
-		this.togglePopover(this.pageBtn, mxUtils.bind(this, this.createPageMenu));
-	}), '', 'geSmLbAccent'));
-	left.appendChild(this.pageBtn);
 	this.desk.appendChild(left);
 
-	// Top right: language, layers, tags, Export, Edit, Close
+	// Top right: language, layers, tags, Edit, Close
 	var right = this.createBar('geSmLbTopRight', mxResources.get('toolbar'));
 	this.topRight = right;
 
@@ -1663,32 +1627,8 @@ LightboxModern.prototype.createDesktopBars = function()
 	this.tagsBtn.setAttribute('aria-expanded', 'false');
 	right.appendChild(this.tagsBtn);
 
-	if (ui.isModernLightboxExportEnabled())
-	{
-		this.exportBtn = this.addChevron(this.createButton(LightboxModern.icons.download,
-			mxResources.get('export'), mxUtils.bind(this, function()
-		{
-			this.togglePopover(this.exportBtn, mxUtils.bind(this, this.createExportPanel), 'dialog');
-		}), mxResources.get('export')), 'dialog');
-		right.appendChild(this.exportBtn);
-	}
-	else if (this.isPrintEnabled())
-	{
-		right.appendChild(this.createButton(LightboxModern.icons.print, mxResources.get('print'),
-			mxUtils.bind(this, function()
-		{
-			this.print();
-		})));
-	}
-
 	this.addCustomButtons(right);
-	var hasEnd = this.isEditEnabled() || this.isCloseEnabled() || this.toolbarConfig.refreshBtn != null;
-
-	if (hasEnd)
-	{
-		right.appendChild(this.createSeparator());
-	}
-
+	right.appendChild(this.createSeparator());
 	this.addRefreshButton(right);
 
 	if (this.isEditEnabled())
@@ -1711,12 +1651,12 @@ LightboxModern.prototype.createDesktopBars = function()
 
 	this.desk.appendChild(right);
 
-	// Bottom centre: pages, zoom, Fit and Full screen
+	// Bottom centre: the page menu, zoom, Fit, Full screen and Export or Print
 	var bottom = this.createBar('geSmLbBottom', mxResources.get('pages') + ', ' + mxResources.get('zoom'));
 	this.bottom = bottom;
-	this.addPageButtons(bottom, 'desk');
-	this.bottomPageSep = this.createSeparator();
-	bottom.appendChild(this.bottomPageSep);
+	this.pageBtn = this.createPageButton();
+	bottom.appendChild(this.pageBtn);
+	bottom.appendChild(this.createSeparator());
 
 	bottom.appendChild(this.createButton(LightboxModern.icons.minus, mxResources.get('zoomOut'),
 		mxUtils.bind(this, function()
@@ -1762,6 +1702,8 @@ LightboxModern.prototype.createDesktopBars = function()
 		})));
 	}
 
+	bottom.appendChild(this.createSeparator());
+	this.exportBtn = this.addOutputButton(bottom);
 	this.desk.appendChild(bottom);
 };
 
@@ -1770,11 +1712,10 @@ LightboxModern.prototype.createDesktopBars = function()
  */
 LightboxModern.prototype.createPhoneBars = function()
 {
-	var ui = this.ui;
 	this.mobile = document.createElement('div');
 	this.mobile.className = 'geSmLbMobile';
 
-	// Top: Close, the title and the page, Export and More
+	// Top left: Back and Close (hidden without them)
 	var top = this.createBar('geSmLbPhoneTop', mxResources.get('diagram'));
 	this.phoneTop = top;
 	this.addBackButton(top);
@@ -1788,40 +1729,11 @@ LightboxModern.prototype.createPhoneBars = function()
 		})));
 	}
 
-	this.phoneTitleBtn = document.createElement('button');
-	this.phoneTitleBtn.setAttribute('type', 'button');
-	this.phoneTitleBtn.className = 'geSmLbTitleBtn';
-	this.phoneTitleBtn.setAttribute('aria-haspopup', 'menu');
-	this.phoneTitleBtn.setAttribute('aria-expanded', 'false');
-	this.phoneTitle = document.createElement('span');
-	this.phoneTitle.className = 'geSmLbTitle';
-	this.phoneTitleBtn.appendChild(this.phoneTitle);
-	this.phoneSubtitle = document.createElement('span');
-	this.phoneSubtitle.className = 'geSmLbSubtitle';
-	this.phoneTitleBtn.appendChild(this.phoneSubtitle);
-	top.appendChild(this.phoneTitleBtn);
+	this.mobile.appendChild(top);
 
-	mxEvent.addListener(this.phoneTitleBtn, 'click', mxUtils.bind(this, function(evt)
-	{
-		if (this.hasPages())
-		{
-			this.togglePopover(this.phoneTitleBtn, mxUtils.bind(this, this.createPageMenu));
-		}
-
-		mxEvent.consume(evt);
-	}));
-
-	if (ui.isModernLightboxExportEnabled())
-	{
-		this.phoneExportBtn = this.createButton(LightboxModern.icons.download, mxResources.get('export'),
-			mxUtils.bind(this, function()
-		{
-			this.togglePopover(this.phoneExportBtn, mxUtils.bind(this, this.createExportPanel), 'dialog');
-		}));
-		this.phoneExportBtn.setAttribute('aria-haspopup', 'dialog');
-		this.phoneExportBtn.setAttribute('aria-expanded', 'false');
-		top.appendChild(this.phoneExportBtn);
-	}
+	// Top right: More
+	var right = this.createBar('geSmLbPhoneTopRight', mxResources.get('toolbar'));
+	this.phoneTopRight = right;
 
 	this.moreBtn = this.createButton(LightboxModern.icons.more, mxResources.get('moreOptions'),
 		mxUtils.bind(this, function()
@@ -1830,15 +1742,16 @@ LightboxModern.prototype.createPhoneBars = function()
 	}));
 	this.moreBtn.setAttribute('aria-haspopup', 'menu');
 	this.moreBtn.setAttribute('aria-expanded', 'false');
-	top.appendChild(this.moreBtn);
-	this.mobile.appendChild(top);
+	right.appendChild(this.moreBtn);
+	this.mobile.appendChild(right);
 
-	// Bottom: pages, Fit and the language at thumb height
+	// Bottom: the page menu, Fit, the language and Export or Print at thumb
+	// height
 	var bottom = this.createBar('geSmLbBottom', mxResources.get('pages'));
 	this.phoneBottom = bottom;
-	this.addPageButtons(bottom, 'mobile');
-	this.phonePageSep = this.createSeparator();
-	bottom.appendChild(this.phonePageSep);
+	this.phonePageBtn = this.createPageButton();
+	bottom.appendChild(this.phonePageBtn);
+	bottom.appendChild(this.createSeparator());
 
 	bottom.appendChild(this.createButton(LightboxModern.icons.fit, mxResources.get('fit'),
 		mxUtils.bind(this, function()
@@ -1854,35 +1767,67 @@ LightboxModern.prototype.createPhoneBars = function()
 	this.phoneLangBtn.setAttribute('aria-haspopup', 'menu');
 	this.phoneLangBtn.setAttribute('aria-expanded', 'false');
 	bottom.appendChild(this.phoneLangBtn);
+	bottom.appendChild(this.createSeparator());
+	this.phoneExportBtn = this.addOutputButton(bottom);
 	this.mobile.appendChild(bottom);
 };
 
 /**
- * Adds the buttons for the previous and the next page and the page number.
+ * Creates the button of the page menu ("Name · 1 of 3") of a bottom bar,
+ * shown only with more than one page (see update). The name is shortened
+ * before the number of the page; phones show the number only (the accessible
+ * name has both, see update).
  */
-LightboxModern.prototype.addPageButtons = function(bar, key)
+LightboxModern.prototype.createPageButton = function()
 {
-	var prev = this.createButton(LightboxModern.icons.chevronLeft, mxResources.get('previousPage'),
+	var btn = this.addChevron(this.createButton(LightboxModern.icons.pages, mxResources.get('pages'),
 		mxUtils.bind(this, function()
 	{
-		this.ui.actions.get('previousPage').funct();
-	}));
+		this.togglePopover(btn, mxUtils.bind(this, this.createPageMenu));
+	}), '', 'geSmLbAccent geSmLbPageBtn'));
 
-	var info = document.createElement('span');
-	info.className = 'geSmLbValue';
+	var count = document.createElement('span');
+	count.className = 'geSmLbPageCount';
+	var dot = document.createElement('span');
+	dot.className = 'geSmLbPageDot';
+	mxUtils.write(dot, ' · ');
+	count.appendChild(dot);
+	btn.countNode = document.createElement('span');
+	count.appendChild(btn.countNode);
+	btn.insertBefore(count, btn.textNode.nextSibling);
 
-	var next = this.createButton(LightboxModern.icons.chevronRight, mxResources.get('nextPage'),
-		mxUtils.bind(this, function()
+	return btn;
+};
+
+/**
+ * Adds Export to the given bottom bar, or Print where image export is not
+ * enabled, and returns Export (null if it is not shown).
+ */
+LightboxModern.prototype.addOutputButton = function(bar)
+{
+	var btn = null;
+
+	if (this.ui.isModernLightboxExportEnabled())
 	{
-		this.ui.actions.get('nextPage').funct();
-	}));
+		btn = this.createButton(LightboxModern.icons.download, mxResources.get('export'),
+			mxUtils.bind(this, function()
+		{
+			this.togglePopover(btn, mxUtils.bind(this, this.createExportPanel), 'dialog');
+		}));
+		btn.setAttribute('aria-haspopup', 'dialog');
+		btn.setAttribute('aria-expanded', 'false');
+		bar.appendChild(btn);
+	}
+	else if (this.isPrintEnabled())
+	{
+		bar.appendChild(this.createButton(LightboxModern.icons.print, mxResources.get('print'),
+			mxUtils.bind(this, function()
+		{
+			this.print();
+		})));
+	}
 
-	bar.appendChild(prev);
-	bar.appendChild(info);
-	bar.appendChild(next);
-
-	this.pageControls = this.pageControls || [];
-	this.pageControls.push({prev: prev, info: info, next: next, key: key});
+	return btn;
 };
 
 /**
@@ -1987,8 +1932,8 @@ LightboxModern.prototype.addCustomButtons = function(bar)
 };
 
 /**
- * Updates the title, the page controls, the language, the layers and the
- * zoom.
+ * Updates the name of the diagram, the page menus, the language, the layers
+ * and the zoom.
  */
 LightboxModern.prototype.update = function()
 {
@@ -2001,79 +1946,54 @@ LightboxModern.prototype.update = function()
 	var langName = this.getLanguageName(this.getLanguage());
 	var hasLanguages = this.languages.length > 0 || this.getLanguage() != null;
 
-	if (this.title.textContent != title)
+	// The title is not shown: the heading for screen readers has it (as
+	// text) and it names the top left bar (of Back)
+	var titleText = (title != null) ? String(title) : '';
+
+	if (this.titleNode.textContent != titleText)
 	{
-		this.title.textContent = '';
-		mxUtils.write(this.title, title);
-		this.title.setAttribute('title', title);
-		this.phoneTitle.textContent = '';
-		mxUtils.write(this.phoneTitle, title);
+		this.titleNode.textContent = '';
+		mxUtils.write(this.titleNode, titleText);
+	}
+
+	if (this.topLeft.getAttribute('aria-label') != title)
+	{
 		this.topLeft.setAttribute('aria-label', title);
 	}
 
-	// Page menu: "Name · 1 of 3"
-	this.pageBtn.style.display = (pages) ? '' : 'none';
-	this.pageSep.style.display = (pages) ? '' : 'none';
+	// Page menus: "Name · 1 of 3" (the arrow keys change pages)
+	var pageBtns = [this.pageBtn, this.phonePageBtn];
 
-	if (pages)
+	for (var i = 0; i < pageBtns.length; i++)
 	{
-		this.setButtonLabel(this.pageBtn, pageName + ' · ' +
-			mxResources.get('nOfM', [index + 1, count]));
-		this.pageBtn.setAttribute('title', mxResources.get('pages') + ': ' +
-			mxResources.get('pageOfPages', [index + 1, count]));
-	}
-
-	var sub = [];
-
-	if (pages)
-	{
-		sub.push(mxResources.get('pageOfPages', [index + 1, count]));
-	}
-
-	if (hasLanguages)
-	{
-		sub.push(langName);
-	}
-
-	this.phoneSubtitle.textContent = '';
-	mxUtils.write(this.phoneSubtitle, sub.join(' · '));
-	this.phoneSubtitle.style.display = (sub.length > 0) ? '' : 'none';
-	this.phoneTitleBtn.setAttribute('aria-label', title + ((sub.length > 0) ?
-		', ' + sub.join(', ') : ''));
-	this.phoneTitleBtn.setAttribute('title', (pages) ? mxResources.get('pages') : title);
-
-	if (pages)
-	{
-		this.phoneTitleBtn.removeAttribute('disabled');
-	}
-	else
-	{
-		this.phoneTitleBtn.setAttribute('disabled', 'disabled');
-	}
-
-	// Previous and next page
-	for (var i = 0; i < this.pageControls.length; i++)
-	{
-		var c = this.pageControls[i];
-		c.prev.style.display = (pages) ? '' : 'none';
-		c.next.style.display = (pages) ? '' : 'none';
-		c.info.style.display = (pages) ? '' : 'none';
+		var btn = pageBtns[i];
+		btn.style.display = (pages) ? '' : 'none';
 
 		if (pages)
 		{
-			c.info.textContent = '';
-			mxUtils.write(c.info, (index + 1) + ' / ' + count);
-			c.info.setAttribute('title', mxResources.get('pageOfPages', [index + 1, count]) +
-				': ' + pageName);
-			c.prev.setAttribute('title', mxResources.get('previousPage') + ': ' +
-				ui.pages[mxUtils.mod(index - 1, count)].getName() + ' (←)');
-			c.next.setAttribute('title', mxResources.get('nextPage') + ': ' +
-				ui.pages[mxUtils.mod(index + 1, count)].getName() + ' (→)');
+			this.setButtonLabel(btn, pageName);
+			var nOfM = mxResources.get('nOfM', [index + 1, count]);
+
+			if (btn.countNode.textContent != nOfM)
+			{
+				btn.countNode.textContent = '';
+				mxUtils.write(btn.countNode, nOfM);
+			}
+
+			btn.setAttribute('title', mxResources.get('pages') + ': ' +
+				mxResources.get('pageOfPages', [index + 1, count]) + ' (← →)');
+
+			// Phones hide the name of the page, so the accessible name is set:
+			// "Pages" and the whole text of the button. It also names the page
+			// menu (showPopover), as the tooltip would with its arrows.
+			var btnName = mxResources.get('pages') + ': ' + btn.textContent;
+
+			if (btn.getAttribute('aria-label') != btnName)
+			{
+				btn.setAttribute('aria-label', btnName);
+			}
 		}
 	}
-
-	this.bottomPageSep.style.display = (pages) ? '' : 'none';
-	this.phonePageSep.style.display = (pages) ? '' : 'none';
 
 	// Language
 	this.langBtn.style.display = (hasLanguages) ? '' : 'none';
@@ -2087,6 +2007,15 @@ LightboxModern.prototype.update = function()
 	this.layersBtn.style.display = (this.isLayersEnabled()) ? '' : 'none';
 	this.tagsBtn.style.display = (this.isTagsEnabled()) ? '' : 'none';
 
+	// Separators and bars without visible buttons
+	var barList = [this.topLeft, this.topRight, this.bottom, this.phoneTop,
+		this.phoneTopRight, this.phoneBottom];
+
+	for (var i = 0; i < barList.length; i++)
+	{
+		this.updateBar(barList[i]);
+	}
+
 	// Zoom
 	var zoom = Math.round(this.graph.view.scale * 100) + '%';
 
@@ -2098,6 +2027,47 @@ LightboxModern.prototype.update = function()
 
 	this.updateCanvas();
 	this.updateLayout();
+};
+
+/**
+ * Shows a separator of the given bar only between visible buttons and hides
+ * the bar if it has none.
+ */
+LightboxModern.prototype.updateBar = function(bar)
+{
+	var children = bar.children;
+	var pending = null;
+	var before = false;
+	var visible = 0;
+
+	for (var i = 0; i < children.length; i++)
+	{
+		var child = children[i];
+
+		if (child.classList.contains('geSmLbSep'))
+		{
+			child.style.display = 'none';
+
+			if (before)
+			{
+				pending = child;
+				before = false;
+			}
+		}
+		else if (child.style.display != 'none')
+		{
+			if (pending != null)
+			{
+				pending.style.display = '';
+				pending = null;
+			}
+
+			before = true;
+			visible++;
+		}
+	}
+
+	bar.style.display = (visible > 0) ? '' : 'none';
 };
 
 /**
@@ -2410,8 +2380,9 @@ LightboxModern.prototype.showPopover = function(anchor, content, role)
 };
 
 /**
- * Places the popover 8 below its anchor, aligned with its left side or, if
- * it does not fit, its right side. Phones show it as a bottom sheet (CSS).
+ * Places the popover 8 below its anchor, or 8 above it for the buttons of
+ * the bottom bar, aligned with its left side or, if it does not fit, its
+ * right side. Phones show it as a bottom sheet (CSS).
  */
 LightboxModern.prototype.positionPopover = function()
 {
@@ -2419,6 +2390,9 @@ LightboxModern.prototype.positionPopover = function()
 
 	if (pop != null)
 	{
+		pop.style.maxHeight = '';
+		pop.style.bottom = '';
+
 		if (this.root.classList.contains('geSmLbPhone'))
 		{
 			pop.style.left = '';
@@ -2437,7 +2411,19 @@ LightboxModern.prototype.positionPopover = function()
 			}
 
 			pop.style.left = Math.max(8, Math.round(x)) + 'px';
-			pop.style.top = Math.round(r.bottom + 8) + 'px';
+
+			// Above the bottom bar, attached by its bottom edge, so that it
+			// grows upwards (the Export panel changes its height)
+			if (mxUtils.isAncestorNode(this.bottom, this.popoverAnchor))
+			{
+				pop.style.top = 'auto';
+				pop.style.bottom = Math.round(this.root.getBoundingClientRect().bottom - r.top + 8) + 'px';
+				pop.style.maxHeight = Math.max(0, Math.round(r.top - 16)) + 'px';
+			}
+			else
+			{
+				pop.style.top = Math.round(r.bottom + 8) + 'px';
+			}
 		}
 	}
 };
@@ -2621,7 +2607,11 @@ LightboxModern.prototype.createPageMenu = function()
 		{
 			div.appendChild(this.createItem(page.getName(), mxUtils.bind(this, function()
 			{
-				this.hidePopover(true);
+				// Focuses the diagram, where the arrow keys change pages (on the
+				// button they move the focus), before the item is removed (for the
+				// focus ring) and without scrolling the page around a frame
+				this.graph.container.focus({preventScroll: true});
+				this.hidePopover();
 
 				if (page != ui.currentPage)
 				{
@@ -2820,7 +2810,8 @@ LightboxModern.prototype.createMoreMenu = function()
 		}));
 	}
 
-	if (this.isPrintEnabled())
+	// Without image export Print is in the bottom bar
+	if (this.isPrintEnabled() && this.ui.isModernLightboxExportEnabled())
 	{
 		add(mxResources.get('print') + '...', LightboxModern.icons.print, mxUtils.bind(this, function()
 		{

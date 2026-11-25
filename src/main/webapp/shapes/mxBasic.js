@@ -820,7 +820,39 @@ mxShapeBasicDrop.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeBasicDrop.prototype.cst.DROP, mxShapeBasicDrop);
 
-mxShapeBasicDrop.prototype.constraints = null;
+/**
+ * The tip, the places where the straight sides meet the round part, the sides and the bottom of
+ * the round part (radius min(w, h) / 2), so the points follow resizes that keep the proportions.
+ */
+mxShapeBasicDrop.prototype.getConstraints = function(style, w, h)
+{
+	var r = Math.min(w, h) * 0.5;
+	var d = h - r;
+	var a = Math.sqrt(Math.max(0, d * d - r * r));
+	var angle = (r > 0) ? Math.atan(a / r) : 0;
+	var x1 = r * Math.sin(angle);
+	var y1 = r * Math.cos(angle);
+	var q = r * Math.SQRT1_2;
+	var constr = [new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+		new mxConnectionConstraint(new mxPoint(0.5, 1), false)];
+
+	if (w > 0 && h > 0)
+	{
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5 - r / w, d / h), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5 + r / w, d / h), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5 - q / w, (d + q) / h), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5 + q / w, (d + q) / h), false));
+
+		// Only if the straight sides do not end at the tip
+		if (d > r)
+		{
+			constr.push(new mxConnectionConstraint(new mxPoint(0.5 - x1 / w, (d - y1) / h), false));
+			constr.push(new mxConnectionConstraint(new mxPoint(0.5 + x1 / w, (d - y1) / h), false));
+		}
+	}
+
+	return constr;
+};
 
 //**********************************************************************************************************************************************************
 //Cone 2
@@ -2067,7 +2099,16 @@ mxShapeBasicDonut.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeBasicDonut.prototype.cst.DONUT, mxShapeBasicDonut);
 
-mxShapeBasicDonut.prototype.constraints = null;
+mxShapeBasicDonut.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(0.854, 0.146), false),
+	new mxConnectionConstraint(new mxPoint(0.854, 0.854), false),
+	new mxConnectionConstraint(new mxPoint(0.146, 0.854), false),
+	new mxConnectionConstraint(new mxPoint(0.146, 0.146), false)
+];
 
 Graph.handleFactory[mxShapeBasicDonut.prototype.cst.DONUT] = function(state)
 {
@@ -2318,7 +2359,7 @@ mxShapeBasicButton.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeBasicButton.prototype.cst.BUTTON, mxShapeBasicButton);
 
-mxShapeBasicButton.prototype.constraints = null;
+mxShapeBasicButton.prototype.constraints = mxRectangleShape.prototype.constraints;
 
 Graph.handleFactory[mxShapeBasicButton.prototype.cst.BUTTON] = function(state)
 {
@@ -2428,7 +2469,7 @@ mxShapeBasicShadedButton.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeBasicShadedButton.prototype.cst.SHADED_BUTTON, mxShapeBasicShadedButton);
 
-mxShapeBasicShadedButton.prototype.constraints = null;
+mxShapeBasicShadedButton.prototype.constraints = mxRectangleShape.prototype.constraints;
 
 Graph.handleFactory[mxShapeBasicShadedButton.prototype.cst.SHADED_BUTTON] = function(state)
 {
@@ -2539,7 +2580,67 @@ mxShapeBasicPie.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeBasicPie.prototype.cst.PIE, mxShapeBasicPie);
 
-mxShapeBasicPie.prototype.constraints = null;
+/**
+ * Returns the fraction of the style with the given key between 0 and 1, or the default.
+ */
+mxShapeBasicPie.prototype.getFraction = function(style, key, defaultValue)
+{
+	var value = parseFloat(mxUtils.getValue(style, key, defaultValue));
+
+	return (isNaN(value)) ? defaultValue : Math.max(0, Math.min(1, value));
+};
+
+/**
+ * Returns the connection constraint at the given fraction of a turn (clockwise from the top) on
+ * the ellipse of the bounds scaled by k, moved inwards by the given fixed horizontal and vertical
+ * padding (py defaults to px).
+ */
+mxShapeBasicPie.prototype.getTurnConstraint = function(turn, k, px, py)
+{
+	var a = 2 * Math.PI * turn;
+	var sin = Math.sin(a);
+	var cos = Math.cos(a);
+	py = (py != null) ? py : px;
+
+	return new mxConnectionConstraint(new mxPoint(0.5 + sin * 0.5 * k, 0.5 - cos * 0.5 * k), false,
+		null, (px > 0) ? -sin * px : 0, (py > 0) ? cos * py : 0);
+};
+
+/**
+ * Returns the fraction of a turn in the middle of the arc from start to end (clockwise), or
+ * null if both are at the same place, where no arc is painted.
+ */
+mxShapeBasicPie.prototype.getMiddleTurn = function(start, end)
+{
+	var d = end - start;
+
+	if (d == 0 || Math.abs(d) == 1)
+	{
+		return null;
+	}
+
+	return start + ((d < 0) ? d + 1 : d) / 2;
+};
+
+/**
+ * The centre, the ends and the middle of the arc, from the angles of the style (handles).
+ */
+mxShapeBasicPie.prototype.getConstraints = function(style, w, h)
+{
+	var start = this.getFraction(style, 'startAngle', this.startAngle);
+	var end = this.getFraction(style, 'endAngle', this.endAngle);
+	var middle = this.getMiddleTurn(start, end);
+	var constr = [new mxConnectionConstraint(new mxPoint(0.5, 0.5), false),
+		this.getTurnConstraint(start, 1, 0),
+		this.getTurnConstraint(end, 1, 0)];
+
+	if (middle != null)
+	{
+		constr.push(this.getTurnConstraint(middle, 1, 0));
+	}
+
+	return constr;
+};
 
 Graph.handleFactory[mxShapeBasicPie.prototype.cst.PIE] = function(state)
 {
@@ -2786,7 +2887,56 @@ mxShapeBasicArc.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeBasicArc.prototype.cst.ARC, mxShapeBasicArc);
 
-mxShapeBasicArc.prototype.constraints = null;
+/**
+ * The ends and the middle of the arc, from the angles of the style (handles). Arrows inset the
+ * arc by a fixed padding, so the points have that padding as their offset.
+ */
+mxShapeBasicArc.prototype.getConstraints = function(style, w, h)
+{
+	var pie = mxShapeBasicPie.prototype;
+	var start = pie.getFraction(style, 'startAngle', this.startAngle);
+	var end = pie.getFraction(style, 'endAngle', this.endAngle);
+	var startArrow = mxUtils.getValue(style, mxConstants.STYLE_STARTARROW, mxConstants.NONE);
+	var endArrow = mxUtils.getValue(style, mxConstants.STYLE_ENDARROW, mxConstants.NONE);
+	var padding = 0;
+
+	if (startArrow != null && startArrow != mxConstants.NONE)
+	{
+		padding = Math.max(padding, mxUtils.getNumber(style, mxConstants.STYLE_STARTSIZE, mxConstants.DEFAULT_MARKERSIZE));
+	}
+
+	if (endArrow != null && endArrow != mxConstants.NONE)
+	{
+		padding = Math.max(padding, mxUtils.getNumber(style, mxConstants.STYLE_ENDSIZE, mxConstants.DEFAULT_MARKERSIZE));
+	}
+
+	if (padding > 0)
+	{
+		// The stroke width of the style, which the painter has in the shape
+		padding = (padding + mxUtils.getNumber(style, mxConstants.STYLE_STROKEWIDTH, 1)) / 2;
+	}
+
+	// The painter insets each radius at most to the centre (rx, ry >= 0)
+	var px = Math.max(0, Math.min(padding, w / 2));
+	var py = Math.max(0, Math.min(padding, h / 2));
+
+	if (!isFinite(px) || !isFinite(py))
+	{
+		px = 0;
+		py = 0;
+	}
+
+	var middle = pie.getMiddleTurn(start, end);
+	var constr = [pie.getTurnConstraint(start, 1, px, py),
+		pie.getTurnConstraint(end, 1, px, py)];
+
+	if (middle != null)
+	{
+		constr.push(pie.getTurnConstraint(middle, 1, px, py));
+	}
+
+	return constr;
+};
 
 Graph.handleFactory[mxShapeBasicArc.prototype.cst.ARC] = function(state)
 {
@@ -2923,7 +3073,38 @@ mxShapeBasicPartConcEllipse.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeBasicPartConcEllipse.prototype.cst.PART_CONC_ELLIPSE, mxShapeBasicPartConcEllipse);
 
-mxShapeBasicPartConcEllipse.prototype.constraints = null;
+/**
+ * The ends and the middle of the outer arc and, on bands at least a fifth of the radius wide,
+ * of the inner arc, from the angles and the width of the style (handles).
+ */
+mxShapeBasicPartConcEllipse.prototype.getConstraints = function(style, w, h)
+{
+	var pie = mxShapeBasicPie.prototype;
+	var start = pie.getFraction(style, 'startAngle', this.startAngle);
+	var end = pie.getFraction(style, 'endAngle', this.endAngle);
+	var arcWidth = pie.getFraction(style, 'arcWidth', this.arcWidth);
+	var middle = pie.getMiddleTurn(start, end);
+	var constr = [pie.getTurnConstraint(start, 1, 0),
+		pie.getTurnConstraint(end, 1, 0)];
+
+	if (middle != null)
+	{
+		constr.push(pie.getTurnConstraint(middle, 1, 0));
+	}
+
+	if (arcWidth >= 0.2)
+	{
+		constr.push(pie.getTurnConstraint(start, 1 - arcWidth, 0));
+		constr.push(pie.getTurnConstraint(end, 1 - arcWidth, 0));
+
+		if (middle != null)
+		{
+			constr.push(pie.getTurnConstraint(middle, 1 - arcWidth, 0));
+		}
+	}
+
+	return constr;
+};
 
 Graph.handleFactory[mxShapeBasicPartConcEllipse.prototype.cst.PART_CONC_ELLIPSE] = function(state)
 {
@@ -3865,3 +4046,18 @@ mxShapeBasicPatternFillRect.prototype.getConstraints = function(style, w, h)
 	return (constr);
 }
 
+
+//**********************************************************************************************************************************************************
+//Snap points
+//**********************************************************************************************************************************************************
+// These shapes had no connection points when floating ends could first snap to
+// connection points (snapToPoint=1), so these ends do not snap to the points
+// above (see mxShape.getSnapConstraints in js/grapheditor/Graph.js)
+mxUtils.forEach([mxShapeBasicDrop, mxShapeBasicDonut, mxShapeBasicButton, mxShapeBasicShadedButton,
+	mxShapeBasicPie, mxShapeBasicArc, mxShapeBasicPartConcEllipse], function(shape)
+{
+	shape.prototype.getSnapConstraints = function(style, w, h)
+	{
+		return [];
+	};
+});

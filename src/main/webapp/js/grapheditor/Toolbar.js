@@ -642,6 +642,19 @@ Toolbar.prototype.addItem = function(sprite, key, container, noListeners)
 		elt = this.editorUi.addButton(sprite, '', action.funct,
 			(container != null) ? container : this.container);
 
+		// Disabled buttons say why in their tooltip (see getDisabledReason)
+		var updateTitle = mxUtils.bind(this, function()
+		{
+			var tooltip = action.getTitle();
+
+			if (action.shortcut != null)
+			{
+				tooltip += ' (' + action.shortcut + ')';
+			}
+
+			this.editorUi.updateDisabledReason(elt, key, tooltip, action.enabled, true);
+		});
+
 		var stateChangedListener = mxUtils.bind(this, function(sender, evt)
 		{
 			if (evt != null && evt.getProperty('attribute') == 'visible')
@@ -655,32 +668,38 @@ Toolbar.prototype.addItem = function(sprite, key, container, noListeners)
 					elt.style.display = '';
 				}
 			}
-			else if (action.enabled)
-			{
-				elt.removeAttribute('disabled');
-			}
 			else
 			{
-				elt.setAttribute('disabled', 'disabled');
+				if (action.enabled)
+				{
+					elt.removeAttribute('disabled');
+				}
+				else
+				{
+					elt.setAttribute('disabled', 'disabled');
+				}
+
+				if (evt != null)
+				{
+					updateTitle();
+				}
 			}
 		});
-
-		var updateTitle = function()
-		{
-			var tooltip = action.getTitle();
-
-			if (action.shortcut != null)
-			{
-				tooltip += ' (' + action.shortcut + ')';
-			}
-
-			elt.setAttribute('title', tooltip);
-		};
 
 		if (!noListeners)
 		{
 			this.editorUi.dependsOnLanguage(updateTitle);
 			action.addListener('stateChanged', stateChangedListener);
+
+			// The reason can change while the button stays disabled, eg. when
+			// the diagram becomes read-only
+			mxEvent.addListener(elt, 'pointerenter', function()
+			{
+				if (!action.enabled)
+				{
+					updateTitle();
+				}
+			});
 		}
 		else
 		{

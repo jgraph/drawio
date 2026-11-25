@@ -157,12 +157,17 @@ mxStencilRegistry.allowEval = false;
 			};
 		}
 
-		// Passes hidden tags per page to export backend
-		var hiddenTagsMap = editorUi.getHiddenTagsMap();
+		// Passes hidden tags per page and the cells that are shown, hidden or
+		// styled only in this window to export backend
+		editorUi.addExportViewState(extras, !args.selection);
 
-		if (hiddenTagsMap != null)
+		// Prints the layers shown or hidden only in this window, as the
+		// print in the browser and downloadRequestBuilder do
+		var layerVisibilityMap = editorUi.getLayerVisibilityMap();
+
+		if (layerVisibilityMap != null)
 		{
-			extras.hiddenTags = hiddenTagsMap;
+			extras.layerVisibility = layerVisibilityMap;
 		}
 
 		new mxElectronRequest('export', {
@@ -398,6 +403,18 @@ mxStencilRegistry.allowEval = false;
 			this.addMenuItems(menu, ['new', 'open'], parent);
 			this.addSubmenu('openRecent', menu, parent);
 			this.addMenuItems(menu, ['-', 'synchronize', '-', 'save', 'saveAs', '-', 'import'], parent);
+
+			// Export... with the last settings before Export as ▸ while it is on
+			// (addLastExportItem in PreviewDialog.js); the File button of Fusion
+			// has its Export... alone in place of Export as ▸, which opens the
+			// last export itself (addSubmenu in SimpleExport.js)
+			if (typeof this.addLastExportItem === 'function' && !(editorUi.simpleFileMenu &&
+				typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern() &&
+				editorUi.actions.get('simpleExport') != null))
+			{
+				this.addLastExportItem(menu, parent);
+			}
+
 			this.addSubmenu('exportAs', menu, parent);
 			menu.addSeparator(parent);
 			this.addSubmenu('embed', menu, parent);
@@ -1423,7 +1440,10 @@ mxStencilRegistry.allowEval = false;
 						this.hideDialog();
 					}), null, null, null, (drafts.length > 1) ? drafts : null);
 					
-					this.showDialog(dlg.container, 640, 480, true, false);
+					// The size of the layout of DraftLayout.js where it is shown
+					var size = (typeof this.getDraftLayoutSize === 'function') ?
+						this.getDraftLayoutSize(dlg, 640, 480) : {width: 640, height: 480};
+					this.showDialog(dlg.container, size.width, size.height, true, false);
 					
 					dlg.init();
 				}
@@ -2769,26 +2789,32 @@ mxStencilRegistry.allowEval = false;
 		return this.response;
 	}
 	
-	// Direct export to pdf
+	// Direct export to pdf. The arguments are those of the web app (see
+	// createDownloadRequest in diagramly/EditorUi.js): the DPI of a PNG is
+	// in the request, where the export of the main process writes it into
+	// the image
 	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64,
 		transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop, margin,
-		fit, sheetsAcross, sheetsDown, shadows, icons)
+		fit, sheetsAcross, sheetsDown, shadows, icons, storedLayers, dpi)
 	{
 		var params = this.downloadRequestBuilder(filename, format, ignoreSelection, base64,
 			transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop,
-			margin, fit, sheetsAcross, sheetsDown, shadows, icons);
+			margin, fit, sheetsAcross, sheetsDown, shadows, icons, storedLayers, dpi);
 
 		return new mxElectronRequest('export', params);
 	};
 
 	// Renders all pages to PDF with the diagram XML embedded via the local
 	// export pipeline, mirroring getEmbeddedPng for PNG files. The optional
-	// icons argument adds notes as sticky note annotations.
+	// icons argument adds notes as sticky note annotations. The pages show
+	// the layers and cells as stored in the embedded XML, also if they are
+	// shown, hidden or styled only in this window (read-only window or locked
+	// file).
 	EditorUi.prototype.getEmbeddedPdf = function(success, error, icons)
 	{
 		var req = this.createDownloadRequest(null, 'pdf', true, '0',
 			null, false, null, null, false, true, null, null, null,
-			null, null, null, null, null, null, icons);
+			null, null, null, null, null, null, icons, true);
 
 		req.send(function()
 		{
@@ -2883,6 +2909,10 @@ mxStencilRegistry.allowEval = false;
 						color: graph.view.gridColor
 					};
 				}
+
+				// What this window shows differently from the file (the data
+				// is the page with the IDs of its cells)
+				editorUi.addExportViewState(extras);
 
 				editorUi.saveRequest(name, format,
 					function(newTitle, base64)

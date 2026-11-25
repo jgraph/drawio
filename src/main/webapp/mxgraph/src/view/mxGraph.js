@@ -1668,11 +1668,15 @@ mxGraph.prototype.init = function(container)
 	// Updates the size of the container for the current graph
 	this.sizeDidChange();
 	
-	// Hides tooltips and resets tooltip timer if mouse leaves container
+	// Hides tooltips and resets tooltip timer if mouse leaves container,
+	// except if it moves onto the tooltip or onto a node inside of it (eg.
+	// a link). Markup of the tooltip that is placed outside of its box (eg.
+	// with position:fixed) does not keep it.
 	mxEvent.addListener(container, 'mouseleave', mxUtils.bind(this, function(evt)
 	{
 		if (this.tooltipHandler != null && this.tooltipHandler.div != null &&
-			this.tooltipHandler.div != evt.relatedTarget)
+			(!mxUtils.isAncestorNode(this.tooltipHandler.div, evt.relatedTarget) ||
+			!this.tooltipHandler.isInTooltip(mxEvent.getClientX(evt), mxEvent.getClientY(evt))))
 		{
 			this.tooltipHandler.hide();
 		}

@@ -890,6 +890,134 @@ mxShapePidValve.prototype.isSquareVariant = function(actType)
 
 mxCellRenderer.registerShape(mxShapePidValve.prototype.cst.SHAPE_VALVE, mxShapePidValve);
 
+/**
+ * Returns the top of the given actuator as a fraction of the height it is drawn in, or null
+ * if the actuator is not drawn.
+ */
+mxShapePidValve.prototype.getActuatorTop = function(actuator)
+{
+	var cst = mxShapePidValve.prototype.cst;
+
+	if (actuator === cst.MANUAL)
+	{
+		return 0.15;
+	}
+	else if (actuator === cst.DIAPHRAGM)
+	{
+		// Top of the dome
+		return 0.1127;
+	}
+	else if (actuator === cst.BALANCED_DIAPHRAGM)
+	{
+		return 0.1;
+	}
+	else if (this.isSquareVariant(actuator) || actuator === cst.MOTOR || actuator === cst.ELECTRO_HYDRAULIC ||
+		actuator === cst.SPRING || actuator === cst.SOLENOID_MANUAL_RESET || actuator === cst.SINGLE_ACTING ||
+		actuator === cst.DOUBLE_ACTING || actuator === cst.PILOT_CYLINDER)
+	{
+		return 0;
+	}
+
+	return null;
+};
+
+/**
+ * Connection points like the P&ID valve stencils: the pipe ends, the centre of the body and
+ * the top of the actuator. Everything is drawn as fractions of the size, so are the points.
+ */
+mxShapePidValve.prototype.getConstraints = function(style, w, h)
+{
+	var cst = mxShapePidValve.prototype.cst;
+	var valveType = mxUtils.getValue(style, cst.VALVE_TYPE, 'gate');
+	var actuator = mxUtils.getValue(style, cst.ACTUATOR, cst.NONE);
+	var angle = this.isAngleVariant(valveType);
+	var a = (actuator !== cst.NONE) ? ((angle) ? 0.3333 : 0.4) : 0;
+	var hv = 1 - a;
+	var constr = [];
+
+	var add = function(x, y)
+	{
+		constr.push(new mxConnectionConstraint(new mxPoint(x, y), false));
+	};
+
+	if (actuator === cst.ANGLE_BLOWDOWN)
+	{
+		// Upper end of the blowdown line (the angle variants draw the actuator in h / 1.2)
+		add(0.636, (angle) ? 0.2 / 1.2 : 0.2);
+	}
+	else if (actuator !== cst.NONE)
+	{
+		var top = this.getActuatorTop(actuator);
+
+		if (top != null)
+		{
+			// The angle variants draw the actuator in h / 1.2
+			add(0.5, (angle) ? top / 1.2 : top);
+		}
+	}
+
+	if (this.isGateVariant(valveType) || valveType === cst.BUTTERFLY || valveType === cst.CHECK)
+	{
+		var m = a + hv * 0.5;
+		add(0, m);
+		add(1, m);
+
+		if (valveType === cst.BALL || valveType === cst.GLOBE)
+		{
+			if (actuator === cst.NONE)
+			{
+				add(0.5, a + hv * 0.18);
+			}
+
+			add(0.5, a + hv * 0.82);
+		}
+		else if (valveType === cst.PLUG)
+		{
+			if (actuator === cst.NONE)
+			{
+				add(0.5, a + hv * 0.25);
+			}
+
+			add(0.5, a + hv * 0.75);
+		}
+		else if (valveType === cst.NEEDLE)
+		{
+			if (actuator === cst.NONE)
+			{
+				add(0.5, a + hv * 0.1);
+			}
+
+			add(0.5, 1);
+		}
+		else if (valveType === cst.SELF_DRAINING)
+		{
+			add(0.5, a + hv * 0.99);
+			add(0.5, m);
+		}
+		else
+		{
+			add(0.5, m);
+		}
+	}
+	else if (valveType === cst.ANGLE || valveType === cst.ANGLE_GLOBE)
+	{
+		var j = a + hv * 0.375;
+		add(1, j);
+		add(0.5, 1);
+		add(0.5, j);
+	}
+	else if (valveType === cst.THREE_WAY)
+	{
+		var j = a + hv * 0.375;
+		add(0, j);
+		add(1, j);
+		add(0.5, 1);
+		add(0.5, j);
+	}
+
+	return constr;
+};
+
 //**********************************************************************************************************************************************************
 //Integrated Block And Bleed Valve
 //**********************************************************************************************************************************************************
@@ -1078,6 +1206,34 @@ mxShapePidIntBlockBleedValve.prototype.drawActuatorFg = function(c, x, y, w, h, 
 
 mxCellRenderer.registerShape('mxgraph.pid2valves.blockBleedValve', mxShapePidIntBlockBleedValve);
 
+/**
+ * Connection points: the pipe ends and the centre of the valve, the outlet of the bleed and the
+ * top of the actuator, as fractions of the size like the drawing.
+ */
+mxShapePidIntBlockBleedValve.prototype.getConstraints = function(style, w, h)
+{
+	var cst = mxShapePidValve.prototype.cst;
+	var actuator = mxUtils.getValue(style, cst.ACTUATOR, cst.NONE);
+	var a = (actuator !== cst.NONE) ? 0.2353 : 0;
+	var j = a + (1 - a) * 0.23;
+	var constr = [];
+
+	// Actuators that are drawn, with the sizes of this valve
+	if (this.getActuatorTop(actuator) != null)
+	{
+		var top = (actuator === cst.MANUAL) ? 0.0882 : ((actuator === cst.DIAPHRAGM) ? 0.0662 :
+			((actuator === cst.BALANCED_DIAPHRAGM) ? 0.0588 : 0));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5, top), false));
+	}
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, j), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, j), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, j), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+
+	return constr;
+};
+
 //**********************************************************************************************************************************************************
 //Auto Recirculation Valve
 //**********************************************************************************************************************************************************
@@ -1146,3 +1302,28 @@ mxShapePidAutoRecircValve.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape('mxgraph.pid2valves.autoRecircValve', mxShapePidAutoRecircValve);
+
+mxShapePidAutoRecircValve.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(1, 0), false),
+	new mxConnectionConstraint(new mxPoint(1, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 1), false),
+	new mxConnectionConstraint(new mxPoint(0, 0), false)
+];
+
+//**********************************************************************************************************************************************************
+//Snap points
+//**********************************************************************************************************************************************************
+// The valves had no connection points when floating ends could first snap to
+// connection points (snapToPoint=1), so these ends do not snap to the points
+// above (see mxShape.getSnapConstraints in js/grapheditor/Graph.js)
+mxUtils.forEach([mxShapePidValve, mxShapePidIntBlockBleedValve, mxShapePidAutoRecircValve], function(shape)
+{
+	shape.prototype.getSnapConstraints = function(style, w, h)
+	{
+		return [];
+	};
+});

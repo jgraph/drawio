@@ -137,6 +137,7 @@ EditorUi.initMinimalTheme = function()
 				ui.sidebarWindow.window.addListener(mxEvent.SHOW, mxUtils.bind(this, function()
 				{
 					ui.sidebarWindow.window.fit();
+					updateUsedShapes(ui);
 				}));
 	
 				ui.sidebarWindow.window.minimumSize = new mxRectangle(0, 0, 90, 90);
@@ -184,7 +185,21 @@ EditorUi.initMinimalTheme = function()
 			else
 			{
 				ui.diagramContainer.parentNode.appendChild(ui.sidebarElt);
+				updateUsedShapes(ui);
 			}
+		}
+	};
+
+	/**
+	 * Fills the library In This Diagram (UsedShapes.js) when the shapes are
+	 * shown, if it changed while they were hidden, as the theme has no split
+	 * of the editor whose changes update it.
+	 */
+	function updateUsedShapes(ui)
+	{
+		if (ui.usedShapesDirty && typeof ui.updateUsedShapes === 'function')
+		{
+			ui.updateUsedShapes();
 		}
 	};
 	
@@ -430,6 +445,13 @@ EditorUi.initMinimalTheme = function()
 		}
 		
 		this.sidebar = this.createSidebar(this.sidebarContainer);
+
+		// The library In This Diagram goes into the sidebar of the theme,
+		// which replaces the one of the editor (UsedShapes.js)
+		if (typeof this.syncUsedShapes === 'function')
+		{
+			this.syncUsedShapes();
+		}
 		
 		if (urlParams['sidebar'] != '0' && (iw >= 1000 || urlParams['clibs'] != null || urlParams['libs'] != null ||
 			urlParams['search-shapes'] != null))

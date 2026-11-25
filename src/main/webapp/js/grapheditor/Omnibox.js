@@ -88,9 +88,10 @@ Omnibox.prototype.groupTitles = {recent: 'recentlyUsed', format: 'format',
 Omnibox.prototype.scopeGroups = ['format', 'actions', 'pages'];
 
 /**
- * Resource key of the placeholder of the input.
+ * Resource key of the placeholder of the input or null. The input has no
+ * placeholder: it shows the key hint / (see keyHint).
  */
-Omnibox.prototype.placeholder = 'whatDoYouWantToDo';
+Omnibox.prototype.placeholder = null;
 
 /**
  * Maximum number of results per group without a scope.
@@ -108,9 +109,11 @@ Omnibox.prototype.maxScopeResults = 50;
 Omnibox.prototype.anchoredWidth = 560;
 
 /**
- * Text of the key hint at the end of the input.
+ * Text of the key hint at the end of the input: the key that opens the
+ * omnibox (see EditorUi.openSearch) in a square. A click on it hides the
+ * omnibox.
  */
-Omnibox.prototype.keyHint = 'Esc';
+Omnibox.prototype.keyHint = '/';
 
 /**
  * Specifies if the omnibox fills the window (phones).
@@ -520,7 +523,12 @@ Omnibox.prototype.createUi = function()
 	this.input.setAttribute('aria-controls', id + '-list');
 	this.input.setAttribute('autocomplete', 'off');
 	this.input.setAttribute('spellcheck', 'false');
-	this.input.setAttribute('placeholder', mxResources.get(this.placeholder));
+
+	if (this.placeholder != null)
+	{
+		this.input.setAttribute('placeholder', mxResources.get(this.placeholder));
+	}
+
 	this.input.setAttribute('aria-label', mxResources.get('searchActions'));
 	bar.appendChild(this.input);
 
@@ -953,6 +961,8 @@ Omnibox.prototype.createEntries = function()
 		}
 	}
 
+	// The reasons of greyed-out items for their actions (see createActionEntry)
+	this.menuReasons = menus.reasons;
 	this.addActionEntries(entries, menus.paths, hidden, menus.enabled);
 	this.addMenuEntries(entries, menus.items);
 	this.addFormatEntries(entries);
@@ -1021,7 +1031,11 @@ Omnibox.prototype.isHiddenMenuItem = function(name)
  * ignoreHidden is true, the items hidden with hideMenuItems are recorded
  * too. menuNames are the menus to build (default getMenuNames). enabled has
  * true for the actions with at least one item that the menus do not grey out
- * (items of greyed-out menus and submenus are off).
+ * (items of greyed-out menus and submenus are off). reasons has the reason of
+ * the first greyed-out item of each action, which items have too (the
+ * description of the item or of its submenu, see
+ * EditorUi.updateDisabledReason; only where the helper disabledReasons is
+ * on).
  */
 Omnibox.prototype.recordMenus = function(ignoreHidden, menuNames)
 {
@@ -1030,6 +1044,8 @@ Omnibox.prototype.recordMenus = function(ignoreHidden, menuNames)
 	var names = (menuNames != null) ? menuNames : this.getMenuNames();
 	var paths = Object.create(null);
 	var actionEnabled = Object.create(null);
+	var actionReasons = Object.create(null);
+	var reasons = ui.isHelperEnabled('disabledReasons');
 	var items = [];
 	var ownHidden = Object.prototype.hasOwnProperty.call(menus, 'hiddenMenuItems');
 	var hiddenMenuItems = menus.hiddenMenuItems;
@@ -1151,6 +1167,21 @@ Omnibox.prototype.recordMenus = function(ignoreHidden, menuNames)
 					item.tr.omniboxPath = path.concat([item.title]);
 					item.tr.omniboxIdPath = idPath.concat([(item.submenu != null) ?
 						(mxResources.get(item.submenu) || item.submenu) : item.title]);
+					var reason = null;
+
+					// The reason of the item or of the submenu that greys it out
+					if (reasons && !item.enabled)
+					{
+						reason = (item.tr.getAttribute('aria-disabled') == 'true') ?
+							item.tr.getAttribute('aria-description') : null;
+
+						if (reason == null && item.parent != null)
+						{
+							reason = item.parent.omniboxReason;
+						}
+
+						item.tr.omniboxReason = reason;
+					}
 
 					if (item.funct != null && item.title != null && item.title.length > 0)
 					{
@@ -1163,11 +1194,16 @@ Omnibox.prototype.recordMenus = function(ignoreHidden, menuNames)
 
 							// An action is enabled if one of its items is
 							actionEnabled[item.action] = actionEnabled[item.action] === true || item.enabled;
+
+							if (reason != null && actionReasons[item.action] == null)
+							{
+								actionReasons[item.action] = reason;
+							}
 						}
 						else
 						{
 							items.push({title: item.title, funct: item.funct, path: path, idPath: idPath,
-								enabled: item.enabled, checked: item.tr.omniboxChecked == true,
+								enabled: item.enabled, reason: reason, checked: item.tr.omniboxChecked == true,
 								list: item.parent != null && sizes.get(item.parent) > this.maxMenuItems});
 						}
 					}
@@ -1203,7 +1239,7 @@ Omnibox.prototype.recordMenus = function(ignoreHidden, menuNames)
 		}
 	}
 
-	return {paths: paths, items: items, enabled: actionEnabled};
+	return {paths: paths, items: items, enabled: actionEnabled, reasons: actionReasons};
 };
 
 /**
@@ -1259,10 +1295,21 @@ Omnibox.prototype.createActionEntry = function(key, action, title, labelKey, pat
 	}
 
 	var reason = null;
+	var ui = this.editorUi;
 
 	if (!action.isEnabled() && typeof action.getDisabledReason === 'function')
 	{
 		reason = action.getDisabledReason();
+	}
+
+	// The reason of the menus in Classic and Simple (see
+	// EditorUi.getDisabledReason) or of the item that greys it out
+	if (reason == null && (!action.isEnabled() || menuEnabled === false) &&
+		ui.isHelperEnabled('disabledReasons'))
+	{
+		var result = (!action.isEnabled()) ? ui.getDisabledReason(key) : null;
+		reason = (result != null) ? result.text : ((this.menuReasons != null &&
+			this.menuReasons[key] != null) ? this.menuReasons[key] : null);
 	}
 
 	return {id: 'action:' + key, action: key, group: 'actions', label: title, path: path,
@@ -1291,7 +1338,7 @@ Omnibox.prototype.addMenuEntries = function(entries, items)
 			{
 				seen[id] = true;
 				entries.push({id: id, group: 'actions', label: item.title, path: item.path,
-					checked: (item.checked) ? true : null, enabled: item.enabled,
+					checked: (item.checked) ? true : null, enabled: item.enabled, reason: item.reason,
 					rank: (item.list) ? 0.5 : null, run: function()
 					{
 						item.funct();
@@ -1564,7 +1611,7 @@ Omnibox.prototype.getFormatControl = function(elt, panel)
 	}
 	else
 	{
-		label = elt.getAttribute('title');
+		label = Omnibox.getTooltip(elt);
 
 		if (label == null || label.length == 0)
 		{
@@ -1615,6 +1662,16 @@ Omnibox.prototype.getFormatControl = function(elt, panel)
 };
 
 /**
+ * Returns the tooltip of the given element without the reason of a disabled
+ * control (see EditorUi.setDisabledReason).
+ */
+Omnibox.getTooltip = function(elt)
+{
+	return (elt.hasAttribute != null && elt.hasAttribute('data-tooltip')) ?
+		elt.getAttribute('data-tooltip') : elt.getAttribute('title');
+};
+
+/**
  * Returns the label of the row of the given element, eg. Opacity.
  */
 Omnibox.prototype.getFormatRowLabel = function(elt)
@@ -1623,7 +1680,7 @@ Omnibox.prototype.getFormatRowLabel = function(elt)
 
 	if (row != null && row.getAttribute != null)
 	{
-		var title = row.getAttribute('title');
+		var title = Omnibox.getTooltip(row);
 
 		if (title != null && title.length > 0)
 		{

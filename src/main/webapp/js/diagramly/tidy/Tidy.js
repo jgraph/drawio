@@ -945,6 +945,283 @@ Tidy.segmentHitsBox = function(p1, p2, x, y, w, h)
 };
 
 /**
+ * Start and end of the stencils of the freehand tool (mxFreehand.js).
+ */
+Tidy.freehandStencilStart = '<shape strokewidth="inherit"><foreground>';
+
+Tidy.freehandStencilEnd = '</foreground></shape>';
+
+/**
+ * The parts of the stencils of the freehand tool between start and end:
+ * paths of lines only, with the points in two decimals (toFixed(2) of
+ * mxFreehand.js and of the pen of the Miro import). The importers of Visio
+ * and Lucidchart start their stencils as freehand does but write the points
+ * as numbers (String), curves, arcs and closed paths.
+ */
+Tidy.freehandStencilParts = /<\/?path>|<(fill)?stroke\/>|<(move|line) x="-?\d+\.\d\d" y="-?\d+\.\d\d"\/>/g;
+
+/**
+ * Returns true if the given stencil XML is one of the freehand tool (see
+ * freehandStencilParts).
+ */
+Tidy.isFreehandStencil = function(xml)
+{
+	var start = Tidy.freehandStencilStart, end = Tidy.freehandStencilEnd;
+
+	return typeof xml === 'string' && xml.length > start.length + end.length &&
+		xml.substring(0, start.length) == start &&
+		xml.substring(xml.length - end.length) == end &&
+		xml.substring(start.length, xml.length - end.length).
+			replace(Tidy.freehandStencilParts, '').length == 0;
+};
+
+/**
+ * Returns true if the given cell is a drawing of the brush or the pen
+ * (Freehand, mxFreehand.js): a stencil with lineShape=1 (perfect freehand,
+ * which paints the line as the fill; only mxFreehand.js writes the key) or
+ * with the stencil XML of the freehand tool (see isFreehandStencil), with or
+ * without a fill. These are lines in a box that is empty elsewhere, so the
+ * drawing is never a panel or a frame behind the shapes that its box
+ * overlaps: they overlap it where its lines meet them (see isContainment and
+ * drawingHitsBox), as for the layouts of Arrange my diagram, which move it
+ * like any shape, and stay inside a loop around them. Other stencils (Edit Shape, the imports of
+ * Visio and Lucidchart) stay boxes as before, with or without a fill: a
+ * shape that lies fully on one at least 1.5 times as large is no overlap
+ * (see isContainment), and a stencil with container=1 is a frame (see
+ * isFrame). The optional style is the cell style. EditorUi.isSimpleTidyDrawing of SimpleTidy.js has the same rule
+ * for the card of Fusion while this file is not loaded: change both.
+ */
+Tidy.isDrawing = function(graph, cell, style)
+{
+	style = style || graph.getCellStyle(cell);
+	var shape = style['shape'];
+
+	if (typeof shape !== 'string' || shape.substring(0, 8) != 'stencil(' ||
+		style['container'] == '1')
+	{
+		return false;
+	}
+
+	if (style['lineShape'] == '1')
+	{
+		return true;
+	}
+
+	try
+	{
+		return Tidy.isFreehandStencil(Graph.decompress(shape.substring(8, shape.length - 1)));
+	}
+	catch (e)
+	{
+		return false;
+	}
+};
+
+/**
+ * Returns 'drawing' (see isDrawing), 'frame' (see isFrame) or 'shape' for the
+ * given cell as the larger box of a pair (see isContainment). The optional
+ * cache keeps {kind, lines} by ID (lines see drawingHitsBox).
+ */
+Tidy.getContainerKind = function(graph, cell, cache)
+{
+	var entry = (cache != null) ? cache[cell.id] : null;
+
+	if (entry == null)
+	{
+		entry = {kind: (Tidy.isDrawing(graph, cell)) ? 'drawing' :
+			((Tidy.isFrame(graph, cell)) ? 'frame' : 'shape')};
+
+		if (cache != null)
+		{
+			cache[cell.id] = entry;
+		}
+	}
+
+	return entry.kind;
+};
+
+/**
+ * Elements of stencils whose lines are not read (see getDrawingLines).
+ */
+Tidy.drawingShapes = ['rect', 'roundrect', 'ellipse', 'text', 'image', 'include-shape'];
+
+/**
+ * Returns the lines of the stencil of the given drawing (see isDrawing) as
+ * {segments, rotation}: the segments [x1, y1, x2, y2] of the moves, lines and
+ * closes of its paths in its box from 0 to 1, with flipH and flipV, and the
+ * rotation of the style in degrees. Returns null if the lines are unknown (a
+ * curve, an arc or a shape in the stencil, a fixed aspect or a direction), so
+ * that the whole box of the drawing counts (see drawingHitsBox). The optional
+ * style is the cell style. EditorUi.getSimpleTidyLines of SimpleTidy.js has
+ * the same rule for the card of Fusion while this file is not loaded: change
+ * both.
+ */
+Tidy.getDrawingLines = function(graph, cell, style)
+{
+	style = style || graph.getCellStyle(cell);
+	var shape = style['shape'];
+	var direction = style[mxConstants.STYLE_DIRECTION];
+
+	if (typeof shape !== 'string' || shape.substring(0, 8) != 'stencil(' ||
+		(direction != null && direction != mxConstants.DIRECTION_EAST))
+	{
+		return null;
+	}
+
+	try
+	{
+		var root = mxUtils.parseXml(Graph.decompress(shape.substring(8, shape.length - 1))).documentElement;
+		var w0 = Number(root.getAttribute('w') || 100), h0 = Number(root.getAttribute('h') || 100);
+
+		if (root.nodeName != 'shape' || root.getAttribute('aspect') == 'fixed' || !(w0 > 0) || !(h0 > 0))
+		{
+			return null;
+		}
+
+		var flipH = style[mxConstants.STYLE_FLIPH] == '1', flipV = style[mxConstants.STYLE_FLIPV] == '1';
+		var segments = [];
+
+		var point = function(node)
+		{
+			var x = Number(node.getAttribute('x')) / w0, y = Number(node.getAttribute('y')) / h0;
+
+			return (isFinite(x) && isFinite(y)) ? [(flipH) ? 1 - x : x, (flipV) ? 1 - y : y] : null;
+		};
+
+		var add = function(p, q)
+		{
+			if (p != null && q != null)
+			{
+				segments.push([p[0], p[1], q[0], q[1]]);
+			}
+		};
+
+		for (var part = root.firstChild; part != null; part = part.nextSibling)
+		{
+			if (part.nodeType == mxConstants.NODETYPE_ELEMENT &&
+				(part.nodeName == 'foreground' || part.nodeName == 'background'))
+			{
+				for (var node = part.firstChild; node != null; node = node.nextSibling)
+				{
+					if (node.nodeType != mxConstants.NODETYPE_ELEMENT)
+					{
+						continue;
+					}
+					else if (node.nodeName == 'path')
+					{
+						var start = null, last = null;
+
+						for (var op = node.firstChild; op != null; op = op.nextSibling)
+						{
+							if (op.nodeType != mxConstants.NODETYPE_ELEMENT)
+							{
+								continue;
+							}
+							else if (op.nodeName == 'move' || op.nodeName == 'line')
+							{
+								var p = point(op);
+
+								if (p == null)
+								{
+									return null;
+								}
+
+								if (op.nodeName == 'line')
+								{
+									add(last, p);
+								}
+								else
+								{
+									start = p;
+								}
+
+								last = p;
+							}
+							else if (op.nodeName == 'close')
+							{
+								add(last, start);
+								last = start;
+							}
+							else
+							{
+								return null;
+							}
+						}
+					}
+					else if (mxUtils.indexOf(Tidy.drawingShapes, node.nodeName) >= 0)
+					{
+						return null;
+					}
+				}
+			}
+		}
+
+		return {segments: segments, rotation: Number(style[mxConstants.STYLE_ROTATION] || 0) || 0};
+	}
+	catch (e)
+	{
+		return null;
+	}
+};
+
+/**
+ * Returns true if a line of the given drawing {cell, x, y, w, h} (see
+ * getDrawingLines) meets the given box {x, y, w, h}, or if its lines are
+ * unknown: a shape in the box of a drawing overlaps it only where a line of
+ * the drawing meets the shape (a scribble over shapes), not inside a loop or
+ * a bracket around shapes. The optional cache keeps the lines by ID (see
+ * getContainerKind).
+ */
+Tidy.drawingHitsBox = function(graph, drawing, box, cache)
+{
+	var entry = (cache != null) ? cache[drawing.cell.id] : null;
+	var lines = (entry != null) ? entry.lines : undefined;
+
+	if (lines === undefined)
+	{
+		lines = Tidy.getDrawingLines(graph, drawing.cell);
+
+		if (entry != null)
+		{
+			entry.lines = lines;
+		}
+	}
+
+	if (lines == null)
+	{
+		return true;
+	}
+
+	var rad = mxUtils.toRadians(lines.rotation);
+	var cos = Math.cos(rad), sin = Math.sin(rad);
+	var cx = drawing.x + drawing.w / 2, cy = drawing.y + drawing.h / 2;
+	var x0 = box.x, y0 = box.y, x1 = box.x + box.w, y1 = box.y + box.h;
+
+	var point = function(x, y)
+	{
+		var px = drawing.x + x * drawing.w - cx, py = drawing.y + y * drawing.h - cy;
+
+		return (lines.rotation != 0) ? {x: cx + px * cos - py * sin, y: cy + px * sin + py * cos} :
+			{x: cx + px, y: cy + py};
+	};
+
+	for (var i = 0; i < lines.segments.length; i++)
+	{
+		var s = lines.segments[i];
+		var p1 = point(s[0], s[1]), p2 = point(s[2], s[3]);
+
+		if (Math.max(p1.x, p2.x) > x0 && Math.min(p1.x, p2.x) < x1 &&
+			Math.max(p1.y, p2.y) > y0 && Math.min(p1.y, p2.y) < y1 &&
+			Tidy.segmentHitsBox(p1, p2, box.x, box.y, box.w, box.h))
+		{
+			return true;
+		}
+	}
+
+	return false;
+};
+
+/**
  * Returns true if the given cell is a frame around other shapes on the page:
  * a container, a swimlane, a group, zone or region stencil (cloud groups) or
  * a shape without a fill that is no text.
@@ -966,7 +1243,11 @@ Tidy.isFrame = function(graph, cell)
  * at least 1.5 times as large, so that shapes of the same size on top of
  * each other still overlap), or a frame (see isFrame) at least twice as large
  * that contains the center of the other one (a shape that crosses the border
- * of its group). The optional cache keeps the frames by ID.
+ * of its group). A drawing of the brush is lines, not a panel (see isDrawing
+ * and drawingHitsBox): a shape in its box overlaps it where a line of the
+ * drawing meets the shape, else it stays (a loop around shapes), and a
+ * drawing whose lines miss a larger shape does not overlap it. The optional
+ * cache keeps the kinds and lines by ID (see getContainerKind).
  */
 Tidy.isContainment = function(graph, a, b, cache)
 {
@@ -974,8 +1255,20 @@ Tidy.isContainment = function(graph, a, b, cache)
 	var bw = (b.w != null) ? b.w : b.width, bh = (b.h != null) ? b.h : b.height;
 	var aBig = aw * ah >= bw * bh;
 	var big = (aBig) ? {cell: a.cell, x: a.x, y: a.y, w: aw, h: ah} : {cell: b.cell, x: b.x, y: b.y, w: bw, h: bh};
-	var small = (aBig) ? {x: b.x, y: b.y, w: bw, h: bh} : {x: a.x, y: a.y, w: aw, h: ah};
+	var small = (aBig) ? {cell: b.cell, x: b.x, y: b.y, w: bw, h: bh} : {cell: a.cell, x: a.x, y: a.y, w: aw, h: ah};
 	var cx = small.x + small.w / 2, cy = small.y + small.h / 2;
+
+	// The lines of the brush are no panel behind the shapes in their box
+	if (big.cell != null && Tidy.getContainerKind(graph, big.cell, cache) == 'drawing')
+	{
+		return !Tidy.drawingHitsBox(graph, big, small, cache);
+	}
+
+	if (small.cell != null && Tidy.getContainerKind(graph, small.cell, cache) == 'drawing' &&
+		!Tidy.drawingHitsBox(graph, small, big, cache))
+	{
+		return true;
+	}
 
 	if (big.w * big.h >= 1.5 * small.w * small.h && small.x >= big.x && small.y >= big.y &&
 		small.x + small.w <= big.x + big.w && small.y + small.h <= big.y + big.h)
@@ -989,17 +1282,7 @@ Tidy.isContainment = function(graph, a, b, cache)
 		return false;
 	}
 
-	if (cache != null)
-	{
-		if (cache[big.cell.id] == null)
-		{
-			cache[big.cell.id] = Tidy.isFrame(graph, big.cell);
-		}
-
-		return cache[big.cell.id];
-	}
-
-	return Tidy.isFrame(graph, big.cell);
+	return Tidy.getContainerKind(graph, big.cell, cache) == 'frame';
 };
 
 /**
@@ -2572,6 +2855,9 @@ Tidy.Trial = function(ui, cells)
 	this.graph.shapeBackgroundColor = graph.shapeBackgroundColor;
 	this.graph.shapeForegroundColor = graph.shapeForegroundColor;
 	this.graph.background = graph.background;
+
+	// The colors of dark mode of the page (see getThumbnails)
+	this.graph.adaptiveColors = graph.adaptiveColors;
 	this.graph.getGlobalVariable = function()
 	{
 		return graph.getGlobalVariable.apply(graph, arguments);
@@ -2804,9 +3090,25 @@ Tidy.Trial.prototype.execute = function(fn)
 };
 
 /**
- * Returns a thumbnail of the trial as a data URI or null.
+ * Returns a thumbnail of the trial as a data URI or null, in the colors of
+ * light mode (see getThumbnails).
  */
 Tidy.Trial.prototype.getThumbnail = function()
+{
+	var thumbs = this.getThumbnails();
+
+	return (thumbs != null) ? thumbs.light : null;
+};
+
+/**
+ * Returns the thumbnails of the trial as data URIs, {light, dark}, or null.
+ * Both are one picture: dark has the color scheme dark, so the colors of the
+ * cells are those that the editor paints in dark mode (the light-dark colors
+ * of Graph.getAdaptiveColors), and it is light if the page does not adapt
+ * its colors (adaptiveColors none), as on the canvas. An SVG in an image
+ * does not follow the color scheme of the page, so the tiles pick one.
+ */
+Tidy.Trial.prototype.getThumbnails = function()
 {
 	var graph = this.graph;
 
@@ -2838,12 +3140,35 @@ Tidy.Trial.prototype.getThumbnail = function()
 			svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
 		}
 
-		return Editor.createSvgDataUri(mxUtils.getXml(svg));
+		var light = Editor.createSvgDataUri(mxUtils.getXml(svg));
+		var dark = light;
+
+		// An older app.min.js has no adaptive colors (its pictures are light)
+		if (typeof graph.getAdaptiveColors === 'function' && graph.getAdaptiveColors() != 'none')
+		{
+			var style = svg.getAttribute('style');
+			svg.setAttribute('style', ((style != null && style.length > 0) ? style + ' ' : '') +
+				'color-scheme: dark;');
+			dark = Editor.createSvgDataUri(mxUtils.getXml(svg));
+		}
+
+		return {light: light, dark: dark};
 	}
 	catch (e)
 	{
 		return null;
 	}
+};
+
+/**
+ * Puts the given thumbnails (see Trial.getThumbnails) into the given
+ * result: thumbnail in the colors of light mode, darkThumbnail in those of
+ * dark mode, or null.
+ */
+Tidy.setThumbnails = function(result, thumbs)
+{
+	result.thumbnail = (thumbs != null) ? thumbs.light : null;
+	result.darkThumbnail = (thumbs != null) ? thumbs.dark : null;
 };
 
 /**
@@ -2865,8 +3190,8 @@ Tidy.Trial.prototype.destroy = function()
 
 /**
  * Runs the plan of the given candidate in the given trial and returns
- * {id, name, score, metrics, orderKept, changes, thumbnail, stats} after
- * restoring the trial, also if the candidate fails.
+ * {id, name, score, metrics, orderKept, changes, thumbnail, darkThumbnail,
+ * stats} after restoring the trial, also if the candidate fails.
  */
 Tidy.tryCandidate = function(trial, plan, id, options)
 {
@@ -3000,7 +3325,7 @@ Tidy.tryCandidate = function(trial, plan, id, options)
 		}
 
 		result.stats = stats;
-		result.thumbnail = (options.thumbnails !== false) ? trial.getThumbnail() : null;
+		Tidy.setThumbnails(result, (options.thumbnails !== false) ? trial.getThumbnails() : null);
 	}
 	finally
 	{

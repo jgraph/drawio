@@ -23,7 +23,8 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
                            		window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 	var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
-	var RULER_THICKNESS = this.RULER_THICKNESS;
+	var RULER_THICKNESS = mxRuler.getThickness();
+	var fontSize = mxRuler.getFontSize();
     var ruler = this;
     this.unit = unit;
     var style = (!Editor.isDarkMode()) ? {
@@ -31,14 +32,14 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 		outBkgClr: '#f1f3f4',
 		cornerClr: '#f1f3f4',
 		strokeClr: '#dadce0',
-		fontClr: '#BBBBBB',
+		fontClr: Editor.rulerFontColor,
 		guideClr: '#0000BB'
     } : {
     	bkgClr: '#202020',
 		outBkgClr: '#1B1D1E',
 		cornerClr: '#1B1D1E',
 		strokeClr: '#505759',
-		fontClr: '#BBBBBB',
+		fontClr: Editor.rulerDarkFontColor,
 		guideClr: '#0088cf'
     };
 
@@ -65,13 +66,13 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 	    	outBkgClr: '#f1f3f4',
 	    	cornerClr: '#f1f3f4',
 	    	strokeClr: '#dadce0',
-	    	fontClr: '#BBBBBB',
+	    	fontClr: Editor.rulerFontColor,
 	    	guideClr: '#0000BB'
 	    } : {
 			outBkgClr: '#1B1D1E',
 			cornerClr: '#1B1D1E',
 	    	strokeClr: '#505759',
-	    	fontClr: '#BBBBBB',
+	    	fontClr: Editor.rulerDarkFontColor,
 	    	guideClr: '#0088cf'
 	    };
 
@@ -85,6 +86,11 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 	// page after every change of the DOM
 	editorUi.diagramContainer.appendChild(container);
 	editorUi.diagramContainer.classList.add('geRulerContainer');
+
+	// Margins of the diagram container for a ruler that is thicker than the
+	// default (see .geRulerContainer in grapheditor.css)
+	editorUi.diagramContainer.style.setProperty('--ge-ruler-size', RULER_THICKNESS + 'px');
+
 	mxEvent.disableContextMenu(container);
 
 	this.editorUiRefresh = editorUi.refresh;
@@ -148,7 +154,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
         ctx.lineWidth = 0.7;
         ctx.strokeStyle = style.strokeClr;
         ctx.setLineDash([]);
-        ctx.font = '9px Arial';
+        ctx.font = fontSize + 'px Arial';
         ctx.textAlign = 'center';
         
         var scale = graph.view.scale;
@@ -260,7 +266,10 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 	        }
         }
         
-        //Draw ticks
+        //Draw ticks, with the default color where the configured color
+        //(rulerFontColor, rulerDarkFontColor) is invalid, which the canvas
+        //ignores
+        ctx.fillStyle = '#BBBBBB';
         ctx.fillStyle = style.fontClr;
 
         var tickDist = step * scale;
@@ -272,6 +281,30 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     	{
         	firstTick += Math.floor((RULER_THICKNESS - firstTick) / tickDist) * tickDist;
     	}
+
+        //Labels on every major tick (len), and for a font larger than the
+        //default on every 2nd, 5th, 10th, 20th, ... major tick where they
+        //would overlap along the ruler (rulerFontSize). The default size
+        //keeps a label on every major tick.
+        var labelStep = len;
+
+        if (fontSize > 9 && tickDist > 0)
+        {
+        	var labelWidth = 0;
+        	var firstLabel = Math.floor((Math.max(firstTick, RULER_THICKNESS) - rStart) / tickDist / len) * len;
+        	var lastLabel = Math.ceil((rEnd - rStart) / tickDist / len) * len;
+
+        	for (var c = firstLabel; c <= lastLabel; c += len)
+        	{
+        		labelWidth = Math.max(labelWidth, ctx.measureText(
+        			ruler.formatText(pageShift + c * step) + '').width);
+        	}
+
+        	for (var n = 1; labelStep * tickDist < labelWidth + fontSize / 2 && n < 30; n++)
+        	{
+        		labelStep = len * [1, 2, 5][n % 3] * Math.pow(10, Math.floor(n / 3));
+        	}
+        }
 
         for (var i = firstTick; i <= rEnd; i += tickDist)
         {
@@ -285,7 +318,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
              lastTick = current;
              var text = null;
              
-             if (current % len == 0) 
+             if (current % labelStep == 0) 
              {
                  text = ruler.formatText(pageShift + current * step) + '';
              }
@@ -542,6 +575,33 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 mxRuler.prototype.RULER_THICKNESS = 14;
 mxRuler.prototype.unit = mxConstants.POINTS;
 
+/**
+ * Returns the font size of the labels in pixels: rulerFontSize of the
+ * configuration (Editor.rulerFontSize), 9 by default, at most
+ * Editor.rulerMaxFontSize (32).
+ */
+mxRuler.getFontSize = function()
+{
+	var size = (typeof Editor.rulerFontSize === 'number' ||
+		typeof Editor.rulerFontSize === 'string') ?
+		Number(Editor.rulerFontSize) : NaN;
+	var max = Number(Editor.rulerMaxFontSize);
+	max = (isFinite(max) && max > 0) ? max : 32;
+
+	return (isFinite(size) && size > 0) ? Math.min(size, max) : 9;
+};
+
+/**
+ * Returns the thickness of the rulers in pixels: RULER_THICKNESS (14), or
+ * more for labels larger than 9px, so that they fit (5px for the ticks
+ * below the labels).
+ */
+mxRuler.getThickness = function()
+{
+	return Math.max(mxRuler.prototype.RULER_THICKNESS,
+		Math.ceil(mxRuler.getFontSize()) + 5);
+};
+
 mxRuler.prototype.setUnit = function(unit) 
 {
     this.unit = unit;
@@ -583,13 +643,15 @@ mxRuler.prototype.destroy = function()
     	if (parent.getElementsByClassName('geRuler').length == 0)
     	{
     		parent.classList.remove('geRulerContainer');
+    		parent.style.removeProperty('--ge-ruler-size');
     	}
     }
 };
 
 function mxDualRuler(editorUi, unit)
 {
-	var rulerOffset = new mxPoint(mxRuler.prototype.RULER_THICKNESS, mxRuler.prototype.RULER_THICKNESS);
+	var thickness = mxRuler.getThickness();
+	var rulerOffset = new mxPoint(thickness, thickness);
 	this.editorUiGetDiagContOffset = editorUi.getDiagramContainerOffset;
 
 	editorUi.getDiagramContainerOffset = function()

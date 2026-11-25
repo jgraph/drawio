@@ -135,8 +135,9 @@ Actions.prototype.init = function()
 	this.addAction('editDiagram...', function()
 	{
 		var dlg = new EditDiagramDialog(ui);
-		ui.showDialog(dlg.container, 620, 420, true, false,
-			null, null, null, new mxRectangle(0, 0, 440, 280));
+		var size = ui.layoutEditDiagramDialog(dlg);
+		ui.showDialog(dlg.container, size.width, size.height, true, false,
+			null, null, null, size.minSize, null, size.key);
 		dlg.init();
 	}).isEnabled = isGraphEnabled;
 	this.addAction('pageSetup...', function()
@@ -1359,7 +1360,17 @@ Actions.prototype.init = function()
 	});
 	action.setToggleAction(true);
 	action.setSelectedCallback(function() { return Graph.zoomWheel; });
-	
+
+	// The Hand tool where it is offered (EditorUi.isHandToolEnabled): a drag
+	// pans and the mouse changes nothing (see EditorUi.setPanMode)
+	action = this.addAction('handTool', function()
+	{
+		ui.setPanMode(!ui.isPanMode());
+	}, null, null, 'H');
+	action.setToggleAction(true);
+	action.setSelectedCallback(function() { return ui.isPanMode(); });
+	action.isEnabled = function() { return ui.isHandToolEnabled(); };
+
 	action = this.addAction('collapseExpand', function()
 	{
 		var change = new ChangePageSetup(ui);
@@ -1782,8 +1793,9 @@ Actions.prototype.init = function()
 					}
 				}
 			}, null, null, 400, 220);
-			this.editorUi.showDialog(dlg.container, 420, 300, true, true, null, null, null,
-				new mxRectangle(0, 0, 300, 200), null, 'editStyle');
+			var size = this.editorUi.layoutEditStyleDialog(dlg, cells);
+			this.editorUi.showDialog(dlg.container, size.width, size.height, true, true, null, null, null,
+				size.minSize, null, size.key);
 			dlg.init();
 		}
 	}), null, null, Editor.ctrlKey + '+E');
@@ -1947,7 +1959,11 @@ Actions.prototype.init = function()
 			}
 		}
 	}, null, null,  Editor.altKey + '+' + Editor.shiftKey + '+R');
-	this.addAction('bundle', function()
+	// Bundle and Unbundle are enabled only for a selection they change, so the
+	// menus and the search show them disabled otherwise (as in Fusion before
+	// they came to every theme, the driver, 19 November 2026): Bundle for two
+	// or more connectors that it ties
+	action = this.addAction('bundle', function()
 	{
 		var tie = graph.bundleEdges(graph.getSelectionCells());
 
@@ -1956,10 +1972,74 @@ Actions.prototype.init = function()
 			graph.setSelectionCell(tie);
 		}
 	});
-	this.addAction('unbundle', function()
+	action.isEnabled = function()
+	{
+		var cells = graph.getSelectionCells();
+		var edges = 0;
+
+		// The connectors that bundleEdges ties (not locked, with a route)
+		for (var i = 0; i < cells.length && edges < 2; i++)
+		{
+			if (graph.canBundleEdge(cells[i]))
+			{
+				edges++;
+			}
+		}
+
+		return Action.prototype.isEnabled.apply(this, arguments) &&
+			graph.isEnabled() && edges > 1;
+	};
+	action = this.addAction('unbundle', function()
 	{
 		graph.unbundleCells(graph.getSelectionCells());
 	});
+	action.isEnabled = function()
+	{
+		return Action.prototype.isEnabled.apply(this, arguments) &&
+			graph.isEnabled() && graph.hasTies(graph.getSelectionCells());
+	};
+	// Selects the connectors of the selected ties, like a double click on a tie
+	action = this.addAction('selectTiedEdges', function()
+	{
+		var cells = graph.getSelectionCells();
+		var seen = new mxDictionary();
+		var result = [];
+
+		for (var i = 0; i < cells.length; i++)
+		{
+			if (graph.isTie(cells[i]))
+			{
+				var members = graph.getTieMembers(cells[i].id);
+
+				for (var j = 0; j < members.length; j++)
+				{
+					if (seen.get(members[j]) == null && graph.view.getState(members[j]) != null)
+					{
+						seen.put(members[j], true);
+						result.push(members[j]);
+					}
+				}
+			}
+		}
+
+		if (result.length > 0)
+		{
+			graph.setSelectionCells(result);
+		}
+	});
+	action.isEnabled = function()
+	{
+		var cells = graph.getSelectionCells();
+		var tie = false;
+
+		for (var i = 0; i < cells.length && !tie; i++)
+		{
+			tie = graph.isTie(cells[i]);
+		}
+
+		return Action.prototype.isEnabled.apply(this, arguments) &&
+			graph.isEnabled() && tie;
+	};
 	this.addAction('resetLabelPositions', function()
 	{
 		var cells = graph.getSelectionCells();
@@ -2246,8 +2326,10 @@ Actions.prototype.init = function()
 				applyClipPath(cell, clipPath, width, height, graph);
 	    	});
 	    	
-	    	ui.showDialog(dlg.container, 380, 390, true, true,
-				null, null, null, new mxRectangle(0, 0, 440, 450));
+	    	// The dialog has its size (its layout can change it)
+	    	ui.showDialog(dlg.container, (dlg.width !== undefined) ? dlg.width : 380,
+				(dlg.height !== undefined) ? dlg.height : 390, true, true, null, null, null,
+				(dlg.minSize !== undefined) ? dlg.minSize : new mxRectangle(0, 0, 440, 450));
 		}
 	}).isEnabled = isGraphEnabled;
 	action = this.addAction('layers', mxUtils.bind(this, function()

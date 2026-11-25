@@ -266,15 +266,6 @@ mxGraphView.prototype.createdCells = null;
 mxGraphView.prototype.validatingAllCells = false;
 
 /**
- * Variable: walkStopped
- *
- * Specifies if <validateCell> removed the state of a cell that is no longer
- * visible without walking its descendants since <validateInvalidCells>
- * reset it. Default is false.
- */
-mxGraphView.prototype.walkStopped = false;
-
-/**
  * Variable: fullValidationRequired
  *
  * Specifies if <validate> must walk all cells because the validation of a
@@ -1385,35 +1376,13 @@ mxGraphView.prototype.validateInvalidCells = function(root)
 		// Creates and removes the states of the invalid cells and their
 		// descendants as in the walk over all cells. Cells under another
 		// invalid cell are left to the walk of that cell, which reaches them
-		// with the same visible argument unless it stops above them (see
-		// below), so that nested invalid cells walk their descendants once
-		// instead of once for each invalid ancestor.
-		var nested = [];
-		this.walkStopped = false;
-
+		// with the same visible argument, so that nested invalid cells walk
+		// their descendants once instead of once for each invalid ancestor.
 		for (i = 0; i < list.length; i++)
 		{
-			if (this.hasInvalidAncestor(list[i], root, visited, reached))
-			{
-				nested.push(i);
-			}
-			else
+			if (!this.hasInvalidAncestor(list[i], root, visited, reached))
 			{
 				this.validateCell(list[i], flags[i]);
-			}
-		}
-
-		// A walk that removed the state of a cell that is no longer visible
-		// did not walk the descendants of that cell (see <validateCell>), eg.
-		// if tags hide a container and a cell inside of it in one edit. The
-		// nested cells are then walked as well, which gives the same states
-		// as a walk for each invalid cell. Otherwise these walks would only
-		// visit the same cells again with the same results.
-		if (this.walkStopped)
-		{
-			for (i = 0; i < nested.length; i++)
-			{
-				this.validateCell(list[nested[i]], flags[nested[i]]);
 			}
 		}
 
@@ -1521,8 +1490,7 @@ mxGraphView.prototype.getValidationVisibility = function(cell, root, cache)
  * Returns true if an ancestor of the given cell up to the given root is in
  * the given invalid cells. The <validateCell> walk of that ancestor in
  * <validateInvalidCells> then reaches the cell with the visible argument
- * that <getValidationVisibility> returns, unless it removes the state of a
- * cell above it (see <walkStopped>).
+ * that <getValidationVisibility> returns.
  *
  * Parameters:
  *
@@ -2337,7 +2305,8 @@ mxGraphView.prototype.redrawBackgroundImage = function(backgroundImage, bg)
  * 
  * Recursively creates the cell state for the given cell if visible is true and
  * the given cell is visible. If the cell is not visible but the state exists
- * then it is removed using <removeState>.
+ * then it is removed using <removeState>, and the states of its descendants
+ * are removed as well.
  * 
  * Parameters:
  * 
@@ -2357,18 +2326,18 @@ mxGraphView.prototype.validateCell = function(cell, visible)
 		if (state != null && !visible)
 		{
 			this.removeState(cell);
-			this.walkStopped = true;
 		}
-		else
+
+		// Walks the descendants of hidden cells as well, as the descendants
+		// of cells that are hidden without a change of the model (eg. by
+		// tags) still have their states
+		var model = this.graph.getModel();
+		var childCount = model.getChildCount(cell);
+		
+		for (var i = 0; i < childCount; i++)
 		{
-			var model = this.graph.getModel();
-			var childCount = model.getChildCount(cell);
-			
-			for (var i = 0; i < childCount; i++)
-			{
-				this.validateCell(model.getChildAt(cell, i), visible &&
-					(!this.isCellCollapsed(cell) || cell == this.currentRoot));
-			}
+			this.validateCell(model.getChildAt(cell, i), visible &&
+				(!this.isCellCollapsed(cell) || cell == this.currentRoot));
 		}
 	}
 	

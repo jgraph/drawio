@@ -913,9 +913,13 @@ OneDriveClient.prototype.insertLibrary = function(filename, data, success, error
  * Creates a new file with the given filename and data in the folder with
  * the given ID, or the root folder, and passes a OneDriveFile, or a
  * OneDriveLibrary if asLibrary is true, to success. Asks the user before
- * replacing an existing file.
+ * replacing an existing file unless overwrite is its eTag (the user has
+ * confirmed to replace this version, see App.checkNewFile and checkExists).
+ * An existing file is only replaced while it has the version that was
+ * confirmed (If-Match), so a file saved meanwhile elsewhere is not
+ * overwritten (the write fails instead).
  */
-OneDriveClient.prototype.insertFile = function(filename, data, success, error, asLibrary, folderId)
+OneDriveClient.prototype.insertFile = function(filename, data, success, error, asLibrary, folderId, overwrite)
 {
 	if (!this.isValidFilename(filename))
 	{
@@ -926,10 +930,12 @@ OneDriveClient.prototype.insertFile = function(filename, data, success, error, a
 
 	asLibrary = (asLibrary != null) ? asLibrary : false;
 	
-	this.checkExists(folderId, filename, true, mxUtils.bind(this, function(checked)
+	this.checkExists(folderId, filename, true, mxUtils.bind(this, function(checked, etag)
 	{
 		if (checked)
 		{
+			// The version of the existing file that the user has confirmed
+			var match = (typeof etag === 'string') ? etag : null;
 			var folder = '/me/drive/root';
 			
 			if (folderId != null)
@@ -958,27 +964,34 @@ OneDriveClient.prototype.insertFile = function(filename, data, success, error, a
 				this.writeFile(url, '', 'PUT', null, mxUtils.bind(this, function(meta)
 				{
 					this.writeLargeFile(this.getItemURL(meta.id), data, insertSuccess, error);
-				}), error);
+				}), error, match);
 			}
 			else
 			{
-				this.writeFile(url, data, 'PUT', null, insertSuccess, error);
+				this.writeFile(url, data, 'PUT', null, insertSuccess, error, match);
 			}
 		}
 		else
 		{
 			error();
 		}
-	}))
+	}), overwrite, error)
 };
 
 /**
  * Passes true to fn if no file with the given filename exists in the folder
  * with the given ID, or the root folder. For existing files, the user is
- * asked to replace the file if askReplace is true, otherwise an error is
- * shown and false is passed to fn.
+ * asked to replace the file if askReplace is true: true and the eTag of the
+ * file (true if it has none) are passed to fn if the user confirms, or
+ * without asking if overwrite is that eTag (the version that the user has
+ * confirmed to replace before); Cancel and a dismissal of the question (eg.
+ * Escape) pass false. Otherwise an error is shown and false is passed to fn.
+ * If the request fails, the error goes to error if it is given (else false
+ * to fn). If active is given and returns false when the answer comes (eg.
+ * the dialog that asked was closed), nothing is asked and false is passed
+ * to fn.
  */
-OneDriveClient.prototype.checkExists = function(parentId, filename, askReplace, fn)
+OneDriveClient.prototype.checkExists = function(parentId, filename, askReplace, fn, overwrite, error, active)
 {
 	var folder = '/me/drive/root';
 	
@@ -989,19 +1002,41 @@ OneDriveClient.prototype.checkExists = function(parentId, filename, askReplace, 
 	
 	this.executeRequest(this.baseUrl + folder + '/children/' + encodeURIComponent(filename), mxUtils.bind(this, function(req)
 	{
-		if (req.getStatus() == 404)
+		if (active != null && !active())
+		{
+			this.ui.spinner.stop();
+			fn(false);
+		}
+		else if (req.getStatus() == 404)
 		{
 			fn(true);
 		}
 		else
 		{
-			if (askReplace)
+			// The version of the file (a file that changes gets another one)
+			var etag = null;
+
+			try
+			{
+				var item = JSON.parse(req.getText());
+				etag = (item != null && item.eTag != null) ? item.eTag : null;
+			}
+			catch (e)
+			{
+				// Asks again below
+			}
+
+			if (askReplace && overwrite != null && etag != null && etag == overwrite)
+			{
+				fn(true, etag);
+			}
+			else if (askReplace)
 			{
 				this.ui.spinner.stop();
 				
-				this.ui.confirm(mxResources.get('replaceIt', [filename]), function()
+				this.ui.confirmOrCancel(mxResources.get('replaceIt', [filename]), function()
 				{
-					fn(true);
+					fn(true, (etag != null) ? etag : true);
 				}, function()
 				{
 					fn(false);
@@ -1017,10 +1052,22 @@ OneDriveClient.prototype.checkExists = function(parentId, filename, askReplace, 
 				});
 			}
 		}
-	}), function(req)
+	}), mxUtils.bind(this, function(err)
 	{
-		fn(false);
-	}, true);
+		if (active != null && !active())
+		{
+			this.ui.spinner.stop();
+			fn(false);
+		}
+		else if (error != null)
+		{
+			error(err);
+		}
+		else
+		{
+			fn(false);
+		}
+	}), true);
 };
 
 /**
@@ -1876,11 +1923,17 @@ OneDriveClient.prototype.pickFileOD = function(fn, acceptAllFiles)
 			}
 			else
 			{
-				this.ui.showDialog(new BtnDialog(this.ui, this, mxResources.get('open'), mxUtils.bind(this, function()
+				var dlg = new BtnDialog(this.ui, this, mxResources.get('open'), mxUtils.bind(this, function()
 				{
 					this.ui.hideDialog();
-					odOpenDlg();							
-				})).container, 300, 140, true, true);
+					odOpenDlg();
+				}));
+
+				// The layout of the Classic skin has its width and the height
+				// of its content (AuthLayout.js)
+				this.ui.showDialog(dlg.container, (typeof AuthLayout !== 'undefined') ?
+					AuthLayout.getWidth(dlg, 300) : 300, (typeof AuthLayout !== 'undefined') ?
+					AuthLayout.getHeight(dlg, 140) : 140, true, true);
 			}
 		}), errorFn)
 	}

@@ -487,7 +487,7 @@
 		
 		this.addPaletteFunctions('pidMisc', 'Process Engineering / Misc', false,
 		[
-			this.createVertexTemplateEntry(s + 'misc.fan;fanType=common', 
+			this.createVertexTemplateEntry(s + 'misc.fan;fanType=common;perimeter=ellipsePerimeter;', 
 					50, 50, '', 'Fan', null, null, this.getTagsForStencil(gn, 'fan', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'misc.column;columnType=common', 
 					50, 120, '', 'Column', null, null, this.getTagsForStencil(gn, 'column', dt).join(' ')),

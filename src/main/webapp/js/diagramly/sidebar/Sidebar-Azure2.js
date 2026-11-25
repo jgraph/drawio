@@ -87,6 +87,8 @@
 					r * 0.1594, r * 0.17, '', 'AI Foundry', null, null, this.getTagsForStencil(gn, 'ai foundry microsoft foundry ai studio', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'AI_Foundry_IQ.svg;points=[[0.5,0,0],[0.5,1,0],[0,0.499,0],[1,0.5,0],[0.915,0.118,0],[0.882,0.915,0],[0.088,0.877,0],[0.125,0.085,0]];',
 					r * 0.17, r * 0.17, '', 'AI Foundry IQ', null, null, this.getTagsForStencil(gn, 'ai foundry iq knowledge retrieval', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'AI_Manager.svg;points=[[0.5,0.253,0],[0.39,1,0],[0.09,0.5,0],[0.91,0.5,0],[0.898,0,0],[0.69,0.858,0],[0.05,0.861,0]];',
+					r * 0.17, r * 0.1318, '', 'AI Manager', null, null, this.getTagsForStencil(gn, 'ai manager', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'AI_Studio.svg;points=[[0.594,0,0],[0.5,0.985,0],[0.18,0.5,0],[0.995,0.43,0],[0.734,0.023,0],[0.957,0.635,0],[0.011,0.992,0],[0.357,0.068,0]];',
 				r * 0.16, r * 0.17, '', 'AI Studio', null, null, this.getTagsForStencil(gn, 'ai studio', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Anomaly_Detector.svg;points=[[0.407,0.03,0],[0.5,0.869,0],[0,0.421,0],[0.921,0.5,0],[0.802,0.175,0],[0.995,0.945,0],[0.245,0.765,0],[0.253,0.153,0]];',
@@ -244,6 +246,8 @@
 		[
 			this.createVertexTemplateEntry(s + 'API_Management_Services.svg;points=[[0.512,0,0],[0.477,1,0],[0,0.496,0],[1,0.541,0],[0.717,0.084,0],[0.92,0.729,0],[0.09,0.712,0],[0.085,0.285,0]];',
 					r * 0.1625, r * 0.15, '', 'API Management Services', null, null, this.getTagsForStencil(gn, 'api application programming interface management services', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'App_Service_Builder.svg;points=[[0.389,0,0],[0.389,1,0],[0,0.5,0],[1,0.5,0],[0,0.944,0]];',
+					r * 0.17, r * 0.17, '', 'App Service Builder', null, null, this.getTagsForStencil(gn, 'app service builder', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'App_Service_Certificates.svg;points=[[0.5,0,0],[0.5,0.774,0],[0,0.387,0],[1,0.388,0],[0.987,0.006,0],[0.985,0.77,0],[0.093,0.997,0],[0.013,0.006,0]];',
 					r * 0.175, r * 0.16, '', 'App Service Certificates', null, null, this.getTagsForStencil(gn, 'app service certificates', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'App_Service_Domains.svg;points=[[0.5,0,0],[0.5,1,0],[0.003,0.5,0],[0.998,0.5,0],[0.985,0.007,0],[0.985,0.993,0],[0.015,0.993,0],[0.015,0.007,0]];',
@@ -478,6 +482,8 @@
 		
 		var fns =
 		[
+			this.createVertexTemplateEntry(s + 'ACA_Sandboxes.svg;points=[[0.5,0,0],[0.5,1,0],[0.05,0.5,0],[0.95,0.5,0],[0.991,0.245,0],[0.946,0.877,0],[0.009,0.755,0],[0.009,0.245,0]];',
+					r * 0.1494, r * 0.17, '', 'ACA Sandboxes', null, null, this.getTagsForStencil(gn, 'aca container apps sandboxes sandbox', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'AKS_Network_Policy.svg;points=[[0.409,0,0],[0.409,1,0],[0.003,0.5,0],[1,0.517,0],[0.975,0.182,0],[0.967,0.859,0],[0.155,0.843,0],[0.015,0.155,0]];',
 					r * 0.17, r * 0.1543, '', 'AKS Network Policy', null, null, this.getTagsForStencil(gn, 'aks kubernetes network policy', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'App_Services.svg;points=[[0.497,0,0],[0.504,1,0],[0,0.499,0],[1,0.5,0],[0.865,0.153,0],[0.875,0.835,0],[0.125,0.835,0],[0.133,0.155,0]];perimeter=ellipsePerimeter;',
@@ -540,6 +546,8 @@
 		[
 			this.createVertexTemplateEntry(s + 'Azure_DocumentDB.svg;points=[[0.5,0,0],[0.497,1,0],[0,0.499,0],[1,0.5,0],[0.983,0.098,0],[0.98,0.905,0],[0.024,0.907,0],[0.017,0.098,0]];',
 					r * 0.1282, r * 0.17, '', 'Azure DocumentDB', null, null, this.getTagsForStencil(gn, 'documentdb document db', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Azure_HorizonDB.svg;points=[[0.5,0,0],[0.5,1,0],[0,0.5,0],[1,0.5,0],[0.983,0.098,0],[0.983,0.9,0],[0.017,0.9,0],[0.017,0.098,0]];',
+					r * 0.1301, r * 0.17, '', 'Azure HorizonDB', null, null, this.getTagsForStencil(gn, 'horizondb horizon db postgresql postgres', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Managed_Redis.svg;points=[[0.5,0,0],[0.5,1,0],[0,0.5,0],[1,0.5,0],[0.872,0.115,0],[0.885,0.872,0],[0.113,0.87,0],[0.128,0.115,0]];',
 					r * 0.17, r * 0.17, '', 'Azure Managed Redis', null, null, this.getTagsForStencil(gn, 'redis cache', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Cache_Redis.svg;points=[[0.5,0,0],[0.502,1,0],[0,0.5,0],[1,0.5,0],[0.982,0.056,0],[0.715,0.947,0],[0.275,0.938,0],[0.02,0.053,0]];',
@@ -1137,6 +1145,8 @@
 		
 		var fns =
 		[
+			this.createVertexTemplateEntry(s + 'Azure_Device_Registry.svg;points=[[0.497,0,0],[0.505,1,0],[0,0.525,0],[1,0.528,0],[0.695,0.078,0],[0.927,0.713,0],[0.078,0.719,0],[0.295,0.087,0]];',
+					r * 0.17, r * 0.1531, '', 'Azure Device Registry', null, null, this.getTagsForStencil(gn, 'device registry devices', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;align=center;fontSize=12;image=img/lib/azure2/databases/Azure_Cosmos_DB.svg;points=[[0.144,0.003,0],[0.889,0.998,0],[0.09,0.5,0],[0.879,0.5,0],[0.967,0.175,0],[1,0.892,0],[0.023,0.78,0],[0.008,0.133,0]];',
 					r * 0.17, r * 0.17, '', 'Cosmos DB', null, null, this.getTagsForStencil(gn, 'cosmos', dt).join(' ')),
 			this.createVertexTemplateEntry('image;aspect=fixed;html=1;align=center;fontSize=12;image=img/lib/azure2/storage/Azure_Stack_Edge.svg;points=[[0.514,0,0],[0.5,1,0],[0.018,0.5,0],[0.95,0.5,0],[0.682,0.068,0],[0.902,0.939,0],[0.118,0.939,0],[0.345,0.068,0]];',
@@ -1442,6 +1452,8 @@
 					r * 0.16, r * 0.16, '', 'Application Gateways', null, null, this.getTagsForStencil(gn, 'application gateways', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'ATM_Multistack.svg;points=[[0.752,0,0],[0.246,1,0],[0,0.772,0],[1,0.229,0],[0.995,0.003,0],[0.485,1,0],[0,0.992,0],[0.51,0.003,0]];',
 					r * 0.17, r * 0.17, '', 'ATM Multistack', null, null, this.getTagsForStencil(gn, 'atm multistack', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Azure_Encrypted_Transport.svg;points=[[0.5,0,0],[0.521,1,0],[0,0.489,0],[1,0.487,0],[0.825,0.118,0],[0.869,0.82,0],[0.113,0.8,0],[0.139,0.15,0]];',
+					r * 0.1658, r * 0.17, '', 'Azure Encrypted Transport', null, null, this.getTagsForStencil(gn, 'encrypted transport encryption', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Bastions.svg;points=[[0.916,0.003,0],[0.5,1,0],[0.181,0.5,0],[0.828,0.5,0],[0.991,0.058,0],[0.997,0.67,0],[0.006,0.947,0],[0.009,0.333,0]];',
 					r * 0.145, r * 0.17, '', 'Bastions', null, null, this.getTagsForStencil(gn, 'bastions', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'CDN_Profiles.svg;points=[[0.611,0.004,0],[0.62,0.996,0],[0,0.638,0],[0.963,0.5,0],[0.735,0.06,0],[0.907,0.957,0],[0.105,0.914,0],[0.108,0.358,0]];',
@@ -1783,8 +1795,6 @@
 					r * 0.145, r * 0.17, '', 'Marketplace Management', null, null, this.getTagsForStencil(gn, 'marketplace management', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'MedTech_Service.svg;points=[[0.494,0,0],[0.5,0.896,0],[0,0.478,0],[1,0.613,0],[0.967,0.351,0],[0.895,1,0],[0.09,0.691,0],[0.085,0.272,0]];',
 					r * 0.17, r * 0.1518, '', 'MedTech Service', null, null, this.getTagsForStencil(gn, 'medtech service', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'Microsoft_Discovery.svg;points=[[0.499,0,0],[0.5,1,0],[0.113,0.5,0],[0.887,0.5,0],[0.96,0.165,0],[0.935,0.806,0],[0.04,0.84,0],[0.055,0.201,0]];',
-					r * 0.17, r * 0.1649, '', 'Microsoft Discovery', null, null, this.getTagsForStencil(gn, 'microsoft discovery science', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Mission_Landing_Zone.svg;points=[[0.514,0,0],[0.505,1,0],[0.001,0.5,0],[1,0.5,0],[0.717,0.08,0],[0.982,0.901,0],[0.025,0.909,0],[0.093,0.266,0]];',
 					r * 0.17, r * 0.16, '', 'Mission Landing Zone', null, null, this.getTagsForStencil(gn, 'mission landing zone', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Modular_Data_Center.svg;points=[[0.5,0.001,0],[0.52,0.998,0],[0.1,0.5,0],[1,0.468,0],[0.99,0.01,0],[0.997,0.915,0],[0.17,0.985,0]];',
@@ -1797,6 +1807,8 @@
 					r * 0.17, r * 0.1228, '', 'Monitor Pipeline', null, null, this.getTagsForStencil(gn, 'monitor pipeline', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'MS_Dev_Box.svg;points=[[0.404,0,0],[0.496,0.994,0],[0.07,0.5,0],[0.993,0.57,0],[0.985,0.335,0],[0.815,0.992,0],[0.06,0.208,0]];',
 					r * 0.17, r * 0.17, '', 'MS Dev Box', null, null, this.getTagsForStencil(gn, 'ms dev box', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'MS_Discovery.svg;points=[[0.5,0.045,0],[0.5,1,0],[0,0.5,0],[1,0.58,0],[0.761,0.183,0],[0.776,0.952,0],[0.02,0.962,0],[0.017,0.18,0]];',
+					r * 0.1518, r * 0.17, '', 'MS Discovery', null, null, this.getTagsForStencil(gn, 'ms discovery microsoft science', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Network_Function_Manager.svg;points=[[0.497,0,0],[0.499,1,0],[0,0.541,0],[1,0.542,0],[0.881,0.245,0],[0.912,0.927,0],[0.06,0.922,0],[0.119,0.245,0]];',
 					r * 0.15, r * 0.17, '', 'Network Function Manager', null, null, this.getTagsForStencil(gn, 'network function manager', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Network_Function_Manager_Functions.svg;points=[[0.5,0.03,0],[0.5,1,0],[0,0.397,0],[0.71,0.5,0],[0.602,0.099,0],[0.995,0.994,0],[0.37,0.997,0],[0.115,0.105,0]];',
@@ -1995,6 +2007,8 @@
 					r * 0.17, r * 0.17, '', 'AD Risky Users', null, null, this.getTagsForStencil(gn, 'ad risky users', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Application_Security_Groups.svg;points=[[0.5,0,0],[0.503,1,0],[0,0.5,0],[1,0.5,0],[0.99,0.125,0],[0.845,0.77,0],[0.146,0.76,0],[0.007,0.125,0]];',
 					r * 0.14, r * 0.17, '', 'Application Security Groups', null, null, this.getTagsForStencil(gn, 'application security groups', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Azure_Confidential_Clean_Rooms.svg;points=[[0.5,0.241,0],[0.5,0.829,0],[0.27,0.5,0],[0.723,0.5,0],[0.965,0.018,0],[0.947,0.979,0],[0.045,0.979,0],[0.035,0.018,0]];',
+					r * 0.17, r * 0.1459, '', 'Azure Confidential Clean Rooms', null, null, this.getTagsForStencil(gn, 'confidential clean rooms data collaboration', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Conditional_Access.svg;points=[[0.5,0.005,0],[0.5,0.995,0],[0,0.5,0],[1,0.5,0],[0.993,0.13,0],[0.854,0.757,0],[0.152,0.765,0],[0.007,0.13,0]];',
 					r * 0.14, r * 0.17, '', 'Conditional Access', null, null, this.getTagsForStencil(gn, 'conditional access', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Defender.svg;points=[[0.5,0,0],[0.5,1,0],[0.003,0.5,0],[0.997,0.5,0],[0.99,0.125,0],[0.848,0.765,0],[0.162,0.775,0],[0.01,0.125,0]];',

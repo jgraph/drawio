@@ -34,6 +34,39 @@
 	};
 
 	/**
+	 * Share of Classic and Simple names Present to Everyone Follow me while it
+	 * has the menu of Fusion (the switch shareMenu, Menus.addShareMenuItems),
+	 * so the omnibox finds the action by both names. Simple, whose View then
+	 * also says Follow me (Menus.isFollowMeName), shows that name; Classic
+	 * shows Present to Everyone, the name of Extras. Fusion has its own names
+	 * (Actions.simpleLabels in SimpleMenus.js).
+	 */
+	var omniboxCreateActionEntry = Omnibox.prototype.createActionEntry;
+
+	Omnibox.prototype.createActionEntry = function(key, action, title, labelKey)
+	{
+		var entry = omniboxCreateActionEntry.apply(this, arguments);
+
+		if (key == 'presentToEveryone' && entry != null && Editor.getFeatureTheme() != 'fusion' &&
+			Editor.isFeatureEnabled('shareMenu'))
+		{
+			var keys = (entry.keys != null) ? entry.keys : this.getResourceKeys(entry.label);
+
+			if (this.editorUi.menus.isFollowMeName())
+			{
+				entry.label = mxResources.get('followMe');
+				entry.keys = ['followMe'].concat(keys);
+			}
+			else
+			{
+				entry.keys = keys.concat(['followMe']);
+			}
+		}
+
+		return entry;
+	};
+
+	/**
 	 * Adds the pages.
 	 */
 	var omniboxCreateEntries = Omnibox.prototype.createEntries;
@@ -314,6 +347,163 @@
 	};
 
 	/**
+	 * With File › Export... instead of Export as ▸ (EditorUi.isShortExportMenu
+	 * in PreviewDialog.js) the actions of the formats are in no menu: they are
+	 * offered with the path, the state and the hiding of Export... and with
+	 * Export and Export as as keywords, so PNG and Export as PDF find them,
+	 * and they open the dialog with their format. Fusion links them to its
+	 * own menus (Omnibox.simpleLinkedActions in SimpleOmnibox.js). Export...
+	 * is not offered while the Export dialog is off (EditorUi.isExportDialogEnabled),
+	 * as the action, which every theme has for a switch to Fusion, is then
+	 * disabled and in no menu. Export... with the last settings (the action
+	 * lastExport) is offered only before Export as ▸ (Classic) while it is on
+	 * and Export as is not hidden, and then instead of Export..., which opens
+	 * the same; the short menus have Export... alone, which opens the last
+	 * export itself (installExportDialogActions in PreviewDialog.js). The
+	 * action export (Export... of grapheditor, which opens what Export...
+	 * opens since the advanced export was removed, see
+	 * installExportDialogActions) is offered only where a menu shows it,
+	 * which no menu of the app does: else it was an Export... without a path
+	 * before Export... of the menu (the driver, 17 November 2026). Fusion
+	 * offers only the actions of its menus (SimpleOmnibox.js).
+	 */
+	var omniboxAddExportEntries = Omnibox.prototype.addActionEntries;
+
+	Omnibox.prototype.addActionEntries = function(entries, paths, hidden, enabled)
+	{
+		var ui = this.editorUi;
+
+		if (typeof ui.isExportDialogEnabled === 'function' && !ui.isExportDialogEnabled() &&
+			ui.actions.get('simpleExport') != null && (hidden == null || hidden.simpleExport != true))
+		{
+			var result = Object.create(null);
+
+			for (var key in hidden)
+			{
+				result[key] = hidden[key];
+			}
+
+			result.simpleExport = true;
+			hidden = result;
+		}
+
+		// Export... with the last settings is only offered while it is on
+		// (EditorUi.isLastExportEnabled in PreviewDialog.js) and with Export as
+		// ▸, not in the short menus, whose Export... opens it
+		var shortMenus = typeof ui.isShortExportMenu === 'function' && ui.isShortExportMenu();
+
+		if (ui.actions.get('lastExport') != null && (hidden == null || hidden.lastExport != true) &&
+			(typeof ui.isLastExportEnabled !== 'function' || !ui.isLastExportEnabled() ||
+			this.isHiddenMenuItem('exportAs') || shortMenus))
+		{
+			var result = Object.create(null);
+
+			for (var key in hidden)
+			{
+				result[key] = hidden[key];
+			}
+
+			result.lastExport = true;
+			hidden = result;
+		}
+
+		// One Export...: that with the last settings before Export as ▸
+		// replaces the action of the short menus, which does the same
+		if (ui.actions.get('lastExport') != null && (hidden == null || hidden.lastExport != true) &&
+			!this.isHiddenMenuItem('lastExport') && ui.actions.get('simpleExport') != null &&
+			(hidden == null || hidden.simpleExport != true))
+		{
+			var result = Object.create(null);
+
+			for (var key in hidden)
+			{
+				result[key] = hidden[key];
+			}
+
+			result.simpleExport = true;
+			hidden = result;
+		}
+
+		var simpleMenus = typeof this.isSimpleMenus === 'function' && this.isSimpleMenus();
+
+		if (paths != null && paths['export'] == null && !simpleMenus && ui.actions.get('export') != null &&
+			(hidden == null || hidden['export'] != true))
+		{
+			var result = Object.create(null);
+
+			for (var key in hidden)
+			{
+				result[key] = hidden[key];
+			}
+
+			result['export'] = true;
+			hidden = result;
+		}
+
+		if (shortMenus && EditorUi.exportFormats != null && paths != null && !simpleMenus)
+		{
+			var keys = Object.create(null);
+
+			for (var i = 0; i < EditorUi.exportFormats.length; i++)
+			{
+				var key = EditorUi.exportFormats[i].action;
+
+				if (paths[key] == null)
+				{
+					keys[key] = true;
+				}
+			}
+
+			var target = ui.actions.get('simpleExport');
+			var off = target == null || this.isHiddenMenuItem('exportAs') ||
+				this.isHiddenMenuItem('simpleExport') || (hidden != null && hidden.simpleExport == true);
+
+			if (off)
+			{
+				var result = Object.create(null);
+
+				for (var key in hidden)
+				{
+					result[key] = hidden[key];
+				}
+
+				for (var key in keys)
+				{
+					result[key] = true;
+				}
+
+				hidden = result;
+			}
+
+			var start = entries.length;
+			omniboxAddExportEntries.call(this, entries, paths, hidden, enabled);
+
+			if (!off && paths.simpleExport != null)
+			{
+				var path = paths.simpleExport.concat([String(target.getTitle()).replace(/(\.\.\.|…)$/, '')]);
+
+				for (var i = start; i < entries.length; i++)
+				{
+					var entry = entries[i];
+
+					if (entry.action != null && keys[entry.action] == true)
+					{
+						entry.path = path;
+						entry.keys = ((entry.keys != null) ? entry.keys :
+							this.getResourceKeys(entry.label)).concat(['export', 'exportAs']);
+						entry.enabled = entry.enabled && target.isEnabled() &&
+							(enabled == null || enabled.simpleExport !== false);
+					}
+				}
+			}
+		}
+		else
+		{
+			omniboxAddExportEntries.call(this, entries, paths, hidden, enabled);
+		}
+	};
+
+	/**
 	 * Actions in the submenu of a page (… › Pages › Page-1 › Remove Page on
 	 * phones, also … › Pages › Group › Page-1 › Remove Page) have the path of
 	 * the pages menu without the group and the name of the page: else the name
@@ -340,6 +530,36 @@
 		}
 
 		omniboxAddActionEntries.call(this, entries, paths, hidden, enabled);
+	};
+
+	/**
+	 * Read-only is not offered where the Hand tool replaces it (Simple, its
+	 * View menu and top bar, EditorUi.isHandToolEnabled), as in Fusion, whose
+	 * menus have no Read-only: a search for read-only finds the Hand tool
+	 * (handToolKeywords). While the diagram is read-only (eg. after a switch
+	 * from Classic) it is offered to end that, like the eye in the status.
+	 */
+	var omniboxAddReadOnlyEntries = Omnibox.prototype.addActionEntries;
+
+	Omnibox.prototype.addActionEntries = function(entries, paths, hidden, enabled)
+	{
+		var ui = this.editorUi;
+
+		if (Editor.currentTheme == 'simple' && !ui.readOnly && ui.isHandToolEnabled() &&
+			(hidden == null || hidden.readOnly != true))
+		{
+			var result = Object.create(null);
+
+			for (var key in hidden)
+			{
+				result[key] = hidden[key];
+			}
+
+			result.readOnly = true;
+			hidden = result;
+		}
+
+		omniboxAddReadOnlyEntries.call(this, entries, paths, hidden, enabled);
 	};
 
 	/**
@@ -597,16 +817,17 @@
 	})(Omnibox.prototype.getFormatControlFocus);
 
 	/**
-	 * The omnibox is part of the new look of the Simple theme (the theme modern),
-	 * and the developer switch omnibox=1 shows it in all themes: without them
-	 * the app has no omnibox, as before (no Ctrl+Alt+P, no search buttons in
-	 * the toolbar and the format panel of the Simple theme, no entry in the
-	 * action search of the sidebar).
+	 * The omnibox is the feature omnibox of Editor.featureDefaults: on in the
+	 * Simple theme in the web app and in Fusion, where omnibox=1 or 0 in the
+	 * URL and enableOmnibox in the configuration change the default of the
+	 * Classic and the Simple theme. Where it is off the app has no omnibox,
+	 * as before (no Ctrl+Alt+P, no search buttons in the toolbar and the
+	 * format panel of the Simple theme, no entry in the action search of the
+	 * sidebar).
 	 */
 	EditorUi.prototype.isOmniboxEnabled = function()
 	{
-		return typeof Omnibox !== 'undefined' && (urlParams['omnibox'] == '1' ||
-			(typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern()));
+		return typeof Omnibox !== 'undefined' && this.isFeatureEnabled('omnibox');
 	};
 
 	/**

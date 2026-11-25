@@ -32,11 +32,18 @@
 	 */
 	Editor.thinFormatImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0ibTM2LjUgMTguMzUtNi44NS02Ljg1IDMuMjUtMy4ycS44NS0uODUgMi4wMjUtLjg1IDEuMTc1IDAgMi4wMjUuODVsMi43NSAyLjhxLjg1LjguODUgMnQtLjg1IDJaTTYuODUgNDEuMXYtNi45bDkuNTUtOS41NUw1LjUgMTMuN2w3LjgtNy44NSAxMSAxMSA1LjM1LTUuMzUgNi44NSA2Ljg1LTUuMzUgNS4zNSAxMSAxMS03Ljg1IDcuNzUtMTAuOTUtMTAuOS05LjYgOS41NVptMTEuMi0xOC4wNSA0LjY1LTQuNi00LjA1LTQuMDUtMi4zNSAyLjQtMS42LTEuNiAyLjM1LTIuNC0zLjc1LTMuNzUtNC42IDQuNjVabTE2LjIgMTYuMjUgNC42NS00LjY1LTMuNzUtMy43NS0yLjQgMi40LTEuNi0xLjYgMi40LTIuNC00LjA1LTQtNC42IDQuNjVabS0yNS4xLS40NWgzLjZsMjAuNS0yMC40NS0zLjY1LTMuNjVMOS4xNSAzNS4yWiIvPjwvc3ZnPg==';
 	Editor.thinGestureImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTI4IDQxLjZxLTIuNSAwLTQuMDc1LTEuNjUtMS41NzUtMS42NS0xLjU3NS00LjM1IDAtMi4zNSAxLjEtNC4xIDEuMS0xLjc1IDIuODI1LTIuOTUgMS43MjUtMS4yIDMuNy0xLjgyNVQzMy42NSAyNnEtLjE1LTMuMDUtMS4yNS00LjQyNVQyOS4yNSAyMC4ycS0yLjMgMC00LjE3NSAxLjV0LTQuNDI1IDQuOTVxLTIuNjUgMy40NS00LjYgNS4xLTEuOTUgMS42NS00LjM1IDEuNjUtMi4xIDAtMy42NS0xLjM3NVE2LjUgMzAuNjUgNi41IDI3LjQ1cTAtMiAxLjItNC41MjUgMS4yLTIuNTI1IDMuNS02LjE3NSAxLjMtMS44NSAxLjk3NS0zLjIyNXQuNjc1LTIuMzc1cTAtLjctLjM1LTEuMDUtLjM1LS4zNS0xLjA1LS4zNS0uNzUgMC0xLjYuNDc1UTEwIDEwLjcgOSAxMS45TDcgOS44cTEuMzUtMS41NSAyLjcyNS0yLjI3NVExMS4xIDYuOCAxMi41IDYuOHExLjkgMCAzLjEgMS4yNSAxLjIgMS4yNSAxLjIgMy4yIDAgMS44LS45NzUgMy41NzVRMTQuODUgMTYuNiAxMy4wNSAxOS4zcS0xLjk1IDIuOTUtMi43NzUgNC43dC0uODI1IDMuNjVxMCAxLjYuNzUgMi4yLjc1LjYgMS43NS42IDEuNDUgMCAyLjgyNS0xLjMgMS4zNzUtMS4zIDMuNTc1LTQuMTUgMi45NS0zLjggNS41MjUtNS43NzUgMi41NzUtMS45NzUgNS42NzUtMS45NzUgMy4xNSAwIDUgMi4zMjVUMzYuNiAyNS45aDQuOXYyLjk1aC00LjlxLS40NSA3LjM1LTMuMiAxMC4wNS0yLjc1IDIuNy01LjQgMi43Wm0uMS0yLjk1cTEuODUgMCAzLjY1LTIuMjUgMS44LTIuMjUgMi03LjUtMi44LjE1LTUuNjI1IDIuMDI1VDI1LjMgMzUuOXEwIDEuMy43NSAyLjAyNS43NS43MjUgMi4wNS43MjVaIi8+PC9zdmc+';
+	// The arrow of Select and the hand of the Hand tool of Fusion
+	// (SimpleUi.icons.cursor and hand) in the thin line of these icons, for
+	// Select and the Hand tool in the top bar of the simple theme
+	Editor.thinCursorImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS4xNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNNSAzLjVsMTMgNy4yLTUuNiAxLjQtMi42IDUuNHoiLz48L3N2Zz4=';
+	Editor.thinHandImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS4xNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNOCAxMlY2LjVhMS41IDEuNSAwIDAgMSAzIDBWMTFNMTEgMTBWNWExLjUgMS41IDAgMCAxIDMgMHY2TTE0IDEwVjYuNWExLjUgMS41IDAgMCAxIDMgMFYxNGMwIDMuNi0yLjQgNi41LTYgNi41LTIuMyAwLTMuNy0xLTUtM2wtMi4zLTMuN2ExLjUgMS41IDAgMCAxIDIuNS0xLjZMOCAxMy41Ii8+PC9zdmc+';
 	Editor.thinShapesImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTI5Ljc1IDI5Ljc1Wm0tMTMgNS40NXEuNC4wNS43NS4wNUgxOS4wNXY0LjY1cTAgLjI1LjE3NS40MjV0LjQyNS4xNzVIMzkuOXEuMjUgMCAuNDI1LS4xNzV0LjE3NS0uNDI1VjE5LjY1cTAtLjI1LS4xNzUtLjQyNXQtLjQyNS0uMTc1aC00LjY1VjE3LjVxMC0uMzUtLjA1LS43NWg0LjdxMS4xNSAwIDIgLjg3NS44NS44NzUuODUgMi4wMjVWMzkuOXEwIDEuMTUtLjg1IDItLjg1Ljg1LTIgLjg1SDE5LjY1cS0xLjE1IDAtMi4wMjUtLjg1dC0uODc1LTJabTEuNS0zLjk1cS01LjQ1IDAtOS4yMjUtMy44LTMuNzc1LTMuOC0zLjc3NS05LjIgMC01LjQ1IDMuNzc1LTkuMjI1UTEyLjggNS4yNSAxOC4yNSA1LjI1cTUuNCAwIDkuMiAzLjc3NSAzLjggMy43NzUgMy44IDkuMjI1IDAgNS40LTMuOCA5LjItMy44IDMuOC05LjIgMy44Wm0tLjA1LTIuM3E0LjQ1IDAgNy42LTMuMTI1IDMuMTUtMy4xMjUgMy4xNS03LjU3NXQtMy4xMjUtNy42UTIyLjcgNy41IDE4LjI1IDcuNXQtNy42IDMuMTI1UTcuNSAxMy43NSA3LjUgMTguMnQzLjEyNSA3LjZxMy4xMjUgMy4xNSA3LjU3NSAzLjE1Wm0uMDUtMTAuN1oiLz48L3N2Zz4=';
 	Editor.thinUndoImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTE0LjQgMzcuNXYtMi4yNWgxMy45cTMuNiAwIDYuMjI1LTIuMzc1UTM3LjE1IDMwLjUgMzcuMTUgMjYuOXEwLTMuNTUtMi42MjUtNS45LTIuNjI1LTIuMzUtNi4yMjUtMi4zNUgxMi45NUwxOSAyNC43bC0xLjYgMS42LTguOC04LjggOC44LTguOCAxLjYgMS42LTYuMDUgNi4wNWgxNS4zcTQuNTUgMCA3Ljg1IDMuMDV0My4zIDcuNXEwIDQuNS0zLjMgNy41NXQtNy44NSAzLjA1WiIvPjwvc3ZnPg==';
 	Editor.thinRedoImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTE5Ljc1IDM3LjVxLTQuNTUgMC03Ljg1LTMuMDVUOC42IDI2LjlxMC00LjQ1IDMuMy03LjV0Ny44NS0zLjA1aDE1LjNMMjkgMTAuM2wxLjYtMS42IDguOCA4LjgtOC44IDguOC0xLjYtMS42IDYuMDUtNi4wNUgxOS43cS0zLjYgMC02LjIyNSAyLjM1LTIuNjI1IDIuMzUtMi42MjUgNS45IDAgMy42IDIuNjI1IDUuOTc1UTE2LjEgMzUuMjUgMTkuNyAzNS4yNWgxMy45djIuMjVaIi8+PC9zdmc+';
 	Editor.thinDoubleArrowRightImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0ibTEzIDM1LjMtMS42LTEuNiA5Ljc1LTkuNzUtOS43NS05LjcgMS42LTEuNiAxMS4zNSAxMS4zWm0xMi4zIDAtMS42LTEuNiA5Ljc1LTkuNzUtOS43NS05LjcgMS42LTEuNiAxMS4zIDExLjNaIi8+PC9zdmc+';
 	Editor.thinNoteImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgOTYgOTYwIDk2MCIgd2lkdGg9IjQ4Ij48cGF0aCBkPSJNMjM3LjY5NCA5NTUuOTk5cS0yMy41MjkgMC00MC42MTEtMTcuMDgyLTE3LjA4Mi0xNy4wODItMTcuMDgyLTQwLjYxMVYyNTMuNjk0cTAtMjMuNTI5IDE3LjA4Mi00MC42MTEgMTcuMDgyLTE3LjA4MiA0MC42MTEtMTcuMDgyaDM0Ny41MzdsMTk0Ljc2OCAxOTQuNzY4djUwNy41MzdxMCAyMy41MjktMTcuMDgyIDQwLjYxMS0xNy4wODIgMTcuMDgyLTQwLjYxMSAxNy4wODJIMjM3LjY5NFpNNTYyLjUzOSA0MTEuMjNWMjQxLjM4NUgyMzcuNjk0cS00LjYxNiAwLTguNDYzIDMuODQ2LTMuODQ2IDMuODQ3LTMuODQ2IDguNDYzdjY0NC42MTJxMCA0LjYxNiAzLjg0NiA4LjQ2MyAzLjg0NyAzLjg0NiA4LjQ2MyAzLjg0Nmg0ODQuNjEycTQuNjE2IDAgOC40NjMtMy44NDYgMy44NDYtMy44NDcgMy44NDYtOC40NjNWNDExLjIzSDU2Mi41MzlaTTIyNS4zODUgMjQxLjM4NVY0MTEuMjMgMjQxLjM4NXY2NjkuMjNWMjQxLjM4NVoiLz48L3N2Zz4=';
+	// The note icon with two lines of text: File in the toolbar of the simple theme
+	Editor.thinFileImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgOTYgOTYwIDk2MCIgd2lkdGg9IjQ4Ij48cGF0aCBkPSJNMjM3LjY5NCA5NTUuOTk5cS0yMy41MjkgMC00MC42MTEtMTcuMDgyLTE3LjA4Mi0xNy4wODItMTcuMDgyLTQwLjYxMVYyNTMuNjk0cTAtMjMuNTI5IDE3LjA4Mi00MC42MTEgMTcuMDgyLTE3LjA4MiA0MC42MTEtMTcuMDgyaDM0Ny41MzdsMTk0Ljc2OCAxOTQuNzY4djUwNy41MzdxMCAyMy41MjktMTcuMDgyIDQwLjYxMS0xNy4wODIgMTcuMDgyLTQwLjYxMSAxNy4wODJIMjM3LjY5NFpNNTYyLjUzOSA0MTEuMjNWMjQxLjM4NUgyMzcuNjk0cS00LjYxNiAwLTguNDYzIDMuODQ2LTMuODQ2IDMuODQ3LTMuODQ2IDguNDYzdjY0NC42MTJxMCA0LjYxNiAzLjg0NiA4LjQ2MyAzLjg0NyAzLjg0NiA4LjQ2MyAzLjg0Nmg0ODQuNjEycTQuNjE2IDAgOC40NjMtMy44NDYgMy44NDYtMy44NDcgMy44NDYtOC40NjNWNDExLjIzSDU2Mi41MzlaTTIyNS4zODUgMjQxLjM4NVY0MTEuMjMgMjQxLjM4NXY2NjkuMjNWMjQxLjM4NVpNMzI3LjY5MyA3OTguMzA3aDMwNC42MTR2LTQ1LjM4NEgzMjcuNjkzdjQ1LjM4NFptMC0xNjBoMzA0LjYxNHYtNDUuMzg0SDMyNy42OTN2NDUuMzg0WiIvPjwvc3ZnPg==';
 	Editor.thinAddCircleImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTIzIDMzLjVoMi4yNXYtOC4yaDguMjVWMjNoLTguMjV2LTguNUgyM1YyM2gtOC41djIuM0gyM1ptMSA5LjVxLTMuOTUgMC03LjQtMS41dC02LjAyNS00LjA3NVE4IDM0Ljg1IDYuNSAzMS40VDUgMjRxMC0zLjk1IDEuNS03LjQyNVE4IDEzLjEgMTAuNTc1IDEwLjU1IDEzLjE1IDggMTYuNiA2LjVUMjQgNXEzLjk1IDAgNy40MjUgMS41UTM0LjkgOCAzNy40NSAxMC41NSA0MCAxMy4xIDQxLjUgMTYuNTc1IDQzIDIwLjA1IDQzIDI0cTAgMy45NS0xLjUgNy40dC00LjA1IDYuMDI1UTM0LjkgNDAgMzEuNDI1IDQxLjUgMjcuOTUgNDMgMjQgNDNabS4wNS0yLjI1cTYuOTUgMCAxMS44MjUtNC45IDQuODc1LTQuOSA0Ljg3NS0xMS45IDAtNi45NS00Ljg3NS0xMS44MjVRMzEgNy4yNSAyNCA3LjI1cS02Ljk1IDAtMTEuODUgNC44NzVRNy4yNSAxNyA3LjI1IDI0cTAgNi45NSA0LjkgMTEuODUgNC45IDQuOSAxMS45IDQuOVpNMjQgMjRaIi8+PC9zdmc+';
 	Editor.thinDeleteImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTEzLjkgNDFxLTEuMTUgMC0yLS44NS0uODUtLjg1LS44NS0yLjA1VjEwLjlIOVY4LjY1aDguNTV2LTEuNGgxMi45djEuNEgzOXYyLjI1aC0yLjA1djI3LjJxMCAxLjItLjg1IDIuMDUtLjg1Ljg1LTIgLjg1Wm0yMC44LTMwLjFIMTMuM3YyNy4ycTAgLjMuMTc1LjQ3NXQuNDI1LjE3NWgyMC4ycS4yIDAgLjQtLjJ0LjItLjQ1Wk0xOS4wNSAzNC41aDIuM1YxNS4xaC0yLjNabTcuNiAwaDIuM1YxNS4xaC0yLjNaTTEzLjMgMTAuOXYyNy44NVYzOC4xWiIvPjwvc3ZnPg==';
 	Editor.thinLightImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTI0IDMwLjc1cTIuOCAwIDQuNzc1LTEuOTc1UTMwLjc1IDI2LjggMzAuNzUgMjRxMC0yLjgtMS45NzUtNC43NzVRMjYuOCAxNy4yNSAyNCAxNy4yNXEtMi44IDAtNC43NzUgMS45NzVRMTcuMjUgMjEuMiAxNy4yNSAyNHEwIDIuOCAxLjk3NSA0Ljc3NVEyMS4yIDMwLjc1IDI0IDMwLjc1Wk0yNCAzM3EtMy43NSAwLTYuMzc1LTIuNjI1VDE1IDI0cTAtMy43NSAyLjYyNS02LjM3NVQyNCAxNXEzLjc1IDAgNi4zNzUgMi42MjVUMzMgMjRxMCAzLjc1LTIuNjI1IDYuMzc1VDI0IDMzWk0zLjY1IDI1LjE1cS0uNSAwLS44MjUtLjMyNVEyLjUgMjQuNSAyLjUgMjRxMC0uNS4zMjUtLjgyNS4zMjUtLjMyNS44MjUtLjMyNWg1LjJxLjUgMCAuODI1LjMyNVExMCAyMy41IDEwIDI0cTAgLjUtLjMyNS44MjUtLjMyNS4zMjUtLjgyNS4zMjVabTM1LjUgMHEtLjUgMC0uODI1LS4zMjVRMzggMjQuNSAzOCAyNHEwLS41LjMyNS0uODI1LjMyNS0uMzI1LjgyNS0uMzI1aDUuMnEuNSAwIC44MjUuMzI1LjMyNS4zMjUuMzI1LjgyNSAwIC41LS4zMjUuODI1LS4zMjUuMzI1LS44MjUuMzI1Wk0yNCAxMHEtLjUgMC0uODI1LS4zMjUtLjMyNS0uMzI1LS4zMjUtLjgyNXYtNS4ycTAtLjUuMzI1LS44MjVRMjMuNSAyLjUgMjQgMi41cS41IDAgLjgyNS4zMjUuMzI1LjMyNS4zMjUuODI1djUuMnEwIC41LS4zMjUuODI1UTI0LjUgMTAgMjQgMTBabTAgMzUuNXEtLjUgMC0uODI1LS4zMjUtLjMyNS0uMzI1LS4zMjUtLjgyNXYtNS4ycTAtLjUuMzI1LS44MjVRMjMuNSAzOCAyNCAzOHEuNSAwIC44MjUuMzI1LjMyNS4zMjUuMzI1LjgyNXY1LjJxMCAuNS0uMzI1LjgyNS0uMzI1LjMyNS0uODI1LjMyNVpNMTIuNSAxNC4xbC0zLTIuOTVxLS4zNS0uMzUtLjMyNS0uODI1UTkuMiA5Ljg1IDkuNSA5LjVxLjM1LS4zNS44LS4zNS40NSAwIC44NS4zNWwyLjk1IDNxLjMuMzUuMy44IDAgLjQ1LS4zLjgtLjMuMy0uNzc1LjMtLjQ3NSAwLS44MjUtLjNabTI0LjM1IDI0LjQtMi45NS0zcS0uMy0uMzUtLjMtLjggMC0uNDUuMzUtLjguMjUtLjM1LjcyNS0uMzV0LjgyNS4zNWwzIDIuOTVxLjM1LjM1LjMyNS44MjUtLjAyNS40NzUtLjMyNS44MjUtLjM1LjM1LS44LjM1LS40NSAwLS44NS0uMzVaTTMzLjkgMTQuMXEtLjM1LS4zNS0uMzUtLjggMC0uNDUuMzUtLjhsMi45NS0zcS4zNS0uMzUuODI1LS4zMjUuNDc1LjAyNS44MjUuMzI1LjM1LjM1LjM1LjggMCAuNDUtLjM1Ljg1bC0zIDIuOTVxLS4zLjMtLjc3NS4zLS40NzUgMC0uODI1LS4zWk05LjUgMzguNXEtLjM1LS4zNS0uMzUtLjggMC0uNDUuMzUtLjg1bDMtMi45NXEuMzUtLjM1LjgtLjM1LjQ1IDAgLjguMzUuMzUuMy4zMjUuNzc1LS4wMjUuNDc1LS4zMjUuODI1bC0yLjk1IDNxLS40LjM1LS44NS4zNS0uNDUgMC0uOC0uMzVaTTI0IDI0WiIvPjwvc3ZnPg==';
@@ -44,6 +51,9 @@
 	Editor.thinCommentImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTEyLjUgMjcuNWgyM3YtMi4yNWgtMjNabTAtNi4zNWgyM3YtMi4zaC0yM1ptMC02LjRoMjNWMTIuNWgtMjNaTTQzIDQyLjEgMzUuOSAzNWgtMjhxLTEuMTUgMC0yLjAyNS0uODc1VDUgMzIuMVY3LjlxMC0xLjE1Ljg3NS0yLjAyNVQ3LjkgNWgzMi4ycTEuMiAwIDIuMDUuODc1UTQzIDYuNzUgNDMgNy45Wk03LjI1IDcuOXYyNC44NUgzNi45bDMuODUgMy44NVY3LjlxMC0uMy0uMTc1LS40NzVUNDAuMSA3LjI1SDcuOXEtLjMgMC0uNDc1LjE3NVQ3LjI1IDcuOVptMCAwdjI4LjdWNy4yNSA3LjlaIi8+PC9zdmc+';
 	Editor.lightDarkCommentImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBzdHlsZT0iY29sb3Itc2NoZW1lOmxpZ2h0IGRhcms7IiBmaWxsPSJsaWdodC1kYXJrKCMwMDAwMDAsI2ZmZmZmZikiPjxwYXRoIGQ9Ik0yNDAtNDAwaDQ4MHYtODBIMjQwdjgwWm0wLTEyMGg0ODB2LTgwSDI0MHY4MFptMC0xMjBoNDgwdi04MEgyNDB2ODBaTTgwLTgwdi03MjBxMC0zMyAyMy41LTU2LjVUMTYwLTg4MGg2NDBxMzMgMCA1Ni41IDIzLjVUODgwLTgwMHY0ODBxMCAzMy0yMy41IDU2LjVUODAwLTI0MEgyNDBMODAtODBabTEyNi0yNDBoNTk0di00ODBIMTYwdjUyNWw0Ni00NVptLTQ2IDB2LTQ4MCA0ODBaIi8+PC9zdmc+';
 	Editor.thinMenuImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTEzLjUgMjYuMTVxLjkgMCAxLjUyNS0uNjI1LjYyNS0uNjI1LjYyNS0xLjUyNSAwLS45LS42MjUtMS41MjUtLjYyNS0uNjI1LTEuNTI1LS42MjUtLjkgMC0xLjUyNS42MjUtLjYyNS42MjUtLjYyNSAxLjUyNSAwIC45LjYyNSAxLjUyNS42MjUuNjI1IDEuNTI1LjYyNVptMTAuNSAwcS45IDAgMS41MjUtLjYyNS42MjUtLjYyNS42MjUtMS41MjUgMC0uOS0uNjI1LTEuNTI1UTI0LjkgMjEuODUgMjQgMjEuODVxLS45IDAtMS41MjUuNjI1LS42MjUuNjI1LS42MjUgMS41MjUgMCAuOS42MjUgMS41MjUuNjI1LjYyNSAxLjUyNS42MjVabTEwLjUgMHEuODUgMCAxLjQ3NS0uNjI1UTM2LjYgMjQuOSAzNi42IDI0cTAtLjktLjYyNS0xLjUyNS0uNjI1LS42MjUtMS41MjUtLjYyNS0uODUgMC0xLjQ3NS42MjUtLjYyNS42MjUtLjYyNSAxLjUyNSAwIC45LjYyNSAxLjUyNS42MjUuNjI1IDEuNTI1LjYyNVpNMjQgNDNxLTMuOTUgMC03LjQtMS41dC02LjAyNS00LjA3NVE4IDM0Ljg1IDYuNSAzMS40VDUgMjRxMC0zLjk1IDEuNS03LjQyNVE4IDEzLjEgMTAuNTc1IDEwLjU1IDEzLjE1IDggMTYuNiA2LjVUMjQgNXEzLjk1IDAgNy40MjUgMS41UTM0LjkgOCAzNy40NSAxMC41NSA0MCAxMy4xIDQxLjUgMTYuNTc1IDQzIDIwLjA1IDQzIDI0cTAgMy45NS0xLjUgNy40dC00LjA1IDYuMDI1UTM0LjkgNDAgMzEuNDI1IDQxLjUgMjcuOTUgNDMgMjQgNDNabTAtMi4yNXE3IDAgMTEuODc1LTQuOVQ0MC43NSAyNHEwLTctNC44NzUtMTEuODc1VDI0IDcuMjVxLTYuOTUgMC0xMS44NSA0Ljg3NVE3LjI1IDE3IDcuMjUgMjRxMCA2Ljk1IDQuOSAxMS44NSA0LjkgNC45IDExLjg1IDQuOVpNMjQgMjRaIi8+PC9zdmc+';
+	// The host's Save, Save & Exit and Exit folded into one menu in narrow
+	// embeds of the simple theme (updateSimpleEmbedMenu in SimpleClassic.js)
+	Editor.thinSaveImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCIgdmlld0JveD0iMCAwIDQ4IDQ4Ij48ZyBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMi4yNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwLjUgNy42aDIyLjZsNy4zIDcuM3YyMi42cTAgMi45LTIuOSAyLjloLTI3cS0yLjkgMC0yLjktMi45di0yN3EwLTIuOSAyLjktMi45WiIvPjxwYXRoIGQ9Ik0xNS4yIDcuNnY4LjZoMTQuNlY3LjYiLz48Y2lyY2xlIGN4PSIyNCIgY3k9IjI5LjgiIHI9IjQuOCIvPjwvZz48L3N2Zz4=';
 	Editor.thinViewImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTUgMzlWOWgzOHYzMFptMjguNTUtMjAuNmg3LjJ2LTcuMTVoLTcuMlptMCA4Ljk1aDcuMnYtNi43aC03LjJabS0yNi4zIDkuNEgzMS4zdi0yNS41SDcuMjVabTI2LjMgMGg3LjJWMjkuNmgtNy4yWiIvPjwvc3ZnPg==';
 	Editor.thinUserAddImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTM2LjYgMjcuNXYtNi4zNWgtNi4zNXYtMi4zaDYuMzVWMTIuNWgyLjN2Ni4zNWg2LjM1djIuM0gzOC45djYuMzVaTTE4IDIzLjM1cS0yLjkgMC00Ljc3NS0xLjg3NVExMS4zNSAxOS42IDExLjM1IDE2LjdxMC0yLjkgMS44NzUtNC43NVQxOCAxMC4xcTIuOSAwIDQuNzc1IDEuODUgMS44NzUgMS44NSAxLjg3NSA0Ljc1dC0xLjg3NSA0Ljc3NVEyMC45IDIzLjM1IDE4IDIzLjM1Wk0zIDM4LjZ2LTMuOHEwLTEuNS44LTIuNzV0Mi4yNS0xLjlxMy40NS0xLjUgNi4yNzUtMi4xNSAyLjgyNS0uNjUgNS42NzUtLjY1IDIuODUgMCA1LjY1LjY1IDIuOC42NSA2LjI1IDIuMTUgMS40NS43IDIuMjc1IDEuOTI1VDMzIDM0Ljh2My44Wm0yLjI1LTIuMjVoMjUuNVYzNC44cTAtLjc1LS41LTEuNDc1LS41LS43MjUtMS4zLTEuMTI1LTMuMi0xLjUtNS42NzUtMi4wNVEyMC44IDI5LjYgMTggMjkuNnEtMi44IDAtNS4zLjU1VDcgMzIuMnEtLjguNC0xLjI3NSAxLjEyNS0uNDc1LjcyNS0uNDc1IDEuNDc1Wk0xOCAyMS4xcTEuODUgMCAzLjEtMS4yNXQxLjI1LTMuMTVxMC0xLjg1LTEuMjUtMy4xVDE4IDEyLjM1cS0xLjg1IDAtMy4xIDEuMjV0LTEuMjUgMy4xcTAgMS45IDEuMjUgMy4xNVQxOCAyMS4xWm0wLTQuNFptMCAxOS42NVoiLz48L3N2Zz4=';
 	Editor.thinSearchImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCIgdmlld0JveD0iMCAwIDQ4IDQ4Ij48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxMi41IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMi4zIi8+PHBhdGggZD0iTTI5LjIgMjkuMkw0MS41IDQxLjUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyLjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==';
@@ -195,6 +205,79 @@
 	};
 
 	/**
+	 * The Classic colors of the Diagram tab: the entries of Editor.styles by
+	 * their index that Fusion shows with a name, some adjusted (entry, which
+	 * replaces the entry of Editor.styles, so Classic keeps its themes; with
+	 * textDefault text gets the default font color). The other entries are
+	 * only in Classic (Slate is in Mono and Indigo in Navy). The named themes
+	 * of the Style tab of Simple show the same (the feature namedThemes,
+	 * DiagramStylePanel.getNamedGraphStyles in Format.js).
+	 */
+	Editor.fusionClassicThemes = [{name: 'themeSand', index: 1},
+		{name: 'themeTeal', index: 2, textDefault: true},
+		{name: 'themeNavy', index: 3, textDefault: true},
+		{name: 'themeSage', index: 5, entry: {commonStyle: {fontColor: '#33364A',
+			strokeColor: '#788AA3', fillColor: '#B2C9AB'}}},
+		{name: 'themeCream', index: 9},
+		{name: 'themeBlush', index: 11},
+		{name: 'themeAqua', index: 12},
+		{name: 'themeCoral', index: 15, entry: {vertexStyle: {strokeColor: '#FFFFFF', fillColor: '#F08E81'},
+			edgeStyle: {strokeColor: '#182E3E'}, commonStyle: {fontColor: 'light-dark(#1A1A1A, #FFFFFF)'}}},
+		{name: 'themeApricot', index: 16},
+		{name: 'themeSky', index: 17, entry: {vertexStyle: {strokeColor: '#BAC8D3', fillColor: '#B1DDF0',
+			fontColor: '#182E3E'}, edgeStyle: {strokeColor: '#4A7A96'}}}];
+
+	/**
+	 * Maximum length of the configured name.
+	 */
+	Editor.calmMaxNameLength = 40;
+
+	/**
+	 * Returns the name of the given theme of the configuration (name: a string
+	 * or an object with a string per language code, with the language of the
+	 * app, then its main language, then en, then the first string) or null.
+	 */
+	Editor.getStyleThemeName = function(name)
+	{
+		var result = null;
+
+		if (typeof name === 'string')
+		{
+			result = name;
+		}
+		else if (name != null && typeof name === 'object' && !Array.isArray(name))
+		{
+			var lang = (typeof mxClient !== 'undefined' && mxClient.language != null) ?
+				String(mxClient.language) : 'en';
+			var keys = [lang, lang.split(/[-_]/)[0], 'en'];
+
+			for (var i = 0; i < keys.length && result == null; i++)
+			{
+				if (Object.prototype.hasOwnProperty.call(name, keys[i]) &&
+					typeof name[keys[i]] === 'string')
+				{
+					result = name[keys[i]];
+				}
+			}
+
+			var all = Object.keys(name);
+
+			for (var i = 0; i < all.length && result == null; i++)
+			{
+				if (typeof name[all[i]] === 'string')
+				{
+					result = name[all[i]];
+				}
+			}
+		}
+
+		result = (result != null) ? mxUtils.trim(result) : null;
+
+		return (result != null && result.length > 0) ?
+			result.substring(0, Editor.calmMaxNameLength) : null;
+	};
+
+	/**
 	 * 
 	 */
 	Editor.logoImage = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIKICAgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMzA2LjE4NSAxMjAuMjk2IgogICB2aWV3Qm94PSIyNCAyNiA2OCA2OCIKICAgeT0iMHB4IgogICB4PSIwcHgiCiAgIHZlcnNpb249IjEuMSI+CiAgIAkgPGc+PGxpbmUKICAgICAgIHkyPSI3Mi4zOTQiCiAgICAgICB4Mj0iNDEuMDYxIgogICAgICAgeTE9IjQzLjM4NCIKICAgICAgIHgxPSI1OC4wNjkiCiAgICAgICBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiCiAgICAgICBzdHJva2Utd2lkdGg9IjMuNTUyOCIKICAgICAgIHN0cm9rZT0iI0ZGRkZGRiIKICAgICAgIGZpbGw9Im5vbmUiIC8+PGxpbmUKICAgICAgIHkyPSI3Mi4zOTQiCiAgICAgICB4Mj0iNzUuMDc2IgogICAgICAgeTE9IjQzLjM4NCIKICAgICAgIHgxPSI1OC4wNjgiCiAgICAgICBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiCiAgICAgICBzdHJva2Utd2lkdGg9IjMuNTAwOCIKICAgICAgIHN0cm9rZT0iI0ZGRkZGRiIKICAgICAgIGZpbGw9Im5vbmUiIC8+PGc+PHBhdGgKICAgICAgICAgZD0iTTUyLjc3Myw3Ny4wODRjMCwxLjk1NC0xLjU5OSwzLjU1My0zLjU1MywzLjU1M0gzNi45OTljLTEuOTU0LDAtMy41NTMtMS41OTktMy41NTMtMy41NTN2LTkuMzc5ICAgIGMwLTEuOTU0LDEuNTk5LTMuNTUzLDMuNTUzLTMuNTUzaDEyLjIyMmMxLjk1NCwwLDMuNTUzLDEuNTk5LDMuNTUzLDMuNTUzVjc3LjA4NHoiCiAgICAgICAgIGZpbGw9IiNGRkZGRkYiIC8+PC9nPjxnCiAgICAgICBpZD0iZzM0MTkiPjxwYXRoCiAgICAgICAgIGQ9Ik02Ny43NjIsNDguMDc0YzAsMS45NTQtMS41OTksMy41NTMtMy41NTMsMy41NTNINTEuOTg4Yy0xLjk1NCwwLTMuNTUzLTEuNTk5LTMuNTUzLTMuNTUzdi05LjM3OSAgICBjMC0xLjk1NCwxLjU5OS0zLjU1MywzLjU1My0zLjU1M0g2NC4yMWMxLjk1NCwwLDMuNTUzLDEuNTk5LDMuNTUzLDMuNTUzVjQ4LjA3NHoiCiAgICAgICAgIGZpbGw9IiNGRkZGRkYiIC8+PC9nPjxnPjxwYXRoCiAgICAgICAgIGQ9Ik04Mi43NTIsNzcuMDg0YzAsMS45NTQtMS41OTksMy41NTMtMy41NTMsMy41NTNINjYuOTc3Yy0xLjk1NCwwLTMuNTUzLTEuNTk5LTMuNTUzLTMuNTUzdi05LjM3OSAgICBjMC0xLjk1NCwxLjU5OS0zLjU1MywzLjU1My0zLjU1M2gxMi4yMjJjMS45NTQsMCwzLjU1MywxLjU5OSwzLjU1MywzLjU1M1Y3Ny4wODR6IgogICAgICAgICBmaWxsPSIjRkZGRkZGIiAvPjwvZz48L2c+PC9zdmc+';
@@ -291,6 +374,19 @@
 	{
 		return ((theme != null) ? theme : Editor.currentTheme) == 'simple' &&
 			!(typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern(theme));
+	};
+
+	/**
+	 * Returns true if the shape pickers that open with a click (a click on a
+	 * hover arrow, a double click on the diagram, Insert > Shape...) have a
+	 * field that searches the shapes of all libraries: the feature
+	 * pickerSearch of Editor.featureDefaults (shapePickerSearch in the
+	 * configuration), on in every theme, in Sketch and Minimal in the web app
+	 * (since 22 November 2026).
+	 */
+	Editor.isShapePickerSearchEnabled = function()
+	{
+		return Editor.isFeatureEnabled('pickerSearch');
 	};
 
 	/**
@@ -501,6 +597,684 @@
 	Editor.enableTidy = urlParams['tidy'] == '1';
 
 	/**
+	 * The defaults of a feature that comes to the web app first (online) and
+	 * a release later to the desktop app, Confluence and Jira (atlassian) and
+	 * the hosts of the embed mode (embed), see Editor.featureDefaults.
+	 */
+	Editor.featureOnline = {online: true, desktop: false, atlassian: false, embed: false};
+
+	/**
+	 * The defaults of a feature that is on in the web app, the desktop app
+	 * and the hosts of the embed mode (embed) and comes to Confluence and
+	 * Jira (atlassian, atlas=1) later, see Editor.featureDefaults.
+	 */
+	Editor.featureNotAtlassian = {online: true, desktop: true, atlassian: false, embed: true};
+
+	/**
+	 * The switches of the features of the app and their defaults by theme and
+	 * platform (see Editor.isFeatureEnabled in grapheditor/Editor.js: the URL
+	 * wins over the configuration, which wins over the default of the theme).
+	 * The themes are kennedy (Classic), simple (the Simple theme) and fusion
+	 * (the theme Fusion, Editor.isSimpleModern), sketch, min and atlas; a
+	 * theme that a row does not list has the feature off. Every new switch is
+	 * added here, in the Configuration dialog (ConfigEditor.js) and in the
+	 * documentation of the configuration. The public build (jgraph/drawio, the
+	 * desktop app, the Docker image, Editor.isPublicBuild) has the dialogs and
+	 * menus of before: a row without publicBuild is off there whatever the
+	 * theme, the URL and the configuration say, and the new dialogs and menus
+	 * of the work on the theme Fusion and the theme itself stay in the
+	 * internal builds (the driver, 22 November 2026: "auf die bisherigen.
+	 * fusion theme mit dialogen bleibt in den internen builds"; the columns of
+	 * the platforms below, eg. desktop of newDialog, apply to the internal
+	 * builds only).
+	 */
+	Editor.featureDefaults = {
+		// Arrange my diagram and Layout Settings in the layout menus
+		// (Menus.isLayoutPickerEnabled, LayoutPicker.js): the short layout
+		// menu of Simple, a first section of the layout menu of Classic, which
+		// keeps all its layouts, online first, since 22 November 2026 also in Sketch, Minimal and Atlas as in
+		// Classic (the driver: "alles was im classic ist solle auch in min,
+		// sketch und atlas sein") (Arrange › Layout ▸ of Atlas,
+		// Insert › Layout ▸ of Sketch and Minimal); Fusion is built on it
+		layoutPicker: {url: 'layoutPicker', config: 'enableLayoutPicker',
+			kennedy: Editor.featureOnline, simple: Editor.featureOnline, fusion: true, fixed: ['fusion'],
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline},
+		// Tidy up and Style my diagram (Editor.isTidyOn, tidy/TidyActions.js),
+		// Tidy up as the first tile of Arrange my diagram in Classic and Simple,
+		// online first, since 22 November 2026 also in Sketch, Minimal and Atlas as in
+		// Classic (the driver: "alles was im classic ist solle auch in min,
+		// sketch und atlas sein"). The public build has them off by default, and
+		// enableTidy and tidy=1 switch them on, as in release 32.7.5 (publicBuild optIn)
+		tidy: {url: 'tidy', config: 'enableTidy',
+			kennedy: Editor.featureOnline, simple: Editor.featureOnline, fusion: true,
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline,
+			publicBuild: 'optIn'},
+		// The search of actions and settings (EditorUi.isOmniboxEnabled,
+		// Omnibox.js); Fusion is built on it
+		omnibox: {url: 'omnibox', config: 'enableOmnibox',
+			kennedy: false, simple: Editor.featureOnline, fusion: true, fixed: ['fusion']},
+		// The inline toolbar of Fusion in every theme (the driver, 17 November
+		// 2026: "Ich möchte die neue Fusion-Theme Inline-Toolbar für alles
+		// verwenden mit dem Switch"), with two switches as in release 32.7.5
+		// (the driver, 22 November 2026: "Schlüssel wieder getrennt wie im
+		// Release (enableInlineToolbar für Toolbar und Verbinder,
+		// enableShapeInlineToolbar für Shapes) mit neuen Standards je Theme,
+		// inlineToolbar=1 in der Adresse schaltet beide ein"), the toggles of
+		// the Configuration dialog and no item in the menus. The toolbar
+		// itself, its toolbar for selected connectors with their labels and
+		// ties and Insert in the context menu of the background
+		// (Editor.isInlineToolbarEnabled): on in every theme and on every
+		// platform, as before the split (the driver, 22 November 2026:
+		// "nichts wegnehmen und nichts hinzu bei der inline toolbar
+		// bedingungen"). The public build has them as the other builds
+		// (publicBuild): release 32.7.5 had the toolbar with these keys
+		inlineToolbars: {url: 'inlineToolbar', config: 'enableInlineToolbar',
+			kennedy: true, simple: true, fusion: true, sketch: true, min: true, atlas: true,
+			publicBuild: true},
+		// The inline toolbar for selections with a shape, also with
+		// connectors (Editor.isShapeInlineToolbarEnabled, needs
+		// inlineToolbars, see InlineToolbar.isToolbarSelection): off in
+		// Classic (also dark and default), Sketch and Atlas, on in Simple,
+		// Minimal and Fusion, on every platform (the driver, 22 November
+		// 2026); an explicit enableShapeInlineToolbar wins over the default
+		// and inlineToolbar=1/0 in the URL over the configuration
+		shapeInlineToolbars: {url: 'inlineToolbar', config: 'enableShapeInlineToolbar',
+			kennedy: false, simple: true, fusion: true, sketch: false, min: true, atlas: false,
+			publicBuild: true},
+		// The search field of the shape pickers that open with a click
+		// (Editor.isShapePickerSearchEnabled), on every platform as it came
+		// with the search of Fusion; Atlas looks like Classic. Sketch and
+		// Minimal have it online since 22 November 2026, as Classic (the
+		// driver: "alles was im classic ist solle auch in min, sketch und
+		// atlas sein")
+		pickerSearch: {config: 'shapePickerSearch',
+			kennedy: true, simple: true, fusion: true, atlas: true,
+			sketch: Editor.featureOnline, min: Editor.featureOnline},
+		// Print with a preview of its sheets and the paper on the Preview
+		// template (Editor.isPrintPreviewEnabled, createPrintLayout in
+		// PreviewDialog.js) in Classic, Simple, Sketch, Minimal and Atlas
+		// (the driver, 17 November 2026: the same dialog in the other themes);
+		// Fusion has its own print dialog with a preview
+		printPreview: {config: 'printPreview',
+			kennedy: Editor.featureOnline, simple: Editor.featureOnline, fusion: true, fixed: ['fusion'],
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline},
+		// One Export dialog for all formats on the Preview template: the
+		// actions of the formats open it with their format and a row of the
+		// formats (Editor.isExportDialogEnabled, createExportLayout in
+		// PreviewDialog.js) in Classic, Simple, Sketch, Minimal and Atlas
+		// (the driver, 17 November 2026: "The new Export... action and the
+		// export dialog needs to go into all themes, like Print"); Fusion is
+		// built on it
+		exportDialog: {config: 'exportDialog',
+			kennedy: Editor.featureOnline, simple: Editor.featureOnline, fusion: true, fixed: ['fusion'],
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline},
+		// Short menus: File › Export... instead of Export as ▸ while the Export
+		// dialog is on (Menus.addExportEntry); false brings the submenu back.
+		// Classic keeps Export as ▸, whose entries open the Export dialog with
+		// their format (the driver, 16 November 2026: new dialog, old menu),
+		// and so do Sketch, Minimal and Atlas, whose Print... kept its place
+		// too; true gives them Export... alone
+		shortMenus: {config: 'shortMenus',
+			kennedy: false, simple: Editor.featureOnline, fusion: true, fixed: ['fusion']},
+		// Export with the last settings: Export... opens the Export dialog
+		// with the format and the settings of the last export, which the
+		// browser keeps (EditorUi.isLastExportEnabled in PreviewDialog.js),
+		// before Export as ▸ in Classic, Sketch, Minimal and Atlas and alone
+		// in the short menus and in Share; needs the Export dialog, so it is
+		// on wherever that is (the driver, 17 November 2026: on by default);
+		// enableLastExport: false or lastExport=0 switch it off
+		lastExport: {url: 'lastExport', config: 'enableLastExport',
+			kennedy: true, simple: true, fusion: true, sketch: true, min: true, atlas: true},
+		// Share with its label and the menu of Fusion: Share, Publish and Export,
+		// then Presentation mode and Explore (updateSimpleShareButton in
+		// SimpleClassic.js, the menu share of Menus.js), online first. Since 22
+		// November 2026 also in Classic, whose Share button opens the menu
+		// (App.updateButtonContainer), and in Sketch, Minimal and Atlas, which
+		// have no Share button: Share of their File menu is the menu as a
+		// submenu (Menus.isShareSubmenu; the driver: "alles was im classic ist
+		// solle auch in min, sketch und atlas sein", "für share button auch in
+		// min das neue menu"); Fusion has its own
+		shareMenu: {config: 'enableShareMenu',
+			kennedy: Editor.featureOnline, simple: Editor.featureOnline, fusion: true, fixed: ['fusion'],
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline},
+		// The toast with Undo after changes that are applied at once
+		// (Editor.isUndoToastOn): deleting shapes and pages in every theme
+		// (UndoToast.js), in Fusion also layouts, Tidy up, styles and Bundle
+		// (SimpleToast.js), on every platform; Classic (also dark) and Atlas
+		// delete as before unless it is switched on
+		undoToast: {url: 'undoToast', config: 'undoToast',
+			kennedy: false, simple: true, fusion: true, sketch: true, min: true},
+		// The icons of a link and a tooltip at the top corners of the cells
+		// of the diagram (Graph.createLinkOverlay, createTooltipOverlay, read
+		// by Editor.isLinkIconsEnabled and Editor.isTooltipIconsEnabled
+		// below) with the existing keys showLinkIcons and showTooltipIcons
+		// and the URL parameters link-icons and tooltip-icons: on in Fusion
+		// on every platform (the driver, 23 November 2026: "die link- und
+		// tooltip-symbole nur standard in fusion, nicht simple"), off in
+		// Simple, Classic, Sketch, Minimal and Atlas, where only the key, the
+		// URL or a plugin turns them on, as before. The public build (also
+		// the desktop app), which has no Fusion, keeps the keys and the URL
+		// of before (publicBuild), so the icons are off there by default
+		showLinkIcons: {url: 'link-icons', config: 'showLinkIcons',
+			kennedy: false, simple: false, fusion: true, publicBuild: true},
+		showTooltipIcons: {url: 'tooltip-icons', config: 'showTooltipIcons',
+			kennedy: false, simple: false, fusion: true, publicBuild: true},
+		// The small helpers of the keyboard and the mouse (batch 19, see
+		// EditorUi.isHelperEnabled): F10 moves the focus to the top bar
+		// (focusTopBar), the wheel scrolls the page tabs (installTabWheel)
+		// and cut-off text shows its full text as the tooltip
+		// (installEllipsisTitles), in Simple only (the driver, 20 November
+		// 2026); Fusion is built on them
+		smallHelpers: {url: 'smallHelpers', config: 'smallHelpers',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// The library In This Diagram, the shapes and connectors of the page
+		// in the sidebar of Classic and Atlas, the shapes of Simple and the
+		// shapes window (or panel) of Sketch and Minimal (UsedShapes.js),
+		// online first, in Sketch, Minimal and Atlas since 22 November 2026 (the
+		// driver: "alles was im classic ist solle auch in min, sketch und
+		// atlas sein"); the choice of the user on this device wins over the
+		// configuration and the default (EditorUi.isUsedShapesOn). Fusion has
+		// it off by default, with a switch of its own in the list of the
+		// libraries of its Shapes card (SimpleUsedShapes.js), which the URL
+		// and the configuration do not change
+		usedShapes: {url: 'usedShapes', config: 'usedShapes',
+			kennedy: Editor.featureOnline, simple: Editor.featureOnline, fusion: false, fixed: ['fusion'],
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline},
+		// The page overview in the menu of the page tabs: the pages as a list
+		// or as tiles with previews, with a search (PageOverview.js,
+		// EditorUi.isPageOverviewEnabled) in Classic, Simple, Sketch, Minimal
+		// and Atlas, online first (the driver, 17 November 2026: the page menu
+		// of Fusion in every theme); Fusion shows it as All Pages
+		pageOverview: {url: 'pageOverview', config: 'pageOverview',
+			kennedy: Editor.featureOnline, simple: Editor.featureOnline, fusion: true, fixed: ['fusion'],
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline},
+		// The hints of the Format panel: Start and End in the menus of the line
+		// ends (StyleFormatPanel.isLineEndLabels); Fusion is built on them,
+		// with its own labels in its fields (SimpleFillLine.js)
+		formatHints: {url: 'formatHints', config: 'enableFormatHints',
+			kennedy: false, simple: Editor.featureOnline, fusion: true, fixed: ['fusion']},
+		// The themes of the Style tab of the Format panel as named tiles in a
+		// grid without pages: Default and the Classic colors of Fusion
+		// (Editor.fusionClassicThemes) or the themes of the configuration,
+		// pointing at a tile previews it on the diagram after a rest, and a
+		// click that changes nothing is no undo step
+		// (DiagramStylePanel.isNamedGraphStyles, addNamedGraphStyles in
+		// Format.js; batch 13 of the plan for Classic and Simple). Off in
+		// Simple since 23 November 2026 (the driver: Simple has the tiles of
+		// Classic again, without names, with the pages), so Classic and
+		// Simple show the grid of previews with pages unless the URL or the
+		// configuration turns the tiles on; Fusion has its own tiles in the
+		// Diagram tab (SimpleFormat.js)
+		namedThemes: {url: 'namedThemes', config: 'namedThemes',
+			kennedy: false, simple: false, fusion: true, fixed: ['fusion']},
+		// New and Insert › Template on the Browser template of Fusion: the
+		// categories, the search and the chips of Start from
+		// (Editor.isNewDialogEnabled, createTemplateBrowser in
+		// TemplateBrowser.js) in the Classic skin in Classic, Simple, Sketch,
+		// Minimal and Atlas (the driver, 17 November 2026: "Use the new New
+		// dialog in all themes"), in the web app, the desktop app and the embed
+		// mode, not yet in Confluence and Jira (the driver, 17 November 2026:
+		// "Also Desktop und Embed bekommen den neuen Dialog, nur Confluence und
+		// Jira nicht"), in the internal builds only: the public build, also
+		// of the desktop app, keeps the New dialog of before (the driver, 22
+		// November 2026: "auf die bisherigen. fusion theme mit dialogen bleibt
+		// in den internen builds"); Fusion is built on it
+		newDialog: {url: 'newDialog', config: 'newDialog',
+			kennedy: Editor.featureNotAtlassian, simple: Editor.featureNotAtlassian,
+			fusion: true, fixed: ['fusion'], sketch: Editor.featureNotAtlassian,
+			min: Editor.featureNotAtlassian, atlas: Editor.featureNotAtlassian},
+		// The start screen of Fusion: the storage dialog of the first start
+		// (Save diagrams to, the storages as tiles, the recent files) and the
+		// splash dialog after it (the storage as a card, the recent files, Open
+		// Existing Diagram and Create New Diagram) on one layout
+		// (Editor.isStartScreenEnabled, createStartStorageLayout and
+		// createStartSplashLayout in StartScreen.js) in the Classic skin in
+		// Simple (the driver, November 2026: Simple gets the start screen of
+		// Fusion), on every platform that shows the start (the web app and the
+		// desktop app; embed mode, Confluence and Jira show none); Classic,
+		// Sketch, Minimal and Atlas keep the dialogs of before; Fusion is built
+		// on it
+		startScreen: {url: 'startScreen', config: 'startScreen',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// Page Setup, Edit Data and the dialog of Edit Tooltip and Edit Note
+		// on the Form template of Fusion: the headline with what the dialog
+		// acts on, Paper, Background, Grid and More options of Page Setup, the
+		// ID with Copy, the properties, the field with the common names,
+		// Placeholders with a hint and Export on the left of Edit Data, the
+		// toolbar with Formatted and HTML and the text in a field of Edit
+		// Tooltip and Edit Note (FormTemplate.isEnabled,
+		// createPageSetupLayout, createEditDataLayout and createMarkupLayout
+		// in FormTemplate.js) in the Classic skin in Simple, on every platform
+		// (the driver, 18 November 2026: Fusion's Edit Data, Page Setup and
+		// Edit Tooltip in Simple); Classic, Sketch, Minimal and Atlas keep
+		// the dialogs of before (the driver named only Simple) unless the
+		// switches turn them on; Fusion is built on them
+		pageSetupDialog: {url: 'pageSetupDialog', config: 'pageSetupDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		editDataDialog: {url: 'editDataDialog', config: 'editDataDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		markupDialog: {url: 'markupDialog', config: 'markupDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// The dialogs of package 3 of Fusion in Simple (the driver, 18
+		// November 2026: every dialog of Fusion in the Simple theme), each on
+		// the layout of Fusion in the Classic skin (FormTemplate.js, in
+		// app.min.js) in Simple on every platform; Classic, Sketch, Minimal
+		// and Atlas keep the dialogs of before; Fusion is built on them.
+		// Edit Geometry (createGeometryLayout)
+		geometryDialog: {url: 'geometryDialog', config: 'geometryDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// Edit Connection Points (createConnectionPointsLayout)
+		connectionPointsDialog: {url: 'connectionPointsDialog', config: 'connectionPointsDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// Insert and Edit Polygon (createPolygonLayout)
+		polygonDialog: {url: 'polygonDialog', config: 'polygonDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// The color dialog and the color window (addColorSections)
+		colorDialog: {url: 'colorDialog', config: 'colorDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// The custom font of the menu of the fonts (createFontLayout)
+		fontDialog: {url: 'fontDialog', config: 'fontDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// The dialogs of Fusion in Simple, package 4 (the driver, 18 November
+		// 2026: all dialogs of Fusion in Simple, in order of use, one shared
+		// layout per dialog with a Fusion and a Classic skin): each on in
+		// Simple, fixed on in Fusion, which is built on it, and off in
+		// Classic, Sketch, Minimal and Atlas (the driver named only Simple).
+		// The library editor: the shapes as a grid of cards with drag to
+		// reorder and rename in place (Editor.isLibraryDialogEnabled,
+		// createLibraryLayout in LibraryLayout.js)
+		libraryDialog: {url: 'libraryDialog', config: 'libraryDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// Plugins: the built-in plugins as checkboxes, the others as a list
+		// with Delete and Add Plugin (Editor.isPluginsDialogEnabled,
+		// createPluginsLayout in SettingsLayouts.js)
+		pluginsDialog: {url: 'pluginsDialog', config: 'pluginsDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// Configuration: the sections of the editor as categories, a search
+		// and the settings as rows, JSON as a second view
+		// (Editor.isConfigDialogEnabled, createConfigLayout in
+		// SettingsLayouts.js)
+		configDialog: {url: 'configDialog', config: 'configDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// The languages available offline: a search and the languages as rows
+		// (Editor.isLanguageDialogEnabled, createLanguagesLayout in
+		// SettingsLayouts.js)
+		languageDialog: {url: 'languageDialog', config: 'languageDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// The Settings dialog: All settings... as the last item of the
+		// Settings menu of Simple, its items as sections of rows
+		// (Editor.isSettingsDialogEnabled, showSettingsDialog in
+		// SettingsLayouts.js; Fusion has Settings… in its … menu)
+		settingsDialog: {url: 'settingsDialog', config: 'settingsDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// File › Properties: the file as a card, its options as rows and Edit
+		// Data (Editor.isPropertiesDialogEnabled, createPropertiesLayout in
+		// PropertiesLayout.js)
+		propertiesDialog: {url: 'propertiesDialog', config: 'propertiesDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// Style Rules on the Rules template: the rules as readable rows with a
+		// preview of their style and the shapes they match, Edit as JSON
+		// (Editor.isStyleRulesDialogEnabled, createStyleRulesLayout in
+		// RulesLayout.js)
+		styleRulesDialog: {url: 'styleRulesDialog', config: 'styleRulesDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// The dialogs of Fusion in Simple, package 5 (the driver, 18 November
+		// 2026: "bring ALL Fusion dialogs into the Simple theme", named only
+		// Simple): one layout per dialog in app.min.js in the Classic skin in
+		// Simple (docs/dialog-style-guide.md), the skin of Fusion in its
+		// Simple*.js files; Classic, Sketch, Minimal and Atlas keep the
+		// dialogs of before, and false or =0 shows them in Simple too.
+		// Data Sources and Add Source and Edit of a source (DataSourcesDialog,
+		// DataSourceDialog; DataSourcesLayout.js, SimpleRules.js)
+		dataSourcesDialog: {url: 'dataSourcesDialog', config: 'dataSourcesDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// Layout Settings of the layout menus (showLayoutSettings in
+		// LayoutPicker.js; LayoutForms.js, SimpleLayouts.js)
+		layoutSettingsDialog: {url: 'layoutSettingsDialog', config: 'layoutSettingsDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// The options of the layouts: the ELK layouts, Org Chart, Balloon Tree,
+		// Mindmap and Custom (ElkLayout.runWithDialog, showOrgChartConfigDialog,
+		// showLayoutDialog, showCustomLayoutDialog; LayoutForms.js,
+		// LayoutCode.js, SimpleLayouts.js)
+		layoutDialogs: {url: 'layoutDialogs', config: 'layoutDialogs',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// Edit Outline and Edit Text of trees (showOutlineDialog; LayoutCode.js,
+		// SimpleLayouts.js), also in Classic, Sketch, Minimal and Atlas online
+		// first (the driver on 22 November 2026: "alles was im classic ist solle auch in
+		// min, sketch und atlas sein",
+		// as Simple has it, on in the web app first as every new default of
+		// these themes)
+		outlineDialog: {url: 'outlineDialog', config: 'outlineDialog',
+			kennedy: Editor.featureOnline, simple: true, fusion: true, fixed: ['fusion'],
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline},
+		// Keyboard Shortcuts as a sheet of the actions with a search instead of
+		// shortcuts.svg (ShortcutsSheet.js, SimpleHelp.js)
+		shortcutsDialog: {url: 'shortcutsDialog', config: 'shortcutsDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// Drafts and Recovery with a preview (DraftDialog, RecoveryDialog;
+		// DraftLayout.js, SimpleFiles.js)
+		draftDialog: {url: 'draftDialog', config: 'draftDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// My diagrams, the home screen of Google Drive (HomeDialog; the layout
+		// in HomeDialog.js, SimpleFiles.js)
+		homeDialog: {url: 'homeDialog', config: 'homeDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// The Text Outline of Fusion in Simple (the driver, 20 November 2026,
+		// instead of the dropped panels of batch 15: "die fünf fehlenden
+		// Dinge aus der Prüfung (4ydm) als kleinen Batch für Simple"): the
+		// window of the Text Outline on the layout of Fusion's panel in the
+		// Classic skin, with a filter over the whole page from 8 items, labels
+		// edited in place with a double click or F2, a glyph per kind, what a
+		// connector connects and the empty state
+		// (Editor.isTextOutlineWindowEnabled, createTextOutlineLayout in
+		// TextOutlineLayout.js, SimplePanels.js); on in Simple, fixed on in
+		// Fusion, which is built on it, off in Classic, Sketch, Minimal and
+		// Atlas, which keep the window of before
+		textOutlineWindow: {url: 'textOutlineWindow', config: 'textOutlineWindow',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// The dialogs of Fusion in Simple (the driver, 18 November 2026: every
+		// dialog of Fusion in the Simple theme, in the Classic skin of
+		// docs/dialog-style-guide.md), one row per dialog, each laid out once
+		// in Dialogs.js with a Classic skin and the skin of Fusion (its
+		// Simple*.js file); Classic, Sketch, Minimal and Atlas keep the
+		// dialogs of before unless a row is switched on; Fusion is built on
+		// them. Revision History on the Preview template: the versions as a
+		// list next to the preview of the chosen version
+		// (Editor.isRevisionDialogEnabled, RevisionDialog.createLayout)
+		revisionDialog: {url: 'revisionDialog', config: 'revisionDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// More Shapes on the Browser template: the categories, the search and
+		// the libraries as tiles with their previews
+		// (Editor.isMoreShapesDialogEnabled, MoreShapesDialog.createLayout)
+		moreShapesDialog: {url: 'moreShapesDialog', config: 'moreShapesDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// Create Shape and Edit Shape on the Preview template: the code of the
+		// stencil next to a live preview of the shape
+		// (Editor.isEditShapeDialogEnabled, EditShapeDialog.createLayout)
+		editShapeDialog: {url: 'editShapeDialog', config: 'editShapeDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// The background image of the page on the Form template: the image (a
+		// URL with its size or another page) and the fill in sections
+		// (Editor.isBackgroundDialogEnabled, BackgroundImageDialog.createLayout),
+		// also in Classic, Sketch, Minimal and Atlas online first (the driver on 22 November 2026: "alles was im classic ist solle auch in
+		// min, sketch und atlas sein", as
+		// Simple has it, on in the web app first as every new default of these
+		// themes)
+		backgroundDialog: {url: 'backgroundDialog', config: 'backgroundDialog',
+			kennedy: Editor.featureOnline, simple: true, fusion: true, fixed: ['fusion'],
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline},
+		// Edit Style on the Code template of Fusion: the style in a code field
+		// with line numbers and colours, a live preview of the shape, one
+		// property per line and Copy Style (Editor.isEditStyleDialogEnabled,
+		// createEditStyleLayout in EditStyle.js) in the Classic skin in Classic
+		// and Simple, online first (the driver, 17 November 2026: "Stil
+		// bearbeiten jetzt für Simple und Classic zusammen bauen, mit Checkbox
+		// nach Regel"), since 22 November 2026 also in Sketch, Minimal and
+		// Atlas (the driver: "edit style dialog können wir in allen themes den
+		// neuen nehmen"), like Print and Export; Fusion is built on it
+		editStyleDialog: {url: 'editStyleDialog', config: 'editStyleDialog',
+			kennedy: Editor.featureOnline, simple: Editor.featureOnline, fusion: true, fixed: ['fusion'],
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline},
+		// Edit Diagram and Insert > Mermaid on the Code template of Fusion: the
+		// code field of Edit Style with line numbers and the colours of the
+		// XML or of Mermaid (CodeField.js, built for many megabytes), the page
+		// and the actions in the footer (CodeDialogs.js) in the Classic skin
+		// in Classic and Simple, online first (the driver, 18 November 2026,
+		// after Edit Style), since 22 November 2026 also in Sketch, Minimal
+		// and Atlas as Edit Style (the driver: "fusion edit diagram dialog
+		// auch in den anderen themes, wie edit style"); Fusion is built on
+		// them
+		editDiagramDialog: {url: 'editDiagramDialog', config: 'editDiagramDialog',
+			kennedy: Editor.featureOnline, simple: Editor.featureOnline, fusion: true, fixed: ['fusion'],
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline},
+		mermaidDialog: {url: 'mermaidDialog', config: 'mermaidDialog',
+			kennedy: Editor.featureOnline, simple: Editor.featureOnline, fusion: true, fixed: ['fusion'],
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline},
+		// The dialogs of Fusion in Simple, package 1 (the driver, 18 November
+		// 2026: "bring ALL Fusion dialogs into the Simple theme", Simple only):
+		// Insert > Advanced > From Text, SQL and PlantUML and Arrange > Insert >
+		// CSV on the Code template of Edit Diagram and Mermaid (CodeDialogs.js),
+		// in the Classic skin in Simple, online first; Fusion is built on them.
+		// Since 23 November 2026 with the live preview, the examples and the
+		// errors of Fusion, and From Text, SQL and CSV also in Classic,
+		// Sketch, Minimal and Atlas online, as Mermaid and PlantUML (the
+		// driver: "die vorschau bitte auch in den anderen themes aktivieren,
+		// auch für from text. also d.h. neuen fusion dialog dort verwenden")
+		fromTextDialog: {url: 'fromTextDialog', config: 'fromTextDialog',
+			kennedy: Editor.featureOnline, simple: Editor.featureOnline, fusion: true, fixed: ['fusion'],
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline},
+		sqlDialog: {url: 'sqlDialog', config: 'sqlDialog',
+			kennedy: Editor.featureOnline, simple: Editor.featureOnline, fusion: true, fixed: ['fusion'],
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline},
+		// PlantUML also in Classic, Sketch, Minimal and Atlas online, as in
+		// Simple (the driver on 22 November 2026: "alles was im classic ist solle auch in
+		// min, sketch und atlas sein")
+		plantUmlDialog: {url: 'plantUmlDialog', config: 'plantUmlDialog',
+			kennedy: Editor.featureOnline, simple: Editor.featureOnline, fusion: true, fixed: ['fusion'],
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline},
+		csvDialog: {url: 'csvDialog', config: 'csvDialog',
+			kennedy: Editor.featureOnline, simple: Editor.featureOnline, fusion: true, fixed: ['fusion'],
+			sketch: Editor.featureOnline, min: Editor.featureOnline, atlas: Editor.featureOnline},
+		// Publish > Link (publishLinkDialog), Embed > IFrame, Notion, HTML,
+		// Image and SVG and the link or the code to embed (EmbedDialog) after
+		// them (embedDialog) on the Form template of Fusion: a headline with
+		// the file, sections, rows with labels, More options and the link or
+		// the code in a field with Copy (EmbedLayout.js) in the Classic skin in
+		// Simple, online first (the driver, as above); Classic, Sketch,
+		// Minimal and Atlas keep the dialogs of before unless the URL or the
+		// configuration switch them on; Fusion is built on them
+		publishLinkDialog: {url: 'publishLinkDialog', config: 'publishLinkDialog',
+			kennedy: false, simple: Editor.featureOnline, fusion: true, fixed: ['fusion']},
+		embedDialog: {url: 'embedDialog', config: 'embedDialog',
+			kennedy: false, simple: Editor.featureOnline, fusion: true, fixed: ['fusion']},
+		// Rename of files, pages and groups of pages on the Message template
+		// of Fusion: the headline with the file and where it is saved, the
+		// name on its own row (Editor.isRenameDialogEnabled,
+		// createPromptLayout in MessageTemplate.js) in the Classic skin in
+		// Simple, online first (the driver, 18 November 2026: Fusion's Rename
+		// in Simple); Classic keeps its dialog (the driver named only Simple)
+		// unless renameDialog switches it on; the other prompts keep theirs.
+		// Fusion is built on it, for all its prompts
+		renameDialog: {url: 'renameDialog', config: 'renameDialog',
+			kennedy: false, simple: Editor.featureOnline, fusion: true, fixed: ['fusion']},
+		// The sign-in to a storage as the Authorize dialog of Fusion: the
+		// headline, Remember Me, the Terms of Use, Cancel and Authorize with
+		// the logo of the storage, the end of a sign-in and the access to a
+		// file of Google Drive (Editor.isAuthDialogEnabled, AuthLayout.js) in
+		// the Classic skin in Classic and Simple (the driver, 18 November
+		// 2026), Sketch, Minimal and Atlas in the web app, the desktop app and
+		// the embed mode (the dialogs only show where the storages are
+		// offered), not in Confluence and Jira (atlas=1, which load the editor
+		// as kennedy or sketch), like newDialog; Fusion is built on it
+		authDialog: {url: 'authDialog', config: 'authDialog',
+			kennedy: Editor.featureNotAtlassian, simple: Editor.featureNotAtlassian,
+			fusion: true, fixed: ['fusion'], sketch: Editor.featureNotAtlassian,
+			min: Editor.featureNotAtlassian, atlas: Editor.featureNotAtlassian},
+		// Insert › Image and Edit Image on the layout of Fusion: the drop zone
+		// with Choose a File, the URL with Reset, a preview of the image, Crop
+		// and Embed on the left of the footer (Editor.isImageDialogEnabled,
+		// ImageDialog.createLayout in Dialogs.js) in the Classic skin in
+		// Simple (the driver, 18 November 2026: the image dialog of Simple
+		// replaced by the new one of Fusion); Classic, Sketch, Minimal and
+		// Atlas keep the dialog of before unless it is switched on; Fusion is
+		// built on it
+		imageDialog: {url: 'imageDialog', config: 'imageDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// Crop (Edit › Crop and the crop step of Insert › Image and Edit
+		// Image) on the layout of Fusion: the picture with the crop handles
+		// and its zoom next to the shape, the aspect ratio, the position and
+		// the size (Editor.isCropDialogEnabled, CropImageDialog.createLayout
+		// in Dialogs.js) in the Classic skin in Simple (the driver, 18
+		// November 2026: the crop dialog of Simple replaced by the new one of
+		// Fusion); Classic, Sketch, Minimal and Atlas keep the dialog of
+		// before unless it is switched on; Fusion is built on it
+		cropDialog: {url: 'cropDialog', config: 'cropDialog',
+			kennedy: false, simple: true, fusion: true, fixed: ['fusion']},
+		// Edit Link and Insert Link on the Form template of Fusion: the kind of
+		// the link as a list with the field of the chosen kind (the URL, the
+		// page or the custom action) and Open in New Window
+		// (Editor.isLinkDialogEnabled, createLinkLayout in FormTemplate.js) in
+		// the Classic skin in Simple, online first (the driver, 18 November
+		// 2026: Fusion's Edit Link in Simple); Classic keeps its dialog unless
+		// linkDialog switches it on; Fusion is built on it
+		linkDialog: {url: 'linkDialog', config: 'linkDialog',
+			kennedy: false, simple: Editor.featureOnline, fusion: true, fixed: ['fusion']},
+		// Save as (also Make a Copy, Move to Folder and the place of an export)
+		// on the Form template of Fusion: the headline with the file, the name,
+		// the format and the places of the dialog (Editor.isSaveDialogEnabled,
+		// createSaveLayout in FormTemplate.js) in the Classic skin in Simple,
+		// online first (the driver, 18 November 2026: Fusion's Save as in
+		// Simple); Classic keeps its dialog unless saveDialog switches it on;
+		// Fusion is built on it
+		saveDialog: {url: 'saveDialog', config: 'saveDialog',
+			kennedy: false, simple: Editor.featureOnline, fusion: true, fixed: ['fusion']},
+		// Layers, Tags and the Text Outline as panels in the place of the
+		// Format panel (EditorUi.isSidePanelEnabled in PanelHost.js) instead
+		// of the floating windows, with Back, Escape and the shortcut in the
+		// title, as a sheet on phones (the driver, 20 November 2026: batch 14
+		// of the plan of 13 November, the panels as Fusion has them) in Simple,
+		// online first; Classic, Sketch, Minimal and Atlas keep the windows
+		// unless the switches turn the panels on (not in Sketch and Minimal,
+		// whose Format panel is a window); Fusion has its own panels
+		layersPanel: {url: 'layersPanel', config: 'layersPanel',
+			kennedy: false, simple: Editor.featureOnline, fusion: false, fixed: ['fusion']},
+		tagsPanel: {url: 'tagsPanel', config: 'tagsPanel',
+			kennedy: false, simple: Editor.featureOnline, fusion: false, fixed: ['fusion']},
+		textOutlinePanel: {url: 'textOutlinePanel', config: 'textOutlinePanel',
+			kennedy: false, simple: Editor.featureOnline, fusion: false, fixed: ['fusion']},
+		// The width of the right panel (the Format panel and the panels of
+		// PanelHost.js) can be dragged on its left edge and is kept in the
+		// settings of the browser (EditorUi.updatePanelResizer, H33 of batch
+		// 19 of the plan of 13 November 2026) in Simple, online first; Fusion
+		// has its own panel
+		panelResize: {url: 'panelResize', config: 'panelResize',
+			kennedy: false, simple: Editor.featureOnline, fusion: false, fixed: ['fusion']},
+		// Touch as Fusion has it (TouchSupport.js, batch 20 of the plan of 13
+		// November 2026): a swipe scrolls menus and the shapes of the Shapes
+		// panel instead of choosing an item or dragging a shape, the click of
+		// the tap that closes a menu stays in the menu, the sheet of the
+		// panels on phones follows the finger, and buttons get larger hit
+		// areas with a coarse pointer; in Simple, online first; Fusion has its
+		// own code for its look
+		touchSupport: {url: 'touchSupport', config: 'touchSupport',
+			kennedy: false, simple: Editor.featureOnline, fusion: false, fixed: ['fusion']},
+		// One box with resize and rotation handles for several selected
+		// shapes of the diagram (Graph.MultiSelectionHandler, read by
+		// Graph.isMultiSelectionHandlesEnabled below) with the existing key
+		// multiSelectionHandles: on in Fusion on every platform since batch
+		// 46 (the driver, 9 November 2026), in Simple online first (the
+		// driver, 23 November 2026: "fusion und simple theme sollen default
+		// multiSelectionHandles true haben"), off in Classic, Sketch, Minimal
+		// and Atlas, where only a configured true turns it on, as before
+		multiSelectionHandles: {config: 'multiSelectionHandles',
+			kennedy: false, simple: Editor.featureOnline, fusion: true}
+	};
+
+	/**
+	 * Returns fusion while the theme Fusion is shown (Editor.isSimpleModern in
+	 * FusionTheme.js, which some bundles do not have), else the theme of
+	 * grapheditor/Editor.js.
+	 */
+	var editorGetFeatureTheme = Editor.getFeatureTheme;
+
+	Editor.getFeatureTheme = function()
+	{
+		return (typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern()) ?
+			'fusion' : editorGetFeatureTheme.apply(this, arguments);
+	};
+
+	/**
+	 * Returns the platform of this session as named in Editor.featureDefaults:
+	 * desktop in the desktop app, atlassian in Confluence and Jira (atlas=1,
+	 * which they embed), embed with embed=1, else the platform of
+	 * grapheditor/Editor.js (online).
+	 */
+	var editorGetFeaturePlatform = Editor.getFeaturePlatform;
+
+	Editor.getFeaturePlatform = function()
+	{
+		return (window.mxIsElectron) ? 'desktop' :
+			((urlParams['atlas'] == '1') ? 'atlassian' :
+			((urlParams['embed'] == '1') ? 'embed' :
+			editorGetFeaturePlatform.apply(this, arguments)));
+	};
+
+	/**
+	 * Returns true if Tidy up and Style my diagram are offered in the current
+	 * theme: the feature tidy of Editor.featureDefaults, where tidy=1 and
+	 * tidy=0 in the URL win over enableTidy in the configuration, which wins
+	 * over the default of the theme (on in Classic, the Simple theme, Sketch,
+	 * Minimal and Atlas in the web app and in Fusion).
+	 */
+	Editor.isTidyOn = function()
+	{
+		return Editor.isFeatureEnabled('tidy');
+	};
+
+	/**
+	 * Returns true if changes that are applied at once show the toast with
+	 * Undo: the feature undoToast of Editor.featureDefaults, where undoToast=1
+	 * and undoToast=0 in the URL win over undoToast in the configuration (Undo
+	 * Notifications), which wins over the default of the theme (on in Fusion,
+	 * Simple, Sketch and Minimal; off in Classic, also dark, and in Atlas, so
+	 * that they delete as before unless the configuration switches it on).
+	 * The theme is named as in Editor.featureDefaults (default is the current
+	 * theme). Without the toast the changes run as before.
+	 */
+	Editor.isUndoToastOn = function(theme)
+	{
+		return Editor.isFeatureEnabled('undoToast', theme);
+	};
+
+	/**
+	 * Returns true if several selected shapes get one box with resize and
+	 * rotation handles (Graph.MultiSelectionHandler): a configured
+	 * multiSelectionHandles: true for every graph, also the graphs of
+	 * dialogs, as before (the field of Graph.js), else for the graph of the
+	 * editor (themeMultiSelectionHandles, set in EditorUi.init) the feature
+	 * multiSelectionHandles of Editor.featureDefaults (on in Fusion and in
+	 * Simple online), which a configured false turns off in every theme. Not
+	 * the graphs of dialogs by default: the box would scale the points of
+	 * Edit Connection Points without the CELLS_MOVED that drops their stored
+	 * constraints, so Apply would keep the old points.
+	 */
+	var graphIsMultiSelectionHandlesEnabled = Graph.prototype.isMultiSelectionHandlesEnabled;
+
+	Graph.prototype.isMultiSelectionHandlesEnabled = function()
+	{
+		return graphIsMultiSelectionHandlesEnabled.apply(this, arguments) ||
+			(this.themeMultiSelectionHandles == true &&
+			Editor.isFeatureEnabled('multiSelectionHandles'));
+	};
+
+	/**
+	 * Returns true if the editor shows the icons of links on the cells of
+	 * the diagram: link-icons=1 and link-icons=0 in the URL win over
+	 * showLinkIcons in the configuration, which wins over the default of the
+	 * theme (the feature showLinkIcons of Editor.featureDefaults, on in
+	 * Fusion only). Editor.showLinkIcons, which the configuration and
+	 * plugins set, turns them on unless link-icons=0, as before.
+	 */
+	Editor.isLinkIconsEnabled = function()
+	{
+		return Editor.isFeatureEnabled('showLinkIcons') ||
+			(Editor.showLinkIcons == true && urlParams['link-icons'] != '0');
+	};
+
+	/**
+	 * Returns true if the editor shows the icons of tooltips on the cells of
+	 * the diagram, as Editor.isLinkIconsEnabled with tooltip-icons in the
+	 * URL, showTooltipIcons in the configuration, the feature
+	 * showTooltipIcons and Editor.showTooltipIcons (also set for the retired
+	 * plugin tooltips, see App.applyRetiredPlugin).
+	 */
+	Editor.isTooltipIconsEnabled = function()
+	{
+		return Editor.isFeatureEnabled('showTooltipIcons') ||
+			(Editor.showTooltipIcons == true && urlParams['tooltip-icons'] != '0');
+	};
+
+	/**
 	 * Specifies if insert animations should be shown. Default is true.
 	 */
 	Editor.insertAnimations = true;
@@ -533,12 +1307,16 @@
 	Editor.fitDiagramOnPage = true;
 
 	/**
-	 * Specifies if link icons should be shown on shapes. Default is false.
+	 * Specifies if link icons should be shown on shapes in every theme.
+	 * Default is false. Fusion shows them by default, see
+	 * Editor.isLinkIconsEnabled.
 	 */
 	Editor.showLinkIcons = false;
 
 	/**
-	 * Specifies if tooltip icons should be shown on shapes. Default is false.
+	 * Specifies if tooltip icons should be shown on shapes in every theme.
+	 * Default is false. Fusion shows them by default, see
+	 * Editor.isTooltipIconsEnabled.
 	 */
 	Editor.showTooltipIcons = false;
 
@@ -554,6 +1332,32 @@
 	Editor.tooltipFontSize = null;
 
 	/**
+	 * Specifies the font size of the labels of the ruler in pixels
+	 * (rulerFontSize in the configuration). Default is 9. The ruler grows
+	 * with a larger font, see mxRuler.getThickness.
+	 */
+	Editor.rulerFontSize = 9;
+
+	/**
+	 * Specifies the largest font size of the labels of the ruler in pixels.
+	 * A larger rulerFontSize in the configuration is reduced to this size,
+	 * so that the ruler never takes up the diagram. Default is 32.
+	 */
+	Editor.rulerMaxFontSize = 32;
+
+	/**
+	 * Specifies the color of the labels of the ruler in light mode
+	 * (rulerFontColor in the configuration). Default is #BBBBBB.
+	 */
+	Editor.rulerFontColor = '#BBBBBB';
+
+	/**
+	 * Specifies the color of the labels of the ruler in dark mode
+	 * (rulerDarkFontColor in the configuration). Default is #BBBBBB.
+	 */
+	Editor.rulerDarkFontColor = '#BBBBBB';
+
+	/**
 	 * Specifies the tooltip max-width in pixels. Default is 360. 0 means no limit.
 	 */
 	Editor.tooltipMaxWidth = 360;
@@ -563,6 +1367,119 @@
 	 * print and PDF export to avoid rasterization. Default is true.
 	 */
 	Editor.expandPatternsForPrint = true;
+
+	/**
+	 * Returns true if Print shows the preview of its sheets with the paper
+	 * and its orientation (createPrintLayout in PreviewDialog.js): the
+	 * feature printPreview of Editor.featureDefaults (printPreview in the
+	 * configuration), on in Classic, Simple, Sketch, Minimal and Atlas in the
+	 * web app and off in the desktop app, Confluence and Jira and the embed
+	 * mode, which get new dialogs a release later. The theme Fusion always
+	 * has it.
+	 */
+	Editor.isPrintPreviewEnabled = function()
+	{
+		return Editor.isFeatureEnabled('printPreview');
+	};
+
+	/**
+	 * Returns true if the actions of the export formats open the Export
+	 * dialog with their format (createExportLayout in PreviewDialog.js): the
+	 * feature exportDialog of Editor.featureDefaults (exportDialog in the
+	 * configuration), on in Classic, Simple, Sketch, Minimal and Atlas in the
+	 * web app and off in the desktop app, Confluence and Jira and the embed
+	 * mode, which get new dialogs a release later. The theme Fusion always has
+	 * it.
+	 */
+	Editor.isExportDialogEnabled = function()
+	{
+		return Editor.isFeatureEnabled('exportDialog');
+	};
+
+	/**
+	 * Returns true if Insert › Image and Edit Image show the layout of Fusion
+	 * in the Classic skin (ImageDialog.createLayout in Dialogs.js): the
+	 * feature imageDialog of Editor.featureDefaults (imageDialog in the
+	 * configuration and the URL), on in Simple and off in Classic, Sketch,
+	 * Minimal and Atlas, which keep the dialog of before. The theme Fusion
+	 * always has it (in its skin).
+	 */
+	Editor.isImageDialogEnabled = function()
+	{
+		return Editor.isFeatureEnabled('imageDialog');
+	};
+
+	/**
+	 * Returns true if Crop shows the layout of Fusion in the Classic skin
+	 * (CropImageDialog.createLayout in Dialogs.js): the feature cropDialog of
+	 * Editor.featureDefaults (cropDialog in the configuration and the URL),
+	 * on in Simple and off in Classic, Sketch, Minimal and Atlas, which keep
+	 * the dialog of before. The theme Fusion always has it (in its skin).
+	 */
+	Editor.isCropDialogEnabled = function()
+	{
+		return Editor.isFeatureEnabled('cropDialog');
+	};
+
+	/**
+	 * Returns true if the menus have one entry where they had a submenu:
+	 * File › Export... instead of Export as ▸ (the feature shortMenus of
+	 * Editor.featureDefaults, shortMenus in the configuration), which needs
+	 * the Export dialog (Editor.isExportDialogEnabled): on in Simple in the
+	 * web app and in Fusion, off in Classic, which keeps Export as ▸ with the
+	 * Export dialog behind its entries.
+	 */
+	Editor.isShortMenusEnabled = function()
+	{
+		return Editor.isFeatureEnabled('shortMenus');
+	};
+
+	/**
+	 * Returns true if Revision History shows the layout of Fusion in the
+	 * Classic skin (RevisionDialog.createLayout in Dialogs.js): the feature
+	 * revisionDialog of Editor.featureDefaults (revisionDialog in the
+	 * configuration and the URL), on in Simple and off in Classic, Sketch,
+	 * Minimal and Atlas, which keep the dialog of before. The theme Fusion
+	 * always has it (in its skin).
+	 */
+	Editor.isRevisionDialogEnabled = function()
+	{
+		return Editor.isFeatureEnabled('revisionDialog');
+	};
+
+	/**
+	 * Returns true if More Shapes shows the layout of Fusion in the Classic
+	 * skin (MoreShapesDialog.createLayout in Dialogs.js): the feature
+	 * moreShapesDialog of Editor.featureDefaults, on in Simple and off in
+	 * Classic, Sketch, Minimal and Atlas. The theme Fusion always has it.
+	 */
+	Editor.isMoreShapesDialogEnabled = function()
+	{
+		return Editor.isFeatureEnabled('moreShapesDialog');
+	};
+
+	/**
+	 * Returns true if Create Shape and Edit Shape show the layout of Fusion in
+	 * the Classic skin (EditShapeDialog.createLayout in Dialogs.js): the
+	 * feature editShapeDialog of Editor.featureDefaults, on in Simple and off
+	 * in Classic, Sketch, Minimal and Atlas. The theme Fusion always has it.
+	 */
+	Editor.isEditShapeDialogEnabled = function()
+	{
+		return Editor.isFeatureEnabled('editShapeDialog');
+	};
+
+	/**
+	 * Returns true if the background image dialog shows the layout of Fusion
+	 * in the Classic skin (BackgroundImageDialog.createLayout in Dialogs.js):
+	 * the feature backgroundDialog of Editor.featureDefaults, on in Simple and,
+	 * in the web app, in Classic, Sketch, Minimal and Atlas (since 22 November
+	 * 2026). The theme Fusion always has it.
+	 */
+	Editor.isBackgroundDialogEnabled = function()
+	{
+		return Editor.isFeatureEnabled('backgroundDialog');
+	};
 
 	/**
 	 * Specifies the default text style.
@@ -579,11 +1496,16 @@
 	
 	/**
 	 * Specifies if ChatGPT should be enabled. Default is true only
-	 * on app.diagrams.net (including test and preprod).
+	 * on app.diagrams.net (including test and preprod) and on the
+	 * Cloudflare Pages previews of drawio-dev (<branch>.drawio-dev.pages.dev,
+	 * which only the branches of this repository deploy to). The hosted
+	 * service (GENERATE_URL) takes requests only from the origins of its
+	 * allow-list (ALLOWED_HOST_SUFFIXES in cf-workers/generate3/lib/security.js).
 	 */
 	Editor.enableAi = (/test\.draw\.io$/.test(window.location.hostname)) ||
 		(/preprod\.diagrams\.net$/.test(window.location.hostname)) ||
-		(/app\.diagrams\.net$/.test(window.location.hostname));
+		(/app\.diagrams\.net$/.test(window.location.hostname)) ||
+		(/(^|\.)drawio-dev\.pages\.dev$/.test(window.location.hostname));
 	
 	/**
 	 * Available AI configurations.
@@ -3739,6 +4661,20 @@
 				Editor.enableTidy = config.enableTidy === true;
 			}
 
+			// The keys of the switches of features (Editor.featureDefaults),
+			// which the URL parameters of the features win over at the time
+			// of the check (Editor.isFeatureEnabled)
+			for (var name in Editor.featureDefaults)
+			{
+				var row = Editor.featureDefaults[name];
+
+				if (Object.prototype.hasOwnProperty.call(Editor.featureDefaults, name) &&
+					row.config != null && config[row.config] != null)
+				{
+					Editor.featureConfig[row.config] = config[row.config] === true;
+				}
+			}
+
 			if (config.experimentalHtmlInCanvasExport != null &&
 				urlParams['htmlInCanvas'] != '1' && urlParams['htmlInCanvas'] != '0')
 			{
@@ -3812,6 +4748,42 @@
 				}
 			}
 
+			if (config.rulerFontSize != null)
+			{
+				// Number instead of parseFloat, which accepts 12garbage, and
+				// finite, as JSON parses 1e309 as Infinity
+				var val = (typeof config.rulerFontSize === 'number' ||
+					typeof config.rulerFontSize === 'string') ?
+					Number(config.rulerFontSize) : NaN;
+
+				if (isFinite(val) && val > 0)
+				{
+					if (val > Editor.rulerMaxFontSize)
+					{
+						EditorUi.debug('Configuration Error: rulerFontSize reduced to ' +
+							Editor.rulerMaxFontSize);
+					}
+
+					Editor.rulerFontSize = Math.min(val, Editor.rulerMaxFontSize);
+				}
+				else
+				{
+					EditorUi.debug('Configuration Error: Number > 0 expected for rulerFontSize');
+				}
+			}
+
+			// Fill styles of the canvas of the ruler, which draws an invalid
+			// color in the default color (see mxRuler)
+			if (typeof config.rulerFontColor === 'string')
+			{
+				Editor.rulerFontColor = config.rulerFontColor;
+			}
+
+			if (typeof config.rulerDarkFontColor === 'string')
+			{
+				Editor.rulerDarkFontColor = config.rulerDarkFontColor;
+			}
+
 			if (config.tooltipMaxWidth != null)
 			{
 				var val = parseInt(config.tooltipMaxWidth);
@@ -3836,6 +4808,11 @@
 				Editor.showConnectHandle = config.showConnectHandle;
 			}
 
+			// Two switches as in release 32.7.5, each applied on its own, so that
+			// a later configuration, such as the stored one of the Configuration
+			// dialog after DRAWIO_CONFIG, wins key by key (the driver, 22
+			// November 2026; replaces the resolution of the alias of the Codex
+			// review of #1490)
 			if (config.enableInlineToolbar != null)
 			{
 				Editor.enableInlineToolbar = config.enableInlineToolbar;
@@ -4001,7 +4978,7 @@
 			{
 				Sidebar.prototype.expandLibraries = config.expandLibraries;
 			}
-			
+
 			if (config.appendCustomLibraries != null)
 			{
 				Sidebar.prototype.appendCustomLibraries = config.appendCustomLibraries;
@@ -4266,6 +5243,24 @@
 				else
 				{
 					EditorUi.debug('Configuration Error: Int > 0 expected for sidebarTitleSize');
+				}
+			}
+
+			// The maximum number of entries of the library In This Diagram
+			// (UsedShapes.js, the kinds used most), 0 for no limit
+			if (config.usedShapesMax != null)
+			{
+				var val = (typeof config.usedShapesMax === 'number' ||
+					typeof config.usedShapesMax === 'string') ?
+					parseInt(config.usedShapesMax) : NaN;
+
+				if (!isNaN(val) && val >= 0)
+				{
+					EditorUi.usedShapesMax = val;
+				}
+				else
+				{
+					EditorUi.debug('Configuration Error: Int >= 0 expected for usedShapesMax');
 				}
 			}
 			
@@ -7283,11 +8278,13 @@
     
     /**
      * Embeds the external fonts in the given font lookup. Default lookup
-     * is Graph.customFontElements.
+     * is Graph.customFontElements. The optional graph has the fonts of the
+     * file (extFonts), default is the graph of the editor.
      */
-    Editor.prototype.embedExtFonts = function(callback, lookup)
+    Editor.prototype.embedExtFonts = function(callback, lookup, graph)
     {
-    	var extFonts = this.graph.getCustomFonts(lookup);
+		graph = (graph != null) ? graph : this.graph;
+		var extFonts = graph.getCustomFonts(lookup);
 		
 		if (extFonts.length > 0)
 		{
@@ -8730,6 +9727,183 @@
 		};
 
 		/**
+		 * The named themes of the Style tab (the feature namedThemes) as the
+		 * Diagram tab of Fusion names them: Default and the Classic colors
+		 * (Editor.fusionClassicThemes, with their adjusted entries and
+		 * textDefault). With the configuration key styles its entries, each
+		 * with its name (Editor.getStyleThemeName) or Theme n, and one
+		 * Default (DiagramStylePanel.getNamedGraphStyles in Format.js).
+		 */
+		var diagramStylePanelGetNamedGraphStyles = DiagramStylePanel.prototype.getNamedGraphStyles;
+
+		DiagramStylePanel.prototype.getNamedGraphStyles = function()
+		{
+			var result = diagramStylePanelGetNamedGraphStyles.apply(this, arguments);
+
+			if (Editor.config != null && Editor.config.styles != null)
+			{
+				for (var i = 0; i < result.length; i++)
+				{
+					var s = Editor.styles[result[i].index];
+					var name = (s != null) ? Editor.getStyleThemeName(s.name) : null;
+
+					if (name != null)
+					{
+						result[i].name = name;
+					}
+				}
+			}
+			else if (Editor.styles != null && Editor.fusionClassicThemes != null)
+			{
+				result = [{name: mxResources.get('default'), index: 0}];
+
+				for (var i = 0; i < Editor.fusionClassicThemes.length; i++)
+				{
+					var t = Editor.fusionClassicThemes[i];
+
+					if (Editor.styles[t.index] != null)
+					{
+						result.push({name: mxResources.get(t.name), index: t.index,
+							entry: t.entry, textDefault: t.textDefault});
+					}
+				}
+			}
+
+			return result;
+		};
+
+		/**
+		 * The grid of the Style tab of Simple applies and shows a theme as
+		 * the named tiles of Simple did (the row namedThemes, on in Simple
+		 * online until 23 November 2026; Codex, PR 1525): a click is one edit
+		 * with the current styles of new cells (Format.CurrentStyleChange),
+		 * so undo and redo also give new cells the theme they had, a click
+		 * that changes nothing is no undo step and one on an empty page is
+		 * an undo step that does not modify the file; Teal and Navy of the
+		 * default themes give free text the default font color, also in the
+		 * preview, as the grid leaves the page white (textDefault of
+		 * Editor.fusionClassicThemes, not with the configuration key styles).
+		 * Classic, Sketch, Minimal and Atlas keep the grid of before
+		 * (DiagramStylePanel.getGraphStyleGridTheme in Format.js).
+		 */
+		DiagramStylePanel.prototype.getGraphStyleGridTheme = function(index, entry)
+		{
+			var theme = null;
+
+			if (Editor.getFeatureTheme() == 'simple')
+			{
+				theme = {index: index, entry: entry};
+
+				if ((Editor.config == null || Editor.config.styles == null) &&
+					Editor.fusionClassicThemes != null)
+				{
+					for (var i = 0; i < Editor.fusionClassicThemes.length; i++)
+					{
+						var t = Editor.fusionClassicThemes[i];
+
+						if (t.index == index && t.textDefault)
+						{
+							theme.textDefault = true;
+						}
+					}
+				}
+			}
+
+			return theme;
+		};
+
+		/**
+		 * Adds Arrange My Diagram... and Style My Diagram... after Edit Data...
+		 * and Clear Default Style in the Diagram tab of Simple (the driver, 23
+		 * November 2026), each a button of the full width that runs the action
+		 * of the layout menu: chooseLayout (the layout picker, Menus.js) and
+		 * styleMyDiagram (tidy/TidyActions.js). As the other buttons of the
+		 * panel, a button is only there while its action is enabled
+		 * (addAction). Classic, Sketch, Minimal and Atlas keep the buttons of
+		 * before, Fusion has its own Diagram tab (its feature theme is fusion).
+		 */
+		var diagramFormatPanelAddStyleOps = DiagramFormatPanel.prototype.addStyleOps;
+
+		DiagramFormatPanel.prototype.addStyleOps = function(div)
+		{
+			div = diagramFormatPanelAddStyleOps.apply(this, arguments);
+
+			if (this.isDiagramToolsVisible())
+			{
+				this.addDiagramTool(div, 'chooseLayout', 'arrangeMyDiagram');
+				this.addDiagramTool(div, 'styleMyDiagram', 'styleMyDiagram');
+			}
+
+			return div;
+		};
+
+		/**
+		 * Returns true if the Diagram tab has the buttons of Arrange My
+		 * Diagram... and Style My Diagram...: in Simple.
+		 */
+		DiagramFormatPanel.prototype.isDiagramToolsVisible = function()
+		{
+			return Editor.getFeatureTheme() == 'simple';
+		};
+
+		/**
+		 * Adds the button of the given action with the label of the given
+		 * resource (getDiagramToolLabel) and a line break after it, as
+		 * addActions adds one button. Returns the button or null if the action
+		 * is missing or disabled.
+		 */
+		DiagramFormatPanel.prototype.addDiagramTool = function(div, name, key)
+		{
+			var btn = this.addAction(div, name);
+
+			if (btn != null)
+			{
+				var label = DiagramFormatPanel.getDiagramToolLabel(key);
+				btn.innerText = '';
+				mxUtils.write(btn, label);
+				btn.setAttribute('title', label);
+				mxUtils.br(div);
+			}
+
+			return btn;
+		};
+
+		/**
+		 * Words that Title Case writes in lower case (getDiagramToolLabel).
+		 */
+		DiagramFormatPanel.titleCaseSmallWords = ['a', 'an', 'the', 'and', 'but', 'or',
+			'for', 'on', 'at', 'to', 'by', 'of', 'in', 'with', 'from', 'as'];
+
+		/**
+		 * Returns the given resource with ... for a button of the Diagram tab of
+		 * Simple: in Title Case where the resources are English, as the other
+		 * labels of the tab (Edit Data..., Clear Default Style), as Arrange my
+		 * diagram and Style my diagram are in sentence case for Fusion and the
+		 * layout menu; other languages show their resource. Only the display
+		 * changes, the resources stay as they are.
+		 */
+		DiagramFormatPanel.getDiagramToolLabel = function(key)
+		{
+			var label = mxResources.get(key);
+			var lan = (typeof PreviewDialog !== 'undefined' &&
+				typeof PreviewDialog.getResourceLanguage === 'function') ?
+				PreviewDialog.getResourceLanguage() : mxClient.language;
+
+			if (lan != null && String(lan).split(/[-_]/)[0].toLowerCase() == 'en')
+			{
+				var small = DiagramFormatPanel.titleCaseSmallWords;
+
+				label = label.split(' ').map(function(word, index)
+				{
+					return (index > 0 && mxUtils.indexOf(small, word) >= 0) ? word :
+						word.charAt(0).toUpperCase() + word.substring(1);
+				}).join(' ');
+			}
+
+			return label + '...';
+		};
+
+		/**
 		 * Option is not visible in default theme.
 		 */
 	    DiagramFormatPanel.prototype.isMathOptionVisible = function(div)
@@ -9164,8 +10338,8 @@
 
 		// Space between the lanes of a tie (see mxGraphView.updateTieLayout)
 		mxCellRenderer.defaultShapes['tie'].prototype.customProperties = [
-			{name: 'tieSpacing', dispName: 'Spacing', type: 'float', min: 0, max: 100,
-				defVal: Graph.prototype.defaultTieSpacing}
+			{name: 'tieSpacing', dispName: 'Spacing', type: 'float', min: 0,
+				max: Graph.prototype.maxTieSpacing, defVal: Graph.prototype.defaultTieSpacing}
 		];
 
 		/**
@@ -12916,16 +14090,25 @@
 	 * Graph.nextToggleStyleValue for the value semantics. Like
 	 * mxGraph.toggleCellStyles, the first cell decides the target state for
 	 * all cells so a toggle link moves every cell in lockstep; `defaultValue`
-	 * is what a missing key counts as.
+	 * is what a missing key counts as. If inView is true then the style is
+	 * changed only in this view (see Graph.setCellStylesInView).
 	 */
-	Graph.prototype.toggleCellStyleValues = function(key, value, defaultValue, cells)
+	Graph.prototype.toggleCellStyleValues = function(key, value, defaultValue, cells, inView)
 	{
 		if (cells != null && cells.length > 0)
 		{
 			var current = mxUtils.getValue(this.getCurrentCellStyle(cells[0]),
 				key, defaultValue);
-			this.setCellStyles(key, Graph.nextToggleStyleValue(
-				current, value, defaultValue), cells);
+			var next = Graph.nextToggleStyleValue(current, value, defaultValue);
+
+			if (inView)
+			{
+				this.setCellStylesInView(key, next, cells);
+			}
+			else
+			{
+				this.setCellStyles(key, next, cells);
+			}
 		}
 	};
 
@@ -13001,6 +14184,36 @@
 				{
 					updatingModel = false;
 					this.model.endUpdate();
+				}
+			});
+
+			// Model path of the show, hide and toggle steps (toggle if visible
+			// is null). In a diagram that cannot be edited (a locked file or a
+			// read-only window, see isCellViewLocal) the cells are shown and
+			// hidden only in this view, as the layers in the Layers window: a
+			// model change would mark the file as modified, save and sync it.
+			// The style and toggleStyle steps below do the same. The changes
+			// of earlier steps are ended first, so that the view applies the
+			// steps in order.
+			var setVisible = mxUtils.bind(this, function(cells, visible)
+			{
+				if (this.isCellViewLocal())
+				{
+					endUpdate();
+					this.setCellsVisibleInView(cells, visible);
+				}
+				else
+				{
+					beginUpdate();
+
+					if (visible == null)
+					{
+						this.toggleCells(cells);
+					}
+					else
+					{
+						this.setCellsVisible(cells, visible);
+					}
 				}
 			});
 
@@ -13255,12 +14468,11 @@
 					{
 						if (!isTransient(action.toggle))
 						{
-							beginUpdate();
 							// Model path: resolve layers to the layer cell
 							// itself so its `visible` is toggled (cascading
 							// to descendants), not each child's flag.
-							this.toggleCells(this.getCellsForAction(
-								action.toggle, true, true));
+							setVisible(this.getCellsForAction(
+								action.toggle, true, true), null);
 						}
 						else
 						{
@@ -13281,11 +14493,10 @@
 						}
 						else
 						{
-							beginUpdate();
 							// Layers → the layer cell itself, so its `visible`
 							// is set (cascading to children) instead of each
 							// descendant's flag.
-							this.setCellsVisible(this.getCellsForAction(
+							setVisible(this.getCellsForAction(
 								action.show, true, true), true);
 						}
 					}
@@ -13301,8 +14512,7 @@
 						}
 						else
 						{
-							beginUpdate();
-							this.setCellsVisible(this.getCellsForAction(
+							setVisible(this.getCellsForAction(
 								action.hide, true, true), false);
 						}
 					}
@@ -13318,9 +14528,22 @@
 
 						if (!isTransient(action.toggleStyle))
 						{
-							beginUpdate();
+							// Only in this view if the diagram cannot be
+							// edited (see setVisible above)
+							var toggleInView = this.isCellViewLocal();
+
+							if (toggleInView)
+							{
+								endUpdate();
+							}
+							else
+							{
+								beginUpdate();
+							}
+
 							this.toggleCellStyleValues(action.toggleStyle.key,
-								toggleValue, defValue, toggleStyleCells);
+								toggleValue, defValue, toggleStyleCells,
+								toggleInView);
 						}
 						else
 						{
@@ -13335,9 +14558,20 @@
 
 						if (!isTransient(action.style))
 						{
-							beginUpdate();
-							this.setCellStyles(action.style.key,
-								action.style.value, styleCells);
+							// Only in this view if the diagram cannot be
+							// edited (see setVisible above)
+							if (this.isCellViewLocal())
+							{
+								endUpdate();
+								this.setCellStylesInView(action.style.key,
+									action.style.value, styleCells);
+							}
+							else
+							{
+								beginUpdate();
+								this.setCellStyles(action.style.key,
+									action.style.value, styleCells);
+							}
 						}
 						else
 						{
@@ -13950,7 +15184,40 @@
 			(cell == this.model.getRoot() ||
 			!this.isAllTagsHidden(this.getTagsForCell(cell)));
 	};
-  
+
+	/**
+	 * Invalidates a cell whose tags change its visibility with its
+	 * descendants and the edges connected to these, as for a cell that is
+	 * hidden or shown in the model (see mxGraph.removeStateForCell). The
+	 * validation then removes or creates their states and updates the edges
+	 * that end at them or at a visible ancestor or collapsed cell above them
+	 * (see mxGraphView.getVisibleTerminal). A change of the value only
+	 * invalidates the cell itself.
+	 */
+	var graphProcessChange = Graph.prototype.processChange;
+	Graph.prototype.processChange = function(change)
+	{
+		graphProcessChange.apply(this, arguments);
+
+		if (change instanceof mxValueChange && this.hiddenTags.length > 0)
+		{
+			// The previous value is the value that the change replaced
+			var prev = change.previous;
+			var tags = (prev != null && typeof prev === 'object' &&
+				typeof prev.getAttribute === 'function') ?
+				prev.getAttribute('tags') : null;
+
+			// Cells outside of the model need no check, which would walk all
+			// ancestors of each cell, as their descendants are not validated
+			// (see mxGraphView.getValidationVisibility)
+			if (this.isAllTagsHidden(tags || '') !=
+				this.isAllTagsHidden(this.getTagsForCell(change.cell)))
+			{
+				this.view.invalidate(change.cell, true, true);
+			}
+		}
+	};
+
 	/**
 	 * Returns the tags for the given cell as a string.
 	 */
@@ -14535,6 +15802,7 @@
 	mxStencilRegistry.libraries['bootstrap'] = [SHAPES_PATH + '/mxBootstrap.js', SHAPES_PATH + '/mxBasic.js', STENCIL_PATH + '/bootstrap.xml'];
 	mxStencilRegistry.libraries['gmdl'] = [SHAPES_PATH + '/mxGmdl.js', STENCIL_PATH + '/gmdl.xml'];
 	mxStencilRegistry.libraries['gcp2'] = [SHAPES_PATH + '/mxGCP2.js', STENCIL_PATH + '/gcp2.xml'];
+	mxStencilRegistry.libraries['cloudflare'] = [SHAPES_PATH + '/mxCloudflare.js', STENCIL_PATH + '/cloudflare.xml'];
 	mxStencilRegistry.libraries['ibm'] = [SHAPES_PATH + '/mxIBM.js', STENCIL_PATH + '/ibm.xml'];
 	mxStencilRegistry.libraries['ibmcloud'] = [STENCIL_PATH + '/ibm_cloud.xml'];
 	mxStencilRegistry.libraries['cabinets'] = [SHAPES_PATH + '/mxCabinets.js', STENCIL_PATH + '/cabinets.xml'];
@@ -14625,6 +15893,10 @@
 	{
 		var graph = editorUi.editor.graph;
 		var div = document.createElement('div');
+		// The PDF of the Export dialog (see showExportFormatDialog in
+		// PreviewDialog.js), which stores its settings as the last export
+		var exportPdf = typeof editorUi.isExportPending === 'function' &&
+			editorUi.isExportPending('pdf');
 		// Flex column so the footer buttons stay pinned at the bottom and the
 		// content area scrolls if the dialog is capped by viewport max-height.
 		div.style.display = 'flex';
@@ -15173,6 +16445,14 @@
 			editorUi.lastPrintSheetsAcross = sheetsAcrossInput.value;
 			editorUi.lastPrintSheetsDown = sheetsDownInput.value;
 
+			// The PDF of the Export dialog stores its format and settings as the
+			// last export once they are written here, as printing without an
+			// export service (fn == null) calls this after the click (doPreview)
+			if (print && exportPdf && typeof editorUi.storeLastExport === 'function')
+			{
+				editorUi.storeLastExport('pdf');
+			}
+
 			var args = {};
 			args.border = parseInt(borderInput.value);
 			args.scale = parseInt(zoomInput.value) / 100;
@@ -15311,6 +16591,19 @@
 			};
 
 			editorUi.editor.addListener('hideDialog', removeListener);
+		}
+
+		// Print with a preview of the sheets and the paper on the Preview
+		// template in Classic, Simple, Sketch, Minimal and Atlas (Fusion has
+		// its own layout, see createSimplePrintLayout), also for the PDF of the
+		// Export dialog (see createExportLayout), else the PDF export keeps
+		// this dialog
+		if (((fn == null && Editor.isPrintPreviewEnabled()) || exportPdf) && !editorUi.editor.isChromelessView() &&
+			typeof PreviewDialog !== 'undefined' && typeof editorUi.createPrintLayout === 'function' &&
+			PreviewDialog.getSkin() == PreviewDialog.skins.classic &&
+			editorUi.createPrintLayout(div, fn != null) != null)
+		{
+			this.width = PreviewDialog.printWidth;
 		}
 
 		this.container = div;

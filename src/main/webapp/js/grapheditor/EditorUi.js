@@ -355,9 +355,12 @@ EditorUi = function(editor, container, lightbox)
 		// Creates hover icons
 		this.hoverIcons = this.createHoverIcons();
 
-		// Creates inline toolbar
-		this.inlineToolbar = (Editor.enableInlineToolbar) ?
-			this.createInlineToolbar() : null;
+		// Creates the inline toolbar unless enableInlineToolbar switches it off
+		// (a switch of the theme without a restart may change the default of
+		// shapes, see Editor.isInlineToolbarEnabled and
+		// Editor.isShapeInlineToolbarEnabled)
+		this.inlineToolbar = (Editor.getInlineToolbarConfig() !== false ||
+			Editor.isInlineToolbarEnabled()) ? this.createInlineToolbar() : null;
 
 		// Zoom Preview
 		this.editor.graph.addListener('zoomPreview', mxUtils.bind(this, function(sender, evt)
@@ -488,12 +491,15 @@ EditorUi = function(editor, container, lightbox)
 			// In passive scroll mode, only handle keyboard events when the
 			// graph container or one of its children has focus.  This prevents
 			// the embedded editor from capturing keystrokes meant for the host.
+			// F10 also moves the focus to the top bar from the other controls
+			// of the editor, eg. its toolbar (see focusTopBar).
 			if (Editor.passiveScroll)
 			{
 				var src = mxEvent.getSource(evt);
 
 				if (graph.container == null || (src != graph.container && !graph.container.contains(src) &&
-					!graph.isEditing()))
+					!graph.isEditing() && (evt.keyCode != 121 /* F10 */ ||
+					!mxUtils.isAncestorNode(this.container, src))))
 				{
 					return;
 				}
@@ -559,6 +565,16 @@ EditorUi = function(editor, container, lightbox)
 					graph.container.focus();
 				}
 			}
+			// F10 moves the focus to the top bar, the convention of menu bars
+			// (Shift+F10 opens the context menu), not over a dialog or another
+			// modal element, eg. a presentation, whose keys stay in it (see
+			// focusTopBar)
+			else if (!mxEvent.isConsumed(evt) && evt.keyCode == 121 /* F10 */ && this.dialog == null &&
+				!mxEvent.isShiftDown(evt) && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt) &&
+				!mxEvent.isAltDown(evt) && this.focusTopBar())
+			{
+				mxEvent.consume(evt);
+			}
 			// Tab and Shift+Tab follow the reading order of the user interface,
 			// not the order of the DOM (see getTabStops, onKeyDown for the diagram)
 			else if (!mxEvent.isConsumed(evt) && evt.keyCode == 9 /* Tab */ && this.dialog == null &&
@@ -597,6 +613,7 @@ EditorUi = function(editor, container, lightbox)
 		});
 
 		mxEvent.addListener(document, 'keydown', this.keydownHandler);
+		this.installEllipsisTitles();
 
 		// Tab continues from the last click, also if it did not move the focus,
 		// eg. on a toolbar button, until another key is pressed (see getTabStart)
@@ -772,6 +789,7 @@ EditorUi = function(editor, container, lightbox)
 		this.addListener('languageChanged', mxUtils.bind(this, function()
 		{
 			this.destroyWindows(true);
+			this.rebuildPanels();
 			this.descriptorChanged();
 			this.updateStatusAgain();
 			updateToolbar();
@@ -1029,6 +1047,26 @@ EditorUi = function(editor, container, lightbox)
 					graph.currentVertexStyle, graph.currentEdgeStyle,
 					vertexStyleIgnored, edgeStyleIgnored, evt.getProperty('edgeLabel'),
 					force);
+
+				// A font color written into the current vertex style of a named
+				// theme with textDefault (Teal or Navy of Simple) ends the default
+				// font color of new text, also if it is the font color of the theme:
+				// a picked font color stays (pasteTextDefaultFontColor). Undo and redo
+				// of the theme keep it, as they swap the marker with the current
+				// styles (Format.CurrentStyleChange). Fusion has its own listener
+				// (installSimpleCalm in SimpleCalm.js)
+				var keys = evt.getProperty('keys');
+				var values = evt.getProperty('values');
+				var index = (keys != null) ? mxUtils.indexOf(keys, mxConstants.STYLE_FONTCOLOR) : -1;
+				var current = graph.currentVertexStyle;
+
+				if (index >= 0 && values != null && current != null &&
+					graph.textDefaultVertexStyle === current &&
+					current[mxConstants.STYLE_FONTCOLOR] == values[index])
+				{
+					graph.textDefaultVertexStyle = null;
+					graph.textDefaultFontColor = null;
+				}
 			}
 
 			if (this.toolbar != null)
@@ -1354,20 +1392,90 @@ EditorUi.prototype.updateDefaultStyle = false;
  * they insert. Only the keys the cells do not set are written (see
  * Graph.pasteCellStyles). The optional target is the graph of the cells if
  * they are not in the diagram (the clones of a drag preview of the sidebar),
- * which gets the default styles of the diagram.
+ * which gets the default styles of the diagram. New free text gets the
+ * default font color of a named theme with textDefault
+ * (pasteTextDefaultFontColor).
  */
 EditorUi.prototype.pasteNewCellStyles = function(cells, target)
 {
 	var graph = this.editor.graph;
 
-	if (target != null)
+	this.pasteTextDefaultFontColor(cells, target, function()
 	{
-		target.pasteCellStyles(cells, graph.currentVertexStyle, graph.currentEdgeStyle,
-			null, graph.pasteEdgeStyle, graph.pasteStylesToText);
+		if (target != null)
+		{
+			target.pasteCellStyles(cells, graph.currentVertexStyle, graph.currentEdgeStyle,
+				null, graph.pasteEdgeStyle, graph.pasteStylesToText);
+		}
+		else
+		{
+			graph.pasteCellStyles(cells);
+		}
+	});
+};
+
+/**
+ * Runs fn, which pastes the current styles to the given new cells, and then
+ * gives the new free text without a font color of its own the default font
+ * color while the current vertex style is that of a named theme with
+ * textDefault (Teal and Navy, whose light font is for their dark fills;
+ * graph.textDefaultVertexStyle, kept by identity, see
+ * DiagramStylePanel.applyNamedGraphStyle) with the font color of the theme
+ * (graph.textDefaultFontColor: a font color picked since with
+ * updateDefaultStyle stays, and a pick of any font color drops the marker,
+ * see the listener of styleChanged), as the text of the page got it:
+ * pasteNewCellStyles and the shapes of the shape picker. The optional target
+ * is the graph of the cells if they are not in the diagram. Fusion has its
+ * own (pasteTextDefaultStyles in SimpleCalm.js).
+ */
+EditorUi.prototype.pasteTextDefaultFontColor = function(cells, target, fn)
+{
+	var graph = this.editor.graph;
+	var current = graph.currentVertexStyle;
+	var g = (target != null) ? target : graph;
+	var texts = [];
+
+	if (current != null && graph.textDefaultVertexStyle === current &&
+		current[mxConstants.STYLE_FONTCOLOR] != null &&
+		current[mxConstants.STYLE_FONTCOLOR] == graph.textDefaultFontColor &&
+		typeof g.isFreeTextCell === 'function')
+	{
+		for (var i = 0; i < cells.length; i++)
+		{
+			if (g.isFreeTextCell(cells[i]) && !/(^|;)fontColor=/.test(g.model.getStyle(cells[i])))
+			{
+				texts.push(cells[i]);
+			}
+		}
 	}
-	else
+
+	if (texts.length > 0)
 	{
-		graph.pasteCellStyles(cells);
+		g.model.beginUpdate();
+	}
+
+	try
+	{
+		fn();
+
+		for (var i = 0; i < texts.length; i++)
+		{
+			var style = g.model.getStyle(texts[i]);
+			var match = /(?:^|;)fontColor=([^;]*)/.exec(style);
+
+			if (match != null && match[1] == current[mxConstants.STYLE_FONTCOLOR])
+			{
+				g.model.setStyle(texts[i], mxUtils.setStyle(style,
+					mxConstants.STYLE_FONTCOLOR, 'default'));
+			}
+		}
+	}
+	finally
+	{
+		if (texts.length > 0)
+		{
+			g.model.endUpdate();
+		}
 	}
 };
 
@@ -2755,10 +2863,16 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 				}
 				else
 				{
-					this.sidebar.graph.pasteCellStyles([cell],
-						graph.currentVertexStyle,
-						graph.currentEdgeStyle, null, null,
-						graph.pasteStylesToText);
+					// New free text of a named theme with textDefault gets the
+					// default font color here too, as addCell fires no
+					// cellsInserted (see shapePickerCellAdded)
+					this.pasteTextDefaultFontColor([cell], this.sidebar.graph, mxUtils.bind(this, function()
+					{
+						this.sidebar.graph.pasteCellStyles([cell],
+							graph.currentVertexStyle,
+							graph.currentEdgeStyle, null, null,
+							graph.pasteStylesToText);
+					}));
 				}
 			}
 
@@ -3483,6 +3597,69 @@ EditorUi.prototype.getPaletteStyle = function(cell, entry, previous)
 };
 
 /**
+ * Returns true if searchShapePickerCells searches the shapes of all
+ * libraries like the search of the shape picker. This implementation
+ * returns false (the app adds the search, see diagramly/EditorUi.js).
+ */
+EditorUi.prototype.canSearchShapePickerCells = function()
+{
+	return false;
+};
+
+/**
+ * Searches the shapes of all libraries for the given term and calls the given
+ * function once with the cells and titles found and more, which is true if
+ * there are more shapes ({cells, titles, more}), see
+ * canSearchShapePickerCells. The optional isCurrent function returns false
+ * once the answer is no longer needed, the optional accept function false
+ * for cells that are skipped. The optional count is the number of shapes to
+ * find, the optional from the result of a previous search for the same term,
+ * after whose shapes the search goes on; with the optional quick, the shapes
+ * found are returned at once instead of waiting for more. Returns true if the
+ * function is called later. This implementation finds nothing.
+ */
+EditorUi.prototype.searchShapePickerCells = function(term, fn, isCurrent, accept, count, from, quick)
+{
+	fn({cells: [], titles: [], more: false});
+
+	return false;
+};
+
+/**
+ * Searches the next page of shapes for More Results of the shape picker
+ * (addShapePickerSearch in diagramly/EditorUi.js) and of the Shape popover
+ * of the inline toolbar: like searchShapePickerCells with quick, the given
+ * count of shapes after the given result of the search before (null for the
+ * first shapes), and calls the given function once with them. Pages with no
+ * shapes that can be shown (connectors, groups, cells that accept skips) end
+ * a search of searchShapePickerCells after a few pages: this search goes on
+ * after them while there are more, so it never ends with no shapes while
+ * later pages have some (No Results without More Results, or More Results
+ * that adds nothing). Returns true if the function is called later.
+ */
+EditorUi.prototype.searchShapePickerPage = function(term, fn, isCurrent, accept, count, from)
+{
+	var called = false;
+
+	var handle = mxUtils.bind(this, function(found)
+	{
+		if (found.cells.length == 0 && found.more && (isCurrent == null || isCurrent()))
+		{
+			this.searchShapePickerCells(term, handle, isCurrent, accept, count, found, true);
+		}
+		else
+		{
+			called = true;
+			fn(found);
+		}
+	});
+
+	this.searchShapePickerCells(term, handle, isCurrent, accept, count, from, true);
+
+	return !called;
+};
+
+/**
  * Returns true if a shape picker is shown. A picker that was removed with the
  * contents of its container is not (see hideShapePicker).
  */
@@ -3532,6 +3709,747 @@ EditorUi.prototype.hideShapePicker = function(cancel)
 			this.inlineToolbar.setSuspended(false);
 		}
 	}
+};
+
+/**
+ * Specifies if the Hand tool is on (see setPanMode). Default is false.
+ */
+EditorUi.prototype.panMode = false;
+
+/**
+ * Set while a mouse down is dispatched to the handlers of the graph in the
+ * Hand tool: the graph is disabled for them, so none of them starts a gesture
+ * (see installHandTool). Default is false.
+ */
+EditorUi.prototype.handDown = false;
+
+/**
+ * True while a chain of steps of custom links runs that started where the
+ * Hand tool selects nothing, so its steps change only this view (see
+ * installHandTool).
+ */
+EditorUi.prototype.handToolActions = false;
+
+/**
+ * Returns true if the Hand tool is offered: in the Simple theme (the button
+ * of the top bar, else View › Hand Tool, which replaces Read-only there, and
+ * the key H) and in Fusion
+ * (its tool pill and H). Classic, Sketch and Minimal keep Read-only in the
+ * View menu. Not in chromeless views and inline embedding.
+ */
+EditorUi.prototype.isHandToolEnabled = function()
+{
+	return Editor.currentTheme == 'simple' && !this.editor.chromeless &&
+		urlParams['embedInline'] != '1';
+};
+
+/**
+ * Returns true if the Hand tool is on (see setPanMode).
+ */
+EditorUi.prototype.isPanMode = function()
+{
+	return this.panMode == true;
+};
+
+/**
+ * Returns true if a drawing tool is drawing, which the Hand tool leaves the
+ * mouse to (see diagramly/EditorUi.js). This implementation returns false.
+ */
+EditorUi.prototype.isDrawing = function()
+{
+	return false;
+};
+
+/**
+ * Stops the drawing tools (see isDrawing). This implementation does nothing.
+ */
+EditorUi.prototype.stopDrawing = function() { };
+
+/**
+ * Returns true if the pointer is coarse (touch), which has no keys for
+ * gestures such as Alt+Shift+drag (formerly in SimpleUi.js, where the tokens
+ * of Fusion use 44 px targets then).
+ */
+EditorUi.prototype.isCoarsePointer = function()
+{
+	return window.matchMedia != null && window.matchMedia('(pointer: coarse)').matches;
+};
+
+/**
+ * Returns true if the given event comes from a finger or a pen, or if the
+ * pointer is coarse (see isCoarsePointer): the primary pointer of a
+ * touchscreen laptop is fine, but a tap there has no keys for gestures
+ * either.
+ */
+EditorUi.prototype.isCoarseEvent = function(evt)
+{
+	return this.isCoarsePointer() || (evt != null &&
+		(mxEvent.isTouchEvent(evt) || mxEvent.isPenEvent(evt)));
+};
+
+/**
+ * Returns true if the mouse is a hand on the canvas: the Hand tool is on and
+ * nothing is drawn (see setPanMode).
+ */
+EditorUi.prototype.isHandTool = function()
+{
+	return this.isPanMode() && !this.isDrawing();
+};
+
+/**
+ * Returns true if a click selects in the Hand tool (see setPanMode). This
+ * implementation returns false: the Hand tool of Simple selects nothing, it
+ * is for panning and zooming, eg. to present a diagram (concept S8, the
+ * driver, 14 November 2026), so a click is that of a read-only diagram
+ * (isHandToolViewOnly). Fusion's selects (diagramly/EditorUi.js).
+ */
+EditorUi.prototype.isHandToolSelectEnabled = function()
+{
+	return false;
+};
+
+/**
+ * Returns true if the mouse is a hand that selects nothing (isHandTool and
+ * not isHandToolSelectEnabled): a click on a shape opens its link as in a
+ * read-only diagram, also the links in labels, else it clears the
+ * selection, and a right click shows the context menu of the background
+ * (installHandTool).
+ */
+EditorUi.prototype.isHandToolViewOnly = function()
+{
+	return this.isHandTool() && !this.isHandToolSelectEnabled();
+};
+
+/**
+ * Turns the Hand tool on or off. On, a drag with the left button, a pen or
+ * one finger pans, also on shapes and their handles (isPanningTrigger), and
+ * the mouse changes nothing (the driver, 12 November 2026: not read-only,
+ * the menus must work): nothing is moved, resized, connected or framed with
+ * a rubber band, double clicks and tap and hold do nothing, the folding
+ * icons, the move handles of tables, the hover arrows and the highlights of
+ * connections are off, the tooltip icon shows the tooltip and shapes and
+ * files are not dropped on the canvas (installHandTool). Where the tool
+ * selects (isHandToolSelectEnabled, Fusion) a click selects as with the
+ * mouse (graph.click), so the menus, the Format panel, the inline toolbar,
+ * the keys and the omnibox work on the selection as without the tool, and
+ * the selection stays when the tool is turned on. Elsewhere (Simple) the
+ * tool selects nothing (isHandToolViewOnly): turning it on clears the
+ * selection, a click opens links as in a read-only diagram (the show, hide,
+ * toggle and style steps of custom links change only the view until the
+ * tool turns off, which ends their chain, resetHandToolView) and the menus
+ * and the keys work as without a selection.
+ * The wheel and pinch zoom as usual. The canvas shows the grab cursor
+ * (grabbing while pressed, gePanMode). Escape, the letter of a tool and
+ * drawing leave it. A read-only diagram stays read-only. Fires
+ * panModeChanged if the state changes.
+ */
+EditorUi.prototype.setPanMode = function(value)
+{
+	var graph = this.editor.graph;
+	value = value == true;
+	var changed = value != this.isPanMode();
+
+	if (value)
+	{
+		this.installHandTool();
+		this.stopDrawing();
+
+		if (changed)
+		{
+			if (graph.isEditing())
+			{
+				graph.stopEditing(false);
+			}
+
+			// The selection stays where the tool selects, the gestures of the
+			// mouse end
+			this.hideShapePicker();
+
+			if (!this.isHandToolSelectEnabled())
+			{
+				graph.clearSelection();
+			}
+
+			if (this.hoverIcons != null)
+			{
+				this.hoverIcons.reset();
+			}
+
+			if (graph.connectionHandler.first == null)
+			{
+				graph.connectionHandler.marker.reset();
+				graph.connectionHandler.constraintHandler.reset();
+			}
+		}
+	}
+
+	this.panMode = value;
+
+	if (changed)
+	{
+		// The steps of custom links that the tool ran in this view only end
+		// with it
+		if (!value)
+		{
+			this.resetHandToolView();
+		}
+
+		graph.panningHandler.useLeftButtonForPanning = value;
+		graph.container.classList.toggle('gePanMode', value);
+
+		// The move handles of a selected table go and come back with the tool
+		// (mxVertexHandler.isMoveHandlesVisible)
+		if (graph.selectionCellsHandler != null)
+		{
+			graph.selectionCellsHandler.handlers.visit(function(key, handler)
+			{
+				if (handler.refreshMoveHandles != null && handler.state != null &&
+					graph.isTable(handler.state.cell))
+				{
+					handler.refreshMoveHandles();
+					handler.redraw();
+				}
+			});
+		}
+
+		this.fireEvent(new mxEventObject('panModeChanged'));
+	}
+};
+
+/**
+ * Ends the steps of custom links that changed only this view while the Hand
+ * tool selected nothing (graph.isCellViewLocal, installHandTool), once it
+ * does not: when it turns off or a switch of the theme lets it select
+ * (Simple to Fusion). A chain of steps that started in the tool and still
+ * runs (eg. a wait) is stopped as by a second click, so that its remaining
+ * steps run at once and in this view only, and the cells are shown and
+ * styled as stored in the file, unless the view stays local (eg. a locked
+ * file). A chain that still runs after the stop (eg. a fade) shows the
+ * file's state when it ends.
+ */
+EditorUi.prototype.resetHandToolView = function()
+{
+	var graph = this.editor.graph;
+
+	if (this.handToolActions && graph.executingCustomActions &&
+		graph.executeCustomActions != null)
+	{
+		graph.executeCustomActions();
+	}
+
+	if (!graph.isCellViewLocal())
+	{
+		graph.resetCellViewVisibility();
+		graph.resetCellViewStyles();
+	}
+};
+
+/**
+ * Returns true if Escape from the given element leaves the Hand tool: from
+ * the diagram and the page, not from fields, menus and dialogs.
+ */
+EditorUi.prototype.isHandToolEscapeSource = function(source)
+{
+	return source != null && (source == document.body ||
+		source == document.documentElement ||
+		mxUtils.isAncestorNode(this.editor.graph.container, source));
+};
+
+/**
+ * Installs the hooks of the Hand tool once, with the first setPanMode(true),
+ * so they wrap the overrides of the editor and the themes. They do nothing
+ * while the tool is off. The graph stays enabled for the menus, the panels
+ * and the keys: it is disabled only for the handlers of a mouse down
+ * (handDown), so none of them starts a gesture (moves, handles, connections,
+ * rubber bands, the dividers of tables and the hover handling of Graph). A
+ * trigger, not a forced pan, so a click without a drag selects (graph.click).
+ */
+EditorUi.prototype.installHandTool = function()
+{
+	if (this.handToolInstalled)
+	{
+		return;
+	}
+
+	this.handToolInstalled = true;
+	var ui = this;
+	var graph = this.editor.graph;
+	var panningHandler = graph.panningHandler;
+	var graphIsEnabled = graph.isEnabled;
+
+	graph.isEnabled = function()
+	{
+		return graphIsEnabled.apply(this, arguments) && !ui.handDown;
+	};
+
+	// The Hand tool for the code that has the graph but not the window
+	// (HoverIcons.isSuspended, mxVertexHandler.isMoveHandlesVisible,
+	// mxDragSource.graphContainsEvent in Graph.js)
+	graph.isHandTool = function()
+	{
+		return ui.isHandTool();
+	};
+
+	graph.isHandToolViewOnly = function()
+	{
+		return ui.isHandToolViewOnly();
+	};
+
+	// Where the tool selects nothing a click on a custom link is that of a
+	// read-only diagram (graph.click below), so its show, hide, toggle and
+	// style steps change only this view (executeCustomActions in
+	// diagramly/Editor.js), also those that run later: a model change would
+	// mark the file as modified, save and sync it and add an undo step,
+	// while the mouse changes nothing in the tool. resetHandToolView shows the
+	// file's state again when the tool turns off or selects, as the end of a
+	// lock does
+	var graphIsCellViewLocal = graph.isCellViewLocal;
+
+	graph.isCellViewLocal = function()
+	{
+		return ui.isHandToolViewOnly() || (ui.handToolActions == true &&
+			this.executingCustomActions == true) ||
+			graphIsCellViewLocal.apply(this, arguments);
+	};
+
+	// An edit of the file (eg. a fill in the Format panel after Select All)
+	// shows the new state of the cells whose style or visibility it changes,
+	// as a style or visibility that a step set in this view only would hide
+	// it until the tool turns off (the eye of a layer, whose state in the file
+	// may not change, is in setLayersVisible). The view stays where it is
+	// local for the file (eg. a locked file, whose model changes come from
+	// others)
+	graph.model.addListener(mxEvent.CHANGE, function(sender, evt)
+	{
+		var edit = evt.getProperty('edit');
+
+		if (edit != null && (graph.cellViewVisibility != null ||
+			graph.cellViewStyles != null ||
+			graph.suspendedCellViewVisibility != null ||
+			graph.suspendedCellViewStyles != null) &&
+			!graphIsCellViewLocal.apply(graph, []))
+		{
+			var visible = [];
+			var styled = [];
+
+			for (var i = 0; i < edit.changes.length; i++)
+			{
+				var change = edit.changes[i];
+
+				if (change instanceof mxVisibleChange)
+				{
+					visible.push(change.cell);
+				}
+				else if (change instanceof mxStyleChange)
+				{
+					styled.push(change.cell);
+				}
+			}
+
+			graph.removeCellViewEntries(visible, styled);
+		}
+	});
+
+	// A chain of steps that starts where the tool selects nothing stays in
+	// this view until it ends (handToolActions), also the steps after a wait
+	// in which the tool turned off or started to select (resetHandToolView
+	// stops the chain), so that they neither change the file nor stay in
+	// the view: its end shows the file's state if the tool is off or
+	// selects by then. executingCustomActions is false at the end of
+	// a chain and after an error in a step, so a chain that ends without
+	// done keeps nothing local, and each chain sets the flag when it starts
+	var graphExecuteCustomActions = graph.executeCustomActions;
+
+	if (graphExecuteCustomActions != null)
+	{
+		graph.executeCustomActions = function(actions, done, cell)
+		{
+			if (!this.executingCustomActions)
+			{
+				ui.handToolActions = ui.isHandToolViewOnly();
+
+				if (ui.handToolActions)
+				{
+					var callerDone = done;
+
+					done = function()
+					{
+						ui.handToolActions = false;
+
+						if (!ui.isHandToolViewOnly())
+						{
+							ui.resetHandToolView();
+						}
+
+						if (callerDone != null)
+						{
+							callerDone.apply(this, arguments);
+						}
+					};
+				}
+			}
+
+			return graphExecuteCustomActions.call(this, actions, done, cell);
+		};
+	}
+
+	// A switch of the theme that keeps the tool but lets it select (Simple to
+	// Fusion, isHandToolSelectEnabled) ends the steps that it ran in this
+	// view, as turning it off does
+	this.addListener('currentThemeChanged', function()
+	{
+		if (ui.isPanMode() && ui.isHandToolSelectEnabled())
+		{
+			ui.resetHandToolView();
+		}
+	});
+
+	// The states of the actions never follow the mask of a mouse down. The
+	// function of the prototype is looked up for each call, as themes that
+	// load later (fusion.min.js) override it
+	this.updateActionStates = function()
+	{
+		var down = this.handDown;
+		this.handDown = false;
+
+		try
+		{
+			return Object.getPrototypeOf(this).updateActionStates.apply(this, arguments);
+		}
+		finally
+		{
+			this.handDown = down;
+		}
+	};
+
+	// The mask starts where mxGraph.fireMouseEvent hands the mouse down to
+	// the handlers (isEventIgnored), not in the wrapper below, as the wrappers
+	// of the constructor of EditorUi run before that with the graph enabled:
+	// the focus of the container (which applies a field of the Format panel
+	// and keeps the typing shim) and the commit of a move with the arrow
+	// keys, which would otherwise hide the inline toolbar of the selection
+	var down = false;
+	var graphIsEventIgnored = graph.isEventIgnored;
+
+	graph.isEventIgnored = function(evtName)
+	{
+		var ignored = graphIsEventIgnored.apply(this, arguments);
+
+		if (!ignored && down && evtName == mxEvent.MOUSE_DOWN)
+		{
+			ui.handDown = true;
+		}
+
+		return ignored;
+	};
+
+	var graphFireMouseEvent = graph.fireMouseEvent;
+
+	graph.fireMouseEvent = function(evtName)
+	{
+		if (evtName == mxEvent.MOUSE_DOWN && !down && ui.isHandTool())
+		{
+			down = true;
+
+			try
+			{
+				return graphFireMouseEvent.apply(this, arguments);
+			}
+			finally
+			{
+				down = false;
+				ui.handDown = false;
+			}
+		}
+
+		return graphFireMouseEvent.apply(this, arguments);
+	};
+
+	// A click on the tooltip icon of a shape shows the tooltip as in a
+	// read-only diagram: else it opens Edit Tooltip, which is a dialog of the
+	// shape like those of double clicks (Edit Tooltip of the menus works).
+	// The click is not a mouse down of the mask
+	// (mxCellRenderer.installCellOverlayListeners)
+	var graphIsTooltipOverlayEditable = graph.isTooltipOverlayEditable;
+
+	if (graphIsTooltipOverlayEditable != null)
+	{
+		graph.isTooltipOverlayEditable = function()
+		{
+			return !ui.isHandTool() && graphIsTooltipOverlayEditable.apply(this, arguments);
+		};
+	}
+
+	// A mouse down outside of the text editor ends editing as without the
+	// tool (the keys start it in the Hand tool), unmasked so the label is
+	// applied
+	var graphStopEditing = graph.stopEditing;
+
+	graph.stopEditing = function()
+	{
+		var masked = ui.handDown;
+		ui.handDown = false;
+
+		try
+		{
+			return graphStopEditing.apply(this, arguments);
+		}
+		finally
+		{
+			ui.handDown = masked;
+		}
+	};
+
+	// Where the tool selects nothing (isHandToolViewOnly) a click is that of
+	// a read-only diagram (the click of the constructor of Graph): the link of
+	// the shape under the pointer (or of its ancestors, also in locked
+	// layers) opens, else the selection is cleared. Elsewhere a click selects
+	// as without the tool, which selects in the mouse down that the Hand tool
+	// masks (mxGraphHandler.mouseDown and its delayed selection in mouseUp):
+	// the topmost shape that is not in a selected one, the shape under the
+	// pointer in a selected one, and a tap of a finger on a selected shape
+	// keeps the selection. The rest is that of the mouse (a click on the
+	// background clears the selection, links of shapes in locked layers open)
+	var graphClick = graph.click;
+
+	graph.click = function(me)
+	{
+		var evt = me.getEvent();
+		var gh = this.graphHandler;
+
+		if (ui.isHandToolViewOnly())
+		{
+			if (this.isEnabled() && !me.isConsumed() && !mxEvent.isConsumed(evt) &&
+				!mxEvent.isMultiTouchEvent(evt) && !this.popupMenuHandler.isPopupTrigger(me) &&
+				(!mxEvent.isMouseEvent(evt) || mxEvent.isLeftMouseButton(evt)))
+			{
+				var target = me.getCell();
+
+				if (target == null && me.sourceState != null)
+				{
+					target = me.sourceState.cell;
+				}
+
+				var link = (target != null) ? this.getClickableLinkForCell(target) : null;
+
+				if (link != null)
+				{
+					if (this.isCustomLink(link))
+					{
+						this.customLinkClicked(link, target);
+					}
+					else
+					{
+						this.openLink(link);
+					}
+				}
+				else
+				{
+					this.clearSelection();
+				}
+
+				me.consume();
+			}
+		}
+		else if (ui.isHandTool() && this.isEnabled() && !me.isConsumed() &&
+			!mxEvent.isConsumed(evt) && me.getState() != null && gh != null &&
+			gh.isEnabled() && gh.isSelectEnabled() && !mxEvent.isMultiTouchEvent(evt) &&
+			!this.popupMenuHandler.isPopupTrigger(me) &&
+			(!mxEvent.isMouseEvent(evt) || mxEvent.isLeftMouseButton(evt)))
+		{
+			var cell = gh.getInitialCellForEvent(me);
+
+			if (cell != null)
+			{
+				if (!gh.isDelayedSelection(cell, me))
+				{
+					this.selectCellForEvent(cell, evt);
+				}
+				else if (!mxEvent.isTouchEvent(evt) || !this.isCellSelected(cell))
+				{
+					gh.selectDelayed(me);
+				}
+
+				me.consume();
+			}
+		}
+
+		return graphClick.apply(this, arguments);
+	};
+
+	// A right click where the tool selects nothing shows the context menu of
+	// the background and clears the selection, as the shape under the pointer
+	// is not selected (mxPopupMenuHandler.mouseUp)
+	var popupMenuHandler = graph.popupMenuHandler;
+	var getCellForPopupEvent = popupMenuHandler.getCellForPopupEvent;
+
+	popupMenuHandler.getCellForPopupEvent = function(me)
+	{
+		return (ui.isHandToolViewOnly() && this.graph.isEnabled()) ?
+			null : getCellForPopupEvent.apply(this, arguments);
+	};
+
+	// No double clicks (editing, the shape picker, the dialogs of shapes)
+	// and no tap and hold (rubber bands, connections)
+	var graphDblClick = graph.dblClick;
+
+	graph.dblClick = function(evt, cell)
+	{
+		if (ui.isHandTool())
+		{
+			if (evt != null)
+			{
+				mxEvent.consume(evt);
+			}
+		}
+		else
+		{
+			return graphDblClick.apply(this, arguments);
+		}
+	};
+
+	var graphTapAndHold = graph.tapAndHold;
+
+	graph.tapAndHold = function(me)
+	{
+		if (!ui.isHandTool())
+		{
+			return graphTapAndHold.apply(this, arguments);
+		}
+	};
+
+	// No rubber band with Alt and no ties with Alt+Shift (they start before
+	// the handlers of the mouse down, see mxRubberband)
+	var rubberband = (graph.getRubberband != null) ? graph.getRubberband() : null;
+
+	if (rubberband != null)
+	{
+		var isForceRubberbandEvent = rubberband.isForceRubberbandEvent;
+
+		rubberband.isForceRubberbandEvent = function(me)
+		{
+			if (ui.isHandTool())
+			{
+				this.tieGesture = false;
+
+				return false;
+			}
+
+			return isForceRubberbandEvent.apply(this, arguments);
+		};
+	}
+
+	// The folding icons of containers do nothing (the only callers with an
+	// event; Collapse and Expand in the menus and the keys work)
+	var graphFoldCells = graph.foldCells;
+
+	graph.foldCells = function(collapse, recurse, cells, checkFoldable, evt)
+	{
+		if (evt != null && ui.isHandTool())
+		{
+			return [];
+		}
+
+		return graphFoldCells.apply(this, arguments);
+	};
+
+	// No highlights and connection points under the pointer, as no
+	// connection starts there
+	var connectionHandler = graph.connectionHandler;
+	var updateCurrentState = connectionHandler.updateCurrentState;
+
+	connectionHandler.updateCurrentState = function(me, point)
+	{
+		if (this.first == null && ui.isHandTool())
+		{
+			this.marker.reset();
+			this.constraintHandler.reset();
+			this.currentState = null;
+		}
+		else
+		{
+			return updateCurrentState.apply(this, arguments);
+		}
+	};
+
+	// Files, images and text are not dropped on the canvas (the hover arrows
+	// and the shapes of the sidebar, see HoverIcons.isSuspended and
+	// mxDragSource.graphContainsEvent in Graph.js): the drop is refused
+	// before the listeners of the container see it
+	var refuseDrop = function(evt)
+	{
+		if (ui.isHandTool())
+		{
+			if (evt.dataTransfer != null)
+			{
+				evt.dataTransfer.dropEffect = 'none';
+			}
+
+			evt.preventDefault();
+			evt.stopImmediatePropagation();
+		}
+	};
+
+	graph.container.addEventListener('dragenter', refuseDrop, true);
+	graph.container.addEventListener('dragover', refuseDrop, true);
+	graph.container.addEventListener('drop', refuseDrop, true);
+
+	var isPanningTrigger = panningHandler.isPanningTrigger;
+
+	panningHandler.isPanningTrigger = function(me)
+	{
+		var evt = me.getEvent();
+
+		return (ui.isHandTool() && !mxEvent.isMultiTouchEvent(evt) &&
+			!mxEvent.isPopupTrigger(evt) && (!mxEvent.isMouseEvent(evt) ||
+			mxEvent.isLeftMouseButton(evt))) || isPanningTrigger.apply(this, arguments);
+	};
+
+	// Drawing (freehand, polygon, tie) and the Hand tool are one tool at a
+	// time: drawing turns the Hand tool off
+	var drawingChanged = function()
+	{
+		if (ui.isPanMode() && ui.isDrawing())
+		{
+			ui.setPanMode(false);
+		}
+	};
+
+	graph.addListener('freehandStateChanged', drawingChanged);
+	graph.addListener('polygonStateChanged', drawingChanged);
+	graph.addListener('tieToolStateChanged', drawingChanged);
+
+	// Escape leaves the Hand tool where it reaches the diagram or the page
+	// (isHandToolEscapeSource), not in fields, menus and dialogs. Where it
+	// comes from is noted before the key handler sees it, as its Escape clears
+	// the selection, which removes the typing shim that had the focus
+	var escapeEvent = null;
+	var escapeInside = false;
+
+	this.handToolEscapeSourceListener = function(evt)
+	{
+		if (evt.keyCode == 27)
+		{
+			escapeEvent = evt;
+			escapeInside = ui.isHandToolEscapeSource(mxEvent.getSource(evt));
+		}
+	};
+
+	this.handToolEscapeListener = function(evt)
+	{
+		var inside = escapeEvent == evt && escapeInside;
+		escapeEvent = null;
+
+		if (evt.keyCode == 27 && ui.isPanMode() && !mxEvent.isConsumed(evt) &&
+			(ui.dialogs == null || ui.dialogs.length == 0) &&
+			!graph.popupMenuHandler.isMenuShowing() && inside)
+		{
+			ui.setPanMode(false);
+		}
+	};
+
+	document.addEventListener('keydown', this.handToolEscapeSourceListener, true);
+	document.addEventListener('keydown', this.handToolEscapeListener);
 };
 
 /**
@@ -3724,6 +4642,27 @@ EditorUi.prototype.focusOmniSearch = function()
 };
 
 /**
+ * Opens the search of the key /: the omnibox if it is enabled, as its input
+ * shows this key (Omnibox.keyHint), else the search field of the shapes (see
+ * focusOmniSearch). Returns true if a search was opened.
+ */
+EditorUi.prototype.openSearch = function()
+{
+	var action = this.actions.get('searchActions');
+
+	if (action != null && action.isEnabled() && !this.editor.isChromelessView())
+	{
+		this.showOmnibox(null);
+
+		return true;
+	}
+	else
+	{
+		return this.focusOmniSearch();
+	}
+};
+
+/**
  * Shows the omnibox, the search for actions, menus and the format of the
  * selection, with the given scope (see Omnibox.show).
  */
@@ -3757,6 +4696,17 @@ EditorUi.prototype.getOmnibox = function()
 EditorUi.prototype.createOmnibox = function()
 {
 	return (typeof Omnibox !== 'undefined') ? new Omnibox(this) : null;
+};
+
+/**
+ * Returns true if the given feature is on in the current theme and on the
+ * platform of this session. This implementation returns
+ * Editor.isFeatureEnabled (the URL, the configuration, the default of the
+ * theme in Editor.featureDefaults).
+ */
+EditorUi.prototype.isFeatureEnabled = function(name)
+{
+	return Editor.isFeatureEnabled(name);
 };
 
 /**
@@ -5221,11 +6171,14 @@ EditorUi.prototype.isImmediateEditingEvent = function(evt)
 /**
  * Updates the CSS for the given element to match the selection. The optional
  * label is the element for the text of no marker, which is otherwise written
- * to the marker element.
+ * to the marker element. If noneImage is true, no marker is shown as the
+ * image of None in the menu of the markers (the line without a marker, named
+ * None) instead of the text.
  */
-EditorUi.prototype.updateCssForMarker = function(markerDiv, prefix, shape, marker, fill, label)
+EditorUi.prototype.updateCssForMarker = function(markerDiv, prefix, shape, marker, fill, label, noneImage)
 {
 	var src = this.getImageForMarker(marker, fill, shape);
+	var none = src == null && noneImage;
 	markerDiv.innerHTML = '';
 
 	if (label != null)
@@ -5233,14 +6186,19 @@ EditorUi.prototype.updateCssForMarker = function(markerDiv, prefix, shape, marke
 		label.innerHTML = '';
 	}
 
-	if (src == null)
+	if (src == null && !none)
 	{
 		mxUtils.write((label != null) ? label : markerDiv, mxResources.get('none'));
 	}
 	else
 	{
 		var img = document.createElement('img');
-		img.setAttribute('src', src);
+		img.setAttribute('src', (none) ? Format.noMarkerImage.src : src);
+
+		if (none)
+		{
+			img.setAttribute('alt', mxResources.get('none'));
+		}
 
 		if (prefix == 'end')
 		{
@@ -7961,6 +8919,12 @@ EditorUi.prototype.setCurrentMenu = function(menu, elt)
 	this.currentMenuElt = elt;
 	this.currentMenu = menu;
 	this.hideShapePicker();
+
+	// A menu closes the dropdown of the inline toolbar (see hidePopupMenus)
+	if (menu != null && this.inlineToolbar != null)
+	{
+		this.inlineToolbar.currentMenuShown(menu);
+	}
 };
 
 /**
@@ -8114,6 +9078,19 @@ EditorUi.prototype.setLayersVisible = function(layers, visible)
 	else if (graph.isEnabled())
 	{
 		graph.setCellsVisible(layers, visible);
+
+		// A layer that a step of a custom link showed or hid in this view
+		// only (the Hand tool, see installHandTool) shows the file's new state,
+		// also if the file has that state already, which changes nothing
+		var inView = (graph.cellViewVisibility != null) ? layers.filter(function(layer)
+		{
+			return graph.cellViewVisibility.get(layer) != null;
+		}) : [];
+
+		if (inView.length > 0)
+		{
+			graph.setCellsVisibleInView(inView, visible);
+		}
 	}
 };
 
@@ -8588,6 +9565,8 @@ EditorUi.prototype.installResizeHandler = function(dialog, resizable, destroy)
 	{
 		dialog.window.setSize = function(w, h)
 		{
+			if (this.div == null) return;
+
 			if (!this.minimized)
 			{
 				var iw = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
@@ -8647,13 +9626,31 @@ EditorUi.prototype.installResizeHandler = function(dialog, resizable, destroy)
 	
 	var resizeListener = mxUtils.bind(this, function()
 	{
+		// A destroyed window has no div (see below)
+		if (dialog.window.div == null)
+		{
+			mxEvent.removeListener(window, 'resize', resizeListener);
+
+			return;
+		}
+
 		var x = dialog.window.getX();
 		var y = dialog.window.getY();
-		
+
 		dialog.window.setLocation(x, y);
 	});
-	
+
 	mxEvent.addListener(window, 'resize', resizeListener);
+
+	// Also removes the listener if the window is destroyed directly with
+	// mxWindow.destroy instead of dialog.destroy (eg. the windows that a
+	// switch of the theme destroys): it would otherwise read the position
+	// of the destroyed window on each resize event of the browser window
+	// and throw (null is not an object (evaluating 'this.div.style'))
+	dialog.window.addListener(mxEvent.DESTROY, function()
+	{
+		mxEvent.removeListener(window, 'resize', resizeListener);
+	});
 
 	dialog.destroy = function()
 	{
@@ -9231,13 +10228,14 @@ EditorUi.prototype.createStatusContainer = function()
 
 		if (elt != container)
 		{
-			while (elt.parentNode != container)
+			// Null if the target was removed from the status
+			while (elt != null && elt.parentNode != container)
 			{
 				elt = elt.parentNode;
 			}
 		}
-		
-		if (elt.nodeName != 'A')
+
+		if (elt != null && elt.nodeName != 'A')
 		{
 			var name = elt.getAttribute('data-action');
 
@@ -9301,28 +10299,32 @@ EditorUi.prototype.createStatusContainer = function()
 };
 
 /**
- * Creates a new toolbar for the given container.
+ * Sets the given HTML as the status. The nodes of the status that are
+ * unchanged are kept: the status is set again with the same content, eg. by
+ * the polling of browser files after every mouse move, key press and focus
+ * of the window, and a new node under the pointer between mousedown and
+ * mouseup loses the click in all browsers (the first click on the eye or
+ * the lock in Safari, where a pointer move or the focus of the window comes
+ * with that click).
  */
 EditorUi.prototype.setStatusText = function(value)
 {
-	this.statusContainer.innerHTML = Graph.sanitizeHtml(value);
+	// The status is parsed in a detached element of the same type
+	var parsed = document.createElement(this.statusContainer.nodeName);
+	parsed.innerHTML = Graph.sanitizeHtml(value);
 
 	// Wraps simple status messages in a div for styling
-	if (this.statusContainer.getElementsByTagName('div').length == 0 &&
+	if (parsed.getElementsByTagName('div').length == 0 &&
 		value != null && value.length > 0)
 	{
-		this.statusContainer.innerText = '';
-		var div = this.createStatusDiv(value);
-		this.statusContainer.appendChild(div);
+		parsed.innerHTML = '';
+		parsed.appendChild(this.createStatusDiv(value));
 	}
 
-	this.updateStatusAction();
-	this.announce(this.statusContainer.textContent);
-
 	// Messages with an action, an error or a link are buttons for the keyboard
-	for (var i = 0; i < this.statusContainer.children.length; i++)
+	for (var i = 0; i < parsed.children.length; i++)
 	{
-		var child = this.statusContainer.children[i];
+		var child = parsed.children[i];
 
 		if (child.nodeName != 'A' && (child.getAttribute('data-action') != null ||
 			child.getAttribute('data-message') != null ||
@@ -9333,13 +10335,61 @@ EditorUi.prototype.setStatusText = function(value)
 		}
 	}
 
-	// Handles data-effect attribute
-	var spans = this.statusContainer.querySelectorAll('[data-effect="fade"]');
+	// Only new nodes are faded in (data-effect attribute)
+	var spans = parsed.querySelectorAll('[data-effect="fade"]');
+	var current = Array.prototype.slice.call(this.statusContainer.childNodes);
+	var nodes = [];
+	var next = 0;
+
+	// Uses the current node for each equal new node in the same order, so
+	// the kept nodes are never moved, eg. a message added before an icon
+	for (var i = 0; i < parsed.childNodes.length; i++)
+	{
+		var node = parsed.childNodes[i];
+
+		for (var j = next; j < current.length; j++)
+		{
+			if (current[j].isEqualNode(node))
+			{
+				node = current[j];
+				next = j + 1;
+				break;
+			}
+		}
+
+		nodes.push(node);
+	}
+
+	for (var i = 0; i < current.length; i++)
+	{
+		if (mxUtils.indexOf(nodes, current[i]) < 0)
+		{
+			this.statusContainer.removeChild(current[i]);
+		}
+	}
+
+	// Inserts the new nodes between the kept nodes
+	for (var i = 0; i < nodes.length; i++)
+	{
+		if (nodes[i].parentNode != this.statusContainer)
+		{
+			this.statusContainer.insertBefore(nodes[i],
+				this.statusContainer.childNodes[i] || null);
+		}
+	}
+
+	this.updateStatusAction();
+	this.announce(this.statusContainer.textContent);
 
 	if (spans != null)
 	{
 		for (var i = 0; i < spans.length; i++)
 		{
+			if (!this.statusContainer.contains(spans[i]))
+			{
+				continue;
+			}
+
 			(function(temp)
 			{
 				mxUtils.setOpacity(temp, 0);
@@ -9621,6 +10671,38 @@ EditorUi.prototype.updateStatusAgain = function()
 };
 
 /**
+ * Builds the open panels again after a change of the language without a
+ * reload (languageChanged), as panels write their texts when they are built:
+ * here the inline toolbar, whose buttons get their titles when it is
+ * created, and the name of the typing shim. The Format panel and the sidebar
+ * listen to the event themselves and the tool windows are destroyed
+ * (destroyWindows); this is the one place for the other panels, which
+ * subclasses add by overriding it.
+ */
+EditorUi.prototype.rebuildPanels = function()
+{
+	if (this.inlineToolbar != null)
+	{
+		var suspended = this.inlineToolbar.suspended;
+		this.inlineToolbar.destroy();
+		this.inlineToolbar = this.createInlineToolbar();
+
+		// Eg. while the shape picker is shown (see showShapePicker)
+		if (suspended)
+		{
+			this.inlineToolbar.suspended = true;
+		}
+
+		this.inlineToolbar.updateSelection();
+	}
+
+	if (this.typingShim != null)
+	{
+		this.typingShim.setAttribute('aria-label', mxResources.get('editText'));
+	}
+};
+
+/**
  * Creates a new toolbar for the given container.
  */
 EditorUi.prototype.createStatusDiv = function(value)
@@ -9758,6 +10840,13 @@ EditorUi.prototype.addSplitHandler = function(elt, horizontal, dx, onChange)
 };
 
 /**
+ * Hook for the layout of the given FilenameDialog, called at the end of its
+ * constructor with the arguments of the constructor. This implementation
+ * does nothing.
+ */
+EditorUi.prototype.installPromptLayout = function(dlg, args) { };
+
+/**
  * Shows a dialog for entering a value with the given title and default
  * value. The value is passed to fn as text if asText is true, otherwise as a
  * number.
@@ -9829,6 +10918,733 @@ EditorUi.prototype.showError = function(title, msg, btn, fn, retry, btn2, fn2, b
 };
 
 /**
+ * Returns true if the given helper of the keyboard and the history is on
+ * (Classic and Simple; the theme Fusion has its own, see the override in
+ * diagramly/EditorUi.js): undoToast (deleting shapes and pages shows a toast
+ * with Undo, see UndoToast.js), disabledReasons (disabled menu items,
+ * toolbar buttons and controls of the format panel say why in their
+ * tooltip and description, see getDisabledReason), dialogFocus (dialogs
+ * take the focus when they open and Enter in a field presses their primary
+ * button, see focusDialogStart and installDialogEnter) and focusReturn (the
+ * focus returns to the control that opened a dialog from a menu with the
+ * keyboard or the color window), topBarKeys (F10 moves the focus to the top
+ * bar, see focusTopBar), tabWheel (the wheel scrolls the page tabs, see
+ * installTabWheel) and ellipsisTitles (cut-off text shows its full text as
+ * the tooltip, see installEllipsisTitles).
+ */
+EditorUi.prototype.isHelperEnabled = function(name)
+{
+	return true;
+};
+
+/**
+ * Returns the bar at the top of the user interface, which F10 focuses (see
+ * focusTopBar): the first part of the order of Tab (see getTabRegions), eg.
+ * the menubar or the top bar of Simple.
+ */
+EditorUi.prototype.getTopBar = function()
+{
+	return this.getTabRegions()[0];
+};
+
+/**
+ * Returns the control that F10 focuses: the first control of the top bar
+ * (see getTopBar), eg. File, or null if the helper topBarKeys is off (see
+ * isHelperEnabled) or the bar shows no control.
+ */
+EditorUi.prototype.getTopBarStart = function()
+{
+	var bar = (this.isHelperEnabled('topBarKeys')) ? this.getTopBar() : null;
+	var stops = (bar != null && bar.getClientRects().length > 0) ?
+		Dialog.getTabStops(bar) : [];
+
+	return (stops.length > 0) ? stops[0] : null;
+};
+
+/**
+ * Returns true if a modal element shows above the given element: a modal
+ * dialog (see showDialog) or one that the editor does not know as a dialog,
+ * eg. a presentation, the explorer or the omnibox (role dialog and
+ * aria-modal, in the page while they are open), whose keys stay in it.
+ */
+EditorUi.prototype.isBehindModal = function(elt)
+{
+	var modals = document.querySelectorAll('[aria-modal="true"]');
+
+	for (var i = 0; i < modals.length; i++)
+	{
+		if (modals[i].getClientRects().length > 0 &&
+			!mxUtils.isAncestorNode(modals[i], elt))
+		{
+			return true;
+		}
+	}
+
+	return false;
+};
+
+/**
+ * Hides the menu that is showing, also the context menu of the diagram (eg.
+ * of a right click, whose focus stays in the diagram, so that the menu does
+ * not hide itself when the focus moves), and moves the focus to the control
+ * that F10 focuses (see getTopBarStart), from where the arrow keys move along
+ * the bar (see focusTabStopInDirection) and Enter, Space and Arrow Down open
+ * a menu (see addMenuHandler). Not while a modal element shows above the bar
+ * (see isBehindModal), eg. a presentation, whose keys stay in it. Returns true
+ * if the focus was moved.
+ */
+EditorUi.prototype.focusTopBar = function()
+{
+	var start = this.getTopBarStart();
+
+	if (start != null && this.isBehindModal(start))
+	{
+		start = null;
+	}
+
+	if (start != null)
+	{
+		this.hideCurrentMenu();
+		this.editor.graph.popupMenuHandler.hideMenu();
+		start.focus();
+	}
+
+	return start != null;
+};
+
+/**
+ * Shows the full text of cut-off text of the user interface as its tooltip
+ * while the pointer is on it (the helper ellipsisTitles, see
+ * isHelperEnabled): text that ends in an ellipsis, eg. the titles of the
+ * libraries of shapes and the labels of the format panel, where neither the
+ * text nor a control around it has a tooltip (see getEllipsisElement and
+ * updateEllipsisTitle). Not in the diagram, whose labels have tooltips of
+ * their own.
+ */
+EditorUi.prototype.installEllipsisTitles = function()
+{
+	if (this.ellipsisTitleHandler == null && this.container != null)
+	{
+		this.ellipsisTitleHandler = mxUtils.bind(this, function(evt)
+		{
+			var source = mxEvent.getSource(evt);
+			var graph = this.editor.graph;
+
+			if (source != null && source.nodeType == mxConstants.NODETYPE_ELEMENT &&
+				(graph.container == null || !mxUtils.isAncestorNode(graph.container, source)) &&
+				this.isHelperEnabled('ellipsisTitles'))
+			{
+				var target = EditorUi.getEllipsisElement(source, this.container);
+
+				if (target != null)
+				{
+					EditorUi.updateEllipsisTitle(target, this.container);
+				}
+			}
+		});
+
+		mxEvent.addListener(this.container, 'mouseover', this.ellipsisTitleHandler);
+	}
+};
+
+/**
+ * Returns the element that cuts its text with an ellipsis (text-overflow) and
+ * is or contains the given element, at most three levels up and below the
+ * given root, or null if there is none.
+ */
+EditorUi.getEllipsisElement = function(elt, root)
+{
+	var result = null;
+
+	for (var i = 0; i < 3 && result == null && elt != null && elt != root &&
+		elt.nodeType == mxConstants.NODETYPE_ELEMENT; i++)
+	{
+		var style = mxUtils.getCurrentStyle(elt);
+
+		if (style != null && style.textOverflow == 'ellipsis' &&
+			style.overflowX != 'visible')
+		{
+			result = elt;
+		}
+
+		elt = elt.parentNode;
+	}
+
+	return result;
+};
+
+/**
+ * Returns true if the tooltip of an element around the given element, below
+ * the given root, already shows the given text, eg. of a button or a page tab
+ * around its label. Another tooltip around it, eg. Drag to reorder of the
+ * title of a library, gives way to the full text over the text, as in Fusion.
+ */
+EditorUi.isEllipsisTitleAround = function(elt, root, text)
+{
+	// The nearest tooltip around the text is the one that is shown, tooltips
+	// that updateEllipsisTitle set are skipped
+	for (var e = elt.parentNode; e != null && e != root &&
+		e.nodeType == mxConstants.NODETYPE_ELEMENT; e = e.parentNode)
+	{
+		var title = e.getAttribute('title');
+
+		if (title != null && title != e.ellipsisTitle)
+		{
+			return title.replace(/\s+/g, ' ').indexOf(text) >= 0;
+		}
+	}
+
+	return false;
+};
+
+/**
+ * Sets the full text of the given element as its tooltip while its text is
+ * cut (wider than the element), and removes the tooltip that this set while
+ * it is not, eg. after a change of the text or of the width, or while a
+ * tooltip around it below the given optional root shows the text (see
+ * isEllipsisTitleAround), eg. one that was added later, so that the stale
+ * text never hides it. Tooltips that were not set here are kept.
+ */
+EditorUi.updateEllipsisTitle = function(elt, root)
+{
+	var title = elt.getAttribute('title');
+
+	if (title == null || (elt.ellipsisTitle != null && title == elt.ellipsisTitle))
+	{
+		var text = mxUtils.trim((elt.textContent || '').replace(/\s+/g, ' '));
+
+		if (text.length > 0 && elt.scrollWidth > elt.clientWidth + 1 &&
+			(root == null || !EditorUi.isEllipsisTitleAround(elt, root, text)))
+		{
+			elt.setAttribute('title', text);
+			elt.ellipsisTitle = text;
+		}
+		else if (elt.ellipsisTitle != null)
+		{
+			elt.removeAttribute('title');
+			elt.ellipsisTitle = null;
+		}
+	}
+	else
+	{
+		// Another tooltip replaced this one
+		elt.ellipsisTitle = null;
+	}
+};
+
+/**
+ * Shows the full text of the given elements, or of their descendants that
+ * match the given selector, as the tooltip while they are cut with an
+ * ellipsis (see updateEllipsisTitle). The text is read when the pointer is on
+ * it, so it may change. Fusion uses this for its names and other data that
+ * keep one line (SimpleUi.addEllipsisTitle).
+ */
+EditorUi.addEllipsisTitle = function(elt, selector)
+{
+	mxEvent.addListener(elt, 'mouseover', function(evt)
+	{
+		var target = (selector != null) ? ((evt.target != null && evt.target.closest != null) ?
+			evt.target.closest(selector) : null) : elt;
+
+		if (target != null && elt.contains(target))
+		{
+			EditorUi.updateEllipsisTitle(target);
+		}
+	});
+};
+
+/**
+ * Names of the actions and menus that need a selection (see
+ * getDisabledReason).
+ */
+EditorUi.selectionActions = ['cut', 'copy', 'delete', 'deleteAll', 'duplicate',
+	'editStyle', 'editTooltip', 'editNote', 'editLink', 'edit', 'toFront', 'toBack',
+	'bringForward', 'sendBackward', 'lockUnlock', 'group', 'ungroup', 'removeFromGroup',
+	'turn', 'rotation', 'wordWrap', 'autosize', 'copySize', 'pasteSize', 'pasteData',
+	'setAsDefaultStyle', 'copyAsText', 'curved', 'solid', 'dashed', 'dotted', 'rounded',
+	'toggleRounded', 'sharp', 'snapToGrid', 'fillColor', 'strokeColor', 'fontColor',
+	'gradientColor', 'shadow', 'bold', 'italic', 'underline', 'formattedText',
+	'backgroundColor', 'borderColor', 'swap', 'collapsible', 'enterGroup', 'openLink',
+	'expand', 'collapse', 'clearWaypoints', 'clearAnchors', 'resetLabelPositions',
+	'alignCellsLeft', 'alignCellsCenter', 'alignCellsRight', 'alignCellsTop',
+	'alignCellsMiddle', 'alignCellsBottom', 'distributeHorizontal',
+	'distributeVertical', 'align', 'distribute', 'direction', 'navigation'];
+
+/**
+ * Names of the actions and menus that need two or more shapes (see
+ * getDisabledReason).
+ */
+EditorUi.multipleShapeActions = ['alignCellsLeft', 'alignCellsCenter', 'alignCellsRight',
+	'alignCellsTop', 'alignCellsMiddle', 'alignCellsBottom', 'distributeHorizontal',
+	'distributeVertical', 'distribute'];
+
+/**
+ * Names of the actions and menus that need a selection without locked cells
+ * (see getDisabledReason).
+ */
+EditorUi.unlockedSelectionActions = ['alignCellsLeft', 'alignCellsCenter', 'alignCellsRight',
+	'alignCellsTop', 'alignCellsMiddle', 'alignCellsBottom', 'distributeHorizontal',
+	'distributeVertical', 'align', 'distribute', 'direction'];
+
+/**
+ * Resource keys of the reasons of the actions and menus that need a certain
+ * selection or state, eg. Arrange › Ungroup a group (see getDisabledReason).
+ * The application adds its own (eg. Edit Layout in diagramly/EditorUi.js).
+ */
+EditorUi.disabledReasonKeys = {bringForward: 'selectOnlyOneCell',
+	sendBackward: 'selectOnlyOneCell', direction: 'selectOnlyOneShape',
+	rotation: 'selectOnlyOneShape', group: 'selectCellsToGroup',
+	ungroup: 'selectGroupOrContainer', removeFromGroup: 'selectShapeInGroup',
+	clearWaypoints: 'selectConnectorOrConnected', clearAnchors: 'selectConnectorOrConnected',
+	autosize: 'selectOneOrMoreShapes', home: 'enterGroupFirst', exitGroup: 'enterGroupFirst',
+	enterGroup: 'selectOneGroupOrContainer', collapsible: 'selectOneGroupOrContainer',
+	expand: 'selectCollapsibleShape', collapse: 'selectCollapsibleShape',
+	layout: 'layerLocked', insert: 'layerLocked'};
+
+/**
+ * Returns why the action or menu with the given name is disabled as
+ * {kind, text} or null if there is no reason to give: the diagram is
+ * read-only, there is nothing to undo or redo, nothing is selected, the
+ * action needs two or more shapes, the selection is locked, or the reason
+ * of the action (getDisabledReason of Action) or of its name in
+ * EditorUi.disabledReasonKeys. Only called for disabled actions and menus.
+ */
+EditorUi.prototype.getDisabledReason = function(key)
+{
+	var graph = this.editor.graph;
+	var action = (key != null) ? this.actions.get(key) : null;
+	var text = (action != null && typeof action.getDisabledReason === 'function') ?
+		action.getDisabledReason() : null;
+
+	if (text != null)
+	{
+		return {kind: 'action', text: text};
+	}
+	else if (!graph.isEnabled())
+	{
+		return {kind: 'readOnly', text: mxResources.get('readOnlyHint')};
+	}
+	else if (key == 'undo' || key == 'redo')
+	{
+		return (graph.isEditing()) ? null : {kind: key,
+			text: mxResources.get((key == 'undo') ? 'nothingToUndo' : 'nothingToRedo')};
+	}
+	else if (mxUtils.indexOf(EditorUi.selectionActions, key) >= 0 && graph.isSelectionEmpty())
+	{
+		return {kind: 'selection', text: mxResources.get('nothingSelected')};
+	}
+	else if (mxUtils.indexOf(EditorUi.multipleShapeActions, key) >= 0 &&
+		!graph.isSelectionEmpty() && this.getSelectionState().vertices.length < 2)
+	{
+		return {kind: 'multiple', text: mxResources.get('selectTwoOrMoreShapes')};
+	}
+	else if (mxUtils.indexOf(EditorUi.unlockedSelectionActions, key) >= 0 &&
+		!graph.isSelectionEmpty() && !this.getSelectionState().unlocked)
+	{
+		return {kind: 'locked', text: mxResources.get('selectionLocked')};
+	}
+	else if (key != null && Object.prototype.hasOwnProperty.call(EditorUi.disabledReasonKeys, key))
+	{
+		return {kind: key, text: mxResources.get(EditorUi.disabledReasonKeys[key])};
+	}
+
+	return null;
+};
+
+/**
+ * Shows the given control disabled with the given reason (see
+ * getDisabledReason) as the second line of its tooltip and as its
+ * description. With focusable it keeps the focus (aria-disabled only, eg.
+ * the items of menus and the buttons of toolbars, which set their disabled
+ * state themselves). The tooltip without the reason is kept in
+ * data-tooltip, eg. for the labels of the omnibox. Controls whose name
+ * would come from the tooltip (eg. the icons of toolbars) get it as their
+ * label, so that screen readers say the reason once, as the description.
+ */
+EditorUi.prototype.setDisabledReason = function(elt, reason, tooltip, focusable)
+{
+	if (!focusable)
+	{
+		elt.setAttribute('disabled', 'disabled');
+	}
+
+	elt.setAttribute('aria-disabled', 'true');
+	elt.setAttribute('aria-description', reason.text);
+	elt.setAttribute('title', ((tooltip != null && tooltip != '') ?
+		tooltip + '\n' : '') + reason.text);
+	elt.setAttribute('data-tooltip', (tooltip != null) ? tooltip : '');
+	this.setDisabledReasonLabel(elt, tooltip);
+};
+
+/**
+ * Gives the given control the given tooltip as its label while it shows a
+ * reason (see setDisabledReason) if its name would come from the title, ie.
+ * it has no label and no text of its own. The label is removed with the
+ * reason (see clearDisabledReason).
+ */
+EditorUi.prototype.setDisabledReasonLabel = function(elt, tooltip)
+{
+	var own = elt.hasAttribute('data-reason-label');
+
+	if (own || (!elt.hasAttribute('aria-label') && !elt.hasAttribute('aria-labelledby') &&
+		mxUtils.trim(elt.textContent || '') == '' && (elt.labels == null || elt.labels.length == 0)))
+	{
+		if (tooltip != null && tooltip != '')
+		{
+			elt.setAttribute('aria-label', tooltip);
+			elt.setAttribute('data-reason-label', '1');
+		}
+		else if (own)
+		{
+			elt.removeAttribute('aria-label');
+			elt.removeAttribute('data-reason-label');
+		}
+	}
+};
+
+/**
+ * Sets the tooltip of the given control, also while it shows a reason (see
+ * setDisabledReason), which stays as the second line, eg. for the buttons
+ * of toolbars whose tooltip depends on the language.
+ */
+EditorUi.prototype.setControlTooltip = function(elt, tooltip)
+{
+	if (elt.hasAttribute('data-tooltip'))
+	{
+		var reason = elt.getAttribute('aria-description');
+		elt.setAttribute('data-tooltip', (tooltip != null) ? tooltip : '');
+		elt.setAttribute('title', ((tooltip != null && tooltip != '') ?
+			tooltip + ((reason != null && reason != '') ? '\n' : '') : '') +
+			((reason != null) ? reason : ''));
+		this.setDisabledReasonLabel(elt, tooltip);
+	}
+	else if (tooltip != null && tooltip != '')
+	{
+		elt.setAttribute('title', tooltip);
+	}
+	else
+	{
+		elt.removeAttribute('title');
+	}
+};
+
+/**
+ * Removes the reason of setDisabledReason from the given control and gives
+ * it the given tooltip (none if it is null).
+ */
+EditorUi.prototype.clearDisabledReason = function(elt, tooltip)
+{
+	if (elt.hasAttribute('data-tooltip'))
+	{
+		elt.removeAttribute('data-tooltip');
+		elt.removeAttribute('aria-description');
+		elt.removeAttribute('aria-disabled');
+	}
+
+	if (elt.hasAttribute('data-reason-label'))
+	{
+		elt.removeAttribute('data-reason-label');
+		elt.removeAttribute('aria-label');
+	}
+
+	if (tooltip != null && tooltip != '')
+	{
+		elt.setAttribute('title', tooltip);
+	}
+	else
+	{
+		elt.removeAttribute('title');
+	}
+};
+
+/**
+ * Updates the tooltip and the reason of the given control of the action or
+ * menu with the given name (a button of a toolbar or an item of a menu) for
+ * the given enabled state. Focusable is passed to setDisabledReason.
+ */
+EditorUi.prototype.updateDisabledReason = function(elt, key, tooltip, enabled, focusable)
+{
+	var reason = (!enabled && this.isHelperEnabled('disabledReasons')) ?
+		this.getDisabledReason(key) : null;
+
+	if (reason != null)
+	{
+		this.setDisabledReason(elt, reason, tooltip, focusable);
+	}
+	else
+	{
+		this.clearDisabledReason(elt, tooltip);
+	}
+};
+
+/**
+ * Adds the reason of the given resource key (or the reason of the diagram,
+ * eg. read-only, if it is null) to the tooltip and the description of the
+ * given disabled control of the format panel (a button or an option) and
+ * its parts with a tooltip, eg. the checkbox and the label of an option that
+ * needs word wrap.
+ */
+EditorUi.prototype.addFormatDisabledReason = function(elt, key)
+{
+	var reason = (elt != null && this.isHelperEnabled('disabledReasons')) ?
+		((key != null) ? {kind: key, text: mxResources.get(key)} :
+		this.getDisabledReason(null)) : null;
+
+	if (reason != null)
+	{
+		var elts = Array.prototype.slice.call(elt.querySelectorAll('[title], input, button'));
+
+		if (elt.nodeName == 'BUTTON' || elt.nodeName == 'INPUT' || elt.hasAttribute('title'))
+		{
+			elts.unshift(elt);
+		}
+
+		for (var i = 0; i < elts.length; i++)
+		{
+			this.setDisabledReason(elts[i], reason, elts[i].getAttribute('title'), true);
+		}
+	}
+};
+
+/**
+ * Returns the first visible enabled text field of the given element.
+ */
+EditorUi.getFirstField = function(elt)
+{
+	var fields = elt.querySelectorAll('input, textarea');
+
+	for (var i = 0; i < fields.length; i++)
+	{
+		if ((fields[i].nodeName == 'TEXTAREA' ||
+			/^(text|number|search|url|email|)$/.test(fields[i].type || '')) &&
+			!fields[i].disabled && !fields[i].readOnly && fields[i].offsetParent != null)
+		{
+			return fields[i];
+		}
+	}
+
+	return null;
+};
+
+/**
+ * Returns the last visible enabled primary button of the given dialog.
+ */
+EditorUi.prototype.getDialogPrimary = function(dlg)
+{
+	var btns = dlg.container.querySelectorAll('.gePrimaryBtn');
+
+	for (var i = btns.length - 1; i >= 0; i--)
+	{
+		if (btns[i].offsetParent != null && !btns[i].disabled)
+		{
+			return btns[i];
+		}
+	}
+
+	return null;
+};
+
+/**
+ * Returns true if the given element or one of its ancestors below the
+ * given container listens to keys (with mxEvent or as a property).
+ */
+EditorUi.hasKeyListener = function(elt, container)
+{
+	var names = ['keydown', 'keypress', 'keyup'];
+
+	for (var p = elt; p != null && p != container; p = p.parentNode)
+	{
+		if (p.onkeydown != null || p.onkeypress != null || p.onkeyup != null)
+		{
+			return true;
+		}
+
+		var list = p.mxListenerList;
+
+		if (list != null)
+		{
+			for (var i = 0; i < list.length; i++)
+			{
+				if (mxUtils.indexOf(names, list[i].name) >= 0)
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+};
+
+/**
+ * Enter in a field of one line of the given dialog runs its primary action,
+ * the button that the given function returns (getDialogPrimary by
+ * default): not in fields that the dialog or its ancestors in the content
+ * listen to for keys (the dialogs with an Enter of their own, see
+ * hasKeyListener), not in comboboxes and fields with suggestions, not with a
+ * modifier key and not while an input method composes. The field commits
+ * its value first.
+ */
+EditorUi.prototype.installDialogEnter = function(dlg, getPrimary)
+{
+	var ui = this;
+	var div = dlg.container;
+
+	getPrimary = (getPrimary != null) ? getPrimary : function()
+	{
+		return ui.getDialogPrimary(dlg);
+	};
+
+	mxEvent.addListener(div, 'keydown', function(evt)
+	{
+		var source = mxEvent.getSource(evt);
+
+		if (evt.keyCode == 13 && !evt.isComposing && !evt.defaultPrevented && !mxEvent.isConsumed(evt) &&
+			!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt) && !mxEvent.isAltDown(evt) &&
+			!mxEvent.isShiftDown(evt) && source != null && source.nodeName == 'INPUT' &&
+			/^(text|number|url|email|tel|password|)$/.test(String(source.getAttribute('type') ||
+			'').toLowerCase()) && !source.readOnly && !source.hasAttribute('list') &&
+			source.getAttribute('role') != 'combobox' && source.getAttribute('aria-autocomplete') == null &&
+			!EditorUi.hasKeyListener(source, div))
+		{
+			var primary = getPrimary();
+
+			// Not after a listener of the field closed the dialog
+			if (primary != null && !primary.disabled && div.parentNode != null &&
+				div.contains(primary))
+			{
+				source.dispatchEvent(new Event('change', {bubbles: true}));
+
+				if (!primary.disabled)
+				{
+					primary.click();
+				}
+
+				mxEvent.consume(evt);
+			}
+		}
+	});
+};
+
+/**
+ * The focus goes into the given dialog when it is shown, so keys no longer
+ * reach the diagram behind it and Enter or Space no longer press the button
+ * that opened it again: unless the dialog moved the focus into it, the
+ * control of the given function (or else the first field, else the primary
+ * button) gets it, and on touch (with touch true) the dialog itself, which
+ * shows no keyboard. After the timeouts of the init of the dialog, which
+ * chooses its control first. Options are functions: touch (returns true
+ * on touch, a coarse pointer by default), getTarget (returns the control,
+ * the first field by default), getPrimary (returns the primary button,
+ * getDialogPrimary by default) and isEnabled (returns false if the focus
+ * should no longer move, eg. after a switch of the theme), and focusDialog
+ * (the dialog itself gets the focus if it has no field and no primary
+ * button). Quiet (a boolean) hides the focus ring around the dialog that
+ * takes the focus on touch.
+ */
+EditorUi.prototype.focusDialogStart = function(dlg, options)
+{
+	var ui = this;
+	var div = dlg.container;
+	options = (options != null) ? options : {};
+
+	var visible = function(elt)
+	{
+		return elt != null && elt.offsetParent != null && !elt.disabled;
+	};
+
+	window.setTimeout(function()
+	{
+		window.setTimeout(function()
+		{
+			if (div.parentNode == null || div.contains(document.activeElement) ||
+				(options.isEnabled != null && !options.isEnabled()))
+			{
+				return;
+			}
+
+			var target = null;
+			var touch = (options.touch != null) ? options.touch() :
+				(window.matchMedia != null && window.matchMedia('(pointer: coarse)').matches);
+
+			if (!touch)
+			{
+				target = (options.getTarget != null) ? options.getTarget() :
+					EditorUi.getFirstField(div);
+
+				if (!visible(target))
+				{
+					target = (options.getPrimary != null) ? options.getPrimary() :
+						ui.getDialogPrimary(dlg);
+				}
+			}
+
+			// The dialog itself on touch and if it has no field and no button
+			if (touch || (!visible(target) && options.focusDialog))
+			{
+				if (!div.hasAttribute('tabindex'))
+				{
+					div.setAttribute('tabindex', '-1');
+				}
+
+				// No focus ring around the dialog after a tap (options.quiet,
+				// see .geQuietFocus in grapheditor.css)
+				if (touch && options.quiet)
+				{
+					div.classList.add('geQuietFocus');
+				}
+
+				target = div;
+			}
+
+			if (target == div || visible(target))
+			{
+				target.focus({preventScroll: target == div});
+			}
+		}, 0);
+	}, 0);
+};
+
+/**
+ * Moves the focus back to the given control (see hideDialog) and returns
+ * true if it is visible.
+ */
+EditorUi.prototype.restoreFocus = function(elt)
+{
+	if (elt != null && elt.getClientRects().length > 0)
+	{
+		elt.focus();
+
+		return true;
+	}
+
+	return false;
+};
+
+/**
+ * Hook to lay out the given Edit Style dialog (the TextareaDialog of the
+ * action editStyle... for the given cells) before it is shown. Returns the
+ * size of its content, its smallest size and the key of its size
+ * ({width, height, minSize, key}, see showDialog). This implementation keeps
+ * the layout of the dialog.
+ */
+EditorUi.prototype.layoutEditStyleDialog = function(dlg, cells)
+{
+	return {width: 420, height: 300, minSize: new mxRectangle(0, 0, 300, 200), key: 'editStyle'};
+};
+
+/**
+ * Hook to lay out the given Edit Diagram dialog (the EditDiagramDialog of the
+ * action editDiagram...) before it is shown. Returns the size of its content,
+ * its smallest size and the key of its size ({width, height, minSize, key},
+ * see showDialog). This implementation keeps the layout of the dialog.
+ */
+EditorUi.prototype.layoutEditDiagramDialog = function(dlg)
+{
+	return {width: 620, height: 420, minSize: new mxRectangle(0, 0, 440, 280), key: null};
+};
+
+/**
  * Shows the given element in a new dialog with the given size. The size of
  * resizable dialogs is persisted if persistenceKey is given.
  */
@@ -9844,6 +11660,13 @@ EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, no
 
 	this.dialog = new Dialog(this, elt, w, h, modal, closable, onClose, noScroll, transparent, minSize, ignoreBgClick);
 	this.dialogs.push(this.dialog);
+
+	// Enter presses the primary button, the dialog takes the focus
+	if (this.isHelperEnabled('dialogFocus'))
+	{
+		this.installDialogEnter(this.dialog);
+		this.focusDialogStart(this.dialog, {focusDialog: true, quiet: true});
+	}
 
 	// Persistent size support for resizable dialogs
 	if (persistenceKey != null && minSize != null && typeof mxSettings !== 'undefined' &&
@@ -9933,10 +11756,10 @@ EditorUi.prototype.hideDialog = function(cancel, isEsc, matchContainer)
 
 					// Returns the focus to the control that opened the dialog with
 					// the keyboard unless it was removed or another dialog was opened
-					if (elt != null && elt.getClientRects().length > 0 && (this.dialog == null ||
-						mxUtils.isAncestorNode(this.dialog.container, elt)))
+					if (elt != null && (this.dialog == null || mxUtils.isAncestorNode(
+						this.dialog.container, elt)) && this.restoreFocus(elt))
 					{
-						elt.focus();
+						// focus restored
 					}
 					else if (focusGraph && (this.dialogs == null || this.dialogs.length == 0))
 					{
@@ -10135,6 +11958,11 @@ EditorUi.prototype.pickColor = function(color, apply, defaultColor, defaultColor
 	var graph = this.editor.graph;
 	var selState = graph.cellEditor.saveSelection();
 
+	// The control that opened the window with the keyboard gets the focus
+	// back when it closes (see ColorWindow)
+	var opener = (this.isHelperEnabled('focusReturn')) ?
+		Dialog.prototype.getReturnFocus.call({editorUi: this}) : null;
+
 	var self = this;
 
 	var wrappedApply = function(color)
@@ -10176,6 +12004,12 @@ EditorUi.prototype.pickColor = function(color, apply, defaultColor, defaultColor
 	}
 
 	this.colorWindow.selState = selState;
+
+	if (opener == null || !mxUtils.isAncestorNode(this.colorWindow.window.div, opener))
+	{
+		this.colorWindow.returnFocus = opener;
+	}
+
 	this.colorWindow.update(color, wrappedApply,
 		title || mxResources.get('fillColor'),
 		defaultColor, defaultColorValue, singleColorMode,
@@ -10244,7 +12078,8 @@ EditorUi.prototype.pickColorModal = function(color, apply, defaultColor, default
 
 	dlg.resizeFn = function()
 	{
-		dialogContainer.style.height = Dialog.getFrameHeight(dialogContainer, dlg.container.scrollHeight) + 'px';
+		// The top stays where it is, so the toggle stays under the pointer
+		Dialog.setFrameHeight(dialogContainer, Dialog.getFrameHeight(dialogContainer, dlg.container.scrollHeight));
 	};
 
 	dlg.init();
@@ -10661,6 +12496,13 @@ EditorUi.prototype.showDataExport = function(data, filename)
 	this.showDialog(dlg.container, 450, 300, true, true);
 	dlg.init();
 };
+
+/**
+ * Hook for the layout of the given dialog of the given kind (pageSetup for
+ * PageSetupDialog, editData for EditDataDialog, markup for MarkupDialog),
+ * called at the end of their constructors. This implementation does nothing.
+ */
+EditorUi.prototype.installFormLayout = function(dlg, kind) { };
 
 /**
  * Hides the current menu.
@@ -11257,7 +13099,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 			{
 				return function()
 				{
-					editorUi.focusOmniSearch();
+					editorUi.openSearch();
 				};
 			}
 			// Shift+F10 and the Menu key show the context menu
@@ -11518,6 +13360,43 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		}
 
 		return keyHandlerGetOmniboxFunction.apply(this, arguments);
+	};
+
+	// The keys of the Hand tool (setPanMode) where it is offered: H turns it
+	// on where the letters of the tools work (nothing selected, no shape
+	// picker, and nothing else bound to H, eg. by keyboardShortcuts), the
+	// letter of another tool (eg. A, D or X) leaves it and picks that tool
+	var keyHandlerGetHandFunction = keyHandler.getFunction;
+
+	keyHandler.getFunction = function(evt)
+	{
+		var fn = keyHandlerGetHandFunction.apply(this, arguments);
+		var letter = evt != null && evt.keyCode >= 65 && evt.keyCode <= 90 &&
+			!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt) &&
+			!mxEvent.isAltDown(evt) && !mxEvent.isShiftDown(evt);
+
+		if (letter && !graph.isEditing() && editorUi.isHandToolEnabled())
+		{
+			if (fn == null && evt.keyCode == 72 /* H */ && graph.isSelectionEmpty() &&
+				!editorUi.isShapePickerVisible())
+			{
+				return function()
+				{
+					editorUi.setPanMode(true);
+				};
+			}
+			else if (fn != null && editorUi.isPanMode())
+			{
+				return function()
+				{
+					editorUi.setPanMode(false);
+
+					return fn.apply(this, arguments);
+				};
+			}
+		}
+
+		return fn;
 	};
 
 	return keyHandler;
@@ -12092,6 +13971,15 @@ EditorUi.prototype.destroy = function()
 		this.inlineToolbar = null;
 	}
 
+	// Escape of the Hand tool (installHandTool)
+	if (this.handToolEscapeListener != null)
+	{
+		document.removeEventListener('keydown', this.handToolEscapeSourceListener, true);
+		document.removeEventListener('keydown', this.handToolEscapeListener);
+		this.handToolEscapeSourceListener = null;
+		this.handToolEscapeListener = null;
+	}
+
 	if (this.sidebar != null)
 	{
 		this.sidebar.destroy();
@@ -12126,6 +14014,12 @@ EditorUi.prototype.destroy = function()
 	{
 		mxEvent.removeListener(document, 'keydown', this.keydownHandler);
 		this.keydownHandler = null;
+	}
+
+	if (this.ellipsisTitleHandler != null)
+	{
+		mxEvent.removeListener(this.container, 'mouseover', this.ellipsisTitleHandler);
+		this.ellipsisTitleHandler = null;
 	}
 
 	if (this.tabStartHandler != null)

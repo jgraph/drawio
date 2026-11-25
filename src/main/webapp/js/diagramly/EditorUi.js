@@ -537,6 +537,27 @@
 	};
 
 	/**
+	 * Returns true if the given window.onerror message is the notice of a
+	 * ResizeObserver loop: the browser delivers the remaining notifications
+	 * in the next frame, so nothing failed and the app keeps working. Older
+	 * versions of Chrome say "ResizeObserver loop limit exceeded", Chrome,
+	 * Firefox and Safari "ResizeObserver loop completed with undelivered
+	 * notifications." (the text of the specification). The browsers report
+	 * it in each frame in which an observer changed the size of an observed
+	 * element in its callback, eg. in every frame of a resize of the window,
+	 * and the handler of App.start showed each of the newer notices as an
+	 * error dialog. Only the full native texts match: an exception whose
+	 * message merely contains them (eg. "Uncaught Error: ResizeObserver loop
+	 * limit exceeded while ...") is a real error and must still be shown
+	 * and logged by the global error handlers.
+	 */
+	EditorUi.isResizeObserverLoopError = function(message)
+	{
+		return message == 'ResizeObserver loop limit exceeded' ||
+			message == 'ResizeObserver loop completed with undelivered notifications.';
+	};
+
+	/**
 	 * Returns the given file hash for logs: the type character (eg. G for
 	 * Google Drive, U for a URL, R for a diagram encoded in the URL) followed
 	 * by a hash of the rest, so no diagram data, raw file id or URL is logged
@@ -1522,10 +1543,110 @@
 	};
 
 	/**
+	 * A click selects in the Hand tool of Fusion (the driver, 12 November
+	 * 2026: not read-only, the menus must work), not in the one of Simple,
+	 * which is for panning and zooming (the driver, 14 November 2026, see
+	 * EditorUi.isHandToolViewOnly).
+	 */
+	EditorUi.prototype.isHandToolSelectEnabled = function()
+	{
+		return Editor.getFeatureTheme() == 'fusion';
+	};
+
+	/**
+	 * Returns true if a tool of Draw (freehand, polygon; see FreehandWindow)
+	 * or Draw a tie (TieTool) is drawing, which the Hand tool leaves the mouse
+	 * to (see EditorUi.setPanMode).
+	 */
+	EditorUi.prototype.isDrawing = function()
+	{
+		var graph = this.editor.graph;
+
+		if (this.tieTool != null && this.tieTool.isActive())
+		{
+			return true;
+		}
+		else if (this.freehandWindow != null && this.freehandWindow.isDrawing != null)
+		{
+			return this.freehandWindow.isDrawing();
+		}
+
+		return graph.freehand != null && graph.freehand.isDrawing != null && graph.freehand.isDrawing();
+	};
+
+	/**
+	 * Stops the tools of Draw and closes the Draw options (the window of
+	 * freehand drawing).
+	 */
+	EditorUi.prototype.stopDrawing = function()
+	{
+		var graph = this.editor.graph;
+
+		if (this.tieTool != null)
+		{
+			this.tieTool.cancel();
+		}
+
+		if (this.freehandWindow != null && this.freehandWindow.stopDrawing != null)
+		{
+			this.freehandWindow.stopDrawing();
+
+			if (this.freehandWindow.window != null && this.freehandWindow.window.isVisible())
+			{
+				this.freehandWindow.window.setVisible(false);
+			}
+		}
+		else if (graph.freehand != null && graph.freehand.isDrawing != null && graph.freehand.isDrawing())
+		{
+			graph.freehand.stopDrawing();
+		}
+	};
+
+	/**
+	 * Draw a tie (the action drawTie: the Bundle popover of the inline
+	 * toolbar, the context menu on touch and the search): the tie tool draws
+	 * one line and ties the connectors where it crosses them (TieTool with
+	 * once, Graph.bundleEdgesAcross), so ties are placed without Alt+Shift,
+	 * also on touch. While it draws, the card of the toast says what to do
+	 * with Done (showTieToolHint, UndoToast.js); a line that ties no
+	 * connectors keeps drawing, Done, Escape and the other tools of Draw stop
+	 * it. Fusion shows its tie bar instead (startSimpleTieTool).
+	 */
+	EditorUi.prototype.startTieTool = function()
+	{
+		var graph = this.editor.graph;
+
+		if (typeof TieTool !== 'undefined' && graph.isEnabled())
+		{
+			this.stopDrawing();
+
+			if (this.tieTool == null)
+			{
+				this.tieTool = new TieTool(this);
+			}
+
+			this.tieTool.start(true);
+
+			if (this.tieTool.isActive())
+			{
+				// The text of the card is a live region
+				if (typeof this.showTieToolHint === 'function')
+				{
+					this.showTieToolHint();
+				}
+				else
+				{
+					this.announce(mxResources.get('drawTieHint'), true);
+				}
+			}
+		}
+	};
+
+	/**
 	 * Returns the HTML of the icons for the status bar if the diagram is
 	 * read-only in this window or the file is locked, or an empty string. The
 	 * eye of the read-only mode ends that mode, the lock of a locked file
-	 * opens the properties of the file.
+	 * unlocks the file after a confirmation (unlockFile).
 	 */
 	EditorUi.prototype.createLockedStatus = function()
 	{
@@ -1549,10 +1670,32 @@
 
 		if (file != null && file.isLocked())
 		{
-			addIcon('properties', 'locked', Editor.lockedImage);
+			addIcon('unlockFile', 'locked', Editor.lockedImage);
 		}
 
 		return html;
+	};
+
+	/**
+	 * Unlocks the current file after a confirmation, as the locked checkbox of
+	 * File › Properties (DrawioFile.setLocked). Runs for the lock in the status
+	 * (createLockedStatus).
+	 */
+	EditorUi.prototype.confirmUnlockFile = function()
+	{
+		var file = this.getCurrentFile();
+
+		if (file != null && file.isLocked())
+		{
+			this.confirm(mxResources.get('unlockDiagramConfirm'), mxUtils.bind(this, function()
+			{
+				// Another file may be open or the file unlocked by now
+				if (this.getCurrentFile() == file && this.fileNode != null && file.isLocked())
+				{
+					file.setLocked(false);
+				}
+			}), null, mxResources.get('unlock'), mxResources.get('cancel'));
+		}
 	};
 
 	/**
@@ -1792,14 +1935,8 @@
 	EditorUi.prototype.presentingHeartbeatDelay = 2000;
 
 	/**
-	 * Minimum time in milliseconds between the updates of the laser pointer
-	 * while presenting.
-	 */
-	EditorUi.prototype.laserDelay = 40;
-
-	/**
-	 * Sends the view, the state of presentation mode and the explorer and the
-	 * laser pointer to the collaborators that follow this client.
+	 * Sends the view and the state of presentation mode and the explorer to
+	 * the collaborators that follow this client.
 	 */
 	EditorUi.prototype.sendPresentingView = function()
 	{
@@ -1809,60 +1946,7 @@
 		{
 			file.sync.sendViewUpdate((this.currentPage != null) ?
 				this.currentPage.getId() : null, this.getViewportBounds(),
-				this.getSharedViewMode(), this.getSharedLaser());
-		}
-	};
-
-	/**
-	 * Sends the laser pointer of presentation mode at most every laserDelay
-	 * while presenting, the last position always.
-	 */
-	EditorUi.prototype.laserChanged = function()
-	{
-		if (this.presenting && this.laserThread == null)
-		{
-			var delay = (this.laserTime != null) ? this.laserTime +
-				this.laserDelay - Date.now() : 0;
-
-			this.laserThread = window.setTimeout(mxUtils.bind(this, function()
-			{
-				this.laserThread = null;
-				this.laserTime = Date.now();
-				this.sendPresentingView();
-			}), Math.max(0, delay));
-		}
-	};
-
-	/**
-	 * Returns the point of the laser pointer of presentation mode in model
-	 * units for the collaborators that follow this client, or 0 if it is off.
-	 */
-	EditorUi.prototype.getSharedLaser = function()
-	{
-		var p = this.presentation;
-		var pt = (p != null && p.isShown() && p.getLaser != null) ? p.getLaser() : null;
-
-		return (pt != null) ? {x: Math.round(pt.x * 10) / 10,
-			y: Math.round(pt.y * 10) / 10} : 0;
-	};
-
-	/**
-	 * Shows the laser pointer of a followed presenter in presentation mode
-	 * (see getSharedLaser). The point comes from a collaborator, so it is
-	 * checked. Undefined is sent by clients without a laser pointer and is
-	 * ignored.
-	 */
-	EditorUi.prototype.applySharedLaser = function(laser)
-	{
-		var p = this.presentation;
-
-		if (laser !== undefined && p != null && p.setRemoteLaser != null)
-		{
-			var x = (laser != null && typeof laser === 'object') ? parseFloat(laser.x) : NaN;
-			var y = (laser != null && typeof laser === 'object') ? parseFloat(laser.y) : NaN;
-
-			p.setRemoteLaser((Math.abs(x) < 1e6 && Math.abs(y) < 1e6) ?
-				new mxPoint(x, y) : null);
+				this.getSharedViewMode());
 		}
 	};
 
@@ -2074,7 +2158,6 @@
 			this.stopFollowingListener = null;
 			this.lastSharedViewMode = null;
 			this.followingPresenter = null;
-			this.applySharedLaser(0);
 
 			if (this.diagramContainer != null)
 			{
@@ -2184,6 +2267,48 @@
 	EditorUi.prototype.isExternalDataComms = function()
 	{
 		return urlParams['offline'] != '1' && !this.isOffline() && !this.isOfflineApp();
+	};
+
+	/**
+	 * Returns the models of Editor.aiModels that are set up with their own
+	 * API key (in Editor.aiGlobals), if Editor.aiActions has create, update
+	 * or assist.
+	 */
+	EditorUi.prototype.getAiModels = function()
+	{
+		var models = [];
+
+		if (mxUtils.indexOf(Editor.aiActions, 'create') >= 0 ||
+			mxUtils.indexOf(Editor.aiActions, 'update') >= 0 ||
+			mxUtils.indexOf(Editor.aiActions, 'assist') >= 0)
+		{
+			for (var i = 0; i < Editor.aiModels.length; i++)
+			{
+				var model = Editor.aiModels[i];
+
+				if (Editor.aiConfigs[model.config] != null && Editor.aiGlobals[
+					Editor.aiConfigs[model.config].apiKey] != null)
+				{
+					models.push(model);
+				}
+			}
+		}
+
+		return models;
+	};
+
+	/**
+	 * Returns true if the hosted generate service of draw.io (GENERATE_URL)
+	 * may be used: the Generate window and links that generate a diagram.
+	 * It pays draw.io's API bill, so it needs createPublic in
+	 * Editor.aiActions and no model with its own API key (except in test
+	 * mode), and it needs external requests and Mermaid.
+	 */
+	EditorUi.prototype.isPublicGenerateEnabled = function()
+	{
+		return this.isExternalDataComms() && EditorUi.isMermaidSupported() &&
+			mxUtils.indexOf(Editor.aiActions, 'createPublic') >= 0 &&
+			(this.getAiModels().length == 0 || urlParams['test'] == 1);
 	};
 
 	/**
@@ -2462,6 +2587,1134 @@
 			data.charCodeAt(2) == 0x11 && data.charCodeAt(3) == 0xE0 && data.charCodeAt(4) == 0xA1 && data.charCodeAt(5) == 0xB1 &&
 			data.charCodeAt(6) == 0x1A && data.charCodeAt(7) == 0xE1) || (data.charCodeAt(0) == 0x3C && data.charCodeAt(1) == 0x3F &&
 			data.charCodeAt(2) == 0x78 && data.charCodeAt(3) == 0x6D && data.charCodeAt(3) == 0x6C));
+	};
+
+	/**
+	 * Number of shapes that the search of the shape picker shows, and that
+	 * each More Results adds (addShapePickerSearch): six rows of four, as many
+	 * as the search of the Shape popover of the inline toolbar shows for a
+	 * palette on a desktop.
+	 */
+	EditorUi.shapePickerSearchCount = 24;
+
+	/**
+	 * Number of entries that the search of the shape picker asks the search of
+	 * the sidebar for: the first page of the search of the Shapes card of
+	 * Fusion (four rows of five), so the picker shows the first shapes of that
+	 * page and the icon service is asked for the same terms (those with a
+	 * quarter of a page or fewer shapes).
+	 */
+	EditorUi.shapePickerSearchPage = 20;
+
+	/**
+	 * Number of pages of shapePickerSearchPage entries that the search of the
+	 * shape picker asks for at most to fill its tiles: entries that the
+	 * picker cannot show (connectors, groups) are skipped, so a term with many
+	 * connectors asks for the next page.
+	 */
+	EditorUi.shapePickerSearchPages = 5;
+
+	/**
+	 * The shape pickers that open with a click (a click on a hover arrow, a
+	 * double click on the diagram, Insert > Shape..., the end of a connector)
+	 * get a field at the top that searches the shapes of all libraries
+	 * (addShapePickerSearch), in every theme that has the search
+	 * (Editor.isShapePickerSearchEnabled). Pointing at an arrow keeps the
+	 * picker without the field, and typing on the diagram still types the
+	 * label of the first shape in every picker (typeIntoShapePicker). A
+	 * configured shape picker (shapePicker) keeps its shapes without the field.
+	 */
+	var editorUiCreateShapePicker = EditorUi.prototype.createShapePicker;
+
+	EditorUi.prototype.createShapePicker = function(x, y, source, callback, direction,
+		afterClick, cells, hovering, getInsertLocationFn, showEdges, startEditing, connectEdge)
+	{
+		var div = editorUiCreateShapePicker.apply(this, arguments);
+
+		if (div != null && !hovering && Editor.isShapePickerSearchEnabled() &&
+			this.defaultShapePickerEntries == null &&
+			this.sidebar != null && this.sidebar.taglist != null)
+		{
+			var args = Array.prototype.slice.call(arguments);
+
+			this.addShapePickerSearch(div, function(found)
+			{
+				args[6] = found;
+
+				return editorUiCreateShapePicker.apply(this, args);
+			});
+		}
+
+		return div;
+	};
+
+	/**
+	 * Ends the search of a shape picker that hides: a search typed just
+	 * before the picker closed does not run.
+	 */
+	var editorUiHideShapePicker = EditorUi.prototype.hideShapePicker;
+
+	EditorUi.prototype.hideShapePicker = function(cancel)
+	{
+		var picker = this.shapePicker;
+		editorUiHideShapePicker.apply(this, arguments);
+
+		if (picker != null && this.shapePicker != picker && picker.cancelShapePickerSearch != null)
+		{
+			picker.cancelShapePickerSearch();
+		}
+	};
+
+	/**
+	 * Returns the search field of the shape picker: an element with the input
+	 * as its input property. The given function is called with the value of
+	 * the input when it changes. Escape in a field with text clears it and
+	 * consumes the event. This implementation returns a plain field in the
+	 * look of the search of the sidebar.
+	 */
+	EditorUi.prototype.createShapePickerSearchField = function(fn)
+	{
+		var placeholder = mxResources.get('searchShapes');
+		var field = document.createElement('div');
+		field.className = 'geShapePickerSearch';
+
+		var input = document.createElement('input');
+		input.setAttribute('type', 'text');
+		input.setAttribute('placeholder', placeholder);
+		input.setAttribute('title', placeholder);
+		input.setAttribute('aria-label', placeholder);
+		input.setAttribute('autocomplete', 'off');
+		input.setAttribute('spellcheck', 'false');
+		field.appendChild(input);
+
+		var icon = document.createElement('img');
+		icon.setAttribute('src', Editor.magnifyImage);
+		icon.setAttribute('alt', '');
+		icon.className = 'geAdaptiveAsset';
+		field.appendChild(icon);
+
+		mxEvent.addListener(input, 'input', function()
+		{
+			fn(input.value);
+		});
+
+		mxEvent.addListener(input, 'keydown', function(evt)
+		{
+			if (evt.keyCode == 27 /* Escape */ && input.value != '')
+			{
+				input.value = '';
+				fn('');
+				mxEvent.consume(evt);
+			}
+		});
+
+		field.input = input;
+
+		return field;
+	};
+
+	/**
+	 * Returns the element that the search of the shape picker shows in place
+	 * of the tiles, with the given text: a status, as the search runs while
+	 * the words are typed.
+	 */
+	EditorUi.prototype.createShapePickerSearchNote = function(text)
+	{
+		var note = document.createElement('div');
+		note.className = 'geShapePickerNote';
+		note.setAttribute('role', 'status');
+		mxUtils.write(note, text);
+
+		return note;
+	};
+
+	/**
+	 * Returns the list of the shapes found by the search of the shape picker
+	 * (addShapePickerSearch): the element that holds their tiles below the
+	 * field, which scrolls after More Results while the picker keeps its
+	 * height. This implementation returns a block in the width of the picker.
+	 */
+	EditorUi.prototype.createShapePickerSearchList = function()
+	{
+		var list = document.createElement('div');
+		list.className = 'geShapePickerResults';
+
+		return list;
+	};
+
+	/**
+	 * Returns More Results of the search of the shape picker
+	 * (addShapePickerSearch): a row with a focusable button with the label
+	 * moreResults as its button property, as in the search of the sidebar and
+	 * of the Shape popover of the inline toolbar. This implementation returns
+	 * a button of the dialogs across the width of the picker.
+	 */
+	EditorUi.prototype.createShapePickerSearchMore = function()
+	{
+		var row = document.createElement('div');
+		row.className = 'geShapePickerMore';
+
+		var button = document.createElement('div');
+		button.className = 'geBtn';
+		button.setAttribute('role', 'button');
+		button.setAttribute('tabindex', '0');
+		mxUtils.write(button, mxResources.get('moreResults'));
+		row.appendChild(button);
+		row.button = button;
+
+		return row;
+	};
+
+	/**
+	 * Adds the search field to the given shape picker. The field searches the
+	 * shapes of the sidebar as you type and shows the first shapes found as
+	 * tiles of the picker, which add their shape like the other tiles (eg.
+	 * connected to the shape of the arrow); without a search term the picker
+	 * shows its shapes again. It finds what the search of the sidebar finds
+	 * (searchShapePickerEntries): the shapes of all libraries, and the icons of
+	 * the icon service for terms with few shapes, with a note while the service
+	 * is asked. It shows shapePickerSearchCount shapes in a list below the
+	 * field (createShapePickerSearchList) and More Results below them while
+	 * there are more (createShapePickerSearchMore), as the Shape popover of
+	 * the inline toolbar does (searchShapePickerPage): it adds the next shapes
+	 * to the list, which keeps its height and scrolls to the first new row,
+	 * so the button stays under the mouse, says Loading... while the icon
+	 * service is asked and hides when there are no more shapes. The tiles of
+	 * the shapes found are made by the given function, which returns a picker
+	 * for the given cells. Typing on the diagram still types the label of the
+	 * focused or first tile (typeIntoShapePicker): the field takes the keys
+	 * only while it has the focus, which it does not take when the picker
+	 * opens. Tab cycles through the field, the tiles and More Results, the
+	 * arrow keys move between the tiles also while the list scrolls, and the
+	 * mouse wheel scrolls the list that scrolls without closing the picker.
+	 * Labels of the shapes found are only text (the titles of the sidebar
+	 * name the tiles in aria-label).
+	 */
+	EditorUi.prototype.addShapePickerSearch = function(div, createPicker)
+	{
+		var ui = this;
+		var graph = this.editor.graph;
+		var tiles = Array.prototype.slice.call(div.childNodes);
+		var insert = div.insertShapeForTyping;
+		var note = null;
+		var thread = null;
+		var counter = 0;
+
+		// The list of the shapes found (null while the picker shows its own
+		// tiles or a note) and the tiles and the function that types into
+		// them of each page that it shows (see insertShapeForTyping)
+		var list = null;
+		var pages = [];
+
+		// The result of the last search for More Results (null if there are
+		// no more shapes), its words, true while More Results waits for the
+		// icon service and true while a key that pressed More Results is held
+		var next = null;
+		var lastTerm = null;
+		var loadingMore = false;
+		var held = false;
+
+		// True while the search waits for the icon service, and the tile that
+		// Arrow Down, Enter or Tab in the field pressed meanwhile go to when the
+		// tiles come (last for Shift+Tab, else first)
+		var loading = false;
+		var pending = null;
+
+		var field = this.createShapePickerSearchField(function(value)
+		{
+			pending = null;
+			window.clearTimeout(thread);
+			thread = window.setTimeout(function()
+			{
+				thread = null;
+				search(value);
+			}, (value == '') ? 0 : 200);
+		});
+
+		var input = field.input;
+		div.insertBefore(field, div.firstChild);
+
+		var more = this.createShapePickerSearchMore();
+		var moreButton = more.button;
+
+		// Shows the given label on More Results and the busy state while it
+		// waits for the icon service
+		var setMoreLabel = function(label, busy)
+		{
+			moreButton.textContent = '';
+			mxUtils.write(moreButton, label);
+			moreButton.style.cursor = (busy) ? 'wait' : '';
+
+			if (busy)
+			{
+				moreButton.setAttribute('aria-disabled', 'true');
+			}
+			else
+			{
+				moreButton.removeAttribute('aria-disabled');
+			}
+		};
+
+		// Removes the shown tiles (the tiles of the picker are kept)
+		var clear = function()
+		{
+			if (list != null)
+			{
+				if (list.parentNode == div)
+				{
+					div.removeChild(list);
+				}
+
+				list = null;
+				pages = [];
+			}
+			else
+			{
+				for (var i = 0; i < tiles.length; i++)
+				{
+					if (tiles[i].parentNode == div)
+					{
+						div.removeChild(tiles[i]);
+					}
+				}
+			}
+
+			if (note != null && note.parentNode != null)
+			{
+				note.parentNode.removeChild(note);
+			}
+
+			if (more.parentNode == div)
+			{
+				div.removeChild(more);
+			}
+
+			if (loadingMore)
+			{
+				loadingMore = false;
+				setMoreLabel(mxResources.get('moreResults'), false);
+			}
+
+			// Ends the state of a search that waits for the icon service
+			div.style.minHeight = '';
+			loading = false;
+			next = null;
+			note = null;
+		};
+
+		// Shows the given text in place of the tiles
+		var showNote = function(text)
+		{
+			note = ui.createShapePickerSearchNote(text);
+			div.appendChild(note);
+			div.insertShapeForTyping = null;
+		};
+
+		// Moves the picker up if more tiles reach below the container (see
+		// createShapePicker)
+		var fit = function()
+		{
+			var b = graph.container.scrollTop + graph.container.offsetHeight;
+			var dy = div.offsetTop + div.clientHeight - b;
+
+			if (dy > 0)
+			{
+				div.style.top = Math.max(graph.container.scrollTop + 22,
+					div.offsetTop - dy) + 'px';
+			}
+		};
+
+		// Lets the list scroll in the given height (its own by default)
+		var setScroll = function(height)
+		{
+			list.style.maxHeight = Math.round((height != null) ? height : list.offsetHeight) + 'px';
+			list.style.overflowY = 'auto';
+			updateList();
+		};
+
+		// The look may show where the list is scrolled (see
+		// createShapePickerSearchList)
+		var updateList = function()
+		{
+			if (list != null && list.updateScroll != null)
+			{
+				list.updateScroll();
+			}
+		};
+
+		// The picker fits in the visible container (see fit): a list that is
+		// higher than the room scrolls in it, with at least two rows
+		var fitList = function()
+		{
+			var cs = mxUtils.getCurrentStyle(list);
+			var gap = (cs != null) ? (parseFloat(cs.rowGap) || 0) : 0;
+			var tile = (pages.length > 0 && pages[0].nodes.length > 0) ?
+				pages[0].nodes[0].offsetHeight : 0;
+			var dy = div.offsetHeight - (graph.container.clientHeight - 44);
+
+			if (dy > 0)
+			{
+				setScroll(Math.max(2 * tile + gap, list.offsetHeight - dy));
+			}
+		};
+
+		// Focuses the first or last tile, returns true if there is one
+		var focusTile = function(last)
+		{
+			var items = ui.sidebar.getKeyboardItems(div);
+
+			if (items.length > 0)
+			{
+				items[(last) ? items.length - 1 : 0].focus();
+			}
+
+			return items.length > 0;
+		};
+
+		// Adds the list of the shapes found below the field. Presses on the
+		// list itself (its scrollbar, the gaps) are not gestures of the diagram.
+		// It scrolls up and down on touch (the picker takes no gestures).
+		var createList = function()
+		{
+			var elt = ui.createShapePickerSearchList();
+			elt.style.touchAction = 'pan-y';
+			elt.style.overscrollBehavior = 'contain';
+			div.appendChild(elt);
+
+			mxEvent.addGestureListeners(elt, function(evt)
+			{
+				if (mxEvent.getSource(evt) == elt)
+				{
+					evt.stopPropagation();
+				}
+			});
+
+			// The mouse wheel scrolls the list while it scrolls, also at its
+			// end, instead of the diagram behind it: the wheel handler of the
+			// window fires the wheel of the graph, which closes the picker
+			// (installShapePicker). Pinches (the control key) still zoom.
+			mxEvent.addListener(elt, 'wheel', function(evt)
+			{
+				if (!evt.ctrlKey && elt.scrollHeight > elt.clientHeight)
+				{
+					evt.stopPropagation();
+				}
+			});
+
+			return elt;
+		};
+
+		// Adds the tiles of the given shapes found to the list and returns the
+		// first new tile, null if there is none
+		var addPage = function(found)
+		{
+			var temp = (found.cells.length > 0) ? createPicker.call(ui, found.cells) : null;
+			var first = null;
+
+			if (temp != null)
+			{
+				if (temp.parentNode != null)
+				{
+					temp.parentNode.removeChild(temp);
+				}
+
+				var nodes = Array.prototype.slice.call(temp.childNodes);
+
+				for (var i = 0; i < nodes.length; i++)
+				{
+					var item = nodes[i].firstChild;
+
+					// Names the tiles after the entries of the sidebar
+					if (item != null && item.nodeType == mxConstants.NODETYPE_ELEMENT &&
+						found.titles[i] != null && found.titles[i] != '')
+					{
+						item.setAttribute('aria-label', found.titles[i]);
+					}
+
+					list.appendChild(nodes[i]);
+				}
+
+				pages.push({nodes: nodes, insert: temp.insertShapeForTyping});
+				first = (nodes.length > 0) ? nodes[0] : null;
+			}
+
+			next = (found.more && pages.length > 0) ? found : null;
+
+			return first;
+		};
+
+		// Types into the focused tile, or the first tile, of the shapes found
+		var insertFound = function(evt)
+		{
+			var page = pages[0];
+
+			for (var i = 0; i < pages.length; i++)
+			{
+				for (var j = 0; j < pages[i].nodes.length; j++)
+				{
+					if (mxUtils.isAncestorNode(pages[i].nodes[j], document.activeElement))
+					{
+						page = pages[i];
+					}
+				}
+			}
+
+			if (page != null && page.insert != null)
+			{
+				page.insert(evt);
+			}
+		};
+
+		// Shows More Results below the list while there are more shapes. If it
+		// has the focus when it hides, the focus goes to the given tile.
+		var updateMore = function(tile)
+		{
+			if (list != null && next != null)
+			{
+				if (more.parentNode != div)
+				{
+					div.appendChild(more);
+				}
+			}
+			else if (more.parentNode == div)
+			{
+				var focused = document.activeElement == moreButton;
+				var height = div.offsetHeight;
+				div.removeChild(more);
+
+				// A list that scrolls takes the room of the button, so the
+				// picker keeps its size (nothing moves under the mouse)
+				if (list != null && list.style.maxHeight != '')
+				{
+					var dh = height - div.offsetHeight;
+
+					if (dh > 0)
+					{
+						list.style.maxHeight = Math.round(parseFloat(list.style.maxHeight) + dh) + 'px';
+						list.style.height = list.style.maxHeight;
+						updateList();
+					}
+				}
+
+				if (focused && tile != null)
+				{
+					var items = ui.sidebar.getKeyboardItems(tile);
+
+					if (items.length > 0)
+					{
+						items[0].focus({preventScroll: true});
+					}
+				}
+			}
+		};
+
+		// Adds the next shapes of the last search to the list, which keeps its
+		// height and scrolls so that their first row is at its top, and says
+		// that it is loading while the icon service is asked
+		var loadMore = function()
+		{
+			if (next != null && list != null && !loadingMore)
+			{
+				var from = next;
+				var term = lastTerm;
+				var current = counter;
+				loadingMore = true;
+
+				var isCurrent = function()
+				{
+					return current == counter && ui.shapePicker == div &&
+						term == mxUtils.trim(input.value);
+				};
+
+				var waiting = ui.searchShapePickerPage(term, function(found)
+				{
+					if (isCurrent() && list != null)
+					{
+						loadingMore = false;
+						setMoreLabel(mxResources.get('moreResults'), false);
+
+						if (list.style.maxHeight == '')
+						{
+							setScroll();
+						}
+
+						var page = pages[pages.length - 1];
+						var last = (page != null) ? page.nodes[page.nodes.length - 1] : null;
+						var first = addPage(found);
+						updateMore((first != null) ? first : last);
+
+						if (first != null)
+						{
+							var cs = mxUtils.getCurrentStyle(list);
+							list.scrollTop += first.getBoundingClientRect().top -
+								list.getBoundingClientRect().top - list.clientTop -
+								((cs != null) ? (parseFloat(cs.paddingTop) || 0) : 0);
+						}
+
+						updateList();
+					}
+				}, isCurrent, null, EditorUi.shapePickerSearchCount, from);
+
+				if (waiting && isCurrent())
+				{
+					setMoreLabel(mxResources.get('loading') + '...', true);
+				}
+			}
+		};
+
+		var search = function(value)
+		{
+			var term = mxUtils.trim(value);
+			var current = ++counter;
+
+			if (term.length == 0)
+			{
+				clear();
+
+				for (var i = 0; i < tiles.length; i++)
+				{
+					div.appendChild(tiles[i]);
+				}
+
+				div.insertShapeForTyping = insert;
+				fit();
+			}
+			else
+			{
+				// An answer for words that are no longer in the field changes
+				// nothing, also before the search for the new words starts
+				var isCurrent = function()
+				{
+					return current == counter && ui.shapePicker == div &&
+						term == mxUtils.trim(input.value);
+				};
+
+				var done = function(found)
+				{
+					if (isCurrent())
+					{
+						var last = pending;
+						pending = null;
+						clear();
+						lastTerm = term;
+
+						if (found.cells.length > 0)
+						{
+							list = createList();
+							addPage(found);
+						}
+
+						if (pages.length > 0)
+						{
+							div.insertShapeForTyping = insertFound;
+							updateMore();
+							fitList();
+						}
+						else
+						{
+							if (list != null)
+							{
+								div.removeChild(list);
+								list = null;
+							}
+
+							showNote(mxResources.get('noResultsFor', [term]));
+						}
+
+						fit();
+
+						// A key pressed in the field while the icon service was
+						// asked goes to the tiles now
+						if (last != null && document.activeElement == input)
+						{
+							if (last && more.parentNode == div)
+							{
+								moreButton.focus();
+							}
+							else
+							{
+								focusTile(last);
+							}
+						}
+					}
+				};
+
+				var waiting = ui.searchShapePickerPage(term, done, isCurrent,
+					null, EditorUi.shapePickerSearchCount, null);
+
+				// The icon service answers later: the picker keeps its size and
+				// says that it is loading instead of offering the tiles of the
+				// search before (a search started by the answer has its own note).
+				// No aria-busy on the picker, which would hold back the status
+				// of the note inside it
+				if (waiting && current == counter && ui.shapePicker == div)
+				{
+					var height = div.offsetHeight;
+					clear();
+					div.style.minHeight = height + 'px';
+					showNote(mxResources.get('loading') + '...');
+					loading = true;
+				}
+			}
+		};
+
+		// The picker ends the search when it hides (hideShapePicker)
+		div.cancelShapePickerSearch = function()
+		{
+			window.clearTimeout(thread);
+			thread = null;
+			counter++;
+		};
+
+		// Searches now if the last keystroke is still waiting
+		var flush = function()
+		{
+			if (thread != null)
+			{
+				window.clearTimeout(thread);
+				thread = null;
+				search(input.value);
+			}
+		};
+
+		// Keys in the field are neither shortcuts of the diagram nor typed into the
+		// picker. Escape clears the field (createShapePickerSearchField), then closes
+		// the picker, Arrow Down, Enter and Tab go to the first tile (Shift+Tab to
+		// More Results or the last tile), while the icon service is asked when the
+		// tiles come.
+		mxEvent.addListener(input, 'keydown', function(evt)
+		{
+			if (!evt.defaultPrevented && !mxEvent.isAltDown(evt) &&
+				!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt))
+			{
+				if (evt.keyCode == 27 /* Escape */)
+				{
+					ui.hideShapePicker();
+					mxEvent.consume(evt);
+				}
+				else if (evt.keyCode == 40 /* Down */ || evt.keyCode == 13 /* Enter */ ||
+					evt.keyCode == 9 /* Tab */)
+				{
+					var last = evt.keyCode == 9 && mxEvent.isShiftDown(evt);
+					flush();
+
+					// Shift+Tab goes round to More Results (see below)
+					if (last && more.parentNode == div)
+					{
+						moreButton.focus();
+					}
+					// Waits for the tiles while the icon service is asked
+					else if (!focusTile(last) && loading)
+					{
+						pending = last;
+					}
+
+					mxEvent.consume(evt);
+				}
+			}
+
+			evt.stopPropagation();
+		});
+
+		// A click, Enter or Space on More Results adds the next shapes, not again
+		// while the key is held (see below)
+		mxEvent.addListener(moreButton, 'click', function(evt)
+		{
+			loadMore();
+			mxEvent.consume(evt);
+		});
+
+		mxEvent.addListener(moreButton, 'keydown', function(evt)
+		{
+			if ((evt.keyCode == 13 /* Enter */ || evt.keyCode == 32 /* Space */) &&
+				!mxEvent.isAltDown(evt) && !mxEvent.isControlDown(evt) &&
+				!mxEvent.isMetaDown(evt))
+			{
+				if (!evt.repeat)
+				{
+					held = true;
+					loadMore();
+				}
+
+				mxEvent.consume(evt);
+			}
+		});
+
+		// Tab on a tile or More Results goes to the next tile, More Results or the
+		// field (before the Tab of createShapePicker, which cycles through the tiles
+		// only). Arrow Down in the last row goes to More Results, Arrow Up on it to
+		// the last tile. A key held on More Results while the focus moved to the
+		// first new tile applies no shape.
+		div.addEventListener('keydown', function(evt)
+		{
+			var source = mxEvent.getSource(evt);
+
+			if (held && evt.repeat)
+			{
+				mxEvent.consume(evt);
+			}
+			else if (source != input && !mxEvent.isAltDown(evt) && !mxEvent.isControlDown(evt) &&
+				!mxEvent.isMetaDown(evt))
+			{
+				var items = ui.sidebar.getKeyboardItems(div);
+				var shown = more.parentNode == div;
+
+				if (evt.keyCode == 9 /* Tab */)
+				{
+					items = [input].concat(items);
+
+					if (shown)
+					{
+						items.push(moreButton);
+					}
+
+					var index = mxUtils.indexOf(items, document.activeElement);
+					items[mxUtils.mod(index + ((mxEvent.isShiftDown(evt)) ? -1 : 1),
+						items.length)].focus();
+					mxEvent.consume(evt);
+				}
+				else if (evt.keyCode == 38 /* Up */ && source == moreButton && items.length > 0)
+				{
+					items[items.length - 1].focus();
+					mxEvent.consume(evt);
+				}
+				else if (evt.keyCode == 40 /* Down */ && shown && items.length > 0 &&
+					mxUtils.indexOf(items, source) >= 0 && source.getBoundingClientRect().top >=
+					items[items.length - 1].getBoundingClientRect().top - 1)
+				{
+					moreButton.focus();
+					mxEvent.consume(evt);
+				}
+				// The arrow keys move between the tiles of the list, also while
+				// it scrolls (Sidebar.addClickHandler leaves the arrow keys without
+				// Shift to the browser in areas that scroll), and the focus scrolls
+				// the tile into view
+				else if (evt.keyCode >= 37 && evt.keyCode <= 40 && list != null &&
+					mxUtils.indexOf(items, source) >= 0 && mxUtils.isAncestorNode(list, source))
+				{
+					ui.sidebar.focusItemInDirection(source, evt.keyCode);
+					mxEvent.consume(evt);
+				}
+			}
+		}, true);
+
+		div.addEventListener('keyup', function()
+		{
+			held = false;
+		}, true);
+
+		// Presses in the field and on More Results are not gestures of the
+		// diagram, nor are those on the list (its scrollbar, see createList)
+		var stop = function(evt)
+		{
+			evt.stopPropagation();
+		};
+
+		mxEvent.addGestureListeners(field, stop);
+		mxEvent.addGestureListeners(more, stop);
+
+		fit();
+
+		return field;
+	};
+
+	/**
+	 * The shapes of all libraries can be searched like in the shape picker
+	 * (searchShapePickerCells) where the sidebar has its search index.
+	 */
+	EditorUi.prototype.canSearchShapePickerCells = function()
+	{
+		return this.sidebar != null && this.sidebar.taglist != null;
+	};
+
+	/**
+	 * Searches the shapes of all libraries for the given term like the search
+	 * of the shape picker (addShapePickerSearch) and the search of the inline
+	 * toolbar's Shape popover: the entries of searchShapePickerEntries, page by
+	 * page until the given count of shapes (shapePickerSearchCount by default)
+	 * is found (getShapePickerSearchCells) or after shapePickerSearchPages
+	 * pages, as entries that cannot be shown (connectors, groups) are skipped
+	 * and the next pages fill the tiles. The given function is called once
+	 * with the cells and titles found and more, which is true if there are
+	 * more shapes to search ({cells, titles, more}). No further pages are
+	 * asked for once the optional isCurrent function returns false (the words
+	 * changed or the picker closed), and the function is then called with the
+	 * shapes found so far, so it must check isCurrent again. The optional
+	 * accept function returns false for cells that are skipped. The optional
+	 * from is the result of a previous search for the same term: the search
+	 * goes on after its shapes (the rest of its page first, without asking
+	 * for it again) and returns the next shapes only, without the shapes that
+	 * look like the shapes before (More Results of the Shape popover). If the
+	 * optional quick is true, the function is called at once with the shapes
+	 * found if the next page is asked for later (the icon service), so the
+	 * shapes found are shown without waiting for more, and the next search
+	 * starts with that page. Returns true if the function is called later, as
+	 * the icon service is asked.
+	 */
+	EditorUi.prototype.searchShapePickerCells = function(term, fn, isCurrent, accept, count, from, quick)
+	{
+		var waiting = true;
+		var finished = false;
+		var max = (count != null) ? count : EditorUi.shapePickerSearchCount;
+		var found = {cells: [], titles: [], more: false, looks: (from != null) ? from.looks : null,
+			page: 0, entries: null, index: 0, pages: false};
+		var pages = 0;
+
+		// Takes the shapes of the given entries of the given page from the given
+		// index on and keeps where it stopped for the next search (page,
+		// entries, index, pages is true if there are more pages). Returns true if
+		// the next page is asked for.
+		var take = mxUtils.bind(this, function(entries, page, index, more)
+		{
+			this.getShapePickerSearchCells(entries, found, accept, max, index);
+			found.page = page;
+			found.entries = entries;
+			found.pages = more;
+			found.more = found.index < entries.length || more;
+
+			return found.cells.length < max && found.index >= entries.length && more &&
+				++pages < EditorUi.shapePickerSearchPages;
+		});
+
+		var done = function()
+		{
+			finished = true;
+			waiting = false;
+			fn(found);
+		};
+
+		var next = mxUtils.bind(this, function(page)
+		{
+			var asked = true;
+
+			this.searchShapePickerEntries(term, mxUtils.bind(this, function(entries, more)
+			{
+				asked = false;
+
+				// The shapes were answered without this page (see quick)
+				if (!finished)
+				{
+					if ((isCurrent == null || isCurrent()) && take(entries, page, 0, more))
+					{
+						next(page + 1);
+					}
+					else
+					{
+						done();
+					}
+				}
+			}), page);
+
+			// The page before is the last page of the result (see take)
+			if (asked && quick && found.cells.length > 0 && !finished)
+			{
+				done();
+			}
+		});
+
+		if (from == null)
+		{
+			next(0);
+		}
+		else if (from.entries != null && from.index < from.entries.length)
+		{
+			if (take(from.entries, from.page, from.index, from.pages))
+			{
+				next(from.page + 1);
+			}
+			else
+			{
+				done();
+			}
+		}
+		else if (from.pages)
+		{
+			next(from.page + 1);
+		}
+		else
+		{
+			done();
+		}
+
+		return waiting;
+	};
+
+	/**
+	 * Searches the entries of the sidebar for the shape picker like the search
+	 * of the sidebar (the find function of Sidebar.addSearchPalette): the first
+	 * page (shapePickerSearchPage) of the shapes of all libraries, also of the
+	 * ones that are not in the sidebar (Sidebar.searchClosedLibraries), and
+	 * for terms with few shapes the icons of the icon service, whose answer
+	 * comes later (not offline or without the service). The given function is
+	 * called once with the entries, an empty array if the search fails; errors
+	 * of the icon service show no dialog, as the picker searches while the
+	 * words are typed (the search of the sidebar shows them). The
+	 * sets of the icon service, which the sidebar shows as chips above its
+	 * results, are not asked for, as the picker has no chips. The optional
+	 * page is the page of the entries (0 is the first), and the second
+	 * argument of the function is true if there are more pages.
+	 */
+	EditorUi.prototype.searchShapePickerEntries = function(term, fn, page)
+	{
+		var sidebar = this.sidebar;
+		var own = Object.prototype.hasOwnProperty.call(sidebar, 'fetchIconSearchSets');
+		var fetchIconSearchSets = sidebar.fetchIconSearchSets;
+		var called = false;
+
+		var done = function(results, len, more)
+		{
+			if (!called)
+			{
+				called = true;
+				fn((results != null) ? results : [], more == true);
+			}
+		};
+
+		// No request for the sets, which searchEntries makes before it returns
+		sidebar.fetchIconSearchSets = function() {};
+
+		try
+		{
+			// Quiet: errors of the icon service show no dialog while typing (the
+			// picker shows its note instead)
+			sidebar.searchEntries(term, EditorUi.shapePickerSearchPage, page || 0, done, function()
+			{
+				done([]);
+			}, sidebar.searchClosedLibraries, false, true);
+		}
+		finally
+		{
+			if (own)
+			{
+				sidebar.fetchIconSearchSets = fetchIconSearchSets;
+			}
+			else
+			{
+				delete sidebar.fetchIconSearchSets;
+			}
+		}
+	};
+
+	/**
+	 * Returns the cells and titles of the given entries of the sidebar search
+	 * that the shape picker can show: one vertex each, at most
+	 * shapePickerSearchCount. The entries create the items of the sidebar, so
+	 * their cells are taken from Sidebar.createItem. Shapes that look the same
+	 * are returned once, as the search of the sidebar shows them once: it
+	 * compares the thumbnails of the items (Sidebar.getThumbHtml, with the SVG
+	 * of images that show a bitmap), so the items are created with
+	 * their thumbnails here too (the cells are copied before, as the items
+	 * add the default style of the diagram to the cells of their thumbnails).
+	 * The cells keep the style of their library in the picker
+	 * (shapePickerKeepStyle), as their thumbnails show them; Fusion gives new
+	 * shapes the Calm style when they are inserted. The optional result of a
+	 * previous page is filled up. The optional accept function returns false
+	 * for cells that are skipped (the Shape popover of the inline toolbar
+	 * changes shapes, so it takes no shapes with children). The optional count
+	 * is the number of shapes of the result (shapePickerSearchCount by
+	 * default), the optional start the index of the first entry; the index of
+	 * the entry after the last one taken is the index of the result.
+	 */
+	EditorUi.prototype.getShapePickerSearchCells = function(results, result, accept, count, start)
+	{
+		var sidebar = this.sidebar;
+		var model = this.editor.graph.model;
+		var own = Object.prototype.hasOwnProperty.call(sidebar, 'createItem');
+		var createItem = sidebar.createItem;
+		var ownThumbs = Object.prototype.hasOwnProperty.call(sidebar, 'virtualThumbs');
+		var virtualThumbs = sidebar.virtualThumbs;
+		result = (result != null) ? result : {cells: [], titles: []};
+		var looks = result.looks || Object.create(null);
+		result.looks = looks;
+		var found = null;
+		var title = null;
+
+		sidebar.createItem = function(cells, t)
+		{
+			found = (cells != null && cells.length == 1 && cells[0] != null &&
+				model.isVertex(cells[0]) && (accept == null || accept(cells[0]))) ?
+				model.cloneCell(cells[0], true) : null;
+			title = t;
+
+			// No thumbnail for entries that the picker cannot show
+			return (found != null) ? createItem.apply(this, arguments) : document.createElement('a');
+		};
+
+		// Virtual thumbnails are painted later (see the search of the sidebar)
+		sidebar.virtualThumbs = false;
+
+		try
+		{
+			var max = (count != null) ? count : EditorUi.shapePickerSearchCount;
+			var i = (start != null) ? start : 0;
+
+			for (; i < results.length && result.cells.length < max; i++)
+			{
+				var look = null;
+				found = null;
+				title = null;
+
+				try
+				{
+					if (typeof results[i] === 'function')
+					{
+						var elt = results[i]();
+
+						// The key keeps the SVG of images shown as bitmaps, which
+						// replace the SVG later or at once (see Sidebar.getThumbHtml)
+						look = (elt != null && typeof elt.innerHTML === 'string') ?
+							'look:' + sidebar.getThumbHtml(elt) : null;
+					}
+				}
+				catch (e)
+				{
+					found = null;
+				}
+
+				if (found != null && (look == null || looks[look] == null))
+				{
+					found.shapePickerKeepStyle = true;
+
+					// Free text shows its text in the size of the tile
+					if (this.editor.graph.isFreeTextCell(found))
+					{
+						sidebar.fitThumbToLabel(found);
+					}
+
+					result.cells.push(found);
+					result.titles.push((typeof title === 'string') ? title : null);
+
+					if (look != null)
+					{
+						looks[look] = true;
+					}
+				}
+			}
+
+			result.index = i;
+		}
+		finally
+		{
+			if (ownThumbs)
+			{
+				sidebar.virtualThumbs = virtualThumbs;
+			}
+			else
+			{
+				delete sidebar.virtualThumbs;
+			}
+
+			if (own)
+			{
+				sidebar.createItem = createItem;
+			}
+			else
+			{
+				delete sidebar.createItem;
+			}
+		}
+
+		return result;
 	};
 
 	/**
@@ -2855,7 +4108,10 @@
 			this.hideDialog();
 		}));
 
-		this.showDialog(dlg.container, 380, null, true, true);
+		// The size of the layout of DraftLayout.js where it is shown
+		var size = (typeof this.getDraftLayoutSize === 'function') ?
+			this.getDraftLayoutSize(dlg, 380, null) : {width: 380, height: null};
+		this.showDialog(dlg.container, size.width, size.height, true, true);
 	};
 
 	/**
@@ -3156,9 +4412,25 @@
 				var diagrams = fileNode.getElementsByTagName('diagram');
 				var alt = (diagrams.length > 0) ? diagrams[0].getAttribute('alt') : null;
 
-				xml = this.getEmbeddedSvg(xml, graph, url, null, embeddedCallback, ignoreSelection,
-					redirect, null, null, props.scale, props.border, null, Editor.svgFileTheme,
-					null, props.embedFonts, null, alt);
+				// The image shows the layers as stored in the XML of the file,
+				// not as shown or hidden only in this window (see
+				// Graph.showLayersAsStored). Images are embedded after the SVG
+				// is created, so the window is restored right after the call.
+				var restore = graph.showLayersAsStored();
+
+				try
+				{
+					xml = this.getEmbeddedSvg(xml, graph, url, null, embeddedCallback, ignoreSelection,
+						redirect, null, null, props.scale, props.border, null, Editor.svgFileTheme,
+						null, props.embedFonts, null, alt);
+				}
+				finally
+				{
+					if (restore != null)
+					{
+						restore();
+					}
+				}
 			}
 			
 			return xml;
@@ -3297,6 +4569,30 @@
 					appendPage(currNode);
 				}
 			}
+		}
+		else if (!ignoreSelection && this.getCurrentFile() != null &&
+			this.getCurrentFile().isLocked())
+		{
+			// A copy of the selection of a locked file is an mxfile with a page
+			// so that the copy keeps the locked state of the file, as the copy
+			// of the file or a page. The selection of a locked file is empty
+			// unless the file was locked elsewhere while cells were selected.
+			var diagramNode = node.ownerDocument.createElement('diagram');
+			diagramNode.setAttribute('name', mxResources.get('pageWithNumber', [1]));
+			diagramNode.setAttribute('id', Editor.guid());
+
+			if (uncompressed)
+			{
+				diagramNode.appendChild(node);
+			}
+			else
+			{
+				mxUtils.setTextContent(diagramNode, Graph.compressNode(node));
+			}
+
+			node = node.ownerDocument.createElement('mxfile');
+			node.setAttribute('locked', 'true');
+			node.appendChild(diagramNode);
 		}
 		
 		return node;
@@ -4239,11 +5535,12 @@
 
 	/**
 	 * Downloads the current file, page or selection in the given format with the
-	 * given export options.
+	 * given export options. The DPI is written into exports of PNG on the
+	 * server (see downloadRequestBuilder).
 	 */
 	EditorUi.prototype.downloadFile = function(format, uncompressed, addShadow, ignoreSelection,
 		currentPage, pageVisible, transparent, scale, border, grid, includeXml, pageRange, margin,
-		fit, sheetsAcross, sheetsDown, shadows, icons)
+		fit, sheetsAcross, sheetsDown, shadows, icons, dpi)
 	{
 		try
 		{
@@ -4342,7 +5639,8 @@
 					{
 						var req = this.createDownloadRequest(filename, format, ignoreSelection, '1',
 							transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h,
-							!pageVisible, margin, fit, sheetsAcross, sheetsDown, shadows, icons);
+							!pageVisible, margin, fit, sheetsAcross, sheetsDown, shadows, icons,
+							null, dpi);
 
 						req.send(mxUtils.bind(this, function(req)
 						{
@@ -4376,7 +5674,8 @@
 						{
 							var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64,
 								transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h,
-								!pageVisible, margin, fit, sheetsAcross, sheetsDown, shadows, icons);
+								!pageVisible, margin, fit, sheetsAcross, sheetsDown, shadows, icons,
+								null, dpi);
 
 							return req;
 						}
@@ -4397,11 +5696,11 @@
 	// Note: Remember to adjust ElectronApp override when this function is modified
 	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64,
 		transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop, margin,
-		fit, sheetsAcross, sheetsDown, shadows, icons)
+		fit, sheetsAcross, sheetsDown, shadows, icons, storedLayers, dpi)
 	{
 		var params = this.downloadRequestBuilder(filename, format, ignoreSelection, base64,
 			transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop,
-			margin, fit, sheetsAcross, sheetsDown, shadows, icons);
+			margin, fit, sheetsAcross, sheetsDown, shadows, icons, storedLayers, dpi);
 		var paramsStr = '';
 
 		for (var p in params)
@@ -4418,13 +5717,27 @@
 	};
 
 	/**
+	 * The highest DPI of a PNG that is exported on the server, which is the
+	 * limit of the stored settings of the last export
+	 * (EditorUi.sanitizeLastExport). The dialog of that export
+	 * (showRemoteExportDialog) and its request (downloadRequestBuilder) have
+	 * at most this DPI.
+	 */
+	EditorUi.maxExportDpi = 10000;
+
+	/**
 	 * Returns the parameters of the export request for the given filename,
 	 * format and export options with the data of the current file, page or
-	 * selection. Throws an error if the drawing is too large.
+	 * selection. Throws an error if the drawing is too large. If storedLayers
+	 * is true then the layers and cells are drawn as stored in the file, also
+	 * if they are shown, hidden or styled only in this window, for renderings
+	 * that are written into the file next to its XML (eg. the pages of a
+	 * .drawio.pdf file). A DPI above 0 is written into the pHYs chunk of a
+	 * PNG by the export server, as the advanced export (ExportDialog) did.
 	 */
 	EditorUi.prototype.downloadRequestBuilder = function(filename, format, ignoreSelection, base64,
 		transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h, crop, margin,
-		fit, sheetsAcross, sheetsDown, shadows, icons)
+		fit, sheetsAcross, sheetsDown, shadows, icons, storedLayers, dpi)
 	{
 		var graph = this.editor.graph;
 		var bounds = graph.getGraphBounds();
@@ -4512,12 +5825,19 @@
 			extras.diagramLanguage = Graph.diagramLanguage;
 		}
 
-		// Passes hidden tags per page to export backend
-		var hiddenTagsMap = this.getHiddenTagsMap();
+		// Passes hidden tags per page and the cells that are shown, hidden or
+		// styled only in this window to export backend, except for renderings
+		// that are stored in the file, which draw the cells as in its XML
+		this.addExportViewState(extras, (storedLayers) ? false : ignoreSelection);
 
-		if (hiddenTagsMap != null)
+		// Passes the layers shown or hidden only in this window to the export
+		// backend, as the exports in the browser draw the view, except for
+		// renderings that are stored in the file, which match its XML
+		var layerVisibilityMap = (!storedLayers) ? this.getLayerVisibilityMap() : null;
+
+		if (layerVisibilityMap != null)
 		{
-			extras.hiddenTags = hiddenTagsMap;
+			extras.layerVisibility = layerVisibilityMap;
 		}
 
 		return {
@@ -4541,10 +5861,59 @@
 			shadows: (shadows != null && shadows) ? '1' : '0',
 			sheetsAcross: sheetsAcross,
 			sheetsDown: sheetsDown,
-			icons: (icons != null && icons) ? '1' : '0'
+			icons: (icons != null && icons) ? '1' : '0',
+			// At most EditorUi.maxExportDpi, also for callers other than the
+			// dialog, which has this limit (showRemoteExportDialog): a value
+			// that does not fit the pHYs chunk fails the export
+			dpi: (format == 'png' && dpi > 0) ? Math.min(Math.round(dpi), EditorUi.maxExportDpi) : null
 		};
 	};
 	
+	/**
+	 * Returns a map of page ID to a map of layer ID to the visibility of the
+	 * layers that are shown or hidden only in this window (see
+	 * Graph.setLayersVisibleInView), or null if the visibility of all layers
+	 * is as stored. This is only the current page, as the visibility in this
+	 * window is reset when the page changes. The ID of a single page is 0.
+	 */
+	EditorUi.prototype.getLayerVisibilityMap = function()
+	{
+		var graph = this.editor.graph;
+		var result = null;
+
+		// Also while the layers are shown as stored for the image of the file
+		var visibility = (graph.cellViewVisibility != null) ?
+			graph.cellViewVisibility : graph.suspendedCellViewVisibility;
+
+		if (visibility != null)
+		{
+			var model = graph.getModel();
+			var root = model.getRoot();
+			var layers = null;
+
+			for (var i = 0; i < model.getChildCount(root); i++)
+			{
+				var layer = model.getChildAt(root, i);
+				var entry = visibility.get(layer);
+
+				if (entry != null)
+				{
+					layers = (layers != null) ? layers : Object.create(null);
+					layers[layer.getId()] = entry.visible;
+				}
+			}
+
+			if (layers != null)
+			{
+				result = Object.create(null);
+				result[(this.pages != null && this.currentPage != null) ?
+					this.currentPage.getId() : 0] = layers;
+			}
+		}
+
+		return result;
+	};
+
 	/**
 	 * Returns a map of page ID to hidden tags array for all pages
 	 * that have hidden tags, or null if no tags are hidden.
@@ -4577,6 +5946,114 @@
 		}
 
 		return hasHiddenTags ? result : null;
+	};
+
+	/**
+	 * Returns the cells of the current page that are shown, hidden or styled
+	 * only in this window (the show, hide, toggle, style and toggleStyle steps
+	 * of custom links in locked files and read-only windows, see
+	 * Graph.cellViewVisibility and Graph.cellViewStyles), or null if there are
+	 * none. The result maps the ID of the page (0 without pages) to an object
+	 * with visible, a map from cell IDs to the visibility in this window, and
+	 * styles, a map from cell IDs to the keys and values that this window sets
+	 * on the style of the cell as a list of [key, value] in the order in which
+	 * they were set (a null value removes the key). Exports in the browser draw
+	 * this window; the export service and the desktop app draw these cells from
+	 * it (applyCellViewState in export.js).
+	 */
+	EditorUi.prototype.getCellViewState = function()
+	{
+		var graph = this.editor.graph;
+		var model = graph.model;
+		var visible = null;
+		var styles = null;
+
+		var isInModel = function(cell)
+		{
+			return cell != null && cell.id != null && model.contains(cell);
+		};
+
+		// Also while the cells are shown as stored for the image of the file
+		// (see Graph.showLayersAsStored and getLayerVisibilityMap)
+		var visibility = (graph.cellViewVisibility != null) ?
+			graph.cellViewVisibility : graph.suspendedCellViewVisibility;
+		var cellStyles = (graph.cellViewStyles != null) ?
+			graph.cellViewStyles : graph.suspendedCellViewStyles;
+
+		if (visibility != null)
+		{
+			var entries = visibility.getValues();
+
+			for (var i = 0; i < entries.length; i++)
+			{
+				if (isInModel(entries[i].cell))
+				{
+					// No prototype, as cell IDs can be any string
+					visible = (visible != null) ? visible : Object.create(null);
+					visible[entries[i].cell.id] = entries[i].visible == true;
+				}
+			}
+		}
+
+		if (cellStyles != null)
+		{
+			var entries = cellStyles.getValues();
+
+			for (var i = 0; i < entries.length; i++)
+			{
+				if (isInModel(entries[i].cell) && entries[i].styles.length > 0)
+				{
+					styles = (styles != null) ? styles : Object.create(null);
+					styles[entries[i].cell.id] = entries[i].styles.map(function(entry)
+					{
+						return [entry.key, (entry.value != null) ? entry.value : null];
+					});
+				}
+			}
+		}
+
+		var result = null;
+
+		if (visible != null || styles != null)
+		{
+			result = Object.create(null);
+			result[(this.currentPage != null) ? this.currentPage.getId() : 0] =
+				{visible: visible, styles: styles};
+		}
+
+		return result;
+	};
+
+	/**
+	 * Adds what this window shows differently from the file to the given
+	 * extras of an export that export.js renders (the export service and the
+	 * desktop app): the hidden tags (getHiddenTagsMap) and the cells that are
+	 * shown, hidden or styled only in this window (getCellViewState). The
+	 * cells are added only if the XML of the export keeps their IDs, that is
+	 * if ignoreSelection is not false (a copy of the selection gets new IDs).
+	 * The XML of the export stays the file's, so a copy of the diagram in the
+	 * output keeps the file's state. Returns the given extras.
+	 */
+	EditorUi.prototype.addExportViewState = function(extras, ignoreSelection)
+	{
+		var hiddenTagsMap = this.getHiddenTagsMap();
+
+		if (hiddenTagsMap != null)
+		{
+			extras.hiddenTags = hiddenTagsMap;
+		}
+
+		if (ignoreSelection == null || ignoreSelection)
+		{
+			var cellViewState = this.getCellViewState();
+
+			if (cellViewState != null)
+			{
+				extras.cellViewState = cellViewState;
+			}
+		}
+
+		return extras;
 	};
 
 	/**
@@ -6807,7 +8284,8 @@
 	};
 
 	/**
-	 * Escape also stops the polygon tool and leaves the inline editor.
+	 * Escape also stops the polygon tool and Draw a tie (TieTool, which
+	 * cancels on Escape, so the selection stays) and leaves the inline editor.
 	 */
 	var editorUiIsEscapeHandled = EditorUi.prototype.isEscapeHandled;
 
@@ -6815,6 +8293,7 @@
 	{
 		return editorUiIsEscapeHandled.apply(this, arguments) ||
 			(this.polygonTool != null && this.polygonTool.isActive()) ||
+			(this.tieTool != null && this.tieTool.isActive()) ||
 			(urlParams['embedInline'] == '1' && !Editor.passiveScroll);
 	};
 	
@@ -6849,7 +8328,12 @@
 	{
 		// KNOWN: IE+FF don't return keyboard focus after image dialog (calling focus doesn't help)
 	    var dlg = new ImageDialog(this, title, value, fn, ignoreExisting, convertDataUri, withCrop, initClipPath);
-		this.showDialog(dlg.container, (Graph.fileSupport) ? 480 : 360, (Graph.fileSupport) ? 200 : 90, true, true);
+
+		// The layout in the Classic skin takes the height of its content
+		// (ImageDialog.createLayout), Fusion fits its frame itself
+		var auto = dlg.layoutSkin != null && dlg.layoutSkin == ImageDialog.skins.classic;
+		this.showDialog(dlg.container, (Graph.fileSupport) ? 480 : 360, (auto) ? null :
+			((Graph.fileSupport) ? 200 : 90), true, true);
 		dlg.init();
 	};
 
@@ -7327,8 +8811,14 @@
 			editor: editorContent, json: jsonContent, textarea: textarea, buttons: buttons,
 			close: closeBtn, apply: applyBtn};
 
+		// The layout of Fusion in the Classic skin where the feature configDialog
+		// is on, with its size (installConfigLayout in SettingsLayouts.js)
+		var size = (typeof editorUi.installConfigLayout === 'function') ?
+			editorUi.installConfigLayout(div) : null;
+
 		var w = (customButtons != null && customButtons.length > 2) ? 500 : 440;
-		editorUi.showDialog(div, 800, 600, true, false,
+		editorUi.showDialog(div, (size != null) ? size.width : 800,
+			(size != null) ? size.height : 600, true, false,
 			function(cancel, isEsc)
 			{
 				if (allowClose || !modified)
@@ -7589,6 +9079,12 @@
 		div.languageControls = {content: content, rows: languageRows, buttons: buttons,
 			close: closeBtn};
 
+		// The layout of Fusion in the Classic skin (SettingsLayouts.js)
+		if (typeof this.installLanguagesLayout === 'function')
+		{
+			this.installLanguagesLayout(div);
+		}
+
 		this.showDialog(div, 480, 460, true, true, function()
 		{
 			mxEvent.removeListener(window, 'online', connectivityListener);
@@ -7637,8 +9133,13 @@
 	EditorUi.prototype.showLibraryDialog = function(name, sidebar, images, file, mode)
 	{
 		var dlg = new LibraryDialog(this, name, sidebar, images, file, mode);
-		
-		this.showDialog(dlg.container, 640, 440, true, false, mxUtils.bind(this, function(cancel)
+
+		// The library editor of Fusion in the Classic skin is larger (see
+		// LibraryLayout.js)
+		var size = (typeof this.getLibraryDialogSize === 'function') ?
+			this.getLibraryDialogSize(dlg, 640, 440) : {width: 640, height: 440};
+
+		this.showDialog(dlg.container, size.width, size.height, true, false, mxUtils.bind(this, function(cancel)
 		{
 			if (cancel && this.getCurrentFile() == null && urlParams['embed'] != '1')
 			{
@@ -8032,7 +9533,109 @@
 			} : null);
 		dlg.init();
 	};
-	
+
+	/**
+	 * Shows confirm with the given message, functions and labels, where a
+	 * dismissal that answers neither button (Escape, the close button of the
+	 * dialog) runs cancelFn as Cancel does, for questions whose Cancel must
+	 * always run (eg. to show again what the user has entered). The dialog
+	 * closes before its buttons run, so the dismissal waits for their answer.
+	 */
+	EditorUi.prototype.confirmOrCancel = function(msg, okFn, cancelFn, okLabel, cancelLabel)
+	{
+		var answered = false;
+
+		this.confirm(msg, function()
+		{
+			answered = true;
+
+			if (okFn != null)
+			{
+				okFn();
+			}
+		}, function()
+		{
+			answered = true;
+
+			if (cancelFn != null)
+			{
+				cancelFn();
+			}
+		}, okLabel, cancelLabel, null, function()
+		{
+			window.setTimeout(function()
+			{
+				if (!answered)
+				{
+					answered = true;
+
+					if (cancelFn != null)
+					{
+						cancelFn();
+					}
+				}
+			}, 0);
+		});
+	};
+
+	/**
+	 * Shows the given error as handleError does and calls cancelFn once after
+	 * its dialog is closed without Try again (its button, Escape), or right
+	 * after this call without an error, for callbacks that go back to what the user has
+	 * entered if something is not done (see App.createFile). cancelFn runs
+	 * after the dialog of the error has left the dialogs (hideDialog removes
+	 * it after its close), so what it shows comes above the dialog below the
+	 * error, which it takes as its own. Try again retries instead, which
+	 * answers itself (eg. with another error).
+	 */
+	EditorUi.prototype.handleErrorThenCancel = function(resp, cancelFn)
+	{
+		var e = (resp != null && resp.error != null) ? resp.error : resp;
+		var retried = false;
+		var done = false;
+
+		// Try again closes the dialog before it retries: a copy of the error
+		// whose retry is noted (the error itself is unchanged)
+		if (e != null && typeof e === 'object' && typeof e.retry === 'function')
+		{
+			var copy = Object.create(e);
+
+			copy.retry = function()
+			{
+				retried = true;
+
+				return e.retry.apply(e, arguments);
+			};
+
+			if (e === resp)
+			{
+				resp = copy;
+			}
+			else
+			{
+				resp = Object.create(resp);
+				resp.error = copy;
+			}
+		}
+
+		// The button of the error runs it after its close (once)
+		this.handleError(resp, null, function()
+		{
+			window.setTimeout(function()
+			{
+				if (!retried && !done)
+				{
+					done = true;
+
+					if (cancelFn != null)
+					{
+						cancelFn();
+					}
+				}
+			}, 0);
+		}, true);
+	};
+
 	/**
 	 * Creates a popup banner. A banner without an ID has no "Don't show
 	 * again" option and is shown again on every call. A sticky banner
@@ -10252,17 +11855,25 @@
 			// Clear the explicit height first so the wrapper can flow to its
 			// natural size; the flex layout inside CustomDialog otherwise
 			// reports the constrained (shrunk) height back. CSS max-height:100%
-			// still caps the visible dialog to the viewport.
+			// still caps the visible dialog to the viewport. The top of the
+			// dialog stays where it is, so the title of the section stays under
+			// the pointer (Dialog.setFrameHeight). Dialogs with a fixed height
+			// (geDialogFixedHeight, eg. the Export dialog) keep it and the
+			// section scrolls in its column. Dialogs whose content has the
+			// class geDialogCenterAdvanced (Print, see createPrintLayout) are
+			// centered again (the driver, 22 November 2026).
 			var dlg = title.closest('.geDialog');
 
-			if (dlg != null)
+			if (dlg != null && !dlg.classList.contains('geDialogFixedHeight'))
 			{
 				var wrapper = dlg.firstElementChild;
 
 				if (wrapper != null)
 				{
+					var top = dlg.getBoundingClientRect().top;
 					dlg.style.height = '';
-					dlg.style.height = Dialog.getFrameHeight(dlg, wrapper.scrollHeight) + 'px';
+					Dialog.setFrameHeight(dlg, Dialog.getFrameHeight(dlg, wrapper.scrollHeight), top,
+						wrapper.classList.contains('geDialogCenterAdvanced'));
 				}
 			}
 		};
@@ -11046,7 +12657,8 @@
 			fit: fit, lightbox: lightbox, advanced: advanced, theme: themeSelect, edit: editSection,
 			layers: layers, tags: tags, useTagSettings: useTagSettings, linkIcons: linkIcons,
 			tooltipIcons: tooltipIcons, button: dlg.okButton};
-		this.showDialog(dlg.container, 360, null, true, true);
+		this.showDialog(dlg.container, this.layoutEmbedOptionsDialog(dlg.container,
+			'html', div.htmlControls, 360), null, true, true);
 		linkSelect.focus();
 	};
 	
@@ -11369,7 +12981,9 @@
 			lightbox: lightbox, advanced: advanced, theme: (showDarkModeOption) ? themeSelect : null,
 			edit: editSection, layers: layers, tags: tags, useTagSettings: useTagSettings,
 			linkIcons: linkIcons, tooltipIcons: tooltipIcons, footer: footer, button: dlg.okButton};
-		this.showDialog(dlg.container, 360, null, true, true);
+		this.showDialog(dlg.container, this.layoutEmbedOptionsDialog(dlg.container,
+			(title == null) ? 'publishLink' : 'publish', div.publishControls, 360),
+			null, true, true);
 		
 		if (widthInput != null)
 		{
@@ -11391,10 +13005,18 @@
 	};
 
 	/**
-	 * 
+	 * Shows the dialog of an export of images on the server (where the browser
+	 * cannot export them). With the given format (png or jpeg) it also has the
+	 * grid and, for PNG with the zoom, the DPI, which sets the zoom and is
+	 * written into the PNG, as in the dialog of the format of the browser
+	 * (showExportDialog), so the export on the server has the options of the
+	 * advanced export (ExportDialog) that was removed. The callback gets
+	 * ignoreSelection, editable, transparent, scale, border, grid and dpi.
 	 */
-	EditorUi.prototype.showRemoteExportDialog = function(btnLabel, helpLink, callback, hideInclude, showZoomBorder)
+	EditorUi.prototype.showRemoteExportDialog = function(btnLabel, helpLink, callback, hideInclude, showZoomBorder, format)
 	{
+		var dpiSelect = null;
+		var customDpi = null;
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
 		
@@ -11418,6 +13040,113 @@
 			zoomInput.value = this.lastExportZoom || '100%';
 			formRow.appendChild(zoomInput);
 			dimSection.appendChild(formRow);
+
+			// DPI (PNG only): sets the zoom until the zoom is changed and is
+			// written into the pHYs chunk of the PNG by the export server
+			if (format == 'png')
+			{
+				var zoomUserChanged = false;
+
+				mxEvent.addListener(zoomInput, 'input', function()
+				{
+					zoomUserChanged = true;
+				});
+
+				dpiSelect = document.createElement('select');
+				var dpiValues = ['100', '200', '300', '400'];
+
+				for (var i = 0; i < dpiValues.length; i++)
+				{
+					var dpiOption = document.createElement('option');
+					dpiOption.setAttribute('value', dpiValues[i]);
+					mxUtils.write(dpiOption, dpiValues[i] + 'dpi');
+					dpiSelect.appendChild(dpiOption);
+				}
+
+				var dpiCustOption = document.createElement('option');
+				dpiCustOption.setAttribute('value', 'custom');
+				mxUtils.write(dpiCustOption, mxResources.get('custom'));
+				dpiSelect.appendChild(dpiCustOption);
+
+				customDpi = document.createElement('input');
+				customDpi.setAttribute('type', 'number');
+				customDpi.setAttribute('value', '100');
+				customDpi.setAttribute('min', '50');
+				customDpi.setAttribute('max', String(EditorUi.maxExportDpi));
+				customDpi.setAttribute('step', '50');
+				customDpi.style.display = 'none';
+
+				formRow = document.createElement('div');
+				formRow.className = 'geDialogFormRow';
+				var dpiLbl = document.createElement('span');
+				dpiLbl.className = 'geDialogFormLabel';
+				mxUtils.write(dpiLbl, mxResources.get('dpi') + ':');
+				formRow.appendChild(dpiLbl);
+				formRow.appendChild(dpiSelect);
+				formRow.appendChild(customDpi);
+				dimSection.appendChild(formRow);
+
+				if (this.lastExportDpi != null)
+				{
+					// The DPI of an export in the browser can be above the limit
+					customDpi.value = Math.min(this.lastExportDpi, EditorUi.maxExportDpi);
+					dpiSelect.value = this.lastExportDpi;
+
+					if (dpiSelect.selectedIndex < 0)
+					{
+						dpiSelect.value = 'custom';
+						dpiSelect.style.display = 'none';
+						customDpi.style.display = '';
+					}
+				}
+
+				mxEvent.addListener(dpiSelect, 'change', function()
+				{
+					if (dpiSelect.value == 'custom')
+					{
+						dpiSelect.style.display = 'none';
+						customDpi.style.display = '';
+						customDpi.focus();
+					}
+					else
+					{
+						customDpi.value = dpiSelect.value;
+
+						if (!zoomUserChanged)
+						{
+							zoomInput.value = dpiSelect.value + '%';
+						}
+					}
+				});
+
+				mxEvent.addListener(customDpi, 'change', function()
+				{
+					var dpi = parseInt(customDpi.value);
+
+					if (isNaN(dpi) || dpi <= 0)
+					{
+						customDpi.style.backgroundColor = 'red';
+					}
+					else
+					{
+						customDpi.style.backgroundColor = '';
+
+						// The field shows the limit of the request, so the zoom
+						// that follows it, the DPI that is kept and the DPI that
+						// is written into the PNG are the same
+						if (dpi > EditorUi.maxExportDpi)
+						{
+							dpi = EditorUi.maxExportDpi;
+							customDpi.value = dpi;
+						}
+
+						if (!zoomUserChanged)
+						{
+							zoomInput.value = dpi + '%';
+						}
+					}
+				});
+			}
 
 			formRow = document.createElement('div');
 			formRow.className = 'geDialogFormRow';
@@ -11453,6 +13182,12 @@
 				this.lastExportTransparent : defaultTransparent,
 				null, null, null, null, null, true);
 
+		// The grid of PNG and JPEG (extras of the request, see
+		// downloadRequestBuilder)
+		var grid = (format == 'png' || format == 'jpeg') ?
+			this.addCheckbox(optSection, mxResources.get('grid'),
+				this.lastExportGrid == true, null, null, null, null, null, true) : null;
+
 		div.appendChild(optSection);
 
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
@@ -11473,19 +13208,39 @@
 					null : transparent.checked;
 			}
 
+			if (grid != null)
+			{
+				this.lastExportGrid = (grid.checked) ? true : null;
+			}
+
+			// The default of 100 DPI is not sent, so the PNG has no pHYs chunk
+			// unless a DPI was chosen, as in the browser (showExportDialog).
+			// The limit applies here too, for a value of the field that had
+			// no change event
+			var dpi = (customDpi != null) ? parseInt(customDpi.value) : NaN;
+			dpi = (!isNaN(dpi) && dpi > 0 && dpi != 100) ?
+				Math.min(dpi, EditorUi.maxExportDpi) : null;
+
+			if (customDpi != null)
+			{
+				this.lastExportDpi = dpi;
+			}
+
 			var scale = parseFloat(zoomInput.value) / 100;
 			scale = (isFinite(scale) && scale > 0) ? scale : 1;
 			var border = parseInt(borderInput.value) || 0;
 
 			callback(!selection.checked, (include != null) ? include.checked : false,
-				(transparent != null) ? transparent.checked : false, scale, border);
+				(transparent != null) ? transparent.checked : false, scale, border,
+				(grid != null) ? grid.checked : false, dpi);
 		}), null, btnLabel, helpLink);
 
 		// The parts of the dialog for layouts that rearrange them (the Export
 		// dialog of Simple Modern, see SimpleMoreForms.js)
 		div.remoteExportControls = {title: hd, selection: selection, include: include,
 			transparent: transparent, zoom: (showZoomBorder) ? zoomInput : null,
-			border: (showZoomBorder) ? borderInput : null, button: dlg.okButton};
+			border: (showZoomBorder) ? borderInput : null, grid: grid, dpi: dpiSelect,
+			customDpi: customDpi, button: dlg.okButton};
 		this.showDialog(dlg.container, 340, null, true, true);
 	};
 	
@@ -11627,7 +13382,13 @@
 	/**
 	 * Returns a new form row with a select for the named export presets of
 	 * the given format. getValues returns the current dialog values and
-	 * setValues applies the sanitized values of a preset.
+	 * setValues applies the sanitized values of a preset. The row has
+	 * selectPreset(name), which applies the preset with the given name as a
+	 * choice of the select does, getPresetName, which returns the name of the
+	 * chosen preset or null, and calls its function onPresetsChange (if any)
+	 * whenever the chosen preset or the stored presets change (the presets of
+	 * the row of the formats of the Export dialog, see addExportPresetsSelect
+	 * in PreviewDialog.js).
 	 */
 	EditorUi.prototype.createExportPresetsRow = function(format, getValues, setValues)
 	{
@@ -11679,6 +13440,11 @@
 			}
 
 			select.value = (current != null) ? 'preset' + current : '';
+
+			if (typeof row.onPresetsChange === 'function')
+			{
+				row.onPresetsChange();
+			}
 		});
 
 		var findPreset = function(name)
@@ -11777,6 +13543,27 @@
 		}));
 
 		update();
+
+		row.getPresetName = function()
+		{
+			return (current != null && presets[current] != null) ? presets[current].name : null;
+		};
+
+		row.selectPreset = mxUtils.bind(this, function(name)
+		{
+			presets = this.getExportPresets(format);
+			var index = findPreset(name);
+
+			if (index >= 0)
+			{
+				current = index;
+				setValues(presets[index].values);
+			}
+
+			update();
+
+			return index >= 0;
+		});
 
 		return row;
 	};
@@ -12532,6 +14319,8 @@
 		}
 
 		// Named presets of the current values (only applicable controls)
+		var presetsRow = null;
+
 		if (this.isExportPresetsEnabled(format))
 		{
 			var getPresetValues = function()
@@ -12729,17 +14518,25 @@
 				}
 			};
 
-			dimSection.insertBefore(this.createExportPresetsRow(format,
-				getPresetValues, setPresetValues), dimSection.firstChild);
+			presetsRow = this.createExportPresetsRow(format, getPresetValues, setPresetValues);
+			dimSection.insertBefore(presetsRow, dimSection.firstChild);
 		}
 
 		// The main controls for the Export dialog of Simple Modern, which drives
-		// them (see SimpleExport.js)
+		// them (see SimpleExport.js), and the other controls of the format
 		div.exportControls = {format: format, zoom: zoomInput, selection: selection,
 			pages: (pagesVisible) ? pagesSelect : null, theme: themeSelect, border: borderInput,
 			transparent: (transparentVisible) ? transparent : null,
 			include: (format != 'jpeg' && format != 'webp') ? include : null,
-			size: exportSelect, crop: cb6, shadow: shadow, grid: grid};
+			size: exportSelect, crop: cb6, shadow: shadow, grid: grid,
+			includePages: (format == 'png' || format == 'svg') ? includeSelect : null,
+			dpi: (format == 'png') ? dpiSelect : null,
+			customDpi: (format == 'png') ? customDpi : null,
+			link: (format == 'svg') ? linkSelect : null,
+			embedImages: (embedOption) ? cb5 : null,
+			embedFonts: (embedOption) ? cb7 : null,
+			embedMetadata: (embedOption) ? cb8 : null,
+			embedIcons: (embedOption) ? cb9 : null, presets: presetsRow};
 
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
@@ -12973,7 +14770,8 @@
 		div.embedImageControls = {title: hd, options: optSection, pages: pages, fit: fit, shadow: shadow,
 			image: image, lightbox: lightbox, advanced: advanced, theme: themeSelect, edit: editSection,
 			layers: layers, linkIcons: linkIcons, tooltipIcons: tooltipIcons, button: dlg.okButton};
-		this.showDialog(dlg.container, 280, null, true, true);
+		this.showDialog(dlg.container, this.layoutEmbedOptionsDialog(dlg.container,
+			'embedImage', div.embedImageControls, 280), null, true, true);
 	};
 
 	/**
@@ -13069,9 +14867,14 @@
 				}
 				
 				var embed = (lightbox) ? '1' : '0';
+
+				// Draws what this window shows, as exportToCanvas above does
+				var extras = this.addExportViewState({});
 				var req = new mxXmlRequest(EXPORT_URL, 'format=png' +
-					'&base64=1&embedXml=' + embed + size + '&xml=' +
-					encodeURIComponent(data));
+					'&base64=1&embedXml=' + embed + size +
+					((extras.hiddenTags != null || extras.cellViewState != null) ?
+					'&extras=' + encodeURIComponent(JSON.stringify(extras)) : '') +
+					'&xml=' + encodeURIComponent(data));
 				
 				// LATER: Updates on each change, add a delay
 				req.send(mxUtils.bind(this, function()
@@ -13354,7 +15157,62 @@
 	};
 
 	/**
-	 * 
+	 * Returns the caption of the day of the given date: Today and Yesterday in
+	 * the language of the dates (Intl.RelativeTimeFormat), else the weekday
+	 * and the date, with the year if it is not this year. The captions of the
+	 * versions in Revision History of Simple (RevisionDialog.createLayout) and
+	 * in the panel Versions of Fusion (SimpleVersions.js).
+	 */
+	EditorUi.prototype.getSimpleDayTitle = function(date)
+	{
+		var locale = this.getDateLocale();
+		var now = new Date();
+		var days = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime() -
+			new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()) / 86400000);
+
+		try
+		{
+			if (days >= 0 && days < 2 && typeof Intl !== 'undefined' &&
+				typeof Intl.RelativeTimeFormat === 'function')
+			{
+				var text = new Intl.RelativeTimeFormat(locale, {numeric: 'auto'}).format(-days, 'day');
+
+				return text.charAt(0).toLocaleUpperCase(locale) + text.substring(1);
+			}
+
+			var opts = {weekday: 'long', day: 'numeric', month: 'long'};
+
+			if (date.getFullYear() != now.getFullYear())
+			{
+				opts.year = 'numeric';
+			}
+
+			return date.toLocaleDateString(locale, opts);
+		}
+		catch (e)
+		{
+			return date.toDateString();
+		}
+	};
+
+	/**
+	 * Returns the time of the given date without seconds (the versions below
+	 * the captions of getSimpleDayTitle).
+	 */
+	EditorUi.prototype.getSimpleTimeTitle = function(date)
+	{
+		try
+		{
+			return date.toLocaleTimeString(this.getDateLocale(), {hour: 'numeric', minute: 'numeric'});
+		}
+		catch (e)
+		{
+			return date.toTimeString();
+		}
+	};
+
+	/**
+	 *
 	 */
 	EditorUi.prototype.decodeNodeIntoGraph = function(node, graph)
 	{
@@ -13473,6 +15331,30 @@
 	};
 	
 	/**
+	 * Shows the cells and layers of the given graph as stored in the model if
+	 * it is the graph of this window, for a rendering that is stored or sent
+	 * with the XML of the file (eg. the thumbnail of a file or the image of an
+	 * export for the host of an embed), not as shown or styled only in this
+	 * window (see Graph.showLayersAsStored). Returns a function that shows
+	 * them as in this window again on its first call and does nothing after.
+	 */
+	EditorUi.prototype.showGraphAsStored = function(graph)
+	{
+		var restore = (graph == this.editor.graph) ? graph.showLayersAsStored() : null;
+
+		return function()
+		{
+			var fn = restore;
+			restore = null;
+
+			if (fn != null)
+			{
+				fn();
+			}
+		};
+	};
+
+	/**
 	 * 
 	 */
 	EditorUi.prototype.getEmbeddedPng = function(success, error, optionalData, scale, border)
@@ -13527,8 +15409,26 @@
 				graph.model.setRoot(page.root);
 			}
 			
+			// The image shows the layers as stored in the XML of the file, not
+			// as shown or hidden only in this window (see Graph.showLayersAsStored).
+			// The export renders the graph at once unless it waits for the
+			// outlines of images, so the window is restored after the call or
+			// else after the export.
+			var restore = (graph == this.editor.graph) ? graph.showLayersAsStored() : null;
+
+			var restoreLayers = function()
+			{
+				if (restore != null)
+				{
+					restore();
+					restore = null;
+				}
+			};
+
 		   	this.editor.exportToCanvas(mxUtils.bind(this, function(canvas)
 		   	{
+				restoreLayers();
+
 		   		try
 		   		{
 		   			if (diagramData == null)
@@ -13557,15 +15457,27 @@
 		   		}
 		   	}), null, null, null, mxUtils.bind(this, function(e)
 		   	{
+				restoreLayers();
+
 		   		if (error != null)
 	   			{
 	   				error(e);
 	   			}
 		   	}), null, null, scale, null, graph.shadowVisible, null,
 				graph, border, null, null, null, 'diagram', null);
+
+			if (!graph.hasPendingOutlines())
+			{
+				restoreLayers();
+			}
 		}
 		catch (e)
 		{
+			if (restoreLayers != null)
+			{
+				restoreLayers();
+			}
+
 			if (error != null)
 			{
 				error(e);
@@ -13768,18 +15680,21 @@
 	 * Embeds font CSS as data URIs into the given svgRoot. If embedFonts is
 	 * false, external font references are added instead. Default for
 	 * embedFonts is Editor.embedSvgFonts. The optional font lookup limits
-	 * the custom fonts, default is Graph.customFontElements.
+	 * the custom fonts, default is Graph.customFontElements. The optional
+	 * graph has the fonts of the file (extFonts), default is the graph of
+	 * the editor (another page has its own, see createPageGraph).
 	 */
-	EditorUi.prototype.embedFonts = function(svgRoot, callback, embedFonts, fontLookup)
+	EditorUi.prototype.embedFonts = function(svgRoot, callback, embedFonts, fontLookup, graph)
 	{
 		embedFonts = (embedFonts != null) ? embedFonts : Editor.embedSvgFonts;
+		graph = (graph != null) ? graph : this.editor.graph;
 
 		if (!embedFonts)
 		{
 			try
 			{
 				this.editor.addFontCss(svgRoot);
-				var extFontCss = this.editor.graph.getExtFontCss(fontLookup);
+				var extFontCss = graph.getExtFontCss(fontLookup);
 
 				if (extFontCss.length > 0)
 				{
@@ -13819,7 +15734,7 @@
 						{
 							callback(svgRoot);
 						}
-					}), fontLookup);
+					}), fontLookup, graph);
 				}
 				catch (e)
 				{
@@ -15810,6 +17725,14 @@
 			graph.setEnabled(false);
 			graph.setHtmlLabels(true);
 
+			// Never shown: loads no images and adds no fonts to the document,
+			// also for the live previews of code that may be cancelled (not in
+			// bundles without LayoutCode.js)
+			if (typeof EditorUi.isolateSimplePreview === 'function')
+			{
+				EditorUi.isolateSimplePreview(graph);
+			}
+
 			var doc = mxUtils.parseXml(xml);
 			var codec = new mxCodec(doc);
 			codec.decode(doc.documentElement, graph.getModel());
@@ -15918,6 +17841,14 @@
 			graph.setEnabled(false);
 			graph.setHtmlLabels(true);
 
+			// Never shown: loads no images and adds no fonts to the document,
+			// also for the live previews of code that may be cancelled (not in
+			// bundles without LayoutCode.js)
+			if (typeof EditorUi.isolateSimplePreview === 'function')
+			{
+				EditorUi.isolateSimplePreview(graph);
+			}
+
 			var model = graph.getModel();
 			var doc = mxUtils.parseXml(xml);
 			var codec = new mxCodec(doc);
@@ -15969,6 +17900,32 @@
 		}
 
 		return result;
+	};
+
+	/**
+	 * Hook to lay out the given ParseDialog of the given type (the insert
+	 * actions fromText, mermaid, plantUml, ...) before it is shown. Returns the
+	 * size of its content, its smallest size and the key of its size ({width,
+	 * height, minSize, key}, see showDialog). This implementation keeps the
+	 * layout of the dialog (CodeDialogs.js lays out Mermaid in Classic and
+	 * Simple).
+	 */
+	EditorUi.prototype.layoutParseDialog = function(dlg, type)
+	{
+		return {width: 640, height: 420, minSize: new mxRectangle(0, 0, 440, 280), key: null};
+	};
+
+	/**
+	 * Hook to lay out the given CustomDialog container of Publish › Link,
+	 * Embed › IFrame, Notion, HTML, Image or SVG (kind is publishLink,
+	 * publish, html or embedImage) with the given controls (publishControls,
+	 * htmlControls, embedImageControls of its content) before it is shown.
+	 * Returns the width of the dialog. This implementation keeps the layout and
+	 * the given width (EmbedLayout.js lays the dialogs out in Simple).
+	 */
+	EditorUi.prototype.layoutEmbedOptionsDialog = function(elt, kind, controls, width)
+	{
+		return width;
 	};
 
 	/**
@@ -22739,6 +24696,31 @@
 	};
 
 	/**
+	 * Marks the graph of the editor for the default of the box of several
+	 * selected shapes (Graph.isMultiSelectionHandlesEnabled in Editor.js),
+	 * not the graphs of dialogs. A switch of the theme without a restart
+	 * (currentThemeChanged, also into and out of Fusion) shows or removes
+	 * the box of the selection.
+	 */
+	var editorUiInitMultiSelection = EditorUi.prototype.init;
+
+	EditorUi.prototype.init = function()
+	{
+		this.editor.graph.themeMultiSelectionHandles = true;
+		editorUiInitMultiSelection.apply(this, arguments);
+
+		this.addListener('currentThemeChanged', mxUtils.bind(this, function()
+		{
+			var handler = this.editor.graph.selectionCellsHandler;
+
+			if (handler != null)
+			{
+				handler.refresh();
+			}
+		}));
+	};
+
+	/**
 	 * Initializes the UI.
 	 */
 	var editorUiInit = EditorUi.prototype.init;
@@ -22886,29 +24868,67 @@
 			return this.isLocked() && graphIsEnabled.apply(graph, arguments);
 		};
 
+		// The show, hide, toggle, style and toggleStyle steps of custom links
+		// change the view in the same cases, for the same reason: a click on a
+		// link in a locked file or a read-only window must not change the file.
+		graph.isCellViewLocal = function()
+		{
+			return ui.isLayerVisibilityLocal();
+		};
+
 		// Actions depend on the enabled state of the graph, and an empty
 		// selection fires no change when the diagram is locked. Shows the
-		// layers as stored in the file at the end of the lock.
+		// cells and layers as stored in the file at the end of the lock.
 		this.addListener('lockedChanged', function()
 		{
 			if (!ui.isLayerVisibilityLocal())
 			{
-				graph.resetLayerViewVisibility();
+				graph.resetCellViewVisibility();
+				graph.resetCellViewStyles();
 			}
 
 			ui.updateActionStates();
 		});
 
-		// Layers shown or hidden in this window apply to the current page and
-		// file only. The view is updated for the new root anyway.
+		// Cells and layers shown, hidden or styled in this window apply to the
+		// current page and file only. The view is updated for the new root
+		// anyway.
 		graph.addListener(mxEvent.ROOT, function()
 		{
-			graph.resetLayerViewVisibility(true);
+			graph.resetCellViewVisibility(true);
+			graph.resetCellViewStyles(true);
 		});
 
-		// Shows link icons in main graph
-		graph.showLinkIcons = Editor.showLinkIcons || urlParams['link-icons'] == '1';
-		graph.showTooltipIcons = Editor.showTooltipIcons || urlParams['tooltip-icons'] == '1';
+		// Shows link and tooltip icons in main graph, by default in Fusion
+		// (Editor.isLinkIconsEnabled, isTooltipIconsEnabled); the chromeless
+		// view (lightbox, chrome=0) has no theme default, as before
+		var updateIcons = function()
+		{
+			var chromeless = ui.editor.isChromelessView();
+			var link = (chromeless) ? Editor.showLinkIcons || urlParams['link-icons'] == '1' :
+				Editor.isLinkIconsEnabled();
+			var tooltip = (chromeless) ? Editor.showTooltipIcons || urlParams['tooltip-icons'] == '1' :
+				Editor.isTooltipIconsEnabled();
+			var changed = graph.showLinkIcons != link || graph.showTooltipIcons != tooltip;
+
+			graph.showLinkIcons = link;
+			graph.showTooltipIcons = tooltip;
+
+			return changed;
+		};
+
+		updateIcons();
+
+		// A switch into or out of Fusion without a restart shows or removes
+		// the icons of the diagram
+		this.addListener('currentThemeChanged', function()
+		{
+			if (updateIcons())
+			{
+				graph.refresh();
+			}
+		});
+
 		graph.showNoteIcons = Editor.showNoteIcons && urlParams['note-icons'] != '0';
 
 		// Opens the edit tooltip dialog for the given cell
@@ -23720,11 +25740,11 @@
 			// Inserts the insert submenu and zoomIn/zoomOut into popup menu
 			this.menus.addPopupMenuItems = function(menu, cell, evt)
 			{
-				// In passiveScroll mode and with the inline toolbar for shapes,
-				// the background context menu starts with the insert submenu and
+				// In passiveScroll mode and with the inline toolbar, the
+				// background context menu starts with the insert submenu and
 				// stores the right-click point for insert actions
-				var insert = Editor.passiveScroll || (Editor.enableInlineToolbar &&
-					Editor.isShapeInlineToolbarEnabled() && graph.isSelectionEmpty());
+				var insert = Editor.passiveScroll || (ui.inlineToolbar != null &&
+					Editor.isInlineToolbarEnabled() && graph.isSelectionEmpty());
 
 				if (insert)
 				{
@@ -24055,7 +26075,8 @@
 					// Ignores click
 				}
 				// Active links are moved to the hint
-				else if (!graph.isEnabled() || (state != null && graph.isCellLocked(state.cell)))
+				else if (!graph.isEnabled() || (state != null && graph.isCellLocked(state.cell)) ||
+					graph.isHandToolViewOnly())
 				{
 					// Passes the cell so that custom actions change the model
 					// like other link clicks and can show hidden layers
@@ -24927,8 +26948,8 @@
 
 			// Keeps the focus that a shortcut with Ctrl/Meta moved, eg. into the
 			// shape picker (see EditorUi.ctrlEnter)
-			var focused = document.activeElement == textInput ||
-				document.activeElement == document.body;
+			var active = document.activeElement;
+			var focused = active == textInput || active == document.body;
 
 			// Remove textInput first so the typing shim's
 			// clipboardElt check sees it as no longer present
@@ -24941,8 +26962,12 @@
 			}
 
 			// Workaround for lost cursor in focused element except in the label
-			// editor that a shortcut with Ctrl/Meta started, eg. in tree containers
-			if (this.dialog == null && !graph.isEditing())
+			// editor that a shortcut with Ctrl/Meta started, eg. in tree containers,
+			// and in a text field that such a shortcut focused, eg. the omnibox of
+			// Ctrl+Alt+P (Cmd+Option+P), whose caret this would remove, so that
+			// typing went nowhere
+			if (this.dialog == null && !graph.isEditing() && (focused ||
+				active == null || !this.isTextInputElement(active)))
 			{
 				mxUtils.clearSelection();
 			}
@@ -25228,7 +27253,8 @@
 	{
 		// A Fusion that would not apply at the next start (opened by ui=fusion
 		// without test=1 where the theme is not offered, which it is only on
-		// app.diagrams.net, see Editor.fusionThemeOffered) keeps the saved theme
+		// app.diagrams.net and preprod.diagrams.net, see
+		// Editor.fusionThemeOffered) keeps the saved theme
 		if (!(Editor.isFusionTheme != null && Editor.isFusionTheme(value) &&
 			!Editor.fusionThemeOffered && urlParams['test'] != '1'))
 		{
@@ -25267,6 +27293,16 @@
 			{
 				value = 'kennedy';
 			}
+		}
+		// Dark and default are older values of Classic (isDefaultTheme, still
+		// stored by older versions and restored by Back to of the notice of
+		// Fusion): Classic is kennedy, as at the start (App.main), so that the
+		// checks for kennedy (the status in Menus.createMenubar, Share, the
+		// title of embeds in setEmbedTitle, windowResized) also apply after a
+		// switch without a restart
+		else if (value == 'dark' || value == 'default')
+		{
+			value = 'kennedy';
 		}
 
 		var noRestart = (Editor.currentTheme == 'simple' &&
@@ -25429,6 +27465,12 @@
 	 */
 	EditorUi.prototype.switchTheme = function(value)
 	{
+		// The Hand tool ends where the new theme does not offer it
+		if (this.isPanMode() && !this.isHandToolEnabled())
+		{
+			this.setPanMode(false);
+		}
+
 		this.destroyWindows(true);
 		this.updateDefaultStyles();
 		this.switchThemeConstants(value);
@@ -25437,6 +27479,9 @@
 		this.createFooterMenuForTheme(value);
 		this.createPickerMenuForTheme(value);
 		this.createMenubarForTheme(value);
+
+		// Before the listeners of the switch, which measure the top bar
+		this.updateEmbedTitle();
 		
 		if (value == 'sketch')
 		{
@@ -26420,6 +28465,14 @@
 			}
 		});
 
+		// Also forgets a window that is destroyed directly (mxWindow.destroy
+		// instead of dialog.destroy), which layoutAll would otherwise pin to
+		// its edge on each resize event of the browser window
+		wnd.addListener(mxEvent.DESTROY, function()
+		{
+			dockManager.removeWindow(wnd);
+		});
+
 		// Clean up dock state on destroy
 		var prevDestroy = dialog.destroy;
 
@@ -26686,6 +28739,37 @@
 	};
 
 	/**
+	 * The helpers of the keyboard and the history (see isHelperEnabled in
+	 * grapheditor/EditorUi.js) are for Classic, Simple, Sketch and Minimal:
+	 * the theme Fusion has its own (SimpleToast.js, setSimpleDisabledReason
+	 * and focusSimpleDialogStart). The undo toast is on by default in Simple,
+	 * Sketch and Minimal and off in Classic (Editor.isUndoToastOn, undoToast
+	 * in the configuration and in the URL). The small helpers (topBarKeys,
+	 * tabWheel and ellipsisTitles, see EditorUi.smallHelpers) are on where
+	 * the feature smallHelpers is on (Simple; smallHelpers in the
+	 * configuration and in the URL).
+	 */
+	EditorUi.prototype.isHelperEnabled = function(name)
+	{
+		// Fusion has its own helpers that call the same code
+		if (typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern())
+		{
+			return false;
+		}
+		else if (mxUtils.indexOf(EditorUi.smallHelpers, name) >= 0)
+		{
+			return Editor.isFeatureEnabled('smallHelpers');
+		}
+
+		return name != 'undoToast' || Editor.isUndoToastOn();
+	};
+
+	/**
+	 * Names of the helpers of the feature smallHelpers (see isHelperEnabled).
+	 */
+	EditorUi.smallHelpers = ['topBarKeys', 'tabWheel', 'ellipsisTitles'];
+
+	/**
 	 * Overrides image dialog to add image search and Google+.
 	 */
 	EditorUi.prototype.createMenuItem = function(key, img, ignoreState)
@@ -26700,9 +28784,14 @@
 		{
 			if (!ignoreState)
 			{
+				var ui = this;
+
+				// Disabled buttons say why in their tooltip (see getDisabledReason)
 				function updateState()
 				{
-					if (action.isEnabled())
+					var enabled = action.isEnabled();
+
+					if (enabled)
 					{
 						btn.removeAttribute('disabled');
 					}
@@ -26710,11 +28799,23 @@
 					{
 						btn.setAttribute('disabled', 'disabled');
 					}
+
+					ui.updateDisabledReason(btn, key, (btn.hasAttribute('data-tooltip')) ?
+						btn.getAttribute('data-tooltip') : btn.getAttribute('title'), enabled, true);
 				};
 				
 				this.editor.graph.addListener('enabledChanged', updateState);
 				action.addListener('stateChanged', updateState);
 				updateState();
+
+				// The reason can change while the button stays disabled
+				mxEvent.addListener(btn, 'pointerenter', function()
+				{
+					if (!action.isEnabled())
+					{
+						updateState();
+					}
+				});
 			}
 		}
 	   
@@ -27143,6 +29244,38 @@
 					this.showSplash();
 				}
 			}));
+		}
+	};
+
+	/**
+	 * Builds the panels in the place of the Format panel again in the new
+	 * language (languageChanged, see EditorUi.rebuildPanels): the host of the
+	 * right panel of Fusion, whichever it is (rebuildPanelHost in
+	 * SimpleUi.js, so every host follows without code of its own), and
+	 * Arrange my diagram of Classic and Simple (rebuildLayoutPanel in
+	 * LayoutPicker.js). Tidy up and Style my diagram apply their result when
+	 * they are built, so building them again would run them again: they close
+	 * and keep the result, as with Apply (in Fusion the panel shows Format).
+	 */
+	var editorUiRebuildPanels = EditorUi.prototype.rebuildPanels;
+
+	EditorUi.prototype.rebuildPanels = function()
+	{
+		editorUiRebuildPanels.apply(this, arguments);
+
+		if (typeof this.rebuildPanelHost === 'function')
+		{
+			this.rebuildPanelHost();
+		}
+
+		if (this.tidyWindow != null && typeof this.tidyWindow.destroy === 'function')
+		{
+			this.tidyWindow.destroy();
+		}
+
+		if (this.layoutPanel != null && typeof this.rebuildLayoutPanel === 'function')
+		{
+			this.rebuildLayoutPanel();
 		}
 	};
 
@@ -29896,8 +32029,10 @@
 	 */
 	EditorUi.prototype.showPrintDialog = function(title, fn, btnTitle)
 	{
-		this.showDialog(new PrintDialog(this, title, fn,
-			btnTitle).container, 360, null, true, true);
+		var dlg = new PrintDialog(this, title, fn, btnTitle);
+
+		// Print on the Preview template is wider (see createPrintLayout)
+		this.showDialog(dlg.container, (dlg.width != null) ? dlg.width : 360, null, true, true);
 	};
 
 	/**
@@ -30300,6 +32435,8 @@
 						tempGraph.pageFormat = page.viewState.pageFormat;
 						tempGraph.gridSize = Graph.parseGridSize(page.viewState.gridSize);
 						tempGraph.hiddenTags = page.viewState.hiddenTags || [];
+						// The fonts of the file in the page for the head of the output
+						tempGraph.extFonts = page.viewState.extFonts;
 						tempGraph.setMeasureScale(page.viewState.measureScale);
 						tempGraph.setBackgroundGradient(page.viewState.backgroundGradient,
 							page.viewState.backgroundGradientDirection);
@@ -30756,6 +32893,14 @@
 			if ((!Editor.useCanvasForExport && /(\.png)$/i.test(name)) ||
 				/(\.pdf)$/i.test(name))
 			{
+				// Without canvas export a PNG opens as a .drawio file, which
+				// would save the XML over the PNG with the file handle
+				if (/(\.png)$/i.test(name))
+				{
+					fileHandle = null;
+					editable = null;
+				}
+
 				name = name.substring(0, name.length - 4);
 				
 				if (!/(\.drawio)$/i.test(name))
@@ -31014,7 +33159,9 @@
 					window.openFile = null;
 				});
 
-				window.openFile.setData(data, name, temp);
+				// Passes the file handle so that the new window saves to the
+				// file instead of downloading a copy (see App.open)
+				window.openFile.setData(data, name, temp, fileHandle, desc, editable);
 
 				var fallback = mxUtils.bind(this, function()
 				{
@@ -32567,7 +34714,10 @@
 								parent.postMessage(JSON.stringify({event: 'draft',
 									result: 'ignore', message: data}), '*');
 							}) : null);
-						this.showDialog(dlg.container, 640, 480, true, false, mxUtils.bind(this, function(cancel)
+						// The size of the layout of DraftLayout.js where it is shown
+						var size = (typeof this.getDraftLayoutSize === 'function') ?
+							this.getDraftLayoutSize(dlg, 640, 480) : {width: 640, height: 480};
+						this.showDialog(dlg.container, size.width, size.height, true, false, mxUtils.bind(this, function(cancel)
 						{
 							if (cancel)
 							{
@@ -32646,8 +34796,11 @@
 								customTempCallback({}, 0); //ignore error by sending empty templates
 							});
 						}) : null, data.withoutType == 1, null, data.templatesOnly);
+
+						// The Browser template is larger (TemplateBrowser.js)
+						var size = this.getNewDialogSize(dlg, 620, 460);
 	
-						this.showDialog(dlg.container, 620, 460, true, false, mxUtils.bind(this, function(cancel)
+						this.showDialog(dlg.container, size.width, size.height, true, false, mxUtils.bind(this, function(cancel)
 						{
 							if (this.sidebar != null)
 							{
@@ -32839,12 +34992,25 @@
 									if (data.withSvg)
 									{
 										data.withSvg = false;
-										this.getEmbeddedSvg(xml, this.editor.graph, null, true, function(svg)
+
+										// Shows the cells as stored in the file as the image
+										// (showGraphAsStored). The SVG is created in the call.
+										var restoreSvg = this.showGraphAsStored(this.editor.graph);
+
+										try
 										{
-											postDataBack(uri, svg);
-										}, null, null, data.embedImages, this.editor.graph.background,
-										data.scale, data.border, data.shadow, 'auto', null, data.embedFonts,
-										null, (this.currentPage != null) ? this.currentPage.getAlt() : null);
+											this.getEmbeddedSvg(xml, this.editor.graph, null, true, function(svg)
+											{
+												postDataBack(uri, svg);
+											}, null, null, data.embedImages, this.editor.graph.background,
+											data.scale, data.border, data.shadow, 'auto', null, data.embedFonts,
+											null, (this.currentPage != null) ? this.currentPage.getAlt() : null);
+										}
+										finally
+										{
+											restoreSvg();
+										}
+
 										return;
 									}
 
@@ -32930,6 +35096,14 @@
 											graph.model.setRoot(page.root);
 										}
 		
+										// The image goes to the host with the XML of the file, so
+										// it shows the cells as stored there, not as shown or
+										// styled only in this window (showGraphAsStored). The
+										// export renders the graph at once unless it waits for the
+										// outlines of images, so the window is restored after the
+										// call or else after the export.
+										var restoreView = this.showGraphAsStored(graph);
+
 										// Set visible layers based on message setting
 										if (data.layerIds != null)
 										{
@@ -32973,14 +35147,26 @@
 											}
 										}
 
-										this.editor.exportToCanvas(mxUtils.bind(this, function(canvas)
+										try
 										{
-											processUri(canvas.toDataURL('image/png'));
-										}), data.width, null, data.background, mxUtils.bind(this, function()
+											this.editor.exportToCanvas(mxUtils.bind(this, function(canvas)
+											{
+												restoreView();
+												processUri(canvas.toDataURL('image/png'));
+											}), data.width, null, data.background, mxUtils.bind(this, function()
+											{
+												restoreView();
+												processUri(null);
+											}), null, null, data.scale, data.transparent, data.shadow, null,
+												graph, data.border, null, data.grid, theme, data.size);
+										}
+										finally
 										{
-											processUri(null);
-										}), null, null, data.scale, data.transparent, data.shadow, null,
-											graph, data.border, null, data.grid, theme, data.size);
+											if (!graph.hasPendingOutlines())
+											{
+												restoreView();
+											}
+										}
 									});
 
 									// Uses optional XML from incoming message
@@ -33125,12 +35311,24 @@
 												theme = data.theme;
 											}
 
-											// Pages use their own background unless one is given
-											this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, postResult, null, null,
-												data.embedImages, (data.allPages) ? data.background : bg, data.scale,
-												data.border, data.shadow, theme, data.embedCellMetadata, data.embedFonts,
-												data.allPages, (this.currentPage != null) ?
-												this.currentPage.getAlt() : null);
+											// The image goes to the host with the XML of the file, so
+											// it shows the cells as stored there (showGraphAsStored).
+											// The SVG is created in the call.
+											var restoreView = this.showGraphAsStored(this.editor.graph);
+
+											try
+											{
+												// Pages use their own background unless one is given
+												this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, postResult, null, null,
+													data.embedImages, (data.allPages) ? data.background : bg, data.scale,
+													data.border, data.shadow, theme, data.embedCellMetadata, data.embedFonts,
+													data.allPages, (this.currentPage != null) ?
+													this.currentPage.getAlt() : null);
+											}
+											finally
+											{
+												restoreView();
+											}
 										}
 									}
 									else
@@ -33170,9 +35368,20 @@
 												return svgRoot;
 											});
 
-											var svgRoot = (data.allPages && this.pages != null) ?
-												this.getSvgWithViews(getSvg) :
-												getSvg(this.editor.graph, this.currentPage);
+											// Shows the cells as stored in the file, whose XML goes
+											// to the host with the image (showGraphAsStored)
+											var restoreView = this.showGraphAsStored(this.editor.graph);
+
+											try
+											{
+												var svgRoot = (data.allPages && this.pages != null) ?
+													this.getSvgWithViews(getSvg) :
+													getSvg(this.editor.graph, this.currentPage);
+											}
+											finally
+											{
+												restoreView();
+											}
 
 											this.embedFonts(svgRoot, mxUtils.bind(this, function(svgRoot)
 											{
@@ -33808,7 +36017,7 @@
 									});
 								}
 							}
-							else
+							else if (this.pages != null)
 							{
 								embedShadowPages = this.clonePages(this.pages);
 								lastData = getData();
@@ -33816,6 +36025,15 @@
 									message: data, checksum: this.getHashValueForPages(
 									this.pages)}), '*');
 								fireEmbedLoaded('resetDiff', data);
+							}
+							else
+							{
+								// The pages are null if the load failed (see afterModel):
+								// there is no baseline, so the autosave and getDiff send
+								// the XML without a patch and the host gets an error.
+								embedShadowPages = null;
+								parent.postMessage(JSON.stringify({event: 'resetDiff',
+									message: data, error: 'noDiagram'}), '*');
 							}
 						}
 
@@ -33885,11 +36103,13 @@
 
 					lastData = getData();
 
-					// Initialize shadow pages for diff-based sync
-					if (this.embedDiffSync)
-					{
-						embedShadowPages = this.clonePages(this.pages);
-					}
+					// Initialize shadow pages for diff-based sync. The pages are
+					// null if the load failed (eg. setFileData threw for data that
+					// is not a diagram, which doLoad reported) and the autosave
+					// then sends the XML without a patch. The shadow of an earlier
+					// load is cleared, as it can't be diffed with null pages.
+					embedShadowPages = (this.embedDiffSync && this.pages != null) ?
+						this.clonePages(this.pages) : null;
 
 					if (autosave && changeListener == null)
 					{
@@ -34184,6 +36404,35 @@
 	};
 
 	/**
+	 * Moves the title of the host in embeds where setEmbedTitle puts it in the
+	 * current theme after a switch of the theme without a restart (switchTheme):
+	 * the menu bar of Classic (also dark and default, isDefaultTheme) and Atlas,
+	 * else before the buttons of the host in the top bar of Simple and Fusion.
+	 * Else a title of Fusion or Simple stays in the toolbar of Classic, where it
+	 * pushes the buttons of the host out of narrow windows, and a title of
+	 * Classic in its hidden menu bar.
+	 */
+	EditorUi.prototype.updateEmbedTitle = function()
+	{
+		var title = this.embedFilenameSpan;
+
+		if (urlParams['embed'] == '1' && title != null && title.parentNode != null)
+		{
+			if (this.isDefaultTheme(Editor.currentTheme) || Editor.currentTheme == 'atlas')
+			{
+				if (title.parentNode != this.menubarContainer && this.menubarContainer != null)
+				{
+					this.menubarContainer.appendChild(title);
+				}
+			}
+			else if (title.parentNode != this.buttonContainer && this.buttonContainer != null)
+			{
+				this.buttonContainer.insertBefore(title, this.buttonContainer.firstChild);
+			}
+		}
+	};
+
+	/**
 	 * Adds the buttons for embedded mode.
 	 */
 	EditorUi.prototype.addEmbedButtons = function()
@@ -34238,6 +36487,393 @@
 	};
 
 	/**
+	 * Shows the ParseDialog of the given type (the name of its action: mermaid,
+	 * fromText, formatSql or plantUml, see addInsertAction in Menus.js).
+	 */
+	EditorUi.prototype.showParseDialog = function(type)
+	{
+		var dlg = new ParseDialog(this, mxResources.get(type), type);
+		var size = this.layoutParseDialog(dlg, type);
+		this.showDialog(dlg.container, size.width, size.height, true,
+			false, null, null, null, size.minSize, null, size.key);
+		dlg.init();
+	};
+
+	/**
+	 * The names of the actions of the From Text entries of New whose dialog
+	 * showNewFileFromTextDialog can show for a new file.
+	 */
+	EditorUi.newFileFromTextActions = ['fromText', 'mermaid', 'csv', 'formatSql', 'plantUml'];
+
+	/**
+	 * Shows the dialog of the From Text entry of New with the given action
+	 * (see newFileFromTextActions) for a new file while a file is open: the
+	 * new file may open in a new window, which would not show the dialog (the
+	 * action runs in this window after the file is created, see NewDialog).
+	 * The dialog inserts into a blank diagram of its own (emptyDiagramXml),
+	 * never into the open diagram, and fn gets the XML of that diagram once
+	 * the dialog has inserted its cells, so the new file is created with
+	 * them. Nothing else happens if the dialog is cancelled, also while a
+	 * parse still runs, or if the dialog below it (New) is closed. The
+	 * dialog names the given title (of the new file) as what it acts on.
+	 * The second argument of fn shows the dialog again with the text and the
+	 * choices that were inserted (once), so a file that is not created
+	 * (a cancelled question to replace a file, see App.createFile) never
+	 * discards them; input is such a text and choices for the dialog that is
+	 * shown. Returns false if the action has no such dialog.
+	 */
+	EditorUi.prototype.showNewFileFromTextDialog = function(name, fn, title, input)
+	{
+		if (mxUtils.indexOf(EditorUi.newFileFromTextActions, name) < 0 ||
+			typeof this.createSimpleParsePreviewUi !== 'function')
+		{
+			return false;
+		}
+
+		var ui = this;
+		var current = this.editor.graph;
+		var graph = Graph.createOffscreenGraph(current.getStylesheet());
+		var container = graph.container;
+		var model = graph.getModel();
+
+		// The default styles of the theme (see updateDefaultStyles), which
+		// converters apply (see getConvertedDiagramStyles)
+		graph.defaultVertexStyle = mxUtils.clone(current.defaultVertexStyle);
+		graph.defaultEdgeStyle = mxUtils.clone(current.defaultEdgeStyle);
+		graph.vertexFontSize = current.vertexFontSize;
+		graph.edgeFontSize = current.edgeFontSize;
+
+		var empty = this.editor.extractGraphModel(mxUtils.parseXml(
+			this.emptyDiagramXml).documentElement, true);
+
+		if (empty != null)
+		{
+			new mxCodec(empty.ownerDocument).decode(empty, model);
+		}
+
+		document.body.appendChild(container);
+
+		// The dialog once it is shown and the dialog below it (New)
+		var dlg = null;
+		var prev = this.dialog;
+		var changed = false;
+		var cancelled = false;
+		var finished = false;
+		var thread = null;
+
+		// The action of the dialog that is shown (the Language of Fusion
+		// switches it) and its text and choices when it was closed
+		var kind = name;
+		var entered = null;
+
+		// The text of the text area, the values of the lists and the states
+		// of the checkboxes of the given dialog, in the order of the dialog
+		var getInput = function(elt)
+		{
+			var textarea = elt.querySelector('textarea');
+			var selects = elt.getElementsByTagName('select');
+			var boxes = elt.querySelectorAll('input[type="checkbox"]');
+			var values = [];
+			var checked = [];
+
+			for (var i = 0; i < selects.length; i++)
+			{
+				values.push(selects[i].value);
+			}
+
+			for (var i = 0; i < boxes.length; i++)
+			{
+				checked.push(boxes[i].checked);
+			}
+
+			return {text: (textarea != null) ? textarea.value : null,
+				values: values, checked: checked};
+		};
+
+		// The lists first, as a list may put its example in the text area
+		var setInput = function(elt, value)
+		{
+			var selects = elt.getElementsByTagName('select');
+			var boxes = elt.querySelectorAll('input[type="checkbox"]');
+
+			for (var i = 0; i < selects.length && i < value.values.length; i++)
+			{
+				var select = selects[i];
+				var v = value.values[i];
+
+				if (select.value != v && Array.prototype.some.call(select.options,
+					function(option) { return option.value == v; }))
+				{
+					select.value = v;
+					select.dispatchEvent(new Event('change', {bubbles: true}));
+				}
+			}
+
+			for (var i = 0; i < boxes.length && i < value.checked.length; i++)
+			{
+				if (boxes[i].checked != value.checked[i])
+				{
+					boxes[i].checked = value.checked[i];
+					boxes[i].dispatchEvent(new Event('change', {bubbles: true}));
+				}
+			}
+
+			var textarea = elt.querySelector('textarea');
+
+			if (textarea != null && value.text != null)
+			{
+				textarea.value = value.text;
+				textarea.dispatchEvent(new Event('input', {bubbles: true}));
+				textarea.setSelectionRange(0, 0);
+				textarea.scrollTop = 0;
+			}
+		};
+
+		// Acts as this editor for the dialog (see createSimpleParsePreviewUi)
+		// with the dialogs, the spinner and the errors of this editor, in the
+		// look of the dialog of Insert
+		var target = this.createSimpleParsePreviewUi(graph, function(e)
+		{
+			ui.handleError(e);
+		});
+
+		target.simpleParsePreview = false;
+		target.spinner = this.spinner;
+
+		target.showDialog = function()
+		{
+			return ui.showDialog.apply(ui, arguments);
+		};
+
+		// Only the dialog and those above it: importers hide it again when
+		// they are done (doImportCsv), which would close New below it
+		target.hideDialog = function()
+		{
+			if (dlg == null || mxUtils.indexOf(ui.dialogs, dlg) >= 0)
+			{
+				return ui.hideDialog.apply(ui, arguments);
+			}
+		};
+
+		target.handleError = function()
+		{
+			return ui.handleError.apply(ui, arguments);
+		};
+
+		// The dialog of CSV that this editor keeps inserts into the open diagram,
+		// and imports of several pages add them to its pages (importXml)
+		target.importCsvDialog = null;
+		target.pages = null;
+
+		// The dialog names the new file, not the open file or page
+		// (CodeDialogs.getSubtitle, FormTemplate.getPageSubtitle)
+		target.newFileTitle = title;
+
+		// The Language of the dialogs of Mermaid, PlantUML and SQL in Fusion
+		// (addSimpleCodeKinds) shows the dialog of the other language for the
+		// new file as well: showSimpleCodeDialog runs the action of Insert,
+		// whose dialog would insert into the open diagram
+		target.showSimpleCodeDialog = function(next, text)
+		{
+			if (!finished && mxUtils.indexOf(EditorUi.newFileFromTextActions, next) >= 0 &&
+				typeof this.getSimpleCodeKinds === 'function' &&
+				mxUtils.indexOf(this.getSimpleCodeKinds(), next) >= 0)
+			{
+				this.simpleCodeKind = next;
+				var shown = null;
+
+				try
+				{
+					this.showParseDialog(next);
+					shown = ui.dialog;
+				}
+				catch (e)
+				{
+					ui.handleError(e);
+				}
+
+				// The dialog that is shown now (the one before it is closed, so
+				// check cleans up if none was shown). Never the message of an
+				// error, which is shown above New too: the new file would wait
+				// for it to be closed.
+				if (shown != null && shown != prev)
+				{
+					dlg = shown;
+					kind = next;
+
+					if (typeof ui.setSimpleCodeDialogText === 'function')
+					{
+						ui.setSimpleCodeDialogText(text);
+					}
+				}
+			}
+		};
+
+		var changeListener = function()
+		{
+			changed = true;
+			schedule();
+		};
+
+		// A close while a parse still runs is a cancel (Close or Escape while
+		// Mermaid or PlantUML parse, which insert later): the dialogs close
+		// themselves on Insert before they start the spinner or after they
+		// stop it (see ParseDialog and SimpleTextareaDialog)
+		var hideListener = function(sender, evt)
+		{
+			if (dlg != null && evt.getProperty('dialog') == dlg)
+			{
+				if (ui.spinner != null && ui.spinner.active)
+				{
+					cancelled = true;
+				}
+
+				entered = getInput(dlg.container);
+			}
+
+			schedule();
+		};
+
+		var cleanup = function()
+		{
+			finished = true;
+			window.clearTimeout(thread);
+			model.removeListener(changeListener);
+			ui.editor.removeListener(hideListener);
+			graph.destroy();
+
+			if (container.parentNode != null)
+			{
+				container.parentNode.removeChild(container);
+			}
+		};
+
+		// Loads (the layouts of an org chart CSV), layouts that run later and
+		// imports that keep the model in a change while they lay it out (ELK)
+		var busy = function()
+		{
+			return (ui.spinner != null && ui.spinner.active) || model.updateLevel > 0 ||
+				graph.asyncLayoutsScheduled ||
+				(graph.pendingAsyncLayouts != null && graph.pendingAsyncLayouts.length > 0) ||
+				(graph.asyncLayoutsRunning != null && Object.keys(graph.asyncLayoutsRunning).length > 0);
+		};
+
+		var waits = 0;
+
+		// Done once the dialog is closed and nothing is busy: with the cells
+		// that it inserted (the parsers of Mermaid and PlantUML insert right
+		// after they close it), or without a file if it inserted none, if it
+		// was cancelled or if New was closed. The model is never used while
+		// it is busy: after 5 minutes of that it gives up with an error.
+		var check = function()
+		{
+			if (!finished && (dlg == null || mxUtils.indexOf(ui.dialogs, dlg) < 0))
+			{
+				if (prev != null && mxUtils.indexOf(ui.dialogs, prev) < 0)
+				{
+					cancelled = true;
+				}
+
+				if (busy())
+				{
+					if (waits++ < 3000)
+					{
+						window.clearTimeout(thread);
+						thread = window.setTimeout(check, 100);
+					}
+					else
+					{
+						cleanup();
+
+						if (!cancelled)
+						{
+							if (ui.spinner != null)
+							{
+								ui.spinner.stop();
+							}
+
+							ui.handleError({message: mxResources.get('timeout')});
+						}
+					}
+				}
+				else if (changed && !cancelled)
+				{
+					var node = new mxCodec(mxUtils.createXmlDocument()).encode(model);
+
+					// The attributes of the blank diagram (eg. of the configuration)
+					if (empty != null)
+					{
+						for (var i = 0; i < empty.attributes.length; i++)
+						{
+							node.setAttribute(empty.attributes[i].name,
+								empty.attributes[i].value);
+						}
+					}
+
+					var value = entered;
+					var shown = false;
+
+					cleanup();
+					fn(mxUtils.getXml(node), function()
+					{
+						if (!shown)
+						{
+							shown = true;
+							ui.showNewFileFromTextDialog(kind, fn, title, value);
+						}
+					});
+				}
+				else
+				{
+					cleanup();
+				}
+			}
+		};
+
+		var schedule = function()
+		{
+			window.clearTimeout(thread);
+			thread = window.setTimeout(check, 0);
+		};
+
+		model.addListener(mxEvent.CHANGE, changeListener);
+		this.editor.addListener('hideDialog', hideListener);
+
+		try
+		{
+			if (name == 'csv')
+			{
+				target.showImportCsvDialog();
+			}
+			else
+			{
+				target.showParseDialog(name);
+			}
+		}
+		catch (e)
+		{
+			cleanup();
+			this.handleError(e);
+		}
+
+		if (!finished && this.dialog != prev)
+		{
+			dlg = this.dialog;
+
+			if (input != null)
+			{
+				setInput(dlg.container, input);
+			}
+		}
+		else if (!finished)
+		{
+			cleanup();
+		}
+
+		return true;
+	};
+
+	/**
 	 *
 	 */
 	EditorUi.prototype.showImportCsvDialog = function()
@@ -34251,9 +36887,22 @@
 			}), mxResources.get('import'), 'https://www.drawio.com/blog/insert-from-csv');
 		}
 
-		this.showDialog(this.importCsvDialog.container, 640, 520, true, true, null,
-			null, null, new mxRectangle(0, 0, 320, 280));
+		var size = this.layoutImportCsvDialog(this.importCsvDialog);
+		this.showDialog(this.importCsvDialog.container, size.width, size.height, true, true, null,
+			null, null, size.minSize, null, size.key);
 		this.importCsvDialog.init();
+	};
+
+	/**
+	 * Hook to lay out the given SimpleTextareaDialog of Arrange › Insert › CSV
+	 * each time before it is shown (the dialog is kept). Returns the size of
+	 * its content, its smallest size and the key of its size ({width, height,
+	 * minSize, key}, see showDialog). This implementation keeps the layout of
+	 * the dialog (CodeDialogs.js lays it out in Classic and Simple).
+	 */
+	EditorUi.prototype.layoutImportCsvDialog = function(dlg)
+	{
+		return {width: 640, height: 520, minSize: new mxRectangle(0, 0, 320, 280), key: null};
 	};
 		
 	/**
@@ -35212,9 +37861,9 @@
 
 	/**
 	 * Returns the outline of the trees in the given layout container: one
-	 * line per vertex with the plain text of its label, indented by two
-	 * spaces per level, where "" is an empty label. Throws an error if the
-	 * outline is larger than MAX_OUTLINE_SIZE.
+	 * line per vertex with the plain text of its label (see getBoxLabelText),
+	 * indented by two spaces per level, where "" is an empty label. Throws an
+	 * error if the outline is larger than MAX_OUTLINE_SIZE.
 	 */
 	EditorUi.prototype.getOutline = function(container)
 	{
@@ -35232,7 +37881,7 @@
 		while (stack.length > 0)
 		{
 			var node = stack.pop();
-			var label = graph.getPlainLabel(node.cell, null, true);
+			var label = this.getBoxLabelText(node.cell);
 			size += 2 * node.depth + Math.max(2, label.length) + 1;
 
 			if (size > EditorUi.MAX_OUTLINE_SIZE)
@@ -35303,10 +37952,12 @@
 	 * labels of matched vertices are changed, lines without a vertex get a
 	 * copy of a vertex on the same level (a sibling first) or of the given
 	 * defaults {rootStyle, vertexStyle, edgeStyle, vertexSize} with its
-	 * connector, and vertices without a line are removed. The order of the
-	 * lines is the order of the children in the layout, which runs at the end
-	 * and keeps the top left of the contents before the change (or the given
-	 * point if the container is empty). Returns the new vertices.
+	 * connector (for a child of a root with the style of the root, see
+	 * pasteOutlineRootStyle), and vertices without a line are removed. The
+	 * order of the lines is the order of the children in the layout, which
+	 * runs at the end and keeps the top left of the contents before the
+	 * change (or the given point if the container is empty). Returns the new
+	 * vertices.
 	 */
 	EditorUi.prototype.applyOutline = function(container, text, defaults, pt)
 	{
@@ -35331,7 +37982,7 @@
 		for (var i = 0; i < trees.nodes.length; i++)
 		{
 			var node = trees.nodes[i];
-			node.text = EditorUi.getOutlineText(graph.getPlainLabel(node.cell, null, true));
+			node.text = EditorUi.getOutlineText(this.getBoxLabelText(node.cell));
 			node.depth = (node.parent != null) ? node.parent.depth + 1 : 0;
 			levels[node.depth] = levels[node.depth] || node;
 
@@ -35444,7 +38095,9 @@
 			// New vertices (parents before their children) as copies of a
 			// sibling, else of the parent unless it is a root (eg. the central
 			// idea of a mindmap), else of a vertex on the same level, with the
-			// connector of the copied vertex, found once for the siblings
+			// connector of the copied vertex, found once for the siblings.
+			// Without a vertex to copy, a child of a root is the default vertex
+			// with the style of the root (see pasteOutlineRootStyle).
 			var templates = new mxDictionary();
 
 			var getTemplate = function(siblings, depth, parentLine)
@@ -35469,7 +38122,8 @@
 					var edges = (cell != null) ? graph.getIncomingTreeEdges(cell) : [];
 					// Ties belong to the copied connector (see connector-ties.md)
 					result = {cell: cell, edgeStyle: (edges.length > 0) ? mxUtils.setStyle(
-						model.getStyle(edges[0]), 'ties', null) : defaults.edgeStyle};
+						model.getStyle(edges[0]), 'ties', null) : defaults.edgeStyle,
+						root: (cell == null && parentLine != null) ? parentLine.cell : null};
 					templates.put(siblings, result);
 				}
 
@@ -35516,6 +38170,12 @@
 				line.cell = graph.addCell(cell, container);
 				result.push(line.cell);
 
+				// Before the autosize, as the root may have another font
+				if (group.root != null)
+				{
+					this.pasteOutlineRootStyle(group.root, line.cell);
+				}
+
 				if (graph.isAutoSizeCell(line.cell))
 				{
 					graph.updateCellSize(line.cell, true);
@@ -35529,6 +38189,11 @@
 					if (group.edgeStyle == null)
 					{
 						graph.applyNewEdgeStyle(line.cell, [edge]);
+					}
+					else if (group.root != null)
+					{
+						// The connector of a click on an arrow of the root
+						graph.applyNewEdgeStyle(group.root, [edge]);
 					}
 				}
 			}
@@ -35591,6 +38256,59 @@
 	};
 
 	/**
+	 * Cell styles of the shape of a new vertex of an outline that the style of
+	 * its root does not change (see pasteOutlineRootStyle), eg. the rounded
+	 * topics of a mindmap below a square central idea.
+	 */
+	EditorUi.outlineShapeStyles = ['rounded', 'roundedPerimeter', 'arcSize', 'absoluteArcSize'];
+
+	/**
+	 * Gives the given new vertex of an outline (see applyOutline) the style of
+	 * the given root, its parent, like a shape dropped onto a hover arrow of
+	 * the root or picked there (see Graph.styleDroppedConnection in Trees.js):
+	 * the cell styles of the root unless it is transparent (else the vertex
+	 * would be invisible), and its treeFolding, treeMoving and newEdgeStyle
+	 * where the vertex has none. The vertex keeps its shape and size, and the
+	 * corners of its shape (EditorUi.outlineShapeStyles).
+	 */
+	EditorUi.prototype.pasteOutlineRootStyle = function(root, cell)
+	{
+		var graph = this.editor.graph;
+
+		// A root added earlier in the same applyOutline has no state yet
+		var state = graph.view.getState(root);
+		state = (state != null) ? state : graph.view.createState(root);
+
+		if (!graph.isTransparentState(state))
+		{
+			var keys = [];
+
+			for (var i = 0; i < Graph.cellStyles.length; i++)
+			{
+				if (mxUtils.indexOf(EditorUi.outlineShapeStyles, Graph.cellStyles[i]) < 0)
+				{
+					keys.push(Graph.cellStyles[i]);
+				}
+			}
+
+			graph.pasteStyle(graph.copyStyle(root), [cell], keys);
+		}
+
+		var style = graph.getCurrentCellStyle(root);
+		var cellStyle = graph.model.getStyle(cell);
+		var keys = ['treeFolding', 'treeMoving', 'newEdgeStyle'];
+
+		for (var i = 0; i < keys.length; i++)
+		{
+			if (style[keys[i]] != null && (cellStyle == null ||
+				cellStyle.indexOf(keys[i] + '=') < 0))
+			{
+				graph.setCellStyles(keys[i], style[keys[i]], [cell]);
+			}
+		}
+	};
+
+	/**
 	 * Returns the top left of the vertices in the given container that the
 	 * layout places (see BalloonTreeLayout.isVertexIgnored) or null if it has
 	 * none. Hidden vertices, eg. of collapsed shapes, keep their positions.
@@ -35630,17 +38348,96 @@
 	};
 
 	/**
-	 * Returns the value for the given label of the given cell in a box from
-	 * a text: escaped for HTML labels, as text for wrapped labels without
-	 * html=1 (see getPlainLabel).
+	 * Returns true if the label of the given cell in a box from a text is
+	 * HTML (html=1), false for wrapped labels without html=1, which are text
+	 * (see getPlainLabel).
 	 */
-	EditorUi.prototype.getBoxLabelValue = function(cell, label)
+	EditorUi.prototype.isBoxHtmlLabel = function(cell)
 	{
 		var graph = this.editor.graph;
 
-		return Graph.zapGremlins((graph.isHtmlLabel(cell) && mxUtils.getValue(
-			graph.getCurrentCellStyle(cell), 'html', '0') != '0') ?
-			mxUtils.htmlEntities(label, false) : label);
+		return graph.isHtmlLabel(cell) && mxUtils.getValue(
+			graph.getCurrentCellStyle(cell), 'html', '0') != '0';
+	};
+
+	/**
+	 * Returns the given text of a line of an HTML label for the text of a
+	 * box, where <br> is a line break: a <br>, <br/> or <br /> (br in any
+	 * case) that is text of the label is written as &lt;br&gt; (&lt;br/&gt;,
+	 * &lt;br /&gt;), and such an escape that is text of the label gets one
+	 * more amp; (&amp;lt;br&gt;), so unescapeBoxLineBreaks returns every text
+	 * as it was. Other text is unchanged.
+	 */
+	EditorUi.escapeBoxLineBreaks = function(text)
+	{
+		return text.replace(/<([bB][rR] ?\/?)>|&(?:amp;)*lt;[bB][rR] ?\/?&gt;/g, function(match, br)
+		{
+			return (br != null) ? '&lt;' + br + '&gt;' : '&amp;' + match.substring(1);
+		});
+	};
+
+	/**
+	 * Returns the text of a line of an HTML label in the given line of the
+	 * text of a box without its line breaks: &lt;br&gt;, &lt;br/&gt; and
+	 * &lt;br /&gt; (br in any case) are the text <br>, <br/> and <br />, and
+	 * one amp; is removed from such an escape with amp; (see
+	 * escapeBoxLineBreaks). Other text is unchanged.
+	 */
+	EditorUi.unescapeBoxLineBreaks = function(text)
+	{
+		return text.replace(/&((?:amp;)*)lt;([bB][rR] ?\/?)&gt;/g, function(match, amps, br)
+		{
+			return (amps.length > 0) ? '&' + match.substring(5) : '<' + br + '>';
+		});
+	};
+
+	/**
+	 * Returns the given name of the text of a box with <br> for each line
+	 * break (<br>, <br/> and <br /> in any case, see getBoxLabelValue), so
+	 * every spelling is the same name (see parseEdgesText and applyEdgesText).
+	 * Escaped line breaks are text and stay as they are.
+	 */
+	EditorUi.normalizeBoxLineBreaks = function(name)
+	{
+		return name.replace(/<br ?\/?>/gi, '<br>');
+	};
+
+	/**
+	 * Returns the value for the given label of the given cell in a box from
+	 * a text: escaped for HTML labels, where only <br>, <br/> and <br /> (in
+	 * any case) are line breaks and their escapes are text (see
+	 * getBoxLabelText and unescapeBoxLineBreaks), as text for wrapped labels
+	 * without html=1 (see getPlainLabel).
+	 */
+	EditorUi.prototype.getBoxLabelValue = function(cell, label)
+	{
+		if (this.isBoxHtmlLabel(cell))
+		{
+			// Each line is escaped, so the value has no markup but the
+			// line breaks (no attributes)
+			label = ((label != null) ? String(label) : '').split(/<br ?\/?>/i).map(function(line)
+			{
+				return mxUtils.htmlEntities(EditorUi.unescapeBoxLineBreaks(line), false);
+			}).join('<br>');
+		}
+
+		return Graph.zapGremlins(label);
+	};
+
+	/**
+	 * Returns the plain label of the given cell in the text of a box (see
+	 * getPlainLabel): the lines of HTML labels are separated by <br>, which
+	 * getBoxLabelValue turns back into line breaks, and a <br> that is text
+	 * of such a label is escaped (see escapeBoxLineBreaks), the lines of
+	 * other labels are separated by spaces.
+	 */
+	EditorUi.prototype.getBoxLabelText = function(cell)
+	{
+		// The lines of the plain label have no newlines (see getPlainLabel)
+		return (this.isBoxHtmlLabel(cell)) ? this.editor.graph.getPlainLabel(
+			cell, null, true, '\n').split('\n').map(
+			EditorUi.escapeBoxLineBreaks).join('<br>') :
+			this.editor.graph.getPlainLabel(cell, null, true);
 	};
 
 	/**
@@ -36178,8 +38975,9 @@
 	 * the Diagram, Circle and Flow types of From Text, see ParseDialog) as
 	 * {names, key}, where names are the source, the label and the target of
 	 * a connection (a->b or a->label->b) or the name of a shape without
-	 * connections, and key is the text of the names. Empty lines and lines
-	 * that start with ; (comments) are ignored.
+	 * connections with <br> for each line break (see normalizeBoxLineBreaks),
+	 * and key is the text of the names. Empty lines and lines that start
+	 * with ; (comments) are ignored.
 	 */
 	EditorUi.parseEdgesText = function(text)
 	{
@@ -36192,7 +38990,8 @@
 
 			if (line.length > 0 && line.charAt(0) != ';')
 			{
-				var names = EditorUi.parseBoxNames(line, '->');
+				var names = EditorUi.parseBoxNames(line, '->').map(
+					EditorUi.normalizeBoxLineBreaks);
 
 				if (names.length > 1)
 				{
@@ -36230,7 +39029,7 @@
 			if (this.isBoxVertex(child))
 			{
 				result.vertices.push(child);
-				result.names.put(child, graph.getPlainLabel(child, null, true));
+				result.names.put(child, this.getBoxLabelText(child));
 			}
 		}
 
@@ -36243,7 +39042,7 @@
 			if (model.isEdge(child) && model.isVisible(child) &&
 				result.names.get(source) != null && result.names.get(target) != null)
 			{
-				var names = [result.names.get(source), graph.getPlainLabel(child, null, true),
+				var names = [result.names.get(source), this.getBoxLabelText(child),
 					result.names.get(target)];
 				connectors.put(child, {cell: child, source: source, target: target,
 					names: names, key: JSON.stringify(names)});
@@ -36276,7 +39075,8 @@
 	 * Returns the text of the given box with connections: a line for each
 	 * connector between two shapes of the box (a->b or a->label->b) and a
 	 * line for each shape without such connectors in the order of the
-	 * children, with the plain labels in quotes if needed (see quoteBoxName).
+	 * children, with the plain labels (see getBoxLabelText) in quotes if
+	 * needed (see quoteBoxName).
 	 */
 	EditorUi.prototype.getEdgesText = function(container)
 	{
@@ -36307,7 +39107,8 @@
 	 * style of its first shape, connections between the same shapes take the
 	 * label of the line and other connections are new connectors with the
 	 * style of the first connector. The shapes and connectors without a line
-	 * are removed. The layout of the box places the new shapes.
+	 * are removed. The layout of the box places the new shapes. Each spelling
+	 * of a line break in a name is the same name (see normalizeBoxLineBreaks).
 	 */
 	EditorUi.prototype.applyEdgesText = function(container, text, pt)
 	{
@@ -36316,6 +39117,22 @@
 		var old = this.getEdgesItems(container);
 		var lines = EditorUi.parseEdgesText(text);
 		var used = new mxDictionary();
+
+		// The names are compared with <br> for each line break like the
+		// lines, which changes only the labels without html=1 (the text of
+		// HTML labels has <br>, see getBoxLabelText)
+		for (var i = 0; i < old.vertices.length; i++)
+		{
+			old.names.put(old.vertices[i], EditorUi.normalizeBoxLineBreaks(
+				old.names.get(old.vertices[i])));
+		}
+
+		for (var i = 0; i < old.items.length; i++)
+		{
+			old.items[i].names = old.items[i].names.map(EditorUi.normalizeBoxLineBreaks);
+			old.items[i].key = JSON.stringify(old.items[i].names);
+		}
+
 		var vertices = Object.create(null);
 		var free = Object.create(null);
 		var seen = Object.create(null);
@@ -36828,7 +39645,7 @@
 
 			if (this.isBoxVertex(child))
 			{
-				var name = graph.getPlainLabel(child, null, true);
+				var name = this.getBoxLabelText(child);
 				var list = {cell: child, name: name, key: EditorUi.getListKey(name, false), rows: []};
 
 				for (var j = 0; j < model.getChildCount(child); j++)
@@ -36839,7 +39656,7 @@
 					if (model.isVertex(row) && geo != null && !geo.relative)
 					{
 						var divider = graph.getCurrentCellStyle(row)[mxConstants.STYLE_SHAPE] == 'line';
-						name = (divider) ? '' : graph.getPlainLabel(row, null, true);
+						name = (divider) ? '' : this.getBoxLabelText(row);
 						list.rows.push({cell: row, name: name, divider: divider,
 							key: EditorUi.getListKey(name, divider)});
 					}
@@ -37132,7 +39949,18 @@
 					k++;
 				}
 
-				field = value.join('') + text.substring(Math.min(j + 1, n), k).replace(/\s+$/, '');
+				// Text after the quote without the spaces at its end. Scans backwards
+				// as \s+$ takes quadratic time on a long run of spaces that is not
+				// at the end (see mxUtils.rtrim)
+				var start = Math.min(j + 1, n);
+				var end = k;
+
+				while (end > start && /\s/.test(text.charAt(end - 1)))
+				{
+					end--;
+				}
+
+				field = value.join('') + text.substring(start, end);
 				quoted = true;
 				j = k;
 			}
@@ -37288,7 +40116,8 @@
 
 	/**
 	 * Returns the text of the label of the given cell of a table with its
-	 * line breaks (see getBoxLabelValue).
+	 * line breaks as newlines, where a <br> that is text of an HTML label is
+	 * escaped (see getBoxLabelValue and escapeBoxLineBreaks).
 	 */
 	EditorUi.prototype.getTableCellText = function(cell)
 	{
@@ -37301,10 +40130,23 @@
 		{
 			// Inert document: nothing in the label is loaded or run
 			var doc = new DOMParser().parseFromString(label, 'text/html');
-			label = mxUtils.extractTextWithWhitespace(doc.body.childNodes);
+			label = EditorUi.escapeBoxLineBreaks(mxUtils.extractTextWithWhitespace(
+				doc.body.childNodes));
 		}
 
-		return label.replace(/\u00a0/g, ' ').replace(/(\r\n|\r|\n)+$/, '');
+		label = label.replace(/\u00a0/g, ' ');
+		var end = label.length;
+
+		// Removes the line breaks at the end. Scans backwards as a regular
+		// expression for them, eg. (\r\n|\r|\n)+$, tries every way to split
+		// \r\n on line breaks that are not at the end, which takes exponential
+		// time, and [\r\n]+$ takes quadratic time (see mxUtils.rtrim)
+		while (end > 0 && (label.charAt(end - 1) == '\n' || label.charAt(end - 1) == '\r'))
+		{
+			end--;
+		}
+
+		return label.substring(0, end);
 	};
 
 	/**
@@ -37722,6 +40564,15 @@
 		return {rootStyle: def.rootStyle, vertexStyle: def.vertexStyle, vertexSize: def.vertexSize,
 			edgeStyle: (def.edgeStyle != null) ? def.edgeStyle : Menus.layoutContainerEdgeStyle};
 	};
+
+	/**
+	 * Reasons of Edit Layout (getEditableLayoutContainer), Edit Outline
+	 * (getOutlineContainer) and the item of Run Last Layout, which is greyed
+	 * out until a layout ran (see EditorUi.getDisabledReason).
+	 */
+	EditorUi.disabledReasonKeys.editLayout = 'selectLayoutContainer';
+	EditorUi.disabledReasonKeys.editOutline = 'selectOutlineShape';
+	EditorUi.disabledReasonKeys.runLastLayout = 'noLastLayout';
 
 	/**
 	 * Returns the selected cell if it is the only selected cell and a layout
@@ -42080,6 +44931,10 @@
 								color: graph.view.gridColor
 							};
 						}
+
+						// What this window shows differently from the file (the
+						// data is the page with the IDs of its cells)
+						editorUi.addExportViewState(extras);
 						
 						editorUi.saveRequest(name, format,
 							function(newTitle, base64)

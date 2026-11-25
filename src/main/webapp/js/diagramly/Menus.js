@@ -172,17 +172,384 @@
 	};
 
 	/**
-	 * Adds the collaboration items for the current file as one section.
+	 * Adds the collaboration items for the current file as one section. If
+	 * followMe is true, Present to Everyone has the name Follow me, as in
+	 * Share of Simple and Fusion (View of Simple, see addShareMenuItems).
 	 */
-	Menus.prototype.addCollaborationItems = function(menu, parent)
+	Menus.prototype.addCollaborationItems = function(menu, parent, followMe)
 	{
 		var file = this.editorUi.getCurrentFile();
 
 		if (file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
 		{
 			this.addMenuItems(menu, ['-', 'showRemoteCursors', 'shareCursor',
-				'bringEveryoneToMe', 'presentToEveryone'], parent);
+				'bringEveryoneToMe'], parent);
+			this.addMenuItem(menu, 'presentToEveryone', parent, null, null,
+				(followMe) ? mxResources.get('followMe') : null);
 		}
+	};
+
+	/**
+	 * Adds the state of the network to the given menu of Share as a disabled
+	 * item and a separator: offline or the state of saving and realtime (not
+	 * in the standalone app).
+	 */
+	Menus.prototype.addShareNetworkStatus = function(menu, parent)
+	{
+		var ui = this.editorUi;
+
+		if (!ui.isStandaloneApp())
+		{
+			var err = (ui.isOffline(true)) ? mxResources.get('offline') :
+				ui.getNetworkStatus();
+
+			if (err != null)
+			{
+				menu.addItem(err, null, null, parent, null, false);
+				menu.addSeparator(parent);
+			}
+		}
+	};
+
+	/**
+	 * Returns true if Share has Presentation mode: on the own domains of
+	 * draw.io, not in the desktop app and in apps added to the home screen.
+	 */
+	Menus.prototype.isPresentationModeShown = function()
+	{
+		var ui = this.editorUi;
+
+		return !EditorUi.isElectronApp && ui.isOwnGDriveDomain() &&
+			ui.getServiceName() == 'draw.io' && !navigator.standalone;
+	};
+
+	/**
+	 * Returns the entries of Share in Simple and Fusion in their order, in two
+	 * groups (the driver, 13 November 2026): Share, Publish and the export
+	 * entry (export, the look adds its own), then Presentation mode and
+	 * Explore. Both looks add the state of the network before them and the
+	 * accounts after them; Fusion adds captions, hints and Follow me.
+	 */
+	Menus.prototype.getShareMenuGroups = function()
+	{
+		var first = (this.editorUi.isStandaloneApp()) ? [] : ['share'];
+		var present = (this.isPresentationModeShown()) ? ['presentationMode'] : [];
+
+		return [first.concat(['publishLink', 'export']), present.concat(['exploreMode'])];
+	};
+
+	/**
+	 * The captions of the groups of Share (getShareMenuGroups) and the second
+	 * lines of its items by the names of the groups, shared by Share of Fusion
+	 * (addSimpleShareItems in SimpleMenus.js) and Share with the switch
+	 * shareMenu in the other looks (addShareMenuItems). The resources are those
+	 * of Fusion.
+	 */
+	Menus.prototype.shareMenuCaptions = ['share', 'present'];
+
+	Menus.prototype.shareMenuHints = {'share': 'shareInviteHint', 'publishLink': 'publishHint',
+		'lastExport': 'lastExportHint', 'export': 'exportFormatsHint',
+		'presentationMode': 'presentationModeHint', 'exploreMode': 'exploreHint',
+		'presentToEveryone': 'followMeHint', 'bringEveryoneToMe': 'bringEveryoneToMeHint'};
+
+	/**
+	 * The glyphs of the items of Share by the names of the groups: those of
+	 * Share in Fusion (SimpleUi.icons share, globe, exportAgain, download, play,
+	 * explore, eye and cursor: outline on a 24 grid, stroke 1.8, round caps; the test
+	 * share-menu-fusion of test/classic-simple compares them), as Simple and
+	 * Classic have no glyphs for these items. The share glyph is also on Share
+	 * of Simple (updateSimpleShareButton).
+	 */
+	Menus.shareMenuGlyphs = {
+		'share': '<path d="M12 14.5v-11M8.5 7 12 3.5 15.5 7"/><path d="M9 10H7a1.5 1.5 0 0 0-1.5 ' +
+			'1.5V19A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5v-7.5A1.5 1.5 0 0 0 17 10h-2"/>',
+		'publishLink': '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 3.5 5.4 3.5 ' +
+			'8.5s-1 5.9-3.5 8.5c-2.5-2.6-3.5-5.4-3.5-8.5s1-5.9 3.5-8.5z"/>',
+		'export': '<path d="M12 4v11M7 10l5 5 5-5M5 19.5h14"/>',
+		'presentationMode': '<path d="M3.5 12h3M9 12h2M13.5 12h1"/><path d="M16.5 8l4 4-4 4z"/>',
+		'exploreMode': '<circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+		'presentToEveryone': '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 ' +
+			'12z"/><circle cx="12" cy="12" r="3"/>',
+		'bringEveryoneToMe': '<path d="M5 3.5l13 7.2-5.6 1.4-2.6 5.4z"/>'};
+
+	// Export... with the last settings exports again: the circular arrow of
+	// replay (Material Symbols) over the tray of the download of the export
+	// entry, as in Fusion (SimpleUi.icons.exportAgain in SimpleModern.js), so
+	// that no two items of the menu share a glyph
+	Menus.shareMenuGlyphs['lastExport'] = '<path d="M6 9.5a6 6 0 1 0 1.76-4.24"/>' +
+		'<path d="M6 3.5v3.2h3.2M5 19.5h14"/>';
+
+	/**
+	 * Returns the image of the glyph of the given item of Share (shareMenuGlyphs)
+	 * as a data URI, as Fusion draws its glyphs (SimpleUi.createSvgIcon), or null.
+	 */
+	Menus.prototype.getShareMenuGlyph = function(name)
+	{
+		return (Object.prototype.hasOwnProperty.call(Menus.shareMenuGlyphs, name)) ?
+			Editor.createSvgDataUri('<svg xmlns="http://www.w3.org/2000/svg" ' +
+				'viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.8" ' +
+				'stroke-linecap="round" stroke-linejoin="round">' +
+				Menus.shareMenuGlyphs[name] + '</svg>') : null;
+	};
+
+	/**
+	 * Returns a new glyph of the given image (getShareMenuGlyph): a mask in the
+	 * color of the text, so that it follows dark mode, hover and disabled.
+	 */
+	Menus.prototype.createShareMenuGlyph = function(image)
+	{
+		var glyph = document.createElement('span');
+		glyph.className = 'geMenuGlyph';
+		glyph.style.setProperty('--ge-menu-glyph', 'url(\'' + image + '\')');
+		glyph.setAttribute('aria-hidden', 'true');
+
+		return glyph;
+	};
+
+	/**
+	 * Adds the given caption of Share (shareMenuCaptions) to the given menu or
+	 * submenu and returns its row: a heading in capitals that is not an
+	 * item (the keys skip it) and is hidden from screen readers, which hear the
+	 * items with their second lines, as the captions of Fusion.
+	 */
+	Menus.prototype.addShareMenuCaption = function(menu, parent, title)
+	{
+		var owner = parent || menu;
+		var tbody = owner.tbody;
+		var tr = null;
+
+		if (tbody != null)
+		{
+			// A separator that smartSeparators keeps for the next item (after the
+			// state of the network) goes above the caption
+			if (owner.willAddSeparator)
+			{
+				if (owner.containsItems)
+				{
+					menu.addSeparator(parent, true);
+				}
+
+				owner.willAddSeparator = false;
+			}
+
+			tr = document.createElement('tr');
+			tr.className = 'geMenuCaption';
+			tr.setAttribute('aria-hidden', 'true');
+			var td = document.createElement('td');
+			td.setAttribute('colspan', '3');
+			td.setAttribute('role', 'presentation');
+			mxUtils.write(td, title);
+			tr.appendChild(td);
+			tbody.appendChild(tr);
+		}
+
+		return tr;
+	};
+
+	/**
+	 * Adds the glyph and the second line of the given item of Share by the name
+	 * of its group (shareMenuGlyphs, shareMenuHints), the second line of
+	 * hintName if it is given (Export... that opens the last export keeps the
+	 * download). A checked item (Follow me while presenting) shows its
+	 * checkmark in place of the glyph.
+	 */
+	Menus.prototype.addShareMenuDecoration = function(item, name, hintName)
+	{
+		if (item != null && item.cells != null && item.cells.length > 1)
+		{
+			var image = this.getShareMenuGlyph(name);
+			var hint = this.shareMenuHints[(hintName != null) ? hintName : name];
+
+			if (image != null && item.getAttribute('aria-checked') != 'true')
+			{
+				item.cells[0].appendChild(this.createShareMenuGlyph(image));
+			}
+
+			if (hint != null)
+			{
+				// A span: the menu styles the divs of its labels as checkmarks
+				var span = document.createElement('span');
+				span.className = 'geMenuHint';
+				mxUtils.write(span, mxResources.get(hint));
+				item.cells[1].appendChild(span);
+				item.setAttribute('data-menu-hint', '1');
+			}
+		}
+
+		return item;
+	};
+
+	/**
+	 * Adds the items of Share in Simple (getShareMenuGroups) in the look of the
+	 * menu of Fusion (the driver, 17 November 2026: "soll auch so aussehen wie
+	 * im Fusion Theme"): the captions Share and Present instead of separators,
+	 * each item with its glyph and what it does as a second line, in the frame
+	 * of the context menu of the theme (a dropdown has the background, border,
+	 * radius and shadow of the context menu of its theme; bars and toolbars
+	 * keep theirs), so grey in Simple, as its context menu, and white in
+	 * Fusion. A caption is only added to a group with items. The export entry
+	 * is Export... alone in every theme while the Export dialog is on, as in
+	 * Share of Fusion (Embed ▸ stays in File and …), which opens the format
+	 * and the settings of the last export while that is on (the driver, 17
+	 * November 2026: no Export as next to it), else Export as ▸, also while
+	 * Export... is hidden (isSimpleExportItemShown); nothing if Export as ▸
+	 * is hidden (hideMenuItems). Files with collaborators in
+	 * realtime (Google Drive and OneDrive, see isFollowMeShown) also have
+	 * Follow me (the action
+	 * presentToEveryone with the name of Fusion; the driver, 17 November 2026:
+	 * "in Google Mode vielleicht noch Follow Me. Bei Share") and Bring
+	 * Everyone to Me after Explore, as in Share of Fusion (the driver, 16
+	 * November 2026); View of Simple keeps them and also names the action
+	 * Follow me while this menu is on (addCollaborationItems), Classic, Sketch
+	 * and Minimal keep Present to Everyone in their menus.
+	 */
+	Menus.prototype.addShareMenuItems = function(menu, parent)
+	{
+		var ui = this.editorUi;
+		var groups = this.getShareMenuGroups();
+
+		this.addShareNetworkStatus(menu, parent);
+
+		// Captions at the top of a submenu (Share ▸ of the overflow menu) need
+		// the submenu
+		if (parent != null && parent.div == null && menu.createSubmenu != null)
+		{
+			menu.createSubmenu(parent);
+		}
+
+		var div = (parent != null) ? parent.div : menu.div;
+
+		if (div != null && div.classList != null)
+		{
+			div.classList.add('geShareMenu');
+		}
+
+		for (var i = 0; i < groups.length; i++)
+		{
+			var caption = this.addShareMenuCaption(menu, parent,
+				mxResources.get(this.shareMenuCaptions[i]));
+			var count = 0;
+
+			for (var j = 0; j < groups[i].length; j++)
+			{
+				var name = groups[i][j];
+				var hintName = name;
+				var item = null;
+
+				if (name == 'export')
+				{
+					if (this.hiddenMenuItems == null || !this.hiddenMenuItems['exportAs'])
+					{
+						// Export as ▸ while Export... is hidden (hideMenuItems) or
+						// the Export dialog is off (isSimpleExportItemShown)
+						if (typeof this.isSimpleExportItemShown === 'function' &&
+							this.isSimpleExportItemShown())
+						{
+							item = this.addMenuItem(menu, 'simpleExport', parent);
+
+							// The second line says what it opens: the last export
+							// while that is on (lastExportHint); the glyph stays the
+							// download of the export entry, as in Fusion
+							if (ui.isLastExportEnabled())
+							{
+								hintName = 'lastExport';
+							}
+						}
+						else
+						{
+							item = this.addSubmenu('exportAs', menu, parent);
+						}
+					}
+				}
+				else if (name == 'publishLink')
+				{
+					item = this.addMenuItem(menu, name, parent, null, null,
+						mxResources.get('publish') + '...');
+				}
+				else
+				{
+					item = this.addMenuItem(menu, name, parent);
+				}
+
+				if (item != null)
+				{
+					this.addShareMenuDecoration(item, name, hintName);
+					count++;
+				}
+			}
+
+			if (count == 0 && caption != null && caption.parentNode != null)
+			{
+				caption.parentNode.removeChild(caption);
+			}
+		}
+
+		if (this.isFollowMeShown())
+		{
+			this.addShareMenuDecoration(this.addMenuItem(menu, 'presentToEveryone', parent,
+				null, null, mxResources.get('followMe')), 'presentToEveryone');
+			this.addShareMenuDecoration(this.addMenuItem(menu, 'bringEveryoneToMe', parent),
+				'bringEveryoneToMe');
+		}
+
+		if (ui.getMainUser() != null)
+		{
+			menu.addSeparator(parent);
+			this.addMenuItems(menu, ['accounts'], parent);
+		}
+	};
+
+	/**
+	 * Returns true if Follow me (Present to Everyone) and Bring Everyone to
+	 * Me are offered: files with collaborators in realtime (see
+	 * addCollaborationItems), which are the files of Google Drive and
+	 * OneDrive (isRealtimeSupported) while realtime is on for them.
+	 */
+	Menus.prototype.isFollowMeShown = function()
+	{
+		var file = this.editorUi.getCurrentFile();
+
+		return file != null && file.isRealtimeEnabled() && file.isRealtimeSupported();
+	};
+
+	/**
+	 * Returns true if Share of the File menu is the menu share as a submenu
+	 * (Share ▸, see addShareMenuItems) instead of Share...: in the themes
+	 * without a Share button, Sketch, Minimal and Atlas, while the switch
+	 * shareMenu is on (the driver, 22 November 2026: "für share button auch in
+	 * min das neue menu"). Classic opens the menu with its Share button
+	 * (App.updateButtonContainer) and keeps Share... in File, Simple has
+	 * Share in its top bar.
+	 */
+	Menus.prototype.isShareSubmenu = function()
+	{
+		var theme = Editor.getFeatureTheme();
+
+		return (theme == 'sketch' || theme == 'min' || theme == 'atlas') &&
+			Editor.isFeatureEnabled('shareMenu');
+	};
+
+	/**
+	 * Adds Share to the File menu and returns its item: Share ▸ where
+	 * isShareSubmenu is true, else Share... (the action share).
+	 */
+	Menus.prototype.addFileShareEntry = function(menu, parent)
+	{
+		return (this.isShareSubmenu()) ? this.addSubmenu('share', menu, parent) :
+			this.addMenuItem(menu, 'share', parent);
+	};
+
+	/**
+	 * Returns true if all menus of this look name Present to Everyone Follow
+	 * me: Simple while Share has the menu of Fusion (the switch shareMenu),
+	 * whose View then takes the name of Share (addShareMenuItems). Classic
+	 * keeps Present to Everyone in its other menus, and Fusion has its own
+	 * names (Actions.simpleLabels in SimpleMenus.js). The omnibox shows the
+	 * same name (diagramly/Omnibox.js).
+	 */
+	Menus.prototype.isFollowMeName = function()
+	{
+		return Editor.getFeatureTheme() == 'simple' && Editor.isFeatureEnabled('shareMenu');
 	};
 
 	/**
@@ -251,15 +618,174 @@
 	};
 
 	/**
-	 * Returns true if the layout picker and the layout form (Choose Layout,
-	 * Layout Settings, see LayoutPicker.js) are in the menus: in the new look
-	 * of the Simple theme (the theme modern) and with the developer switch
-	 * layoutPicker=1, so that the app is as before without them.
+	 * Returns true if the layout picker and the layout form (Arrange my
+	 * diagram, Layout Settings, see LayoutPicker.js) are in the menus: the
+	 * feature layoutPicker of Editor.featureDefaults, on in Classic, the
+	 * Simple theme, Sketch, Minimal and Atlas in the web app and in Fusion,
+	 * where layoutPicker=1 or 0 in the URL and enableLayoutPicker in the
+	 * configuration change the default of the themes but Fusion.
 	 */
 	Menus.prototype.isLayoutPickerEnabled = function()
 	{
-		return (typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern()) ||
-			urlParams['layoutPicker'] == '1';
+		return this.editorUi.isFeatureEnabled('layoutPicker');
+	};
+
+	/**
+	 * Adds the first section of the layout menu of Classic and Simple (Arrange
+	 * › Layout ▸ of the menu bar, Layout ▸ of the Insert menu of Simple):
+	 * Arrange my diagram... where the layout picker is on, Style my diagram...
+	 * where the theme offers it (the switch tidy, see TidyActions.js), and a
+	 * separator after them (driver, 16 November 2026: "auf die ersten zwei
+	 * Plätze im Layout-Menü [...] mit einem Section-Trenner"). Fusion has its
+	 * own items in … › Arrange (SimpleMenus.js) and does not call it.
+	 */
+	Menus.prototype.addLayoutStartItems = function(menu, parent)
+	{
+		var items = 0;
+
+		if (this.isLayoutPickerEnabled() &&
+			this.addMenuItem(menu, 'chooseLayout', parent) != null)
+		{
+			items++;
+		}
+
+		// The action has no dots in its name, as it is also a button
+		if (this.editorUi.actions.get('styleMyDiagram') != null &&
+			this.addMenuItem(menu, 'styleMyDiagram', parent, null, null,
+				mxResources.get('styleMyDiagram') + '...') != null)
+		{
+			items++;
+		}
+
+		if (items > 0)
+		{
+			menu.addSeparator(parent);
+		}
+	};
+
+	/**
+	 * Returns true if ☰ (the menu diagram) has the ties of Arrange: in the
+	 * themes that hide the menu bar with Arrange, Simple, Sketch and Minimal
+	 * (the driver, 19 November 2026). Classic and Atlas show Arrange, Fusion
+	 * has … › Arrange.
+	 */
+	Menus.prototype.isDiagramTieItems = function()
+	{
+		return Editor.currentTheme == 'sketch' || Editor.currentTheme == 'min' ||
+			Editor.isSimpleClassic(); // SIMPLE-CLASSIC
+	};
+
+	/**
+	 * Adds the ties of Arrange to ☰ (see isDiagramTieItems) in a group of
+	 * their own, in the order of Arrange: Draw a tie, also where it is
+	 * disabled, and Bundle, Unbundle and Select tied connectors only where
+	 * they apply to the selection, as in the context menu.
+	 */
+	Menus.prototype.addDiagramTieItems = function(menu, parent)
+	{
+		var keys = ['bundle', 'drawTie', 'unbundle', 'selectTiedEdges'];
+		var items = ['-'];
+
+		for (var i = 0; i < keys.length; i++)
+		{
+			var action = this.editorUi.actions.get(keys[i]);
+
+			if (action != null && (keys[i] == 'drawTie' || action.isEnabled()))
+			{
+				items.push(keys[i]);
+			}
+		}
+
+		if (items.length > 1)
+		{
+			this.addMenuItems(menu, items, parent);
+		}
+	};
+
+	/**
+	 * Adds Sort Pages, Page Groups and Delete All, the end of the menu Pages
+	 * and of ⋯ of the page overview (see addPageOverviewItems).
+	 */
+	Menus.prototype.addPagesMenuActions = function(menu, parent)
+	{
+		var editorUi = this.editorUi;
+		this.addMenuItems(menu, ['sortPages', 'pageGroups'], parent);
+
+		// The toast with Undo says how many pages were deleted (UndoToast.js)
+		menu.addItem(mxResources.get('deleteAll'), null, mxUtils.bind(this, function()
+		{
+			editorUi.runWithPageToast(function()
+			{
+				editorUi.removeAllPages();
+				editorUi.actions.get('resetView').funct();
+			});
+		}), parent, null, editorUi.editor.graph.isEnabled());
+	};
+
+	/**
+	 * Adds the items of the menu Pages other than the pages to ⋯ in the head of
+	 * the page overview (PageOverview.js): Insert Page, Insert Page Group,
+	 * Sort Pages, Page Groups and Delete All.
+	 */
+	Menus.prototype.addPageOverviewItems = function(menu, parent)
+	{
+		this.addMenuItems(menu, (this.editorUi.isPageGroupsEnabled()) ?
+			['insertPage', 'insertPageGroup', '-'] : ['insertPage', '-'], parent);
+		this.addPagesMenuActions(menu, parent);
+	};
+
+	/**
+	 * Returns the items of the apps at the end of Embed ▸ in every theme:
+	 * Google Docs, Sheets and Slides in one section, then Microsoft Office
+	 * and Notion in another (the driver, 22 November 2026). Their actions
+	 * exist online and outside embed mode only (addEmbedAppActions), so the
+	 * menu leaves both sections out elsewhere; the smart separators of the
+	 * menus add a separator only before a next item, so hidden items leave
+	 * no double or trailing separator.
+	 */
+	Menus.prototype.getEmbedAppItems = function()
+	{
+		return ['-', 'googleDocs', 'googleSheets', 'googleSlides',
+			'-', 'microsoftOffice', 'embedNotion'];
+	};
+
+	/**
+	 * Adds the actions of Embed ▸ that open the page of an app, online and
+	 * outside embed mode only: Microsoft Office and the add-ons of draw.io
+	 * for Google Docs, Sheets and Slides, whose links open their listings in
+	 * the Google Workspace Marketplace. Embed ▸ had the Google items until
+	 * July 2025 (88406f7a11, "Removes unused embedding options"): since
+	 * August 2024 Google had blocked new authorizations of the scope of the
+	 * add-ons then, drive.readonly (jgraph/drawio#4589). Since September 2026
+	 * they need drive.file only (etc/google-addons, jgraph/drawio#5559). The
+	 * links of then, docsaddon.draw.io and the others, answer 404.
+	 */
+	Menus.prototype.addEmbedAppActions = function()
+	{
+		var ui = this.editorUi;
+
+		if (!ui.isOffline() && urlParams['embed'] != '1')
+		{
+			ui.actions.addAction('microsoftOffice...', function()
+			{
+				ui.openLink('https://office.draw.io');
+			});
+
+			ui.actions.addAction('googleDocs...', function()
+			{
+				ui.openLink('https://docsaddon.diagrams.net');
+			});
+
+			ui.actions.addAction('googleSheets...', function()
+			{
+				ui.openLink('https://sheetsaddon.diagrams.net');
+			});
+
+			ui.actions.addAction('googleSlides...', function()
+			{
+				ui.openLink('https://slidesaddon.diagrams.net');
+			});
+		}
 	};
 
 	var menusInit = Menus.prototype.init;
@@ -335,7 +861,10 @@
 				'chooseFileSystemEntries' in window), null, null, null, null, null, null,
 				null, null, null, null, null, null, null, null, null, null, null, true);
 
-			editorUi.showDialog(dlg.container, (compact) ? 350 : 620, (compact) ? 70 : 460, true, true, function(cancel)
+			// The Browser template is larger (TemplateBrowser.js)
+			var size = editorUi.getNewDialogSize(dlg, (compact) ? 350 : 620, (compact) ? 70 : 460);
+
+			editorUi.showDialog(dlg.container, size.width, size.height, true, true, function(cancel)
 			{
 				if (editorUi.sidebar != null)
 				{
@@ -528,7 +1057,7 @@
 		rulerAction.setEnabled(Editor.canvasSupported && document.documentMode != 9);
 		rulerAction.setToggleAction(true);
 		rulerAction.setSelectedCallback(function() { return editorUi.isRulerVisible(); });
-		
+
         var fullscreenAction = editorUi.actions.addAction('fullscreen', function()
 		{
 			if (urlParams['embedInline'] == '1')
@@ -610,10 +1139,18 @@
 			editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
 			{
 				var dlg = new FilePropertiesDialog(editorUi, url);
-				editorUi.showDialog(dlg.container, 360, null, true, true);
+				editorUi.showDialog(dlg.container, (typeof editorUi.getPropertiesDialogWidth === 'function') ?
+					editorUi.getPropertiesDialogWidth(dlg, 360) : 360, null, true, true);
 				dlg.init();
 			});
 		}).isEnabled = isGraphEnabled;
+
+		// The lock of a locked file in the status (EditorUi.createLockedStatus),
+		// invisible as it is in no menu (omnibox, search of the shapes)
+		editorUi.actions.put('unlockFile', new Action(mxResources.get('unlock'), function()
+		{
+			editorUi.confirmUnlockFile();
+		}, null, null, null, false));
 
 		var readOnlyAction = editorUi.actions.addAction('readOnly', function()
 		{
@@ -630,6 +1167,12 @@
 		{
 			var freehandAction = editorUi.actions.put('insertFreehand', new Action('freehand', function()
 			{
+				// Drawing and the Hand tool are one tool at a time
+				if (editorUi.isPanMode())
+				{
+					editorUi.setPanMode(false);
+				}
+
 				if (graph.isEnabled())
 				{
 					if (editorUi.freehandWindow == null)
@@ -677,7 +1220,24 @@
 				return editorUi.freehandWindow != null && editorUi.freehandWindow.window.isVisible();
 			});
 		}
-		
+
+		// Draws one tie across any connectors (see EditorUi.startTieTool): the
+		// gesture of Alt+Shift+drag without the keys, also on touch, in every
+		// theme (the Bundle popover of the inline toolbar and the context menu
+		// on touch; Fusion since batch 33, the others since 19 November 2026)
+		var drawTieAction = editorUi.actions.addAction('drawTie', function()
+		{
+			editorUi.startTieTool();
+		});
+
+		// The current isEnabled of the graph, as startTieTool checks it
+		// (read-only and locked files replace it after isGraphEnabled was bound)
+		drawTieAction.isEnabled = function()
+		{
+			return typeof TieTool !== 'undefined' && Action.prototype.isEnabled.apply(this, arguments) &&
+				graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent());
+		};
+
 		editorUi.actions.put('exportXml', new Action('formatXml' + '...', function()
 		{
 			var div = document.createElement('div');
@@ -921,8 +1481,10 @@
 				if (state != null && state.shape != null && state.shape.stencil != null)
 				{
 			    	var dlg = new EditShapeDialog(editorUi, cell, mxResources.get('editShape'));
-					editorUi.showDialog(dlg.container, 640, 480, true, false,
-						null, null, null, new mxRectangle(0, 0, 300, 200));
+
+					// The dialog has its size (EditShapeDialog.install)
+					editorUi.showDialog(dlg.container, dlg.width, dlg.height, true, false,
+						null, null, null, dlg.minSize);
 					dlg.init();
 				}
 			}
@@ -940,7 +1502,8 @@
 				{
 					editorUi.spinner.stop();
 					var dlg = new RevisionDialog(editorUi, revs, restoreFn);
-					editorUi.showDialog(dlg.container, 640, 480, true, true);
+					var size = RevisionDialog.getSize(dlg, 640, 480);
+					editorUi.showDialog(dlg.container, size.width, size.height, true, true);
 					dlg.init();
 				}), mxUtils.bind(this, function(err)
 				{
@@ -1321,12 +1884,14 @@
 			}
 			else if (editorUi.isRemoteExportEnabled() && (!mxClient.IS_IOS || !navigator.standalone))
 			{
+				// The grid and the DPI of PNG on the server (see showRemoteExportDialog)
 				editorUi.showRemoteExportDialog(mxResources.get('export'), null, mxUtils.bind(this,
-					function(ignoreSelection, editable, transparent, scale, border)
+					function(ignoreSelection, editable, transparent, scale, border, grid, dpi)
 				{
 					editorUi.downloadFile((editable && format == 'png') ? 'xmlpng' : format,
-						null, null, ignoreSelection, null, null, transparent, scale, border);
-				}), false, true);
+						null, null, ignoreSelection, null, null, transparent, scale, border, grid,
+						null, null, null, null, null, null, null, null, (format == 'png') ? dpi : null);
+				}), false, true, format);
 			}
 		};
 		
@@ -1421,9 +1986,17 @@
 
 		editorUi.actions.addAction('keyboardShortcuts...', function()
 		{
+			// The sheet of the actions in the Classic skin where the feature
+			// shortcutsDialog is on (Simple, ShortcutsSheet.js; Fusion shows
+			// its skin, SimpleHelp.js), else shortcuts.svg as before
+			if (typeof editorUi.isShortcutsSheetEnabled === 'function' &&
+				editorUi.isShortcutsSheetEnabled())
+			{
+				editorUi.showShortcutsSheet(ShortcutsSheet.skins.classic);
+			}
 			// Desktop app cannot open local files in a window, so the bundled
 			// shortcuts.svg is shown in a dialog which also works offline
-			if (EditorUi.isElectronApp)
+			else if (EditorUi.isElectronApp)
 			{
 				// Height and width of shortcuts.svg
 				var ratio = 1165 / 1427;
@@ -1474,8 +2047,12 @@
 			if (editorUi.editor.graph.isEnabled())
 			{
 				var dlg = new StyleRulesDialog(editorUi);
-				editorUi.showDialog(dlg.container, 760, 440, true, true, null, null, null,
-					new mxRectangle(0, 0, 560, 300), null, 'styleRules');
+				// The Classic skin of the Rules template has its own size (RulesLayout.js)
+				var size = (typeof editorUi.getStyleRulesDialogSize === 'function') ?
+					editorUi.getStyleRulesDialogSize(dlg) : {width: 760, height: 440,
+					minSize: new mxRectangle(0, 0, 560, 300)};
+				editorUi.showDialog(dlg.container, size.width, size.height, true, true, null, null, null,
+					size.minSize, null, 'styleRules');
 				dlg.init();
 			}
 		});
@@ -1951,13 +2528,26 @@
 			return editorUi.menus.isLayoutPickerEnabled() && editorUi.editor.graph.isEnabled();
 		};
 
-		editorUi.actions.addAction('chooseLayout...', function()
+		var chooseLayoutAction = editorUi.actions.addAction('chooseLayout...', function()
 		{
 			if (isLayoutPickerEnabled())
 			{
 				editorUi.showLayoutPicker();
 			}
-		}).isEnabled = isLayoutPickerEnabled;
+		});
+
+		chooseLayoutAction.isEnabled = isLayoutPickerEnabled;
+
+		// Named Arrange my diagram where the layout picker is on, like the
+		// panel (Simple and Classic UI) and the dialog (Classic on phones,
+		// Sketch and Minimal, see showLayoutPicker) that it shows; the label
+		// keeps the old name, so its words still find the action in the omnibox
+		chooseLayoutAction.getTitle = function()
+		{
+			return (editorUi.menus.isLayoutPickerEnabled()) ?
+				mxResources.get('arrangeMyDiagram') + '...' :
+				Action.prototype.getTitle.apply(this, arguments);
+		};
 
 		editorUi.actions.addAction('layoutSettings...', function()
 		{
@@ -2040,24 +2630,52 @@
 			var picker = menus.isLayoutPickerEnabled();
 			var simple = Editor.currentTheme == 'simple' && picker;
 
-			// Choose Layout first, so every menu with this submenu can apply a
-			// layout (… › Arrange of Simple Modern has them above Layout ▸,
-			// see SimpleMenus.js)
-			if (simple && !menus.simpleArrangeLayout)
+			if (typeof Editor.isSimpleModern === 'function' && Editor.isSimpleModern())
 			{
-				menus.addMenuItems(menu, ['chooseLayout', 'layoutSettings', '-'], parent);
+				// Fusion: Choose Layout first, so every menu with this submenu
+				// can apply a layout (… › Arrange has them above Layout ▸, see
+				// SimpleMenus.js)
+				if (simple && !menus.simpleArrangeLayout)
+				{
+					menus.addMenuItems(menu, ['chooseLayout', 'layoutSettings', '-'], parent);
+				}
+			}
+			else
+			{
+				// Classic and Simple keep their layouts and tools below
+				// Arrange my diagram and Style my diagram, a section of its own
+				// at the top (driver, 13 and 16 November 2026)
+				menus.addLayoutStartItems(menu, parent);
+
+				// Layout Settings is More options... of the panel of Classic (a
+				// button of its dialog on phones), an item of the menu next to
+				// the panel of Simple
+				if (simple)
+				{
+					menus.addMenuItems(menu, ['layoutSettings'], parent);
+				}
 			}
 
 			// Grayed out until a layout has run in this session; see the
 			// runLastLayout action for the replay semantics.
 			var action = editorUi.actions.get('runLastLayout');
 
+			var lastEnabled = isGraphEnabled() && editorUi.lastLayoutSpec != null;
+
 			var item = menu.addItem(mxResources.get('runLastLayout'), null, function()
 			{
 				action.funct();
-			}, parent, null, isGraphEnabled() && editorUi.lastLayoutSpec != null);
+			}, parent, null, lastEnabled);
 
 			menus.addShortcut(item, action);
+
+			// Says why it is disabled (see EditorUi.getDisabledReason)
+			if (!lastEnabled && item != null)
+			{
+				editorUi.updateDisabledReason(item, 'runLastLayout',
+					item.getAttribute('title'), false, true);
+			}
+
 			menus.addMenuItems(menu, ['editLayout', 'editOutline'], parent);
 			menu.addSeparator(parent);
 
@@ -2211,13 +2829,6 @@
 			{
 				menu.addSeparator(parent);
 				editorUi.menus.addMenuItem(menu, 'runLayout', parent, null, null, mxResources.get('custom') + '...');
-
-				// The layout picker and the layout form after the items of the
-				// Classic UI, which stay where they are
-				if (picker)
-				{
-					menus.addMenuItems(menu, ['-', 'chooseLayout', 'layoutSettings'], parent);
-				}
 			}
 		};
 		
@@ -3167,15 +3778,21 @@
 		
 		editorUi.actions.put('shapes', new Action('moreShapes' + '...', function(evt)
 		{
+			// The Browser template of Simple takes the size of New, limited to
+			// the window (MoreShapesDialog.getSize)
 			if (mxClient.IS_CHROMEAPP || !editorUi.isOffline())
 			{
-				editorUi.showDialog(new MoreShapesDialog(editorUi, true).container, 680, (isLocalStorage) ?
-						((mxClient.IS_IOS) ? 500 : 480) : 460, true, true);
+				var dlg = new MoreShapesDialog(editorUi, true);
+				var size = MoreShapesDialog.getSize(dlg, 680, (isLocalStorage) ?
+					((mxClient.IS_IOS) ? 500 : 480) : 460);
+				editorUi.showDialog(dlg.container, size.width, size.height, true, true);
 			}
 			else
 			{
-				editorUi.showDialog(new MoreShapesDialog(editorUi, false).container, 360, (isLocalStorage) ?
-						((mxClient.IS_IOS) ? 300 : 280) : 260, true, true);
+				var dlg = new MoreShapesDialog(editorUi, false);
+				var size = MoreShapesDialog.getSize(dlg, 360, (isLocalStorage) ?
+					((mxClient.IS_IOS) ? 300 : 280) : 260);
+				editorUi.showDialog(dlg.container, size.width, size.height, true, true);
 			}
 		}));
 
@@ -3188,12 +3805,15 @@
 				cell.vertex = true;
 				
 				var dlg = new EditShapeDialog(editorUi, cell, mxResources.get('editShape'));
-				editorUi.showDialog(dlg.container, 640, 480, true, false,
-					null, null, null, new mxRectangle(0, 0, 300, 200),
-					null, 'createShape');
+
+				// The dialog has its size (EditShapeDialog.install)
+				editorUi.showDialog(dlg.container, dlg.width, dlg.height, true, false,
+					null, null, null, dlg.minSize, null, 'createShape');
 				dlg.init();
 			}
 		})).isEnabled = isGraphEnabled;
+
+		this.addEmbedAppActions();
 
 		if (!editorUi.isOffline())
 		{
@@ -3252,11 +3872,6 @@
 							}, null, true);
 					});
 				}));
-
-				editorUi.actions.addAction('microsoftOffice...', function()
-				{
-					editorUi.openLink('https://office.draw.io');
-				});
 			}
 
 			editorUi.actions.put('embedHtml', new Action('html' + '...', function()
@@ -3460,6 +4075,29 @@
 		action.setSelectedCallback(function() { return editorUi.sidebar != null &&
 			editorUi.sidebar.isEntryVisible('search'); });
 
+		// The library of the shapes of the page in the sidebar (UsedShapes.js),
+		// disabled in themes without it (Fusion has its own), also in the omnibox
+		if (editorUi.setUsedShapesOn != null)
+		{
+			action = editorUi.actions.addAction('inThisDiagram', function()
+			{
+				if (editorUi.sidebar != null && editorUi.isUsedShapesEnabled())
+				{
+					editorUi.setUsedShapesOn(!editorUi.sidebar.isEntryVisible(EditorUi.usedShapesId));
+				}
+			});
+
+			action.isEnabled = function()
+			{
+				return Action.prototype.isEnabled.apply(this, arguments) &&
+					editorUi.isUsedShapesEnabled();
+			};
+
+			action.setToggleAction(true);
+			action.setSelectedCallback(function() { return editorUi.sidebar != null &&
+				editorUi.sidebar.isEntryVisible(EditorUi.usedShapesId); });
+		}
+
 		editorUi.actions.get('clearDefaultStyle').funct = function(exit)
 		{
 			if (graph.isEnabled())
@@ -3617,7 +4255,10 @@
 			if (editorUi.vsdxExportEnabled() &&
 				(typeof(VsdxExport) !== 'undefined' || !editorUi.isOffline()))
 			{
-				this.addMenuItems(menu, ['exportVsdx'], parent);
+				// The trigger makes VSDX of one page, which has no dialog, open
+				// the Export dialog with VSDX while it is on, like the other
+				// formats (see installExportDialogActions in PreviewDialog.js)
+				this.addMenuItems(menu, ['exportVsdx'], parent, 'exportAs');
 			}
 
 			var exportItems = ['-', 'exportHtml', 'exportXml'];
@@ -3631,15 +4272,10 @@
 
 			this.addMenuItems(menu, exportItems, parent);
 
-			if (!editorUi.isOffline())
-			{
-				menu.addSeparator(parent);
-				this.addMenuItem(menu, 'export', parent).firstChild.nextSibling.innerHTML = mxResources.get('advanced') + '...';
-			}
-
 			if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
 				Editor.currentTheme == 'min' && !editorUi.isOffline())
 			{
+				menu.addSeparator(parent);
 				this.addMenuItems(menu, ['publishLink'], parent);
 			}
 
@@ -3887,34 +4523,51 @@
 
 			if (Editor.currentTheme == 'simple')
 			{
-				// Elements are hidden with the following widths:
+				// The toolbar hides these buttons at these widths plus the
+				// width of the buttons of embeds and of the bell of new
+				// notifications (not insert), the zoom, pages and insert
+				// later where the label of File needs more room
+				// (getSimpleFileShift), share plus the icon of File and its
+				// shift (see getSimpleToolbarOffset in SimpleClassic.js)
 				// ViewZoom: <750
-				// Insert edge: <680
-				// Insert text: <660
-				// Comments: <560
-				// Insert Table: <500
-				// Pages: <480
-				// Insert Shapes: <440
-				// Insert Freehand: <390
-				// Share: <360
-				// Insert: <320
+				// Pages: <480 (only without the tabs of the pages, which
+				// have its menu, see isSimplePagesButtonVisible)
+				// Share: <=360
+				// Insert: <=320
+				var eo = 0;
+				var off = 0;
+				var po = 0;
+				var io = 0;
+				var ts = 0;
 
-				if (iw < 750)
+				if (typeof editorUi.getSimpleToolbarOffset === 'function')
+				{
+					var fo = editorUi.getSimpleFileExtraWidth();
+					eo = editorUi.getSimpleToolbarOffset(false);
+					off = editorUi.getSimpleToolbarOffset(true);
+					po = editorUi.getSimpleFileShift('pages', fo);
+					io = editorUi.getSimpleFileShift('insert', fo);
+					ts = editorUi.getSimpleFileShift('tools', fo);
+				}
+
+				if (iw < 750 + eo + ts)
 				{
 					this.addSubmenu('viewZoom', menu, parent, mxResources.get('zoom'));
 				}
 
-				if (iw < 460 && editorUi.isPageMenuVisible())
+				if (iw < 480 + eo + po && editorUi.isPageMenuVisible() &&
+					(typeof editorUi.isSimplePagesButtonVisible !== 'function' ||
+					editorUi.isSimplePagesButtonVisible()))
 				{
 					this.addSubmenu('pages', menu, parent);
 				}
 
-				if (iw < 320)
+				if (iw <= 320 + io)
 				{
 					this.addSubmenu('insert', menu, parent);
 				}
 
-				if (iw < 360  && urlParams['embed'] != '1' &&
+				if (iw <= 360 + off && urlParams['embed'] != '1' &&
 					editorUi.getServiceName() == 'draw.io')
 				{
 					this.addSubmenu('share', menu, parent);
@@ -4008,8 +4661,8 @@
 					if (key == 'simple')
 					{
 						// The theme Fusion (formerly Simple Modern, see FusionTheme.js),
-						// listed as Beta on app.diagrams.net (Editor.fusionThemeOffered),
-						// with test=1 and in its sessions
+						// listed as Beta on app.diagrams.net and preprod.diagrams.net
+						// (Editor.fusionThemeOffered), with test=1 and in its sessions
 						if (typeof Editor.isModernThemeListed === 'function' &&
 							Editor.isModernThemeListed(theme))
 						{
@@ -4058,33 +4711,38 @@
 				{
 					var filename = (file.getTitle() != null) ? file.getTitle() : this.editorUi.defaultFilename;
 					
-					var dlg = new FilenameDialog(this.editorUi, filename, mxResources.get('rename'), mxUtils.bind(this, function(title)
+					// Marks the prompt as Rename of the file, so it says what it renames
+					// and where the file is saved (EditorUi.withRenameFile in MessageTemplate.js)
+					var dlg = editorUi.withRenameFile(file, mxUtils.bind(this, function()
 					{
-						if (title != null && title.length > 0 && file != null && title != file.getTitle() &&
-							this.editorUi.spinner.spin(document.body, mxResources.get('renaming')))
+						return new FilenameDialog(this.editorUi, filename, mxResources.get('rename'), mxUtils.bind(this, function(title)
 						{
-							// Delete old file, save new file in dropbox if autosize is enabled
-							file.rename(title, mxUtils.bind(this, function(resp)
+							if (title != null && title.length > 0 && file != null && title != file.getTitle() &&
+								this.editorUi.spinner.spin(document.body, mxResources.get('renaming')))
 							{
-								this.editorUi.spinner.stop();
-							}),
-							mxUtils.bind(this, function(resp)
-							{
-								this.editorUi.handleError(resp, (resp != null) ? mxResources.get('errorRenamingFile') : null);
-							}));
-						}
-					}), (file.constructor == DriveFile || file.constructor == StorageFile) ?
-						mxResources.get('diagramName') : null, function(name)
-					{
-						if (name != null && name.length > 0)
+								// Delete old file, save new file in dropbox if autosize is enabled
+								file.rename(title, mxUtils.bind(this, function(resp)
+								{
+									this.editorUi.spinner.stop();
+								}),
+								mxUtils.bind(this, function(resp)
+								{
+									this.editorUi.handleError(resp, (resp != null) ? mxResources.get('errorRenamingFile') : null);
+								}));
+							}
+						}), (file.constructor == DriveFile || file.constructor == StorageFile) ?
+							mxResources.get('diagramName') : null, function(name)
 						{
-							return true;
-						}
+							if (name != null && name.length > 0)
+							{
+								return true;
+							}
 						
-						editorUi.showError(mxResources.get('error'), mxResources.get('invalidName'), mxResources.get('ok'));
+							editorUi.showError(mxResources.get('error'), mxResources.get('invalidName'), mxResources.get('ok'));
 						
-						return false;
-					}, null, FilenameDialog.filenameHelpLink, null, null, editorUi.editor.fileExtensions);
+							return false;
+						}, null, FilenameDialog.filenameHelpLink, null, null, editorUi.editor.fileExtensions);
+					}));
 					this.editorUi.showDialog(dlg.container, 340, 100, true, true);
 					dlg.init();
 				}
@@ -4528,16 +5186,6 @@
 			// Duration of the zoom transitions of the buttons
 			var zoomDuration = (ForceExplorer.isReducedMotion()) ? 0 : 300;
 
-			// Returns the point in model units for the given client coordinates
-			var getModelPoint = function(x, y)
-			{
-				var view = graph.view;
-				var pt = mxUtils.convertPoint(lightbox, x, y);
-
-				return new mxPoint(pt.x / view.scale - view.translate.x,
-					pt.y / view.scale - view.translate.y);
-			};
-
 			// Applies the given change of the view at once and transitions from
 			// the previous view with an ease-out (see Graph.transitionViewState)
 			var animateViewChange = function(change)
@@ -4825,147 +5473,6 @@
 				}
 			};
 
-			// Laser pointer: a red dot instead of the mouse cursor over the diagram,
-			// which the collaborators that follow a presenter see as well (see
-			// EditorUi.getSharedLaser)
-			var createLaserDot = function()
-			{
-				var dot = document.createElement('div');
-				dot.style.cssText = 'position:absolute;z-index:1001;width:12px;height:12px;' +
-					'margin:-6px 0 0 -6px;border-radius:50%;pointer-events:none;display:none;' +
-					'background:radial-gradient(circle, #ffd6d6 0%, #ff2020 45%, #e00000 100%);' +
-					'box-shadow:0 0 8px 3px rgba(255, 0, 0, 0.55)';
-				frame.appendChild(dot);
-
-				return dot;
-			};
-
-			var laserOn = false;
-			var laserDot = createLaserDot();
-			var laserClient = null;
-			var laserPoint = null;
-			var remoteDot = createLaserDot();
-			var remotePoint = null;
-			var remoteThread = null;
-			var lightboxCursor = null;
-
-			// Moves the laser pointer to the client point, which is a new point
-			// of the diagram after scrolling and zooming
-			var updateLaser = function()
-			{
-				var pt = (laserOn && laserClient != null) ?
-					getModelPoint(laserClient.x, laserClient.y) : null;
-
-				if (pt != null)
-				{
-					laserDot.style.left = laserClient.x + 'px';
-					laserDot.style.top = laserClient.y + 'px';
-					laserDot.style.display = '';
-				}
-				else
-				{
-					laserDot.style.display = 'none';
-				}
-
-				if ((pt == null) != (laserPoint == null) || (pt != null &&
-					(pt.x != laserPoint.x || pt.y != laserPoint.y)))
-				{
-					laserPoint = pt;
-					editorUi.laserChanged();
-				}
-			};
-
-			var updateRemoteLaser = function()
-			{
-				if (remotePoint != null && loaded && !closing)
-				{
-					var view = graph.view;
-					var s = view.scale;
-					var r = lightbox.getBoundingClientRect();
-					remoteDot.style.left = (r.left + (remotePoint.x + view.translate.x) *
-						s - lightbox.scrollLeft) + 'px';
-					remoteDot.style.top = (r.top + (remotePoint.y + view.translate.y) *
-						s - lightbox.scrollTop) + 'px';
-					remoteDot.style.display = '';
-				}
-				else
-				{
-					remoteDot.style.display = 'none';
-				}
-			};
-
-			var updateLasers = function()
-			{
-				updateLaser();
-				updateRemoteLaser();
-			};
-
-			mxEvent.addListener(lightbox, 'scroll', updateLasers);
-			graph.view.addListener(mxEvent.SCALE, updateLasers);
-			graph.view.addListener(mxEvent.TRANSLATE, updateLasers);
-			graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, updateLasers);
-
-			lightbox.addEventListener('pointermove', function(evt)
-			{
-				if (laserOn)
-				{
-					// Link handling sets the cursor of the container
-					if (lightbox.style.cursor != 'none')
-					{
-						lightbox.style.cursor = 'none';
-					}
-
-					laserClient = new mxPoint(evt.clientX, evt.clientY);
-					updateLaser();
-				}
-			});
-
-			lightbox.addEventListener('pointerleave', function()
-			{
-				laserClient = null;
-				updateLaser();
-			});
-
-			// Cells have no cursor while the laser pointer is on
-			var graphGetCursorForCell = graph.getCursorForCell;
-
-			graph.getCursorForCell = function(cell)
-			{
-				return (laserOn) ? 'none' : graphGetCursorForCell.apply(this, arguments);
-			};
-
-			var laserIcon = document.createElement('div');
-			laserIcon.style.cssText = 'width:10px;height:10px;border-radius:50%;' +
-				'background-color:#ff2020;box-shadow:0 0 4px 1px rgba(255, 0, 0, 0.5)';
-
-			var laserButton = addButton(topRight, laserIcon,
-				mxResources.get('laserPointer'), function()
-			{
-				laserOn = !laserOn;
-				laserButton.setAttribute('aria-pressed', (laserOn) ? 'true' : 'false');
-				laserButton.style.backgroundColor = (laserOn) ?
-					'rgba(255, 32, 32, 0.25)' : 'rgba(127, 127, 127, 0.12)';
-
-				if (laserOn)
-				{
-					lightboxCursor = lightbox.style.cursor;
-					lightbox.style.cursor = 'none';
-				}
-				else
-				{
-					lightbox.style.cursor = lightboxCursor;
-				}
-
-				graph.view.states.visit(function(key, state)
-				{
-					state.setCursor(graph.getCursorForCell(state.cell));
-				});
-
-				updateLaser();
-			});
-
-			laserButton.setAttribute('aria-pressed', 'false');
-
 			// Explores the current cell, shown if a cell has connections. Hidden
 			// for the classic Explore view (forceExplore is false), which opens
 			// behind the presentation.
@@ -5126,33 +5633,6 @@
 				}
 			};
 
-			// The point of the laser pointer in model units or null
-			presentation.getLaser = function()
-			{
-				return laserPoint;
-			};
-
-			// Shows the laser pointer of a presenter at the given point in model
-			// units, which comes from a collaborator, or hides it. It is hidden
-			// without updates, which the presenter sends at least every 2 s.
-			presentation.setRemoteLaser = function(pt)
-			{
-				remotePoint = pt;
-				window.clearTimeout(remoteThread);
-				remoteThread = null;
-
-				if (pt != null)
-				{
-					remoteThread = window.setTimeout(function()
-					{
-						remotePoint = null;
-						updateRemoteLaser();
-					}, 3000);
-				}
-
-				updateRemoteLaser();
-			};
-
 			presentation.close = function()
 			{
 				ui.destroy();
@@ -5177,9 +5657,6 @@
 					}
 
 					ForceExplorer.fireChange();
-					window.clearTimeout(remoteThread);
-					laserOn = false;
-					updateLaser();
 					mxEvent.removeListener(document.documentElement, 'keydown', keydownHandler);
 					graph.removeMouseListener(clickListener);
 					stopScroll();
@@ -5340,7 +5817,7 @@
 				this.addMenuItems(menu, ['embedIframe'], parent);
 			}
 			
-			this.addMenuItems(menu, ['-', 'microsoftOffice', '-', 'embedNotion'], parent);
+			this.addMenuItems(menu, this.getEmbedAppItems(), parent);
 		})));
 
 		var addInsertAction = function(method)
@@ -5349,10 +5826,7 @@
 
 			editorUi.actions.put(method, new Action(title + '...', function(evt)
 			{
-				var dlg = new ParseDialog(editorUi, title, method);
-				editorUi.showDialog(dlg.container, 640, 420, true,
-					false, null, null, null, new mxRectangle(0, 0, 440, 280));
-				dlg.init();
+				editorUi.showParseDialog(method);
 			})).isEnabled = isGraphEnabled;
 		};
 
@@ -5716,8 +6190,10 @@
 				if (uiTheme == 'min' || Editor.currentTheme == 'simple')
 				{
 					// The layout picker instead of the names of the layouts
-					// in the layout menu
-					if (Editor.currentTheme == 'simple' && this.isLayoutPickerEnabled())
+					// in the layout menu; Simple has Arrange my diagram only
+					// as the first item of Layout ▸ (see addLayoutStartItems)
+					if (typeof Editor.isSimpleModern === 'function' &&
+						Editor.isSimpleModern() && this.isLayoutPickerEnabled())
 					{
 						this.addMenuItems(menu, ['chooseLayout'], parent);
 					}
@@ -6306,7 +6782,17 @@
 					editorUi.menus.addMenuItems(menu, ['comments'], parent);
 				}
 
-				editorUi.menus.addMenuItems(menu, ['textOutline', 'animation', '-', 'outline', 'search'], parent);
+				editorUi.menus.addMenuItems(menu, ['textOutline', 'animation'], parent);
+
+				// Action shows the actions of the link of the selection
+				// (addSimpleActionPanelAction in SimpleWindows.js), which
+				// writes links as Edit Link
+				if (editorUi.isSimpleMenuItemVisible('editLink'))
+				{
+					editorUi.menus.addMenuItems(menu, ['actionPanel'], parent);
+				}
+
+				editorUi.menus.addMenuItems(menu, ['-', 'outline', 'search'], parent);
 
 				if (isLocalStorage || mxClient.IS_CHROMEAPP)
 				{
@@ -6349,6 +6835,11 @@
 						editorUi.menus.addLinkToItem(item, 'https://www.drawio.com/doc/faq/scratchpad');
 					}
 				}
+
+				if (editorUi.isUsedShapesEnabled != null && editorUi.isUsedShapesEnabled())
+				{
+					editorUi.menus.addMenuItems(menu, ['inThisDiagram'], parent);
+				}
 				
 				editorUi.menus.addMenuItems(menu, ['-', 'findReplace',
 					'layers', 'tags', 'outline', 'textOutline'], parent);
@@ -6358,9 +6849,30 @@
 				{
 					editorUi.menus.addMenuItems(menu, ['comments'], parent);
 				}
-				
-				this.addCollaborationItems(menu, parent);
-				this.addMenuItems(menu, ['-', 'readOnly', 'fullscreen'], parent);
+
+				// Follow me as in Share (addShareMenuItems) while Share has the
+				// menu of Fusion
+				this.addCollaborationItems(menu, parent, this.isFollowMeName());
+
+				// The Hand tool replaces Read-only, which stays in the lock icon of
+				// the status, for locked files and in Classic. It is here only
+				// while the top bar has no Hand button (windows narrower than
+				// simpleHandToolMinWidth; the driver, 22 November 2026), checked
+				// as the menu opens.
+				var items = ['-'];
+
+				if (!editorUi.isHandToolEnabled())
+				{
+					items.push('readOnly');
+				}
+				else if (editorUi.isSimpleHandButtonShown == null ||
+					!editorUi.isSimpleHandButtonShown())
+				{
+					items.push('handTool');
+				}
+
+				items.push('fullscreen');
+				this.addMenuItems(menu, items, parent);
 			}
 			else
 			{
@@ -6378,6 +6890,11 @@
 					{
 						this.addLinkToItem(item, 'https://www.drawio.com/doc/faq/scratchpad');
 					}
+				}
+
+				if (editorUi.isUsedShapesEnabled != null && editorUi.isUsedShapesEnabled())
+				{
+					this.addMenuItems(menu, ['inThisDiagram'], parent);
 				}
 				
 				this.addMenuItems(menu, ['toggleShapes', '-', 'pageView', 'pageScale']);
@@ -6426,7 +6943,7 @@
 
 			if (page != null)
 			{
-				this.addMenuItems(menu, ['renamePage', 'removePage'], parent);
+				this.addMenuItems(menu, ['renamePage'], parent);
 
 				if (editorUi.pages.length > 1)
 				{
@@ -6450,6 +6967,9 @@
 						}), parent);
 					}
 				}
+
+				// Last and apart, as in the menu of the page tab
+				editorUi.addRemovePageMenuItem(menu, parent);
 			}
 		})));
 
@@ -6523,13 +7043,7 @@
 				if (!editorUi.editor.graph.isLightboxView())
 				{
 					menu.addSeparator(parent);
-					this.addMenuItems(menu, ['sortPages', 'pageGroups'], parent);
-
-					menu.addItem(mxResources.get('deleteAll'), null, mxUtils.bind(this, function()
-					{
-						editorUi.removeAllPages();
-						editorUi.actions.get('resetView').funct();
-					}), parent, null, editorUi.editor.graph.isEnabled());
+					this.addPagesMenuActions(menu, parent);
 				}
 			}
 		})));
@@ -6677,6 +7191,24 @@
 					editorUi.menus.addMenuItem(menu, 'organizationAdmin', parent);
 				}
 
+				// All settings... as the last item of Simple (the Settings dialog
+				// of SettingsLayouts.js, which shows this menu without it): where
+				// Menus.addMenu shows this menu it adds the item after the items
+				// that plugins add, see allSettingsPlace
+				if (!this.allSettingsMenu && editorUi.isAllSettingsShown != null &&
+					editorUi.isAllSettingsShown())
+				{
+					if (this.allSettingsPlace != null)
+					{
+						this.allSettingsPlace.count = menu.itemCount;
+						this.allSettingsPlace.separator = (parent || menu).willAddSeparator == true;
+					}
+					else
+					{
+						editorUi.menus.addMenuItem(menu, 'allSettings', parent);
+					}
+				}
+
 				// Adds trailing separator in case new plugin entries are added
 				menu.addSeparator(parent);
 			}
@@ -6819,35 +7351,40 @@
 
 		this.put('share', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			if (!editorUi.isStandaloneApp())
+			// Simple has the order of Fusion: Share, Publish and Export, then
+			// Presentation mode and Explore (the driver, 13 November 2026; the
+			// switch shareMenu of Editor.featureDefaults), and so do the Share
+			// button of Classic and Share ▸ of the File menu of Sketch, Minimal
+			// and Atlas (22 November 2026, isShareSubmenu). Fusion adds its own
+			// items (addSimpleShareItems) and keeps these where it has no menu
+			// of its own (embeds)
+			if (Editor.isFeatureEnabled('shareMenu') && Editor.getFeatureTheme() != 'fusion')
 			{
-				var err = (editorUi.isOffline(true)) ?
-					mxResources.get('offline') :
-					editorUi.getNetworkStatus();
+				this.addShareMenuItems(menu, parent);
+			}
+			else
+			{
+				this.addShareNetworkStatus(menu, parent);
 
-				if (err != null)
+				if (!editorUi.isStandaloneApp())
 				{
-					menu.addItem(err, null, null, parent, null, false);
-					menu.addSeparator(parent);
+					editorUi.menus.addMenuItems(menu, ['share'], parent);
 				}
 
-				editorUi.menus.addMenuItems(menu, ['share'], parent);
-			}
+				this.addMenuItem(menu, 'publishLink', parent, null,
+					null, mxResources.get('publish') + '...');
 
-			this.addMenuItem(menu, 'publishLink', parent, null,
-				null, mxResources.get('publish') + '...');
+				if (this.isPresentationModeShown())
+				{
+					this.addMenuItem(menu, 'presentationMode', parent);
+				}
 
-			if (!EditorUi.isElectronApp && editorUi.isOwnGDriveDomain() &&
-				editorUi.getServiceName() == 'draw.io' && !navigator.standalone)
-			{
-				this.addMenuItem(menu, 'presentationMode', parent);
-			}
+				this.addMenuItem(menu, 'exploreMode', parent);
 
-			this.addMenuItem(menu, 'exploreMode', parent);
-
-			if (editorUi.getMainUser() != null)
-			{
-				this.addMenuItems(menu, ['accounts'], parent);
+				if (editorUi.getMainUser() != null)
+				{
+					this.addMenuItems(menu, ['accounts'], parent);
+				}
 			}
 		})));
 
@@ -6925,8 +7462,16 @@
 				}
 			}
 			
-			editorUi.menus.addSubmenu('exportAs', menu, parent);
-			
+			// Simple has one export entry in File and … (addSimpleExportEntry)
+			if (typeof editorUi.addSimpleExportEntry === 'function' && Editor.isSimpleClassic()) // SIMPLE-CLASSIC
+			{
+				editorUi.addSimpleExportEntry(menu, parent);
+			}
+			else
+			{
+				editorUi.menus.addExportEntry(menu, parent);
+			}
+
 			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp || editorUi.getServiceName() == 'atlassian')
 			{
 				editorUi.menus.addMenuItems(menu, ['import'], parent);
@@ -6934,6 +7479,12 @@
 			else if (urlParams['noFileMenu'] != '1')
 			{
 				editorUi.menus.addSubmenu('importFrom', menu, parent);
+			}
+
+			// The ties of Arrange after Import where the menu bar is hidden
+			if (editorUi.menus.isDiagramTieItems())
+			{
+				editorUi.menus.addDiagramTieItems(menu, parent);
 			}
 	
 			if (Editor.currentTheme != 'simple' && Editor.currentTheme != 'min')
@@ -7065,8 +7616,13 @@
 			if (urlParams['embed'] == '1')
 			{
 				this.addSubmenu('importFrom', menu, parent);
-				this.addSubmenu('exportAs', menu, parent);
-				this.addSubmenu('embed', menu, parent);
+				this.addExportEntry(menu, parent);
+
+				// Export... may be followed by Embed ▸ (addExportEntry)
+				if (this.exportEmbedItem == null)
+				{
+					this.addSubmenu('embed', menu, parent);
+				}
 
 				if (urlParams['libraries'] == '1')
 				{
@@ -7148,7 +7704,7 @@
 						file.constructor == GitHubFile ||
 						file.constructor == OneDriveFile))
 					{
-						editorUi.menus.addMenuItems(menu, ['share'], parent);
+						this.addFileShareEntry(menu, parent);
 					}
 
 					if ((Editor.currentTheme == 'sketch' || Editor.currentTheme == 'min') &&
@@ -7210,6 +7766,19 @@
 				
 				menu.addSeparator(parent);
 
+				// The File button of Simple also has import, export, page setup
+				// and print in the groups of Classic's File (the driver, 13
+				// November 2026), not File ▸ of the … menu, where they follow
+				var simpleFileButton = parent == null && typeof editorUi.addSimpleExportEntry === 'function' &&
+					Editor.isSimpleClassic(); // SIMPLE-CLASSIC
+
+				if (simpleFileButton)
+				{
+					this.addSubmenu('importFrom', menu, parent);
+					editorUi.addSimpleExportEntry(menu, parent);
+					menu.addSeparator(parent);
+				}
+
 				if (file != null && file.isRevisionHistorySupported())
 				{
 					editorUi.menus.addMenuItems(menu, ['revisionHistory'], parent);
@@ -7220,9 +7789,29 @@
 					this.addMenuItems(menu, ['properties'], parent);
 				}
 
+				if (simpleFileButton)
+				{
+					this.addMenuItems(menu, ['-', 'pageSetup'], parent);
+
+					// Cannot use print in standalone mode on iOS as we cannot open new windows
+					if (!mxClient.IS_IOS || !navigator.standalone)
+					{
+						this.addMenuItems(menu, ['print'], parent);
+					}
+				}
+
 				if (Editor.currentTheme == 'simple')
 				{
 					editorUi.menus.addMenuItems(menu, ['-', 'autosave'], parent);
+				}
+
+				// The File button of Simple ends with Close where the … menu has
+				// it (the driver, 17 November 2026); File ▸ of …, which Close
+				// follows there, does not repeat it
+				if (simpleFileButton && urlParams['embed'] != '1' && file != null &&
+					typeof AtlasFile == 'undefined') // Exclude Atlasian plugin
+				{
+					this.addMenuItems(menu, ['-', 'close'], parent);
 				}
 			}
 			else
@@ -7236,7 +7825,8 @@
 						this.addMenuItems(menu, ['exportOptionsDisabled'], parent);
 					}
 					
-					this.addMenuItems(menu, ['save', '-', 'share'], parent);
+					this.addMenuItems(menu, ['save', '-'], parent);
+					this.addFileShareEntry(menu, parent);
 					
 					var item = this.addMenuItem(menu, 'synchronize', parent);
 					
@@ -7290,7 +7880,8 @@
 						editorUi.getServiceName() == 'draw.io' &&
 						!editorUi.isOfflineApp() && file != null)
 					{
-						this.addMenuItems(menu, ['share', '-'], parent);
+						this.addFileShareEntry(menu, parent);
+						menu.addSeparator(parent);
 					}
 					
 					if (file != null && file.isRenamable())
@@ -7323,7 +7914,7 @@
 				
 				menu.addSeparator(parent);
 				this.addSubmenu('importFrom', menu, parent);
-				this.addSubmenu('exportAs', menu, parent);
+				this.addExportEntry(menu, parent);
 
 				if (!editorUi.isOffline())
 				{
